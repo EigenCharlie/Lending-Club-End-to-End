@@ -36,8 +36,8 @@ models/*.joblib
 models/conformal_calibrators/*.pkl
 
 # DVC
-/data/raw/*.csv.dvc
-*.dvc.lock
+# NOTE: Do not ignore DVC metadata (.dvc files / dvc.lock),
+# they are the reproducibility pointers that must be committed.
 
 # MLflow
 mlruns/

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 import mlflow
@@ -9,20 +10,28 @@ from loguru import logger
 
 
 def init_dagshub(
-    repo_owner: str = "YOUR_USER",
-    repo_name: str = "Lending-Club-End-to-End",
+    repo_owner: str | None = None,
+    repo_name: str | None = None,
+    enable_dvc: bool = False,
 ) -> None:
-    """Initialize DagsHub MLflow tracking."""
+    """Initialize DagsHub MLflow tracking using args or environment variables."""
     import dagshub
 
-    dagshub.init(repo_owner=repo_owner, repo_name=repo_name, mlflow=True)
-    logger.info(f"DagsHub initialized: {repo_owner}/{repo_name}")
+    owner = repo_owner or os.getenv("DAGSHUB_USER", "YOUR_USER")
+    repo = repo_name or os.getenv("DAGSHUB_REPO", "Lending-Club-End-to-End")
+    token = os.getenv("DAGSHUB_USER_TOKEN") or os.getenv("DAGSHUB_TOKEN")
+    if token and not os.getenv("DAGSHUB_USER_TOKEN"):
+        os.environ["DAGSHUB_USER_TOKEN"] = token
+
+    dagshub.init(repo_owner=owner, repo_name=repo, mlflow=True, dvc=enable_dvc)
+    logger.info(f"DagsHub initialized: {owner}/{repo} (tracking_uri={mlflow.get_tracking_uri()})")
 
 
 def log_experiment(
     run_name: str,
     params: dict[str, Any],
     metrics: dict[str, float],
+    experiment_name: str | None = None,
     model: Any = None,
     model_name: str = "model",
     artifacts: dict[str, str] | None = None,
@@ -33,6 +42,9 @@ def log_experiment(
     Returns:
         Run ID string.
     """
+    if experiment_name:
+        mlflow.set_experiment(experiment_name)
+
     with mlflow.start_run(run_name=run_name) as run:
         mlflow.log_params(params)
         mlflow.log_metrics(metrics)

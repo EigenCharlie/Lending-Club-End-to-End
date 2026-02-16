@@ -113,6 +113,13 @@ bash scripts/configure_integrations.sh
 
 Integration guide: `docs/INTEGRATIONS_SETUP.md`
 
+MLflow backfill for full thesis experiment suite:
+
+```bash
+set -a && source .env && set +a
+uv run python scripts/log_mlflow_experiment_suite.py
+```
+
 ## Optional Services
 
 ```bash

@@ -83,7 +83,7 @@ echo "Configuring DVC DagsHub remote..."
 DAGSHUB_DVC_URL="https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.dvc"
 uv run dvc remote add -f dagshub "$DAGSHUB_DVC_URL"
 uv run dvc remote modify --local dagshub auth basic
-uv run dvc remote modify --local dagshub user "$DAGSHUB_USER_TOKEN"
+uv run dvc remote modify --local dagshub user "$DAGSHUB_USER"
 uv run dvc remote modify --local dagshub password "$DAGSHUB_USER_TOKEN"
 
 echo "Syncing DagsHub/MLflow env vars in .env (without overwriting existing file)..."

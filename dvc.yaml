@@ -1,0 +1,122 @@
+stages:
+  make_dataset:
+    cmd: uv run python -c "from src.data.make_dataset import main; main()"
+    deps:
+    - data/raw/Loan_status_2007-2020Q3.csv
+    - src/data/make_dataset.py
+    outs:
+    - data/interim/lending_club_cleaned.parquet
+  prepare_dataset:
+    cmd: uv run python -c "from src.data.prepare_dataset import main; main()"
+    deps:
+    - data/interim/lending_club_cleaned.parquet
+    - src/data/prepare_dataset.py
+    outs:
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
+    - data/processed/train.parquet
+  build_datasets:
+    cmd: uv run python -c "from src.data.build_datasets import main; main()"
+    deps:
+    - data/processed/train.parquet
+    - src/data/build_datasets.py
+    - src/features/feature_engineering.py
+    outs:
+    - data/processed/ead_dataset.parquet
+    - data/processed/loan_master.parquet
+    - data/processed/time_series.parquet
+  train_pd_model:
+    cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
+    deps:
+    - configs/pd_model.yaml
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
+    - data/processed/train.parquet
+    - scripts/train_pd_model.py
+    outs:
+    - models/pd_canonical.cbm
+    - models/pd_canonical_calibrator.pkl
+  generate_conformal:
+    cmd: uv run python scripts/generate_conformal_intervals.py
+    deps:
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
+    - models/pd_canonical.cbm
+    - models/pd_canonical_calibrator.pkl
+    - scripts/generate_conformal_intervals.py
+    outs:
+    - data/processed/conformal_intervals_mondrian.parquet
+    - models/conformal_results_mondrian.pkl
+  forecast_default_rates:
+    cmd: uv run python scripts/forecast_default_rates.py --horizon 12
+    deps:
+    - data/processed/time_series.parquet
+    - scripts/forecast_default_rates.py
+    outs:
+    - data/processed/ts_forecasts.parquet
+  estimate_causal_effects:
+    cmd: uv run python scripts/estimate_causal_effects.py --treatment int_rate
+    deps:
+    - data/processed/train.parquet
+    - scripts/estimate_causal_effects.py
+    outs:
+    - data/processed/cate_estimates.parquet
+    - models/causal_forest_dml.pkl
+    - models/causal_summary.pkl
+  simulate_causal_policy:
+    cmd: uv run python scripts/simulate_causal_policy.py
+    deps:
+    - data/processed/cate_estimates.parquet
+    - scripts/simulate_causal_policy.py
+    outs:
+    - data/processed/causal_policy_simulation.parquet
+    - models/causal_policy_summary.pkl
+  validate_causal_policy:
+    cmd: uv run python scripts/validate_causal_policy.py
+    deps:
+    - data/processed/causal_policy_simulation.parquet
+    - scripts/validate_causal_policy.py
+    outs:
+    - data/processed/causal_policy_rule_candidates.parquet
+    - data/processed/causal_policy_rule_selected.parquet
+  run_ifrs9_sensitivity:
+    cmd: uv run python scripts/run_ifrs9_sensitivity.py
+    deps:
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test.parquet
+    - data/processed/train.parquet
+    - scripts/run_ifrs9_sensitivity.py
+    outs:
+    - data/processed/ifrs9_sensitivity_grid.parquet
+    - models/ifrs9_sensitivity_summary.pkl
+  optimize_portfolio:
+    cmd: uv run python scripts/optimize_portfolio.py --config 
+      configs/optimization.yaml --risk_tolerance 0.10
+    deps:
+    - configs/optimization.yaml
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test.parquet
+    - scripts/optimize_portfolio.py
+    outs:
+    - data/processed/portfolio_allocations.parquet
+    - models/portfolio_results.pkl
+  optimize_portfolio_tradeoff:
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
+      configs/optimization.yaml
+    deps:
+    - configs/optimization.yaml
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test.parquet
+    - scripts/optimize_portfolio_tradeoff.py
+    outs:
+    - data/processed/portfolio_robustness_frontier.parquet
+    - data/processed/portfolio_robustness_summary.parquet
+    - models/portfolio_robustness_results.pkl
+  run_survival_analysis:
+    cmd: uv run python scripts/run_survival_analysis.py
+    deps:
+    - data/processed/loan_master.parquet
+    - scripts/run_survival_analysis.py
+    outs:
+    - models/cox_ph_model.pkl
+    - models/rsf_model.pkl

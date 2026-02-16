@@ -1,0 +1,391 @@
+schema: '2.0'
+stages:
+  make_dataset:
+    cmd: uv run python -c "from src.data.make_dataset import main; main()"
+    deps:
+    - path: data/raw/Loan_status_2007-2020Q3.csv
+      hash: md5
+      md5: 65adade308f21d60b7213088a88e684d
+      size: 1773470505
+      isexec: true
+    - path: src/data/make_dataset.py
+      hash: md5
+      md5: b02bad244a1685a24a59949cc7c7f34d
+      size: 3399
+      isexec: true
+    outs:
+    - path: data/interim/lending_club_cleaned.parquet
+      hash: md5
+      md5: f7fa1652179e8b67047cc92d82699fa9
+      size: 199619593
+      isexec: true
+  prepare_dataset:
+    cmd: uv run python -c "from src.data.prepare_dataset import main; main()"
+    deps:
+    - path: data/interim/lending_club_cleaned.parquet
+      hash: md5
+      md5: f7fa1652179e8b67047cc92d82699fa9
+      size: 199619593
+      isexec: true
+    - path: src/data/prepare_dataset.py
+      hash: md5
+      md5: 5bc44f0b87f0878887ab60d3d76d4014
+      size: 3460
+      isexec: true
+    outs:
+    - path: data/processed/calibration.parquet
+      hash: md5
+      md5: 45145c5b93425c4bbadb3c723370b322
+      size: 27408753
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: c552157f2e51c7795fa42272089d03c5
+      size: 140607520
+      isexec: true
+  build_datasets:
+    cmd: uv run python -c "from src.data.build_datasets import main; main()"
+    deps:
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: c552157f2e51c7795fa42272089d03c5
+      size: 140607520
+      isexec: true
+    - path: src/data/build_datasets.py
+      hash: md5
+      md5: 4623c56ae0c4b89b6aa98ad0dc55e537
+      size: 6664
+      isexec: true
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 0eadaedad1b4249ab72b3c843e5d9d14
+      size: 4094
+      isexec: true
+    outs:
+    - path: data/processed/ead_dataset.parquet
+      hash: md5
+      md5: fc5700610416ee9db1cd1c9f14f8f0be
+      size: 30177741
+      isexec: true
+    - path: data/processed/loan_master.parquet
+      hash: md5
+      md5: e05ea419d012a90f46557e6c76eb5ba9
+      size: 49725422
+      isexec: true
+    - path: data/processed/time_series.parquet
+      hash: md5
+      md5: 544a11a57e3c48a1afa83504010fc4e0
+      size: 13633
+      isexec: true
+  train_pd_model:
+    cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
+    deps:
+    - path: configs/pd_model.yaml
+      hash: md5
+      md5: bd36fe50e7ff563907c5b36654854e4f
+      size: 1073
+      isexec: true
+    - path: data/processed/calibration.parquet
+      hash: md5
+      md5: 45145c5b93425c4bbadb3c723370b322
+      size: 27408753
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: c552157f2e51c7795fa42272089d03c5
+      size: 140607520
+      isexec: true
+    - path: scripts/train_pd_model.py
+      hash: md5
+      md5: 02f9261fc9bbe8ae0daad4b7dcbb62eb
+      size: 6969
+      isexec: true
+    outs:
+    - path: models/pd_canonical.cbm
+      hash: md5
+      md5: 2ab12132754762a52a08ddbd828cbc8a
+      size: 928648
+      isexec: true
+    - path: models/pd_canonical_calibrator.pkl
+      hash: md5
+      md5: dca4efb600d54a9166b1db22a89c33f4
+      size: 3422500
+      isexec: true
+  generate_conformal:
+    cmd: uv run python scripts/generate_conformal_intervals.py
+    deps:
+    - path: data/processed/calibration.parquet
+      hash: md5
+      md5: 45145c5b93425c4bbadb3c723370b322
+      size: 27408753
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: models/pd_canonical.cbm
+      hash: md5
+      md5: 2ab12132754762a52a08ddbd828cbc8a
+      size: 928648
+      isexec: true
+    - path: models/pd_canonical_calibrator.pkl
+      hash: md5
+      md5: dca4efb600d54a9166b1db22a89c33f4
+      size: 3422500
+      isexec: true
+    - path: scripts/generate_conformal_intervals.py
+      hash: md5
+      md5: f2d80636e0304bd6a005d4904af13571
+      size: 23651
+      isexec: true
+    outs:
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: e89e90df87ab9bdeac912d8aba69cb99
+      size: 1758308
+      isexec: true
+    - path: models/conformal_results_mondrian.pkl
+      hash: md5
+      md5: fc0016ce396281320ec81aaf6ffbc895
+      size: 2008
+      isexec: true
+  forecast_default_rates:
+    cmd: uv run python scripts/forecast_default_rates.py --horizon 12
+    deps:
+    - path: data/processed/time_series.parquet
+      hash: md5
+      md5: 544a11a57e3c48a1afa83504010fc4e0
+      size: 13633
+      isexec: true
+    - path: scripts/forecast_default_rates.py
+      hash: md5
+      md5: 25298c56ed77ff87c011af393b43fbce
+      size: 1419
+      isexec: true
+    outs:
+    - path: data/processed/ts_forecasts.parquet
+      hash: md5
+      md5: 3fcd03becbaebf7e70a9d9e82cd9f88e
+      size: 19427
+      isexec: true
+  estimate_causal_effects:
+    cmd: uv run python scripts/estimate_causal_effects.py --treatment int_rate
+    deps:
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: c552157f2e51c7795fa42272089d03c5
+      size: 140607520
+      isexec: true
+    - path: scripts/estimate_causal_effects.py
+      hash: md5
+      md5: a7df046781353b0466b98f71b4173c60
+      size: 3669
+      isexec: true
+    outs:
+    - path: data/processed/cate_estimates.parquet
+      hash: md5
+      md5: 3a50fd3fec83c2ccada1d1dc0da031a4
+      size: 8961463
+      isexec: true
+    - path: models/causal_forest_dml.pkl
+      hash: md5
+      md5: b88f30126b6a76cdea25d16c487084d8
+      size: 352745130
+      isexec: true
+    - path: models/causal_summary.pkl
+      hash: md5
+      md5: 48ad4986aa57e7917df2b61992b38316
+      size: 242
+      isexec: true
+  simulate_causal_policy:
+    cmd: uv run python scripts/simulate_causal_policy.py
+    deps:
+    - path: data/processed/cate_estimates.parquet
+      hash: md5
+      md5: 3a50fd3fec83c2ccada1d1dc0da031a4
+      size: 8961463
+      isexec: true
+    - path: scripts/simulate_causal_policy.py
+      hash: md5
+      md5: 2c07ecf4d2ceaf1dd71ea154404b1e85
+      size: 7210
+      isexec: true
+    outs:
+    - path: data/processed/causal_policy_simulation.parquet
+      hash: md5
+      md5: 2ae6c64e3bee9727e9e2b8b28b66383a
+      size: 8688108
+      isexec: true
+    - path: models/causal_policy_summary.pkl
+      hash: md5
+      md5: bba15bc836457acd3368fb0e76fc6b98
+      size: 1066
+      isexec: true
+  validate_causal_policy:
+    cmd: uv run python scripts/validate_causal_policy.py
+    deps:
+    - path: data/processed/causal_policy_simulation.parquet
+      hash: md5
+      md5: 2ae6c64e3bee9727e9e2b8b28b66383a
+      size: 8688108
+      isexec: true
+    - path: scripts/validate_causal_policy.py
+      hash: md5
+      md5: 2303425572e0e693209b207ef4de4b53
+      size: 6806
+      isexec: true
+    outs:
+    - path: data/processed/causal_policy_rule_candidates.parquet
+      hash: md5
+      md5: 38cda2fc6f19cc79ddbc8b95607d5500
+      size: 9774
+      isexec: true
+    - path: data/processed/causal_policy_rule_selected.parquet
+      hash: md5
+      md5: 73d9a7ea366e033b4a1b473bc03cc364
+      size: 9485
+      isexec: true
+  run_ifrs9_sensitivity:
+    cmd: uv run python scripts/run_ifrs9_sensitivity.py
+    deps:
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: e89e90df87ab9bdeac912d8aba69cb99
+      size: 1758308
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: c552157f2e51c7795fa42272089d03c5
+      size: 140607520
+      isexec: true
+    - path: scripts/run_ifrs9_sensitivity.py
+      hash: md5
+      md5: 86d70876fbffd56fec3c4b3136a2ee52
+      size: 16299
+      isexec: true
+    outs:
+    - path: data/processed/ifrs9_sensitivity_grid.parquet
+      hash: md5
+      md5: f507876d2d62a6739f001fa1673b45b6
+      size: 7196
+      isexec: true
+    - path: models/ifrs9_sensitivity_summary.pkl
+      hash: md5
+      md5: 4252a08aeafef6ac0d4bd4c32320b3a1
+      size: 1455
+      isexec: true
+  optimize_portfolio:
+    cmd: uv run python scripts/optimize_portfolio.py --config 
+      configs/optimization.yaml --risk_tolerance 0.10
+    deps:
+    - path: configs/optimization.yaml
+      hash: md5
+      md5: 27be89938bf7027df6136b32def19f46
+      size: 334
+      isexec: true
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: e89e90df87ab9bdeac912d8aba69cb99
+      size: 1758308
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: scripts/optimize_portfolio.py
+      hash: md5
+      md5: 15e9b362befccabe3cbba73155e099f7
+      size: 6269
+      isexec: true
+    outs:
+    - path: data/processed/portfolio_allocations.parquet
+      hash: md5
+      md5: 65a73623acb42637fa9a04a28a2d30c1
+      size: 55625
+      isexec: true
+    - path: models/portfolio_results.pkl
+      hash: md5
+      md5: e25e3a419e8d04187b9e11ab545328fc
+      size: 60186
+      isexec: true
+  optimize_portfolio_tradeoff:
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
+      configs/optimization.yaml
+    deps:
+    - path: configs/optimization.yaml
+      hash: md5
+      md5: 27be89938bf7027df6136b32def19f46
+      size: 334
+      isexec: true
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: e89e90df87ab9bdeac912d8aba69cb99
+      size: 1758308
+      isexec: true
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 47253a5ab3a732b8ba5030c073bc64cd
+      size: 31875274
+      isexec: true
+    - path: scripts/optimize_portfolio_tradeoff.py
+      hash: md5
+      md5: 0c9e7a8778f8202af878101e6c517d1f
+      size: 12402
+      isexec: true
+    outs:
+    - path: data/processed/portfolio_robustness_frontier.parquet
+      hash: md5
+      md5: 7625ca0e47692c23e64cdcfa289a693c
+      size: 14306
+      isexec: true
+    - path: data/processed/portfolio_robustness_summary.parquet
+      hash: md5
+      md5: b4c31860f9f42c24b52a0f5b169e9124
+      size: 8346
+      isexec: true
+    - path: models/portfolio_robustness_results.pkl
+      hash: md5
+      md5: 7f9bb9d903aa9540291a82bdc9923e43
+      size: 1029
+      isexec: true
+  run_survival_analysis:
+    cmd: uv run python scripts/run_survival_analysis.py
+    deps:
+    - path: data/processed/loan_master.parquet
+      hash: md5
+      md5: e05ea419d012a90f46557e6c76eb5ba9
+      size: 49725422
+      isexec: true
+    - path: scripts/run_survival_analysis.py
+      hash: md5
+      md5: 02751f83af4a2ff4de2a914e9e1e683c
+      size: 3902
+      isexec: true
+    outs:
+    - path: models/cox_ph_model.pkl
+      hash: md5
+      md5: 51e6851969bb37cfcd8d2726ef435adb
+      size: 1875963
+      isexec: true
+    - path: models/rsf_model.pkl
+      hash: md5
+      md5: 7084e614c26148a3871e64ebde64d590
+      size: 28267624
+      isexec: true
