@@ -1,0 +1,1 @@
+"""FastAPI credit risk application."""

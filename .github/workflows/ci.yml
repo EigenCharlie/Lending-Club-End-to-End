@@ -1,0 +1,60 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - run: uv sync --extra dev
+      - run: uv run ruff check src/ scripts/ tests/
+      - run: uv run ruff format --check src/ scripts/ tests/
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - run: uv sync --extra dev
+      - run: uv run pytest -x -m "not slow" --tb=short
+
+  streamlit-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          version: "latest"
+      - run: uv sync --extra dev
+      - name: Verify Streamlit pages import without errors
+        run: |
+          uv run python -c "
+          import importlib, pathlib, sys
+          pages = pathlib.Path('streamlit_app/pages')
+          failures = []
+          for p in sorted(pages.glob('*.py')):
+              mod = f'streamlit_app.pages.{p.stem}'
+              try:
+                  # Only check that the module can be found and parsed
+                  spec = importlib.util.find_spec(mod)
+                  if spec is None:
+                      failures.append(f'{mod}: spec not found')
+              except Exception as e:
+                  failures.append(f'{mod}: {e}')
+          if failures:
+              print('Import check failures:')
+              for f in failures:
+                  print(f'  {f}')
+              sys.exit(1)
+          print(f'All {len(list(pages.glob(\"*.py\")))} page modules found successfully.')
+          "

@@ -1,0 +1,12 @@
+[
+  {"date": "2007-08", "event": "Crisis subprime: colapso de hipotecas de alto riesgo en EE.UU.", "type": "crisis", "impact": "Inicio de restricción crediticia generalizada"},
+  {"date": "2008-09", "event": "Caída de Lehman Brothers", "type": "crisis", "impact": "Congelamiento del crédito global, defaults masivos"},
+  {"date": "2009-06", "event": "Fin oficial de la recesión (NBER)", "type": "recovery", "impact": "Inicio lento de recuperación económica"},
+  {"date": "2010-07", "event": "Dodd-Frank Act promulgada", "type": "regulation", "impact": "Mayor regulación financiera, protección al consumidor"},
+  {"date": "2012-01", "event": "Lending Club supera $1B en préstamos", "type": "market", "impact": "Expansión agresiva del modelo P2P lending"},
+  {"date": "2014-12", "event": "Lending Club sale a bolsa (IPO)", "type": "market", "impact": "Pico de crecimiento y volumen de originación"},
+  {"date": "2016-05", "event": "Renuncia del CEO de Lending Club", "type": "market", "impact": "Crisis de confianza, caída de volúmenes"},
+  {"date": "2018-01", "event": "IFRS 9 entra en vigor globalmente", "type": "regulation", "impact": "Nuevo estándar de provisiones: expected credit loss"},
+  {"date": "2019-01", "event": "Expansión fintech y competencia en lending", "type": "market", "impact": "Mayor competencia en tasas y originación online"},
+  {"date": "2020-03", "event": "Pandemia COVID-19", "type": "crisis", "impact": "Moratorias masivas, shock económico sin precedentes"}
+]

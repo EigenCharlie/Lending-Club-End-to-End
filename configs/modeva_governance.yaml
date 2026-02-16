@@ -1,0 +1,61 @@
+data:
+  train_path: data/processed/train_fe.parquet
+  test_path: data/processed/test_fe.parquet
+  target: default_flag
+  protected_feature: home_ownership
+  train_sample_size: 6000
+  test_sample_size: 3000
+  random_state: 42
+
+modeva:
+  model_name: CorePDCanonical
+  testsuite_name: modeva_corepd_governance
+
+diagnostics:
+  alpha: 0.1
+  psi_bins: 10
+  fairness_metric: AIR
+  fairness_group:
+    name: rent_vs_mortgage
+    feature: home_ownership
+    protected: RENT
+    reference: MORTGAGE
+  slicing_features:
+    - int_rate
+    - loan_to_income
+  slicing_bins: 5
+  perturb_features:
+    - int_rate
+    - loan_to_income
+  noise_levels:
+    - 0.02
+    - 0.05
+  robustness_repeats: 5
+  outlier_threshold: 0.995
+  outlier_estimators: 200
+
+policy:
+  min_test_auc: 0.66
+  max_auc_gap: 0.10
+  min_avg_coverage: 0.85
+  max_avg_width: 1.35
+  min_fairness_air: 0.50
+  max_fairness_air: 2.50
+  max_drift_psi: 0.30
+  max_drift_ks: 0.20
+  max_robustness_auc_drop: 0.04
+  max_weak_slice_accuracy_ratio: 0.35
+  max_weak_slice_robustness_ratio: 0.35
+  max_outlier_rate: 0.02
+
+output:
+  status_json: models/modeva_governance_status.json
+  checks_parquet: data/processed/modeva_governance_checks.parquet
+  metrics_parquet: data/processed/modeva_governance_metrics.parquet
+  drift_psi_parquet: data/processed/modeva_governance_drift_psi.parquet
+  drift_ks_parquet: data/processed/modeva_governance_drift_ks.parquet
+  slicing_accuracy_parquet: data/processed/modeva_governance_slicing_accuracy.parquet
+  slicing_robustness_parquet: data/processed/modeva_governance_slicing_robustness.parquet
+  fairness_parquet: data/processed/modeva_governance_fairness.parquet
+  robustness_parquet: data/processed/modeva_governance_robustness.parquet
+  report_html: reports/modeva_governance_report.html

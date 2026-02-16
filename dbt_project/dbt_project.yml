@@ -1,0 +1,32 @@
+name: lending_club_risk
+version: "1.0.0"
+config-version: 2
+profile: lending_club_risk
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+target-path: "target"
+clean-targets: ["target", "dbt_packages"]
+
+seeds:
+  lending_club_risk:
+    +schema: reference
+
+models:
+  lending_club_risk:
+    staging:
+      +materialized: view
+      +schema: staging
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+    marts:
+      +materialized: table
+      credit_risk:
+        +schema: credit_risk
+      analytics:
+        +schema: analytics
+      feature_store:
+        +schema: feature_store

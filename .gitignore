@@ -1,0 +1,79 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.claude/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_metadata
+
+# Data (tracked by DVC)
+data/raw/*.csv
+data/raw/*.zip
+data/interim/*.parquet
+data/processed/*.parquet
+
+# Models (tracked by DVC)
+models/*.cbm
+models/*.pkl
+models/*.joblib
+models/conformal_calibrators/*.pkl
+
+# DVC
+/data/raw/*.csv.dvc
+*.dvc.lock
+
+# MLflow
+mlruns/
+
+# Environment
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Reports
+reports/figures/*.png
+reports/figures/*.pdf
+
+# CatBoost training artifacts
+catboost_info/
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+
+# dbt
+dbt_project/target/
+dbt_project/dbt_packages/
+dbt_project/logs/
+dbt_project/.user.yml
+
+# Feast
+data/feast_registry.db
+data/feast_online.db
+feature_repo/data/
+
+# Misc
+*.log
+.coverage
+htmlcov/
+nul

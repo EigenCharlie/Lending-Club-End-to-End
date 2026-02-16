@@ -1,0 +1,704 @@
+[
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 8,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_008_out_00.png",
+    "context": "01 — Exploratory Data Analysis: Lending Club 2007–2020",
+    "text_output": "<Figure size 1200x400 with 1 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 11,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_011_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 13,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_013_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 2000x1000 with 8 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 14,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_014_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 2200x500 with 4 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 15,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_015_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 2000x500 with 6 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 17,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_017_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1600x1200 with 4 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 18,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_018_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1400x500 with 1 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 21,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_021_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1800x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 22,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_022_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 2200x600 with 3 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 23,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_023_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 24,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_024_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1200x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 25,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_025_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 800x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 26,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_026_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1800x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 28,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_028_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1600x1400 with 4 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 29,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_029_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1400x600 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 30,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_030_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1400x600 with 1 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 32,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_032_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1400x1200 with 2 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 33,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_033_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1000x700 with 1 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 36,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_036_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1000x500 with 1 Axes>"
+  },
+  {
+    "notebook": "01_eda_lending_club.ipynb",
+    "notebook_stem": "01_eda_lending_club",
+    "cell_index": 37,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/01_eda_lending_club/cell_037_out_00.png",
+    "context": "> **Note**: `days_since_last_delinq` has ~50% nulls — this is **expected** since only borrowers with a prior delinquency have this field populated. `emp_length` has ~6% nulls. CatBoost handles NaN natively, so no imputation is needed for tree models.",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "02_feature_engineering.ipynb",
+    "notebook_stem": "02_feature_engineering",
+    "cell_index": 8,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/02_feature_engineering/cell_008_out_00.png",
+    "context": "02 — Feature Engineering for Credit Risk Modeling",
+    "text_output": "<Figure size 2500x500 with 5 Axes>"
+  },
+  {
+    "notebook": "02_feature_engineering.ipynb",
+    "notebook_stem": "02_feature_engineering",
+    "cell_index": 11,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/02_feature_engineering/cell_011_out_00.png",
+    "context": "02 — Feature Engineering for Credit Risk Modeling",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "02_feature_engineering.ipynb",
+    "notebook_stem": "02_feature_engineering",
+    "cell_index": 16,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/02_feature_engineering/cell_016_out_00.png",
+    "context": "02 — Feature Engineering for Credit Risk Modeling",
+    "text_output": "<Figure size 1600x500 with 4 Axes>"
+  },
+  {
+    "notebook": "02_feature_engineering.ipynb",
+    "notebook_stem": "02_feature_engineering",
+    "cell_index": 20,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/02_feature_engineering/cell_020_out_00.png",
+    "context": "02 — Feature Engineering for Credit Risk Modeling",
+    "text_output": "<Figure size 2000x1200 with 6 Axes>"
+  },
+  {
+    "notebook": "02_feature_engineering.ipynb",
+    "notebook_stem": "02_feature_engineering",
+    "cell_index": 23,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/02_feature_engineering/cell_023_out_00.png",
+    "context": "02 — Feature Engineering for Credit Risk Modeling",
+    "text_output": "<Figure size 1000x800 with 1 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 7,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_007_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1000x1380 with 1 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 10,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_010_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1000x1320 with 1 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 13,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_013_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1600x500 with 2 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 17,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_017_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 2000x800 with 3 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 18,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_018_out_01.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 2400x500 with 4 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 20,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_020_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 21,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_021_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1000x600 with 1 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 24,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_024_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 28,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_028_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1600x500 with 2 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 30,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_030_out_01.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 2000x500 with 3 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 32,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_032_out_01.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1200x875 with 1 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 34,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_034_out_00.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1800x1000 with 6 Axes>"
+  },
+  {
+    "notebook": "03_pd_modeling.ipynb",
+    "notebook_stem": "03_pd_modeling",
+    "cell_index": 36,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/03_pd_modeling/cell_036_out_01.png",
+    "context": "03 — Probability of Default (PD) Modeling",
+    "text_output": "<Figure size 1600x600 with 3 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 11,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_011_out_00.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 2000x500 with 3 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 12,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_012_out_01.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 2000x500 with 3 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 15,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_015_out_00.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 18,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_018_out_00.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 20,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_020_out_01.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "04_conformal_prediction.ipynb",
+    "notebook_stem": "04_conformal_prediction",
+    "cell_index": 22,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/04_conformal_prediction/cell_022_out_01.png",
+    "context": "04 — Conformal Prediction for PD Intervals",
+    "text_output": "<Figure size 1200x500 with 1 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 4,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_004_out_01.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1600x1000 with 4 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 6,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_006_out_01.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1400x1000 with 4 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 12,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_012_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1000x600 with 1 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 13,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_013_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1600x600 with 1 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 17,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_017_out_01.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 20,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_020_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1600x500 with 2 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 22,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_022_out_01.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1600x500 with 2 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 27,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_027_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 2000x800 with 8 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 30,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_030_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1400x600 with 1 Axes>"
+  },
+  {
+    "notebook": "05_time_series_forecasting.ipynb",
+    "notebook_stem": "05_time_series_forecasting",
+    "cell_index": 32,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/05_time_series_forecasting/cell_032_out_00.png",
+    "context": "Notebook 05 — Time Series Forecasting with Conformal Intervals",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 5,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_005_out_00.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 7,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_007_out_01.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 9,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_009_out_00.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1200x600 with 1 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 13,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_013_out_01.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1000x800 with 1 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 21,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_021_out_01.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1000x700 with 1 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 23,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_023_out_01.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 25,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_025_out_00.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1200x600 with 1 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 27,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_027_out_00.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1200x600 with 1 Axes>"
+  },
+  {
+    "notebook": "06_survival_analysis.ipynb",
+    "notebook_stem": "06_survival_analysis",
+    "cell_index": 29,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/06_survival_analysis/cell_029_out_00.png",
+    "context": "Notebook 06: Survival Analysis — Time-to-Default Modeling",
+    "text_output": "<Figure size 1600x600 with 2 Axes>"
+  },
+  {
+    "notebook": "07_causal_inference.ipynb",
+    "notebook_stem": "07_causal_inference",
+    "cell_index": 5,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/07_causal_inference/cell_005_out_00.png",
+    "context": "Notebook 07: Causal Inference & Double Machine Learning",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "07_causal_inference.ipynb",
+    "notebook_stem": "07_causal_inference",
+    "cell_index": 15,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/07_causal_inference/cell_015_out_00.png",
+    "context": "Notebook 07: Causal Inference & Double Machine Learning",
+    "text_output": "<Figure size 1600x1200 with 4 Axes>"
+  },
+  {
+    "notebook": "07_causal_inference.ipynb",
+    "notebook_stem": "07_causal_inference",
+    "cell_index": 16,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/07_causal_inference/cell_016_out_00.png",
+    "context": "Notebook 07: Causal Inference & Double Machine Learning",
+    "text_output": "<Figure size 1000x600 with 1 Axes>"
+  },
+  {
+    "notebook": "07_causal_inference.ipynb",
+    "notebook_stem": "07_causal_inference",
+    "cell_index": 20,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/07_causal_inference/cell_020_out_01.png",
+    "context": "Notebook 07: Causal Inference & Double Machine Learning",
+    "text_output": "<Figure size 1000x500 with 1 Axes>"
+  },
+  {
+    "notebook": "07_causal_inference.ipynb",
+    "notebook_stem": "07_causal_inference",
+    "cell_index": 26,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/07_causal_inference/cell_026_out_01.png",
+    "context": "Notebook 07: Causal Inference & Double Machine Learning",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 5,
+    "output_index": 1,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_005_out_01.png",
+    "context": "Notebook 08: Portfolio Optimization — Conformal Predict-then-Optimize",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 8,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_008_out_00.png",
+    "context": "Notebook 08: Portfolio Optimization — Conformal Predict-then-Optimize",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 12,
+    "output_index": 4,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_012_out_04.png",
+    "context": "Notebook 08: Portfolio Optimization — Conformal Predict-then-Optimize",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 15,
+    "output_index": 14,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_015_out_14.png",
+    "context": "Insight: Robustness vs Return",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 17,
+    "output_index": 10,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_017_out_10.png",
+    "context": "Insight: Robustness vs Return",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "08_portfolio_optimization.ipynb",
+    "notebook_stem": "08_portfolio_optimization",
+    "cell_index": 21,
+    "output_index": 54,
+    "image_path": "reports/notebook_images/08_portfolio_optimization/cell_021_out_54.png",
+    "context": "Insight: Robustness vs Return",
+    "text_output": "<Figure size 1200x700 with 2 Axes>"
+  },
+  {
+    "notebook": "09_end_to_end_pipeline.ipynb",
+    "notebook_stem": "09_end_to_end_pipeline",
+    "cell_index": 7,
+    "output_index": 2,
+    "image_path": "reports/notebook_images/09_end_to_end_pipeline/cell_007_out_02.png",
+    "context": "Notebook 09: End-to-End Pipeline — Conformal Predict-then-Optimize",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "09_end_to_end_pipeline.ipynb",
+    "notebook_stem": "09_end_to_end_pipeline",
+    "cell_index": 9,
+    "output_index": 2,
+    "image_path": "reports/notebook_images/09_end_to_end_pipeline/cell_009_out_02.png",
+    "context": "Notebook 09: End-to-End Pipeline — Conformal Predict-then-Optimize",
+    "text_output": "<Figure size 1400x500 with 2 Axes>"
+  },
+  {
+    "notebook": "09_end_to_end_pipeline.ipynb",
+    "notebook_stem": "09_end_to_end_pipeline",
+    "cell_index": 13,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/09_end_to_end_pipeline/cell_013_out_00.png",
+    "context": "Insight: Predictive Uncertainty and Decision-Making",
+    "text_output": "<Figure size 1800x500 with 3 Axes>"
+  },
+  {
+    "notebook": "09_end_to_end_pipeline.ipynb",
+    "notebook_stem": "09_end_to_end_pipeline",
+    "cell_index": 18,
+    "output_index": 0,
+    "image_path": "reports/notebook_images/09_end_to_end_pipeline/cell_018_out_00.png",
+    "context": "Insight: IFRS 9 Interpretation",
+    "text_output": "<Figure size 2000x1200 with 6 Axes>"
+  }
+]

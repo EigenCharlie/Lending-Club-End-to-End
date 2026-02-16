@@ -1,0 +1,29 @@
+{
+  "overall_pass": false,
+  "checks_passed": 10,
+  "checks_total": 12,
+  "metrics": {
+    "test_auc": 0.6946764722953103,
+    "train_auc": 0.7022217702984392,
+    "auc_gap_test_minus_train": -0.007545298003128975,
+    "test_brier": 0.16866075268265726,
+    "avg_width": 1.226,
+    "avg_coverage": 0.854,
+    "fairness_air": 3.022231543624161,
+    "max_drift_psi": 0.26084518773978843,
+    "max_drift_ks": 0.21916666666666668,
+    "robustness_base_metric": 0.6946764722953103,
+    "robustness_high_noise_metric": 0.675365595012382,
+    "robustness_drop": 0.01931087728292824,
+    "weak_slice_accuracy_ratio": 0.2,
+    "weak_slice_robustness_ratio": 0.2,
+    "outlier_rate": 0.005,
+    "noise_base": 0.0,
+    "noise_high": 0.05,
+    "sample_train": 6000,
+    "sample_test": 3000
+  },
+  "config_path": "configs/modeva_governance.yaml",
+  "model_path": "models\\pd_canonical.cbm",
+  "calibrator_path": "models\\pd_canonical_calibrator.pkl"
+}

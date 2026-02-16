@@ -1,0 +1,4 @@
+task,backend,seconds,status,objective,n_variables,speedup_vs_cpu_lp
+portfolio_lp,scipy_highs_cpu,0.06718189000002894,0,3643970.8203195357,18000,
+portfolio_milp_reference,scipy_milp_cpu,0.06847216599999228,0,2275964.9155907403,3000,
+portfolio_lp,cuopt_gpu,,error: 'Problem' object has no attribute 'set_objective_data',,18000,

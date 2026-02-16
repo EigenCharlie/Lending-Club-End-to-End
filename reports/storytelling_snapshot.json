@@ -1,0 +1,58 @@
+{
+  "snapshot_name": "storytelling_snapshot",
+  "generated_at_utc": "2026-02-16T02:58:41.393632+00:00",
+  "headline_metrics": {
+    "auc_oot": 0.7186685947764804,
+    "coverage_90": 0.919730991913143,
+    "coverage_95": 0.9607576146119645,
+    "price_of_robustness": 2727176.86214238,
+    "price_of_robustness_pct": 87.97855630997113,
+    "robust_return": 270521.91929126723,
+    "nonrobust_return": 2997698.781433647,
+    "baseline_ecl": 795892415.7187797,
+    "severe_ecl": 1358216518.2511802,
+    "severe_uplift_pct": 70.65328069806509
+  },
+  "artifact_health": [
+    {
+      "path": "data/processed/pipeline_summary.json",
+      "exists": true,
+      "updated_at_utc": "2026-02-15T01:38:16.236330+00:00",
+      "size_bytes": 1123
+    },
+    {
+      "path": "models/conformal_results_mondrian.pkl",
+      "exists": true,
+      "updated_at_utc": "2026-02-09T01:15:41.471279+00:00",
+      "size_bytes": 2008
+    },
+    {
+      "path": "data/processed/conformal_intervals_mondrian.parquet",
+      "exists": true,
+      "updated_at_utc": "2026-02-09T01:15:41.357607+00:00",
+      "size_bytes": 1758308
+    },
+    {
+      "path": "models/conformal_policy_status.json",
+      "exists": true,
+      "updated_at_utc": "2026-02-09T01:18:02.334359+00:00",
+      "size_bytes": 410
+    },
+    {
+      "path": "data/processed/portfolio_robustness_summary.parquet",
+      "exists": true,
+      "updated_at_utc": "2026-02-09T01:10:58.172935+00:00",
+      "size_bytes": 8346
+    },
+    {
+      "path": "data/processed/ifrs9_scenario_summary.parquet",
+      "exists": true,
+      "updated_at_utc": "2026-02-09T01:11:30.183882+00:00",
+      "size_bytes": 13613
+    }
+  ],
+  "notes": [
+    "Snapshot con m\u00e9tricas para storytelling reproducible.",
+    "Fuente conformal can\u00f3nica: conformal_results_mondrian.pkl + conformal_intervals_mondrian.parquet."
+  ]
+}

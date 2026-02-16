@@ -1,0 +1,68 @@
+version: 2
+
+sources:
+  - name: parquet_files
+    description: "Parquet files produced by the ML pipeline notebooks"
+    meta:
+      external_location: "../data/processed/{name}.parquet"
+    tables:
+      - name: loan_master
+        description: "One row per loan. Core dataset for PD classification, LGD regression, survival analysis."
+        columns:
+          - name: id
+            description: "Unique loan identifier"
+          - name: loan_amnt
+            description: "Loan amount requested"
+          - name: default_flag
+            description: "Binary target: 1 = default, 0 = performing"
+          - name: issue_d
+            description: "Loan issue date"
+          - name: grade
+            description: "Lending Club grade (A-G)"
+
+      - name: test_predictions
+        description: "PD model predictions on test set (4 model variants)"
+        columns:
+          - name: y_true
+            description: "Actual default flag"
+          - name: y_prob_final
+            description: "Final calibrated PD prediction"
+
+      - name: conformal_intervals_mondrian
+        description: "Mondrian conformal prediction intervals per loan"
+
+      - name: time_series
+        description: "Monthly aggregated loan metrics for time series forecasting"
+
+      - name: ts_forecasts
+        description: "Time series model forecasts with conformal intervals"
+
+      - name: lifetime_pd_table
+        description: "IFRS9 lifetime PD curves by grade"
+
+      - name: cate_estimates
+        description: "Causal treatment effect estimates per loan"
+
+      - name: portfolio_allocations
+        description: "Optimal portfolio allocation results"
+
+      - name: efficient_frontier
+        description: "Portfolio efficient frontier points"
+
+      - name: ifrs9_ecl_comparison
+        description: "IFRS9 ECL by grade with Stage 1/2 comparison"
+
+      - name: ifrs9_scenario_summary
+        description: "IFRS9 ECL under different macroeconomic scenarios"
+
+      - name: ifrs9_sensitivity_grid
+        description: "IFRS9 ECL sensitivity to PD/LGD multipliers"
+
+      - name: modeva_governance_checks
+        description: "Model governance check results (pass/fail)"
+
+      - name: modeva_governance_fairness
+        description: "Fairness metrics (AIR, SPD) across protected groups"
+
+      - name: ead_dataset
+        description: "EAD dataset (defaults only)"

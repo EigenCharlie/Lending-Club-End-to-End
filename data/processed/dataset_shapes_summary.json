@@ -1,0 +1,42 @@
+{
+  "data/raw/Loan_status_2007-2020Q3.csv": {
+    "rows": null,
+    "cols": 142
+  },
+  "data/interim/lending_club_cleaned.parquet": {
+    "rows": 1860764,
+    "cols": 110
+  },
+  "data/processed/train.parquet": {
+    "rows": 1346311,
+    "cols": 110
+  },
+  "data/processed/calibration.parquet": {
+    "rows": 237584,
+    "cols": 110
+  },
+  "data/processed/test.parquet": {
+    "rows": 276869,
+    "cols": 110
+  },
+  "data/processed/train_fe.parquet": {
+    "rows": 1346311,
+    "cols": 60
+  },
+  "data/processed/loan_master.parquet": {
+    "rows": 1346311,
+    "cols": 32
+  },
+  "data/processed/time_series.parquet": {
+    "rows": 118,
+    "cols": 9
+  },
+  "data/processed/ead_dataset.parquet": {
+    "rows": 249380,
+    "cols": 120
+  },
+  "data/processed/obt_loan_features.parquet": {
+    "rows": 1346311,
+    "cols": 27
+  }
+}

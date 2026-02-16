@@ -1,0 +1,252 @@
+"""Gobernanza de modelo: drift, fairness, robustez y contrato."""
+
+from __future__ import annotations
+
+from pathlib import Path
+
+import pandas as pd
+import plotly.express as px
+import streamlit as st
+
+from streamlit_app.components.metric_cards import kpi_row
+from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.theme import PLOTLY_TEMPLATE
+from streamlit_app.utils import load_json, load_parquet
+
+
+def _artifact_health_rows() -> pd.DataFrame:
+    project_root = Path(__file__).resolve().parents[2]
+    specs = [
+        ("data/processed/pipeline_summary.json", "Resumen pipeline", "required"),
+        ("models/conformal_results_mondrian.pkl", "Conformal canónico (resultados)", "required"),
+        ("data/processed/conformal_intervals_mondrian.parquet", "Conformal canónico (intervalos)", "required"),
+        ("models/conformal_policy_status.json", "Estado de política conformal", "required"),
+        ("data/processed/portfolio_robustness_summary.parquet", "Resumen robustez portafolio", "required"),
+        ("data/processed/ifrs9_scenario_summary.parquet", "Escenarios IFRS9", "required"),
+        ("data/processed/conformal_intervals.parquet", "Conformal legacy (compatibilidad)", "legacy"),
+    ]
+    rows: list[dict[str, str]] = []
+    for rel_path, label, level in specs:
+        abs_path = project_root / rel_path
+        exists = abs_path.exists()
+        if exists:
+            stat = abs_path.stat()
+            modified = pd.Timestamp(stat.st_mtime, unit="s").strftime("%Y-%m-%d %H:%M")
+            size_mb = f"{stat.st_size / (1024 * 1024):.2f} MB"
+        else:
+            modified = "-"
+            size_mb = "-"
+
+        if level == "legacy":
+            status = "Compatibilidad" if exists else "No usado"
+        else:
+            status = "OK" if exists else "Falta"
+
+        rows.append(
+            {
+                "Artefacto": label,
+                "Ruta": rel_path,
+                "Estado": status,
+                "Actualizado": modified,
+                "Tamaño": size_mb,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+st.title("🛡️ Gobernanza del Modelo")
+st.caption(
+    "Validación integral de confiabilidad para riesgo de crédito: performance, "
+    "estabilidad, sesgo y robustez operativa."
+)
+st.markdown(
+    """
+Esta página representa la capa de control del proyecto. No evalúa “qué tan bonito sale el dashboard”, sino si el sistema
+es suficientemente confiable para sostener decisiones repetibles: estabilidad poblacional, robustez frente a ruido, sesgos
+por subgrupo y cumplimiento de contrato de inputs. En una arquitectura seria de riesgo, esta etapa es tan importante como
+la métrica de desempeño del modelo.
+"""
+)
+
+status = load_json("modeva_governance_status", directory="models")
+checks = load_parquet("modeva_governance_checks")
+metrics = load_parquet("modeva_governance_metrics")
+drift_psi = load_parquet("modeva_governance_drift_psi")
+drift_ks = load_parquet("modeva_governance_drift_ks")
+fairness = load_parquet("modeva_governance_fairness")
+robustness = load_parquet("modeva_governance_robustness")
+slicing_acc = load_parquet("modeva_governance_slicing_accuracy")
+slicing_rob = load_parquet("modeva_governance_slicing_robustness")
+contract_val = load_parquet("pd_model_contract_validation")
+
+passed = int(checks["passed"].sum()) if "passed" in checks.columns else 0
+total = int(len(checks))
+artifact_health = _artifact_health_rows()
+required_health = artifact_health[artifact_health["Estado"].isin(["OK", "Falta"])]
+required_ok = int((required_health["Estado"] == "OK").sum())
+required_total = int(len(required_health))
+missing_required = required_total - required_ok
+
+kpi_row(
+    [
+        {"label": "Estado global", "value": "OK" if status.get("overall_pass", False) else "Revisión"},
+        {"label": "Checks aprobados", "value": f"{passed}/{total}"},
+        {"label": "AUC test", "value": f"{float(metrics.iloc[0]['test_auc']):.4f}"},
+        {"label": "Gap train-test", "value": f"{float(metrics.iloc[0]['auc_gap_test_minus_train']):.4f}"},
+        {"label": "Fairness AIR", "value": f"{float(metrics.iloc[0]['fairness_air']):.3f}"},
+        {"label": "Max PSI", "value": f"{float(metrics.iloc[0]['max_drift_psi']):.3f}"},
+    ],
+    n_cols=3,
+)
+
+st.subheader("0) Salud y detalle de artefactos")
+if missing_required == 0:
+    st.success(f"Artefactos críticos disponibles: {required_ok}/{required_total}.")
+else:
+    st.warning(f"Artefactos críticos faltantes: {missing_required} de {required_total}.")
+
+with st.expander("Ver detalle de artefactos y rutas canónicas"):
+    st.caption(
+        "Fuente canónica conformal para storytelling: "
+        "`models/conformal_results_mondrian.pkl` + `data/processed/conformal_intervals_mondrian.parquet`."
+    )
+    st.dataframe(artifact_health, use_container_width=True, hide_index=True)
+
+st.subheader("1) Resultado de reglas de gobernanza")
+st.dataframe(checks, use_container_width=True, hide_index=True)
+
+st.subheader("2) Drift de variables")
+drift_psi_plot = drift_psi.copy()
+drift_psi_plot = drift_psi_plot.rename(columns={drift_psi_plot.columns[0]: "psi"})
+drift_psi_plot["feature_rank"] = range(1, len(drift_psi_plot) + 1)
+
+drift_ks_plot = drift_ks.copy()
+drift_ks_plot = drift_ks_plot.rename(columns={drift_ks_plot.columns[0]: "ks"})
+drift_ks_plot["feature_rank"] = range(1, len(drift_ks_plot) + 1)
+
+col1, col2 = st.columns(2)
+with col1:
+    fig = px.bar(
+        drift_psi_plot.sort_values("psi", ascending=False),
+        x="feature_rank",
+        y="psi",
+        title="PSI por ranking de variable",
+        labels={"feature_rank": "Índice de variable", "psi": "PSI"},
+    )
+    fig.add_hline(y=0.10, line_dash="dash", line_color="#FFD93D", annotation_text="Warning")
+    fig.add_hline(y=0.25, line_dash="dash", line_color="#FF6B6B", annotation_text="Crítico")
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: detectar drift poblacional por feature. Insight: PSI por encima de 0.10 activa vigilancia y por encima de 0.25 "
+        "sugiere recalibración o revisión del pipeline."
+    )
+
+with col2:
+    fig = px.bar(
+        drift_ks_plot.sort_values("ks", ascending=False),
+        x="feature_rank",
+        y="ks",
+        title="KS drift por ranking de variable",
+        labels={"feature_rank": "Índice de variable", "ks": "KS"},
+    )
+    fig.add_hline(y=0.20, line_dash="dash", line_color="#FF6B6B", annotation_text="Umbral")
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: contrastar cambio de distribución train vs test con KS. Insight: valores altos indican potencial degradación "
+        "de performance por cambio de régimen."
+    )
+
+st.subheader("3) Fairness y robustez")
+col3, col4 = st.columns(2)
+with col3:
+    fair_col = fairness.columns[0]
+    fair_val = float(fairness.iloc[0][fair_col])
+    st.metric("AIR observado", f"{fair_val:.3f}", help=f"Métrica: {fair_col}")
+    st.caption("Referencia común: AIR cercano a 1 indica menor disparidad relativa.")
+
+with col4:
+    robust_long = robustness.melt(var_name="ruido", value_name="auc")
+    robust_long["ruido"] = robust_long["ruido"].astype(float)
+    fig = px.box(
+        robust_long,
+        x="ruido",
+        y="auc",
+        points="all",
+        title="Sensibilidad del AUC a ruido en features",
+        labels={"ruido": "Nivel de ruido", "auc": "AUC"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: medir estabilidad del AUC ante ruido sintético. Insight: caída abrupta del AUC a bajos niveles de ruido "
+        "señala fragilidad del modelo."
+    )
+
+st.subheader("4) Slicing analysis (subpoblaciones débiles)")
+weak_acc = slicing_acc[slicing_acc["Weak"] == True].copy()  # noqa: E712
+weak_rob = slicing_rob[slicing_rob["Weak"] == True].copy()  # noqa: E712
+
+if not weak_acc.empty:
+    fig = px.scatter(
+        weak_acc,
+        x="Size",
+        y="AUC",
+        color="Feature1",
+        hover_data=["Segment1", "Feature2", "Segment2"],
+        title="Slices débiles en accuracy",
+        labels={"Size": "Tamaño del slice", "AUC": "AUC"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: ubicar subpoblaciones donde falla la discriminación. Insight: slices pequeños con AUC bajo pueden ocultarse "
+        "en métricas globales y requieren controles específicos."
+    )
+
+if not weak_rob.empty:
+    fig = px.scatter(
+        weak_rob,
+        x="Size",
+        y="AUC",
+        color="Feature1",
+        hover_data=["Segment1", "Feature2", "Segment2"],
+        title="Slices débiles en robustez",
+        labels={"Size": "Tamaño del slice", "AUC": "AUC"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: identificar segmentos sensibles a perturbaciones. Insight: robustez desigual por subgrupo implica riesgo "
+        "operativo/fairness incluso con buen AUC agregado."
+    )
+
+st.subheader("5) Contrato de modelo y validación de inputs")
+st.dataframe(contract_val, use_container_width=True, hide_index=True)
+with st.expander("Contrato completo del modelo (JSON)"):
+    contract = load_json("pd_model_contract", directory="models")
+    st.json(contract)
+
+st.markdown(
+    """
+**Lectura de control interno:**
+- El marco detecta oportunidades de mejora en fairness y drift aunque el rendimiento base sea estable.
+- La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
+- Esta capa cierra el ciclo de confiabilidad antes de consumir resultados en aplicaciones externas.
+"""
+)
+st.markdown(
+    """
+La conclusión operativa es que un modelo puede “funcionar” y aun así requerir vigilancia activa. Gobernanza no es un bloque
+de cumplimiento formalista: es la forma de evitar degradación silenciosa y de mantener coherencia entre lo que el modelo
+aprendió, lo que consume en producción analítica y lo que negocio interpreta para tomar decisiones.
+"""
+)
+
+next_page_teaser(
+    "Stack Tecnológico",
+    "Librerías, versiones, decisiones de diseño y prácticas de ingeniería.",
+    "pages/tech_stack.py",
+)

@@ -1,0 +1,15 @@
+# Portfolio Optimization Configuration
+optimization:
+  type: LP  # LP | MILP
+  solver: highs
+  time_limit: 300
+  threads: 4
+
+portfolio:
+  total_budget: 1_000_000
+  max_concentration: 0.25
+  max_portfolio_pd: 0.10
+  robust: true  # Use CP upper bounds for risk constraints
+
+conformal:
+  alpha: 0.1  # 90% coverage for uncertainty sets

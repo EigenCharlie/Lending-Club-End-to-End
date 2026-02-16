@@ -1,0 +1,44 @@
+{
+  "pipeline": {
+    "batch_size": 10000,
+    "pd_mean": 0.20649341551059025,
+    "pd_auc": 0.716571402481225,
+    "interval_width_mean": 0.7503695468546402,
+    "stages": {
+      "S1": 3605,
+      "S2": 6395,
+      "S3": 0
+    },
+    "ecl_expected": 15472414.12991197,
+    "ecl_conservative": 53151342.79202655,
+    "ecl_range": 53124540.605273,
+    "robust_return": 270521.91929126723,
+    "robust_funded": 374,
+    "nonrobust_return": 2997698.781433647,
+    "nonrobust_funded": 3977,
+    "price_of_robustness": 2727176.86214238,
+    "pipeline_time_s": 3.482434034347534
+  },
+  "pd_model": {
+    "final_auc": 0,
+    "final_gini": 0.43733718955296075,
+    "final_brier": 0,
+    "final_ece": 0.012794594974915167,
+    "calibration_method": "Platt Sigmoid"
+  },
+  "conformal": {
+    "coverage_90": 0.919730991913143,
+    "coverage_95": 0.9607576146119645,
+    "overall_pass": true,
+    "n_checks_passed": 0
+  },
+  "survival": {
+    "cox_concordance": 0.6768600655853056,
+    "rsf_concordance": 0.6837801466153334
+  },
+  "dataset": {
+    "n_loans": 1346311,
+    "n_events": 249380,
+    "event_rate": 0.1852320897623209
+  }
+}

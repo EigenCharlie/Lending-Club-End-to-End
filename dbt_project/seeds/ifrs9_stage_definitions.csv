@@ -1,0 +1,4 @@
+stage,name,trigger,pd_type,provision_basis
+1,Performing,No significant increase in credit risk,12-month PD,ECL over next 12 months
+2,Underperforming,SICR detected (PD increase > threshold or 30+ DPD),Lifetime PD,ECL over remaining life
+3,Non-performing,Credit-impaired (90+ DPD or default),PD ~ 1.0,Full expected loss provision

@@ -1,0 +1,7 @@
+lending_club_risk:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../data/lending_club.duckdb"
+      threads: 4

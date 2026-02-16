@@ -1,0 +1,8 @@
+grade,description,risk_level
+A,Prime borrowers with excellent credit history,Low
+B,Near-prime borrowers with good credit,Low-Medium
+C,Standard borrowers with acceptable risk,Medium
+D,Subprime borrowers with elevated risk,Medium-High
+E,High-risk borrowers with significant concerns,High
+F,Very high-risk borrowers,Very High
+G,Highest risk grade with maximum uncertainty,Very High

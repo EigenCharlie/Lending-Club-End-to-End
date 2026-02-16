@@ -1,0 +1,9 @@
+project: lending_club_risk
+provider: local
+registry: ../data/feast_registry.db
+online_store:
+  type: sqlite
+  path: ../data/feast_online.db
+offline_store:
+  type: file
+entity_key_serialization_version: 3

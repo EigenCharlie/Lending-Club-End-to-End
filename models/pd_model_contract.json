@@ -1,0 +1,42 @@
+{
+  "created_at_utc": "2026-02-16T05:34:55.802362+00:00",
+  "model_path": "models/pd_canonical.cbm",
+  "calibrator_path": "models/pd_canonical_calibrator.pkl",
+  "feature_names": [
+    "loan_amnt",
+    "annual_inc",
+    "loan_to_income",
+    "dti",
+    "rev_utilization",
+    "int_rate",
+    "installment",
+    "grade_woe",
+    "home_ownership_woe",
+    "int_rate_bucket",
+    "term"
+  ],
+  "categorical_features": [
+    "int_rate_bucket",
+    "term"
+  ],
+  "n_features": 11,
+  "split_shapes": {
+    "train": [
+      1346311,
+      60
+    ],
+    "calibration": [
+      237584,
+      60
+    ],
+    "test": [
+      276869,
+      60
+    ]
+  },
+  "split_missing_features": {
+    "train": [],
+    "calibration": [],
+    "test": []
+  }
+}

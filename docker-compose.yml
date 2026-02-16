@@ -1,0 +1,34 @@
+# Prerequisites:
+#   1. Download Kaggle dataset to data/raw/
+#   2. Run the pipeline: uv run python scripts/end_to_end_pipeline.py
+#   3. (Optional) Build DuckDB for dbt views:
+#      cd dbt_project && uv run dbt run --target duckdb
+#   The DuckDB file (data/lending_club.duckdb) is created by dbt or Streamlit on first access.
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
+    environment:
+      - CREDIT_RISK_DUCKDB_PATH=/app/data/lending_club.duckdb
+    healthcheck:
+      test: ["CMD", "python", "-c", "import httpx; httpx.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile.streamlit
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./data:/app/data:ro
+      - ./models:/app/models:ro
