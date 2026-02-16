@@ -509,7 +509,7 @@ st.subheader("7) Reproducibilidad")
 st.code(
     """
 # Clonar y configurar
-git clone <repo> && cd lending-club-risk-project
+git clone <repo> && cd Lending-Club-End-to-End
 
 # Instalar dependencias
 uv sync --extra dev
