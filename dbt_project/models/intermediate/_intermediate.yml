@@ -1,0 +1,8 @@
+version: 2
+
+models:
+  - name: int_loan_with_predictions
+    description: "Loans joined with all PD model predictions (test set only)"
+
+  - name: int_loan_risk_profile
+    description: "Loans with predictions, conformal intervals, and risk/uncertainty categories"

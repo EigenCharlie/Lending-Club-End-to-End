@@ -1,0 +1,18 @@
+policy:
+  target_coverage_90_min: 0.90
+  target_coverage_95_min: 0.95
+  min_group_coverage_90_min: 0.88
+  max_avg_width_90: 0.80
+  max_critical_alerts: 0
+  max_total_alerts: 5
+  max_warning_alerts: 5
+
+artifacts:
+  conformal_results_path: models/conformal_results_mondrian.pkl
+  group_metrics_path: data/processed/conformal_group_metrics_mondrian.parquet
+  backtest_monthly_path: data/processed/conformal_backtest_monthly.parquet
+  backtest_alerts_path: data/processed/conformal_backtest_alerts.parquet
+
+output:
+  policy_status_json: models/conformal_policy_status.json
+  policy_checks_parquet: data/processed/conformal_policy_checks.parquet

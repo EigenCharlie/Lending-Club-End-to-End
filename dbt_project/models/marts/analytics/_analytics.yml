@@ -1,0 +1,14 @@
+version: 2
+
+models:
+  - name: fct_model_performance_by_cohort
+    description: "PD model performance metrics by issue-month cohort and grade"
+
+  - name: fct_conformal_coverage
+    description: "Conformal prediction coverage and width by grade and risk segment"
+
+  - name: fct_causal_effects
+    description: "Heterogeneous causal treatment effects (CATE) per loan"
+
+  - name: fct_forecasts
+    description: "Time series forecasts with conformal prediction intervals"

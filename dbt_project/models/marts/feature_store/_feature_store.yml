@@ -1,0 +1,17 @@
+version: 2
+
+models:
+  - name: obt_loan_features
+    description: >
+      One Big Table with all loan features for Feast feature store materialization.
+      Contains origination features, credit history, and target variable.
+    columns:
+      - name: loan_id
+        description: "Unique loan identifier (entity key for Feast)"
+        tests:
+          - unique
+          - not_null
+      - name: event_timestamp
+        description: "Issue date used as event timestamp for Feast point-in-time joins"
+        tests:
+          - not_null

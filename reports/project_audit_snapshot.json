@@ -1,0 +1,195 @@
+{
+  "notebooks": [
+    {
+      "notebook": "01_eda_lending_club.ipynb",
+      "executed": 27,
+      "code_cells": 27,
+      "errors": 0
+    },
+    {
+      "notebook": "02_feature_engineering.ipynb",
+      "executed": 21,
+      "code_cells": 21,
+      "errors": 0
+    },
+    {
+      "notebook": "03_pd_modeling.ipynb",
+      "executed": 25,
+      "code_cells": 25,
+      "errors": 0
+    },
+    {
+      "notebook": "04_conformal_prediction.ipynb",
+      "executed": 15,
+      "code_cells": 15,
+      "errors": 0
+    },
+    {
+      "notebook": "05_time_series_forecasting.ipynb",
+      "executed": 23,
+      "code_cells": 23,
+      "errors": 0
+    },
+    {
+      "notebook": "06_survival_analysis.ipynb",
+      "executed": 21,
+      "code_cells": 21,
+      "errors": 0
+    },
+    {
+      "notebook": "07_causal_inference.ipynb",
+      "executed": 15,
+      "code_cells": 15,
+      "errors": 0
+    },
+    {
+      "notebook": "08_portfolio_optimization.ipynb",
+      "executed": 13,
+      "code_cells": 13,
+      "errors": 0
+    },
+    {
+      "notebook": "09_end_to_end_pipeline.ipynb",
+      "executed": 12,
+      "code_cells": 12,
+      "errors": 0
+    }
+  ],
+  "splits": {
+    "train_rows": 1346311,
+    "cal_rows": 237584,
+    "test_rows": 276869,
+    "train_default_rate": 0.1852320897623209,
+    "cal_default_rate": 0.22203094484477068,
+    "test_default_rate": 0.21977902907151034,
+    "train_max_issue_d": "2017-03-01 00:00:00",
+    "cal_min_issue_d": "2017-03-01 00:00:00",
+    "cal_max_issue_d": "2017-12-01 00:00:00",
+    "test_min_issue_d": "2018-01-01 00:00:00"
+  },
+  "pd_model": {
+    "optuna_best_auc": 0.7201101455802654,
+    "best_calibration": "Platt Sigmoid",
+    "final_test_metrics": {
+      "auc_roc": 0.7186685947764804,
+      "gini": 0.43733718955296075,
+      "brier_score": 0.1537473031890089,
+      "ece": 0.012794594974915167,
+      "ks_statistic": 0.32213252552425625
+    }
+  },
+  "pipeline_results": {
+    "batch_size": 10000,
+    "pd_mean": 0.20649341551059025,
+    "pd_auc": 0.716571402481225,
+    "interval_width_mean": 0.7503695468546402,
+    "stages": {
+      "S1": 3605,
+      "S2": 6395,
+      "S3": 0
+    },
+    "ecl_expected": 15472414.12991197,
+    "ecl_conservative": 53151342.79202655,
+    "ecl_range": 53124540.605273,
+    "robust_return": 270521.91929126723,
+    "robust_funded": 374,
+    "nonrobust_return": 2997698.781433647,
+    "nonrobust_funded": 3977,
+    "price_of_robustness": 2727176.86214238,
+    "pipeline_time_s": 3.482434034347534
+  },
+  "conformal_policy": {
+    "overall_pass": true,
+    "checks_passed": 7,
+    "checks_total": 7,
+    "coverage_90": 0.919730991913143,
+    "coverage_95": 0.9607576146119645,
+    "avg_width_90": 0.7592961315610487,
+    "min_group_coverage_90": 0.8916256157635468,
+    "critical_alerts": 0,
+    "warning_alerts": 0,
+    "total_alerts": 0,
+    "latest_backtest_month": "2020-09-01 00:00:00",
+    "policy_config": "configs/conformal_policy.yaml"
+  },
+  "causal_policy": {
+    "selected_rule": "high_plus_medium_positive",
+    "selected_metrics": {
+      "rule_name": "high_plus_medium_positive",
+      "n_selected": 52603.0,
+      "action_rate": 0.263015,
+      "total_net_value": 5856651.263233864,
+      "total_loss_reduction": 15185798.825733863,
+      "total_revenue_impact": -9329147.5625,
+      "bootstrap_mean_net": 5856083.0639698645,
+      "bootstrap_p05_net": 5799804.393297242,
+      "bootstrap_p95_net": 5903071.770890354,
+      "min_grade_total_net": 104150.82112267696,
+      "worst_grade": "G",
+      "pass_action_rate": 1.0,
+      "pass_bootstrap": 1.0,
+      "pass_grade_floor": 1.0,
+      "pass_all": 1.0
+    }
+  },
+  "ifrs9": {
+    "rows": 4,
+    "baseline_total_ecl": 795892415.7187797,
+    "severe_total_ecl": 1358216518.2511802,
+    "severe_uplift_pct": 0.7065328069806509
+  },
+  "portfolio_robustness_summary": [
+    {
+      "risk_tolerance": 0.06,
+      "baseline_nonrobust_return": 59867.36273812048,
+      "best_robust_return": 7196.9212993886995,
+      "best_robust_lambda": 0.0,
+      "best_robust_min_budget_utilization": 0.05,
+      "best_robust_pd_cap_slack_penalty": 1.5,
+      "best_robust_pd_cap_slack": 3741.0056688252726,
+      "best_robust_worst_pd": 0.0866833499912404,
+      "best_robust_funded": 14,
+      "price_of_robustness": 52670.44143873178,
+      "price_of_robustness_pct": 87.97855630997113
+    },
+    {
+      "risk_tolerance": 0.08,
+      "baseline_nonrobust_return": 65225.59911599301,
+      "best_robust_return": 27930.86829761557,
+      "best_robust_lambda": 0.0,
+      "best_robust_min_budget_utilization": 0.05,
+      "best_robust_pd_cap_slack_penalty": 1.5,
+      "best_robust_pd_cap_slack": 10238.596266871602,
+      "best_robust_worst_pd": 0.09771689957928982,
+      "best_robust_funded": 45,
+      "price_of_robustness": 37294.730818377444,
+      "price_of_robustness_pct": 57.17805788411864
+    },
+    {
+      "risk_tolerance": 0.1,
+      "baseline_nonrobust_return": 69608.20910081934,
+      "best_robust_return": 33579.890318678925,
+      "best_robust_lambda": 0.0,
+      "best_robust_min_budget_utilization": 0.0,
+      "best_robust_pd_cap_slack_penalty": 0.0,
+      "best_robust_pd_cap_slack": 0.0,
+      "best_robust_worst_pd": 0.09999999999999998,
+      "best_robust_funded": 54,
+      "price_of_robustness": 36028.31878214041,
+      "price_of_robustness_pct": 51.75872105751209
+    },
+    {
+      "risk_tolerance": 0.12,
+      "baseline_nonrobust_return": 73522.2375456694,
+      "best_robust_return": 50402.392484729535,
+      "best_robust_lambda": 0.0,
+      "best_robust_min_budget_utilization": 0.0,
+      "best_robust_pd_cap_slack_penalty": 0.0,
+      "best_robust_pd_cap_slack": 0.0,
+      "best_robust_worst_pd": 0.12,
+      "best_robust_funded": 87,
+      "price_of_robustness": 23119.845060939864,
+      "price_of_robustness_pct": 31.446057454745148
+    }
+  ]
+}

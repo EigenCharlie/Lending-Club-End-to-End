@@ -1,0 +1,4 @@
+task,backend,seconds,metric,metric_value,speedup_vs_cpu
+graph_build,networkx_cpu,0.09604674199999863,nodes,30059.0,
+connected_components,networkx_cpu,0.012246154000422393,n_components,1.0,
+pagerank,networkx_cpu,0.25576202899992495,sum_pagerank,0.9999999999999903,

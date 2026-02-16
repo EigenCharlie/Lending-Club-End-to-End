@@ -1,0 +1,14 @@
+{
+  "overall_pass": true,
+  "checks_passed": 7,
+  "checks_total": 7,
+  "coverage_90": 0.919730991913143,
+  "coverage_95": 0.9607576146119645,
+  "avg_width_90": 0.7592961315610487,
+  "min_group_coverage_90": 0.8916256157635468,
+  "critical_alerts": 0,
+  "warning_alerts": 0,
+  "total_alerts": 0,
+  "latest_backtest_month": "2020-09-01 00:00:00",
+  "policy_config": "configs/conformal_policy.yaml"
+}

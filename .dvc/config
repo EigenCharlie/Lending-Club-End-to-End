@@ -1,0 +1,6 @@
+[core]
+    remote = gdrive
+['remote "gdrive"']
+    url = gdrive://1tYocHJz3jUu_0nSH4yqVEV1QNdPDbhMc
+['remote "dagshub"']
+    url = https://dagshub.com/EigenCharlie94/lending-club-risk-project.dvc

@@ -1,0 +1,46 @@
+version: 2
+
+models:
+  - name: stg_loan_master
+    description: "Staged loan master data with standardized column names and types"
+    columns:
+      - name: loan_id
+        description: "Unique loan identifier"
+        tests:
+          - unique
+          - not_null
+      - name: default_flag
+        tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [0, 1]
+
+  - name: stg_test_predictions
+    description: "Staged test set predictions with all model variants"
+    columns:
+      - name: loan_id
+        tests:
+          - unique
+          - not_null
+      - name: y_true
+        tests:
+          - not_null
+
+  - name: stg_conformal_intervals
+    description: "Staged Mondrian conformal prediction intervals"
+
+  - name: stg_time_series
+    description: "Staged monthly time series data"
+
+  - name: stg_portfolio_allocations
+    description: "Staged portfolio optimization results"
+
+  - name: stg_cate_estimates
+    description: "Staged causal treatment effect estimates"
+
+  - name: stg_ifrs9_ecl
+    description: "Staged IFRS9 ECL comparison by grade"
+
+  - name: stg_governance
+    description: "Staged model governance check results"

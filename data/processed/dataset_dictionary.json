@@ -1,0 +1,182 @@
+[
+  {
+    "variable": "loan_amnt",
+    "nombre": "Monto del préstamo",
+    "descripcion": "Cantidad solicitada por el prestatario (USD). Valores modales en múltiplos redondos: $5K, $10K, $15K, $20K, $25K.",
+    "tipo": "Numérica continua",
+    "rango": "$500 - $40,000",
+    "relevancia": "Define la exposición (EAD). Montos mayores implican mayor pérdida potencial ante default.",
+    "ejemplo": "$12,000"
+  },
+  {
+    "variable": "annual_inc",
+    "nombre": "Ingreso anual",
+    "descripcion": "Ingreso bruto anual declarado por el solicitante (USD). Concentrado entre $30K-$80K con cola larga hasta $160K+.",
+    "tipo": "Numérica continua",
+    "rango": "$4,000 - $9,550,000",
+    "relevancia": "Proxy de capacidad de repago. Ingresos bajos relativos al préstamo incrementan riesgo de incumplimiento.",
+    "ejemplo": "$65,000"
+  },
+  {
+    "variable": "dti",
+    "nombre": "Debt-to-Income (DTI)",
+    "descripcion": "Ratio de pagos mensuales de deuda (excluyendo hipoteca) sobre ingreso mensual. Distribución normal con mediana ~15.",
+    "tipo": "Numérica continua",
+    "rango": "0 - 999 (típico: 0-40)",
+    "relevancia": "Indicador clave de carga financiera. DTI alto (>30) señala sobreendeudamiento y mayor probabilidad de default.",
+    "ejemplo": "17.5"
+  },
+  {
+    "variable": "int_rate",
+    "nombre": "Tasa de interés",
+    "descripcion": "Tasa de interés anual asignada al préstamo (%). Mayor densidad entre 8-16%. Relación casi-lineal con default: 5-7% → PD~2%, 20-30% → PD~24%.",
+    "tipo": "Numérica continua",
+    "rango": "5.32% - 30.99%",
+    "relevancia": "Refleja el riesgo percibido por el prestamista. Tasas altas compensan mayor probabilidad de incumplimiento esperada.",
+    "ejemplo": "13.56%"
+  },
+  {
+    "variable": "grade",
+    "nombre": "Calificación crediticia",
+    "descripcion": "Calificación de riesgo asignada por Lending Club (A=mejor, G=peor). Gradient dramático: Grade A ~2% default, Grade G ~37% default.",
+    "tipo": "Categórica ordinal",
+    "rango": "A, B, C, D, E, F, G",
+    "relevancia": "Variable con mayor poder predictivo. Define pricing, límites y segmentación de toda la cadena analítica.",
+    "ejemplo": "B"
+  },
+  {
+    "variable": "sub_grade",
+    "nombre": "Subcalificación",
+    "descripcion": "Refinamiento de grade con 5 niveles por letra (A1-A5, B1-B5, ..., G1-G5). 35 categorías totales.",
+    "tipo": "Categórica ordinal",
+    "rango": "A1 - G5",
+    "relevancia": "Permite granularidad fina en pricing y segmentación dentro de cada grade principal.",
+    "ejemplo": "B3"
+  },
+  {
+    "variable": "purpose",
+    "nombre": "Propósito del préstamo",
+    "descripcion": "Uso declarado del crédito. Consolidación de deuda domina (1.2M préstamos, 13% default). Pequeños negocios tienen mayor riesgo (18%).",
+    "tipo": "Categórica nominal",
+    "rango": "14 categorías (debt_consolidation, credit_card, home_improvement, ...)",
+    "relevancia": "Distingue perfil de riesgo por uso. Algunos propósitos (small_business, moving) tienen defaults sistemáticamente mayores.",
+    "ejemplo": "debt_consolidation"
+  },
+  {
+    "variable": "home_ownership",
+    "nombre": "Tipo de vivienda",
+    "descripcion": "Situación habitacional del solicitante: RENT, MORTGAGE, OWN, OTHER.",
+    "tipo": "Categórica nominal",
+    "rango": "RENT, MORTGAGE, OWN, OTHER, NONE, ANY",
+    "relevancia": "Proxy de estabilidad financiera. Propietarios con hipoteca tienden a menor default que arrendatarios.",
+    "ejemplo": "MORTGAGE"
+  },
+  {
+    "variable": "emp_length",
+    "nombre": "Antigüedad laboral",
+    "descripcion": "Años de empleo del solicitante. Valores de < 1 año hasta 10+ años.",
+    "tipo": "Categórica ordinal",
+    "rango": "< 1 year - 10+ years",
+    "relevancia": "Proxy de estabilidad laboral. Mayor antigüedad asociada a menor probabilidad de incumplimiento.",
+    "ejemplo": "5 years"
+  },
+  {
+    "variable": "term",
+    "nombre": "Plazo del préstamo",
+    "descripcion": "Duración del préstamo: 36 o 60 meses. Plazo largo implica más tiempo de exposición al riesgo.",
+    "tipo": "Categórica binaria",
+    "rango": "36 months, 60 months",
+    "relevancia": "Plazo de 60 meses tiene ~2x la tasa de default que 36 meses. Afecta directamente la PD lifetime y provisiones.",
+    "ejemplo": "36 months"
+  },
+  {
+    "variable": "revol_bal",
+    "nombre": "Saldo revolvente",
+    "descripcion": "Saldo total de crédito revolvente (tarjetas, líneas de crédito) al momento de solicitud.",
+    "tipo": "Numérica continua",
+    "rango": "$0 - $2,904,836",
+    "relevancia": "Indica nivel de deuda existente. Saldos altos relativos a límites señalan estrés financiero.",
+    "ejemplo": "$15,234"
+  },
+  {
+    "variable": "revol_util",
+    "nombre": "Utilización revolvente",
+    "descripcion": "Porcentaje del crédito revolvente utilizado sobre el límite disponible.",
+    "tipo": "Numérica continua",
+    "rango": "0% - 892% (típico: 0-100%)",
+    "relevancia": "Utilización >80% es señal fuerte de riesgo. Variable de alto poder predictivo en credit scoring.",
+    "ejemplo": "54.3%"
+  },
+  {
+    "variable": "total_acc",
+    "nombre": "Total de cuentas",
+    "descripcion": "Número total de líneas de crédito (abiertas y cerradas) en el historial del solicitante.",
+    "tipo": "Numérica discreta",
+    "rango": "1 - 176",
+    "relevancia": "Historial crediticio más amplio puede indicar experiencia con crédito, pero no necesariamente menor riesgo.",
+    "ejemplo": "25"
+  },
+  {
+    "variable": "open_acc",
+    "nombre": "Cuentas abiertas",
+    "descripcion": "Número de cuentas de crédito actualmente abiertas.",
+    "tipo": "Numérica discreta",
+    "rango": "0 - 90",
+    "relevancia": "Muchas cuentas abiertas simultáneas puede señalar búsqueda excesiva de crédito.",
+    "ejemplo": "11"
+  },
+  {
+    "variable": "pub_rec",
+    "nombre": "Registros públicos negativos",
+    "descripcion": "Número de registros públicos derogatorios (bancarrotas, juicios, embargos fiscales).",
+    "tipo": "Numérica discreta",
+    "rango": "0 - 86 (>90% son 0)",
+    "relevancia": "Cualquier registro público negativo aumenta significativamente la PD. Variable binaria (>0 vs 0) es altamente predictiva.",
+    "ejemplo": "0"
+  },
+  {
+    "variable": "delinq_2yrs",
+    "nombre": "Morosidades recientes",
+    "descripcion": "Número de incidentes de mora (+30 días) en los últimos 2 años.",
+    "tipo": "Numérica discreta",
+    "rango": "0 - 39 (>85% son 0)",
+    "relevancia": "Morosidad reciente es el mejor predictor de morosidad futura. Señal fuerte de deterioro crediticio.",
+    "ejemplo": "0"
+  },
+  {
+    "variable": "earliest_cr_line",
+    "nombre": "Primera línea de crédito",
+    "descripcion": "Fecha de apertura de la primera cuenta de crédito del solicitante.",
+    "tipo": "Fecha",
+    "rango": "1946 - 2015",
+    "relevancia": "Proxy de profundidad de historial crediticio. Mayor antigüedad generalmente asociada a menor riesgo.",
+    "ejemplo": "Aug-2001"
+  },
+  {
+    "variable": "installment",
+    "nombre": "Cuota mensual",
+    "descripcion": "Pago mensual fijo del préstamo (principal + intereses).",
+    "tipo": "Numérica continua",
+    "rango": "$15 - $1,533",
+    "relevancia": "Junto con ingreso, determina la carga de pago real. installment/annual_inc es una feature derivada útil.",
+    "ejemplo": "$375.43"
+  },
+  {
+    "variable": "verification_status",
+    "nombre": "Estado de verificación",
+    "descripcion": "Si el ingreso fue verificado por Lending Club: Not Verified, Source Verified, Verified.",
+    "tipo": "Categórica nominal",
+    "rango": "Not Verified, Source Verified, Verified",
+    "relevancia": "Paradójicamente, préstamos verificados tienen mayor default (se verifican los casos más riesgosos).",
+    "ejemplo": "Verified"
+  },
+  {
+    "variable": "default_flag",
+    "nombre": "Indicador de incumplimiento",
+    "descripcion": "Variable objetivo binaria: 1 = préstamo en default (Charged Off, Default, Late 31-120), 0 = al corriente o pagado.",
+    "tipo": "Binaria",
+    "rango": "0, 1",
+    "relevancia": "Variable target del modelo PD. Tasa global: 18.5%. Derivada de loan_status (variable cruda).",
+    "ejemplo": "0"
+  }
+]
