@@ -10,7 +10,7 @@ from loguru import logger
 
 def init_dagshub(
     repo_owner: str = "YOUR_USER",
-    repo_name: str = "lending-club-risk-project",
+    repo_name: str = "Lending-Club-End-to-End",
 ) -> None:
     """Initialize DagsHub MLflow tracking."""
     import dagshub

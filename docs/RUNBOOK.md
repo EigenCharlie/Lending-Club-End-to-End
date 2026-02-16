@@ -14,7 +14,7 @@ Step-by-step guide to reproduce the entire project from a fresh clone.
 ```bash
 # 1. Clone and enter project
 git clone <repo-url>
-cd lending-club-risk-project
+cd Lending-Club-End-to-End
 
 # 2. Install dependencies
 uv sync --extra dev
