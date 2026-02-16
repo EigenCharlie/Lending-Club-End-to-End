@@ -4,8 +4,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/EigenCharlie/lending-club-risk-project"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-Repository-0A0A0A?logo=github"></a>
-  <a href="https://dagshub.com/EigenCharlie94/lending-club-risk-project"><img alt="DagsHub" src="https://img.shields.io/badge/DagsHub-MLops-00A86B"></a>
+  <a href="https://github.com/EigenCharlie/Lending-Club-End-to-End"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-Repository-0A0A0A?logo=github"></a>
+  <a href="https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"><img alt="DagsHub" src="https://img.shields.io/badge/DagsHub-MLops-00A86B"></a>
   <img alt="Python" src="https://img.shields.io/badge/Python-3.11-blue">
   <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-Multipage-red">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-lightgrey">
