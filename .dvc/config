@@ -3,4 +3,4 @@
 ['remote "gdrive"']
     url = gdrive://1tYocHJz3jUu_0nSH4yqVEV1QNdPDbhMc
 ['remote "dagshub"']
-    url = https://dagshub.com/EigenCharlie94/lending-club-risk-project.dvc
+    url = https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End.dvc
