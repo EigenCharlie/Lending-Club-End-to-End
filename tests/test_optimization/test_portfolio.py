@@ -1,4 +1,5 @@
 """Unit tests for portfolio optimization and robust optimization."""
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -16,10 +17,12 @@ def small_portfolio():
     """Create a small portfolio problem (10 loans)."""
     rng = np.random.RandomState(42)
     n = 10
-    loans = pd.DataFrame({
-        "loan_amnt": rng.uniform(5000, 30000, n),
-        "purpose": rng.choice(["debt", "credit", "home"], n),
-    })
+    loans = pd.DataFrame(
+        {
+            "loan_amnt": rng.uniform(5000, 30000, n),
+            "purpose": rng.choice(["debt", "credit", "home"], n),
+        }
+    )
     pd_point = rng.uniform(0.02, 0.15, n)
     pd_low = np.clip(pd_point - 0.05, 0, 1)
     pd_high = np.clip(pd_point + 0.05, 0, 1)
@@ -34,7 +37,12 @@ def small_portfolio():
 def test_build_model_creates_pyomo_model(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     model = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
         total_budget=100_000,
     )
     assert hasattr(model, "x")
@@ -46,10 +54,22 @@ def test_build_model_creates_pyomo_model(small_portfolio):
 def test_build_model_robust_vs_nonrobust(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     model_robust = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates, robust=True,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        robust=True,
     )
     model_nonrobust = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates, robust=False,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        robust=False,
     )
     # Both should build successfully
     assert model_robust is not None
@@ -62,8 +82,14 @@ def test_build_model_robust_vs_nonrobust(small_portfolio):
 def test_solve_portfolio_returns_solution(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     model = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=500_000, max_portfolio_pd=0.20,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=500_000,
+        max_portfolio_pd=0.20,
     )
     solution = solve_portfolio(model, time_limit=30)
     assert "allocation" in solution
@@ -77,8 +103,14 @@ def test_solve_portfolio_budget_constraint(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     budget = 50_000
     model = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=budget, max_portfolio_pd=0.20,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=budget,
+        max_portfolio_pd=0.20,
     )
     solution = solve_portfolio(model, time_limit=30)
     assert solution["total_allocated"] <= budget + 1  # Small tolerance
@@ -87,8 +119,14 @@ def test_solve_portfolio_budget_constraint(small_portfolio):
 def test_solve_portfolio_allocations_bounded(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     model = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=500_000, max_portfolio_pd=0.20,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=500_000,
+        max_portfolio_pd=0.20,
     )
     solution = solve_portfolio(model, time_limit=30)
     for i, alloc in solution["allocation"].items():
@@ -98,8 +136,14 @@ def test_solve_portfolio_allocations_bounded(small_portfolio):
 def test_solve_portfolio_objective_finite(small_portfolio):
     loans, pd_point, pd_low, pd_high, lgd, int_rates = small_portfolio
     model = build_portfolio_model(
-        loans, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=500_000, max_portfolio_pd=0.20,
+        loans,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=500_000,
+        max_portfolio_pd=0.20,
     )
     solution = solve_portfolio(model, time_limit=30)
     assert np.isfinite(solution["objective_value"])
@@ -170,3 +214,38 @@ def test_scenario_analysis_ordering():
     assert result["best_case"].iloc[0] <= result["expected"].iloc[0]
     assert result["expected"].iloc[0] <= result["worst_case"].iloc[0]
     assert result["range"].iloc[0] > 0
+
+
+# ── Edge Cases ──
+
+
+def test_box_uncertainty_set_zero_width():
+    """When low==high, radius should be zero and center equals both."""
+    pd_low = np.array([0.10, 0.20])
+    pd_high = np.array([0.10, 0.20])
+    result = build_box_uncertainty_set(pd_low, pd_high)
+    np.testing.assert_array_almost_equal(result["pd_radius"], [0.0, 0.0])
+    np.testing.assert_array_almost_equal(result["pd_center"], [0.10, 0.20])
+
+
+def test_worst_case_loss_single_loan():
+    """Single fully-funded loan should give straightforward loss."""
+    allocation = np.array([1.0])
+    loan_amounts = np.array([10000.0])
+    pd_high = np.array([0.20])
+    loss = worst_case_expected_loss(allocation, loan_amounts, pd_high)
+    # loss = 1 * 10000 * 0.20 * 0.45 = 900
+    assert loss == pytest.approx(900, abs=1)
+
+
+def test_scenario_analysis_zero_allocation():
+    """All-zero allocation should produce all-zero scenarios."""
+    allocation = np.array([0.0, 0.0])
+    loan_amounts = np.array([10000, 20000])
+    pd_low = np.array([0.05, 0.10])
+    pd_point = np.array([0.10, 0.15])
+    pd_high = np.array([0.15, 0.20])
+    lgd = np.array([0.45, 0.45])
+    result = scenario_analysis(allocation, loan_amounts, pd_low, pd_point, pd_high, lgd)
+    assert result["best_case"].iloc[0] == 0.0
+    assert result["worst_case"].iloc[0] == 0.0

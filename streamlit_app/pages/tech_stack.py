@@ -310,6 +310,13 @@ with tabs[7]:
                     "great_expectations",
                     "Ligero, decoradores, integración pandas nativa",
                 ],
+                [
+                    "dagshub",
+                    ">=0.4",
+                    "Hub MLOps (Git + DVC + MLflow)",
+                    "—",
+                    "Unifica Git mirror, DVC remote y MLflow tracking en una plataforma",
+                ],
             ]
         ),
         use_container_width=True,
@@ -421,23 +428,28 @@ with tabs[10]:
 # ══════════════════════════════════════════════════════════════════════════════
 st.subheader("2) Prácticas de ingeniería")
 
-with st.expander("Testing: 88 tests con pytest"):
+TEST_SUITE_TOTAL = 195
+TEST_BREAKDOWN = [
+    ["test_api/test_router_normalization", 5, "Normalización de parámetros FastAPI"],
+    ["test_config_consistency", 11, "Drift entre config YAML, contrato PD y DAG DVC"],
+    ["test_data/test_make_dataset", 8, "Limpieza inicial y control de leakage"],
+    ["test_data/test_prepare_dataset", 8, "Splits OOT y calibración temporal"],
+    ["test_data/test_build_datasets", 13, "loan_master/time_series/ead + parsing robusto"],
+    ["test_features/", 5, "Feature engineering + Pandera schemas"],
+    ["test_models/test_pd_model", 9, "CatBoost, baseline LR, calibración"],
+    ["test_models/test_conformal", 19, "Cobertura, grupos, Mondrian y edge cases"],
+    ["test_evaluation/test_ifrs9", 19, "Staging ECL, rangos conformal y edge cases"],
+    ["test_evaluation/test_metrics", 11, "Métricas clasificación y regresión"],
+    ["test_optimization/test_portfolio", 15, "Pyomo, solver, constraints y escenarios"],
+    ["test_scripts/", 15, "Suite de scripts (MLflow helpers + end_to_end + export artifacts)"],
+    ["test_utils/test_mlflow_utils", 6, "init_dagshub + logging de experimentos"],
+    ["test_streamlit/test_page_imports", 43, "Smoke AST/import de 20 páginas Streamlit"],
+    ["test_integration", 8, "Pipeline completo sobre datos sintéticos"],
+]
+
+with st.expander(f"Testing: {TEST_SUITE_TOTAL} tests con pytest"):
     test_data = pd.DataFrame(
-        [
-            ["test_api/test_router_normalization", 5, "Normalización de parámetros FastAPI"],
-            ["test_config_consistency", 7, "Drift entre config YAML y código/thesis"],
-            ["test_features/", 5, "Feature engineering + Pandera schemas"],
-            ["test_models/test_pd_model", 9, "CatBoost, baseline LR, calibración"],
-            ["test_models/test_conformal", 14, "Cobertura, grupos, Mondrian, intervalos"],
-            ["test_evaluation/test_ifrs9", 16, "Staging ECL, conformal ranges, discount"],
-            ["test_evaluation/test_metrics", 11, "Métricas clasificación y regresión"],
-            [
-                "test_optimization/test_portfolio",
-                12,
-                "Modelo Pyomo, solver, constraints, escenarios",
-            ],
-            ["test_integration", 8, "Pipeline completo en datos sintéticos"],
-        ],
+        TEST_BREAKDOWN,
         columns=["Módulo", "Tests", "Qué valida"],
     )
     st.dataframe(test_data, use_container_width=True, hide_index=True)
@@ -575,6 +587,46 @@ escrita en Rust.
 
 **Nota**: los extras `dev` y `platform` no pueden coexistir debido a conflictos
 de versiones (feast requiere numpy>=2, mpi-sppy requiere numpy<2).
+"""
+    )
+
+with st.expander("MLOps: DVC Pipeline + MLflow Tracking"):
+    st.markdown(
+        """
+**DVC** (Data Version Control) define el pipeline completo como un DAG declarativo
+en `dvc.yaml` con **17 stages**, desde la limpieza de datos hasta la capa de export/storytelling.
+
+```text
+make_dataset → prepare_dataset → build_datasets
+  → train_pd_model → generate_conformal
+  → forecast_default_rates
+  → estimate_causal_effects → simulate_causal_policy → validate_causal_policy
+  → run_ifrs9_sensitivity
+  → optimize_portfolio → optimize_portfolio_tradeoff
+  → run_survival_analysis
+  → backtest_conformal_coverage → validate_conformal_policy
+  → export_streamlit_artifacts → export_storytelling_snapshot
+```
+
+- `dvc.yaml`: define dependencias, comandos y salidas de cada stage
+- `dvc.lock`: fija hashes de datos y artefactos para reproducibilidad exacta
+- `dvc repro`: re-ejecuta solo los stages con dependencias modificadas
+- Remote: **DagsHub** (almacenamiento centralizado de artefactos grandes)
+
+**MLflow** registra 8 experimentos desde artefactos existentes:
+1. `end_to_end` — métricas globales del pipeline
+2. `pd_model` — AUC, Gini, KS, Brier, ECE del modelo CatBoost + Platt
+3. `conformal` — cobertura Mondrian 90%/95%, ancho de intervalos
+4. `causal_policy` — regla seleccionada, net value, bootstrap p05
+5. `ifrs9` — ECL baseline/severe, uplift por escenario
+6. `optimization` — portafolio robusto vs nominal, costo de robustez
+7. `survival` — Cox C-index, RSF C-index, concordancia
+8. `time_series` — MASE, RMSSE por modelo de forecast
+
+**DagsHub** unifica las tres capas:
+- **Git mirror**: sincronización automática con GitHub
+- **DVC remote**: almacenamiento de parquets y modelos serializados
+- **MLflow UI**: visualización de experimentos, comparación de runs, registro de modelos
 """
     )
 

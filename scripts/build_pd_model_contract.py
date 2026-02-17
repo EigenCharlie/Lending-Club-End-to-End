@@ -8,8 +8,8 @@ from __future__ import annotations
 
 import argparse
 import pickle
-from pathlib import Path
 import shutil
+from pathlib import Path
 
 import pandas as pd
 from catboost import CatBoostClassifier
@@ -38,7 +38,9 @@ def _read_with_fallback(fe_path: str, base_path: str) -> pd.DataFrame:
     raise FileNotFoundError(f"Neither {fe} nor {base} exists")
 
 
-def _materialize_canonical_artifacts(model_path: Path, calibrator_path: Path | None) -> tuple[Path, Path | None]:
+def _materialize_canonical_artifacts(
+    model_path: Path, calibrator_path: Path | None
+) -> tuple[Path, Path | None]:
     """Copy model/calibrator into canonical paths if needed."""
     CANONICAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     if model_path.resolve() != CANONICAL_MODEL_PATH.resolve():
@@ -63,7 +65,9 @@ def _materialize_canonical_artifacts(model_path: Path, calibrator_path: Path | N
 def main():
     model_path = resolve_model_path()
     calibrator_path = resolve_calibrator_path()
-    canonical_model_path, canonical_cal_path = _materialize_canonical_artifacts(model_path, calibrator_path)
+    canonical_model_path, canonical_cal_path = _materialize_canonical_artifacts(
+        model_path, calibrator_path
+    )
 
     model = CatBoostClassifier()
     model.load_model(str(canonical_model_path))
@@ -71,8 +75,12 @@ def main():
     if not features:
         raise ValueError("Unable to infer feature names from canonical PD model.")
 
-    train_df = _read_with_fallback("data/processed/train_fe.parquet", "data/processed/train.parquet")
-    cal_df = _read_with_fallback("data/processed/calibration_fe.parquet", "data/processed/calibration.parquet")
+    train_df = _read_with_fallback(
+        "data/processed/train_fe.parquet", "data/processed/train.parquet"
+    )
+    cal_df = _read_with_fallback(
+        "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
+    )
     test_df = _read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
 
     split_shapes, split_missing = validate_features_in_splits(

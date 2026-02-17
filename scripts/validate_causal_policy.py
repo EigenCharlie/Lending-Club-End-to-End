@@ -20,7 +20,9 @@ import pandas as pd
 from loguru import logger
 
 
-def _bootstrap_total(values: np.ndarray, n_boot: int = 200, random_state: int = 42) -> tuple[float, float, float]:
+def _bootstrap_total(
+    values: np.ndarray, n_boot: int = 200, random_state: int = 42
+) -> tuple[float, float, float]:
     rng = np.random.default_rng(random_state)
     n = len(values)
     if n == 0:
@@ -30,10 +32,14 @@ def _bootstrap_total(values: np.ndarray, n_boot: int = 200, random_state: int = 
     return float(totals.mean()), float(np.quantile(totals, 0.05)), float(np.quantile(totals, 0.95))
 
 
-def _evaluate_rule(df: pd.DataFrame, name: str, mask: np.ndarray, n_boot: int, random_state: int) -> dict[str, float | int | str]:
+def _evaluate_rule(
+    df: pd.DataFrame, name: str, mask: np.ndarray, n_boot: int, random_state: int
+) -> dict[str, float | int | str]:
     selected = df[mask].copy()
     values = selected["net_value"].to_numpy(dtype=float)
-    boot_mean, boot_p05, boot_p95 = _bootstrap_total(values, n_boot=n_boot, random_state=random_state)
+    boot_mean, boot_p05, boot_p95 = _bootstrap_total(
+        values, n_boot=n_boot, random_state=random_state
+    )
 
     if len(selected) > 0 and "grade" in selected.columns:
         grade_totals = selected.groupby("grade", observed=True)["net_value"].sum()
@@ -48,7 +54,9 @@ def _evaluate_rule(df: pd.DataFrame, name: str, mask: np.ndarray, n_boot: int, r
         "n_selected": int(mask.sum()),
         "action_rate": float(mask.mean()),
         "total_net_value": float(values.sum()),
-        "total_loss_reduction": float(selected["expected_loss_reduction"].sum() if len(selected) else 0.0),
+        "total_loss_reduction": float(
+            selected["expected_loss_reduction"].sum() if len(selected) else 0.0
+        ),
         "total_revenue_impact": float(selected["revenue_impact"].sum() if len(selected) else 0.0),
         "bootstrap_mean_net": boot_mean,
         "bootstrap_p05_net": boot_p05,
@@ -67,7 +75,9 @@ def main(
 ):
     input_path = Path("data/processed/causal_policy_simulation.parquet")
     if not input_path.exists():
-        raise FileNotFoundError("Missing causal policy simulation artifact. Run scripts/simulate_causal_policy.py first.")
+        raise FileNotFoundError(
+            "Missing causal policy simulation artifact. Run scripts/simulate_causal_policy.py first."
+        )
     df = pd.read_parquet(input_path)
     if "segment" not in df.columns or "net_value" not in df.columns:
         raise KeyError("Required columns missing in causal_policy_simulation artifact.")
@@ -76,7 +86,9 @@ def main(
     q90 = float(df["cate"].quantile(0.90))
     rules = {
         "high_only": df["segment"].eq("high_sensitivity").to_numpy(),
-        "high_plus_medium_all": df["segment"].isin(["high_sensitivity", "medium_sensitivity"]).to_numpy(),
+        "high_plus_medium_all": df["segment"]
+        .isin(["high_sensitivity", "medium_sensitivity"])
+        .to_numpy(),
         "high_plus_medium_positive": (
             df["segment"].eq("high_sensitivity")
             | (df["segment"].eq("medium_sensitivity") & (df["net_value"] > 0))
@@ -96,11 +108,15 @@ def main(
                 random_state=random_state,
             )
         )
-    candidates = pd.DataFrame(rows).sort_values("bootstrap_p05_net", ascending=False).reset_index(drop=True)
+    candidates = (
+        pd.DataFrame(rows).sort_values("bootstrap_p05_net", ascending=False).reset_index(drop=True)
+    )
     candidates["pass_action_rate"] = candidates["action_rate"] <= max_action_rate
     candidates["pass_bootstrap"] = candidates["bootstrap_p05_net"] >= min_bootstrap_p05_net
     candidates["pass_grade_floor"] = candidates["min_grade_total_net"] >= min_grade_total_net
-    candidates["pass_all"] = candidates[["pass_action_rate", "pass_bootstrap", "pass_grade_floor"]].all(axis=1)
+    candidates["pass_all"] = candidates[
+        ["pass_action_rate", "pass_bootstrap", "pass_grade_floor"]
+    ].all(axis=1)
 
     feasible = candidates[candidates["pass_all"]].copy()
     if feasible.empty:

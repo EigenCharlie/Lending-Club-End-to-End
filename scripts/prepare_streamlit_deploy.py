@@ -209,7 +209,9 @@ def build_bundle(output_dir: Path, clean: bool, strict: bool, skip_duckdb: bool)
             continue
         copied_bytes += _copy_file(src, dst)
 
-    optional_files = [f for f in OPTIONAL_FILES if not (skip_duckdb and f == "data/lending_club.duckdb")]
+    optional_files = [
+        f for f in OPTIONAL_FILES if not (skip_duckdb and f == "data/lending_club.duckdb")
+    ]
     for rel_file in optional_files:
         src = PROJECT_ROOT / rel_file
         dst = output_dir / rel_file
@@ -243,7 +245,9 @@ def build_bundle(output_dir: Path, clean: bool, strict: bool, skip_duckdb: bool)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Prepare a lightweight Streamlit deployment bundle")
+    parser = argparse.ArgumentParser(
+        description="Prepare a lightweight Streamlit deployment bundle"
+    )
     parser.add_argument(
         "--output",
         type=Path,

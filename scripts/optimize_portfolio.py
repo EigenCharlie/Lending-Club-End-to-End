@@ -54,7 +54,9 @@ def _load_pd_intervals(n: int, random_state: int = 42) -> tuple[np.ndarray, np.n
     col_point = "y_pred" if "y_pred" in intervals.columns else "pd_point"
     col_low = "pd_low_90" if "pd_low_90" in intervals.columns else "pd_low"
     col_high = "pd_high_90" if "pd_high_90" in intervals.columns else "pd_high"
-    sampled = intervals.sample(n=min(n, len(intervals)), random_state=random_state).reset_index(drop=True)
+    sampled = intervals.sample(n=min(n, len(intervals)), random_state=random_state).reset_index(
+        drop=True
+    )
     pd_point = sampled[col_point].to_numpy(dtype=float)
     pd_low = sampled[col_low].to_numpy(dtype=float)
     pd_high = sampled[col_high].to_numpy(dtype=float)

@@ -30,12 +30,14 @@ def build_box_uncertainty_set(
     }
 
     if lgd_low is not None and lgd_high is not None:
-        uncertainty_set.update({
-            "lgd_low": lgd_low,
-            "lgd_high": lgd_high,
-            "lgd_center": (lgd_low + lgd_high) / 2,
-            "lgd_radius": (lgd_high - lgd_low) / 2,
-        })
+        uncertainty_set.update(
+            {
+                "lgd_low": lgd_low,
+                "lgd_high": lgd_high,
+                "lgd_center": (lgd_low + lgd_high) / 2,
+                "lgd_radius": (lgd_high - lgd_low) / 2,
+            }
+        )
 
     logger.info(
         f"Box uncertainty set: {len(pd_low)} loans, "
@@ -55,7 +57,11 @@ def worst_case_expected_loss(
 
     Uses upper bounds from conformal prediction for conservative estimate.
     """
-    lgd = lgd_high if lgd_high is not None else (lgd_point if lgd_point is not None else np.ones_like(pd_high) * 0.45)
+    lgd = (
+        lgd_high
+        if lgd_high is not None
+        else (lgd_point if lgd_point is not None else np.ones_like(pd_high) * 0.45)
+    )
     return float(np.sum(allocation * loan_amounts * pd_high * lgd))
 
 

@@ -15,14 +15,15 @@ from __future__ import annotations
 
 from typing import Any
 
+# Fix networkx 3.6 / DoWhy 0.12 incompatibility
+import networkx.algorithms as _nxa
 import numpy as np
 import pandas as pd
 from loguru import logger
 
-# Fix networkx 3.6 / DoWhy 0.12 incompatibility
-import networkx.algorithms as _nxa
 if not hasattr(_nxa, "d_separated"):
     from networkx.algorithms.d_separation import is_d_separator as _is_d_sep
+
     _nxa.d_separated = lambda G, x, y, z: _is_d_sep(G, x, y, z)
 
 
@@ -139,7 +140,8 @@ def run_refutation_tests(
 
     # Placebo treatment
     ref_placebo = model.refute_estimate(
-        identified_estimand, estimate,
+        identified_estimand,
+        estimate,
         method_name="placebo_treatment_refuter",
         placebo_type="permute",
     )
@@ -147,14 +149,16 @@ def run_refutation_tests(
 
     # Random common cause
     ref_random = model.refute_estimate(
-        identified_estimand, estimate,
+        identified_estimand,
+        estimate,
         method_name="random_common_cause",
     )
     refutations.append({"test": "random_common_cause", "result": str(ref_random)})
 
     # Data subset
     ref_subset = model.refute_estimate(
-        identified_estimand, estimate,
+        identified_estimand,
+        estimate,
         method_name="data_subset_refuter",
         subset_fraction=0.8,
     )

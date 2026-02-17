@@ -62,7 +62,9 @@ def build_portfolio_model(
     model.lgd = pyo.Param(model.I, initialize=dict(enumerate(lgd)))
     model.loan_amnt = pyo.Param(
         model.I,
-        initialize=dict(enumerate(loans["loan_amnt"].values if "loan_amnt" in loans.columns else np.ones(n))),
+        initialize=dict(
+            enumerate(loans["loan_amnt"].values if "loan_amnt" in loans.columns else np.ones(n))
+        ),
     )
 
     # x[i] = fraction of loan i to fund
@@ -96,8 +98,11 @@ def build_portfolio_model(
 
     min_budget_utilization = float(np.clip(min_budget_utilization, 0.0, 1.0))
     if min_budget_utilization > 0:
+
         def min_budget_rule(m):
-            return sum(m.x[i] * m.loan_amnt[i] for i in m.I) >= min_budget_utilization * total_budget
+            return (
+                sum(m.x[i] * m.loan_amnt[i] for i in m.I) >= min_budget_utilization * total_budget
+            )
 
         model.min_budget = pyo.Constraint(rule=min_budget_rule)
 
@@ -190,7 +195,9 @@ def build_binary_model(
     model.x = pyo.Var(model.I, domain=pyo.Binary)
 
     def objective_rule(m):
-        return sum(m.x[i] * m.loan_amnt[i] * (m.int_rate[i] - m.pd_point[i] * m.lgd[i]) for i in m.I)
+        return sum(
+            m.x[i] * m.loan_amnt[i] * (m.int_rate[i] - m.pd_point[i] * m.lgd[i]) for i in m.I
+        )
 
     model.obj = pyo.Objective(rule=objective_rule, sense=pyo.maximize)
 

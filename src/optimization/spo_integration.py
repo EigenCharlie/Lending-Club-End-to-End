@@ -6,8 +6,6 @@ not just prediction accuracy.
 
 from __future__ import annotations
 
-from typing import Any
-
 import numpy as np
 import torch
 from loguru import logger
@@ -57,7 +55,7 @@ def train_spo_model(
         avg_loss = epoch_loss / len(train_loader)
         losses.append(avg_loss)
         if (epoch + 1) % 10 == 0:
-            logger.info(f"SPO+ Epoch {epoch+1}/{epochs}: loss={avg_loss:.6f}")
+            logger.info(f"SPO+ Epoch {epoch + 1}/{epochs}: loss={avg_loss:.6f}")
 
     return losses
 

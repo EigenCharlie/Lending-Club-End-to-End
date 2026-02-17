@@ -1,6 +1,6 @@
 """Unit tests for evaluation metrics."""
+
 import numpy as np
-import pytest
 
 from src.evaluation.metrics import (
     classification_metrics,
@@ -9,7 +9,6 @@ from src.evaluation.metrics import (
     ks_statistic,
     regression_metrics,
 )
-
 
 # ── classification_metrics ──
 
@@ -95,7 +94,15 @@ def test_conformal_metrics_keys():
     y_true = np.array([0.5])
     y_intervals = np.array([[0.0, 1.0]])
     result = conformal_metrics(y_true, y_intervals, alpha=0.1)
-    expected = {"empirical_coverage", "target_coverage", "coverage_gap", "avg_width", "median_width", "width_std", "width_90th_pct"}
+    expected = {
+        "empirical_coverage",
+        "target_coverage",
+        "coverage_gap",
+        "avg_width",
+        "median_width",
+        "width_std",
+        "width_90th_pct",
+    }
     assert expected == set(result.keys())
 
 

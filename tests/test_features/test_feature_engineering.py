@@ -1,18 +1,22 @@
 """Unit tests for feature engineering."""
+
 import numpy as np
 import pandas as pd
 import pytest
-from src.features.feature_engineering import create_ratios, create_buckets
+
+from src.features.feature_engineering import create_buckets, create_ratios
 
 
 @pytest.fixture
 def sample_df():
-    return pd.DataFrame({
-        "loan_amnt": [10000, 20000, 5000],
-        "annual_inc": [50000, 100000, 30000],
-        "int_rate": [7.0, 15.0, 22.0],
-        "dti": [8.0, 22.0, 35.0],
-    })
+    return pd.DataFrame(
+        {
+            "loan_amnt": [10000, 20000, 5000],
+            "annual_inc": [50000, 100000, 30000],
+            "int_rate": [7.0, 15.0, 22.0],
+            "dti": [8.0, 22.0, 35.0],
+        }
+    )
 
 
 def test_create_ratios(sample_df):

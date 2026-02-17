@@ -88,7 +88,9 @@ def _resolve_features(
     if model_features:
         cat_idxs = set(model.get_cat_feature_indices())
         categorical = [f for i, f in enumerate(model_features) if i in cat_idxs]
-        logger.info(f"Using {len(model_features)} model-native features ({len(categorical)} categorical)")
+        logger.info(
+            f"Using {len(model_features)} model-native features ({len(categorical)} categorical)"
+        )
         return model_features, categorical
 
     # Fallback path if model metadata is unavailable.
@@ -155,14 +157,10 @@ def _mark_pareto_front(results_df: pd.DataFrame) -> pd.Series:
             if i == j:
                 continue
             better_or_equal = (
-                arr_cov[j] >= arr_cov[i]
-                and arr_grp[j] >= arr_grp[i]
-                and arr_wid[j] <= arr_wid[i]
+                arr_cov[j] >= arr_cov[i] and arr_grp[j] >= arr_grp[i] and arr_wid[j] <= arr_wid[i]
             )
             strictly_better = (
-                arr_cov[j] > arr_cov[i]
-                or arr_grp[j] > arr_grp[i]
-                or arr_wid[j] < arr_wid[i]
+                arr_cov[j] > arr_cov[i] or arr_grp[j] > arr_grp[i] or arr_wid[j] < arr_wid[i]
             )
             if better_or_equal and strictly_better:
                 dominated[i] = True
@@ -202,12 +200,18 @@ def _choose_best_tuning_row(
 
     # Fallback: penalty score
     fallback = df.copy()
-    fallback["coverage_shortfall"] = (target_coverage - fallback["empirical_coverage"]).clip(lower=0.0)
-    fallback["group_shortfall"] = (min_group_coverage_target - fallback["min_group_coverage"]).clip(lower=0.0)
+    fallback["coverage_shortfall"] = (target_coverage - fallback["empirical_coverage"]).clip(
+        lower=0.0
+    )
+    fallback["group_shortfall"] = (min_group_coverage_target - fallback["min_group_coverage"]).clip(
+        lower=0.0
+    )
     if max_width_budget is None:
         fallback["width_excess"] = 0.0
     else:
-        fallback["width_excess"] = (fallback["avg_interval_width"] - max_width_budget).clip(lower=0.0)
+        fallback["width_excess"] = (fallback["avg_interval_width"] - max_width_budget).clip(
+            lower=0.0
+        )
     fallback["score"] = (
         100.0 * fallback["coverage_shortfall"]
         + 60.0 * fallback["group_shortfall"]
@@ -271,7 +275,9 @@ def _enforce_group_coverage_floor(
         if not mask.any():
             return float("nan")
         return float(
-            ((y_true_arr[mask] >= intervals[mask, 0]) & (y_true_arr[mask] <= intervals[mask, 1])).mean()
+            (
+                (y_true_arr[mask] >= intervals[mask, 0]) & (y_true_arr[mask] <= intervals[mask, 1])
+            ).mean()
         )
 
     group_factors: dict[str, float] = {}
@@ -338,7 +344,9 @@ def main(
     # Load artifacts and data.
     model, model_path = _load_model()
     calibrator = _load_calibrator()
-    cal_df = _read_with_fallback("data/processed/calibration_fe.parquet", "data/processed/calibration.parquet")
+    cal_df = _read_with_fallback(
+        "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
+    )
     test_df = _read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
     if TARGET_COL not in cal_df.columns or TARGET_COL not in test_df.columns:
         raise KeyError(f"Missing target column '{TARGET_COL}' in calibration/test data.")
@@ -374,7 +382,9 @@ def main(
                 )
 
                 metrics = validate_coverage(y_test.to_numpy(dtype=float), y_int, alpha_target_90)
-                g_metrics = conditional_coverage_by_group(y_test.to_numpy(dtype=float), y_int, group_test)
+                g_metrics = conditional_coverage_by_group(
+                    y_test.to_numpy(dtype=float), y_int, group_test
+                )
 
                 tuning_rows.append(
                     {
@@ -444,7 +454,9 @@ def main(
         scaled_scores=best_cfg["scaled_scores"],
     )
     metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
-    group_metrics_90 = conditional_coverage_by_group(y_test.to_numpy(dtype=float), y_int_90, group_test)
+    group_metrics_90 = conditional_coverage_by_group(
+        y_test.to_numpy(dtype=float), y_int_90, group_test
+    )
     y_int_90_adjusted, group_multipliers, coverage_floor_report = _enforce_group_coverage_floor(
         y_true=y_test.to_numpy(dtype=float),
         y_pred=y_pred_90,
@@ -456,7 +468,9 @@ def main(
         logger.info(f"Applying group coverage floor multipliers: {group_multipliers}")
         y_int_90 = y_int_90_adjusted
         metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
-        group_metrics_90 = conditional_coverage_by_group(y_test.to_numpy(dtype=float), y_int_90, group_test)
+        group_metrics_90 = conditional_coverage_by_group(
+            y_test.to_numpy(dtype=float), y_int_90, group_test
+        )
     else:
         logger.info("No group coverage floor adjustments were required.")
 
@@ -476,7 +490,9 @@ def main(
     if group_multipliers:
         y_int_95 = _apply_group_multipliers(y_pred_95, y_int_95, group_test, group_multipliers)
     metrics_95 = validate_coverage(y_test.to_numpy(dtype=float), y_int_95, alpha_95)
-    group_metrics_95 = conditional_coverage_by_group(y_test.to_numpy(dtype=float), y_int_95, group_test)
+    group_metrics_95 = conditional_coverage_by_group(
+        y_test.to_numpy(dtype=float), y_int_95, group_test
+    )
 
     # Compose output tables.
     intervals_df = pd.DataFrame(
@@ -516,7 +532,9 @@ def main(
         how="outer",
     ).sort_values("group")
     group_metrics_df = group_metrics_df.merge(
-        coverage_floor_report[["group", "coverage_before", "coverage_after", "multiplier", "adjusted"]],
+        coverage_floor_report[
+            ["group", "coverage_before", "coverage_after", "multiplier", "adjusted"]
+        ],
         on="group",
         how="left",
     )

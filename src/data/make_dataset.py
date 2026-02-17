@@ -95,7 +95,9 @@ def save_interim(df: pd.DataFrame, output_dir: str | Path) -> Path:
     return filepath
 
 
-def main(input_path: str = "data/raw/Loan_status_2007-2020Q3.csv", output_dir: str = "data/interim/") -> None:
+def main(
+    input_path: str = "data/raw/Loan_status_2007-2020Q3.csv", output_dir: str = "data/interim/"
+) -> None:
     """Run full make_dataset pipeline."""
     df = load_raw_data(input_path)
     df = initial_clean(df)

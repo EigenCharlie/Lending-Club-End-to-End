@@ -21,13 +21,16 @@ def create_ratios(df: pd.DataFrame) -> pd.DataFrame:
     if "rev_utilization" not in df.columns and "revol_util" in df.columns:
         # revol_util is already percentage (0-100), convert to fraction
         df["rev_utilization"] = pd.to_numeric(df["revol_util"], errors="coerce") / 100.0
-    elif "rev_utilization" not in df.columns and "revol_bal" in df.columns:
-        if "total_rev_hi_lim" in df.columns:
-            df["rev_utilization"] = np.where(
-                df["total_rev_hi_lim"] > 0,
-                df["revol_bal"] / df["total_rev_hi_lim"],
-                np.nan,
-            )
+    elif (
+        "rev_utilization" not in df.columns
+        and "revol_bal" in df.columns
+        and "total_rev_hi_lim" in df.columns
+    ):
+        df["rev_utilization"] = np.where(
+            df["total_rev_hi_lim"] > 0,
+            df["revol_bal"] / df["total_rev_hi_lim"],
+            np.nan,
+        )
     logger.info("Created ratio features")
     return df
 

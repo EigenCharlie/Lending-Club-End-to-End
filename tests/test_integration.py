@@ -3,23 +3,18 @@
 Validates that the core pipeline components work together:
 data → features → model → conformal → optimization → IFRS9.
 """
+
 import numpy as np
 import pandas as pd
 import pytest
-from sklearn.datasets import make_classification
 from sklearn.linear_model import LogisticRegression
 
 from src.evaluation.ifrs9 import assign_stage, compute_ecl, ecl_with_conformal_range
-from src.evaluation.metrics import classification_metrics, conformal_metrics
+from src.evaluation.metrics import classification_metrics
 from src.features.feature_engineering import create_buckets, create_ratios
-from src.models.calibration import calibrate_isotonic, expected_calibration_error
-from src.models.conformal import ProbabilityRegressor, validate_coverage
+from src.models.calibration import calibrate_isotonic
+from src.models.conformal import validate_coverage
 from src.optimization.portfolio_model import build_portfolio_model, solve_portfolio
-from src.optimization.robust_opt import (
-    build_box_uncertainty_set,
-    scenario_analysis,
-    worst_case_expected_loss,
-)
 
 
 @pytest.fixture
@@ -29,15 +24,17 @@ def synthetic_pipeline_data():
     n = 200
 
     # Simulate raw loan data
-    df = pd.DataFrame({
-        "loan_amnt": rng.uniform(1000, 40000, n),
-        "annual_inc": rng.uniform(20000, 200000, n),
-        "int_rate": rng.uniform(5, 30, n),
-        "dti": rng.uniform(0, 40, n),
-        "default_flag": rng.binomial(1, 0.18, n),
-        "purpose": rng.choice(["debt", "credit", "home", "car"], n),
-        "grade": rng.choice(["A", "B", "C", "D", "E"], n),
-    })
+    df = pd.DataFrame(
+        {
+            "loan_amnt": rng.uniform(1000, 40000, n),
+            "annual_inc": rng.uniform(20000, 200000, n),
+            "int_rate": rng.uniform(5, 30, n),
+            "dti": rng.uniform(0, 40, n),
+            "default_flag": rng.binomial(1, 0.18, n),
+            "purpose": rng.choice(["debt", "credit", "home", "car"], n),
+            "grade": rng.choice(["A", "B", "C", "D", "E"], n),
+        }
+    )
     return df
 
 
@@ -133,8 +130,14 @@ def test_optimization_pipeline(synthetic_pipeline_data):
     int_rates = df["int_rate"].values / 100
 
     model = build_portfolio_model(
-        df, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=500_000, max_portfolio_pd=0.20,
+        df,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=500_000,
+        max_portfolio_pd=0.20,
     )
     solution = solve_portfolio(model, time_limit=30)
 
@@ -194,12 +197,26 @@ def test_robust_vs_nonrobust_comparison(synthetic_pipeline_data):
     int_rates = df["int_rate"].values / 100
 
     model_robust = build_portfolio_model(
-        df, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=200_000, max_portfolio_pd=0.10, robust=True,
+        df,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=200_000,
+        max_portfolio_pd=0.10,
+        robust=True,
     )
     model_nonrobust = build_portfolio_model(
-        df, pd_point, pd_low, pd_high, lgd, int_rates,
-        total_budget=200_000, max_portfolio_pd=0.10, robust=False,
+        df,
+        pd_point,
+        pd_low,
+        pd_high,
+        lgd,
+        int_rates,
+        total_budget=200_000,
+        max_portfolio_pd=0.10,
+        robust=False,
     )
 
     sol_robust = solve_portfolio(model_robust, time_limit=30)

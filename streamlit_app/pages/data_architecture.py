@@ -99,10 +99,14 @@ def count_dictionary_variables() -> int:
         rels = ET.fromstring(zf.read("xl/_rels/workbook.xml.rels"))
         rel_map = {
             r.attrib["Id"]: r.attrib["Target"]
-            for r in rels.findall("{http://schemas.openxmlformats.org/package/2006/relationships}Relationship")
+            for r in rels.findall(
+                "{http://schemas.openxmlformats.org/package/2006/relationships}Relationship"
+            )
         }
         sheet = wb.find("m:sheets", ns).find("m:sheet", ns)
-        rid = sheet.attrib["{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"]
+        rid = sheet.attrib[
+            "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}id"
+        ]
         target = "xl/" + rel_map[rid]
 
         shared_strings = []
@@ -281,14 +285,14 @@ digraph G {{
     edge [color="#6B7A90", penwidth=1.6, arrowsize=0.8];
 
     dict [label="Diccionario oficial\\n({dict_vars} variables)", fillcolor="#EAF2FF"];
-    raw [label="Raw CSV\\n({col_map.get('data/raw/Loan_status_2007-2020Q3.csv', 'N/D')} columnas)", fillcolor="#E7F3FF"];
-    clean [label="Interim cleaned\\n({col_map.get('data/interim/lending_club_cleaned.parquet', 'N/D')} columnas)", fillcolor="#E8F8F1"];
+    raw [label="Raw CSV\\n({col_map.get("data/raw/Loan_status_2007-2020Q3.csv", "N/D")} columnas)", fillcolor="#E7F3FF"];
+    clean [label="Interim cleaned\\n({col_map.get("data/interim/lending_club_cleaned.parquet", "N/D")} columnas)", fillcolor="#E8F8F1"];
     split [label="Split temporal OOT\\ntrain/cal/test", fillcolor="#F0F8E8"];
-    fe [label="Feature engineering\\n({col_map.get('data/processed/train_fe.parquet', 'N/D')} columnas)", fillcolor="#FFF4E5"];
-    loan [label="loan_master\\n({col_map.get('data/processed/loan_master.parquet', 'N/D')} cols)", fillcolor="#FFF8E1"];
-    ts [label="time_series\\n({col_map.get('data/processed/time_series.parquet', 'N/D')} cols)", fillcolor="#FFF8E1"];
-    ead [label="ead_dataset\\n({col_map.get('data/processed/ead_dataset.parquet', 'N/D')} cols)", fillcolor="#FFF8E1"];
-    obt [label="obt_loan_features\\n({col_map.get('data/processed/obt_loan_features.parquet', 'N/D')} cols)", fillcolor="#FFF8E1"];
+    fe [label="Feature engineering\\n({col_map.get("data/processed/train_fe.parquet", "N/D")} columnas)", fillcolor="#FFF4E5"];
+    loan [label="loan_master\\n({col_map.get("data/processed/loan_master.parquet", "N/D")} cols)", fillcolor="#FFF8E1"];
+    ts [label="time_series\\n({col_map.get("data/processed/time_series.parquet", "N/D")} cols)", fillcolor="#FFF8E1"];
+    ead [label="ead_dataset\\n({col_map.get("data/processed/ead_dataset.parquet", "N/D")} cols)", fillcolor="#FFF8E1"];
+    obt [label="obt_loan_features\\n({col_map.get("data/processed/obt_loan_features.parquet", "N/D")} cols)", fillcolor="#FFF8E1"];
     plat [label="DuckDB + dbt + Feast", fillcolor="#F3E8FF"];
     app [label="Streamlit / API / MCP", fillcolor="#ECECEC"];
 
@@ -335,6 +339,7 @@ shapes = load_dataset_shapes()
 feature_iv = load_json("feature_importance_iv")
 feast = load_feast_metrics()
 dbt = load_dbt_metrics()
+
 
 def _safe_cols(dataset_name: str) -> int:
     row = shapes.loc[shapes["dataset"] == dataset_name, "cols"]
@@ -430,11 +435,13 @@ dataset_design = pd.DataFrame(
 st.dataframe(dataset_design, use_container_width=True, hide_index=True)
 
 st.subheader("3) Ingeniería de variables: WOE, IV y selección de features")
-feature_sizes = {k: len(v) for k, v in feature_iv.get("feature_lists", {}).items() if isinstance(v, list)}
+feature_sizes = {
+    k: len(v) for k, v in feature_iv.get("feature_lists", {}).items() if isinstance(v, list)
+}
 st.dataframe(
-    pd.DataFrame(
-        [{"familia": k, "n_variables": v} for k, v in feature_sizes.items()]
-    ).sort_values("n_variables", ascending=False),
+    pd.DataFrame([{"familia": k, "n_variables": v} for k, v in feature_sizes.items()]).sort_values(
+        "n_variables", ascending=False
+    ),
     use_container_width=True,
     hide_index=True,
 )
@@ -467,11 +474,19 @@ col_a, col_b = st.columns(2)
 with col_a:
     woe_img = get_notebook_image_path("02_feature_engineering", "cell_020_out_00.png")
     if woe_img.exists():
-        st.image(str(woe_img), caption="Notebook 02: binning WOE en features de mayor IV", use_container_width=True)
+        st.image(
+            str(woe_img),
+            caption="Notebook 02: binning WOE en features de mayor IV",
+            use_container_width=True,
+        )
 with col_b:
     iv_img = get_notebook_image_path("02_feature_engineering", "cell_023_out_00.png")
     if iv_img.exists():
-        st.image(str(iv_img), caption="Notebook 02: ranking IV y umbrales de interpretación", use_container_width=True)
+        st.image(
+            str(iv_img),
+            caption="Notebook 02: ranking IV y umbrales de interpretación",
+            use_container_width=True,
+        )
 
 st.markdown(
     """
@@ -504,7 +519,10 @@ kpi_row(
         {"label": "Tablas DuckDB", "value": str(duckdb_table_count)},
         {"label": "Modelos/Tests dbt", "value": f"{dbt_models}/{dbt_tests}"},
         {"label": "Pass rate dbt", "value": f"{pass_rate:.0f}%"},
-        {"label": "Feature Views/Services", "value": f"{len(feast.get('feature_views', []))}/{len(feast.get('feature_services', []))}"},
+        {
+            "label": "Feature Views/Services",
+            "value": f"{len(feast.get('feature_views', []))}/{len(feast.get('feature_services', []))}",
+        },
         {"label": "Online store Feast", "value": f"{feast.get('online_size_gb', 0.0):.2f} GB"},
     ],
     n_cols=3,
@@ -568,9 +586,123 @@ de feature drift entre ambientes.
 """
     )
 
+st.subheader("5) Pipeline DVC: reproducibilidad declarativa")
 st.markdown(
     """
-Como cierre narrativo, la lectura correcta es que “arquitectura” aquí significa trazabilidad total de transformación:
+El pipeline completo está codificado en `dvc.yaml` como un **DAG de 17 stages** que DVC puede
+re-ejecutar de forma incremental. Cada stage declara dependencias (`deps`), comando (`cmd`) y
+salidas (`outs`), de modo que `dvc repro` solo recalcula lo que cambió.
+"""
+)
+
+dvc_stages = [
+    {
+        "Stage": "make_dataset",
+        "Deps": "raw CSV, make_dataset.py",
+        "Outs": "lending_club_cleaned.parquet",
+    },
+    {
+        "Stage": "prepare_dataset",
+        "Deps": "cleaned parquet",
+        "Outs": "train/calibration/test splits",
+    },
+    {
+        "Stage": "build_datasets",
+        "Deps": "train.parquet, feature_engineering.py",
+        "Outs": "loan_master, time_series, ead_dataset",
+    },
+    {
+        "Stage": "train_pd_model",
+        "Deps": "splits + pd_model.yaml",
+        "Outs": "pd_canonical.cbm, calibrator.pkl",
+    },
+    {
+        "Stage": "generate_conformal",
+        "Deps": "splits + modelo PD",
+        "Outs": "conformal_intervals_mondrian.parquet",
+    },
+    {
+        "Stage": "forecast_default_rates",
+        "Deps": "time_series.parquet",
+        "Outs": "ts_forecasts.parquet",
+    },
+    {
+        "Stage": "estimate_causal_effects",
+        "Deps": "train.parquet",
+        "Outs": "cate_estimates.parquet, causal models",
+    },
+    {
+        "Stage": "simulate_causal_policy",
+        "Deps": "cate_estimates.parquet",
+        "Outs": "causal_policy_simulation.parquet",
+    },
+    {
+        "Stage": "validate_causal_policy",
+        "Deps": "policy simulation",
+        "Outs": "rule candidates + selected",
+    },
+    {
+        "Stage": "run_ifrs9_sensitivity",
+        "Deps": "conformal + splits",
+        "Outs": "ifrs9_sensitivity_grid.parquet",
+    },
+    {
+        "Stage": "optimize_portfolio",
+        "Deps": "conformal + optimization.yaml",
+        "Outs": "portfolio_allocations.parquet",
+    },
+    {
+        "Stage": "optimize_portfolio_tradeoff",
+        "Deps": "conformal + optimization.yaml",
+        "Outs": "robustness_frontier.parquet",
+    },
+    {
+        "Stage": "run_survival_analysis",
+        "Deps": "loan_master.parquet",
+        "Outs": "cox_ph_model.pkl, rsf_model.pkl",
+    },
+    {
+        "Stage": "backtest_conformal_coverage",
+        "Deps": "conformal_intervals_mondrian + test split",
+        "Outs": "backtest monthly + alerts",
+    },
+    {
+        "Stage": "validate_conformal_policy",
+        "Deps": "conformal_results + group metrics + backtest",
+        "Outs": "conformal_policy_checks + policy_status.json",
+    },
+    {
+        "Stage": "export_streamlit_artifacts",
+        "Deps": "artefactos de modelos/datos para UI",
+        "Outs": "JSON/parquets optimizados para Streamlit",
+    },
+    {
+        "Stage": "export_storytelling_snapshot",
+        "Deps": "pipeline_summary + policy + IFRS9 + robustness",
+        "Outs": "reports/storytelling_snapshot.json",
+    },
+]
+st.dataframe(pd.DataFrame(dvc_stages), use_container_width=True, hide_index=True)
+
+st.markdown(
+    """
+**`dvc.lock`** fija los hashes MD5/SHA256 de cada artefacto, permitiendo verificar que cualquier
+reproducción genera resultados bit-a-bit idénticos. El remote DagsHub almacena los artefactos
+pesados (parquets, modelos serializados) fuera de Git.
+
+```bash
+# Reproducir pipeline completo (solo re-ejecuta stages con cambios)
+uv run dvc repro
+
+# Ver DAG de dependencias
+uv run dvc dag
+```
+"""
+)
+
+st.markdown(
+    """
+Como cierre narrativo, la lectura correcta es que "arquitectura" aquí significa trazabilidad total de transformación:
 qué dato entra, cómo se modifica, qué artefacto produce y qué módulo lo consume. Esa trazabilidad es la que permite que
 el relato metodológico del proyecto sea defendible de principio a fin y no dependa de supuestos implícitos.
 """

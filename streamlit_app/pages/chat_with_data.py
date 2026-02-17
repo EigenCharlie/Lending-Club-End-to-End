@@ -9,6 +9,7 @@ import plotly.express as px
 import streamlit as st
 
 from streamlit_app.theme import PLOTLY_TEMPLATE
+from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.utils import query_duckdb, suggest_sql_with_grok
 
 READ_ONLY_SQL = re.compile(
@@ -258,4 +259,10 @@ Como cierre, `Chat con Datos` funciona como mecanismo de transparencia del proye
 narrativas puede contrastarse aquí con SQL explícito. Eso fortalece trazabilidad y facilita que lectores técnicos o de
 negocio exploren el mismo stack con distintos niveles de profundidad.
 """
+)
+
+next_page_teaser(
+    "Resumen Ejecutivo",
+    "Regresa al hub principal del proyecto.",
+    "pages/executive_summary.py",
 )

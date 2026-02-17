@@ -13,7 +13,6 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-
 # SICR thresholds
 SICR_PD_INCREASE_THRESHOLD = 0.02  # Absolute PD increase triggering SICR
 SICR_DPD_THRESHOLD = 30  # Days past due for rebuttable presumption
@@ -58,7 +57,7 @@ def assign_stage(
         stages[dpd >= DEFAULT_DPD_THRESHOLD] = 3
 
     logger.info(
-        f"Staging: S1={np.sum(stages==1)}, S2={np.sum(stages==2)}, S3={np.sum(stages==3)}"
+        f"Staging: S1={np.sum(stages == 1)}, S2={np.sum(stages == 2)}, S3={np.sum(stages == 3)}"
     )
     return stages
 
@@ -103,14 +102,16 @@ def compute_ecl(
 
     ecl = effective_pd * lgd_values * ead_values * discount_factor
 
-    result = pd.DataFrame({
-        "stage": stages,
-        "pd_12m": pd_values,
-        "effective_pd": effective_pd,
-        "lgd": lgd_values,
-        "ead": ead_values,
-        "ecl": ecl,
-    })
+    result = pd.DataFrame(
+        {
+            "stage": stages,
+            "pd_12m": pd_values,
+            "effective_pd": effective_pd,
+            "lgd": lgd_values,
+            "ead": ead_values,
+            "ecl": ecl,
+        }
+    )
 
     # Summary
     for s in [1, 2, 3]:
@@ -141,13 +142,15 @@ def ecl_with_conformal_range(
     ecl_point = pd_point * lgd * ead
     ecl_high = pd_high * lgd * ead
 
-    result = pd.DataFrame({
-        "stage": stages,
-        "ecl_low": ecl_low,
-        "ecl_point": ecl_point,
-        "ecl_high": ecl_high,
-        "ecl_range": ecl_high - ecl_low,
-    })
+    result = pd.DataFrame(
+        {
+            "stage": stages,
+            "ecl_low": ecl_low,
+            "ecl_point": ecl_point,
+            "ecl_high": ecl_high,
+            "ecl_range": ecl_high - ecl_low,
+        }
+    )
 
     logger.info(
         f"ECL range: total_low={ecl_low.sum():,.0f}, "

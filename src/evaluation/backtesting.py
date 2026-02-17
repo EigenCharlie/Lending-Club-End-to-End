@@ -2,9 +2,10 @@
 
 from __future__ import annotations
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 from loguru import logger
+
 from src.evaluation.metrics import classification_metrics
 
 
@@ -50,5 +51,7 @@ def population_stability_index(
     actual_pct = np.clip(actual_pct, 1e-6, None)
 
     psi = np.sum((actual_pct - expected_pct) * np.log(actual_pct / expected_pct))
-    logger.info(f"PSI = {psi:.4f} ({'stable' if psi < 0.1 else 'drift detected' if psi < 0.25 else 'significant drift'})")
+    logger.info(
+        f"PSI = {psi:.4f} ({'stable' if psi < 0.1 else 'drift detected' if psi < 0.25 else 'significant drift'})"
+    )
     return psi

@@ -48,7 +48,6 @@ def train_random_survival_forest(
             Create with: np.array([(bool, float), ...], dtype=[('event', bool), ('time', float)])
     """
     from sksurv.ensemble import RandomSurvivalForest
-    from sksurv.metrics import concordance_index_censored
 
     rsf = RandomSurvivalForest(
         n_estimators=n_estimators,
@@ -72,7 +71,7 @@ def make_survival_target(
 ) -> np.ndarray:
     """Create structured array for scikit-survival."""
     return np.array(
-        list(zip(df[event_col].astype(bool), df[time_col].astype(float))),
+        list(zip(df[event_col].astype(bool), df[time_col].astype(float), strict=False)),
         dtype=[("event", bool), ("time", float)],
     )
 

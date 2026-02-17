@@ -2,6 +2,3 @@
     remote = dagshub
 ['remote "dagshub"']
     url = https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End.dvc
-    jobs = 1
-    read_timeout = 300
-    connect_timeout = 300

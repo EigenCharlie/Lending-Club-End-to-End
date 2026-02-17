@@ -44,7 +44,7 @@ If you want to run individual stages:
 | 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + Platt calibrator + contract |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
-| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate (7/7 checks) |
+| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate (checks formales de conformal) |
 | 8 | `uv run python scripts/estimate_causal_effects.py` | CATE estimates |
 | 9 | `uv run python scripts/simulate_causal_policy.py` | Policy simulation |
 | 10 | `uv run python scripts/validate_causal_policy.py` | Rule selection + bootstrap |
@@ -96,6 +96,54 @@ uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
 
 Then follow `docs/DEPLOY_STREAMLIT_FREE.md` to publish the generated `dist/streamlit_deploy/` bundle.
+
+## Integrations (DVC + MLflow + DagsHub)
+
+For full setup details, see `docs/INTEGRATIONS_SETUP.md`.
+
+### Setup rápido de integraciones
+
+```bash
+# DagsHub-first (recomendado)
+bash scripts/configure_integrations.sh
+
+# Opcional: añadir Google Drive como backup secundario
+bash scripts/configure_integrations.sh --enable-gdrive
+```
+
+### DVC Pipeline
+
+```bash
+# Reproduce the full pipeline (incremental — only re-runs changed stages)
+uv run dvc repro
+
+# View the DAG
+uv run dvc dag
+
+# Push artifacts to DagsHub remote
+uv run dvc push -r dagshub
+
+# Optional backup to Google Drive (if configured)
+uv run dvc push -r gdrive
+```
+
+`dvc repro` is equivalent to running `scripts/end_to_end_pipeline.py` but with automatic caching and incremental execution.
+
+### MLflow Experiment Logging
+
+```bash
+# Log all 8 experiments from existing artifacts to DagsHub MLflow
+uv run python scripts/log_mlflow_experiment_suite.py
+```
+
+Experiments logged: `end_to_end`, `pd_model`, `conformal`, `causal_policy`, `ifrs9`, `optimization`, `survival`, `time_series`.
+
+### DagsHub
+
+- **Git mirror**: `git remote add dagshub https://dagshub.com/<user>/<repo>.git`
+- **DVC remote**: configured in `.dvc/config`
+- **MLflow UI**: accessible at `https://dagshub.com/<user>/<repo>/experiments`
+- **Environment**: copy `.env.example` → `.env` and fill in tokens
 
 ## Troubleshooting
 

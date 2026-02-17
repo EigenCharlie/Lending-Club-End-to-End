@@ -79,10 +79,7 @@ def _to_params(data: dict[str, Any]) -> dict[str, Any]:
 
 def _git_sha() -> str:
     try:
-        return (
-            subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True)
-            .strip()
-        )
+        return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     except Exception:
         return "unknown"
 
@@ -166,19 +163,23 @@ def _log_conformal(timestamp: str, common_tags: dict[str, str]) -> str:
     status = _load_json("models/conformal_policy_status.json")
     checks_total = float(status.get("checks_total", 1) or 1)
     checks_passed = float(status.get("checks_passed", 0))
+    overall_pass = bool(status.get("overall_pass", False))
 
     metrics = {
         "coverage_90": float(status.get("coverage_90", 0.0)),
         "coverage_95": float(status.get("coverage_95", 0.0)),
         "avg_width_90": float(status.get("avg_width_90", 0.0)),
         "min_group_coverage_90": float(status.get("min_group_coverage_90", 0.0)),
+        "checks_passed": checks_passed,
+        "checks_total": checks_total,
         "checks_passed_ratio": checks_passed / checks_total,
+        "overall_pass": 1.0 if overall_pass else 0.0,
         "critical_alerts": float(status.get("critical_alerts", 0)),
         "warning_alerts": float(status.get("warning_alerts", 0)),
     }
     params = {
         "checks_total": int(status.get("checks_total", 0)),
-        "overall_pass": bool(status.get("overall_pass", False)),
+        "overall_pass": overall_pass,
         "policy_config": status.get("policy_config", ""),
     }
     tags = {
@@ -255,8 +256,12 @@ def _log_ifrs9(timestamp: str, common_tags: dict[str, str]) -> str:
         "baseline_total_ecl": baseline_ecl,
         "severe_total_ecl": severe_ecl,
         "severe_uplift_pct": uplift,
-        "min_total_ecl_grid": float(summary.get("sensitivity_extremes", {}).get("min_total_ecl", 0.0)),
-        "max_total_ecl_grid": float(summary.get("sensitivity_extremes", {}).get("max_total_ecl", 0.0)),
+        "min_total_ecl_grid": float(
+            summary.get("sensitivity_extremes", {}).get("min_total_ecl", 0.0)
+        ),
+        "max_total_ecl_grid": float(
+            summary.get("sensitivity_extremes", {}).get("max_total_ecl", 0.0)
+        ),
     }
     params = {
         "n_scenarios": len(scenarios),
@@ -296,7 +301,9 @@ def _log_optimization(timestamp: str, common_tags: dict[str, str]) -> str:
         rt = float(row.get("risk_tolerance", 0.0))
         suffix = f"risk_{int(round(rt * 100)):02d}"
         metrics[f"{suffix}_best_robust_return"] = float(row.get("best_robust_return", 0.0))
-        metrics[f"{suffix}_price_of_robustness_pct"] = float(row.get("price_of_robustness_pct", 0.0))
+        metrics[f"{suffix}_price_of_robustness_pct"] = float(
+            row.get("price_of_robustness_pct", 0.0)
+        )
         metrics[f"{suffix}_best_robust_funded"] = float(row.get("best_robust_funded", 0.0))
 
     params = {

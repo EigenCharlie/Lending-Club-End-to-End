@@ -4,6 +4,21 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+usage() {
+  cat <<USAGE
+Usage:
+  bash scripts/configure_integrations.sh [--enable-gdrive]
+
+Default mode configures:
+  - git identity + remotes (GitHub + DagsHub)
+  - DVC remote default on DagsHub
+  - DagsHub auth for DVC + MLflow env vars
+
+Optional:
+  --enable-gdrive   Configure Google Drive as secondary DVC remote (backup)
+USAGE
+}
+
 require_cmd() {
   command -v "$1" >/dev/null 2>&1 || {
     echo "ERROR: Missing required command: $1" >&2
@@ -18,6 +33,38 @@ ensure_var() {
     exit 1
   fi
 }
+
+upsert_env_key() {
+  local key="$1"
+  local value="$2"
+  if [[ ! -f .env ]]; then
+    cp .env.example .env
+  fi
+
+  if grep -q "^${key}=" .env; then
+    sed -i "s|^${key}=.*|${key}=${value}|" .env
+  else
+    printf "%s=%s\n" "$key" "$value" >> .env
+  fi
+}
+
+ENABLE_GDRIVE="false"
+for arg in "$@"; do
+  case "$arg" in
+    --enable-gdrive)
+      ENABLE_GDRIVE="true"
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "ERROR: Unknown argument: $arg" >&2
+      usage
+      exit 1
+      ;;
+  esac
+done
 
 require_cmd git
 require_cmd uv
@@ -38,7 +85,10 @@ ensure_var GITHUB_REPO_URL
 ensure_var DAGSHUB_USER
 ensure_var DAGSHUB_REPO
 ensure_var DAGSHUB_USER_TOKEN
-ensure_var GDRIVE_FOLDER_ID
+
+if [[ "$ENABLE_GDRIVE" == "true" ]]; then
+  ensure_var GDRIVE_FOLDER_ID
+fi
 
 echo "Configuring git identity (local repo)..."
 git config user.name "$GIT_USER_NAME"
@@ -58,67 +108,62 @@ else
   git remote add dagshub "$DAGSHUB_GIT_URL"
 fi
 
-echo "Configuring DVC Google Drive remote..."
-uv run dvc remote add -f -d gdrive "gdrive://${GDRIVE_FOLDER_ID}"
-
-# Authentication mode for Google Drive remote.
-# Priority: service account > custom OAuth app > default OAuth flow.
-if [[ -n "${GDRIVE_SERVICE_ACCOUNT_JSON:-}" ]]; then
-  if [[ ! -f "$GDRIVE_SERVICE_ACCOUNT_JSON" ]]; then
-    echo "ERROR: GDRIVE_SERVICE_ACCOUNT_JSON path does not exist: $GDRIVE_SERVICE_ACCOUNT_JSON" >&2
-    exit 1
-  fi
-  uv run dvc remote modify --local gdrive gdrive_use_service_account true
-  uv run dvc remote modify --local gdrive gdrive_service_account_json_file_path "$GDRIVE_SERVICE_ACCOUNT_JSON"
-  echo "Google Drive auth mode: service account"
-elif [[ -n "${GDRIVE_CLIENT_ID:-}" && -n "${GDRIVE_CLIENT_SECRET:-}" ]]; then
-  uv run dvc remote modify --local gdrive gdrive_client_id "$GDRIVE_CLIENT_ID"
-  uv run dvc remote modify --local gdrive gdrive_client_secret "$GDRIVE_CLIENT_SECRET"
-  echo "Google Drive auth mode: custom OAuth app"
-else
-  echo "Google Drive auth mode: default OAuth app (may require custom app if blocked by Google policy)."
-fi
-
-echo "Configuring DVC DagsHub remote..."
+echo "Configuring DVC DagsHub remote (default)..."
 DAGSHUB_DVC_URL="https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.dvc"
-uv run dvc remote add -f dagshub "$DAGSHUB_DVC_URL"
+uv run dvc remote add -f -d dagshub "$DAGSHUB_DVC_URL"
 uv run dvc remote modify --local dagshub auth basic
 uv run dvc remote modify --local dagshub user "$DAGSHUB_USER"
 uv run dvc remote modify --local dagshub password "$DAGSHUB_USER_TOKEN"
 
-echo "Syncing DagsHub/MLflow env vars in .env (without overwriting existing file)..."
-if [[ ! -f .env ]]; then
-  cp .env.example .env
+if [[ "$ENABLE_GDRIVE" == "true" ]]; then
+  echo "Configuring DVC Google Drive remote (secondary backup)..."
+  uv run dvc remote add -f gdrive "gdrive://${GDRIVE_FOLDER_ID}"
+
+  # Authentication mode for Google Drive remote.
+  # Priority: service account > custom OAuth app > default OAuth flow.
+  if [[ -n "${GDRIVE_SERVICE_ACCOUNT_JSON:-}" ]]; then
+    if [[ ! -f "$GDRIVE_SERVICE_ACCOUNT_JSON" ]]; then
+      echo "ERROR: GDRIVE_SERVICE_ACCOUNT_JSON path does not exist: $GDRIVE_SERVICE_ACCOUNT_JSON" >&2
+      exit 1
+    fi
+    uv run dvc remote modify --local gdrive gdrive_use_service_account true
+    uv run dvc remote modify --local gdrive gdrive_service_account_json_file_path "$GDRIVE_SERVICE_ACCOUNT_JSON"
+    echo "Google Drive auth mode: service account"
+  elif [[ -n "${GDRIVE_CLIENT_ID:-}" && -n "${GDRIVE_CLIENT_SECRET:-}" ]]; then
+    uv run dvc remote modify --local gdrive gdrive_client_id "$GDRIVE_CLIENT_ID"
+    uv run dvc remote modify --local gdrive gdrive_client_secret "$GDRIVE_CLIENT_SECRET"
+    echo "Google Drive auth mode: custom OAuth app"
+  else
+    echo "Google Drive auth mode: default OAuth app (may be blocked by Google policy)."
+  fi
 fi
 
-# Append only missing keys.
-append_if_missing() {
-  local key="$1"
-  local value="$2"
-  if ! grep -q "^${key}=" .env; then
-    printf "%s=%s\n" "$key" "$value" >> .env
-  fi
-}
+echo "Syncing DagsHub/MLflow env vars in .env..."
+upsert_env_key DAGSHUB_USER "$DAGSHUB_USER"
+upsert_env_key DAGSHUB_REPO "$DAGSHUB_REPO"
+upsert_env_key DAGSHUB_USER_TOKEN "$DAGSHUB_USER_TOKEN"
+upsert_env_key DAGSHUB_TOKEN "$DAGSHUB_USER_TOKEN"
+upsert_env_key MLFLOW_TRACKING_URI "https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.mlflow"
+upsert_env_key MLFLOW_TRACKING_USERNAME "$DAGSHUB_USER"
+upsert_env_key MLFLOW_TRACKING_PASSWORD "$DAGSHUB_USER_TOKEN"
 
-append_if_missing DAGSHUB_USER "$DAGSHUB_USER"
-append_if_missing DAGSHUB_REPO "$DAGSHUB_REPO"
-append_if_missing DAGSHUB_USER_TOKEN "$DAGSHUB_USER_TOKEN"
-append_if_missing DAGSHUB_TOKEN "$DAGSHUB_USER_TOKEN"
-append_if_missing GDRIVE_FOLDER_ID "$GDRIVE_FOLDER_ID"
-append_if_missing MLFLOW_TRACKING_URI "https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.mlflow"
-append_if_missing MLFLOW_TRACKING_USERNAME "$DAGSHUB_USER"
-append_if_missing MLFLOW_TRACKING_PASSWORD "$DAGSHUB_USER_TOKEN"
+if [[ "$ENABLE_GDRIVE" == "true" ]]; then
+  upsert_env_key GDRIVE_FOLDER_ID "$GDRIVE_FOLDER_ID"
+fi
 
 echo
-echo "Integration setup complete."
-echo "- git origin:   $(git remote get-url origin)"
-echo "- git dagshub:  $(git remote get-url dagshub)"
-echo "- dvc default:  gdrive://$GDRIVE_FOLDER_ID"
-echo "- dvc dagshub:  $DAGSHUB_DVC_URL"
+echo "Integration setup complete (DagsHub-first)."
+echo "- git origin:    $(git remote get-url origin)"
+echo "- git dagshub:   $(git remote get-url dagshub)"
+echo "- dvc default:   $DAGSHUB_DVC_URL"
+if [[ "$ENABLE_GDRIVE" == "true" ]]; then
+  echo "- dvc secondary: gdrive://$GDRIVE_FOLDER_ID"
+fi
 echo
-echo "Next manual steps:"
-echo "1) Authenticate DVC Google Drive when prompted by: uv run dvc push -r gdrive"
-echo "2) Push git to GitHub: git push -u origin main"
-echo "3) Push git mirror to DagsHub: git push -u dagshub main"
-echo "4) Push data artifacts: uv run dvc push -r gdrive"
-echo "5) Optional backup to DagsHub remote: uv run dvc push -r dagshub"
+echo "Next steps:"
+echo "1) Push git to GitHub: git push -u origin main"
+echo "2) Push git mirror to DagsHub: git push -u dagshub main"
+echo "3) Push data artifacts to DagsHub: uv run dvc push -r dagshub"
+if [[ "$ENABLE_GDRIVE" == "true" ]]; then
+  echo "4) Optional backup to Google Drive: uv run dvc push -r gdrive"
+fi

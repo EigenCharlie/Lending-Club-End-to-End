@@ -58,8 +58,7 @@ def create_calibration_set(
     calibration = train_sorted.iloc[-n_cal:].copy()
 
     logger.info(
-        f"Calibration split: proper_train={len(proper_train):,}, "
-        f"calibration={len(calibration):,}"
+        f"Calibration split: proper_train={len(proper_train):,}, calibration={len(calibration):,}"
     )
     return proper_train, calibration
 

@@ -407,7 +407,7 @@ All items below are **completed**:
 - [x] IFRS9 SICR detection using interval widths implemented
 - [x] Mondrian CP implemented natively (not CREPES)
 - [x] Temporal backtesting with coverage alerts
-- [x] Formal acceptance policy (7/7 checks pass)
+- [x] Formal acceptance policy (checks monitored against current policy snapshot)
 
 ## External Resources
 - MAPIE GitHub Issues: https://github.com/scikit-learn-contrib/MAPIE/issues
@@ -435,7 +435,7 @@ If stuck:
 
 ---
 
-**Summary:** Conformal prediction is fully implemented and validated. Notebook 04 is complete, intervals are integrated with optimization (NB08), and the acceptance policy passes 7/7 checks.
+**Summary:** Conformal prediction is fully implemented and validated. Notebook 04 is complete, intervals are integrated with optimization (NB08), and the acceptance policy status is tracked from the latest policy snapshot.
 
 **Status:** Implemented and validated
 

@@ -1,9 +1,7 @@
 """Probability calibration methods.
 
-Available methods: Isotonic and Platt (Sigmoid). NB03 selected Platt (ECE=0.0128 on test set) as canonical calibrator.
-
-Migration note (scikit-learn >=1.6):
-  cv="prefit" is deprecated. Use FrozenEstimator wrapper instead.
+Available methods: Isotonic and Platt (Sigmoid).
+NB03 selected Platt (ECE=0.0128 on test set) as canonical calibrator.
 """
 
 from __future__ import annotations
@@ -11,9 +9,8 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from loguru import logger
-from sklearn.calibration import CalibratedClassifierCV
-from sklearn.frozen import FrozenEstimator
 from sklearn.isotonic import IsotonicRegression
+from sklearn.linear_model import LogisticRegression
 
 
 def expected_calibration_error(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> float:
@@ -45,10 +42,15 @@ def calibrate_platt(
     model,
     X_cal: pd.DataFrame,
     y_cal: pd.Series,
-) -> CalibratedClassifierCV:
-    """Fit Platt scaling (sigmoid) calibrator."""
-    cal_model = CalibratedClassifierCV(FrozenEstimator(model), method="sigmoid")
-    cal_model.fit(X_cal, y_cal)
+) -> LogisticRegression:
+    """Fit Platt scaling as logistic regression over raw model scores.
+
+    Returning a score-based calibrator keeps downstream conformal code agnostic
+    to feature-space requirements of the base classifier.
+    """
+    proba_cal = model.predict_proba(X_cal)[:, 1]
+    cal_model = LogisticRegression(max_iter=1000)
+    cal_model.fit(proba_cal.reshape(-1, 1), y_cal)
     logger.info("Fitted Platt scaling calibrator")
     return cal_model
 

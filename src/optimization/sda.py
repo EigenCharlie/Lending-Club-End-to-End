@@ -6,7 +6,6 @@ dynamic lending decisions over time (multi-period optimization).
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -54,14 +53,16 @@ def dynamic_credit_policy(
             origination_factor = 1.0
             min_grade = "D"
 
-        policies.append({
-            "month": row.get("ds", ""),
-            "forecast_pd": forecast_pd,
-            "pd_upper_90": pd_upper,
-            "action": action,
-            "recommended_origination": max_monthly_origination * origination_factor,
-            "min_grade_threshold": min_grade,
-        })
+        policies.append(
+            {
+                "month": row.get("ds", ""),
+                "forecast_pd": forecast_pd,
+                "pd_upper_90": pd_upper,
+                "action": action,
+                "recommended_origination": max_monthly_origination * origination_factor,
+                "min_grade_threshold": min_grade,
+            }
+        )
 
     result = pd.DataFrame(policies)
     logger.info(f"Generated {len(result)} monthly policies")

@@ -359,7 +359,7 @@ ECL (Expected Credit Loss) con intervalos de incertidumbre: ECL_low y ECL_high
 derivados de PD conformal × LGD × EAD. Introducimos el ancho del intervalo conformal
 (PD_high - PD_point) como señal adicional de SICR (Significant Increase in Credit Risk),
 complementando el criterio estándar de incremento en PD. Validamos en 277K préstamos
-out-of-time (2018-2020) con 7/7 policy gates passing.
+out-of-time (2018-2020) con policy gates formales y monitoreo temporal.
 
 **Contribución clave**: Conformal interval width como señal SICR + ECL por rango para
 lectura prudencial — ambos conceptos nuevos en la literatura IFRS9.
@@ -443,7 +443,7 @@ refs = pd.DataFrame(
 st.dataframe(refs, use_container_width=True, hide_index=True)
 
 next_page_teaser(
-    "Contribución de Tesis",
-    "Pipeline completo predict-then-optimize con conformal prediction.",
-    "pages/thesis_contribution.py",
+    "Visión End-to-End",
+    "Narrativa completa del pipeline con métricas detalladas por componente.",
+    "pages/thesis_end_to_end.py",
 )

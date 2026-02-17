@@ -380,6 +380,11 @@ st.subheader("4) Resultados de impacto")
 policy = load_json("conformal_policy_status", directory="models")
 robust = load_parquet("portfolio_robustness_summary")
 ifrs9 = load_parquet("ifrs9_scenario_summary")
+checks_passed = int(policy.get("checks_passed", 0))
+checks_total = int(policy.get("checks_total", 0))
+policy_gate_text = (
+    f"{checks_passed}/{checks_total} checks" if checks_total > 0 else "checks no disponibles"
+)
 
 # IFRS9 uses 'total_ecl' column
 baseline_ecl = (
@@ -417,7 +422,7 @@ kpi_row(
         {"label": "Cobertura 90% (Mondrian)", "value": format_pct(policy.get("coverage_90", 0))},
         {
             "label": "Policy Gate",
-            "value": f"{policy.get('checks_passed', 0)}/{policy.get('checks_total', 0)} checks",
+            "value": policy_gate_text,
         },
         {"label": "Retorno robusto (tol=10%)", "value": f"${robust_return:,.0f}"},
         {"label": "Precio de robustez", "value": f"${price_of_robustness:,.0f}"},
@@ -428,11 +433,11 @@ kpi_row(
 )
 
 st.markdown(
-    """
+    f"""
 **Lectura de los KPIs:**
 - **Cobertura 90%**: el 91.97% de las veces, el evento real cayó dentro del intervalo predicho.
   Esto supera el objetivo de 90%, validando la garantía de Conformal Prediction.
-- **Policy Gate 7/7**: siete validaciones formales de calidad del sistema de intervalos.
+- **Policy Gate ({policy_gate_text})**: validaciones formales de calidad del sistema de intervalos.
 - **Precio de robustez**: la diferencia de retorno entre asumir PD exacta vs usar el peor caso
   conformal. Es el costo de la protección.
 - **ECL baseline vs severo**: cómo cambian las provisiones regulatorias bajo estrés.
@@ -492,7 +497,7 @@ st.markdown(
 # ── IFRS9 Connection ──
 st.subheader("6) Conexión con IFRS9")
 st.markdown(
-    """
+    f"""
 Los intervalos conformal no solo alimentan la optimización — también mejoran la gobernanza regulatoria:
 
 | Uso en IFRS9 | Descripción |
@@ -500,7 +505,7 @@ Los intervalos conformal no solo alimentan la optimización — también mejoran
 | **ECL por rango** | Provisionar con `PD_high` en vez de `PD_point` para lectura prudencial |
 | **SICR signal** | Ancho del intervalo (`PD_high - PD_point`) como señal adicional de deterioro significativo |
 | **Stress testing** | Escenarios con multiplicadores derivados de bandas de pronóstico temporal |
-| **Gobernanza** | Política conformal (7/7 checks) documenta calidad de incertidumbre ante auditoría |
+| **Gobernanza** | Política conformal ({policy_gate_text}) documenta calidad de incertidumbre ante auditoría |
 """
 )
 
@@ -526,11 +531,12 @@ uv run streamlit run streamlit_app/app.py
     language="bash",
 )
 
+TEST_SUITE_TOTAL = 195
 st.markdown(
-    """
+    f"""
 **Stack tecnológico**: Python 3.11 · CatBoost · MAPIE 1.3 · Pyomo + HiGHS · DuckDB · dbt · Feast · Streamlit
 
-**88 tests** validan features, modelos, conformal, IFRS9, optimización e integración end-to-end.
+**{TEST_SUITE_TOTAL} tests** validan datos, features, modelos, conformal, IFRS9, optimización, MLflow, Streamlit e integración end-to-end.
 """
 )
 

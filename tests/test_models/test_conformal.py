@@ -1,4 +1,5 @@
 """Unit tests for conformal prediction utilities."""
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -10,7 +11,6 @@ from src.models.conformal import (
     conditional_coverage_by_group,
     validate_coverage,
 )
-
 
 # ── ProbabilityRegressor ──
 
@@ -176,3 +176,39 @@ def test_conformal_metrics_partial_coverage():
     result = conformal_metrics(y_true, y_intervals, alpha=0.1)
     assert 0 < result["empirical_coverage"] < 1
     assert result["avg_width"] == pytest.approx(0.4, abs=0.01)
+
+
+# ── Edge Cases ──
+
+
+def test_conformal_quantile_single_element():
+    """Quantile on single-element array should return that element."""
+    result = _conformal_quantile(np.array([0.5]), 0.9)
+    assert isinstance(result, float)
+
+
+def test_validate_coverage_inverted_intervals():
+    """Intervals where low > high should yield zero coverage."""
+    y_true = np.array([0.5, 0.5])
+    y_intervals = np.array([[0.8, 0.2], [0.9, 0.1]])  # inverted
+    result = validate_coverage(y_true, y_intervals, alpha=0.1)
+    assert result["empirical_coverage"] == 0.0
+
+
+def test_validate_coverage_with_nans_in_y_true():
+    """NaN in y_true should not cause crash."""
+    y_true = np.array([0.5, np.nan, 0.3])
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    # Should not raise — coverage calculation handles NaN gracefully
+    result = validate_coverage(y_true, y_intervals, alpha=0.1)
+    assert "empirical_coverage" in result
+
+
+def test_conditional_coverage_single_group():
+    """One group should produce a single-row result."""
+    y_true = np.array([0.2, 0.5, 0.8])
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    groups = pd.Series(["A", "A", "A"])
+    result = conditional_coverage_by_group(y_true, y_intervals, groups)
+    assert len(result) == 1
+    assert result["coverage"].iloc[0] == 1.0

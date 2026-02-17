@@ -19,12 +19,7 @@ from src.models.causal import estimate_cate
 def _coerce_treatment(series: pd.Series) -> pd.Series:
     if pd.api.types.is_numeric_dtype(series):
         return pd.to_numeric(series, errors="coerce")
-    return (
-        series.astype(str)
-        .str.strip()
-        .str.rstrip("%")
-        .pipe(pd.to_numeric, errors="coerce")
-    )
+    return series.astype(str).str.strip().str.rstrip("%").pipe(pd.to_numeric, errors="coerce")
 
 
 def main(treatment: str = "int_rate", sample_size: int | None = None):
@@ -48,11 +43,7 @@ def main(treatment: str = "int_rate", sample_size: int | None = None):
     available_w = [c for c in confounders if c in df.columns]
 
     X = df[available_x].apply(pd.to_numeric, errors="coerce").fillna(0.0)
-    W = (
-        df[available_w].apply(pd.to_numeric, errors="coerce").fillna(0.0)
-        if available_w
-        else None
-    )
+    W = df[available_w].apply(pd.to_numeric, errors="coerce").fillna(0.0) if available_w else None
 
     est, cate, (lb, ub) = estimate_cate(
         Y=df["default_flag"],
@@ -77,7 +68,16 @@ def main(treatment: str = "int_rate", sample_size: int | None = None):
         }
     )
     # Keep decision-relevant identifiers/context for policy simulation.
-    for col in ["id", "grade", "loan_amnt", "annual_inc", "dti", "int_rate", "purpose", "home_ownership"]:
+    for col in [
+        "id",
+        "grade",
+        "loan_amnt",
+        "annual_inc",
+        "dti",
+        "int_rate",
+        "purpose",
+        "home_ownership",
+    ]:
         if col in df.columns and col not in cate_df.columns:
             cate_df[col] = df[col].to_numpy()
     cate_df.to_parquet(data_dir / "cate_estimates.parquet", index=False)

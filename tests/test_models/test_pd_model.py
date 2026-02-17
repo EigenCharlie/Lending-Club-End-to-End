@@ -1,20 +1,18 @@
 """Unit tests for PD model training and calibration."""
+
 import numpy as np
 import pandas as pd
 import pytest
 from sklearn.datasets import make_classification
 
-from src.models.pd_model import (
-    ALL_FEATURES,
-    CATEGORICAL_FEATURES,
-    NUMERIC_FEATURES,
-    get_available_features,
-    train_baseline,
-)
 from src.models.calibration import (
     calibrate_isotonic,
-    expected_calibration_error,
     evaluate_calibration,
+    expected_calibration_error,
+)
+from src.models.pd_model import (
+    get_available_features,
+    train_baseline,
 )
 
 

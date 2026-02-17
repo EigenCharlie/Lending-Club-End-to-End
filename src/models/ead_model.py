@@ -6,7 +6,6 @@ Only trained on default_flag == 1 subset (ead_dataset).
 
 from __future__ import annotations
 
-import numpy as np
 import pandas as pd
 from catboost import CatBoostRegressor
 from loguru import logger

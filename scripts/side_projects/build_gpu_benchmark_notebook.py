@@ -1,4 +1,5 @@
 """Generate Notebook 10: RAPIDS/cuOpt benchmark side task."""
+
 from __future__ import annotations
 
 import json
@@ -22,7 +23,8 @@ def c(txt: str) -> dict:
 
 cells: list[dict] = []
 
-cells.append(m("""
+cells.append(
+    m("""
 # Notebook 10 - RAPIDS + cuOpt Benchmark (Side Task)
 
 Objective: measure practical acceleration value from `cuDF`, `cuML`, `cuGraph`, `cuOpt` on Lending Club data.
@@ -30,9 +32,11 @@ Objective: measure practical acceleration value from `cuDF`, `cuML`, `cuGraph`, 
 Scope boundary:
 - This notebook is independent from the canonical project pipeline.
 - It does not modify core project artifacts or acceptance gates.
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## Official references (current docs)
 
 - RAPIDS install + platform support: https://docs.rapids.ai/install
@@ -43,9 +47,11 @@ cells.append(m("""
 - nx-cugraph backend usage: https://docs.rapids.ai/api/cugraph/stable/nx_cugraph/
 - RMM CuPy allocator: https://docs.rapids.ai/api/rmm/nightly/python_api/
 - cuOpt LP Python API: https://docs.nvidia.com/cuopt/user-guide/latest/cuopt-python/lp-milp-examples.html
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 from __future__ import annotations
 
 import importlib.util
@@ -274,17 +280,21 @@ def print_section_conclusions(direct_df: pd.DataFrame, section_title: str) -> No
 print("ROOT:", ROOT)
 print("Python:", sys.executable)
 print("save_outputs:", CONFIG["save_outputs"])
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## Environment and data checks
 
 Notes:
 - This notebook expects a RAPIDS-capable environment (Linux/WSL2 + NVIDIA GPU).
 - CSV export is optional and disabled by default (`CONFIG["save_outputs"] = False`).
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 # Hardware + package checks
 
 def run(cmd: list[str]) -> tuple[int, str, str]:
@@ -347,9 +357,11 @@ for p in [TRAIN, TEST, TRAIN_FE, TEST_FE]:
         "default_rate": float(d["default_flag"].mean()),
     })
 display(pd.DataFrame(summary))
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 1) cuDF benchmark (paired consistency checks)
 
 Compared modes:
@@ -362,9 +374,11 @@ Benchmark quality checks:
 - Row-count parity against `pandas_cpu`
 - Checksum relative error tolerance (`CONFIG["consistency_rel_tol"]`)
 - Dedicated CPU-vs-GPU chart per method in this same section
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 TMP = OUT / "tmp_scripts"
 TMP.mkdir(parents=True, exist_ok=True)
 
@@ -595,9 +609,11 @@ if len(cudf_direct_df):
     plot_method_pairs(cudf_direct_df, "cuDF")
     print_section_conclusions(cudf_direct_df, "cuDF")
     maybe_save(cudf_direct_df, "direct_cpu_vs_gpu_cudf.csv")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 2) cuML benchmark (speed + quality parity)
 
 Compared models:
@@ -609,9 +625,11 @@ Additional checks:
 - Metric deltas (`AUC`, `silhouette`) CPU vs GPU
 - Per-task tolerance gates
 - Dedicated CPU-vs-GPU chart per method in this same section
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 from sklearn.cluster import KMeans as SKKMeans
 from sklearn.ensemble import RandomForestClassifier as SKRF
 from sklearn.linear_model import LogisticRegression as SKLR
@@ -892,9 +910,11 @@ if len(cuml_direct_df):
     plot_method_pairs(cuml_direct_df, "cuML")
     print_section_conclusions(cuml_direct_df, "cuML")
     maybe_save(cuml_direct_df, "direct_cpu_vs_gpu_cuml.csv")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 3) cuGraph benchmark (native + networkx backend dispatch)
 
 Graph is built from loan-to-attribute bipartite links (`grade`, `purpose`, `sub_grade`, `verification_status`).
@@ -909,9 +929,11 @@ Additional checks:
 - PageRank sum sanity (near 1.0)
 - Convergence tracking for cuGraph PageRank
 - Dedicated CPU-vs-GPU chart per method in this same section
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 import networkx as nx
 
 np.random.seed(int(CONFIG["seed"]))
@@ -1179,9 +1201,11 @@ if len(cugraph_direct_df):
     plot_method_pairs(cugraph_direct_df, "cuGraph")
     print_section_conclusions(cugraph_direct_df, "cuGraph")
     maybe_save(cugraph_direct_df, "direct_cpu_vs_gpu_cugraph.csv")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 4) cuOpt benchmark (LP) + API smoke test
 
 Formulation:
@@ -1192,9 +1216,11 @@ Formulation:
 Also included:
 - Small `Problem` API smoke test (`addVariable`, `addConstraint`, `setObjective`, `solve`)
 - Dedicated CPU-vs-GPU chart for LP in this same section
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 from scipy.optimize import Bounds, LinearConstraint, linprog, milp
 from scipy.sparse import csr_matrix
 
@@ -1465,9 +1491,11 @@ if len(cuopt_direct_df):
     plot_method_pairs(cuopt_direct_df, "cuOpt")
     print_section_conclusions(cuopt_direct_df, "cuOpt")
     maybe_save(cuopt_direct_df, "direct_cpu_vs_gpu_cuopt.csv")
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 # Consolidated summary + quality gates
 parts = []
 for name in ["cudf_df", "cuml_df", "cugraph_df", "cuopt_df"]:
@@ -1515,9 +1543,11 @@ if checks:
             print("All available quality checks passed.")
 
     maybe_save(quality, "benchmark_quality_checks_all_sections.csv")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 5) Direct CPU vs GPU comparison view
 
 This section normalizes all sections into direct CPU-vs-GPU pairs:
@@ -1529,9 +1559,11 @@ This section normalizes all sections into direct CPU-vs-GPU pairs:
 - section-level summary across all methods
 
 Note: per-method charts are shown inside each library section (cuDF, cuML, cuGraph, cuOpt).
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 # Direct paired comparisons (CPU vs GPU)
 direct_parts = []
 for name in ["cudf_direct_df", "cuml_direct_df", "cugraph_direct_df", "cuopt_direct_df"]:
@@ -1572,15 +1604,19 @@ if direct_parts:
         )
 else:
     print("No direct CPU/GPU pairs were available.")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 6) Rigor extension plan (using current project datasets)
 
 Below is a concrete test plan to make benchmarking more rigorous with existing project data (`train`, `test`, `train_fe`, `test_fe`).
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 rigor_plan_df = pd.DataFrame([
     {
         "test_id": "R1_scale_curve_cudf_polars",
@@ -1642,15 +1678,19 @@ display(rigor_plan_df)
 maybe_save(rigor_plan_df, "rigor_extension_plan.csv")
 
 print("Recommended execution order: R1 -> R2 -> R4 -> R5 -> R3 -> R6")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## 7) Harder benchmarks with `loan_master`, `time_series`, `ead_dataset`
 
 This section inspects those master datasets and proposes harder, field-aware benchmarks with direct CPU-vs-GPU pairs.
-"""))
+""")
+)
 
-cells.append(c("""
+cells.append(
+    c("""
 import pyarrow.parquet as pq
 
 master_paths = {
@@ -1781,9 +1821,11 @@ print("Recommended immediate additions:")
 for _, r in hard_bench_df.iterrows():
     readiness = "ready" if bool(r["ready_now"]) else "needs field adaptation"
     print(f"- {r['benchmark_id']} ({r['library_focus']}): {readiness}")
-"""))
+""")
+)
 
-cells.append(m("""
+cells.append(
+    m("""
 ## Result interpretation guide
 
 How to read this notebook:
@@ -1795,7 +1837,8 @@ How to read this notebook:
 - For cuOpt LP, objective parity with SciPy is the primary correctness gate.
 
 By default this notebook does not export CSV artifacts. Enable `CONFIG["save_outputs"] = True` only when you need persisted benchmark files.
-"""))
+""")
+)
 
 # nbformat warns on missing cell ids; assign deterministic ids for forward compatibility.
 for i, cell in enumerate(cells, start=1):

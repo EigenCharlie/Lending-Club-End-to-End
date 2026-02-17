@@ -46,6 +46,11 @@ stages:
     - scripts/generate_conformal_intervals.py
     outs:
     - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/conformal_intervals.parquet
+    - data/processed/conformal_group_metrics_mondrian.parquet
+    - data/processed/conformal_mondrian_tuning_90.parquet
+    - data/processed/conformal_mondrian_tuning_90_pareto.parquet
+    - data/processed/conformal_group_coverage_floor_report.parquet
     - models/conformal_results_mondrian.pkl
   forecast_default_rates:
     cmd: uv run python scripts/forecast_default_rates.py --horizon 12
@@ -70,6 +75,8 @@ stages:
     - scripts/simulate_causal_policy.py
     outs:
     - data/processed/causal_policy_simulation.parquet
+    - data/processed/causal_policy_segment_summary.parquet
+    - data/processed/causal_policy_grade_summary.parquet
     - models/causal_policy_summary.pkl
   validate_causal_policy:
     cmd: uv run python scripts/validate_causal_policy.py
@@ -79,6 +86,7 @@ stages:
     outs:
     - data/processed/causal_policy_rule_candidates.parquet
     - data/processed/causal_policy_rule_selected.parquet
+    - models/causal_policy_rule.json
   run_ifrs9_sensitivity:
     cmd: uv run python scripts/run_ifrs9_sensitivity.py
     deps:
@@ -87,7 +95,10 @@ stages:
     - data/processed/train.parquet
     - scripts/run_ifrs9_sensitivity.py
     outs:
+    - data/processed/ifrs9_scenario_summary.parquet
+    - data/processed/ifrs9_scenario_grade_summary.parquet
     - data/processed/ifrs9_sensitivity_grid.parquet
+    - data/processed/ifrs9_input_quality.parquet
     - models/ifrs9_sensitivity_summary.pkl
   optimize_portfolio:
     cmd: uv run python scripts/optimize_portfolio.py --config 
@@ -120,3 +131,62 @@ stages:
     outs:
     - models/cox_ph_model.pkl
     - models/rsf_model.pkl
+    - models/survival_summary.pkl
+  backtest_conformal_coverage:
+    cmd: uv run python scripts/backtest_conformal_coverage.py
+    deps:
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test.parquet
+    - scripts/backtest_conformal_coverage.py
+    outs:
+    - data/processed/conformal_backtest_monthly.parquet
+    - data/processed/conformal_backtest_monthly_grade.parquet
+    - data/processed/conformal_backtest_alerts.parquet
+  validate_conformal_policy:
+    cmd: uv run python scripts/validate_conformal_policy.py --config configs/conformal_policy.yaml
+    deps:
+    - configs/conformal_policy.yaml
+    - data/processed/conformal_backtest_alerts.parquet
+    - data/processed/conformal_backtest_monthly.parquet
+    - data/processed/conformal_group_metrics_mondrian.parquet
+    - models/conformal_results_mondrian.pkl
+    - scripts/validate_conformal_policy.py
+    outs:
+    - data/processed/conformal_policy_checks.parquet
+    - models/conformal_policy_status.json
+  export_streamlit_artifacts:
+    cmd: uv run python scripts/export_streamlit_artifacts.py
+    deps:
+    - data/raw/Loan_status_2007-2020Q3.csv
+    - data/processed/feature_config.pkl
+    - data/processed/loan_master.parquet
+    - data/processed/test_predictions.parquet
+    - models/conformal_policy_status.json
+    - models/cox_ph_model.pkl
+    - models/pd_training_record.pkl
+    - models/pipeline_results.pkl
+    - models/survival_summary.pkl
+    - scripts/export_streamlit_artifacts.py
+    outs:
+    - data/processed/eda_summary.json
+    - data/processed/feature_importance_iv.json
+    - data/processed/model_comparison.json
+    - data/processed/pipeline_summary.json
+    - data/processed/roc_curve_data.parquet
+    - data/processed/calibration_curve_data.parquet
+    - data/processed/hazard_ratios.parquet
+    - data/processed/km_curve_data.parquet
+    - data/processed/state_aggregates.parquet
+    - data/processed/roi_by_grade.parquet
+    - data/processed/roi_by_grade_term.parquet
+  export_storytelling_snapshot:
+    cmd: uv run python scripts/export_storytelling_snapshot.py
+    deps:
+    - data/processed/ifrs9_scenario_summary.parquet
+    - data/processed/model_comparison.json
+    - data/processed/pipeline_summary.json
+    - data/processed/portfolio_robustness_summary.parquet
+    - models/conformal_policy_status.json
+    - scripts/export_storytelling_snapshot.py
+    outs:
+    - reports/storytelling_snapshot.json

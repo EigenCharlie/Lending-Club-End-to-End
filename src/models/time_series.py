@@ -161,7 +161,10 @@ def reconcile_hierarchical(
 
     hrec = HierarchicalReconciliation(reconcilers=[reconciler])
     reconciled = hrec.reconcile(
-        Y_hat_df=forecasts, tags=tags, S_df=S_df, Y_df=Y_df,
+        Y_hat_df=forecasts,
+        tags=tags,
+        S_df=S_df,
+        Y_df=Y_df,
     )
 
     logger.info(f"Hierarchical reconciliation ({method}): {reconciled.shape}")

@@ -22,7 +22,9 @@ from loguru import logger
 def _load_causal_inputs() -> tuple[pd.DataFrame, dict]:
     cate_path = Path("data/processed/cate_estimates.parquet")
     if not cate_path.exists():
-        raise FileNotFoundError("Missing data/processed/cate_estimates.parquet. Run estimate_causal_effects first.")
+        raise FileNotFoundError(
+            "Missing data/processed/cate_estimates.parquet. Run estimate_causal_effects first."
+        )
     df = pd.read_parquet(cate_path)
 
     summary_path = Path("models/causal_summary.pkl")
@@ -41,7 +43,8 @@ def _coerce_numeric(df: pd.DataFrame, col: str, default: float) -> np.ndarray:
         arr = pd.to_numeric(df[col], errors="coerce").to_numpy(dtype=float)
     else:
         arr = (
-            df[col].astype(str)
+            df[col]
+            .astype(str)
             .str.strip()
             .str.rstrip("%")
             .pipe(pd.to_numeric, errors="coerce")
@@ -61,9 +64,15 @@ def main(
 
     cate = pd.to_numeric(df["cate"], errors="coerce").fillna(0.0).to_numpy(dtype=float)
     treatment = summary.get("treatment", "int_rate")
-    base_rate = _coerce_numeric(df, treatment if treatment in df.columns else "int_rate", default=12.0)
+    base_rate = _coerce_numeric(
+        df, treatment if treatment in df.columns else "int_rate", default=12.0
+    )
     loan_amnt = _coerce_numeric(df, "loan_amnt", default=10_000.0)
-    grade = df["grade"].astype(str).fillna("UNKNOWN") if "grade" in df.columns else pd.Series(["UNKNOWN"] * len(df))
+    grade = (
+        df["grade"].astype(str).fillna("UNKNOWN")
+        if "grade" in df.columns
+        else pd.Series(["UNKNOWN"] * len(df))
+    )
 
     if "default_flag" in df.columns:
         y = pd.to_numeric(df["default_flag"], errors="coerce").fillna(0.0)
@@ -73,7 +82,11 @@ def main(
 
     q60 = float(np.quantile(cate, 0.60))
     q80 = float(np.quantile(cate, 0.80))
-    segment = np.where(cate >= q80, "high_sensitivity", np.where(cate >= q60, "medium_sensitivity", "low_sensitivity"))
+    segment = np.where(
+        cate >= q80,
+        "high_sensitivity",
+        np.where(cate >= q60, "medium_sensitivity", "low_sensitivity"),
+    )
 
     delta_pp = np.zeros(len(df), dtype=float)
     delta_pp[(cate >= q80) & (cate > 0)] = high_discount_pp
@@ -187,4 +200,8 @@ if __name__ == "__main__":
     parser.add_argument("--high_discount_pp", type=float, default=-1.25)
     parser.add_argument("--medium_discount_pp", type=float, default=-0.75)
     args = parser.parse_args()
-    main(lgd=args.lgd, high_discount_pp=args.high_discount_pp, medium_discount_pp=args.medium_discount_pp)
+    main(
+        lgd=args.lgd,
+        high_discount_pp=args.high_discount_pp,
+        medium_discount_pp=args.medium_discount_pp,
+    )

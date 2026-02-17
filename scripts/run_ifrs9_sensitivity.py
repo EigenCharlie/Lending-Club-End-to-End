@@ -19,8 +19,8 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from src.models.conformal_artifacts import load_conformal_intervals
 from src.evaluation.ifrs9 import assign_stage, compute_ecl, ecl_with_conformal_range
+from src.models.conformal_artifacts import load_conformal_intervals
 
 
 def _load_intervals() -> pd.DataFrame:
@@ -67,8 +67,12 @@ def _derive_dpd(df: pd.DataFrame) -> np.ndarray:
 
     # Direct status mapping when available.
     dpd = np.where(status.str.contains("charged off|default", na=False), 120.0, dpd)
-    dpd = np.where(status.str.contains("late \\(31-120 days\\)", na=False), np.maximum(dpd, 60.0), dpd)
-    dpd = np.where(status.str.contains("late \\(16-30 days\\)|grace", na=False), np.maximum(dpd, 20.0), dpd)
+    dpd = np.where(
+        status.str.contains("late \\(31-120 days\\)", na=False), np.maximum(dpd, 60.0), dpd
+    )
+    dpd = np.where(
+        status.str.contains("late \\(16-30 days\\)|grace", na=False), np.maximum(dpd, 20.0), dpd
+    )
 
     # Delinquency features as additional evidence.
     num_90 = _to_numeric(df, "num_tl_90g_dpd_24m", default=0.0)
@@ -85,7 +89,12 @@ def _derive_dpd(df: pd.DataFrame) -> np.ndarray:
 
 def _build_origination_pd(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray:
     """Estimate origination PD from historical vintage rates (grade + issue quarter)."""
-    if "issue_d" not in train.columns or "issue_d" not in test.columns or "grade" not in train.columns or "grade" not in test.columns:
+    if (
+        "issue_d" not in train.columns
+        or "issue_d" not in test.columns
+        or "grade" not in train.columns
+        or "grade" not in test.columns
+    ):
         return np.full(len(test), float(train["default_flag"].mean()), dtype=float)
 
     tr = train[["issue_d", "grade", "default_flag"]].copy()
@@ -95,7 +104,9 @@ def _build_origination_pd(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray
     tr["grade"] = tr["grade"].astype(str)
     te["grade"] = te["grade"].astype(str)
 
-    by_grade_q = tr.groupby(["grade", "issue_q"], observed=True)["default_flag"].mean().rename("pd_orig")
+    by_grade_q = (
+        tr.groupby(["grade", "issue_q"], observed=True)["default_flag"].mean().rename("pd_orig")
+    )
     by_grade = tr.groupby("grade", observed=True)["default_flag"].mean().rename("pd_grade")
     global_pd = float(tr["default_flag"].mean())
 
@@ -105,20 +116,41 @@ def _build_origination_pd(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray
     return np.clip(pd_orig, 0.0001, 0.9999)
 
 
-def _prepare_base_vectors(intervals: pd.DataFrame, train: pd.DataFrame, test: pd.DataFrame) -> tuple[dict[str, np.ndarray], pd.DataFrame]:
+def _prepare_base_vectors(
+    intervals: pd.DataFrame, train: pd.DataFrame, test: pd.DataFrame
+) -> tuple[dict[str, np.ndarray], pd.DataFrame]:
     n = min(len(intervals), len(test))
     if len(intervals) != len(test):
-        logger.warning(f"Length mismatch intervals={len(intervals):,}, test={len(test):,}. Using first {n:,} rows.")
+        logger.warning(
+            f"Length mismatch intervals={len(intervals):,}, test={len(test):,}. Using first {n:,} rows."
+        )
 
     ints = intervals.iloc[:n].reset_index(drop=True)
     tst = test.iloc[:n].reset_index(drop=True)
 
-    pd_point = ints["y_pred"].to_numpy(dtype=float) if "y_pred" in ints.columns else ints["pd_point"].to_numpy(dtype=float)
-    pd_low = ints["pd_low_90"].to_numpy(dtype=float) if "pd_low_90" in ints.columns else ints["pd_low"].to_numpy(dtype=float)
-    pd_high = ints["pd_high_90"].to_numpy(dtype=float) if "pd_high_90" in ints.columns else ints["pd_high"].to_numpy(dtype=float)
+    pd_point = (
+        ints["y_pred"].to_numpy(dtype=float)
+        if "y_pred" in ints.columns
+        else ints["pd_point"].to_numpy(dtype=float)
+    )
+    pd_low = (
+        ints["pd_low_90"].to_numpy(dtype=float)
+        if "pd_low_90" in ints.columns
+        else ints["pd_low"].to_numpy(dtype=float)
+    )
+    pd_high = (
+        ints["pd_high_90"].to_numpy(dtype=float)
+        if "pd_high_90" in ints.columns
+        else ints["pd_high"].to_numpy(dtype=float)
+    )
 
     loan_amnt = _to_numeric(tst, "loan_amnt", default=10_000.0)
-    grade = tst.get("grade", pd.Series(["UNKNOWN"] * n)).astype(str).fillna("UNKNOWN").to_numpy(dtype=str)
+    grade = (
+        tst.get("grade", pd.Series(["UNKNOWN"] * n))
+        .astype(str)
+        .fillna("UNKNOWN")
+        .to_numpy(dtype=str)
+    )
     dpd = _derive_dpd(tst)
     pd_orig = _build_origination_pd(train, tst)
 
@@ -269,11 +301,15 @@ def _run_single_scenario(
         .reset_index()
         .sort_values(["scenario", "grade"])
     )
-    grade_summary["total_ecl_range"] = grade_summary["total_ecl_high"] - grade_summary["total_ecl_low"]
+    grade_summary["total_ecl_range"] = (
+        grade_summary["total_ecl_high"] - grade_summary["total_ecl_low"]
+    )
     return summary, grade_summary
 
 
-def _sensitivity_grid(base: dict[str, np.ndarray], base_lgd: float, lifetime_table: pd.DataFrame | None) -> pd.DataFrame:
+def _sensitivity_grid(
+    base: dict[str, np.ndarray], base_lgd: float, lifetime_table: pd.DataFrame | None
+) -> pd.DataFrame:
     pd_mult_grid = [0.90, 1.00, 1.10, 1.20, 1.30]
     lgd_mult_grid = [0.90, 1.00, 1.10, 1.20]
     discount_grid = [0.04, 0.05, 0.06]
@@ -287,7 +323,9 @@ def _sensitivity_grid(base: dict[str, np.ndarray], base_lgd: float, lifetime_tab
                 pd_high = np.clip(base["pd_high"] * pd_mult, 0.0, 1.0)
                 lgd = np.clip(np.full_like(pd12, base_lgd) * lgd_mult, 0.0, 1.0)
                 ead = base["loan_amnt"]
-                lifetime_pd, _ = _lifetime_pd(pd12, base["grade"], pd_mult=pd_mult, lifetime_table=lifetime_table)
+                lifetime_pd, _ = _lifetime_pd(
+                    pd12, base["grade"], pd_mult=pd_mult, lifetime_table=lifetime_table
+                )
                 stages = assign_stage(base["pd_orig"], pd12, dpd=base["dpd"], pd_high=pd_high)
                 ecl_df = compute_ecl(
                     pd_values=pd12,
@@ -311,7 +349,11 @@ def _sensitivity_grid(base: dict[str, np.ndarray], base_lgd: float, lifetime_tab
                     }
                 )
 
-    out = pd.DataFrame(rows).sort_values(["pd_mult", "lgd_mult", "discount_rate"]).reset_index(drop=True)
+    out = (
+        pd.DataFrame(rows)
+        .sort_values(["pd_mult", "lgd_mult", "discount_rate"])
+        .reset_index(drop=True)
+    )
     out["total_ecl_range"] = out["total_ecl_high"] - out["total_ecl_low"]
     return out
 
@@ -328,7 +370,9 @@ def main(base_lgd: float = 0.45):
     scenario_rows = []
     grade_rows = []
     for scenario, params in _scenario_config().items():
-        s, g = _run_single_scenario(scenario, params, base, base_lgd=base_lgd, lifetime_table=lifetime_table)
+        s, g = _run_single_scenario(
+            scenario, params, base, base_lgd=base_lgd, lifetime_table=lifetime_table
+        )
         scenario_rows.append(s)
         grade_rows.append(g)
     scenario_summary = pd.concat(scenario_rows, ignore_index=True)
@@ -364,14 +408,20 @@ def main(base_lgd: float = 0.45):
             f,
         )
 
-    base_ecl = float(scenario_summary.loc[scenario_summary["scenario"] == "baseline", "total_ecl"].iloc[0])
-    severe_ecl = float(scenario_summary.loc[scenario_summary["scenario"] == "severe", "total_ecl"].iloc[0])
+    base_ecl = float(
+        scenario_summary.loc[scenario_summary["scenario"] == "baseline", "total_ecl"].iloc[0]
+    )
+    severe_ecl = float(
+        scenario_summary.loc[scenario_summary["scenario"] == "severe", "total_ecl"].iloc[0]
+    )
 
     logger.info(f"Saved IFRS9 scenario summary: {scenario_path}")
     logger.info(f"Saved IFRS9 grade summary: {grade_path}")
     logger.info(f"Saved IFRS9 sensitivity grid: {sensitivity_path}")
     logger.info(f"Saved IFRS9 input quality: {quality_path}")
-    logger.info(f"Baseline ECL={base_ecl:,.0f}, Severe ECL={severe_ecl:,.0f}, Uplift={(severe_ecl/base_ecl-1)*100:.2f}%")
+    logger.info(
+        f"Baseline ECL={base_ecl:,.0f}, Severe ECL={severe_ecl:,.0f}, Uplift={(severe_ecl / base_ecl - 1) * 100:.2f}%"
+    )
 
 
 if __name__ == "__main__":

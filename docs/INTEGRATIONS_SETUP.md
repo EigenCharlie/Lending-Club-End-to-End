@@ -1,33 +1,33 @@
-# Integrations Setup (GitHub + DVC + DagsHub + Google Drive)
+# Integrations Setup (GitHub + DVC + DagsHub)
 
-Fecha de verificación: 2026-02-16.
+Fecha de verificación: 2026-02-17.
 
 ## Estado actual del repo
 
 - `git` inicializado localmente en este directorio.
 - `dvc` inicializado localmente (`.dvc/`).
-- Plugin `dvc-gdrive` agregado al proyecto para habilitar remoto Google Drive.
-- `dvc.yaml` + `dvc.lock` creados con pipeline completo (13 etapas).
-- MLflow configurado para DagsHub con script de backfill de experimentos.
+- Remote DVC por defecto: **DagsHub**.
+- `dvc.yaml` + `dvc.lock`: pipeline reproducible del proyecto.
+- MLflow integrado con DagsHub vía `scripts/log_mlflow_experiment_suite.py`.
 
-## Comando único de configuración
+## Configuración recomendada (DagsHub-first)
 
-Con variables exportadas en entorno, ejecuta:
+Con variables exportadas en entorno:
 
 ```bash
 bash scripts/configure_integrations.sh
 ```
 
-El script configura:
+Este comando configura:
 
 1. identidad `git` local,
 2. remoto `origin` (GitHub),
 3. remoto `dagshub` (Git mirror),
-4. remoto DVC por defecto en Google Drive,
-5. remoto DVC secundario en DagsHub,
+4. remoto DVC **default** en DagsHub,
+5. auth local para DVC DagsHub,
 6. variables `.env` para MLflow/DagsHub.
 
-## Variables requeridas
+## Variables requeridas (modo por defecto)
 
 ```bash
 export GIT_USER_NAME="Tu Nombre"
@@ -36,12 +36,18 @@ export GITHUB_REPO_URL="https://github.com/<user>/<repo>.git"
 export DAGSHUB_USER="<user>"
 export DAGSHUB_REPO="<repo>"
 export DAGSHUB_USER_TOKEN="<token>"
-export GDRIVE_FOLDER_ID="<folder_id>"
 ```
 
-## Variables opcionales (Google Drive auth)
+## Google Drive opcional (backup secundario)
 
-Si Google bloquea OAuth de la app por defecto de DVC, usa una de estas opciones:
+Si quieres agregar Google Drive como **segundo** remoto DVC:
+
+```bash
+export GDRIVE_FOLDER_ID="<folder_id>"
+bash scripts/configure_integrations.sh --enable-gdrive
+```
+
+Variables opcionales para auth de Google Drive (si OAuth default falla):
 
 ```bash
 export GDRIVE_CLIENT_ID="..."
@@ -50,47 +56,33 @@ export GDRIVE_CLIENT_SECRET="..."
 export GDRIVE_SERVICE_ACCOUNT_JSON="/ruta/service-account.json"
 ```
 
-## Nota importante sobre DagsHub + Google Drive
-
-- DVC sí soporta remoto `gdrive://`.
-- DagsHub (External Buckets UI) documenta soporte para `AWS S3`, `GCS`, `Azure Blob` y compatibles S3.
-- Por lo tanto, la forma práctica de “usar Google Drive con DagsHub” es:
-  - usar Google Drive como remoto DVC del proyecto, y
-  - usar DagsHub para Git/MLflow y opcionalmente remoto DVC adicional (`.dvc`).
-
 ## Data Pipeline en DagsHub
 
 Si DagsHub muestra:
 
 > "Your version controlled data pipeline could be here"
 
-normalmente significa que falta `dvc.yaml` (pipeline declarativo).  
-En este repo ya existe `dvc.yaml`; la DAG se puede validar localmente con:
+normalmente significa que falta `dvc.yaml` o que aún no está pusheado al remoto git.
+
+Validación local:
 
 ```bash
 uv run dvc dag
 ```
 
-## Primer push a Google Drive (OAuth)
-
-La primera vez, DVC solicita autorización OAuth. Ejecuta:
+## Push recomendado de datos
 
 ```bash
-uv run dvc push -r gdrive -v
+# DagsHub (principal)
+uv run dvc push -r dagshub
+
+# opcional, backup en Google Drive
+uv run dvc push -r gdrive
 ```
-
-Flujo esperado:
-
-1. DVC imprime una URL de Google OAuth.
-2. Abres esa URL en el navegador logueado con tu cuenta.
-3. Aceptas permisos de Drive.
-4. DVC guarda credenciales locales y continúa el push.
-
-Después de ese primer login, `dvc push -r gdrive` y `dvc pull -r gdrive` funcionan sin repetir el flujo.
 
 ## MLflow Suite en DagsHub
 
-Para registrar la suite completa de experimentos desde artefactos existentes (sin reentrenar):
+Para registrar la suite completa desde artefactos existentes (sin reentrenar):
 
 ```bash
 set -a
@@ -112,7 +104,7 @@ Experimentos creados:
 - `lending_club/survival`
 - `lending_club/time_series`
 
-Para un backfill rápido sin subir artifacts grandes a MLflow:
+Para backfill rápido sin subir artefactos pesados a MLflow:
 
 ```bash
 export MLFLOW_MAX_ARTIFACT_MB=0

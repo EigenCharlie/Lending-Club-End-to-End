@@ -1,17 +1,14 @@
 """Unit tests for IFRS9 ECL calculation and staging logic."""
+
 import numpy as np
 import pandas as pd
 import pytest
 
 from src.evaluation.ifrs9 import (
-    DEFAULT_DPD_THRESHOLD,
-    SICR_DPD_THRESHOLD,
-    SICR_PD_INCREASE_THRESHOLD,
     assign_stage,
     compute_ecl,
     ecl_with_conformal_range,
 )
-
 
 # ── assign_stage ──
 
@@ -199,3 +196,35 @@ def test_ecl_conformal_range_columns():
     result = ecl_with_conformal_range(pd_low, pd_point, pd_high, lgd, ead, stages)
     expected_cols = {"stage", "ecl_low", "ecl_point", "ecl_high", "ecl_range"}
     assert expected_cols.issubset(set(result.columns))
+
+
+# ── Edge Cases ──
+
+
+def test_compute_ecl_zero_ead():
+    """Zero EAD should produce zero ECL regardless of PD/LGD."""
+    pd_values = np.array([0.50])
+    lgd = np.array([0.90])
+    ead = np.array([0.0])
+    stages = np.array([2])
+    result = compute_ecl(pd_values, lgd, ead, stages)
+    assert result["ecl"].iloc[0] == 0.0
+
+
+def test_compute_ecl_discount_rate_bounds():
+    """Discount rate of 0% should give higher ECL than 100%."""
+    pd_values = np.array([0.10])
+    lgd = np.array([0.45])
+    ead = np.array([10000.0])
+    stages = np.array([1])
+    ecl_0 = compute_ecl(pd_values, lgd, ead, stages, discount_rate=0.0)
+    ecl_100 = compute_ecl(pd_values, lgd, ead, stages, discount_rate=1.0)
+    assert ecl_0["ecl"].iloc[0] >= ecl_100["ecl"].iloc[0]
+
+
+def test_assign_stage_zero_pd_stays_stage1():
+    """Loan with PD=0 should remain Stage 1."""
+    pd_orig = np.array([0.0])
+    pd_curr = np.array([0.0])
+    stages = assign_stage(pd_orig, pd_curr, dpd=np.array([0]))
+    assert stages[0] == 1

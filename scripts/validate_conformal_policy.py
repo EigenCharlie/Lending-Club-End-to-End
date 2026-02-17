@@ -16,7 +16,9 @@ import yaml
 from loguru import logger
 
 
-def _check(metric_name: str, value: float, threshold: float, comparator: str, scope: str) -> dict[str, object]:
+def _check(
+    metric_name: str, value: float, threshold: float, comparator: str, scope: str
+) -> dict[str, object]:
     if comparator == ">=":
         passed = value >= threshold
     elif comparator == "<=":
@@ -34,7 +36,7 @@ def _check(metric_name: str, value: float, threshold: float, comparator: str, sc
 
 
 def main(config_path: str = "configs/conformal_policy.yaml"):
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
     policy = cfg["policy"]
@@ -46,7 +48,9 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     group_metrics = pd.read_parquet(artifacts["group_metrics_path"])
     backtest_monthly = pd.read_parquet(artifacts["backtest_monthly_path"])
     alerts_path = Path(artifacts["backtest_alerts_path"])
-    alerts = pd.read_parquet(alerts_path) if alerts_path.exists() else pd.DataFrame(columns=["severity"])
+    alerts = (
+        pd.read_parquet(alerts_path) if alerts_path.exists() else pd.DataFrame(columns=["severity"])
+    )
 
     metrics_90 = results.get("metrics_90", {})
     metrics_95 = results.get("metrics_95", {})
@@ -60,13 +64,41 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     total_alerts = int(len(alerts))
 
     checks = [
-        _check("coverage_90", coverage_90, float(policy["target_coverage_90_min"]), ">=", "portfolio"),
-        _check("coverage_95", coverage_95, float(policy["target_coverage_95_min"]), ">=", "portfolio"),
-        _check("min_group_coverage_90", min_group_coverage_90, float(policy["min_group_coverage_90_min"]), ">=", "group"),
+        _check(
+            "coverage_90", coverage_90, float(policy["target_coverage_90_min"]), ">=", "portfolio"
+        ),
+        _check(
+            "coverage_95", coverage_95, float(policy["target_coverage_95_min"]), ">=", "portfolio"
+        ),
+        _check(
+            "min_group_coverage_90",
+            min_group_coverage_90,
+            float(policy["min_group_coverage_90_min"]),
+            ">=",
+            "group",
+        ),
         _check("avg_width_90", avg_width_90, float(policy["max_avg_width_90"]), "<=", "portfolio"),
-        _check("critical_alerts", float(critical_alerts), float(policy["max_critical_alerts"]), "<=", "monitoring"),
-        _check("total_alerts", float(total_alerts), float(policy["max_total_alerts"]), "<=", "monitoring"),
-        _check("warning_alerts", float(warning_alerts), float(policy["max_warning_alerts"]), "<=", "monitoring"),
+        _check(
+            "critical_alerts",
+            float(critical_alerts),
+            float(policy["max_critical_alerts"]),
+            "<=",
+            "monitoring",
+        ),
+        _check(
+            "total_alerts",
+            float(total_alerts),
+            float(policy["max_total_alerts"]),
+            "<=",
+            "monitoring",
+        ),
+        _check(
+            "warning_alerts",
+            float(warning_alerts),
+            float(policy["max_warning_alerts"]),
+            "<=",
+            "monitoring",
+        ),
     ]
     checks_df = pd.DataFrame(checks)
     overall_pass = bool(checks_df["passed"].all())
@@ -103,7 +135,9 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
 
     logger.info(f"Policy checks saved: {checks_path}")
     logger.info(f"Policy status saved: {status_path}")
-    logger.info(f"Conformal policy pass={overall_pass} ({out_status['checks_passed']}/{out_status['checks_total']})")
+    logger.info(
+        f"Conformal policy pass={overall_pass} ({out_status['checks_passed']}/{out_status['checks_total']})"
+    )
 
 
 if __name__ == "__main__":

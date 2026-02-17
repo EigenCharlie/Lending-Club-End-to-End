@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import matplotlib.pyplot as plt
 import numpy as np
-import pandas as pd
 
 
 def plot_calibration_curve(
@@ -76,10 +75,9 @@ def plot_portfolio_allocation(
     axes[0].set_title("Distribution of Funded Amounts")
     axes[0].set_xlabel("Funded Amount ($)")
 
-    funded_pct = len(funded) / len(allocation) * 100
     axes[1].pie(
         [len(funded), len(allocation) - len(funded)],
-        labels=[f"Funded ({len(funded)})", f"Rejected ({len(allocation)-len(funded)})"],
+        labels=[f"Funded ({len(funded)})", f"Rejected ({len(allocation) - len(funded)})"],
         autopct="%1.1f%%",
     )
     axes[1].set_title("Approval Rate")

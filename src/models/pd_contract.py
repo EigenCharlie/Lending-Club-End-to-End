@@ -8,14 +8,13 @@ Defines a single source of truth for:
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
 import pandas as pd
 from catboost import CatBoostClassifier
-
 
 CANONICAL_MODEL_PATH = Path("models/pd_canonical.cbm")
 CANONICAL_CALIBRATOR_PATH = Path("models/pd_canonical_calibrator.pkl")
@@ -48,7 +47,7 @@ def load_contract(path: Path = CONTRACT_PATH) -> dict[str, Any] | None:
     """Load persisted contract if present."""
     if not path.exists():
         return None
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -62,7 +61,7 @@ def build_contract_payload(
 ) -> dict[str, Any]:
     """Build serializable contract payload."""
     payload: dict[str, Any] = {
-        "created_at_utc": datetime.now(timezone.utc).isoformat(),
+        "created_at_utc": datetime.now(UTC).isoformat(),
         "model_path": model_path.as_posix(),
         "calibrator_path": calibrator_path.as_posix() if calibrator_path else None,
         "feature_names": feature_names,

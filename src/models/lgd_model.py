@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import numpy as np
 import pandas as pd
-from catboost import CatBoostClassifier, CatBoostRegressor, Pool
+from catboost import CatBoostClassifier, CatBoostRegressor
 from loguru import logger
 from sklearn.metrics import mean_absolute_error, mean_squared_error, roc_auc_score
 
@@ -30,18 +30,25 @@ def train_two_stage_lgd(
     # Stage 1: Classification
     y_binary = (y_train > 0).astype(int)
     clf = CatBoostClassifier(
-        iterations=500, learning_rate=0.05, depth=6,
-        verbose=0, random_seed=42, early_stopping_rounds=30,
+        iterations=500,
+        learning_rate=0.05,
+        depth=6,
+        verbose=0,
+        random_seed=42,
+        early_stopping_rounds=30,
     )
     clf.fit(X_train, y_binary, eval_set=(X_test, (y_test > 0).astype(int)))
     stage1_auc = roc_auc_score((y_test > 0).astype(int), clf.predict_proba(X_test)[:, 1])
 
     # Stage 2: Regression on LGD > 0 subset
     mask_train = y_train > 0
-    mask_test = y_test > 0
     reg = CatBoostRegressor(
-        iterations=500, learning_rate=0.05, depth=6,
-        verbose=0, random_seed=42, early_stopping_rounds=30,
+        iterations=500,
+        learning_rate=0.05,
+        depth=6,
+        verbose=0,
+        random_seed=42,
+        early_stopping_rounds=30,
     )
     reg.fit(X_train[mask_train], y_train[mask_train])
 

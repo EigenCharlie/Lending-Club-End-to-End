@@ -46,7 +46,9 @@ def _load_candidates() -> pd.DataFrame:
 
 def _load_intervals() -> pd.DataFrame:
     intervals, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
-    logger.info(f"Loaded conformal intervals from {path} (legacy={is_legacy}, rows={len(intervals):,})")
+    logger.info(
+        f"Loaded conformal intervals from {path} (legacy={is_legacy}, rows={len(intervals):,})"
+    )
     return intervals
 
 
@@ -98,7 +100,11 @@ def _solve_single(
 
     n = len(loans)
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
-    loan_amounts = loans["loan_amnt"].to_numpy(dtype=float) if "loan_amnt" in loans.columns else np.ones(n) * 10_000
+    loan_amounts = (
+        loans["loan_amnt"].to_numpy(dtype=float)
+        if "loan_amnt" in loans.columns
+        else np.ones(n) * 10_000
+    )
     total_allocated = float(np.sum(allocation * loan_amounts))
 
     expected_loss = float(np.sum(allocation * loan_amounts * pd_point * lgd))
@@ -106,7 +112,8 @@ def _solve_single(
     expected_return = float(np.sum(allocation * loan_amounts * int_rates))
     economic_return = expected_return - expected_loss
     uncertainty_cost = float(
-        uncertainty_aversion * np.sum(allocation * loan_amounts * np.clip(pd_high - pd_point, 0.0, 1.0) * lgd)
+        uncertainty_aversion
+        * np.sum(allocation * loan_amounts * np.clip(pd_high - pd_point, 0.0, 1.0) * lgd)
     )
     worst_pd = float(np.sum(allocation * loan_amounts * pd_high) / (total_allocated + 1e-6))
     point_pd = float(np.sum(allocation * loan_amounts * pd_point) / (total_allocated + 1e-6))
@@ -137,7 +144,7 @@ def main(
     strict_risk_threshold: float = 0.08,
     robust_pd_slack_penalty: float = 1.5,
 ):
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
     risk_values = _parse_float_grid(risk_grid)
@@ -146,7 +153,9 @@ def main(
     candidates = _load_candidates().reset_index(drop=True)
     intervals = _load_intervals().reset_index(drop=True)
     n = min(len(candidates), len(intervals), max_candidates)
-    idx = np.random.default_rng(random_state).choice(np.arange(min(len(candidates), len(intervals))), size=n, replace=False)
+    idx = np.random.default_rng(random_state).choice(
+        np.arange(min(len(candidates), len(intervals))), size=n, replace=False
+    )
     idx = np.sort(idx)
 
     loans = candidates.iloc[idx].reset_index(drop=True).copy()
@@ -159,7 +168,11 @@ def main(
     pd_low = ints[col_low].to_numpy(dtype=float)
     pd_high = ints[col_high].to_numpy(dtype=float)
     lgd = np.full(n, 0.45, dtype=float)
-    int_rates = _parse_percent_series(loans["int_rate"]) if "int_rate" in loans.columns else np.full(n, 0.12)
+    int_rates = (
+        _parse_percent_series(loans["int_rate"])
+        if "int_rate" in loans.columns
+        else np.full(n, 0.12)
+    )
 
     rows: list[dict[str, float | int | str]] = []
     summary_rows: list[dict[str, float | int | str]] = []

@@ -8,13 +8,11 @@ from __future__ import annotations
 
 from typing import Any
 
-import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from loguru import logger
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
-
 
 # ── Feature configuration ──
 NUMERIC_FEATURES = [

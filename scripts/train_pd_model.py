@@ -7,15 +7,14 @@ Usage:
 from __future__ import annotations
 
 import argparse
-from pathlib import Path
-import shutil
-
 import pickle
+import shutil
+from pathlib import Path
+
 import pandas as pd
 import yaml
 from loguru import logger
 
-from src.evaluation.metrics import classification_metrics
 from src.models.calibration import calibrate_platt, evaluate_calibration
 from src.models.conformal import create_pd_intervals, validate_coverage
 from src.models.pd_contract import (
@@ -60,13 +59,11 @@ def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in ("int_rate", "revol_util"):
         if col in df.columns and not pd.api.types.is_numeric_dtype(df[col]):
             df[col] = (
-                df[col].astype(str).str.strip().str.rstrip("%")
-                .pipe(pd.to_numeric, errors="coerce")
+                df[col].astype(str).str.strip().str.rstrip("%").pipe(pd.to_numeric, errors="coerce")
             )
     if "term" in df.columns and not pd.api.types.is_numeric_dtype(df["term"]):
         df["term"] = (
-            df["term"].astype(str).str.extract(r"(\d+)")[0]
-            .pipe(pd.to_numeric, errors="coerce")
+            df["term"].astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
         )
     return df
 
@@ -111,7 +108,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     # Calibration (Platt sigmoid — selected in NB03, ECE=0.0128 on test)
     cal_model = calibrate_platt(cb_model, X_cal, y_cal)
-    y_prob_calibrated = cal_model.predict_proba(X_test)[:, 1]
+    y_prob_test_raw = cb_model.predict_proba(X_test)[:, 1]
+    y_prob_calibrated = cal_model.predict_proba(y_prob_test_raw.reshape(-1, 1))[:, 1]
     cal_metrics = evaluate_calibration(y_test.values, y_prob_calibrated, "platt")
 
     # Conformal

@@ -71,7 +71,9 @@ def main() -> None:
 
     robust_row = robustness.sort_values("risk_tolerance").iloc[0] if not robustness.empty else None
     robust_price = _safe_float(robust_row["price_of_robustness"]) if robust_row is not None else 0.0
-    robust_price_pct = _safe_float(robust_row["price_of_robustness_pct"]) if robust_row is not None else 0.0
+    robust_price_pct = (
+        _safe_float(robust_row["price_of_robustness_pct"]) if robust_row is not None else 0.0
+    )
 
     required_artifacts = [
         DATA_DIR / "pipeline_summary.json",
@@ -86,7 +88,9 @@ def main() -> None:
         "snapshot_name": "storytelling_snapshot",
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "headline_metrics": {
-            "auc_oot": _safe_float(final_metrics.get("auc_roc"), _safe_float(pipeline.get("pd_auc"))),
+            "auc_oot": _safe_float(
+                final_metrics.get("auc_roc"), _safe_float(pipeline.get("pd_auc"))
+            ),
             "coverage_90": _safe_float(conformal_status.get("coverage_90")),
             "coverage_95": _safe_float(conformal_status.get("coverage_95")),
             "price_of_robustness": _safe_float(pipeline.get("price_of_robustness"), robust_price),
@@ -95,7 +99,9 @@ def main() -> None:
             "nonrobust_return": _safe_float(pipeline.get("nonrobust_return")),
             "baseline_ecl": baseline_ecl,
             "severe_ecl": severe_ecl,
-            "severe_uplift_pct": ((severe_ecl / baseline_ecl - 1.0) * 100.0) if baseline_ecl > 0 else 0.0,
+            "severe_uplift_pct": ((severe_ecl / baseline_ecl - 1.0) * 100.0)
+            if baseline_ecl > 0
+            else 0.0,
         },
         "artifact_health": [_artifact_meta(path) for path in required_artifacts],
         "notes": [

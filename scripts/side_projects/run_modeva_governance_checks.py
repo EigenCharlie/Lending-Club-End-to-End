@@ -24,7 +24,9 @@ from loguru import logger
 from src.models.pd_contract import CONTRACT_PATH, resolve_calibrator_path, resolve_model_path
 
 
-def _check(metric_name: str, value: float, threshold: float, comparator: str, scope: str) -> dict[str, object]:
+def _check(
+    metric_name: str, value: float, threshold: float, comparator: str, scope: str
+) -> dict[str, object]:
     if comparator == ">=":
         passed = value >= threshold
     elif comparator == "<=":
@@ -46,11 +48,7 @@ def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in ("int_rate", "revol_util"):
         if col in df.columns and not pd.api.types.is_numeric_dtype(df[col]):
             df[col] = (
-                df[col]
-                .astype(str)
-                .str.strip()
-                .str.rstrip("%")
-                .pipe(pd.to_numeric, errors="coerce")
+                df[col].astype(str).str.strip().str.rstrip("%").pipe(pd.to_numeric, errors="coerce")
             )
     if "term" in df.columns and not pd.api.types.is_numeric_dtype(df["term"]):
         df["term"] = (
@@ -174,7 +172,9 @@ def _resolve_noise_column(table: pd.DataFrame, noise_level: float) -> Any:
                 return col
         except Exception:
             continue
-    raise KeyError(f"Noise column {noise_level} not found in robustness table columns={list(table.columns)}")
+    raise KeyError(
+        f"Noise column {noise_level} not found in robustness table columns={list(table.columns)}"
+    )
 
 
 def main(config_path: str = "configs/modeva_governance.yaml") -> None:
@@ -195,7 +195,7 @@ def main(config_path: str = "configs/modeva_governance.yaml") -> None:
 
     modeva_auth.Authenticator.run = lambda self, auth_code=None: None
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
     data_cfg = cfg["data"]
@@ -391,14 +391,62 @@ def main(config_path: str = "configs/modeva_governance.yaml") -> None:
 
     checks = [
         _check("test_auc", metrics["test_auc"], float(policy_cfg["min_test_auc"]), ">=", "model"),
-        _check("auc_gap", abs(metrics["auc_gap_test_minus_train"]), float(policy_cfg["max_auc_gap"]), "<=", "model"),
-        _check("avg_coverage", metrics["avg_coverage"], float(policy_cfg["min_avg_coverage"]), ">=", "reliability"),
-        _check("avg_width", metrics["avg_width"], float(policy_cfg["max_avg_width"]), "<=", "reliability"),
-        _check("fairness_air_min", metrics["fairness_air"], float(policy_cfg["min_fairness_air"]), ">=", "fairness"),
-        _check("fairness_air_max", metrics["fairness_air"], float(policy_cfg["max_fairness_air"]), "<=", "fairness"),
-        _check("max_drift_psi", metrics["max_drift_psi"], float(policy_cfg["max_drift_psi"]), "<=", "data_drift"),
-        _check("max_drift_ks", metrics["max_drift_ks"], float(policy_cfg["max_drift_ks"]), "<=", "data_drift"),
-        _check("robustness_drop", metrics["robustness_drop"], float(policy_cfg["max_robustness_auc_drop"]), "<=", "robustness"),
+        _check(
+            "auc_gap",
+            abs(metrics["auc_gap_test_minus_train"]),
+            float(policy_cfg["max_auc_gap"]),
+            "<=",
+            "model",
+        ),
+        _check(
+            "avg_coverage",
+            metrics["avg_coverage"],
+            float(policy_cfg["min_avg_coverage"]),
+            ">=",
+            "reliability",
+        ),
+        _check(
+            "avg_width",
+            metrics["avg_width"],
+            float(policy_cfg["max_avg_width"]),
+            "<=",
+            "reliability",
+        ),
+        _check(
+            "fairness_air_min",
+            metrics["fairness_air"],
+            float(policy_cfg["min_fairness_air"]),
+            ">=",
+            "fairness",
+        ),
+        _check(
+            "fairness_air_max",
+            metrics["fairness_air"],
+            float(policy_cfg["max_fairness_air"]),
+            "<=",
+            "fairness",
+        ),
+        _check(
+            "max_drift_psi",
+            metrics["max_drift_psi"],
+            float(policy_cfg["max_drift_psi"]),
+            "<=",
+            "data_drift",
+        ),
+        _check(
+            "max_drift_ks",
+            metrics["max_drift_ks"],
+            float(policy_cfg["max_drift_ks"]),
+            "<=",
+            "data_drift",
+        ),
+        _check(
+            "robustness_drop",
+            metrics["robustness_drop"],
+            float(policy_cfg["max_robustness_auc_drop"]),
+            "<=",
+            "robustness",
+        ),
         _check(
             "weak_slice_accuracy_ratio",
             metrics["weak_slice_accuracy_ratio"],
@@ -413,7 +461,13 @@ def main(config_path: str = "configs/modeva_governance.yaml") -> None:
             "<=",
             "slicing",
         ),
-        _check("outlier_rate", metrics["outlier_rate"], float(policy_cfg["max_outlier_rate"]), "<=", "data_quality"),
+        _check(
+            "outlier_rate",
+            metrics["outlier_rate"],
+            float(policy_cfg["max_outlier_rate"]),
+            "<=",
+            "data_quality",
+        ),
     ]
     checks_df = pd.DataFrame(checks)
     overall_pass = bool(checks_df["passed"].all())

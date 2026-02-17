@@ -95,7 +95,7 @@ def create_pd_intervals(
     avg_width = float((y_intervals[:, 1] - y_intervals[:, 0]).mean())
     logger.info(
         f"Conformal PD intervals (global, alpha={alpha}): "
-        f"avg_width={avg_width:.4f}, target_coverage={1-alpha:.0%}"
+        f"avg_width={avg_width:.4f}, target_coverage={1 - alpha:.0%}"
     )
     return y_pred, y_intervals
 
@@ -272,7 +272,9 @@ def create_classification_sets(
     y_sets = y_sets_raw[:, :, 0]
 
     singleton_rate = (y_sets.sum(axis=1) == 1).mean()
-    logger.info(f"Conformal sets (alpha={alpha}, method={method}): singleton_rate={singleton_rate:.2%}")
+    logger.info(
+        f"Conformal sets (alpha={alpha}, method={method}): singleton_rate={singleton_rate:.2%}"
+    )
     return y_pred, y_sets
 
 

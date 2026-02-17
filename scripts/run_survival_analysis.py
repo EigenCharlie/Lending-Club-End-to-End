@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import pickle
+import time
 from pathlib import Path
 
 import numpy as np
@@ -30,7 +31,9 @@ def _ensure_survival_targets(df: pd.DataFrame) -> pd.DataFrame:
         if "term" in df.columns:
             if not pd.api.types.is_numeric_dtype(df["term"]):
                 term = (
-                    df["term"].astype(str).str.extract(r"(\d+)")[0]
+                    df["term"]
+                    .astype(str)
+                    .str.extract(r"(\d+)")[0]
                     .pipe(pd.to_numeric, errors="coerce")
                 )
             else:
@@ -41,7 +44,9 @@ def _ensure_survival_targets(df: pd.DataFrame) -> pd.DataFrame:
 
         # Proxy: defaults tend to occur before maturity; non-defaults censored at term.
         if "event_observed" in df.columns:
-            df["time_to_event"] = np.where(df["event_observed"], np.maximum((term * 0.55).round(), 1), term)
+            df["time_to_event"] = np.where(
+                df["event_observed"], np.maximum((term * 0.55).round(), 1), term
+            )
         else:
             df["time_to_event"] = term
 
@@ -72,12 +77,15 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
     # Cox PH
     surv_cols = features + ["time_to_event", "event_observed"]
     available = [c for c in surv_cols if c in df.columns]
+    t0 = time.perf_counter()
     cph, cox_metrics = train_cox_ph(df[available].dropna())
+    cox_training_time = time.perf_counter() - t0
 
     # RSF
     df_clean = df[features + ["event_observed", "time_to_event"]].dropna()
     y = make_survival_target(df_clean, event_col="event_observed", time_col="time_to_event")
     n_train = int(len(df_clean) * 0.8)
+    t0 = time.perf_counter()
     rsf, rsf_metrics = train_random_survival_forest(
         df_clean[features].iloc[:n_train],
         y[:n_train],
@@ -85,6 +93,7 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
         y[n_train:],
         n_estimators=rsf_n_estimators,
     )
+    rsf_training_time = time.perf_counter() - t0
     logger.info(f"Survival analysis complete: Cox={cox_metrics}, RSF={rsf_metrics}")
 
     model_dir = Path("models")
@@ -93,6 +102,30 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
         pickle.dump(cph, f)
     with open(model_dir / "rsf_model.pkl", "wb") as f:
         pickle.dump(rsf, f)
+    with open(model_dir / "survival_summary.pkl", "wb") as f:
+        event_mask = df_clean["event_observed"].astype(bool)
+        time_default = df_clean.loc[event_mask, "time_to_event"]
+        time_censored = df_clean.loc[~event_mask, "time_to_event"]
+        pickle.dump(
+            {
+                "cox_concordance_index": float(cox_metrics.get("concordance_index", 0.0)),
+                "rsf_c_index_test": float(rsf_metrics.get("c_index", 0.0)),
+                "cox_training_time": float(cox_training_time),
+                "rsf_training_time": float(rsf_training_time),
+                "n_loans": int(len(df_clean)),
+                "n_events": int(event_mask.sum()),
+                "event_rate": float(event_mask.mean()) if len(df_clean) else 0.0,
+                "median_time_default": float(time_default.median())
+                if not time_default.empty
+                else 0.0,
+                "median_time_censored": float(time_censored.median())
+                if not time_censored.empty
+                else 0.0,
+                "cox_features": features,
+                "rsf_sample_size": int(len(df_clean)),
+            },
+            f,
+        )
 
 
 if __name__ == "__main__":

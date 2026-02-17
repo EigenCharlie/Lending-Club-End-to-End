@@ -48,8 +48,12 @@ prediction_schema = pa.DataFrameSchema(
         "pd_high": pa.Column(float, pa.Check.in_range(0, 1), nullable=False),
     },
     checks=[
-        pa.Check(lambda df: (df["pd_low"] <= df["pd_point"]).all(), error="pd_low must be <= pd_point"),
-        pa.Check(lambda df: (df["pd_point"] <= df["pd_high"]).all(), error="pd_point must be <= pd_high"),
+        pa.Check(
+            lambda df: (df["pd_low"] <= df["pd_point"]).all(), error="pd_low must be <= pd_point"
+        ),
+        pa.Check(
+            lambda df: (df["pd_point"] <= df["pd_high"]).all(), error="pd_point must be <= pd_high"
+        ),
     ],
     coerce=True,
     strict=False,

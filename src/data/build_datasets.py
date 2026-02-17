@@ -11,7 +11,6 @@ from __future__ import annotations
 
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
@@ -26,9 +25,7 @@ def clean_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     # int_rate: ' 13.75%' -> 13.75
     if "int_rate" in df.columns and df["int_rate"].dtype == object:
-        df["int_rate"] = (
-            df["int_rate"].astype(str).str.strip().str.rstrip("%").astype(float)
-        )
+        df["int_rate"] = df["int_rate"].astype(str).str.strip().str.rstrip("%").astype(float)
         logger.info(f"Parsed int_rate: mean={df['int_rate'].mean():.2f}%")
 
     # term: ' 36 months' -> 36
@@ -37,9 +34,7 @@ def clean_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
 
     # revol_util: '55.3%' -> 55.3
     if "revol_util" in df.columns and df["revol_util"].dtype == object:
-        df["revol_util"] = (
-            df["revol_util"].astype(str).str.strip().str.rstrip("%")
-        )
+        df["revol_util"] = df["revol_util"].astype(str).str.strip().str.rstrip("%")
         df["revol_util"] = pd.to_numeric(df["revol_util"], errors="coerce")
 
     # rev_utilization from revol_util (percentage to fraction)

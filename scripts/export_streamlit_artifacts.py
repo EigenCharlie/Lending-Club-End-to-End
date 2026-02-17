@@ -86,9 +86,7 @@ def export_eda_summary() -> None:
             g: int(c) for g, c in df["grade"].value_counts().sort_index().items()
         },
         "null_pcts": {col: round(float(pct), 4) for col, pct in top_nulls.items()},
-        "term_distribution": {
-            str(t): int(c) for t, c in df["term"].value_counts().items()
-        },
+        "term_distribution": {str(t): int(c) for t, c in df["term"].value_counts().items()},
     }
     _save_json(summary, DATA_DIR / "eda_summary.json")
 
@@ -191,7 +189,7 @@ def export_roc_curves() -> None:
         if n > 200:
             idx = np.linspace(0, n - 1, 200, dtype=int)
             fpr, tpr = fpr[idx], tpr[idx]
-        for f, t in zip(fpr, tpr):
+        for f, t in zip(fpr, tpr, strict=False):
             rows.append({"model": name, "fpr": round(float(f), 6), "tpr": round(float(t), 6)})
 
     _save_parquet(pd.DataFrame(rows), DATA_DIR / "roc_curve_data.parquet")
@@ -212,7 +210,7 @@ def export_calibration_curves() -> None:
     rows = []
     for name, y_prob in models.items():
         prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=20, strategy="uniform")
-        for pt, pp in zip(prob_true, prob_pred):
+        for pt, pp in zip(prob_true, prob_pred, strict=False):
             rows.append(
                 {
                     "model": name,
@@ -258,9 +256,9 @@ def export_shap_summary() -> None:
 
         # Mean absolute SHAP per feature
         mean_abs_shap = np.abs(shap_values).mean(axis=0)
-        shap_df = pd.DataFrame(
-            {"feature": features, "mean_abs_shap": mean_abs_shap}
-        ).sort_values("mean_abs_shap", ascending=False)
+        shap_df = pd.DataFrame({"feature": features, "mean_abs_shap": mean_abs_shap}).sort_values(
+            "mean_abs_shap", ascending=False
+        )
 
         # Also save raw SHAP for top 20 features (for beeswarm plots)
         top_features = shap_df["feature"].head(20).tolist()
@@ -298,17 +296,15 @@ def export_km_curves() -> None:
             df["id"] = df["id"].astype(str)
             df = df.merge(raw[["id", "last_pymnt_d"]], on="id", how="left")
             df["last_pymnt_d"] = pd.to_datetime(df["last_pymnt_d"], format="%b-%Y", errors="coerce")
-            df["time_months"] = (
-                (df["last_pymnt_d"] - df["issue_d"]).dt.days / 30.44
-            ).clip(lower=1)
+            df["time_months"] = ((df["last_pymnt_d"] - df["issue_d"]).dt.days / 30.44).clip(lower=1)
             df["time_months"] = df["time_months"].fillna(
                 df["term"].map({" 36 months": 36, " 60 months": 60, 36: 36, 60: 60}).fillna(36)
             )
         else:
             logger.warning("Raw CSV not found, using term as proxy for duration.")
-            df["time_months"] = df["term"].map(
-                {" 36 months": 36, " 60 months": 60, 36: 36, 60: 60}
-            ).fillna(36)
+            df["time_months"] = (
+                df["term"].map({" 36 months": 36, " 60 months": 60, 36: 36, 60: 60}).fillna(36)
+            )
 
         kmf = KaplanMeierFitter()
         rows = []
@@ -327,7 +323,7 @@ def export_km_curves() -> None:
             ci_low = kmf.confidence_interval_survival_function_.iloc[:, 0].values
             ci_high = kmf.confidence_interval_survival_function_.iloc[:, 1].values
 
-            for t, s, cl, ch in zip(timeline, survival, ci_low, ci_high):
+            for t, s, cl, ch in zip(timeline, survival, ci_low, ci_high, strict=False):
                 rows.append(
                     {
                         "grade": grade,
@@ -389,16 +385,14 @@ def export_pipeline_summary() -> None:
     with open(MODEL_DIR / "survival_summary.pkl", "rb") as f:
         surv = pickle.load(f)
 
-    conformal_status = json.loads(
-        (MODEL_DIR / "conformal_policy_status.json").read_text()
-    )
+    conformal_status = json.loads((MODEL_DIR / "conformal_policy_status.json").read_text())
 
     summary = {
         "pipeline": results,
         "pd_model": {
-            "final_auc": train_rec.get("final_test_metrics", {}).get("auc", 0),
+            "final_auc": train_rec.get("final_test_metrics", {}).get("auc_roc", 0),
             "final_gini": train_rec.get("final_test_metrics", {}).get("gini", 0),
-            "final_brier": train_rec.get("final_test_metrics", {}).get("brier", 0),
+            "final_brier": train_rec.get("final_test_metrics", {}).get("brier_score", 0),
             "final_ece": train_rec.get("final_test_metrics", {}).get("ece", 0),
             "calibration_method": train_rec.get("best_calibration", ""),
         },
@@ -406,7 +400,7 @@ def export_pipeline_summary() -> None:
             "coverage_90": conformal_status.get("coverage_90", 0),
             "coverage_95": conformal_status.get("coverage_95", 0),
             "overall_pass": conformal_status.get("overall_pass", False),
-            "n_checks_passed": conformal_status.get("n_checks_passed", 0),
+            "n_checks_passed": conformal_status.get("checks_passed", 0),
         },
         "survival": {
             "cox_concordance": surv.get("cox_concordance_index", 0),
@@ -454,14 +448,11 @@ def export_state_aggregates() -> None:
         return
 
     df = pd.read_parquet(interim_path, columns=["addr_state", "default_flag", "loan_amnt"])
-    state_agg = (
-        df.groupby("addr_state", as_index=False)
-        .agg(
-            n_loans=("default_flag", "count"),
-            default_rate=("default_flag", "mean"),
-            total_volume=("loan_amnt", "sum"),
-            avg_loan=("loan_amnt", "mean"),
-        )
+    state_agg = df.groupby("addr_state", as_index=False).agg(
+        n_loans=("default_flag", "count"),
+        default_rate=("default_flag", "mean"),
+        total_volume=("loan_amnt", "sum"),
+        avg_loan=("loan_amnt", "mean"),
     )
     state_agg["default_rate"] = state_agg["default_rate"].round(6)
     state_agg["avg_loan"] = state_agg["avg_loan"].round(2)
@@ -487,31 +478,25 @@ def export_roi_by_grade() -> None:
     df["default_flag"] = (df["loan_status"] != "Fully Paid").astype(int)
     df["roi"] = (df["total_pymnt"] - df["funded_amnt"]) / df["funded_amnt"]
 
-    roi_grade = (
-        df.groupby("grade", as_index=False)
-        .agg(
-            n_loans=("roi", "count"),
-            default_rate=("default_flag", "mean"),
-            roi_mean=("roi", "mean"),
-            roi_median=("roi", "median"),
-            roi_p10=("roi", lambda x: x.quantile(0.10)),
-            roi_p90=("roi", lambda x: x.quantile(0.90)),
-            avg_funded=("funded_amnt", "mean"),
-            avg_received=("total_pymnt", "mean"),
-        )
+    roi_grade = df.groupby("grade", as_index=False).agg(
+        n_loans=("roi", "count"),
+        default_rate=("default_flag", "mean"),
+        roi_mean=("roi", "mean"),
+        roi_median=("roi", "median"),
+        roi_p10=("roi", lambda x: x.quantile(0.10)),
+        roi_p90=("roi", lambda x: x.quantile(0.90)),
+        avg_funded=("funded_amnt", "mean"),
+        avg_received=("total_pymnt", "mean"),
     )
     for c in ["default_rate", "roi_mean", "roi_median", "roi_p10", "roi_p90"]:
         roi_grade[c] = roi_grade[c].round(6)
     roi_grade["avg_funded"] = roi_grade["avg_funded"].round(2)
     roi_grade["avg_received"] = roi_grade["avg_received"].round(2)
 
-    roi_term = (
-        df.groupby(["grade", "term"], as_index=False)
-        .agg(
-            n_loans=("roi", "count"),
-            default_rate=("default_flag", "mean"),
-            roi_mean=("roi", "mean"),
-        )
+    roi_term = df.groupby(["grade", "term"], as_index=False).agg(
+        n_loans=("roi", "count"),
+        default_rate=("default_flag", "mean"),
+        roi_mean=("roi", "mean"),
     )
     for c in ["default_rate", "roi_mean"]:
         roi_term[c] = roi_term[c].round(6)
