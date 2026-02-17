@@ -163,3 +163,24 @@ Source: `reports/project_audit_snapshot.json`
 | `reports/project_audit_snapshot.json` | Artifact validation snapshot |
 | `models/conformal_policy_status.json` | Conformal policy gate |
 | `models/causal_policy_rule.json` | Causal policy selection |
+
+---
+
+## 10) Post-Reboot Recovery Log (2026-02-17)
+
+Recovery and synchronization checks executed after reboot:
+
+- Quality gates: `uv run ruff check src/ scripts/ tests/` and `uv run ruff format --check src/ scripts/ tests/` both green.
+- Functional suite: `uv run pytest -q` -> `199 passed` (4.77s).
+- DVC local consistency: `uv run dvc status --json` -> `{}`.
+- DVC cloud consistency: `uv run dvc status -c --json` -> `{}`.
+- DVC upload smoke: `uv run dvc push -r dagshub -v --jobs 1` -> `Everything is up to date`.
+- DVC topology: `uv run dvc dag` includes governance/showcase stages (`backtest_conformal_coverage`, `validate_conformal_policy`, `export_streamlit_artifacts`, `export_storytelling_snapshot`).
+- MLflow tracking (DagsHub): 8 experiments under `lending_club/*` with latest runs in `FINISHED` state (UTC timestamps from current session).
+- Narrative consistency: no stale hardcoded `7/7` policy claims in docs/pages (guarded by `tests/test_docs/test_narrative_consistency.py`).
+
+Git sync state:
+
+- Local `main` and DagsHub `main` are aligned at commit `fceac31`.
+- GitHub `origin/main` remains behind (`009ede4`) due missing non-interactive GitHub credentials in terminal session.
+- Pending action to fully close mirror sync: rotate and provide fresh GitHub PAT, then push `main` to `origin`.
