@@ -177,7 +177,7 @@ Recovery and synchronization checks executed after reboot:
 - DVC upload smoke: `uv run dvc push -r dagshub -v --jobs 1` -> `Everything is up to date`.
 - DVC topology: `uv run dvc dag` includes governance/showcase stages (`backtest_conformal_coverage`, `validate_conformal_policy`, `export_streamlit_artifacts`, `export_storytelling_snapshot`).
 - MLflow tracking (DagsHub): 8 experiments under `lending_club/*` with latest runs in `FINISHED` state (UTC timestamps from current session).
-- Narrative consistency: no stale hardcoded `7/7` policy claims in docs/pages (guarded by `tests/test_docs/test_narrative_consistency.py`).
+- Narrative consistency: no stale hardcoded policy-check ratio claims in docs/pages (guarded by `tests/test_docs/test_narrative_consistency.py`).
 
 Git sync state:
 
