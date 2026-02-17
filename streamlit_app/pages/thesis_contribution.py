@@ -531,7 +531,7 @@ uv run streamlit run streamlit_app/app.py
     language="bash",
 )
 
-TEST_SUITE_TOTAL = 195
+TEST_SUITE_TOTAL = 199
 st.markdown(
     f"""
 **Stack tecnológico**: Python 3.11 · CatBoost · MAPIE 1.3 · Pyomo + HiGHS · DuckDB · dbt · Feast · Streamlit

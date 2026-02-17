@@ -428,7 +428,7 @@ with tabs[10]:
 # ══════════════════════════════════════════════════════════════════════════════
 st.subheader("2) Prácticas de ingeniería")
 
-TEST_SUITE_TOTAL = 195
+TEST_SUITE_TOTAL = 199
 TEST_BREAKDOWN = [
     ["test_api/test_router_normalization", 5, "Normalización de parámetros FastAPI"],
     ["test_config_consistency", 11, "Drift entre config YAML, contrato PD y DAG DVC"],

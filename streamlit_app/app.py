@@ -69,7 +69,7 @@ with st.sidebar:
 <b>Proyecto de Tesis</b><br>
 Carlos Vergara<br>
 1.35M préstamos · 2007-2020<br>
-195 tests · 20 páginas<br>
+                199 tests · 20 páginas<br>
 <i>CatBoost + Conformal + Pyomo</i>
 </div>
 """,

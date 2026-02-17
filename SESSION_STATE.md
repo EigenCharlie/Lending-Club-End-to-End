@@ -10,7 +10,7 @@ Project is operational and artifact-consistent across the full thesis pipeline.
 - Notebooks `01` to `09`: executed with zero errors.
 - Core scripts: producing artifacts in `data/processed/` and `models/`.
 - Policy gates: conformal policy gate activo (snapshot actual: 6/7 checks), causal policy selected, IFRS9 sensitivity produced.
-- Tests: `195` passing (6.23s).
+- Tests: `199` passing (4.86s).
 
 This session aligns docs with the actual repository and formalizes a **Streamlit-first Thesis Mode** serving strategy.
 

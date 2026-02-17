@@ -178,7 +178,7 @@ uv run pytest -m "not slow"   # Skip slow tests
 uv run pytest --cov=src       # Coverage report
 ```
 
-Current tests: 195 passing across data pipeline, features, models, evaluation, optimization, config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke, and integration.
+Current tests: 199 passing across data pipeline, features, models, evaluation, optimization, config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke, and integration.
 
 ## IFRS9 / BASEL CONTEXT
 
