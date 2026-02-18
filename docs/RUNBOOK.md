@@ -106,9 +106,6 @@ For full setup details, see `docs/INTEGRATIONS_SETUP.md`.
 ```bash
 # DagsHub-first (recomendado)
 bash scripts/configure_integrations.sh
-
-# Opcional: añadir Google Drive como backup secundario
-bash scripts/configure_integrations.sh --enable-gdrive
 ```
 
 ### DVC Pipeline
@@ -122,9 +119,6 @@ uv run dvc dag
 
 # Push artifacts to DagsHub remote
 uv run dvc push -r dagshub
-
-# Optional backup to Google Drive (if configured)
-uv run dvc push -r gdrive
 ```
 
 `dvc repro` is equivalent to running `scripts/end_to_end_pipeline.py` but with automatic caching and incremental execution.

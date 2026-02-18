@@ -103,7 +103,7 @@ uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 
 Deployment guide: `docs/DEPLOY_STREAMLIT_FREE.md`
 
-## Integrations (GitHub + DVC + DagsHub + Google Drive)
+## Integrations (GitHub + DVC + DagsHub)
 
 One-shot setup script:
 

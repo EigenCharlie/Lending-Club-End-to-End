@@ -44,24 +44,6 @@ Variable opcional para no volver a pedir credenciales GitHub en terminal no inte
 export GITHUB_PAT="<github_pat>"
 ```
 
-## Google Drive opcional (backup secundario)
-
-Si quieres agregar Google Drive como **segundo** remoto DVC:
-
-```bash
-export GDRIVE_FOLDER_ID="<folder_id>"
-bash scripts/configure_integrations.sh --enable-gdrive
-```
-
-Variables opcionales para auth de Google Drive (si OAuth default falla):
-
-```bash
-export GDRIVE_CLIENT_ID="..."
-export GDRIVE_CLIENT_SECRET="..."
-# o
-export GDRIVE_SERVICE_ACCOUNT_JSON="/ruta/service-account.json"
-```
-
 ## Data Pipeline en DagsHub
 
 Si DagsHub muestra:
@@ -81,9 +63,6 @@ uv run dvc dag
 ```bash
 # DagsHub (principal)
 uv run dvc push -r dagshub
-
-# opcional, backup en Google Drive
-uv run dvc push -r gdrive
 ```
 
 ## MLflow Suite en DagsHub
