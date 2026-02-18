@@ -92,6 +92,7 @@ uv run uvicorn api.main:app --reload --port 8000
 Build a lightweight folder for Streamlit Community Cloud:
 
 ```bash
+uv run python scripts/export_streamlit_artifacts.py
 uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
 

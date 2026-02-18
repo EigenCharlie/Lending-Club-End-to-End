@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import subprocess
 from collections import Counter
 from pathlib import Path
@@ -21,7 +22,7 @@ NOTEBOOK_IMAGE_DIR = PROJECT_ROOT / "reports" / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=1800, max_entries=24)
 def load_parquet(name: str) -> pd.DataFrame:
     """Load a parquet file from data/processed/ with caching."""
     path = DATA_DIR / f"{name}.parquet"
@@ -33,7 +34,7 @@ def download_table(df: pd.DataFrame, filename: str, label: str = "Descargar CSV"
     st.download_button(label, df.to_csv(index=False), filename, "text/csv")
 
 
-@st.cache_data(ttl=3600)
+@st.cache_data(ttl=1800, max_entries=64)
 def load_json(name: str, directory: str = "data") -> dict:
     """Load a JSON file with caching.
 
@@ -45,7 +46,7 @@ def load_json(name: str, directory: str = "data") -> dict:
     return json.loads(path.read_text())
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=300, max_entries=32)
 def try_load_parquet(name: str, default: pd.DataFrame | None = None) -> pd.DataFrame:
     """Load parquet if available, otherwise return default/empty DataFrame."""
     path = DATA_DIR / f"{name}.parquet"
@@ -57,7 +58,7 @@ def try_load_parquet(name: str, default: pd.DataFrame | None = None) -> pd.DataF
         return default.copy() if isinstance(default, pd.DataFrame) else pd.DataFrame()
 
 
-@st.cache_data(ttl=300)
+@st.cache_data(ttl=300, max_entries=64)
 def try_load_json(name: str, directory: str = "data", default: dict | None = None) -> dict:
     """Load JSON if available, otherwise return default/empty dict."""
     path = MODEL_DIR / f"{name}.json" if directory == "models" else DATA_DIR / f"{name}.json"
@@ -71,6 +72,10 @@ def try_load_json(name: str, directory: str = "data", default: dict | None = Non
 
 def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
     """Best-effort collected test inventory using pytest node IDs."""
+    tests_dir = PROJECT_ROOT / "tests"
+    if not tests_dir.exists() or shutil.which("uv") is None:
+        return 0, []
+
     try:
         cmd = ["uv", "run", "pytest", "--collect-only", "-q", "-q"]
         proc = subprocess.run(
@@ -90,10 +95,7 @@ def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
             module = module_path.removeprefix("tests/").removesuffix(".py")
             counts[module] += 1
             total += 1
-        breakdown = [
-            {"module": module, "tests": int(n)}
-            for module, n in sorted(counts.items())
-        ]
+        breakdown = [{"module": module, "tests": int(n)} for module, n in sorted(counts.items())]
         return total, breakdown
     except Exception:
         pass
@@ -150,7 +152,9 @@ def suggest_sql_with_grok(
     This function uses xAI's OpenAI-compatible endpoint and requires:
     - GROK_API_KEY in environment variables.
     """
-    api_key = os.getenv("GROK_API_KEY", "").strip()
+    # In Community Cloud, root-level secrets are injected via Secrets settings.
+    # We still support env vars for local and non-Streamlit execution paths.
+    api_key = str(st.secrets.get("GROK_API_KEY", os.getenv("GROK_API_KEY", ""))).strip()
     if not api_key:
         raise RuntimeError("GROK_API_KEY is not configured in environment variables.")
 
@@ -160,11 +164,7 @@ def suggest_sql_with_grok(
         "Rules: SQL must be read-only SELECT. No INSERT/UPDATE/DELETE/DDL. "
         "Use schema-qualified table names exactly as provided."
     )
-    user_prompt = (
-        f"Question:\n{question}\n\n"
-        f"Schema context:\n{schema_context}\n\n"
-        "Return JSON only."
-    )
+    user_prompt = f"Question:\n{question}\n\nSchema context:\n{schema_context}\n\nReturn JSON only."
 
     payload = {
         "model": model,
