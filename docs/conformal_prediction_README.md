@@ -12,10 +12,9 @@
 - **Artefacto legacy**: `data/processed/conformal_intervals.parquet`
   - Se mantiene solo por compatibilidad histórica.
 - **Política vigente (snapshot actual)**:
-  - Cobertura 90%: `0.9197`
-  - Cobertura 95%: `0.9608`
-  - Cobertura mínima por grupo (90%): `0.8916`
-  - Estado: `overall_pass = true`
+  - Fuente de verdad: `models/conformal_policy_status.json`
+  - Métricas y estado (`overall_pass`, `checks_passed`, coberturas) cambian por corrida.
+  - Evitar hardcodear conteos o ratios de checks en documentación estática.
 
 > Nota: este documento incluye secciones de investigación y objetivos exploratorios de febrero 2026.  
 > Para resultados “oficiales” del proyecto, priorizar siempre los artefactos canónicos listados arriba.

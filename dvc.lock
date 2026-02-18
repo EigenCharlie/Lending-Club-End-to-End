@@ -95,13 +95,17 @@ stages:
       size: 140607600
     - path: scripts/train_pd_model.py
       hash: md5
-      md5: 7cbab4d53b809e351a329631cb9cb806
-      size: 6964
+      md5: 73ed731f43eb95b40870a866fd09338e
+      size: 9726
       isexec: true
     outs:
+    - path: data/processed/test_predictions.parquet
+      hash: md5
+      md5: 7de7c9f744ac12112e27d5597da8625a
+      size: 16996256
     - path: models/pd_canonical.cbm
       hash: md5
-      md5: 30d44736604fdaedbbb48ef373a9a90a
+      md5: cc08797471c5896fa742612f39b68025
       size: 928648
       isexec: true
     - path: models/pd_canonical_calibrator.pkl
@@ -109,6 +113,10 @@ stages:
       md5: d162e756e7c835e25c7b8ddad22bc362
       size: 682
       isexec: true
+    - path: models/pd_training_record.pkl
+      hash: md5
+      md5: 1a615efdc5bd15479803de16e6dccae5
+      size: 914
   generate_conformal:
     cmd: uv run python scripts/generate_conformal_intervals.py
     deps:
@@ -122,7 +130,7 @@ stages:
       size: 31875314
     - path: models/pd_canonical.cbm
       hash: md5
-      md5: 30d44736604fdaedbbb48ef373a9a90a
+      md5: cc08797471c5896fa742612f39b68025
       size: 928648
       isexec: true
     - path: models/pd_canonical_calibrator.pkl
@@ -171,18 +179,24 @@ stages:
       hash: md5
       md5: 544a11a57e3c48a1afa83504010fc4e0
       size: 13633
-      isexec: true
     - path: scripts/forecast_default_rates.py
       hash: md5
-      md5: 25298c56ed77ff87c011af393b43fbce
-      size: 1419
+      md5: 1a80cb13003a3fe6d3b6eda83eb93722
+      size: 4138
       isexec: true
     outs:
+    - path: data/processed/ts_cv_stats.parquet
+      hash: md5
+      md5: 3059666d7ad945142415166ded36c42d
+      size: 16653
     - path: data/processed/ts_forecasts.parquet
       hash: md5
-      md5: 3fcd03becbaebf7e70a9d9e82cd9f88e
-      size: 19427
-      isexec: true
+      md5: 9f7007876eff89b5774fd95ccd561530
+      size: 16049
+    - path: data/processed/ts_ifrs9_scenarios.parquet
+      hash: md5
+      md5: 8792a98c1a91802e90bfa8fd8caacc76
+      size: 4800
   estimate_causal_effects:
     cmd: uv run python scripts/estimate_causal_effects.py --treatment int_rate
     deps:
@@ -378,13 +392,17 @@ stages:
       size: 49725577
     - path: scripts/run_survival_analysis.py
       hash: md5
-      md5: 8f55019f50fc08555b70b0c1ebadd31e
-      size: 5317
+      md5: 82c26228edf63ddaf9e2ba3601b29dd6
+      size: 6278
       isexec: true
     outs:
+    - path: data/processed/lifetime_pd_table.parquet
+      hash: md5
+      md5: f3b2153fcfeb1502a01fec0338035b90
+      size: 4161
     - path: models/cox_ph_model.pkl
       hash: md5
-      md5: c865ea58805a9ca025d425fa3bd0567a
+      md5: d08f475c8669f71521e7334b375bb58f
       size: 3749644
     - path: models/rsf_model.pkl
       hash: md5
@@ -392,7 +410,7 @@ stages:
       size: 141363987
     - path: models/survival_summary.pkl
       hash: md5
-      md5: f12bc72f4610cfd6163c3313194caed7
+      md5: b3f26f963fd9546a94a6569691f3999c
       size: 421
   backtest_conformal_coverage:
     cmd: uv run python scripts/backtest_conformal_coverage.py
@@ -467,18 +485,16 @@ stages:
     deps:
     - path: data/processed/feature_config.pkl
       hash: md5
-      md5: 8fb76a8faced62d29550bf19fef7c9cf
-      size: 1752
-      isexec: true
+      md5: f6d45492d083f348263d3b22d9b9882f
+      size: 377
     - path: data/processed/loan_master.parquet
       hash: md5
       md5: afa73326552f2bf35102f38488390bc0
       size: 49725577
     - path: data/processed/test_predictions.parquet
       hash: md5
-      md5: 37b1f1d77d5a34bf070fc761dc34bbf4
-      size: 11894908
-      isexec: true
+      md5: 7de7c9f744ac12112e27d5597da8625a
+      size: 16996256
     - path: data/raw/Loan_status_2007-2020Q3.csv
       hash: md5
       md5: 65adade308f21d60b7213088a88e684d
@@ -490,39 +506,37 @@ stages:
       size: 399
     - path: models/cox_ph_model.pkl
       hash: md5
-      md5: c865ea58805a9ca025d425fa3bd0567a
+      md5: d08f475c8669f71521e7334b375bb58f
       size: 3749644
     - path: models/pd_training_record.pkl
       hash: md5
-      md5: 40dd8184f1a7884df5c8e56eec59ff23
-      size: 675
-      isexec: true
+      md5: 1a615efdc5bd15479803de16e6dccae5
+      size: 914
     - path: models/pipeline_results.pkl
       hash: md5
-      md5: 89202a953f31de8f3581ce8fa7979018
-      size: 361
-      isexec: true
+      md5: a45274cdc762caccf0326f8d28f6bf2f
+      size: 366
     - path: models/survival_summary.pkl
       hash: md5
-      md5: f12bc72f4610cfd6163c3313194caed7
+      md5: b3f26f963fd9546a94a6569691f3999c
       size: 421
     - path: scripts/export_streamlit_artifacts.py
       hash: md5
-      md5: 58312a9991413f426cfe806e17d69e7f
-      size: 20013
+      md5: 786398c1b76aa99532d54b16a7cca1c9
+      size: 21591
     outs:
     - path: data/processed/calibration_curve_data.parquet
       hash: md5
-      md5: b0dea892ac8f00009acf1273ad77b968
-      size: 3062
+      md5: 837bed5acd86073a7975c5e003d0e679
+      size: 3008
     - path: data/processed/eda_summary.json
       hash: md5
       md5: d698bc5da8a4e1f21e660bda7f2fe584
       size: 908
     - path: data/processed/feature_importance_iv.json
       hash: md5
-      md5: 5b841e8a1aa8f2d216b0c82d7e2d2803
-      size: 4077
+      md5: e1466d7d388592e1357f071cc10bef70
+      size: 888
     - path: data/processed/hazard_ratios.parquet
       hash: md5
       md5: 099b75d58826bc6173d29cb60b4c1728
@@ -533,16 +547,16 @@ stages:
       size: 52384
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 55d712df5fca154598d8f532a326c688
-      size: 842
+      md5: 02d9fa96d7c559ba0aca384032ac58eb
+      size: 832
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: 5394bd11a40c69b957f4f0342b7d87f6
-      size: 1156
+      md5: 9c54ba536fbdc87996d7dabde6ac3177
+      size: 1155
     - path: data/processed/roc_curve_data.parquet
       hash: md5
-      md5: de5c0fcbb4a8a51af3b14ddf87a7b5fd
-      size: 13797
+      md5: 170375fe0ae10c7865cfc070f0e3912c
+      size: 10264
     - path: data/processed/roi_by_grade.parquet
       hash: md5
       md5: a8f939eb724edf4badd4087426b453ae
@@ -551,6 +565,10 @@ stages:
       hash: md5
       md5: 2a96ceb8d3d12d90688a550f3c6f060b
       size: 3736
+    - path: data/processed/runtime_status.json
+      hash: md5
+      md5: 8046944b726b3e6fcbd674e72cfbbf56
+      size: 1669
     - path: data/processed/state_aggregates.parquet
       hash: md5
       md5: 5d8de512252f7852a8bc6ef0c87f1554
@@ -564,12 +582,12 @@ stages:
       size: 13611
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 55d712df5fca154598d8f532a326c688
-      size: 842
+      md5: 02d9fa96d7c559ba0aca384032ac58eb
+      size: 832
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: 5394bd11a40c69b957f4f0342b7d87f6
-      size: 1156
+      md5: 9c54ba536fbdc87996d7dabde6ac3177
+      size: 1155
     - path: data/processed/portfolio_robustness_summary.parquet
       hash: md5
       md5: e2ebfbdd8a4b197cd1c7245f7b1921f5
@@ -585,5 +603,37 @@ stages:
     outs:
     - path: reports/storytelling_snapshot.json
       hash: md5
-      md5: da2ece6098db03b265df1f068806653f
-      size: 1850
+      md5: f56786e3eaa5b904e97e1db037e2ee83
+      size: 1855
+  build_pipeline_results:
+    cmd: uv run python scripts/build_pipeline_results.py
+    deps:
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: 2b87c9e3c2d7279e3fb9e8601f8731b8
+      size: 9324408
+    - path: data/processed/ifrs9_scenario_summary.parquet
+      hash: md5
+      md5: 6f93cedd209ec7c5273f06e66ec90206
+      size: 13611
+    - path: data/processed/portfolio_robustness_summary.parquet
+      hash: md5
+      md5: e2ebfbdd8a4b197cd1c7245f7b1921f5
+      size: 8319
+    - path: data/processed/test_predictions.parquet
+      hash: md5
+      md5: 7de7c9f744ac12112e27d5597da8625a
+      size: 16996256
+    - path: scripts/build_pipeline_results.py
+      hash: md5
+      md5: e528c31455b5c326d316730310d69689
+      size: 326
+    - path: scripts/end_to_end_pipeline.py
+      hash: md5
+      md5: 1f3f28cb6bffaf278eb26b392508b479
+      size: 8893
+    outs:
+    - path: models/pipeline_results.pkl
+      hash: md5
+      md5: a45274cdc762caccf0326f8d28f6bf2f
+      size: 366

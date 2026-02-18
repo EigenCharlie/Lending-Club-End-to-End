@@ -1,5 +1,5 @@
 # SESSION STATE — Lending Club Risk Project
-Last Updated: 2026-02-17
+Last Updated: 2026-02-18
 
 ---
 
@@ -55,7 +55,9 @@ Design implication:
 
 ## 4) Key Metrics Snapshot
 
-Source: `reports/project_audit_snapshot.json`
+Source: canonical runtime artifacts (`data/processed/model_comparison.json`,
+`models/conformal_policy_status.json`, `data/processed/ifrs9_scenario_summary.parquet`,
+`data/processed/portfolio_robustness_summary.parquet`).
 
 ### 4.1 PD Model
 - AUC: `0.7187`
@@ -65,11 +67,11 @@ Source: `reports/project_audit_snapshot.json`
 - ECE: `0.0128`
 
 ### 4.2 Conformal (Mondrian)
-- Coverage 90%: `0.9197`
-- Coverage 95%: `0.9608`
-- Avg width 90%: `0.7593`
-- Min group coverage 90%: `0.8916`
-- Policy checks: `6/7` pass (snapshot 2026-02-17)
+- Coverage 90%: `0.9021`
+- Coverage 95%: `0.9489`
+- Avg width 90%: `0.7527`
+- Min group coverage 90%: `0.8809`
+- Policy checks: `6/7` pass (`overall_pass = false`, snapshot vigente)
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
@@ -78,12 +80,12 @@ Source: `reports/project_audit_snapshot.json`
 - Bootstrap p05: `5.800M`
 
 ### 4.4 IFRS9 Sensitivity
-- Baseline ECL: `795.9M`
-- Severe ECL: `1.358B`
-- Uplift: `+70.65%`
+- Baseline ECL: `797.9M`
+- Severe ECL: `1.380B`
+- Uplift: `+72.92%`
 
 ### 4.5 Optimization Robustness
-- Tolerance `0.10`: robust funded `54`, robust return `33,580`, robustness cost `51.76%`
+- Tolerance `0.10`: robust funded `0`, best robust return `~0`, price of robustness `~100%`
 
 ---
 
@@ -181,6 +183,47 @@ Recovery and synchronization checks executed after reboot:
 
 Git sync state:
 
-- Local `main` and DagsHub `main` are aligned at commit `fceac31`.
-- GitHub `origin/main` remains behind (`009ede4`) due missing non-interactive GitHub credentials in terminal session.
-- Pending action to fully close mirror sync: rotate and provide fresh GitHub PAT, then push `main` to `origin`.
+- Local branch and remotos (`origin`, `dagshub`) deben mantenerse alineados en el mismo SHA de `HEAD`.
+- Tokens y credenciales se gestionan vía `.env` + `scripts/configure_integrations.sh` (DagsHub-first).
+
+---
+
+## 11) Repro-Contract Closure Log (2026-02-18)
+
+Implementation pass executed on branch `stabilization/repro-contract-v1`.
+
+### 11.1 Quality + Functional Gates
+- `uv run ruff check src/ scripts/ tests/` -> pass.
+- `uv run ruff format --check src/ scripts/ tests/` -> pass.
+- `uv run pytest -q` -> `199 passed`.
+
+### 11.2 DVC Consistency + Cloud Sync
+- `uv run dvc repro build_pipeline_results`
+- `uv run dvc repro forecast_default_rates run_survival_analysis export_streamlit_artifacts`
+- `uv run dvc repro export_storytelling_snapshot`
+- `uv run dvc status --json` -> `{}`
+- `uv run dvc push -r dagshub -v --jobs 1` -> `17 files pushed`
+- `uv run dvc status -c --json` -> `{}`
+
+### 11.3 Key Operational Fixes Applied
+- Added missing DVC lock metadata for new stage/outs (repro contract restored).
+- Hardened `forecast_default_rates.py` with baseline-only fallback when LightGBM native deps are unavailable (`libgomp` missing).
+- Streamlit pages now degrade gracefully for optional artifacts and use runtime status snapshot for test/page counters.
+- API model loading switched to canonical-first with legacy fallback.
+- `end_to_end_pipeline.py` now supports raw-to-end default path plus `--skip-make-dataset`.
+- DagsHub-only integrations retained; no operational Google Drive path remains.
+
+### 11.4 MLflow Backfill (DagsHub)
+Executed:
+
+`uv run python scripts/log_mlflow_experiment_suite.py --repo-owner "$DAGSHUB_USER" --repo-name "$DAGSHUB_REPO"`
+
+Latest run IDs (UTC 2026-02-18 02:07:18Z batch):
+- `end_to_end`: `3e2e9d8b5c8f4c92b2f4c32f3fde1d9e`
+- `pd_model`: `36f602f0836843ad8c01e8d542a1a051`
+- `conformal`: `0032c4c02ad74f0ea789c70656abbdc9`
+- `causal_policy`: `9026662a07074deab5beba4b1b8a1b38`
+- `ifrs9`: `a93a6b7d5bf1452a982dec001e093754`
+- `optimization`: `c17bdd4dc5064a0ebb60b1fa884378c5`
+- `survival`: `68842353493b4495a92758c92bc896a2`
+- `time_series`: `bb9b099783a54b94b5b86d8ca317bc60`

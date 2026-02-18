@@ -13,11 +13,13 @@ from loguru import logger
 
 from api.config import (
     CALIBRATOR_FILE,
+    CALIBRATOR_FALLBACKS,
     CONFORMAL_RESULTS_FILE,
     DUCKDB_PATH,
     FEATURE_CONFIG_FILE,
     MODEL_DIR,
     PD_MODEL_FILE,
+    PD_MODEL_FALLBACKS,
 )
 
 
@@ -25,7 +27,10 @@ from api.config import (
 def get_pd_model() -> CatBoostClassifier:
     """Load the trained CatBoost PD model (cached singleton)."""
     model = CatBoostClassifier()
-    model_path = MODEL_DIR / PD_MODEL_FILE
+    candidates = [PD_MODEL_FILE, *PD_MODEL_FALLBACKS]
+    model_path = next((MODEL_DIR / name for name in candidates if (MODEL_DIR / name).exists()), None)
+    if model_path is None:
+        raise FileNotFoundError(f"No PD model found. Checked: {candidates}")
     model.load_model(str(model_path))
     logger.info(f"Loaded PD model from {model_path}")
     return model
@@ -34,7 +39,10 @@ def get_pd_model() -> CatBoostClassifier:
 @lru_cache(maxsize=1)
 def get_calibrator():
     """Load the PD calibrator (Platt Sigmoid or Isotonic)."""
-    path = MODEL_DIR / CALIBRATOR_FILE
+    candidates = [CALIBRATOR_FILE, *CALIBRATOR_FALLBACKS]
+    path = next((MODEL_DIR / name for name in candidates if (MODEL_DIR / name).exists()), None)
+    if path is None:
+        raise FileNotFoundError(f"No calibrator found. Checked: {candidates}")
     with open(path, "rb") as f:
         cal = pickle.load(f)
     logger.info(f"Loaded calibrator from {path}")

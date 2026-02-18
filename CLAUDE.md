@@ -39,7 +39,8 @@ All core components are **implemented, executed, and validated**:
 | Portfolio Optimization | 08 | Complete (13 code cells) | Robust vs non-robust frontier |
 | End-to-End Pipeline | 09 | Complete (12 code cells) | Full pipeline orchestration |
 
-Scripts produce artifacts in `data/processed/` and `models/`. Policy gates pass (conformal 7/7, causal validated).
+Scripts produce artifacts in `data/processed/` and `models/`. Policy gates are tracked via
+`models/conformal_policy_status.json` and `models/causal_policy_rule.json` (snapshot-dependent).
 
 **Serving direction (2026-02-15)**: Streamlit-first Thesis Mode (fixed dataset showcase), with FastAPI and MCP as optional support services.
 

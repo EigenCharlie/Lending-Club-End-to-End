@@ -11,7 +11,7 @@ from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_number, get_notebook_image_path, load_parquet
+from streamlit_app.utils import format_number, get_notebook_image_path, load_parquet, try_load_parquet
 
 st.title("🏦 Provisiones IFRS9")
 st.caption(
@@ -84,14 +84,56 @@ st.info(
     "un préstamo, eso puede indicar deterioro antes de que la PD puntual lo capture."
 )
 
-ecl_comp = load_parquet("ifrs9_ecl_comparison")
 scenarios = load_parquet("ifrs9_scenario_summary")
 scenario_grade = load_parquet("ifrs9_scenario_grade_summary")
 sensitivity = load_parquet("ifrs9_sensitivity_grid")
 input_quality = load_parquet("ifrs9_input_quality")
+ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
+if ecl_comp.empty:
+    baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
+    if baseline_by_grade.empty:
+        ecl_comp = pd.DataFrame(
+            columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"]
+        )
+    else:
+        stage1_proxy = baseline_by_grade["total_ecl"] * (
+            1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
+        )
+        stage2_proxy = baseline_by_grade["total_ecl"] * (
+            baseline_by_grade["stage2_share"] + baseline_by_grade["stage3_share"]
+        )
+        ecl_comp = pd.DataFrame(
+            {
+                "Grade": baseline_by_grade["grade"],
+                "ECL_Stage1": stage1_proxy.clip(lower=0.0),
+                "ECL_Stage2": stage2_proxy.clip(lower=0.0),
+            }
+        )
+        ecl_comp["Stage2/Stage1"] = (
+            ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
+        )
 
-base = scenarios[scenarios["scenario"] == "baseline"].iloc[0]
-severe = scenarios[scenarios["scenario"] == "severe"].iloc[0]
+if scenarios.empty:
+    base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
+    severe = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
+else:
+    base_rows = scenarios[scenarios["scenario"] == "baseline"]
+    severe_rows = scenarios[scenarios["scenario"] == "severe"]
+    base = (
+        base_rows.iloc[0]
+        if not base_rows.empty
+        else scenarios.iloc[0]
+    )
+    severe = (
+        severe_rows.iloc[0]
+        if not severe_rows.empty
+        else scenarios.iloc[-1]
+    )
+
+if input_quality.empty:
+    input_quality = pd.DataFrame(
+        [{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}]
+    )
 
 kpi_row(
     [
@@ -237,45 +279,48 @@ if "Stage2/Stage1" in ecl_comp.columns:
     )
 
 st.subheader("2) Escenarios macro: baseline a severe")
-col1, col2 = st.columns(2)
-with col1:
-    fig = px.bar(
-        scenarios,
-        x="scenario",
-        y="total_ecl",
-        color="scenario",
-        title="ECL total por escenario",
-        labels={"scenario": "Escenario", "total_ecl": "ECL total (USD)"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], showlegend=False, height=390)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: cuantificar sensibilidad macro de ECL total. Insight: el salto baseline->severe muestra vulnerabilidad "
-        "de reservas ante estrés."
-    )
+if scenarios.empty:
+    st.info("No hay `ifrs9_scenario_summary.parquet` disponible. Se omite comparación de escenarios.")
+else:
+    col1, col2 = st.columns(2)
+    with col1:
+        fig = px.bar(
+            scenarios,
+            x="scenario",
+            y="total_ecl",
+            color="scenario",
+            title="ECL total por escenario",
+            labels={"scenario": "Escenario", "total_ecl": "ECL total (USD)"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], showlegend=False, height=390)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: cuantificar sensibilidad macro de ECL total. Insight: el salto baseline->severe muestra vulnerabilidad "
+            "de reservas ante estrés."
+        )
 
-with col2:
-    stage_long = scenarios.melt(
-        id_vars=["scenario"],
-        value_vars=["stage1_share", "stage2_share", "stage3_share"],
-        var_name="stage",
-        value_name="share",
-    )
-    fig = px.bar(
-        stage_long,
-        x="scenario",
-        y="share",
-        color="stage",
-        title="Composición de stages por escenario",
-        labels={"scenario": "Escenario", "share": "Participación"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"])
-    fig.update_layout(yaxis={"tickformat": ".0%"}, height=390)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: visualizar migración de stages por escenario. Insight: el aumento de Stage 2/3 explica gran parte del uplift "
-        "de provisiones."
-    )
+    with col2:
+        stage_long = scenarios.melt(
+            id_vars=["scenario"],
+            value_vars=["stage1_share", "stage2_share", "stage3_share"],
+            var_name="stage",
+            value_name="share",
+        )
+        fig = px.bar(
+            stage_long,
+            x="scenario",
+            y="share",
+            color="stage",
+            title="Composición de stages por escenario",
+            labels={"scenario": "Escenario", "share": "Participación"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"])
+        fig.update_layout(yaxis={"tickformat": ".0%"}, height=390)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: visualizar migración de stages por escenario. Insight: el aumento de Stage 2/3 explica gran parte del uplift "
+            "de provisiones."
+        )
 
 st.markdown(
     """
@@ -292,35 +337,46 @@ st.markdown(
 st.subheader("3) Heatmaps de sensibilidad")
 col3, col4 = st.columns(2)
 with col3:
-    sens_matrix = sensitivity.pivot_table(index="pd_mult", columns="lgd_mult", values="total_ecl", aggfunc="mean")
-    fig = px.imshow(
-        sens_matrix,
-        color_continuous_scale="Reds",
-        title="ECL promedio por multiplicadores PD x LGD",
-        labels={"x": "LGD mult", "y": "PD mult", "color": "ECL"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: medir elasticidad de ECL ante shocks de PD y LGD. Insight: permite construir mapas de materialidad para "
-        "stress testing interno."
-    )
+    if sensitivity.empty:
+        st.info("No hay `ifrs9_sensitivity_grid.parquet`; se omite heatmap PD x LGD.")
+    else:
+        sens_matrix = sensitivity.pivot_table(
+            index="pd_mult",
+            columns="lgd_mult",
+            values="total_ecl",
+            aggfunc="mean",
+        )
+        fig = px.imshow(
+            sens_matrix,
+            color_continuous_scale="Reds",
+            title="ECL promedio por multiplicadores PD x LGD",
+            labels={"x": "LGD mult", "y": "PD mult", "color": "ECL"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: medir elasticidad de ECL ante shocks de PD y LGD. Insight: permite construir mapas de materialidad para "
+            "stress testing interno."
+        )
 
 with col4:
-    scen_grade = scenario_grade.copy()
-    heat = scen_grade.pivot(index="grade", columns="scenario", values="avg_ecl")
-    fig = px.imshow(
-        heat,
-        color_continuous_scale="YlOrRd",
-        title="ECL promedio por grade y escenario",
-        labels={"x": "Escenario", "y": "Grade", "color": "ECL promedio"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: identificar segmentos más sensibles al escenario macro. Insight: grades bajos presentan mayor incremento "
-        "de ECL relativo."
-    )
+    if scenario_grade.empty:
+        st.info("No hay `ifrs9_scenario_grade_summary.parquet`; se omite heatmap por grade.")
+    else:
+        scen_grade = scenario_grade.copy()
+        heat = scen_grade.pivot(index="grade", columns="scenario", values="avg_ecl")
+        fig = px.imshow(
+            heat,
+            color_continuous_scale="YlOrRd",
+            title="ECL promedio por grade y escenario",
+            labels={"x": "Escenario", "y": "Grade", "color": "ECL promedio"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: identificar segmentos más sensibles al escenario macro. Insight: grades bajos presentan mayor incremento "
+            "de ECL relativo."
+        )
 
 st.markdown(
     """

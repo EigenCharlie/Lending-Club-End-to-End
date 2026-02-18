@@ -10,7 +10,13 @@ import streamlit as st
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_number, get_notebook_image_path, load_json, load_parquet
+from streamlit_app.utils import (
+    format_number,
+    get_notebook_image_path,
+    load_json,
+    load_parquet,
+    try_load_parquet,
+)
 
 st.title("💼 Optimizador de Portafolio")
 st.caption(
@@ -63,7 +69,17 @@ pipeline = summary.get("pipeline", {})
 alloc = load_parquet("portfolio_allocations")
 rob_summary = load_parquet("portfolio_robustness_summary")
 rob_frontier = load_parquet("portfolio_robustness_frontier")
-efficient_frontier = load_parquet("efficient_frontier")
+efficient_frontier = try_load_parquet("efficient_frontier")
+if efficient_frontier.empty:
+    nonrobust = rob_frontier[rob_frontier["policy"] == "nonrobust"].copy()
+    if not nonrobust.empty:
+        efficient_frontier = pd.DataFrame(
+            {
+                "pd_cap": nonrobust["risk_tolerance"],
+                "risk_wpd": nonrobust["point_pd"],
+                "return": nonrobust["expected_return_net_point"],
+            }
+        ).sort_values("pd_cap")
 
 kpi_row(
     [
@@ -120,17 +136,22 @@ with col_img1:
             use_container_width=True,
         )
     else:
-        fig = px.line(
-            efficient_frontier.sort_values("pd_cap"),
-            x="risk_wpd",
-            y="return",
-            markers=True,
-            title="Fallback: frontera eficiente (artefacto actual)",
-            labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
-        )
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption("Imagen de notebook no encontrada; se muestra la frontera reconstruida desde parquet.")
+        if efficient_frontier.empty:
+            st.info("No hay frontera eficiente disponible en artefactos actuales.")
+        else:
+            fig = px.line(
+                efficient_frontier.sort_values("pd_cap"),
+                x="risk_wpd",
+                y="return",
+                markers=True,
+                title="Fallback: frontera eficiente (artefacto actual)",
+                labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
+            )
+            fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
+            st.plotly_chart(fig, use_container_width=True)
+            st.caption(
+                "Imagen de notebook no encontrada; se muestra la frontera reconstruida desde parquet."
+            )
 with col_img2:
     img = get_notebook_image_path("08_portfolio_optimization", "cell_015_out_14.png")
     if img.exists():
@@ -201,22 +222,25 @@ with col2:
     )
 
 st.subheader("2) Frontera eficiente clásica")
-fig = px.line(
-    efficient_frontier.sort_values("pd_cap"),
-    x="risk_wpd",
-    y="return",
-    markers=True,
-    title="Trade-off riesgo-retorno (frontera eficiente)",
-    labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
-)
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: mostrar frontera eficiente sin robustez explícita. Insight: mayor retorno exige mayor riesgo promedio "
-    "de cartera."
-)
-st.markdown(
-    """
+if efficient_frontier.empty:
+    st.info("No hay `efficient_frontier.parquet`; usando frontera no robusta derivada de tradeoff cuando aplica.")
+else:
+    fig = px.line(
+        efficient_frontier.sort_values("pd_cap"),
+        x="risk_wpd",
+        y="return",
+        markers=True,
+        title="Trade-off riesgo-retorno (frontera eficiente)",
+        labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: mostrar frontera eficiente sin robustez explícita. Insight: mayor retorno exige mayor riesgo promedio "
+        "de cartera."
+    )
+    st.markdown(
+        """
 **Interpretación de la frontera eficiente:**
 - Cada punto representa una configuración de portafolio óptima para un nivel de riesgo dado.
 - La pendiente decreciente indica **rendimientos marginales**: los primeros incrementos de riesgo aportan
@@ -224,7 +248,7 @@ st.markdown(
 - Para un comité de riesgo, esta curva permite elegir el punto de operación que mejor equilibre
   apetito de riesgo institucional con objetivos de rentabilidad.
 """
-)
+    )
 
 st.subheader("3) Frontera robusta vs no robusta")
 risk_levels = sorted(rob_frontier["risk_tolerance"].unique().tolist())

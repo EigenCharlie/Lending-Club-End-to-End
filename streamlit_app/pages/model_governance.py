@@ -11,7 +11,7 @@ import streamlit as st
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import load_json, load_parquet
+from streamlit_app.utils import load_json, try_load_json, try_load_parquet
 
 
 def _artifact_health_rows() -> pd.DataFrame:
@@ -69,16 +69,23 @@ la métrica de desempeño del modelo.
 """
 )
 
-status = load_json("modeva_governance_status", directory="models")
-checks = load_parquet("modeva_governance_checks")
-metrics = load_parquet("modeva_governance_metrics")
-drift_psi = load_parquet("modeva_governance_drift_psi")
-drift_ks = load_parquet("modeva_governance_drift_ks")
-fairness = load_parquet("modeva_governance_fairness")
-robustness = load_parquet("modeva_governance_robustness")
-slicing_acc = load_parquet("modeva_governance_slicing_accuracy")
-slicing_rob = load_parquet("modeva_governance_slicing_robustness")
-contract_val = load_parquet("pd_model_contract_validation")
+summary = try_load_json("pipeline_summary")
+status = try_load_json("modeva_governance_status", directory="models", default={})
+if not status:
+    status = try_load_json("conformal_policy_status", directory="models", default={})
+
+checks = try_load_parquet("modeva_governance_checks")
+if checks.empty:
+    checks = try_load_parquet("conformal_policy_checks")
+
+metrics = try_load_parquet("modeva_governance_metrics")
+drift_psi = try_load_parquet("modeva_governance_drift_psi")
+drift_ks = try_load_parquet("modeva_governance_drift_ks")
+fairness = try_load_parquet("modeva_governance_fairness")
+robustness = try_load_parquet("modeva_governance_robustness")
+slicing_acc = try_load_parquet("modeva_governance_slicing_accuracy")
+slicing_rob = try_load_parquet("modeva_governance_slicing_robustness")
+contract_val = try_load_parquet("pd_model_contract_validation")
 
 passed = int(checks["passed"].sum()) if "passed" in checks.columns else 0
 total = int(len(checks))
@@ -87,15 +94,21 @@ required_health = artifact_health[artifact_health["Estado"].isin(["OK", "Falta"]
 required_ok = int((required_health["Estado"] == "OK").sum())
 required_total = int(len(required_health))
 missing_required = required_total - required_ok
+metrics_row = metrics.iloc[0] if not metrics.empty else {}
+pd_metrics = summary.get("pd_model", {})
+test_auc = float(metrics_row.get("test_auc", pd_metrics.get("final_auc", 0.0)))
+auc_gap = float(metrics_row.get("auc_gap_test_minus_train", 0.0))
+fairness_air = float(metrics_row.get("fairness_air", 0.0))
+max_drift_psi = float(metrics_row.get("max_drift_psi", 0.0))
 
 kpi_row(
     [
         {"label": "Estado global", "value": "OK" if status.get("overall_pass", False) else "Revisión"},
         {"label": "Checks aprobados", "value": f"{passed}/{total}"},
-        {"label": "AUC test", "value": f"{float(metrics.iloc[0]['test_auc']):.4f}"},
-        {"label": "Gap train-test", "value": f"{float(metrics.iloc[0]['auc_gap_test_minus_train']):.4f}"},
-        {"label": "Fairness AIR", "value": f"{float(metrics.iloc[0]['fairness_air']):.3f}"},
-        {"label": "Max PSI", "value": f"{float(metrics.iloc[0]['max_drift_psi']):.3f}"},
+        {"label": "AUC test", "value": f"{test_auc:.4f}"},
+        {"label": "Gap train-test", "value": f"{auc_gap:.4f}"},
+        {"label": "Fairness AIR", "value": f"{fairness_air:.3f}"},
+        {"label": "Max PSI", "value": f"{max_drift_psi:.3f}"},
     ],
     n_cols=3,
 )
@@ -114,82 +127,103 @@ with st.expander("Ver detalle de artefactos y rutas canónicas"):
     st.dataframe(artifact_health, use_container_width=True, hide_index=True)
 
 st.subheader("1) Resultado de reglas de gobernanza")
-st.dataframe(checks, use_container_width=True, hide_index=True)
+if checks.empty:
+    st.info("No hay tabla de checks de gobernanza disponible en este entorno.")
+else:
+    st.dataframe(checks, use_container_width=True, hide_index=True)
 
 st.subheader("2) Drift de variables")
-drift_psi_plot = drift_psi.copy()
-drift_psi_plot = drift_psi_plot.rename(columns={drift_psi_plot.columns[0]: "psi"})
-drift_psi_plot["feature_rank"] = range(1, len(drift_psi_plot) + 1)
+if drift_psi.empty or drift_ks.empty:
+    st.info("No hay artefactos de drift PSI/KS; se omite esta sección.")
+else:
+    drift_psi_plot = drift_psi.copy()
+    drift_psi_plot = drift_psi_plot.rename(columns={drift_psi_plot.columns[0]: "psi"})
+    drift_psi_plot["feature_rank"] = range(1, len(drift_psi_plot) + 1)
 
-drift_ks_plot = drift_ks.copy()
-drift_ks_plot = drift_ks_plot.rename(columns={drift_ks_plot.columns[0]: "ks"})
-drift_ks_plot["feature_rank"] = range(1, len(drift_ks_plot) + 1)
+    drift_ks_plot = drift_ks.copy()
+    drift_ks_plot = drift_ks_plot.rename(columns={drift_ks_plot.columns[0]: "ks"})
+    drift_ks_plot["feature_rank"] = range(1, len(drift_ks_plot) + 1)
 
-col1, col2 = st.columns(2)
-with col1:
-    fig = px.bar(
-        drift_psi_plot.sort_values("psi", ascending=False),
-        x="feature_rank",
-        y="psi",
-        title="PSI por ranking de variable",
-        labels={"feature_rank": "Índice de variable", "psi": "PSI"},
-    )
-    fig.add_hline(y=0.10, line_dash="dash", line_color="#FFD93D", annotation_text="Warning")
-    fig.add_hline(y=0.25, line_dash="dash", line_color="#FF6B6B", annotation_text="Crítico")
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: detectar drift poblacional por feature. Insight: PSI por encima de 0.10 activa vigilancia y por encima de 0.25 "
-        "sugiere recalibración o revisión del pipeline."
-    )
+    col1, col2 = st.columns(2)
+    with col1:
+        fig = px.bar(
+            drift_psi_plot.sort_values("psi", ascending=False),
+            x="feature_rank",
+            y="psi",
+            title="PSI por ranking de variable",
+            labels={"feature_rank": "Índice de variable", "psi": "PSI"},
+        )
+        fig.add_hline(y=0.10, line_dash="dash", line_color="#FFD93D", annotation_text="Warning")
+        fig.add_hline(y=0.25, line_dash="dash", line_color="#FF6B6B", annotation_text="Crítico")
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: detectar drift poblacional por feature. Insight: PSI por encima de 0.10 activa vigilancia y por encima de 0.25 "
+            "sugiere recalibración o revisión del pipeline."
+        )
 
-with col2:
-    fig = px.bar(
-        drift_ks_plot.sort_values("ks", ascending=False),
-        x="feature_rank",
-        y="ks",
-        title="KS drift por ranking de variable",
-        labels={"feature_rank": "Índice de variable", "ks": "KS"},
-    )
-    fig.add_hline(y=0.20, line_dash="dash", line_color="#FF6B6B", annotation_text="Umbral")
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: contrastar cambio de distribución train vs test con KS. Insight: valores altos indican potencial degradación "
-        "de performance por cambio de régimen."
-    )
+    with col2:
+        fig = px.bar(
+            drift_ks_plot.sort_values("ks", ascending=False),
+            x="feature_rank",
+            y="ks",
+            title="KS drift por ranking de variable",
+            labels={"feature_rank": "Índice de variable", "ks": "KS"},
+        )
+        fig.add_hline(y=0.20, line_dash="dash", line_color="#FF6B6B", annotation_text="Umbral")
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=370)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: contrastar cambio de distribución train vs test con KS. Insight: valores altos indican potencial degradación "
+            "de performance por cambio de régimen."
+        )
 
 st.subheader("3) Fairness y robustez")
 col3, col4 = st.columns(2)
 with col3:
-    fair_col = fairness.columns[0]
-    fair_val = float(fairness.iloc[0][fair_col])
-    st.metric("AIR observado", f"{fair_val:.3f}", help=f"Métrica: {fair_col}")
-    st.caption("Referencia común: AIR cercano a 1 indica menor disparidad relativa.")
+    if fairness.empty:
+        st.metric("AIR observado", "N/D")
+        st.caption("No hay artefacto de fairness en este entorno.")
+    else:
+        fair_col = fairness.columns[0]
+        fair_val = float(fairness.iloc[0][fair_col])
+        st.metric("AIR observado", f"{fair_val:.3f}", help=f"Métrica: {fair_col}")
+        st.caption("Referencia común: AIR cercano a 1 indica menor disparidad relativa.")
 
 with col4:
-    robust_long = robustness.melt(var_name="ruido", value_name="auc")
-    robust_long["ruido"] = robust_long["ruido"].astype(float)
-    fig = px.box(
-        robust_long,
-        x="ruido",
-        y="auc",
-        points="all",
-        title="Sensibilidad del AUC a ruido en features",
-        labels={"ruido": "Nivel de ruido", "auc": "AUC"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: medir estabilidad del AUC ante ruido sintético. Insight: caída abrupta del AUC a bajos niveles de ruido "
-        "señala fragilidad del modelo."
-    )
+    if robustness.empty:
+        st.info("No hay artefacto de robustez a ruido; se omite boxplot.")
+    else:
+        robust_long = robustness.melt(var_name="ruido", value_name="auc")
+        robust_long["ruido"] = robust_long["ruido"].astype(float)
+        fig = px.box(
+            robust_long,
+            x="ruido",
+            y="auc",
+            points="all",
+            title="Sensibilidad del AUC a ruido en features",
+            labels={"ruido": "Nivel de ruido", "auc": "AUC"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: medir estabilidad del AUC ante ruido sintético. Insight: caída abrupta del AUC a bajos niveles de ruido "
+            "señala fragilidad del modelo."
+        )
 
 st.subheader("4) Slicing analysis (subpoblaciones débiles)")
-weak_acc = slicing_acc[slicing_acc["Weak"] == True].copy()  # noqa: E712
-weak_rob = slicing_rob[slicing_rob["Weak"] == True].copy()  # noqa: E712
+weak_acc = (
+    slicing_acc[slicing_acc["Weak"] == True].copy()  # noqa: E712
+    if not slicing_acc.empty and "Weak" in slicing_acc.columns
+    else pd.DataFrame()
+)
+weak_rob = (
+    slicing_rob[slicing_rob["Weak"] == True].copy()  # noqa: E712
+    if not slicing_rob.empty and "Weak" in slicing_rob.columns
+    else pd.DataFrame()
+)
 
-if not weak_acc.empty:
+if not slicing_acc.empty and not weak_acc.empty:
     fig = px.scatter(
         weak_acc,
         x="Size",
@@ -206,7 +240,7 @@ if not weak_acc.empty:
         "en métricas globales y requieren controles específicos."
     )
 
-if not weak_rob.empty:
+if not slicing_rob.empty and not weak_rob.empty:
     fig = px.scatter(
         weak_rob,
         x="Size",
@@ -224,9 +258,12 @@ if not weak_rob.empty:
     )
 
 st.subheader("5) Contrato de modelo y validación de inputs")
-st.dataframe(contract_val, use_container_width=True, hide_index=True)
+if contract_val.empty:
+    st.info("No hay tabla de validación del contrato (`pd_model_contract_validation.parquet`).")
+else:
+    st.dataframe(contract_val, use_container_width=True, hide_index=True)
 with st.expander("Contrato completo del modelo (JSON)"):
-    contract = load_json("pd_model_contract", directory="models")
+    contract = try_load_json("pd_model_contract", directory="models", default={})
     st.json(contract)
 
 st.markdown(

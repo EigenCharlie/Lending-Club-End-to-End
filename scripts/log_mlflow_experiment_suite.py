@@ -360,18 +360,47 @@ def _log_survival(timestamp: str, common_tags: dict[str, str]) -> str:
 
 def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
     forecasts = pd.read_parquet(ROOT / "data/processed/ts_forecasts.parquet")
-    width_90 = (forecasts["lgbm-hi-90"] - forecasts["lgbm-lo-90"]).astype(float)
+    point_candidates = [
+        c
+        for c in forecasts.columns
+        if c not in {"unique_id", "ds"}
+        and not c.endswith("-lo-90")
+        and not c.endswith("-hi-90")
+        and not c.endswith("-lo-95")
+        and not c.endswith("-hi-95")
+    ]
+    primary_model = (
+        "lgbm"
+        if "lgbm" in point_candidates
+        else (point_candidates[0] if point_candidates else None)
+    )
+
+    if primary_model is not None:
+        lo_90_col = f"{primary_model}-lo-90"
+        hi_90_col = f"{primary_model}-hi-90"
+        width_90 = (
+            forecasts[hi_90_col].astype(float) - forecasts[lo_90_col].astype(float)
+            if lo_90_col in forecasts.columns and hi_90_col in forecasts.columns
+            else pd.Series([0.0] * len(forecasts))
+        )
+        primary_mean = float(forecasts[primary_model].astype(float).mean())
+    else:
+        width_90 = pd.Series([0.0] * len(forecasts))
+        primary_mean = 0.0
 
     metrics = {
         "n_forecast_rows": float(len(forecasts)),
         "horizon_months": float(forecasts["ds"].nunique()),
-        "lgbm_mean_forecast": float(forecasts["lgbm"].mean()),
-        "lgbm_width_90_mean": float(width_90.mean()),
-        "autoarima_mean_forecast": float(forecasts["AutoARIMA"].mean()),
+        "primary_mean_forecast": primary_mean,
+        "primary_width_90_mean": float(width_90.mean()),
+        "autoarima_mean_forecast": float(forecasts["AutoARIMA"].mean())
+        if "AutoARIMA" in forecasts.columns
+        else 0.0,
     }
     params = {
         "series_id": str(forecasts["unique_id"].iloc[0]) if len(forecasts) else "unknown",
-        "models": "AutoARIMA,AutoETS,AutoTheta,SeasonalNaive,lgbm",
+        "models": ",".join(point_candidates),
+        "primary_model": primary_model or "none",
     }
     tags = {
         **common_tags,

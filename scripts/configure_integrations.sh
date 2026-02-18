@@ -132,8 +132,6 @@ uv run dvc remote add -f -d dagshub "$DAGSHUB_DVC_URL"
 uv run dvc remote modify --local dagshub auth basic
 uv run dvc remote modify --local dagshub user "$DAGSHUB_USER"
 uv run dvc remote modify --local dagshub password "$DAGSHUB_USER_TOKEN"
-# Remove stale Google Drive remote if previously configured.
-uv run dvc remote remove gdrive >/dev/null 2>&1 || true
 
 echo "Syncing DagsHub/MLflow env vars in .env..."
 upsert_env_key DAGSHUB_USER "$DAGSHUB_USER"

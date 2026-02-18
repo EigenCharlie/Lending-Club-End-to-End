@@ -10,7 +10,7 @@ from streamlit_mermaid import st_mermaid
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_pct, load_json, load_parquet
+from streamlit_app.utils import format_pct, load_json, load_parquet, load_runtime_status
 
 st.title("🎯 Contribución de Tesis")
 st.caption(
@@ -385,6 +385,9 @@ checks_total = int(policy.get("checks_total", 0))
 policy_gate_text = (
     f"{checks_passed}/{checks_total} checks" if checks_total > 0 else "checks no disponibles"
 )
+runtime_status = load_runtime_status()
+test_suite_total = int(runtime_status.get("test_suite_total", 0) or 0)
+test_suite_label = str(test_suite_total) if test_suite_total > 0 else "N/D"
 
 # IFRS9 uses 'total_ecl' column
 baseline_ecl = (
@@ -531,12 +534,11 @@ uv run streamlit run streamlit_app/app.py
     language="bash",
 )
 
-TEST_SUITE_TOTAL = 199
 st.markdown(
     f"""
 **Stack tecnológico**: Python 3.11 · CatBoost · MAPIE 1.3 · Pyomo + HiGHS · DuckDB · dbt · Feast · Streamlit
 
-**{TEST_SUITE_TOTAL} tests** validan datos, features, modelos, conformal, IFRS9, optimización, MLflow, Streamlit e integración end-to-end.
+**{test_suite_label} tests** validan datos, features, modelos, conformal, IFRS9, optimización, MLflow, Streamlit e integración end-to-end.
 """
 )
 

@@ -6,6 +6,7 @@ Run: uv run streamlit run streamlit_app/app.py
 import streamlit as st
 
 from streamlit_app.theme import inject_custom_css
+from streamlit_app.utils import load_runtime_status
 
 st.set_page_config(
     page_title="Riesgo de Credito E2E",
@@ -15,6 +16,11 @@ st.set_page_config(
 )
 
 inject_custom_css()
+runtime_status = load_runtime_status()
+tests_total = int(runtime_status.get("test_suite_total", 0) or 0)
+pages_total = int(runtime_status.get("streamlit_pages_total", 0) or 0)
+tests_label = str(tests_total) if tests_total > 0 else "N/D"
+pages_label = str(pages_total) if pages_total > 0 else "N/D"
 
 # ── Navigation ──
 pg = st.navigation(
@@ -69,7 +75,7 @@ with st.sidebar:
 <b>Proyecto de Tesis</b><br>
 Carlos Vergara<br>
 1.35M préstamos · 2007-2020<br>
-                199 tests · 20 páginas<br>
+{tests_label} tests · {pages_label} páginas<br>
 <i>CatBoost + Conformal + Pyomo</i>
 </div>
 """,

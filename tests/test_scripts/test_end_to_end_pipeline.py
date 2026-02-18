@@ -22,6 +22,7 @@ def test_main_fail_fast_returns_non_zero(monkeypatch) -> None:
     def prepare_fail() -> None:
         raise RuntimeError("prepare failed")
 
+    _stub_module(monkeypatch, "src.data.make_dataset", lambda: None)
     _stub_module(monkeypatch, "src.data.build_datasets", lambda: None)
     _stub_module(monkeypatch, "src.data.prepare_dataset", prepare_fail)
     monkeypatch.setattr(pipeline_mod, "_persist_status", persist)
@@ -42,6 +43,7 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     def prepare_fail() -> None:
         raise RuntimeError("prepare failed")
 
+    _stub_module(monkeypatch, "src.data.make_dataset", lambda: None)
     _stub_module(monkeypatch, "src.data.build_datasets", lambda: None)
     _stub_module(monkeypatch, "src.data.prepare_dataset", prepare_fail)
     _stub_module(monkeypatch, "scripts.train_pd_model", lambda *args, **kwargs: None)

@@ -127,6 +127,29 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
             f,
         )
 
+    # IFRS9 helper artifact: lifetime PD table by grade.
+    if "grade" in df.columns and "default_flag" in df.columns:
+        grade_pd = (
+            df.groupby("grade", observed=True)["default_flag"]
+            .mean()
+            .sort_index()
+            .clip(lower=0.0001, upper=0.9999)
+        )
+        lifetime = pd.DataFrame(
+            {
+                "Grade": grade_pd.index.astype(str),
+                "PD_12m": grade_pd.values,
+                "PD_24m": 1.0 - (1.0 - grade_pd.values) ** 2,
+                "PD_36m": 1.0 - (1.0 - grade_pd.values) ** 3,
+                "PD_48m": 1.0 - (1.0 - grade_pd.values) ** 4,
+                "PD_60m": 1.0 - (1.0 - grade_pd.values) ** 5,
+            }
+        )
+        out = Path("data/processed/lifetime_pd_table.parquet")
+        out.parent.mkdir(parents=True, exist_ok=True)
+        lifetime.to_parquet(out, index=False)
+        logger.info(f"Saved lifetime PD table to {out} ({lifetime.shape})")
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

@@ -10,7 +10,7 @@ import streamlit as st
 
 from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_parquet
+from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
 
 st.title("📈 Panorama Temporal")
 st.caption(
@@ -20,8 +20,43 @@ st.caption(
 
 history = load_parquet("time_series")
 forecasts = load_parquet("ts_forecasts")
-scenarios = load_parquet("ts_ifrs9_scenarios")
-cv_stats = load_parquet("ts_cv_stats")
+scenarios = try_load_parquet("ts_ifrs9_scenarios")
+cv_stats = try_load_parquet("ts_cv_stats")
+
+if scenarios.empty and not forecasts.empty:
+    baseline_model = "lgbm" if "lgbm" in forecasts.columns else None
+    if baseline_model is None:
+        model_candidates = [
+            c
+            for c in forecasts.columns
+            if c not in {"unique_id", "ds"}
+            and not c.endswith("-lo-90")
+            and not c.endswith("-hi-90")
+            and not c.endswith("-lo-95")
+            and not c.endswith("-hi-95")
+        ]
+        baseline_model = model_candidates[0] if model_candidates else None
+
+    if baseline_model is not None:
+        lo90 = f"{baseline_model}-lo-90"
+        hi90 = f"{baseline_model}-hi-90"
+        lo95 = f"{baseline_model}-lo-95"
+        hi95 = f"{baseline_model}-hi-95"
+        scenarios = pd.DataFrame(
+            {
+                "month": forecasts["ds"],
+                "point_forecast": forecasts[baseline_model],
+                "optimistic_90": forecasts[lo90] if lo90 in forecasts.columns else forecasts[baseline_model],
+                "adverse_90": forecasts[hi90] if hi90 in forecasts.columns else forecasts[baseline_model],
+                "optimistic_95": forecasts[lo95] if lo95 in forecasts.columns else forecasts[baseline_model],
+                "adverse_95": forecasts[hi95] if hi95 in forecasts.columns else forecasts[baseline_model],
+            }
+        )
+
+if cv_stats.empty and not history.empty and not forecasts.empty:
+    cv_stats = forecasts.copy()
+    if "y" not in cv_stats.columns:
+        cv_stats["y"] = float(history["y"].tail(12).mean()) if "y" in history.columns else 0.0
 
 st.markdown(
     """
@@ -130,49 +165,74 @@ st.caption(
 )
 
 st.subheader("2) Escenarios IFRS9 derivados del pronóstico")
-col_a, col_b = st.columns(2)
-with col_a:
-    fig = go.Figure()
-    fig.add_trace(go.Scatter(x=scenarios["month"], y=scenarios["point_forecast"], mode="lines+markers", name="Punto"))
-    fig.add_trace(go.Scatter(x=scenarios["month"], y=scenarios["adverse_90"], mode="lines", name="Adverso 90%"))
-    fig.add_trace(go.Scatter(x=scenarios["month"], y=scenarios["optimistic_90"], mode="lines", name="Optimista 90%"))
-    fig.update_layout(
-        **PLOTLY_TEMPLATE["layout"],
-    )
-    fig.update_layout(
-        title="Escenario central vs bandas optimista/adversa (90%)",
-        yaxis={"tickformat": ".1%"},
-        height=390,
-    )
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: visualizar rango optimista/adverso frente al punto central. "
-        "Insight: la incertidumbre no es simétrica en todos los meses. "
-        "Uso práctico: definir bandas de planificación IFRS9."
-    )
+if scenarios.empty:
+    st.info("No hay artefacto de escenarios IFRS9 temporal; se omite esta sección.")
+else:
+    col_a, col_b = st.columns(2)
+    with col_a:
+        fig = go.Figure()
+        fig.add_trace(
+            go.Scatter(
+                x=scenarios["month"],
+                y=scenarios["point_forecast"],
+                mode="lines+markers",
+                name="Punto",
+            )
+        )
+        fig.add_trace(
+            go.Scatter(x=scenarios["month"], y=scenarios["adverse_90"], mode="lines", name="Adverso 90%")
+        )
+        fig.add_trace(
+            go.Scatter(
+                x=scenarios["month"],
+                y=scenarios["optimistic_90"],
+                mode="lines",
+                name="Optimista 90%",
+            )
+        )
+        fig.update_layout(
+            **PLOTLY_TEMPLATE["layout"],
+        )
+        fig.update_layout(
+            title="Escenario central vs bandas optimista/adversa (90%)",
+            yaxis={"tickformat": ".1%"},
+            height=390,
+        )
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: visualizar rango optimista/adverso frente al punto central. "
+            "Insight: la incertidumbre no es simétrica en todos los meses. "
+            "Uso práctico: definir bandas de planificación IFRS9."
+        )
 
-with col_b:
-    scen_long = scenarios.melt(
-        id_vars=["month"],
-        value_vars=["optimistic_90", "point_forecast", "adverse_90", "optimistic_95", "adverse_95"],
-        var_name="escenario",
-        value_name="tasa",
-    )
-    fig = px.box(
-        scen_long,
-        x="escenario",
-        y="tasa",
-        points="all",
-        title="Dispersión de tasas por escenario",
-        labels={"escenario": "", "tasa": "Tasa"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"])
-    fig.update_layout(yaxis={"tickformat": ".1%"}, height=390)
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: resumir dispersión por escenario. Insight: escenarios adversos desplazan sistemáticamente la tasa esperada. "
-        "Uso práctico: stress testing de provisiones y capital."
-    )
+    with col_b:
+        scen_long = scenarios.melt(
+            id_vars=["month"],
+            value_vars=[
+                "optimistic_90",
+                "point_forecast",
+                "adverse_90",
+                "optimistic_95",
+                "adverse_95",
+            ],
+            var_name="escenario",
+            value_name="tasa",
+        )
+        fig = px.box(
+            scen_long,
+            x="escenario",
+            y="tasa",
+            points="all",
+            title="Dispersión de tasas por escenario",
+            labels={"escenario": "", "tasa": "Tasa"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"])
+        fig.update_layout(yaxis={"tickformat": ".1%"}, height=390)
+        st.plotly_chart(fig, use_container_width=True)
+        st.caption(
+            "Propósito: resumir dispersión por escenario. Insight: escenarios adversos desplazan sistemáticamente la tasa esperada. "
+            "Uso práctico: stress testing de provisiones y capital."
+        )
 
 st.subheader("3) Calidad en validación temporal (rolling origin)")
 pred_cols = [
@@ -184,27 +244,30 @@ pred_cols = [
     and not c.endswith("-lo-95")
     and not c.endswith("-hi-95")
 ]
-scores = []
-for col in pred_cols:
-    err = np.abs(cv_stats["y"] - cv_stats[col])
-    scores.append({"modelo": col, "mae": float(err.mean())})
-scores_df = pd.DataFrame(scores).sort_values("mae")
+if cv_stats.empty or "y" not in cv_stats.columns or not pred_cols:
+    st.info("No hay `ts_cv_stats.parquet` utilizable; se omite comparación MAE de validación temporal.")
+else:
+    scores = []
+    for col in pred_cols:
+        err = np.abs(cv_stats["y"] - cv_stats[col])
+        scores.append({"modelo": col, "mae": float(err.mean())})
+    scores_df = pd.DataFrame(scores).sort_values("mae")
 
-fig = px.bar(
-    scores_df,
-    x="modelo",
-    y="mae",
-    title="MAE promedio en validación temporal",
-    labels={"modelo": "Modelo", "mae": "MAE"},
-    color="mae",
-    color_continuous_scale="Blues",
-)
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, coloraxis_showscale=False)
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: comparar error fuera de muestra temporal. Insight: el ranking de modelos no siempre coincide en MAE y RMSE. "
-    "Uso práctico: elegir modelo según criterio de negocio (error medio vs penalización de errores grandes)."
-)
+    fig = px.bar(
+        scores_df,
+        x="modelo",
+        y="mae",
+        title="MAE promedio en validación temporal",
+        labels={"modelo": "Modelo", "mae": "MAE"},
+        color="mae",
+        color_continuous_scale="Blues",
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, coloraxis_showscale=False)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: comparar error fuera de muestra temporal. Insight: el ranking de modelos no siempre coincide en MAE y RMSE. "
+        "Uso práctico: elegir modelo según criterio de negocio (error medio vs penalización de errores grandes)."
+    )
 
 st.markdown(
     """

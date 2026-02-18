@@ -11,6 +11,9 @@ from __future__ import annotations
 
 import json
 import pickle
+import subprocess
+from collections import Counter
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -40,6 +43,29 @@ def _save_parquet(df: pd.DataFrame, path: Path) -> None:
     df.to_parquet(path, index=False)
     logger.info(f"Saved {path.name} ({df.shape[0]} rows x {df.shape[1]} cols)")
     EXPORT_COUNT += 1
+
+
+def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
+    """Collect pytest node inventory for runtime status metadata."""
+    cmd = ["uv", "run", "pytest", "--collect-only", "-q", "-q"]
+    proc = subprocess.run(
+        cmd,
+        cwd=str(PROJECT_ROOT),
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    counts: Counter[str] = Counter()
+    total = 0
+    for raw in proc.stdout.splitlines():
+        line = raw.strip()
+        if not line.startswith("tests/") or "::" not in line:
+            continue
+        module = line.split("::", maxsplit=1)[0].removeprefix("tests/").removesuffix(".py")
+        counts[module] += 1
+        total += 1
+    breakdown = [{"module": module, "tests": int(n)} for module, n in sorted(counts.items())]
+    return total, breakdown
 
 
 # ── 1. EDA Summary ──
@@ -505,6 +531,21 @@ def export_roi_by_grade() -> None:
     _save_parquet(roi_term, DATA_DIR / "roi_by_grade_term.parquet")
 
 
+# ── 14. Runtime Status Snapshot ──
+def export_runtime_status() -> None:
+    """Export runtime status used by narrative/UI pages to avoid stale hardcodes."""
+    logger.info("Exporting runtime status snapshot...")
+    test_total, test_breakdown = _collect_test_inventory()
+    pages_total = len(list((PROJECT_ROOT / "streamlit_app" / "pages").glob("*.py")))
+    payload = {
+        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "test_suite_total": int(test_total),
+        "test_breakdown": test_breakdown,
+        "streamlit_pages_total": int(pages_total),
+    }
+    _save_json(payload, DATA_DIR / "runtime_status.json")
+
+
 # ── Main ──
 def main() -> None:
     logger.info("Starting Streamlit artifact export...")
@@ -522,6 +563,7 @@ def main() -> None:
     export_macro_context()
     export_state_aggregates()
     export_roi_by_grade()
+    export_runtime_status()
 
     logger.success(f"Export complete! {EXPORT_COUNT} artifacts generated.")
 

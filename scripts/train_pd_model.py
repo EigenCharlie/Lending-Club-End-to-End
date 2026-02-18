@@ -15,6 +15,7 @@ import pandas as pd
 import yaml
 from loguru import logger
 
+from src.evaluation.metrics import classification_metrics
 from src.models.calibration import calibrate_platt, evaluate_calibration
 from src.models.conformal import create_pd_intervals, validate_coverage
 from src.models.pd_contract import (
@@ -26,7 +27,15 @@ from src.models.pd_contract import (
     save_contract,
     validate_features_in_splits,
 )
-from src.models.pd_model import TARGET, get_available_features, train_baseline, train_catboost
+from src.models.pd_model import (
+    CATEGORICAL_FEATURES,
+    NUMERIC_FEATURES,
+    TARGET,
+    WOE_FEATURES,
+    get_available_features,
+    train_baseline,
+    train_catboost,
+)
 
 
 def load_config(config_path: str) -> dict:
@@ -87,6 +96,22 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     if not features:
         raise ValueError("No available PD features found in training data.")
     logger.info(f"Using {len(features)} features")
+    feature_config_path = Path("data/processed/feature_config.pkl")
+    if not feature_config_path.exists():
+        feature_cfg = {
+            "CATBOOST_FEATURES": features,
+            "LOGREG_FEATURES": [c for c in features if c not in CATEGORICAL_FEATURES],
+            "NUMERIC_FEATURES": [c for c in NUMERIC_FEATURES if c in features],
+            "WOE_FEATURES": [c for c in WOE_FEATURES if c in features],
+            "CATEGORICAL_FEATURES": [c for c in CATEGORICAL_FEATURES if c in features],
+            "INTERACTION_FEATURES": [c for c in features if "__" in c],
+            "FLAG_FEATURES": [c for c in features if c.endswith("_flag")],
+            "iv_scores": {},
+        }
+        feature_config_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(feature_config_path, "wb") as f:
+            pickle.dump(feature_cfg, f)
+        logger.info(f"Generated minimal feature config at {feature_config_path}")
 
     X_train, y_train = train[features], train[TARGET]
     X_test, y_test = test[features], test[TARGET]
@@ -123,6 +148,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         **{f"cp_{k}": v for k, v in cp_metrics.items()},
         "baseline_auc": lr_metrics["auc_roc"],
     }
+    final_test_metrics = classification_metrics(y_test.values, y_prob_calibrated)
     logger.info(f"Final metrics: {all_metrics}")
 
     model_path = Path(config["output"]["model_path"])
@@ -169,6 +195,39 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     logger.info(f"Canonical PD model saved to {CANONICAL_MODEL_PATH}")
     logger.info(f"Canonical calibrator saved to {CANONICAL_CALIBRATOR_PATH}")
     logger.info(f"PD contract saved to {CONTRACT_PATH}")
+
+    # Persist test predictions + training record for downstream DVC/Streamlit/MLflow contracts.
+    test_predictions_path = Path("data/processed/test_predictions.parquet")
+    test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
+    preds_df = pd.DataFrame(
+        {
+            "loan_id": test["id"].astype(str) if "id" in test.columns else test.index.astype(str),
+            "y_true": y_test.values.astype(float),
+            "y_prob_lr": lr_model.predict_proba(X_test_num)[:, 1].astype(float),
+            "y_prob_cb_default": y_prob_test_raw.astype(float),
+            "y_prob_cb_tuned": y_prob_test_raw.astype(float),
+            "y_prob_final": y_prob_calibrated.astype(float),
+            "pd_calibrated": y_prob_calibrated.astype(float),
+            "pd_logreg": lr_model.predict_proba(X_test_num)[:, 1].astype(float),
+        }
+    )
+    preds_df.to_parquet(test_predictions_path, index=False)
+    logger.info(f"Saved test predictions to {test_predictions_path}")
+
+    training_record = {
+        "best_calibration": "Platt Sigmoid",
+        "optuna_best_auc": float(cb_metrics.get("auc_roc", 0.0)),
+        "optuna_best_params": config["model"].get("params", {}),
+        "baseline_metrics": lr_metrics,
+        "catboost_metrics": cb_metrics,
+        "calibration_metrics": cal_metrics,
+        "conformal_metrics": cp_metrics,
+        "final_test_metrics": final_test_metrics,
+    }
+    record_path = Path("models/pd_training_record.pkl")
+    with open(record_path, "wb") as f:
+        pickle.dump(training_record, f)
+    logger.info(f"Saved training record to {record_path}")
 
 
 if __name__ == "__main__":

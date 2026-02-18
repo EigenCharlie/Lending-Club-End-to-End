@@ -10,7 +10,7 @@ import streamlit as st
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet
+from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
 
 st.title("⏳ Análisis de Supervivencia")
 st.caption(
@@ -65,7 +65,32 @@ summary = load_json("pipeline_summary")
 survival = summary.get("survival", {})
 km_df = load_parquet("km_curve_data")
 hazard = load_parquet("hazard_ratios")
-lifetime_pd = load_parquet("lifetime_pd_table").reset_index()
+lifetime_pd = try_load_parquet("lifetime_pd_table")
+if lifetime_pd.empty:
+    loan_master = try_load_parquet("loan_master")
+    if not loan_master.empty and {"grade", "default_flag"}.issubset(loan_master.columns):
+        grade_pd = (
+            loan_master.groupby("grade", observed=True)["default_flag"]
+            .mean()
+            .sort_index()
+            .clip(lower=0.0001, upper=0.9999)
+        )
+        lifetime_pd = pd.DataFrame(
+            {
+                "Grade": grade_pd.index,
+                "PD_12m": grade_pd.values,
+                "PD_24m": 1.0 - (1.0 - grade_pd.values) ** 2,
+                "PD_36m": 1.0 - (1.0 - grade_pd.values) ** 3,
+                "PD_48m": 1.0 - (1.0 - grade_pd.values) ** 4,
+                "PD_60m": 1.0 - (1.0 - grade_pd.values) ** 5,
+            }
+        )
+    else:
+        lifetime_pd = pd.DataFrame(
+            columns=["Grade", "PD_12m", "PD_24m", "PD_36m", "PD_48m", "PD_60m"]
+        )
+elif "Grade" not in lifetime_pd.columns:
+    lifetime_pd = lifetime_pd.reset_index().rename(columns={"index": "Grade"})
 
 kpi_row(
     [
@@ -168,24 +193,27 @@ st.caption(
 )
 
 st.subheader("3) Curvas de PD de vida (IFRS9)")
-lt_long = lifetime_pd.melt(id_vars="Grade", var_name="horizonte", value_name="pd")
-lt_long["mes"] = lt_long["horizonte"].str.extract(r"(\d+)").astype(int)
-fig = px.line(
-    lt_long,
-    x="mes",
-    y="pd",
-    color="Grade",
-    markers=True,
-    title="Evolución de PD acumulada por grade",
-    labels={"mes": "Meses", "pd": "PD acumulada"},
-)
-fig.update_layout(**PLOTLY_TEMPLATE["layout"])
-fig.update_layout(yaxis={"tickformat": ".0%"}, height=420)
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: proyectar PD acumulada por horizonte y grade. Insight: curvas más inclinadas implican mayor presión de provisión "
-    "lifetime en IFRS9."
-)
+if lifetime_pd.empty or "Grade" not in lifetime_pd.columns:
+    st.info("No hay `lifetime_pd_table.parquet` disponible; se omite visual de PD lifetime.")
+else:
+    lt_long = lifetime_pd.melt(id_vars="Grade", var_name="horizonte", value_name="pd")
+    lt_long["mes"] = lt_long["horizonte"].str.extract(r"(\d+)").astype(int)
+    fig = px.line(
+        lt_long,
+        x="mes",
+        y="pd",
+        color="Grade",
+        markers=True,
+        title="Evolución de PD acumulada por grade",
+        labels={"mes": "Meses", "pd": "PD acumulada"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"])
+    fig.update_layout(yaxis={"tickformat": ".0%"}, height=420)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: proyectar PD acumulada por horizonte y grade. Insight: curvas más inclinadas implican mayor presión de provisión "
+        "lifetime en IFRS9."
+    )
 
 st.markdown(
     """

@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
+from collections import Counter
 from pathlib import Path
 
 import httpx
@@ -41,6 +43,82 @@ def load_json(name: str, directory: str = "data") -> dict:
     """
     path = MODEL_DIR / f"{name}.json" if directory == "models" else DATA_DIR / f"{name}.json"
     return json.loads(path.read_text())
+
+
+@st.cache_data(ttl=300)
+def try_load_parquet(name: str, default: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Load parquet if available, otherwise return default/empty DataFrame."""
+    path = DATA_DIR / f"{name}.parquet"
+    if not path.exists():
+        return default.copy() if isinstance(default, pd.DataFrame) else pd.DataFrame()
+    try:
+        return pd.read_parquet(path)
+    except Exception:
+        return default.copy() if isinstance(default, pd.DataFrame) else pd.DataFrame()
+
+
+@st.cache_data(ttl=300)
+def try_load_json(name: str, directory: str = "data", default: dict | None = None) -> dict:
+    """Load JSON if available, otherwise return default/empty dict."""
+    path = MODEL_DIR / f"{name}.json" if directory == "models" else DATA_DIR / f"{name}.json"
+    if not path.exists():
+        return dict(default or {})
+    try:
+        return json.loads(path.read_text())
+    except Exception:
+        return dict(default or {})
+
+
+def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
+    """Best-effort collected test inventory using pytest node IDs."""
+    try:
+        cmd = ["uv", "run", "pytest", "--collect-only", "-q", "-q"]
+        proc = subprocess.run(
+            cmd,
+            cwd=str(PROJECT_ROOT),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        counts: Counter[str] = Counter()
+        total = 0
+        for raw in proc.stdout.splitlines():
+            line = raw.strip()
+            if not line.startswith("tests/") or "::" not in line:
+                continue
+            module_path = line.split("::", maxsplit=1)[0]
+            module = module_path.removeprefix("tests/").removesuffix(".py")
+            counts[module] += 1
+            total += 1
+        breakdown = [
+            {"module": module, "tests": int(n)}
+            for module, n in sorted(counts.items())
+        ]
+        return total, breakdown
+    except Exception:
+        pass
+    return 0, []
+
+
+@st.cache_data(ttl=300)
+def load_runtime_status() -> dict:
+    """Load runtime status snapshot with resilient fallbacks."""
+    status = try_load_json("runtime_status", directory="data", default={})
+    status.setdefault(
+        "streamlit_pages_total",
+        len(list((PROJECT_ROOT / "streamlit_app" / "pages").glob("*.py"))),
+    )
+    test_total = int(status.get("test_suite_total", 0) or 0)
+    breakdown = status.get("test_breakdown", [])
+    if not isinstance(breakdown, list):
+        breakdown = []
+    if test_total <= 0 or not breakdown:
+        collected_total, collected_breakdown = _collect_test_inventory()
+        if test_total <= 0:
+            status["test_suite_total"] = collected_total
+        if not breakdown:
+            status["test_breakdown"] = collected_breakdown
+    return status
 
 
 @st.cache_resource

@@ -7,6 +7,7 @@ import streamlit as st
 from streamlit_mermaid import st_mermaid
 
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.utils import load_runtime_status
 
 
 def _lib_df(rows: list[list[str]]) -> pd.DataFrame:
@@ -428,24 +429,41 @@ with tabs[10]:
 # ══════════════════════════════════════════════════════════════════════════════
 st.subheader("2) Prácticas de ingeniería")
 
-TEST_SUITE_TOTAL = 199
+runtime_status = load_runtime_status()
+TEST_SUITE_TOTAL = int(runtime_status.get("test_suite_total", 0) or 0)
+PAGES_TOTAL = int(runtime_status.get("streamlit_pages_total", 0) or 0)
+PAGES_LABEL = str(PAGES_TOTAL) if PAGES_TOTAL > 0 else "N/D"
+_description_map = {
+    "test_api/test_router_normalization": "Normalización de parámetros FastAPI",
+    "test_config_consistency": "Drift entre config YAML, contrato PD y DAG DVC",
+    "test_data/test_make_dataset": "Limpieza inicial y control de leakage",
+    "test_data/test_prepare_dataset": "Splits OOT y calibración temporal",
+    "test_data/test_build_datasets": "loan_master/time_series/ead + parsing robusto",
+    "test_features/test_feature_engineering": "Feature engineering",
+    "test_features/test_schemas": "Validación de esquemas Pandera",
+    "test_models/test_pd_model": "CatBoost, baseline LR, calibración",
+    "test_models/test_conformal": "Cobertura, grupos, Mondrian y edge cases",
+    "test_evaluation/test_ifrs9": "Staging ECL, rangos conformal y edge cases",
+    "test_evaluation/test_metrics": "Métricas clasificación y regresión",
+    "test_optimization/test_portfolio": "Pyomo, solver, constraints y escenarios",
+    "test_scripts/test_end_to_end_pipeline": "Orquestación fail-fast/tolerante",
+    "test_scripts/test_export_streamlit_artifacts": "Contrato de export para Streamlit",
+    "test_scripts/test_mlflow_suite": "Suite de logging MLflow/DagsHub",
+    "test_utils/test_mlflow_utils": "init_dagshub + logging de experimentos",
+    "test_streamlit/test_page_imports": "Smoke AST/import de páginas Streamlit",
+    "test_integration": "Pipeline completo sobre datos sintéticos",
+    "test_docs/test_narrative_consistency": "Guard de claims narrativos",
+}
 TEST_BREAKDOWN = [
-    ["test_api/test_router_normalization", 5, "Normalización de parámetros FastAPI"],
-    ["test_config_consistency", 11, "Drift entre config YAML, contrato PD y DAG DVC"],
-    ["test_data/test_make_dataset", 8, "Limpieza inicial y control de leakage"],
-    ["test_data/test_prepare_dataset", 8, "Splits OOT y calibración temporal"],
-    ["test_data/test_build_datasets", 13, "loan_master/time_series/ead + parsing robusto"],
-    ["test_features/", 5, "Feature engineering + Pandera schemas"],
-    ["test_models/test_pd_model", 9, "CatBoost, baseline LR, calibración"],
-    ["test_models/test_conformal", 19, "Cobertura, grupos, Mondrian y edge cases"],
-    ["test_evaluation/test_ifrs9", 19, "Staging ECL, rangos conformal y edge cases"],
-    ["test_evaluation/test_metrics", 11, "Métricas clasificación y regresión"],
-    ["test_optimization/test_portfolio", 15, "Pyomo, solver, constraints y escenarios"],
-    ["test_scripts/", 15, "Suite de scripts (MLflow helpers + end_to_end + export artifacts)"],
-    ["test_utils/test_mlflow_utils", 6, "init_dagshub + logging de experimentos"],
-    ["test_streamlit/test_page_imports", 43, "Smoke AST/import de 20 páginas Streamlit"],
-    ["test_integration", 8, "Pipeline completo sobre datos sintéticos"],
+    [
+        row["module"],
+        int(row["tests"]),
+        _description_map.get(str(row["module"]), "Cobertura automática de pytest"),
+    ]
+    for row in runtime_status.get("test_breakdown", [])
 ]
+if not TEST_BREAKDOWN:
+    TEST_BREAKDOWN = [["N/D", 0, "No se pudo recolectar inventario de tests"]]
 
 with st.expander(f"Testing: {TEST_SUITE_TOTAL} tests con pytest"):
     test_data = pd.DataFrame(
@@ -499,14 +517,14 @@ Config en `.pre-commit-config.yaml` con `ruff-pre-commit v0.9.0` y `nbstripout 0
 
 with st.expander("CI/CD: GitHub Actions (3 jobs)"):
     st.markdown(
-        """
+        f"""
 **Workflow**: `.github/workflows/ci.yml` — triggers en push a main/master y PRs.
 
 | Job | Qué hace | Comando |
 |-----|----------|---------|
 | **Lint** | Verifica formato y estilo | `ruff check` + `ruff format --check` |
 | **Test** | Ejecuta test suite completa | `pytest -x -m "not slow"` |
-| **Streamlit Smoke** | Verifica que las 20 páginas importan sin error | `importlib.util.find_spec()` |
+| **Streamlit Smoke** | Verifica que las {PAGES_LABEL} páginas importan sin error | `importlib.util.find_spec()` |
 
 Setup: `actions/checkout@v4` + `astral-sh/setup-uv@v5` + `uv sync --extra dev`.
 """
@@ -514,11 +532,11 @@ Setup: `actions/checkout@v4` + `astral-sh/setup-uv@v5` + `uv sync --extra dev`.
 
 with st.expander("Containerización: Docker Compose (2 servicios)"):
     st.markdown(
-        """
+        f"""
 | Servicio | Puerto | Base | Propósito |
 |----------|--------|------|-----------|
 | **api** | 8000 | python:3.12-slim | FastAPI con CatBoost inference |
-| **streamlit** | 8501 | python:3.12-slim | Dashboard de 20 páginas |
+| **streamlit** | 8501 | python:3.12-slim | Dashboard de {PAGES_LABEL} páginas |
 
 **Prácticas clave**:
 - Data y modelos montados como **volúmenes read-only** (inmutabilidad)

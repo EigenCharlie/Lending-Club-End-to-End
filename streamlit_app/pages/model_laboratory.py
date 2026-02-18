@@ -11,7 +11,7 @@ from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet
+from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
 
 st.title("🔬 Laboratorio de Modelos")
 st.caption("Comparación de modelos PD, calibración y explicabilidad (SHAP).")
@@ -241,48 +241,56 @@ narrative_block(
 )
 
 st.subheader("Interpretabilidad con SHAP")
-shap_summary = load_parquet("shap_summary")
-top_n = st.slider("Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1)
-shap_top = shap_summary.head(top_n).sort_values("mean_abs_shap")
+shap_summary = try_load_parquet("shap_summary")
+if shap_summary.empty:
+    st.info("No hay artefactos SHAP en este entorno; se omite la sección de interpretabilidad avanzada.")
+else:
+    top_n = st.slider("Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1)
+    shap_top = shap_summary.head(top_n).sort_values("mean_abs_shap")
 
-fig = px.bar(
-    shap_top,
-    x="mean_abs_shap",
-    y="feature",
-    orientation="h",
-    title=f"Top {top_n} variables más influyentes",
-    labels={"mean_abs_shap": "Impacto medio |SHAP|", "feature": "Variable"},
-)
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=max(360, top_n * 26))
-fig.update_traces(marker_color="#00D4AA")
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: identificar variables que explican el score. Insight: tasa de interés, plazo y calidad crediticia "
-    "concentran mayor aporte al riesgo."
-)
+    fig = px.bar(
+        shap_top,
+        x="mean_abs_shap",
+        y="feature",
+        orientation="h",
+        title=f"Top {top_n} variables más influyentes",
+        labels={"mean_abs_shap": "Impacto medio |SHAP|", "feature": "Variable"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=max(360, top_n * 26))
+    fig.update_traces(marker_color="#00D4AA")
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Propósito: identificar variables que explican el score. Insight: tasa de interés, plazo y calidad crediticia "
+        "concentran mayor aporte al riesgo."
+    )
 
-if audience in ("Negocio", "Técnico"):
-    shap_raw = load_parquet("shap_raw_top20")
-    shap_features = sorted([c.replace("shap_", "") for c in shap_raw.columns if c.startswith("shap_")])
-    selected_feat = st.selectbox("Variable para explorar dependencia SHAP", shap_features, index=0)
-    shap_col = f"shap_{selected_feat}"
-    val_col = f"val_{selected_feat}"
-    if shap_col in shap_raw.columns and val_col in shap_raw.columns:
-        sample = shap_raw.sample(min(3000, len(shap_raw)), random_state=17)
-        fig = px.scatter(
-            sample,
-            x=val_col,
-            y=shap_col,
-            opacity=0.35,
-            title=f"Dependencia SHAP: {selected_feat}",
-            labels={val_col: f"Valor de {selected_feat}", shap_col: "Contribución SHAP"},
+    if audience in ("Negocio", "Técnico"):
+        shap_raw = try_load_parquet("shap_raw_top20")
+        shap_features = sorted(
+            [c.replace("shap_", "") for c in shap_raw.columns if c.startswith("shap_")]
         )
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
-        st.plotly_chart(fig, use_container_width=True)
-        st.caption(
-            "Propósito: ver dirección y magnitud local del efecto por variable. "
-            "Insight: el impacto no es lineal en todo el dominio."
-        )
+        if shap_raw.empty or not shap_features:
+            st.info("No hay `shap_raw_top20.parquet`; se omite dependencia SHAP.")
+        else:
+            selected_feat = st.selectbox("Variable para explorar dependencia SHAP", shap_features, index=0)
+            shap_col = f"shap_{selected_feat}"
+            val_col = f"val_{selected_feat}"
+            if shap_col in shap_raw.columns and val_col in shap_raw.columns:
+                sample = shap_raw.sample(min(3000, len(shap_raw)), random_state=17)
+                fig = px.scatter(
+                    sample,
+                    x=val_col,
+                    y=shap_col,
+                    opacity=0.35,
+                    title=f"Dependencia SHAP: {selected_feat}",
+                    labels={val_col: f"Valor de {selected_feat}", shap_col: "Contribución SHAP"},
+                )
+                fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+                st.plotly_chart(fig, use_container_width=True)
+                st.caption(
+                    "Propósito: ver dirección y magnitud local del efecto por variable. "
+                    "Insight: el impacto no es lineal en todo el dominio."
+                )
 
 img = get_notebook_image_path("03_pd_modeling", "cell_017_out_00.png")
 if img.exists():
