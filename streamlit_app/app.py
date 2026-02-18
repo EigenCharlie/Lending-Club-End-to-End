@@ -3,7 +3,14 @@
 Run: uv run streamlit run streamlit_app/app.py
 """
 
+import sys
+from pathlib import Path
+
 import streamlit as st
+
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
 
 from streamlit_app.theme import inject_custom_css
 from streamlit_app.utils import load_runtime_status
