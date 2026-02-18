@@ -38,6 +38,12 @@ export DAGSHUB_REPO="<repo>"
 export DAGSHUB_USER_TOKEN="<token>"
 ```
 
+Variable opcional para no volver a pedir credenciales GitHub en terminal no interactiva:
+
+```bash
+export GITHUB_PAT="<github_pat>"
+```
+
 ## Google Drive opcional (backup secundario)
 
 Si quieres agregar Google Drive como **segundo** remoto DVC:

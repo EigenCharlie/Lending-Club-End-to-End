@@ -13,6 +13,8 @@ Default mode configures:
   - git identity + remotes (GitHub + DagsHub)
   - DVC remote default on DagsHub
   - DagsHub auth for DVC + MLflow env vars
+  - persistent git HTTPS credentials for DagsHub
+  - persistent git HTTPS credentials for GitHub (if GITHUB_PAT or GH_TOKEN is set)
 
 Optional:
   --enable-gdrive   Configure Google Drive as secondary DVC remote (backup)
@@ -46,6 +48,28 @@ upsert_env_key() {
   else
     printf "%s=%s\n" "$key" "$value" >> .env
   fi
+}
+
+configure_git_https_credential() {
+  local host="$1"
+  local username="$2"
+  local password="$3"
+  local label="$4"
+
+  if [[ -z "$password" ]]; then
+    echo "Skipping persistent git credential for $label (token not provided)."
+    return
+  fi
+
+  # Persist HTTPS credentials locally in this machine so non-interactive git commands work.
+  git config --global credential.helper store
+  git credential approve <<EOF
+protocol=https
+host=$host
+username=$username
+password=$password
+EOF
+  echo "Configured persistent git credential for $label ($host)."
 }
 
 ENABLE_GDRIVE="false"
@@ -108,6 +132,11 @@ else
   git remote add dagshub "$DAGSHUB_GIT_URL"
 fi
 
+echo "Configuring persistent git HTTPS credentials..."
+GITHUB_TOKEN="${GITHUB_PAT:-${GH_TOKEN:-}}"
+configure_git_https_credential "dagshub.com" "$DAGSHUB_USER" "$DAGSHUB_USER_TOKEN" "DagsHub"
+configure_git_https_credential "github.com" "${GITHUB_USER_NAME:-$GIT_USER_NAME}" "$GITHUB_TOKEN" "GitHub"
+
 echo "Configuring DVC DagsHub remote (default)..."
 DAGSHUB_DVC_URL="https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.dvc"
 uv run dvc remote add -f -d dagshub "$DAGSHUB_DVC_URL"
@@ -143,6 +172,9 @@ upsert_env_key DAGSHUB_USER "$DAGSHUB_USER"
 upsert_env_key DAGSHUB_REPO "$DAGSHUB_REPO"
 upsert_env_key DAGSHUB_USER_TOKEN "$DAGSHUB_USER_TOKEN"
 upsert_env_key DAGSHUB_TOKEN "$DAGSHUB_USER_TOKEN"
+if [[ -n "${GITHUB_PAT:-}" ]]; then
+  upsert_env_key GITHUB_PAT "$GITHUB_PAT"
+fi
 upsert_env_key MLFLOW_TRACKING_URI "https://dagshub.com/${DAGSHUB_USER}/${DAGSHUB_REPO}.mlflow"
 upsert_env_key MLFLOW_TRACKING_USERNAME "$DAGSHUB_USER"
 upsert_env_key MLFLOW_TRACKING_PASSWORD "$DAGSHUB_USER_TOKEN"
