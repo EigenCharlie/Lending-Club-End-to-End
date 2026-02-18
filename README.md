@@ -1,79 +1,67 @@
-<h1 align="center">Lending Club Risk Intelligence Platform</h1>
-<p align="center">
-  Credit risk thesis platform combining machine learning, conformal uncertainty, IFRS9 analytics, and robust portfolio optimization.
-</p>
+# Lending Club End-to-End Risk Intelligence Platform
 
-<p align="center">
-  <a href="https://github.com/EigenCharlie/Lending-Club-End-to-End"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-Repository-0A0A0A?logo=github"></a>
-  <a href="https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"><img alt="DagsHub" src="https://img.shields.io/badge/DagsHub-MLops-00A86B"></a>
-  <img alt="Python" src="https://img.shields.io/badge/Python-3.11-blue">
-  <img alt="Streamlit" src="https://img.shields.io/badge/Streamlit-Multipage-red">
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-lightgrey">
-</p>
+Credit risk thesis platform that integrates machine learning, conformal uncertainty, IFRS9 scenario analytics, causal policy evaluation, and robust portfolio optimization.
 
-## Executive Summary
+[![CI](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml/badge.svg)](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml)
+[![Live Streamlit](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
+[![DagsHub](https://img.shields.io/badge/DagsHub-MLOps-00A86B)](https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End)
+![Python](https://img.shields.io/badge/Python-3.11-blue)
+![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-This repository delivers an end-to-end thesis workflow for uncertainty-aware credit decisions over the Lending Club historical portfolio.
+## Live Demo
 
-Core thesis chain:
+Public Streamlit showcase:
+
+`https://lending-club-showcase.streamlit.app/`
+
+## Project Scope
+
+This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with a Streamlit-first delivery layer for thesis defense and stakeholder communication.
+
+Core methodological chain:
 
 ```text
-CatBoost PD -> Platt Calibration -> MAPIE Mondrian Conformal
--> Uncertainty-aware constraints -> Pyomo (HiGHS) optimization
--> Robust portfolio and IFRS9 reserve analysis
+CatBoost PD -> Platt Calibration -> Mondrian Conformal Intervals
+-> Causal Policy Simulation -> IFRS9 Scenario Sensitivity
+-> Robust Portfolio Optimization
 ```
 
-The project is designed as a **Streamlit-first showcase platform** with strong reproducibility and governance.
+## Why It Matters
 
-## Why This Project Matters
-
-- Point prediction alone is not enough for lending decisions.
-- Conformal intervals add finite-sample uncertainty guarantees.
-- Robust optimization quantifies the economic price of conservatism.
-- IFRS9 scenarios connect model output to accounting impact.
-
-## Platform Highlights
-
-- Multi-page Streamlit storytelling app (`streamlit_app/`)
-- Full analytical pipeline scripts (`scripts/`)
-- Reusable production-style modules (`src/`)
-- Optional service layer via FastAPI (`api/`)
-- Data governance with DuckDB + dbt + Feast (`dbt_project/`, `feature_repo/`)
-- CI checks for lint, tests, and Streamlit page smoke imports (`.github/workflows/ci.yml`)
-
-## Verified Snapshot
-
-- Notebooks `01`-`09` executed successfully.
-- Pipeline outputs are artifact-consistent in `data/processed/` and `models/`.
-- Conformal policy gate and causal policy selection available.
-- Current metrics and roadmap: `SESSION_STATE.md`.
+1. Point estimates alone are insufficient for risk-sensitive decisions.
+2. Conformal prediction introduces finite-sample uncertainty quantification.
+3. Robust optimization converts uncertainty into actionable portfolio constraints.
+4. IFRS9 sensitivity links predictive risk to accounting impact.
+5. Causal policy analysis goes beyond correlation for intervention design.
 
 ## Architecture (Thesis Mode)
 
 | Layer | Role |
 |---|---|
-| Streamlit | Primary user experience and thesis narrative |
-| DuckDB | Local analytical query engine |
-| dbt | Data lineage, tests, docs |
-| Feast | Feature-store consistency showcase |
-| FastAPI + MCP | Optional integration services |
+| Streamlit | Primary UX and storytelling |
+| DuckDB | Local analytical engine for queries and derived marts |
+| dbt | Data lineage/tests/docs over analytical models |
+| Feast | Feature-store consistency narrative |
+| FastAPI | Optional service layer for API-style consumption |
+| DVC + DagsHub | Artifact versioning and remote synchronization |
+| MLflow (DagsHub) | Experiment tracking suite (`lending_club/*`) |
 
-## Repository Layout
+## Repository Map
 
 ```text
 api/                 FastAPI endpoints
 configs/             YAML runtime configuration
-data/                Raw/interim/processed assets (artifact-oriented)
-dbt_project/         Governance SQL models and tests
-docs/                Runbooks, architecture, and thesis plans
-feature_repo/        Feast entities, views, services
-models/              Serialized model artifacts and contracts
-notebooks/           Thesis notebooks (01-09 + side projects)
-reports/             Audits, figures, notebook image exports
-scripts/             Executable stage-by-stage pipeline
-src/                 Core reusable package modules
-streamlit_app/       Main dashboard (multipage)
-tests/               Automated validation suite
+data/                Raw/interim/processed assets
+dbt_project/         dbt models/tests/docs artifacts
+docs/                Runbooks, architecture, and thesis notes
+feature_repo/        Feast entities/views/services
+models/              Serialized models and policy artifacts
+notebooks/           Research notebooks (01-09 + side projects)
+reports/             Audits and notebook image exports
+scripts/             Pipeline stages and orchestration scripts
+src/                 Reusable package modules
+streamlit_app/       Multipage Streamlit application
+tests/               Automated test suite
 ```
 
 ## Quick Start
@@ -85,58 +73,75 @@ uv sync --extra dev
 # 2) Place Kaggle CSV in data/raw/
 # Loan_status_2007-2020Q3.csv
 
-# 3) Run full pipeline
+# 3) Run pipeline (raw -> artifacts)
 uv run python scripts/end_to_end_pipeline.py
 
 # 4) Export Streamlit-ready artifacts
 uv run python scripts/export_streamlit_artifacts.py
 
-# 5) Launch app
+# 5) Run app locally
 uv run streamlit run streamlit_app/app.py
 ```
 
-## Free Public Deploy (Streamlit Community Cloud)
+## Reproducibility and MLOps
 
 ```bash
-uv run python scripts/prepare_streamlit_deploy.py --clean --strict
+# DVC pipeline graph
+uv run dvc dag
+
+# Check local/cloud consistency
+uv run dvc status --json
+uv run dvc status -c --json
+
+# Push artifacts to DagsHub remote
+uv run dvc push -r dagshub
 ```
 
-Deployment guide: `docs/DEPLOY_STREAMLIT_FREE.md`
-
-## Integrations (GitHub + DVC + DagsHub)
-
-One-shot setup script:
+One-shot integrations setup:
 
 ```bash
 bash scripts/configure_integrations.sh
 ```
 
-Integration guide: `docs/INTEGRATIONS_SETUP.md`
-
-MLflow backfill for full thesis experiment suite:
+MLflow backfill from existing artifacts:
 
 ```bash
 set -a && source .env && set +a
 uv run python scripts/log_mlflow_experiment_suite.py
 ```
 
-## Optional Services
+## Deploy Streamlit for Free
+
+Build a deploy bundle optimized for Streamlit Community Cloud:
 
 ```bash
-# API only
-uv run uvicorn api.main:app --reload --port 8000
-
-# Full docker stack
-docker compose up --build
+uv run python scripts/export_streamlit_artifacts.py
+uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
+
+Detailed guide:
+
+`docs/DEPLOY_STREAMLIT_FREE.md`
+
+## Quality Gates
+
+```bash
+uv run ruff check src/ scripts/ tests/
+uv run ruff format --check src/ scripts/ tests/
+uv run pytest -q
+```
+
+CI workflow:
+
+`.github/workflows/ci.yml`
 
 ## Key Documents
 
-- `SESSION_STATE.md` - canonical project status and metrics
-- `docs/RUNBOOK.md` - reproducibility runbook
-- `docs/PROJECT_JUSTIFICATION.md` - design and method rationale
-- `docs/THESIS_SHOWCASE_PLAN_ES.md` - showcase execution plan
-- `reports/project_audit_snapshot.json` - artifact validation snapshot
+1. `SESSION_STATE.md` - canonical status, snapshots, recovery logs
+2. `docs/RUNBOOK.md` - end-to-end reproducibility runbook
+3. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
+4. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale
+5. `docs/THESIS_SHOWCASE_PLAN_ES.md` - showcase execution plan
 
 ## License
 
