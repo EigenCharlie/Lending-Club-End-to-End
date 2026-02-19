@@ -46,6 +46,8 @@ CatBoost PD -> Platt Calibration -> Mondrian Conformal Intervals
 | DVC + DagsHub | Artifact versioning and remote synchronization |
 | MLflow (DagsHub) | Experiment tracking suite (`lending_club/*`) |
 
+![End-to-end credit risk architecture](docs/assets/architecture/lending-club-architecture-e2e.jpg)
+
 ## Repository Map
 
 ```text
