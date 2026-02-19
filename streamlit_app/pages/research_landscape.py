@@ -44,15 +44,15 @@ sesgadas es peligroso para decisiones de portafolio.
 with st.expander("Papers clave"):
     st.markdown(
         """
-- **ML Credit Scoring Survey (2025)** — Revisión sistemática, Springer.
-  63 papers analizados. Consenso: gradient boosting > logistic regression.
-  Gap: poca atención a incertidumbre.
+- **Ayari, Guetari & Kraiem (2025/2026)** — *Machine learning powered financial credit
+  scoring: a systematic literature review*, Artificial Intelligence Review.
+  Revisión 2018-2024 con 63 estudios y énfasis en brechas de interpretabilidad/fairness.
 - **Lessmann et al. (2015)** — *Benchmarking state-of-the-art classification algorithms
   for credit scoring*, European Journal of Operational Research. Benchmark de 41 métodos.
-- **Xia et al. (2017)** — *Boosted tree models for credit scoring*, Expert Systems with
-  Applications. CatBoost y XGBoost en credit risk.
-- **Credit Scoring Using ML and Deep Learning (2024)** — AIMS Press.
-  Neural networks complementan pero no superan GB en datasets tabulares.
+- **Soni et al. (2024)** — *Latest Advancements in Credit Risk Assessment with ML and
+  Deep Learning Techniques*, Cybernetics and Information Technologies.
+- **Liu et al. (2026)** — *A two-stage ML method for personal credit risk scoring with
+  fragmentary data*, Expert Systems with Applications.
 """
     )
 
@@ -102,6 +102,8 @@ with st.expander("Papers clave"):
 - **Vovk & Petej (2014)** — *Venn-Abers Predictors*, UAI. Calibración con garantías de validez.
 - **Bellini et al. (2024)** — *Practical Credit Risk and Capital Modeling*, Springer.
   Calibración en contexto regulatorio IFRS9/Basel.
+- **Kull et al. (2017)** — *Beyond Temperature Scaling: Obtaining Well-Calibrated Multi-Class
+  Probabilities with Dirichlet Calibration*, NeurIPS Workshop. Referencia moderna para calibración robusta.
 """
     )
 
@@ -140,10 +142,10 @@ with st.expander("Papers clave"):
   NeurIPS. Mondrian para garantías group-conditional.
 - **Angelopoulos & Bates (2023)** — *Conformal Prediction: A Gentle Introduction*.
   Tutorial accesible para practitioners.
-- **Taquet et al. (2025)** — *MAPIE: an open-source library for distribution-free
-  uncertainty quantification*. La librería que usamos.
 - **Gibbs & Candès (2021)** — *Adaptive Conformal Inference Under Distribution Shift*.
   ACI para datos no-exchangeable (series temporales).
+- **Plassier et al. (2024)** — *Probabilistic Conformal Prediction with Approximate
+  Conditional Validity*, arXiv.
 """
     )
 
@@ -171,10 +173,12 @@ with st.expander("Papers clave"):
         """
 - **Elmachtoub & Grigas (2022)** — *Smart "Predict, then Optimize"*,
   Management Science 68(1):9-26. Paper fundacional. SPO+ loss para LPs.
-- **Mandi et al. (2024)** — *Decision-Focused Learning: Foundations, State of the Art,
-  Benchmark and Future Opportunities*, JAIR. Survey completo del área.
+- **Mandi et al. (2023/2024)** — *Decision-Focused Learning: Foundations, State of the Art,
+  Benchmark and Future Opportunities* (survey de referencia del área).
 - **Donti, Amos & Kolter (2017)** — *Task-based End-to-end Model Learning in Stochastic
   Optimization*, NeurIPS. Diferenciación a través del optimizador.
+- **Capitaine et al. (2025)** — *Online Decision-Focused Learning with Large Language Models*,
+  arXiv. Evidencia reciente sobre aprendizaje secuencial orientado a decisión.
 """
     )
 
@@ -194,10 +198,9 @@ de los tradicionales conjuntos elipsoidales o box sets heurísticos.
 
 st.success(
     "**Nuestra contribución**: Este proyecto conecta Mondrian Conformal Prediction "
-    "con optimización robusta de portafolio crediticio via Pyomo — una combinación "
-    "no explorada en la literatura existente. Los intervalos [PD_low, PD_high] por "
-    "loan grade alimentan directamente box uncertainty sets con garantía de cobertura "
-    "finita, produciendo portafolios matemáticamente robustos."
+    "con optimización robusta de portafolio crediticio via Pyomo en un setting aplicado "
+    "de crédito al consumo a gran escala. Los intervalos [PD_low, PD_high] por loan grade "
+    "alimentan box uncertainty sets con garantía de cobertura finita para decisiones robustas."
 )
 
 with st.expander("Papers clave"):
@@ -205,15 +208,16 @@ with st.expander("Papers clave"):
         """
 - **Johnstone et al. (2021)** — *Conformal Uncertainty Sets for Robust Optimization*,
   PMLR Vol. 152. Usa Mahalanobis distance como conformity score para generar conjuntos
-  elipsoidales. **Diferencia con nuestro trabajo**: ellos usan parámetros continuos;
-  nosotros usamos Mondrian conformal para grupos discretos (loan grades).
-- **Patel et al. (2024)** — *Conformal Contextual Robust Optimization*. Extiende al
-  setting contextual (condicional); conjuntos data-dependent.
-- **Conformal Predictive Portfolio Selection (2024)** — arXiv. Intervalos de predicción
-  para retornos de activos como input directo a selección de portafolio.
+  elipsoidales.
+- **Patel, Rayan & Tewari (2024)** — *Conformal Contextual Robust Optimization*,
+  AISTATS (oral). Extiende al setting contextual (condicional); conjuntos data-dependent.
+- **Bao et al. (2025)** — *Optimal Model Selection for Conformalized Robust Optimization*,
+  arXiv. Introduce CROMS para elegir modelos por riesgo de decisión robusta.
+- **Kato (2024)** — *Conformal Predictive Portfolio Selection*, arXiv.
+  Intervalos de predicción para retornos como input directo a selección de portafolio.
 - **Bertsimas & Sim (2004)** — *The Price of Robustness*, Operations Research.
   Framework clásico de robust optimization con uncertainty budgets.
-  Nuestra implementación: el "price of robustness" se cuantifica empíricamente
+  Nuestra implementación cuantifica el "price of robustness" empíricamente
   comparando portafolios con PD_point vs PD_high.
 """
     )
@@ -260,10 +264,9 @@ El análisis de supervivencia estima **cuándo** un préstamo incumple, no solo 
 Esto es crítico para IFRS9 Stage 2, donde se requiere la **PD lifetime** (probabilidad
 de default durante toda la vida del préstamo) para provisionar deterioro significativo.
 
-**Cox PH** es el estándar semiparamétrico (C-index=0.677 en nuestros datos), pero
-las violaciones del supuesto de hazards proporcionales (detectadas via Schoenfeld test)
-motivan el uso complementario de **Random Survival Forests** (C-index=0.684),
-que no requiere este supuesto.
+**Cox PH** es el estándar semiparamétrico, pero las violaciones del supuesto de hazards
+proporcionales (detectadas via Schoenfeld test) motivan el uso complementario de
+**Random Survival Forests**, que no requiere este supuesto.
 """
 )
 
@@ -272,10 +275,13 @@ with st.expander("Papers clave"):
         """
 - **Time to Default Benchmark (2016)** — Journal of the Operational Research Society.
   Compara Cox PH, spline-based y mixture cure models; splines recomendados.
-- **Probability of Default using ML Competing Risks (2024)** — Expert Systems with
-  Applications. RSF + competing risks para IFRS9 lifetime PD.
-- **Discrete-time Hazard Models for IFRS9 (2025)** — arXiv tutorial.
-  Modelos de hazard discreto para 12-month vs lifetime PD.
+- **Bárcena Saavedra et al. (2024)** — *Probability of default for lifetime credit loss
+  for IFRS 9 using machine learning competing risks survival analysis models*,
+  Expert Systems with Applications.
+- **Botha & Verster (2025)** — *Approaches for modelling the term-structure of default
+  risk under IFRS 9: a tutorial using discrete-time survival analysis*, arXiv.
+- **Ptak-Chmielewska & Kopciuszewski (2024)** — *Random survival forests and Cox
+  regression in loss given default estimation*, Journal of Credit Risk.
 """
     )
 
@@ -299,10 +305,15 @@ como **Adaptive Conformal Inference (ACI)** de Gibbs & Candès (2021).
 with st.expander("Papers clave"):
     st.markdown(
         """
-- **Macroeconomic-Sensitive Credit Risk Forecasting (2026)** — Preprints.
-  Regime-switching (Markov) con 22.7% menos error que modelos sin régimen.
-- **Incorporating Macroeconomic Scenarios in Credit Loss Forecasting** — Banking Exchange.
-  Macro links (desempleo, GDP, spreads) a PD, LGD, EAD.
+- **Schlembach et al. (2025)** — *Conformal multistep-ahead multivariate time-series
+  forecasting*, Machine Learning (Springer). Método nmtCP para no-exchangeability
+  y horizonte multistep.
+- **Wang & Hyndman (2024)** — *Online conformal inference for multi-step time series
+  forecasting* (working paper + paquete `conformalForecast`).
+- **JANET (2024)** — *Joint Adaptive Conformal Inference and Transductive Calibration
+  for multi-step time series forecasting*, arXiv.
+- **Incorporating Macroeconomic Scenarios in Credit Loss Forecasting** —
+  práctica IFRS9: desempleo, GDP y spreads como drivers de PD/LGD/EAD.
 - **Nixtla (2023-2025)** — Ecosystem open-source: statsforecast, mlforecast,
   hierarchicalforecast. Modular, rápido, compatible con conformal.
 """
@@ -345,6 +356,11 @@ y demostrando que la protección conformal produce portafolios estables bajo est
 robustez empírica.
 """
     )
+    st.page_link(
+        "pages/paper_1_cp_robust_opt.py",
+        label="Abrir workspace completo del Paper 1",
+        icon="🧪",
+    )
 
 with tab2:
     st.markdown(
@@ -368,6 +384,11 @@ lectura prudencial — ambos conceptos nuevos en la literatura IFRS9.
 señal) → ECL_point, ECL_low, ECL_high → Stress testing bajo escenarios macro.
 """
     )
+    st.page_link(
+        "pages/paper_2_ifrs9_e2e.py",
+        label="Abrir workspace completo del Paper 2",
+        icon="🏦",
+    )
 
 with tab3:
     st.markdown(
@@ -390,6 +411,11 @@ risk, con análisis detallado de coverage por subgrupo y recomendaciones prácti
 **Metodología**: ProbabilityRegressor wrapper → MAPIE SplitConformalRegressor →
 Mondrian by grade → Coverage validation (global + group-conditional) → Width analysis.
 """
+    )
+    st.page_link(
+        "pages/paper_3_mondrian.py",
+        label="Abrir workspace completo del Paper 3",
+        icon="📐",
     )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -418,7 +444,9 @@ refs = pd.DataFrame(
             "PMLR Vol. 152",
             "Conformal uncertainty sets para robust optimization",
         ],
-        ["Patel et al.", 2024, "arXiv", "Conformal contextual robust optimization"],
+        ["Patel et al.", 2024, "AISTATS", "Conformal contextual robust optimization"],
+        ["Bao et al.", 2025, "arXiv", "CROMS para selección de modelo en CRO"],
+        ["Kato", 2024, "arXiv", "Conformal predictive portfolio selection"],
         ["Ding et al.", 2023, "NeurIPS", "Mondrian (class-conditional) conformal prediction"],
         ["Chernozhukov et al.", 2018, "Econometrics Journal", "Double/Debiased ML"],
         ["Athey & Wager", 2019, "Annals of Statistics", "Causal Forests para treatment effects"],
@@ -429,21 +457,27 @@ refs = pd.DataFrame(
             "Operations Research",
             "Price of Robustness — robust optimization",
         ],
-        [
-            "Taquet et al.",
-            2025,
-            "JMLR (pendiente)",
-            "MAPIE: librería open-source de conformal prediction",
-        ],
         ["Gibbs & Candès", 2021, "NeurIPS", "Adaptive Conformal Inference bajo distribution shift"],
-        ["ML Credit Scoring Survey", 2025, "Springer", "Revisión sistemática: 63 papers, GB > LR"],
+        ["Ayari et al.", 2026, "AI Review (Springer)", "Revisión sistemática: 63 papers, GB > LR"],
+        ["Soni et al.", 2024, "Cybernetics and IT", "Review reciente de ML/DL para credit risk"],
+        ["Liu et al.", 2026, "Expert Systems with Applications", "Credit scoring con datos fragmentarios"],
+        ["Bárcena Saavedra et al.", 2024, "Expert Systems with Applications", "IFRS9 lifetime PD con competing risks"],
+        ["Botha & Verster", 2025, "arXiv", "Tutorial survival discreto para term-structure IFRS9"],
+        ["Schlembach et al.", 2025, "Machine Learning (Springer)", "Conformal multistep para series temporales"],
+        ["Wang & Hyndman", 2024, "arXiv / package", "Online conformal para multi-step forecasting"],
     ],
     columns=["Referencia", "Año", "Venue", "Relevancia para este proyecto"],
 )
 st.dataframe(refs, use_container_width=True, hide_index=True)
 
+st.page_link(
+    "pages/research_best_practices.py",
+    label="Abrir guía de buenas prácticas y herramientas para drafts",
+    icon="🧰",
+)
+
 next_page_teaser(
-    "Visión End-to-End",
-    "Narrativa completa del pipeline con métricas detalladas por componente.",
-    "pages/thesis_end_to_end.py",
+    "Paper 1: CP + Robust Opt",
+    "Inicio del workspace de redacción con secciones completas y resultados exportables.",
+    "pages/paper_1_cp_robust_opt.py",
 )

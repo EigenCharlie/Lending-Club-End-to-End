@@ -99,7 +99,9 @@ def _persist_pipeline_results() -> None:
             results["nonrobust_return"] = float(row.get("baseline_nonrobust_return", 0.0))
             results["price_of_robustness"] = float(row.get("price_of_robustness", 0.0))
             results["robust_funded"] = int(row.get("best_robust_funded", 0))
-            results["nonrobust_funded"] = int(row.get("best_robust_funded", 0))
+            results["nonrobust_funded"] = int(
+                row.get("baseline_nonrobust_funded", row.get("best_robust_funded", 0))
+            )
 
     status_path = model_dir / "pipeline_run_status.pkl"
     if status_path.exists():
@@ -166,10 +168,28 @@ def _step_causal() -> None:
     estimate_causal("int_rate", sample_size=200_000)
 
 
+def _step_survival() -> None:
+    from scripts.run_survival_analysis import main as run_survival
+
+    run_survival(sample_size=100_000, rsf_n_estimators=200)
+
+
+def _step_ifrs9() -> None:
+    from scripts.run_ifrs9_sensitivity import main as run_ifrs9
+
+    run_ifrs9()
+
+
 def _step_optimization() -> None:
     from scripts.optimize_portfolio import main as optimize_portfolio
 
     optimize_portfolio("configs/optimization.yaml", 0.10)
+
+
+def _step_optimization_tradeoff() -> None:
+    from scripts.optimize_portfolio_tradeoff import main as optimize_portfolio_tradeoff
+
+    optimize_portfolio_tradeoff(config_path="configs/optimization.yaml")
 
 
 def _step_modeva_governance() -> None:
@@ -211,7 +231,12 @@ def main(
         _run_step("time_series", _step_time_series, status, continue_on_error)
         _run_step("conformal_mondrian", _step_conformal, status, continue_on_error)
         _run_step("causal", _step_causal, status, continue_on_error)
+        _run_step("survival", _step_survival, status, continue_on_error)
+        _run_step("ifrs9", _step_ifrs9, status, continue_on_error)
         _run_step("optimization", _step_optimization, status, continue_on_error)
+        _run_step(
+            "optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error
+        )
 
         if include_modeva_side_task:
             _run_step(

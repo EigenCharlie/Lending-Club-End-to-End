@@ -50,7 +50,10 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     _stub_module(monkeypatch, "scripts.forecast_default_rates", lambda **kwargs: None)
     _stub_module(monkeypatch, "scripts.generate_conformal_intervals", lambda: None)
     _stub_module(monkeypatch, "scripts.estimate_causal_effects", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.run_survival_analysis", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.run_ifrs9_sensitivity", lambda *args, **kwargs: None)
     _stub_module(monkeypatch, "scripts.optimize_portfolio", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.optimize_portfolio_tradeoff", lambda *args, **kwargs: None)
     monkeypatch.setattr(pipeline_mod, "_persist_status", persist)
 
     exit_code = pipeline_mod.main(run_name="test", continue_on_error=True)
@@ -59,4 +62,5 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     assert persisted["data"].startswith("error:")
     assert persisted["pd_model"] == "ok"
     assert persisted["optimization"] == "ok"
+    assert persisted["optimization_tradeoff"] == "ok"
     assert persisted["modeva_governance_side_task"] == "skipped"

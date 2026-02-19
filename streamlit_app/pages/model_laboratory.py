@@ -142,13 +142,18 @@ metricas_interpretacion = pd.DataFrame(
         {
             "Métrica": "AUC",
             "Qué mide": "Capacidad de ordenar riesgo entre default y no default",
-            "Interpretación técnica": "0.7187 implica discriminación sólida en OOT para datos tabulares reales.",
+            "Interpretación técnica": (
+                f"{final.get('auc_roc', 0):.4f} implica discriminación sólida en OOT para "
+                "datos tabulares reales."
+            ),
             "Interpretación negocio": "Permite priorizar mejor qué solicitudes revisar/restringir.",
         },
         {
             "Métrica": "KS",
             "Qué mide": "Separación máxima entre distribuciones de score",
-            "Interpretación técnica": "0.3221 indica separación útil para estrategias por umbrales.",
+            "Interpretación técnica": (
+                f"{final.get('ks_statistic', 0):.4f} indica separación útil para estrategias por umbrales."
+            ),
             "Interpretación negocio": "Facilita definir cutoffs de aprobación según apetito de riesgo.",
         },
         {
@@ -160,7 +165,9 @@ metricas_interpretacion = pd.DataFrame(
         {
             "Métrica": "ECE",
             "Qué mide": "Error promedio de calibración",
-            "Interpretación técnica": "0.0128 sugiere muy buena calibración global.",
+            "Interpretación técnica": (
+                f"{final.get('ece', 0):.4f} sugiere muy buena calibración global."
+            ),
             "Interpretación negocio": "Mayor confianza al usar PD en IFRS9 y pricing.",
         },
     ]

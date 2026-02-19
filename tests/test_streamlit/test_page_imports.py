@@ -1,4 +1,4 @@
-"""Smoke tests: verify all 20 Streamlit pages are syntactically valid.
+"""Smoke tests: verify all Streamlit pages are syntactically valid.
 
 These tests parse each page as Python AST, verifying there are no syntax
 errors, and check that essential imports are resolvable. They do NOT
@@ -46,10 +46,10 @@ def test_page_has_streamlit_import(page_path: Path) -> None:
     )
 
 
-def test_all_20_pages_discovered() -> None:
-    """Ensure we have exactly 20 page files."""
-    assert len(PAGE_FILES) == 20, (
-        f"Expected 20 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
+def test_all_24_pages_discovered() -> None:
+    """Ensure we have exactly 24 page files."""
+    assert len(PAGE_FILES) == 24, (
+        f"Expected 24 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
     )
 
 

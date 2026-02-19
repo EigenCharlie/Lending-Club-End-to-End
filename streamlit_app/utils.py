@@ -106,10 +106,8 @@ def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
 def load_runtime_status() -> dict:
     """Load runtime status snapshot with resilient fallbacks."""
     status = try_load_json("runtime_status", directory="data", default={})
-    status.setdefault(
-        "streamlit_pages_total",
-        len(list((PROJECT_ROOT / "streamlit_app" / "pages").glob("*.py"))),
-    )
+    # Always prefer filesystem truth for page count to avoid stale snapshots.
+    status["streamlit_pages_total"] = len(list((PROJECT_ROOT / "streamlit_app" / "pages").glob("*.py")))
     test_total = int(status.get("test_suite_total", 0) or 0)
     breakdown = status.get("test_breakdown", [])
     if not isinstance(breakdown, list):

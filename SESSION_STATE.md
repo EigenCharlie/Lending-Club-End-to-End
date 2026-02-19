@@ -9,8 +9,8 @@ Project is operational and artifact-consistent across the full thesis pipeline.
 
 - Notebooks `01` to `09`: executed with zero errors.
 - Core scripts: producing artifacts in `data/processed/` and `models/`.
-- Policy gates: conformal policy gate activo (snapshot actual: 6/7 checks), causal policy selected, IFRS9 sensitivity produced.
-- Tests: `199` passing (4.86s).
+- Policy gates: conformal policy gate activo (snapshot actual: 1/7 checks tras hardening sin leakage), causal policy selected, IFRS9 sensitivity produced.
+- Tests: `201` passing (4.88s).
 
 This session aligns docs with the actual repository and formalizes a **Streamlit-first Thesis Mode** serving strategy.
 
@@ -60,32 +60,32 @@ Source: canonical runtime artifacts (`data/processed/model_comparison.json`,
 `data/processed/portfolio_robustness_summary.parquet`).
 
 ### 4.1 PD Model
-- AUC: `0.7187`
-- Gini: `0.4373`
-- KS: `0.3221`
-- Brier: `0.1537`
-- ECE: `0.0128`
+- AUC: `0.6990`
+- Gini: `0.3980`
+- KS: `0.2942`
+- Brier: `0.1572`
+- ECE: `0.0130`
 
 ### 4.2 Conformal (Mondrian)
-- Coverage 90%: `0.9021`
-- Coverage 95%: `0.9489`
-- Avg width 90%: `0.7527`
-- Min group coverage 90%: `0.8809`
-- Policy checks: `6/7` pass (`overall_pass = false`, snapshot vigente)
+- Coverage 90%: `0.8887`
+- Coverage 95%: `0.9480`
+- Avg width 90%: `0.7459`
+- Min group coverage 90%: `0.8522`
+- Policy checks: `1/7` pass (`overall_pass = false`, snapshot vigente tras remover adaptación con etiquetas de test)
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
-- Action rate: `26.30%`
-- Net value: `5.857M`
-- Bootstrap p05: `5.800M`
+- Action rate: `27.51%`
+- Net value: `43.67M`
+- Bootstrap p05: `43.52M`
 
 ### 4.4 IFRS9 Sensitivity
-- Baseline ECL: `797.9M`
-- Severe ECL: `1.380B`
-- Uplift: `+72.92%`
+- Baseline ECL: `1.010B`
+- Severe ECL: `1.851B`
+- Uplift: `+83.18%`
 
 ### 4.5 Optimization Robustness
-- Tolerance `0.10`: robust funded `0`, best robust return `~0`, price of robustness `~100%`
+- Tolerance `0.10`: robust funded `9`, baseline non-robust funded `150`, price of robustez `97.05%`
 
 ---
 
@@ -227,3 +227,25 @@ Latest run IDs (UTC 2026-02-18 02:07:18Z batch):
 - `optimization`: `c17bdd4dc5064a0ebb60b1fa884378c5`
 - `survival`: `68842353493b4495a92758c92bc896a2`
 - `time_series`: `bb9b099783a54b94b5b86d8ca317bc60`
+
+---
+
+## 12) Validity Hardening Log (2026-02-18)
+
+Execution pass completed on branch `publication/validity-hardening` for phases 0-5:
+
+- **Phase 0 (baseline + reproducibilidad):** baseline congelado en `reports/baseline_2026-02-18.json`, `dvc status` local limpio.
+- **Phase 1 (validity-critical):** conformal sin leakage por etiquetas de test, alineación `id` en optimización, y corrección `nonrobust_funded`.
+- **Phase 2 (narrativa + literatura):** snapshots dinámicos en páginas Streamlit + actualización de panorama con papers recientes.
+- **Phase 3 (benchmarks CP + OR):** nuevo benchmark de variantes conformales y comparación por subgrupos.
+- **Phase 4 (survival + IFRS9):** `time_to_event` con fechas reales cuando existen e incertidumbre conformal operativa en SICR.
+- **Phase 5 (causal temporal):** backtest OOT mensual de política causal con ventana mínima de historia.
+
+Validation snapshot after rerun:
+- `uv run dvc repro ... export_storytelling_snapshot` -> completed (exit 0).
+- `uv run pytest -q` -> `201 passed`.
+- `uv run dvc status --json` -> `{}`.
+- `uv run dvc status -c --json` -> artifacts pending push to remote (expected until `dvc push`).
+
+Detailed rationale, file-level changes, before/after deltas and pending risks:
+- `reports/PHASES_0_5_EXECUTION_2026-02-18.md`

@@ -15,6 +15,7 @@ import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier
 from loguru import logger
+from sklearn.model_selection import train_test_split
 
 from src.models.conformal import (
     conditional_coverage_by_group,
@@ -166,6 +167,46 @@ def _mark_pareto_front(results_df: pd.DataFrame) -> pd.Series:
                 dominated[i] = True
                 break
     return pd.Series(~dominated, index=results_df.index, dtype=bool)
+
+
+def _split_calibration_for_tuning(
+    y_cal: pd.Series,
+    group_cal: pd.Series,
+    holdout_ratio: float = 0.20,
+    random_state: int = 42,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Split calibration rows into fit/tuning partitions without touching test labels."""
+    n = int(len(y_cal))
+    if n <= 1:
+        idx = np.arange(n, dtype=int)
+        return idx, np.array([], dtype=int)
+
+    holdout_ratio = float(np.clip(holdout_ratio, 0.05, 0.50))
+    idx = np.arange(n, dtype=int)
+    stratify = (
+        pd.Series(group_cal).fillna("UNKNOWN").astype(str)
+        + "|"
+        + pd.Series(y_cal).astype(int).astype(str)
+    )
+    try:
+        idx_fit, idx_tune = train_test_split(
+            idx,
+            test_size=holdout_ratio,
+            random_state=random_state,
+            stratify=stratify,
+        )
+    except ValueError:
+        logger.warning(
+            "Stratified split failed for calibration holdout; using deterministic random split."
+        )
+        rng = np.random.default_rng(random_state)
+        shuffled = idx.copy()
+        rng.shuffle(shuffled)
+        n_tune = max(1, int(round(n * holdout_ratio)))
+        idx_tune = shuffled[:n_tune]
+        idx_fit = shuffled[n_tune:]
+
+    return np.sort(np.asarray(idx_fit, dtype=int)), np.sort(np.asarray(idx_tune, dtype=int))
 
 
 def _choose_best_tuning_row(
@@ -338,6 +379,8 @@ def main(
     min_group_sizes: tuple[int, ...] = (200, 500, 1000, 2000),
     min_group_coverage_target: float = 0.88,
     max_width_budget_90: float | None = 0.80,
+    tuning_holdout_ratio: float = 0.20,
+    tuning_random_state: int = 42,
 ):
     logger.info("Starting Mondrian conformal interval generation with 90% auto-tuning")
 
@@ -360,6 +403,26 @@ def main(
     y_test = test_df[TARGET_COL].astype(float)
     group_cal = cal_df[GROUP_COL].fillna("UNKNOWN").astype(str)
     group_test = test_df[GROUP_COL].fillna("UNKNOWN").astype(str)
+    idx_cal_fit, idx_cal_tune = _split_calibration_for_tuning(
+        y_cal=y_cal,
+        group_cal=group_cal,
+        holdout_ratio=tuning_holdout_ratio,
+        random_state=tuning_random_state,
+    )
+    if len(idx_cal_tune) == 0:
+        raise ValueError("Calibration holdout split is empty; cannot run leakage-free tuning.")
+
+    X_cal_fit = X_cal.iloc[idx_cal_fit].reset_index(drop=True)
+    y_cal_fit = y_cal.iloc[idx_cal_fit].reset_index(drop=True)
+    group_cal_fit = group_cal.iloc[idx_cal_fit].reset_index(drop=True)
+    X_tune = X_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    y_tune = y_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    group_tune = group_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    logger.info(
+        "Calibration split for conformal tuning: "
+        f"fit={len(X_cal_fit):,}, holdout={len(X_tune):,}, "
+        f"holdout_ratio={len(X_tune) / max(len(X_cal), 1):.2%}"
+    )
 
     target_coverage_90 = 1.0 - alpha_target_90
     tuning_rows: list[dict[str, Any]] = []
@@ -370,20 +433,20 @@ def main(
             for min_group_size in min_group_sizes:
                 y_pred, y_int, _diag = create_pd_intervals_mondrian(
                     classifier=model,
-                    X_cal=X_cal,
-                    y_cal=y_cal,
-                    X_test=X_test,
-                    group_cal=group_cal,
-                    group_test=group_test,
+                    X_cal=X_cal_fit,
+                    y_cal=y_cal_fit,
+                    X_test=X_tune,
+                    group_cal=group_cal_fit,
+                    group_test=group_tune,
                     alpha=alpha_used,
                     min_group_size=min_group_size,
                     calibrator=calibrator,
                     scaled_scores=scaled_scores,
                 )
 
-                metrics = validate_coverage(y_test.to_numpy(dtype=float), y_int, alpha_target_90)
+                metrics = validate_coverage(y_tune.to_numpy(dtype=float), y_int, alpha_target_90)
                 g_metrics = conditional_coverage_by_group(
-                    y_test.to_numpy(dtype=float), y_int, group_test
+                    y_tune.to_numpy(dtype=float), y_int, group_tune
                 )
 
                 tuning_rows.append(
@@ -443,10 +506,10 @@ def main(
     # Final 90% intervals with tuned config.
     y_pred_90, y_int_90, diag_90 = create_pd_intervals_mondrian(
         classifier=model,
-        X_cal=X_cal,
-        y_cal=y_cal,
+        X_cal=X_cal_fit,
+        y_cal=y_cal_fit,
         X_test=X_test,
-        group_cal=group_cal,
+        group_cal=group_cal_fit,
         group_test=group_test,
         alpha=best_cfg["alpha_used_90"],
         min_group_size=best_cfg["min_group_size"],
@@ -457,16 +520,34 @@ def main(
     group_metrics_90 = conditional_coverage_by_group(
         y_test.to_numpy(dtype=float), y_int_90, group_test
     )
+    # Learn group multipliers on calibration holdout only (no test-label adaptation).
+    y_pred_tune, y_int_tune, _diag_tune = create_pd_intervals_mondrian(
+        classifier=model,
+        X_cal=X_cal_fit,
+        y_cal=y_cal_fit,
+        X_test=X_tune,
+        group_cal=group_cal_fit,
+        group_test=group_tune,
+        alpha=best_cfg["alpha_used_90"],
+        min_group_size=best_cfg["min_group_size"],
+        calibrator=calibrator,
+        scaled_scores=best_cfg["scaled_scores"],
+    )
+    tune_metrics_90_before = validate_coverage(y_tune.to_numpy(dtype=float), y_int_tune, alpha_target_90)
     y_int_90_adjusted, group_multipliers, coverage_floor_report = _enforce_group_coverage_floor(
-        y_true=y_test.to_numpy(dtype=float),
-        y_pred=y_pred_90,
-        y_intervals=y_int_90,
-        groups=group_test,
+        y_true=y_tune.to_numpy(dtype=float),
+        y_pred=y_pred_tune,
+        y_intervals=y_int_tune,
+        groups=group_tune,
         target_coverage=min_group_coverage_target,
     )
+    tune_metrics_90_after = validate_coverage(y_tune.to_numpy(dtype=float), y_int_90_adjusted, alpha_target_90)
     if group_multipliers:
-        logger.info(f"Applying group coverage floor multipliers: {group_multipliers}")
-        y_int_90 = y_int_90_adjusted
+        logger.info(
+            "Applying group coverage floor multipliers learned on calibration holdout: "
+            f"{group_multipliers}"
+        )
+        y_int_90 = _apply_group_multipliers(y_pred_90, y_int_90, group_test, group_multipliers)
         metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
         group_metrics_90 = conditional_coverage_by_group(
             y_test.to_numpy(dtype=float), y_int_90, group_test
@@ -477,10 +558,10 @@ def main(
     # 95% intervals using same structure settings for consistency.
     y_pred_95, y_int_95, diag_95 = create_pd_intervals_mondrian(
         classifier=model,
-        X_cal=X_cal,
-        y_cal=y_cal,
+        X_cal=X_cal_fit,
+        y_cal=y_cal_fit,
         X_test=X_test,
-        group_cal=group_cal,
+        group_cal=group_cal_fit,
         group_test=group_test,
         alpha=alpha_95,
         min_group_size=best_cfg["min_group_size"],
@@ -495,22 +576,23 @@ def main(
     )
 
     # Compose output tables.
-    intervals_df = pd.DataFrame(
-        {
-            "y_true": y_test.to_numpy(dtype=float),
-            "y_pred": y_pred_90,
-            "pd_low_90": y_int_90[:, 0],
-            "pd_high_90": y_int_90[:, 1],
-            "pd_low_95": y_int_95[:, 0],
-            "pd_high_95": y_int_95[:, 1],
-            "width_90": y_int_90[:, 1] - y_int_90[:, 0],
-            "width_95": y_int_95[:, 1] - y_int_95[:, 0],
-            GROUP_COL: group_test.to_numpy(dtype=str),
-            "loan_amnt": test_df["loan_amnt"].to_numpy(dtype=float)
-            if "loan_amnt" in test_df.columns
-            else np.nan,
-        }
-    )
+    intervals_payload = {
+        "y_true": y_test.to_numpy(dtype=float),
+        "y_pred": y_pred_90,
+        "pd_low_90": y_int_90[:, 0],
+        "pd_high_90": y_int_90[:, 1],
+        "pd_low_95": y_int_95[:, 0],
+        "pd_high_95": y_int_95[:, 1],
+        "width_90": y_int_90[:, 1] - y_int_90[:, 0],
+        "width_95": y_int_95[:, 1] - y_int_95[:, 0],
+        GROUP_COL: group_test.to_numpy(dtype=str),
+        "loan_amnt": test_df["loan_amnt"].to_numpy(dtype=float)
+        if "loan_amnt" in test_df.columns
+        else np.nan,
+    }
+    if "id" in test_df.columns:
+        intervals_payload["id"] = test_df["id"].astype(str).to_numpy()
+    intervals_df = pd.DataFrame(intervals_payload)
 
     gm90 = group_metrics_90.rename(
         columns={
@@ -573,6 +655,16 @@ def main(
         "tuning_90_pareto_path": str(pareto_path),
         "group_coverage_floor_path": str(coverage_floor_path),
         "group_coverage_multipliers": {k: float(v) for k, v in group_multipliers.items()},
+        "calibration_split": {
+            "fit_n": int(len(X_cal_fit)),
+            "holdout_n": int(len(X_tune)),
+            "holdout_ratio": float(tuning_holdout_ratio),
+            "random_state": int(tuning_random_state),
+        },
+        "tune_metrics_90_before_floor": {
+            k: _to_python_scalar(v) for k, v in tune_metrics_90_before.items()
+        },
+        "tune_metrics_90_after_floor": {k: _to_python_scalar(v) for k, v in tune_metrics_90_after.items()},
     }
     with open(results_path, "wb") as f:
         pickle.dump(payload, f)
@@ -600,10 +692,14 @@ if __name__ == "__main__":
     parser.add_argument("--alpha_95", type=float, default=0.05)
     parser.add_argument("--min_group_coverage_target", type=float, default=0.88)
     parser.add_argument("--max_width_budget_90", type=float, default=0.80)
+    parser.add_argument("--tuning_holdout_ratio", type=float, default=0.20)
+    parser.add_argument("--tuning_random_state", type=int, default=42)
     args = parser.parse_args()
     main(
         alpha_target_90=args.alpha_target_90,
         alpha_95=args.alpha_95,
         min_group_coverage_target=args.min_group_coverage_target,
         max_width_budget_90=args.max_width_budget_90,
+        tuning_holdout_ratio=args.tuning_holdout_ratio,
+        tuning_random_state=args.tuning_random_state,
     )

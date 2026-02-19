@@ -52,6 +52,58 @@ def _load_intervals() -> pd.DataFrame:
     return intervals
 
 
+def _resolve_interval_columns(intervals: pd.DataFrame) -> tuple[str, str, str]:
+    col_point = "y_pred" if "y_pred" in intervals.columns else "pd_point"
+    col_low = "pd_low_90" if "pd_low_90" in intervals.columns else "pd_low"
+    col_high = "pd_high_90" if "pd_high_90" in intervals.columns else "pd_high"
+    return col_point, col_low, col_high
+
+
+def _align_loans_and_intervals(
+    candidates: pd.DataFrame,
+    intervals: pd.DataFrame,
+    max_candidates: int,
+    random_state: int,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Align candidate loans with interval rows by id where possible."""
+    if "id" in candidates.columns and "id" in intervals.columns:
+        cand = candidates.copy()
+        ints = intervals.copy()
+        cand["_id_join"] = cand["id"].astype(str)
+        ints["_id_join"] = ints["id"].astype(str)
+        ints = ints.drop_duplicates(subset="_id_join", keep="first")
+        merged = cand.merge(ints, on="_id_join", how="inner", suffixes=("", "_int"))
+        if merged.empty:
+            raise ValueError("ID-based merge between candidates and intervals returned zero rows.")
+
+        n = min(len(merged), max_candidates)
+        if len(merged) > n:
+            idx = np.random.default_rng(random_state).choice(np.arange(len(merged)), size=n, replace=False)
+            idx = np.sort(idx)
+            merged = merged.iloc[idx].reset_index(drop=True)
+        else:
+            merged = merged.reset_index(drop=True)
+
+        loans = merged[candidates.columns].copy()
+        interval_cols = [c for c in intervals.columns if c in merged.columns]
+        ints_aligned = merged[interval_cols].copy()
+        logger.info(
+            f"Aligned tradeoff candidates and intervals by id: n={len(loans):,} "
+            f"(candidate_rows={len(candidates):,}, interval_rows={len(intervals):,})"
+        )
+        return loans, ints_aligned
+
+    logger.warning(
+        "Conformal interval artifact has no id alignment key; using positional fallback in tradeoff analysis."
+    )
+    n = min(len(candidates), len(intervals), max_candidates)
+    idx = np.random.default_rng(random_state).choice(np.arange(n), size=n, replace=False)
+    idx = np.sort(idx)
+    loans = candidates.iloc[idx].reset_index(drop=True).copy()
+    ints_aligned = intervals.iloc[idx].reset_index(drop=True).copy()
+    return loans, ints_aligned
+
+
 def _parse_float_grid(raw: str) -> list[float]:
     vals = []
     for token in raw.split(","):
@@ -141,7 +193,7 @@ def main(
     max_candidates: int = 3000,
     random_state: int = 42,
     robust_min_budget_utilization: float = 0.05,
-    strict_risk_threshold: float = 0.08,
+    strict_risk_threshold: float = 0.12,
     robust_pd_slack_penalty: float = 1.5,
 ):
     with open(config_path, encoding="utf-8") as f:
@@ -152,18 +204,15 @@ def main(
 
     candidates = _load_candidates().reset_index(drop=True)
     intervals = _load_intervals().reset_index(drop=True)
-    n = min(len(candidates), len(intervals), max_candidates)
-    idx = np.random.default_rng(random_state).choice(
-        np.arange(min(len(candidates), len(intervals))), size=n, replace=False
+    loans, ints = _align_loans_and_intervals(
+        candidates=candidates,
+        intervals=intervals,
+        max_candidates=max_candidates,
+        random_state=random_state,
     )
-    idx = np.sort(idx)
+    n = len(loans)
 
-    loans = candidates.iloc[idx].reset_index(drop=True).copy()
-    ints = intervals.iloc[idx].reset_index(drop=True).copy()
-
-    col_point = "y_pred" if "y_pred" in ints.columns else "pd_point"
-    col_low = "pd_low_90" if "pd_low_90" in ints.columns else "pd_low"
-    col_high = "pd_high_90" if "pd_high_90" in ints.columns else "pd_high"
+    col_point, col_low, col_high = _resolve_interval_columns(ints)
     pd_point = ints[col_point].to_numpy(dtype=float)
     pd_low = ints[col_low].to_numpy(dtype=float)
     pd_high = ints[col_high].to_numpy(dtype=float)
@@ -268,6 +317,7 @@ def main(
                 "best_robust_pd_cap_slack": float(best_robust["pd_cap_slack"]),
                 "best_robust_worst_pd": float(best_robust["worst_case_pd"]),
                 "best_robust_funded": int(best_robust["n_funded"]),
+                "baseline_nonrobust_funded": int(baseline["n_funded"]),
                 "price_of_robustness": float(best_robust["price_of_robustness"]),
                 "price_of_robustness_pct": float(best_robust["price_of_robustness_pct"]),
             }
@@ -311,7 +361,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_candidates", type=int, default=3000)
     parser.add_argument("--random_state", type=int, default=42)
     parser.add_argument("--robust_min_budget_utilization", type=float, default=0.05)
-    parser.add_argument("--strict_risk_threshold", type=float, default=0.08)
+    parser.add_argument("--strict_risk_threshold", type=float, default=0.12)
     parser.add_argument("--robust_pd_slack_penalty", type=float, default=1.5)
     args = parser.parse_args()
     main(
