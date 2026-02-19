@@ -26,9 +26,12 @@ st.caption(
     "con una visión temporal útil en IFRS9 y gestión de ciclo de vida."
 )
 
+summary = load_json("pipeline_summary")
+survival = summary.get("survival", {})
+
 with st.expander("¿Por qué importa el tiempo hasta default?"):
     st.markdown(
-        """
+        f"""
 ### Dos préstamos, misma PD, impacto muy diferente
 
 | | Préstamo A | Préstamo B |
@@ -52,8 +55,8 @@ estimar cuánto provisionar para la vida completa del préstamo.
 
 | Modelo | Tipo | C-index | Ventaja |
 |--------|------|---------|---------|
-| **Cox PH** | Semi-paramétrico | 0.6769 | Interpretable (hazard ratios) |
-| **RSF** | Ensemble (Random Survival Forest) | 0.6838 | Captura no-linealidades |
+| **Cox PH** | Semi-paramétrico | {survival.get('cox_concordance', 0):.4f} | Interpretable (hazard ratios) |
+| **RSF** | Ensemble (Random Survival Forest) | {survival.get('rsf_concordance', 0):.4f} | Captura no-linealidades |
 
 **C-index** = probabilidad de que el modelo ordene correctamente qué préstamo hace
 default primero. 0.5 = aleatorio, 1.0 = perfecto.
@@ -69,8 +72,6 @@ que exige IFRS9.
 """
 )
 
-summary = load_json("pipeline_summary")
-survival = summary.get("survival", {})
 km_df = load_parquet("km_curve_data")
 hazard = load_parquet("hazard_ratios")
 lifetime_pd = try_load_parquet("lifetime_pd_table")
@@ -252,7 +253,8 @@ para horizontes largos (>36 meses) pueden tener sesgo si la estructura de riesgo
 
 **Mitigación en este proyecto**:
 - El modelo **Random Survival Forest (RSF)** no requiere el supuesto PH y obtiene un C-index comparable
-  (0.6838 vs 0.6769), validando que las conclusiones son robustas a esta violación.
+  ({survival.get('rsf_concordance', 0):.4f} vs {survival.get('cox_concordance', 0):.4f}),
+  validando que las conclusiones son robustas a esta violación.
 - Las curvas de PD lifetime se utilizan principalmente para IFRS9 Stage 2, donde el horizonte relevante
   (12-36 meses) es el menos afectado por la violación PH.
 

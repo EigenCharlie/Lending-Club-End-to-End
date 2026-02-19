@@ -438,13 +438,14 @@ kpi_row(
 st.markdown(
     f"""
 **Lectura de los KPIs:**
-- **Cobertura 90%**: el 91.97% de las veces, el evento real cayó dentro del intervalo predicho.
-  Esto supera el objetivo de 90%, validando la garantía de Conformal Prediction.
+- **Cobertura 90%**: en el snapshot canónico actual, la cobertura observada es
+  **{format_pct(policy.get("coverage_90", 0))}** frente a meta de 90%.
 - **Policy Gate ({policy_gate_text})**: validaciones formales de calidad del sistema de intervalos.
 - **Precio de robustez**: la diferencia de retorno entre asumir PD exacta vs usar el peor caso
   conformal. Es el costo de la protección.
 - **ECL baseline vs severo**: cómo cambian las provisiones regulatorias bajo estrés.
-  El uplift de +70% muestra la sensibilidad del portafolio a escenarios adversos.
+  El uplift actual es **{format_pct((severe_ecl / baseline_ecl - 1) if baseline_ecl else 0)}**,
+  mostrando sensibilidad material a escenarios adversos.
 """
 )
 

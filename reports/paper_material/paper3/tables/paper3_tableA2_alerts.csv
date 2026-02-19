@@ -1,0 +1,15 @@
+level,month,grade,severity,n,coverage_90,coverage_95,avg_width_90,rule,recommended_action
+grade,2018-09-01,F,warning,161,0.8509316770186336,0.8881987577639752,0.9694982838469998,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+portfolio,2018-10-01,ALL,warning,14997,0.8731079549243181,0.9359871974394879,0.7300929538216515,monthly_portfolio_threshold,re-tune mondrian thresholds and review distribution drift
+grade,2018-11-01,A,warning,3228,0.8274473358116481,0.9417596034696406,0.19864677139083403,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+grade,2018-11-01,E,warning,873,0.8419243986254296,0.8991981672394044,0.9296547026513322,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+portfolio,2018-11-01,ALL,warning,12630,0.873950910530483,0.9427553444180523,0.7513279726869317,monthly_portfolio_threshold,re-tune mondrian thresholds and review distribution drift
+grade,2018-12-01,A,warning,3046,0.8282994090610637,0.9566644780039396,0.2024970721744342,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+grade,2018-12-01,E,warning,818,0.8361858190709046,0.8997555012224939,0.9225791584235116,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+portfolio,2018-12-01,ALL,warning,11544,0.8793312543312544,0.9510568260568261,0.7457630542860766,monthly_portfolio_threshold,re-tune mondrian thresholds and review distribution drift
+grade,2019-01-01,A,warning,3164,0.8356510745891277,0.9497471554993678,0.20109479711559475,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+grade,2019-02-01,A,critical,2383,0.8182962652119178,0.9387326898866974,0.20101818488103426,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+portfolio,2019-02-01,ALL,warning,8414,0.8767530306631804,0.9437841692417399,0.7350356597826515,monthly_portfolio_threshold,re-tune mondrian thresholds and review distribution drift
+grade,2019-03-01,A,critical,2172,0.8144567219152854,0.9479742173112339,0.20193354137004652,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+grade,2019-05-01,A,warning,2252,0.8321492007104796,0.9493783303730018,0.1994156573174463,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift
+grade,2020-04-01,A,warning,283,0.8374558303886925,0.9929328621908127,0.21558661149445724,monthly_grade_threshold,increase group-specific calibration support and inspect subgroup drift

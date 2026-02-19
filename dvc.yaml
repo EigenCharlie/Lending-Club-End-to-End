@@ -54,6 +54,18 @@ stages:
     - data/processed/conformal_mondrian_tuning_90_pareto.parquet
     - data/processed/conformal_group_coverage_floor_report.parquet
     - models/conformal_results_mondrian.pkl
+  benchmark_conformal_variants:
+    cmd: uv run python scripts/benchmark_conformal_variants.py
+    deps:
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
+    - models/conformal_results_mondrian.pkl
+    - models/pd_canonical.cbm
+    - models/pd_canonical_calibrator.pkl
+    - scripts/benchmark_conformal_variants.py
+    outs:
+    - data/processed/conformal_variant_benchmark.parquet
+    - data/processed/conformal_variant_benchmark_by_group.parquet
   forecast_default_rates:
     cmd: uv run python scripts/forecast_default_rates.py --horizon 12
     deps:
@@ -91,6 +103,17 @@ stages:
     - data/processed/causal_policy_rule_candidates.parquet
     - data/processed/causal_policy_rule_selected.parquet
     - models/causal_policy_rule.json
+  backtest_causal_policy_oot:
+    cmd: uv run python scripts/backtest_causal_policy_oot.py
+    deps:
+    - data/processed/causal_policy_simulation.parquet
+    - data/processed/train_fe.parquet
+    - models/causal_policy_rule.json
+    - scripts/backtest_causal_policy_oot.py
+    outs:
+    - data/processed/causal_policy_oot_backtest.parquet
+    - data/processed/causal_policy_oot_backtest_by_grade.parquet
+    - models/causal_policy_oot_status.json
   run_ifrs9_sensitivity:
     cmd: uv run python scripts/run_ifrs9_sensitivity.py
     deps:

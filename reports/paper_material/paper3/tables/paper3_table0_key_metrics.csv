@@ -1,0 +1,7 @@
+metric,value
+coverage_90,0.8887235479595044
+coverage_95,0.9479573372244635
+avg_width_90,0.7459297382063242
+min_group_coverage_90,0.8522167487684729
+checks_passed,1.0
+checks_total,7.0

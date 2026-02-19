@@ -44,23 +44,74 @@ def _load_candidates() -> pd.DataFrame:
     return pd.read_parquet(raw_path)
 
 
-def _load_pd_intervals(n: int, random_state: int = 42) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Load PD point + interval bounds from conformal artifacts (canonical first)."""
+def _load_interval_artifact() -> pd.DataFrame:
+    """Load conformal interval artifact (canonical first)."""
     intervals, intervals_path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
     logger.info(
         f"Loaded conformal intervals from {intervals_path} "
         f"(legacy={is_legacy}, rows={len(intervals):,})"
     )
+    return intervals.reset_index(drop=True)
+
+
+def _resolve_interval_columns(intervals: pd.DataFrame) -> tuple[str, str, str]:
     col_point = "y_pred" if "y_pred" in intervals.columns else "pd_point"
     col_low = "pd_low_90" if "pd_low_90" in intervals.columns else "pd_low"
     col_high = "pd_high_90" if "pd_high_90" in intervals.columns else "pd_high"
-    sampled = intervals.sample(n=min(n, len(intervals)), random_state=random_state).reset_index(
-        drop=True
+    return col_point, col_low, col_high
+
+
+def _align_candidates_and_intervals(
+    candidates: pd.DataFrame,
+    intervals: pd.DataFrame,
+    max_candidates: int = 5_000,
+    random_state: int = 42,
+) -> tuple[pd.DataFrame, np.ndarray, np.ndarray, np.ndarray]:
+    """Align loans with PD intervals using ID when available, with legacy fallback."""
+    col_point, col_low, col_high = _resolve_interval_columns(intervals)
+    base_n = min(len(candidates), len(intervals), max_candidates)
+
+    if "id" in candidates.columns and "id" in intervals.columns:
+        cand = candidates.copy()
+        ints = intervals.copy()
+        cand["_id_join"] = cand["id"].astype(str)
+        ints["_id_join"] = ints["id"].astype(str)
+        ints = ints.drop_duplicates(subset="_id_join", keep="first")
+        merged = cand.merge(
+            ints[["_id_join", col_point, col_low, col_high]],
+            on="_id_join",
+            how="inner",
+        )
+        if merged.empty:
+            raise ValueError("ID-based merge between candidates and intervals returned zero rows.")
+        n = min(len(merged), max_candidates)
+        if len(merged) > n:
+            rng = np.random.default_rng(random_state)
+            idx = np.sort(rng.choice(np.arange(len(merged)), size=n, replace=False))
+            merged = merged.iloc[idx].reset_index(drop=True)
+        else:
+            merged = merged.reset_index(drop=True)
+
+        aligned_loans = merged[candidates.columns].copy()
+        pd_point = merged[col_point].to_numpy(dtype=float)
+        pd_low = merged[col_low].to_numpy(dtype=float)
+        pd_high = merged[col_high].to_numpy(dtype=float)
+        logger.info(
+            f"Aligned candidates and intervals by id: n={len(aligned_loans):,} "
+            f"(candidate_rows={len(candidates):,}, interval_rows={len(intervals):,})"
+        )
+        return aligned_loans, pd_point, pd_low, pd_high
+
+    # Legacy fallback where interval artifact has no stable key.
+    logger.warning(
+        "Conformal interval artifact has no id alignment key; using positional fallback for optimization."
     )
-    pd_point = sampled[col_point].to_numpy(dtype=float)
-    pd_low = sampled[col_low].to_numpy(dtype=float)
-    pd_high = sampled[col_high].to_numpy(dtype=float)
-    return pd_point, pd_low, pd_high
+    aligned_loans = candidates.head(base_n).reset_index(drop=True).copy()
+    ints = intervals.head(base_n).reset_index(drop=True)
+    pd_point = ints[col_point].to_numpy(dtype=float)
+    pd_low = ints[col_low].to_numpy(dtype=float)
+    pd_high = ints[col_high].to_numpy(dtype=float)
+    return aligned_loans, pd_point, pd_low, pd_high
 
 
 def main(
@@ -74,14 +125,11 @@ def main(
         config = yaml.safe_load(f)
 
     test = _load_candidates()
-    n = min(len(test), 5_000)  # keep solve time bounded
-    test_sample = test.head(n).reset_index(drop=True)
-
-    pd_point, pd_low, pd_high = _load_pd_intervals(n)
-    if len(pd_point) != n:
-        # keep all vectors aligned to candidate size
-        n = len(pd_point)
-        test_sample = test_sample.iloc[:n].copy()
+    intervals = _load_interval_artifact()
+    test_sample, pd_point, pd_low, pd_high = _align_candidates_and_intervals(
+        test, intervals, max_candidates=5_000, random_state=42
+    )
+    n = len(test_sample)
 
     lgd = np.full(n, 0.45)
     if "int_rate" in test_sample.columns:

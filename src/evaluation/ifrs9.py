@@ -43,13 +43,17 @@ def assign_stage(
     # Stage 2: Significant Increase in Credit Risk
     pd_increase = pd_current - pd_origination
     sicr_mask = pd_increase > SICR_PD_INCREASE_THRESHOLD
-    stages[sicr_mask] = 2
+    stage2_mask = sicr_mask
 
     # Enhanced SICR with conformal prediction interval width
     if pd_high is not None:
         uncertainty = pd_high - pd_current
         high_uncertainty = uncertainty > np.percentile(uncertainty, 90)
-        stages[sicr_mask & high_uncertainty] = 2  # Confirm Stage 2 with high uncertainty
+        # Additional trigger: uncertain loans with non-improving risk can migrate to Stage 2.
+        uncertainty_sicr = high_uncertainty & (pd_current >= pd_origination)
+        stage2_mask = stage2_mask | uncertainty_sicr
+
+    stages[stage2_mask] = 2
 
     # DPD-based staging
     if dpd is not None:

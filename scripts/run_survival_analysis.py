@@ -18,6 +18,42 @@ from src.models.pd_model import NUMERIC_FEATURES, WOE_FEATURES
 from src.models.survival import make_survival_target, train_cox_ph, train_random_survival_forest
 
 
+def _term_to_months(term_series: pd.Series) -> pd.Series:
+    if pd.api.types.is_numeric_dtype(term_series):
+        term = pd.to_numeric(term_series, errors="coerce")
+    else:
+        term = (
+            term_series.astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
+        )
+    return term.fillna(36).clip(lower=1, upper=60).astype(float)
+
+
+def _time_to_event_from_raw_payments(df: pd.DataFrame) -> np.ndarray | None:
+    """Build time-to-event from raw payment timestamp when available."""
+    if "id" not in df.columns or "issue_d" not in df.columns:
+        return None
+
+    raw_path = Path("data/raw/Loan_status_2007-2020Q3.csv")
+    if not raw_path.exists():
+        return None
+
+    try:
+        raw = pd.read_csv(raw_path, usecols=["id", "last_pymnt_d"], low_memory=False)
+    except Exception as exc:
+        logger.warning(f"Unable to load raw payment timestamps: {exc}")
+        return None
+
+    raw["id"] = raw["id"].astype(str)
+    raw["last_pymnt_d"] = pd.to_datetime(raw["last_pymnt_d"], format="%b-%Y", errors="coerce")
+
+    tmp = df[["id", "issue_d"]].copy()
+    tmp["id"] = tmp["id"].astype(str)
+    tmp["issue_d"] = pd.to_datetime(tmp["issue_d"], errors="coerce")
+    tmp = tmp.merge(raw, on="id", how="left")
+    months = ((tmp["last_pymnt_d"] - tmp["issue_d"]).dt.days / 30.44).to_numpy(dtype=float)
+    return months
+
+
 def _ensure_survival_targets(df: pd.DataFrame) -> pd.DataFrame:
     """Ensure time_to_event and event_observed exist.
 
@@ -29,20 +65,31 @@ def _ensure_survival_targets(df: pd.DataFrame) -> pd.DataFrame:
 
     if "time_to_event" not in df.columns:
         if "term" in df.columns:
-            if not pd.api.types.is_numeric_dtype(df["term"]):
-                term = (
-                    df["term"]
-                    .astype(str)
-                    .str.extract(r"(\d+)")[0]
-                    .pipe(pd.to_numeric, errors="coerce")
-                )
-            else:
-                term = pd.to_numeric(df["term"], errors="coerce")
-            term = term.fillna(36).clip(lower=1, upper=60)
+            term = _term_to_months(df["term"])
         else:
             term = pd.Series(np.full(len(df), 36), index=df.index, dtype=float)
 
-        # Proxy: defaults tend to occur before maturity; non-defaults censored at term.
+        # Preferred path: build durations from raw payment timestamps.
+        from_raw = _time_to_event_from_raw_payments(df)
+        if from_raw is not None:
+            if "event_observed" in df.columns:
+                fallback = np.where(
+                    df["event_observed"], np.maximum((term * 0.55).round(), 1), term
+                ).astype(float)
+            else:
+                fallback = term.to_numpy(dtype=float)
+            time_to_event = np.asarray(from_raw, dtype=float)
+            valid = np.isfinite(time_to_event) & (time_to_event > 0)
+            coverage = float(valid.mean()) if len(valid) else 0.0
+            time_to_event = np.where(valid, time_to_event, fallback)
+            df["time_to_event"] = np.clip(time_to_event, 1.0, 60.0)
+            logger.info(
+                "time_to_event built from raw payment timestamps "
+                f"(coverage={coverage:.1%}, fallback={1.0 - coverage:.1%})"
+            )
+            return df
+
+        # Fallback proxy: defaults tend to occur before maturity; non-defaults censored at term.
         if "event_observed" in df.columns:
             df["time_to_event"] = np.where(
                 df["event_observed"], np.maximum((term * 0.55).round(), 1), term

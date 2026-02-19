@@ -1,0 +1,10 @@
+\begin{tabular}{lrrrrrrrrrrrrrrrrrlll}
+\toprule
+scenario & pd_mult & lgd_mult & ead_mult & discount_rate & n_loans & stage1_n & stage2_n & stage3_n & stage1_share & stage2_share & stage3_share & total_ecl & avg_ecl & total_ecl_low & total_ecl_point & total_ecl_high & total_ecl_range & pd_orig_source & dpd_source & lifetime_pd_source \\
+\midrule
+baseline & 1.000000 & 1.000000 & 1.000000 & 0.050000 & 276869 & 81260 & 133358 & 62251 & 0.293496 & 0.481665 & 0.224839 & 1010417398.085331 & 3649.442148 & 792698.306526 & 431252314.300307 & 1453618118.017862 & 1452825419.711336 & train_vintage_grade_issue_quarter & loan_status_and_delinquency_features & grade_lifetime_pd_table_scaled \\
+mild_stress & 1.150000 & 1.050000 & 1.020000 & 0.060000 & 276869 & 44321 & 170297 & 62251 & 0.160079 & 0.615082 & 0.224839 & 1246130168.967463 & 4500.793404 & 976326.869233 & 531151912.907973 & 1620629226.557712 & 1619652899.688478 & train_vintage_grade_issue_quarter & loan_status_and_delinquency_features & grade_lifetime_pd_table_scaled \\
+adverse & 1.300000 & 1.120000 & 1.050000 & 0.070000 & 276869 & 19890 & 194728 & 62251 & 0.071839 & 0.703322 & 0.224839 & 1512799807.239998 & 5463.955182 & 1211877.171018 & 659298538.102309 & 1807778145.779987 & 1806566268.608969 & train_vintage_grade_issue_quarter & loan_status_and_delinquency_features & grade_lifetime_pd_table_scaled \\
+severe & 1.550000 & 1.200000 & 1.100000 & 0.080000 & 276869 & 5336 & 209282 & 62251 & 0.019273 & 0.755888 & 0.224839 & 1850841854.703359 & 6684.900999 & 1621860.735153 & 882342235.058428 & 2061420174.180973 & 2059798313.445820 & train_vintage_grade_issue_quarter & loan_status_and_delinquency_features & grade_lifetime_pd_table_scaled \\
+\bottomrule
+\end{tabular}

@@ -73,6 +73,17 @@ def test_assign_stage_with_conformal_pd_high():
     assert stages[1] == 2
 
 
+def test_assign_stage_uncertainty_trigger_stage2_without_abs_sicr():
+    """High uncertainty can trigger Stage 2 when risk is not improving."""
+    pd_orig = np.array([0.05, 0.05, 0.05])
+    pd_curr = np.array([0.04, 0.05, 0.049])  # none passes abs SICR threshold > 0.02
+    pd_high = np.array([0.041, 0.50, 0.051])  # 2nd loan has extreme uncertainty
+    stages = assign_stage(pd_orig, pd_curr, pd_high=pd_high)
+    assert stages[0] == 1
+    assert stages[1] == 2
+    assert stages[2] == 1
+
+
 # ── compute_ecl ──
 
 

@@ -39,8 +39,6 @@ pg = st.navigation(
             st.Page("pages/glossary_fundamentals.py", title="Glosario y Fundamentos", icon="📖"),
         ],
         "Recorrido End-to-End": [
-            st.Page("pages/thesis_contribution.py", title="Contribución de Tesis", icon="🎯"),
-            st.Page("pages/research_landscape.py", title="Panorama de Investigación", icon="🔬"),
             st.Page("pages/thesis_end_to_end.py", title="Visión End-to-End", icon="🧭"),
             st.Page("pages/data_architecture.py", title="Arquitectura y Linaje de Datos", icon="🗂️"),
             st.Page("pages/thesis_defense.py", title="Mapa Integrado de Métodos", icon="🧩"),
@@ -69,6 +67,18 @@ pg = st.navigation(
         ],
         "Exploración": [
             st.Page("pages/chat_with_data.py", title="Chat con Datos", icon="💬"),
+        ],
+        "Investigación": [
+            st.Page("pages/thesis_contribution.py", title="Contribución de Tesis", icon="🎯"),
+            st.Page("pages/research_landscape.py", title="Panorama de Investigación", icon="🔬"),
+            st.Page("pages/paper_1_cp_robust_opt.py", title="Paper 1: CP + Robust Opt", icon="🧪"),
+            st.Page("pages/paper_2_ifrs9_e2e.py", title="Paper 2: IFRS9 E2E", icon="🏦"),
+            st.Page("pages/paper_3_mondrian.py", title="Paper 3: Mondrian", icon="📐"),
+            st.Page(
+                "pages/research_best_practices.py",
+                title="Buenas Prácticas y Herramientas",
+                icon="🧰",
+            ),
         ],
     }
 )
