@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import pandas as pd
 import plotly.express as px
-import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
@@ -27,9 +26,7 @@ st.caption(
 
 audience = audience_selector()
 storytelling_intro(
-    page_goal=(
-        "Transformar variables crudas en señales estables y útiles para predecir default."
-    ),
+    page_goal=("Transformar variables crudas en señales estables y útiles para predecir default."),
     business_value=(
         "La calidad de features define gran parte del desempeño y la interpretabilidad del score."
     ),
@@ -59,13 +56,40 @@ narrative_block(
 # ── 1. Pipeline Visual ──
 st.subheader("1) Pipeline de transformación")
 
-pipeline_data = pd.DataFrame([
-    {"Etapa": "1. Datos crudos", "Columnas": "142", "Acción": "CSV original de Kaggle (2.93M filas)", "Razón": "Punto de partida"},
-    {"Etapa": "2. Limpieza (leakage + nulidad + IDs)", "Columnas": "142 → 110", "Acción": "Remover leakage, nulls >80%, IDs, constantes, texto libre", "Razón": "Variables sin valor predictivo o que generan trampa"},
-    {"Etapa": "3. Feature engineering", "Columnas": "110 + 15 creadas", "Acción": "Ratios, logs, buckets, WOE encoding, flags, interacciones", "Razón": "Capturar señales no lineales y relaciones"},
-    {"Etapa": "4. Reemplazar/eliminar redundantes", "Columnas": "−50 reemplazadas", "Acción": "sub_grade→grade_woe, timestamps→features temporales, etc.", "Razón": "WOE/buckets reemplazan originales"},
-    {"Etapa": "5. Selección final", "Columnas": "60", "Acción": "Ranking por IV + importancia SHAP", "Razón": "Balance poder predictivo vs complejidad"},
-])
+pipeline_data = pd.DataFrame(
+    [
+        {
+            "Etapa": "1. Datos crudos",
+            "Columnas": "142",
+            "Acción": "CSV original de Kaggle (2.93M filas)",
+            "Razón": "Punto de partida",
+        },
+        {
+            "Etapa": "2. Limpieza (leakage + nulidad + IDs)",
+            "Columnas": "142 → 110",
+            "Acción": "Remover leakage, nulls >80%, IDs, constantes, texto libre",
+            "Razón": "Variables sin valor predictivo o que generan trampa",
+        },
+        {
+            "Etapa": "3. Feature engineering",
+            "Columnas": "110 + 15 creadas",
+            "Acción": "Ratios, logs, buckets, WOE encoding, flags, interacciones",
+            "Razón": "Capturar señales no lineales y relaciones",
+        },
+        {
+            "Etapa": "4. Reemplazar/eliminar redundantes",
+            "Columnas": "−50 reemplazadas",
+            "Acción": "sub_grade→grade_woe, timestamps→features temporales, etc.",
+            "Razón": "WOE/buckets reemplazan originales",
+        },
+        {
+            "Etapa": "5. Selección final",
+            "Columnas": "60",
+            "Acción": "Ranking por IV + importancia SHAP",
+            "Razón": "Balance poder predictivo vs complejidad",
+        },
+    ]
+)
 st.dataframe(pipeline_data, use_container_width=True, hide_index=True)
 
 st.info(
@@ -89,22 +113,94 @@ narrative_block(
     "monotónica con target), flags de missing (missingness informativa).",
 )
 
-features_created = pd.DataFrame([
-    {"Feature": "loan_to_income", "Fórmula/Método": "loan_amnt / annual_inc", "Tipo": "Ratio", "Intuición de riesgo": "Carga del préstamo relativa a capacidad de pago. Ratio alto = mayor riesgo."},
-    {"Feature": "revol_utilization", "Fórmula/Método": "revol_bal × revol_util / 100", "Tipo": "Ratio", "Intuición de riesgo": "Uso real del crédito revolvente. Alta utilización señala estrés financiero."},
-    {"Feature": "log_loan_amnt", "Fórmula/Método": "log(loan_amnt)", "Tipo": "Log transform", "Intuición de riesgo": "Normaliza distribución sesgada a la derecha. Mejora linealidad."},
-    {"Feature": "log_annual_inc", "Fórmula/Método": "log(annual_inc)", "Tipo": "Log transform", "Intuición de riesgo": "Comprime la cola larga de ingresos altos. Estabiliza varianza."},
-    {"Feature": "int_rate_bucket", "Fórmula/Método": "Quantile binning (deciles)", "Tipo": "Bucket", "Intuición de riesgo": "Captura relación no-lineal entre tasa y default. Cada bucket tiene su tasa de default propia."},
-    {"Feature": "dti_bucket", "Fórmula/Método": "Quantile binning (deciles)", "Tipo": "Bucket", "Intuición de riesgo": "Segmenta DTI en bandas de riesgo homogéneo."},
-    {"Feature": "grade_woe", "Fórmula/Método": "WOE encoding (OptBinning)", "Tipo": "WOE", "Intuición de riesgo": "Transforma grade A-G a escala continua ponderada por default rate. Mayor WOE = menor riesgo."},
-    {"Feature": "purpose_woe", "Fórmula/Método": "WOE encoding (OptBinning)", "Tipo": "WOE", "Intuición de riesgo": "Codifica propósito del préstamo según su asociación histórica con default."},
-    {"Feature": "home_ownership_woe", "Fórmula/Método": "WOE encoding (OptBinning)", "Tipo": "WOE", "Intuición de riesgo": "Situación de vivienda como proxy de estabilidad financiera."},
-    {"Feature": "emp_length_cat", "Fórmula/Método": "Binned ordinal", "Tipo": "Bucket", "Intuición de riesgo": "Antigüedad laboral agrupada como proxy de estabilidad."},
-    {"Feature": "log_annual_inc_miss", "Fórmula/Método": "Indicador 1/0 de nulo", "Tipo": "Flag", "Intuición de riesgo": "La ausencia de dato de ingreso puede ser informativa (auto-reporte incompleto)."},
-    {"Feature": "dti_miss", "Fórmula/Método": "Indicador 1/0 de nulo", "Tipo": "Flag", "Intuición de riesgo": "DTI nulo puede indicar falta de historial de deuda o dato no verificable."},
-    {"Feature": "days_since_delinq_miss", "Fórmula/Método": "Indicador 1/0 de nulo", "Tipo": "Flag", "Intuición de riesgo": "Nulo = nunca hubo morosidad (buen signo). Informativo para el modelo."},
-    {"Feature": "int_rate_bucket__grade", "Fórmula/Método": "Interacción bucket × grade", "Tipo": "Interacción", "Intuición de riesgo": "Captura que el impacto de la tasa depende del grade asignado."},
-])
+features_created = pd.DataFrame(
+    [
+        {
+            "Feature": "loan_to_income",
+            "Fórmula/Método": "loan_amnt / annual_inc",
+            "Tipo": "Ratio",
+            "Intuición de riesgo": "Carga del préstamo relativa a capacidad de pago. Ratio alto = mayor riesgo.",
+        },
+        {
+            "Feature": "revol_utilization",
+            "Fórmula/Método": "revol_bal × revol_util / 100",
+            "Tipo": "Ratio",
+            "Intuición de riesgo": "Uso real del crédito revolvente. Alta utilización señala estrés financiero.",
+        },
+        {
+            "Feature": "log_loan_amnt",
+            "Fórmula/Método": "log(loan_amnt)",
+            "Tipo": "Log transform",
+            "Intuición de riesgo": "Normaliza distribución sesgada a la derecha. Mejora linealidad.",
+        },
+        {
+            "Feature": "log_annual_inc",
+            "Fórmula/Método": "log(annual_inc)",
+            "Tipo": "Log transform",
+            "Intuición de riesgo": "Comprime la cola larga de ingresos altos. Estabiliza varianza.",
+        },
+        {
+            "Feature": "int_rate_bucket",
+            "Fórmula/Método": "Quantile binning (deciles)",
+            "Tipo": "Bucket",
+            "Intuición de riesgo": "Captura relación no-lineal entre tasa y default. Cada bucket tiene su tasa de default propia.",
+        },
+        {
+            "Feature": "dti_bucket",
+            "Fórmula/Método": "Quantile binning (deciles)",
+            "Tipo": "Bucket",
+            "Intuición de riesgo": "Segmenta DTI en bandas de riesgo homogéneo.",
+        },
+        {
+            "Feature": "grade_woe",
+            "Fórmula/Método": "WOE encoding (OptBinning)",
+            "Tipo": "WOE",
+            "Intuición de riesgo": "Transforma grade A-G a escala continua ponderada por default rate. Mayor WOE = menor riesgo.",
+        },
+        {
+            "Feature": "purpose_woe",
+            "Fórmula/Método": "WOE encoding (OptBinning)",
+            "Tipo": "WOE",
+            "Intuición de riesgo": "Codifica propósito del préstamo según su asociación histórica con default.",
+        },
+        {
+            "Feature": "home_ownership_woe",
+            "Fórmula/Método": "WOE encoding (OptBinning)",
+            "Tipo": "WOE",
+            "Intuición de riesgo": "Situación de vivienda como proxy de estabilidad financiera.",
+        },
+        {
+            "Feature": "emp_length_cat",
+            "Fórmula/Método": "Binned ordinal",
+            "Tipo": "Bucket",
+            "Intuición de riesgo": "Antigüedad laboral agrupada como proxy de estabilidad.",
+        },
+        {
+            "Feature": "log_annual_inc_miss",
+            "Fórmula/Método": "Indicador 1/0 de nulo",
+            "Tipo": "Flag",
+            "Intuición de riesgo": "La ausencia de dato de ingreso puede ser informativa (auto-reporte incompleto).",
+        },
+        {
+            "Feature": "dti_miss",
+            "Fórmula/Método": "Indicador 1/0 de nulo",
+            "Tipo": "Flag",
+            "Intuición de riesgo": "DTI nulo puede indicar falta de historial de deuda o dato no verificable.",
+        },
+        {
+            "Feature": "days_since_delinq_miss",
+            "Fórmula/Método": "Indicador 1/0 de nulo",
+            "Tipo": "Flag",
+            "Intuición de riesgo": "Nulo = nunca hubo morosidad (buen signo). Informativo para el modelo.",
+        },
+        {
+            "Feature": "int_rate_bucket__grade",
+            "Fórmula/Método": "Interacción bucket × grade",
+            "Tipo": "Interacción",
+            "Intuición de riesgo": "Captura que el impacto de la tasa depende del grade asignado.",
+        },
+    ]
+)
 st.dataframe(features_created, use_container_width=True, hide_index=True)
 
 # ── 3. IV Ranking ──
@@ -149,7 +245,9 @@ if iv_scores:
     ]:
         fig.add_vline(x=threshold, line_dash="dash", line_color=color, annotation_text=label)
 
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=max(350, n_top * 28), coloraxis_showscale=False)
+    fig.update_layout(
+        **PLOTLY_TEMPLATE["layout"], height=max(350, n_top * 28), coloraxis_showscale=False
+    )
     st.plotly_chart(fig, use_container_width=True)
     st.caption(
         "Líneas verticales: umbrales de IV. <0.02=débil (no predictiva), 0.02-0.1=útil, "
@@ -161,12 +259,12 @@ if iv_scores:
     st.markdown(
         f"""
 **Resumen de familias de features:**
-- Numéricas: **{len(feature_lists.get('numeric', []))}** variables
-- Categóricas: **{len(feature_lists.get('categorical', []))}** variables
-- WOE: **{len(feature_lists.get('woe', []))}** variables
-- Flags: **{len(feature_lists.get('flag', []))}** variables
-- Interacciones: **{len(feature_lists.get('interaction', []))}** variables
-- Total CatBoost: **{len(feature_lists.get('catboost', []))}** features
+- Numéricas: **{len(feature_lists.get("numeric", []))}** variables
+- Categóricas: **{len(feature_lists.get("categorical", []))}** variables
+- WOE: **{len(feature_lists.get("woe", []))}** variables
+- Flags: **{len(feature_lists.get("flag", []))}** variables
+- Interacciones: **{len(feature_lists.get("interaction", []))}** variables
+- Total CatBoost: **{len(feature_lists.get("catboost", []))}** features
 """
     )
 
@@ -221,15 +319,59 @@ selecciona hasta llegar a **60 features finales** para CatBoost.
 """
 )
 
-eliminated = pd.DataFrame([
-    {"Etapa": "1. Limpieza inicial", "Razón": "Alta nulidad (>80%)", "Eliminadas": 14, "Ejemplos": "mths_since_last_major_derog, annual_inc_joint, dti_joint, il_util", "Justificación": "Datos insuficientes para aprender patrones confiables"},
-    {"Etapa": "1. Limpieza inicial", "Razón": "Data leakage (post-loan)", "Eliminadas": 10, "Ejemplos": "total_pymnt, recoveries, collection_recovery_fee, out_prncp", "Justificación": "Solo existen después de que termina el préstamo — usarlas sería trampa"},
-    {"Etapa": "1. Limpieza inicial", "Razón": "Identificadores", "Eliminadas": 2, "Ejemplos": "id, member_id", "Justificación": "Únicos por fila, sin poder predictivo"},
-    {"Etapa": "1. Limpieza inicial", "Razón": "Constantes / quasi-constantes", "Eliminadas": 3, "Ejemplos": "policy_code, pymnt_plan", "Justificación": "Un solo valor para todos los préstamos"},
-    {"Etapa": "1. Limpieza inicial", "Razón": "Texto libre no estructurado", "Eliminadas": 3, "Ejemplos": "emp_title, title, desc", "Justificación": "Requeriría NLP; reemplazado por purpose y emp_length"},
-    {"Etapa": "2. Feature engineering", "Razón": "Reemplazadas por encoding WOE/bucket", "Eliminadas": 45, "Ejemplos": "sub_grade → grade_woe, addr_state, timestamps crudos", "Justificación": "Representación más eficiente generada"},
-    {"Etapa": "2. Feature engineering", "Razón": "Duplicadas / redundantes", "Eliminadas": 5, "Ejemplos": "funded_amnt (≈loan_amnt), funded_amnt_inv", "Justificación": "Información ya capturada por otra variable"},
-])
+eliminated = pd.DataFrame(
+    [
+        {
+            "Etapa": "1. Limpieza inicial",
+            "Razón": "Alta nulidad (>80%)",
+            "Eliminadas": 14,
+            "Ejemplos": "mths_since_last_major_derog, annual_inc_joint, dti_joint, il_util",
+            "Justificación": "Datos insuficientes para aprender patrones confiables",
+        },
+        {
+            "Etapa": "1. Limpieza inicial",
+            "Razón": "Data leakage (post-loan)",
+            "Eliminadas": 10,
+            "Ejemplos": "total_pymnt, recoveries, collection_recovery_fee, out_prncp",
+            "Justificación": "Solo existen después de que termina el préstamo — usarlas sería trampa",
+        },
+        {
+            "Etapa": "1. Limpieza inicial",
+            "Razón": "Identificadores",
+            "Eliminadas": 2,
+            "Ejemplos": "id, member_id",
+            "Justificación": "Únicos por fila, sin poder predictivo",
+        },
+        {
+            "Etapa": "1. Limpieza inicial",
+            "Razón": "Constantes / quasi-constantes",
+            "Eliminadas": 3,
+            "Ejemplos": "policy_code, pymnt_plan",
+            "Justificación": "Un solo valor para todos los préstamos",
+        },
+        {
+            "Etapa": "1. Limpieza inicial",
+            "Razón": "Texto libre no estructurado",
+            "Eliminadas": 3,
+            "Ejemplos": "emp_title, title, desc",
+            "Justificación": "Requeriría NLP; reemplazado por purpose y emp_length",
+        },
+        {
+            "Etapa": "2. Feature engineering",
+            "Razón": "Reemplazadas por encoding WOE/bucket",
+            "Eliminadas": 45,
+            "Ejemplos": "sub_grade → grade_woe, addr_state, timestamps crudos",
+            "Justificación": "Representación más eficiente generada",
+        },
+        {
+            "Etapa": "2. Feature engineering",
+            "Razón": "Duplicadas / redundantes",
+            "Eliminadas": 5,
+            "Ejemplos": "funded_amnt (≈loan_amnt), funded_amnt_inv",
+            "Justificación": "Información ya capturada por otra variable",
+        },
+    ]
+)
 st.dataframe(eliminated, use_container_width=True, hide_index=True)
 
 st.warning(
@@ -245,11 +387,19 @@ col_img1, col_img2 = st.columns(2)
 with col_img1:
     img = get_notebook_image_path("02_feature_engineering", "cell_017_out_00.png")
     if img.exists():
-        st.image(str(img), caption="WOE binning: transformación monotónica supervisada.", use_container_width=True)
+        st.image(
+            str(img),
+            caption="WOE binning: transformación monotónica supervisada.",
+            use_container_width=True,
+        )
 with col_img2:
     img = get_notebook_image_path("02_feature_engineering", "cell_018_out_00.png")
     if img.exists():
-        st.image(str(img), caption="IV ranking: selección de features por poder predictivo.", use_container_width=True)
+        st.image(
+            str(img),
+            caption="IV ranking: selección de features por poder predictivo.",
+            use_container_width=True,
+        )
 
 # ── Closing ──
 st.markdown(

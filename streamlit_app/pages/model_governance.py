@@ -19,7 +19,7 @@ import streamlit as st
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import load_json, try_load_json, try_load_parquet
+from streamlit_app.utils import try_load_json, try_load_parquet
 
 
 def _artifact_health_rows() -> pd.DataFrame:
@@ -27,11 +27,23 @@ def _artifact_health_rows() -> pd.DataFrame:
     specs = [
         ("data/processed/pipeline_summary.json", "Resumen pipeline", "required"),
         ("models/conformal_results_mondrian.pkl", "Conformal canónico (resultados)", "required"),
-        ("data/processed/conformal_intervals_mondrian.parquet", "Conformal canónico (intervalos)", "required"),
+        (
+            "data/processed/conformal_intervals_mondrian.parquet",
+            "Conformal canónico (intervalos)",
+            "required",
+        ),
         ("models/conformal_policy_status.json", "Estado de política conformal", "required"),
-        ("data/processed/portfolio_robustness_summary.parquet", "Resumen robustez portafolio", "required"),
+        (
+            "data/processed/portfolio_robustness_summary.parquet",
+            "Resumen robustez portafolio",
+            "required",
+        ),
         ("data/processed/ifrs9_scenario_summary.parquet", "Escenarios IFRS9", "required"),
-        ("data/processed/conformal_intervals.parquet", "Conformal legacy (compatibilidad)", "legacy"),
+        (
+            "data/processed/conformal_intervals.parquet",
+            "Conformal legacy (compatibilidad)",
+            "legacy",
+        ),
     ]
     rows: list[dict[str, str]] = []
     for rel_path, label, level in specs:
@@ -127,7 +139,10 @@ max_drift_psi = float(metrics_row.get("max_drift_psi", 0.0))
 
 kpi_row(
     [
-        {"label": "Estado global", "value": "OK" if status.get("overall_pass", False) else "Revisión"},
+        {
+            "label": "Estado global",
+            "value": "OK" if status.get("overall_pass", False) else "Revisión",
+        },
         {"label": "Checks aprobados", "value": f"{passed}/{total}"},
         {"label": "AUC test", "value": f"{test_auc:.4f}"},
         {"label": "Gap train-test", "value": f"{auc_gap:.4f}"},

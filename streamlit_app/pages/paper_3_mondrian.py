@@ -46,11 +46,23 @@ meta_df = pd.DataFrame(
     [
         {"Campo": "Estado", "Valor": "Working Draft"},
         {"Campo": "Venue sugerido", "Valor": "COPA / UQ Workshop / ML Risk venue"},
-        {"Campo": "Pregunta", "Valor": "Como garantizar cobertura por subgrupo en riesgo crediticio con drift temporal"},
+        {
+            "Campo": "Pregunta",
+            "Valor": "Como garantizar cobertura por subgrupo en riesgo crediticio con drift temporal",
+        },
         {"Campo": "Dataset", "Valor": "Lending Club (grades A-G, split OOT)"},
-        {"Campo": "Cobertura global 90%", "Valor": format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D"},
-        {"Campo": "Cobertura global 95%", "Valor": format_pct(coverage_95, 2) if np.isfinite(coverage_95) else "N/D"},
-        {"Campo": "Cobertura minima por grupo", "Valor": format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else "N/D"},
+        {
+            "Campo": "Cobertura global 90%",
+            "Valor": format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D",
+        },
+        {
+            "Campo": "Cobertura global 95%",
+            "Valor": format_pct(coverage_95, 2) if np.isfinite(coverage_95) else "N/D",
+        },
+        {
+            "Campo": "Cobertura minima por grupo",
+            "Valor": format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else "N/D",
+        },
     ]
 )
 st.dataframe(meta_df, use_container_width=True, hide_index=True)
@@ -58,7 +70,9 @@ st.dataframe(meta_df, use_container_width=True, hide_index=True)
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Cobertura 90%", format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D")
 k2.metric("Cobertura 95%", format_pct(coverage_95, 2) if np.isfinite(coverage_95) else "N/D")
-k3.metric("Min Coverage Grupo", format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else "N/D")
+k3.metric(
+    "Min Coverage Grupo", format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else "N/D"
+)
 k4.metric("Policy Checks", f"{checks_passed}/{checks_total}")
 
 st.markdown("## 1) Abstract (Draft)")
@@ -66,10 +80,10 @@ st.markdown(
     f"""
 Aplicamos Mondrian Conformal Prediction para construir intervalos de riesgo con garantia
 condicional por grupo (loan grades A-G) en una ventana out-of-time. El sistema alcanza
-cobertura global de {format_pct(coverage_90, 2) if np.isfinite(coverage_90) else 'N/D'} al
-nivel nominal 90% y {format_pct(coverage_95, 2) if np.isfinite(coverage_95) else 'N/D'}
+cobertura global de {format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D"} al
+nivel nominal 90% y {format_pct(coverage_95, 2) if np.isfinite(coverage_95) else "N/D"}
 al nivel 95%, con cobertura minima por grupo de
-{format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else 'N/D'}.
+{format_pct(min_group_cov, 2) if np.isfinite(min_group_cov) else "N/D"}.
 
 Ademas del promedio global, presentamos monitoreo mensual de cobertura y alertas operativas
 para detectar desviaciones de exchangeability. Comparamos variantes conformales y cuantificamos
@@ -94,10 +108,18 @@ decision metodologica defendible frente a un revisor experto.
 st.markdown("## 3) Related Work (Resumen para borrador)")
 related = pd.DataFrame(
     [
-        ["Vovk, Gammerman & Shafer (2005)", "Conformal foundations", "Garantias de cobertura en muestra finita"],
+        [
+            "Vovk, Gammerman & Shafer (2005)",
+            "Conformal foundations",
+            "Garantias de cobertura en muestra finita",
+        ],
         ["Ding et al. (2023)", "Class-conditional CP", "Base para garantia por subgrupo"],
         ["Gibbs & Candes (2021)", "Adaptive conformal", "Relevante para drift temporal"],
-        ["Plassier et al. (2024)", "Approx conditional validity", "Puente entre validez marginal y condicional"],
+        [
+            "Plassier et al. (2024)",
+            "Approx conditional validity",
+            "Puente entre validez marginal y condicional",
+        ],
     ],
     columns=["Referencia", "Eje", "Relevancia para este draft"],
 )
@@ -134,10 +156,17 @@ st.caption("Equation 3. Regla de alerta mensual por mes `m` y grupo `g`.")
 
 st.markdown("## 6) Results")
 
-if not group_metrics.empty and {"group", "coverage_90", "coverage_95"}.issubset(group_metrics.columns):
+if not group_metrics.empty and {"group", "coverage_90", "coverage_95"}.issubset(
+    group_metrics.columns
+):
     gm_plot = group_metrics[["group", "coverage_90", "coverage_95"]].copy().sort_values("group")
     fig1 = px.bar(
-        gm_plot.melt(id_vars=["group"], value_vars=["coverage_90", "coverage_95"], var_name="metric", value_name="coverage"),
+        gm_plot.melt(
+            id_vars=["group"],
+            value_vars=["coverage_90", "coverage_95"],
+            var_name="metric",
+            value_name="coverage",
+        ),
         x="group",
         y="coverage",
         color="metric",
@@ -181,7 +210,9 @@ if not monthly.empty and {"month", "coverage_90", "coverage_95"}.issubset(monthl
     st.plotly_chart(fig3, use_container_width=True)
     st.caption("Figure 3. Trayectoria temporal de cobertura en OOT.")
 
-if not benchmark.empty and {"variant", "avg_width", "min_group_coverage", "coverage"}.issubset(benchmark.columns):
+if not benchmark.empty and {"variant", "avg_width", "min_group_coverage", "coverage"}.issubset(
+    benchmark.columns
+):
     fig4 = px.scatter(
         benchmark,
         x="avg_width",

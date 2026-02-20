@@ -70,10 +70,18 @@ if scenarios.empty and not forecasts.empty:
             {
                 "month": forecasts["ds"],
                 "point_forecast": forecasts[baseline_model],
-                "optimistic_90": forecasts[lo90] if lo90 in forecasts.columns else forecasts[baseline_model],
-                "adverse_90": forecasts[hi90] if hi90 in forecasts.columns else forecasts[baseline_model],
-                "optimistic_95": forecasts[lo95] if lo95 in forecasts.columns else forecasts[baseline_model],
-                "adverse_95": forecasts[hi95] if hi95 in forecasts.columns else forecasts[baseline_model],
+                "optimistic_90": forecasts[lo90]
+                if lo90 in forecasts.columns
+                else forecasts[baseline_model],
+                "adverse_90": forecasts[hi90]
+                if hi90 in forecasts.columns
+                else forecasts[baseline_model],
+                "optimistic_95": forecasts[lo95]
+                if lo95 in forecasts.columns
+                else forecasts[baseline_model],
+                "adverse_95": forecasts[hi95]
+                if hi95 in forecasts.columns
+                else forecasts[baseline_model],
             }
         )
 
@@ -159,7 +167,15 @@ for level, color in [("90", "rgba(0,212,170,0.22)"), ("95", "rgba(255,217,61,0.1
     lo = f"{selected_model}-lo-{level}"
     hi = f"{selected_model}-hi-{level}"
     if lo in forecasts.columns and hi in forecasts.columns:
-        fig.add_trace(go.Scatter(x=forecasts["ds"], y=forecasts[hi], mode="lines", line={"width": 0}, showlegend=False))
+        fig.add_trace(
+            go.Scatter(
+                x=forecasts["ds"],
+                y=forecasts[hi],
+                mode="lines",
+                line={"width": 0},
+                showlegend=False,
+            )
+        )
         fig.add_trace(
             go.Scatter(
                 x=forecasts["ds"],
@@ -204,7 +220,9 @@ else:
             )
         )
         fig.add_trace(
-            go.Scatter(x=scenarios["month"], y=scenarios["adverse_90"], mode="lines", name="Adverso 90%")
+            go.Scatter(
+                x=scenarios["month"], y=scenarios["adverse_90"], mode="lines", name="Adverso 90%"
+            )
         )
         fig.add_trace(
             go.Scatter(
@@ -269,7 +287,9 @@ pred_cols = [
     and not c.endswith("-hi-95")
 ]
 if cv_stats.empty or "y" not in cv_stats.columns or not pred_cols:
-    st.info("No hay `ts_cv_stats.parquet` utilizable; se omite comparación MAE de validación temporal.")
+    st.info(
+        "No hay `ts_cv_stats.parquet` utilizable; se omite comparación MAE de validación temporal."
+    )
 else:
     scores = []
     for col in pred_cols:

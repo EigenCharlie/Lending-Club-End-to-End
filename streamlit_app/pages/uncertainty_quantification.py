@@ -154,9 +154,7 @@ status = "✅ Cumple política" if policy.get("overall_pass", False) else "⚠�
 st.subheader(f"Estado de política conformal: {status}")
 
 width_by_grade = (
-    conf_df.groupby("grade", observed=True)["width_90"]
-    .median()
-    .sort_values(ascending=False)
+    conf_df.groupby("grade", observed=True)["width_90"].median().sort_values(ascending=False)
 )
 widest_grade = str(width_by_grade.index[0]) if not width_by_grade.empty else "N/D"
 narrowest_grade = str(width_by_grade.index[-1]) if not width_by_grade.empty else "N/D"
@@ -169,8 +167,14 @@ kpi_row(
         {"label": "Cobertura 90%", "value": format_pct(policy.get("coverage_90", 0))},
         {"label": "Cobertura 95%", "value": format_pct(policy.get("coverage_95", 0))},
         {"label": "Ancho promedio 90%", "value": f"{policy.get('avg_width_90', 0):.3f}"},
-        {"label": "Cobertura mínima por grupo", "value": format_pct(policy.get("min_group_coverage_90", 0))},
-        {"label": "Checks aprobados", "value": f"{policy.get('checks_passed', 0)}/{policy.get('checks_total', 0)}"},
+        {
+            "label": "Cobertura mínima por grupo",
+            "value": format_pct(policy.get("min_group_coverage_90", 0)),
+        },
+        {
+            "label": "Checks aprobados",
+            "value": f"{policy.get('checks_passed', 0)}/{policy.get('checks_total', 0)}",
+        },
         {"label": "Alertas críticas", "value": str(policy.get("critical_alerts", 0))},
     ],
     n_cols=3,
@@ -288,8 +292,8 @@ under_target = group_plot[group_plot["coverage_90"] < 0.90]
 st.markdown(
     f"""
 **Lectura de negocio de cobertura por grade:**
-- Peor cobertura observada: **grade {worst_group['grade']}** con **{worst_group['coverage_90']:.1%}**.
-- Mejor cobertura observada: **grade {best_group['grade']}** con **{best_group['coverage_90']:.1%}**.
+- Peor cobertura observada: **grade {worst_group["grade"]}** con **{worst_group["coverage_90"]:.1%}**.
+- Mejor cobertura observada: **grade {best_group["grade"]}** con **{best_group["coverage_90"]:.1%}**.
 - Grades bajo meta 90%: **{len(under_target)}**. Si este número sube, aumenta el riesgo de decisiones mal protegidas en segmentos críticos.
 """
 )
@@ -327,8 +331,22 @@ st.subheader("3) Estabilidad temporal")
 col3, col4 = st.columns(2)
 with col3:
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=backtest["month"], y=backtest["coverage_90"], mode="lines+markers", name="Cobertura 90%"))
-    fig.add_trace(go.Scatter(x=backtest["month"], y=backtest["coverage_95"], mode="lines+markers", name="Cobertura 95%"))
+    fig.add_trace(
+        go.Scatter(
+            x=backtest["month"],
+            y=backtest["coverage_90"],
+            mode="lines+markers",
+            name="Cobertura 90%",
+        )
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=backtest["month"],
+            y=backtest["coverage_95"],
+            mode="lines+markers",
+            name="Cobertura 95%",
+        )
+    )
     fig.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B")
     fig.add_hline(y=0.95, line_dash="dot", line_color="#FFD93D")
     fig.update_layout(
@@ -371,9 +389,9 @@ st.markdown(
     f"""
 **Qué te dicen estas dos gráficas en conjunto:**
 - Meses por debajo de meta 90%: **{monthly_below}**.
-- Mejor mes: **{pd.to_datetime(best_month['month']).strftime('%Y-%m')}** con **{best_month['coverage_90']:.1%}**.
-- Peor mes: **{pd.to_datetime(worst_month['month']).strftime('%Y-%m')}** con **{worst_month['coverage_90']:.1%}**.
-- Peor celda grade×mes: **grade {worst_cell['grade']} en {pd.to_datetime(worst_cell['month']).strftime('%Y-%m')}** con **{worst_cell['coverage_90']:.1%}**.
+- Mejor mes: **{pd.to_datetime(best_month["month"]).strftime("%Y-%m")}** con **{best_month["coverage_90"]:.1%}**.
+- Peor mes: **{pd.to_datetime(worst_month["month"]).strftime("%Y-%m")}** con **{worst_month["coverage_90"]:.1%}**.
+- Peor celda grade×mes: **grade {worst_cell["grade"]} en {pd.to_datetime(worst_cell["month"]).strftime("%Y-%m")}** con **{worst_cell["coverage_90"]:.1%}**.
 """
 )
 
@@ -409,9 +427,15 @@ with col_a:
         )
         fig.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B")
         fig.add_hline(y=0.95, line_dash="dot", line_color="#FFD93D")
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320, title="Fallback: cobertura observada vs objetivo")
+        fig.update_layout(
+            **PLOTLY_TEMPLATE["layout"],
+            height=320,
+            title="Fallback: cobertura observada vs objetivo",
+        )
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Imagen de notebook no encontrada; se muestra gráfico equivalente construido desde artefactos.")
+        st.caption(
+            "Imagen de notebook no encontrada; se muestra gráfico equivalente construido desde artefactos."
+        )
 with col_b:
     img = get_notebook_image_path("04_conformal_prediction", "cell_018_out_00.png")
     if img.exists():
@@ -449,7 +473,9 @@ with col_b:
             yaxis={"tickformat": ".0%"},
         )
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Imagen de notebook no encontrada; se muestra fallback por grade con datos actuales.")
+        st.caption(
+            "Imagen de notebook no encontrada; se muestra fallback por grade con datos actuales."
+        )
 
 failed_checks = checks[~checks["passed"]] if "passed" in checks.columns else pd.DataFrame()
 if "comparator" in checks.columns:
@@ -475,7 +501,9 @@ if failed_checks.empty:
     else:
         st.success("Todas las reglas conformal pasan en el snapshot actual.")
 else:
-    st.warning(f"Hay {len(failed_checks)} regla(s) fuera de política; requiere recalibración o revisión segmentada.")
+    st.warning(
+        f"Hay {len(failed_checks)} regla(s) fuera de política; requiere recalibración o revisión segmentada."
+    )
     st.dataframe(failed_checks, use_container_width=True, hide_index=True)
 
 st.markdown(

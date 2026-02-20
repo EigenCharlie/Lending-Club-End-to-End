@@ -205,7 +205,11 @@ with col3:
         y="total_net_value",
         color="action_rate",
         title="Valor neto total por segmento",
-        labels={"segment": "Segmento", "total_net_value": "Valor neto (USD)", "action_rate": "Action rate"},
+        labels={
+            "segment": "Segmento",
+            "total_net_value": "Valor neto (USD)",
+            "action_rate": "Action rate",
+        },
         color_continuous_scale="Tealgrn",
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, coloraxis_showscale=False)
@@ -259,7 +263,11 @@ fig = px.scatter(
     size="n_selected",
     text="rule_name",
     title="Trade-off entre cobertura de acción y valor económico",
-    labels={"action_rate": "Action rate", "total_net_value": "Valor neto (USD)", "pass_all": "Cumple constraints"},
+    labels={
+        "action_rate": "Action rate",
+        "total_net_value": "Valor neto (USD)",
+        "pass_all": "Cumple constraints",
+    },
 )
 fig.update_traces(textposition="top center")
 fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
@@ -288,7 +296,9 @@ fig = go.Figure(
         connector={"line": {"color": "#A0AEC0"}},
     )
 )
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, title="Cómo se forma el valor causal neto")
+fig.update_layout(
+    **PLOTLY_TEMPLATE["layout"], height=360, title="Cómo se forma el valor causal neto"
+)
 st.plotly_chart(fig, use_container_width=True)
 st.caption(
     "Propósito: descomponer creación de valor en ahorro de pérdida vs impacto comercial. Insight: hace auditable el trade-off "

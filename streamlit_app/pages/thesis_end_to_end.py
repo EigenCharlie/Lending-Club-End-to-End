@@ -74,8 +74,14 @@ kpi_row(
         {"label": "AUC OOT", "value": f"{final_metrics.get('auc_roc', 0):.4f}"},
         {"label": "ECE", "value": f"{final_metrics.get('ece', 0):.4f}"},
         {"label": "Cobertura 90%", "value": format_pct(policy.get("coverage_90", 0))},
-        {"label": "Retorno robusto", "value": format_number(pipeline.get("robust_return", 0), prefix="$")},
-        {"label": "Valor causal neto", "value": format_number(causal_rule.get("total_net_value", 0), prefix="$")},
+        {
+            "label": "Retorno robusto",
+            "value": format_number(pipeline.get("robust_return", 0), prefix="$"),
+        },
+        {
+            "label": "Valor causal neto",
+            "value": format_number(causal_rule.get("total_net_value", 0), prefix="$"),
+        },
     ],
     n_cols=3,
 )
@@ -116,7 +122,9 @@ Formulación simplificada del bloque robusto:
 """
     )
     st.latex(r"\max_x \sum_i x_i \cdot L_i \cdot (r_i - LGD_i \cdot PD_i)")
-    st.latex(r"\text{s.a. } \sum_i x_i L_i \le B,\quad PD_i \in [PD_{low,i},PD_{high,i}],\quad \text{restricciones de riesgo}")
+    st.latex(
+        r"\text{s.a. } \sum_i x_i L_i \le B,\quad PD_i \in [PD_{low,i},PD_{high,i}],\quad \text{restricciones de riesgo}"
+    )
     st.markdown(
         """
 En modo robusto se penaliza retorno esperado para ganar estabilidad ante error de modelo.
@@ -336,7 +344,11 @@ with tab3:
 
     compare = pd.DataFrame(
         [
-            {"modo": "No robusto", "retorno": pipeline.get("nonrobust_return", 0.0), "tipo": "Retorno"},
+            {
+                "modo": "No robusto",
+                "retorno": pipeline.get("nonrobust_return", 0.0),
+                "tipo": "Retorno",
+            },
             {"modo": "Robusto", "retorno": pipeline.get("robust_return", 0.0), "tipo": "Retorno"},
             {"modo": "Baseline IFRS9", "retorno": baseline, "tipo": "ECL"},
             {"modo": "Severe IFRS9", "retorno": severe, "tipo": "ECL"},

@@ -113,4 +113,3 @@ PLOTLY_TEMPLATE = {
         "legend": {"bgcolor": "rgba(255,255,255,0.85)", "bordercolor": "#E5EAF0", "borderwidth": 1},
     }
 }
-

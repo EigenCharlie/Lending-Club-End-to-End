@@ -16,8 +16,8 @@ import re
 import plotly.express as px
 import streamlit as st
 
-from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import query_duckdb, suggest_sql_with_grok
 
 READ_ONLY_SQL = re.compile(
@@ -197,7 +197,9 @@ sql = st.text_area(
 )
 
 run_query_clicked = st.button("Ejecutar consulta", type="primary")
-should_run_query = (run_query_clicked or st.session_state.get("run_chat_query", False)) and bool(sql.strip())
+should_run_query = (run_query_clicked or st.session_state.get("run_chat_query", False)) and bool(
+    sql.strip()
+)
 if should_run_query:
     st.session_state["run_chat_query"] = False
     if not _is_read_only(sql):

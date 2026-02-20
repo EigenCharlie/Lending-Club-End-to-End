@@ -110,8 +110,12 @@ train_raw_full = pd.read_parquet(DATA_DIR / "train_fe.parquet")
 test_raw_full = pd.read_parquet(DATA_DIR / "test_fe.parquet")
 
 raw_cols = base_features + [target_col]
-train_raw = train_raw_full.sample(6000, random_state=RANDOM_STATE).reset_index(drop=True)[raw_cols].copy()
-test_raw = test_raw_full.sample(3000, random_state=RANDOM_STATE).reset_index(drop=True)[raw_cols].copy()
+train_raw = (
+    train_raw_full.sample(6000, random_state=RANDOM_STATE).reset_index(drop=True)[raw_cols].copy()
+)
+test_raw = (
+    test_raw_full.sample(3000, random_state=RANDOM_STATE).reset_index(drop=True)[raw_cols].copy()
+)
 
 protected_data = pd.concat(
     [train_raw[["home_ownership"]], test_raw[["home_ownership"]]],
@@ -184,6 +188,7 @@ def result_value(name):
         return None
     return getattr(out, "value", None)
 
+
 # %% [markdown]
 # ## 4) Preprocessing nativo de Modeva
 
@@ -251,15 +256,24 @@ run_test(
 run_test("eda_pca", lambda: ds.eda_pca(dataset="train", sample_size=2000))
 run_test(
     "eda_umap",
-    lambda: ds.eda_umap(dataset="train", sample_size=1000, n_neighbors=15, random_state=RANDOM_STATE),
+    lambda: ds.eda_umap(
+        dataset="train", sample_size=1000, n_neighbors=15, random_state=RANDOM_STATE
+    ),
 )
 
 run_test(
     "drift_psi",
-    lambda: ds.data_drift_test(dataset1="train", dataset2="test", distance_metric="PSI", psi_bins=10),
+    lambda: ds.data_drift_test(
+        dataset1="train", dataset2="test", distance_metric="PSI", psi_bins=10
+    ),
 )
-run_test("drift_wd1", lambda: ds.data_drift_test(dataset1="train", dataset2="test", distance_metric="WD1"))
-run_test("drift_ks", lambda: ds.data_drift_test(dataset1="train", dataset2="test", distance_metric="KS"))
+run_test(
+    "drift_wd1",
+    lambda: ds.data_drift_test(dataset1="train", dataset2="test", distance_metric="WD1"),
+)
+run_test(
+    "drift_ks", lambda: ds.data_drift_test(dataset1="train", dataset2="test", distance_metric="KS")
+)
 
 run_test(
     "outlier_iforest",
@@ -271,7 +285,9 @@ run_test(
 )
 run_test(
     "outlier_cblof",
-    lambda: ds.detect_outlier_cblof(dataset="train", threshold=0.995, n_clusters=12, method="kmeans"),
+    lambda: ds.detect_outlier_cblof(
+        dataset="train", threshold=0.995, n_clusters=12, method="kmeans"
+    ),
 )
 
 run_test("fs_corr", lambda: ds.feature_select_corr(dataset="train", threshold=0.80))
@@ -279,12 +295,19 @@ run_test("fs_xgbpfi", lambda: ds.feature_select_xgbpfi(dataset="train", threshol
 run_test(
     "fs_rcit",
     lambda: ds.feature_select_rcit(
-        dataset="train", threshold=1e-5, n_fourier=10, n_fourier2=3, n_forwards=1, random_state=RANDOM_STATE
+        dataset="train",
+        threshold=1e-5,
+        n_fourier=10,
+        n_fourier2=3,
+        n_forwards=1,
+        random_state=RANDOM_STATE,
     ),
 )
 run_test(
     "subsample_random",
-    lambda: ds.subsample_random(dataset="train", sample_size=0.25, stratify=target_col, random_state=RANDOM_STATE),
+    lambda: ds.subsample_random(
+        dataset="train", sample_size=0.25, stratify=target_col, random_state=RANDOM_STATE
+    ),
 )
 
 # %%
@@ -304,7 +327,9 @@ if fs_xgb is not None:
 # %%
 mz = modeva.ModelZoo(dataset=ds, name="lc_modeva_side_task_zoo", random_state=RANDOM_STATE)
 mz.add_model(models.MoLogisticRegression(max_iter=500), name="MoLogReg", replace=True)
-mz.add_model(models.MoLGBMClassifier(n_estimators=300, max_depth=6, verbose=-1), name="MoLGBM", replace=True)
+mz.add_model(
+    models.MoLGBMClassifier(n_estimators=300, max_depth=6, verbose=-1), name="MoLGBM", replace=True
+)
 mz.add_model(
     models.MoXGBClassifier(n_estimators=300, max_depth=5, learning_rate=0.05, verbosity=0),
     name="MoXGB",
@@ -335,7 +360,9 @@ result_table("tune_random_logreg")
 # %%
 model_primary = mz.get_model("MoLGBM")
 model_list = [mz.get_model(n) for n in mz.list_model_names()]
-ts = modeva.TestSuite(dataset=ds, model=model_primary, models=model_list, name="lc_modeva_side_task_suite")
+ts = modeva.TestSuite(
+    dataset=ds, model=model_primary, models=model_list, name="lc_modeva_side_task_suite"
+)
 
 group_cfg = {
     "rent_vs_mortgage": {
@@ -347,32 +374,165 @@ group_cfg = {
 
 run_test("diag_accuracy", lambda: ts.diagnose_accuracy_table())
 run_test("cmp_accuracy", lambda: ts.compare_accuracy_table())
-run_test("diag_reliability", lambda: ts.diagnose_reliability(train_dataset="train", test_dataset="test", alpha=0.1, width_threshold=0.15))
-run_test("cmp_reliability", lambda: ts.compare_reliability(train_dataset="train", test_dataset="test", alpha=0.1))
-run_test("diag_robustness", lambda: ts.diagnose_robustness(dataset="test", perturb_features=("int_rate", "dti"), noise_levels=(0.02, 0.05, 0.1), n_repeats=5))
-run_test("cmp_robustness", lambda: ts.compare_robustness(dataset="test", perturb_features=("int_rate", "dti"), noise_levels=(0.02, 0.05, 0.1), n_repeats=5))
-run_test("diag_resilience", lambda: ts.diagnose_resilience(dataset="test", method="worst-sample", alphas=(0.1, 0.2, 0.3)))
-run_test("cmp_resilience", lambda: ts.compare_resilience(dataset="test", method="worst-sample", alphas=(0.1, 0.2, 0.3)))
-run_test("diag_residual_analysis", lambda: ts.diagnose_residual_analysis(features="int_rate", dataset="test", sample_size=1500))
-run_test("diag_residual_cluster", lambda: ts.diagnose_residual_cluster(dataset="test", n_clusters=8, sample_size=1500))
-run_test("cmp_residual_cluster", lambda: ts.compare_residual_cluster(dataset="test", n_clusters=8, sample_size=1500))
-run_test("diag_residual_interpret", lambda: ts.diagnose_residual_interpret(dataset="test", n_estimators=80, max_depth=2))
-run_test("diag_fairness", lambda: ts.diagnose_fairness(group_config=group_cfg, dataset="test", metric="AIR"))
-run_test("cmp_fairness", lambda: ts.compare_fairness(group_config=group_cfg, dataset="test", metric="AIR"))
+run_test(
+    "diag_reliability",
+    lambda: ts.diagnose_reliability(
+        train_dataset="train", test_dataset="test", alpha=0.1, width_threshold=0.15
+    ),
+)
+run_test(
+    "cmp_reliability",
+    lambda: ts.compare_reliability(train_dataset="train", test_dataset="test", alpha=0.1),
+)
+run_test(
+    "diag_robustness",
+    lambda: ts.diagnose_robustness(
+        dataset="test",
+        perturb_features=("int_rate", "dti"),
+        noise_levels=(0.02, 0.05, 0.1),
+        n_repeats=5,
+    ),
+)
+run_test(
+    "cmp_robustness",
+    lambda: ts.compare_robustness(
+        dataset="test",
+        perturb_features=("int_rate", "dti"),
+        noise_levels=(0.02, 0.05, 0.1),
+        n_repeats=5,
+    ),
+)
+run_test(
+    "diag_resilience",
+    lambda: ts.diagnose_resilience(dataset="test", method="worst-sample", alphas=(0.1, 0.2, 0.3)),
+)
+run_test(
+    "cmp_resilience",
+    lambda: ts.compare_resilience(dataset="test", method="worst-sample", alphas=(0.1, 0.2, 0.3)),
+)
+run_test(
+    "diag_residual_analysis",
+    lambda: ts.diagnose_residual_analysis(features="int_rate", dataset="test", sample_size=1500),
+)
+run_test(
+    "diag_residual_cluster",
+    lambda: ts.diagnose_residual_cluster(dataset="test", n_clusters=8, sample_size=1500),
+)
+run_test(
+    "cmp_residual_cluster",
+    lambda: ts.compare_residual_cluster(dataset="test", n_clusters=8, sample_size=1500),
+)
+run_test(
+    "diag_residual_interpret",
+    lambda: ts.diagnose_residual_interpret(dataset="test", n_estimators=80, max_depth=2),
+)
+run_test(
+    "diag_fairness",
+    lambda: ts.diagnose_fairness(group_config=group_cfg, dataset="test", metric="AIR"),
+)
+run_test(
+    "cmp_fairness",
+    lambda: ts.compare_fairness(group_config=group_cfg, dataset="test", metric="AIR"),
+)
 
-run_test("diag_slicing_accuracy", lambda: ts.diagnose_slicing_accuracy(features=("int_rate", "fico_score"), dataset="test", bins=5))
-run_test("cmp_slicing_accuracy", lambda: ts.compare_slicing_accuracy(features="int_rate", dataset="test", bins=5))
-run_test("diag_slicing_overfit", lambda: ts.diagnose_slicing_overfit(features=("int_rate", "fico_score"), train_dataset="train", test_dataset="test", bins=5))
-run_test("cmp_slicing_overfit", lambda: ts.compare_slicing_overfit(features="int_rate", train_dataset="train", test_dataset="test", bins=5))
-run_test("diag_slicing_robustness", lambda: ts.diagnose_slicing_robustness(features=("int_rate", "fico_score"), dataset="test", bins=5, perturb_features=("int_rate", "dti"), noise_levels=0.05, n_repeats=3))
-run_test("cmp_slicing_robustness", lambda: ts.compare_slicing_robustness(features="int_rate", dataset="test", bins=5, perturb_features=("int_rate", "dti"), noise_levels=0.05, n_repeats=3))
-run_test("diag_slicing_reliability", lambda: ts.diagnose_slicing_reliability(features=("int_rate", "fico_score"), train_dataset="train", test_dataset="test", bins=5, alpha=0.1))
-run_test("cmp_slicing_reliability", lambda: ts.compare_slicing_reliability(features="int_rate", train_dataset="train", test_dataset="test", bins=5, alpha=0.1))
-run_test("diag_slicing_fairness", lambda: ts.diagnose_slicing_fairness(group_config=group_cfg, features=("int_rate", "fico_score"), dataset="test", bins=5, metric="AIR"))
-run_test("cmp_slicing_fairness", lambda: ts.compare_slicing_fairness(group_config=group_cfg, features="int_rate", dataset="test", bins=5, metric="AIR"))
+run_test(
+    "diag_slicing_accuracy",
+    lambda: ts.diagnose_slicing_accuracy(
+        features=("int_rate", "fico_score"), dataset="test", bins=5
+    ),
+)
+run_test(
+    "cmp_slicing_accuracy",
+    lambda: ts.compare_slicing_accuracy(features="int_rate", dataset="test", bins=5),
+)
+run_test(
+    "diag_slicing_overfit",
+    lambda: ts.diagnose_slicing_overfit(
+        features=("int_rate", "fico_score"), train_dataset="train", test_dataset="test", bins=5
+    ),
+)
+run_test(
+    "cmp_slicing_overfit",
+    lambda: ts.compare_slicing_overfit(
+        features="int_rate", train_dataset="train", test_dataset="test", bins=5
+    ),
+)
+run_test(
+    "diag_slicing_robustness",
+    lambda: ts.diagnose_slicing_robustness(
+        features=("int_rate", "fico_score"),
+        dataset="test",
+        bins=5,
+        perturb_features=("int_rate", "dti"),
+        noise_levels=0.05,
+        n_repeats=3,
+    ),
+)
+run_test(
+    "cmp_slicing_robustness",
+    lambda: ts.compare_slicing_robustness(
+        features="int_rate",
+        dataset="test",
+        bins=5,
+        perturb_features=("int_rate", "dti"),
+        noise_levels=0.05,
+        n_repeats=3,
+    ),
+)
+run_test(
+    "diag_slicing_reliability",
+    lambda: ts.diagnose_slicing_reliability(
+        features=("int_rate", "fico_score"),
+        train_dataset="train",
+        test_dataset="test",
+        bins=5,
+        alpha=0.1,
+    ),
+)
+run_test(
+    "cmp_slicing_reliability",
+    lambda: ts.compare_slicing_reliability(
+        features="int_rate", train_dataset="train", test_dataset="test", bins=5, alpha=0.1
+    ),
+)
+run_test(
+    "diag_slicing_fairness",
+    lambda: ts.diagnose_slicing_fairness(
+        group_config=group_cfg,
+        features=("int_rate", "fico_score"),
+        dataset="test",
+        bins=5,
+        metric="AIR",
+    ),
+)
+run_test(
+    "cmp_slicing_fairness",
+    lambda: ts.compare_slicing_fairness(
+        group_config=group_cfg, features="int_rate", dataset="test", bins=5, metric="AIR"
+    ),
+)
 
-run_test("diag_mitigate_unfair_thresholding", lambda: ts.diagnose_mitigate_unfair_thresholding(group_config=group_cfg, dataset="test", metric="AIR", performance_metric="AUC", proba_cutoff=(0.30, 0.35, 0.40, 0.45)))
-run_test("diag_mitigate_unfair_binning", lambda: ts.diagnose_mitigate_unfair_binning(group_config=group_cfg, dataset="test", metric="AIR", performance_metric="AUC", binning_features=("int_rate", "fico_score"), bins=5))
+run_test(
+    "diag_mitigate_unfair_thresholding",
+    lambda: ts.diagnose_mitigate_unfair_thresholding(
+        group_config=group_cfg,
+        dataset="test",
+        metric="AIR",
+        performance_metric="AUC",
+        proba_cutoff=(0.30, 0.35, 0.40, 0.45),
+    ),
+)
+run_test(
+    "diag_mitigate_unfair_binning",
+    lambda: ts.diagnose_mitigate_unfair_binning(
+        group_config=group_cfg,
+        dataset="test",
+        metric="AIR",
+        performance_metric="AUC",
+        binning_features=("int_rate", "fico_score"),
+        bins=5,
+    ),
+)
 
 # %%
 display(Markdown("### Compare Accuracy"))
@@ -387,27 +547,61 @@ display(result_table("cmp_fairness"))
 
 # %%
 run_test("explain_pfi", lambda: ts.explain_pfi(dataset="test", sample_size=2000, n_repeats=5))
-run_test("explain_shap", lambda: ts.explain_shap(dataset="test", sample_index=25, baseline_sample_size=300))
+run_test(
+    "explain_shap",
+    lambda: ts.explain_shap(dataset="test", sample_index=25, baseline_sample_size=300),
+)
 run_test("explain_lime", lambda: ts.explain_lime(dataset="test", sample_index=25))
-run_test("explain_pdp", lambda: ts.explain_pdp(features=("int_rate", "loan_to_income"), dataset="test", sample_size=2000))
-run_test("explain_ale", lambda: ts.explain_ale(features=("int_rate", "loan_to_income"), dataset="test", sample_size=2000))
-run_test("explain_hstat", lambda: ts.explain_hstatistic(features=("int_rate", "fico_score", "loan_to_income"), dataset="test", sample_size=1500))
+run_test(
+    "explain_pdp",
+    lambda: ts.explain_pdp(
+        features=("int_rate", "loan_to_income"), dataset="test", sample_size=2000
+    ),
+)
+run_test(
+    "explain_ale",
+    lambda: ts.explain_ale(
+        features=("int_rate", "loan_to_income"), dataset="test", sample_size=2000
+    ),
+)
+run_test(
+    "explain_hstat",
+    lambda: ts.explain_hstatistic(
+        features=("int_rate", "fico_score", "loan_to_income"), dataset="test", sample_size=1500
+    ),
+)
 
-ts_logreg = modeva.TestSuite(dataset=ds, model=mz.get_model("MoLogReg"), models=model_list, name="lc_modeva_side_task_suite_logreg")
+ts_logreg = modeva.TestSuite(
+    dataset=ds,
+    model=mz.get_model("MoLogReg"),
+    models=model_list,
+    name="lc_modeva_side_task_suite_logreg",
+)
 run_test("interpret_coef", lambda: ts_logreg.interpret_coef())
 run_test("interpret_effects", lambda: ts_logreg.interpret_effects())
 run_test("interpret_ei", lambda: ts_logreg.interpret_ei(dataset="test"))
-run_test("interpret_local_ei", lambda: ts_logreg.interpret_local_ei(dataset="test", sample_index=25))
+run_test(
+    "interpret_local_ei", lambda: ts_logreg.interpret_local_ei(dataset="test", sample_index=25)
+)
 run_test("interpret_fi", lambda: ts_logreg.interpret_fi(dataset="test"))
-run_test("interpret_local_fi", lambda: ts_logreg.interpret_local_fi(dataset="test", sample_index=25))
-run_test("interpret_local_linear_fi", lambda: ts_logreg.interpret_local_linear_fi(dataset="test", sample_index=25))
+run_test(
+    "interpret_local_fi", lambda: ts_logreg.interpret_local_fi(dataset="test", sample_index=25)
+)
+run_test(
+    "interpret_local_linear_fi",
+    lambda: ts_logreg.interpret_local_linear_fi(dataset="test", sample_index=25),
+)
 
 mz_tree = modeva.ModelZoo(dataset=ds, name="lc_modeva_side_task_tree", random_state=RANDOM_STATE)
 mz_tree.add_model(models.MoDecisionTreeClassifier(max_depth=4), name="MoTree", replace=True)
 mz_tree.train("MoTree")
-ts_tree = modeva.TestSuite(dataset=ds, model=mz_tree.get_model("MoTree"), name="lc_modeva_side_task_suite_tree")
+ts_tree = modeva.TestSuite(
+    dataset=ds, model=mz_tree.get_model("MoTree"), name="lc_modeva_side_task_suite_tree"
+)
 run_test("interpret_global_tree", lambda: ts_tree.interpret_global_tree())
-run_test("interpret_local_tree", lambda: ts_tree.interpret_local_tree(dataset="test", sample_index=25))
+run_test(
+    "interpret_local_tree", lambda: ts_tree.interpret_local_tree(dataset="test", sample_index=25)
+)
 
 # %%
 display(Markdown("### PFI top"))
@@ -418,7 +612,11 @@ if pfi_table is not None:
 display(Markdown("### SHAP local (sample 25) top |effect|"))
 shap_table = result_table("explain_shap")
 if shap_table is not None:
-    display(shap_table.assign(abs_effect=shap_table["Effect"].abs()).sort_values("abs_effect", ascending=False).head(15))
+    display(
+        shap_table.assign(abs_effect=shap_table["Effect"].abs())
+        .sort_values("abs_effect", ascending=False)
+        .head(15)
+    )
 
 display(Markdown("### Coeficientes MoLogReg"))
 coef_table = result_table("interpret_coef")
@@ -468,6 +666,7 @@ if psi_table is not None:
 display(Markdown("### Top drift features (PSI)"))
 display(drift_top)
 
+
 # Outlier rates
 def outlier_rate(result_name):
     out = results.get(result_name)
@@ -498,8 +697,12 @@ display(outlier_summary)
 fs_corr = result_table("fs_corr")
 fs_xgb = result_table("fs_xgbpfi")
 fs_rcit_value = result_value("fs_rcit")
-fs_corr_sel = set(fs_corr.loc[fs_corr["Selected"] == True, "Name"].tolist()) if fs_corr is not None else set()
-fs_xgb_sel = set(fs_xgb.loc[fs_xgb["Selected"] == True, "Name"].tolist()) if fs_xgb is not None else set()
+fs_corr_sel = (
+    set(fs_corr.loc[fs_corr["Selected"] == True, "Name"].tolist()) if fs_corr is not None else set()
+)
+fs_xgb_sel = (
+    set(fs_xgb.loc[fs_xgb["Selected"] == True, "Name"].tolist()) if fs_xgb is not None else set()
+)
 fs_rcit_sel = set(fs_rcit_value.get("selected", [])) if isinstance(fs_rcit_value, dict) else set()
 fs_consensus = sorted((fs_corr_sel & fs_xgb_sel) | fs_rcit_sel)
 
@@ -537,7 +740,9 @@ if fairness_table is not None:
         fairness_rows.append(
             {
                 "model": model_name,
-                "AIR_rent_vs_mortgage": float(fairness_table.loc["AIR", (model_name, "rent_vs_mortgage")]),
+                "AIR_rent_vs_mortgage": float(
+                    fairness_table.loc["AIR", (model_name, "rent_vs_mortgage")]
+                ),
             }
         )
 fairness_summary = pd.DataFrame(fairness_rows)
@@ -571,7 +776,13 @@ best_modeva_auc = float(model_perf["test_auc"].max()) if not model_perf.empty el
 auc_gap_vs_core = best_modeva_auc - core_auc if not np.isnan(best_modeva_auc) else np.nan
 
 comparison_vs_core = pd.DataFrame(
-    [{"core_pd_auc": core_auc, "best_modeva_auc_sample": best_modeva_auc, "modeva_minus_core_auc": auc_gap_vs_core}]
+    [
+        {
+            "core_pd_auc": core_auc,
+            "best_modeva_auc_sample": best_modeva_auc,
+            "modeva_minus_core_auc": auc_gap_vs_core,
+        }
+    ]
 )
 display(Markdown("### Comparacion AUC vs baseline core"))
 display(comparison_vs_core)
@@ -589,7 +800,9 @@ if not model_perf.empty:
     lines.append(f"- Mejor AUC en muestra Modeva: {best['model']} = {best['test_auc']:.4f}")
     lines.append(f"- Brecha vs AUC core ({core_auc:.4f}): {auc_gap_vs_core:+.4f}")
 if drift_top is not None and not drift_top.empty:
-    lines.append(f"- Mayor drift PSI: {drift_top.index[0]} ({float(drift_top.iloc[0]['Distance_Scores']):.4f})")
+    lines.append(
+        f"- Mayor drift PSI: {drift_top.index[0]} ({float(drift_top.iloc[0]['Distance_Scores']):.4f})"
+    )
 if not fairness_summary.empty:
     lines.append(
         f"- AIR rent_vs_mortgage (min/max): {fairness_summary['AIR_rent_vs_mortgage'].min():.4f} / {fairness_summary['AIR_rent_vs_mortgage'].max():.4f}"
@@ -601,11 +814,17 @@ if not failures.empty:
 
 lines.append("")
 lines.append("Aporte potencial al proyecto:")
-lines.append("- Modeva aporta una bateria muy amplia de validaciones de gobernanza (drift, slicing, fairness, robustez, reliability, interpretabilidad).")
-lines.append("- En esta muestra no supera el baseline de AUC del modelo canonico; no se recomienda reemplazo del core en este estado.")
+lines.append(
+    "- Modeva aporta una bateria muy amplia de validaciones de gobernanza (drift, slicing, fairness, robustez, reliability, interpretabilidad)."
+)
+lines.append(
+    "- En esta muestra no supera el baseline de AUC del modelo canonico; no se recomienda reemplazo del core en este estado."
+)
 lines.append("- Se recomienda uso complementario para auditoria/monitoring del modelo core.")
 lines.append("")
-lines.append("Esta entrega se considera side task y no parte del core, salvo que en futuras pruebas muestre mejoras materiales.")
+lines.append(
+    "Esta entrega se considera side task y no parte del core, salvo que en futuras pruebas muestre mejoras materiales."
+)
 
 display(Markdown("\\n".join(lines)))
 

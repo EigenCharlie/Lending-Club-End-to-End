@@ -19,7 +19,12 @@ from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_number, get_notebook_image_path, load_parquet, try_load_parquet
+from streamlit_app.utils import (
+    format_number,
+    get_notebook_image_path,
+    load_parquet,
+    try_load_parquet,
+)
 
 st.title("🏦 Provisiones IFRS9")
 st.caption(
@@ -111,9 +116,7 @@ ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
 if ecl_comp.empty:
     baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
     if baseline_by_grade.empty:
-        ecl_comp = pd.DataFrame(
-            columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"]
-        )
+        ecl_comp = pd.DataFrame(columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"])
     else:
         stage1_proxy = baseline_by_grade["total_ecl"] * (
             1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
@@ -128,9 +131,7 @@ if ecl_comp.empty:
                 "ECL_Stage2": stage2_proxy.clip(lower=0.0),
             }
         )
-        ecl_comp["Stage2/Stage1"] = (
-            ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
-        )
+        ecl_comp["Stage2/Stage1"] = ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
 
 if scenarios.empty:
     base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
@@ -138,21 +139,11 @@ if scenarios.empty:
 else:
     base_rows = scenarios[scenarios["scenario"] == "baseline"]
     severe_rows = scenarios[scenarios["scenario"] == "severe"]
-    base = (
-        base_rows.iloc[0]
-        if not base_rows.empty
-        else scenarios.iloc[0]
-    )
-    severe = (
-        severe_rows.iloc[0]
-        if not severe_rows.empty
-        else scenarios.iloc[-1]
-    )
+    base = base_rows.iloc[0] if not base_rows.empty else scenarios.iloc[0]
+    severe = severe_rows.iloc[0] if not severe_rows.empty else scenarios.iloc[-1]
 
 if input_quality.empty:
-    input_quality = pd.DataFrame(
-        [{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}]
-    )
+    input_quality = pd.DataFrame([{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}])
 
 kpi_row(
     [
@@ -208,7 +199,9 @@ with col_nb_img:
             caption="Notebook 09: distribución de stages y rango ECL con señal conformal.",
         )
     else:
-        stage_fallback = scenarios[["scenario", "stage1_share", "stage2_share", "stage3_share"]].copy()
+        stage_fallback = scenarios[
+            ["scenario", "stage1_share", "stage2_share", "stage3_share"]
+        ].copy()
         stage_long = stage_fallback.melt(
             id_vars=["scenario"],
             value_vars=["stage1_share", "stage2_share", "stage3_share"],
@@ -225,7 +218,9 @@ with col_nb_img:
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320, yaxis={"tickformat": ".0%"})
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Imagen de notebook no encontrada; se muestra fallback construido desde escenarios IFRS9.")
+        st.caption(
+            "Imagen de notebook no encontrada; se muestra fallback construido desde escenarios IFRS9."
+        )
 with col_nb_text:
     st.markdown(
         """
@@ -299,7 +294,9 @@ if "Stage2/Stage1" in ecl_comp.columns:
 
 st.subheader("2) Escenarios macro: baseline a severe")
 if scenarios.empty:
-    st.info("No hay `ifrs9_scenario_summary.parquet` disponible. Se omite comparación de escenarios.")
+    st.info(
+        "No hay `ifrs9_scenario_summary.parquet` disponible. Se omite comparación de escenarios."
+    )
 else:
     col1, col2 = st.columns(2)
     with col1:
@@ -413,8 +410,18 @@ st.subheader("4) Definiciones IFRS9 usadas en el proyecto")
 defs = pd.DataFrame(
     [
         {"Stage": "1", "Trigger": "Sin SICR", "PD usada": "12 meses", "Horizonte ECL": "12 meses"},
-        {"Stage": "2", "Trigger": "SICR detectado", "PD usada": "Lifetime", "Horizonte ECL": "Vida remanente"},
-        {"Stage": "3", "Trigger": "Deterioro / default", "PD usada": "≈1.0", "Horizonte ECL": "Pérdida total esperada"},
+        {
+            "Stage": "2",
+            "Trigger": "SICR detectado",
+            "PD usada": "Lifetime",
+            "Horizonte ECL": "Vida remanente",
+        },
+        {
+            "Stage": "3",
+            "Trigger": "Deterioro / default",
+            "PD usada": "≈1.0",
+            "Horizonte ECL": "Pérdida total esperada",
+        },
     ]
 )
 st.dataframe(defs, use_container_width=True, hide_index=True)

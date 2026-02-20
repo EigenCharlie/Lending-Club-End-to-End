@@ -32,17 +32,83 @@ def _first_valid(*values: float | int | None) -> float:
 
 
 _ARCH_NODES = [
-    {"id": "raw", "label": "Lending Club Raw", "layer": "data", "detail": "2.93M filas · 142 cols", "icon": "\U0001F4E6"},
-    {"id": "clean", "label": "Limpieza + QA", "layer": "data", "detail": "1.86M filas · 110 cols", "icon": "\U0001F9F9"},
-    {"id": "fe", "label": "Feature Engineering", "layer": "data", "detail": "WOE/IV · ratios · buckets", "icon": "\u2699\uFE0F"},
-    {"id": "pd", "label": "PD Model", "layer": "model", "detail": "CatBoost + calibración · AUC OOT", "icon": "\U0001F3AF"},
-    {"id": "conformal", "label": "Conformal Mondrian", "layer": "model", "detail": "Intervalos PD · Coverage 90/95", "icon": "\U0001F4D0"},
-    {"id": "causal", "label": "Causalidad (DML/CATE)", "layer": "model", "detail": "+1pp tasa \u2192 +0.787pp default", "icon": "\U0001F9EC"},
-    {"id": "survival", "label": "Forecast + Survival", "layer": "model", "detail": "Cox/RSF concordance", "icon": "\u23F3"},
-    {"id": "optim", "label": "Optimizaci\u00f3n Robusta", "layer": "decision", "detail": "Pyomo + HiGHS", "icon": "\U0001F4BC"},
-    {"id": "ifrs9", "label": "IFRS9 (Stage + ECL)", "layer": "decision", "detail": "4 escenarios · PD\u00d7LGD", "icon": "\U0001F3E6"},
-    {"id": "governance", "label": "Gobernanza", "layer": "decision", "detail": "Drift · Fairness · Policy", "icon": "\U0001F6E1\uFE0F"},
-    {"id": "streamlit", "label": "Libro Din\u00e1mico Streamlit", "layer": "output", "detail": "17 p\u00e1ginas interactivas", "icon": "\U0001F4CA"},
+    {
+        "id": "raw",
+        "label": "Lending Club Raw",
+        "layer": "data",
+        "detail": "2.93M filas · 142 cols",
+        "icon": "\U0001f4e6",
+    },
+    {
+        "id": "clean",
+        "label": "Limpieza + QA",
+        "layer": "data",
+        "detail": "1.86M filas · 110 cols",
+        "icon": "\U0001f9f9",
+    },
+    {
+        "id": "fe",
+        "label": "Feature Engineering",
+        "layer": "data",
+        "detail": "WOE/IV · ratios · buckets",
+        "icon": "\u2699\ufe0f",
+    },
+    {
+        "id": "pd",
+        "label": "PD Model",
+        "layer": "model",
+        "detail": "CatBoost + calibración · AUC OOT",
+        "icon": "\U0001f3af",
+    },
+    {
+        "id": "conformal",
+        "label": "Conformal Mondrian",
+        "layer": "model",
+        "detail": "Intervalos PD · Coverage 90/95",
+        "icon": "\U0001f4d0",
+    },
+    {
+        "id": "causal",
+        "label": "Causalidad (DML/CATE)",
+        "layer": "model",
+        "detail": "+1pp tasa \u2192 +0.787pp default",
+        "icon": "\U0001f9ec",
+    },
+    {
+        "id": "survival",
+        "label": "Forecast + Survival",
+        "layer": "model",
+        "detail": "Cox/RSF concordance",
+        "icon": "\u23f3",
+    },
+    {
+        "id": "optim",
+        "label": "Optimizaci\u00f3n Robusta",
+        "layer": "decision",
+        "detail": "Pyomo + HiGHS",
+        "icon": "\U0001f4bc",
+    },
+    {
+        "id": "ifrs9",
+        "label": "IFRS9 (Stage + ECL)",
+        "layer": "decision",
+        "detail": "4 escenarios · PD\u00d7LGD",
+        "icon": "\U0001f3e6",
+    },
+    {
+        "id": "governance",
+        "label": "Gobernanza",
+        "layer": "decision",
+        "detail": "Drift · Fairness · Policy",
+        "icon": "\U0001f6e1\ufe0f",
+    },
+    {
+        "id": "streamlit",
+        "label": "Libro Din\u00e1mico Streamlit",
+        "layer": "output",
+        "detail": "17 p\u00e1ginas interactivas",
+        "icon": "\U0001f4ca",
+    },
 ]
 _ARCH_EDGES = [
     {"source": "raw", "target": "clean", "desc": "Filtro resueltos"},
@@ -65,10 +131,10 @@ _LAYER_COLORS = {
     "output": {"bg": "#EEF2FF", "border": "#6366F1", "accent": "#4338CA"},
 }
 _LAYER_BADGES = {
-    "data": "\U0001F4BE DATOS",
-    "model": "\U0001F9E0 MODELO",
-    "decision": "\U0001F4A1 DECISI\u00d3N",
-    "output": "\U0001F680 SALIDA",
+    "data": "\U0001f4be DATOS",
+    "model": "\U0001f9e0 MODELO",
+    "decision": "\U0001f4a1 DECISI\u00d3N",
+    "output": "\U0001f680 SALIDA",
 }
 _NODE_MAP = {n["id"]: n for n in _ARCH_NODES}
 _EXEC_ARCH_STATE_KEY = "exec_arch_flow_state_manual"
@@ -349,7 +415,9 @@ for _i, _e in enumerate(_ARCH_EDGES):
     )
 
 if _EXEC_ARCH_STATE_KEY not in st.session_state:
-    st.session_state[_EXEC_ARCH_STATE_KEY] = StreamlitFlowState(nodes=_flow_nodes, edges=_flow_edges)
+    st.session_state[_EXEC_ARCH_STATE_KEY] = StreamlitFlowState(
+        nodes=_flow_nodes, edges=_flow_edges
+    )
 
 _arch_state = streamlit_flow(
     "exec_architecture_flow",
@@ -373,11 +441,11 @@ if _selected and _selected in _NODE_MAP:
     st.info(f"**{_sel_node['icon']} {_sel_node['label']}** — {_sel_node['detail']}")
 
 _legend_cols = st.columns(4)
-for _col, (_lk, _lv) in zip(_legend_cols, _LAYER_COLORS.items()):
+for _col, (_lk, _lv) in zip(_legend_cols, _LAYER_COLORS.items(), strict=False):
     with _col:
         st.markdown(
             f'<div style="background:{_lv["bg"]}; border:2px solid {_lv["border"]}; '
-            f'border-radius:8px; padding:8px 12px; text-align:center; font-size:13px; '
+            f"border-radius:8px; padding:8px 12px; text-align:center; font-size:13px; "
             f'color:{_lv["accent"]}; font-weight:600;">{_LAYER_BADGES[_lk]}</div>',
             unsafe_allow_html=True,
         )

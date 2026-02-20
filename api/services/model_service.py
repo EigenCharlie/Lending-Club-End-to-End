@@ -122,8 +122,13 @@ def predict_conformal(loan_data: dict, alpha: float = 0.10) -> dict:
         # Safe fallback if conformal artifact is unavailable/corrupt.
         logger.warning("Using heuristic conformal widths fallback.")
         grade_widths_90 = {
-            "A": 0.30, "B": 0.50, "C": 0.65,
-            "D": 0.80, "E": 0.90, "F": 0.95, "G": 1.00,
+            "A": 0.30,
+            "B": 0.50,
+            "C": 0.65,
+            "D": 0.80,
+            "E": 0.90,
+            "F": 0.95,
+            "G": 1.00,
         }
         grade_widths_95 = {k: min(v * 1.25, 1.0) for k, v in grade_widths_90.items()}
         width_map = grade_widths_90 if alpha >= 0.10 else grade_widths_95

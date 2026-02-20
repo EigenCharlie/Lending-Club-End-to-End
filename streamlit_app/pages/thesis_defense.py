@@ -48,10 +48,22 @@ kpi_row(
     [
         {"label": "AUC ML", "value": f"{final.get('auc_roc', 0):.4f}"},
         {"label": "Cobertura 90%", "value": format_pct(conformal.get("coverage_90", 0))},
-        {"label": "C-index RSF", "value": f"{summary.get('survival', {}).get('rsf_concordance', 0):.4f}"},
-        {"label": "Valor causal neto", "value": format_number(rule.get("total_net_value", 0), prefix="$")},
-        {"label": "Retorno robusto", "value": format_number(pipeline.get("robust_return", 0), prefix="$")},
-        {"label": "Gobernanza", "value": "OK" if governance.get("overall_pass", False) else "Revisión"},
+        {
+            "label": "C-index RSF",
+            "value": f"{summary.get('survival', {}).get('rsf_concordance', 0):.4f}",
+        },
+        {
+            "label": "Valor causal neto",
+            "value": format_number(rule.get("total_net_value", 0), prefix="$"),
+        },
+        {
+            "label": "Retorno robusto",
+            "value": format_number(pipeline.get("robust_return", 0), prefix="$"),
+        },
+        {
+            "label": "Gobernanza",
+            "value": "OK" if governance.get("overall_pass", False) else "Revisión",
+        },
     ],
     n_cols=3,
 )
@@ -119,16 +131,40 @@ Solo después tiene sentido leer los impactos en valor neto, asignación de capi
 tech_chain = pd.DataFrame(
     [
         {"métrica": "AUC OOT", "valor": final.get("auc_roc", 0.0), "bloque": "Predicción"},
-        {"métrica": "Cobertura 90%", "valor": conformal.get("coverage_90", 0.0), "bloque": "Incertidumbre"},
-        {"métrica": "C-index RSF", "valor": summary.get("survival", {}).get("rsf_concordance", 0.0), "bloque": "Horizonte"},
+        {
+            "métrica": "Cobertura 90%",
+            "valor": conformal.get("coverage_90", 0.0),
+            "bloque": "Incertidumbre",
+        },
+        {
+            "métrica": "C-index RSF",
+            "valor": summary.get("survival", {}).get("rsf_concordance", 0.0),
+            "bloque": "Horizonte",
+        },
     ]
 )
 value_chain = pd.DataFrame(
     [
-        {"etapa": "Retorno robusto", "valor_usd": pipeline.get("robust_return", 0.0), "tipo": "Impacto económico"},
-        {"etapa": "Valor causal neto", "valor_usd": float(rule.get("total_net_value", 0.0)), "tipo": "Impacto económico"},
-        {"etapa": "IFRS9 baseline", "valor_usd": float(ifrs9[ifrs9["scenario"] == "baseline"]["total_ecl"].iloc[0]), "tipo": "Impacto regulatorio"},
-        {"etapa": "IFRS9 severe", "valor_usd": float(ifrs9[ifrs9["scenario"] == "severe"]["total_ecl"].iloc[0]), "tipo": "Impacto regulatorio"},
+        {
+            "etapa": "Retorno robusto",
+            "valor_usd": pipeline.get("robust_return", 0.0),
+            "tipo": "Impacto económico",
+        },
+        {
+            "etapa": "Valor causal neto",
+            "valor_usd": float(rule.get("total_net_value", 0.0)),
+            "tipo": "Impacto económico",
+        },
+        {
+            "etapa": "IFRS9 baseline",
+            "valor_usd": float(ifrs9[ifrs9["scenario"] == "baseline"]["total_ecl"].iloc[0]),
+            "tipo": "Impacto regulatorio",
+        },
+        {
+            "etapa": "IFRS9 severe",
+            "valor_usd": float(ifrs9[ifrs9["scenario"] == "severe"]["total_ecl"].iloc[0]),
+            "tipo": "Impacto regulatorio",
+        },
     ]
 )
 
@@ -204,14 +240,42 @@ Ese puente técnico-negocio es la esencia de esta cadena de valor analítica.
 st.subheader("Matriz de complementariedad")
 matrix = pd.DataFrame(
     [
-        {"Módulo": "Historia de datos", "Alimenta a": "ML / Causal / OR", "Producto": "Segmentación y drivers base"},
-        {"Módulo": "Modelos PD", "Alimenta a": "Conformal / OR / IFRS9", "Producto": "Probabilidades calibradas"},
-        {"Módulo": "Conformal", "Alimenta a": "OR / IFRS9", "Producto": "Intervalos de incertidumbre"},
-        {"Módulo": "Series de tiempo", "Alimenta a": "IFRS9", "Producto": "Escenarios forward-looking"},
+        {
+            "Módulo": "Historia de datos",
+            "Alimenta a": "ML / Causal / OR",
+            "Producto": "Segmentación y drivers base",
+        },
+        {
+            "Módulo": "Modelos PD",
+            "Alimenta a": "Conformal / OR / IFRS9",
+            "Producto": "Probabilidades calibradas",
+        },
+        {
+            "Módulo": "Conformal",
+            "Alimenta a": "OR / IFRS9",
+            "Producto": "Intervalos de incertidumbre",
+        },
+        {
+            "Módulo": "Series de tiempo",
+            "Alimenta a": "IFRS9",
+            "Producto": "Escenarios forward-looking",
+        },
         {"Módulo": "Supervivencia", "Alimenta a": "IFRS9", "Producto": "Estructura temporal de PD"},
-        {"Módulo": "Causalidad", "Alimenta a": "OR / negocio", "Producto": "Reglas de intervención"},
-        {"Módulo": "Optimización", "Alimenta a": "Comité de riesgo", "Producto": "Política de asignación"},
-        {"Módulo": "Gobernanza", "Alimenta a": "Control interno", "Producto": "Validación y trazabilidad"},
+        {
+            "Módulo": "Causalidad",
+            "Alimenta a": "OR / negocio",
+            "Producto": "Reglas de intervención",
+        },
+        {
+            "Módulo": "Optimización",
+            "Alimenta a": "Comité de riesgo",
+            "Producto": "Política de asignación",
+        },
+        {
+            "Módulo": "Gobernanza",
+            "Alimenta a": "Control interno",
+            "Producto": "Validación y trazabilidad",
+        },
     ]
 )
 st.dataframe(matrix, use_container_width=True, hide_index=True)
@@ -225,18 +289,66 @@ Se analizaron **más de 60 notebooks públicos** en Kaggle sobre el mismo datase
 )
 diff_data = pd.DataFrame(
     [
-        {"Técnica": "EDA y visualización", "Kaggle (60+ notebooks)": "Ampliamente cubierto", "Este proyecto": "Cubierto + contexto macro + geografía"},
-        {"Técnica": "Clasificación binaria (RF, XGBoost, LogReg)", "Kaggle (60+ notebooks)": "Estándar en ~80% de notebooks", "Este proyecto": f"CatBoost + calibración {best_calibration} (ECE={final.get('ece', 0):.4f})"},
-        {"Técnica": "SHAP / explicabilidad", "Kaggle (60+ notebooks)": "1-2 notebooks en detalle", "Este proyecto": "Cubierto en NB03 + Streamlit"},
-        {"Técnica": "Validación out-of-time", "Kaggle (60+ notebooks)": "Ninguno (todos usan random split)", "Este proyecto": "Split temporal 2007-2017 / 2017 / 2018-2020"},
-        {"Técnica": "WOE/IV feature engineering", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "OptBinning con supervisión monotónica"},
-        {"Técnica": "Calibración de probabilidades", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "Platt vs Isotonic vs Venn-Abers"},
-        {"Técnica": "Conformal prediction", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "MAPIE Mondrian con cobertura garantizada"},
-        {"Técnica": "Survival analysis", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "Cox PH + RSF para PD lifetime"},
-        {"Técnica": "Inferencia causal", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "DML + Causal Forest (ATE + CATE)"},
-        {"Técnica": "Portfolio optimization", "Kaggle (60+ notebooks)": "Ninguno (1 notebook con threshold simple)", "Este proyecto": "Pyomo/HiGHS robusta con uncertainty sets"},
-        {"Técnica": "IFRS9 / ECL / staging", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "4 escenarios + sensibilidad + conformal SICR"},
-        {"Técnica": "Predict-then-optimize", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "Pipeline completo PD → Conformal → Pyomo"},
+        {
+            "Técnica": "EDA y visualización",
+            "Kaggle (60+ notebooks)": "Ampliamente cubierto",
+            "Este proyecto": "Cubierto + contexto macro + geografía",
+        },
+        {
+            "Técnica": "Clasificación binaria (RF, XGBoost, LogReg)",
+            "Kaggle (60+ notebooks)": "Estándar en ~80% de notebooks",
+            "Este proyecto": f"CatBoost + calibración {best_calibration} (ECE={final.get('ece', 0):.4f})",
+        },
+        {
+            "Técnica": "SHAP / explicabilidad",
+            "Kaggle (60+ notebooks)": "1-2 notebooks en detalle",
+            "Este proyecto": "Cubierto en NB03 + Streamlit",
+        },
+        {
+            "Técnica": "Validación out-of-time",
+            "Kaggle (60+ notebooks)": "Ninguno (todos usan random split)",
+            "Este proyecto": "Split temporal 2007-2017 / 2017 / 2018-2020",
+        },
+        {
+            "Técnica": "WOE/IV feature engineering",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "OptBinning con supervisión monotónica",
+        },
+        {
+            "Técnica": "Calibración de probabilidades",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "Platt vs Isotonic vs Venn-Abers",
+        },
+        {
+            "Técnica": "Conformal prediction",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "MAPIE Mondrian con cobertura garantizada",
+        },
+        {
+            "Técnica": "Survival analysis",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "Cox PH + RSF para PD lifetime",
+        },
+        {
+            "Técnica": "Inferencia causal",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "DML + Causal Forest (ATE + CATE)",
+        },
+        {
+            "Técnica": "Portfolio optimization",
+            "Kaggle (60+ notebooks)": "Ninguno (1 notebook con threshold simple)",
+            "Este proyecto": "Pyomo/HiGHS robusta con uncertainty sets",
+        },
+        {
+            "Técnica": "IFRS9 / ECL / staging",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "4 escenarios + sensibilidad + conformal SICR",
+        },
+        {
+            "Técnica": "Predict-then-optimize",
+            "Kaggle (60+ notebooks)": "Ninguno",
+            "Este proyecto": "Pipeline completo PD → Conformal → Pyomo",
+        },
     ]
 )
 st.dataframe(diff_data, use_container_width=True, hide_index=True, height=460)

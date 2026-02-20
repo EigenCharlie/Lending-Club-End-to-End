@@ -4,7 +4,6 @@ Groups feature views into logical services for different inference needs.
 """
 
 from feast import FeatureService
-
 from feature_views import (
     loan_credit_history_fv,
     loan_demographics_fv,

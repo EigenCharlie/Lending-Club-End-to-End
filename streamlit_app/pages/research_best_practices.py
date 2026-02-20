@@ -77,8 +77,8 @@ Buenas prácticas:
 st.code(
     "\n".join(
         [
-            "st.latex(r\"\\mathrm{ECL}_i = PD_i \\times LGD_i \\times EAD_i \\times DF_i\")",
-            "st.caption(\"Equation 1. Definicion de perdida esperada por prestamo.\")",
+            'st.latex(r"\\mathrm{ECL}_i = PD_i \\times LGD_i \\times EAD_i \\times DF_i")',
+            'st.caption("Equation 1. Definicion de perdida esperada por prestamo.")',
         ]
     ),
     language="python",
@@ -96,10 +96,10 @@ Buenas prácticas:
 st.code(
     "\n".join(
         [
-            "fig = px.line(df, x=\"month\", y=\"coverage_90\", title=\"Figure 1. Monthly Coverage\")",
-            "fig.add_hline(y=0.90, line_dash=\"dash\", line_color=\"orange\")",
+            'fig = px.line(df, x="month", y="coverage_90", title="Figure 1. Monthly Coverage")',
+            'fig.add_hline(y=0.90, line_dash="dash", line_color="orange")',
             "st.plotly_chart(fig, use_container_width=True)",
-            "st.caption(\"Figure 1. Cobertura mensual vs target nominal 90%.\")",
+            'st.caption("Figure 1. Cobertura mensual vs target nominal 90%.")',
         ]
     ),
     language="python",
@@ -118,8 +118,8 @@ st.code(
     "\n".join(
         [
             "st.dataframe(table_df, use_container_width=True, hide_index=True)",
-            "download_table(table_df, \"paper_table1_main.csv\")",
-            "table_df.to_latex(\"reports/paper_material/paperX/tables/paper_table1_main.tex\", index=False)",
+            'download_table(table_df, "paper_table1_main.csv")',
+            'table_df.to_latex("reports/paper_material/paperX/tables/paper_table1_main.tex", index=False)',
         ]
     ),
     language="python",

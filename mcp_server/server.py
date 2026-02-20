@@ -12,7 +12,6 @@ import json
 import re
 
 import duckdb
-
 from mcp.server.fastmcp import FastMCP
 
 from mcp_server.config import DATA_DIR, DUCKDB_PATH, MODEL_DIR
@@ -88,13 +87,17 @@ def get_model_metrics(component: str) -> str:
 def list_datasets() -> str:
     """List all available parquet datasets with their shapes and column names."""
     import os
+
     datasets = []
     for f in sorted(DATA_DIR.glob("*.parquet")):
         size_mb = os.path.getsize(f) / (1024 * 1024)
         try:
             import pandas as pd
+
             df = pd.read_parquet(f)
-            datasets.append(f"- **{f.name}**: {df.shape[0]} rows x {df.shape[1]} cols ({size_mb:.1f} MB)")
+            datasets.append(
+                f"- **{f.name}**: {df.shape[0]} rows x {df.shape[1]} cols ({size_mb:.1f} MB)"
+            )
         except Exception:
             datasets.append(f"- **{f.name}**: ({size_mb:.1f} MB)")
     return "\n".join(datasets)

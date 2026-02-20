@@ -4,22 +4,22 @@ from __future__ import annotations
 
 import pickle
 from functools import lru_cache
-from typing import Any
 from pathlib import Path
+from typing import Any
 
 import duckdb
 from catboost import CatBoostClassifier
 from loguru import logger
 
 from api.config import (
-    CALIBRATOR_FILE,
     CALIBRATOR_FALLBACKS,
+    CALIBRATOR_FILE,
     CONFORMAL_RESULTS_FILE,
     DUCKDB_PATH,
     FEATURE_CONFIG_FILE,
     MODEL_DIR,
-    PD_MODEL_FILE,
     PD_MODEL_FALLBACKS,
+    PD_MODEL_FILE,
 )
 
 
@@ -28,7 +28,9 @@ def get_pd_model() -> CatBoostClassifier:
     """Load the trained CatBoost PD model (cached singleton)."""
     model = CatBoostClassifier()
     candidates = [PD_MODEL_FILE, *PD_MODEL_FALLBACKS]
-    model_path = next((MODEL_DIR / name for name in candidates if (MODEL_DIR / name).exists()), None)
+    model_path = next(
+        (MODEL_DIR / name for name in candidates if (MODEL_DIR / name).exists()), None
+    )
     if model_path is None:
         raise FileNotFoundError(f"No PD model found. Checked: {candidates}")
     model.load_model(str(model_path))
@@ -64,7 +66,9 @@ def get_conformal_results() -> dict[str, Any] | None:
     """Load conformal serving artifact (Mondrian diagnostics + metrics)."""
     path = MODEL_DIR / CONFORMAL_RESULTS_FILE
     if not path.exists():
-        logger.warning(f"Conformal artifact not found at {path}. Falling back to heuristic intervals.")
+        logger.warning(
+            f"Conformal artifact not found at {path}. Falling back to heuristic intervals."
+        )
         return None
 
     with open(path, "rb") as f:

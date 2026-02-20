@@ -71,8 +71,8 @@ estimar cuánto provisionar para la vida completa del préstamo.
 
 | Modelo | Tipo | C-index | Ventaja |
 |--------|------|---------|---------|
-| **Cox PH** | Semi-paramétrico | {survival.get('cox_concordance', 0):.4f} | Interpretable (hazard ratios) |
-| **RSF** | Ensemble (Random Survival Forest) | {survival.get('rsf_concordance', 0):.4f} | Captura no-linealidades |
+| **Cox PH** | Semi-paramétrico | {survival.get("cox_concordance", 0):.4f} | Interpretable (hazard ratios) |
+| **RSF** | Ensemble (Random Survival Forest) | {survival.get("rsf_concordance", 0):.4f} | Captura no-linealidades |
 
 **C-index** = probabilidad de que el modelo ordene correctamente qué préstamo hace
 default primero. 0.5 = aleatorio, 1.0 = perfecto.
@@ -122,7 +122,10 @@ kpi_row(
         {"label": "C-index Cox", "value": f"{survival.get('cox_concordance', 0):.4f}"},
         {"label": "C-index RSF", "value": f"{survival.get('rsf_concordance', 0):.4f}"},
         {"label": "Horizonte", "value": "60 meses"},
-        {"label": "Evento observado", "value": f"{summary.get('dataset', {}).get('event_rate', 0.185) * 100:.1f}%"},
+        {
+            "label": "Evento observado",
+            "value": f"{summary.get('dataset', {}).get('event_rate', 0.185) * 100:.1f}%",
+        },
     ]
 )
 

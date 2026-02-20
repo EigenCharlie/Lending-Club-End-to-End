@@ -147,7 +147,7 @@ st.markdown(
 **Cada etapa tiene un propósito preciso:**
 1. **CatBoost PD**: modelo de clasificación robusto con manejo nativo de categorías y nulos.
 2. **Calibración ({best_calibration})**: convierte scores en probabilidades verdaderas
-   (ECE test actual={final_metrics.get('ece', 0):.4f}).
+   (ECE test actual={final_metrics.get("ece", 0):.4f}).
 3. **Conformal Prediction Mondrian**: genera intervalos `[PD_low, PD_high]` con garantía de
    cobertura empírica por grupo (grade), sin supuestos distribucionales.
 4. **Box Uncertainty Sets**: encapsula los intervalos como conjuntos de incertidumbre para optimización.

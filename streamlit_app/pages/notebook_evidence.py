@@ -398,7 +398,9 @@ for tab, stem in zip(tabs, NOTEBOOK_META, strict=False):
 
         with st.expander("Galería completa extraída de este notebook (miniaturas)"):
             rows = [
-                row for row in manifest if row.get("notebook_stem") == stem and row.get("image_path", "").endswith(".png")
+                row
+                for row in manifest
+                if row.get("notebook_stem") == stem and row.get("image_path", "").endswith(".png")
             ]
             rows = sorted(rows, key=lambda r: (r.get("cell_index", 0), r.get("output_index", 0)))
             cols = st.columns(3)

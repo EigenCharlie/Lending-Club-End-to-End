@@ -2,12 +2,11 @@
 
 from datetime import timedelta
 
+from data_sources import loan_features_source
+from entities import loan
 from feast import FeatureView
 from feast.field import Field
 from feast.types import Float64, String
-
-from data_sources import loan_features_source
-from entities import loan
 
 loan_origination_fv = FeatureView(
     name="loan_origination",

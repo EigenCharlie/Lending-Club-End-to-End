@@ -55,9 +55,15 @@ meta_df = pd.DataFrame(
         {"Campo": "Estado", "Valor": "Working Draft"},
         {"Campo": "Venue sugerido", "Valor": "European Journal of Operational Research (EJOR)"},
         {"Campo": "Dataset", "Valor": "Lending Club (split OOT)"},
-        {"Campo": "Pregunta", "Valor": "Cómo optimizar portafolio crediticio bajo incertidumbre de PD"},
+        {
+            "Campo": "Pregunta",
+            "Valor": "Cómo optimizar portafolio crediticio bajo incertidumbre de PD",
+        },
         {"Campo": "AUC PD", "Valor": f"{pd_metrics.get('auc_roc', np.nan):.4f}"},
-        {"Campo": "Cobertura CP 90%", "Valor": format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D"},
+        {
+            "Campo": "Cobertura CP 90%",
+            "Valor": format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D",
+        },
         {"Campo": "Price of Robustness", "Valor": format_number(price_of_robustness, prefix="$")},
     ]
 )
@@ -75,13 +81,13 @@ st.markdown(
 Proponemos un framework **predict-then-optimize** para asignación de capital crediticio que
 integra intervalos de **Mondrian Conformal Prediction** como conjuntos de incertidumbre para
 optimización robusta vía Pyomo/HiGHS. En evaluación OOT, el modelo PD calibrado alcanza
-AUC={pd_metrics.get('auc_roc', np.nan):.4f}; los intervalos conformales obtienen cobertura
+AUC={pd_metrics.get("auc_roc", np.nan):.4f}; los intervalos conformales obtienen cobertura
 {coverage_90:.2%} al nivel nominal 90% (ancho medio {width_90:.3f}).
 
-En la frontera robusta, el portafolio no robusto logra {format_number(nonrobust_return, prefix='$')}
-frente a {format_number(robust_return, prefix='$')} en versión robusta, con
+En la frontera robusta, el portafolio no robusto logra {format_number(nonrobust_return, prefix="$")}
+frente a {format_number(robust_return, prefix="$")} en versión robusta, con
 {robust_funded} vs {nonrobust_funded} préstamos financiados (robusto vs no robusto), cuantificando
-el costo de robustez en {format_number(price_of_robustness, prefix='$')}.
+el costo de robustez en {format_number(price_of_robustness, prefix="$")}.
 """
 )
 
@@ -100,7 +106,11 @@ st.markdown("## 3) Related Work (Resumen para borrador)")
 related = pd.DataFrame(
     [
         ["Elmachtoub & Grigas (2022)", "SPO+", "Objetivo orientado a decisión"],
-        ["Johnstone et al. (2021)", "Conformal uncertainty sets", "Conjuntos conformales para robust optimization"],
+        [
+            "Johnstone et al. (2021)",
+            "Conformal uncertainty sets",
+            "Conjuntos conformales para robust optimization",
+        ],
         ["Patel et al. (2024)", "Contextual CRO", "Conjuntos conformales contextuales"],
         ["Bertsimas & Sim (2004)", "Price of Robustness", "Marco clásico de robustez"],
     ],

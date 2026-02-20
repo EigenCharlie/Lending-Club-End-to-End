@@ -32,6 +32,7 @@ ifrs9_grade = try_load_parquet("ifrs9_scenario_grade_summary")
 pipeline = pipeline_summary.get("pipeline", {})
 stages = pipeline.get("stages", {}) if isinstance(pipeline.get("stages"), dict) else {}
 
+
 def _safe_money(value: float) -> str:
     return format_number(float(value), prefix="$") if np.isfinite(value) else "N/D"
 
@@ -70,16 +71,32 @@ severe, severe_label = _pick_scenario_row(ifrs9_summary, ["severe_stress", "seve
 if severe.empty:
     severe, severe_label = _pick_worst_scenario_row(ifrs9_summary)
 
-baseline_ecl = float(baseline["total_ecl"].iloc[0]) if (not baseline.empty and "total_ecl" in baseline.columns) else np.nan
-severe_ecl = float(severe["total_ecl"].iloc[0]) if (not severe.empty and "total_ecl" in severe.columns) else np.nan
-uplift = (severe_ecl / baseline_ecl - 1.0) if np.isfinite(baseline_ecl) and baseline_ecl > 0 and np.isfinite(severe_ecl) else np.nan
+baseline_ecl = (
+    float(baseline["total_ecl"].iloc[0])
+    if (not baseline.empty and "total_ecl" in baseline.columns)
+    else np.nan
+)
+severe_ecl = (
+    float(severe["total_ecl"].iloc[0])
+    if (not severe.empty and "total_ecl" in severe.columns)
+    else np.nan
+)
+uplift = (
+    (severe_ecl / baseline_ecl - 1.0)
+    if np.isfinite(baseline_ecl) and baseline_ecl > 0 and np.isfinite(severe_ecl)
+    else np.nan
+)
 severe_label_display = severe_label if severe_label else "escenario severo"
 scenario_values = (
     sorted(ifrs9_summary["scenario"].astype(str).unique().tolist())
     if (not ifrs9_summary.empty and "scenario" in ifrs9_summary.columns)
     else []
 )
-scenario_list_display = ", ".join(f"`{name}`" for name in scenario_values) if scenario_values else "`baseline`, `adverse`, `severe`"
+scenario_list_display = (
+    ", ".join(f"`{name}`" for name in scenario_values)
+    if scenario_values
+    else "`baseline`, `adverse`, `severe`"
+)
 
 stage1_n = int(stages.get("S1", 0) or 0)
 stage2_n = int(stages.get("S2", 0) or 0)
@@ -90,7 +107,10 @@ meta_df = pd.DataFrame(
     [
         {"Campo": "Estado", "Valor": "Working Draft"},
         {"Campo": "Venue sugerido", "Valor": "Journal of Banking & Finance"},
-        {"Campo": "Pregunta", "Valor": "Como integrar incertidumbre conformal en un pipeline IFRS9 accionable"},
+        {
+            "Campo": "Pregunta",
+            "Valor": "Como integrar incertidumbre conformal en un pipeline IFRS9 accionable",
+        },
         {"Campo": "Dataset", "Valor": "Lending Club (split OOT)"},
         {"Campo": "ECL baseline", "Valor": _safe_money(baseline_ecl)},
         {"Campo": f"ECL {severe_label_display}", "Valor": _safe_money(severe_ecl)},
@@ -142,9 +162,21 @@ que explicita la fragilidad de resultados frente a supuestos macro y parametros 
 st.markdown("## 3) Related Work (Resumen para borrador)")
 related = pd.DataFrame(
     [
-        ["Bárcena Saavedra et al. (2024)", "IFRS9 lifetime PD", "Supervivencia/competing risks para ECL lifetime"],
-        ["Bellini et al. (2024)", "Credit risk modelling", "Puente regulatorio entre modelado y reporting"],
-        ["Gibbs & Candes (2021)", "Adaptive conformal", "Fundamento para monitoreo bajo drift temporal"],
+        [
+            "Bárcena Saavedra et al. (2024)",
+            "IFRS9 lifetime PD",
+            "Supervivencia/competing risks para ECL lifetime",
+        ],
+        [
+            "Bellini et al. (2024)",
+            "Credit risk modelling",
+            "Puente regulatorio entre modelado y reporting",
+        ],
+        [
+            "Gibbs & Candes (2021)",
+            "Adaptive conformal",
+            "Fundamento para monitoreo bajo drift temporal",
+        ],
         ["Vovk & Petej (2014)", "Venn-Abers", "Calibracion con enfoque intervalar y validez"],
     ],
     columns=["Referencia", "Eje", "Relevancia para este draft"],
@@ -173,17 +205,26 @@ st.markdown("### 5.2 SICR Trigger with Conformal Width")
 st.latex(
     r"\mathrm{Stage2}_i = \mathbb{1}\left[\Delta \widehat{PD}_i > \theta_{PD} \;\lor\; (w_i > q_{0.9}(w)\wedge \Delta \widehat{PD}_i \ge 0)\right]"
 )
-st.caption("Equation 2. Trigger SICR combinado: deterioro de PD o incertidumbre alta sin mejora de PD.")
+st.caption(
+    "Equation 2. Trigger SICR combinado: deterioro de PD o incertidumbre alta sin mejora de PD."
+)
 
 st.markdown("### 5.3 Scenario Sensitivity")
 st.latex(
     r"\mathrm{ECL}_{\mathrm{portfolio}}(\gamma_{PD},\gamma_{LGD},r)=\sum_i \mathrm{ECL}_{i}(\gamma_{PD}\cdot PD_i,\gamma_{LGD}\cdot LGD_i,r)"
 )
-st.caption("Equation 3. Grilla de sensibilidad de provisiones frente a multiplicadores y tasa de descuento.")
+st.caption(
+    "Equation 3. Grilla de sensibilidad de provisiones frente a multiplicadores y tasa de descuento."
+)
 
 st.markdown("## 6) Results")
 
-if not ifrs9_summary.empty and {"scenario", "stage1_share", "stage2_share", "stage3_share"}.issubset(ifrs9_summary.columns):
+if not ifrs9_summary.empty and {
+    "scenario",
+    "stage1_share",
+    "stage2_share",
+    "stage3_share",
+}.issubset(ifrs9_summary.columns):
     stage_share = ifrs9_summary[["scenario", "stage1_share", "stage2_share", "stage3_share"]].melt(
         id_vars=["scenario"],
         var_name="stage",
@@ -202,10 +243,21 @@ if not ifrs9_summary.empty and {"scenario", "stage1_share", "stage2_share", "sta
     st.plotly_chart(fig1, use_container_width=True)
     st.caption("Figure 1. Composicion de Stage 1/2/3 bajo cada escenario IFRS9.")
 
-if not ifrs9_summary.empty and {"scenario", "total_ecl_low", "total_ecl_point", "total_ecl_high"}.issubset(ifrs9_summary.columns):
-    ecl_range_plot = ifrs9_summary[["scenario", "total_ecl_low", "total_ecl_point", "total_ecl_high"]].copy()
-    ecl_range_plot["err_up"] = (ecl_range_plot["total_ecl_high"] - ecl_range_plot["total_ecl_point"]).clip(lower=0)
-    ecl_range_plot["err_down"] = (ecl_range_plot["total_ecl_point"] - ecl_range_plot["total_ecl_low"]).clip(lower=0)
+if not ifrs9_summary.empty and {
+    "scenario",
+    "total_ecl_low",
+    "total_ecl_point",
+    "total_ecl_high",
+}.issubset(ifrs9_summary.columns):
+    ecl_range_plot = ifrs9_summary[
+        ["scenario", "total_ecl_low", "total_ecl_point", "total_ecl_high"]
+    ].copy()
+    ecl_range_plot["err_up"] = (
+        ecl_range_plot["total_ecl_high"] - ecl_range_plot["total_ecl_point"]
+    ).clip(lower=0)
+    ecl_range_plot["err_down"] = (
+        ecl_range_plot["total_ecl_point"] - ecl_range_plot["total_ecl_low"]
+    ).clip(lower=0)
 
     fig2 = px.bar(
         ecl_range_plot,
@@ -220,14 +272,20 @@ if not ifrs9_summary.empty and {"scenario", "total_ecl_low", "total_ecl_point", 
     st.plotly_chart(fig2, use_container_width=True)
     st.caption("Figure 2. ECL point con barras de incertidumbre conformal (`low` a `high`).")
 
-if not ifrs9_grid.empty and {"pd_mult", "lgd_mult", "discount_rate", "total_ecl"}.issubset(ifrs9_grid.columns):
+if not ifrs9_grid.empty and {"pd_mult", "lgd_mult", "discount_rate", "total_ecl"}.issubset(
+    ifrs9_grid.columns
+):
     discount_values = sorted(ifrs9_grid["discount_rate"].dropna().unique().tolist())
-    target_discount = 0.05 if 0.05 in discount_values else (discount_values[0] if discount_values else None)
+    target_discount = (
+        0.05 if 0.05 in discount_values else (discount_values[0] if discount_values else None)
+    )
 
     if target_discount is not None:
         grid_slice = ifrs9_grid.loc[ifrs9_grid["discount_rate"] == target_discount].copy()
         heat = (
-            grid_slice.pivot_table(index="pd_mult", columns="lgd_mult", values="total_ecl", aggfunc="mean")
+            grid_slice.pivot_table(
+                index="pd_mult", columns="lgd_mult", values="total_ecl", aggfunc="mean"
+            )
             / 1_000_000
         )
         fig3 = px.imshow(
@@ -240,7 +298,9 @@ if not ifrs9_grid.empty and {"pd_mult", "lgd_mult", "discount_rate", "total_ecl"
         st.plotly_chart(fig3, use_container_width=True)
         st.caption("Figure 3. Sensibilidad de ECL ante variaciones de PD y LGD.")
 
-if not ifrs9_grade.empty and {"scenario", "grade", "total_ecl", "stage3_share"}.issubset(ifrs9_grade.columns):
+if not ifrs9_grade.empty and {"scenario", "grade", "total_ecl", "stage3_share"}.issubset(
+    ifrs9_grade.columns
+):
     baseline_grade = ifrs9_grade.loc[ifrs9_grade["scenario"] == "baseline"].copy()
     if not baseline_grade.empty:
         fig4 = px.bar(

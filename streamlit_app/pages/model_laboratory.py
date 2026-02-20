@@ -84,15 +84,15 @@ Función conceptual: minimizar pérdida logarítmica y luego recalibrar para red
 """
     )
     st.latex(r"\text{AUC} = P(s(x^+) > s(x^-))")
-    st.latex(r"\text{Brier} = \frac{1}{N}\sum_{i=1}^{N}(p_i-y_i)^2,\qquad \text{ECE}=\sum_b w_b\left|\hat{p}_b-\hat{y}_b\right|")
+    st.latex(
+        r"\text{Brier} = \frac{1}{N}\sum_{i=1}^{N}(p_i-y_i)^2,\qquad \text{ECE}=\sum_b w_b\left|\hat{p}_b-\hat{y}_b\right|"
+    )
 
 comparison = load_json("model_comparison")
 models = pd.DataFrame(comparison.get("models", []))
 final = comparison.get("final_test_metrics", {})
 cal_report = comparison.get("calibration_selection_report", {})
-hpo_trials = int(
-    comparison.get("hpo_trials_executed", comparison.get("optuna_n_trials", 0))
-)
+hpo_trials = int(comparison.get("hpo_trials_executed", comparison.get("optuna_n_trials", 0)))
 feature_count_tuned = int(comparison.get("feature_count_tuned", 0))
 
 st.subheader("Comparativo de arquitecturas")
@@ -239,7 +239,9 @@ st.dataframe(metricas_interpretacion, use_container_width=True, hide_index=True)
 st.subheader("Curvas ROC")
 roc_df = load_parquet("roc_curve_data")
 available_models = sorted(roc_df["model"].dropna().unique().tolist())
-default_models = [m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models]
+default_models = [
+    m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
+]
 selected_models = st.multiselect(
     "Modelos a comparar",
     options=available_models,
@@ -320,9 +322,13 @@ narrative_block(
 st.subheader("Interpretabilidad con SHAP")
 shap_summary = try_load_parquet("shap_summary")
 if shap_summary.empty:
-    st.info("No hay artefactos SHAP en este entorno; se omite la sección de interpretabilidad avanzada.")
+    st.info(
+        "No hay artefactos SHAP en este entorno; se omite la sección de interpretabilidad avanzada."
+    )
 else:
-    top_n = st.slider("Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1)
+    top_n = st.slider(
+        "Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1
+    )
     shap_top = shap_summary.head(top_n).sort_values("mean_abs_shap")
 
     fig = px.bar(
@@ -349,7 +355,9 @@ else:
         if shap_raw.empty or not shap_features:
             st.info("No hay `shap_raw_top20.parquet`; se omite dependencia SHAP.")
         else:
-            selected_feat = st.selectbox("Variable para explorar dependencia SHAP", shap_features, index=0)
+            selected_feat = st.selectbox(
+                "Variable para explorar dependencia SHAP", shap_features, index=0
+            )
             shap_col = f"shap_{selected_feat}"
             val_col = f"val_{selected_feat}"
             if shap_col in shap_raw.columns and val_col in shap_raw.columns:

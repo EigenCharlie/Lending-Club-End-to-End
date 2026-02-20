@@ -102,9 +102,18 @@ if efficient_frontier.empty:
 
 kpi_row(
     [
-        {"label": "Retorno robusto", "value": format_number(pipeline.get("robust_return", 0), prefix="$")},
-        {"label": "Retorno no robusto", "value": format_number(pipeline.get("nonrobust_return", 0), prefix="$")},
-        {"label": "Price of Robustness", "value": format_number(pipeline.get("price_of_robustness", 0), prefix="$")},
+        {
+            "label": "Retorno robusto",
+            "value": format_number(pipeline.get("robust_return", 0), prefix="$"),
+        },
+        {
+            "label": "Retorno no robusto",
+            "value": format_number(pipeline.get("nonrobust_return", 0), prefix="$"),
+        },
+        {
+            "label": "Price of Robustness",
+            "value": format_number(pipeline.get("price_of_robustness", 0), prefix="$"),
+        },
         {"label": "Aprobados robusto", "value": str(int(pipeline.get("robust_funded", 0)))},
         {"label": "Aprobados no robusto", "value": str(int(pipeline.get("nonrobust_funded", 0)))},
         {"label": "Tamaño batch", "value": str(int(pipeline.get("batch_size", 0)))},
@@ -185,11 +194,16 @@ with col_img2:
             x="risk_tolerance",
             y="price_of_robustness_pct",
             title="Fallback: sensibilidad del price of robustness",
-            labels={"risk_tolerance": "Tolerancia de riesgo", "price_of_robustness_pct": "Price of Robustness (%)"},
+            labels={
+                "risk_tolerance": "Tolerancia de riesgo",
+                "price_of_robustness_pct": "Price of Robustness (%)",
+            },
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
         st.plotly_chart(fig, use_container_width=True)
-        st.caption("Imagen de notebook no encontrada; se muestra sensibilidad usando resumen robusto actual.")
+        st.caption(
+            "Imagen de notebook no encontrada; se muestra sensibilidad usando resumen robusto actual."
+        )
 
 st.subheader("1) Perfil de asignación sobre préstamos")
 alloc_plot = alloc.copy()
@@ -242,7 +256,9 @@ with col2:
 
 st.subheader("2) Frontera eficiente clásica")
 if efficient_frontier.empty:
-    st.info("No hay `efficient_frontier.parquet`; usando frontera no robusta derivada de tradeoff cuando aplica.")
+    st.info(
+        "No hay `efficient_frontier.parquet`; usando frontera no robusta derivada de tradeoff cuando aplica."
+    )
 else:
     fig = px.line(
         efficient_frontier.sort_values("pd_cap"),
@@ -417,7 +433,10 @@ if not roi_grade.empty:
                 mode="markers+text",
                 text=roi_grade["grade"],
                 textposition="top center",
-                marker={"size": roi_grade["n_loans"] / roi_grade["n_loans"].max() * 40 + 8, "color": "#0B5ED7"},
+                marker={
+                    "size": roi_grade["n_loans"] / roi_grade["n_loans"].max() * 40 + 8,
+                    "color": "#0B5ED7",
+                },
             )
         )
         fig.add_hline(y=0, line_dash="dash", line_color="#FF6B6B")
@@ -441,11 +460,11 @@ if not roi_grade.empty:
     st.markdown(
         f"""
 **Lectura del ROI histórico:**
-- **Grades A-B**: ROI medio positivo ({roi_grade.iloc[0]['roi_mean']:.1%} y {roi_grade.iloc[1]['roi_mean']:.1%})
+- **Grades A-B**: ROI medio positivo ({roi_grade.iloc[0]["roi_mean"]:.1%} y {roi_grade.iloc[1]["roi_mean"]:.1%})
   con dispersión moderada. Son los segmentos donde el optimizador concentra capital.
 - **Grades D-F**: ROI medio aún positivo pero con **enorme dispersión** (P10 negativo, P90 alto).
   La incertidumbre justifica el enfoque robusto: sin protección, estos segmentos generan volatilidad.
-- **Grade G**: ROI medio **negativo** ({roi_grade.iloc[6]['roi_mean']:.1%}) — default rate ~49% destruye valor
+- **Grade G**: ROI medio **negativo** ({roi_grade.iloc[6]["roi_mean"]:.1%}) — default rate ~49% destruye valor
   incluso con tasas altas. El optimizador robusto los excluye correctamente.
 - La frontera riesgo-retorno histórica confirma que la relación no es lineal: más riesgo no siempre
   compensa con más retorno, validando la necesidad de optimización formal.
@@ -456,10 +475,15 @@ if not roi_term.empty:
     with st.expander("ROI por grade y plazo (36 vs 60 meses)"):
         roi_term_display = roi_term.copy()
         roi_term_display["term"] = roi_term_display["term"].str.strip()
-        roi_term_display = roi_term_display.rename(columns={
-            "grade": "Grade", "term": "Plazo", "n_loans": "Préstamos",
-            "default_rate": "Default rate", "roi_mean": "ROI medio",
-        })
+        roi_term_display = roi_term_display.rename(
+            columns={
+                "grade": "Grade",
+                "term": "Plazo",
+                "n_loans": "Préstamos",
+                "default_rate": "Default rate",
+                "roi_mean": "ROI medio",
+            }
+        )
         roi_term_display["Default rate"] = roi_term_display["Default rate"].map("{:.1%}".format)
         roi_term_display["ROI medio"] = roi_term_display["ROI medio"].map("{:.2%}".format)
         roi_term_display["Préstamos"] = roi_term_display["Préstamos"].map("{:,}".format)
