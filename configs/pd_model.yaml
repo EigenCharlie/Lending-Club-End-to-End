@@ -2,14 +2,42 @@
 model:
   type: catboost
   params:
-    iterations: 1000
-    learning_rate: 0.05
+    iterations: 3000
+    learning_rate: 0.03
     depth: 6
     l2_leaf_reg: 3
+    loss_function: Logloss
     auto_class_weights: Balanced
     eval_metric: AUC
+    has_time: true
+    allow_writing_files: false
     random_seed: 42
-    early_stopping_rounds: 50
+    early_stopping_rounds: 150
+
+feature_source:
+  mode: feature_config
+  feature_config_path: data/processed/feature_config.pkl
+
+hpo:
+  enabled: true
+  n_trials: 400
+  sampler: tpe
+  pruner: median
+  timeout_minutes: 0
+  n_startup_trials: 50
+  multivariate_tpe: true
+  pruner_n_startup_trials: 25
+  pruner_n_warmup_steps: 120
+  use_pruning_callback: true
+  study_storage: sqlite:///models/optuna_pd_catboost.db
+  study_name: pd_catboost_optuna_temporal
+  load_if_exists: true
+  refit_full_train: true
+
+validation:
+  scheme: temporal_train_val_cal_test
+  val_from_tail_fraction_of_train: 0.15
+  oot_test_cutoff: "2018-01-01"
 
 data:
   train_path: data/processed/train_fe.parquet

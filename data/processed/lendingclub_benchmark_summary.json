@@ -1,0 +1,38 @@
+{
+  "n_notebooks": 49,
+  "n_unique_authors": 47,
+  "n_with_rendered_output": 48,
+  "model_counts": {
+    "logistic_regression": 20,
+    "random_forest": 20,
+    "xgboost": 10,
+    "catboost": 5,
+    "neural_network": 13,
+    "lightgbm": 2
+  },
+  "hpo_counts": {
+    "random_search": 6,
+    "bayesian": 2,
+    "grid_search": 6,
+    "manual_tuning": 2
+  },
+  "xai_counts": {
+    "feature_importance": 4,
+    "shap": 4,
+    "pdp_ice": 1,
+    "permutation_importance": 2
+  },
+  "auc_reported": {
+    "n_with_auc": 1,
+    "min": 0.7336,
+    "median": 0.7336,
+    "max": 0.7336,
+    "p90": 0.7336
+  },
+  "generated_at_utc": "2026-02-19T16:15:03.430530+00:00",
+  "search_terms": [
+    "lending club",
+    "lending club credit risk",
+    "lendingclub default prediction"
+  ]
+}

@@ -1,7 +1,12 @@
 # Project Justification — Design Rationale
-Version: 2026-02-14
+Version: 2026-02-20
 
-This document explains the technical design decisions. For current metrics and state, see `SESSION_STATE.md`.
+This document explains the **current official** technical design decisions.
+For runtime metrics and latest run outputs, use artifact files (not hardcoded doc snapshots).
+
+Official-vs-history split:
+- Official current standards: `CLAUDE.md` and this file.
+- Decision changes, errors, learnings: `docs/DECISION_CHANGES_AND_LEARNINGS.md`.
 
 ---
 
@@ -35,8 +40,9 @@ This supports both research-speed iteration and a clean migration path if produc
 ## 3) Method Justification
 
 ### 3.1 PD and Calibration
-- CatBoost for robust tabular performance with native categorical and NaN handling.
-- Platt sigmoid calibration selected empirically (ECE=0.0128).
+- `Logistic Regression` is the mandatory baseline for interpretability, governance, and regulatory auditability.
+- `CatBoost` is the final-model family for stronger tabular discrimination (nonlinearities/interactions, native categorical + NaN handling).
+- Calibration is selected by temporal multi-metric policy (Platt/Isotonic) under OOT-oriented constraints.
 - Lending decisions, IFRS9, and pricing require probability quality, not only ranking quality.
 
 ### 3.2 Conformal Uncertainty
@@ -84,8 +90,7 @@ This supports both research-speed iteration and a clean migration path if produc
 
 ## 5) Remaining Technical Priorities
 
-1. Deepen thesis storytelling pages in Streamlit (method, trade-offs, governance narrative).
-2. Expand governance visual layer: dbt lineage/docs + Feast feature-service explanation in UI.
-3. Harden optional NL->SQL assistant workflow (prompting, SQL safety, fallback behavior).
-4. CI/CD pipeline (pytest + ruff + Streamlit import smoke tests).
-5. Keep API optional and focused on reusable endpoints, not as mandatory dashboard backend.
+1. Keep artifact narratives fully dynamic in Streamlit (no stale hardcoded metrics/claims).
+2. Continue benchmark refresh against Kaggle/public literature with temporal-validation comparability checks.
+3. Tighten config semantics where current runtime behavior differs from legacy config wording.
+4. Preserve API as optional support layer; Streamlit remains primary thesis interface.

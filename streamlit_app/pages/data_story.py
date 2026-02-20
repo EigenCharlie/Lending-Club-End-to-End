@@ -19,7 +19,11 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
-from streamlit_app.components.narrative import narrative_block, next_page_teaser
+from streamlit_app.components.narrative import (
+    narrative_block,
+    next_page_teaser,
+    storytelling_intro,
+)
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -36,6 +40,22 @@ st.caption(
     "Analiza el split de entrenamiento (1.35M préstamos, 2007-2017) del total de 1.86M resueltos."
 )
 audience = audience_selector()
+storytelling_intro(
+    page_goal=(
+        "Entender la estructura del portafolio y los patrones de riesgo antes de modelar."
+    ),
+    business_value=(
+        "Un diagnóstico correcto de datos evita decisiones de crédito basadas en señales sesgadas o incompletas."
+    ),
+    key_decision=(
+        "Priorizar qué segmentos, variables y periodos deben guiar políticas y validación temporal."
+    ),
+    how_to_read=[
+        "Lee primero la nota de cifras para ubicar universo, limpieza y split temporal.",
+        "Revisa distribuciones y gradientes de riesgo por tasa/grade.",
+        "Cierra con calidad de datos para entender qué variables quedaron fuera y por qué.",
+    ],
+)
 
 narrative_block(
     audience,

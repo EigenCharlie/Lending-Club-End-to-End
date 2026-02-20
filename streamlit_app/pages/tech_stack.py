@@ -68,7 +68,7 @@ with tabs[0]:
                     ">=1.6",
                     "Framework base ML",
                     "—",
-                    "Estándar de la industria; CalibratedClassifierCV para Platt",
+                    "Estándar de la industria; utilidades de validación y calibración probabilística",
                 ],
                 [
                     "lightgbm",
@@ -633,7 +633,7 @@ make_dataset → prepare_dataset → build_datasets
 
 **MLflow** registra 8 experimentos desde artefactos existentes:
 1. `end_to_end` — métricas globales del pipeline
-2. `pd_model` — AUC, Gini, KS, Brier, ECE del modelo CatBoost + Platt
+2. `pd_model` — AUC, Gini, KS, Brier, ECE del modelo CatBoost calibrado
 3. `conformal` — cobertura Mondrian 90%/95%, ancho de intervalos
 4. `causal_policy` — regla seleccionada, net value, bootstrap p05
 5. `ifrs9` — ECL baseline/severe, uplift por escenario
@@ -663,7 +663,7 @@ st_mermaid(
         end
         subgraph ML["Capa ML"]
             D --> E[CatBoost PD]
-            E --> F[Platt Calibration]
+            E --> F[Calibración probabilística]
         end
         subgraph CP["Capa Conformal"]
             F --> G[MAPIE Mondrian]

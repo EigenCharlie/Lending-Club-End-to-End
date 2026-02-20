@@ -17,7 +17,7 @@ import plotly.express as px
 import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import load_json, try_load_json, try_load_parquet
 
@@ -67,6 +67,22 @@ st.title("🛡️ Gobernanza del Modelo")
 st.caption(
     "Validación integral de confiabilidad para riesgo de crédito: performance, "
     "estabilidad, sesgo y robustez operativa."
+)
+storytelling_intro(
+    page_goal=(
+        "Verificar si el sistema de riesgo sigue siendo confiable para operar en producción."
+    ),
+    business_value=(
+        "Evita pérdidas por drift, sesgos o degradación silenciosa que no se ven en una sola métrica de accuracy."
+    ),
+    key_decision=(
+        "Decidir si el modelo puede seguir en operación, requiere recalibración o necesita intervención inmediata."
+    ),
+    how_to_read=[
+        "Empieza por estado global y checks aprobados.",
+        "Revisa drift/fairness para detectar riesgos antes de que impacten negocio.",
+        "Cierra con robustez y contrato de inputs para validar operación diaria.",
+    ],
 )
 st.markdown(
     """

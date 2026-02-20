@@ -16,7 +16,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
 
@@ -24,6 +24,22 @@ st.title("📈 Panorama Temporal")
 st.caption(
     "Modelos estadísticos y ML para proyección de tasa de default, "
     "con bandas de incertidumbre y escenarios IFRS9."
+)
+storytelling_intro(
+    page_goal=(
+        "Anticipar cómo puede evolucionar el default agregado del portafolio en los próximos meses."
+    ),
+    business_value=(
+        "Ayuda a preparar provisiones y decisiones de apetito de riesgo antes de que el deterioro se materialice."
+    ),
+    key_decision=(
+        "Definir escenarios de planeación (base, optimista, adverso) y su impacto en presupuesto prudencial."
+    ),
+    how_to_read=[
+        "Empieza por histórico vs pronóstico para validar coherencia temporal.",
+        "Interpreta bandas 90/95% como rango operativo, no como cifra exacta.",
+        "Conecta escenarios derivados con IFRS9 para decisiones de provisión.",
+    ],
 )
 
 history = load_parquet("time_series")

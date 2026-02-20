@@ -1,7 +1,7 @@
 """Probability calibration methods.
 
 Available methods: Isotonic and Platt (Sigmoid).
-NB03 selected Platt (ECE=0.0128 on test set) as canonical calibrator.
+Canonical calibrator is selected at training time via temporal multi-metric validation.
 """
 
 from __future__ import annotations

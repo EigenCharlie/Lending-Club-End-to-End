@@ -38,6 +38,7 @@ variant_benchmark_by_group = try_load_parquet("conformal_variant_benchmark_by_gr
 pipeline = pipeline_summary.get("pipeline", {})
 conformal = pipeline_summary.get("conformal", {})
 pd_metrics = model_comparison.get("final_test_metrics", {})
+best_calibration = str(model_comparison.get("best_calibration", "calibración seleccionada"))
 
 coverage_90 = float(conformal_status.get("coverage_90", conformal.get("coverage_90", np.nan)))
 coverage_95 = float(conformal_status.get("coverage_95", conformal.get("coverage_95", np.nan)))
@@ -109,9 +110,9 @@ st.dataframe(related, use_container_width=True, hide_index=True)
 
 st.markdown("## 4) Data and Experimental Protocol")
 st.markdown(
-    """
+    f"""
 - Split temporal OOT ya fijado en pipeline productivo del repositorio.
-- Entrenamiento PD + calibración Platt + conformal Mondrian por grade.
+- Entrenamiento PD + calibración {best_calibration} + conformal Mondrian por grade.
 - Evaluación robusta/no robusta sobre mismo universo candidato.
 - Reporte de resultados en frontera por tolerancia de riesgo.
 """

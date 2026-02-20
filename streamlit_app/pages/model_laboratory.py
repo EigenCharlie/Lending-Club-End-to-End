@@ -17,7 +17,7 @@ import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import narrative_block, next_page_teaser
+from streamlit_app.components.narrative import narrative_block, next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
 
@@ -32,6 +32,17 @@ desalinear pricing, límites y provisiones aunque el AUC sea alto.
 """
 )
 audience = audience_selector()
+
+storytelling_intro(
+    page_goal="Determinar qué arquitectura de PD usar y por qué, no solo quién gana un benchmark.",
+    business_value="Reduce errores de aprobación y evita usar probabilidades mal calibradas en pricing e IFRS9.",
+    key_decision="Adoptar el modelo final y su política de calibración para operación.",
+    how_to_read=[
+        "Mirar primero comparativo de modelos y métricas finales.",
+        "Validar calibración (Brier/ECE) además de AUC/KS.",
+        "Usar SHAP para explicar por qué el modelo decide así.",
+    ],
+)
 
 narrative_block(
     audience,
@@ -78,6 +89,11 @@ Función conceptual: minimizar pérdida logarítmica y luego recalibrar para red
 comparison = load_json("model_comparison")
 models = pd.DataFrame(comparison.get("models", []))
 final = comparison.get("final_test_metrics", {})
+cal_report = comparison.get("calibration_selection_report", {})
+hpo_trials = int(
+    comparison.get("hpo_trials_executed", comparison.get("optuna_n_trials", 0))
+)
+feature_count_tuned = int(comparison.get("feature_count_tuned", 0))
 
 st.subheader("Comparativo de arquitecturas")
 if not models.empty:
@@ -96,7 +112,7 @@ with st.expander("¿Qué es CatBoost y por qué se usa en credit scoring?", expa
         "con XGBoost y LightGBM, adoptado por JPMorgan, Capital One, Nubank, Mercado Libre.",
         technical="CatBoost implementa ordered boosting con manejo nativo de categorías (evita target "
         "leakage en encoding), tratamiento nativo de NaN, y regularización oblivious trees. "
-        "Tuneado con Optuna (1000+ trials) optimizando AUC en validación temporal.",
+        f"Tuneado con Optuna ({hpo_trials} trials ejecutados) optimizando AUC en validación temporal.",
     )
     st.markdown(
         """
@@ -107,23 +123,69 @@ with st.expander("¿Qué es CatBoost y por qué se usa en credit scoring?", expa
 - Encoding nativo de categorías evita target leakage que afecta a otros frameworks
 """
     )
+    if feature_count_tuned > 0:
+        st.caption(f"Contrato actual del modelo final: {feature_count_tuned} features.")
+
+with st.expander("Discusión técnica: Logistic Regression vs CatBoost", expanded=False):
+    st.markdown(
+        """
+**Por qué Logistic Regression sigue siendo baseline de referencia en riesgo de crédito**
+- Alta trazabilidad regulatoria: su estructura lineal sobre log-odds permite auditoría directa de signos y magnitudes.
+- Interpretabilidad operativa: facilita scorecards, documentación metodológica y explicaciones a comités de riesgo.
+- Estabilidad y simplicidad: menos grados de libertad, menor riesgo de sobreajuste en setups bien especificados.
+- Gobierno de modelo: resulta ideal como benchmark/challenger por su comportamiento predecible.
+
+**Limitaciones de Logistic Regression en datos Lending Club**
+- Supuesto de linealidad en log-odds: muchas relaciones reales son no lineales y con umbrales.
+- Aditividad estricta: interacciones complejas deben diseñarse manualmente.
+- Dependencia fuerte del feature engineering: bins/WOE/interacciones impactan mucho el techo de desempeño.
+- Menor capacidad para capturar heterogeneidad de segmentos cuando el riesgo cambia por combinaciones de variables.
+
+**Por qué CatBoost puede superar a LR sin perder gobernanza**
+- Mejora discriminación en tabular complejo al modelar no linealidades e interacciones de forma nativa.
+- Maneja categorías y faltantes de forma robusta, reduciendo fragilidad de preprocesamiento manual.
+- Mantiene explicabilidad práctica con SHAP global/local, permutation importance y PDP/ICE.
+- Conserva control probabilístico vía calibración explícita (Platt/Isotonic) y validación temporal OOT.
+- Se integra a un contrato de features y artefactos auditables (HPO, calibración, métricas y reportes).
+
+**Decisión de arquitectura**
+- `Logistic Regression` permanece como baseline regulatorio y benchmark interpretable.
+- `CatBoost tuneado + calibrado` se elige como modelo final cuando entrega mejor trade-off entre AUC/KS y calidad probabilística (Brier/ECE) sin romper trazabilidad.
+"""
+    )
 
 # Calibration comparison
 with st.expander("Comparación de métodos de calibración", expanded=False):
-    st.markdown(
-        """
-| Método | ECE | Descripción | Decisión |
-|:------:|:---:|-------------|----------|
-| **Sin calibrar** | ~0.003 | CatBoost ya tiene buena calibración base | Baseline |
-| **Platt Sigmoid** | **0.0128** | Ajuste logístico post-hoc. Simple, robusto, generalizable | **Seleccionado** |
-| **Isotonic** | ~0.002 | Regresión monotónica flexible. Menor ECE pero riesgo de sobreajuste | Descartado |
-| **Venn-Abers** | ~0.003 | Produce intervalos de probabilidad. Conservador | Alternativa |
-
-**¿Por qué Platt y no Isotonic?** Aunque Isotonic tiene menor ECE en calibración, Platt Sigmoid
-es más robusto a muestras nuevas (menor sobreajuste a la muestra de calibración) y más simple
-de auditar — dos propiedades valiosas para modelos que alimentan decisiones de capital.
-"""
-    )
+    candidates = cal_report.get("candidates", []) if isinstance(cal_report, dict) else []
+    if candidates:
+        rows = []
+        auc_drop_limit = float(cal_report.get("auc_drop_limit", 0.0015))
+        for c in candidates:
+            rows.append(
+                {
+                    "metodo": str(c.get("method", "")),
+                    "folds": int(c.get("folds_used", 0)),
+                    "mean_brier": float(c.get("mean_brier", 0.0)),
+                    "mean_ece": float(c.get("mean_ece", 0.0)),
+                    "mean_auc_drop": float(c.get("mean_auc_drop", 0.0)),
+                    "stability": float(c.get("stability", 0.0)),
+                    "cumple_auc_drop": float(c.get("mean_auc_drop", 9.0)) <= auc_drop_limit,
+                }
+            )
+        cal_df = pd.DataFrame(rows).sort_values(
+            by=["mean_brier", "mean_ece", "stability"], ascending=[True, True, True]
+        )
+        st.dataframe(cal_df, use_container_width=True, hide_index=True)
+        selected = cal_report.get("selected_method", comparison.get("best_calibration", "N/D"))
+        reason = cal_report.get("selection_reason", "n/a")
+        st.caption(
+            f"Método seleccionado: `{selected}` | razón: `{reason}` | restricción AUC drop <= {auc_drop_limit:.4f}"
+        )
+    else:
+        st.info(
+            "No hay reporte detallado de selección de calibración en artefactos; "
+            "se muestra únicamente el método ganador."
+        )
 
 kpi_row(
     [

@@ -5,8 +5,8 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
-from streamlit_app.components.narrative import next_page_teaser
-from streamlit_app.utils import load_json
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.utils import format_number, format_pct, load_json, try_load_parquet
 
 st.title("📖 Glosario y Fundamentos")
 st.caption(
@@ -21,10 +21,28 @@ optimización que aparecen en todo el recorrido. Cada término incluye una defin
 y su conexión con el proyecto.
 """
 )
+storytelling_intro(
+    page_goal=(
+        "Traducir conceptos técnicos de riesgo en lenguaje operativo para lectores no especializados."
+    ),
+    business_value=(
+        "Reduce malentendidos en comité y mejora la calidad de decisiones al compartir un vocabulario común."
+    ),
+    key_decision=(
+        "Definir qué métricas y técnicas convienen según objetivo: precisión, prudencia regulatoria o retorno."
+    ),
+    how_to_read=[
+        "Filtra por categoría para no mezclar conceptos de naturaleza distinta.",
+        "Usa la columna 'En este proyecto' para conectar teoría con resultados reales.",
+        "Consulta la guía práctica al final para elegir estrategia según contexto.",
+    ],
+)
 
 # ── Glossary Data ──
 comparison = load_json("model_comparison")
 final_metrics = comparison.get("final_test_metrics", {})
+best_calibration = str(comparison.get("best_calibration", "N/D"))
+hpo_trials = int(comparison.get("hpo_trials_executed", comparison.get("optuna_n_trials", 0)))
 policy = load_json("conformal_policy_status", directory="models")
 pipeline_summary = load_json("pipeline_summary")
 pipeline_metrics = pipeline_summary.get("pipeline", {})
@@ -37,8 +55,21 @@ price_of_robustness = float(pipeline_metrics.get("price_of_robustness", 0.0))
 por_pct = (price_of_robustness / (abs(nonrobust_return) + 1e-6) * 100.0) if nonrobust_return else 0.0
 
 GLOSSARY = [
+    {
+        "termino": "Canónico",
+        "categoria": "Gobernanza",
+        "definicion": (
+            "Fuente oficial (single source of truth) para métricas y decisiones. "
+            "Cuando hay varias versiones de un artefacto, la canónica es la que gobierna "
+            "reporting, monitoreo y validación."
+        ),
+        "en_proyecto": (
+            "Conformal canónico: `models/conformal_results_mondrian.pkl` + "
+            "`data/processed/conformal_intervals_mondrian.parquet`."
+        ),
+    },
     # Financial terms
-    {"termino": "PD", "categoria": "Financiero", "definicion": "Probability of Default. Probabilidad de que un préstamo entre en incumplimiento. Es la salida principal del modelo CatBoost calibrado.", "en_proyecto": f"Modelo PD con AUC={final_metrics.get('auc_roc', 0):.4f}, calibrado con Platt Sigmoid (ECE={final_metrics.get('ece', 0):.4f})."},
+    {"termino": "PD", "categoria": "Financiero", "definicion": "Probability of Default. Probabilidad de que un préstamo entre en incumplimiento. Es la salida principal del modelo CatBoost calibrado.", "en_proyecto": f"Modelo PD con AUC={final_metrics.get('auc_roc', 0):.4f}, calibrado con {best_calibration} (ECE={final_metrics.get('ece', 0):.4f})."},
     {"termino": "LGD", "categoria": "Financiero", "definicion": "Loss Given Default. Porcentaje del monto expuesto que se pierde cuando ocurre un default. Complemento de la tasa de recuperación.", "en_proyecto": "Modelado sobre préstamos en default (~88% nulls esperados en no-defaults)."},
     {"termino": "EAD", "categoria": "Financiero", "definicion": "Exposure at Default. Monto expuesto al momento del incumplimiento. Para préstamos amortizables, es el saldo pendiente.", "en_proyecto": "Dataset especializado ead_dataset.parquet solo con defaults."},
     {"termino": "ECL", "categoria": "Financiero", "definicion": "Expected Credit Loss. Pérdida esperada = PD × LGD × EAD × Factor de descuento. Métrica central de IFRS9.", "en_proyecto": f"ECL baseline ${ifrs9_baseline / 1e6:,.1f}M, escenario severo ${ifrs9_severe / 1e9:,.3f}B ({ifrs9_uplift:+.2%})."},
@@ -60,11 +91,11 @@ GLOSSARY = [
     {"termino": "Gini", "categoria": "Machine Learning", "definicion": "Coeficiente Gini = 2×AUC - 1. Escala de 0 (sin poder) a 1 (perfecto). Métrica estándar en credit scoring bancario.", "en_proyecto": f"Gini={final_metrics.get('gini', 0):.4f}, consistente con modelos de crédito al consumo."},
     {"termino": "KS", "categoria": "Machine Learning", "definicion": "Kolmogorov-Smirnov statistic. Máxima separación entre distribuciones acumuladas de buenos y malos. KS >0.30 es buen poder discriminante.", "en_proyecto": f"KS={final_metrics.get('ks_statistic', 0):.4f} en test OOT."},
     {"termino": "Brier Score", "categoria": "Machine Learning", "definicion": "Error cuadrático medio de las probabilidades predichas vs outcomes reales. Menor es mejor. Combina discriminación y calibración.", "en_proyecto": f"Brier={final_metrics.get('brier_score', 0):.4f} post-calibración."},
-    {"termino": "ECE", "categoria": "Machine Learning", "definicion": "Expected Calibration Error. Mide qué tan bien las probabilidades predichas reflejan las frecuencias reales de default. ECE=0 es calibración perfecta.", "en_proyecto": f"ECE={final_metrics.get('ece', 0):.4f} con Platt Sigmoid (seleccionado sobre Isotonic)."},
+    {"termino": "ECE", "categoria": "Machine Learning", "definicion": "Expected Calibration Error. Mide qué tan bien las probabilidades predichas reflejan las frecuencias reales de default. ECE=0 es calibración perfecta.", "en_proyecto": f"ECE={final_metrics.get('ece', 0):.4f} con {best_calibration} (método seleccionado en validación temporal)."},
     {"termino": "SHAP", "categoria": "Machine Learning", "definicion": "SHapley Additive exPlanations. Método de teoría de juegos que atribuye la contribución de cada variable a cada predicción individual.", "en_proyecto": "Top drivers: int_rate, grade, term, loan_to_income, revol_util."},
-    {"termino": "CatBoost", "categoria": "Machine Learning", "definicion": "Algoritmo de gradient boosting que maneja variables categóricas nativamente y es robusto a overfitting. Desarrollado por Yandex. Dominante en competencias de datos tabulares.", "en_proyecto": "Modelo final: CatBoost tuneado con Optuna (1000+ trials) + calibración Platt."},
+    {"termino": "CatBoost", "categoria": "Machine Learning", "definicion": "Algoritmo de gradient boosting que maneja variables categóricas nativamente y es robusto a overfitting. Desarrollado por Yandex. Dominante en competencias de datos tabulares.", "en_proyecto": f"Modelo final: CatBoost tuneado con Optuna ({hpo_trials} trials) + calibración {best_calibration}."},
     {"termino": "Gradient Boosting", "categoria": "Machine Learning", "definicion": "Técnica de ensamble que construye secuencialmente árboles de decisión, donde cada nuevo árbol corrige los errores del anterior.", "en_proyecto": "CatBoost, XGBoost y LightGBM son variantes de gradient boosting."},
-    {"termino": "Calibración", "categoria": "Machine Learning", "definicion": "Ajuste post-entrenamiento para que las probabilidades predichas sean consistentes con las frecuencias observadas. Si predice PD=10%, ~10% deben hacer default.", "en_proyecto": "Platt Sigmoid seleccionada (ECE=0.0128) sobre Isotonic."},
+    {"termino": "Calibración", "categoria": "Machine Learning", "definicion": "Ajuste post-entrenamiento para que las probabilidades predichas sean consistentes con las frecuencias observadas. Si predice PD=10%, ~10% deben hacer default.", "en_proyecto": f"{best_calibration} seleccionada (ECE={final_metrics.get('ece', 0):.4f}) por validación temporal multi-métrica."},
     {"termino": "Cross-validation", "categoria": "Machine Learning", "definicion": "Técnica de evaluación que divide datos en K subconjuntos para entrenar y validar el modelo K veces, reduciendo sesgo de evaluación.", "en_proyecto": "No usada para split final (se usa OOT temporal), sí para Optuna."},
     {"termino": "WOE", "categoria": "Machine Learning", "definicion": "Weight of Evidence. Transformación de variables categóricas/binneadas que captura la relación monotónica con el default. Estándar en credit scoring.", "en_proyecto": "Aplicado a grade, purpose, home_ownership via OptBinning."},
     {"termino": "IV", "categoria": "Machine Learning", "definicion": "Information Value. Mide el poder predictivo global de una variable. IV <0.02 débil, 0.02-0.1 útil, 0.1-0.3 fuerte, >0.3 muy fuerte.", "en_proyecto": "Usado para ranking y selección de features en NB02."},
@@ -130,7 +161,7 @@ activamente en bancos, fintechs y aseguradoras de primer nivel a nivel mundial.
 )
 
 industry_data = [
-    {"Técnica": "CatBoost / XGBoost / LightGBM", "Uso en la industria": "Credit scoring en >70% de instituciones financieras digitales. Dominantes en competencias Kaggle de datos tabulares. Adoptados por JPMorgan, Capital One, Nubank, Mercado Libre.", "En este proyecto": "Modelo PD principal (CatBoost tuneado + Platt)"},
+    {"Técnica": "CatBoost / XGBoost / LightGBM", "Uso en la industria": "Credit scoring en >70% de instituciones financieras digitales. Dominantes en competencias Kaggle de datos tabulares. Adoptados por JPMorgan, Capital One, Nubank, Mercado Libre.", "En este proyecto": f"Modelo PD principal (CatBoost tuneado + {best_calibration})"},
     {"Técnica": "WOE / IV (Weight of Evidence)", "Uso en la industria": "Estándar de facto en credit scoring bancario desde los años 90. Requerido por algunos reguladores para scorecard interpretable.", "En este proyecto": "Feature engineering: grade_woe, purpose_woe, home_ownership_woe"},
     {"Técnica": "SHAP (Explicabilidad)", "Uso en la industria": "Estándar de explicabilidad ML en banca (requerido por EBA, OCC). Usado para explicar decisiones individuales de crédito.", "En este proyecto": "Top 20 features con SHAP, dependence plots"},
     {"Técnica": "Conformal Prediction", "Uso en la industria": "Adoptado en farmacéutica (AstraZeneca), manufactura (Volvo), fintech (cuantificación de incertidumbre en modelos de pricing y riesgo). Crecimiento exponencial desde 2020.", "En este proyecto": "MAPIE Mondrian: intervalos PD con cobertura garantizada por grade"},
@@ -172,6 +203,163 @@ with col_f2:
     st.markdown("**Information Value (IV)**")
     st.latex(r"IV = \sum_{i=1}^{B}(D_i\% - ND_i\%) \times \ln\left(\frac{D_i\%}{ND_i\%}\right)")
     st.caption("Poder predictivo global de una variable. >0.3 = muy fuerte.")
+
+# ── Practical Decision Guide ──
+st.subheader("Guía práctica: cuándo elegir cada estrategia")
+st.markdown(
+    """
+Esta sección traduce métricas a decisiones reales. La pregunta no es solo "qué número subió o bajó",
+sino **qué política conviene según objetivo de negocio**.
+"""
+)
+st.caption(
+    "Documento extendido en repositorio: "
+    "`reports/guia_metricas_decision_negocio_vs_papers_2026-02-20.md`."
+)
+
+rob_summary = try_load_parquet("portfolio_robustness_summary")
+rob_frontier = try_load_parquet("portfolio_robustness_frontier")
+
+if rob_summary.empty or rob_frontier.empty:
+    st.info("No se encontraron artefactos de robustez para construir la guía de perfiles.")
+else:
+    profile_cfg = pd.DataFrame(
+        [
+            {
+                "Perfil": "Retorno",
+                "risk_target": 0.12,
+                "lambda_target": 0.0,
+                "Cuándo usarlo": "Objetivo comercial agresivo, tolerancia alta a volatilidad.",
+                "Impacto negocio esperado": "Mayor upside de retorno, menor colchón ante deterioro inesperado.",
+            },
+            {
+                "Perfil": "Balanceado",
+                "risk_target": 0.10,
+                "lambda_target": 0.0,
+                "Cuándo usarlo": "Operación estándar con metas simultáneas de crecimiento y control.",
+                "Impacto negocio esperado": "Compromiso razonable entre rentabilidad y resiliencia.",
+            },
+            {
+                "Perfil": "Prudente",
+                "risk_target": 0.06,
+                "lambda_target": 2.0,
+                "Cuándo usarlo": "Contexto de estrés, foco en preservación de capital y estabilidad.",
+                "Impacto negocio esperado": "Menor retorno y volumen financiado, mayor protección en peor caso.",
+            },
+        ]
+    )
+
+    rows: list[dict[str, object]] = []
+    robust_only = rob_frontier[rob_frontier["policy"] == "robust"].copy()
+    for _, cfg in profile_cfg.iterrows():
+        risk_target = float(cfg["risk_target"])
+        lam_target = float(cfg["lambda_target"])
+
+        robust_slice = robust_only.copy()
+        robust_slice["_risk_dist"] = (robust_slice["risk_tolerance"] - risk_target).abs()
+        robust_slice["_lam_dist"] = (robust_slice["uncertainty_aversion"] - lam_target).abs()
+        robust_row = robust_slice.sort_values(["_risk_dist", "_lam_dist"]).iloc[0]
+
+        summary_slice = rob_summary.copy()
+        summary_slice["_risk_dist"] = (summary_slice["risk_tolerance"] - risk_target).abs()
+        summary_row = summary_slice.sort_values("_risk_dist").iloc[0]
+
+        rows.append(
+            {
+                "Perfil": cfg["Perfil"],
+                "Parámetros": (
+                    f"risk_tolerance={robust_row['risk_tolerance']:.2f}, "
+                    f"lambda={robust_row['uncertainty_aversion']:.1f}"
+                ),
+                "Retorno robusto": float(robust_row["expected_return_net_point"]),
+                "Retorno no robusto": float(summary_row["baseline_nonrobust_return"]),
+                "Price of Robustness (%)": float(robust_row["price_of_robustness_pct"]),
+                "Worst-case PD": float(robust_row["worst_case_pd"]),
+                "N financiados (robusto)": int(robust_row["n_funded"]),
+                "Cuándo usarlo": str(cfg["Cuándo usarlo"]),
+                "Impacto negocio esperado": str(cfg["Impacto negocio esperado"]),
+            }
+        )
+
+    profiles_df = pd.DataFrame(rows)
+    profiles_view = profiles_df.copy()
+    profiles_view["Retorno robusto"] = profiles_view["Retorno robusto"].map(
+        lambda v: format_number(float(v), prefix="$")
+    )
+    profiles_view["Retorno no robusto"] = profiles_view["Retorno no robusto"].map(
+        lambda v: format_number(float(v), prefix="$")
+    )
+    profiles_view["Price of Robustness (%)"] = profiles_view["Price of Robustness (%)"].map(
+        lambda v: f"{float(v):.2f}%"
+    )
+    profiles_view["Worst-case PD"] = profiles_view["Worst-case PD"].map(
+        lambda v: format_pct(float(v), decimals=1)
+    )
+    st.dataframe(profiles_view, use_container_width=True, hide_index=True)
+
+    st.markdown(
+        """
+**Regla rápida de decisión**
+
+1. Si la prioridad es crecer retorno: usa **Retorno**.
+2. Si la prioridad es operar estable todo el año: usa **Balanceado**.
+3. Si la prioridad es proteger capital en contexto adverso: usa **Prudente**.
+"""
+    )
+
+st.subheader("Negocio vs papers: ¿qué tan adoptado está cada enfoque?")
+adoption_df = pd.DataFrame(
+    [
+        {
+            "Práctica": "AUC / KS para discriminación de score",
+            "En negocio": "Muy adoptado",
+            "En papers": "Muy adoptado",
+            "Qué implica para el lector": "Es el estándar para evaluar ranking de riesgo.",
+        },
+        {
+            "Práctica": "Brier / ECE para calibración",
+            "En negocio": "Adoptado en equipos maduros de riesgo",
+            "En papers": "Muy adoptado",
+            "Qué implica para el lector": "Clave cuando PD se usa para pricing, límites e IFRS9.",
+        },
+        {
+            "Práctica": "Conformal prediction para intervalos de PD",
+            "En negocio": "Adopción emergente",
+            "En papers": "Crecimiento fuerte",
+            "Qué implica para el lector": "Aporta garantía de cobertura y mejor gestión de incertidumbre.",
+        },
+        {
+            "Práctica": "Optimización robusta con uncertainty sets",
+            "En negocio": "Adopción selectiva (casos de alto impacto)",
+            "En papers": "Bien establecida",
+            "Qué implica para el lector": "Hace explícito el trade-off entre retorno y protección.",
+        },
+        {
+            "Práctica": "Price of Robustness como KPI formal",
+            "En negocio": "Menos común como KPI explícito",
+            "En papers": "Muy común",
+            "Qué implica para el lector": "Sirve para explicar al negocio el costo del “seguro” de robustez.",
+        },
+        {
+            "Práctica": "IFRS9 Stage + escenarios ECL",
+            "En negocio": "Obligatorio bajo IFRS",
+            "En papers": "Muy estudiado",
+            "Qué implica para el lector": "No es opcional; impacta provisión, capital y resultados.",
+        },
+    ]
+)
+st.dataframe(adoption_df, use_container_width=True, hide_index=True)
+
+with st.expander("Guion de 1 minuto para explicarlo sin tecnicismos"):
+    st.markdown(
+        """
+Nuestro modelo no solo ordena riesgo (AUC/KS), también produce probabilidades confiables (Brier/ECE).
+Luego le agregamos bandas de incertidumbre (conformal) para no decidir “a ciegas”.
+Con esas bandas, comparamos dos políticas: una que maximiza retorno y otra que protege peor caso.
+La diferencia entre ambas es el Price of Robustness: cuánto pagamos por estabilidad.
+Finalmente, traducimos todo a provisiones IFRS9 para ver impacto contable real.
+"""
+    )
 
 # ── Reading Guide ──
 st.subheader("Guía de lectura del dashboard")

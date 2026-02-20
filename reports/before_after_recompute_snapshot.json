@@ -1,0 +1,29 @@
+{
+  "before": {
+    "pd_metrics": {
+      "auc": 0.6990158423364895,
+      "gini": 0.398031684672979,
+      "ks": 0.29419598263144653,
+      "brier": 0.15721217085708036,
+      "ece": 0.013000949058385959
+    },
+    "conformal_policy": {
+      "coverage_90": 0.8887235479595044,
+      "coverage_95": 0.9479573372244635,
+      "avg_width_90": 0.7459297382063242,
+      "empirical_avg_width_90": 0.7459297382063242
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 1010417398.085331,
+      "severe_total_ecl": 1850841854.7033587
+    },
+    "optimization": {
+      "price_of_robustness": 75066.68556620511,
+      "robust_return": 2279.6133498500258,
+      "nonrobust_return": 77346.29891605514,
+      "best_robust_return": 2279.6133498500258,
+      "baseline_nonrobust_return": 49982.32728364542,
+      "price_of_robustness_pct": 47702.71393379539
+    }
+  }
+}

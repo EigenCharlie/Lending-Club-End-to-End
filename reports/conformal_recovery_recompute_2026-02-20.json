@@ -1,0 +1,91 @@
+{
+  "previous_after": {
+    "pd_metrics": {
+      "auc": 0.7171838117742488,
+      "gini": 0.43436762354849767,
+      "ks": 0.31999735879467034,
+      "brier": 0.15384696766361577,
+      "ece": 0.009396122353834845
+    },
+    "conformal_policy": {
+      "coverage_90": 0.891732191036194,
+      "coverage_95": 0.9510598875280367,
+      "avg_width_90": 0.7225140825125012,
+      "empirical_avg_width_90": 0.7225140825125012
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 967995472.4972175,
+      "severe_total_ecl": 1779233609.398992
+    },
+    "optimization": {
+      "price_of_robustness": 36205.04447715387,
+      "robust_return": 62029.962973554306,
+      "nonrobust_return": 98235.00745070817,
+      "best_robust_return": 62029.962973554306,
+      "baseline_nonrobust_return": 98235.00745070817,
+      "price_of_robustness_pct": 36.85554204793244
+    }
+  },
+  "current": {
+    "conformal_policy": {
+      "coverage_90": 0.9141326764643207,
+      "coverage_95": 0.952038689777476,
+      "avg_width_90": 0.7419775501652246,
+      "min_group_coverage_90": 0.8825267824159586,
+      "checks_passed": 7,
+      "checks_total": 7,
+      "overall_pass": true,
+      "critical_alerts": 0,
+      "warning_alerts": 5,
+      "total_alerts": 5
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 967995472.4972175,
+      "severe_total_ecl": 1779233609.398992
+    },
+    "optimization": {
+      "robust_return": 59595.0678005568,
+      "nonrobust_return": 98235.00745070817,
+      "price_of_robustness": 38639.93965015138,
+      "price_of_robustness_pct": 39.33418508584791
+    },
+    "pipeline": {
+      "pd_auc": 0.7171838117742488,
+      "interval_width_mean": 0.7419775501652246,
+      "ecl_expected": 967995472.4972175,
+      "ecl_conservative": 1779233609.398992,
+      "robust_return": 59595.0678005568,
+      "nonrobust_return": 98235.00745070817,
+      "price_of_robustness": 38639.93965015138
+    },
+    "conformal_best_cfg": {
+      "alpha_target_90": 0.1,
+      "alpha_used_90": 0.08,
+      "scaled_scores": true,
+      "min_group_size": 200,
+      "min_group_coverage_target": 0.88,
+      "group_coverage_floor_target_90": 0.9,
+      "coverage_guardband_90": 0.015,
+      "min_group_guardband_90": 0.0,
+      "max_width_budget_90": 0.8,
+      "selection_tier": "strong_global+strong_group+width"
+    }
+  },
+  "delta_current_minus_previous_after": {
+    "conformal_policy": {
+      "coverage_90": 0.02240048542812667,
+      "coverage_95": 0.0009788022494392479,
+      "avg_width_90": 0.019463467652723443
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 0.0,
+      "severe_total_ecl": 0.0
+    },
+    "optimization": {
+      "robust_return": -2434.895172997509,
+      "nonrobust_return": 0.0,
+      "price_of_robustness": 2434.895172997509,
+      "price_of_robustness_pct": 2.478643037915475
+    }
+  }
+}

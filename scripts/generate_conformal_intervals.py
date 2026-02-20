@@ -172,10 +172,16 @@ def _mark_pareto_front(results_df: pd.DataFrame) -> pd.Series:
 def _split_calibration_for_tuning(
     y_cal: pd.Series,
     group_cal: pd.Series,
+    issue_dates: pd.Series | None = None,
     holdout_ratio: float = 0.20,
     random_state: int = 42,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Split calibration rows into fit/tuning partitions without touching test labels."""
+    """Split calibration rows into fit/tuning partitions without touching test labels.
+
+    Prefers a temporal split using ``issue_dates`` (latest tail as tuning holdout).
+    Falls back to stratified random split when temporal metadata is unavailable or
+    would create degenerate class partitions.
+    """
     n = int(len(y_cal))
     if n <= 1:
         idx = np.arange(n, dtype=int)
@@ -183,6 +189,39 @@ def _split_calibration_for_tuning(
 
     holdout_ratio = float(np.clip(holdout_ratio, 0.05, 0.50))
     idx = np.arange(n, dtype=int)
+
+    n_tune = max(1, int(round(n * holdout_ratio)))
+    n_tune = min(n - 1, n_tune)
+    y_arr = np.asarray(y_cal, dtype=float)
+
+    # Preferred path: temporal holdout from the latest calibration vintages.
+    if issue_dates is not None:
+        issue_dt = pd.to_datetime(issue_dates, errors="coerce")
+        valid_dates = int(issue_dt.notna().sum())
+        if valid_dates >= max(100, int(0.70 * n)):
+            ordered = pd.DataFrame({"idx": idx, "issue_d": issue_dt})
+            # Unknown dates are treated as oldest to avoid contaminating the latest tail.
+            ordered["issue_d_filled"] = ordered["issue_d"].fillna(pd.Timestamp("1900-01-01"))
+            ordered = ordered.sort_values(["issue_d_filled", "idx"]).reset_index(drop=True)
+
+            idx_sorted = ordered["idx"].to_numpy(dtype=int)
+            idx_fit = idx_sorted[:-n_tune]
+            idx_tune = idx_sorted[-n_tune:]
+
+            fit_classes = np.unique(y_arr[idx_fit].astype(int))
+            tune_classes = np.unique(y_arr[idx_tune].astype(int))
+            if len(fit_classes) >= 2 and len(tune_classes) >= 2:
+                logger.info(
+                    "Using temporal calibration holdout by issue_d: "
+                    f"valid_dates={valid_dates:,}/{n:,}, holdout_ratio={holdout_ratio:.2%}"
+                )
+                return np.sort(idx_fit), np.sort(idx_tune)
+
+            logger.warning(
+                "Temporal calibration split produced single-class partition; "
+                "falling back to stratified random split."
+            )
+
     stratify = (
         pd.Series(group_cal).fillna("UNKNOWN").astype(str)
         + "|"
@@ -202,7 +241,6 @@ def _split_calibration_for_tuning(
         rng = np.random.default_rng(random_state)
         shuffled = idx.copy()
         rng.shuffle(shuffled)
-        n_tune = max(1, int(round(n * holdout_ratio)))
         idx_tune = shuffled[:n_tune]
         idx_fit = shuffled[n_tune:]
 
@@ -214,17 +252,30 @@ def _choose_best_tuning_row(
     target_coverage: float,
     min_group_coverage_target: float,
     max_width_budget: float | None = None,
+    coverage_guardband: float = 0.015,
+    min_group_guardband: float = 0.0,
 ) -> tuple[pd.Series, str]:
     """Select config with hierarchical multi-objective constraints."""
     df = results_df.copy()
     df["global_ok"] = df["empirical_coverage"] >= target_coverage
     df["group_ok"] = df["min_group_coverage"] >= min_group_coverage_target
+    strong_cov_target = target_coverage + max(0.0, float(coverage_guardband))
+    strong_group_target = min_group_coverage_target + max(0.0, float(min_group_guardband))
+    df["global_strong"] = df["empirical_coverage"] >= strong_cov_target
+    df["group_strong"] = df["min_group_coverage"] >= strong_group_target
+    df["coverage_guard_shortfall"] = (strong_cov_target - df["empirical_coverage"]).clip(lower=0.0)
+    df["group_guard_shortfall"] = (strong_group_target - df["min_group_coverage"]).clip(lower=0.0)
+
     if max_width_budget is None:
         df["width_ok"] = True
     else:
         df["width_ok"] = df["avg_interval_width"] <= max_width_budget
 
     tiers = [
+        ("strong_global+strong_group+width", df["global_strong"] & df["group_strong"] & df["width_ok"]),
+        ("strong_global+strong_group", df["global_strong"] & df["group_strong"]),
+        ("strong_global+width", df["global_strong"] & df["width_ok"]),
+        ("strong_global_only", df["global_strong"]),
         ("global+group+width", df["global_ok"] & df["group_ok"] & df["width_ok"]),
         ("global+group", df["global_ok"] & df["group_ok"]),
         ("global+width", df["global_ok"] & df["width_ok"]),
@@ -234,8 +285,14 @@ def _choose_best_tuning_row(
         candidate = df[mask].copy()
         if not candidate.empty:
             candidate = candidate.sort_values(
-                by=["avg_interval_width", "coverage_gap", "min_group_coverage"],
-                ascending=[True, True, False],
+                by=[
+                    "avg_interval_width",
+                    "coverage_guard_shortfall",
+                    "group_guard_shortfall",
+                    "coverage_gap",
+                    "min_group_coverage",
+                ],
+                ascending=[True, True, True, True, False],
             )
             return candidate.iloc[0], tier_name
 
@@ -254,8 +311,10 @@ def _choose_best_tuning_row(
             lower=0.0
         )
     fallback["score"] = (
-        100.0 * fallback["coverage_shortfall"]
-        + 60.0 * fallback["group_shortfall"]
+        120.0 * fallback["coverage_guard_shortfall"]
+        + 80.0 * fallback["group_guard_shortfall"]
+        + 40.0 * fallback["coverage_shortfall"]
+        + 20.0 * fallback["group_shortfall"]
         + 10.0 * fallback["width_excess"]
         + fallback["avg_interval_width"]
     )
@@ -378,7 +437,10 @@ def main(
     alpha_candidates_90: tuple[float, ...] = (0.10, 0.095, 0.09, 0.085, 0.08),
     min_group_sizes: tuple[int, ...] = (200, 500, 1000, 2000),
     min_group_coverage_target: float = 0.88,
+    group_coverage_floor_target_90: float = 0.90,
     max_width_budget_90: float | None = 0.80,
+    coverage_guardband_90: float = 0.015,
+    min_group_guardband_90: float = 0.0,
     tuning_holdout_ratio: float = 0.20,
     tuning_random_state: int = 42,
 ):
@@ -406,6 +468,7 @@ def main(
     idx_cal_fit, idx_cal_tune = _split_calibration_for_tuning(
         y_cal=y_cal,
         group_cal=group_cal,
+        issue_dates=cal_df.get("issue_d"),
         holdout_ratio=tuning_holdout_ratio,
         random_state=tuning_random_state,
     )
@@ -423,8 +486,23 @@ def main(
         f"fit={len(X_cal_fit):,}, holdout={len(X_tune):,}, "
         f"holdout_ratio={len(X_tune) / max(len(X_cal), 1):.2%}"
     )
+    if "issue_d" in cal_df.columns:
+        issue_series = pd.to_datetime(cal_df["issue_d"], errors="coerce")
+        fit_issue = issue_series.iloc[idx_cal_fit]
+        tune_issue = issue_series.iloc[idx_cal_tune]
+        if fit_issue.notna().any() and tune_issue.notna().any():
+            logger.info(
+                "Calibration split date ranges: "
+                f"fit_max={fit_issue.max():%Y-%m}, "
+                f"holdout_min={tune_issue.min():%Y-%m}, "
+                f"holdout_max={tune_issue.max():%Y-%m}"
+            )
 
     target_coverage_90 = 1.0 - alpha_target_90
+    group_coverage_floor_target_90 = max(
+        float(min_group_coverage_target),
+        float(group_coverage_floor_target_90),
+    )
     tuning_rows: list[dict[str, Any]] = []
 
     # Tune 90% interval config.
@@ -483,6 +561,8 @@ def main(
         target_coverage=target_coverage_90,
         min_group_coverage_target=min_group_coverage_target,
         max_width_budget=max_width_budget_90,
+        coverage_guardband=coverage_guardband_90,
+        min_group_guardband=min_group_guardband_90,
     )
     best_cfg = {
         "alpha_target_90": float(alpha_target_90),
@@ -490,6 +570,9 @@ def main(
         "scaled_scores": bool(best_row["scaled_scores"]),
         "min_group_size": int(best_row["min_group_size"]),
         "min_group_coverage_target": float(min_group_coverage_target),
+        "group_coverage_floor_target_90": float(group_coverage_floor_target_90),
+        "coverage_guardband_90": float(coverage_guardband_90),
+        "min_group_guardband_90": float(min_group_guardband_90),
         "max_width_budget_90": None if max_width_budget_90 is None else float(max_width_budget_90),
         "selection_tier": selection_tier,
     }
@@ -539,7 +622,7 @@ def main(
         y_pred=y_pred_tune,
         y_intervals=y_int_tune,
         groups=group_tune,
-        target_coverage=min_group_coverage_target,
+        target_coverage=group_coverage_floor_target_90,
     )
     tune_metrics_90_after = validate_coverage(y_tune.to_numpy(dtype=float), y_int_90_adjusted, alpha_target_90)
     if group_multipliers:
@@ -655,11 +738,13 @@ def main(
         "tuning_90_pareto_path": str(pareto_path),
         "group_coverage_floor_path": str(coverage_floor_path),
         "group_coverage_multipliers": {k: float(v) for k, v in group_multipliers.items()},
+        "group_coverage_floor_target_90": float(group_coverage_floor_target_90),
         "calibration_split": {
             "fit_n": int(len(X_cal_fit)),
             "holdout_n": int(len(X_tune)),
             "holdout_ratio": float(tuning_holdout_ratio),
             "random_state": int(tuning_random_state),
+            "preferred_mode": "temporal_if_issue_d_available",
         },
         "tune_metrics_90_before_floor": {
             k: _to_python_scalar(v) for k, v in tune_metrics_90_before.items()
@@ -691,7 +776,10 @@ if __name__ == "__main__":
     parser.add_argument("--alpha_target_90", type=float, default=0.10)
     parser.add_argument("--alpha_95", type=float, default=0.05)
     parser.add_argument("--min_group_coverage_target", type=float, default=0.88)
+    parser.add_argument("--group_coverage_floor_target_90", type=float, default=0.90)
     parser.add_argument("--max_width_budget_90", type=float, default=0.80)
+    parser.add_argument("--coverage_guardband_90", type=float, default=0.015)
+    parser.add_argument("--min_group_guardband_90", type=float, default=0.0)
     parser.add_argument("--tuning_holdout_ratio", type=float, default=0.20)
     parser.add_argument("--tuning_random_state", type=int, default=42)
     args = parser.parse_args()
@@ -699,7 +787,10 @@ if __name__ == "__main__":
         alpha_target_90=args.alpha_target_90,
         alpha_95=args.alpha_95,
         min_group_coverage_target=args.min_group_coverage_target,
+        group_coverage_floor_target_90=args.group_coverage_floor_target_90,
         max_width_budget_90=args.max_width_budget_90,
+        coverage_guardband_90=args.coverage_guardband_90,
+        min_group_guardband_90=args.min_group_guardband_90,
         tuning_holdout_ratio=args.tuning_holdout_ratio,
         tuning_random_state=args.tuning_random_state,
     )

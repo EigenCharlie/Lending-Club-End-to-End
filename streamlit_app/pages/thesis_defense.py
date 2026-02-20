@@ -37,6 +37,7 @@ summary = load_json("pipeline_summary")
 model_cmp = load_json("model_comparison")
 conformal = load_json("conformal_policy_status", directory="models")
 governance = load_json("modeva_governance_status", directory="models")
+best_calibration = str(model_cmp.get("best_calibration", "calibración seleccionada"))
 
 pipeline = summary.get("pipeline", {})
 final = model_cmp.get("final_test_metrics", {})
@@ -225,7 +226,7 @@ Se analizaron **más de 60 notebooks públicos** en Kaggle sobre el mismo datase
 diff_data = pd.DataFrame(
     [
         {"Técnica": "EDA y visualización", "Kaggle (60+ notebooks)": "Ampliamente cubierto", "Este proyecto": "Cubierto + contexto macro + geografía"},
-        {"Técnica": "Clasificación binaria (RF, XGBoost, LogReg)", "Kaggle (60+ notebooks)": "Estándar en ~80% de notebooks", "Este proyecto": "CatBoost + calibración Platt (ECE=0.0128)"},
+        {"Técnica": "Clasificación binaria (RF, XGBoost, LogReg)", "Kaggle (60+ notebooks)": "Estándar en ~80% de notebooks", "Este proyecto": f"CatBoost + calibración {best_calibration} (ECE={final.get('ece', 0):.4f})"},
         {"Técnica": "SHAP / explicabilidad", "Kaggle (60+ notebooks)": "1-2 notebooks en detalle", "Este proyecto": "Cubierto en NB03 + Streamlit"},
         {"Técnica": "Validación out-of-time", "Kaggle (60+ notebooks)": "Ninguno (todos usan random split)", "Este proyecto": "Split temporal 2007-2017 / 2017 / 2018-2020"},
         {"Técnica": "WOE/IV feature engineering", "Kaggle (60+ notebooks)": "Ninguno", "Este proyecto": "OptBinning con supervisión monotónica"},

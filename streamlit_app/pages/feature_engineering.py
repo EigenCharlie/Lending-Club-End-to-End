@@ -8,7 +8,11 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
-from streamlit_app.components.narrative import narrative_block, next_page_teaser
+from streamlit_app.components.narrative import (
+    narrative_block,
+    next_page_teaser,
+    storytelling_intro,
+)
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     get_notebook_image_path,
@@ -22,6 +26,22 @@ st.caption(
 )
 
 audience = audience_selector()
+storytelling_intro(
+    page_goal=(
+        "Transformar variables crudas en señales estables y útiles para predecir default."
+    ),
+    business_value=(
+        "La calidad de features define gran parte del desempeño y la interpretabilidad del score."
+    ),
+    key_decision=(
+        "Decidir qué variables conservar, transformar o eliminar para maximizar valor predictivo sin leakage."
+    ),
+    how_to_read=[
+        "Empieza por el pipeline de 142→110→60 para entender la depuración.",
+        "Revisa features creadas y su intuición de riesgo.",
+        "Usa IV/WOE para validar por qué entran al modelo final.",
+    ],
+)
 
 narrative_block(
     audience,

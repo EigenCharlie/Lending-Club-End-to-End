@@ -18,6 +18,13 @@ st.caption(
     "bajo incertidumbre cuantificada con garantías matemáticas."
 )
 
+comparison = load_json("model_comparison")
+final_metrics = comparison.get("final_test_metrics", {})
+best_calibration = str(comparison.get("best_calibration", "calibración seleccionada"))
+cal_report = comparison.get("calibration_selection_report", {})
+cal_reason = str(cal_report.get("selection_reason", "n/a"))
+cal_auc_drop_limit = float(cal_report.get("auc_drop_limit", 0.0015))
+
 # ── Research Question ──
 st.markdown(
     """
@@ -41,14 +48,14 @@ st.markdown(
     """
 ### ¿Por qué Lending Club?
 
-El dataset de **Lending Club** (2.26 millones de préstamos, 2007-2020) no se eligió por
+El dataset de **Lending Club** (2.93 millones de registros crudos; 1.86 millones resueltos) no se eligió por
 conveniencia: es uno de los pocos datasets públicos que reúne las condiciones necesarias
 para demostrar un pipeline end-to-end de riesgo de crédito con rigor académico.
 
 - **Cobertura temporal completa**: abarca desde la post-crisis financiera de 2008 hasta el
   inicio de la pandemia COVID-19, capturando al menos un ciclo crediticio completo con
   períodos de expansión y estrés.
-- **Volumen y diversidad**: 2.26M de préstamos con más de 150 variables originales
+- **Volumen y diversidad**: 2.93M de registros crudos con 142 variables originales
   (atributos del prestatario, términos del préstamo, comportamiento de pago, variables
   macroeconómicas implícitas).
 - **Reproducibilidad**: dataset público en Kaggle, permitiendo que cualquier investigador
@@ -70,9 +77,9 @@ La ingeniería de features con WOE (Weight of Evidence) via OptBinning transform
 crudas en predictores con poder discriminativo medido por Information Value.
 
 **2. Calibración de probabilidades** — Un modelo con AUC alto no necesariamente produce
-probabilidades confiables. La calibración Platt (sigmoid scaling) convierte scores en
-probabilidades que reflejan frecuencias reales de default (ECE=0.013), requisito
-fundamental antes de cualquier cuantificación de incertidumbre o toma de decisiones.
+probabilidades confiables. La calibración seleccionada por validación temporal convierte
+scores en probabilidades que reflejan frecuencias reales de default, requisito fundamental
+antes de cualquier cuantificación de incertidumbre o toma de decisiones.
 
 **3. Conformal Prediction** — Cuantificar incertidumbre sin asumir ninguna distribución
 es el corazón de este proyecto. Split Conformal Prediction genera intervalos
@@ -115,9 +122,9 @@ st.success(
 st.subheader("1) Pipeline: del modelo a la decisión robusta")
 
 st_mermaid(
-    """
+    f"""
     graph LR
-        A[CatBoost PD] --> B[Calibración Platt]
+        A[CatBoost PD] --> B[Calibración {best_calibration}]
         B --> C[MAPIE Mondrian<br/>Conformal Prediction]
         C --> D["[PD_low, PD_high]<br/>Intervalos con garantía"]
         D --> E[Box Uncertainty Sets]
@@ -136,10 +143,11 @@ st_mermaid(
 )
 
 st.markdown(
-    """
+    f"""
 **Cada etapa tiene un propósito preciso:**
 1. **CatBoost PD**: modelo de clasificación robusto con manejo nativo de categorías y nulos.
-2. **Calibración Platt**: convierte scores en probabilidades verdaderas (ECE=0.0128).
+2. **Calibración ({best_calibration})**: convierte scores en probabilidades verdaderas
+   (ECE test actual={final_metrics.get('ece', 0):.4f}).
 3. **Conformal Prediction Mondrian**: genera intervalos `[PD_low, PD_high]` con garantía de
    cobertura empírica por grupo (grade), sin supuestos distribucionales.
 4. **Box Uncertainty Sets**: encapsula los intervalos como conjuntos de incertidumbre para optimización.
@@ -178,8 +186,8 @@ innecesariamente conservadores.
     )
 with col_cal_right:
     st.markdown(
-        """
-#### Con calibración Platt
+        f"""
+#### Con calibración {best_calibration}
 ```
 Score modelo  = 0.12
 PD calibrada  = 0.082
@@ -199,7 +207,7 @@ st.info(
 # ── Platt vs Isotonic vs Venn-Abers ──
 with st.expander("Métodos de calibración: Platt, Isotonic y Venn-Abers"):
     st.markdown(
-        """
+        f"""
 ### ¿Qué hace cada método?
 
 | Método | Mecanismo | Ventajas | Limitaciones |
@@ -208,14 +216,12 @@ with st.expander("Métodos de calibración: Platt, Isotonic y Venn-Abers"):
 | **Isotonic Regression** | Ajuste no-paramétrico monotónico (step function) | Flexible, no asume forma funcional | Riesgo de overfitting con calibración sets pequeños |
 | **Venn-Abers** | Genera **dos** calibraciones isotonic (una asumiendo y=0, otra y=1) y reporta un **intervalo** [p_low, p_high] | Produce intervalos con garantía de validez | Más complejo, computacionalmente costoso, menos conocido |
 
-### ¿Por qué elegimos Platt?
+### ¿Qué quedó seleccionado en este run?
 
-En NB03 comparamos Isotonic (ECE=0.0019 en calibración) vs Platt (ECE=0.0128 en test).
-Aunque isotonic tiene mejor ECE *en el set de calibración*, Platt fue seleccionado porque:
-
-1. **Generaliza mejor** a datos fuera de muestra (test set OOT 2018-2020).
-2. **Es más estable** con calibración sets de tamaño moderado (~237K observaciones).
-3. **Produce una curva suave**, no una step function que puede crear "saltos" artificiales.
+- Método ganador: **{best_calibration}**
+- Regla de selección: priorizar menor Brier, luego menor ECE, luego estabilidad fold-to-fold.
+- Restricción aplicada: degradación media de AUC <= **{cal_auc_drop_limit:.4f}**.
+- Motivo registrado: `{cal_reason}`.
 
 ### ¿Qué pasaría con Venn-Abers en vez de Platt?
 
@@ -236,7 +242,7 @@ La respuesta es **sí**, por tres razones:
 - Venn-Abers calibra de forma conservadora (intervalos de *probabilidad*).
 - Conformal cuantifica incertidumbre de *predicción* con cobertura controlable.
 
-En este proyecto, Platt calibra el punto central (PD honesta) y Conformal genera el
+En este proyecto, el calibrador seleccionado ({best_calibration}) ajusta el punto central (PD honesta) y Conformal genera el
 intervalo operativo [PD_low, PD_high] que consume el optimizador. Si usáramos Venn-Abers,
 tendríamos intervalos de calibración, pero **no** la garantía de cobertura marginal finita
 que ofrece Conformal Prediction y que es esencial para la robustez del optimizador.
@@ -246,14 +252,14 @@ que ofrece Conformal Prediction y que es esencial para la robustez del optimizad
 # ── Calibration → Conformal flow ──
 with st.expander("¿Cómo se complementan calibración y conformal prediction?"):
     st.markdown(
-        """
+        f"""
 ### El flujo completo, paso a paso
 
 ```
 Paso 1: CatBoost produce un score bruto
         → score = 0.15 (no es una probabilidad confiable)
 
-Paso 2: Platt Scaling calibra el score
+Paso 2: Calibración ({best_calibration}) ajusta el score
         → PD_point = 0.12 (ahora sí es una probabilidad honesta)
 
 Paso 3: Conformal Prediction genera el intervalo

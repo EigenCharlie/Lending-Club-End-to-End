@@ -19,7 +19,7 @@ from streamlit_flow.layouts import ManualLayout
 from streamlit_flow.state import StreamlitFlowState
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_number, format_pct, load_json
 
@@ -35,7 +35,7 @@ _ARCH_NODES = [
     {"id": "raw", "label": "Lending Club Raw", "layer": "data", "detail": "2.93M filas · 142 cols", "icon": "\U0001F4E6"},
     {"id": "clean", "label": "Limpieza + QA", "layer": "data", "detail": "1.86M filas · 110 cols", "icon": "\U0001F9F9"},
     {"id": "fe", "label": "Feature Engineering", "layer": "data", "detail": "WOE/IV · ratios · buckets", "icon": "\u2699\uFE0F"},
-    {"id": "pd", "label": "PD Model", "layer": "model", "detail": "CatBoost + Platt · AUC OOT", "icon": "\U0001F3AF"},
+    {"id": "pd", "label": "PD Model", "layer": "model", "detail": "CatBoost + calibración · AUC OOT", "icon": "\U0001F3AF"},
     {"id": "conformal", "label": "Conformal Mondrian", "layer": "model", "detail": "Intervalos PD · Coverage 90/95", "icon": "\U0001F4D0"},
     {"id": "causal", "label": "Causalidad (DML/CATE)", "layer": "model", "detail": "+1pp tasa \u2192 +0.787pp default", "icon": "\U0001F9EC"},
     {"id": "survival", "label": "Forecast + Survival", "layer": "model", "detail": "Cox/RSF concordance", "icon": "\u23F3"},
@@ -96,8 +96,19 @@ st.caption(
 
 st.success(
     "**Lending Club**: la plataforma de préstamos peer-to-peer más grande de EE.UU. "
-    "2.26 millones de préstamos entre 2007 y 2020. Este proyecto construye un sistema "
-    "completo de gestión de riesgo de crédito end-to-end."
+    "Este proyecto transforma su histórico de préstamos en un sistema completo "
+    "de decisión de riesgo de crédito, desde score hasta provisiones IFRS9."
+)
+
+storytelling_intro(
+    page_goal="Conectar en una sola vista el flujo completo de riesgo: predicción, incertidumbre, decisión y regulación.",
+    business_value="Evita decisiones parciales (solo AUC o solo provisión) y permite balancear retorno, robustez y cumplimiento.",
+    key_decision="Elegir una política de riesgo defendible para originación y provisión con métricas consistentes.",
+    how_to_read=[
+        "Revisar métricas de calidad de modelo (AUC/Gini/Brier/ECE).",
+        "Contrastar robusto vs no robusto (retorno, PoR, aprobados).",
+        "Confirmar cobertura conformal y estado de gobernanza antes de adoptar una política.",
+    ],
 )
 
 st.markdown(

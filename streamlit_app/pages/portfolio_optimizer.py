@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -60,6 +60,17 @@ La diferencia de retorno entre la solución "optimista" (usa PD puntual) y la "r
 de la incertidumbre del modelo — exactamente como un seguro.
 """
     )
+
+storytelling_intro(
+    page_goal="Convertir predicciones PD e incertidumbre en decisiones concretas de asignación de capital.",
+    business_value="Hace explícito el trade-off entre crecimiento de retorno y protección en escenarios adversos.",
+    key_decision="Seleccionar la política operativa (riesgo y aversión a incertidumbre) para aprobar cartera.",
+    how_to_read=[
+        "Comparar KPIs robusto vs no robusto.",
+        "Observar la frontera robusta por tolerancia de riesgo.",
+        "Evaluar si el Price of Robustness es aceptable para el apetito de riesgo actual.",
+    ],
+)
 
 st.markdown(
     """

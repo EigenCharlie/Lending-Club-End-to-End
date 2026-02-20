@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_parquet
 
@@ -24,6 +24,22 @@ st.title("🧬 Inteligencia Causal")
 st.caption(
     "Estimación de efectos causales heterogéneos para orientar políticas de precio "
     "y acciones de mitigación de riesgo."
+)
+storytelling_intro(
+    page_goal=(
+        "Distinguir correlación de causalidad para saber qué acción realmente reduce default."
+    ),
+    business_value=(
+        "Evita políticas costosas que parecen razonables por correlación, pero no cambian el riesgo real."
+    ),
+    key_decision=(
+        "Definir segmentos donde conviene intervenir en precio o tratamiento y cuantificar su impacto neto."
+    ),
+    how_to_read=[
+        "Empieza por el bloque de ATE/CATE y su interpretación de negocio.",
+        "Revisa la regla causal seleccionada y su valor neto económico.",
+        "Contrasta supuestos causales con límites antes de operacionalizar la política.",
+    ],
 )
 
 with st.expander("¿Por qué no basta con correlación? — La trampa del scoring tradicional"):

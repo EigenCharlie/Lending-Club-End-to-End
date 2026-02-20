@@ -17,7 +17,7 @@ import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import narrative_block, next_page_teaser
+from streamlit_app.components.narrative import narrative_block, next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_number, get_notebook_image_path, load_parquet, try_load_parquet
 
@@ -39,6 +39,17 @@ narrative_block(
     "provisiones esperadas (ECL) por stage y escenario.",
     technical="ECL = PD x LGD x EAD x DF. Staging por PD thresholds + conformal width como SICR signal. "
     "4 escenarios con multiplicadores de PD y LGD. Sensibilidad bivariada PD x LGD.",
+)
+
+storytelling_intro(
+    page_goal="Traducir modelos de riesgo a provisiones contables IFRS9 por stage y escenario.",
+    business_value="Conecta analítica con impacto directo en P&L, reservas y solvencia.",
+    key_decision="Definir nivel de provisión y sensibilidad a escenarios macro (baseline vs severe).",
+    how_to_read=[
+        "Entender Stage 1/2/3 y fórmula ECL.",
+        "Comparar ECL baseline vs severe y shares por stage.",
+        "Usar sensibilidad PD/LGD para evaluar resiliencia de capital.",
+    ],
 )
 
 # ── IFRS9 for Non-Accountants ──

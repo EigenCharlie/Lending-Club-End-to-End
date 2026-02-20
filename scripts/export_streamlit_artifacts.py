@@ -15,6 +15,7 @@ import subprocess
 from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -182,12 +183,48 @@ def export_model_comparison() -> None:
             }
         )
 
+    record_best_model = str(rec.get("best_model", "")).strip()
+    if record_best_model in models:
+        # Honor canonical model selection from training pipeline.
+        best_model = record_best_model
+    elif comparison:
+        # Fallback: highest AUC, then lowest Brier.
+        best_row = sorted(comparison, key=lambda row: (-row["auc"], row["brier"]))[0]
+        best_model = str(best_row["model"])
+    else:
+        best_model = "CatBoost (tuned + calibrated)"
+
+    feature_count_default = int(rec.get("feature_count_default", 0))
+    feature_count_tuned = int(rec.get("feature_count_tuned", 0))
+    if feature_count_default <= 0 or feature_count_tuned <= 0:
+        try:
+            with open(DATA_DIR / "feature_config.pkl", "rb") as f:
+                feat_cfg = pickle.load(f)
+            n_catboost = int(len(feat_cfg.get("CATBOOST_FEATURES", [])))
+            if feature_count_default <= 0:
+                feature_count_default = n_catboost
+            if feature_count_tuned <= 0:
+                feature_count_tuned = n_catboost
+        except Exception:
+            pass
+
+    hpo_trials_executed = int(rec.get("hpo_trials_executed", rec.get("optuna_n_trials", 0)))
+    hpo_best_validation_auc = float(
+        rec.get("hpo_best_validation_auc", rec.get("optuna_best_auc", 0.0))
+    )
+
     export = {
         "models": comparison,
-        "best_model": "CatBoost (tuned + calibrated)",
+        "best_model": best_model,
         "best_calibration": rec.get("best_calibration", "Platt Sigmoid"),
         "optuna_best_auc": round(rec.get("optuna_best_auc", 0), 4),
-        "optuna_n_trials": len(rec.get("optuna_best_params", {})),
+        "optuna_n_trials": hpo_trials_executed,
+        "hpo_trials_executed": hpo_trials_executed,
+        "hpo_best_validation_auc": round(hpo_best_validation_auc, 4),
+        "validation_scheme": rec.get("validation_scheme", ""),
+        "feature_count_default": feature_count_default,
+        "feature_count_tuned": feature_count_tuned,
+        "calibration_selection_report": rec.get("calibration_selection_report", {}),
         "final_test_metrics": rec.get("final_test_metrics", {}),
     }
     _save_json(export, DATA_DIR / "model_comparison.json")
@@ -248,59 +285,169 @@ def export_calibration_curves() -> None:
     _save_parquet(pd.DataFrame(rows), DATA_DIR / "calibration_curve_data.parquet")
 
 
-# ── 6. SHAP Summary ──
+# ── 6. Explainability Artifacts ──
+def _load_pd_explainability_context(
+    sample_size: int = 20000,
+) -> tuple[Any, pd.DataFrame, np.ndarray, list[str], list[str]]:
+    """Load canonical PD model + OOT matrix for explainability exports."""
+    from catboost import CatBoostClassifier
+
+    from src.models.pd_contract import CONTRACT_PATH, load_contract, resolve_model_path
+
+    model_path = resolve_model_path()
+    model = CatBoostClassifier()
+    model.load_model(str(model_path))
+
+    contract = load_contract(CONTRACT_PATH) or {}
+    feature_names = list(contract.get("feature_names", []) or getattr(model, "feature_names_", []) or [])
+    categorical = list(contract.get("categorical_features", []) or [])
+
+    test = pd.read_parquet(DATA_DIR / "test_fe.parquet")
+    feature_names = [c for c in feature_names if c in test.columns]
+    if not feature_names:
+        raise ValueError("Unable to resolve feature names for explainability export.")
+
+    X = test[feature_names].copy()
+    for c in categorical:
+        if c in X.columns:
+            X[c] = X[c].astype("string").fillna("UNKNOWN").astype(str)
+
+    if len(X) > sample_size:
+        X = X.sample(n=sample_size, random_state=42)
+
+    if "default_flag" not in test.columns:
+        raise ValueError("default_flag column missing in test_fe.parquet for explainability exports.")
+    y = test.loc[X.index, "default_flag"].to_numpy(dtype=int)
+
+    return model, X, y, feature_names, categorical
+
+
 def export_shap_summary() -> None:
-    """SHAP values for top features (sampled for speed)."""
-    logger.info("Exporting SHAP summary (5000-sample)...")
+    """Export SHAP global + local artifacts for the final PD model."""
+    logger.info("Exporting SHAP artifacts...")
 
     try:
         import shap
-        from catboost import CatBoostClassifier
 
-        # Load model and data
-        model = CatBoostClassifier()
-        model.load_model(str(MODEL_DIR / "pd_catboost_tuned.cbm"))
-
-        with open(DATA_DIR / "feature_config.pkl", "rb") as f:
-            cfg = pickle.load(f)
-
-        test = pd.read_parquet(DATA_DIR / "test_fe.parquet")
-        features = cfg["CATBOOST_FEATURES"]
-        cat_features = cfg["CATEGORICAL_FEATURES"]
-
-        # Sample for speed
-        sample_size = min(5000, len(test))
-        X_sample = test[features].sample(n=sample_size, random_state=42)
-
-        # Convert categoricals to string for CatBoost SHAP
-        for c in cat_features:
-            if c in X_sample.columns:
-                X_sample[c] = X_sample[c].astype(str)
-
+        model, X, _, features, _ = _load_pd_explainability_context(sample_size=5000)
         explainer = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(X_sample)
+        shap_values = explainer.shap_values(X)
 
-        # Mean absolute SHAP per feature
         mean_abs_shap = np.abs(shap_values).mean(axis=0)
         shap_df = pd.DataFrame({"feature": features, "mean_abs_shap": mean_abs_shap}).sort_values(
             "mean_abs_shap", ascending=False
         )
+        _save_parquet(shap_df, DATA_DIR / "shap_summary.parquet")
 
-        # Also save raw SHAP for top 20 features (for beeswarm plots)
         top_features = shap_df["feature"].head(20).tolist()
         top_idx = [features.index(f) for f in top_features]
-        raw_shap_df = pd.DataFrame(
-            shap_values[:, top_idx], columns=[f"shap_{f}" for f in top_features]
-        )
-        # Add feature values for coloring
+        raw_shap_df = pd.DataFrame(shap_values[:, top_idx], columns=[f"shap_{f}" for f in top_features])
         for f in top_features:
-            raw_shap_df[f"val_{f}"] = X_sample[f].values
-
-        _save_parquet(shap_df, DATA_DIR / "shap_summary.parquet")
+            raw_shap_df[f"val_{f}"] = X[f].values
         _save_parquet(raw_shap_df, DATA_DIR / "shap_raw_top20.parquet")
+
+        # Local explanations for representative risk quantiles.
+        y_prob = model.predict_proba(X)[:, 1]
+        q10 = np.quantile(y_prob, 0.10)
+        q50 = np.quantile(y_prob, 0.50)
+        q90 = np.quantile(y_prob, 0.90)
+        representative_idx = (
+            np.argsort(np.abs(y_prob - q10))[:2].tolist()
+            + np.argsort(np.abs(y_prob - q50))[:2].tolist()
+            + np.argsort(np.abs(y_prob - q90))[:2].tolist()
+        )
+        representative_idx = sorted(set(representative_idx))[:6]
+
+        local_rows: list[dict[str, Any]] = []
+        for row_id in representative_idx:
+            for f, feature_idx in zip(top_features, top_idx, strict=False):
+                local_rows.append(
+                    {
+                        "case_id": int(row_id),
+                        "predicted_pd": float(y_prob[row_id]),
+                        "feature": f,
+                        "feature_value": str(X.iloc[row_id][f]),
+                        "shap_value": float(shap_values[row_id, feature_idx]),
+                    }
+                )
+        _save_parquet(pd.DataFrame(local_rows), DATA_DIR / "shap_local_cases.parquet")
 
     except Exception as e:
         logger.warning(f"SHAP export failed: {e}. Skipping.")
+
+
+def export_permutation_importance() -> None:
+    """Export permutation importance on OOT sample using AUC degradation."""
+    logger.info("Exporting permutation importance...")
+    try:
+        model, X, y, features, _ = _load_pd_explainability_context(sample_size=12000)
+        baseline_auc = roc_auc_score(y, model.predict_proba(X)[:, 1])
+
+        rng = np.random.default_rng(42)
+        rows: list[dict[str, Any]] = []
+        for feature in features:
+            X_perm = X.copy()
+            X_perm[feature] = rng.permutation(X_perm[feature].to_numpy())
+            auc_perm = roc_auc_score(y, model.predict_proba(X_perm)[:, 1])
+            rows.append(
+                {
+                    "feature": feature,
+                    "baseline_auc": float(baseline_auc),
+                    "permuted_auc": float(auc_perm),
+                    "auc_drop": float(baseline_auc - auc_perm),
+                }
+            )
+        imp_df = pd.DataFrame(rows).sort_values("auc_drop", ascending=False)
+        _save_parquet(imp_df, DATA_DIR / "permutation_importance.parquet")
+    except Exception as e:
+        logger.warning(f"Permutation importance export failed: {e}. Skipping.")
+
+
+def export_pdp_ice_top5() -> None:
+    """Export PDP/ICE data for top-5 numeric features."""
+    logger.info("Exporting PDP/ICE top-5 features...")
+    try:
+        model, X, _, _, categorical = _load_pd_explainability_context(sample_size=4000)
+
+        imp_path = DATA_DIR / "permutation_importance.parquet"
+        if imp_path.exists():
+            imp = pd.read_parquet(imp_path)
+            ranking = imp["feature"].tolist()
+        else:
+            ranking = X.columns.tolist()
+
+        numeric_candidates = [f for f in ranking if f in X.columns and f not in set(categorical)]
+        top5 = numeric_candidates[:5]
+        if not top5:
+            raise ValueError("No numeric features available for PDP/ICE export.")
+
+        ice_sample = X.sample(n=min(500, len(X)), random_state=11).copy()
+        rows: list[dict[str, Any]] = []
+
+        for feature in top5:
+            valid = pd.to_numeric(X[feature], errors="coerce").dropna()
+            if valid.empty:
+                continue
+            grid = np.quantile(valid, np.linspace(0.05, 0.95, 11))
+            for value in grid:
+                X_tmp = ice_sample.copy()
+                X_tmp[feature] = value
+                preds = model.predict_proba(X_tmp)[:, 1]
+                pdp_value = float(np.mean(preds))
+                for obs_id, pred in zip(X_tmp.index.to_numpy(), preds, strict=False):
+                    rows.append(
+                        {
+                            "feature": feature,
+                            "grid_value": float(value),
+                            "observation_id": int(obs_id),
+                            "ice_pred": float(pred),
+                            "pdp_pred": pdp_value,
+                        }
+                    )
+
+        _save_parquet(pd.DataFrame(rows), DATA_DIR / "pdp_ice_top5.parquet")
+    except Exception as e:
+        logger.warning(f"PDP/ICE export failed: {e}. Skipping.")
 
 
 # ── 7. KM Curve Data ──
@@ -556,6 +703,8 @@ def main() -> None:
     export_roc_curves()
     export_calibration_curves()
     export_shap_summary()
+    export_permutation_importance()
+    export_pdp_ice_top5()
     export_km_curves()
     export_hazard_ratios()
     export_pipeline_summary()

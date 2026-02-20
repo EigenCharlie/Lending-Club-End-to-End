@@ -1,0 +1,5 @@
+# Keep generated artifacts from dominating GitHub language stats.
+reports/**/*.html linguist-generated=true
+reports/**/*.htm linguist-generated=true
+
+dbt_project/target/** linguist-generated=true

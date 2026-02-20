@@ -12,7 +12,10 @@ from src.models.calibration import (
 )
 from src.models.pd_model import (
     get_available_features,
+    temporal_train_val_split,
     train_baseline,
+    train_catboost_default,
+    train_catboost_tuned_optuna,
 )
 
 
@@ -33,6 +36,31 @@ def binary_dataset():
     y_train = pd.Series(y[:300])
     y_test = pd.Series(y[300:])
     return X_train, y_train, X_test, y_test
+
+
+@pytest.fixture
+def catboost_dataset():
+    """Synthetic dataset with one categorical column for CatBoost tests."""
+    rng = np.random.RandomState(7)
+    n = 700
+    x1 = rng.normal(0, 1, n)
+    x2 = rng.normal(0, 1, n)
+    bucket = np.where(x1 + x2 > 0.5, "high", np.where(x1 + x2 < -0.5, "low", "mid"))
+    signal = 1.2 * x1 - 0.7 * x2 + (bucket == "high") * 0.8 + (bucket == "low") * (-0.5)
+    y = (signal + rng.normal(0, 0.8, n) > 0).astype(int)
+
+    df = pd.DataFrame(
+        {
+            "issue_d": pd.date_range("2014-01-01", periods=n, freq="D"),
+            "x1": x1,
+            "x2": x2,
+            "bucket": bucket.astype(str),
+            "target": y,
+        }
+    )
+    train_df = df.iloc[:560].copy().reset_index(drop=True)
+    test_df = df.iloc[560:].copy().reset_index(drop=True)
+    return train_df, test_df
 
 
 # ── get_available_features ──
@@ -76,6 +104,61 @@ def test_baseline_probabilities_bounded(binary_dataset):
     assert np.all(probs >= 0), "Probabilities must be >= 0"
     assert np.all(probs <= 1), "Probabilities must be <= 1"
     assert not np.any(np.isnan(probs)), "No NaN probabilities allowed"
+
+
+def test_temporal_train_val_split_keeps_order(catboost_dataset):
+    train_df, _ = catboost_dataset
+    fit_df, val_df = temporal_train_val_split(train_df, val_fraction=0.2, date_col="issue_d")
+    assert not fit_df.empty
+    assert not val_df.empty
+    assert fit_df["issue_d"].max() <= val_df["issue_d"].min()
+
+
+def test_catboost_tuned_and_default_predictions_differ(catboost_dataset):
+    train_df, test_df = catboost_dataset
+    fit_df, val_df = temporal_train_val_split(train_df, val_fraction=0.2, date_col="issue_d")
+
+    X_fit = fit_df[["x1", "x2", "bucket"]].copy()
+    y_fit = fit_df["target"].astype(int)
+    X_val = val_df[["x1", "x2", "bucket"]].copy()
+    y_val = val_df["target"].astype(int)
+    X_test = test_df[["x1", "x2", "bucket"]].copy()
+    y_test = test_df["target"].astype(int)
+
+    cb_default, _ = train_catboost_default(
+        X_fit,
+        y_fit,
+        X_val,
+        y_val,
+        X_test=X_test,
+        y_test=y_test,
+        cat_features=["bucket"],
+        params={"iterations": 120, "early_stopping_rounds": 25, "verbose": 0},
+    )
+    cb_tuned, tuned_metrics = train_catboost_tuned_optuna(
+        X_fit,
+        y_fit,
+        X_val,
+        y_val,
+        X_test=X_test,
+        y_test=y_test,
+        cat_features=["bucket"],
+        base_params={"iterations": 120, "early_stopping_rounds": 25},
+        n_trials=5,
+        sampler="tpe",
+        pruner="median",
+        timeout_minutes=0,
+    )
+
+    y_default = cb_default.predict_proba(X_test)[:, 1]
+    y_tuned = cb_tuned.predict_proba(X_test)[:, 1]
+
+    assert tuned_metrics["hpo_trials_executed"] >= 1
+    assert tuned_metrics["validation_auc"] >= 0.5
+    assert not np.allclose(y_default, y_tuned), (
+        "Tuned and default CatBoost should produce different predictions "
+        "when HPO is active."
+    )
 
 
 # ── Calibration ──

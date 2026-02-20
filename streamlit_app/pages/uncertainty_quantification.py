@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_pct, get_notebook_image_path, load_json, load_parquet
 
@@ -24,6 +24,17 @@ st.title("📐 Cuantificación de Incertidumbre")
 st.caption(
     "Conformal prediction (Mondrian) para convertir predicciones puntuales en intervalos "
     "con cobertura empírica controlada."
+)
+
+storytelling_intro(
+    page_goal="Cuantificar qué tan incierta es cada PD en lugar de usar un único número puntual.",
+    business_value="Evita sobreconfianza del modelo y mejora decisiones de cartera y provisión.",
+    key_decision="Definir qué nivel de cobertura/ancho es aceptable para operar de forma robusta.",
+    how_to_read=[
+        "Revisar cobertura global 90/95 y ancho promedio.",
+        "Comprobar cobertura mínima por grupo (grade) para evitar sesgos ocultos.",
+        "Validar estabilidad temporal en el backtest mensual.",
+    ],
 )
 
 # ── Visual Intuition ──
@@ -78,8 +89,9 @@ with st.expander("¿Dónde se usa Conformal Prediction en la industria?"):
 | **Seguros** | Intervalos en reclamaciones y reservas | Taquet et al. (2025) |
 | **Regulación bancaria** | Model risk management (incertidumbre cuantificada) | EBA guidelines |
 
-Conformal Prediction ha crecido exponencialmente en adopción desde 2020. La librería MAPIE
-(usada en este proyecto) tiene >3,000 estrellas en GitHub y es mantenida por Quantmetry.
+	Conformal Prediction muestra adopción creciente en dominios de alto riesgo e incertidumbre.
+	En este proyecto se usa MAPIE como implementación open-source para integrar cobertura
+	empírica con decisiones de negocio.
 """
     )
 

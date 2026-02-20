@@ -16,7 +16,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
-from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
 
@@ -24,6 +24,22 @@ st.title("⏳ Análisis de Supervivencia")
 st.caption(
     "Modelamos tiempo hasta incumplimiento para complementar la PD puntual "
     "con una visión temporal útil en IFRS9 y gestión de ciclo de vida."
+)
+storytelling_intro(
+    page_goal=(
+        "Estimar no solo quién puede caer en default, sino cuándo es más probable que ocurra."
+    ),
+    business_value=(
+        "Mejora provisiones lifetime y priorización de seguimiento preventivo en cartera."
+    ),
+    key_decision=(
+        "Definir qué segmentos requieren monitoreo temprano y ajustes prudenciales por horizonte temporal."
+    ),
+    how_to_read=[
+        "Empieza con la intuición de dos préstamos con igual PD pero distinto tiempo al default.",
+        "Revisa C-index y hazard ratios para entender drivers temporales.",
+        "Termina en curvas PD lifetime para conexión directa con IFRS9.",
+    ],
 )
 
 summary = load_json("pipeline_summary")

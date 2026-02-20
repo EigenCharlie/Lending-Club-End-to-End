@@ -351,7 +351,7 @@ y demostrando que la protección conformal produce portafolios estables bajo est
 **Contribución clave**: Primer framework que conecta Mondrian CP → box uncertainty sets
 → Pyomo robust LP para asignación de crédito con cobertura garantizada por segmento.
 
-**Metodología**: CatBoost PD → Platt calibration → MAPIE SplitConformalRegressor
+**Metodología**: CatBoost PD → calibración probabilística (método seleccionado en pipeline) → MAPIE SplitConformalRegressor
 (Mondrian by grade) → Box sets [PD_low, PD_high] → Pyomo LP + HiGHS → Frontera de
 robustez empírica.
 """

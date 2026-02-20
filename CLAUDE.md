@@ -8,12 +8,20 @@ Master's thesis on credit risk management using the **Lending Club Loan Data** (
 
 **I prefer simple, working code over sophisticated abstractions. Get things done quickly and accurately.**
 
+## DOCUMENT SCOPE POLICY
+
+This file and `docs/PROJECT_JUSTIFICATION.md` contain only **current official decisions and standards**.
+
+- Do not store historical decision changes, mistakes, or retrospective notes here.
+- Store that history in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.
+- Keep runtime metrics dynamic and sourced from artifacts (no fixed snapshot numbers in these docs).
+
 ## THESIS CONTRIBUTION
 
 The central innovation is a **predict-then-optimize pipeline with conformal prediction**:
 
 ```
-CatBoost PD → Platt Calibration → MAPIE Mondrian Conformal → [PD_low, PD_high]
+CatBoost PD → Calibration Selection (Platt/Isotonic) → MAPIE Mondrian Conformal → [PD_low, PD_high]
   → Box Uncertainty Sets → Pyomo Robust Optimization (HiGHS) → Optimal Portfolio
 ```
 
@@ -23,26 +31,19 @@ Why this matters:
 - Bayesian intervals require distributional assumptions
 - **Conformal prediction intervals are distribution-free with mathematical coverage guarantees**
 
-## CURRENT PROJECT STATUS
+## CURRENT OFFICIAL DECISIONS
 
-All core components are **implemented, executed, and validated**:
+- **Serving mode**: Streamlit-first Thesis Mode, with FastAPI/MCP as optional support services.
+- **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model.
+- **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
+- **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
+- **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config.
+- **Calibration policy**: method selected by temporal multi-metric validation policy; resulting method persisted in artifacts.
 
-| Component | Notebook | Status | Key Metric |
-|-----------|----------|--------|------------|
-| EDA | 01 | Complete (27 code cells) | 1.35M loans, 18.5% default rate |
-| Feature Engineering | 02 | Complete (21 code cells) | 60 features, WOE via OptBinning |
-| PD Modeling | 03 | Complete (25 code cells) | AUC=0.7187, ECE=0.0128 (Platt) |
-| Conformal Prediction | 04 | Complete (15 code cells) | Coverage 90%=0.9197, 95%=0.9608 |
-| Time Series | 05 | Complete (23 code cells) | ARIMA + LightGBM + conformal intervals |
-| Survival Analysis | 06 | Complete (21 code cells) | Cox C-index=0.6769, RSF=0.6838 |
-| Causal Inference | 07 | Complete (15 code cells) | ATE: +1pp rate → +0.787pp default |
-| Portfolio Optimization | 08 | Complete (13 code cells) | Robust vs non-robust frontier |
-| End-to-End Pipeline | 09 | Complete (12 code cells) | Full pipeline orchestration |
-
-Scripts produce artifacts in `data/processed/` and `models/`. Policy gates are tracked via
-`models/conformal_policy_status.json` and `models/causal_policy_rule.json` (snapshot-dependent).
-
-**Serving direction (2026-02-15)**: Streamlit-first Thesis Mode (fixed dataset showcase), with FastAPI and MCP as optional support services.
+Current runtime metrics and winners must be read from artifacts, primarily:
+- `data/processed/model_comparison.json`
+- `models/pd_training_record.pkl`
+- `data/processed/pipeline_summary.json`
 
 ## DATASET
 
@@ -145,7 +146,7 @@ uv run ruff format src/ # Format
 1. `src/data/make_dataset.py` → interim cleaned dataset
 2. `src/data/prepare_dataset.py` → OOT train/calibration/test splits
 3. `src/data/build_datasets.py` + `src/features/feature_engineering.py` → analytical datasets
-4. `scripts/train_pd_model.py` → CatBoost PD + Platt calibrator + canonical contract
+4. `scripts/train_pd_model.py` → LR baseline + CatBoost default/tuned + selected calibrator + canonical contract
 5. `scripts/generate_conformal_intervals.py` → Mondrian conformal intervals
 6. `scripts/backtest_conformal_coverage.py` + `scripts/validate_conformal_policy.py` → monitoring + policy gate
 7. `scripts/estimate_causal_effects.py` → `simulate_causal_policy.py` → `validate_causal_policy.py`
@@ -156,7 +157,7 @@ uv run ruff format src/ # Format
 ### Canonical Model Contract
 - `models/pd_model_contract.json` — feature names, types, thresholds
 - `models/pd_canonical.cbm` — trained CatBoost model
-- `models/pd_canonical_calibrator.pkl` — Platt sigmoid calibrator
+- `models/pd_canonical_calibrator.pkl` — selected score calibrator artifact
 Downstream scripts consume this contract to avoid feature drift.
 
 ## CODING STANDARDS
@@ -208,5 +209,6 @@ Current tests: 199 passing across data pipeline, features, models, evaluation, o
 - WOE features are computed in NB02 via OptBinning (not pre-existing in raw data)
 - CatBoost handles NaN natively — no imputation needed. LogReg baseline uses fillna(0).
 - LGD modeling only uses defaults (default_flag=1). ~88% null LGD values are expected.
-- Calibration: NB03 selected **Platt Sigmoid** (ECE=0.0128) over Isotonic for the final model.
+- Calibration method can change across runs by temporal model-selection policy; check `data/processed/model_comparison.json` for the active winner.
 - Side projects (RAPIDS GPU benchmark, Modeva governance) are in `*/side_projects/` — not part of core thesis.
+- History of decision changes, errors, and learnings lives in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.

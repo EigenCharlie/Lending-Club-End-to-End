@@ -25,6 +25,43 @@ revisor académico.
 """
 )
 
+st.markdown("## 1.1) Storytelling para audiencia no experta")
+st.markdown(
+    """
+Checklist mínimo recomendado para cualquier página de resultados:
+
+1. **Empieza con la decisión, no con la técnica**.
+2. **Explica por qué importa en negocio** en 1-2 frases.
+3. **Usa una sola idea por gráfico** (evita gráficos “todo en uno”).
+4. **Muestra benchmark/objetivo explícito** (línea objetivo, meta, umbral).
+5. **Cierra con una recomendación accionable**.
+
+Plantilla corta reusable:
+- Qué problema resuelve esta técnica.
+- Qué riesgo evita si se aplica bien.
+- Qué decisión habilita en operación.
+"""
+)
+
+st.info(
+    "Regla práctica: si un lector no técnico no puede responder "
+    "“¿qué decisión debo tomar?” después de la primera pantalla, la historia está incompleta."
+)
+
+with st.expander("Fuentes externas usadas para estas prácticas"):
+    st.markdown(
+        """
+- Microsoft Learn — principles for dashboard design:
+  https://learn.microsoft.com/en-us/power-bi/guidance/dashboard-design
+- Microsoft Power BI — data storytelling overview:
+  https://learn.microsoft.com/en-us/training/modules/power-bi-effective-storytelling/
+- Tableau Blueprint — data storytelling best practices:
+  https://www.tableau.com/learn/blueprint/data-storytelling
+- Adaptive dashboards (research perspective on audience-adaptive storytelling):
+  https://arxiv.org/abs/2404.11131
+"""
+    )
+
 st.markdown("## 2) Estructura mínima de cada draft")
 render_paper_section_checklist()
 

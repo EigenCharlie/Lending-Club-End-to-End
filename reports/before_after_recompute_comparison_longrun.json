@@ -1,0 +1,83 @@
+{
+  "before": {
+    "pd_metrics": {
+      "auc": 0.6990158423364895,
+      "gini": 0.398031684672979,
+      "ks": 0.29419598263144653,
+      "brier": 0.15721217085708036,
+      "ece": 0.013000949058385959
+    },
+    "conformal_policy": {
+      "coverage_90": 0.8887235479595044,
+      "coverage_95": 0.9479573372244635,
+      "avg_width_90": 0.7459297382063242,
+      "empirical_avg_width_90": 0.7459297382063242
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 1010417398.085331,
+      "severe_total_ecl": 1850841854.7033587
+    },
+    "optimization": {
+      "price_of_robustness": 75066.68556620511,
+      "robust_return": 2279.6133498500258,
+      "nonrobust_return": 77346.29891605514,
+      "best_robust_return": 2279.6133498500258,
+      "baseline_nonrobust_return": 49982.32728364542,
+      "price_of_robustness_pct": 47702.71393379539
+    }
+  },
+  "after": {
+    "pd_metrics": {
+      "auc": 0.7171838117742488,
+      "gini": 0.43436762354849767,
+      "ks": 0.31999735879467034,
+      "brier": 0.15384696766361577,
+      "ece": 0.009396122353834845
+    },
+    "conformal_policy": {
+      "coverage_90": 0.891732191036194,
+      "coverage_95": 0.9510598875280367,
+      "avg_width_90": 0.7225140825125012,
+      "empirical_avg_width_90": 0.7225140825125012
+    },
+    "ifrs9": {
+      "baseline_total_ecl": 967995472.4972175,
+      "severe_total_ecl": 1779233609.398992
+    },
+    "optimization": {
+      "price_of_robustness": 36205.04447715387,
+      "robust_return": 62029.962973554306,
+      "nonrobust_return": 98235.00745070817,
+      "best_robust_return": 62029.962973554306,
+      "baseline_nonrobust_return": 98235.00745070817,
+      "price_of_robustness_pct": 36.85554204793244
+    }
+  },
+  "delta_after_minus_before": {
+    "conformal_policy": {
+      "avg_width_90": -0.02341565569382309,
+      "coverage_90": 0.0030086430766896877,
+      "coverage_95": 0.003102550303573204,
+      "empirical_avg_width_90": -0.02341565569382309
+    },
+    "ifrs9": {
+      "baseline_total_ecl": -42421925.58811343,
+      "severe_total_ecl": -71608245.30436659
+    },
+    "optimization": {
+      "baseline_nonrobust_return": 48252.680167062754,
+      "best_robust_return": 59750.34962370428,
+      "nonrobust_return": 20888.708534653037,
+      "price_of_robustness": -38861.64108905124,
+      "price_of_robustness_pct": -47665.85839174746,
+      "robust_return": 59750.34962370428
+    },
+    "pd_metrics": {
+      "auc": 0.018167969437759335,
+      "brier": -0.0033652031934645887,
+      "ece": -0.003604826704551114,
+      "gini": 0.03633593887551867,
+      "ks": 0.02580137616322381
+    }
+  }
+}

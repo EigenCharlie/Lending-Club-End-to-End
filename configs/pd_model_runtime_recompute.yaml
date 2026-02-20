@@ -1,0 +1,60 @@
+model:
+  type: catboost
+  params:
+    iterations: 700
+    learning_rate: 0.05
+    depth: 6
+    l2_leaf_reg: 3
+    auto_class_weights: Balanced
+    eval_metric: AUC
+    random_seed: 42
+    early_stopping_rounds: 50
+feature_source:
+  mode: feature_config
+  feature_config_path: data/processed/feature_config.pkl
+hpo:
+  enabled: true
+  n_trials: 40
+  sampler: tpe
+  pruner: median
+  timeout_minutes: 0
+validation:
+  scheme: temporal_train_val_cal_test
+  val_from_tail_fraction_of_train: 0.15
+  oot_test_cutoff: '2018-01-01'
+data:
+  train_path: data/processed/train_fe.parquet
+  test_path: data/processed/test_fe.parquet
+  calibration_path: data/processed/calibration_fe.parquet
+  cutoff_date: '2018-01-01'
+features:
+  numeric:
+  - loan_amnt
+  - annual_inc
+  - loan_to_income
+  - dti
+  - rev_utilization
+  - num_delinq_2yrs
+  - days_since_last_delinq
+  - int_rate
+  - installment
+  woe:
+  - grade_woe
+  - purpose_woe
+  - home_ownership_woe
+  categorical:
+  - int_rate_bucket
+  - term
+  target: default_flag
+conformal:
+  confidence_level: 0.9
+  prefit: true
+  estimator: SplitConformalRegressor
+calibration:
+  method: platt
+mlflow:
+  experiment_name: pd_model
+  tracking_uri: null
+output:
+  model_path: models/pd_catboost.cbm
+  conformal_path: models/pd_calibrator.pkl
