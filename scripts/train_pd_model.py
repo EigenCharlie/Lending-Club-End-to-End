@@ -72,7 +72,11 @@ def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
     for col in ("int_rate", "revol_util"):
         if col in out.columns and not pd.api.types.is_numeric_dtype(out[col]):
             out[col] = (
-                out[col].astype(str).str.strip().str.rstrip("%").pipe(pd.to_numeric, errors="coerce")
+                out[col]
+                .astype(str)
+                .str.strip()
+                .str.rstrip("%")
+                .pipe(pd.to_numeric, errors="coerce")
             )
     if "term" in out.columns and not pd.api.types.is_numeric_dtype(out["term"]):
         out["term"] = (
@@ -326,7 +330,9 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     feature_src_cfg = config.get("feature_source", {})
     feature_mode = feature_src_cfg.get("mode", "auto")
-    feature_config_path = feature_src_cfg.get("feature_config_path", "data/processed/feature_config.pkl")
+    feature_config_path = feature_src_cfg.get(
+        "feature_config_path", "data/processed/feature_config.pkl"
+    )
 
     feature_sets = resolve_feature_sets(
         train,
@@ -340,7 +346,9 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     # enforce availability in all splits
     catboost_features = [
-        c for c in catboost_features if c in train.columns and c in cal.columns and c in test.columns
+        c
+        for c in catboost_features
+        if c in train.columns and c in cal.columns and c in test.columns
     ]
     logreg_features = [
         c for c in logreg_features if c in train.columns and c in cal.columns and c in test.columns
@@ -363,7 +371,9 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     val_cfg = config.get("validation", {})
     val_fraction = float(val_cfg.get("val_from_tail_fraction_of_train", 0.15))
-    train_fit, train_val = temporal_train_val_split(train, val_fraction=val_fraction, date_col="issue_d")
+    train_fit, train_val = temporal_train_val_split(
+        train, val_fraction=val_fraction, date_col="issue_d"
+    )
 
     y_train_fit = train_fit[TARGET].astype(int)
     y_val = train_val[TARGET].astype(int)
@@ -475,11 +485,15 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     model_path.parent.mkdir(parents=True, exist_ok=True)
     cb_tuned_model.save_model(str(model_path))
 
-    default_model_path = Path(config["output"].get("default_model_path", "models/pd_catboost_default.cbm"))
+    default_model_path = Path(
+        config["output"].get("default_model_path", "models/pd_catboost_default.cbm")
+    )
     default_model_path.parent.mkdir(parents=True, exist_ok=True)
     cb_default_model.save_model(str(default_model_path))
 
-    tuned_model_path = Path(config["output"].get("tuned_model_path", "models/pd_catboost_tuned.cbm"))
+    tuned_model_path = Path(
+        config["output"].get("tuned_model_path", "models/pd_catboost_tuned.cbm")
+    )
     tuned_model_path.parent.mkdir(parents=True, exist_ok=True)
     if tuned_model_path.resolve() != model_path.resolve():
         shutil.copy2(model_path, tuned_model_path)

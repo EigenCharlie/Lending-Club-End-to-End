@@ -22,9 +22,7 @@ def _term_to_months(term_series: pd.Series) -> pd.Series:
     if pd.api.types.is_numeric_dtype(term_series):
         term = pd.to_numeric(term_series, errors="coerce")
     else:
-        term = (
-            term_series.astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
-        )
+        term = term_series.astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
     return term.fillna(36).clip(lower=1, upper=60).astype(float)
 
 

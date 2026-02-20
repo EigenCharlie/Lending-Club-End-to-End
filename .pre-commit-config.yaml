@@ -4,9 +4,21 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
+        files: ^(src|scripts|tests)/
       - id: ruff-format
+        files: ^(src|scripts|tests)/
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:
       - id: nbstripout
+        files: ^notebooks/.*\.ipynb$
+
+  - repo: local
+    hooks:
+      - id: ci-lint-parity
+        name: CI lint parity (ruff check + format --check)
+        entry: bash -lc 'uv run ruff check src/ scripts/ tests/ && uv run ruff format --check src/ scripts/ tests/'
+        language: system
+        pass_filenames: false
+        stages: [pre-push]

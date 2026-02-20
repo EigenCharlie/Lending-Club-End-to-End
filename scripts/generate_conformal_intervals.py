@@ -272,7 +272,10 @@ def _choose_best_tuning_row(
         df["width_ok"] = df["avg_interval_width"] <= max_width_budget
 
     tiers = [
-        ("strong_global+strong_group+width", df["global_strong"] & df["group_strong"] & df["width_ok"]),
+        (
+            "strong_global+strong_group+width",
+            df["global_strong"] & df["group_strong"] & df["width_ok"],
+        ),
         ("strong_global+strong_group", df["global_strong"] & df["group_strong"]),
         ("strong_global+width", df["global_strong"] & df["width_ok"]),
         ("strong_global_only", df["global_strong"]),
@@ -327,7 +330,7 @@ def _choose_best_tuning_row(
 
 def _to_python_scalar(value: Any) -> Any:
     """Convert numpy/pandas scalar values to Python primitives."""
-    if isinstance(value, (np.floating, np.integer, np.bool_)):
+    if isinstance(value, np.floating | np.integer | np.bool_):
         return value.item()
     return value
 
@@ -616,7 +619,9 @@ def main(
         calibrator=calibrator,
         scaled_scores=best_cfg["scaled_scores"],
     )
-    tune_metrics_90_before = validate_coverage(y_tune.to_numpy(dtype=float), y_int_tune, alpha_target_90)
+    tune_metrics_90_before = validate_coverage(
+        y_tune.to_numpy(dtype=float), y_int_tune, alpha_target_90
+    )
     y_int_90_adjusted, group_multipliers, coverage_floor_report = _enforce_group_coverage_floor(
         y_true=y_tune.to_numpy(dtype=float),
         y_pred=y_pred_tune,
@@ -624,7 +629,9 @@ def main(
         groups=group_tune,
         target_coverage=group_coverage_floor_target_90,
     )
-    tune_metrics_90_after = validate_coverage(y_tune.to_numpy(dtype=float), y_int_90_adjusted, alpha_target_90)
+    tune_metrics_90_after = validate_coverage(
+        y_tune.to_numpy(dtype=float), y_int_90_adjusted, alpha_target_90
+    )
     if group_multipliers:
         logger.info(
             "Applying group coverage floor multipliers learned on calibration holdout: "
@@ -749,7 +756,9 @@ def main(
         "tune_metrics_90_before_floor": {
             k: _to_python_scalar(v) for k, v in tune_metrics_90_before.items()
         },
-        "tune_metrics_90_after_floor": {k: _to_python_scalar(v) for k, v in tune_metrics_90_after.items()},
+        "tune_metrics_90_after_floor": {
+            k: _to_python_scalar(v) for k, v in tune_metrics_90_after.items()
+        },
     }
     with open(results_path, "wb") as f:
         pickle.dump(payload, f)

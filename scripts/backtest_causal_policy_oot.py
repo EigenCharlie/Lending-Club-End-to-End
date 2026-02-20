@@ -60,7 +60,9 @@ def main(
     sim = pd.read_parquet(sim_path)
     train = pd.read_parquet(train_path, columns=["id", "issue_d", "grade"])
     if "id" not in sim.columns:
-        raise KeyError("causal_policy_simulation.parquet must include `id` for temporal backtesting.")
+        raise KeyError(
+            "causal_policy_simulation.parquet must include `id` for temporal backtesting."
+        )
 
     sim["id"] = sim["id"].astype(str)
     train["id"] = train["id"].astype(str)
@@ -109,9 +111,7 @@ def main(
             else 0.0
         )
         avg_net = float(total_net / max(n_selected, 1))
-        positive_share = (
-            float((selected["net_value"] > 0).mean()) if n_selected else 0.0
-        )
+        positive_share = float((selected["net_value"] > 0).mean()) if n_selected else 0.0
 
         rows.append(
             {

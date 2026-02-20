@@ -78,7 +78,9 @@ def _align_loans_and_intervals(
 
         n = min(len(merged), max_candidates)
         if len(merged) > n:
-            idx = np.random.default_rng(random_state).choice(np.arange(len(merged)), size=n, replace=False)
+            idx = np.random.default_rng(random_state).choice(
+                np.arange(len(merged)), size=n, replace=False
+            )
             idx = np.sort(idx)
             merged = merged.iloc[idx].reset_index(drop=True)
         else:

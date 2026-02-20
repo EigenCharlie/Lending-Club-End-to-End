@@ -234,9 +234,7 @@ def main(
         _run_step("survival", _step_survival, status, continue_on_error)
         _run_step("ifrs9", _step_ifrs9, status, continue_on_error)
         _run_step("optimization", _step_optimization, status, continue_on_error)
-        _run_step(
-            "optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error
-        )
+        _run_step("optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error)
 
         if include_modeva_side_task:
             _run_step(

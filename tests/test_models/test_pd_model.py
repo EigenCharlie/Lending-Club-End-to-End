@@ -156,8 +156,7 @@ def test_catboost_tuned_and_default_predictions_differ(catboost_dataset):
     assert tuned_metrics["hpo_trials_executed"] >= 1
     assert tuned_metrics["validation_auc"] >= 0.5
     assert not np.allclose(y_default, y_tuned), (
-        "Tuned and default CatBoost should produce different predictions "
-        "when HPO is active."
+        "Tuned and default CatBoost should produce different predictions when HPO is active."
     )
 
 

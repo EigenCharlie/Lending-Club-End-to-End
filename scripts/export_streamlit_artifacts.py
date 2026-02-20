@@ -299,7 +299,9 @@ def _load_pd_explainability_context(
     model.load_model(str(model_path))
 
     contract = load_contract(CONTRACT_PATH) or {}
-    feature_names = list(contract.get("feature_names", []) or getattr(model, "feature_names_", []) or [])
+    feature_names = list(
+        contract.get("feature_names", []) or getattr(model, "feature_names_", []) or []
+    )
     categorical = list(contract.get("categorical_features", []) or [])
 
     test = pd.read_parquet(DATA_DIR / "test_fe.parquet")
@@ -316,7 +318,9 @@ def _load_pd_explainability_context(
         X = X.sample(n=sample_size, random_state=42)
 
     if "default_flag" not in test.columns:
-        raise ValueError("default_flag column missing in test_fe.parquet for explainability exports.")
+        raise ValueError(
+            "default_flag column missing in test_fe.parquet for explainability exports."
+        )
     y = test.loc[X.index, "default_flag"].to_numpy(dtype=int)
 
     return model, X, y, feature_names, categorical
@@ -341,7 +345,9 @@ def export_shap_summary() -> None:
 
         top_features = shap_df["feature"].head(20).tolist()
         top_idx = [features.index(f) for f in top_features]
-        raw_shap_df = pd.DataFrame(shap_values[:, top_idx], columns=[f"shap_{f}" for f in top_features])
+        raw_shap_df = pd.DataFrame(
+            shap_values[:, top_idx], columns=[f"shap_{f}" for f in top_features]
+        )
         for f in top_features:
             raw_shap_df[f"val_{f}"] = X[f].values
         _save_parquet(raw_shap_df, DATA_DIR / "shap_raw_top20.parquet")

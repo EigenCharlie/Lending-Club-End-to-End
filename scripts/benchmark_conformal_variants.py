@@ -70,7 +70,9 @@ def main(
 ) -> None:
     model, _ = _load_model()
     calibrator = _load_calibrator()
-    cal_df = _read_with_fallback("data/processed/calibration_fe.parquet", "data/processed/calibration.parquet")
+    cal_df = _read_with_fallback(
+        "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
+    )
     test_df = _read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
 
     features, categorical = _resolve_features(model, cal_df, test_df)
@@ -178,7 +180,9 @@ def main(
 
     bench = pd.DataFrame(rows).sort_values(["coverage_gap", "avg_width"]).reset_index(drop=True)
     bench_by_group = (
-        pd.concat(by_group_rows, ignore_index=True).sort_values(["variant", "group"]).reset_index(drop=True)
+        pd.concat(by_group_rows, ignore_index=True)
+        .sort_values(["variant", "group"])
+        .reset_index(drop=True)
     )
 
     out_dir = Path("data/processed")

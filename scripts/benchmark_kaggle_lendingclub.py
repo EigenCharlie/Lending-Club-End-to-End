@@ -32,7 +32,9 @@ DATA_DIR = PROJECT_ROOT / "data" / "processed"
 
 KAGGLE_CODE_URL = "https://www.kaggle.com/code"
 LIST_KERNELS_ENDPOINT = "https://www.kaggle.com/api/i/kernels.KernelsService/ListKernels"
-LIST_KERNEL_VERSIONS_ENDPOINT = "https://www.kaggle.com/api/i/kernels.KernelsService/ListKernelVersions"
+LIST_KERNEL_VERSIONS_ENDPOINT = (
+    "https://www.kaggle.com/api/i/kernels.KernelsService/ListKernelVersions"
+)
 
 SEARCH_TERMS = [
     "lending club",
@@ -199,7 +201,9 @@ def _extract_auc_candidates(text: str) -> list[float]:
     return auc_values
 
 
-def _pick_run_with_output(versions: list[dict[str, Any]]) -> tuple[int | None, str | None, str | None]:
+def _pick_run_with_output(
+    versions: list[dict[str, Any]],
+) -> tuple[int | None, str | None, str | None]:
     """Pick a version with rendered output URL, preferring newest by run ID."""
     candidates: list[tuple[int, str | None, str | None]] = []
     for item in versions:
@@ -293,7 +297,9 @@ def collect_kaggle_benchmark(
     if frame.empty:
         return frame
 
-    frame = frame.sort_values(by=["auc_reported", "run_id"], ascending=[False, False], na_position="last")
+    frame = frame.sort_values(
+        by=["auc_reported", "run_id"], ascending=[False, False], na_position="last"
+    )
     frame = frame.reset_index(drop=True)
     return frame
 
@@ -397,7 +403,9 @@ def main(max_kernels_per_query: int = 20, sleep_seconds: float = 0.2) -> None:
         "detected_hpo",
         "detected_xai",
     ]
-    compact = benchmark_df[compact_cols] if not benchmark_df.empty else pd.DataFrame(columns=compact_cols)
+    compact = (
+        benchmark_df[compact_cols] if not benchmark_df.empty else pd.DataFrame(columns=compact_cols)
+    )
     compact_out = DATA_DIR / "kaggle_lendingclub_notebooks.csv"
     compact.to_csv(compact_out, index=False)
     logger.info("Saved compact benchmark CSV: {}", compact_out)

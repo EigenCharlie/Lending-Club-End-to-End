@@ -281,7 +281,9 @@ def train_catboost_tuned_optuna(
                 callbacks = [pruning_callback]
             except Exception as exc:  # pragma: no cover - optional integration path
                 if trial.number == 0:
-                    logger.warning("CatBoost pruning callback unavailable; disabling pruning callback: {}", exc)
+                    logger.warning(
+                        "CatBoost pruning callback unavailable; disabling pruning callback: {}", exc
+                    )
                 pruning_callback = None
                 callbacks = []
 

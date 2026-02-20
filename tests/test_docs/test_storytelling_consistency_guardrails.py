@@ -30,4 +30,3 @@ def test_no_stale_storytelling_claims_in_priority_pages() -> None:
         + ", ".join(sorted(violations))
         + ". Keep dataset/calibration narrative aligned with canonical artifacts."
     )
-
