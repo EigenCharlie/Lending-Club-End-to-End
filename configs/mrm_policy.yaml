@@ -1,0 +1,43 @@
+model:
+  name: CorePDCanonical
+  version: "1.0"
+  owner: Carlos Vergara
+  champion_artifact: models/pd_canonical.cbm
+
+governance:
+  validation_frequency_days: 90
+  review_cadence: quarterly
+
+retraining_triggers:
+  psi_threshold: 0.25
+  auc_degradation_threshold: 0.03
+  coverage_degradation_threshold: 0.02
+
+challenger:
+  criteria:
+    - metric: auc_roc
+      improvement_min: 0.005
+    - metric: ece
+      improvement_min: 0.002
+  promotion_requires:
+    - conformal_policy_pass: true
+    - fairness_audit_pass: true
+    - governance_checks_pass: true
+
+approval_workflow:
+  steps:
+    - name: developer_self_validation
+      owner: developer
+    - name: independent_validation
+      owner: model_risk_team
+    - name: sign_off
+      owner: model_owner
+
+artifacts:
+  pipeline_summary: data/processed/pipeline_summary.json
+  conformal_status: models/conformal_policy_status.json
+  governance_status: models/modeva_governance_status.json
+  fairness_status: models/fairness_audit_status.json
+
+output:
+  mrm_report_json: reports/mrm/mrm_validation_report.json

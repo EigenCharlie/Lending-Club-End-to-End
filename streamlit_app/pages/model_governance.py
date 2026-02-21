@@ -98,7 +98,7 @@ storytelling_intro(
 )
 st.markdown(
     """
-Esta página representa la capa de control del proyecto. No evalúa “qué tan bonito sale el dashboard”, sino si el sistema
+Esta página representa la capa de control del proyecto. No evalúa "qué tan bonito sale el dashboard", sino si el sistema
 es suficientemente confiable para sostener decisiones repetibles: estabilidad poblacional, robustez frente a ruido, sesgos
 por subgrupo y cumplimiento de contrato de inputs. En una arquitectura seria de riesgo, esta etapa es tan importante como
 la métrica de desempeño del modelo.
@@ -305,19 +305,59 @@ with st.expander("Contrato completo del modelo (JSON)"):
     contract = try_load_json("pd_model_contract", directory="models", default={})
     st.json(contract)
 
+st.subheader("6) Auditoría de equidad multi-atributo (Fairness)")
+fairness_audit = try_load_parquet("fairness_audit")
+fairness_status = try_load_json("fairness_audit_status", directory="models", default={})
+if not fairness_audit.empty:
+    n_pass = int(fairness_audit["passed_all"].sum())
+    n_attr = len(fairness_audit)
+    kpi_row(
+        [
+            {"label": "Atributos evaluados", "value": str(n_attr)},
+            {"label": "Pasan todos", "value": f"{n_pass}/{n_attr}"},
+            {"label": "Max DPD", "value": f"{fairness_audit['dpd'].max():.3f}"},
+            {"label": "Min DIR", "value": f"{fairness_audit['dir'].min():.3f}"},
+        ],
+        n_cols=4,
+    )
+    st.dataframe(fairness_audit, use_container_width=True, hide_index=True)
+    st.caption(
+        "DPD = Demographic Parity Difference, DIR = Disparate Impact Ratio (4/5ths rule), "
+        "EO = Equalized Odds gap. Umbrales configurables en `configs/fairness_policy.yaml`."
+    )
+else:
+    st.info("Ejecuta `scripts/run_fairness_audit.py` para generar métricas de equidad multi-atributo.")
+
+st.subheader("7) Marco regulatorio SR 11-7 (MRM)")
+mrm_path = Path(__file__).resolve().parents[2] / "reports" / "mrm" / "mrm_validation_report.json"
+if mrm_path.exists():
+    import json
+
+    mrm_report = json.loads(mrm_path.read_text())
+    compliance = mrm_report.get("compliance_summary", {})
+    kpi_row(
+        [
+            {"label": "Cumplimiento global", "value": "PASS" if compliance.get("overall_pass") else "REVISAR"},
+            {"label": "Subsistemas OK", "value": f"{compliance.get('n_passing', 0)}/{compliance.get('n_subsystems', 0)}"},
+            {"label": "Modelo campeón", "value": mrm_report.get("model", {}).get("name", "N/D")},
+        ],
+        n_cols=3,
+    )
+    with st.expander("Ver reporte MRM completo"):
+        st.json(mrm_report)
+    st.caption(
+        "Reporte generado por `scripts/generate_mrm_report.py`. "
+        "Documento completo en `docs/MODEL_RISK_MANAGEMENT.md`."
+    )
+else:
+    st.info("Ejecuta `scripts/generate_mrm_report.py` para generar el reporte MRM (SR 11-7).")
+
 st.markdown(
     """
 **Lectura de control interno:**
 - El marco detecta oportunidades de mejora en fairness y drift aunque el rendimiento base sea estable.
 - La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
-- Esta capa cierra el ciclo de confiabilidad antes de consumir resultados en aplicaciones externas.
-"""
-)
-st.markdown(
-    """
-La conclusión operativa es que un modelo puede “funcionar” y aun así requerir vigilancia activa. Gobernanza no es un bloque
-de cumplimiento formalista: es la forma de evitar degradación silenciosa y de mantener coherencia entre lo que el modelo
-aprendió, lo que consume en producción analítica y lo que negocio interpreta para tomar decisiones.
+- La auditoría de equidad y el marco SR 11-7 elevan la gobernanza a estándar regulatorio.
 """
 )
 

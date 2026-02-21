@@ -8,6 +8,16 @@ repos:
       - id: ruff-format
         files: ^(src|scripts|tests)/
 
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-toml
+      - id: check-added-large-files
+        args: ['--maxkb=1000']
+
   - repo: https://github.com/kynan/nbstripout
     rev: 0.8.1
     hooks:

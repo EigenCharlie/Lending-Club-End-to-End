@@ -15,24 +15,28 @@ router = APIRouter(prefix="/api/v1", tags=["analytics"])
 
 @router.post("/query", response_model=QueryResponse)
 def run_query(req: QueryRequest):
-    """Execute a read-only SQL query against DuckDB."""
+    """Execute a read-only SQL query against the DuckDB analytics warehouse.
+
+    Only SELECT statements are allowed. Results limited to 100 rows.
+    Available tables include loan_master, test_predictions, conformal_intervals, etc.
+    """
     try:
         return execute_query(req.sql)
     except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from None
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Query error: {e}")
+        raise HTTPException(status_code=500, detail=f"Query error: {e}") from None
 
 
 @router.get("/tables")
 def list_tables():
-    """List all available DuckDB tables."""
+    """List all available DuckDB tables with their schemas."""
     return get_table_list()
 
 
 @router.get("/summary/pipeline")
 def pipeline_summary():
-    """Get pipeline summary metrics."""
+    """Get end-to-end pipeline summary: AUC, ECL, price of robustness, survival metrics."""
     path = DATA_DIR / "pipeline_summary.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Pipeline summary not found")
@@ -41,7 +45,7 @@ def pipeline_summary():
 
 @router.get("/summary/eda")
 def eda_summary():
-    """Get EDA summary statistics."""
+    """Get exploratory data analysis summary: dataset shape, default rates, split info."""
     path = DATA_DIR / "eda_summary.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="EDA summary not found")
@@ -50,7 +54,7 @@ def eda_summary():
 
 @router.get("/summary/conformal")
 def conformal_summary():
-    """Get conformal prediction policy status."""
+    """Get conformal prediction policy status: coverage checks, group metrics, alerts."""
     path = MODEL_DIR / "conformal_policy_status.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Conformal policy status not found")
@@ -59,7 +63,7 @@ def conformal_summary():
 
 @router.get("/summary/model")
 def model_summary():
-    """Get model comparison metrics."""
+    """Get model comparison: LR baseline vs CatBoost default/tuned, calibration report."""
     path = DATA_DIR / "model_comparison.json"
     if not path.exists():
         raise HTTPException(status_code=404, detail="Model comparison not found")

@@ -318,7 +318,7 @@ stages:
       md5: 85e87dbf9ee8b9e87a3ef0e983f3744f
       size: 1455
   optimize_portfolio:
-    cmd: uv run python scripts/optimize_portfolio.py --config 
+    cmd: uv run python scripts/optimize_portfolio.py --config
       configs/optimization.yaml --risk_tolerance 0.10
     deps:
     - path: configs/optimization.yaml
@@ -349,7 +349,7 @@ stages:
       md5: e9c67a82b47124c83e7bd6671a2856a0
       size: 60186
   optimize_portfolio_tradeoff:
-    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
       configs/optimization.yaml
     deps:
     - path: configs/optimization.yaml
@@ -442,7 +442,7 @@ stages:
       md5: d1ca539dd7f1238c35bd4f5bf09f1039
       size: 15702
   validate_conformal_policy:
-    cmd: uv run python scripts/validate_conformal_policy.py --config 
+    cmd: uv run python scripts/validate_conformal_policy.py --config
       configs/conformal_policy.yaml
     deps:
     - path: configs/conformal_policy.yaml
@@ -708,3 +708,137 @@ stages:
       hash: md5
       md5: 8a8ab87bbe09fec054c042d80d8229cb
       size: 304
+  run_fairness_audit:
+    cmd: uv run python scripts/run_fairness_audit.py --config
+      configs/fairness_policy.yaml
+    deps:
+    - path: configs/fairness_policy.yaml
+      hash: md5
+      md5: 6a950668460851a3086f9f2b25d99328
+      size: 719
+    - path: data/processed/test_fe.parquet
+      hash: md5
+      md5: bb52092e095aaa3e7ec36bae09feb995
+      size: 20393819
+      isexec: true
+    - path: data/processed/test_predictions.parquet
+      hash: md5
+      md5: 80251561efe23c2ba7c1485ff8a312c2
+      size: 12492032
+    - path: scripts/run_fairness_audit.py
+      hash: md5
+      md5: 4bfa6a2ebff51b8d2038f058f204853b
+      size: 4715
+    - path: src/evaluation/fairness.py
+      hash: md5
+      md5: 2a2ee2af62f93bd6e9db6b21a3d3cc56
+      size: 6415
+    outs:
+    - path: data/processed/fairness_audit.parquet
+      hash: md5
+      md5: badf8de20fd40a4e8d8b313e917a0769
+      size: 5957
+    - path: models/fairness_audit_status.json
+      hash: md5
+      md5: 39d8c5a78815b5ea7fbb05ebe5c82f41
+      size: 1174
+  optimize_cate_portfolio:
+    cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 5000
+    deps:
+    - path: data/processed/cate_estimates.parquet
+      hash: md5
+      md5: 8b176eab0096e1993b54a4404f7646f5
+      size: 52259642
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
+    - path: data/processed/test_fe.parquet
+      hash: md5
+      md5: bb52092e095aaa3e7ec36bae09feb995
+      size: 20393819
+      isexec: true
+    - path: scripts/optimize_cate_portfolio.py
+      hash: md5
+      md5: 66ba5db2a8a4a3440ad85a91422302c7
+      size: 6835
+    - path: src/optimization/causal_portfolio.py
+      hash: md5
+      md5: 9fa73ff827488fb8959d15655c52f70a
+      size: 6260
+    outs:
+    - path: data/processed/cate_portfolio_comparison.parquet
+      hash: md5
+      md5: 10887ddf14c56d2662ecb599c9407f6a
+      size: 3060
+    - path: models/cate_portfolio_status.json
+      hash: md5
+      md5: 32e24791930e1569ebb0373462ba140b
+      size: 223
+  simulate_ab_test:
+    cmd: uv run python scripts/simulate_ab_test.py --max_candidates 5000
+    deps:
+    - path: data/processed/conformal_intervals_mondrian.parquet
+      hash: md5
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
+    - path: data/processed/test_fe.parquet
+      hash: md5
+      md5: bb52092e095aaa3e7ec36bae09feb995
+      size: 20393819
+      isexec: true
+    - path: scripts/simulate_ab_test.py
+      hash: md5
+      md5: 7e3544caeb4a14a6e59169277f0deaa9
+      size: 7392
+    - path: src/evaluation/ab_testing.py
+      hash: md5
+      md5: 82df4318650ad58b78213c3ba9099fe7
+      size: 6494
+    outs:
+    - path: data/processed/ab_simulation_results.parquet
+      hash: md5
+      md5: d5e224c1fa8bf1a02c11af4a40213fcf
+      size: 5771
+    - path: data/processed/ab_simulation_summary.parquet
+      hash: md5
+      md5: 0f62849d0f82585cca6423cf369e2df4
+      size: 3044
+    - path: models/ab_simulation_status.json
+      hash: md5
+      md5: 08518330709ff426453803454b372e74
+      size: 625
+  generate_mrm_report:
+    cmd: uv run python scripts/generate_mrm_report.py --config
+      configs/mrm_policy.yaml
+    deps:
+    - path: configs/mrm_policy.yaml
+      hash: md5
+      md5: 89e23c71a1c3981ad71acb29e881e512
+      size: 1056
+    - path: data/processed/pipeline_summary.json
+      hash: md5
+      md5: ab8ee19082a5eebf69d39d80da6154c7
+      size: 1158
+    - path: models/conformal_policy_status.json
+      hash: md5
+      md5: 68b7731c81b1fdf9a596127801ab6718
+      size: 397
+    - path: models/fairness_audit_status.json
+      hash: md5
+      md5: 39d8c5a78815b5ea7fbb05ebe5c82f41
+      size: 1174
+    - path: models/modeva_governance_status.json
+      hash: md5
+      md5: 5d74ae0e4e255739f04976beeae13eb9
+      size: 966
+      isexec: true
+    - path: scripts/generate_mrm_report.py
+      hash: md5
+      md5: da4cc1449d208a70ac8a4224b784fc4c
+      size: 3576
+    outs:
+    - path: reports/mrm/mrm_validation_report.json
+      hash: md5
+      md5: 57d749cadbc6facb0384f178a1febba1
+      size: 5111

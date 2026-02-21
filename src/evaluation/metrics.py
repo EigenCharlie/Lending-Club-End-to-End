@@ -95,3 +95,53 @@ def compute_all_metrics(
     if y_intervals is not None:
         metrics.update(conformal_metrics(y_true, y_intervals, alpha))
     return metrics
+
+
+def forecast_backtest_metrics(
+    forecast_values: np.ndarray,
+    actual_values: np.ndarray,
+    forecast_lo: np.ndarray | None = None,
+    forecast_hi: np.ndarray | None = None,
+) -> dict[str, float]:
+    """Evaluate time series forecasts against realized actuals.
+
+    Useful for validating IFRS9 forward-looking scenarios against
+    observed default rates in the OOT test period (2018-2020).
+
+    Args:
+        forecast_values: Point forecasts.
+        actual_values: Realized values.
+        forecast_lo: Lower prediction interval (optional).
+        forecast_hi: Upper prediction interval (optional).
+
+    Returns:
+        Dict with MAE, RMSE, directional accuracy, and optionally
+        interval coverage and width.
+    """
+    forecast_values = np.asarray(forecast_values, dtype=float)
+    actual_values = np.asarray(actual_values, dtype=float)
+
+    metrics: dict[str, float] = {
+        "forecast_mae": float(mean_absolute_error(actual_values, forecast_values)),
+        "forecast_rmse": float(np.sqrt(mean_squared_error(actual_values, forecast_values))),
+    }
+
+    # Directional accuracy: did forecast correctly predict up/down movement?
+    if len(actual_values) > 1:
+        actual_direction = np.sign(np.diff(actual_values))
+        forecast_direction = np.sign(np.diff(forecast_values))
+        directional_match = actual_direction == forecast_direction
+        metrics["directional_accuracy"] = float(directional_match.mean())
+
+    # Mean bias (positive = over-forecast)
+    metrics["mean_bias"] = float((forecast_values - actual_values).mean())
+
+    # Interval coverage if bounds provided
+    if forecast_lo is not None and forecast_hi is not None:
+        forecast_lo = np.asarray(forecast_lo, dtype=float)
+        forecast_hi = np.asarray(forecast_hi, dtype=float)
+        covered = (actual_values >= forecast_lo) & (actual_values <= forecast_hi)
+        metrics["interval_coverage"] = float(covered.mean())
+        metrics["avg_interval_width"] = float((forecast_hi - forecast_lo).mean())
+
+    return metrics

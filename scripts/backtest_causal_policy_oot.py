@@ -55,7 +55,12 @@ def main(
     if not sim_path.exists():
         raise FileNotFoundError(f"Missing policy simulation artifact: {sim_path}")
     if not train_path.exists():
-        raise FileNotFoundError(f"Missing training split with issue dates: {train_path}")
+        train_path = Path("data/processed/train.parquet")
+        logger.warning("train_fe.parquet not found; falling back to train.parquet")
+    if not train_path.exists():
+        raise FileNotFoundError(
+            "Missing training split: neither train_fe.parquet nor train.parquet"
+        )
 
     sim = pd.read_parquet(sim_path)
     train = pd.read_parquet(train_path, columns=["id", "issue_d", "grade"])

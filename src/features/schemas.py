@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import pandas as pd
 import pandera.pandas as pa
 
 # ── Loan Master Schema ──
@@ -60,16 +61,16 @@ prediction_schema = pa.DataFrameSchema(
 )
 
 
-def validate_loan_master(df):
+def validate_loan_master(df: pd.DataFrame) -> pd.DataFrame:
     """Validate loan_master DataFrame."""
     return loan_master_schema.validate(df)
 
 
-def validate_time_series(df):
+def validate_time_series(df: pd.DataFrame) -> pd.DataFrame:
     """Validate time_series DataFrame."""
     return time_series_schema.validate(df)
 
 
-def validate_predictions(df):
+def validate_predictions(df: pd.DataFrame) -> pd.DataFrame:
     """Validate prediction output DataFrame."""
     return prediction_schema.validate(df)

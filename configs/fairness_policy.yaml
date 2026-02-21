@@ -1,0 +1,22 @@
+policy:
+  dpd_threshold: 0.10       # demographic parity difference < 0.10
+  eo_gap_threshold: 0.10    # equalized odds gap < 0.10
+  dir_threshold: 0.80       # disparate impact ratio > 0.80 (4/5ths rule)
+  prediction_threshold: 0.50 # probability cutoff for binary predictions
+
+attributes:
+  - name: home_ownership
+    column: home_ownership
+  - name: annual_inc_quartile
+    column: annual_inc
+    binning: quartile
+  - name: verification_status
+    column: verification_status
+
+artifacts:
+  test_predictions_path: data/processed/test_predictions.parquet
+  test_data_path: data/processed/test_fe.parquet
+
+output:
+  audit_parquet: data/processed/fairness_audit.parquet
+  status_json: models/fairness_audit_status.json

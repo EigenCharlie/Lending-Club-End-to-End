@@ -30,6 +30,7 @@ stages:
     deps:
     - configs/pd_model.yaml
     - data/processed/calibration.parquet
+    - data/processed/feature_config.pkl
     - data/processed/test.parquet
     - data/processed/train.parquet
     - scripts/train_pd_model.py
@@ -107,7 +108,7 @@ stages:
     cmd: uv run python scripts/backtest_causal_policy_oot.py
     deps:
     - data/processed/causal_policy_simulation.parquet
-    - data/processed/train_fe.parquet
+    - data/processed/train.parquet
     - models/causal_policy_rule.json
     - scripts/backtest_causal_policy_oot.py
     outs:
@@ -128,7 +129,7 @@ stages:
     - data/processed/ifrs9_input_quality.parquet
     - models/ifrs9_sensitivity_summary.pkl
   optimize_portfolio:
-    cmd: uv run python scripts/optimize_portfolio.py --config 
+    cmd: uv run python scripts/optimize_portfolio.py --config
       configs/optimization.yaml --risk_tolerance 0.10
     deps:
     - configs/optimization.yaml
@@ -139,7 +140,7 @@ stages:
     - data/processed/portfolio_allocations.parquet
     - models/portfolio_results.pkl
   optimize_portfolio_tradeoff:
-    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
       configs/optimization.yaml
     deps:
     - configs/optimization.yaml
@@ -219,6 +220,50 @@ stages:
     - data/processed/roi_by_grade.parquet
     - data/processed/roi_by_grade_term.parquet
     - data/processed/runtime_status.json
+  run_fairness_audit:
+    cmd: uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml
+    deps:
+    - configs/fairness_policy.yaml
+    - data/processed/test_fe.parquet
+    - data/processed/test_predictions.parquet
+    - scripts/run_fairness_audit.py
+    - src/evaluation/fairness.py
+    outs:
+    - data/processed/fairness_audit.parquet
+    - models/fairness_audit_status.json
+  optimize_cate_portfolio:
+    cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 5000
+    deps:
+    - data/processed/cate_estimates.parquet
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test_fe.parquet
+    - scripts/optimize_cate_portfolio.py
+    - src/optimization/causal_portfolio.py
+    outs:
+    - data/processed/cate_portfolio_comparison.parquet
+    - models/cate_portfolio_status.json
+  simulate_ab_test:
+    cmd: uv run python scripts/simulate_ab_test.py --max_candidates 5000
+    deps:
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/test_fe.parquet
+    - scripts/simulate_ab_test.py
+    - src/evaluation/ab_testing.py
+    outs:
+    - data/processed/ab_simulation_results.parquet
+    - data/processed/ab_simulation_summary.parquet
+    - models/ab_simulation_status.json
+  generate_mrm_report:
+    cmd: uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
+    deps:
+    - configs/mrm_policy.yaml
+    - data/processed/pipeline_summary.json
+    - models/conformal_policy_status.json
+    - models/fairness_audit_status.json
+    - models/modeva_governance_status.json
+    - scripts/generate_mrm_report.py
+    outs:
+    - reports/mrm/mrm_validation_report.json
   export_storytelling_snapshot:
     cmd: uv run python scripts/export_storytelling_snapshot.py
     deps:

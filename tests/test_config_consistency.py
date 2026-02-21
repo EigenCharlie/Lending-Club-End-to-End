@@ -194,3 +194,37 @@ class TestGitDvcHygiene:
             assert ignored.returncode == 0, (
                 f"{output} should be ignored by git to avoid git-vs-dvc tracking conflicts"
             )
+
+
+# ── MRM Policy Config ──
+
+MRM_CONFIG_PATH = PROJECT_ROOT / "configs" / "mrm_policy.yaml"
+
+
+class TestMRMConfig:
+    """Validate MRM policy configuration structure."""
+
+    @pytest.fixture(autouse=True)
+    def _load_mrm(self):
+        if not MRM_CONFIG_PATH.exists():
+            pytest.skip("MRM config not found")
+        with open(MRM_CONFIG_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+
+    def test_mrm_config_required_keys(self):
+        """MRM config must have all required top-level sections."""
+        required = {"model", "governance", "retraining_triggers", "challenger", "output"}
+        assert required.issubset(self.cfg.keys()), (
+            f"Missing keys: {required - set(self.cfg.keys())}"
+        )
+
+    def test_mrm_retraining_triggers_are_positive(self):
+        """All retraining trigger thresholds must be positive."""
+        triggers = self.cfg["retraining_triggers"]
+        for key, value in triggers.items():
+            assert value > 0, f"Trigger '{key}' must be positive, got {value}"
+
+    def test_mrm_champion_artifact_path_is_posix(self):
+        """Champion artifact path should use forward slashes."""
+        path = self.cfg["model"]["champion_artifact"]
+        assert "\\" not in path, f"Path should use forward slashes: {path}"

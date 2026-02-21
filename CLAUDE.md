@@ -105,7 +105,9 @@ uv run ruff format src/ # Format
 │   ├── pd_model.yaml
 │   ├── optimization.yaml
 │   ├── conformal_policy.yaml
-│   └── modeva_governance.yaml
+│   ├── modeva_governance.yaml
+│   ├── fairness_policy.yaml
+│   └── mrm_policy.yaml
 ├── data/
 │   ├── raw/                 # Original CSV (manual download from Kaggle)
 │   ├── interim/             # Cleaned parquet
@@ -152,7 +154,11 @@ uv run ruff format src/ # Format
 7. `scripts/estimate_causal_effects.py` → `simulate_causal_policy.py` → `validate_causal_policy.py`
 8. `scripts/run_ifrs9_sensitivity.py` → scenario and sensitivity ECL
 9. `scripts/optimize_portfolio.py` + `scripts/optimize_portfolio_tradeoff.py` → allocation + robustness frontier
-10. `scripts/end_to_end_pipeline.py` → orchestrates all stages
+10. `scripts/run_fairness_audit.py` → demographic parity, equalized odds, disparate impact audit
+11. `scripts/optimize_cate_portfolio.py` → CATE-adjusted portfolio vs baseline comparison
+12. `scripts/simulate_ab_test.py` → retroactive A/B simulation (robust vs non-robust)
+13. `scripts/generate_mrm_report.py` → consolidated MRM validation report (SR 11-7)
+14. `scripts/end_to_end_pipeline.py` → orchestrates all stages
 
 ### Canonical Model Contract
 - `models/pd_model_contract.json` — feature names, types, thresholds
@@ -171,6 +177,8 @@ Downstream scripts consume this contract to avoid feature drift.
 - **No star imports** (`from x import *`)
 - Files should be <400 lines. If longer, refactor.
 - Notebooks call functions from `src/` — no duplicated logic.
+- **Tool isolation**: Always use `uv run` for dev deps and `uvx` for one-off tools (never global installs).
+- **Pre-commit**: ruff lint+format, nbstripout, trailing-whitespace, check-yaml/toml, large file guard.
 
 ## TESTING
 
@@ -180,7 +188,10 @@ uv run pytest -m "not slow"   # Skip slow tests
 uv run pytest --cov=src       # Coverage report
 ```
 
-Current tests: 199 passing across data pipeline, features, models, evaluation, optimization, config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke, and integration.
+Current tests: 286 passing across data pipeline, features, models, evaluation (fairness, A/B, IFRS9, metrics), optimization (portfolio, causal), config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke (25 pages), and integration.
+
+Pytest config uses `--strict-markers --strict-config` to prevent typos in markers and invalid configs.
+Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 
 ## IFRS9 / BASEL CONTEXT
 

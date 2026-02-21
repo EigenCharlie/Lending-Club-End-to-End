@@ -42,7 +42,12 @@ def _normalize_scenario(scenario: str) -> str:
 
 @router.post("/ecl", response_model=ECLResponse)
 def calculate_ecl(req: ECLRequest):
-    """Calculate IFRS9 Expected Credit Loss under a given scenario."""
+    """Calculate IFRS9 Expected Credit Loss under a macroeconomic scenario.
+
+    Computes ECL = PD x LGD x EAD by stage (1/2/3) with scenario-specific
+    stress multipliers. Scenarios: baseline, mild_stress, adverse, severe.
+    Returns stage-level ECL breakdown and loan counts.
+    """
     scenario = _normalize_scenario(req.scenario)
 
     # Load pre-computed scenario data if available

@@ -34,6 +34,11 @@ def predict_with_intervals(
         description="Miscoverage rate. Soportado por artefacto actual: 0.10 (90%) o 0.05 (95%).",
     ),
 ):
-    """Get predictions with conformal prediction intervals."""
+    """Get PD prediction with Mondrian conformal prediction intervals.
+
+    Returns [pd_low, pd_high] bounds with distribution-free coverage guarantee.
+    Intervals are group-conditional by grade (Mondrian approach).
+    Supported confidence levels: 90% (alpha=0.10) and 95% (alpha=0.05).
+    """
     alpha_supported = _normalize_alpha(alpha)
     return predict_conformal(loan.model_dump(), alpha=alpha_supported)

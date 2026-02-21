@@ -51,7 +51,7 @@ def apply_probability_calibrator(calibrator: Any, scores: np.ndarray) -> np.ndar
         out = np.asarray(out, dtype=float)
         if out.shape[0] != scores.shape[0]:
             out = np.asarray(calibrator.predict(scores.reshape(-1, 1)), dtype=float)
-    except Exception:
+    except (ValueError, TypeError, IndexError):
         out = np.asarray(calibrator.predict(scores.reshape(-1, 1)), dtype=float)
 
     return np.clip(out, 0.0, 1.0)

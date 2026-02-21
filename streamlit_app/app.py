@@ -59,6 +59,7 @@ pg = st.navigation(
         ],
         "Decisiones": [
             st.Page("pages/portfolio_optimizer.py", title="Optimizador de Portafolio", icon="💼"),
+            st.Page("pages/ab_testing_simulation.py", title="Simulación A/B", icon="🧪"),
             st.Page("pages/ifrs9_provisions.py", title="Provisiones IFRS9", icon="🏦"),
         ],
         "Gobernanza": [

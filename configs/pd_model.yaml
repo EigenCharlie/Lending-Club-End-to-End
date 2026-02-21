@@ -71,7 +71,7 @@ conformal:
   estimator: SplitConformalRegressor
 
 calibration:
-  method: platt  # isotonic | platt | venn_abers
+  method: platt  # isotonic | platt
 
 mlflow:
   experiment_name: pd_model

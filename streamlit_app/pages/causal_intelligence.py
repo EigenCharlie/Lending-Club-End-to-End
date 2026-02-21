@@ -363,6 +363,39 @@ with st.expander("Muestra de simulación contrafactual por préstamo"):
         hide_index=True,
     )
 
+st.subheader("5) Impacto en optimización de portafolio")
+cate_comparison = try_load_parquet("cate_portfolio_comparison")
+if not cate_comparison.empty and len(cate_comparison) == 2:
+    base = cate_comparison[cate_comparison["scenario"] == "baseline"].iloc[0]
+    adj = cate_comparison[cate_comparison["scenario"] == "cate_adjusted"].iloc[0]
+    delta_obj = float(adj["objective_value"] - base["objective_value"])
+    delta_funded = int(adj["n_funded"] - base["n_funded"])
+    kpi_row(
+        [
+            {"label": "Objetivo baseline", "value": f"${base['objective_value']:,.0f}"},
+            {"label": "Objetivo CATE-adj", "value": f"${adj['objective_value']:,.0f}"},
+            {"label": "Δ objetivo", "value": f"${delta_obj:+,.0f}"},
+            {"label": "Δ loans funded", "value": f"{delta_funded:+d}"},
+        ],
+        n_cols=4,
+    )
+    fig = px.bar(
+        cate_comparison.melt(id_vars="scenario", var_name="metric", value_name="value"),
+        x="metric",
+        y="value",
+        color="scenario",
+        barmode="group",
+        title="Baseline vs CATE-adjusted portfolio",
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=350)
+    st.plotly_chart(fig, use_container_width=True)
+    st.caption(
+        "Este análisis cierra el ciclo causal→portafolio: los efectos heterogéneos de NB07 "
+        "se traducen en ajustes de tasa que mejoran la asignación de capital en NB08."
+    )
+else:
+    st.info("Ejecuta `scripts/optimize_cate_portfolio.py` para comparar portafolios baseline vs CATE-adjusted.")
+
 next_page_teaser(
     "Optimizador de Portafolio",
     "Integramos PD, incertidumbre y restricciones para decidir asignación de capital.",

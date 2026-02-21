@@ -66,6 +66,39 @@ def assign_stage(
     return stages
 
 
+def compute_lifetime_pd_from_survival(
+    survival_model,
+    X: pd.DataFrame,
+    horizon_months: int = 60,
+) -> np.ndarray:
+    """Compute loan-specific lifetime PD from a fitted survival model.
+
+    Uses the survival model (Cox PH or RSF) to predict personalized
+    lifetime PD for each loan based on its individual covariates,
+    rather than using grade-level averages.
+
+    Args:
+        survival_model: Fitted survival model with predict_survival_function().
+        X: Feature matrix for loans needing lifetime PD.
+        horizon_months: Prediction horizon in months (default: 60 = 5 years).
+
+    Returns:
+        Array of lifetime PD values, one per loan.
+    """
+    try:
+        surv_funcs = survival_model.predict_survival_function(X)
+        lifetime_pds = np.array([1.0 - fn(horizon_months * 30) for fn in surv_funcs])
+        lifetime_pds = np.clip(lifetime_pds, 0.0, 1.0)
+        logger.info(
+            f"Computed loan-specific lifetime PD: n={len(lifetime_pds):,}, "
+            f"mean={lifetime_pds.mean():.4f}, median={np.median(lifetime_pds):.4f}"
+        )
+        return lifetime_pds
+    except Exception:
+        logger.warning("Survival model prediction failed; returning None for lifetime PD fallback.")
+        return None
+
+
 def compute_ecl(
     pd_values: np.ndarray,
     lgd_values: np.ndarray,
@@ -86,7 +119,9 @@ def compute_ecl(
         lgd_values: LGD estimates.
         ead_values: EAD estimates.
         stages: IFRS9 stages (1, 2, 3).
-        lifetime_pd: Lifetime PD for Stage 2 (if None, uses pd * scaling).
+        lifetime_pd: Lifetime PD for Stage 2. Can be loan-specific (from
+            survival model via compute_lifetime_pd_from_survival) or
+            grade-level averages. If None, uses pd * 3 scaling proxy.
         discount_rate: Annual discount rate (EIR).
 
     Returns:

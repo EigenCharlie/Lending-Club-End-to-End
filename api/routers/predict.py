@@ -12,5 +12,9 @@ router = APIRouter(prefix="/api/v1", tags=["predictions"])
 
 @router.post("/predict", response_model=PredictionResponse)
 def predict(loan: LoanInput):
-    """Get PD/LGD/EAD point predictions for a loan."""
+    """Get calibrated PD, LGD estimate, EAD, and expected loss for a single loan.
+
+    Uses the canonical CatBoost model with Platt/Isotonic calibration.
+    Returns risk category (Low/Medium/High/Very High) based on PD thresholds.
+    """
     return predict_single(loan.model_dump())

@@ -40,30 +40,12 @@ from src.models.pd_model import (
     train_catboost_default,
     train_catboost_tuned_optuna,
 )
+from src.utils.io_utils import read_split_with_fe_fallback
 
 
 def load_config(config_path: str) -> dict[str, Any]:
     with open(config_path, encoding="utf-8") as f:
         return yaml.safe_load(f)
-
-
-def _read_with_fallback(path: str) -> pd.DataFrame:
-    """Read configured path; fallback between *_fe and base split if needed."""
-    p = Path(path)
-    if p.exists():
-        return pd.read_parquet(p)
-
-    alt = None
-    if p.name.endswith("_fe.parquet"):
-        alt = p.with_name(p.name.replace("_fe.parquet", ".parquet"))
-    elif p.name.endswith(".parquet"):
-        alt = p.with_name(p.name.replace(".parquet", "_fe.parquet"))
-
-    if alt is not None and alt.exists():
-        logger.warning(f"Configured path not found: {p}. Falling back to {alt}")
-        return pd.read_parquet(alt)
-
-    raise FileNotFoundError(f"Neither configured path nor fallback exists: {p}")
 
 
 def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
@@ -316,9 +298,11 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     config = load_config(config_path)
     logger.info(f"Config loaded from {config_path}")
 
-    train = _normalize_percent_columns(_read_with_fallback(config["data"]["train_path"]))
-    test = _normalize_percent_columns(_read_with_fallback(config["data"]["test_path"]))
-    cal = _normalize_percent_columns(_read_with_fallback(config["data"]["calibration_path"]))
+    train = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["train_path"]))
+    test = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["test_path"]))
+    cal = _normalize_percent_columns(
+        read_split_with_fe_fallback(config["data"]["calibration_path"])
+    )
 
     if sample_size is not None:
         if sample_size < len(train):
