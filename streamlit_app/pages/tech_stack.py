@@ -569,7 +569,7 @@ with st.expander("Configuración: YAML + Pandera"):
 - `pd_model.yaml`: hiperparámetros CatBoost, paths, features, calibración, conformal
 - `conformal_policy.yaml`: umbrales de cobertura, alertas, artefactos
 - `optimization.yaml`: tipo de solver, presupuesto, concentración, robustez
-- `modeva_governance.yaml`: fairness, drift, robustness diagnostics
+- `fairness_policy.yaml`: umbrales de equidad (DPD, DIR, EO)
 
 **Pandera schemas** en `src/features/schemas.py`: validación en boundaries del pipeline.
 Cada DataFrame pasa por un schema check antes de persistirse o consumirse downstream.

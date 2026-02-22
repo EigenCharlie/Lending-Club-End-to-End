@@ -78,13 +78,17 @@ stages:
     deps:
     - path: configs/pd_model.yaml
       hash: md5
-      md5: bd36fe50e7ff563907c5b36654854e4f
-      size: 1073
+      md5: 6343c67340feff13996f97e6b83d03d3
+      size: 1731
       isexec: true
     - path: data/processed/calibration.parquet
       hash: md5
       md5: 443cbb9ac237cb2c843d97284a61b30a
       size: 27408793
+    - path: data/processed/feature_config.pkl
+      hash: md5
+      md5: 65fb7eda305a50c5e265c5068dc0fcad
+      size: 1700
     - path: data/processed/test.parquet
       hash: md5
       md5: c12de73016756f1c279f09178fa36ff9
@@ -95,28 +99,28 @@ stages:
       size: 140607600
     - path: scripts/train_pd_model.py
       hash: md5
-      md5: 73ed731f43eb95b40870a866fd09338e
-      size: 9726
+      md5: 0223b48f5ec3a67fc2929c089b77cd1a
+      size: 22482
       isexec: true
     outs:
     - path: data/processed/test_predictions.parquet
       hash: md5
-      md5: 7de7c9f744ac12112e27d5597da8625a
-      size: 16996256
+      md5: 80251561efe23c2ba7c1485ff8a312c2
+      size: 12492032
     - path: models/pd_canonical.cbm
       hash: md5
-      md5: cc08797471c5896fa742612f39b68025
-      size: 928648
+      md5: 68beeead852fb9d9f6e1c1cb02299bdb
+      size: 6839484
       isexec: true
     - path: models/pd_canonical_calibrator.pkl
       hash: md5
-      md5: d162e756e7c835e25c7b8ddad22bc362
-      size: 682
+      md5: 304e0ffe43516258be0c6b3af57d1a18
+      size: 4240
       isexec: true
     - path: models/pd_training_record.pkl
       hash: md5
-      md5: 1a615efdc5bd15479803de16e6dccae5
-      size: 914
+      md5: 8a535749c5cf2a28e3ab973b5e1f6f79
+      size: 2631
   generate_conformal:
     cmd: uv run python scripts/generate_conformal_intervals.py
     deps:
@@ -130,48 +134,48 @@ stages:
       size: 31875314
     - path: models/pd_canonical.cbm
       hash: md5
-      md5: cc08797471c5896fa742612f39b68025
-      size: 928648
+      md5: 68beeead852fb9d9f6e1c1cb02299bdb
+      size: 6839484
       isexec: true
     - path: models/pd_canonical_calibrator.pkl
       hash: md5
-      md5: d162e756e7c835e25c7b8ddad22bc362
-      size: 682
+      md5: 304e0ffe43516258be0c6b3af57d1a18
+      size: 4240
       isexec: true
     - path: scripts/generate_conformal_intervals.py
       hash: md5
-      md5: c01604414f04531f400cdd8f69299102
-      size: 27872
+      md5: d1c44dccd0459cd3efb9b5a2640b18db
+      size: 21150
       isexec: true
     outs:
     - path: data/processed/conformal_group_coverage_floor_report.parquet
       hash: md5
-      md5: 083f3468feea2250708af39181e70cc1
-      size: 4154
+      md5: bd97affd7869878f6a037b90b5340e04
+      size: 4171
     - path: data/processed/conformal_group_metrics_mondrian.parquet
       hash: md5
-      md5: 4d2470b43946ca7215d2293928115e23
-      size: 7931
+      md5: 1a913524d1cd915783c288df15eda476
+      size: 7948
     - path: data/processed/conformal_intervals.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/conformal_mondrian_tuning_90.parquet
       hash: md5
-      md5: ed3c128eba0c8814b4a98f32e979e456
-      size: 10763
+      md5: 3a47ae314f7df2fed653c7d936db5181
+      size: 10358
     - path: data/processed/conformal_mondrian_tuning_90_pareto.parquet
       hash: md5
-      md5: fa069c629f2d3ebc6fb33ab936d46bde
-      size: 10531
+      md5: 929481caf5a029b1ba5126501643af83
+      size: 10245
     - path: models/conformal_results_mondrian.pkl
       hash: md5
-      md5: 2e6452c0e6a2367c9b2e4e1bd99a5eb4
-      size: 2267
+      md5: 839f082a944b717bf8a48bc7bf7a2a57
+      size: 2480
   forecast_default_rates:
     cmd: uv run python scripts/forecast_default_rates.py --horizon 12
     deps:
@@ -281,8 +285,8 @@ stages:
     deps:
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/test.parquet
       hash: md5
       md5: c12de73016756f1c279f09178fa36ff9
@@ -299,24 +303,24 @@ stages:
     outs:
     - path: data/processed/ifrs9_input_quality.parquet
       hash: md5
-      md5: a9cd4bbdcc7328ede9802624cd2848cc
+      md5: b5ebdb59dd7a42600fcece656b77a668
       size: 5713
     - path: data/processed/ifrs9_scenario_grade_summary.parquet
       hash: md5
-      md5: b67c8603471e21989277214b477a1c60
-      size: 7872
+      md5: 424a75a69dc7085ec6d5629100f2f806
+      size: 7896
     - path: data/processed/ifrs9_scenario_summary.parquet
       hash: md5
-      md5: e25492bbe6458113bab5c52b7f3e8a33
+      md5: 887920433180ac03dc2b17f8d1608947
       size: 13611
     - path: data/processed/ifrs9_sensitivity_grid.parquet
       hash: md5
-      md5: 14cd210f1bbc28ab6589c8fa38332a94
-      size: 7187
+      md5: 31e22510ffe64b9903ea8175cb6fb370
+      size: 7228
     - path: models/ifrs9_sensitivity_summary.pkl
       hash: md5
-      md5: 85e87dbf9ee8b9e87a3ef0e983f3744f
-      size: 1455
+      md5: 361e266d40e8d235987389274f2d7082
+      size: 1457
   optimize_portfolio:
     cmd: uv run python scripts/optimize_portfolio.py --config
       configs/optimization.yaml --risk_tolerance 0.10
@@ -328,8 +332,8 @@ stages:
       isexec: true
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/test.parquet
       hash: md5
       md5: c12de73016756f1c279f09178fa36ff9
@@ -342,11 +346,11 @@ stages:
     outs:
     - path: data/processed/portfolio_allocations.parquet
       hash: md5
-      md5: 805f17dff12118dca535bf2a3c90c22f
-      size: 129094
+      md5: 1d8aef74b9d9b8edc354e213ce8a64b0
+      size: 58830
     - path: models/portfolio_results.pkl
       hash: md5
-      md5: e9c67a82b47124c83e7bd6671a2856a0
+      md5: 5015f1d2ee0ff842ccdc02ed5ab3c2a9
       size: 60186
   optimize_portfolio_tradeoff:
     cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
@@ -359,29 +363,29 @@ stages:
       isexec: true
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/test.parquet
       hash: md5
       md5: c12de73016756f1c279f09178fa36ff9
       size: 31875314
     - path: scripts/optimize_portfolio_tradeoff.py
       hash: md5
-      md5: ee45e41ea04b84c6f75841ff4af21646
-      size: 14622
+      md5: 48457953cf7e3a7bb896a309a5845f28
+      size: 14652
       isexec: true
     outs:
     - path: data/processed/portfolio_robustness_frontier.parquet
       hash: md5
-      md5: 65e39cd49e43b283cc5be0ccae95f777
-      size: 13566
+      md5: 9b8ef2f172316d1ea6e553bee126c3ed
+      size: 14355
     - path: data/processed/portfolio_robustness_summary.parquet
       hash: md5
-      md5: dddf7b8151d28cafe7ac83e72457ede9
-      size: 9006
+      md5: 854673acea4500fd8e571d6e7ccae129
+      size: 9043
     - path: models/portfolio_robustness_results.pkl
       hash: md5
-      md5: 709824620df8cb94878c84a8acdd56d6
+      md5: 2ffd516d774cafbbad12eb54318e064e
       size: 1071
   run_survival_analysis:
     cmd: uv run python scripts/run_survival_analysis.py
@@ -392,8 +396,8 @@ stages:
       size: 49725577
     - path: scripts/run_survival_analysis.py
       hash: md5
-      md5: 74684661a17ece02628abdcb577ba63d
-      size: 8259
+      md5: 5c1fc896c46e00881229e347d4470829
+      size: 8235
       isexec: true
     outs:
     - path: data/processed/lifetime_pd_table.parquet
@@ -402,7 +406,7 @@ stages:
       size: 4161
     - path: models/cox_ph_model.pkl
       hash: md5
-      md5: eb97f83bc77bde7d2a77fec1c161de2a
+      md5: 4b61e66aa09d519c0d47dd1a6c456a84
       size: 3757592
     - path: models/rsf_model.pkl
       hash: md5
@@ -410,15 +414,15 @@ stages:
       size: 4626860158
     - path: models/survival_summary.pkl
       hash: md5
-      md5: de46ca66120a9bed3225d8010de244df
+      md5: 0dd758cffd586454910e1276019e0238
       size: 421
   backtest_conformal_coverage:
     cmd: uv run python scripts/backtest_conformal_coverage.py
     deps:
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/test.parquet
       hash: md5
       md5: c12de73016756f1c279f09178fa36ff9
@@ -431,16 +435,16 @@ stages:
     outs:
     - path: data/processed/conformal_backtest_alerts.parquet
       hash: md5
-      md5: 03d2531242936aa799d88f4598fd8eb4
-      size: 7125
+      md5: c6b84196752d8b02c86dea1ed947cd01
+      size: 6667
     - path: data/processed/conformal_backtest_monthly.parquet
       hash: md5
-      md5: e0291ecc9f0ee2a4f3d465a963e6e61d
-      size: 11899
+      md5: 2050afd19080a2a8a5ba07a35fc50c27
+      size: 11887
     - path: data/processed/conformal_backtest_monthly_grade.parquet
       hash: md5
-      md5: d1ca539dd7f1238c35bd4f5bf09f1039
-      size: 15702
+      md5: e0fb1aca0dc5878f588deb43ef93ff93
+      size: 15634
   validate_conformal_policy:
     cmd: uv run python scripts/validate_conformal_policy.py --config
       configs/conformal_policy.yaml
@@ -452,20 +456,20 @@ stages:
       isexec: true
     - path: data/processed/conformal_backtest_alerts.parquet
       hash: md5
-      md5: 03d2531242936aa799d88f4598fd8eb4
-      size: 7125
+      md5: c6b84196752d8b02c86dea1ed947cd01
+      size: 6667
     - path: data/processed/conformal_backtest_monthly.parquet
       hash: md5
-      md5: e0291ecc9f0ee2a4f3d465a963e6e61d
-      size: 11899
+      md5: 2050afd19080a2a8a5ba07a35fc50c27
+      size: 11887
     - path: data/processed/conformal_group_metrics_mondrian.parquet
       hash: md5
-      md5: 4d2470b43946ca7215d2293928115e23
-      size: 7931
+      md5: 1a913524d1cd915783c288df15eda476
+      size: 7948
     - path: models/conformal_results_mondrian.pkl
       hash: md5
-      md5: 2e6452c0e6a2367c9b2e4e1bd99a5eb4
-      size: 2267
+      md5: 839f082a944b717bf8a48bc7bf7a2a57
+      size: 2480
     - path: scripts/validate_conformal_policy.py
       hash: md5
       md5: c7596d32efac3c9a60d2539e28f0d898
@@ -474,27 +478,27 @@ stages:
     outs:
     - path: data/processed/conformal_policy_checks.parquet
       hash: md5
-      md5: fff945f7a8b2476b70295e42696870a3
-      size: 3973
+      md5: 8739439fa46bec2f75f81226a5a384c6
+      size: 3971
     - path: models/conformal_policy_status.json
       hash: md5
-      md5: b2ff9eac85a59c0c4814ecbfa9c2ab72
-      size: 401
+      md5: 68b7731c81b1fdf9a596127801ab6718
+      size: 397
   export_streamlit_artifacts:
     cmd: uv run python scripts/export_streamlit_artifacts.py
     deps:
     - path: data/processed/feature_config.pkl
       hash: md5
-      md5: f6d45492d083f348263d3b22d9b9882f
-      size: 377
+      md5: 65fb7eda305a50c5e265c5068dc0fcad
+      size: 1700
     - path: data/processed/loan_master.parquet
       hash: md5
       md5: afa73326552f2bf35102f38488390bc0
       size: 49725577
     - path: data/processed/test_predictions.parquet
       hash: md5
-      md5: 7de7c9f744ac12112e27d5597da8625a
-      size: 16996256
+      md5: 80251561efe23c2ba7c1485ff8a312c2
+      size: 12492032
     - path: data/raw/Loan_status_2007-2020Q3.csv
       hash: md5
       md5: 65adade308f21d60b7213088a88e684d
@@ -502,41 +506,41 @@ stages:
       isexec: true
     - path: models/conformal_policy_status.json
       hash: md5
-      md5: b2ff9eac85a59c0c4814ecbfa9c2ab72
-      size: 401
+      md5: 68b7731c81b1fdf9a596127801ab6718
+      size: 397
     - path: models/cox_ph_model.pkl
       hash: md5
-      md5: eb97f83bc77bde7d2a77fec1c161de2a
+      md5: 4b61e66aa09d519c0d47dd1a6c456a84
       size: 3757592
     - path: models/pd_training_record.pkl
       hash: md5
-      md5: 1a615efdc5bd15479803de16e6dccae5
-      size: 914
+      md5: 8a535749c5cf2a28e3ab973b5e1f6f79
+      size: 2631
     - path: models/pipeline_results.pkl
       hash: md5
-      md5: 1b3dca3c18a93bed430373071f75101a
+      md5: cd6b1b4bb7af775594a479543fae48dc
       size: 366
     - path: models/survival_summary.pkl
       hash: md5
-      md5: de46ca66120a9bed3225d8010de244df
+      md5: 0dd758cffd586454910e1276019e0238
       size: 421
     - path: scripts/export_streamlit_artifacts.py
       hash: md5
-      md5: 786398c1b76aa99532d54b16a7cca1c9
-      size: 21591
+      md5: 817bf7368d4e383a9676b80db46ed7a7
+      size: 28195
     outs:
     - path: data/processed/calibration_curve_data.parquet
       hash: md5
-      md5: 837bed5acd86073a7975c5e003d0e679
-      size: 3008
+      md5: e1120a214d44e3ce93d1034a77263abd
+      size: 3110
     - path: data/processed/eda_summary.json
       hash: md5
       md5: d698bc5da8a4e1f21e660bda7f2fe584
       size: 908
     - path: data/processed/feature_importance_iv.json
       hash: md5
-      md5: e1466d7d388592e1357f071cc10bef70
-      size: 888
+      md5: 4e23c7d0813eaac84f727f46dfb0ab8c
+      size: 3581
     - path: data/processed/hazard_ratios.parquet
       hash: md5
       md5: 5b3fbb914ce32c47ad3be5e0076b97b2
@@ -547,16 +551,16 @@ stages:
       size: 52384
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 02d9fa96d7c559ba0aca384032ac58eb
-      size: 832
+      md5: c558b26ae5b6bbded113f6a4e99ddc36
+      size: 7673
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: 3c60f93ac8755fc2acfcfec2d47590e8
-      size: 1153
+      md5: 76ea1f0b0ff565609f80898976d90239
+      size: 1156
     - path: data/processed/roc_curve_data.parquet
       hash: md5
-      md5: 170375fe0ae10c7865cfc070f0e3912c
-      size: 10264
+      md5: 16ce79cdeef6d5f204a31ab8eda890d5
+      size: 16340
     - path: data/processed/roi_by_grade.parquet
       hash: md5
       md5: a8f939eb724edf4badd4087426b453ae
@@ -567,8 +571,8 @@ stages:
       size: 3736
     - path: data/processed/runtime_status.json
       hash: md5
-      md5: 2369551ae42d4ee15e47b56a918b3265
-      size: 1669
+      md5: aed5b1a687345e17aee78b5f77a8eb86
+      size: 2426
     - path: data/processed/state_aggregates.parquet
       hash: md5
       md5: 5d8de512252f7852a8bc6ef0c87f1554
@@ -578,24 +582,24 @@ stages:
     deps:
     - path: data/processed/ifrs9_scenario_summary.parquet
       hash: md5
-      md5: e25492bbe6458113bab5c52b7f3e8a33
+      md5: 887920433180ac03dc2b17f8d1608947
       size: 13611
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: 02d9fa96d7c559ba0aca384032ac58eb
-      size: 832
+      md5: c558b26ae5b6bbded113f6a4e99ddc36
+      size: 7673
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: 3c60f93ac8755fc2acfcfec2d47590e8
-      size: 1153
+      md5: 76ea1f0b0ff565609f80898976d90239
+      size: 1156
     - path: data/processed/portfolio_robustness_summary.parquet
       hash: md5
-      md5: dddf7b8151d28cafe7ac83e72457ede9
-      size: 9006
+      md5: 854673acea4500fd8e571d6e7ccae129
+      size: 9043
     - path: models/conformal_policy_status.json
       hash: md5
-      md5: b2ff9eac85a59c0c4814ecbfa9c2ab72
-      size: 401
+      md5: 68b7731c81b1fdf9a596127801ab6718
+      size: 397
     - path: scripts/export_storytelling_snapshot.py
       hash: md5
       md5: 7f765d2f948d32d001053e3e3a4a41a6
@@ -603,39 +607,39 @@ stages:
     outs:
     - path: reports/storytelling_snapshot.json
       hash: md5
-      md5: b747fab9a60d8525523c23c6f9735c95
-      size: 1853
+      md5: 84a103638a40bbbbc53b350789d4a68f
+      size: 1848
   build_pipeline_results:
     cmd: uv run python scripts/build_pipeline_results.py
     deps:
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
-      md5: 2aa01ebc829542f5cff9095fb7a14d6e
-      size: 11412640
+      md5: 85df925fc9e2e36499529ae8c087d25c
+      size: 3803459
     - path: data/processed/ifrs9_scenario_summary.parquet
       hash: md5
-      md5: e25492bbe6458113bab5c52b7f3e8a33
+      md5: 887920433180ac03dc2b17f8d1608947
       size: 13611
     - path: data/processed/portfolio_robustness_summary.parquet
       hash: md5
-      md5: dddf7b8151d28cafe7ac83e72457ede9
-      size: 9006
+      md5: 854673acea4500fd8e571d6e7ccae129
+      size: 9043
     - path: data/processed/test_predictions.parquet
       hash: md5
-      md5: 7de7c9f744ac12112e27d5597da8625a
-      size: 16996256
+      md5: 80251561efe23c2ba7c1485ff8a312c2
+      size: 12492032
     - path: scripts/build_pipeline_results.py
       hash: md5
       md5: e528c31455b5c326d316730310d69689
       size: 326
     - path: scripts/end_to_end_pipeline.py
       hash: md5
-      md5: 29589d9ce92253487ce9919aee553738
-      size: 9699
+      md5: 5c15108cc87365ec4ff45eb8171b6a4a
+      size: 9677
     outs:
     - path: models/pipeline_results.pkl
       hash: md5
-      md5: 1b3dca3c18a93bed430373071f75101a
+      md5: cd6b1b4bb7af775594a479543fae48dc
       size: 366
   benchmark_conformal_variants:
     cmd: uv run python scripts/benchmark_conformal_variants.py
@@ -650,31 +654,31 @@ stages:
       size: 31875314
     - path: models/conformal_results_mondrian.pkl
       hash: md5
-      md5: 2e6452c0e6a2367c9b2e4e1bd99a5eb4
-      size: 2267
+      md5: 839f082a944b717bf8a48bc7bf7a2a57
+      size: 2480
     - path: models/pd_canonical.cbm
       hash: md5
-      md5: cc08797471c5896fa742612f39b68025
-      size: 928648
+      md5: 68beeead852fb9d9f6e1c1cb02299bdb
+      size: 6839484
       isexec: true
     - path: models/pd_canonical_calibrator.pkl
       hash: md5
-      md5: d162e756e7c835e25c7b8ddad22bc362
-      size: 682
+      md5: 304e0ffe43516258be0c6b3af57d1a18
+      size: 4240
       isexec: true
     - path: scripts/benchmark_conformal_variants.py
       hash: md5
-      md5: 655a6dbc50ff84c4ca4bdcb311e75336
-      size: 6964
+      md5: 6a65bb210795a63c9afbcd19331a5701
+      size: 7019
     outs:
     - path: data/processed/conformal_variant_benchmark.parquet
       hash: md5
-      md5: cec1242bbad2acc43d4e81f71d61c0dd
-      size: 9823
+      md5: 8c4a35fa5fb82a270ba1f9fea9cf4d78
+      size: 9879
     - path: data/processed/conformal_variant_benchmark_by_group.parquet
       hash: md5
-      md5: 04589cbd0695867f52d1590c04e5a93b
-      size: 5011
+      md5: 9562fbb024f8079c15e0f0b0e8cd9ffe
+      size: 5129
   backtest_causal_policy_oot:
     cmd: uv run python scripts/backtest_causal_policy_oot.py
     deps:
@@ -682,19 +686,18 @@ stages:
       hash: md5
       md5: 3bbd261f781f73c1c68aed824175be18
       size: 50854051
-    - path: data/processed/train_fe.parquet
+    - path: data/processed/train.parquet
       hash: md5
-      md5: e3bb58de736960b6d1c7991d6830b70e
-      size: 94259402
-      isexec: true
+      md5: 1a12195e1b06c2a2c8d2f3af79edc9d0
+      size: 140607600
     - path: models/causal_policy_rule.json
       hash: md5
       md5: 5c6ac743fe28044cc547c7afef4628c8
       size: 792
     - path: scripts/backtest_causal_policy_oot.py
       hash: md5
-      md5: 8b43d07bf2634814fd3be9ea43102cc8
-      size: 7511
+      md5: 9fd34029969a99e4691775ce66db800e
+      size: 7717
     outs:
     - path: data/processed/causal_policy_oot_backtest.parquet
       hash: md5
@@ -727,12 +730,12 @@ stages:
       size: 12492032
     - path: scripts/run_fairness_audit.py
       hash: md5
-      md5: 4bfa6a2ebff51b8d2038f058f204853b
-      size: 4715
+      md5: 05694de5a4389145ac79927e09dfff40
+      size: 4787
     - path: src/evaluation/fairness.py
       hash: md5
-      md5: 2a2ee2af62f93bd6e9db6b21a3d3cc56
-      size: 6415
+      md5: 3ca06901f4881d8d700b7541e8b36d9e
+      size: 6481
     outs:
     - path: data/processed/fairness_audit.parquet
       hash: md5
@@ -760,12 +763,12 @@ stages:
       isexec: true
     - path: scripts/optimize_cate_portfolio.py
       hash: md5
-      md5: 66ba5db2a8a4a3440ad85a91422302c7
-      size: 6835
+      md5: 18cac005e94d734152b7c06de4b1ac78
+      size: 6893
     - path: src/optimization/causal_portfolio.py
       hash: md5
-      md5: 9fa73ff827488fb8959d15655c52f70a
-      size: 6260
+      md5: 22d35e103efcf7f09e5efe3cd1c75c0e
+      size: 6414
     outs:
     - path: data/processed/cate_portfolio_comparison.parquet
       hash: md5
@@ -789,12 +792,12 @@ stages:
       isexec: true
     - path: scripts/simulate_ab_test.py
       hash: md5
-      md5: 7e3544caeb4a14a6e59169277f0deaa9
-      size: 7392
+      md5: 24a8c0f86b95a6921392af9f01de7b04
+      size: 7736
     - path: src/evaluation/ab_testing.py
       hash: md5
-      md5: 82df4318650ad58b78213c3ba9099fe7
-      size: 6494
+      md5: f019ec88d34ab014629dc0a98696181a
+      size: 6482
     outs:
     - path: data/processed/ab_simulation_results.parquet
       hash: md5
@@ -818,8 +821,8 @@ stages:
       size: 1056
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: ab8ee19082a5eebf69d39d80da6154c7
-      size: 1158
+      md5: 76ea1f0b0ff565609f80898976d90239
+      size: 1156
     - path: models/conformal_policy_status.json
       hash: md5
       md5: 68b7731c81b1fdf9a596127801ab6718
@@ -840,5 +843,5 @@ stages:
     outs:
     - path: reports/mrm/mrm_validation_report.json
       hash: md5
-      md5: 57d749cadbc6facb0384f178a1febba1
-      size: 5111
+      md5: bc94e8f5e30e744bd247afaa47d378bb
+      size: 5109

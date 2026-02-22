@@ -19,7 +19,6 @@ from scripts.generate_conformal_intervals import (
     _build_feature_matrix,
     _load_calibrator,
     _load_model,
-    _read_with_fallback,
     _resolve_features,
 )
 from src.models.conformal import (
@@ -28,6 +27,7 @@ from src.models.conformal import (
     create_pd_intervals_mondrian,
     validate_coverage,
 )
+from src.utils.io_utils import read_with_fallback
 
 TARGET_COL = "default_flag"
 GROUP_COL = "grade"
@@ -70,10 +70,10 @@ def main(
 ) -> None:
     model, _ = _load_model()
     calibrator = _load_calibrator()
-    cal_df = _read_with_fallback(
+    cal_df = read_with_fallback(
         "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
     )
-    test_df = _read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
+    test_df = read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
 
     features, categorical = _resolve_features(model, cal_df, test_df)
     X_cal = _build_feature_matrix(cal_df, features, categorical)

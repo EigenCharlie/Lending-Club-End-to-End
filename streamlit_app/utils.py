@@ -18,7 +18,8 @@ DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
 DUCKDB_PATH = PROJECT_ROOT / "data" / "lending_club.duckdb"
 DBT_PROJECT_DIR = PROJECT_ROOT / "dbt_project"
-NOTEBOOK_IMAGE_DIR = PROJECT_ROOT / "reports" / "notebook_images"
+REPORTS_DIR = PROJECT_ROOT / "reports"
+NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
 
 
@@ -68,6 +69,30 @@ def try_load_json(name: str, directory: str = "data", default: dict | None = Non
         return json.loads(path.read_text())
     except Exception:
         return dict(default or {})
+
+
+@st.cache_data(ttl=300, max_entries=16)
+def try_load_report_parquet(subdir: str, name: str) -> pd.DataFrame:
+    """Load parquet from reports/<subdir>/<name>.parquet."""
+    path = REPORTS_DIR / subdir / f"{name}.parquet"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_parquet(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300, max_entries=16)
+def try_load_report_json(subdir: str, name: str) -> dict:
+    """Load JSON from reports/<subdir>/<name>.json."""
+    path = REPORTS_DIR / subdir / f"{name}.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except Exception:
+        return {}
 
 
 def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:

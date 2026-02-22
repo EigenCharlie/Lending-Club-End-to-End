@@ -36,7 +36,7 @@ causalidad, optimización y cumplimiento IFRS9.
 summary = load_json("pipeline_summary")
 model_cmp = load_json("model_comparison")
 conformal = load_json("conformal_policy_status", directory="models")
-governance = load_json("modeva_governance_status", directory="models")
+governance = load_json("conformal_policy_status", directory="models")
 best_calibration = str(model_cmp.get("best_calibration", "calibración seleccionada"))
 
 pipeline = summary.get("pipeline", {})

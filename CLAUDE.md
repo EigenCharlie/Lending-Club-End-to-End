@@ -38,7 +38,7 @@ Why this matters:
 - **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
 - **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
 - **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config.
-- **Calibration policy**: method selected by temporal multi-metric validation policy; resulting method persisted in artifacts.
+- **Calibration policy**: method selected by temporal multi-metric validation policy; resulting method persisted in artifacts. Config files are **templates** with defaults; runtime artifacts are the source of truth.
 
 Current runtime metrics and winners must be read from artifacts, primarily:
 - `data/processed/model_comparison.json`
@@ -105,7 +105,6 @@ uv run ruff format src/ # Format
 │   ├── pd_model.yaml
 │   ├── optimization.yaml
 │   ├── conformal_policy.yaml
-│   ├── modeva_governance.yaml
 │   ├── fairness_policy.yaml
 │   └── mrm_policy.yaml
 ├── data/
@@ -127,15 +126,13 @@ uv run ruff format src/ # Format
 │   ├── end_to_end_pipeline.py
 │   ├── ... (15 total core scripts)
 │   └── side_projects/       # Non-core exploratory scripts
-│       ├── build_gpu_benchmark_notebook.py
-│       └── run_modeva_governance_checks.py
+│       └── build_gpu_benchmark_notebook.py
 ├── notebooks/               # Analysis notebooks (01-09 = core thesis)
 │   ├── 01_eda_lending_club.ipynb
 │   ├── 02_feature_engineering.ipynb
 │   ├── ... (09 total)
 │   └── side_projects/       # Non-core exploratory notebooks
-│       ├── 10_rapids_gpu_benchmark_lending_club.ipynb
-│       └── 10_modeva_side_task_full_validation.ipynb
+│       └── 10_rapids_gpu_benchmark_lending_club.ipynb
 ├── models/                  # Saved artifacts (DVC tracked)
 ├── tests/                   # pytest suite
 ├── reports/                 # Generated reports & figures
@@ -188,7 +185,7 @@ uv run pytest -m "not slow"   # Skip slow tests
 uv run pytest --cov=src       # Coverage report
 ```
 
-Current tests: 286 passing across data pipeline, features, models, evaluation (fairness, A/B, IFRS9, metrics), optimization (portfolio, causal), config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke (25 pages), and integration.
+Current tests: 382 passing across data pipeline, features, models (PD, calibration, conformal, conformal_tuning, pd_contract), evaluation (fairness, A/B, IFRS9, metrics), optimization (portfolio, portfolio_model, causal, robust_opt), config/DVC consistency (6 YAML configs), MLflow/utils/scripts, API, Streamlit smoke (25 pages), and integration.
 
 Pytest config uses `--strict-markers --strict-config` to prevent typos in markers and invalid configs.
 Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
@@ -221,5 +218,5 @@ Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 - CatBoost handles NaN natively — no imputation needed. LogReg baseline uses fillna(0).
 - LGD modeling only uses defaults (default_flag=1). ~88% null LGD values are expected.
 - Calibration method can change across runs by temporal model-selection policy; check `data/processed/model_comparison.json` for the active winner.
-- Side projects (RAPIDS GPU benchmark, Modeva governance) are in `*/side_projects/` — not part of core thesis.
+- Side projects (RAPIDS GPU benchmark) are in `*/side_projects/` — not part of core thesis.
 - History of decision changes, errors, and learnings lives in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.

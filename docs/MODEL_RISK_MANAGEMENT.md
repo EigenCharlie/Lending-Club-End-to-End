@@ -78,18 +78,13 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 - **Source**: `data/processed/model_comparison.json`
 - Logistic Regression serves as the mandatory interpretable baseline
 
-### 3.3 Sensitivity and Robustness
-- **Feature perturbation**: Noise injection (2%, 5%) on key features
-- **AUC degradation threshold**: < 0.04 drop under perturbation
-- **Source**: `data/processed/modeva_governance_robustness.parquet`
-
-### 3.4 Conformal Coverage
+### 3.3 Conformal Coverage
 - **Target**: 90% coverage (alpha = 0.10)
 - **Mondrian groups**: By grade (A-G) for group-conditional coverage
 - **Policy gate**: 7/7 checks must pass
 - **Source**: `models/conformal_policy_status.json`
 
-### 3.5 Fairness Audit
+### 3.4 Fairness Audit
 - **Metrics**: Demographic Parity Difference, Equalized Odds Gap, Disparate Impact Ratio
 - **Attributes**: home_ownership, annual_inc quartile, verification_status
 - **Thresholds**: DPD < 0.10, EO gap < 0.10, DIR > 0.80
@@ -145,12 +140,9 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 
 | Metric | Threshold | Frequency | Source |
 |--------|-----------|-----------|--------|
-| PSI (feature drift) | < 0.25 | Quarterly | Modeva governance |
-| KS drift | < 0.20 | Quarterly | Modeva governance |
 | AUC degradation | < 0.03 vs baseline | Quarterly | Pipeline summary |
 | Conformal coverage | > 0.88 (at 0.90 target) | Quarterly | Conformal policy |
 | Fairness (DIR) | > 0.80 | Quarterly | Fairness audit |
-| Robustness (AUC drop under noise) | < 0.04 | Quarterly | Modeva robustness |
 
 ### Retraining Triggers
 - PSI exceeds 0.25 on any monitored feature
@@ -159,7 +151,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 - See `configs/mrm_policy.yaml` for machine-readable thresholds
 
 ### Escalation
-- Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`, `modeva_governance_status.json`) gate deployment
+- Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`) gate deployment
 - Manual: quarterly review of monitoring dashboard (Streamlit → Model Governance page)
 
 ---

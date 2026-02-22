@@ -192,17 +192,8 @@ def _step_optimization_tradeoff() -> None:
     optimize_portfolio_tradeoff(config_path="configs/optimization.yaml")
 
 
-def _step_modeva_governance() -> None:
-    from scripts.side_projects.run_modeva_governance_checks import (
-        main as run_modeva_governance,
-    )
-
-    run_modeva_governance("configs/modeva_governance.yaml")
-
-
 def main(
     run_name: str = "v2",
-    include_modeva_side_task: bool = False,
     continue_on_error: bool = False,
     skip_make_dataset: bool = False,
 ) -> int:
@@ -236,15 +227,6 @@ def main(
         _run_step("optimization", _step_optimization, status, continue_on_error)
         _run_step("optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error)
 
-        if include_modeva_side_task:
-            _run_step(
-                "modeva_governance_side_task",
-                _step_modeva_governance,
-                status,
-                continue_on_error,
-            )
-        else:
-            status["modeva_governance_side_task"] = "skipped"
     except Exception:
         failed = True
     finally:
@@ -263,14 +245,12 @@ def main(
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--run_name", default="v2")
-    parser.add_argument("--include_modeva_side_task", action="store_true")
     parser.add_argument("--continue-on-error", action="store_true")
     parser.add_argument("--skip-make-dataset", action="store_true")
     args = parser.parse_args()
     raise SystemExit(
         main(
             run_name=args.run_name,
-            include_modeva_side_task=args.include_modeva_side_task,
             continue_on_error=args.continue_on_error,
             skip_make_dataset=args.skip_make_dataset,
         )

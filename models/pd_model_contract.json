@@ -1,5 +1,5 @@
 {
-  "created_at_utc": "2026-02-20T12:34:49.323650+00:00",
+  "created_at_utc": "2026-02-21T15:25:52.739305+00:00",
   "model_path": "models/pd_canonical.cbm",
   "calibrator_path": "models/pd_canonical_calibrator.pkl",
   "feature_names": [

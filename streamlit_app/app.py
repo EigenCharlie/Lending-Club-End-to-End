@@ -81,6 +81,9 @@ pg = st.navigation(
                 icon="🧰",
             ),
         ],
+        "Anexos": [
+            st.Page("pages/gpu_benchmark.py", title="Benchmark RAPIDS GPU", icon="⚡"),
+        ],
     }
 )
 

@@ -58,11 +58,5 @@ sources:
       - name: ifrs9_sensitivity_grid
         description: "IFRS9 ECL sensitivity to PD/LGD multipliers"
 
-      - name: modeva_governance_checks
-        description: "Model governance check results (pass/fail)"
-
-      - name: modeva_governance_fairness
-        description: "Fairness metrics (AIR, SPD) across protected groups"
-
       - name: ead_dataset
         description: "EAD dataset (defaults only)"

@@ -203,7 +203,7 @@ summary = load_json("pipeline_summary")
 eda = load_json("eda_summary")
 comparison = load_json("model_comparison")
 policy = load_json("conformal_policy_status", directory="models")
-governance = load_json("modeva_governance_status", directory="models")
+governance = load_json("conformal_policy_status", directory="models")
 
 pipeline = summary.get("pipeline", {})
 pd_model = summary.get("pd_model", {})

@@ -98,18 +98,9 @@ OPTIONAL_FILES = [
     "data/lending_club.duckdb",
     "data/processed/efficient_frontier.parquet",
     "data/processed/ifrs9_ecl_comparison.parquet",
-    "data/processed/modeva_governance_checks.parquet",
-    "data/processed/modeva_governance_drift_ks.parquet",
-    "data/processed/modeva_governance_drift_psi.parquet",
-    "data/processed/modeva_governance_fairness.parquet",
-    "data/processed/modeva_governance_metrics.parquet",
-    "data/processed/modeva_governance_robustness.parquet",
-    "data/processed/modeva_governance_slicing_accuracy.parquet",
-    "data/processed/modeva_governance_slicing_robustness.parquet",
     "data/processed/pd_model_contract_validation.parquet",
     "data/processed/shap_raw_top20.parquet",
     "data/processed/shap_summary.parquet",
-    "models/modeva_governance_status.json",
 ]
 
 

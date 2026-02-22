@@ -260,7 +260,6 @@ stages:
     - data/processed/pipeline_summary.json
     - models/conformal_policy_status.json
     - models/fairness_audit_status.json
-    - models/modeva_governance_status.json
     - scripts/generate_mrm_report.py
     outs:
     - reports/mrm/mrm_validation_report.json

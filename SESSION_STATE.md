@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-02-20
+Last Updated: 2026-02-21
 
 ---
 
@@ -32,20 +32,30 @@ Design implication:
 ## 3) Pipeline Connection Map
 
 ```text
-1. src/data/make_dataset.py         -> interim cleaned dataset
-2. src/data/prepare_dataset.py      -> OOT train/calibration/test splits
-3. src/data/build_datasets.py       -> loan_master, time_series, ead_dataset
-4. scripts/train_pd_model.py        -> LR baseline + CatBoost default/tuned + calibration selection + contract
+1. src/data/make_dataset.py              -> interim cleaned dataset
+2. src/data/prepare_dataset.py           -> OOT train/calibration/test splits
+3. src/data/build_datasets.py            -> loan_master, time_series, ead_dataset
+4. scripts/train_pd_model.py             -> LR baseline + CatBoost default/tuned + calibration selection + contract
 5. scripts/generate_conformal_intervals.py -> Mondrian conformal intervals
-6. scripts/backtest_conformal_coverage.py  -> temporal monitoring
-7. scripts/validate_conformal_policy.py    -> formal policy gate
-8. scripts/estimate_causal_effects.py      -> CATE estimation
-9. scripts/simulate_causal_policy.py       -> policy simulation
-10. scripts/validate_causal_policy.py      -> rule selection + bootstrap
-11. scripts/run_ifrs9_sensitivity.py       -> scenario + sensitivity ECL
-12. scripts/optimize_portfolio.py          -> LP/MILP allocation
-13. scripts/optimize_portfolio_tradeoff.py -> robustness frontier
-14. scripts/end_to_end_pipeline.py         -> orchestration
+6. scripts/backtest_conformal_coverage.py -> temporal monitoring
+7. scripts/validate_conformal_policy.py   -> formal policy gate
+8. scripts/estimate_causal_effects.py     -> CATE estimation
+9. scripts/simulate_causal_policy.py      -> policy simulation
+10. scripts/validate_causal_policy.py     -> rule selection + bootstrap
+11. scripts/backtest_causal_policy_oot.py -> OOT policy backtest
+12. scripts/run_ifrs9_sensitivity.py      -> scenario + sensitivity ECL
+13. scripts/optimize_portfolio.py         -> LP/MILP allocation
+14. scripts/optimize_portfolio_tradeoff.py -> robustness frontier
+15. scripts/run_survival_analysis.py      -> Cox PH + RSF lifetime PD
+16. scripts/benchmark_conformal_variants.py -> variant comparison
+17. scripts/run_fairness_audit.py         -> demographic parity, EO gap, DIR
+18. scripts/optimize_cate_portfolio.py    -> CATE-adjusted portfolio comparison
+19. scripts/simulate_ab_test.py           -> robust vs non-robust A/B simulation
+20. scripts/generate_mrm_report.py        -> SR 11-7 consolidated report
+21. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
+22. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
+23. scripts/export_storytelling_snapshot.py -> storytelling JSON
+24. scripts/end_to_end_pipeline.py        -> orchestration
 ```
 
 ---
@@ -59,6 +69,10 @@ Source artifacts:
 - `data/processed/ifrs9_scenario_summary.parquet`
 - `data/processed/portfolio_robustness_summary.parquet`
 - `data/processed/pipeline_summary.json`
+- `models/fairness_audit_status.json`
+- `models/ab_simulation_status.json`
+- `models/cate_portfolio_status.json`
+- `reports/mrm/mrm_validation_report.json`
 
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
@@ -101,8 +115,9 @@ Source artifacts:
 ## 5) Delivery Layer Status (Current)
 
 ### Streamlit
-- Multi-page app implemented in `streamlit_app/`.
+- 25-page multi-page app in `streamlit_app/`, all registered in `app.py`.
 - Model laboratory and thesis pages consume runtime artifacts for metrics.
+- Includes A/B testing simulation, fairness audit, and CATE portfolio pages.
 
 ### FastAPI
 - Endpoints implemented in `api/`:
@@ -129,16 +144,43 @@ Source artifacts:
 
 ---
 
-## 7) Current Priorities
+## 7) Test Suite
+
+394 tests passing (7.88s) across 19 test files:
+
+| Category | Tests | Files |
+|----------|-------|-------|
+| API normalization | 5 | `test_router_normalization` |
+| Config consistency | 54 | `test_config_consistency` (7 config classes) |
+| Data pipeline | 29 | `test_make_dataset`, `test_prepare_dataset`, `test_build_datasets` |
+| Features | 5 | `test_features` |
+| PD model | 9 | `test_pd_model` |
+| Calibration | 10 | `test_calibration` |
+| Conformal | 18 | `test_conformal` |
+| Conformal tuning | 21 | `test_conformal_tuning` |
+| PD contract | 13 | `test_pd_contract` |
+| IFRS9 | 19 | `test_ifrs9` |
+| Metrics | 11 | `test_metrics` |
+| Fairness | 10 | `test_fairness` |
+| A/B testing | 8 | `test_ab_testing` |
+| Portfolio | 15 | `test_portfolio` |
+| Portfolio model | 13 | `test_portfolio_model` |
+| Causal portfolio | 8 | `test_causal_portfolio` |
+| Robust opt | 13 | `test_robust_opt` |
+| MLflow/utils | 18 | `test_mlflow_suite`, `test_mlflow_utils` |
+| Streamlit | 55 | `test_page_imports` (25 pages + utils) |
+| Integration | 8 | `test_integration` |
+
+## 8) Current Priorities
 
 1. Keep docs and Streamlit narratives strictly artifact-driven (no stale hardcoded claims).
-2. Align `configs/pd_model.yaml` calibration semantics with runtime auto-selection policy.
-3. Continue external benchmark validation with strict temporal/OOT comparability criteria.
-4. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
+2. Config files are templates — runtime calibration selection is artifact-driven.
+3. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
+4. DVC pipeline has 24 stages; `dvc.lock` is authoritative for artifact hashes.
 
 ---
 
-## 8) Source of Truth
+## 9) Source of Truth
 
 | Reference | Purpose |
 |-----------|---------|

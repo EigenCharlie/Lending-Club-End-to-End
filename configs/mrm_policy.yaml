@@ -36,7 +36,7 @@ approval_workflow:
 artifacts:
   pipeline_summary: data/processed/pipeline_summary.json
   conformal_status: models/conformal_policy_status.json
-  governance_status: models/modeva_governance_status.json
+  governance_status: models/conformal_policy_status.json
   fairness_status: models/fairness_audit_status.json
 
 output:

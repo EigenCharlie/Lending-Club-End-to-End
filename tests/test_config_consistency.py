@@ -228,3 +228,155 @@ class TestMRMConfig:
         """Champion artifact path should use forward slashes."""
         path = self.cfg["model"]["champion_artifact"]
         assert "\\" not in path, f"Path should use forward slashes: {path}"
+
+
+# ── Conformal Policy Config ──
+
+CONFORMAL_POLICY_PATH = PROJECT_ROOT / "configs" / "conformal_policy.yaml"
+
+
+class TestConformalPolicyConfig:
+    """Validate conformal policy config invariants."""
+
+    @pytest.fixture(autouse=True)
+    def _load(self):
+        if not CONFORMAL_POLICY_PATH.exists():
+            pytest.skip("Conformal policy config not found")
+        with open(CONFORMAL_POLICY_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+        self.policy = self.cfg["policy"]
+
+    def test_required_sections(self):
+        assert {"policy", "artifacts", "output"}.issubset(self.cfg.keys())
+
+    def test_coverage_targets_in_valid_range(self):
+        for key in ("target_coverage_90_min", "target_coverage_95_min"):
+            val = self.policy[key]
+            assert 0.5 < val < 1.0, f"{key}={val} outside (0.5, 1.0)"
+
+    def test_95_target_exceeds_90_target(self):
+        assert self.policy["target_coverage_95_min"] > self.policy["target_coverage_90_min"]
+
+    def test_group_floor_below_global_target(self):
+        assert self.policy["min_group_coverage_90_min"] <= self.policy["target_coverage_90_min"]
+
+    def test_width_budget_is_positive(self):
+        assert 0.0 < self.policy["max_avg_width_90"] <= 2.0
+
+    def test_alert_thresholds_non_negative(self):
+        for key in ("max_critical_alerts", "max_total_alerts", "max_warning_alerts"):
+            assert self.policy[key] >= 0, f"{key} must be >= 0"
+
+    def test_critical_alerts_leq_total(self):
+        assert self.policy["max_critical_alerts"] <= self.policy["max_total_alerts"]
+
+    def test_artifact_paths_have_valid_extensions(self):
+        for key, path in self.cfg["artifacts"].items():
+            assert path.endswith((".pkl", ".parquet", ".json")), (
+                f"Artifact '{key}' has unexpected extension: {path}"
+            )
+
+
+# ── Fairness Policy Config ──
+
+FAIRNESS_POLICY_PATH = PROJECT_ROOT / "configs" / "fairness_policy.yaml"
+
+
+class TestFairnessPolicyConfig:
+    """Validate fairness policy config invariants."""
+
+    @pytest.fixture(autouse=True)
+    def _load(self):
+        if not FAIRNESS_POLICY_PATH.exists():
+            pytest.skip("Fairness policy config not found")
+        with open(FAIRNESS_POLICY_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+        self.policy = self.cfg["policy"]
+
+    def test_required_sections(self):
+        assert {"policy", "attributes", "artifacts", "output"}.issubset(self.cfg.keys())
+
+    def test_dpd_threshold_range(self):
+        val = self.policy["dpd_threshold"]
+        assert 0 < val <= 0.5, f"dpd_threshold={val} outside (0, 0.5]"
+
+    def test_eo_gap_threshold_range(self):
+        val = self.policy["eo_gap_threshold"]
+        assert 0 < val <= 0.5, f"eo_gap_threshold={val} outside (0, 0.5]"
+
+    def test_dir_threshold_range(self):
+        val = self.policy["dir_threshold"]
+        assert 0.5 <= val < 1.0, f"dir_threshold={val} outside [0.5, 1.0)"
+
+    def test_prediction_threshold_is_probability(self):
+        val = self.policy["prediction_threshold"]
+        assert 0 < val < 1.0, f"prediction_threshold={val} outside (0, 1)"
+
+    def test_at_least_one_attribute(self):
+        assert len(self.cfg["attributes"]) >= 1
+
+    def test_attributes_have_name_and_column(self):
+        for attr in self.cfg["attributes"]:
+            assert "name" in attr, f"Attribute missing 'name': {attr}"
+            assert "column" in attr, f"Attribute missing 'column': {attr}"
+
+    def test_binning_enum_if_present(self):
+        valid = {"quartile", "decile"}
+        for attr in self.cfg["attributes"]:
+            if "binning" in attr:
+                assert attr["binning"] in valid, (
+                    f"Attribute '{attr['name']}' has invalid binning: {attr['binning']}"
+                )
+
+    def test_output_paths_have_valid_extensions(self):
+        for key, path in self.cfg["output"].items():
+            assert path.endswith((".parquet", ".json")), (
+                f"Output '{key}' has unexpected extension: {path}"
+            )
+
+
+# ── Optimization Config ──
+
+OPTIMIZATION_CONFIG_PATH = PROJECT_ROOT / "configs" / "optimization.yaml"
+
+
+class TestOptimizationConfig:
+    """Validate portfolio optimization config invariants."""
+
+    @pytest.fixture(autouse=True)
+    def _load(self):
+        if not OPTIMIZATION_CONFIG_PATH.exists():
+            pytest.skip("Optimization config not found")
+        with open(OPTIMIZATION_CONFIG_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+
+    def test_required_sections(self):
+        assert {"optimization", "portfolio", "conformal"}.issubset(self.cfg.keys())
+
+    def test_solver_type_valid(self):
+        assert self.cfg["optimization"]["type"] in {"LP", "MILP"}
+
+    def test_solver_name_valid(self):
+        assert self.cfg["optimization"]["solver"] in {"highs", "cplex", "gurobi", "glpk"}
+
+    def test_time_limit_reasonable(self):
+        val = self.cfg["optimization"]["time_limit"]
+        assert 10 <= val <= 3600, f"time_limit={val} outside [10, 3600]"
+
+    def test_threads_positive(self):
+        assert self.cfg["optimization"]["threads"] >= 1
+
+    def test_budget_positive(self):
+        assert self.cfg["portfolio"]["total_budget"] > 0
+
+    def test_max_concentration_range(self):
+        val = self.cfg["portfolio"]["max_concentration"]
+        assert 0 < val <= 1.0, f"max_concentration={val} outside (0, 1]"
+
+    def test_max_portfolio_pd_range(self):
+        val = self.cfg["portfolio"]["max_portfolio_pd"]
+        assert 0 < val < 0.5, f"max_portfolio_pd={val} outside (0, 0.5)"
+
+    def test_conformal_alpha_valid(self):
+        val = self.cfg["conformal"]["alpha"]
+        assert val in {0.05, 0.10, 0.20}, f"alpha={val} not in supported set"

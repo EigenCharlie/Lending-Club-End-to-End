@@ -63,4 +63,3 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     assert persisted["pd_model"] == "ok"
     assert persisted["optimization"] == "ok"
     assert persisted["optimization_tradeoff"] == "ok"
-    assert persisted["modeva_governance_side_task"] == "skipped"
