@@ -274,3 +274,24 @@ stages:
     - scripts/export_storytelling_snapshot.py
     outs:
     - reports/storytelling_snapshot.json
+  export_dvc_metrics:
+    cmd: uv run python scripts/export_dvc_metrics.py
+    deps:
+    - data/processed/conformal_backtest_monthly.parquet
+    - data/processed/ifrs9_scenario_summary.parquet
+    - data/processed/portfolio_robustness_frontier.parquet
+    - data/processed/test_predictions.parquet
+    - models/conformal_policy_status.json
+    - models/pipeline_results.pkl
+    - scripts/export_dvc_metrics.py
+    outs:
+    - reports/dvc/conformal_coverage_backtest.csv
+    - reports/dvc/metrics_summary.json
+    - reports/dvc/robustness_frontier.csv
+
+metrics:
+- reports/dvc/metrics_summary.json
+
+plots:
+- reports/dvc/conformal_coverage_backtest.csv
+- reports/dvc/robustness_frontier.csv

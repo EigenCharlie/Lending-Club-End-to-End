@@ -7,6 +7,12 @@ import streamlit as st
 from streamlit_mermaid import st_mermaid
 
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import load_runtime_status
 
 
@@ -21,6 +27,11 @@ st.title("🛠️ Stack Tecnológico")
 st.caption(
     "Librerías, versiones, decisiones de diseño y prácticas de ingeniería "
     "del pipeline de riesgo de crédito."
+)
+page_contract = get_page_contract("tech_stack")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La elección de librerías y prácticas se documenta como parte de la reproducibilidad y gobernanza del pipeline, no como catálogo decorativo."
 )
 
 st.markdown(
@@ -429,7 +440,9 @@ with tabs[10]:
 # ══════════════════════════════════════════════════════════════════════════════
 st.subheader("2) Prácticas de ingeniería")
 
-runtime_status = load_runtime_status()
+with st.status("Cargando snapshot de runtime del proyecto...", expanded=False) as _rt_status:
+    runtime_status = load_runtime_status()
+    _rt_status.update(label="Snapshot de runtime cargado", state="complete")
 TEST_SUITE_TOTAL = int(runtime_status.get("test_suite_total", 0) or 0)
 PAGES_TOTAL = int(runtime_status.get("streamlit_pages_total", 0) or 0)
 PAGES_LABEL = str(PAGES_TOTAL) if PAGES_TOTAL > 0 else "N/D"
@@ -692,6 +705,8 @@ st.caption(
     "Cinco capas independientes conectadas por artefactos (parquets, modelos serializados, JSON contracts). "
     "Cada capa se puede reemplazar sin afectar las demás."
 )
+
+render_page_feedback("tech_stack")
 
 next_page_teaser(
     "Chat con Datos",

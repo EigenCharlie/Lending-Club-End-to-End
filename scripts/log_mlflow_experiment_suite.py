@@ -14,6 +14,7 @@ This script reads existing project artifacts and logs one run per domain:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -56,7 +57,7 @@ def _to_metrics(data: dict[str, Any], prefix: str = "") -> dict[str, float]:
         if isinstance(value, bool):
             out[name] = float(int(value))
             continue
-        if isinstance(value, (int, float)):
+        if isinstance(value, int | float):
             value_f = float(value)
             if math.isfinite(value_f):
                 out[name] = value_f
@@ -68,9 +69,9 @@ def _to_params(data: dict[str, Any]) -> dict[str, Any]:
     for key, value in data.items():
         if value is None:
             continue
-        if isinstance(value, (str, int, float, bool)):
+        if isinstance(value, str | int | float | bool):
             out[key] = value
-        elif isinstance(value, (list, tuple, set)):
+        elif isinstance(value, list | tuple | set):
             out[key] = ",".join(str(v) for v in value)
         else:
             out[key] = str(value)
@@ -82,6 +83,39 @@ def _git_sha() -> str:
         return subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
     except Exception:
         return "unknown"
+
+
+def _short_file_sha256(rel_path: str, length: int = 12) -> str:
+    path = ROOT / rel_path
+    if not path.exists():
+        return "missing"
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()[:length]
+
+
+def _dvc_remote_backend() -> str:
+    cfg_candidates = [ROOT / ".dvc/config.local", ROOT / ".dvc/config"]
+    current_remote = None
+    for cfg_path in cfg_candidates:
+        if not cfg_path.exists():
+            continue
+        for raw_line in cfg_path.read_text(encoding="utf-8").splitlines():
+            line = raw_line.strip()
+            if not line:
+                continue
+            if line.startswith("["):
+                current_remote = "dagshub" if 'remote "dagshub"' in line else None
+                continue
+            if current_remote == "dagshub" and line.startswith("url ="):
+                url = line.split("=", 1)[1].strip()
+                if url.startswith("s3://"):
+                    return "s3"
+                if url.startswith("http://") or url.startswith("https://"):
+                    return "http"
+    return "unknown"
 
 
 def _log_run(
@@ -96,14 +130,16 @@ def _log_run(
 
     clean_metrics = {k: float(v) for k, v in metrics.items() if math.isfinite(float(v))}
     clean_params = _to_params(params)
+    clean_tags = dict(tags or {})
+    clean_tags.setdefault("pipeline_scope", experiment_name.split("/")[-1])
 
     with mlflow.start_run(run_name=run_name) as run:
         if clean_params:
             mlflow.log_params(clean_params)
         if clean_metrics:
             mlflow.log_metrics(clean_metrics)
-        if tags:
-            mlflow.set_tags(tags)
+        if clean_tags:
+            mlflow.set_tags(clean_tags)
 
         for rel_path in artifacts:
             path = ROOT / rel_path
@@ -464,11 +500,42 @@ def main(repo_owner: str, repo_name: str) -> None:
     logger.info(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
 
     timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%SZ")
+    data_version = _short_file_sha256("dvc.lock")
+    dvc_backend = _dvc_remote_backend()
     common_tags = {
         "project": "lending-club-end-to-end",
         "git_sha": _git_sha(),
         "sync_mode": "artifact_backfill",
         "logged_at_utc": timestamp,
+        "data_version": data_version,
+        "dvc_remote_backend": dvc_backend,
+    }
+    suite_sync_run_id = ""
+
+    # Keep per-domain experiments unchanged, but create a suite parent run to improve traceability.
+    mlflow.set_experiment("lending_club/suite_sync")
+    with mlflow.start_run(run_name=f"artifact_backfill_suite_sync_{timestamp}") as suite_run:
+        suite_sync_run_id = suite_run.info.run_id
+        mlflow.log_params(
+            {
+                "repo_owner": repo_owner,
+                "repo_name": repo_name,
+                "sync_mode": "artifact_backfill",
+                "domains_expected": 8,
+            }
+        )
+        mlflow.set_tags(
+            {
+                **common_tags,
+                "domain": "suite_sync",
+                "pipeline_scope": "suite_sync",
+            }
+        )
+        logger.info(f"Suite sync run started: {suite_sync_run_id}")
+
+    common_tags = {
+        **common_tags,
+        "suite_sync_run_id": suite_sync_run_id,
     }
 
     run_ids = {
@@ -481,6 +548,13 @@ def main(repo_owner: str, repo_name: str) -> None:
         "survival": _log_survival(timestamp, common_tags),
         "time_series": _log_time_series(timestamp, common_tags),
     }
+
+    # Re-open suite sync run to attach child run links and completion summary.
+    if suite_sync_run_id:
+        mlflow.set_experiment("lending_club/suite_sync")
+        with mlflow.start_run(run_id=suite_sync_run_id):
+            mlflow.log_metrics({"child_run_count": float(len(run_ids))})
+            mlflow.set_tags({f"child_{name}_run_id": run_id for name, run_id in run_ids.items()})
 
     logger.info("MLflow suite logged successfully")
     for name, run_id in run_ids.items():

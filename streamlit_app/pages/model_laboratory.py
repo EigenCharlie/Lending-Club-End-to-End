@@ -16,13 +16,33 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
+from streamlit_app.components.context_help import (
+    methodology_dialog,
+    metric_help_popover,
+    term_popover,
+)
+from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
 
 st.title("🔬 Laboratorio de Modelos")
 st.caption("Comparación de modelos PD, calibración y explicabilidad (SHAP).")
+page_contract = get_page_contract("model_laboratory")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La decisión correcta aquí no es solo el mejor AUC, sino el mejor trade-off entre discriminación y calidad probabilística para uso operativo."
+)
+term_popover("calibración", label="Por qué importa la calibración")
 st.markdown(
     """
 Este capítulo traduce teoría de modelado tabular a una decisión concreta de arquitectura PD. La intención no es exhibir
@@ -42,6 +62,23 @@ storytelling_intro(
         "Validar calibración (Brier/ECE) además de AUC/KS.",
         "Usar SHAP para explicar por qué el modelo decide así.",
     ],
+)
+render_decision_box(
+    "Adoptar el campeón canónico solo si mantiene buen ranking (AUC/KS) y buena calibración (Brier/ECE).",
+    owner="Model Risk / Data Science",
+    cadence="retrain o recalibración",
+)
+render_global_kpi_spine("model")
+metric_help_popover("baseline_vs_canonical", label="Baseline vs canónico")
+methodology_dialog(
+    "Cómo leer las métricas del laboratorio",
+    """
+- `AUC` y `KS` miden ranking/separación.
+- `Brier` y `ECE` miden calidad probabilística (calibración).
+- Un modelo puede mejorar AUC pero empeorar calibración; eso impacta pricing e IFRS9.
+- La decisión del campeón requiere mirar ambas familias de métricas.
+""",
+    button_label="Ver guía rápida de métricas",
 )
 
 narrative_block(
@@ -400,6 +437,14 @@ la discusión deja de ser únicamente predictiva y pasa a ser decisional: cuánt
 incertidumbre y cómo convertir esa información en políticas de cartera y provisión más robustas.
 """
 )
+render_caveats(
+    [
+        "El baseline logístico sigue siendo referencia regulatoria aunque no sea el campeón.",
+        "Las métricas mostradas son snapshot; deben leerse junto a estabilidad temporal y gobernanza.",
+        "SHAP explica correlaciones locales del modelo, no causalidad.",
+    ]
+)
+render_page_feedback("model_laboratory")
 
 next_page_teaser(
     "Cuantificación de Incertidumbre",

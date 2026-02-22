@@ -39,7 +39,7 @@ dependencies = [
     # ── Feature Engineering ──
     "optbinning>=0.19",
     # ── MLOps ──
-    "dvc>=3.56",
+    "dvc[s3]>=3.56",
     "mlflow>=2.20",
     "dagshub>=0.4",
     "pandera>=0.22",

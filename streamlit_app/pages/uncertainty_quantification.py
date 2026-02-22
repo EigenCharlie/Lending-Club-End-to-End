@@ -15,8 +15,23 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from streamlit_app.components.context_help import (
+    chart_help_popover,
+    methodology_dialog,
+    term_popover,
+)
+from streamlit_app.components.dvc_kpi_spine import render_conformal_health_panel
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+    render_section_checkpoint,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_pct, get_notebook_image_path, load_json, load_parquet
 
@@ -25,6 +40,12 @@ st.caption(
     "Conformal prediction (Mondrian) para convertir predicciones puntuales en intervalos "
     "con cobertura empírica controlada."
 )
+page_contract = get_page_contract("uncertainty_quantification")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Conformal no mejora el ranking del modelo: agrega una capa de confiabilidad para decidir cuánto creerle a cada PD."
+)
+term_popover("conformal", label="Conformal en una frase")
 
 storytelling_intro(
     page_goal="Cuantificar qué tan incierta es cada PD en lugar de usar un único número puntual.",
@@ -35,6 +56,25 @@ storytelling_intro(
         "Comprobar cobertura mínima por grupo (grade) para evitar sesgos ocultos.",
         "Validar estabilidad temporal en el backtest mensual.",
     ],
+)
+render_decision_box(
+    "Elegir cobertura objetivo y ancho tolerable como política explícita, no como subproducto accidental del modelo.",
+    owner="Riesgo / MRM",
+    cadence="monitoreo mensual",
+)
+render_conformal_health_panel()
+methodology_dialog(
+    "Mondrian vs global conformal",
+    """
+Mondrian estima cuantiles de no-conformidad por subgrupo (ej. `grade`) en lugar de un único cuantil global.
+
+Ventaja:
+- evita que grupos masivos y seguros escondan mala cobertura en grupos riesgosos.
+
+Costo:
+- puede ampliar intervalos en grupos con menos datos o mayor heterogeneidad.
+""",
+    button_label="Ver por qué Mondrian importa",
 )
 
 # ── Visual Intuition ──
@@ -143,12 +183,14 @@ tiene una frecuencia de acierto controlada”. Es una garantía empírica, no un
 """
 )
 
-policy = load_json("conformal_policy_status", directory="models")
-checks = load_parquet("conformal_policy_checks")
-conf_df = load_parquet("conformal_intervals_mondrian")
-group_df = load_parquet("conformal_group_metrics_mondrian")
-backtest = load_parquet("conformal_backtest_monthly")
-backtest_grade = load_parquet("conformal_backtest_monthly_grade")
+with st.status("Cargando artefactos conformal (policy, intervalos y backtests)...", expanded=False) as _cp_status:
+    policy = load_json("conformal_policy_status", directory="models")
+    checks = load_parquet("conformal_policy_checks")
+    conf_df = load_parquet("conformal_intervals_mondrian")
+    group_df = load_parquet("conformal_group_metrics_mondrian")
+    backtest = load_parquet("conformal_backtest_monthly")
+    backtest_grade = load_parquet("conformal_backtest_monthly_grade")
+    _cp_status.update(label="Artefactos conformal cargados", state="complete")
 
 status = "✅ Cumple política" if policy.get("overall_pass", False) else "⚠️ Requiere revisión"
 st.subheader(f"Estado de política conformal: {status}")
@@ -213,6 +255,11 @@ persistentes en segmentos específicos.
 )
 
 st.subheader("1) Distribución de intervalos")
+chart_help_popover(
+    "distribucion_intervalos",
+    what_to_look_at="si los anchos aumentan en zonas de mayor PD y si hay colas muy anchas por segmento.",
+    common_misread="un intervalo más ancho no significa peor modelo; puede ser incertidumbre real más alta.",
+)
 col1, col2 = st.columns(2)
 
 with col1:
@@ -530,6 +577,22 @@ debe leerse siempre junto a retorno robusto y a sensibilidad IFRS9 para decidir 
 adecuado para el apetito de riesgo del portafolio.
 """
 )
+render_section_checkpoint(
+    "Checkpoint: qué debe quedar claro antes de pasar a la siguiente página",
+    [
+        "Cobertura debe leerse junto con ancho (no solo pasar el target).",
+        "Mondrian protege subgrupos y evita falsa seguridad del promedio global.",
+        "El output clave para decisiones downstream es el intervalo (`PD_low`, `PD_high`).",
+    ],
+)
+render_caveats(
+    [
+        "La garantía conformal es empírica y depende de supuestos de estabilidad/intercambiabilidad.",
+        "Cobertura alta en promedio puede ocultar variabilidad temporal si no se monitorea el backtest.",
+        "El ancho óptimo depende del apetito de riesgo y del costo económico de conservadurismo.",
+    ]
+)
+render_page_feedback("uncertainty_quantification")
 
 next_page_teaser(
     "Panorama Temporal",

@@ -19,6 +19,7 @@ MODEL_DIR = PROJECT_ROOT / "models"
 DUCKDB_PATH = PROJECT_ROOT / "data" / "lending_club.duckdb"
 DBT_PROJECT_DIR = PROJECT_ROOT / "dbt_project"
 REPORTS_DIR = PROJECT_ROOT / "reports"
+DVC_REPORTS_DIR = REPORTS_DIR / "dvc"
 NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
 
@@ -93,6 +94,65 @@ def try_load_report_json(subdir: str, name: str) -> dict:
         return json.loads(path.read_text())
     except Exception:
         return {}
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_dvc_metrics_summary() -> dict[str, float]:
+    """Load canonical DVC metrics summary exported under reports/dvc/."""
+    path = DVC_REPORTS_DIR / "metrics_summary.json"
+    if not path.exists():
+        return {}
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    out: dict[str, float] = {}
+    for key, value in data.items():
+        try:
+            out[str(key)] = float(value)
+        except Exception:
+            continue
+    return out
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_dvc_conformal_backtest() -> pd.DataFrame:
+    """Load canonical conformal coverage backtest exported for DVC plots."""
+    path = DVC_REPORTS_DIR / "conformal_coverage_backtest.csv"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(path)
+        if "month" in df.columns:
+            df["month"] = pd.to_datetime(df["month"], errors="coerce")
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_dvc_robustness_frontier() -> pd.DataFrame:
+    """Load canonical robustness frontier exported for DVC plots."""
+    path = DVC_REPORTS_DIR / "robustness_frontier.csv"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_csv(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+def safe_metric_get(
+    metrics: dict[str, float] | None, key: str, default: float | None = None
+) -> float | None:
+    """Safely fetch a metric key from DVC summary."""
+    if not metrics:
+        return default
+    value = metrics.get(key, default)
+    try:
+        return float(value) if value is not None else default
+    except Exception:
+        return default
 
 
 def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:

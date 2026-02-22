@@ -12,6 +12,12 @@ from streamlit_app.components.narrative import (
     next_page_teaser,
     storytelling_intro,
 )
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     get_notebook_image_path,
@@ -22,6 +28,11 @@ st.title("🔧 Ingeniería de Features")
 st.caption(
     "De 142 variables crudas a 60 features predictivas: limpieza, transformación, "
     "WOE encoding y selección por Information Value."
+)
+page_contract = get_page_contract("feature_engineering")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La ingeniería de features define el techo de desempeño y la interpretabilidad del sistema; errores aquí se propagan a todo el pipeline downstream."
 )
 
 audience = audience_selector()
@@ -411,6 +422,7 @@ y las provisiones IFRS9 (NB09). **Sin features bien diseñadas, toda la cadena d
 hereda ruido y sesgo.**
 """
 )
+render_page_feedback("feature_engineering")
 
 next_page_teaser(
     "Historia de Datos",

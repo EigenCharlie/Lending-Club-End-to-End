@@ -12,8 +12,16 @@ if str(_REPO_ROOT) not in sys.path:
 import plotly.express as px
 import streamlit as st
 
+from streamlit_app.components.decision_panels import decision_checklist
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import try_load_json, try_load_parquet
 
@@ -21,6 +29,11 @@ st.title("🧪 Simulación A/B de Estrategias")
 st.caption(
     "Comparación retroactiva de portafolio robusto vs no-robusto "
     "usando defaults reales del conjunto OOT como ground truth."
+)
+page_contract = get_page_contract("ab_testing_simulation")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La simulación A/B convierte la discusión de robustez en evidencia económica retrospectiva, separando intuición de resultado cuantificado."
 )
 storytelling_intro(
     page_goal=(
@@ -105,6 +118,22 @@ else:
     st.info(
         "Ejecuta `scripts/simulate_ab_test.py` para generar la simulación A/B."
     )
+
+decision_checklist(
+    "Checklist de lectura A/B",
+    [
+        "Revisar p-value e intervalo de confianza antes de concluir superioridad.",
+        "Diferenciar significancia estadística de materialidad económica.",
+        "Recordar que la comparación es retrospectiva (no experimento online).",
+    ],
+)
+render_caveats(
+    [
+        "Resultados sensibles al periodo OOT y supuestos de simulación de estrategia.",
+        "No sustituye un rollout controlado real con monitoreo de comportamiento en producción.",
+    ]
+)
+render_page_feedback("ab_testing_simulation")
 
 next_page_teaser(
     "Provisiones IFRS9",

@@ -13,11 +13,33 @@ AUDIENCES = {
 
 def audience_selector() -> str:
     """Renderiza el selector de audiencia y retorna la opción elegida."""
-    return st.radio(
-        "Nivel de detalle",
-        options=list(AUDIENCES.keys()),
-        horizontal=True,
-        help="Ajusta profundidad de explicación según audiencia",
-        index=0,
-        key="audience_level",
-    )
+    options = list(AUDIENCES.keys())
+    if "audience_mode" not in st.session_state:
+        st.session_state["audience_mode"] = options[0]
+
+    current = str(st.session_state.get("audience_mode", options[0]))
+    if current not in options:
+        current = options[0]
+
+    # Streamlit moderno: segmented control reduce fricción visual. Fallback a radio.
+    if hasattr(st, "segmented_control"):
+        selected = st.segmented_control(
+            "Nivel de detalle",
+            options=options,
+            default=current,
+            selection_mode="single",
+            help="Ajusta profundidad de explicación según audiencia",
+            key="audience_level_segmented",
+        )
+    else:
+        selected = st.radio(
+            "Nivel de detalle",
+            options=options,
+            horizontal=True,
+            help="Ajusta profundidad de explicación según audiencia",
+            index=options.index(current),
+            key="audience_level",
+        )
+    selected = str(selected or current)
+    st.session_state["audience_mode"] = selected
+    return selected

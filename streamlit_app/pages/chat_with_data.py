@@ -17,6 +17,13 @@ import plotly.express as px
 import streamlit as st
 
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import query_duckdb, suggest_sql_with_grok
 
@@ -60,6 +67,11 @@ def _select_template(template_name: str, templates_map: dict[str, str]) -> None:
 
 
 st.title("💬 Chat con Datos")
+page_contract = get_page_contract("chat_with_data")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Esta página ofrece trazabilidad técnica: permite contrastar con SQL explícito los insights mostrados en las páginas narrativas."
+)
 st.markdown(
     "Explora la base analítica directamente con SQL. "
     "Opcionalmente puedes convertir preguntas en lenguaje natural a SQL usando Grok."
@@ -170,8 +182,9 @@ if grok_enabled:
             st.warning("Primero escribe una pregunta.")
         else:
             try:
-                with st.spinner("Generando SQL..."):
+                with st.status("Generando SQL desde lenguaje natural...", expanded=False) as _nl_status:
                     suggestion = suggest_sql_with_grok(question, SCHEMA_CONTEXT)
+                    _nl_status.update(label="SQL generado", state="complete")
                 sql_suggested = suggestion.get("sql", "")
                 if not _is_read_only(sql_suggested):
                     st.error("La consulta generada no es read-only. Ajusta manualmente.")
@@ -206,8 +219,9 @@ if should_run_query:
         st.error("Solo se permiten consultas de lectura.")
     else:
         try:
-            with st.spinner("Ejecutando..."):
+            with st.status("Ejecutando consulta SQL (read-only)...", expanded=False) as _sql_status:
                 result = query_duckdb(sql)
+                _sql_status.update(label=f"Consulta completada ({len(result)} filas)", state="complete")
             st.success(f"Filas retornadas: {len(result)}")
             st.dataframe(result, use_container_width=True, height=420)
             if len(result) == 0:
@@ -270,6 +284,13 @@ narrativas puede contrastarse aquí con SQL explícito. Eso fortalece trazabilid
 negocio exploren el mismo stack con distintos niveles de profundidad.
 """
 )
+render_caveats(
+    [
+        "El asistente NL→SQL puede proponer consultas válidas pero analíticamente inadecuadas; revisar siempre.",
+        "Resultados dependen de la capa dbt/DuckDB disponible en el entorno local y su frescura.",
+    ]
+)
+render_page_feedback("chat_with_data")
 
 next_page_teaser(
     "Resumen Ejecutivo",

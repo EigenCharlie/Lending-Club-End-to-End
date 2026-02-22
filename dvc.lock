@@ -845,3 +845,47 @@ stages:
       hash: md5
       md5: bc94e8f5e30e744bd247afaa47d378bb
       size: 5109
+  export_dvc_metrics:
+    cmd: uv run python scripts/export_dvc_metrics.py
+    deps:
+    - path: data/processed/conformal_backtest_monthly.parquet
+      hash: md5
+      md5: 2050afd19080a2a8a5ba07a35fc50c27
+      size: 11887
+    - path: data/processed/ifrs9_scenario_summary.parquet
+      hash: md5
+      md5: 887920433180ac03dc2b17f8d1608947
+      size: 13611
+    - path: data/processed/portfolio_robustness_frontier.parquet
+      hash: md5
+      md5: 9b8ef2f172316d1ea6e553bee126c3ed
+      size: 14355
+    - path: data/processed/test_predictions.parquet
+      hash: md5
+      md5: 80251561efe23c2ba7c1485ff8a312c2
+      size: 12492032
+    - path: models/conformal_policy_status.json
+      hash: md5
+      md5: 68b7731c81b1fdf9a596127801ab6718
+      size: 397
+    - path: models/pipeline_results.pkl
+      hash: md5
+      md5: cd6b1b4bb7af775594a479543fae48dc
+      size: 366
+    - path: scripts/export_dvc_metrics.py
+      hash: md5
+      md5: 81fbabb2b859689373b3ab1e3966643b
+      size: 5456
+    outs:
+    - path: reports/dvc/conformal_coverage_backtest.csv
+      hash: md5
+      md5: e908a1424971de2acf5814db94f735c7
+      size: 4616
+    - path: reports/dvc/metrics_summary.json
+      hash: md5
+      md5: 8755df38cbcdb639ebaf0602015f9d3a
+      size: 769
+    - path: reports/dvc/robustness_frontier.csv
+      hash: md5
+      md5: df94f1e1ea4c2e68f85f65644c300cc7
+      size: 3165

@@ -8,9 +8,16 @@ from streamlit_app.components.paper_scaffold import (
     render_best_practices_and_tooling,
     render_paper_section_checklist,
 )
+from streamlit_app.components.story_shell import render_key_takeaway, render_page_header
+from streamlit_app.content.page_contracts import get_page_contract
 
 st.title("🧰 Buenas Prácticas y Herramientas")
 st.caption("Guía central para preparar drafts de paper en las páginas de Investigación")
+page_contract = get_page_contract("research_best_practices")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Esta guía es el playbook de redacción para la sección de Investigación: prioriza claridad para revisores expertos, trazabilidad y control de claims."
+)
 st.warning(
     "Documento de trabajo. Esta guía resume prácticas aplicables a los 3 drafts antes de "
     "la revisión con profesor experto."
@@ -25,27 +32,29 @@ revisor académico.
 """
 )
 
-st.markdown("## 1.1) Storytelling para audiencia no experta")
+st.markdown("## 1.1) Storytelling para sección de Investigación (audiencia experta)")
 st.markdown(
     """
-Checklist mínimo recomendado para cualquier página de resultados:
+Checklist mínimo recomendado para páginas de investigación / draft:
 
-1. **Empieza con la decisión, no con la técnica**.
-2. **Explica por qué importa en negocio** en 1-2 frases.
-3. **Usa una sola idea por gráfico** (evita gráficos “todo en uno”).
-4. **Muestra benchmark/objetivo explícito** (línea objetivo, meta, umbral).
-5. **Cierra con una recomendación accionable**.
+1. **Empieza con el claim técnico / pregunta de investigación**.
+2. **Explicita método, datos y diseño experimental** antes de interpretar resultados.
+3. **Usa una sola idea por figura** (evita figuras “todo en uno”).
+4. **Muestra baseline/benchmark/objetivo explícito**.
+5. **Cierra con límites y qué falta para publication-ready**.
 
-Plantilla corta reusable:
-- Qué problema resuelve esta técnica.
-- Qué riesgo evita si se aplica bien.
-- Qué decisión habilita en operación.
+Plantilla corta reusable (modo paper):
+- Claim / novelty
+- Método y protocolo
+- Resultado principal
+- Amenazas a validez
+- Siguiente experimento / figura pendiente
 """
 )
 
 st.info(
-    "Regla práctica: si un lector no técnico no puede responder "
-    "“¿qué decisión debo tomar?” después de la primera pantalla, la historia está incompleta."
+    "Regla práctica en Investigación: si un revisor experto no puede responder "
+    "“¿cuál es el claim, con qué evidencia y bajo qué límites?” en la primera pantalla, el draft está desordenado."
 )
 
 with st.expander("Fuentes externas usadas para estas prácticas"):
@@ -154,3 +163,12 @@ st.markdown(
 
 st.markdown("## 8) Referencias de tooling y estándares")
 render_best_practices_and_tooling()
+
+st.markdown("## 9) Enlaces de trabajo (evitar duplicación)")
+st.markdown(
+    """
+- `Panorama de Investigación` = registro maestro de posicionamiento y referencias.
+- `Paper 1/2/3` = drafts enfocados en novelty claim específico.
+- Esta página = playbook transversal para estructura, figuras, tablas y revisión.
+"""
+)

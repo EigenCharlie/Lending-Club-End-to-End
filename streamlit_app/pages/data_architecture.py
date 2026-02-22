@@ -24,6 +24,12 @@ import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_json, query_duckdb
 
@@ -326,6 +332,11 @@ st.caption(
     "Esta página prioriza el origen, la transformación y el propósito de cada dataset; "
     "la plataforma se entiende como consecuencia de una arquitectura de datos bien diseñada."
 )
+page_contract = get_page_contract("data_architecture")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La arquitectura de datos aquí no es soporte visual: es la base que hace auditables y reproducibles las capas de modelado, incertidumbre y decisión."
+)
 
 st.markdown(
     """
@@ -343,10 +354,12 @@ específica dentro del pipeline.
 """
 )
 
-shapes = load_dataset_shapes()
-feature_iv = load_json("feature_importance_iv")
-feast = load_feast_metrics()
-dbt = load_dbt_metrics()
+with st.status("Cargando snapshot de arquitectura (datasets, Feast, dbt)...", expanded=False) as _arch_status:
+    shapes = load_dataset_shapes()
+    feature_iv = load_json("feature_importance_iv")
+    feast = load_feast_metrics()
+    dbt = load_dbt_metrics()
+    _arch_status.update(label="Snapshot de arquitectura cargado", state="complete")
 
 
 def _safe_cols(dataset_name: str) -> int:
@@ -715,6 +728,7 @@ qué dato entra, cómo se modifica, qué artefacto produce y qué módulo lo con
 el relato metodológico del proyecto sea defendible de principio a fin y no dependa de supuestos implícitos.
 """
 )
+render_page_feedback("data_architecture")
 
 next_page_teaser(
     "Mapa Integrado de Métodos",

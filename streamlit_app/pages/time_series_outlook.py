@@ -17,6 +17,13 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
 
@@ -24,6 +31,11 @@ st.title("📈 Panorama Temporal")
 st.caption(
     "Modelos estadísticos y ML para proyección de tasa de default, "
     "con bandas de incertidumbre y escenarios IFRS9."
+)
+page_contract = get_page_contract("time_series_outlook")
+render_page_header(page_contract)
+render_key_takeaway(
+    "El forecast aporta contexto de régimen para planeación e IFRS9; no sustituye el score individual ni la lectura de incertidumbre por préstamo."
 )
 storytelling_intro(
     page_goal=(
@@ -361,6 +373,14 @@ if img.exists():
         caption="Notebook 05: comparación de modelos por métricas de validación temporal.",
         use_container_width=True,
     )
+
+render_caveats(
+    [
+        "La cobertura de bandas conformales en series temporales puede degradarse si cambia el régimen entre calibración y evaluación.",
+        "El pronóstico agregado debe complementarse con análisis por segmento y monitoreo del mix de portafolio.",
+    ]
+)
+render_page_feedback("time_series_outlook")
 
 next_page_teaser(
     "Análisis de Supervivencia",

@@ -10,13 +10,21 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 
-from pathlib import Path
-
 import pandas as pd
 import streamlit as st
 
+from streamlit_app.components.context_help import methodology_dialog, term_popover
+from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import try_load_json, try_load_parquet
 
 
@@ -78,6 +86,12 @@ st.caption(
     "Validación integral de confiabilidad para riesgo de crédito: performance, "
     "estabilidad, sesgo y robustez operativa."
 )
+page_contract = get_page_contract("model_governance")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Gobernanza aquí significa decidir si el sistema completo sigue siendo operable, no solo si una métrica de performance se ve bien."
+)
+term_popover("canónico", label="Artefactos canónicos y compatibilidad")
 storytelling_intro(
     page_goal=(
         "Verificar si el sistema de riesgo sigue siendo confiable para operar en producción."
@@ -93,6 +107,26 @@ storytelling_intro(
         "Revisa fairness para detectar riesgos antes de que impacten negocio.",
         "Cierra con contrato de inputs y marco MRM para validar operación diaria.",
     ],
+)
+render_decision_box(
+    "Usar semáforo de gobernanza + contratos + fairness + MRM para decidir operar, recalibrar o bloquear.",
+    owner="Model Risk / MRM",
+    cadence="batch diario + revisión mensual",
+)
+render_global_kpi_spine("governance")
+methodology_dialog(
+    "Qué cubre esta página de gobernanza",
+    """
+La página combina cuatro capas de control:
+
+1. Existencia y frescura de artefactos canónicos.
+2. Reglas de política conformal (cobertura/ancho/checks).
+3. Contrato de modelo e inputs.
+4. Fairness + marco MRM (SR 11-7).
+
+La decisión de operación debe leer todas las capas juntas.
+""",
+    button_label="Ver alcance del control de gobernanza",
 )
 st.markdown(
     """
@@ -214,6 +248,14 @@ st.markdown(
 - El framework conformal provee garantías formales de cobertura por subgrupo (Mondrian).
 """
 )
+render_caveats(
+    [
+        "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",
+        "Fairness y MRM dependen de umbrales de política; cambios de threshold cambian el veredicto.",
+        "La ausencia de artefactos puede ser un problema operativo aunque las métricas históricas sean buenas.",
+    ]
+)
+render_page_feedback("model_governance")
 
 next_page_teaser(
     "Stack Tecnológico",

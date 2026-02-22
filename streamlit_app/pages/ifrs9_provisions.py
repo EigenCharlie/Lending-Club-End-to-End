@@ -16,8 +16,19 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
+from streamlit_app.components.context_help import methodology_dialog, term_popover
+from streamlit_app.components.decision_panels import decision_checklist, tradeoff_panel
+from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -31,6 +42,12 @@ st.caption(
     "Estimación de ECL por stage, grade y escenario macroeconómico. "
     "Incluye sensibilidad PD/LGD y lectura de riesgo regulatorio."
 )
+page_contract = get_page_contract("ifrs9_provisions")
+render_page_header(page_contract)
+render_key_takeaway(
+    "IFRS9 no es un cálculo aislado: es la traducción contable de PD, incertidumbre y horizonte temporal en provisiones defendibles."
+)
+term_popover("canónico", label="Snapshot canónico y consistencia IFRS9")
 
 audience = audience_selector()
 
@@ -55,6 +72,32 @@ storytelling_intro(
         "Comparar ECL baseline vs severe y shares por stage.",
         "Usar sensibilidad PD/LGD para evaluar resiliencia de capital.",
     ],
+)
+render_decision_box(
+    "Definir baseline de provisión y buffer bajo severe usando métricas canónicas compartidas con el resto del pipeline.",
+    owner="Finanzas / Riesgo",
+    cadence="cierre mensual",
+)
+render_global_kpi_spine("ifrs9")
+tradeoff_panel(
+    "Trade-off IFRS9",
+    upside="Mayor prudencia y resiliencia contable ante deterioro macro.",
+    downside="Más provisión impacta P&L y métricas de rentabilidad en el corto plazo.",
+    monitoring="ECL baseline, ECL severe, uplift severe, shares por stage y sensibilidad PD×LGD.",
+    color="#FFF7ED",
+)
+methodology_dialog(
+    "Cómo leer el uplift severe",
+    """
+`ifrs9.severe_uplift_pct` resume cuánto crece la provisión total al pasar de baseline a escenario severe.
+
+Lectura:
+- alto uplift -> alta sensibilidad del portafolio al shock macro y/o a la calidad de los segmentos.
+- bajo uplift -> mayor resiliencia, o menor severidad relativa del escenario.
+
+No reemplaza el análisis por stage ni por grade; es un KPI de síntesis.
+""",
+    button_label="Ver interpretación del uplift severe",
 )
 
 # ── IFRS9 for Non-Accountants ──
@@ -441,6 +484,22 @@ Si la PD está mejor calibrada y la incertidumbre está explícitamente cuantifi
 técnicamente y más útil para planificación prudencial bajo escenarios macro.
 """
 )
+decision_checklist(
+    "Checklist para comité IFRS9",
+    [
+        "Comparar ECL baseline vs severe y acordar buffer prudencial explícito.",
+        "Revisar concentración de ECL por stage/grade para planes de mitigación.",
+        "Confirmar que supuestos PD/LGD y señales SICR estén documentados y trazables.",
+    ],
+)
+render_caveats(
+    [
+        "Las provisiones dependen de supuestos de escenario y multiplicadores PD/LGD, no solo del modelo base.",
+        "El uso de señal conformal como apoyo SICR es útil pero no sustituye políticas regulatorias formales.",
+        "Los KPIs agregados deben complementarse con lectura por stage y por segmento.",
+    ]
+)
+render_page_feedback("ifrs9_provisions")
 
 next_page_teaser(
     "Gobernanza del Modelo",

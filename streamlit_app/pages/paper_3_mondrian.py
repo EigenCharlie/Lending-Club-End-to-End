@@ -7,7 +7,15 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from streamlit_app.components.context_help import methodology_dialog
 from streamlit_app.components.paper_scaffold import render_phase_tracker
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_next_steps,
+    render_page_header,
+    render_section_checkpoint,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     download_table,
@@ -18,9 +26,27 @@ from streamlit_app.utils import (
 
 st.title("📐 Paper 3 — Working Draft")
 st.caption("Mondrian Conformal Prediction for Group-Conditional Credit Risk Coverage")
+page_contract = get_page_contract("paper_3_mondrian")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Novelty claim del draft: evaluación empírica a gran escala de Mondrian conformal en crédito, con cobertura por subgrupo y monitoreo temporal operativo."
+)
 st.warning(
     "Borrador de trabajo para revisión académica. Esta version prioriza trazabilidad de "
     "resultados y claridad metodologica para evaluacion de factibilidad científica."
+)
+methodology_dialog(
+    "Regla de foco narrativo del Paper 3",
+    """
+Este draft debe concentrarse en:
+- cobertura por subgrupo,
+- estabilidad temporal,
+- trade-off ancho vs garantía,
+- reglas de monitoreo/alerta.
+
+La conexión con optimización e IFRS9 puede mencionarse como downstream, pero no debe robar foco.
+""",
+    button_label="Ver foco narrativo (Paper 3)",
 )
 
 pipeline_summary = try_load_json("pipeline_summary", directory="data", default={})
@@ -89,6 +115,14 @@ Ademas del promedio global, presentamos monitoreo mensual de cobertura y alertas
 para detectar desviaciones de exchangeability. Comparamos variantes conformales y cuantificamos
 el trade-off entre eficiencia (ancho) y garantia por subgrupo.
 """
+)
+render_section_checkpoint(
+    "Checkpoint de framing (Paper 3)",
+    [
+        "Claim principal: cobertura útil por subgrupo (grade) en setting crediticio real.",
+        "Aporte operativo: monitoreo mensual y alertas bajo drift temporal.",
+        "Trade-off central: ancho/eficiencia vs garantías por subgrupo.",
+    ],
 )
 
 st.markdown("## 2) Introduction")
@@ -367,4 +401,18 @@ st.markdown(
 - **Figure 5**: revisar escala de color para enfatizar episodios criticos de under-coverage.
 - **Table 1 / Table 2 / Table A1-A4**: separar claramente tablas core vs apendice tecnico.
 """
+)
+render_next_steps(
+    [
+        (
+            "Panorama de Investigación",
+            "Registro maestro de referencias y posicionamiento de Mondrian CP.",
+            "pages/research_landscape.py",
+        ),
+        (
+            "Buenas Prácticas y Herramientas",
+            "Checklist de revisión y estandarización de figuras/tablas.",
+            "pages/research_best_practices.py",
+        ),
+    ]
 )

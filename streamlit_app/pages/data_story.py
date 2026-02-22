@@ -19,11 +19,19 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from streamlit_app.components.audience_toggle import audience_selector
+from streamlit_app.components.context_help import chart_help_popover
 from streamlit_app.components.narrative import (
     narrative_block,
     next_page_teaser,
     storytelling_intro,
 )
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+    render_section_checkpoint,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -39,6 +47,11 @@ st.caption(
     "Radiografía del dataset: composición, riesgo por segmento y dinámica temporal. "
     "Analiza el split de entrenamiento (1.35M préstamos, 2007-2017) del total de 1.86M resueltos."
 )
+page_contract = get_page_contract("data_story")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Antes de modelar, esta página fija el contexto: composición, gradientes de riesgo y dinámica temporal que explican por qué el pipeline usa validación OOT y capas prudenciales."
+)
 audience = audience_selector()
 storytelling_intro(
     page_goal=("Entender la estructura del portafolio y los patrones de riesgo antes de modelar."),
@@ -53,6 +66,11 @@ storytelling_intro(
         "Revisa distribuciones y gradientes de riesgo por tasa/grade.",
         "Cierra con calidad de datos para entender qué variables quedaron fuera y por qué.",
     ],
+)
+chart_help_popover(
+    "data_story_intro",
+    what_to_look_at="gradientes por grade/plazo/tasa y cambios temporales que justifican el split OOT.",
+    common_misread="promedios globales pueden ocultar mezcla de segmentos con riesgo muy distinto.",
 )
 
 narrative_block(
@@ -559,6 +577,15 @@ precio y composición de producto, y además cambia en el tiempo. Por eso el pro
 de variables orientada a interpretabilidad y una cadena de decisiones que no depende de un único indicador agregado.
 """
 )
+render_section_checkpoint(
+    "Checkpoint de historia de datos",
+    [
+        "El riesgo está estratificado por calidad crediticia, precio y plazo.",
+        "Hay dinámica temporal relevante; por eso el split OOT es obligatorio.",
+        "El mix de portafolio condiciona cómo se leen KPIs downstream (modelo, conformal, IFRS9).",
+    ],
+)
+render_page_feedback("data_story")
 
 next_page_teaser(
     "Laboratorio de Modelos",

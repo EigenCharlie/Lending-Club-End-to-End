@@ -7,8 +7,15 @@ import plotly.graph_objects as go
 import streamlit as st
 from streamlit_mermaid import st_mermaid
 
+from streamlit_app.components.context_help import methodology_dialog
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_pct, load_json, load_parquet, load_runtime_status
 
@@ -16,6 +23,23 @@ st.title("🎯 Contribución de Tesis")
 st.caption(
     "Predict-then-Optimize con Conformal Prediction: decisiones de portafolio "
     "bajo incertidumbre cuantificada con garantías matemáticas."
+)
+page_contract = get_page_contract("thesis_contribution")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Esta página articula el claim de tesis completo; debe leerse como puente entre la narrativa aplicada del dashboard y la defensa académica de novelty."
+)
+methodology_dialog(
+    "Cómo leer la contribución de tesis (modo experto)",
+    """
+Orden sugerido:
+1. Pregunta de investigación y claim.
+2. Dataset como plataforma de convergencia metodológica.
+3. Pipeline conceptual (calibración -> conformal -> robust optimization).
+4. KPIs y trade-off de robustez.
+5. Conexión a IFRS9 y reproducibilidad.
+""",
+    button_label="Ver mapa de lectura de la contribución",
 )
 
 comparison = load_json("model_comparison")
@@ -547,6 +571,12 @@ st.markdown(
 
 **{test_suite_label} tests** validan datos, features, modelos, conformal, IFRS9, optimización, MLflow, Streamlit e integración end-to-end.
 """
+)
+render_caveats(
+    [
+        "El claim de tesis integra múltiples módulos; la fortaleza depende de la calidad de cada componente y su alineación temporal.",
+        "La generalización a otras carteras requiere recalibración y adaptación institucional.",
+    ]
 )
 
 next_page_teaser(

@@ -18,10 +18,28 @@ from streamlit_flow.elements import StreamlitFlowEdge, StreamlitFlowNode
 from streamlit_flow.layouts import ManualLayout
 from streamlit_flow.state import StreamlitFlowState
 
+from streamlit_app.components.context_help import metric_help_popover, term_popover
+from streamlit_app.components.dvc_kpi_spine import (
+    render_global_kpi_spine,
+    render_metric_delta_explainer,
+)
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_number, format_pct, load_json
+from streamlit_app.utils import (
+    format_number,
+    format_pct,
+    load_dvc_metrics_summary,
+    load_json,
+    safe_metric_get,
+)
 
 
 def _first_valid(*values: float | int | None) -> float:
@@ -160,6 +178,13 @@ st.caption(
     "optimización robusta e IFRS9 sobre un mismo dataset."
 )
 
+page_contract = get_page_contract("executive_summary")
+render_page_header(page_contract)
+render_key_takeaway(
+    "El valor del proyecto no está en una sola métrica: está en encadenar PD, incertidumbre, optimización e IFRS9 con una fuente canónica común."
+)
+term_popover("canónico", label="Qué significa 'canónico' en este dashboard")
+
 st.success(
     "**Lending Club**: la plataforma de préstamos peer-to-peer más grande de EE.UU. "
     "Este proyecto transforma su histórico de préstamos en un sistema completo "
@@ -176,6 +201,13 @@ storytelling_intro(
         "Confirmar cobertura conformal y estado de gobernanza antes de adoptar una política.",
     ],
 )
+
+render_decision_box(
+    "Evaluar la política de riesgo con KPIs canónicos (DVC) y después bajar al detalle por módulo para defender trade-offs.",
+    owner="Riesgo / Data Science",
+    cadence="snapshot por commit o release",
+)
+render_global_kpi_spine("executive")
 
 st.markdown(
     """
@@ -217,6 +249,22 @@ auc = _first_valid(
 gini = _first_valid(final_metrics.get("gini"), pd_model.get("final_gini"))
 brier = _first_valid(final_metrics.get("brier_score"), pd_model.get("final_brier"))
 ece = _first_valid(final_metrics.get("ece"), pd_model.get("final_ece"))
+
+dvc_metrics = load_dvc_metrics_summary()
+if dvc_metrics:
+    st.caption("Consistencia rápida entre snapshot DVC canónico y artefactos de la página")
+    cols = st.columns(3)
+    with cols[0]:
+        render_metric_delta_explainer("pd.auc", safe_metric_get(dvc_metrics, "pd.auc"), auc)
+    with cols[1]:
+        render_metric_delta_explainer("pd.ece", safe_metric_get(dvc_metrics, "pd.ece"), ece)
+    with cols[2]:
+        render_metric_delta_explainer(
+            "optimization.price_of_robustness",
+            safe_metric_get(dvc_metrics, "optimization.price_of_robustness"),
+            float(pipeline.get("price_of_robustness", 0.0)),
+        )
+    metric_help_popover("baseline_vs_canonical", label="Baseline vs canónico")
 
 st.subheader("Dimensión del problema")
 kpi_row(
@@ -477,6 +525,7 @@ decisión final cuando existe incertidumbre de modelo?”. Esta portada anticipa
 el valor surge de integrar predicción, incertidumbre, causalidad y optimización en una misma narrativa operativa.
 """
 )
+render_page_feedback("executive_summary")
 
 next_page_teaser(
     "Historia de Datos",

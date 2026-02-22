@@ -15,8 +15,23 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from streamlit_app.components.context_help import (
+    chart_help_popover,
+    methodology_dialog,
+    term_popover,
+)
+from streamlit_app.components.decision_panels import decision_checklist, tradeoff_panel
+from streamlit_app.components.dvc_kpi_spine import render_robustness_frontier_panel
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_decision_box,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -31,6 +46,12 @@ st.caption(
     "Decisión de asignación de capital usando predicción de riesgo y "
     "bandas de incertidumbre conformal."
 )
+page_contract = get_page_contract("portfolio_optimizer")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La optimización robusta convierte incertidumbre de modelo en una política explícita con costo económico medible."
+)
+term_popover("price_of_robustness", label="Qué es Price of Robustness")
 
 with st.expander("¿Qué es optimización de portafolio de crédito?", expanded=False):
     st.markdown(
@@ -70,6 +91,30 @@ storytelling_intro(
         "Observar la frontera robusta por tolerancia de riesgo.",
         "Evaluar si el Price of Robustness es aceptable para el apetito de riesgo actual.",
     ],
+)
+render_decision_box(
+    "Definir política por tolerancia de riesgo + aversión a incertidumbre y monitorear el costo de robustez como KPI.",
+    owner="Comité de Riesgo / Originación",
+    cadence="mensual o por campaña",
+)
+render_robustness_frontier_panel()
+tradeoff_panel(
+    "Trade-off central de la página",
+    upside="Mayor resiliencia ante error de PD y escenarios adversos.",
+    downside="Menor retorno esperado y menor volumen financiado.",
+    monitoring="Price of Robustness, n_funded, worst_case_pd y retorno robusto.",
+)
+methodology_dialog(
+    "Qué optimiza exactamente el modelo robusto",
+    """
+La formulación usa retorno esperado neto y restricciones de presupuesto/riesgo.
+
+La variante robusta reemplaza la PD puntual por un peor caso plausible (derivado de la banda conformal)
+en parte de las restricciones/objetivo para proteger downside.
+
+Resultado: solución más conservadora, con costo explícito (`Price of Robustness`).
+""",
+    button_label="Ver detalle de la formulación (alto nivel)",
 )
 
 st.markdown(
@@ -206,6 +251,11 @@ with col_img2:
         )
 
 st.subheader("1) Perfil de asignación sobre préstamos")
+chart_help_popover(
+    "perfil_asignacion",
+    what_to_look_at="qué proporción de préstamos recibe peso > 0 y cómo se concentra la asignación.",
+    common_misread="más concentración no siempre es mala; puede ser efecto de restricciones y riesgo.",
+)
 alloc_plot = alloc.copy()
 alloc_plot["financiado"] = alloc_plot["alloc"] > 0
 col1, col2 = st.columns(2)
@@ -501,6 +551,22 @@ de ML y Conformal se convierten en una política accionable. Aquí se hace visib
 marco cuantitativo para discutir apetito de riesgo con transparencia económica.
 """
 )
+decision_checklist(
+    "Checklist antes de adoptar una política robusta",
+    [
+        "Validar que `Price of Robustness` esté dentro del rango aceptable para el comité.",
+        "Confirmar que el volumen financiado siga alineado con metas comerciales.",
+        "Revisar estabilidad de KPIs conformal y calibración PD que alimentan el optimizador.",
+    ],
+)
+render_caveats(
+    [
+        "La frontera robusta depende de la calidad/calibración del modelo PD y de la banda conformal.",
+        "Un PoR bajo hoy no garantiza estabilidad futura si cambia la composición del portafolio.",
+        "La política óptima es condicional al conjunto de restricciones definido (presupuesto, caps, riesgo).",
+    ]
+)
+render_page_feedback("portfolio_optimizer")
 
 next_page_teaser(
     "Provisiones IFRS9",

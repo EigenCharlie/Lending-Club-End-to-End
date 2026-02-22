@@ -7,7 +7,15 @@ import pandas as pd
 import plotly.express as px
 import streamlit as st
 
+from streamlit_app.components.context_help import methodology_dialog
 from streamlit_app.components.paper_scaffold import render_phase_tracker
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_next_steps,
+    render_page_header,
+    render_section_checkpoint,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     download_table,
@@ -19,9 +27,27 @@ from streamlit_app.utils import (
 
 st.title("🏦 Paper 2 — Working Draft")
 st.caption("An End-to-End ML Pipeline for IFRS9 with Distribution-Free Uncertainty")
+page_contract = get_page_contract("paper_2_ifrs9_e2e")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Novelty claim del draft: llevar incertidumbre conformal a staging/ECL IFRS9 mediante señales operativas (incluyendo ancho conformal como apoyo SICR)."
+)
 st.warning(
     "Borrador de trabajo para revisión académica. El foco es mostrar el máximo material "
     "técnico disponible para evaluar factibilidad y aporte científico."
+)
+methodology_dialog(
+    "Regla de foco narrativo del Paper 2",
+    """
+Evita convertir este draft en un paper de modelado PD genérico.
+
+Foco correcto:
+- Pipeline IFRS9 accionable
+- ECL por rango / incertidumbre
+- SICR con señal conformal
+- Sensibilidad y gobernanza prudencial
+""",
+    button_label="Ver foco narrativo (Paper 2)",
 )
 
 pipeline_summary = try_load_json("pipeline_summary", directory="data", default={})
@@ -143,6 +169,14 @@ conformal alto y PD no decreciente pueden migrar a Stage 2 aun sin superar el um
 clasico. El resultado es una lectura prudencial de provisiones con sensibilidad explicita
 a incertidumbre estadistica.
 """
+)
+render_section_checkpoint(
+    "Checkpoint de framing (Paper 2)",
+    [
+        "Claim principal: incertidumbre conformal integrada a IFRS9 E2E.",
+        "Aporte práctico: ECL por rango y lectura prudencial más explícita.",
+        "Aporte metodológico: SICR enriquecido con señal de incertidumbre.",
+    ],
 )
 
 st.markdown("## 2) Introduction")
@@ -421,4 +455,18 @@ st.markdown(
 - **Figure 4**: revisar si ordenar por riesgo esperado o por contribucion marginal a ECL.
 - **Table 1 / Table 2 / Table A1**: podar columnas para version principal y mover detalle a anexo.
 """
+)
+render_next_steps(
+    [
+        (
+            "Panorama de Investigación",
+            "Posicionamiento y referencias maestras para evitar duplicación teórica.",
+            "pages/research_landscape.py",
+        ),
+        (
+            "Buenas Prácticas y Herramientas",
+            "Checklist de draft y revisión para reunión con profesor.",
+            "pages/research_best_practices.py",
+        ),
+    ]
 )

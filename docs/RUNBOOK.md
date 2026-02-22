@@ -105,9 +105,15 @@ For full setup details, see `docs/INTEGRATIONS_SETUP.md`.
 ### Setup rápido de integraciones
 
 ```bash
-# DagsHub-first (recomendado)
+# DagsHub-first (recomendado, S3-compatible por defecto)
 bash scripts/configure_integrations.sh
 ```
+
+Notas rápidas:
+
+- El script configura DVC en DagsHub con backend `s3` por defecto (evita `413` en artefactos grandes).
+- Usa `DVC_REMOTE_BACKEND=http` si necesitas compatibilidad legacy temporal.
+- Instala hooks `pre-commit` / `pre-push` automáticamente si encuentra `.pre-commit-config.yaml`.
 
 ### DVC Pipeline
 
@@ -124,6 +130,22 @@ uv run dvc push -r dagshub
 
 `dvc repro` is equivalent to running `scripts/end_to_end_pipeline.py` but with automatic caching and incremental execution.
 
+### DVC Metrics / Plots (comparables por commit)
+
+```bash
+# Refresh canonical KPI summary + plot CSVs
+uv run dvc repro export_dvc_metrics
+
+# Show current KPI snapshot
+uv run dvc metrics show
+
+# Compare metrics vs previous commit/branch
+uv run dvc metrics diff
+
+# Visualize canonical plots (local browser)
+uv run dvc plots show
+```
+
 ### MLflow Experiment Logging
 
 ```bash
@@ -136,15 +158,23 @@ Experiments logged: `end_to_end`, `pd_model`, `conformal`, `causal_policy`, `ifr
 ### DagsHub
 
 - **Git mirror**: `git remote add dagshub https://dagshub.com/<user>/<repo>.git`
-- **DVC remote**: configured in `.dvc/config`
+- **DVC remote**: configured in `.dvc/config` (project) + `.dvc/config.local` (credentials/local backend override)
 - **MLflow UI**: accessible at `https://dagshub.com/<user>/<repo>/experiments`
 - **Environment**: copy `.env.example` → `.env` and fill in tokens
+- **Onboarding checkbox** ("Version your data with our client"): optional/cosmético; no bloquea DVC/MLflow
+
+Optional onboarding/UI bootstrap (one-time):
+
+```bash
+DAGSHUB_CLIENT_BOOTSTRAP=1 bash scripts/configure_integrations.sh
+```
 
 ## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
 | `uv sync` recreates venv | Ensure `VIRTUAL_ENV` doesn't have Windows interop prefix |
+| `dvc push` fails with `413 Request Entity Too Large` | Use DagsHub S3-compatible remote (`DVC_REMOTE_BACKEND=s3`) and ensure `dvc[s3]` is installed |
 | `mapie` import errors | Verify `mapie>=1.3.0` installed (not 0.9.x) |
 | `feast` + `pyarrow` conflict | Use separate venv for platform extras |
 | Missing parquet files | Run `scripts/end_to_end_pipeline.py` first |
@@ -157,3 +187,27 @@ Experiments logged: `end_to_end`, `pd_model`, `conformal`, `causal_policy`, `ifr
 - `uv` at `~/.local/bin/uv`
 - Venv at `.venv/bin/python`
 - Pre-commit hooks: `uv run pre-commit install`
+
+## GitHub Governance (recommended minimal settings)
+
+Set these in GitHub UI (Rulesets / Branch protection for `main`):
+
+- Require pull request before merge
+- Require status checks: `lint`, `config-contracts`, `test`, `streamlit-smoke`
+- Require conversation resolution
+- Block force pushes to `main`
+
+Optional for collaboration:
+
+- `CODEOWNERS` is available at `.github/CODEOWNERS`
+
+## DVC Experiments (optional, useful for config iteration)
+
+Use `dvc exp` when you want quick, reproducible comparisons of config changes without early commits:
+
+```bash
+uv run dvc exp run
+uv run dvc exp show
+uv run dvc exp diff
+uv run dvc exp apply <exp-name>
+```

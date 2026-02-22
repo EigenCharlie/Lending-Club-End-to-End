@@ -17,13 +17,25 @@ import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_parquet
+from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
 
 st.title("🧬 Inteligencia Causal")
 st.caption(
     "Estimación de efectos causales heterogéneos para orientar políticas de precio "
     "y acciones de mitigación de riesgo."
+)
+page_contract = get_page_contract("causal_intelligence")
+render_page_header(page_contract)
+render_key_takeaway(
+    "La meta aquí no es describir correlaciones sino estimar efectos causales heterogéneos útiles para políticas de precio/intervención."
 )
 storytelling_intro(
     page_goal=(
@@ -395,6 +407,14 @@ if not cate_comparison.empty and len(cate_comparison) == 2:
     )
 else:
     st.info("Ejecuta `scripts/optimize_cate_portfolio.py` para comparar portafolios baseline vs CATE-adjusted.")
+
+render_caveats(
+    [
+        "Los efectos causales dependen de supuestos de identificación y cobertura de covariables observadas.",
+        "Una política basada en CATE requiere validación operativa y guardrails antes de despliegue.",
+    ]
+)
+render_page_feedback("causal_intelligence")
 
 next_page_teaser(
     "Optimizador de Portafolio",

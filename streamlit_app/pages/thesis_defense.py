@@ -16,6 +16,13 @@ import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_caveats,
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import format_number, format_pct, load_json, load_parquet
 
@@ -23,6 +30,11 @@ st.title("🧩 Mapa Integrado de Métodos")
 st.caption(
     "Síntesis de cómo se complementan machine learning, estadística, análisis causal "
     "e investigación de operaciones en el pipeline."
+)
+page_contract = get_page_contract("thesis_defense")
+render_page_header(page_contract)
+render_key_takeaway(
+    "El claim central de esta página es metodológico: el proyecto es más fuerte por complementariedad entre técnicas que por el desempeño de una sola."
 )
 st.markdown(
     """
@@ -374,6 +386,13 @@ decisiones robustas de cartera bajo restricciones reales. La aportación del pro
 demostrar cómo integrar técnicas poco combinadas en una misma cadena de valor para riesgo de crédito aplicado.
 """
 )
+render_caveats(
+    [
+        "La comparación con Kaggle muestra diferenciación metodológica, no necesariamente superiority universal en cualquier cartera.",
+        "La complementariedad depende de que los artefactos upstream se mantengan calibrados y gobernados.",
+    ]
+)
+render_page_feedback("thesis_defense")
 
 next_page_teaser(
     "Historia de Datos",

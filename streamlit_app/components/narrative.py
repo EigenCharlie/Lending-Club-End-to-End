@@ -37,7 +37,11 @@ def next_page_teaser(title: str, description: str, page_path: str):
         st.markdown(f"**Siguiente:** {title}")
         st.caption(description)
     with col2:
-        st.page_link(page_path, label=f"Ir a {title}", icon="➡️")
+        try:
+            st.page_link(page_path, label=f"Ir a {title}", icon="➡️")
+        except Exception:
+            # Fallback útil en tests/ejecución aislada de páginas sin contexto multipage.
+            st.caption(f"➡️ {page_path}")
 
 
 def storytelling_intro(
@@ -62,3 +66,36 @@ def storytelling_intro(
         st.markdown("**Ruta sugerida de lectura**")
         for idx, step in enumerate(how_to_read, start=1):
             st.markdown(f"{idx}. {step}")
+
+
+def reading_path(steps: list[str]) -> None:
+    """Render a compact numbered path for long pages."""
+    if not steps:
+        return
+    st.markdown("**Ruta de lectura sugerida**")
+    for idx, step in enumerate(steps, start=1):
+        st.markdown(f"{idx}. {step}")
+
+
+def claim_evidence_implication(claim: str, evidence: str, implication: str) -> None:
+    """Small narrative triad to standardize chart/table interpretation."""
+    st.markdown(f"**Claim**: {claim}")
+    st.markdown(f"**Evidencia**: {evidence}")
+    st.markdown(f"**Implicación**: {implication}")
+
+
+def threats_to_validity_dialog(title: str, bullets: list[str]) -> None:
+    """Show threats-to-validity in dialog (or expander fallback) to reduce page clutter."""
+    if not bullets:
+        return
+    body = "\n".join(f"- {b}" for b in bullets if str(b).strip())
+    if hasattr(st, "dialog"):
+        @st.dialog(title)
+        def _dialog() -> None:
+            st.markdown(body)
+
+        if st.button("Ver amenazas a validez", key=f"threats_{title}"):
+            _dialog()
+    else:
+        with st.expander("Ver amenazas a validez", expanded=False):
+            st.markdown(body)

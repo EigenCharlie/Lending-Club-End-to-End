@@ -17,6 +17,13 @@ import streamlit as st
 from streamlit_app.components.audience_toggle import audience_selector
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import narrative_block, next_page_teaser
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+    render_section_checkpoint,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
@@ -30,6 +37,11 @@ st.title("🧭 Visión End-to-End")
 st.caption(
     "Motivación, base metodológica, implementación en Lending Club y lectura de resultados "
     "con interpretación técnica y de negocio."
+)
+page_contract = get_page_contract("thesis_end_to_end")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Esta página integra el hilo completo: el valor del proyecto aparece cuando lees cómo cada módulo alimenta decisiones downstream, no cuando miras cada técnica aislada."
 )
 st.markdown(
     """
@@ -570,6 +582,16 @@ st.code(
     ),
     language="bash",
 )
+render_section_checkpoint(
+    "Checkpoint final del recorrido E2E",
+    [
+        "PD calibrada aporta señal probabilística utilizable.",
+        "Conformal aporta incertidumbre cuantificada con cobertura controlada.",
+        "Optimización e IFRS9 traducen la analítica a decisiones económicas y regulatorias.",
+        "Gobernanza valida si el sistema completo sigue siendo operable.",
+    ],
+)
+render_page_feedback("thesis_end_to_end")
 
 next_page_teaser(
     "Arquitectura y Linaje de Datos",

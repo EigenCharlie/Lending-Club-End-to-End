@@ -1,0 +1,9 @@
+* @EigenCharlie
+
+# MLOps / pipeline contracts
+/dvc.yaml @EigenCharlie
+/dvc.lock @EigenCharlie
+/configs/ @EigenCharlie
+/scripts/ @EigenCharlie
+/src/utils/mlflow_utils.py @EigenCharlie
+/.github/workflows/ @EigenCharlie

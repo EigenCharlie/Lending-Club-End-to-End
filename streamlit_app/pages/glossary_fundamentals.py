@@ -5,7 +5,14 @@ from __future__ import annotations
 import pandas as pd
 import streamlit as st
 
+from streamlit_app.components.context_help import term_popover
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
+from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import format_number, format_pct, load_json, try_load_parquet
 
 st.title("📖 Glosario y Fundamentos")
@@ -13,6 +20,12 @@ st.caption(
     "Referencia rápida de todos los conceptos, métricas, técnicas y fórmulas "
     "utilizados en este proyecto de riesgo de crédito end-to-end."
 )
+page_contract = get_page_contract("glossary_fundamentals")
+render_page_header(page_contract)
+render_key_takeaway(
+    "Esta página define el vocabulario canónico del proyecto para que métricas y decisiones se interpreten igual en todo el recorrido."
+)
+term_popover("canónico", label="Qué significa 'canónico'")
 st.markdown(
     """
 Esta página funciona como diccionario de consulta. Antes de explorar los resultados analíticos,
@@ -645,3 +658,4 @@ next_page_teaser(
     "Explora el dataset: distribuciones, patrones de riesgo y dinámica temporal de 1.35M préstamos.",
     "pages/data_story.py",
 )
+render_page_feedback("glossary_fundamentals")
