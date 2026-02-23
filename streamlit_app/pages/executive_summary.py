@@ -37,8 +37,8 @@ from streamlit_app.utils import (
     format_number,
     format_pct,
     load_dvc_metrics_summary,
-    load_json,
     safe_metric_get,
+    try_load_json,
 )
 
 
@@ -231,11 +231,11 @@ contexto de datos, ingeniería de features, modelo PD, incertidumbre, causalidad
 """
 )
 
-summary = load_json("pipeline_summary")
-eda = load_json("eda_summary")
-comparison = load_json("model_comparison")
-policy = load_json("conformal_policy_status", directory="models")
-governance = load_json("conformal_policy_status", directory="models")
+summary = try_load_json("pipeline_summary")
+eda = try_load_json("eda_summary")
+comparison = try_load_json("model_comparison")
+policy = try_load_json("conformal_policy_status", directory="models")
+governance = try_load_json("conformal_policy_status", directory="models")
 
 pipeline = summary.get("pipeline", {})
 pd_model = summary.get("pd_model", {})
