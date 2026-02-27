@@ -55,6 +55,26 @@ def _build_groups_dict(
     return groups_dict
 
 
+def _resolve_prediction_threshold(cfg: dict, policy: dict) -> tuple[float, str]:
+    """Resolve prediction threshold from artifact when configured."""
+    fallback_threshold = float(policy.get("prediction_threshold", 0.5))
+    threshold_cfg = cfg.get("threshold_policy", {}) or {}
+    if not bool(threshold_cfg.get("use_artifact", True)):
+        return fallback_threshold, "policy_default"
+
+    artifact_path = Path(threshold_cfg.get("artifact_path", "models/decision_threshold.json"))
+    if not artifact_path.exists():
+        return fallback_threshold, "policy_default_missing_artifact"
+
+    key = str(threshold_cfg.get("selected_threshold_key", "selected_threshold"))
+    try:
+        payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+        resolved = float(payload.get(key, fallback_threshold))
+        return resolved, "artifact"
+    except Exception:
+        return fallback_threshold, "policy_default_artifact_error"
+
+
 def main(config_path: str = "configs/fairness_policy.yaml") -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
@@ -99,12 +119,14 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
         logger.error("No valid attributes found for fairness audit")
         return
 
+    threshold, threshold_source = _resolve_prediction_threshold(cfg, policy)
+
     # Run fairness report
     report = fairness_report(
         y_true=y_true,
         y_pred_proba=y_proba,
         groups_dict=groups_dict,
-        threshold=policy["prediction_threshold"],
+        threshold=threshold,
         dpd_threshold=policy["dpd_threshold"],
         eo_gap_threshold=policy["eo_gap_threshold"],
         dir_threshold=policy["dir_threshold"],
@@ -123,6 +145,8 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
         "n_attributes": len(report),
         "n_passed": int(report["passed_all"].sum()),
         "attributes": report.to_dict(orient="records"),
+        "prediction_threshold": float(threshold),
+        "prediction_threshold_source": threshold_source,
         "thresholds": {
             "dpd": policy["dpd_threshold"],
             "eo_gap": policy["eo_gap_threshold"],

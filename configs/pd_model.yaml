@@ -91,6 +91,16 @@ conformal:
 
 calibration:
   method: platt  # isotonic | platt
+  candidates: [platt, isotonic, venn_abers]
+  default_threshold: 0.50
+
+decision_threshold:
+  enabled: true
+  fairness_policy_path: configs/fairness_policy.yaml
+  min_threshold: 0.05
+  max_threshold: 0.95
+  step: 0.01
+  output_path: models/decision_threshold.json
 
 mlflow:
   experiment_name: pd_model

@@ -7,6 +7,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import pickle
 import shutil
 from pathlib import Path
@@ -20,6 +21,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
+from src.evaluation.fairness import fairness_report
 from src.evaluation.metrics import classification_metrics
 from src.models.calibration import evaluate_calibration, expected_calibration_error
 from src.models.conformal import create_pd_intervals, validate_coverage
@@ -122,6 +124,10 @@ def _fit_calibrator_from_scores(
     y_prob_raw: np.ndarray,
 ) -> Any:
     """Fit score-based calibrator from raw probabilities."""
+    if method == "venn_abers":
+        model = VennAbersScoreCalibrator()
+        model.fit(y_prob_raw, y_true)
+        return model
     if method == "platt":
         model = LogisticRegression(max_iter=1000)
         model.fit(y_prob_raw.reshape(-1, 1), y_true)
@@ -140,6 +146,142 @@ def _apply_calibrator(calibrator: Any, y_prob_raw: np.ndarray) -> np.ndarray:
     if hasattr(calibrator, "predict"):
         return calibrator.predict(y_prob_raw)
     raise TypeError(f"Unsupported calibrator type: {type(calibrator)}")
+
+
+class VennAbersScoreCalibrator:
+    """Score-based Venn-Abers calibrator over 1D raw probabilities.
+
+    Uses a logistic base estimator over raw scores and calibrates it with crepes.
+    The midpoint of [p0, p1] is used as point prediction.
+    """
+
+    def __init__(self) -> None:
+        self._wrapped = None
+        self._is_fitted = False
+
+    def fit(self, y_prob_raw: np.ndarray, y_true: np.ndarray) -> VennAbersScoreCalibrator:
+        from crepes import WrapClassifier
+
+        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
+        y = np.asarray(y_true, dtype=int)
+
+        base = LogisticRegression(max_iter=1000)
+        base.fit(X, y)
+
+        wrapped = WrapClassifier(base)
+        wrapped.calibrate(X, y)
+        self._wrapped = wrapped
+        self._is_fitted = True
+        return self
+
+    def _predict_bounds(self, y_prob_raw: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        if not self._is_fitted or self._wrapped is None:
+            raise RuntimeError("VennAbersScoreCalibrator is not fitted.")
+        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
+        p = self._wrapped.predict_p(X)
+        p0 = np.clip(np.asarray(p[:, 0], dtype=float), 0.0, 1.0)
+        p1 = np.clip(np.asarray(p[:, 1], dtype=float), 0.0, 1.0)
+        low = np.minimum(p0, p1)
+        high = np.maximum(p0, p1)
+        return low, high
+
+    def predict(self, y_prob_raw: np.ndarray) -> np.ndarray:
+        low, high = self._predict_bounds(y_prob_raw)
+        return np.clip((low + high) / 2.0, 0.0, 1.0)
+
+    def predict_proba(self, y_prob_raw: np.ndarray) -> np.ndarray:
+        p1 = self.predict(y_prob_raw)
+        p0 = 1.0 - p1
+        return np.column_stack([p0, p1])
+
+
+def _build_fairness_groups_for_threshold(
+    df: pd.DataFrame,
+    attributes: list[dict[str, Any]],
+) -> dict[str, np.ndarray]:
+    """Build groups dictionary from fairness attribute config."""
+    groups: dict[str, np.ndarray] = {}
+    for attr in attributes:
+        name = str(attr.get("name", "")).strip()
+        col = str(attr.get("column", "")).strip()
+        if not name or not col or col not in df.columns:
+            continue
+
+        if str(attr.get("binning", "")).strip() == "quartile":
+            series = pd.to_numeric(df[col], errors="coerce")
+            groups[name] = (
+                pd.qcut(series, q=4, labels=["Q1", "Q2", "Q3", "Q4"], duplicates="drop")
+                .astype(str)
+                .to_numpy()
+            )
+        else:
+            groups[name] = df[col].astype(str).to_numpy()
+    return groups
+
+
+def _select_decision_threshold(
+    *,
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    policy: dict[str, Any],
+    groups_dict: dict[str, np.ndarray],
+    thresholds: np.ndarray,
+    fallback_threshold: float,
+) -> dict[str, Any]:
+    """Select threshold prioritizing fairness policy pass, then parity gaps."""
+    rows: list[dict[str, Any]] = []
+    for thr in thresholds:
+        report = fairness_report(
+            y_true=y_true,
+            y_pred_proba=y_prob,
+            groups_dict=groups_dict,
+            threshold=float(thr),
+            dpd_threshold=float(policy["dpd_threshold"]),
+            eo_gap_threshold=float(policy["eo_gap_threshold"]),
+            dir_threshold=float(policy["dir_threshold"]),
+        )
+        if report.empty:
+            row = {
+                "threshold": float(thr),
+                "overall_pass": False,
+                "pass_ratio": 0.0,
+                "max_dpd": 1.0,
+                "max_eo_gap": 1.0,
+                "min_dir": 0.0,
+            }
+        else:
+            row = {
+                "threshold": float(thr),
+                "overall_pass": bool(report["passed_all"].all()),
+                "pass_ratio": float(report["passed_all"].mean()),
+                "max_dpd": float(report["dpd"].max()),
+                "max_eo_gap": float(report["eo_gap"].max()),
+                "min_dir": float(report["dir"].min()),
+            }
+        row["distance_from_fallback"] = float(abs(row["threshold"] - float(fallback_threshold)))
+        rows.append(row)
+
+    ranking = (
+        pd.DataFrame(rows)
+        .sort_values(
+            [
+                "overall_pass",
+                "pass_ratio",
+                "max_eo_gap",
+                "max_dpd",
+                "min_dir",
+                "distance_from_fallback",
+            ],
+            ascending=[False, False, True, True, False, True],
+        )
+        .reset_index(drop=True)
+    )
+    selected = ranking.iloc[0].to_dict()
+    return {
+        "selected_threshold": float(selected["threshold"]),
+        "search_summary": ranking.to_dict(orient="records"),
+        "selection_metrics": selected,
+    }
 
 
 def _build_calibration_backtest_splits(
@@ -291,6 +433,8 @@ def _human_calibration_name(method: str) -> str:
         return "Platt Sigmoid"
     if method == "isotonic":
         return "Isotonic Regression"
+    if method == "venn_abers":
+        return "Venn-Abers"
     return method
 
 
@@ -809,14 +953,39 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     # Raw probabilities
     y_prob_default_test = cb_default_model.predict_proba(X_test_cb)[:, 1]
     y_prob_tuned_test = cb_tuned_model.predict_proba(X_test_cb)[:, 1]
+    y_prob_tuned_val = cb_tuned_model.predict_proba(X_val_cb)[:, 1]
     y_prob_tuned_cal = cb_tuned_model.predict_proba(X_cal_cb)[:, 1]
 
     # Robust calibration policy selection via temporal folds on calibration set
     cal_splits = _build_calibration_backtest_splits(cal, n_folds=4, date_col="issue_d")
-    cal_reports = [
-        _evaluate_calibration_method("platt", y_cal.to_numpy(), y_prob_tuned_cal, cal_splits),
-        _evaluate_calibration_method("isotonic", y_cal.to_numpy(), y_prob_tuned_cal, cal_splits),
-    ]
+    cal_cfg = config.get("calibration", {})
+    cal_candidates = cal_cfg.get("candidates", ["platt", "isotonic", "venn_abers"])
+    cal_reports: list[dict[str, Any]] = []
+    for method in cal_candidates:
+        try:
+            cal_reports.append(
+                _evaluate_calibration_method(
+                    str(method),
+                    y_cal.to_numpy(),
+                    y_prob_tuned_cal,
+                    cal_splits,
+                )
+            )
+        except Exception as exc:
+            cal_reports.append(
+                {
+                    "method": str(method),
+                    "folds_used": 0,
+                    "mean_brier": float("inf"),
+                    "mean_ece": float("inf"),
+                    "mean_auc_drop": float("inf"),
+                    "brier_variance": float("inf"),
+                    "ece_variance": float("inf"),
+                    "stability": float("inf"),
+                    "error": str(exc),
+                    "folds": [],
+                }
+            )
     selected_cal_method, cal_selection_report = _select_calibration_method(
         cal_reports,
         auc_drop_limit=0.0015,
@@ -828,11 +997,58 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         y_prob_tuned_cal,
     )
     y_prob_final = _apply_calibrator(calibrator, y_prob_tuned_test)
+    y_prob_final_val = _apply_calibrator(calibrator, y_prob_tuned_val)
     cal_metrics = evaluate_calibration(
         y_test.to_numpy(),
         y_prob_final,
         name=selected_cal_method,
     )
+
+    decision_cfg = config.get("decision_threshold", {})
+    decision_threshold_artifact = {
+        "enabled": False,
+        "selected_threshold": float(config.get("calibration", {}).get("default_threshold", 0.5)),
+        "source": "fallback_default",
+    }
+    if bool(decision_cfg.get("enabled", True)):
+        fairness_policy_path = str(
+            decision_cfg.get("fairness_policy_path", "configs/fairness_policy.yaml")
+        )
+        with open(fairness_policy_path, encoding="utf-8") as f:
+            fairness_cfg = yaml.safe_load(f) or {}
+        fairness_policy = fairness_cfg.get("policy", {})
+        fairness_attrs = fairness_cfg.get("attributes", [])
+        groups_for_threshold = _build_fairness_groups_for_threshold(train_val, fairness_attrs)
+
+        thr_min = float(decision_cfg.get("min_threshold", 0.05))
+        thr_max = float(decision_cfg.get("max_threshold", 0.95))
+        thr_step = float(decision_cfg.get("step", 0.01))
+        thresholds = np.arange(thr_min, thr_max + (thr_step / 2.0), thr_step)
+        fallback_threshold = float(fairness_policy.get("prediction_threshold", 0.5))
+        threshold_result = _select_decision_threshold(
+            y_true=y_val.to_numpy(),
+            y_prob=y_prob_final_val,
+            policy={
+                "dpd_threshold": float(fairness_policy.get("dpd_threshold", 0.10)),
+                "eo_gap_threshold": float(fairness_policy.get("eo_gap_threshold", 0.10)),
+                "dir_threshold": float(fairness_policy.get("dir_threshold", 0.80)),
+            },
+            groups_dict=groups_for_threshold,
+            thresholds=np.asarray(thresholds, dtype=float),
+            fallback_threshold=fallback_threshold,
+        )
+
+        decision_threshold_artifact = {
+            "enabled": True,
+            "selected_threshold": float(threshold_result["selected_threshold"]),
+            "fallback_threshold": fallback_threshold,
+            "selection_metrics": threshold_result["selection_metrics"],
+            "search_summary": threshold_result["search_summary"],
+            "source": "validation_fairness_search",
+            "fairness_policy_path": fairness_policy_path,
+            "validation_rows": int(len(train_val)),
+            "calibration_method": selected_cal_method,
+        }
 
     # Conformal (keeps calibration split isolated from model training)
     alpha = 1.0 - float(config["conformal"].get("confidence_level", 0.9))
@@ -869,6 +1085,13 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     cal_path.parent.mkdir(parents=True, exist_ok=True)
     with open(cal_path, "wb") as f:
         pickle.dump(calibrator, f)
+
+    decision_threshold_path = Path(
+        decision_cfg.get("output_path", "models/decision_threshold.json")
+    )
+    decision_threshold_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(decision_threshold_path, "w", encoding="utf-8") as f:
+        json.dump(decision_threshold_artifact, f, indent=2, default=str)
 
     logreg_model_path = Path("models/pd_logreg_baseline.pkl")
     logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -950,6 +1173,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         "hpo_best_validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
         "walk_forward_report": walk_forward_report,
         "seed_replay_report": seed_replay_report,
+        "decision_threshold": decision_threshold_artifact,
         "baseline_metrics": lr_metrics,
         "catboost_default_metrics": cb_default_metrics,
         "catboost_tuned_metrics": cb_tuned_metrics,
@@ -968,6 +1192,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     logger.info("Saved tuned model to {}", model_path)
     logger.info("Saved LR baseline to {}", logreg_model_path)
     logger.info("Saved calibrator to {}", cal_path)
+    logger.info("Saved decision threshold artifact to {}", decision_threshold_path)
     logger.info("Saved canonical model to {}", CANONICAL_MODEL_PATH)
     logger.info("Saved canonical calibrator to {}", CANONICAL_CALIBRATOR_PATH)
     logger.info("Saved PD contract to {}", CONTRACT_PATH)

@@ -4,6 +4,11 @@ policy:
   dir_threshold: 0.80       # disparate impact ratio > 0.80 (4/5ths rule)
   prediction_threshold: 0.50 # probability cutoff for binary predictions
 
+threshold_policy:
+  use_artifact: true
+  artifact_path: models/decision_threshold.json
+  selected_threshold_key: selected_threshold
+
 attributes:
   - name: home_ownership
     column: home_ownership

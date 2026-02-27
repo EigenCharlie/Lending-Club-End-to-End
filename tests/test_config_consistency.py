@@ -40,6 +40,13 @@ class TestCalibrationConfig:
             f"Config says '{method}' but thesis/CLAUDE.md specifies Platt sigmoid"
         )
 
+    def test_calibration_candidates_include_supported_methods(self, pd_config: dict) -> None:
+        candidates = set(pd_config.get("calibration", {}).get("candidates", []))
+        required = {"platt", "isotonic", "venn_abers"}
+        assert required.issubset(candidates), (
+            f"Calibration candidates missing required methods: {required - candidates}"
+        )
+
 
 class TestConformalConfig:
     def test_uses_mapie_13_params(self, pd_config: dict) -> None:
@@ -74,6 +81,17 @@ class TestPDValidationConfig:
         assert int(replay.get("top_k_trials", 0)) >= 1
         seeds = replay.get("seeds", [])
         assert isinstance(seeds, list) and len(seeds) >= 1, "seed_replay.seeds must be non-empty"
+
+    def test_decision_threshold_block_valid(self, pd_config: dict) -> None:
+        decision_cfg = pd_config.get("decision_threshold", {})
+        assert isinstance(decision_cfg, dict) and decision_cfg, (
+            "decision_threshold must be configured"
+        )
+        assert 0.0 < float(decision_cfg.get("min_threshold", 0.0)) < 1.0
+        assert 0.0 < float(decision_cfg.get("max_threshold", 0.0)) <= 1.0
+        assert float(decision_cfg.get("step", 0.0)) > 0.0
+        out_path = str(decision_cfg.get("output_path", ""))
+        assert out_path.endswith(".json"), "decision_threshold output_path must be JSON"
 
 
 class TestModelContract:
@@ -312,7 +330,9 @@ class TestFairnessPolicyConfig:
         self.policy = self.cfg["policy"]
 
     def test_required_sections(self):
-        assert {"policy", "attributes", "artifacts", "output"}.issubset(self.cfg.keys())
+        assert {"policy", "threshold_policy", "attributes", "artifacts", "output"}.issubset(
+            self.cfg.keys()
+        )
 
     def test_dpd_threshold_range(self):
         val = self.policy["dpd_threshold"]
@@ -351,6 +371,12 @@ class TestFairnessPolicyConfig:
             assert path.endswith((".parquet", ".json")), (
                 f"Output '{key}' has unexpected extension: {path}"
             )
+
+    def test_threshold_policy_artifact_is_json(self):
+        artifact = self.cfg["threshold_policy"]["artifact_path"]
+        assert artifact.endswith(".json"), (
+            f"threshold_policy.artifact_path must be json, got {artifact}"
+        )
 
 
 # ── Optimization Config ──
