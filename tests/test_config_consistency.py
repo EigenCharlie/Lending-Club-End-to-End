@@ -306,6 +306,20 @@ class TestConformalPolicyConfig:
     def test_critical_alerts_leq_total(self):
         assert self.policy["max_critical_alerts"] <= self.policy["max_total_alerts"]
 
+    def test_winkler_limits_are_positive(self):
+        for key in ("max_winkler_90", "max_winkler_95"):
+            assert self.policy[key] > 0, f"{key} must be > 0"
+
+    def test_statistical_pvalue_floors_in_unit_interval(self):
+        for key in (
+            "min_kupiec_pvalue_90",
+            "min_kupiec_pvalue_95",
+            "min_christoffersen_pvalue_90",
+            "min_christoffersen_pvalue_95",
+        ):
+            val = self.policy[key]
+            assert 0.0 <= val <= 1.0, f"{key}={val} must be in [0, 1]"
+
     def test_artifact_paths_have_valid_extensions(self):
         for key, path in self.cfg["artifacts"].items():
             assert path.endswith((".pkl", ".parquet", ".json")), (

@@ -233,6 +233,44 @@ def drift_monitoring_report(
     return out
 
 
+def interval_violations(
+    y_true: np.ndarray,
+    lower: np.ndarray,
+    upper: np.ndarray,
+) -> np.ndarray:
+    """Return binary violation indicators (1 if y_true outside [lower, upper])."""
+    y = np.asarray(y_true, dtype=float)
+    lo = np.asarray(lower, dtype=float)
+    hi = np.asarray(upper, dtype=float)
+    outside = (y < lo) | (y > hi)
+    return outside.astype(float)
+
+
+def winkler_interval_score(
+    y_true: np.ndarray,
+    lower: np.ndarray,
+    upper: np.ndarray,
+    alpha: float,
+) -> np.ndarray:
+    """Compute Winkler interval score per observation.
+
+    Lower is better. Inside-interval score is width; outside gets linear penalty.
+    """
+    y = np.asarray(y_true, dtype=float)
+    lo = np.asarray(lower, dtype=float)
+    hi = np.asarray(upper, dtype=float)
+    widths = np.maximum(0.0, hi - lo)
+
+    score = widths.copy()
+    below = y < lo
+    above = y > hi
+    penalty_scale = 2.0 / max(float(alpha), 1e-8)
+
+    score[below] = widths[below] + penalty_scale * (lo[below] - y[below])
+    score[above] = widths[above] + penalty_scale * (y[above] - hi[above])
+    return score
+
+
 def kupiec_pof_test(
     violations: np.ndarray,
     alpha: float,

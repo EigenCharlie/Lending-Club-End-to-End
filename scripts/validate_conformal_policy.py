@@ -11,9 +11,17 @@ import json
 import pickle
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import yaml
 from loguru import logger
+
+from src.evaluation.backtesting import (
+    christoffersen_test,
+    interval_violations,
+    kupiec_pof_test,
+    winkler_interval_score,
+)
 
 
 def _check(
@@ -51,6 +59,10 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     alerts = (
         pd.read_parquet(alerts_path) if alerts_path.exists() else pd.DataFrame(columns=["severity"])
     )
+    intervals_path = Path(
+        artifacts.get("intervals_path", "data/processed/conformal_intervals_mondrian.parquet")
+    )
+    intervals_df = pd.read_parquet(intervals_path)
 
     metrics_90 = results.get("metrics_90", {})
     metrics_95 = results.get("metrics_95", {})
@@ -62,6 +74,50 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     critical_alerts = int((alerts.get("severity", pd.Series([], dtype=str)) == "critical").sum())
     warning_alerts = int((alerts.get("severity", pd.Series([], dtype=str)) == "warning").sum())
     total_alerts = int(len(alerts))
+
+    # Conformal quality/statistical checks (v2)
+    if {"y_true", "pd_low_90", "pd_high_90"}.issubset(intervals_df.columns):
+        y_true = pd.to_numeric(intervals_df["y_true"], errors="coerce").to_numpy(dtype=float)
+        low_90 = pd.to_numeric(intervals_df["pd_low_90"], errors="coerce").to_numpy(dtype=float)
+        high_90 = pd.to_numeric(intervals_df["pd_high_90"], errors="coerce").to_numpy(dtype=float)
+        valid_90 = np.isfinite(y_true) & np.isfinite(low_90) & np.isfinite(high_90)
+        y90 = y_true[valid_90]
+        lo90 = low_90[valid_90]
+        hi90 = high_90[valid_90]
+    else:
+        y90 = np.array([], dtype=float)
+        lo90 = np.array([], dtype=float)
+        hi90 = np.array([], dtype=float)
+
+    if {"y_true", "pd_low_95", "pd_high_95"}.issubset(intervals_df.columns):
+        y_true_95 = pd.to_numeric(intervals_df["y_true"], errors="coerce").to_numpy(dtype=float)
+        low_95 = pd.to_numeric(intervals_df["pd_low_95"], errors="coerce").to_numpy(dtype=float)
+        high_95 = pd.to_numeric(intervals_df["pd_high_95"], errors="coerce").to_numpy(dtype=float)
+        valid_95 = np.isfinite(y_true_95) & np.isfinite(low_95) & np.isfinite(high_95)
+        y95 = y_true_95[valid_95]
+        lo95 = low_95[valid_95]
+        hi95 = high_95[valid_95]
+    else:
+        y95 = np.array([], dtype=float)
+        lo95 = np.array([], dtype=float)
+        hi95 = np.array([], dtype=float)
+
+    winkler_90 = (
+        float(np.mean(winkler_interval_score(y90, lo90, hi90, alpha=0.10)))
+        if y90.size
+        else float("inf")
+    )
+    winkler_95 = (
+        float(np.mean(winkler_interval_score(y95, lo95, hi95, alpha=0.05)))
+        if y95.size
+        else float("inf")
+    )
+    violations_90 = interval_violations(y90, lo90, hi90) if y90.size else np.array([], dtype=float)
+    violations_95 = interval_violations(y95, lo95, hi95) if y95.size else np.array([], dtype=float)
+    kupiec_90 = kupiec_pof_test(violations_90, alpha=0.10)
+    kupiec_95 = kupiec_pof_test(violations_95, alpha=0.05)
+    christ_90 = christoffersen_test(violations_90, alpha=0.10)
+    christ_95 = christoffersen_test(violations_95, alpha=0.05)
 
     checks = [
         _check(
@@ -99,6 +155,36 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
             "<=",
             "monitoring",
         ),
+        _check("winkler_90", winkler_90, float(policy["max_winkler_90"]), "<=", "quality"),
+        _check("winkler_95", winkler_95, float(policy["max_winkler_95"]), "<=", "quality"),
+        _check(
+            "kupiec_pvalue_90",
+            float(kupiec_90["p_value"]),
+            float(policy["min_kupiec_pvalue_90"]),
+            ">=",
+            "statistical_coverage",
+        ),
+        _check(
+            "kupiec_pvalue_95",
+            float(kupiec_95["p_value"]),
+            float(policy["min_kupiec_pvalue_95"]),
+            ">=",
+            "statistical_coverage",
+        ),
+        _check(
+            "christoffersen_pvalue_90",
+            float(christ_90["p_cc"]),
+            float(policy["min_christoffersen_pvalue_90"]),
+            ">=",
+            "statistical_coverage",
+        ),
+        _check(
+            "christoffersen_pvalue_95",
+            float(christ_95["p_cc"]),
+            float(policy["min_christoffersen_pvalue_95"]),
+            ">=",
+            "statistical_coverage",
+        ),
     ]
     checks_df = pd.DataFrame(checks)
     overall_pass = bool(checks_df["passed"].all())
@@ -120,7 +206,20 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
         "critical_alerts": critical_alerts,
         "warning_alerts": warning_alerts,
         "total_alerts": total_alerts,
+        "winkler_90": winkler_90,
+        "winkler_95": winkler_95,
+        "kupiec_pvalue_90": float(kupiec_90["p_value"]),
+        "kupiec_pvalue_95": float(kupiec_95["p_value"]),
+        "christoffersen_pvalue_90": float(christ_90["p_cc"]),
+        "christoffersen_pvalue_95": float(christ_95["p_cc"]),
+        "statistical_tests": {
+            "kupiec_90": kupiec_90,
+            "kupiec_95": kupiec_95,
+            "christoffersen_90": christ_90,
+            "christoffersen_95": christ_95,
+        },
         "latest_backtest_month": str(latest_month) if latest_month is not None else None,
+        "intervals_path": str(intervals_path),
         "policy_config": config_path,
     }
 

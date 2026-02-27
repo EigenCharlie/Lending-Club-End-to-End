@@ -6,12 +6,19 @@ policy:
   max_critical_alerts: 0
   max_total_alerts: 5
   max_warning_alerts: 5
+  max_winkler_90: 1.20
+  max_winkler_95: 1.50
+  min_kupiec_pvalue_90: 0.01
+  min_kupiec_pvalue_95: 0.01
+  min_christoffersen_pvalue_90: 0.01
+  min_christoffersen_pvalue_95: 0.01
 
 artifacts:
   conformal_results_path: models/conformal_results_mondrian.pkl
   group_metrics_path: data/processed/conformal_group_metrics_mondrian.parquet
   backtest_monthly_path: data/processed/conformal_backtest_monthly.parquet
   backtest_alerts_path: data/processed/conformal_backtest_alerts.parquet
+  intervals_path: data/processed/conformal_intervals_mondrian.parquet
 
 output:
   policy_status_json: models/conformal_policy_status.json
