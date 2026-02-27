@@ -43,16 +43,21 @@ If you want to run individual stages:
 | 1 | `uv run python -c "from src.data.make_dataset import main; main()"` | `data/interim/lending_club_cleaned.parquet` |
 | 2 | `uv run python -c "from src.data.prepare_dataset import main; main()"` | Train/calibration/test splits |
 | 3 | `uv run python -c "from src.data.build_datasets import main; main()"` | loan_master, time_series, ead_dataset |
-| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + selected calibrator (Platt/Isotonic) + contract |
+| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers) + `models/decision_threshold.json` |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
-| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate (checks formales de conformal) |
-| 8 | `uv run python scripts/estimate_causal_effects.py` | CATE estimates |
-| 9 | `uv run python scripts/simulate_causal_policy.py` | Policy simulation |
-| 10 | `uv run python scripts/validate_causal_policy.py` | Rule selection + bootstrap |
-| 11 | `uv run python scripts/run_ifrs9_sensitivity.py` | ECL scenarios |
-| 12 | `uv run python scripts/optimize_portfolio.py` | LP/MILP allocation |
-| 13 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
+| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json` + `_v2`) |
+| 8 | `uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml` | Challenger feature selection + monotonic constraints spec |
+| 9 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Fairness gate using threshold artifact (`fairness_audit_status.json` + `_v2`) |
+| 10 | `uv run python scripts/estimate_causal_effects.py` | CATE estimates |
+| 11 | `uv run python scripts/simulate_causal_policy.py` | Policy simulation |
+| 12 | `uv run python scripts/validate_causal_policy.py` | Rule selection + bootstrap |
+| 13 | `uv run python scripts/run_ifrs9_sensitivity.py` | ECL scenarios |
+| 14 | `uv run python scripts/optimize_portfolio.py` | LP/MILP allocation |
+| 15 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
+
+Compatibility note:
+- Governance/fairness/conformal challenger status artifacts are emitted in dual-write mode (`legacy` + `_v2`) during migration.
 
 ## Optional: Platform Layer (dbt + Feast)
 

@@ -101,6 +101,7 @@ decision_threshold:
   max_threshold: 0.95
   step: 0.01
   output_path: models/decision_threshold.json
+  output_path_v2: models/decision_threshold_v2.json
 
 challenger_pipeline:
   enabled: true
@@ -112,6 +113,7 @@ challenger_pipeline:
   no_smote: true
   feature_selection_output: data/processed/challenger_feature_selection.parquet
   spec_output: models/pd_challenger_spec.json
+  spec_output_v2: models/pd_challenger_spec_v2.json
   monotonic_constraints:
     annual_inc: -1
     loan_to_income: 1

@@ -25,3 +25,4 @@ artifacts:
 output:
   audit_parquet: data/processed/fairness_audit.parquet
   status_json: models/fairness_audit_status.json
+  status_json_v2: models/fairness_audit_status_v2.json

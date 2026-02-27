@@ -254,6 +254,7 @@ stages:
     outs:
     - data/processed/challenger_feature_selection.parquet
     - models/pd_challenger_spec.json
+    - models/pd_challenger_spec_v2.json
   optimize_cate_portfolio:
     cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 5000
     deps:

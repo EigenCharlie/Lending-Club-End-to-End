@@ -155,10 +155,15 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
     }
 
     status_path = Path(output["status_json"])
+    status_v2_path = Path(output.get("status_json_v2", "models/fairness_audit_status_v2.json"))
     status_path.parent.mkdir(parents=True, exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)
+    status_v2_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(status_v2_path, "w", encoding="utf-8") as f:
+        json.dump(status, f, indent=2, default=str)
     logger.info(f"Saved fairness status: {status_path}")
+    logger.info(f"Saved fairness status v2: {status_v2_path}")
 
     pass_label = "PASS" if overall_pass else "FAIL"
     logger.info(

@@ -1089,8 +1089,14 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     decision_threshold_path = Path(
         decision_cfg.get("output_path", "models/decision_threshold.json")
     )
+    decision_threshold_v2_path = Path(
+        decision_cfg.get("output_path_v2", "models/decision_threshold_v2.json")
+    )
     decision_threshold_path.parent.mkdir(parents=True, exist_ok=True)
     with open(decision_threshold_path, "w", encoding="utf-8") as f:
+        json.dump(decision_threshold_artifact, f, indent=2, default=str)
+    decision_threshold_v2_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(decision_threshold_v2_path, "w", encoding="utf-8") as f:
         json.dump(decision_threshold_artifact, f, indent=2, default=str)
 
     logreg_model_path = Path("models/pd_logreg_baseline.pkl")
@@ -1193,6 +1199,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     logger.info("Saved LR baseline to {}", logreg_model_path)
     logger.info("Saved calibrator to {}", cal_path)
     logger.info("Saved decision threshold artifact to {}", decision_threshold_path)
+    logger.info("Saved decision threshold v2 artifact to {}", decision_threshold_v2_path)
     logger.info("Saved canonical model to {}", CANONICAL_MODEL_PATH)
     logger.info("Saved canonical calibrator to {}", CANONICAL_CALIBRATOR_PATH)
     logger.info("Saved PD contract to {}", CONTRACT_PATH)

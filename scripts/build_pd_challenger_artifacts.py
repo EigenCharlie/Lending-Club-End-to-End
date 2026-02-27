@@ -230,12 +230,16 @@ def main(config_path: str = "configs/pd_model.yaml") -> None:
         )
     )
     spec_path = Path(challenger_cfg.get("spec_output", "models/pd_challenger_spec.json"))
+    spec_v2_path = Path(challenger_cfg.get("spec_output_v2", "models/pd_challenger_spec_v2.json"))
 
     out_path.parent.mkdir(parents=True, exist_ok=True)
     spec_path.parent.mkdir(parents=True, exist_ok=True)
 
     out.to_parquet(out_path, index=False)
     with open(spec_path, "w", encoding="utf-8") as f:
+        json.dump(spec, f, indent=2, default=str)
+    spec_v2_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(spec_v2_path, "w", encoding="utf-8") as f:
         json.dump(spec, f, indent=2, default=str)
 
     logger.info(
@@ -244,6 +248,7 @@ def main(config_path: str = "configs/pd_model.yaml") -> None:
         len(out),
         spec_path,
     )
+    logger.info("Challenger spec v2 saved: {}", spec_v2_path)
     logger.info(
         "Selected top-k features: {}",
         ", ".join(spec["selected_features"][:10]),

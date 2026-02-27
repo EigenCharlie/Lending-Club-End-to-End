@@ -936,8 +936,8 @@ stages:
     deps:
     - path: configs/pd_model.yaml
       hash: md5
-      md5: 14f7b6b58ed954e787ccb56c7121d596
-      size: 2930
+      md5: 5a167f74d9a8ef82479d1816bccfb31b
+      size: 3034
       isexec: true
     - path: data/processed/feature_config.pkl
       hash: md5
@@ -949,14 +949,18 @@ stages:
       size: 140607600
     - path: scripts/build_pd_challenger_artifacts.py
       hash: md5
-      md5: 6e0b9ccd1831ff1eb8a9a9172e55e871
-      size: 9173
+      md5: a8cacca1d5215c8d7b127b4a47f8cbdb
+      size: 9550
     outs:
     - path: data/processed/challenger_feature_selection.parquet
       hash: md5
       md5: 8f74800d7c9316299071e6518398c61e
       size: 9053
     - path: models/pd_challenger_spec.json
+      hash: md5
+      md5: c81f2069f4367195ecaec9dae2853245
+      size: 1973
+    - path: models/pd_challenger_spec_v2.json
       hash: md5
       md5: c81f2069f4367195ecaec9dae2853245
       size: 1973

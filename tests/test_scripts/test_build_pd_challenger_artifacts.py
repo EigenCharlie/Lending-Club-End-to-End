@@ -89,6 +89,7 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
             "no_smote": True,
             "feature_selection_output": str(data_dir / "challenger_feature_selection.parquet"),
             "spec_output": str(model_dir / "pd_challenger_spec.json"),
+            "spec_output_v2": str(model_dir / "pd_challenger_spec_v2.json"),
             "monotonic_constraints": {"annual_inc": -1, "dti": 1, "int_rate": 1},
         },
     }
@@ -100,9 +101,11 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
 
     out = pd.read_parquet(data_dir / "challenger_feature_selection.parquet")
     spec = json.loads((model_dir / "pd_challenger_spec.json").read_text(encoding="utf-8"))
+    spec_v2 = json.loads((model_dir / "pd_challenger_spec_v2.json").read_text(encoding="utf-8"))
 
     assert len(out) > 0
     assert "selected_topk" in out.columns
     assert int(out["selected_topk"].sum()) == 5
     assert spec["modeling_policies"]["no_smote"] is True
     assert len(spec["selected_features"]) == 5
+    assert spec_v2["selected_features"] == spec["selected_features"]

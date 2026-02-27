@@ -58,6 +58,7 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
         "output": {
             "audit_parquet": str(data_dir / "fairness_audit.parquet"),
             "status_json": str(model_dir / "fairness_audit_status.json"),
+            "status_json_v2": str(model_dir / "fairness_audit_status_v2.json"),
         },
     }
 
@@ -67,5 +68,9 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
     fairness_mod.main(str(cfg_path))
 
     status = json.loads((model_dir / "fairness_audit_status.json").read_text(encoding="utf-8"))
+    status_v2 = json.loads(
+        (model_dir / "fairness_audit_status_v2.json").read_text(encoding="utf-8")
+    )
     assert status["prediction_threshold"] == 0.70
     assert status["prediction_threshold_source"] == "artifact"
+    assert status_v2["prediction_threshold"] == status["prediction_threshold"]
