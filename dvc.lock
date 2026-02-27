@@ -322,7 +322,7 @@ stages:
       md5: 361e266d40e8d235987389274f2d7082
       size: 1457
   optimize_portfolio:
-    cmd: uv run python scripts/optimize_portfolio.py --config 
+    cmd: uv run python scripts/optimize_portfolio.py --config
       configs/optimization.yaml --risk_tolerance 0.10
     deps:
     - path: configs/optimization.yaml
@@ -353,7 +353,7 @@ stages:
       md5: 52b1cf38003e51f579f814e13b674750
       size: 60211
   optimize_portfolio_tradeoff:
-    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
       configs/optimization.yaml
     deps:
     - path: configs/optimization.yaml
@@ -446,7 +446,7 @@ stages:
       md5: e0fb1aca0dc5878f588deb43ef93ff93
       size: 15634
   validate_conformal_policy:
-    cmd: uv run python scripts/validate_conformal_policy.py --config 
+    cmd: uv run python scripts/validate_conformal_policy.py --config
       configs/conformal_policy.yaml
     deps:
     - path: configs/conformal_policy.yaml
@@ -712,7 +712,7 @@ stages:
       md5: 8a8ab87bbe09fec054c042d80d8229cb
       size: 304
   run_fairness_audit:
-    cmd: uv run python scripts/run_fairness_audit.py --config 
+    cmd: uv run python scripts/run_fairness_audit.py --config
       configs/fairness_policy.yaml
     deps:
     - path: configs/fairness_policy.yaml
@@ -812,7 +812,7 @@ stages:
       md5: 08518330709ff426453803454b372e74
       size: 625
   generate_mrm_report:
-    cmd: uv run python scripts/generate_mrm_report.py --config 
+    cmd: uv run python scripts/generate_mrm_report.py --config
       configs/mrm_policy.yaml
     deps:
     - path: configs/mrm_policy.yaml
@@ -889,7 +889,7 @@ stages:
       md5: df94f1e1ea4c2e68f85f65644c300cc7
       size: 3165
   generate_governance_status:
-    cmd: uv run python scripts/generate_governance_status.py --config 
+    cmd: uv run python scripts/generate_governance_status.py --config
       configs/mrm_policy.yaml
     deps:
     - path: configs/mrm_policy.yaml
@@ -930,3 +930,33 @@ stages:
       hash: md5
       md5: 2937e4eb86be6f36b7d0281e419399b7
       size: 4462
+  build_pd_challenger_artifacts:
+    cmd: uv run python scripts/build_pd_challenger_artifacts.py --config
+      configs/pd_model.yaml
+    deps:
+    - path: configs/pd_model.yaml
+      hash: md5
+      md5: 14f7b6b58ed954e787ccb56c7121d596
+      size: 2930
+      isexec: true
+    - path: data/processed/feature_config.pkl
+      hash: md5
+      md5: 65fb7eda305a50c5e265c5068dc0fcad
+      size: 1700
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 1a12195e1b06c2a2c8d2f3af79edc9d0
+      size: 140607600
+    - path: scripts/build_pd_challenger_artifacts.py
+      hash: md5
+      md5: 6e0b9ccd1831ff1eb8a9a9172e55e871
+      size: 9173
+    outs:
+    - path: data/processed/challenger_feature_selection.parquet
+      hash: md5
+      md5: 8f74800d7c9316299071e6518398c61e
+      size: 9053
+    - path: models/pd_challenger_spec.json
+      hash: md5
+      md5: c81f2069f4367195ecaec9dae2853245
+      size: 1973

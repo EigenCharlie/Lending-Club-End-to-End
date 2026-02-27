@@ -102,6 +102,27 @@ decision_threshold:
   step: 0.01
   output_path: models/decision_threshold.json
 
+challenger_pipeline:
+  enabled: true
+  random_state: 42
+  sample_rows: 150000
+  top_k: 30
+  permutation_max_rows: 80000
+  boruta_n_estimators: 120
+  no_smote: true
+  feature_selection_output: data/processed/challenger_feature_selection.parquet
+  spec_output: models/pd_challenger_spec.json
+  monotonic_constraints:
+    annual_inc: -1
+    loan_to_income: 1
+    dti: 1
+    rev_utilization: 1
+    num_delinq_2yrs: 1
+    days_since_last_delinq: -1
+    int_rate: 1
+    installment: 1
+    grade_woe: 1
+
 mlflow:
   experiment_name: pd_model
   tracking_uri: null  # Set by DagsHub init

@@ -93,6 +93,19 @@ class TestPDValidationConfig:
         out_path = str(decision_cfg.get("output_path", ""))
         assert out_path.endswith(".json"), "decision_threshold output_path must be JSON"
 
+    def test_challenger_pipeline_policy(self, pd_config: dict) -> None:
+        challenger = pd_config.get("challenger_pipeline", {})
+        assert isinstance(challenger, dict) and challenger, "challenger_pipeline must be configured"
+        assert bool(challenger.get("no_smote", False)) is True, (
+            "challenger pipeline must disable SMOTE"
+        )
+        constraints = challenger.get("monotonic_constraints", {})
+        assert isinstance(constraints, dict) and constraints
+        for feature, sign in constraints.items():
+            assert int(sign) in {-1, 0, 1}, (
+                f"monotonic constraint for {feature} must be -1/0/1, got {sign}"
+            )
+
 
 class TestModelContract:
     @pytest.mark.skipif(not CONTRACT_PATH.exists(), reason="No model contract found")
@@ -264,6 +277,12 @@ class TestMRMConfig:
         """Champion artifact path should use forward slashes."""
         path = self.cfg["model"]["champion_artifact"]
         assert "\\" not in path, f"Path should use forward slashes: {path}"
+
+    def test_mrm_modeling_constraints_no_smote(self):
+        constraints = self.cfg["challenger"].get("modeling_constraints", {})
+        assert constraints.get("no_smote") is True, (
+            "MRM challenger policy must enforce no_smote=true"
+        )
 
 
 # ── Conformal Policy Config ──

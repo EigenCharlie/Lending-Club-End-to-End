@@ -32,6 +32,9 @@ challenger:
     - conformal_policy_pass: true
     - fairness_audit_pass: true
     - governance_checks_pass: true
+  modeling_constraints:
+    no_smote: true
+    monotonic_constraints_required: true
 
 approval_workflow:
   steps:

@@ -246,6 +246,7 @@ def build_steps(
         source lending-club-venv/bin/activate &&
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
         uv run python -u scripts/build_pipeline_results.py &&
+        uv run python -u scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml &&
         uv run python -u scripts/run_fairness_audit.py &&
         uv run python -u scripts/validate_causal_policy.py &&
         uv run python -u scripts/generate_mrm_report.py &&
