@@ -294,6 +294,302 @@ def _human_calibration_name(method: str) -> str:
     return method
 
 
+def _build_walk_forward_splits(
+    df: pd.DataFrame,
+    *,
+    n_windows: int = 3,
+    min_train_rows: int = 200_000,
+    window_rows: int = 80_000,
+    date_col: str = "issue_d",
+    max_rows: int | None = None,
+) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Build anchored walk-forward temporal splits from train data."""
+    if max_rows is not None and int(max_rows) > 0 and len(df) > int(max_rows):
+        # Keep the latest rows to preserve recent temporal dynamics.
+        if date_col in df.columns:
+            work = df.sort_values(date_col).tail(int(max_rows)).reset_index(drop=True)
+        else:
+            work = df.tail(int(max_rows)).reset_index(drop=True)
+    elif date_col in df.columns:
+        work = df.sort_values(date_col).reset_index(drop=True)
+    else:
+        work = df.reset_index(drop=True)
+
+    n = len(work)
+    if n < (min_train_rows + window_rows + 1):
+        return []
+
+    n_windows = max(1, int(n_windows))
+    step = max(1, (n - min_train_rows - window_rows) // n_windows)
+
+    splits: list[tuple[np.ndarray, np.ndarray]] = []
+    for i in range(n_windows):
+        fit_end = min_train_rows + i * step
+        eval_start = fit_end
+        eval_end = min(n, eval_start + window_rows)
+        if fit_end < min_train_rows or eval_end - eval_start < max(10_000, window_rows // 4):
+            continue
+        idx_fit = np.arange(0, fit_end, dtype=int)
+        idx_eval = np.arange(eval_start, eval_end, dtype=int)
+        splits.append((idx_fit, idx_eval))
+    return splits
+
+
+def _evaluate_walk_forward_auc(
+    train_df: pd.DataFrame,
+    *,
+    features: list[str],
+    categorical_features: list[str],
+    target: str,
+    params: dict[str, Any],
+    n_windows: int = 3,
+    min_train_rows: int = 200_000,
+    window_rows: int = 80_000,
+    date_col: str = "issue_d",
+    max_rows: int | None = None,
+) -> dict[str, Any]:
+    """Evaluate CatBoost params with anchored temporal walk-forward AUC."""
+    splits = _build_walk_forward_splits(
+        train_df,
+        n_windows=n_windows,
+        min_train_rows=min_train_rows,
+        window_rows=window_rows,
+        date_col=date_col,
+        max_rows=max_rows,
+    )
+    if not splits:
+        return {
+            "enabled": False,
+            "reason": "insufficient_rows",
+            "n_windows_requested": int(n_windows),
+            "n_windows_used": 0,
+            "folds": [],
+        }
+
+    if date_col in train_df.columns:
+        ordered = train_df.sort_values(date_col).reset_index(drop=True)
+    else:
+        ordered = train_df.reset_index(drop=True)
+
+    folds: list[dict[str, Any]] = []
+    for fold_id, (idx_fit, idx_eval) in enumerate(splits, start=1):
+        fit_df = ordered.iloc[idx_fit].reset_index(drop=True)
+        eval_df = ordered.iloc[idx_eval].reset_index(drop=True)
+        y_fit = fit_df[target].astype(int)
+        y_eval = eval_df[target].astype(int)
+        if len(np.unique(y_fit)) < 2 or len(np.unique(y_eval)) < 2:
+            continue
+
+        X_fit = _prepare_catboost_frame(fit_df, features, categorical_features)
+        X_eval = _prepare_catboost_frame(eval_df, features, categorical_features)
+        _, metrics = train_catboost_default(
+            X_fit,
+            y_fit,
+            X_eval,
+            y_eval,
+            cat_features=categorical_features,
+            params=params,
+        )
+        folds.append(
+            {
+                "fold": fold_id,
+                "fit_rows": int(len(idx_fit)),
+                "eval_rows": int(len(idx_eval)),
+                "validation_auc": float(metrics.get("validation_auc", 0.0)),
+                "best_iteration": int(metrics.get("best_iteration", 0)),
+            }
+        )
+
+    if not folds:
+        return {
+            "enabled": False,
+            "reason": "degenerate_target_class",
+            "n_windows_requested": int(n_windows),
+            "n_windows_used": 0,
+            "folds": [],
+        }
+
+    aucs = np.array([r["validation_auc"] for r in folds], dtype=float)
+    return {
+        "enabled": True,
+        "n_windows_requested": int(n_windows),
+        "n_windows_used": int(len(folds)),
+        "mean_validation_auc": float(np.mean(aucs)),
+        "median_validation_auc": float(np.median(aucs)),
+        "std_validation_auc": float(np.std(aucs)),
+        "min_validation_auc": float(np.min(aucs)),
+        "max_validation_auc": float(np.max(aucs)),
+        "folds": folds,
+    }
+
+
+def _replay_top_optuna_trials(
+    *,
+    hpo_cfg: dict[str, Any],
+    base_params: dict[str, Any],
+    X_train_fit_cb: pd.DataFrame,
+    y_train_fit: pd.Series,
+    X_val_cb: pd.DataFrame,
+    y_val: pd.Series,
+    cat_features: list[str],
+    seeds: list[int],
+    top_k_trials: int = 3,
+    prioritize_gate_pass: bool = True,
+) -> dict[str, Any]:
+    """Replay top Optuna trials across multiple seeds for robustness."""
+    report: dict[str, Any] = {
+        "enabled": False,
+        "reason": "not_run",
+        "rows": [],
+        "selected_trial": None,
+        "selected_params": None,
+    }
+    if not bool(hpo_cfg.get("enabled", True)):
+        report["reason"] = "hpo_disabled"
+        return report
+
+    storage = hpo_cfg.get("study_storage")
+    study_name = hpo_cfg.get("study_name")
+    if not storage or not study_name:
+        report["reason"] = "missing_study_storage_or_name"
+        return report
+
+    try:
+        import optuna
+    except Exception:
+        report["reason"] = "optuna_unavailable"
+        return report
+
+    try:
+        study = optuna.load_study(study_name=str(study_name), storage=str(storage))
+    except Exception as exc:
+        report["reason"] = f"study_load_failed: {exc}"
+        return report
+
+    complete = [t for t in study.trials if t.state.name == "COMPLETE" and t.value is not None]
+    if not complete:
+        report["reason"] = "no_complete_trials"
+        return report
+
+    top = sorted(complete, key=lambda t: float(t.value), reverse=True)[: max(1, int(top_k_trials))]
+    rows: list[dict[str, Any]] = []
+    for trial in top:
+        fairness_pass_attr = trial.user_attrs.get("fairness_pass")
+        conformal_pass_attr = trial.user_attrs.get("conformal_pass")
+        governance_pass_attr = trial.user_attrs.get("governance_pass")
+        gate_attrs_present = all(
+            key in trial.user_attrs
+            for key in ("fairness_pass", "conformal_pass", "governance_pass")
+        )
+        gate_all_pass = (
+            bool(fairness_pass_attr and conformal_pass_attr and governance_pass_attr)
+            if gate_attrs_present
+            else None
+        )
+        for seed in seeds:
+            params = {**base_params, **trial.params, "random_seed": int(seed)}
+            model, metrics = train_catboost_default(
+                X_train_fit_cb,
+                y_train_fit,
+                X_val_cb,
+                y_val,
+                cat_features=cat_features,
+                params=params,
+            )
+            y_val_prob = model.predict_proba(X_val_cb)[:, 1]
+            rows.append(
+                {
+                    "trial_number": int(trial.number),
+                    "seed": int(seed),
+                    "validation_auc": float(metrics.get("validation_auc", 0.0)),
+                    "validation_brier": float(brier_score_loss(y_val, y_val_prob)),
+                    "validation_ece": float(expected_calibration_error(y_val, y_val_prob)),
+                    "best_iteration": int(metrics.get("best_iteration", 0)),
+                    "trial_best_value": float(trial.value),
+                    "fairness_pass": fairness_pass_attr,
+                    "conformal_pass": conformal_pass_attr,
+                    "governance_pass": governance_pass_attr,
+                    "gate_attrs_present": bool(gate_attrs_present),
+                    "gate_all_pass": gate_all_pass,
+                    "params": trial.params,
+                }
+            )
+
+    if not rows:
+        report["reason"] = "no_replay_rows"
+        return report
+
+    replay_df = pd.DataFrame(rows)
+
+    summary_rows: list[dict[str, Any]] = []
+    for trial_number, grp in replay_df.groupby("trial_number", observed=True):
+        gate_present = bool(grp["gate_attrs_present"].fillna(False).any())
+        gate_values = grp["gate_all_pass"].dropna().astype(bool)
+        if gate_values.empty:
+            gate_all_pass_summary: bool | None = None
+        else:
+            gate_all_pass_summary = bool(gate_values.all())
+
+        if not prioritize_gate_pass:
+            gate_tier = 1
+        elif gate_all_pass_summary is True:
+            gate_tier = 0
+        elif gate_all_pass_summary is None:
+            gate_tier = 1
+        else:
+            gate_tier = 2
+
+        summary_rows.append(
+            {
+                "trial_number": int(trial_number),
+                "median_validation_auc": float(grp["validation_auc"].median()),
+                "mean_validation_auc": float(grp["validation_auc"].mean()),
+                "std_validation_auc": float(grp["validation_auc"].std(ddof=0)),
+                "mean_validation_brier": float(grp["validation_brier"].mean()),
+                "mean_validation_ece": float(grp["validation_ece"].mean()),
+                "gate_attrs_present": gate_present,
+                "gate_all_pass": gate_all_pass_summary,
+                "gate_tier": int(gate_tier),
+            }
+        )
+
+    grouped = pd.DataFrame(summary_rows).sort_values(
+        [
+            "gate_tier",
+            "mean_validation_ece",
+            "median_validation_auc",
+            "mean_validation_brier",
+        ],
+        ascending=[True, True, False, True],
+    )
+    selected_trial = int(grouped.iloc[0]["trial_number"])
+    selected_trial_obj = next(t for t in top if int(t.number) == selected_trial)
+    selected_params = {**base_params, **selected_trial_obj.params}
+
+    report.update(
+        {
+            "enabled": True,
+            "reason": "ok",
+            "top_k_trials": int(len(top)),
+            "seeds": [int(s) for s in seeds],
+            "selection_policy": {
+                "prioritize_gate_pass": bool(prioritize_gate_pass),
+                "rank_order": [
+                    "gate_tier(pass->unknown->fail)",
+                    "mean_validation_ece(asc)",
+                    "median_validation_auc(desc)",
+                    "mean_validation_brier(asc)",
+                ],
+            },
+            "rows": rows,
+            "summary_by_trial": grouped.to_dict(orient="records"),
+            "selected_trial": selected_trial,
+            "selected_params": selected_params,
+        }
+    )
+    return report
+
+
 def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = None) -> None:
     if sample_size is not None and int(sample_size) <= 0:
         sample_size = None
@@ -356,6 +652,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     )
 
     val_cfg = config.get("validation", {})
+    walk_cfg = val_cfg.get("walk_forward", {})
+    seed_replay_cfg = val_cfg.get("seed_replay", {})
     val_fraction = float(val_cfg.get("val_from_tail_fraction_of_train", 0.15))
     train_fit, train_val = temporal_train_val_split(
         train, val_fraction=val_fraction, date_col="issue_d"
@@ -391,6 +689,13 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     # CatBoost tuned (Optuna)
     hpo_cfg = config.get("hpo", {})
+    seed_replay_report: dict[str, Any] = {
+        "enabled": False,
+        "reason": "disabled_in_config",
+        "rows": [],
+        "selected_trial": None,
+        "selected_params": None,
+    }
     if bool(hpo_cfg.get("enabled", True)):
         cb_tuned_model, cb_tuned_metrics = train_catboost_tuned_optuna(
             X_train_fit_cb,
@@ -422,6 +727,44 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
             retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
         )
+
+        if bool(seed_replay_cfg.get("enabled", True)):
+            seeds = seed_replay_cfg.get("seeds", [42, 52, 62])
+            seeds = [int(s) for s in seeds]
+            prioritize_gate_pass = bool(seed_replay_cfg.get("prioritize_gate_pass", True))
+            seed_replay_report = _replay_top_optuna_trials(
+                hpo_cfg=hpo_cfg,
+                base_params=config["model"].get("params", {}),
+                X_train_fit_cb=X_train_fit_cb,
+                y_train_fit=y_train_fit,
+                X_val_cb=X_val_cb,
+                y_val=y_val,
+                cat_features=categorical_features,
+                seeds=seeds,
+                top_k_trials=int(seed_replay_cfg.get("top_k_trials", 3)),
+                prioritize_gate_pass=prioritize_gate_pass,
+            )
+            if seed_replay_report.get("enabled") and seed_replay_report.get("selected_params"):
+                selected_params = dict(seed_replay_report["selected_params"])
+                replay_model, replay_metrics = train_catboost_default(
+                    X_train_fit_cb,
+                    y_train_fit,
+                    X_val_cb,
+                    y_val,
+                    X_test=X_test_cb,
+                    y_test=y_test,
+                    cat_features=categorical_features,
+                    params=selected_params,
+                )
+                cb_tuned_metrics = {
+                    **cb_tuned_metrics,
+                    **replay_metrics,
+                    "model_type": "catboost_tuned_seed_replay_selected",
+                    "best_params": selected_params,
+                    "seed_replay_selected_trial": seed_replay_report.get("selected_trial"),
+                    "seed_replay_enabled": True,
+                }
+                cb_tuned_model = replay_model
     else:
         cb_tuned_model, cb_tuned_metrics = train_catboost_default(
             X_train_fit_cb,
@@ -436,6 +779,32 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         cb_tuned_metrics["hpo_trials_executed"] = 0
         cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
         cb_tuned_metrics["best_params"] = config["model"].get("params", {})
+        seed_replay_report["reason"] = "hpo_disabled"
+
+    walk_forward_report: dict[str, Any]
+    if bool(walk_cfg.get("enabled", True)):
+        walk_forward_report = _evaluate_walk_forward_auc(
+            train,
+            features=catboost_features,
+            categorical_features=categorical_features,
+            target=TARGET,
+            params=dict(cb_tuned_metrics.get("best_params", config["model"].get("params", {}))),
+            n_windows=int(walk_cfg.get("n_windows", 3)),
+            min_train_rows=int(walk_cfg.get("min_train_rows", 200_000)),
+            window_rows=int(walk_cfg.get("window_rows", 80_000)),
+            date_col=str(walk_cfg.get("date_col", "issue_d")),
+            max_rows=(
+                None if int(walk_cfg.get("max_rows", 0)) <= 0 else int(walk_cfg.get("max_rows", 0))
+            ),
+        )
+    else:
+        walk_forward_report = {
+            "enabled": False,
+            "reason": "disabled_in_config",
+            "n_windows_requested": int(walk_cfg.get("n_windows", 0)),
+            "n_windows_used": 0,
+            "folds": [],
+        }
 
     # Raw probabilities
     y_prob_default_test = cb_default_model.predict_proba(X_test_cb)[:, 1]
@@ -579,6 +948,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         "optuna_best_params": cb_tuned_metrics.get("best_params", {}),
         "hpo_trials_executed": int(cb_tuned_metrics.get("hpo_trials_executed", 0)),
         "hpo_best_validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+        "walk_forward_report": walk_forward_report,
+        "seed_replay_report": seed_replay_report,
         "baseline_metrics": lr_metrics,
         "catboost_default_metrics": cb_default_metrics,
         "catboost_tuned_metrics": cb_tuned_metrics,

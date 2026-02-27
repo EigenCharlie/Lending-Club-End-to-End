@@ -58,6 +58,24 @@ class TestConformalConfig:
         assert 0.5 < level < 1.0, f"confidence_level={level} outside valid range (0.5, 1.0)"
 
 
+class TestPDValidationConfig:
+    def test_walk_forward_block_valid(self, pd_config: dict) -> None:
+        val = pd_config.get("validation", {})
+        walk = val.get("walk_forward", {})
+        assert isinstance(walk, dict) and walk, "validation.walk_forward must be configured"
+        assert int(walk.get("n_windows", 0)) >= 1
+        assert int(walk.get("min_train_rows", 0)) >= 10_000
+        assert int(walk.get("window_rows", 0)) >= 1_000
+
+    def test_seed_replay_block_valid(self, pd_config: dict) -> None:
+        val = pd_config.get("validation", {})
+        replay = val.get("seed_replay", {})
+        assert isinstance(replay, dict) and replay, "validation.seed_replay must be configured"
+        assert int(replay.get("top_k_trials", 0)) >= 1
+        seeds = replay.get("seeds", [])
+        assert isinstance(seeds, list) and len(seeds) >= 1, "seed_replay.seeds must be non-empty"
+
+
 class TestModelContract:
     @pytest.mark.skipif(not CONTRACT_PATH.exists(), reason="No model contract found")
     def test_paths_are_posix(self) -> None:
