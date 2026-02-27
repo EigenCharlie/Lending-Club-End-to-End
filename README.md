@@ -5,7 +5,7 @@ Credit risk thesis platform that integrates machine learning, conformal uncertai
 [![CI](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml/badge.svg)](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml)
 [![Live Streamlit](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
 [![DagsHub](https://img.shields.io/badge/DagsHub-MLOps-00A86B)](https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End)
-![Python](https://img.shields.io/badge/Python-3.11-blue)
+![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
 ## Live Demo
@@ -21,7 +21,7 @@ This repository is built as a reproducible, research-to-production-style workflo
 Core methodological chain:
 
 ```text
-CatBoost PD -> Platt Calibration -> Mondrian Conformal Intervals
+CatBoost PD -> Isotonic Calibration -> Mondrian Conformal Intervals
 -> Causal Policy Simulation -> IFRS9 Scenario Sensitivity
 -> Robust Portfolio Optimization
 ```

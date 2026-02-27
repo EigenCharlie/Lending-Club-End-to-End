@@ -211,7 +211,7 @@ Eso deja tres vacíos:
             },
         ]
     )
-    st.dataframe(literature, use_container_width=True, hide_index=True)
+    st.dataframe(literature, width="stretch", hide_index=True)
 
 with tab2:
     st.markdown("### Contrato del pipeline y artefactos")
@@ -254,7 +254,7 @@ with tab2:
             },
         ]
     )
-    st.dataframe(flow, use_container_width=True, hide_index=True)
+    st.dataframe(flow, width="stretch", hide_index=True)
 
     st.markdown(
         """
@@ -300,7 +300,7 @@ digraph Pipeline {
     gov -> app;
 }
 """,
-        use_container_width=True,
+        width="stretch",
     )
     st.caption(
         "Propósito: mostrar acoplamiento de módulos. Insight: la calidad de decisión depende de la calidad del score, "
@@ -352,7 +352,7 @@ with tab3:
             },
         ]
     )
-    st.dataframe(interpretation, use_container_width=True, hide_index=True)
+    st.dataframe(interpretation, width="stretch", hide_index=True)
 
     compare = pd.DataFrame(
         [
@@ -376,7 +376,7 @@ with tab3:
         labels={"modo": "", "retorno": "USD"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: contrastar magnitudes de retorno y provisión en una misma vista. Insight: optimizar cartera sin "
         "leer simultáneamente el costo IFRS9 puede generar decisiones parciales."
@@ -393,7 +393,7 @@ with tab3:
                 "price_of_robustness_pct",
             ]
         ],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     if audience == "General":
@@ -577,6 +577,8 @@ st.code(
             "uv run python scripts/export_streamlit_artifacts.py",
             "uv run python scripts/export_storytelling_snapshot.py",
             "uv run python scripts/extract_notebook_images.py",
+            "uv venv .venv-feast && uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt",
+            "cd feature_repo && ../.venv-feast/bin/feast apply && cd ..",
             "uv run streamlit run streamlit_app/app.py",
         ]
     ),

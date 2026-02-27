@@ -19,6 +19,8 @@ def test_classification_metrics_keys():
     y_prob = rng.random(100)
     result = classification_metrics(y_true, y_prob)
     expected_keys = {"auc_roc", "gini", "brier_score", "ece", "ks_statistic"}
+    if "d2_brier_score" in result:
+        expected_keys.add("d2_brier_score")
     assert expected_keys == set(result.keys())
 
 
@@ -40,6 +42,8 @@ def test_classification_metrics_bounded():
     assert 0 <= result["brier_score"] <= 1
     assert 0 <= result["ece"] <= 1
     assert 0 <= result["ks_statistic"] <= 1
+    if "d2_brier_score" in result:
+        assert np.isfinite(result["d2_brier_score"])
 
 
 # ── ks_statistic ──

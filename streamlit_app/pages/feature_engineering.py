@@ -101,7 +101,7 @@ pipeline_data = pd.DataFrame(
         },
     ]
 )
-st.dataframe(pipeline_data, use_container_width=True, hide_index=True)
+st.dataframe(pipeline_data, width="stretch", hide_index=True)
 
 st.info(
     "**Punto crítico — Data Leakage**: Se removieron 15 variables que solo existen después de que "
@@ -212,7 +212,7 @@ features_created = pd.DataFrame(
         },
     ]
 )
-st.dataframe(features_created, use_container_width=True, hide_index=True)
+st.dataframe(features_created, width="stretch", hide_index=True)
 
 # ── 3. IV Ranking ──
 st.subheader("3) Ranking por Information Value (IV)")
@@ -259,7 +259,7 @@ if iv_scores:
     fig.update_layout(
         **PLOTLY_TEMPLATE["layout"], height=max(350, n_top * 28), coloraxis_showscale=False
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Líneas verticales: umbrales de IV. <0.02=débil (no predictiva), 0.02-0.1=útil, "
         "0.1-0.3=fuerte, >0.3=muy fuerte. Las features WOE dominan el ranking."
@@ -383,7 +383,7 @@ eliminated = pd.DataFrame(
         },
     ]
 )
-st.dataframe(eliminated, use_container_width=True, hide_index=True)
+st.dataframe(eliminated, width="stretch", hide_index=True)
 
 st.warning(
     "**Resultado neto: 142 columnas originales → 110 tras limpieza → 60 features finales** "
@@ -401,7 +401,7 @@ with col_img1:
         st.image(
             str(img),
             caption="WOE binning: transformación monotónica supervisada.",
-            use_container_width=True,
+            width="stretch",
         )
 with col_img2:
     img = get_notebook_image_path("02_feature_engineering", "cell_018_out_00.png")
@@ -409,7 +409,7 @@ with col_img2:
         st.image(
             str(img),
             caption="IV ranking: selección de features por poder predictivo.",
-            use_container_width=True,
+            width="stretch",
         )
 
 # ── Closing ──

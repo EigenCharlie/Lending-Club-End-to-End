@@ -125,3 +125,72 @@ def test_fairness_report_passed_flags():
     groups_dict = {"perfect": np.array(["A", "A", "B", "B"])}
     result = fairness_report(y_true, y_proba, groups_dict)
     assert result["passed_all"].iloc[0] is True or result["passed_all"].iloc[0] == True  # noqa: E712
+
+
+# ── Conformal Fairness Report ──
+
+
+def test_conformal_fairness_equal_coverage():
+    """Equal coverage across groups → should pass."""
+    from src.evaluation.fairness import conformal_fairness_report
+
+    y_true = np.array([0.3, 0.7, 0.4, 0.8])
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    groups_dict = {"attr": np.array(["A", "A", "B", "B"])}
+    result = conformal_fairness_report(y_true, y_intervals, groups_dict)
+    assert len(result) == 1
+    assert result["coverage_disparity"].iloc[0] == pytest.approx(0.0)
+    assert result["passed_coverage"].iloc[0] is True or result["passed_coverage"].iloc[0] == True  # noqa: E712
+
+
+def test_conformal_fairness_disparate_coverage():
+    """One group fully covered, other not → large disparity."""
+    from src.evaluation.fairness import conformal_fairness_report
+
+    y_true = np.array([0.5, 0.5, 0.5, 0.5])
+    # Group A: covered (interval contains 0.5)
+    # Group B: not covered (interval does not contain 0.5)
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.6, 0.9], [0.6, 0.9]])
+    groups_dict = {"attr": np.array(["A", "A", "B", "B"])}
+    result = conformal_fairness_report(y_true, y_intervals, groups_dict)
+    assert result["coverage_disparity"].iloc[0] == pytest.approx(1.0)
+    assert result["passed_coverage"].iloc[0] is False or result["passed_coverage"].iloc[0] == False  # noqa: E712
+
+
+def test_conformal_fairness_returns_all_keys():
+    """Check output has required columns."""
+    from src.evaluation.fairness import conformal_fairness_report
+
+    y_true = np.array([0.5, 0.5, 0.5, 0.5])
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    groups_dict = {"attr": np.array(["X", "X", "Y", "Y"])}
+    result = conformal_fairness_report(y_true, y_intervals, groups_dict)
+    expected_cols = {
+        "attribute",
+        "n_groups",
+        "min_coverage",
+        "max_coverage",
+        "coverage_disparity",
+        "min_avg_width",
+        "max_avg_width",
+        "width_ratio",
+        "passed_coverage",
+        "passed_width",
+        "passed_all",
+        "group_details",
+    }
+    assert expected_cols.issubset(set(result.columns))
+
+
+def test_conformal_fairness_multi_attribute():
+    """Two attributes should produce two rows."""
+    from src.evaluation.fairness import conformal_fairness_report
+
+    y_true = np.array([0.3, 0.7, 0.4, 0.8])
+    y_intervals = np.array([[0.0, 1.0], [0.0, 1.0], [0.0, 1.0], [0.0, 1.0]])
+    groups_dict = {
+        "attr_a": np.array(["A", "A", "B", "B"]),
+        "attr_b": np.array(["X", "Y", "X", "Y"]),
+    }
+    result = conformal_fairness_report(y_true, y_intervals, groups_dict)
+    assert len(result) == 2

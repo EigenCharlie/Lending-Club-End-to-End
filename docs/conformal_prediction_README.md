@@ -16,7 +16,7 @@
   - Métricas y estado (`overall_pass`, `checks_passed`, coberturas) cambian por corrida.
   - Evitar hardcodear conteos o ratios de checks en documentación estática.
 
-> Nota: este documento incluye secciones de investigación y objetivos exploratorios de febrero 2026.  
+> Nota: este documento incluye secciones de investigación y objetivos exploratorios de febrero 2026.
 > Para resultados “oficiales” del proyecto, priorizar siempre los artefactos canónicos listados arriba.
 
 ---
@@ -66,8 +66,8 @@ This directory contains comprehensive research and implementation guidance for c
 
 **Read this** to justify MAPIE choice in thesis.
 
-### 4. [notebook_04_implementation_plan.md](notebook_04_implementation_plan.md)
-**Complete notebook implementation**:
+### 4. Implementation plan (merged into docs 1 and 2)
+**Complete notebook implementation guidance** (covered across `conformal_prediction_research_2026.md` and `conformal_prediction_quick_reference.md`):
 - 17-cell structure with full code
 - Section-by-section implementation
 - Expected outputs and metrics
@@ -76,7 +76,7 @@ This directory contains comprehensive research and implementation guidance for c
 - Troubleshooting guide
 - Thesis contribution narrative
 
-**Copy-paste from this** to build Notebook 04.
+**Use docs 1 + 2** to build Notebook 04.
 
 ---
 
@@ -122,7 +122,7 @@ notebooks/04_conformal_prediction.ipynb
 
 ### Step 4: Save Outputs
 
-**File created (canónico):** `data/processed/conformal_intervals_mondrian.parquet`  
+**File created (canónico):** `data/processed/conformal_intervals_mondrian.parquet`
 **Legacy compatibility copy:** `data/processed/conformal_intervals.parquet`
 
 **Columns:**
@@ -247,7 +247,7 @@ class ProbabilityRegressor(BaseEstimator, RegressorMixin):
 
 ### With Notebook 03 (PD Modeling)
 
-**Input:** `models/catboost_pd_calibrated.pkl`
+**Input:** `models/pd_canonical.cbm` (+ `models/pd_canonical_calibrator.pkl` for calibrated/Mondrian pipeline flows)
 **Requirement:** Model must be Isotonic calibrated (ECE < 0.02)
 
 ### With Notebook 08 (Portfolio Optimization)

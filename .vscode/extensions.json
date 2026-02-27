@@ -1,0 +1,22 @@
+{
+  "recommendations": [
+    "ms-python.python",
+    "ms-python.vscode-pylance",
+    "ms-toolsai.jupyter",
+    "charliermarsh.ruff",
+    "redhat.vscode-yaml",
+    "tamasfe.even-better-toml",
+    "DavidAnson.vscode-markdownlint",
+    "yzhang.markdown-all-in-one",
+    "lakefs.lakefs-dvc",
+    "innoverio.vscode-dbt-power-user",
+    "samuelcolvin.jinjahtml",
+    "mtxr.sqltools",
+    "mtxr.sqltools-driver-sqlite",
+    "evidence.sqltools-duckdb-driver",
+    "GitHub.vscode-github-actions",
+    "ms-azuretools.vscode-docker",
+    "mechatroner.rainbow-csv",
+    "streetsidesoftware.code-spell-checker"
+  ]
+}

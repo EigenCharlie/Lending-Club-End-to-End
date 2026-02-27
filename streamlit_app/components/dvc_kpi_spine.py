@@ -187,7 +187,7 @@ def render_conformal_health_panel() -> None:
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
     fig.update_yaxes(tickformat=".0%")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     methodology_dialog(
         "Cómo leer el panel conformal",
@@ -230,7 +230,7 @@ def render_robustness_frontier_panel() -> None:
         },
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=380)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     methodology_dialog(
         "Interpretación de la frontera robusta",
         """

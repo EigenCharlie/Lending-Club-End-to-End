@@ -359,7 +359,7 @@ comparison_data = pd.DataFrame(
         },
     ]
 )
-st.dataframe(comparison_data, use_container_width=True, hide_index=True)
+st.dataframe(comparison_data, width="stretch", hide_index=True)
 
 st.success(
     "**Ventaja clave**: Conformal Prediction es el único método que ofrece garantías de cobertura "
@@ -511,7 +511,7 @@ if not robust.empty and tol_col in robust.columns:
         yaxis_title="Retorno esperado ($)",
         height=420,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "La brecha entre las curvas es el **precio de robustez**: lo que cuesta protegerse "
         "contra el peor caso plausible. Una brecha pequeña indica que la protección es barata."
@@ -567,7 +567,7 @@ uv run streamlit run streamlit_app/app.py
 
 st.markdown(
     f"""
-**Stack tecnológico**: Python 3.11 · CatBoost · MAPIE 1.3 · Pyomo + HiGHS · DuckDB · dbt · Feast · Streamlit
+**Stack tecnológico**: Python 3.12 · CatBoost · MAPIE 1.3 · Pyomo + HiGHS · DuckDB · dbt · Feast · Streamlit
 
 **{test_suite_label} tests** validan datos, features, modelos, conformal, IFRS9, optimización, MLflow, Streamlit e integración end-to-end.
 """

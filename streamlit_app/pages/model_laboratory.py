@@ -1,7 +1,11 @@
 """Laboratorio de modelos PD: desempeño, calibración e interpretabilidad."""
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
+import importlib.metadata as importlib_metadata
+import re
 import sys
 from pathlib import Path
 
@@ -10,6 +14,7 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 
+import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -31,9 +36,169 @@ from streamlit_app.components.story_shell import (
     render_page_feedback,
     render_page_header,
 )
+from streamlit_app.components.v2_echarts import render_v2_echarts
+from streamlit_app.components.v2_pill_nav import render_v2_pill_nav
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
+
+
+@st.cache_data(ttl=600, max_entries=1)
+def load_logreg_baseline_coefficients() -> pd.DataFrame:
+    """Load baseline logistic coefficients and convert them to odds ratios.
+
+    The stored baseline model is a sklearn Pipeline(StandardScaler + LogisticRegression),
+    so coefficients map to a +1 standard deviation change in each feature.
+    """
+    model_path = _REPO_ROOT / "models" / "pd_logreg_baseline.pkl"
+    if not model_path.exists():
+        return pd.DataFrame()
+    try:
+        import joblib
+
+        pipe = joblib.load(model_path)
+        scaler = pipe.named_steps.get("scaler")
+        clf = pipe.named_steps.get("clf")
+        feature_names = getattr(scaler, "feature_names_in_", None)
+        coefs = getattr(clf, "coef_", None)
+        if feature_names is None or coefs is None:
+            return pd.DataFrame()
+        coef_values = np.asarray(coefs).ravel()
+        if len(feature_names) != len(coef_values):
+            return pd.DataFrame()
+        df = pd.DataFrame(
+            {
+                "feature": [str(f) for f in feature_names],
+                "coef_log_odds": coef_values.astype(float),
+                "odds_ratio_plus_1sd": np.exp(coef_values.astype(float)),
+            }
+        )
+        df["abs_coef"] = df["coef_log_odds"].abs()
+        df["direction"] = np.where(df["coef_log_odds"] >= 0, "↑ default odds", "↓ default odds")
+        return df.sort_values("abs_coef", ascending=False).reset_index(drop=True)
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=600, max_entries=1)
+def read_pd_model_has_time_flag() -> bool | None:
+    """Read `has_time` from `configs/pd_model.yaml` without requiring PyYAML in Streamlit Cloud."""
+    cfg_path = _REPO_ROOT / "configs" / "pd_model.yaml"
+    if not cfg_path.exists():
+        return None
+    try:
+        text = cfg_path.read_text(encoding="utf-8")
+    except Exception:
+        return None
+    match = re.search(r"(?m)^[ \t]*has_time:[ \t]*(true|false)\b", text)
+    if not match:
+        return None
+    return match.group(1).lower() == "true"
+
+
+@st.cache_data(ttl=600, max_entries=1)
+def load_package_versions_for_model_lab() -> pd.DataFrame:
+    """Versions relevant to modeling and explainability in this page."""
+    packages = [
+        "catboost",
+        "scikit-learn",
+        "shap",
+        "scikit-survival",
+        "pyarrow",
+        "mlflow",
+        "cvxpy",
+        "dowhy",
+        "econml",
+    ]
+    rows = []
+    for pkg in packages:
+        try:
+            version = importlib_metadata.version(pkg)
+        except importlib_metadata.PackageNotFoundError:
+            version = "not installed (main env)"
+        rows.append({"package": pkg, "version": version})
+    return pd.DataFrame(rows)
+
+
+def prob_to_odds(prob: float) -> float:
+    """Convert probability to odds with clipping near the boundaries."""
+    p = min(max(float(prob), 1e-9), 1 - 1e-9)
+    return p / (1 - p)
+
+
+def _echarts_model_auc_option(
+    models_df: pd.DataFrame,
+    *,
+    best_model: str,
+    selected_model: str | None = None,
+) -> dict:
+    """Build a compact ECharts option for clickable model comparison (AUC focus)."""
+    if models_df.empty or "model" not in models_df.columns or "auc" not in models_df.columns:
+        return {}
+
+    df = models_df.copy()
+    df = df.dropna(subset=["model", "auc"]).copy()
+    if df.empty:
+        return {}
+
+    if "brier" not in df.columns:
+        df["brier"] = np.nan
+    if "gini" not in df.columns:
+        df["gini"] = np.nan
+
+    df["model"] = df["model"].astype(str)
+    df = df.sort_values("auc", ascending=True)
+    categories = df["model"].tolist()
+    series_data = []
+    for _, row in df.iterrows():
+        model_name = str(row["model"])
+        auc_val = float(row["auc"])
+        is_best = model_name == str(best_model)
+        is_selected = selected_model is not None and model_name == selected_model
+        color = "#0B5ED7" if is_best else "#6C757D"
+        if is_selected:
+            color = "#00A389"
+        series_data.append(
+            {
+                "value": round(auc_val, 4),
+                "model_name": model_name,
+                "auc": round(auc_val, 4),
+                "brier": None if pd.isna(row["brier"]) else round(float(row["brier"]), 4),
+                "gini": None if pd.isna(row["gini"]) else round(float(row["gini"]), 4),
+                "is_best": is_best,
+                "itemStyle": {"color": color},
+            }
+        )
+
+    min_auc = max(0.0, float(df["auc"].min()) - 0.03)
+    max_auc = min(1.0, float(df["auc"].max()) + 0.01)
+    return {
+        "animationDuration": 350,
+        "grid": {"left": 180, "right": 18, "top": 34, "bottom": 24},
+        "tooltip": {
+            "trigger": "item",
+            "formatter": "{b}<br/>AUC: {c}",
+        },
+        "xAxis": {
+            "type": "value",
+            "min": round(min_auc, 3),
+            "max": round(max_auc, 3),
+            "name": "AUC",
+            "nameLocation": "middle",
+            "nameGap": 24,
+        },
+        "yAxis": {"type": "category", "data": categories, "axisLabel": {"fontSize": 11}},
+        "series": [
+            {
+                "name": "AUC",
+                "type": "bar",
+                "data": series_data,
+                "label": {"show": True, "position": "right", "formatter": "{c}"},
+                "emphasis": {"focus": "self"},
+            }
+        ],
+    }
+
 
 st.title("🔬 Laboratorio de Modelos")
 st.caption("Comparación de modelos PD, calibración y explicabilidad (SHAP).")
@@ -52,6 +217,7 @@ desalinear pricing, límites y provisiones aunque el AUC sea alto.
 """
 )
 audience = audience_selector()
+st.caption(f"Vista de explicación activa: **{audience}**")
 
 storytelling_intro(
     page_goal="Determinar qué arquitectura de PD usar y por qué, no solo quién gana un benchmark.",
@@ -80,6 +246,87 @@ methodology_dialog(
 """,
     button_label="Ver guía rápida de métricas",
 )
+
+focus_section = str(st.session_state.get("model_lab_focus", "comparison"))
+focus_clicked = render_v2_pill_nav(
+    [
+        {
+            "id": "comparison",
+            "label": "Comparativo",
+            "description": "Arquitecturas y decisión de campeón",
+        },
+        {
+            "id": "lr_odds",
+            "label": "LR Odds",
+            "description": "Cómo leer log-odds y odds ratios",
+        },
+        {
+            "id": "catboost_params",
+            "label": "CatBoost Avanzado",
+            "description": "Hiperparámetros útiles y qué aplica aquí",
+        },
+        {
+            "id": "calibration",
+            "label": "Calibración",
+            "description": "Selección de método y métricas",
+        },
+        {
+            "id": "shap",
+            "label": "SHAP",
+            "description": "Interpretabilidad global/local",
+        },
+        {
+            "id": "upgrades",
+            "label": "Upgrades",
+            "description": "Mejoras habilitadas por upgrades recientes",
+        },
+    ],
+    key="model_lab_v2_nav",
+    selected=focus_section,
+    helper_text=(
+        "Navegación rápida (pilot con Components v2): usa callbacks sin iframe para "
+        "enfocar secciones largas."
+    ),
+)
+if focus_clicked:
+    if focus_clicked != focus_section:
+        st.session_state["model_lab_focus"] = focus_clicked
+        st.rerun()
+    focus_section = focus_clicked
+
+focus_labels = {
+    "comparison": "Comparativo de arquitecturas y decisión del campeón",
+    "lr_odds": "Regresión logística: log-odds, odds y odds ratios",
+    "catboost_params": "CatBoost avanzado: hiperparámetros aplicables al proyecto",
+    "calibration": "Calibración probabilística y selección de método",
+    "shap": "Interpretabilidad con SHAP (global y local)",
+    "upgrades": "Mejoras habilitadas por upgrades recientes",
+}
+st.info(f"Sección enfocada: **{focus_labels.get(focus_section, focus_section)}**")
+
+scope_default = str(st.session_state.get("model_lab_scope_mode", "Mostrar todo"))
+if scope_default not in {"Mostrar todo", "Solo sección enfocada"}:
+    scope_default = "Mostrar todo"
+    st.session_state["model_lab_scope_mode"] = scope_default
+scope_mode = st.segmented_control(
+    "Vista de contenido",
+    options=["Mostrar todo", "Solo sección enfocada"],
+    selection_mode="single",
+    default=scope_default,
+    key="model_lab_scope_mode",
+    help="Reduce scroll en páginas largas cuando usas la navegación rápida.",
+    width="content",
+)
+if isinstance(scope_mode, list):
+    scope_mode = scope_mode[0] if scope_mode else scope_default
+scope_mode = str(scope_mode or scope_default)
+focus_only_mode = scope_mode == "Solo sección enfocada"
+if focus_only_mode:
+    st.caption("Modo foco activo: se muestran solo los bloques relacionados con la sección seleccionada.")
+
+
+def _show_sections(*section_ids: str) -> bool:
+    return (not focus_only_mode) or (focus_section in set(section_ids))
 
 narrative_block(
     audience,
@@ -131,41 +378,98 @@ final = comparison.get("final_test_metrics", {})
 cal_report = comparison.get("calibration_selection_report", {})
 hpo_trials = int(comparison.get("hpo_trials_executed", comparison.get("optuna_n_trials", 0)))
 feature_count_tuned = int(comparison.get("feature_count_tuned", 0))
+test_predictions = try_load_parquet("test_predictions")
+pd_model_has_time = read_pd_model_has_time_flag()
 
-st.subheader("Comparativo de arquitecturas")
-if not models.empty:
-    models_view = models.copy()
-    models_view["es_mejor"] = models_view["model"].eq(comparison.get("best_model", ""))
-    st.dataframe(models_view, use_container_width=True, hide_index=True)
+if _show_sections("comparison"):
+    st.subheader("Comparativo de arquitecturas")
+    if not models.empty:
+        models_view = models.copy()
+        models_view["es_mejor"] = models_view["model"].eq(comparison.get("best_model", ""))
+        st.dataframe(models_view, width="stretch", hide_index=True)
 
-with st.expander("¿Qué es CatBoost y por qué se usa en credit scoring?", expanded=False):
-    narrative_block(
-        audience,
-        general="CatBoost es un algoritmo de inteligencia artificial que aprende patrones de datos "
-        "para predecir quién va a incumplir un préstamo. Es como un equipo de analistas que "
-        "revisan miles de variables simultáneamente y encuentran las combinaciones más predictivas.",
-        business="CatBoost es un algoritmo de gradient boosting desarrollado por Yandex, dominante en "
-        "competencias de datos tabulares (Kaggle). Es el estándar en credit scoring moderno junto "
-        "con XGBoost y LightGBM, adoptado por JPMorgan, Capital One, Nubank, Mercado Libre.",
-        technical="CatBoost implementa ordered boosting con manejo nativo de categorías (evita target "
-        "leakage en encoding), tratamiento nativo de NaN, y regularización oblivious trees. "
-        f"Tuneado con Optuna ({hpo_trials} trials ejecutados) optimizando AUC en validación temporal.",
-    )
-    st.markdown(
-        """
+        compare_focus_model = st.session_state.get("model_lab_compare_focus_model")
+        if not isinstance(compare_focus_model, str) or compare_focus_model not in models_view["model"].astype(str).tolist():
+            compare_focus_model = str(comparison.get("best_model", models_view.iloc[-1]["model"]))
+
+        st.caption(
+            "ECharts 5 (Components v2): clic en una barra para cambiar el detalle del modelo "
+            "seleccionado y comparar AUC/Brier de forma guiada."
+        )
+        compare_clicked = render_v2_echarts(
+            _echarts_model_auc_option(
+                models_view,
+                best_model=str(comparison.get("best_model", "")),
+                selected_model=compare_focus_model,
+            ),
+            key="model_lab_compare_auc_echarts",
+            height_px=max(260, len(models_view) * 52),
+        )
+        if isinstance(compare_clicked, dict):
+            payload = compare_clicked.get("data")
+            if isinstance(payload, dict):
+                clicked_model = payload.get("model_name")
+                if isinstance(clicked_model, str) and clicked_model and clicked_model != compare_focus_model:
+                    st.session_state["model_lab_compare_focus_model"] = clicked_model
+                    st.rerun()
+
+        selected_row_df = models_view[models_view["model"].astype(str) == str(compare_focus_model)]
+        if not selected_row_df.empty:
+            selected_row = selected_row_df.iloc[0]
+            c_auc, c_brier, c_gini = st.columns(3)
+            c_auc.metric("AUC (modelo seleccionado)", f"{float(selected_row.get('auc', 0.0)):.4f}")
+            c_brier.metric("Brier", f"{float(selected_row.get('brier', 0.0)):.4f}")
+            c_gini.metric("Gini", f"{float(selected_row.get('gini', 0.0)):.4f}")
+            is_best_model = bool(selected_row.get("es_mejor", False))
+            st.caption(
+                f"Modelo seleccionado: `{compare_focus_model}`"
+                + (" (campeón actual)" if is_best_model else "")
+            )
+            if "CatBoost" in str(compare_focus_model):
+                st.markdown(
+                    "Lectura: CatBoost mejora discriminación (AUC/Gini) y el modelo calibrado además "
+                    "mejora fuertemente el Brier, que es la señal clave para uso operativo de PD."
+                )
+            else:
+                st.markdown(
+                    "Lectura: Logistic Regression sigue siendo el baseline regulatorio por interpretabilidad y trazabilidad, "
+                    "aunque su techo de AUC/Brier es menor en este dataset."
+                )
+
+    with st.expander(
+        "¿Qué es CatBoost y por qué se usa en credit scoring?",
+        expanded=focus_section in {"comparison", "catboost_intro"},
+    ):
+        narrative_block(
+            audience,
+            general="CatBoost es un algoritmo de inteligencia artificial que aprende patrones de datos "
+            "para predecir quién va a incumplir un préstamo. Es como un equipo de analistas que "
+            "revisan miles de variables simultáneamente y encuentran las combinaciones más predictivas.",
+            business="CatBoost es un algoritmo de gradient boosting desarrollado por Yandex, dominante en "
+            "competencias de datos tabulares (Kaggle). Es el estándar en credit scoring moderno junto "
+            "con XGBoost y LightGBM, adoptado por JPMorgan, Capital One, Nubank, Mercado Libre.",
+            technical="CatBoost implementa ordered boosting con manejo nativo de categorías (evita target "
+            "leakage en encoding), tratamiento nativo de NaN, y regularización oblivious trees. "
+            f"Tuneado con Optuna ({hpo_trials} trials ejecutados) optimizando AUC en validación temporal.",
+        )
+        st.markdown(
+            """
 **¿Por qué CatBoost en este proyecto?**
 - Maneja variables tabulares heterogéneas y valores faltantes nativamente (sin imputation)
 - Captura no linealidades e interacciones frecuentes en riesgo de crédito
 - Logra mejor balance entre discriminación (AUC/KS) y estabilidad que el baseline lineal
 - Encoding nativo de categorías evita target leakage que afecta a otros frameworks
 """
-    )
-    if feature_count_tuned > 0:
-        st.caption(f"Contrato actual del modelo final: {feature_count_tuned} features.")
+        )
+        if feature_count_tuned > 0:
+            st.caption(f"Contrato actual del modelo final: {feature_count_tuned} features.")
 
-with st.expander("Discusión técnica: Logistic Regression vs CatBoost", expanded=False):
-    st.markdown(
-        """
+    with st.expander(
+        "Discusión técnica: Logistic Regression vs CatBoost",
+        expanded=focus_section in {"comparison", "lr_vs_catboost"},
+    ):
+        st.markdown(
+            """
 **Por qué Logistic Regression sigue siendo baseline de referencia en riesgo de crédito**
 - Alta trazabilidad regulatoria: su estructura lineal sobre log-odds permite auditoría directa de signos y magnitudes.
 - Interpretabilidad operativa: facilita scorecards, documentación metodológica y explicaciones a comités de riesgo.
@@ -189,238 +493,449 @@ with st.expander("Discusión técnica: Logistic Regression vs CatBoost", expande
 - `Logistic Regression` permanece como baseline regulatorio y benchmark interpretable.
 - `CatBoost tuneado + calibrado` se elige como modelo final cuando entrega mejor trade-off entre AUC/KS y calidad probabilística (Brier/ECE) sin romper trazabilidad.
 """
+        )
+
+if _show_sections("lr_odds"):
+    with st.expander(
+        "Cómo leer la Regresión Logística (odds, log-odds y odds ratios)",
+        expanded=focus_section == "lr_odds",
+    ):
+        st.markdown(
+            """
+**Por qué sigue siendo tan usada en riesgo de crédito**
+- Convierte una combinación lineal de variables en una probabilidad interpretable.
+- Permite explicar dirección y magnitud del efecto (signo y coeficiente).
+- Es fácil de auditar, documentar y defender ante comités/regulador.
+- Funciona muy bien como benchmark/challenger estable, aunque no sea el campeón.
+"""
+        )
+        st.latex(r"\log\left(\frac{p}{1-p}\right)=\beta_0+\sum_j \beta_j x_j")
+        st.latex(r"\text{odds}=\frac{p}{1-p},\qquad p=\frac{\text{odds}}{1+\text{odds}}")
+
+        col_prob, col_compare = st.columns(2)
+        with col_prob:
+            p_demo = st.slider(
+                "PD de ejemplo para convertir a odds",
+                min_value=0.01,
+                max_value=0.99,
+                value=0.20,
+                step=0.01,
+            )
+            odds_demo = prob_to_odds(p_demo)
+            st.metric("Odds (p/(1-p))", f"{odds_demo:.3f}")
+            st.metric("Log-odds", f"{np.log(odds_demo):.3f}")
+        with col_compare:
+            p_a = st.slider("PD A", min_value=0.01, max_value=0.99, value=0.10, step=0.01, key="lr_pd_a")
+            p_b = st.slider("PD B", min_value=0.01, max_value=0.99, value=0.20, step=0.01, key="lr_pd_b")
+            odds_a = prob_to_odds(p_a)
+            odds_b = prob_to_odds(p_b)
+            st.metric("Odds ratio (B/A)", f"{(odds_b / odds_a):.2f}x")
+            st.caption(
+                "Ejemplo: pasar de 10% a 20% PD no duplica la probabilidad en términos lineales, "
+                "pero sí multiplica las odds ~2.25x."
+            )
+
+        if not test_predictions.empty and {"pd_logreg", "pd_calibrated"}.issubset(test_predictions.columns):
+            q = (
+                test_predictions[["pd_logreg", "pd_calibrated"]]
+                .quantile([0.1, 0.5, 0.9])
+                .rename(index={0.1: "P10", 0.5: "P50", 0.9: "P90"})
+                .reset_index()
+                .rename(columns={"index": "percentil"})
+            )
+            for col in ["pd_logreg", "pd_calibrated"]:
+                q[f"{col}_odds"] = q[col].map(prob_to_odds)
+            st.dataframe(
+                q.rename(
+                    columns={
+                        "pd_logreg": "PD LR",
+                        "pd_calibrated": "PD final calibrada",
+                        "pd_logreg_odds": "Odds LR",
+                        "pd_calibrated_odds": "Odds final",
+                    }
+                ),
+                width="stretch",
+                hide_index=True,
+            )
+            st.caption(
+                "Tabla calculada sobre `data/processed/test_predictions.parquet` para aterrizar la lectura de odds en el snapshot OOT."
+            )
+
+        lr_coef = load_logreg_baseline_coefficients()
+        if lr_coef.empty:
+            st.info("No se pudo cargar `models/pd_logreg_baseline.pkl` para mostrar coeficientes del baseline.")
+        else:
+            top_k = st.slider("Top coeficientes LR a mostrar", min_value=5, max_value=15, value=8, step=1)
+            col_pos, col_neg = st.columns(2)
+            with col_pos:
+                st.markdown("**Variables que aumentan las odds de default (baseline LR)**")
+                pos = (
+                    lr_coef[lr_coef["coef_log_odds"] > 0]
+                    .sort_values("coef_log_odds", ascending=False)
+                    .head(top_k)[["feature", "coef_log_odds", "odds_ratio_plus_1sd"]]
+                )
+                st.dataframe(pos, width="stretch", hide_index=True)
+            with col_neg:
+                st.markdown("**Variables que reducen las odds de default (baseline LR)**")
+                neg = (
+                    lr_coef[lr_coef["coef_log_odds"] < 0]
+                    .sort_values("coef_log_odds", ascending=True)
+                    .head(top_k)[["feature", "coef_log_odds", "odds_ratio_plus_1sd"]]
+                )
+                st.dataframe(neg, width="stretch", hide_index=True)
+            st.caption(
+                "Estos coeficientes están sobre variables estandarizadas (pipeline con `StandardScaler`), "
+                "por lo que el odds ratio se interpreta como cambio por +1 desviación estándar."
+            )
+
+if _show_sections("catboost_params"):
+    with st.expander(
+        "CatBoost avanzado: hiperparámetros útiles (y qué sí aplica aquí)",
+        expanded=focus_section == "catboost_params",
+    ):
+        has_time_enabled = bool(pd_model_has_time) if pd_model_has_time is not None else False
+        catboost_rows = [
+            {
+                "parámetro": "has_time",
+                "qué resuelve": "Preserva el orden temporal y evita permutaciones que rompen estructura secuencial.",
+                "aplica en este proyecto": "Sí (split temporal/OOT).",
+                "estado": (
+                    f"ACTIVO en `configs/pd_model.yaml` (`has_time={str(has_time_enabled).lower()}`)"
+                    if pd_model_has_time is not None
+                    else "No se pudo leer el flag desde `configs/pd_model.yaml`"
+                ),
+            },
+            {
+                "parámetro": "fixed_binary_splits",
+                "qué resuelve": "Forzar splits binarios predefinidos en el árbol (caso especializado).",
+                "aplica en este proyecto": "Potencialmente para umbrales regulados, pero con cautela.",
+                "estado": "NO activo; requiere diseño y validación de fronteras versionadas.",
+            },
+            {
+                "parámetro": "feature_weights",
+                "qué resuelve": "Favorecer/desfavorecer variables en el score de splits (priors suaves).",
+                "aplica en este proyecto": "Sí, útil para priorizar señales estables vs ruidosas.",
+                "estado": "Candidato de experimento HPO guiado por MRM + SHAP.",
+            },
+            {
+                "parámetro": "first_feature_use_penalties",
+                "qué resuelve": "Penalizar la primera aparición de features costosas.",
+                "aplica en este proyecto": "Más útil si el scoring online tiene costos por consulta/API.",
+                "estado": "NO activo; pipeline actual es batch/offline.",
+            },
+            {
+                "parámetro": "per_object_feature_penalties",
+                "qué resuelve": "Penalización por fila/objeto (matriz de costos/availability heterogénea).",
+                "aplica en este proyecto": "Útil si una fuente está disponible solo en ciertos segmentos.",
+                "estado": "NO activo; requiere matriz operativa por observación.",
+            },
+        ]
+        st.dataframe(pd.DataFrame(catboost_rows), width="stretch", hide_index=True)
+        st.info(
+            "Las imágenes que compartiste son útiles como ideas de diseño, pero algunas simplifican la API: "
+            "`fixed_binary_splits` en la documentación de CatBoost no se usa como diccionario de thresholds por nombre "
+            "de feature y además es una opción orientada a GPU. Para umbrales regulatorios suele ser más robusto usar "
+            "binning/WOE o fronteras de cuantización gobernadas."
+        )
+        st.markdown(
+            """
+**Cómo sacar provecho aquí (sin inventar features)**
+- Mantener `has_time=True` (ya está activo) porque la validación es temporal.
+- Probar `feature_weights` en un challenger con hipótesis explícitas (ej. mayor peso a señales internas estables).
+- Validar con SHAP + backtesting temporal si el prior mejora estabilidad, no solo AUC.
+- Reservar `*_penalties` para un futuro score online con costos de adquisición por señal.
+"""
+        )
+
+if _show_sections("comparison", "calibration"):
+    # Calibration comparison
+    with st.expander(
+        "Comparación de métodos de calibración",
+        expanded=focus_section == "calibration",
+    ):
+        candidates = cal_report.get("candidates", []) if isinstance(cal_report, dict) else []
+        if candidates:
+            rows = []
+            auc_drop_limit = float(cal_report.get("auc_drop_limit", 0.0015))
+            for c in candidates:
+                rows.append(
+                    {
+                        "metodo": str(c.get("method", "")),
+                        "folds": int(c.get("folds_used", 0)),
+                        "mean_brier": float(c.get("mean_brier", 0.0)),
+                        "mean_ece": float(c.get("mean_ece", 0.0)),
+                        "mean_auc_drop": float(c.get("mean_auc_drop", 0.0)),
+                        "stability": float(c.get("stability", 0.0)),
+                        "cumple_auc_drop": float(c.get("mean_auc_drop", 9.0)) <= auc_drop_limit,
+                    }
+                )
+            cal_df = pd.DataFrame(rows).sort_values(
+                by=["mean_brier", "mean_ece", "stability"], ascending=[True, True, True]
+            )
+            st.dataframe(cal_df, width="stretch", hide_index=True)
+            selected = cal_report.get("selected_method", comparison.get("best_calibration", "N/D"))
+            reason = cal_report.get("selection_reason", "n/a")
+            st.caption(
+                f"Método seleccionado: `{selected}` | razón: `{reason}` | restricción AUC drop <= {auc_drop_limit:.4f}"
+            )
+        else:
+            st.info(
+                "No hay reporte detallado de selección de calibración en artefactos; "
+                "se muestra únicamente el método ganador."
+            )
+
+    kpi_row(
+        [
+            {"label": "Mejor modelo", "value": comparison.get("best_model", "N/D")},
+            {"label": "AUC final", "value": f"{final.get('auc_roc', 0):.4f}"},
+            {"label": "KS", "value": f"{final.get('ks_statistic', 0):.4f}"},
+            {"label": "Brier", "value": f"{final.get('brier_score', 0):.4f}"},
+            {"label": "ECE", "value": f"{final.get('ece', 0):.4f}"},
+            {"label": "Calibración", "value": comparison.get("best_calibration", "N/D")},
+        ],
+        n_cols=3,
     )
 
-# Calibration comparison
-with st.expander("Comparación de métodos de calibración", expanded=False):
-    candidates = cal_report.get("candidates", []) if isinstance(cal_report, dict) else []
-    if candidates:
-        rows = []
-        auc_drop_limit = float(cal_report.get("auc_drop_limit", 0.0015))
-        for c in candidates:
-            rows.append(
-                {
-                    "metodo": str(c.get("method", "")),
-                    "folds": int(c.get("folds_used", 0)),
-                    "mean_brier": float(c.get("mean_brier", 0.0)),
-                    "mean_ece": float(c.get("mean_ece", 0.0)),
-                    "mean_auc_drop": float(c.get("mean_auc_drop", 0.0)),
-                    "stability": float(c.get("stability", 0.0)),
-                    "cumple_auc_drop": float(c.get("mean_auc_drop", 9.0)) <= auc_drop_limit,
-                }
+    metricas_interpretacion = pd.DataFrame(
+        [
+            {
+                "Métrica": "AUC",
+                "Qué mide": "Capacidad de ordenar riesgo entre default y no default",
+                "Interpretación técnica": (
+                    f"{final.get('auc_roc', 0):.4f} implica discriminación sólida en OOT para "
+                    "datos tabulares reales."
+                ),
+                "Interpretación negocio": "Permite priorizar mejor qué solicitudes revisar/restringir.",
+            },
+            {
+                "Métrica": "KS",
+                "Qué mide": "Separación máxima entre distribuciones de score",
+                "Interpretación técnica": (
+                    f"{final.get('ks_statistic', 0):.4f} indica separación útil para estrategias por umbrales."
+                ),
+                "Interpretación negocio": "Facilita definir cutoffs de aprobación según apetito de riesgo.",
+            },
+            {
+                "Métrica": "Brier",
+                "Qué mide": "Error cuadrático de probabilidad",
+                "Interpretación técnica": "Valor bajo mejora consistencia probabilística del score.",
+                "Interpretación negocio": "Reduce sesgo en estimación de pérdidas esperadas.",
+            },
+            {
+                "Métrica": "ECE",
+                "Qué mide": "Error promedio de calibración",
+                "Interpretación técnica": (
+                    f"{final.get('ece', 0):.4f} sugiere muy buena calibración global."
+                ),
+                "Interpretación negocio": "Mayor confianza al usar PD en IFRS9 y pricing.",
+            },
+        ]
+    )
+    st.dataframe(metricas_interpretacion, width="stretch", hide_index=True)
+
+    st.subheader("Curvas ROC")
+    roc_df = load_parquet("roc_curve_data")
+    available_models = sorted(roc_df["model"].dropna().unique().tolist())
+    default_models = [
+        m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
+    ]
+    selected_models = st.multiselect(
+        "Modelos a comparar",
+        options=available_models,
+        default=default_models or available_models[:2],
+    )
+    roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
+
+    fig = px.line(
+        roc_filtered,
+        x="fpr",
+        y="tpr",
+        color="model",
+        title="Discriminación: ROC por modelo",
+        labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
+    )
+    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "Propósito: medir discriminación entre buenos y malos pagadores. "
+        "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
+    )
+
+    st.subheader("Calibración probabilística")
+    cal_df = load_parquet("calibration_curve_data")
+    fig = go.Figure()
+    for model_name in sorted(cal_df["model"].dropna().unique()):
+        subset = cal_df[cal_df["model"] == model_name]
+        fig.add_trace(
+            go.Scatter(
+                x=subset["predicted_prob"],
+                y=subset["observed_freq"],
+                mode="markers+lines",
+                name=model_name,
             )
-        cal_df = pd.DataFrame(rows).sort_values(
-            by=["mean_brier", "mean_ece", "stability"], ascending=[True, True, True]
         )
-        st.dataframe(cal_df, use_container_width=True, hide_index=True)
-        selected = cal_report.get("selected_method", comparison.get("best_calibration", "N/D"))
-        reason = cal_report.get("selection_reason", "n/a")
+    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
+    fig.update_layout(
+        **PLOTLY_TEMPLATE["layout"],
+        title="Probabilidad predicha vs frecuencia observada",
+        xaxis_title="Probabilidad predicha",
+        yaxis_title="Frecuencia observada",
+        height=430,
+    )
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
+        "esto es clave para IFRS9 y pricing."
+    )
+
+    col_nb1, col_nb2 = st.columns(2)
+    with col_nb1:
+        img = get_notebook_image_path("03_pd_modeling", "cell_013_out_00.png")
+        if img.exists():
+            st.image(
+                str(img),
+                caption="Notebook 03: historial de Optuna e importancia de hiperparámetros.",
+                width="stretch",
+            )
+    with col_nb2:
+        img = get_notebook_image_path("03_pd_modeling", "cell_020_out_00.png")
+        if img.exists():
+            st.image(
+                str(img),
+                caption="Notebook 03: ROC y Precision-Recall de modelos comparados.",
+                width="stretch",
+            )
+
+    narrative_block(
+        audience,
+        general="La cercanía a la diagonal indica mejor calibración.",
+        business="Probabilidades calibradas mejoran decisiones de apetito de riesgo y provisiones.",
+        technical=(
+            "ECE final bajo y Brier estable sustentan uso de la PD como insumo cuantitativo en capas posteriores."
+        ),
+    )
+
+if _show_sections("shap"):
+    st.subheader("Interpretabilidad con SHAP")
+    if focus_section == "shap":
         st.caption(
-            f"Método seleccionado: `{selected}` | razón: `{reason}` | restricción AUC drop <= {auc_drop_limit:.4f}"
+            "Sección enfocada desde la navegación rápida v2. Si no hay artefactos SHAP, la página degrada sin romperse."
+        )
+    shap_summary = try_load_parquet("shap_summary")
+    if shap_summary.empty:
+        st.info(
+            "No hay artefactos SHAP en este entorno; se omite la sección de interpretabilidad avanzada."
         )
     else:
-        st.info(
-            "No hay reporte detallado de selección de calibración en artefactos; "
-            "se muestra únicamente el método ganador."
+        top_n = st.slider(
+            "Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1
+        )
+        shap_top = shap_summary.head(top_n).sort_values("mean_abs_shap")
+
+        fig = px.bar(
+            shap_top,
+            x="mean_abs_shap",
+            y="feature",
+            orientation="h",
+            title=f"Top {top_n} variables más influyentes",
+            labels={"mean_abs_shap": "Impacto medio |SHAP|", "feature": "Variable"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=max(360, top_n * 26))
+        fig.update_traces(marker_color="#00D4AA")
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: identificar variables que explican el score. Insight: tasa de interés, plazo y calidad crediticia "
+            "concentran mayor aporte al riesgo."
         )
 
-kpi_row(
-    [
-        {"label": "Mejor modelo", "value": comparison.get("best_model", "N/D")},
-        {"label": "AUC final", "value": f"{final.get('auc_roc', 0):.4f}"},
-        {"label": "KS", "value": f"{final.get('ks_statistic', 0):.4f}"},
-        {"label": "Brier", "value": f"{final.get('brier_score', 0):.4f}"},
-        {"label": "ECE", "value": f"{final.get('ece', 0):.4f}"},
-        {"label": "Calibración", "value": comparison.get("best_calibration", "N/D")},
-    ],
-    n_cols=3,
-)
-
-metricas_interpretacion = pd.DataFrame(
-    [
-        {
-            "Métrica": "AUC",
-            "Qué mide": "Capacidad de ordenar riesgo entre default y no default",
-            "Interpretación técnica": (
-                f"{final.get('auc_roc', 0):.4f} implica discriminación sólida en OOT para "
-                "datos tabulares reales."
-            ),
-            "Interpretación negocio": "Permite priorizar mejor qué solicitudes revisar/restringir.",
-        },
-        {
-            "Métrica": "KS",
-            "Qué mide": "Separación máxima entre distribuciones de score",
-            "Interpretación técnica": (
-                f"{final.get('ks_statistic', 0):.4f} indica separación útil para estrategias por umbrales."
-            ),
-            "Interpretación negocio": "Facilita definir cutoffs de aprobación según apetito de riesgo.",
-        },
-        {
-            "Métrica": "Brier",
-            "Qué mide": "Error cuadrático de probabilidad",
-            "Interpretación técnica": "Valor bajo mejora consistencia probabilística del score.",
-            "Interpretación negocio": "Reduce sesgo en estimación de pérdidas esperadas.",
-        },
-        {
-            "Métrica": "ECE",
-            "Qué mide": "Error promedio de calibración",
-            "Interpretación técnica": (
-                f"{final.get('ece', 0):.4f} sugiere muy buena calibración global."
-            ),
-            "Interpretación negocio": "Mayor confianza al usar PD en IFRS9 y pricing.",
-        },
-    ]
-)
-st.dataframe(metricas_interpretacion, use_container_width=True, hide_index=True)
-
-st.subheader("Curvas ROC")
-roc_df = load_parquet("roc_curve_data")
-available_models = sorted(roc_df["model"].dropna().unique().tolist())
-default_models = [
-    m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
-]
-selected_models = st.multiselect(
-    "Modelos a comparar",
-    options=available_models,
-    default=default_models or available_models[:2],
-)
-roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
-
-fig = px.line(
-    roc_filtered,
-    x="fpr",
-    y="tpr",
-    color="model",
-    title="Discriminación: ROC por modelo",
-    labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
-)
-fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: medir discriminación entre buenos y malos pagadores. "
-    "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
-)
-
-st.subheader("Calibración probabilística")
-cal_df = load_parquet("calibration_curve_data")
-fig = go.Figure()
-for model_name in sorted(cal_df["model"].dropna().unique()):
-    subset = cal_df[cal_df["model"] == model_name]
-    fig.add_trace(
-        go.Scatter(
-            x=subset["predicted_prob"],
-            y=subset["observed_freq"],
-            mode="markers+lines",
-            name=model_name,
-        )
-    )
-fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
-fig.update_layout(
-    **PLOTLY_TEMPLATE["layout"],
-    title="Probabilidad predicha vs frecuencia observada",
-    xaxis_title="Probabilidad predicha",
-    yaxis_title="Frecuencia observada",
-    height=430,
-)
-st.plotly_chart(fig, use_container_width=True)
-st.caption(
-    "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
-    "esto es clave para IFRS9 y pricing."
-)
-
-col_nb1, col_nb2 = st.columns(2)
-with col_nb1:
-    img = get_notebook_image_path("03_pd_modeling", "cell_013_out_00.png")
-    if img.exists():
-        st.image(
-            str(img),
-            caption="Notebook 03: historial de Optuna e importancia de hiperparámetros.",
-            use_container_width=True,
-        )
-with col_nb2:
-    img = get_notebook_image_path("03_pd_modeling", "cell_020_out_00.png")
-    if img.exists():
-        st.image(
-            str(img),
-            caption="Notebook 03: ROC y Precision-Recall de modelos comparados.",
-            use_container_width=True,
-        )
-
-narrative_block(
-    audience,
-    general="La cercanía a la diagonal indica mejor calibración.",
-    business="Probabilidades calibradas mejoran decisiones de apetito de riesgo y provisiones.",
-    technical=(
-        "ECE final bajo y Brier estable sustentan uso de la PD como insumo cuantitativo en capas posteriores."
-    ),
-)
-
-st.subheader("Interpretabilidad con SHAP")
-shap_summary = try_load_parquet("shap_summary")
-if shap_summary.empty:
-    st.info(
-        "No hay artefactos SHAP en este entorno; se omite la sección de interpretabilidad avanzada."
-    )
-else:
-    top_n = st.slider(
-        "Top variables por importancia SHAP", min_value=8, max_value=25, value=15, step=1
-    )
-    shap_top = shap_summary.head(top_n).sort_values("mean_abs_shap")
-
-    fig = px.bar(
-        shap_top,
-        x="mean_abs_shap",
-        y="feature",
-        orientation="h",
-        title=f"Top {top_n} variables más influyentes",
-        labels={"mean_abs_shap": "Impacto medio |SHAP|", "feature": "Variable"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=max(360, top_n * 26))
-    fig.update_traces(marker_color="#00D4AA")
-    st.plotly_chart(fig, use_container_width=True)
-    st.caption(
-        "Propósito: identificar variables que explican el score. Insight: tasa de interés, plazo y calidad crediticia "
-        "concentran mayor aporte al riesgo."
-    )
-
-    if audience in ("Negocio", "Técnico"):
-        shap_raw = try_load_parquet("shap_raw_top20")
-        shap_features = sorted(
-            [c.replace("shap_", "") for c in shap_raw.columns if c.startswith("shap_")]
-        )
-        if shap_raw.empty or not shap_features:
-            st.info("No hay `shap_raw_top20.parquet`; se omite dependencia SHAP.")
-        else:
-            selected_feat = st.selectbox(
-                "Variable para explorar dependencia SHAP", shap_features, index=0
+        if audience in ("Negocio", "Técnico"):
+            shap_raw = try_load_parquet("shap_raw_top20")
+            shap_features = sorted(
+                [c.replace("shap_", "") for c in shap_raw.columns if c.startswith("shap_")]
             )
-            shap_col = f"shap_{selected_feat}"
-            val_col = f"val_{selected_feat}"
-            if shap_col in shap_raw.columns and val_col in shap_raw.columns:
-                sample = shap_raw.sample(min(3000, len(shap_raw)), random_state=17)
-                fig = px.scatter(
-                    sample,
-                    x=val_col,
-                    y=shap_col,
-                    opacity=0.35,
-                    title=f"Dependencia SHAP: {selected_feat}",
-                    labels={val_col: f"Valor de {selected_feat}", shap_col: "Contribución SHAP"},
+            if shap_raw.empty or not shap_features:
+                st.info("No hay `shap_raw_top20.parquet`; se omite dependencia SHAP.")
+            else:
+                selected_feat = st.selectbox(
+                    "Variable para explorar dependencia SHAP", shap_features, index=0
                 )
-                fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
-                st.plotly_chart(fig, use_container_width=True)
-                st.caption(
-                    "Propósito: ver dirección y magnitud local del efecto por variable. "
-                    "Insight: el impacto no es lineal en todo el dominio."
-                )
+                shap_col = f"shap_{selected_feat}"
+                val_col = f"val_{selected_feat}"
+                if shap_col in shap_raw.columns and val_col in shap_raw.columns:
+                    sample = shap_raw.sample(min(3000, len(shap_raw)), random_state=17)
+                    fig = px.scatter(
+                        sample,
+                        x=val_col,
+                        y=shap_col,
+                        opacity=0.35,
+                        title=f"Dependencia SHAP: {selected_feat}",
+                        labels={val_col: f"Valor de {selected_feat}", shap_col: "Contribución SHAP"},
+                    )
+                    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+                    st.plotly_chart(fig, width="stretch")
+                    st.caption(
+                        "Propósito: ver dirección y magnitud local del efecto por variable. "
+                        "Insight: el impacto no es lineal en todo el dominio."
+                    )
 
-img = get_notebook_image_path("03_pd_modeling", "cell_017_out_00.png")
-if img.exists():
-    st.image(
-        str(img),
-        caption="Notebook 03: SHAP beeswarm + importancia global (figura original).",
-        use_container_width=True,
-    )
+if _show_sections("upgrades"):
+    with st.expander(
+        "Mejoras habilitadas por upgrades recientes (medium-risk)",
+        expanded=focus_section == "upgrades",
+    ):
+        versions_df = load_package_versions_for_model_lab()
+        st.dataframe(versions_df, width="stretch", hide_index=True)
+        st.markdown(
+            """
+**Qué sí mejoró ya en el proyecto**
+- `scikit-learn 1.8`: habilita `d2_brier_score` para evaluar calidad probabilística relativa a un baseline.
+- `shap 0.50`: mejor compatibilidad/soporte moderno para workflows de explicabilidad (notebooks y análisis local).
+- `scikit-survival 0.27`: mejora alineación con stack actualizado de `scikit-learn`.
+- `pyarrow 23`: mejoras de IO/compatibilidad útiles para artefactos Parquet del pipeline.
+- `mlflow 3.10`: mejoras del stack de tracking/tracing para gobernanza experimental.
+- `cvxpy 1.8.1` y `dowhy 0.14`: base más moderna para optimización y causalidad en módulos aguas abajo.
+"""
+        )
+
+        try:
+            from sklearn.metrics import d2_brier_score as _d2_brier_score
+        except ImportError:
+            _d2_brier_score = None
+
+        if (
+            _d2_brier_score is not None
+            and not test_predictions.empty
+            and {"y_true", "pd_logreg", "pd_calibrated"}.issubset(test_predictions.columns)
+        ):
+            d2_rows = []
+            y_true = test_predictions["y_true"].to_numpy()
+            for label, col in [
+                ("Logistic Regression (baseline)", "pd_logreg"),
+                ("CatBoost calibrado (final)", "pd_calibrated"),
+            ]:
+                y_prob = test_predictions[col].to_numpy()
+                d2_rows.append({"modelo": label, "d2_brier_score": float(_d2_brier_score(y_true, y_prob))})
+            st.dataframe(pd.DataFrame(d2_rows), width="stretch", hide_index=True)
+            st.caption(
+                "Lectura rápida: cuanto mayor es `D² Brier`, mejor explica la variabilidad de la probabilidad "
+                "frente a un predictor de referencia constante."
+            )
+
+        if versions_df.loc[versions_df["package"].eq("econml"), "version"].astype(str).str.contains("not installed").any():
+            st.caption(
+                "Nota de arquitectura: `econml` se movió fuera del entorno principal para evitar bloquear "
+                "upgrades de `scikit-learn` y `shap`. Los workflows causales siguen disponibles en un env separado."
+            )
+
+if _show_sections("shap"):
+    img = get_notebook_image_path("03_pd_modeling", "cell_017_out_00.png")
+    if img.exists():
+        st.image(
+            str(img),
+            caption="Notebook 03: SHAP beeswarm + importancia global (figura original).",
+            width="stretch",
+        )
 
 st.markdown(
     """

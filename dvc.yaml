@@ -293,5 +293,13 @@ metrics:
 - reports/dvc/metrics_summary.json
 
 plots:
-- reports/dvc/conformal_coverage_backtest.csv
-- reports/dvc/robustness_frontier.csv
+- reports/dvc/conformal_coverage_backtest.csv:
+    x: month
+    y:
+    - coverage_90_roll3
+    - target_90
+    - coverage_95_roll3
+    - target_95
+- reports/dvc/robustness_frontier.csv:
+    x: price_of_robustness_pct
+    y: expected_return_net_point

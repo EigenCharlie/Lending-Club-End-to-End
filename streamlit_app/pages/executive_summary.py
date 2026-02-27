@@ -369,7 +369,7 @@ with col_1:
         labels={"modo": "", "retorno_neto": "USD"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], showlegend=False, height=360)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: comparar impacto económico de la política robusta frente a la puntual. "
         "Insight: la política robusta sacrifica parte del upside para estabilizar resultados en escenarios adversos."
@@ -385,7 +385,7 @@ with col_2:
         labels={"modo": "", "ecl": "USD"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], showlegend=False, height=360)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: visualizar costo esperado de crédito por política. "
         "Insight: la decisión de aprobación no cambia solo retorno, también el nivel de provisión implícita."

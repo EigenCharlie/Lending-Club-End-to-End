@@ -1,6 +1,6 @@
 <nil>
 > [!IMPORTANT]
-> **For AI Assistants**: This guide provides standardized instructions for helping developers scaffold modern Python projects. A [plain markdown version](index.md) is available for direct ingestion into AI agent contexts.
+> **For AI Assistants**: This guide provides standardized instructions for helping developers scaffold modern Python projects. The original source references a plain markdown `index.md`, but that companion file is not included in this repo copy.
 
 This guide provides a standardized approach to scaffolding Python projects using modern tooling. It serves as a reference for AI assistants helping developers create well-structured, maintainable Python projects.
 
@@ -295,7 +295,7 @@ Configure ty in `pyproject.toml`:
 
 ```toml
 [tool.ty.environment]
-python-version = "3.11"
+python-version = "3.12"
 ```
 
 ### Documentation with mkdocs
@@ -320,7 +320,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: "3.12"
       - name: Install uv
         run: curl -LsSf https://astral.sh/uv/install.sh | sh
       - name: Install dependencies
@@ -398,7 +398,7 @@ Create `.vscode/settings.json`:
 
 ```json
 {
-  "python.defaultInterpreterPath": ".venv/bin/python",
+  "python.defaultInterpreterPath": "lending-club-venv/bin/python",
   "python.testing.pytestEnabled": true,
   "python.testing.pytestArgs": ["tests"],
   "[python]": {
@@ -413,7 +413,7 @@ Create `.vscode/settings.json`:
 
 ### PyCharm Configuration
 
-1. Set project interpreter to `.venv/bin/python`
+1. Set project interpreter to `lending-club-venv/bin/python` (or the `.venv` compat symlink)
 1. Enable [pytest](https://pydevtools.com/handbook/reference/pytest/index.md) as test runner
 1. Configure [Ruff](https://pydevtools.com/handbook/reference/ruff/index.md) as external tool
 1. Enable format on save

@@ -31,7 +31,7 @@ df = df.dropna()
 print(f"  Loaded {len(df):,} loans for optimization")
 
 opt_rows = []
-sizes = [3000, 6000, 12000, 18000]
+sizes = [int(x) for x in os.getenv("LC_RAPIDS_OPT_LP_SIZES", "3000,6000,12000,18000").split(",") if x]
 
 for n_vars in sizes:
     print(f"\n  --- LP with {n_vars} variables ---")
@@ -92,8 +92,9 @@ for n_vars in sizes:
                          "seconds": None, "status": f"error: {e}", "objective": None, "n_variables": n_vars})
 
 # MILP
-print(f"\n  --- MILP with 3000 variables ---")
-n_milp = 3000
+default_milp = int(os.getenv("LC_RAPIDS_OPT_MILP_SIZE", "3000"))
+print(f"\n  --- MILP with {default_milp} variables ---")
+n_milp = default_milp
 sub = df.head(n_milp)
 expected_return = (sub["int_rate"].values / 100.0).astype(np.float64)
 pd_default = sub["default_flag"].values.astype(np.float64)
@@ -176,7 +177,7 @@ cupy_rows = []
 # --- Monte Carlo ECL ---
 print("\n  --- Monte Carlo ECL (100K scenarios, 10K loans) ---")
 n_loans = 10_000
-n_scenarios = 100_000
+n_scenarios = int(os.getenv("LC_RAPIDS_CUPY_N_SCENARIOS", "100000"))
 rng = np.random.default_rng(42)
 pd_vals = rng.uniform(0.01, 0.40, n_loans).astype(np.float64)
 lgd_vals = rng.uniform(0.20, 0.80, n_loans).astype(np.float64)
@@ -218,7 +219,7 @@ print(f"      {cupy_t:.4f}s, ECL_mean={ecl_mean_gpu:,.0f}, VaR95={ecl_var95_gpu:
 print("\n  --- SVD (100K x 47 features matrix) ---")
 df_fe = pd.read_parquet(TRAIN_FE)
 num_cols = [c for c in df_fe.select_dtypes(include=[np.number]).columns if c != "default_flag"]
-X = df_fe[num_cols].dropna().head(100_000).values.astype(np.float64)
+X = df_fe[num_cols].dropna().head(int(os.getenv("LC_RAPIDS_CUPY_SVD_ROWS", "100000"))).values.astype(np.float64)
 print(f"    Matrix: {X.shape}")
 
 # NumPy
@@ -244,7 +245,7 @@ print(f"      {cupy_t:.4f}s, top_sv={float(S_g[0]):.2f}")
 # --- Sparse MatMul ---
 print("\n  --- Sparse Matrix Multiply (50K x 50K, density=0.01) ---")
 from scipy import sparse as sp
-n_sp = 50000
+n_sp = int(os.getenv("LC_RAPIDS_CUPY_SPARSE_N", "50000"))
 density = 0.01
 
 # SciPy

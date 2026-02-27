@@ -91,7 +91,7 @@ if not results.empty:
 
     if not summary.empty:
         st.subheader("Comparación detallada de métricas")
-        st.dataframe(summary, use_container_width=True, hide_index=True)
+        st.dataframe(summary, width="stretch", hide_index=True)
 
         fig = px.bar(
             summary,
@@ -102,7 +102,7 @@ if not results.empty:
             labels={"value": "Valor", "metric": "Métrica"},
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=380)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     st.markdown(
         """

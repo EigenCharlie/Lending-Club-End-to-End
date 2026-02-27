@@ -6,7 +6,7 @@
 |-------|-------|
 | **Model Name** | CorePDCanonical |
 | **Model Type** | Probability of Default (PD) — Binary Classification |
-| **Algorithm** | CatBoost Gradient Boosting + Platt Sigmoid Calibration |
+| **Algorithm** | CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Isotonic Regression) |
 | **Uncertainty Quantification** | Mondrian Conformal Prediction (MAPIE 1.3) |
 | **Owner** | Carlos Vergara |
 | **Version** | See `models/pd_training_record.pkl` for current version |
@@ -159,7 +159,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 ## 7. Champion/Challenger Framework
 
 ### Current Champion
-- **Model**: `models/pd_canonical.cbm` (CatBoost + Platt calibration)
+- **Model**: `models/pd_canonical.cbm` (CatBoost + probabilistic calibration; current artifact is Isotonic)
 - **Calibrator**: `models/pd_canonical_calibrator.pkl`
 - **Contract**: `models/pd_model_contract.json` (44 features)
 

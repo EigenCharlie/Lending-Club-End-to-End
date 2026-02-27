@@ -26,6 +26,8 @@ hpo:
   timeout_minutes: 0
   n_startup_trials: 50
   multivariate_tpe: true
+  group_tpe: true
+  warn_independent_sampling: false
   pruner_n_startup_trials: 25
   pruner_n_warmup_steps: 120
   use_pruning_callback: true
@@ -33,6 +35,11 @@ hpo:
   study_name: pd_catboost_optuna_temporal
   load_if_exists: true
   refit_full_train: true
+  gc_after_trial: true
+  storage_heartbeat_interval: 60
+  storage_grace_period: 180
+  sqlite_timeout_seconds: 120
+  retry_failed_trials: 2
 
 validation:
   scheme: temporal_train_val_cal_test

@@ -208,3 +208,96 @@ def fairness_report(
 
     logger.info(f"Fairness report: {len(rows)} attributes evaluated")
     return pd.DataFrame(rows)
+
+
+def conformal_fairness_report(
+    y_true: np.ndarray,
+    y_intervals: np.ndarray,
+    groups_dict: dict[str, np.ndarray],
+    alpha: float = 0.10,
+    coverage_disparity_threshold: float = 0.05,
+    width_ratio_threshold: float = 2.0,
+) -> pd.DataFrame:
+    """Evaluate conformal interval fairness across protected groups.
+
+    Checks whether conformal intervals exhibit disparate coverage or width
+    across groups. Coverage disparity indicates that some groups receive
+    weaker uncertainty guarantees. Width disparity indicates that some
+    groups receive less informative (wider) intervals.
+
+    Args:
+        y_true: Ground truth values (float).
+        y_intervals: Prediction intervals array of shape (n, 2) — [low, high].
+        groups_dict: Mapping of attribute name to group labels array.
+        alpha: Nominal significance level (for reference).
+        coverage_disparity_threshold: Max acceptable coverage gap across groups.
+        width_ratio_threshold: Max acceptable max_width/min_width ratio.
+
+    Returns:
+        DataFrame with one row per attribute: attribute, n_groups,
+        min_coverage, max_coverage, coverage_disparity, min_avg_width,
+        max_avg_width, width_ratio, passed_coverage, passed_width, passed_all,
+        group_details (dict).
+    """
+    y_true = np.asarray(y_true, dtype=float)
+    low = y_intervals[:, 0]
+    high = y_intervals[:, 1]
+    covered = (y_true >= low) & (y_true <= high)
+    widths = high - low
+
+    rows: list[dict] = []
+    for attr_name, groups in groups_dict.items():
+        groups = np.asarray(groups)
+        unique_groups = np.unique(groups)
+
+        group_details: dict[str, dict[str, float]] = {}
+        coverages: list[float] = []
+        avg_widths: list[float] = []
+
+        for g in unique_groups:
+            mask = groups == g
+            n_g = int(mask.sum())
+            if n_g == 0:
+                continue
+            cov_g = float(covered[mask].mean())
+            w_g = float(widths[mask].mean())
+            group_details[str(g)] = {
+                "n": n_g,
+                "coverage": cov_g,
+                "avg_width": w_g,
+            }
+            coverages.append(cov_g)
+            avg_widths.append(w_g)
+
+        if not coverages:
+            continue
+
+        min_cov = min(coverages)
+        max_cov = max(coverages)
+        cov_disp = max_cov - min_cov
+        min_w = min(avg_widths)
+        max_w = max(avg_widths)
+        w_ratio = max_w / max(min_w, _EPS)
+
+        passed_cov = cov_disp <= coverage_disparity_threshold
+        passed_w = w_ratio <= width_ratio_threshold
+
+        rows.append(
+            {
+                "attribute": attr_name,
+                "n_groups": len(unique_groups),
+                "min_coverage": min_cov,
+                "max_coverage": max_cov,
+                "coverage_disparity": cov_disp,
+                "min_avg_width": min_w,
+                "max_avg_width": max_w,
+                "width_ratio": w_ratio,
+                "passed_coverage": passed_cov,
+                "passed_width": passed_w,
+                "passed_all": passed_cov and passed_w,
+                "group_details": group_details,
+            }
+        )
+
+    logger.info(f"Conformal fairness report: {len(rows)} attributes evaluated")
+    return pd.DataFrame(rows)

@@ -1,0 +1,9 @@
+{
+  "schema_version": "2026-02-26.1",
+  "run_tag": "orch-debug-1",
+  "last_update_utc": "2026-02-26T18:36:43.423124+00:00",
+  "state": "running",
+  "current_step": "main_pre",
+  "orchestrator_pid": 32445,
+  "active_child_pid": 32613
+}

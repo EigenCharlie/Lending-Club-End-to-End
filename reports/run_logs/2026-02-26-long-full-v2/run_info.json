@@ -1,0 +1,17 @@
+{
+  "schema_version": "2026-02-26.1",
+  "run_tag": "2026-02-26-long-full-v2",
+  "started_at_utc": "2026-02-26T18:37:49.003488+00:00",
+  "argv": [
+    "scripts/run_long_pipeline.py",
+    "--run-tag",
+    "2026-02-26-long-full-v2",
+    "--resume"
+  ],
+  "repo_root": "/home/eigenlinux/projects/lending-club-risk-project",
+  "python": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
+  "pid": 33172,
+  "resume": true,
+  "include_rapids": true,
+  "include_notebooks": true
+}

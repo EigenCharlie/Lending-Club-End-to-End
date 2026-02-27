@@ -6,7 +6,7 @@
 
 ## Nota de vigencia (2026-02-16)
 
-Este documento preserva investigación y contexto técnico de febrero 2026.  
+Este documento preserva investigación y contexto técnico de febrero 2026.
 Para métricas y decisiones operativas del proyecto actual, usar como fuente de verdad:
 
 - `models/conformal_results_mondrian.pkl`
@@ -655,8 +655,13 @@ train = pd.read_parquet('data/processed/train.parquet')
 test = pd.read_parquet('data/processed/test.parquet')
 calibration = pd.read_parquet('data/processed/calibration.parquet')
 
-import joblib
-model = joblib.load('models/catboost_pd_calibrated.pkl')
+from catboost import CatBoostClassifier
+
+model = CatBoostClassifier()
+model.load_model('models/pd_canonical.cbm')
+# Optional (recommended for current Mondrian pipeline flows):
+# with open('models/pd_canonical_calibrator.pkl', 'rb') as f:
+#     calibrator = pickle.load(f)
 
 # Cell 3: Split features/target
 X_cal = calibration.drop(columns=['default_flag'])

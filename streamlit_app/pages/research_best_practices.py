@@ -107,7 +107,7 @@ st.code(
         [
             'fig = px.line(df, x="month", y="coverage_90", title="Figure 1. Monthly Coverage")',
             'fig.add_hline(y=0.90, line_dash="dash", line_color="orange")',
-            "st.plotly_chart(fig, use_container_width=True)",
+            'st.plotly_chart(fig, width="stretch")',
             'st.caption("Figure 1. Cobertura mensual vs target nominal 90%.")',
         ]
     ),
@@ -126,7 +126,7 @@ Buenas prácticas:
 st.code(
     "\n".join(
         [
-            "st.dataframe(table_df, use_container_width=True, hide_index=True)",
+            'st.dataframe(table_df, width="stretch", hide_index=True)',
             'download_table(table_df, "paper_table1_main.csv")',
             'table_df.to_latex("reports/paper_material/paperX/tables/paper_table1_main.tex", index=False)',
         ]

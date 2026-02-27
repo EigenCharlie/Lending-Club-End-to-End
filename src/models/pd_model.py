@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import pickle
 from pathlib import Path
 from typing import Any
@@ -116,7 +117,6 @@ def train_baseline(
 ) -> tuple[LogisticRegression, dict[str, float]]:
     """Train logistic regression baseline."""
     model = LogisticRegression(
-        penalty="l2",
         C=1.0,
         max_iter=1000,
         solver="lbfgs",
@@ -201,6 +201,8 @@ def train_catboost_tuned_optuna(
     timeout_minutes: int = 0,
     n_startup_trials: int = 40,
     multivariate_tpe: bool = True,
+    group_tpe: bool = True,
+    warn_independent_sampling: bool = True,
     pruner_n_startup_trials: int = 20,
     pruner_n_warmup_steps: int = 50,
     use_pruning_callback: bool = True,
@@ -208,6 +210,11 @@ def train_catboost_tuned_optuna(
     study_name: str | None = None,
     load_if_exists: bool = True,
     refit_full_train: bool = True,
+    gc_after_trial: bool = True,
+    storage_heartbeat_interval: int = 0,
+    storage_grace_period: int = 0,
+    sqlite_timeout_seconds: int = 60,
+    retry_failed_trials: int = 0,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
     """Tune CatBoost with Optuna and return best fitted model and metadata."""
     import optuna
@@ -218,11 +225,15 @@ def train_catboost_tuned_optuna(
     base = _catboost_base_params(base_params)
     base["verbose"] = 0
 
+    use_multivariate = bool(multivariate_tpe)
+    use_group_tpe = bool(group_tpe and use_multivariate)
     if sampler == "tpe":
         sampler_obj = optuna.samplers.TPESampler(
             seed=42,
             n_startup_trials=max(10, int(n_startup_trials)),
-            multivariate=bool(multivariate_tpe),
+            multivariate=use_multivariate,
+            group=use_group_tpe,
+            warn_independent_sampling=bool(warn_independent_sampling),
         )
     elif sampler == "random":
         sampler_obj = optuna.samplers.RandomSampler(seed=42)
@@ -230,7 +241,9 @@ def train_catboost_tuned_optuna(
         sampler_obj = optuna.samplers.TPESampler(
             seed=42,
             n_startup_trials=max(10, int(n_startup_trials)),
-            multivariate=bool(multivariate_tpe),
+            multivariate=use_multivariate,
+            group=use_group_tpe,
+            warn_independent_sampling=bool(warn_independent_sampling),
         )
 
     if pruner == "median":
@@ -310,19 +323,56 @@ def train_catboost_tuned_optuna(
         "sampler": sampler_obj,
         "pruner": pruner_obj,
     }
+    retry_callback = None
     if study_storage:
-        create_study_kwargs["storage"] = study_storage
+        storage_obj: Any = study_storage
+        hb_interval = max(0, int(storage_heartbeat_interval))
+        hb_grace = max(0, int(storage_grace_period))
+        # For long-running trials on SQLite, use a longer connection timeout and
+        # heartbeat to recover stale RUNNING trials after crashes/restarts.
+        if str(study_storage).startswith(("sqlite:///", "sqlite+pysqlite:///")):
+            engine_kwargs = {"connect_args": {"timeout": max(1, int(sqlite_timeout_seconds))}}
+        else:
+            engine_kwargs = None
+        if hb_interval > 0 or hb_grace > 0:
+            try:
+                failed_cb = None
+                if int(retry_failed_trials) > 0:
+                    failed_cb = optuna.storages.RetryFailedTrialCallback(
+                        max_retry=int(retry_failed_trials)
+                    )
+                    retry_callback = failed_cb
+                storage_obj = optuna.storages.RDBStorage(
+                    url=str(study_storage),
+                    engine_kwargs=engine_kwargs,
+                    heartbeat_interval=hb_interval or None,
+                    grace_period=hb_grace or None,
+                    failed_trial_callback=failed_cb,
+                )
+            except Exception as exc:
+                logger.warning(
+                    "Optuna RDBStorage heartbeat/retry setup failed; falling back to storage URL. "
+                    f"reason={exc}"
+                )
+        create_study_kwargs["storage"] = storage_obj
         create_study_kwargs["study_name"] = study_name or "pd_catboost_optuna"
         create_study_kwargs["load_if_exists"] = bool(load_if_exists)
 
     study = optuna.create_study(**create_study_kwargs)
+    if retry_callback is not None and hasattr(optuna.storages, "fail_stale_trials"):
+        try:
+            optuna.storages.fail_stale_trials(study)
+        except Exception as exc:
+            logger.warning("Optuna stale-trial recovery skipped: {}", exc)
     timeout = None if timeout_minutes <= 0 else int(timeout_minutes * 60)
     study.optimize(
         objective,
         n_trials=max(1, int(n_trials)),
         timeout=timeout,
         show_progress_bar=False,
+        gc_after_trial=bool(gc_after_trial),
     )
+    gc.collect()
 
     best_params = {**base, **study.best_params}
     best_params["verbose"] = 100
@@ -360,7 +410,7 @@ def train_catboost_tuned_optuna(
     logger.info(
         "CatBoost tuned — val_AUC: "
         f"{val_auc:.4f}, best_trial_val_AUC: {study.best_value:.4f}, "
-        f"trials={len(study.trials)}"
+        f"trials={len(study.trials)}, multivariate_tpe={use_multivariate}, group_tpe={use_group_tpe}"
     )
     return best_model, metrics
 

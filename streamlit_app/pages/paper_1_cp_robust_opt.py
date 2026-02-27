@@ -89,7 +89,7 @@ meta_df = pd.DataFrame(
         {"Campo": "Price of Robustness", "Valor": format_number(price_of_robustness, prefix="$")},
     ]
 )
-st.dataframe(meta_df, use_container_width=True, hide_index=True)
+st.dataframe(meta_df, width="stretch", hide_index=True)
 
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Cobertura 90%", format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D")
@@ -146,7 +146,7 @@ related = pd.DataFrame(
     ],
     columns=["Referencia", "Eje", "Relevancia para este draft"],
 )
-st.dataframe(related, use_container_width=True, hide_index=True)
+st.dataframe(related, width="stretch", hide_index=True)
 
 st.markdown("## 4) Data and Experimental Protocol")
 st.markdown(
@@ -188,7 +188,7 @@ if not robust_summary.empty:
         title="Figure 1. Net Return by Risk Tolerance (Robust vs Non-Robust)",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width="stretch")
     st.caption("Figure 1. Comparación de retorno neto por tolerancia de riesgo.")
 
     fig2 = px.line(
@@ -199,7 +199,7 @@ if not robust_summary.empty:
         title="Figure 2. Price of Robustness (%)",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
     st.caption("Figure 2. Costo relativo de robustez en la frontera.")
 
     fig3 = px.line(
@@ -210,7 +210,7 @@ if not robust_summary.empty:
         title="Figure 3. Funded Loans by Policy",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig3, width="stretch")
     st.caption("Figure 3. Tamaño de portafolio financiado bajo política robusta y no robusta.")
 
 if not variant_benchmark.empty:
@@ -224,7 +224,7 @@ if not variant_benchmark.empty:
         title="Figure 4. Conformal Variant Trade-off",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, width="stretch")
     st.caption("Figure 4. Trade-off entre eficiencia (ancho) y cobertura mínima por grupo.")
 
 st.markdown("### Tablas principales")
@@ -234,7 +234,7 @@ with col_t1:
     if robust_summary.empty:
         st.info("No se encontró `portfolio_robustness_summary.parquet`.")
     else:
-        st.dataframe(robust_summary, use_container_width=True, hide_index=True)
+        st.dataframe(robust_summary, width="stretch", hide_index=True)
         download_table(robust_summary, "paper1_table1_robustness_summary.csv")
 
 with col_t2:
@@ -242,17 +242,17 @@ with col_t2:
     if variant_benchmark.empty:
         st.info("No se encontró `conformal_variant_benchmark.parquet`.")
     else:
-        st.dataframe(variant_benchmark, use_container_width=True, hide_index=True)
+        st.dataframe(variant_benchmark, width="stretch", hide_index=True)
         download_table(variant_benchmark, "paper1_table2_conformal_variant_benchmark.csv")
 
 with st.expander("Appendix Tables"):
     if not variant_benchmark_by_group.empty:
         st.markdown("**Table A1. Variant Benchmark by Group**")
-        st.dataframe(variant_benchmark_by_group, use_container_width=True, hide_index=True)
+        st.dataframe(variant_benchmark_by_group, width="stretch", hide_index=True)
         download_table(variant_benchmark_by_group, "paper1_tableA1_benchmark_by_group.csv")
     if not robust_frontier.empty:
         st.markdown("**Table A2. Robustness Frontier (full)**")
-        st.dataframe(robust_frontier, use_container_width=True, hide_index=True)
+        st.dataframe(robust_frontier, width="stretch", hide_index=True)
         download_table(robust_frontier, "paper1_tableA2_robustness_frontier.csv")
 
 st.markdown("## 7) Discussion")

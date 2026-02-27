@@ -346,12 +346,12 @@ stages:
     outs:
     - path: data/processed/portfolio_allocations.parquet
       hash: md5
-      md5: 1d8aef74b9d9b8edc354e213ce8a64b0
+      md5: 52b17832c30cbc6c44a03f2085776547
       size: 58830
     - path: models/portfolio_results.pkl
       hash: md5
-      md5: 5015f1d2ee0ff842ccdc02ed5ab3c2a9
-      size: 60186
+      md5: 52b1cf38003e51f579f814e13b674750
+      size: 60211
   optimize_portfolio_tradeoff:
     cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
       configs/optimization.yaml
@@ -377,11 +377,11 @@ stages:
     outs:
     - path: data/processed/portfolio_robustness_frontier.parquet
       hash: md5
-      md5: 9b8ef2f172316d1ea6e553bee126c3ed
+      md5: 36c068c6dcf9a7986f6c1dca16589f37
       size: 14355
     - path: data/processed/portfolio_robustness_summary.parquet
       hash: md5
-      md5: 854673acea4500fd8e571d6e7ccae129
+      md5: 47e4e19a320636804a48568ac9a147eb
       size: 9043
     - path: models/portfolio_robustness_results.pkl
       hash: md5
@@ -402,11 +402,11 @@ stages:
     outs:
     - path: data/processed/lifetime_pd_table.parquet
       hash: md5
-      md5: f3b2153fcfeb1502a01fec0338035b90
+      md5: 3f6d0f48f00c32e33238c0b6471ba5ab
       size: 4161
     - path: models/cox_ph_model.pkl
       hash: md5
-      md5: 4b61e66aa09d519c0d47dd1a6c456a84
+      md5: f124dd5a5abbbbbdfc3fdb8a6cb5dac9
       size: 3757592
     - path: models/rsf_model.pkl
       hash: md5
@@ -414,7 +414,7 @@ stages:
       size: 4626860158
     - path: models/survival_summary.pkl
       hash: md5
-      md5: 0dd758cffd586454910e1276019e0238
+      md5: e17dc36a002dff31d9d96bbc15d6bbc0
       size: 421
   backtest_conformal_coverage:
     cmd: uv run python scripts/backtest_conformal_coverage.py
@@ -526,12 +526,12 @@ stages:
       size: 421
     - path: scripts/export_streamlit_artifacts.py
       hash: md5
-      md5: 817bf7368d4e383a9676b80db46ed7a7
-      size: 28195
+      md5: 29c8fab9f87aec42a9546570ff50a182
+      size: 28831
     outs:
     - path: data/processed/calibration_curve_data.parquet
       hash: md5
-      md5: e1120a214d44e3ce93d1034a77263abd
+      md5: 77e9417fd54207e783982be3ea222c8e
       size: 3110
     - path: data/processed/eda_summary.json
       hash: md5
@@ -543,39 +543,39 @@ stages:
       size: 3581
     - path: data/processed/hazard_ratios.parquet
       hash: md5
-      md5: 5b3fbb914ce32c47ad3be5e0076b97b2
+      md5: 19e967fdcb29a28185de9dfdf8a642a9
       size: 6359
     - path: data/processed/km_curve_data.parquet
       hash: md5
-      md5: 5eb20d5d8840e0cd85c538e21135fb3d
+      md5: 44c063d9cc53047e37840d65bf97ad0e
       size: 52384
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: c558b26ae5b6bbded113f6a4e99ddc36
-      size: 7673
+      md5: da2c32117068f66dbad2c75edeb479ca
+      size: 7823
     - path: data/processed/pipeline_summary.json
       hash: md5
       md5: 76ea1f0b0ff565609f80898976d90239
       size: 1156
     - path: data/processed/roc_curve_data.parquet
       hash: md5
-      md5: 16ce79cdeef6d5f204a31ab8eda890d5
+      md5: 57e8efbc45e96e710e8386d70b474e3d
       size: 16340
     - path: data/processed/roi_by_grade.parquet
       hash: md5
-      md5: a8f939eb724edf4badd4087426b453ae
+      md5: a815870109572428f2501e8fdd54bb7d
       size: 6156
     - path: data/processed/roi_by_grade_term.parquet
       hash: md5
-      md5: 2a96ceb8d3d12d90688a550f3c6f060b
+      md5: 93808dc652c98905b40faee034fc254f
       size: 3736
     - path: data/processed/runtime_status.json
       hash: md5
-      md5: aed5b1a687345e17aee78b5f77a8eb86
-      size: 2426
+      md5: 3002a56159fb061e55892ef15da92474
+      size: 3267
     - path: data/processed/state_aggregates.parquet
       hash: md5
-      md5: 5d8de512252f7852a8bc6ef0c87f1554
+      md5: e843fe1609eed826fcc3152030115c42
       size: 5296
   export_storytelling_snapshot:
     cmd: uv run python scripts/export_storytelling_snapshot.py
@@ -586,8 +586,8 @@ stages:
       size: 13611
     - path: data/processed/model_comparison.json
       hash: md5
-      md5: c558b26ae5b6bbded113f6a4e99ddc36
-      size: 7673
+      md5: da2c32117068f66dbad2c75edeb479ca
+      size: 7823
     - path: data/processed/pipeline_summary.json
       hash: md5
       md5: 76ea1f0b0ff565609f80898976d90239
@@ -607,7 +607,7 @@ stages:
     outs:
     - path: reports/storytelling_snapshot.json
       hash: md5
-      md5: 84a103638a40bbbbc53b350789d4a68f
+      md5: 72b4b72e557f0d3ed384de6aff084c5b
       size: 1848
   build_pipeline_results:
     cmd: uv run python scripts/build_pipeline_results.py
@@ -634,8 +634,8 @@ stages:
       size: 326
     - path: scripts/end_to_end_pipeline.py
       hash: md5
-      md5: 5c15108cc87365ec4ff45eb8171b6a4a
-      size: 9677
+      md5: 92efbb80ffe310d7810b9c3f616198a1
+      size: 8977
     outs:
     - path: models/pipeline_results.pkl
       hash: md5
@@ -734,12 +734,12 @@ stages:
       size: 4787
     - path: src/evaluation/fairness.py
       hash: md5
-      md5: 3ca06901f4881d8d700b7541e8b36d9e
-      size: 6481
+      md5: ae8117df7ca87f0e231527aae80c5c0e
+      size: 9766
     outs:
     - path: data/processed/fairness_audit.parquet
       hash: md5
-      md5: badf8de20fd40a4e8d8b313e917a0769
+      md5: 15616fa7e7c92b2ff763b793efc8a03b
       size: 5957
     - path: models/fairness_audit_status.json
       hash: md5
@@ -817,8 +817,8 @@ stages:
     deps:
     - path: configs/mrm_policy.yaml
       hash: md5
-      md5: 89e23c71a1c3981ad71acb29e881e512
-      size: 1056
+      md5: 650982e6a3a9aba3dafdc736db2456d9
+      size: 1049
     - path: data/processed/pipeline_summary.json
       hash: md5
       md5: 76ea1f0b0ff565609f80898976d90239
@@ -831,11 +831,6 @@ stages:
       hash: md5
       md5: 39d8c5a78815b5ea7fbb05ebe5c82f41
       size: 1174
-    - path: models/modeva_governance_status.json
-      hash: md5
-      md5: 5d74ae0e4e255739f04976beeae13eb9
-      size: 966
-      isexec: true
     - path: scripts/generate_mrm_report.py
       hash: md5
       md5: da4cc1449d208a70ac8a4224b784fc4c
@@ -843,8 +838,8 @@ stages:
     outs:
     - path: reports/mrm/mrm_validation_report.json
       hash: md5
-      md5: bc94e8f5e30e744bd247afaa47d378bb
-      size: 5109
+      md5: ed272d5dc4abab2561bd8682aed4cded
+      size: 4117
   export_dvc_metrics:
     cmd: uv run python scripts/export_dvc_metrics.py
     deps:
@@ -874,8 +869,8 @@ stages:
       size: 366
     - path: scripts/export_dvc_metrics.py
       hash: md5
-      md5: 81fbabb2b859689373b3ab1e3966643b
-      size: 5456
+      md5: 9eb2396d91b95668589cf63e5682dd40
+      size: 5742
     outs:
     - path: reports/dvc/conformal_coverage_backtest.csv
       hash: md5
@@ -883,8 +878,8 @@ stages:
       size: 4616
     - path: reports/dvc/metrics_summary.json
       hash: md5
-      md5: 8755df38cbcdb639ebaf0602015f9d3a
-      size: 769
+      md5: bbabe14e9561780fa6a4db8d0e69625b
+      size: 807
     - path: reports/dvc/robustness_frontier.csv
       hash: md5
       md5: df94f1e1ea4c2e68f85f65644c300cc7

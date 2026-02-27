@@ -120,7 +120,7 @@ methods = pd.DataFrame(
         },
     ]
 )
-st.dataframe(methods, use_container_width=True, hide_index=True)
+st.dataframe(methods, width="stretch", hide_index=True)
 
 st.subheader("Cadena de valor analítica")
 st.markdown(
@@ -192,7 +192,7 @@ with col_a:
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, showlegend=True)
     fig.update_yaxes(range=[0, 1], tickformat=".0%")
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: validar que cada bloque técnico cumpla su función antes de monetizar resultados. "
         "Insight: cuando AUC, cobertura y C-index se mantienen en niveles consistentes, la cadena de decisión "
@@ -209,7 +209,7 @@ with col_b:
         labels={"etapa": "", "valor_usd": "USD"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: traducir desempeño analítico a impacto económico y regulatorio. "
         "Insight: retorno robusto y valor causal muestran creación de valor, mientras IFRS9 refleja carga prudencial "
@@ -236,7 +236,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 st.markdown(
@@ -290,7 +290,7 @@ matrix = pd.DataFrame(
         },
     ]
 )
-st.dataframe(matrix, use_container_width=True, hide_index=True)
+st.dataframe(matrix, width="stretch", hide_index=True)
 
 st.subheader("Diferenciación vs. ecosistema público")
 st.markdown(
@@ -363,7 +363,7 @@ diff_data = pd.DataFrame(
         },
     ]
 )
-st.dataframe(diff_data, use_container_width=True, hide_index=True, height=460)
+st.dataframe(diff_data, width="stretch", hide_index=True, height=460)
 st.info(
     "**Conclusión:** Las técnicas que definen este proyecto — conformal prediction, optimización robusta, "
     "causalidad, survival analysis, IFRS9 y el pipeline predict-then-optimize — no aparecen en ningún "

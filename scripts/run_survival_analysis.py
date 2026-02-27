@@ -18,6 +18,15 @@ from src.models.pd_model import NUMERIC_FEATURES, WOE_FEATURES
 from src.models.survival import make_survival_target, train_cox_ph, train_random_survival_forest
 
 
+def _normalize_sample_size(sample_size: int | None, *, full_data: bool = False) -> int | None:
+    if full_data:
+        return None
+    if sample_size is None:
+        return None
+    sample_size = int(sample_size)
+    return None if sample_size <= 0 else sample_size
+
+
 def _term_to_months(term_series: pd.Series) -> pd.Series:
     if pd.api.types.is_numeric_dtype(term_series):
         term = pd.to_numeric(term_series, errors="coerce")
@@ -103,12 +112,20 @@ def _ensure_survival_targets(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
+def main(
+    sample_size: int | None = 100_000,
+    rsf_n_estimators: int = 200,
+    rsf_max_depth: int | None = None,
+    rsf_max_samples: float | None = None,
+    rsf_min_samples_leaf: int = 5,
+    full_data: bool = False,
+):
     data_path = Path("data/processed/loan_master.parquet")
     if not data_path.exists():
         data_path = Path("data/processed/train_fe.parquet")
     df = pd.read_parquet(data_path)
     df = _ensure_survival_targets(df)
+    sample_size = _normalize_sample_size(sample_size, full_data=full_data)
     if sample_size is not None and sample_size < len(df):
         df = df.sample(n=sample_size, random_state=42).reset_index(drop=True)
 
@@ -137,6 +154,9 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
         df_clean[features].iloc[n_train:],
         y[n_train:],
         n_estimators=rsf_n_estimators,
+        min_samples_leaf=rsf_min_samples_leaf,
+        max_depth=rsf_max_depth,
+        max_samples=rsf_max_samples,
     )
     rsf_training_time = time.perf_counter() - t0
     logger.info(f"Survival analysis complete: Cox={cox_metrics}, RSF={rsf_metrics}")
@@ -168,6 +188,14 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
                 else 0.0,
                 "cox_features": features,
                 "rsf_sample_size": int(len(df_clean)),
+                "dataset_scope": "full_data" if sample_size is None else "sampled",
+                "sample_size_requested": None if sample_size is None else int(sample_size),
+                "rsf_params": {
+                    "n_estimators": int(rsf_n_estimators),
+                    "min_samples_leaf": int(rsf_min_samples_leaf),
+                    "max_depth": None if rsf_max_depth is None else int(rsf_max_depth),
+                    "max_samples": None if rsf_max_samples is None else float(rsf_max_samples),
+                },
             },
             f,
         )
@@ -199,6 +227,17 @@ def main(sample_size: int = 100_000, rsf_n_estimators: int = 200):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--sample_size", type=int, default=100_000)
+    parser.add_argument("--full-data", action="store_true", dest="full_data")
     parser.add_argument("--rsf_n_estimators", type=int, default=200)
+    parser.add_argument("--rsf_max_depth", type=int, default=None)
+    parser.add_argument("--rsf_max_samples", type=float, default=None)
+    parser.add_argument("--rsf_min_samples_leaf", type=int, default=5)
     args = parser.parse_args()
-    main(sample_size=args.sample_size, rsf_n_estimators=args.rsf_n_estimators)
+    main(
+        sample_size=args.sample_size,
+        rsf_n_estimators=args.rsf_n_estimators,
+        rsf_max_depth=args.rsf_max_depth,
+        rsf_max_samples=args.rsf_max_samples,
+        rsf_min_samples_leaf=args.rsf_min_samples_leaf,
+        full_data=args.full_data,
+    )

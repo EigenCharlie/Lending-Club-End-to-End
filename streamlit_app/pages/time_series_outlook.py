@@ -134,7 +134,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -210,7 +210,7 @@ fig.update_layout(
     yaxis={"tickformat": ".1%"},
     height=470,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: proyectar default futuro. Insight: el modelo seleccionable mantiene trayectoria coherente con histórico. "
     "Uso práctico: alimentar escenarios de provisión y planeación de riesgo."
@@ -252,7 +252,7 @@ else:
             yaxis={"tickformat": ".1%"},
             height=390,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: visualizar rango optimista/adverso frente al punto central. "
             "Insight: la incertidumbre no es simétrica en todos los meses. "
@@ -282,7 +282,7 @@ else:
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"])
         fig.update_layout(yaxis={"tickformat": ".1%"}, height=390)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: resumir dispersión por escenario. Insight: escenarios adversos desplazan sistemáticamente la tasa esperada. "
             "Uso práctico: stress testing de provisiones y capital."
@@ -319,7 +319,7 @@ else:
         color_continuous_scale="Blues",
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, coloraxis_showscale=False)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: comparar error fuera de muestra temporal. Insight: el ranking de modelos no siempre coincide en MAE y RMSE. "
         "Uso práctico: elegir modelo según criterio de negocio (error medio vs penalización de errores grandes)."
@@ -371,7 +371,7 @@ if img.exists():
     st.image(
         str(img),
         caption="Notebook 05: comparación de modelos por métricas de validación temporal.",
-        use_container_width=True,
+        width="stretch",
     )
 
 render_caveats(

@@ -295,6 +295,8 @@ def _human_calibration_name(method: str) -> str:
 
 
 def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = None) -> None:
+    if sample_size is not None and int(sample_size) <= 0:
+        sample_size = None
     config = load_config(config_path)
     logger.info(f"Config loaded from {config_path}")
 
@@ -405,6 +407,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             timeout_minutes=int(hpo_cfg.get("timeout_minutes", 0)),
             n_startup_trials=int(hpo_cfg.get("n_startup_trials", 40)),
             multivariate_tpe=bool(hpo_cfg.get("multivariate_tpe", True)),
+            group_tpe=bool(hpo_cfg.get("group_tpe", True)),
+            warn_independent_sampling=bool(hpo_cfg.get("warn_independent_sampling", True)),
             pruner_n_startup_trials=int(hpo_cfg.get("pruner_n_startup_trials", 20)),
             pruner_n_warmup_steps=int(hpo_cfg.get("pruner_n_warmup_steps", 50)),
             use_pruning_callback=bool(hpo_cfg.get("use_pruning_callback", True)),
@@ -412,6 +416,11 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             study_name=hpo_cfg.get("study_name", None),
             load_if_exists=bool(hpo_cfg.get("load_if_exists", True)),
             refit_full_train=bool(hpo_cfg.get("refit_full_train", True)),
+            gc_after_trial=bool(hpo_cfg.get("gc_after_trial", True)),
+            storage_heartbeat_interval=int(hpo_cfg.get("storage_heartbeat_interval", 0)),
+            storage_grace_period=int(hpo_cfg.get("storage_grace_period", 0)),
+            sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
+            retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
         )
     else:
         cb_tuned_model, cb_tuned_metrics = train_catboost_default(
@@ -492,6 +501,18 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     with open(cal_path, "wb") as f:
         pickle.dump(calibrator, f)
 
+    logreg_model_path = Path("models/pd_logreg_baseline.pkl")
+    logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(logreg_model_path, "wb") as f:
+        pickle.dump(
+            {
+                "model": lr_model,
+                "feature_names": list(logreg_features),
+                "fill_values": lr_fill.to_dict(),
+            },
+            f,
+        )
+
     # Canonical artifacts for downstream loading.
     CANONICAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
     CANONICAL_CALIBRATOR_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -541,8 +562,19 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         "feature_source": feature_sets.get("feature_source", feature_mode),
         "feature_config_path": str(feature_config_path),
         "validation_scheme": val_cfg.get("scheme", "temporal_train_val_cal_test"),
+        "dataset_scope": "full_data" if sample_size is None else "sampled",
+        "sample_size": None if sample_size is None else int(sample_size),
         "feature_count_default": int(len(catboost_features)),
         "feature_count_tuned": int(len(catboost_features)),
+        "logreg_feature_names": list(logreg_features),
+        "logreg_coefficients": {
+            feature: float(coef)
+            for feature, coef in zip(
+                logreg_features,
+                np.asarray(getattr(lr_model, "coef_", np.zeros((1, len(logreg_features))))).ravel(),
+                strict=False,
+            )
+        },
         "optuna_best_auc": float(cb_tuned_metrics.get("auc_roc", 0.0)),
         "optuna_best_params": cb_tuned_metrics.get("best_params", {}),
         "hpo_trials_executed": int(cb_tuned_metrics.get("hpo_trials_executed", 0)),
@@ -563,6 +595,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     logger.info("Saved default model to {}", default_model_path)
     logger.info("Saved tuned model to {}", model_path)
+    logger.info("Saved LR baseline to {}", logreg_model_path)
     logger.info("Saved calibrator to {}", cal_path)
     logger.info("Saved canonical model to {}", CANONICAL_MODEL_PATH)
     logger.info("Saved canonical calibrator to {}", CANONICAL_CALIBRATOR_PATH)

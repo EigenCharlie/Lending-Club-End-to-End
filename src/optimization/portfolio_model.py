@@ -141,33 +141,50 @@ def solve_portfolio(
     model: pyo.ConcreteModel,
     time_limit: int = 300,
     threads: int = 4,
+    solver_backend: str = "highs",
 ) -> dict[str, Any]:
-    """Solve portfolio optimization with HiGHS."""
-    from pyomo.contrib.appsi.solvers import Highs
+    """Solve portfolio optimization with HiGHS (default) or optional cuOpt."""
+    backend = solver_backend.strip().lower()
+    if backend == "highs":
+        from pyomo.contrib.appsi.solvers import Highs
 
-    solver = Highs()
-    solver.config.time_limit = time_limit
-    _ = threads  # reserved for future solver configurations
-
-    results = solver.solve(model)
+        solver = Highs()
+        solver.config.time_limit = time_limit
+        _ = threads  # reserved for future HiGHS appsi configuration
+        results = solver.solve(model)
+    elif backend == "cuopt":
+        solver = pyo.SolverFactory("cuopt")
+        if solver is None or not solver.available(False):
+            raise RuntimeError(
+                "solver_backend='cuopt' requested but Pyomo cuOpt solver is not available "
+                "in this environment."
+            )
+        _ = (time_limit, threads)  # backend-specific options vary by cuOpt deployment
+        results = solver.solve(model)
+    else:
+        raise ValueError(f"Unsupported solver_backend={solver_backend!r}. Use 'highs' or 'cuopt'.")
 
     allocation = {i: pyo.value(model.x[i]) for i in model.I}
     obj_value = pyo.value(model.obj)
     n_funded = sum(1 for v in allocation.values() if v > 0.01)
     total_allocated = sum(allocation[i] * pyo.value(model.loan_amnt[i]) for i in model.I)
     pd_cap_slack = float(pyo.value(model.pd_cap_slack)) if hasattr(model, "pd_cap_slack") else 0.0
+    termination = getattr(results, "termination_condition", None)
+    if termination is None and hasattr(results, "solver"):
+        termination = getattr(results.solver, "termination_condition", None)
 
     solution = {
         "allocation": allocation,
         "objective_value": float(obj_value),
         "n_funded": int(n_funded),
         "total_allocated": float(total_allocated),
-        "solver_status": str(results.termination_condition),
+        "solver_status": str(termination) if termination is not None else "unknown",
+        "solver_backend": backend,
         "pd_cap_slack": pd_cap_slack,
     }
 
     logger.info(
-        f"Portfolio solved: obj={obj_value:,.2f}, funded={n_funded}/{len(allocation)}, "
+        f"Portfolio solved ({backend}): obj={obj_value:,.2f}, funded={n_funded}/{len(allocation)}, "
         f"allocated={total_allocated:,.0f}, pd_cap_slack={pd_cap_slack:.4f}"
     )
     return solution

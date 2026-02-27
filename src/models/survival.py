@@ -40,6 +40,11 @@ def train_random_survival_forest(
     X_test: pd.DataFrame,
     y_test: np.ndarray,
     n_estimators: int = 500,
+    min_samples_leaf: int = 5,
+    min_samples_split: int = 10,
+    max_features: str | int | float = "sqrt",
+    max_depth: int | None = None,
+    max_samples: int | float | None = None,
 ) -> tuple:
     """Train Random Survival Forest.
 
@@ -51,9 +56,11 @@ def train_random_survival_forest(
 
     rsf = RandomSurvivalForest(
         n_estimators=n_estimators,
-        min_samples_split=10,
-        min_samples_leaf=5,
-        max_features="sqrt",
+        min_samples_split=min_samples_split,
+        min_samples_leaf=min_samples_leaf,
+        max_features=max_features,
+        max_depth=max_depth,
+        max_samples=max_samples,
         random_state=42,
         n_jobs=-1,
     )

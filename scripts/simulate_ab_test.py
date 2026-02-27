@@ -85,8 +85,14 @@ def main(
     test_df = pd.read_parquet(test_path)
     intervals = pd.read_parquet(intervals_path)
 
-    n = min(len(test_df), len(intervals), max_candidates)
-    logger.info(f"Using {n} candidates (max_candidates={max_candidates})")
+    max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
+    n = min(len(test_df), len(intervals))
+    if max_candidates_norm is not None:
+        n = min(n, max_candidates_norm)
+    logger.info(
+        f"Using {n} candidates "
+        f"(max_candidates={'full' if max_candidates_norm is None else max_candidates_norm})"
+    )
     test_df = test_df.iloc[:n].reset_index(drop=True)
     intervals = intervals.iloc[:n].reset_index(drop=True)
 
@@ -198,6 +204,10 @@ def main(
         "comparison": comparison,
         "metrics_a": metrics_a,
         "metrics_b": metrics_b,
+        "n_candidates_available": int(min(len(test_df), len(intervals))),
+        "n_candidates_used": int(n),
+        "max_candidates_requested": None if max_candidates_norm is None else max_candidates_norm,
+        "dataset_scope": "full_candidates" if max_candidates_norm is None else "sampled_candidates",
     }
     status_path = Path("models/ab_simulation_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)

@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-02-21
+Last Updated: 2026-02-25
 
 ---
 
@@ -56,6 +56,7 @@ Design implication:
 22. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
 23. scripts/export_storytelling_snapshot.py -> storytelling JSON
 24. scripts/end_to_end_pipeline.py        -> orchestration
+25. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
 ```
 
 ---
@@ -82,15 +83,15 @@ Source artifacts:
 - KS: `0.3200`
 - Brier: `0.1538`
 - ECE: `0.0094`
-- HPO trials executed: `400`
+- HPO trials executed: `800`
 - Best validation AUC (Optuna): `0.7199`
 
 ### 4.2 Conformal (Mondrian)
-- Coverage 90%: `0.8917`
-- Coverage 95%: `0.9511`
-- Avg width 90%: `0.7225`
-- Policy checks passed: `2/7`
-- Overall policy pass: `false`
+- Coverage 90%: `0.9141`
+- Coverage 95%: `0.9520`
+- Avg width 90%: `0.7420`
+- Policy checks passed: all current checks (`checks_passed=7`, `checks_total=7`)
+- Overall policy pass: `true`
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
@@ -105,17 +106,17 @@ Source artifacts:
 
 ### 4.5 Optimization Robustness (risk tolerance 0.10)
 - Baseline non-robust funded: `148`
-- Best robust funded: `100`
+- Best robust funded: `97`
 - Baseline non-robust return: `98,235`
-- Best robust return: `62,030`
-- Price of robustness: `36.86%`
+- Best robust return: `59,595`
+- Price of robustness: `39.33%`
 
 ---
 
 ## 5) Delivery Layer Status (Current)
 
 ### Streamlit
-- 25-page multi-page app in `streamlit_app/`, all registered in `app.py`.
+- 27-page multi-page app in `streamlit_app/`, all registered in `app.py`.
 - Model laboratory and thesis pages consume runtime artifacts for metrics.
 - Includes A/B testing simulation, fairness audit, and CATE portfolio pages.
 
@@ -137,46 +138,30 @@ Source artifacts:
 
 ## 6) Environment Notes
 
-- Python: `3.11` (`.python-version`)
+- Python: `3.12` (`.python-version`)
 - Environment manager: `uv`
-- Local virtual environment: `.venv`
-- Optional platform extras (`dbt`, `feast`) are under `pyproject.toml` extra `platform`
+- Local virtual environment: `lending-club-venv` (compat symlink `.venv` -> `lending-club-venv`)
+- Optional platform tooling: `dbt` under `pyproject.toml` extra `platform`; `feast` in `.venv-feast`; `econml` in `.venv-causal`
 
 ---
 
 ## 7) Test Suite
 
-394 tests passing (7.88s) across 19 test files:
+Local verification on 2026-02-25:
 
-| Category | Tests | Files |
-|----------|-------|-------|
-| API normalization | 5 | `test_router_normalization` |
-| Config consistency | 54 | `test_config_consistency` (7 config classes) |
-| Data pipeline | 29 | `test_make_dataset`, `test_prepare_dataset`, `test_build_datasets` |
-| Features | 5 | `test_features` |
-| PD model | 9 | `test_pd_model` |
-| Calibration | 10 | `test_calibration` |
-| Conformal | 18 | `test_conformal` |
-| Conformal tuning | 21 | `test_conformal_tuning` |
-| PD contract | 13 | `test_pd_contract` |
-| IFRS9 | 19 | `test_ifrs9` |
-| Metrics | 11 | `test_metrics` |
-| Fairness | 10 | `test_fairness` |
-| A/B testing | 8 | `test_ab_testing` |
-| Portfolio | 15 | `test_portfolio` |
-| Portfolio model | 13 | `test_portfolio_model` |
-| Causal portfolio | 8 | `test_causal_portfolio` |
-| Robust opt | 13 | `test_robust_opt` |
-| MLflow/utils | 18 | `test_mlflow_suite`, `test_mlflow_utils` |
-| Streamlit | 55 | `test_page_imports` (25 pages + utils) |
-| Integration | 8 | `test_integration` |
+- `423/423` tests passing (`pytest -q`, latest local full run on `lending-club-venv` / Python 3.12)
+- `37` test files (`tests/**/test_*.py`)
+- Streamlit smoke/import coverage includes all `27` pages (`tests/test_streamlit/test_page_imports.py`)
+
+Operational note:
+- `data/processed/runtime_status.json` is a generated snapshot and may lag until `scripts/export_streamlit_artifacts.py` is re-run.
 
 ## 8) Current Priorities
 
 1. Keep docs and Streamlit narratives strictly artifact-driven (no stale hardcoded claims).
 2. Config files are templates — runtime calibration selection is artifact-driven.
 3. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
-4. DVC pipeline has 24 stages; `dvc.lock` is authoritative for artifact hashes.
+4. DVC pipeline has 25 stages; `dvc.lock` is authoritative for artifact hashes.
 
 ---
 

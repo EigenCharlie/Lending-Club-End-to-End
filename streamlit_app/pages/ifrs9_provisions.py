@@ -220,7 +220,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -260,7 +260,7 @@ with col_nb_img:
             labels={"scenario": "Escenario", "share": "Participación"},
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320, yaxis={"tickformat": ".0%"})
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Imagen de notebook no encontrada; se muestra fallback construido desde escenarios IFRS9."
         )
@@ -312,7 +312,7 @@ fig.update_layout(
     yaxis_title="ECL (USD)",
     height=430,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: separar provisión 12m vs lifetime por grade. Insight: Stage 2 concentra la mayor presión de capital en "
     "segmentos de mayor riesgo."
@@ -352,7 +352,7 @@ else:
             labels={"scenario": "Escenario", "total_ecl": "ECL total (USD)"},
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], showlegend=False, height=390)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: cuantificar sensibilidad macro de ECL total. Insight: el salto baseline->severe muestra vulnerabilidad "
             "de reservas ante estrés."
@@ -375,7 +375,7 @@ else:
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"])
         fig.update_layout(yaxis={"tickformat": ".0%"}, height=390)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: visualizar migración de stages por escenario. Insight: el aumento de Stage 2/3 explica gran parte del uplift "
             "de provisiones."
@@ -412,7 +412,7 @@ with col3:
             labels={"x": "LGD mult", "y": "PD mult", "color": "ECL"},
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: medir elasticidad de ECL ante shocks de PD y LGD. Insight: permite construir mapas de materialidad para "
             "stress testing interno."
@@ -431,7 +431,7 @@ with col4:
             labels={"x": "Escenario", "y": "Grade", "color": "ECL promedio"},
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Propósito: identificar segmentos más sensibles al escenario macro. Insight: grades bajos presentan mayor incremento "
             "de ECL relativo."
@@ -467,7 +467,7 @@ defs = pd.DataFrame(
         },
     ]
 )
-st.dataframe(defs, use_container_width=True, hide_index=True)
+st.dataframe(defs, width="stretch", hide_index=True)
 
 st.markdown(
     """

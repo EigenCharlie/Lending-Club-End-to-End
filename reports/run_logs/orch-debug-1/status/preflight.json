@@ -1,0 +1,11 @@
+{
+  "step": "preflight",
+  "required": true,
+  "command": "source lending-club-venv/bin/activate && uv run pytest -q tests/test_docs tests/test_streamlit/test_page_imports.py tests/test_config_consistency.py && uv run python scripts/run_comparison.py snapshot --run-tag orch-debug-1",
+  "started_at_utc": "2026-02-26T18:36:36.292791+00:00",
+  "ended_at_utc": "2026-02-26T18:36:41.576696+00:00",
+  "duration_seconds": 5.283905,
+  "exit_code": 0,
+  "skipped": false,
+  "skip_reason": null
+}

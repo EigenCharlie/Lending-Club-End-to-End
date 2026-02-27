@@ -1,0 +1,100 @@
+{
+  "python.defaultInterpreterPath": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
+  "python.terminal.activateEnvironment": true,
+  "python.envFile": "${workspaceFolder}/.env",
+  "terminal.integrated.env.linux": {
+    "UV_PROJECT_ENVIRONMENT": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv"
+  },
+  "dvc.focusedProjects": [
+    "/home/eigenlinux/projects/lending-club-risk-project"
+  ],
+  "dvc.pythonPath": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
+  "dvc.dvcPath": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/dvc",
+  "dvc.doNotShowSetupAfterInstall": true,
+  "python.testing.pytestEnabled": true,
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestArgs": [
+    "tests"
+  ],
+  "python.analysis.typeCheckingMode": "basic",
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}"
+  ],
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.ruff": "explicit",
+      "source.organizeImports.ruff": "explicit"
+    }
+  },
+  "[toml]": {
+    "editor.defaultFormatter": "tamasfe.even-better-toml"
+  },
+  "files.associations": {
+    "dbt_project/*.sql": "jinja-sql",
+    "dbt_project/**/*.sql": "jinja-sql",
+    "dbt_project/*.yml": "jinja-yaml",
+    "dbt_project/**/*.yml": "jinja-yaml",
+    "dbt_project/*.yaml": "jinja-yaml",
+    "dbt_project/**/*.yaml": "jinja-yaml"
+  },
+  "files.watcherExclude": {
+    "**/.git/**": true,
+    "**/.venv/**": true,
+    "**/lending-club-venv/**": true,
+    "**/lending-club-venv-py312/**": true,
+    "**/.dvc/cache/**": true,
+    "**/.pytest_cache/**": true,
+    "**/.ruff_cache/**": true,
+    "**/dbt_project/target/**": true,
+    "**/reports/notebook_images/**": true,
+    "**/dist/**": true,
+    "**/catboost_info/**": true
+  },
+  "search.exclude": {
+    "**/.venv": true,
+    "**/lending-club-venv": true,
+    "**/lending-club-venv-py312": true,
+    "**/.dvc/cache": true,
+    "**/dbt_project/target": true,
+    "**/reports/notebook_images": true,
+    "**/dist": true
+  },
+  "jupyter.notebookFileRoot": "${workspaceFolder}",
+  "jupyter.askForKernelRestart": false,
+  "dbt.dbtIntegration": "core",
+  "dbt.dbtPythonPathOverride": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
+  "dbt.allowListFolders": [
+    "dbt_project"
+  ],
+  "dbt.installDepsOnProjectInitialization": false,
+  "dbt.enableCollaboration": false,
+  "dbt.enableNotebooks": false,
+  "dbt.queryLimit": 1000,
+  "sqltools.connections": [
+    {
+      "name": "Lending Club DuckDB",
+      "group": "Project",
+      "driver": "DuckDB",
+      "database": "/home/eigenlinux/projects/lending-club-risk-project/data/lending_club.duckdb",
+      "previewLimit": 1000
+    },
+    {
+      "name": "Optuna PD SQLite",
+      "group": "Project",
+      "driver": "SQLite",
+      "database": "/home/eigenlinux/projects/lending-club-risk-project/models/optuna_pd_catboost.db",
+      "previewLimit": 1000
+    }
+  ],
+  "containers.containerClient": "com.microsoft.visualstudio.containers.docker",
+  "containers.orchestratorClient": "com.microsoft.visualstudio.orchestrators.dockercompose",
+  "containers.showRemoteWorkspaceWarning": false,
+  "yaml.schemas": {
+    "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
+  },
+  "sqltools.useNodeRuntime": true,
+  "remote.autoForwardPortsSource": "hybrid"
+}

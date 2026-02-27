@@ -4,10 +4,12 @@ Step-by-step guide to reproduce the entire project from a fresh clone.
 
 ## Prerequisites
 
-- **Python 3.11** (3.11.x, not 3.12+)
+- **Python 3.12** recommended (project supports `>=3.11,<3.13`, current default `.python-version` is `3.12`)
 - **uv** package manager: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **Git**
 - **Kaggle dataset**: Download manually from https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data and place CSV in `data/raw/`
+- **GPU side-projects (RAPIDS)**: run in Conda env `rapids` (keep `lending-club-venv` for the core pipeline)
+- **Causal ML with EconML**: run in a separate venv (kept out of main lock to avoid pinning `scikit-learn`/`shap`)
 
 ## Quick Start
 
@@ -41,7 +43,7 @@ If you want to run individual stages:
 | 1 | `uv run python -c "from src.data.make_dataset import main; main()"` | `data/interim/lending_club_cleaned.parquet` |
 | 2 | `uv run python -c "from src.data.prepare_dataset import main; main()"` | Train/calibration/test splits |
 | 3 | `uv run python -c "from src.data.build_datasets import main; main()"` | loan_master, time_series, ead_dataset |
-| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + Platt calibrator + contract |
+| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + selected calibrator (Platt/Isotonic) + contract |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
 | 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate (checks formales de conformal) |
@@ -55,8 +57,7 @@ If you want to run individual stages:
 ## Optional: Platform Layer (dbt + Feast)
 
 ```bash
-# WARNING: dev and platform extras conflict (pyarrow versions).
-# Use a separate venv or switch extras.
+# dbt runs in the project venv (optional extra).
 uv sync --extra platform
 
 # dbt
@@ -66,11 +67,31 @@ uv run dbt test
 uv run dbt docs generate
 cd ..
 
+# Feast runs in a separate venv to avoid pinning uvicorn in the main lock.
+uv venv .venv-feast
+uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt
+
 # Feast
 cd feature_repo
-uv run feast apply
+../.venv-feast/bin/feast apply
 cd ..
+
+# EconML (causal workflows) in separate env to avoid blocking sklearn/shap upgrades
+bash scripts/causal/setup_causal_env.sh .venv-causal
 ```
+
+## Optional: Causal ML (DoWhy + EconML)
+
+```bash
+# Build/update dedicated causal env (project stack + EconML overlay)
+bash scripts/causal/setup_causal_env.sh .venv-causal
+
+# Example
+./.venv-causal/bin/python scripts/estimate_causal_effects.py
+```
+
+Note:
+- `.venv-causal` is a task-specific overlay env for causal workflows. `econml` may downgrade `scikit-learn`/`shap`, so keep using `lending-club-venv` for the rest of the project (PD/survival/API/Streamlit).
 
 ## Optional: Docker Compose
 
@@ -183,9 +204,9 @@ DAGSHUB_CLIENT_BOOTSTRAP=1 bash scripts/configure_integrations.sh
 
 ## Environment Notes
 
-- Python 3.11.x on WSL2 (tested)
+- Python 3.12.x on WSL2 (tested)
 - `uv` at `~/.local/bin/uv`
-- Venv at `.venv/bin/python`
+- Venv at `lending-club-venv/bin/python` (compat symlink `.venv` is also present)
 - Pre-commit hooks: `uv run pre-commit install`
 
 ## GitHub Governance (recommended minimal settings)
