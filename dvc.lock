@@ -52,8 +52,8 @@ stages:
       size: 140607600
     - path: src/data/build_datasets.py
       hash: md5
-      md5: d4ec603af19b96d751c668452e2fa2b6
-      size: 6597
+      md5: dadc1d891abd7a86f594367a4df1053e
+      size: 6831
       isexec: true
     - path: src/features/feature_engineering.py
       hash: md5
@@ -63,15 +63,15 @@ stages:
     outs:
     - path: data/processed/ead_dataset.parquet
       hash: md5
-      md5: b38f7f12cac5caf36b9fb3253c99c9a3
-      size: 30177817
+      md5: cb061da599238898582f9b5643298ee7
+      size: 29782529
     - path: data/processed/loan_master.parquet
       hash: md5
-      md5: afa73326552f2bf35102f38488390bc0
-      size: 49725577
+      md5: db564e28f52468207b3c05c1a5d3064d
+      size: 49218072
     - path: data/processed/time_series.parquet
       hash: md5
-      md5: 544a11a57e3c48a1afa83504010fc4e0
+      md5: 8df6053602203820252f1f57a29987dc
       size: 13633
   train_pd_model:
     cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
@@ -322,7 +322,7 @@ stages:
       md5: 361e266d40e8d235987389274f2d7082
       size: 1457
   optimize_portfolio:
-    cmd: uv run python scripts/optimize_portfolio.py --config
+    cmd: uv run python scripts/optimize_portfolio.py --config 
       configs/optimization.yaml --risk_tolerance 0.10
     deps:
     - path: configs/optimization.yaml
@@ -353,7 +353,7 @@ stages:
       md5: 52b1cf38003e51f579f814e13b674750
       size: 60211
   optimize_portfolio_tradeoff:
-    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
+    cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config 
       configs/optimization.yaml
     deps:
     - path: configs/optimization.yaml
@@ -446,7 +446,7 @@ stages:
       md5: e0fb1aca0dc5878f588deb43ef93ff93
       size: 15634
   validate_conformal_policy:
-    cmd: uv run python scripts/validate_conformal_policy.py --config
+    cmd: uv run python scripts/validate_conformal_policy.py --config 
       configs/conformal_policy.yaml
     deps:
     - path: configs/conformal_policy.yaml
@@ -712,7 +712,7 @@ stages:
       md5: 8a8ab87bbe09fec054c042d80d8229cb
       size: 304
   run_fairness_audit:
-    cmd: uv run python scripts/run_fairness_audit.py --config
+    cmd: uv run python scripts/run_fairness_audit.py --config 
       configs/fairness_policy.yaml
     deps:
     - path: configs/fairness_policy.yaml
@@ -812,17 +812,17 @@ stages:
       md5: 08518330709ff426453803454b372e74
       size: 625
   generate_mrm_report:
-    cmd: uv run python scripts/generate_mrm_report.py --config
+    cmd: uv run python scripts/generate_mrm_report.py --config 
       configs/mrm_policy.yaml
     deps:
     - path: configs/mrm_policy.yaml
       hash: md5
-      md5: 650982e6a3a9aba3dafdc736db2456d9
-      size: 1049
+      md5: 14ce46c027f134f01167069992b8bde5
+      size: 1509
     - path: data/processed/pipeline_summary.json
       hash: md5
-      md5: 76ea1f0b0ff565609f80898976d90239
-      size: 1156
+      md5: acb0ffb2db62d01d812effa89a9c84e3
+      size: 2428
     - path: models/conformal_policy_status.json
       hash: md5
       md5: 68b7731c81b1fdf9a596127801ab6718
@@ -831,15 +831,19 @@ stages:
       hash: md5
       md5: 39d8c5a78815b5ea7fbb05ebe5c82f41
       size: 1174
+    - path: models/governance_status.json
+      hash: md5
+      md5: 2937e4eb86be6f36b7d0281e419399b7
+      size: 4462
     - path: scripts/generate_mrm_report.py
       hash: md5
-      md5: da4cc1449d208a70ac8a4224b784fc4c
-      size: 3576
+      md5: cebd93a89ae05c67f1468c53a7bf198d
+      size: 3811
     outs:
     - path: reports/mrm/mrm_validation_report.json
       hash: md5
-      md5: ed272d5dc4abab2561bd8682aed4cded
-      size: 4117
+      md5: 1fe8f452e016003ef4d91356621a6ce5
+      size: 10244
   export_dvc_metrics:
     cmd: uv run python scripts/export_dvc_metrics.py
     deps:
@@ -884,3 +888,45 @@ stages:
       hash: md5
       md5: df94f1e1ea4c2e68f85f65644c300cc7
       size: 3165
+  generate_governance_status:
+    cmd: uv run python scripts/generate_governance_status.py --config 
+      configs/mrm_policy.yaml
+    deps:
+    - path: configs/mrm_policy.yaml
+      hash: md5
+      md5: 14ce46c027f134f01167069992b8bde5
+      size: 1509
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: c12de73016756f1c279f09178fa36ff9
+      size: 31875314
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 1a12195e1b06c2a2c8d2f3af79edc9d0
+      size: 140607600
+    - path: scripts/generate_governance_status.py
+      hash: md5
+      md5: 3ab9cba9cf47bccade8ca7aa2180ec64
+      size: 7504
+    - path: src/evaluation/backtesting.py
+      hash: md5
+      md5: c52610c85ad18ba5a8a4b4224017fa99
+      size: 13554
+      isexec: true
+    outs:
+    - path: data/processed/drift_monitoring.parquet
+      hash: md5
+      md5: 5285b20f854c0d879bdf4e3201641c32
+      size: 8221
+    - path: data/processed/drift_monitoring_v2.parquet
+      hash: md5
+      md5: 5285b20f854c0d879bdf4e3201641c32
+      size: 8221
+    - path: models/governance_status.json
+      hash: md5
+      md5: 2937e4eb86be6f36b7d0281e419399b7
+      size: 4462
+    - path: models/governance_status_v2.json
+      hash: md5
+      md5: 2937e4eb86be6f36b7d0281e419399b7
+      size: 4462
