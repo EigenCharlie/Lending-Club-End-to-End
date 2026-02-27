@@ -204,6 +204,9 @@ class TestDvcPipeline:
         required = {
             "backtest_conformal_coverage",
             "validate_conformal_policy",
+            "generate_governance_status",
+            "build_pd_challenger_artifacts",
+            "run_fairness_audit",
             "export_streamlit_artifacts",
             "export_storytelling_snapshot",
         }
