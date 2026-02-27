@@ -451,8 +451,8 @@ stages:
     deps:
     - path: configs/conformal_policy.yaml
       hash: md5
-      md5: 00ad782084b9dde305c5689708d63f8e
-      size: 641
+      md5: f926f334e1922c1855c5439078f4a624
+      size: 953
       isexec: true
     - path: data/processed/conformal_backtest_alerts.parquet
       hash: md5
@@ -472,18 +472,18 @@ stages:
       size: 2480
     - path: scripts/validate_conformal_policy.py
       hash: md5
-      md5: c7596d32efac3c9a60d2539e28f0d898
-      size: 4907
+      md5: 36df7f4fc588e765b60c8649d34b5051
+      size: 9332
       isexec: true
     outs:
     - path: data/processed/conformal_policy_checks.parquet
       hash: md5
-      md5: 8739439fa46bec2f75f81226a5a384c6
-      size: 3971
+      md5: d8d43c1107ff5bc8ac8a2ce755b39744
+      size: 4145
     - path: models/conformal_policy_status.json
       hash: md5
-      md5: 68b7731c81b1fdf9a596127801ab6718
-      size: 397
+      md5: dff711c814c687fa40288b61ea1ced67
+      size: 2091
   export_streamlit_artifacts:
     cmd: uv run python scripts/export_streamlit_artifacts.py
     deps:
