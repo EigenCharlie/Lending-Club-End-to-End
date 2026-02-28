@@ -439,6 +439,7 @@ def _write_snapshot(run_tag: str) -> Path:
 
 
 def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
+    baseline_path = baseline_path.expanduser().resolve()
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     current = _snapshot_payload(run_tag)
     gate_results = [
@@ -452,11 +453,15 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
     conformal_details = conformal_gate.details if conformal_gate is not None else {}
     conformal_checks = conformal_details.get("checks", {})
     conformal_diagnostics = conformal_details.get("diagnostics", {})
+    try:
+        baseline_path_out = str(baseline_path.relative_to(ROOT))
+    except ValueError:
+        baseline_path_out = str(baseline_path)
     report = {
         "schema_version": SCHEMA_VERSION,
         "run_tag": run_tag,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "baseline_path": str(baseline_path.relative_to(ROOT)),
+        "baseline_path": baseline_path_out,
         "overall_pass": bool(all(g.passed for g in gate_results)),
         "conformal_promotion_pass": bool(conformal_checks.get("conformal_promotion_pass", False)),
         "conformal_statistical_warning": bool(
@@ -502,7 +507,7 @@ def main() -> None:
         return
 
     baseline_path = (
-        Path(args.baseline)
+        Path(args.baseline).expanduser().resolve()
         if args.baseline
         else (OUT_ROOT / args.run_tag / "baseline_snapshot.json")
     )
