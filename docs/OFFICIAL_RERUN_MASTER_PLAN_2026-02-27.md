@@ -32,13 +32,13 @@ Evidencia levantada en esta maquina:
 
 - `A_SHA (main) = dbf5f18fda7a72d3b4c217194c6269fdc6d3b511`
 - `B_SHA (research/toboml2-integration-v1) = b8b44b144e3a79fb2e8f1d69a4ee9ce68994fb42`
-- `C_SHA (experiment/conformal-toboml-integration-rerun) = b8b44b144e3a79fb2e8f1d69a4ee9ce68994fb42` (antes de commit final de hardening)
+- `C_SHA (experiment/conformal-toboml-integration-rerun) = c08187d9ec188fcab4958e9a09e357c29fffe44b` (commit final de hardening v1)
 
 Conteo de divergencia:
 
 - `main...research = 0|9`
-- `research...experiment = 0|0` (a nivel commit base actual)
-- `main...experiment = 0|9`
+- `research...experiment = 0|1`
+- `main...experiment = 0|10`
 
 Relacion con `experiment/overnight-full-rerun-2026-02-26`:
 
@@ -47,7 +47,7 @@ Relacion con `experiment/overnight-full-rerun-2026-02-26`:
 
 Nota operativa clave:
 
-- Antes de iniciar corridas oficiales, cerrar el hardening pendiente en `experiment` con commit(es) final(es), volver a capturar `C_SHA` y limpiar working tree.
+- Corridas oficiales deben iniciarse con working tree limpio en cada rama y SHAs congelados en el reporte final.
 
 ---
 
