@@ -249,6 +249,7 @@ def build_steps(
         uv run python -u scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml &&
         uv run python -u scripts/run_fairness_audit.py &&
         uv run python -u scripts/validate_causal_policy.py &&
+        uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml &&
         uv run python -u scripts/generate_mrm_report.py &&
         uv run python -u scripts/export_streamlit_artifacts.py &&
         uv run python -u scripts/export_storytelling_snapshot.py &&
@@ -301,7 +302,7 @@ def main() -> int:
     write_json(
         run_dir / "run_info.json",
         {
-            "schema_version": "2026-02-26.1",
+            "schema_version": "2026-02-27.1",
             "run_tag": run_tag,
             "started_at_utc": utc_now_iso(),
             "argv": sys.argv,
@@ -328,6 +329,7 @@ def main() -> int:
         include_notebooks=not bool(args.no_notebooks),
     )
     failed_required = False
+    stopped_on_optional_failure = False
     failed_steps: list[str] = []
 
     for step, required, command in steps:
@@ -343,15 +345,17 @@ def main() -> int:
                 append_master(run_tag, f"RUN_ABORT required_step_failed={step}")
                 break
             if args.stop_on_optional_failure:
+                stopped_on_optional_failure = True
                 append_master(run_tag, f"RUN_ABORT optional_step_failed={step}")
                 break
 
-    final_ec = 1 if failed_required else 0
+    final_ec = 1 if (failed_required or stopped_on_optional_failure) else 0
     summary = {
-        "schema_version": "2026-02-26.1",
+        "schema_version": "2026-02-27.1",
         "run_tag": run_tag,
         "ended_at_utc": utc_now_iso(),
         "failed_required": failed_required,
+        "stopped_on_optional_failure": stopped_on_optional_failure,
         "failed_steps": failed_steps,
         "final_exit_code": final_ec,
     }

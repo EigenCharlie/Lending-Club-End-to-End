@@ -25,6 +25,7 @@ main_session:
     - uv run python scripts/build_pipeline_results.py
     - uv run python scripts/run_fairness_audit.py
     - uv run python scripts/validate_causal_policy.py
+    - uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
     - uv run python scripts/generate_mrm_report.py
     - uv run python scripts/export_streamlit_artifacts.py
     - uv run python scripts/export_storytelling_snapshot.py

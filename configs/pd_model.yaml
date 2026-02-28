@@ -20,7 +20,8 @@ feature_source:
 
 hpo:
   enabled: true
-  n_trials: 400
+  # Incremental rerun budget: extend persistent study near 1200 total trials.
+  n_trials: 320
   sampler: tpe
   pruner: median
   timeout_minutes: 0

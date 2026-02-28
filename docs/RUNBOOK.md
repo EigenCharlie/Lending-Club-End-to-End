@@ -59,6 +59,28 @@ If you want to run individual stages:
 Compatibility note:
 - Governance/fairness/conformal challenger status artifacts are emitted in dual-write mode (`legacy` + `_v2`) during migration.
 
+## Conformal Promotion Gate (2026-02-27)
+
+- `scripts/validate_conformal_policy.py` remains **strict** for model-risk policy (`overall_pass` still includes Kupiec/Christoffersen).
+- `scripts/run_comparison.py` is the **promotion gate** and now treats Kupiec/Christoffersen as non-blocking diagnostics.
+- Blocking conformal checks in promotion are: `coverage_90`, `coverage_95`, `min_group_coverage_90`, `winkler_90`, `critical_alerts`.
+- Comparison artifacts now include `conformal_promotion_pass` and `conformal_statistical_warning` in `reports/run_comparisons/<run_tag>/comparison.json`.
+
+## Official Rerun Profile (Core)
+
+Use this profile for official reruns that should be stable and resumable on workstation resources:
+
+```bash
+bash scripts/start_long_run.sh <run_tag> --no-rapids --no-notebooks --stop-on-optional-failure
+bash scripts/monitor_long_run.sh <run_tag>
+```
+
+To resume an interrupted run:
+
+```bash
+bash scripts/start_long_run.sh <run_tag> --resume --no-rapids --no-notebooks --stop-on-optional-failure
+```
+
 ## Optional: Platform Layer (dbt + Feast)
 
 ```bash

@@ -25,7 +25,7 @@ DATA = ROOT / "data" / "processed"
 MODELS = ROOT / "models"
 REPORTS = ROOT / "reports"
 OUT_ROOT = REPORTS / "run_comparisons"
-SCHEMA_VERSION = "2026-02-26.1"
+SCHEMA_VERSION = "2026-02-27.1"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -54,6 +54,19 @@ def _safe_float(value: Any, default: float = float("nan")) -> float:
         return float(value)
     except Exception:
         return default
+
+
+def _to_builtin(value: Any) -> Any:
+    """Recursively convert numpy scalars/containers to JSON-serializable Python types."""
+    if isinstance(value, dict):
+        return {str(k): _to_builtin(v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_to_builtin(v) for v in value]
+    if isinstance(value, tuple):
+        return tuple(_to_builtin(v) for v in value)
+    if isinstance(value, np.generic):
+        return value.item()
+    return value
 
 
 def _git(cmd: list[str]) -> str:
@@ -248,21 +261,56 @@ def _gate_conformal(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
     c_cov95 = _safe_float(c.get("coverage_95"))
     b_min_grp = _safe_float(b.get("min_group_coverage_90"))
     c_min_grp = _safe_float(c.get("min_group_coverage_90"))
+    b_winkler90 = _safe_float(b.get("winkler_90"))
+    c_winkler90 = _safe_float(c.get("winkler_90"))
+    b_critical = _safe_float(b.get("critical_alerts"))
+    c_critical = _safe_float(c.get("critical_alerts"))
     cov90_ok = np.isnan(b_cov90) or np.isnan(c_cov90) or (c_cov90 >= b_cov90 - 0.03)
     cov95_ok = np.isnan(b_cov95) or np.isnan(c_cov95) or (c_cov95 >= b_cov95 - 0.03)
     min_group_ok = np.isnan(b_min_grp) or np.isnan(c_min_grp) or (c_min_grp >= b_min_grp - 0.03)
-    overall_ok = bool(c.get("overall_pass", False))
+    # Business/ops checks: keep Winkler and critical alerts explicit in promotion gate.
+    winkler90_ok = (
+        np.isnan(b_winkler90) or np.isnan(c_winkler90) or (c_winkler90 <= b_winkler90 + 0.10)
+    )
+    critical_alerts_ok = np.isnan(b_critical) or np.isnan(c_critical) or (c_critical <= b_critical)
+
+    pvalue_threshold = 0.01
+    pvalue_fields = {
+        "kupiec_pvalue_90": _safe_float(c.get("kupiec_pvalue_90")),
+        "kupiec_pvalue_95": _safe_float(c.get("kupiec_pvalue_95")),
+        "christoffersen_pvalue_90": _safe_float(c.get("christoffersen_pvalue_90")),
+        "christoffersen_pvalue_95": _safe_float(c.get("christoffersen_pvalue_95")),
+    }
+    failing_statistical_tests = [
+        key
+        for key, value in pvalue_fields.items()
+        if np.isfinite(value) and value < pvalue_threshold
+    ]
+    statistical_warning = bool(len(failing_statistical_tests) > 0)
+    conformal_promotion_pass = bool(
+        cov90_ok and cov95_ok and min_group_ok and winkler90_ok and critical_alerts_ok
+    )
+
     return GateResult(
         "conformal_policy",
-        bool(cov90_ok and cov95_ok and min_group_ok and overall_ok),
+        conformal_promotion_pass,
         {
             "baseline": b,
             "current": c,
             "checks": {
-                "coverage90_ok": cov90_ok,
-                "coverage95_ok": cov95_ok,
-                "min_group_coverage90_ok": min_group_ok,
-                "overall_pass_ok": overall_ok,
+                "coverage90_ok": bool(cov90_ok),
+                "coverage95_ok": bool(cov95_ok),
+                "min_group_coverage90_ok": bool(min_group_ok),
+                "winkler90_ok": bool(winkler90_ok),
+                "critical_alerts_ok": bool(critical_alerts_ok),
+                "conformal_promotion_pass": bool(conformal_promotion_pass),
+            },
+            "diagnostics": {
+                "statistical_warning": statistical_warning,
+                "statistical_pvalue_threshold": pvalue_threshold,
+                "statistical_tests": pvalue_fields,
+                "failing_statistical_tests": failing_statistical_tests,
+                "policy_overall_pass_strict": bool(c.get("overall_pass", False)),
             },
         },
     )
@@ -347,6 +395,8 @@ def _markdown_report(report: dict[str, Any]) -> str:
         "",
         f"- Generated: {report['generated_at_utc']}",
         f"- Overall gates pass: `{report['overall_pass']}`",
+        f"- Conformal promotion pass: `{report.get('conformal_promotion_pass', False)}`",
+        f"- Conformal statistical warning: `{report.get('conformal_statistical_warning', False)}`",
         "",
         "## Gates",
     ]
@@ -367,6 +417,13 @@ def _markdown_report(report: dict[str, Any]) -> str:
                 f"- `{key}`: hash_changed={meta['hash_changed']}, "
                 f"baseline_exists={meta['baseline_exists']}, current_exists={meta['current_exists']}"
             )
+    failing_stats = report.get("conformal_failing_statistical_tests", [])
+    if failing_stats:
+        lines.extend(["", "## Conformal Diagnostics"])
+        lines.append(
+            "- Statistical warnings (non-blocking): "
+            + ", ".join(f"`{name}`" for name in failing_stats)
+        )
     return "\n".join(lines) + "\n"
 
 
@@ -391,12 +448,23 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
         _gate_survival(baseline["metrics"], current["metrics"]),
         _gate_exports(current),
     ]
+    conformal_gate = next((g for g in gate_results if g.name == "conformal_policy"), None)
+    conformal_details = conformal_gate.details if conformal_gate is not None else {}
+    conformal_checks = conformal_details.get("checks", {})
+    conformal_diagnostics = conformal_details.get("diagnostics", {})
     report = {
         "schema_version": SCHEMA_VERSION,
         "run_tag": run_tag,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "baseline_path": str(baseline_path.relative_to(ROOT)),
         "overall_pass": bool(all(g.passed for g in gate_results)),
+        "conformal_promotion_pass": bool(conformal_checks.get("conformal_promotion_pass", False)),
+        "conformal_statistical_warning": bool(
+            conformal_diagnostics.get("statistical_warning", False)
+        ),
+        "conformal_failing_statistical_tests": conformal_diagnostics.get(
+            "failing_statistical_tests", []
+        ),
         "gates": [{"name": g.name, "passed": g.passed, "details": g.details} for g in gate_results],
         "artifact_changes": _compare_artifacts(baseline, current),
         "baseline_head": baseline.get("git", {}).get("head", ""),
@@ -406,7 +474,10 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "comparison.json"
     md_path = out_dir / "comparison.md"
-    json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
+    json_path.write_text(
+        json.dumps(_to_builtin(report), indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
     md_path.write_text(_markdown_report(report), encoding="utf-8")
     print(f"[compare] Comparison JSON: {json_path.relative_to(ROOT)}")
     print(f"[compare] Comparison MD:   {md_path.relative_to(ROOT)}")

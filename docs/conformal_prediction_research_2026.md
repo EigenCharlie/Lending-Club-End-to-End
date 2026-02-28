@@ -22,6 +22,20 @@ This document consolidates recent best practices for conformal prediction in cre
 2. Your project's current implementation in `src/models/conformal.py`
 3. Industry knowledge as of January 2025
 
+## Book Concepts -> Current Implementation -> V2 Backlog (2026-02-27)
+
+| Book concept | Current implementation (this repo) | Backlog v2 (explicitly out of hardening v1) |
+|---|---|---|
+| Finite-sample validity and exchangeability | Split conformal + Mondrian by `grade`, temporal calibration holdout, explicit policy artifacts | Add formal shift-aware/online diagnostics and adaptive updates under drift |
+| Validity + efficiency tradeoff | Coverage + width + group-coverage metrics, Pareto tuning table and guardbands | Add richer optimization objective across multiple proper scoring rules |
+| Mondrian conditional coverage | `create_pd_intervals_mondrian`, group floor multipliers, per-group coverage reports | Extend Mondrian partitioning beyond grade and test hierarchical partitions |
+| Venn-Abers calibration | Candidate calibrator in PD training flow, interval-ready probabilities | Promote as first-class branch in benchmark/policy comparison outputs |
+| Statistical interval diagnostics | Winkler + Kupiec + Christoffersen computed and stored in policy status | Keep strict policy; add adaptive/sample-size-aware interpretation layer |
+| Cross-conformal regression | Not enabled in canonical pipeline (only split conformal in production path) | Add controlled benchmark track with `CrossConformalRegressor` |
+| Conformalized Quantile Regression (CQR) | Research documented; not in canonical LGD/EAD training pipeline | Add CQR branch for LGD/EAD with heteroscedastic checks |
+| Jackknife+ style intervals | Not implemented | Add experimental module and benchmark versus split/Mondrian |
+| Classification set methods (LAC/APS/RAPS) | Wrappers available in `src/models/conformal.py`, not primary PD gate path | Add explicit multi-class/ambiguity benchmark workflow |
+
 ---
 
 ## 1. MAPIE 1.3.0 API - Current State
