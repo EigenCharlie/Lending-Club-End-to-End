@@ -67,7 +67,7 @@ Reglas de lectura:
 
 ---
 
-## 4) Plan operativo faseado (full-data)
+## 4) Plan operativo faseado (atribucion rapida + full-data final)
 
 ### 4.1 Preparacion previa obligatoria
 
@@ -81,71 +81,147 @@ Reglas de lectura:
    - `data/raw/Loan_status_2007-2020Q3.csv`
    - particiones `train/calibration/test` y `_fe` vigentes.
 4. Ejecutar analitica full-data:
-   - `sample_size = 0` donde aplique.
-5. Correr A/B/C de forma secuencial en la misma maquina para reducir ruido de infraestructura.
+   - no usar `--sample_size` (o usar `--full-data` cuando exista ese flag).
+5. Para comparaciones rapidas A/B/C:
+   - usar `--sample_size 250000` en entrenamiento PD/causal/survival.
+   - desactivar HPO y fijar parametros del best trial historico para recortar tiempo.
+6. Correr A/B/C de forma secuencial en la misma maquina para reducir ruido de infraestructura.
 
-### 4.2 Fase A - Baseline oficial (`main`)
+### 4.2 Fase A - Baseline oficial (`main`) con reuso de artefactos (recomendado)
+
+Nota: en `main` no existe el stack `start_long_run.sh`/`run_long_pipeline.py`/`run_comparison.py`.
+Para atribucion rapida, se reutiliza baseline ya generado en `main` y se evita rerun largo.
 
 ```bash
-git checkout main
-git status --short
-bash scripts/start_long_run.sh 2026-02-27-A-main-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-A-main-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-A-main-final
+mkdir -p reports/run_comparisons/2026-02-27-A-main-final
+cp reports/run_comparisons/2026-02-26-long-full-v3/baseline_snapshot.json \
+  reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
 ```
 
 Salida minima esperada:
 
-- `reports/run_logs/2026-02-27-A-main-core/`
 - `reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json`
 
-### 4.3 Fase B - Impacto research (`research/toboml2-integration-v1`)
+### 4.3 Fase B - Impacto research en modo corto (`research/toboml2-integration-v1`)
 
 ```bash
 git checkout research/toboml2-integration-v1
 git status --short
-bash scripts/start_long_run.sh 2026-02-27-B-research-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-B-research-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-B-research-final
+
+# Build config temporal: HPO off + best trial historico (855)
+cp configs/pd_model.yaml /tmp/pd_model_quick_compare.yaml
+python - <<'PY'
+import yaml
+from pathlib import Path
+p = Path('/tmp/pd_model_quick_compare.yaml')
+cfg = yaml.safe_load(p.read_text(encoding='utf-8'))
+cfg['hpo']['enabled'] = False
+cfg['model']['params'].update({
+    'bootstrap_type': 'Bernoulli',
+    'learning_rate': 0.02762511818970642,
+    'depth': 6,
+    'l2_leaf_reg': 14.910998969314008,
+    'min_data_in_leaf': 195,
+    'rsm': 0.7972651915505469,
+    'random_strength': 3.276099048942537e-05,
+    'border_count': 148,
+    'subsample': 0.8270994520471426,
+})
+p.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding='utf-8')
+PY
+
+uv run python scripts/train_pd_model.py --config /tmp/pd_model_quick_compare.yaml --sample_size 250000
+uv run python scripts/generate_conformal_intervals.py
+uv run python scripts/backtest_conformal_coverage.py
+uv run python scripts/validate_conformal_policy.py
+uv run python scripts/run_fairness_audit.py
+uv run python scripts/run_survival_analysis.py --sample_size 250000
+uv run python scripts/estimate_causal_effects.py --treatment int_rate --sample_size 250000
+uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
+uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-B-research-fast
 ```
 
 Salida minima esperada:
 
-- `reports/run_logs/2026-02-27-B-research-core/`
-- `reports/run_comparisons/2026-02-27-B-research-final/baseline_snapshot.json`
+- `reports/run_comparisons/2026-02-27-B-research-fast/baseline_snapshot.json`
 
-### 4.4 Fase C - Candidato final (`experiment/conformal-toboml-integration-rerun`)
+### 4.4 Fase C - Candidato final en modo corto (`experiment/conformal-toboml-integration-rerun`)
 
 ```bash
 git checkout experiment/conformal-toboml-integration-rerun
 git status --short
-bash scripts/start_long_run.sh 2026-02-27-C-experiment-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-C-experiment-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-C-experiment-final
+
+cp configs/pd_model.yaml /tmp/pd_model_quick_compare.yaml
+python - <<'PY'
+import yaml
+from pathlib import Path
+p = Path('/tmp/pd_model_quick_compare.yaml')
+cfg = yaml.safe_load(p.read_text(encoding='utf-8'))
+cfg['hpo']['enabled'] = False
+cfg['model']['params'].update({
+    'bootstrap_type': 'Bernoulli',
+    'learning_rate': 0.02762511818970642,
+    'depth': 6,
+    'l2_leaf_reg': 14.910998969314008,
+    'min_data_in_leaf': 195,
+    'rsm': 0.7972651915505469,
+    'random_strength': 3.276099048942537e-05,
+    'border_count': 148,
+    'subsample': 0.8270994520471426,
+})
+p.write_text(yaml.safe_dump(cfg, sort_keys=False), encoding='utf-8')
+PY
+
+uv run python scripts/train_pd_model.py --config /tmp/pd_model_quick_compare.yaml --sample_size 250000
+uv run python scripts/generate_conformal_intervals.py
+uv run python scripts/backtest_conformal_coverage.py
+uv run python scripts/validate_conformal_policy.py
+uv run python scripts/run_fairness_audit.py
+uv run python scripts/run_survival_analysis.py --sample_size 250000
+uv run python scripts/estimate_causal_effects.py --treatment int_rate --sample_size 250000
+uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
+uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-C-experiment-fast
 ```
 
 Salida minima esperada:
 
-- `reports/run_logs/2026-02-27-C-experiment-core/`
-- `reports/run_comparisons/2026-02-27-C-experiment-final/baseline_snapshot.json`
+- `reports/run_comparisons/2026-02-27-C-experiment-fast/baseline_snapshot.json`
 
-### 4.5 Fase D - Comparaciones cruzadas obligatorias
+### 4.5 Fase D - Comparaciones cruzadas obligatorias (modo corto)
 
 ```bash
 # Delta(B-A): research vs main
 uv run python scripts/run_comparison.py compare \
-  --run-tag 2026-02-27-B-research-core \
+  --run-tag 2026-02-27-B-research-fast \
   --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
 
 # Delta(C-B): experiment vs research
 uv run python scripts/run_comparison.py compare \
-  --run-tag 2026-02-27-C-experiment-core \
-  --baseline reports/run_comparisons/2026-02-27-B-research-final/baseline_snapshot.json
+  --run-tag 2026-02-27-C-experiment-fast \
+  --baseline reports/run_comparisons/2026-02-27-B-research-fast/baseline_snapshot.json
 
 # Delta(C-A): experiment vs main
 uv run python scripts/run_comparison.py compare \
-  --run-tag 2026-02-27-C-experiment-core \
+  --run-tag 2026-02-27-C-experiment-fast \
   --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
+```
+
+### 4.6 Fase E - Full-data oficial solo para rama ganadora (esperada: C)
+
+Una vez validadas comparaciones rapidas y si `C` gana:
+
+```bash
+git checkout experiment/conformal-toboml-integration-rerun
+bash scripts/start_long_run.sh 2026-02-28-C-official-full --stop-on-optional-failure
+bash scripts/monitor_long_run.sh 2026-02-28-C-official-full
+```
+
+Opcional para cierre extendido:
+
+```bash
+bash scripts/start_long_run.sh 2026-02-28-C-official-full --resume
 ```
 
 ---
@@ -219,28 +295,48 @@ free -h
 df -h /
 nvidia-smi
 
-# 1) Fase A (main)
-git checkout main
-bash scripts/start_long_run.sh 2026-02-27-A-main-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-A-main-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-A-main-final
+# 1) Fase A (main, reuso baseline)
+mkdir -p reports/run_comparisons/2026-02-27-A-main-final
+cp reports/run_comparisons/2026-02-26-long-full-v3/baseline_snapshot.json reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
 
-# 2) Fase B (research)
+# 2) Fase B (research, corrida corta)
 git checkout research/toboml2-integration-v1
-bash scripts/start_long_run.sh 2026-02-27-B-research-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-B-research-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-B-research-final
+cp configs/pd_model.yaml /tmp/pd_model_quick_compare.yaml
+# aplicar override (HPO off + trial 855 params) y ejecutar stack corto
+uv run python scripts/train_pd_model.py --config /tmp/pd_model_quick_compare.yaml --sample_size 250000
+uv run python scripts/generate_conformal_intervals.py
+uv run python scripts/backtest_conformal_coverage.py
+uv run python scripts/validate_conformal_policy.py
+uv run python scripts/run_fairness_audit.py
+uv run python scripts/run_survival_analysis.py --sample_size 250000
+uv run python scripts/estimate_causal_effects.py --treatment int_rate --sample_size 250000
+uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
+uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-B-research-fast
 
-# 3) Fase C (experiment)
+# 3) Fase C (experiment, corrida corta)
 git checkout experiment/conformal-toboml-integration-rerun
-bash scripts/start_long_run.sh 2026-02-27-C-experiment-core --no-rapids --no-notebooks --stop-on-optional-failure
-bash scripts/monitor_long_run.sh 2026-02-27-C-experiment-core
-uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-C-experiment-final
+cp configs/pd_model.yaml /tmp/pd_model_quick_compare.yaml
+# aplicar override (HPO off + trial 855 params) y ejecutar stack corto
+uv run python scripts/train_pd_model.py --config /tmp/pd_model_quick_compare.yaml --sample_size 250000
+uv run python scripts/generate_conformal_intervals.py
+uv run python scripts/backtest_conformal_coverage.py
+uv run python scripts/validate_conformal_policy.py
+uv run python scripts/run_fairness_audit.py
+uv run python scripts/run_survival_analysis.py --sample_size 250000
+uv run python scripts/estimate_causal_effects.py --treatment int_rate --sample_size 250000
+uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
+uv run python scripts/run_comparison.py snapshot --run-tag 2026-02-27-C-experiment-fast
 
 # 4) Comparaciones cruzadas
-uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-B-research-core --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
-uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-C-experiment-core --baseline reports/run_comparisons/2026-02-27-B-research-final/baseline_snapshot.json
-uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-C-experiment-core --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
+uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-B-research-fast --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
+uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-C-experiment-fast --baseline reports/run_comparisons/2026-02-27-B-research-fast/baseline_snapshot.json
+uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-C-experiment-fast --baseline reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json
+
+# 5) Full-data oficial solo en rama ganadora (esperada C)
+bash scripts/start_long_run.sh 2026-02-28-C-official-full --stop-on-optional-failure
+bash scripts/monitor_long_run.sh 2026-02-28-C-official-full
 ```
 
 ### 8.2 Tabla de validacion go/no-go
@@ -248,11 +344,11 @@ uv run python scripts/run_comparison.py compare --run-tag 2026-02-27-C-experimen
 | Item | Evidencia | Estado |
 |---|---|---|
 | A snapshot creado | `reports/run_comparisons/2026-02-27-A-main-final/baseline_snapshot.json` | TODO |
-| B snapshot creado | `reports/run_comparisons/2026-02-27-B-research-final/baseline_snapshot.json` | TODO |
-| C snapshot creado | `reports/run_comparisons/2026-02-27-C-experiment-final/baseline_snapshot.json` | TODO |
-| Delta(B-A) generado | carpeta `reports/run_comparisons/2026-02-27-B-research-core/` | TODO |
-| Delta(C-B) generado | carpeta `reports/run_comparisons/2026-02-27-C-experiment-core/` | TODO |
-| Delta(C-A) generado | carpeta `reports/run_comparisons/2026-02-27-C-experiment-core/` | TODO |
+| B snapshot creado | `reports/run_comparisons/2026-02-27-B-research-fast/baseline_snapshot.json` | TODO |
+| C snapshot creado | `reports/run_comparisons/2026-02-27-C-experiment-fast/baseline_snapshot.json` | TODO |
+| Delta(B-A) generado | carpeta `reports/run_comparisons/2026-02-27-B-research-fast/` | TODO |
+| Delta(C-B) generado | carpeta `reports/run_comparisons/2026-02-27-C-experiment-fast/` | TODO |
+| Delta(C-A) generado | carpeta `reports/run_comparisons/2026-02-27-C-experiment-fast/` | TODO |
 | `comparison.overall_pass` en C-A | `comparison.json` | TODO |
 | `conformal_promotion_pass` en C-A | `comparison.json` | TODO |
 | Artifacts governance + mrm presentes | `reports/*governance*`, `reports/*mrm*` | TODO |
@@ -332,3 +428,51 @@ Regla:
 4. Optuna puede tener estados `RUNNING` huerfanos; se controla con SQL + heartbeat.
 5. Si surge blocker en data/feature engineering:
    - aplicar fix minimo documentado y volver a congelar SHAs antes de seguir.
+
+---
+
+## 14) Estimacion de duracion (logs reales + estrategia actual)
+
+### 14.1 Evidencia observada en logs
+
+1. En `reports/run_logs/2026-02-26-long-full-v3/main_pre.log`:
+   - mejor trial registrado: `Trial 855` con `value: 0.7201277317`.
+   - progreso observado hasta `Trial 882`.
+2. Ritmo empirico HPO:
+   - ventana `805 -> 882`: `77` trials en `1230` minutos.
+   - velocidad media: `~15.97 min/trial` (aprox `16 min/trial`).
+
+### 14.2 Proyeccion de tiempo para corrida full-data
+
+Con velocidad `~16 min/trial`:
+
+- `900 -> 1200`: `300` trials, `~80.0 h` (`~3.33 dias`) solo HPO.
+- `882 -> 1200`: `318` trials, `~84.8 h` (`~3.53 dias`) solo HPO.
+
+Agregando etapas no-HPO (conformal/fairness/survival/causal/governance/export) + ventanas operativas:
+
+- Core full-data sin notebooks/rapids: `~4.5 a 6.0 dias`.
+- Full extendido (core + notebooks + rapids): `~6 a 8 dias`.
+
+Esto es consistente con la expectativa operativa de una semana corrida para cierre total.
+
+### 14.3 Estimacion para comparaciones cortas A/B/C (recomendado)
+
+1. `A (main)` reusando snapshot existente:
+   - `~10 a 20 min` (copiar baseline + verificaciones).
+2. `B (research)` corrida corta sin HPO (`sample_size=250k`):
+   - `~2.5 a 4.5 h`.
+3. `C (experiment)` corrida corta sin HPO (`sample_size=250k`):
+   - `~2.5 a 5.0 h`.
+4. Comparaciones cruzadas `B-A`, `C-B`, `C-A`:
+   - `~10 a 20 min`.
+
+Total atribucion rapida A/B/C:
+
+- `~5.5 a 10.0 h` en una jornada larga.
+
+### 14.4 Decision operativa derivada
+
+1. Ejecutar primero atribucion rapida A/B/C para decidir rama ganadora.
+2. Correr full-data multi-dia solo en la ganadora (esperada: `C`).
+3. Reservar notebooks/RAPIDS para cierre extendido, no para decidir promocion inicial.
