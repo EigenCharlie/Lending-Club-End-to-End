@@ -12,6 +12,15 @@ mkdir -p "${RUN_DIR}" "${RUN_DIR}/status"
 PID_FILE="${RUN_DIR}/orchestrator.pid"
 LAUNCH_LOG="${RUN_DIR}/launcher.log"
 
+PY_BIN="lending-club-venv/bin/python"
+if [[ ! -x "${PY_BIN}" ]]; then
+  if [[ -x ".venv/bin/python" ]]; then
+    PY_BIN=".venv/bin/python"
+  else
+    PY_BIN="$(command -v python3 || command -v python)"
+  fi
+fi
+
 if [[ -f "${PID_FILE}" ]]; then
   old_pid="$(cat "${PID_FILE}" || true)"
   if [[ -n "${old_pid}" ]] && kill -0 "${old_pid}" 2>/dev/null; then
@@ -20,7 +29,7 @@ if [[ -f "${PID_FILE}" ]]; then
   fi
 fi
 
-nohup lending-club-venv/bin/python -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "$@" \
+nohup "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "$@" \
   >"${LAUNCH_LOG}" 2>&1 &
 pid=$!
 echo "${pid}" > "${PID_FILE}"

@@ -134,7 +134,7 @@ def run_step(run_tag: str, step: str, command: str, *, required: bool) -> int:
 
     env = os.environ.copy()
     env["PYTHONUNBUFFERED"] = "1"
-    env.setdefault("UV_PROJECT_ENVIRONMENT", "lending-club-venv")
+    env.setdefault("UV_PROJECT_ENVIRONMENT", ".venv")
 
     proc = subprocess.Popen(
         _bash_cmd(command),
@@ -197,16 +197,25 @@ def build_steps(
     run_tag: str, *, include_rapids: bool, include_notebooks: bool
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
+    activate_main = (
+        "if [ -f .venv/bin/activate ]; then source .venv/bin/activate; "
+        "elif [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; fi"
+    )
+    activate_causal = (
+        "if [ -f .venv-causal/bin/activate ]; then source .venv-causal/bin/activate; "
+        "elif [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; "
+        "elif [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi"
+    )
     preflight_cmd = (
-        "source lending-club-venv/bin/activate && "
-        "uv run pytest -q tests/test_docs tests/test_streamlit/test_page_imports.py "
+        f"{activate_main} && "
+        "python -m pytest -q tests/test_docs tests/test_streamlit/test_page_imports.py "
         "tests/test_config_consistency.py && "
-        f"uv run python scripts/run_comparison.py snapshot --run-tag {run_tag}"
+        f"python scripts/run_comparison.py snapshot --run-tag {run_tag}"
     )
     steps.append(("preflight", True, preflight_cmd))
 
-    main_pre_cmd = """
-        source lending-club-venv/bin/activate &&
+    main_pre_cmd = f"""
+        {activate_main} &&
         uv run python -u scripts/train_pd_model.py --config configs/pd_model.yaml --sample_size 0 &&
         uv run python -u scripts/generate_conformal_intervals.py &&
         uv run python -u scripts/benchmark_conformal_variants.py &&
@@ -216,8 +225,8 @@ def build_steps(
     """
     steps.append(("main_pre", True, main_pre_cmd))
 
-    heavy_main_cmd = """
-        source lending-club-venv/bin/activate &&
+    heavy_main_cmd = f"""
+        {activate_main} &&
         uv run python -u scripts/run_survival_analysis.py --full-data --rsf_n_estimators 300 &&
         uv run python -u scripts/train_lgd_ead.py --sample_size 0 &&
         uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml --max_candidates 0 --solver_backend highs &&
@@ -227,8 +236,8 @@ def build_steps(
     """
     steps.append(("heavy_main", False, heavy_main_cmd))
 
-    causal_cmd = """
-        source .venv-causal/bin/activate &&
+    causal_cmd = f"""
+        {activate_causal} &&
         python -u -c "import econml,dowhy; print('econml', econml.__version__, 'dowhy', dowhy.__version__)" &&
         python -u scripts/estimate_causal_effects.py --treatment int_rate --sample_size 0 &&
         python -u scripts/simulate_causal_policy.py &&
@@ -236,14 +245,14 @@ def build_steps(
     """
     steps.append(("causal", False, causal_cmd))
 
-    cate_cmd = """
-        source lending-club-venv/bin/activate &&
+    cate_cmd = f"""
+        {activate_main} &&
         uv run python -u scripts/optimize_cate_portfolio.py --max_candidates 0
     """
     steps.append(("cate_portfolio", False, cate_cmd))
 
     post_core_cmd = f"""
-        source lending-club-venv/bin/activate &&
+        {activate_main} &&
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
         uv run python -u scripts/build_pipeline_results.py &&
         uv run python -u scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml &&
@@ -266,8 +275,8 @@ def build_steps(
         steps.append(("rapids", False, rapids_cmd))
 
     if include_notebooks:
-        notebooks_cmd = """
-            source lending-club-venv/bin/activate &&
+        notebooks_cmd = f"""
+            {activate_main} &&
             uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec &&
             uv run python -u scripts/run_paper_notebook_suite.py &&
             uv run python -u scripts/extract_notebook_images.py
