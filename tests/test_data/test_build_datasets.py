@@ -57,6 +57,20 @@ class TestCleanRawColumns:
         assert "rev_utilization" in result.columns
         assert result["rev_utilization"].tolist() == pytest.approx([0.553, 0.801])
 
+    def test_parses_string_dtype_columns(self) -> None:
+        df = pd.DataFrame(
+            {
+                "int_rate": pd.Series([" 13.75%", "10.5%"], dtype="string"),
+                "term": pd.Series([" 36 months", " 60 months"], dtype="string"),
+                "revol_util": pd.Series(["55.3%", "80.1%"], dtype="string"),
+            }
+        )
+        result = clean_raw_columns(df)
+        assert result["int_rate"].tolist() == pytest.approx([13.75, 10.5])
+        assert result["term"].tolist() == pytest.approx([36.0, 60.0])
+        assert result["revol_util"].tolist() == pytest.approx([55.3, 80.1])
+        assert result["rev_utilization"].tolist() == pytest.approx([0.553, 0.801])
+
     def test_already_numeric_int_rate_unchanged(self) -> None:
         df = pd.DataFrame({"int_rate": [13.75, 10.5]})
         result = clean_raw_columns(df)

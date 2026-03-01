@@ -17,6 +17,11 @@ from sklearn.metrics import (
     roc_auc_score,
 )
 
+try:
+    from sklearn.metrics import d2_brier_score
+except ImportError:  # sklearn < 1.8
+    d2_brier_score = None
+
 
 def classification_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
     """Compute all classification metrics for PD model."""
@@ -28,13 +33,16 @@ def classification_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, 
     ece = expected_calibration_error(y_true, y_prob)
     ks = ks_statistic(y_true, y_prob)
 
-    return {
+    metrics = {
         "auc_roc": auc,
         "gini": gini,
         "brier_score": brier,
         "ece": ece,
         "ks_statistic": ks,
     }
+    if d2_brier_score is not None:
+        metrics["d2_brier_score"] = float(d2_brier_score(y_true, y_prob))
+    return metrics
 
 
 def ks_statistic(y_true: np.ndarray, y_prob: np.ndarray) -> float:

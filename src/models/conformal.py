@@ -278,6 +278,104 @@ def create_classification_sets(
     return y_pred, y_sets
 
 
+def create_pd_intervals_venn_abers(
+    classifier,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Generate Venn-Abers multi-probability PD intervals.
+
+    Venn-Abers predictors produce automatically well-calibrated probability
+    intervals [p0, p1] with theoretical guarantees (Vovk & Petej, 2014).
+
+    Args:
+        classifier: Fitted classifier with predict_proba.
+        X_cal: Calibration features.
+        y_cal: Calibration labels.
+        X_test: Test features.
+
+    Returns:
+        Tuple of (y_pred_point, p0_array, p1_array) where:
+        - y_pred_point: midpoint (p0+p1)/2 as point estimate.
+        - p0_array: lower probability bound per observation.
+        - p1_array: upper probability bound per observation.
+    """
+    from crepes import WrapClassifier
+
+    wrapped = WrapClassifier(classifier)
+    X_cal_arr = X_cal.values if hasattr(X_cal, "values") else np.asarray(X_cal)
+    y_cal_arr = y_cal.values if hasattr(y_cal, "values") else np.asarray(y_cal)
+    X_test_arr = X_test.values if hasattr(X_test, "values") else np.asarray(X_test)
+
+    wrapped.calibrate(X_cal_arr, y_cal_arr)
+    # predict_p returns array of shape (n, 2) — columns are [p0, p1]
+    p_result = wrapped.predict_p(X_test_arr)
+    p0 = np.clip(np.asarray(p_result[:, 0], dtype=float), 0.0, 1.0)
+    p1 = np.clip(np.asarray(p_result[:, 1], dtype=float), 0.0, 1.0)
+
+    # Ensure p0 <= p1
+    p_low = np.minimum(p0, p1)
+    p_high = np.maximum(p0, p1)
+
+    y_pred_point = (p_low + p_high) / 2.0
+
+    avg_width = float((p_high - p_low).mean())
+    logger.info(f"Venn-Abers PD intervals: avg_width={avg_width:.4f}, n_test={len(X_test)}")
+    return y_pred_point, p_low, p_high
+
+
+def create_residual_intervals(
+    regressor,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+    alpha: float = 0.1,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Generate naive residual-based prediction intervals (benchmark).
+
+    Uses the calibration residual distribution to build percentile-based
+    intervals. Does NOT have conformal coverage guarantees — serves as a
+    non-conformal baseline for comparison.
+
+    Args:
+        regressor: Fitted model with predict (or predict_proba for classifiers).
+        X_cal: Calibration features.
+        y_cal: Calibration labels (float).
+        X_test: Test features.
+        alpha: Significance level (e.g., 0.10 for 90% intervals).
+
+    Returns:
+        Tuple of (y_pred, y_intervals) where y_intervals is (n, 2).
+    """
+    # Get calibration predictions
+    if hasattr(regressor, "predict_proba"):
+        cal_preds = regressor.predict_proba(X_cal)[:, 1]
+        test_preds = regressor.predict_proba(X_test)[:, 1]
+    else:
+        cal_preds = regressor.predict(X_cal)
+        test_preds = regressor.predict(X_test)
+
+    cal_preds = np.asarray(cal_preds, dtype=float)
+    test_preds = np.asarray(test_preds, dtype=float)
+    y_cal_arr = np.asarray(y_cal, dtype=float)
+
+    # Residuals on calibration set
+    residuals = y_cal_arr - cal_preds
+
+    # Percentile-based interval from residual distribution
+    q_low = np.percentile(residuals, 100 * (alpha / 2))
+    q_high = np.percentile(residuals, 100 * (1 - alpha / 2))
+
+    low = test_preds + q_low
+    high = test_preds + q_high
+    y_intervals = np.column_stack([low, high])
+
+    avg_width = float((high - low).mean())
+    logger.info(f"Residual intervals (bootstrap-style, alpha={alpha}): avg_width={avg_width:.4f}")
+    return test_preds, y_intervals
+
+
 def validate_coverage(
     y_true: np.ndarray,
     y_intervals: np.ndarray,

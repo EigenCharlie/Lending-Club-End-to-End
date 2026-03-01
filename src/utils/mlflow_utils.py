@@ -14,10 +14,10 @@ def init_dagshub(
     repo_name: str | None = None,
     enable_dvc: bool = False,
 ) -> None:
-    """Initialize DagsHub MLflow tracking using args or environment variables."""
+    """Initialize DagsHub MLflow tracking using args or env vars (user or org)."""
     import dagshub
 
-    owner = repo_owner or os.getenv("DAGSHUB_USER", "YOUR_USER")
+    owner = repo_owner or os.getenv("DAGSHUB_OWNER") or os.getenv("DAGSHUB_USER", "YOUR_USER")
     repo = repo_name or os.getenv("DAGSHUB_REPO", "Lending-Club-End-to-End")
     token = os.getenv("DAGSHUB_USER_TOKEN") or os.getenv("DAGSHUB_TOKEN")
     if token and not os.getenv("DAGSHUB_USER_TOKEN"):

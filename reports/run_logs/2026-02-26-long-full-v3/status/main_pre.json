@@ -1,0 +1,11 @@
+{
+  "step": "main_pre",
+  "required": true,
+  "command": "source lending-club-venv/bin/activate && uv run python -u scripts/train_pd_model.py --config configs/pd_model.yaml --sample_size 0 && uv run python -u scripts/generate_conformal_intervals.py && uv run python -u scripts/benchmark_conformal_variants.py && uv run python -u scripts/backtest_conformal_coverage.py && uv run python -u scripts/validate_conformal_policy.py && uv run python -u scripts/forecast_default_rates.py --horizon 12",
+  "started_at_utc": "2026-02-27T02:53:43.649106+00:00",
+  "ended_at_utc": null,
+  "duration_seconds": null,
+  "exit_code": null,
+  "skipped": false,
+  "skip_reason": null
+}

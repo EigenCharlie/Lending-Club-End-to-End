@@ -1,6 +1,14 @@
 /causal_policy_rule.json
 /conformal_policy_status.json
+/conformal_policy_status_v2.json
 /causal_policy_oot_status.json
 /fairness_audit_status.json
+/fairness_audit_status_v2.json
 /cate_portfolio_status.json
 /ab_simulation_status.json
+/governance_status.json
+/governance_status_v2.json
+/pd_challenger_spec.json
+/pd_challenger_spec_v2.json
+/decision_threshold.json
+/decision_threshold_v2.json

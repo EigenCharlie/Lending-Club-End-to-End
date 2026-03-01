@@ -92,7 +92,7 @@ theme_matrix = pd.DataFrame(
         },
     ]
 )
-st.dataframe(theme_matrix, use_container_width=True, hide_index=True)
+st.dataframe(theme_matrix, width="stretch", hide_index=True)
 
 st.subheader("0.1) Matriz de deduplicación entre drafts")
 dedup_matrix = pd.DataFrame(
@@ -127,7 +127,7 @@ dedup_matrix = pd.DataFrame(
         },
     ]
 )
-st.dataframe(dedup_matrix, use_container_width=True, hide_index=True)
+st.dataframe(dedup_matrix, width="stretch", hide_index=True)
 st.caption(
     "Regla práctica: evita reescribir teoría completa en cada draft; cada paper debe reutilizar posicionamiento y concentrarse en su novelty claim."
 )
@@ -201,7 +201,7 @@ cal_data = pd.DataFrame(
         },
     ]
 )
-st.dataframe(cal_data, use_container_width=True, hide_index=True)
+st.dataframe(cal_data, width="stretch", hide_index=True)
 
 with st.expander("Papers clave"):
     st.markdown(
@@ -593,7 +593,7 @@ refs = pd.DataFrame(
     ],
     columns=["Referencia", "Año", "Venue", "Relevancia para este proyecto"],
 )
-st.dataframe(refs, use_container_width=True, hide_index=True)
+st.dataframe(refs, width="stretch", hide_index=True)
 
 _safe_page_link(
     "pages/research_best_practices.py",

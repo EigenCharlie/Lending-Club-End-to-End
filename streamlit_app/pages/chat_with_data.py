@@ -162,7 +162,7 @@ for idx, name in enumerate(templates.keys()):
     col = [col1, col2, col3][idx % 3]
     col.button(
         name,
-        use_container_width=True,
+        width="stretch",
         key=f"quick_query_{idx}",
         on_click=_select_template,
         args=(name, templates),
@@ -223,7 +223,7 @@ if should_run_query:
                 result = query_duckdb(sql)
                 _sql_status.update(label=f"Consulta completada ({len(result)} filas)", state="complete")
             st.success(f"Filas retornadas: {len(result)}")
-            st.dataframe(result, use_container_width=True, height=420)
+            st.dataframe(result, width="stretch", height=420)
             if len(result) == 0:
                 st.warning(
                     "La consulta se ejecutó sin error pero retornó 0 filas. "
@@ -243,7 +243,7 @@ if should_run_query:
                     )
                     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
                     fig.update_traces(marker_color="#00D4AA")
-                    st.plotly_chart(fig, use_container_width=True)
+                    st.plotly_chart(fig, width="stretch")
                     st.caption(
                         "Propósito: dar lectura rápida al resultado SQL sin salir de la página. "
                         "Insight: útil para validar segmentaciones y tendencias antes de análisis profundo."

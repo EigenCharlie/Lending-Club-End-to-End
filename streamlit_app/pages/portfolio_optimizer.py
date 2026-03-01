@@ -186,7 +186,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -206,7 +206,7 @@ with col_img1:
         st.image(
             str(img),
             caption="Notebook 08: frontera eficiente con punto robusto vs no robusto.",
-            use_container_width=True,
+            width="stretch",
         )
     else:
         if efficient_frontier.empty:
@@ -221,7 +221,7 @@ with col_img1:
                 labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
             )
             fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
             st.caption(
                 "Imagen de notebook no encontrada; se muestra la frontera reconstruida desde parquet."
             )
@@ -231,7 +231,7 @@ with col_img2:
         st.image(
             str(img),
             caption="Notebook 08: sensibilidad retorno/aprobaciones al límite de PD.",
-            use_container_width=True,
+            width="stretch",
         )
     else:
         fig = px.bar(
@@ -245,7 +245,7 @@ with col_img2:
             },
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=320)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Imagen de notebook no encontrada; se muestra sensibilidad usando resumen robusto actual."
         )
@@ -270,7 +270,7 @@ with col1:
         labels={"alloc": "Peso asignado", "financiado": "Financiado"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: entender sparsidad de asignación. Insight: el optimizador concentra capital en un subconjunto reducido "
         "de préstamos con mejor trade-off riesgo-retorno."
@@ -293,7 +293,7 @@ with col2:
         labels={"pd_point": "PD puntual", "alloc": "Asignación", "int_rate": "Tasa interés"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: observar regla de selección en el plano PD-retorno implícito. Insight: asignaciones altas tienden a "
         "zonas de PD contenida y tasa atractiva."
@@ -319,7 +319,7 @@ else:
         labels={"risk_wpd": "Riesgo (PD ponderada)", "return": "Retorno esperado"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: mostrar frontera eficiente sin robustez explícita. Insight: mayor retorno exige mayor riesgo promedio "
         "de cartera."
@@ -355,7 +355,7 @@ fig = px.line(
     },
 )
 fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: cuantificar efecto de aversión a incertidumbre sobre retorno. Insight: mayor robustez reduce retorno esperado, "
     "pero estabiliza desempeño frente a error de PD."
@@ -383,7 +383,7 @@ summary_view = rob_summary[
     ]
 ].copy()
 summary_view["price_of_robustness_pct"] = summary_view["price_of_robustness_pct"] / 100
-st.dataframe(summary_view, use_container_width=True, hide_index=True)
+st.dataframe(summary_view, width="stretch", hide_index=True)
 
 fig = go.Figure()
 fig.add_trace(
@@ -409,7 +409,7 @@ fig.update_layout(
     yaxis_title="Retorno",
     height=390,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: comparar retorno robusto vs no robusto por tolerancia de riesgo. Insight: el price of robustness no es constante; "
     "depende del apetito de riesgo definido por negocio."
@@ -468,7 +468,7 @@ if not roi_grade.empty:
             height=400,
         )
         fig.update_layout(yaxis_title="ROI", yaxis_tickformat=".0%")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "ROI = (total recibido - monto fondeado) / monto fondeado. "
             "Barras de error muestran percentiles 10 y 90 — la dispersión crece con el riesgo."
@@ -501,7 +501,7 @@ if not roi_grade.empty:
             xaxis_tickformat=".0%",
             yaxis_tickformat=".1%",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Tamaño del punto proporcional al volumen. Grade G es el único con ROI medio negativo. "
             "La frontera histórica valida las decisiones del optimizador."
@@ -537,7 +537,7 @@ if not roi_term.empty:
         roi_term_display["Default rate"] = roi_term_display["Default rate"].map("{:.1%}".format)
         roi_term_display["ROI medio"] = roi_term_display["ROI medio"].map("{:.2%}".format)
         roi_term_display["Préstamos"] = roi_term_display["Préstamos"].map("{:,}".format)
-        st.dataframe(roi_term_display, use_container_width=True, hide_index=True)
+        st.dataframe(roi_term_display, width="stretch", hide_index=True)
         st.markdown(
             "Los préstamos a **60 meses** tienen consistentemente mayor default rate y menor ROI. "
             "El plazo largo amplifica la exposición temporal al riesgo, lo que se alinea con los "

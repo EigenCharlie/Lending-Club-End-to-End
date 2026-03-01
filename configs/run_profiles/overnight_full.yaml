@@ -1,0 +1,72 @@
+schema_version: "2026-02-26.1"
+profile_name: overnight_full
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+  rapids_conda: rapids
+execution:
+  promotion_mode: gates
+  continue_on_failure: true
+  log_dir_template: reports/run_logs/{run_tag}
+  comparison_dir_template: reports/run_comparisons/{run_tag}
+preflight:
+  commands:
+    - uv run pytest -q tests/test_docs tests/test_streamlit/test_page_imports.py tests/test_config_consistency.py
+    - uv run python scripts/run_comparison.py snapshot --run-tag {run_tag}
+main_session:
+  commands:
+    - uv run python scripts/train_pd_model.py --config configs/pd_model.yaml --sample_size 0
+    - uv run python scripts/generate_conformal_intervals.py
+    - uv run python scripts/benchmark_conformal_variants.py
+    - uv run python scripts/backtest_conformal_coverage.py
+    - uv run python scripts/validate_conformal_policy.py
+    - uv run python scripts/forecast_default_rates.py --horizon 12
+    - uv run python scripts/run_ifrs9_sensitivity.py
+    - uv run python scripts/build_pipeline_results.py
+    - uv run python scripts/run_fairness_audit.py
+    - uv run python scripts/validate_causal_policy.py
+    - uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+    - uv run python scripts/generate_mrm_report.py
+    - uv run python scripts/export_streamlit_artifacts.py
+    - uv run python scripts/export_storytelling_snapshot.py
+    - uv run python scripts/export_dvc_metrics.py
+full_data_session:
+  commands:
+    - uv run python scripts/run_survival_analysis.py --full-data --rsf_n_estimators 300
+    - uv run python scripts/train_lgd_ead.py --sample_size 0
+    - uv run python scripts/optimize_portfolio.py --config configs/optimization.yaml --max_candidates 0 --solver_backend highs
+    - uv run python scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 0 --grid-profile night
+    - uv run python scripts/optimize_cate_portfolio.py --max_candidates 0
+    - uv run python scripts/simulate_ab_test.py --max_candidates 0
+    - uv run python scripts/log_mlflow_experiment_suite.py
+causal_session:
+  optional: true
+  commands:
+    - python -c "import econml, dowhy; print(econml.__version__, dowhy.__version__)"
+    - python scripts/estimate_causal_effects.py --treatment int_rate --sample_size 0
+    - python scripts/simulate_causal_policy.py
+    - python scripts/backtest_causal_policy_oot.py
+rapids_session:
+  optional: true
+  commands:
+    - conda run -n rapids bash scripts/side_projects/run_rapids_benchmarks.sh --profile full_data
+post_run:
+  commands:
+    - uv run python scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec
+    - uv run python scripts/run_paper_notebook_suite.py
+    - uv run python scripts/extract_notebook_images.py
+    - uv run python scripts/run_comparison.py compare --run-tag {run_tag}
+gates:
+  pd:
+    auc_drop_max: 0.005
+    ece_relative_worse_max: 0.20
+    d2_brier_must_not_drop: true
+  conformal:
+    coverage_tolerance_abs: 0.03
+    min_group_coverage90_tolerance_abs: 0.03
+    require_overall_pass: true
+  fairness:
+    mode: relative_to_baseline
+    n_passed_must_not_drop: true
+  survival:
+    cindex_drop_max: 0.01

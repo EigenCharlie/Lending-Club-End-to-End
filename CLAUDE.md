@@ -2,7 +2,7 @@
 
 ## PROJECT OVERVIEW
 
-Master's thesis on credit risk management using the **Lending Club Loan Data** (2.26M loans, 2007-2020). Implements a complete ML + Operations Research pipeline with a novel **predict-then-optimize** approach using conformal prediction.
+Master's thesis on credit risk management using the **Lending Club Loan Data** (Kaggle 2007-2020Q3 source; modeling uses a cleaned resolved OOT subset). Implements a complete ML + Operations Research pipeline with a novel **predict-then-optimize** approach using conformal prediction.
 
 **Owner**: Carlos Vergara | **Language**: Python | **Package manager**: `uv` (not pip)
 
@@ -185,7 +185,7 @@ uv run pytest -m "not slow"   # Skip slow tests
 uv run pytest --cov=src       # Coverage report
 ```
 
-Current tests: 382 passing across data pipeline, features, models (PD, calibration, conformal, conformal_tuning, pd_contract), evaluation (fairness, A/B, IFRS9, metrics), optimization (portfolio, portfolio_model, causal, robust_opt), config/DVC consistency (6 YAML configs), MLflow/utils/scripts, API, Streamlit smoke (25 pages), and integration.
+Test inventory and counts evolve frequently. Use `uv run pytest --collect-only -q` (or `data/processed/runtime_status.json` if freshly exported) for current totals; the suite covers data pipeline, features, models, evaluation, optimization, config/DVC consistency, MLflow/utils/scripts, API, Streamlit smoke/imports, and integration.
 
 Pytest config uses `--strict-markers --strict-config` to prevent typos in markers and invalid configs.
 Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).

@@ -1,0 +1,9 @@
+{
+  "schema_version": "2026-02-26.1",
+  "run_tag": "2026-02-26-long-full-v2",
+  "last_update_utc": "2026-02-26T18:37:54.865287+00:00",
+  "state": "running",
+  "current_step": "main_pre",
+  "orchestrator_pid": 33172,
+  "active_child_pid": 33316
+}

@@ -8,6 +8,15 @@ governance:
   validation_frequency_days: 90
   review_cadence: quarterly
 
+governance_checks:
+  ks_pvalue_min: 0.01
+  cvm_pvalue_min: 0.01
+  c2st_auc_max: 0.60
+  max_feature_breach_ratio: 0.15
+  c2st_max_rows_per_split: 50000
+  psi_bins: 10
+  random_state: 42
+
 retraining_triggers:
   psi_threshold: 0.25
   auc_degradation_threshold: 0.03
@@ -23,6 +32,9 @@ challenger:
     - conformal_policy_pass: true
     - fairness_audit_pass: true
     - governance_checks_pass: true
+  modeling_constraints:
+    no_smote: true
+    monotonic_constraints_required: true
 
 approval_workflow:
   steps:
@@ -36,8 +48,14 @@ approval_workflow:
 artifacts:
   pipeline_summary: data/processed/pipeline_summary.json
   conformal_status: models/conformal_policy_status.json
-  governance_status: models/conformal_policy_status.json
+  governance_status: models/governance_status.json
   fairness_status: models/fairness_audit_status.json
+
+governance_output:
+  drift_monitoring_path: data/processed/drift_monitoring.parquet
+  drift_monitoring_v2_path: data/processed/drift_monitoring_v2.parquet
+  governance_status_path: models/governance_status.json
+  governance_status_v2_path: models/governance_status_v2.json
 
 output:
   mrm_report_json: reports/mrm/mrm_validation_report.json

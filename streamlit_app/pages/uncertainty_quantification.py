@@ -242,7 +242,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 st.markdown(
@@ -275,7 +275,7 @@ with col1:
         labels={"width_90": "Ancho intervalo", "count": "Frecuencia"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: medir dispersión del ancho de intervalos por grade. Insight: perfiles más riesgosos tienden a intervalos más "
         "anchos, reflejando mayor incertidumbre estructural."
@@ -293,7 +293,7 @@ with col2:
         labels={"y_pred": "PD puntual", "width_90": "Ancho 90%"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: relacionar riesgo puntual con incertidumbre. Insight: la amplitud aumenta en zonas de PD elevada y ayuda a "
         "evitar decisiones sobreconfiadas."
@@ -328,7 +328,7 @@ fig.update_layout(
     yaxis={"tickformat": ".0%"},
     height=390,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: validar garantía de cobertura por subgrupo. Insight: cobertura segmentada cerca o por encima de la meta indica "
     "que la garantía global no oculta fallos locales."
@@ -404,7 +404,7 @@ with col3:
         yaxis={"tickformat": ".0%"},
         height=390,
     )
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: monitorear estabilidad temporal de cobertura. Insight: desviaciones persistentes bajo meta anticipan necesidad "
         "de recalibración."
@@ -422,7 +422,7 @@ with col4:
         labels={"color": "Cobertura"},
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: detectar meses/grades con sobre o subcobertura. Insight: el mapa de calor acelera diagnóstico operativo de "
         "segmentos inestables."
@@ -443,7 +443,7 @@ st.markdown(
 )
 
 st.subheader("4) Reglas de política y auditoría")
-st.dataframe(checks, use_container_width=True, hide_index=True)
+st.dataframe(checks, width="stretch", hide_index=True)
 
 col_a, col_b = st.columns(2)
 with col_a:
@@ -452,7 +452,7 @@ with col_a:
         st.image(
             str(img),
             caption="Notebook 04: calibración cobertura vs objetivo y trade-off con ancho.",
-            use_container_width=True,
+            width="stretch",
         )
     else:
         fig = go.Figure()
@@ -479,7 +479,7 @@ with col_a:
             height=320,
             title="Fallback: cobertura observada vs objetivo",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Imagen de notebook no encontrada; se muestra gráfico equivalente construido desde artefactos."
         )
@@ -489,7 +489,7 @@ with col_b:
         st.image(
             str(img),
             caption="Notebook 04: comparación marginal vs Mondrian por grade.",
-            use_container_width=True,
+            width="stretch",
         )
     else:
         fig = go.Figure()
@@ -519,7 +519,7 @@ with col_b:
             title="Fallback: cobertura por grade (90% vs 95%)",
             yaxis={"tickformat": ".0%"},
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
         st.caption(
             "Imagen de notebook no encontrada; se muestra fallback por grade con datos actuales."
         )
@@ -551,7 +551,7 @@ else:
     st.warning(
         f"Hay {len(failed_checks)} regla(s) fuera de política; requiere recalibración o revisión segmentada."
     )
-    st.dataframe(failed_checks, use_container_width=True, hide_index=True)
+    st.dataframe(failed_checks, width="stretch", hide_index=True)
 
 st.markdown(
     """

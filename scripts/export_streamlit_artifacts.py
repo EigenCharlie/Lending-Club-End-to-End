@@ -9,6 +9,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import json
 import pickle
 import subprocess
@@ -23,6 +24,11 @@ from loguru import logger
 from sklearn.calibration import calibration_curve
 from sklearn.metrics import roc_auc_score, roc_curve
 
+try:
+    from sklearn.metrics import d2_brier_score
+except ImportError:  # sklearn < 1.8
+    d2_brier_score = None
+
 # ── Paths ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
@@ -30,10 +36,28 @@ MODEL_DIR = PROJECT_ROOT / "models"
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
 
 EXPORT_COUNT = 0
+EXPORT_SCHEMA_VERSION = "2026-02-26.1"
 
 
-def _save_json(data: dict, path: Path) -> None:
+def _save_json(
+    data: dict,
+    path: Path,
+    *,
+    dataset_scope: str | None = None,
+    export_warnings: list[str] | None = None,
+    missing_fields: list[str] | None = None,
+) -> None:
     global EXPORT_COUNT
+    if isinstance(data, dict):
+        data = dict(data)
+        data.setdefault("schema_version", EXPORT_SCHEMA_VERSION)
+        data.setdefault("generated_at_utc", datetime.now(tz=UTC).isoformat())
+        if dataset_scope is not None:
+            data.setdefault("dataset_scope", dataset_scope)
+        if export_warnings:
+            data["export_warnings"] = list(export_warnings)
+        if missing_fields:
+            data["missing_fields"] = sorted({str(x) for x in missing_fields})
     path.write_text(json.dumps(data, indent=2, default=str))
     logger.info(f"Saved {path.name}")
     EXPORT_COUNT += 1
@@ -67,6 +91,50 @@ def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:
         total += 1
     breakdown = [{"module": module, "tests": int(n)} for module, n in sorted(counts.items())]
     return total, breakdown
+
+
+def _infer_dataset_scope_from_training_record(rec: dict[str, Any]) -> str:
+    sample_size = rec.get("sample_size")
+    if sample_size in (None, 0, "0"):
+        return "full_data"
+    try:
+        return "sampled" if int(sample_size) > 0 else "full_data"
+    except Exception:
+        pass
+    scope = str(rec.get("dataset_scope", "") or "").strip()
+    return scope or "unknown"
+
+
+def _load_json_if_exists(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _infer_calibration_method(rec: dict[str, Any]) -> str:
+    value = str(rec.get("best_calibration", "") or "").strip()
+    if value:
+        return value
+    # Fallback: infer from calibrator artifact class when record is stale.
+    for p in [MODEL_DIR / "pd_canonical_calibrator.pkl", MODEL_DIR / "pd_calibrator.pkl"]:
+        if not p.exists():
+            continue
+        try:
+            with open(p, "rb") as f:
+                obj = pickle.load(f)
+            cls = obj.__class__.__name__.lower()
+            if "isotonic" in cls:
+                return "Isotonic Regression"
+            if "logistic" in cls:
+                return "Platt Sigmoid"
+        except Exception:
+            continue
+    # Fallback to previous export if available.
+    prior = _load_json_if_exists(DATA_DIR / "model_comparison.json")
+    return str(prior.get("best_calibration", "") or "Unknown")
 
 
 # ── 1. EDA Summary ──
@@ -158,6 +226,9 @@ def export_model_comparison() -> None:
     # Load training record
     with open(MODEL_DIR / "pd_training_record.pkl", "rb") as f:
         rec = pickle.load(f)
+    dataset_scope = _infer_dataset_scope_from_training_record(rec)
+    export_warnings: list[str] = []
+    missing_fields: list[str] = []
 
     # Compute metrics for each model variant
     models = {
@@ -174,14 +245,15 @@ def export_model_comparison() -> None:
         from sklearn.metrics import brier_score_loss
 
         brier = brier_score_loss(y_true, y_prob)
-        comparison.append(
-            {
-                "model": name,
-                "auc": round(float(auc), 4),
-                "gini": round(float(gini), 4),
-                "brier": round(float(brier), 4),
-            }
-        )
+        row = {
+            "model": name,
+            "auc": round(float(auc), 4),
+            "gini": round(float(gini), 4),
+            "brier": round(float(brier), 4),
+        }
+        if d2_brier_score is not None:
+            row["d2_brier"] = round(float(d2_brier_score(y_true, y_prob)), 4)
+        comparison.append(row)
 
     record_best_model = str(rec.get("best_model", "")).strip()
     if record_best_model in models:
@@ -208,15 +280,49 @@ def export_model_comparison() -> None:
         except Exception:
             pass
 
-    hpo_trials_executed = int(rec.get("hpo_trials_executed", rec.get("optuna_n_trials", 0)))
-    hpo_best_validation_auc = float(
-        rec.get("hpo_best_validation_auc", rec.get("optuna_best_auc", 0.0))
+    prior_model_comparison = _load_json_if_exists(DATA_DIR / "model_comparison.json")
+    hpo_trials_executed = int(
+        rec.get(
+            "hpo_trials_executed",
+            rec.get(
+                "optuna_n_trials",
+                prior_model_comparison.get("hpo_trials_executed", 0) or 0,
+            ),
+        )
+        or 0
     )
+    hpo_best_validation_auc = float(
+        rec.get(
+            "hpo_best_validation_auc",
+            rec.get(
+                "optuna_best_auc",
+                prior_model_comparison.get("hpo_best_validation_auc", 0.0) or 0.0,
+            ),
+        )
+        or 0.0
+    )
+    if hpo_trials_executed <= 0:
+        missing_fields.append("hpo_trials_executed")
+        export_warnings.append("HPO trials not found in pd_training_record; exported as 0.")
+
+    final_test_metrics = dict(rec.get("final_test_metrics", {}) or {})
+    if d2_brier_score is not None and "d2_brier_score" not in final_test_metrics:
+        try:
+            final_test_metrics["d2_brier_score"] = float(
+                d2_brier_score(y_true, models["CatBoost (tuned + calibrated)"])
+            )
+        except Exception:
+            logger.debug("Could not compute d2_brier_score while exporting final_test_metrics.")
+
+    calibration_method = _infer_calibration_method(rec)
+    if calibration_method in {"", "Unknown"}:
+        missing_fields.append("best_calibration")
+        export_warnings.append("Calibration method missing in training record and not inferable.")
 
     export = {
         "models": comparison,
         "best_model": best_model,
-        "best_calibration": rec.get("best_calibration", "Platt Sigmoid"),
+        "best_calibration": calibration_method,
         "optuna_best_auc": round(rec.get("optuna_best_auc", 0), 4),
         "optuna_n_trials": hpo_trials_executed,
         "hpo_trials_executed": hpo_trials_executed,
@@ -225,9 +331,15 @@ def export_model_comparison() -> None:
         "feature_count_default": feature_count_default,
         "feature_count_tuned": feature_count_tuned,
         "calibration_selection_report": rec.get("calibration_selection_report", {}),
-        "final_test_metrics": rec.get("final_test_metrics", {}),
+        "final_test_metrics": final_test_metrics,
     }
-    _save_json(export, DATA_DIR / "model_comparison.json")
+    _save_json(
+        export,
+        DATA_DIR / "model_comparison.json",
+        dataset_scope=dataset_scope,
+        export_warnings=export_warnings,
+        missing_fields=missing_fields,
+    )
 
 
 # ── 4. ROC Curve Data ──
@@ -566,14 +678,39 @@ def export_pipeline_summary() -> None:
 
     conformal_status = json.loads((MODEL_DIR / "conformal_policy_status.json").read_text())
 
+    prior_model_comparison = _load_json_if_exists(DATA_DIR / "model_comparison.json")
+    pd_metrics = (
+        train_rec.get("final_test_metrics", {})
+        or prior_model_comparison.get("final_test_metrics", {})
+        or {}
+    )
+    calibration_method = _infer_calibration_method(train_rec)
+    flattened_summary = {
+        "pd_auc": float(pd_metrics.get("auc_roc", 0) or 0),
+        "pd_gini": float(pd_metrics.get("gini", 0) or 0),
+        "pd_brier": float(pd_metrics.get("brier_score", 0) or 0),
+        "pd_ece": float(pd_metrics.get("ece", 0) or 0),
+        "pd_d2_brier": float(pd_metrics.get("d2_brier_score", 0) or 0),
+        "calibration_method": calibration_method,
+        "conformal_coverage_90": float(conformal_status.get("coverage_90", 0) or 0),
+        "conformal_coverage_95": float(conformal_status.get("coverage_95", 0) or 0),
+        "conformal_overall_pass": bool(conformal_status.get("overall_pass", False)),
+        "survival_cox_concordance": float(surv.get("cox_concordance_index", 0) or 0),
+        "survival_rsf_concordance": float(surv.get("rsf_c_index_test", 0) or 0),
+        "dataset_n_loans": int(surv.get("n_loans", 0) or 0),
+        "dataset_n_events": int(surv.get("n_events", 0) or 0),
+        "dataset_event_rate": float(surv.get("event_rate", 0) or 0),
+    }
+
     summary = {
         "pipeline": results,
         "pd_model": {
-            "final_auc": train_rec.get("final_test_metrics", {}).get("auc_roc", 0),
-            "final_gini": train_rec.get("final_test_metrics", {}).get("gini", 0),
-            "final_brier": train_rec.get("final_test_metrics", {}).get("brier_score", 0),
-            "final_ece": train_rec.get("final_test_metrics", {}).get("ece", 0),
-            "calibration_method": train_rec.get("best_calibration", ""),
+            "final_auc": flattened_summary["pd_auc"],
+            "final_gini": flattened_summary["pd_gini"],
+            "final_brier": flattened_summary["pd_brier"],
+            "final_ece": flattened_summary["pd_ece"],
+            "final_d2_brier": flattened_summary["pd_d2_brier"],
+            "calibration_method": calibration_method,
         },
         "conformal": {
             "coverage_90": conformal_status.get("coverage_90", 0),
@@ -590,8 +727,15 @@ def export_pipeline_summary() -> None:
             "n_events": surv.get("n_events", 0),
             "event_rate": surv.get("event_rate", 0),
         },
+        "flattened_summary": flattened_summary,
+        # Legacy aliases for pages/exports still expecting top-level quick keys.
+        **flattened_summary,
     }
-    _save_json(summary, DATA_DIR / "pipeline_summary.json")
+    _save_json(
+        summary,
+        DATA_DIR / "pipeline_summary.json",
+        dataset_scope=_infer_dataset_scope_from_training_record(train_rec),
+    )
 
 
 # ── 10. Dataset Dictionary ──
@@ -700,7 +844,7 @@ def export_runtime_status() -> None:
 
 
 # ── Main ──
-def main() -> None:
+def main(core_only: bool = False) -> None:
     logger.info("Starting Streamlit artifact export...")
 
     export_eda_summary()
@@ -708,11 +852,12 @@ def main() -> None:
     export_model_comparison()
     export_roc_curves()
     export_calibration_curves()
-    export_shap_summary()
-    export_permutation_importance()
-    export_pdp_ice_top5()
-    export_km_curves()
-    export_hazard_ratios()
+    if not core_only:
+        export_shap_summary()
+        export_permutation_importance()
+        export_pdp_ice_top5()
+        export_km_curves()
+        export_hazard_ratios()
     export_pipeline_summary()
     export_dataset_dictionary()
     export_macro_context()
@@ -724,4 +869,11 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--core-only",
+        action="store_true",
+        help="Skip heavier explainability/survival exports for fast contract refresh.",
+    )
+    args = parser.parse_args()
+    main(core_only=args.core_only)

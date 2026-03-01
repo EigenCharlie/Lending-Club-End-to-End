@@ -379,7 +379,7 @@ if not df_glossary.empty:
             "en_proyecto": "En este proyecto",
         }
     )
-    st.dataframe(df_display, use_container_width=True, hide_index=True, height=500)
+    st.dataframe(df_display, width="stretch", hide_index=True, height=500)
 
 # ── Industry Usage ──
 st.subheader("Técnicas y su uso en la industria")
@@ -437,7 +437,7 @@ industry_data = [
         "En este proyecto": "19 modelos dbt sobre DuckDB local con linaje verificable",
     },
 ]
-st.dataframe(pd.DataFrame(industry_data), use_container_width=True, hide_index=True)
+st.dataframe(pd.DataFrame(industry_data), width="stretch", hide_index=True)
 
 # ── Key Formulas ──
 st.subheader("Fórmulas clave")
@@ -561,7 +561,7 @@ else:
     profiles_view["Worst-case PD"] = profiles_view["Worst-case PD"].map(
         lambda v: format_pct(float(v), decimals=1)
     )
-    st.dataframe(profiles_view, use_container_width=True, hide_index=True)
+    st.dataframe(profiles_view, width="stretch", hide_index=True)
 
     st.markdown(
         """
@@ -614,7 +614,7 @@ adoption_df = pd.DataFrame(
         },
     ]
 )
-st.dataframe(adoption_df, use_container_width=True, hide_index=True)
+st.dataframe(adoption_df, width="stretch", hide_index=True)
 
 with st.expander("Guion de 1 minuto para explicarlo sin tecnicismos"):
     st.markdown(

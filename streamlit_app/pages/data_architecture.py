@@ -386,14 +386,14 @@ kpi_row(
 
 st.subheader("1) Grafo de linaje (DAG de datos)")
 st.markdown("**Versión legible (Graphviz):**")
-st.graphviz_chart(lineage_graphviz_dot(shapes, dict_vars), use_container_width=True)
+st.graphviz_chart(lineage_graphviz_dot(shapes, dict_vars), width="stretch")
 st.caption(
     "Propósito: trazar origen y transformación de datos. Insight: el diseño desacopla limpieza, modelado y datasets "
     "especializados para reducir fuga y mejorar trazabilidad."
 )
 
 with st.expander("Ver Sankey de flujo (complementario)"):
-    st.plotly_chart(lineage_sankey(shapes), use_container_width=True)
+    st.plotly_chart(lineage_sankey(shapes), width="stretch")
     st.caption("Sankey complementario para visualizar intensidad relativa del flujo entre capas.")
 
 st.markdown(
@@ -453,7 +453,7 @@ dataset_design = pd.DataFrame(
         },
     ]
 )
-st.dataframe(dataset_design, use_container_width=True, hide_index=True)
+st.dataframe(dataset_design, width="stretch", hide_index=True)
 
 st.subheader("3) Ingeniería de variables: WOE, IV y selección de features")
 feature_sizes = {
@@ -463,7 +463,7 @@ st.dataframe(
     pd.DataFrame([{"familia": k, "n_variables": v} for k, v in feature_sizes.items()]).sort_values(
         "n_variables", ascending=False
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -480,7 +480,7 @@ fig = px.bar(
     color_continuous_scale="Blues",
 )
 fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=480, coloraxis_showscale=False)
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: priorizar variables por poder predictivo (IV). Insight: sub_grade/int_rate/grade lideran señal; "
     "esto justifica su rol central en PD."
@@ -498,7 +498,7 @@ with col_a:
         st.image(
             str(woe_img),
             caption="Notebook 02: binning WOE en features de mayor IV",
-            use_container_width=True,
+            width="stretch",
         )
 with col_b:
     iv_img = get_notebook_image_path("02_feature_engineering", "cell_023_out_00.png")
@@ -506,7 +506,7 @@ with col_b:
         st.image(
             str(iv_img),
             caption="Notebook 02: ranking IV y umbrales de interpretación",
-            use_container_width=True,
+            width="stretch",
         )
 
 st.markdown(
@@ -552,7 +552,7 @@ kpi_row(
 try:
     catalog = load_duckdb_table_catalog()
     with st.expander("Catálogo DuckDB (tablas disponibles)"):
-        st.dataframe(catalog, use_container_width=True, height=300)
+        st.dataframe(catalog, width="stretch", height=300)
 except Exception:
     pass
 
@@ -703,7 +703,7 @@ dvc_stages = [
         "Outs": "reports/storytelling_snapshot.json",
     },
 ]
-st.dataframe(pd.DataFrame(dvc_stages), use_container_width=True, hide_index=True)
+st.dataframe(pd.DataFrame(dvc_stages), width="stretch", hide_index=True)
 
 st.markdown(
     """

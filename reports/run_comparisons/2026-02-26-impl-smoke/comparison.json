@@ -1,0 +1,214 @@
+{
+  "schema_version": "2026-02-26.1",
+  "run_tag": "2026-02-26-impl-smoke",
+  "generated_at_utc": "2026-02-26T06:08:02.206985+00:00",
+  "baseline_path": "reports/run_comparisons/2026-02-26-impl-smoke/baseline_snapshot.json",
+  "overall_pass": true,
+  "gates": [
+    {
+      "name": "pd_quality",
+      "passed": true,
+      "details": {
+        "baseline": {
+          "auc": 0.7171838117742488,
+          "ece": 0.009395399990551135,
+          "d2_brier": 0.10280866395546118
+        },
+        "current": {
+          "auc": 0.7171838117742488,
+          "ece": 0.009395399990551135,
+          "d2_brier": 0.10280866395546118
+        },
+        "checks": {
+          "auc_ok": true,
+          "ece_ok": true,
+          "d2_brier_ok": true
+        }
+      }
+    },
+    {
+      "name": "conformal_policy",
+      "passed": true,
+      "details": {
+        "baseline": {
+          "overall_pass": true,
+          "checks_passed": 7,
+          "checks_total": 7,
+          "coverage_90": 0.9141326764643207,
+          "coverage_95": 0.952038689777476,
+          "avg_width_90": 0.7419775501652246,
+          "min_group_coverage_90": 0.8825267824159586,
+          "critical_alerts": 0,
+          "warning_alerts": 5,
+          "total_alerts": 5,
+          "latest_backtest_month": "2020-09-01 00:00:00",
+          "policy_config": "configs/conformal_policy.yaml"
+        },
+        "current": {
+          "overall_pass": true,
+          "checks_passed": 7,
+          "checks_total": 7,
+          "coverage_90": 0.9141326764643207,
+          "coverage_95": 0.952038689777476,
+          "avg_width_90": 0.7419775501652246,
+          "min_group_coverage_90": 0.8825267824159586,
+          "critical_alerts": 0,
+          "warning_alerts": 5,
+          "total_alerts": 5,
+          "latest_backtest_month": "2020-09-01 00:00:00",
+          "policy_config": "configs/conformal_policy.yaml"
+        },
+        "checks": {
+          "coverage90_ok": true,
+          "coverage95_ok": true,
+          "min_group_coverage90_ok": true,
+          "overall_pass_ok": true
+        }
+      }
+    },
+    {
+      "name": "fairness_relative",
+      "passed": true,
+      "details": {
+        "baseline_n_passed": 0,
+        "current_n_passed": 0,
+        "baseline_overall_pass": false,
+        "current_overall_pass": false
+      }
+    },
+    {
+      "name": "survival_quality",
+      "passed": true,
+      "details": {
+        "baseline": {
+          "cox_cindex": 0.6657339756314801,
+          "rsf_cindex": 0.6504937378540977
+        },
+        "current": {
+          "cox_cindex": 0.6657339756314801,
+          "rsf_cindex": 0.6504937378540977
+        },
+        "checks": {
+          "cox_ok": true,
+          "rsf_ok": true
+        }
+      }
+    },
+    {
+      "name": "export_contracts",
+      "passed": true,
+      "details": {
+        "missing_keys": []
+      }
+    }
+  ],
+  "artifact_changes": {
+    "data/processed/ifrs9_scenario_summary.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 13611,
+      "size_bytes_current": 13611
+    },
+    "data/processed/model_comparison.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 7823,
+      "size_bytes_current": 7949
+    },
+    "data/processed/pipeline_summary.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 1156,
+      "size_bytes_current": 2428
+    },
+    "data/processed/portfolio_robustness_frontier.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 14355,
+      "size_bytes_current": 14355
+    },
+    "data/processed/portfolio_robustness_summary.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 9043,
+      "size_bytes_current": 9043
+    },
+    "models/conformal_policy_status.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 397,
+      "size_bytes_current": 397
+    },
+    "models/fairness_audit_status.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 1174,
+      "size_bytes_current": 1174
+    },
+    "models/survival_summary.pkl": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 421,
+      "size_bytes_current": 421
+    },
+    "reports/dvc/metrics_summary.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 807,
+      "size_bytes_current": 807
+    },
+    "reports/gpu_benchmark/cudf_polars_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 484,
+      "size_bytes_current": 484
+    },
+    "reports/gpu_benchmark/cugraph_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 1268,
+      "size_bytes_current": 1268
+    },
+    "reports/gpu_benchmark/cuml_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 1226,
+      "size_bytes_current": 1226
+    },
+    "reports/gpu_benchmark/cuopt_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 900,
+      "size_bytes_current": 900
+    },
+    "reports/gpu_benchmark/cupy_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 491,
+      "size_bytes_current": 491
+    },
+    "reports/gpu_benchmark/gpu_bench_meta.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 439,
+      "size_bytes_current": 439
+    }
+  },
+  "baseline_head": "dbf5f18fda7a72d3b4c217194c6269fdc6d3b511",
+  "current_head": "dbf5f18fda7a72d3b4c217194c6269fdc6d3b511"
+}

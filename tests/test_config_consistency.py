@@ -40,6 +40,13 @@ class TestCalibrationConfig:
             f"Config says '{method}' but thesis/CLAUDE.md specifies Platt sigmoid"
         )
 
+    def test_calibration_candidates_include_supported_methods(self, pd_config: dict) -> None:
+        candidates = set(pd_config.get("calibration", {}).get("candidates", []))
+        required = {"platt", "isotonic", "venn_abers"}
+        assert required.issubset(candidates), (
+            f"Calibration candidates missing required methods: {required - candidates}"
+        )
+
 
 class TestConformalConfig:
     def test_uses_mapie_13_params(self, pd_config: dict) -> None:
@@ -56,6 +63,52 @@ class TestConformalConfig:
         conf = pd_config.get("conformal", {})
         level = conf.get("confidence_level", 0.9)
         assert 0.5 < level < 1.0, f"confidence_level={level} outside valid range (0.5, 1.0)"
+
+
+class TestPDValidationConfig:
+    def test_walk_forward_block_valid(self, pd_config: dict) -> None:
+        val = pd_config.get("validation", {})
+        walk = val.get("walk_forward", {})
+        assert isinstance(walk, dict) and walk, "validation.walk_forward must be configured"
+        assert int(walk.get("n_windows", 0)) >= 1
+        assert int(walk.get("min_train_rows", 0)) >= 10_000
+        assert int(walk.get("window_rows", 0)) >= 1_000
+
+    def test_seed_replay_block_valid(self, pd_config: dict) -> None:
+        val = pd_config.get("validation", {})
+        replay = val.get("seed_replay", {})
+        assert isinstance(replay, dict) and replay, "validation.seed_replay must be configured"
+        assert int(replay.get("top_k_trials", 0)) >= 1
+        seeds = replay.get("seeds", [])
+        assert isinstance(seeds, list) and len(seeds) >= 1, "seed_replay.seeds must be non-empty"
+
+    def test_decision_threshold_block_valid(self, pd_config: dict) -> None:
+        decision_cfg = pd_config.get("decision_threshold", {})
+        assert isinstance(decision_cfg, dict) and decision_cfg, (
+            "decision_threshold must be configured"
+        )
+        assert 0.0 < float(decision_cfg.get("min_threshold", 0.0)) < 1.0
+        assert 0.0 < float(decision_cfg.get("max_threshold", 0.0)) <= 1.0
+        assert float(decision_cfg.get("step", 0.0)) > 0.0
+        out_path = str(decision_cfg.get("output_path", ""))
+        assert out_path.endswith(".json"), "decision_threshold output_path must be JSON"
+        out_path_v2 = str(decision_cfg.get("output_path_v2", ""))
+        assert out_path_v2.endswith(".json"), "decision_threshold output_path_v2 must be JSON"
+
+    def test_challenger_pipeline_policy(self, pd_config: dict) -> None:
+        challenger = pd_config.get("challenger_pipeline", {})
+        assert isinstance(challenger, dict) and challenger, "challenger_pipeline must be configured"
+        assert bool(challenger.get("no_smote", False)) is True, (
+            "challenger pipeline must disable SMOTE"
+        )
+        assert str(challenger.get("spec_output", "")).endswith(".json")
+        assert str(challenger.get("spec_output_v2", "")).endswith(".json")
+        constraints = challenger.get("monotonic_constraints", {})
+        assert isinstance(constraints, dict) and constraints
+        for feature, sign in constraints.items():
+            assert int(sign) in {-1, 0, 1}, (
+                f"monotonic constraint for {feature} must be -1/0/1, got {sign}"
+            )
 
 
 class TestModelContract:
@@ -151,6 +204,9 @@ class TestDvcPipeline:
         required = {
             "backtest_conformal_coverage",
             "validate_conformal_policy",
+            "generate_governance_status",
+            "build_pd_challenger_artifacts",
+            "run_fairness_audit",
             "export_streamlit_artifacts",
             "export_storytelling_snapshot",
         }
@@ -183,6 +239,11 @@ class TestGitDvcHygiene:
     def test_dvc_json_outputs_not_tracked_and_ignored(self) -> None:
         outputs = [
             "models/conformal_policy_status.json",
+            "models/conformal_policy_status_v2.json",
+            "models/fairness_audit_status.json",
+            "models/fairness_audit_status_v2.json",
+            "models/pd_challenger_spec.json",
+            "models/pd_challenger_spec_v2.json",
             "models/causal_policy_rule.json",
         ]
 
@@ -229,6 +290,12 @@ class TestMRMConfig:
         path = self.cfg["model"]["champion_artifact"]
         assert "\\" not in path, f"Path should use forward slashes: {path}"
 
+    def test_mrm_modeling_constraints_no_smote(self):
+        constraints = self.cfg["challenger"].get("modeling_constraints", {})
+        assert constraints.get("no_smote") is True, (
+            "MRM challenger policy must enforce no_smote=true"
+        )
+
 
 # ── Conformal Policy Config ──
 
@@ -248,6 +315,10 @@ class TestConformalPolicyConfig:
 
     def test_required_sections(self):
         assert {"policy", "artifacts", "output"}.issubset(self.cfg.keys())
+
+    def test_conformal_dual_write_output_paths_present(self):
+        assert "policy_status_json" in self.cfg["output"]
+        assert "policy_status_json_v2" in self.cfg["output"]
 
     def test_coverage_targets_in_valid_range(self):
         for key in ("target_coverage_90_min", "target_coverage_95_min"):
@@ -269,6 +340,20 @@ class TestConformalPolicyConfig:
 
     def test_critical_alerts_leq_total(self):
         assert self.policy["max_critical_alerts"] <= self.policy["max_total_alerts"]
+
+    def test_winkler_limits_are_positive(self):
+        for key in ("max_winkler_90", "max_winkler_95"):
+            assert self.policy[key] > 0, f"{key} must be > 0"
+
+    def test_statistical_pvalue_floors_in_unit_interval(self):
+        for key in (
+            "min_kupiec_pvalue_90",
+            "min_kupiec_pvalue_95",
+            "min_christoffersen_pvalue_90",
+            "min_christoffersen_pvalue_95",
+        ):
+            val = self.policy[key]
+            assert 0.0 <= val <= 1.0, f"{key}={val} must be in [0, 1]"
 
     def test_artifact_paths_have_valid_extensions(self):
         for key, path in self.cfg["artifacts"].items():
@@ -294,7 +379,9 @@ class TestFairnessPolicyConfig:
         self.policy = self.cfg["policy"]
 
     def test_required_sections(self):
-        assert {"policy", "attributes", "artifacts", "output"}.issubset(self.cfg.keys())
+        assert {"policy", "threshold_policy", "attributes", "artifacts", "output"}.issubset(
+            self.cfg.keys()
+        )
 
     def test_dpd_threshold_range(self):
         val = self.policy["dpd_threshold"]
@@ -333,6 +420,16 @@ class TestFairnessPolicyConfig:
             assert path.endswith((".parquet", ".json")), (
                 f"Output '{key}' has unexpected extension: {path}"
             )
+
+    def test_fairness_dual_write_output_paths_present(self):
+        assert "status_json" in self.cfg["output"]
+        assert "status_json_v2" in self.cfg["output"]
+
+    def test_threshold_policy_artifact_is_json(self):
+        artifact = self.cfg["threshold_policy"]["artifact_path"]
+        assert artifact.endswith(".json"), (
+            f"threshold_policy.artifact_path must be json, got {artifact}"
+        )
 
 
 # ── Optimization Config ──

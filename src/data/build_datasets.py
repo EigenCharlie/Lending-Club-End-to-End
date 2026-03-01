@@ -23,17 +23,21 @@ def clean_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     df = df.copy()
 
+    def _is_text_dtype(col: pd.Series) -> bool:
+        """Support both legacy object strings and pandas StringDtype/Arrow strings."""
+        return pd.api.types.is_object_dtype(col.dtype) or pd.api.types.is_string_dtype(col.dtype)
+
     # int_rate: ' 13.75%' -> 13.75
-    if "int_rate" in df.columns and df["int_rate"].dtype == object:
+    if "int_rate" in df.columns and _is_text_dtype(df["int_rate"]):
         df["int_rate"] = df["int_rate"].astype(str).str.strip().str.rstrip("%").astype(float)
         logger.info(f"Parsed int_rate: mean={df['int_rate'].mean():.2f}%")
 
     # term: ' 36 months' -> 36
-    if "term" in df.columns and df["term"].dtype == object:
+    if "term" in df.columns and _is_text_dtype(df["term"]):
         df["term"] = df["term"].astype(str).str.extract(r"(\d+)").astype(float)
 
     # revol_util: '55.3%' -> 55.3
-    if "revol_util" in df.columns and df["revol_util"].dtype == object:
+    if "revol_util" in df.columns and _is_text_dtype(df["revol_util"]):
         df["revol_util"] = df["revol_util"].astype(str).str.strip().str.rstrip("%")
         df["revol_util"] = pd.to_numeric(df["revol_util"], errors="coerce")
 

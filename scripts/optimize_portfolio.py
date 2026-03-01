@@ -64,12 +64,17 @@ def _resolve_interval_columns(intervals: pd.DataFrame) -> tuple[str, str, str]:
 def _align_candidates_and_intervals(
     candidates: pd.DataFrame,
     intervals: pd.DataFrame,
-    max_candidates: int = 5_000,
+    max_candidates: int | None = 5_000,
     random_state: int = 42,
 ) -> tuple[pd.DataFrame, np.ndarray, np.ndarray, np.ndarray]:
     """Align loans with PD intervals using ID when available, with legacy fallback."""
     col_point, col_low, col_high = _resolve_interval_columns(intervals)
-    base_n = min(len(candidates), len(intervals), max_candidates)
+    max_candidates_norm = (
+        None if max_candidates is None or int(max_candidates) <= 0 else int(max_candidates)
+    )
+    base_n = min(len(candidates), len(intervals))
+    if max_candidates_norm is not None:
+        base_n = min(base_n, max_candidates_norm)
 
     if "id" in candidates.columns and "id" in intervals.columns:
         cand = candidates.copy()
@@ -84,7 +89,7 @@ def _align_candidates_and_intervals(
         )
         if merged.empty:
             raise ValueError("ID-based merge between candidates and intervals returned zero rows.")
-        n = min(len(merged), max_candidates)
+        n = len(merged) if max_candidates_norm is None else min(len(merged), max_candidates_norm)
         if len(merged) > n:
             rng = np.random.default_rng(random_state)
             idx = np.sort(rng.choice(np.arange(len(merged)), size=n, replace=False))
@@ -120,6 +125,9 @@ def main(
     uncertainty_aversion: float = 0.0,
     min_budget_utilization: float = 0.0,
     pd_cap_slack_penalty: float = 0.0,
+    max_candidates: int | None = 5_000,
+    random_state: int = 42,
+    solver_backend: str | None = None,
 ):
     with open(config_path) as f:
         config = yaml.safe_load(f)
@@ -127,7 +135,7 @@ def main(
     test = _load_candidates()
     intervals = _load_interval_artifact()
     test_sample, pd_point, pd_low, pd_high = _align_candidates_and_intervals(
-        test, intervals, max_candidates=5_000, random_state=42
+        test, intervals, max_candidates=max_candidates, random_state=random_state
     )
     n = len(test_sample)
 
@@ -157,6 +165,7 @@ def main(
         model,
         time_limit=config["optimization"]["time_limit"],
         threads=config["optimization"]["threads"],
+        solver_backend=solver_backend or config.get("optimization", {}).get("solver", "highs"),
     )
 
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
@@ -189,6 +198,16 @@ def main(
                 "uncertainty_aversion": uncertainty_aversion,
                 "min_budget_utilization": min_budget_utilization,
                 "pd_cap_slack_penalty": pd_cap_slack_penalty,
+                "n_candidates_available": int(min(len(test), len(intervals))),
+                "n_candidates_used": int(n),
+                "max_candidates_requested": None
+                if max_candidates is None or int(max_candidates) <= 0
+                else int(max_candidates),
+                "dataset_scope": "full_candidates"
+                if max_candidates is None or int(max_candidates) <= 0
+                else "sampled_candidates",
+                "solver_backend_requested": solver_backend
+                or config.get("optimization", {}).get("solver", "highs"),
             },
             f,
         )
@@ -214,6 +233,9 @@ if __name__ == "__main__":
     parser.add_argument("--uncertainty_aversion", type=float, default=0.0)
     parser.add_argument("--min_budget_utilization", type=float, default=0.0)
     parser.add_argument("--pd_cap_slack_penalty", type=float, default=0.0)
+    parser.add_argument("--max_candidates", type=int, default=5_000)
+    parser.add_argument("--random_state", type=int, default=42)
+    parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default=None)
     args = parser.parse_args()
     main(
         args.config,
@@ -221,4 +243,7 @@ if __name__ == "__main__":
         args.uncertainty_aversion,
         args.min_budget_utilization,
         args.pd_cap_slack_penalty,
+        args.max_candidates,
+        args.random_state,
+        args.solver_backend,
     )

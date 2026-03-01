@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-02-26.1",
+  "run_tag": "orch-debug-1",
+  "started_at_utc": "2026-02-26T18:36:36.292397+00:00",
+  "argv": [
+    "scripts/run_long_pipeline.py",
+    "--run-tag",
+    "orch-debug-1",
+    "--no-rapids",
+    "--no-notebooks"
+  ],
+  "repo_root": "/home/eigenlinux/projects/lending-club-risk-project",
+  "python": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
+  "pid": 32445,
+  "resume": false,
+  "include_rapids": false,
+  "include_notebooks": false
+}

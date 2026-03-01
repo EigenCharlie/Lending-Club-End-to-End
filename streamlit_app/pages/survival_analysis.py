@@ -161,7 +161,7 @@ st.dataframe(
             },
         ]
     ),
-    use_container_width=True,
+    width="stretch",
     hide_index=True,
 )
 
@@ -191,7 +191,7 @@ fig.update_layout(
     yaxis={"tickformat": ".0%"},
     height=470,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: estimar probabilidad de no default a lo largo del tiempo. Insight: la separación entre curvas por grade "
     "muestra diferencias estructurales en velocidad de deterioro."
@@ -226,7 +226,7 @@ fig.update_layout(
     xaxis_title="Hazard ratio exp(coef)",
     height=420,
 )
-st.plotly_chart(fig, use_container_width=True)
+st.plotly_chart(fig, width="stretch")
 st.caption(
     "Propósito: cuantificar efecto multiplicativo de cada driver sobre el riesgo instantáneo. Insight: HR>1 acelera default; "
     "HR<1 protege temporalmente la cartera."
@@ -249,7 +249,7 @@ else:
     )
     fig.update_layout(**PLOTLY_TEMPLATE["layout"])
     fig.update_layout(yaxis={"tickformat": ".0%"}, height=420)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
     st.caption(
         "Propósito: proyectar PD acumulada por horizonte y grade. Insight: curvas más inclinadas implican mayor presión de provisión "
         "lifetime en IFRS9."

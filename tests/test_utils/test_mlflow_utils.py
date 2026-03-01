@@ -25,6 +25,21 @@ class TestInitDagshub:
             repo_owner="testuser", repo_name="testrepo", mlflow=True, dvc=False
         )
 
+    @patch.dict(
+        "os.environ",
+        {
+            "DAGSHUB_OWNER": "credit-risk-org",
+            "DAGSHUB_USER": "legacy-user",
+            "DAGSHUB_REPO": "testrepo",
+        },
+        clear=False,
+    )
+    def test_prefers_owner_env_var_for_org_repos(self) -> None:
+        mock_dagshub = self._call_init()
+        mock_dagshub.init.assert_called_once_with(
+            repo_owner="credit-risk-org", repo_name="testrepo", mlflow=True, dvc=False
+        )
+
     def test_explicit_args_override_env(self) -> None:
         mock_dagshub = self._call_init(repo_owner="alice", repo_name="my-repo")
         mock_dagshub.init.assert_called_once_with(

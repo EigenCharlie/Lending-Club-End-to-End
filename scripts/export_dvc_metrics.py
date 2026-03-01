@@ -12,6 +12,11 @@ import pandas as pd
 from loguru import logger
 from sklearn.metrics import brier_score_loss, roc_auc_score, roc_curve
 
+try:
+    from sklearn.metrics import d2_brier_score
+except ImportError:  # sklearn < 1.8
+    d2_brier_score = None
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -47,13 +52,16 @@ def _pd_metrics() -> dict[str, float]:
     auc = float(roc_auc_score(y_true, y_prob))
     fpr, tpr, _ = roc_curve(y_true, y_prob)
     ks = float(np.max(tpr - fpr))
-    return {
+    metrics = {
         "pd.auc": auc,
         "pd.gini": 2.0 * auc - 1.0,
         "pd.ks": ks,
         "pd.brier": float(brier_score_loss(y_true, y_prob)),
         "pd.ece": _ece(y_true, y_prob),
     }
+    if d2_brier_score is not None:
+        metrics["pd.d2_brier"] = float(d2_brier_score(y_true, y_prob))
+    return metrics
 
 
 def _conformal_metrics() -> dict[str, float]:
@@ -149,6 +157,10 @@ def main() -> None:
     metrics.update(_conformal_metrics())
     metrics.update(_ifrs9_metrics())
     metrics.update(_optimization_metrics())
+
+    invalid = [k for k, v in metrics.items() if not np.isfinite(float(v))]
+    if invalid:
+        raise ValueError(f"Non-finite values found in DVC metrics export: {sorted(invalid)}")
 
     metrics_path = out_dir / "metrics_summary.json"
     with open(metrics_path, "w", encoding="utf-8") as f:

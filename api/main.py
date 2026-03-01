@@ -29,14 +29,39 @@ from api.routers import analytics, conformal, ecl, health, predict
 async def lifespan(app: FastAPI):
     """Pre-load models on startup."""
     logger.info("Loading models...")
+    app.state.preload_status = {
+        "attempted": True,
+        "pd_model_loaded": False,
+        "calibrator_loaded": False,
+        "error": None,
+    }
+    errors: list[str] = []
     try:
         from api.dependencies import get_calibrator, get_pd_model
 
-        get_pd_model()
-        get_calibrator()
-        logger.success("Models loaded successfully")
-    except Exception as e:
-        logger.warning(f"Model pre-loading failed: {e}. Will load on first request.")
+        try:
+            get_pd_model()
+            app.state.preload_status["pd_model_loaded"] = True
+        except Exception as exc:
+            errors.append(f"pd_model: {exc}")
+
+        try:
+            get_calibrator()
+            app.state.preload_status["calibrator_loaded"] = True
+        except Exception as exc:
+            errors.append(f"calibrator: {exc}")
+
+        if errors:
+            app.state.preload_status["error"] = "; ".join(errors)
+            logger.warning(
+                "Model pre-loading incomplete: {}. API will lazily load on request.",
+                app.state.preload_status["error"],
+            )
+        else:
+            logger.success("Models loaded successfully")
+    except Exception as exc:
+        app.state.preload_status["error"] = str(exc)
+        logger.warning(f"Model pre-loading failed: {exc}. Will load on first request.")
     yield
     logger.info("Shutting down")
 

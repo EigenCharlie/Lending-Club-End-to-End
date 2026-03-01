@@ -24,7 +24,15 @@ def _load_split(split: str) -> pd.DataFrame:
     return pd.read_parquet(path)
 
 
-def main(sample_size: int | None = 300_000):
+def _normalize_sample_size(sample_size: int | None) -> int | None:
+    if sample_size is None:
+        return None
+    sample_size = int(sample_size)
+    return None if sample_size <= 0 else sample_size
+
+
+def main(sample_size: int | None = None):
+    sample_size = _normalize_sample_size(sample_size)
     train = _load_split("train")
     test = _load_split("test")
     if sample_size is not None:
@@ -77,6 +85,6 @@ def main(sample_size: int | None = 300_000):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--sample_size", type=int, default=300_000)
+    parser.add_argument("--sample_size", type=int, default=None)
     args = parser.parse_args()
     main(sample_size=args.sample_size)

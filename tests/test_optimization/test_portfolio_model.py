@@ -135,6 +135,11 @@ class TestSolvePortfolio:
         # (or equal in edge cases)
         assert sol_r["n_funded"] <= sol_nr["n_funded"] + 1  # Allow +-1 for numerics
 
+    def test_invalid_solver_backend_raises(self, small_loans):
+        model = build_portfolio_model(**small_loans)
+        with pytest.raises(ValueError, match="Unsupported solver_backend"):
+            solve_portfolio(model, solver_backend="unknown")
+
 
 # ---------------------------------------------------------------------------
 # build_binary_model

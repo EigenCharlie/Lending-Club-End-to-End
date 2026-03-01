@@ -212,3 +212,109 @@ def test_conditional_coverage_single_group():
     result = conditional_coverage_by_group(y_true, y_intervals, groups)
     assert len(result) == 1
     assert result["coverage"].iloc[0] == 1.0
+
+
+# ── Residual Intervals (bootstrap-style benchmark) ──
+
+
+def test_residual_intervals_output_shape():
+    from src.models.conformal import create_residual_intervals
+
+    clf = FakeClassifier()
+    X_cal = pd.DataFrame({"a": np.random.RandomState(0).random(100)})
+    y_cal = pd.Series(np.random.RandomState(0).random(100))
+    X_test = pd.DataFrame({"a": np.random.RandomState(1).random(20)})
+
+    y_pred, y_intervals = create_residual_intervals(clf, X_cal, y_cal, X_test, alpha=0.1)
+    assert y_pred.shape == (20,)
+    assert y_intervals.shape == (20, 2)
+
+
+def test_residual_intervals_width_positive():
+    from src.models.conformal import create_residual_intervals
+
+    clf = FakeClassifier()
+    X_cal = pd.DataFrame({"a": np.random.RandomState(0).random(100)})
+    y_cal = pd.Series(np.random.RandomState(0).random(100))
+    X_test = pd.DataFrame({"a": np.random.RandomState(1).random(20)})
+
+    _, y_intervals = create_residual_intervals(clf, X_cal, y_cal, X_test, alpha=0.1)
+    widths = y_intervals[:, 1] - y_intervals[:, 0]
+    assert np.all(widths > 0)
+
+
+def test_residual_intervals_narrower_with_higher_alpha():
+    from src.models.conformal import create_residual_intervals
+
+    clf = FakeClassifier()
+    X_cal = pd.DataFrame({"a": np.random.RandomState(0).random(200)})
+    y_cal = pd.Series(np.random.RandomState(0).random(200))
+    X_test = pd.DataFrame({"a": np.random.RandomState(1).random(30)})
+
+    _, iv_90 = create_residual_intervals(clf, X_cal, y_cal, X_test, alpha=0.10)
+    _, iv_50 = create_residual_intervals(clf, X_cal, y_cal, X_test, alpha=0.50)
+
+    w_90 = (iv_90[:, 1] - iv_90[:, 0]).mean()
+    w_50 = (iv_50[:, 1] - iv_50[:, 0]).mean()
+    assert w_90 > w_50  # 90% intervals should be wider than 50%
+
+
+# ── Venn-Abers ──
+
+
+class FakeBinaryClassifier:
+    """Classifier stub that returns probabilities close to the true label."""
+
+    def __init__(self, seed=42):
+        self.rng = np.random.RandomState(seed)
+        self._classes = np.array([0, 1])
+
+    @property
+    def classes_(self):
+        return self._classes
+
+    def predict_proba(self, X):
+        n = X.shape[0] if hasattr(X, "shape") else len(X)
+        probs = self.rng.random(n) * 0.5 + 0.25  # between 0.25 and 0.75
+        return np.column_stack([1 - probs, probs])
+
+    def predict(self, X):
+        return (self.predict_proba(X)[:, 1] > 0.5).astype(int)
+
+
+def test_venn_abers_output_shape():
+    """Venn-Abers should return point predictions and p0/p1 arrays."""
+    pytest.importorskip("crepes")
+    from src.models.conformal import create_pd_intervals_venn_abers
+
+    clf = FakeBinaryClassifier(seed=42)
+    rng = np.random.RandomState(42)
+    n_cal, n_test = 200, 50
+    X_cal = pd.DataFrame({"a": rng.random(n_cal), "b": rng.random(n_cal)})
+    y_cal = pd.Series(rng.randint(0, 2, n_cal))
+    X_test = pd.DataFrame({"a": rng.random(n_test), "b": rng.random(n_test)})
+
+    y_pred, p0, p1 = create_pd_intervals_venn_abers(clf, X_cal, y_cal, X_test)
+    assert y_pred.shape == (n_test,)
+    assert p0.shape == (n_test,)
+    assert p1.shape == (n_test,)
+
+
+def test_venn_abers_bounds_valid():
+    """p0 <= p1 and both in [0, 1]."""
+    pytest.importorskip("crepes")
+    from src.models.conformal import create_pd_intervals_venn_abers
+
+    clf = FakeBinaryClassifier(seed=123)
+    rng = np.random.RandomState(123)
+    n_cal, n_test = 300, 80
+    X_cal = pd.DataFrame({"a": rng.random(n_cal), "b": rng.random(n_cal)})
+    y_cal = pd.Series(rng.randint(0, 2, n_cal))
+    X_test = pd.DataFrame({"a": rng.random(n_test), "b": rng.random(n_test)})
+
+    y_pred, p0, p1 = create_pd_intervals_venn_abers(clf, X_cal, y_cal, X_test)
+    assert np.all(p0 >= 0)
+    assert np.all(p1 <= 1)
+    assert np.all(p0 <= p1)
+    assert np.all(y_pred >= p0)
+    assert np.all(y_pred <= p1)

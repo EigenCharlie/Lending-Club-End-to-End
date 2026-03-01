@@ -1,0 +1,69 @@
+schema_version: "2026-02-26.1"
+description: >
+  Challenger profiles for PD CatBoost experiments using domain priors.
+  These configs are intended for experimentation only; canonical promotion
+  remains gated by baseline-vs-current comparison.
+
+shared_defaults:
+  train_command: uv run python scripts/train_pd_model.py
+  base_config: configs/pd_model.yaml
+  sample_size: 0
+
+challengers:
+  - id: catboost_feature_weights_prior
+    enabled: true
+    objective: Reinforce stable signals and dampen noisier/self-reported inputs.
+    config_overrides:
+      model:
+        params:
+          feature_weights:
+            grade_woe: 2.0
+            purpose_woe: 1.4
+            home_ownership_woe: 1.2
+            annual_inc: 1.2
+            dti: 1.1
+            int_rate: 1.3
+            installment: 1.0
+            loan_amnt: 0.9
+            days_since_last_delinq: 0.8
+            rev_utilization: 0.8
+    evaluation_focus:
+      - auc_roc
+      - brier_score
+      - ece
+      - d2_brier_score
+      - conformal_coverage
+      - temporal_stability_by_grade
+
+  - id: catboost_first_use_penalties_cost_aware
+    enabled: true
+    objective: Penalize first use of potentially costly or noisier features.
+    config_overrides:
+      model:
+        params:
+          first_feature_use_penalties:
+            annual_inc: 0.5
+            dti: 0.5
+            rev_utilization: 1.2
+            days_since_last_delinq: 1.5
+            int_rate: 0.3
+    evaluation_focus:
+      - auc_roc
+      - calibration
+      - shap_top_features
+      - feature_usage_shift
+
+  - id: catboost_calibration_selection_harder
+    enabled: true
+    objective: Stress calibration selection under stronger temporal folds.
+    config_overrides:
+      hpo:
+        n_trials: 600
+        group_tpe: true
+        warn_independent_sampling: false
+        gc_after_trial: true
+      calibration:
+        method: isotonic
+    notes:
+      - Compare against canonical automatic calibration selection report.
+      - Promote only if ECE and d2_brier improve without material AUC drop.

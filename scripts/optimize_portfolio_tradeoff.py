@@ -66,6 +66,7 @@ def _align_loans_and_intervals(
     random_state: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Align candidate loans with interval rows by id where possible."""
+    max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
     if "id" in candidates.columns and "id" in intervals.columns:
         cand = candidates.copy()
         ints = intervals.copy()
@@ -76,7 +77,7 @@ def _align_loans_and_intervals(
         if merged.empty:
             raise ValueError("ID-based merge between candidates and intervals returned zero rows.")
 
-        n = min(len(merged), max_candidates)
+        n = len(merged) if max_candidates_norm is None else min(len(merged), max_candidates_norm)
         if len(merged) > n:
             idx = np.random.default_rng(random_state).choice(
                 np.arange(len(merged)), size=n, replace=False
@@ -98,7 +99,9 @@ def _align_loans_and_intervals(
     logger.warning(
         "Conformal interval artifact has no id alignment key; using positional fallback in tradeoff analysis."
     )
-    n = min(len(candidates), len(intervals), max_candidates)
+    n = min(len(candidates), len(intervals))
+    if max_candidates_norm is not None:
+        n = min(n, max_candidates_norm)
     idx = np.random.default_rng(random_state).choice(np.arange(n), size=n, replace=False)
     idx = np.sort(idx)
     loans = candidates.iloc[idx].reset_index(drop=True).copy()
@@ -118,6 +121,20 @@ def _parse_float_grid(raw: str) -> list[float]:
     return sorted(set(vals))
 
 
+def _resolve_grid_profile(
+    grid_profile: str,
+    risk_grid: str,
+    aversion_grid: str,
+) -> tuple[list[float], list[float]]:
+    profiles = {
+        "custom": (risk_grid, aversion_grid),
+        "quick": ("0.08,0.10,0.12", "0.0,0.5,1.0"),
+        "night": ("0.05,0.06,0.08,0.10,0.12,0.14", "0.0,0.25,0.5,1.0,1.5,2.0,3.0"),
+    }
+    raw_risk, raw_averse = profiles.get(grid_profile, profiles["custom"])
+    return _parse_float_grid(raw_risk), _parse_float_grid(raw_averse)
+
+
 def _solve_single(
     loans: pd.DataFrame,
     pd_point: np.ndarray,
@@ -134,6 +151,7 @@ def _solve_single(
     pd_cap_slack_penalty: float,
     time_limit: int,
     threads: int,
+    solver_backend: str = "highs",
 ) -> dict[str, float | int | str]:
     model = build_portfolio_model(
         loans=loans,
@@ -150,7 +168,12 @@ def _solve_single(
         min_budget_utilization=min_budget_utilization,
         pd_cap_slack_penalty=pd_cap_slack_penalty,
     )
-    solution = solve_portfolio(model, time_limit=time_limit, threads=threads)
+    solution = solve_portfolio(
+        model,
+        time_limit=time_limit,
+        threads=threads,
+        solver_backend=solver_backend,
+    )
 
     n = len(loans)
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
@@ -197,12 +220,13 @@ def main(
     robust_min_budget_utilization: float = 0.05,
     strict_risk_threshold: float = 0.12,
     robust_pd_slack_penalty: float = 1.5,
+    grid_profile: str = "custom",
+    solver_backend: str = "highs",
 ):
     with open(config_path, encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
-    risk_values = _parse_float_grid(risk_grid)
-    aversion_values = _parse_float_grid(aversion_grid)
+    risk_values, aversion_values = _resolve_grid_profile(grid_profile, risk_grid, aversion_grid)
 
     candidates = _load_candidates().reset_index(drop=True)
     intervals = _load_intervals().reset_index(drop=True)
@@ -250,6 +274,7 @@ def main(
             pd_cap_slack_penalty=0.0,
             time_limit=int(config["optimization"]["time_limit"]),
             threads=int(config["optimization"]["threads"]),
+            solver_backend=solver_backend,
         )
         rows.append(
             {
@@ -286,6 +311,7 @@ def main(
                 pd_cap_slack_penalty=slack_penalty,
                 time_limit=int(config["optimization"]["time_limit"]),
                 threads=int(config["optimization"]["threads"]),
+                solver_backend=solver_backend,
             )
             robust_ret = float(robust_run["expected_return_net_point"])
             por = baseline_ret - robust_ret
@@ -342,6 +368,11 @@ def main(
         "risk_grid": risk_values,
         "aversion_grid": aversion_values,
         "n_candidates": int(n),
+        "n_candidates_available": int(min(len(candidates), len(intervals))),
+        "n_candidates_used": int(n),
+        "max_candidates_requested": None if int(max_candidates) <= 0 else int(max_candidates),
+        "grid_profile": grid_profile,
+        "solver_backend": solver_backend,
         "frontier_path": str(frontier_path),
         "summary_path": str(summary_path),
         "summary_rows": summary.to_dict(orient="records"),
@@ -365,6 +396,8 @@ if __name__ == "__main__":
     parser.add_argument("--robust_min_budget_utilization", type=float, default=0.05)
     parser.add_argument("--strict_risk_threshold", type=float, default=0.12)
     parser.add_argument("--robust_pd_slack_penalty", type=float, default=1.5)
+    parser.add_argument("--grid-profile", dest="grid_profile", default="custom")
+    parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
     args = parser.parse_args()
     main(
         config_path=args.config,
@@ -375,4 +408,6 @@ if __name__ == "__main__":
         robust_min_budget_utilization=args.robust_min_budget_utilization,
         strict_risk_threshold=args.strict_risk_threshold,
         robust_pd_slack_penalty=args.robust_pd_slack_penalty,
+        grid_profile=args.grid_profile,
+        solver_backend=args.solver_backend,
     )

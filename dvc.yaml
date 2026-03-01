@@ -231,6 +231,30 @@ stages:
     outs:
     - data/processed/fairness_audit.parquet
     - models/fairness_audit_status.json
+  generate_governance_status:
+    cmd: uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
+    deps:
+    - configs/mrm_policy.yaml
+    - data/processed/train.parquet
+    - data/processed/test.parquet
+    - scripts/generate_governance_status.py
+    - src/evaluation/backtesting.py
+    outs:
+    - data/processed/drift_monitoring.parquet
+    - data/processed/drift_monitoring_v2.parquet
+    - models/governance_status.json
+    - models/governance_status_v2.json
+  build_pd_challenger_artifacts:
+    cmd: uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml
+    deps:
+    - configs/pd_model.yaml
+    - data/processed/train.parquet
+    - data/processed/feature_config.pkl
+    - scripts/build_pd_challenger_artifacts.py
+    outs:
+    - data/processed/challenger_feature_selection.parquet
+    - models/pd_challenger_spec.json
+    - models/pd_challenger_spec_v2.json
   optimize_cate_portfolio:
     cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 5000
     deps:
@@ -260,6 +284,7 @@ stages:
     - data/processed/pipeline_summary.json
     - models/conformal_policy_status.json
     - models/fairness_audit_status.json
+    - models/governance_status.json
     - scripts/generate_mrm_report.py
     outs:
     - reports/mrm/mrm_validation_report.json
@@ -293,5 +318,13 @@ metrics:
 - reports/dvc/metrics_summary.json
 
 plots:
-- reports/dvc/conformal_coverage_backtest.csv
-- reports/dvc/robustness_frontier.csv
+- reports/dvc/conformal_coverage_backtest.csv:
+    x: month
+    y:
+    - coverage_90_roll3
+    - target_90
+    - coverage_95_roll3
+    - target_95
+- reports/dvc/robustness_frontier.csv:
+    x: price_of_robustness_pct
+    y: expected_return_net_point
