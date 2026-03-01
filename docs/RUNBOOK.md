@@ -8,7 +8,7 @@ Step-by-step guide to reproduce the entire project from a fresh clone.
 - **uv** package manager: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **Git**
 - **Kaggle dataset**: Download manually from https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data and place CSV in `data/raw/`
-- **GPU side-projects (RAPIDS)**: run in Conda env `rapids` (keep `lending-club-venv` for the core pipeline)
+- **GPU side-projects (RAPIDS)**: run in Conda env `rapids` (keep `.venv` for the core pipeline)
 - **Causal ML with EconML**: run in a separate venv (kept out of main lock to avoid pinning `scikit-learn`/`shap`)
 
 ## Quick Start
@@ -63,6 +63,8 @@ Compatibility note:
 
 - `scripts/validate_conformal_policy.py` remains **strict** for model-risk policy (`overall_pass` still includes Kupiec/Christoffersen).
 - `scripts/run_comparison.py` is the **promotion gate** and now treats Kupiec/Christoffersen as non-blocking diagnostics.
+- `scripts/run_comparison.py` now includes a blocking `artifact_coherence` gate:
+  critical status artifacts must carry consistent `schema_version`, `generated_at_utc`, and `run_tag`.
 - Blocking conformal checks in promotion are: `coverage_90`, `coverage_95`, `min_group_coverage_90`, `winkler_90`, `critical_alerts`.
 - Comparison artifacts now include `conformal_promotion_pass` and `conformal_statistical_warning` in `reports/run_comparisons/<run_tag>/comparison.json`.
 
@@ -74,6 +76,10 @@ Use this profile for official reruns that should be stable and resumable on work
 bash scripts/start_long_run.sh <run_tag> --no-rapids --no-notebooks --stop-on-optional-failure
 bash scripts/monitor_long_run.sh <run_tag>
 ```
+
+Notes:
+- Official run tags (`*official*`) require a clean git working tree.
+- Launcher defaults are `--resume`, `--sampling-profile full`, and baseline snapshot refresh on resume.
 
 To resume an interrupted run:
 
@@ -118,7 +124,7 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 ```
 
 Note:
-- `.venv-causal` is a task-specific overlay env for causal workflows. `econml` may downgrade `scikit-learn`/`shap`, so keep using `lending-club-venv` for the rest of the project (PD/survival/API/Streamlit).
+- `.venv-causal` is a task-specific overlay env for causal workflows. `econml` may downgrade `scikit-learn`/`shap`, so keep using `.venv` for the rest of the project (PD/survival/API/Streamlit).
 
 ## Optional: Docker Compose
 
@@ -233,7 +239,7 @@ DAGSHUB_CLIENT_BOOTSTRAP=1 bash scripts/configure_integrations.sh
 
 - Python 3.12.x on WSL2 (tested)
 - `uv` at `~/.local/bin/uv`
-- Venv at `lending-club-venv/bin/python` (compat symlink `.venv` is also present)
+- Venv at `.venv/bin/python` (uv-managed, backed by miniforge3 Python 3.12)
 - Pre-commit hooks: `uv run pre-commit install`
 
 ## GitHub Governance (recommended minimal settings)

@@ -1,11 +1,12 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-02-25
+Last Updated: 2026-03-01
 
 ---
 
 ## 1) Executive Status
 
 Project is operational and artifact-consistent across the thesis pipeline.
+Main branch finalized with full C smart promotion package.
 
 - Serving strategy remains Streamlit-first (thesis showcase mode).
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
@@ -38,7 +39,7 @@ Design implication:
 4. scripts/train_pd_model.py             -> LR baseline + CatBoost default/tuned + calibration selection + contract
 5. scripts/generate_conformal_intervals.py -> Mondrian conformal intervals
 6. scripts/backtest_conformal_coverage.py -> temporal monitoring
-7. scripts/validate_conformal_policy.py   -> formal policy gate
+7. scripts/validate_conformal_policy.py   -> formal policy gate (Kupiec, Christoffersen, Winkler)
 8. scripts/estimate_causal_effects.py     -> CATE estimation
 9. scripts/simulate_causal_policy.py      -> policy simulation
 10. scripts/validate_causal_policy.py     -> rule selection + bootstrap
@@ -51,12 +52,13 @@ Design implication:
 17. scripts/run_fairness_audit.py         -> demographic parity, EO gap, DIR
 18. scripts/optimize_cate_portfolio.py    -> CATE-adjusted portfolio comparison
 19. scripts/simulate_ab_test.py           -> robust vs non-robust A/B simulation
-20. scripts/generate_mrm_report.py        -> SR 11-7 consolidated report
-21. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
-22. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
-23. scripts/export_storytelling_snapshot.py -> storytelling JSON
-24. scripts/end_to_end_pipeline.py        -> orchestration
-25. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
+20. scripts/generate_governance_status.py -> per-feature drift diagnostics
+21. scripts/generate_mrm_report.py        -> SR 11-7 consolidated report
+22. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
+23. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
+24. scripts/export_storytelling_snapshot.py -> storytelling JSON
+25. scripts/end_to_end_pipeline.py        -> orchestration
+26. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
 ```
 
 ---
@@ -73,43 +75,54 @@ Source artifacts:
 - `models/fairness_audit_status.json`
 - `models/ab_simulation_status.json`
 - `models/cate_portfolio_status.json`
+- `models/governance_status.json`
 - `reports/mrm/mrm_validation_report.json`
 
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
 - Calibration selected: `Isotonic Regression`
-- AUC: `0.7172`
-- Gini: `0.4344`
-- KS: `0.3200`
-- Brier: `0.1538`
-- ECE: `0.0094`
-- HPO trials executed: `800`
-- Best validation AUC (Optuna): `0.7199`
+- AUC: `0.7117`
+- Gini: `0.4234`
+- KS: `0.3129`
+- Brier: `0.1548`
+- ECE: `0.0072`
+- HPO: reused best trial 855 (val AUC 0.7201) from prior Optuna study
 
 ### 4.2 Conformal (Mondrian)
-- Coverage 90%: `0.9141`
-- Coverage 95%: `0.9520`
-- Avg width 90%: `0.7420`
-- Policy checks passed: all current checks (`checks_passed=7`, `checks_total=7`)
-- Overall policy pass: `true`
+- Coverage 90%: `0.9167`
+- Coverage 95%: `0.9559`
+- Avg width 90%: `0.7442`
+- Min group coverage 90%: `0.8840`
+- Policy checks passed: `8/13`
+- Overall policy pass: `false` (Kupiec/Christoffersen fail on 276K OOT sample — expected; promotion gate treats these as non-blocking diagnostics)
+- Conformal promotion pass: `true`
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
-- Selected action rate: `27.51%`
-- Selected total net value: `43.67M`
-- Selected bootstrap p05 net value: `43.52M`
+- Selected action rate: `26.31%`
+- Selected total net value: `5.86M`
+- Selected bootstrap p05 net value: `5.82M`
 
 ### 4.4 IFRS9 Sensitivity
-- Baseline total ECL: `0.968B`
-- Severe total ECL: `1.779B`
-- Uplift severe vs baseline: `+83.81%`
+- Baseline total ECL: `0.977B`
+- Conservative total ECL: `1.791B`
+- ECL range: `0.814B`
 
-### 4.5 Optimization Robustness (risk tolerance 0.10)
-- Baseline non-robust funded: `148`
-- Best robust funded: `97`
-- Baseline non-robust return: `98,235`
-- Best robust return: `59,595`
-- Price of robustness: `39.33%`
+### 4.5 Optimization Robustness
+- Non-robust return: `$111,438` (155 loans funded)
+- Robust return: `$67,871` (90 loans funded)
+- Price of robustness (absolute): `$43,567`
+
+### 4.6 Fairness Audit
+- Overall pass: `false` (2/3 attributes pass)
+- home_ownership: PASS (DPD=0.073, EO_gap=0.079, DIR=0.924)
+- annual_inc_quartile: FAIL (DPD=0.116, EO_gap=0.133)
+- verification_status: PASS (DPD=0.075, EO_gap=0.081, DIR=0.922)
+
+### 4.7 A/B Simulation
+- Strategy A (non-robust): $17,067 return, 153 loans
+- Strategy B (robust): $17,918 return, 81 loans
+- No-regression gate: PASS
 
 ---
 
@@ -117,8 +130,9 @@ Source artifacts:
 
 ### Streamlit
 - 27-page multi-page app in `streamlit_app/`, all registered in `app.py`.
+- Professional light theme with audience toggle (General/Negocio/Técnico).
 - Model laboratory and thesis pages consume runtime artifacts for metrics.
-- Includes A/B testing simulation, fairness audit, and CATE portfolio pages.
+- Includes A/B testing simulation, fairness audit, CATE portfolio, and 3 paper draft pages.
 
 ### FastAPI
 - Endpoints implemented in `api/`:
@@ -138,19 +152,19 @@ Source artifacts:
 
 ## 6) Environment Notes
 
-- Python: `3.12` (`.python-version`)
+- Python: `3.12.12` (miniforge3)
 - Environment manager: `uv`
-- Local virtual environment: `lending-club-venv` (compat symlink `.venv` -> `lending-club-venv`)
-- Optional platform tooling: `dbt` under `pyproject.toml` extra `platform`; `feast` in `.venv-feast`; `econml` in `.venv-causal`
+- Local virtual environment: `.venv/` (uv-managed, backed by miniforge3 Python)
+- Optional platform tooling: `dbt` under `pyproject.toml` extra `platform`; `econml` in `.venv-causal`
 
 ---
 
 ## 7) Test Suite
 
-Local verification on 2026-02-25:
+Local verification on 2026-03-01:
 
-- `423/423` tests passing (`pytest -q`, latest local full run on `lending-club-venv` / Python 3.12)
-- `37` test files (`tests/**/test_*.py`)
+- `463/463` tests passing (`pytest -q`, Python 3.12.12)
+- `49` test files (`tests/**/test_*.py`)
 - Streamlit smoke/import coverage includes all `27` pages (`tests/test_streamlit/test_page_imports.py`)
 
 Operational note:
@@ -161,7 +175,7 @@ Operational note:
 1. Keep docs and Streamlit narratives strictly artifact-driven (no stale hardcoded claims).
 2. Config files are templates — runtime calibration selection is artifact-driven.
 3. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
-4. DVC pipeline has 25 stages; `dvc.lock` is authoritative for artifact hashes.
+4. DVC pipeline has 26 stages; `dvc.lock` is authoritative for artifact hashes.
 
 ---
 
