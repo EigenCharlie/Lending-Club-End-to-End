@@ -30,6 +30,7 @@ def test_main_optional_failure_with_stop_flag_sets_nonzero_exit(tmp_path, monkey
             no_rapids=True,
             no_notebooks=True,
             stop_on_optional_failure=True,
+            sampling_profile="full",
         ),
     )
     monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)
@@ -65,6 +66,7 @@ def test_main_optional_failure_without_stop_flag_keeps_zero_exit(tmp_path, monke
             no_rapids=True,
             no_notebooks=True,
             stop_on_optional_failure=False,
+            sampling_profile="full",
         ),
     )
     monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)

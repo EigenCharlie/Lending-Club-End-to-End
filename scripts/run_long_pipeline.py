@@ -194,9 +194,32 @@ def mark_skipped(run_tag: str, step: str, command: str, *, required: bool, reaso
 
 
 def build_steps(
-    run_tag: str, *, include_rapids: bool, include_notebooks: bool
+    run_tag: str,
+    *,
+    include_rapids: bool,
+    include_notebooks: bool,
+    sampling_profile: str = "full",
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
+
+    # Sampling profile: "smart" uses reduced data for expensive stages (~5x faster).
+    if sampling_profile == "smart":
+        pd_sample = "--sample_size 500000"
+        survival_args = "--sample_size 250000 --rsf_n_estimators 200"
+        tradeoff_candidates = "--max_candidates 10000"
+        tradeoff_profile = "custom"
+        ab_candidates = "--max_candidates 10000"
+        causal_sample = "--sample_size 200000"
+        cate_candidates = "--max_candidates 10000"
+    else:  # full
+        pd_sample = "--sample_size 0"
+        survival_args = "--full-data --rsf_n_estimators 300"
+        tradeoff_candidates = "--max_candidates 0"
+        tradeoff_profile = "night"
+        ab_candidates = "--max_candidates 0"
+        causal_sample = "--sample_size 0"
+        cate_candidates = "--max_candidates 0"
+
     activate_main = (
         "if [ -f .venv/bin/activate ]; then source .venv/bin/activate; "
         "elif [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; fi"
@@ -216,7 +239,7 @@ def build_steps(
 
     main_pre_cmd = f"""
         {activate_main} &&
-        uv run python -u scripts/train_pd_model.py --config configs/pd_model.yaml --sample_size 0 &&
+        uv run python -u scripts/train_pd_model.py --config configs/pd_model.yaml {pd_sample} &&
         uv run python -u scripts/generate_conformal_intervals.py &&
         uv run python -u scripts/benchmark_conformal_variants.py &&
         uv run python -u scripts/backtest_conformal_coverage.py &&
@@ -227,11 +250,11 @@ def build_steps(
 
     heavy_main_cmd = f"""
         {activate_main} &&
-        uv run python -u scripts/run_survival_analysis.py --full-data --rsf_n_estimators 300 &&
+        uv run python -u scripts/run_survival_analysis.py {survival_args} &&
         uv run python -u scripts/train_lgd_ead.py --sample_size 0 &&
         uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml --max_candidates 0 --solver_backend highs &&
-        uv run python -u scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 0 --grid-profile night --solver_backend highs &&
-        uv run python -u scripts/simulate_ab_test.py --max_candidates 0 &&
+        uv run python -u scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml {tradeoff_candidates} --grid-profile {tradeoff_profile} --solver_backend highs &&
+        uv run python -u scripts/simulate_ab_test.py {ab_candidates} &&
         uv run python -u scripts/log_mlflow_experiment_suite.py
     """
     steps.append(("heavy_main", False, heavy_main_cmd))
@@ -239,7 +262,7 @@ def build_steps(
     causal_cmd = f"""
         {activate_causal} &&
         python -u -c "import econml,dowhy; print('econml', econml.__version__, 'dowhy', dowhy.__version__)" &&
-        python -u scripts/estimate_causal_effects.py --treatment int_rate --sample_size 0 &&
+        python -u scripts/estimate_causal_effects.py --treatment int_rate {causal_sample} &&
         python -u scripts/simulate_causal_policy.py &&
         python -u scripts/backtest_causal_policy_oot.py
     """
@@ -247,7 +270,7 @@ def build_steps(
 
     cate_cmd = f"""
         {activate_main} &&
-        uv run python -u scripts/optimize_cate_portfolio.py --max_candidates 0
+        uv run python -u scripts/optimize_cate_portfolio.py {cate_candidates}
     """
     steps.append(("cate_portfolio", False, cate_cmd))
 
@@ -297,6 +320,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Stop immediately if a non-required step fails",
     )
+    p.add_argument(
+        "--sampling-profile",
+        choices=["full", "smart"],
+        default="full",
+        help="'smart' uses reduced sampling for survival/tradeoff/causal (~5x faster)",
+    )
     return p.parse_args()
 
 
@@ -321,6 +350,7 @@ def main() -> int:
             "resume": bool(args.resume),
             "include_rapids": not bool(args.no_rapids),
             "include_notebooks": not bool(args.no_notebooks),
+            "sampling_profile": str(args.sampling_profile),
         },
     )
 
@@ -336,6 +366,7 @@ def main() -> int:
         run_tag,
         include_rapids=not bool(args.no_rapids),
         include_notebooks=not bool(args.no_notebooks),
+        sampling_profile=str(args.sampling_profile),
     )
     failed_required = False
     stopped_on_optional_failure = False

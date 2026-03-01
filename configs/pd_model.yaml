@@ -3,9 +3,15 @@ model:
   type: catboost
   params:
     iterations: 3000
-    learning_rate: 0.03
+    learning_rate: 0.02762511818970642
     depth: 6
-    l2_leaf_reg: 3
+    l2_leaf_reg: 14.910998969314008
+    min_data_in_leaf: 195
+    rsm: 0.7972651915505469
+    random_strength: 3.276099048942537e-05
+    border_count: 148
+    bootstrap_type: Bernoulli
+    subsample: 0.8270994520471426
     loss_function: Logloss
     auto_class_weights: Balanced
     eval_metric: AUC
@@ -20,8 +26,8 @@ feature_source:
 
 hpo:
   enabled: true
-  # Incremental rerun budget: extend persistent study near 1200 total trials.
-  n_trials: 320
+  # Smart run: 50 incremental trials on top of ~927 existing (TPE well-informed).
+  n_trials: 50
   sampler: tpe
   pruner: median
   timeout_minutes: 0
