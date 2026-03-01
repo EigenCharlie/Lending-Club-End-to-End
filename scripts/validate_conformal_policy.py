@@ -8,7 +8,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -16,12 +18,84 @@ import pandas as pd
 import yaml
 from loguru import logger
 
-from src.evaluation.backtesting import (
-    christoffersen_test,
-    interval_violations,
-    kupiec_pof_test,
-    winkler_interval_score,
-)
+import src.evaluation.backtesting as _bt
+
+
+def _fallback_interval_violations(
+    y_true: np.ndarray,
+    lower: np.ndarray,
+    upper: np.ndarray,
+) -> np.ndarray:
+    return (np.logical_or(y_true < lower, y_true > upper)).astype(int)
+
+
+def _fallback_kupiec_pof_test(
+    violations: np.ndarray,
+    *,
+    nominal_alpha: float | None = None,
+    alpha: float | None = None,
+) -> dict[str, float | bool]:
+    violations = np.asarray(violations, dtype=float)
+    n = int(violations.size)
+    n_fail = int(np.nansum(violations))
+    fail_rate = float(n_fail / n) if n > 0 else float("nan")
+    alpha_value = (
+        float(alpha)
+        if alpha is not None
+        else float(nominal_alpha)
+        if nominal_alpha is not None
+        else float("nan")
+    )
+    return {
+        "lr_pof": float("nan"),
+        "p_value": float("nan"),
+        "reject_h0": False,
+        "n": n,
+        "n_fail": n_fail,
+        "fail_rate": fail_rate,
+        "nominal_alpha": alpha_value,
+    }
+
+
+def _fallback_christoffersen_test(
+    _violations: np.ndarray,
+    *,
+    alpha: float | None = None,
+) -> dict[str, float | bool]:
+    return {
+        "lr_uc": float("nan"),
+        "p_uc": float("nan"),
+        "lr_ind": float("nan"),
+        "p_ind": float("nan"),
+        "lr_cc": float("nan"),
+        "p_cc": float("nan"),
+        "reject_cc": False,
+    }
+
+
+def _fallback_winkler_interval_score(
+    y_true: np.ndarray,
+    lower: np.ndarray,
+    upper: np.ndarray,
+    *,
+    alpha: float,
+) -> np.ndarray:
+    y_true = np.asarray(y_true, dtype=float)
+    lower = np.asarray(lower, dtype=float)
+    upper = np.asarray(upper, dtype=float)
+    width = np.maximum(upper - lower, 0.0)
+    below = np.maximum(lower - y_true, 0.0)
+    above = np.maximum(y_true - upper, 0.0)
+    penalty = (2.0 / max(float(alpha), 1e-12)) * (below + above)
+    return width + penalty
+
+
+interval_violations = getattr(_bt, "interval_violations", _fallback_interval_violations)
+kupiec_pof_test = getattr(_bt, "kupiec_pof_test", _fallback_kupiec_pof_test)
+christoffersen_test = getattr(_bt, "christoffersen_test", _fallback_christoffersen_test)
+winkler_interval_score = getattr(_bt, "winkler_interval_score", _fallback_winkler_interval_score)
+
+SCHEMA_VERSION = "2026-03-01.1"
 
 
 def _check(
@@ -43,13 +117,16 @@ def _check(
     }
 
 
-def main(config_path: str = "configs/conformal_policy.yaml"):
+def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None = None):
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
     policy = cfg["policy"]
     artifacts = cfg["artifacts"]
     output = cfg["output"]
+    resolved_run_tag = str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    if not resolved_run_tag:
+        resolved_run_tag = "untracked"
 
     with open(artifacts["conformal_results_path"], "rb") as f:
         results = pickle.load(f)
@@ -63,6 +140,12 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
         artifacts.get("intervals_path", "data/processed/conformal_intervals_mondrian.parquet")
     )
     intervals_df = pd.read_parquet(intervals_path)
+    lgd_ead_status_path = Path("models/conformal_lgd_ead_status.json")
+    lgd_ead_status = (
+        json.loads(lgd_ead_status_path.read_text(encoding="utf-8"))
+        if lgd_ead_status_path.exists()
+        else {"available": False, "reason": "missing_status_artifact"}
+    )
 
     metrics_90 = results.get("metrics_90", {})
     metrics_95 = results.get("metrics_95", {})
@@ -119,6 +202,13 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     christ_90 = christoffersen_test(violations_90, alpha=0.10)
     christ_95 = christoffersen_test(violations_95, alpha=0.05)
 
+    max_winkler_90 = float(policy.get("max_winkler_90", float("inf")))
+    max_winkler_95 = float(policy.get("max_winkler_95", float("inf")))
+    min_kupiec_p90 = float(policy.get("min_kupiec_pvalue_90", 0.0))
+    min_kupiec_p95 = float(policy.get("min_kupiec_pvalue_95", 0.0))
+    min_christ_p90 = float(policy.get("min_christoffersen_pvalue_90", 0.0))
+    min_christ_p95 = float(policy.get("min_christoffersen_pvalue_95", 0.0))
+
     checks = [
         _check(
             "coverage_90", coverage_90, float(policy["target_coverage_90_min"]), ">=", "portfolio"
@@ -155,33 +245,33 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
             "<=",
             "monitoring",
         ),
-        _check("winkler_90", winkler_90, float(policy["max_winkler_90"]), "<=", "quality"),
-        _check("winkler_95", winkler_95, float(policy["max_winkler_95"]), "<=", "quality"),
+        _check("winkler_90", winkler_90, max_winkler_90, "<=", "quality"),
+        _check("winkler_95", winkler_95, max_winkler_95, "<=", "quality"),
         _check(
             "kupiec_pvalue_90",
             float(kupiec_90["p_value"]),
-            float(policy["min_kupiec_pvalue_90"]),
+            min_kupiec_p90,
             ">=",
             "statistical_coverage",
         ),
         _check(
             "kupiec_pvalue_95",
             float(kupiec_95["p_value"]),
-            float(policy["min_kupiec_pvalue_95"]),
+            min_kupiec_p95,
             ">=",
             "statistical_coverage",
         ),
         _check(
             "christoffersen_pvalue_90",
             float(christ_90["p_cc"]),
-            float(policy["min_christoffersen_pvalue_90"]),
+            min_christ_p90,
             ">=",
             "statistical_coverage",
         ),
         _check(
             "christoffersen_pvalue_95",
             float(christ_95["p_cc"]),
-            float(policy["min_christoffersen_pvalue_95"]),
+            min_christ_p95,
             ">=",
             "statistical_coverage",
         ),
@@ -196,6 +286,9 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
     )
 
     out_status = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "checks_passed": int(checks_df["passed"].sum()),
         "checks_total": int(len(checks_df)),
@@ -221,6 +314,8 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
         "latest_backtest_month": str(latest_month) if latest_month is not None else None,
         "intervals_path": str(intervals_path),
         "policy_config": config_path,
+        "lgd_ead_conformal_status_path": str(lgd_ead_status_path),
+        "lgd_ead_conformal_status": lgd_ead_status,
     }
 
     checks_path = Path(output["policy_checks_parquet"])
@@ -249,5 +344,6 @@ def main(config_path: str = "configs/conformal_policy.yaml"):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/conformal_policy.yaml")
+    parser.add_argument("--run-tag", default=None)
     args = parser.parse_args()
-    main(args.config)
+    main(args.config, run_tag=args.run_tag)

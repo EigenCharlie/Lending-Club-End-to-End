@@ -1,0 +1,11 @@
+{
+  "schema_version": "2026-03-01.1",
+  "run_tag": "2026-03-01-B-smart-v2",
+  "ended_at_utc": "2026-03-01T18:06:13.083128+00:00",
+  "failed_required": false,
+  "stopped_on_optional_failure": false,
+  "failed_steps": [
+    "causal"
+  ],
+  "final_exit_code": 0
+}

@@ -1,0 +1,444 @@
+{
+  "schema_version": "2026-03-01.2",
+  "run_tag": "2026-03-01-C-smart-v2",
+  "generated_at_utc": "2026-03-01T18:38:01.370644+00:00",
+  "baseline_path": "/home/eigenlinux/projects/worktrees/lc-main/reports/run_comparisons/2026-03-01-A-smart-v2/baseline_snapshot.json",
+  "overall_pass": true,
+  "artifact_coherence_pass": true,
+  "artifact_coherence": {
+    "expected_run_tag": "2026-03-01-C-smart-v2",
+    "critical_artifacts": [
+      {
+        "artifact": "reports/dvc/metrics_summary.json",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": "2026-03-01T17:35:57.001229+00:00",
+        "run_tag": "2026-03-01-C-smart-v2",
+        "missing_metadata_fields": []
+      },
+      {
+        "artifact": "models/conformal_policy_status.json",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": "2026-03-01T17:23:42.637129+00:00",
+        "run_tag": "2026-03-01-C-smart-v2",
+        "missing_metadata_fields": []
+      },
+      {
+        "artifact": "models/fairness_audit_status.json",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": "2026-03-01T17:34:45.953826+00:00",
+        "run_tag": "2026-03-01-C-smart-v2",
+        "missing_metadata_fields": []
+      },
+      {
+        "artifact": "models/ab_simulation_status.json",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": "2026-03-01T17:31:50.642068+00:00",
+        "run_tag": "2026-03-01-C-smart-v2",
+        "missing_metadata_fields": []
+      }
+    ],
+    "all_have_metadata": true,
+    "missing_metadata_artifacts": [],
+    "run_tags_observed": [
+      "2026-03-01-C-smart-v2"
+    ],
+    "run_tag_consistent": true,
+    "run_tag_matches_expected": true,
+    "mismatched_run_tag_artifacts": [],
+    "timestamp_skew_seconds": 734.3641,
+    "timestamp_coherent": true,
+    "timestamp_max_skew_seconds": 259200,
+    "passed": true
+  },
+  "conformal_promotion_pass": true,
+  "conformal_statistical_warning": true,
+  "conformal_failing_statistical_tests": [
+    "kupiec_pvalue_90",
+    "kupiec_pvalue_95",
+    "christoffersen_pvalue_90",
+    "christoffersen_pvalue_95"
+  ],
+  "ab_no_regression_pass": true,
+  "ab_gate_mode": "no_regression",
+  "ab_significant": false,
+  "ab_significance_role": "diagnostic",
+  "gates": [
+    {
+      "name": "artifact_coherence",
+      "passed": true,
+      "details": {
+        "expected_run_tag": "2026-03-01-C-smart-v2",
+        "critical_artifacts": [
+          {
+            "artifact": "reports/dvc/metrics_summary.json",
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T17:35:57.001229+00:00",
+            "run_tag": "2026-03-01-C-smart-v2",
+            "missing_metadata_fields": []
+          },
+          {
+            "artifact": "models/conformal_policy_status.json",
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T17:23:42.637129+00:00",
+            "run_tag": "2026-03-01-C-smart-v2",
+            "missing_metadata_fields": []
+          },
+          {
+            "artifact": "models/fairness_audit_status.json",
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T17:34:45.953826+00:00",
+            "run_tag": "2026-03-01-C-smart-v2",
+            "missing_metadata_fields": []
+          },
+          {
+            "artifact": "models/ab_simulation_status.json",
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T17:31:50.642068+00:00",
+            "run_tag": "2026-03-01-C-smart-v2",
+            "missing_metadata_fields": []
+          }
+        ],
+        "all_have_metadata": true,
+        "missing_metadata_artifacts": [],
+        "run_tags_observed": [
+          "2026-03-01-C-smart-v2"
+        ],
+        "run_tag_consistent": true,
+        "run_tag_matches_expected": true,
+        "mismatched_run_tag_artifacts": [],
+        "timestamp_skew_seconds": 734.3641,
+        "timestamp_coherent": true,
+        "timestamp_max_skew_seconds": 259200,
+        "passed": true
+      }
+    },
+    {
+      "name": "pd_quality",
+      "passed": true,
+      "details": {
+        "baseline": {
+          "auc": NaN,
+          "ece": NaN,
+          "d2_brier": NaN
+        },
+        "current": {
+          "auc": 0.7117037400880198,
+          "ece": 0.00722990853413228,
+          "d2_brier": 0.09713692708449195
+        },
+        "checks": {
+          "auc_ok": true,
+          "ece_ok": true,
+          "d2_brier_ok": true
+        }
+      }
+    },
+    {
+      "name": "conformal_policy",
+      "passed": true,
+      "details": {
+        "baseline": {},
+        "current": {
+          "schema_version": "2026-03-01.1",
+          "generated_at_utc": "2026-03-01T17:23:42.637129+00:00",
+          "run_tag": "2026-03-01-C-smart-v2",
+          "overall_pass": false,
+          "checks_passed": 8,
+          "checks_total": 13,
+          "coverage_90": 0.9166934543051046,
+          "coverage_95": 0.9558961097125356,
+          "avg_width_90": 0.7442054130549748,
+          "min_group_coverage_90": 0.8840044329516069,
+          "critical_alerts": 0,
+          "warning_alerts": 4,
+          "total_alerts": 4,
+          "winkler_90": 1.228110959400156,
+          "winkler_95": 1.144419930492922,
+          "kupiec_pvalue_90": 0.0,
+          "kupiec_pvalue_95": 0.0,
+          "christoffersen_pvalue_90": 0.0,
+          "christoffersen_pvalue_95": 0.0,
+          "statistical_tests": {
+            "kupiec_90": {
+              "lr_statistic": 903.6787672703504,
+              "p_value": 0.0,
+              "reject": true,
+              "n_violations": 23065,
+              "n_total": 276869,
+              "violation_rate": 0.08330654569489541,
+              "nominal_alpha": 0.1
+            },
+            "kupiec_95": {
+              "lr_statistic": 210.66005650756415,
+              "p_value": 0.0,
+              "reject": true,
+              "n_violations": 12211,
+              "n_total": 276869,
+              "violation_rate": 0.04410389028746447,
+              "nominal_alpha": 0.05
+            },
+            "christoffersen_90": {
+              "lr_uc": 903.6787672703504,
+              "p_uc": 0.0,
+              "reject_uc": true,
+              "lr_ind": 1.389557996968506,
+              "p_ind": 0.2384797575287121,
+              "reject_ind": false,
+              "lr_cc": 905.0683252673189,
+              "p_cc": 0.0,
+              "reject_cc": true,
+              "transition_matrix": {
+                "n00": 232707,
+                "n01": 21096,
+                "n10": 21096,
+                "n11": 1969
+              }
+            },
+            "christoffersen_95": {
+              "lr_uc": 210.66005650756415,
+              "p_uc": 0.0,
+              "reject_uc": true,
+              "lr_ind": 1.1025994718220318,
+              "p_ind": 0.29369633588416977,
+              "reject_ind": false,
+              "lr_cc": 211.76265597938618,
+              "p_cc": 0.0,
+              "reject_cc": true,
+              "transition_matrix": {
+                "n00": 253008,
+                "n01": 11649,
+                "n10": 11649,
+                "n11": 562
+              }
+            }
+          },
+          "latest_backtest_month": "2020-09-01 00:00:00",
+          "intervals_path": "data/processed/conformal_intervals_mondrian.parquet",
+          "policy_config": "configs/conformal_policy.yaml",
+          "lgd_ead_conformal_status_path": "models/conformal_lgd_ead_status.json",
+          "lgd_ead_conformal_status": {
+            "available": false,
+            "reason": "missing_status_artifact"
+          }
+        },
+        "checks": {
+          "coverage90_ok": true,
+          "coverage95_ok": true,
+          "min_group_coverage90_ok": true,
+          "winkler90_ok": true,
+          "critical_alerts_ok": true,
+          "conformal_promotion_pass": true
+        },
+        "diagnostics": {
+          "statistical_warning": true,
+          "statistical_pvalue_threshold": 0.01,
+          "statistical_tests": {
+            "kupiec_pvalue_90": 0.0,
+            "kupiec_pvalue_95": 0.0,
+            "christoffersen_pvalue_90": 0.0,
+            "christoffersen_pvalue_95": 0.0
+          },
+          "failing_statistical_tests": [
+            "kupiec_pvalue_90",
+            "kupiec_pvalue_95",
+            "christoffersen_pvalue_90",
+            "christoffersen_pvalue_95"
+          ],
+          "policy_overall_pass_strict": false
+        }
+      }
+    },
+    {
+      "name": "ab_no_regression",
+      "passed": true,
+      "details": {
+        "checks": {
+          "self_no_regression_ok": true,
+          "control_vs_baseline_ok": true,
+          "robust_vs_baseline_ok": true,
+          "gap_vs_baseline_ok": true
+        },
+        "current": {
+          "control_total_return": 17066.881569542347,
+          "robust_total_return": 17918.146335202913,
+          "diff_total_return": 851.2647656605659,
+          "tolerance_total_return": 853.3440784771174,
+          "n_candidates_used": 10000
+        },
+        "baseline": {
+          "control_total_return": NaN,
+          "robust_total_return": NaN,
+          "diff_total_return": NaN
+        },
+        "diagnostics": {
+          "p_value": 0.49033333333333334,
+          "significant": false,
+          "significance_role": "diagnostic",
+          "gate_mode": "no_regression"
+        }
+      }
+    },
+    {
+      "name": "fairness_relative",
+      "passed": true,
+      "details": {
+        "baseline_n_passed": 0,
+        "current_n_passed": 2,
+        "baseline_overall_pass": false,
+        "current_overall_pass": false
+      }
+    },
+    {
+      "name": "survival_quality",
+      "passed": true,
+      "details": {
+        "baseline": {
+          "cox_cindex": NaN,
+          "rsf_cindex": NaN
+        },
+        "current": {
+          "cox_cindex": 0.6623349579970055,
+          "rsf_cindex": 0.6569157031063898
+        },
+        "checks": {
+          "cox_ok": true,
+          "rsf_ok": true
+        }
+      }
+    },
+    {
+      "name": "export_contracts",
+      "passed": true,
+      "details": {
+        "missing_keys": []
+      }
+    }
+  ],
+  "artifact_changes": {
+    "data/processed/ifrs9_scenario_summary.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 13613,
+      "size_bytes_current": 13613
+    },
+    "data/processed/model_comparison.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 9568,
+      "size_bytes_current": 9739
+    },
+    "data/processed/pipeline_summary.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 2492,
+      "size_bytes_current": 2488
+    },
+    "data/processed/portfolio_robustness_frontier.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 14115,
+      "size_bytes_current": 13930
+    },
+    "data/processed/portfolio_robustness_summary.parquet": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 9034,
+      "size_bytes_current": 9026
+    },
+    "models/conformal_lgd_ead_status.json": {
+      "baseline_exists": false,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 0,
+      "size_bytes_current": 1031
+    },
+    "models/conformal_policy_status.json": {
+      "baseline_exists": false,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 0,
+      "size_bytes_current": 2307
+    },
+    "models/fairness_audit_status.json": {
+      "baseline_exists": false,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 0,
+      "size_bytes_current": 1430
+    },
+    "models/survival_summary.pkl": {
+      "baseline_exists": false,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 0,
+      "size_bytes_current": 563
+    },
+    "reports/dvc/metrics_summary.json": {
+      "baseline_exists": false,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 0,
+      "size_bytes_current": 1804
+    },
+    "reports/gpu_benchmark/cudf_polars_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 484,
+      "size_bytes_current": 400
+    },
+    "reports/gpu_benchmark/cugraph_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 1268,
+      "size_bytes_current": 838
+    },
+    "reports/gpu_benchmark/cuml_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 1226,
+      "size_bytes_current": 1232
+    },
+    "reports/gpu_benchmark/cuopt_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": true,
+      "size_bytes_baseline": 893,
+      "size_bytes_current": 900
+    },
+    "reports/gpu_benchmark/cupy_benchmark.csv": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 491,
+      "size_bytes_current": 491
+    },
+    "reports/gpu_benchmark/gpu_bench_meta.json": {
+      "baseline_exists": true,
+      "current_exists": true,
+      "hash_changed": false,
+      "size_bytes_baseline": 439,
+      "size_bytes_current": 439
+    }
+  },
+  "baseline_head": "dbf5f18fda7a72d3b4c217194c6269fdc6d3b511",
+  "current_head": "623d53f8801c5b6382ced48d4301066423f3c83a",
+  "quality_contract": {
+    "conformal_checks_required": 13,
+    "ab_gate_mode": "no_regression",
+    "ab_significance_role": "diagnostic",
+    "artifact_coherence_required": true,
+    "required_status_metadata": [
+      "schema_version",
+      "generated_at_utc",
+      "run_tag"
+    ]
+  }
+}
