@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import shutil
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -227,37 +229,104 @@ def _select_decision_threshold(
     groups_dict: dict[str, np.ndarray],
     thresholds: np.ndarray,
     fallback_threshold: float,
+    y_true_secondary: np.ndarray | None = None,
+    y_prob_secondary: np.ndarray | None = None,
+    groups_dict_secondary: dict[str, np.ndarray] | None = None,
 ) -> dict[str, Any]:
-    """Select threshold prioritizing fairness policy pass, then parity gaps."""
-    rows: list[dict[str, Any]] = []
-    for thr in thresholds:
+    """Select threshold prioritizing fairness pass with optional temporal robustness check."""
+
+    def _fairness_row(
+        *,
+        y_true_eval: np.ndarray,
+        y_prob_eval: np.ndarray,
+        groups_eval: dict[str, np.ndarray],
+        thr: float,
+    ) -> dict[str, Any]:
         report = fairness_report(
-            y_true=y_true,
-            y_pred_proba=y_prob,
-            groups_dict=groups_dict,
+            y_true=y_true_eval,
+            y_pred_proba=y_prob_eval,
+            groups_dict=groups_eval,
             threshold=float(thr),
             dpd_threshold=float(policy["dpd_threshold"]),
             eo_gap_threshold=float(policy["eo_gap_threshold"]),
             dir_threshold=float(policy["dir_threshold"]),
         )
         if report.empty:
-            row = {
-                "threshold": float(thr),
+            return {
                 "overall_pass": False,
                 "pass_ratio": 0.0,
                 "max_dpd": 1.0,
                 "max_eo_gap": 1.0,
                 "min_dir": 0.0,
             }
+        return {
+            "overall_pass": bool(report["passed_all"].all()),
+            "pass_ratio": float(report["passed_all"].mean()),
+            "max_dpd": float(report["dpd"].max()),
+            "max_eo_gap": float(report["eo_gap"].max()),
+            "min_dir": float(report["dir"].min()),
+        }
+
+    rows: list[dict[str, Any]] = []
+    for thr in thresholds:
+        primary = _fairness_row(
+            y_true_eval=y_true,
+            y_prob_eval=y_prob,
+            groups_eval=groups_dict,
+            thr=float(thr),
+        )
+        row = {
+            "threshold": float(thr),
+            "overall_pass": bool(primary["overall_pass"]),
+            "pass_ratio": float(primary["pass_ratio"]),
+            "max_dpd": float(primary["max_dpd"]),
+            "max_eo_gap": float(primary["max_eo_gap"]),
+            "min_dir": float(primary["min_dir"]),
+        }
+
+        if (
+            y_true_secondary is not None
+            and y_prob_secondary is not None
+            and groups_dict_secondary is not None
+            and len(groups_dict_secondary) > 0
+        ):
+            secondary = _fairness_row(
+                y_true_eval=y_true_secondary,
+                y_prob_eval=y_prob_secondary,
+                groups_eval=groups_dict_secondary,
+                thr=float(thr),
+            )
+            row.update(
+                {
+                    "overall_pass_secondary": bool(secondary["overall_pass"]),
+                    "pass_ratio_secondary": float(secondary["pass_ratio"]),
+                    "max_dpd_secondary": float(secondary["max_dpd"]),
+                    "max_eo_gap_secondary": float(secondary["max_eo_gap"]),
+                    "min_dir_secondary": float(secondary["min_dir"]),
+                    "robust_overall_pass": bool(
+                        primary["overall_pass"] and secondary["overall_pass"]
+                    ),
+                    "robust_pass_ratio": float(min(primary["pass_ratio"], secondary["pass_ratio"])),
+                    "robust_max_dpd": float(max(primary["max_dpd"], secondary["max_dpd"])),
+                    "robust_max_eo_gap": float(max(primary["max_eo_gap"], secondary["max_eo_gap"])),
+                    "robust_min_dir": float(min(primary["min_dir"], secondary["min_dir"])),
+                }
+            )
         else:
-            row = {
-                "threshold": float(thr),
-                "overall_pass": bool(report["passed_all"].all()),
-                "pass_ratio": float(report["passed_all"].mean()),
-                "max_dpd": float(report["dpd"].max()),
-                "max_eo_gap": float(report["eo_gap"].max()),
-                "min_dir": float(report["dir"].min()),
-            }
+            row.update(
+                {
+                    "overall_pass_secondary": None,
+                    "pass_ratio_secondary": None,
+                    "max_dpd_secondary": None,
+                    "max_eo_gap_secondary": None,
+                    "min_dir_secondary": None,
+                    "robust_overall_pass": bool(primary["overall_pass"]),
+                    "robust_pass_ratio": float(primary["pass_ratio"]),
+                    "robust_max_dpd": float(primary["max_dpd"]),
+                    "robust_max_eo_gap": float(primary["max_eo_gap"]),
+                    "robust_min_dir": float(primary["min_dir"]),
+                }
+            )
         row["distance_from_fallback"] = float(abs(row["threshold"] - float(fallback_threshold)))
         rows.append(row)
 
@@ -265,11 +334,11 @@ def _select_decision_threshold(
         pd.DataFrame(rows)
         .sort_values(
             [
-                "overall_pass",
-                "pass_ratio",
-                "max_eo_gap",
-                "max_dpd",
-                "min_dir",
+                "robust_overall_pass",
+                "robust_pass_ratio",
+                "robust_max_eo_gap",
+                "robust_max_dpd",
+                "robust_min_dir",
                 "distance_from_fallback",
             ],
             ascending=[False, False, True, True, False, True],
@@ -1005,10 +1074,14 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     )
 
     decision_cfg = config.get("decision_threshold", {})
+    resolved_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip() or "untracked"
     decision_threshold_artifact = {
         "enabled": False,
         "selected_threshold": float(config.get("calibration", {}).get("default_threshold", 0.5)),
         "source": "fallback_default",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
     }
     if bool(decision_cfg.get("enabled", True)):
         fairness_policy_path = str(
@@ -1019,6 +1092,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         fairness_policy = fairness_cfg.get("policy", {})
         fairness_attrs = fairness_cfg.get("attributes", [])
         groups_for_threshold = _build_fairness_groups_for_threshold(train_val, fairness_attrs)
+        groups_for_threshold_cal = _build_fairness_groups_for_threshold(cal, fairness_attrs)
 
         thr_min = float(decision_cfg.get("min_threshold", 0.05))
         thr_max = float(decision_cfg.get("max_threshold", 0.95))
@@ -1036,6 +1110,9 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             groups_dict=groups_for_threshold,
             thresholds=np.asarray(thresholds, dtype=float),
             fallback_threshold=fallback_threshold,
+            y_true_secondary=y_cal.to_numpy(),
+            y_prob_secondary=y_prob_tuned_cal,
+            groups_dict_secondary=groups_for_threshold_cal,
         )
 
         decision_threshold_artifact = {
@@ -1047,6 +1124,7 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             "source": "validation_fairness_search",
             "fairness_policy_path": fairness_policy_path,
             "validation_rows": int(len(train_val)),
+            "secondary_validation_rows": int(len(cal)),
             "calibration_method": selected_cal_method,
         }
 

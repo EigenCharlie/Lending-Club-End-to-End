@@ -106,8 +106,9 @@ def load_dvc_metrics_summary() -> dict[str, float]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
+    source = data.get("metrics", data) if isinstance(data, dict) else {}
     out: dict[str, float] = {}
-    for key, value in data.items():
+    for key, value in source.items():
         try:
             out[str(key)] = float(value)
         except Exception:

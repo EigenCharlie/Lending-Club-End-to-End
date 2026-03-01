@@ -82,7 +82,9 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
     max_feature_breach_ratio = float(checks.get("max_feature_breach_ratio", 0.15))
     c2st_max_rows = int(checks.get("c2st_max_rows_per_split", 50_000))
 
-    drift_path = Path(outputs.get("drift_monitoring_path", "data/processed/drift_monitoring.parquet"))
+    drift_path = Path(
+        outputs.get("drift_monitoring_path", "data/processed/drift_monitoring.parquet")
+    )
     drift_v2_path = Path(
         outputs.get("drift_monitoring_v2_path", "data/processed/drift_monitoring_v2.parquet")
     )
@@ -119,10 +121,16 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
     )
 
     n_features = int(len(drift_df))
-    psi_breaches = int((~drift_df.get("pass_psi", pd.Series(dtype=bool))).sum()) if n_features else 0
+    psi_breaches = (
+        int((~drift_df.get("pass_psi", pd.Series(dtype=bool))).sum()) if n_features else 0
+    )
     ks_breaches = int((~drift_df.get("pass_ks", pd.Series(dtype=bool))).sum()) if n_features else 0
-    cvm_breaches = int((~drift_df.get("pass_cvm", pd.Series(dtype=bool))).sum()) if n_features else 0
-    feature_breach_ratio = float((psi_breaches + ks_breaches + cvm_breaches) / max(n_features * 3, 1))
+    cvm_breaches = (
+        int((~drift_df.get("pass_cvm", pd.Series(dtype=bool))).sum()) if n_features else 0
+    )
+    feature_breach_ratio = float(
+        (psi_breaches + ks_breaches + cvm_breaches) / max(n_features * 3, 1)
+    )
 
     max_psi = float(drift_df["psi"].max()) if n_features else 0.0
     mean_psi = _safe_mean(drift_df["psi"]) if n_features else 0.0

@@ -1,0 +1,54 @@
+"""Unit tests for robust policy resolution in simulate_ab_test."""
+
+from __future__ import annotations
+
+import pandas as pd
+
+from scripts import simulate_ab_test as ab_mod
+
+
+def test_resolve_robust_policy_from_summary_prefers_closest_lower_tolerance(tmp_path) -> None:
+    summary_path = tmp_path / "portfolio_robustness_summary.parquet"
+    pd.DataFrame(
+        [
+            {
+                "risk_tolerance": 0.06,
+                "best_robust_lambda": 1.0,
+                "best_robust_min_budget_utilization": 0.05,
+                "best_robust_pd_cap_slack_penalty": 1.5,
+                "best_robust_return": 100.0,
+            },
+            {
+                "risk_tolerance": 0.10,
+                "best_robust_lambda": 0.5,
+                "best_robust_min_budget_utilization": 0.01,
+                "best_robust_pd_cap_slack_penalty": 0.5,
+                "best_robust_return": 120.0,
+            },
+            {
+                "risk_tolerance": 0.12,
+                "best_robust_lambda": 0.25,
+                "best_robust_min_budget_utilization": 0.0,
+                "best_robust_pd_cap_slack_penalty": 0.0,
+                "best_robust_return": 150.0,
+            },
+        ]
+    ).to_parquet(summary_path, index=False)
+
+    policy = ab_mod._resolve_robust_policy(
+        max_portfolio_pd=0.11,
+        summary_path=str(summary_path),
+    )
+
+    assert policy["source"] == "portfolio_robustness_summary"
+    assert policy["risk_tolerance"] == 0.10
+    assert policy["uncertainty_aversion"] == 0.5
+
+
+def test_resolve_robust_policy_falls_back_when_summary_missing(tmp_path) -> None:
+    policy = ab_mod._resolve_robust_policy(
+        max_portfolio_pd=0.09,
+        summary_path=str(tmp_path / "missing.parquet"),
+    )
+    assert policy["source"] == "fallback_default"
+    assert policy["risk_tolerance"] == 0.09

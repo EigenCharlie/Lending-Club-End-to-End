@@ -2,8 +2,11 @@
 
 from __future__ import annotations
 
+import argparse
 import json
+import os
 import pickle
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +21,7 @@ except ImportError:  # sklearn < 1.8
     d2_brier_score = None
 
 ROOT = Path(__file__).resolve().parents[1]
+SCHEMA_VERSION = "2026-03-01.1"
 
 
 def _load_pickle(path: Path) -> Any:
@@ -148,9 +152,15 @@ def _write_robustness_frontier_plot(out_path: Path) -> None:
     df.to_csv(out_path, index=False)
 
 
-def main() -> None:
+def main(run_tag: str | None = None) -> None:
     out_dir = ROOT / "reports/dvc"
     out_dir.mkdir(parents=True, exist_ok=True)
+
+    resolved_run_tag = (
+        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    )
+    if not resolved_run_tag:
+        resolved_run_tag = f"manual-{datetime.now(UTC).strftime('%Y%m%d-%H%M%SZ')}"
 
     metrics = {}
     metrics.update(_pd_metrics())
@@ -162,17 +172,29 @@ def main() -> None:
     if invalid:
         raise ValueError(f"Non-finite values found in DVC metrics export: {sorted(invalid)}")
 
+    payload: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
+        "metrics": metrics,
+    }
+    # Keep top-level numeric keys for compatibility with DVC metrics and Streamlit helpers.
+    payload.update(metrics)
+
     metrics_path = out_dir / "metrics_summary.json"
     with open(metrics_path, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2, sort_keys=True)
+        json.dump(payload, f, indent=2, sort_keys=True)
         f.write("\n")
 
     _write_conformal_backtest_plot(out_dir / "conformal_coverage_backtest.csv")
     _write_robustness_frontier_plot(out_dir / "robustness_frontier.csv")
 
     logger.info(f"Wrote DVC metrics summary: {metrics_path}")
-    logger.info(f"Metrics exported: {len(metrics)} keys")
+    logger.info(f"Metrics exported: {len(metrics)} keys (run_tag={resolved_run_tag})")
 
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser(description="Export canonical DVC metrics.")
+    parser.add_argument("--run-tag", default=None)
+    args = parser.parse_args()
+    main(run_tag=args.run_tag)

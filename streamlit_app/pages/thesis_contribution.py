@@ -41,6 +41,12 @@ Orden sugerido:
 """,
     button_label="Ver mapa de lectura de la contribución",
 )
+policy_meta = load_json("conformal_policy_status", directory="models")
+st.caption(
+    "Lectura de claims: las afirmaciones metodológicas se interpretan contra evidencia ejecutable "
+    f"del `run_tag={policy_meta.get('run_tag', 'n/a')}`. Fairness conformal avanzado se discute en "
+    "`research_landscape.py`."
+)
 
 comparison = load_json("model_comparison")
 final_metrics = comparison.get("final_test_metrics", {})

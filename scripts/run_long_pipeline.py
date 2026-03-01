@@ -106,8 +106,7 @@ def refresh_baseline_snapshot(run_tag: str) -> bool:
         return True
     append_master(
         run_tag,
-        "BASELINE_SNAPSHOT_REFRESH_FAILED "
-        f"ec={proc.returncode} stderr={proc.stderr.strip()[:400]}",
+        f"BASELINE_SNAPSHOT_REFRESH_FAILED ec={proc.returncode} stderr={proc.stderr.strip()[:400]}",
     )
     return False
 
@@ -548,9 +547,6 @@ def build_steps(
     optimize_portfolio_candidates = (
         "--max_candidates 0" if "--max_candidates" in optimize_portfolio_text else ""
     )
-    optimize_tradeoff_grid = (
-        f"--grid-profile {tradeoff_profile}" if "--grid-profile" in optimize_tradeoff_text else ""
-    )
 
     # Sampling profile: "smart" uses reduced data for expensive stages (~5x faster).
     if sampling_profile == "smart":
@@ -559,7 +555,9 @@ def build_steps(
         lgd_ead_sample = "--sample_size 500000"
         tradeoff_candidates = "--max_candidates 10000"
         tradeoff_profile = "custom"
-        ab_candidates = "--max_candidates 10000 --n_boot 3000 --seed 42 --no_regression_tolerance_pct 0.05"
+        ab_candidates = (
+            "--max_candidates 10000 --n_boot 3000 --seed 42 --no_regression_tolerance_pct 0.05"
+        )
         causal_sample = "--sample_size 200000"
         cate_candidates = "--max_candidates 10000"
         rapids_profile = "current"
@@ -569,10 +567,15 @@ def build_steps(
         lgd_ead_sample = "--sample_size 0"
         tradeoff_candidates = "--max_candidates 0"
         tradeoff_profile = "night"
-        ab_candidates = "--max_candidates 0 --n_boot 5000 --seed 42 --no_regression_tolerance_pct 0.05"
+        ab_candidates = (
+            "--max_candidates 0 --n_boot 5000 --seed 42 --no_regression_tolerance_pct 0.05"
+        )
         causal_sample = "--sample_size 0"
         cate_candidates = "--max_candidates 0"
         rapids_profile = "full_data"
+    optimize_tradeoff_grid = (
+        f"--grid-profile {tradeoff_profile}" if "--grid-profile" in optimize_tradeoff_text else ""
+    )
 
     activate_main = (
         "if [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; "

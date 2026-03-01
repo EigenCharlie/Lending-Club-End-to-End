@@ -12,8 +12,10 @@ import pytest
 
 from src.models.conformal_tuning import (
     apply_group_multipliers,
+    build_group_temporal_segments,
     choose_best_tuning_row,
     enforce_group_coverage_floor,
+    enforce_segment_coverage_floor,
     mark_pareto_front,
     split_calibration_for_tuning,
     to_python_scalar,
@@ -257,6 +259,43 @@ class TestEnforceGroupCoverageFloor:
         assert "coverage_before" in report.columns
         assert "multiplier" in report.columns
         assert len(report) == 2  # A and B
+
+
+# ---------------------------------------------------------------------------
+# temporal segment helpers
+# ---------------------------------------------------------------------------
+
+
+class TestTemporalSegmentCoverageFloor:
+    def test_build_group_temporal_segments_formats_keys(self):
+        groups = pd.Series(["A", "B", "A"])
+        dates = pd.Series(pd.to_datetime(["2020-01-15", "2020-07-20", None]))
+        seg = build_group_temporal_segments(groups, dates, freq="Q")
+        assert seg.iloc[0].startswith("A|vintage=2020Q1")
+        assert seg.iloc[1].startswith("B|vintage=2020Q3")
+        assert seg.iloc[2].startswith("A|vintage=UNKNOWN")
+
+    def test_enforce_segment_coverage_floor_respects_min_support(self):
+        n = 60
+        y_pred = np.full(n, 0.5)
+        y_true = np.full(n, 0.95)
+        intervals = np.column_stack([np.full(n, 0.45), np.full(n, 0.55)])
+        segments = np.array(["A|vintage=2020Q1"] * 50 + ["B|vintage=2020Q1"] * 10)
+
+        _new_intervals, factors, report = enforce_segment_coverage_floor(
+            y_true=y_true,
+            y_pred=y_pred,
+            y_intervals=intervals,
+            segments=segments,
+            target_coverage=0.90,
+            min_segment_size=20,
+            multiplier_grid=(1.0, 1.2),
+        )
+
+        assert "A|vintage=2020Q1" in report["segment"].values
+        assert "B|vintage=2020Q1" in report["segment"].values
+        assert "A|vintage=2020Q1" in factors
+        assert "B|vintage=2020Q1" not in factors
 
 
 # ---------------------------------------------------------------------------

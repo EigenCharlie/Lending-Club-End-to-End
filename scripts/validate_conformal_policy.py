@@ -124,7 +124,9 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
     policy = cfg["policy"]
     artifacts = cfg["artifacts"]
     output = cfg["output"]
-    resolved_run_tag = str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    resolved_run_tag = (
+        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    )
     if not resolved_run_tag:
         resolved_run_tag = "untracked"
 

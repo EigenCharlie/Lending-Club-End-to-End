@@ -299,6 +299,106 @@ def enforce_group_coverage_floor(
     return current, group_factors, report
 
 
+def build_group_temporal_segments(
+    groups: pd.Series | np.ndarray,
+    issue_dates: pd.Series | np.ndarray,
+    *,
+    freq: str = "Q",
+    missing_bucket: str = "UNKNOWN",
+) -> pd.Series:
+    """Build stable segment keys for group-vintage adjustments."""
+    group_series = pd.Series(groups).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    issue_dt = pd.to_datetime(pd.Series(issue_dates), errors="coerce").reset_index(drop=True)
+    vintage = issue_dt.dt.to_period(freq).astype(str)
+    vintage = vintage.where(issue_dt.notna(), missing_bucket)
+    return (group_series + "|vintage=" + vintage.astype(str)).astype(str)
+
+
+def enforce_segment_coverage_floor(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    y_intervals: np.ndarray,
+    segments: pd.Series | np.ndarray,
+    target_coverage: float,
+    min_segment_size: int = 250,
+    multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
+) -> tuple[np.ndarray, dict[str, float], pd.DataFrame]:
+    """Increase interval radii for undercovered temporal segments.
+
+    Segment adjustments are learned only for segments with enough support to avoid
+    overfitting tiny slices. Output report includes per-segment support.
+    """
+    seg = pd.Series(segments).fillna("UNKNOWN").astype(str).to_numpy()
+    y_true_arr = np.asarray(y_true, dtype=float)
+    current = np.asarray(y_intervals, dtype=float).copy()
+    min_segment_size = max(1, int(min_segment_size))
+
+    def _mask_for(segment: str) -> np.ndarray:
+        return seg == segment
+
+    def _segment_cov(intervals: np.ndarray, segment: str) -> float:
+        mask = _mask_for(segment)
+        if not mask.any():
+            return float("nan")
+        return float(
+            (
+                (y_true_arr[mask] >= intervals[mask, 0]) & (y_true_arr[mask] <= intervals[mask, 1])
+            ).mean()
+        )
+
+    segment_factors: dict[str, float] = {}
+    rows: list[dict[str, Any]] = []
+    segment_list = sorted(set(seg))
+
+    for segment in segment_list:
+        mask = _mask_for(segment)
+        support = int(mask.sum())
+        before_cov = _segment_cov(current, segment)
+        factor = 1.0
+        after_cov = before_cov
+        adjusted = False
+
+        if support >= min_segment_size and np.isfinite(before_cov) and before_cov < target_coverage:
+            candidate = current.copy()
+            for m in multiplier_grid:
+                if m < 1.0:
+                    continue
+                trial = current.copy()
+                trial_segment = apply_group_multipliers(
+                    y_pred=y_pred[mask],
+                    y_intervals=current[mask],
+                    groups=np.array([segment] * support),
+                    multipliers={segment: float(m)},
+                )
+                trial[mask] = trial_segment
+                cov = _segment_cov(trial, segment)
+                candidate = trial
+                factor = float(m)
+                after_cov = cov
+                if cov >= target_coverage:
+                    break
+            current = candidate
+            adjusted = factor > 1.0
+
+        if factor > 1.0:
+            segment_factors[str(segment)] = factor
+        rows.append(
+            {
+                "segment": str(segment),
+                "support_n": support,
+                "coverage_before": float(before_cov),
+                "coverage_after": float(after_cov),
+                "target_coverage": float(target_coverage),
+                "min_segment_size": int(min_segment_size),
+                "multiplier": float(factor),
+                "adjusted": bool(adjusted),
+            }
+        )
+
+    report = pd.DataFrame(rows).sort_values("segment").reset_index(drop=True)
+    return current, segment_factors, report
+
+
 def to_python_scalar(value: Any) -> Any:
     """Convert numpy/pandas scalar values to Python primitives."""
     if isinstance(value, np.floating | np.integer | np.bool_):

@@ -97,9 +97,13 @@ def test_validate_conformal_policy_includes_statistical_checks(tmp_path) -> None
     )
     checks = pd.read_parquet(data_dir / "conformal_policy_checks.parquet")
 
+    assert status["schema_version"]
+    assert status["generated_at_utc"]
+    assert status["run_tag"]
     assert "winkler_90" in status
     assert "kupiec_pvalue_90" in status
     assert "christoffersen_pvalue_90" in status
     assert status["checks_total"] >= 13
     assert "statistical_coverage" in set(checks["scope"])
+    assert "lgd_ead_conformal_status" in status
     assert status_v2["checks_total"] == status["checks_total"]

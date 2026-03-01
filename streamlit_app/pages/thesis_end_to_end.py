@@ -593,6 +593,11 @@ render_section_checkpoint(
         "Gobernanza valida si el sistema completo sigue siendo operable.",
     ],
 )
+st.info(
+    "Fairness conformal en profundidad (cobertura condicional por subgrupo, trade-offs y agenda online) "
+    "se desarrolla en `research_landscape.py` y `thesis_contribution.py`. "
+    "En especialización se reporta como señal de gobernanza, no como claim central."
+)
 render_page_feedback("thesis_end_to_end")
 
 next_page_teaser(

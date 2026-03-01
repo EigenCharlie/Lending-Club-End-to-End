@@ -23,8 +23,10 @@ from src.models.conformal import (
 )
 from src.models.conformal_tuning import (
     apply_group_multipliers,
+    build_group_temporal_segments,
     choose_best_tuning_row,
     enforce_group_coverage_floor,
+    enforce_segment_coverage_floor,
     mark_pareto_front,
     split_calibration_for_tuning,
     to_python_scalar,
@@ -139,6 +141,45 @@ def _build_feature_matrix(
     return X
 
 
+def _scale_intervals_around_prediction(
+    y_pred: np.ndarray,
+    y_intervals: np.ndarray,
+    factor: float,
+) -> np.ndarray:
+    """Scale interval radius around point predictions with clipping."""
+    f = max(0.01, float(factor))
+    low = y_intervals[:, 0].astype(float)
+    high = y_intervals[:, 1].astype(float)
+    radius = np.maximum(y_pred - low, high - y_pred)
+    out_low = np.clip(y_pred - radius * f, 0.0, 1.0)
+    out_high = np.clip(y_pred + radius * f, 0.0, 1.0)
+    return np.column_stack([out_low, out_high])
+
+
+def _empirical_interval_coverage(y_true: np.ndarray, y_intervals: np.ndarray) -> float:
+    inside = (y_true >= y_intervals[:, 0]) & (y_true <= y_intervals[:, 1])
+    return float(inside.mean()) if len(inside) else float("nan")
+
+
+def _min_group_interval_coverage(
+    y_true: np.ndarray,
+    y_intervals: np.ndarray,
+    groups: pd.Series | np.ndarray,
+) -> float:
+    group_series = pd.Series(groups).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    y_arr = np.asarray(y_true, dtype=float)
+    covs: list[float] = []
+    for group_name in sorted(group_series.unique()):
+        mask = group_series == group_name
+        if int(mask.sum()) == 0:
+            continue
+        grp_cov = (
+            (y_arr[mask] >= y_intervals[mask, 0]) & (y_arr[mask] <= y_intervals[mask, 1])
+        ).mean()
+        covs.append(float(grp_cov))
+    return float(min(covs)) if covs else float("nan")
+
+
 def main(
     alpha_target_90: float = 0.10,
     alpha_95: float = 0.05,
@@ -151,6 +192,13 @@ def main(
     min_group_guardband_90: float = 0.0,
     tuning_holdout_ratio: float = 0.20,
     tuning_random_state: int = 42,
+    temporal_segment_floor_enabled: bool = True,
+    temporal_segment_freq: str = "Q",
+    temporal_segment_min_size: int = 250,
+    global_rebalance_enabled: bool = False,
+    global_rebalance_min_factor: float = 0.75,
+    global_rebalance_max_factor: float = 1.05,
+    global_rebalance_step: float = 0.01,
 ):
     logger.info("Starting Mondrian conformal interval generation with 90% auto-tuning")
 
@@ -189,15 +237,25 @@ def main(
     X_tune = X_cal.iloc[idx_cal_tune].reset_index(drop=True)
     y_tune = y_cal.iloc[idx_cal_tune].reset_index(drop=True)
     group_tune = group_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    issue_cal = (
+        pd.to_datetime(cal_df.get("issue_d"), errors="coerce")
+        if "issue_d" in cal_df.columns
+        else pd.Series(pd.NaT, index=cal_df.index, dtype="datetime64[ns]")
+    )
+    issue_tune = issue_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    issue_test = (
+        pd.to_datetime(test_df.get("issue_d"), errors="coerce")
+        if "issue_d" in test_df.columns
+        else pd.Series(pd.NaT, index=test_df.index, dtype="datetime64[ns]")
+    ).reset_index(drop=True)
     logger.info(
         "Calibration split for conformal tuning: "
         f"fit={len(X_cal_fit):,}, holdout={len(X_tune):,}, "
         f"holdout_ratio={len(X_tune) / max(len(X_cal), 1):.2%}"
     )
     if "issue_d" in cal_df.columns:
-        issue_series = pd.to_datetime(cal_df["issue_d"], errors="coerce")
-        fit_issue = issue_series.iloc[idx_cal_fit]
-        tune_issue = issue_series.iloc[idx_cal_tune]
+        fit_issue = issue_cal.iloc[idx_cal_fit]
+        tune_issue = issue_tune
         if fit_issue.notna().any() and tune_issue.notna().any():
             logger.info(
                 "Calibration split date ranges: "
@@ -337,6 +395,22 @@ def main(
     tune_metrics_90_after = validate_coverage(
         y_tune.to_numpy(dtype=float), y_int_90_adjusted, alpha_target_90
     )
+    test_temporal_segments: pd.Series | None = None
+    temporal_segment_multipliers: dict[str, float] = {}
+    temporal_segment_report = pd.DataFrame(
+        columns=[
+            "segment",
+            "support_n",
+            "coverage_before",
+            "coverage_after",
+            "target_coverage",
+            "min_segment_size",
+            "multiplier",
+            "adjusted",
+        ]
+    )
+    y_int_90_tune_working = y_int_90_adjusted
+    tune_metrics_90_after_temporal = tune_metrics_90_after.copy()
     if group_multipliers:
         logger.info(
             "Applying group coverage floor multipliers learned on calibration holdout: "
@@ -349,6 +423,123 @@ def main(
         )
     else:
         logger.info("No group coverage floor adjustments were required.")
+    if (
+        temporal_segment_floor_enabled
+        and issue_tune.notna().any()
+        and issue_test.notna().any()
+        and len(issue_tune) == len(group_tune)
+        and len(issue_test) == len(group_test)
+    ):
+        tune_temporal_segments = build_group_temporal_segments(
+            groups=group_tune,
+            issue_dates=issue_tune,
+            freq=temporal_segment_freq,
+        )
+        test_temporal_segments = build_group_temporal_segments(
+            groups=group_test,
+            issue_dates=issue_test,
+            freq=temporal_segment_freq,
+        )
+        y_int_90_tune_temporal, temporal_segment_multipliers, temporal_segment_report = (
+            enforce_segment_coverage_floor(
+                y_true=y_tune.to_numpy(dtype=float),
+                y_pred=y_pred_tune,
+                y_intervals=y_int_90_tune_working,
+                segments=tune_temporal_segments,
+                target_coverage=group_coverage_floor_target_90,
+                min_segment_size=temporal_segment_min_size,
+            )
+        )
+        y_int_90_tune_working = y_int_90_tune_temporal
+        tune_metrics_90_after_temporal = validate_coverage(
+            y_tune.to_numpy(dtype=float), y_int_90_tune_temporal, alpha_target_90
+        )
+        if temporal_segment_multipliers:
+            logger.info(
+                "Applying temporal coverage floor multipliers learned on holdout "
+                f"(freq={temporal_segment_freq}): {temporal_segment_multipliers}"
+            )
+            y_int_90 = apply_group_multipliers(
+                y_pred_90,
+                y_int_90,
+                test_temporal_segments,
+                temporal_segment_multipliers,
+            )
+            metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
+            group_metrics_90 = conditional_coverage_by_group(
+                y_test.to_numpy(dtype=float), y_int_90, group_test
+            )
+        else:
+            logger.info("No temporal segment coverage adjustments were required.")
+    elif temporal_segment_floor_enabled:
+        logger.info("Temporal segment coverage adjustments skipped (missing issue_d coverage).")
+
+    # Optional global rebalance: tune one uniform radius factor on calibration holdout
+    # to get closer to nominal global coverage while preserving minimum group floor.
+    global_rebalance_factor = 1.0
+    global_rebalance_diagnostics: dict[str, float | bool] = {
+        "enabled": bool(global_rebalance_enabled),
+        "applied": False,
+    }
+    if global_rebalance_enabled and len(y_int_90_tune_working) > 0:
+        min_factor = max(0.05, float(global_rebalance_min_factor))
+        max_factor = max(min_factor, float(global_rebalance_max_factor))
+        step = max(0.001, float(global_rebalance_step))
+        n_steps = int(round((max_factor - min_factor) / step)) + 1
+        candidate_factors = np.linspace(min_factor, max_factor, max(2, n_steps))
+
+        tune_y_true = y_tune.to_numpy(dtype=float)
+        tune_target_cov = target_coverage_90
+        tune_group_floor = float(min_group_coverage_target)
+
+        best_trial: dict[str, float] | None = None
+        for factor in candidate_factors:
+            tune_trial = _scale_intervals_around_prediction(
+                y_pred_tune, y_int_90_tune_working, factor
+            )
+            cov_trial = _empirical_interval_coverage(tune_y_true, tune_trial)
+            min_group_cov_trial = _min_group_interval_coverage(tune_y_true, tune_trial, group_tune)
+            floor_shortfall = max(0.0, tune_group_floor - min_group_cov_trial)
+            score = abs(cov_trial - tune_target_cov) + 100.0 * floor_shortfall
+            trial = {
+                "factor": float(factor),
+                "coverage": float(cov_trial),
+                "min_group_coverage": float(min_group_cov_trial),
+                "score": float(score),
+            }
+            if best_trial is None or trial["score"] < best_trial["score"]:
+                best_trial = trial
+
+        if best_trial is not None:
+            global_rebalance_factor = float(best_trial["factor"])
+            global_rebalance_diagnostics.update(
+                {
+                    "factor": global_rebalance_factor,
+                    "tune_coverage_after_rebalance": float(best_trial["coverage"]),
+                    "tune_min_group_coverage_after_rebalance": float(
+                        best_trial["min_group_coverage"]
+                    ),
+                    "target_coverage_90": float(tune_target_cov),
+                    "min_group_floor_target": float(tune_group_floor),
+                    "applied": abs(global_rebalance_factor - 1.0) > 1e-9,
+                }
+            )
+            if abs(global_rebalance_factor - 1.0) > 1e-9:
+                logger.info(
+                    "Applying global interval rebalance factor learned on holdout: "
+                    f"factor={global_rebalance_factor:.4f}, "
+                    f"tune_cov={best_trial['coverage']:.4f}, "
+                    f"tune_min_group_cov={best_trial['min_group_coverage']:.4f}"
+                )
+                y_int_90 = _scale_intervals_around_prediction(
+                    y_pred_90, y_int_90, global_rebalance_factor
+                )
+                metrics_90 = validate_coverage(
+                    y_test.to_numpy(dtype=float), y_int_90, alpha_target_90
+                )
+                group_metrics_90 = conditional_coverage_by_group(
+                    y_test.to_numpy(dtype=float), y_int_90, group_test
+                )
 
     # 95% intervals using same structure settings for consistency.
     y_pred_95, y_int_95, diag_95 = create_pd_intervals_mondrian(
@@ -365,6 +556,12 @@ def main(
     )
     if group_multipliers:
         y_int_95 = apply_group_multipliers(y_pred_95, y_int_95, group_test, group_multipliers)
+    if temporal_segment_multipliers and test_temporal_segments is not None:
+        y_int_95 = apply_group_multipliers(
+            y_pred_95, y_int_95, test_temporal_segments, temporal_segment_multipliers
+        )
+    if abs(global_rebalance_factor - 1.0) > 1e-9:
+        y_int_95 = _scale_intervals_around_prediction(y_pred_95, y_int_95, global_rebalance_factor)
     metrics_95 = validate_coverage(y_test.to_numpy(dtype=float), y_int_95, alpha_95)
     group_metrics_95 = conditional_coverage_by_group(
         y_test.to_numpy(dtype=float), y_int_95, group_test
@@ -387,6 +584,8 @@ def main(
     }
     if "id" in test_df.columns:
         intervals_payload["id"] = test_df["id"].astype(str).to_numpy()
+    if test_temporal_segments is not None:
+        intervals_payload["temporal_segment"] = test_temporal_segments.to_numpy(dtype=str)
     intervals_df = pd.DataFrame(intervals_payload)
 
     gm90 = group_metrics_90.rename(
@@ -428,6 +627,7 @@ def main(
     tuning_path = data_dir / "conformal_mondrian_tuning_90.parquet"
     pareto_path = data_dir / "conformal_mondrian_tuning_90_pareto.parquet"
     coverage_floor_path = data_dir / "conformal_group_coverage_floor_report.parquet"
+    temporal_coverage_floor_path = data_dir / "conformal_temporal_coverage_floor_report.parquet"
     results_path = models_dir / "conformal_results_mondrian.pkl"
 
     intervals_df.to_parquet(intervals_mondrian_path, index=False)
@@ -436,6 +636,7 @@ def main(
     tuning_df.to_parquet(tuning_path, index=False)
     tuning_df[tuning_df["is_pareto"]].copy().to_parquet(pareto_path, index=False)
     coverage_floor_report.to_parquet(coverage_floor_path, index=False)
+    temporal_segment_report.to_parquet(temporal_coverage_floor_path, index=False)
 
     payload = {
         "model_path": str(model_path),
@@ -450,6 +651,14 @@ def main(
         "tuning_90_pareto_path": str(pareto_path),
         "group_coverage_floor_path": str(coverage_floor_path),
         "group_coverage_multipliers": {k: float(v) for k, v in group_multipliers.items()},
+        "temporal_segment_floor_enabled": bool(temporal_segment_floor_enabled),
+        "temporal_segment_freq": str(temporal_segment_freq),
+        "temporal_segment_min_size": int(temporal_segment_min_size),
+        "temporal_segment_coverage_floor_path": str(temporal_coverage_floor_path),
+        "temporal_segment_multipliers": {
+            k: float(v) for k, v in temporal_segment_multipliers.items()
+        },
+        "global_rebalance": global_rebalance_diagnostics,
         "group_coverage_floor_target_90": float(group_coverage_floor_target_90),
         "calibration_split": {
             "fit_n": int(len(X_cal_fit)),
@@ -464,6 +673,9 @@ def main(
         "tune_metrics_90_after_floor": {
             k: to_python_scalar(v) for k, v in tune_metrics_90_after.items()
         },
+        "tune_metrics_90_after_temporal_floor": {
+            k: to_python_scalar(v) for k, v in tune_metrics_90_after_temporal.items()
+        },
     }
     with open(results_path, "wb") as f:
         pickle.dump(payload, f)
@@ -475,6 +687,7 @@ def main(
     logger.info(f"  - {tuning_path}")
     logger.info(f"  - {pareto_path}")
     logger.info(f"  - {coverage_floor_path}")
+    logger.info(f"  - {temporal_coverage_floor_path}")
     logger.info(f"  - {results_path}")
     logger.info(
         "Final metrics: "
@@ -496,6 +709,13 @@ if __name__ == "__main__":
     parser.add_argument("--min_group_guardband_90", type=float, default=0.0)
     parser.add_argument("--tuning_holdout_ratio", type=float, default=0.20)
     parser.add_argument("--tuning_random_state", type=int, default=42)
+    parser.add_argument("--temporal_segment_floor_enabled", type=int, default=1)
+    parser.add_argument("--temporal_segment_freq", default="Q")
+    parser.add_argument("--temporal_segment_min_size", type=int, default=250)
+    parser.add_argument("--global_rebalance_enabled", type=int, default=0)
+    parser.add_argument("--global_rebalance_min_factor", type=float, default=0.75)
+    parser.add_argument("--global_rebalance_max_factor", type=float, default=1.05)
+    parser.add_argument("--global_rebalance_step", type=float, default=0.01)
     args = parser.parse_args()
     main(
         alpha_target_90=args.alpha_target_90,
@@ -507,4 +727,11 @@ if __name__ == "__main__":
         min_group_guardband_90=args.min_group_guardband_90,
         tuning_holdout_ratio=args.tuning_holdout_ratio,
         tuning_random_state=args.tuning_random_state,
+        temporal_segment_floor_enabled=bool(args.temporal_segment_floor_enabled),
+        temporal_segment_freq=args.temporal_segment_freq,
+        temporal_segment_min_size=args.temporal_segment_min_size,
+        global_rebalance_enabled=bool(args.global_rebalance_enabled),
+        global_rebalance_min_factor=args.global_rebalance_min_factor,
+        global_rebalance_max_factor=args.global_rebalance_max_factor,
+        global_rebalance_step=args.global_rebalance_step,
     )

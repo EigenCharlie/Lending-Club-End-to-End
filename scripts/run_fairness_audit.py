@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -20,6 +22,8 @@ import yaml
 from loguru import logger
 
 from src.evaluation.fairness import fairness_report
+
+SCHEMA_VERSION = "2026-03-01.1"
 
 
 def _load_config(config_path: str) -> dict:
@@ -75,7 +79,7 @@ def _resolve_prediction_threshold(cfg: dict, policy: dict) -> tuple[float, str]:
         return fallback_threshold, "policy_default_artifact_error"
 
 
-def main(config_path: str = "configs/fairness_policy.yaml") -> None:
+def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
     policy = cfg["policy"]
@@ -120,6 +124,11 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
         return
 
     threshold, threshold_source = _resolve_prediction_threshold(cfg, policy)
+    resolved_run_tag = (
+        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    )
+    if not resolved_run_tag:
+        resolved_run_tag = "untracked"
 
     # Run fairness report
     report = fairness_report(
@@ -141,6 +150,9 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
     # Build and save status JSON
     overall_pass = bool(report["passed_all"].all())
     status = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "n_attributes": len(report),
         "n_passed": int(report["passed_all"].sum()),
@@ -152,6 +164,7 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
             "eo_gap": policy["eo_gap_threshold"],
             "dir": policy["dir_threshold"],
         },
+        "policy_config": str(config_path),
     }
 
     status_path = Path(output["status_json"])
@@ -174,5 +187,6 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run fairness audit")
     parser.add_argument("--config", default="configs/fairness_policy.yaml")
+    parser.add_argument("--run-tag", default=None)
     args = parser.parse_args()
-    main(config_path=args.config)
+    main(config_path=args.config, run_tag=args.run_tag)

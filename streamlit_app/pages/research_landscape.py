@@ -41,6 +41,11 @@ los papers seminales, el estado actual de la investigación, y cómo este proyec
 se posiciona respecto a la literatura existente.
 """
 )
+st.info(
+    "Regla narrativa del proyecto: en `tesis_especializacion.py` fairness conformal se reporta "
+    "como diagnóstico de gobernanza; la profundidad metodológica (cobertura condicional, trade-offs, "
+    "online/adaptive CP) se concentra aquí."
+)
 methodology_dialog(
     "Cómo usar esta página (modo experto)",
     """

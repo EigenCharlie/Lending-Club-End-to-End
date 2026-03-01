@@ -25,7 +25,8 @@ DATA = ROOT / "data" / "processed"
 MODELS = ROOT / "models"
 REPORTS = ROOT / "reports"
 OUT_ROOT = REPORTS / "run_comparisons"
-SCHEMA_VERSION = "2026-02-27.1"
+SCHEMA_VERSION = "2026-03-01.2"
+COHERENCE_TIMESTAMP_MAX_SKEW_SECONDS = 72 * 3600
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -113,13 +114,24 @@ def _versions_snapshot() -> dict[str, Any]:
 
 
 def _collect_metrics() -> dict[str, Any]:
-    metrics_summary = _read_json(REPORTS / "dvc" / "metrics_summary.json")
+    metrics_summary_raw = _read_json(REPORTS / "dvc" / "metrics_summary.json")
+    if isinstance(metrics_summary_raw.get("metrics"), dict):
+        metrics_summary = dict(metrics_summary_raw.get("metrics", {}))
+        metrics_summary_meta = {
+            "schema_version": metrics_summary_raw.get("schema_version"),
+            "generated_at_utc": metrics_summary_raw.get("generated_at_utc"),
+            "run_tag": metrics_summary_raw.get("run_tag"),
+        }
+    else:
+        metrics_summary = metrics_summary_raw
+        metrics_summary_meta = {}
     model_comparison = _read_json(DATA / "model_comparison.json")
     pipeline_summary = _read_json(DATA / "pipeline_summary.json")
     conformal = _read_json(MODELS / "conformal_policy_status.json")
     fairness = _read_json(MODELS / "fairness_audit_status.json")
     ab_status = _read_json(MODELS / "ab_simulation_status.json")
     cate_status = _read_json(MODELS / "cate_portfolio_status.json")
+    lgd_ead_conformal_status = _read_json(MODELS / "conformal_lgd_ead_status.json")
 
     survival_summary = {}
     survival_path = MODELS / "survival_summary.pkl"
@@ -152,6 +164,7 @@ def _collect_metrics() -> dict[str, Any]:
 
     return {
         "dvc_metrics": metrics_summary,
+        "dvc_metrics_meta": metrics_summary_meta,
         "model_comparison": model_comparison,
         "pipeline_summary": pipeline_summary,
         "conformal_status": conformal,
@@ -161,6 +174,7 @@ def _collect_metrics() -> dict[str, Any]:
         "portfolio_robustness_summary": robustness_summary,
         "ab_simulation_status": ab_status,
         "cate_portfolio_status": cate_status,
+        "conformal_lgd_ead_status": lgd_ead_conformal_status,
     }
 
 
@@ -171,6 +185,7 @@ def _artifact_index() -> dict[str, dict[str, Any]]:
         "data/processed/pipeline_summary.json": DATA / "pipeline_summary.json",
         "models/conformal_policy_status.json": MODELS / "conformal_policy_status.json",
         "models/fairness_audit_status.json": MODELS / "fairness_audit_status.json",
+        "models/conformal_lgd_ead_status.json": MODELS / "conformal_lgd_ead_status.json",
         "models/survival_summary.pkl": MODELS / "survival_summary.pkl",
         "data/processed/portfolio_robustness_summary.parquet": DATA
         / "portfolio_robustness_summary.parquet",
@@ -227,6 +242,99 @@ class GateResult:
     name: str
     passed: bool
     details: dict[str, Any]
+
+
+def _parse_iso_datetime(value: Any) -> datetime | None:
+    if not isinstance(value, str) or not value.strip():
+        return None
+    candidate = value.strip().replace("Z", "+00:00")
+    try:
+        return datetime.fromisoformat(candidate)
+    except ValueError:
+        return None
+
+
+def _collect_status_metadata(
+    cur_metrics: dict[str, Any], *, expected_run_tag: str
+) -> dict[str, Any]:
+    sources = {
+        "reports/dvc/metrics_summary.json": cur_metrics.get("dvc_metrics_meta", {}),
+        "models/conformal_policy_status.json": cur_metrics.get("conformal_status", {}),
+        "models/fairness_audit_status.json": cur_metrics.get("fairness_status", {}),
+        "models/ab_simulation_status.json": cur_metrics.get("ab_simulation_status", {}),
+    }
+    rows: list[dict[str, Any]] = []
+    run_tags: list[str] = []
+    generated_times: list[datetime] = []
+    missing_metadata_artifacts: list[str] = []
+    mismatched_run_tag_artifacts: list[str] = []
+
+    for artifact_name, payload in sources.items():
+        payload = payload if isinstance(payload, dict) else {}
+        schema_version = payload.get("schema_version")
+        generated_at_utc = payload.get("generated_at_utc")
+        run_tag = payload.get("run_tag")
+        missing_fields = [
+            key
+            for key, value in {
+                "schema_version": schema_version,
+                "generated_at_utc": generated_at_utc,
+                "run_tag": run_tag,
+            }.items()
+            if value in (None, "", [])
+        ]
+        parsed_dt = _parse_iso_datetime(generated_at_utc)
+        if run_tag not in (None, "", []):
+            run_tags.append(str(run_tag))
+        if parsed_dt is not None:
+            generated_times.append(parsed_dt)
+        if missing_fields:
+            missing_metadata_artifacts.append(artifact_name)
+        if run_tag not in (None, "", []) and str(run_tag) != expected_run_tag:
+            mismatched_run_tag_artifacts.append(artifact_name)
+        rows.append(
+            {
+                "artifact": artifact_name,
+                "schema_version": schema_version,
+                "generated_at_utc": generated_at_utc,
+                "run_tag": run_tag,
+                "missing_metadata_fields": missing_fields,
+            }
+        )
+
+    unique_run_tags = sorted(set(run_tags))
+    run_tag_consistent = len(unique_run_tags) == 1
+    run_tag_matches_expected = run_tag_consistent and unique_run_tags == [expected_run_tag]
+    timestamp_skew_seconds = None
+    if len(generated_times) >= 2:
+        timestamp_skew_seconds = float(
+            (max(generated_times) - min(generated_times)).total_seconds()
+        )
+    timestamp_coherent = timestamp_skew_seconds is None or timestamp_skew_seconds <= float(
+        COHERENCE_TIMESTAMP_MAX_SKEW_SECONDS
+    )
+    all_have_metadata = len(missing_metadata_artifacts) == 0
+    passed = bool(all_have_metadata and run_tag_matches_expected and timestamp_coherent)
+
+    return {
+        "expected_run_tag": expected_run_tag,
+        "critical_artifacts": rows,
+        "all_have_metadata": all_have_metadata,
+        "missing_metadata_artifacts": missing_metadata_artifacts,
+        "run_tags_observed": unique_run_tags,
+        "run_tag_consistent": run_tag_consistent,
+        "run_tag_matches_expected": run_tag_matches_expected,
+        "mismatched_run_tag_artifacts": mismatched_run_tag_artifacts,
+        "timestamp_skew_seconds": timestamp_skew_seconds,
+        "timestamp_coherent": bool(timestamp_coherent),
+        "timestamp_max_skew_seconds": int(COHERENCE_TIMESTAMP_MAX_SKEW_SECONDS),
+        "passed": passed,
+    }
+
+
+def _gate_artifact_coherence(cur_metrics: dict[str, Any], run_tag: str) -> GateResult:
+    details = _collect_status_metadata(cur_metrics, expected_run_tag=run_tag)
+    return GateResult("artifact_coherence", bool(details.get("passed", False)), details)
 
 
 def _gate_pd(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
@@ -316,6 +424,74 @@ def _gate_conformal(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
     )
 
 
+def _gate_ab_no_regression(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
+    b = base.get("ab_simulation_status", {})
+    c = cur.get("ab_simulation_status", {})
+
+    b_a = _safe_float((b.get("metrics_a") or {}).get("total_return"))
+    b_b = _safe_float((b.get("metrics_b") or {}).get("total_return"))
+    c_a = _safe_float((c.get("metrics_a") or {}).get("total_return"))
+    c_b = _safe_float((c.get("metrics_b") or {}).get("total_return"))
+
+    no_reg = c.get("no_regression", {}) if isinstance(c.get("no_regression"), dict) else {}
+    c_diff = _safe_float(
+        no_reg.get("diff_total_return"),
+        default=(c_b - c_a if np.isfinite(c_a) and np.isfinite(c_b) else float("nan")),
+    )
+    c_tol = _safe_float(
+        no_reg.get("tolerance_total_return"),
+        default=(abs(c_a) * 0.05 if np.isfinite(c_a) else float("nan")),
+    )
+
+    self_no_reg_ok = (
+        bool(no_reg.get("passed"))
+        if "passed" in no_reg
+        else (np.isnan(c_diff) or np.isnan(c_tol) or (c_diff >= -c_tol))
+    )
+
+    b_diff = b_b - b_a if np.isfinite(b_a) and np.isfinite(b_b) else float("nan")
+    baseline_tol = abs(b_a) * 0.05 if np.isfinite(b_a) else float("nan")
+    control_vs_baseline_ok = np.isnan(b_a) or np.isnan(c_a) or (c_a >= b_a - baseline_tol)
+    robust_vs_baseline_ok = np.isnan(b_b) or np.isnan(c_b) or (c_b >= b_b - baseline_tol)
+    gap_vs_baseline_ok = np.isnan(b_diff) or np.isnan(c_diff) or (c_diff >= b_diff - baseline_tol)
+
+    passed = bool(
+        self_no_reg_ok and control_vs_baseline_ok and robust_vs_baseline_ok and gap_vs_baseline_ok
+    )
+
+    comparison = c.get("comparison", {}) if isinstance(c.get("comparison"), dict) else {}
+    return GateResult(
+        "ab_no_regression",
+        passed,
+        {
+            "checks": {
+                "self_no_regression_ok": bool(self_no_reg_ok),
+                "control_vs_baseline_ok": bool(control_vs_baseline_ok),
+                "robust_vs_baseline_ok": bool(robust_vs_baseline_ok),
+                "gap_vs_baseline_ok": bool(gap_vs_baseline_ok),
+            },
+            "current": {
+                "control_total_return": c_a,
+                "robust_total_return": c_b,
+                "diff_total_return": c_diff,
+                "tolerance_total_return": c_tol,
+                "n_candidates_used": c.get("n_candidates_used"),
+            },
+            "baseline": {
+                "control_total_return": b_a,
+                "robust_total_return": b_b,
+                "diff_total_return": b_diff,
+            },
+            "diagnostics": {
+                "p_value": _safe_float(comparison.get("p_value")),
+                "significant": bool(comparison.get("significant", False)),
+                "significance_role": "diagnostic",
+                "gate_mode": "no_regression",
+            },
+        },
+    )
+
+
 def _gate_fairness(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
     b = base.get("fairness_status", {})
     c = cur.get("fairness_status", {})
@@ -397,6 +573,10 @@ def _markdown_report(report: dict[str, Any]) -> str:
         f"- Overall gates pass: `{report['overall_pass']}`",
         f"- Conformal promotion pass: `{report.get('conformal_promotion_pass', False)}`",
         f"- Conformal statistical warning: `{report.get('conformal_statistical_warning', False)}`",
+        f"- Artifact coherence pass: `{report.get('artifact_coherence_pass', False)}`",
+        f"- A/B gate mode: `{report.get('ab_gate_mode', 'no_regression')}`",
+        f"- A/B no-regression pass: `{report.get('ab_no_regression_pass', False)}`",
+        f"- A/B significance (diagnostic): `{report.get('ab_significant', False)}`",
         "",
         "## Gates",
     ]
@@ -443,16 +623,23 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
     baseline = json.loads(baseline_path.read_text(encoding="utf-8"))
     current = _snapshot_payload(run_tag)
     gate_results = [
+        _gate_artifact_coherence(current["metrics"], run_tag),
         _gate_pd(baseline["metrics"], current["metrics"]),
         _gate_conformal(baseline["metrics"], current["metrics"]),
+        _gate_ab_no_regression(baseline["metrics"], current["metrics"]),
         _gate_fairness(baseline["metrics"], current["metrics"]),
         _gate_survival(baseline["metrics"], current["metrics"]),
         _gate_exports(current),
     ]
     conformal_gate = next((g for g in gate_results if g.name == "conformal_policy"), None)
+    ab_gate = next((g for g in gate_results if g.name == "ab_no_regression"), None)
+    coherence_gate = next((g for g in gate_results if g.name == "artifact_coherence"), None)
     conformal_details = conformal_gate.details if conformal_gate is not None else {}
+    ab_details = ab_gate.details if ab_gate is not None else {}
     conformal_checks = conformal_details.get("checks", {})
     conformal_diagnostics = conformal_details.get("diagnostics", {})
+    ab_diagnostics = ab_details.get("diagnostics", {})
+    coherence_details = coherence_gate.details if coherence_gate is not None else {}
     try:
         baseline_path_out = str(baseline_path.relative_to(ROOT))
     except ValueError:
@@ -463,6 +650,10 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "baseline_path": baseline_path_out,
         "overall_pass": bool(all(g.passed for g in gate_results)),
+        "artifact_coherence_pass": bool(coherence_gate.passed)
+        if coherence_gate is not None
+        else False,
+        "artifact_coherence": coherence_details,
         "conformal_promotion_pass": bool(conformal_checks.get("conformal_promotion_pass", False)),
         "conformal_statistical_warning": bool(
             conformal_diagnostics.get("statistical_warning", False)
@@ -470,10 +661,21 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
         "conformal_failing_statistical_tests": conformal_diagnostics.get(
             "failing_statistical_tests", []
         ),
+        "ab_no_regression_pass": bool(ab_gate.passed) if ab_gate is not None else False,
+        "ab_gate_mode": str(ab_diagnostics.get("gate_mode", "no_regression")),
+        "ab_significant": bool(ab_diagnostics.get("significant", False)),
+        "ab_significance_role": str(ab_diagnostics.get("significance_role", "diagnostic")),
         "gates": [{"name": g.name, "passed": g.passed, "details": g.details} for g in gate_results],
         "artifact_changes": _compare_artifacts(baseline, current),
         "baseline_head": baseline.get("git", {}).get("head", ""),
         "current_head": current.get("git", {}).get("head", ""),
+        "quality_contract": {
+            "conformal_checks_required": 13,
+            "ab_gate_mode": "no_regression",
+            "ab_significance_role": "diagnostic",
+            "artifact_coherence_required": True,
+            "required_status_metadata": ["schema_version", "generated_at_utc", "run_tag"],
+        },
     }
     out_dir = OUT_ROOT / run_tag
     out_dir.mkdir(parents=True, exist_ok=True)

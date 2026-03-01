@@ -71,6 +71,10 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
     status_v2 = json.loads(
         (model_dir / "fairness_audit_status_v2.json").read_text(encoding="utf-8")
     )
+    assert status["schema_version"]
+    assert status["generated_at_utc"]
+    assert status["run_tag"]
     assert status["prediction_threshold"] == 0.70
     assert status["prediction_threshold_source"] == "artifact"
+    assert status_v2["run_tag"] == status["run_tag"]
     assert status_v2["prediction_threshold"] == status["prediction_threshold"]
