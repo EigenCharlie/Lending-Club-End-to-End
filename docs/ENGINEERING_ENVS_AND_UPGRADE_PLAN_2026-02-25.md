@@ -8,6 +8,8 @@
 - Must stay free of RAPIDS/CUDA packages to avoid resolver and `uv pip check` conflicts.
 - VS Code + terminal use `UV_PROJECT_ENVIRONMENT=lending-club-venv`.
 - Compatibility symlink kept: `.venv -> lending-club-venv` (avoids breaking legacy scripts and `uv` defaults).
+- Operational note (2026-03-01): main env naming drift was corrected; `lending-club-venv`
+  is the canonical environment again and `.venv` is a compatibility alias.
 
 ### GPU side-project environment (`conda` env `rapids`)
 - Scope: RAPIDS benchmarks, GPU experiments, `notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb`, `reports/gpu_benchmark/tmp_scripts/*`.
@@ -105,3 +107,16 @@ Optional regression checks:
 - Python 3.12 promoted: runtime/perf improvements and better ergonomics without leaving the supported range.
 - `scikit-learn 1.8`: `d2_brier_score` is now available for probability-model evaluation.
 - `pandas 3.x`: Copy-on-Write by default is attractive, but defer until a compatibility pass is planned.
+
+## 5) Refresh executed on 2026-03-01
+
+- Main env was rebuilt and upgraded with:
+  - `UV_PROJECT_ENVIRONMENT=lending-club-venv uv sync --extra dev --extra platform --upgrade`
+- Confirmed key versions in `lending-club-venv`:
+  - `python 3.12.12`, `ruff 0.15.4`, `pytest 9.0.2`
+  - `fastapi 0.135.1`, `uvicorn 0.41.0`, `streamlit 1.54.0`
+  - `catboost 1.2.10`, `scikit-learn 1.8.0`, `optuna 4.7.0`
+  - `dvc 3.66.1`, `mlflow 3.10.0`, `pyarrow 23.0.1`
+- Constraint blockers still active by design:
+  - `pandas` remains `<3` per `pyproject.toml` (`pandas>=2.2,<3`).
+  - `scipy` remains `1.15.3` due transitive caps (`dowhy<=1.15.3`, `statsforecast<1.16.0`).

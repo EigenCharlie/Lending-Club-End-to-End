@@ -8,7 +8,7 @@ Step-by-step guide to reproduce the entire project from a fresh clone.
 - **uv** package manager: `curl -LsSf https://astral.sh/uv/install.sh | sh`
 - **Git**
 - **Kaggle dataset**: Download manually from https://www.kaggle.com/datasets/ethon0426/lending-club-20072020q1/data and place CSV in `data/raw/`
-- **GPU side-projects (RAPIDS)**: run in Conda env `rapids` (keep `.venv` for the core pipeline)
+- **GPU side-projects (RAPIDS)**: run in Conda env `rapids` (keep `lending-club-venv` for the core pipeline)
 - **Causal ML with EconML**: run in a separate venv (kept out of main lock to avoid pinning `scikit-learn`/`shap`)
 
 ## Quick Start
@@ -18,8 +18,10 @@ Step-by-step guide to reproduce the entire project from a fresh clone.
 git clone <repo-url>
 cd Lending-Club-End-to-End
 
-# 2. Install dependencies
+# 2. Install dependencies in the canonical main env
+export UV_PROJECT_ENVIRONMENT=lending-club-venv
 uv sync --extra dev
+test -e .venv || ln -s lending-club-venv .venv
 
 # 3. Place Kaggle data
 # Download Loan_status_2007-2020Q3.csv to data/raw/
@@ -124,7 +126,7 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 ```
 
 Note:
-- `.venv-causal` is a task-specific overlay env for causal workflows. `econml` may downgrade `scikit-learn`/`shap`, so keep using `.venv` for the rest of the project (PD/survival/API/Streamlit).
+- `.venv-causal` is a task-specific overlay env for causal workflows. `econml` may downgrade `scikit-learn`/`shap`, so keep using `lending-club-venv` for the rest of the project (PD/survival/API/Streamlit).
 
 ## Optional: Docker Compose
 
@@ -227,19 +229,20 @@ DAGSHUB_CLIENT_BOOTSTRAP=1 bash scripts/configure_integrations.sh
 
 | Issue | Solution |
 |-------|----------|
-| `uv sync` recreates venv | Ensure `VIRTUAL_ENV` doesn't have Windows interop prefix |
+| `uv sync` recreates venv | Ensure `VIRTUAL_ENV` doesn't have Windows interop prefix and export `UV_PROJECT_ENVIRONMENT=lending-club-venv` |
 | `dvc push` fails with `413 Request Entity Too Large` | Use DagsHub S3-compatible remote (`DVC_REMOTE_BACKEND=s3`) and ensure `dvc[s3]` is installed |
 | `mapie` import errors | Verify `mapie>=1.3.0` installed (not 0.9.x) |
 | `feast` + `pyarrow` conflict | Use separate venv for platform extras |
 | Missing parquet files | Run `scripts/end_to_end_pipeline.py` first |
 | DuckDB file not found | Run dbt or let Streamlit create it on first access |
-| Tests fail on import | Run `uv sync --extra dev` to install test dependencies |
+| Tests fail on import | Run `UV_PROJECT_ENVIRONMENT=lending-club-venv uv sync --extra dev` to install test dependencies |
 
 ## Environment Notes
 
 - Python 3.12.x on WSL2 (tested)
 - `uv` at `~/.local/bin/uv`
-- Venv at `.venv/bin/python` (uv-managed, backed by miniforge3 Python 3.12)
+- Main venv at `lending-club-venv/bin/python` (uv-managed, backed by miniforge3 Python 3.12)
+- Compatibility alias kept: `.venv -> lending-club-venv`
 - Pre-commit hooks: `uv run pre-commit install`
 
 ## GitHub Governance (recommended minimal settings)

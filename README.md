@@ -69,8 +69,10 @@ tests/               Automated test suite
 ## Quick Start
 
 ```bash
-# 1) Install dependencies
+# 1) Install dependencies in the canonical env
+export UV_PROJECT_ENVIRONMENT=lending-club-venv
 uv sync --extra dev
+test -e .venv || ln -s lending-club-venv .venv
 
 # 2) Place Kaggle CSV in data/raw/
 # Loan_status_2007-2020Q3.csv
