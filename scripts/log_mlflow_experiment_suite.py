@@ -118,6 +118,23 @@ def _dvc_remote_backend() -> str:
     return "unknown"
 
 
+def _configure_tracking_non_interactive(repo_owner: str, repo_name: str) -> None:
+    token = os.getenv("DAGSHUB_USER_TOKEN") or os.getenv("DAGSHUB_TOKEN")
+    if token:
+        init_dagshub(repo_owner=repo_owner, repo_name=repo_name, enable_dvc=False)
+        logger.info(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
+        return
+
+    fallback_dir = ROOT / "reports" / "mlruns"
+    fallback_dir.mkdir(parents=True, exist_ok=True)
+    fallback_uri = os.getenv("MLFLOW_FALLBACK_TRACKING_URI", f"file:{fallback_dir.resolve()}")
+    mlflow.set_tracking_uri(fallback_uri)
+    logger.warning(
+        "DAGSHUB token missing. Running MLflow suite in non-interactive local mode "
+        f"(tracking_uri={fallback_uri})."
+    )
+
+
 def _log_run(
     experiment_name: str,
     run_name: str,
@@ -496,8 +513,7 @@ def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
 
 
 def main(repo_owner: str, repo_name: str) -> None:
-    init_dagshub(repo_owner=repo_owner, repo_name=repo_name, enable_dvc=False)
-    logger.info(f"MLflow tracking URI: {mlflow.get_tracking_uri()}")
+    _configure_tracking_non_interactive(repo_owner=repo_owner, repo_name=repo_name)
 
     timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%SZ")
     data_version = _short_file_sha256("dvc.lock")

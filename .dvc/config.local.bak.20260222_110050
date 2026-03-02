@@ -1,0 +1,6 @@
+['remote "dagshub"']
+    auth = basic
+    user = EigenCharlie94
+    password = 7faec28736dd6df235f66881626defd08daec88a
+    read_timeout = 300
+    connect_timeout = 120

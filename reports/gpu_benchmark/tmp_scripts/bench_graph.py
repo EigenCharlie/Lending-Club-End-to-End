@@ -20,7 +20,7 @@ print("Building edge list from training data...")
 df = pd.read_parquet(TRAIN, columns=["id", "grade", "purpose", "sub_grade", "home_ownership"])
 df = df.dropna(subset=["grade", "purpose"])
 # Use all data (1.3M+ rows) for a large graph
-MAX_NODES = 200_000  # cap for tractable betweenness
+MAX_NODES = int(os.getenv("LC_RAPIDS_GRAPH_MAX_NODES", "200000"))  # tractable cap
 df = df.head(MAX_NODES)
 
 # Edges: borrower → grade, borrower → purpose, borrower → sub_grade
@@ -41,7 +41,7 @@ n_nodes = len(all_nodes)
 n_edges = len(edge_df)
 print(f"  Graph: {n_nodes:,} nodes, {n_edges:,} edges")
 
-K_SAMPLE = min(200, n_nodes)
+K_SAMPLE = min(int(os.getenv("LC_RAPIDS_GRAPH_K_SAMPLE", "200")), n_nodes)
 rows = []
 
 # ═══════════════════════════════════════════

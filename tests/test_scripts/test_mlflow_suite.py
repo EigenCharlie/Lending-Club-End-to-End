@@ -119,3 +119,29 @@ def test_log_conformal_includes_explicit_policy_metrics(monkeypatch) -> None:
     assert metrics["overall_pass"] == 0.0
     assert params["checks_total"] == 7
     assert params["overall_pass"] is False
+
+
+def test_configure_tracking_non_interactive_uses_local_fallback(monkeypatch, tmp_path) -> None:
+    import scripts.log_mlflow_experiment_suite as suite_mod
+
+    monkeypatch.setattr(suite_mod, "ROOT", tmp_path)
+    monkeypatch.delenv("DAGSHUB_USER_TOKEN", raising=False)
+    monkeypatch.delenv("DAGSHUB_TOKEN", raising=False)
+
+    calls = {"init": 0}
+    captured: dict[str, str] = {}
+
+    def fake_init_dagshub(**_kwargs):
+        calls["init"] += 1
+
+    monkeypatch.setattr(suite_mod, "init_dagshub", fake_init_dagshub)
+    monkeypatch.setattr(
+        suite_mod.mlflow,
+        "set_tracking_uri",
+        lambda uri: captured.setdefault("uri", uri),
+    )
+
+    suite_mod._configure_tracking_non_interactive("owner", "repo")
+
+    assert calls["init"] == 0
+    assert captured["uri"].startswith("file:")

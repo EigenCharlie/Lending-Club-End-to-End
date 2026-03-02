@@ -44,7 +44,7 @@ git push -u origin main
 3. Configurar:
    - Branch: `main`
    - Main file path: `streamlit_app/app.py`
-   - Python version: **3.11** (alineado con el proyecto)
+   - Python version: **3.12** (alineado con el proyecto)
 4. Deploy.
 
 ## 4) Secrets (opcional)

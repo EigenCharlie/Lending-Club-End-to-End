@@ -74,6 +74,11 @@ pg = st.navigation(
             st.Page("pages/chat_with_data.py", title="Chat con Datos", icon="💬"),
         ],
         "Investigación": [
+            st.Page(
+                "pages/tesis_especializacion.py",
+                title="Tesis Especialización",
+                icon="🎓",
+            ),
             st.Page("pages/thesis_contribution.py", title="Contribución de Tesis", icon="🎯"),
             st.Page("pages/research_landscape.py", title="Panorama de Investigación", icon="🔬"),
             st.Page("pages/paper_1_cp_robust_opt.py", title="Paper 1: CP + Robust Opt", icon="🧪"),
@@ -105,7 +110,7 @@ def _render_sidebar_health() -> None:
 with st.sidebar:
     st.markdown("---")
     st.markdown(
-        """
+        f"""
 <div style="font-size: 0.78em; color: #5F6B7A; line-height: 1.6;">
 <b>Proyecto de Tesis</b><br>
 Carlos Vergara<br>

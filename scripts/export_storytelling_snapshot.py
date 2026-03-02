@@ -18,6 +18,7 @@ DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 OUT_PATH = REPORTS_DIR / "storytelling_snapshot.json"
+SCHEMA_VERSION = "2026-02-26.1"
 
 
 def _load_json(path: Path) -> dict:
@@ -58,8 +59,21 @@ def main() -> None:
     conformal_status = _load_json(MODEL_DIR / "conformal_policy_status.json")
     model_comparison = _load_json(DATA_DIR / "model_comparison.json")
 
-    ifrs9 = pd.read_parquet(DATA_DIR / "ifrs9_scenario_summary.parquet")
-    robustness = pd.read_parquet(DATA_DIR / "portfolio_robustness_summary.parquet")
+    required_files = {
+        "pipeline_summary": DATA_DIR / "pipeline_summary.json",
+        "model_comparison": DATA_DIR / "model_comparison.json",
+        "conformal_policy_status": MODEL_DIR / "conformal_policy_status.json",
+        "ifrs9_scenario_summary": DATA_DIR / "ifrs9_scenario_summary.parquet",
+        "portfolio_robustness_summary": DATA_DIR / "portfolio_robustness_summary.parquet",
+    }
+    missing = [name for name, path in required_files.items() if not path.exists()]
+    if missing:
+        raise FileNotFoundError(
+            "Missing required artifacts for storytelling snapshot: " + ", ".join(sorted(missing))
+        )
+
+    ifrs9 = pd.read_parquet(required_files["ifrs9_scenario_summary"])
+    robustness = pd.read_parquet(required_files["portfolio_robustness_summary"])
 
     pipeline = pipeline_summary.get("pipeline", {})
     final_metrics = model_comparison.get("final_test_metrics", {})
@@ -86,7 +100,9 @@ def main() -> None:
 
     snapshot = {
         "snapshot_name": "storytelling_snapshot",
+        "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "dataset_scope": pipeline_summary.get("dataset_scope", "unknown"),
         "headline_metrics": {
             "auc_oot": _safe_float(
                 final_metrics.get("auc_roc"), _safe_float(pipeline.get("pd_auc"))
@@ -109,6 +125,19 @@ def main() -> None:
             "Fuente conformal canónica: conformal_results_mondrian.pkl + conformal_intervals_mondrian.parquet.",
         ],
     }
+
+    required_headline_keys = [
+        "auc_oot",
+        "coverage_90",
+        "coverage_95",
+        "baseline_ecl",
+        "severe_ecl",
+    ]
+    missing_headline = [k for k in required_headline_keys if k not in snapshot["headline_metrics"]]
+    if missing_headline:
+        raise ValueError(
+            "Storytelling snapshot missing headline keys: " + ", ".join(sorted(missing_headline))
+        )
 
     REPORTS_DIR.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(snapshot, indent=2), encoding="utf-8")

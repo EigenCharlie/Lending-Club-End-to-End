@@ -7,6 +7,7 @@ Usage:
     .venv/bin/python reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py
 """
 
+import argparse
 import json
 import os
 import sys
@@ -30,10 +31,55 @@ TRAIN_FE_PQ = PROJECT / "data" / "processed" / "train_fe.parquet"
 
 REPEATS = 3
 WARMUP = 1
+BENCH_PROFILE = "current"
+
+PROFILE_CONFIGS = {
+    "current": {
+        "repeats": 3,
+        "warmup": 1,
+        "ml_rows_cap": 250_000,
+        "ml_train_cap": 200_000,
+        "graph_rows_cap": 50_000,
+        "opt_lp_sizes": [3000, 6000, 12000, 18000],
+        "cupy_n_scenarios": 100_000,
+        "cupy_svd_rows": 100_000,
+        "cupy_sparse_n": 50_000,
+    },
+    "full_data": {
+        "repeats": 3,
+        "warmup": 1,
+        "ml_rows_cap": 500_000,
+        "ml_train_cap": 400_000,
+        "graph_rows_cap": 200_000,
+        "opt_lp_sizes": [5000, 10000, 20000, 35000, 50000],
+        "cupy_n_scenarios": 120_000,
+        "cupy_svd_rows": 150_000,
+        "cupy_sparse_n": 60_000,
+    },
+    "stress_gpu": {
+        "repeats": 2,
+        "warmup": 1,
+        "ml_rows_cap": 800_000,
+        "ml_train_cap": 650_000,
+        "graph_rows_cap": 350_000,
+        "opt_lp_sizes": [10000, 25000, 50000, 75000, 100000],
+        "cupy_n_scenarios": 200_000,
+        "cupy_svd_rows": 200_000,
+        "cupy_sparse_n": 75_000,
+    },
+}
 
 
-def timer(func, repeats=REPEATS, warmup=WARMUP):
+def _profile_cfg() -> dict[str, object]:
+    return PROFILE_CONFIGS.get(BENCH_PROFILE, PROFILE_CONFIGS["current"])
+
+
+def timer(func, repeats=None, warmup=None):
     """Run func multiple times, return (median_seconds, last_result)."""
+    if repeats is None:
+        repeats = REPEATS
+    if warmup is None:
+        warmup = WARMUP
     results = []
     out = None
     for i in range(warmup + repeats):
@@ -342,10 +388,11 @@ def run_ml_benchmarks():
     df = pd.read_parquet(str(TRAIN_FE_PQ))
     num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     num_cols = [c for c in num_cols if c != "default_flag"][:30]
-    df_sub = df[num_cols + ["default_flag"]].dropna().head(250_000)
+    cfg = _profile_cfg()
+    df_sub = df[num_cols + ["default_flag"]].dropna().head(int(cfg["ml_rows_cap"]))
     X = df_sub[num_cols].values.astype(np.float32)
     y = df_sub["default_flag"].values.astype(np.int32)
-    n_train = 200_000
+    n_train = min(int(cfg["ml_train_cap"]), max(1, len(X) - max(1000, len(X) // 5)))
     X_train, X_test = X[:n_train], X[n_train:]
     y_train, y_test = y[:n_train], y[n_train:]
     print(f"  Data: {X_train.shape[0]} train, {X_test.shape[0]} test, {X_train.shape[1]} features")
@@ -613,7 +660,7 @@ def run_graph_benchmarks():
 
     # Build a bipartite-like graph: loan_id -> grade, loan_id -> purpose
     df = pd.read_parquet(str(TRAIN_PQ), columns=["id", "grade", "purpose", "sub_grade"])
-    df = df.dropna(subset=["grade", "purpose"]).head(50_000)
+    df = df.dropna(subset=["grade", "purpose"]).head(int(_profile_cfg()["graph_rows_cap"]))
 
     # Create edges: borrower -> grade_node, borrower -> purpose_node
     edges_grade = df[["id", "grade"]].copy()
@@ -803,7 +850,7 @@ def run_optimization_benchmarks():
     df["int_rate"] = pd.to_numeric(df["int_rate"].astype(str).str.rstrip("%"), errors="coerce")
     df = df.dropna()
 
-    sizes = [3000, 6000, 12000, 18000]
+    sizes = [int(v) for v in _profile_cfg()["opt_lp_sizes"]]
 
     for n_vars in sizes:
         print(f"\n  --- LP with {n_vars} variables ---")
@@ -1009,7 +1056,7 @@ def run_cupy_benchmarks():
     # --- Monte Carlo ECL simulation ---
     print("\n  --- Monte Carlo ECL (100K scenarios) ---")
     n_loans = 10000
-    n_scenarios = 100_000
+    n_scenarios = int(_profile_cfg()["cupy_n_scenarios"])
     rng = np.random.default_rng(42)
     pd_vals = rng.uniform(0.01, 0.40, n_loans).astype(np.float64)
     lgd_vals = rng.uniform(0.20, 0.80, n_loans).astype(np.float64)
@@ -1067,7 +1114,7 @@ def run_cupy_benchmarks():
     df = pd.read_parquet(str(TRAIN_FE_PQ))
     num_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     num_cols = [c for c in num_cols if c != "default_flag"][:30]
-    X = df[num_cols].dropna().head(100_000).values.astype(np.float64)
+    X = df[num_cols].dropna().head(int(_profile_cfg()["cupy_svd_rows"])).values.astype(np.float64)
     print(f"    Matrix: {X.shape}")
 
     # NumPy CPU
@@ -1109,7 +1156,7 @@ def run_cupy_benchmarks():
     print("\n  --- Sparse Matrix Multiply ---")
     from scipy import sparse as sp
 
-    n_sp = 50000
+    n_sp = int(_profile_cfg()["cupy_sparse_n"])
     density = 0.01
     print(f"    Sparse: {n_sp}x{n_sp}, density={density}")
 
@@ -1189,6 +1236,7 @@ def save_metadata():
         },
         "versions": {},
         "config": {
+            "profile": BENCH_PROFILE,
             "repeats": REPEATS,
             "warmup": WARMUP,
         },
@@ -1207,6 +1255,38 @@ def save_metadata():
         meta["hardware"]["driver"] = r.stdout.strip()
     except Exception:
         pass
+    try:
+        r = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=clocks.gr,temperature.gpu,utilization.gpu,memory.used,memory.total",
+                "--format=csv,noheader,nounits",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        line = r.stdout.strip().splitlines()[0] if r.stdout.strip() else ""
+        if line:
+            vals = [x.strip() for x in line.split(",")]
+            if len(vals) == 5:
+                meta["hardware"].update(
+                    {
+                        "graphics_clock_mhz": int(vals[0]),
+                        "temperature_c": int(vals[1]),
+                        "gpu_utilization_pct": int(vals[2]),
+                        "memory_used_mb": int(vals[3]),
+                        "memory_total_mb_reported": int(vals[4]),
+                    }
+                )
+    except Exception:
+        pass
+    try:
+        r = subprocess.run(["free", "-m"], capture_output=True, text=True, check=False)
+        if r.returncode == 0:
+            meta["hardware"]["wsl_free_m"] = r.stdout
+    except Exception:
+        pass
 
     with open(OUT_DIR / "gpu_bench_meta.json", "w") as f:
         json.dump(meta, f, indent=2)
@@ -1217,9 +1297,21 @@ def save_metadata():
 # MAIN
 # ===================================================================
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="RAPIDS GPU Benchmark Suite")
+    parser.add_argument("--profile", choices=sorted(PROFILE_CONFIGS), default="current")
+    parser.add_argument("--repeats", type=int, default=None)
+    parser.add_argument("--warmup", type=int, default=None)
+    args = parser.parse_args()
+
+    BENCH_PROFILE = args.profile
+    cfg = _profile_cfg()
+    REPEATS = int(args.repeats if args.repeats is not None else cfg["repeats"])
+    WARMUP = int(args.warmup if args.warmup is not None else cfg["warmup"])
+
     print("=" * 60)
     print("RAPIDS GPU Benchmark Suite")
     print("=" * 60)
+    print(f"Profile: {BENCH_PROFILE} (repeats={REPEATS}, warmup={WARMUP})")
 
     t0 = time.perf_counter()
 

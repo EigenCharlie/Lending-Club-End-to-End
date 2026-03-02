@@ -27,6 +27,19 @@ if not hasattr(_nxa, "d_separated"):
     _nxa.d_separated = lambda G, x, y, z: _is_d_sep(G, x, y, z)
 
 
+def _require_econml() -> None:
+    """Ensure EconML is installed before calling EconML-backed estimators."""
+    try:
+        import econml  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "EconML is optional in the main environment. Create a dedicated causal env (e.g., "
+            "`.venv-causal`) with the project stack first, then overlay EconML. Example: "
+            "`UV_PROJECT_ENVIRONMENT=.venv-causal uv sync --python 3.12 --extra dev --extra platform` "
+            "and `uv pip install --python .venv-causal/bin/python -r requirements/causal-econml.txt`."
+        ) from exc
+
+
 def specify_causal_graph() -> str:
     """Specify the causal DAG for credit risk.
 
@@ -60,6 +73,7 @@ def estimate_ate_dowhy(
 
     Identifies causal effect, estimates, and runs refutation tests.
     """
+    _require_econml()
     import dowhy
 
     model = dowhy.CausalModel(
@@ -106,6 +120,7 @@ def estimate_cate(
     Returns:
         Tuple of (fitted_model, cate_estimates, (lower_bound, upper_bound)).
     """
+    _require_econml()
     from econml.dml import CausalForestDML
     from sklearn.ensemble import GradientBoostingRegressor
 

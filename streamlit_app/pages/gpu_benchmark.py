@@ -1,5 +1,7 @@
 """Anexo: RAPIDS 26.02 GPU Benchmark — Credit Risk at GPU Speed."""
 
+# ruff: noqa: E402
+
 from __future__ import annotations
 
 import json
@@ -16,6 +18,7 @@ import plotly.express as px
 import streamlit as st
 
 from streamlit_app.components.story_shell import render_key_takeaway, render_page_header
+from streamlit_app.components.v2_echarts import render_v2_echarts
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import download_table
@@ -90,6 +93,134 @@ def _sf(val: object, default: float = 0.0) -> float:
 
 def _label(backend: str) -> str:
     return BACKEND_LABELS.get(backend, backend)
+
+
+def _echarts_ml_speedup_option(gpu_valid: pd.DataFrame) -> dict:
+    """Build ECharts 5 option for ML speedup pilot (clickable horizontal bars)."""
+    df = gpu_valid.copy()
+    df["task_label"] = df["task"].str.replace("_", " ").str.title()
+    categories = df["task_label"].tolist()
+    series_data = [
+        {
+            "value": round(_sf(row["fit_speedup_vs_cpu"]), 4),
+            "task_id": str(row["task"]),
+            "task_label": str(row["task_label"]),
+            "itemStyle": {"color": COLORS["cuml_gpu"] if _sf(row["fit_speedup_vs_cpu"]) >= 1 else "#E45756"},
+        }
+        for _, row in df.iterrows()
+    ]
+    return {
+        "animationDuration": 500,
+        "grid": {"left": 170, "right": 28, "top": 36, "bottom": 30},
+        "tooltip": {"trigger": "item"},
+        "xAxis": {
+            "type": "value",
+            "name": "Speedup (x)",
+            "nameLocation": "middle",
+            "nameGap": 28,
+            "min": 0,
+            "axisLabel": {"formatter": "{value}x"},
+        },
+        "yAxis": {
+            "type": "category",
+            "data": categories,
+            "axisLabel": {"fontSize": 11},
+        },
+        "series": [
+            {
+                "name": "cuML vs CPU",
+                "type": "bar",
+                "data": series_data,
+                "label": {"show": True, "position": "right", "formatter": "{c}x"},
+                "emphasis": {"focus": "self"},
+                "markLine": {
+                    "silent": True,
+                    "symbol": ["none", "none"],
+                    "lineStyle": {"type": "dashed", "color": "#E45756"},
+                    "label": {"formatter": "1x parity"},
+                    "data": [{"xAxis": 1}],
+                },
+            }
+        ],
+    }
+
+
+def _echarts_graph_speedup_option(gpu_data: pd.DataFrame) -> dict:
+    """Build grouped-bar ECharts option for graph speedup pilot (clickable bars)."""
+    df = gpu_data.copy()
+    df = df.dropna(subset=["speedup_vs_cpu"])
+    if df.empty:
+        return {}
+
+    df["task_label"] = df["task"].str.replace("_", " ").str.title()
+    task_order = (
+        df.groupby(["task", "task_label"], as_index=False)["speedup_vs_cpu"]
+        .max()
+        .sort_values("speedup_vs_cpu", ascending=True)
+    )
+
+    backend_order = ["nx_cugraph_gpu", "cugraph_gpu"]
+    series = []
+    for idx, backend in enumerate(backend_order):
+        backend_df = df[df["backend"] == backend].set_index("task")
+        data_points = []
+        for row in task_order.itertuples(index=False):
+            task_id = str(row.task)
+            task_label = str(row.task_label)
+            speedup = backend_df.loc[task_id, "speedup_vs_cpu"] if task_id in backend_df.index else np.nan
+            speed = None if pd.isna(speedup) else round(_sf(speedup), 4)
+            data_points.append(
+                {
+                    "value": speed,
+                    "task_id": task_id,
+                    "task_label": task_label,
+                    "backend_id": backend,
+                    "backend_label": _label(backend),
+                    "itemStyle": {"color": COLORS.get(backend, "#4C78A8")},
+                }
+            )
+
+        series_cfg = {
+            "name": _label(backend),
+            "type": "bar",
+            "barMaxWidth": 18,
+            "emphasis": {"focus": "series"},
+            "label": {"show": True, "position": "right", "formatter": "{c}x"},
+            "data": data_points,
+        }
+        if idx == 0:
+            series_cfg["markLine"] = {
+                "silent": True,
+                "symbol": ["none", "none"],
+                "lineStyle": {"type": "dashed", "color": "#E45756"},
+                "label": {"formatter": "1x parity"},
+                "data": [{"xAxis": 1}],
+            }
+        series.append(series_cfg)
+
+    return {
+        "animationDuration": 500,
+        "grid": {"left": 180, "right": 24, "top": 48, "bottom": 30},
+        "legend": {"top": 4},
+        "tooltip": {
+            "trigger": "item",
+            "formatter": "{a}<br/>{b}: {c}x",
+        },
+        "xAxis": {
+            "type": "value",
+            "name": "Speedup vs NetworkX CPU",
+            "nameLocation": "middle",
+            "nameGap": 28,
+            "min": 0,
+            "axisLabel": {"formatter": "{value}x"},
+        },
+        "yAxis": {
+            "type": "category",
+            "data": task_order["task_label"].tolist(),
+            "axisLabel": {"fontSize": 11},
+        },
+        "series": series,
+    }
 
 
 # ===================================================================
@@ -200,7 +331,7 @@ if not df_bench.empty and "mode" in df_bench.columns:
             **PLOTLY_TEMPLATE["layout"], height=max(280, len(ok) * 60),
             showlegend=False, title="1.86M Loans x 110 Columns: End-to-End Analytics",
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
         # -- Cross-comparison matrix --
         times = ok.set_index("mode")["median_seconds"].to_dict()
@@ -215,7 +346,7 @@ if not df_bench.empty and "mode" in df_bench.columns:
                     row[_label(cm)] = f"{times[rm] / max(times[cm], 1e-12):.1f}x"
             matrix.append(row)
         st.markdown("**Cross-comparison matrix** (row is N times slower than column):")
-        st.dataframe(pd.DataFrame(matrix).set_index("vs"), use_container_width=True)
+        st.dataframe(pd.DataFrame(matrix).set_index("vs"), width="stretch")
 
         download_table(ok, "dataframe_benchmark.csv", "Download results")
 
@@ -282,6 +413,7 @@ and cuML 26.02 (GPU), comparing **speed** and **output quality**.
 
 if not ml_bench.empty and "task" in ml_bench.columns:
     tasks = ml_bench["task"].unique()
+    ml_focus_task = str(st.session_state.get("gpu_benchmark_ml_focus_task", ""))
 
     # -- Overview speedup chart --
     gpu_rows = ml_bench[ml_bench["backend"] == "cuml_gpu"].copy()
@@ -307,7 +439,39 @@ if not ml_bench.empty and "task" in ml_bench.columns:
             **PLOTLY_TEMPLATE["layout"],
             height=max(300, len(gpu_valid) * 50), showlegend=False,
         )
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
+
+        with st.expander("ECharts 5 pilot (clic para enfocar algoritmo)", expanded=False):
+            st.caption(
+                "Piloto adicional: ECharts 5 sobre Components v2 para callbacks de click. "
+                "Plotly sigue siendo la visualización canónica; este bloque prueba UX interactiva."
+            )
+            echarts_clicked = render_v2_echarts(
+                _echarts_ml_speedup_option(gpu_valid),
+                key="gpu_benchmark_ml_speedup_echarts_pilot",
+                height_px=max(320, len(gpu_valid) * 52),
+            )
+            clicked_data = echarts_clicked.get("data") if isinstance(echarts_clicked, dict) else None
+            if isinstance(clicked_data, dict):
+                task_id = clicked_data.get("task_id")
+                if isinstance(task_id, str) and task_id:
+                    st.session_state["gpu_benchmark_ml_focus_task"] = task_id
+                    ml_focus_task = task_id
+
+            c_focus, c_reset = st.columns([4, 1])
+            with c_focus:
+                if ml_focus_task:
+                    st.info(
+                        "Foco actual desde ECharts: "
+                        f"`{ml_focus_task.replace('_', ' ').title()}`. "
+                        "Se abrirá automáticamente su expander más abajo."
+                    )
+                else:
+                    st.caption("Haz clic en una barra del gráfico ECharts para enfocar un algoritmo.")
+            with c_reset:
+                if st.button("Reset", key="gpu_ml_echarts_focus_reset"):
+                    st.session_state.pop("gpu_benchmark_ml_focus_task", None)
+                    ml_focus_task = ""
 
     # -- Per-algorithm context --
     PROJECT_CONTEXT = {
@@ -371,7 +535,10 @@ if not ml_bench.empty and "task" in ml_bench.columns:
 
         speedup = _sf(gpu_row.iloc[0].get("fit_speedup_vs_cpu"))
 
-        with st.expander(f"**{task_name.replace('_', ' ').title()}** — {speedup:.1f}x speedup"):
+        with st.expander(
+            f"**{task_name.replace('_', ' ').title()}** — {speedup:.1f}x speedup",
+            expanded=ml_focus_task == task_name,
+        ):
             c1, c2, c3 = st.columns(3)
             c1.metric("CPU fit", f"{cpu_fit:.3f}s" if cpu_fit else "N/A")
             c2.metric("GPU fit", f"{gpu_fit:.3f}s")
@@ -464,10 +631,15 @@ Three backends compete:
 )
 
 if not gr_bench.empty and "task" in gr_bench.columns:
+    graph_focus_task = st.session_state.get("gpu_benchmark_graph_focus_task")
+    graph_focus_backend = st.session_state.get("gpu_benchmark_graph_focus_backend")
+    graph_speedup_data = pd.DataFrame()
+
     # -- Speedup chart --
     gpu_data = gr_bench[gr_bench["backend"] != "networkx_cpu"].copy()
     if not gpu_data.empty and "speedup_vs_cpu" in gpu_data.columns:
         gpu_data = gpu_data.dropna(subset=["speedup_vs_cpu"])
+        graph_speedup_data = gpu_data.copy()
         gpu_data = gpu_data.sort_values("speedup_vs_cpu", ascending=True)
         gpu_data["backend_label"] = gpu_data["backend"].map(_label)
         gpu_data["task_label"] = gpu_data["task"].str.replace("_", " ").str.title()
@@ -482,16 +654,96 @@ if not gr_bench.empty and "task" in gr_bench.columns:
         )
         fig.add_vline(x=1.0, line_dash="dash", line_color="#E45756")
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
+
+    if not graph_speedup_data.empty:
+        with st.expander(
+            "ECharts 5 pilot (clic para resaltar fila de timings en Graph Analytics)",
+            expanded=False,
+        ):
+            st.caption(
+                "Piloto adicional: ECharts 5 sobre Components v2 con click callbacks. "
+                "Haz clic en una barra para resaltar la fila del algoritmo en la tabla."
+            )
+            graph_clicked = render_v2_echarts(
+                _echarts_graph_speedup_option(graph_speedup_data),
+                key="gpu_benchmark_graph_speedup_echarts",
+                height_px=380,
+            )
+            if isinstance(graph_clicked, dict):
+                payload = graph_clicked.get("data")
+                if isinstance(payload, dict):
+                    task_id = payload.get("task_id")
+                    backend_id = payload.get("backend_id")
+                    if isinstance(task_id, str) and task_id:
+                        st.session_state["gpu_benchmark_graph_focus_task"] = task_id
+                        graph_focus_task = task_id
+                    if isinstance(backend_id, str) and backend_id:
+                        st.session_state["gpu_benchmark_graph_focus_backend"] = backend_id
+                        graph_focus_backend = backend_id
+
+            if isinstance(graph_focus_task, str) and graph_focus_task:
+                focus_label = graph_focus_task.replace("_", " ").title()
+                backend_label = (
+                    _label(str(graph_focus_backend))
+                    if isinstance(graph_focus_backend, str) and graph_focus_backend
+                    else "cualquier backend"
+                )
+                st.caption(f"Foco actual: `{focus_label}` (último click: {backend_label})")
+            else:
+                st.caption("Sin foco activo. Usa el gráfico ECharts para seleccionar un algoritmo.")
+
+            if st.button("Limpiar foco de Graph Analytics", key="reset_graph_echarts_focus"):
+                st.session_state.pop("gpu_benchmark_graph_focus_task", None)
+                st.session_state.pop("gpu_benchmark_graph_focus_backend", None)
+                graph_focus_task = None
+                graph_focus_backend = None
 
     # -- Timing comparison table --
     pivot_cols = ["task", "backend", "seconds"]
     if all(c in gr_bench.columns for c in pivot_cols):
         timing = gr_bench[pivot_cols].copy()
-        timing["seconds"] = timing["seconds"].apply(lambda x: f"{_sf(x):.4f}s")
         timing["backend"] = timing["backend"].map(_label)
         pivot = timing.pivot(index="task", columns="backend", values="seconds")
-        st.dataframe(pivot, use_container_width=True)
+        ordered_cols = [
+            _label("networkx_cpu"),
+            _label("nx_cugraph_gpu"),
+            _label("cugraph_gpu"),
+        ]
+        pivot = pivot.reindex(columns=[c for c in ordered_cols if c in pivot.columns])
+
+        selected_task = (
+            str(graph_focus_task)
+            if isinstance(graph_focus_task, str) and graph_focus_task in pivot.index
+            else None
+        )
+        selected_backend_label = (
+            _label(str(graph_focus_backend))
+            if isinstance(graph_focus_backend, str) and graph_focus_backend
+            else None
+        )
+
+        styler = pivot.style.format(lambda v: f"{float(v):.4f}s" if pd.notna(v) else "—")
+        if selected_task:
+            st.caption(
+                "Fila resaltada desde ECharts: "
+                f"`{selected_task.replace('_', ' ').title()}`"
+            )
+
+            def _timing_highlight(data: pd.DataFrame) -> pd.DataFrame:
+                styles = pd.DataFrame("", index=data.index, columns=data.columns)
+                styles.loc[selected_task, :] = "background-color: rgba(11, 94, 215, 0.10);"
+                if selected_backend_label in styles.columns:
+                    styles.loc[selected_task, selected_backend_label] = (
+                        "background-color: rgba(11, 94, 215, 0.18);"
+                        " outline: 2px solid #0B5ED7;"
+                        " font-weight: 600;"
+                    )
+                return styles
+
+            styler = styler.apply(_timing_highlight, axis=None)
+
+        st.dataframe(styler, width="stretch")
 
     st.markdown(
         """
@@ -562,6 +814,9 @@ data from `train.parquet`:
 if not opt_bench.empty and "task" in opt_bench.columns:
     lp_data = opt_bench[opt_bench["task"] == "portfolio_lp"].copy()
     milp_data = opt_bench[opt_bench["task"] == "portfolio_milp"].copy()
+    lp_perf_summary_md = (
+        "**LP performance snapshot.** No se pudo calcular una comparación CPU vs GPU con datos suficientes."
+    )
 
     if not lp_data.empty:
         valid = lp_data[lp_data["seconds"].notna()].copy()
@@ -578,24 +833,93 @@ if not opt_bench.empty and "task" in opt_bench.columns:
             title="LP Solve Time: SciPy HiGHS (CPU) vs cuOpt (GPU)",
         )
         fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=400)
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
+
+        cpu_lp = (
+            valid[valid["backend"] == "scipy_highs_cpu"][["n_variables", "seconds"]]
+            .rename(columns={"seconds": "cpu_seconds"})
+        )
+        gpu_lp_perf = (
+            valid[valid["backend"] == "cuopt_gpu"][["n_variables", "seconds"]]
+            .rename(columns={"seconds": "gpu_seconds"})
+        )
+        paired_lp = cpu_lp.merge(gpu_lp_perf, on="n_variables", how="inner")
+        if not paired_lp.empty:
+            paired_lp["speedup_ratio_cpu_over_gpu"] = (
+                paired_lp["cpu_seconds"] / paired_lp["gpu_seconds"].clip(lower=1e-12)
+            )
+            min_ratio = float(paired_lp["speedup_ratio_cpu_over_gpu"].min())
+            max_ratio = float(paired_lp["speedup_ratio_cpu_over_gpu"].max())
+            if max_ratio < 1.0:
+                lp_perf_summary_md = (
+                    "**LP performance snapshot.** En este benchmark, `SciPy HiGHS` supera a `cuOpt` en todos "
+                    f"los tamaños probados. cuOpt corre a ~`{min_ratio:.3f}x`–`{max_ratio:.3f}x` de la velocidad "
+                    "de HiGHS (equivale a ~"
+                    f"`{1/max_ratio:.1f}x`–`{1/min_ratio:.1f}x` más lento)."
+                )
+            elif min_ratio > 1.0:
+                lp_perf_summary_md = (
+                    "**LP performance snapshot.** En este benchmark, `cuOpt` supera a `HiGHS` en todos "
+                    f"los tamaños probados con ~`{min_ratio:.2f}x`–`{max_ratio:.2f}x` speedup."
+                )
+            else:
+                lp_perf_summary_md = (
+                    "**LP performance snapshot.** El rendimiento cruza la paridad según el tamaño: "
+                    "hay tamaños donde gana HiGHS y otros donde gana cuOpt."
+                )
 
         # -- Speedup by size --
         if "speedup_vs_cpu_lp" in valid.columns:
             gpu_lp = valid[valid["backend"] == "cuopt_gpu"].dropna(subset=["speedup_vs_cpu_lp"])
             if not gpu_lp.empty:
+                gpu_lp = gpu_lp.copy()
+                gpu_lp["speedup_vs_cpu_lp"] = gpu_lp["speedup_vs_cpu_lp"].astype(float)
+                gpu_lp["relative_factor_vs_highs"] = np.where(
+                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0,
+                    gpu_lp["speedup_vs_cpu_lp"],
+                    1.0 / np.clip(gpu_lp["speedup_vs_cpu_lp"], 1e-12, None),
+                )
+                gpu_lp["relative_status"] = np.where(
+                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0, "cuOpt faster", "cuOpt slower"
+                )
+                gpu_lp["relative_label"] = np.where(
+                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0,
+                    gpu_lp["relative_factor_vs_highs"].map(lambda v: f"{v:.2f}x faster"),
+                    gpu_lp["relative_factor_vs_highs"].map(lambda v: f"{v:.1f}x slower"),
+                )
+
                 fig2 = px.bar(
-                    gpu_lp, x="n_variables", y="speedup_vs_cpu_lp",
-                    color_discrete_sequence=["#0B5ED7"],
-                    labels={"n_variables": "Variables", "speedup_vs_cpu_lp": "Speedup vs HiGHS"},
-                    title="cuOpt Speedup vs Problem Size",
-                    text_auto=".2f",
+                    gpu_lp,
+                    x="n_variables",
+                    y="relative_factor_vs_highs",
+                    color="relative_status",
+                    color_discrete_map={"cuOpt faster": "#0B5ED7", "cuOpt slower": "#E45756"},
+                    labels={
+                        "n_variables": "Variables",
+                        "relative_factor_vs_highs": "Factor vs HiGHS (x)",
+                        "relative_status": "",
+                    },
+                    title="cuOpt vs HiGHS by Problem Size (distance from parity)",
+                    text="relative_label",
                 )
                 fig2.add_hline(y=1.0, line_dash="dash", line_color="#E45756",
                                annotation_text="1x = parity")
                 fig2.update_layout(**PLOTLY_TEMPLATE["layout"], height=350, showlegend=False)
-                fig2.update_traces(textposition="outside")
-                st.plotly_chart(fig2, use_container_width=True)
+                fig2.update_traces(textposition="outside", cliponaxis=False)
+                st.plotly_chart(fig2, width="stretch")
+                if (gpu_lp["speedup_vs_cpu_lp"] < 1.0).all():
+                    min_ratio = float(gpu_lp["speedup_vs_cpu_lp"].min())
+                    max_ratio = float(gpu_lp["speedup_vs_cpu_lp"].max())
+                    st.caption(
+                        "En este snapshot de benchmark, cuOpt está por debajo de HiGHS en LP "
+                        f"(~{1/max_ratio:.1f}x a ~{1/min_ratio:.1f}x más lento según tamaño). "
+                        "La gráfica muestra factor relativo (más rápido o más lento) para evitar barras invisibles."
+                    )
+                else:
+                    st.caption(
+                        "La gráfica muestra factor relativo vs HiGHS: >1 significa que cuOpt es más rápido; "
+                        "<1 en el ratio original se traduce a `x slower` para mejor legibilidad."
+                    )
 
     # -- MILP comparison --
     if not milp_data.empty:
@@ -625,15 +949,13 @@ if not opt_bench.empty and "task" in opt_bench.columns:
                               "GPU Obj": f"{go:.6f}", "Rel Diff %": f"{rel:.4f}%"})
         if diffs:
             st.markdown("**Objective agreement (CPU vs GPU):**")
-            st.dataframe(pd.DataFrame(diffs), use_container_width=True, hide_index=True)
+            st.dataframe(pd.DataFrame(diffs), width="stretch", hide_index=True)
 
     st.markdown(
-        """
+        f"""
 ### Analysis
 
-**cuOpt scales better.** At 3K variables, HiGHS is faster (0.17x speedup for cuOpt).
-But as we scale to 18K, cuOpt reaches **3.2x speedup**. The crossover point is around
-5-6K variables — right at the boundary of our thesis portfolio size (5K candidates).
+{lp_perf_summary_md}
 
 **Objectives match perfectly.** Both solvers find the same optimal value to 6+ decimal
 places. This is critical: a fast but incorrect solver is useless for portfolio allocation
@@ -726,7 +1048,7 @@ if not cp_bench.empty and "task" in cp_bench.columns:
             )
             fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=300, showlegend=False)
             fig.update_traces(textposition="outside")
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width="stretch")
 
         with c2:
             speedup = task_data["speedup_vs_cpu"].dropna()
@@ -852,7 +1174,7 @@ with st.expander("Hardware & Methodology"):
     if meta and "versions" in meta:
         ver = meta["versions"]
         ver_df = pd.DataFrame([{"Library": k, "Version": v} for k, v in sorted(ver.items())])
-        st.dataframe(ver_df, use_container_width=True, hide_index=True)
+        st.dataframe(ver_df, width="stretch", hide_index=True)
 
 # -- Footer --
 st.markdown("---")

@@ -1,5 +1,5 @@
 # Decision Changes and Learnings Log
-Version: 2026-02-20
+Version: 2026-02-27
 
 This file stores project history: decision changes, mistakes, inconsistencies, and practical learnings.
 Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUSTIFICATION.md`.
@@ -14,6 +14,7 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 | 2026-02-20 | Feature contract source | Runtime relied on legacy static subset (11 features) | Runtime resolves feature sets from `feature_config.pkl` and persists contract | Recover predictive signal from full engineered feature set | `src/models/pd_model.py`, `configs/pd_model.yaml`, `models/pd_model_contract.json` |
 | 2026-02-20 | Calibration policy | Fixed narrative said "Platt selected" | Temporal multi-metric selection policy between Platt/Isotonic | Better OOT probability quality and less narrative drift | `scripts/train_pd_model.py`, `data/processed/model_comparison.json` |
 | 2026-02-20 | CatBoost tuning process | Tuning existed but was not consistently surfaced in artifacts | Long-run Optuna config enabled (400 trials, TPE multivariate, pruning, SQLite study) | Make HPO real, traceable, and reproducible | `configs/pd_model.yaml`, `src/models/pd_model.py`, `models/optuna_pd_catboost.db` |
+| 2026-02-27 | Conformal promotion gate semantics | Promotion gate blocked by strict policy `overall_pass` including Kupiec/Christoffersen | Promotion gate now blocks on business checks (coverage/group/Winkler/critical alerts) and keeps statistical tests as diagnostics | Avoid false promotion blocks due to sample-size sensitivity while preserving strict policy traceability | `scripts/run_comparison.py`, `tests/test_scripts/test_run_comparison.py`, `docs/RUNBOOK.md` |
 
 ---
 
@@ -64,3 +65,4 @@ This section replaces the need for a separate `SESSION_HISTORY.md`.
 | 2026-02-18 | Validity hardening phases 0-5 | Leakage hardening, optimization fixes, dynamic narrative updates, CP/OR benchmark updates, temporal causal backtest | `pytest` green and DVC status consistent after rerun | `SESSION_STATE.md` (section "Validity Hardening Log"), `reports/PHASES_0_5_EXECUTION_2026-02-18.md` |
 | 2026-02-19 | HPO research + long-run setup | CatBoost/Optuna best practices review; HPO policy strengthened (multivariate TPE + pruning + persistent study) | Long-run search configured for 400 trials with reproducible tracking | `reports/hpo_research_notes_2026-02-19.md`, `configs/pd_model.yaml` |
 | 2026-02-20 | Consistency and reference audit | External link verification, narrative consistency cleanup, artifact/process cross-check | Incorrect literature link fixed; stale claims reduced; open items documented | `reports/consistency_audit_2026-02-20.md` |
+| 2026-02-27 | Conformal rerun hardening v1 | Soft promotion diagnostics for statistical tests, governance stage added before MRM, optional-failure exit code fix, incremental HPO budget | Rerun orchestration aligned with production promotion policy and resumable core profile | `scripts/run_comparison.py`, `scripts/run_long_pipeline.py`, `configs/run_profiles/overnight_full.yaml`, `configs/pd_model.yaml` |

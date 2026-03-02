@@ -91,7 +91,7 @@ meta_df = pd.DataFrame(
         },
     ]
 )
-st.dataframe(meta_df, use_container_width=True, hide_index=True)
+st.dataframe(meta_df, width="stretch", hide_index=True)
 
 k1, k2, k3, k4 = st.columns(4)
 k1.metric("Cobertura 90%", format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D")
@@ -157,7 +157,7 @@ related = pd.DataFrame(
     ],
     columns=["Referencia", "Eje", "Relevancia para este draft"],
 )
-st.dataframe(related, use_container_width=True, hide_index=True)
+st.dataframe(related, width="stretch", hide_index=True)
 
 st.markdown("## 4) Data and Experimental Protocol")
 st.markdown(
@@ -211,7 +211,7 @@ if not group_metrics.empty and {"group", "coverage_90", "coverage_95"}.issubset(
     )
     fig1.add_hline(y=0.90, line_dash="dash", line_color="orange")
     fig1.add_hline(y=0.95, line_dash="dot", line_color="green")
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width="stretch")
     st.caption("Figure 1. Cobertura por grade con lineas de referencia nominales.")
 
 if not group_metrics.empty and {"group", "avg_width_90", "n"}.issubset(group_metrics.columns):
@@ -225,7 +225,7 @@ if not group_metrics.empty and {"group", "avg_width_90", "n"}.issubset(group_met
         labels={"group": "Grade", "avg_width_90": "Average width", "n": "N by grade"},
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
     st.caption("Figure 2. Eficiencia de intervalos por grade (ancho medio al 90%).")
 
 if not monthly.empty and {"month", "coverage_90", "coverage_95"}.issubset(monthly.columns):
@@ -241,7 +241,7 @@ if not monthly.empty and {"month", "coverage_90", "coverage_95"}.issubset(monthl
     )
     fig3.add_hline(y=0.90, line_dash="dash", line_color="orange")
     fig3.add_hline(y=0.95, line_dash="dot", line_color="green")
-    st.plotly_chart(fig3, use_container_width=True)
+    st.plotly_chart(fig3, width="stretch")
     st.caption("Figure 3. Trayectoria temporal de cobertura en OOT.")
 
 if not benchmark.empty and {"variant", "avg_width", "min_group_coverage", "coverage"}.issubset(
@@ -257,7 +257,7 @@ if not benchmark.empty and {"variant", "avg_width", "min_group_coverage", "cover
         title="Figure 4. Variant Trade-off (Efficiency vs Min Group Coverage)",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig4, use_container_width=True)
+    st.plotly_chart(fig4, width="stretch")
     st.caption("Figure 4. Trade-off entre eficiencia y cobertura minima por grupo.")
 
 if not monthly_grade.empty and {"month", "grade", "gap_90"}.issubset(monthly_grade.columns):
@@ -270,7 +270,7 @@ if not monthly_grade.empty and {"month", "grade", "gap_90"}.issubset(monthly_gra
         text_auto=".3f",
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig5, use_container_width=True)
+    st.plotly_chart(fig5, width="stretch")
     st.caption("Figure 5. Mapa de gap mensual de cobertura al 90% por grade.")
 
 st.markdown("### Tablas principales")
@@ -280,7 +280,7 @@ with col_t1:
     if group_metrics.empty:
         st.info("No se encontro `conformal_group_metrics_mondrian.parquet`.")
     else:
-        st.dataframe(group_metrics, use_container_width=True, hide_index=True)
+        st.dataframe(group_metrics, width="stretch", hide_index=True)
         download_table(group_metrics, "paper3_table1_group_metrics.csv")
 
 with col_t2:
@@ -288,7 +288,7 @@ with col_t2:
     if monthly.empty:
         st.info("No se encontro `conformal_backtest_monthly.parquet`.")
     else:
-        st.dataframe(monthly, use_container_width=True, hide_index=True)
+        st.dataframe(monthly, width="stretch", hide_index=True)
         download_table(monthly, "paper3_table2_monthly_backtest.csv")
 
 with st.expander("Appendix Tables"):
@@ -296,28 +296,28 @@ with st.expander("Appendix Tables"):
     if monthly_grade.empty:
         st.info("No se encontro `conformal_backtest_monthly_grade.parquet`.")
     else:
-        st.dataframe(monthly_grade, use_container_width=True, hide_index=True)
+        st.dataframe(monthly_grade, width="stretch", hide_index=True)
         download_table(monthly_grade, "paper3_tableA1_monthly_grade.csv")
 
     st.markdown("**Table A2. Operational Alerts**")
     if alerts.empty:
         st.info("No se encontro `conformal_backtest_alerts.parquet`.")
     else:
-        st.dataframe(alerts, use_container_width=True, hide_index=True)
+        st.dataframe(alerts, width="stretch", hide_index=True)
         download_table(alerts, "paper3_tableA2_alerts.csv")
 
     st.markdown("**Table A3. Variant Benchmark (Global)**")
     if benchmark.empty:
         st.info("No se encontro `conformal_variant_benchmark.parquet`.")
     else:
-        st.dataframe(benchmark, use_container_width=True, hide_index=True)
+        st.dataframe(benchmark, width="stretch", hide_index=True)
         download_table(benchmark, "paper3_tableA3_variant_benchmark.csv")
 
     st.markdown("**Table A4. Variant Benchmark by Group**")
     if benchmark_by_group.empty:
         st.info("No se encontro `conformal_variant_benchmark_by_group.parquet`.")
     else:
-        st.dataframe(benchmark_by_group, use_container_width=True, hide_index=True)
+        st.dataframe(benchmark_by_group, width="stretch", hide_index=True)
         download_table(benchmark_by_group, "paper3_tableA4_benchmark_by_group.csv")
 
 st.markdown("## 7) Discussion")

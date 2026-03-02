@@ -1,0 +1,5 @@
+# Isolated Feast environment (kept out of main pyproject/uv.lock to avoid pinning uvicorn<=0.34).
+# Use in a separate venv, e.g.:
+#   uv venv .venv-feast
+#   uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt
+feast>=0.59

@@ -22,7 +22,7 @@ def render_phase_tracker(phase_rows: list[dict[str, str]]) -> None:
     """Render the current paper development phases with status evidence."""
     st.subheader("Fases del Paper y Estado Actual")
     phases = pd.DataFrame(phase_rows)
-    st.dataframe(phases, use_container_width=True, hide_index=True)
+    st.dataframe(phases, width="stretch", hide_index=True)
 
 
 def render_paper_section_checklist() -> None:

@@ -143,7 +143,7 @@ meta_df = pd.DataFrame(
         {"Campo": f"Uplift {severe_label_display} vs baseline", "Valor": _safe_pct(uplift)},
     ]
 )
-st.dataframe(meta_df, use_container_width=True, hide_index=True)
+st.dataframe(meta_df, width="stretch", hide_index=True)
 if severe_label and severe_label != "severe_stress":
     st.caption(
         f"Nota de trazabilidad: el escenario severo en el artefacto actual se llama `{severe_label}`."
@@ -215,7 +215,7 @@ related = pd.DataFrame(
     ],
     columns=["Referencia", "Eje", "Relevancia para este draft"],
 )
-st.dataframe(related, use_container_width=True, hide_index=True)
+st.dataframe(related, width="stretch", hide_index=True)
 
 st.markdown("## 4) Data and Experimental Protocol")
 st.markdown(
@@ -274,7 +274,7 @@ if not ifrs9_summary.empty and {
         labels={"scenario": "Escenario", "share": "Proporcion"},
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig1, use_container_width=True)
+    st.plotly_chart(fig1, width="stretch")
     st.caption("Figure 1. Composicion de Stage 1/2/3 bajo cada escenario IFRS9.")
 
 if not ifrs9_summary.empty and {
@@ -303,7 +303,7 @@ if not ifrs9_summary.empty and {
         labels={"scenario": "Escenario", "total_ecl_point": "ECL point"},
         template=PLOTLY_TEMPLATE,
     )
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
     st.caption("Figure 2. ECL point con barras de incertidumbre conformal (`low` a `high`).")
 
 if not ifrs9_grid.empty and {"pd_mult", "lgd_mult", "discount_rate", "total_ecl"}.issubset(
@@ -329,7 +329,7 @@ if not ifrs9_grid.empty and {"pd_mult", "lgd_mult", "discount_rate", "total_ecl"
             text_auto=".1f",
             template=PLOTLY_TEMPLATE,
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width="stretch")
         st.caption("Figure 3. Sensibilidad de ECL ante variaciones de PD y LGD.")
 
 if not ifrs9_grade.empty and {"scenario", "grade", "total_ecl", "stage3_share"}.issubset(
@@ -346,7 +346,7 @@ if not ifrs9_grade.empty and {"scenario", "grade", "total_ecl", "stage3_share"}.
             labels={"total_ecl": "ECL baseline", "stage3_share": "Stage 3 share"},
             template=PLOTLY_TEMPLATE,
         )
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(fig4, width="stretch")
         st.caption("Figure 4. ECL baseline por grade con intensidad de Stage 3.")
 
 st.markdown("### Tablas principales")
@@ -356,7 +356,7 @@ with col_t1:
     if ifrs9_summary.empty:
         st.info("No se encontro `ifrs9_scenario_summary.parquet`.")
     else:
-        st.dataframe(ifrs9_summary, use_container_width=True, hide_index=True)
+        st.dataframe(ifrs9_summary, width="stretch", hide_index=True)
         download_table(ifrs9_summary, "paper2_table1_scenario_summary.csv")
 
 with col_t2:
@@ -364,7 +364,7 @@ with col_t2:
     if ifrs9_grid.empty:
         st.info("No se encontro `ifrs9_sensitivity_grid.parquet`.")
     else:
-        st.dataframe(ifrs9_grid, use_container_width=True, hide_index=True)
+        st.dataframe(ifrs9_grid, width="stretch", hide_index=True)
         download_table(ifrs9_grid, "paper2_table2_sensitivity_grid.csv")
 
 with st.expander("Appendix Tables"):
@@ -372,7 +372,7 @@ with st.expander("Appendix Tables"):
     if ifrs9_grade.empty:
         st.info("No se encontro `ifrs9_scenario_grade_summary.parquet`.")
     else:
-        st.dataframe(ifrs9_grade, use_container_width=True, hide_index=True)
+        st.dataframe(ifrs9_grade, width="stretch", hide_index=True)
         download_table(ifrs9_grade, "paper2_tableA1_grade_summary.csv")
 
 st.markdown("## 7) Discussion")

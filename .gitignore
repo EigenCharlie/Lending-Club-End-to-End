@@ -8,12 +8,22 @@ build/
 .eggs/
 
 # Virtual environments
+.venv
 .venv/
+.venv-backup-pre-rename
+.venv-backup-pre-rename/
+.venv-feast/
+.venv-causal/
+lending-club-venv*/
 venv/
 env/
 
 # IDE
 .vscode/
+!.vscode/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
 .idea/
 *.swp
 *.swo
@@ -33,6 +43,8 @@ data/processed/*.parquet
 models/*.cbm
 models/*.pkl
 models/*.joblib
+models/*.db
+models/*.db.bak*
 models/conformal_calibrators/*.pkl
 
 # DVC
@@ -53,6 +65,11 @@ Thumbs.db
 # Reports
 reports/figures/*.png
 reports/figures/*.pdf
+reports/run_logs/
+reports/run_comparisons/
+reports/ab_sensitivity/
+reports/conformal_param_search_*.json
+reports/hpo_*.json
 
 # CatBoost training artifacts
 catboost_info/

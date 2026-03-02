@@ -116,7 +116,6 @@ def train_baseline(
 ) -> tuple[LogisticRegression, dict[str, float]]:
     """Train logistic regression baseline."""
     model = LogisticRegression(
-        penalty="l2",
         C=1.0,
         max_iter=1000,
         solver="lbfgs",
@@ -185,186 +184,6 @@ def train_catboost_default(
     return model, metrics
 
 
-def train_catboost_tuned_optuna(
-    X_train: pd.DataFrame,
-    y_train: pd.Series,
-    X_val: pd.DataFrame,
-    y_val: pd.Series,
-    X_test: pd.DataFrame | None = None,
-    y_test: pd.Series | None = None,
-    *,
-    cat_features: list[str] | None = None,
-    base_params: dict[str, Any] | None = None,
-    n_trials: int = 100,
-    sampler: str = "tpe",
-    pruner: str = "median",
-    timeout_minutes: int = 0,
-    n_startup_trials: int = 40,
-    multivariate_tpe: bool = True,
-    pruner_n_startup_trials: int = 20,
-    pruner_n_warmup_steps: int = 50,
-    use_pruning_callback: bool = True,
-    study_storage: str | None = None,
-    study_name: str | None = None,
-    load_if_exists: bool = True,
-    refit_full_train: bool = True,
-) -> tuple[CatBoostClassifier, dict[str, Any]]:
-    """Tune CatBoost with Optuna and return best fitted model and metadata."""
-    import optuna
-
-    if cat_features is None:
-        cat_features = [c for c in CATEGORICAL_FEATURES if c in X_train.columns]
-
-    base = _catboost_base_params(base_params)
-    base["verbose"] = 0
-
-    if sampler == "tpe":
-        sampler_obj = optuna.samplers.TPESampler(
-            seed=42,
-            n_startup_trials=max(10, int(n_startup_trials)),
-            multivariate=bool(multivariate_tpe),
-        )
-    elif sampler == "random":
-        sampler_obj = optuna.samplers.RandomSampler(seed=42)
-    else:
-        sampler_obj = optuna.samplers.TPESampler(
-            seed=42,
-            n_startup_trials=max(10, int(n_startup_trials)),
-            multivariate=bool(multivariate_tpe),
-        )
-
-    if pruner == "median":
-        pruner_obj = optuna.pruners.MedianPruner(
-            n_startup_trials=max(5, int(pruner_n_startup_trials)),
-            n_warmup_steps=max(1, int(pruner_n_warmup_steps)),
-            interval_steps=25,
-        )
-    elif pruner == "none":
-        pruner_obj = optuna.pruners.NopPruner()
-    else:
-        pruner_obj = optuna.pruners.MedianPruner(
-            n_startup_trials=max(5, int(pruner_n_startup_trials)),
-            n_warmup_steps=max(1, int(pruner_n_warmup_steps)),
-            interval_steps=25,
-        )
-
-    train_pool = Pool(X_train, y_train, cat_features=cat_features)
-    val_pool = Pool(X_val, y_val, cat_features=cat_features)
-
-    def objective(trial: optuna.Trial) -> float:
-        bootstrap_type = trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli"])
-        params = {
-            **base,
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.15, log=True),
-            "depth": trial.suggest_int("depth", 4, 10),
-            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-2, 50.0, log=True),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 200),
-            "rsm": trial.suggest_float("rsm", 0.5, 1.0),
-            "random_strength": trial.suggest_float("random_strength", 1e-8, 10.0, log=True),
-            "border_count": trial.suggest_int("border_count", 64, 254),
-            "bootstrap_type": bootstrap_type,
-            "random_seed": int(base.get("random_seed", 42)),
-        }
-        if bootstrap_type == "Bayesian":
-            params["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0.0, 10.0)
-        else:
-            params["subsample"] = trial.suggest_float("subsample", 0.6, 1.0)
-
-        model = CatBoostClassifier(**params)
-        pruning_callback = None
-        callbacks: list[Any] = []
-        if use_pruning_callback:
-            try:
-                from optuna.integration import CatBoostPruningCallback
-
-                pruning_callback = CatBoostPruningCallback(trial, "AUC")
-                callbacks = [pruning_callback]
-            except Exception as exc:  # pragma: no cover - optional integration path
-                if trial.number == 0:
-                    logger.warning(
-                        "CatBoost pruning callback unavailable; disabling pruning callback: {}", exc
-                    )
-                pruning_callback = None
-                callbacks = []
-
-        model.fit(
-            train_pool,
-            eval_set=val_pool,
-            use_best_model=True,
-            callbacks=callbacks or None,
-        )
-
-        if pruning_callback is not None:
-            pruning_callback.check_pruned()
-
-        val_auc = model.get_best_score().get("validation", {}).get("AUC")
-        if val_auc is None:
-            y_val_prob = model.predict_proba(X_val)[:, 1]
-            val_auc = roc_auc_score(y_val, y_val_prob)
-
-        trial.set_user_attr("best_iteration", int(model.get_best_iteration()))
-        return float(val_auc)
-
-    create_study_kwargs: dict[str, Any] = {
-        "direction": "maximize",
-        "sampler": sampler_obj,
-        "pruner": pruner_obj,
-    }
-    if study_storage:
-        create_study_kwargs["storage"] = study_storage
-        create_study_kwargs["study_name"] = study_name or "pd_catboost_optuna"
-        create_study_kwargs["load_if_exists"] = bool(load_if_exists)
-
-    study = optuna.create_study(**create_study_kwargs)
-    timeout = None if timeout_minutes <= 0 else int(timeout_minutes * 60)
-    study.optimize(
-        objective,
-        n_trials=max(1, int(n_trials)),
-        timeout=timeout,
-        show_progress_bar=False,
-    )
-
-    best_params = {**base, **study.best_params}
-    best_params["verbose"] = 100
-    selection_model = CatBoostClassifier(**best_params)
-    selection_model.fit(train_pool, eval_set=val_pool, use_best_model=True)
-    y_val_prob = selection_model.predict_proba(X_val)[:, 1]
-    val_auc = roc_auc_score(y_val, y_val_prob)
-    best_iteration = int(selection_model.get_best_iteration())
-
-    if refit_full_train:
-        full_X = pd.concat([X_train, X_val], axis=0).reset_index(drop=True)
-        full_y = pd.concat([y_train, y_val], axis=0).reset_index(drop=True)
-        full_pool = Pool(full_X, full_y, cat_features=cat_features)
-        refit_params = {k: v for k, v in best_params.items() if k != "early_stopping_rounds"}
-        if best_iteration > 0:
-            refit_params["iterations"] = best_iteration + 1
-        best_model = CatBoostClassifier(**refit_params)
-        best_model.fit(full_pool)
-    else:
-        best_model = selection_model
-
-    metrics: dict[str, Any] = {
-        "validation_auc": float(val_auc),
-        "best_iteration": best_iteration,
-        "best_params": study.best_params,
-        "hpo_trials_executed": len(study.trials),
-        "hpo_best_validation_auc": float(study.best_value),
-        "refit_full_train": bool(refit_full_train),
-        "model_type": "catboost_tuned",
-    }
-    if X_test is not None and y_test is not None:
-        y_test_prob = best_model.predict_proba(X_test)[:, 1]
-        metrics["auc_roc"] = float(roc_auc_score(y_test, y_test_prob))
-
-    logger.info(
-        "CatBoost tuned — val_AUC: "
-        f"{val_auc:.4f}, best_trial_val_AUC: {study.best_value:.4f}, "
-        f"trials={len(study.trials)}"
-    )
-    return best_model, metrics
-
-
 def train_catboost(
     X_train: pd.DataFrame,
     y_train: pd.Series,
@@ -400,6 +219,8 @@ def tune_catboost_optuna(
     cat_features: list[str] | None = None,
 ) -> dict[str, Any]:
     """Backward-compatible wrapper returning only best params."""
+    from src.models.optuna_tuning import train_catboost_tuned_optuna
+
     _, metrics = train_catboost_tuned_optuna(
         X_train,
         y_train,
@@ -411,3 +232,12 @@ def tune_catboost_optuna(
     best_params = metrics.get("best_params", {})
     logger.info(f"Best params (wrapper): {best_params}")
     return best_params
+
+
+def __getattr__(name: str):
+    """Lazy re-export for train_catboost_tuned_optuna (avoids circular import)."""
+    if name == "train_catboost_tuned_optuna":
+        from src.models.optuna_tuning import train_catboost_tuned_optuna
+
+        return train_catboost_tuned_optuna
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

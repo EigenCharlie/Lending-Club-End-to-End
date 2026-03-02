@@ -33,6 +33,8 @@ def main(treatment: str = "int_rate", sample_size: int | None = None):
 
     df[treatment] = _coerce_treatment(df[treatment])
     df = df.dropna(subset=[treatment, "default_flag"]).copy()
+    if sample_size is not None and int(sample_size) <= 0:
+        sample_size = None
     if sample_size is not None and sample_size < len(df):
         df = df.sample(n=sample_size, random_state=42).reset_index(drop=True)
     logger.info(f"Loaded {len(df):,} loans for causal analysis from {data_path}")
@@ -89,6 +91,8 @@ def main(treatment: str = "int_rate", sample_size: int | None = None):
             {
                 "treatment": treatment,
                 "n_obs": len(df),
+                "dataset_scope": "full_data" if sample_size is None else "sampled",
+                "sample_size_requested": None if sample_size is None else int(sample_size),
                 "cate_mean": float(np.mean(cate)),
                 "cate_std": float(np.std(cate)),
                 "ci_mean_lb": float(np.mean(lb)),

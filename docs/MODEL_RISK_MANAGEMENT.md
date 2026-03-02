@@ -6,7 +6,7 @@
 |-------|-------|
 | **Model Name** | CorePDCanonical |
 | **Model Type** | Probability of Default (PD) — Binary Classification |
-| **Algorithm** | CatBoost Gradient Boosting + Platt Sigmoid Calibration |
+| **Algorithm** | CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Isotonic Regression) |
 | **Uncertainty Quantification** | Mondrian Conformal Prediction (MAPIE 1.3) |
 | **Owner** | Carlos Vergara |
 | **Version** | See `models/pd_training_record.pkl` for current version |
@@ -143,6 +143,8 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 | AUC degradation | < 0.03 vs baseline | Quarterly | Pipeline summary |
 | Conformal coverage | > 0.88 (at 0.90 target) | Quarterly | Conformal policy |
 | Fairness (DIR) | > 0.80 | Quarterly | Fairness audit |
+| Conformal statistical validity | Kupiec/Christoffersen p-value >= 0.01 | Quarterly | Conformal policy v2 |
+| Drift governance | KS/CvM/C2ST policy pass | Quarterly | Governance status |
 
 ### Retraining Triggers
 - PSI exceeds 0.25 on any monitored feature
@@ -151,15 +153,16 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 - See `configs/mrm_policy.yaml` for machine-readable thresholds
 
 ### Escalation
-- Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`) gate deployment
+- Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`) gate deployment
 - Manual: quarterly review of monitoring dashboard (Streamlit → Model Governance page)
+- Migration mode: dual-write legacy + `_v2` status artifacts is enabled for conformal/fairness/governance
 
 ---
 
 ## 7. Champion/Challenger Framework
 
 ### Current Champion
-- **Model**: `models/pd_canonical.cbm` (CatBoost + Platt calibration)
+- **Model**: `models/pd_canonical.cbm` (CatBoost + probabilistic calibration; current artifact is Isotonic)
 - **Calibrator**: `models/pd_canonical_calibrator.pkl`
 - **Contract**: `models/pd_model_contract.json` (44 features)
 
@@ -168,6 +171,9 @@ A challenger model must demonstrate:
 - AUC improvement ≥ 0.005 over champion on OOT test set
 - ECE improvement ≥ 0.002 (better calibration)
 - No degradation in conformal coverage or fairness metrics
+- Monotonic constraints aligned with domain priors (income inverse risk; burden/utilization direct risk)
+- Feature-selection evidence package (`data/processed/challenger_feature_selection.parquet`)
+- Explicit policy: **no SMOTE** in challenger or champion training flows
 
 ### Promotion Gate
 All of the following must pass:

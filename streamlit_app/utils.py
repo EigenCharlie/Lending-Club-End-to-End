@@ -106,8 +106,9 @@ def load_dvc_metrics_summary() -> dict[str, float]:
         data = json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
+    source = data.get("metrics", data) if isinstance(data, dict) else {}
     out: dict[str, float] = {}
-    for key, value in data.items():
+    for key, value in source.items():
         try:
             out[str(key)] = float(value)
         except Exception:
@@ -195,16 +196,17 @@ def load_runtime_status() -> dict:
     status["streamlit_pages_total"] = len(
         list((PROJECT_ROOT / "streamlit_app" / "pages").glob("*.py"))
     )
-    test_total = int(status.get("test_suite_total", 0) or 0)
-    breakdown = status.get("test_breakdown", [])
-    if not isinstance(breakdown, list):
-        breakdown = []
-    if test_total <= 0 or not breakdown:
-        collected_total, collected_breakdown = _collect_test_inventory()
-        if test_total <= 0:
-            status["test_suite_total"] = collected_total
-        if not breakdown:
-            status["test_breakdown"] = collected_breakdown
+    collected_total, collected_breakdown = _collect_test_inventory()
+    if collected_total > 0:
+        status["test_suite_total"] = int(collected_total)
+        status["test_breakdown"] = collected_breakdown
+    else:
+        test_total = int(status.get("test_suite_total", 0) or 0)
+        breakdown = status.get("test_breakdown", [])
+        if not isinstance(breakdown, list):
+            breakdown = []
+        status["test_suite_total"] = test_total
+        status["test_breakdown"] = breakdown
     return status
 
 

@@ -111,7 +111,7 @@ with tabs[0]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -135,7 +135,7 @@ with tabs[1]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.info(
@@ -171,7 +171,7 @@ with tabs[2]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.caption("Ecosistema Nixtla: las tres librerías comparten API y son interoperables.")
@@ -196,7 +196,7 @@ with tabs[3]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -220,7 +220,7 @@ with tabs[4]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -251,7 +251,7 @@ with tabs[5]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
     st.info(
@@ -293,7 +293,7 @@ with tabs[6]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -331,7 +331,7 @@ with tabs[7]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -362,7 +362,7 @@ with tabs[8]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -386,7 +386,7 @@ with tabs[9]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -431,7 +431,7 @@ with tabs[10]:
                 ],
             ]
         ),
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )
 
@@ -483,7 +483,7 @@ with st.expander(f"Testing: {TEST_SUITE_TOTAL} tests con pytest"):
         TEST_BREAKDOWN,
         columns=["Módulo", "Tests", "Qué valida"],
     )
-    st.dataframe(test_data, use_container_width=True, hide_index=True)
+    st.dataframe(test_data, width="stretch", hide_index=True)
     st.markdown(
         """
 **Patrones de testing**:
@@ -612,12 +612,13 @@ with st.expander("Gestión de paquetes: uv"):
 escrita en Rust.
 
 - `uv sync --extra dev`: instala dependencias de desarrollo (pytest, ruff)
-- `uv sync --extra platform`: instala dbt + Feast (incompatible con dev)
+- `uv sync --extra platform`: instala dbt (opcional, en el venv principal)
+- `uv venv .venv-feast && uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt`: Feast en venv separado
 - `uv.lock`: lock file frozen para reproducibilidad exacta
-- `.venv/`: virtualenv Linux nativo en WSL2
+- `lending-club-venv/`: virtualenv principal Linux nativo en WSL2 (compat symlink `.venv`)
 
-**Nota**: los extras `dev` y `platform` no pueden coexistir debido a conflictos
-de versiones (feast requiere numpy>=2, mpi-sppy requiere numpy<2).
+**Nota**: Feast se mantiene fuera del `pyproject` principal para evitar pinnear
+`uvicorn<=0.34` y bloquear upgrades del API.
 """
     )
 

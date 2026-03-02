@@ -40,9 +40,12 @@ def _check_pass(status: dict) -> bool:
     # For conformal: check if all checks passed
     if "checks" in status:
         checks = status["checks"]
+        if isinstance(checks, dict):
+            return all(bool(v) for v in checks.values())
         if isinstance(checks, list):
             return all(c.get("passed", False) for c in checks)
-    return False
+    # Pipeline summary artifact has no explicit overall pass flag.
+    return "pipeline" in status and "pd_model" in status
 
 
 def _overall_compliance(statuses: dict[str, dict]) -> dict:

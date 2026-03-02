@@ -7,8 +7,11 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import pickle
 import shutil
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +23,7 @@ from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
+from src.evaluation.fairness import fairness_report
 from src.evaluation.metrics import classification_metrics
 from src.models.calibration import evaluate_calibration, expected_calibration_error
 from src.models.conformal import create_pd_intervals, validate_coverage
@@ -122,6 +126,10 @@ def _fit_calibrator_from_scores(
     y_prob_raw: np.ndarray,
 ) -> Any:
     """Fit score-based calibrator from raw probabilities."""
+    if method == "venn_abers":
+        model = VennAbersScoreCalibrator()
+        model.fit(y_prob_raw, y_true)
+        return model
     if method == "platt":
         model = LogisticRegression(max_iter=1000)
         model.fit(y_prob_raw.reshape(-1, 1), y_true)
@@ -140,6 +148,209 @@ def _apply_calibrator(calibrator: Any, y_prob_raw: np.ndarray) -> np.ndarray:
     if hasattr(calibrator, "predict"):
         return calibrator.predict(y_prob_raw)
     raise TypeError(f"Unsupported calibrator type: {type(calibrator)}")
+
+
+class VennAbersScoreCalibrator:
+    """Score-based Venn-Abers calibrator over 1D raw probabilities.
+
+    Uses a logistic base estimator over raw scores and calibrates it with crepes.
+    The midpoint of [p0, p1] is used as point prediction.
+    """
+
+    def __init__(self) -> None:
+        self._wrapped = None
+        self._is_fitted = False
+
+    def fit(self, y_prob_raw: np.ndarray, y_true: np.ndarray) -> VennAbersScoreCalibrator:
+        from crepes import WrapClassifier
+
+        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
+        y = np.asarray(y_true, dtype=int)
+
+        base = LogisticRegression(max_iter=1000)
+        base.fit(X, y)
+
+        wrapped = WrapClassifier(base)
+        wrapped.calibrate(X, y)
+        self._wrapped = wrapped
+        self._is_fitted = True
+        return self
+
+    def _predict_bounds(self, y_prob_raw: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        if not self._is_fitted or self._wrapped is None:
+            raise RuntimeError("VennAbersScoreCalibrator is not fitted.")
+        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
+        p = self._wrapped.predict_p(X)
+        p0 = np.clip(np.asarray(p[:, 0], dtype=float), 0.0, 1.0)
+        p1 = np.clip(np.asarray(p[:, 1], dtype=float), 0.0, 1.0)
+        low = np.minimum(p0, p1)
+        high = np.maximum(p0, p1)
+        return low, high
+
+    def predict(self, y_prob_raw: np.ndarray) -> np.ndarray:
+        low, high = self._predict_bounds(y_prob_raw)
+        return np.clip((low + high) / 2.0, 0.0, 1.0)
+
+    def predict_proba(self, y_prob_raw: np.ndarray) -> np.ndarray:
+        p1 = self.predict(y_prob_raw)
+        p0 = 1.0 - p1
+        return np.column_stack([p0, p1])
+
+
+def _build_fairness_groups_for_threshold(
+    df: pd.DataFrame,
+    attributes: list[dict[str, Any]],
+) -> dict[str, np.ndarray]:
+    """Build groups dictionary from fairness attribute config."""
+    groups: dict[str, np.ndarray] = {}
+    for attr in attributes:
+        name = str(attr.get("name", "")).strip()
+        col = str(attr.get("column", "")).strip()
+        if not name or not col or col not in df.columns:
+            continue
+
+        if str(attr.get("binning", "")).strip() == "quartile":
+            series = pd.to_numeric(df[col], errors="coerce")
+            groups[name] = (
+                pd.qcut(series, q=4, labels=["Q1", "Q2", "Q3", "Q4"], duplicates="drop")
+                .astype(str)
+                .to_numpy()
+            )
+        else:
+            groups[name] = df[col].astype(str).to_numpy()
+    return groups
+
+
+def _select_decision_threshold(
+    *,
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    policy: dict[str, Any],
+    groups_dict: dict[str, np.ndarray],
+    thresholds: np.ndarray,
+    fallback_threshold: float,
+    y_true_secondary: np.ndarray | None = None,
+    y_prob_secondary: np.ndarray | None = None,
+    groups_dict_secondary: dict[str, np.ndarray] | None = None,
+) -> dict[str, Any]:
+    """Select threshold prioritizing fairness pass with optional temporal robustness check."""
+
+    def _fairness_row(
+        *,
+        y_true_eval: np.ndarray,
+        y_prob_eval: np.ndarray,
+        groups_eval: dict[str, np.ndarray],
+        thr: float,
+    ) -> dict[str, Any]:
+        report = fairness_report(
+            y_true=y_true_eval,
+            y_pred_proba=y_prob_eval,
+            groups_dict=groups_eval,
+            threshold=float(thr),
+            dpd_threshold=float(policy["dpd_threshold"]),
+            eo_gap_threshold=float(policy["eo_gap_threshold"]),
+            dir_threshold=float(policy["dir_threshold"]),
+        )
+        if report.empty:
+            return {
+                "overall_pass": False,
+                "pass_ratio": 0.0,
+                "max_dpd": 1.0,
+                "max_eo_gap": 1.0,
+                "min_dir": 0.0,
+            }
+        return {
+            "overall_pass": bool(report["passed_all"].all()),
+            "pass_ratio": float(report["passed_all"].mean()),
+            "max_dpd": float(report["dpd"].max()),
+            "max_eo_gap": float(report["eo_gap"].max()),
+            "min_dir": float(report["dir"].min()),
+        }
+
+    rows: list[dict[str, Any]] = []
+    for thr in thresholds:
+        primary = _fairness_row(
+            y_true_eval=y_true,
+            y_prob_eval=y_prob,
+            groups_eval=groups_dict,
+            thr=float(thr),
+        )
+        row = {
+            "threshold": float(thr),
+            "overall_pass": bool(primary["overall_pass"]),
+            "pass_ratio": float(primary["pass_ratio"]),
+            "max_dpd": float(primary["max_dpd"]),
+            "max_eo_gap": float(primary["max_eo_gap"]),
+            "min_dir": float(primary["min_dir"]),
+        }
+
+        if (
+            y_true_secondary is not None
+            and y_prob_secondary is not None
+            and groups_dict_secondary is not None
+            and len(groups_dict_secondary) > 0
+        ):
+            secondary = _fairness_row(
+                y_true_eval=y_true_secondary,
+                y_prob_eval=y_prob_secondary,
+                groups_eval=groups_dict_secondary,
+                thr=float(thr),
+            )
+            row.update(
+                {
+                    "overall_pass_secondary": bool(secondary["overall_pass"]),
+                    "pass_ratio_secondary": float(secondary["pass_ratio"]),
+                    "max_dpd_secondary": float(secondary["max_dpd"]),
+                    "max_eo_gap_secondary": float(secondary["max_eo_gap"]),
+                    "min_dir_secondary": float(secondary["min_dir"]),
+                    "robust_overall_pass": bool(
+                        primary["overall_pass"] and secondary["overall_pass"]
+                    ),
+                    "robust_pass_ratio": float(min(primary["pass_ratio"], secondary["pass_ratio"])),
+                    "robust_max_dpd": float(max(primary["max_dpd"], secondary["max_dpd"])),
+                    "robust_max_eo_gap": float(max(primary["max_eo_gap"], secondary["max_eo_gap"])),
+                    "robust_min_dir": float(min(primary["min_dir"], secondary["min_dir"])),
+                }
+            )
+        else:
+            row.update(
+                {
+                    "overall_pass_secondary": None,
+                    "pass_ratio_secondary": None,
+                    "max_dpd_secondary": None,
+                    "max_eo_gap_secondary": None,
+                    "min_dir_secondary": None,
+                    "robust_overall_pass": bool(primary["overall_pass"]),
+                    "robust_pass_ratio": float(primary["pass_ratio"]),
+                    "robust_max_dpd": float(primary["max_dpd"]),
+                    "robust_max_eo_gap": float(primary["max_eo_gap"]),
+                    "robust_min_dir": float(primary["min_dir"]),
+                }
+            )
+        row["distance_from_fallback"] = float(abs(row["threshold"] - float(fallback_threshold)))
+        rows.append(row)
+
+    ranking = (
+        pd.DataFrame(rows)
+        .sort_values(
+            [
+                "robust_overall_pass",
+                "robust_pass_ratio",
+                "robust_max_eo_gap",
+                "robust_max_dpd",
+                "robust_min_dir",
+                "distance_from_fallback",
+            ],
+            ascending=[False, False, True, True, False, True],
+        )
+        .reset_index(drop=True)
+    )
+    selected = ranking.iloc[0].to_dict()
+    return {
+        "selected_threshold": float(selected["threshold"]),
+        "search_summary": ranking.to_dict(orient="records"),
+        "selection_metrics": selected,
+    }
 
 
 def _build_calibration_backtest_splits(
@@ -291,10 +502,310 @@ def _human_calibration_name(method: str) -> str:
         return "Platt Sigmoid"
     if method == "isotonic":
         return "Isotonic Regression"
+    if method == "venn_abers":
+        return "Venn-Abers"
     return method
 
 
+def _build_walk_forward_splits(
+    df: pd.DataFrame,
+    *,
+    n_windows: int = 3,
+    min_train_rows: int = 200_000,
+    window_rows: int = 80_000,
+    date_col: str = "issue_d",
+    max_rows: int | None = None,
+) -> list[tuple[np.ndarray, np.ndarray]]:
+    """Build anchored walk-forward temporal splits from train data."""
+    if max_rows is not None and int(max_rows) > 0 and len(df) > int(max_rows):
+        # Keep the latest rows to preserve recent temporal dynamics.
+        if date_col in df.columns:
+            work = df.sort_values(date_col).tail(int(max_rows)).reset_index(drop=True)
+        else:
+            work = df.tail(int(max_rows)).reset_index(drop=True)
+    elif date_col in df.columns:
+        work = df.sort_values(date_col).reset_index(drop=True)
+    else:
+        work = df.reset_index(drop=True)
+
+    n = len(work)
+    if n < (min_train_rows + window_rows + 1):
+        return []
+
+    n_windows = max(1, int(n_windows))
+    step = max(1, (n - min_train_rows - window_rows) // n_windows)
+
+    splits: list[tuple[np.ndarray, np.ndarray]] = []
+    for i in range(n_windows):
+        fit_end = min_train_rows + i * step
+        eval_start = fit_end
+        eval_end = min(n, eval_start + window_rows)
+        if fit_end < min_train_rows or eval_end - eval_start < max(10_000, window_rows // 4):
+            continue
+        idx_fit = np.arange(0, fit_end, dtype=int)
+        idx_eval = np.arange(eval_start, eval_end, dtype=int)
+        splits.append((idx_fit, idx_eval))
+    return splits
+
+
+def _evaluate_walk_forward_auc(
+    train_df: pd.DataFrame,
+    *,
+    features: list[str],
+    categorical_features: list[str],
+    target: str,
+    params: dict[str, Any],
+    n_windows: int = 3,
+    min_train_rows: int = 200_000,
+    window_rows: int = 80_000,
+    date_col: str = "issue_d",
+    max_rows: int | None = None,
+) -> dict[str, Any]:
+    """Evaluate CatBoost params with anchored temporal walk-forward AUC."""
+    splits = _build_walk_forward_splits(
+        train_df,
+        n_windows=n_windows,
+        min_train_rows=min_train_rows,
+        window_rows=window_rows,
+        date_col=date_col,
+        max_rows=max_rows,
+    )
+    if not splits:
+        return {
+            "enabled": False,
+            "reason": "insufficient_rows",
+            "n_windows_requested": int(n_windows),
+            "n_windows_used": 0,
+            "folds": [],
+        }
+
+    if date_col in train_df.columns:
+        ordered = train_df.sort_values(date_col).reset_index(drop=True)
+    else:
+        ordered = train_df.reset_index(drop=True)
+
+    folds: list[dict[str, Any]] = []
+    for fold_id, (idx_fit, idx_eval) in enumerate(splits, start=1):
+        fit_df = ordered.iloc[idx_fit].reset_index(drop=True)
+        eval_df = ordered.iloc[idx_eval].reset_index(drop=True)
+        y_fit = fit_df[target].astype(int)
+        y_eval = eval_df[target].astype(int)
+        if len(np.unique(y_fit)) < 2 or len(np.unique(y_eval)) < 2:
+            continue
+
+        X_fit = _prepare_catboost_frame(fit_df, features, categorical_features)
+        X_eval = _prepare_catboost_frame(eval_df, features, categorical_features)
+        _, metrics = train_catboost_default(
+            X_fit,
+            y_fit,
+            X_eval,
+            y_eval,
+            cat_features=categorical_features,
+            params=params,
+        )
+        folds.append(
+            {
+                "fold": fold_id,
+                "fit_rows": int(len(idx_fit)),
+                "eval_rows": int(len(idx_eval)),
+                "validation_auc": float(metrics.get("validation_auc", 0.0)),
+                "best_iteration": int(metrics.get("best_iteration", 0)),
+            }
+        )
+
+    if not folds:
+        return {
+            "enabled": False,
+            "reason": "degenerate_target_class",
+            "n_windows_requested": int(n_windows),
+            "n_windows_used": 0,
+            "folds": [],
+        }
+
+    aucs = np.array([r["validation_auc"] for r in folds], dtype=float)
+    return {
+        "enabled": True,
+        "n_windows_requested": int(n_windows),
+        "n_windows_used": int(len(folds)),
+        "mean_validation_auc": float(np.mean(aucs)),
+        "median_validation_auc": float(np.median(aucs)),
+        "std_validation_auc": float(np.std(aucs)),
+        "min_validation_auc": float(np.min(aucs)),
+        "max_validation_auc": float(np.max(aucs)),
+        "folds": folds,
+    }
+
+
+def _replay_top_optuna_trials(
+    *,
+    hpo_cfg: dict[str, Any],
+    base_params: dict[str, Any],
+    X_train_fit_cb: pd.DataFrame,
+    y_train_fit: pd.Series,
+    X_val_cb: pd.DataFrame,
+    y_val: pd.Series,
+    cat_features: list[str],
+    seeds: list[int],
+    top_k_trials: int = 3,
+    prioritize_gate_pass: bool = True,
+) -> dict[str, Any]:
+    """Replay top Optuna trials across multiple seeds for robustness."""
+    report: dict[str, Any] = {
+        "enabled": False,
+        "reason": "not_run",
+        "rows": [],
+        "selected_trial": None,
+        "selected_params": None,
+    }
+    if not bool(hpo_cfg.get("enabled", True)):
+        report["reason"] = "hpo_disabled"
+        return report
+
+    storage = hpo_cfg.get("study_storage")
+    study_name = hpo_cfg.get("study_name")
+    if not storage or not study_name:
+        report["reason"] = "missing_study_storage_or_name"
+        return report
+
+    try:
+        import optuna
+    except Exception:
+        report["reason"] = "optuna_unavailable"
+        return report
+
+    try:
+        study = optuna.load_study(study_name=str(study_name), storage=str(storage))
+    except Exception as exc:
+        report["reason"] = f"study_load_failed: {exc}"
+        return report
+
+    complete = [t for t in study.trials if t.state.name == "COMPLETE" and t.value is not None]
+    if not complete:
+        report["reason"] = "no_complete_trials"
+        return report
+
+    top = sorted(complete, key=lambda t: float(t.value), reverse=True)[: max(1, int(top_k_trials))]
+    rows: list[dict[str, Any]] = []
+    for trial in top:
+        fairness_pass_attr = trial.user_attrs.get("fairness_pass")
+        conformal_pass_attr = trial.user_attrs.get("conformal_pass")
+        governance_pass_attr = trial.user_attrs.get("governance_pass")
+        gate_attrs_present = all(
+            key in trial.user_attrs
+            for key in ("fairness_pass", "conformal_pass", "governance_pass")
+        )
+        gate_all_pass = (
+            bool(fairness_pass_attr and conformal_pass_attr and governance_pass_attr)
+            if gate_attrs_present
+            else None
+        )
+        for seed in seeds:
+            params = {**base_params, **trial.params, "random_seed": int(seed)}
+            model, metrics = train_catboost_default(
+                X_train_fit_cb,
+                y_train_fit,
+                X_val_cb,
+                y_val,
+                cat_features=cat_features,
+                params=params,
+            )
+            y_val_prob = model.predict_proba(X_val_cb)[:, 1]
+            rows.append(
+                {
+                    "trial_number": int(trial.number),
+                    "seed": int(seed),
+                    "validation_auc": float(metrics.get("validation_auc", 0.0)),
+                    "validation_brier": float(brier_score_loss(y_val, y_val_prob)),
+                    "validation_ece": float(expected_calibration_error(y_val, y_val_prob)),
+                    "best_iteration": int(metrics.get("best_iteration", 0)),
+                    "trial_best_value": float(trial.value),
+                    "fairness_pass": fairness_pass_attr,
+                    "conformal_pass": conformal_pass_attr,
+                    "governance_pass": governance_pass_attr,
+                    "gate_attrs_present": bool(gate_attrs_present),
+                    "gate_all_pass": gate_all_pass,
+                    "params": trial.params,
+                }
+            )
+
+    if not rows:
+        report["reason"] = "no_replay_rows"
+        return report
+
+    replay_df = pd.DataFrame(rows)
+
+    summary_rows: list[dict[str, Any]] = []
+    for trial_number, grp in replay_df.groupby("trial_number", observed=True):
+        gate_present = bool(grp["gate_attrs_present"].fillna(False).any())
+        gate_values = grp["gate_all_pass"].dropna().astype(bool)
+        if gate_values.empty:
+            gate_all_pass_summary: bool | None = None
+        else:
+            gate_all_pass_summary = bool(gate_values.all())
+
+        if not prioritize_gate_pass:
+            gate_tier = 1
+        elif gate_all_pass_summary is True:
+            gate_tier = 0
+        elif gate_all_pass_summary is None:
+            gate_tier = 1
+        else:
+            gate_tier = 2
+
+        summary_rows.append(
+            {
+                "trial_number": int(trial_number),
+                "median_validation_auc": float(grp["validation_auc"].median()),
+                "mean_validation_auc": float(grp["validation_auc"].mean()),
+                "std_validation_auc": float(grp["validation_auc"].std(ddof=0)),
+                "mean_validation_brier": float(grp["validation_brier"].mean()),
+                "mean_validation_ece": float(grp["validation_ece"].mean()),
+                "gate_attrs_present": gate_present,
+                "gate_all_pass": gate_all_pass_summary,
+                "gate_tier": int(gate_tier),
+            }
+        )
+
+    grouped = pd.DataFrame(summary_rows).sort_values(
+        [
+            "gate_tier",
+            "mean_validation_ece",
+            "median_validation_auc",
+            "mean_validation_brier",
+        ],
+        ascending=[True, True, False, True],
+    )
+    selected_trial = int(grouped.iloc[0]["trial_number"])
+    selected_trial_obj = next(t for t in top if int(t.number) == selected_trial)
+    selected_params = {**base_params, **selected_trial_obj.params}
+
+    report.update(
+        {
+            "enabled": True,
+            "reason": "ok",
+            "top_k_trials": int(len(top)),
+            "seeds": [int(s) for s in seeds],
+            "selection_policy": {
+                "prioritize_gate_pass": bool(prioritize_gate_pass),
+                "rank_order": [
+                    "gate_tier(pass->unknown->fail)",
+                    "mean_validation_ece(asc)",
+                    "median_validation_auc(desc)",
+                    "mean_validation_brier(asc)",
+                ],
+            },
+            "rows": rows,
+            "summary_by_trial": grouped.to_dict(orient="records"),
+            "selected_trial": selected_trial,
+            "selected_params": selected_params,
+        }
+    )
+    return report
+
+
 def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = None) -> None:
+    if sample_size is not None and int(sample_size) <= 0:
+        sample_size = None
     config = load_config(config_path)
     logger.info(f"Config loaded from {config_path}")
 
@@ -354,6 +865,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     )
 
     val_cfg = config.get("validation", {})
+    walk_cfg = val_cfg.get("walk_forward", {})
+    seed_replay_cfg = val_cfg.get("seed_replay", {})
     val_fraction = float(val_cfg.get("val_from_tail_fraction_of_train", 0.15))
     train_fit, train_val = temporal_train_val_split(
         train, val_fraction=val_fraction, date_col="issue_d"
@@ -389,6 +902,13 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     # CatBoost tuned (Optuna)
     hpo_cfg = config.get("hpo", {})
+    seed_replay_report: dict[str, Any] = {
+        "enabled": False,
+        "reason": "disabled_in_config",
+        "rows": [],
+        "selected_trial": None,
+        "selected_params": None,
+    }
     if bool(hpo_cfg.get("enabled", True)):
         cb_tuned_model, cb_tuned_metrics = train_catboost_tuned_optuna(
             X_train_fit_cb,
@@ -405,6 +925,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             timeout_minutes=int(hpo_cfg.get("timeout_minutes", 0)),
             n_startup_trials=int(hpo_cfg.get("n_startup_trials", 40)),
             multivariate_tpe=bool(hpo_cfg.get("multivariate_tpe", True)),
+            group_tpe=bool(hpo_cfg.get("group_tpe", True)),
+            warn_independent_sampling=bool(hpo_cfg.get("warn_independent_sampling", True)),
             pruner_n_startup_trials=int(hpo_cfg.get("pruner_n_startup_trials", 20)),
             pruner_n_warmup_steps=int(hpo_cfg.get("pruner_n_warmup_steps", 50)),
             use_pruning_callback=bool(hpo_cfg.get("use_pruning_callback", True)),
@@ -412,7 +934,50 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             study_name=hpo_cfg.get("study_name", None),
             load_if_exists=bool(hpo_cfg.get("load_if_exists", True)),
             refit_full_train=bool(hpo_cfg.get("refit_full_train", True)),
+            gc_after_trial=bool(hpo_cfg.get("gc_after_trial", True)),
+            storage_heartbeat_interval=int(hpo_cfg.get("storage_heartbeat_interval", 0)),
+            storage_grace_period=int(hpo_cfg.get("storage_grace_period", 0)),
+            sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
+            retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
         )
+
+        if bool(seed_replay_cfg.get("enabled", True)):
+            seeds = seed_replay_cfg.get("seeds", [42, 52, 62])
+            seeds = [int(s) for s in seeds]
+            prioritize_gate_pass = bool(seed_replay_cfg.get("prioritize_gate_pass", True))
+            seed_replay_report = _replay_top_optuna_trials(
+                hpo_cfg=hpo_cfg,
+                base_params=config["model"].get("params", {}),
+                X_train_fit_cb=X_train_fit_cb,
+                y_train_fit=y_train_fit,
+                X_val_cb=X_val_cb,
+                y_val=y_val,
+                cat_features=categorical_features,
+                seeds=seeds,
+                top_k_trials=int(seed_replay_cfg.get("top_k_trials", 3)),
+                prioritize_gate_pass=prioritize_gate_pass,
+            )
+            if seed_replay_report.get("enabled") and seed_replay_report.get("selected_params"):
+                selected_params = dict(seed_replay_report["selected_params"])
+                replay_model, replay_metrics = train_catboost_default(
+                    X_train_fit_cb,
+                    y_train_fit,
+                    X_val_cb,
+                    y_val,
+                    X_test=X_test_cb,
+                    y_test=y_test,
+                    cat_features=categorical_features,
+                    params=selected_params,
+                )
+                cb_tuned_metrics = {
+                    **cb_tuned_metrics,
+                    **replay_metrics,
+                    "model_type": "catboost_tuned_seed_replay_selected",
+                    "best_params": selected_params,
+                    "seed_replay_selected_trial": seed_replay_report.get("selected_trial"),
+                    "seed_replay_enabled": True,
+                }
+                cb_tuned_model = replay_model
     else:
         cb_tuned_model, cb_tuned_metrics = train_catboost_default(
             X_train_fit_cb,
@@ -427,18 +992,69 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         cb_tuned_metrics["hpo_trials_executed"] = 0
         cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
         cb_tuned_metrics["best_params"] = config["model"].get("params", {})
+        seed_replay_report["reason"] = "hpo_disabled"
+
+    walk_forward_report: dict[str, Any]
+    if bool(walk_cfg.get("enabled", True)):
+        walk_forward_report = _evaluate_walk_forward_auc(
+            train,
+            features=catboost_features,
+            categorical_features=categorical_features,
+            target=TARGET,
+            params=dict(cb_tuned_metrics.get("best_params", config["model"].get("params", {}))),
+            n_windows=int(walk_cfg.get("n_windows", 3)),
+            min_train_rows=int(walk_cfg.get("min_train_rows", 200_000)),
+            window_rows=int(walk_cfg.get("window_rows", 80_000)),
+            date_col=str(walk_cfg.get("date_col", "issue_d")),
+            max_rows=(
+                None if int(walk_cfg.get("max_rows", 0)) <= 0 else int(walk_cfg.get("max_rows", 0))
+            ),
+        )
+    else:
+        walk_forward_report = {
+            "enabled": False,
+            "reason": "disabled_in_config",
+            "n_windows_requested": int(walk_cfg.get("n_windows", 0)),
+            "n_windows_used": 0,
+            "folds": [],
+        }
 
     # Raw probabilities
     y_prob_default_test = cb_default_model.predict_proba(X_test_cb)[:, 1]
     y_prob_tuned_test = cb_tuned_model.predict_proba(X_test_cb)[:, 1]
+    y_prob_tuned_val = cb_tuned_model.predict_proba(X_val_cb)[:, 1]
     y_prob_tuned_cal = cb_tuned_model.predict_proba(X_cal_cb)[:, 1]
 
     # Robust calibration policy selection via temporal folds on calibration set
     cal_splits = _build_calibration_backtest_splits(cal, n_folds=4, date_col="issue_d")
-    cal_reports = [
-        _evaluate_calibration_method("platt", y_cal.to_numpy(), y_prob_tuned_cal, cal_splits),
-        _evaluate_calibration_method("isotonic", y_cal.to_numpy(), y_prob_tuned_cal, cal_splits),
-    ]
+    cal_cfg = config.get("calibration", {})
+    cal_candidates = cal_cfg.get("candidates", ["platt", "isotonic", "venn_abers"])
+    cal_reports: list[dict[str, Any]] = []
+    for method in cal_candidates:
+        try:
+            cal_reports.append(
+                _evaluate_calibration_method(
+                    str(method),
+                    y_cal.to_numpy(),
+                    y_prob_tuned_cal,
+                    cal_splits,
+                )
+            )
+        except Exception as exc:
+            cal_reports.append(
+                {
+                    "method": str(method),
+                    "folds_used": 0,
+                    "mean_brier": float("inf"),
+                    "mean_ece": float("inf"),
+                    "mean_auc_drop": float("inf"),
+                    "brier_variance": float("inf"),
+                    "ece_variance": float("inf"),
+                    "stability": float("inf"),
+                    "error": str(exc),
+                    "folds": [],
+                }
+            )
     selected_cal_method, cal_selection_report = _select_calibration_method(
         cal_reports,
         auc_drop_limit=0.0015,
@@ -450,11 +1066,67 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         y_prob_tuned_cal,
     )
     y_prob_final = _apply_calibrator(calibrator, y_prob_tuned_test)
+    y_prob_final_val = _apply_calibrator(calibrator, y_prob_tuned_val)
     cal_metrics = evaluate_calibration(
         y_test.to_numpy(),
         y_prob_final,
         name=selected_cal_method,
     )
+
+    decision_cfg = config.get("decision_threshold", {})
+    resolved_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip() or "untracked"
+    decision_threshold_artifact = {
+        "enabled": False,
+        "selected_threshold": float(config.get("calibration", {}).get("default_threshold", 0.5)),
+        "source": "fallback_default",
+        "schema_version": "2026-03-01.1",
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
+    }
+    if bool(decision_cfg.get("enabled", True)):
+        fairness_policy_path = str(
+            decision_cfg.get("fairness_policy_path", "configs/fairness_policy.yaml")
+        )
+        with open(fairness_policy_path, encoding="utf-8") as f:
+            fairness_cfg = yaml.safe_load(f) or {}
+        fairness_policy = fairness_cfg.get("policy", {})
+        fairness_attrs = fairness_cfg.get("attributes", [])
+        groups_for_threshold = _build_fairness_groups_for_threshold(train_val, fairness_attrs)
+        groups_for_threshold_cal = _build_fairness_groups_for_threshold(cal, fairness_attrs)
+
+        thr_min = float(decision_cfg.get("min_threshold", 0.05))
+        thr_max = float(decision_cfg.get("max_threshold", 0.95))
+        thr_step = float(decision_cfg.get("step", 0.01))
+        thresholds = np.arange(thr_min, thr_max + (thr_step / 2.0), thr_step)
+        fallback_threshold = float(fairness_policy.get("prediction_threshold", 0.5))
+        threshold_result = _select_decision_threshold(
+            y_true=y_val.to_numpy(),
+            y_prob=y_prob_final_val,
+            policy={
+                "dpd_threshold": float(fairness_policy.get("dpd_threshold", 0.10)),
+                "eo_gap_threshold": float(fairness_policy.get("eo_gap_threshold", 0.10)),
+                "dir_threshold": float(fairness_policy.get("dir_threshold", 0.80)),
+            },
+            groups_dict=groups_for_threshold,
+            thresholds=np.asarray(thresholds, dtype=float),
+            fallback_threshold=fallback_threshold,
+            y_true_secondary=y_cal.to_numpy(),
+            y_prob_secondary=y_prob_tuned_cal,
+            groups_dict_secondary=groups_for_threshold_cal,
+        )
+
+        decision_threshold_artifact = {
+            "enabled": True,
+            "selected_threshold": float(threshold_result["selected_threshold"]),
+            "fallback_threshold": fallback_threshold,
+            "selection_metrics": threshold_result["selection_metrics"],
+            "search_summary": threshold_result["search_summary"],
+            "source": "validation_fairness_search",
+            "fairness_policy_path": fairness_policy_path,
+            "validation_rows": int(len(train_val)),
+            "secondary_validation_rows": int(len(cal)),
+            "calibration_method": selected_cal_method,
+        }
 
     # Conformal (keeps calibration split isolated from model training)
     alpha = 1.0 - float(config["conformal"].get("confidence_level", 0.9))
@@ -491,6 +1163,31 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     cal_path.parent.mkdir(parents=True, exist_ok=True)
     with open(cal_path, "wb") as f:
         pickle.dump(calibrator, f)
+
+    decision_threshold_path = Path(
+        decision_cfg.get("output_path", "models/decision_threshold.json")
+    )
+    decision_threshold_v2_path = Path(
+        decision_cfg.get("output_path_v2", "models/decision_threshold_v2.json")
+    )
+    decision_threshold_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(decision_threshold_path, "w", encoding="utf-8") as f:
+        json.dump(decision_threshold_artifact, f, indent=2, default=str)
+    decision_threshold_v2_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(decision_threshold_v2_path, "w", encoding="utf-8") as f:
+        json.dump(decision_threshold_artifact, f, indent=2, default=str)
+
+    logreg_model_path = Path("models/pd_logreg_baseline.pkl")
+    logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(logreg_model_path, "wb") as f:
+        pickle.dump(
+            {
+                "model": lr_model,
+                "feature_names": list(logreg_features),
+                "fill_values": lr_fill.to_dict(),
+            },
+            f,
+        )
 
     # Canonical artifacts for downstream loading.
     CANONICAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
@@ -541,12 +1238,26 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         "feature_source": feature_sets.get("feature_source", feature_mode),
         "feature_config_path": str(feature_config_path),
         "validation_scheme": val_cfg.get("scheme", "temporal_train_val_cal_test"),
+        "dataset_scope": "full_data" if sample_size is None else "sampled",
+        "sample_size": None if sample_size is None else int(sample_size),
         "feature_count_default": int(len(catboost_features)),
         "feature_count_tuned": int(len(catboost_features)),
+        "logreg_feature_names": list(logreg_features),
+        "logreg_coefficients": {
+            feature: float(coef)
+            for feature, coef in zip(
+                logreg_features,
+                np.asarray(getattr(lr_model, "coef_", np.zeros((1, len(logreg_features))))).ravel(),
+                strict=False,
+            )
+        },
         "optuna_best_auc": float(cb_tuned_metrics.get("auc_roc", 0.0)),
         "optuna_best_params": cb_tuned_metrics.get("best_params", {}),
         "hpo_trials_executed": int(cb_tuned_metrics.get("hpo_trials_executed", 0)),
         "hpo_best_validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+        "walk_forward_report": walk_forward_report,
+        "seed_replay_report": seed_replay_report,
+        "decision_threshold": decision_threshold_artifact,
         "baseline_metrics": lr_metrics,
         "catboost_default_metrics": cb_default_metrics,
         "catboost_tuned_metrics": cb_tuned_metrics,
@@ -563,7 +1274,10 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
 
     logger.info("Saved default model to {}", default_model_path)
     logger.info("Saved tuned model to {}", model_path)
+    logger.info("Saved LR baseline to {}", logreg_model_path)
     logger.info("Saved calibrator to {}", cal_path)
+    logger.info("Saved decision threshold artifact to {}", decision_threshold_path)
+    logger.info("Saved decision threshold v2 artifact to {}", decision_threshold_v2_path)
     logger.info("Saved canonical model to {}", CANONICAL_MODEL_PATH)
     logger.info("Saved canonical calibrator to {}", CANONICAL_CALIBRATOR_PATH)
     logger.info("Saved PD contract to {}", CONTRACT_PATH)

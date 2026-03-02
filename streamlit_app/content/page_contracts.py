@@ -175,6 +175,28 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         primary_audience="Técnico",
         goal="Presentar benchmark GPU como anexo técnico independiente.",
     ),
+    "tesis_especializacion": PageStoryContract(
+        page_id="tesis_especializacion",
+        page_type="research",
+        primary_audience="Técnico",
+        secondary_audience=("Negocio",),
+        goal="Alinear propuesta de especialización con evidencia ejecutable y estado real de artefactos.",
+        business_value="Documento defendible para comité académico y comité técnico sin claims no verificables.",
+        key_decision="Definir versión oficial técnica y alcance de especialización vs agenda de maestría.",
+        required_sections=(
+            "intro_eda",
+            "dataset",
+            "modelado_base",
+            "conformal_prediction",
+            "evaluacion_comparativa",
+            "impacto_ifrs9",
+            "fairness_secundario",
+            "crisp_dm",
+            "conclusiones",
+        ),
+        next_pages=("thesis_contribution", "research_landscape"),
+        glossary_terms=("conformal_prediction", "ECE", "MPIW", "Kupiec", "Christoffersen"),
+    ),
 }
 
 

@@ -12,6 +12,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -20,6 +22,8 @@ import yaml
 from loguru import logger
 
 from src.evaluation.fairness import fairness_report
+
+SCHEMA_VERSION = "2026-03-01.1"
 
 
 def _load_config(config_path: str) -> dict:
@@ -55,7 +59,27 @@ def _build_groups_dict(
     return groups_dict
 
 
-def main(config_path: str = "configs/fairness_policy.yaml") -> None:
+def _resolve_prediction_threshold(cfg: dict, policy: dict) -> tuple[float, str]:
+    """Resolve prediction threshold from artifact when configured."""
+    fallback_threshold = float(policy.get("prediction_threshold", 0.5))
+    threshold_cfg = cfg.get("threshold_policy", {}) or {}
+    if not bool(threshold_cfg.get("use_artifact", True)):
+        return fallback_threshold, "policy_default"
+
+    artifact_path = Path(threshold_cfg.get("artifact_path", "models/decision_threshold.json"))
+    if not artifact_path.exists():
+        return fallback_threshold, "policy_default_missing_artifact"
+
+    key = str(threshold_cfg.get("selected_threshold_key", "selected_threshold"))
+    try:
+        payload = json.loads(artifact_path.read_text(encoding="utf-8"))
+        resolved = float(payload.get(key, fallback_threshold))
+        return resolved, "artifact"
+    except Exception:
+        return fallback_threshold, "policy_default_artifact_error"
+
+
+def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
     policy = cfg["policy"]
@@ -99,12 +123,19 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
         logger.error("No valid attributes found for fairness audit")
         return
 
+    threshold, threshold_source = _resolve_prediction_threshold(cfg, policy)
+    resolved_run_tag = (
+        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    )
+    if not resolved_run_tag:
+        resolved_run_tag = "untracked"
+
     # Run fairness report
     report = fairness_report(
         y_true=y_true,
         y_pred_proba=y_proba,
         groups_dict=groups_dict,
-        threshold=policy["prediction_threshold"],
+        threshold=threshold,
         dpd_threshold=policy["dpd_threshold"],
         eo_gap_threshold=policy["eo_gap_threshold"],
         dir_threshold=policy["dir_threshold"],
@@ -119,22 +150,33 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
     # Build and save status JSON
     overall_pass = bool(report["passed_all"].all())
     status = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "n_attributes": len(report),
         "n_passed": int(report["passed_all"].sum()),
         "attributes": report.to_dict(orient="records"),
+        "prediction_threshold": float(threshold),
+        "prediction_threshold_source": threshold_source,
         "thresholds": {
             "dpd": policy["dpd_threshold"],
             "eo_gap": policy["eo_gap_threshold"],
             "dir": policy["dir_threshold"],
         },
+        "policy_config": str(config_path),
     }
 
     status_path = Path(output["status_json"])
+    status_v2_path = Path(output.get("status_json_v2", "models/fairness_audit_status_v2.json"))
     status_path.parent.mkdir(parents=True, exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)
+    status_v2_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(status_v2_path, "w", encoding="utf-8") as f:
+        json.dump(status, f, indent=2, default=str)
     logger.info(f"Saved fairness status: {status_path}")
+    logger.info(f"Saved fairness status v2: {status_v2_path}")
 
     pass_label = "PASS" if overall_pass else "FAIL"
     logger.info(
@@ -145,5 +187,6 @@ def main(config_path: str = "configs/fairness_policy.yaml") -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Run fairness audit")
     parser.add_argument("--config", default="configs/fairness_policy.yaml")
+    parser.add_argument("--run-tag", default=None)
     args = parser.parse_args()
-    main(config_path=args.config)
+    main(config_path=args.config, run_tag=args.run_tag)

@@ -30,19 +30,19 @@ col_means = np.nanmean(X_all, axis=0)
 nan_mask = np.isnan(X_all)
 X_all[nan_mask] = np.take(col_means, np.where(nan_mask)[1])
 
-N_TRAIN = 500_000
-N_TEST = 100_000
+N_TRAIN = int(os.getenv("LC_RAPIDS_ML_N_TRAIN", "500000"))
+N_TEST = int(os.getenv("LC_RAPIDS_ML_N_TEST", "100000"))
 X_train = X_all[:N_TRAIN]
 y_train = y_all[:N_TRAIN]
 X_test = X_all[N_TRAIN:N_TRAIN + N_TEST]
 y_test = y_all[N_TRAIN:N_TRAIN + N_TEST]
 
 # Smaller subsets for expensive algos
-N_KM = 100_000
-N_KNN = 80_000
-N_KNN_TEST = 20_000
-N_UMAP = 50_000
-N_HDBSCAN = 50_000
+N_KM = int(os.getenv("LC_RAPIDS_ML_N_KM", "100000"))
+N_KNN = int(os.getenv("LC_RAPIDS_ML_N_KNN", "80000"))
+N_KNN_TEST = int(os.getenv("LC_RAPIDS_ML_N_KNN_TEST", "20000"))
+N_UMAP = int(os.getenv("LC_RAPIDS_ML_N_UMAP", "50000"))
+N_HDBSCAN = int(os.getenv("LC_RAPIDS_ML_N_HDBSCAN", "50000"))
 
 print(f"  Full: {len(X_all):,} rows, {X_all.shape[1]} features")
 print(f"  Train: {N_TRAIN:,}, Test: {N_TEST:,}")

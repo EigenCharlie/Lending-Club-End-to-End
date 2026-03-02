@@ -176,19 +176,19 @@ with st.expander("Ver detalle de artefactos y rutas canónicas"):
         "Fuente canónica conformal para storytelling: "
         "`models/conformal_results_mondrian.pkl` + `data/processed/conformal_intervals_mondrian.parquet`."
     )
-    st.dataframe(artifact_health, use_container_width=True, hide_index=True)
+    st.dataframe(artifact_health, width="stretch", hide_index=True)
 
 st.subheader("1) Resultado de reglas de gobernanza")
 if checks.empty:
     st.info("No hay tabla de checks de gobernanza disponible en este entorno.")
 else:
-    st.dataframe(checks, use_container_width=True, hide_index=True)
+    st.dataframe(checks, width="stretch", hide_index=True)
 
 st.subheader("2) Contrato de modelo y validación de inputs")
 if contract_val.empty:
     st.info("No hay tabla de validación del contrato (`pd_model_contract_validation.parquet`).")
 else:
-    st.dataframe(contract_val, use_container_width=True, hide_index=True)
+    st.dataframe(contract_val, width="stretch", hide_index=True)
 with st.expander("Contrato completo del modelo (JSON)"):
     contract = try_load_json("pd_model_contract", directory="models", default={})
     st.json(contract)
@@ -208,7 +208,7 @@ if not fairness_audit.empty:
         ],
         n_cols=4,
     )
-    st.dataframe(fairness_audit, use_container_width=True, hide_index=True)
+    st.dataframe(fairness_audit, width="stretch", hide_index=True)
     st.caption(
         "DPD = Demographic Parity Difference, DIR = Disparate Impact Ratio (4/5ths rule), "
         "EO = Equalized Odds gap. Umbrales configurables en `configs/fairness_policy.yaml`."
