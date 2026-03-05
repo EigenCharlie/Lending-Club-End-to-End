@@ -96,6 +96,13 @@ uv run python scripts/freeze_core_baseline.py \
   --set-current
 ```
 
+Notebook execution policy (non-destructive):
+
+- `scripts/run_all_notebooks.py` runs notebooks in reference mode.
+- Writes targeting canonical outputs (`data/processed`, `models`, `reports/paper_material`, `reports/figures`) are redirected to `reports/notebook_exec/generated/`.
+- Keep `--inplace false` for long runs; source notebooks remain as code references.
+- `scripts/extract_notebook_images.py` reads executed notebooks from `reports/notebook_exec/notebooks` by default.
+
 To resume an interrupted run:
 
 ```bash

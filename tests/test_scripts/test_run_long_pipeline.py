@@ -79,6 +79,14 @@ def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
     )
 
 
+def test_build_steps_notebooks_avoids_redundant_paper_suite_execution() -> None:
+    steps = lp.build_steps("run-notebooks", include_rapids=False, include_notebooks=True)
+    notebooks_cmd = next(cmd for name, _required, cmd in steps if name == "notebooks")
+    assert "run_all_notebooks.py" in notebooks_cmd
+    assert "extract_notebook_images.py" in notebooks_cmd
+    assert "run_paper_notebook_suite.py" not in notebooks_cmd
+
+
 def test_main_rejects_core_run_without_explicit_baseline(tmp_path, monkeypatch) -> None:
     monkeypatch.setattr(lp, "REPO_ROOT", tmp_path)
     monkeypatch.setattr(lp, "BASELINE_REGISTRY_PATH", tmp_path / "missing_baseline_registry.json")

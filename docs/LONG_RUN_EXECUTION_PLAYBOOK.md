@@ -47,6 +47,11 @@ uv run python scripts/run_long_pipeline.py \
   --stop-on-optional-failure
 ```
 
+Notebook guardrails in long runs:
+- notebooks execute via `scripts/run_all_notebooks.py` with non-destructive write-guard enabled.
+- canonical outputs are protected; redirected notebook artifacts go to `reports/notebook_exec/generated/`.
+- notebook image extraction consumes executed copies under `reports/notebook_exec/notebooks` by default.
+
 ## Block 2: Technical Quality Fixes + Targeted Rerun
 
 ### Conformal technical recalibration (group + temporal segment)

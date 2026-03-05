@@ -41,6 +41,17 @@ Cleanup removes temporary artifacts such as:
 - `data/processed/tmp_*ab*.parquet`
 - legacy dual-write leftovers (`*_v2` status artifacts)
 
+## Notebook Output Policy
+
+- Notebooks are reference/analysis assets; they must not overwrite canonical pipeline outputs.
+- Canonical targets protected from notebook writes:
+  - `data/processed/*`
+  - `models/*`
+  - `reports/paper_material/*`
+  - `reports/figures/*`
+- Redirected notebook-generated files are stored under:
+  - `reports/notebook_exec/generated/`
+
 ## Execution
 
 Dry-run:
