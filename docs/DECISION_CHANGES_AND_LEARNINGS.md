@@ -15,6 +15,7 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 | 2026-02-20 | Calibration policy | Fixed narrative said "Platt selected" | Temporal multi-metric selection policy between Platt/Isotonic | Better OOT probability quality and less narrative drift | `scripts/train_pd_model.py`, `data/processed/model_comparison.json` |
 | 2026-02-20 | CatBoost tuning process | Tuning existed but was not consistently surfaced in artifacts | Long-run Optuna config enabled (400 trials, TPE multivariate, pruning, SQLite study) | Make HPO real, traceable, and reproducible | `configs/pd_model.yaml`, `src/models/pd_model.py`, `models/optuna_pd_catboost.db` |
 | 2026-02-27 | Conformal promotion gate semantics | Promotion gate blocked by strict policy `overall_pass` including Kupiec/Christoffersen | Promotion gate now blocks on business checks (coverage/group/Winkler/critical alerts) and keeps statistical tests as diagnostics | Avoid false promotion blocks due to sample-size sensitivity while preserving strict policy traceability | `scripts/run_comparison.py`, `tests/test_scripts/test_run_comparison.py`, `docs/RUNBOOK.md` |
+| 2026-03-05 | Official baseline freeze + canonical artifacts | Core runs depended on manually passed baselines and migration dual-write artifacts (`*_v2`) | Baseline registry + freeze CLI + launcher default baseline resolution; canonical single-write for conformal/fairness/governance status | Remove ambiguity in reruns and reduce legacy artifact noise in operations | `configs/baselines/core_official_baseline.json`, `scripts/freeze_core_baseline.py`, `scripts/start_long_run.sh`, `scripts/validate_conformal_policy.py`, `scripts/run_fairness_audit.py`, `scripts/generate_governance_status.py` |
 
 ---
 
@@ -41,7 +42,7 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 ## 4) Open Follow-Ups
 
 1. Align `configs/pd_model.yaml` calibration wording with runtime policy (currently `method: platt` while runtime can auto-select).
-2. Continue cleaning legacy historical snapshots in notebooks/reports so they are clearly marked as archival.
+2. Continue pruning historical snapshots with retention policy (`docs/ARTIFACT_RETENTION_POLICY.md`).
 3. Add an automated "reference integrity" check for external URLs used in benchmark notes.
 
 ---

@@ -19,14 +19,16 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "processed"
 MODELS = ROOT / "models"
 REPORTS = ROOT / "reports"
 OUT_ROOT = REPORTS / "run_comparisons"
-SCHEMA_VERSION = "2026-03-01.2"
+SCHEMA_VERSION = "2026-03-04.1"
 COHERENCE_TIMESTAMP_MAX_SKEW_SECONDS = 72 * 3600
+FAIRNESS_POLICY_PATH = ROOT / "configs" / "fairness_policy.yaml"
 
 
 def _read_json(path: Path) -> dict[str, Any]:
@@ -76,6 +78,13 @@ def _git(cmd: list[str]) -> str:
         return p.stdout.strip()
     except Exception:
         return ""
+
+
+def _path_for_report(path: Path) -> str:
+    try:
+        return str(path.relative_to(ROOT))
+    except ValueError:
+        return str(path)
 
 
 def _versions_snapshot() -> dict[str, Any]:
@@ -129,6 +138,7 @@ def _collect_metrics() -> dict[str, Any]:
     pipeline_summary = _read_json(DATA / "pipeline_summary.json")
     conformal = _read_json(MODELS / "conformal_policy_status.json")
     fairness = _read_json(MODELS / "fairness_audit_status.json")
+    governance = _read_json(MODELS / "governance_status.json")
     ab_status = _read_json(MODELS / "ab_simulation_status.json")
     cate_status = _read_json(MODELS / "cate_portfolio_status.json")
     lgd_ead_conformal_status = _read_json(MODELS / "conformal_lgd_ead_status.json")
@@ -169,6 +179,7 @@ def _collect_metrics() -> dict[str, Any]:
         "pipeline_summary": pipeline_summary,
         "conformal_status": conformal,
         "fairness_status": fairness,
+        "governance_status": governance,
         "survival_summary": survival_summary,
         "ifrs9_summary": ifrs9,
         "portfolio_robustness_summary": robustness_summary,
@@ -185,6 +196,7 @@ def _artifact_index() -> dict[str, dict[str, Any]]:
         "data/processed/pipeline_summary.json": DATA / "pipeline_summary.json",
         "models/conformal_policy_status.json": MODELS / "conformal_policy_status.json",
         "models/fairness_audit_status.json": MODELS / "fairness_audit_status.json",
+        "models/governance_status.json": MODELS / "governance_status.json",
         "models/conformal_lgd_ead_status.json": MODELS / "conformal_lgd_ead_status.json",
         "models/survival_summary.pkl": MODELS / "survival_summary.pkl",
         "data/processed/portfolio_robustness_summary.parquet": DATA
@@ -244,6 +256,44 @@ class GateResult:
     details: dict[str, Any]
 
 
+def _load_fairness_policy_contract(config_path: Path = FAIRNESS_POLICY_PATH) -> dict[str, Any]:
+    """Return fairness business threshold contract from policy config."""
+    if not config_path.exists():
+        return {}
+    try:
+        payload = yaml.safe_load(config_path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return {}
+    policy = payload.get("policy", {}) if isinstance(payload, dict) else {}
+    threshold_policy = payload.get("threshold_policy", {}) if isinstance(payload, dict) else {}
+    out: dict[str, Any] = {}
+    if isinstance(policy, dict) and "prediction_threshold" in policy:
+        out["prediction_threshold"] = _safe_float(policy.get("prediction_threshold"))
+    if isinstance(policy, dict) and "outcome_mode" in policy:
+        out["outcome_mode"] = str(policy.get("outcome_mode") or "").strip().lower()
+    if isinstance(threshold_policy, dict) and "use_artifact" in threshold_policy:
+        out["use_artifact"] = bool(threshold_policy.get("use_artifact"))
+    try:
+        out["policy_path"] = str(config_path.relative_to(ROOT))
+    except ValueError:
+        out["policy_path"] = str(config_path)
+    return out
+
+
+def _fairness_n_attributes(payload: dict[str, Any]) -> int:
+    for key in ("n_attributes", "n_total"):
+        value = payload.get(key)
+        try:
+            if value is not None:
+                return max(0, int(value))
+        except Exception:
+            continue
+    attrs = payload.get("attributes")
+    if isinstance(attrs, list):
+        return len(attrs)
+    return 0
+
+
 def _parse_iso_datetime(value: Any) -> datetime | None:
     if not isinstance(value, str) or not value.strip():
         return None
@@ -259,8 +309,10 @@ def _collect_status_metadata(
 ) -> dict[str, Any]:
     sources = {
         "reports/dvc/metrics_summary.json": cur_metrics.get("dvc_metrics_meta", {}),
+        "data/processed/pipeline_summary.json": cur_metrics.get("pipeline_summary", {}),
         "models/conformal_policy_status.json": cur_metrics.get("conformal_status", {}),
         "models/fairness_audit_status.json": cur_metrics.get("fairness_status", {}),
+        "models/governance_status.json": cur_metrics.get("governance_status", {}),
         "models/ab_simulation_status.json": cur_metrics.get("ab_simulation_status", {}),
     }
     rows: list[dict[str, Any]] = []
@@ -497,14 +549,81 @@ def _gate_fairness(base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
     c = cur.get("fairness_status", {})
     b_passed = int(b.get("n_passed", 0) or 0)
     c_passed = int(c.get("n_passed", 0) or 0)
+    b_total = _fairness_n_attributes(b)
+    c_total = _fairness_n_attributes(c)
     return GateResult(
         "fairness_relative",
         c_passed >= b_passed,
         {
             "baseline_n_passed": b_passed,
             "current_n_passed": c_passed,
+            "baseline_n_total": b_total,
+            "current_n_total": c_total,
             "baseline_overall_pass": bool(b.get("overall_pass", False)),
             "current_overall_pass": bool(c.get("overall_pass", False)),
+        },
+    )
+
+
+def _gate_fairness_absolute_business(_base: dict[str, Any], cur: dict[str, Any]) -> GateResult:
+    c = cur.get("fairness_status", {})
+    policy_contract = _load_fairness_policy_contract()
+
+    expected_threshold = _safe_float(policy_contract.get("prediction_threshold"))
+    expected_outcome_mode = str(policy_contract.get("outcome_mode", "") or "").strip().lower()
+    expected_use_artifact = policy_contract.get("use_artifact", None)
+
+    current_threshold = _safe_float(c.get("prediction_threshold"))
+    current_source = str(c.get("prediction_threshold_source", "") or "").strip()
+    current_outcome_mode = str(c.get("outcome_mode", "") or "").strip().lower()
+    source_uses_artifact = current_source.startswith("artifact")
+
+    threshold_ok = (
+        np.isnan(expected_threshold)
+        or np.isnan(current_threshold)
+        or bool(abs(current_threshold - expected_threshold) <= 1e-9)
+    )
+    if expected_use_artifact is None or (
+        current_source == "" and bool(expected_use_artifact) is False
+    ):
+        source_ok = True
+    else:
+        source_ok = source_uses_artifact == bool(expected_use_artifact)
+    outcome_mode_ok = (not expected_outcome_mode) or (current_outcome_mode == expected_outcome_mode)
+
+    n_passed = int(c.get("n_passed", 0) or 0)
+    n_total = _fairness_n_attributes(c)
+    all_attributes_ok = n_total <= 0 or n_passed >= n_total
+    overall_pass_ok = bool(c.get("overall_pass", False))
+
+    passed = bool(
+        overall_pass_ok and all_attributes_ok and threshold_ok and source_ok and outcome_mode_ok
+    )
+    return GateResult(
+        "fairness_absolute_business",
+        passed,
+        {
+            "policy_contract": {
+                "prediction_threshold": expected_threshold,
+                "outcome_mode": expected_outcome_mode,
+                "use_artifact": expected_use_artifact,
+                "policy_path": policy_contract.get("policy_path"),
+            },
+            "current": {
+                "prediction_threshold": current_threshold,
+                "prediction_threshold_source": current_source,
+                "outcome_mode": current_outcome_mode,
+                "n_passed": n_passed,
+                "n_total": n_total,
+                "overall_pass": bool(c.get("overall_pass", False)),
+            },
+            "checks": {
+                "overall_pass_ok": overall_pass_ok,
+                "all_attributes_ok": bool(all_attributes_ok),
+                "threshold_match_ok": bool(threshold_ok),
+                "threshold_source_ok": bool(source_ok),
+                "outcome_mode_ok": bool(outcome_mode_ok),
+            },
         },
     )
 
@@ -574,6 +693,7 @@ def _markdown_report(report: dict[str, Any]) -> str:
         f"- Conformal promotion pass: `{report.get('conformal_promotion_pass', False)}`",
         f"- Conformal statistical warning: `{report.get('conformal_statistical_warning', False)}`",
         f"- Artifact coherence pass: `{report.get('artifact_coherence_pass', False)}`",
+        f"- Fairness absolute (business) pass: `{report.get('fairness_absolute_business_pass', False)}`",
         f"- A/B gate mode: `{report.get('ab_gate_mode', 'no_regression')}`",
         f"- A/B no-regression pass: `{report.get('ab_no_regression_pass', False)}`",
         f"- A/B significance (diagnostic): `{report.get('ab_significant', False)}`",
@@ -628,6 +748,7 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
         _gate_conformal(baseline["metrics"], current["metrics"]),
         _gate_ab_no_regression(baseline["metrics"], current["metrics"]),
         _gate_fairness(baseline["metrics"], current["metrics"]),
+        _gate_fairness_absolute_business(baseline["metrics"], current["metrics"]),
         _gate_survival(baseline["metrics"], current["metrics"]),
         _gate_exports(current),
     ]
@@ -636,6 +757,9 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
     coherence_gate = next((g for g in gate_results if g.name == "artifact_coherence"), None)
     conformal_details = conformal_gate.details if conformal_gate is not None else {}
     ab_details = ab_gate.details if ab_gate is not None else {}
+    fairness_abs_gate = next(
+        (g for g in gate_results if g.name == "fairness_absolute_business"), None
+    )
     conformal_checks = conformal_details.get("checks", {})
     conformal_diagnostics = conformal_details.get("diagnostics", {})
     ab_diagnostics = ab_details.get("diagnostics", {})
@@ -662,6 +786,9 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
             "failing_statistical_tests", []
         ),
         "ab_no_regression_pass": bool(ab_gate.passed) if ab_gate is not None else False,
+        "fairness_absolute_business_pass": bool(fairness_abs_gate.passed)
+        if fairness_abs_gate is not None
+        else False,
         "ab_gate_mode": str(ab_diagnostics.get("gate_mode", "no_regression")),
         "ab_significant": bool(ab_diagnostics.get("significant", False)),
         "ab_significance_role": str(ab_diagnostics.get("significance_role", "diagnostic")),
@@ -673,6 +800,8 @@ def _write_compare(run_tag: str, baseline_path: Path) -> tuple[Path, Path]:
             "conformal_checks_required": 13,
             "ab_gate_mode": "no_regression",
             "ab_significance_role": "diagnostic",
+            "fairness_gates": ["fairness_relative", "fairness_absolute_business"],
+            "fairness_policy_path": _path_for_report(FAIRNESS_POLICY_PATH),
             "artifact_coherence_required": True,
             "required_status_metadata": ["schema_version", "generated_at_utc", "run_tag"],
         },

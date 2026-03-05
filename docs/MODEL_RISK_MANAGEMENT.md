@@ -155,7 +155,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 ### Escalation
 - Automated: JSON status files (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`) gate deployment
 - Manual: quarterly review of monitoring dashboard (Streamlit → Model Governance page)
-- Migration mode: dual-write legacy + `_v2` status artifacts is enabled for conformal/fairness/governance
+- Canonical single-write status artifacts are enforced for conformal/fairness/governance
 
 ---
 

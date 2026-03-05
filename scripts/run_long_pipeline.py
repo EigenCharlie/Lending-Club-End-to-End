@@ -27,6 +27,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUN_TAG = datetime.now(UTC).strftime("%Y-%m-%d-long-run")
 STATUS_SCHEMA_VERSION = "2026-03-01.1"
 HEARTBEAT_SCHEMA_VERSION = "2026-03-01.1"
+BASELINE_REGISTRY_PATH = REPO_ROOT / "configs" / "baselines" / "core_official_baseline.json"
 DEFAULT_STALL_WINDOW_MINUTES = 15
 STEP_DEFAULT_SECONDS = {
     "preflight": 5 * 60.0,
@@ -85,6 +86,53 @@ def _status_dir(run_tag: str) -> Path:
 
 def _comparison_dir(run_tag: str) -> Path:
     return REPO_ROOT / "reports" / "run_comparisons" / run_tag
+
+
+def _resolve_comparison_baseline(
+    *,
+    baseline_path_arg: str | None,
+    baseline_run_tag_arg: str | None,
+) -> Path | None:
+    if baseline_path_arg and baseline_run_tag_arg:
+        raise ValueError(
+            "Provide only one of --comparison-baseline or --comparison-baseline-run-tag."
+        )
+    if baseline_run_tag_arg:
+        return (_comparison_dir(str(baseline_run_tag_arg)) / "baseline_snapshot.json").resolve()
+    if baseline_path_arg:
+        path = Path(str(baseline_path_arg)).expanduser()
+        if not path.is_absolute():
+            path = REPO_ROOT / path
+        return path.resolve()
+    return None
+
+
+def _resolve_registry_baseline_run_tag() -> str | None:
+    if not BASELINE_REGISTRY_PATH.exists():
+        return None
+    try:
+        payload = json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    run_tag = str(payload.get("official_run_tag", "")).strip()
+    return run_tag or None
+
+
+def _resolve_registry_baseline_path() -> Path | None:
+    run_tag = _resolve_registry_baseline_run_tag()
+    if not run_tag:
+        return None
+    candidate = (_comparison_dir(run_tag) / "baseline_snapshot.json").resolve()
+    if not candidate.exists():
+        return None
+    return candidate
+
+
+def _run_tag_requires_explicit_baseline(run_tag: str) -> bool:
+    tag = str(run_tag).strip().lower()
+    if not tag:
+        return False
+    return ("official" in tag) or ("-core-" in tag) or tag.endswith("-core")
 
 
 def refresh_baseline_snapshot(run_tag: str) -> bool:
@@ -271,10 +319,15 @@ def _completed_step_durations(step: str, *, exclude_run_tag: str) -> list[float]
         except Exception:
             continue
         dur = data.get("duration_seconds")
+        raw_exit_code = data.get("exit_code", -1)
+        try:
+            exit_code = int(raw_exit_code)
+        except (TypeError, ValueError):
+            exit_code = -1
         if (
             isinstance(dur, int | float)
             and float(dur) > 0.0
-            and int(data.get("exit_code", -1)) == 0
+            and exit_code == 0
             and not bool(data.get("skipped"))
         ):
             vals.append(float(dur))
@@ -525,6 +578,7 @@ def build_steps(
     include_rapids: bool,
     include_notebooks: bool,
     sampling_profile: str = "full",
+    comparison_baseline: str | None = None,
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
     pd_config = (
@@ -544,15 +598,19 @@ def build_steps(
         if optimize_tradeoff_script.exists()
         else ""
     )
-    optimize_portfolio_candidates = (
-        "--max_candidates 0" if "--max_candidates" in optimize_portfolio_text else ""
-    )
+    optimize_portfolio_has_max_candidates = "--max_candidates" in optimize_portfolio_text
 
-    # Sampling profile: "smart" uses reduced data for expensive stages (~5x faster).
+    # Sampling profiles:
+    # - smart: sampled data for expensive stages
+    # - balanced: full where safe + large sampling where memory-sensitive
+    # - full: full data across stages
     if sampling_profile == "smart":
         pd_sample = "--sample_size 500000"
         survival_args = "--sample_size 250000 --rsf_n_estimators 200"
         lgd_ead_sample = "--sample_size 500000"
+        optimize_portfolio_candidates = (
+            "--max_candidates 10000" if optimize_portfolio_has_max_candidates else ""
+        )
         tradeoff_candidates = "--max_candidates 10000"
         tradeoff_profile = "custom"
         ab_candidates = (
@@ -561,10 +619,29 @@ def build_steps(
         causal_sample = "--sample_size 200000"
         cate_candidates = "--max_candidates 10000"
         rapids_profile = "current"
+    elif sampling_profile == "balanced":
+        pd_sample = "--sample_size 0"
+        survival_args = "--sample_size 250000 --rsf_n_estimators 200"
+        lgd_ead_sample = "--sample_size 0"
+        optimize_portfolio_candidates = (
+            "--max_candidates 20000" if optimize_portfolio_has_max_candidates else ""
+        )
+        tradeoff_candidates = "--max_candidates 20000"
+        tradeoff_profile = "balanced"
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 200000"
+        cate_candidates = "--max_candidates 20000"
+        rapids_profile = "current"
     else:  # full
         pd_sample = "--sample_size 0"
         survival_args = "--full-data --rsf_n_estimators 300"
         lgd_ead_sample = "--sample_size 0"
+        optimize_portfolio_candidates = (
+            "--max_candidates 0" if optimize_portfolio_has_max_candidates else ""
+        )
         tradeoff_candidates = "--max_candidates 0"
         tradeoff_profile = "night"
         ab_candidates = (
@@ -575,6 +652,9 @@ def build_steps(
         rapids_profile = "full_data"
     optimize_tradeoff_grid = (
         f"--grid-profile {tradeoff_profile}" if "--grid-profile" in optimize_tradeoff_text else ""
+    )
+    compare_baseline_arg = (
+        f" --baseline {shlex.quote(str(comparison_baseline))}" if comparison_baseline else ""
     )
 
     activate_main = (
@@ -634,30 +714,43 @@ def build_steps(
 
     post_core_cmd = f"""
         {activate_main} &&
+        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} &&
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
         uv run python -u scripts/build_pipeline_results.py &&
         if [ -f scripts/build_pd_challenger_artifacts.py ]; then uv run python -u scripts/build_pd_challenger_artifacts.py --config {pd_config}; else true; fi &&
         uv run python -u scripts/run_fairness_audit.py --run-tag {run_tag} &&
         uv run python -u scripts/validate_causal_policy.py &&
-        if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml; else true; fi &&
+        if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml --run-tag {run_tag}; else true; fi &&
         uv run python -u scripts/generate_mrm_report.py &&
         uv run python -u scripts/export_streamlit_artifacts.py &&
         uv run python -u scripts/export_storytelling_snapshot.py &&
         uv run python -u scripts/export_dvc_metrics.py --run-tag {run_tag} &&
-        uv run python -u scripts/run_comparison.py compare --run-tag {run_tag}
+        uv run python -u scripts/run_comparison.py compare --run-tag {run_tag}{compare_baseline_arg}
     """
     steps.append(("post_core", False, post_core_cmd))
 
     if include_rapids:
+        rapids_headroom_guard = (
+            "uv run python -u scripts/ensure_memory_headroom.py "
+            "--label rapids --min-mem-gb 6 --min-swap-gb 4 "
+            "--min-total-headroom-gb 12 --max-wait-seconds 1800 --poll-seconds 20"
+        )
         rapids_cmd = (
-            "conda run --no-capture-output -n rapids "
+            f"{activate_main} && "
+            f"{rapids_headroom_guard} && "
             f"bash scripts/side_projects/run_rapids_benchmarks.sh --profile {rapids_profile}"
         )
         steps.append(("rapids", False, rapids_cmd))
 
     if include_notebooks:
+        notebooks_headroom_guard = (
+            "uv run python -u scripts/ensure_memory_headroom.py "
+            "--label notebooks --min-mem-gb 5 --min-swap-gb 3 "
+            "--min-total-headroom-gb 9 --max-wait-seconds 1800 --poll-seconds 20"
+        )
         notebooks_cmd = f"""
             {activate_main} &&
+            {notebooks_headroom_guard} &&
             uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec &&
             uv run python -u scripts/run_paper_notebook_suite.py &&
             uv run python -u scripts/extract_notebook_images.py
@@ -709,9 +802,25 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--sampling-profile",
-        choices=["full", "smart"],
+        choices=["full", "smart", "balanced"],
         default="full",
-        help="'smart' uses reduced sampling for survival/tradeoff/causal (~5x faster)",
+        help="Sampling profile: smart (lighter), balanced (mixed full/sample), full",
+    )
+    p.add_argument(
+        "--comparison-baseline",
+        default=None,
+        help=(
+            "Optional path to a fixed run_comparison baseline_snapshot.json. "
+            "If set, compare uses this baseline instead of run_tag-local snapshot."
+        ),
+    )
+    p.add_argument(
+        "--comparison-baseline-run-tag",
+        default=None,
+        help=(
+            "Optional run tag whose baseline snapshot should be used for compare "
+            "(reports/run_comparisons/<tag>/baseline_snapshot.json)."
+        ),
     )
     return p.parse_args()
 
@@ -719,6 +828,28 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     run_tag = str(args.run_tag)
+    comparison_baseline_path = _resolve_comparison_baseline(
+        baseline_path_arg=args.comparison_baseline,
+        baseline_run_tag_arg=args.comparison_baseline_run_tag,
+    )
+    comparison_baseline_source = "cli"
+    if comparison_baseline_path is None and _run_tag_requires_explicit_baseline(run_tag):
+        registry_baseline = _resolve_registry_baseline_path()
+        if registry_baseline is not None:
+            comparison_baseline_path = registry_baseline
+            comparison_baseline_source = "registry_default"
+    if _run_tag_requires_explicit_baseline(run_tag) and comparison_baseline_path is None:
+        raise ValueError(
+            "Core/official runs require explicit comparison baseline. "
+            "Use --comparison-baseline or --comparison-baseline-run-tag."
+        )
+    if comparison_baseline_path is not None and not comparison_baseline_path.exists():
+        raise FileNotFoundError(
+            f"Comparison baseline snapshot not found: {comparison_baseline_path}"
+        )
+    comparison_baseline = (
+        str(comparison_baseline_path) if comparison_baseline_path is not None else None
+    )
     if args.env_file:
         env_kv = _load_env_file(str(args.env_file))
         os.environ.update(env_kv)
@@ -747,6 +878,11 @@ def main() -> int:
             "env_file": str(args.env_file) if args.env_file else None,
             "from_step": str(args.from_step) if args.from_step else None,
             "until_step": str(args.until_step) if args.until_step else None,
+            "comparison_baseline_path": comparison_baseline,
+            "comparison_baseline_run_tag": str(args.comparison_baseline_run_tag)
+            if args.comparison_baseline_run_tag
+            else None,
+            "comparison_baseline_source": comparison_baseline_source,
             "stall_window_minutes": int(args.stall_window_minutes),
         },
     )
@@ -764,6 +900,7 @@ def main() -> int:
         include_rapids=not bool(args.no_rapids),
         include_notebooks=not bool(args.no_notebooks),
         sampling_profile=str(args.sampling_profile),
+        comparison_baseline=comparison_baseline,
     )
     if args.from_step or args.until_step:
         names = [s for s, _req, _cmd in steps]
@@ -783,7 +920,11 @@ def main() -> int:
 
     for step, required, command in steps:
         if args.resume and load_completed_ok(run_tag, step):
-            if step == "preflight" and bool(args.refresh_baseline_on_resume):
+            if (
+                step == "preflight"
+                and bool(args.refresh_baseline_on_resume)
+                and comparison_baseline is None
+            ):
                 if not refresh_baseline_snapshot(run_tag):
                     failed_required = True
                     failed_steps.append(step)
@@ -795,6 +936,15 @@ def main() -> int:
                     command,
                     required=required,
                     reason="resume_completed_ok_refresh_snapshot",
+                )
+                continue
+            if step == "preflight" and comparison_baseline is not None:
+                mark_skipped(
+                    run_tag,
+                    step,
+                    command,
+                    required=required,
+                    reason="resume_completed_ok_external_comparison_baseline",
                 )
                 continue
             mark_skipped(run_tag, step, command, required=required, reason="resume_completed_ok")

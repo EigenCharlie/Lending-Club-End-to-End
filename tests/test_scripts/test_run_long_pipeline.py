@@ -12,6 +12,10 @@ def test_build_steps_post_core_runs_governance_before_mrm() -> None:
     steps = lp.build_steps("run-x", include_rapids=False, include_notebooks=False)
     post_core_cmd = next(cmd for name, _required, cmd in steps if name == "post_core")
 
+    assert "validate_conformal_policy.py --run-tag run-x" in post_core_cmd
+    assert post_core_cmd.index("validate_conformal_policy.py") < post_core_cmd.index(
+        "run_ifrs9_sensitivity.py"
+    )
     assert "generate_governance_status.py" in post_core_cmd
     assert "generate_mrm_report.py" in post_core_cmd
     assert post_core_cmd.index("generate_governance_status.py") < post_core_cmd.index(
@@ -25,6 +29,133 @@ def test_split_step_command_extracts_prelude_and_subcommands() -> None:
     )
     assert prelude == "source .venv/bin/activate"
     assert subcommands == ["uv run python scripts/a.py", "uv run python scripts/b.py"]
+
+
+def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
+    steps = lp.build_steps(
+        "run-balanced",
+        include_rapids=True,
+        include_notebooks=False,
+        sampling_profile="balanced",
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    main_pre_cmd = by_name["main_pre"]
+    heavy_main_cmd = by_name["heavy_main"]
+    causal_cmd = by_name["causal"]
+    cate_cmd = by_name["cate_portfolio"]
+    rapids_cmd = by_name["rapids"]
+
+    assert "--sample_size 0" in main_pre_cmd
+    assert "run_survival_analysis.py --sample_size 250000 --rsf_n_estimators 200" in heavy_main_cmd
+    assert "train_lgd_ead.py --sample_size 0" in heavy_main_cmd
+    assert "optimize_portfolio.py --config configs/optimization.yaml --max_candidates 20000" in (
+        heavy_main_cmd
+    )
+    assert (
+        "optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 20000 --grid-profile balanced"
+        in heavy_main_cmd
+    )
+    assert (
+        "simulate_ab_test.py --max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000"
+        in heavy_main_cmd
+    )
+    assert "estimate_causal_effects.py --treatment int_rate --sample_size 200000" in causal_cmd
+    assert "optimize_cate_portfolio.py --max_candidates 20000" in cate_cmd
+    assert "--profile current" in rapids_cmd
+
+
+def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
+    steps = lp.build_steps(
+        "run-baseline",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="balanced",
+        comparison_baseline="/tmp/fixed_baseline_snapshot.json",
+    )
+    post_core_cmd = next(cmd for name, _required, cmd in steps if name == "post_core")
+    assert (
+        "run_comparison.py compare --run-tag run-baseline --baseline /tmp/fixed_baseline_snapshot.json"
+        in post_core_cmd
+    )
+
+
+def test_main_rejects_core_run_without_explicit_baseline(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(lp, "REPO_ROOT", tmp_path)
+    monkeypatch.setattr(lp, "BASELINE_REGISTRY_PATH", tmp_path / "missing_baseline_registry.json")
+    monkeypatch.setattr(
+        lp,
+        "parse_args",
+        lambda: argparse.Namespace(
+            run_tag="2026-03-04-C-core-balanced",
+            resume=False,
+            refresh_baseline_on_resume=True,
+            env_file=None,
+            no_rapids=True,
+            no_notebooks=True,
+            stop_on_optional_failure=False,
+            stall_window_minutes=15,
+            from_step=None,
+            until_step=None,
+            sampling_profile="balanced",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
+        ),
+    )
+    try:
+        lp.main()
+    except ValueError as exc:
+        assert "explicit comparison baseline" in str(exc)
+    else:
+        raise AssertionError("Expected ValueError for missing explicit baseline on core run")
+
+
+def test_main_core_run_uses_registry_baseline_when_cli_missing(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(lp, "REPO_ROOT", tmp_path)
+    registry_path = tmp_path / "configs" / "baselines" / "core_official_baseline.json"
+    baseline_run_tag = "fixed-baseline"
+    baseline_snapshot = (
+        tmp_path / "reports" / "run_comparisons" / baseline_run_tag / "baseline_snapshot.json"
+    )
+    baseline_snapshot.parent.mkdir(parents=True, exist_ok=True)
+    baseline_snapshot.write_text("{}", encoding="utf-8")
+    registry_path.parent.mkdir(parents=True, exist_ok=True)
+    registry_path.write_text(
+        json.dumps({"official_run_tag": baseline_run_tag}),
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(lp, "BASELINE_REGISTRY_PATH", registry_path)
+    monkeypatch.setattr(
+        lp,
+        "parse_args",
+        lambda: argparse.Namespace(
+            run_tag="2026-03-04-C-core-balanced",
+            resume=False,
+            refresh_baseline_on_resume=True,
+            env_file=None,
+            no_rapids=True,
+            no_notebooks=True,
+            stop_on_optional_failure=False,
+            stall_window_minutes=15,
+            from_step=None,
+            until_step=None,
+            sampling_profile="balanced",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
+        ),
+    )
+    monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)
+    monkeypatch.setattr(lp, "run_step", lambda *args, **kwargs: 0)
+
+    exit_code = lp.main()
+    assert exit_code == 0
+
+    run_info = json.loads(
+        (
+            tmp_path / "reports" / "run_logs" / "2026-03-04-C-core-balanced" / "run_info.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert run_info["comparison_baseline_source"] == "registry_default"
+    assert str(baseline_snapshot) == run_info["comparison_baseline_path"]
 
 
 def test_main_optional_failure_with_stop_flag_sets_nonzero_exit(tmp_path, monkeypatch) -> None:
@@ -44,6 +175,8 @@ def test_main_optional_failure_with_stop_flag_sets_nonzero_exit(tmp_path, monkey
             from_step=None,
             until_step=None,
             sampling_profile="full",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
         ),
     )
     monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)
@@ -95,6 +228,8 @@ def test_main_optional_failure_without_stop_flag_keeps_zero_exit(tmp_path, monke
             from_step=None,
             until_step=None,
             sampling_profile="full",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
         ),
     )
     monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)
@@ -145,6 +280,8 @@ def test_main_runs_selected_step_window_only(tmp_path, monkeypatch) -> None:
             from_step="causal",
             until_step="post_core",
             sampling_profile="full",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
         ),
     )
     monkeypatch.setattr(lp, "load_completed_ok", lambda *args, **kwargs: False)
@@ -189,6 +326,8 @@ def test_resume_refreshes_baseline_snapshot_when_preflight_skipped(tmp_path, mon
             from_step=None,
             until_step=None,
             sampling_profile="full",
+            comparison_baseline=None,
+            comparison_baseline_run_tag=None,
         ),
     )
 
@@ -224,4 +363,66 @@ def test_resume_refreshes_baseline_snapshot_when_preflight_skipped(tmp_path, mon
 
     assert exit_code == 0
     assert refreshed["value"] is True
+    assert "preflight" not in seen_steps
+
+
+def test_resume_skips_refresh_when_external_comparison_baseline_set(tmp_path, monkeypatch) -> None:
+    monkeypatch.setattr(lp, "REPO_ROOT", tmp_path)
+    baseline_path = (
+        tmp_path / "reports" / "run_comparisons" / "fixed-baseline" / "baseline_snapshot.json"
+    )
+    baseline_path.parent.mkdir(parents=True, exist_ok=True)
+    baseline_path.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(
+        lp,
+        "parse_args",
+        lambda: argparse.Namespace(
+            run_tag="test-run-resume-external-baseline",
+            resume=True,
+            refresh_baseline_on_resume=True,
+            env_file=None,
+            no_rapids=True,
+            no_notebooks=True,
+            stop_on_optional_failure=False,
+            stall_window_minutes=15,
+            from_step=None,
+            until_step=None,
+            sampling_profile="full",
+            comparison_baseline=None,
+            comparison_baseline_run_tag="fixed-baseline",
+        ),
+    )
+
+    def _completed(_run_tag: str, step: str) -> bool:
+        return step == "preflight"
+
+    monkeypatch.setattr(lp, "load_completed_ok", _completed)
+    refreshed = {"value": False}
+
+    def _refresh(_run_tag: str) -> bool:
+        refreshed["value"] = True
+        return True
+
+    monkeypatch.setattr(lp, "refresh_baseline_snapshot", _refresh)
+    seen_steps: list[str] = []
+
+    def fake_run_step(
+        _run_tag: str,
+        step: str,
+        _command: str,
+        *,
+        required: bool,
+        step_eta_default_seconds: float | None,
+        stall_window_seconds: int,
+        resume_subphases: bool,
+    ) -> int:
+        _ = required, step_eta_default_seconds, stall_window_seconds, resume_subphases
+        seen_steps.append(step)
+        return 0
+
+    monkeypatch.setattr(lp, "run_step", fake_run_step)
+    exit_code = lp.main()
+
+    assert exit_code == 0
+    assert refreshed["value"] is False
     assert "preflight" not in seen_steps

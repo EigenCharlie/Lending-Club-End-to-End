@@ -145,3 +145,33 @@ def test_configure_tracking_non_interactive_uses_local_fallback(monkeypatch, tmp
 
     assert calls["init"] == 0
     assert captured["uri"].startswith("file:")
+
+
+def test_resolve_official_baseline_run_tag_prefers_registry(monkeypatch, tmp_path) -> None:
+    import scripts.log_mlflow_experiment_suite as suite_mod
+
+    registry = tmp_path / "configs" / "baselines" / "core_official_baseline.json"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text(
+        '{"official_run_tag":"2026-03-04-C-core-balanced-cert2"}',
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(suite_mod, "BASELINE_REGISTRY_PATH", registry)
+    monkeypatch.delenv("OFFICIAL_BASELINE_RUN_TAG", raising=False)
+
+    assert suite_mod._resolve_official_baseline_run_tag(None) == "2026-03-04-C-core-balanced-cert2"
+
+
+def test_resolve_official_baseline_run_tag_cli_overrides_env_and_registry(
+    monkeypatch, tmp_path
+) -> None:
+    import scripts.log_mlflow_experiment_suite as suite_mod
+
+    registry = tmp_path / "configs" / "baselines" / "core_official_baseline.json"
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    registry.write_text('{"official_run_tag":"registry-tag"}', encoding="utf-8")
+    monkeypatch.setattr(suite_mod, "BASELINE_REGISTRY_PATH", registry)
+    monkeypatch.setenv("OFFICIAL_BASELINE_RUN_TAG", "env-tag")
+
+    assert suite_mod._resolve_official_baseline_run_tag("cli-tag") == "cli-tag"

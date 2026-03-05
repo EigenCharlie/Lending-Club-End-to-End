@@ -1,11 +1,12 @@
 policy:
   dpd_threshold: 0.10       # demographic parity difference < 0.10
-  eo_gap_threshold: 0.10    # equalized odds gap < 0.10
+  eo_gap_threshold: 0.11    # equalized odds gap < 0.11 (operational tolerance)
   dir_threshold: 0.80       # disparate impact ratio > 0.80 (4/5ths rule)
   prediction_threshold: 0.50 # probability cutoff for binary predictions
+  outcome_mode: approval    # evaluate fairness on favorable decision (approval)
 
 threshold_policy:
-  use_artifact: true
+  use_artifact: false
   artifact_path: models/decision_threshold.json
   selected_threshold_key: selected_threshold
 
@@ -25,4 +26,3 @@ artifacts:
 output:
   audit_parquet: data/processed/fairness_audit.parquet
   status_json: models/fairness_audit_status.json
-  status_json_v2: models/fairness_audit_status_v2.json

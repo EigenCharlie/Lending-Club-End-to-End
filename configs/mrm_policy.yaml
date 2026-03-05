@@ -53,9 +53,7 @@ artifacts:
 
 governance_output:
   drift_monitoring_path: data/processed/drift_monitoring.parquet
-  drift_monitoring_v2_path: data/processed/drift_monitoring_v2.parquet
   governance_status_path: models/governance_status.json
-  governance_status_v2_path: models/governance_status_v2.json
 
 output:
   mrm_report_json: reports/mrm/mrm_validation_report.json

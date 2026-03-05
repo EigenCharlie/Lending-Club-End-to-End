@@ -16,6 +16,7 @@ import streamlit as st
 
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_caveats,
     render_key_takeaway,
@@ -48,7 +49,12 @@ causalidad, optimización y cumplimiento IFRS9.
 summary = load_json("pipeline_summary")
 model_cmp = load_json("model_comparison")
 conformal = load_json("conformal_policy_status", directory="models")
-governance = load_json("conformal_policy_status", directory="models")
+governance = load_json("governance_status", directory="models")
+render_release_governance(
+    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
+    governance_status=governance,
+    conformal_status=conformal,
+)
 best_calibration = str(model_cmp.get("best_calibration", "calibración seleccionada"))
 
 pipeline = summary.get("pipeline", {})

@@ -59,11 +59,13 @@ def test_export_pipeline_summary_uses_current_metric_keys(tmp_path, monkeypatch)
 
     monkeypatch.setattr(export_mod, "MODEL_DIR", model_dir)
     monkeypatch.setattr(export_mod, "DATA_DIR", data_dir)
+    monkeypatch.setenv("PIPELINE_RUN_TAG", "run-test-123")
 
     export_mod.export_pipeline_summary()
 
     summary = json.loads((data_dir / "pipeline_summary.json").read_text(encoding="utf-8"))
 
+    assert summary["run_tag"] == "run-test-123"
     assert summary["pd_model"]["final_auc"] == 0.723
     assert summary["pd_model"]["final_brier"] == 0.154
     assert summary["conformal"]["n_checks_passed"] == 7
