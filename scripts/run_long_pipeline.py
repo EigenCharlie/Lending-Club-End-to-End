@@ -752,7 +752,6 @@ def build_steps(
             {activate_main} &&
             {notebooks_headroom_guard} &&
             uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec &&
-            uv run python -u scripts/run_paper_notebook_suite.py &&
             uv run python -u scripts/extract_notebook_images.py
         """
         steps.append(("notebooks", False, notebooks_cmd))

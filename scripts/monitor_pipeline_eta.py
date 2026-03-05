@@ -87,7 +87,6 @@ STEP_SUBPHASES = {
     "rapids": ["scripts/side_projects/run_rapids_benchmarks.sh"],
     "notebooks": [
         "scripts/run_all_notebooks.py",
-        "scripts/run_paper_notebook_suite.py",
         "scripts/extract_notebook_images.py",
     ],
 }

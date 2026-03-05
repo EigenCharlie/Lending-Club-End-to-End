@@ -6,6 +6,7 @@ Usage:
 
 from __future__ import annotations
 
+import argparse
 import base64
 import json
 from pathlib import Path
@@ -14,6 +15,7 @@ import nbformat
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 NOTEBOOK_DIR = PROJECT_ROOT / "notebooks"
+EXECUTED_NOTEBOOK_DIR = PROJECT_ROOT / "reports" / "notebook_exec" / "notebooks"
 OUTPUT_DIR = PROJECT_ROOT / "reports" / "notebook_images"
 MANIFEST_PATH = OUTPUT_DIR / "manifest.json"
 
@@ -45,12 +47,35 @@ def _decode_png(payload: str | list[str]) -> bytes:
     return base64.b64decode(payload)
 
 
+def _resolve_notebook_dir(notebook_dir_arg: str | None) -> Path:
+    if notebook_dir_arg:
+        candidate = (PROJECT_ROOT / notebook_dir_arg).resolve()
+        if not candidate.exists():
+            raise FileNotFoundError(f"Notebook directory not found: {candidate}")
+        return candidate
+    if EXECUTED_NOTEBOOK_DIR.exists():
+        return EXECUTED_NOTEBOOK_DIR
+    return NOTEBOOK_DIR
+
+
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Extract embedded notebook images.")
+    parser.add_argument(
+        "--notebook-dir",
+        default=None,
+        help=(
+            "Notebook directory relative to repo root. "
+            "Default: reports/notebook_exec/notebooks if present, else notebooks/."
+        ),
+    )
+    args = parser.parse_args()
+
+    notebook_dir = _resolve_notebook_dir(args.notebook_dir)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     manifest: list[dict] = []
     total_images = 0
 
-    notebook_paths = sorted(NOTEBOOK_DIR.glob("*.ipynb"))
+    notebook_paths = sorted(notebook_dir.glob("*.ipynb"))
     for nb_path in notebook_paths:
         nb = nbformat.read(nb_path, as_version=4)
         notebook_name = nb_path.stem
