@@ -22,6 +22,7 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 DVC_REPORTS_DIR = REPORTS_DIR / "dvc"
 NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
+BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
 
 
 @st.cache_data(ttl=1800, max_entries=24)
@@ -154,6 +155,48 @@ def safe_metric_get(
         return float(value) if value is not None else default
     except Exception:
         return default
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_official_baseline_registry() -> dict:
+    """Load official core baseline registry from configs/baselines."""
+    if not BASELINE_REGISTRY_PATH.exists():
+        return {}
+    try:
+        return json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def evaluate_run_tag_coherence(expected_run_tag: str | None, artifacts: dict[str, dict]) -> dict:
+    """Check run_tag coherence across selected status artifacts."""
+    expected = str(expected_run_tag or "").strip()
+    observed: dict[str, str] = {}
+    missing: list[str] = []
+    mismatched: list[str] = []
+    for name, payload in artifacts.items():
+        if not isinstance(payload, dict):
+            missing.append(name)
+            continue
+        tag = str(payload.get("run_tag", "")).strip()
+        if not tag:
+            missing.append(name)
+            continue
+        observed[name] = tag
+        if expected and tag != expected:
+            mismatched.append(name)
+    unique_tags = sorted(set(observed.values()))
+    coherent = bool(observed) and not missing and not mismatched and len(unique_tags) == 1
+    if expected and not coherent:
+        coherent = False
+    return {
+        "expected_run_tag": expected or None,
+        "observed_run_tags": unique_tags,
+        "observed_by_artifact": observed,
+        "missing_run_tag_artifacts": sorted(missing),
+        "mismatched_artifacts": sorted(mismatched),
+        "coherent": coherent,
+    }
 
 
 def _collect_test_inventory() -> tuple[int, list[dict[str, int | str]]]:

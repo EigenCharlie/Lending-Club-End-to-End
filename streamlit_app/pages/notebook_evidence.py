@@ -13,13 +13,18 @@ if str(_REPO_ROOT) not in sys.path:
 import streamlit as st
 
 from streamlit_app.components.narrative import next_page_teaser
+from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_key_takeaway,
     render_page_feedback,
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import get_notebook_image_path, load_notebook_image_manifest
+from streamlit_app.utils import (
+    get_notebook_image_path,
+    load_notebook_image_manifest,
+    try_load_json,
+)
 
 
 def _render_figure_panel(stem: str, figure_meta: dict, idx: int) -> None:
@@ -47,6 +52,14 @@ page_contract = get_page_contract("notebook_evidence")
 render_page_header(page_contract)
 render_key_takeaway(
     "El atlas no es una galería: cada figura debe explicar una decisión metodológica y su conexión con el siguiente módulo del pipeline."
+)
+summary = try_load_json("pipeline_summary", default={})
+conformal = try_load_json("conformal_policy_status", directory="models", default={})
+governance = try_load_json("governance_status", directory="models", default={})
+render_release_governance(
+    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
+    governance_status=governance,
+    conformal_status=conformal,
 )
 st.markdown(
     """

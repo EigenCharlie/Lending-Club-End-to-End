@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import subprocess
 from collections import Counter
@@ -677,6 +678,11 @@ def export_pipeline_summary() -> None:
         surv = pickle.load(f)
 
     conformal_status = json.loads((MODEL_DIR / "conformal_policy_status.json").read_text())
+    resolved_run_tag = (
+        str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+        or str(conformal_status.get("run_tag", "")).strip()
+        or "untracked"
+    )
 
     prior_model_comparison = _load_json_if_exists(DATA_DIR / "model_comparison.json")
     pd_metrics = (
@@ -703,6 +709,7 @@ def export_pipeline_summary() -> None:
     }
 
     summary = {
+        "run_tag": resolved_run_tag,
         "pipeline": results,
         "pd_model": {
             "final_auc": flattened_summary["pd_auc"],

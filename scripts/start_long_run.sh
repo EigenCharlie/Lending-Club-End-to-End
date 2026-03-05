@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /home/eigenlinux/projects/lending-club-risk-project
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
 
 # Load local integration credentials/config (DAGSHUB_*, MLFLOW_*, etc.)
 # so non-interactive runs inherit the same env as manual shells.
@@ -50,6 +51,8 @@ fi
 has_resume=0
 has_sampling=0
 has_env_file=0
+has_comparison_baseline=0
+BASELINE_REGISTRY="configs/baselines/core_official_baseline.json"
 for arg in "${EXTRA_ARGS[@]}"; do
   case "${arg}" in
     --resume)
@@ -61,8 +64,45 @@ for arg in "${EXTRA_ARGS[@]}"; do
     --env-file|--env-file=*)
       has_env_file=1
       ;;
+    --comparison-baseline|--comparison-baseline=*|--comparison-baseline-run-tag|--comparison-baseline-run-tag=*)
+      has_comparison_baseline=1
+      ;;
   esac
 done
+
+if [[ "${RUN_TAG,,}" == *official* || "${RUN_TAG,,}" == *-core-* || "${RUN_TAG,,}" == *-core ]]; then
+  if [[ "${has_comparison_baseline}" -eq 0 ]] && [[ -f "${BASELINE_REGISTRY}" ]]; then
+    auto_baseline_tag="$("${PY_BIN}" - <<'PY'
+import json
+from pathlib import Path
+p = Path("configs/baselines/core_official_baseline.json")
+if not p.exists():
+    raise SystemExit("")
+try:
+    payload = json.loads(p.read_text(encoding="utf-8"))
+except Exception:
+    raise SystemExit("")
+tag = str(payload.get("official_run_tag", "")).strip()
+print(tag)
+PY
+)"
+    auto_baseline_tag="${auto_baseline_tag//$'\n'/}"
+    if [[ -n "${auto_baseline_tag}" ]]; then
+      EXTRA_ARGS+=(--comparison-baseline-run-tag "${auto_baseline_tag}")
+      has_comparison_baseline=1
+      echo "Auto baseline resolved from ${BASELINE_REGISTRY}: ${auto_baseline_tag}"
+    fi
+  fi
+fi
+
+if [[ "${RUN_TAG,,}" == *official* || "${RUN_TAG,,}" == *-core-* || "${RUN_TAG,,}" == *-core ]]; then
+  if [[ "${has_comparison_baseline}" -eq 0 ]]; then
+    echo "Run tag '${RUN_TAG}' requires explicit comparison baseline."
+    echo "Add --comparison-baseline <path> or --comparison-baseline-run-tag <tag>,"
+    echo "or define configs/baselines/core_official_baseline.json."
+    exit 3
+  fi
+fi
 
 DEFAULT_ARGS=()
 if [[ "${has_resume}" -eq 0 ]]; then
@@ -75,9 +115,15 @@ if [[ "${has_env_file}" -eq 0 ]] && [[ -f ".env" ]]; then
   DEFAULT_ARGS+=(--env-file .env)
 fi
 
-nohup "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
-  >"${LAUNCH_LOG}" 2>&1 &
-pid=$!
+if command -v setsid >/dev/null 2>&1; then
+  setsid "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+    >"${LAUNCH_LOG}" 2>&1 < /dev/null &
+  pid=$!
+else
+  nohup "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+    >"${LAUNCH_LOG}" 2>&1 < /dev/null &
+  pid=$!
+fi
 echo "${pid}" > "${PID_FILE}"
 
 echo "Started run_tag=${RUN_TAG} pid=${pid}"

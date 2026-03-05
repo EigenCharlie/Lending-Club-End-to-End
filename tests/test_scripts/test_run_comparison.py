@@ -15,6 +15,11 @@ def test_gate_artifact_coherence_passes_with_consistent_metadata() -> None:
             "generated_at_utc": "2026-03-01T10:00:00+00:00",
             "run_tag": "run-xyz",
         },
+        "pipeline_summary": {
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T10:05:00+00:00",
+            "run_tag": "run-xyz",
+        },
         "conformal_status": {
             "schema_version": "2026-03-01.1",
             "generated_at_utc": "2026-03-01T10:10:00+00:00",
@@ -23,6 +28,11 @@ def test_gate_artifact_coherence_passes_with_consistent_metadata() -> None:
         "fairness_status": {
             "schema_version": "2026-03-01.1",
             "generated_at_utc": "2026-03-01T10:15:00+00:00",
+            "run_tag": "run-xyz",
+        },
+        "governance_status": {
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T10:20:00+00:00",
             "run_tag": "run-xyz",
         },
         "ab_simulation_status": {
@@ -44,6 +54,11 @@ def test_gate_artifact_coherence_fails_on_missing_or_mismatched_run_tag() -> Non
             "generated_at_utc": "2026-03-01T10:00:00+00:00",
             "run_tag": "run-xyz",
         },
+        "pipeline_summary": {
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T10:05:00+00:00",
+            "run_tag": "run-xyz",
+        },
         "conformal_status": {
             "schema_version": "2026-03-01.1",
             "generated_at_utc": "2026-03-01T10:10:00+00:00",
@@ -52,6 +67,11 @@ def test_gate_artifact_coherence_fails_on_missing_or_mismatched_run_tag() -> Non
         "fairness_status": {
             "schema_version": "2026-03-01.1",
             "generated_at_utc": "2026-03-01T10:15:00+00:00",
+        },
+        "governance_status": {
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": "2026-03-01T10:20:00+00:00",
+            "run_tag": "run-xyz",
         },
         "ab_simulation_status": {
             "schema_version": "2026-03-01.1",
@@ -182,6 +202,67 @@ def test_gate_ab_no_regression_fails_on_material_regression() -> None:
     assert gate.details["checks"]["self_no_regression_ok"] is False
 
 
+def test_gate_fairness_absolute_business_passes_with_business_threshold(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        rc,
+        "_load_fairness_policy_contract",
+        lambda: {
+            "prediction_threshold": 0.50,
+            "outcome_mode": "approval",
+            "use_artifact": False,
+            "policy_path": "configs/fairness_policy.yaml",
+        },
+    )
+    current = {
+        "fairness_status": {
+            "overall_pass": True,
+            "n_passed": 3,
+            "n_attributes": 3,
+            "prediction_threshold": 0.50,
+            "prediction_threshold_source": "policy_default",
+            "outcome_mode": "approval",
+        }
+    }
+
+    gate = rc._gate_fairness_absolute_business({}, current)
+    assert gate.passed is True
+    assert gate.details["checks"]["threshold_match_ok"] is True
+    assert gate.details["checks"]["threshold_source_ok"] is True
+
+
+def test_gate_fairness_absolute_business_fails_on_threshold_or_source_mismatch(
+    monkeypatch,
+) -> None:
+    monkeypatch.setattr(
+        rc,
+        "_load_fairness_policy_contract",
+        lambda: {
+            "prediction_threshold": 0.50,
+            "outcome_mode": "approval",
+            "use_artifact": False,
+            "policy_path": "configs/fairness_policy.yaml",
+        },
+    )
+    current = {
+        "fairness_status": {
+            "overall_pass": True,
+            "n_passed": 3,
+            "n_attributes": 3,
+            "prediction_threshold": 0.05,
+            "prediction_threshold_source": "artifact",
+            "outcome_mode": "default",
+        }
+    }
+
+    gate = rc._gate_fairness_absolute_business({}, current)
+    assert gate.passed is False
+    assert gate.details["checks"]["threshold_match_ok"] is False
+    assert gate.details["checks"]["threshold_source_ok"] is False
+    assert gate.details["checks"]["outcome_mode_ok"] is False
+
+
 def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(rc, "ROOT", tmp_path)
     monkeypatch.setattr(rc, "OUT_ROOT", tmp_path / "reports" / "run_comparisons")
@@ -196,6 +277,11 @@ def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkey
             "dvc_metrics_meta": {
                 "schema_version": "2026-03-01.1",
                 "generated_at_utc": "2026-02-27T00:00:00+00:00",
+                "run_tag": "run-x",
+            },
+            "pipeline_summary": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T00:01:00+00:00",
                 "run_tag": "run-x",
             },
             "conformal_status": {
@@ -213,9 +299,13 @@ def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkey
                 "generated_at_utc": "2026-02-27T00:05:00+00:00",
                 "run_tag": "run-x",
             },
+            "governance_status": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T00:07:00+00:00",
+                "run_tag": "run-x",
+            },
             "survival_summary": {},
             "model_comparison": {},
-            "pipeline_summary": {},
             "ab_simulation_status": {
                 "schema_version": "2026-03-01.1",
                 "generated_at_utc": "2026-02-27T00:10:00+00:00",
@@ -239,6 +329,11 @@ def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkey
                 "generated_at_utc": "2026-02-27T01:00:00+00:00",
                 "run_tag": "run-x",
             },
+            "pipeline_summary": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T01:01:00+00:00",
+                "run_tag": "run-x",
+            },
             "conformal_status": {
                 "coverage_90": 0.91,
                 "coverage_95": 0.95,
@@ -258,9 +353,13 @@ def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkey
                 "generated_at_utc": "2026-02-27T01:05:00+00:00",
                 "run_tag": "run-x",
             },
+            "governance_status": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T01:07:00+00:00",
+                "run_tag": "run-x",
+            },
             "survival_summary": {},
             "model_comparison": {},
-            "pipeline_summary": {},
             "ab_simulation_status": {
                 "schema_version": "2026-03-01.1",
                 "generated_at_utc": "2026-02-27T01:10:00+00:00",
@@ -283,6 +382,7 @@ def test_write_compare_exports_conformal_promotion_fields(tmp_path: Path, monkey
     assert report["conformal_promotion_pass"] is True
     assert report["conformal_statistical_warning"] is True
     assert "ab_no_regression_pass" in report
+    assert "fairness_absolute_business_pass" in report
     assert report["ab_gate_mode"] == "no_regression"
     assert report["ab_significance_role"] == "diagnostic"
     assert "`kupiec_pvalue_90`" in md
@@ -305,6 +405,11 @@ def test_write_compare_accepts_relative_baseline_path(tmp_path: Path, monkeypatc
                 "generated_at_utc": "2026-02-27T00:00:00+00:00",
                 "run_tag": "run-rel",
             },
+            "pipeline_summary": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T00:01:00+00:00",
+                "run_tag": "run-rel",
+            },
             "conformal_status": {
                 "schema_version": "2026-03-01.1",
                 "generated_at_utc": "2026-02-27T00:00:00+00:00",
@@ -315,9 +420,13 @@ def test_write_compare_accepts_relative_baseline_path(tmp_path: Path, monkeypatc
                 "generated_at_utc": "2026-02-27T00:05:00+00:00",
                 "run_tag": "run-rel",
             },
+            "governance_status": {
+                "schema_version": "2026-03-01.1",
+                "generated_at_utc": "2026-02-27T00:07:00+00:00",
+                "run_tag": "run-rel",
+            },
             "survival_summary": {},
             "model_comparison": {},
-            "pipeline_summary": {},
             "ab_simulation_status": {
                 "schema_version": "2026-03-01.1",
                 "generated_at_utc": "2026-02-27T00:10:00+00:00",

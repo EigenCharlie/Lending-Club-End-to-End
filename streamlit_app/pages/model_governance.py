@@ -17,6 +17,7 @@ from streamlit_app.components.context_help import methodology_dialog, term_popov
 from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_caveats,
     render_decision_box,
@@ -45,11 +46,6 @@ def _artifact_health_rows() -> pd.DataFrame:
             "required",
         ),
         ("data/processed/ifrs9_scenario_summary.parquet", "Escenarios IFRS9", "required"),
-        (
-            "data/processed/conformal_intervals.parquet",
-            "Conformal legacy (compatibilidad)",
-            "legacy",
-        ),
     ]
     rows: list[dict[str, str]] = []
     for rel_path, label, level in specs:
@@ -139,6 +135,12 @@ la métrica de desempeño del modelo.
 
 summary = try_load_json("pipeline_summary")
 status = try_load_json("conformal_policy_status", directory="models", default={})
+governance = try_load_json("governance_status", directory="models", default={})
+render_release_governance(
+    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
+    governance_status=governance,
+    conformal_status=status,
+)
 checks = try_load_parquet("conformal_policy_checks")
 contract_val = try_load_parquet("pd_model_contract_validation")
 

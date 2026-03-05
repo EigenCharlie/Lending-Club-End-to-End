@@ -25,6 +25,7 @@ from streamlit_app.components.dvc_kpi_spine import (
 )
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_decision_box,
     render_key_takeaway,
@@ -235,7 +236,12 @@ summary = try_load_json("pipeline_summary")
 eda = try_load_json("eda_summary")
 comparison = try_load_json("model_comparison")
 policy = try_load_json("conformal_policy_status", directory="models")
-governance = try_load_json("conformal_policy_status", directory="models")
+governance = try_load_json("governance_status", directory="models")
+render_release_governance(
+    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
+    governance_status=governance,
+    conformal_status=policy,
+)
 
 pipeline = summary.get("pipeline", {})
 pd_model = summary.get("pd_model", {})

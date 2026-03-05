@@ -1,10 +1,13 @@
 # Long Run Execution Playbook
 
-## Block 1: Stable Completion of Current Run
+## Block 1: Core Launch with Official Frozen Baseline
 
 ### Launch / Relaunch (recommended defaults)
 ```bash
-bash scripts/start_long_run.sh 2026-03-01-C-official-full --stop-on-optional-failure
+bash scripts/start_long_run.sh 2026-03-05-C-core-next \
+  --sampling-profile balanced \
+  --no-rapids --no-notebooks \
+  --stop-on-optional-failure
 ```
 
 Applied by default (unless overridden):
@@ -12,16 +15,18 @@ Applied by default (unless overridden):
 - `--sampling-profile full`
 - `--env-file .env` (if present)
 - `--refresh-baseline-on-resume`
+- If run tag is core/official and no baseline flag is provided:
+  launcher auto-resolves baseline from `configs/baselines/core_official_baseline.json`.
 
 ### Monitor (terminal view)
 ```bash
-bash scripts/monitor_long_run.sh 2026-03-01-C-official-full
+bash scripts/monitor_long_run.sh 2026-03-05-C-core-next
 ```
 
 ### Monitor (structured samples + incidents every 15 min)
 ```bash
 uv run python scripts/monitor_pipeline_health.py \
-  --run-tag 2026-03-01-C-official-full \
+  --run-tag 2026-03-05-C-core-next \
   --interval-seconds 900
 ```
 
@@ -33,9 +38,9 @@ Outputs:
 ### Directed rerun by phase window
 ```bash
 uv run python scripts/run_long_pipeline.py \
-  --run-tag 2026-03-01-C-official-full \
+  --run-tag 2026-03-05-C-core-next \
   --resume \
-  --sampling-profile full \
+  --sampling-profile balanced \
   --env-file .env \
   --from-step rapids \
   --until-step notebooks \
@@ -82,7 +87,17 @@ uv run python scripts/run_ab_sensitivity.py \
 
 ### Comparison gate (conformal strict + A/B no-regression)
 ```bash
-uv run python scripts/run_comparison.py compare --run-tag 2026-03-01-C-official-full
+uv run python scripts/run_comparison.py compare \
+  --run-tag 2026-03-05-C-core-next \
+  --baseline reports/run_comparisons/2026-03-04-C-core-balanced-cert2/baseline_snapshot.json
+```
+
+### Freeze official baseline
+```bash
+uv run python scripts/freeze_core_baseline.py \
+  --run-tag 2026-03-04-C-core-balanced-cert2 \
+  --refresh-snapshot \
+  --set-current
 ```
 
 ## Resilience Guards

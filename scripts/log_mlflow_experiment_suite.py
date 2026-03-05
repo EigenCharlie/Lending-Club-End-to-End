@@ -32,6 +32,7 @@ from src.utils.mlflow_utils import init_dagshub
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_ARTIFACT_MB = int(os.getenv("MLFLOW_MAX_ARTIFACT_MB", "64"))
+BASELINE_REGISTRY_PATH = ROOT / "configs" / "baselines" / "core_official_baseline.json"
 
 
 def _load_json(path: str) -> dict[str, Any]:
@@ -116,6 +117,22 @@ def _dvc_remote_backend() -> str:
                 if url.startswith("http://") or url.startswith("https://"):
                     return "http"
     return "unknown"
+
+
+def _resolve_official_baseline_run_tag(cli_value: str | None = None) -> str:
+    if cli_value:
+        return str(cli_value).strip()
+    env_value = os.getenv("OFFICIAL_BASELINE_RUN_TAG", "").strip()
+    if env_value:
+        return env_value
+    if not BASELINE_REGISTRY_PATH.exists():
+        return "unknown"
+    try:
+        payload = json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return "unknown"
+    value = str(payload.get("official_run_tag", "")).strip()
+    return value or "unknown"
 
 
 def _configure_tracking_non_interactive(repo_owner: str, repo_name: str) -> None:
@@ -512,12 +529,13 @@ def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
     )
 
 
-def main(repo_owner: str, repo_name: str) -> None:
+def main(repo_owner: str, repo_name: str, official_baseline_run_tag: str | None = None) -> None:
     _configure_tracking_non_interactive(repo_owner=repo_owner, repo_name=repo_name)
 
     timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%SZ")
     data_version = _short_file_sha256("dvc.lock")
     dvc_backend = _dvc_remote_backend()
+    baseline_tag = _resolve_official_baseline_run_tag(official_baseline_run_tag)
     common_tags = {
         "project": "lending-club-end-to-end",
         "git_sha": _git_sha(),
@@ -525,6 +543,7 @@ def main(repo_owner: str, repo_name: str) -> None:
         "logged_at_utc": timestamp,
         "data_version": data_version,
         "dvc_remote_backend": dvc_backend,
+        "official_baseline_run_tag": baseline_tag,
     }
     suite_sync_run_id = ""
 
@@ -538,6 +557,7 @@ def main(repo_owner: str, repo_name: str) -> None:
                 "repo_name": repo_name,
                 "sync_mode": "artifact_backfill",
                 "domains_expected": 8,
+                "official_baseline_run_tag": baseline_tag,
             }
         )
         mlflow.set_tags(
@@ -589,5 +609,17 @@ if __name__ == "__main__":
         default=os.getenv("DAGSHUB_REPO", "Lending-Club-End-to-End"),
         help="DagsHub repository name.",
     )
+    parser.add_argument(
+        "--official-baseline-run-tag",
+        default=None,
+        help=(
+            "Tag of the frozen official baseline to attach to suite and child runs. "
+            "Defaults to OFFICIAL_BASELINE_RUN_TAG env var or baseline registry."
+        ),
+    )
     args = parser.parse_args()
-    main(repo_owner=args.repo_owner, repo_name=args.repo_name)
+    main(
+        repo_owner=args.repo_owner,
+        repo_name=args.repo_name,
+        official_baseline_run_tag=args.official_baseline_run_tag,
+    )

@@ -48,9 +48,9 @@ If you want to run individual stages:
 | 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers) + `models/decision_threshold.json` |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
-| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json` + `_v2`) |
+| 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
 | 8 | `uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml` | Challenger feature selection + monotonic constraints spec |
-| 9 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Fairness gate using threshold artifact (`fairness_audit_status.json` + `_v2`) |
+| 9 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Fairness gate using threshold artifact (`fairness_audit_status.json`) |
 | 10 | `uv run python scripts/estimate_causal_effects.py` | CATE estimates |
 | 11 | `uv run python scripts/simulate_causal_policy.py` | Policy simulation |
 | 12 | `uv run python scripts/validate_causal_policy.py` | Rule selection + bootstrap |
@@ -59,7 +59,8 @@ If you want to run individual stages:
 | 15 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
 
 Compatibility note:
-- Governance/fairness/conformal challenger status artifacts are emitted in dual-write mode (`legacy` + `_v2`) during migration.
+- Canonical status artifacts are single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
+- Conformal intervals use canonical output only: `data/processed/conformal_intervals_mondrian.parquet`.
 
 ## Conformal Promotion Gate (2026-02-27)
 
@@ -75,18 +76,32 @@ Compatibility note:
 Use this profile for official reruns that should be stable and resumable on workstation resources:
 
 ```bash
-bash scripts/start_long_run.sh <run_tag> --no-rapids --no-notebooks --stop-on-optional-failure
+bash scripts/start_long_run.sh <run_tag> \
+  --comparison-baseline-run-tag <baseline_run_tag> \
+  --no-rapids --no-notebooks --stop-on-optional-failure
 bash scripts/monitor_long_run.sh <run_tag>
 ```
 
 Notes:
 - Official run tags (`*official*`) require a clean git working tree.
+- Core/official tags require baseline. If no baseline flag is passed, launcher resolves default from `configs/baselines/core_official_baseline.json`.
 - Launcher defaults are `--resume`, `--sampling-profile full`, and baseline snapshot refresh on resume.
+
+Official baseline freeze workflow:
+
+```bash
+uv run python scripts/freeze_core_baseline.py \
+  --run-tag 2026-03-04-C-core-balanced-cert2 \
+  --refresh-snapshot \
+  --set-current
+```
 
 To resume an interrupted run:
 
 ```bash
-bash scripts/start_long_run.sh <run_tag> --resume --no-rapids --no-notebooks --stop-on-optional-failure
+bash scripts/start_long_run.sh <run_tag> --resume \
+  --comparison-baseline-run-tag <baseline_run_tag> \
+  --no-rapids --no-notebooks --stop-on-optional-failure
 ```
 
 ## Optional: Platform Layer (dbt + Feast)

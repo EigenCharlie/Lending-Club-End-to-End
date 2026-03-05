@@ -1126,6 +1126,9 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             "validation_rows": int(len(train_val)),
             "secondary_validation_rows": int(len(cal)),
             "calibration_method": selected_cal_method,
+            "schema_version": "2026-03-01.1",
+            "generated_at_utc": datetime.now(UTC).isoformat(),
+            "run_tag": resolved_run_tag,
         }
 
     # Conformal (keeps calibration split isolated from model training)
@@ -1154,10 +1157,12 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     if tuned_model_path.resolve() != model_path.resolve():
         shutil.copy2(model_path, tuned_model_path)
 
-    # Keep legacy path updated for compatibility.
+    # Optional legacy compatibility copy (disabled by default).
+    write_legacy_model_copy = bool(config["output"].get("write_legacy_model_copy", False))
     legacy_model_path = Path("models/pd_catboost.cbm")
-    if legacy_model_path.resolve() != model_path.resolve():
+    if write_legacy_model_copy and legacy_model_path.resolve() != model_path.resolve():
         shutil.copy2(model_path, legacy_model_path)
+        logger.info("Saved legacy model compatibility copy to {}", legacy_model_path)
 
     cal_path = Path(config["output"].get("conformal_path", "models/pd_calibrator.pkl"))
     cal_path.parent.mkdir(parents=True, exist_ok=True)
