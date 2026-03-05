@@ -49,7 +49,6 @@ stages:
     - scripts/generate_conformal_intervals.py
     outs:
     - data/processed/conformal_intervals_mondrian.parquet
-    - data/processed/conformal_intervals.parquet
     - data/processed/conformal_group_metrics_mondrian.parquet
     - data/processed/conformal_mondrian_tuning_90.parquet
     - data/processed/conformal_mondrian_tuning_90_pareto.parquet
@@ -241,9 +240,7 @@ stages:
     - src/evaluation/backtesting.py
     outs:
     - data/processed/drift_monitoring.parquet
-    - data/processed/drift_monitoring_v2.parquet
     - models/governance_status.json
-    - models/governance_status_v2.json
   build_pd_challenger_artifacts:
     cmd: uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml
     deps:

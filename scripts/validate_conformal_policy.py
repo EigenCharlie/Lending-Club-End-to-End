@@ -325,19 +325,12 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
     checks_df.to_parquet(checks_path, index=False)
 
     status_path = Path(output["policy_status_json"])
-    status_v2_path = Path(
-        output.get("policy_status_json_v2", "models/conformal_policy_status_v2.json")
-    )
     status_path.parent.mkdir(parents=True, exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as f:
-        json.dump(out_status, f, indent=2)
-    status_v2_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(status_v2_path, "w", encoding="utf-8") as f:
         json.dump(out_status, f, indent=2)
 
     logger.info(f"Policy checks saved: {checks_path}")
     logger.info(f"Policy status saved: {status_path}")
-    logger.info(f"Policy status v2 saved: {status_v2_path}")
     logger.info(
         f"Conformal policy pass={overall_pass} ({out_status['checks_passed']}/{out_status['checks_total']})"
     )

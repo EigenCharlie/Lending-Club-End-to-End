@@ -2,6 +2,9 @@
 
 Computes demographic parity, equalized odds, and disparate impact
 for each attribute defined in the fairness policy config.
+Supports policy `outcome_mode`:
+- `default`: fairness over predicted default events.
+- `approval`: fairness over favorable credit decision (approved loans).
 
 Usage:
     uv run python scripts/run_fairness_audit.py
@@ -23,7 +26,7 @@ from loguru import logger
 
 from src.evaluation.fairness import fairness_report
 
-SCHEMA_VERSION = "2026-03-01.1"
+SCHEMA_VERSION = "2026-03-04.1"
 
 
 def _load_config(config_path: str) -> dict:
@@ -79,6 +82,13 @@ def _resolve_prediction_threshold(cfg: dict, policy: dict) -> tuple[float, str]:
         return fallback_threshold, "policy_default_artifact_error"
 
 
+def _resolve_outcome_mode(policy: dict) -> str:
+    raw = str(policy.get("outcome_mode", "default")).strip().lower()
+    if raw in {"approval", "approve", "good", "non_default"}:
+        return "approval"
+    return "default"
+
+
 def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
@@ -124,6 +134,14 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
         return
 
     threshold, threshold_source = _resolve_prediction_threshold(cfg, policy)
+    outcome_mode = _resolve_outcome_mode(policy)
+    if outcome_mode == "approval":
+        # Fairness in credit decisions should be audited on favorable outcome (approval).
+        y_true_eval = 1.0 - y_true
+        y_proba_eval = 1.0 - y_proba
+    else:
+        y_true_eval = y_true
+        y_proba_eval = y_proba
     resolved_run_tag = (
         str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
     )
@@ -132,8 +150,8 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
 
     # Run fairness report
     report = fairness_report(
-        y_true=y_true,
-        y_pred_proba=y_proba,
+        y_true=y_true_eval,
+        y_pred_proba=y_proba_eval,
         groups_dict=groups_dict,
         threshold=threshold,
         dpd_threshold=policy["dpd_threshold"],
@@ -159,6 +177,7 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
         "attributes": report.to_dict(orient="records"),
         "prediction_threshold": float(threshold),
         "prediction_threshold_source": threshold_source,
+        "outcome_mode": outcome_mode,
         "thresholds": {
             "dpd": policy["dpd_threshold"],
             "eo_gap": policy["eo_gap_threshold"],
@@ -168,15 +187,10 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     }
 
     status_path = Path(output["status_json"])
-    status_v2_path = Path(output.get("status_json_v2", "models/fairness_audit_status_v2.json"))
     status_path.parent.mkdir(parents=True, exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)
-    status_v2_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(status_v2_path, "w", encoding="utf-8") as f:
-        json.dump(status, f, indent=2, default=str)
     logger.info(f"Saved fairness status: {status_path}")
-    logger.info(f"Saved fairness status v2: {status_v2_path}")
 
     pass_label = "PASS" if overall_pass else "FAIL"
     logger.info(

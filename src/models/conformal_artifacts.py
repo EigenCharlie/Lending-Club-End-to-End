@@ -8,10 +8,9 @@ import pandas as pd
 from loguru import logger
 
 CANONICAL_INTERVALS_PATH = Path("data/processed/conformal_intervals_mondrian.parquet")
-LEGACY_INTERVALS_PATH = Path("data/processed/conformal_intervals.parquet")
 
 
-def resolve_intervals_path(allow_legacy_fallback: bool = True) -> tuple[Path, bool]:
+def resolve_intervals_path(allow_legacy_fallback: bool = False) -> tuple[Path, bool]:
     """Resolve conformal intervals artifact path.
 
     Returns:
@@ -21,26 +20,22 @@ def resolve_intervals_path(allow_legacy_fallback: bool = True) -> tuple[Path, bo
     if CANONICAL_INTERVALS_PATH.exists():
         return CANONICAL_INTERVALS_PATH, False
 
-    if allow_legacy_fallback and LEGACY_INTERVALS_PATH.exists():
-        return LEGACY_INTERVALS_PATH, True
-
     raise FileNotFoundError(
         "Conformal intervals artifact not found. Expected canonical path "
-        f"'{CANONICAL_INTERVALS_PATH}'"
-        + (f" or legacy fallback '{LEGACY_INTERVALS_PATH}'." if allow_legacy_fallback else ".")
+        f"'{CANONICAL_INTERVALS_PATH}'."
     )
 
 
-def load_conformal_intervals(allow_legacy_fallback: bool = True) -> tuple[pd.DataFrame, Path, bool]:
+def load_conformal_intervals(
+    allow_legacy_fallback: bool = False,
+) -> tuple[pd.DataFrame, Path, bool]:
     """Load conformal interval artifact and return dataframe + selected path metadata."""
-    path, is_legacy = resolve_intervals_path(allow_legacy_fallback=allow_legacy_fallback)
-    if is_legacy:
+    if allow_legacy_fallback:
         logger.warning(
-            f"Using legacy conformal artifact for compatibility: {path}. "
-            f"Prefer canonical artifact: {CANONICAL_INTERVALS_PATH}"
+            "allow_legacy_fallback=True is deprecated; only canonical conformal artifact is supported."
         )
-    else:
-        logger.info(f"Using canonical conformal artifact: {path}")
+    path, is_legacy = resolve_intervals_path(allow_legacy_fallback=allow_legacy_fallback)
+    logger.info(f"Using canonical conformal artifact: {path}")
 
     df = pd.read_parquet(path)
     return df, path, is_legacy

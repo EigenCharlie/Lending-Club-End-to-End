@@ -156,10 +156,6 @@ stages:
       hash: md5
       md5: 1a913524d1cd915783c288df15eda476
       size: 7948
-    - path: data/processed/conformal_intervals.parquet
-      hash: md5
-      md5: 85df925fc9e2e36499529ae8c087d25c
-      size: 3803459
     - path: data/processed/conformal_intervals_mondrian.parquet
       hash: md5
       md5: 85df925fc9e2e36499529ae8c087d25c
@@ -918,15 +914,7 @@ stages:
       hash: md5
       md5: 5285b20f854c0d879bdf4e3201641c32
       size: 8221
-    - path: data/processed/drift_monitoring_v2.parquet
-      hash: md5
-      md5: 5285b20f854c0d879bdf4e3201641c32
-      size: 8221
     - path: models/governance_status.json
-      hash: md5
-      md5: 2937e4eb86be6f36b7d0281e419399b7
-      size: 4462
-    - path: models/governance_status_v2.json
       hash: md5
       md5: 2937e4eb86be6f36b7d0281e419399b7
       size: 4462

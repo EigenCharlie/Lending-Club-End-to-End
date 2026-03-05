@@ -22,5 +22,4 @@ artifacts:
 
 output:
   policy_status_json: models/conformal_policy_status.json
-  policy_status_json_v2: models/conformal_policy_status_v2.json
   policy_checks_parquet: data/processed/conformal_policy_checks.parquet

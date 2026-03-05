@@ -13,6 +13,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +24,8 @@ from loguru import logger
 
 from src.evaluation.backtesting import classifier_two_sample_test, drift_monitoring_report
 from src.utils.io_utils import read_split_with_fe_fallback
+
+SCHEMA_VERSION = "2026-03-03.1"
 
 
 def _load_cfg(path: str) -> dict[str, Any]:
@@ -68,8 +72,13 @@ def _safe_mean(series: pd.Series) -> float:
     return float(series.mean())
 
 
-def main(config_path: str = "configs/mrm_policy.yaml") -> None:
+def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = None) -> None:
     cfg = _load_cfg(config_path)
+    resolved_run_tag = (
+        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    )
+    if not resolved_run_tag:
+        resolved_run_tag = "untracked"
 
     triggers = cfg.get("retraining_triggers", {})
     checks = cfg.get("governance_checks", {})
@@ -85,13 +94,7 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
     drift_path = Path(
         outputs.get("drift_monitoring_path", "data/processed/drift_monitoring.parquet")
     )
-    drift_v2_path = Path(
-        outputs.get("drift_monitoring_v2_path", "data/processed/drift_monitoring_v2.parquet")
-    )
     status_path = Path(outputs.get("governance_status_path", "models/governance_status.json"))
-    status_v2_path = Path(
-        outputs.get("governance_status_v2_path", "models/governance_status_v2.json")
-    )
 
     train_df = read_split_with_fe_fallback("data/processed/train_fe.parquet")
     test_df = read_split_with_fe_fallback("data/processed/test_fe.parquet")
@@ -146,11 +149,12 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
 
     drift_path.parent.mkdir(parents=True, exist_ok=True)
     drift_df.to_parquet(drift_path, index=False)
-    drift_v2_path.parent.mkdir(parents=True, exist_ok=True)
-    drift_df.to_parquet(drift_v2_path, index=False)
 
     top_breaches = drift_df.head(10).to_dict(orient="records") if n_features else []
     status = {
+        "schema_version": SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "checks": {
             "pass_psi": pass_psi,
@@ -179,7 +183,6 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
         },
         "artifacts": {
             "drift_monitoring_path": str(drift_path),
-            "drift_monitoring_v2_path": str(drift_v2_path),
         },
         "top_drift_features": top_breaches,
         "policy_config": config_path,
@@ -187,9 +190,6 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
 
     status_path.parent.mkdir(parents=True, exist_ok=True)
     with open(status_path, "w", encoding="utf-8") as f:
-        json.dump(status, f, indent=2)
-    status_v2_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(status_v2_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
 
     logger.info("Saved drift monitoring: {}", drift_path)
@@ -206,5 +206,6 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate governance drift status")
     parser.add_argument("--config", default="configs/mrm_policy.yaml")
+    parser.add_argument("--run-tag", default=None)
     args = parser.parse_args()
-    main(config_path=args.config)
+    main(config_path=args.config, run_tag=args.run_tag)

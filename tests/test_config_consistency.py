@@ -239,9 +239,7 @@ class TestGitDvcHygiene:
     def test_dvc_json_outputs_not_tracked_and_ignored(self) -> None:
         outputs = [
             "models/conformal_policy_status.json",
-            "models/conformal_policy_status_v2.json",
             "models/fairness_audit_status.json",
-            "models/fairness_audit_status_v2.json",
             "models/pd_challenger_spec.json",
             "models/pd_challenger_spec_v2.json",
             "models/causal_policy_rule.json",
@@ -316,9 +314,8 @@ class TestConformalPolicyConfig:
     def test_required_sections(self):
         assert {"policy", "artifacts", "output"}.issubset(self.cfg.keys())
 
-    def test_conformal_dual_write_output_paths_present(self):
+    def test_conformal_output_path_present(self):
         assert "policy_status_json" in self.cfg["output"]
-        assert "policy_status_json_v2" in self.cfg["output"]
 
     def test_coverage_targets_in_valid_range(self):
         for key in ("target_coverage_90_min", "target_coverage_95_min"):
@@ -399,6 +396,12 @@ class TestFairnessPolicyConfig:
         val = self.policy["prediction_threshold"]
         assert 0 < val < 1.0, f"prediction_threshold={val} outside (0, 1)"
 
+    def test_outcome_mode_enum_if_present(self):
+        val = str(self.policy.get("outcome_mode", "default")).strip().lower()
+        assert val in {"default", "approval", "approve", "good", "non_default"}, (
+            f"outcome_mode={val} is invalid"
+        )
+
     def test_at_least_one_attribute(self):
         assert len(self.cfg["attributes"]) >= 1
 
@@ -421,9 +424,8 @@ class TestFairnessPolicyConfig:
                 f"Output '{key}' has unexpected extension: {path}"
             )
 
-    def test_fairness_dual_write_output_paths_present(self):
+    def test_fairness_output_path_present(self):
         assert "status_json" in self.cfg["output"]
-        assert "status_json_v2" in self.cfg["output"]
 
     def test_threshold_policy_artifact_is_json(self):
         artifact = self.cfg["threshold_policy"]["artifact_path"]

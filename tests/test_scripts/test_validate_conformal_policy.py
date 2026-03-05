@@ -81,7 +81,6 @@ def test_validate_conformal_policy_includes_statistical_checks(tmp_path) -> None
         },
         "output": {
             "policy_status_json": str(model_dir / "conformal_policy_status.json"),
-            "policy_status_json_v2": str(model_dir / "conformal_policy_status_v2.json"),
             "policy_checks_parquet": str(data_dir / "conformal_policy_checks.parquet"),
         },
     }
@@ -92,9 +91,6 @@ def test_validate_conformal_policy_includes_statistical_checks(tmp_path) -> None
     policy_mod.main(str(cfg_path))
 
     status = json.loads((model_dir / "conformal_policy_status.json").read_text(encoding="utf-8"))
-    status_v2 = json.loads(
-        (model_dir / "conformal_policy_status_v2.json").read_text(encoding="utf-8")
-    )
     checks = pd.read_parquet(data_dir / "conformal_policy_checks.parquet")
 
     assert status["schema_version"]
@@ -106,4 +102,3 @@ def test_validate_conformal_policy_includes_statistical_checks(tmp_path) -> None
     assert status["checks_total"] >= 13
     assert "statistical_coverage" in set(checks["scope"])
     assert "lgd_ead_conformal_status" in status
-    assert status_v2["checks_total"] == status["checks_total"]

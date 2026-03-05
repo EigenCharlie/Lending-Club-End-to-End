@@ -137,5 +137,5 @@ mlflow:
   tracking_uri: null  # Set by DagsHub init
 
 output:
-  model_path: models/pd_catboost.cbm
-  conformal_path: models/pd_calibrator.pkl
+  model_path: models/pd_canonical.cbm
+  conformal_path: models/pd_canonical_calibrator.pkl

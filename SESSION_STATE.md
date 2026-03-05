@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-01
+Last Updated: 2026-03-05
 
 ---
 
@@ -7,6 +7,12 @@ Last Updated: 2026-03-01
 
 Project is operational and artifact-consistent across the thesis pipeline.
 Main branch finalized with full C smart promotion package.
+
+Closure updates (2026-03-05):
+- Official core baseline frozen at `2026-03-04-C-core-balanced-cert2`.
+- Baseline registry enabled in `configs/baselines/core_official_baseline.json`.
+- Core launcher resolves baseline automatically from registry when not explicitly passed.
+- Canonical status artifacts are single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
 
 - Serving strategy remains Streamlit-first (thesis showcase mode).
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
