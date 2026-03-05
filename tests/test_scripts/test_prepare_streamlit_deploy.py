@@ -25,6 +25,30 @@ def test_prepare_streamlit_deploy_includes_reports_dirs() -> None:
     assert "reports/gpu_benchmark" in deploy_mod.REQUIRED_DIRS
 
 
+def test_prepare_streamlit_deploy_includes_baseline_registry() -> None:
+    assert "configs/baselines/core_official_baseline.json" in deploy_mod.REQUIRED_FILES
+
+
+def test_discover_release_governance_comparison_tags_collects_current_and_official(
+    tmp_path,
+) -> None:
+    repo = tmp_path
+    (repo / "data/processed").mkdir(parents=True, exist_ok=True)
+    (repo / "configs/baselines").mkdir(parents=True, exist_ok=True)
+
+    (repo / "data/processed/pipeline_summary.json").write_text(
+        '{"run_tag":"run-current","official_baseline_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+    (repo / "configs/baselines/core_official_baseline.json").write_text(
+        '{"official_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+
+    tags = deploy_mod._discover_release_governance_comparison_tags(repo)
+    assert tags == ["run-current", "run-official"]
+
+
 def test_prepare_streamlit_deploy_covers_streamlit_loader_artifacts() -> None:
     contract_paths = _artifact_contract_paths()
     missing_contract_entries: list[str] = []

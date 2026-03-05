@@ -16,6 +16,7 @@ import pyarrow.parquet as pq
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "dist" / "streamlit_deploy"
+BASELINE_REGISTRY_REL = "configs/baselines/core_official_baseline.json"
 
 DATASET_SHAPE_ASSETS: list[tuple[str, str]] = [
     ("data/raw/Loan_status_2007-2020Q3.csv", "csv"),
@@ -109,6 +110,7 @@ REQUIRED_FILES = [
     "models/governance_status.json",
     "models/pd_model_contract.json",
     "models/conformal_results_mondrian.pkl",
+    BASELINE_REGISTRY_REL,
 ]
 
 OPTIONAL_FILES = [
@@ -120,6 +122,29 @@ OPTIONAL_FILES = [
     "data/processed/shap_raw_top20.parquet",
     "data/processed/shap_summary.parquet",
 ]
+
+
+def _load_json_if_exists(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _discover_release_governance_comparison_tags(project_root: Path) -> list[str]:
+    tags: set[str] = set()
+    pipeline_summary = _load_json_if_exists(project_root / "data/processed/pipeline_summary.json")
+    for key in ("run_tag", "official_baseline_run_tag"):
+        value = str(pipeline_summary.get(key, "")).strip()
+        if value:
+            tags.add(value)
+    baseline_registry = _load_json_if_exists(project_root / BASELINE_REGISTRY_REL)
+    official_tag = str(baseline_registry.get("official_run_tag", "")).strip()
+    if official_tag:
+        tags.add(official_tag)
+    return sorted(tags)
 
 
 def _human_size(size_bytes: int) -> str:
@@ -210,7 +235,10 @@ def build_bundle(output_dir: Path, clean: bool, strict: bool, skip_duckdb: bool)
     missing_required: list[str] = []
     missing_optional: list[str] = []
 
-    for rel_dir in REQUIRED_DIRS:
+    required_dirs = list(REQUIRED_DIRS)
+    required_files = list(REQUIRED_FILES)
+
+    for rel_dir in required_dirs:
         src = PROJECT_ROOT / rel_dir
         dst = output_dir / rel_dir
         if not src.exists():
@@ -225,13 +253,22 @@ def build_bundle(output_dir: Path, clean: bool, strict: bool, skip_duckdb: bool)
             continue
         copied_bytes += _copy_dir(src, dst)
 
-    for rel_file in REQUIRED_FILES:
+    for rel_file in required_files:
         src = PROJECT_ROOT / rel_file
         dst = output_dir / rel_file
         if not src.exists():
             missing_required.append(rel_file)
             continue
         copied_bytes += _copy_file(src, dst)
+
+    for tag in _discover_release_governance_comparison_tags(PROJECT_ROOT):
+        rel_dir = f"reports/run_comparisons/{tag}"
+        src = PROJECT_ROOT / rel_dir
+        dst = output_dir / rel_dir
+        if not src.exists():
+            missing_optional.append(rel_dir)
+            continue
+        copied_bytes += _copy_dir(src, dst)
 
     optional_files = [
         f for f in OPTIONAL_FILES if not (skip_duckdb and f == "data/lending_club.duckdb")
