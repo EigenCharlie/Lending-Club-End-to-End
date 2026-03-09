@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-09T02:19:27.955868+00:00",
+  "generated_at_utc": "2026-03-09T06:02:35.059192+00:00",
   "benchmark_available": true,
   "selected_features": [
     "int_rate",
@@ -51,18 +51,18 @@
     "ece_delta": 0.03371854889248286
   },
   "interpretability": {
-    "champion_effective_driver_count": 22,
+    "champion_effective_driver_count": 16,
     "challenger_effective_driver_count": 5,
-    "champion_explanation_stability": 0.9,
+    "champion_explanation_stability": 0.8,
     "challenger_explanation_stability": 0.8,
     "champion_monotonic_violation_rate": 0.20859375,
     "challenger_monotonic_violation_rate": 0.0,
     "gains": {
       "fewer_effective_drivers": true,
-      "more_stable_explanations": false,
+      "more_stable_explanations": true,
       "better_monotonic_consistency": true
     },
-    "gain_count": 2
+    "gain_count": 3
   },
   "fairness": {
     "overall_pass": true,

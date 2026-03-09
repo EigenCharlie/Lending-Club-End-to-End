@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-07.1",
-  "run_tag": "2026-03-08-mega64plus",
+  "run_tag": "2026-03-09-C-official-champion64safe",
   "status": "warn",
   "warnings": [
     "interval_champion_not_promotable",
@@ -57,8 +57,8 @@
   "diagnostics": {
     "forecastability": {
       "schema_version": "2026-03-07.1",
-      "generated_at_utc": "2026-03-09T00:52:58.582266+00:00",
-      "run_tag": "2026-03-08-mega64plus",
+      "generated_at_utc": "2026-03-09T06:13:52.502165+00:00",
+      "run_tag": "2026-03-09-C-official-champion64safe",
       "n_periods": 160,
       "series_start": "2007-06-01",
       "series_end": "2020-09-01",
@@ -136,5 +136,5 @@
     "panel_forecasts_path": "data/processed/ts_panel_forecasts.parquet",
     "status_path": "models/time_series_status.json"
   },
-  "generated_at_utc": "2026-03-09T00:52:58.582266+00:00"
+  "generated_at_utc": "2026-03-09T06:13:52.502165+00:00"
 }

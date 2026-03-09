@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-02.1",
-  "generated_at_utc": "2026-03-09T01:21:35.853090+00:00",
-  "run_tag": "2026-03-08-C-core-champion64safe",
+  "generated_at_utc": "2026-03-09T05:05:40.137130+00:00",
+  "run_tag": "2026-03-09-C-official-champion64safe",
   "lgd": {
     "available": true,
     "n_train": 249380,

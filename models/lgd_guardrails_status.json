@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-02.1",
-  "generated_at_utc": "2026-03-09T01:22:21.351632+00:00",
-  "run_tag": "2026-03-08-C-core-champion64safe",
+  "generated_at_utc": "2026-03-09T05:06:28.991713+00:00",
+  "run_tag": "2026-03-09-C-official-champion64safe",
   "selected_variant": "direct_adaptive_grade_temporal",
   "selection_reason": "selected_best_pass_by_width",
   "checks": {

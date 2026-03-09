@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
@@ -1240,6 +1241,9 @@ def build_status_payload(
 
 
 def infer_run_tag(default: str = "untracked") -> str:
+    env_value = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    if env_value:
+        return env_value
     pipeline_summary = Path("data/processed/pipeline_summary.json")
     if pipeline_summary.exists():
         try:

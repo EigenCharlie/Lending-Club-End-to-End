@@ -12,6 +12,7 @@ from src.models.time_series import (
     build_backtest_cutoffs,
     compute_revision_metrics,
     diebold_mariano_test,
+    infer_run_tag,
     load_future_covariates,
     select_time_series_champions,
 )
@@ -129,3 +130,15 @@ def test_load_future_covariates_requires_contract_when_enabled(tmp_path) -> None
     }
     with pytest.raises(FileNotFoundError):
         load_future_covariates(config)
+
+
+def test_infer_run_tag_prefers_pipeline_env(monkeypatch, tmp_path) -> None:
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.setenv("PIPELINE_RUN_TAG", "run-from-env")
+    (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "data" / "processed" / "pipeline_summary.json").write_text(
+        '{"run_tag": "run-from-pipeline-summary"}',
+        encoding="utf-8",
+    )
+
+    assert infer_run_tag() == "run-from-env"
