@@ -11,6 +11,7 @@ REQUIRED_INTRO_PAGES = [
     Path("streamlit_app/pages/data_story.py"),
     Path("streamlit_app/pages/feature_engineering.py"),
     Path("streamlit_app/pages/model_laboratory.py"),
+    Path("streamlit_app/pages/model_interpretability.py"),
     Path("streamlit_app/pages/uncertainty_quantification.py"),
     Path("streamlit_app/pages/causal_intelligence.py"),
     Path("streamlit_app/pages/survival_analysis.py"),

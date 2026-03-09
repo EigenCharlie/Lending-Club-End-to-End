@@ -10,6 +10,7 @@ from src.data.build_datasets import (
     build_ead_dataset,
     build_loan_master,
     build_time_series,
+    build_time_series_panel,
     clean_raw_columns,
 )
 
@@ -111,6 +112,43 @@ class TestBuildTimeSeries:
     def test_sorted_by_date(self, feature_df: pd.DataFrame) -> None:
         result = build_time_series(feature_df)
         assert result["ds"].is_monotonic_increasing
+
+    def test_contains_additive_counts(self, feature_df: pd.DataFrame) -> None:
+        result = build_time_series(feature_df)
+        assert {"loan_count", "default_count", "total_amt_funded"}.issubset(result.columns)
+
+    def test_handles_missing_optional_numeric_columns(self, feature_df: pd.DataFrame) -> None:
+        result = build_time_series(feature_df.drop(columns=["int_rate", "dti"]))
+        assert "avg_int_rate" in result.columns
+        assert "avg_dti" in result.columns
+        assert result["avg_int_rate"].isna().all()
+        assert result["avg_dti"].isna().all()
+
+
+class TestBuildTimeSeriesPanel:
+    def test_contains_expected_levels(self, feature_df: pd.DataFrame) -> None:
+        result = build_time_series_panel(feature_df)
+        assert {"portfolio", "grade", "grade_term"} == set(result["series_level"].unique())
+
+    def test_grade_counts_reconcile_to_portfolio(self, feature_df: pd.DataFrame) -> None:
+        result = build_time_series_panel(feature_df)
+        portfolio = (
+            result.loc[result["series_level"] == "portfolio", ["ds", "loan_count", "default_count"]]
+            .sort_values("ds")
+            .reset_index(drop=True)
+        )
+        grade = (
+            result.loc[result["series_level"] == "grade"]
+            .groupby("ds", as_index=False)[["loan_count", "default_count"]]
+            .sum()
+            .sort_values("ds")
+            .reset_index(drop=True)
+        )
+        pd.testing.assert_frame_equal(
+            portfolio[["loan_count", "default_count"]],
+            grade[["loan_count", "default_count"]],
+            check_dtype=False,
+        )
 
 
 class TestBuildEadDataset:

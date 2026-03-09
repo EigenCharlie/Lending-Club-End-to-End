@@ -59,7 +59,10 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
         "simulate_ab_test.py --max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000"
         in heavy_main_cmd
     )
-    assert "estimate_causal_effects.py --treatment int_rate --sample_size 200000" in causal_cmd
+    assert (
+        "bash scripts/causal/run_causal_pipeline.sh --treatment int_rate --sample_size 200000 --run_tag run-balanced"
+        in causal_cmd
+    )
     assert "optimize_cate_portfolio.py --max_candidates 20000" in cate_cmd
     assert "--profile current" in rapids_cmd
 
@@ -76,6 +79,25 @@ def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
     assert (
         "run_comparison.py compare --run-tag run-baseline --baseline /tmp/fixed_baseline_snapshot.json"
         in post_core_cmd
+    )
+
+
+def test_build_steps_mega64safe_caps_survival_memory_pressure() -> None:
+    steps = lp.build_steps(
+        "run-mega64safe",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="mega64safe",
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    heavy_main_cmd = by_name["heavy_main"]
+
+    assert (
+        "run_survival_analysis.py --full-data --rsf_n_estimators 200 --rsf_sample_size 500000 "
+        "--rsf_max_samples 0.5 --rsf_n_jobs 12" in heavy_main_cmd
+    )
+    assert "optimize_portfolio.py --config configs/optimization.yaml --max_candidates 150000" in (
+        heavy_main_cmd
     )
 
 

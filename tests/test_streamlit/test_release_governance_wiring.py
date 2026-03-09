@@ -1,4 +1,4 @@
-"""Guardrails for release governance block wiring in key Streamlit pages."""
+"""Guardrails for release governance block removal in key Streamlit pages."""
 
 from __future__ import annotations
 
@@ -35,12 +35,14 @@ def _has_release_governance_call(tree: ast.AST) -> bool:
     return False
 
 
-def test_priority_pages_wire_release_governance_block() -> None:
+def test_priority_pages_do_not_render_release_governance_block() -> None:
     violations: list[str] = []
     for path in TARGETS:
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         has_import = _has_release_governance_import(tree)
         has_call = _has_release_governance_call(tree)
-        if not (has_import and has_call):
+        if has_import or has_call:
             violations.append(f"{path}:import={has_import},call={has_call}")
-    assert not violations, "Release governance wiring missing in pages: " + ", ".join(violations)
+    assert not violations, (
+        "Release governance block must stay hidden from reader pages: " + ", ".join(violations)
+    )

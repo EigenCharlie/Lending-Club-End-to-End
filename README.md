@@ -74,18 +74,26 @@ export UV_PROJECT_ENVIRONMENT=lending-club-venv
 uv sync --extra dev
 test -e .venv || ln -s lending-club-venv .venv
 
-# 2) Place Kaggle CSV in data/raw/
+# 2) Build the dedicated causal env once
+bash scripts/causal/setup_causal_env.sh .venv-causal
+
+# 3) Place Kaggle CSV in data/raw/
 # Loan_status_2007-2020Q3.csv
 
-# 3) Run pipeline (raw -> artifacts)
-uv run python scripts/end_to_end_pipeline.py
+# 4) Run the canonical full pipeline (incremental, DVC-managed)
+uv run dvc repro
 
-# 4) Export Streamlit-ready artifacts
+# 5) Export Streamlit-ready artifacts
 uv run python scripts/export_streamlit_artifacts.py
 
-# 5) Run app locally
+# 6) Run app locally
 uv run streamlit run streamlit_app/app.py
 ```
+
+Notes:
+- `uv run dvc repro` is the canonical thesis-grade rebuild path.
+- `uv run python scripts/end_to_end_pipeline.py` is a core/minimal smoke pipeline, not the full causal/fairness/governance run.
+- `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` is the canonical standalone causal runner when you only need the causal layer.
 
 ## Reproducibility and MLOps
 
@@ -99,6 +107,12 @@ uv run dvc status -c --json
 
 # Push artifacts to DagsHub remote
 uv run dvc push -r dagshub
+```
+
+For an official long rerun with resumability and run tagging, use:
+
+```bash
+bash scripts/start_long_run.sh <run_tag> --comparison-baseline-run-tag <baseline_run_tag> --no-rapids --no-notebooks
 ```
 
 One-shot integrations setup:

@@ -13,6 +13,7 @@ import pytest
 from src.optimization.portfolio_model import (
     build_binary_model,
     build_portfolio_model,
+    compute_effective_pd,
     solve_portfolio,
 )
 
@@ -53,6 +54,18 @@ def small_loans():
 
 
 class TestBuildPortfolioModel:
+    def test_compute_effective_pd_supports_blended_uncertainty(self, small_loans):
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="blended_uncertainty",
+            gamma=0.25,
+        )
+        expected = small_loans["pd_point"] + 0.25 * (
+            small_loans["pd_high"] - small_loans["pd_point"]
+        )
+        assert np.allclose(effective, expected)
+
     def test_model_has_expected_components(self, small_loans):
         model = build_portfolio_model(**small_loans)
         assert hasattr(model, "x")

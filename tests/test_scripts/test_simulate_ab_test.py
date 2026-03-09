@@ -52,3 +52,26 @@ def test_resolve_robust_policy_falls_back_when_summary_missing(tmp_path) -> None
     )
     assert policy["source"] == "fallback_default"
     assert policy["risk_tolerance"] == 0.09
+
+
+def test_resolve_robust_policy_prefers_champion_artifact(tmp_path) -> None:
+    champion_path = tmp_path / "champion_portfolio_policy.json"
+    champion_path.write_text(
+        (
+            '{"selected_policy":{"risk_tolerance":0.08,"uncertainty_aversion":0.25,'
+            '"min_budget_utilization":0.05,"pd_cap_slack_penalty":1.5,'
+            '"policy_mode":"blended_uncertainty","gamma":0.5}}'
+        ),
+        encoding="utf-8",
+    )
+
+    policy = ab_mod._resolve_robust_policy(
+        max_portfolio_pd=0.11,
+        summary_path=str(tmp_path / "missing.parquet"),
+        champion_policy_path=str(champion_path),
+    )
+
+    assert policy["source"] == "champion_policy_artifact"
+    assert policy["risk_tolerance"] == 0.08
+    assert policy["policy_mode"] == "blended_uncertainty"
+    assert policy["gamma"] == 0.5
