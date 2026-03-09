@@ -1,0 +1,13 @@
+{
+  "schema_version": "2026-03-06.1",
+  "generated_at_utc": "2026-03-09T03:56:19.984262+00:00",
+  "run_tag": "2026-03-08-C-core-champion64safe",
+  "global_threshold": 0.35,
+  "overrides": [],
+  "selection": {
+    "source": "fairness_frontier_auto_select",
+    "n_passed": 6,
+    "worst_eo_gap": 0.05589075897110196,
+    "approval_rate": 0.9962400991082425
+  }
+}

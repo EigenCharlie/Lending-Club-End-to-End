@@ -1,0 +1,140 @@
+{
+  "schema_version": "2026-03-07.1",
+  "run_tag": "2026-03-08-mega64plus",
+  "status": "warn",
+  "warnings": [
+    "interval_champion_not_promotable",
+    "exogenous_disabled_or_missing_future_contract"
+  ],
+  "config": {
+    "horizon": 12,
+    "freq": "MS",
+    "season_length": 12,
+    "rolling_origin": {
+      "min_train_periods": 72,
+      "step_months": 1,
+      "embargo_periods": 12,
+      "max_windows": 36
+    },
+    "exogenous_enabled": false
+  },
+  "summary": {
+    "n_models_evaluated": 6,
+    "n_backtest_rows": 2592,
+    "point_model": "AutoARIMA",
+    "interval_model": "AutoARIMA",
+    "point_promotable": true,
+    "interval_promotable": false,
+    "recent_actual_mean_12m": 0.026911907006801378
+  },
+  "point_champion": {
+    "model": "AutoARIMA",
+    "promotable": true,
+    "reasons": [],
+    "mae": 0.049873139227617436,
+    "mase": 1.9066089897100431,
+    "rmsse": 1.5570058706800392,
+    "abs_bias": 0.048018836438593226
+  },
+  "interval_champion": {
+    "model": "AutoARIMA",
+    "promotable": false,
+    "reasons": [
+      "no_model_within_coverage_gap_policy"
+    ],
+    "coverage_90": 0.8101851851851852,
+    "coverage_gap_90": 0.08981481481481479,
+    "winkler_90": 0.35975890823617446,
+    "avg_interval_width_90": 0.17404434598567664,
+    "family": "statistical"
+  },
+  "panel_global_model": {
+    "available": true,
+    "method": "bottom_up_counts_with_global_catboost",
+    "n_bottom_series": 14,
+    "n_forecast_rows": 297
+  },
+  "diagnostics": {
+    "forecastability": {
+      "schema_version": "2026-03-07.1",
+      "generated_at_utc": "2026-03-09T00:52:58.582266+00:00",
+      "run_tag": "2026-03-08-mega64plus",
+      "n_periods": 160,
+      "series_start": "2007-06-01",
+      "series_end": "2020-09-01",
+      "recent_actual_mean_12m": 0.026911907006801378,
+      "adf": {
+        "statistic": -1.9765602949487615,
+        "p_value": 0.2969442042501646,
+        "lags_used": 13
+      },
+      "kpss": {
+        "statistic": 0.25753454841249984,
+        "p_value": 0.1,
+        "lags_used": 8
+      },
+      "acf": {
+        "lag_1": 0.8349981729279056,
+        "lag_2": 0.7459033829126462,
+        "lag_3": 0.6874916772827628,
+        "lag_4": 0.6240369599316403,
+        "lag_5": 0.5635390436715605,
+        "lag_6": 0.5053567057440341,
+        "lag_7": 0.472785952224223,
+        "lag_8": 0.39282805197501364,
+        "lag_9": 0.3169792848261985,
+        "lag_10": 0.2531242623788613,
+        "lag_11": 0.24157832454873526,
+        "lag_12": 0.1604446770648665
+      },
+      "pacf": {
+        "lag_1": 0.8402497337639301,
+        "lag_2": 0.16778528544014598,
+        "lag_3": 0.11010702609123724,
+        "lag_4": 0.0069389561419676725,
+        "lag_5": -0.007538230205843105,
+        "lag_6": -0.020816650426219923,
+        "lag_7": 0.06304032265221003,
+        "lag_8": -0.1548066587007755,
+        "lag_9": -0.09023881373390952,
+        "lag_10": -0.05817758714140727,
+        "lag_11": 0.15329868994109364,
+        "lag_12": -0.2048329868372945
+      },
+      "stl": {
+        "seasonal_strength": 0.21165919268077193,
+        "trend_strength": 0.8078373840115486
+      },
+      "variance_ratio": {
+        "k": 12,
+        "value": 0.4236395667454792
+      },
+      "spectral_entropy": 0.5559378570303748,
+      "permutation_entropy": 0.9903056294119694
+    },
+    "residual_drift": {
+      "ks_statistic": 0.7731481481481481,
+      "p_value": 6.274375257076014e-64,
+      "early_mean": 0.022589284820660756,
+      "late_mean": -0.07240765274862622
+    }
+  },
+  "research_backlog": [
+    "ACI",
+    "EnbPI",
+    "OnlineConformal"
+  ],
+  "artifacts": {
+    "config_path": "configs/time_series.yaml",
+    "time_series_full_path": "data/processed/time_series_full.parquet",
+    "time_series_panel_path": "data/processed/time_series_panel.parquet",
+    "backtest_predictions_path": "data/processed/ts_backtest_predictions.parquet",
+    "backtest_metrics_path": "data/processed/ts_backtest_metrics.parquet",
+    "forecasts_path": "data/processed/ts_forecasts.parquet",
+    "scenarios_path": "data/processed/ts_ifrs9_scenarios.parquet",
+    "diagnostics_path": "data/processed/ts_diagnostics.json",
+    "panel_forecasts_path": "data/processed/ts_panel_forecasts.parquet",
+    "status_path": "models/time_series_status.json"
+  },
+  "generated_at_utc": "2026-03-09T00:52:58.582266+00:00"
+}

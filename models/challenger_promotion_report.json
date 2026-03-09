@@ -1,0 +1,120 @@
+{
+  "schema_version": "2026-03-06.1",
+  "generated_at_utc": "2026-03-09T02:19:27.955868+00:00",
+  "benchmark_available": true,
+  "selected_features": [
+    "int_rate",
+    "loan_to_income",
+    "installment_burden",
+    "fico_score",
+    "installment",
+    "dti",
+    "loan_amnt",
+    "loan_to_income_sq",
+    "many_recent_opens",
+    "mort_acc",
+    "emp_length_num",
+    "open_acc_ratio",
+    "fico_x_dti",
+    "revol_bal_to_income",
+    "rev_utilization",
+    "has_mortgage",
+    "annual_inc",
+    "revol_bal",
+    "inq_last_6mths",
+    "delinq_recency",
+    "high_util_pct",
+    "has_recent_inq",
+    "log_annual_inc",
+    "credit_age_years",
+    "log_revol_bal",
+    "total_acc",
+    "pub_rec",
+    "open_acc",
+    "has_delinq_2yrs",
+    "il_ratio"
+  ],
+  "primary_threshold": 0.05,
+  "champion_metrics": {
+    "auc": 0.7116441633266815,
+    "brier": 0.15478193881155655,
+    "ece": 0.0057192420491285435
+  },
+  "challenger_metrics": {
+    "auc": 0.7031899417167963,
+    "brier": 0.1582258120563749,
+    "ece": 0.0394377909416114
+  },
+  "deltas": {
+    "auc_drop": 0.008454221609885182,
+    "brier_increase_pct": 0.022249839168969165,
+    "ece_delta": 0.03371854889248286
+  },
+  "interpretability": {
+    "champion_effective_driver_count": 22,
+    "challenger_effective_driver_count": 5,
+    "champion_explanation_stability": 0.9,
+    "challenger_explanation_stability": 0.8,
+    "champion_monotonic_violation_rate": 0.20859375,
+    "challenger_monotonic_violation_rate": 0.0,
+    "gains": {
+      "fewer_effective_drivers": true,
+      "more_stable_explanations": false,
+      "better_monotonic_consistency": true
+    },
+    "gain_count": 2
+  },
+  "fairness": {
+    "overall_pass": true,
+    "attributes": [
+      {
+        "attribute": "home_ownership",
+        "dpd": 0.00016557960059315757,
+        "eo_gap": 0.0004804035389727179,
+        "dir": 0.9998344203994066,
+        "tpr_gap": 9.65530559041694e-05,
+        "fpr_gap": 0.0004804035389727179,
+        "passed_dpd": true,
+        "passed_eo": true,
+        "passed_dir": true,
+        "passed_all": true
+      },
+      {
+        "attribute": "annual_inc_quartile",
+        "dpd": 0.0004180541740547161,
+        "eo_gap": 0.001059676519799213,
+        "dir": 0.9995819458259451,
+        "tpr_gap": 0.00019440502342582544,
+        "fpr_gap": 0.001059676519799213,
+        "passed_dpd": true,
+        "passed_eo": true,
+        "passed_dir": true,
+        "passed_all": true
+      },
+      {
+        "attribute": "verification_status",
+        "dpd": 0.00022631592053368177,
+        "eo_gap": 0.0002958424754798683,
+        "dir": 0.9997736677137088,
+        "tpr_gap": 0.00021384791862821828,
+        "fpr_gap": 0.0002958424754798683,
+        "passed_dpd": true,
+        "passed_eo": true,
+        "passed_dir": true,
+        "passed_all": true
+      }
+    ]
+  },
+  "promotion_checks": {
+    "auc_drop_ok": true,
+    "brier_guardrail_ok": true,
+    "fairness_ok": true,
+    "predictive_drift_ok": true,
+    "interpretability_gain_count_ok": true
+  },
+  "challenger_promotable": true,
+  "notes": [
+    "Monotonic challenger is benchmarked on selected numeric features only.",
+    "Production calibrator remains isotonic on the champion model."
+  ]
+}

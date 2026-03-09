@@ -1,0 +1,32 @@
+{
+  "schema_version": "2026-03-08.1",
+  "generated_at_utc": "2026-03-09T02:01:43.260451+00:00",
+  "run_tag": "2026-03-08-C-core-champion64safe",
+  "selection_policy": {
+    "rank_order": [
+      "ab_pass(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.14,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.0,
+    "uncertainty_aversion": 0.25,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "pd_cap_slack": 0.0,
+    "solver_backend": "highs"
+  },
+  "selection_metrics": {
+    "ab_pass": true,
+    "ab_diff_total_return": 71725.31901978875,
+    "realized_total_return": 132987.21547498554,
+    "price_of_robustness": -71001.58709813074,
+    "price_of_robustness_pct": -83.49630703695763,
+    "n_funded": 263
+  },
+  "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+  "summary_path": "data/processed/portfolio_robustness_summary.parquet"
+}

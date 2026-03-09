@@ -1,0 +1,23 @@
+{
+  "schema_version": "2026-03-02.1",
+  "generated_at_utc": "2026-03-09T01:22:21.351632+00:00",
+  "run_tag": "2026-03-08-C-core-champion64safe",
+  "selected_variant": "direct_adaptive_grade_temporal",
+  "selection_reason": "selected_best_pass_by_width",
+  "checks": {
+    "coverage90_ok": true,
+    "coverage95_ok": true,
+    "min_group_coverage90_ok": true,
+    "width_inflation90_ok": true,
+    "width_inflation95_ok": true,
+    "bias_ok": true
+  },
+  "overall_pass": true,
+  "targets": {
+    "coverage_90": 0.9,
+    "coverage_95": 0.95,
+    "min_grade_coverage_90": 0.85,
+    "max_width_inflation": 1.25,
+    "max_abs_bias": 0.1
+  }
+}
