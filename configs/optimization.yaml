@@ -3,7 +3,7 @@ optimization:
   type: LP  # LP | MILP
   solver: highs
   time_limit: 300
-  threads: 4
+  threads: 16
 
 portfolio:
   total_budget: 1_000_000

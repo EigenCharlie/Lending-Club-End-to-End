@@ -1,10 +1,10 @@
-"""End-to-end pipeline orchestrator.
+"""Core/minimal pipeline orchestrator.
 
-Pipeline:
-Data -> Features -> PD -> Conformal -> Optimization -> IFRS9 artifacts
+This script is a lightweight local smoke/integration flow. The canonical full rebuild
+for thesis-grade artifacts is `uv run dvc repro` or `scripts/run_long_pipeline.py`.
 
 Usage:
-    uv run python scripts/end_to_end_pipeline.py --run_name v2
+    uv run python scripts/end_to_end_pipeline.py --run_name smoke
 """
 
 from __future__ import annotations

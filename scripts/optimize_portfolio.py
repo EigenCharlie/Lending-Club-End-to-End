@@ -46,7 +46,7 @@ def _load_candidates() -> pd.DataFrame:
 
 def _load_interval_artifact() -> pd.DataFrame:
     """Load conformal interval artifact (canonical first)."""
-    intervals, intervals_path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
+    intervals, intervals_path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
     logger.info(
         f"Loaded conformal intervals from {intervals_path} "
         f"(legacy={is_legacy}, rows={len(intervals):,})"

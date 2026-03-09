@@ -622,7 +622,6 @@ def main(
     models_dir.mkdir(parents=True, exist_ok=True)
 
     intervals_mondrian_path = data_dir / "conformal_intervals_mondrian.parquet"
-    intervals_default_path = data_dir / "conformal_intervals.parquet"  # legacy compatibility copy
     group_metrics_path = data_dir / "conformal_group_metrics_mondrian.parquet"
     tuning_path = data_dir / "conformal_mondrian_tuning_90.parquet"
     pareto_path = data_dir / "conformal_mondrian_tuning_90_pareto.parquet"
@@ -631,7 +630,6 @@ def main(
     results_path = models_dir / "conformal_results_mondrian.pkl"
 
     intervals_df.to_parquet(intervals_mondrian_path, index=False)
-    intervals_df.to_parquet(intervals_default_path, index=False)
     group_metrics_df.to_parquet(group_metrics_path, index=False)
     tuning_df.to_parquet(tuning_path, index=False)
     tuning_df[tuning_df["is_pareto"]].copy().to_parquet(pareto_path, index=False)
@@ -682,7 +680,6 @@ def main(
 
     logger.info("Conformal artifacts saved:")
     logger.info(f"  - {intervals_mondrian_path}")
-    logger.info(f"  - {intervals_default_path} (legacy compatibility copy)")
     logger.info(f"  - {group_metrics_path}")
     logger.info(f"  - {tuning_path}")
     logger.info(f"  - {pareto_path}")

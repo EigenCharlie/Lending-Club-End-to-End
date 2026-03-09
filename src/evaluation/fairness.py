@@ -161,6 +161,27 @@ def fairness_report(
     eo_gap_threshold: float = 0.10,
     dir_threshold: float = 0.80,
 ) -> pd.DataFrame:
+    """Run all fairness metrics for multiple group attribute definitions."""
+    y_true = np.asarray(y_true, dtype=float)
+    y_pred_binary = (np.asarray(y_pred_proba, dtype=float) >= threshold).astype(float)
+    return fairness_report_from_binary(
+        y_true=y_true,
+        y_pred_binary=y_pred_binary,
+        groups_dict=groups_dict,
+        dpd_threshold=dpd_threshold,
+        eo_gap_threshold=eo_gap_threshold,
+        dir_threshold=dir_threshold,
+    )
+
+
+def fairness_report_from_binary(
+    y_true: np.ndarray,
+    y_pred_binary: np.ndarray,
+    groups_dict: dict[str, np.ndarray],
+    dpd_threshold: float = 0.10,
+    eo_gap_threshold: float = 0.10,
+    dir_threshold: float = 0.80,
+) -> pd.DataFrame:
     """Run all fairness metrics for multiple group attribute definitions.
 
     Args:
@@ -177,7 +198,7 @@ def fairness_report(
         passed_dpd, passed_eo, passed_dir, passed_all.
     """
     y_true = np.asarray(y_true, dtype=float)
-    y_pred_binary = (np.asarray(y_pred_proba, dtype=float) >= threshold).astype(float)
+    y_pred_binary = np.asarray(y_pred_binary, dtype=float)
 
     rows: list[dict] = []
     for attr_name, groups in groups_dict.items():
@@ -208,6 +229,99 @@ def fairness_report(
 
     logger.info(f"Fairness report: {len(rows)} attributes evaluated")
     return pd.DataFrame(rows)
+
+
+def build_intersectional_groups(
+    groups_dict: dict[str, np.ndarray],
+    *,
+    max_order: int = 2,
+    min_group_size: int = 200,
+) -> dict[str, np.ndarray]:
+    """Build pairwise intersectional groups from already-resolved attribute arrays."""
+    items = [(str(name), np.asarray(values).astype(str)) for name, values in groups_dict.items()]
+    if not items or max_order < 2:
+        return {}
+
+    n_rows = len(items[0][1])
+    out: dict[str, np.ndarray] = {}
+    for i in range(len(items)):
+        for j in range(i + 1, len(items)):
+            name_i, values_i = items[i]
+            name_j, values_j = items[j]
+            if len(values_i) != n_rows or len(values_j) != n_rows:
+                continue
+            labels = np.array(
+                [f"{left} | {right}" for left, right in zip(values_i, values_j, strict=False)],
+                dtype=object,
+            )
+            counts = pd.Series(labels).value_counts()
+            allowed = set(counts[counts >= int(min_group_size)].index.astype(str).tolist())
+            collapsed = np.array(
+                [label if label in allowed else "OTHER_SMALL_GROUP" for label in labels],
+                dtype=object,
+            )
+            out[f"{name_i}__x__{name_j}"] = collapsed
+    return out
+
+
+def fairness_threshold_frontier(
+    y_true: np.ndarray,
+    y_pred_proba: np.ndarray,
+    groups_dict: dict[str, np.ndarray],
+    *,
+    thresholds: list[float],
+    primary_threshold: float,
+    dpd_threshold: float = 0.10,
+    eo_gap_threshold: float = 0.10,
+    dir_threshold: float = 0.80,
+) -> pd.DataFrame:
+    """Evaluate fairness metrics across multiple thresholds."""
+    rows: list[dict[str, float | str | bool]] = []
+    for threshold in thresholds:
+        report = fairness_report(
+            y_true=y_true,
+            y_pred_proba=y_pred_proba,
+            groups_dict=groups_dict,
+            threshold=float(threshold),
+            dpd_threshold=dpd_threshold,
+            eo_gap_threshold=eo_gap_threshold,
+            dir_threshold=dir_threshold,
+        )
+        if report.empty:
+            continue
+        for _, row in report.iterrows():
+            rows.append(
+                {
+                    "attribute": str(row["attribute"]),
+                    "threshold": float(threshold),
+                    "is_primary_threshold": bool(
+                        abs(float(threshold) - float(primary_threshold)) < 1e-9
+                    ),
+                    "dpd": float(row["dpd"]),
+                    "eo_gap": float(row["eo_gap"]),
+                    "dir": float(row["dir"]),
+                    "passed_dpd": bool(row["passed_dpd"]),
+                    "passed_eo": bool(row["passed_eo"]),
+                    "passed_dir": bool(row["passed_dir"]),
+                    "passed_all": bool(row["passed_all"]),
+                }
+            )
+    if not rows:
+        return pd.DataFrame(
+            columns=[
+                "attribute",
+                "threshold",
+                "is_primary_threshold",
+                "dpd",
+                "eo_gap",
+                "dir",
+                "passed_dpd",
+                "passed_eo",
+                "passed_dir",
+                "passed_all",
+            ]
+        )
+    return pd.DataFrame(rows).sort_values(["attribute", "threshold"]).reset_index(drop=True)
 
 
 def conformal_fairness_report(

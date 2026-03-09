@@ -27,6 +27,7 @@ from src.evaluation.fairness import fairness_report
 from src.evaluation.metrics import classification_metrics
 from src.models.calibration import evaluate_calibration, expected_calibration_error
 from src.models.conformal import create_pd_intervals, validate_coverage
+from src.models.optuna_tuning import resolve_optuna_study_name
 from src.models.pd_contract import (
     CANONICAL_CALIBRATOR_PATH,
     CANONICAL_MODEL_PATH,
@@ -69,6 +70,76 @@ def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
             out["term"].astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
         )
     return out
+
+
+def _issue_quarter(series: pd.Series) -> pd.Series:
+    return pd.to_datetime(series, errors="coerce").dt.to_period("Q").astype("string")
+
+
+def _apply_training_regime(
+    train: pd.DataFrame,
+    regime_cfg: dict[str, Any],
+    *,
+    date_col: str = "issue_d",
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    mode = str(regime_cfg.get("mode", "standard")).strip().lower() or "standard"
+    out = train.copy()
+    meta: dict[str, Any] = {"mode": mode}
+
+    if mode.startswith("recent_"):
+        n_quarters = int(regime_cfg.get("recent_window_quarters", 12))
+        if date_col in out.columns:
+            periods = _issue_quarter(out[date_col])
+            valid = periods.dropna().astype(str)
+            if not valid.empty:
+                keep_periods = set(valid.sort_values().unique().tolist()[-n_quarters:])
+                mask = periods.astype(str).isin(keep_periods)
+                out = out.loc[mask].copy()
+                meta["recent_window_quarters"] = int(n_quarters)
+                meta["rows_after_recent_window"] = int(len(out))
+    elif mode == "full_weighted":
+        if date_col in out.columns:
+            periods = _issue_quarter(out[date_col])
+            codes = periods.astype("category").cat.codes.to_numpy(dtype=float)
+            max_code = float(np.nanmax(codes)) if len(codes) else 0.0
+            age = np.clip(max_code - codes, a_min=0.0, a_max=None)
+            half_life = float(regime_cfg.get("half_life_quarters", 8.0))
+            half_life = max(1.0, half_life)
+            out["_recency_weight"] = np.power(0.5, age / half_life)
+            meta["half_life_quarters"] = float(half_life)
+            meta["weight_min"] = float(out["_recency_weight"].min())
+            meta["weight_max"] = float(out["_recency_weight"].max())
+            meta["weight_mean"] = float(out["_recency_weight"].mean())
+
+    return out.reset_index(drop=True), meta
+
+
+def _training_weights(df: pd.DataFrame) -> np.ndarray | None:
+    if "_recency_weight" not in df.columns:
+        return None
+    return pd.to_numeric(df["_recency_weight"], errors="coerce").fillna(1.0).to_numpy(dtype=float)
+
+
+def _apply_stable_core(
+    features: list[str],
+    categorical_features: list[str],
+    stable_core_cfg: dict[str, Any],
+) -> tuple[list[str], list[str], dict[str, Any]]:
+    if not bool(stable_core_cfg.get("enabled", False)):
+        return features, categorical_features, {"enabled": False, "excluded_features": []}
+    excluded = stable_core_cfg.get("exclude_features", ["rev_utilization", "high_util_pct"])
+    excluded = [str(x) for x in excluded]
+    filtered_features = [f for f in features if f not in excluded]
+    filtered_categorical = [f for f in categorical_features if f in filtered_features]
+    return (
+        filtered_features,
+        filtered_categorical,
+        {
+            "enabled": True,
+            "excluded_features": excluded,
+            "feature_count_after_filter": int(len(filtered_features)),
+        },
+    )
 
 
 def _prepare_catboost_frame(
@@ -595,6 +666,8 @@ def _evaluate_walk_forward_auc(
 
         X_fit = _prepare_catboost_frame(fit_df, features, categorical_features)
         X_eval = _prepare_catboost_frame(eval_df, features, categorical_features)
+        fit_weights = _training_weights(fit_df)
+        eval_weights = _training_weights(eval_df)
         _, metrics = train_catboost_default(
             X_fit,
             y_fit,
@@ -602,6 +675,8 @@ def _evaluate_walk_forward_auc(
             y_eval,
             cat_features=categorical_features,
             params=params,
+            sample_weight=fit_weights,
+            eval_sample_weight=eval_weights,
         )
         folds.append(
             {
@@ -648,6 +723,8 @@ def _replay_top_optuna_trials(
     seeds: list[int],
     top_k_trials: int = 3,
     prioritize_gate_pass: bool = True,
+    sample_weight: np.ndarray | None = None,
+    eval_sample_weight: np.ndarray | None = None,
 ) -> dict[str, Any]:
     """Replay top Optuna trials across multiple seeds for robustness."""
     report: dict[str, Any] = {
@@ -662,7 +739,7 @@ def _replay_top_optuna_trials(
         return report
 
     storage = hpo_cfg.get("study_storage")
-    study_name = hpo_cfg.get("study_name")
+    study_name = resolve_optuna_study_name(hpo_cfg.get("study_name"))
     if not storage or not study_name:
         report["reason"] = "missing_study_storage_or_name"
         return report
@@ -708,6 +785,8 @@ def _replay_top_optuna_trials(
                 y_val,
                 cat_features=cat_features,
                 params=params,
+                sample_weight=sample_weight,
+                eval_sample_weight=eval_sample_weight,
             )
             y_val_prob = model.predict_proba(X_val_cb)[:, 1]
             rows.append(
@@ -803,10 +882,67 @@ def _replay_top_optuna_trials(
     return report
 
 
-def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = None) -> None:
+def main(
+    config_path: str = "configs/pd_model.yaml",
+    sample_size: int | None = None,
+    training_regime_mode: str | None = None,
+    recent_window_quarters: int | None = None,
+    half_life_quarters: int | None = None,
+    stable_core_enabled: bool | None = None,
+    hpo_n_trials: int | None = None,
+    hpo_enabled: bool | None = None,
+    challenger_enabled: bool | None = None,
+    walk_forward_enabled: bool | None = None,
+    seed_replay_enabled: bool | None = None,
+    catboost_iterations: int | None = None,
+) -> None:
     if sample_size is not None and int(sample_size) <= 0:
         sample_size = None
     config = load_config(config_path)
+    regime_cfg = dict(config.get("training_regime", {}) or {})
+    if training_regime_mode is not None:
+        regime_cfg["mode"] = str(training_regime_mode)
+    if recent_window_quarters is not None:
+        regime_cfg["recent_window_quarters"] = int(recent_window_quarters)
+    if half_life_quarters is not None:
+        regime_cfg["half_life_quarters"] = int(half_life_quarters)
+    config["training_regime"] = regime_cfg
+
+    stable_core_cfg = dict(config.get("stable_core", {}) or {})
+    if stable_core_enabled is not None:
+        stable_core_cfg["enabled"] = bool(stable_core_enabled)
+    config["stable_core"] = stable_core_cfg
+
+    hpo_cfg = dict(config.get("hpo", {}) or {})
+    if hpo_n_trials is not None:
+        hpo_cfg["n_trials"] = int(hpo_n_trials)
+    if hpo_enabled is not None:
+        hpo_cfg["enabled"] = bool(hpo_enabled)
+    config["hpo"] = hpo_cfg
+
+    challenger_cfg = dict(config.get("challenger_pipeline", {}) or {})
+    if challenger_enabled is not None:
+        challenger_cfg["enabled"] = bool(challenger_enabled)
+    config["challenger_pipeline"] = challenger_cfg
+
+    validation_cfg = dict(config.get("validation", {}) or {})
+    walk_cfg = dict(validation_cfg.get("walk_forward", {}) or {})
+    if walk_forward_enabled is not None:
+        walk_cfg["enabled"] = bool(walk_forward_enabled)
+    validation_cfg["walk_forward"] = walk_cfg
+    seed_cfg = dict(validation_cfg.get("seed_replay", {}) or {})
+    if seed_replay_enabled is not None:
+        seed_cfg["enabled"] = bool(seed_replay_enabled)
+    validation_cfg["seed_replay"] = seed_cfg
+    config["validation"] = validation_cfg
+
+    model_cfg = dict(config.get("model", {}) or {})
+    model_params = dict(model_cfg.get("params", {}) or {})
+    if catboost_iterations is not None:
+        model_params["iterations"] = int(catboost_iterations)
+    model_cfg["params"] = model_params
+    config["model"] = model_cfg
+
     logger.info(f"Config loaded from {config_path}")
 
     train = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["train_path"]))
@@ -814,6 +950,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     cal = _normalize_percent_columns(
         read_split_with_fe_fallback(config["data"]["calibration_path"])
     )
+
+    train, regime_meta = _apply_training_regime(train, regime_cfg, date_col="issue_d")
 
     if sample_size is not None:
         if sample_size < len(train):
@@ -850,6 +988,13 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     ]
     categorical_features = [c for c in categorical_features if c in catboost_features]
 
+    catboost_features, categorical_features, stable_core_meta = _apply_stable_core(
+        catboost_features,
+        categorical_features,
+        config.get("stable_core", {}) or {},
+    )
+    logreg_features = [c for c in logreg_features if c in catboost_features]
+
     if not catboost_features:
         raise ValueError("No CatBoost features resolved across train/cal/test splits.")
     if not logreg_features:
@@ -871,6 +1016,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     train_fit, train_val = temporal_train_val_split(
         train, val_fraction=val_fraction, date_col="issue_d"
     )
+    train_fit_weights = _training_weights(train_fit)
+    train_val_weights = _training_weights(train_val)
 
     y_train_fit = train_fit[TARGET].astype(int)
     y_val = train_val[TARGET].astype(int)
@@ -886,7 +1033,13 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
     X_test_lr, _ = _prepare_logreg_frame(test, logreg_features, fill_values=lr_fill)
 
     # Baseline LR
-    lr_model, lr_metrics = train_baseline(X_train_fit_lr, y_train_fit, X_test_lr, y_test)
+    lr_model, lr_metrics = train_baseline(
+        X_train_fit_lr,
+        y_train_fit,
+        X_test_lr,
+        y_test,
+        sample_weight=train_fit_weights,
+    )
 
     # CatBoost default
     cb_default_model, cb_default_metrics = train_catboost_default(
@@ -898,6 +1051,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         y_test=y_test,
         cat_features=categorical_features,
         params=config["model"].get("params", {}),
+        sample_weight=train_fit_weights,
+        eval_sample_weight=train_val_weights,
     )
 
     # CatBoost tuned (Optuna)
@@ -939,6 +1094,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             storage_grace_period=int(hpo_cfg.get("storage_grace_period", 0)),
             sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
             retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
+            sample_weight=train_fit_weights,
+            eval_sample_weight=train_val_weights,
         )
 
         if bool(seed_replay_cfg.get("enabled", True)):
@@ -956,6 +1113,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
                 seeds=seeds,
                 top_k_trials=int(seed_replay_cfg.get("top_k_trials", 3)),
                 prioritize_gate_pass=prioritize_gate_pass,
+                sample_weight=train_fit_weights,
+                eval_sample_weight=train_val_weights,
             )
             if seed_replay_report.get("enabled") and seed_replay_report.get("selected_params"):
                 selected_params = dict(seed_replay_report["selected_params"])
@@ -968,6 +1127,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
                     y_test=y_test,
                     cat_features=categorical_features,
                     params=selected_params,
+                    sample_weight=train_fit_weights,
+                    eval_sample_weight=train_val_weights,
                 )
                 cb_tuned_metrics = {
                     **cb_tuned_metrics,
@@ -988,6 +1149,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
             y_test=y_test,
             cat_features=categorical_features,
             params=config["model"].get("params", {}),
+            sample_weight=train_fit_weights,
+            eval_sample_weight=train_val_weights,
         )
         cb_tuned_metrics["hpo_trials_executed"] = 0
         cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
@@ -1242,6 +1405,8 @@ def main(config_path: str = "configs/pd_model.yaml", sample_size: int | None = N
         "calibration_selection_report": cal_selection_report,
         "feature_source": feature_sets.get("feature_source", feature_mode),
         "feature_config_path": str(feature_config_path),
+        "training_regime": regime_meta,
+        "stable_core": stable_core_meta,
         "validation_scheme": val_cfg.get("scheme", "temporal_train_val_cal_test"),
         "dataset_scope": "full_data" if sample_size is None else "sampled",
         "sample_size": None if sample_size is None else int(sample_size),
@@ -1302,5 +1467,58 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/pd_model.yaml")
     parser.add_argument("--sample_size", type=int, default=None)
+    parser.add_argument("--training_regime_mode", default=None)
+    parser.add_argument("--recent_window_quarters", type=int, default=None)
+    parser.add_argument("--half_life_quarters", type=int, default=None)
+    parser.add_argument(
+        "--stable_core_enabled",
+        choices=["true", "false"],
+        default=None,
+    )
+    parser.add_argument("--hpo_n_trials", type=int, default=None)
+    parser.add_argument(
+        "--hpo_enabled",
+        choices=["true", "false"],
+        default=None,
+    )
+    parser.add_argument(
+        "--challenger_enabled",
+        choices=["true", "false"],
+        default=None,
+    )
+    parser.add_argument(
+        "--walk_forward_enabled",
+        choices=["true", "false"],
+        default=None,
+    )
+    parser.add_argument(
+        "--seed_replay_enabled",
+        choices=["true", "false"],
+        default=None,
+    )
+    parser.add_argument("--catboost_iterations", type=int, default=None)
     args = parser.parse_args()
-    main(args.config, args.sample_size)
+    main(
+        args.config,
+        args.sample_size,
+        training_regime_mode=args.training_regime_mode,
+        recent_window_quarters=args.recent_window_quarters,
+        half_life_quarters=args.half_life_quarters,
+        stable_core_enabled=(
+            None if args.stable_core_enabled is None else args.stable_core_enabled.lower() == "true"
+        ),
+        hpo_n_trials=args.hpo_n_trials,
+        hpo_enabled=None if args.hpo_enabled is None else args.hpo_enabled.lower() == "true",
+        challenger_enabled=(
+            None if args.challenger_enabled is None else args.challenger_enabled.lower() == "true"
+        ),
+        walk_forward_enabled=(
+            None
+            if args.walk_forward_enabled is None
+            else args.walk_forward_enabled.lower() == "true"
+        ),
+        seed_replay_enabled=(
+            None if args.seed_replay_enabled is None else args.seed_replay_enabled.lower() == "true"
+        ),
+        catboost_iterations=args.catboost_iterations,
+    )

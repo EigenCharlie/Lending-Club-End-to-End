@@ -16,7 +16,6 @@ dependencies = [
     # ── ML Core ──
     "scikit-learn>=1.6,<2",
     "catboost>=1.2",
-    "lightgbm>=4.5",
     "optuna>=4.1",
     "shap>=0.47",
     # ── Conformal Prediction ──

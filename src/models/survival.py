@@ -45,6 +45,7 @@ def train_random_survival_forest(
     max_features: str | int | float = "sqrt",
     max_depth: int | None = None,
     max_samples: int | float | None = None,
+    n_jobs: int = -1,
 ) -> tuple:
     """Train Random Survival Forest.
 
@@ -62,7 +63,7 @@ def train_random_survival_forest(
         max_depth=max_depth,
         max_samples=max_samples,
         random_state=42,
-        n_jobs=-1,
+        n_jobs=n_jobs,
     )
     rsf.fit(X_train, y_train)
 

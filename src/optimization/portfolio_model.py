@@ -1,7 +1,10 @@
 """Portfolio optimization using Pyomo + HiGHS.
 
 Maximizes expected return net of expected loss under credit constraints.
-Supports robust PD constraints using conformal upper bounds.
+Supports multiple uncertainty policies for PD constraints:
+- point_estimate: uses point PD only
+- hard_worst_case: uses conformal upper bound
+- blended_uncertainty: interpolates between point and upper bound
 """
 
 from __future__ import annotations
@@ -12,6 +15,37 @@ import numpy as np
 import pandas as pd
 import pyomo.environ as pyo
 from loguru import logger
+
+
+def compute_effective_pd(
+    pd_point: np.ndarray,
+    pd_high: np.ndarray,
+    *,
+    policy_mode: str = "hard_worst_case",
+    gamma: float = 1.0,
+) -> np.ndarray:
+    """Resolve the PD vector used in the portfolio PD constraint.
+
+    Args:
+        pd_point: Point PD estimates.
+        pd_high: Upper conformal PD bound.
+        policy_mode: `point_estimate`, `hard_worst_case`, or `blended_uncertainty`.
+        gamma: Blend weight for `blended_uncertainty`.
+    """
+    point = np.asarray(pd_point, dtype=float)
+    high = np.asarray(pd_high, dtype=float)
+    mode = str(policy_mode).strip().lower()
+    if mode in {"point", "point_estimate", "nonrobust"}:
+        return point
+    if mode in {"hard_worst_case", "worst_case", "robust"}:
+        return high
+    if mode == "blended_uncertainty":
+        weight = float(np.clip(gamma, 0.0, 1.0))
+        return np.clip(point + weight * np.clip(high - point, 0.0, 1.0), 0.0, 1.0)
+    raise ValueError(
+        f"Unsupported policy_mode={policy_mode!r}. "
+        "Use 'point_estimate', 'hard_worst_case', or 'blended_uncertainty'."
+    )
 
 
 def build_portfolio_model(
@@ -28,6 +62,7 @@ def build_portfolio_model(
     uncertainty_aversion: float = 0.0,
     min_budget_utilization: float = 0.0,
     pd_cap_slack_penalty: float = 0.0,
+    pd_constraint_override: np.ndarray | None = None,
 ) -> pyo.ConcreteModel:
     """Build Pyomo portfolio optimization model.
 
@@ -55,8 +90,13 @@ def build_portfolio_model(
     model.I = pyo.RangeSet(0, n - 1)
 
     model.int_rate = pyo.Param(model.I, initialize=dict(enumerate(int_rates)))
+    pd_constraint = (
+        np.asarray(pd_constraint_override, dtype=float)
+        if pd_constraint_override is not None
+        else (pd_high if robust else pd_point)
+    )
     model.pd_point = pyo.Param(model.I, initialize=dict(enumerate(pd_point)))
-    model.pd_worst = pyo.Param(model.I, initialize=dict(enumerate(pd_high if robust else pd_point)))
+    model.pd_worst = pyo.Param(model.I, initialize=dict(enumerate(pd_constraint)))
     pd_uncertainty = np.clip(pd_high - pd_point, 0.0, 1.0)
     model.pd_uncertainty = pyo.Param(model.I, initialize=dict(enumerate(pd_uncertainty)))
     model.lgd = pyo.Param(model.I, initialize=dict(enumerate(lgd)))
@@ -132,7 +172,8 @@ def build_portfolio_model(
     logger.info(
         f"Built portfolio model: {n} loans, budget={total_budget:,.0f}, robust={robust}, "
         f"uncertainty_aversion={uncertainty_aversion:.3f}, "
-        f"min_budget_utilization={min_budget_utilization:.3f}, pd_cap_slack_penalty={pd_cap_slack_penalty:.3f}"
+        f"min_budget_utilization={min_budget_utilization:.3f}, "
+        f"pd_cap_slack_penalty={pd_cap_slack_penalty:.3f}"
     )
     return model
 

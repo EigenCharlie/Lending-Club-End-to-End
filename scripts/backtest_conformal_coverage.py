@@ -19,7 +19,7 @@ from src.models.conformal_artifacts import load_conformal_intervals
 
 
 def _load_intervals() -> pd.DataFrame:
-    df, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
+    df, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
     logger.info(f"Loaded intervals: {path} ({len(df):,} rows, legacy={is_legacy})")
     return df
 

@@ -1,0 +1,58 @@
+schema_version: "2026-03-07.1"
+horizon: 12
+freq: "MS"
+season_length: 12
+
+rolling_origin:
+  min_train_periods: 72
+  step_months: 1
+  embargo_periods: 12
+  max_windows: 36
+
+point_champion:
+  primary_metric: "mase"
+  tiebreakers:
+    - "rmsse"
+    - "abs_bias"
+  must_beat_seasonal_naive: true
+  max_rmsse_vs_seasonal_naive: 1.0
+
+interval_policy:
+  target_level: 90
+  max_coverage_gap: 0.03
+  tiebreakers:
+    - "winkler_90"
+    - "avg_interval_width_90"
+  official_family: "statistical"
+  ml_intervals_diagnostic_only_if_unpromoted: true
+
+exogenous:
+  enabled: false
+  future_covariates_path: "data/processed/ts_future_covariates.parquet"
+  required_columns:
+    - "ds"
+
+models:
+  statistical:
+    - "SeasonalNaive"
+    - "AutoARIMA"
+    - "AutoETS"
+    - "AutoTheta"
+  challengers:
+    - "SARIMAX"
+    - "STL_CatBoost"
+  panel_global: "GlobalCatBoostPanel"
+
+panel:
+  bottom_level: "grade_term"
+
+diagnostics:
+  enable_kpss: true
+  enable_entropy: true
+  enable_variance_ratio: true
+  enable_residual_drift: true
+
+research_backlog:
+  - "ACI"
+  - "EnbPI"
+  - "OnlineConformal"

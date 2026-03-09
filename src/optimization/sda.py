@@ -10,6 +10,26 @@ import pandas as pd
 from loguru import logger
 
 
+def _extract_policy_forecast_values(row: pd.Series) -> tuple[float, float, str, str, str]:
+    """Resolve canonical forecast columns first, then fall back to legacy model outputs."""
+    point_model = str(row.get("point_model", "canonical") or "canonical")
+    interval_model = str(row.get("interval_model", point_model) or point_model)
+    official_status = str(row.get("official_status", "unknown") or "unknown")
+
+    forecast_pd = row.get("y")
+    if pd.isna(forecast_pd):
+        forecast_pd = row.get(point_model) if point_model in row.index else 0.0
+    forecast_pd = float(forecast_pd) if pd.notna(forecast_pd) else 0.0
+
+    pd_upper = row.get("y_hi_90")
+    interval_col = f"{interval_model}-hi-90"
+    if pd.isna(pd_upper):
+        pd_upper = row.get(interval_col) if interval_col in row.index else forecast_pd * 1.2
+    pd_upper = float(pd_upper) if pd.notna(pd_upper) else forecast_pd * 1.2
+
+    return forecast_pd, pd_upper, point_model, interval_model, official_status
+
+
 def dynamic_credit_policy(
     forecasts: pd.DataFrame,
     current_portfolio_pd: float,
@@ -32,8 +52,9 @@ def dynamic_credit_policy(
     """
     policies = []
     for _, row in forecasts.iterrows():
-        forecast_pd = row.get("y", row.get("lgbm", 0))
-        pd_upper = row.get("y_hi_90", row.get("lgbm-hi-90", forecast_pd * 1.2))
+        forecast_pd, pd_upper, point_model, interval_model, official_status = (
+            _extract_policy_forecast_values(row)
+        )
 
         # Decision based on worst-case PD vs target
         if pd_upper > target_pd * 1.2:
@@ -61,6 +82,9 @@ def dynamic_credit_policy(
                 "action": action,
                 "recommended_origination": max_monthly_origination * origination_factor,
                 "min_grade_threshold": min_grade,
+                "point_model": point_model,
+                "interval_model": interval_model,
+                "official_status": official_status,
             }
         )
 

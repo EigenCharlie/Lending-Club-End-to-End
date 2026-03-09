@@ -24,9 +24,13 @@ import pandas as pd
 import yaml
 from loguru import logger
 
-from src.evaluation.fairness import fairness_report
+from src.evaluation.fairness import (
+    build_intersectional_groups,
+    fairness_report_from_binary,
+    fairness_threshold_frontier,
+)
 
-SCHEMA_VERSION = "2026-03-04.1"
+SCHEMA_VERSION = "2026-03-06.1"
 
 
 def _load_config(config_path: str) -> dict:
@@ -89,6 +93,102 @@ def _resolve_outcome_mode(policy: dict) -> str:
     return "default"
 
 
+def _resolve_frontier_thresholds(primary_threshold: float, cfg: dict) -> list[float]:
+    frontier_cfg = cfg.get("threshold_frontier", {}) or {}
+    if not bool(frontier_cfg.get("enabled", True)):
+        return [float(primary_threshold)]
+
+    explicit = frontier_cfg.get("thresholds", []) or []
+    if explicit:
+        values = [float(x) for x in explicit]
+    else:
+        radius = float(frontier_cfg.get("window_radius", 0.10))
+        step = float(frontier_cfg.get("step", 0.05))
+        low = max(0.01, float(primary_threshold) - radius)
+        high = min(0.99, float(primary_threshold) + radius)
+        values = np.arange(low, high + step * 0.5, step).tolist()
+        values.append(float(primary_threshold))
+    clipped = [min(max(float(x), 0.01), 0.99) for x in values]
+    return sorted({round(x, 4) for x in clipped})
+
+
+def _decision_policy_cfg(cfg: dict) -> dict:
+    return cfg.get("decision_policy", {}) or {}
+
+
+def _select_threshold_from_frontier(
+    frontier: pd.DataFrame,
+    *,
+    y_pred_proba_eval: np.ndarray,
+) -> dict[str, float | int]:
+    if frontier.empty:
+        return {
+            "selected_threshold": 0.5,
+            "n_passed": 0,
+            "worst_eo_gap": 1.0,
+            "approval_rate": 0.0,
+        }
+
+    rows: list[dict[str, float | int]] = []
+    for threshold, grp in frontier.groupby("threshold", observed=True):
+        rows.append(
+            {
+                "threshold": float(threshold),
+                "n_passed": int(grp["passed_all"].sum()),
+                "worst_eo_gap": float(grp["eo_gap"].max()),
+                "approval_rate": float(
+                    (np.asarray(y_pred_proba_eval, dtype=float) >= float(threshold)).mean()
+                ),
+            }
+        )
+
+    ranking = pd.DataFrame(rows).sort_values(
+        ["n_passed", "worst_eo_gap", "approval_rate"],
+        ascending=[False, True, False],
+    )
+    selected = ranking.iloc[0].to_dict()
+    selected["selected_threshold"] = float(selected["threshold"])
+    return selected
+
+
+def _load_decision_policy_artifact(path: Path) -> dict:
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def _apply_decision_policy(
+    *,
+    y_pred_proba: np.ndarray,
+    groups_all: dict[str, np.ndarray],
+    decision_policy: dict,
+    default_threshold: float,
+) -> np.ndarray:
+    y_pred_proba = np.asarray(y_pred_proba, dtype=float)
+    thresholds = np.full(len(y_pred_proba), float(default_threshold), dtype=float)
+    overrides = decision_policy.get("overrides", []) if isinstance(decision_policy, dict) else []
+    if not isinstance(overrides, list):
+        overrides = []
+
+    for override in overrides:
+        if not isinstance(override, dict):
+            continue
+        attribute = str(override.get("attribute", "")).strip()
+        group = str(override.get("group", "")).strip()
+        threshold = float(override.get("threshold", default_threshold))
+        labels = groups_all.get(attribute)
+        if labels is None:
+            continue
+        mask = pd.Series(labels).astype(str).eq(group).to_numpy()
+        thresholds[mask] = threshold
+
+    return (y_pred_proba >= thresholds).astype(float)
+
+
 def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
@@ -148,18 +248,105 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     if not resolved_run_tag:
         resolved_run_tag = "untracked"
 
-    # Run fairness report
-    report = fairness_report(
+    intersectional_cfg = cfg.get("intersectional", {}) or {}
+    intersectional_groups = (
+        build_intersectional_groups(
+            groups_dict,
+            max_order=int(intersectional_cfg.get("max_order", 2)),
+            min_group_size=int(intersectional_cfg.get("min_group_size", 300)),
+        )
+        if bool(intersectional_cfg.get("enabled", True))
+        else {}
+    )
+    groups_all = dict(groups_dict)
+    groups_all.update(intersectional_groups)
+
+    frontier_thresholds = _resolve_frontier_thresholds(float(threshold), cfg)
+    frontier = fairness_threshold_frontier(
         y_true=y_true_eval,
         y_pred_proba=y_proba_eval,
-        groups_dict=groups_dict,
-        threshold=threshold,
+        groups_dict=groups_all,
+        thresholds=frontier_thresholds,
+        primary_threshold=float(threshold),
         dpd_threshold=policy["dpd_threshold"],
         eo_gap_threshold=policy["eo_gap_threshold"],
         dir_threshold=policy["dir_threshold"],
     )
+    if not frontier.empty:
+        frontier["attribute_type"] = np.where(
+            frontier["attribute"].astype(str).str.contains("__x__"),
+            "intersectional",
+            "base",
+        )
+    frontier_path = Path(
+        output.get("frontier_parquet", "data/processed/fairness_threshold_frontier.parquet")
+    )
+    frontier_path.parent.mkdir(parents=True, exist_ok=True)
+    frontier.to_parquet(frontier_path, index=False)
+    logger.info(f"Saved fairness threshold frontier: {frontier_path}")
 
-    # Save audit parquet
+    decision_policy_cfg = _decision_policy_cfg(cfg)
+    decision_policy_path = Path(
+        decision_policy_cfg.get("artifact_path", "models/fairness_decision_policy.json")
+    )
+    auto_select = bool(decision_policy_cfg.get("auto_select", False))
+    decision_policy = _load_decision_policy_artifact(decision_policy_path)
+    selected_threshold_info = _select_threshold_from_frontier(
+        frontier, y_pred_proba_eval=y_proba_eval
+    )
+    primary_threshold = float(
+        selected_threshold_info.get("selected_threshold", float(threshold))
+        if auto_select
+        else float(threshold)
+    )
+
+    if auto_select:
+        decision_policy = {
+            "schema_version": SCHEMA_VERSION,
+            "generated_at_utc": datetime.now(UTC).isoformat(),
+            "run_tag": resolved_run_tag,
+            "global_threshold": primary_threshold,
+            "overrides": decision_policy.get("overrides", [])
+            if isinstance(decision_policy, dict)
+            else [],
+            "selection": {
+                "source": "fairness_frontier_auto_select",
+                "n_passed": int(selected_threshold_info.get("n_passed", 0)),
+                "worst_eo_gap": float(selected_threshold_info.get("worst_eo_gap", 0.0)),
+                "approval_rate": float(selected_threshold_info.get("approval_rate", 0.0)),
+            },
+        }
+        decision_policy_path.parent.mkdir(parents=True, exist_ok=True)
+        decision_policy_path.write_text(
+            json.dumps(decision_policy, indent=2, default=str),
+            encoding="utf-8",
+        )
+        threshold_source = "decision_policy_artifact_auto_selected"
+    elif decision_policy:
+        primary_threshold = float(decision_policy.get("global_threshold", threshold))
+        threshold_source = "decision_policy_artifact"
+
+    y_pred_binary = _apply_decision_policy(
+        y_pred_proba=y_proba_eval,
+        groups_all=groups_all,
+        decision_policy=decision_policy,
+        default_threshold=primary_threshold,
+    )
+    report = fairness_report_from_binary(
+        y_true=y_true_eval,
+        y_pred_binary=y_pred_binary,
+        groups_dict=groups_all,
+        dpd_threshold=policy["dpd_threshold"],
+        eo_gap_threshold=policy["eo_gap_threshold"],
+        dir_threshold=policy["dir_threshold"],
+    )
+    if not report.empty:
+        report["attribute_type"] = np.where(
+            report["attribute"].astype(str).str.contains("__x__"),
+            "intersectional",
+            "base",
+        )
+
     audit_path = Path(output["audit_parquet"])
     audit_path.parent.mkdir(parents=True, exist_ok=True)
     report.to_parquet(audit_path, index=False)
@@ -167,21 +354,59 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
 
     # Build and save status JSON
     overall_pass = bool(report["passed_all"].all())
+    primary_frontier = (
+        frontier.loc[np.isclose(frontier["threshold"].astype(float), primary_threshold)]
+        if not frontier.empty
+        else pd.DataFrame()
+    )
+    worst_primary_attribute = ""
+    if not primary_frontier.empty:
+        worst_primary_attribute = str(
+            primary_frontier.sort_values(
+                by=["passed_all", "eo_gap", "dpd", "dir"],
+                ascending=[True, False, False, True],
+            ).iloc[0]["attribute"]
+        )
     status = {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "n_attributes": len(report),
+        "n_base_attributes": int(
+            (report.get("attribute_type", pd.Series(dtype=str)) == "base").sum()
+        ),
+        "n_intersectional_attributes": int(
+            (report.get("attribute_type", pd.Series(dtype=str)) == "intersectional").sum()
+        ),
         "n_passed": int(report["passed_all"].sum()),
         "attributes": report.to_dict(orient="records"),
-        "prediction_threshold": float(threshold),
+        "prediction_threshold": float(primary_threshold),
+        "primary_threshold": float(primary_threshold),
         "prediction_threshold_source": threshold_source,
         "outcome_mode": outcome_mode,
         "thresholds": {
             "dpd": policy["dpd_threshold"],
             "eo_gap": policy["eo_gap_threshold"],
             "dir": policy["dir_threshold"],
+        },
+        "threshold_frontier": {
+            "path": str(frontier_path),
+            "thresholds": frontier_thresholds,
+            "worst_primary_attribute": worst_primary_attribute,
+            "selected_threshold": float(primary_threshold),
+            "all_primary_pass": bool(
+                primary_frontier.get("passed_all", pd.Series(dtype=bool)).all()
+            )
+            if not primary_frontier.empty
+            else True,
+        },
+        "decision_policy": {
+            "path": str(decision_policy_path),
+            "global_threshold": float(primary_threshold),
+            "n_overrides": int(len(decision_policy.get("overrides", [])))
+            if isinstance(decision_policy, dict)
+            else 0,
         },
         "policy_config": str(config_path),
     }

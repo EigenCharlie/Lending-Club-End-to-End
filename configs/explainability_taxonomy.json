@@ -1,0 +1,239 @@
+{
+  "version": "2026-03-06.1",
+  "default": {
+    "family": "derived",
+    "controllable": false,
+    "monotonic_expected": "none",
+    "business_label": "Variable derivada"
+  },
+  "features": {
+    "annual_inc": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Ingreso anual"
+    },
+    "credit_age_years": {
+      "family": "credit_history",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Antiguedad crediticia"
+    },
+    "days_since_last_delinq": {
+      "family": "delinquency",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Recencia desde ultima mora"
+    },
+    "delinq_recency": {
+      "family": "delinquency",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Recencia de mora"
+    },
+    "dti": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Debt-to-income"
+    },
+    "emp_length_num": {
+      "family": "stability",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Antiguedad laboral"
+    },
+    "fico_bucket": {
+      "family": "credit_quality",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Bucket FICO"
+    },
+    "fico_score": {
+      "family": "credit_quality",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Puntaje FICO"
+    },
+    "fico_x_dti": {
+      "family": "derived",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Interaccion FICO x DTI"
+    },
+    "grade": {
+      "family": "credit_quality",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Grade"
+    },
+    "grade_woe": {
+      "family": "credit_quality",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Grade WOE"
+    },
+    "has_delinq_2yrs": {
+      "family": "delinquency",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Mora reciente"
+    },
+    "has_mortgage": {
+      "family": "household_profile",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Tiene hipoteca"
+    },
+    "has_recent_inq": {
+      "family": "credit_demand",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Consultas recientes"
+    },
+    "high_util_pct": {
+      "family": "utilization",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Alta utilizacion"
+    },
+    "home_ownership": {
+      "family": "household_profile",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Vivienda"
+    },
+    "il_ratio": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Income-to-loan ratio"
+    },
+    "inq_last_6mths": {
+      "family": "credit_demand",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Consultas ultimos 6 meses"
+    },
+    "installment": {
+      "family": "contract",
+      "controllable": true,
+      "monotonic_expected": "up",
+      "business_label": "Cuota"
+    },
+    "installment_burden": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Carga de cuota"
+    },
+    "int_rate": {
+      "family": "pricing",
+      "controllable": true,
+      "monotonic_expected": "up",
+      "business_label": "Tasa de interes"
+    },
+    "loan_amnt": {
+      "family": "contract",
+      "controllable": true,
+      "monotonic_expected": "up",
+      "business_label": "Monto"
+    },
+    "loan_to_income": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Loan-to-income"
+    },
+    "loan_to_income_sq": {
+      "family": "derived",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Loan-to-income cuadratico"
+    },
+    "log_annual_inc": {
+      "family": "capacity",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Log ingreso anual"
+    },
+    "log_revol_bal": {
+      "family": "utilization",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Log saldo revolvente"
+    },
+    "many_recent_opens": {
+      "family": "credit_demand",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Muchas aperturas recientes"
+    },
+    "mort_acc": {
+      "family": "credit_history",
+      "controllable": false,
+      "monotonic_expected": "down",
+      "business_label": "Cuentas hipotecarias"
+    },
+    "open_acc": {
+      "family": "credit_history",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Cuentas abiertas"
+    },
+    "open_acc_ratio": {
+      "family": "credit_history",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Ratio de cuentas abiertas"
+    },
+    "pub_rec": {
+      "family": "delinquency",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Registros publicos negativos"
+    },
+    "purpose": {
+      "family": "application_profile",
+      "controllable": true,
+      "monotonic_expected": "mixed",
+      "business_label": "Proposito del prestamo"
+    },
+    "rev_utilization": {
+      "family": "utilization",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Utilizacion revolvente"
+    },
+    "revol_bal": {
+      "family": "utilization",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Saldo revolvente"
+    },
+    "revol_bal_to_income": {
+      "family": "utilization",
+      "controllable": false,
+      "monotonic_expected": "up",
+      "business_label": "Saldo revolvente sobre ingreso"
+    },
+    "term": {
+      "family": "contract",
+      "controllable": true,
+      "monotonic_expected": "up",
+      "business_label": "Plazo"
+    },
+    "total_acc": {
+      "family": "credit_history",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Total de cuentas"
+    },
+    "verification_status": {
+      "family": "application_profile",
+      "controllable": false,
+      "monotonic_expected": "mixed",
+      "business_label": "Verificacion de ingreso"
+    }
+  }
+}

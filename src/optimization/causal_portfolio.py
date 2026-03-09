@@ -92,6 +92,7 @@ def build_cate_adjusted_portfolio(
     max_portfolio_pd: float = 0.10,
     robust: bool = True,
     uncertainty_aversion: float = 0.0,
+    solver_backend: str = "highs",
 ) -> dict[str, Any]:
     """Run baseline and CATE-adjusted portfolio optimization and compare.
 
@@ -136,7 +137,7 @@ def build_cate_adjusted_portfolio(
         int_rates=int_rates,
         **common_kwargs,
     )
-    sol_base = solve_portfolio(model_base)
+    sol_base = solve_portfolio(model_base, solver_backend=solver_backend)
 
     # CATE-adjusted portfolio
     pd_adj, rates_adj = apply_cate_adjustment(
@@ -158,7 +159,7 @@ def build_cate_adjusted_portfolio(
         int_rates=rates_adj,
         **common_kwargs,
     )
-    sol_adj = solve_portfolio(model_adj)
+    sol_adj = solve_portfolio(model_adj, solver_backend=solver_backend)
 
     # Build comparison DataFrame
     comparison = pd.DataFrame(
@@ -188,4 +189,5 @@ def build_cate_adjusted_portfolio(
         "cate_adjusted": sol_adj,
         "comparison_df": comparison,
         "delta_rate_used": delta_rate,
+        "solver_backend": solver_backend,
     }

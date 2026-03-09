@@ -430,56 +430,121 @@ def _log_survival(timestamp: str, common_tags: dict[str, str]) -> str:
 
 def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
     forecasts = pd.read_parquet(ROOT / "data/processed/ts_forecasts.parquet")
-    point_candidates = [
+    metrics_path = ROOT / "data/processed/ts_backtest_metrics.parquet"
+    predictions_path = ROOT / "data/processed/ts_backtest_predictions.parquet"
+    status_path = ROOT / "models/time_series_status.json"
+    diagnostics_path = ROOT / "data/processed/ts_diagnostics.json"
+
+    backtest_metrics = pd.read_parquet(metrics_path) if metrics_path.exists() else pd.DataFrame()
+    backtest_predictions = (
+        pd.read_parquet(predictions_path) if predictions_path.exists() else pd.DataFrame()
+    )
+    status = _load_json("models/time_series_status.json") if status_path.exists() else {}
+    diagnostics = (
+        _load_json("data/processed/ts_diagnostics.json") if diagnostics_path.exists() else {}
+    )
+
+    point_candidates = sorted(
         c
         for c in forecasts.columns
-        if c not in {"unique_id", "ds"}
+        if c not in {"unique_id", "ds", "y", "point_model", "interval_model", "official_status"}
+        and not c.startswith("y_")
         and not c.endswith("-lo-90")
         and not c.endswith("-hi-90")
         and not c.endswith("-lo-95")
         and not c.endswith("-hi-95")
-    ]
-    primary_model = (
-        "lgbm"
-        if "lgbm" in point_candidates
-        else (point_candidates[0] if point_candidates else None)
     )
+    point_champion = status.get("point_champion", {})
+    interval_champion = status.get("interval_champion", {})
+    forecast_point_model = (
+        str(forecasts["point_model"].iloc[0])
+        if "point_model" in forecasts.columns and len(forecasts)
+        else "none"
+    )
+    forecast_interval_model = (
+        str(forecasts["interval_model"].iloc[0])
+        if "interval_model" in forecasts.columns and len(forecasts)
+        else forecast_point_model
+    )
+    primary_model = str(point_champion.get("model") or forecast_point_model)
+    interval_model = str(interval_champion.get("model") or forecast_interval_model)
 
-    if primary_model is not None:
-        lo_90_col = f"{primary_model}-lo-90"
-        hi_90_col = f"{primary_model}-hi-90"
-        width_90 = (
-            forecasts[hi_90_col].astype(float) - forecasts[lo_90_col].astype(float)
-            if lo_90_col in forecasts.columns and hi_90_col in forecasts.columns
-            else pd.Series([0.0] * len(forecasts))
-        )
-        primary_mean = float(forecasts[primary_model].astype(float).mean())
-    else:
-        width_90 = pd.Series([0.0] * len(forecasts))
-        primary_mean = 0.0
+    point_row = backtest_metrics.loc[backtest_metrics["model"] == primary_model]
+    interval_row = backtest_metrics.loc[backtest_metrics["model"] == interval_model]
+    point_metrics = point_row.iloc[0].to_dict() if not point_row.empty else {}
+    interval_metrics = interval_row.iloc[0].to_dict() if not interval_row.empty else {}
+
+    width_90 = (
+        forecasts["y_hi_90"].astype(float) - forecasts["y_lo_90"].astype(float)
+        if {"y_lo_90", "y_hi_90"}.issubset(forecasts.columns)
+        else pd.Series([0.0] * len(forecasts))
+    )
+    primary_mean = float(forecasts["y"].astype(float).mean()) if "y" in forecasts.columns else 0.0
+    official_status = (
+        str(forecasts["official_status"].iloc[0])
+        if "official_status" in forecasts.columns and len(forecasts)
+        else "unknown"
+    )
+    recent_actual_mean = status.get("summary", {}).get("recent_actual_mean_12m")
 
     metrics = {
         "n_forecast_rows": float(len(forecasts)),
         "horizon_months": float(forecasts["ds"].nunique()),
+        "n_backtest_rows": float(len(backtest_predictions)),
+        "n_models_evaluated": float(backtest_metrics["model"].nunique())
+        if not backtest_metrics.empty
+        else 0.0,
         "primary_mean_forecast": primary_mean,
         "primary_width_90_mean": float(width_90.mean()),
-        "autoarima_mean_forecast": float(forecasts["AutoARIMA"].mean())
-        if "AutoARIMA" in forecasts.columns
+        "recent_actual_mean_12m": float(recent_actual_mean)
+        if recent_actual_mean is not None
         else 0.0,
+        "point_champion_mae": float(point_metrics.get("mae", 0.0) or 0.0),
+        "point_champion_mase": float(point_metrics.get("mase", 0.0) or 0.0),
+        "point_champion_rmsse": float(point_metrics.get("rmsse", 0.0) or 0.0),
+        "point_champion_fva_mae_pct": float(point_metrics.get("fva_mae_pct", 0.0) or 0.0),
+        "interval_champion_coverage_90": float(interval_metrics.get("coverage_90", 0.0) or 0.0),
+        "interval_champion_coverage_gap_90": float(
+            interval_metrics.get("coverage_gap_90", 0.0) or 0.0
+        ),
+        "interval_champion_winkler_90": float(interval_metrics.get("winkler_90", 0.0) or 0.0),
+        "interval_champion_avg_width_90": float(
+            interval_metrics.get("avg_interval_width_90", 0.0) or 0.0
+        ),
+        "point_promotable": float(bool(point_champion.get("promotable", False))),
+        "interval_promotable": float(bool(interval_champion.get("promotable", False))),
+        "status_pass": float(str(status.get("status", "")) == "pass"),
+        "seasonal_strength": float(diagnostics.get("seasonal_strength", 0.0) or 0.0),
+        "variance_ratio": float(diagnostics.get("variance_ratio", 0.0) or 0.0),
     }
     params = {
         "series_id": str(forecasts["unique_id"].iloc[0]) if len(forecasts) else "unknown",
         "models": ",".join(point_candidates),
-        "primary_model": primary_model or "none",
+        "point_model": primary_model or "none",
+        "interval_model": interval_model or "none",
+        "status": str(status.get("status", "unknown")),
+        "official_status": official_status,
+        "point_promotable": bool(point_champion.get("promotable", False)),
+        "interval_promotable": bool(interval_champion.get("promotable", False)),
+        "exogenous_enabled": bool(status.get("config", {}).get("exogenous_enabled", False)),
     }
     tags = {
         **common_tags,
         "domain": "time_series",
+        "time_series_status": str(status.get("status", "unknown")),
     }
     artifacts = [
+        "configs/time_series.yaml",
+        "data/processed/time_series_full.parquet",
+        "data/processed/time_series_panel.parquet",
+        "data/processed/ts_backtest_predictions.parquet",
+        "data/processed/ts_backtest_metrics.parquet",
         "data/processed/ts_forecasts.parquet",
         "data/processed/ts_cv_stats.parquet",
         "data/processed/ts_ifrs9_scenarios.parquet",
+        "data/processed/ts_diagnostics.json",
+        "data/processed/ts_panel_forecasts.parquet",
+        "models/time_series_status.json",
     ]
     return _log_run(
         experiment_name="lending_club/time_series",

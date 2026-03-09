@@ -1,4 +1,4 @@
-# PD Model Configuration
+# PD Model Configuration (GPU replay)
 model:
   type: catboost
   params:
@@ -19,6 +19,9 @@ model:
     allow_writing_files: false
     random_seed: 42
     early_stopping_rounds: 150
+    task_type: GPU
+    devices: "0"
+    gpu_ram_part: 0.9
 
 feature_source:
   mode: feature_config
@@ -26,7 +29,6 @@ feature_source:
 
 hpo:
   enabled: true
-  # Smart run: 50 incremental trials on top of ~927 existing (TPE well-informed).
   n_trials: 50
   sampler: tpe
   pruner: median
@@ -39,7 +41,7 @@ hpo:
   pruner_n_warmup_steps: 120
   use_pruning_callback: true
   study_storage: sqlite:///models/optuna_pd_catboost.db
-  study_name: pd_catboost_optuna_temporal
+  study_name: pd_catboost_optuna_temporal_gpu
   load_if_exists: true
   refit_full_train: true
   gc_after_trial: true
@@ -72,7 +74,7 @@ data:
   cutoff_date: "2018-01-01"
 
 training_regime:
-  mode: standard  # standard | full_weighted | recent_12q | recent_8q
+  mode: standard
   recent_window_quarters: 12
   half_life_quarters: 8
 
@@ -106,7 +108,7 @@ conformal:
   estimator: SplitConformalRegressor
 
 calibration:
-  method: platt  # isotonic | platt
+  method: platt
   candidates: [platt, isotonic, venn_abers]
   default_threshold: 0.50
 
@@ -151,7 +153,7 @@ challenger_pipeline:
 
 mlflow:
   experiment_name: pd_model
-  tracking_uri: null  # Set by DagsHub init
+  tracking_uri: null
 
 output:
   model_path: models/pd_canonical.cbm

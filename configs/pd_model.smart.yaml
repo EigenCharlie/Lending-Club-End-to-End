@@ -71,6 +71,15 @@ data:
   calibration_path: data/processed/calibration_fe.parquet
   cutoff_date: "2018-01-01"
 
+training_regime:
+  mode: standard
+  recent_window_quarters: 12
+  half_life_quarters: 8
+
+stable_core:
+  enabled: false
+  exclude_features: [rev_utilization, high_util_pct]
+
 features:
   numeric:
     - loan_amnt

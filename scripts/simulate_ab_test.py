@@ -23,7 +23,11 @@ import pandas as pd
 from loguru import logger
 
 from src.evaluation.ab_testing import ab_summary, compare_strategies
-from src.optimization.portfolio_model import build_portfolio_model, solve_portfolio
+from src.optimization.portfolio_model import (
+    build_portfolio_model,
+    compute_effective_pd,
+    solve_portfolio,
+)
 
 SCHEMA_VERSION = "2026-03-01.1"
 
@@ -74,6 +78,7 @@ def _resolve_robust_policy(
     *,
     max_portfolio_pd: float,
     summary_path: str = "data/processed/portfolio_robustness_summary.parquet",
+    champion_policy_path: str = "models/champion_portfolio_policy.json",
 ) -> dict[str, float | str]:
     """Resolve robust strategy parameters from tradeoff summary, with fallback defaults."""
     default = {
@@ -82,7 +87,35 @@ def _resolve_robust_policy(
         "uncertainty_aversion": 0.0,
         "min_budget_utilization": 0.0,
         "pd_cap_slack_penalty": 0.0,
+        "policy_mode": "hard_worst_case",
+        "gamma": 1.0,
     }
+    champion_path = Path(champion_policy_path)
+    if champion_path.exists():
+        try:
+            payload = json.loads(champion_path.read_text(encoding="utf-8"))
+            selected = payload.get("selected_policy", {}) if isinstance(payload, dict) else {}
+            policy = {
+                "source": "champion_policy_artifact",
+                "risk_tolerance": float(selected.get("risk_tolerance", max_portfolio_pd)),
+                "uncertainty_aversion": float(selected.get("uncertainty_aversion", 0.0)),
+                "min_budget_utilization": float(selected.get("min_budget_utilization", 0.0)),
+                "pd_cap_slack_penalty": float(selected.get("pd_cap_slack_penalty", 0.0)),
+                "policy_mode": str(selected.get("policy_mode", "hard_worst_case")),
+                "gamma": float(selected.get("gamma", 1.0)),
+            }
+            logger.info(
+                "Resolved robust policy from champion artifact: "
+                f"risk_tolerance={policy['risk_tolerance']:.4f}, "
+                f"policy_mode={policy['policy_mode']}, gamma={policy['gamma']:.2f}"
+            )
+            return policy
+        except Exception as exc:
+            logger.warning(
+                f"Could not parse champion portfolio policy ({champion_path}): {exc}. "
+                "Falling back to summary-based policy."
+            )
+
     path = Path(summary_path)
     if not path.exists():
         logger.warning(f"Robustness summary not found ({path}); using fallback robust policy.")
@@ -137,6 +170,8 @@ def _resolve_robust_policy(
         "uncertainty_aversion": float(row["best_robust_lambda"]),
         "min_budget_utilization": float(row["best_robust_min_budget_utilization"]),
         "pd_cap_slack_penalty": float(row["best_robust_pd_cap_slack_penalty"]),
+        "policy_mode": str(row.get("best_robust_policy_mode", "hard_worst_case")),
+        "gamma": float(row.get("best_robust_gamma", 1.0)),
     }
     logger.info(
         "Resolved robust policy from summary: "
@@ -148,6 +183,60 @@ def _resolve_robust_policy(
     return policy
 
 
+def _apply_candidate_universe(
+    test_df: pd.DataFrame,
+    intervals: pd.DataFrame,
+    *,
+    candidate_universe_path: str,
+    max_candidates: int,
+) -> tuple[pd.DataFrame, pd.DataFrame, str]:
+    path = Path(candidate_universe_path)
+    max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
+    if path.exists() and "id" in test_df.columns and "id" in intervals.columns:
+        universe = pd.read_parquet(path)
+        if "id" in universe.columns and not universe.empty:
+            ordered_ids = universe["id"].astype(str)
+            if max_candidates_norm is not None:
+                ordered_ids = ordered_ids.iloc[:max_candidates_norm]
+            order_df = pd.DataFrame(
+                {
+                    "_id_join": ordered_ids.values,
+                    "_sample_order": np.arange(len(ordered_ids), dtype=int),
+                }
+            )
+            test_work = test_df.copy()
+            ints_work = intervals.copy()
+            test_work["_id_join"] = test_work["id"].astype(str)
+            ints_work["_id_join"] = ints_work["id"].astype(str)
+            test_work = test_work.merge(order_df, on="_id_join", how="inner")
+            ints_work = ints_work.merge(order_df, on="_id_join", how="inner")
+            test_work = test_work.sort_values("_sample_order").drop_duplicates("_id_join")
+            ints_work = ints_work.sort_values("_sample_order").drop_duplicates("_id_join")
+            merged_n = min(len(test_work), len(ints_work))
+            test_out = test_work.iloc[:merged_n].drop(columns=["_id_join", "_sample_order"])
+            ints_out = ints_work.iloc[:merged_n].drop(columns=["_id_join", "_sample_order"])
+            if merged_n > 0:
+                logger.info(
+                    "Using champion candidate universe from {} with n={}",
+                    path,
+                    merged_n,
+                )
+                return test_out.reset_index(drop=True), ints_out.reset_index(drop=True), str(path)
+
+    n = min(len(test_df), len(intervals))
+    if max_candidates_norm is not None:
+        n = min(n, max_candidates_norm)
+    logger.info(
+        "Using positional candidate cohort with n={} (no shared universe artifact).",
+        n,
+    )
+    return (
+        test_df.iloc[:n].reset_index(drop=True),
+        intervals.iloc[:n].reset_index(drop=True),
+        "",
+    )
+
+
 def main(
     total_budget: float = 1_000_000,
     max_portfolio_pd: float = 0.10,
@@ -156,10 +245,13 @@ def main(
     seed: int = 42,
     no_regression_tolerance_pct: float = 0.05,
     robust_policy_summary_path: str = "data/processed/portfolio_robustness_summary.parquet",
+    champion_policy_path: str = "models/champion_portfolio_policy.json",
+    candidate_universe_path: str = "data/processed/champion_candidate_universe.parquet",
     results_path: str = "data/processed/ab_simulation_results.parquet",
     summary_path: str = "data/processed/ab_simulation_summary.parquet",
     status_path: str = "models/ab_simulation_status.json",
     run_tag: str | None = None,
+    solver_backend: str = "highs",
 ) -> None:
     """Run the A/B simulation."""
     data_dir = Path("data/processed")
@@ -179,15 +271,17 @@ def main(
         resolved_run_tag = "untracked"
 
     max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
+    test_df, intervals, universe_source = _apply_candidate_universe(
+        test_df,
+        intervals,
+        candidate_universe_path=candidate_universe_path,
+        max_candidates=max_candidates,
+    )
     n = min(len(test_df), len(intervals))
-    if max_candidates_norm is not None:
-        n = min(n, max_candidates_norm)
     logger.info(
         f"Using {n} candidates "
         f"(max_candidates={'full' if max_candidates_norm is None else max_candidates_norm})"
     )
-    test_df = test_df.iloc[:n].reset_index(drop=True)
-    intervals = intervals.iloc[:n].reset_index(drop=True)
 
     # Extract arrays
     # Map column names: conformal intervals use y_pred, pd_low_90, pd_high_90
@@ -217,6 +311,7 @@ def main(
     robust_policy = _resolve_robust_policy(
         max_portfolio_pd=float(max_portfolio_pd),
         summary_path=str(robust_policy_summary_path),
+        champion_policy_path=str(champion_policy_path),
     )
     effective_max_portfolio_pd = float(robust_policy.get("risk_tolerance", max_portfolio_pd))
 
@@ -234,18 +329,25 @@ def main(
     # Strategy A: non-robust
     logger.info("Strategy A (control): non-robust portfolio")
     model_a = build_portfolio_model(robust=False, **common)
-    sol_a = solve_portfolio(model_a)
+    sol_a = solve_portfolio(model_a, solver_backend=solver_backend)
 
     # Strategy B: robust
     logger.info("Strategy B (treatment): robust portfolio")
+    effective_pd_b = compute_effective_pd(
+        pd_point=pd_point,
+        pd_high=pd_high,
+        policy_mode=str(robust_policy.get("policy_mode", "hard_worst_case")),
+        gamma=float(robust_policy.get("gamma", 1.0)),
+    )
     model_b = build_portfolio_model(
         robust=True,
         uncertainty_aversion=float(robust_policy.get("uncertainty_aversion", 0.0)),
         min_budget_utilization=float(robust_policy.get("min_budget_utilization", 0.0)),
         pd_cap_slack_penalty=float(robust_policy.get("pd_cap_slack_penalty", 0.0)),
+        pd_constraint_override=effective_pd_b,
         **common,
     )
-    sol_b = solve_portfolio(model_b)
+    sol_b = solve_portfolio(model_b, solver_backend=solver_backend)
 
     # Compute realized returns
     returns_a = _compute_realized_return(
@@ -310,7 +412,7 @@ def main(
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "run_tag": resolved_run_tag,
         "strategy_a": "non_robust",
-        "strategy_b": "robust_selected_from_summary",
+        "strategy_b": "robust_selected_for_champion",
         "comparison": comparison,
         "metrics_a": metrics_a,
         "metrics_b": metrics_b,
@@ -318,9 +420,12 @@ def main(
         "n_candidates_used": int(n),
         "max_candidates_requested": None if max_candidates_norm is None else max_candidates_norm,
         "dataset_scope": "full_candidates" if max_candidates_norm is None else "sampled_candidates",
+        "solver_backend": str(solver_backend),
         "max_portfolio_pd_requested": float(max_portfolio_pd),
         "max_portfolio_pd_effective": float(effective_max_portfolio_pd),
         "robust_policy": robust_policy,
+        "champion_policy_path": str(champion_policy_path),
+        "candidate_universe_path": universe_source or str(candidate_universe_path),
         "gate_contract": {
             "gate": "no_regression",
             "significance_role": "diagnostic",
@@ -368,10 +473,19 @@ if __name__ == "__main__":
         "--robust_policy_summary_path",
         default="data/processed/portfolio_robustness_summary.parquet",
     )
+    parser.add_argument(
+        "--champion_policy_path",
+        default="models/champion_portfolio_policy.json",
+    )
+    parser.add_argument(
+        "--candidate_universe_path",
+        default="data/processed/champion_candidate_universe.parquet",
+    )
     parser.add_argument("--results_path", default="data/processed/ab_simulation_results.parquet")
     parser.add_argument("--summary_path", default="data/processed/ab_simulation_summary.parquet")
     parser.add_argument("--status_path", default="models/ab_simulation_status.json")
     parser.add_argument("--run-tag", default=None)
+    parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
     args = parser.parse_args()
     main(
         total_budget=args.total_budget,
@@ -381,8 +495,11 @@ if __name__ == "__main__":
         seed=args.seed,
         no_regression_tolerance_pct=args.no_regression_tolerance_pct,
         robust_policy_summary_path=args.robust_policy_summary_path,
+        champion_policy_path=args.champion_policy_path,
+        candidate_universe_path=args.candidate_universe_path,
         results_path=args.results_path,
         summary_path=args.summary_path,
         status_path=args.status_path,
         run_tag=args.run_tag,
+        solver_backend=args.solver_backend,
     )

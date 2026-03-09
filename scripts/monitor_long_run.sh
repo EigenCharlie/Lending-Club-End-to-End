@@ -1,28 +1,33 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /home/eigenlinux/projects/lending-club-risk-project
+REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "${REPO_ROOT}"
 
 RUN_TAG="${1:?Usage: bash scripts/monitor_long_run.sh <run_tag>}"
 RUN_DIR="reports/run_logs/${RUN_TAG}"
-PID_FILE="${RUN_DIR}/orchestrator.pid"
+INFO_FILE="${RUN_DIR}/run_info.json"
 HB_FILE="${RUN_DIR}/heartbeat.json"
 
 watch -n 20 "
-cd /home/eigenlinux/projects/lending-club-risk-project || exit 1
+cd ${REPO_ROOT@Q} || exit 1
 echo '== ' \$(date) '=='
 echo
 echo 'run_tag: ${RUN_TAG}'
-if [ -f '${PID_FILE}' ]; then
-  pid=\$(cat '${PID_FILE}')
-  echo \"pid: \${pid}\"
-  if kill -0 \"\${pid}\" 2>/dev/null; then
-    echo 'process: alive'
+if [ -f '${INFO_FILE}' ]; then
+  pid=\$(python3 -c \"import json; print(json.load(open('${INFO_FILE}'))['pid'])\" 2>/dev/null)
+  if [ -n \"\${pid}\" ]; then
+    echo \"pid: \${pid}\"
+    if kill -0 \"\${pid}\" 2>/dev/null; then
+      echo 'process: alive'
+    else
+      echo 'process: dead'
+    fi
   else
-    echo 'process: dead'
+    echo 'pid: (parse error)'
   fi
 else
-  echo 'pid: (missing)'
+  echo 'pid: (no run_info.json yet)'
 fi
 echo
 echo '== heartbeat =='

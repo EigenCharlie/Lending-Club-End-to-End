@@ -1,8 +1,8 @@
-# PD Model Configuration
+# Champion PD configuration for promotion-first reruns.
 model:
   type: catboost
   params:
-    iterations: 3000
+    iterations: 1200
     learning_rate: 0.02762511818970642
     depth: 6
     l2_leaf_reg: 14.910998969314008
@@ -25,9 +25,8 @@ feature_source:
   feature_config_path: data/processed/feature_config.pkl
 
 hpo:
-  enabled: true
-  # Smart run: 50 incremental trials on top of ~927 existing (TPE well-informed).
-  n_trials: 50
+  enabled: false
+  n_trials: 0
   sampler: tpe
   pruner: median
   timeout_minutes: 0
@@ -53,14 +52,14 @@ validation:
   val_from_tail_fraction_of_train: 0.15
   oot_test_cutoff: "2018-01-01"
   walk_forward:
-    enabled: true
+    enabled: false
     n_windows: 3
     min_train_rows: 200000
     window_rows: 80000
     date_col: issue_d
     max_rows: 0
   seed_replay:
-    enabled: true
+    enabled: false
     top_k_trials: 3
     seeds: [42, 52, 62]
     prioritize_gate_pass: true
@@ -72,12 +71,12 @@ data:
   cutoff_date: "2018-01-01"
 
 training_regime:
-  mode: standard  # standard | full_weighted | recent_12q | recent_8q
-  recent_window_quarters: 12
+  mode: recent_8q
+  recent_window_quarters: 8
   half_life_quarters: 8
 
 stable_core:
-  enabled: false
+  enabled: true
   exclude_features: [rev_utilization, high_util_pct]
 
 features:
@@ -106,7 +105,7 @@ conformal:
   estimator: SplitConformalRegressor
 
 calibration:
-  method: platt  # isotonic | platt
+  method: platt
   candidates: [platt, isotonic, venn_abers]
   default_threshold: 0.50
 
@@ -120,7 +119,7 @@ decision_threshold:
   output_path_v2: models/decision_threshold_v2.json
 
 challenger_pipeline:
-  enabled: true
+  enabled: false
   random_state: 42
   sample_rows: 150000
   top_k: 30
@@ -151,7 +150,7 @@ challenger_pipeline:
 
 mlflow:
   experiment_name: pd_model
-  tracking_uri: null  # Set by DagsHub init
+  tracking_uri: null
 
 output:
   model_path: models/pd_canonical.cbm

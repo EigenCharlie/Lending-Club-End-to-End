@@ -31,13 +31,13 @@ BASELINE_REGISTRY_PATH = REPO_ROOT / "configs" / "baselines" / "core_official_ba
 DEFAULT_STALL_WINDOW_MINUTES = 15
 STEP_DEFAULT_SECONDS = {
     "preflight": 5 * 60.0,
-    "main_pre": 90 * 60.0,
-    "heavy_main": 2.5 * 3600.0,
-    "causal": 30 * 60.0,
-    "cate_portfolio": 10 * 60.0,
-    "post_core": 45 * 60.0,
+    "main_pre": 120 * 60.0,
+    "heavy_main": 4.0 * 3600.0,
+    "causal": 60 * 60.0,
+    "cate_portfolio": 20 * 60.0,
+    "post_core": 60 * 60.0,
     "rapids": 2.5 * 3600.0,
-    "notebooks": 4.5 * 3600.0,
+    "notebooks": 5.0 * 3600.0,
 }
 STEP_ORDER = [
     "preflight",
@@ -581,11 +581,14 @@ def build_steps(
     comparison_baseline: str | None = None,
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
-    pd_config = (
-        "configs/pd_model.smart.yaml"
-        if (REPO_ROOT / "configs" / "pd_model.smart.yaml").exists()
-        else "configs/pd_model.yaml"
-    )
+    smart_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.smart.yaml").exists()
+    champion_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.champion.yaml").exists()
+    if sampling_profile in {"champion64safe"} and champion_pd_config_exists:
+        pd_config = "configs/pd_model.champion.yaml"
+    elif sampling_profile in {"smart", "balanced"} and smart_pd_config_exists:
+        pd_config = "configs/pd_model.smart.yaml"
+    else:
+        pd_config = "configs/pd_model.yaml"
     optimize_portfolio_script = REPO_ROOT / "scripts" / "optimize_portfolio.py"
     optimize_tradeoff_script = REPO_ROOT / "scripts" / "optimize_portfolio_tradeoff.py"
     optimize_portfolio_text = (
@@ -635,6 +638,73 @@ def build_steps(
         causal_sample = "--sample_size 200000"
         cate_candidates = "--max_candidates 20000"
         rapids_profile = "current"
+    elif sampling_profile == "mega":
+        pd_sample = "--sample_size 0"  # FULL 1.35M
+        survival_args = "--full-data --rsf_n_estimators 250"  # FULL + 250 trees (OOM-safe)
+        lgd_ead_sample = "--sample_size 0"  # FULL ~50K defaults
+        optimize_portfolio_candidates = (
+            "--max_candidates 30000" if optimize_portfolio_has_max_candidates else ""
+        )  # CAP: Pyomo LP OOM-safe
+        tradeoff_candidates = "--max_candidates 30000"
+        tradeoff_profile = "night"  # Full grid
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 30000 --n_boot 5000 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 500000"  # CAP: CausalForest DML OOM-safe
+        cate_candidates = "--max_candidates 30000"
+        rapids_profile = "full_data"
+    elif sampling_profile == "mega64":
+        pd_sample = "--sample_size 0"
+        survival_args = "--full-data --rsf_n_estimators 300"
+        lgd_ead_sample = "--sample_size 0"
+        optimize_portfolio_candidates = (
+            "--max_candidates 100000" if optimize_portfolio_has_max_candidates else ""
+        )
+        tradeoff_candidates = "--max_candidates 60000"
+        tradeoff_profile = "night"
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 100000 --n_boot 5000 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 0"
+        cate_candidates = "--max_candidates 100000"
+        rapids_profile = "full_data"
+    elif sampling_profile == "mega64plus":
+        pd_sample = "--sample_size 0"
+        survival_args = "--full-data --rsf_n_estimators 300"
+        lgd_ead_sample = "--sample_size 0"
+        optimize_portfolio_candidates = (
+            "--max_candidates 150000" if optimize_portfolio_has_max_candidates else ""
+        )
+        tradeoff_candidates = "--max_candidates 80000"
+        tradeoff_profile = "night"
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 150000 --n_boot 5000 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 0"
+        cate_candidates = "--max_candidates 150000"
+        rapids_profile = "full_data"
+    elif sampling_profile == "mega64safe" or sampling_profile == "champion64safe":
+        pd_sample = "--sample_size 0"
+        survival_args = (
+            "--full-data --rsf_n_estimators 200 --rsf_sample_size 500000 "
+            "--rsf_max_samples 0.5 --rsf_n_jobs 12"
+        )
+        lgd_ead_sample = "--sample_size 0"
+        optimize_portfolio_candidates = (
+            "--max_candidates 150000" if optimize_portfolio_has_max_candidates else ""
+        )
+        tradeoff_candidates = "--max_candidates 80000"
+        tradeoff_profile = "night"
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 150000 --n_boot 5000 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 0"
+        cate_candidates = "--max_candidates 150000"
+        rapids_profile = "full_data"
     else:  # full
         pd_sample = "--sample_size 0"
         survival_args = "--full-data --rsf_n_estimators 300"
@@ -659,11 +729,6 @@ def build_steps(
 
     activate_main = (
         "if [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; "
-        "elif [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi"
-    )
-    activate_causal = (
-        "if [ -f .venv-causal/bin/activate ]; then source .venv-causal/bin/activate; "
-        "elif [ -f lending-club-venv/bin/activate ]; then source lending-club-venv/bin/activate; "
         "elif [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi"
     )
     preflight_cmd = (
@@ -698,11 +763,7 @@ def build_steps(
     steps.append(("heavy_main", False, heavy_main_cmd))
 
     causal_cmd = f"""
-        {activate_causal} &&
-        python -u -c "import econml,dowhy; print('econml', econml.__version__, 'dowhy', dowhy.__version__)" &&
-        python -u scripts/estimate_causal_effects.py --treatment int_rate {causal_sample} &&
-        python -u scripts/simulate_causal_policy.py &&
-        python -u scripts/backtest_causal_policy_oot.py
+        bash scripts/causal/run_causal_pipeline.sh --treatment int_rate {causal_sample} --run_tag {run_tag}
     """
     steps.append(("causal", False, causal_cmd))
 
@@ -719,8 +780,8 @@ def build_steps(
         uv run python -u scripts/build_pipeline_results.py &&
         if [ -f scripts/build_pd_challenger_artifacts.py ]; then uv run python -u scripts/build_pd_challenger_artifacts.py --config {pd_config}; else true; fi &&
         uv run python -u scripts/run_fairness_audit.py --run-tag {run_tag} &&
-        uv run python -u scripts/validate_causal_policy.py &&
         if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml --run-tag {run_tag}; else true; fi &&
+        if [ -f scripts/update_champion_registry.py ]; then uv run python -u scripts/update_champion_registry.py; else true; fi &&
         uv run python -u scripts/generate_mrm_report.py &&
         uv run python -u scripts/export_streamlit_artifacts.py &&
         uv run python -u scripts/export_storytelling_snapshot.py &&
@@ -801,9 +862,24 @@ def parse_args() -> argparse.Namespace:
     )
     p.add_argument(
         "--sampling-profile",
-        choices=["full", "smart", "balanced"],
+        choices=[
+            "full",
+            "smart",
+            "balanced",
+            "mega",
+            "mega64",
+            "mega64plus",
+            "mega64safe",
+            "champion64safe",
+        ],
         default="full",
-        help="Sampling profile: smart (lighter), balanced (mixed full/sample), full",
+        help=(
+            "Sampling profile: smart (lighter), balanced (mixed), full, "
+            "mega (max data, OOM-safe caps), mega64 (24 threads / ~60GB WSL tuned), "
+            "mega64plus (same hardware, more aggressive optimization caps), "
+            "mega64safe (recovery profile with survival RSF memory guardrails), "
+            "champion64safe (promotion-first rerun using pd_model.champion.yaml)"
+        ),
     )
     p.add_argument(
         "--comparison-baseline",
