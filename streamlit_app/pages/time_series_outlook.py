@@ -1,4 +1,4 @@
-"""Panorama temporal: pronóstico de defaults y escenarios."""
+"""Panorama temporal: pronóstico gobernado de defaults y escenarios."""
 
 from __future__ import annotations
 
@@ -25,200 +25,392 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
+from streamlit_app.utils import (
+    get_notebook_image_path,
+    try_load_json,
+    try_load_parquet,
+)
+
+
+def _safe_float(value: object) -> float | None:
+    try:
+        out = float(value)
+    except Exception:
+        return None
+    return out if np.isfinite(out) else None
+
+
+def _format_pct(value: object) -> str:
+    parsed = _safe_float(value)
+    return f"{parsed:.1%}" if parsed is not None else "n/d"
+
+
+def _format_num(value: object, decimals: int = 3) -> str:
+    parsed = _safe_float(value)
+    return f"{parsed:.{decimals}f}" if parsed is not None else "n/d"
+
+
+def _first_text(frame: pd.DataFrame, column: str, default: str = "n/d") -> str:
+    if column not in frame.columns or frame.empty:
+        return default
+    values = frame[column].dropna().astype(str)
+    return values.iloc[0] if not values.empty else default
+
+
+def _build_horizon_quality(predictions: pd.DataFrame, model: str) -> pd.DataFrame:
+    if predictions.empty or "model" not in predictions.columns:
+        return pd.DataFrame()
+    frame = predictions.loc[predictions["model"] == model].copy()
+    if frame.empty:
+        return pd.DataFrame()
+
+    frame["abs_error"] = (
+        pd.to_numeric(frame["y_true"], errors="coerce") - pd.to_numeric(frame["y_pred"], errors="coerce")
+    ).abs()
+    if {"lo_90", "hi_90"}.issubset(frame.columns):
+        frame["covered_90"] = (
+            pd.to_numeric(frame["y_true"], errors="coerce").between(
+                pd.to_numeric(frame["lo_90"], errors="coerce"),
+                pd.to_numeric(frame["hi_90"], errors="coerce"),
+                inclusive="both",
+            )
+        ).astype(float)
+    else:
+        frame["covered_90"] = np.nan
+
+    out = (
+        frame.groupby("horizon_step", as_index=False)
+        .agg(
+            n_obs=("ds", "size"),
+            mae=("abs_error", "mean"),
+            coverage_90=("covered_90", "mean"),
+        )
+        .sort_values("horizon_step")
+        .reset_index(drop=True)
+    )
+    return out
+
+
+def _build_diagnostics_table(
+    diagnostics: dict,
+    summary: dict,
+    point_champion: dict,
+    interval_champion: dict,
+) -> pd.DataFrame:
+    rows = [
+        {"Diagnóstico": "ADF p-value", "Valor": _format_num(diagnostics.get("adf_pvalue"), 4)},
+        {"Diagnóstico": "KPSS p-value", "Valor": _format_num(diagnostics.get("kpss_pvalue"), 4)},
+        {
+            "Diagnóstico": "Fuerza estacional",
+            "Valor": _format_num(diagnostics.get("seasonal_strength"), 3),
+        },
+        {
+            "Diagnóstico": "Variance ratio",
+            "Valor": _format_num(diagnostics.get("variance_ratio"), 3),
+        },
+        {
+            "Diagnóstico": "Entropía espectral",
+            "Valor": _format_num(diagnostics.get("spectral_entropy"), 3),
+        },
+        {
+            "Diagnóstico": "Permutation entropy",
+            "Valor": _format_num(diagnostics.get("permutation_entropy"), 3),
+        },
+        {
+            "Diagnóstico": "Promedio real reciente (12m)",
+            "Valor": _format_pct(summary.get("recent_actual_mean_12m")),
+        },
+        {
+            "Diagnóstico": "Champion puntual",
+            "Valor": str(point_champion.get("model", "n/d")),
+        },
+        {
+            "Diagnóstico": "Champion intervalar",
+            "Valor": str(interval_champion.get("model", "n/d")),
+        },
+    ]
+    return pd.DataFrame(rows)
+
 
 st.title("📈 Panorama Temporal")
 st.caption(
-    "Modelos estadísticos y ML para proyección de tasa de default, "
-    "con bandas de incertidumbre y escenarios IFRS9."
+    "Pronóstico mensual de default con rolling-origin real, selección de champion y escenarios IFRS9."
 )
 page_contract = get_page_contract("time_series_outlook")
 render_page_header(page_contract)
 render_key_takeaway(
-    "El forecast aporta contexto de régimen para planeación e IFRS9; no sustituye el score individual ni la lectura de incertidumbre por préstamo."
+    "El bloque temporal aporta contexto de régimen para planeación e IFRS9, pero solo es oficial cuando existe evidencia artefact-driven de backtest y cobertura."
 )
 storytelling_intro(
     page_goal=(
-        "Anticipar cómo puede evolucionar el default agregado del portafolio en los próximos meses."
+        "Anticipar cómo puede evolucionar el default agregado del portafolio en los próximos 12 meses."
     ),
     business_value=(
-        "Ayuda a preparar provisiones y decisiones de apetito de riesgo antes de que el deterioro se materialice."
+        "Permite ajustar provisiones, apetito de riesgo y planeación antes de que el deterioro aparezca en defaults realizados."
     ),
     key_decision=(
-        "Definir escenarios de planeación (base, optimista, adverso) y su impacto en presupuesto prudencial."
+        "Definir si el forecast es oficial para IFRS9/planeación o solo exploratorio por brechas de cobertura o evidencia."
     ),
     how_to_read=[
-        "Empieza por histórico vs pronóstico para validar coherencia temporal.",
-        "Interpreta bandas 90/95% como rango operativo, no como cifra exacta.",
-        "Conecta escenarios derivados con IFRS9 para decisiones de provisión.",
+        "Empieza por el badge de estado: oficial o exploratorio.",
+        "Luego revisa histórico vs forecast canónico y la tabla de backtest real.",
+        "Cierra con cobertura por horizonte y escenarios IFRS9 derivados.",
     ],
 )
 
-history = load_parquet("time_series")
-forecasts = load_parquet("ts_forecasts")
+history = try_load_parquet("time_series_full")
+if history.empty:
+    history = try_load_parquet("time_series")
+forecasts = try_load_parquet("ts_forecasts")
 scenarios = try_load_parquet("ts_ifrs9_scenarios")
-cv_stats = try_load_parquet("ts_cv_stats")
+backtest_predictions = try_load_parquet("ts_backtest_predictions")
+if backtest_predictions.empty:
+    backtest_predictions = try_load_parquet("ts_cv_stats")
+backtest_metrics = try_load_parquet("ts_backtest_metrics")
+panel_forecasts = try_load_parquet("ts_panel_forecasts")
+status = try_load_json("time_series_status", directory="models", default={})
+diagnostics = try_load_json("ts_diagnostics", default={})
 
-if scenarios.empty and not forecasts.empty:
-    baseline_model = "lgbm" if "lgbm" in forecasts.columns else None
-    if baseline_model is None:
-        model_candidates = [
-            c
-            for c in forecasts.columns
-            if c not in {"unique_id", "ds"}
-            and not c.endswith("-lo-90")
-            and not c.endswith("-hi-90")
-            and not c.endswith("-lo-95")
-            and not c.endswith("-hi-95")
-        ]
-        baseline_model = model_candidates[0] if model_candidates else None
-
-    if baseline_model is not None:
-        lo90 = f"{baseline_model}-lo-90"
-        hi90 = f"{baseline_model}-hi-90"
-        lo95 = f"{baseline_model}-lo-95"
-        hi95 = f"{baseline_model}-hi-95"
-        scenarios = pd.DataFrame(
-            {
-                "month": forecasts["ds"],
-                "point_forecast": forecasts[baseline_model],
-                "optimistic_90": forecasts[lo90]
-                if lo90 in forecasts.columns
-                else forecasts[baseline_model],
-                "adverse_90": forecasts[hi90]
-                if hi90 in forecasts.columns
-                else forecasts[baseline_model],
-                "optimistic_95": forecasts[lo95]
-                if lo95 in forecasts.columns
-                else forecasts[baseline_model],
-                "adverse_95": forecasts[hi95]
-                if hi95 in forecasts.columns
-                else forecasts[baseline_model],
-            }
-        )
-
-if cv_stats.empty and not history.empty and not forecasts.empty:
-    cv_stats = forecasts.copy()
-    if "y" not in cv_stats.columns:
-        cv_stats["y"] = float(history["y"].tail(12).mean()) if "y" in history.columns else 0.0
-
-st.markdown(
-    """
-Este bloque conecta estadística y gestión de riesgo prospectivo:
-- Pronosticamos la tasa de default agregada del portafolio.
-- Incorporamos incertidumbre para lectura prudente de escenarios.
-- Enlazamos con IFRS9 para provisiones forward-looking.
-"""
-)
-st.markdown(
-    """
-Su función dentro del proyecto es complementar la visión micro por préstamo con una lectura macro de ciclo crediticio.
-En términos de negocio, esto permite anticipar deterioro antes de observarlo plenamente en defaults realizados y construir
-escenarios de planeación menos reactivos. La calidad de este bloque impacta directamente la discusión de provisiones y
-resiliencia de cartera bajo estrés.
-"""
-)
-
-st.dataframe(
-    pd.DataFrame(
-        [
-            {
-                "Métrica": "MAE / RMSE",
-                "Significado técnico": "Error promedio de pronóstico en magnitud mensual.",
-                "Significado negocio": "Menor error mejora planeación de provisiones y stress testing.",
-            },
-            {
-                "Métrica": "Bandas 90%/95%",
-                "Significado técnico": "Rango plausible de default futuro según incertidumbre.",
-                "Significado negocio": "Permite presupuestar capital con escenarios prudenciales.",
-            },
-        ]
-    ),
-    width="stretch",
-    hide_index=True,
-)
-
-model_cols = [c for c in forecasts.columns if c not in ("ds", "unique_id", "y", "cutoff")]
-models = sorted(
-    c
-    for c in model_cols
-    if not c.endswith("-lo-90")
-    and not c.endswith("-hi-90")
-    and not c.endswith("-lo-95")
-    and not c.endswith("-hi-95")
-)
-selected_model = st.selectbox("Modelo de pronóstico", models, index=0)
-
-st.subheader("1) Serie histórica + pronóstico")
-fig = go.Figure()
-
-if "y" in history.columns:
-    fig.add_trace(
-        go.Scatter(
-            x=history["ds"],
-            y=history["y"],
-            mode="lines",
-            name="Histórico",
-            line={"color": "#334155", "width": 2.4},
-        )
+if scenarios.empty and not forecasts.empty and {"ds", "y", "y_lo_90", "y_hi_90", "y_lo_95", "y_hi_95"}.issubset(
+    forecasts.columns
+):
+    scenarios = forecasts[
+        ["ds", "y", "y_lo_90", "y_hi_90", "y_lo_95", "y_hi_95", "point_model", "interval_model", "official_status"]
+    ].rename(
+        columns={
+            "ds": "month",
+            "y": "point_forecast",
+            "y_lo_90": "optimistic_90",
+            "y_hi_90": "adverse_90",
+            "y_lo_95": "optimistic_95",
+            "y_hi_95": "adverse_95",
+        }
     )
 
-if selected_model in forecasts.columns:
+summary = status.get("summary", {})
+point_champion = status.get("point_champion", {})
+interval_champion = status.get("interval_champion", {})
+warnings = status.get("warnings", [])
+status_level = str(status.get("status", "warn"))
+point_model = str(point_champion.get("model") or _first_text(forecasts, "point_model"))
+interval_model = str(interval_champion.get("model") or _first_text(forecasts, "interval_model"))
+official_status = _first_text(forecasts, "official_status", default="desconocido")
+
+if status_level == "pass":
+    st.success(
+        f"Estado `{official_status}`. Champion puntual: `{point_model}`. Champion intervalar: `{interval_model}`."
+    )
+elif status_level == "warn":
+    st.warning(
+        f"Estado `{official_status}` con observaciones. Champion puntual: `{point_model}`. Champion intervalar: `{interval_model}`."
+    )
+else:
+    st.error(
+        f"Estado `{official_status}` no promocionable. El forecast puede usarse como diagnóstico, no como baseline oficial."
+    )
+
+if warnings:
+    st.caption("Warnings del status temporal: " + ", ".join(str(item) for item in warnings))
+
+metric_cols = st.columns(4)
+metric_cols[0].metric("Estado", official_status.capitalize())
+metric_cols[1].metric("Champion puntual", point_model)
+metric_cols[2].metric("MASE champion", _format_num(point_champion.get("mase"), 3))
+metric_cols[3].metric("Coverage 90% champion", _format_pct(interval_champion.get("coverage_90")))
+
+st.markdown(
+    """
+Este bloque ya no usa placeholders de validación. La lectura oficial se apoya en:
+- backtest rolling-origin real guardado por corte y horizonte;
+- selección explícita de champion puntual e intervalar;
+- reconciliación bottom-up sobre conteos aditivos antes de derivar tasas.
+"""
+)
+
+st.subheader("1) Histórico y forecast canónico")
+if history.empty or forecasts.empty or "y" not in forecasts.columns:
+    st.info("Forecast canónico no disponible: faltan `time_series_full.parquet` o `ts_forecasts.parquet`.")
+else:
+    fig = go.Figure()
+    if "y" in history.columns:
+        fig.add_trace(
+            go.Scatter(
+                x=history["ds"],
+                y=history["y"],
+                mode="lines",
+                name="Histórico",
+                line={"color": "#334155", "width": 2.5},
+            )
+        )
+
+    for level, color in [(95, "rgba(255,217,61,0.16)"), (90, "rgba(0,212,170,0.22)")]:
+        lo = f"y_lo_{level}"
+        hi = f"y_hi_{level}"
+        if lo in forecasts.columns and hi in forecasts.columns:
+            fig.add_trace(
+                go.Scatter(
+                    x=forecasts["ds"],
+                    y=forecasts[hi],
+                    mode="lines",
+                    line={"width": 0},
+                    showlegend=False,
+                )
+            )
+            fig.add_trace(
+                go.Scatter(
+                    x=forecasts["ds"],
+                    y=forecasts[lo],
+                    mode="lines",
+                    line={"width": 0},
+                    fill="tonexty",
+                    fillcolor=color,
+                    name=f"Intervalo {level}%",
+                )
+            )
+
     fig.add_trace(
         go.Scatter(
             x=forecasts["ds"],
-            y=forecasts[selected_model],
+            y=forecasts["y"],
             mode="lines+markers",
-            name=f"Pronóstico {selected_model}",
-            line={"color": "#00D4AA", "width": 2.5},
-            marker={"size": 6, "color": "#0B5ED7", "opacity": 1.0, "line": {"width": 0}},
+            name="Forecast canónico",
+            line={"color": "#0B5ED7", "width": 2.6},
+            marker={"size": 6, "color": "#0B5ED7"},
         )
     )
+    fig.update_layout(
+        **PLOTLY_TEMPLATE["layout"],
+        title="Tasa de default: histórico + forecast oficial/diagnóstico",
+        xaxis_title="Fecha",
+        yaxis_title="Tasa de default",
+        yaxis={"tickformat": ".1%"},
+        height=470,
+    )
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        f"Punto canónico desde `{point_model}` y bandas desde `{interval_model}`. "
+        f"Estado operativo: `{official_status}`."
+    )
 
-for level, color in [("90", "rgba(0,212,170,0.22)"), ("95", "rgba(255,217,61,0.18)")]:
-    lo = f"{selected_model}-lo-{level}"
-    hi = f"{selected_model}-hi-{level}"
-    if lo in forecasts.columns and hi in forecasts.columns:
-        fig.add_trace(
-            go.Scatter(
-                x=forecasts["ds"],
-                y=forecasts[hi],
-                mode="lines",
-                line={"width": 0},
-                showlegend=False,
-            )
+st.subheader("2) Champion rationale y backtest real")
+if backtest_metrics.empty:
+    st.info("Backtest rolling-origin no disponible. La promoción del forecast queda en estado `no disponible`.")
+else:
+    candidate_table = backtest_metrics.copy()
+    candidate_table["rol"] = np.where(
+        candidate_table["model"].eq(point_model),
+        "champion_point",
+        np.where(candidate_table["model"].eq(interval_model), "champion_interval", "challenger"),
+    )
+    candidate_table["coverage_gap_90"] = pd.to_numeric(
+        candidate_table.get("coverage_gap_90"), errors="coerce"
+    )
+    candidate_table["mase"] = pd.to_numeric(candidate_table.get("mase"), errors="coerce")
+    candidate_table["coverage_90"] = pd.to_numeric(candidate_table.get("coverage_90"), errors="coerce")
+    candidate_table["fva_mae_pct"] = pd.to_numeric(
+        candidate_table.get("fva_mae_pct"), errors="coerce"
+    )
+    candidate_table = candidate_table.sort_values(["mase", "rmsse", "abs_bias"]).reset_index(
+        drop=True
+    )
+
+    display_cols = [
+        "rol",
+        "model",
+        "family",
+        "mase",
+        "rmsse",
+        "abs_bias",
+        "fva_mae_pct",
+        "coverage_90",
+        "coverage_gap_90",
+        "winkler_90",
+        "avg_interval_width_90",
+        "mean_abs_revision",
+        "dm_pvalue_vs_seasonal_naive",
+    ]
+    available_cols = [col for col in display_cols if col in candidate_table.columns]
+    st.dataframe(candidate_table[available_cols], width="stretch", hide_index=True)
+
+    fig = px.scatter(
+        candidate_table,
+        x="mase",
+        y="coverage_gap_90",
+        size="avg_interval_width_90",
+        color="family",
+        symbol="rol",
+        hover_name="model",
+        title="Trade-off entre error, cobertura y ancho intervalar",
+        labels={"mase": "MASE", "coverage_gap_90": "|coverage_90 - 0.90|"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=380)
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "El champion puntual se elige por MASE con guardrail contra SeasonalNaive; "
+        "el champion intervalar requiere gap de cobertura 90% dentro de política."
+    )
+
+st.subheader("3) Cobertura y error por horizonte")
+horizon_quality = _build_horizon_quality(backtest_predictions, interval_model)
+if horizon_quality.empty:
+    st.info("Cobertura por horizonte no disponible: faltan predicciones reales de backtest.")
+else:
+    col_a, col_b = st.columns(2)
+    with col_a:
+        fig = px.line(
+            horizon_quality,
+            x="horizon_step",
+            y="coverage_90",
+            markers=True,
+            title=f"Cobertura 90% por horizonte ({interval_model})",
+            labels={"horizon_step": "Paso", "coverage_90": "Coverage"},
         )
-        fig.add_trace(
-            go.Scatter(
-                x=forecasts["ds"],
-                y=forecasts[lo],
-                mode="lines",
-                line={"width": 0},
-                fill="tonexty",
-                fillcolor=color,
-                name=f"Intervalo {level}%",
-            )
+        fig.add_hline(y=0.90, line_dash="dash", line_color="#B91C1C")
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".0%"}, height=360)
+        st.plotly_chart(fig, width="stretch")
+    with col_b:
+        point_horizon = _build_horizon_quality(backtest_predictions, point_model)
+        fig = px.bar(
+            point_horizon,
+            x="horizon_step",
+            y="mae",
+            title=f"MAE por horizonte ({point_model})",
+            labels={"horizon_step": "Paso", "mae": "MAE"},
+            color="mae",
+            color_continuous_scale="Blues",
         )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], coloraxis_showscale=False, height=360)
+        st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "Esta vista permite distinguir un modelo bueno en promedio de uno estable a lo largo del horizonte."
+    )
 
-fig.update_layout(
-    **PLOTLY_TEMPLATE["layout"],
-)
-fig.update_layout(
-    title=f"Tasa de default: histórico y proyección ({selected_model})",
-    xaxis_title="Fecha",
-    yaxis_title="Tasa de default",
-    yaxis={"tickformat": ".1%"},
-    height=470,
-)
-st.plotly_chart(fig, width="stretch")
-st.caption(
-    "Propósito: proyectar default futuro. Insight: el modelo seleccionable mantiene trayectoria coherente con histórico. "
-    "Uso práctico: alimentar escenarios de provisión y planeación de riesgo."
-)
+st.subheader("4) Reconciliación coherente por grade")
+if "series_level" in panel_forecasts.columns:
+    grade_panel = panel_forecasts.loc[panel_forecasts["series_level"] == "grade"].copy()
+else:
+    grade_panel = pd.DataFrame()
+if grade_panel.empty:
+    st.info("Pronóstico jerárquico por `grade` no disponible; la página degrada esta sección a `no disponible`.")
+else:
+    fig = px.line(
+        grade_panel,
+        x="ds",
+        y="default_rate",
+        color="grade",
+        markers=True,
+        title="Bottom-up forecast por grade (tasas derivadas tras reconciliación)",
+        labels={"ds": "Fecha", "default_rate": "Tasa de default"},
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".1%"}, height=420)
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "La reconciliación se hace sobre `default_count` y `loan_count`; la tasa se deriva después para evitar inconsistencias aditivas."
+    )
 
-st.subheader("2) Escenarios IFRS9 derivados del pronóstico")
+st.subheader("5) Escenarios IFRS9 derivados")
 if scenarios.empty:
-    st.info("No hay artefacto de escenarios IFRS9 temporal; se omite esta sección.")
+    st.info("Escenarios IFRS9 temporales no disponibles.")
 else:
     col_a, col_b = st.columns(2)
     with col_a:
@@ -233,7 +425,10 @@ else:
         )
         fig.add_trace(
             go.Scatter(
-                x=scenarios["month"], y=scenarios["adverse_90"], mode="lines", name="Adverso 90%"
+                x=scenarios["month"],
+                y=scenarios["adverse_90"],
+                mode="lines",
+                name="Adverso 90%",
             )
         )
         fig.add_trace(
@@ -246,19 +441,11 @@ else:
         )
         fig.update_layout(
             **PLOTLY_TEMPLATE["layout"],
-        )
-        fig.update_layout(
-            title="Escenario central vs bandas optimista/adversa (90%)",
+            title="Escenario central vs bandas 90%",
             yaxis={"tickformat": ".1%"},
             height=390,
         )
         st.plotly_chart(fig, width="stretch")
-        st.caption(
-            "Propósito: visualizar rango optimista/adverso frente al punto central. "
-            "Insight: la incertidumbre no es simétrica en todos los meses. "
-            "Uso práctico: definir bandas de planificación IFRS9."
-        )
-
     with col_b:
         scen_long = scenarios.melt(
             id_vars=["month"],
@@ -280,104 +467,48 @@ else:
             title="Dispersión de tasas por escenario",
             labels={"escenario": "", "tasa": "Tasa"},
         )
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"])
-        fig.update_layout(yaxis={"tickformat": ".1%"}, height=390)
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".1%"}, height=390)
         st.plotly_chart(fig, width="stretch")
-        st.caption(
-            "Propósito: resumir dispersión por escenario. Insight: escenarios adversos desplazan sistemáticamente la tasa esperada. "
-            "Uso práctico: stress testing de provisiones y capital."
-        )
-
-st.subheader("3) Calidad en validación temporal (rolling origin)")
-pred_cols = [
-    c
-    for c in cv_stats.columns
-    if c not in {"unique_id", "ds", "cutoff", "y"}
-    and not c.endswith("-lo-90")
-    and not c.endswith("-hi-90")
-    and not c.endswith("-lo-95")
-    and not c.endswith("-hi-95")
-]
-if cv_stats.empty or "y" not in cv_stats.columns or not pred_cols:
-    st.info(
-        "No hay `ts_cv_stats.parquet` utilizable; se omite comparación MAE de validación temporal."
-    )
-else:
-    scores = []
-    for col in pred_cols:
-        err = np.abs(cv_stats["y"] - cv_stats[col])
-        scores.append({"modelo": col, "mae": float(err.mean())})
-    scores_df = pd.DataFrame(scores).sort_values("mae")
-
-    fig = px.bar(
-        scores_df,
-        x="modelo",
-        y="mae",
-        title="MAE promedio en validación temporal",
-        labels={"modelo": "Modelo", "mae": "MAE"},
-        color="mae",
-        color_continuous_scale="Blues",
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, coloraxis_showscale=False)
-    st.plotly_chart(fig, width="stretch")
     st.caption(
-        "Propósito: comparar error fuera de muestra temporal. Insight: el ranking de modelos no siempre coincide en MAE y RMSE. "
-        "Uso práctico: elegir modelo según criterio de negocio (error medio vs penalización de errores grandes)."
+        "Estos escenarios ya salen del artifact canónico del forecast temporal y se consumen downstream en IFRS9."
     )
 
-st.markdown(
-    """
-**Lectura de negocio:**
-- El bloque temporal anticipa cambios del riesgo antes de ver defaults realizados.
-- Las bandas de incertidumbre evitan sobreconfianza en escenarios puntuales.
-- Su salida se conecta con escenarios IFRS9 y discusión de resiliencia del portafolio.
-"""
-)
+with st.expander("Diagnóstico temporal y backlog metodológico"):
+    if diagnostics or summary:
+        diag_table = _build_diagnostics_table(
+            diagnostics=diagnostics,
+            summary=summary,
+            point_champion=point_champion,
+            interval_champion=interval_champion,
+        )
+        st.dataframe(diag_table, width="stretch", hide_index=True)
+    else:
+        st.info("Diagnóstico temporal no disponible.")
 
-with st.expander("Nota metodológica: cobertura conformal en series temporales"):
+    backlog = status.get("research_backlog", [])
+    backlog_text = ", ".join(str(item) for item in backlog) if backlog else "ACI, EnbPI"
     st.markdown(
-        """
-**Observación**: Los intervalos conformal del modelo LightGBM presentan cobertura empírica de ~80.6% frente
-al objetivo de 90%, mientras que los intervalos paramétricos de ARIMA alcanzan ~100%.
+        f"""
+**Nota metodológica**
 
-**Explicación**: Conformal prediction estándar asume **exchangeability** (intercambiabilidad) de los datos,
-una condición que las series temporales violan por naturaleza: las observaciones están ordenadas en el tiempo
-y pueden exhibir cambios de régimen (distributional shift). Cuando el proceso generador cambia entre el período
-de calibración y el de evaluación, la cobertura empírica se degrada.
-
-**Implicación práctica**:
-- Los intervalos ARIMA paramétricos son más confiables como referencia para escenarios IFRS9,
-  dado que su construcción incorpora la estructura temporal explícitamente.
-- El modelo ML (LightGBM) aporta valor en capturar patrones no lineales, pero sus bandas de
-  incertidumbre deben interpretarse como aproximadas.
-
-**Trabajo futuro**: Métodos como **ACI** (Adaptive Conformal Inference, Gibbs & Candès 2021) y
-**EnbPI** (Xu & Xie 2021) extienden conformal prediction a datos no intercambiables, ajustando
-dinámicamente los cuantiles de conformidad. Su incorporación mejoraría la cobertura empírica
-sin sacrificar la flexibilidad del modelo ML.
+- Las bandas oficiales priorizan el champion intervalar que cumple la política de cobertura.
+- Si el modelo ML no cumple cobertura, sus bandas se consideran diagnósticas y no oficiales.
+- Agenda explícita de research para no-exchangeability: `{backlog_text}`.
 """
     )
-
-st.markdown(
-    """
-Como cierre, el mensaje es que el pronóstico no reemplaza al score individual, sino que aporta contexto de régimen.
-Cuando el entorno cambia, una cartera con la misma composición de hoy puede comportarse distinto mañana. Por eso esta página
-debe leerse junto con incertidumbre conformal e IFRS9: juntas habilitan una gestión verdaderamente forward-looking.
-"""
-)
 
 img = get_notebook_image_path("05_time_series_forecasting", "cell_017_out_01.png")
 if img.exists():
     st.image(
         str(img),
-        caption="Notebook 05: comparación de modelos por métricas de validación temporal.",
+        caption="Notebook 05: evidencia exploratoria previa a la versión gobernada del subsistema temporal.",
         width="stretch",
     )
 
 render_caveats(
     [
-        "La cobertura de bandas conformales en series temporales puede degradarse si cambia el régimen entre calibración y evaluación.",
-        "El pronóstico agregado debe complementarse con análisis por segmento y monitoreo del mix de portafolio.",
+        "Un forecast puntual útil no basta: la promoción oficial exige evidencia de backtest y cobertura intervalar.",
+        "Las covariables exógenas solo deben comunicarse cuando exista contrato explícito de futuro; en otro caso la lectura oficial es univariada.",
     ]
 )
 render_page_feedback("time_series_outlook")

@@ -70,9 +70,9 @@ with tabs[0]:
                 [
                     "catboost",
                     ">=1.2",
-                    "PD model principal",
-                    "XGBoost, LightGBM",
-                    "Manejo nativo de categorías y NaN — cero preprocesamiento",
+                    "PD principal + ML temporal",
+                    "XGBoost",
+                    "Unifica tabular y forecasting ML con manejo nativo de categorías y NaN",
                 ],
                 [
                     "scikit-learn",
@@ -82,11 +82,11 @@ with tabs[0]:
                     "Estándar de la industria; utilidades de validación y calibración probabilística",
                 ],
                 [
-                    "lightgbm",
-                    ">=4.5",
-                    "Time series vía mlforecast",
-                    "XGBoost",
-                    "Más rápido en entrenamiento, integración Nixtla nativa",
+                    "mlforecast",
+                    ">=0.13",
+                    "Forecasting ML recursivo",
+                    "sktime, Prophet",
+                    "Compatibilidad con estimadores sklearn y CatBoost para lags/panel",
                 ],
                 [
                     "optuna",
@@ -158,9 +158,9 @@ with tabs[2]:
                 [
                     "mlforecast",
                     ">=0.13",
-                    "ML para time series (LightGBM)",
+                    "ML para time series (CatBoost)",
                     "Prophet, sktime",
-                    "Integración nativa con LightGBM; feature engineering temporal",
+                    "Compatibilidad con CatBoost; feature engineering temporal",
                 ],
                 [
                     "hierarchicalforecast",
@@ -659,6 +659,44 @@ make_dataset → prepare_dataset → build_datasets
 - **Git mirror**: sincronización automática con GitHub
 - **DVC remote**: almacenamiento de parquets y modelos serializados
 - **MLflow UI**: visualización de experimentos, comparación de runs, registro de modelos
+"""
+    )
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2.1 Methodological Risks
+# ══════════════════════════════════════════════════════════════════════════════
+st.subheader("2.1) Riesgos metodológicos conocidos y mitigación operativa")
+risk_table = pd.DataFrame(
+    [
+        {
+            "Riesgo": "Optimizer's curse (HPO)",
+            "Cómo se manifiesta": "El mejor trial de Optuna sobreestima mejora real.",
+            "Mitigación operativa": "Reportar dispersión por seeds + validar OOT antes de promover campeón.",
+        },
+        {
+            "Riesgo": "Sensibilidad a random_state",
+            "Cómo se manifiesta": "Pequeños cambios de seed alteran ranking entre modelos cercanos.",
+            "Mitigación operativa": "Now change random_state como regla de aprobación previa a claims.",
+        },
+        {
+            "Riesgo": "No-free-lunch",
+            "Cómo se manifiesta": "Técnica ganadora en una tarea falla al cambiar objetivo/regla de negocio.",
+            "Mitigación operativa": "Comparar familias (CatBoost/estadísticos/baselines) por contexto de decisión.",
+        },
+        {
+            "Riesgo": "Data leakage silencioso",
+            "Cómo se manifiesta": "AUC offline alto que se degrada al pasar a OOT/producción.",
+            "Mitigación operativa": "Contrato de features + split temporal + tests de consistencia en CI.",
+        },
+    ]
+)
+st.dataframe(risk_table, width="stretch", hide_index=True)
+with st.expander("Checklist operativo PASS/WARN/FAIL"):
+    st.markdown(
+        """
+- **PASS**: resultados estables por semillas, validación OOT consistente y sin señales de fuga.
+- **WARN**: mejora marginal depende de una sola semilla o de un único split.
+- **FAIL**: no replica fuera de muestra o hay evidencia de leakage/deriva no mitigada.
 """
     )
 

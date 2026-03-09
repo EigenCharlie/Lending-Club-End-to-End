@@ -53,6 +53,11 @@ pg = st.navigation(
             st.Page("pages/data_story.py", title="Historia de Datos", icon="📊"),
             st.Page("pages/model_laboratory.py", title="Laboratorio de Modelos", icon="🔬"),
             st.Page(
+                "pages/model_interpretability.py",
+                title="Explicabilidad e Interpretabilidad",
+                icon="🧠",
+            ),
+            st.Page(
                 "pages/uncertainty_quantification.py",
                 title="Cuantificación de Incertidumbre",
                 icon="📐",

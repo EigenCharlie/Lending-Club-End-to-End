@@ -18,14 +18,10 @@ from streamlit_flow.elements import StreamlitFlowEdge, StreamlitFlowNode
 from streamlit_flow.layouts import ManualLayout
 from streamlit_flow.state import StreamlitFlowState
 
-from streamlit_app.components.context_help import metric_help_popover, term_popover
-from streamlit_app.components.dvc_kpi_spine import (
-    render_global_kpi_spine,
-    render_metric_delta_explainer,
-)
+from streamlit_app.components.context_help import term_popover
+from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
-from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_decision_box,
     render_key_takeaway,
@@ -37,8 +33,6 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     format_pct,
-    load_dvc_metrics_summary,
-    safe_metric_get,
     try_load_json,
 )
 
@@ -88,9 +82,9 @@ _ARCH_NODES = [
     },
     {
         "id": "causal",
-        "label": "Causalidad (DML/CATE)",
+        "label": "Causalidad (DoWhy + CausalForestDML)",
         "layer": "model",
-        "detail": "+1pp tasa \u2192 +0.787pp default",
+        "detail": "Policy simulation bajo CATE local",
         "icon": "\U0001f9ec",
     },
     {
@@ -185,22 +179,21 @@ render_key_takeaway(
     "El valor del proyecto no está en una sola métrica: está en encadenar PD, incertidumbre, optimización e IFRS9 con una fuente canónica común."
 )
 term_popover("canónico", label="Qué significa 'canónico' en este dashboard")
+storytelling_intro(
+    page_goal="Entender cómo se encadenan score, incertidumbre, causalidad, optimización e IFRS9 en una sola historia.",
+    business_value="Permite leer el dashboard de arriba hacia abajo sin perder el hilo entre métricas técnicas y decisiones.",
+    key_decision="Usar esta portada para validar el estado canónico del run antes de defender cualquier claim puntual.",
+    how_to_read=[
+        "Empieza por la espina KPI y luego baja por arquitectura.",
+        "Usa esta página como índice antes de entrar a módulos especializados.",
+        "Confirma que el run canónico y sus artefactos estén alineados.",
+    ],
+)
 
 st.success(
     "**Lending Club**: la plataforma de préstamos peer-to-peer más grande de EE.UU. "
     "Este proyecto transforma su histórico de préstamos en un sistema completo "
     "de decisión de riesgo de crédito, desde score hasta provisiones IFRS9."
-)
-
-storytelling_intro(
-    page_goal="Conectar en una sola vista el flujo completo de riesgo: predicción, incertidumbre, decisión y regulación.",
-    business_value="Evita decisiones parciales (solo AUC o solo provisión) y permite balancear retorno, robustez y cumplimiento.",
-    key_decision="Elegir una política de riesgo defendible para originación y provisión con métricas consistentes.",
-    how_to_read=[
-        "Revisar métricas de calidad de modelo (AUC/Gini/Brier/ECE).",
-        "Contrastar robusto vs no robusto (retorno, PoR, aprobados).",
-        "Confirmar cobertura conformal y estado de gobernanza antes de adoptar una política.",
-    ],
 )
 
 render_decision_box(
@@ -225,6 +218,40 @@ st.markdown(
 """
 )
 
+st.markdown("### Métrica ML vs KPI de negocio")
+st.dataframe(
+    pd.DataFrame(
+        [
+            {
+                "Capa": "Ranking",
+                "Métrica ML": "AUC / KS",
+                "KPI de negocio asociado": "Priorización de originación y revisión",
+                "Riesgo de mala lectura": "Asumir que buen AUC implica probabilidad confiable",
+            },
+            {
+                "Capa": "Probabilidad",
+                "Métrica ML": "Brier / ECE (proper scoring)",
+                "KPI de negocio asociado": "Pricing, límites y provisión IFRS9",
+                "Riesgo de mala lectura": "Confundir ranking alto con calibración adecuada",
+            },
+            {
+                "Capa": "Incertidumbre",
+                "Métrica ML": "Coverage / Interval width",
+                "KPI de negocio asociado": "Robustez de decisión y buffers prudenciales",
+                "Riesgo de mala lectura": "Leer bandas como CI de parámetros y no como PI operativo",
+            },
+            {
+                "Capa": "Decisión",
+                "Métrica ML": "Price of Robustness / funded loans",
+                "KPI de negocio asociado": "Retorno ajustado por riesgo y resiliencia",
+                "Riesgo de mala lectura": "Optimizar retorno puntual sin costo de incertidumbre",
+            },
+        ]
+    ),
+    width="stretch",
+    hide_index=True,
+)
+
 st.markdown(
     """
 Esta portada resume el hilo completo y sirve como punto de entrada. La lectura recomendada es secuencial:
@@ -237,15 +264,19 @@ eda = try_load_json("eda_summary")
 comparison = try_load_json("model_comparison")
 policy = try_load_json("conformal_policy_status", directory="models")
 governance = try_load_json("governance_status", directory="models")
-render_release_governance(
-    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
-    governance_status=governance,
-    conformal_status=policy,
-)
+causal_effect = try_load_json("causal_effect_status", directory="models")
 
 pipeline = summary.get("pipeline", {})
 pd_model = summary.get("pd_model", {})
+causal_summary = summary.get("causal", {})
 final_metrics = comparison.get("final_test_metrics", {})
+
+causal_ate = causal_effect.get("ate", causal_summary.get("ate"))
+if causal_ate not in (None, ""):
+    try:
+        _NODE_MAP["causal"]["detail"] = f"+1pp tasa -> {float(causal_ate):+.3f}pp default"
+    except Exception:
+        _NODE_MAP["causal"]["detail"] = "ATE artefact-driven"
 
 auc = _first_valid(
     final_metrics.get("auc_roc"),
@@ -255,22 +286,6 @@ auc = _first_valid(
 gini = _first_valid(final_metrics.get("gini"), pd_model.get("final_gini"))
 brier = _first_valid(final_metrics.get("brier_score"), pd_model.get("final_brier"))
 ece = _first_valid(final_metrics.get("ece"), pd_model.get("final_ece"))
-
-dvc_metrics = load_dvc_metrics_summary()
-if dvc_metrics:
-    st.caption("Consistencia rápida entre snapshot DVC canónico y artefactos de la página")
-    cols = st.columns(3)
-    with cols[0]:
-        render_metric_delta_explainer("pd.auc", safe_metric_get(dvc_metrics, "pd.auc"), auc)
-    with cols[1]:
-        render_metric_delta_explainer("pd.ece", safe_metric_get(dvc_metrics, "pd.ece"), ece)
-    with cols[2]:
-        render_metric_delta_explainer(
-            "optimization.price_of_robustness",
-            safe_metric_get(dvc_metrics, "optimization.price_of_robustness"),
-            float(pipeline.get("price_of_robustness", 0.0)),
-        )
-    metric_help_popover("baseline_vs_canonical", label="Baseline vs canónico")
 
 st.subheader("Dimensión del problema")
 kpi_row(
@@ -517,7 +532,7 @@ Conformal Mondrian agrega una garantía empírica de cobertura por segmentos, ev
 Ese intervalo no se queda en el plano académico: entra como insumo directo en la optimización robusta de cartera, donde el
 `PD_high` representa un peor caso plausible y hace explícito el costo de robustez en términos de retorno.
 
-En paralelo, la capa causal (DML/CATE) responde una pregunta distinta: no solo quién es riesgoso, sino **qué intervención
+En paralelo, la capa causal (DoWhy + CausalForestDML) responde una pregunta distinta: no solo quién es riesgoso, sino **qué intervención
 podría cambiar ese riesgo** y con qué valor económico esperado. Forecasting y supervivencia aportan la dimensión temporal,
 que es esencial para IFRS9 y para comités de riesgo orientados a horizonte. El resultado final es un sistema coherente en el
 que cada técnica entrega un output que se reutiliza como input en la siguiente capa, cerrando el puente entre analítica,

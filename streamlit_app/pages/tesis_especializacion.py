@@ -13,13 +13,20 @@ from streamlit_flow.elements import StreamlitFlowEdge, StreamlitFlowNode
 from streamlit_flow.layouts import ManualLayout
 from streamlit_flow.state import StreamlitFlowState
 
+from streamlit_app.components.conformal_applied_blocks import (
+    build_cp_concept_matrix_rows,
+    build_cp_evidence_ladder_rows,
+    build_cp_method_menu_rows,
+    render_cp_guarantees_and_limits,
+    render_exchangeability_stress_checklist,
+)
 from streamlit_app.components.context_help import methodology_dialog
 from streamlit_app.components.decision_panels import tradeoff_panel
 from streamlit_app.components.narrative import claim_evidence_implication, storytelling_intro
-from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_decision_box,
     render_key_takeaway,
+    render_page_header,
     render_section_checkpoint,
 )
 from streamlit_app.content.page_contracts import get_page_contract
@@ -61,31 +68,6 @@ def _to_dataframe(value: object) -> pd.DataFrame:
     if isinstance(value, pd.DataFrame):
         return value
     return pd.DataFrame()
-
-
-def _extract_artifact_meta(name: str, payload: object, source_path: str) -> dict[str, str]:
-    run_tag = "n/a"
-    generated = "n/a"
-    if isinstance(payload, dict):
-        run_tag = str(payload.get("run_tag", "n/a"))
-        generated = str(payload.get("generated_at_utc", "n/a"))
-    return {
-        "artifact": name,
-        "source": source_path,
-        "run_tag": run_tag,
-        "generated_at_utc": generated,
-    }
-
-
-def _build_coherence_table(meta_rows: list[dict[str, str]]) -> tuple[pd.DataFrame, str, bool]:
-    df = pd.DataFrame(meta_rows)
-    if df.empty:
-        return df, "n/a", False
-
-    valid_tags = [tag for tag in df["run_tag"].tolist() if tag not in {"", "n/a", "None"}]
-    run_tag = valid_tags[0] if valid_tags else "n/a"
-    consistent = len(set(valid_tags)) <= 1 if valid_tags else False
-    return df, run_tag, consistent
 
 
 def _path_status(paths: list[str]) -> str:
@@ -284,31 +266,6 @@ def _humanize_gap_reason(raw_reason: str, component: str) -> str:
         "file_not_found": "El artefacto esperado no fue generado en esta corrida.",
     }
     return mapping.get(raw_reason, raw_reason.replace("_", " "))
-
-
-def _render_traceability_block(
-    meta_rows: list[dict[str, str]],
-    selected_artifacts: list[str],
-    *,
-    include_paths: bool = False,
-) -> None:
-    selected = [row for row in meta_rows if row["artifact"] in selected_artifacts]
-    if not selected:
-        return
-    summary_df = pd.DataFrame(
-        [
-            {
-                "Artefacto": row["artifact"],
-                "run_tag": row["run_tag"],
-                "generated_at_utc": row["generated_at_utc"],
-            }
-            for row in selected
-        ]
-    )
-    st.dataframe(summary_df, hide_index=True, width="stretch")
-    if include_paths:
-        with st.expander("Ver detalle tecnico de rutas", expanded=False):
-            st.dataframe(pd.DataFrame(selected), hide_index=True, width="stretch")
 
 
 def _render_capitulo_1_apertura_y_objetivos() -> None:
@@ -524,6 +481,29 @@ def _render_capitulo_3_marco_teorico() -> None:
     )
     st.latex(r"\mathrm{ECL} = PD \times LGD \times EAD")
     st.latex(r"P(Y \in C(X)) \ge 1 - \alpha")
+    st.markdown("**Tres garantias y tres limites de Conformal Prediction**")
+    render_cp_guarantees_and_limits()
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Garantia": "Validez marginal finita",
+                    "Limite asociado": "No implica cobertura exacta para todo x.",
+                },
+                {
+                    "Garantia": "Model-agnostic",
+                    "Limite asociado": "No corrige un modelo base sistematicamente sesgado.",
+                },
+                {
+                    "Garantia": "Distribucion libre (operativa)",
+                    "Limite asociado": "Puede degradarse si se rompe exchangeability.",
+                },
+            ]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+    st.dataframe(pd.DataFrame(build_cp_concept_matrix_rows()), hide_index=True, width="stretch")
 
     # Calibration vs Conformal complementarity Sankey
     st.markdown("**Calibracion y Conformal: complemento, no reemplazo**")
@@ -585,57 +565,36 @@ def _render_capitulo_3_marco_teorico() -> None:
         button_label="Ver: como se construyen los intervalos conformales",
     )
 
-    methods_df = pd.DataFrame(
-        [
-            {
-                "Metodo": "Platt Scaling",
-                "Tipo": "Calibracion post-hoc",
-                "Target": "PD",
-                "Fortaleza": "Simple y estable",
-                "Limite": "Asume relacion sigmoidal",
-            },
-            {
-                "Metodo": "Isotonic Regression",
-                "Tipo": "Calibracion post-hoc",
-                "Target": "PD",
-                "Fortaleza": "Flexible sin suposiciones parametricas",
-                "Limite": "Puede sobreajustar en muestras pequenas",
-            },
-            {
-                "Metodo": "Venn-Abers",
-                "Tipo": "Calibracion multiprobabilistica",
-                "Target": "PD",
-                "Fortaleza": "Salida intervalar de probabilidad",
-                "Limite": "Implementacion mas exigente",
-            },
-            {
-                "Metodo": "Split Conformal",
-                "Tipo": "UQ distribution-free",
-                "Target": "PD/LGD/EAD",
-                "Fortaleza": "Cobertura finita y simple",
-                "Limite": "Garantia marginal, no necesariamente condicional",
-            },
-            {
-                "Metodo": "Mondrian Conformal",
-                "Tipo": "UQ condicional por grupo",
-                "Target": "PD",
-                "Fortaleza": "Mejor control por segmentos (grade)",
-                "Limite": "Compromiso ancho-cobertura por subgrupo",
-            },
-            {
-                "Metodo": "CQR",
-                "Tipo": "Conformalized Quantile Regression",
-                "Target": "LGD/EAD",
-                "Fortaleza": "Intervalos adaptativos en heteroscedasticidad",
-                "Limite": "Mayor complejidad de entrenamiento y validacion",
-            },
-        ]
-    )
+    methods_rows = [
+        {
+            "Metodo": "Platt Scaling",
+            "Que garantiza": "Mejor calibracion probabilistica (PD)",
+            "Que no garantiza": "No genera cobertura intervalar por si solo",
+            "Cuando usar": "Modelo binario con buena separacion",
+            "Riesgo de sobreclaim": "Confundir mejor ECE con garantia de incertidumbre",
+        },
+        {
+            "Metodo": "Isotonic Regression",
+            "Que garantiza": "Calibracion flexible sin forma parametrica fija",
+            "Que no garantiza": "No protege contra drift o shift por si solo",
+            "Cuando usar": "Suficiente data de calibracion y no linealidad clara",
+            "Riesgo de sobreclaim": "Asumir estabilidad fuera de muestra por defecto",
+        },
+        {
+            "Metodo": "Venn-Abers",
+            "Que garantiza": "Salida probabilistica mas robusta en calibracion",
+            "Que no garantiza": "No reemplaza validacion de cobertura conformal",
+            "Cuando usar": "Cuando la calibracion es cuello de botella principal",
+            "Riesgo de sobreclaim": "Tomar intervalos VA como bandas conformales completas",
+        },
+    ]
+    methods_rows.extend(build_cp_method_menu_rows("mondrian_selected_cfg"))
+    methods_df = pd.DataFrame(methods_rows)
     st.markdown("**Comparativo de metodos y trade-offs**")
     st.dataframe(methods_df, hide_index=True, width="stretch")
     st.markdown(
-        "Lectura guiada: la columna de limite es clave para delimitar alcance. El diseño experimental usa "
-        "cada metodo donde su supuesto es razonable, evitando claims universales."
+        "Lectura guiada: el foco no es elegir el metodo 'ganador universal', sino el que mejor "
+        "equilibra garantia estadistica y utilidad operativa para este caso de uso."
     )
     st.markdown("**Como se aplica Conformal Prediction en PD/LGD/EAD**")
     cp_role_df = pd.DataFrame(
@@ -1661,6 +1620,8 @@ def _render_capitulo_8_conformal_y_comparativa(
         "Lectura guiada: cobertura mide garantia empirica; ancho mide costo de robustez. "
         "El objetivo no es maximizar una metrica aislada, sino sostener equilibrio cobertura-ancho."
     )
+    st.markdown("**Evidence ladder (principio -> artefacto -> decision)**")
+    st.dataframe(pd.DataFrame(build_cp_evidence_ladder_rows()), hide_index=True, width="stretch")
 
     metric_meaning = pd.DataFrame(
         [
@@ -1690,7 +1651,7 @@ def _render_capitulo_8_conformal_y_comparativa(
             "un conformal global puede reportar 90% de cobertura promedio, pero Grade G puede "
             "tener solo 58%. El promedio global esconde fallos en subgrupos criticos.\n\n"
             "**Solucion Mondrian:** calcula cuantiles de no conformidad *por grupo* (grade). "
-            "Cada grade obtiene su propio radio de intervalo, garantizando cobertura condicional.\n\n"
+            "Cada grade obtiene su propio radio de intervalo y mejora la cobertura por particion.\n\n"
             "**Costo:** los intervalos de grupos pequenos (F, G) pueden ser mas anchos, "
             "pero la garantia por segmento es operativamente mas valiosa que un promedio engañoso.\n\n"
             "**Evidencia en esta tesis:** Global split = 58.69% min group coverage vs "
@@ -1947,6 +1908,32 @@ def _render_capitulo_8_conformal_y_comparativa(
                     implication="Sin Mondrian, grades de alto riesgo quedan subprotegidos; con Mondrian, la garantia es operativa por segmento.",
                 )
 
+    st.markdown("**Escalamiento metodologico (sin cambiar pipeline canonico)**")
+    render_exchangeability_stress_checklist()
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Trigger": "Cobertura global bajo target por >=2 meses",
+                    "Escalar a": "Recalibracion y revision de score no conformidad",
+                    "Objetivo": "Recuperar validez marginal sin sobredimensionar ancho",
+                },
+                {
+                    "Trigger": "Subgrupo critico bajo meta de forma recurrente",
+                    "Escalar a": "Ajuste de particion Mondrian o min_group_size",
+                    "Objetivo": "Evitar subproteccion de segmentos de riesgo alto",
+                },
+                {
+                    "Trigger": "Drift persistente + alertas severas",
+                    "Escalar a": "Evaluar metodo adaptativo (ACP/CQR/Jackknife+)",
+                    "Objetivo": "Sostener cobertura util bajo cambio de regimen",
+                },
+            ]
+        ),
+        hide_index=True,
+        width="stretch",
+    )
+
     st.markdown(
         "Cierre del capitulo: conformal no se presenta como promesa abstracta, sino como un sistema con "
         "metas, pruebas y alertas que se puede gobernar en produccion."
@@ -2143,10 +2130,6 @@ def _render_capitulo_10_conclusiones_y_proximos_pasos(
     fairness_audit: pd.DataFrame,
     lgd_ead_status: dict,
     lgd_guardrails: dict,
-    meta_rows: list[dict[str, str]],
-    active_run_tag: str,
-    run_tag_consistency: bool,
-    page_contract_id: str,
 ) -> None:
     st.subheader("Capitulo 10. Conclusiones y proximos pasos")
     _render_story_block(
@@ -2407,7 +2390,9 @@ def _render_capitulo_10_conclusiones_y_proximos_pasos(
             },
             {
                 "Pregunta esperable": "Que evidencia prueba reproducibilidad?",
-                "Respuesta sugerida": "run_tag, timestamps, artefactos canonicamente versionados y contratos de datos/modelo.",
+                "Respuesta sugerida": (
+                    "Timestamps, artefactos canonicamente versionados y contratos de datos/modelo."
+                ),
             },
             {
                 "Pregunta esperable": "Por que Mondrian y no solo Split global?",
@@ -2430,7 +2415,7 @@ def _render_capitulo_10_conclusiones_y_proximos_pasos(
                 "Respuesta sugerida": (
                     "Bootstrap requiere supuestos distribucionales y su cobertura no tiene garantia finita. "
                     "Conformal prediction ofrece cobertura garantizada bajo exchangeability, sin supuestos parametricos. "
-                    "Ademas, Mondrian agrega garantia condicional por grupo, algo que bootstrap no ofrece nativamente."
+                    "Ademas, Mondrian mejora el control de cobertura por particion, algo que bootstrap no ofrece nativamente."
                 ),
             },
         ]
@@ -2486,24 +2471,6 @@ def _render_capitulo_10_conclusiones_y_proximos_pasos(
         "para cada nivel de tolerancia al riesgo."
     )
 
-    st.markdown("**Trazabilidad minima para defensa (solo en este cierre)**")
-    st.caption(
-        f"Contrato narrativo: {page_contract_id} | run_tag activo: {active_run_tag} | "
-        f"coherencia run_tag: {_status_badge(run_tag_consistency)}"
-    )
-    _render_traceability_block(
-        meta_rows,
-        [
-            "model_comparison",
-            "conformal_policy_status",
-            "conformal_lgd_ead_status",
-            "lgd_guardrails_status",
-            "fairness_audit_status",
-            "metrics_summary",
-        ],
-        include_paths=False,
-    )
-
 
 # ---------------------------------------------------------------------------
 # University-branded header
@@ -2541,6 +2508,7 @@ st.markdown(
 )
 
 page_contract = get_page_contract("tesis_especializacion")
+render_page_header(page_contract)
 
 # Carga centralizada de artefactos canonicos
 comparison = try_load_json("model_comparison", default={})
@@ -2614,41 +2582,11 @@ ifrs9_input_quality = _to_dataframe(try_load_parquet("ifrs9_input_quality", defa
 
 fairness_audit = _to_dataframe(try_load_parquet("fairness_audit", default=pd.DataFrame()))
 
-artifact_meta_rows = [
-    _extract_artifact_meta("model_comparison", comparison, "data/processed/model_comparison.json"),
-    _extract_artifact_meta(
-        "conformal_policy_status",
-        conformal_status,
-        "models/conformal_policy_status.json",
-    ),
-    _extract_artifact_meta(
-        "fairness_audit_status",
-        fairness_status,
-        "models/fairness_audit_status.json",
-    ),
-    _extract_artifact_meta(
-        "conformal_lgd_ead_status",
-        lgd_ead_status,
-        "models/conformal_lgd_ead_status.json",
-    ),
-    _extract_artifact_meta(
-        "lgd_guardrails_status",
-        lgd_guardrails,
-        "models/lgd_guardrails_status.json",
-    ),
-    _extract_artifact_meta(
-        "pipeline_summary", pipeline_summary, "data/processed/pipeline_summary.json"
-    ),
-    _extract_artifact_meta("ab_simulation_status", ab_status, "models/ab_simulation_status.json"),
-    _extract_artifact_meta("runtime_status", runtime_status, "data/processed/runtime_status.json"),
-    _extract_artifact_meta("metrics_summary", metrics_summary, "reports/dvc/metrics_summary.json"),
-]
-_, active_run_tag, run_tag_consistency = _build_coherence_table(artifact_meta_rows)
-render_release_governance(
-    current_run_tag=active_run_tag,
-    governance_status=try_load_json("governance_status", directory="models", default={}),
-    conformal_status=conformal_status,
-)
+# -- Traceability sidebar (run_tag / generated_at_utc) --
+_run_tag = pipeline_summary.get("run_tag", "N/A")
+_generated_at_utc = pipeline_summary.get("generated_at_utc", "N/A")
+with st.sidebar:
+    st.caption(f"run_tag: `{_run_tag}` | generated_at_utc: `{_generated_at_utc}`")
 
 tabs = st.tabs(
     [
@@ -2729,8 +2667,4 @@ with tabs[9]:
         fairness_audit,
         lgd_ead_status,
         lgd_guardrails,
-        artifact_meta_rows,
-        active_run_tag,
-        run_tag_consistency,
-        page_contract.page_id,
     )

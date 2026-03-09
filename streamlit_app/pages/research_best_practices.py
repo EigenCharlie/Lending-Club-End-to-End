@@ -74,6 +74,39 @@ with st.expander("Fuentes externas usadas para estas prácticas"):
 st.markdown("## 2) Estructura mínima de cada draft")
 render_paper_section_checklist()
 
+st.markdown("## 2.1) Checklist obligatorio de validez metodológica")
+st.markdown(
+    """
+Antes de marcar un draft como "listo para revisión", verificar explícitamente:
+
+1. **Supuestos de identificación/evaluación**:
+   - ¿Qué supuestos se requieren (exchangeability, overlap/positivity, PH, i.i.d., etc.)?
+   - ¿Qué evidencia local muestra que son plausibles?
+   - ¿Qué decisión queda bloqueada si el supuesto falla?
+2. **Amenazas a validez**:
+   - Sesgo de selección / leakage / drift temporal.
+   - Sensibilidad a random_state, split o hiperparámetros.
+   - Riesgo de extrapolación fuera de soporte observado.
+3. **Negativos y ablation**:
+   - ¿Se reporta un baseline fuerte y al menos un challenger razonable?
+   - ¿Existe ablation de componentes (sin calibración, sin conformal, sin robustez)?
+   - ¿Se incluye al menos un resultado negativo o limitación no resuelta?
+"""
+)
+with st.expander("Plantilla reusable: supuesto -> evidencia -> límite -> decisión"):
+    st.code(
+        "\n".join(
+            [
+                "| Supuesto | Evidencia en este repo | Si falla | Decisión afectada |",
+                "|---|---|---|---|",
+                "| Exchangeability | backtest por cohortes + alertas mensuales | Cobertura inválida por régimen | Política robusta por intervalos |",
+                "| Overlap/Positivity | distribución de tratamiento por segmento | CATE inestable | Reglas causales por segmento |",
+                "| PH (Cox) | Schoenfeld tests/reportes | HR no interpretable globalmente | Proyección de riesgo lifetime |",
+            ]
+        ),
+        language="markdown",
+    )
+
 st.markdown("## 3) Inserción de LaTeX en Streamlit (recomendado)")
 st.markdown(
     """

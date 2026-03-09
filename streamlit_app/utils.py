@@ -97,24 +97,147 @@ def try_load_report_json(subdir: str, name: str) -> dict:
         return {}
 
 
+def _coerce_float(value: object) -> float | None:
+    """Best-effort cast to float; return None for non-finite/non-numeric values."""
+    try:
+        out = float(value)
+    except Exception:
+        return None
+    return out if pd.notna(out) else None
+
+
+def _get_nested(payload: dict, path: tuple[str, ...]) -> object | None:
+    """Traverse nested dict by path, returning None when missing."""
+    current: object = payload
+    for key in path:
+        if not isinstance(current, dict) or key not in current:
+            return None
+        current = current[key]
+    return current
+
+
+def _extract_first_float(payload: dict, candidates: tuple[tuple[str, ...], ...]) -> float | None:
+    """Return first numeric value found across candidate paths."""
+    for candidate in candidates:
+        value = _coerce_float(_get_nested(payload, candidate))
+        if value is not None:
+            return value
+    return None
+
+
+def _load_pipeline_metrics_fallback() -> dict[str, float]:
+    """Fallback mapping from pipeline_summary.json to DVC KPI keys."""
+    path = DATA_DIR / "pipeline_summary.json"
+    if not path.exists():
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    if not isinstance(payload, dict):
+        return {}
+
+    metric_candidates: dict[str, tuple[tuple[str, ...], ...]] = {
+        "pd.auc": (("pd_auc",), ("pd_model", "final_auc"), ("flattened_summary", "pd_auc")),
+        "pd.gini": (("pd_gini",), ("pd_model", "final_gini"), ("flattened_summary", "pd_gini")),
+        "pd.brier": (("pd_brier",), ("pd_model", "final_brier"), ("flattened_summary", "pd_brier")),
+        "pd.ece": (("pd_ece",), ("pd_model", "final_ece"), ("flattened_summary", "pd_ece")),
+        "conformal.coverage90": (
+            ("conformal_coverage_90",),
+            ("conformal", "coverage_90"),
+            ("flattened_summary", "conformal_coverage_90"),
+        ),
+        "conformal.coverage95": (
+            ("conformal_coverage_95",),
+            ("conformal", "coverage_95"),
+            ("flattened_summary", "conformal_coverage_95"),
+        ),
+        "conformal.avg_width90": (
+            ("pipeline", "interval_width_mean"),
+            ("interval_width_mean",),
+        ),
+        "ifrs9.ecl_baseline": (
+            ("pipeline", "ecl_expected"),
+            ("ifrs9", "ecl_baseline"),
+        ),
+        "ifrs9.ecl_severe": (
+            ("pipeline", "ecl_conservative"),
+            ("ifrs9", "ecl_severe"),
+        ),
+        "ifrs9.severe_uplift_pct": (
+            ("ifrs9", "severe_uplift_pct"),
+        ),
+        "optimization.robust_return": (
+            ("pipeline", "robust_return"),
+            ("optimization", "robust_return"),
+        ),
+        "optimization.nonrobust_return": (
+            ("pipeline", "nonrobust_return"),
+            ("optimization", "nonrobust_return"),
+        ),
+        "optimization.price_of_robustness": (
+            ("pipeline", "price_of_robustness"),
+            ("optimization", "price_of_robustness"),
+        ),
+        "causal.ate": (
+            ("causal", "ate"),
+            ("causal_ate",),
+            ("flattened_summary", "causal_ate"),
+        ),
+        "causal.cate_mean": (
+            ("causal", "cate_mean"),
+            ("causal_cate_mean",),
+            ("flattened_summary", "causal_cate_mean"),
+        ),
+        "causal.bootstrap_p05_net": (
+            ("causal", "bootstrap_p05_net"),
+            ("causal_bootstrap_p05_net",),
+            ("flattened_summary", "causal_bootstrap_p05_net"),
+        ),
+        "causal.oot_p05_monthly_net": (
+            ("causal", "oot_p05_monthly_net"),
+            ("causal_oot_p05_monthly_net",),
+            ("flattened_summary", "causal_oot_p05_monthly_net"),
+        ),
+    }
+
+    out: dict[str, float] = {}
+    for metric_key, candidates in metric_candidates.items():
+        value = _extract_first_float(payload, candidates)
+        if value is not None:
+            out[metric_key] = value
+
+    if "ifrs9.severe_uplift_pct" not in out:
+        baseline = out.get("ifrs9.ecl_baseline")
+        severe = out.get("ifrs9.ecl_severe")
+        if baseline is not None and severe is not None and baseline != 0:
+            out["ifrs9.severe_uplift_pct"] = ((severe / baseline) - 1.0) * 100.0
+
+    return out
+
+
 @st.cache_data(ttl=300, max_entries=4)
 def load_dvc_metrics_summary() -> dict[str, float]:
     """Load canonical DVC metrics summary exported under reports/dvc/."""
     path = DVC_REPORTS_DIR / "metrics_summary.json"
-    if not path.exists():
-        return {}
-    try:
-        data = json.loads(path.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
-    source = data.get("metrics", data) if isinstance(data, dict) else {}
     out: dict[str, float] = {}
-    for key, value in source.items():
+
+    if path.exists():
         try:
-            out[str(key)] = float(value)
+            data = json.loads(path.read_text(encoding="utf-8"))
         except Exception:
-            continue
-    return out
+            data = {}
+        source = data.get("metrics", data) if isinstance(data, dict) else {}
+        if isinstance(source, dict):
+            for key, value in source.items():
+                metric_value = _coerce_float(value)
+                if metric_value is None:
+                    continue
+                out[str(key)] = metric_value
+
+    if out:
+        return out
+    return _load_pipeline_metrics_fallback()
 
 
 @st.cache_data(ttl=300, max_entries=4)

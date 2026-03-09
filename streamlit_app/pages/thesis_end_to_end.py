@@ -31,6 +31,7 @@ from streamlit_app.utils import (
     get_notebook_image_path,
     load_json,
     load_parquet,
+    try_load_parquet,
 )
 
 st.title("🧭 Visión End-to-End")
@@ -60,7 +61,18 @@ eda = load_json("eda_summary")
 
 pipeline = summary.get("pipeline", {})
 final_metrics = comparison.get("final_test_metrics", {})
-causal_rule = load_parquet("causal_policy_rule_selected").iloc[0]
+causal_summary = summary.get("causal", {})
+causal_rule_df = try_load_parquet("causal_policy_rule_selected")
+causal_rule = (
+    causal_rule_df.iloc[0]
+    if not causal_rule_df.empty
+    else pd.Series(
+        {
+            "rule_name": causal_summary.get("selected_rule", "N/D"),
+            "total_net_value": causal_summary.get("total_net_value", 0.0),
+        }
+    )
+)
 ifrs9_scenarios = load_parquet("ifrs9_scenario_summary")
 robust_summary = load_parquet("portfolio_robustness_summary")
 
@@ -127,7 +139,7 @@ else:
 ### Lectura técnica (modelo, teoría y supuestos)
 - CatBoost se usa por robustez en tabular heterogéneo y manejo nativo de missing/categorías.
 - Conformal Mondrian aporta cobertura empírica segmentada sin asumir normalidad.
-- Causal DML/CausalForest permite estimar efecto de intervención y heterogeneidad.
+- DoWhy + CausalForestDML permiten estimar efecto de intervención y heterogeneidad.
 - OR robusta usa `PD_high` para proteger el objetivo en peor caso plausible.
 
 Formulación simplificada del bloque robusto:
@@ -201,7 +213,7 @@ Eso deja tres vacíos:
             },
             {
                 "Bloque": "Inferencia causal",
-                "Base conceptual": "Double ML / CATE heterogéneo",
+                "Base conceptual": "DoWhy backdoor + CausalForestDML",
                 "Brecha que cubre": "Pasar de correlaciones a políticas de intervención.",
             },
             {
@@ -281,7 +293,7 @@ digraph Pipeline {
     conf [label="Conformal\\n(Mondrian)"];
     ts [label="Series de tiempo"];
     surv [label="Supervivencia"];
-    causal [label="Causalidad\\n(DML/CATE)"];
+    causal [label="Causalidad\\n(DoWhy + CausalForestDML)"];
     opt [label="Optimización robusta\\n(Pyomo/HiGHS)"];
     ifrs [label="IFRS9\\n(ECL por escenario)"];
     gov [label="Gobernanza\\n(drift/fairness/robustez)"];
@@ -550,7 +562,7 @@ with tab5:
 ### Marco conceptual (versión técnica)
 1. **CatBoost + calibración**: separación (AUC/KS) y probabilidad bien calibrada (Brier/ECE).
 2. **Conformal Mondrian**: cobertura finita por subgrupo sin supuestos paramétricos fuertes.
-3. **DML/CausalForest**: estimación de CATE bajo supuestos de ignorabilidad/overlap.
+3. **DoWhy + CausalForestDML**: identificación backdoor y estimación de CATE bajo supuestos de ignorabilidad/overlap.
 4. **OR robusta**: maximin/peor-caso en intervalo de PD para controlar downside.
 5. **IFRS9**: acople de PD 12m/lifetime + LGD/EAD en escenarios macro.
 """
@@ -568,22 +580,6 @@ Este stack end-to-end permite responder preguntas que un score aislado no puede 
 """
 )
 
-st.subheader("Comandos de reproducción")
-st.code(
-    "\n".join(
-        [
-            "uv sync --extra dev --extra platform",
-            "uv run python scripts/end_to_end_pipeline.py --run_name streamlit_story",
-            "uv run python scripts/export_streamlit_artifacts.py",
-            "uv run python scripts/export_storytelling_snapshot.py",
-            "uv run python scripts/extract_notebook_images.py",
-            "uv venv .venv-feast && uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt",
-            "cd feature_repo && ../.venv-feast/bin/feast apply && cd ..",
-            "uv run streamlit run streamlit_app/app.py",
-        ]
-    ),
-    language="bash",
-)
 render_section_checkpoint(
     "Checkpoint final del recorrido E2E",
     [

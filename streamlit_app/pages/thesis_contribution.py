@@ -41,11 +41,9 @@ Orden sugerido:
 """,
     button_label="Ver mapa de lectura de la contribución",
 )
-policy_meta = load_json("conformal_policy_status", directory="models")
 st.caption(
     "Lectura de claims: las afirmaciones metodológicas se interpretan contra evidencia ejecutable "
-    f"del `run_tag={policy_meta.get('run_tag', 'n/a')}`. Fairness conformal avanzado se discute en "
-    "`research_landscape.py`."
+    "del snapshot canónico actual. Fairness conformal avanzado se discute en `research_landscape.py`."
 )
 
 comparison = load_json("model_comparison")
@@ -129,9 +127,13 @@ Learning (DML) y Causal Forests (via econml y dowhy) estiman efectos causales
 heterogéneos, eliminando el sesgo de selección que contamina regresiones ingenuas.
 
 **6. Series de Tiempo** — Las tasas de default agregadas mensuales revelan patrones
-estacionales y tendencias macro. ARIMA captura la estructura temporal, LightGBM
-(via Nixtla mlforecast) incorpora features exógenas, y los intervalos conformal
-proporcionan bandas de pronóstico con cobertura controlada para stress testing.
+estacionales y cambios de régimen. El subsistema oficial combina baselines
+estadísticos (SeasonalNaive, ARIMA/ETS/Theta), challengers híbridos tipo
+STL+CatBoost residual y panel global bottom-up para `grade x term`. Las
+covariables exógenas solo se activan bajo contrato explícito de futuro
+(`ts_future_covariates.parquet`); si ese artefacto no existe, la narrativa oficial
+se mantiene univariada. Las bandas canónicas hoy se apoyan en intervalos
+estadísticos y ACI/EnbPI quedan como agenda de investigación para no-exchangeability.
 
 **7. Análisis de Supervivencia** — No solo importa *si* un préstamo incumple, sino
 *cuándo*. Cox Proportional Hazards y Random Survival Forests estiman la función de
@@ -193,10 +195,10 @@ st.subheader("2) ¿Por qué calibrar antes de cuantificar incertidumbre?")
 
 st.markdown(
     """
-Muchos modelos de ML producen **scores**, no **probabilidades**. Un CatBoost puede decir
-"este préstamo tiene score 0.12", pero eso no significa que exactamente el 12% de los
-préstamos con ese score incumplirán. La **calibración** corrige ese sesgo para que las
-salidas del modelo reflejen frecuencias reales.
+Muchos modelos de ML entregan probabilidades que pueden estar **mal calibradas**.
+Eso significa que el valor numérico no coincide con la frecuencia real observada.
+La **calibración** ajusta ese sesgo para que la probabilidad predicha se acerque a la
+frecuencia de incumplimiento en segmentos de riesgo comparables.
 """
 )
 
@@ -206,11 +208,11 @@ with col_cal_left:
         """
 #### Sin calibración
 ```
-Score modelo = 0.12
-Realidad     = 8% defaults
+Probabilidad estimada     = 12.0%
+Frecuencia real (mismo bin) = 8.0%
 ```
 El modelo sobreestima el riesgo en 4pp.
-Si usamos 0.12 en el optimizador, seremos
+Si usamos 12.0% en el optimizador, seremos
 innecesariamente conservadores.
 """
     )
@@ -219,11 +221,11 @@ with col_cal_right:
         f"""
 #### Con calibración {best_calibration}
 ```
-Score modelo  = 0.12
-PD calibrada  = 0.082
-Realidad      = 8% defaults
+Probabilidad estimada     = 12.0%
+Probabilidad calibrada    = 8.2%
+Frecuencia real (mismo bin) = 8.0%
 ```
-Ahora la probabilidad refleja la realidad.
+Ahora la probabilidad calibrada refleja mejor la realidad.
 El optimizador trabaja con datos honestos.
 """
     )
@@ -416,11 +418,6 @@ st.subheader("4) Resultados de impacto")
 policy = load_json("conformal_policy_status", directory="models")
 robust = load_parquet("portfolio_robustness_summary")
 ifrs9 = load_parquet("ifrs9_scenario_summary")
-checks_passed = int(policy.get("checks_passed", 0))
-checks_total = int(policy.get("checks_total", 0))
-policy_gate_text = (
-    f"{checks_passed}/{checks_total} checks" if checks_total > 0 else "checks no disponibles"
-)
 runtime_status = load_runtime_status()
 test_suite_total = int(runtime_status.get("test_suite_total", 0) or 0)
 test_suite_label = str(test_suite_total) if test_suite_total > 0 else "N/D"
@@ -460,8 +457,8 @@ kpi_row(
     [
         {"label": "Cobertura 90% (Mondrian)", "value": format_pct(policy.get("coverage_90", 0))},
         {
-            "label": "Policy Gate",
-            "value": policy_gate_text,
+            "label": "Ancho promedio 90%",
+            "value": f"{float(policy.get('avg_width_90', 0.0)):.3f}",
         },
         {"label": "Retorno robusto (tol=10%)", "value": f"${robust_return:,.0f}"},
         {"label": "Precio de robustez", "value": f"${price_of_robustness:,.0f}"},
@@ -476,7 +473,7 @@ st.markdown(
 **Lectura de los KPIs:**
 - **Cobertura 90%**: en el snapshot canónico actual, la cobertura observada es
   **{format_pct(policy.get("coverage_90", 0))}** frente a meta de 90%.
-- **Policy Gate ({policy_gate_text})**: validaciones formales de calidad del sistema de intervalos.
+- **Ancho promedio 90%**: resume el nivel de conservadurismo de los intervalos conformales.
 - **Precio de robustez**: la diferencia de retorno entre asumir PD exacta vs usar el peor caso
   conformal. Es el costo de la protección.
 - **ECL baseline vs severo**: cómo cambian las provisiones regulatorias bajo estrés.
@@ -545,7 +542,7 @@ Los intervalos conformal no solo alimentan la optimización — también mejoran
 | **ECL por rango** | Provisionar con `PD_high` en vez de `PD_point` para lectura prudencial |
 | **SICR signal** | Ancho del intervalo (`PD_high - PD_point`) como señal adicional de deterioro significativo |
 | **Stress testing** | Escenarios con multiplicadores derivados de bandas de pronóstico temporal |
-| **Gobernanza** | Política conformal ({policy_gate_text}) documenta calidad de incertidumbre ante auditoría |
+| **Gobernanza** | Monitoreo de cobertura y backtesting temporal documenta calidad de incertidumbre ante auditoría |
 """
 )
 

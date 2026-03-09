@@ -12,8 +12,9 @@ from streamlit_app.components.story_shell import (
     render_page_feedback,
     render_page_header,
 )
+from streamlit_app.content.concept_map import get_page_concepts
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import format_number, format_pct, load_json, try_load_parquet
+from streamlit_app.utils import format_number, format_pct, load_json, try_load_json, try_load_parquet
 
 st.title("📖 Glosario y Fundamentos")
 st.caption(
@@ -26,6 +27,16 @@ render_key_takeaway(
     "Esta página define el vocabulario canónico del proyecto para que métricas y decisiones se interpreten igual en todo el recorrido."
 )
 term_popover("canónico", label="Qué significa 'canónico'")
+storytelling_intro(
+    page_goal="Alinear el vocabulario técnico y de negocio que aparece en todas las páginas del proyecto.",
+    business_value="Reduce malentendidos al interpretar métricas, artefactos y decisiones en comités o defensa de tesis.",
+    key_decision="Usar este glosario como referencia rápida cuando un término cambie de contexto entre modeling, IFRS9 y optimización.",
+    how_to_read=[
+        "Busca primero el término y luego la columna `en_proyecto`.",
+        "Contrasta conceptos regulatorios, ML y causalidad sin salir del dashboard.",
+        "Toma esta página como diccionario canónico del proyecto.",
+    ],
+)
 st.markdown(
     """
 Esta página funciona como diccionario de consulta. Antes de explorar los resultados analíticos,
@@ -34,23 +45,6 @@ optimización que aparecen en todo el recorrido. Cada término incluye una defin
 y su conexión con el proyecto.
 """
 )
-storytelling_intro(
-    page_goal=(
-        "Traducir conceptos técnicos de riesgo en lenguaje operativo para lectores no especializados."
-    ),
-    business_value=(
-        "Reduce malentendidos en comité y mejora la calidad de decisiones al compartir un vocabulario común."
-    ),
-    key_decision=(
-        "Definir qué métricas y técnicas convienen según objetivo: precisión, prudencia regulatoria o retorno."
-    ),
-    how_to_read=[
-        "Filtra por categoría para no mezclar conceptos de naturaleza distinta.",
-        "Usa la columna 'En este proyecto' para conectar teoría con resultados reales.",
-        "Consulta la guía práctica al final para elegir estrategia según contexto.",
-    ],
-)
-
 # ── Glossary Data ──
 comparison = load_json("model_comparison")
 final_metrics = comparison.get("final_test_metrics", {})
@@ -60,6 +54,13 @@ policy = load_json("conformal_policy_status", directory="models")
 pipeline_summary = load_json("pipeline_summary")
 pipeline_metrics = pipeline_summary.get("pipeline", {})
 survival_metrics = pipeline_summary.get("survival", {})
+causal_metrics = pipeline_summary.get("causal", {})
+causal_status = try_load_json("causal_effect_status", directory="models", default={})
+causal_ate = causal_status.get("ate", causal_metrics.get("ate"))
+try:
+    causal_ate_text = f"{float(causal_ate):+.3f}pp"
+except Exception:
+    causal_ate_text = "ATE artefact-driven"
 ifrs9_baseline = float(pipeline_metrics.get("ecl_expected", 0.0))
 ifrs9_severe = float(pipeline_metrics.get("ecl_conservative", 0.0))
 ifrs9_uplift = (ifrs9_severe / ifrs9_baseline - 1.0) if ifrs9_baseline else 0.0
@@ -68,6 +69,66 @@ price_of_robustness = float(pipeline_metrics.get("price_of_robustness", 0.0))
 por_pct = (
     (price_of_robustness / (abs(nonrobust_return) + 1e-6) * 100.0) if nonrobust_return else 0.0
 )
+_toboml_cards = get_page_concepts("glossary_fundamentals")
+TOBOML_GLOSSARY = [
+    {
+        "termino": card.label,
+        "categoria": "Fundamentos TOBoML",
+        "definicion": card.what_is,
+        "en_proyecto": card.decision_enabled,
+    }
+    for card in _toboml_cards
+]
+APPLIED_CP_GLOSSARY = [
+    {
+        "termino": "Nonconformity Score",
+        "categoria": "Conformal aplicado",
+        "definicion": "Medida de atipicidad usada para calibrar el radio del intervalo conformal.",
+        "en_proyecto": "Score residual absoluto/normalizado en `src/models/conformal.py`.",
+    },
+    {
+        "termino": "Marginal Coverage",
+        "categoria": "Conformal aplicado",
+        "definicion": "Cobertura promedio poblacional al nivel objetivo (1 - alpha).",
+        "en_proyecto": "Se monitorea con `coverage_90` y `coverage_95` en policy status y backtest.",
+    },
+    {
+        "termino": "Conditional Coverage",
+        "categoria": "Conformal aplicado",
+        "definicion": "Cobertura condicionada a x; no se garantiza exactamente sin supuestos fuertes.",
+        "en_proyecto": "Se aproxima con métricas por grupo/mes, no como garantía exacta por observación.",
+    },
+    {
+        "termino": "Calibration Set Size",
+        "categoria": "Conformal aplicado",
+        "definicion": "Cantidad de observaciones de calibración usada para estimar cuantiles conformales.",
+        "en_proyecto": "Afecta variabilidad de cobertura, especialmente en subgrupos con n pequeño.",
+    },
+    {
+        "termino": "Weighted Conformal",
+        "categoria": "Conformal aplicado",
+        "definicion": "Conformal con ponderación para escenarios de covariate shift.",
+        "en_proyecto": "Línea de evolución metodológica, no método canónico actual.",
+    },
+    {
+        "termino": "Adaptive Conformal",
+        "categoria": "Conformal aplicado",
+        "definicion": "Recalibración dinámica de cuantiles bajo no estacionariedad.",
+        "en_proyecto": "Escalamiento metodológico cuando drift rompe estabilidad de cobertura.",
+    },
+    {
+        "termino": "Jackknife+",
+        "categoria": "Conformal aplicado",
+        "definicion": "Método de inferencia conformal con mayor reuso de datos.",
+        "en_proyecto": "Referenciado como alternativa exploratoria cuando el split fijo es costoso.",
+    },
+    {
+        "termino": "CQR",
+        "categoria": "Conformal aplicado",
+        "definicion": "Conformalized Quantile Regression para intervalos adaptativos.",
+        "en_proyecto": "Principalmente para LGD/EAD bajo heteroscedasticidad.",
+    },
+]
 
 GLOSSARY = [
     {
@@ -290,7 +351,7 @@ GLOSSARY = [
         "termino": "ATE",
         "categoria": "Causal",
         "definicion": "Average Treatment Effect. Efecto promedio de una intervención sobre toda la población. Responde: ¿cuánto cambia Y si aplicamos tratamiento T?",
-        "en_proyecto": "+1pp en tasa de interés → +0.787pp en probabilidad de default.",
+        "en_proyecto": f"+1pp en tasa de interés -> {causal_ate_text} en probabilidad de default (según `models/causal_effect_status.json`).",
     },
     {
         "termino": "CATE",
@@ -302,19 +363,19 @@ GLOSSARY = [
         "termino": "DML",
         "categoria": "Causal",
         "definicion": "Double/Debiased Machine Learning. Método de Chernozhukov et al. (2018) que usa ML para controlar confounders y estimar efectos causales sin sesgo.",
-        "en_proyecto": "EconML LinearDML para estimación robusta del efecto tasa → default.",
+        "en_proyecto": "Benchmark de investigación; no es el método oficial visible del pipeline.",
     },
     {
         "termino": "Causal Forest",
         "categoria": "Causal",
         "definicion": "Extensión de Random Forest para estimar efectos de tratamiento heterogéneos (CATE). Basado en Athey & Wager (2019).",
-        "en_proyecto": "Modelo de 337MB entrenado para CATE heterogéneo por segmento.",
+        "en_proyecto": "Método heterogéneo oficial del pipeline: EconML CausalForestDML.",
     },
     {
         "termino": "Counterfactual",
         "categoria": "Causal",
         "definicion": "Escenario hipotético: ¿qué hubiera pasado si hubiéramos aplicado una intervención diferente? Base del análisis causal.",
-        "en_proyecto": "Simulación contrafactual de políticas de intervención por regla.",
+        "en_proyecto": "En la app se reporta como simulación de política bajo CATE local, no como contrafactual SCM exacto.",
     },
     # OR terms
     {
@@ -342,6 +403,8 @@ GLOSSARY = [
         "en_proyecto": "Frontera eficiente robusta vs no-robusta comparada en la página de portafolio.",
     },
 ]
+GLOSSARY.extend(TOBOML_GLOSSARY)
+GLOSSARY.extend(APPLIED_CP_GLOSSARY)
 
 # ── Search & Filter ──
 st.subheader("Buscar términos")
@@ -412,7 +475,7 @@ industry_data = [
         "En este proyecto": "MAPIE Mondrian: intervalos PD con cobertura garantizada por grade",
     },
     {
-        "Técnica": "Inferencia Causal (DML/CATE)",
+        "Técnica": "Inferencia Causal (DoWhy + CausalForestDML)",
         "Uso en la industria": "Pricing dinámico en Uber/Lyft, campañas de retención en telecoms, análisis de impacto de políticas en banca central (BIS, Fed).",
         "En este proyecto": "Efecto tasa→default, políticas de intervención por segmento",
     },

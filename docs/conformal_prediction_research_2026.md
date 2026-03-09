@@ -226,10 +226,17 @@ For **heteroscedastic** data (when interval width should vary with features):
 
 ```python
 from mapie.regression import ConformalizedQuantileRegressor
-from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
 
 # Train quantile regressor
-qr = LGBMRegressor(objective='quantile', alpha=0.05)  # Lower quantile
+qr = CatBoostRegressor(
+    loss_function="Quantile:alpha=0.05",
+    iterations=300,
+    depth=6,
+    learning_rate=0.05,
+    verbose=False,
+    allow_writing_files=False,
+)  # Lower quantile
 qr.fit(X_train, y_train)
 
 mapie_cqr = ConformalizedQuantileRegressor(

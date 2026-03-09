@@ -8,13 +8,11 @@
 
 ## Nota de contexto (2026-02-16)
 
-Esta comparación es de investigación.  
+Esta comparación es de investigación.
 El proyecto productivo de storytelling usa artefactos Mondrian ya generados:
 
 - `models/conformal_results_mondrian.pkl`
 - `data/processed/conformal_intervals_mondrian.parquet`
-
-El archivo `data/processed/conformal_intervals.parquet` se conserva solo como compatibilidad legacy.
 
 ---
 

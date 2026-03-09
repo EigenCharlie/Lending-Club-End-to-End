@@ -9,8 +9,6 @@
 - **Fuente canónica para storytelling y serving interno**:
   - `models/conformal_results_mondrian.pkl`
   - `data/processed/conformal_intervals_mondrian.parquet`
-- **Artefacto legacy**: `data/processed/conformal_intervals.parquet`
-  - Se mantiene solo por compatibilidad histórica.
 - **Política vigente (snapshot actual)**:
   - Fuente de verdad: `models/conformal_policy_status.json`
   - Métricas y estado (`overall_pass`, `checks_passed`, coberturas) cambian por corrida.
@@ -123,7 +121,6 @@ notebooks/04_conformal_prediction.ipynb
 ### Step 4: Save Outputs
 
 **File created (canónico):** `data/processed/conformal_intervals_mondrian.parquet`
-**Legacy compatibility copy:** `data/processed/conformal_intervals.parquet`
 
 **Columns:**
 - loan_id, loan_amnt, grade, int_rate

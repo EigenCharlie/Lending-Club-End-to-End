@@ -89,6 +89,8 @@ thesis_poster/*.aux
 thesis_poster/*.log
 thesis_poster/*.nav
 thesis_poster/*.out
+thesis_poster/poster_preview*.png
+thesis_poster/poster_tesis.pdf
 thesis_poster/*.snm
 thesis_poster/*.toc
 

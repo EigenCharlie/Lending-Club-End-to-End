@@ -31,7 +31,7 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_json, query_duckdb
+from streamlit_app.utils import get_notebook_image_path, load_json, query_duckdb, try_load_parquet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DBT_MANIFEST_PATH = PROJECT_ROOT / "dbt_project" / "target" / "manifest.json"
@@ -467,29 +467,96 @@ st.dataframe(
     hide_index=True,
 )
 
-iv_items = list(feature_iv.get("iv_scores", {}).items())[:20]
-iv_df = pd.DataFrame(iv_items, columns=["feature", "iv"]).sort_values("iv", ascending=True)
-fig = px.bar(
-    iv_df,
-    x="iv",
-    y="feature",
-    orientation="h",
-    title="Ranking IV (top 20): poder predictivo de variables",
-    labels={"iv": "Information Value (IV)", "feature": "Feature"},
-    color="iv",
-    color_continuous_scale="Blues",
-)
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=480, coloraxis_showscale=False)
-st.plotly_chart(fig, width="stretch")
-st.caption(
-    "Propósito: priorizar variables por poder predictivo (IV). Insight: sub_grade/int_rate/grade lideran señal; "
-    "esto justifica su rol central en PD."
-)
+iv_source = "iv"
+rank_title = "Ranking IV (top 20): poder predictivo de variables"
+rank_axis = "Information Value (IV)"
+rank_color = "Blues"
+rank_df = pd.DataFrame(columns=["feature", "score"])
 
-st.info(
-    "Interpretación IV (regla práctica): <0.02 débil, 0.02-0.1 útil, 0.1-0.3 fuerte, >0.3 muy fuerte "
-    "(revisar posible dependencia intensa con target y riesgo de sobreajuste semántico)."
-)
+iv_scores_raw = feature_iv.get("iv_scores", {})
+if isinstance(iv_scores_raw, dict) and iv_scores_raw:
+    parsed_iv: list[tuple[str, float]] = []
+    for feature, value in iv_scores_raw.items():
+        try:
+            parsed_iv.append((str(feature), float(value)))
+        except Exception:
+            continue
+    if parsed_iv:
+        rank_df = (
+            pd.DataFrame(parsed_iv, columns=["feature", "score"])
+            .sort_values("score", ascending=False)
+            .head(20)
+            .sort_values("score", ascending=True)
+        )
+
+if rank_df.empty:
+    perm = try_load_parquet("permutation_importance")
+    if not perm.empty and {"feature", "auc_drop"}.issubset(perm.columns):
+        rank_df = perm[["feature", "auc_drop"]].copy()
+        rank_df["feature"] = rank_df["feature"].astype(str)
+        rank_df["score"] = pd.to_numeric(rank_df["auc_drop"], errors="coerce")
+        rank_df = (
+            rank_df.dropna(subset=["score"])
+            .sort_values("score", ascending=False)
+            .head(20)
+            .sort_values("score", ascending=True)
+        )
+        iv_source = "permutation"
+        rank_title = "Ranking predictivo (top 20): permutation importance"
+        rank_axis = "AUC drop al permutar feature"
+        rank_color = "Teal"
+
+if rank_df.empty:
+    shap = try_load_parquet("shap_summary")
+    if not shap.empty and {"feature", "mean_abs_shap"}.issubset(shap.columns):
+        rank_df = shap[["feature", "mean_abs_shap"]].copy()
+        rank_df["feature"] = rank_df["feature"].astype(str)
+        rank_df["score"] = pd.to_numeric(shap["mean_abs_shap"], errors="coerce")
+        rank_df = (
+            rank_df.dropna(subset=["score"])
+            .sort_values("score", ascending=False)
+            .head(20)
+            .sort_values("score", ascending=True)
+        )
+        iv_source = "shap"
+        rank_title = "Ranking explicativo (top 20): SHAP mean |value|"
+        rank_axis = "Mean absolute SHAP"
+        rank_color = "Viridis"
+
+if rank_df.empty:
+    st.warning(
+        "No hay `iv_scores` ni artefactos alternos (`permutation_importance`/`shap_summary`) para construir el ranking."
+    )
+else:
+    fig = px.bar(
+        rank_df,
+        x="score",
+        y="feature",
+        orientation="h",
+        title=rank_title,
+        labels={"score": rank_axis, "feature": "Feature"},
+        color="score",
+        color_continuous_scale=rank_color,
+    )
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=480, coloraxis_showscale=False)
+    st.plotly_chart(fig, width="stretch")
+    if iv_source == "iv":
+        st.caption(
+            "Propósito: priorizar variables por poder predictivo (IV). Insight: sub_grade/int_rate/grade lideran señal; "
+            "esto justifica su rol central en PD."
+        )
+        st.info(
+            "Interpretación IV (regla práctica): <0.02 débil, 0.02-0.1 útil, 0.1-0.3 fuerte, >0.3 muy fuerte "
+            "(revisar posible dependencia intensa con target y riesgo de sobreajuste semántico)."
+        )
+    elif iv_source == "permutation":
+        st.info(
+            "Fallback activo: `iv_scores` vacío. Se usa permutation importance (AUC drop) para preservar ranking predictivo."
+        )
+    else:
+        st.info(
+            "Fallback activo: `iv_scores` y permutation importance no disponibles. Se usa `shap_summary` como proxy explicativo."
+        )
 
 col_a, col_b = st.columns(2)
 with col_a:

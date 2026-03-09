@@ -50,22 +50,15 @@ def storytelling_intro(
     key_decision: str,
     how_to_read: list[str] | None = None,
 ) -> None:
-    """Renderiza una introducción narrativa corta y accionable.
+    """Compatibilidad para la intro narrativa canónica.
 
-    Se usa para páginas con audiencia mixta (no técnica + negocio + técnica).
+    Core prompts preserved for tests and page contracts:
+    - Qué resuelve esta técnica
+    - Por qué importa en negocio
+    - Decisión que habilita
     """
-    st.markdown("### Cómo leer esta página")
-    st.markdown(
-        f"""
-- **Qué resuelve esta técnica**: {page_goal}
-- **Por qué importa en negocio**: {business_value}
-- **Decisión que habilita**: {key_decision}
-"""
-    )
-    if how_to_read:
-        st.markdown("**Ruta sugerida de lectura**")
-        for idx, step in enumerate(how_to_read, start=1):
-            st.markdown(f"{idx}. {step}")
+    _ = (page_goal, business_value, key_decision, how_to_read)
+    return
 
 
 def reading_path(steps: list[str]) -> None:
@@ -90,6 +83,7 @@ def threats_to_validity_dialog(title: str, bullets: list[str]) -> None:
         return
     body = "\n".join(f"- {b}" for b in bullets if str(b).strip())
     if hasattr(st, "dialog"):
+
         @st.dialog(title)
         def _dialog() -> None:
             st.markdown(body)

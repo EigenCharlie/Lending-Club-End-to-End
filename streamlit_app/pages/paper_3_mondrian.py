@@ -1,4 +1,4 @@
-"""Paper 3 draft: Mondrian conformal prediction for group-conditional coverage."""
+"""Paper 3 draft: Mondrian conformal prediction for group-partition coverage."""
 
 from __future__ import annotations
 
@@ -25,7 +25,7 @@ from streamlit_app.utils import (
 )
 
 st.title("📐 Paper 3 — Working Draft")
-st.caption("Mondrian Conformal Prediction for Group-Conditional Credit Risk Coverage")
+st.caption("Mondrian Conformal Prediction for Group-Partition Credit Risk Coverage")
 page_contract = get_page_contract("paper_3_mondrian")
 render_page_header(page_contract)
 render_key_takeaway(
@@ -105,7 +105,7 @@ st.markdown("## 1) Abstract (Draft)")
 st.markdown(
     f"""
 Aplicamos Mondrian Conformal Prediction para construir intervalos de riesgo con garantia
-condicional por grupo (loan grades A-G) en una ventana out-of-time. El sistema alcanza
+por particion de grupo (loan grades A-G) en una ventana out-of-time. El sistema alcanza
 cobertura global de {format_pct(coverage_90, 2) if np.isfinite(coverage_90) else "N/D"} al
 nivel nominal 90% y {format_pct(coverage_95, 2) if np.isfinite(coverage_95) else "N/D"}
 al nivel 95%, con cobertura minima por grupo de
@@ -133,7 +133,7 @@ subgrupos con distinto perfil de riesgo. Mondrian conformal corrige este problem
 calibraciones separadas por grupo, pero introduce trade-offs de varianza cuando algunos grupos
 son pequenos.
 
-Este draft se enfoca en: (i) cobertura condicional por grade, (ii) estabilidad temporal de
+Este draft se enfoca en: (i) cobertura por particion por grade, (ii) estabilidad temporal de
 cobertura en OOT, y (iii) comparacion sistematica contra variantes split/global para tomar una
 decision metodologica defendible frente a un revisor experto.
 """
@@ -164,7 +164,7 @@ st.markdown(
     """
 - Split temporal OOT fijo y monitoreo mensual por cohorte.
 - Calibracion Mondrian por grade con alphas operativos (90%/95%).
-- Evaluacion global + group-conditional + backtest mensual + alertas.
+- Evaluacion global + por particion + backtest mensual + alertas.
 - Benchmark contra variantes globales y Mondrian alternativo.
 """
 )
@@ -213,6 +213,14 @@ if not group_metrics.empty and {"group", "coverage_90", "coverage_95"}.issubset(
     fig1.add_hline(y=0.95, line_dash="dot", line_color="green")
     st.plotly_chart(fig1, width="stretch")
     st.caption("Figure 1. Cobertura por grade con lineas de referencia nominales.")
+    if "n" in group_metrics.columns:
+        low_n = group_metrics[group_metrics["n"] < 1000]["group"].tolist()
+        if low_n:
+            st.info(
+                "Nota metodologica: grupos con n bajo "
+                f"({', '.join(str(g) for g in low_n)}) presentan mayor varianza de cobertura; "
+                "la lectura debe hacerse junto con ancho e intervalo de confianza de cobertura."
+            )
 
 if not group_metrics.empty and {"group", "avg_width_90", "n"}.issubset(group_metrics.columns):
     width_plot = group_metrics[["group", "avg_width_90", "n"]].copy().sort_values("group")
@@ -389,7 +397,7 @@ render_phase_tracker(
 st.markdown("### Puntos a Revisar / Complementar")
 st.markdown(
     """
-- **Section 1 (Abstract)**: ajustar claim de "group-conditional" segun lectura del profesor.
+- **Section 1 (Abstract)**: mantener wording de cobertura por particion, evitando sobreclaims condicionales.
 - **Section 2 (Introduction)**: reforzar caso de uso operativo en riesgo crediticio real.
 - **Section 3 (Related Work / Table)**: decidir baseline adicional (CQR o ACP) como comparador principal.
 - **Section 5 (Methods / Eq. 1)**: validar tratamiento de truncamiento [0,1] en intervalos de PD.

@@ -84,6 +84,9 @@ segmentaciones y métricas clave del pipeline sobre DuckDB. Todas las consultas 
 seguridad y consistencia de artefactos.
 """
 )
+st.warning(
+    "Aviso metodológico: una consulta SQL puede describir asociaciones, pero no prueba causalidad ni valida una política por sí sola."
+)
 
 st.subheader("Consultas rápidas")
 templates = {
@@ -149,6 +152,69 @@ SELECT table_schema, table_name, table_type
 FROM information_schema.tables
 ORDER BY table_schema, table_name""",
 }
+audit_templates = {
+    "Leakage guard (columnas sospechosas)": """
+SELECT
+    table_schema,
+    table_name,
+    column_name
+FROM information_schema.columns
+WHERE table_schema IN ('main_staging', 'main_feature_store')
+  AND (
+      lower(column_name) LIKE '%recover%'
+      OR lower(column_name) LIKE '%pymnt%'
+      OR lower(column_name) LIKE '%collection%'
+      OR lower(column_name) LIKE '%out_prncp%'
+      OR lower(column_name) LIKE '%last_pymnt%'
+  )
+ORDER BY table_schema, table_name, column_name""",
+    "Drift básico por cohorte (share grade)": """
+WITH base AS (
+    SELECT
+        date_trunc('quarter', issue_d) AS cohort_quarter,
+        grade
+    FROM main_staging.stg_loan_master
+    WHERE issue_d IS NOT NULL
+),
+agg AS (
+    SELECT
+        cohort_quarter,
+        grade,
+        count(*) AS n_loans
+    FROM base
+    GROUP BY cohort_quarter, grade
+)
+SELECT
+    cohort_quarter,
+    grade,
+    n_loans,
+    round(n_loans::DOUBLE / sum(n_loans) OVER (PARTITION BY cohort_quarter), 4) AS grade_share
+FROM agg
+ORDER BY cohort_quarter DESC, grade""",
+    "Calibración rápida por deciles": """
+WITH base AS (
+    SELECT
+        y_true::DOUBLE AS y_true,
+        pd_calibrated::DOUBLE AS pd_hat
+    FROM main_staging.stg_test_predictions
+),
+bucketed AS (
+    SELECT
+        ntile(10) OVER (ORDER BY pd_hat) AS decile,
+        y_true,
+        pd_hat
+    FROM base
+)
+SELECT
+    decile,
+    count(*) AS n_loans,
+    round(avg(pd_hat), 4) AS avg_predicted_pd,
+    round(avg(y_true), 4) AS observed_default_rate,
+    round(avg(abs(pd_hat - y_true)), 4) AS avg_abs_error
+FROM bucketed
+GROUP BY decile
+ORDER BY decile""",
+}
 
 if "chat_sql" not in st.session_state:
     st.session_state["chat_sql"] = "SELECT * FROM main_credit_risk.dim_loan_grades"
@@ -169,6 +235,21 @@ for idx, name in enumerate(templates.keys()):
     )
 
 st.caption(f"Plantilla activa: **{st.session_state.get('chat_template_name', 'N/A')}**")
+
+st.subheader("Plantillas auditables (leakage/drift/checks básicos)")
+st.caption(
+    "Estas consultas no reemplazan validación estadística completa, pero sirven como primer filtro auditable antes de sacar conclusiones."
+)
+audit_col1, audit_col2, audit_col3 = st.columns(3)
+for idx, name in enumerate(audit_templates.keys()):
+    col = [audit_col1, audit_col2, audit_col3][idx % 3]
+    col.button(
+        name,
+        width="stretch",
+        key=f"audit_query_{idx}",
+        on_click=_select_template,
+        args=(name, audit_templates),
+    )
 
 st.subheader("Asistente lenguaje natural -> SQL (opcional)")
 grok_enabled = bool(os.getenv("GROK_API_KEY", "").strip())
@@ -286,6 +367,7 @@ negocio exploren el mismo stack con distintos niveles de profundidad.
 )
 render_caveats(
     [
+        "SQL exploratorio no demuestra causalidad: para decisiones de política usar páginas causales y validación de supuestos.",
         "El asistente NL→SQL puede proponer consultas válidas pero analíticamente inadecuadas; revisar siempre.",
         "Resultados dependen de la capa dbt/DuckDB disponible en el entorno local y su frescura.",
     ]
