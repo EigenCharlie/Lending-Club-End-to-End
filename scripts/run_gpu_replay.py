@@ -95,6 +95,35 @@ def _write_json(path: Path, payload: dict[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
 
 
+def build_post_replay_commands(
+    *,
+    notebook_timeout: int,
+    notebook_output_dir: str,
+    notebook_inplace: bool,
+    include_side_projects: bool,
+    extract_images_after: bool,
+) -> list[tuple[str, str]]:
+    side_projects_flag = " --include-side-projects" if include_side_projects else ""
+    inplace_value = "true" if notebook_inplace else "false"
+    commands: list[tuple[str, str]] = [
+        (
+            "notebooks",
+            "uv run python -u scripts/run_all_notebooks.py "
+            f"--execute-all{side_projects_flag} --timeout {int(notebook_timeout)} "
+            f"--inplace {inplace_value} --output-dir {shlex.quote(notebook_output_dir)}",
+        )
+    ]
+    if extract_images_after:
+        commands.append(
+            (
+                "extract_images",
+                "uv run python -u scripts/extract_notebook_images.py "
+                f"--notebook-dir {shlex.quote(str(Path(notebook_output_dir) / 'notebooks'))}",
+            )
+        )
+    return commands
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Replay GPU-eligible stages after a CPU baseline run."
@@ -105,6 +134,13 @@ def main() -> int:
     parser.add_argument("--stages", default="all")
     parser.add_argument("--pd-config", default="configs/pd_model.gpu.yaml")
     parser.add_argument("--optimization-config", default="configs/optimization.yaml")
+    parser.add_argument("--run-notebooks-after", action="store_true")
+    parser.add_argument("--notebook-timeout", type=int, default=3600)
+    parser.add_argument("--notebook-output-dir", default="reports/notebook_exec")
+    parser.add_argument("--notebook-inplace", action="store_true", default=True)
+    parser.add_argument("--no-notebook-inplace", action="store_false", dest="notebook_inplace")
+    parser.add_argument("--include-side-projects", action="store_true")
+    parser.add_argument("--extract-images-after", action="store_true")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
@@ -129,6 +165,12 @@ def main() -> int:
         "selected_stages": selected_stages,
         "pd_config": args.pd_config,
         "optimization_config": args.optimization_config,
+        "run_notebooks_after": bool(args.run_notebooks_after),
+        "notebook_timeout": int(args.notebook_timeout),
+        "notebook_output_dir": args.notebook_output_dir,
+        "notebook_inplace": bool(args.notebook_inplace),
+        "include_side_projects": bool(args.include_side_projects),
+        "extract_images_after": bool(args.extract_images_after),
         "started_at_utc": _utc_now(),
         "state": "planned" if args.dry_run else "running",
         "note": (
@@ -145,6 +187,15 @@ def main() -> int:
                 **payload,
                 "state": "dry_run",
                 "commands": {stage: commands[stage] for stage in selected_stages},
+                "post_replay_commands": build_post_replay_commands(
+                    notebook_timeout=args.notebook_timeout,
+                    notebook_output_dir=args.notebook_output_dir,
+                    notebook_inplace=bool(args.notebook_inplace),
+                    include_side_projects=bool(args.include_side_projects),
+                    extract_images_after=bool(args.extract_images_after),
+                )
+                if args.run_notebooks_after
+                else [],
                 "ended_at_utc": _utc_now(),
             },
         )
@@ -194,6 +245,53 @@ def main() -> int:
             )
             return int(proc.returncode)
 
+    post_results: list[dict[str, Any]] = []
+    if args.run_notebooks_after:
+        for stage, cmd in build_post_replay_commands(
+            notebook_timeout=args.notebook_timeout,
+            notebook_output_dir=args.notebook_output_dir,
+            notebook_inplace=bool(args.notebook_inplace),
+            include_side_projects=bool(args.include_side_projects),
+            extract_images_after=bool(args.extract_images_after),
+        ):
+            log_path = run_dir / f"{stage}.log"
+            started = time.perf_counter()
+            with log_path.open("w", encoding="utf-8") as log_file:
+                log_file.write(f"$ {cmd}\n\n")
+                log_file.flush()
+                proc = subprocess.run(
+                    cmd,
+                    shell=True,
+                    stdout=log_file,
+                    stderr=subprocess.STDOUT,
+                    env=env,
+                    text=True,
+                )
+            duration = time.perf_counter() - started
+            post_results.append(
+                {
+                    "stage": stage,
+                    "command": cmd,
+                    "exit_code": int(proc.returncode),
+                    "duration_seconds": round(duration, 3),
+                    "log_path": str(log_path),
+                }
+            )
+            if proc.returncode != 0:
+                _write_json(
+                    summary_path,
+                    {
+                        **payload,
+                        "state": "failed",
+                        "ended_at_utc": _utc_now(),
+                        "stage_results": stage_results,
+                        "post_replay_results": post_results,
+                        "failed_stage": stage,
+                        "final_exit_code": int(proc.returncode),
+                    },
+                )
+                return int(proc.returncode)
+
     _write_json(
         summary_path,
         {
@@ -201,6 +299,7 @@ def main() -> int:
             "state": "completed",
             "ended_at_utc": _utc_now(),
             "stage_results": stage_results,
+            "post_replay_results": post_results,
             "final_exit_code": 0,
         },
     )

@@ -120,12 +120,12 @@ def train_catboost_tuned_optuna(
         grow_policy = trial.suggest_categorical(
             "grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]
         )
+        is_gpu = str(base.get("task_type", "")).strip().upper() == "GPU"
         params = {
             **base,
             "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.20, log=True),
             "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 0.5, 100.0, log=True),
             "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 500),
-            "rsm": trial.suggest_float("rsm", 0.5, 1.0),
             "random_strength": trial.suggest_float("random_strength", 1e-9, 10.0, log=True),
             "border_count": trial.suggest_int("border_count", 64, 254),
             "bootstrap_type": bootstrap_type,
@@ -133,6 +133,10 @@ def train_catboost_tuned_optuna(
             "leaf_estimation_iterations": trial.suggest_int("leaf_estimation_iterations", 1, 10),
             "random_seed": int(base.get("random_seed", 42)),
         }
+        if is_gpu:
+            params.pop("rsm", None)
+        else:
+            params["rsm"] = trial.suggest_float("rsm", 0.5, 1.0)
         # Grow policy: SymmetricTree/Depthwise use depth; Lossguide uses max_leaves
         if grow_policy == "Lossguide":
             params["max_leaves"] = trial.suggest_int("max_leaves", 16, 64)

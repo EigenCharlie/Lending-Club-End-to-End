@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from scripts.run_gpu_replay import build_stage_commands
+from scripts.run_gpu_replay import build_post_replay_commands, build_stage_commands
 
 
 def test_build_stage_commands_mega64plus_uses_gpu_backends() -> None:
@@ -20,3 +20,21 @@ def test_build_stage_commands_mega64plus_uses_gpu_backends() -> None:
     assert "--max_candidates 150000" in commands["ab"]
     assert "--solver_backend cuopt" in commands["ab"]
     assert "--max_candidates 150000 --solver_backend cuopt" in commands["cate_portfolio"]
+
+
+def test_build_post_replay_commands_can_chain_notebooks_and_images() -> None:
+    commands = build_post_replay_commands(
+        notebook_timeout=3600,
+        notebook_output_dir="reports/notebook_exec",
+        notebook_inplace=True,
+        include_side_projects=True,
+        extract_images_after=True,
+    )
+
+    assert commands[0][0] == "notebooks"
+    assert (
+        "--execute-all --include-side-projects --timeout 3600 --inplace true --output-dir reports/notebook_exec"
+        in commands[0][1]
+    )
+    assert commands[1][0] == "extract_images"
+    assert "--notebook-dir reports/notebook_exec/notebooks" in commands[1][1]

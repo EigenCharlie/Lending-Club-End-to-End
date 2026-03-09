@@ -7,7 +7,6 @@ model:
     depth: 6
     l2_leaf_reg: 14.910998969314008
     min_data_in_leaf: 195
-    rsm: 0.7972651915505469
     random_strength: 3.276099048942537e-05
     border_count: 148
     bootstrap_type: Bernoulli
@@ -28,7 +27,7 @@ feature_source:
   feature_config_path: data/processed/feature_config.pkl
 
 hpo:
-  enabled: true
+  enabled: false
   n_trials: 50
   sampler: tpe
   pruner: median
