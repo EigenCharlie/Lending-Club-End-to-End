@@ -20,7 +20,9 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 from loguru import logger
+from sklearn.cluster import HDBSCAN as SkHDBSCAN
 from sklearn.cluster import KMeans
+from sklearn.manifold import trustworthiness
 from sklearn.neighbors import NearestNeighbors
 from sklearn.preprocessing import StandardScaler
 
@@ -40,10 +42,19 @@ except Exception:  # pragma: no cover
 
 try:  # pragma: no cover - intended for RAPIDS env
     from cuml.cluster import KMeans as CuKMeans
+    from cuml.cluster.hdbscan import HDBSCAN as CuHDBSCAN
+    from cuml.manifold import UMAP as CuUMAP
     from cuml.neighbors import NearestNeighbors as CuNearestNeighbors
 except Exception:  # pragma: no cover
     CuKMeans = None
+    CuHDBSCAN = None
+    CuUMAP = None
     CuNearestNeighbors = None
+
+try:  # pragma: no cover
+    import umap
+except Exception:  # pragma: no cover
+    umap = None
 
 
 def _artifact_root(run_tag: str) -> Path:
@@ -259,6 +270,125 @@ def _run_cuml_segmentation(
     return summary, cluster_summary
 
 
+def _run_cuml_umap(
+    *,
+    train_fe: pd.DataFrame,
+    sample_size: int,
+    random_state: int,
+) -> tuple[dict, pd.DataFrame]:
+    feature_cols = _select_numeric_features(train_fe, max_features=24)
+    sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
+    X = sample[feature_cols].fillna(0.0).astype(np.float32)
+    Xs = StandardScaler().fit_transform(X)
+
+    if umap is None or CuUMAP is None:  # pragma: no cover
+        raise RuntimeError("UMAP CPU/GPU dependencies are not available in this environment.")
+
+    cpu_start = time.perf_counter()
+    umap_cpu = umap.UMAP(
+        n_neighbors=30,
+        min_dist=0.05,
+        n_components=2,
+        metric="euclidean",
+        random_state=random_state,
+    )
+    emb_cpu = np.asarray(umap_cpu.fit_transform(Xs), dtype=np.float32)
+    cpu_seconds = time.perf_counter() - cpu_start
+
+    gpu_start = time.perf_counter()
+    umap_gpu = CuUMAP(
+        n_neighbors=30,
+        min_dist=0.05,
+        n_components=2,
+        metric="euclidean",
+        random_state=random_state,
+    )
+    emb_gpu = np.asarray(umap_gpu.fit_transform(Xs), dtype=np.float32)
+    gpu_seconds = time.perf_counter() - gpu_start
+
+    eval_n = min(3000, len(Xs))
+    eval_idx = np.arange(eval_n, dtype=int)
+    cpu_trust = float(trustworthiness(Xs[eval_idx], emb_cpu[eval_idx], n_neighbors=15))
+    gpu_trust = float(trustworthiness(Xs[eval_idx], emb_gpu[eval_idx], n_neighbors=15))
+
+    summary = {
+        "stage": "cuml_umap",
+        "rows_input": int(len(sample)),
+        "n_features": int(len(feature_cols)),
+        "cpu_seconds": float(cpu_seconds),
+        "gpu_seconds": float(gpu_seconds),
+        "speedup_gpu_vs_cpu": float(cpu_seconds / max(gpu_seconds, 1e-9)),
+        "cpu_trustworthiness": cpu_trust,
+        "gpu_trustworthiness": gpu_trust,
+        "trustworthiness_gap": float(abs(cpu_trust - gpu_trust)),
+        "cpu_embedding_var": float(np.var(emb_cpu)),
+        "gpu_embedding_var": float(np.var(emb_gpu)),
+    }
+    detail = pd.DataFrame(
+        {
+            "metric": ["trustworthiness", "embedding_var"],
+            "cpu_value": [cpu_trust, float(np.var(emb_cpu))],
+            "gpu_value": [gpu_trust, float(np.var(emb_gpu))],
+        }
+    )
+    return summary, detail
+
+
+def _run_cuml_hdbscan(
+    *,
+    train_fe: pd.DataFrame,
+    sample_size: int,
+    random_state: int,
+) -> tuple[dict, pd.DataFrame]:
+    feature_cols = _select_numeric_features(train_fe, max_features=18)
+    sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
+    X = sample[feature_cols].fillna(0.0).astype(np.float32)
+    Xs = StandardScaler().fit_transform(X)
+
+    if CuHDBSCAN is None:  # pragma: no cover
+        raise RuntimeError("cuML HDBSCAN is not available in this environment.")
+
+    cpu_start = time.perf_counter()
+    hdb_cpu = SkHDBSCAN(min_cluster_size=80, min_samples=20)
+    cpu_labels = np.asarray(hdb_cpu.fit_predict(Xs), dtype=int)
+    cpu_seconds = time.perf_counter() - cpu_start
+
+    gpu_start = time.perf_counter()
+    hdb_gpu = CuHDBSCAN(min_cluster_size=80, min_samples=20)
+    gpu_labels = np.asarray(hdb_gpu.fit_predict(Xs), dtype=int)
+    gpu_seconds = time.perf_counter() - gpu_start
+
+    def _cluster_stats(labels: np.ndarray) -> tuple[int, float]:
+        non_noise = labels[labels >= 0]
+        n_clusters = int(len(np.unique(non_noise))) if len(non_noise) else 0
+        noise_share = float((labels < 0).mean())
+        return n_clusters, noise_share
+
+    cpu_clusters, cpu_noise = _cluster_stats(cpu_labels)
+    gpu_clusters, gpu_noise = _cluster_stats(gpu_labels)
+    summary = {
+        "stage": "cuml_hdbscan",
+        "rows_input": int(len(sample)),
+        "n_features": int(len(feature_cols)),
+        "cpu_seconds": float(cpu_seconds),
+        "gpu_seconds": float(gpu_seconds),
+        "speedup_gpu_vs_cpu": float(cpu_seconds / max(gpu_seconds, 1e-9)),
+        "cpu_clusters": int(cpu_clusters),
+        "gpu_clusters": int(gpu_clusters),
+        "cpu_noise_share": cpu_noise,
+        "gpu_noise_share": gpu_noise,
+        "noise_share_gap": float(abs(cpu_noise - gpu_noise)),
+    }
+    detail = pd.DataFrame(
+        {
+            "metric": ["clusters", "noise_share"],
+            "cpu_value": [cpu_clusters, cpu_noise],
+            "gpu_value": [gpu_clusters, gpu_noise],
+        }
+    )
+    return summary, detail
+
+
 def _build_knn_edges_cpu(X: np.ndarray, k: int) -> pd.DataFrame:
     nn = NearestNeighbors(n_neighbors=k + 1, metric="euclidean")
     nn.fit(X)
@@ -339,6 +469,8 @@ def main(
     *,
     run_tag: str,
     cluster_sample: int,
+    umap_sample: int,
+    hdbscan_sample: int,
     graph_sample: int,
     knn_k: int,
     random_state: int,
@@ -384,6 +516,36 @@ def main(
         cuml_summary["speedup_gpu_vs_cpu"],
     )
 
+    umap_summary, umap_df = _run_cuml_umap(
+        train_fe=train_fe,
+        sample_size=umap_sample,
+        random_state=random_state,
+    )
+    summaries.append(umap_summary)
+    umap_df.to_parquet(data_dir / "cuml_umap_summary.parquet", index=False)
+    logger.info(
+        "cuML UMAP | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
+        umap_summary["rows_input"],
+        umap_summary["cpu_seconds"],
+        umap_summary["gpu_seconds"],
+        umap_summary["speedup_gpu_vs_cpu"],
+    )
+
+    hdbscan_summary, hdbscan_df = _run_cuml_hdbscan(
+        train_fe=train_fe,
+        sample_size=hdbscan_sample,
+        random_state=random_state,
+    )
+    summaries.append(hdbscan_summary)
+    hdbscan_df.to_parquet(data_dir / "cuml_hdbscan_summary.parquet", index=False)
+    logger.info(
+        "cuML HDBSCAN | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
+        hdbscan_summary["rows_input"],
+        hdbscan_summary["cpu_seconds"],
+        hdbscan_summary["gpu_seconds"],
+        hdbscan_summary["speedup_gpu_vs_cpu"],
+    )
+
     cugraph_summary, graph_df = _run_cugraph_similarity(
         train_fe=train_fe,
         sample_size=graph_sample,
@@ -421,6 +583,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--run-tag", default="2026-03-10-rapids-insight-factory")
     parser.add_argument("--cluster-sample", type=int, default=150_000)
+    parser.add_argument("--umap-sample", type=int, default=40_000)
+    parser.add_argument("--hdbscan-sample", type=int, default=40_000)
     parser.add_argument("--graph-sample", type=int, default=20_000)
     parser.add_argument("--knn-k", type=int, default=10)
     parser.add_argument("--random-state", type=int, default=42)
@@ -428,6 +592,8 @@ if __name__ == "__main__":
     main(
         run_tag=args.run_tag,
         cluster_sample=args.cluster_sample,
+        umap_sample=args.umap_sample,
+        hdbscan_sample=args.hdbscan_sample,
         graph_sample=args.graph_sample,
         knn_k=args.knn_k,
         random_state=args.random_state,

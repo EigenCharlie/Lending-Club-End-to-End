@@ -82,6 +82,7 @@ def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
 def _resolve_robust_policy(
     *,
     max_portfolio_pd: float,
+    policy_selector: str = "promotion_first",
     summary_path: str = "data/processed/portfolio_robustness_summary.parquet",
     champion_policy_path: str = "models/champion_portfolio_policy.json",
 ) -> dict[str, float | str]:
@@ -99,9 +100,17 @@ def _resolve_robust_policy(
     if champion_path.exists():
         try:
             payload = json.loads(champion_path.read_text(encoding="utf-8"))
-            selected = payload.get("selected_policy", {}) if isinstance(payload, dict) else {}
+            if isinstance(payload, dict):
+                if policy_selector == "robustness_aware":
+                    selected = payload.get("selected_policy_robustness_aware") or payload.get(
+                        "selected_policy", {}
+                    )
+                else:
+                    selected = payload.get("selected_policy", {})
+            else:
+                selected = {}
             policy = {
-                "source": "champion_policy_artifact",
+                "source": f"champion_policy_artifact::{policy_selector}",
                 "risk_tolerance": float(selected.get("risk_tolerance", max_portfolio_pd)),
                 "uncertainty_aversion": float(selected.get("uncertainty_aversion", 0.0)),
                 "min_budget_utilization": float(selected.get("min_budget_utilization", 0.0)),
@@ -257,6 +266,7 @@ def main(
     status_path: str = "models/ab_simulation_status.json",
     run_tag: str | None = None,
     solver_backend: str = "highs",
+    policy_selector: str = "promotion_first",
 ) -> None:
     """Run the A/B simulation."""
     data_dir = Path("data/processed")
@@ -315,6 +325,7 @@ def main(
 
     robust_policy = _resolve_robust_policy(
         max_portfolio_pd=float(max_portfolio_pd),
+        policy_selector=str(policy_selector),
         summary_path=str(robust_policy_summary_path),
         champion_policy_path=str(champion_policy_path),
     )
@@ -429,6 +440,7 @@ def main(
         "max_candidates_requested": None if max_candidates_norm is None else max_candidates_norm,
         "dataset_scope": "full_candidates" if max_candidates_norm is None else "sampled_candidates",
         "solver_backend": str(solver_backend),
+        "policy_selector": str(policy_selector),
         "max_portfolio_pd_requested": float(max_portfolio_pd),
         "max_portfolio_pd_effective": float(effective_max_portfolio_pd),
         "robust_policy": robust_policy,
@@ -494,6 +506,11 @@ if __name__ == "__main__":
     parser.add_argument("--status_path", default="models/ab_simulation_status.json")
     parser.add_argument("--run-tag", default=None)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument(
+        "--policy_selector",
+        choices=["promotion_first", "robustness_aware"],
+        default="promotion_first",
+    )
     args = parser.parse_args()
     main(
         total_budget=args.total_budget,
@@ -510,4 +527,5 @@ if __name__ == "__main__":
         status_path=args.status_path,
         run_tag=args.run_tag,
         solver_backend=args.solver_backend,
+        policy_selector=args.policy_selector,
     )

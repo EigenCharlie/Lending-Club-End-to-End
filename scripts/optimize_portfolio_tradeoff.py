@@ -282,7 +282,7 @@ def _compute_realized_total_return(
 
 def _select_champion_policy(
     frontier: pd.DataFrame,
-) -> tuple[pd.DataFrame, dict[str, float | int | str]]:
+) -> tuple[pd.DataFrame, dict[str, float | int | str], dict[str, float | int | str] | None]:
     work = frontier.copy()
     work["ab_pass_rank"] = work["ab_pass"].fillna(False).astype(bool)
     work["realized_total_return_rank"] = pd.to_numeric(
@@ -299,10 +299,49 @@ def _select_champion_policy(
         )
         .iloc[0]
     )
+    robust_pool = work.loc[
+        (work["policy"] != "nonrobust")
+        & work["ab_pass_rank"]
+        & (pd.to_numeric(work["gamma"], errors="coerce").fillna(0.0) > 0.0)
+    ].copy()
+    robust_selected: dict[str, float | int | str] | None = None
+    if not robust_pool.empty:
+        robust_pool["gamma_rank"] = pd.to_numeric(robust_pool["gamma"], errors="coerce").fillna(0.0)
+        robust_pool["lambda_rank"] = pd.to_numeric(
+            robust_pool["uncertainty_aversion"], errors="coerce"
+        ).fillna(0.0)
+        robust_pool["robustness_aware_score"] = (
+            robust_pool["realized_total_return_rank"]
+            * np.sqrt(np.clip(robust_pool["gamma_rank"].to_numpy(dtype=float), 0.0, None))
+            * (1.0 + 0.05 * np.clip(robust_pool["lambda_rank"].to_numpy(dtype=float), 0.0, 1.0))
+        )
+        robust_selected = (
+            robust_pool.sort_values(
+                [
+                    "robustness_aware_score",
+                    "realized_total_return_rank",
+                    "price_of_robustness_rank",
+                ],
+                ascending=[False, False, True],
+            )
+            .iloc[0]
+            .to_dict()
+        )
     frontier_out = frontier.copy()
     frontier_out["selected_for_champion"] = False
     frontier_out.loc[selected.name, "selected_for_champion"] = True
-    return frontier_out, selected.to_dict()
+    frontier_out["selected_for_robustness_aware"] = False
+    if robust_selected is not None:
+        robust_mask = (
+            frontier_out["risk_tolerance"].eq(float(robust_selected["risk_tolerance"]))
+            & frontier_out["policy_mode"].eq(str(robust_selected["policy_mode"]))
+            & frontier_out["gamma"].eq(float(robust_selected["gamma"]))
+            & frontier_out["uncertainty_aversion"].eq(
+                float(robust_selected["uncertainty_aversion"])
+            )
+        )
+        frontier_out.loc[robust_mask, "selected_for_robustness_aware"] = True
+    return frontier_out, selected.to_dict(), robust_selected
 
 
 def main(
@@ -490,7 +529,7 @@ def main(
         )
 
     frontier = pd.DataFrame(rows)
-    frontier, champion_row = _select_champion_policy(frontier)
+    frontier, champion_row, robust_research_row = _select_champion_policy(frontier)
     summary = pd.DataFrame(summary_rows).sort_values("risk_tolerance")
     summary["selected_for_champion"] = summary["risk_tolerance"].eq(
         float(champion_row["risk_tolerance"])
@@ -518,6 +557,15 @@ def main(
                 "price_of_robustness(asc)",
             ]
         },
+        "research_selection_policy": {
+            "name": "robustness_aware",
+            "rank_order": [
+                "ab_pass(desc)",
+                "realized_total_return * sqrt(gamma) * (1 + 0.05 * min(lambda, 1))",
+                "realized_total_return(desc)",
+                "price_of_robustness(asc)",
+            ],
+        },
         "selected_policy": {
             "risk_tolerance": float(champion_row["risk_tolerance"]),
             "policy_mode": str(champion_row["policy_mode"]),
@@ -536,6 +584,33 @@ def main(
             "price_of_robustness_pct": float(champion_row["price_of_robustness_pct"]),
             "n_funded": int(champion_row["n_funded"]),
         },
+        "selected_policy_robustness_aware": (
+            {
+                "risk_tolerance": float(robust_research_row["risk_tolerance"]),
+                "policy_mode": str(robust_research_row["policy_mode"]),
+                "gamma": float(robust_research_row["gamma"]),
+                "uncertainty_aversion": float(robust_research_row["uncertainty_aversion"]),
+                "min_budget_utilization": float(robust_research_row["min_budget_utilization"]),
+                "pd_cap_slack_penalty": float(robust_research_row["pd_cap_slack_penalty"]),
+                "pd_cap_slack": float(robust_research_row["pd_cap_slack"]),
+                "solver_backend": str(robust_research_row["solver_backend"]),
+            }
+            if robust_research_row is not None
+            else None
+        ),
+        "research_selection_metrics": (
+            {
+                "ab_pass": bool(robust_research_row["ab_pass"]),
+                "ab_diff_total_return": float(robust_research_row["ab_diff_total_return"]),
+                "realized_total_return": float(robust_research_row["realized_total_return"]),
+                "price_of_robustness": float(robust_research_row["price_of_robustness"]),
+                "price_of_robustness_pct": float(robust_research_row["price_of_robustness_pct"]),
+                "n_funded": int(robust_research_row["n_funded"]),
+                "robustness_aware_score": float(robust_research_row["robustness_aware_score"]),
+            }
+            if robust_research_row is not None
+            else None
+        ),
         "frontier_path": str(frontier_path),
         "summary_path": str(summary_path),
         "candidate_universe_path": str(candidate_universe_resolved),

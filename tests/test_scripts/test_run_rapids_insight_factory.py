@@ -2,7 +2,10 @@ from __future__ import annotations
 
 import pandas as pd
 
-from scripts.run_rapids_insight_factory import _prepare_issue_quarter, _select_numeric_features
+from scripts.run_rapids_insight_factory import (
+    _prepare_issue_quarter,
+    _select_numeric_features,
+)
 
 
 def test_select_numeric_features_prefers_core_numeric_columns() -> None:
@@ -27,3 +30,9 @@ def test_prepare_issue_quarter_formats_quarter_strings() -> None:
     out = _prepare_issue_quarter(series)
     assert out.iloc[0].startswith("2018Q")
     assert out.iloc[1].startswith("2019Q")
+
+
+def test_select_numeric_features_respects_max_features() -> None:
+    df = pd.DataFrame({f"f{i}": [float(i), float(i + 1)] for i in range(50)})
+    cols = _select_numeric_features(df, max_features=7)
+    assert len(cols) == 7

@@ -1,0 +1,40 @@
+{
+  "schema_version": "2026-03-10.1",
+  "run_tag": "2026-03-10-rapids-insight-smoke",
+  "artifact_root": "/home/eigenlinux/projects/lending-club-risk-project/reports/gpu_insights/2026-03-10-rapids-insight-smoke/artifacts",
+  "stages": [
+    {
+      "stage": "cudf_etl",
+      "rows_input": 1623180,
+      "rows_output": 4916,
+      "cpu_seconds": 0.5320682059973478,
+      "gpu_seconds": 0.9127753419998044,
+      "speedup_gpu_vs_cpu": 0.582912554179692,
+      "max_rel_err_pct": 3827500000000000.0
+    },
+    {
+      "stage": "cuml_segmentation",
+      "rows_input": 100000,
+      "n_features": 24,
+      "cpu_seconds": 1.4206297939999786,
+      "gpu_seconds": 2.8673560679999355,
+      "speedup_gpu_vs_cpu": 0.495449382744749,
+      "cpu_inertia": 1618745.5,
+      "gpu_inertia": 1627565.75,
+      "cluster_count_l1_diff": 53812.0
+    },
+    {
+      "stage": "cugraph_similarity",
+      "rows_input": 12000,
+      "n_features": 12,
+      "knn_k": 10,
+      "cpu_seconds": 1.4047464750001382,
+      "gpu_seconds": 0.5815215930015256,
+      "speedup_gpu_vs_cpu": 2.41563940515009,
+      "cpu_components": 1,
+      "gpu_components": 1,
+      "cpu_pagerank_sum": 1.0000000000000004,
+      "gpu_pagerank_sum": 1.0
+    }
+  ]
+}

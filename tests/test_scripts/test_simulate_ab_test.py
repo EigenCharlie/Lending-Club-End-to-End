@@ -73,7 +73,34 @@ def test_resolve_robust_policy_prefers_champion_artifact(tmp_path) -> None:
         champion_policy_path=str(champion_path),
     )
 
-    assert policy["source"] == "champion_policy_artifact"
+    assert policy["source"] == "champion_policy_artifact::promotion_first"
     assert policy["risk_tolerance"] == 0.08
     assert policy["policy_mode"] == "blended_uncertainty"
     assert policy["gamma"] == 0.5
+
+
+def test_resolve_robust_policy_can_use_robustness_aware_artifact(tmp_path) -> None:
+    champion_path = tmp_path / "champion_portfolio_policy.json"
+    champion_path.write_text(
+        (
+            '{"selected_policy":{"risk_tolerance":0.08,"uncertainty_aversion":0.0,'
+            '"min_budget_utilization":0.0,"pd_cap_slack_penalty":0.0,'
+            '"policy_mode":"blended_uncertainty","gamma":0.0},'
+            '"selected_policy_robustness_aware":{"risk_tolerance":0.10,'
+            '"uncertainty_aversion":0.5,"min_budget_utilization":0.05,'
+            '"pd_cap_slack_penalty":1.5,"policy_mode":"blended_uncertainty","gamma":0.5}}'
+        ),
+        encoding="utf-8",
+    )
+
+    policy = ab_mod._resolve_robust_policy(
+        max_portfolio_pd=0.11,
+        policy_selector="robustness_aware",
+        summary_path=str(tmp_path / "missing.parquet"),
+        champion_policy_path=str(champion_path),
+    )
+
+    assert policy["source"] == "champion_policy_artifact::robustness_aware"
+    assert policy["risk_tolerance"] == 0.10
+    assert policy["gamma"] == 0.5
+    assert policy["uncertainty_aversion"] == 0.5
