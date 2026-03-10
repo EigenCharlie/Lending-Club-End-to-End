@@ -10,10 +10,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import src.optimization.cuopt_adapter as cuopt_adapter
 from src.optimization.portfolio_model import (
     build_binary_model,
     build_portfolio_model,
     compute_effective_pd,
+    optimize_portfolio_allocation,
     solve_portfolio,
 )
 
@@ -152,6 +154,32 @@ class TestSolvePortfolio:
         model = build_portfolio_model(**small_loans)
         with pytest.raises(ValueError, match="Unsupported solver_backend"):
             solve_portfolio(model, solver_backend="unknown")
+
+    def test_optimize_portfolio_allocation_dispatches_to_native_cuopt(
+        self, small_loans, monkeypatch
+    ):
+        monkeypatch.setattr(
+            cuopt_adapter,
+            "solve_portfolio_cuopt_native",
+            lambda **kwargs: {
+                "allocation": dict.fromkeys(range(len(kwargs["loans"])), 0.0),
+                "objective_value": 123.0,
+                "n_funded": 0,
+                "total_allocated": 0.0,
+                "solver_status": "mock-optimal",
+                "solver_backend": "cuopt",
+                "pd_cap_slack": 0.0,
+            },
+        )
+
+        sol = optimize_portfolio_allocation(
+            solver_backend="cuopt",
+            time_limit=30,
+            threads=4,
+            **small_loans,
+        )
+        assert sol["solver_backend"] == "cuopt"
+        assert sol["objective_value"] == pytest.approx(123.0)
 
 
 # ---------------------------------------------------------------------------

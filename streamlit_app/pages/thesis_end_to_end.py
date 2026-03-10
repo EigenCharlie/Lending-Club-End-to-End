@@ -29,6 +29,9 @@ from streamlit_app.utils import (
     format_number,
     format_pct,
     get_notebook_image_path,
+    load_gpu_replay_summary,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_stage_comparison,
     load_json,
     load_parquet,
     try_load_parquet,
@@ -75,6 +78,9 @@ causal_rule = (
 )
 ifrs9_scenarios = load_parquet("ifrs9_scenario_summary")
 robust_summary = load_parquet("portfolio_robustness_summary")
+rapids_summary = load_gpu_replay_summary()
+rapids_compare = load_rapids_stage_comparison()
+rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
 
 narrative_block(
     audience,
@@ -166,6 +172,36 @@ de precio cambia realmente el riesgo; y IFRS9 traduce todo a impacto contable/re
 métrica individual, es la contribución central del trabajo.
 """
 )
+
+if not rapids_compare.empty:
+    st.markdown("### Carril complementario: replay RAPIDS sobre el proyecto real")
+    st.markdown(
+        """
+Este capítulo ahora tiene un complemento importante. Ya no solo existe el pipeline end-to-end CPU promovido; también existe un **replay GPU controlado** sobre las etapas donde la aceleración sí vale la pena.
+
+- `PD` y `LGD/EAD` se reejecutan sobre full-data como comparación honesta.
+- `portfolio`, `tradeoff`, `A/B` y `CATE` usan `cuopt` nativo.
+- `IFRS9` ganó una extensión nueva: Monte Carlo masivo con `cupy`, sin reemplazar el carril regulatorio canónico.
+"""
+    )
+    gpu_story = rapids_compare[
+        ["stage", "cpu_seconds", "gpu_seconds", "speedup_gpu_vs_cpu"]
+    ].copy()
+    st.dataframe(
+        gpu_story.rename(
+            columns={
+                "stage": "Stage",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        f"Hallazgo estructural: la GPU gana sobre todo en OR e IFRS9 Monte Carlo. El speedup de Monte Carlo ya quedó en {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x, mientras que el replay completo de PD sigue siendo más útil como benchmark comparativo que como aceleración end-to-end."
+    )
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [

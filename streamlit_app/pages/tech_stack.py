@@ -13,7 +13,12 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import load_runtime_status
+from streamlit_app.utils import (
+    load_gpu_replay_summary,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_stage_comparison,
+    load_runtime_status,
+)
 
 
 def _lib_df(rows: list[list[str]]) -> pd.DataFrame:
@@ -42,6 +47,34 @@ técnico. Esta página detalla **por qué** cada librería y no solo **cuál**.
 """
 )
 
+rapids_summary = load_gpu_replay_summary()
+rapids_compare = load_rapids_stage_comparison()
+rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+if rapids_summary and not rapids_compare.empty:
+    st.markdown("### Nuevo carril RAPIDS ya integrado al stack")
+    st.markdown(
+        """
+El stack ya no es solo `Python tabular + Pyomo + Streamlit`. Ahora está explícitamente partido en dos carriles:
+
+- **canónico CPU**: promoción, gobernanza y artefactos oficiales;
+- **RAPIDS/GPU**: `cuopt`, `cupy`, `cudf/cuml/cugraph` y replay comparativo sobre etapas pesadas.
+"""
+    )
+    st.dataframe(
+        rapids_compare[["stage", "gpu_seconds", "speedup_gpu_vs_cpu"]].rename(
+            columns={
+                "stage": "Stage",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        f"IFRS9 Monte Carlo ya quedó incorporado como extensión CuPy con {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x frente a CPU."
+    )
+
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. Library Ecosystem
 # ══════════════════════════════════════════════════════════════════════════════
@@ -55,6 +88,7 @@ tabs = st.tabs(
         "Supervivencia",
         "Causal",
         "Optimización",
+        "RAPIDS",
         "Datos",
         "MLOps",
         "API & Dashboard",
@@ -259,6 +293,54 @@ with tabs[5]:
         "en <1s. Gurobi sería necesario solo para MILPs de >100K variables."
     )
 
+with tabs[7]:
+    st.dataframe(
+        _lib_df(
+            [
+                [
+                    "cuopt",
+                    "RAPIDS env",
+                    "LPs GPU nativos para portfolio/tradeoff/A-B/CATE",
+                    "Pyomo+HiGHS",
+                    "Es la palanca de aceleración más fuerte del proyecto real",
+                ],
+                [
+                    "cupy",
+                    "RAPIDS env",
+                    "Monte Carlo IFRS9 y álgebra densa GPU",
+                    "NumPy",
+                    "Permite escenarios masivos sin tocar el carril canónico regulatorio",
+                ],
+                [
+                    "cudf",
+                    "RAPIDS env",
+                    "ETL y benchmarking tabular GPU",
+                    "pandas",
+                    "Útil para insight factory y preprocessing pesado",
+                ],
+                [
+                    "cuml",
+                    "RAPIDS env",
+                    "Benchmarks ML acelerados / insight factory",
+                    "scikit-learn",
+                    "Aporta más en exploración y benchmarking que en el champion PD actual",
+                ],
+                [
+                    "cugraph",
+                    "RAPIDS env",
+                    "Graph analytics y backend nx-cugraph",
+                    "networkx",
+                    "Carril de fábrica de insights, no del pipeline canónico",
+                ],
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.caption(
+        "Arquitectura final: el replay RAPIDS usa `uv` para stages CatBoost GPU y el `python` directo del env `rapids` para OR/CuPy."
+    )
+
 with tabs[6]:
     st.dataframe(
         _lib_df(
@@ -297,7 +379,7 @@ with tabs[6]:
         hide_index=True,
     )
 
-with tabs[7]:
+with tabs[8]:
     st.dataframe(
         _lib_df(
             [
@@ -335,7 +417,7 @@ with tabs[7]:
         hide_index=True,
     )
 
-with tabs[8]:
+with tabs[9]:
     st.dataframe(
         _lib_df(
             [
@@ -366,7 +448,7 @@ with tabs[8]:
         hide_index=True,
     )
 
-with tabs[9]:
+with tabs[10]:
     st.dataframe(
         _lib_df(
             [
@@ -390,7 +472,7 @@ with tabs[9]:
         hide_index=True,
     )
 
-with tabs[10]:
+with tabs[11]:
     st.dataframe(
         _lib_df(
             [

@@ -33,6 +33,7 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
+    load_rapids_ifrs9_mc_tail_metrics,
     load_parquet,
     try_load_parquet,
 )
@@ -155,6 +156,7 @@ scenarios = load_parquet("ifrs9_scenario_summary")
 scenario_grade = load_parquet("ifrs9_scenario_grade_summary")
 sensitivity = load_parquet("ifrs9_sensitivity_grid")
 input_quality = load_parquet("ifrs9_input_quality")
+ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics()
 ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
 if ecl_comp.empty:
     baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
@@ -232,6 +234,41 @@ Este módulo muestra cómo la capa de modelado se traduce en provisiones contabl
 - Stage 3: exposición deteriorada.
 """
 )
+
+if ifrs9_mc:
+    st.markdown("### Extensión nueva: IFRS9 Monte Carlo masivo en GPU")
+    kpi_row(
+        [
+            {"label": "Loans", "value": format_number(float(ifrs9_mc.get("n_loans", 0)))},
+            {"label": "Escenarios", "value": format_number(float(ifrs9_mc.get("n_scenarios", 0)))},
+            {"label": "CPU", "value": f"{ifrs9_mc.get('cpu_seconds', 0):.2f}s"},
+            {"label": "GPU", "value": f"{ifrs9_mc.get('gpu_seconds', 0):.2f}s"},
+            {"label": "Speedup", "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.1f}x"},
+            {
+                "label": "Diff medio relativo",
+                "value": f"{ifrs9_mc.get('mean_rel_diff_total_ecl_pct', 0):.4f}%",
+            },
+        ],
+        n_cols=3,
+    )
+    st.markdown(
+        """
+El pipeline canónico sigue usando sensibilidad determinista por escenarios pequeños porque es más simple de auditar y explicar.
+La capa nueva RAPIDS añade un carril **Monte Carlo** para estudiar distribución completa de ECL:
+
+- media, desviación y percentiles de cola,
+- `expected shortfall`,
+- miles de escenarios con shocks compartidos CPU/GPU para comparación justa.
+"""
+    )
+    tail_df = pd.DataFrame(
+        [
+            {"Métrica": k, "CPU": v, "GPU": ifrs9_mc.get("gpu_tail", {}).get(k)}
+            for k, v in ifrs9_mc.get("cpu_tail", {}).items()
+        ]
+    )
+    if not tail_df.empty:
+        st.dataframe(tail_df, width="stretch", hide_index=True)
 
 col_nb_img, col_nb_text = st.columns([3, 2])
 with col_nb_img:

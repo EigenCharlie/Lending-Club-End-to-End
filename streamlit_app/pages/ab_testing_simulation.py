@@ -25,6 +25,7 @@ from streamlit_app.components.story_shell import (
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import try_load_json, try_load_parquet
+from streamlit_app.utils import try_load_gpu_replay_json, OFFICIAL_GPU_REPLAY_TAG
 
 
 def _std_norm_cdf(value: float) -> float:
@@ -61,6 +62,9 @@ storytelling_intro(
 results = try_load_parquet("ab_simulation_results")
 summary = try_load_parquet("ab_simulation_summary")
 status = try_load_json("ab_simulation_status", directory="models", default={})
+gpu_status = try_load_gpu_replay_json(
+    OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
+)
 
 if not results.empty:
     row = results.iloc[0]
@@ -145,6 +149,25 @@ else:
     st.info(
         "Ejecuta `scripts/simulate_ab_test.py` para generar la simulación A/B."
     )
+
+if gpu_status:
+    st.markdown("### Replay RAPIDS de la misma prueba A/B")
+    st.markdown(
+        """
+Además del artefacto canónico CPU, ya existe un replay GPU equivalente sobre el mismo bloque de decisión.
+Eso importa porque esta página dejó de ser solo un resultado económico; ahora también demuestra que la comparación robusto vs no robusto puede evaluarse rápido en GPU cuando el universo de candidatos crece.
+"""
+    )
+    gpu_table = [
+        {
+            "Engine": "GPU replay (cuopt)",
+            "Control total return": gpu_status.get("metrics_a", {}).get("total_return", 0.0),
+            "Treatment total return": gpu_status.get("metrics_b", {}).get("total_return", 0.0),
+            "Diff": gpu_status.get("no_regression", {}).get("diff_total_return", 0.0),
+            "No regression": gpu_status.get("no_regression", {}).get("passed", False),
+        }
+    ]
+    st.dataframe(gpu_table, width="stretch", hide_index=True)
 
 decision_checklist(
     "Checklist de lectura A/B",

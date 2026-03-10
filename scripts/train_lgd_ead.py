@@ -39,6 +39,19 @@ MAX_WIDTH_INFLATION = 1.25
 MAX_ABS_BIAS = 0.10
 
 
+def _gpu_replay_artifact_root() -> Path | None:
+    raw = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return Path(raw) if raw else None
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = _gpu_replay_artifact_root()
+    if root is None:
+        return path
+    return root / path
+
+
 def _catboost_backend_params(backend: str) -> dict[str, Any]:
     backend_norm = str(backend).strip().lower()
     if backend_norm == "gpu":
@@ -439,8 +452,8 @@ def main(
     for df in (train, cal, test):
         df[features] = df[features].apply(pd.to_numeric, errors="coerce").fillna(0.0)
 
-    model_dir = Path("models")
-    data_dir = Path("data/processed")
+    model_dir = _artifact_path("models")
+    data_dir = _artifact_path("data/processed")
     model_dir.mkdir(parents=True, exist_ok=True)
     data_dir.mkdir(parents=True, exist_ok=True)
 

@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shutil
 import subprocess
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
 
 import httpx
@@ -23,6 +25,8 @@ DVC_REPORTS_DIR = REPORTS_DIR / "dvc"
 NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
 BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
+GPU_REPLAY_DIR = REPORTS_DIR / "gpu_replay"
+OFFICIAL_GPU_REPLAY_TAG = "2026-03-09-official-gpu-replay-rapids-final"
 
 
 @st.cache_data(ttl=1800, max_entries=24)
@@ -278,6 +282,184 @@ def safe_metric_get(
         return float(value) if value is not None else default
     except Exception:
         return default
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_official_baseline_registry() -> dict:
+    """Load the official CPU baseline registry."""
+    if not BASELINE_REGISTRY_PATH.exists():
+        return {}
+    try:
+        return json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=300, max_entries=8)
+def load_gpu_replay_summary(run_tag: str = OFFICIAL_GPU_REPLAY_TAG) -> dict:
+    """Load a GPU replay run summary."""
+    path = GPU_REPLAY_DIR / run_tag / "run_summary.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=300, max_entries=16)
+def try_load_gpu_replay_json(run_tag: str, relative_path: str) -> dict:
+    """Load a JSON artifact from reports/gpu_replay/<run_tag>/."""
+    path = GPU_REPLAY_DIR / run_tag / relative_path
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=300, max_entries=16)
+def try_load_gpu_replay_parquet(run_tag: str, relative_path: str) -> pd.DataFrame:
+    """Load a parquet artifact from reports/gpu_replay/<run_tag>/."""
+    path = GPU_REPLAY_DIR / run_tag / relative_path
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_parquet(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+def _extract_command_stage(command: str) -> str | None:
+    mappings = {
+        "scripts/train_pd_model.py": "pd",
+        "scripts/train_lgd_ead.py": "lgd_ead",
+        "scripts/optimize_portfolio.py": "portfolio",
+        "scripts/optimize_portfolio_tradeoff.py": "tradeoff",
+        "scripts/simulate_ab_test.py": "ab",
+        "scripts/optimize_cate_portfolio.py": "cate_portfolio",
+        "scripts/run_ifrs9_sensitivity.py": "ifrs9_sensitivity",
+    }
+    for needle, stage in mappings.items():
+        if needle in command:
+            return stage
+    return None
+
+
+def _parse_ts(raw: str) -> datetime | None:
+    try:
+        return datetime.fromisoformat(raw)
+    except Exception:
+        return None
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_cpu_stage_durations(run_tag: str | None = None) -> pd.DataFrame:
+    """Parse subphase durations from the official CPU master log."""
+    if not run_tag:
+        registry = load_official_baseline_registry()
+        run_tag = str(registry.get("run_tag") or "")
+    if not run_tag:
+        return pd.DataFrame()
+
+    path = REPORTS_DIR / "run_logs" / run_tag / "master.log"
+    if not path.exists():
+        return pd.DataFrame()
+
+    pattern = re.compile(
+        r"^\[(?P<ts>.+?)\] STEP_SUBPHASE_(?P<kind>START|END) name=(?P<name>\S+) idx=(?P<idx>\d+/\d+)(?: cmd=(?P<cmd>.*)| ec=(?P<ec>\d+))?$"
+    )
+    starts: dict[tuple[str, str], tuple[datetime, str]] = {}
+    rows: list[dict[str, object]] = []
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        match = pattern.match(line.strip())
+        if not match:
+            continue
+        ts = _parse_ts(match.group("ts"))
+        if ts is None:
+            continue
+        key = (match.group("name"), match.group("idx"))
+        if match.group("kind") == "START":
+            starts[key] = (ts, match.group("cmd") or "")
+            continue
+        start_info = starts.get(key)
+        if not start_info:
+            continue
+        started_at, cmd = start_info
+        stage = _extract_command_stage(cmd)
+        if not stage:
+            continue
+        rows.append(
+            {
+                "stage": stage,
+                "cpu_seconds": (ts - started_at).total_seconds(),
+                "cpu_command": cmd,
+                "cpu_run_tag": run_tag,
+            }
+        )
+
+    return pd.DataFrame(rows)
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_stage_comparison(
+    gpu_run_tag: str = OFFICIAL_GPU_REPLAY_TAG, cpu_run_tag: str | None = None
+) -> pd.DataFrame:
+    """Join official CPU timings with the RAPIDS replay stage timings."""
+    gpu_summary = load_gpu_replay_summary(gpu_run_tag)
+    stage_results = gpu_summary.get("stage_results", [])
+    gpu_rows = []
+    for result in stage_results:
+        stage = str(result.get("stage", ""))
+        gpu_seconds = _coerce_float(result.get("duration_seconds"))
+        if stage and gpu_seconds is not None:
+            gpu_rows.append(
+                {
+                    "stage": stage,
+                    "gpu_seconds": gpu_seconds,
+                    "gpu_run_tag": gpu_run_tag,
+                    "peak_gpu_util": _coerce_float(
+                        result.get("gpu_metrics", {}).get("peak_gpu_util")
+                    ),
+                    "avg_gpu_util": _coerce_float(
+                        result.get("gpu_metrics", {}).get("avg_gpu_util")
+                    ),
+                    "peak_memory_used_mb": _coerce_float(
+                        result.get("gpu_metrics", {}).get("peak_memory_used_mb")
+                    ),
+                    "avg_memory_used_mb": _coerce_float(
+                        result.get("gpu_metrics", {}).get("avg_memory_used_mb")
+                    ),
+                    "peak_power_draw_w": _coerce_float(
+                        result.get("gpu_metrics", {}).get("peak_power_draw_w")
+                    ),
+                }
+            )
+
+    gpu_df = pd.DataFrame(gpu_rows)
+    cpu_df = load_cpu_stage_durations(cpu_run_tag)
+    if gpu_df.empty:
+        return cpu_df
+    merged = gpu_df.merge(cpu_df, on="stage", how="left")
+    if "cpu_seconds" in merged.columns:
+        merged["speedup_gpu_vs_cpu"] = merged["cpu_seconds"] / merged["gpu_seconds"]
+    else:
+        merged["speedup_gpu_vs_cpu"] = None
+    merged["speedup_gpu_vs_cpu"] = merged["speedup_gpu_vs_cpu"].replace([pd.NA], None)
+    return merged
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_ifrs9_mc_tail_metrics(
+    gpu_run_tag: str = OFFICIAL_GPU_REPLAY_TAG,
+) -> dict:
+    """Load the Monte Carlo IFRS9 GPU summary."""
+    return try_load_gpu_replay_json(
+        gpu_run_tag,
+        "artifacts/data/processed/ifrs9_mc_tail_metrics.json",
+    )
 
 
 @st.cache_data(ttl=300, max_entries=4)

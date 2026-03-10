@@ -24,12 +24,17 @@ from loguru import logger
 
 from src.models.conformal_artifacts import load_conformal_intervals
 from src.optimization.portfolio_model import (
-    build_portfolio_model,
     compute_effective_pd,
-    solve_portfolio,
+    optimize_portfolio_allocation,
 )
 
 SCHEMA_VERSION = "2026-03-08.1"
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return (Path(root) / path) if root else path
 
 
 def _parse_percent_series(series: pd.Series) -> np.ndarray:
@@ -125,7 +130,7 @@ def _write_candidate_universe(loans: pd.DataFrame, *, path: str, run_tag: str) -
     out = loans.loc[:, ["id"]].copy()
     out["sample_order"] = np.arange(len(out), dtype=int)
     out["run_tag"] = str(run_tag)
-    out_path = Path(path)
+    out_path = _artifact_path(path)
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out.to_parquet(out_path, index=False)
     logger.info("Saved candidate universe: {}", out_path)
@@ -188,7 +193,7 @@ def _solve_single(
         policy_mode=policy_mode,
         gamma=gamma,
     )
-    model = build_portfolio_model(
+    solution = optimize_portfolio_allocation(
         loans=loans,
         pd_point=pd_point,
         pd_low=pd_low,
@@ -203,9 +208,6 @@ def _solve_single(
         min_budget_utilization=min_budget_utilization,
         pd_cap_slack_penalty=pd_cap_slack_penalty,
         pd_constraint_override=pd_constraint,
-    )
-    solution = solve_portfolio(
-        model,
         time_limit=time_limit,
         threads=threads,
         solver_backend=solver_backend,
@@ -332,6 +334,7 @@ def main(
     n = len(loans)
     resolved_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip() or "untracked"
     _write_candidate_universe(loans, path=candidate_universe_path, run_tag=resolved_run_tag)
+    candidate_universe_resolved = _artifact_path(candidate_universe_path)
 
     col_point, col_low, col_high = _resolve_interval_columns(ints)
     pd_point = ints[col_point].to_numpy(dtype=float)
@@ -493,8 +496,8 @@ def main(
         float(champion_row["risk_tolerance"])
     )
 
-    data_dir = Path("data/processed")
-    model_dir = Path("models")
+    data_dir = _artifact_path("data/processed")
+    model_dir = _artifact_path("models")
     data_dir.mkdir(parents=True, exist_ok=True)
     model_dir.mkdir(parents=True, exist_ok=True)
 
@@ -535,7 +538,7 @@ def main(
         },
         "frontier_path": str(frontier_path),
         "summary_path": str(summary_path),
-        "candidate_universe_path": str(candidate_universe_path),
+        "candidate_universe_path": str(candidate_universe_resolved),
     }
     champion_policy_path.write_text(
         json.dumps(champion_payload, indent=2, ensure_ascii=False),
@@ -555,7 +558,7 @@ def main(
         "frontier_path": str(frontier_path),
         "summary_path": str(summary_path),
         "champion_policy_path": str(champion_policy_path),
-        "candidate_universe_path": str(candidate_universe_path),
+        "candidate_universe_path": str(candidate_universe_resolved),
         "selected_policy": champion_payload["selected_policy"],
         "summary_rows": summary.to_dict(orient="records"),
     }

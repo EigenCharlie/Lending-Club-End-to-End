@@ -61,6 +61,23 @@ su salida alimenta al siguiente bloque.
 """
 )
 
+manifest = load_notebook_image_manifest()
+if manifest:
+    notebooks_total = len({item.get("notebook_stem") for item in manifest if item.get("notebook_stem")})
+    st.markdown("### Estado actual del atlas")
+    st.info(
+        f"Los notebooks ya quedaron reejecutados y estabilizados. El atlas actual está alimentado por {len(manifest)} imágenes extraídas a partir de {notebooks_total} notebooks ejecutados `inplace`, conservando resultados visibles al abrir cada `.ipynb`."
+    )
+    st.markdown(
+        """
+    Cambio importante del proyecto:
+
+    - los notebooks ya no compiten con el pipeline canónico;
+    - funcionan como **fábrica de insights**;
+    - el carril RAPIDS solo incorpora benchmarking GPU explícito, no re-ejecución redundante de notebooks CPU.
+    """
+    )
+
 NOTEBOOK_META = {
     "01_eda_lending_club": {
         "titulo": "Notebook 01 — EDA",

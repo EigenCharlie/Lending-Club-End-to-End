@@ -23,6 +23,12 @@ from src.optimization.causal_portfolio import build_cate_adjusted_portfolio
 CAUSAL_PORTFOLIO_SCHEMA_VERSION = "2026-03-07.1"
 
 
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return (Path(root) / path) if root else path
+
+
 def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
     """Convert a column that may be string '12.5%' or float 12.5 to decimal."""
     if pd.api.types.is_numeric_dtype(s):
@@ -232,9 +238,10 @@ def main(
     uncertainty_aversion: float = 0.0,
     solver_backend: str = "highs",
 ) -> None:
-    data_dir = Path("data/processed")
-    test_path = data_dir / "test_fe.parquet"
-    intervals_path = data_dir / "conformal_intervals_mondrian.parquet"
+    input_data_dir = Path("data/processed")
+    output_data_dir = _artifact_path("data/processed")
+    test_path = input_data_dir / "test_fe.parquet"
+    intervals_path = input_data_dir / "conformal_intervals_mondrian.parquet"
     for path in [test_path, intervals_path]:
         if not path.exists():
             raise FileNotFoundError(f"Missing artifact: {path}")
@@ -243,7 +250,7 @@ def main(
     intervals = pd.read_parquet(intervals_path)
     if "id" in test_df.columns:
         test_df = test_df.assign(id=test_df["id"].astype(str))
-    cate_series, cate_meta = _align_cate_to_test(test_df, data_dir)
+    cate_series, cate_meta = _align_cate_to_test(test_df, input_data_dir)
     shrunk_cate, shrink_meta = _shrink_cate(test_df, cate_series)
     logger.info(
         f"Loaded test={len(test_df):,} intervals={len(intervals):,} "
@@ -322,7 +329,8 @@ def main(
     fallback_applied = not promotion_eligible
     selected_mode = "shrunk" if promotion_eligible else "research_only_fallback"
 
-    comparison_path = data_dir / "cate_portfolio_comparison.parquet"
+    output_data_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_data_dir / "cate_portfolio_comparison.parquet"
     comparison_df = pd.concat(
         [
             result_raw["comparison_df"].assign(cate_policy_mode="raw"),
@@ -390,7 +398,7 @@ def main(
     if effect_status:
         status["effect_status_run_tag"] = effect_status.get("run_tag")
 
-    status_path = Path("models/cate_portfolio_status.json")
+    status_path = _artifact_path("models/cate_portfolio_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
     status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
     logger.info(f"Saved status: {status_path}")

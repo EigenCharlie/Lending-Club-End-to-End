@@ -33,6 +33,9 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     format_pct,
+    load_gpu_replay_summary,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_stage_comparison,
     try_load_json,
 )
 
@@ -202,6 +205,60 @@ render_decision_box(
     cadence="snapshot por commit o release",
 )
 render_global_kpi_spine("executive")
+
+rapids_summary = load_gpu_replay_summary()
+rapids_compare = load_rapids_stage_comparison()
+rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+if not rapids_compare.empty:
+    rapids_wins = rapids_compare[rapids_compare["speedup_gpu_vs_cpu"] > 1].copy()
+    top_rapids = (
+        rapids_wins.sort_values("speedup_gpu_vs_cpu", ascending=False).iloc[0]
+        if not rapids_wins.empty
+        else None
+    )
+    st.markdown("### Nuevo carril RAPIDS ya validado")
+    kpi_row(
+        [
+            {"label": "GPU replay", "value": rapids_summary.get("run_tag", "N/D")},
+            {"label": "Stages GPU PASS", "value": str(len(rapids_compare))},
+            {
+                "label": "Mayor speedup",
+                "value": (
+                    f"{top_rapids['stage']} · {top_rapids['speedup_gpu_vs_cpu']:.1f}x"
+                    if top_rapids is not None
+                    else "N/D"
+                ),
+            },
+            {
+                "label": "IFRS9 MC GPU",
+                "value": f"{rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x",
+            },
+        ],
+        n_cols=4,
+    )
+    st.markdown(
+        """
+    El proyecto ya tiene dos carriles claros:
+
+    - **canónico CPU** para promoción, gobernanza y storytelling central;
+    - **RAPIDS/GPU** para etapas donde la aceleración es material.
+
+    La lectura final es útil para negocio y academia: `cuopt` acelera fuerte OR, `cupy` acelera Monte Carlo IFRS9, y el replay muestra honestamente que `PD` completo todavía no gana throughput end-to-end.
+    """
+    )
+    show_cols = ["stage", "cpu_seconds", "gpu_seconds", "speedup_gpu_vs_cpu"]
+    st.dataframe(
+        rapids_compare[show_cols].rename(
+            columns={
+                "stage": "Stage",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
 
 st.markdown(
     """

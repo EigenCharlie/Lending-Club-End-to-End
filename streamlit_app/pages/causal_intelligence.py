@@ -192,6 +192,13 @@ como estimaciones sujetas a supuestos, no como “verdad absoluta” independien
 """
 )
 
+portfolio_status = causal_snapshot["portfolio_status"]
+if portfolio_status:
+    st.markdown("### Estado operativo actual del CATE portfolio")
+    st.info(
+        f"El proyecto ya separa con claridad política causal y portfolio causal. En el champion oficial, `cate_portfolio` quedó en `{portfolio_status.get('cate_policy_mode', 'N/D')}` con `promotion_eligible={portfolio_status.get('promotion_eligible', False)}`. La GPU ya acelera ese bloque con cuOpt, pero esa aceleración no cambia todavía su estatus económico: sigue siendo un carril de investigación."
+    )
+
 cate_df = try_load_parquet("cate_estimates")
 segment_summary = try_load_parquet("causal_policy_segment_summary")
 grade_summary = try_load_parquet("causal_policy_grade_summary")

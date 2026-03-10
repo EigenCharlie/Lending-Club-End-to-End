@@ -38,6 +38,7 @@ def test_resolve_robust_policy_from_summary_prefers_closest_lower_tolerance(tmp_
     policy = ab_mod._resolve_robust_policy(
         max_portfolio_pd=0.11,
         summary_path=str(summary_path),
+        champion_policy_path=str(tmp_path / "missing_champion.json"),
     )
 
     assert policy["source"] == "portfolio_robustness_summary"
@@ -49,6 +50,7 @@ def test_resolve_robust_policy_falls_back_when_summary_missing(tmp_path) -> None
     policy = ab_mod._resolve_robust_policy(
         max_portfolio_pd=0.09,
         summary_path=str(tmp_path / "missing.parquet"),
+        champion_policy_path=str(tmp_path / "missing_champion.json"),
     )
     assert policy["source"] == "fallback_default"
     assert policy["risk_tolerance"] == 0.09

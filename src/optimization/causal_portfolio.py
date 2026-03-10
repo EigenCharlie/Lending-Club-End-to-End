@@ -17,7 +17,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-from src.optimization.portfolio_model import build_portfolio_model, solve_portfolio
+from src.optimization.portfolio_model import optimize_portfolio_allocation
 
 
 def apply_cate_adjustment(
@@ -130,14 +130,14 @@ def build_cate_adjusted_portfolio(
 
     # Baseline portfolio
     logger.info("Building baseline portfolio (no CATE adjustment)")
-    model_base = build_portfolio_model(
+    sol_base = optimize_portfolio_allocation(
         pd_point=pd_point,
         pd_low=pd_low,
         pd_high=pd_high,
         int_rates=int_rates,
+        solver_backend=solver_backend,
         **common_kwargs,
     )
-    sol_base = solve_portfolio(model_base, solver_backend=solver_backend)
 
     # CATE-adjusted portfolio
     pd_adj, rates_adj = apply_cate_adjustment(
@@ -152,14 +152,14 @@ def build_cate_adjusted_portfolio(
     pd_high_adj = np.clip(pd_high + pd_shift, 0.001, 0.999)
 
     logger.info("Building CATE-adjusted portfolio")
-    model_adj = build_portfolio_model(
+    sol_adj = optimize_portfolio_allocation(
         pd_point=pd_adj,
         pd_low=pd_low_adj,
         pd_high=pd_high_adj,
         int_rates=rates_adj,
+        solver_backend=solver_backend,
         **common_kwargs,
     )
-    sol_adj = solve_portfolio(model_adj, solver_backend=solver_backend)
 
     # Build comparison DataFrame
     comparison = pd.DataFrame(

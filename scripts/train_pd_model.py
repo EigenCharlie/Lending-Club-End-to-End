@@ -53,6 +53,19 @@ def load_config(config_path: str) -> dict[str, Any]:
         return yaml.safe_load(f)
 
 
+def _gpu_replay_artifact_root() -> Path | None:
+    raw = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return Path(raw) if raw else None
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = _gpu_replay_artifact_root()
+    if root is None:
+        return path
+    return root / path
+
+
 def _normalize_percent_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Normalize known percent-like string columns when present."""
     out = df.copy()
@@ -1303,17 +1316,17 @@ def main(
     tuned_raw_test_metrics = classification_metrics(y_test.values, y_prob_tuned_test)
 
     # Persist models/calibrator
-    model_path = Path(config["output"].get("model_path", "models/pd_catboost_tuned.cbm"))
+    model_path = _artifact_path(config["output"].get("model_path", "models/pd_catboost_tuned.cbm"))
     model_path.parent.mkdir(parents=True, exist_ok=True)
     cb_tuned_model.save_model(str(model_path))
 
-    default_model_path = Path(
+    default_model_path = _artifact_path(
         config["output"].get("default_model_path", "models/pd_catboost_default.cbm")
     )
     default_model_path.parent.mkdir(parents=True, exist_ok=True)
     cb_default_model.save_model(str(default_model_path))
 
-    tuned_model_path = Path(
+    tuned_model_path = _artifact_path(
         config["output"].get("tuned_model_path", "models/pd_catboost_tuned.cbm")
     )
     tuned_model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1322,20 +1335,20 @@ def main(
 
     # Optional legacy compatibility copy (disabled by default).
     write_legacy_model_copy = bool(config["output"].get("write_legacy_model_copy", False))
-    legacy_model_path = Path("models/pd_catboost.cbm")
+    legacy_model_path = _artifact_path("models/pd_catboost.cbm")
     if write_legacy_model_copy and legacy_model_path.resolve() != model_path.resolve():
         shutil.copy2(model_path, legacy_model_path)
         logger.info("Saved legacy model compatibility copy to {}", legacy_model_path)
 
-    cal_path = Path(config["output"].get("conformal_path", "models/pd_calibrator.pkl"))
+    cal_path = _artifact_path(config["output"].get("conformal_path", "models/pd_calibrator.pkl"))
     cal_path.parent.mkdir(parents=True, exist_ok=True)
     with open(cal_path, "wb") as f:
         pickle.dump(calibrator, f)
 
-    decision_threshold_path = Path(
+    decision_threshold_path = _artifact_path(
         decision_cfg.get("output_path", "models/decision_threshold.json")
     )
-    decision_threshold_v2_path = Path(
+    decision_threshold_v2_path = _artifact_path(
         decision_cfg.get("output_path_v2", "models/decision_threshold_v2.json")
     )
     decision_threshold_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1345,7 +1358,7 @@ def main(
     with open(decision_threshold_v2_path, "w", encoding="utf-8") as f:
         json.dump(decision_threshold_artifact, f, indent=2, default=str)
 
-    logreg_model_path = Path("models/pd_logreg_baseline.pkl")
+    logreg_model_path = _artifact_path("models/pd_logreg_baseline.pkl")
     logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
     with open(logreg_model_path, "wb") as f:
         pickle.dump(
@@ -1358,12 +1371,15 @@ def main(
         )
 
     # Canonical artifacts for downstream loading.
-    CANONICAL_MODEL_PATH.parent.mkdir(parents=True, exist_ok=True)
-    CANONICAL_CALIBRATOR_PATH.parent.mkdir(parents=True, exist_ok=True)
-    if model_path.resolve() != CANONICAL_MODEL_PATH.resolve():
-        shutil.copy2(model_path, CANONICAL_MODEL_PATH)
-    if cal_path.resolve() != CANONICAL_CALIBRATOR_PATH.resolve():
-        shutil.copy2(cal_path, CANONICAL_CALIBRATOR_PATH)
+    canonical_model_path = _artifact_path(CANONICAL_MODEL_PATH)
+    canonical_calibrator_path = _artifact_path(CANONICAL_CALIBRATOR_PATH)
+    contract_path = _artifact_path(CONTRACT_PATH)
+    canonical_model_path.parent.mkdir(parents=True, exist_ok=True)
+    canonical_calibrator_path.parent.mkdir(parents=True, exist_ok=True)
+    if model_path.resolve() != canonical_model_path.resolve():
+        shutil.copy2(model_path, canonical_model_path)
+    if cal_path.resolve() != canonical_calibrator_path.resolve():
+        shutil.copy2(cal_path, canonical_calibrator_path)
 
     # Persist model contract for strict feature alignment across scripts.
     features_contract, categorical_contract = infer_model_feature_contract(cb_tuned_model)
@@ -1372,17 +1388,17 @@ def main(
         splits={"train": train, "calibration": cal, "test": test},
     )
     contract_payload = build_contract_payload(
-        model_path=CANONICAL_MODEL_PATH,
-        calibrator_path=CANONICAL_CALIBRATOR_PATH,
+        model_path=canonical_model_path,
+        calibrator_path=canonical_calibrator_path,
         feature_names=features_contract,
         categorical_features=categorical_contract,
         split_shapes=split_shapes,
         split_missing_features=split_missing,
     )
-    save_contract(contract_payload, CONTRACT_PATH)
+    save_contract(contract_payload, contract_path)
 
     # Persist test predictions for downstream contracts.
-    test_predictions_path = Path("data/processed/test_predictions.parquet")
+    test_predictions_path = _artifact_path("data/processed/test_predictions.parquet")
     test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
     y_prob_lr = lr_model.predict_proba(X_test_lr)[:, 1]
     preds_df = pd.DataFrame(
@@ -1437,7 +1453,7 @@ def main(
         "final_test_metrics": final_test_metrics,
     }
 
-    record_path = Path("models/pd_training_record.pkl")
+    record_path = _artifact_path("models/pd_training_record.pkl")
     record_path.parent.mkdir(parents=True, exist_ok=True)
     with open(record_path, "wb") as f:
         pickle.dump(training_record, f)
@@ -1448,9 +1464,9 @@ def main(
     logger.info("Saved calibrator to {}", cal_path)
     logger.info("Saved decision threshold artifact to {}", decision_threshold_path)
     logger.info("Saved decision threshold v2 artifact to {}", decision_threshold_v2_path)
-    logger.info("Saved canonical model to {}", CANONICAL_MODEL_PATH)
-    logger.info("Saved canonical calibrator to {}", CANONICAL_CALIBRATOR_PATH)
-    logger.info("Saved PD contract to {}", CONTRACT_PATH)
+    logger.info("Saved canonical model to {}", canonical_model_path)
+    logger.info("Saved canonical calibrator to {}", canonical_calibrator_path)
+    logger.info("Saved PD contract to {}", contract_path)
     logger.info("Saved test predictions to {}", test_predictions_path)
     logger.info("Saved training record to {}", record_path)
     logger.info(

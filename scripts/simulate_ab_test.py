@@ -24,12 +24,17 @@ from loguru import logger
 
 from src.evaluation.ab_testing import ab_summary, compare_strategies
 from src.optimization.portfolio_model import (
-    build_portfolio_model,
     compute_effective_pd,
-    solve_portfolio,
+    optimize_portfolio_allocation,
 )
 
 SCHEMA_VERSION = "2026-03-01.1"
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return (Path(root) / path) if root else path
 
 
 def _compute_realized_return(
@@ -90,7 +95,7 @@ def _resolve_robust_policy(
         "policy_mode": "hard_worst_case",
         "gamma": 1.0,
     }
-    champion_path = Path(champion_policy_path)
+    champion_path = _artifact_path(champion_policy_path)
     if champion_path.exists():
         try:
             payload = json.loads(champion_path.read_text(encoding="utf-8"))
@@ -116,7 +121,7 @@ def _resolve_robust_policy(
                 "Falling back to summary-based policy."
             )
 
-    path = Path(summary_path)
+    path = _artifact_path(summary_path)
     if not path.exists():
         logger.warning(f"Robustness summary not found ({path}); using fallback robust policy.")
         return default
@@ -190,7 +195,7 @@ def _apply_candidate_universe(
     candidate_universe_path: str,
     max_candidates: int,
 ) -> tuple[pd.DataFrame, pd.DataFrame, str]:
-    path = Path(candidate_universe_path)
+    path = _artifact_path(candidate_universe_path)
     max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
     if path.exists() and "id" in test_df.columns and "id" in intervals.columns:
         universe = pd.read_parquet(path)
@@ -328,8 +333,11 @@ def main(
 
     # Strategy A: non-robust
     logger.info("Strategy A (control): non-robust portfolio")
-    model_a = build_portfolio_model(robust=False, **common)
-    sol_a = solve_portfolio(model_a, solver_backend=solver_backend)
+    sol_a = optimize_portfolio_allocation(
+        robust=False,
+        solver_backend=solver_backend,
+        **common,
+    )
 
     # Strategy B: robust
     logger.info("Strategy B (treatment): robust portfolio")
@@ -339,15 +347,15 @@ def main(
         policy_mode=str(robust_policy.get("policy_mode", "hard_worst_case")),
         gamma=float(robust_policy.get("gamma", 1.0)),
     )
-    model_b = build_portfolio_model(
+    sol_b = optimize_portfolio_allocation(
         robust=True,
         uncertainty_aversion=float(robust_policy.get("uncertainty_aversion", 0.0)),
         min_budget_utilization=float(robust_policy.get("min_budget_utilization", 0.0)),
         pd_cap_slack_penalty=float(robust_policy.get("pd_cap_slack_penalty", 0.0)),
         pd_constraint_override=effective_pd_b,
+        solver_backend=solver_backend,
         **common,
     )
-    sol_b = solve_portfolio(model_b, solver_backend=solver_backend)
 
     # Compute realized returns
     returns_a = _compute_realized_return(
@@ -398,12 +406,12 @@ def main(
             }
         ]
     )
-    results_out = Path(results_path)
+    results_out = _artifact_path(results_path)
     results_out.parent.mkdir(parents=True, exist_ok=True)
     results_df.to_parquet(results_out, index=False)
     logger.info(f"Saved results: {results_out}")
 
-    summary_out = Path(summary_path)
+    summary_out = _artifact_path(summary_path)
     summary_out.parent.mkdir(parents=True, exist_ok=True)
     summary.to_parquet(summary_out, index=False)
 
@@ -448,7 +456,7 @@ def main(
         "tolerance_pct_of_control": float(no_regression_tolerance_pct),
         "passed": no_regression_pass,
     }
-    status_out = Path(status_path)
+    status_out = _artifact_path(status_path)
     status_out.parent.mkdir(parents=True, exist_ok=True)
     with open(status_out, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)

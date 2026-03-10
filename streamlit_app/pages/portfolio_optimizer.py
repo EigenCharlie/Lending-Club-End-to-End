@@ -36,6 +36,7 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
+    load_rapids_stage_comparison,
     load_json,
     load_parquet,
     try_load_parquet,
@@ -134,6 +135,7 @@ alloc = load_parquet("portfolio_allocations")
 rob_summary = load_parquet("portfolio_robustness_summary")
 rob_frontier = load_parquet("portfolio_robustness_frontier")
 efficient_frontier = try_load_parquet("efficient_frontier")
+rapids_compare = load_rapids_stage_comparison()
 if efficient_frontier.empty:
     nonrobust = rob_frontier[rob_frontier["policy"] == "nonrobust"].copy()
     if not nonrobust.empty:
@@ -198,6 +200,39 @@ Este módulo conecta investigación de operaciones con ML:
 - Pyomo/HiGHS optimiza retorno sujeto a presupuesto y riesgo.
 """
 )
+
+if not rapids_compare.empty:
+    or_compare = rapids_compare[
+        rapids_compare["stage"].isin(["portfolio", "tradeoff", "ab", "cate_portfolio"])
+    ].copy()
+    st.markdown("### RAPIDS / cuOpt: qué cambió en este bloque")
+    st.markdown(
+        """
+La evolución importante aquí no fue “poner GPU porque sí”. Fue **migrar OR a `cuopt` nativo**.
+Eso dejó dos carriles:
+
+- champion canónico CPU para promoción/gobernanza;
+- replay RAPIDS para medir aceleración real en OR.
+"""
+    )
+    st.dataframe(
+        or_compare[
+            ["stage", "cpu_seconds", "gpu_seconds", "speedup_gpu_vs_cpu", "peak_memory_used_mb"]
+        ].rename(
+            columns={
+                "stage": "Stage",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+                "peak_memory_used_mb": "Peak VRAM (MB)",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        "Conclusión práctica: la GPU sí cambia esta página. `tradeoff` es el mejor caso porque reutiliza la misma estructura muchas veces; ahí es donde `cuopt` realmente desplaza al CPU."
+    )
 
 col_img1, col_img2 = st.columns(2)
 with col_img1:

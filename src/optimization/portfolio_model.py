@@ -231,6 +231,72 @@ def solve_portfolio(
     return solution
 
 
+def optimize_portfolio_allocation(
+    *,
+    loans: pd.DataFrame,
+    pd_point: np.ndarray,
+    pd_low: np.ndarray,
+    pd_high: np.ndarray,
+    lgd: np.ndarray,
+    int_rates: np.ndarray,
+    total_budget: float = 1_000_000,
+    max_concentration: float = 0.25,
+    max_portfolio_pd: float = 0.10,
+    robust: bool = True,
+    uncertainty_aversion: float = 0.0,
+    min_budget_utilization: float = 0.0,
+    pd_cap_slack_penalty: float = 0.0,
+    pd_constraint_override: np.ndarray | None = None,
+    time_limit: int = 300,
+    threads: int = 4,
+    solver_backend: str = "highs",
+) -> dict[str, Any]:
+    """Unified portfolio solve entrypoint for CPU and native cuOpt backends."""
+    backend = solver_backend.strip().lower()
+    if backend == "cuopt":
+        from src.optimization.cuopt_adapter import solve_portfolio_cuopt_native
+
+        return solve_portfolio_cuopt_native(
+            loans=loans,
+            pd_point=pd_point,
+            pd_high=pd_high,
+            lgd=lgd,
+            int_rates=int_rates,
+            total_budget=total_budget,
+            max_concentration=max_concentration,
+            max_portfolio_pd=max_portfolio_pd,
+            robust=robust,
+            uncertainty_aversion=uncertainty_aversion,
+            min_budget_utilization=min_budget_utilization,
+            pd_cap_slack_penalty=pd_cap_slack_penalty,
+            pd_constraint_override=pd_constraint_override,
+            time_limit=time_limit,
+        )
+
+    model = build_portfolio_model(
+        loans=loans,
+        pd_point=pd_point,
+        pd_low=pd_low,
+        pd_high=pd_high,
+        lgd=lgd,
+        int_rates=int_rates,
+        total_budget=total_budget,
+        max_concentration=max_concentration,
+        max_portfolio_pd=max_portfolio_pd,
+        robust=robust,
+        uncertainty_aversion=uncertainty_aversion,
+        min_budget_utilization=min_budget_utilization,
+        pd_cap_slack_penalty=pd_cap_slack_penalty,
+        pd_constraint_override=pd_constraint_override,
+    )
+    return solve_portfolio(
+        model,
+        time_limit=time_limit,
+        threads=threads,
+        solver_backend=backend,
+    )
+
+
 def build_binary_model(
     loans: pd.DataFrame,
     pd_point: np.ndarray,
