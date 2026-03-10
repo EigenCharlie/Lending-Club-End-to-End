@@ -71,6 +71,53 @@ def _scenario_multipliers(shocks: np.ndarray) -> dict[str, np.ndarray]:
     }
 
 
+def _shock_correlation_matrix(profile: str) -> np.ndarray:
+    profiles = {
+        "independent": np.eye(5, dtype=np.float64),
+        "moderate_credit": np.array(
+            [
+                [1.00, 0.55, 0.35, 0.20, 0.25],
+                [0.55, 1.00, 0.40, 0.25, 0.20],
+                [0.35, 0.40, 1.00, 0.30, 0.15],
+                [0.20, 0.25, 0.30, 1.00, 0.10],
+                [0.25, 0.20, 0.15, 0.10, 1.00],
+            ],
+            dtype=np.float64,
+        ),
+        "stress_credit": np.array(
+            [
+                [1.00, 0.75, 0.55, 0.35, 0.40],
+                [0.75, 1.00, 0.60, 0.40, 0.35],
+                [0.55, 0.60, 1.00, 0.45, 0.30],
+                [0.35, 0.40, 0.45, 1.00, 0.20],
+                [0.40, 0.35, 0.30, 0.20, 1.00],
+            ],
+            dtype=np.float64,
+        ),
+    }
+    if profile not in profiles:
+        raise ValueError(f"Unknown correlation profile: {profile}")
+    return profiles[profile]
+
+
+def _generate_shocks(
+    *,
+    rng: np.random.Generator,
+    n_scenarios: int,
+    correlation_profile: str,
+    antithetic: bool,
+) -> np.ndarray:
+    corr = _shock_correlation_matrix(correlation_profile)
+    chol = np.linalg.cholesky(corr)
+    if antithetic:
+        half = int(np.ceil(n_scenarios / 2))
+        base = rng.standard_normal((half, 5), dtype=np.float32).astype(np.float64)
+        paired = np.vstack([base, -base])[:n_scenarios]
+        return (paired @ chol.T).astype(np.float32)
+    raw = rng.standard_normal((n_scenarios, 5), dtype=np.float32).astype(np.float64)
+    return (raw @ chol.T).astype(np.float32)
+
+
 def _tail_metrics(values: np.ndarray) -> dict[str, float]:
     p95 = float(np.quantile(values, 0.95))
     tail = values[values >= p95]
@@ -154,6 +201,8 @@ def main(
     chunk_size: int = 256,
     seed: int = 42,
     base_lgd: float = 0.45,
+    correlation_profile: str = "moderate_credit",
+    antithetic: bool = True,
 ) -> None:
     intervals = _load_intervals()
     train_raw, test_raw = _load_raw_splits()
@@ -183,10 +232,16 @@ def main(
     cpu_stage3: list[np.ndarray] = []
     multipliers_cache: list[dict[str, np.ndarray]] = []
     scenario_ids: list[np.ndarray] = []
+    all_shocks = _generate_shocks(
+        rng=rng,
+        n_scenarios=int(n_scenarios),
+        correlation_profile=correlation_profile,
+        antithetic=antithetic,
+    )
     for chunk_idx in range(n_chunks):
         start = chunk_idx * int(chunk_size)
         size = min(int(chunk_size), int(n_scenarios) - start)
-        shocks = rng.standard_normal((size, 5), dtype=np.float32)
+        shocks = all_shocks[start : start + size]
         multipliers = _scenario_multipliers(shocks)
         multipliers["pd_mult"] = multipliers["pd_mult"] * float(
             temporal_context.get("baseline_pd_mult", 1.0) or 1.0
@@ -256,6 +311,8 @@ def main(
         "chunk_size": int(chunk_size),
         "n_chunks": int(n_chunks),
         "seed": int(seed),
+        "correlation_profile": correlation_profile,
+        "antithetic": bool(antithetic),
         "temporal_source": str(temporal_context.get("source", "unknown")),
         "temporal_pd_baseline_mult": float(temporal_context.get("baseline_pd_mult", 1.0) or 1.0),
         "cpu_seconds": float(cpu_seconds),
@@ -297,10 +354,18 @@ if __name__ == "__main__":
     parser.add_argument("--chunk-size", type=int, default=256)
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--base-lgd", type=float, default=0.45)
+    parser.add_argument(
+        "--correlation-profile",
+        choices=["independent", "moderate_credit", "stress_credit"],
+        default="moderate_credit",
+    )
+    parser.add_argument("--no-antithetic", action="store_true")
     args = parser.parse_args()
     main(
         n_scenarios=args.n_scenarios,
         chunk_size=args.chunk_size,
         seed=args.seed,
         base_lgd=args.base_lgd,
+        correlation_profile=args.correlation_profile,
+        antithetic=not args.no_antithetic,
     )

@@ -2,7 +2,12 @@ from __future__ import annotations
 
 import numpy as np
 
-from scripts.run_ifrs9_monte_carlo_gpu import _scenario_multipliers, _tail_metrics
+from scripts.run_ifrs9_monte_carlo_gpu import (
+    _generate_shocks,
+    _scenario_multipliers,
+    _shock_correlation_matrix,
+    _tail_metrics,
+)
 
 
 def test_scenario_multipliers_stay_in_expected_ranges() -> None:
@@ -31,3 +36,23 @@ def test_tail_metrics_returns_expected_keys() -> None:
         "expected_shortfall_95",
     }
     assert out["p95"] >= out["p90"]
+
+
+def test_shock_correlation_profile_is_psd_and_symmetric() -> None:
+    corr = _shock_correlation_matrix("moderate_credit")
+    assert corr.shape == (5, 5)
+    assert np.allclose(corr, corr.T)
+    eigvals = np.linalg.eigvalsh(corr)
+    assert np.all(eigvals > 0)
+
+
+def test_antithetic_generator_returns_requested_shape() -> None:
+    rng = np.random.default_rng(42)
+    shocks = _generate_shocks(
+        rng=rng,
+        n_scenarios=9,
+        correlation_profile="stress_credit",
+        antithetic=True,
+    )
+    assert shocks.shape == (9, 5)
+    assert np.isfinite(shocks).all()
