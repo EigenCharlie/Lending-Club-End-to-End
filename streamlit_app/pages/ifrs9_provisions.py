@@ -33,6 +33,7 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
+    load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
     load_parquet,
     try_load_parquet,
@@ -157,6 +158,7 @@ scenario_grade = load_parquet("ifrs9_scenario_grade_summary")
 sensitivity = load_parquet("ifrs9_sensitivity_grid")
 input_quality = load_parquet("ifrs9_input_quality")
 ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics()
+ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
 ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
 if ecl_comp.empty:
     baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
@@ -269,6 +271,37 @@ La capa nueva RAPIDS añade un carril **Monte Carlo** para estudiar distribució
     )
     if not tail_df.empty:
         st.dataframe(tail_df, width="stretch", hide_index=True)
+    if ifrs9_mc_correlated:
+        st.markdown("#### Variante RAPIDS más rica: shocks correlacionados")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Correlation profile": ifrs9_mc_correlated.get("correlation_profile"),
+                        "Antithetic": ifrs9_mc_correlated.get("antithetic"),
+                        "Scenarios": ifrs9_mc_correlated.get("n_scenarios"),
+                        "CPU seconds": ifrs9_mc_correlated.get("cpu_seconds"),
+                        "GPU seconds": ifrs9_mc_correlated.get("gpu_seconds"),
+                        "Speedup": ifrs9_mc_correlated.get("speedup_gpu_vs_cpu"),
+                        "Mean relative diff (%)": ifrs9_mc_correlated.get(
+                            "mean_rel_diff_total_ecl_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.markdown(
+            """
+La siguiente mejora metodológica ya quedó demostrada: introducir correlación entre shocks de `PD`, `LGD`, `EAD`
+y descuento, junto con variates antitéticas, sigue dejando diferencias CPU/GPU prácticamente nulas.
+
+Eso cambia la lectura de la sección RAPIDS:
+- ya no es solo “más escenarios”;
+- ahora es una extensión de provisiones con distribución de cola más defendible para investigación.
+"""
+        )
 
 col_nb_img, col_nb_text = st.columns([3, 2])
 with col_nb_img:

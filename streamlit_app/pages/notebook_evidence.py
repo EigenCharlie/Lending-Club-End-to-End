@@ -74,7 +74,8 @@ if manifest:
 
     - los notebooks ya no compiten con el pipeline canónico;
     - funcionan como **fábrica de insights**;
-    - el carril RAPIDS solo incorpora benchmarking GPU explícito, no re-ejecución redundante de notebooks CPU.
+    - el carril RAPIDS solo incorpora benchmarking GPU explícito, no re-ejecución redundante de notebooks CPU;
+    - la parte nueva de RAPIDS ya se apoya además en `tradeoff` full, Monte Carlo IFRS9 correlacionado e insight factory con `cuGraph`, así que el notebook RAPIDS ahora debe leerse como complemento visual, no como única fuente de evidencia GPU.
     """
     )
 

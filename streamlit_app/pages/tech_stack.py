@@ -15,8 +15,11 @@ from streamlit_app.components.story_shell import (
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import (
     load_gpu_replay_summary,
+    load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
     load_runtime_status,
 )
 
@@ -50,6 +53,9 @@ técnico. Esta página detalla **por qué** cada librería y no solo **cuál**.
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+rapids_ifrs9_corr = load_rapids_ifrs9_correlated_metrics()
+rapids_insights = load_rapids_insight_stage_table()
+rapids_full_ab = load_rapids_tradeoff_full_ab_status()
 if rapids_summary and not rapids_compare.empty:
     st.markdown("### Nuevo carril RAPIDS ya integrado al stack")
     st.markdown(
@@ -74,6 +80,14 @@ El stack ya no es solo `Python tabular + Pyomo + Streamlit`. Ahora está explíc
     st.info(
         f"IFRS9 Monte Carlo ya quedó incorporado como extensión CuPy con {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x frente a CPU."
     )
+    if rapids_ifrs9_corr:
+        st.caption(
+            f"La siguiente iteración metodológica ya corre con shocks correlacionados (`{rapids_ifrs9_corr.get('correlation_profile', 'N/D')}`) y mantiene equivalencia CPU/GPU."
+        )
+    if not rapids_insights.empty:
+        st.caption(
+            "La insight factory RAPIDS ya dejó una conclusión útil: `cuGraph` sí tiene señal fuerte; `cuDF ETL` y `cuML KMeans` todavía no son showpieces honestos para este dataset."
+        )
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. Library Ecosystem
@@ -293,7 +307,7 @@ with tabs[5]:
         "en <1s. Gurobi sería necesario solo para MILPs de >100K variables."
     )
 
-with tabs[7]:
+with tabs[6]:
     st.dataframe(
         _lib_df(
             [
@@ -338,10 +352,14 @@ with tabs[7]:
         hide_index=True,
     )
     st.caption(
-        "Arquitectura final: el replay RAPIDS usa `uv` para stages CatBoost GPU y el `python` directo del env `rapids` para OR/CuPy."
+        "Arquitectura final: el replay RAPIDS usa `uv` para stages CatBoost GPU y el `python` directo del env `rapids` para OR/CuPy/cuGraph."
     )
+    if rapids_full_ab:
+        st.info(
+            "El barrido OR full ya confirmó otra lección de stack: `cuopt` resolvió la escala, pero el criterio de selección de policy sigue empujando al borde casi no robusto. El cuello residual es de decisión, no de infraestructura."
+        )
 
-with tabs[6]:
+with tabs[7]:
     st.dataframe(
         _lib_df(
             [

@@ -22,13 +22,19 @@ from streamlit_app.components.story_shell import (
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
+    OFFICIAL_GPU_INSIGHT_TAG,
     OFFICIAL_GPU_REPLAY_TAG,
+    OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
     download_table,
     format_number,
     load_gpu_replay_summary,
     load_official_baseline_registry,
+    load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
     try_load_gpu_replay_json,
 )
 
@@ -86,7 +92,9 @@ render_key_takeaway(
 gpu_summary = load_gpu_replay_summary(OFFICIAL_GPU_REPLAY_TAG)
 baseline = load_official_baseline_registry()
 ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics(OFFICIAL_GPU_REPLAY_TAG)
+ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
 stage_table = _build_stage_table()
+insight_stage_table = load_rapids_insight_stage_table()
 ab_status = try_load_gpu_replay_json(
     OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
 )
@@ -96,6 +104,8 @@ policy_status = try_load_gpu_replay_json(
 cate_status = try_load_gpu_replay_json(
     OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/cate_portfolio_status.json"
 )
+tradeoff_full_policy = load_rapids_tradeoff_full_policy()
+tradeoff_full_ab = load_rapids_tradeoff_full_ab_status()
 
 if stage_table.empty or not gpu_summary:
     st.error("No se encontraron artefactos del replay RAPIDS final.")
@@ -249,6 +259,33 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
 - `CATE`: de `150k` en CPU a **full 276,869** en GPU.
 """
     )
+    full_selected = tradeoff_full_policy.get("selected_policy", {})
+    full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    full_ab = tradeoff_full_ab.get("no_regression", {})
+    if full_selected:
+        st.markdown("#### Qué ocurrió cuando empujamos el frontier a full")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Run full cuOpt": OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": full_selected.get("risk_tolerance"),
+                        "Policy mode": full_selected.get("policy_mode"),
+                        "Gamma": full_selected.get("gamma"),
+                        "Uncertainty aversion": full_selected.get("uncertainty_aversion"),
+                        "Funded": full_metrics.get("n_funded"),
+                        "A/B diff": full_ab.get("diff_total_return"),
+                        "A/B pass": full_ab.get("passed"),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.warning(
+            "Hallazgo estructural: cuando llevamos `tradeoff` a full, la selección `promotion-first` vuelve a caer en `gamma=0.0`. La GPU ya resolvió el cuello computacional; el problema pendiente es de diseño económico de la policy, no de solver."
+        )
     if cate_status:
         st.info(
             "CATE portfolio sigue en `research_only_fallback`: la GPU ya lo acelera, pero eso no cambia el hecho de que todavía no agrega valor económico canónico."
@@ -335,6 +372,31 @@ Eso mantiene dos narrativas limpias:
 2. **RAPIDS / investigación / escenarios masivos**
 """
     )
+    if ifrs9_mc_correlated:
+        st.markdown("#### Evolución metodológica: shocks correlacionados")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Run": ifrs9_mc_correlated.get("run_tag"),
+                        "Correlation profile": ifrs9_mc_correlated.get("correlation_profile"),
+                        "Antithetic": ifrs9_mc_correlated.get("antithetic"),
+                        "Scenarios": ifrs9_mc_correlated.get("n_scenarios"),
+                        "CPU seconds": ifrs9_mc_correlated.get("cpu_seconds"),
+                        "GPU seconds": ifrs9_mc_correlated.get("gpu_seconds"),
+                        "Speedup": ifrs9_mc_correlated.get("speedup_gpu_vs_cpu"),
+                        "Mean relative diff (%)": ifrs9_mc_correlated.get(
+                            "mean_rel_diff_total_ecl_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.info(
+            "La versión correlacionada ya no es solo fuerza bruta: introduce shocks más defendibles y mantiene equivalencia CPU/GPU prácticamente exacta."
+        )
 
 with tab_hw:
     hw_df = stage_table.dropna(subset=["peak_memory_used_mb"]).copy()
@@ -377,7 +439,44 @@ with tab_hw:
         hide_index=True,
     )
 
-st.subheader("2) Qué entra y qué no entra al carril RAPIDS")
+st.subheader("2) Insight Factory RAPIDS: dónde sí conviene abrir un segundo carril")
+if not insight_stage_table.empty:
+    insights_view = insight_stage_table.copy()
+    insights_view["stage"] = insights_view["stage"].replace(
+        {
+            "cudf_etl": "cuDF ETL",
+            "cuml_segmentation": "cuML segmentation",
+            "cugraph_similarity": "cuGraph similarity",
+        }
+    )
+    st.dataframe(
+        insights_view.rename(
+            columns={
+                "stage": "Workload",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+                "rows_input": "Rows",
+                "n_features": "Features",
+                "knn_k": "k",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.markdown(
+        f"""
+La primera iteración de *insight factory* dejó un mapa útil:
+
+- `cuDF ETL`: no ganó en este workload; el overhead todavía pesa más que el beneficio.
+- `cuML KMeans`: casi neutro; no es el mejor showcase para la siguiente fase.
+- `cuGraph similarity`: sí ganó con ~{insight_stage_table.loc[insight_stage_table["stage"] == "cugraph_similarity", "speedup_gpu_vs_cpu"].iloc[0]:.1f}x y abre una línea nueva de segmentación relacional de préstamos.
+
+Por eso la siguiente fase RAPIDS del proyecto ya no debe vender “GPU para todo”, sino pivotear a `cuGraph` y a algoritmos `cuML` más expresivos como `UMAP` y `HDBSCAN`.
+"""
+    )
+
+st.subheader("3) Qué entra y qué no entra al carril RAPIDS")
 st.markdown(
     """
 **Sí entra**
@@ -396,7 +495,7 @@ st.markdown(
 )
 
 st.success(
-    "Conclusión final: la GPU ya es parte defendible del proyecto, pero en un carril específico. El champion oficial sigue siendo CPU canónico; RAPIDS es el carril de aceleración comparativa y de extensiones de alto costo computacional."
+    f"Conclusión final: la GPU ya es parte defendible del proyecto, pero en un carril específico. El champion oficial sigue siendo CPU canónico; RAPIDS es el carril de aceleración comparativa, de OR con `cuopt`, de Monte Carlo con `cupy` y de una nueva insight factory donde hoy el mejor candidato claro es `cuGraph` ({OFFICIAL_GPU_INSIGHT_TAG})."
 )
 
 render_page_feedback("gpu_benchmark")

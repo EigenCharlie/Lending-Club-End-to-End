@@ -36,6 +36,8 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
     load_rapids_stage_comparison,
     load_json,
     load_parquet,
@@ -136,6 +138,8 @@ rob_summary = load_parquet("portfolio_robustness_summary")
 rob_frontier = load_parquet("portfolio_robustness_frontier")
 efficient_frontier = try_load_parquet("efficient_frontier")
 rapids_compare = load_rapids_stage_comparison()
+tradeoff_full_policy = load_rapids_tradeoff_full_policy()
+tradeoff_full_ab = load_rapids_tradeoff_full_ab_status()
 if efficient_frontier.empty:
     nonrobust = rob_frontier[rob_frontier["policy"] == "nonrobust"].copy()
     if not nonrobust.empty:
@@ -233,6 +237,33 @@ Eso dejó dos carriles:
     st.info(
         "Conclusión práctica: la GPU sí cambia esta página. `tradeoff` es el mejor caso porque reutiliza la misma estructura muchas veces; ahí es donde `cuopt` realmente desplaza al CPU."
     )
+    full_selected = tradeoff_full_policy.get("selected_policy", {})
+    full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    full_ab = tradeoff_full_ab.get("no_regression", {})
+    if full_selected:
+        st.markdown("#### Qué aprendimos al llevar `tradeoff` a full")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": full_selected.get("risk_tolerance"),
+                        "Policy mode": full_selected.get("policy_mode"),
+                        "Gamma": full_selected.get("gamma"),
+                        "Uncertainty aversion": full_selected.get("uncertainty_aversion"),
+                        "Funded": full_metrics.get("n_funded"),
+                        "Realized total return": full_metrics.get("realized_total_return"),
+                        "A/B diff": full_ab.get("diff_total_return"),
+                        "A/B pass": full_ab.get("passed"),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.warning(
+            "La GPU ya habilita frontier full, pero el champion económico vuelve a caer en una política casi no robusta (`gamma=0.0`). El problema pendiente de este módulo ya no es computacional: es el diseño del criterio de selección de policy."
+        )
 
 col_img1, col_img2 = st.columns(2)
 with col_img1:

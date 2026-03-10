@@ -35,7 +35,9 @@ from streamlit_app.utils import (
     format_pct,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
     try_load_json,
 )
 
@@ -209,6 +211,8 @@ render_global_kpi_spine("executive")
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+rapids_insights = load_rapids_insight_stage_table()
+rapids_full_ab = load_rapids_tradeoff_full_ab_status()
 if not rapids_compare.empty:
     rapids_wins = rapids_compare[rapids_compare["speedup_gpu_vs_cpu"] > 1].copy()
     top_rapids = (
@@ -259,6 +263,18 @@ if not rapids_compare.empty:
         width="stretch",
         hide_index=True,
     )
+    if not rapids_insights.empty:
+        cugraph_row = rapids_insights[rapids_insights["stage"] == "cugraph_similarity"]
+        cugraph_speedup = (
+            float(cugraph_row.iloc[0]["speedup_gpu_vs_cpu"]) if not cugraph_row.empty else 0.0
+        )
+        st.info(
+            f"RAPIDS ya entró también a la fábrica de insights: `cuGraph` ganó ~{cugraph_speedup:.1f}x en similarity graph, mientras `cuDF ETL` y `cuML KMeans` mostraron por qué esta sección debe ser selectiva, no propagandística."
+        )
+    if rapids_full_ab:
+        st.caption(
+            "El experimento full de `tradeoff + A/B` confirmó otra lección: la GPU resuelve la escala, pero la política elegida sigue convergiendo a una variante casi no robusta. El cuello residual ya no es computacional."
+        )
 
 st.markdown(
     """

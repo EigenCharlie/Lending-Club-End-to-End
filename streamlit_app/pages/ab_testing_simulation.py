@@ -24,8 +24,14 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import try_load_json, try_load_parquet
-from streamlit_app.utils import try_load_gpu_replay_json, OFFICIAL_GPU_REPLAY_TAG
+from streamlit_app.utils import (
+    OFFICIAL_GPU_REPLAY_TAG,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
+    try_load_gpu_replay_json,
+    try_load_json,
+    try_load_parquet,
+)
 
 
 def _std_norm_cdf(value: float) -> float:
@@ -65,6 +71,8 @@ status = try_load_json("ab_simulation_status", directory="models", default={})
 gpu_status = try_load_gpu_replay_json(
     OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
 )
+gpu_full_ab = load_rapids_tradeoff_full_ab_status()
+gpu_full_policy = load_rapids_tradeoff_full_policy()
 
 if not results.empty:
     row = results.iloc[0]
@@ -168,6 +176,28 @@ Eso importa porque esta página dejó de ser solo un resultado económico; ahora
         }
     ]
     st.dataframe(gpu_table, width="stretch", hide_index=True)
+    full_ab = gpu_full_ab.get("no_regression", {})
+    full_selected = gpu_full_policy.get("selected_policy", {})
+    if full_ab:
+        st.markdown("#### Qué pasó cuando escalamos el A/B al universo full")
+        st.dataframe(
+            [
+                {
+                    "Universe": gpu_full_ab.get("n_candidates_used", 0),
+                    "Control total return": gpu_full_ab.get("metrics_a", {}).get("total_return", 0.0),
+                    "Treatment total return": gpu_full_ab.get("metrics_b", {}).get("total_return", 0.0),
+                    "Diff": full_ab.get("diff_total_return", 0.0),
+                    "No regression": full_ab.get("passed", False),
+                    "Selected gamma": full_selected.get("gamma"),
+                    "Policy mode": full_selected.get("policy_mode"),
+                }
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+        st.info(
+            "La lectura más valiosa del replay full no es solo el tiempo. Es que, al escalar el universo, la policy seleccionada converge a una versión casi no robusta. Eso indica que el reto restante del A/B es de diseño de policy selection, no de solver ni de hardware."
+        )
 
 decision_checklist(
     "Checklist de lectura A/B",

@@ -26,7 +26,11 @@ NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
 BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
 GPU_REPLAY_DIR = REPORTS_DIR / "gpu_replay"
+GPU_INSIGHTS_DIR = REPORTS_DIR / "gpu_insights"
 OFFICIAL_GPU_REPLAY_TAG = "2026-03-09-official-gpu-replay-rapids-final"
+OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG = "2026-03-10-tradeoff-full"
+OFFICIAL_RAPIDS_IFRS9_CORRELATED_TAG = "ifrs9-mc-correlated-smoke"
+OFFICIAL_GPU_INSIGHT_TAG = "2026-03-10-rapids-insight-smoke-v2"
 
 
 @st.cache_data(ttl=1800, max_entries=24)
@@ -331,6 +335,18 @@ def try_load_gpu_replay_parquet(run_tag: str, relative_path: str) -> pd.DataFram
         return pd.DataFrame()
 
 
+@st.cache_data(ttl=300, max_entries=16)
+def try_load_gpu_insight_json(run_tag: str, relative_path: str) -> dict:
+    """Load a JSON artifact from reports/gpu_insights/<run_tag>/."""
+    path = GPU_INSIGHTS_DIR / run_tag / relative_path
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def _extract_command_stage(command: str) -> str | None:
     mappings = {
         "scripts/train_pd_model.py": "pd",
@@ -460,6 +476,58 @@ def load_rapids_ifrs9_mc_tail_metrics(
         gpu_run_tag,
         "artifacts/data/processed/ifrs9_mc_tail_metrics.json",
     )
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_tradeoff_full_policy(
+    run_tag: str = OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+) -> dict:
+    """Load champion policy from the full cuOpt tradeoff run."""
+    return try_load_gpu_replay_json(run_tag, "artifacts/models/champion_portfolio_policy.json")
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_tradeoff_full_ab_status(
+    run_tag: str = OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+) -> dict:
+    """Load A/B status from the full cuOpt tradeoff run."""
+    return try_load_gpu_replay_json(run_tag, "artifacts/models/ab_simulation_status.json")
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_ifrs9_correlated_metrics(
+    run_tag: str = OFFICIAL_RAPIDS_IFRS9_CORRELATED_TAG,
+) -> dict:
+    """Load the correlated Monte Carlo IFRS9 smoke summary."""
+    return try_load_gpu_replay_json(
+        run_tag,
+        "artifacts/data/processed/ifrs9_mc_tail_metrics.json",
+    )
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_insight_summary(
+    run_tag: str = OFFICIAL_GPU_INSIGHT_TAG,
+) -> dict:
+    """Load the RAPIDS insight-factory summary."""
+    return try_load_gpu_insight_json(run_tag, "artifacts/run_summary.json")
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_insight_stage_table(
+    run_tag: str = OFFICIAL_GPU_INSIGHT_TAG,
+) -> pd.DataFrame:
+    """Return a normalized stage table for RAPIDS insight-factory results."""
+    summary = load_rapids_insight_summary(run_tag)
+    stages = summary.get("stages", [])
+    if not isinstance(stages, list):
+        return pd.DataFrame()
+    rows: list[dict[str, object]] = []
+    for row in stages:
+        if not isinstance(row, dict):
+            continue
+        rows.append(row)
+    return pd.DataFrame(rows)
 
 
 @st.cache_data(ttl=300, max_entries=4)

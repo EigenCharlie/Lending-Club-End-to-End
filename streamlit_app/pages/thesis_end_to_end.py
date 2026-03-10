@@ -31,7 +31,9 @@ from streamlit_app.utils import (
     get_notebook_image_path,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
     load_json,
     load_parquet,
     try_load_parquet,
@@ -81,6 +83,8 @@ robust_summary = load_parquet("portfolio_robustness_summary")
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+rapids_insights = load_rapids_insight_stage_table()
+rapids_full_ab = load_rapids_tradeoff_full_ab_status()
 
 narrative_block(
     audience,
@@ -202,6 +206,14 @@ Este capítulo ahora tiene un complemento importante. Ya no solo existe el pipel
     st.info(
         f"Hallazgo estructural: la GPU gana sobre todo en OR e IFRS9 Monte Carlo. El speedup de Monte Carlo ya quedó en {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x, mientras que el replay completo de PD sigue siendo más útil como benchmark comparativo que como aceleración end-to-end."
     )
+    if not rapids_insights.empty:
+        st.caption(
+            "La siguiente capa RAPIDS ya no vive solo en el pipeline: la insight factory mostró que `cuGraph` sí abre análisis nuevos, mientras `cuDF ETL` y `cuML KMeans` no deben venderse como victorias automáticas."
+        )
+    if rapids_full_ab:
+        st.caption(
+            "También ya quedó medido el frontier OR a escala full. La GPU resolvió la escala, pero la policy seleccionada sigue colapsando a una variante casi no robusta; ese siguiente problema es económico, no computacional."
+        )
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
