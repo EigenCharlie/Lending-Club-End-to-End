@@ -24,6 +24,7 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     OFFICIAL_GPU_INSIGHT_TAG,
     OFFICIAL_GPU_REPLAY_TAG,
+    OFFICIAL_PD_RAPIDS_BENCHMARK_TAG,
     OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
     download_table,
     format_number,
@@ -31,6 +32,8 @@ from streamlit_app.utils import (
     load_official_baseline_registry,
     load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_detail,
+    load_rapids_pd_benchmark_stage_table,
     load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
@@ -95,6 +98,10 @@ ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics(OFFICIAL_GPU_REPLAY_TAG)
 ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
 stage_table = _build_stage_table()
 insight_stage_table = load_rapids_insight_stage_table()
+insight_umap_embedding = load_rapids_insight_detail("cuml_umap_embedding")
+insight_hdbscan_profiles = load_rapids_insight_detail("cuml_hdbscan_cluster_profiles")
+insight_cugraph_profiles = load_rapids_insight_detail("cugraph_community_profiles")
+pd_benchmark_stage_table = load_rapids_pd_benchmark_stage_table()
 ab_status = try_load_gpu_replay_json(
     OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
 )
@@ -261,6 +268,10 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
     )
     full_selected = tradeoff_full_policy.get("selected_policy", {})
     full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    balanced_selected = tradeoff_full_policy.get("selected_policy_balanced_robustness", {})
+    balanced_metrics = tradeoff_full_policy.get("balanced_selection_metrics", {})
+    robust_selected = tradeoff_full_policy.get("selected_policy_robustness_aware", {})
+    robust_metrics = tradeoff_full_policy.get("research_selection_metrics", {})
     full_ab = tradeoff_full_ab.get("no_regression", {})
     if full_selected:
         st.markdown("#### Qué ocurrió cuando empujamos el frontier a full")
@@ -268,13 +279,56 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
             pd.DataFrame(
                 [
                     {
-                        "Run full cuOpt": OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+                        "Selector": "promotion_first",
                         "Universe": "276,869 candidates",
-                        "Risk tolerance": full_selected.get("risk_tolerance"),
-                        "Policy mode": full_selected.get("policy_mode"),
                         "Gamma": full_selected.get("gamma"),
-                        "Uncertainty aversion": full_selected.get("uncertainty_aversion"),
+                        "Lambda": full_selected.get("uncertainty_aversion"),
                         "Funded": full_metrics.get("n_funded"),
+                        "Realized return": full_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": full_metrics.get("price_of_robustness_pct"),
+                    },
+                    {
+                        "Selector": "balanced_robustness",
+                        "Universe": "276,869 candidates",
+                        "Gamma": balanced_selected.get("gamma"),
+                        "Lambda": balanced_selected.get("uncertainty_aversion"),
+                        "Funded": balanced_metrics.get("n_funded"),
+                        "Realized return": balanced_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": balanced_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                    {
+                        "Selector": "robustness_aware",
+                        "Universe": "276,869 candidates",
+                        "Gamma": robust_selected.get("gamma"),
+                        "Lambda": robust_selected.get("uncertainty_aversion"),
+                        "Funded": robust_metrics.get("n_funded"),
+                        "Realized return": robust_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": robust_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.warning(
+            "La GPU ya resolvió el cuello computacional del frontier full. El hallazgo nuevo es de diseño de policy: `promotion_first` colapsa a gamma=0, `balanced_robustness` sube a gamma=0.25 y `robustness_aware` a gamma=0.5, pero ninguna policy robusta real pasa el A/B full."
+        )
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Run": OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+                        "A/B selector": tradeoff_full_ab.get("policy_selector"),
+                        "Control return": tradeoff_full_ab.get("metrics_a", {}).get(
+                            "total_return"
+                        ),
+                        "Treatment return": tradeoff_full_ab.get("metrics_b", {}).get(
+                            "total_return"
+                        ),
                         "A/B diff": full_ab.get("diff_total_return"),
                         "A/B pass": full_ab.get("passed"),
                     }
@@ -283,9 +337,6 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
             width="stretch",
             hide_index=True,
         )
-        st.warning(
-            "Hallazgo estructural: cuando llevamos `tradeoff` a full, la selección `promotion-first` vuelve a caer en `gamma=0.0`. La GPU ya resolvió el cuello computacional; el problema pendiente es de diseño económico de la policy, no de solver."
-        )
     if cate_status:
         st.info(
             "CATE portfolio sigue en `research_only_fallback`: la GPU ya lo acelera, pero eso no cambia el hecho de que todavía no agrega valor económico canónico."
@@ -293,13 +344,27 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
 
 with tab_pd:
     st.markdown("### PD y LGD/EAD: dos historias distintas")
-    pd_row = stage_table[stage_table["stage"] == "pd"].iloc[0]
     lgd_row = stage_table[stage_table["stage"] == "lgd_ead"].iloc[0]
+    fit_only = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "fit_only"]
+    hpo_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "hpo"]
+    full_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "full_stage"]
+    fit_row = fit_only.iloc[0].to_dict() if not fit_only.empty else {}
+    hpo_row = hpo_stage.iloc[0].to_dict() if not hpo_stage.empty else {}
+    full_row = full_stage.iloc[0].to_dict() if not full_stage.empty else {}
     kpi_row(
         [
-            {"label": "PD GPU", "value": f"{pd_row['gpu_seconds']:.0f}s"},
-            {"label": "PD speedup", "value": f"{pd_row['speedup_gpu_vs_cpu']:.2f}x"},
-            {"label": "PD peak VRAM", "value": f"{pd_row['peak_memory_used_mb']:.0f} MB"},
+            {
+                "label": "PD fit-only",
+                "value": f"{fit_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
+            {
+                "label": "PD HPO GPU",
+                "value": "inestable" if pd.isna(hpo_row.get("gpu_seconds")) else f"{hpo_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
+            {
+                "label": "PD full-stage",
+                "value": f"{full_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
             {"label": "LGD/EAD GPU", "value": f"{lgd_row['gpu_seconds']:.0f}s"},
             {"label": "LGD/EAD speedup", "value": f"{lgd_row['speedup_gpu_vs_cpu']:.2f}x"},
             {"label": "LGD/EAD peak VRAM", "value": f"{lgd_row['peak_memory_used_mb']:.0f} MB"},
@@ -308,20 +373,27 @@ with tab_pd:
     )
     st.markdown(
         """
-**PD**
+**PD ahora está separado en tres benchmarks**
 
-El replay GPU de PD es honesto: corre sobre full-data y sí toca CatBoost GPU, pero el stage completo incluye bastante trabajo CPU alrededor del fit. Por eso hoy el resultado es:
-
-- GPU útil como benchmark técnico,
-- pero no un ganador claro de throughput end-to-end.
+- `fit-only`: la GPU sí gana, ~`1.7x`, con métricas casi equivalentes.
+- `HPO`: CPU completa 6 trials; GPU sigue cayéndose y por eso vive en un worker aislado.
+- `full-stage`: el replay completo sigue perdiendo contra CPU, porque el fit ya no domina todo el costo.
 
 **LGD/EAD**
 
 Aquí sí aparece una mejora limpia. El problema está más cerca de un bloque de entrenamiento puro, con menos overhead alrededor, y por eso la GPU ya entrega un speedup defendible.
 """
     )
+    if not pd_benchmark_stage_table.empty:
+        st.dataframe(
+            pd_benchmark_stage_table.assign(
+                benchmark_run=OFFICIAL_PD_RAPIDS_BENCHMARK_TAG
+            ),
+            width="stretch",
+            hide_index=True,
+        )
     st.warning(
-        "Conclusión práctica: para la sección RAPIDS, PD debe contarse como benchmark comparativo honesto, no como caso exitoso de aceleración absoluta."
+        "Conclusión práctica: PD no debe presentarse como un único número. La historia honesta es: `fit-only` sí gana, `HPO GPU` hoy es inestable y `full-stage` todavía pierde contra CPU."
     )
 
 with tab_ifrs9:
@@ -446,6 +518,8 @@ if not insight_stage_table.empty:
         {
             "cudf_etl": "cuDF ETL",
             "cuml_segmentation": "cuML segmentation",
+            "cuml_umap": "cuML UMAP",
+            "cuml_hdbscan": "cuML HDBSCAN",
             "cugraph_similarity": "cuGraph similarity",
         }
     )
@@ -465,16 +539,42 @@ if not insight_stage_table.empty:
         hide_index=True,
     )
     st.markdown(
-        f"""
-La primera iteración de *insight factory* dejó un mapa útil:
+        """
+La segunda iteración de *insight factory* ya deja un mapa bastante más útil:
 
-- `cuDF ETL`: no ganó en este workload; el overhead todavía pesa más que el beneficio.
-- `cuML KMeans`: casi neutro; no es el mejor showcase para la siguiente fase.
-- `cuGraph similarity`: sí ganó con ~{insight_stage_table.loc[insight_stage_table["stage"] == "cugraph_similarity", "speedup_gpu_vs_cpu"].iloc[0]:.1f}x y abre una línea nueva de segmentación relacional de préstamos.
-
-Por eso la siguiente fase RAPIDS del proyecto ya no debe vender “GPU para todo”, sino pivotear a `cuGraph` y a algoritmos `cuML` más expresivos como `UMAP` y `HDBSCAN`.
+- `cuDF ETL`: sigue sin ganar en este workload real.
+- `cuML KMeans`: casi neutro, no es el showcase principal.
+- `cuML UMAP`: sí gana con mucha claridad y sirve para geometría de riesgo.
+- `cuML HDBSCAN`: también gana y ya deja perfiles de cluster comparables.
+- `cuGraph similarity`: sigue siendo útil, pero ahora importa más por comunidades y estructura que por speedup puro.
 """
     )
+    if not insight_umap_embedding.empty:
+        st.markdown("#### UMAP: geometría de préstamos en 2D")
+        fig_umap = px.scatter(
+            insight_umap_embedding.sample(
+                n=min(5000, len(insight_umap_embedding)),
+                random_state=42,
+            ),
+            x="umap_x",
+            y="umap_y",
+            color="grade" if "grade" in insight_umap_embedding.columns else None,
+            hover_data=[
+                c
+                for c in ["default_flag", "fico_score", "rev_utilization"]
+                if c in insight_umap_embedding.columns
+            ],
+            title="Embedding UMAP GPU sobre préstamos reales",
+            opacity=0.65,
+        )
+        fig_umap.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+        st.plotly_chart(fig_umap, width="stretch")
+    if not insight_hdbscan_profiles.empty:
+        st.markdown("#### HDBSCAN: perfiles de cluster")
+        st.dataframe(insight_hdbscan_profiles.head(12), width="stretch", hide_index=True)
+    if not insight_cugraph_profiles.empty:
+        st.markdown("#### cuGraph: comunidades Louvain")
+        st.dataframe(insight_cugraph_profiles.head(12), width="stretch", hide_index=True)
 
 st.subheader("3) Qué entra y qué no entra al carril RAPIDS")
 st.markdown(

@@ -28,9 +28,10 @@ BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official
 GPU_REPLAY_DIR = REPORTS_DIR / "gpu_replay"
 GPU_INSIGHTS_DIR = REPORTS_DIR / "gpu_insights"
 OFFICIAL_GPU_REPLAY_TAG = "2026-03-09-official-gpu-replay-rapids-final"
-OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG = "2026-03-10-tradeoff-full"
+OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG = "2026-03-10-tradeoff-full-v3"
 OFFICIAL_RAPIDS_IFRS9_CORRELATED_TAG = "ifrs9-mc-correlated-smoke"
-OFFICIAL_GPU_INSIGHT_TAG = "2026-03-10-rapids-insight-smoke-v2"
+OFFICIAL_GPU_INSIGHT_TAG = "2026-03-10-rapids-insight-v4"
+OFFICIAL_PD_RAPIDS_BENCHMARK_TAG = "2026-03-10-pd-rapids-benchmark-v1"
 
 
 @st.cache_data(ttl=1800, max_entries=24)
@@ -528,6 +529,47 @@ def load_rapids_insight_stage_table(
             continue
         rows.append(row)
     return pd.DataFrame(rows)
+
+
+@st.cache_data(ttl=300, max_entries=8)
+def load_rapids_insight_detail(
+    name: str,
+    run_tag: str = OFFICIAL_GPU_INSIGHT_TAG,
+) -> pd.DataFrame:
+    """Load applied insight artifacts from RAPIDS insight-factory runs."""
+    path = GPU_INSIGHTS_DIR / run_tag / "artifacts" / "data" / "processed" / f"{name}.parquet"
+    if not path.exists():
+        return pd.DataFrame()
+    try:
+        return pd.read_parquet(path)
+    except Exception:
+        return pd.DataFrame()
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_pd_benchmark_summary(
+    run_tag: str = OFFICIAL_PD_RAPIDS_BENCHMARK_TAG,
+) -> dict:
+    """Load the split PD RAPIDS benchmark summary."""
+    path = GPU_REPLAY_DIR / run_tag / "artifacts" / "run_summary.json"
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_rapids_pd_benchmark_stage_table(
+    run_tag: str = OFFICIAL_PD_RAPIDS_BENCHMARK_TAG,
+) -> pd.DataFrame:
+    """Return the stage-level PD benchmark comparison table."""
+    payload = load_rapids_pd_benchmark_summary(run_tag)
+    stages = payload.get("stages", [])
+    if not isinstance(stages, list):
+        return pd.DataFrame()
+    return pd.DataFrame(stages)
 
 
 @st.cache_data(ttl=300, max_entries=4)

@@ -302,6 +302,9 @@ Eso cambia la lectura de la sección RAPIDS:
 - ahora es una extensión de provisiones con distribución de cola más defendible para investigación.
 """
         )
+        st.caption(
+            "Siguiente paso natural: calibrar esos perfiles de correlación con drivers macro y reportar colas por `grade`, `stage` y `term`."
+        )
 
 col_nb_img, col_nb_text = st.columns([3, 2])
 with col_nb_img:

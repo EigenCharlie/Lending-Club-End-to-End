@@ -275,7 +275,7 @@ def _run_cuml_umap(
     train_fe: pd.DataFrame,
     sample_size: int,
     random_state: int,
-) -> tuple[dict, pd.DataFrame]:
+) -> tuple[dict, pd.DataFrame, pd.DataFrame]:
     feature_cols = _select_numeric_features(train_fe, max_features=24)
     sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
     X = sample[feature_cols].fillna(0.0).astype(np.float32)
@@ -331,7 +331,24 @@ def _run_cuml_umap(
             "gpu_value": [gpu_trust, float(np.var(emb_gpu))],
         }
     )
-    return summary, detail
+    embedding = sample[
+        [
+            c
+            for c in [
+                "id",
+                "default_flag",
+                "grade",
+                "term",
+                "int_rate",
+                "fico_score",
+                "rev_utilization",
+            ]
+            if c in sample.columns
+        ]
+    ].copy()
+    embedding["umap_x"] = emb_gpu[:, 0]
+    embedding["umap_y"] = emb_gpu[:, 1]
+    return summary, detail, embedding
 
 
 def _run_cuml_hdbscan(
@@ -339,7 +356,7 @@ def _run_cuml_hdbscan(
     train_fe: pd.DataFrame,
     sample_size: int,
     random_state: int,
-) -> tuple[dict, pd.DataFrame]:
+) -> tuple[dict, pd.DataFrame, pd.DataFrame]:
     feature_cols = _select_numeric_features(train_fe, max_features=18)
     sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
     X = sample[feature_cols].fillna(0.0).astype(np.float32)
@@ -386,7 +403,35 @@ def _run_cuml_hdbscan(
             "gpu_value": [gpu_clusters, gpu_noise],
         }
     )
-    return summary, detail
+    profile = sample[
+        [
+            c
+            for c in [
+                "id",
+                "default_flag",
+                "grade",
+                "term",
+                "int_rate",
+                "fico_score",
+                "rev_utilization",
+            ]
+            if c in sample.columns
+        ]
+    ].copy()
+    profile["gpu_cluster"] = gpu_labels
+    cluster_profile = (
+        profile.groupby("gpu_cluster", dropna=False)
+        .agg(
+            n_loans=("gpu_cluster", "size"),
+            default_rate=("default_flag", "mean"),
+            mean_int_rate=("int_rate", "mean"),
+            mean_fico=("fico_score", "mean"),
+            mean_rev_util=("rev_utilization", "mean"),
+        )
+        .reset_index()
+        .sort_values("n_loans", ascending=False)
+    )
+    return summary, detail, cluster_profile
 
 
 def _build_knn_edges_cpu(X: np.ndarray, k: int) -> pd.DataFrame:
@@ -404,7 +449,7 @@ def _run_cugraph_similarity(
     sample_size: int,
     knn_k: int,
     random_state: int,
-) -> tuple[dict, pd.DataFrame]:
+) -> tuple[dict, pd.DataFrame, pd.DataFrame]:
     feature_cols = _select_numeric_features(train_fe, max_features=12)
     sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
     X = sample[feature_cols].fillna(0.0).astype(np.float32)
@@ -436,6 +481,8 @@ def _run_cugraph_similarity(
     g_gpu.from_cudf_edgelist(gpu_edges, source="src", destination="dst", renumber=False)
     cc_gpu = cugraph.connected_components(g_gpu)
     pr_gpu = cugraph.pagerank(g_gpu)
+    louvain_gpu, modularity = cugraph.louvain(g_gpu)
+    degree_gpu = g_gpu.degree().to_pandas()
     gpu_seconds = time.perf_counter() - gpu_start
 
     summary = {
@@ -450,19 +497,57 @@ def _run_cugraph_similarity(
         "gpu_components": int(cc_gpu["labels"].nunique()),
         "cpu_pagerank_sum": float(sum(cpu_pagerank.values())),
         "gpu_pagerank_sum": float(pr_gpu["pagerank"].sum()),
+        "gpu_louvain_communities": int(louvain_gpu["partition"].nunique()),
+        "gpu_louvain_modularity": float(modularity),
     }
     detail = pd.DataFrame(
         {
-            "metric": ["components", "pagerank_sum", "edges"],
-            "cpu_value": [cpu_components, sum(cpu_pagerank.values()), len(cpu_edges)],
+            "metric": ["components", "pagerank_sum", "edges", "louvain_communities", "modularity"],
+            "cpu_value": [cpu_components, sum(cpu_pagerank.values()), len(cpu_edges), None, None],
             "gpu_value": [
                 int(cc_gpu["labels"].nunique()),
                 float(pr_gpu["pagerank"].sum()),
                 len(src_gpu),
+                int(louvain_gpu["partition"].nunique()),
+                float(modularity),
             ],
         }
     )
-    return summary, detail
+    community_nodes = sample.reset_index(drop=True).copy()
+    community_nodes["node_id"] = np.arange(len(sample), dtype=np.int32)
+    community_nodes = (
+        community_nodes.merge(
+            louvain_gpu.to_pandas().rename(columns={"vertex": "node_id", "partition": "community"}),
+            on="node_id",
+            how="left",
+        )
+        .merge(
+            pr_gpu.to_pandas().rename(columns={"vertex": "node_id"}),
+            on="node_id",
+            how="left",
+        )
+        .merge(
+            degree_gpu.rename(columns={"vertex": "node_id"}),
+            on="node_id",
+            how="left",
+        )
+    )
+    community_profile = (
+        community_nodes.groupby("community", dropna=False)
+        .agg(
+            n_loans=("community", "size"),
+            default_rate=("default_flag", "mean"),
+            mean_int_rate=("int_rate", "mean"),
+            mean_fico=("fico_score", "mean"),
+            mean_rev_util=("rev_utilization", "mean"),
+            mean_pagerank=("pagerank", "mean"),
+            mean_degree=("degree", "mean"),
+        )
+        .reset_index()
+        .sort_values("n_loans", ascending=False)
+        .head(30)
+    )
+    return summary, detail, community_profile
 
 
 def main(
@@ -516,13 +601,14 @@ def main(
         cuml_summary["speedup_gpu_vs_cpu"],
     )
 
-    umap_summary, umap_df = _run_cuml_umap(
+    umap_summary, umap_df, umap_embedding_df = _run_cuml_umap(
         train_fe=train_fe,
         sample_size=umap_sample,
         random_state=random_state,
     )
     summaries.append(umap_summary)
     umap_df.to_parquet(data_dir / "cuml_umap_summary.parquet", index=False)
+    umap_embedding_df.to_parquet(data_dir / "cuml_umap_embedding.parquet", index=False)
     logger.info(
         "cuML UMAP | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
         umap_summary["rows_input"],
@@ -531,13 +617,14 @@ def main(
         umap_summary["speedup_gpu_vs_cpu"],
     )
 
-    hdbscan_summary, hdbscan_df = _run_cuml_hdbscan(
+    hdbscan_summary, hdbscan_df, hdbscan_profile_df = _run_cuml_hdbscan(
         train_fe=train_fe,
         sample_size=hdbscan_sample,
         random_state=random_state,
     )
     summaries.append(hdbscan_summary)
     hdbscan_df.to_parquet(data_dir / "cuml_hdbscan_summary.parquet", index=False)
+    hdbscan_profile_df.to_parquet(data_dir / "cuml_hdbscan_cluster_profiles.parquet", index=False)
     logger.info(
         "cuML HDBSCAN | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
         hdbscan_summary["rows_input"],
@@ -546,7 +633,7 @@ def main(
         hdbscan_summary["speedup_gpu_vs_cpu"],
     )
 
-    cugraph_summary, graph_df = _run_cugraph_similarity(
+    cugraph_summary, graph_df, community_df = _run_cugraph_similarity(
         train_fe=train_fe,
         sample_size=graph_sample,
         knn_k=knn_k,
@@ -554,6 +641,7 @@ def main(
     )
     summaries.append(cugraph_summary)
     graph_df.to_parquet(data_dir / "cugraph_similarity_summary.parquet", index=False)
+    community_df.to_parquet(data_dir / "cugraph_community_profiles.parquet", index=False)
     logger.info(
         "cuGraph similarity | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
         cugraph_summary["rows_input"],

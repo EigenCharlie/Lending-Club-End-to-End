@@ -59,10 +59,13 @@ def test_select_champion_policy_exposes_dual_selectors() -> None:
         ]
     )
 
-    frontier_out, selected, robust_selected = _select_champion_policy(frontier)
+    frontier_out, selected, robust_selected, balanced_selected = _select_champion_policy(frontier)
 
     assert selected["gamma"] == 0.0
     assert robust_selected is not None
     assert robust_selected["gamma"] == 0.5
+    assert balanced_selected is not None
+    assert balanced_selected["gamma"] == 0.5
     assert frontier_out["selected_for_champion"].sum() == 1
     assert frontier_out["selected_for_robustness_aware"].sum() == 1
+    assert frontier_out["selected_for_balanced_robustness"].sum() == 1

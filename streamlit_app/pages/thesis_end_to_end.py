@@ -31,9 +31,11 @@ from streamlit_app.utils import (
     get_notebook_image_path,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_pd_benchmark_stage_table,
     load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
     load_json,
     load_parquet,
     try_load_parquet,
@@ -85,6 +87,8 @@ rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
 rapids_insights = load_rapids_insight_stage_table()
 rapids_full_ab = load_rapids_tradeoff_full_ab_status()
+rapids_full_policy = load_rapids_tradeoff_full_policy()
+pd_benchmark = load_rapids_pd_benchmark_stage_table()
 
 narrative_block(
     audience,
@@ -213,6 +217,15 @@ Este capítulo ahora tiene un complemento importante. Ya no solo existe el pipel
     if rapids_full_ab:
         st.caption(
             "También ya quedó medido el frontier OR a escala full. La GPU resolvió la escala, pero la policy seleccionada sigue colapsando a una variante casi no robusta; ese siguiente problema es económico, no computacional."
+        )
+    if rapids_full_policy:
+        balanced = rapids_full_policy.get("selected_policy_balanced_robustness", {})
+        st.caption(
+            f"Cuando forzamos robustez explícita, el selector balanceado sube a `gamma={balanced.get('gamma', 'N/D')}`; aun así, el costo económico en A/B full sigue siendo alto. Eso convierte la política robusta en un problema de diseño, no de solver."
+        )
+    if not pd_benchmark.empty:
+        st.caption(
+            "PD también cambió de lectura: la comparación RAPIDS ya se divide en fit-only, HPO y full-stage para separar lo que realmente gana en GPU del overhead alrededor."
         )
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(

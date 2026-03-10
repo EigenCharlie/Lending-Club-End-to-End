@@ -35,9 +35,11 @@ from streamlit_app.utils import (
     format_pct,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_pd_benchmark_stage_table,
     load_rapids_insight_stage_table,
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
     try_load_json,
 )
 
@@ -213,6 +215,8 @@ rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
 rapids_insights = load_rapids_insight_stage_table()
 rapids_full_ab = load_rapids_tradeoff_full_ab_status()
+rapids_full_policy = load_rapids_tradeoff_full_policy()
+pd_benchmark = load_rapids_pd_benchmark_stage_table()
 if not rapids_compare.empty:
     rapids_wins = rapids_compare[rapids_compare["speedup_gpu_vs_cpu"] > 1].copy()
     top_rapids = (
@@ -273,7 +277,23 @@ if not rapids_compare.empty:
         )
     if rapids_full_ab:
         st.caption(
-            "El experimento full de `tradeoff + A/B` confirmó otra lección: la GPU resuelve la escala, pero la política elegida sigue convergiendo a una variante casi no robusta. El cuello residual ya no es computacional."
+            "El experimento full de `tradeoff + A/B` confirmó otra lección: la GPU resuelve la escala, pero el criterio económico sigue favoreciendo una política casi no robusta. El cuello residual ya no es computacional."
+        )
+    if not pd_benchmark.empty:
+        fit_speedup = pd_benchmark.loc[
+            pd_benchmark["stage"] == "fit_only", "speedup_gpu_vs_cpu"
+        ]
+        full_speedup = pd_benchmark.loc[
+            pd_benchmark["stage"] == "full_stage", "speedup_gpu_vs_cpu"
+        ]
+        hpo_gpu_status = pd_benchmark.loc[
+            pd_benchmark["stage"] == "hpo", "gpu_status"
+        ]
+        st.caption(
+            "PD ya está separado honestamente en tres problemas: "
+            f"fit-only ({float(fit_speedup.iloc[0]) if not fit_speedup.empty else 0:.2f}x), "
+            f"full-stage ({float(full_speedup.iloc[0]) if not full_speedup.empty else 0:.2f}x) "
+            f"y HPO GPU ({str(hpo_gpu_status.iloc[0]) if not hpo_gpu_status.empty else 'N/D'})."
         )
 
 st.markdown(

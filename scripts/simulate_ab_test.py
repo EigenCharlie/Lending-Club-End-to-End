@@ -105,6 +105,12 @@ def _resolve_robust_policy(
                     selected = payload.get("selected_policy_robustness_aware") or payload.get(
                         "selected_policy", {}
                     )
+                elif policy_selector == "balanced_robustness":
+                    selected = (
+                        payload.get("selected_policy_balanced_robustness")
+                        or payload.get("selected_policy_robustness_aware")
+                        or payload.get("selected_policy", {})
+                    )
                 else:
                     selected = payload.get("selected_policy", {})
             else:
@@ -508,7 +514,7 @@ if __name__ == "__main__":
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
     parser.add_argument(
         "--policy_selector",
-        choices=["promotion_first", "robustness_aware"],
+        choices=["promotion_first", "robustness_aware", "balanced_robustness"],
         default="promotion_first",
     )
     args = parser.parse_args()

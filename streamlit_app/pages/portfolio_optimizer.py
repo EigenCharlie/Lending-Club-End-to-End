@@ -239,6 +239,10 @@ Eso dejó dos carriles:
     )
     full_selected = tradeoff_full_policy.get("selected_policy", {})
     full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    balanced_selected = tradeoff_full_policy.get("selected_policy_balanced_robustness", {})
+    balanced_metrics = tradeoff_full_policy.get("balanced_selection_metrics", {})
+    robust_selected = tradeoff_full_policy.get("selected_policy_robustness_aware", {})
+    robust_metrics = tradeoff_full_policy.get("research_selection_metrics", {})
     full_ab = tradeoff_full_ab.get("no_regression", {})
     if full_selected:
         st.markdown("#### Qué aprendimos al llevar `tradeoff` a full")
@@ -246,6 +250,7 @@ Eso dejó dos carriles:
             pd.DataFrame(
                 [
                     {
+                        "Selector": "promotion_first",
                         "Universe": "276,869 candidates",
                         "Risk tolerance": full_selected.get("risk_tolerance"),
                         "Policy mode": full_selected.get("policy_mode"),
@@ -253,6 +258,50 @@ Eso dejó dos carriles:
                         "Uncertainty aversion": full_selected.get("uncertainty_aversion"),
                         "Funded": full_metrics.get("n_funded"),
                         "Realized total return": full_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": full_metrics.get("price_of_robustness_pct"),
+                    },
+                    {
+                        "Selector": "balanced_robustness",
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": balanced_selected.get("risk_tolerance"),
+                        "Policy mode": balanced_selected.get("policy_mode"),
+                        "Gamma": balanced_selected.get("gamma"),
+                        "Uncertainty aversion": balanced_selected.get("uncertainty_aversion"),
+                        "Funded": balanced_metrics.get("n_funded"),
+                        "Realized total return": balanced_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": balanced_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                    {
+                        "Selector": "robustness_aware",
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": robust_selected.get("risk_tolerance"),
+                        "Policy mode": robust_selected.get("policy_mode"),
+                        "Gamma": robust_selected.get("gamma"),
+                        "Uncertainty aversion": robust_selected.get("uncertainty_aversion"),
+                        "Funded": robust_metrics.get("n_funded"),
+                        "Realized total return": robust_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": robust_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "A/B selector": tradeoff_full_ab.get("policy_selector"),
+                        "Control return": tradeoff_full_ab.get("metrics_a", {}).get(
+                            "total_return"
+                        ),
+                        "Treatment return": tradeoff_full_ab.get("metrics_b", {}).get(
+                            "total_return"
+                        ),
                         "A/B diff": full_ab.get("diff_total_return"),
                         "A/B pass": full_ab.get("passed"),
                     }
@@ -262,7 +311,7 @@ Eso dejó dos carriles:
             hide_index=True,
         )
         st.warning(
-            "La GPU ya habilita frontier full, pero el champion económico vuelve a caer en una política casi no robusta (`gamma=0.0`). El problema pendiente de este módulo ya no es computacional: es el diseño del criterio de selección de policy."
+            "La lección nueva de esta página ya no es computacional. `cuopt` dejó el frontier full estable; ahora el reto es económico. `promotion_first` colapsa a `gamma=0.0`, `balanced_robustness` sube a `gamma=0.25` y `robustness_aware` a `gamma=0.5`, pero la pérdida de retorno bajo A/B full sigue siendo demasiado alta cuando impones robustez real."
         )
 
 col_img1, col_img2 = st.columns(2)

@@ -86,7 +86,7 @@ El stack ya no es solo `Python tabular + Pyomo + Streamlit`. Ahora está explíc
         )
     if not rapids_insights.empty:
         st.caption(
-            "La insight factory RAPIDS ya dejó una conclusión útil: `cuGraph` sí tiene señal fuerte; `cuDF ETL` y `cuML KMeans` todavía no son showpieces honestos para este dataset."
+            "La insight factory RAPIDS ya dejó una conclusión útil: `cuML UMAP`, `cuML HDBSCAN` y `cuGraph` sí tienen señal fuerte; `cuDF ETL` y `cuML KMeans` todavía no son showpieces honestos para este dataset."
         )
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -335,16 +335,16 @@ with tabs[6]:
                 [
                     "cuml",
                     "RAPIDS env",
-                    "Benchmarks ML acelerados / insight factory",
+                    "UMAP, HDBSCAN y benchmarks ML acelerados",
                     "scikit-learn",
-                    "Aporta más en exploración y benchmarking que en el champion PD actual",
+                    "Hoy aporta más en geometría de riesgo y clustering que en el champion PD actual",
                 ],
                 [
                     "cugraph",
                     "RAPIDS env",
-                    "Graph analytics y backend nx-cugraph",
+                    "Graph analytics, similarity graph y Louvain",
                     "networkx",
-                    "Carril de fábrica de insights, no del pipeline canónico",
+                    "Carril de fábrica de insights, no del pipeline canónico; abre análisis relacional real",
                 ],
             ]
         ),
@@ -358,6 +358,9 @@ with tabs[6]:
         st.info(
             "El barrido OR full ya confirmó otra lección de stack: `cuopt` resolvió la escala, pero el criterio de selección de policy sigue empujando al borde casi no robusto. El cuello residual es de decisión, no de infraestructura."
         )
+    st.caption(
+        "También quedó aislado el benchmark PD en tres carriles: fit-only, HPO y full-stage. Eso evita vender como 'éxito GPU' un stage donde el overhead CPU todavía domina."
+    )
 
 with tabs[7]:
     st.dataframe(
