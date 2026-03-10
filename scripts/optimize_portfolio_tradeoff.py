@@ -287,6 +287,7 @@ def _select_champion_policy(
     dict[str, float | int | str],
     dict[str, float | int | str] | None,
     dict[str, float | int | str] | None,
+    dict[str, float | int | str] | None,
 ]:
     work = frontier.copy()
     work["ab_pass_rank"] = work["ab_pass"].fillna(False).astype(bool)
@@ -311,6 +312,7 @@ def _select_champion_policy(
     ].copy()
     robust_selected: dict[str, float | int | str] | None = None
     balanced_selected: dict[str, float | int | str] | None = None
+    guardrail_selected: dict[str, float | int | str] | None = None
     if not robust_pool.empty:
         robust_pool["gamma_rank"] = pd.to_numeric(robust_pool["gamma"], errors="coerce").fillna(0.0)
         robust_pool["lambda_rank"] = pd.to_numeric(
@@ -346,11 +348,33 @@ def _select_champion_policy(
             .iloc[0]
             .to_dict()
         )
+        por_pct_col = (
+            pd.to_numeric(robust_pool["price_of_robustness_pct"], errors="coerce")
+            if "price_of_robustness_pct" in robust_pool.columns
+            else (-pd.to_numeric(robust_pool["price_of_robustness"], errors="coerce").fillna(0.0))
+        )
+        guardrail_pool = robust_pool.loc[por_pct_col.fillna(-999.0) >= -25.0].copy()
+        if guardrail_pool.empty:
+            guardrail_pool = robust_pool.copy()
+        guardrail_selected = (
+            guardrail_pool.sort_values(
+                [
+                    "realized_total_return_rank",
+                    "price_of_robustness_rank",
+                    "gamma_rank",
+                    "lambda_rank",
+                ],
+                ascending=[False, False, False, True],
+            )
+            .iloc[0]
+            .to_dict()
+        )
     frontier_out = frontier.copy()
     frontier_out["selected_for_champion"] = False
     frontier_out.loc[selected.name, "selected_for_champion"] = True
     frontier_out["selected_for_robustness_aware"] = False
     frontier_out["selected_for_balanced_robustness"] = False
+    frontier_out["selected_for_guardrail_robustness"] = False
     if robust_selected is not None:
         robust_mask = (
             frontier_out["risk_tolerance"].eq(float(robust_selected["risk_tolerance"]))
@@ -371,7 +395,17 @@ def _select_champion_policy(
             )
         )
         frontier_out.loc[balanced_mask, "selected_for_balanced_robustness"] = True
-    return frontier_out, selected.to_dict(), robust_selected, balanced_selected
+    if guardrail_selected is not None:
+        guardrail_mask = (
+            frontier_out["risk_tolerance"].eq(float(guardrail_selected["risk_tolerance"]))
+            & frontier_out["policy_mode"].eq(str(guardrail_selected["policy_mode"]))
+            & frontier_out["gamma"].eq(float(guardrail_selected["gamma"]))
+            & frontier_out["uncertainty_aversion"].eq(
+                float(guardrail_selected["uncertainty_aversion"])
+            )
+        )
+        frontier_out.loc[guardrail_mask, "selected_for_guardrail_robustness"] = True
+    return frontier_out, selected.to_dict(), robust_selected, balanced_selected, guardrail_selected
 
 
 def main(
@@ -559,9 +593,13 @@ def main(
         )
 
     frontier = pd.DataFrame(rows)
-    frontier, champion_row, robust_research_row, balanced_research_row = _select_champion_policy(
-        frontier
-    )
+    (
+        frontier,
+        champion_row,
+        robust_research_row,
+        balanced_research_row,
+        guardrail_research_row,
+    ) = _select_champion_policy(frontier)
     summary = pd.DataFrame(summary_rows).sort_values("risk_tolerance")
     summary["selected_for_champion"] = summary["risk_tolerance"].eq(
         float(champion_row["risk_tolerance"])
@@ -677,6 +715,47 @@ def main(
                 "n_funded": int(balanced_research_row["n_funded"]),
             }
             if balanced_research_row is not None
+            else None
+        ),
+        "guardrail_selection_policy": {
+            "name": "guardrail_robustness",
+            "constraints": {
+                "gamma_gt_zero": True,
+                "ab_pass_frontier": True,
+                "price_of_robustness_pct_gte": -25.0,
+            },
+            "fallback": "balanced_robustness",
+            "rank_order": [
+                "realized_total_return(desc)",
+                "price_of_robustness_pct(desc)",
+                "gamma(desc)",
+                "uncertainty_aversion(asc)",
+            ],
+        },
+        "selected_policy_guardrail_robustness": (
+            {
+                "risk_tolerance": float(guardrail_research_row["risk_tolerance"]),
+                "policy_mode": str(guardrail_research_row["policy_mode"]),
+                "gamma": float(guardrail_research_row["gamma"]),
+                "uncertainty_aversion": float(guardrail_research_row["uncertainty_aversion"]),
+                "min_budget_utilization": float(guardrail_research_row["min_budget_utilization"]),
+                "pd_cap_slack_penalty": float(guardrail_research_row["pd_cap_slack_penalty"]),
+                "pd_cap_slack": float(guardrail_research_row["pd_cap_slack"]),
+                "solver_backend": str(guardrail_research_row["solver_backend"]),
+            }
+            if guardrail_research_row is not None
+            else None
+        ),
+        "guardrail_selection_metrics": (
+            {
+                "ab_pass": bool(guardrail_research_row["ab_pass"]),
+                "ab_diff_total_return": float(guardrail_research_row["ab_diff_total_return"]),
+                "realized_total_return": float(guardrail_research_row["realized_total_return"]),
+                "price_of_robustness": float(guardrail_research_row["price_of_robustness"]),
+                "price_of_robustness_pct": float(guardrail_research_row["price_of_robustness_pct"]),
+                "n_funded": int(guardrail_research_row["n_funded"]),
+            }
+            if guardrail_research_row is not None
             else None
         ),
         "frontier_path": str(frontier_path),

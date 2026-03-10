@@ -57,17 +57,61 @@ def _build_lifetime_base(
     return np.clip(1.0 - np.power(1.0 - pd12, 5.0), 0.0, 1.0)
 
 
-def _scenario_multipliers(shocks: np.ndarray) -> dict[str, np.ndarray]:
+def _load_macro_center(profile: str) -> dict[str, float]:
+    path = ROOT / "data" / "processed" / "ifrs9_scenario_summary.parquet"
+    if not path.exists():
+        return {
+            "profile": profile,
+            "pd_mult": 1.0,
+            "lgd_mult": 1.0,
+            "ead_mult": 1.0,
+            "discount_rate": 0.05,
+        }
+    scenarios = pd.read_parquet(path)
+    if scenarios.empty or "scenario" not in scenarios.columns:
+        return {
+            "profile": profile,
+            "pd_mult": 1.0,
+            "lgd_mult": 1.0,
+            "ead_mult": 1.0,
+            "discount_rate": 0.05,
+        }
+    row = scenarios.loc[scenarios["scenario"] == profile].copy()
+    if row.empty:
+        row = scenarios.loc[scenarios["scenario"] == "baseline"].copy()
+    selected = row.iloc[0]
+    return {
+        "profile": str(selected.get("scenario", profile)),
+        "pd_mult": float(selected.get("pd_mult", 1.0)),
+        "lgd_mult": float(selected.get("lgd_mult", 1.0)),
+        "ead_mult": float(selected.get("ead_mult", 1.0)),
+        "discount_rate": float(selected.get("discount_rate", 0.05)),
+    }
+
+
+def _scenario_multipliers(
+    shocks: np.ndarray,
+    *,
+    macro_center: dict[str, float],
+) -> dict[str, np.ndarray]:
     macro = shocks[:, 0]
     pd_noise = shocks[:, 1]
     lgd_noise = shocks[:, 2]
     ead_noise = shocks[:, 3]
     disc_noise = shocks[:, 4]
     return {
-        "pd_mult": np.clip(np.exp(0.10 * macro + 0.20 * pd_noise), 0.70, 1.80),
-        "lgd_mult": np.clip(np.exp(0.05 * macro + 0.10 * lgd_noise), 0.80, 1.50),
-        "ead_mult": np.clip(np.exp(0.03 * macro + 0.06 * ead_noise), 0.90, 1.20),
-        "discount_rate": np.clip(0.05 + 0.01 * macro + 0.01 * disc_noise, 0.03, 0.12),
+        "pd_mult": np.clip(
+            float(macro_center["pd_mult"]) * np.exp(0.10 * macro + 0.20 * pd_noise), 0.70, 2.25
+        ),
+        "lgd_mult": np.clip(
+            float(macro_center["lgd_mult"]) * np.exp(0.05 * macro + 0.10 * lgd_noise), 0.80, 1.65
+        ),
+        "ead_mult": np.clip(
+            float(macro_center["ead_mult"]) * np.exp(0.03 * macro + 0.06 * ead_noise), 0.90, 1.35
+        ),
+        "discount_rate": np.clip(
+            float(macro_center["discount_rate"]) + 0.01 * macro + 0.01 * disc_noise, 0.03, 0.16
+        ),
     }
 
 
@@ -130,6 +174,72 @@ def _tail_metrics(values: np.ndarray) -> dict[str, float]:
         "p99": float(np.quantile(values, 0.99)),
         "expected_shortfall_95": float(np.mean(tail)) if len(tail) else p95,
     }
+
+
+def _build_subportfolio_groups(
+    base: dict[str, np.ndarray], test_raw: pd.DataFrame
+) -> tuple[list[tuple[str, str]], np.ndarray]:
+    n = len(base["pd_point"])
+    test = test_raw.iloc[:n].reset_index(drop=True).copy()
+    term = (
+        test.get("term", pd.Series(["UNKNOWN"] * n))
+        .astype(str)
+        .str.extract(r"(\d+)")[0]
+        .fillna("UNKNOWN")
+        .to_numpy(dtype=str)
+    )
+    stage = np.where(
+        base["dpd"] >= 90.0,
+        "stage3",
+        np.where(
+            (base["dpd"] >= 30.0) | ((base["pd_point"] - base["pd_orig"]) > 0.02),
+            "stage2",
+            "stage1",
+        ),
+    )
+    groups: list[tuple[str, str]] = []
+    masks: list[np.ndarray] = []
+    for grade_value in sorted(pd.Series(base["grade"]).astype(str).unique().tolist()):
+        groups.append(("grade", grade_value))
+        masks.append((base["grade"] == grade_value).astype(np.float32))
+    for term_value in sorted(pd.Series(term).astype(str).unique().tolist()):
+        groups.append(("term", term_value))
+        masks.append((term == term_value).astype(np.float32))
+    for stage_value in ["stage1", "stage2", "stage3"]:
+        groups.append(("base_stage", stage_value))
+        masks.append((stage == stage_value).astype(np.float32))
+    matrix = np.vstack(masks).astype(np.float32)
+    return groups, matrix
+
+
+def _summarize_subportfolio_tails(
+    *,
+    groups: list[tuple[str, str]],
+    cpu_group_totals: np.ndarray,
+    gpu_group_totals: np.ndarray,
+) -> pd.DataFrame:
+    rows: list[dict[str, object]] = []
+    for idx, (group_type, group_value) in enumerate(groups):
+        cpu_values = cpu_group_totals[idx]
+        gpu_values = gpu_group_totals[idx]
+        cpu_tail = _tail_metrics(cpu_values)
+        gpu_tail = _tail_metrics(gpu_values)
+        rel = np.abs(cpu_values - gpu_values) / np.maximum(np.abs(cpu_values), 1e-9) * 100.0
+        rows.append(
+            {
+                "group_type": group_type,
+                "group_value": group_value,
+                "cpu_mean": cpu_tail["mean"],
+                "gpu_mean": gpu_tail["mean"],
+                "cpu_p95": cpu_tail["p95"],
+                "gpu_p95": gpu_tail["p95"],
+                "cpu_expected_shortfall_95": cpu_tail["expected_shortfall_95"],
+                "gpu_expected_shortfall_95": gpu_tail["expected_shortfall_95"],
+                "mean_rel_diff_pct": float(np.mean(rel)),
+                "max_rel_diff_pct": float(np.max(rel)),
+            }
+        )
+    return pd.DataFrame(rows)
 
 
 def _run_numpy_chunk(
@@ -203,6 +313,7 @@ def main(
     base_lgd: float = 0.45,
     correlation_profile: str = "moderate_credit",
     antithetic: bool = True,
+    macro_profile: str = "baseline",
 ) -> None:
     intervals = _load_intervals()
     train_raw, test_raw = _load_raw_splits()
@@ -210,6 +321,8 @@ def main(
     temporal_context = _load_temporal_context()
     base, quality = _prepare_base_vectors(intervals=intervals, train=train_raw, test=test_raw)
     lifetime_base = _build_lifetime_base(base["pd_point"], base["grade"], lifetime_table)
+    groups, group_matrix = _build_subportfolio_groups(base, test_raw)
+    macro_center = _load_macro_center(macro_profile)
 
     rng = np.random.default_rng(seed)
     n_chunks = int(np.ceil(int(n_scenarios) / int(chunk_size)))
@@ -225,11 +338,15 @@ def main(
             "pd_orig": cp.asarray(base["pd_orig"], dtype=cp.float32),
         }
         lifetime_base_gpu = cp.asarray(lifetime_base, dtype=cp.float32)
+        group_matrix_gpu = cp.asarray(group_matrix, dtype=cp.float32)
+    else:
+        group_matrix_gpu = None
 
     cpu_started = time.perf_counter()
     cpu_totals: list[np.ndarray] = []
     cpu_stage2: list[np.ndarray] = []
     cpu_stage3: list[np.ndarray] = []
+    cpu_group_totals: list[np.ndarray] = []
     multipliers_cache: list[dict[str, np.ndarray]] = []
     scenario_ids: list[np.ndarray] = []
     all_shocks = _generate_shocks(
@@ -242,16 +359,26 @@ def main(
         start = chunk_idx * int(chunk_size)
         size = min(int(chunk_size), int(n_scenarios) - start)
         shocks = all_shocks[start : start + size]
-        multipliers = _scenario_multipliers(shocks)
-        multipliers["pd_mult"] = multipliers["pd_mult"] * float(
-            temporal_context.get("baseline_pd_mult", 1.0) or 1.0
-        )
+        multipliers = _scenario_multipliers(shocks, macro_center=macro_center)
         totals, s2, s3 = _run_numpy_chunk(
             base=base,
             lifetime_base=lifetime_base,
             base_lgd=base_lgd,
             multipliers=multipliers,
         )
+        pd12 = np.clip(base["pd_point"][:, None] * multipliers["pd_mult"][None, :], 0.0, 1.0)
+        lifetime_pd = np.clip(lifetime_base[:, None] * multipliers["pd_mult"][None, :], 0.0, 1.0)
+        lgd = np.clip(base_lgd * multipliers["lgd_mult"][None, :], 0.0, 1.0)
+        ead = base["loan_amnt"][:, None] * multipliers["ead_mult"][None, :]
+        discount = 1.0 / (1.0 + multipliers["discount_rate"][None, :])
+        dpd = base["dpd"][:, None]
+        pd_orig = base["pd_orig"][:, None]
+        sicr_mask = (pd12 - pd_orig) > 0.02
+        stage3 = np.broadcast_to(dpd >= 90.0, pd12.shape)
+        stage2 = (~stage3) & ((dpd >= 30.0) | sicr_mask)
+        effective_pd = np.where(stage3, 1.0, np.where(stage2, lifetime_pd, pd12))
+        ecl = effective_pd * lgd * ead * discount
+        cpu_group_totals.append(group_matrix @ ecl)
         cpu_totals.append(totals)
         cpu_stage2.append(s2)
         cpu_stage3.append(s3)
@@ -266,6 +393,7 @@ def main(
     gpu_totals: list[np.ndarray] = []
     gpu_stage2: list[np.ndarray] = []
     gpu_stage3: list[np.ndarray] = []
+    gpu_group_totals: list[np.ndarray] = []
     for multipliers in multipliers_cache:
         totals, s2, s3 = _run_cupy_chunk(
             base_gpu=base_gpu,
@@ -273,6 +401,23 @@ def main(
             base_lgd=base_lgd,
             multipliers=multipliers,
         )
+        pd_mult = cp.asarray(multipliers["pd_mult"], dtype=cp.float32)
+        lgd_mult = cp.asarray(multipliers["lgd_mult"], dtype=cp.float32)
+        ead_mult = cp.asarray(multipliers["ead_mult"], dtype=cp.float32)
+        disc = cp.asarray(multipliers["discount_rate"], dtype=cp.float32)
+        pd12 = cp.clip(base_gpu["pd_point"][:, None] * pd_mult[None, :], 0.0, 1.0)
+        lifetime_pd = cp.clip(lifetime_base_gpu[:, None] * pd_mult[None, :], 0.0, 1.0)
+        lgd = cp.clip(cp.float32(base_lgd) * lgd_mult[None, :], 0.0, 1.0)
+        ead = base_gpu["loan_amnt"][:, None] * ead_mult[None, :]
+        discount = 1.0 / (1.0 + disc[None, :])
+        dpd = base_gpu["dpd"][:, None]
+        pd_orig = base_gpu["pd_orig"][:, None]
+        sicr_mask = (pd12 - pd_orig) > cp.float32(0.02)
+        stage3 = cp.broadcast_to(dpd >= cp.float32(90.0), pd12.shape)
+        stage2 = (~stage3) & ((dpd >= cp.float32(30.0)) | sicr_mask)
+        effective_pd = cp.where(stage3, 1.0, cp.where(stage2, lifetime_pd, pd12))
+        ecl = effective_pd * lgd * ead * discount
+        gpu_group_totals.append(cp.asnumpy(group_matrix_gpu @ ecl).astype(float))
         gpu_totals.append(totals)
         gpu_stage2.append(s2)
         gpu_stage3.append(s3)
@@ -285,6 +430,8 @@ def main(
     gpu_stage2_share = np.concatenate(gpu_stage2)
     cpu_stage3_share = np.concatenate(cpu_stage3)
     gpu_stage3_share = np.concatenate(gpu_stage3)
+    cpu_group_totals_arr = np.concatenate(cpu_group_totals, axis=1)
+    gpu_group_totals_arr = np.concatenate(gpu_group_totals, axis=1)
     scenario_id = np.concatenate(scenario_ids)
 
     distribution = pd.DataFrame(
@@ -312,6 +459,8 @@ def main(
         "n_chunks": int(n_chunks),
         "seed": int(seed),
         "correlation_profile": correlation_profile,
+        "macro_profile": str(macro_center["profile"]),
+        "macro_center": macro_center,
         "antithetic": bool(antithetic),
         "temporal_source": str(temporal_context.get("source", "unknown")),
         "temporal_pd_baseline_mult": float(temporal_context.get("baseline_pd_mult", 1.0) or 1.0),
@@ -332,11 +481,31 @@ def main(
     data_dir.mkdir(parents=True, exist_ok=True)
     model_dir.mkdir(parents=True, exist_ok=True)
     distribution_path = data_dir / "ifrs9_mc_distribution.parquet"
+    scenario_input_path = data_dir / "ifrs9_mc_scenario_inputs.parquet"
+    subportfolio_path = data_dir / "ifrs9_mc_subportfolio_tail_metrics.parquet"
     tail_path = data_dir / "ifrs9_mc_tail_metrics.json"
+    scenario_inputs = pd.DataFrame(
+        {
+            "scenario_id": scenario_id,
+            "pd_mult": np.concatenate([m["pd_mult"] for m in multipliers_cache]),
+            "lgd_mult": np.concatenate([m["lgd_mult"] for m in multipliers_cache]),
+            "ead_mult": np.concatenate([m["ead_mult"] for m in multipliers_cache]),
+            "discount_rate": np.concatenate([m["discount_rate"] for m in multipliers_cache]),
+        }
+    )
+    subportfolio = _summarize_subportfolio_tails(
+        groups=groups,
+        cpu_group_totals=cpu_group_totals_arr,
+        gpu_group_totals=gpu_group_totals_arr,
+    )
     distribution.to_parquet(distribution_path, index=False)
+    scenario_inputs.to_parquet(scenario_input_path, index=False)
+    subportfolio.to_parquet(subportfolio_path, index=False)
     tail_path.write_text(json.dumps(summary, indent=2, ensure_ascii=False), encoding="utf-8")
 
     logger.info("Saved IFRS9 Monte Carlo distribution: {}", distribution_path)
+    logger.info("Saved IFRS9 Monte Carlo scenario inputs: {}", scenario_input_path)
+    logger.info("Saved IFRS9 Monte Carlo subportfolio tails: {}", subportfolio_path)
     logger.info("Saved IFRS9 Monte Carlo summary: {}", tail_path)
     logger.info(
         "IFRS9 Monte Carlo benchmark | loans={} scenarios={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
@@ -359,6 +528,11 @@ if __name__ == "__main__":
         choices=["independent", "moderate_credit", "stress_credit"],
         default="moderate_credit",
     )
+    parser.add_argument(
+        "--macro-profile",
+        choices=["baseline", "mild_stress", "adverse", "severe"],
+        default="baseline",
+    )
     parser.add_argument("--no-antithetic", action="store_true")
     args = parser.parse_args()
     main(
@@ -368,4 +542,5 @@ if __name__ == "__main__":
         base_lgd=args.base_lgd,
         correlation_profile=args.correlation_profile,
         antithetic=not args.no_antithetic,
+        macro_profile=args.macro_profile,
     )

@@ -1,0 +1,71 @@
+{
+  "schema_version": "2026-03-10.1",
+  "run_tag": "2026-03-10-rapids-insight-v4",
+  "artifact_root": "/home/eigenlinux/projects/lending-club-risk-project/reports/gpu_insights/2026-03-10-rapids-insight-v4/artifacts",
+  "stages": [
+    {
+      "stage": "cudf_etl",
+      "rows_input": 1623180,
+      "rows_output": 4910,
+      "matched_groups": 4840,
+      "row_count_diff": 48,
+      "cpu_seconds": 0.5313288609977462,
+      "gpu_seconds": 0.7113312860019505,
+      "speedup_gpu_vs_cpu": 0.7469499394355182,
+      "max_rel_err_pct_matched": 49999999999.99999
+    },
+    {
+      "stage": "cuml_segmentation",
+      "rows_input": 100000,
+      "n_features": 24,
+      "cpu_seconds": 1.3142648319990258,
+      "gpu_seconds": 1.2934915849982644,
+      "speedup_gpu_vs_cpu": 1.0160598238455407,
+      "cpu_inertia": 1618745.5,
+      "gpu_inertia": 1627540.5,
+      "inertia_rel_diff_pct": 0.5433219737135949,
+      "cluster_size_l1_diff_sorted": 15636.0
+    },
+    {
+      "stage": "cuml_umap",
+      "rows_input": 30000,
+      "n_features": 24,
+      "cpu_seconds": 30.304728235001676,
+      "gpu_seconds": 0.6418462219953653,
+      "speedup_gpu_vs_cpu": 47.21493590908836,
+      "cpu_trustworthiness": 0.8290925465606689,
+      "gpu_trustworthiness": 0.7977847721419774,
+      "trustworthiness_gap": 0.03130777441869148,
+      "cpu_embedding_var": 19.0832462310791,
+      "gpu_embedding_var": 3.499953031539917
+    },
+    {
+      "stage": "cuml_hdbscan",
+      "rows_input": 30000,
+      "n_features": 18,
+      "cpu_seconds": 13.426940069999546,
+      "gpu_seconds": 3.51679210599832,
+      "speedup_gpu_vs_cpu": 3.8179510375658126,
+      "cpu_clusters": 2,
+      "gpu_clusters": 2,
+      "cpu_noise_share": 0.7279,
+      "gpu_noise_share": 0.7198,
+      "noise_share_gap": 0.008099999999999996
+    },
+    {
+      "stage": "cugraph_similarity",
+      "rows_input": 20000,
+      "n_features": 12,
+      "knn_k": 10,
+      "cpu_seconds": 2.2943176699991454,
+      "gpu_seconds": 1.6473928299965337,
+      "speedup_gpu_vs_cpu": 1.3926961610024569,
+      "cpu_components": 1,
+      "gpu_components": 1,
+      "cpu_pagerank_sum": 1.0,
+      "gpu_pagerank_sum": 1.0,
+      "gpu_louvain_communities": 17,
+      "gpu_louvain_modularity": 0.6710571050643921
+    }
+  ]
+}

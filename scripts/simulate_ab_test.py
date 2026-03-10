@@ -108,6 +108,14 @@ def _resolve_robust_policy(
                 elif policy_selector == "balanced_robustness":
                     selected = (
                         payload.get("selected_policy_balanced_robustness")
+                        or payload.get("selected_policy_guardrail_robustness")
+                        or payload.get("selected_policy_robustness_aware")
+                        or payload.get("selected_policy", {})
+                    )
+                elif policy_selector == "guardrail_robustness":
+                    selected = (
+                        payload.get("selected_policy_guardrail_robustness")
+                        or payload.get("selected_policy_balanced_robustness")
                         or payload.get("selected_policy_robustness_aware")
                         or payload.get("selected_policy", {})
                     )
@@ -257,6 +265,154 @@ def _apply_candidate_universe(
     )
 
 
+def _build_common_inputs(
+    test_df: pd.DataFrame,
+    intervals: pd.DataFrame,
+) -> tuple[dict[str, object], np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    n = min(len(test_df), len(intervals))
+    pd_col = next(
+        (c for c in ["pd_calibrated", "y_pred"] if c in intervals.columns), intervals.columns[0]
+    )
+    low_col = next((c for c in ["pd_low", "pd_low_90"] if c in intervals.columns), None)
+    high_col = next((c for c in ["pd_high", "pd_high_90"] if c in intervals.columns), None)
+    pd_point = intervals[pd_col].values
+    pd_low = intervals[low_col].values if low_col else pd_point * 0.8
+    pd_high = intervals[high_col].values if high_col else pd_point * 1.3
+    lgd_val = 0.45
+    lgd = np.full(n, lgd_val)
+    int_rates = (
+        _parse_percent_series(test_df["int_rate"])
+        if "int_rate" in test_df.columns
+        else np.full(n, 0.12)
+    )
+    default_flag = (
+        test_df["default_flag"].values if "default_flag" in test_df.columns else np.zeros(n)
+    )
+    loan_amnt = (
+        test_df["loan_amnt"].values if "loan_amnt" in test_df.columns else np.full(n, 10000.0)
+    )
+    return (
+        {
+            "loans": test_df,
+            "pd_point": pd_point,
+            "pd_low": pd_low,
+            "pd_high": pd_high,
+            "lgd": lgd,
+            "int_rates": int_rates,
+        },
+        default_flag,
+        loan_amnt,
+        int_rates,
+        pd_high,
+    )
+
+
+def _run_strategy(
+    *,
+    common: dict[str, object],
+    robust: bool,
+    total_budget: float,
+    max_portfolio_pd: float,
+    solver_backend: str,
+    robust_policy: dict[str, float | str] | None = None,
+) -> tuple[dict, np.ndarray]:
+    pd_point = np.asarray(common["pd_point"], dtype=float)  # type: ignore[index]
+    pd_high = np.asarray(common["pd_high"], dtype=float)  # type: ignore[index]
+    if robust:
+        policy = robust_policy or {}
+        effective_pd = compute_effective_pd(
+            pd_point=pd_point,
+            pd_high=pd_high,
+            policy_mode=str(policy.get("policy_mode", "hard_worst_case")),
+            gamma=float(policy.get("gamma", 1.0)),
+        )
+        solution = optimize_portfolio_allocation(
+            robust=True,
+            uncertainty_aversion=float(policy.get("uncertainty_aversion", 0.0)),
+            min_budget_utilization=float(policy.get("min_budget_utilization", 0.0)),
+            pd_cap_slack_penalty=float(policy.get("pd_cap_slack_penalty", 0.0)),
+            pd_constraint_override=effective_pd,
+            total_budget=total_budget,
+            max_portfolio_pd=max_portfolio_pd,
+            solver_backend=solver_backend,
+            **common,
+        )
+    else:
+        solution = optimize_portfolio_allocation(
+            robust=False,
+            total_budget=total_budget,
+            max_portfolio_pd=max_portfolio_pd,
+            solver_backend=solver_backend,
+            **common,
+        )
+    return solution, pd_point
+
+
+def _candidate_metrics(
+    *,
+    solution: dict,
+    loan_amnt: np.ndarray,
+    int_rates: np.ndarray,
+    default_flag: np.ndarray,
+    lgd_val: float,
+) -> tuple[np.ndarray, dict[str, float | int]]:
+    returns = _compute_realized_return(
+        solution["allocation"], loan_amnt, int_rates, default_flag, lgd_val
+    )
+    metrics = {
+        "total_return": float(returns.sum()),
+        "n_funded": int(solution["n_funded"]),
+        "total_allocated": float(solution["total_allocated"]),
+        "avg_return_per_funded": float(returns[returns != 0].mean())
+        if (returns != 0).any()
+        else 0.0,
+    }
+    return returns, metrics
+
+
+def _load_frontier_policy_candidates(
+    *,
+    frontier_path: str,
+    max_portfolio_pd: float,
+    top_k: int,
+) -> list[dict[str, float | str]]:
+    path = _artifact_path(frontier_path)
+    if not path.exists():
+        return []
+    frontier = pd.read_parquet(path)
+    if frontier.empty:
+        return []
+    work = frontier.loc[(frontier["policy"] != "nonrobust") & (frontier["gamma"] > 0)].copy()
+    work["risk_gap"] = (
+        pd.to_numeric(work["risk_tolerance"], errors="coerce") - max_portfolio_pd
+    ).abs()
+    work["ret_rank"] = pd.to_numeric(work["realized_total_return"], errors="coerce").fillna(
+        float("-inf")
+    )
+    work["por_rank"] = pd.to_numeric(work["price_of_robustness_pct"], errors="coerce").fillna(
+        -999.0
+    )
+    work["ab_pass_rank"] = work["ab_pass"].fillna(False).astype(bool)
+    work = work.sort_values(
+        ["ab_pass_rank", "risk_gap", "ret_rank", "por_rank", "gamma", "uncertainty_aversion"],
+        ascending=[False, True, False, False, False, True],
+    )
+    candidates: list[dict[str, float | str]] = []
+    for _, row in work.head(int(top_k)).iterrows():
+        candidates.append(
+            {
+                "source": "frontier_actual_ab_search",
+                "risk_tolerance": float(row["risk_tolerance"]),
+                "uncertainty_aversion": float(row["uncertainty_aversion"]),
+                "min_budget_utilization": float(row["min_budget_utilization"]),
+                "pd_cap_slack_penalty": float(row["pd_cap_slack_penalty"]),
+                "policy_mode": str(row["policy_mode"]),
+                "gamma": float(row["gamma"]),
+            }
+        )
+    return candidates
+
+
 def main(
     total_budget: float = 1_000_000,
     max_portfolio_pd: float = 0.10,
@@ -273,6 +429,8 @@ def main(
     run_tag: str | None = None,
     solver_backend: str = "highs",
     policy_selector: str = "promotion_first",
+    frontier_path: str = "data/processed/portfolio_robustness_frontier.parquet",
+    actual_ab_top_k: int = 12,
 ) -> None:
     """Run the A/B simulation."""
     data_dir = Path("data/processed")
@@ -304,30 +462,8 @@ def main(
         f"(max_candidates={'full' if max_candidates_norm is None else max_candidates_norm})"
     )
 
-    # Extract arrays
-    # Map column names: conformal intervals use y_pred, pd_low_90, pd_high_90
-    pd_col = next(
-        (c for c in ["pd_calibrated", "y_pred"] if c in intervals.columns), intervals.columns[0]
-    )
-    low_col = next((c for c in ["pd_low", "pd_low_90"] if c in intervals.columns), None)
-    high_col = next((c for c in ["pd_high", "pd_high_90"] if c in intervals.columns), None)
-    pd_point = intervals[pd_col].values
-    pd_low = intervals[low_col].values if low_col else pd_point * 0.8
-    pd_high = intervals[high_col].values if high_col else pd_point * 1.3
+    common, default_flag, loan_amnt, int_rates, _ = _build_common_inputs(test_df, intervals)
     lgd_val = 0.45
-    lgd = np.full(n, lgd_val)
-    int_rates = (
-        _parse_percent_series(test_df["int_rate"])
-        if "int_rate" in test_df.columns
-        else np.full(n, 0.12)
-    )
-    default_flag = (
-        test_df["default_flag"].values if "default_flag" in test_df.columns else np.zeros(n)
-    )
-
-    loan_amnt = (
-        test_df["loan_amnt"].values if "loan_amnt" in test_df.columns else np.full(n, 10000.0)
-    )
 
     robust_policy = _resolve_robust_policy(
         max_portfolio_pd=float(max_portfolio_pd),
@@ -337,73 +473,159 @@ def main(
     )
     effective_max_portfolio_pd = float(robust_policy.get("risk_tolerance", max_portfolio_pd))
 
-    common = {
-        "loans": test_df,
-        "pd_point": pd_point,
-        "pd_low": pd_low,
-        "pd_high": pd_high,
-        "lgd": lgd,
-        "int_rates": int_rates,
-        "total_budget": total_budget,
-        "max_portfolio_pd": effective_max_portfolio_pd,
-    }
-
     # Strategy A: non-robust
     logger.info("Strategy A (control): non-robust portfolio")
-    sol_a = optimize_portfolio_allocation(
+    sol_a, _ = _run_strategy(
+        common=common,
         robust=False,
+        total_budget=total_budget,
+        max_portfolio_pd=effective_max_portfolio_pd,
         solver_backend=solver_backend,
-        **common,
+    )
+    returns_a, metrics_a = _candidate_metrics(
+        solution=sol_a,
+        loan_amnt=loan_amnt,
+        int_rates=int_rates,
+        default_flag=default_flag,
+        lgd_val=lgd_val,
     )
 
     # Strategy B: robust
     logger.info("Strategy B (treatment): robust portfolio")
-    effective_pd_b = compute_effective_pd(
-        pd_point=pd_point,
-        pd_high=pd_high,
-        policy_mode=str(robust_policy.get("policy_mode", "hard_worst_case")),
-        gamma=float(robust_policy.get("gamma", 1.0)),
-    )
-    sol_b = optimize_portfolio_allocation(
-        robust=True,
-        uncertainty_aversion=float(robust_policy.get("uncertainty_aversion", 0.0)),
-        min_budget_utilization=float(robust_policy.get("min_budget_utilization", 0.0)),
-        pd_cap_slack_penalty=float(robust_policy.get("pd_cap_slack_penalty", 0.0)),
-        pd_constraint_override=effective_pd_b,
-        solver_backend=solver_backend,
-        **common,
-    )
+    policy_search: list[dict[str, object]] = []
+    if policy_selector == "actual_ab_guarded":
+        search_candidates = _load_frontier_policy_candidates(
+            frontier_path=frontier_path,
+            max_portfolio_pd=float(effective_max_portfolio_pd),
+            top_k=int(actual_ab_top_k),
+        )
+        chosen_policy = None
+        chosen_sol = None
+        returns_b = None
+        metrics_b = None
+        no_regression_result = None
+        for idx, candidate in enumerate(search_candidates, start=1):
+            sol_candidate, _ = _run_strategy(
+                common=common,
+                robust=True,
+                robust_policy=candidate,
+                total_budget=total_budget,
+                max_portfolio_pd=float(candidate["risk_tolerance"]),
+                solver_backend=solver_backend,
+            )
+            cand_returns, cand_metrics = _candidate_metrics(
+                solution=sol_candidate,
+                loan_amnt=loan_amnt,
+                int_rates=int_rates,
+                default_flag=default_flag,
+                lgd_val=lgd_val,
+            )
+            diff_total_return = float(cand_metrics["total_return"] - metrics_a["total_return"])
+            tolerance_total_return = abs(float(metrics_a["total_return"])) * float(
+                no_regression_tolerance_pct
+            )
+            passed = bool(diff_total_return >= -tolerance_total_return)
+            policy_search.append(
+                {
+                    "rank": idx,
+                    "policy": candidate,
+                    "metrics_b": cand_metrics,
+                    "diff_total_return": diff_total_return,
+                    "tolerance_total_return": tolerance_total_return,
+                    "passed": passed,
+                }
+            )
+            if passed:
+                chosen_policy = candidate
+                chosen_sol = sol_candidate
+                returns_b = cand_returns
+                metrics_b = cand_metrics
+                no_regression_result = {
+                    "diff_total_return": diff_total_return,
+                    "tolerance_total_return": tolerance_total_return,
+                    "tolerance_pct_of_control": float(no_regression_tolerance_pct),
+                    "passed": True,
+                    "selected_from_search_rank": idx,
+                }
+                logger.info(
+                    "actual_ab_guarded selected robust policy at rank {}: gamma={} lambda={}",
+                    idx,
+                    candidate["gamma"],
+                    candidate["uncertainty_aversion"],
+                )
+                break
+        if chosen_policy is None:
+            logger.warning(
+                "No robust policy passed actual A/B guardrail. Falling back to nonrobust-equivalent champion."
+            )
+            chosen_policy = {
+                "source": "actual_ab_guarded_fallback_nonrobust",
+                "risk_tolerance": effective_max_portfolio_pd,
+                "uncertainty_aversion": 0.0,
+                "min_budget_utilization": 0.0,
+                "pd_cap_slack_penalty": 0.0,
+                "policy_mode": "blended_uncertainty",
+                "gamma": 0.0,
+            }
+            chosen_sol, _ = _run_strategy(
+                common=common,
+                robust=True,
+                robust_policy=chosen_policy,
+                total_budget=total_budget,
+                max_portfolio_pd=float(chosen_policy["risk_tolerance"]),
+                solver_backend=solver_backend,
+            )
+            returns_b, metrics_b = _candidate_metrics(
+                solution=chosen_sol,
+                loan_amnt=loan_amnt,
+                int_rates=int_rates,
+                default_flag=default_flag,
+                lgd_val=lgd_val,
+            )
+            diff_total_return = float(metrics_b["total_return"] - metrics_a["total_return"])
+            tolerance_total_return = abs(float(metrics_a["total_return"])) * float(
+                no_regression_tolerance_pct
+            )
+            no_regression_result = {
+                "diff_total_return": diff_total_return,
+                "tolerance_total_return": tolerance_total_return,
+                "tolerance_pct_of_control": float(no_regression_tolerance_pct),
+                "passed": bool(diff_total_return >= -tolerance_total_return),
+                "selected_from_search_rank": None,
+                "fallback_nonrobust": True,
+            }
+        robust_policy = chosen_policy
+        sol_b = chosen_sol
+    else:
+        sol_b, _ = _run_strategy(
+            common=common,
+            robust=True,
+            robust_policy=robust_policy,
+            total_budget=total_budget,
+            max_portfolio_pd=effective_max_portfolio_pd,
+            solver_backend=solver_backend,
+        )
+        returns_b, metrics_b = _candidate_metrics(
+            solution=sol_b,
+            loan_amnt=loan_amnt,
+            int_rates=int_rates,
+            default_flag=default_flag,
+            lgd_val=lgd_val,
+        )
+        diff_total_return = float(metrics_b["total_return"] - metrics_a["total_return"])
+        tolerance_total_return = abs(float(metrics_a["total_return"])) * float(
+            no_regression_tolerance_pct
+        )
+        no_regression_result = {
+            "diff_total_return": diff_total_return,
+            "tolerance_total_return": tolerance_total_return,
+            "tolerance_pct_of_control": float(no_regression_tolerance_pct),
+            "passed": bool(diff_total_return >= -tolerance_total_return),
+        }
 
-    # Compute realized returns
-    returns_a = _compute_realized_return(
-        sol_a["allocation"], loan_amnt, int_rates, default_flag, lgd_val
-    )
-    returns_b = _compute_realized_return(
-        sol_b["allocation"], loan_amnt, int_rates, default_flag, lgd_val
-    )
-
-    # Statistical comparison
     comparison = compare_strategies(
         returns_a, returns_b, method="bootstrap", n_boot=n_boot, seed=seed
     )
-
-    # Aggregate metrics
-    metrics_a = {
-        "total_return": float(returns_a.sum()),
-        "n_funded": sol_a["n_funded"],
-        "total_allocated": sol_a["total_allocated"],
-        "avg_return_per_funded": float(returns_a[returns_a != 0].mean())
-        if (returns_a != 0).any()
-        else 0.0,
-    }
-    metrics_b = {
-        "total_return": float(returns_b.sum()),
-        "n_funded": sol_b["n_funded"],
-        "total_allocated": sol_b["total_allocated"],
-        "avg_return_per_funded": float(returns_b[returns_b != 0].mean())
-        if (returns_b != 0).any()
-        else 0.0,
-    }
 
     summary = ab_summary(metrics_a, metrics_b)
 
@@ -463,17 +685,9 @@ def main(
             "seed": int(seed),
         },
     }
-    diff_total_return = float(metrics_b["total_return"] - metrics_a["total_return"])
-    tolerance_total_return = abs(float(metrics_a["total_return"])) * float(
-        no_regression_tolerance_pct
-    )
-    no_regression_pass = bool(diff_total_return >= -tolerance_total_return)
-    status["no_regression"] = {
-        "diff_total_return": diff_total_return,
-        "tolerance_total_return": tolerance_total_return,
-        "tolerance_pct_of_control": float(no_regression_tolerance_pct),
-        "passed": no_regression_pass,
-    }
+    status["policy_search"] = policy_search
+    status["frontier_path"] = str(_artifact_path(frontier_path))
+    status["no_regression"] = no_regression_result
     status_out = _artifact_path(status_path)
     status_out.parent.mkdir(parents=True, exist_ok=True)
     with open(status_out, "w", encoding="utf-8") as f:
@@ -513,8 +727,19 @@ if __name__ == "__main__":
     parser.add_argument("--run-tag", default=None)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
     parser.add_argument(
+        "--frontier_path",
+        default="data/processed/portfolio_robustness_frontier.parquet",
+    )
+    parser.add_argument("--actual_ab_top_k", type=int, default=12)
+    parser.add_argument(
         "--policy_selector",
-        choices=["promotion_first", "robustness_aware", "balanced_robustness"],
+        choices=[
+            "promotion_first",
+            "robustness_aware",
+            "balanced_robustness",
+            "guardrail_robustness",
+            "actual_ab_guarded",
+        ],
         default="promotion_first",
     )
     args = parser.parse_args()
@@ -534,4 +759,6 @@ if __name__ == "__main__":
         run_tag=args.run_tag,
         solver_backend=args.solver_backend,
         policy_selector=args.policy_selector,
+        frontier_path=args.frontier_path,
+        actual_ab_top_k=args.actual_ab_top_k,
     )

@@ -449,7 +449,7 @@ def _run_cugraph_similarity(
     sample_size: int,
     knn_k: int,
     random_state: int,
-) -> tuple[dict, pd.DataFrame, pd.DataFrame]:
+) -> tuple[dict, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     feature_cols = _select_numeric_features(train_fe, max_features=12)
     sample = train_fe.sample(n=min(sample_size, len(train_fe)), random_state=random_state).copy()
     X = sample[feature_cols].fillna(0.0).astype(np.float32)
@@ -547,7 +547,61 @@ def _run_cugraph_similarity(
         .sort_values("n_loans", ascending=False)
         .head(30)
     )
-    return summary, detail, community_profile
+    overall_default = float(community_nodes["default_flag"].mean())
+    community_sizes = community_profile.loc[:, ["community", "n_loans"]].copy()
+    community_nodes = community_nodes.merge(community_sizes, on="community", how="left")
+    community_nodes["community_risk_gap"] = community_nodes["default_flag"] - overall_default
+    community_nodes["bridge_score"] = (
+        community_nodes["pagerank"].fillna(0.0)
+        * community_nodes["degree"].fillna(0.0)
+        / community_nodes["n_loans"].fillna(1.0).clip(lower=1.0)
+    )
+    z_cols = []
+    for col in ["int_rate", "fico_score", "rev_utilization"]:
+        if col not in community_nodes.columns:
+            continue
+        grouped = community_nodes.groupby("community")[col]
+        mu = grouped.transform("mean")
+        sigma = grouped.transform("std").replace(0.0, np.nan)
+        z_cols.append(((community_nodes[col] - mu) / sigma).fillna(0.0).abs())
+    if z_cols:
+        community_nodes["anomaly_score"] = np.mean(
+            np.vstack([z.to_numpy() for z in z_cols]), axis=0
+        )
+    else:
+        community_nodes["anomaly_score"] = 0.0
+    bridge_loans = (
+        community_nodes.sort_values(
+            ["bridge_score", "anomaly_score", "pagerank"],
+            ascending=[False, False, False],
+        )
+        .loc[
+            :,
+            [
+                c
+                for c in [
+                    "id",
+                    "community",
+                    "grade",
+                    "term",
+                    "default_flag",
+                    "int_rate",
+                    "fico_score",
+                    "rev_utilization",
+                    "pagerank",
+                    "degree",
+                    "n_loans",
+                    "community_risk_gap",
+                    "bridge_score",
+                    "anomaly_score",
+                ]
+                if c in community_nodes.columns
+            ],
+        ]
+        .head(100)
+        .reset_index(drop=True)
+    )
+    return summary, detail, community_profile, bridge_loans
 
 
 def main(
@@ -633,7 +687,7 @@ def main(
         hdbscan_summary["speedup_gpu_vs_cpu"],
     )
 
-    cugraph_summary, graph_df, community_df = _run_cugraph_similarity(
+    cugraph_summary, graph_df, community_df, bridge_df = _run_cugraph_similarity(
         train_fe=train_fe,
         sample_size=graph_sample,
         knn_k=knn_k,
@@ -642,6 +696,7 @@ def main(
     summaries.append(cugraph_summary)
     graph_df.to_parquet(data_dir / "cugraph_similarity_summary.parquet", index=False)
     community_df.to_parquet(data_dir / "cugraph_community_profiles.parquet", index=False)
+    bridge_df.to_parquet(data_dir / "cugraph_bridge_loans.parquet", index=False)
     logger.info(
         "cuGraph similarity | rows={} cpu_s={:.3f} gpu_s={:.3f} speedup={:.2f}x",
         cugraph_summary["rows_input"],
