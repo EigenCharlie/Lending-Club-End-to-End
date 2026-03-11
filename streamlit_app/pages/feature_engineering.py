@@ -21,7 +21,8 @@ from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     get_notebook_image_path,
-    load_json,
+    page_error_boundary,
+    try_load_json,
     try_load_parquet,
 )
 
@@ -229,7 +230,7 @@ narrative_block(
     "0.1-0.3 fuerte, >0.3 muy fuerte. WOE features tienden a IV alto por diseño.",
 )
 
-iv_data = load_json("feature_importance_iv")
+iv_data = try_load_json("feature_importance_iv")
 iv_scores = iv_data.get("iv_scores", {})
 
 if iv_scores:

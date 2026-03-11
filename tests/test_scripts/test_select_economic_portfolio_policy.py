@@ -78,8 +78,14 @@ def _write_common_inputs(tmp_path) -> None:
 portfolio:
   total_budget: 1000
 portfolio_selection:
+  canonical_selector: economic_actual_ab_v2
   actual_ab_top_k: 20
-  min_funded_ratio: 0.95
+  min_funded_ratio: 0.88
+  min_total_allocated_ratio: 0.98
+  min_breadth_score: 0.995
+  breadth_weight_funded_ratio: 0.50
+  breadth_weight_allocation_ratio: 0.30
+  breadth_weight_allocation_similarity: 0.20
   max_price_of_robustness_pct: -15.0
   canonical_policy_modes: [blended_uncertainty, capped_blended_uncertainty]
 """.strip(),
@@ -131,8 +137,10 @@ def test_selector_promotes_robust_candidate_when_one_passes(tmp_path, monkeypatc
     payload = json.loads((tmp_path / "models" / "champion_portfolio_policy.json").read_text())
     status = json.loads((tmp_path / "models" / "champion_policy_selection_status.json").read_text())
     assert payload["selection_outcome"] == "robust_selected"
+    assert payload["selection_stage"] == "economic_actual_ab_v2"
     assert payload["selected_policy"]["gamma"] == 0.1
     assert status["fallback_applied"] is False
+    assert status["selected_candidate"]["breadth_score"] >= 0.93
 
 
 def test_selector_falls_back_when_no_robust_candidate_passes(tmp_path, monkeypatch) -> None:
@@ -158,6 +166,193 @@ def test_selector_falls_back_when_no_robust_candidate_passes(tmp_path, monkeypat
         _ = kwargs
         total_return = 100.0 if solution["allocation"][0] == 1.0 else 80.0
         return None, {
+            "total_return": total_return,
+            "n_funded": solution["n_funded"],
+            "total_allocated": solution["total_allocated"],
+            "avg_return_per_funded": total_return,
+        }
+
+    monkeypatch.setattr(sel_mod, "_run_strategy", fake_run_strategy)
+    monkeypatch.setattr(sel_mod, "_candidate_metrics", fake_candidate_metrics)
+
+    sel_mod.main(config_path="configs/optimization.yaml")
+
+    payload = json.loads((tmp_path / "models" / "champion_portfolio_policy.json").read_text())
+    status = json.loads((tmp_path / "models" / "champion_policy_selection_status.json").read_text())
+    assert payload["selection_outcome"] == "fallback_nonrobust"
+    assert payload["selected_policy"]["gamma"] == 0.0
+    assert status["fallback_applied"] is True
+
+
+def test_selector_v2_prefers_breadth_aware_candidate(tmp_path, monkeypatch) -> None:
+    _write_common_inputs(tmp_path)
+    monkeypatch.chdir(tmp_path)
+
+    def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
+        _ = kwargs
+        if not robust:
+            return {
+                "allocation": {0: 1.0, 1: 0.0, 2: 0.0},
+                "n_funded": 1,
+                "total_allocated": 1000.0,
+            }, None
+        gamma = float((robust_policy or {}).get("gamma", 0.0))
+        if gamma > 0:
+            return {
+                "allocation": {0: 0.99, 1: 0.0, 2: 0.0},
+                "n_funded": 1,
+                "total_allocated": 990.0,
+            }, None
+        return {
+            "allocation": {0: 1.0, 1: 0.0, 2: 0.0},
+            "n_funded": 1,
+            "total_allocated": 1000.0,
+        }, None
+
+    def fake_candidate_metrics(*, solution, **kwargs):
+        _ = kwargs
+        total_allocated = float(solution["total_allocated"])
+        total_return = 100.0 if total_allocated >= 999.0 else 108.0
+        return None, {
+            "total_return": total_return,
+            "n_funded": solution["n_funded"],
+            "total_allocated": total_allocated,
+            "avg_return_per_funded": total_return,
+        }
+
+    monkeypatch.setattr(sel_mod, "_run_strategy", fake_run_strategy)
+    monkeypatch.setattr(sel_mod, "_candidate_metrics", fake_candidate_metrics)
+
+    sel_mod.main(config_path="configs/optimization.yaml")
+
+    payload = json.loads((tmp_path / "models" / "champion_portfolio_policy.json").read_text())
+    status = json.loads((tmp_path / "models" / "champion_policy_selection_status.json").read_text())
+    assert payload["selection_outcome"] == "robust_selected"
+    assert payload["selected_policy"]["gamma"] == 0.1
+    assert status["selected_candidate"]["total_allocated_ratio"] == 0.99
+    assert status["selected_candidate"]["breadth_score"] >= 0.93
+
+
+def test_selector_v3_uses_ab_like_ranking(tmp_path, monkeypatch) -> None:
+    _write_common_inputs(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "configs" / "optimization.yaml").write_text(
+        """
+portfolio:
+  total_budget: 1000
+portfolio_selection:
+  canonical_selector: economic_actual_ab_v3
+  actual_ab_top_k: 20
+  ab_like_top_m: 2
+  ab_like_bootstrap_n: 10
+  ab_like_seed: 7
+  min_funded_ratio: 0.88
+  min_total_allocated_ratio: 0.98
+  min_breadth_score: 0.93
+  breadth_weight_funded_ratio: 0.50
+  breadth_weight_allocation_ratio: 0.30
+  breadth_weight_allocation_similarity: 0.20
+  max_price_of_robustness_pct: -15.0
+  canonical_policy_modes: [blended_uncertainty, capped_blended_uncertainty]
+""".strip(),
+        encoding="utf-8",
+    )
+
+    def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
+        _ = kwargs
+        if not robust:
+            return {
+                "allocation": {0: 1.0, 1: 0.0, 2: 0.0},
+                "n_funded": 1,
+                "total_allocated": 1000.0,
+            }, None
+        gamma = float((robust_policy or {}).get("gamma", 0.0))
+        alloc0 = 0.99 if gamma > 0.09 else 0.98
+        return {
+            "allocation": {0: alloc0, 1: 0.0, 2: 0.0},
+            "n_funded": 1,
+            "total_allocated": 1000.0,
+        }, None
+
+    def fake_candidate_metrics(*, solution, **kwargs):
+        _ = kwargs
+        alloc0 = solution["allocation"][0]
+        if abs(alloc0 - 0.99) < 1e-9:
+            returns = pd.Series([100.0, 0.0, 0.0]).to_numpy()
+            total_return = 100.0
+        else:
+            returns = pd.Series([120.0, -40.0, 0.0]).to_numpy()
+            total_return = 80.0
+        return returns, {
+            "total_return": total_return,
+            "n_funded": solution["n_funded"],
+            "total_allocated": solution["total_allocated"],
+            "avg_return_per_funded": total_return,
+        }
+
+    monkeypatch.setattr(sel_mod, "_run_strategy", fake_run_strategy)
+    monkeypatch.setattr(sel_mod, "_candidate_metrics", fake_candidate_metrics)
+
+    sel_mod.main(config_path="configs/optimization.yaml")
+
+    payload = json.loads((tmp_path / "models" / "champion_portfolio_policy.json").read_text())
+    status = json.loads((tmp_path / "models" / "champion_policy_selection_status.json").read_text())
+    assert payload["selection_stage"] == "economic_actual_ab_v3"
+    assert payload["selected_policy"]["gamma"] == 0.1
+    assert status["selected_candidate"]["ab_like_passed_no_regression"] is True
+
+
+def test_selector_v3_respects_breadth_hard_filters(tmp_path, monkeypatch) -> None:
+    _write_common_inputs(tmp_path)
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "configs" / "optimization.yaml").write_text(
+        """
+portfolio:
+  total_budget: 1000
+portfolio_selection:
+  canonical_selector: economic_actual_ab_v3
+  actual_ab_top_k: 20
+  ab_like_top_m: 2
+  ab_like_bootstrap_n: 10
+  ab_like_seed: 7
+  min_funded_ratio: 0.88
+  min_total_allocated_ratio: 0.98
+  min_breadth_score: 0.93
+  breadth_weight_funded_ratio: 0.50
+  breadth_weight_allocation_ratio: 0.30
+  breadth_weight_allocation_similarity: 0.20
+  max_price_of_robustness_pct: -15.0
+  canonical_policy_modes: [blended_uncertainty, capped_blended_uncertainty]
+""".strip(),
+        encoding="utf-8",
+    )
+
+    def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
+        _ = kwargs
+        if not robust:
+            return {
+                "allocation": {0: 1.0, 1: 0.0, 2: 0.0},
+                "n_funded": 1,
+                "total_allocated": 1000.0,
+            }, None
+        gamma = float((robust_policy or {}).get("gamma", 0.0))
+        if gamma > 0:
+            return {
+                "allocation": {0: 0.8, 1: 0.0, 2: 0.0},
+                "n_funded": 1,
+                "total_allocated": 900.0,
+            }, None
+        return {
+            "allocation": {0: 1.0, 1: 0.0, 2: 0.0},
+            "n_funded": 1,
+            "total_allocated": 1000.0,
+        }, None
+
+    def fake_candidate_metrics(*, solution, **kwargs):
+        _ = kwargs
+        alloc0 = solution["allocation"][0]
+        total_return = 120.0 if alloc0 < 1.0 else 100.0
+        return pd.Series([total_return, 0.0, 0.0]).to_numpy(), {
             "total_return": total_return,
             "n_funded": solution["n_funded"],
             "total_allocated": solution["total_allocated"],

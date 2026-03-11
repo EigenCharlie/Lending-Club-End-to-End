@@ -52,7 +52,7 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
         heavy_main_cmd
     )
     assert (
-        "optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 20000 --grid-profile balanced"
+        "optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 80000 --grid-profile quick"
         in heavy_main_cmd
     )
     assert (
@@ -104,6 +104,45 @@ def test_build_steps_mega64safe_caps_survival_memory_pressure() -> None:
     assert "optimize_portfolio.py --config configs/optimization.yaml --max_candidates 150000" in (
         heavy_main_cmd
     )
+
+
+def test_build_steps_champion64safe_uses_frozen_policy_when_available(
+    tmp_path, monkeypatch
+) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "pd_model.champion.yaml").write_text("{}", encoding="utf-8")
+    (repo / "configs" / "optimization.yaml").write_text(
+        """
+portfolio_selection:
+  canonical_execution_mode: freeze_if_available
+  frozen_champion_policy_path: models/champion_portfolio_policy.json
+""".strip(),
+        encoding="utf-8",
+    )
+    (repo / "models").mkdir(parents=True, exist_ok=True)
+    (repo / "models" / "champion_portfolio_policy.json").write_text("{}", encoding="utf-8")
+    (repo / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo / "scripts" / "optimize_portfolio.py").write_text(
+        "parser.add_argument('--max_candidates')", encoding="utf-8"
+    )
+    (repo / "scripts" / "optimize_portfolio_tradeoff.py").write_text(
+        "parser.add_argument('--grid-profile')", encoding="utf-8"
+    )
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+
+    steps = lp.build_steps(
+        "run-champion64safe",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+    )
+    heavy_main_cmd = next(cmd for name, _required, cmd in steps if name == "heavy_main")
+
+    assert "optimize_portfolio_tradeoff.py" not in heavy_main_cmd
+    assert "select_economic_portfolio_policy.py" not in heavy_main_cmd
+    assert "simulate_ab_test.py" in heavy_main_cmd
+    assert "--policy_selector explicit_champion_only" in heavy_main_cmd
 
 
 def test_build_steps_notebooks_avoids_redundant_paper_suite_execution() -> None:

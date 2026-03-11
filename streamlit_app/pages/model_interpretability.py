@@ -882,7 +882,7 @@ with tabs[3]:
         st.info("No hay artefacto de redundancia/interacciones SHAP disponible.")
     else:
         flagged = interaction_df[interaction_df["redundancy_flag"].astype(bool)].copy()
-        lead_pair = flagged.iloc[0] if not flagged.empty else interaction_df.iloc[0]
+        lead_pair = flagged.iloc[0] if not flagged.empty else (interaction_df.iloc[0] if not interaction_df.empty else pd.Series({"feature_a": "N/D", "feature_b": "N/D", "shap_spearman": 0.0}))
         st.caption(
             "Pareja líder detectada: "
             f"`{lead_pair['feature_a']}` x `{lead_pair['feature_b']}` "

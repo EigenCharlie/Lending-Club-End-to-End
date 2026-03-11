@@ -85,6 +85,66 @@ class TestBuildPortfolioModel:
         )
         assert np.allclose(effective, expected)
 
+    def test_compute_effective_pd_supports_tail_blended_uncertainty(self, small_loans):
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        cutoff = np.quantile(delta, 0.9)
+        local_delta = np.where(delta >= cutoff, delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.9,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * local_delta, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_segment_tail_blended_uncertainty(self, small_loans):
+        labels = np.array(["A|36"] * 5 + ["B|60"] * 5, dtype=object)
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        expected = np.zeros_like(delta)
+        for label in np.unique(labels):
+            mask = labels == label
+            seg_delta = delta[mask]
+            cutoff = np.quantile(seg_delta, 0.8)
+            expected[mask] = np.where(seg_delta >= cutoff, seg_delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="segment_tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.8,
+            segment_labels=labels,
+            min_segment_size=1,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * expected, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_segment_relative_tail_blended_uncertainty(
+        self, small_loans
+    ):
+        labels = np.array(["A|36|verified"] * 5 + ["B|60|source"] * 5, dtype=object)
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        rel = delta / np.maximum(small_loans["pd_point"], 1e-4)
+        expected = np.zeros_like(delta)
+        for label in np.unique(labels):
+            mask = labels == label
+            seg_delta = delta[mask]
+            seg_rel = rel[mask]
+            cutoff = np.quantile(seg_rel, 0.8)
+            expected[mask] = np.where(seg_rel >= cutoff, seg_delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="segment_relative_tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.8,
+            segment_labels=labels,
+            min_segment_size=1,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * expected, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
     def test_model_has_expected_components(self, small_loans):
         model = build_portfolio_model(**small_loans)
         assert hasattr(model, "x")

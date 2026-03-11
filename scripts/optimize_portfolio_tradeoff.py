@@ -187,13 +187,37 @@ def _solve_single(
     policy_mode: str = "hard_worst_case",
     gamma: float = 1.0,
     delta_cap_quantile: float = 1.0,
+    tail_focus_quantile: float = 1.0,
 ) -> tuple[dict[str, float | int | str], np.ndarray]:
+    segment_labels: np.ndarray | None = None
+    if policy_mode in {
+        "segment_tail_blended_uncertainty",
+        "segment_relative_tail_blended_uncertainty",
+    }:
+        grade = (
+            loans["grade"].fillna("unknown").astype(str)
+            if "grade" in loans.columns
+            else pd.Series(["unknown"] * len(loans))
+        )
+        term = (
+            loans["term"].fillna("unknown").astype(str)
+            if "term" in loans.columns
+            else pd.Series(["unknown"] * len(loans))
+        )
+        verification = (
+            loans["verification_status"].fillna("unknown").astype(str)
+            if "verification_status" in loans.columns
+            else pd.Series(["unknown"] * len(loans))
+        )
+        segment_labels = (grade + "|" + term + "|" + verification).to_numpy(dtype=object)
     pd_constraint = compute_effective_pd(
         pd_point=pd_point,
         pd_high=pd_high,
         policy_mode=policy_mode,
         gamma=gamma,
         delta_cap_quantile=delta_cap_quantile,
+        tail_focus_quantile=tail_focus_quantile,
+        segment_labels=segment_labels,
     )
     solution = optimize_portfolio_allocation(
         loans=loans,
@@ -248,6 +272,7 @@ def _solve_single(
         "policy_mode": str(policy_mode),
         "gamma": float(gamma),
         "delta_cap_quantile": float(delta_cap_quantile),
+        "tail_focus_quantile": float(tail_focus_quantile),
         "objective_value": float(solution["objective_value"]),
         "n_funded": int(solution["n_funded"]),
         "total_allocated": total_allocated,
@@ -467,44 +492,70 @@ def main(
         if "default_flag" in loans.columns
         else np.zeros(n, dtype=int)
     )
-    policy_grid: list[tuple[str, float, float]] = [
-        ("hard_worst_case", 1.0, 1.0),
-        ("blended_uncertainty", 0.0, 1.0),
-        ("blended_uncertainty", 0.05, 1.0),
-        ("blended_uncertainty", 0.10, 1.0),
-        ("blended_uncertainty", 0.15, 1.0),
-        ("blended_uncertainty", 0.20, 1.0),
-        ("blended_uncertainty", 0.25, 1.0),
-        ("blended_uncertainty", 0.35, 1.0),
-        ("blended_uncertainty", 0.50, 1.0),
-        ("capped_blended_uncertainty", 0.05, 0.50),
-        ("capped_blended_uncertainty", 0.10, 0.50),
-        ("capped_blended_uncertainty", 0.15, 0.50),
-        ("capped_blended_uncertainty", 0.20, 0.50),
-        ("capped_blended_uncertainty", 0.25, 0.50),
-        ("capped_blended_uncertainty", 0.35, 0.50),
-        ("capped_blended_uncertainty", 0.50, 0.50),
-        ("capped_blended_uncertainty", 0.05, 0.75),
-        ("capped_blended_uncertainty", 0.10, 0.75),
-        ("capped_blended_uncertainty", 0.15, 0.75),
-        ("capped_blended_uncertainty", 0.20, 0.75),
-        ("capped_blended_uncertainty", 0.25, 0.75),
-        ("capped_blended_uncertainty", 0.35, 0.75),
-        ("capped_blended_uncertainty", 0.50, 0.75),
-        ("capped_blended_uncertainty", 0.05, 0.90),
-        ("capped_blended_uncertainty", 0.10, 0.90),
-        ("capped_blended_uncertainty", 0.15, 0.90),
-        ("capped_blended_uncertainty", 0.20, 0.90),
-        ("capped_blended_uncertainty", 0.25, 0.90),
-        ("capped_blended_uncertainty", 0.35, 0.90),
-        ("capped_blended_uncertainty", 0.50, 0.90),
-        ("capped_blended_uncertainty", 0.05, 1.00),
-        ("capped_blended_uncertainty", 0.10, 1.00),
-        ("capped_blended_uncertainty", 0.15, 1.00),
-        ("capped_blended_uncertainty", 0.20, 1.00),
-        ("capped_blended_uncertainty", 0.25, 1.00),
-        ("capped_blended_uncertainty", 0.35, 1.00),
-        ("capped_blended_uncertainty", 0.50, 1.00),
+    policy_grid: list[tuple[str, float, float, float]] = [
+        ("hard_worst_case", 1.0, 1.0, 1.0),
+        ("blended_uncertainty", 0.0, 1.0, 1.0),
+        ("blended_uncertainty", 0.05, 1.0, 1.0),
+        ("blended_uncertainty", 0.10, 1.0, 1.0),
+        ("blended_uncertainty", 0.15, 1.0, 1.0),
+        ("blended_uncertainty", 0.20, 1.0, 1.0),
+        ("blended_uncertainty", 0.25, 1.0, 1.0),
+        ("blended_uncertainty", 0.35, 1.0, 1.0),
+        ("blended_uncertainty", 0.50, 1.0, 1.0),
+        ("capped_blended_uncertainty", 0.05, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.10, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.15, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.20, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.25, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.35, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.50, 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.05, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.10, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.15, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.20, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.25, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.35, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.50, 0.75, 1.0),
+        ("capped_blended_uncertainty", 0.05, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.10, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.15, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.20, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.25, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.35, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.50, 0.90, 1.0),
+        ("capped_blended_uncertainty", 0.05, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.10, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.15, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.20, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.25, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.35, 1.00, 1.0),
+        ("capped_blended_uncertainty", 0.50, 1.00, 1.0),
+        ("tail_blended_uncertainty", 0.10, 1.0, 0.75),
+        ("tail_blended_uncertainty", 0.20, 1.0, 0.75),
+        ("tail_blended_uncertainty", 0.35, 1.0, 0.75),
+        ("tail_blended_uncertainty", 0.50, 1.0, 0.75),
+        ("tail_blended_uncertainty", 0.10, 1.0, 0.90),
+        ("tail_blended_uncertainty", 0.20, 1.0, 0.90),
+        ("tail_blended_uncertainty", 0.35, 1.0, 0.90),
+        ("tail_blended_uncertainty", 0.50, 1.0, 0.90),
+        ("tail_blended_uncertainty", 0.10, 1.0, 0.95),
+        ("tail_blended_uncertainty", 0.20, 1.0, 0.95),
+        ("tail_blended_uncertainty", 0.35, 1.0, 0.95),
+        ("tail_blended_uncertainty", 0.50, 1.0, 0.95),
+        ("segment_tail_blended_uncertainty", 0.05, 1.0, 0.75),
+        ("segment_tail_blended_uncertainty", 0.10, 1.0, 0.75),
+        ("segment_tail_blended_uncertainty", 0.20, 1.0, 0.75),
+        ("segment_tail_blended_uncertainty", 0.35, 1.0, 0.75),
+        ("segment_tail_blended_uncertainty", 0.05, 1.0, 0.90),
+        ("segment_tail_blended_uncertainty", 0.10, 1.0, 0.90),
+        ("segment_tail_blended_uncertainty", 0.20, 1.0, 0.90),
+        ("segment_tail_blended_uncertainty", 0.35, 1.0, 0.90),
+        ("segment_relative_tail_blended_uncertainty", 0.05, 1.0, 0.75),
+        ("segment_relative_tail_blended_uncertainty", 0.10, 1.0, 0.75),
+        ("segment_relative_tail_blended_uncertainty", 0.20, 1.0, 0.75),
+        ("segment_relative_tail_blended_uncertainty", 0.05, 1.0, 0.90),
+        ("segment_relative_tail_blended_uncertainty", 0.10, 1.0, 0.90),
+        ("segment_relative_tail_blended_uncertainty", 0.20, 1.0, 0.90),
     ]
 
     rows: list[dict[str, float | int | str]] = []
@@ -556,7 +607,7 @@ def main(
         baseline_realized = float(baseline["realized_total_return"])
 
         robust_candidates = []
-        for policy_mode, gamma, delta_cap_quantile in policy_grid:
+        for policy_mode, gamma, delta_cap_quantile, tail_focus_quantile in policy_grid:
             for lam in aversion_values:
                 enforce_floor = float(risk_tol) <= float(strict_risk_threshold)
                 min_util = float(robust_min_budget_utilization) if enforce_floor else 0.0
@@ -582,6 +633,7 @@ def main(
                     policy_mode=policy_mode,
                     gamma=float(gamma),
                     delta_cap_quantile=float(delta_cap_quantile),
+                    tail_focus_quantile=float(tail_focus_quantile),
                 )
                 robust_ret = float(robust_run["expected_return_net_point"])
                 por = baseline_ret - robust_ret
@@ -595,7 +647,14 @@ def main(
                 )
                 allocation_similarity = _allocation_similarity(baseline_alloc, robust_alloc)
                 eligible_for_canonical_selection = bool(
-                    policy_mode in {"blended_uncertainty", "capped_blended_uncertainty"}
+                    policy_mode
+                    in {
+                        "blended_uncertainty",
+                        "capped_blended_uncertainty",
+                        "tail_blended_uncertainty",
+                        "segment_tail_blended_uncertainty",
+                        "segment_relative_tail_blended_uncertainty",
+                    }
                 )
                 row = {
                     "policy": "robust",
@@ -834,8 +893,13 @@ def main(
         "risk_grid": risk_values,
         "aversion_grid": aversion_values,
         "policy_grid": [
-            {"policy_mode": mode, "gamma": gamma, "delta_cap_quantile": q_cap}
-            for mode, gamma, q_cap in policy_grid
+            {
+                "policy_mode": mode,
+                "gamma": gamma,
+                "delta_cap_quantile": q_cap,
+                "tail_focus_quantile": q_tail,
+            }
+            for mode, gamma, q_cap, q_tail in policy_grid
         ],
         "n_candidates": int(n),
         "n_candidates_available": int(min(len(candidates), len(intervals))),

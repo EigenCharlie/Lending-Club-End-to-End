@@ -96,6 +96,7 @@ def _resolve_robust_policy(
         "policy_mode": "hard_worst_case",
         "gamma": 1.0,
         "delta_cap_quantile": 1.0,
+        "tail_focus_quantile": 1.0,
     }
     champion_path = _artifact_path(champion_policy_path)
     if champion_path.exists():
@@ -137,6 +138,7 @@ def _resolve_robust_policy(
                 "policy_mode": str(selected.get("policy_mode", "hard_worst_case")),
                 "gamma": float(selected.get("gamma", 1.0)),
                 "delta_cap_quantile": float(selected.get("delta_cap_quantile", 1.0)),
+                "tail_focus_quantile": float(selected.get("tail_focus_quantile", 1.0)),
             }
             logger.info(
                 "Resolved robust policy from champion artifact: "
@@ -331,12 +333,36 @@ def _run_strategy(
     pd_high = np.asarray(common["pd_high"], dtype=float)  # type: ignore[index]
     if robust:
         policy = robust_policy or {}
+        loans = common["loans"]  # type: ignore[index]
+        segment_labels: np.ndarray | None = None
+        if str(policy.get("policy_mode", "hard_worst_case")) in {
+            "segment_tail_blended_uncertainty",
+            "segment_relative_tail_blended_uncertainty",
+        }:
+            grade = (
+                loans["grade"].fillna("unknown").astype(str)
+                if "grade" in loans.columns
+                else pd.Series(["unknown"] * len(loans))
+            )
+            term = (
+                loans["term"].fillna("unknown").astype(str)
+                if "term" in loans.columns
+                else pd.Series(["unknown"] * len(loans))
+            )
+            verification = (
+                loans["verification_status"].fillna("unknown").astype(str)
+                if "verification_status" in loans.columns
+                else pd.Series(["unknown"] * len(loans))
+            )
+            segment_labels = (grade + "|" + term + "|" + verification).to_numpy(dtype=object)
         effective_pd = compute_effective_pd(
             pd_point=pd_point,
             pd_high=pd_high,
             policy_mode=str(policy.get("policy_mode", "hard_worst_case")),
             gamma=float(policy.get("gamma", 1.0)),
             delta_cap_quantile=float(policy.get("delta_cap_quantile", 1.0)),
+            tail_focus_quantile=float(policy.get("tail_focus_quantile", 1.0)),
+            segment_labels=segment_labels,
         )
         solution = optimize_portfolio_allocation(
             robust=True,
@@ -421,6 +447,7 @@ def _load_frontier_policy_candidates(
                 "policy_mode": str(row["policy_mode"]),
                 "gamma": float(row["gamma"]),
                 "delta_cap_quantile": float(row.get("delta_cap_quantile", 1.0)),
+                "tail_focus_quantile": float(row.get("tail_focus_quantile", 1.0)),
             }
         )
     return candidates

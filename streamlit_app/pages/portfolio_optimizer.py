@@ -39,8 +39,8 @@ from streamlit_app.utils import (
     load_rapids_tradeoff_full_ab_status,
     load_rapids_tradeoff_full_policy,
     load_rapids_stage_comparison,
-    load_json,
-    load_parquet,
+    page_error_boundary,
+    try_load_json,
     try_load_parquet,
 )
 
@@ -130,13 +130,14 @@ el downside cuando las predicciones no son perfectamente ciertas.
 """
 )
 
-summary = load_json("pipeline_summary")
-pipeline = summary.get("pipeline", {})
+with page_error_boundary("Optimizador de Portafolio"):
+    summary = try_load_json("pipeline_summary")
+    pipeline = summary.get("pipeline", {})
 
-alloc = load_parquet("portfolio_allocations")
-rob_summary = load_parquet("portfolio_robustness_summary")
-rob_frontier = load_parquet("portfolio_robustness_frontier")
-efficient_frontier = try_load_parquet("efficient_frontier")
+    alloc = try_load_parquet("portfolio_allocations")
+    rob_summary = try_load_parquet("portfolio_robustness_summary")
+    rob_frontier = try_load_parquet("portfolio_robustness_frontier")
+    efficient_frontier = try_load_parquet("efficient_frontier")
 rapids_compare = load_rapids_stage_comparison()
 tradeoff_full_policy = load_rapids_tradeoff_full_policy()
 tradeoff_full_ab = load_rapids_tradeoff_full_ab_status()
@@ -555,8 +556,8 @@ Para anclar las decisiones del optimizador en evidencia histórica, calculamos e
 """
 )
 
-roi_grade = load_parquet("roi_by_grade")
-roi_term = load_parquet("roi_by_grade_term")
+roi_grade = try_load_parquet("roi_by_grade")
+roi_term = try_load_parquet("roi_by_grade_term")
 
 if not roi_grade.empty:
     col_roi1, col_roi2 = st.columns(2)
@@ -622,8 +623,9 @@ if not roi_grade.empty:
             "La frontera histórica valida las decisiones del optimizador."
         )
 
-    st.markdown(
-        f"""
+    if len(roi_grade) >= 7:
+        st.markdown(
+            f"""
 **Lectura del ROI histórico:**
 - **Grades A-B**: ROI medio positivo ({roi_grade.iloc[0]["roi_mean"]:.1%} y {roi_grade.iloc[1]["roi_mean"]:.1%})
   con dispersión moderada. Son los segmentos donde el optimizador concentra capital.
@@ -634,7 +636,9 @@ if not roi_grade.empty:
 - La frontera riesgo-retorno histórica confirma que la relación no es lineal: más riesgo no siempre
   compensa con más retorno, validando la necesidad de optimización formal.
 """
-    )
+        )
+    elif not roi_grade.empty:
+        st.info("Datos de ROI por grade disponibles pero con menos de 7 grades.")
 
 if not roi_term.empty:
     with st.expander("ROI por grade y plazo (36 vs 60 meses)"):

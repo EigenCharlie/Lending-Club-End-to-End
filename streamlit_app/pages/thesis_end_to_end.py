@@ -36,8 +36,8 @@ from streamlit_app.utils import (
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
     load_rapids_tradeoff_full_policy,
-    load_json,
-    load_parquet,
+    page_error_boundary,
+    try_load_json,
     try_load_parquet,
 )
 
@@ -61,10 +61,10 @@ traducen en decisiones concretas.
 )
 audience = audience_selector()
 
-summary = load_json("pipeline_summary")
-comparison = load_json("model_comparison")
-policy = load_json("conformal_policy_status", directory="models")
-eda = load_json("eda_summary")
+summary = try_load_json("pipeline_summary")
+comparison = try_load_json("model_comparison")
+policy = try_load_json("conformal_policy_status", directory="models")
+eda = try_load_json("eda_summary")
 
 pipeline = summary.get("pipeline", {})
 final_metrics = comparison.get("final_test_metrics", {})
@@ -80,8 +80,8 @@ causal_rule = (
         }
     )
 )
-ifrs9_scenarios = load_parquet("ifrs9_scenario_summary")
-robust_summary = load_parquet("portfolio_robustness_summary")
+ifrs9_scenarios = try_load_parquet("ifrs9_scenario_summary")
+robust_summary = try_load_parquet("portfolio_robustness_summary")
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()
 rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
@@ -381,8 +381,10 @@ digraph Pipeline {
     )
 
 with tab3:
-    severe = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "severe"]["total_ecl"].iloc[0]
-    baseline = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "baseline"]["total_ecl"].iloc[0]
+    _severe_slice = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "severe"]["total_ecl"] if not ifrs9_scenarios.empty and "severe" in ifrs9_scenarios["scenario"].values else pd.Series(dtype=float)
+    _baseline_slice = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "baseline"]["total_ecl"] if not ifrs9_scenarios.empty and "baseline" in ifrs9_scenarios["scenario"].values else pd.Series(dtype=float)
+    severe = float(_severe_slice.iloc[0]) if not _severe_slice.empty else 0.0
+    baseline = float(_baseline_slice.iloc[0]) if not _baseline_slice.empty else 0.0
     uplift = (severe / baseline - 1) if baseline else 0
 
     interpretation = pd.DataFrame(

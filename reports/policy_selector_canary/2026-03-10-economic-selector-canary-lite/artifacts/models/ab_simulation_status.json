@@ -1,0 +1,66 @@
+{
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-11T01:01:13.019925+00:00",
+  "run_tag": "2026-03-10-economic-selector-canary-lite",
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 5.552767406534176,
+    "mean_b": 5.552767406534176,
+    "diff": 0.0,
+    "ci_low": -3.8537269722707426,
+    "ci_high": 3.8414351961662434,
+    "p_value": 0.483,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 111055.34813068353,
+    "n_funded": 208,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 533.9199429359786
+  },
+  "metrics_b": {
+    "total_return": 111055.34813068353,
+    "n_funded": 208,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 533.9199429359786
+  },
+  "n_candidates_available": 20000,
+  "n_candidates_used": 20000,
+  "max_candidates_requested": 20000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "explicit_champion_only",
+  "max_portfolio_pd_requested": 0.18,
+  "max_portfolio_pd_effective": 0.12,
+  "robust_policy": {
+    "source": "champion_policy_artifact::explicit_champion_only",
+    "risk_tolerance": 0.12,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.0,
+    "delta_cap_quantile": 1.0
+  },
+  "champion_policy_path": "models/champion_portfolio_policy.json",
+  "candidate_universe_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/policy_selector_canary/2026-03-10-economic-selector-canary-lite/artifacts/data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.483,
+    "significant": false,
+    "n_boot": 1000,
+    "seed": 42
+  },
+  "policy_search": [],
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/policy_selector_canary/2026-03-10-economic-selector-canary-lite/artifacts/data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": 0.0,
+    "tolerance_total_return": 5552.767406534177,
+    "tolerance_pct_of_control": 0.05,
+    "passed": true
+  }
+}

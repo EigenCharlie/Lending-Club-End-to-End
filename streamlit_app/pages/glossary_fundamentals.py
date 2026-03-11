@@ -14,7 +14,7 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.concept_map import get_page_concepts
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import format_number, format_pct, load_json, try_load_json, try_load_parquet
+from streamlit_app.utils import format_number, format_pct, load_json, try_load_json, try_load_parquet, page_error_boundary
 
 st.title("📖 Glosario y Fundamentos")
 st.caption(
@@ -546,179 +546,185 @@ st.caption(
     "`reports/guia_metricas_decision_negocio_vs_papers_2026-02-20.md`."
 )
 
-rob_summary = try_load_parquet("portfolio_robustness_summary")
-rob_frontier = try_load_parquet("portfolio_robustness_frontier")
 
-if rob_summary.empty or rob_frontier.empty:
-    st.info("No se encontraron artefactos de robustez para construir la guía de perfiles.")
-else:
-    profile_cfg = pd.DataFrame(
+with page_error_boundary("glossary_fundamentals"):
+    rob_summary = try_load_parquet("portfolio_robustness_summary")
+    rob_frontier = try_load_parquet("portfolio_robustness_frontier")
+
+    if rob_summary.empty or rob_frontier.empty:
+        st.info("No se encontraron artefactos de robustez para construir la guía de perfiles.")
+    else:
+        profile_cfg = pd.DataFrame(
+            [
+                {
+                    "Perfil": "Retorno",
+                    "risk_target": 0.12,
+                    "lambda_target": 0.0,
+                    "Cuándo usarlo": "Objetivo comercial agresivo, tolerancia alta a volatilidad.",
+                    "Impacto negocio esperado": "Mayor upside de retorno, menor colchón ante deterioro inesperado.",
+                },
+                {
+                    "Perfil": "Balanceado",
+                    "risk_target": 0.10,
+                    "lambda_target": 0.0,
+                    "Cuándo usarlo": "Operación estándar con metas simultáneas de crecimiento y control.",
+                    "Impacto negocio esperado": "Compromiso razonable entre rentabilidad y resiliencia.",
+                },
+                {
+                    "Perfil": "Prudente",
+                    "risk_target": 0.06,
+                    "lambda_target": 2.0,
+                    "Cuándo usarlo": "Contexto de estrés, foco en preservación de capital y estabilidad.",
+                    "Impacto negocio esperado": "Menor retorno y volumen financiado, mayor protección en peor caso.",
+                },
+            ]
+        )
+
+        rows: list[dict[str, object]] = []
+        robust_only = rob_frontier[rob_frontier["policy"] == "robust"].copy()
+        if robust_only.empty:
+            st.info("No hay filas con policy='robust' en la frontera de robustez.")
+        for _, cfg in profile_cfg.iterrows():
+            if robust_only.empty:
+                break
+            risk_target = float(cfg["risk_target"])
+            lam_target = float(cfg["lambda_target"])
+
+            robust_slice = robust_only.copy()
+            robust_slice["_risk_dist"] = (robust_slice["risk_tolerance"] - risk_target).abs()
+            robust_slice["_lam_dist"] = (robust_slice["uncertainty_aversion"] - lam_target).abs()
+            robust_row = robust_slice.sort_values(["_risk_dist", "_lam_dist"]).iloc[0]
+
+            summary_slice = rob_summary.copy()
+            summary_slice["_risk_dist"] = (summary_slice["risk_tolerance"] - risk_target).abs()
+            summary_row = summary_slice.sort_values("_risk_dist").iloc[0]
+
+            rows.append(
+                {
+                    "Perfil": cfg["Perfil"],
+                    "Parámetros": (
+                        f"risk_tolerance={robust_row['risk_tolerance']:.2f}, "
+                        f"lambda={robust_row['uncertainty_aversion']:.1f}"
+                    ),
+                    "Retorno robusto": float(robust_row["expected_return_net_point"]),
+                    "Retorno no robusto": float(summary_row["baseline_nonrobust_return"]),
+                    "Price of Robustness (%)": float(robust_row["price_of_robustness_pct"]),
+                    "Worst-case PD": float(robust_row["worst_case_pd"]),
+                    "N financiados (robusto)": int(robust_row["n_funded"]),
+                    "Cuándo usarlo": str(cfg["Cuándo usarlo"]),
+                    "Impacto negocio esperado": str(cfg["Impacto negocio esperado"]),
+                }
+            )
+
+        profiles_df = pd.DataFrame(rows)
+        profiles_view = profiles_df.copy()
+        profiles_view["Retorno robusto"] = profiles_view["Retorno robusto"].map(
+            lambda v: format_number(float(v), prefix="$")
+        )
+        profiles_view["Retorno no robusto"] = profiles_view["Retorno no robusto"].map(
+            lambda v: format_number(float(v), prefix="$")
+        )
+        profiles_view["Price of Robustness (%)"] = profiles_view["Price of Robustness (%)"].map(
+            lambda v: f"{float(v):.2f}%"
+        )
+        profiles_view["Worst-case PD"] = profiles_view["Worst-case PD"].map(
+            lambda v: format_pct(float(v), decimals=1)
+        )
+        st.dataframe(profiles_view, width="stretch", hide_index=True)
+
+        st.markdown(
+            """
+    **Regla rápida de decisión**
+
+    1. Si la prioridad es crecer retorno: usa **Retorno**.
+    2. Si la prioridad es operar estable todo el año: usa **Balanceado**.
+    3. Si la prioridad es proteger capital en contexto adverso: usa **Prudente**.
+    """
+        )
+
+    st.subheader("Negocio vs papers: ¿qué tan adoptado está cada enfoque?")
+    adoption_df = pd.DataFrame(
         [
             {
-                "Perfil": "Retorno",
-                "risk_target": 0.12,
-                "lambda_target": 0.0,
-                "Cuándo usarlo": "Objetivo comercial agresivo, tolerancia alta a volatilidad.",
-                "Impacto negocio esperado": "Mayor upside de retorno, menor colchón ante deterioro inesperado.",
+                "Práctica": "AUC / KS para discriminación de score",
+                "En negocio": "Muy adoptado",
+                "En papers": "Muy adoptado",
+                "Qué implica para el lector": "Es el estándar para evaluar ranking de riesgo.",
             },
             {
-                "Perfil": "Balanceado",
-                "risk_target": 0.10,
-                "lambda_target": 0.0,
-                "Cuándo usarlo": "Operación estándar con metas simultáneas de crecimiento y control.",
-                "Impacto negocio esperado": "Compromiso razonable entre rentabilidad y resiliencia.",
+                "Práctica": "Brier / ECE para calibración",
+                "En negocio": "Adoptado en equipos maduros de riesgo",
+                "En papers": "Muy adoptado",
+                "Qué implica para el lector": "Clave cuando PD se usa para pricing, límites e IFRS9.",
             },
             {
-                "Perfil": "Prudente",
-                "risk_target": 0.06,
-                "lambda_target": 2.0,
-                "Cuándo usarlo": "Contexto de estrés, foco en preservación de capital y estabilidad.",
-                "Impacto negocio esperado": "Menor retorno y volumen financiado, mayor protección en peor caso.",
+                "Práctica": "Conformal prediction para intervalos de PD",
+                "En negocio": "Adopción emergente",
+                "En papers": "Crecimiento fuerte",
+                "Qué implica para el lector": "Aporta garantía de cobertura y mejor gestión de incertidumbre.",
+            },
+            {
+                "Práctica": "Optimización robusta con uncertainty sets",
+                "En negocio": "Adopción selectiva (casos de alto impacto)",
+                "En papers": "Bien establecida",
+                "Qué implica para el lector": "Hace explícito el trade-off entre retorno y protección.",
+            },
+            {
+                "Práctica": "Price of Robustness como KPI formal",
+                "En negocio": "Menos común como KPI explícito",
+                "En papers": "Muy común",
+                "Qué implica para el lector": "Sirve para explicar al negocio el costo del “seguro” de robustez.",
+            },
+            {
+                "Práctica": "IFRS9 Stage + escenarios ECL",
+                "En negocio": "Obligatorio bajo IFRS",
+                "En papers": "Muy estudiado",
+                "Qué implica para el lector": "No es opcional; impacta provisión, capital y resultados.",
             },
         ]
     )
+    st.dataframe(adoption_df, width="stretch", hide_index=True)
 
-    rows: list[dict[str, object]] = []
-    robust_only = rob_frontier[rob_frontier["policy"] == "robust"].copy()
-    for _, cfg in profile_cfg.iterrows():
-        risk_target = float(cfg["risk_target"])
-        lam_target = float(cfg["lambda_target"])
-
-        robust_slice = robust_only.copy()
-        robust_slice["_risk_dist"] = (robust_slice["risk_tolerance"] - risk_target).abs()
-        robust_slice["_lam_dist"] = (robust_slice["uncertainty_aversion"] - lam_target).abs()
-        robust_row = robust_slice.sort_values(["_risk_dist", "_lam_dist"]).iloc[0]
-
-        summary_slice = rob_summary.copy()
-        summary_slice["_risk_dist"] = (summary_slice["risk_tolerance"] - risk_target).abs()
-        summary_row = summary_slice.sort_values("_risk_dist").iloc[0]
-
-        rows.append(
-            {
-                "Perfil": cfg["Perfil"],
-                "Parámetros": (
-                    f"risk_tolerance={robust_row['risk_tolerance']:.2f}, "
-                    f"lambda={robust_row['uncertainty_aversion']:.1f}"
-                ),
-                "Retorno robusto": float(robust_row["expected_return_net_point"]),
-                "Retorno no robusto": float(summary_row["baseline_nonrobust_return"]),
-                "Price of Robustness (%)": float(robust_row["price_of_robustness_pct"]),
-                "Worst-case PD": float(robust_row["worst_case_pd"]),
-                "N financiados (robusto)": int(robust_row["n_funded"]),
-                "Cuándo usarlo": str(cfg["Cuándo usarlo"]),
-                "Impacto negocio esperado": str(cfg["Impacto negocio esperado"]),
-            }
+    with st.expander("Guion de 1 minuto para explicarlo sin tecnicismos"):
+        st.markdown(
+            """
+    Nuestro modelo no solo ordena riesgo (AUC/KS), también produce probabilidades confiables (Brier/ECE).
+    Luego le agregamos bandas de incertidumbre (conformal) para no decidir “a ciegas”.
+    Con esas bandas, comparamos dos políticas: una que maximiza retorno y otra que protege peor caso.
+    La diferencia entre ambas es el Price of Robustness: cuánto pagamos por estabilidad.
+    Finalmente, traducimos todo a provisiones IFRS9 para ver impacto contable real.
+    """
         )
 
-    profiles_df = pd.DataFrame(rows)
-    profiles_view = profiles_df.copy()
-    profiles_view["Retorno robusto"] = profiles_view["Retorno robusto"].map(
-        lambda v: format_number(float(v), prefix="$")
-    )
-    profiles_view["Retorno no robusto"] = profiles_view["Retorno no robusto"].map(
-        lambda v: format_number(float(v), prefix="$")
-    )
-    profiles_view["Price of Robustness (%)"] = profiles_view["Price of Robustness (%)"].map(
-        lambda v: f"{float(v):.2f}%"
-    )
-    profiles_view["Worst-case PD"] = profiles_view["Worst-case PD"].map(
-        lambda v: format_pct(float(v), decimals=1)
-    )
-    st.dataframe(profiles_view, width="stretch", hide_index=True)
-
+    # ── Reading Guide ──
+    st.subheader("Guía de lectura del dashboard")
     st.markdown(
         """
-**Regla rápida de decisión**
-
-1. Si la prioridad es crecer retorno: usa **Retorno**.
-2. Si la prioridad es operar estable todo el año: usa **Balanceado**.
-3. Si la prioridad es proteger capital en contexto adverso: usa **Prudente**.
-"""
-    )
-
-st.subheader("Negocio vs papers: ¿qué tan adoptado está cada enfoque?")
-adoption_df = pd.DataFrame(
-    [
-        {
-            "Práctica": "AUC / KS para discriminación de score",
-            "En negocio": "Muy adoptado",
-            "En papers": "Muy adoptado",
-            "Qué implica para el lector": "Es el estándar para evaluar ranking de riesgo.",
-        },
-        {
-            "Práctica": "Brier / ECE para calibración",
-            "En negocio": "Adoptado en equipos maduros de riesgo",
-            "En papers": "Muy adoptado",
-            "Qué implica para el lector": "Clave cuando PD se usa para pricing, límites e IFRS9.",
-        },
-        {
-            "Práctica": "Conformal prediction para intervalos de PD",
-            "En negocio": "Adopción emergente",
-            "En papers": "Crecimiento fuerte",
-            "Qué implica para el lector": "Aporta garantía de cobertura y mejor gestión de incertidumbre.",
-        },
-        {
-            "Práctica": "Optimización robusta con uncertainty sets",
-            "En negocio": "Adopción selectiva (casos de alto impacto)",
-            "En papers": "Bien establecida",
-            "Qué implica para el lector": "Hace explícito el trade-off entre retorno y protección.",
-        },
-        {
-            "Práctica": "Price of Robustness como KPI formal",
-            "En negocio": "Menos común como KPI explícito",
-            "En papers": "Muy común",
-            "Qué implica para el lector": "Sirve para explicar al negocio el costo del “seguro” de robustez.",
-        },
-        {
-            "Práctica": "IFRS9 Stage + escenarios ECL",
-            "En negocio": "Obligatorio bajo IFRS",
-            "En papers": "Muy estudiado",
-            "Qué implica para el lector": "No es opcional; impacta provisión, capital y resultados.",
-        },
-    ]
-)
-st.dataframe(adoption_df, width="stretch", hide_index=True)
-
-with st.expander("Guion de 1 minuto para explicarlo sin tecnicismos"):
-    st.markdown(
-        """
-Nuestro modelo no solo ordena riesgo (AUC/KS), también produce probabilidades confiables (Brier/ECE).
-Luego le agregamos bandas de incertidumbre (conformal) para no decidir “a ciegas”.
-Con esas bandas, comparamos dos políticas: una que maximiza retorno y otra que protege peor caso.
-La diferencia entre ambas es el Price of Robustness: cuánto pagamos por estabilidad.
-Finalmente, traducimos todo a provisiones IFRS9 para ver impacto contable real.
-"""
-    )
-
-# ── Reading Guide ──
-st.subheader("Guía de lectura del dashboard")
-st.markdown(
+    | Orden | Sección | Página | Pregunta que responde |
+    |:-----:|---------|--------|-----------------------|
+    | 1 | Inicio | 🏠 Resumen Ejecutivo | ¿Qué problema resolvemos y con qué resultados? |
+    | 2 | Inicio | 📖 Glosario y Fundamentos (esta página) | ¿Qué significa cada término y técnica? |
+    | 3 | Recorrido E2E | 🧭 Visión End-to-End | ¿Cuál es la narrativa completa del proyecto? |
+    | 4 | Recorrido E2E | 🗂️ Arquitectura y Linaje de Datos | ¿Cómo fluyen los datos a través del sistema? |
+    | 5 | Recorrido E2E | 🧩 Mapa Integrado de Métodos | ¿Cómo se conectan las técnicas entre sí? |
+    | 6 | Recorrido E2E | 📚 Atlas de Evidencia | ¿Dónde está la evidencia de cada notebook? |
+    | 7 | Analítica | 🔧 Ingeniería de Features | ¿Cómo se transformaron las variables para el modelo? |
+    | 8 | Analítica | 📊 Historia de Datos | ¿Qué contiene el dataset y qué patrones existen? |
+    | 9 | Analítica | 🔬 Laboratorio de Modelos | ¿Qué modelo se eligió y por qué? |
+    | 10 | Analítica | 📐 Cuantificación de Incertidumbre | ¿Cómo cuantificamos la incertidumbre de las predicciones? |
+    | 11 | Analítica | 📈 Panorama Temporal | ¿Cómo evolucionan los defaults en el tiempo? |
+    | 12 | Analítica | ⏳ Análisis de Supervivencia | ¿Cuándo ocurren los defaults? |
+    | 13 | Analítica | 🧬 Inteligencia Causal | ¿Qué intervenciones pueden reducir el riesgo? |
+    | 14 | Decisiones | 💼 Optimizador de Portafolio | ¿Cómo asignar capital bajo incertidumbre? |
+    | 15 | Decisiones | 🏦 Provisiones IFRS9 | ¿Cuánto provisionar bajo diferentes escenarios? |
+    | 16 | Gobernanza | 🛡️ Gobernanza del Modelo | ¿Es el modelo confiable y justo? |
+    | 17 | Exploración | 💬 Chat con Datos | Exploración libre por SQL |
     """
-| Orden | Sección | Página | Pregunta que responde |
-|:-----:|---------|--------|-----------------------|
-| 1 | Inicio | 🏠 Resumen Ejecutivo | ¿Qué problema resolvemos y con qué resultados? |
-| 2 | Inicio | 📖 Glosario y Fundamentos (esta página) | ¿Qué significa cada término y técnica? |
-| 3 | Recorrido E2E | 🧭 Visión End-to-End | ¿Cuál es la narrativa completa del proyecto? |
-| 4 | Recorrido E2E | 🗂️ Arquitectura y Linaje de Datos | ¿Cómo fluyen los datos a través del sistema? |
-| 5 | Recorrido E2E | 🧩 Mapa Integrado de Métodos | ¿Cómo se conectan las técnicas entre sí? |
-| 6 | Recorrido E2E | 📚 Atlas de Evidencia | ¿Dónde está la evidencia de cada notebook? |
-| 7 | Analítica | 🔧 Ingeniería de Features | ¿Cómo se transformaron las variables para el modelo? |
-| 8 | Analítica | 📊 Historia de Datos | ¿Qué contiene el dataset y qué patrones existen? |
-| 9 | Analítica | 🔬 Laboratorio de Modelos | ¿Qué modelo se eligió y por qué? |
-| 10 | Analítica | 📐 Cuantificación de Incertidumbre | ¿Cómo cuantificamos la incertidumbre de las predicciones? |
-| 11 | Analítica | 📈 Panorama Temporal | ¿Cómo evolucionan los defaults en el tiempo? |
-| 12 | Analítica | ⏳ Análisis de Supervivencia | ¿Cuándo ocurren los defaults? |
-| 13 | Analítica | 🧬 Inteligencia Causal | ¿Qué intervenciones pueden reducir el riesgo? |
-| 14 | Decisiones | 💼 Optimizador de Portafolio | ¿Cómo asignar capital bajo incertidumbre? |
-| 15 | Decisiones | 🏦 Provisiones IFRS9 | ¿Cuánto provisionar bajo diferentes escenarios? |
-| 16 | Gobernanza | 🛡️ Gobernanza del Modelo | ¿Es el modelo confiable y justo? |
-| 17 | Exploración | 💬 Chat con Datos | Exploración libre por SQL |
-"""
-)
+    )
 
-next_page_teaser(
-    "Historia de Datos",
-    "Explora el dataset: distribuciones, patrones de riesgo y dinámica temporal de 1.35M préstamos.",
-    "pages/data_story.py",
-)
-render_page_feedback("glossary_fundamentals")
+    next_page_teaser(
+        "Historia de Datos",
+        "Explora el dataset: distribuciones, patrones de riesgo y dinámica temporal de 1.35M préstamos.",
+        "pages/data_story.py",
+    )
+    render_page_feedback("glossary_fundamentals")

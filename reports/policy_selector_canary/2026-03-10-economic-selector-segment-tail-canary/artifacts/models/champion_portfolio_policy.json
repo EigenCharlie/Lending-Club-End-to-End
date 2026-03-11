@@ -1,0 +1,76 @@
+{
+  "schema_version": "2026-03-10.1",
+  "generated_at_utc": "2026-03-11T02:40:57.091129+00:00",
+  "run_tag": "2026-03-10-economic-selector-segment-tail-canary",
+  "selection_stage": "economic_actual_ab_v1",
+  "selection_universe_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/policy_selector_canary/2026-03-10-economic-selector-segment-tail-canary/artifacts/data/processed/champion_candidate_universe.parquet",
+  "selection_outcome": "robust_selected",
+  "selected_policy": {
+    "source": "economic_actual_ab_v1",
+    "risk_tolerance": 0.12,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "policy_mode": "segment_tail_blended_uncertainty",
+    "gamma": 0.05,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.75
+  },
+  "economic_metrics": {
+    "diff_total_return": 3434.02746485261,
+    "passed_no_regression": true,
+    "funded_ratio": 1.0,
+    "return_per_funded_delta": 16.509747427175967
+  },
+  "robustness_metrics": {
+    "worst_case_pd_reduction_bps": 20.405871022320945,
+    "price_of_robustness_pct": 0.0,
+    "allocation_similarity": 0.9947892005968703
+  },
+  "research_alternatives": {
+    "promotion_first": {
+      "risk_tolerance": 0.12,
+      "policy_mode": "segment_tail_blended_uncertainty",
+      "gamma": 0.1,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.0,
+      "min_budget_utilization": 0.05,
+      "pd_cap_slack_penalty": 1.5,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "robustness_aware": {
+      "risk_tolerance": 0.12,
+      "policy_mode": "tail_blended_uncertainty",
+      "gamma": 0.5,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.0,
+      "min_budget_utilization": 0.05,
+      "pd_cap_slack_penalty": 1.5,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "balanced_robustness": {
+      "risk_tolerance": 0.12,
+      "policy_mode": "segment_tail_blended_uncertainty",
+      "gamma": 0.35,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.0,
+      "min_budget_utilization": 0.05,
+      "pd_cap_slack_penalty": 1.5,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "guardrail_robustness": {
+      "risk_tolerance": 0.08,
+      "policy_mode": "blended_uncertainty",
+      "gamma": 0.35,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.0,
+      "min_budget_utilization": 0.05,
+      "pd_cap_slack_penalty": 1.5,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    }
+  }
+}

@@ -286,14 +286,22 @@ if not rapids_compare.empty:
         full_speedup = pd_benchmark.loc[
             pd_benchmark["stage"] == "full_stage", "speedup_gpu_vs_cpu"
         ]
-        hpo_gpu_status = pd_benchmark.loc[
-            pd_benchmark["stage"] == "hpo", "gpu_status"
-        ]
+        hpo_row = pd_benchmark.loc[pd_benchmark["stage"] == "hpo"]
+        if "gpu_status" in pd_benchmark.columns:
+            hpo_gpu_status = hpo_row["gpu_status"]
+            hpo_status_label = str(hpo_gpu_status.iloc[0]) if not hpo_gpu_status.empty else "N/D"
+        else:
+            hpo_gpu_seconds = hpo_row["gpu_seconds"] if "gpu_seconds" in hpo_row.columns else pd.Series(dtype=float)
+            hpo_status_label = (
+                "inestable"
+                if not hpo_gpu_seconds.empty and pd.isna(hpo_gpu_seconds.iloc[0])
+                else "N/D"
+            )
         st.caption(
             "PD ya está separado honestamente en tres problemas: "
             f"fit-only ({float(fit_speedup.iloc[0]) if not fit_speedup.empty else 0:.2f}x), "
             f"full-stage ({float(full_speedup.iloc[0]) if not full_speedup.empty else 0:.2f}x) "
-            f"y HPO GPU ({str(hpo_gpu_status.iloc[0]) if not hpo_gpu_status.empty else 'N/D'})."
+            f"y HPO GPU ({hpo_status_label})."
         )
 
 st.markdown(

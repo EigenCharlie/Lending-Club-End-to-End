@@ -20,6 +20,7 @@ from scripts.simulate_ab_test import (
     _candidate_metrics,
     _run_strategy,
 )
+from src.evaluation.ab_testing import compare_strategies
 
 SCHEMA_VERSION = "2026-03-10.1"
 
@@ -36,6 +37,7 @@ def _policy_key(row: pd.Series) -> tuple[object, ...]:
         float(row.get("gamma", 0.0)),
         float(row.get("risk_tolerance", 0.0)),
         float(row.get("delta_cap_quantile", 1.0)),
+        float(row.get("tail_focus_quantile", 1.0)),
         float(row.get("uncertainty_aversion", 0.0)),
         float(row.get("min_budget_utilization", 0.0)),
         float(row.get("pd_cap_slack_penalty", 0.0)),
@@ -52,6 +54,7 @@ def _policy_from_row(row: pd.Series, source: str) -> dict[str, float | str]:
         "policy_mode": str(row["policy_mode"]),
         "gamma": float(row["gamma"]),
         "delta_cap_quantile": float(row.get("delta_cap_quantile", 1.0)),
+        "tail_focus_quantile": float(row.get("tail_focus_quantile", 1.0)),
     }
 
 
@@ -75,6 +78,8 @@ def _dedupe_candidates(rows: list[pd.Series]) -> list[pd.Series]:
 
 def _select_candidate_rows(frontier: pd.DataFrame, top_k: int) -> list[pd.Series]:
     work = frontier.copy()
+    if "tail_focus_quantile" not in work.columns:
+        work["tail_focus_quantile"] = 1.0
     work = work.loc[
         (work["policy"] != "nonrobust")
         & work["eligible_for_canonical_selection"].fillna(False).astype(bool)
@@ -84,7 +89,13 @@ def _select_candidate_rows(frontier: pd.DataFrame, top_k: int) -> list[pd.Series
 
     work["realized_total_return"] = pd.to_numeric(work["realized_total_return"], errors="coerce")
     candidates: list[pd.Series] = []
-    bucket_cols = ["policy_mode", "gamma", "risk_tolerance", "delta_cap_quantile"]
+    bucket_cols = [
+        "policy_mode",
+        "gamma",
+        "risk_tolerance",
+        "delta_cap_quantile",
+        "tail_focus_quantile",
+    ]
     for _, bucket in work.groupby(bucket_cols, dropna=False):
         top = bucket.sort_values("realized_total_return", ascending=False).head(int(top_k))
         candidates.extend(top.to_dict(orient="records"))
@@ -99,6 +110,58 @@ def _select_candidate_rows(frontier: pd.DataFrame, top_k: int) -> list[pd.Series
             flagged = work.loc[work[col].fillna(False).astype(bool)]
             candidates.extend(flagged.to_dict(orient="records"))
     return _dedupe_candidates([pd.Series(r) for r in candidates])
+
+
+def _breadth_score(
+    *,
+    funded_ratio: float,
+    total_allocated_ratio: float,
+    allocation_similarity: float,
+    weight_funded_ratio: float,
+    weight_allocation_ratio: float,
+    weight_allocation_similarity: float,
+) -> float:
+    total_weight = (
+        float(weight_funded_ratio)
+        + float(weight_allocation_ratio)
+        + float(weight_allocation_similarity)
+    )
+    if total_weight <= 0:
+        return float(np.clip(allocation_similarity, 0.0, 1.0))
+    score = (
+        float(weight_funded_ratio) * float(np.clip(funded_ratio, 0.0, 1.0))
+        + float(weight_allocation_ratio) * float(np.clip(total_allocated_ratio, 0.0, 1.0))
+        + float(weight_allocation_similarity) * float(np.clip(allocation_similarity, 0.0, 1.0))
+    ) / total_weight
+    return float(np.clip(score, 0.0, 1.0))
+
+
+def _ab_like_score(
+    *,
+    returns_control: np.ndarray,
+    returns_candidate: np.ndarray,
+    seed: int,
+    n_boot: int,
+) -> dict[str, float | bool]:
+    stats = compare_strategies(
+        returns_a=returns_control,
+        returns_b=returns_candidate,
+        method="bootstrap",
+        n_boot=n_boot,
+        alpha=0.05,
+        seed=seed,
+    )
+    diff_total = float(np.sum(returns_candidate) - np.sum(returns_control))
+    tolerance_total = abs(float(np.sum(returns_control))) * 0.05
+    return {
+        "ab_like_diff_total_return": diff_total,
+        "ab_like_tolerance_total_return": tolerance_total,
+        "ab_like_passed_no_regression": bool(diff_total >= -tolerance_total),
+        "ab_like_mean_diff": float(stats["diff"]),
+        "ab_like_ci_low": float(stats["ci_low"]),
+        "ab_like_ci_high": float(stats["ci_high"]),
+        "ab_like_p_value": float(stats["p_value"]),
+    }
 
 
 def _control_metrics_by_risk(
@@ -157,11 +220,24 @@ def main(
         config = yaml.safe_load(f)
     selection_cfg = dict(config.get("portfolio_selection", {}) or {})
     top_k = int(selection_cfg.get("actual_ab_top_k", 20))
+    selector_name = str(selection_cfg.get("canonical_selector", "economic_actual_ab_v1"))
     min_funded_ratio = float(selection_cfg.get("min_funded_ratio", 0.95))
+    min_total_allocated_ratio = float(selection_cfg.get("min_total_allocated_ratio", 0.98))
+    min_breadth_score = float(selection_cfg.get("min_breadth_score", min_funded_ratio))
+    breadth_weight_funded_ratio = float(selection_cfg.get("breadth_weight_funded_ratio", 0.5))
+    breadth_weight_allocation_ratio = float(
+        selection_cfg.get("breadth_weight_allocation_ratio", 0.3)
+    )
+    breadth_weight_allocation_similarity = float(
+        selection_cfg.get("breadth_weight_allocation_similarity", 0.2)
+    )
     max_por_pct = float(selection_cfg.get("max_price_of_robustness_pct", -15.0))
     canonical_modes = {
         str(x) for x in selection_cfg.get("canonical_policy_modes", ["blended_uncertainty"])
     }
+    ab_like_top_m = int(selection_cfg.get("ab_like_top_m", 8))
+    ab_like_bootstrap_n = int(selection_cfg.get("ab_like_bootstrap_n", 200))
+    ab_like_seed = int(selection_cfg.get("ab_like_seed", 42))
 
     frontier = pd.read_parquet(_artifact_path(frontier_path))
     if frontier.empty:
@@ -204,7 +280,7 @@ def main(
             max_portfolio_pd=risk_tol,
             solver_backend=solver_backend,
         )
-        _, metrics_b = _candidate_metrics(
+        returns_b, metrics_b = _candidate_metrics(
             solution=sol_b,
             loan_amnt=loan_amnt,
             int_rates=int_rates,
@@ -212,13 +288,30 @@ def main(
             lgd_val=0.45,
         )
         control_metrics = control["metrics"]
+        returns_control = np.asarray(control["returns"], dtype=float)
         diff_total_return = float(
             metrics_b["total_return"] - float(control_metrics["total_return"])
         )
+        return_delta_pct = float(
+            diff_total_return / (abs(float(control_metrics["total_return"])) + 1e-6) * 100.0
+        )
+        actual_price_of_robustness_pct = float(min(return_delta_pct, 0.0))
         tolerance_total_return = abs(float(control_metrics["total_return"])) * 0.05
         passed_no_regression = bool(diff_total_return >= -tolerance_total_return)
         funded_ratio = float(metrics_b["n_funded"] / max(float(control_metrics["n_funded"]), 1.0))
+        total_allocated_ratio = float(
+            metrics_b["total_allocated"] / max(float(control_metrics["total_allocated"]), 1.0)
+        )
         alloc_b = np.array([sol_b["allocation"][i] for i in range(len(loan_amnt))], dtype=float)
+        allocation_similarity = _allocation_similarity(control["allocation"], alloc_b)
+        breadth_score = _breadth_score(
+            funded_ratio=funded_ratio,
+            total_allocated_ratio=total_allocated_ratio,
+            allocation_similarity=allocation_similarity,
+            weight_funded_ratio=breadth_weight_funded_ratio,
+            weight_allocation_ratio=breadth_weight_allocation_ratio,
+            weight_allocation_similarity=breadth_weight_allocation_similarity,
+        )
         cand_worst_pd = float(
             np.sum(alloc_b * loan_amnt * pd_high) / (float(sol_b["total_allocated"]) + 1e-6)
         )
@@ -230,49 +323,106 @@ def main(
                 "diff_total_return": diff_total_return,
                 "tolerance_total_return": tolerance_total_return,
                 "funded_ratio": funded_ratio,
+                "total_allocated_ratio": total_allocated_ratio,
                 "worst_case_pd_reduction_bps": float(
                     (float(control["worst_case_pd"]) - cand_worst_pd) * 1e4
                 ),
-                "price_of_robustness_pct": float(row.get("price_of_robustness_pct", 0.0)),
+                "price_of_robustness_pct": actual_price_of_robustness_pct,
+                "return_delta_pct": return_delta_pct,
+                "frontier_price_of_robustness_pct": float(row.get("price_of_robustness_pct", 0.0)),
                 "return_per_funded_delta": float(
                     metrics_b["avg_return_per_funded"]
                     - float(control_metrics["avg_return_per_funded"])
                 ),
-                "allocation_similarity": _allocation_similarity(control["allocation"], alloc_b),
+                "allocation_similarity": allocation_similarity,
+                "breadth_score": breadth_score,
                 "n_funded_candidate": int(metrics_b["n_funded"]),
                 "n_funded_control": int(control_metrics["n_funded"]),
                 "total_return_candidate": float(metrics_b["total_return"]),
                 "total_return_control": float(control_metrics["total_return"]),
                 "eligible_hard_filters": False,
+                "_returns_candidate": returns_b,
+                "_returns_control": returns_control,
             }
         )
 
     for item in evaluated:
-        item["eligible_hard_filters"] = bool(
+        base_filters = bool(
             item["passed_no_regression"]
-            and float(item["funded_ratio"]) >= min_funded_ratio
             and float(item["price_of_robustness_pct"]) >= max_por_pct
             and str(item["policy"]["policy_mode"]) in canonical_modes
         )
+        if selector_name in {"economic_actual_ab_v2", "economic_actual_ab_v3"}:
+            item["eligible_hard_filters"] = bool(
+                base_filters
+                and float(item["total_allocated_ratio"]) >= min_total_allocated_ratio
+                and float(item["breadth_score"]) >= min_breadth_score
+                and float(item["funded_ratio"]) >= min_funded_ratio
+            )
+        else:
+            item["eligible_hard_filters"] = bool(
+                base_filters and float(item["funded_ratio"]) >= min_funded_ratio
+            )
 
     eligible = [x for x in evaluated if bool(x["eligible_hard_filters"])]
     robust_eligible = [x for x in eligible if float(x["policy"]["gamma"]) > 0.0]
     candidate_pool = robust_eligible if robust_eligible else eligible
 
-    fallback_applied = False
-    fallback_reason = None
-    selector_outcome = "robust_selected"
-    if candidate_pool:
-        selected = sorted(
+    if selector_name == "economic_actual_ab_v3" and candidate_pool:
+        pre_ranked = sorted(
             candidate_pool,
             key=lambda x: (
                 float(x["worst_case_pd_reduction_bps"]),
                 float(x["diff_total_return"]),
+                float(x.get("breadth_score", 0.0)),
                 -abs(float(x["price_of_robustness_pct"])),
                 float(x["funded_ratio"]),
             ),
             reverse=True,
-        )[0]
+        )[: max(1, ab_like_top_m)]
+        for idx, item in enumerate(pre_ranked):
+            item.update(
+                _ab_like_score(
+                    returns_control=np.asarray(item["_returns_control"], dtype=float),
+                    returns_candidate=np.asarray(item["_returns_candidate"], dtype=float),
+                    seed=ab_like_seed + idx,
+                    n_boot=ab_like_bootstrap_n,
+                )
+            )
+        robust_ab_like = [
+            x for x in pre_ranked if bool(x.get("ab_like_passed_no_regression", False))
+        ]
+        candidate_pool = robust_ab_like if robust_ab_like else pre_ranked
+
+    fallback_applied = False
+    fallback_reason = None
+    selector_outcome = "robust_selected"
+    if candidate_pool:
+        if selector_name == "economic_actual_ab_v3":
+            selected = sorted(
+                candidate_pool,
+                key=lambda x: (
+                    bool(x.get("ab_like_passed_no_regression", False)),
+                    float(x.get("ab_like_diff_total_return", x["diff_total_return"])),
+                    float(x["worst_case_pd_reduction_bps"]),
+                    float(x.get("breadth_score", 0.0)),
+                    -abs(float(x["price_of_robustness_pct"])),
+                    float(x["funded_ratio"]),
+                ),
+                reverse=True,
+            )[0]
+        else:
+            selected = sorted(
+                candidate_pool,
+                key=lambda x: (
+                    float(x["worst_case_pd_reduction_bps"]),
+                    float(x["diff_total_return"]),
+                    float(x.get("breadth_score", 0.0)),
+                    -abs(float(x["price_of_robustness_pct"])),
+                    float(x["funded_ratio"]),
+                ),
+                reverse=True,
+            )[0]
         if float(selected["policy"]["gamma"]) <= 0.0:
             selector_outcome = "fallback_nonrobust"
             fallback_applied = True
@@ -289,6 +439,7 @@ def main(
                 "gamma": 0.0,
                 "policy_mode": "blended_uncertainty",
                 "delta_cap_quantile": 1.0,
+                "tail_focus_quantile": 1.0,
                 "uncertainty_aversion": 0.0,
                 "min_budget_utilization": 0.0,
                 "pd_cap_slack_penalty": 0.0,
@@ -301,10 +452,12 @@ def main(
             )
             * 0.05,
             "funded_ratio": 1.0,
+            "total_allocated_ratio": 1.0,
             "worst_case_pd_reduction_bps": 0.0,
             "price_of_robustness_pct": 0.0,
             "return_per_funded_delta": 0.0,
             "allocation_similarity": 1.0,
+            "breadth_score": 1.0,
             "n_funded_candidate": int(
                 controls[float(selected_row["risk_tolerance"])]["metrics"]["n_funded"]
             ),
@@ -330,7 +483,7 @@ def main(
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "run_tag": resolved_run_tag,
-        "selection_stage": "economic_actual_ab_v1",
+        "selection_stage": selector_name,
         "selection_universe_path": universe_source or str(_artifact_path(candidate_universe_path)),
         "selection_outcome": selector_outcome,
         "selected_policy": selected["policy"],
@@ -338,12 +491,14 @@ def main(
             "diff_total_return": float(selected["diff_total_return"]),
             "passed_no_regression": bool(selected["passed_no_regression"]),
             "funded_ratio": float(selected["funded_ratio"]),
+            "total_allocated_ratio": float(selected.get("total_allocated_ratio", 1.0)),
             "return_per_funded_delta": float(selected["return_per_funded_delta"]),
         },
         "robustness_metrics": {
             "worst_case_pd_reduction_bps": float(selected["worst_case_pd_reduction_bps"]),
             "price_of_robustness_pct": float(selected["price_of_robustness_pct"]),
             "allocation_similarity": float(selected["allocation_similarity"]),
+            "breadth_score": float(selected.get("breadth_score", 1.0)),
         },
         "research_alternatives": {
             "promotion_first": research_policy.get("selected_policy"),
@@ -352,15 +507,19 @@ def main(
             "guardrail_robustness": research_policy.get("selected_policy_guardrail_robustness"),
         },
     }
+    selected_clean = {k: v for k, v in selected.items() if not str(k).startswith("_returns_")}
     status_payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "run_tag": resolved_run_tag,
-        "selector_name": "economic_actual_ab_v1",
+        "selector_name": selector_name,
         "universe_path": universe_source or str(_artifact_path(candidate_universe_path)),
         "control_metrics": {str(k): dict(v["metrics"]) for k, v in controls.items()},
-        "evaluated_candidates": evaluated,
-        "selected_candidate": selected,
+        "evaluated_candidates": [
+            {k: v for k, v in item.items() if not str(k).startswith("_returns_")}
+            for item in evaluated
+        ],
+        "selected_candidate": selected_clean,
         "selector_outcome": selector_outcome,
         "fallback_applied": fallback_applied,
         "fallback_reason": fallback_reason,

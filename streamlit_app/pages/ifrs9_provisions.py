@@ -35,7 +35,7 @@ from streamlit_app.utils import (
     get_notebook_image_path,
     load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
-    load_parquet,
+    page_error_boundary,
     try_load_parquet,
 )
 
@@ -44,6 +44,7 @@ st.caption(
     "Estimación de ECL por stage, grade y escenario macroeconómico. "
     "Incluye sensibilidad PD/LGD y lectura de riesgo regulatorio."
 )
+
 page_contract = get_page_contract("ifrs9_provisions")
 render_page_header(page_contract)
 render_key_takeaway(
@@ -153,44 +154,45 @@ st.info(
     "un préstamo, eso puede indicar deterioro antes de que la PD puntual lo capture."
 )
 
-scenarios = load_parquet("ifrs9_scenario_summary")
-scenario_grade = load_parquet("ifrs9_scenario_grade_summary")
-sensitivity = load_parquet("ifrs9_sensitivity_grid")
-input_quality = load_parquet("ifrs9_input_quality")
-ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics()
-ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
-ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
-if ecl_comp.empty:
-    baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
-    if baseline_by_grade.empty:
-        ecl_comp = pd.DataFrame(columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"])
+with page_error_boundary("Provisiones IFRS9"):
+    scenarios = try_load_parquet("ifrs9_scenario_summary")
+    scenario_grade = try_load_parquet("ifrs9_scenario_grade_summary")
+    sensitivity = try_load_parquet("ifrs9_sensitivity_grid")
+    input_quality = try_load_parquet("ifrs9_input_quality")
+    ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics()
+    ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
+    ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
+    if ecl_comp.empty:
+        baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
+        if baseline_by_grade.empty:
+            ecl_comp = pd.DataFrame(columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"])
+        else:
+            stage1_proxy = baseline_by_grade["total_ecl"] * (
+                1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
+            )
+            stage2_proxy = baseline_by_grade["total_ecl"] * (
+                baseline_by_grade["stage2_share"] + baseline_by_grade["stage3_share"]
+            )
+            ecl_comp = pd.DataFrame(
+                {
+                    "Grade": baseline_by_grade["grade"],
+                    "ECL_Stage1": stage1_proxy.clip(lower=0.0),
+                    "ECL_Stage2": stage2_proxy.clip(lower=0.0),
+                }
+            )
+            ecl_comp["Stage2/Stage1"] = ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
+
+    if scenarios.empty:
+        base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
+        severe = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
     else:
-        stage1_proxy = baseline_by_grade["total_ecl"] * (
-            1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
-        )
-        stage2_proxy = baseline_by_grade["total_ecl"] * (
-            baseline_by_grade["stage2_share"] + baseline_by_grade["stage3_share"]
-        )
-        ecl_comp = pd.DataFrame(
-            {
-                "Grade": baseline_by_grade["grade"],
-                "ECL_Stage1": stage1_proxy.clip(lower=0.0),
-                "ECL_Stage2": stage2_proxy.clip(lower=0.0),
-            }
-        )
-        ecl_comp["Stage2/Stage1"] = ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
+        base_rows = scenarios[scenarios["scenario"] == "baseline"]
+        severe_rows = scenarios[scenarios["scenario"] == "severe"]
+        base = base_rows.iloc[0] if not base_rows.empty else scenarios.iloc[0]
+        severe = severe_rows.iloc[0] if not severe_rows.empty else scenarios.iloc[-1]
 
-if scenarios.empty:
-    base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
-    severe = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
-else:
-    base_rows = scenarios[scenarios["scenario"] == "baseline"]
-    severe_rows = scenarios[scenarios["scenario"] == "severe"]
-    base = base_rows.iloc[0] if not base_rows.empty else scenarios.iloc[0]
-    severe = severe_rows.iloc[0] if not severe_rows.empty else scenarios.iloc[-1]
-
-if input_quality.empty:
-    input_quality = pd.DataFrame([{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}])
+    if input_quality.empty:
+        input_quality = pd.DataFrame([{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}])
 
 kpi_row(
     [
@@ -198,8 +200,8 @@ kpi_row(
         {"label": "ECL severe", "value": format_number(severe["total_ecl"], prefix="$")},
         {"label": "Stage 2 baseline", "value": f"{base['stage2_share'] * 100:.1f}%"},
         {"label": "Stage 3 baseline", "value": f"{base['stage3_share'] * 100:.1f}%"},
-        {"label": "PD promedio", "value": f"{input_quality.iloc[0]['pd_current_mean'] * 100:.1f}%"},
-        {"label": "N préstamos IFRS9", "value": f"{int(input_quality.iloc[0]['n_rows']):,}"},
+        {"label": "PD promedio", "value": f"{(input_quality.iloc[0]['pd_current_mean'] * 100 if not input_quality.empty else 0.0):.1f}%"},
+        {"label": "N préstamos IFRS9", "value": f"{int(input_quality.iloc[0]['n_rows']) if not input_quality.empty else 0:,}"},
     ],
     n_cols=3,
 )

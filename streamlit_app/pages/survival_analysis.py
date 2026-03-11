@@ -25,7 +25,7 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
+from streamlit_app.utils import get_notebook_image_path, page_error_boundary, try_load_json, try_load_parquet
 
 st.title("⏳ Análisis de Supervivencia")
 st.caption(
@@ -54,7 +54,7 @@ storytelling_intro(
     ],
 )
 
-summary = load_json("pipeline_summary")
+summary = try_load_json("pipeline_summary")
 survival = summary.get("survival", {})
 
 with st.expander("¿Por qué importa el tiempo hasta default?"):
@@ -100,8 +100,8 @@ que exige IFRS9.
 """
 )
 
-km_df = load_parquet("km_curve_data")
-hazard = load_parquet("hazard_ratios")
+km_df = try_load_parquet("km_curve_data")
+hazard = try_load_parquet("hazard_ratios")
 lifetime_pd = try_load_parquet("lifetime_pd_table")
 if lifetime_pd.empty:
     loan_master = try_load_parquet("loan_master")

@@ -24,6 +24,9 @@ def compute_effective_pd(
     policy_mode: str = "hard_worst_case",
     gamma: float = 1.0,
     delta_cap_quantile: float | None = None,
+    tail_focus_quantile: float | None = None,
+    segment_labels: np.ndarray | None = None,
+    min_segment_size: int = 100,
 ) -> np.ndarray:
     """Resolve the PD vector used in the portfolio PD constraint.
 
@@ -31,9 +34,17 @@ def compute_effective_pd(
         pd_point: Point PD estimates.
         pd_high: Upper conformal PD bound.
         policy_mode: `point_estimate`, `hard_worst_case`, `blended_uncertainty`,
-            or `capped_blended_uncertainty`.
+            `capped_blended_uncertainty`, `tail_blended_uncertainty`,
+            `segment_tail_blended_uncertainty`, or
+            `segment_relative_tail_blended_uncertainty`.
         gamma: Blend weight for the blended policies.
         delta_cap_quantile: Optional quantile cap for `capped_blended_uncertainty`.
+        tail_focus_quantile: Optional uncertainty-tail quantile for
+            `tail_blended_uncertainty`.
+        segment_labels: Optional context labels used by
+            `segment_tail_blended_uncertainty`.
+        min_segment_size: Minimum segment size before falling back to global
+            tail cutoff in the segment-based policies.
     """
     point = np.asarray(pd_point, dtype=float)
     high = np.asarray(pd_high, dtype=float)
@@ -51,10 +62,63 @@ def compute_effective_pd(
         q = 1.0 if delta_cap_quantile is None else float(np.clip(delta_cap_quantile, 0.0, 1.0))
         delta_cap = float(np.quantile(delta, q)) if len(delta) else 0.0
         return np.clip(point + weight * np.minimum(delta, delta_cap), 0.0, 1.0)
+    if mode == "tail_blended_uncertainty":
+        weight = float(np.clip(gamma, 0.0, 1.0))
+        delta = np.clip(high - point, 0.0, 1.0)
+        q = 0.9 if tail_focus_quantile is None else float(np.clip(tail_focus_quantile, 0.0, 1.0))
+        cutoff = float(np.quantile(delta, q)) if len(delta) else 0.0
+        local_delta = np.where(delta >= cutoff, delta, 0.0)
+        return np.clip(point + weight * local_delta, 0.0, 1.0)
+    if mode == "segment_tail_blended_uncertainty":
+        weight = float(np.clip(gamma, 0.0, 1.0))
+        delta = np.clip(high - point, 0.0, 1.0)
+        q = 0.9 if tail_focus_quantile is None else float(np.clip(tail_focus_quantile, 0.0, 1.0))
+        global_cutoff = float(np.quantile(delta, q)) if len(delta) else 0.0
+        if segment_labels is None or len(segment_labels) != len(delta):
+            local_delta = np.where(delta >= global_cutoff, delta, 0.0)
+            return np.clip(point + weight * local_delta, 0.0, 1.0)
+
+        labels = pd.Series(np.asarray(segment_labels, dtype=object)).fillna("unknown").astype(str)
+        local_delta = np.zeros_like(delta)
+        for label in labels.unique():
+            mask = labels == label
+            mask_arr = mask.to_numpy(dtype=bool)
+            seg_delta = delta[mask_arr]
+            if len(seg_delta) < int(max(min_segment_size, 1)):
+                cutoff = global_cutoff
+            else:
+                cutoff = float(np.quantile(seg_delta, q))
+            local_delta[mask_arr] = np.where(seg_delta >= cutoff, seg_delta, 0.0)
+        return np.clip(point + weight * local_delta, 0.0, 1.0)
+    if mode == "segment_relative_tail_blended_uncertainty":
+        weight = float(np.clip(gamma, 0.0, 1.0))
+        delta = np.clip(high - point, 0.0, 1.0)
+        relative_width = delta / np.maximum(point, 1e-4)
+        q = 0.9 if tail_focus_quantile is None else float(np.clip(tail_focus_quantile, 0.0, 1.0))
+        global_cutoff = float(np.quantile(relative_width, q)) if len(relative_width) else 0.0
+        if segment_labels is None or len(segment_labels) != len(delta):
+            local_delta = np.where(relative_width >= global_cutoff, delta, 0.0)
+            return np.clip(point + weight * local_delta, 0.0, 1.0)
+
+        labels = pd.Series(np.asarray(segment_labels, dtype=object)).fillna("unknown").astype(str)
+        local_delta = np.zeros_like(delta)
+        for label in labels.unique():
+            mask = labels == label
+            mask_arr = mask.to_numpy(dtype=bool)
+            seg_delta = delta[mask_arr]
+            seg_relative = relative_width[mask_arr]
+            if len(seg_relative) < int(max(min_segment_size, 1)):
+                cutoff = global_cutoff
+            else:
+                cutoff = float(np.quantile(seg_relative, q))
+            local_delta[mask_arr] = np.where(seg_relative >= cutoff, seg_delta, 0.0)
+        return np.clip(point + weight * local_delta, 0.0, 1.0)
     raise ValueError(
         f"Unsupported policy_mode={policy_mode!r}. "
         "Use 'point_estimate', 'hard_worst_case', 'blended_uncertainty', "
-        "or 'capped_blended_uncertainty'."
+        "'capped_blended_uncertainty', 'tail_blended_uncertainty', or "
+        "'segment_tail_blended_uncertainty', or "
+        "'segment_relative_tail_blended_uncertainty'."
     )
 
 

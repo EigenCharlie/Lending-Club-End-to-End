@@ -23,6 +23,8 @@ from dataclasses import asdict, dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+import yaml
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUN_TAG = datetime.now(UTC).strftime("%Y-%m-%d-long-run")
 STATUS_SCHEMA_VERSION = "2026-03-01.1"
@@ -581,6 +583,18 @@ def build_steps(
     comparison_baseline: str | None = None,
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
+    optimization_cfg_path = REPO_ROOT / "configs" / "optimization.yaml"
+    selection_cfg: dict[str, object] = {}
+    if optimization_cfg_path.exists():
+        try:
+            selection_cfg = dict(
+                (yaml.safe_load(optimization_cfg_path.read_text(encoding="utf-8")) or {}).get(
+                    "portfolio_selection", {}
+                )
+                or {}
+            )
+        except Exception:
+            selection_cfg = {}
     smart_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.smart.yaml").exists()
     champion_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.champion.yaml").exists()
     if sampling_profile in {"champion64safe"} and champion_pd_config_exists:
@@ -614,8 +628,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 10000" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 10000"
-        tradeoff_profile = "custom"
         ab_candidates = (
             "--max_candidates 10000 --n_boot 3000 --seed 42 --no_regression_tolerance_pct 0.05"
         )
@@ -629,8 +641,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 20000" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 20000"
-        tradeoff_profile = "balanced"
         ab_candidates = (
             "--max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000 --seed 42 "
             "--no_regression_tolerance_pct 0.05"
@@ -645,8 +655,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 30000" if optimize_portfolio_has_max_candidates else ""
         )  # CAP: Pyomo LP OOM-safe
-        tradeoff_candidates = "--max_candidates 30000"
-        tradeoff_profile = "night"  # Full grid
         ab_candidates = (
             "--max_portfolio_pd 0.18 --max_candidates 30000 --n_boot 5000 --seed 42 "
             "--no_regression_tolerance_pct 0.05"
@@ -661,8 +669,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 100000" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 60000"
-        tradeoff_profile = "night"
         ab_candidates = (
             "--max_portfolio_pd 0.18 --max_candidates 100000 --n_boot 5000 --seed 42 "
             "--no_regression_tolerance_pct 0.05"
@@ -677,8 +683,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 150000" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 80000"
-        tradeoff_profile = "night"
         ab_candidates = (
             "--max_portfolio_pd 0.18 --max_candidates 150000 --n_boot 5000 --seed 42 "
             "--no_regression_tolerance_pct 0.05"
@@ -696,8 +700,6 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 150000" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 80000"
-        tradeoff_profile = "night"
         ab_candidates = (
             "--max_portfolio_pd 0.18 --max_candidates 150000 --n_boot 5000 --seed 42 "
             "--no_regression_tolerance_pct 0.05"
@@ -712,16 +714,41 @@ def build_steps(
         optimize_portfolio_candidates = (
             "--max_candidates 0" if optimize_portfolio_has_max_candidates else ""
         )
-        tradeoff_candidates = "--max_candidates 0"
-        tradeoff_profile = "night"
         ab_candidates = (
             "--max_candidates 0 --n_boot 5000 --seed 42 --no_regression_tolerance_pct 0.05"
         )
         causal_sample = "--sample_size 0"
         cate_candidates = "--max_candidates 0"
         rapids_profile = "full_data"
-    optimize_tradeoff_grid = (
-        f"--grid-profile {tradeoff_profile}" if "--grid-profile" in optimize_tradeoff_text else ""
+    canonical_execution_mode = (
+        str(
+            os.environ.get(
+                "PORTFOLIO_SELECTION_EXECUTION_MODE",
+                selection_cfg.get("canonical_execution_mode", "search"),
+            )
+        )
+        .strip()
+        .lower()
+    )
+    frozen_policy_path = str(
+        selection_cfg.get("frozen_champion_policy_path", "models/champion_portfolio_policy.json")
+    ).strip()
+    use_frozen_policy = bool(
+        canonical_execution_mode == "freeze_if_available"
+        and sampling_profile in {"mega64safe", "champion64safe"}
+        and (REPO_ROOT / frozen_policy_path).exists()
+    )
+    selection_grid_profile = str(selection_cfg.get("selection_grid_profile", "quick")).strip()
+    selection_max_candidates = int(selection_cfg.get("selection_max_candidates", 20000))
+    selection_tradeoff_candidates = (
+        f"--max_candidates {selection_max_candidates}"
+        if selection_max_candidates > 0
+        else "--max_candidates 0"
+    )
+    selection_tradeoff_grid = (
+        f"--grid-profile {selection_grid_profile}"
+        if "--grid-profile" in optimize_tradeoff_text
+        else ""
     )
     compare_baseline_arg = (
         f" --baseline {shlex.quote(str(comparison_baseline))}" if comparison_baseline else ""
@@ -751,16 +778,26 @@ def build_steps(
     """
     steps.append(("main_pre", True, main_pre_cmd))
 
-    heavy_main_cmd = f"""
-        {activate_main} &&
-        uv run python -u scripts/run_survival_analysis.py {survival_args} &&
-        uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag} &&
-        uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml {optimize_portfolio_candidates} &&
-        uv run python -u scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml {tradeoff_candidates} {optimize_tradeoff_grid} &&
-        uv run python -u scripts/select_economic_portfolio_policy.py --config configs/optimization.yaml --run-tag {run_tag} &&
-        uv run python -u scripts/simulate_ab_test.py {ab_candidates} --run-tag {run_tag} --policy_selector explicit_champion_only &&
-        (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
-    """
+    if use_frozen_policy:
+        heavy_main_cmd = f"""
+            {activate_main} &&
+            uv run python -u scripts/run_survival_analysis.py {survival_args} &&
+            uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag} &&
+            uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml {optimize_portfolio_candidates} &&
+            uv run python -u scripts/simulate_ab_test.py {ab_candidates} --run-tag {run_tag} --policy_selector explicit_champion_only &&
+            (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
+        """
+    else:
+        heavy_main_cmd = f"""
+            {activate_main} &&
+            uv run python -u scripts/run_survival_analysis.py {survival_args} &&
+            uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag} &&
+            uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml {optimize_portfolio_candidates} &&
+            uv run python -u scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml {selection_tradeoff_candidates} {selection_tradeoff_grid} &&
+            uv run python -u scripts/select_economic_portfolio_policy.py --config configs/optimization.yaml --run-tag {run_tag} &&
+            uv run python -u scripts/simulate_ab_test.py {ab_candidates} --run-tag {run_tag} --policy_selector explicit_champion_only &&
+            (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
+        """
     steps.append(("heavy_main", False, heavy_main_cmd))
 
     causal_cmd = f"""

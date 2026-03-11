@@ -39,7 +39,7 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_json, load_parquet, try_load_parquet
+from streamlit_app.utils import get_notebook_image_path, page_error_boundary, try_load_json, try_load_parquet
 
 
 @st.cache_data(ttl=600, max_entries=1)

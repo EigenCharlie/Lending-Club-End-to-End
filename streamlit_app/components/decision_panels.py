@@ -12,9 +12,9 @@ def decision_checklist(title: str, items: Iterable[str]) -> None:
     items = [str(x).strip() for x in items if str(x).strip()]
     if not items:
         return
-    st.markdown(f"### ✅ {title}")
+    st.markdown(f"### {title}")
     for item in items:
-        st.markdown(f"- {item}")
+        st.markdown(f"- :material/check_circle: {item}")
 
 
 def tradeoff_panel(
@@ -26,14 +26,9 @@ def tradeoff_panel(
     color: str = "#F6F8FB",
 ) -> None:
     """Render a compact trade-off summary panel."""
-    st.markdown(
-        f"""
-<div style="border:1px solid #E5EAF0;border-radius:10px;padding:0.9rem 1rem;background:{color};">
-<div style="font-weight:700;margin-bottom:0.35rem;">{decision_label}</div>
-<div><b>Upside:</b> {upside}</div>
-<div><b>Downside:</b> {downside}</div>
-<div><b>Qué monitorear:</b> {monitoring}</div>
-</div>
-""",
-        unsafe_allow_html=True,
-    )
+    _ = color  # Kept for API compat; border styling via container
+    with st.container(border=True):
+        st.markdown(f"**{decision_label}**")
+        st.markdown(f":material/trending_up: **Upside:** {upside}")
+        st.markdown(f":material/trending_down: **Downside:** {downside}")
+        st.markdown(f":material/monitoring: **Qué monitorear:** {monitoring}")

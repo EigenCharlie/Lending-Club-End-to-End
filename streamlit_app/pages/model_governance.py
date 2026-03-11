@@ -25,7 +25,7 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import try_load_json, try_load_parquet
+from streamlit_app.utils import try_load_json, try_load_parquet, page_error_boundary
 
 
 def _artifact_health_rows() -> pd.DataFrame:
@@ -388,79 +388,81 @@ else:
     st.info("Ejecuta `scripts/generate_mrm_report.py` para generar el reporte MRM (SR 11-7).")
 
 st.subheader("7) Drift formal (KS/C2ST) y criterio de escalamiento")
-drift_checks = try_load_parquet("drift_checks")
-if drift_checks.empty:
-    drift_checks = pd.DataFrame(
+
+with page_error_boundary("model_governance"):
+    drift_checks = try_load_parquet("drift_checks")
+    if drift_checks.empty:
+        drift_checks = pd.DataFrame(
+            [
+                {
+                    "test": "KS two-sample (univariado)",
+                    "target": "covariate_shift",
+                    "trigger_warn": "p-value < 0.05 en features críticas",
+                    "trigger_fail": "p-value < 0.01 sostenido por cohorte",
+                    "accion": "WARN: monitorear y revisar mix; FAIL: recalibrar o bloquear rollout",
+                },
+                {
+                    "test": "C2ST (multivariado)",
+                    "target": "concept_drift/proxy",
+                    "trigger_warn": "AUC C2ST > 0.60",
+                    "trigger_fail": "AUC C2ST > 0.70",
+                    "accion": "WARN: investigar origen; FAIL: activar comité MRM",
+                },
+            ]
+        )
+    st.dataframe(drift_checks, width="stretch", hide_index=True)
+    st.markdown(
+        """
+    **Escalamiento operativo sugerido**
+    - `MONITOR`: señales aisladas sin deterioro de métricas de negocio.
+    - `RECALIBRAR`: alertas persistentes o caída sostenida de calibración/cobertura.
+    - `BLOQUEAR`: drift severo + incumplimiento de policy checks críticos.
+    """
+    )
+    st.markdown("**Micro-panel CP: ruptura de supuestos y respuesta**")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Señal CP": "Cobertura 90/95 bajo target por >=2 cohortes",
+                    "Lectura": "Probable ruptura operativa de exchangeability",
+                    "Respuesta": "Recalibrar y revisar partición Mondrian.",
+                },
+                {
+                    "Señal CP": "Subgrupo crítico con under-coverage recurrente",
+                    "Lectura": "Promedio global deja de ser representativo",
+                    "Respuesta": "Escalar a comité MRM y ajustar política segmentada.",
+                },
+                {
+                    "Señal CP": "Drift KS/C2ST + alertas conformal severas",
+                    "Lectura": "Riesgo de degradación de validez útil",
+                    "Respuesta": "Considerar variante adaptativa y bloquear despliegue si persiste.",
+                },
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.markdown(
+        """
+    **Lectura de control interno:**
+    - La gobernanza ya no depende solo de drift de features: incorpora drift de explicaciones, fairness al umbral principal y promoción formal del challenger.
+    - La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
+    - El framework conformal mejora el control de cobertura por partición (Mondrian) bajo monitoreo.
+    """
+    )
+    render_caveats(
         [
-            {
-                "test": "KS two-sample (univariado)",
-                "target": "covariate_shift",
-                "trigger_warn": "p-value < 0.05 en features críticas",
-                "trigger_fail": "p-value < 0.01 sostenido por cohorte",
-                "accion": "WARN: monitorear y revisar mix; FAIL: recalibrar o bloquear rollout",
-            },
-            {
-                "test": "C2ST (multivariado)",
-                "target": "concept_drift/proxy",
-                "trigger_warn": "AUC C2ST > 0.60",
-                "trigger_fail": "AUC C2ST > 0.70",
-                "accion": "WARN: investigar origen; FAIL: activar comité MRM",
-            },
+            "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",
+            "Fairness y MRM dependen de umbrales de política; cambios de threshold cambian el veredicto.",
+            "La ausencia de artefactos puede ser un problema operativo aunque las métricas históricas sean buenas.",
         ]
     )
-st.dataframe(drift_checks, width="stretch", hide_index=True)
-st.markdown(
-    """
-**Escalamiento operativo sugerido**
-- `MONITOR`: señales aisladas sin deterioro de métricas de negocio.
-- `RECALIBRAR`: alertas persistentes o caída sostenida de calibración/cobertura.
-- `BLOQUEAR`: drift severo + incumplimiento de policy checks críticos.
-"""
-)
-st.markdown("**Micro-panel CP: ruptura de supuestos y respuesta**")
-st.dataframe(
-    pd.DataFrame(
-        [
-            {
-                "Señal CP": "Cobertura 90/95 bajo target por >=2 cohortes",
-                "Lectura": "Probable ruptura operativa de exchangeability",
-                "Respuesta": "Recalibrar y revisar partición Mondrian.",
-            },
-            {
-                "Señal CP": "Subgrupo crítico con under-coverage recurrente",
-                "Lectura": "Promedio global deja de ser representativo",
-                "Respuesta": "Escalar a comité MRM y ajustar política segmentada.",
-            },
-            {
-                "Señal CP": "Drift KS/C2ST + alertas conformal severas",
-                "Lectura": "Riesgo de degradación de validez útil",
-                "Respuesta": "Considerar variante adaptativa y bloquear despliegue si persiste.",
-            },
-        ]
-    ),
-    width="stretch",
-    hide_index=True,
-)
+    render_page_feedback("model_governance")
 
-st.markdown(
-    """
-**Lectura de control interno:**
-- La gobernanza ya no depende solo de drift de features: incorpora drift de explicaciones, fairness al umbral principal y promoción formal del challenger.
-- La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
-- El framework conformal mejora el control de cobertura por partición (Mondrian) bajo monitoreo.
-"""
-)
-render_caveats(
-    [
-        "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",
-        "Fairness y MRM dependen de umbrales de política; cambios de threshold cambian el veredicto.",
-        "La ausencia de artefactos puede ser un problema operativo aunque las métricas históricas sean buenas.",
-    ]
-)
-render_page_feedback("model_governance")
-
-next_page_teaser(
-    "Stack Tecnológico",
-    "Librerías, versiones, decisiones de diseño y prácticas de ingeniería.",
-    "pages/tech_stack.py",
-)
+    next_page_teaser(
+        "Stack Tecnológico",
+        "Librerías, versiones, decisiones de diseño y prácticas de ingeniería.",
+        "pages/tech_stack.py",
+    )

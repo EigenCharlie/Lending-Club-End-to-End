@@ -1,0 +1,67 @@
+{
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-11T16:33:53.827971+00:00",
+  "run_tag": "2026-03-11-economic-selector-v3b-80k",
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 1.2582066052217549,
+    "mean_b": 1.3564171127126117,
+    "diff": 0.0982105074908568,
+    "ci_low": -0.7773575507191149,
+    "ci_high": 0.8835946324243643,
+    "p_value": 0.412,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 100656.5284177404,
+    "n_funded": 280,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 359.4876014919299
+  },
+  "metrics_b": {
+    "total_return": 108513.36901700894,
+    "n_funded": 262,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 414.17316418705695
+  },
+  "n_candidates_available": 80000,
+  "n_candidates_used": 80000,
+  "max_candidates_requested": 80000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "explicit_champion_only",
+  "max_portfolio_pd_requested": 0.1,
+  "max_portfolio_pd_effective": 0.1,
+  "robust_policy": {
+    "source": "champion_policy_artifact::explicit_champion_only",
+    "risk_tolerance": 0.1,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.05,
+    "pd_cap_slack_penalty": 1.5,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.05,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0
+  },
+  "champion_policy_path": "models/champion_portfolio_policy.json",
+  "candidate_universe_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/policy_selector_canary/2026-03-11-economic-selector-v3b-80k/artifacts/data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.412,
+    "significant": false,
+    "n_boot": 1000,
+    "seed": 42
+  },
+  "policy_search": [],
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/policy_selector_canary/2026-03-11-economic-selector-v3b-80k/artifacts/data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": 7856.840599268544,
+    "tolerance_total_return": 5032.8264208870205,
+    "tolerance_pct_of_control": 0.05,
+    "passed": true
+  }
+}

@@ -376,7 +376,7 @@ def load_cpu_stage_durations(run_tag: str | None = None) -> pd.DataFrame:
     """Parse subphase durations from the official CPU master log."""
     if not run_tag:
         registry = load_official_baseline_registry()
-        run_tag = str(registry.get("run_tag") or "")
+        run_tag = str(registry.get("official_run_tag") or registry.get("run_tag") or "")
     if not run_tag:
         return pd.DataFrame()
 
@@ -459,7 +459,13 @@ def load_rapids_stage_comparison(
     cpu_df = load_cpu_stage_durations(cpu_run_tag)
     if gpu_df.empty:
         return cpu_df
-    merged = gpu_df.merge(cpu_df, on="stage", how="left")
+    if cpu_df.empty or "stage" not in cpu_df.columns:
+        merged = gpu_df.copy()
+        merged["cpu_seconds"] = None
+        merged["cpu_command"] = None
+        merged["cpu_run_tag"] = None
+    else:
+        merged = gpu_df.merge(cpu_df, on="stage", how="left")
     if "cpu_seconds" in merged.columns:
         merged["speedup_gpu_vs_cpu"] = merged["cpu_seconds"] / merged["gpu_seconds"]
     else:
@@ -570,17 +576,6 @@ def load_rapids_pd_benchmark_stage_table(
     if not isinstance(stages, list):
         return pd.DataFrame()
     return pd.DataFrame(stages)
-
-
-@st.cache_data(ttl=300, max_entries=4)
-def load_official_baseline_registry() -> dict:
-    """Load official core baseline registry from configs/baselines."""
-    if not BASELINE_REGISTRY_PATH.exists():
-        return {}
-    try:
-        return json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
 
 
 def evaluate_run_tag_coherence(expected_run_tag: str | None, artifacts: dict[str, dict]) -> dict:
@@ -739,6 +734,54 @@ def suggest_sql_with_grok(
         "sql": str(parsed.get("sql", "")).strip(),
         "rationale": str(parsed.get("rationale", "")).strip(),
     }
+
+
+def page_error_boundary(page_name: str):
+    """Context manager that catches data-loading errors and shows user-friendly messages."""
+    from contextlib import contextmanager
+
+    @contextmanager
+    def _boundary():
+        try:
+            yield
+        except FileNotFoundError as exc:
+            st.error(
+                f"Archivo de datos no encontrado en **{page_name}**. "
+                "Ejecute el pipeline antes de usar esta pagina.",
+                icon=":material/folder_off:",
+            )
+            st.caption(f"Detalle: `{exc}`")
+            st.stop()
+        except KeyError as exc:
+            st.error(
+                f"Clave o columna faltante en **{page_name}**: `{exc}`",
+                icon=":material/key_off:",
+            )
+            st.caption(
+                "Los artefactos pueden estar desactualizados. Ejecute el pipeline."
+            )
+            st.stop()
+        except IndexError as exc:
+            st.error(
+                f"Datos insuficientes en **{page_name}**: `{exc}`",
+                icon=":material/data_alert:",
+            )
+            st.caption(
+                "El artefacto existe pero no contiene las filas esperadas. "
+                "Re-ejecute el pipeline para regenerar los datos."
+            )
+            st.stop()
+        except Exception as exc:
+            st.error(
+                f"Error inesperado en **{page_name}**: `{type(exc).__name__}: {exc}`",
+                icon=":material/error:",
+            )
+            st.caption(
+                "Sugerencia: `uv run python scripts/end_to_end_pipeline.py` para regenerar artefactos."
+            )
+            st.stop()
+
+    return _boundary()
 
 
 def format_number(n: float, prefix: str = "", suffix: str = "") -> str:

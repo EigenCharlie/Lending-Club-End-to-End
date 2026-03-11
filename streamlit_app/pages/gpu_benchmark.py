@@ -344,7 +344,8 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
 
 with tab_pd:
     st.markdown("### PD y LGD/EAD: dos historias distintas")
-    lgd_row = stage_table[stage_table["stage"] == "lgd_ead"].iloc[0]
+    _lgd_slice = stage_table[stage_table["stage"] == "lgd_ead"]
+    lgd_row = _lgd_slice.iloc[0] if not _lgd_slice.empty else pd.Series(dtype=object)
     fit_only = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "fit_only"]
     hpo_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "hpo"]
     full_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "full_stage"]
