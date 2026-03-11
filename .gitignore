@@ -79,6 +79,10 @@ reports/hpo_*.json
 reports/gpu_replay/
 reports/pd_candidate_metrics/
 reports/gpu_benchmark/
+reports/policy_selector_canary/
+reports/policy_selector_smoke/
+reports/gpu_insights/*/artifacts/data/processed/cuml_umap_embedding.parquet
+error_log.txt
 
 # CatBoost training artifacts
 catboost_info/
