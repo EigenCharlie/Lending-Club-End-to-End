@@ -54,6 +54,10 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     _stub_module(monkeypatch, "scripts.run_ifrs9_sensitivity", lambda *args, **kwargs: None)
     _stub_module(monkeypatch, "scripts.optimize_portfolio", lambda *args, **kwargs: None)
     _stub_module(monkeypatch, "scripts.optimize_portfolio_tradeoff", lambda *args, **kwargs: None)
+    _stub_module(
+        monkeypatch, "scripts.select_economic_portfolio_policy", lambda *args, **kwargs: None
+    )
+    _stub_module(monkeypatch, "scripts.simulate_ab_test", lambda *args, **kwargs: None)
     monkeypatch.setattr(pipeline_mod, "_persist_status", persist)
 
     exit_code = pipeline_mod.main(run_name="test", continue_on_error=True)
@@ -62,4 +66,39 @@ def test_main_continue_on_error_keeps_running(monkeypatch) -> None:
     assert persisted["data"].startswith("error:")
     assert persisted["pd_model"] == "ok"
     assert persisted["optimization"] == "ok"
+    assert persisted["optimization_tradeoff"] == "skipped: frozen_champion_policy"
+    assert persisted["optimization_policy_selection"] == "skipped: frozen_champion_policy"
+    assert persisted["ab_simulation"] == "ok"
+
+
+def test_main_search_override_runs_tradeoff_and_selector(monkeypatch) -> None:
+    persisted: dict[str, str] = {}
+
+    def persist(status: dict[str, str], elapsed: float) -> None:
+        persisted.update(status)
+        persisted["_elapsed"] = f"{elapsed:.2f}"
+
+    monkeypatch.setenv("PORTFOLIO_SELECTION_EXECUTION_MODE", "search")
+    _stub_module(monkeypatch, "src.data.make_dataset", lambda: None)
+    _stub_module(monkeypatch, "src.data.build_datasets", lambda: None)
+    _stub_module(monkeypatch, "src.data.prepare_dataset", lambda: None)
+    _stub_module(monkeypatch, "scripts.train_pd_model", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.forecast_default_rates", lambda **kwargs: None)
+    _stub_module(monkeypatch, "scripts.generate_conformal_intervals", lambda: None)
+    _stub_module(monkeypatch, "scripts.estimate_causal_effects", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.run_survival_analysis", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.run_ifrs9_sensitivity", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.optimize_portfolio", lambda *args, **kwargs: None)
+    _stub_module(monkeypatch, "scripts.optimize_portfolio_tradeoff", lambda *args, **kwargs: None)
+    _stub_module(
+        monkeypatch, "scripts.select_economic_portfolio_policy", lambda *args, **kwargs: None
+    )
+    _stub_module(monkeypatch, "scripts.simulate_ab_test", lambda *args, **kwargs: None)
+    monkeypatch.setattr(pipeline_mod, "_persist_status", persist)
+
+    exit_code = pipeline_mod.main(run_name="test", continue_on_error=True)
+
+    assert exit_code == 0
     assert persisted["optimization_tradeoff"] == "ok"
+    assert persisted["optimization_policy_selection"] == "ok"
+    assert persisted["ab_simulation"] == "ok"
