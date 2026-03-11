@@ -47,6 +47,10 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
             "artifact_path": str(threshold_path),
             "selected_threshold_key": "selected_threshold",
         },
+        "decision_policy": {
+            "auto_select": False,
+            "artifact_path": str(model_dir / "missing_fairness_decision_policy.json"),
+        },
         "attributes": [
             {"name": "home_ownership", "column": "home_ownership"},
             {"name": "annual_inc_quartile", "column": "annual_inc", "binning": "quartile"},
