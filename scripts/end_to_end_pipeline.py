@@ -192,6 +192,18 @@ def _step_optimization_tradeoff() -> None:
     optimize_portfolio_tradeoff(config_path="configs/optimization.yaml")
 
 
+def _step_optimization_policy_selection() -> None:
+    from scripts.select_economic_portfolio_policy import main as select_economic_policy
+
+    select_economic_policy(config_path="configs/optimization.yaml")
+
+
+def _step_ab_simulation() -> None:
+    from scripts.simulate_ab_test import main as simulate_ab_test
+
+    simulate_ab_test(policy_selector="explicit_champion_only")
+
+
 def main(
     run_name: str = "v2",
     continue_on_error: bool = False,
@@ -226,6 +238,13 @@ def main(
         _run_step("ifrs9", _step_ifrs9, status, continue_on_error)
         _run_step("optimization", _step_optimization, status, continue_on_error)
         _run_step("optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error)
+        _run_step(
+            "optimization_policy_selection",
+            _step_optimization_policy_selection,
+            status,
+            continue_on_error,
+        )
+        _run_step("ab_simulation", _step_ab_simulation, status, continue_on_error)
 
     except Exception:
         failed = True

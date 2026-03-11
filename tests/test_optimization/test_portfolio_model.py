@@ -68,6 +68,23 @@ class TestBuildPortfolioModel:
         )
         assert np.allclose(effective, expected)
 
+    def test_compute_effective_pd_supports_capped_blended_uncertainty(self, small_loans):
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        delta_cap = np.quantile(delta, 0.5)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="capped_blended_uncertainty",
+            gamma=0.5,
+            delta_cap_quantile=0.5,
+        )
+        expected = np.clip(
+            small_loans["pd_point"] + 0.5 * np.minimum(delta, delta_cap),
+            0.0,
+            1.0,
+        )
+        assert np.allclose(effective, expected)
+
     def test_model_has_expected_components(self, small_loans):
         model = build_portfolio_model(**small_loans)
         assert hasattr(model, "x")

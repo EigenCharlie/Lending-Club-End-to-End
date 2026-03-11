@@ -56,9 +56,14 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
         in heavy_main_cmd
     )
     assert (
+        "select_economic_portfolio_policy.py --config configs/optimization.yaml --run-tag run-balanced"
+        in heavy_main_cmd
+    )
+    assert (
         "simulate_ab_test.py --max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000"
         in heavy_main_cmd
     )
+    assert "--policy_selector explicit_champion_only" in heavy_main_cmd
     assert (
         "bash scripts/causal/run_causal_pipeline.sh --treatment int_rate --sample_size 200000 --run_tag run-balanced"
         in causal_cmd

@@ -95,6 +95,7 @@ def _resolve_robust_policy(
         "pd_cap_slack_penalty": 0.0,
         "policy_mode": "hard_worst_case",
         "gamma": 1.0,
+        "delta_cap_quantile": 1.0,
     }
     champion_path = _artifact_path(champion_policy_path)
     if champion_path.exists():
@@ -119,6 +120,10 @@ def _resolve_robust_policy(
                         or payload.get("selected_policy_robustness_aware")
                         or payload.get("selected_policy", {})
                     )
+                elif policy_selector == "explicit_champion_only":
+                    selected = payload.get("selected_policy", {})
+                    if not selected:
+                        raise ValueError("Champion policy artifact missing selected_policy")
                 else:
                     selected = payload.get("selected_policy", {})
             else:
@@ -131,6 +136,7 @@ def _resolve_robust_policy(
                 "pd_cap_slack_penalty": float(selected.get("pd_cap_slack_penalty", 0.0)),
                 "policy_mode": str(selected.get("policy_mode", "hard_worst_case")),
                 "gamma": float(selected.get("gamma", 1.0)),
+                "delta_cap_quantile": float(selected.get("delta_cap_quantile", 1.0)),
             }
             logger.info(
                 "Resolved robust policy from champion artifact: "
@@ -139,10 +145,14 @@ def _resolve_robust_policy(
             )
             return policy
         except Exception as exc:
+            if policy_selector == "explicit_champion_only":
+                raise
             logger.warning(
                 f"Could not parse champion portfolio policy ({champion_path}): {exc}. "
                 "Falling back to summary-based policy."
             )
+    elif policy_selector == "explicit_champion_only":
+        raise FileNotFoundError(f"Missing champion portfolio policy artifact: {champion_path}")
 
     path = _artifact_path(summary_path)
     if not path.exists():
@@ -200,6 +210,7 @@ def _resolve_robust_policy(
         "pd_cap_slack_penalty": float(row["best_robust_pd_cap_slack_penalty"]),
         "policy_mode": str(row.get("best_robust_policy_mode", "hard_worst_case")),
         "gamma": float(row.get("best_robust_gamma", 1.0)),
+        "delta_cap_quantile": float(row.get("best_robust_delta_cap_quantile", 1.0)),
     }
     logger.info(
         "Resolved robust policy from summary: "
@@ -325,6 +336,7 @@ def _run_strategy(
             pd_high=pd_high,
             policy_mode=str(policy.get("policy_mode", "hard_worst_case")),
             gamma=float(policy.get("gamma", 1.0)),
+            delta_cap_quantile=float(policy.get("delta_cap_quantile", 1.0)),
         )
         solution = optimize_portfolio_allocation(
             robust=True,
@@ -408,6 +420,7 @@ def _load_frontier_policy_candidates(
                 "pd_cap_slack_penalty": float(row["pd_cap_slack_penalty"]),
                 "policy_mode": str(row["policy_mode"]),
                 "gamma": float(row["gamma"]),
+                "delta_cap_quantile": float(row.get("delta_cap_quantile", 1.0)),
             }
         )
     return candidates
@@ -566,6 +579,7 @@ def main(
                 "pd_cap_slack_penalty": 0.0,
                 "policy_mode": "blended_uncertainty",
                 "gamma": 0.0,
+                "delta_cap_quantile": 1.0,
             }
             chosen_sol, _ = _run_strategy(
                 common=common,
@@ -739,6 +753,7 @@ if __name__ == "__main__":
             "balanced_robustness",
             "guardrail_robustness",
             "actual_ab_guarded",
+            "explicit_champion_only",
         ],
         default="promotion_first",
     )

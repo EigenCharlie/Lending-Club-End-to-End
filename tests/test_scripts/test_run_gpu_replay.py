@@ -22,8 +22,13 @@ def test_build_stage_commands_mega64plus_uses_gpu_backends() -> None:
     assert (
         "--max_candidates 80000 --grid-profile night --solver_backend cuopt" in commands["tradeoff"]
     )
+    assert commands["policy_selection"].startswith(
+        "python -u -m scripts.select_economic_portfolio_policy"
+    )
+    assert "--run-tag gpu-run-x --solver_backend cuopt" in commands["policy_selection"]
     assert "--max_candidates 150000" in commands["ab"]
     assert "--solver_backend cuopt" in commands["ab"]
+    assert "--policy_selector explicit_champion_only" in commands["ab"]
     assert "--max_candidates 150000 --solver_backend cuopt" in commands["cate_portfolio"]
 
 

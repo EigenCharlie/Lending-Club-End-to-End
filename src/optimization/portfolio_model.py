@@ -23,14 +23,17 @@ def compute_effective_pd(
     *,
     policy_mode: str = "hard_worst_case",
     gamma: float = 1.0,
+    delta_cap_quantile: float | None = None,
 ) -> np.ndarray:
     """Resolve the PD vector used in the portfolio PD constraint.
 
     Args:
         pd_point: Point PD estimates.
         pd_high: Upper conformal PD bound.
-        policy_mode: `point_estimate`, `hard_worst_case`, or `blended_uncertainty`.
-        gamma: Blend weight for `blended_uncertainty`.
+        policy_mode: `point_estimate`, `hard_worst_case`, `blended_uncertainty`,
+            or `capped_blended_uncertainty`.
+        gamma: Blend weight for the blended policies.
+        delta_cap_quantile: Optional quantile cap for `capped_blended_uncertainty`.
     """
     point = np.asarray(pd_point, dtype=float)
     high = np.asarray(pd_high, dtype=float)
@@ -42,9 +45,16 @@ def compute_effective_pd(
     if mode == "blended_uncertainty":
         weight = float(np.clip(gamma, 0.0, 1.0))
         return np.clip(point + weight * np.clip(high - point, 0.0, 1.0), 0.0, 1.0)
+    if mode == "capped_blended_uncertainty":
+        weight = float(np.clip(gamma, 0.0, 1.0))
+        delta = np.clip(high - point, 0.0, 1.0)
+        q = 1.0 if delta_cap_quantile is None else float(np.clip(delta_cap_quantile, 0.0, 1.0))
+        delta_cap = float(np.quantile(delta, q)) if len(delta) else 0.0
+        return np.clip(point + weight * np.minimum(delta, delta_cap), 0.0, 1.0)
     raise ValueError(
         f"Unsupported policy_mode={policy_mode!r}. "
-        "Use 'point_estimate', 'hard_worst_case', or 'blended_uncertainty'."
+        "Use 'point_estimate', 'hard_worst_case', 'blended_uncertainty', "
+        "or 'capped_blended_uncertainty'."
     )
 
 

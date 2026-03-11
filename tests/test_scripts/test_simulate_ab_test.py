@@ -129,3 +129,17 @@ def test_resolve_robust_policy_can_use_guardrail_artifact(tmp_path) -> None:
 
     assert policy["source"] == "champion_policy_artifact::guardrail_robustness"
     assert policy["gamma"] == 0.25
+
+
+def test_resolve_robust_policy_explicit_champion_only_requires_artifact(tmp_path) -> None:
+    try:
+        ab_mod._resolve_robust_policy(
+            max_portfolio_pd=0.1,
+            policy_selector="explicit_champion_only",
+            summary_path=str(tmp_path / "missing.parquet"),
+            champion_policy_path=str(tmp_path / "missing_champion.json"),
+        )
+    except FileNotFoundError:
+        pass
+    else:
+        raise AssertionError("Expected FileNotFoundError for explicit_champion_only")

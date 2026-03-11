@@ -186,12 +186,14 @@ def _solve_single(
     solver_backend: str = "highs",
     policy_mode: str = "hard_worst_case",
     gamma: float = 1.0,
-) -> dict[str, float | int | str]:
+    delta_cap_quantile: float = 1.0,
+) -> tuple[dict[str, float | int | str], np.ndarray]:
     pd_constraint = compute_effective_pd(
         pd_point=pd_point,
         pd_high=pd_high,
         policy_mode=policy_mode,
         gamma=gamma,
+        delta_cap_quantile=delta_cap_quantile,
     )
     solution = optimize_portfolio_allocation(
         loans=loans,
@@ -245,6 +247,7 @@ def _solve_single(
         "solver_backend": str(solver_backend),
         "policy_mode": str(policy_mode),
         "gamma": float(gamma),
+        "delta_cap_quantile": float(delta_cap_quantile),
         "objective_value": float(solution["objective_value"]),
         "n_funded": int(solution["n_funded"]),
         "total_allocated": total_allocated,
@@ -257,7 +260,7 @@ def _solve_single(
         "pd_cap_slack": float(solution.get("pd_cap_slack", 0.0)),
         "worst_case_pd": worst_pd,
         "point_pd": point_pd,
-    }
+    }, allocation
 
 
 def _compute_realized_total_return(
@@ -280,7 +283,14 @@ def _compute_realized_total_return(
     return float(total)
 
 
-def _select_champion_policy(
+def _allocation_similarity(a: np.ndarray, b: np.ndarray) -> float:
+    denom = float(np.linalg.norm(a) * np.linalg.norm(b))
+    if denom <= 1e-12:
+        return 1.0
+    return float(np.clip(np.dot(a, b) / denom, -1.0, 1.0))
+
+
+def _select_research_policies(
     frontier: pd.DataFrame,
 ) -> tuple[
     pd.DataFrame,
@@ -408,6 +418,9 @@ def _select_champion_policy(
     return frontier_out, selected.to_dict(), robust_selected, balanced_selected, guardrail_selected
 
 
+_select_champion_policy = _select_research_policies
+
+
 def main(
     config_path: str = "configs/optimization.yaml",
     risk_grid: str = "0.06,0.08,0.10,0.12",
@@ -454,13 +467,44 @@ def main(
         if "default_flag" in loans.columns
         else np.zeros(n, dtype=int)
     )
-    policy_grid: list[tuple[str, float]] = [
-        ("hard_worst_case", 1.0),
-        ("blended_uncertainty", 0.0),
-        ("blended_uncertainty", 0.25),
-        ("blended_uncertainty", 0.5),
-        ("blended_uncertainty", 0.75),
-        ("blended_uncertainty", 1.0),
+    policy_grid: list[tuple[str, float, float]] = [
+        ("hard_worst_case", 1.0, 1.0),
+        ("blended_uncertainty", 0.0, 1.0),
+        ("blended_uncertainty", 0.05, 1.0),
+        ("blended_uncertainty", 0.10, 1.0),
+        ("blended_uncertainty", 0.15, 1.0),
+        ("blended_uncertainty", 0.20, 1.0),
+        ("blended_uncertainty", 0.25, 1.0),
+        ("blended_uncertainty", 0.35, 1.0),
+        ("blended_uncertainty", 0.50, 1.0),
+        ("capped_blended_uncertainty", 0.05, 0.50),
+        ("capped_blended_uncertainty", 0.10, 0.50),
+        ("capped_blended_uncertainty", 0.15, 0.50),
+        ("capped_blended_uncertainty", 0.20, 0.50),
+        ("capped_blended_uncertainty", 0.25, 0.50),
+        ("capped_blended_uncertainty", 0.35, 0.50),
+        ("capped_blended_uncertainty", 0.50, 0.50),
+        ("capped_blended_uncertainty", 0.05, 0.75),
+        ("capped_blended_uncertainty", 0.10, 0.75),
+        ("capped_blended_uncertainty", 0.15, 0.75),
+        ("capped_blended_uncertainty", 0.20, 0.75),
+        ("capped_blended_uncertainty", 0.25, 0.75),
+        ("capped_blended_uncertainty", 0.35, 0.75),
+        ("capped_blended_uncertainty", 0.50, 0.75),
+        ("capped_blended_uncertainty", 0.05, 0.90),
+        ("capped_blended_uncertainty", 0.10, 0.90),
+        ("capped_blended_uncertainty", 0.15, 0.90),
+        ("capped_blended_uncertainty", 0.20, 0.90),
+        ("capped_blended_uncertainty", 0.25, 0.90),
+        ("capped_blended_uncertainty", 0.35, 0.90),
+        ("capped_blended_uncertainty", 0.50, 0.90),
+        ("capped_blended_uncertainty", 0.05, 1.00),
+        ("capped_blended_uncertainty", 0.10, 1.00),
+        ("capped_blended_uncertainty", 0.15, 1.00),
+        ("capped_blended_uncertainty", 0.20, 1.00),
+        ("capped_blended_uncertainty", 0.25, 1.00),
+        ("capped_blended_uncertainty", 0.35, 1.00),
+        ("capped_blended_uncertainty", 0.50, 1.00),
     ]
 
     rows: list[dict[str, float | int | str]] = []
@@ -472,7 +516,7 @@ def main(
     )
 
     for risk_tol in risk_values:
-        baseline = _solve_single(
+        baseline, baseline_alloc = _solve_single(
             loans=loans,
             pd_point=pd_point,
             pd_low=pd_low,
@@ -512,12 +556,12 @@ def main(
         baseline_realized = float(baseline["realized_total_return"])
 
         robust_candidates = []
-        for policy_mode, gamma in policy_grid:
+        for policy_mode, gamma, delta_cap_quantile in policy_grid:
             for lam in aversion_values:
                 enforce_floor = float(risk_tol) <= float(strict_risk_threshold)
                 min_util = float(robust_min_budget_utilization) if enforce_floor else 0.0
                 slack_penalty = float(robust_pd_slack_penalty) if enforce_floor else 0.0
-                robust_run = _solve_single(
+                robust_run, robust_alloc = _solve_single(
                     loans=loans,
                     pd_point=pd_point,
                     pd_low=pd_low,
@@ -537,6 +581,7 @@ def main(
                     solver_backend=solver_backend,
                     policy_mode=policy_mode,
                     gamma=float(gamma),
+                    delta_cap_quantile=float(delta_cap_quantile),
                 )
                 robust_ret = float(robust_run["expected_return_net_point"])
                 por = baseline_ret - robust_ret
@@ -544,6 +589,14 @@ def main(
                 realized_total_return = float(robust_run["realized_total_return"])
                 ab_diff_total_return = float(realized_total_return - baseline_realized)
                 ab_pass = bool(ab_diff_total_return >= -(abs(baseline_realized) * 0.05))
+                funded_ratio = float(robust_run["n_funded"] / max(float(baseline["n_funded"]), 1.0))
+                worst_case_pd_reduction_bps = float(
+                    (float(baseline["worst_case_pd"]) - float(robust_run["worst_case_pd"])) * 1e4
+                )
+                allocation_similarity = _allocation_similarity(baseline_alloc, robust_alloc)
+                eligible_for_canonical_selection = bool(
+                    policy_mode in {"blended_uncertainty", "capped_blended_uncertainty"}
+                )
                 row = {
                     "policy": "robust",
                     "risk_tolerance": float(risk_tol),
@@ -555,6 +608,10 @@ def main(
                     "realized_total_return": float(realized_total_return),
                     "ab_diff_total_return": ab_diff_total_return,
                     "ab_pass": ab_pass,
+                    "funded_ratio_vs_control": funded_ratio,
+                    "worst_case_pd_reduction_bps": worst_case_pd_reduction_bps,
+                    "allocation_similarity": allocation_similarity,
+                    "eligible_for_canonical_selection": eligible_for_canonical_selection,
                     **robust_run,
                 }
                 rows.append(row)
@@ -579,6 +636,7 @@ def main(
                 "best_robust_lambda": float(best_robust["uncertainty_aversion"]),
                 "best_robust_policy_mode": str(best_robust["policy_mode"]),
                 "best_robust_gamma": float(best_robust["gamma"]),
+                "best_robust_delta_cap_quantile": float(best_robust["delta_cap_quantile"]),
                 "best_robust_min_budget_utilization": float(best_robust["min_budget_utilization"]),
                 "best_robust_pd_cap_slack_penalty": float(best_robust["pd_cap_slack_penalty"]),
                 "best_robust_pd_cap_slack": float(best_robust["pd_cap_slack"]),
@@ -599,7 +657,7 @@ def main(
         robust_research_row,
         balanced_research_row,
         guardrail_research_row,
-    ) = _select_champion_policy(frontier)
+    ) = _select_research_policies(frontier)
     summary = pd.DataFrame(summary_rows).sort_values("risk_tolerance")
     summary["selected_for_champion"] = summary["risk_tolerance"].eq(
         float(champion_row["risk_tolerance"])
@@ -612,14 +670,15 @@ def main(
 
     frontier_path = data_dir / "portfolio_robustness_frontier.parquet"
     summary_path = data_dir / "portfolio_robustness_summary.parquet"
-    champion_policy_path = model_dir / "champion_portfolio_policy.json"
+    research_policy_path = model_dir / "portfolio_research_policy.json"
     frontier.to_parquet(frontier_path, index=False)
     summary.to_parquet(summary_path, index=False)
 
-    champion_payload = {
+    research_payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "run_tag": resolved_run_tag,
+        "selection_stage": "tradeoff_research_only",
         "selection_policy": {
             "rank_order": [
                 "ab_pass(desc)",
@@ -640,6 +699,7 @@ def main(
             "risk_tolerance": float(champion_row["risk_tolerance"]),
             "policy_mode": str(champion_row["policy_mode"]),
             "gamma": float(champion_row["gamma"]),
+            "delta_cap_quantile": float(champion_row["delta_cap_quantile"]),
             "uncertainty_aversion": float(champion_row["uncertainty_aversion"]),
             "min_budget_utilization": float(champion_row["min_budget_utilization"]),
             "pd_cap_slack_penalty": float(champion_row["pd_cap_slack_penalty"]),
@@ -659,6 +719,7 @@ def main(
                 "risk_tolerance": float(robust_research_row["risk_tolerance"]),
                 "policy_mode": str(robust_research_row["policy_mode"]),
                 "gamma": float(robust_research_row["gamma"]),
+                "delta_cap_quantile": float(robust_research_row["delta_cap_quantile"]),
                 "uncertainty_aversion": float(robust_research_row["uncertainty_aversion"]),
                 "min_budget_utilization": float(robust_research_row["min_budget_utilization"]),
                 "pd_cap_slack_penalty": float(robust_research_row["pd_cap_slack_penalty"]),
@@ -673,6 +734,7 @@ def main(
                 "risk_tolerance": float(balanced_research_row["risk_tolerance"]),
                 "policy_mode": str(balanced_research_row["policy_mode"]),
                 "gamma": float(balanced_research_row["gamma"]),
+                "delta_cap_quantile": float(balanced_research_row["delta_cap_quantile"]),
                 "uncertainty_aversion": float(balanced_research_row["uncertainty_aversion"]),
                 "min_budget_utilization": float(balanced_research_row["min_budget_utilization"]),
                 "pd_cap_slack_penalty": float(balanced_research_row["pd_cap_slack_penalty"]),
@@ -737,6 +799,7 @@ def main(
                 "risk_tolerance": float(guardrail_research_row["risk_tolerance"]),
                 "policy_mode": str(guardrail_research_row["policy_mode"]),
                 "gamma": float(guardrail_research_row["gamma"]),
+                "delta_cap_quantile": float(guardrail_research_row["delta_cap_quantile"]),
                 "uncertainty_aversion": float(guardrail_research_row["uncertainty_aversion"]),
                 "min_budget_utilization": float(guardrail_research_row["min_budget_utilization"]),
                 "pd_cap_slack_penalty": float(guardrail_research_row["pd_cap_slack_penalty"]),
@@ -762,15 +825,18 @@ def main(
         "summary_path": str(summary_path),
         "candidate_universe_path": str(candidate_universe_resolved),
     }
-    champion_policy_path.write_text(
-        json.dumps(champion_payload, indent=2, ensure_ascii=False),
+    research_policy_path.write_text(
+        json.dumps(research_payload, indent=2, ensure_ascii=False),
         encoding="utf-8",
     )
 
     payload = {
         "risk_grid": risk_values,
         "aversion_grid": aversion_values,
-        "policy_grid": [{"policy_mode": mode, "gamma": gamma} for mode, gamma in policy_grid],
+        "policy_grid": [
+            {"policy_mode": mode, "gamma": gamma, "delta_cap_quantile": q_cap}
+            for mode, gamma, q_cap in policy_grid
+        ],
         "n_candidates": int(n),
         "n_candidates_available": int(min(len(candidates), len(intervals))),
         "n_candidates_used": int(n),
@@ -779,9 +845,9 @@ def main(
         "solver_backend": solver_backend,
         "frontier_path": str(frontier_path),
         "summary_path": str(summary_path),
-        "champion_policy_path": str(champion_policy_path),
+        "research_policy_path": str(research_policy_path),
         "candidate_universe_path": str(candidate_universe_resolved),
-        "selected_policy": champion_payload["selected_policy"],
+        "selected_policy": research_payload["selected_policy"],
         "summary_rows": summary.to_dict(orient="records"),
     }
     with open(model_dir / "portfolio_robustness_results.pkl", "wb") as f:
@@ -789,7 +855,7 @@ def main(
 
     logger.info(f"Saved robustness frontier: {frontier_path} ({len(frontier):,} rows)")
     logger.info(f"Saved robustness summary: {summary_path} ({len(summary):,} rows)")
-    logger.info(f"Saved champion portfolio policy: {champion_policy_path}")
+    logger.info(f"Saved research portfolio policy: {research_policy_path}")
     logger.info("Best robust policy per risk tolerance:")
     logger.info(f"\n{summary}")
 

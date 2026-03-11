@@ -757,7 +757,8 @@ def build_steps(
         uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag} &&
         uv run python -u scripts/optimize_portfolio.py --config configs/optimization.yaml {optimize_portfolio_candidates} &&
         uv run python -u scripts/optimize_portfolio_tradeoff.py --config configs/optimization.yaml {tradeoff_candidates} {optimize_tradeoff_grid} &&
-        uv run python -u scripts/simulate_ab_test.py {ab_candidates} --run-tag {run_tag} &&
+        uv run python -u scripts/select_economic_portfolio_policy.py --config configs/optimization.yaml --run-tag {run_tag} &&
+        uv run python -u scripts/simulate_ab_test.py {ab_candidates} --run-tag {run_tag} --policy_selector explicit_champion_only &&
         (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
     """
     steps.append(("heavy_main", False, heavy_main_cmd))

@@ -20,8 +20,17 @@ from pathlib import Path
 from threading import Event, Thread
 from typing import Any
 
-STAGE_ORDER = ["pd", "lgd_ead", "portfolio", "tradeoff", "ab", "cate_portfolio", "ifrs9_mc"]
-RAPIDS_STAGES = {"portfolio", "tradeoff", "ab", "cate_portfolio", "ifrs9_mc"}
+STAGE_ORDER = [
+    "pd",
+    "lgd_ead",
+    "portfolio",
+    "tradeoff",
+    "policy_selection",
+    "ab",
+    "cate_portfolio",
+    "ifrs9_mc",
+]
+RAPIDS_STAGES = {"portfolio", "tradeoff", "policy_selection", "ab", "cate_portfolio", "ifrs9_mc"}
 
 PROFILE_CONFIGS: dict[str, dict[str, int]] = {
     "mega64": {
@@ -110,11 +119,17 @@ def build_stage_commands(
             f"--max_candidates {profile_cfg['tradeoff_candidates']} "
             "--grid-profile night --solver_backend cuopt"
         ),
+        "policy_selection": (
+            f"{shlex.quote(rapids_python)} -u -m scripts.select_economic_portfolio_policy "
+            f"--config {shlex.quote(optimization_config)} "
+            f"--run-tag {shlex.quote(run_tag)} --solver_backend cuopt"
+        ),
         "ab": (
             f"{shlex.quote(rapids_python)} -u -m scripts.simulate_ab_test --max_portfolio_pd 0.18 "
             f"--max_candidates {profile_cfg['ab_candidates']} "
             "--n_boot 5000 --seed 42 --no_regression_tolerance_pct 0.05 "
-            f"--run-tag {shlex.quote(run_tag)} --solver_backend cuopt"
+            f"--run-tag {shlex.quote(run_tag)} --solver_backend cuopt "
+            "--policy_selector explicit_champion_only"
         ),
         "cate_portfolio": (
             f"{shlex.quote(rapids_python)} -u -m scripts.optimize_cate_portfolio "

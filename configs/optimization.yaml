@@ -11,5 +11,17 @@ portfolio:
   max_portfolio_pd: 0.10
   robust: true  # Use CP upper bounds for risk constraints
 
+portfolio_selection:
+  canonical_selector: economic_actual_ab_v1
+  actual_ab_top_k: 20
+  min_funded_ratio: 0.95
+  max_price_of_robustness_pct: -15.0
+  fallback_policy: nonrobust_equivalent
+  canonical_policy_modes:
+    - blended_uncertainty
+    - capped_blended_uncertainty
+  research_only_policy_modes:
+    - hard_worst_case
+
 conformal:
   alpha: 0.1  # 90% coverage for uncertainty sets
