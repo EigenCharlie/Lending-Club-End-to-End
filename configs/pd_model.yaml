@@ -71,6 +71,15 @@ data:
   calibration_path: data/processed/calibration_fe.parquet
   cutoff_date: "2018-01-01"
 
+training_regime:
+  mode: standard  # standard | full_weighted | recent_12q | recent_8q
+  recent_window_quarters: 12
+  half_life_quarters: 8
+
+stable_core:
+  enabled: false
+  exclude_features: [rev_utilization, high_util_pct]
+
 features:
   numeric:
     - loan_amnt
@@ -121,6 +130,14 @@ challenger_pipeline:
   feature_selection_output: data/processed/challenger_feature_selection.parquet
   spec_output: models/pd_challenger_spec.json
   spec_output_v2: models/pd_challenger_spec_v2.json
+  promotion_report_output: models/challenger_promotion_report.json
+  validation_fraction: 0.15
+  benchmark_max_depth: 6
+  benchmark_max_iter: 220
+  benchmark_learning_rate: 0.05
+  max_auc_drop: 0.01
+  max_brier_increase_pct: 0.05
+  min_interpretability_gains: 2
   monotonic_constraints:
     annual_inc: -1
     loan_to_income: 1

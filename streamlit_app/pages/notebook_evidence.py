@@ -13,7 +13,6 @@ if str(_REPO_ROOT) not in sys.path:
 import streamlit as st
 
 from streamlit_app.components.narrative import next_page_teaser
-from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_key_takeaway,
     render_page_feedback,
@@ -23,7 +22,6 @@ from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import (
     get_notebook_image_path,
     load_notebook_image_manifest,
-    try_load_json,
 )
 
 
@@ -53,14 +51,6 @@ render_page_header(page_contract)
 render_key_takeaway(
     "El atlas no es una galería: cada figura debe explicar una decisión metodológica y su conexión con el siguiente módulo del pipeline."
 )
-summary = try_load_json("pipeline_summary", default={})
-conformal = try_load_json("conformal_policy_status", directory="models", default={})
-governance = try_load_json("governance_status", directory="models", default={})
-render_release_governance(
-    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
-    governance_status=governance,
-    conformal_status=conformal,
-)
 st.markdown(
     """
 No se trata de mostrar muchas imágenes sin contexto, sino de explicar **por qué cada evidencia importa**.
@@ -70,6 +60,24 @@ portafolio e impacto IFRS9. Cuando una figura aparece aquí, su objetivo es deja
 su salida alimenta al siguiente bloque.
 """
 )
+
+manifest = load_notebook_image_manifest()
+if manifest:
+    notebooks_total = len({item.get("notebook_stem") for item in manifest if item.get("notebook_stem")})
+    st.markdown("### Estado actual del atlas")
+    st.info(
+        f"Los notebooks ya quedaron reejecutados y estabilizados. El atlas actual está alimentado por {len(manifest)} imágenes extraídas a partir de {notebooks_total} notebooks ejecutados `inplace`, conservando resultados visibles al abrir cada `.ipynb`."
+    )
+    st.markdown(
+        """
+    Cambio importante del proyecto:
+
+    - los notebooks ya no compiten con el pipeline canónico;
+    - funcionan como **fábrica de insights**;
+    - el carril RAPIDS solo incorpora benchmarking GPU explícito, no re-ejecución redundante de notebooks CPU;
+    - la parte nueva de RAPIDS ya se apoya además en `tradeoff` full, Monte Carlo IFRS9 correlacionado e insight factory con `cuGraph`, así que el notebook RAPIDS ahora debe leerse como complemento visual, no como única fuente de evidencia GPU.
+    """
+    )
 
 NOTEBOOK_META = {
     "01_eda_lending_club": {
@@ -404,7 +412,9 @@ NOTEBOOK_META = {
     },
 }
 
-with st.status("Cargando atlas de figuras extraídas de notebooks...", expanded=False) as _atlas_status:
+with st.status(
+    "Cargando atlas de figuras extraídas de notebooks...", expanded=False
+) as _atlas_status:
     manifest = load_notebook_image_manifest()
     tabs = st.tabs([NOTEBOOK_META[k]["titulo"] for k in NOTEBOOK_META])
     _atlas_status.update(

@@ -1,0 +1,51 @@
+schema_version: "2026-03-08.1"
+profile_name: mega64safe
+description: >
+  Variante de recuperacion para hardware WSL2 con 24 hilos y ~60GB RAM.
+  Conserva main_pre full y los caps agresivos de optimizacion, pero endurece
+  survival: Cox en full-data y RSF con 500k filas, 200 arboles, bootstrap
+  parcial y 12 hilos para evitar OOM o memory thrashing en WSL.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+  rapids_conda: rapids
+
+execution:
+  promotion_mode: gates
+  continue_on_failure: true
+
+sampling:
+  pd_model: full
+  optuna_hpo: full
+  conformal: full
+  survival_rsf: sample_500k_200_trees_12_jobs
+  lgd_ead: full
+  portfolio_max_candidates: 150000
+  portfolio_tradeoff_max_candidates: 80000
+  simulate_ab_test_max_candidates: 150000
+  optimize_cate_portfolio_max_candidates: 150000
+  causal: full
+  time_series: full
+  ifrs9: full
+  fairness: full
+  export_shap: internal
+  notebooks: include
+  rapids: if_gpu_available
+
+hardware_assumptions:
+  cpu_threads: 24
+  wsl_memory_gb: 60
+  swap_gb: 24
+  gpu: "RTX 3080 10GB"
+
+estimated_runtime:
+  preflight: "5 min"
+  main_pre: "2-3 hrs"
+  heavy_main: "5-8 hrs"
+  causal: "2-3 hrs"
+  cate_portfolio: "45-90 min"
+  post_core: "1 hr"
+  rapids: "2.5 hrs"
+  notebooks: "5 hrs"
+  total_without_rapids: "~17-23 hrs"

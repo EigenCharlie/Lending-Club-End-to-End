@@ -41,7 +41,7 @@ def render_key_takeaway(text: str) -> None:
     """Highlight the primary takeaway to reduce cognitive load."""
     if not text:
         return
-    st.info(f"**Idea clave:** {text}")
+    st.info(f"**Idea clave:** {text}", icon=":material/lightbulb:")
 
 
 def render_decision_box(text: str, owner: str | None = None, cadence: str | None = None) -> None:
@@ -52,7 +52,7 @@ def render_decision_box(text: str, owner: str | None = None, cadence: str | None
     if cadence:
         meta.append(f"cadencia: {cadence}")
     suffix = f" ({' · '.join(meta)})" if meta else ""
-    st.success(f"**Decisión operativa sugerida**{suffix}: {text}")
+    st.success(f"**Decisión operativa sugerida**{suffix}: {text}", icon=":material/check_circle:")
 
 
 def render_evidence_block(
@@ -76,7 +76,7 @@ def render_caveats(items: Iterable[str], *, title: str = "Límites y caveats") -
     clean = [str(i).strip() for i in items if str(i).strip()]
     if not clean:
         return
-    with st.expander(f"⚠️ {title}", expanded=False):
+    with st.expander(title, expanded=False, icon=":material/warning:"):
         for item in clean:
             st.markdown(f"- {item}")
 
@@ -104,9 +104,9 @@ def render_next_steps(page_links: Iterable[tuple[str, str, str]]) -> None:
                 st.caption(desc)
         with cols[1]:
             try:
-                st.page_link(path, label="Abrir", icon="➡️")
+                st.page_link(path, label="Abrir", icon=":material/arrow_forward:")
             except Exception:
-                st.caption(f"➡️ {path}")
+                st.caption(f":material/arrow_forward: {path}")
 
 
 def render_page_feedback(page_id: str) -> None:

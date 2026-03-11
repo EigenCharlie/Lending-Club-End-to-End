@@ -1,19 +1,18 @@
 """Compare baseline vs CATE-adjusted portfolio optimization.
 
-Loads conformal intervals and CATE estimates from the OOT test set,
-runs the optimizer twice (with and without CATE adjustment), and
-saves a comparison of portfolio metrics.
-
-Usage:
-    uv run python scripts/optimize_cate_portfolio.py
-    uv run python scripts/optimize_cate_portfolio.py --delta_rate -1.5
+Primary input for deployment is `data/processed/cate_estimates_oot.parquet`.
+Training CATE estimates are only used as an explicit fallback when OOT estimates
+are missing or partially incomplete.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -21,12 +20,19 @@ from loguru import logger
 
 from src.optimization.causal_portfolio import build_cate_adjusted_portfolio
 
+CAUSAL_PORTFOLIO_SCHEMA_VERSION = "2026-03-07.1"
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return (Path(root) / path) if root else path
+
 
 def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
     """Convert a column that may be string '12.5%' or float 12.5 to decimal."""
     if pd.api.types.is_numeric_dtype(s):
         arr = s.to_numpy(dtype=float)
-        # If values look like percentages (> 1), convert to decimal
         if np.nanmedian(arr) > 1:
             arr = arr / 100.0
         return np.nan_to_num(arr, nan=default)
@@ -41,87 +47,260 @@ def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
     )
 
 
+def _resolve_run_tag() -> str:
+    for candidate_path in [
+        Path("models/causal_effect_status.json"),
+        Path("models/causal_policy_rule.json"),
+        Path("models/causal_policy_oot_status.json"),
+    ]:
+        if not candidate_path.exists():
+            continue
+        try:
+            payload = json.loads(candidate_path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        tag = str(payload.get("run_tag", "")).strip()
+        if tag:
+            return tag
+    env_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    return env_tag or "untracked"
+
+
+def _load_json_if_exists(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
+def _fallback_grade_map(train_cate: pd.DataFrame) -> dict[str, float]:
+    if "grade" not in train_cate.columns or "cate" not in train_cate.columns:
+        return {}
+    frame = train_cate.copy()
+    frame["grade"] = frame["grade"].astype(str).fillna("UNKNOWN")
+    frame["cate"] = pd.to_numeric(frame["cate"], errors="coerce")
+    frame = frame.dropna(subset=["cate"])
+    if frame.empty:
+        return {}
+    return frame.groupby("grade", observed=True)["cate"].median().to_dict()
+
+
+def _align_cate_to_test(test_df: pd.DataFrame, data_dir: Path) -> tuple[pd.Series, dict[str, Any]]:
+    oot_path = data_dir / "cate_estimates_oot.parquet"
+    train_path = data_dir / "cate_estimates.parquet"
+    warning = ""
+    alignment_strategy = "zero_fill_fallback"
+    source_cate_artifact = None
+    n_missing_cate = int(len(test_df))
+    grade_map: dict[str, float] = {}
+    train_cate = pd.DataFrame()
+
+    if train_path.exists():
+        train_cate = pd.read_parquet(train_path)
+        grade_map = _fallback_grade_map(train_cate)
+
+    if oot_path.exists():
+        oot_cate = pd.read_parquet(oot_path)
+        source_cate_artifact = str(oot_path)
+        if "id" in test_df.columns and "id" in oot_cate.columns:
+            aligned = (
+                test_df[["id"]]
+                .assign(id=lambda frame: frame["id"].astype(str))
+                .merge(
+                    oot_cate.assign(id=oot_cate["id"].astype(str))[["id", "cate"]],
+                    on="id",
+                    how="left",
+                )
+            )
+            cate = pd.to_numeric(aligned["cate"], errors="coerce")
+            n_missing_cate = int(cate.isna().sum())
+            alignment_strategy = "id_join_oot_cate"
+        elif len(oot_cate) == len(test_df):
+            cate = pd.to_numeric(oot_cate["cate"], errors="coerce")
+            n_missing_cate = int(cate.isna().sum())
+            alignment_strategy = "row_index_oot_cate_fallback"
+            warning = "OOT CATE artifact lacked ids; aligned by row index."
+        else:
+            cate = pd.Series(np.nan, index=test_df.index, dtype=float)
+            warning = "OOT CATE artifact exists but could not be aligned to test candidates."
+    elif not train_cate.empty:
+        source_cate_artifact = str(train_path)
+        if "id" in test_df.columns and "id" in train_cate.columns:
+            aligned = (
+                test_df[["id"]]
+                .assign(id=lambda frame: frame["id"].astype(str))
+                .merge(
+                    train_cate.assign(id=train_cate["id"].astype(str))[["id", "cate"]],
+                    on="id",
+                    how="left",
+                )
+            )
+            cate = pd.to_numeric(aligned["cate"], errors="coerce")
+            n_direct = int(cate.notna().sum())
+            n_missing_cate = int(cate.isna().sum())
+            alignment_strategy = "id_join_train_cate_fallback"
+            warning = (
+                "Missing OOT CATE artifact; using training CATE fallback "
+                f"({n_direct} direct id matches)."
+            )
+        else:
+            cate = pd.Series(np.nan, index=test_df.index, dtype=float)
+            warning = "Missing OOT CATE artifact; falling back to training-grade medians."
+    else:
+        cate = pd.Series(np.nan, index=test_df.index, dtype=float)
+        warning = "Missing both OOT and training CATE artifacts; using zero CATE."
+
+    if cate.isna().any() and grade_map and "grade" in test_df.columns:
+        grade_fill = test_df["grade"].astype(str).map(grade_map)
+        fill_mask = cate.isna() & grade_fill.notna()
+        cate.loc[fill_mask] = grade_fill.loc[fill_mask]
+        if alignment_strategy == "id_join_oot_cate":
+            alignment_strategy = "id_join_oot_cate_plus_grade_fallback"
+        elif "fallback" not in alignment_strategy:
+            alignment_strategy = f"{alignment_strategy}_plus_grade_fallback"
+
+    n_missing_cate = int(cate.isna().sum())
+    if n_missing_cate:
+        cate = cate.fillna(0.0)
+        if not warning:
+            warning = f"{n_missing_cate} candidates had missing CATE and were zero-filled."
+        elif "zero" not in warning.lower():
+            warning = f"{warning} Remaining missing CATE values were zero-filled."
+
+    return cate.reset_index(drop=True), {
+        "alignment_strategy": alignment_strategy,
+        "source_cate_artifact": source_cate_artifact,
+        "n_missing_cate": n_missing_cate,
+        "warning": warning,
+    }
+
+
+def _constraint_binding_reason(result: dict[str, Any]) -> str | None:
+    baseline = result.get("baseline", {})
+    adjusted = result.get("cate_adjusted", {})
+    if int(baseline.get("n_funded", 0)) == 0 and int(adjusted.get("n_funded", 0)) == 0:
+        return "no_feasible_loans_under_current_budget_or_pd_constraints"
+    if int(adjusted.get("n_funded", 0)) == 0:
+        return "cate_adjusted_solution_empty_under_current_constraints"
+    if int(baseline.get("n_funded", 0)) == 0:
+        return "baseline_solution_empty_under_current_constraints"
+    return None
+
+
+def _build_segment_keys(test_df: pd.DataFrame) -> pd.Series:
+    parts: list[pd.Series] = []
+    for col in ("grade", "term", "verification_status"):
+        if col in test_df.columns:
+            parts.append(test_df[col].astype(str).fillna("UNKNOWN"))
+    if not parts:
+        return pd.Series(["GLOBAL"] * len(test_df), index=test_df.index, dtype="object")
+    key = parts[0].astype(str)
+    for part in parts[1:]:
+        key = key.str.cat(part.astype(str), sep="__")
+    return key
+
+
+def _shrink_cate(test_df: pd.DataFrame, cate_series: pd.Series) -> tuple[pd.Series, dict[str, Any]]:
+    cate = pd.to_numeric(cate_series, errors="coerce").fillna(0.0).astype(float)
+    if cate.empty:
+        return cate, {
+            "winsor_p05": 0.0,
+            "winsor_p95": 0.0,
+            "weak_signal_floor": 0.0,
+            "shrink_weight_segment_median": 0.5,
+        }
+
+    p05 = float(np.quantile(cate, 0.05))
+    p95 = float(np.quantile(cate, 0.95))
+    clipped = cate.clip(lower=p05, upper=p95)
+
+    segments = _build_segment_keys(test_df)
+    segment_median = clipped.groupby(segments, observed=True).transform("median")
+    shrunk = 0.5 * clipped + 0.5 * segment_median
+    weak_signal_floor = float(max(abs(np.quantile(shrunk, 0.10)), 0.0025))
+    shrunk = shrunk.mask(shrunk.abs() < weak_signal_floor, 0.0)
+
+    return shrunk.reset_index(drop=True), {
+        "winsor_p05": p05,
+        "winsor_p95": p95,
+        "weak_signal_floor": weak_signal_floor,
+        "shrink_weight_segment_median": 0.5,
+    }
+
+
 def main(
     delta_rate: float = -1.0,
     total_budget: float = 1_000_000,
     max_portfolio_pd: float = 0.10,
     max_candidates: int = 5_000,
     uncertainty_aversion: float = 0.0,
+    solver_backend: str = "highs",
 ) -> None:
-    """Run baseline vs CATE-adjusted portfolio comparison."""
-    # Load test data
-    data_dir = Path("data/processed")
-    test_path = data_dir / "test_fe.parquet"
-    intervals_path = data_dir / "conformal_intervals_mondrian.parquet"
-    cate_path = data_dir / "cate_estimates.parquet"
-
-    for p in [test_path, intervals_path, cate_path]:
-        if not p.exists():
-            raise FileNotFoundError(f"Missing artifact: {p}")
+    input_data_dir = Path("data/processed")
+    output_data_dir = _artifact_path("data/processed")
+    test_path = input_data_dir / "test_fe.parquet"
+    intervals_path = input_data_dir / "conformal_intervals_mondrian.parquet"
+    for path in [test_path, intervals_path]:
+        if not path.exists():
+            raise FileNotFoundError(f"Missing artifact: {path}")
 
     test_df = pd.read_parquet(test_path)
     intervals = pd.read_parquet(intervals_path)
-    cate_df = pd.read_parquet(cate_path)
+    if "id" in test_df.columns:
+        test_df = test_df.assign(id=test_df["id"].astype(str))
+    cate_series, cate_meta = _align_cate_to_test(test_df, input_data_dir)
+    shrunk_cate, shrink_meta = _shrink_cate(test_df, cate_series)
+    logger.info(
+        f"Loaded test={len(test_df):,} intervals={len(intervals):,} "
+        f"with alignment={cate_meta['alignment_strategy']}"
+    )
 
-    logger.info(f"Loaded: test={len(test_df)}, intervals={len(intervals)}, cate={len(cate_df)}")
-
-    # Join CATE to test set — CATE estimated on train, so match by grade median
-    if "id" in test_df.columns and "id" in cate_df.columns:
-        merged = test_df[["id"]].merge(cate_df[["id", "cate"]], on="id", how="left")
-        n_direct = merged["cate"].notna().sum()
-        if n_direct > 0:
-            cate_df = merged
-            cate_df["cate"] = cate_df["cate"].fillna(0.0)
-            logger.info(f"Joined CATE by id: {n_direct} direct matches")
-        elif "grade" in test_df.columns and "grade" in cate_df.columns:
-            # No direct ID overlap (CATE on train, test is OOT) → impute by grade median
-            grade_cate = cate_df.groupby("grade")["cate"].median().to_dict()
-            cate_vals = test_df["grade"].map(grade_cate).fillna(0.0).values
-            cate_df = pd.DataFrame({"cate": cate_vals})
-            logger.info(
-                f"No ID overlap — imputed CATE by grade median "
-                f"({len(grade_cate)} grades, {(cate_vals != 0).sum()} non-zero)"
-            )
-        else:
-            cate_df = pd.DataFrame({"cate": np.zeros(len(test_df))})
-            logger.warning("No ID overlap and no grade column — using zero CATE")
-    else:
-        logger.warning("No 'id' column — falling back to row-index alignment")
-        n = min(len(test_df), len(cate_df))
-        cate_df = cate_df.iloc[:n].reset_index(drop=True)
-
-    # Align test_df and intervals by row index (same OOT set), cap at max_candidates
     max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
-    n = min(len(test_df), len(intervals), len(cate_df))
+    n = min(len(test_df), len(intervals), len(cate_series))
     if max_candidates_norm is not None:
         n = min(n, max_candidates_norm)
     logger.info(
-        f"Using {n} candidates "
+        f"Using {n:,} candidates "
         f"(max_candidates={'full' if max_candidates_norm is None else max_candidates_norm})"
     )
     test_df = test_df.iloc[:n].reset_index(drop=True)
     intervals = intervals.iloc[:n].reset_index(drop=True)
-    cate_df = cate_df.iloc[:n].reset_index(drop=True)
+    cate_series = cate_series.iloc[:n].reset_index(drop=True)
+    shrunk_cate = shrunk_cate.iloc[:n].reset_index(drop=True)
 
-    # Extract arrays
-    # Map column names: conformal intervals use y_pred, pd_low_90, pd_high_90
     pd_col = next(
         (c for c in ["pd_calibrated", "y_pred"] if c in intervals.columns), intervals.columns[0]
     )
     low_col = next((c for c in ["pd_low", "pd_low_90"] if c in intervals.columns), None)
     high_col = next((c for c in ["pd_high", "pd_high_90"] if c in intervals.columns), None)
-    pd_point = intervals[pd_col].values
-    pd_low = intervals[low_col].values if low_col else pd_point * 0.8
-    pd_high = intervals[high_col].values if high_col else pd_point * 1.3
-    cate = cate_df["cate"].values
-    lgd = np.full(n, 0.45)  # standard LGD assumption
+    pd_point = intervals[pd_col].to_numpy(dtype=float)
+    pd_low = intervals[low_col].to_numpy(dtype=float) if low_col else pd_point * 0.8
+    pd_high = intervals[high_col].to_numpy(dtype=float) if high_col else pd_point * 1.3
+    cate_raw = cate_series.to_numpy(dtype=float)
+    cate = shrunk_cate.to_numpy(dtype=float)
+    lgd = np.full(n, 0.45)
     int_rates = (
         _parse_percent_series(test_df["int_rate"])
         if "int_rate" in test_df.columns
         else np.full(n, 0.12)
     )
 
-    # Run comparison
+    result_raw = build_cate_adjusted_portfolio(
+        loans=test_df,
+        pd_point=pd_point,
+        pd_low=pd_low,
+        pd_high=pd_high,
+        cate=cate_raw,
+        lgd=lgd,
+        int_rates=int_rates,
+        delta_rate=delta_rate,
+        total_budget=total_budget,
+        max_portfolio_pd=max_portfolio_pd,
+        uncertainty_aversion=uncertainty_aversion,
+        solver_backend=solver_backend,
+    )
     result = build_cate_adjusted_portfolio(
         loans=test_df,
         pd_point=pd_point,
@@ -134,34 +313,94 @@ def main(
         total_budget=total_budget,
         max_portfolio_pd=max_portfolio_pd,
         uncertainty_aversion=uncertainty_aversion,
+        solver_backend=solver_backend,
     )
 
-    # Save comparison
-    comparison_path = data_dir / "cate_portfolio_comparison.parquet"
-    result["comparison_df"].to_parquet(comparison_path, index=False)
+    baseline = result["baseline"]
+    adjusted = result["cate_adjusted"]
+    feasible_baseline = bool(int(baseline["n_funded"]) > 0)
+    feasible_adjusted = bool(int(adjusted["n_funded"]) > 0)
+    promotion_eligible = bool(
+        feasible_baseline
+        and feasible_adjusted
+        and float(adjusted["objective_value"]) >= float(baseline["objective_value"])
+        and int(adjusted["n_funded"]) >= 0.9 * int(baseline["n_funded"])
+    )
+    fallback_applied = not promotion_eligible
+    selected_mode = "shrunk" if promotion_eligible else "research_only_fallback"
+
+    output_data_dir.mkdir(parents=True, exist_ok=True)
+    comparison_path = output_data_dir / "cate_portfolio_comparison.parquet"
+    comparison_df = pd.concat(
+        [
+            result_raw["comparison_df"].assign(cate_policy_mode="raw"),
+            result["comparison_df"].assign(cate_policy_mode="shrunk"),
+        ],
+        ignore_index=True,
+    )
+    comparison_df.to_parquet(comparison_path, index=False)
     logger.info(f"Saved comparison: {comparison_path}")
 
-    # Save status JSON
+    run_tag = _resolve_run_tag()
+    binding_reason = _constraint_binding_reason(result)
     status = {
+        "schema_version": CAUSAL_PORTFOLIO_SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "run_tag": run_tag,
         "delta_rate": delta_rate,
-        "baseline_objective": result["baseline"]["objective_value"],
-        "cate_adjusted_objective": result["cate_adjusted"]["objective_value"],
-        "baseline_n_funded": result["baseline"]["n_funded"],
-        "cate_adjusted_n_funded": result["cate_adjusted"]["n_funded"],
+        "baseline_objective": baseline["objective_value"],
+        "cate_adjusted_objective": adjusted["objective_value"],
+        "baseline_n_funded": baseline["n_funded"],
+        "cate_adjusted_n_funded": adjusted["n_funded"],
         "objective_change_pct": float(
-            (result["cate_adjusted"]["objective_value"] - result["baseline"]["objective_value"])
-            / (abs(result["baseline"]["objective_value"]) + 1e-6)
+            (adjusted["objective_value"] - baseline["objective_value"])
+            / (abs(baseline["objective_value"]) + 1e-6)
             * 100
         ),
-        "n_candidates_available": int(min(len(test_df), len(intervals), len(cate_df))),
+        "n_candidates_available": int(min(len(test_df), len(intervals), len(cate_series))),
         "n_candidates_used": int(n),
         "max_candidates_requested": None if max_candidates_norm is None else max_candidates_norm,
         "dataset_scope": "full_candidates" if max_candidates_norm is None else "sampled_candidates",
+        "solver_backend": str(solver_backend),
+        "feasible_baseline": feasible_baseline,
+        "feasible_adjusted": feasible_adjusted,
+        "cate_policy_mode": selected_mode,
+        "promotion_eligible": promotion_eligible,
+        "fallback_applied": fallback_applied,
+        "raw_objective_change_pct": float(
+            (
+                result_raw["cate_adjusted"]["objective_value"]
+                - result_raw["baseline"]["objective_value"]
+            )
+            / (abs(result_raw["baseline"]["objective_value"]) + 1e-6)
+            * 100
+        ),
+        "shrunk_objective_change_pct": float(
+            (adjusted["objective_value"] - baseline["objective_value"])
+            / (abs(baseline["objective_value"]) + 1e-6)
+            * 100
+        ),
+        "alignment_strategy": cate_meta["alignment_strategy"],
+        "source_cate_artifact": cate_meta["source_cate_artifact"],
+        "n_missing_cate": int(cate_meta["n_missing_cate"]),
+        "cate_shrink": shrink_meta,
+        "constraint_binding_reason": binding_reason,
+        "warning": cate_meta["warning"]
+        or (
+            "Integracion causal no utilizable en este run."
+            if binding_reason == "no_feasible_loans_under_current_budget_or_pd_constraints"
+            else ("CATE portfolio left in research-only fallback mode." if fallback_applied else "")
+        ),
+        "source_effect_status_path": "models/causal_effect_status.json",
     }
-    status_path = Path("models/cate_portfolio_status.json")
+
+    effect_status = _load_json_if_exists(Path("models/causal_effect_status.json"))
+    if effect_status:
+        status["effect_status_run_tag"] = effect_status.get("run_tag")
+
+    status_path = _artifact_path("models/cate_portfolio_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(status_path, "w", encoding="utf-8") as f:
-        json.dump(status, f, indent=2)
+    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
     logger.info(f"Saved status: {status_path}")
 
 
@@ -172,6 +411,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_portfolio_pd", type=float, default=0.10)
     parser.add_argument("--max_candidates", type=int, default=5_000)
     parser.add_argument("--uncertainty_aversion", type=float, default=0.0)
+    parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
     args = parser.parse_args()
     main(
         delta_rate=args.delta_rate,
@@ -179,4 +419,5 @@ if __name__ == "__main__":
         max_portfolio_pd=args.max_portfolio_pd,
         max_candidates=args.max_candidates,
         uncertainty_aversion=args.uncertainty_aversion,
+        solver_backend=args.solver_backend,
     )

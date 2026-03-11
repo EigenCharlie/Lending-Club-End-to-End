@@ -52,7 +52,7 @@ This supports both research-speed iteration and a clean migration path if produc
 
 ### 3.3 Time Series
 - Portfolio-level default rate dynamics for IFRS9 forward-looking component.
-- Statistical baselines (AutoARIMA, AutoETS) + ML (LightGBM with conformal intervals via mlforecast).
+- Statistical baselines (AutoARIMA, AutoETS) + ML (CatBoost via mlforecast for hybrid/panel challengers).
 
 ### 3.4 Survival Analysis
 - Time-to-default modeling for IFRS9 lifetime PD curves.

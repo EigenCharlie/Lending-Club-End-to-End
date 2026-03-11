@@ -36,8 +36,11 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
-    load_json,
-    load_parquet,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
+    load_rapids_stage_comparison,
+    page_error_boundary,
+    try_load_json,
     try_load_parquet,
 )
 
@@ -127,13 +130,17 @@ el downside cuando las predicciones no son perfectamente ciertas.
 """
 )
 
-summary = load_json("pipeline_summary")
-pipeline = summary.get("pipeline", {})
+with page_error_boundary("Optimizador de Portafolio"):
+    summary = try_load_json("pipeline_summary")
+    pipeline = summary.get("pipeline", {})
 
-alloc = load_parquet("portfolio_allocations")
-rob_summary = load_parquet("portfolio_robustness_summary")
-rob_frontier = load_parquet("portfolio_robustness_frontier")
-efficient_frontier = try_load_parquet("efficient_frontier")
+    alloc = try_load_parquet("portfolio_allocations")
+    rob_summary = try_load_parquet("portfolio_robustness_summary")
+    rob_frontier = try_load_parquet("portfolio_robustness_frontier")
+    efficient_frontier = try_load_parquet("efficient_frontier")
+rapids_compare = load_rapids_stage_comparison()
+tradeoff_full_policy = load_rapids_tradeoff_full_policy()
+tradeoff_full_ab = load_rapids_tradeoff_full_ab_status()
 if efficient_frontier.empty:
     nonrobust = rob_frontier[rob_frontier["policy"] == "nonrobust"].copy()
     if not nonrobust.empty:
@@ -198,6 +205,115 @@ Este módulo conecta investigación de operaciones con ML:
 - Pyomo/HiGHS optimiza retorno sujeto a presupuesto y riesgo.
 """
 )
+
+if not rapids_compare.empty:
+    or_compare = rapids_compare[
+        rapids_compare["stage"].isin(["portfolio", "tradeoff", "ab", "cate_portfolio"])
+    ].copy()
+    st.markdown("### RAPIDS / cuOpt: qué cambió en este bloque")
+    st.markdown(
+        """
+La evolución importante aquí no fue “poner GPU porque sí”. Fue **migrar OR a `cuopt` nativo**.
+Eso dejó dos carriles:
+
+- champion canónico CPU para promoción/gobernanza;
+- replay RAPIDS para medir aceleración real en OR.
+"""
+    )
+    st.dataframe(
+        or_compare[
+            ["stage", "cpu_seconds", "gpu_seconds", "speedup_gpu_vs_cpu", "peak_memory_used_mb"]
+        ].rename(
+            columns={
+                "stage": "Stage",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+                "peak_memory_used_mb": "Peak VRAM (MB)",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        "Conclusión práctica: la GPU sí cambia esta página. `tradeoff` es el mejor caso porque reutiliza la misma estructura muchas veces; ahí es donde `cuopt` realmente desplaza al CPU."
+    )
+    full_selected = tradeoff_full_policy.get("selected_policy", {})
+    full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    balanced_selected = tradeoff_full_policy.get("selected_policy_balanced_robustness", {})
+    balanced_metrics = tradeoff_full_policy.get("balanced_selection_metrics", {})
+    robust_selected = tradeoff_full_policy.get("selected_policy_robustness_aware", {})
+    robust_metrics = tradeoff_full_policy.get("research_selection_metrics", {})
+    full_ab = tradeoff_full_ab.get("no_regression", {})
+    if full_selected:
+        st.markdown("#### Qué aprendimos al llevar `tradeoff` a full")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Selector": "promotion_first",
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": full_selected.get("risk_tolerance"),
+                        "Policy mode": full_selected.get("policy_mode"),
+                        "Gamma": full_selected.get("gamma"),
+                        "Uncertainty aversion": full_selected.get("uncertainty_aversion"),
+                        "Funded": full_metrics.get("n_funded"),
+                        "Realized total return": full_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": full_metrics.get("price_of_robustness_pct"),
+                    },
+                    {
+                        "Selector": "balanced_robustness",
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": balanced_selected.get("risk_tolerance"),
+                        "Policy mode": balanced_selected.get("policy_mode"),
+                        "Gamma": balanced_selected.get("gamma"),
+                        "Uncertainty aversion": balanced_selected.get("uncertainty_aversion"),
+                        "Funded": balanced_metrics.get("n_funded"),
+                        "Realized total return": balanced_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": balanced_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                    {
+                        "Selector": "robustness_aware",
+                        "Universe": "276,869 candidates",
+                        "Risk tolerance": robust_selected.get("risk_tolerance"),
+                        "Policy mode": robust_selected.get("policy_mode"),
+                        "Gamma": robust_selected.get("gamma"),
+                        "Uncertainty aversion": robust_selected.get("uncertainty_aversion"),
+                        "Funded": robust_metrics.get("n_funded"),
+                        "Realized total return": robust_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": robust_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "A/B selector": tradeoff_full_ab.get("policy_selector"),
+                        "Control return": tradeoff_full_ab.get("metrics_a", {}).get(
+                            "total_return"
+                        ),
+                        "Treatment return": tradeoff_full_ab.get("metrics_b", {}).get(
+                            "total_return"
+                        ),
+                        "A/B diff": full_ab.get("diff_total_return"),
+                        "A/B pass": full_ab.get("passed"),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.warning(
+            "La lección nueva de esta página ya no es computacional. `cuopt` dejó el frontier full estable; ahora el reto es económico. `promotion_first` colapsa a `gamma=0.0`, `balanced_robustness` sube a `gamma=0.25` y `robustness_aware` a `gamma=0.5`, pero la pérdida de retorno bajo A/B full sigue siendo demasiado alta cuando impones robustez real."
+        )
 
 col_img1, col_img2 = st.columns(2)
 with col_img1:
@@ -440,8 +556,8 @@ Para anclar las decisiones del optimizador en evidencia histórica, calculamos e
 """
 )
 
-roi_grade = load_parquet("roi_by_grade")
-roi_term = load_parquet("roi_by_grade_term")
+roi_grade = try_load_parquet("roi_by_grade")
+roi_term = try_load_parquet("roi_by_grade_term")
 
 if not roi_grade.empty:
     col_roi1, col_roi2 = st.columns(2)
@@ -507,8 +623,9 @@ if not roi_grade.empty:
             "La frontera histórica valida las decisiones del optimizador."
         )
 
-    st.markdown(
-        f"""
+    if len(roi_grade) >= 7:
+        st.markdown(
+            f"""
 **Lectura del ROI histórico:**
 - **Grades A-B**: ROI medio positivo ({roi_grade.iloc[0]["roi_mean"]:.1%} y {roi_grade.iloc[1]["roi_mean"]:.1%})
   con dispersión moderada. Son los segmentos donde el optimizador concentra capital.
@@ -519,7 +636,9 @@ if not roi_grade.empty:
 - La frontera riesgo-retorno histórica confirma que la relación no es lineal: más riesgo no siempre
   compensa con más retorno, validando la necesidad de optimización formal.
 """
-    )
+        )
+    elif not roi_grade.empty:
+        st.info("Datos de ROI por grade disponibles pero con menos de 7 grades.")
 
 if not roi_term.empty:
     with st.expander("ROI por grade y plazo (36 vs 60 meses)"):

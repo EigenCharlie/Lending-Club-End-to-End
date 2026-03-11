@@ -29,8 +29,16 @@ from streamlit_app.utils import (
     format_number,
     format_pct,
     get_notebook_image_path,
-    load_json,
-    load_parquet,
+    load_gpu_replay_summary,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_pd_benchmark_stage_table,
+    load_rapids_insight_stage_table,
+    load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
 )
 
 st.title("🧭 Visión End-to-End")
@@ -53,16 +61,34 @@ traducen en decisiones concretas.
 )
 audience = audience_selector()
 
-summary = load_json("pipeline_summary")
-comparison = load_json("model_comparison")
-policy = load_json("conformal_policy_status", directory="models")
-eda = load_json("eda_summary")
+summary = try_load_json("pipeline_summary")
+comparison = try_load_json("model_comparison")
+policy = try_load_json("conformal_policy_status", directory="models")
+eda = try_load_json("eda_summary")
 
 pipeline = summary.get("pipeline", {})
 final_metrics = comparison.get("final_test_metrics", {})
-causal_rule = load_parquet("causal_policy_rule_selected").iloc[0]
-ifrs9_scenarios = load_parquet("ifrs9_scenario_summary")
-robust_summary = load_parquet("portfolio_robustness_summary")
+causal_summary = summary.get("causal", {})
+causal_rule_df = try_load_parquet("causal_policy_rule_selected")
+causal_rule = (
+    causal_rule_df.iloc[0]
+    if not causal_rule_df.empty
+    else pd.Series(
+        {
+            "rule_name": causal_summary.get("selected_rule", "N/D"),
+            "total_net_value": causal_summary.get("total_net_value", 0.0),
+        }
+    )
+)
+ifrs9_scenarios = try_load_parquet("ifrs9_scenario_summary")
+robust_summary = try_load_parquet("portfolio_robustness_summary")
+rapids_summary = load_gpu_replay_summary()
+rapids_compare = load_rapids_stage_comparison()
+rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+rapids_insights = load_rapids_insight_stage_table()
+rapids_full_ab = load_rapids_tradeoff_full_ab_status()
+rapids_full_policy = load_rapids_tradeoff_full_policy()
+pd_benchmark = load_rapids_pd_benchmark_stage_table()
 
 narrative_block(
     audience,
@@ -127,7 +153,7 @@ else:
 ### Lectura técnica (modelo, teoría y supuestos)
 - CatBoost se usa por robustez en tabular heterogéneo y manejo nativo de missing/categorías.
 - Conformal Mondrian aporta cobertura empírica segmentada sin asumir normalidad.
-- Causal DML/CausalForest permite estimar efecto de intervención y heterogeneidad.
+- DoWhy + CausalForestDML permiten estimar efecto de intervención y heterogeneidad.
 - OR robusta usa `PD_high` para proteger el objetivo en peor caso plausible.
 
 Formulación simplificada del bloque robusto:
@@ -154,6 +180,53 @@ de precio cambia realmente el riesgo; y IFRS9 traduce todo a impacto contable/re
 métrica individual, es la contribución central del trabajo.
 """
 )
+
+if not rapids_compare.empty:
+    st.markdown("### Carril complementario: replay RAPIDS sobre el proyecto real")
+    st.markdown(
+        """
+Este capítulo ahora tiene un complemento importante. Ya no solo existe el pipeline end-to-end CPU promovido; también existe un **replay GPU controlado** sobre las etapas donde la aceleración sí vale la pena.
+
+- `PD` y `LGD/EAD` se reejecutan sobre full-data como comparación honesta.
+- `portfolio`, `tradeoff`, `A/B` y `CATE` usan `cuopt` nativo.
+- `IFRS9` ganó una extensión nueva: Monte Carlo masivo con `cupy`, sin reemplazar el carril regulatorio canónico.
+"""
+    )
+    gpu_story = rapids_compare[
+        ["stage", "cpu_seconds", "gpu_seconds", "speedup_gpu_vs_cpu"]
+    ].copy()
+    st.dataframe(
+        gpu_story.rename(
+            columns={
+                "stage": "Stage",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        f"Hallazgo estructural: la GPU gana sobre todo en OR e IFRS9 Monte Carlo. El speedup de Monte Carlo ya quedó en {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x, mientras que el replay completo de PD sigue siendo más útil como benchmark comparativo que como aceleración end-to-end."
+    )
+    if not rapids_insights.empty:
+        st.caption(
+            "La siguiente capa RAPIDS ya no vive solo en el pipeline: la insight factory mostró que `cuGraph` sí abre análisis nuevos, mientras `cuDF ETL` y `cuML KMeans` no deben venderse como victorias automáticas."
+        )
+    if rapids_full_ab:
+        st.caption(
+            "También ya quedó medido el frontier OR a escala full. La GPU resolvió la escala, pero la policy seleccionada sigue colapsando a una variante casi no robusta; ese siguiente problema es económico, no computacional."
+        )
+    if rapids_full_policy:
+        balanced = rapids_full_policy.get("selected_policy_balanced_robustness", {})
+        st.caption(
+            f"Cuando forzamos robustez explícita, el selector balanceado sube a `gamma={balanced.get('gamma', 'N/D')}`; aun así, el costo económico en A/B full sigue siendo alto. Eso convierte la política robusta en un problema de diseño, no de solver."
+        )
+    if not pd_benchmark.empty:
+        st.caption(
+            "PD también cambió de lectura: la comparación RAPIDS ya se divide en fit-only, HPO y full-stage para separar lo que realmente gana en GPU del overhead alrededor."
+        )
 
 tab1, tab2, tab3, tab4, tab5 = st.tabs(
     [
@@ -201,7 +274,7 @@ Eso deja tres vacíos:
             },
             {
                 "Bloque": "Inferencia causal",
-                "Base conceptual": "Double ML / CATE heterogéneo",
+                "Base conceptual": "DoWhy backdoor + CausalForestDML",
                 "Brecha que cubre": "Pasar de correlaciones a políticas de intervención.",
             },
             {
@@ -281,7 +354,7 @@ digraph Pipeline {
     conf [label="Conformal\\n(Mondrian)"];
     ts [label="Series de tiempo"];
     surv [label="Supervivencia"];
-    causal [label="Causalidad\\n(DML/CATE)"];
+    causal [label="Causalidad\\n(DoWhy + CausalForestDML)"];
     opt [label="Optimización robusta\\n(Pyomo/HiGHS)"];
     ifrs [label="IFRS9\\n(ECL por escenario)"];
     gov [label="Gobernanza\\n(drift/fairness/robustez)"];
@@ -308,8 +381,10 @@ digraph Pipeline {
     )
 
 with tab3:
-    severe = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "severe"]["total_ecl"].iloc[0]
-    baseline = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "baseline"]["total_ecl"].iloc[0]
+    _severe_slice = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "severe"]["total_ecl"] if not ifrs9_scenarios.empty and "severe" in ifrs9_scenarios["scenario"].values else pd.Series(dtype=float)
+    _baseline_slice = ifrs9_scenarios[ifrs9_scenarios["scenario"] == "baseline"]["total_ecl"] if not ifrs9_scenarios.empty and "baseline" in ifrs9_scenarios["scenario"].values else pd.Series(dtype=float)
+    severe = float(_severe_slice.iloc[0]) if not _severe_slice.empty else 0.0
+    baseline = float(_baseline_slice.iloc[0]) if not _baseline_slice.empty else 0.0
     uplift = (severe / baseline - 1) if baseline else 0
 
     interpretation = pd.DataFrame(
@@ -550,7 +625,7 @@ with tab5:
 ### Marco conceptual (versión técnica)
 1. **CatBoost + calibración**: separación (AUC/KS) y probabilidad bien calibrada (Brier/ECE).
 2. **Conformal Mondrian**: cobertura finita por subgrupo sin supuestos paramétricos fuertes.
-3. **DML/CausalForest**: estimación de CATE bajo supuestos de ignorabilidad/overlap.
+3. **DoWhy + CausalForestDML**: identificación backdoor y estimación de CATE bajo supuestos de ignorabilidad/overlap.
 4. **OR robusta**: maximin/peor-caso en intervalo de PD para controlar downside.
 5. **IFRS9**: acople de PD 12m/lifetime + LGD/EAD en escenarios macro.
 """
@@ -568,22 +643,6 @@ Este stack end-to-end permite responder preguntas que un score aislado no puede 
 """
 )
 
-st.subheader("Comandos de reproducción")
-st.code(
-    "\n".join(
-        [
-            "uv sync --extra dev --extra platform",
-            "uv run python scripts/end_to_end_pipeline.py --run_name streamlit_story",
-            "uv run python scripts/export_streamlit_artifacts.py",
-            "uv run python scripts/export_storytelling_snapshot.py",
-            "uv run python scripts/extract_notebook_images.py",
-            "uv venv .venv-feast && uv pip install --python .venv-feast/bin/python -r requirements/feast-platform.txt",
-            "cd feature_repo && ../.venv-feast/bin/feast apply && cd ..",
-            "uv run streamlit run streamlit_app/app.py",
-        ]
-    ),
-    language="bash",
-)
 render_section_checkpoint(
     "Checkpoint final del recorrido E2E",
     [

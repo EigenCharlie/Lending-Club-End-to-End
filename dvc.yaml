@@ -18,6 +18,8 @@ stages:
   build_datasets:
     cmd: uv run python -c "from src.data.build_datasets import main; main()"
     deps:
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
     - data/processed/train.parquet
     - src/data/build_datasets.py
     - src/features/feature_engineering.py
@@ -25,6 +27,8 @@ stages:
     - data/processed/ead_dataset.parquet
     - data/processed/loan_master.parquet
     - data/processed/time_series.parquet
+    - data/processed/time_series_full.parquet
+    - data/processed/time_series_panel.parquet
   train_pd_model:
     cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
     deps:
@@ -69,25 +73,41 @@ stages:
   forecast_default_rates:
     cmd: uv run python scripts/forecast_default_rates.py --horizon 12
     deps:
-    - data/processed/time_series.parquet
+    - configs/time_series.yaml
+    - data/processed/time_series_full.parquet
+    - data/processed/time_series_panel.parquet
     - scripts/forecast_default_rates.py
+    - src/models/time_series.py
     outs:
+    - data/processed/ts_backtest_predictions.parquet
+    - data/processed/ts_backtest_metrics.parquet
     - data/processed/ts_forecasts.parquet
     - data/processed/ts_cv_stats.parquet
     - data/processed/ts_ifrs9_scenarios.parquet
+    - data/processed/ts_diagnostics.json
+    - data/processed/ts_panel_forecasts.parquet
+    - models/time_series_status.json
   estimate_causal_effects:
-    cmd: uv run python scripts/estimate_causal_effects.py --treatment int_rate
+    cmd: bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate
     deps:
     - data/processed/train.parquet
+    - data/processed/test.parquet
+    - scripts/causal/run_in_causal_env.sh
     - scripts/estimate_causal_effects.py
+    - src/models/causal.py
     outs:
     - data/processed/cate_estimates.parquet
+    - data/processed/cate_estimates_oot.parquet
+    - data/processed/causal_overlap_diagnostics.parquet
     - models/causal_forest_dml.pkl
+    - models/causal_effect_status.json
     - models/causal_summary.pkl
   simulate_causal_policy:
-    cmd: uv run python scripts/simulate_causal_policy.py
+    cmd: bash scripts/causal/run_in_causal_env.sh scripts/simulate_causal_policy.py
     deps:
     - data/processed/cate_estimates.parquet
+    - models/causal_effect_status.json
+    - scripts/causal/run_in_causal_env.sh
     - scripts/simulate_causal_policy.py
     outs:
     - data/processed/causal_policy_simulation.parquet
@@ -95,20 +115,24 @@ stages:
     - data/processed/causal_policy_grade_summary.parquet
     - models/causal_policy_summary.pkl
   validate_causal_policy:
-    cmd: uv run python scripts/validate_causal_policy.py
+    cmd: bash scripts/causal/run_in_causal_env.sh scripts/validate_causal_policy.py
     deps:
     - data/processed/causal_policy_simulation.parquet
+    - models/causal_effect_status.json
+    - scripts/causal/run_in_causal_env.sh
     - scripts/validate_causal_policy.py
     outs:
     - data/processed/causal_policy_rule_candidates.parquet
     - data/processed/causal_policy_rule_selected.parquet
     - models/causal_policy_rule.json
   backtest_causal_policy_oot:
-    cmd: uv run python scripts/backtest_causal_policy_oot.py
+    cmd: bash scripts/causal/run_in_causal_env.sh scripts/backtest_causal_policy_oot.py
     deps:
     - data/processed/causal_policy_simulation.parquet
     - data/processed/train.parquet
     - models/causal_policy_rule.json
+    - models/causal_effect_status.json
+    - scripts/causal/run_in_causal_env.sh
     - scripts/backtest_causal_policy_oot.py
     outs:
     - data/processed/causal_policy_oot_backtest.parquet
@@ -119,7 +143,9 @@ stages:
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
     - data/processed/test.parquet
+    - data/processed/ts_ifrs9_scenarios.parquet
     - data/processed/train.parquet
+    - models/time_series_status.json
     - scripts/run_ifrs9_sensitivity.py
     outs:
     - data/processed/ifrs9_scenario_summary.parquet
@@ -129,7 +155,7 @@ stages:
     - models/ifrs9_sensitivity_summary.pkl
   optimize_portfolio:
     cmd: uv run python scripts/optimize_portfolio.py --config
-      configs/optimization.yaml --risk_tolerance 0.10
+      configs/optimization.yaml --risk_tolerance 0.10 --max_candidates 30000
     deps:
     - configs/optimization.yaml
     - data/processed/conformal_intervals_mondrian.parquet
@@ -140,7 +166,7 @@ stages:
     - models/portfolio_results.pkl
   optimize_portfolio_tradeoff:
     cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
-      configs/optimization.yaml
+      configs/optimization.yaml --max_candidates 30000 --grid-profile night
     deps:
     - configs/optimization.yaml
     - data/processed/conformal_intervals_mondrian.parquet
@@ -196,25 +222,38 @@ stages:
   export_streamlit_artifacts:
     cmd: uv run python scripts/export_streamlit_artifacts.py
     deps:
+    - configs/explainability_taxonomy.json
     - data/raw/Loan_status_2007-2020Q3.csv
     - data/processed/feature_config.pkl
     - data/processed/loan_master.parquet
+    - data/processed/test_fe.parquet
     - data/processed/test_predictions.parquet
+    - data/processed/conformal_intervals_mondrian.parquet
     - models/conformal_policy_status.json
+    - models/pd_model_contract.json
     - models/cox_ph_model.pkl
     - models/pd_training_record.pkl
     - models/pipeline_results.pkl
     - models/survival_summary.pkl
     - scripts/export_streamlit_artifacts.py
     outs:
+    - data/processed/ale_curves.parquet
     - data/processed/eda_summary.json
+    - data/processed/explainability_global.parquet
+    - data/processed/explainability_local_cases.parquet
     - data/processed/feature_importance_iv.json
+    - data/processed/pdp_ice_top5.parquet
+    - data/processed/permutation_importance.parquet
     - data/processed/model_comparison.json
     - data/processed/pipeline_summary.json
     - data/processed/roc_curve_data.parquet
     - data/processed/calibration_curve_data.parquet
     - data/processed/hazard_ratios.parquet
     - data/processed/km_curve_data.parquet
+    - data/processed/shap_interactions_or_redundancy.parquet
+    - data/processed/shap_local_cases.parquet
+    - data/processed/shap_raw_top20.parquet
+    - data/processed/shap_summary.parquet
     - data/processed/state_aggregates.parquet
     - data/processed/roi_by_grade.parquet
     - data/processed/roi_by_grade_term.parquet
@@ -229,6 +268,7 @@ stages:
     - src/evaluation/fairness.py
     outs:
     - data/processed/fairness_audit.parquet
+    - data/processed/fairness_threshold_frontier.parquet
     - models/fairness_audit_status.json
   generate_governance_status:
     cmd: uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
@@ -236,35 +276,47 @@ stages:
     - configs/mrm_policy.yaml
     - data/processed/train.parquet
     - data/processed/test.parquet
+    - data/processed/fairness_threshold_frontier.parquet
+    - data/processed/shap_raw_top20.parquet
+    - models/challenger_promotion_report.json
+    - models/fairness_audit_status.json
     - scripts/generate_governance_status.py
     - src/evaluation/backtesting.py
+    - src/evaluation/explainability.py
     outs:
     - data/processed/drift_monitoring.parquet
+    - data/processed/explanation_drift.parquet
     - models/governance_status.json
   build_pd_challenger_artifacts:
     cmd: uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml
     deps:
     - configs/pd_model.yaml
     - data/processed/train.parquet
+    - data/processed/test_fe.parquet
+    - data/processed/test_predictions.parquet
     - data/processed/feature_config.pkl
     - scripts/build_pd_challenger_artifacts.py
+    - src/evaluation/explainability.py
     outs:
     - data/processed/challenger_feature_selection.parquet
+    - models/challenger_promotion_report.json
     - models/pd_challenger_spec.json
     - models/pd_challenger_spec_v2.json
   optimize_cate_portfolio:
-    cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 5000
+    cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 30000
     deps:
     - data/processed/cate_estimates.parquet
+    - data/processed/cate_estimates_oot.parquet
     - data/processed/conformal_intervals_mondrian.parquet
     - data/processed/test_fe.parquet
+    - models/causal_effect_status.json
     - scripts/optimize_cate_portfolio.py
     - src/optimization/causal_portfolio.py
     outs:
     - data/processed/cate_portfolio_comparison.parquet
     - models/cate_portfolio_status.json
   simulate_ab_test:
-    cmd: uv run python scripts/simulate_ab_test.py --max_candidates 5000
+    cmd: uv run python scripts/simulate_ab_test.py --max_candidates 30000
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
     - data/processed/test_fe.parquet

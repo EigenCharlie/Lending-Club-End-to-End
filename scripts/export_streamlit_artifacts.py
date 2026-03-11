@@ -30,14 +30,17 @@ try:
 except ImportError:  # sklearn < 1.8
     d2_brier_score = None
 
+from src.evaluation.explainability import compute_ale_curve, pairwise_shap_redundancy
+
 # ── Paths ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
 RAW_DIR = PROJECT_ROOT / "data" / "raw"
+FEATURE_TAXONOMY_PATH = PROJECT_ROOT / "configs" / "explainability_taxonomy.json"
 
 EXPORT_COUNT = 0
-EXPORT_SCHEMA_VERSION = "2026-02-26.1"
+EXPORT_SCHEMA_VERSION = "2026-03-06.1"
 
 
 def _save_json(
@@ -115,6 +118,37 @@ def _load_json_if_exists(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _evaluate_run_tag_coherence(
+    expected_run_tag: str | None, artifacts: dict[str, dict[str, Any]]
+) -> dict[str, Any]:
+    expected = str(expected_run_tag or "").strip()
+    observed: dict[str, str] = {}
+    missing: list[str] = []
+    mismatched: list[str] = []
+    for name, payload in artifacts.items():
+        if not isinstance(payload, dict) or not payload:
+            continue
+        tag = str(payload.get("run_tag", "")).strip()
+        if not tag:
+            missing.append(name)
+            continue
+        observed[name] = tag
+        if expected and tag != expected:
+            mismatched.append(name)
+    unique_tags = sorted(set(observed.values()))
+    coherent = bool(observed) and not missing and not mismatched and len(unique_tags) == 1
+    if expected and unique_tags and unique_tags != [expected]:
+        coherent = False
+    return {
+        "expected_run_tag": expected or None,
+        "observed_run_tags": unique_tags,
+        "observed_by_artifact": observed,
+        "missing_run_tag_artifacts": sorted(missing),
+        "mismatched_artifacts": sorted(mismatched),
+        "coherent": bool(coherent),
+    }
+
+
 def _infer_calibration_method(rec: dict[str, Any]) -> str:
     value = str(rec.get("best_calibration", "") or "").strip()
     if value:
@@ -136,6 +170,102 @@ def _infer_calibration_method(rec: dict[str, Any]) -> str:
     # Fallback to previous export if available.
     prior = _load_json_if_exists(DATA_DIR / "model_comparison.json")
     return str(prior.get("best_calibration", "") or "Unknown")
+
+
+def _load_feature_taxonomy() -> dict[str, Any]:
+    payload = _load_json_if_exists(FEATURE_TAXONOMY_PATH)
+    if not payload:
+        return {
+            "default": {
+                "family": "derived",
+                "controllable": False,
+                "monotonic_expected": "none",
+                "business_label": "Variable derivada",
+            },
+            "features": {},
+        }
+    payload.setdefault(
+        "default",
+        {
+            "family": "derived",
+            "controllable": False,
+            "monotonic_expected": "none",
+            "business_label": "Variable derivada",
+        },
+    )
+    payload.setdefault("features", {})
+    return payload
+
+
+def _feature_metadata(feature: str, taxonomy: dict[str, Any]) -> dict[str, Any]:
+    default_meta = dict(taxonomy.get("default", {}) or {})
+    feature_meta = dict((taxonomy.get("features", {}) or {}).get(feature, {}) or {})
+    default_meta.update(feature_meta)
+    default_meta.setdefault("family", "derived")
+    default_meta.setdefault("controllable", False)
+    default_meta.setdefault("monotonic_expected", "none")
+    default_meta.setdefault("business_label", feature.replace("_", " "))
+    return default_meta
+
+
+def _json_compact(payload: Any) -> str:
+    return json.dumps(payload, ensure_ascii=False, default=str)
+
+
+def _resolve_primary_threshold() -> float:
+    threshold_path = MODEL_DIR / "decision_threshold.json"
+    if threshold_path.exists():
+        try:
+            payload = json.loads(threshold_path.read_text(encoding="utf-8"))
+            return float(payload.get("selected_threshold", 0.5))
+        except Exception:
+            pass
+    fairness_status = _load_json_if_exists(MODEL_DIR / "fairness_audit_status.json")
+    try:
+        return float(fairness_status.get("prediction_threshold", 0.5))
+    except Exception:
+        return 0.5
+
+
+def _issue_quarter(series: pd.Series) -> pd.Series:
+    dates = pd.to_datetime(series, errors="coerce")
+    return dates.dt.to_period("Q").astype("string").fillna("unknown").astype(str)
+
+
+def _nearest_case_position(
+    scores: np.ndarray,
+    target: float,
+    *,
+    mask: np.ndarray | None = None,
+    used_positions: set[int] | None = None,
+) -> int | None:
+    candidate_idx = np.arange(len(scores))
+    if mask is not None:
+        candidate_idx = candidate_idx[np.asarray(mask, dtype=bool)]
+    if used_positions:
+        candidate_idx = np.array([idx for idx in candidate_idx if int(idx) not in used_positions])
+    if candidate_idx.size == 0:
+        return None
+    nearest = candidate_idx[np.argmin(np.abs(scores[candidate_idx] - float(target)))]
+    return int(nearest)
+
+
+def _predict_proba(model: Any, X: pd.DataFrame, categorical: list[str]) -> np.ndarray:
+    from catboost import Pool
+
+    cat_features = [feature for feature in categorical if feature in X.columns]
+    if cat_features:
+        return np.asarray(model.predict_proba(Pool(X, cat_features=cat_features)), dtype=float)
+    return np.asarray(model.predict_proba(X), dtype=float)
+
+
+class _ModelPredictorAdapter:
+    def __init__(self, model: Any, categorical: list[str]) -> None:
+        self.model = model
+        self.categorical = list(categorical)
+
+    def predict_proba(self, X: pd.DataFrame) -> np.ndarray:
+        return _predict_proba(self.model, X, self.categorical)
 
 
 # ── 1. EDA Summary ──
@@ -401,7 +531,7 @@ def export_calibration_curves() -> None:
 # ── 6. Explainability Artifacts ──
 def _load_pd_explainability_context(
     sample_size: int = 20000,
-) -> tuple[Any, pd.DataFrame, np.ndarray, list[str], list[str]]:
+) -> tuple[Any, pd.DataFrame, np.ndarray, list[str], list[str], pd.DataFrame]:
     """Load canonical PD model + OOT matrix for explainability exports."""
     from catboost import CatBoostClassifier
 
@@ -417,26 +547,104 @@ def _load_pd_explainability_context(
     )
     categorical = list(contract.get("categorical_features", []) or [])
 
-    test = pd.read_parquet(DATA_DIR / "test_fe.parquet")
+    test = pd.read_parquet(DATA_DIR / "test_fe.parquet").reset_index(drop=True)
+    preds_path = DATA_DIR / "test_predictions.parquet"
+    preds = (
+        pd.read_parquet(preds_path).reset_index(drop=True)
+        if preds_path.exists()
+        else pd.DataFrame()
+    )
     feature_names = [c for c in feature_names if c in test.columns]
     if not feature_names:
         raise ValueError("Unable to resolve feature names for explainability export.")
 
+    n_rows = min(len(test), len(preds)) if not preds.empty else len(test)
+    test = test.iloc[:n_rows].copy()
+    if not preds.empty:
+        preds = preds.iloc[:n_rows].copy()
+
     X = test[feature_names].copy()
+    inferred_categorical = {col for col in X.columns if not pd.api.types.is_numeric_dtype(X[col])}
+    categorical = sorted(set(categorical).union(inferred_categorical))
     for c in categorical:
         if c in X.columns:
             X[c] = X[c].astype("string").fillna("UNKNOWN").astype(str)
 
+    case_id_series = None
+    for col in ["loan_id", "id"]:
+        if col in preds.columns:
+            case_id_series = preds[col].astype(str)
+            break
+        if col in test.columns:
+            case_id_series = test[col].astype(str)
+            break
+    if case_id_series is None:
+        case_id_series = pd.Series(np.arange(len(test)), dtype=str)
+
+    meta = pd.DataFrame(
+        {
+            "row_id": np.arange(len(test), dtype=int),
+            "case_id": case_id_series.astype(str).to_numpy(),
+            "loan_id": case_id_series.astype(str).to_numpy(),
+            "issue_d": pd.to_datetime(test.get("issue_d"), errors="coerce"),
+            "issue_quarter": _issue_quarter(test.get("issue_d", pd.Series(index=test.index))),
+            "grade": test.get("grade", pd.Series(index=test.index, dtype="object")).astype(str),
+            "score_raw": (
+                pd.to_numeric(preds.get("y_prob_cb_tuned"), errors="coerce")
+                if "y_prob_cb_tuned" in preds.columns
+                else np.nan
+            ),
+            "pd_calibrated": (
+                pd.to_numeric(preds.get("pd_calibrated"), errors="coerce")
+                if "pd_calibrated" in preds.columns
+                else pd.to_numeric(preds.get("y_prob_final"), errors="coerce")
+                if "y_prob_final" in preds.columns
+                else np.nan
+            ),
+            "y_true": pd.to_numeric(test.get("default_flag"), errors="coerce"),
+        }
+    )
+
+    conformal_path = DATA_DIR / "conformal_intervals_mondrian.parquet"
+    if conformal_path.exists():
+        conf = pd.read_parquet(conformal_path)
+        if "id" in conf.columns:
+            conf = conf.rename(columns={"id": "case_id"})
+        keep = [
+            c
+            for c in [
+                "case_id",
+                "pd_low_90",
+                "pd_high_90",
+                "pd_low_95",
+                "pd_high_95",
+                "width_90",
+                "width_95",
+                "temporal_segment",
+            ]
+            if c in conf.columns
+        ]
+        if keep:
+            conf = conf[keep].copy()
+            conf["case_id"] = conf["case_id"].astype(str)
+            meta = meta.merge(conf, on="case_id", how="left")
+    if "temporal_segment" not in meta.columns:
+        meta["temporal_segment"] = meta["issue_quarter"].astype(str)
+
     if len(X) > sample_size:
-        X = X.sample(n=sample_size, random_state=42)
+        sampled_idx = X.sample(n=sample_size, random_state=42).index
+        X = X.loc[sampled_idx].copy()
+        meta = meta.loc[sampled_idx].copy()
 
     if "default_flag" not in test.columns:
         raise ValueError(
             "default_flag column missing in test_fe.parquet for explainability exports."
         )
     y = test.loc[X.index, "default_flag"].to_numpy(dtype=int)
+    meta = meta.loc[X.index].reset_index(drop=True)
+    X = X.reset_index(drop=True)
 
-    return model, X, y, feature_names, categorical
+    return model, X, y, feature_names, categorical, meta
 
 
 def export_shap_summary() -> None:
@@ -444,49 +652,107 @@ def export_shap_summary() -> None:
     logger.info("Exporting SHAP artifacts...")
 
     try:
-        import shap
+        from catboost import Pool
 
-        model, X, _, features, _ = _load_pd_explainability_context(sample_size=5000)
-        explainer = shap.TreeExplainer(model)
-        shap_values = explainer.shap_values(X)
+        taxonomy = _load_feature_taxonomy()
+        model, X, _, features, categorical, meta = _load_pd_explainability_context(sample_size=5000)
+        cat_features = [feature for feature in categorical if feature in X.columns]
+        shap_values = np.asarray(
+            model.get_feature_importance(
+                Pool(X, cat_features=cat_features),
+                type="ShapValues",
+            ),
+            dtype=float,
+        )
+        if shap_values.ndim == 2 and shap_values.shape[1] == len(features) + 1:
+            shap_values = shap_values[:, :-1]
 
         mean_abs_shap = np.abs(shap_values).mean(axis=0)
-        shap_df = pd.DataFrame({"feature": features, "mean_abs_shap": mean_abs_shap}).sort_values(
-            "mean_abs_shap", ascending=False
-        )
+        shap_df = pd.DataFrame(
+            {
+                "feature": features,
+                "mean_abs_shap": mean_abs_shap,
+                "feature_family": [
+                    _feature_metadata(feature, taxonomy)["family"] for feature in features
+                ],
+                "controllable": [
+                    bool(_feature_metadata(feature, taxonomy)["controllable"])
+                    for feature in features
+                ],
+                "monotonic_expected": [
+                    str(_feature_metadata(feature, taxonomy)["monotonic_expected"])
+                    for feature in features
+                ],
+                "business_label": [
+                    str(_feature_metadata(feature, taxonomy)["business_label"])
+                    for feature in features
+                ],
+            }
+        ).sort_values("mean_abs_shap", ascending=False)
         _save_parquet(shap_df, DATA_DIR / "shap_summary.parquet")
 
         top_features = shap_df["feature"].head(20).tolist()
         top_idx = [features.index(f) for f in top_features]
-        raw_shap_df = pd.DataFrame(
-            shap_values[:, top_idx], columns=[f"shap_{f}" for f in top_features]
-        )
+        raw_shap_df = meta.copy()
         for f in top_features:
+            raw_shap_df[f"shap_{f}"] = shap_values[:, features.index(f)]
             raw_shap_df[f"val_{f}"] = X[f].values
         _save_parquet(raw_shap_df, DATA_DIR / "shap_raw_top20.parquet")
 
         # Local explanations for representative risk quantiles.
-        y_prob = model.predict_proba(X)[:, 1]
-        q10 = np.quantile(y_prob, 0.10)
-        q50 = np.quantile(y_prob, 0.50)
-        q90 = np.quantile(y_prob, 0.90)
-        representative_idx = (
-            np.argsort(np.abs(y_prob - q10))[:2].tolist()
-            + np.argsort(np.abs(y_prob - q50))[:2].tolist()
-            + np.argsort(np.abs(y_prob - q90))[:2].tolist()
-        )
-        representative_idx = sorted(set(representative_idx))[:6]
+        y_prob = pd.to_numeric(meta["pd_calibrated"], errors="coerce").to_numpy(dtype=float)
+        raw_score = pd.to_numeric(meta["score_raw"], errors="coerce").to_numpy(dtype=float)
+        if not np.isfinite(y_prob).all():
+            y_prob = _predict_proba(model, X, categorical)[:, 1]
+        if not np.isfinite(raw_score).all():
+            raw_score = _predict_proba(model, X, categorical)[:, 1]
+
+        threshold = _resolve_primary_threshold()
+        q10 = float(np.quantile(y_prob, 0.10))
+        q90 = float(np.quantile(y_prob, 0.90))
+        latest_quarter = str(meta["issue_quarter"].dropna().astype(str).sort_values().iloc[-1])
+        latest_mask = meta["issue_quarter"].astype(str).eq(latest_quarter).to_numpy()
+        representative_specs = [
+            ("bajo_riesgo", q10, None),
+            ("cercano_umbral", threshold, None),
+            ("alto_riesgo", q90, None),
+            ("cohorte_drift", threshold, latest_mask),
+        ]
+        used_positions: set[int] = set()
 
         local_rows: list[dict[str, Any]] = []
-        for row_id in representative_idx:
-            for f, feature_idx in zip(top_features, top_idx, strict=False):
+        for segment, target_value, mask in representative_specs:
+            row_pos = _nearest_case_position(
+                y_prob,
+                target_value,
+                mask=mask,
+                used_positions=used_positions,
+            )
+            if row_pos is None:
+                continue
+            used_positions.add(int(row_pos))
+            for f, feature_idx in zip(top_features[:15], top_idx[:15], strict=False):
+                feature_meta = _feature_metadata(f, taxonomy)
                 local_rows.append(
                     {
-                        "case_id": int(row_id),
-                        "predicted_pd": float(y_prob[row_id]),
+                        "case_id": str(meta.iloc[row_pos]["case_id"]),
+                        "segment": segment,
+                        "row_id": int(meta.iloc[row_pos]["row_id"]),
+                        "issue_quarter": str(meta.iloc[row_pos].get("issue_quarter", "")),
+                        "grade": str(meta.iloc[row_pos].get("grade", "")),
+                        "score_raw": float(raw_score[row_pos]),
+                        "predicted_pd": float(y_prob[row_pos]),
+                        "pd_calibrated": float(y_prob[row_pos]),
+                        "pd_low_90": float(meta.iloc[row_pos].get("pd_low_90", np.nan)),
+                        "pd_high_90": float(meta.iloc[row_pos].get("pd_high_90", np.nan)),
+                        "pd_low_95": float(meta.iloc[row_pos].get("pd_low_95", np.nan)),
+                        "pd_high_95": float(meta.iloc[row_pos].get("pd_high_95", np.nan)),
                         "feature": f,
-                        "feature_value": str(X.iloc[row_id][f]),
-                        "shap_value": float(shap_values[row_id, feature_idx]),
+                        "feature_value": str(X.iloc[row_pos][f]),
+                        "shap_value": float(shap_values[row_pos, feature_idx]),
+                        "feature_family": str(feature_meta["family"]),
+                        "controllable": bool(feature_meta["controllable"]),
+                        "monotonic_expected": str(feature_meta["monotonic_expected"]),
                     }
                 )
         _save_parquet(pd.DataFrame(local_rows), DATA_DIR / "shap_local_cases.parquet")
@@ -499,15 +765,15 @@ def export_permutation_importance() -> None:
     """Export permutation importance on OOT sample using AUC degradation."""
     logger.info("Exporting permutation importance...")
     try:
-        model, X, y, features, _ = _load_pd_explainability_context(sample_size=12000)
-        baseline_auc = roc_auc_score(y, model.predict_proba(X)[:, 1])
+        model, X, y, features, categorical, _ = _load_pd_explainability_context(sample_size=12000)
+        baseline_auc = roc_auc_score(y, _predict_proba(model, X, categorical)[:, 1])
 
         rng = np.random.default_rng(42)
         rows: list[dict[str, Any]] = []
         for feature in features:
             X_perm = X.copy()
             X_perm[feature] = rng.permutation(X_perm[feature].to_numpy())
-            auc_perm = roc_auc_score(y, model.predict_proba(X_perm)[:, 1])
+            auc_perm = roc_auc_score(y, _predict_proba(model, X_perm, categorical)[:, 1])
             rows.append(
                 {
                     "feature": feature,
@@ -526,7 +792,7 @@ def export_pdp_ice_top5() -> None:
     """Export PDP/ICE data for top-5 numeric features."""
     logger.info("Exporting PDP/ICE top-5 features...")
     try:
-        model, X, _, _, categorical = _load_pd_explainability_context(sample_size=4000)
+        model, X, _, _, categorical, _ = _load_pd_explainability_context(sample_size=4000)
 
         imp_path = DATA_DIR / "permutation_importance.parquet"
         if imp_path.exists():
@@ -551,7 +817,7 @@ def export_pdp_ice_top5() -> None:
             for value in grid:
                 X_tmp = ice_sample.copy()
                 X_tmp[feature] = value
-                preds = model.predict_proba(X_tmp)[:, 1]
+                preds = _predict_proba(model, X_tmp, categorical)[:, 1]
                 pdp_value = float(np.mean(preds))
                 for obs_id, pred in zip(X_tmp.index.to_numpy(), preds, strict=False):
                     rows.append(
@@ -567,6 +833,222 @@ def export_pdp_ice_top5() -> None:
         _save_parquet(pd.DataFrame(rows), DATA_DIR / "pdp_ice_top5.parquet")
     except Exception as e:
         logger.warning(f"PDP/ICE export failed: {e}. Skipping.")
+
+
+def export_explainability_bundle() -> None:
+    """Build the canonical explainability bundle consumed by UI and governance."""
+    logger.info("Exporting explainability bundle...")
+
+    shap_summary_path = DATA_DIR / "shap_summary.parquet"
+    shap_raw_path = DATA_DIR / "shap_raw_top20.parquet"
+    local_cases_path = DATA_DIR / "shap_local_cases.parquet"
+    if not shap_summary_path.exists() or not shap_raw_path.exists():
+        logger.warning("Skipping explainability bundle because SHAP base artifacts are missing.")
+        return
+
+    taxonomy = _load_feature_taxonomy()
+    shap_summary = pd.read_parquet(shap_summary_path)
+    shap_raw = pd.read_parquet(shap_raw_path)
+    permutation = (
+        pd.read_parquet(DATA_DIR / "permutation_importance.parquet")
+        if (DATA_DIR / "permutation_importance.parquet").exists()
+        else pd.DataFrame()
+    )
+    pdp_ice = (
+        pd.read_parquet(DATA_DIR / "pdp_ice_top5.parquet")
+        if (DATA_DIR / "pdp_ice_top5.parquet").exists()
+        else pd.DataFrame()
+    )
+
+    model, X, _, _, categorical, _ = _load_pd_explainability_context(sample_size=4000)
+    predictor = _ModelPredictorAdapter(model, categorical)
+    categorical_set = set(categorical)
+
+    numeric_top = []
+    for feature in shap_summary["feature"].astype(str).tolist():
+        if feature not in X.columns or feature in categorical_set:
+            continue
+        values = pd.to_numeric(X[feature], errors="coerce")
+        if values.notna().sum() < 50:
+            continue
+        numeric_top.append(feature)
+
+    numeric_top = numeric_top[:8]
+    numeric_frame = pd.DataFrame(index=X.index)
+    for feature in numeric_top:
+        numeric_frame[feature] = pd.to_numeric(X[feature], errors="coerce")
+    corr = (
+        numeric_frame.corr(method="spearman").abs() if not numeric_frame.empty else pd.DataFrame()
+    )
+
+    rows = []
+    for _, row in shap_summary.iterrows():
+        feature = str(row["feature"])
+        meta = _feature_metadata(feature, taxonomy)
+        auc_drop = np.nan
+        if not permutation.empty and feature in permutation["feature"].astype(str).tolist():
+            auc_drop = float(
+                permutation.loc[permutation["feature"].astype(str) == feature, "auc_drop"].iloc[0]
+            )
+        max_corr = np.nan
+        if feature in corr.columns:
+            series = corr[feature].drop(labels=[feature], errors="ignore")
+            max_corr = float(series.max()) if not series.empty else 0.0
+        effect_view = "none"
+        if feature in numeric_top:
+            effect_view = "ale" if float(np.nan_to_num(max_corr)) >= 0.20 else "pdp_ice"
+        rows.append(
+            {
+                "feature": feature,
+                "mean_abs_shap": float(row["mean_abs_shap"]),
+                "permutation_auc_drop": float(auc_drop) if pd.notna(auc_drop) else np.nan,
+                "shap_rank": int(len(rows) + 1),
+                "feature_family": str(meta["family"]),
+                "controllable": bool(meta["controllable"]),
+                "monotonic_expected": str(meta["monotonic_expected"]),
+                "business_label": str(meta["business_label"]),
+                "preferred_effect_view": effect_view,
+                "max_abs_spearman_corr": float(max_corr) if pd.notna(max_corr) else np.nan,
+                "has_pdp_ice": bool(
+                    feature in pdp_ice.get("feature", pd.Series(dtype=str)).astype(str).tolist()
+                ),
+            }
+        )
+
+    explainability_global = pd.DataFrame(rows)
+    explainability_global["permutation_rank"] = explainability_global["permutation_auc_drop"].rank(
+        ascending=False, method="dense"
+    )
+    explainability_global["joint_rank"] = explainability_global[
+        ["shap_rank", "permutation_rank"]
+    ].mean(axis=1, skipna=True)
+    explainability_global = explainability_global.sort_values(
+        ["joint_rank", "mean_abs_shap"], ascending=[True, False]
+    ).reset_index(drop=True)
+    _save_parquet(explainability_global, DATA_DIR / "explainability_global.parquet")
+
+    ale_rows: list[pd.DataFrame] = []
+    ale_candidates = (
+        explainability_global.loc[
+            explainability_global["preferred_effect_view"].eq("ale"), "feature"
+        ]
+        .astype(str)
+        .tolist()
+    )
+    if not ale_candidates:
+        ale_candidates = numeric_top[:5]
+    for feature in ale_candidates[:8]:
+        curve = compute_ale_curve(predictor, X, str(feature), n_bins=10)
+        if curve.empty:
+            continue
+        curve["preferred_effect_view"] = "ale"
+        curve["max_abs_spearman_corr"] = float(
+            explainability_global.loc[
+                explainability_global["feature"].astype(str) == str(feature),
+                "max_abs_spearman_corr",
+            ].iloc[0]
+        )
+        ale_rows.append(curve)
+    if ale_rows:
+        ale_df = pd.concat(ale_rows, ignore_index=True)
+    else:
+        ale_df = pd.DataFrame(
+            columns=[
+                "feature",
+                "bin_id",
+                "lower_bound",
+                "upper_bound",
+                "midpoint",
+                "ale_value",
+                "n_obs",
+                "preferred_effect_view",
+                "max_abs_spearman_corr",
+            ]
+        )
+    _save_parquet(ale_df, DATA_DIR / "ale_curves.parquet")
+
+    interaction_df = pairwise_shap_redundancy(
+        shap_raw,
+        explainability_global["feature"].astype(str).head(10).tolist(),
+    )
+    _save_parquet(interaction_df, DATA_DIR / "shap_interactions_or_redundancy.parquet")
+
+    if local_cases_path.exists():
+        local_df = pd.read_parquet(local_cases_path)
+        bundle_rows: list[dict[str, Any]] = []
+        for (case_id, segment), group in local_df.groupby(["case_id", "segment"], dropna=False):
+            group = group.sort_values("shap_value", ascending=False).reset_index(drop=True)
+            positive = group[group["shap_value"] > 0].head(3)
+            negative = group[group["shap_value"] < 0].sort_values("shap_value").head(3)
+            if positive.empty:
+                positive = group.head(3)
+            if negative.empty:
+                negative = group.tail(3).sort_values("shap_value")
+
+            def _reason_payload(df: pd.DataFrame) -> list[dict[str, Any]]:
+                payload = []
+                for _, row in df.iterrows():
+                    payload.append(
+                        {
+                            "feature": str(row["feature"]),
+                            "feature_value": str(row["feature_value"]),
+                            "shap_value": round(float(row["shap_value"]), 6),
+                            "feature_family": str(row.get("feature_family", "")),
+                            "controllable": bool(row.get("controllable", False)),
+                            "monotonic_expected": str(row.get("monotonic_expected", "none")),
+                        }
+                    )
+                return payload
+
+            family_summary = (
+                group["feature_family"]
+                .astype(str)
+                .value_counts()
+                .sort_values(ascending=False)
+                .to_dict()
+                if "feature_family" in group.columns
+                else {}
+            )
+            record = group.iloc[0]
+            interval_payload = {
+                "pd_low_90": round(float(record.get("pd_low_90", np.nan)), 6)
+                if pd.notna(record.get("pd_low_90", np.nan))
+                else None,
+                "pd_high_90": round(float(record.get("pd_high_90", np.nan)), 6)
+                if pd.notna(record.get("pd_high_90", np.nan))
+                else None,
+                "pd_low_95": round(float(record.get("pd_low_95", np.nan)), 6)
+                if pd.notna(record.get("pd_low_95", np.nan))
+                else None,
+                "pd_high_95": round(float(record.get("pd_high_95", np.nan)), 6)
+                if pd.notna(record.get("pd_high_95", np.nan))
+                else None,
+            }
+            positive_payload = _reason_payload(positive)
+            negative_payload = _reason_payload(negative)
+            reason_text = (
+                f"PD {float(record['pd_calibrated']):.3f}: sube por "
+                + ", ".join(str(item["feature"]) for item in positive_payload[:2])
+                + "; baja por "
+                + ", ".join(str(item["feature"]) for item in negative_payload[:2])
+            )
+            bundle_rows.append(
+                {
+                    "case_id": str(case_id),
+                    "segmento": str(segment),
+                    "row_id": int(record.get("row_id", -1)),
+                    "issue_quarter": str(record.get("issue_quarter", "")),
+                    "grade": str(record.get("grade", "")),
+                    "score_raw": float(record.get("score_raw", np.nan)),
+                    "pd_calibrada": float(record.get("pd_calibrated", np.nan)),
+                    "intervalo_conformal": _json_compact(interval_payload),
+                    "top_positive_reasons": _json_compact(positive_payload),
+                    "top_negative_reasons": _json_compact(negative_payload),
+                    "feature_family_summary": _json_compact(family_summary),
+                    "reason_code_text": reason_text,
+                }
+            )
+        _save_parquet(pd.DataFrame(bundle_rows), DATA_DIR / "explainability_local_cases.parquet")
 
 
 # ── 7. KM Curve Data ──
@@ -678,9 +1160,14 @@ def export_pipeline_summary() -> None:
         surv = pickle.load(f)
 
     conformal_status = json.loads((MODEL_DIR / "conformal_policy_status.json").read_text())
+    causal_effect_status = _load_json_if_exists(MODEL_DIR / "causal_effect_status.json")
+    causal_rule_status = _load_json_if_exists(MODEL_DIR / "causal_policy_rule.json")
+    causal_oot_status = _load_json_if_exists(MODEL_DIR / "causal_policy_oot_status.json")
+    cate_portfolio_status = _load_json_if_exists(MODEL_DIR / "cate_portfolio_status.json")
     resolved_run_tag = (
         str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
         or str(conformal_status.get("run_tag", "")).strip()
+        or str(causal_effect_status.get("run_tag", "")).strip()
         or "untracked"
     )
 
@@ -691,6 +1178,7 @@ def export_pipeline_summary() -> None:
         or {}
     )
     calibration_method = _infer_calibration_method(train_rec)
+    causal_selected_metrics = causal_rule_status.get("selected_metrics", {})
     flattened_summary = {
         "pd_auc": float(pd_metrics.get("auc_roc", 0) or 0),
         "pd_gini": float(pd_metrics.get("gini", 0) or 0),
@@ -706,7 +1194,38 @@ def export_pipeline_summary() -> None:
         "dataset_n_loans": int(surv.get("n_loans", 0) or 0),
         "dataset_n_events": int(surv.get("n_events", 0) or 0),
         "dataset_event_rate": float(surv.get("event_rate", 0) or 0),
+        "causal_ate": float(causal_effect_status.get("ate", 0) or 0),
+        "causal_cate_mean": float(causal_effect_status.get("cate_mean", 0) or 0),
+        "causal_total_net_value": float(causal_selected_metrics.get("total_net_value", 0) or 0),
+        "causal_bootstrap_p05_net": float(causal_selected_metrics.get("bootstrap_p05_net", 0) or 0),
+        "causal_oot_p05_monthly_net": float(causal_oot_status.get("p05_monthly_net", 0) or 0),
     }
+
+    explainability_global = (
+        pd.read_parquet(DATA_DIR / "explainability_global.parquet")
+        if (DATA_DIR / "explainability_global.parquet").exists()
+        else pd.DataFrame()
+    )
+    explainability_local = (
+        pd.read_parquet(DATA_DIR / "explainability_local_cases.parquet")
+        if (DATA_DIR / "explainability_local_cases.parquet").exists()
+        else pd.DataFrame()
+    )
+    ale_curves = (
+        pd.read_parquet(DATA_DIR / "ale_curves.parquet")
+        if (DATA_DIR / "ale_curves.parquet").exists()
+        else pd.DataFrame()
+    )
+    selected_metrics = causal_selected_metrics
+    causal_coherence = _evaluate_run_tag_coherence(
+        resolved_run_tag,
+        {
+            "causal_effect_status": causal_effect_status,
+            "causal_policy_rule": causal_rule_status,
+            "causal_policy_oot_status": causal_oot_status,
+            "cate_portfolio_status": cate_portfolio_status,
+        },
+    )
 
     summary = {
         "run_tag": resolved_run_tag,
@@ -733,6 +1252,39 @@ def export_pipeline_summary() -> None:
             "n_loans": surv.get("n_loans", 0),
             "n_events": surv.get("n_events", 0),
             "event_rate": surv.get("event_rate", 0),
+        },
+        "causal": {
+            "ate": causal_effect_status.get("ate"),
+            "ate_ci": causal_effect_status.get("ate_ci", [None, None]),
+            "cate_mean": causal_effect_status.get("cate_mean"),
+            "cate_std": causal_effect_status.get("cate_std"),
+            "selected_rule": causal_rule_status.get("selected_rule"),
+            "total_net_value": selected_metrics.get("total_net_value"),
+            "bootstrap_p05_net": selected_metrics.get("bootstrap_p05_net"),
+            "avg_action_rate": causal_oot_status.get(
+                "avg_action_rate", selected_metrics.get("action_rate")
+            ),
+            "oot_p05_monthly_net": causal_oot_status.get("p05_monthly_net"),
+            "official_method": (
+                causal_effect_status.get("official_method", {})
+                or {
+                    "identification": "DoWhy backdoor identification/refutation",
+                    "heterogeneity": "EconML CausalForestDML",
+                    "policy_semantics": "local_cate_policy_simulation",
+                }
+            ),
+            "run_tag_coherence": causal_coherence,
+        },
+        "explainability": {
+            "top_global_drivers": explainability_global.get("feature", pd.Series(dtype=str))
+            .astype(str)
+            .head(5)
+            .tolist(),
+            "n_global_features": int(len(explainability_global)),
+            "n_local_cases": int(len(explainability_local)),
+            "n_ale_features": int(ale_curves.get("feature", pd.Series(dtype=str)).nunique())
+            if not ale_curves.empty
+            else 0,
         },
         "flattened_summary": flattened_summary,
         # Legacy aliases for pages/exports still expecting top-level quick keys.
@@ -863,6 +1415,7 @@ def main(core_only: bool = False) -> None:
         export_shap_summary()
         export_permutation_importance()
         export_pdp_ice_top5()
+        export_explainability_bundle()
         export_km_curves()
         export_hazard_ratios()
     export_pipeline_summary()

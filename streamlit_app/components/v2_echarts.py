@@ -61,76 +61,140 @@ function ensureEchartsLoaded() {
   return globalThis.__lcEchartsLoadingPromise;
 }
 
-export default function(component) {
-  const { data, parentElement, setTriggerValue } = component;
-  const payload = data || {};
-  const option = payload.option || {};
-  const chartHeight = Number.isFinite(payload.heightPx) ? payload.heightPx : 360;
-
-  parentElement.style.width = "100%";
-  parentElement.style.background = "#ffffff";
-  parentElement.style.border = "1px solid #E5EAF0";
-  parentElement.style.borderRadius = "12px";
-  parentElement.style.boxShadow = "0 1px 2px rgba(15,23,42,0.04), 0 6px 18px rgba(15,23,42,0.03)";
-  parentElement.style.padding = "4px";
-  parentElement.style.boxSizing = "border-box";
-  parentElement.style.overflow = "hidden";
-
-  let root = parentElement.querySelector("[data-lc-echarts-root]");
-  if (!root) {
-    root = document.createElement("div");
-    root.setAttribute("data-lc-echarts-root", "");
-    parentElement.appendChild(root);
+function resolveMountContext(component) {
+  if (!component || typeof component !== "object") {
+    return { mountRoot: null, styleHost: null };
   }
-  root.style.width = "100%";
-  root.style.height = `${chartHeight}px`;
-  root.style.borderRadius = "10px";
-  root.style.background = "#ffffff";
+  const candidates = [
+    component.parentElement,
+    component.element,
+    component.parent,
+    component.rootElement,
+    component.hostElement,
+  ];
 
+  let mountRoot = null;
+  for (const node of candidates) {
+    if (
+      node &&
+      typeof node === "object" &&
+      typeof node.querySelector === "function" &&
+      typeof node.appendChild === "function"
+    ) {
+      mountRoot = node;
+      break;
+    }
+  }
+
+  if (!mountRoot) {
+    return { mountRoot: null, styleHost: null };
+  }
+
+  // HTMLElement host where we apply card-like styles.
+  let styleHost = null;
+  if (mountRoot.style && typeof mountRoot.style === "object") {
+    styleHost = mountRoot;
+  } else if (mountRoot.host && mountRoot.host.style) {
+    styleHost = mountRoot.host; // ShadowRoot -> host element
+  } else if (mountRoot.parentElement && mountRoot.parentElement.style) {
+    styleHost = mountRoot.parentElement;
+  }
+
+  return { mountRoot, styleHost };
+}
+
+export default function(component) {
+  const safeSetTriggerValue =
+    typeof component?.setTriggerValue === "function" ? component.setTriggerValue : null;
   let disposed = false;
   let resizeObserver = null;
   let clickHandler = null;
+  let root = null;
 
-  ensureEchartsLoaded()
-    .then((echarts) => {
-      if (disposed || !echarts) return;
+  try {
+    const payload = component?.data || {};
+    const option = payload.option || {};
+    const chartHeight = Number.isFinite(payload.heightPx) ? payload.heightPx : 360;
+    const { mountRoot, styleHost } = resolveMountContext(component);
 
-      let chart = echarts.getInstanceByDom(root);
-      if (!chart) {
-        chart = echarts.init(root, null, { renderer: "canvas" });
-      }
+    if (!mountRoot) {
+      if (safeSetTriggerValue) safeSetTriggerValue("error", "Component mount root unavailable.");
+      return () => {};
+    }
 
-      chart.setOption(option, true);
-      chart.resize();
+    if (styleHost && styleHost.style) {
+      styleHost.style.width = "100%";
+      styleHost.style.background = "#ffffff";
+      styleHost.style.border = "1px solid #E5EAF0";
+      styleHost.style.borderRadius = "12px";
+      styleHost.style.boxShadow = "0 1px 2px rgba(15,23,42,0.04), 0 6px 18px rgba(15,23,42,0.03)";
+      styleHost.style.padding = "4px";
+      styleHost.style.boxSizing = "border-box";
+      styleHost.style.overflow = "hidden";
+    }
 
-      if (clickHandler) {
-        chart.off("click", clickHandler);
-      }
-      clickHandler = (params) => {
-        const dataObj =
-          params && typeof params === "object" ? (params.data ?? null) : null;
-        setTriggerValue("clicked", {
-          seriesName: params?.seriesName ?? null,
-          name: params?.name ?? null,
-          value: params?.value ?? null,
-          data: dataObj,
-        });
-      };
-      chart.on("click", clickHandler);
+    root = mountRoot.querySelector("[data-lc-echarts-root]");
+    if (!root) {
+      root = document.createElement("div");
+      root.setAttribute("data-lc-echarts-root", "");
+      mountRoot.appendChild(root);
+    }
+    root.style.width = "100%";
+    root.style.height = `${chartHeight}px`;
+    root.style.borderRadius = "10px";
+    root.style.background = "#ffffff";
 
-      if (!resizeObserver && "ResizeObserver" in globalThis) {
-        resizeObserver = new ResizeObserver(() => {
-          try {
-            chart.resize();
-          } catch (_err) {}
-        });
-        resizeObserver.observe(root);
-      }
-    })
-    .catch((err) => {
-      console.error("ECharts pilot error", err);
-      setTriggerValue("error", String(err?.message || err));
-    });
+    ensureEchartsLoaded()
+      .then((echarts) => {
+        if (disposed || !echarts || !root) return;
+
+        let chart = echarts.getInstanceByDom(root);
+        if (!chart) {
+          chart = echarts.init(root, null, { renderer: "canvas" });
+        }
+
+        chart.setOption(option, true);
+        chart.resize();
+
+        if (clickHandler) {
+          chart.off("click", clickHandler);
+        }
+        clickHandler = (params) => {
+          const dataObj =
+            params && typeof params === "object" ? (params.data ?? null) : null;
+          if (safeSetTriggerValue) {
+            safeSetTriggerValue("clicked", {
+              seriesName: params?.seriesName ?? null,
+              name: params?.name ?? null,
+              value: params?.value ?? null,
+              data: dataObj,
+            });
+          }
+        };
+        chart.on("click", clickHandler);
+
+        if (!resizeObserver && "ResizeObserver" in globalThis) {
+          resizeObserver = new ResizeObserver(() => {
+            try {
+              chart.resize();
+            } catch (_err) {}
+          });
+          resizeObserver.observe(root);
+        }
+      })
+      .catch((err) => {
+        console.error("ECharts pilot error", err);
+        if (safeSetTriggerValue) {
+          safeSetTriggerValue("error", String(err?.message || err));
+        }
+      });
+  } catch (err) {
+    console.error("ECharts pilot fatal error", err);
+    if (safeSetTriggerValue) {
+      safeSetTriggerValue("error", String(err?.message || err));
+    }
+    return () => {};
+  }
 
   return () => {
     disposed = true;
@@ -138,7 +202,7 @@ export default function(component) {
       if (resizeObserver) resizeObserver.disconnect();
     } catch (_err) {}
     try {
-      if (globalThis.echarts) {
+      if (root && globalThis.echarts) {
         const chart = globalThis.echarts.getInstanceByDom(root);
         if (chart && clickHandler) chart.off("click", clickHandler);
         if (chart) chart.dispose();

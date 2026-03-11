@@ -38,60 +38,160 @@ pg = st.navigation(
     {
         "Inicio": [
             st.Page(
-                "pages/executive_summary.py", title="Resumen Ejecutivo", icon="🏠", default=True
+                "pages/executive_summary.py",
+                title="Resumen Ejecutivo",
+                icon=":material/home:",
+                default=True,
             ),
-            st.Page("pages/glossary_fundamentals.py", title="Glosario y Fundamentos", icon="📖"),
+            st.Page(
+                "pages/glossary_fundamentals.py",
+                title="Glosario y Fundamentos",
+                icon=":material/menu_book:",
+            ),
         ],
         "Recorrido End-to-End": [
-            st.Page("pages/thesis_end_to_end.py", title="Visión End-to-End", icon="🧭"),
-            st.Page("pages/data_architecture.py", title="Arquitectura y Linaje de Datos", icon="🗂️"),
-            st.Page("pages/thesis_defense.py", title="Mapa Integrado de Métodos", icon="🧩"),
-            st.Page("pages/notebook_evidence.py", title="Atlas de Evidencia", icon="📚"),
+            st.Page(
+                "pages/thesis_end_to_end.py",
+                title="Visión End-to-End",
+                icon=":material/explore:",
+            ),
+            st.Page(
+                "pages/data_architecture.py",
+                title="Arquitectura y Linaje de Datos",
+                icon=":material/account_tree:",
+            ),
+            st.Page(
+                "pages/thesis_defense.py",
+                title="Mapa Integrado de Métodos",
+                icon=":material/hub:",
+            ),
+            st.Page(
+                "pages/notebook_evidence.py",
+                title="Atlas de Evidencia",
+                icon=":material/library_books:",
+            ),
         ],
         "Analítica": [
-            st.Page("pages/feature_engineering.py", title="Ingeniería de Features", icon="🔧"),
-            st.Page("pages/data_story.py", title="Historia de Datos", icon="📊"),
-            st.Page("pages/model_laboratory.py", title="Laboratorio de Modelos", icon="🔬"),
+            st.Page(
+                "pages/feature_engineering.py",
+                title="Ingeniería de Features",
+                icon=":material/build:",
+            ),
+            st.Page(
+                "pages/data_story.py",
+                title="Historia de Datos",
+                icon=":material/bar_chart:",
+            ),
+            st.Page(
+                "pages/model_laboratory.py",
+                title="Laboratorio de Modelos",
+                icon=":material/science:",
+            ),
+            st.Page(
+                "pages/model_interpretability.py",
+                title="Explicabilidad e Interpretabilidad",
+                icon=":material/psychology:",
+            ),
             st.Page(
                 "pages/uncertainty_quantification.py",
                 title="Cuantificación de Incertidumbre",
-                icon="📐",
+                icon=":material/straighten:",
             ),
-            st.Page("pages/time_series_outlook.py", title="Panorama Temporal", icon="📈"),
-            st.Page("pages/survival_analysis.py", title="Análisis de Supervivencia", icon="⏳"),
-            st.Page("pages/causal_intelligence.py", title="Inteligencia Causal", icon="🧬"),
+            st.Page(
+                "pages/time_series_outlook.py",
+                title="Panorama Temporal",
+                icon=":material/timeline:",
+            ),
+            st.Page(
+                "pages/survival_analysis.py",
+                title="Análisis de Supervivencia",
+                icon=":material/hourglass_bottom:",
+            ),
+            st.Page(
+                "pages/causal_intelligence.py",
+                title="Inteligencia Causal",
+                icon=":material/genetics:",
+            ),
         ],
         "Decisiones": [
-            st.Page("pages/portfolio_optimizer.py", title="Optimizador de Portafolio", icon="💼"),
-            st.Page("pages/ab_testing_simulation.py", title="Simulación A/B", icon="🧪"),
-            st.Page("pages/ifrs9_provisions.py", title="Provisiones IFRS9", icon="🏦"),
+            st.Page(
+                "pages/portfolio_optimizer.py",
+                title="Optimizador de Portafolio",
+                icon=":material/work:",
+            ),
+            st.Page(
+                "pages/ab_testing_simulation.py",
+                title="Simulación A/B",
+                icon=":material/experiment:",
+            ),
+            st.Page(
+                "pages/ifrs9_provisions.py",
+                title="Provisiones IFRS9",
+                icon=":material/account_balance:",
+            ),
         ],
         "Gobernanza": [
-            st.Page("pages/model_governance.py", title="Gobernanza del Modelo", icon="🛡️"),
-            st.Page("pages/tech_stack.py", title="Stack Tecnológico", icon="🛠️"),
+            st.Page(
+                "pages/model_governance.py",
+                title="Gobernanza del Modelo",
+                icon=":material/shield:",
+            ),
+            st.Page(
+                "pages/tech_stack.py",
+                title="Stack Tecnológico",
+                icon=":material/handyman:",
+            ),
         ],
         "Exploración": [
-            st.Page("pages/chat_with_data.py", title="Chat con Datos", icon="💬"),
+            st.Page(
+                "pages/chat_with_data.py",
+                title="Chat con Datos",
+                icon=":material/chat:",
+            ),
         ],
         "Investigación": [
             st.Page(
                 "pages/tesis_especializacion.py",
                 title="Tesis Especialización",
-                icon="🎓",
+                icon=":material/school:",
             ),
-            st.Page("pages/thesis_contribution.py", title="Contribución de Tesis", icon="🎯"),
-            st.Page("pages/research_landscape.py", title="Panorama de Investigación", icon="🔬"),
-            st.Page("pages/paper_1_cp_robust_opt.py", title="Paper 1: CP + Robust Opt", icon="🧪"),
-            st.Page("pages/paper_2_ifrs9_e2e.py", title="Paper 2: IFRS9 E2E", icon="🏦"),
-            st.Page("pages/paper_3_mondrian.py", title="Paper 3: Mondrian", icon="📐"),
+            st.Page(
+                "pages/thesis_contribution.py",
+                title="Contribución de Tesis",
+                icon=":material/target:",
+            ),
+            st.Page(
+                "pages/research_landscape.py",
+                title="Panorama de Investigación",
+                icon=":material/search:",
+            ),
+            st.Page(
+                "pages/paper_1_cp_robust_opt.py",
+                title="Paper 1: CP + Robust Opt",
+                icon=":material/experiment:",
+            ),
+            st.Page(
+                "pages/paper_2_ifrs9_e2e.py",
+                title="Paper 2: IFRS9 E2E",
+                icon=":material/account_balance:",
+            ),
+            st.Page(
+                "pages/paper_3_mondrian.py",
+                title="Paper 3: Mondrian",
+                icon=":material/straighten:",
+            ),
             st.Page(
                 "pages/research_best_practices.py",
                 title="Buenas Prácticas y Herramientas",
-                icon="🧰",
+                icon=":material/construction:",
             ),
         ],
         "Anexos": [
-            st.Page("pages/gpu_benchmark.py", title="Benchmark RAPIDS GPU", icon="⚡"),
+            st.Page(
+                "pages/gpu_benchmark.py",
+                title="Benchmark RAPIDS GPU",
+                icon=":material/bolt:",
+            ),
         ],
     }
 )
@@ -108,18 +208,11 @@ def _render_sidebar_health() -> None:
 
 
 with st.sidebar:
-    st.markdown("---")
-    st.markdown(
-        f"""
-<div style="font-size: 0.78em; color: #5F6B7A; line-height: 1.6;">
-<b>Proyecto de Tesis</b><br>
-Carlos Vergara<br>
-1.35M préstamos · 2007-2020<br>
-{tests_label} tests · {pages_label} páginas · {contracts_total} contratos<br>
-<i>CatBoost + Conformal + Pyomo</i>
-</div>
-""",
-        unsafe_allow_html=True,
+    st.caption(
+        f"**Proyecto de Tesis** · Carlos Vergara\n\n"
+        f"1.35M préstamos · 2007-2020\n\n"
+        f"{tests_label} tests · {pages_label} páginas · {contracts_total} contratos\n\n"
+        f"_CatBoost + Conformal + Pyomo_"
     )
     st.caption("Snapshot canónico (DVC) para lectura rápida")
     if hasattr(st, "fragment"):
@@ -131,4 +224,37 @@ Carlos Vergara<br>
     else:
         _render_sidebar_health()
 
-pg.run()
+try:
+    pg.run()
+except FileNotFoundError as exc:
+    st.error(
+        "Archivo de datos no encontrado. Ejecute el pipeline antes de usar esta página.",
+        icon=":material/folder_off:",
+    )
+    st.caption(f"Detalle: `{exc}`")
+except KeyError as exc:
+    st.error(
+        f"Clave o columna faltante: `{exc}`",
+        icon=":material/key_off:",
+    )
+    st.caption(
+        "Los artefactos pueden estar desactualizados. "
+        "Ejecute: `uv run python scripts/end_to_end_pipeline.py`"
+    )
+except IndexError as exc:
+    st.error(
+        f"Datos insuficientes: `{exc}`",
+        icon=":material/data_alert:",
+    )
+    st.caption(
+        "El artefacto existe pero no contiene las filas esperadas. "
+        "Re-ejecute el pipeline para regenerar los datos."
+    )
+except Exception as exc:
+    st.error(
+        f"Error inesperado: `{type(exc).__name__}: {exc}`",
+        icon=":material/error:",
+    )
+    st.caption(
+        "Sugerencia: `uv run python scripts/end_to_end_pipeline.py` para regenerar artefactos."
+    )

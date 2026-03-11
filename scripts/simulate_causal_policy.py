@@ -1,8 +1,9 @@
-"""Simulate pricing policy decisions using CATE estimates.
+"""Simulate pricing policy decisions using local CATE estimates.
 
-Transforms causal effects into decision recommendations:
-- targeted rate discounts for highly treatment-sensitive segments
+Transforms heterogeneous causal effects into operational recommendations:
+- targeted rate discounts for treatment-sensitive segments
 - estimated impact on default risk and expected value
+- an auditable policy simulation, not an exact SCM counterfactual
 
 Usage:
     uv run python scripts/simulate_causal_policy.py
@@ -11,6 +12,8 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
+import os
 import pickle
 from pathlib import Path
 
@@ -18,8 +21,10 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+POLICY_SEMANTICS = "local_cate_policy_simulation"
 
-def _load_causal_inputs() -> tuple[pd.DataFrame, dict]:
+
+def _load_causal_inputs() -> tuple[pd.DataFrame, dict, dict]:
     cate_path = Path("data/processed/cate_estimates.parquet")
     if not cate_path.exists():
         raise FileNotFoundError(
@@ -33,7 +38,13 @@ def _load_causal_inputs() -> tuple[pd.DataFrame, dict]:
             summary = pickle.load(f)
     else:
         summary = {"treatment": "int_rate"}
-    return df, summary
+
+    effect_status_path = Path("models/causal_effect_status.json")
+    if effect_status_path.exists():
+        effect_status = json.loads(effect_status_path.read_text(encoding="utf-8"))
+    else:
+        effect_status = {}
+    return df, summary, effect_status
 
 
 def _coerce_numeric(df: pd.DataFrame, col: str, default: float) -> np.ndarray:
@@ -58,12 +69,18 @@ def main(
     high_discount_pp: float = -1.25,
     medium_discount_pp: float = -0.75,
 ):
-    df, summary = _load_causal_inputs()
+    df, summary, effect_status = _load_causal_inputs()
     if "cate" not in df.columns:
         raise KeyError("CATE column not present in cate_estimates artifact.")
 
     cate = pd.to_numeric(df["cate"], errors="coerce").fillna(0.0).to_numpy(dtype=float)
     treatment = summary.get("treatment", "int_rate")
+    run_tag = str(
+        effect_status.get("run_tag")
+        or summary.get("run_tag")
+        or os.environ.get("PIPELINE_RUN_TAG", "")
+        or "untracked"
+    ).strip()
     base_rate = _coerce_numeric(
         df, treatment if treatment in df.columns else "int_rate", default=12.0
     )
@@ -158,12 +175,15 @@ def main(
     overall = {
         "n_obs": int(len(out)),
         "treatment": str(treatment),
+        "run_tag": run_tag,
         "cate_mean": float(np.mean(cate)),
         "discount_share": float(np.mean(action == "decrease_rate")),
         "total_loss_reduction": float(np.sum(expected_loss_reduction)),
         "total_revenue_impact": float(np.sum(revenue_impact)),
         "total_net_value": float(np.sum(net_value)),
         "avg_pd_reduction": float(np.mean(avoided_pd)),
+        "policy_semantics": POLICY_SEMANTICS,
+        "source_effect_status_path": "models/causal_effect_status.json",
     }
 
     data_dir = Path("data/processed")
@@ -184,6 +204,11 @@ def main(
                 "overall": overall,
                 "segment_summary": summary_segment.to_dict(orient="records"),
                 "grade_summary": summary_grade.to_dict(orient="records"),
+                "metadata": {
+                    "run_tag": run_tag,
+                    "policy_semantics": POLICY_SEMANTICS,
+                    "source_effect_status_path": "models/causal_effect_status.json",
+                },
             },
             f,
         )

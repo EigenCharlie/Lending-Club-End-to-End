@@ -42,52 +42,84 @@ _CSS = """
 """
 
 _JS = """
+function resolveMountRoot(component) {
+  if (!component || typeof component !== "object") return null;
+  const candidates = [
+    component.parentElement,
+    component.element,
+    component.parent,
+    component.rootElement,
+    component.hostElement,
+  ];
+  for (const node of candidates) {
+    if (
+      node &&
+      typeof node === "object" &&
+      typeof node.querySelector === "function" &&
+      typeof node.appendChild === "function"
+    ) {
+      return node;
+    }
+  }
+  return null;
+}
+
 export default function(component) {
-  const { data, setTriggerValue, parentElement } = component;
-  const payload = data || {};
-  const items = Array.isArray(payload.items) ? payload.items : [];
-  const selected = payload.selected || null;
-  const helperText = payload.helperText || "";
+  const safeSetTriggerValue =
+    typeof component?.setTriggerValue === "function" ? component.setTriggerValue : null;
 
-  let root = parentElement.querySelector('[data-pill-nav-root]');
-  if (!root) {
-    root = document.createElement('div');
-    root.setAttribute('data-pill-nav-root', '');
-    parentElement.appendChild(root);
-  }
+  try {
+    const payload = component?.data || {};
+    const items = Array.isArray(payload.items) ? payload.items : [];
+    const selected = payload.selected || null;
+    const helperText = payload.helperText || "";
+    const mountRoot = resolveMountRoot(component);
+    if (!mountRoot) return;
 
-  root.innerHTML = '';
+    let root = mountRoot.querySelector('[data-pill-nav-root]');
+    if (!root) {
+      root = document.createElement('div');
+      root.setAttribute('data-pill-nav-root', '');
+      mountRoot.appendChild(root);
+    }
 
-  if (helperText) {
-    const helper = document.createElement('div');
-    helper.className = 'lc-pill-nav-help';
-    helper.textContent = helperText;
-    root.appendChild(helper);
-  }
+    root.innerHTML = '';
 
-  const wrap = document.createElement('div');
-  wrap.className = 'lc-pill-nav';
-  root.appendChild(wrap);
+    if (helperText) {
+      const helper = document.createElement('div');
+      helper.className = 'lc-pill-nav-help';
+      helper.textContent = helperText;
+      root.appendChild(helper);
+    }
 
-  for (const item of items) {
-    if (!item || !item.id || !item.label) continue;
-    const btn = document.createElement('button');
-    btn.type = 'button';
-    btn.textContent = item.label;
-    btn.title = item.description || item.label;
-    btn.dataset.selected = String(item.id === selected);
-    btn.onclick = (e) => {
-      e.preventDefault();
-      for (const sibling of wrap.querySelectorAll('button')) {
-        sibling.dataset.selected = "false";
-      }
-      btn.dataset.selected = "true";
-      setTriggerValue('clicked', {
-        id: item.id,
-        label: item.label,
-      });
-    };
-    wrap.appendChild(btn);
+    const wrap = document.createElement('div');
+    wrap.className = 'lc-pill-nav';
+    root.appendChild(wrap);
+
+    for (const item of items) {
+      if (!item || !item.id || !item.label) continue;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = item.label;
+      btn.title = item.description || item.label;
+      btn.dataset.selected = String(item.id === selected);
+      btn.onclick = (e) => {
+        e.preventDefault();
+        for (const sibling of wrap.querySelectorAll('button')) {
+          sibling.dataset.selected = "false";
+        }
+        btn.dataset.selected = "true";
+        if (safeSetTriggerValue) {
+          safeSetTriggerValue('clicked', {
+            id: item.id,
+            label: item.label,
+          });
+        }
+      };
+      wrap.appendChild(btn);
+    }
+  } catch (err) {
+    console.error('Pill nav v2 error', err);
   }
 }
 """

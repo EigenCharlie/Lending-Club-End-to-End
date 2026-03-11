@@ -10,9 +10,12 @@ import numpy as np
 import pandas as pd
 import pytest
 
+import src.optimization.cuopt_adapter as cuopt_adapter
 from src.optimization.portfolio_model import (
     build_binary_model,
     build_portfolio_model,
+    compute_effective_pd,
+    optimize_portfolio_allocation,
     solve_portfolio,
 )
 
@@ -53,6 +56,95 @@ def small_loans():
 
 
 class TestBuildPortfolioModel:
+    def test_compute_effective_pd_supports_blended_uncertainty(self, small_loans):
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="blended_uncertainty",
+            gamma=0.25,
+        )
+        expected = small_loans["pd_point"] + 0.25 * (
+            small_loans["pd_high"] - small_loans["pd_point"]
+        )
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_capped_blended_uncertainty(self, small_loans):
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        delta_cap = np.quantile(delta, 0.5)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="capped_blended_uncertainty",
+            gamma=0.5,
+            delta_cap_quantile=0.5,
+        )
+        expected = np.clip(
+            small_loans["pd_point"] + 0.5 * np.minimum(delta, delta_cap),
+            0.0,
+            1.0,
+        )
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_tail_blended_uncertainty(self, small_loans):
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        cutoff = np.quantile(delta, 0.9)
+        local_delta = np.where(delta >= cutoff, delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.9,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * local_delta, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_segment_tail_blended_uncertainty(self, small_loans):
+        labels = np.array(["A|36"] * 5 + ["B|60"] * 5, dtype=object)
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        expected = np.zeros_like(delta)
+        for label in np.unique(labels):
+            mask = labels == label
+            seg_delta = delta[mask]
+            cutoff = np.quantile(seg_delta, 0.8)
+            expected[mask] = np.where(seg_delta >= cutoff, seg_delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="segment_tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.8,
+            segment_labels=labels,
+            min_segment_size=1,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * expected, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
+    def test_compute_effective_pd_supports_segment_relative_tail_blended_uncertainty(
+        self, small_loans
+    ):
+        labels = np.array(["A|36|verified"] * 5 + ["B|60|source"] * 5, dtype=object)
+        delta = np.clip(small_loans["pd_high"] - small_loans["pd_point"], 0.0, 1.0)
+        rel = delta / np.maximum(small_loans["pd_point"], 1e-4)
+        expected = np.zeros_like(delta)
+        for label in np.unique(labels):
+            mask = labels == label
+            seg_delta = delta[mask]
+            seg_rel = rel[mask]
+            cutoff = np.quantile(seg_rel, 0.8)
+            expected[mask] = np.where(seg_rel >= cutoff, seg_delta, 0.0)
+        effective = compute_effective_pd(
+            small_loans["pd_point"],
+            small_loans["pd_high"],
+            policy_mode="segment_relative_tail_blended_uncertainty",
+            gamma=0.5,
+            tail_focus_quantile=0.8,
+            segment_labels=labels,
+            min_segment_size=1,
+        )
+        expected = np.clip(small_loans["pd_point"] + 0.5 * expected, 0.0, 1.0)
+        assert np.allclose(effective, expected)
+
     def test_model_has_expected_components(self, small_loans):
         model = build_portfolio_model(**small_loans)
         assert hasattr(model, "x")
@@ -139,6 +231,32 @@ class TestSolvePortfolio:
         model = build_portfolio_model(**small_loans)
         with pytest.raises(ValueError, match="Unsupported solver_backend"):
             solve_portfolio(model, solver_backend="unknown")
+
+    def test_optimize_portfolio_allocation_dispatches_to_native_cuopt(
+        self, small_loans, monkeypatch
+    ):
+        monkeypatch.setattr(
+            cuopt_adapter,
+            "solve_portfolio_cuopt_native",
+            lambda **kwargs: {
+                "allocation": dict.fromkeys(range(len(kwargs["loans"])), 0.0),
+                "objective_value": 123.0,
+                "n_funded": 0,
+                "total_allocated": 0.0,
+                "solver_status": "mock-optimal",
+                "solver_backend": "cuopt",
+                "pd_cap_slack": 0.0,
+            },
+        )
+
+        sol = optimize_portfolio_allocation(
+            solver_backend="cuopt",
+            time_limit=30,
+            threads=4,
+            **small_loans,
+        )
+        assert sol["solver_backend"] == "cuopt"
+        assert sol["objective_value"] == pytest.approx(123.0)
 
 
 # ---------------------------------------------------------------------------

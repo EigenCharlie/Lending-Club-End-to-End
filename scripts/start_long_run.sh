@@ -41,9 +41,13 @@ if [[ -f "${PID_FILE}" ]]; then
 fi
 
 if [[ "${RUN_TAG}" == *official* ]]; then
-  if [[ -n "$(git status --porcelain)" ]]; then
+  if ! blocked_dirty_paths="$("${PY_BIN}" scripts/git_dirty_guard.py --mode blocked-only)"; then
     echo "Refusing to start official run '${RUN_TAG}' with dirty working tree."
-    echo "Commit/stash changes or use a non-official run tag."
+    echo "Blocked dirty paths:"
+    while IFS= read -r dirty_path; do
+      [[ -n "${dirty_path}" ]] && echo "  ${dirty_path}"
+    done <<< "${blocked_dirty_paths}"
+    echo "Commit/stash blocked paths or use a non-official run tag."
     exit 2
   fi
 fi

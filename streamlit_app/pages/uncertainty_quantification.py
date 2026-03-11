@@ -15,6 +15,14 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from streamlit_app.components.concept_capsules import render_concept_stack
+from streamlit_app.components.conformal_applied_blocks import (
+    build_coverage_stability_table,
+    build_cp_concept_matrix_rows,
+    build_cp_method_menu_rows,
+    render_cp_guarantees_and_limits,
+    render_exchangeability_stress_checklist,
+)
 from streamlit_app.components.context_help import (
     chart_help_popover,
     methodology_dialog,
@@ -42,6 +50,7 @@ st.caption(
 )
 page_contract = get_page_contract("uncertainty_quantification")
 render_page_header(page_contract)
+render_concept_stack(page_contract.page_id, page_type=page_contract.page_type, max_cards=2)
 render_key_takeaway(
     "Conformal no mejora el ranking del modelo: agrega una capa de confiabilidad para decidir cuánto creerle a cada PD."
 )
@@ -148,7 +157,7 @@ Un intervalo global podría tener 90% de cobertura promedio, pero:
 - Grade A: 95% de cobertura (sobreprotegido, intervalos demasiado anchos)
 - Grade G: 78% de cobertura (subprotegido, intervalos demasiado estrechos)
 
-Con Mondrian, **cada grade tiene su propia garantía de cobertura**, evitando que
+Con Mondrian, cada grade tiene su propia calibracion por particion, evitando que
 los grades seguros "subsidien" la cobertura de los riesgosos.
 
 Resultado: cobertura justa y operativa por segmento, no solo en promedio.
@@ -183,17 +192,131 @@ tiene una frecuencia de acierto controlada”. Es una garantía empírica, no un
 """
 )
 
-with st.status("Cargando artefactos conformal (policy, intervalos y backtests)...", expanded=False) as _cp_status:
+with st.status(
+    "Cargando artefactos conformal (policy, intervalos y backtests)...", expanded=False
+) as _cp_status:
     policy = load_json("conformal_policy_status", directory="models")
     checks = load_parquet("conformal_policy_checks")
     conf_df = load_parquet("conformal_intervals_mondrian")
     group_df = load_parquet("conformal_group_metrics_mondrian")
     backtest = load_parquet("conformal_backtest_monthly")
     backtest_grade = load_parquet("conformal_backtest_monthly_grade")
+    variant_benchmark = load_parquet("conformal_variant_benchmark")
     _cp_status.update(label="Artefactos conformal cargados", state="complete")
 
-status = "✅ Cumple política" if policy.get("overall_pass", False) else "⚠️ Requiere revisión"
-st.subheader(f"Estado de política conformal: {status}")
+st.subheader("0) Qué está garantizado y qué no")
+render_cp_guarantees_and_limits()
+st.dataframe(pd.DataFrame(build_cp_concept_matrix_rows()), width="stretch", hide_index=True)
+
+st.subheader("0.1) Estabilidad por tamaño de muestra")
+group_stability = build_coverage_stability_table(
+    group_df.rename(columns={"group": "segmento"}),
+    label_col="segmento",
+    coverage_col="coverage_90",
+    n_col="n",
+    target=0.90,
+)
+month_frame = backtest.copy()
+if not month_frame.empty and "month" in month_frame.columns:
+    month_frame["segmento"] = pd.to_datetime(month_frame["month"], errors="coerce").dt.strftime("%Y-%m")
+month_stability = build_coverage_stability_table(
+    month_frame,
+    label_col="segmento",
+    coverage_col="coverage_90",
+    n_col="n",
+    target=0.90,
+)
+
+if not group_stability.empty:
+    plot_df = group_stability.copy().sort_values("segmento")
+    plot_df["err_plus"] = plot_df["ci_high_95"] - plot_df["coverage"]
+    plot_df["err_minus"] = plot_df["coverage"] - plot_df["ci_low_95"]
+    fig_stability = px.bar(
+        plot_df,
+        x="segmento",
+        y="coverage",
+        error_y="err_plus",
+        error_y_minus="err_minus",
+        color="small_n_flag",
+        color_discrete_map={True: "#FF6B6B", False: "#00D4AA"},
+        title="Cobertura 90% por grade con banda de incertidumbre (Wilson 95%)",
+        labels={"segmento": "Grade", "coverage": "Cobertura", "small_n_flag": "n<1000"},
+    )
+    fig_stability.add_hline(y=0.90, line_dash="dash", line_color="#5F6B7A")
+    fig_stability.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+    fig_stability.update_yaxes(tickformat=".0%")
+    st.plotly_chart(fig_stability, width="stretch")
+
+col_stab_1, col_stab_2 = st.columns(2)
+with col_stab_1:
+    st.markdown("**Diagnóstico por grupo**")
+    if group_stability.empty:
+        st.info("No hay datos suficientes para estabilidad por grupo.")
+    else:
+        st.dataframe(group_stability, width="stretch", hide_index=True)
+with col_stab_2:
+    st.markdown("**Diagnóstico por mes**")
+    if month_stability.empty:
+        st.info("No hay datos suficientes para estabilidad por mes.")
+    else:
+        st.dataframe(month_stability.tail(18), width="stretch", hide_index=True)
+
+if not group_stability.empty:
+    low_n_groups = group_stability[group_stability["small_n_flag"]]["segmento"].tolist()
+    if low_n_groups:
+        st.warning(
+            "Grupos con n bajo y mayor variabilidad esperable: "
+            + ", ".join(str(g) for g in low_n_groups)
+        )
+
+st.subheader("0.2) Validez vs eficiencia (lectura operativa)")
+st.dataframe(
+    pd.DataFrame(
+        [
+            {
+                "Eje": "Validez",
+                "Cómo se lee": "Cobertura observada frente a target (90/95).",
+                "Riesgo si se ignora": "Decisiones sobreconfiadas.",
+            },
+            {
+                "Eje": "Eficiencia",
+                "Cómo se lee": "Ancho medio/mediano del intervalo.",
+                "Riesgo si se ignora": "Conservadurismo costoso y baja utilidad.",
+            },
+            {
+                "Eje": "Balance",
+                "Cómo se lee": "Cobertura suficiente con ancho util para negocio.",
+                "Riesgo si se ignora": "Optimizar una metrica y degradar la otra.",
+            },
+        ]
+    ),
+    width="stretch",
+    hide_index=True,
+)
+
+st.subheader("0.3) Cuándo usar qué método")
+canonical_variant = "mondrian_selected_cfg"
+if not variant_benchmark.empty and "variant" in variant_benchmark.columns:
+    selected = variant_benchmark[
+        variant_benchmark["variant"].astype(str).str.contains("selected", case=False, na=False)
+    ]
+    if not selected.empty:
+        canonical_variant = str(selected.iloc[0]["variant"])
+st.dataframe(
+    pd.DataFrame(build_cp_method_menu_rows(canonical_variant)),
+    width="stretch",
+    hide_index=True,
+)
+if not variant_benchmark.empty:
+    cols = ["variant", "coverage", "avg_width", "min_group_coverage"]
+    valid_cols = [c for c in cols if c in variant_benchmark.columns]
+    st.caption("Comparativa real de variantes disponibles en artefactos actuales.")
+    st.dataframe(variant_benchmark[valid_cols], width="stretch", hide_index=True)
+
+st.subheader("0.4) Exchangeability stress checklist")
+render_exchangeability_stress_checklist()
+
+st.subheader("Resumen de desempeño conformal")
 
 width_by_grade = (
     conf_df.groupby("grade", observed=True)["width_90"].median().sort_values(ascending=False)
@@ -203,19 +326,21 @@ narrowest_grade = str(width_by_grade.index[-1]) if not width_by_grade.empty else
 widest_width = float(width_by_grade.iloc[0]) if not width_by_grade.empty else 0.0
 narrowest_width = float(width_by_grade.iloc[-1]) if not width_by_grade.empty else 0.0
 pd_width_corr = float(conf_df["y_pred"].corr(conf_df["width_90"])) if len(conf_df) > 1 else 0.0
+median_width_90 = (
+    float(conf_df["width_90"].median())
+    if "width_90" in conf_df.columns and not conf_df.empty
+    else 0.0
+)
 
 kpi_row(
     [
         {"label": "Cobertura 90%", "value": format_pct(policy.get("coverage_90", 0))},
         {"label": "Cobertura 95%", "value": format_pct(policy.get("coverage_95", 0))},
         {"label": "Ancho promedio 90%", "value": f"{policy.get('avg_width_90', 0):.3f}"},
+        {"label": "Ancho mediano 90%", "value": f"{median_width_90:.3f}"},
         {
             "label": "Cobertura mínima por grupo",
             "value": format_pct(policy.get("min_group_coverage_90", 0)),
-        },
-        {
-            "label": "Checks aprobados",
-            "value": f"{policy.get('checks_passed', 0)}/{policy.get('checks_total', 0)}",
         },
         {"label": "Alertas críticas", "value": str(policy.get("critical_alerts", 0))},
     ],

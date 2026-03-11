@@ -1,10 +1,7 @@
-"""Anexo: RAPIDS 26.02 GPU Benchmark — Credit Risk at GPU Speed."""
-
-# ruff: noqa: E402
+"""RAPIDS replay on the real project pipeline."""
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -12,1174 +9,594 @@ _REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-import numpy as np
 import pandas as pd
 import plotly.express as px
 import streamlit as st
 
-from streamlit_app.components.story_shell import render_key_takeaway, render_page_header
-from streamlit_app.components.v2_echarts import render_v2_echarts
+from streamlit_app.components.metric_cards import kpi_row
+from streamlit_app.components.story_shell import (
+    render_key_takeaway,
+    render_page_feedback,
+    render_page_header,
+)
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import download_table
+from streamlit_app.utils import (
+    OFFICIAL_GPU_INSIGHT_TAG,
+    OFFICIAL_GPU_REPLAY_TAG,
+    OFFICIAL_PD_RAPIDS_BENCHMARK_TAG,
+    OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+    download_table,
+    format_number,
+    load_gpu_replay_summary,
+    load_official_baseline_registry,
+    load_rapids_ifrs9_correlated_metrics,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_detail,
+    load_rapids_pd_benchmark_stage_table,
+    load_rapids_insight_stage_table,
+    load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
+    try_load_gpu_replay_json,
+)
 
-# ---------------------------------------------------------------------------
-# Data helpers
-# ---------------------------------------------------------------------------
-GPU_DIR = Path(__file__).resolve().parents[2] / "reports" / "gpu_benchmark"
 
-COLORS = {
-    "pandas_cpu": "#E45756",
-    "cudf_pandas_gpu": "#F58518",
-    "polars_cpu": "#4C78A8",
-    "polars_gpu": "#72B7B2",
-    "duckdb": "#54A24B",
-    "sklearn_cpu": "#B3B8BD",
-    "cuml_gpu": "#0B5ED7",
-    "networkx_cpu": "#B3B8BD",
-    "nx_cugraph_gpu": "#198754",
-    "cugraph_gpu": "#0B5ED7",
-    "scipy_highs_cpu": "#B3B8BD",
-    "scipy_milp_cpu": "#6F42C1",
-    "cuopt_gpu": "#0B5ED7",
-    "cuopt_milp_gpu": "#0B5ED7",
-    "numpy_cpu": "#B3B8BD",
-    "scipy_cpu": "#B3B8BD",
-    "cupy_gpu": "#0B5ED7",
+STAGE_LABELS = {
+    "pd": "PD CatBoost",
+    "lgd_ead": "LGD/EAD",
+    "portfolio": "Portfolio LP",
+    "tradeoff": "Tradeoff Frontier",
+    "ab": "A/B Replay",
+    "cate_portfolio": "CATE Portfolio",
+    "ifrs9_mc": "IFRS9 Monte Carlo",
+    "ifrs9_sensitivity": "IFRS9 Sensitivity",
 }
 
-BACKEND_LABELS = {
-    "pandas_cpu": "Pandas (CPU)",
-    "cudf_pandas_gpu": "cuDF.pandas (GPU)",
-    "polars_cpu": "Polars (CPU)",
-    "polars_gpu": "Polars GPU Engine",
-    "duckdb": "DuckDB (CPU)",
-    "sklearn_cpu": "scikit-learn (CPU)",
-    "cuml_gpu": "cuML (GPU)",
-    "networkx_cpu": "NetworkX (CPU)",
-    "nx_cugraph_gpu": "nx-cugraph (GPU)",
-    "cugraph_gpu": "cuGraph (GPU)",
-    "scipy_highs_cpu": "SciPy HiGHS (CPU)",
-    "scipy_milp_cpu": "SciPy MILP (CPU)",
-    "cuopt_gpu": "cuOpt (GPU)",
-    "cuopt_milp_gpu": "cuOpt MILP (GPU)",
-    "numpy_cpu": "NumPy (CPU)",
-    "scipy_cpu": "SciPy (CPU)",
-    "cupy_gpu": "CuPy (GPU)",
+SAMPLE_NOTES = {
+    "pd": "Full canonical train/test; same scale as CPU champion.",
+    "lgd_ead": "Full defaults subset; same canonical scope as CPU champion.",
+    "portfolio": "GPU final: full 276,869 candidates. CPU official: 150,000.",
+    "tradeoff": "GPU final: 150,000 candidates. CPU official: 80,000.",
+    "ab": "GPU final: 150,000 effective universe tied to tradeoff candidate universe.",
+    "cate_portfolio": "GPU final: full 276,869 candidates. CPU official: 150,000.",
+    "ifrs9_mc": "GPU-only RAPIDS extension: 276,869 loans x 8,192 scenarios.",
 }
 
-@st.cache_data(ttl=300)
-def _load(name: str) -> pd.DataFrame:
-    for ext in (".parquet", ".csv"):
-        p = GPU_DIR / f"{name}{ext}"
-        if p.exists():
-            return pd.read_parquet(p) if ext == ".parquet" else pd.read_csv(p)
-    return pd.DataFrame()
+
+def _stage_label(stage: str) -> str:
+    return STAGE_LABELS.get(stage, stage)
 
 
-@st.cache_data(ttl=300)
-def _meta() -> dict:
-    p = GPU_DIR / "gpu_bench_meta.json"
-    return json.loads(p.read_text()) if p.exists() else {}
-
-
-def _sf(val: object, default: float = 0.0) -> float:
-    try:
-        v = float(val)
-        return v if np.isfinite(v) else default
-    except (TypeError, ValueError):
-        return default
-
-
-def _label(backend: str) -> str:
-    return BACKEND_LABELS.get(backend, backend)
-
-
-def _echarts_ml_speedup_option(gpu_valid: pd.DataFrame) -> dict:
-    """Build ECharts 5 option for ML speedup pilot (clickable horizontal bars)."""
-    df = gpu_valid.copy()
-    df["task_label"] = df["task"].str.replace("_", " ").str.title()
-    categories = df["task_label"].tolist()
-    series_data = [
-        {
-            "value": round(_sf(row["fit_speedup_vs_cpu"]), 4),
-            "task_id": str(row["task"]),
-            "task_label": str(row["task_label"]),
-            "itemStyle": {"color": COLORS["cuml_gpu"] if _sf(row["fit_speedup_vs_cpu"]) >= 1 else "#E45756"},
-        }
-        for _, row in df.iterrows()
-    ]
-    return {
-        "animationDuration": 500,
-        "grid": {"left": 170, "right": 28, "top": 36, "bottom": 30},
-        "tooltip": {"trigger": "item"},
-        "xAxis": {
-            "type": "value",
-            "name": "Speedup (x)",
-            "nameLocation": "middle",
-            "nameGap": 28,
-            "min": 0,
-            "axisLabel": {"formatter": "{value}x"},
-        },
-        "yAxis": {
-            "type": "category",
-            "data": categories,
-            "axisLabel": {"fontSize": 11},
-        },
-        "series": [
-            {
-                "name": "cuML vs CPU",
-                "type": "bar",
-                "data": series_data,
-                "label": {"show": True, "position": "right", "formatter": "{c}x"},
-                "emphasis": {"focus": "self"},
-                "markLine": {
-                    "silent": True,
-                    "symbol": ["none", "none"],
-                    "lineStyle": {"type": "dashed", "color": "#E45756"},
-                    "label": {"formatter": "1x parity"},
-                    "data": [{"xAxis": 1}],
-                },
-            }
-        ],
-    }
-
-
-def _echarts_graph_speedup_option(gpu_data: pd.DataFrame) -> dict:
-    """Build grouped-bar ECharts option for graph speedup pilot (clickable bars)."""
-    df = gpu_data.copy()
-    df = df.dropna(subset=["speedup_vs_cpu"])
+def _build_stage_table() -> pd.DataFrame:
+    df = load_rapids_stage_comparison(OFFICIAL_GPU_REPLAY_TAG).copy()
     if df.empty:
-        return {}
-
-    df["task_label"] = df["task"].str.replace("_", " ").str.title()
-    task_order = (
-        df.groupby(["task", "task_label"], as_index=False)["speedup_vs_cpu"]
-        .max()
-        .sort_values("speedup_vs_cpu", ascending=True)
+        return df
+    df["stage_label"] = df["stage"].map(_stage_label)
+    df["sample_scope"] = df["stage"].map(SAMPLE_NOTES)
+    return df.sort_values(
+        by=["speedup_gpu_vs_cpu", "gpu_seconds"],
+        ascending=[False, True],
+        na_position="last",
     )
 
-    backend_order = ["nx_cugraph_gpu", "cugraph_gpu"]
-    series = []
-    for idx, backend in enumerate(backend_order):
-        backend_df = df[df["backend"] == backend].set_index("task")
-        data_points = []
-        for row in task_order.itertuples(index=False):
-            task_id = str(row.task)
-            task_label = str(row.task_label)
-            speedup = backend_df.loc[task_id, "speedup_vs_cpu"] if task_id in backend_df.index else np.nan
-            speed = None if pd.isna(speedup) else round(_sf(speedup), 4)
-            data_points.append(
-                {
-                    "value": speed,
-                    "task_id": task_id,
-                    "task_label": task_label,
-                    "backend_id": backend,
-                    "backend_label": _label(backend),
-                    "itemStyle": {"color": COLORS.get(backend, "#4C78A8")},
-                }
-            )
 
-        series_cfg = {
-            "name": _label(backend),
-            "type": "bar",
-            "barMaxWidth": 18,
-            "emphasis": {"focus": "series"},
-            "label": {"show": True, "position": "right", "formatter": "{c}x"},
-            "data": data_points,
-        }
-        if idx == 0:
-            series_cfg["markLine"] = {
-                "silent": True,
-                "symbol": ["none", "none"],
-                "lineStyle": {"type": "dashed", "color": "#E45756"},
-                "label": {"formatter": "1x parity"},
-                "data": [{"xAxis": 1}],
-            }
-        series.append(series_cfg)
-
-    return {
-        "animationDuration": 500,
-        "grid": {"left": 180, "right": 24, "top": 48, "bottom": 30},
-        "legend": {"top": 4},
-        "tooltip": {
-            "trigger": "item",
-            "formatter": "{a}<br/>{b}: {c}x",
-        },
-        "xAxis": {
-            "type": "value",
-            "name": "Speedup vs NetworkX CPU",
-            "nameLocation": "middle",
-            "nameGap": 28,
-            "min": 0,
-            "axisLabel": {"formatter": "{value}x"},
-        },
-        "yAxis": {
-            "type": "category",
-            "data": task_order["task_label"].tolist(),
-            "axisLabel": {"fontSize": 11},
-        },
-        "series": series,
-    }
-
-
-# ===================================================================
-# Page
-# ===================================================================
-
-st.title("Can a $700 GPU Accelerate a Full Credit Risk Pipeline?")
+st.title("⚡ RAPIDS en el Proyecto Real")
+st.caption(
+    "Replay GPU del champion oficial sobre el mismo Lending Club pipeline: qué sí aceleró, "
+    "qué no aceleró y dónde la GPU realmente vale la pena."
+)
 page_contract = get_page_contract("gpu_benchmark")
 render_page_header(page_contract)
 render_key_takeaway(
-    "Anexo técnico independiente: compara aceleración GPU en tareas de datos/ML/grafos/optimización, sin alterar el pipeline canónico de la tesis."
-)
-st.markdown(
-    """
-*A hands-on benchmark of NVIDIA RAPIDS 26.02 on 1.86 million Lending Club loans,
-running on a consumer RTX 3080 (10 GB VRAM) under WSL2.*
-
----
-
-**The question every data scientist with a GPU eventually asks:**
-*"I have this expensive graphics card — can it actually speed up my data work, or is it
-just for gaming and deep learning?"*
-
-This benchmark answers that question **end-to-end** for a real credit risk pipeline.
-We test every stage of the thesis workflow — from raw data wrangling through ML model
-training, graph analytics, portfolio optimization, and Monte Carlo simulation — using
-**five RAPIDS libraries** against their CPU counterparts. For each technique we measure
-not just speed, but **output correctness** and explain **where it fits in our pipeline**.
-"""
+    "La historia final no es 'GPU en todo': es cuOpt para OR, CuPy para escenarios masivos, mejoras moderadas en LGD/EAD y una señal honesta de que PD completo todavía no gana en esta arquitectura."
 )
 
-# -- Load all artifacts --
-df_bench = _load("cudf_polars_benchmark")
-ml_bench = _load("cuml_benchmark")
-gr_bench = _load("cugraph_benchmark")
-opt_bench = _load("cuopt_benchmark")
-cp_bench = _load("cupy_benchmark")
-meta = _meta()
-
-# -- Hero KPIs --
-cols = st.columns(5)
-hero_data = [
-    ("Dataset", "1.86M loans"),
-    ("GPU", "RTX 3080 10GB"),
-    ("RAPIDS", "26.02"),
-    ("Libraries", "5 tested"),
-    ("Best Speedup", "164x"),
-]
-for c, (label, val) in zip(cols, hero_data, strict=False):
-    c.metric(label, val)
-
-# ===================================================================
-# 1. DataFrame Processing
-# ===================================================================
-
-st.markdown("---")
-st.header("1. DataFrame Processing: The Great Five-Way Race")
-
-st.markdown(
-    """
-> **Where this matters in our pipeline:**
-> Every run of `make_dataset.py` and `prepare_dataset.py` parses the full
-> `lending_club_cleaned.parquet` (1.86M rows, 110 columns) — type-casting string
-> percentages, filtering by credit quality, and computing grade-level aggregates.
-> The dbt pipeline (`dbt_project/`) runs similar groupby-join-window patterns on
-> the same data. Faster wrangling means faster iteration during development and
-> shorter end-to-end pipeline execution.
-
-We run a realistic analytics workload that mirrors the actual pipeline:
-
-1. **Read** parquet (select 11 columns from 110 available)
-2. **Parse** string fields (`int_rate` "13.5%" -> 13.5, `term` "36 months" -> 36)
-3. **Filter** (loan_amnt >= $5K, income > $20K, grades A-E) -> 1.6M rows survive
-4. **GroupBy** grade x year: count loans, sum funded, mean rate, mean default rate
-5. **GroupBy** purpose: loans per purpose, default rate
-6. **Join** the two aggregates via grade -> top-purpose mapping
-7. **Window** function: rank within year by default rate
-8. **Sort** by year, grade
-"""
+gpu_summary = load_gpu_replay_summary(OFFICIAL_GPU_REPLAY_TAG)
+baseline = load_official_baseline_registry()
+ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics(OFFICIAL_GPU_REPLAY_TAG)
+ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
+stage_table = _build_stage_table()
+insight_stage_table = load_rapids_insight_stage_table()
+insight_umap_embedding = load_rapids_insight_detail("cuml_umap_embedding")
+insight_hdbscan_profiles = load_rapids_insight_detail("cuml_hdbscan_cluster_profiles")
+insight_cugraph_profiles = load_rapids_insight_detail("cugraph_community_profiles")
+pd_benchmark_stage_table = load_rapids_pd_benchmark_stage_table()
+ab_status = try_load_gpu_replay_json(
+    OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
 )
+policy_status = try_load_gpu_replay_json(
+    OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/champion_portfolio_policy.json"
+)
+cate_status = try_load_gpu_replay_json(
+    OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/cate_portfolio_status.json"
+)
+tradeoff_full_policy = load_rapids_tradeoff_full_policy()
+tradeoff_full_ab = load_rapids_tradeoff_full_ab_status()
 
-if not df_bench.empty and "mode" in df_bench.columns:
-    has_status = "status" in df_bench.columns
-    ok = df_bench[df_bench["status"] == "ok"].copy() if has_status else df_bench.copy()
-    ok = ok.dropna(subset=["median_seconds"])
+if stage_table.empty or not gpu_summary:
+    st.error("No se encontraron artefactos del replay RAPIDS final.")
+    st.stop()
 
-    if not ok.empty:
-        ok = ok.sort_values("median_seconds", ascending=True)
-        pandas_t = ok.loc[ok["mode"] == "pandas_cpu", "median_seconds"]
-        base_t = pandas_t.values[0] if not pandas_t.empty else 1.0
-        ok["speedup"] = base_t / ok["median_seconds"]
-        ok["label"] = ok["mode"].map(_label)
+best = stage_table.dropna(subset=["speedup_gpu_vs_cpu"]).sort_values(
+    "speedup_gpu_vs_cpu", ascending=False
+)
+best_row = best.iloc[0] if not best.empty else None
+worst = stage_table.dropna(subset=["speedup_gpu_vs_cpu"]).sort_values(
+    "speedup_gpu_vs_cpu", ascending=True
+)
+worst_row = worst.iloc[0] if not worst.empty else None
+gpu_wins = int((stage_table["speedup_gpu_vs_cpu"] > 1.0).fillna(False).sum())
 
-        # -- Bar chart --
-        fig = px.bar(
-            ok.sort_values("median_seconds", ascending=False),
-            y="label", x="median_seconds", orientation="h",
-            color="mode", color_discrete_map=COLORS,
-            labels={"label": "", "median_seconds": "Seconds (median of 3 runs)"},
-        )
-        for _, r in ok.iterrows():
-            fig.add_annotation(
-                x=r["median_seconds"], y=_label(r["mode"]),
-                text=f"  {r['median_seconds']:.3f}s  ({r['speedup']:.0f}x)",
-                showarrow=False, xanchor="left", font={"size": 12},
-            )
-        fig.update_layout(
-            **PLOTLY_TEMPLATE["layout"], height=max(280, len(ok) * 60),
-            showlegend=False, title="1.86M Loans x 110 Columns: End-to-End Analytics",
-        )
-        st.plotly_chart(fig, width="stretch")
-
-        # -- Cross-comparison matrix --
-        times = ok.set_index("mode")["median_seconds"].to_dict()
-        modes = list(ok["mode"])
-        matrix = []
-        for rm in modes:
-            row = {"vs": _label(rm)}
-            for cm in modes:
-                if rm == cm:
-                    row[_label(cm)] = "--"
-                else:
-                    row[_label(cm)] = f"{times[rm] / max(times[cm], 1e-12):.1f}x"
-            matrix.append(row)
-        st.markdown("**Cross-comparison matrix** (row is N times slower than column):")
-        st.dataframe(pd.DataFrame(matrix).set_index("vs"), width="stretch")
-
-        download_table(ok, "dataframe_benchmark.csv", "Download results")
-
-    st.markdown(
-        """
-### Key Findings
-
-**Polars dominates.** Both CPU and GPU variants finish in ~130ms — **34x faster than
-pandas**. The GPU engine (`cudf-polars`) provides marginal improvement over CPU Polars
-because the bottleneck at this scale is I/O and query planning, not compute.
-
-**cuDF pandas accelerator is the surprise winner for zero-effort migration.**
-With `cudf.pandas.install()` and *zero code changes* to your pandas code, you get
-**13x speedup** (0.34s vs 4.5s). This is the lowest-effort GPU acceleration available.
-
-**DuckDB is the memory champion.** At 0.37s (12x vs pandas) it's fast, but its real
-strength is memory efficiency — DuckDB can process datasets far larger than RAM via
-its streaming engine. For our 190 MB parquet both fit comfortably, but for production
-batch scoring on millions of loans DuckDB's spill-to-disk capability is invaluable.
-
-**How this applies to our project:**
-| Pipeline stage | Current tool | Opportunity |
-|----------------|-------------|-------------|
-| `make_dataset.py` (clean + split) | pandas | `cudf.pandas.install()` -> 13x with zero changes |
-| `build_datasets.py` (aggregates) | pandas | Polars rewrite -> 34x on groupby-heavy workloads |
-| dbt pipeline (SQL analytics) | DuckDB | Already optimal — 12x vs pandas with SQL expressiveness |
-| Streamlit data loading | pandas | `cudf.pandas` for hot-path artifact loading |
-"""
-    )
-else:
-    st.info("No DataFrame benchmark data found.")
-
-# ===================================================================
-# 2. Machine Learning
-# ===================================================================
-
-st.markdown("---")
-st.header("2. Machine Learning: Where GPU Really Shines (and Where It Doesn't)")
+kpi_row(
+    [
+        {"label": "Run RAPIDS final", "value": gpu_summary.get("run_tag", "N/D")},
+        {"label": "Baseline CPU", "value": str(baseline.get("run_tag", "N/D"))},
+        {"label": "Stages PASS", "value": f"{len(stage_table)}/{len(stage_table)}"},
+        {"label": "Stages con speedup", "value": f"{gpu_wins}/{len(stage_table) - 1}"},
+        {
+            "label": "Mayor speedup",
+            "value": (
+                f"{_stage_label(str(best_row['stage']))} · {best_row['speedup_gpu_vs_cpu']:.1f}x"
+                if best_row is not None
+                else "N/D"
+            ),
+        },
+        {
+            "label": "IFRS9 Monte Carlo",
+            "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.1f}x",
+        },
+    ],
+    n_cols=3,
+)
 
 st.markdown(
     """
-> **Where this matters in our pipeline:**
-> The thesis trains a **CatBoost PD model** (comparable to Random Forest in GPU behavior),
-> a **Logistic Regression baseline**, runs **PCA** for feature analysis, and uses
-> **KMeans** for borrower segmentation. Each of these has a cuML GPU counterpart.
-> Understanding where GPU helps (and where it doesn't) directly informs whether to
-> GPU-accelerate `train_pd_model.py` and `feature_engineering.py`.
+Esta página ya no resume microbenchmarks aislados. Resume un **replay RAPIDS sobre el proyecto real**:
 
-We train **7 algorithms** on `train_fe.parquet` — the same 47 engineered features
-(WOE-encoded, numerical) used in the thesis PD model. Each runs on scikit-learn (CPU)
-and cuML 26.02 (GPU), comparing **speed** and **output quality**.
-
-| Algorithm | Train size | Test size | Features | Relevance to project |
-|-----------|-----------|----------|----------|---------------------|
-| **Logistic Regression** | 500K | 100K | 47 | LR baseline in `train_pd_model.py` |
-| **Random Forest** | 500K | 100K | 47 | Tree-model proxy for CatBoost GPU potential |
-| **KMeans** | 100K | -- | 47 | Borrower segmentation by risk profile |
-| **PCA** | 500K | 100K | 47 | Feature importance analysis in NB02 |
-| **KNN** | 80K | 20K | 47 | Nearest-neighbor imputation & scoring |
-| **UMAP** | 50K | -- | 47 | 2D visualization of borrower clusters |
-| **HDBSCAN** | 50K | -- | 47 | Anomaly detection for fraud/outlier flagging |
+- el baseline CPU oficial es el champion canónico del pipeline end-to-end;
+- el replay GPU corre solo las etapas donde la GPU aporta de verdad;
+- los outputs GPU viven en su propio namespace y no sustituyen el champion oficial;
+- el objetivo es medir **valor incremental real** por etapa, no hacer demos de segundos.
 """
 )
 
-if not ml_bench.empty and "task" in ml_bench.columns:
-    tasks = ml_bench["task"].unique()
-    ml_focus_task = str(st.session_state.get("gpu_benchmark_ml_focus_task", ""))
-
-    # -- Overview speedup chart --
-    gpu_rows = ml_bench[ml_bench["backend"] == "cuml_gpu"].copy()
-    gpu_valid = gpu_rows[gpu_rows["fit_speedup_vs_cpu"].notna()].copy()
-    if not gpu_valid.empty:
-        gpu_valid = gpu_valid.sort_values("fit_speedup_vs_cpu", ascending=True)
-        gpu_valid["task_label"] = gpu_valid["task"].str.replace("_", " ").str.title()
-        fig = px.bar(
-            gpu_valid, y="task_label", x="fit_speedup_vs_cpu", orientation="h",
-            color_discrete_sequence=["#0B5ED7"],
-            labels={"task_label": "", "fit_speedup_vs_cpu": "Speedup (x)"},
-            title="GPU Speedup by Algorithm (fit time, higher = better)",
-        )
-        fig.add_vline(x=1.0, line_dash="dash", line_color="#E45756",
-                      annotation_text="GPU slower | GPU faster")
-        for _, r in gpu_valid.iterrows():
-            s = r["fit_speedup_vs_cpu"]
-            fig.add_annotation(
-                x=max(s, 0.1), y=r["task_label"],
-                text=f"  {s:.1f}x", showarrow=False, xanchor="left", font={"size": 12},
-            )
-        fig.update_layout(
-            **PLOTLY_TEMPLATE["layout"],
-            height=max(300, len(gpu_valid) * 50), showlegend=False,
-        )
-        st.plotly_chart(fig, width="stretch")
-
-        with st.expander("ECharts 5 pilot (clic para enfocar algoritmo)", expanded=False):
-            st.caption(
-                "Piloto adicional: ECharts 5 sobre Components v2 para callbacks de click. "
-                "Plotly sigue siendo la visualización canónica; este bloque prueba UX interactiva."
-            )
-            echarts_clicked = render_v2_echarts(
-                _echarts_ml_speedup_option(gpu_valid),
-                key="gpu_benchmark_ml_speedup_echarts_pilot",
-                height_px=max(320, len(gpu_valid) * 52),
-            )
-            clicked_data = echarts_clicked.get("data") if isinstance(echarts_clicked, dict) else None
-            if isinstance(clicked_data, dict):
-                task_id = clicked_data.get("task_id")
-                if isinstance(task_id, str) and task_id:
-                    st.session_state["gpu_benchmark_ml_focus_task"] = task_id
-                    ml_focus_task = task_id
-
-            c_focus, c_reset = st.columns([4, 1])
-            with c_focus:
-                if ml_focus_task:
-                    st.info(
-                        "Foco actual desde ECharts: "
-                        f"`{ml_focus_task.replace('_', ' ').title()}`. "
-                        "Se abrirá automáticamente su expander más abajo."
-                    )
-                else:
-                    st.caption("Haz clic en una barra del gráfico ECharts para enfocar un algoritmo.")
-            with c_reset:
-                if st.button("Reset", key="gpu_ml_echarts_focus_reset"):
-                    st.session_state.pop("gpu_benchmark_ml_focus_task", None)
-                    ml_focus_task = ""
-
-    # -- Per-algorithm context --
-    PROJECT_CONTEXT = {
-        "logistic_regression": (
-            "The **LR baseline** in `train_pd_model.py` trains on 1.35M rows with "
-            "sklearn `lbfgs`. cuML's L-BFGS is 64x faster but didn't converge to "
-            "the same solution — AUC dropped from 0.69 to 0.55. For production PD "
-            "models, **correctness trumps speed**: we keep sklearn for LR."
-        ),
-        "random_forest": (
-            "Our thesis uses **CatBoost** (not RF), but RF is the best proxy for "
-            "tree-based GPU acceleration. At 7.5x speedup with <0.2% AUC difference, "
-            "this validates that **GPU tree training works reliably**. CatBoost also "
-            "has GPU support (`task_type='GPU'`) that we use in `train_pd_model.py`."
-        ),
-        "kmeans": (
-            "We use grade-based segmentation in `build_datasets.py`, but **KMeans "
-            "on 100K rows is too small** for GPU to win — the data transfer overhead "
-            "dominates. At 1M+ rows, cuML KMeans would overtake sklearn."
-        ),
-        "pca": (
-            "PCA runs in NB02 for **feature importance analysis** and dimensionality "
-            "reduction. At 500K x 47, GPU is only 1.4x faster — the matrix is too "
-            "narrow for cuSOLVER to dominate. Wider matrices (500+ features) would "
-            "see a bigger GPU advantage."
-        ),
-        "knn": (
-            "KNN is useful for **imputation** (filling missing LGD values) and as "
-            "a non-parametric scoring baseline. The 2.3x fit speedup is modest, but "
-            "the **7.5x predict speedup** matters for real-time inference where "
-            "every millisecond counts."
-        ),
-        "umap": (
-            "UMAP produces the **2D borrower embeddings** displayed in the Streamlit "
-            "dashboard. Since `umap-learn` wasn't installed (CPU baseline failed), "
-            "we only have the GPU time. cuML UMAP is typically 50-100x faster than "
-            "CPU — essential for interactive exploration of 1M+ borrowers."
-        ),
-        "hdbscan": (
-            "HDBSCAN is our **anomaly detection** tool — identifying unusual loan "
-            "applications that don't cluster with any risk group. At **77x speedup** "
-            "with identical cluster assignments, this is a clear GPU win. In production, "
-            "this enables real-time fraud flagging on incoming applications."
-        ),
+st.subheader("1) CPU vs GPU por etapa")
+compare_df = stage_table[
+    [
+        "stage_label",
+        "cpu_seconds",
+        "gpu_seconds",
+        "speedup_gpu_vs_cpu",
+        "peak_gpu_util",
+        "peak_memory_used_mb",
+        "sample_scope",
+    ]
+].rename(
+    columns={
+        "stage_label": "Stage",
+        "cpu_seconds": "CPU seconds",
+        "gpu_seconds": "GPU seconds",
+        "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+        "peak_gpu_util": "Peak GPU util (%)",
+        "peak_memory_used_mb": "Peak VRAM (MB)",
+        "sample_scope": "Scope",
     }
+)
+st.dataframe(compare_df, width="stretch", hide_index=True)
+download_table(compare_df, "rapids_stage_comparison.csv", "Descargar comparación CPU vs GPU")
 
-    for task_name in sorted(tasks):
-        task_data = ml_bench[ml_bench["task"] == task_name]
-        cpu_row = task_data[task_data["backend"] == "sklearn_cpu"]
-        gpu_row = task_data[task_data["backend"] == "cuml_gpu"]
-
-        if gpu_row.empty:
-            continue
-
-        gpu_fit = _sf(gpu_row.iloc[0].get("fit_seconds"))
-        gpu_metric_val = gpu_row.iloc[0].get("metric_value")
-        gpu_metric = str(gpu_row.iloc[0].get("metric", ""))
-
-        cpu_fit = _sf(cpu_row.iloc[0].get("fit_seconds")) if not cpu_row.empty else None
-        cpu_metric_val = cpu_row.iloc[0].get("metric_value") if not cpu_row.empty else None
-
-        speedup = _sf(gpu_row.iloc[0].get("fit_speedup_vs_cpu"))
-
-        with st.expander(
-            f"**{task_name.replace('_', ' ').title()}** — {speedup:.1f}x speedup",
-            expanded=ml_focus_task == task_name,
-        ):
-            c1, c2, c3 = st.columns(3)
-            c1.metric("CPU fit", f"{cpu_fit:.3f}s" if cpu_fit else "N/A")
-            c2.metric("GPU fit", f"{gpu_fit:.3f}s")
-            c3.metric("Speedup", f"{speedup:.1f}x",
-                       delta="faster" if speedup > 1 else "slower",
-                       delta_color="normal" if speedup > 1 else "inverse")
-
-            # Quality comparison
-            if cpu_metric_val is not None and gpu_metric != "error":
-                cpu_v = _sf(cpu_metric_val)
-                gpu_v = _sf(gpu_metric_val)
-                diff = abs(cpu_v - gpu_v)
-                rel = diff / max(abs(cpu_v), 1e-10) * 100
-                st.markdown(
-                    f"**Quality check** ({gpu_metric}): CPU = `{cpu_v:.6f}`, "
-                    f"GPU = `{gpu_v:.6f}` — diff = {diff:.6f} ({rel:.2f}% relative)"
-                )
-                if rel < 1:
-                    st.success("Outputs are essentially identical.")
-                elif rel < 5:
-                    st.warning("Small numerical differences — acceptable for most use cases.")
-                else:
-                    st.error("Significant divergence — investigate before using in production.")
-
-            # Project context
-            ctx = PROJECT_CONTEXT.get(task_name)
-            if ctx:
-                st.info(ctx)
-
-    st.markdown(
-        """
-### The Full Picture
-
-| Algorithm | Speedup | Quality | Verdict |
-|-----------|---------|---------|---------|
-| **HDBSCAN** | **77x** | Identical | **Clear GPU win** — embarrassingly parallel |
-| **LogReg** | **64x** | 21% AUC gap | **Misleading** — cuML didn't converge |
-| **Random Forest** | **7.5x** | 0.15% AUC diff | **Solid win** — tree parallelism |
-| **KNN** | **7.5x** | Identical AUC | Great for inference workloads |
-| **PCA** | **1.4x** | Identical | Marginal at this scale |
-| **KMeans** | **0.3x** | Diff silhouette | **GPU slower** at 100K rows |
-
-### Lessons for Our Pipeline
-
-1. **CatBoost `task_type='GPU'`** is the highest-impact change. Our RF benchmark
-   shows 7.5x speedup for tree models — CatBoost on GPU typically achieves 3-8x
-   for boosted trees, cutting `train_pd_model.py` from minutes to seconds.
-
-2. **HDBSCAN on GPU** enables real-time anomaly scoring. At 77x, we could flag
-   unusual applications in the FastAPI `/predict` endpoint without blocking.
-
-3. **Don't GPU-accelerate LogReg.** The convergence differences are a production risk.
-   Our LR baseline should stay on sklearn.
-
-4. **cuml.accel** (RAPIDS 26.02) can dispatch sklearn calls to GPU automatically
-   via `import cuml.accel; cuml.accel.install()` — same idea as cudf.pandas.
-"""
-    )
-
-    download_table(ml_bench, "ml_benchmark.csv", "Download ML results")
-else:
-    st.info("No ML benchmark data found.")
-
-# ===================================================================
-# 3. Graph Analytics
-# ===================================================================
-
-st.markdown("---")
-st.header("3. Graph Analytics: Where GPU Acceleration Is Transformative")
+speedup_plot = stage_table.dropna(subset=["speedup_gpu_vs_cpu"]).copy()
+speedup_plot["Speedup"] = speedup_plot["speedup_gpu_vs_cpu"].round(2)
+fig_speedup = px.bar(
+    speedup_plot,
+    x="speedup_gpu_vs_cpu",
+    y="stage_label",
+    orientation="h",
+    color="speedup_gpu_vs_cpu",
+    color_continuous_scale="Blues",
+    labels={"stage_label": "Stage", "speedup_gpu_vs_cpu": "GPU speedup vs CPU"},
+    title="Aceleración real del replay RAPIDS frente al champion CPU",
+)
+fig_speedup.add_vline(x=1.0, line_dash="dash", line_color="#E45756")
+fig_speedup.update_layout(**PLOTLY_TEMPLATE["layout"], height=460, coloraxis_showscale=False)
+st.plotly_chart(fig_speedup, width="stretch")
 
 st.markdown(
-    """
-> **Where this matters in our pipeline:**
-> Graph analytics isn't in the core thesis pipeline *yet*, but it's the natural
-> extension for **fraud detection** and **borrower network analysis**. PageRank can
-> identify which loan attributes (grade, purpose) are most "central" to default risk.
-> Louvain community detection can find **risk clusters** — groups of borrowers with
-> similar profiles that default together. Betweenness centrality reveals which
-> attributes **bridge** between low-risk and high-risk communities.
+    f"""
+**Lectura principal**
 
-We build a **borrower-attribute bipartite graph** from 200K loans in `train.parquet`:
-each loan connects to its `grade`, `purpose`, `sub_grade`, and `home_ownership`
-nodes — creating a graph with **200K nodes and 800K edges**.
-
-Three backends compete:
-- **NetworkX CPU** — pure Python, single-threaded (the baseline)
-- **nx-cugraph** — zero-code-change GPU backend (`backend="cugraph"` parameter)
-- **cuGraph direct** — native CUDA API (maximum performance, requires code changes)
+- La GPU ya es claramente ganadora en **investigación de operaciones**: portfolio, frontier tradeoff, A/B y CATE.
+- **LGD/EAD** sí mejora, pero de forma moderada.
+- **IFRS9 Monte Carlo** se volvió un caso GPU serio cuando pasamos de sensibilidad pequeña a escenarios masivos.
+- **PD completo** todavía no gana: el stage full incluye mucha preparación CPU, calibración, fairness y validación alrededor del fit.
 """
 )
 
-if not gr_bench.empty and "task" in gr_bench.columns:
-    graph_focus_task = st.session_state.get("gpu_benchmark_graph_focus_task")
-    graph_focus_backend = st.session_state.get("gpu_benchmark_graph_focus_backend")
-    graph_speedup_data = pd.DataFrame()
-
-    # -- Speedup chart --
-    gpu_data = gr_bench[gr_bench["backend"] != "networkx_cpu"].copy()
-    if not gpu_data.empty and "speedup_vs_cpu" in gpu_data.columns:
-        gpu_data = gpu_data.dropna(subset=["speedup_vs_cpu"])
-        graph_speedup_data = gpu_data.copy()
-        gpu_data = gpu_data.sort_values("speedup_vs_cpu", ascending=True)
-        gpu_data["backend_label"] = gpu_data["backend"].map(_label)
-        gpu_data["task_label"] = gpu_data["task"].str.replace("_", " ").str.title()
-
-        fig = px.bar(
-            gpu_data, y="task_label", x="speedup_vs_cpu", color="backend_label",
-            orientation="h", barmode="group",
-            color_discrete_map={_label(k): v for k, v in COLORS.items()},
-            labels={"task_label": "", "speedup_vs_cpu": "Speedup vs NetworkX CPU (x)",
-                    "backend_label": "Backend"},
-            title="Graph Algorithm Speedup (200K nodes, 800K edges)",
-        )
-        fig.add_vline(x=1.0, line_dash="dash", line_color="#E45756")
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=400)
-        st.plotly_chart(fig, width="stretch")
-
-    if not graph_speedup_data.empty:
-        with st.expander(
-            "ECharts 5 pilot (clic para resaltar fila de timings en Graph Analytics)",
-            expanded=False,
-        ):
-            st.caption(
-                "Piloto adicional: ECharts 5 sobre Components v2 con click callbacks. "
-                "Haz clic en una barra para resaltar la fila del algoritmo en la tabla."
-            )
-            graph_clicked = render_v2_echarts(
-                _echarts_graph_speedup_option(graph_speedup_data),
-                key="gpu_benchmark_graph_speedup_echarts",
-                height_px=380,
-            )
-            if isinstance(graph_clicked, dict):
-                payload = graph_clicked.get("data")
-                if isinstance(payload, dict):
-                    task_id = payload.get("task_id")
-                    backend_id = payload.get("backend_id")
-                    if isinstance(task_id, str) and task_id:
-                        st.session_state["gpu_benchmark_graph_focus_task"] = task_id
-                        graph_focus_task = task_id
-                    if isinstance(backend_id, str) and backend_id:
-                        st.session_state["gpu_benchmark_graph_focus_backend"] = backend_id
-                        graph_focus_backend = backend_id
-
-            if isinstance(graph_focus_task, str) and graph_focus_task:
-                focus_label = graph_focus_task.replace("_", " ").title()
-                backend_label = (
-                    _label(str(graph_focus_backend))
-                    if isinstance(graph_focus_backend, str) and graph_focus_backend
-                    else "cualquier backend"
-                )
-                st.caption(f"Foco actual: `{focus_label}` (último click: {backend_label})")
-            else:
-                st.caption("Sin foco activo. Usa el gráfico ECharts para seleccionar un algoritmo.")
-
-            if st.button("Limpiar foco de Graph Analytics", key="reset_graph_echarts_focus"):
-                st.session_state.pop("gpu_benchmark_graph_focus_task", None)
-                st.session_state.pop("gpu_benchmark_graph_focus_backend", None)
-                graph_focus_task = None
-                graph_focus_backend = None
-
-    # -- Timing comparison table --
-    pivot_cols = ["task", "backend", "seconds"]
-    if all(c in gr_bench.columns for c in pivot_cols):
-        timing = gr_bench[pivot_cols].copy()
-        timing["backend"] = timing["backend"].map(_label)
-        pivot = timing.pivot(index="task", columns="backend", values="seconds")
-        ordered_cols = [
-            _label("networkx_cpu"),
-            _label("nx_cugraph_gpu"),
-            _label("cugraph_gpu"),
-        ]
-        pivot = pivot.reindex(columns=[c for c in ordered_cols if c in pivot.columns])
-
-        selected_task = (
-            str(graph_focus_task)
-            if isinstance(graph_focus_task, str) and graph_focus_task in pivot.index
-            else None
-        )
-        selected_backend_label = (
-            _label(str(graph_focus_backend))
-            if isinstance(graph_focus_backend, str) and graph_focus_backend
-            else None
-        )
-
-        styler = pivot.style.format(lambda v: f"{float(v):.4f}s" if pd.notna(v) else "—")
-        if selected_task:
-            st.caption(
-                "Fila resaltada desde ECharts: "
-                f"`{selected_task.replace('_', ' ').title()}`"
-            )
-
-            def _timing_highlight(data: pd.DataFrame) -> pd.DataFrame:
-                styles = pd.DataFrame("", index=data.index, columns=data.columns)
-                styles.loc[selected_task, :] = "background-color: rgba(11, 94, 215, 0.10);"
-                if selected_backend_label in styles.columns:
-                    styles.loc[selected_task, selected_backend_label] = (
-                        "background-color: rgba(11, 94, 215, 0.18);"
-                        " outline: 2px solid #0B5ED7;"
-                        " font-weight: 600;"
-                    )
-                return styles
-
-            styler = styler.apply(_timing_highlight, axis=None)
-
-        st.dataframe(styler, width="stretch")
-
-    st.markdown(
-        """
-### The Headline Numbers
-
-| Algorithm | NetworkX CPU | nx-cugraph | cuGraph Direct | Speedup |
-|-----------|-------------|------------|----------------|---------|
-| **Betweenness Centrality** | 179.5s | 1.97s | 1.10s | **91x / 164x** |
-| **Louvain Community** | 8.07s | 0.82s | 0.07s | **10x / 120x** |
-| **PageRank** | 1.59s | 2.73s* | 0.13s | **--/ 12x** |
-| **Connected Components** | 0.09s | 0.39s* | 0.02s | **--/ 5x** |
-
-*nx-cugraph overhead includes graph conversion to GPU format on first call.*
-
-### How Each Algorithm Serves the Project
-
-**Betweenness Centrality** (164x) — Identifies which loan attributes *bridge*
-between risk groups. A sub_grade like "C3" with high betweenness might be the
-tipping point between Stage 1 and Stage 2 in IFRS9 classification. At 179s on
-CPU this is impractical for exploration; at 1.1s on GPU it becomes interactive.
-
-**Louvain Community Detection** (120x) — Discovers natural *risk clusters*
-among borrowers. Instead of the predefined grade system (A-G), Louvain can find
-data-driven groupings that better predict default — useful for the Mondrian
-conformal prediction groups in `generate_conformal_intervals.py`.
-
-**PageRank** (12x) — Ranks loan attributes by "influence" in the default network.
-High-PageRank purposes or grades disproportionately connect to defaults — a signal
-for `run_fairness_audit.py` to investigate potential bias.
-
-**Connected Components** (5x) — A data integrity check: one connected component
-means all attributes are reachable from any loan. Multiple components would signal
-isolated subpopulations needing separate models.
-
-**Practical recommendation:** Set `NX_CUGRAPH_AUTOCONFIG=True` and let NetworkX
-dispatch to GPU automatically. The conversion cost is amortized across algorithm calls.
-"""
-    )
-
-    download_table(gr_bench, "graph_benchmark.csv", "Download graph results")
-else:
-    st.info("No graph benchmark data found.")
-
-# ===================================================================
-# 4. Portfolio Optimization
-# ===================================================================
-
-st.markdown("---")
-st.header("4. Portfolio Optimization: cuOpt vs HiGHS at Scale")
-
-st.markdown(
-    """
-> **Where this matters in our pipeline:**
-> This is the **core of the thesis contribution**. `optimize_portfolio.py` solves
-> LP/MILP problems to select optimal loan portfolios using conformal prediction
-> intervals as uncertainty sets. `optimize_portfolio_tradeoff.py` traces the
-> Pareto frontier across risk budgets — each point requires a fresh LP solve.
-> Faster LP solving = more points on the frontier = better risk-return tradeoffs.
-
-We solve the same portfolio selection problem at increasing scale using real loan
-data from `train.parquet`:
-- **Objective**: maximize expected return (interest rate)
-- **Constraints**: budget (30% of total), risk (PD-weighted <= 15%), max 5% per loan
-- **Variables**: 3K -> 6K -> 12K -> 18K loans (the thesis uses up to 5K candidates)
-"""
+tab_or, tab_pd, tab_ifrs9, tab_hw = st.tabs(
+    ["OR & Decisión", "PD & LGD/EAD", "IFRS9 Monte Carlo", "Telemetría GPU"]
 )
 
-if not opt_bench.empty and "task" in opt_bench.columns:
-    lp_data = opt_bench[opt_bench["task"] == "portfolio_lp"].copy()
-    milp_data = opt_bench[opt_bench["task"] == "portfolio_milp"].copy()
-    lp_perf_summary_md = (
-        "**LP performance snapshot.** No se pudo calcular una comparación CPU vs GPU con datos suficientes."
+with tab_or:
+    st.markdown("### La gran conclusión: cuOpt sí cambió el proyecto")
+    st.markdown(
+        """
+La ruta correcta terminó siendo **cuOpt nativo**, no `Pyomo -> SolverFactory('cuopt')`.
+Eso permitió correr en GPU las etapas que de verdad son caras en OR:
+
+- `portfolio` sobre el universo full,
+- `tradeoff` con muchos solves repetidos,
+- `ab` sobre el mismo `candidate_universe`,
+- `cate_portfolio` en modo research-only pero ya acelerado.
+"""
+    )
+    or_df = stage_table[stage_table["stage"].isin(["portfolio", "tradeoff", "ab", "cate_portfolio"])].copy()
+    fig_or = px.scatter(
+        or_df,
+        x="gpu_seconds",
+        y="speedup_gpu_vs_cpu",
+        size="peak_memory_used_mb",
+        color="stage_label",
+        text="stage_label",
+        labels={"gpu_seconds": "GPU seconds", "speedup_gpu_vs_cpu": "GPU speedup vs CPU"},
+        title="OR en GPU: speedup vs costo temporal del stage",
+    )
+    fig_or.update_traces(textposition="top center")
+    fig_or.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+    st.plotly_chart(fig_or, width="stretch")
+
+    selected_policy = policy_status.get("selected_policy", {})
+    selection_metrics = policy_status.get("selection_metrics", {})
+    st.markdown("#### Política champion del replay GPU")
+    st.json(
+        {
+            "policy": selected_policy,
+            "selection_metrics": selection_metrics,
+            "ab_no_regression": ab_status.get("no_regression", {}),
+        },
+        expanded=False,
     )
 
-    if not lp_data.empty:
-        valid = lp_data[lp_data["seconds"].notna()].copy()
-        valid["n_variables"] = valid["n_variables"].astype(int)
-        valid["backend_label"] = valid["backend"].map(_label)
-
-        # -- Scaling chart --
-        fig = px.line(
-            valid, x="n_variables", y="seconds", color="backend_label",
-            markers=True,
-            color_discrete_map={_label(k): v for k, v in COLORS.items()},
-            labels={"n_variables": "Number of Variables (loans)",
-                    "seconds": "Solve Time (s)", "backend_label": "Solver"},
-            title="LP Solve Time: SciPy HiGHS (CPU) vs cuOpt (GPU)",
-        )
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=400)
-        st.plotly_chart(fig, width="stretch")
-
-        cpu_lp = (
-            valid[valid["backend"] == "scipy_highs_cpu"][["n_variables", "seconds"]]
-            .rename(columns={"seconds": "cpu_seconds"})
-        )
-        gpu_lp_perf = (
-            valid[valid["backend"] == "cuopt_gpu"][["n_variables", "seconds"]]
-            .rename(columns={"seconds": "gpu_seconds"})
-        )
-        paired_lp = cpu_lp.merge(gpu_lp_perf, on="n_variables", how="inner")
-        if not paired_lp.empty:
-            paired_lp["speedup_ratio_cpu_over_gpu"] = (
-                paired_lp["cpu_seconds"] / paired_lp["gpu_seconds"].clip(lower=1e-12)
-            )
-            min_ratio = float(paired_lp["speedup_ratio_cpu_over_gpu"].min())
-            max_ratio = float(paired_lp["speedup_ratio_cpu_over_gpu"].max())
-            if max_ratio < 1.0:
-                lp_perf_summary_md = (
-                    "**LP performance snapshot.** En este benchmark, `SciPy HiGHS` supera a `cuOpt` en todos "
-                    f"los tamaños probados. cuOpt corre a ~`{min_ratio:.3f}x`–`{max_ratio:.3f}x` de la velocidad "
-                    "de HiGHS (equivale a ~"
-                    f"`{1/max_ratio:.1f}x`–`{1/min_ratio:.1f}x` más lento)."
-                )
-            elif min_ratio > 1.0:
-                lp_perf_summary_md = (
-                    "**LP performance snapshot.** En este benchmark, `cuOpt` supera a `HiGHS` en todos "
-                    f"los tamaños probados con ~`{min_ratio:.2f}x`–`{max_ratio:.2f}x` speedup."
-                )
-            else:
-                lp_perf_summary_md = (
-                    "**LP performance snapshot.** El rendimiento cruza la paridad según el tamaño: "
-                    "hay tamaños donde gana HiGHS y otros donde gana cuOpt."
-                )
-
-        # -- Speedup by size --
-        if "speedup_vs_cpu_lp" in valid.columns:
-            gpu_lp = valid[valid["backend"] == "cuopt_gpu"].dropna(subset=["speedup_vs_cpu_lp"])
-            if not gpu_lp.empty:
-                gpu_lp = gpu_lp.copy()
-                gpu_lp["speedup_vs_cpu_lp"] = gpu_lp["speedup_vs_cpu_lp"].astype(float)
-                gpu_lp["relative_factor_vs_highs"] = np.where(
-                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0,
-                    gpu_lp["speedup_vs_cpu_lp"],
-                    1.0 / np.clip(gpu_lp["speedup_vs_cpu_lp"], 1e-12, None),
-                )
-                gpu_lp["relative_status"] = np.where(
-                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0, "cuOpt faster", "cuOpt slower"
-                )
-                gpu_lp["relative_label"] = np.where(
-                    gpu_lp["speedup_vs_cpu_lp"] >= 1.0,
-                    gpu_lp["relative_factor_vs_highs"].map(lambda v: f"{v:.2f}x faster"),
-                    gpu_lp["relative_factor_vs_highs"].map(lambda v: f"{v:.1f}x slower"),
-                )
-
-                fig2 = px.bar(
-                    gpu_lp,
-                    x="n_variables",
-                    y="relative_factor_vs_highs",
-                    color="relative_status",
-                    color_discrete_map={"cuOpt faster": "#0B5ED7", "cuOpt slower": "#E45756"},
-                    labels={
-                        "n_variables": "Variables",
-                        "relative_factor_vs_highs": "Factor vs HiGHS (x)",
-                        "relative_status": "",
+    st.markdown("#### Qué subimos frente al champion CPU")
+    st.markdown(
+        """
+- `portfolio`: de `150k` en CPU a **full 276,869** en GPU.
+- `tradeoff`: de `80k` en CPU a **150k** en GPU final.
+- `A/B`: alineado al mismo universo del frontier.
+- `CATE`: de `150k` en CPU a **full 276,869** en GPU.
+"""
+    )
+    full_selected = tradeoff_full_policy.get("selected_policy", {})
+    full_metrics = tradeoff_full_policy.get("selection_metrics", {})
+    balanced_selected = tradeoff_full_policy.get("selected_policy_balanced_robustness", {})
+    balanced_metrics = tradeoff_full_policy.get("balanced_selection_metrics", {})
+    robust_selected = tradeoff_full_policy.get("selected_policy_robustness_aware", {})
+    robust_metrics = tradeoff_full_policy.get("research_selection_metrics", {})
+    full_ab = tradeoff_full_ab.get("no_regression", {})
+    if full_selected:
+        st.markdown("#### Qué ocurrió cuando empujamos el frontier a full")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Selector": "promotion_first",
+                        "Universe": "276,869 candidates",
+                        "Gamma": full_selected.get("gamma"),
+                        "Lambda": full_selected.get("uncertainty_aversion"),
+                        "Funded": full_metrics.get("n_funded"),
+                        "Realized return": full_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": full_metrics.get("price_of_robustness_pct"),
                     },
-                    title="cuOpt vs HiGHS by Problem Size (distance from parity)",
-                    text="relative_label",
-                )
-                fig2.add_hline(y=1.0, line_dash="dash", line_color="#E45756",
-                               annotation_text="1x = parity")
-                fig2.update_layout(**PLOTLY_TEMPLATE["layout"], height=350, showlegend=False)
-                fig2.update_traces(textposition="outside", cliponaxis=False)
-                st.plotly_chart(fig2, width="stretch")
-                if (gpu_lp["speedup_vs_cpu_lp"] < 1.0).all():
-                    min_ratio = float(gpu_lp["speedup_vs_cpu_lp"].min())
-                    max_ratio = float(gpu_lp["speedup_vs_cpu_lp"].max())
-                    st.caption(
-                        "En este snapshot de benchmark, cuOpt está por debajo de HiGHS en LP "
-                        f"(~{1/max_ratio:.1f}x a ~{1/min_ratio:.1f}x más lento según tamaño). "
-                        "La gráfica muestra factor relativo (más rápido o más lento) para evitar barras invisibles."
-                    )
-                else:
-                    st.caption(
-                        "La gráfica muestra factor relativo vs HiGHS: >1 significa que cuOpt es más rápido; "
-                        "<1 en el ratio original se traduce a `x slower` para mejor legibilidad."
-                    )
-
-    # -- MILP comparison --
-    if not milp_data.empty:
-        st.subheader("MILP (Binary Portfolio Selection)")
-        st.markdown(
-            "Binary selection (invest or don't) maps to the **causal portfolio** "
-            "in `optimize_cate_portfolio.py`, where CATE-adjusted binary decisions "
-            "determine which loans to approve."
+                    {
+                        "Selector": "balanced_robustness",
+                        "Universe": "276,869 candidates",
+                        "Gamma": balanced_selected.get("gamma"),
+                        "Lambda": balanced_selected.get("uncertainty_aversion"),
+                        "Funded": balanced_metrics.get("n_funded"),
+                        "Realized return": balanced_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": balanced_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                    {
+                        "Selector": "robustness_aware",
+                        "Universe": "276,869 candidates",
+                        "Gamma": robust_selected.get("gamma"),
+                        "Lambda": robust_selected.get("uncertainty_aversion"),
+                        "Funded": robust_metrics.get("n_funded"),
+                        "Realized return": robust_metrics.get("realized_total_return"),
+                        "Price of robustness (%)": robust_metrics.get(
+                            "price_of_robustness_pct"
+                        ),
+                    },
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
         )
-        for _, r in milp_data.iterrows():
-            backend = _label(r.get("backend", ""))
-            secs = _sf(r.get("seconds"))
-            obj = _sf(r.get("objective"))
-            st.markdown(f"- **{backend}**: {secs:.3f}s, objective = {obj:,.2f}")
+        st.warning(
+            "La GPU ya resolvió el cuello computacional del frontier full. El hallazgo nuevo es de diseño de policy: `promotion_first` colapsa a gamma=0, `balanced_robustness` sube a gamma=0.25 y `robustness_aware` a gamma=0.5, pero ninguna policy robusta real pasa el A/B full."
+        )
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Run": OFFICIAL_RAPIDS_TRADEOFF_FULL_TAG,
+                        "A/B selector": tradeoff_full_ab.get("policy_selector"),
+                        "Control return": tradeoff_full_ab.get("metrics_a", {}).get(
+                            "total_return"
+                        ),
+                        "Treatment return": tradeoff_full_ab.get("metrics_b", {}).get(
+                            "total_return"
+                        ),
+                        "A/B diff": full_ab.get("diff_total_return"),
+                        "A/B pass": full_ab.get("passed"),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+    if cate_status:
+        st.info(
+            "CATE portfolio sigue en `research_only_fallback`: la GPU ya lo acelera, pero eso no cambia el hecho de que todavía no agrega valor económico canónico."
+        )
 
-    # -- Objective agreement --
-    if not lp_data.empty:
-        cpu_mask = lp_data["backend"] == "scipy_highs_cpu"
-        cpu_objs = lp_data[cpu_mask].set_index("n_variables")["objective"]
-        gpu_objs = lp_data[lp_data["backend"] == "cuopt_gpu"].set_index("n_variables")["objective"]
-        diffs = []
-        for nv in cpu_objs.index:
-            if nv in gpu_objs.index:
-                co, go = _sf(cpu_objs[nv]), _sf(gpu_objs[nv])
-                rel = abs(co - go) / max(abs(co), 1e-10) * 100
-                diffs.append({"Variables": int(nv), "CPU Obj": f"{co:.6f}",
-                              "GPU Obj": f"{go:.6f}", "Rel Diff %": f"{rel:.4f}%"})
-        if diffs:
-            st.markdown("**Objective agreement (CPU vs GPU):**")
-            st.dataframe(pd.DataFrame(diffs), width="stretch", hide_index=True)
-
-    st.markdown(
-        f"""
-### Analysis
-
-{lp_perf_summary_md}
-
-**Objectives match perfectly.** Both solvers find the same optimal value to 6+ decimal
-places. This is critical: a fast but incorrect solver is useless for portfolio allocation
-where every basis point matters.
-
-**MILP is slower on GPU** (1.9s vs 0.1s for 3K binary variables). HiGHS has decades
-of cutting-plane and presolve heuristics. cuOpt's GPU branch-and-bound hasn't caught up
-yet for small MILPs.
-
-### Direct Pipeline Impact
-
-| Pipeline stage | Current solver | cuOpt benefit |
-|----------------|---------------|---------------|
-| `optimize_portfolio.py` (5K LP) | HiGHS ~0.02s | ~0.01s — marginal at this size |
-| `optimize_portfolio_tradeoff.py` (100+ LPs) | HiGHS ~2s | ~0.7s — 3x faster Pareto |
-| `robust_opt.py` (uncertainty sets) | HiGHS/scenario | cuOpt for 10K+ var robust LPs |
-| `optimize_cate_portfolio.py` (MILP) | HiGHS ~0.1s | GPU slower — keep HiGHS for MILP |
-"""
+with tab_pd:
+    st.markdown("### PD y LGD/EAD: dos historias distintas")
+    _lgd_slice = stage_table[stage_table["stage"] == "lgd_ead"]
+    lgd_row = _lgd_slice.iloc[0] if not _lgd_slice.empty else pd.Series(dtype=object)
+    fit_only = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "fit_only"]
+    hpo_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "hpo"]
+    full_stage = pd_benchmark_stage_table.loc[pd_benchmark_stage_table["stage"] == "full_stage"]
+    fit_row = fit_only.iloc[0].to_dict() if not fit_only.empty else {}
+    hpo_row = hpo_stage.iloc[0].to_dict() if not hpo_stage.empty else {}
+    full_row = full_stage.iloc[0].to_dict() if not full_stage.empty else {}
+    kpi_row(
+        [
+            {
+                "label": "PD fit-only",
+                "value": f"{fit_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
+            {
+                "label": "PD HPO GPU",
+                "value": "inestable" if pd.isna(hpo_row.get("gpu_seconds")) else f"{hpo_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
+            {
+                "label": "PD full-stage",
+                "value": f"{full_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+            },
+            {"label": "LGD/EAD GPU", "value": f"{lgd_row['gpu_seconds']:.0f}s"},
+            {"label": "LGD/EAD speedup", "value": f"{lgd_row['speedup_gpu_vs_cpu']:.2f}x"},
+            {"label": "LGD/EAD peak VRAM", "value": f"{lgd_row['peak_memory_used_mb']:.0f} MB"},
+        ],
+        n_cols=3,
     )
-
-    download_table(opt_bench, "optimization_benchmark.csv", "Download optimization results")
-else:
-    st.info("No optimization benchmark data found.")
-
-# ===================================================================
-# 5. Numerical Computing (CuPy)
-# ===================================================================
-
-st.markdown("---")
-st.header("5. Numerical Computing: CuPy for Monte Carlo and Linear Algebra")
-
-st.markdown(
-    """
-> **Where this matters in our pipeline:**
-> `run_ifrs9_sensitivity.py` computes **Expected Credit Loss** (ECL = PD x LGD x EAD)
-> across macroeconomic scenarios. The thesis evaluates base, adverse, and severely adverse
-> scenarios; a Monte Carlo extension would simulate thousands of correlated scenarios.
-> SVD is the core of PCA and feature decomposition. Sparse matrix operations appear in
-> graph algorithms and regularized models.
-
-**CuPy** is a drop-in NumPy/SciPy replacement that runs on GPU. Same API,
-GPU execution. We test three operations central to credit risk modeling:
-"""
-)
-
-if not cp_bench.empty and "task" in cp_bench.columns:
-    CUPY_CONTEXT = {
-        "monte_carlo_ecl": (
-            "**ECL Monte Carlo** is the IFRS9 backbone. Our `run_ifrs9_sensitivity.py` "
-            "currently computes ECL for 3 deterministic scenarios. With CuPy, we could "
-            "run **100K stochastic scenarios** (varying PD, LGD, EAD jointly) to build "
-            "a full loss distribution — VaR, CVaR, and tail risk metrics that regulators "
-            "increasingly demand. The 2.1x speedup makes this feasible in production. "
-            "With batching (processing 10K loans at a time), even the full 1.35M-loan "
-            "portfolio is tractable."
-        ),
-        "sparse_matmul": (
-            "**Sparse matrix multiply** is the core operation in graph adjacency "
-            "computations and L1/L2 regularization solvers. cuSPARSE handles CSR "
-            "format natively — the same format used by scipy.sparse in our pipeline. "
-            "At 3.7x speedup, GPU sparse ops would accelerate any future graph-based "
-            "risk model (e.g., GNN-based default prediction)."
-        ),
-        "svd": (
-            "**SVD** decomposes the feature matrix — the foundation of PCA in NB02. "
-            "At 100K x 47, the matrix is too narrow for GPU to win (cuSOLVER kernel "
-            "launch overhead > compute savings). For wider matrices (500+ columns) or "
-            "taller matrices (1M+ rows), CuPy SVD would dominate."
-        ),
-    }
-
-    for task_name in sorted(cp_bench["task"].unique()):
-        task_data = cp_bench[cp_bench["task"] == task_name].copy()
-        valid = task_data[task_data["seconds"].notna()]
-
-        if valid.empty:
-            continue
-
-        c1, c2 = st.columns([3, 1])
-
-        with c1:
-            valid_plot = valid.copy()
-            valid_plot["backend_label"] = valid_plot["backend"].map(_label)
-            fig = px.bar(
-                valid_plot, x="backend_label", y="seconds", color="backend",
-                color_discrete_map=COLORS,
-                title=f"{task_name.replace('_', ' ').title()}",
-                labels={"backend_label": "", "seconds": "Seconds"},
-                text_auto=".3f",
-            )
-            fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=300, showlegend=False)
-            fig.update_traces(textposition="outside")
-            st.plotly_chart(fig, width="stretch")
-
-        with c2:
-            speedup = task_data["speedup_vs_cpu"].dropna()
-            if not speedup.empty:
-                s = speedup.values[0]
-                st.metric("Speedup", f"{s:.1f}x",
-                           delta="faster" if s > 1 else "slower",
-                           delta_color="normal" if s > 1 else "inverse")
-
-        ctx = CUPY_CONTEXT.get(task_name)
-        if ctx:
-            st.info(ctx)
-
     st.markdown(
         """
-### Summary
+**PD ahora está separado en tres benchmarks**
 
-| Task | CPU | GPU | Speedup | Scale tested |
-|------|-----|-----|---------|-------------|
-| **Monte Carlo ECL** | 34.2s | 16.6s | **2.1x** | 100K scenarios x 10K loans |
-| **Sparse MatMul** | 1.5s | 0.4s | **3.7x** | 10K x 10K CSR, density 1% |
-| **SVD** | 0.3s | 0.8s | **0.4x** | 100K x 47 (too narrow for GPU) |
+- `fit-only`: la GPU sí gana, ~`1.7x`, con métricas casi equivalentes.
+- `HPO`: CPU completa 6 trials; GPU sigue cayéndose y por eso vive en un worker aislado.
+- `full-stage`: el replay completo sigue perdiendo contra CPU, porque el fit ya no domina todo el costo.
+
+**LGD/EAD**
+
+Aquí sí aparece una mejora limpia. El problema está más cerca de un bloque de entrenamiento puro, con menos overhead alrededor, y por eso la GPU ya entrega un speedup defendible.
 """
     )
-
-    download_table(cp_bench, "cupy_benchmark.csv", "Download CuPy results")
-else:
-    st.info("No CuPy benchmark data found.")
-
-# ===================================================================
-# 6. Decision Matrix & Conclusions
-# ===================================================================
-
-st.markdown("---")
-st.header("6. The Verdict: When to Use GPU for Credit Risk")
-
-st.markdown(
-    """
-### Decision Matrix for Our Pipeline
-
-| Pipeline Stage | Script | Best Tool | Speedup | Effort |
-|----------------|--------|-----------|---------|--------|
-| Data cleaning | `make_dataset.py` | **cudf.pandas** | 13x | Zero code changes |
-| Feature engineering | `feature_engineering.py` | **Polars** | 34x | API rewrite |
-| dbt analytics | `dbt_project/` | **DuckDB** | 12x | Already using it |
-| PD model training | `train_pd_model.py` | **CatBoost GPU** | ~5-8x | `task_type='GPU'` |
-| LR baseline | `train_pd_model.py` | **sklearn CPU** | -- | Keep CPU (convergence) |
-| Conformal intervals | `generate_conformal_intervals.py` | CPU | -- | No MAPIE GPU support |
-| Portfolio LP | `optimize_portfolio.py` | **cuOpt** (>5K) | 3x | API change |
-| Portfolio MILP | `optimize_cate_portfolio.py` | **HiGHS CPU** | -- | Keep CPU |
-| IFRS9 ECL | `run_ifrs9_sensitivity.py` | **CuPy** | 2x+ | `np.` -> `cp.` |
-| Graph risk analysis | Future work | **cuGraph** | 12-164x | cuGraph API |
-| Anomaly detection | Future work | **cuML HDBSCAN** | 77x | cuML API |
-| Borrower embedding | Streamlit viz | **cuML UMAP** | 50-100x | cuML API |
-
-### Top 3 Takeaways
-
-**1. The highest-ROI change is `cudf.pandas.install()`.** One line of code, zero
-other changes, 13x speedup on all pandas operations in the pipeline. This should
-be the first thing deployed.
-
-**2. GPU shines on tree/graph/density algorithms.** Random Forest (7.5x),
-HDBSCAN (77x), Louvain (120x), and Betweenness Centrality (164x) are
-transformative. If we extend the thesis to graph-based risk models, a GPU
-pays for itself immediately.
-
-**3. Not everything benefits from GPU.** Logistic Regression (convergence issues),
-PCA (too narrow), KMeans (too small), and MILP (HiGHS heuristics win) are faster
-or more reliable on CPU. **The right answer is a hybrid pipeline** that dispatches
-each stage to the best hardware.
-"""
-)
-
-# ===================================================================
-# 7. Hardware & Methodology
-# ===================================================================
-
-st.markdown("---")
-
-with st.expander("Hardware & Methodology"):
-    c1, c2 = st.columns(2)
-
-    with c1:
-        st.markdown(
-            """
-**Hardware:**
-| Component | Specification |
-|-----------|--------------|
-| GPU | NVIDIA GeForce RTX 3080 (10 GB GDDR6X) |
-| CPU | AMD Ryzen 5 5600X (6-core, 12-thread) |
-| RAM | 24 GB DDR4 |
-| Platform | WSL2 (Windows Subsystem for Linux) |
-| CUDA | 13.1 (driver 591.86) |
-"""
+    if not pd_benchmark_stage_table.empty:
+        st.dataframe(
+            pd_benchmark_stage_table.assign(
+                benchmark_run=OFFICIAL_PD_RAPIDS_BENCHMARK_TAG
+            ),
+            width="stretch",
+            hide_index=True,
         )
+    st.warning(
+        "Conclusión práctica: PD no debe presentarse como un único número. La historia honesta es: `fit-only` sí gana, `HPO GPU` hoy es inestable y `full-stage` todavía pierde contra CPU."
+    )
 
-    with c2:
-        st.markdown(
-            """
-**Methodology:**
-- All benchmarks run on the same machine, same session
-- DataFrame: median of 3 runs with 1 warmup
-- ML/Graph/CuPy: single run (training is expensive)
-- GPU sync: explicit `cp.cuda.Stream.null.synchronize()`
-- Quality gates: verify outputs match between CPU and GPU
-"""
+with tab_ifrs9:
+    st.markdown("### IFRS9: el salto serio aparece con Monte Carlo, no con la sensibilidad pequeña")
+    kpi_row(
+        [
+            {"label": "Loans", "value": format_number(float(ifrs9_mc.get("n_loans", 0)))},
+            {"label": "Escenarios", "value": format_number(float(ifrs9_mc.get("n_scenarios", 0)))},
+            {"label": "CPU", "value": f"{ifrs9_mc.get('cpu_seconds', 0):.2f}s"},
+            {"label": "GPU", "value": f"{ifrs9_mc.get('gpu_seconds', 0):.2f}s"},
+            {"label": "Speedup", "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.2f}x"},
+            {
+                "label": "Error medio relativo",
+                "value": f"{ifrs9_mc.get('mean_rel_diff_total_ecl_pct', 0):.4f}%",
+            },
+        ],
+        n_cols=3,
+    )
+    tail_df = pd.DataFrame(
+        [
+            {"Metric": key, "CPU": value, "GPU": ifrs9_mc.get("gpu_tail", {}).get(key)}
+            for key, value in ifrs9_mc.get("cpu_tail", {}).items()
+        ]
+    )
+    if not tail_df.empty:
+        tail_long = tail_df.melt(id_vars="Metric", var_name="Engine", value_name="Total ECL")
+        fig_tail = px.bar(
+            tail_long,
+            x="Metric",
+            y="Total ECL",
+            color="Engine",
+            barmode="group",
+            title="Tail metrics de ECL: CPU vs GPU",
         )
-
+        fig_tail.update_layout(**PLOTLY_TEMPLATE["layout"], height=380)
+        st.plotly_chart(fig_tail, width="stretch")
+    st.dataframe(tail_df, width="stretch", hide_index=True)
     st.markdown(
         """
-**Datasets used:**
-| Benchmark | Source | Rows | Features |
-|-----------|--------|------|----------|
-| DataFrame | `lending_club_cleaned.parquet` | 1,860,764 | 110 (11 selected) |
-| ML | `train_fe.parquet` | up to 500,000 | 47 numeric |
-| Graph | `train.parquet` | 200,000 (capped) | 5 (id + 4 attrs) |
-| Optimization | `train.parquet` | 3K-18K subsets | 3 (rate, PD, amount) |
-| CuPy | Synthetic + `train_fe.parquet` | 100K scenarios | varies |
+La decisión correcta fue **no sustituir** el IFRS9 canónico de sensibilidad por Monte Carlo.
+
+- `run_ifrs9_sensitivity.py` sigue siendo el carril regulatorio simple y gobernado.
+- `run_ifrs9_monte_carlo_gpu.py` es la extensión RAPIDS que sí exprime CuPy.
+
+Eso mantiene dos narrativas limpias:
+
+1. **canónica / negocio / gobernanza**
+2. **RAPIDS / investigación / escenarios masivos**
 """
     )
+    if ifrs9_mc_correlated:
+        st.markdown("#### Evolución metodológica: shocks correlacionados")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Run": ifrs9_mc_correlated.get("run_tag"),
+                        "Correlation profile": ifrs9_mc_correlated.get("correlation_profile"),
+                        "Antithetic": ifrs9_mc_correlated.get("antithetic"),
+                        "Scenarios": ifrs9_mc_correlated.get("n_scenarios"),
+                        "CPU seconds": ifrs9_mc_correlated.get("cpu_seconds"),
+                        "GPU seconds": ifrs9_mc_correlated.get("gpu_seconds"),
+                        "Speedup": ifrs9_mc_correlated.get("speedup_gpu_vs_cpu"),
+                        "Mean relative diff (%)": ifrs9_mc_correlated.get(
+                            "mean_rel_diff_total_ecl_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.info(
+            "La versión correlacionada ya no es solo fuerza bruta: introduce shocks más defendibles y mantiene equivalencia CPU/GPU prácticamente exacta."
+        )
 
-    # Library versions
-    if meta and "versions" in meta:
-        ver = meta["versions"]
-        ver_df = pd.DataFrame([{"Library": k, "Version": v} for k, v in sorted(ver.items())])
-        st.dataframe(ver_df, width="stretch", hide_index=True)
+with tab_hw:
+    hw_df = stage_table.dropna(subset=["peak_memory_used_mb"]).copy()
+    fig_hw = px.bar(
+        hw_df,
+        x="stage_label",
+        y="peak_memory_used_mb",
+        color="avg_gpu_util",
+        labels={
+            "stage_label": "Stage",
+            "peak_memory_used_mb": "Peak VRAM (MB)",
+            "avg_gpu_util": "Avg GPU util (%)",
+        },
+        title="Telemetría GPU por etapa del replay final",
+        color_continuous_scale="Viridis",
+    )
+    fig_hw.update_layout(**PLOTLY_TEMPLATE["layout"], height=420, coloraxis_colorbar_title="% util")
+    st.plotly_chart(fig_hw, width="stretch")
+    st.dataframe(
+        stage_table[
+            [
+                "stage_label",
+                "peak_gpu_util",
+                "avg_gpu_util",
+                "peak_memory_used_mb",
+                "avg_memory_used_mb",
+                "peak_power_draw_w",
+            ]
+        ].rename(
+            columns={
+                "stage_label": "Stage",
+                "peak_gpu_util": "Peak GPU util (%)",
+                "avg_gpu_util": "Avg GPU util (%)",
+                "peak_memory_used_mb": "Peak VRAM (MB)",
+                "avg_memory_used_mb": "Avg VRAM (MB)",
+                "peak_power_draw_w": "Peak power (W)",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
 
-# -- Footer --
-st.markdown("---")
-st.caption(
-    "This benchmark is a **side project** independent of the main thesis pipeline. "
-    "Results generated with RAPIDS 26.02 on a consumer RTX 3080 under WSL2. "
-    "Scripts: `reports/gpu_benchmark/tmp_scripts/`."
+st.subheader("2) Insight Factory RAPIDS: dónde sí conviene abrir un segundo carril")
+if not insight_stage_table.empty:
+    insights_view = insight_stage_table.copy()
+    insights_view["stage"] = insights_view["stage"].replace(
+        {
+            "cudf_etl": "cuDF ETL",
+            "cuml_segmentation": "cuML segmentation",
+            "cuml_umap": "cuML UMAP",
+            "cuml_hdbscan": "cuML HDBSCAN",
+            "cugraph_similarity": "cuGraph similarity",
+        }
+    )
+    st.dataframe(
+        insights_view.rename(
+            columns={
+                "stage": "Workload",
+                "cpu_seconds": "CPU seconds",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+                "rows_input": "Rows",
+                "n_features": "Features",
+                "knn_k": "k",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.markdown(
+        """
+La segunda iteración de *insight factory* ya deja un mapa bastante más útil:
+
+- `cuDF ETL`: sigue sin ganar en este workload real.
+- `cuML KMeans`: casi neutro, no es el showcase principal.
+- `cuML UMAP`: sí gana con mucha claridad y sirve para geometría de riesgo.
+- `cuML HDBSCAN`: también gana y ya deja perfiles de cluster comparables.
+- `cuGraph similarity`: sigue siendo útil, pero ahora importa más por comunidades y estructura que por speedup puro.
+"""
+    )
+    if not insight_umap_embedding.empty:
+        st.markdown("#### UMAP: geometría de préstamos en 2D")
+        fig_umap = px.scatter(
+            insight_umap_embedding.sample(
+                n=min(5000, len(insight_umap_embedding)),
+                random_state=42,
+            ),
+            x="umap_x",
+            y="umap_y",
+            color="grade" if "grade" in insight_umap_embedding.columns else None,
+            hover_data=[
+                c
+                for c in ["default_flag", "fico_score", "rev_utilization"]
+                if c in insight_umap_embedding.columns
+            ],
+            title="Embedding UMAP GPU sobre préstamos reales",
+            opacity=0.65,
+        )
+        fig_umap.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+        st.plotly_chart(fig_umap, width="stretch")
+    if not insight_hdbscan_profiles.empty:
+        st.markdown("#### HDBSCAN: perfiles de cluster")
+        st.dataframe(insight_hdbscan_profiles.head(12), width="stretch", hide_index=True)
+    if not insight_cugraph_profiles.empty:
+        st.markdown("#### cuGraph: comunidades Louvain")
+        st.dataframe(insight_cugraph_profiles.head(12), width="stretch", hide_index=True)
+
+st.subheader("3) Qué entra y qué no entra al carril RAPIDS")
+st.markdown(
+    """
+**Sí entra**
+
+- etapas GPU-heavy del pipeline real,
+- OR con `cuopt`,
+- escenarios masivos con `cupy`,
+- benchmarks exigentes que sí justifican comparación CPU vs GPU.
+
+**No entra**
+
+- re-ejecutar notebooks CPU que ya tienen artefactos canónicos,
+- pasos triviales que tardan segundos,
+- claims artificiales de aceleración donde el stage completo sigue dominado por CPU.
+"""
 )
+
+st.success(
+    f"Conclusión final: la GPU ya es parte defendible del proyecto, pero en un carril específico. El champion oficial sigue siendo CPU canónico; RAPIDS es el carril de aceleración comparativa, de OR con `cuopt`, de Monte Carlo con `cupy` y de una nueva insight factory donde hoy el mejor candidato claro es `cuGraph` ({OFFICIAL_GPU_INSIGHT_TAG})."
+)
+
+render_page_feedback("gpu_benchmark")

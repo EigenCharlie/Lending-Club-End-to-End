@@ -12,6 +12,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import json
 import pickle
 from pathlib import Path
 
@@ -24,7 +25,7 @@ from src.models.conformal_artifacts import load_conformal_intervals
 
 
 def _load_intervals() -> pd.DataFrame:
-    df, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
+    df, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
     logger.info(f"Loaded intervals: {path} ({len(df):,}, legacy={is_legacy})")
     return df
 
@@ -50,6 +51,51 @@ def _load_lifetime_table() -> pd.DataFrame | None:
         table = table.set_index("Grade")
     logger.info(f"Loaded lifetime PD table: {path}")
     return table
+
+
+def _load_temporal_context() -> dict[str, float | str | bool]:
+    scenario_path = Path("data/processed/ts_ifrs9_scenarios.parquet")
+    status_path = Path("models/time_series_status.json")
+
+    context: dict[str, float | str | bool] = {
+        "available": False,
+        "source": "not_available",
+        "baseline_pd_mult": 1.0,
+        "point_model": "unknown",
+        "interval_model": "unknown",
+        "status": "missing",
+        "official_status": "unknown",
+    }
+
+    scenarios = pd.read_parquet(scenario_path) if scenario_path.exists() else pd.DataFrame()
+    status = json.loads(status_path.read_text(encoding="utf-8")) if status_path.exists() else {}
+    context["status"] = str(status.get("status", "missing"))
+    context["point_model"] = str(status.get("summary", {}).get("point_model", "unknown"))
+    context["interval_model"] = str(status.get("summary", {}).get("interval_model", "unknown"))
+
+    if not scenarios.empty:
+        context["official_status"] = str(
+            scenarios.get("official_status", pd.Series(["unknown"])).iloc[0]
+        )
+
+    recent_actual_mean = status.get("summary", {}).get("recent_actual_mean_12m")
+    if scenarios.empty or recent_actual_mean in (None, 0):
+        return context
+
+    point_mean = float(pd.to_numeric(scenarios["point_forecast"], errors="coerce").mean())
+    recent_actual_mean_f = float(recent_actual_mean)
+    if point_mean <= 0 or recent_actual_mean_f <= 0:
+        return context
+
+    baseline_pd_mult = float(np.clip(point_mean / recent_actual_mean_f, 0.85, 1.35))
+    context.update(
+        {
+            "available": True,
+            "source": "ts_ifrs9_scenarios_mean_vs_recent_actual",
+            "baseline_pd_mult": baseline_pd_mult,
+        }
+    )
+    return context
 
 
 def _to_numeric(df: pd.DataFrame, col: str, default: float = 0.0) -> np.ndarray:
@@ -180,13 +226,19 @@ def _prepare_base_vectors(
     return base, quality
 
 
-def _scenario_config() -> dict[str, dict[str, float]]:
-    return {
+def _scenario_config(
+    temporal_context: dict[str, float | str | bool] | None = None,
+) -> dict[str, dict[str, float]]:
+    baseline_pd_mult = float((temporal_context or {}).get("baseline_pd_mult", 1.0) or 1.0)
+    scenario_cfg = {
         "baseline": {"pd_mult": 1.00, "lgd_mult": 1.00, "ead_mult": 1.00, "discount_rate": 0.05},
         "mild_stress": {"pd_mult": 1.15, "lgd_mult": 1.05, "ead_mult": 1.02, "discount_rate": 0.06},
         "adverse": {"pd_mult": 1.30, "lgd_mult": 1.12, "ead_mult": 1.05, "discount_rate": 0.07},
         "severe": {"pd_mult": 1.55, "lgd_mult": 1.20, "ead_mult": 1.10, "discount_rate": 0.08},
     }
+    for params in scenario_cfg.values():
+        params["pd_mult"] = float(params["pd_mult"]) * baseline_pd_mult
+    return scenario_cfg
 
 
 def _lifetime_pd(
@@ -362,14 +414,21 @@ def main(base_lgd: float = 0.45):
     intervals = _load_intervals()
     train_raw, test_raw = _load_raw_splits()
     lifetime_table = _load_lifetime_table()
+    temporal_context = _load_temporal_context()
     base, quality = _prepare_base_vectors(intervals=intervals, train=train_raw, test=test_raw)
+    quality["temporal_source"] = str(temporal_context["source"])
+    quality["temporal_pd_baseline_mult"] = float(temporal_context["baseline_pd_mult"])
+    quality["temporal_point_model"] = str(temporal_context["point_model"])
+    quality["temporal_interval_model"] = str(temporal_context["interval_model"])
+    quality["temporal_status"] = str(temporal_context["status"])
+    quality["temporal_official_status"] = str(temporal_context["official_status"])
 
     # Keep console output concise during large sensitivity loops.
     logger.disable("src.evaluation.ifrs9")
 
     scenario_rows = []
     grade_rows = []
-    for scenario, params in _scenario_config().items():
+    for scenario, params in _scenario_config(temporal_context).items():
         s, g = _run_single_scenario(
             scenario, params, base, base_lgd=base_lgd, lifetime_table=lifetime_table
         )
@@ -378,6 +437,14 @@ def main(base_lgd: float = 0.45):
     scenario_summary = pd.concat(scenario_rows, ignore_index=True)
     grade_summary = pd.concat(grade_rows, ignore_index=True)
     sensitivity = _sensitivity_grid(base, base_lgd=base_lgd, lifetime_table=lifetime_table)
+
+    for frame in (scenario_summary, grade_summary, sensitivity):
+        frame["temporal_source"] = str(temporal_context["source"])
+        frame["temporal_pd_baseline_mult"] = float(temporal_context["baseline_pd_mult"])
+        frame["temporal_point_model"] = str(temporal_context["point_model"])
+        frame["temporal_interval_model"] = str(temporal_context["interval_model"])
+        frame["temporal_status"] = str(temporal_context["status"])
+        frame["temporal_official_status"] = str(temporal_context["official_status"])
 
     logger.enable("src.evaluation.ifrs9")
 
@@ -404,6 +471,7 @@ def main(base_lgd: float = 0.45):
                     "max_total_ecl": float(sensitivity["total_ecl"].max()),
                 },
                 "input_quality": quality.to_dict(orient="records")[0],
+                "temporal_context": temporal_context,
             },
             f,
         )
@@ -419,6 +487,13 @@ def main(base_lgd: float = 0.45):
     logger.info(f"Saved IFRS9 grade summary: {grade_path}")
     logger.info(f"Saved IFRS9 sensitivity grid: {sensitivity_path}")
     logger.info(f"Saved IFRS9 input quality: {quality_path}")
+    logger.info(
+        "Temporal IFRS9 context: source={}, baseline_pd_mult={:.3f}, point_model={}, interval_model={}",
+        temporal_context["source"],
+        float(temporal_context["baseline_pd_mult"]),
+        temporal_context["point_model"],
+        temporal_context["interval_model"],
+    )
     logger.info(
         f"Baseline ECL={base_ecl:,.0f}, Severe ECL={severe_ecl:,.0f}, Uplift={(severe_ecl / base_ecl - 1) * 100:.2f}%"
     )

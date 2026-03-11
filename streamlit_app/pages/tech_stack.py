@@ -13,7 +13,15 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import load_runtime_status
+from streamlit_app.utils import (
+    load_gpu_replay_summary,
+    load_rapids_ifrs9_correlated_metrics,
+    load_rapids_ifrs9_mc_tail_metrics,
+    load_rapids_insight_stage_table,
+    load_rapids_stage_comparison,
+    load_rapids_tradeoff_full_ab_status,
+    load_runtime_status,
+)
 
 
 def _lib_df(rows: list[list[str]]) -> pd.DataFrame:
@@ -42,6 +50,45 @@ técnico. Esta página detalla **por qué** cada librería y no solo **cuál**.
 """
 )
 
+rapids_summary = load_gpu_replay_summary()
+rapids_compare = load_rapids_stage_comparison()
+rapids_ifrs9 = load_rapids_ifrs9_mc_tail_metrics()
+rapids_ifrs9_corr = load_rapids_ifrs9_correlated_metrics()
+rapids_insights = load_rapids_insight_stage_table()
+rapids_full_ab = load_rapids_tradeoff_full_ab_status()
+if rapids_summary and not rapids_compare.empty:
+    st.markdown("### Nuevo carril RAPIDS ya integrado al stack")
+    st.markdown(
+        """
+El stack ya no es solo `Python tabular + Pyomo + Streamlit`. Ahora está explícitamente partido en dos carriles:
+
+- **canónico CPU**: promoción, gobernanza y artefactos oficiales;
+- **RAPIDS/GPU**: `cuopt`, `cupy`, `cudf/cuml/cugraph` y replay comparativo sobre etapas pesadas.
+"""
+    )
+    st.dataframe(
+        rapids_compare[["stage", "gpu_seconds", "speedup_gpu_vs_cpu"]].rename(
+            columns={
+                "stage": "Stage",
+                "gpu_seconds": "GPU seconds",
+                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
+            }
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.info(
+        f"IFRS9 Monte Carlo ya quedó incorporado como extensión CuPy con {rapids_ifrs9.get('speedup_gpu_vs_cpu', 0):.1f}x frente a CPU."
+    )
+    if rapids_ifrs9_corr:
+        st.caption(
+            f"La siguiente iteración metodológica ya corre con shocks correlacionados (`{rapids_ifrs9_corr.get('correlation_profile', 'N/D')}`) y mantiene equivalencia CPU/GPU."
+        )
+    if not rapids_insights.empty:
+        st.caption(
+            "La insight factory RAPIDS ya dejó una conclusión útil: `cuML UMAP`, `cuML HDBSCAN` y `cuGraph` sí tienen señal fuerte; `cuDF ETL` y `cuML KMeans` todavía no son showpieces honestos para este dataset."
+        )
+
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. Library Ecosystem
 # ══════════════════════════════════════════════════════════════════════════════
@@ -55,6 +102,7 @@ tabs = st.tabs(
         "Supervivencia",
         "Causal",
         "Optimización",
+        "RAPIDS",
         "Datos",
         "MLOps",
         "API & Dashboard",
@@ -70,9 +118,9 @@ with tabs[0]:
                 [
                     "catboost",
                     ">=1.2",
-                    "PD model principal",
-                    "XGBoost, LightGBM",
-                    "Manejo nativo de categorías y NaN — cero preprocesamiento",
+                    "PD principal + ML temporal",
+                    "XGBoost",
+                    "Unifica tabular y forecasting ML con manejo nativo de categorías y NaN",
                 ],
                 [
                     "scikit-learn",
@@ -82,11 +130,11 @@ with tabs[0]:
                     "Estándar de la industria; utilidades de validación y calibración probabilística",
                 ],
                 [
-                    "lightgbm",
-                    ">=4.5",
-                    "Time series vía mlforecast",
-                    "XGBoost",
-                    "Más rápido en entrenamiento, integración Nixtla nativa",
+                    "mlforecast",
+                    ">=0.13",
+                    "Forecasting ML recursivo",
+                    "sktime, Prophet",
+                    "Compatibilidad con estimadores sklearn y CatBoost para lags/panel",
                 ],
                 [
                     "optuna",
@@ -158,9 +206,9 @@ with tabs[2]:
                 [
                     "mlforecast",
                     ">=0.13",
-                    "ML para time series (LightGBM)",
+                    "ML para time series (CatBoost)",
                     "Prophet, sktime",
-                    "Integración nativa con LightGBM; feature engineering temporal",
+                    "Compatibilidad con CatBoost; feature engineering temporal",
                 ],
                 [
                     "hierarchicalforecast",
@@ -264,6 +312,61 @@ with tabs[6]:
         _lib_df(
             [
                 [
+                    "cuopt",
+                    "RAPIDS env",
+                    "LPs GPU nativos para portfolio/tradeoff/A-B/CATE",
+                    "Pyomo+HiGHS",
+                    "Es la palanca de aceleración más fuerte del proyecto real",
+                ],
+                [
+                    "cupy",
+                    "RAPIDS env",
+                    "Monte Carlo IFRS9 y álgebra densa GPU",
+                    "NumPy",
+                    "Permite escenarios masivos sin tocar el carril canónico regulatorio",
+                ],
+                [
+                    "cudf",
+                    "RAPIDS env",
+                    "ETL y benchmarking tabular GPU",
+                    "pandas",
+                    "Útil para insight factory y preprocessing pesado",
+                ],
+                [
+                    "cuml",
+                    "RAPIDS env",
+                    "UMAP, HDBSCAN y benchmarks ML acelerados",
+                    "scikit-learn",
+                    "Hoy aporta más en geometría de riesgo y clustering que en el champion PD actual",
+                ],
+                [
+                    "cugraph",
+                    "RAPIDS env",
+                    "Graph analytics, similarity graph y Louvain",
+                    "networkx",
+                    "Carril de fábrica de insights, no del pipeline canónico; abre análisis relacional real",
+                ],
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    st.caption(
+        "Arquitectura final: el replay RAPIDS usa `uv` para stages CatBoost GPU y el `python` directo del env `rapids` para OR/CuPy/cuGraph."
+    )
+    if rapids_full_ab:
+        st.info(
+            "El barrido OR full ya confirmó otra lección de stack: `cuopt` resolvió la escala, pero el criterio de selección de policy sigue empujando al borde casi no robusto. El cuello residual es de decisión, no de infraestructura."
+        )
+    st.caption(
+        "También quedó aislado el benchmark PD en tres carriles: fit-only, HPO y full-stage. Eso evita vender como 'éxito GPU' un stage donde el overhead CPU todavía domina."
+    )
+
+with tabs[7]:
+    st.dataframe(
+        _lib_df(
+            [
+                [
                     "pandas",
                     ">=2.2",
                     "Data wrangling principal",
@@ -297,7 +400,7 @@ with tabs[6]:
         hide_index=True,
     )
 
-with tabs[7]:
+with tabs[8]:
     st.dataframe(
         _lib_df(
             [
@@ -335,7 +438,7 @@ with tabs[7]:
         hide_index=True,
     )
 
-with tabs[8]:
+with tabs[9]:
     st.dataframe(
         _lib_df(
             [
@@ -366,7 +469,7 @@ with tabs[8]:
         hide_index=True,
     )
 
-with tabs[9]:
+with tabs[10]:
     st.dataframe(
         _lib_df(
             [
@@ -390,7 +493,7 @@ with tabs[9]:
         hide_index=True,
     )
 
-with tabs[10]:
+with tabs[11]:
     st.dataframe(
         _lib_df(
             [
@@ -659,6 +762,44 @@ make_dataset → prepare_dataset → build_datasets
 - **Git mirror**: sincronización automática con GitHub
 - **DVC remote**: almacenamiento de parquets y modelos serializados
 - **MLflow UI**: visualización de experimentos, comparación de runs, registro de modelos
+"""
+    )
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 2.1 Methodological Risks
+# ══════════════════════════════════════════════════════════════════════════════
+st.subheader("2.1) Riesgos metodológicos conocidos y mitigación operativa")
+risk_table = pd.DataFrame(
+    [
+        {
+            "Riesgo": "Optimizer's curse (HPO)",
+            "Cómo se manifiesta": "El mejor trial de Optuna sobreestima mejora real.",
+            "Mitigación operativa": "Reportar dispersión por seeds + validar OOT antes de promover campeón.",
+        },
+        {
+            "Riesgo": "Sensibilidad a random_state",
+            "Cómo se manifiesta": "Pequeños cambios de seed alteran ranking entre modelos cercanos.",
+            "Mitigación operativa": "Now change random_state como regla de aprobación previa a claims.",
+        },
+        {
+            "Riesgo": "No-free-lunch",
+            "Cómo se manifiesta": "Técnica ganadora en una tarea falla al cambiar objetivo/regla de negocio.",
+            "Mitigación operativa": "Comparar familias (CatBoost/estadísticos/baselines) por contexto de decisión.",
+        },
+        {
+            "Riesgo": "Data leakage silencioso",
+            "Cómo se manifiesta": "AUC offline alto que se degrada al pasar a OOT/producción.",
+            "Mitigación operativa": "Contrato de features + split temporal + tests de consistencia en CI.",
+        },
+    ]
+)
+st.dataframe(risk_table, width="stretch", hide_index=True)
+with st.expander("Checklist operativo PASS/WARN/FAIL"):
+    st.markdown(
+        """
+- **PASS**: resultados estables por semillas, validación OOT consistente y sin señales de fuga.
+- **WARN**: mejora marginal depende de una sola semilla o de un único split.
+- **FAIL**: no replica fuera de muestra o hay evidencia de leakage/deriva no mitigada.
 """
     )
 

@@ -3,13 +3,40 @@ optimization:
   type: LP  # LP | MILP
   solver: highs
   time_limit: 300
-  threads: 4
+  threads: 16
 
 portfolio:
   total_budget: 1_000_000
   max_concentration: 0.25
   max_portfolio_pd: 0.10
   robust: true  # Use CP upper bounds for risk constraints
+
+portfolio_selection:
+  canonical_selector: economic_actual_ab_v3
+  canonical_execution_mode: freeze_if_available
+  frozen_champion_policy_path: models/champion_portfolio_policy.json
+  selection_grid_profile: quick
+  selection_max_candidates: 80000
+  actual_ab_top_k: 20
+  ab_like_top_m: 8
+  ab_like_bootstrap_n: 200
+  ab_like_seed: 42
+  min_funded_ratio: 0.88
+  min_total_allocated_ratio: 0.98
+  min_breadth_score: 0.93
+  breadth_weight_funded_ratio: 0.50
+  breadth_weight_allocation_ratio: 0.30
+  breadth_weight_allocation_similarity: 0.20
+  max_price_of_robustness_pct: -15.0
+  fallback_policy: nonrobust_equivalent
+  canonical_policy_modes:
+    - blended_uncertainty
+    - capped_blended_uncertainty
+    - tail_blended_uncertainty
+    - segment_tail_blended_uncertainty
+    - segment_relative_tail_blended_uncertainty
+  research_only_policy_modes:
+    - hard_worst_case
 
 conformal:
   alpha: 0.1  # 90% coverage for uncertainty sets

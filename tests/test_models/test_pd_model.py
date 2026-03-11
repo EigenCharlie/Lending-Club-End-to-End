@@ -10,6 +10,7 @@ from src.models.calibration import (
     evaluate_calibration,
     expected_calibration_error,
 )
+from src.models.optuna_tuning import SEARCH_SPACE_VERSION, resolve_optuna_study_name
 from src.models.pd_model import (
     get_available_features,
     temporal_train_val_split,
@@ -158,6 +159,12 @@ def test_catboost_tuned_and_default_predictions_differ(catboost_dataset):
     assert not np.allclose(y_default, y_tuned), (
         "Tuned and default CatBoost should produce different predictions when HPO is active."
     )
+
+
+def test_resolve_optuna_study_name_appends_search_space_suffix_once():
+    resolved = resolve_optuna_study_name("pd_catboost_optuna_temporal")
+    assert resolved.endswith(f"__{SEARCH_SPACE_VERSION}")
+    assert resolve_optuna_study_name(resolved) == resolved
 
 
 # ── Calibration ──

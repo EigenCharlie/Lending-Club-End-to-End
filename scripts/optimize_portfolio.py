@@ -7,6 +7,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 
 import numpy as np
@@ -15,8 +16,14 @@ import yaml
 from loguru import logger
 
 from src.models.conformal_artifacts import load_conformal_intervals
-from src.optimization.portfolio_model import build_portfolio_model, solve_portfolio
+from src.optimization.portfolio_model import optimize_portfolio_allocation
 from src.optimization.robust_opt import scenario_analysis
+
+
+def _artifact_path(path_like: str | Path) -> Path:
+    path = Path(path_like)
+    root = str(os.environ.get("GPU_REPLAY_ARTIFACT_ROOT", "")).strip()
+    return (Path(root) / path) if root else path
 
 
 def _parse_percent_series(series: pd.Series) -> np.ndarray:
@@ -46,7 +53,7 @@ def _load_candidates() -> pd.DataFrame:
 
 def _load_interval_artifact() -> pd.DataFrame:
     """Load conformal interval artifact (canonical first)."""
-    intervals, intervals_path, is_legacy = load_conformal_intervals(allow_legacy_fallback=True)
+    intervals, intervals_path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
     logger.info(
         f"Loaded conformal intervals from {intervals_path} "
         f"(legacy={is_legacy}, rows={len(intervals):,})"
@@ -145,7 +152,7 @@ def main(
     else:
         int_rates = np.full(n, 0.12)
 
-    model = build_portfolio_model(
+    solution = optimize_portfolio_allocation(
         loans=test_sample,
         pd_point=pd_point,
         pd_low=pd_low,
@@ -159,10 +166,6 @@ def main(
         uncertainty_aversion=uncertainty_aversion,
         min_budget_utilization=min_budget_utilization,
         pd_cap_slack_penalty=pd_cap_slack_penalty,
-    )
-
-    solution = solve_portfolio(
-        model,
         time_limit=config["optimization"]["time_limit"],
         threads=config["optimization"]["threads"],
         solver_backend=solver_backend or config.get("optimization", {}).get("solver", "highs"),
@@ -181,8 +184,8 @@ def main(
     logger.info(f"Scenarios:\n{scenarios}")
 
     # Persist artifacts for downstream reporting.
-    model_dir = Path("models")
-    data_dir = Path("data/processed")
+    model_dir = _artifact_path("models")
+    data_dir = _artifact_path("data/processed")
     model_dir.mkdir(parents=True, exist_ok=True)
     data_dir.mkdir(parents=True, exist_ok=True)
 

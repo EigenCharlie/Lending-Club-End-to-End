@@ -118,6 +118,8 @@ def main(
     rsf_max_depth: int | None = None,
     rsf_max_samples: float | None = None,
     rsf_min_samples_leaf: int = 5,
+    rsf_sample_size: int | None = None,
+    rsf_n_jobs: int = -1,
     full_data: bool = False,
 ):
     data_path = Path("data/processed/loan_master.parquet")
@@ -145,6 +147,19 @@ def main(
 
     # RSF
     df_clean = df[features + ["event_observed", "time_to_event"]].dropna()
+    if rsf_sample_size is not None:
+        rsf_sample_size = None if int(rsf_sample_size) <= 0 else int(rsf_sample_size)
+    if rsf_sample_size is not None and rsf_sample_size < len(df_clean):
+        df_clean = df_clean.sample(n=rsf_sample_size, random_state=42).reset_index(drop=True)
+    logger.info(
+        "RSF training set: rows={}, estimators={}, max_depth={}, max_samples={}, min_samples_leaf={}, n_jobs={}",
+        len(df_clean),
+        rsf_n_estimators,
+        rsf_max_depth,
+        rsf_max_samples,
+        rsf_min_samples_leaf,
+        rsf_n_jobs,
+    )
     y = make_survival_target(df_clean, event_col="event_observed", time_col="time_to_event")
     n_train = int(len(df_clean) * 0.8)
     t0 = time.perf_counter()
@@ -157,6 +172,7 @@ def main(
         min_samples_leaf=rsf_min_samples_leaf,
         max_depth=rsf_max_depth,
         max_samples=rsf_max_samples,
+        n_jobs=rsf_n_jobs,
     )
     rsf_training_time = time.perf_counter() - t0
     logger.info(f"Survival analysis complete: Cox={cox_metrics}, RSF={rsf_metrics}")
@@ -195,6 +211,7 @@ def main(
                     "min_samples_leaf": int(rsf_min_samples_leaf),
                     "max_depth": None if rsf_max_depth is None else int(rsf_max_depth),
                     "max_samples": None if rsf_max_samples is None else float(rsf_max_samples),
+                    "n_jobs": int(rsf_n_jobs),
                 },
             },
             f,
@@ -232,6 +249,8 @@ if __name__ == "__main__":
     parser.add_argument("--rsf_max_depth", type=int, default=None)
     parser.add_argument("--rsf_max_samples", type=float, default=None)
     parser.add_argument("--rsf_min_samples_leaf", type=int, default=5)
+    parser.add_argument("--rsf_sample_size", type=int, default=None)
+    parser.add_argument("--rsf_n_jobs", type=int, default=-1)
     args = parser.parse_args()
     main(
         sample_size=args.sample_size,
@@ -239,5 +258,7 @@ if __name__ == "__main__":
         rsf_max_depth=args.rsf_max_depth,
         rsf_max_samples=args.rsf_max_samples,
         rsf_min_samples_leaf=args.rsf_min_samples_leaf,
+        rsf_sample_size=args.rsf_sample_size,
+        rsf_n_jobs=args.rsf_n_jobs,
         full_data=args.full_data,
     )

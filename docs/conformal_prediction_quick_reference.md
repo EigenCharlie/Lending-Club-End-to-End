@@ -264,11 +264,25 @@ y_intervals_cv = mapie_cv.predict_interval(X_test)
 
 ```python
 from mapie.regression import ConformalizedQuantileRegressor
-from lightgbm import LGBMRegressor
+from catboost import CatBoostRegressor
 
 # For heteroscedastic data (varying uncertainty)
-qr_low = LGBMRegressor(objective='quantile', alpha=0.05)
-qr_high = LGBMRegressor(objective='quantile', alpha=0.95)
+qr_low = CatBoostRegressor(
+    loss_function="Quantile:alpha=0.05",
+    iterations=300,
+    depth=6,
+    learning_rate=0.05,
+    verbose=False,
+    allow_writing_files=False,
+)
+qr_high = CatBoostRegressor(
+    loss_function="Quantile:alpha=0.95",
+    iterations=300,
+    depth=6,
+    learning_rate=0.05,
+    verbose=False,
+    allow_writing_files=False,
+)
 
 qr_low.fit(X_train, y_train)
 qr_high.fit(X_train, y_train)

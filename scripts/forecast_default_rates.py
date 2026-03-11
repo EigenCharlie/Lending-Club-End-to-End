@@ -1,105 +1,169 @@
-"""Forecast monthly default rates with conformal intervals.
-
-Usage: uv run python scripts/forecast_default_rates.py --horizon 12
-"""
+"""Forecast monthly default rates with governed backtests and status artifacts."""
 
 from __future__ import annotations
 
 import argparse
+import json
+from datetime import UTC, datetime
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from loguru import logger
 
-from src.models.time_series import train_baseline_forecasters, train_ml_forecaster
+from src.data.build_datasets import (
+    build_time_series,
+    build_time_series_panel,
+    clean_raw_columns,
+    load_historical_time_series_source,
+)
+from src.models.time_series import (
+    build_canonical_forecast_frame,
+    build_ifrs9_temporal_scenarios,
+    build_status_payload,
+    compute_forecastability_diagnostics,
+    forecast_panel_bottom_up,
+    forecast_portfolio_models,
+    infer_run_tag,
+    load_future_covariates,
+    load_time_series_config,
+    run_portfolio_backtest,
+    select_time_series_champions,
+)
+
+DATA_DIR = Path("data/processed")
+MODEL_DIR = Path("models")
 
 
-def main(horizon: int = 12):
-    ts = pd.read_parquet("data/processed/time_series.parquet")
-    logger.info(f"Loaded time series: {ts.shape}")
+def _write_json(path: Path, payload: dict) -> None:
+    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+    logger.info("Saved {}", path)
 
-    sf_model, baseline_forecasts = train_baseline_forecasters(ts, horizon=horizon)
-    logger.info(f"Baseline forecasts head:\n{baseline_forecasts.head()}")
 
-    try:
-        _mlf_model, ml_forecasts = train_ml_forecaster(ts, horizon=horizon)
-        logger.info(f"ML forecasts with CP head:\n{ml_forecasts.head()}")
+def _rebuild_history_artifacts() -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Recreate governed time-series artifacts from canonical split files."""
+    source = clean_raw_columns(load_historical_time_series_source(DATA_DIR / "train.parquet"))
+    portfolio = build_time_series(source)
+    panel = build_time_series_panel(source)
 
-        # Join baseline + ML forecasts on keys for a single output artifact.
-        merged = baseline_forecasts.merge(
-            ml_forecasts,
-            on=["unique_id", "ds"],
-            how="outer",
-            suffixes=("", "_ml"),
-        )
-    except (ImportError, ModuleNotFoundError, OSError) as exc:
-        # Some environments lack native LightGBM runtime deps (e.g., libgomp).
-        # Keep baseline forecasts as a reproducible fallback artifact contract.
-        logger.warning(
-            "ML forecaster unavailable; using baseline-only forecasts. reason={}",
-            exc,
-        )
-        merged = baseline_forecasts.copy()
+    portfolio.to_parquet(DATA_DIR / "time_series_full.parquet", index=False)
+    panel.to_parquet(DATA_DIR / "time_series_panel.parquet", index=False)
+    if not (DATA_DIR / "time_series.parquet").exists():
+        portfolio.to_parquet(DATA_DIR / "time_series.parquet", index=False)
 
-    out_path = Path("data/processed/ts_forecasts.parquet")
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-    merged.to_parquet(out_path, index=False)
-    logger.info(f"Forecasts saved to {out_path} ({merged.shape})")
+    logger.warning(
+        "Regenerated missing time-series artifacts from canonical splits: {} rows portfolio, {} rows panel",
+        len(portfolio),
+        len(panel),
+    )
+    return portfolio, panel
 
-    # Build lightweight CV stats artifact for Streamlit quality panel.
-    cv_path = Path("data/processed/ts_cv_stats.parquet")
-    cv_df = merged.copy()
-    history_y = ts["y"].to_numpy(dtype=float) if "y" in ts.columns else None
-    if history_y is None or len(history_y) == 0:
-        cv_df["y"] = 0.0
-    elif len(history_y) >= len(cv_df):
-        cv_df["y"] = history_y[-len(cv_df) :]
+
+def _load_history() -> tuple[pd.DataFrame, pd.DataFrame]:
+    full_path = DATA_DIR / "time_series_full.parquet"
+    panel_path = DATA_DIR / "time_series_panel.parquet"
+    if not full_path.exists() or not panel_path.exists():
+        portfolio, panel = _rebuild_history_artifacts()
     else:
-        pad = np.full(len(cv_df) - len(history_y), float(np.mean(history_y)))
-        cv_df["y"] = np.concatenate([history_y, pad])
-    cv_df.to_parquet(cv_path, index=False)
-    logger.info(f"CV stats saved to {cv_path} ({cv_df.shape})")
+        portfolio = pd.read_parquet(full_path)
+        panel = pd.read_parquet(panel_path)
+    logger.info("Loaded time_series_full: {}", portfolio.shape)
+    logger.info("Loaded time_series_panel: {}", panel.shape)
+    return portfolio, panel
 
-    # Derive IFRS9 temporal scenarios from forecast intervals.
-    scenario_path = Path("data/processed/ts_ifrs9_scenarios.parquet")
-    baseline_model = "lgbm" if "lgbm" in merged.columns else None
-    if baseline_model is None:
-        model_candidates = [
-            c
-            for c in merged.columns
-            if c not in {"unique_id", "ds"}
-            and not c.endswith("-lo-90")
-            and not c.endswith("-hi-90")
-            and not c.endswith("-lo-95")
-            and not c.endswith("-hi-95")
-        ]
-        baseline_model = model_candidates[0] if model_candidates else None
 
-    if baseline_model is None:
-        scenario_df = pd.DataFrame(columns=["month", "point_forecast"])
-    else:
-        lo90 = f"{baseline_model}-lo-90"
-        hi90 = f"{baseline_model}-hi-90"
-        lo95 = f"{baseline_model}-lo-95"
-        hi95 = f"{baseline_model}-hi-95"
-        point = merged[baseline_model].astype(float)
-        scenario_df = pd.DataFrame(
-            {
-                "month": merged["ds"],
-                "point_forecast": point,
-                "optimistic_90": merged[lo90].astype(float) if lo90 in merged.columns else point,
-                "adverse_90": merged[hi90].astype(float) if hi90 in merged.columns else point,
-                "optimistic_95": merged[lo95].astype(float) if lo95 in merged.columns else point,
-                "adverse_95": merged[hi95].astype(float) if hi95 in merged.columns else point,
-            }
-        )
-    scenario_df.to_parquet(scenario_path, index=False)
-    logger.info(f"Temporal scenarios saved to {scenario_path} ({scenario_df.shape})")
+def main(config_path: str = "configs/time_series.yaml", horizon: int | None = None) -> None:
+    config = load_time_series_config(config_path)
+    if horizon is not None:
+        config["horizon"] = int(horizon)
+    future_covariates = load_future_covariates(config)
+
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    MODEL_DIR.mkdir(parents=True, exist_ok=True)
+
+    portfolio_history, panel_history = _load_history()
+    backtest_predictions, backtest_metrics = run_portfolio_backtest(
+        portfolio_history[["unique_id", "ds", "y"]],
+        config,
+        future_covariates=future_covariates,
+    )
+    if backtest_metrics.empty:
+        raise RuntimeError("Time-series backtest produced no metrics; cannot continue.")
+
+    champions = select_time_series_champions(backtest_metrics, config)
+    future_forecasts = forecast_portfolio_models(
+        portfolio_history[["unique_id", "ds", "y"]],
+        config,
+        future_covariates=future_covariates,
+    )
+    canonical_forecasts = build_canonical_forecast_frame(future_forecasts, champions)
+    scenarios = build_ifrs9_temporal_scenarios(canonical_forecasts)
+    panel_forecasts, panel_status = forecast_panel_bottom_up(panel_history, config)
+    diagnostics = compute_forecastability_diagnostics(
+        portfolio_history[["unique_id", "ds", "y"]],
+        season_length=int(config.get("season_length", 12)),
+        enable_kpss=bool(config.get("diagnostics", {}).get("enable_kpss", True)),
+        enable_entropy=bool(config.get("diagnostics", {}).get("enable_entropy", True)),
+        enable_variance_ratio=bool(
+            config.get("diagnostics", {}).get("enable_variance_ratio", True)
+        ),
+    )
+
+    run_tag = infer_run_tag()
+    generated_at = datetime.now(tz=UTC).isoformat()
+    diagnostics_payload = {
+        "schema_version": "2026-03-07.1",
+        "generated_at_utc": generated_at,
+        "run_tag": run_tag,
+        **diagnostics,
+    }
+
+    artifacts = {
+        "config_path": str(Path(config_path)),
+        "time_series_full_path": "data/processed/time_series_full.parquet",
+        "time_series_panel_path": "data/processed/time_series_panel.parquet",
+        "backtest_predictions_path": "data/processed/ts_backtest_predictions.parquet",
+        "backtest_metrics_path": "data/processed/ts_backtest_metrics.parquet",
+        "forecasts_path": "data/processed/ts_forecasts.parquet",
+        "scenarios_path": "data/processed/ts_ifrs9_scenarios.parquet",
+        "diagnostics_path": "data/processed/ts_diagnostics.json",
+        "panel_forecasts_path": "data/processed/ts_panel_forecasts.parquet",
+        "status_path": "models/time_series_status.json",
+    }
+    status_payload = build_status_payload(
+        config=config,
+        metrics=backtest_metrics,
+        champions=champions,
+        diagnostics=diagnostics_payload,
+        panel_status=panel_status,
+        future_covariates=future_covariates,
+        residual_predictions=backtest_predictions,
+        artifacts=artifacts,
+        run_tag=run_tag,
+    )
+    status_payload["generated_at_utc"] = generated_at
+    status_payload["schema_version"] = "2026-03-07.1"
+
+    backtest_predictions.to_parquet(DATA_DIR / "ts_backtest_predictions.parquet", index=False)
+    backtest_predictions.to_parquet(DATA_DIR / "ts_cv_stats.parquet", index=False)
+    backtest_metrics.to_parquet(DATA_DIR / "ts_backtest_metrics.parquet", index=False)
+    canonical_forecasts.to_parquet(DATA_DIR / "ts_forecasts.parquet", index=False)
+    scenarios.to_parquet(DATA_DIR / "ts_ifrs9_scenarios.parquet", index=False)
+    panel_forecasts.to_parquet(DATA_DIR / "ts_panel_forecasts.parquet", index=False)
+    _write_json(DATA_DIR / "ts_diagnostics.json", diagnostics_payload)
+    _write_json(MODEL_DIR / "time_series_status.json", status_payload)
+
+    logger.info(
+        "Time-series champions: point={} (promotable={}), interval={} (promotable={})",
+        champions["point"]["model"],
+        champions["point"]["promotable"],
+        champions["interval"]["model"],
+        champions["interval"]["promotable"],
+    )
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--horizon", type=int, default=12)
+    parser.add_argument("--config", default="configs/time_series.yaml")
+    parser.add_argument("--horizon", type=int, default=None)
     args = parser.parse_args()
-    main(args.horizon)
+    main(config_path=args.config, horizon=args.horizon)

@@ -5,12 +5,31 @@ from __future__ import annotations
 import gc
 from typing import Any
 
+import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from loguru import logger
 from sklearn.metrics import roc_auc_score
 
 from src.models.pd_model import CATEGORICAL_FEATURES, _catboost_base_params
+
+SEARCH_SPACE_VERSION = "cb_space_v2"
+
+
+def resolve_optuna_study_name(
+    study_name: str | None,
+    *,
+    search_space_version: str = SEARCH_SPACE_VERSION,
+) -> str:
+    """Append a stable search-space version to persistent Optuna study names.
+
+    This prevents historical studies with incompatible distributions from being
+    reused after search-space changes, which otherwise can fail mid-run with
+    dynamic distribution compatibility errors.
+    """
+    base_name = str(study_name or "pd_catboost_optuna").strip() or "pd_catboost_optuna"
+    suffix = f"__{search_space_version.strip()}"
+    return base_name if base_name.endswith(suffix) else f"{base_name}{suffix}"
 
 
 def train_catboost_tuned_optuna(
@@ -43,6 +62,8 @@ def train_catboost_tuned_optuna(
     storage_grace_period: int = 0,
     sqlite_timeout_seconds: int = 60,
     retry_failed_trials: int = 0,
+    sample_weight: np.ndarray | None = None,
+    eval_sample_weight: np.ndarray | None = None,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
     """Tune CatBoost with Optuna and return best fitted model and metadata."""
     import optuna
@@ -89,24 +110,40 @@ def train_catboost_tuned_optuna(
             interval_steps=25,
         )
 
-    train_pool = Pool(X_train, y_train, cat_features=cat_features)
-    val_pool = Pool(X_val, y_val, cat_features=cat_features)
+    train_pool = Pool(X_train, y_train, cat_features=cat_features, weight=sample_weight)
+    val_pool = Pool(X_val, y_val, cat_features=cat_features, weight=eval_sample_weight)
 
     def objective(trial: optuna.Trial) -> float:
-        bootstrap_type = trial.suggest_categorical("bootstrap_type", ["Bayesian", "Bernoulli"])
+        bootstrap_type = trial.suggest_categorical(
+            "bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]
+        )
+        grow_policy = trial.suggest_categorical(
+            "grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]
+        )
+        is_gpu = str(base.get("task_type", "")).strip().upper() == "GPU"
         params = {
             **base,
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.15, log=True),
-            "depth": trial.suggest_int("depth", 4, 10),
-            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 1e-2, 50.0, log=True),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 10, 200),
-            "rsm": trial.suggest_float("rsm", 0.5, 1.0),
-            "random_strength": trial.suggest_float("random_strength", 1e-8, 10.0, log=True),
+            "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.20, log=True),
+            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 0.5, 100.0, log=True),
+            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 500),
+            "random_strength": trial.suggest_float("random_strength", 1e-9, 10.0, log=True),
             "border_count": trial.suggest_int("border_count", 64, 254),
             "bootstrap_type": bootstrap_type,
+            "grow_policy": grow_policy,
+            "leaf_estimation_iterations": trial.suggest_int("leaf_estimation_iterations", 1, 10),
             "random_seed": int(base.get("random_seed", 42)),
         }
-        # Bayesian bootstrap is incompatible with subsample; Bernoulli needs
+        if is_gpu:
+            params.pop("rsm", None)
+        else:
+            params["rsm"] = trial.suggest_float("rsm", 0.5, 1.0)
+        # Grow policy: SymmetricTree/Depthwise use depth; Lossguide uses max_leaves
+        if grow_policy == "Lossguide":
+            params["max_leaves"] = trial.suggest_int("max_leaves", 16, 64)
+            params.pop("depth", None)
+        else:
+            params["depth"] = trial.suggest_int("depth", 4, 10)
+        # Bayesian bootstrap is incompatible with subsample; Bernoulli/MVS need
         # subsample but not bagging_temperature.  Clean inherited base keys
         # before adding the correct bootstrap-specific parameter.
         if bootstrap_type == "Bayesian":
@@ -114,7 +151,7 @@ def train_catboost_tuned_optuna(
             params["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0.0, 10.0)
         else:
             params.pop("bagging_temperature", None)
-            params["subsample"] = trial.suggest_float("subsample", 0.6, 1.0)
+            params["subsample"] = trial.suggest_float("subsample", 0.5, 0.95)
 
         model = CatBoostClassifier(**params)
         pruning_callback = None
@@ -188,7 +225,7 @@ def train_catboost_tuned_optuna(
                     f"reason={exc}"
                 )
         create_study_kwargs["storage"] = storage_obj
-        create_study_kwargs["study_name"] = study_name or "pd_catboost_optuna"
+        create_study_kwargs["study_name"] = resolve_optuna_study_name(study_name)
         create_study_kwargs["load_if_exists"] = bool(load_if_exists)
 
     study = optuna.create_study(**create_study_kwargs)
@@ -234,7 +271,15 @@ def train_catboost_tuned_optuna(
     if refit_full_train:
         full_X = pd.concat([X_train, X_val], axis=0).reset_index(drop=True)
         full_y = pd.concat([y_train, y_val], axis=0).reset_index(drop=True)
-        full_pool = Pool(full_X, full_y, cat_features=cat_features)
+        full_weight = None
+        if sample_weight is not None and eval_sample_weight is not None:
+            full_weight = np.concatenate(
+                [
+                    np.asarray(sample_weight, dtype=float),
+                    np.asarray(eval_sample_weight, dtype=float),
+                ]
+            )
+        full_pool = Pool(full_X, full_y, cat_features=cat_features, weight=full_weight)
         refit_params = {k: v for k, v in best_params.items() if k != "early_stopping_rounds"}
         if best_iteration > 0:
             refit_params["iterations"] = best_iteration + 1
@@ -249,6 +294,7 @@ def train_catboost_tuned_optuna(
         "best_params": study.best_params,
         "hpo_trials_executed": len(study.trials),
         "hpo_best_validation_auc": float(study.best_value),
+        "study_name_resolved": study.study_name,
         "refit_full_train": bool(refit_full_train),
         "model_type": "catboost_tuned",
     }

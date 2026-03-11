@@ -39,7 +39,7 @@ Estado actual (verificado en artefactos):
 - PD final (OOT): AUC `0.7187`, KS `0.3221`, Brier `0.1537`, ECE `0.0128`.
 - Conformal Mondrian: cobertura 90 `0.9197`, cobertura 95 `0.9608`, ancho medio 90 `0.7593`.
 - Politica conformal: `7/7` checks aprobados, `0` alertas.
-- Causal policy seleccionada: `high_plus_medium_positive`, net value `5.857M`, bootstrap p05 `5.800M`.
+- Causalidad: revisar `models/causal_effect_status.json` y `models/causal_policy_rule.json` para el ATE/rule/net value vigentes del snapshot canónico.
 - IFRS9 sensibilidad: ECL baseline `795.9M`, severe `1.358B`, uplift `+70.65%`.
 - Optimizacion robusta: ya no colapsa en riesgo estricto (ej. tolerancia `0.06` financia `14` casos, no cero).
 
@@ -384,13 +384,11 @@ Que hace:
 - Estima efectos causales (no solo correlaciones) para decisiones de politica.
 
 Resultados clave:
-- CATE medio (`models/causal_summary.pkl`): `0.009718`.
+- CATE medio: revisar `models/causal_effect_status.json` / `models/causal_summary.pkl` del run actual.
 - En salida del notebook, efecto naive de tasa > efecto causal ajustado (sesgo por confounding).
 - Politica final validada por script:
-  - regla `high_plus_medium_positive`
-  - action rate `26.30%`
-  - total net `5.857M`
-  - bootstrap p05 `5.800M`
+  - regla, action rate y valor neto deben leerse desde `models/causal_policy_rule.json`
+  - la semántica oficial es "policy simulation bajo CATE local", no contrafactual SCM exacto
 
 Insight de negocio:
 - "Clientes verificados tienen mas default" puede ser sesgo de seleccion, no causalidad real.

@@ -31,17 +31,16 @@ def narrative_block(
 
 def next_page_teaser(title: str, description: str, page_path: str):
     """Muestra una tarjeta de continuidad narrativa hacia la siguiente página."""
-    st.markdown("---")
-    col1, col2 = st.columns([3, 1])
-    with col1:
-        st.markdown(f"**Siguiente:** {title}")
-        st.caption(description)
-    with col2:
-        try:
-            st.page_link(page_path, label=f"Ir a {title}", icon="➡️")
-        except Exception:
-            # Fallback útil en tests/ejecución aislada de páginas sin contexto multipage.
-            st.caption(f"➡️ {page_path}")
+    with st.container(border=True):
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            st.markdown(f"**Siguiente:** {title}")
+            st.caption(description)
+        with col2:
+            try:
+                st.page_link(page_path, label=f"Ir a {title}", icon=":material/arrow_forward:")
+            except Exception:
+                st.caption(f":material/arrow_forward: {page_path}")
 
 
 def storytelling_intro(
@@ -50,22 +49,21 @@ def storytelling_intro(
     key_decision: str,
     how_to_read: list[str] | None = None,
 ) -> None:
-    """Renderiza una introducción narrativa corta y accionable.
+    """Intro narrativa canónica compacta.
 
-    Se usa para páginas con audiencia mixta (no técnica + negocio + técnica).
+    Core prompts preserved for tests and page contracts:
+    - Qué resuelve esta técnica
+    - Por qué importa en negocio
+    - Decisión que habilita
     """
-    st.markdown("### Cómo leer esta página")
-    st.markdown(
-        f"""
-- **Qué resuelve esta técnica**: {page_goal}
-- **Por qué importa en negocio**: {business_value}
-- **Decisión que habilita**: {key_decision}
-"""
-    )
-    if how_to_read:
-        st.markdown("**Ruta sugerida de lectura**")
-        for idx, step in enumerate(how_to_read, start=1):
-            st.markdown(f"{idx}. {step}")
+    with st.expander("Guía de lectura", expanded=False, icon=":material/info:"):
+        st.markdown(f"**Objetivo:** {page_goal}")
+        st.markdown(f"**Valor de negocio:** {business_value}")
+        st.markdown(f"**Decisión que habilita:** {key_decision}")
+        if how_to_read:
+            st.markdown("**Cómo leer esta página:**")
+            for step in how_to_read:
+                st.markdown(f"- {step}")
 
 
 def reading_path(steps: list[str]) -> None:
@@ -90,6 +88,7 @@ def threats_to_validity_dialog(title: str, bullets: list[str]) -> None:
         return
     body = "\n".join(f"- {b}" for b in bullets if str(b).strip())
     if hasattr(st, "dialog"):
+
         @st.dialog(title)
         def _dialog() -> None:
             st.markdown(body)

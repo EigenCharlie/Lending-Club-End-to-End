@@ -171,6 +171,33 @@
     "ejemplo": "Verified"
   },
   {
+    "variable": "lgd",
+    "nombre": "Loss Given Default (LGD) observada",
+    "descripcion": "Severidad de perdida realizada acotada en [0,1], construida como 1 - (total_rec_prncp + recoveries - collection_recovery_fee) / exposicion. Se usa funded_amnt y, si falta, loan_amnt.",
+    "tipo": "Numérica continua",
+    "rango": "0.0 - 1.0",
+    "relevancia": "Variable objetivo del modelo LGD para cuantificar severidad de perdida en creditos en incumplimiento.",
+    "ejemplo": "0.64"
+  },
+  {
+    "variable": "lgd_months_since_issue",
+    "nombre": "Meses transcurridos desde originación (proxy de maduración LGD)",
+    "descripcion": "Meses entre issue_d y la fecha de corte 2020-09-30. Sirve para medir posible censura de recuperaciones en defaults recientes.",
+    "tipo": "Numérica continua",
+    "rango": "0+",
+    "relevancia": "Permite ajustar incertidumbre conformal de LGD por maduración: menor antigüedad implica mayor fragilidad en severidad observada.",
+    "ejemplo": "18.4"
+  },
+  {
+    "variable": "lgd_is_mature_24m",
+    "nombre": "Bandera de maduración LGD (>=24 meses)",
+    "descripcion": "Indicador binario: 1 si el préstamo tiene al menos 24 meses desde issue_d al corte 2020-09-30, 0 en caso contrario.",
+    "tipo": "Binaria",
+    "rango": "0, 1",
+    "relevancia": "Usada para interpretar sesgos por censura de recuperaciones y soportar ajustes de cobertura en cohortes recientes.",
+    "ejemplo": "1"
+  },
+  {
     "variable": "default_flag",
     "nombre": "Indicador de incumplimiento",
     "descripcion": "Variable objetivo binaria: 1 = préstamo en default (Charged Off, Default, Late 31-120), 0 = al corriente o pagado.",

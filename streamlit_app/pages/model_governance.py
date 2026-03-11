@@ -17,7 +17,6 @@ from streamlit_app.components.context_help import methodology_dialog, term_popov
 from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
-from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_caveats,
     render_decision_box,
@@ -26,20 +25,35 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import try_load_json, try_load_parquet
+from streamlit_app.utils import try_load_json, try_load_parquet, page_error_boundary
 
 
 def _artifact_health_rows() -> pd.DataFrame:
     project_root = Path(__file__).resolve().parents[2]
     specs = [
         ("data/processed/pipeline_summary.json", "Resumen pipeline", "required"),
+        ("data/processed/explainability_global.parquet", "Bundle explicabilidad global", "required"),
+        ("data/processed/explainability_local_cases.parquet", "Casos locales explicados", "required"),
+        ("data/processed/ale_curves.parquet", "Curvas ALE", "required"),
+        (
+            "data/processed/shap_interactions_or_redundancy.parquet",
+            "Interacciones/redundancia SHAP",
+            "required",
+        ),
+        ("data/processed/explanation_drift.parquet", "Drift de explicaciones", "required"),
+        (
+            "data/processed/fairness_threshold_frontier.parquet",
+            "Fairness por umbral",
+            "required",
+        ),
         ("models/conformal_results_mondrian.pkl", "Conformal canónico (resultados)", "required"),
         (
             "data/processed/conformal_intervals_mondrian.parquet",
             "Conformal canónico (intervalos)",
             "required",
         ),
-        ("models/conformal_policy_status.json", "Estado de política conformal", "required"),
+        ("models/conformal_policy_status.json", "Resumen conformal operativo", "required"),
+        ("models/challenger_promotion_report.json", "Promoción challenger", "required"),
         (
             "data/processed/portfolio_robustness_summary.parquet",
             "Resumen robustez portafolio",
@@ -99,7 +113,7 @@ storytelling_intro(
         "Decidir si el modelo puede seguir en operación, requiere recalibración o necesita intervención inmediata."
     ),
     how_to_read=[
-        "Empieza por estado global y checks aprobados.",
+        "Empieza por estado global y resultado de controles.",
         "Revisa fairness para detectar riesgos antes de que impacten negocio.",
         "Cierra con contrato de inputs y marco MRM para validar operación diaria.",
     ],
@@ -116,7 +130,7 @@ methodology_dialog(
 La página combina cuatro capas de control:
 
 1. Existencia y frescura de artefactos canónicos.
-2. Reglas de política conformal (cobertura/ancho/checks).
+2. Reglas de política conformal (cobertura/ancho/alertas).
 3. Contrato de modelo e inputs.
 4. Fairness + marco MRM (SR 11-7).
 
@@ -134,15 +148,15 @@ la métrica de desempeño del modelo.
 )
 
 summary = try_load_json("pipeline_summary")
-status = try_load_json("conformal_policy_status", directory="models", default={})
 governance = try_load_json("governance_status", directory="models", default={})
-render_release_governance(
-    current_run_tag=str(summary.get("run_tag", "")).strip() or None,
-    governance_status=governance,
-    conformal_status=status,
-)
+conformal_status = try_load_json("conformal_policy_status", directory="models", default={})
 checks = try_load_parquet("conformal_policy_checks")
 contract_val = try_load_parquet("pd_model_contract_validation")
+fairness_audit = try_load_parquet("fairness_audit")
+fairness_status = try_load_json("fairness_audit_status", directory="models", default={})
+fairness_frontier = try_load_parquet("fairness_threshold_frontier")
+explanation_drift = try_load_parquet("explanation_drift")
+challenger_report = try_load_json("challenger_promotion_report", directory="models", default={})
 
 passed = int(checks["passed"].sum()) if "passed" in checks.columns else 0
 total = int(len(checks))
@@ -158,13 +172,25 @@ kpi_row(
     [
         {
             "label": "Estado global",
-            "value": "OK" if status.get("overall_pass", False) else "Revisión",
+            "value": "OK" if governance.get("overall_pass", False) else "Revisión",
         },
-        {"label": "Checks aprobados", "value": f"{passed}/{total}"},
-        {"label": "AUC test", "value": f"{test_auc:.4f}"},
+        {
+            "label": "Drift explicativo",
+            "value": "PASS" if governance.get("explanation_drift_pass", False) else "REVISAR",
+        },
+        {
+            "label": "Fairness",
+            "value": "PASS" if fairness_status.get("overall_pass", False) else "REVISAR",
+        },
+        {
+            "label": "Challenger",
+            "value": "Promovible"
+            if challenger_report.get("challenger_promotable", False)
+            else "Benchmark",
+        },
         {"label": "Artefactos OK", "value": f"{required_ok}/{required_total}"},
     ],
-    n_cols=4,
+    n_cols=5,
 )
 
 st.subheader("0) Salud y detalle de artefactos")
@@ -181,8 +207,36 @@ with st.expander("Ver detalle de artefactos y rutas canónicas"):
     st.dataframe(artifact_health, width="stretch", hide_index=True)
 
 st.subheader("1) Resultado de reglas de gobernanza")
+if governance:
+    kpi_row(
+        [
+            {
+                "label": "Drift predictivo",
+                "value": "PASS"
+                if (governance.get("checks", {}) or {}).get("pass_predictive_drift", False)
+                else "FAIL",
+            },
+            {
+                "label": "Fairness primario",
+                "value": "PASS"
+                if (governance.get("checks", {}) or {}).get("pass_fairness", False)
+                else "FAIL",
+            },
+            {
+                "label": "Reason codes",
+                "value": "PASS"
+                if governance.get("reason_code_stability_pass", False)
+                else "FAIL",
+            },
+            {"label": "Threshold principal", "value": f"{float(governance.get('primary_threshold', 0.5)):.2f}"},
+        ],
+        n_cols=4,
+    )
+    with st.expander("Ver resumen ejecutivo de gobernanza"):
+        st.json(governance)
+
 if checks.empty:
-    st.info("No hay tabla de checks de gobernanza disponible en este entorno.")
+    st.info("No hay tabla de checks conformal disponible en este entorno.")
 else:
     st.dataframe(checks, width="stretch", hide_index=True)
 
@@ -195,9 +249,37 @@ with st.expander("Contrato completo del modelo (JSON)"):
     contract = try_load_json("pd_model_contract", directory="models", default={})
     st.json(contract)
 
-st.subheader("3) Auditoría de equidad multi-atributo (Fairness)")
-fairness_audit = try_load_parquet("fairness_audit")
-fairness_status = try_load_json("fairness_audit_status", directory="models", default={})
+st.subheader("3) Estabilidad de explicaciones")
+if explanation_drift.empty:
+    st.info("No hay `explanation_drift.parquet` disponible; la gobernanza explicativa queda incompleta.")
+else:
+    kpi_row(
+        [
+            {
+                "label": "Segmentos evaluados",
+                "value": str(len(explanation_drift)),
+            },
+            {
+                "label": "Min overlap top-10",
+                "value": f"{explanation_drift['rank_overlap_top10'].min():.3f}",
+            },
+            {
+                "label": "Max SHAP PSI",
+                "value": f"{explanation_drift['max_shap_psi_top5'].max():.3f}",
+            },
+            {
+                "label": "Min estabilidad de razones",
+                "value": f"{explanation_drift['reason_code_match_rate'].min():.3f}",
+            },
+        ],
+        n_cols=4,
+    )
+    st.dataframe(explanation_drift, width="stretch", hide_index=True)
+    st.caption(
+        "Esta tabla responde 'que cambio en la explicacion del modelo' y no solo 'que cambio en la distribucion de inputs'."
+    )
+
+st.subheader("4) Auditoría de equidad multi-atributo (Fairness)")
 if not fairness_audit.empty:
     n_pass = int(fairness_audit["passed_all"].sum())
     n_attr = len(fairness_audit)
@@ -215,10 +297,67 @@ if not fairness_audit.empty:
         "DPD = Demographic Parity Difference, DIR = Disparate Impact Ratio (4/5ths rule), "
         "EO = Equalized Odds gap. Umbrales configurables en `configs/fairness_policy.yaml`."
     )
+    if not fairness_frontier.empty:
+        frontier_attr = st.selectbox(
+            "Atributo para frontera por umbral",
+            options=sorted(fairness_frontier["attribute"].astype(str).unique().tolist()),
+            index=0,
+            key="governance_fairness_frontier_attribute",
+        )
+        frontier_view = fairness_frontier[
+            fairness_frontier["attribute"].astype(str) == str(frontier_attr)
+        ].copy()
+        frontier_view = frontier_view.sort_values("threshold")
+        frontier_chart = frontier_view.set_index("threshold")[["dpd", "eo_gap"]]
+        st.line_chart(frontier_chart)
+        st.dataframe(frontier_view, width="stretch", hide_index=True)
 else:
-    st.info("Ejecuta `scripts/run_fairness_audit.py` para generar métricas de equidad multi-atributo.")
+    st.info(
+        "Ejecuta `scripts/run_fairness_audit.py` para generar métricas de equidad multi-atributo."
+    )
 
-st.subheader("4) Marco regulatorio SR 11-7 (MRM)")
+st.subheader("5) Challenger monotónico y promoción")
+if not challenger_report:
+    st.info("No hay `models/challenger_promotion_report.json` disponible.")
+else:
+    interp = challenger_report.get("interpretability", {})
+    deltas = challenger_report.get("deltas", {})
+    checks_ch = challenger_report.get("promotion_checks", {})
+    kpi_row(
+        [
+            {
+                "label": "Promovible",
+                "value": "SI" if challenger_report.get("challenger_promotable", False) else "NO",
+            },
+            {"label": "AUC drop", "value": f"{float(deltas.get('auc_drop', 0.0)):.4f}"},
+            {
+                "label": "Brier increase",
+                "value": f"{float(deltas.get('brier_increase_pct', 0.0)) * 100:.2f}%",
+            },
+            {
+                "label": "Ganancias interpretabilidad",
+                "value": str(int(interp.get("gain_count", 0))),
+            },
+        ],
+        n_cols=4,
+    )
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Check": key,
+                    "Passed": bool(value),
+                }
+                for key, value in checks_ch.items()
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+    with st.expander("Ver reporte challenger completo"):
+        st.json(challenger_report)
+
+st.subheader("6) Marco regulatorio SR 11-7 (MRM)")
 mrm_path = Path(__file__).resolve().parents[2] / "reports" / "mrm" / "mrm_validation_report.json"
 if mrm_path.exists():
     import json
@@ -227,8 +366,14 @@ if mrm_path.exists():
     compliance = mrm_report.get("compliance_summary", {})
     kpi_row(
         [
-            {"label": "Cumplimiento global", "value": "PASS" if compliance.get("overall_pass") else "REVISAR"},
-            {"label": "Subsistemas OK", "value": f"{compliance.get('n_passing', 0)}/{compliance.get('n_subsystems', 0)}"},
+            {
+                "label": "Cumplimiento global",
+                "value": "PASS" if compliance.get("overall_pass") else "REVISAR",
+            },
+            {
+                "label": "Subsistemas OK",
+                "value": f"{compliance.get('n_passing', 0)}/{compliance.get('n_subsystems', 0)}",
+            },
             {"label": "Modelo campeón", "value": mrm_report.get("model", {}).get("name", "N/D")},
         ],
         n_cols=3,
@@ -242,25 +387,82 @@ if mrm_path.exists():
 else:
     st.info("Ejecuta `scripts/generate_mrm_report.py` para generar el reporte MRM (SR 11-7).")
 
-st.markdown(
-    """
-**Lectura de control interno:**
-- La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
-- La auditoría de equidad y el marco SR 11-7 elevan la gobernanza a estándar regulatorio.
-- El framework conformal provee garantías formales de cobertura por subgrupo (Mondrian).
-"""
-)
-render_caveats(
-    [
-        "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",
-        "Fairness y MRM dependen de umbrales de política; cambios de threshold cambian el veredicto.",
-        "La ausencia de artefactos puede ser un problema operativo aunque las métricas históricas sean buenas.",
-    ]
-)
-render_page_feedback("model_governance")
+st.subheader("7) Drift formal (KS/C2ST) y criterio de escalamiento")
 
-next_page_teaser(
-    "Stack Tecnológico",
-    "Librerías, versiones, decisiones de diseño y prácticas de ingeniería.",
-    "pages/tech_stack.py",
-)
+with page_error_boundary("model_governance"):
+    drift_checks = try_load_parquet("drift_checks")
+    if drift_checks.empty:
+        drift_checks = pd.DataFrame(
+            [
+                {
+                    "test": "KS two-sample (univariado)",
+                    "target": "covariate_shift",
+                    "trigger_warn": "p-value < 0.05 en features críticas",
+                    "trigger_fail": "p-value < 0.01 sostenido por cohorte",
+                    "accion": "WARN: monitorear y revisar mix; FAIL: recalibrar o bloquear rollout",
+                },
+                {
+                    "test": "C2ST (multivariado)",
+                    "target": "concept_drift/proxy",
+                    "trigger_warn": "AUC C2ST > 0.60",
+                    "trigger_fail": "AUC C2ST > 0.70",
+                    "accion": "WARN: investigar origen; FAIL: activar comité MRM",
+                },
+            ]
+        )
+    st.dataframe(drift_checks, width="stretch", hide_index=True)
+    st.markdown(
+        """
+    **Escalamiento operativo sugerido**
+    - `MONITOR`: señales aisladas sin deterioro de métricas de negocio.
+    - `RECALIBRAR`: alertas persistentes o caída sostenida de calibración/cobertura.
+    - `BLOQUEAR`: drift severo + incumplimiento de policy checks críticos.
+    """
+    )
+    st.markdown("**Micro-panel CP: ruptura de supuestos y respuesta**")
+    st.dataframe(
+        pd.DataFrame(
+            [
+                {
+                    "Señal CP": "Cobertura 90/95 bajo target por >=2 cohortes",
+                    "Lectura": "Probable ruptura operativa de exchangeability",
+                    "Respuesta": "Recalibrar y revisar partición Mondrian.",
+                },
+                {
+                    "Señal CP": "Subgrupo crítico con under-coverage recurrente",
+                    "Lectura": "Promedio global deja de ser representativo",
+                    "Respuesta": "Escalar a comité MRM y ajustar política segmentada.",
+                },
+                {
+                    "Señal CP": "Drift KS/C2ST + alertas conformal severas",
+                    "Lectura": "Riesgo de degradación de validez útil",
+                    "Respuesta": "Considerar variante adaptativa y bloquear despliegue si persiste.",
+                },
+            ]
+        ),
+        width="stretch",
+        hide_index=True,
+    )
+
+    st.markdown(
+        """
+    **Lectura de control interno:**
+    - La gobernanza ya no depende solo de drift de features: incorpora drift de explicaciones, fairness al umbral principal y promoción formal del challenger.
+    - La trazabilidad por checks + contrato facilita auditoría técnica del pipeline.
+    - El framework conformal mejora el control de cobertura por partición (Mondrian) bajo monitoreo.
+    """
+    )
+    render_caveats(
+        [
+            "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",
+            "Fairness y MRM dependen de umbrales de política; cambios de threshold cambian el veredicto.",
+            "La ausencia de artefactos puede ser un problema operativo aunque las métricas históricas sean buenas.",
+        ]
+    )
+    render_page_feedback("model_governance")
+
+    next_page_teaser(
+        "Stack Tecnológico",
+        "Librerías, versiones, decisiones de diseño y prácticas de ingeniería.",
+        "pages/tech_stack.py",
+    )

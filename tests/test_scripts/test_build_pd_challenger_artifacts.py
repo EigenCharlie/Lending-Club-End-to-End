@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pickle
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -12,7 +13,7 @@ import yaml
 from scripts import build_pd_challenger_artifacts as challenger_mod
 
 
-def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
+def test_build_pd_challenger_artifacts_outputs(tmp_path, monkeypatch) -> None:
     rng = np.random.RandomState(42)
     n = 800
 
@@ -36,10 +37,21 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
             "grade_woe": rng.normal(0.0, 1.0, size=n),
             "int_rate_bucket": rng.choice(["low", "mid", "high"], size=n),
             "term": rng.choice(["36", "60"], size=n),
+            "issue_d": pd.date_range("2018-01-01", periods=n, freq="D"),
         }
     )
     train_path = data_dir / "train_fe.parquet"
     df.to_parquet(train_path, index=False)
+    test_path = data_dir / "test_fe.parquet"
+    df.iloc[:200].reset_index(drop=True).to_parquet(test_path, index=False)
+    preds = pd.DataFrame(
+        {
+            "pd_calibrated": np.clip(rng.uniform(0.05, 0.60, size=200), 0.01, 0.99),
+            "y_prob_final": np.clip(rng.uniform(0.05, 0.60, size=200), 0.01, 0.99),
+            "y_prob_cb_tuned": np.clip(rng.uniform(0.05, 0.60, size=200), 0.01, 0.99),
+        }
+    )
+    preds.to_parquet(data_dir / "test_predictions.parquet", index=False)
 
     feature_cfg = {
         "CATBOOST_FEATURES": [
@@ -90,6 +102,7 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
             "feature_selection_output": str(data_dir / "challenger_feature_selection.parquet"),
             "spec_output": str(model_dir / "pd_challenger_spec.json"),
             "spec_output_v2": str(model_dir / "pd_challenger_spec_v2.json"),
+            "promotion_report_output": str(model_dir / "challenger_promotion_report.json"),
             "monotonic_constraints": {"annual_inc": -1, "dti": 1, "int_rate": 1},
         },
     }
@@ -97,11 +110,32 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
     cfg_path = tmp_path / "pd_model.yaml"
     cfg_path.write_text(yaml.safe_dump(cfg), encoding="utf-8")
 
+    fairness_cfg = {
+        "policy": {
+            "dpd_threshold": 0.5,
+            "eo_gap_threshold": 0.5,
+            "dir_threshold": 0.5,
+            "prediction_threshold": 0.5,
+            "outcome_mode": "default",
+        },
+        "attributes": [{"name": "term", "column": "term"}],
+    }
+    configs_dir = tmp_path / "configs"
+    configs_dir.mkdir(parents=True, exist_ok=True)
+    (configs_dir / "fairness_policy.yaml").write_text(
+        yaml.safe_dump(fairness_cfg),
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+
     challenger_mod.main(str(cfg_path))
 
     out = pd.read_parquet(data_dir / "challenger_feature_selection.parquet")
     spec = json.loads((model_dir / "pd_challenger_spec.json").read_text(encoding="utf-8"))
     spec_v2 = json.loads((model_dir / "pd_challenger_spec_v2.json").read_text(encoding="utf-8"))
+    promotion = json.loads(
+        (model_dir / "challenger_promotion_report.json").read_text(encoding="utf-8")
+    )
 
     assert len(out) > 0
     assert "selected_topk" in out.columns
@@ -109,3 +143,5 @@ def test_build_pd_challenger_artifacts_outputs(tmp_path) -> None:
     assert spec["modeling_policies"]["no_smote"] is True
     assert len(spec["selected_features"]) == 5
     assert spec_v2["selected_features"] == spec["selected_features"]
+    assert Path(model_dir / "challenger_promotion_report.json").exists()
+    assert "challenger_promotable" in promotion

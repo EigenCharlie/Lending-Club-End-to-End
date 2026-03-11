@@ -1,4 +1,5 @@
 /causal_policy_rule.json
+/causal_effect_status.json
 /conformal_policy_status.json
 /conformal_policy_status_v2.json
 /causal_policy_oot_status.json

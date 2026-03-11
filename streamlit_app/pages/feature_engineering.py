@@ -21,7 +21,9 @@ from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     get_notebook_image_path,
-    load_json,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
 )
 
 st.title("🔧 Ingeniería de Features")
@@ -228,7 +230,7 @@ narrative_block(
     "0.1-0.3 fuerte, >0.3 muy fuerte. WOE features tienden a IV alto por diseño.",
 )
 
-iv_data = load_json("feature_importance_iv")
+iv_data = try_load_json("feature_importance_iv")
 iv_scores = iv_data.get("iv_scores", {})
 
 if iv_scores:
@@ -266,6 +268,79 @@ if iv_scores:
     )
 
     # Feature family summary
+    feature_lists = iv_data.get("feature_lists", {})
+    st.markdown(
+        f"""
+**Resumen de familias de features:**
+- Numéricas: **{len(feature_lists.get("numeric", []))}** variables
+- Categóricas: **{len(feature_lists.get("categorical", []))}** variables
+- WOE: **{len(feature_lists.get("woe", []))}** variables
+- Flags: **{len(feature_lists.get("flag", []))}** variables
+- Interacciones: **{len(feature_lists.get("interaction", []))}** variables
+- Total CatBoost: **{len(feature_lists.get("catboost", []))}** features
+"""
+    )
+else:
+    perm = try_load_parquet("permutation_importance")
+    shap = try_load_parquet("shap_summary")
+    fallback_df = pd.DataFrame()
+    score_col = "score"
+    x_label = ""
+    title = ""
+    color_scale = "Teal"
+    fallback_source = ""
+
+    if not perm.empty and {"feature", "auc_drop"}.issubset(perm.columns):
+        fallback_df = perm[["feature", "auc_drop"]].copy()
+        fallback_df["feature"] = fallback_df["feature"].astype(str)
+        fallback_df[score_col] = pd.to_numeric(fallback_df["auc_drop"], errors="coerce")
+        fallback_df = fallback_df.dropna(subset=[score_col]).sort_values(score_col, ascending=False)
+        x_label = "AUC drop al permutar feature"
+        title = "Ranking predictivo (fallback): permutation importance"
+        color_scale = "Teal"
+        fallback_source = "permutation"
+    elif not shap.empty and {"feature", "mean_abs_shap"}.issubset(shap.columns):
+        fallback_df = shap[["feature", "mean_abs_shap"]].copy()
+        fallback_df["feature"] = fallback_df["feature"].astype(str)
+        fallback_df[score_col] = pd.to_numeric(fallback_df["mean_abs_shap"], errors="coerce")
+        fallback_df = fallback_df.dropna(subset=[score_col]).sort_values(score_col, ascending=False)
+        x_label = "Mean absolute SHAP"
+        title = "Ranking explicativo (fallback): SHAP"
+        color_scale = "Viridis"
+        fallback_source = "shap"
+
+    if not fallback_df.empty:
+        n_max = min(30, len(fallback_df))
+        n_top = st.slider("Número de features a mostrar", 8, n_max, min(20, n_max))
+        plot_df = fallback_df.head(n_top).sort_values(score_col, ascending=True)
+        fig = px.bar(
+            plot_df,
+            x=score_col,
+            y="feature",
+            orientation="h",
+            title=title,
+            labels={score_col: x_label, "feature": ""},
+            color=score_col,
+            color_continuous_scale=color_scale,
+        )
+        fig.update_layout(
+            **PLOTLY_TEMPLATE["layout"], height=max(350, n_top * 28), coloraxis_showscale=False
+        )
+        st.plotly_chart(fig, width="stretch")
+        if fallback_source == "permutation":
+            st.info(
+                "Fallback activo: `iv_scores` está vacío en el snapshot actual; se usa permutation importance para mantener el ranking."
+            )
+        else:
+            st.info(
+                "Fallback activo: `iv_scores` vacío y sin permutation importance; se usa SHAP como proxy explicativo."
+            )
+    else:
+        st.warning(
+            "No hay datos para ranking (`iv_scores`, `permutation_importance` o `shap_summary`). "
+            "Ejecuta export de artefactos para poblar esta sección."
+        )
+
     feature_lists = iv_data.get("feature_lists", {})
     st.markdown(
         f"""

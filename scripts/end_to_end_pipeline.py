@@ -1,10 +1,10 @@
-"""End-to-end pipeline orchestrator.
+"""Core/minimal pipeline orchestrator.
 
-Pipeline:
-Data -> Features -> PD -> Conformal -> Optimization -> IFRS9 artifacts
+This script is a lightweight local smoke/integration flow. The canonical full rebuild
+for thesis-grade artifacts is `uv run dvc repro` or `scripts/run_long_pipeline.py`.
 
 Usage:
-    uv run python scripts/end_to_end_pipeline.py --run_name v2
+    uv run python scripts/end_to_end_pipeline.py --run_name smoke
 """
 
 from __future__ import annotations
@@ -16,6 +16,7 @@ from collections.abc import Callable
 from pathlib import Path
 
 import pandas as pd
+import yaml
 from loguru import logger
 from sklearn.metrics import roc_auc_score
 
@@ -192,6 +193,49 @@ def _step_optimization_tradeoff() -> None:
     optimize_portfolio_tradeoff(config_path="configs/optimization.yaml")
 
 
+def _step_optimization_policy_selection() -> None:
+    from scripts.select_economic_portfolio_policy import main as select_economic_policy
+
+    select_economic_policy(config_path="configs/optimization.yaml")
+
+
+def _step_ab_simulation() -> None:
+    from scripts.simulate_ab_test import main as simulate_ab_test
+
+    simulate_ab_test(policy_selector="explicit_champion_only")
+
+
+def _use_frozen_policy() -> bool:
+    cfg_path = Path("configs/optimization.yaml")
+    if not cfg_path.exists():
+        return False
+    try:
+        payload = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return False
+    selection_cfg = dict(payload.get("portfolio_selection", {}) or {})
+    import os
+
+    mode = (
+        str(
+            os.environ.get(
+                "PORTFOLIO_SELECTION_EXECUTION_MODE",
+                selection_cfg.get("canonical_execution_mode", "search"),
+            )
+        )
+        .strip()
+        .lower()
+    )
+    policy_path = Path(
+        str(
+            selection_cfg.get(
+                "frozen_champion_policy_path", "models/champion_portfolio_policy.json"
+            )
+        )
+    )
+    return mode == "freeze_if_available" and policy_path.exists()
+
+
 def main(
     run_name: str = "v2",
     continue_on_error: bool = False,
@@ -225,7 +269,20 @@ def main(
         _run_step("survival", _step_survival, status, continue_on_error)
         _run_step("ifrs9", _step_ifrs9, status, continue_on_error)
         _run_step("optimization", _step_optimization, status, continue_on_error)
-        _run_step("optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error)
+        if _use_frozen_policy():
+            status["optimization_tradeoff"] = "skipped: frozen_champion_policy"
+            status["optimization_policy_selection"] = "skipped: frozen_champion_policy"
+        else:
+            _run_step(
+                "optimization_tradeoff", _step_optimization_tradeoff, status, continue_on_error
+            )
+            _run_step(
+                "optimization_policy_selection",
+                _step_optimization_policy_selection,
+                status,
+                continue_on_error,
+            )
+        _run_step("ab_simulation", _step_ab_simulation, status, continue_on_error)
 
     except Exception:
         failed = True

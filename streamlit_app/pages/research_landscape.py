@@ -13,6 +13,7 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
+from streamlit_app.utils import try_load_json
 
 
 def _safe_page_link(page_path: str, label: str, icon: str) -> None:
@@ -21,6 +22,7 @@ def _safe_page_link(page_path: str, label: str, icon: str) -> None:
         st.page_link(page_path, label=label, icon=icon)
     except Exception:
         st.caption(f"{icon} {label} → {page_path}")
+
 
 st.title("🔬 Panorama de Investigación")
 st.caption(
@@ -32,6 +34,12 @@ render_page_header(page_contract)
 render_key_takeaway(
     "Esta página debe leerse como registro maestro de posicionamiento académico: concentra el mapa temático y reduce duplicación entre los drafts de paper."
 )
+_causal_status = try_load_json("causal_effect_status", directory="models", default={})
+_causal_ate = _causal_status.get("ate")
+try:
+    _causal_ate_text = f"{float(_causal_ate):+.3f}pp"
+except Exception:
+    _causal_ate_text = "ATE artefact-driven"
 
 st.markdown(
     """
@@ -136,6 +144,33 @@ st.dataframe(dedup_matrix, width="stretch", hide_index=True)
 st.caption(
     "Regla práctica: evita reescribir teoría completa en cada draft; cada paper debe reutilizar posicionamiento y concentrarse en su novelty claim."
 )
+
+st.subheader("0.2) Pitfalls operativos de Conformal Prediction")
+cp_pitfalls = pd.DataFrame(
+    [
+        {
+            "Pitfall": "Confundir cobertura marginal con cobertura condicional exacta",
+            "Riesgo operativo": "Sobreprometer garantia en cada observacion individual.",
+            "Mitigacion": "Explicitar alcance de validez y monitorear por segmento/tiempo.",
+        },
+        {
+            "Pitfall": "Fragmentacion de grupos en Mondrian",
+            "Riesgo operativo": "Cuantiles inestables en grupos con n bajo.",
+            "Mitigacion": "Usar min_group_size, fusion de grupos o particion jerarquica.",
+        },
+        {
+            "Pitfall": "Romper exchangeability bajo drift",
+            "Riesgo operativo": "Cobertura fuera de target pese a buen historico.",
+            "Mitigacion": "Backtest mensual + alertas + politica de recalibracion/escalamiento.",
+        },
+        {
+            "Pitfall": "Perseguir solo cobertura y olvidar ancho",
+            "Riesgo operativo": "Intervalos poco utiles por conservadurismo excesivo.",
+            "Mitigacion": "Optimizar balance validez-eficiencia con KPIs conjuntos.",
+        },
+    ]
+)
+st.dataframe(cp_pitfalls, width="stretch", hide_index=True)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # 1. ML en Credit Scoring
@@ -343,14 +378,14 @@ with st.expander("Papers clave"):
 st.subheader("6) Inferencia Causal en crédito")
 
 st.markdown(
-    """
+    f"""
 La correlación entre tasa de interés y default no implica causalidad — borrowers de
-mayor riesgo reciben tasas más altas (selection bias). **Double/Debiased ML** (DML)
-y **Causal Forests** permiten estimar efectos causales heterogéneos eliminando el
-sesgo de confusión con garantías semiparamétricas.
+mayor riesgo reciben tasas más altas (selection bias). En el pipeline oficial usamos
+**DoWhy** para identificación/refutación backdoor y **CausalForestDML** para efectos
+heterogéneos, separando el claim causal canónico del notebook exploratorio.
 
-En nuestro proyecto: ATE estimado = +1pp en tasa → **+0.787pp en probabilidad de
-default**, con efectos heterogéneos por grade y DTI.
+En el snapshot oficial del proyecto: ATE estimado = +1pp en tasa → **{_causal_ate_text}
+en probabilidad de default**, con heterogeneidad observable por grade y DTI.
 """
 )
 
@@ -408,12 +443,17 @@ st.subheader("8) Series de Tiempo en crédito")
 st.markdown(
     """
 El forecasting de tasas de default agregadas conecta el riesgo individual con
-el riesgo sistémico. Modelos como ARIMA capturan tendencias y estacionalidad,
-mientras que LightGBM (via Nixtla mlforecast) incorpora features macroeconómicas.
+el riesgo sistémico. Modelos clásicos como ARIMA/ETS/Theta siguen siendo una
+línea base fuerte para series cortas; híbridos STL+CatBoost y modelos globales
+de panel aportan valor cuando existe suficiente estructura cross-series. En este
+proyecto, las covariables macro o exógenas solo son defendibles si existe un
+contrato explícito de futuro; sin ese artefacto, la narrativa oficial del
+forecast debe ser univariada.
 
-Los **intervalos conformal para time series** son un área activa: la violación de
-exchangeability en datos temporales degrada la cobertura, motivando enfoques
-como **Adaptive Conformal Inference (ACI)** de Gibbs & Candès (2021).
+Los **intervalos conformal para time series** siguen siendo un área activa: la
+violación de exchangeability en datos temporales degrada la cobertura, por lo que
+intervalos estadísticos bien calibrados suelen ser la referencia oficial mientras
+ACI, EnbPI y variantes online se evalúan como research backlog.
 """
 )
 
@@ -490,7 +530,7 @@ ECL (Expected Credit Loss) con intervalos de incertidumbre: ECL_low y ECL_high
 derivados de PD conformal × LGD × EAD. Introducimos el ancho del intervalo conformal
 (PD_high - PD_point) como señal adicional de SICR (Significant Increase in Credit Risk),
 complementando el criterio estándar de incremento en PD. Validamos en 277K préstamos
-out-of-time (2018-2020) con policy gates formales y monitoreo temporal.
+out-of-time (2018-2020) con controles formales de calidad y monitoreo temporal.
 
 **Contribución clave**: Conformal interval width como señal SICR + ECL por rango para
 lectura prudencial — ambos conceptos nuevos en la literatura IFRS9.

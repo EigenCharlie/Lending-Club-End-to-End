@@ -153,10 +153,6 @@ def render_global_kpi_spine(context: str = "executive") -> None:
     """Render DVC-backed KPI cards for a page context."""
     metrics = load_dvc_metrics_summary()
     if not metrics:
-        st.info(
-            "No se encontró `reports/dvc/metrics_summary.json`. Ejecuta `dvc repro export_dvc_metrics` "
-            "y luego `dvc pull`/`dvc push` según corresponda."
-        )
         return
     st.markdown("### 📌 KPIs canónicos (DVC)")
     kpi_row(build_metric_cards(metrics, context), n_cols=3)
@@ -166,16 +162,15 @@ def render_conformal_health_panel() -> None:
     """Render DVC-backed conformal backtest summary and trend chart."""
     metrics = load_dvc_metrics_summary()
     backtest = load_dvc_conformal_backtest()
-    if not metrics:
-        st.info("KPIs conformal canónicos no disponibles en `reports/dvc/metrics_summary.json`.")
+    if not metrics and backtest.empty:
         return
 
     st.markdown("### 📐 Salud conformal (snapshot canónico DVC)")
-    kpi_row(build_metric_cards(metrics, "uncertainty"), n_cols=3)
+    if metrics:
+        kpi_row(build_metric_cards(metrics, "uncertainty"), n_cols=3)
     metric_help_popover("coverage", label="¿Cómo interpretar cobertura y ancho?")
 
     if backtest.empty:
-        st.caption("No se encontró `reports/dvc/conformal_coverage_backtest.csv`.")
         return
 
     fig = px.line(

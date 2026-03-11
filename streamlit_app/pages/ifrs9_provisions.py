@@ -33,7 +33,9 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
-    load_parquet,
+    load_rapids_ifrs9_correlated_metrics,
+    load_rapids_ifrs9_mc_tail_metrics,
+    page_error_boundary,
     try_load_parquet,
 )
 
@@ -42,6 +44,7 @@ st.caption(
     "Estimación de ECL por stage, grade y escenario macroeconómico. "
     "Incluye sensibilidad PD/LGD y lectura de riesgo regulatorio."
 )
+
 page_contract = get_page_contract("ifrs9_provisions")
 render_page_header(page_contract)
 render_key_takeaway(
@@ -151,42 +154,45 @@ st.info(
     "un préstamo, eso puede indicar deterioro antes de que la PD puntual lo capture."
 )
 
-scenarios = load_parquet("ifrs9_scenario_summary")
-scenario_grade = load_parquet("ifrs9_scenario_grade_summary")
-sensitivity = load_parquet("ifrs9_sensitivity_grid")
-input_quality = load_parquet("ifrs9_input_quality")
-ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
-if ecl_comp.empty:
-    baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
-    if baseline_by_grade.empty:
-        ecl_comp = pd.DataFrame(columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"])
+with page_error_boundary("Provisiones IFRS9"):
+    scenarios = try_load_parquet("ifrs9_scenario_summary")
+    scenario_grade = try_load_parquet("ifrs9_scenario_grade_summary")
+    sensitivity = try_load_parquet("ifrs9_sensitivity_grid")
+    input_quality = try_load_parquet("ifrs9_input_quality")
+    ifrs9_mc = load_rapids_ifrs9_mc_tail_metrics()
+    ifrs9_mc_correlated = load_rapids_ifrs9_correlated_metrics()
+    ecl_comp = try_load_parquet("ifrs9_ecl_comparison")
+    if ecl_comp.empty:
+        baseline_by_grade = scenario_grade[scenario_grade["scenario"] == "baseline"].copy()
+        if baseline_by_grade.empty:
+            ecl_comp = pd.DataFrame(columns=["Grade", "ECL_Stage1", "ECL_Stage2", "Stage2/Stage1"])
+        else:
+            stage1_proxy = baseline_by_grade["total_ecl"] * (
+                1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
+            )
+            stage2_proxy = baseline_by_grade["total_ecl"] * (
+                baseline_by_grade["stage2_share"] + baseline_by_grade["stage3_share"]
+            )
+            ecl_comp = pd.DataFrame(
+                {
+                    "Grade": baseline_by_grade["grade"],
+                    "ECL_Stage1": stage1_proxy.clip(lower=0.0),
+                    "ECL_Stage2": stage2_proxy.clip(lower=0.0),
+                }
+            )
+            ecl_comp["Stage2/Stage1"] = ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
+
+    if scenarios.empty:
+        base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
+        severe = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
     else:
-        stage1_proxy = baseline_by_grade["total_ecl"] * (
-            1.0 - baseline_by_grade["stage2_share"] - baseline_by_grade["stage3_share"]
-        )
-        stage2_proxy = baseline_by_grade["total_ecl"] * (
-            baseline_by_grade["stage2_share"] + baseline_by_grade["stage3_share"]
-        )
-        ecl_comp = pd.DataFrame(
-            {
-                "Grade": baseline_by_grade["grade"],
-                "ECL_Stage1": stage1_proxy.clip(lower=0.0),
-                "ECL_Stage2": stage2_proxy.clip(lower=0.0),
-            }
-        )
-        ecl_comp["Stage2/Stage1"] = ecl_comp["ECL_Stage2"] / (ecl_comp["ECL_Stage1"] + 1e-9)
+        base_rows = scenarios[scenarios["scenario"] == "baseline"]
+        severe_rows = scenarios[scenarios["scenario"] == "severe"]
+        base = base_rows.iloc[0] if not base_rows.empty else scenarios.iloc[0]
+        severe = severe_rows.iloc[0] if not severe_rows.empty else scenarios.iloc[-1]
 
-if scenarios.empty:
-    base = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
-    severe = {"total_ecl": 0.0, "stage2_share": 0.0, "stage3_share": 0.0}
-else:
-    base_rows = scenarios[scenarios["scenario"] == "baseline"]
-    severe_rows = scenarios[scenarios["scenario"] == "severe"]
-    base = base_rows.iloc[0] if not base_rows.empty else scenarios.iloc[0]
-    severe = severe_rows.iloc[0] if not severe_rows.empty else scenarios.iloc[-1]
-
-if input_quality.empty:
-    input_quality = pd.DataFrame([{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}])
+    if input_quality.empty:
+        input_quality = pd.DataFrame([{"n_rows": 0, "pd_current_mean": 0.0, "pd_orig_mean": 0.0}])
 
 kpi_row(
     [
@@ -194,8 +200,8 @@ kpi_row(
         {"label": "ECL severe", "value": format_number(severe["total_ecl"], prefix="$")},
         {"label": "Stage 2 baseline", "value": f"{base['stage2_share'] * 100:.1f}%"},
         {"label": "Stage 3 baseline", "value": f"{base['stage3_share'] * 100:.1f}%"},
-        {"label": "PD promedio", "value": f"{input_quality.iloc[0]['pd_current_mean'] * 100:.1f}%"},
-        {"label": "N préstamos IFRS9", "value": f"{int(input_quality.iloc[0]['n_rows']):,}"},
+        {"label": "PD promedio", "value": f"{(input_quality.iloc[0]['pd_current_mean'] * 100 if not input_quality.empty else 0.0):.1f}%"},
+        {"label": "N préstamos IFRS9", "value": f"{int(input_quality.iloc[0]['n_rows']) if not input_quality.empty else 0:,}"},
     ],
     n_cols=3,
 )
@@ -232,6 +238,75 @@ Este módulo muestra cómo la capa de modelado se traduce en provisiones contabl
 - Stage 3: exposición deteriorada.
 """
 )
+
+if ifrs9_mc:
+    st.markdown("### Extensión nueva: IFRS9 Monte Carlo masivo en GPU")
+    kpi_row(
+        [
+            {"label": "Loans", "value": format_number(float(ifrs9_mc.get("n_loans", 0)))},
+            {"label": "Escenarios", "value": format_number(float(ifrs9_mc.get("n_scenarios", 0)))},
+            {"label": "CPU", "value": f"{ifrs9_mc.get('cpu_seconds', 0):.2f}s"},
+            {"label": "GPU", "value": f"{ifrs9_mc.get('gpu_seconds', 0):.2f}s"},
+            {"label": "Speedup", "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.1f}x"},
+            {
+                "label": "Diff medio relativo",
+                "value": f"{ifrs9_mc.get('mean_rel_diff_total_ecl_pct', 0):.4f}%",
+            },
+        ],
+        n_cols=3,
+    )
+    st.markdown(
+        """
+El pipeline canónico sigue usando sensibilidad determinista por escenarios pequeños porque es más simple de auditar y explicar.
+La capa nueva RAPIDS añade un carril **Monte Carlo** para estudiar distribución completa de ECL:
+
+- media, desviación y percentiles de cola,
+- `expected shortfall`,
+- miles de escenarios con shocks compartidos CPU/GPU para comparación justa.
+"""
+    )
+    tail_df = pd.DataFrame(
+        [
+            {"Métrica": k, "CPU": v, "GPU": ifrs9_mc.get("gpu_tail", {}).get(k)}
+            for k, v in ifrs9_mc.get("cpu_tail", {}).items()
+        ]
+    )
+    if not tail_df.empty:
+        st.dataframe(tail_df, width="stretch", hide_index=True)
+    if ifrs9_mc_correlated:
+        st.markdown("#### Variante RAPIDS más rica: shocks correlacionados")
+        st.dataframe(
+            pd.DataFrame(
+                [
+                    {
+                        "Correlation profile": ifrs9_mc_correlated.get("correlation_profile"),
+                        "Antithetic": ifrs9_mc_correlated.get("antithetic"),
+                        "Scenarios": ifrs9_mc_correlated.get("n_scenarios"),
+                        "CPU seconds": ifrs9_mc_correlated.get("cpu_seconds"),
+                        "GPU seconds": ifrs9_mc_correlated.get("gpu_seconds"),
+                        "Speedup": ifrs9_mc_correlated.get("speedup_gpu_vs_cpu"),
+                        "Mean relative diff (%)": ifrs9_mc_correlated.get(
+                            "mean_rel_diff_total_ecl_pct"
+                        ),
+                    }
+                ]
+            ),
+            width="stretch",
+            hide_index=True,
+        )
+        st.markdown(
+            """
+La siguiente mejora metodológica ya quedó demostrada: introducir correlación entre shocks de `PD`, `LGD`, `EAD`
+y descuento, junto con variates antitéticas, sigue dejando diferencias CPU/GPU prácticamente nulas.
+
+Eso cambia la lectura de la sección RAPIDS:
+- ya no es solo “más escenarios”;
+- ahora es una extensión de provisiones con distribución de cola más defendible para investigación.
+"""
+        )
+        st.caption(
+            "Siguiente paso natural: calibrar esos perfiles de correlación con drivers macro y reportar colas por `grade`, `stage` y `term`."
+        )
 
 col_nb_img, col_nb_text = st.columns([3, 2])
 with col_nb_img:

@@ -1,0 +1,13 @@
+{
+  "schema_version": "2026-03-06.1",
+  "generated_at_utc": "2026-03-11T21:55:14.164914+00:00",
+  "run_tag": "2026-03-11-C-official-selector-v3-freeze",
+  "global_threshold": 0.35,
+  "overrides": [],
+  "selection": {
+    "source": "fairness_frontier_auto_select",
+    "n_passed": 6,
+    "worst_eo_gap": 0.07767850748703775,
+    "approval_rate": 0.9942788827929454
+  }
+}

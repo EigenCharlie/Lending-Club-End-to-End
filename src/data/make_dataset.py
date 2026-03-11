@@ -53,9 +53,55 @@ LEAKAGE_COLS = [
     "payment_plan_start_date",
 ]
 
+LGD_SNAPSHOT_DATE = pd.Timestamp("2020-09-30")
+
 # Default-indicating statuses
 DEFAULT_STATUSES = ["Charged Off", "Default"]
 CURRENT_STATUSES = ["Fully Paid", "Current"]
+
+
+def _to_numeric_series(df: pd.DataFrame, col: str, default: float = 0.0) -> pd.Series:
+    if col not in df.columns:
+        return pd.Series(default, index=df.index, dtype=float)
+    return pd.to_numeric(df[col], errors="coerce").fillna(default)
+
+
+def _parse_issue_dates(series: pd.Series) -> pd.Series:
+    parsed = pd.to_datetime(series, format="%b-%Y", errors="coerce")
+    missing = parsed.isna()
+    if missing.any():
+        parsed.loc[missing] = pd.to_datetime(series.loc[missing], errors="coerce")
+    return parsed
+
+
+def _compute_lgd(df: pd.DataFrame) -> pd.Series:
+    """Compute realized LGD in [0, 1] using principal recovery components.
+
+    Formula:
+        LGD = 1 - (total_rec_prncp + recoveries - collection_recovery_fee) / exposure
+    where exposure uses `funded_amnt` if available, otherwise `loan_amnt`.
+
+    Notes:
+    - LGD is a default-conditional target, but we persist 0.0 for non-default rows.
+    - Values are clipped to [0, 1] to avoid data-quality outliers.
+    """
+    exposure = _to_numeric_series(df, "funded_amnt", default=0.0)
+    if "loan_amnt" in df.columns:
+        exposure = exposure.where(exposure > 0.0, _to_numeric_series(df, "loan_amnt", default=0.0))
+    exposure = exposure.where(exposure > 0.0, pd.NA)
+
+    total_rec_prncp = _to_numeric_series(df, "total_rec_prncp", default=0.0)
+    recoveries = _to_numeric_series(df, "recoveries", default=0.0)
+    collection_fee = _to_numeric_series(df, "collection_recovery_fee", default=0.0)
+    recovered_principal = total_rec_prncp + recoveries - collection_fee
+
+    lgd = 1.0 - (recovered_principal / exposure)
+    lgd = lgd.clip(lower=0.0, upper=1.0)
+
+    if "default_flag" in df.columns:
+        lgd = lgd.where(df["default_flag"].astype(int) == 1, 0.0)
+    lgd = lgd.fillna(1.0).clip(lower=0.0, upper=1.0)
+    return lgd.astype(float)
 
 
 def load_raw_data(filepath: str | Path) -> pd.DataFrame:
@@ -68,10 +114,6 @@ def load_raw_data(filepath: str | Path) -> pd.DataFrame:
 
 def initial_clean(df: pd.DataFrame) -> pd.DataFrame:
     """Remove leakage columns and filter to resolved loans."""
-    cols_to_drop = [c for c in LEAKAGE_COLS if c in df.columns]
-    df = df.drop(columns=cols_to_drop)
-    logger.info(f"Dropped {len(cols_to_drop)} leakage/irrelevant columns")
-
     # Filter to resolved loans only (Fully Paid or Default/Charged Off)
     resolved_statuses = DEFAULT_STATUSES + ["Fully Paid"]
     mask = df["loan_status"].isin(resolved_statuses)
@@ -81,6 +123,28 @@ def initial_clean(df: pd.DataFrame) -> pd.DataFrame:
     # Create binary target
     df["default_flag"] = df["loan_status"].isin(DEFAULT_STATUSES).astype(int)
     logger.info(f"Default rate: {df['default_flag'].mean():.2%}")
+
+    # Build LGD target before leakage fields are dropped.
+    df["lgd"] = _compute_lgd(df)
+    if "issue_d" in df.columns:
+        issue_dt = _parse_issue_dates(df["issue_d"])
+        age_months = ((LGD_SNAPSHOT_DATE - issue_dt).dt.days.astype(float) / 30.4375).clip(
+            lower=0.0
+        )
+        df["lgd_months_since_issue"] = age_months.fillna(0.0).astype(float)
+        df["lgd_is_mature_24m"] = (age_months >= 24.0).fillna(False).astype(int)
+    lgd_default = df.loc[df["default_flag"] == 1, "lgd"]
+    if not lgd_default.empty:
+        logger.info(
+            "LGD target built: default_rows={}, mean={:.4f}, p50={:.4f}",
+            len(lgd_default),
+            float(lgd_default.mean()),
+            float(lgd_default.median()),
+        )
+
+    cols_to_drop = [c for c in LEAKAGE_COLS if c in df.columns]
+    df = df.drop(columns=cols_to_drop)
+    logger.info(f"Dropped {len(cols_to_drop)} leakage/irrelevant columns")
 
     return df
 

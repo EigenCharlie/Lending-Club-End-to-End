@@ -15,12 +15,26 @@ DEFAULT_CUTOFF_DATE = "2018-01-01"
 CALIBRATION_FRACTION = 0.15  # fraction of train set for conformal calibration
 
 
+def _parse_mixed_date(series: pd.Series, *, primary_format: str | None = None) -> pd.Series:
+    if primary_format:
+        parsed = pd.to_datetime(series, format=primary_format, errors="coerce")
+        missing = parsed.isna()
+        if missing.any():
+            parsed.loc[missing] = pd.to_datetime(series.loc[missing], errors="coerce")
+        return parsed
+    return pd.to_datetime(series, errors="coerce")
+
+
 def parse_dates(df: pd.DataFrame) -> pd.DataFrame:
     """Parse date columns to datetime."""
-    date_cols = ["issue_d", "earliest_cr_line", "default_date"]
-    for col in date_cols:
+    format_by_col = {
+        "issue_d": "%b-%Y",
+        "earliest_cr_line": "%b-%Y",
+        "default_date": None,
+    }
+    for col, fmt in format_by_col.items():
         if col in df.columns:
-            df[col] = pd.to_datetime(df[col], errors="coerce")
+            df[col] = _parse_mixed_date(df[col], primary_format=fmt)
     return df
 
 

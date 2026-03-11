@@ -13,11 +13,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from loguru import logger
+
+CAUSAL_POLICY_SCHEMA_VERSION = "2026-03-07.1"
 
 
 def _bootstrap_total(
@@ -66,6 +70,17 @@ def _evaluate_rule(
     }
 
 
+def _resolve_run_tag(*payloads: dict) -> str:
+    for payload in payloads:
+        if not isinstance(payload, dict):
+            continue
+        value = str(payload.get("run_tag", "")).strip()
+        if value:
+            return value
+    env_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    return env_tag or "untracked"
+
+
 def main(
     max_action_rate: float = 0.35,
     min_bootstrap_p05_net: float = 0.0,
@@ -74,6 +89,7 @@ def main(
     random_state: int = 42,
 ):
     input_path = Path("data/processed/causal_policy_simulation.parquet")
+    effect_status_path = Path("models/causal_effect_status.json")
     if not input_path.exists():
         raise FileNotFoundError(
             "Missing causal policy simulation artifact. Run scripts/simulate_causal_policy.py first."
@@ -81,6 +97,12 @@ def main(
     df = pd.read_parquet(input_path)
     if "segment" not in df.columns or "net_value" not in df.columns:
         raise KeyError("Required columns missing in causal_policy_simulation artifact.")
+    effect_status = (
+        json.loads(effect_status_path.read_text(encoding="utf-8"))
+        if effect_status_path.exists()
+        else {}
+    )
+    run_tag = _resolve_run_tag(effect_status)
 
     q85 = float(df["cate"].quantile(0.85))
     q90 = float(df["cate"].quantile(0.90))
@@ -142,10 +164,17 @@ def main(
 
     selected_row = selected.iloc[0].to_dict()
     status = {
+        "schema_version": CAUSAL_POLICY_SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "run_tag": run_tag,
         "selection_reason": selection_reason,
         "selected_rule": selected_row["rule_name"],
         "selected_metrics": {
-            k: float(v) if isinstance(v, (float, int, np.floating, np.integer)) else v
+            k: bool(v)
+            if isinstance(v, (bool, np.bool_))
+            else float(v)
+            if isinstance(v, (float, int, np.floating, np.integer))
+            else v
             for k, v in selected_row.items()
         },
         "constraints": {
@@ -153,6 +182,10 @@ def main(
             "min_bootstrap_p05_net": min_bootstrap_p05_net,
             "min_grade_total_net": min_grade_total_net,
         },
+        "source_simulation_path": str(input_path),
+        "source_effect_status_path": str(effect_status_path),
+        "effect_status_run_tag": effect_status.get("run_tag"),
+        "policy_semantics": "local_cate_policy_simulation",
     }
     status_path = model_dir / "causal_policy_rule.json"
     with open(status_path, "w", encoding="utf-8") as f:

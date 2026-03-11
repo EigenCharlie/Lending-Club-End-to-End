@@ -140,3 +140,47 @@ def test_replay_top_optuna_trials_uses_ece_when_gate_not_prioritized(monkeypatch
 
     assert report["enabled"] is True
     assert report["selected_trial"] == 1
+
+
+def test_apply_training_regime_recent_window_keeps_latest_quarters() -> None:
+    df = pd.DataFrame(
+        {
+            "issue_d": pd.to_datetime(
+                [
+                    "2019-01-01",
+                    "2019-04-01",
+                    "2019-07-01",
+                    "2019-10-01",
+                    "2020-01-01",
+                ]
+            ),
+            "default_flag": [0, 1, 0, 1, 0],
+        }
+    )
+    out, meta = train_mod._apply_training_regime(
+        df,
+        {"mode": "recent_12q", "recent_window_quarters": 2},
+        date_col="issue_d",
+    )
+
+    assert len(out) == 2
+    assert meta["mode"] == "recent_12q"
+    assert meta["recent_window_quarters"] == 2
+
+
+def test_apply_training_regime_full_weighted_emits_recency_weights() -> None:
+    df = pd.DataFrame(
+        {
+            "issue_d": pd.to_datetime(["2019-01-01", "2019-04-01", "2020-01-01"]),
+            "default_flag": [0, 1, 0],
+        }
+    )
+    out, meta = train_mod._apply_training_regime(
+        df,
+        {"mode": "full_weighted", "half_life_quarters": 4},
+        date_col="issue_d",
+    )
+
+    assert "_recency_weight" in out.columns
+    assert float(out["_recency_weight"].iloc[-1]) >= float(out["_recency_weight"].iloc[0])
+    assert meta["mode"] == "full_weighted"

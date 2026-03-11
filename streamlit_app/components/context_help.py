@@ -9,7 +9,7 @@ import streamlit as st
 from streamlit_app.content.glossary_registry import get_glossary_term
 
 
-def term_popover(term_key: str, *, label: str | None = None, icon: str = "❓") -> None:
+def term_popover(term_key: str, *, label: str | None = None, icon: str = ":material/help:") -> None:
     """Render a compact glossary popover for a term if registered."""
     term = get_glossary_term(term_key)
     if term is None:
@@ -29,19 +29,19 @@ def term_popover(term_key: str, *, label: str | None = None, icon: str = "❓") 
 
 def metric_help_popover(metric_key: str, *, label: str | None = None) -> None:
     """Alias for term_popover when metric names map to glossary entries."""
-    term_popover(metric_key, label=label or "Qué significa esta métrica", icon="📎")
+    term_popover(metric_key, label=label or "Qué significa esta métrica", icon=":material/info:")
 
 
 def chart_help_popover(chart_id: str, what_to_look_at: str, common_misread: str = "") -> None:
     """Explain how to read a chart without adding text clutter to the page body."""
     title = f"Cómo leer `{chart_id}`"
     if hasattr(st, "popover"):
-        with st.popover(f"🧭 {title}"):
+        with st.popover(f":material/explore: {title}"):
             st.markdown(f"**Qué mirar primero**: {what_to_look_at}")
             if common_misread:
                 st.markdown(f"**Error común**: {common_misread}")
     else:
-        with st.expander(f"🧭 {title}", expanded=False):
+        with st.expander(f":material/explore: {title}", expanded=False):
             st.markdown(f"**Qué mirar primero**: {what_to_look_at}")
             if common_misread:
                 st.markdown(f"**Error común**: {common_misread}")

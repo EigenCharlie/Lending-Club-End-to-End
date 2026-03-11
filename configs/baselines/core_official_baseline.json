@@ -1,12 +1,12 @@
 {
   "schema_version": "2026-03-05.1",
-  "generated_at_utc": "2026-03-05T01:37:53.218435+00:00",
-  "official_run_tag": "2026-03-04-C-core-balanced-cert2",
-  "baseline_snapshot_path": "reports/run_comparisons/2026-03-04-C-core-balanced-cert2/baseline_snapshot.json",
-  "baseline_snapshot_sha256": "2999fc3e59e8e11bc9e7cfe4fe5f01caa8a074e98931136801b930400f05109a",
-  "baseline_snapshot_mtime_utc": "2026-03-05T01:37:53.142392+00:00",
-  "frozen_at_utc": "2026-03-05T01:37:53.218435+00:00",
-  "notes": "Official baseline frozen after cert2 PASS.",
+  "generated_at_utc": "2026-03-09T06:11:46.923245+00:00",
+  "official_run_tag": "2026-03-09-C-official-champion64safe",
+  "baseline_snapshot_path": "reports/run_comparisons/2026-03-09-C-official-champion64safe/baseline_snapshot.json",
+  "baseline_snapshot_sha256": "5f1bcfee787800325db1926694488bcded3d4858c9bcda0fa8f7f2f56dc70b60",
+  "baseline_snapshot_mtime_utc": "2026-03-09T06:11:46.871924+00:00",
+  "frozen_at_utc": "2026-03-09T06:11:46.923245+00:00",
+  "notes": "Official champion baseline frozen after official PASS; official release run with clean repo and official tag.",
   "history": [
     {
       "frozen_at_utc": "2026-03-05T01:37:53.218435+00:00",
@@ -15,6 +15,22 @@
       "baseline_snapshot_sha256": "2999fc3e59e8e11bc9e7cfe4fe5f01caa8a074e98931136801b930400f05109a",
       "baseline_snapshot_mtime_utc": "2026-03-05T01:37:53.142392+00:00",
       "notes": "Official baseline frozen after cert2 PASS."
+    },
+    {
+      "frozen_at_utc": "2026-03-09T03:58:42.828097+00:00",
+      "run_tag": "2026-03-08-C-core-champion64safe",
+      "baseline_snapshot_path": "reports/run_comparisons/2026-03-08-C-core-champion64safe/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "43162dcb51dc16bd0c4da4a8ec45ca693775d3f77bd9aa299d5547e20f1050f3",
+      "baseline_snapshot_mtime_utc": "2026-03-09T03:58:42.771587+00:00",
+      "notes": "Promotion-first champion baseline frozen after overall PASS; governance v2, shared A/B candidate universe, fairness artifact threshold, recent_10q PD."
+    },
+    {
+      "frozen_at_utc": "2026-03-09T06:11:46.923245+00:00",
+      "run_tag": "2026-03-09-C-official-champion64safe",
+      "baseline_snapshot_path": "reports/run_comparisons/2026-03-09-C-official-champion64safe/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "5f1bcfee787800325db1926694488bcded3d4858c9bcda0fa8f7f2f56dc70b60",
+      "baseline_snapshot_mtime_utc": "2026-03-09T06:11:46.871924+00:00",
+      "notes": "Official champion baseline frozen after official PASS; official release run with clean repo and official tag."
     }
   ]
 }

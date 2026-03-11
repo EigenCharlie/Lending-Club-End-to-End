@@ -37,9 +37,10 @@ from streamlit_app.utils import (
     format_number,
     format_pct,
     get_notebook_image_path,
-    load_json,
-    load_parquet,
+    page_error_boundary,
     query_duckdb,
+    try_load_json,
+    try_load_parquet,
 )
 
 st.title("📊 Historia de Datos")
@@ -85,7 +86,7 @@ narrative_block(
     "controles de fuga de información.",
 )
 
-eda = load_json("eda_summary")
+eda = try_load_json("eda_summary")
 
 col1, col2, col3, col4 = st.columns(4)
 with col1:
@@ -137,7 +138,7 @@ if dict_path.exists():
 
 # ── Distributions ──
 st.subheader("Distribuciones de variables clave")
-loan_master_full = load_parquet("loan_master")
+loan_master_full = try_load_parquet("loan_master")
 
 col_d1, col_d2 = st.columns(2)
 with col_d1:
@@ -344,7 +345,7 @@ try:
         """
     )
 except Exception:
-    loan_master = load_parquet("loan_master")
+    loan_master = try_load_parquet("loan_master")
     loan_master["issue_d"] = pd.to_datetime(loan_master["issue_d"], errors="coerce")
     monthly_df = (
         loan_master.dropna(subset=["issue_d"])
@@ -420,7 +421,7 @@ st.caption(
 
 st.subheader("3) Geografía del riesgo: mapa por estado")
 
-state_agg = load_parquet("state_aggregates")
+state_agg = try_load_parquet("state_aggregates")
 if not state_agg.empty:
     col_map1, col_map2 = st.columns(2)
     with col_map1:
@@ -481,7 +482,7 @@ política de riesgo y provisiones IFRS9 diferenciadas.
     )
 
 st.subheader("4) Mezcla de producto y perfil de solicitante")
-loan_master = load_parquet("loan_master")
+loan_master = try_load_parquet("loan_master")
 
 purpose_top = (
     loan_master.groupby("purpose", as_index=False)

@@ -10,11 +10,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from loguru import logger
+
+CAUSAL_OOT_SCHEMA_VERSION = "2026-03-07.1"
 
 
 def _load_selected_rule(path: Path) -> str:
@@ -51,6 +55,7 @@ def main(
     selected_rule_path: str = "models/causal_policy_rule.json",
 ) -> None:
     sim_path = Path("data/processed/causal_policy_simulation.parquet")
+    effect_status_path = Path("models/causal_effect_status.json")
     train_path = Path("data/processed/train_fe.parquet")
     if not sim_path.exists():
         raise FileNotFoundError(f"Missing policy simulation artifact: {sim_path}")
@@ -82,6 +87,18 @@ def main(
     df = df.sort_values("month").reset_index(drop=True)
 
     selected_rule = _load_selected_rule(Path(selected_rule_path))
+    selected_rule_payload = json.loads(Path(selected_rule_path).read_text(encoding="utf-8"))
+    effect_status = (
+        json.loads(effect_status_path.read_text(encoding="utf-8"))
+        if effect_status_path.exists()
+        else {}
+    )
+    run_tag = str(
+        selected_rule_payload.get("run_tag")
+        or effect_status.get("run_tag")
+        or os.environ.get("PIPELINE_RUN_TAG", "")
+        or "untracked"
+    ).strip()
     months = sorted(df["month"].dropna().unique().tolist())
     if len(months) <= min_history_months:
         raise ValueError(
@@ -159,6 +176,9 @@ def main(
     by_grade.to_parquet(grade_path, index=False)
 
     status = {
+        "schema_version": CAUSAL_OOT_SCHEMA_VERSION,
+        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "run_tag": run_tag,
         "rule_name": selected_rule,
         "min_history_months": int(min_history_months),
         "n_months_evaluated": int(len(backtest)),
@@ -167,6 +187,9 @@ def main(
         "p05_monthly_net": float(backtest["total_net_value"].quantile(0.05)),
         "worst_month": str(backtest.loc[backtest["total_net_value"].idxmin(), "month"]),
         "best_month": str(backtest.loc[backtest["total_net_value"].idxmax(), "month"]),
+        "selected_rule_path": str(selected_rule_path),
+        "effect_status_path": str(effect_status_path),
+        "policy_semantics": "local_cate_policy_simulation",
     }
     status_path = Path("models/causal_policy_oot_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)

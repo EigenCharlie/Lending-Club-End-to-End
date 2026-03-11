@@ -6,9 +6,18 @@ policy:
   outcome_mode: approval    # evaluate fairness on favorable decision (approval)
 
 threshold_policy:
-  use_artifact: false
+  use_artifact: true
   artifact_path: models/decision_threshold.json
   selected_threshold_key: selected_threshold
+
+decision_policy:
+  auto_select: true
+  artifact_path: models/fairness_decision_policy.json
+
+intersectional:
+  enabled: true
+  max_order: 2
+  min_group_size: 500
 
 attributes:
   - name: home_ownership
@@ -25,4 +34,9 @@ artifacts:
 
 output:
   audit_parquet: data/processed/fairness_audit.parquet
+  frontier_parquet: data/processed/fairness_threshold_frontier.parquet
   status_json: models/fairness_audit_status.json
+
+threshold_frontier:
+  enabled: true
+  thresholds: [0.35, 0.40, 0.45, 0.50]

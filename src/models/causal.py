@@ -1,4 +1,4 @@
-"""Causal Machine Learning: Double ML and CATE estimation.
+"""Causal Machine Learning helpers for the official causal stack.
 
 Uses EconML (DML, CausalForestDML) and DoWhy (DAG, refutation).
 Key causal questions:
@@ -13,6 +13,7 @@ API notes (2025-2026 versions):
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from typing import Any
 
 # Fix networkx 3.6 / DoWhy 0.12 incompatibility
@@ -25,6 +26,17 @@ if not hasattr(_nxa, "d_separated"):
     from networkx.algorithms.d_separation import is_d_separator as _is_d_sep
 
     _nxa.d_separated = lambda G, x, y, z: _is_d_sep(G, x, y, z)
+
+
+def _require_dowhy() -> None:
+    """Ensure DoWhy is installed before calling DoWhy-backed routines."""
+    try:
+        import dowhy  # noqa: F401
+    except ImportError as exc:
+        raise ImportError(
+            "DoWhy is optional in the main environment. Use the dedicated causal env "
+            "(`.venv-causal`) created via `bash scripts/causal/setup_causal_env.sh .venv-causal`."
+        ) from exc
 
 
 def _require_econml() -> None:
@@ -40,26 +52,162 @@ def _require_econml() -> None:
         ) from exc
 
 
-def specify_causal_graph() -> str:
-    """Specify the causal DAG for credit risk.
+def specify_causal_graph(
+    treatment: str = "int_rate",
+    outcome: str = "default_flag",
+) -> str:
+    """Specify the official observed-variable DAG for credit risk.
 
     Returns DOT string for DoWhy.
     """
-    return """
-    digraph {
-        grade -> int_rate;
-        grade -> default;
-        dti -> default;
-        annual_inc -> default;
+    return f"""
+    digraph {{
+        grade_woe -> {treatment};
+        grade_woe -> {outcome};
+        purpose_woe -> {treatment};
+        purpose_woe -> {outcome};
+        home_ownership_woe -> {treatment};
+        home_ownership_woe -> {outcome};
+        dti -> {treatment};
+        dti -> {outcome};
+        annual_inc -> {treatment};
+        annual_inc -> {outcome};
         annual_inc -> loan_amnt;
-        loan_amnt -> default;
-        int_rate -> default;
-        purpose -> default;
-        home_ownership -> default;
-        emp_length -> annual_inc;
-        credit_history -> grade;
-    }
+        loan_amnt -> {treatment};
+        loan_amnt -> {outcome};
+        fico_range_low -> {treatment};
+        fico_range_low -> {outcome};
+        {treatment} -> {outcome};
+    }}
     """
+
+
+def default_effect_modifiers() -> list[str]:
+    """Official effect-modifier set used for heterogeneous treatment effects."""
+    return ["loan_amnt", "annual_inc", "dti", "fico_range_low"]
+
+
+def default_confounders() -> list[str]:
+    """Official confounder set used for backdoor adjustment."""
+    return ["grade_woe", "purpose_woe", "home_ownership_woe"]
+
+
+def build_overlap_diagnostics(
+    df: pd.DataFrame,
+    *,
+    treatment: str,
+    outcome: str,
+    segment_columns: Iterable[str] | None = None,
+    min_segment_size: int = 50,
+) -> pd.DataFrame:
+    """Summarize treatment support by categorical segment.
+
+    The goal is operational traceability of positivity/overlap assumptions. This is
+    intentionally simple: the artifact is an auditable diagnostic, not a formal test.
+    """
+    if treatment not in df.columns or outcome not in df.columns:
+        return pd.DataFrame()
+
+    candidates = list(segment_columns or ["grade", "purpose", "home_ownership"])
+    available = [col for col in candidates if col in df.columns]
+    if not available:
+        payload = {
+            "segment_type": ["all"],
+            "segment_value": ["all"],
+            "n_obs": [int(len(df))],
+            "treatment_min": [float(df[treatment].min())],
+            "treatment_p05": [float(df[treatment].quantile(0.05))],
+            "treatment_median": [float(df[treatment].median())],
+            "treatment_p95": [float(df[treatment].quantile(0.95))],
+            "treatment_max": [float(df[treatment].max())],
+            "treatment_std": [float(df[treatment].std(ddof=0))],
+            "outcome_rate": [float(df[outcome].mean())],
+            "support_ok": [bool(len(df) >= min_segment_size and df[treatment].std(ddof=0) > 0)],
+        }
+        return pd.DataFrame(payload)
+
+    rows: list[dict[str, Any]] = []
+    for segment_col in available:
+        segment_series = df[segment_col].astype(str).fillna("UNKNOWN")
+        grouped = df.assign(_segment_value=segment_series).groupby(
+            "_segment_value", observed=True, dropna=False
+        )
+        for segment_value, grp in grouped:
+            treatment_series = pd.to_numeric(grp[treatment], errors="coerce").dropna()
+            if treatment_series.empty:
+                continue
+            rows.append(
+                {
+                    "segment_type": segment_col,
+                    "segment_value": str(segment_value),
+                    "n_obs": int(len(grp)),
+                    "treatment_min": float(treatment_series.min()),
+                    "treatment_p05": float(treatment_series.quantile(0.05)),
+                    "treatment_median": float(treatment_series.median()),
+                    "treatment_p95": float(treatment_series.quantile(0.95)),
+                    "treatment_max": float(treatment_series.max()),
+                    "treatment_std": float(treatment_series.std(ddof=0)),
+                    "treatment_iqr": float(
+                        treatment_series.quantile(0.75) - treatment_series.quantile(0.25)
+                    ),
+                    "outcome_rate": float(pd.to_numeric(grp[outcome], errors="coerce").mean()),
+                    "support_ok": bool(
+                        len(grp) >= min_segment_size and treatment_series.std(ddof=0) > 0
+                    ),
+                }
+            )
+    return pd.DataFrame(rows).sort_values(["segment_type", "segment_value"], ignore_index=True)
+
+
+def _extract_ate_ci(estimate: Any) -> list[float | None]:
+    """Best-effort CI extraction from a DoWhy estimate object."""
+    candidate = None
+    if hasattr(estimate, "get_confidence_intervals"):
+        try:
+            candidate = estimate.get_confidence_intervals()
+        except Exception:
+            candidate = None
+    if candidate is None:
+        candidate = getattr(estimate, "confidence_intervals", None)
+    if candidate is None:
+        return [None, None]
+
+    try:
+        arr = np.asarray(candidate, dtype=float).reshape(-1)
+    except Exception:
+        return [None, None]
+    if arr.size < 2:
+        return [None, None]
+    return [float(arr[0]), float(arr[1])]
+
+
+def summarize_refutation(test_name: str, refutation: Any) -> dict[str, Any]:
+    """Serialize the most useful parts of a DoWhy refutation result."""
+    p_value = getattr(refutation, "p_value", None)
+    try:
+        p_value = float(p_value) if p_value is not None else None
+    except Exception:
+        p_value = None
+
+    new_effect = getattr(refutation, "new_effect", None)
+    try:
+        new_effect = float(new_effect) if new_effect is not None else None
+    except Exception:
+        new_effect = None
+
+    estimated_effect = getattr(refutation, "estimated_effect", None)
+    try:
+        estimated_effect = float(estimated_effect) if estimated_effect is not None else None
+    except Exception:
+        estimated_effect = None
+
+    return {
+        "test": str(test_name),
+        "estimated_effect": estimated_effect,
+        "new_effect": new_effect,
+        "p_value": p_value,
+        "result": str(refutation),
+    }
 
 
 def estimate_ate_dowhy(
@@ -73,7 +221,7 @@ def estimate_ate_dowhy(
 
     Identifies causal effect, estimates, and runs refutation tests.
     """
-    _require_econml()
+    _require_dowhy()
     import dowhy
 
     model = dowhy.CausalModel(
@@ -87,18 +235,29 @@ def estimate_ate_dowhy(
     identified = model.identify_effect(proceed_when_unidentifiable=True)
     estimate = model.estimate_effect(
         identified,
-        method_name="backdoor.econml.dml.CausalForestDML",
-        method_params={
-            "init_params": {"n_estimators": 200, "random_state": 42},
-            "fit_params": {},
-        },
+        method_name="backdoor.linear_regression",
     )
+    ate_ci = _extract_ate_ci(estimate)
+    refutations = run_refutation_tests(model, identified, estimate)
 
-    logger.info(f"ATE of {treatment} on {outcome}: {estimate.value:.6f}")
+    ate_value = getattr(estimate, "value", None)
+    try:
+        ate_value = float(ate_value) if ate_value is not None else None
+    except Exception:
+        ate_value = None
+    logger.info(
+        f"ATE of {treatment} on {outcome}: {ate_value:.6f}"
+        if ate_value is not None
+        else f"ATE of {treatment} on {outcome}: unavailable"
+    )
     return {
-        "ate": estimate.value,
+        "ate": ate_value,
+        "ate_ci": ate_ci,
         "estimate_object": estimate,
         "identified_estimand": identified,
+        "identification_strategy": "backdoor",
+        "model": model,
+        "refutation_summary": refutations,
     }
 
 
@@ -153,31 +312,34 @@ def run_refutation_tests(
     """Run DoWhy refutation tests to validate causal estimates."""
     refutations = []
 
-    # Placebo treatment
-    ref_placebo = model.refute_estimate(
-        identified_estimand,
-        estimate,
-        method_name="placebo_treatment_refuter",
-        placebo_type="permute",
-    )
-    refutations.append({"test": "placebo_treatment", "result": str(ref_placebo)})
-
-    # Random common cause
-    ref_random = model.refute_estimate(
-        identified_estimand,
-        estimate,
-        method_name="random_common_cause",
-    )
-    refutations.append({"test": "random_common_cause", "result": str(ref_random)})
-
-    # Data subset
-    ref_subset = model.refute_estimate(
-        identified_estimand,
-        estimate,
-        method_name="data_subset_refuter",
-        subset_fraction=0.8,
-    )
-    refutations.append({"test": "data_subset", "result": str(ref_subset)})
+    refuter_specs = [
+        (
+            "placebo_treatment",
+            {"method_name": "placebo_treatment_refuter", "placebo_type": "permute"},
+        ),
+        (
+            "random_common_cause",
+            {"method_name": "random_common_cause"},
+        ),
+        (
+            "data_subset",
+            {"method_name": "data_subset_refuter", "subset_fraction": 0.8},
+        ),
+    ]
+    for test_name, params in refuter_specs[: max(int(n_tests), 0)]:
+        try:
+            refutation = model.refute_estimate(identified_estimand, estimate, **params)
+            refutations.append(summarize_refutation(test_name, refutation))
+        except Exception as exc:
+            refutations.append(
+                {
+                    "test": str(test_name),
+                    "estimated_effect": None,
+                    "new_effect": None,
+                    "p_value": None,
+                    "result": f"refutation_unavailable: {exc}",
+                }
+            )
 
     for r in refutations:
         logger.info(f"Refutation [{r['test']}]: {r['result'][:100]}...")

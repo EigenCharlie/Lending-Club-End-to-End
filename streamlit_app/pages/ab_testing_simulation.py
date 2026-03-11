@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 import sys
 from pathlib import Path
 
@@ -23,7 +24,19 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import try_load_json, try_load_parquet
+from streamlit_app.utils import (
+    OFFICIAL_GPU_REPLAY_TAG,
+    load_rapids_tradeoff_full_ab_status,
+    load_rapids_tradeoff_full_policy,
+    try_load_gpu_replay_json,
+    try_load_json,
+    try_load_parquet,
+)
+
+
+def _std_norm_cdf(value: float) -> float:
+    return 0.5 * (1 + math.erf(value / math.sqrt(2)))
+
 
 st.title("🧪 Simulación A/B de Estrategias")
 st.caption(
@@ -55,6 +68,11 @@ storytelling_intro(
 results = try_load_parquet("ab_simulation_results")
 summary = try_load_parquet("ab_simulation_summary")
 status = try_load_json("ab_simulation_status", directory="models", default={})
+gpu_status = try_load_gpu_replay_json(
+    OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
+)
+gpu_full_ab = load_rapids_tradeoff_full_ab_status()
+gpu_full_policy = load_rapids_tradeoff_full_policy()
 
 if not results.empty:
     row = results.iloc[0]
@@ -83,10 +101,31 @@ if not results.empty:
         st.warning("La diferencia NO es estadísticamente significativa.")
 
     st.subheader("Intervalo de confianza (Bootstrap)")
+    ci_low = float(row.get("ci_low", 0.0))
+    ci_high = float(row.get("ci_high", 0.0))
+    ci_width = ci_high - ci_low
+    se_boot = (ci_width / (2 * 1.96)) if ci_width > 0 else 0.0
+    effect = float(row.get("diff", 0.0))
+    z_alpha = 1.96
+    if se_boot > 0:
+        delta = abs(effect) / se_boot
+        approx_power = float((1 - _std_norm_cdf(z_alpha - delta)) + _std_norm_cdf(-z_alpha - delta))
+    else:
+        approx_power = 0.0
     st.markdown(
-        f"- **CI 95%**: [{row.get('ci_low', 0):,.2f}, {row.get('ci_high', 0):,.2f}]\n"
+        f"- **CI 95% del uplift medio**: [{ci_low:,.2f}, {ci_high:,.2f}]\n"
         f"- **Loans funded A**: {row.get('n_funded_a', 0):,}\n"
-        f"- **Loans funded B**: {row.get('n_funded_b', 0):,}"
+        f"- **Loans funded B**: {row.get('n_funded_b', 0):,}\n"
+        f"- **SE bootstrap aprox.**: {se_boot:,.2f}\n"
+        f"- **Potencia aprox. (post-hoc)**: {approx_power:.1%}"
+    )
+    st.info(
+        "Diferencia clave: el CI del uplift resume incertidumbre del efecto promedio A-B; "
+        "no es un intervalo de predicción del retorno de un periodo futuro individual."
+    )
+    st.caption(
+        "Riesgo de falsos positivos: si se prueban muchas variantes de política sin corrección "
+        "por multiplicidad, la probabilidad de encontrar mejoras espurias aumenta."
     )
 
     if not summary.empty:
@@ -119,6 +158,47 @@ else:
         "Ejecuta `scripts/simulate_ab_test.py` para generar la simulación A/B."
     )
 
+if gpu_status:
+    st.markdown("### Replay RAPIDS de la misma prueba A/B")
+    st.markdown(
+        """
+Además del artefacto canónico CPU, ya existe un replay GPU equivalente sobre el mismo bloque de decisión.
+Eso importa porque esta página dejó de ser solo un resultado económico; ahora también demuestra que la comparación robusto vs no robusto puede evaluarse rápido en GPU cuando el universo de candidatos crece.
+"""
+    )
+    gpu_table = [
+        {
+            "Engine": "GPU replay (cuopt)",
+            "Control total return": gpu_status.get("metrics_a", {}).get("total_return", 0.0),
+            "Treatment total return": gpu_status.get("metrics_b", {}).get("total_return", 0.0),
+            "Diff": gpu_status.get("no_regression", {}).get("diff_total_return", 0.0),
+            "No regression": gpu_status.get("no_regression", {}).get("passed", False),
+        }
+    ]
+    st.dataframe(gpu_table, width="stretch", hide_index=True)
+    full_ab = gpu_full_ab.get("no_regression", {})
+    full_selected = gpu_full_policy.get("selected_policy", {})
+    if full_ab:
+        st.markdown("#### Qué pasó cuando escalamos el A/B al universo full")
+        st.dataframe(
+            [
+                {
+                    "Universe": gpu_full_ab.get("n_candidates_used", 0),
+                    "Control total return": gpu_full_ab.get("metrics_a", {}).get("total_return", 0.0),
+                    "Treatment total return": gpu_full_ab.get("metrics_b", {}).get("total_return", 0.0),
+                    "Diff": full_ab.get("diff_total_return", 0.0),
+                    "No regression": full_ab.get("passed", False),
+                    "Selected gamma": full_selected.get("gamma"),
+                    "Policy mode": full_selected.get("policy_mode"),
+                }
+            ],
+            width="stretch",
+            hide_index=True,
+        )
+        st.info(
+            "La lectura más valiosa del replay full no es solo el tiempo. Es que, al escalar el universo, la policy seleccionada converge a una versión casi no robusta. Eso indica que el reto restante del A/B es de diseño de policy selection, no de solver ni de hardware."
+        )
+
 decision_checklist(
     "Checklist de lectura A/B",
     [
@@ -130,6 +210,7 @@ decision_checklist(
 render_caveats(
     [
         "Resultados sensibles al periodo OOT y supuestos de simulación de estrategia.",
+        "CI bootstrap y potencia post-hoc no sustituyen un experimento online aleatorizado con protocolo pre-registrado.",
         "No sustituye un rollout controlado real con monitoreo de comportamiento en producción.",
     ]
 )

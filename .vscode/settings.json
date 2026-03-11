@@ -64,6 +64,14 @@
   },
   "jupyter.notebookFileRoot": "${workspaceFolder}",
   "jupyter.askForKernelRestart": false,
+  "ruff.importStrategy": "fromEnvironment",
+  "ruff.interpreter": [
+    "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python"
+  ],
+  "ruff.path": [
+    "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/ruff"
+  ],
+  "ruff.nativeServer": "auto",
   "dbt.dbtIntegration": "core",
   "dbt.dbtPythonPathOverride": "/home/eigenlinux/projects/lending-club-risk-project/lending-club-venv/bin/python",
   "dbt.allowListFolders": [
@@ -96,5 +104,8 @@
     "https://json.schemastore.org/github-workflow.json": ".github/workflows/*.yml"
   },
   "sqltools.useNodeRuntime": true,
-  "remote.autoForwardPortsSource": "hybrid"
+  "remote.autoForwardPorts": false,
+  "remote.autoForwardPortsSource": "hybrid",
+  "remote.restoreForwardedPorts": false,
+  "sqltools.disableNodeDetectNotifications": true
 }

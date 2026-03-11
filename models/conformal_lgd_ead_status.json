@@ -1,34 +1,220 @@
 {
-  "schema_version": "2026-03-01.1",
-  "generated_at_utc": "2026-03-01T17:30:41.484702+00:00",
-  "run_tag": "2026-03-01-C-smart-v2",
+  "schema_version": "2026-03-02.1",
+  "generated_at_utc": "2026-03-11T21:36:58.451206+00:00",
+  "run_tag": "2026-03-11-C-official-selector-v3-freeze",
   "lgd": {
-    "available": false,
-    "reason": "missing_lgd_column"
-  },
-  "ead": {
     "available": true,
-    "n_train": 92797,
+    "n_train": 249380,
     "n_cal": 52751,
     "n_test": 60850,
+    "schema_variant": "adaptive_lgd_v2",
+    "selected_variant": "direct_adaptive_grade_temporal",
+    "selection_reason": "selected_best_pass_by_width",
     "model_metrics": {
-      "ead_mae": 35.23085524043567,
-      "ead_r2": 0.9998646685333089
+      "two_stage": {
+        "stage1_auc": 0.5846824561980211,
+        "lgd_mae": 0.19274153523637136,
+        "lgd_rmse": 0.2247912734743503
+      },
+      "direct": {
+        "lgd_mae": 0.19125570134785938,
+        "lgd_rmse": 0.2234571361988149,
+        "lgd_bias": -0.17770599447268345
+      }
     },
     "conformal": {
       "metrics_90": {
-        "empirical_coverage": 0.9040098603122432,
+        "empirical_coverage": 0.9049958915365653,
         "target_coverage": 0.9,
-        "coverage_gap": 0.004009860312243152,
-        "avg_interval_width": 145.24299571946622,
-        "median_interval_width": 145.2429957194654
+        "coverage_gap": 0.004995891536565322,
+        "avg_interval_width": 0.4955290194222537,
+        "median_interval_width": 0.4915533237522368
       },
       "metrics_95": {
-        "empirical_coverage": 0.9532128184059162,
+        "empirical_coverage": 0.9550041084634346,
         "target_coverage": 0.95,
-        "coverage_gap": 0.0032128184059162512,
-        "avg_interval_width": 206.86670214601327,
-        "median_interval_width": 206.86670214601327
+        "coverage_gap": 0.005004108463434687,
+        "avg_interval_width": 0.5746176973373095,
+        "median_interval_width": 0.5676796080798833
+      },
+      "policy": {
+        "target_coverage_online_90": 0.905,
+        "target_coverage_online_95": 0.955,
+        "eta": 0.12,
+        "offset_rho": 0.03,
+        "maturity_uncertainty_lambda": 0.25,
+        "maturity_months_reference": 24.0,
+        "q_start_90": 0.28533461283224204,
+        "q_start_95": 0.333639804039994,
+        "q_end_by_grade_90": {
+          "A": 0.35013461283215824,
+          "B": 0.29253461283210724,
+          "D": 0.23553461283221022,
+          "C": 0.3105346128321543,
+          "E": 0.18453461283223416,
+          "G": 0.33153461283224234,
+          "F": 0.3225346128322436
+        },
+        "q_end_by_grade_95": {
+          "A": 0.4464398040399017,
+          "B": 0.2928398040397816,
+          "D": 0.26583980403974117,
+          "C": 0.2508398040396839,
+          "E": 0.30483980403991945,
+          "G": 0.3618398040399905,
+          "F": 0.38283980403998075
+        },
+        "offset_end_by_grade_90": {
+          "A": 0.22464205023079764,
+          "B": 0.19004756833017306,
+          "C": 0.1935416106492616,
+          "D": 0.16816841292791887,
+          "E": 0.09278394064715302,
+          "F": 0.08668832292390799,
+          "G": 0.08223725394378605
+        },
+        "offset_end_by_grade_95": {
+          "A": 0.22464205023079764,
+          "B": 0.19004756833017306,
+          "C": 0.1935416106492616,
+          "D": 0.16816841292791887,
+          "E": 0.09278394064715302,
+          "F": 0.08668832292390799,
+          "G": 0.08223725394378605
+        }
+      }
+    },
+    "guardrails": {
+      "overall_pass": true,
+      "coverage_90": 0.9049958915365653,
+      "coverage_95": 0.9550041084634346,
+      "min_grade_coverage_90": 0.9046563192904656,
+      "width_inflation_90": 0.8721027357060999,
+      "width_inflation_95": 0.8761623136435385,
+      "abs_bias": 0.08905014052414394,
+      "status_path": "models/lgd_guardrails_status.json"
+    },
+    "artifacts": {
+      "intervals_path": "data/processed/conformal_intervals_lgd.parquet",
+      "benchmark_path": "data/processed/lgd_variant_benchmark.parquet",
+      "diagnostics_path": "data/processed/lgd_coverage_diagnostics.parquet",
+      "coverage_by_grade_path": "data/processed/lgd_coverage_by_grade.parquet",
+      "coverage_by_year_path": "data/processed/lgd_coverage_by_year.parquet"
+    },
+    "benchmark_variants": [
+      {
+        "variant": "two_stage_split",
+        "coverage_90": 0.781873459326212,
+        "coverage_95": 0.8730320460147905,
+        "avg_width_90": 0.5682002809233795,
+        "avg_width_95": 0.6558347561740591,
+        "bias": -0.17939043490727444,
+        "min_grade_coverage_90": 0.5355775366943204,
+        "min_year_coverage_90": 0.4843346848507188,
+        "n_test": 60850.0,
+        "n_grades_eval": 6.0,
+        "n_years_eval": 2.0,
+        "width_inflation_90": 1.0,
+        "width_inflation_95": 1.0,
+        "check_coverage_90": false,
+        "check_coverage_95": false,
+        "check_min_grade_coverage_90": false,
+        "check_width_inflation_90": true,
+        "check_width_inflation_95": true,
+        "check_abs_bias": false,
+        "overall_pass": false
+      },
+      {
+        "variant": "direct_split",
+        "coverage_90": 0.786392769104355,
+        "coverage_95": 0.8764009860312243,
+        "avg_width_90": 0.567733746255932,
+        "avg_width_95": 0.6555533363047387,
+        "bias": -0.17770599447268345,
+        "min_grade_coverage_90": 0.5411614550095725,
+        "min_year_coverage_90": 0.4934021378547733,
+        "n_test": 60850.0,
+        "n_grades_eval": 6.0,
+        "n_years_eval": 2.0,
+        "width_inflation_90": 0.9991789256656309,
+        "width_inflation_95": 0.99957089820771,
+        "check_coverage_90": false,
+        "check_coverage_95": false,
+        "check_min_grade_coverage_90": false,
+        "check_width_inflation_90": true,
+        "check_width_inflation_95": true,
+        "check_abs_bias": false,
+        "overall_pass": false
+      },
+      {
+        "variant": "direct_cqr",
+        "coverage_90": 0.7452095316351685,
+        "coverage_95": 0.84468364831553,
+        "avg_width_90": 0.5403599237988974,
+        "avg_width_95": 0.6449488433097877,
+        "bias": -0.17572045868831315,
+        "min_grade_coverage_90": 0.70509977827051,
+        "min_year_coverage_90": 0.40110578695171395,
+        "n_test": 60850.0,
+        "n_grades_eval": 6.0,
+        "n_years_eval": 2.0,
+        "width_inflation_90": 0.9510025636044409,
+        "width_inflation_95": 0.9834014395214788,
+        "check_coverage_90": false,
+        "check_coverage_95": false,
+        "check_min_grade_coverage_90": false,
+        "check_width_inflation_90": true,
+        "check_width_inflation_95": true,
+        "check_abs_bias": false,
+        "overall_pass": false
+      },
+      {
+        "variant": "direct_adaptive_grade_temporal",
+        "coverage_90": 0.9049958915365653,
+        "coverage_95": 0.9550041084634346,
+        "avg_width_90": 0.4955290194222537,
+        "avg_width_95": 0.5746176973373095,
+        "bias": -0.08905014052414394,
+        "min_grade_coverage_90": 0.9046563192904656,
+        "min_year_coverage_90": 0.90475488389237,
+        "n_test": 60850.0,
+        "n_grades_eval": 6.0,
+        "n_years_eval": 2.0,
+        "width_inflation_90": 0.8721027357060999,
+        "width_inflation_95": 0.8761623136435385,
+        "check_coverage_90": true,
+        "check_coverage_95": true,
+        "check_min_grade_coverage_90": true,
+        "check_width_inflation_90": true,
+        "check_width_inflation_95": true,
+        "check_abs_bias": true,
+        "overall_pass": true
+      }
+    ]
+  },
+  "ead": {
+    "available": true,
+    "n_train": 249380,
+    "n_cal": 52751,
+    "n_test": 60850,
+    "model_metrics": {
+      "ead_mae": 30.87269740879051,
+      "ead_r2": 0.9998791583993756
+    },
+    "conformal": {
+      "metrics_90": {
+        "empirical_coverage": 0.9081840591618735,
+        "target_coverage": 0.9,
+        "coverage_gap": 0.00818405916187348,
+        "avg_interval_width": 132.58321600761258,
+        "median_interval_width": 132.58321600761337
+      },
+      "metrics_95": {
+        "empirical_coverage": 0.9528184059161874,
+        "target_coverage": 0.95,
+        "coverage_gap": 0.0028184059161874275,
+        "avg_interval_width": 196.50633187691673,
+        "median_interval_width": 196.5063318769171
       }
     },
     "intervals_path": "data/processed/conformal_intervals_ead.parquet"

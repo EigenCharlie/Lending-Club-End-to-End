@@ -25,7 +25,70 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, load_parquet, try_load_parquet
+from streamlit_app.utils import get_notebook_image_path, try_load_json, try_load_parquet
+
+
+def _first_numeric(*values: object) -> float | None:
+    for value in values:
+        try:
+            if value is None:
+                continue
+            out = float(value)
+        except Exception:
+            continue
+        if pd.notna(out):
+            return out
+    return None
+
+
+def _format_pp(value: float | None) -> str:
+    if value is None:
+        return "N/D"
+    return f"{value:+.3f}pp"
+
+
+def _format_money(value: float | None) -> str:
+    if value is None:
+        return "N/D"
+    return f"${value:,.0f}"
+
+
+def _build_causal_snapshot() -> dict:
+    pipeline_summary = try_load_json("pipeline_summary", default={})
+    pipeline_causal = pipeline_summary.get("causal", {})
+    effect_status = try_load_json("causal_effect_status", directory="models", default={})
+    rule_status = try_load_json("causal_policy_rule", directory="models", default={})
+    oot_status = try_load_json("causal_policy_oot_status", directory="models", default={})
+    portfolio_status = try_load_json("cate_portfolio_status", directory="models", default={})
+    selected_metrics = rule_status.get("selected_metrics", {})
+    return {
+        "effect_status": effect_status,
+        "rule_status": rule_status,
+        "oot_status": oot_status,
+        "portfolio_status": portfolio_status,
+        "ate": _first_numeric(effect_status.get("ate"), pipeline_causal.get("ate")),
+        "cate_mean": _first_numeric(
+            effect_status.get("cate_mean"), pipeline_causal.get("cate_mean")
+        ),
+        "selected_rule": str(
+            rule_status.get("selected_rule") or pipeline_causal.get("selected_rule") or "N/D"
+        ),
+        "total_net_value": _first_numeric(
+            selected_metrics.get("total_net_value"),
+            pipeline_causal.get("total_net_value"),
+        ),
+        "bootstrap_p05_net": _first_numeric(
+            selected_metrics.get("bootstrap_p05_net"),
+            pipeline_causal.get("bootstrap_p05_net"),
+        ),
+        "avg_action_rate": _first_numeric(
+            oot_status.get("avg_action_rate"),
+            selected_metrics.get("action_rate"),
+            pipeline_causal.get("avg_action_rate"),
+        ),
+        "official_method": effect_status.get("official_method", {})
+        or pipeline_causal.get("official_method", {}),
+    }
 
 st.title("🧬 Inteligencia Causal")
 st.caption(
@@ -37,6 +100,10 @@ render_page_header(page_contract)
 render_key_takeaway(
     "La meta aquí no es describir correlaciones sino estimar efectos causales heterogéneos útiles para políticas de precio/intervención."
 )
+causal_snapshot = _build_causal_snapshot()
+ate_text = _format_pp(causal_snapshot["ate"])
+net_text = _format_money(causal_snapshot["total_net_value"])
+rule_name = causal_snapshot["selected_rule"]
 storytelling_intro(
     page_goal=(
         "Distinguir correlación de causalidad para saber qué acción realmente reduce default."
@@ -56,14 +123,14 @@ storytelling_intro(
 
 with st.expander("¿Por qué no basta con correlación? — La trampa del scoring tradicional"):
     st.markdown(
-        """
+        f"""
 ### El problema
 
 En el dataset, los préstamos con **tasas altas tienen más defaults**. Pero, ¿subir la tasa
 *causa* más defaults? ¿O simplemente le cobramos más a quienes ya eran riesgosos?
 
 **Correlación**: "Los préstamos con tasa >20% tienen 24% de default"
-**Causalidad**: "Si subimos la tasa 1pp a un cliente, su probabilidad de default sube +0.787pp"
+**Causalidad**: "Si movemos la tasa 1pp, el efecto esperado sobre default se estima con diseño causal y debe salir del artefacto oficial"
 
 Son preguntas fundamentalmente distintas. La primera describe el pasado; la segunda
 permite diseñar intervenciones futuras.
@@ -80,12 +147,12 @@ permite diseñar intervenciones futuras.
 
 ### Resultado clave del proyecto
 
-> **+1 punto porcentual en tasa de interés → +0.787pp en probabilidad de default**
+> En el snapshot canónico actual: **+1 punto porcentual en tasa de interés → {ate_text} en probabilidad de default**
 
-Esto tiene implicación económica directa: por cada punto de tasa que subes,
-pierdes ~0.8% más de préstamos al default. La política óptima seleccionada
-(regla `high_plus_medium_positive`) genera un valor neto de **$5.857M** en
-pérdidas evitadas, enfocando intervenciones donde el efecto causal es mayor.
+La política seleccionada en el artefacto oficial es **`{rule_name}`** y su
+valor neto esperado reportado es **{net_text}**. La semántica operativa no es
+un SCM exacto: es una **simulación de política bajo CATE local** usada para
+priorizar dónde una intervención de precio parece defendible.
 """
     )
 
@@ -103,8 +170,8 @@ st.markdown(
 ### Qué técnica causal se está usando y cómo leerla
 - **ATE** (Average Treatment Effect): efecto promedio de mover una palanca (ej. tasa) sobre default.
 - **CATE** (Conditional ATE): ese efecto, pero condicionado por perfil de cliente/segmento.
-- **DoWhy** aporta el marco de identificación causal (supuestos, DAG y refutación conceptual).
-- **EconML (DML/Causal Forest)** estima efectos heterogéneos con flexibilidad no lineal en tabular.
+- **DoWhy** aporta identificación backdoor, DAG y refutaciones.
+- **EconML CausalForestDML** estima efectos heterogéneos con flexibilidad no lineal en tabular.
 
 Interpretación en este proyecto:
 - `CATE > 0`: aumentar tasa empeora default (conviene bajar o no subir en ese segmento).
@@ -125,14 +192,33 @@ como estimaciones sujetas a supuestos, no como “verdad absoluta” independien
 """
 )
 
-cate_df = load_parquet("cate_estimates")
-segment_summary = load_parquet("causal_policy_segment_summary")
-grade_summary = load_parquet("causal_policy_grade_summary")
-rule_selected = load_parquet("causal_policy_rule_selected")
-rule_candidates = load_parquet("causal_policy_rule_candidates")
-simulation = load_parquet("causal_policy_simulation")
+portfolio_status = causal_snapshot["portfolio_status"]
+if portfolio_status:
+    st.markdown("### Estado operativo actual del CATE portfolio")
+    st.info(
+        f"El proyecto ya separa con claridad política causal y portfolio causal. En el champion oficial, `cate_portfolio` quedó en `{portfolio_status.get('cate_policy_mode', 'N/D')}` con `promotion_eligible={portfolio_status.get('promotion_eligible', False)}`. La GPU ya acelera ese bloque con cuOpt, pero esa aceleración no cambia todavía su estatus económico: sigue siendo un carril de investigación."
+    )
 
-selected = rule_selected.iloc[0]
+cate_df = try_load_parquet("cate_estimates")
+segment_summary = try_load_parquet("causal_policy_segment_summary")
+grade_summary = try_load_parquet("causal_policy_grade_summary")
+rule_selected = try_load_parquet("causal_policy_rule_selected")
+rule_candidates = try_load_parquet("causal_policy_rule_candidates")
+simulation = try_load_parquet("causal_policy_simulation")
+selected = (
+    rule_selected.iloc[0]
+    if not rule_selected.empty
+    else pd.Series(
+        {
+            "rule_name": rule_name,
+            "action_rate": causal_snapshot["avg_action_rate"] or 0.0,
+            "total_net_value": causal_snapshot["total_net_value"] or 0.0,
+            "total_loss_reduction": 0.0,
+            "total_revenue_impact": 0.0,
+            "bootstrap_p05_net": causal_snapshot["bootstrap_p05_net"] or 0.0,
+        }
+    )
+)
 
 kpi_row(
     [
@@ -142,6 +228,15 @@ kpi_row(
         {"label": "Reducción pérdida", "value": f"${selected.get('total_loss_reduction', 0):,.0f}"},
     ]
 )
+
+portfolio_status = causal_snapshot["portfolio_status"]
+if portfolio_status.get("warning") or (
+    portfolio_status and not portfolio_status.get("feasible_adjusted", True)
+):
+    st.warning(
+        "Integración causal no utilizable en este run. "
+        + str(portfolio_status.get("warning") or "").strip()
+    )
 
 st.dataframe(
     pd.DataFrame(
@@ -176,78 +271,87 @@ estimación de efecto: llega hasta política accionable.
 )
 
 st.subheader("1) Distribución de efectos heterogéneos (CATE)")
-col1, col2 = st.columns(2)
-with col1:
-    fig = px.histogram(
-        cate_df.sample(min(120000, len(cate_df)), random_state=21),
-        x="cate",
-        nbins=70,
-        title="Distribución CATE",
-        labels={"cate": "Efecto causal estimado de tasa sobre default"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    fig.update_traces(marker_color="#00D4AA")
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: observar heterogeneidad de sensibilidad causal. Insight: una distribución ancha de CATE confirma que "
-        "una política única de tasa no es óptima para todos los clientes."
-    )
+if cate_df.empty:
+    st.info("No hay `cate_estimates.parquet` disponible para visualizar la distribución de efectos.")
+else:
+    col1, col2 = st.columns(2)
+    with col1:
+        fig = px.histogram(
+            cate_df.sample(min(120000, len(cate_df)), random_state=21),
+            x="cate",
+            nbins=70,
+            title="Distribución CATE",
+            labels={"cate": "Efecto causal estimado de tasa sobre default"},
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+        fig.update_traces(marker_color="#00D4AA")
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: observar heterogeneidad de sensibilidad causal. Insight: una distribución ancha de CATE confirma que "
+            "una política única de tasa no es óptima para todos los clientes."
+        )
 
-with col2:
-    fig = px.box(
-        cate_df.sample(min(120000, len(cate_df)), random_state=27),
-        x="grade",
-        y="cate",
-        title="CATE por grade",
-        labels={"grade": "Grade", "cate": "CATE"},
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: comparar sensibilidad causal por grade. Insight: algunos segmentos concentran mayor potencial de reducción "
-        "de default ante ajuste de tasa."
-    )
+    with col2:
+        if "grade" in cate_df.columns:
+            fig = px.box(
+                cate_df.sample(min(120000, len(cate_df)), random_state=27),
+                x="grade",
+                y="cate",
+                title="CATE por grade",
+                labels={"grade": "Grade", "cate": "CATE"},
+            )
+            fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+            st.plotly_chart(fig, width="stretch")
+        else:
+            st.info("El artefacto CATE actual no incluye `grade`; se omite el boxplot por segmento.")
+        st.caption(
+            "Propósito: comparar sensibilidad causal por grade. Insight: algunos segmentos concentran mayor potencial de reducción "
+            "de default ante ajuste de tasa."
+        )
 
 st.subheader("2) Impacto de política por segmento")
-col3, col4 = st.columns(2)
-with col3:
-    fig = px.bar(
-        segment_summary,
-        x="segment",
-        y="total_net_value",
-        color="action_rate",
-        title="Valor neto total por segmento",
-        labels={
-            "segment": "Segmento",
-            "total_net_value": "Valor neto (USD)",
-            "action_rate": "Action rate",
-        },
-        color_continuous_scale="Tealgrn",
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, coloraxis_showscale=False)
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: priorizar segmentos por valor económico esperado. Insight: no siempre coincide el mayor valor con el mayor "
-        "action rate, por lo que la regla debe optimizar ambos."
-    )
+if segment_summary.empty or grade_summary.empty:
+    st.info("Faltan resúmenes de simulación causal para renderizar los gráficos por segmento/grade.")
+else:
+    col3, col4 = st.columns(2)
+    with col3:
+        fig = px.bar(
+            segment_summary,
+            x="segment",
+            y="total_net_value",
+            color="action_rate",
+            title="Valor neto total por segmento",
+            labels={
+                "segment": "Segmento",
+                "total_net_value": "Valor neto (USD)",
+                "action_rate": "Action rate",
+            },
+            color_continuous_scale="Tealgrn",
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, coloraxis_showscale=False)
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: priorizar segmentos por valor económico esperado. Insight: no siempre coincide el mayor valor con el mayor "
+            "action rate, por lo que la regla debe optimizar ambos."
+        )
 
-with col4:
-    fig = px.bar(
-        grade_summary.sort_values("grade"),
-        x="grade",
-        y="action_rate",
-        color="avg_pd_reduction",
-        title="Action rate y reducción de PD por grade",
-        labels={"grade": "Grade", "action_rate": "Action rate", "avg_pd_reduction": "Δ PD"},
-        color_continuous_scale="Sunsetdark",
-    )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, coloraxis_showscale=False)
-    fig.update_yaxes(tickformat=".0%")
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: medir intensidad de intervención por grade. Insight: action rate alto con baja mejora de PD puede no ser "
-        "económicamente eficiente."
-    )
+    with col4:
+        fig = px.bar(
+            grade_summary.sort_values("grade"),
+            x="grade",
+            y="action_rate",
+            color="avg_pd_reduction",
+            title="Action rate y reducción de PD por grade",
+            labels={"grade": "Grade", "action_rate": "Action rate", "avg_pd_reduction": "Δ PD"},
+            color_continuous_scale="Sunsetdark",
+        )
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390, coloraxis_showscale=False)
+        fig.update_yaxes(tickformat=".0%")
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: medir intensidad de intervención por grade. Insight: action rate alto con baja mejora de PD puede no ser "
+            "económicamente eficiente."
+        )
 
 st.markdown(
     """
@@ -267,33 +371,36 @@ el costo comercial de la intervención. Si ese último paso no cierra, la regla 
 )
 
 st.subheader("3) Frontera de reglas candidatas")
-fig = px.scatter(
-    rule_candidates,
-    x="action_rate",
-    y="total_net_value",
-    color="pass_all",
-    size="n_selected",
-    text="rule_name",
-    title="Trade-off entre cobertura de acción y valor económico",
-    labels={
-        "action_rate": "Action rate",
-        "total_net_value": "Valor neto (USD)",
-        "pass_all": "Cumple constraints",
-    },
-)
-fig.update_traces(textposition="top center")
-fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
-st.plotly_chart(fig, width="stretch")
-st.caption(
-    "Propósito: evaluar frontera de reglas candidatas. Insight: la mejor regla no es la de mayor cobertura, sino la que "
-    "maximiza valor cumpliendo restricciones."
-)
+if rule_candidates.empty:
+    st.info("No hay reglas candidatas disponibles. Ejecuta la validación causal para poblar esta sección.")
+else:
+    fig = px.scatter(
+        rule_candidates,
+        x="action_rate",
+        y="total_net_value",
+        color="pass_all",
+        size="n_selected",
+        text="rule_name",
+        title="Trade-off entre cobertura de acción y valor económico",
+        labels={
+            "action_rate": "Action rate",
+            "total_net_value": "Valor neto (USD)",
+            "pass_all": "Cumple constraints",
+        },
+    )
+    fig.update_traces(textposition="top center")
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+    st.plotly_chart(fig, width="stretch")
+    st.caption(
+        "Propósito: evaluar frontera de reglas candidatas. Insight: la mejor regla no es la de mayor cobertura, sino la que "
+        "maximiza valor cumpliendo restricciones."
+    )
 
-st.dataframe(
-    rule_candidates.sort_values(["pass_all", "total_net_value"], ascending=[False, False]),
-    width="stretch",
-    hide_index=True,
-)
+    st.dataframe(
+        rule_candidates.sort_values(["pass_all", "total_net_value"], ascending=[False, False]),
+        width="stretch",
+        hide_index=True,
+    )
 
 st.subheader("4) Descomposición económica de la regla seleccionada")
 fig = go.Figure(
@@ -358,7 +465,7 @@ with col_j:
             width="stretch",
         )
 
-with st.expander("Muestra de simulación contrafactual por préstamo"):
+with st.expander("Muestra de simulación de política por préstamo"):
     cols = [
         "id",
         "segment",
@@ -369,11 +476,15 @@ with st.expander("Muestra de simulación contrafactual por préstamo"):
         "net_value",
         "recommended_action",
     ]
-    st.dataframe(
-        simulation[cols].sample(min(120, len(simulation)), random_state=3),
-        width="stretch",
-        hide_index=True,
-    )
+    if simulation.empty:
+        st.info("No hay simulación causal cargada para mostrar ejemplos por préstamo.")
+    else:
+        available_cols = [col for col in cols if col in simulation.columns]
+        st.dataframe(
+            simulation[available_cols].sample(min(120, len(simulation)), random_state=3),
+            width="stretch",
+            hide_index=True,
+        )
 
 st.subheader("5) Impacto en optimización de portafolio")
 cate_comparison = try_load_parquet("cate_portfolio_comparison")

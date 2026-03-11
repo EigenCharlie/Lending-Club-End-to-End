@@ -112,6 +112,7 @@ def train_baseline(
     y_train: pd.Series,
     X_test: pd.DataFrame,
     y_test: pd.Series,
+    sample_weight: np.ndarray | None = None,
     **kwargs: Any,
 ) -> tuple[LogisticRegression, dict[str, float]]:
     """Train logistic regression baseline."""
@@ -122,7 +123,7 @@ def train_baseline(
         class_weight="balanced",
         **kwargs,
     )
-    model.fit(X_train, y_train)
+    model.fit(X_train, y_train, sample_weight=sample_weight)
     y_prob = model.predict_proba(X_test)[:, 1]
     auc = roc_auc_score(y_test, y_prob)
     metrics = {"auc_roc": float(auc), "model_type": "logistic_regression"}
@@ -158,14 +159,16 @@ def train_catboost_default(
     y_test: pd.Series | None = None,
     cat_features: list[str] | None = None,
     params: dict[str, Any] | None = None,
+    sample_weight: np.ndarray | None = None,
+    eval_sample_weight: np.ndarray | None = None,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
     """Train default CatBoost model using temporal validation set."""
     if cat_features is None:
         cat_features = [c for c in CATEGORICAL_FEATURES if c in X_train.columns]
     model = CatBoostClassifier(**_catboost_base_params(params))
     model.fit(
-        Pool(X_train, y_train, cat_features=cat_features),
-        eval_set=Pool(X_val, y_val, cat_features=cat_features),
+        Pool(X_train, y_train, cat_features=cat_features, weight=sample_weight),
+        eval_set=Pool(X_val, y_val, cat_features=cat_features, weight=eval_sample_weight),
         use_best_model=True,
     )
     y_val_prob = model.predict_proba(X_val)[:, 1]

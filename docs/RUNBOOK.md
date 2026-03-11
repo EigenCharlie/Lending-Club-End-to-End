@@ -26,15 +26,23 @@ test -e .venv || ln -s lending-club-venv .venv
 # 3. Place Kaggle data
 # Download Loan_status_2007-2020Q3.csv to data/raw/
 
-# 4. Run the full pipeline
-uv run python scripts/end_to_end_pipeline.py
+# 4. Build/update dedicated causal env
+bash scripts/causal/setup_causal_env.sh .venv-causal
 
-# 5. Verify tests pass
+# 5. Run the canonical full pipeline
+uv run dvc repro
+
+# 6. Verify tests pass
 uv run pytest -x
 
-# 6. Launch Streamlit dashboard
+# 7. Launch Streamlit dashboard
 uv run streamlit run streamlit_app/app.py
 ```
+
+Notes:
+- Canonical full rebuild: `uv run dvc repro` or `scripts/run_long_pipeline.py`.
+- `scripts/end_to_end_pipeline.py` is a core/minimal smoke flow and is not the official thesis-grade orchestration path.
+- Canonical standalone causal runner: `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate`.
 
 ## Step-by-Step Pipeline
 
@@ -51,12 +59,10 @@ If you want to run individual stages:
 | 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
 | 8 | `uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml` | Challenger feature selection + monotonic constraints spec |
 | 9 | `uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml` | Fairness gate using threshold artifact (`fairness_audit_status.json`) |
-| 10 | `uv run python scripts/estimate_causal_effects.py` | CATE estimates |
-| 11 | `uv run python scripts/simulate_causal_policy.py` | Policy simulation |
-| 12 | `uv run python scripts/validate_causal_policy.py` | Rule selection + bootstrap |
-| 13 | `uv run python scripts/run_ifrs9_sensitivity.py` | ECL scenarios |
-| 14 | `uv run python scripts/optimize_portfolio.py` | LP/MILP allocation |
-| 15 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
+| 10 | `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` | `estimate -> simulate -> validate -> backtest` in `.venv-causal` |
+| 11 | `uv run python scripts/run_ifrs9_sensitivity.py` | ECL scenarios |
+| 12 | `uv run python scripts/optimize_portfolio.py` | LP/MILP allocation |
+| 13 | `uv run python scripts/optimize_portfolio_tradeoff.py` | Robustness frontier |
 
 Compatibility note:
 - Canonical status artifacts are single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
@@ -143,8 +149,11 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 # Build/update dedicated causal env (project stack + EconML overlay)
 bash scripts/causal/setup_causal_env.sh .venv-causal
 
-# Example
-./.venv-causal/bin/python scripts/estimate_causal_effects.py
+# Canonical standalone causal chain
+bash scripts/causal/run_causal_pipeline.sh --treatment int_rate
+
+# Run a single causal script inside the dedicated env
+bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate
 ```
 
 Note:
@@ -206,7 +215,8 @@ uv run dvc dag
 uv run dvc push -r dagshub
 ```
 
-`dvc repro` is equivalent to running `scripts/end_to_end_pipeline.py` but with automatic caching and incremental execution.
+`dvc repro` is the canonical full rebuild path with automatic caching and incremental execution.
+`scripts/end_to_end_pipeline.py` remains a core/minimal smoke pipeline, not the official full orchestration path.
 
 ### DVC Metrics / Plots (comparables por commit)
 
