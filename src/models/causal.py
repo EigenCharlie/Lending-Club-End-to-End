@@ -267,6 +267,11 @@ def estimate_cate(
     X: pd.DataFrame,
     W: pd.DataFrame | None = None,
     n_estimators: int = 200,
+    cv: int = 3,
+    mc_iters: int = 1,
+    criterion: str = "mse",
+    min_balancedness_tol: float = 0.45,
+    honest: bool = True,
 ) -> tuple[Any, np.ndarray, tuple[np.ndarray, np.ndarray]]:
     """Estimate Conditional Average Treatment Effect using CausalForestDML.
 
@@ -288,7 +293,11 @@ def estimate_cate(
         model_t=GradientBoostingRegressor(n_estimators=100, max_depth=4, random_state=42),
         n_estimators=n_estimators,
         random_state=42,
-        cv=3,
+        cv=max(2, int(cv)),
+        mc_iters=max(1, int(mc_iters)),
+        criterion=str(criterion),
+        min_balancedness_tol=float(min_balancedness_tol),
+        honest=bool(honest),
     )
     est.fit(Y=Y, T=T, X=X, W=W)
 

@@ -48,19 +48,20 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
     assert "--sample_size 0" in main_pre_cmd
     assert "run_survival_analysis.py --sample_size 250000 --rsf_n_estimators 200" in heavy_main_cmd
     assert "train_lgd_ead.py --sample_size 0" in heavy_main_cmd
-    assert "optimize_portfolio.py --config configs/optimization.yaml --max_candidates 20000" in (
-        heavy_main_cmd
+    assert (
+        "scripts.optimize_portfolio --config configs/optimization.yaml --max_candidates 20000"
+        in (heavy_main_cmd)
     )
     assert (
-        "optimize_portfolio_tradeoff.py --config configs/optimization.yaml --max_candidates 80000 --grid-profile quick"
+        "scripts.optimize_portfolio_tradeoff --config configs/optimization.yaml --max_candidates 80000 --grid-profile quick"
         in heavy_main_cmd
     )
     assert (
-        "select_economic_portfolio_policy.py --config configs/optimization.yaml --run-tag run-balanced"
+        "scripts.select_economic_portfolio_policy --config configs/optimization.yaml --run-tag run-balanced"
         in heavy_main_cmd
     )
     assert (
-        "simulate_ab_test.py --max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000"
+        "scripts.simulate_ab_test --max_portfolio_pd 0.18 --max_candidates 20000 --n_boot 5000"
         in heavy_main_cmd
     )
     assert "--policy_selector explicit_champion_only" in heavy_main_cmd
@@ -68,7 +69,7 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
         "bash scripts/causal/run_causal_pipeline.sh --treatment int_rate --sample_size 200000 --run_tag run-balanced"
         in causal_cmd
     )
-    assert "optimize_cate_portfolio.py --max_candidates 20000" in cate_cmd
+    assert "scripts.optimize_cate_portfolio --max_candidates 20000" in cate_cmd
     assert "--profile current" in rapids_cmd
 
 
@@ -101,14 +102,13 @@ def test_build_steps_mega64safe_caps_survival_memory_pressure() -> None:
         "run_survival_analysis.py --full-data --rsf_n_estimators 200 --rsf_sample_size 500000 "
         "--rsf_max_samples 0.5 --rsf_n_jobs 12" in heavy_main_cmd
     )
-    assert "optimize_portfolio.py --config configs/optimization.yaml --max_candidates 150000" in (
-        heavy_main_cmd
+    assert (
+        "scripts.optimize_portfolio --config configs/optimization.yaml --max_candidates 150000"
+        in (heavy_main_cmd)
     )
 
 
-def test_build_steps_champion64safe_uses_frozen_policy_when_available(
-    tmp_path, monkeypatch
-) -> None:
+def test_build_steps_champion64safe_keeps_search_phases_enabled(tmp_path, monkeypatch) -> None:
     repo = tmp_path
     (repo / "configs").mkdir(parents=True, exist_ok=True)
     (repo / "configs" / "pd_model.champion.yaml").write_text("{}", encoding="utf-8")
@@ -139,9 +139,9 @@ portfolio_selection:
     )
     heavy_main_cmd = next(cmd for name, _required, cmd in steps if name == "heavy_main")
 
-    assert "optimize_portfolio_tradeoff.py" not in heavy_main_cmd
-    assert "select_economic_portfolio_policy.py" not in heavy_main_cmd
-    assert "simulate_ab_test.py" in heavy_main_cmd
+    assert "scripts.optimize_portfolio_tradeoff" in heavy_main_cmd
+    assert "scripts.select_economic_portfolio_policy" in heavy_main_cmd
+    assert "scripts.simulate_ab_test" in heavy_main_cmd
     assert "--policy_selector explicit_champion_only" in heavy_main_cmd
 
 
@@ -151,6 +151,100 @@ def test_build_steps_notebooks_avoids_redundant_paper_suite_execution() -> None:
     assert "run_all_notebooks.py" in notebooks_cmd
     assert "extract_notebook_images.py" in notebooks_cmd
     assert "run_paper_notebook_suite.py" not in notebooks_cmd
+
+
+def test_build_steps_canonical_rebuild_forces_frozen_policy_and_bundle(
+    tmp_path, monkeypatch
+) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "pd_model.champion.yaml").write_text("{}", encoding="utf-8")
+    (repo / "configs" / "optimization.yaml").write_text(
+        """
+portfolio_selection:
+  canonical_execution_mode: freeze_if_available
+  frozen_champion_policy_path: models/champion_portfolio_policy.json
+""".strip(),
+        encoding="utf-8",
+    )
+    (repo / "models").mkdir(parents=True, exist_ok=True)
+    (repo / "models" / "champion_portfolio_policy.json").write_text("{}", encoding="utf-8")
+    (repo / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo / "scripts" / "optimize_portfolio.py").write_text(
+        "parser.add_argument('--max_candidates')", encoding="utf-8"
+    )
+    (repo / "scripts" / "optimize_portfolio_tradeoff.py").write_text(
+        "parser.add_argument('--grid-profile')", encoding="utf-8"
+    )
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+
+    steps = lp.build_steps(
+        "canonical-run",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+        pipeline_family="canonical_rebuild",
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    assert "--config configs/pd_model.champion.yaml" in by_name["main_pre"]
+    assert "scripts.optimize_portfolio_tradeoff" not in by_name["heavy_main"]
+    assert "scripts.select_economic_portfolio_policy" not in by_name["heavy_main"]
+    assert "build_champion_search_bundle.py" in by_name["post_core"]
+
+
+def test_build_steps_profile_can_route_or_phases_to_rapids(tmp_path, monkeypatch) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "optimization.yaml").write_text(
+        """
+portfolio_selection:
+  canonical_execution_mode: search
+""".strip(),
+        encoding="utf-8",
+    )
+    (repo / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo / "scripts" / "optimize_portfolio.py").write_text(
+        "parser.add_argument('--max_candidates')", encoding="utf-8"
+    )
+    (repo / "scripts" / "optimize_portfolio_tradeoff.py").write_text(
+        "parser.add_argument('--grid-profile')", encoding="utf-8"
+    )
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+    monkeypatch.setattr(lp, "_resolve_rapids_python_cmd", lambda _cfg: "rapids-python")
+
+    steps = lp.build_steps(
+        "champion-max",
+        include_rapids=True,
+        include_notebooks=True,
+        sampling_profile="mega64plus",
+        pipeline_family="champion_search",
+        profile_cfg={
+            "resource_policy": {
+                "lgd_ead_backend": "gpu_if_stable",
+                "portfolio_backend": "cuopt",
+                "tradeoff_backend": "cuopt",
+                "selector_backend": "cuopt",
+                "ab_backend": "cuopt",
+                "cate_backend": "cuopt",
+                "ifrs9_mc_backend": "gpu_research",
+            },
+            "search_space": {
+                "pd": {"config_path": "configs/pd_model.champion_search_max.yaml"},
+                "portfolio": {"max_candidates": 180000},
+                "tradeoff": {"max_candidates": 150000, "grid_profile": "balanced"},
+                "ab": {"max_portfolio_pd": 0.18, "max_candidates": 180000, "n_boot": 10000},
+                "cate_portfolio": {"max_candidates": 180000},
+                "rapids": {"ifrs9_mc": {"n_scenarios": 8192, "chunk_size": 256}},
+            },
+        },
+    )
+
+    by_name = {name: cmd for name, _required, cmd in steps}
+    assert "rapids-python -u -m scripts.optimize_portfolio" in by_name["heavy_main"]
+    assert "--solver_backend cuopt" in by_name["heavy_main"]
+    assert "--catboost_backend gpu" in by_name["heavy_main"]
+    assert "rapids-python -u -m scripts.optimize_cate_portfolio" in by_name["cate_portfolio"]
+    assert "run_ifrs9_monte_carlo_gpu.py --n-scenarios 8192 --chunk-size 256" in by_name["rapids"]
 
 
 def test_main_rejects_core_run_without_explicit_baseline(tmp_path, monkeypatch) -> None:

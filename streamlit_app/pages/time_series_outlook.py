@@ -1,4 +1,5 @@
 """Panorama temporal: pronóstico gobernado de defaults y escenarios."""
+# ruff: noqa: E402, I001
 
 from __future__ import annotations
 
@@ -283,9 +284,9 @@ else:
         title="Tasa de default: histórico + forecast oficial/diagnóstico",
         xaxis_title="Fecha",
         yaxis_title="Tasa de default",
-        yaxis={"tickformat": ".1%"},
         height=470,
     )
+    fig.update_yaxes(tickformat=".1%")
     st.plotly_chart(fig, width="stretch")
     st.caption(
         f"Punto canónico desde `{point_model}` y bandas desde `{interval_model}`. "
@@ -366,7 +367,8 @@ else:
             labels={"horizon_step": "Paso", "coverage_90": "Coverage"},
         )
         fig.add_hline(y=0.90, line_dash="dash", line_color="#B91C1C")
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".0%"}, height=360)
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
+        fig.update_yaxes(tickformat=".0%")
         st.plotly_chart(fig, width="stretch")
     with col_b:
         point_horizon = _build_horizon_quality(backtest_predictions, point_model)
@@ -402,7 +404,8 @@ else:
         title="Bottom-up forecast por grade (tasas derivadas tras reconciliación)",
         labels={"ds": "Fecha", "default_rate": "Tasa de default"},
     )
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".1%"}, height=420)
+    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+    fig.update_yaxes(tickformat=".1%")
     st.plotly_chart(fig, width="stretch")
     st.caption(
         "La reconciliación se hace sobre `default_count` y `loan_count`; la tasa se deriva después para evitar inconsistencias aditivas."
@@ -442,9 +445,9 @@ else:
         fig.update_layout(
             **PLOTLY_TEMPLATE["layout"],
             title="Escenario central vs bandas 90%",
-            yaxis={"tickformat": ".1%"},
             height=390,
         )
+        fig.update_yaxes(tickformat=".1%")
         st.plotly_chart(fig, width="stretch")
     with col_b:
         scen_long = scenarios.melt(
@@ -467,7 +470,8 @@ else:
             title="Dispersión de tasas por escenario",
             labels={"escenario": "", "tasa": "Tasa"},
         )
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], yaxis={"tickformat": ".1%"}, height=390)
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=390)
+        fig.update_yaxes(tickformat=".1%")
         st.plotly_chart(fig, width="stretch")
     st.caption(
         "Estos escenarios ya salen del artifact canónico del forecast temporal y se consumen downstream en IFRS9."

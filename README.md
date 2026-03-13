@@ -1,6 +1,7 @@
 # Lending Club End-to-End Risk Intelligence Platform
 
-Credit risk thesis platform that integrates machine learning, conformal uncertainty, IFRS9 scenario analytics, causal policy evaluation, and robust portfolio optimization.
+Credit risk thesis platform organized around three execution narratives:
+`canonical_rebuild`, `champion_search`, and `insights_factory`.
 
 [![CI](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml/badge.svg)](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml)
 [![Live Streamlit](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
@@ -16,7 +17,7 @@ Public Streamlit showcase:
 
 ## Project Scope
 
-This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with a Streamlit-first delivery layer for thesis defense and stakeholder communication.
+This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with Streamlit as the interactive layer and a future-ready contract for Quarto book delivery.
 
 Core methodological chain:
 
@@ -83,16 +84,23 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 # 4) Run the canonical full pipeline (incremental, DVC-managed)
 uv run dvc repro
 
-# 5) Export Streamlit-ready artifacts
-uv run python scripts/export_streamlit_artifacts.py
+# 5) Run the frozen operational rebuild
+uv run python scripts/run_canonical_rebuild.py --run-tag canonical-local-smoke
 
-# 6) Run app locally
+# 6) Run the heavyweight champion search when needed
+uv run python scripts/run_champion_search.py --run-tag champion-local-max --sampling-profile mega64plus
+
+# 7) Run complementary insight generation
+uv run python scripts/run_insights_factory.py --run-tag insights-local --profile canonical
+
+# 8) Run app locally
 uv run streamlit run streamlit_app/app.py
 ```
 
 Notes:
 - `uv run dvc repro` is the canonical thesis-grade rebuild path.
-- `uv run python scripts/end_to_end_pipeline.py` is a core/minimal smoke pipeline, not the full causal/fairness/governance run.
+- `uv run python scripts/run_smoke_pipeline.py` is the lightweight smoke pipeline.
+- `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` remain as compatibility entrypoints only.
 - `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` is the canonical standalone causal runner when you only need the causal layer.
 
 ## Reproducibility and MLOps
@@ -109,10 +117,10 @@ uv run dvc status -c --json
 uv run dvc push -r dagshub
 ```
 
-For an official long rerun with resumability and run tagging, use:
+For a heavyweight champion search run with resumability and run tagging, use:
 
 ```bash
-bash scripts/start_long_run.sh <run_tag> --comparison-baseline-run-tag <baseline_run_tag> --no-rapids --no-notebooks
+bash scripts/start_long_run.sh <run_tag> --comparison-baseline-run-tag <baseline_run_tag>
 ```
 
 One-shot integrations setup:
@@ -160,6 +168,7 @@ CI workflow:
 3. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
 4. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale
 5. `docs/THESIS_SHOWCASE_PLAN_ES.md` - showcase execution plan
+6. `docs/QUARTO_BOOK_BLUEPRINT.md` - future-ready editorial contract for the book
 
 ## License
 

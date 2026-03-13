@@ -10,6 +10,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import pickle
 import subprocess
 from dataclasses import dataclass
@@ -240,10 +241,24 @@ def _artifact_index() -> dict[str, dict[str, Any]]:
 
 
 def _snapshot_payload(run_tag: str) -> dict[str, Any]:
+    pipeline_family = str(os.environ.get("PIPELINE_FAMILY", "")).strip() or None
+    pipeline_profile = str(os.environ.get("PIPELINE_PROFILE", "")).strip() or None
+    artifact_scope = str(os.environ.get("PIPELINE_ARTIFACT_SCOPE", "")).strip() or None
+    promotion_state = str(os.environ.get("PIPELINE_PROMOTION_STATE", "")).strip() or None
+    upstream = str(os.environ.get("UPSTREAM_CANONICAL_RUN_TAG", "")).strip() or None
+    writes = str(os.environ.get("WRITES_CANONICAL_ARTIFACTS", "")).strip()
     return {
         "schema_version": SCHEMA_VERSION,
         "run_tag": run_tag,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+        "pipeline_family": pipeline_family,
+        "pipeline_profile": pipeline_profile,
+        "artifact_scope": artifact_scope,
+        "promotion_state": promotion_state,
+        "upstream_canonical_run_tag": upstream,
+        "writes_canonical_artifacts": None
+        if writes == ""
+        else writes.lower() in {"1", "true", "yes", "on"},
         "git": {
             "head": _git(["git", "rev-parse", "HEAD"]),
             "branch": _git(["git", "branch", "--show-current"]),

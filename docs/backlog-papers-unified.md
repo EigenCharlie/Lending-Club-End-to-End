@@ -1,0 +1,497 @@
+<!-- cspell:disable -->
+<!-- markdownlint-disable -->
+
+# Backlog Unificado: Pipeline + Papers + Quarto
+
+Fecha: 2026-03-13
+Baseline operativo: `champion-2026-03-12-mega-definitive`
+Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble-doodling-mountain)
+
+## Prioridad global (orden recomendado)
+
+1. PD conformal estricto (bloquea Paper 3 y Paper Estrella)
+2. Time series intervals (bloquea Paper 2)
+3. A/B más fuerte (alimenta Paper Estrella)
+4. Governance warnings (alimenta Paper 2 y Estrella)
+5. Causal policy / CATE (insights, no bloquea papers core)
+6. Cierre de protocolo paper
+7. Study limpio de PD + mega corrida final paper-grade
+8. Migración Quarto (paralelo, no bloquea corrida)
+9. Writing papers (post corrida final)
+
+---
+
+## Resumen ejecutivo
+
+### Ya promovido (mega run 2026-03-12)
+
+- PD core: CatBoost tuned + calibrated, AUC 0.7128, Brier 0.1545
+- Calibración: Isotonic Regression
+- Portfolio champion: risk_tol=0.18, capped_blended_uncertainty
+- Survival RSF: c-index 0.6797 (mejora fuerte)
+- Fairness: 6/6 PASS, threshold 0.35
+- Governance: overall_pass, challenger_promotable
+- LGD/EAD conformal: promovido
+- Baseline operativo completo
+
+### Pendiente de cierre (pipeline)
+
+- PD conformal estricto (promotable con warning estadístico)
+- Time series intervals (coverage 81% vs target 90%)
+- Causal/CATE (research only, -4.47% portfolio delta)
+- A/B significancia (p=0.4495)
+- Governance narrative (c2st + distribution warnings)
+
+### Pendiente nuevo (papers + Quarto)
+
+- Benchmark variantes CP para Paper 3
+- Uncertainty set baselines para Paper Estrella
+- Bound teórico alpha-Gamma para Paper Estrella
+- SICR trigger formalización para Paper 2
+- ECL sensitivity a alpha conformal para Paper 2
+- Migración Streamlit a Quarto + Streamlit
+- Writing de 3 papers + Quarto book
+
+---
+
+## 1. PD conformal estricto
+
+Prioridad: **1 (CRÍTICA)**
+Bloquea: Paper 3 (COPA), Paper Estrella (MS/OR)
+Conexión papers: es el corazón metodológico de Paper 3 y componente clave del Estrella
+
+### 1.1 Benchmark de variantes CP (backlog original + paper)
+
+Pendientes:
+
+- Ampliar benchmark con:
+  - CrossConformal
+  - JackknifeAfterBootstrap (Jackknife+)
+  - Venn-Abers intervals
+  - CQR (Conformalized Quantile Regression, Romano et al. 2019)
+  - Variantes localizadas (locally-weighted)
+  - Variantes group-weighted
+- Mantener variante actual como baseline operativo
+- Comparar por variante:
+  - coverage_90, coverage_95
+  - min_group_coverage_90
+  - avg_width_90, avg_width_95
+  - kupiec_pvalue_90, kupiec_pvalue_95
+  - christoffersen_pvalue_90, christoffersen_pvalue_95
+  - estabilidad temporal por mes
+  - rolling windows 3m y 6m (nuevo para Paper 3)
+
+### 1.2 Selector de variante conformal
+
+Pendientes:
+
+- Definir selector explícito con prioridad:
+  - Prioridad 1: tests estadísticos (Kupiec, Christoffersen)
+  - Prioridad 2: cobertura por grupo (min_group_coverage)
+  - Prioridad 3: anchura (eficiencia)
+- Artefacto final: variante elegida + tabla comparativa + razón de selección
+- Estado objetivo: `operationally_promotable` + `research_closed`
+
+### 1.3 Posicionamiento académico (nuevo, para Paper 3)
+
+Pendientes:
+
+- Posicionar vs Kandinsky CP (Bairaktari et al. 2025, ICML): credit grades son disjuntos, Mondrian es correcto
+- Citar: Gibbs & Cherian (2024 JRSS-B), Zhou & Sesia (2024 NeurIPS)
+- Agregar experiment: robustez a cambio de partición de grades
+- Análisis de finite-sample effects en grades con bajo n
+
+Entregable:
+
+- Política conformal PD con estado `research_closed`
+- Material para Paper 3 (tablas, figuras, narrativa)
+- Variante seleccionada con justificación publicable
+
+---
+
+## 2. Time series intervals
+
+Prioridad: **2**
+Bloquea: Paper 2 (JBF) si se quiere integrar forecast intervals en ECL
+Conexión papers: alimenta escenarios ECL en Paper 2
+
+### 2.1 Benchmark TS intervals (backlog original)
+
+Pendientes:
+
+- Mantener point forecast actual (AutoARIMA) como baseline
+- Benchmarkear:
+  - ACI (Adaptive Conformal Inference)
+  - EnbPI
+  - OnlineConformal
+  - Variantes Nixtla / StatsForecast
+- Medir:
+  - Cobertura 80/90/95
+  - Sharpness
+  - Estabilidad rolling
+  - Degradación por horizonte
+  - Comportamiento en cambio de régimen
+- Revisar criterio de selección:
+  - Horizonte 12 fijo
+  - Selección multi-horizonte
+  - Selección a 6 y evaluación a 12
+- Determinar si la falla (81% vs 90%) viene de:
+  - Forecast base
+  - Método conformal
+  - Shift temporal
+
+Entregable:
+
+- `interval_promotable=true` o decisión formal de dejar intervalos fuera del camino canónico
+- Si promotable: integrar en escenarios ECL para Paper 2
+
+---
+
+## 3. A/B más fuerte
+
+Prioridad: **3**
+Bloquea: Paper Estrella (contribución decisional)
+Conexión papers: evidencia económica para Paper Estrella
+
+### 3.1 Ampliar evidencia A/B (backlog original + paper)
+
+Pendientes:
+
+- Aumentar bootstrap y seeds (10K+ replications)
+- Sensibilidad por:
+  - Cohortes temporales
+  - Segmentos de riesgo (grade)
+  - Segmentos de monto
+  - Segmentos de ingreso
+- Ampliar reporte con:
+  - Retorno total, retorno por funded
+  - Variabilidad, downside risk
+  - Robustez del uplift
+  - Sharpe-like ratio (retorno / volatilidad)
+- Revisar si la policy champion debe optimizar métrica más alineada al A/B final
+
+### 3.2 Decision regret analysis (nuevo, para Paper Estrella)
+
+Pendientes:
+
+- Implementar comparación de decision regret (sensu Elmachtoub & Grigas 2022)
+- Comparar regret: robusto conformal vs no-robusto vs SPO+ (ya en spo_integration.py)
+- Alpha sweep: {0.01, 0.05, 0.10, 0.15, 0.20} con curvas de Pareto coverage-width-return
+
+Entregable:
+
+- Evidencia económica convincente (más allá de no_regression)
+- Figuras de Pareto frontier para Paper Estrella
+
+---
+
+## 4. Governance warnings
+
+Prioridad: **4**
+Bloquea: narrativa de Paper 2 y Paper Estrella
+Conexión papers: contexto regulatorio MRM
+
+### 4.1 Contextualizar warnings (backlog original)
+
+Pendientes:
+
+- Analizar por qué c2st y distribution tests disparan warning
+- Separar drift benigno de drift material
+- Construir política de materialidad:
+  - PSI por feature
+  - Importancia de feature
+  - Efecto sobre score
+  - Efecto sobre decisión
+- Reforzar narrativa de estabilidad:
+  - SHAP rank overlap (ya 0.90)
+  - Reason codes (ya estabilidad 1.0)
+  - Threshold operativo estable
+- Disclaimer estándar: drift estadístico esperado por OOT temporal, sin deterioro operativo material
+
+Entregable:
+
+- Governance defendible para tesis, libro Quarto y papers
+
+---
+
+## 5. Causal policy / CATE
+
+Prioridad: **5**
+No bloquea papers core. Alimenta insights_factory y Quarto book.
+Conexión papers: mención en Paper 2, extensión futura en Paper Estrella
+
+### 5.1 Reforzar evidencia causal (backlog original)
+
+Pendientes:
+
+- Reforzar refutaciones: placebo, random common cause, subset, sensitivity
+- Ampliar tuning CausalForestDML: cv, mc_iters, criterion, min_balancedness_tol
+- Revisar validez de diseño: tratamiento continuo, overlap, confounders
+- Repetir evaluación OOT: valor neto, tail risk, robustez por segmentos
+- Fijar criterio binario de promoción: canonical_candidate o insights_only
+
+### 5.2 Causal como insights_factory (backlog original)
+
+Pendientes:
+
+- Separar outputs: exploratorio, candidate-to-canonical, descartado
+- Producir figuras y tablas para Quarto book (cap 7)
+
+Entregable:
+
+- Decisión final: canonical_candidate o insights_only
+- Material para Quarto cap 7
+
+---
+
+## 6. Cierre de protocolo paper
+
+Prioridad: **6** (después de items 1-5)
+Bloquea: corrida final paper-grade
+
+### 6.1 Congelar metodología (backlog original)
+
+Pendientes:
+
+- Fijar:
+  - Split temporal (ya fijo)
+  - Feature universe (42 features, ya fijo)
+  - Training regime PD (CatBoost tuned, ya fijo)
+  - Calibración oficial (Isotonic, ya fijo)
+  - Shortlist conformal (cerrar en item 1)
+  - Survival methodology (RSF promovido, ya fijo)
+  - Policy portfolio oficial (capped_blended, ya fijo)
+  - Criterio de promoción (ya documentado)
+- Decidir definitivamente:
+  - Qué queda en pipeline canónico
+  - Qué queda en insights_factory
+- Escribir documento de protocolo final
+
+Entregable:
+
+- Protocolo fijo y versionado para la corrida final
+
+---
+
+## 7. Corrida final paper-grade
+
+Prioridad: **7** (después de protocolo congelado)
+Bloquea: evidencia confirmatoria para todos los papers
+
+### 7.1 Study limpio y mega corrida (backlog original)
+
+Pendientes:
+
+- Crear study_name nuevo y limpio para PD
+- No mezclar trials históricos
+- Reutilizar historia previa solo para rangos, semillas, intuición
+- Correr con:
+  - Protocolo congelado
+  - Conformal shortlist cerrada
+  - Time series decidido
+  - Causal decidido
+  - Promotion rules finales
+
+Entregable:
+
+- Evidencia confirmatoria final para paper/Q1
+
+---
+
+## 8. Migración Quarto + Streamlit
+
+Prioridad: **8** (paralelo, no bloquea corrida)
+Bloquea: tesis de maestría final
+Conexión: el Quarto book ES la tesis de maestría
+
+### 8.1 Scaffolding Quarto book
+
+Pendientes:
+
+- Crear estructura Quarto project (_quarto.yml)
+- 16 capítulos según blueprint existente (docs/QUARTO_BOOK_BLUEPRINT.md)
+- Cada capítulo como .qmd con código Python ejecutable
+- Papers como capítulos 11-13
+- Integrar con DVC para reproducibilidad
+
+### 8.2 Migrar contenido de Streamlit a Quarto
+
+Pendientes:
+
+- Identificar qué contenido de Streamlit migra a Quarto (narrativa detallada, ecuaciones, análisis profundo)
+- Identificar qué queda en Streamlit (exploratorio interactivo, dashboards, toggles)
+- Migrar: thesis_contribution, thesis_end_to_end, research_landscape, paper_1/2/3 → capítulos Quarto
+- Mantener en Streamlit: model_laboratory, portfolio_optimizer, uncertainty_quantification como demos interactivas
+
+### 8.3 Figuras publication-quality
+
+Pendientes:
+
+- Convertir figuras Plotly → matplotlib/seaborn para papers y Quarto
+- Estilo consistente para paper (2-column IEEE/Springer format)
+- Exportar como PDF/SVG para LaTeX
+
+### 8.4 Streamlit como companion
+
+Pendientes:
+
+- Reorientar Streamlit como "Interactive Companion" del Quarto book
+- Agregar links bidireccionales: Quarto → Streamlit demo, Streamlit → Quarto chapter
+- Reducir duplicación narrativa (Quarto tiene el detalle, Streamlit tiene la interacción)
+
+Entregable:
+
+- Quarto book funcional como tesis de maestría
+- Streamlit como companion interactivo
+- Papers embebidos como capítulos
+
+---
+
+## 9. Writing papers
+
+Prioridad: **9** (post corrida final)
+Depende de: items 1-7 cerrados
+
+### 9.1 Paper 3: Mondrian CP → COPA 2026
+
+Timeline: abril-mayo 2026
+Venue: COPA 2026 (PMLR proceedings)
+Formato: ~8-10 páginas PMLR
+
+Pendientes writing:
+
+- Abstract y framing final
+- Related work: citar Kandinsky, Gibbs & Cherian, Zhou & Sesia, Angelopoulos
+- Methods: ecuaciones finales, notación limpia
+- Results: tablas y figuras del benchmark de variantes (item 1)
+- Discussion: trade-offs eficiencia vs garantía por grupo
+- Threats to validity
+- Reproducibility package
+
+### 9.2 Paper 2: IFRS9 E2E → JBF/JORS
+
+Timeline: junio-septiembre 2026
+Venue: Journal of Banking & Finance o JORS
+Formato: ~25-30 páginas journal
+
+Pendientes writing:
+
+- Formalizar SICR trigger con CP width (threshold optimization)
+- ECL sensitivity a alpha conformal
+- Comparación con BMA (práctica bancaria actual)
+- Citar: ECB 2024, IFRS Board SICR 2024, Annals of OR 2025
+- ECL intervals completos (PD x LGD x EAD todos con CP, ya promovidos)
+- Integrar TS forecast intervals si se cierran (item 2)
+- Cost-of-misclassification: S1 vs S2
+
+### 9.3 Paper Estrella: Predict-then-Optimize → MS/OR/EJOR
+
+Timeline: julio-diciembre 2026
+Venue: Management Science > Operations Research > EJOR
+Formato: ~30-35 páginas + online appendix (Quarto book)
+
+Pendientes writing:
+
+- Bound teórico alpha-conformal ↔ Gamma-robustez (Bertsimas & Sim)
+- Baselines uncertainty sets: ellipsoidal, bootstrap, parametric, Venn-Abers
+- CQR como CP alternativo
+- Alpha sweep {0.01..0.20} → Pareto frontier
+- Decision regret comparison (SPO+)
+- Figuras matplotlib publication-quality
+- Online companion → Quarto book URL
+
+---
+
+## 10. RAPIDS y GPU (insights_factory)
+
+Prioridad: **10** (no bloquea papers)
+Conexión: anexo técnico en Quarto book
+
+### 10.1 Consolidar benchmarks (backlog original)
+
+Pendientes:
+
+- Consolidar CPU vs GPU benchmarks
+- IFRS9 Monte Carlo GPU como anexo research
+- Tabla: speedup, estabilidad, rol canónico vs research
+
+Entregable:
+
+- Anexo técnico para Quarto book
+
+---
+
+## 11. Notebooks y figuras de evidencia
+
+Prioridad: **11** (paralelo con Quarto migration)
+Conexión: atlas de notebooks en Quarto
+
+### 11.1 Clasificar y enlazar notebooks (backlog original)
+
+Pendientes:
+
+- Clasificar en: evidencia reusable, exploración histórica, side projects
+- Enlazar con: capítulo Quarto, artefactos de entrada, outputs reutilizables
+
+Entregable:
+
+- Inventario listo para narrativa editorial
+
+---
+
+## Tabla de conexiones: item ↔ paper ↔ Quarto
+
+| Item | Paper 3 | Paper 2 | Estrella | Quarto Cap |
+| --- | --- | --- | --- | --- |
+| 1. PD conformal | CRÍTICO | Alimenta | CRÍTICO | 5 |
+| 2. TS intervals | - | Alimenta ECL | - | 6 |
+| 3. A/B fuerte | - | - | IMPORTANTE | 9 |
+| 4. Governance | - | IMPORTANTE | Alimenta | 8 |
+| 5. Causal/CATE | - | Mención | Ext. futura | 7 |
+| 6. Protocolo | Prerequisito | Prerequisito | Prerequisito | - |
+| 7. Corrida final | Evidencia | Evidencia | Evidencia | Todo |
+| 8. Quarto migration | - | - | Online companion | CRÍTICO |
+| 9. Writing | Paper 3 | Paper 2 | Estrella | 11-13 |
+| 10. RAPIDS | - | - | - | Anexo |
+| 11. Notebooks | Material | Material | Material | Atlas |
+
+---
+
+## Orden recomendado entre sesiones
+
+- Sesión 1: PD conformal estricto (benchmark variantes + selector)
+- Sesión 2: Time series intervals
+- Sesión 3: A/B más fuerte + decision regret
+- Sesión 4: Governance warnings + contextualización
+- Sesión 5: Causal policy / CATE decisión final
+- Sesión 6: Cierre de protocolo paper
+- Sesión 7: Study limpio + mega corrida final paper-grade
+- Sesión 8: Scaffolding Quarto book (paralelo desde sesión 4+)
+- Sesión 9: Writing Paper 3 (COPA deadline)
+- Sesión 10: Writing Paper 2 (JBF)
+- Sesión 11+: Writing Paper Estrella (MS/OR/EJOR)
+
+---
+
+## Definición de terminado (pre corrida final)
+
+Antes de la corrida final paper-grade:
+
+- PD conformal: sin warning crítico o con justificación metodológica publicable
+- Time series: decisión final documentada (promotable o fuera del canónico)
+- A/B: evidencia económica ampliada con sensibilidad y regret
+- Governance: warnings contextualizados con política de materialidad
+- Causal/CATE: decisión final documentada (canonical o insights_only)
+- Protocolo: congelado y versionado
+- Quarto scaffolding: estructura lista (no necesita contenido completo)
+
+---
+
+## Nota de uso
+
+Este archivo reemplaza `backlog-13-03.md` como referencia principal de pendientes.
+Todos los items del backlog anterior están incluidos aquí con sus conexiones a papers.
+Si una sesión cambia prioridades, actualizar este documento primero.
+
+Referencia de papers: `docs/PAPER_REFERENCES_STATE_OF_ART.md` (~80 papers con links directos)
+Plan de publicación: `.claude/plans/humble-doodling-mountain.md`

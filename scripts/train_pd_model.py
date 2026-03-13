@@ -1095,6 +1095,7 @@ def main(
             multivariate_tpe=bool(hpo_cfg.get("multivariate_tpe", True)),
             group_tpe=bool(hpo_cfg.get("group_tpe", True)),
             warn_independent_sampling=bool(hpo_cfg.get("warn_independent_sampling", True)),
+            constant_liar=bool(hpo_cfg.get("constant_liar", False)),
             pruner_n_startup_trials=int(hpo_cfg.get("pruner_n_startup_trials", 20)),
             pruner_n_warmup_steps=int(hpo_cfg.get("pruner_n_warmup_steps", 50)),
             use_pruning_callback=bool(hpo_cfg.get("use_pruning_callback", True)),
@@ -1107,6 +1108,7 @@ def main(
             storage_grace_period=int(hpo_cfg.get("storage_grace_period", 0)),
             sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
             retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
+            n_jobs=int(hpo_cfg.get("n_jobs", 1)),
             sample_weight=train_fit_weights,
             eval_sample_weight=train_val_weights,
         )

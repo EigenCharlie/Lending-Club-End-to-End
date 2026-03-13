@@ -135,7 +135,8 @@ def render_release_governance(
 
         if not official_run_tag:
             st.caption(
-                "Baseline oficial N/D: falta configs/baselines/core_official_baseline.json "
+                "Baseline oficial N/D: falta configs/baselines/canonical_operational_baseline.json "
+                "(o el fallback legacy configs/baselines/core_official_baseline.json) "
                 "o pipeline_summary.official_baseline_run_tag."
             )
 

@@ -21,6 +21,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 REGISTRY_PATH = ROOT / "configs" / "baselines" / "core_official_baseline.json"
+PRIMARY_REGISTRY_PATH = ROOT / "configs" / "baselines" / "canonical_operational_baseline.json"
 RUN_COMPARISONS = ROOT / "reports" / "run_comparisons"
 SCHEMA_VERSION = "2026-03-05.1"
 
@@ -76,10 +77,9 @@ def _load_registry() -> dict[str, Any]:
 
 
 def _write_registry(payload: dict[str, Any]) -> None:
-    REGISTRY_PATH.parent.mkdir(parents=True, exist_ok=True)
-    REGISTRY_PATH.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8"
-    )
+    for path in (REGISTRY_PATH, PRIMARY_REGISTRY_PATH):
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
 
 def _snapshot_mtime_iso(path: Path) -> str:
@@ -87,8 +87,12 @@ def _snapshot_mtime_iso(path: Path) -> str:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Freeze official core baseline run tag.")
-    parser.add_argument("--run-tag", required=True, help="Run tag to freeze as official baseline.")
+    parser = argparse.ArgumentParser(description="Freeze canonical operational baseline run tag.")
+    parser.add_argument(
+        "--run-tag",
+        required=True,
+        help="Run tag to freeze as canonical operational baseline.",
+    )
     parser.add_argument(
         "--refresh-snapshot",
         action="store_true",
@@ -97,7 +101,11 @@ def main() -> None:
     parser.add_argument(
         "--set-current",
         action="store_true",
-        help="Set this run as current official baseline in configs/baselines/core_official_baseline.json.",
+        help=(
+            "Set this run as current official baseline in "
+            "configs/baselines/canonical_operational_baseline.json "
+            "and dual-write the legacy registry."
+        ),
     )
     parser.add_argument(
         "--notes",
@@ -152,7 +160,10 @@ def main() -> None:
 
     _write_registry(registry)
 
-    print(f"[freeze] registry: {REGISTRY_PATH.relative_to(ROOT)}")
+    print(
+        "[freeze] registries: "
+        f"{REGISTRY_PATH.relative_to(ROOT)}, {PRIMARY_REGISTRY_PATH.relative_to(ROOT)}"
+    )
     print(f"[freeze] run_tag: {run_tag}")
     print(f"[freeze] snapshot: {snapshot_rel}")
     print(f"[freeze] sha256: {snapshot_sha}")

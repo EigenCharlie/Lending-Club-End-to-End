@@ -25,7 +25,12 @@ The core thesis value is **decision quality under uncertainty**, not only predic
 
 ## 2) Architecture Rationale
 
-The repository separation is intentional:
+The repository separation is intentional and now maps to three execution families:
+- `canonical_rebuild`: reconstrucción operativa congelada para auditoría, packaging y narrativa canónica.
+- `champion_search`: corrida pesada de búsqueda para HPO, selección conformal/fairness/time-series/portfolio/causal.
+- `insights_factory`: métodos complementarios, notebooks, benchmarks GPU y evidencia extendida.
+
+Repository separation:
 - `src/`: reusable analytical logic
 - `scripts/`: executable entry points
 - `notebooks/`: diagnostics and narrative analysis
@@ -33,7 +38,7 @@ The repository separation is intentional:
 - `data/` and `models/`: reproducible assets
 - `api/`, `streamlit_app/`: delivery layer (implemented, Streamlit-first in thesis mode)
 
-This supports both research-speed iteration and a clean migration path if productionization is needed later.
+This supports both research-speed iteration and a clean migration path to a future Quarto-based book without discarding Streamlit as the interactive layer.
 
 ---
 

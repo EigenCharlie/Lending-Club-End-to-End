@@ -1,0 +1,20 @@
+schema_version: "2026-03-12.1"
+profile_name: canonical_operational
+pipeline_family: canonical_rebuild
+description: >
+  Rebuild operativo congelado. Reusa champion PD config, no ejecuta HPO ni
+  selector económico pesado y omite anexos RAPIDS / notebooks por defecto.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+
+execution:
+  writes_canonical_artifacts: true
+  promotion_state: operationally_frozen
+  include_rapids: false
+  include_notebooks: false
+
+defaults:
+  sampling_profile: champion64safe
+  expected_upstream_registry: configs/baselines/canonical_operational_baseline.json

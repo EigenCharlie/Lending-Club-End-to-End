@@ -534,7 +534,7 @@ st.markdown(
 # ── IFRS9 Connection ──
 st.subheader("6) Conexión con IFRS9")
 st.markdown(
-    f"""
+    """
 Los intervalos conformal no solo alimentan la optimización — también mejoran la gobernanza regulatoria:
 
 | Uso en IFRS9 | Descripción |
@@ -556,8 +556,8 @@ git clone <repo> && cd Lending-Club-End-to-End
 # Instalar dependencias
 uv sync --extra dev
 
-# Ejecutar pipeline completo
-uv run python scripts/end_to_end_pipeline.py
+# Ejecutar rebuild canónico
+uv run python scripts/run_canonical_rebuild.py
 
 # Verificar tests
 uv run pytest -x

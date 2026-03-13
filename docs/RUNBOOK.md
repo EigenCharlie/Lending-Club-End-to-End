@@ -40,8 +40,10 @@ uv run streamlit run streamlit_app/app.py
 ```
 
 Notes:
-- Canonical full rebuild: `uv run dvc repro` or `scripts/run_long_pipeline.py`.
-- `scripts/end_to_end_pipeline.py` is a core/minimal smoke flow and is not the official thesis-grade orchestration path.
+- Canonical full rebuild: `uv run dvc repro` or `scripts/run_canonical_rebuild.py`.
+- Champion-search / heavy research run: `scripts/run_champion_search.py`.
+- Insight-factory complement: `scripts/run_insights_factory.py --profile canonical|research`.
+- `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` are compatibility entrypoints only.
 - Canonical standalone causal runner: `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate`.
 
 ## Step-by-Step Pipeline
@@ -79,18 +81,17 @@ Compatibility note:
 
 ## Official Rerun Profile (Core)
 
-Use this profile for official reruns that should be stable and resumable on workstation resources:
+Use this profile for frozen operational reruns that should be stable and resumable on workstation resources:
 
 ```bash
-bash scripts/start_long_run.sh <run_tag> \
+bash scripts/start_long_run.sh canonical-<run_tag> \
   --comparison-baseline-run-tag <baseline_run_tag> \
   --no-rapids --no-notebooks --stop-on-optional-failure
 bash scripts/monitor_long_run.sh <run_tag>
 ```
 
 Notes:
-- Official run tags (`*official*`) require a clean git working tree.
-- Core/official tags require baseline. If no baseline flag is passed, launcher resolves default from `configs/baselines/core_official_baseline.json`.
+- Official / canonical / champion tags require baseline. If no baseline flag is passed, launcher resolves default from `configs/baselines/canonical_operational_baseline.json` and then falls back to the legacy core registry.
 - Launcher defaults are `--resume`, `--sampling-profile full`, and baseline snapshot refresh on resume.
 
 Official baseline freeze workflow:
@@ -216,7 +217,7 @@ uv run dvc push -r dagshub
 ```
 
 `dvc repro` is the canonical full rebuild path with automatic caching and incremental execution.
-`scripts/end_to_end_pipeline.py` remains a core/minimal smoke pipeline, not the official full orchestration path.
+`scripts/run_smoke_pipeline.py` is the core/minimal smoke pipeline, not the official orchestration path.
 
 ### DVC Metrics / Plots (comparables por commit)
 
@@ -265,7 +266,7 @@ DAGSHUB_CLIENT_BOOTSTRAP=1 bash scripts/configure_integrations.sh
 | `dvc push` fails with `413 Request Entity Too Large` | Use DagsHub S3-compatible remote (`DVC_REMOTE_BACKEND=s3`) and ensure `dvc[s3]` is installed |
 | `mapie` import errors | Verify `mapie>=1.3.0` installed (not 0.9.x) |
 | `feast` + `pyarrow` conflict | Use separate venv for platform extras |
-| Missing parquet files | Run `scripts/end_to_end_pipeline.py` first |
+| Missing parquet files | Run `scripts/run_canonical_rebuild.py` first |
 | DuckDB file not found | Run dbt or let Streamlit create it on first access |
 | Tests fail on import | Run `UV_PROJECT_ENVIRONMENT=lending-club-venv uv sync --extra dev` to install test dependencies |
 

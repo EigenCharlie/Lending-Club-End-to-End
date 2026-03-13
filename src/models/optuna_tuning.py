@@ -50,6 +50,7 @@ def train_catboost_tuned_optuna(
     multivariate_tpe: bool = True,
     group_tpe: bool = True,
     warn_independent_sampling: bool = True,
+    constant_liar: bool = False,
     pruner_n_startup_trials: int = 20,
     pruner_n_warmup_steps: int = 50,
     use_pruning_callback: bool = True,
@@ -62,6 +63,7 @@ def train_catboost_tuned_optuna(
     storage_grace_period: int = 0,
     sqlite_timeout_seconds: int = 60,
     retry_failed_trials: int = 0,
+    n_jobs: int = 1,
     sample_weight: np.ndarray | None = None,
     eval_sample_weight: np.ndarray | None = None,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
@@ -82,6 +84,7 @@ def train_catboost_tuned_optuna(
             n_startup_trials=max(10, int(n_startup_trials)),
             multivariate=use_multivariate,
             group=use_group_tpe,
+            constant_liar=bool(constant_liar),
             warn_independent_sampling=bool(warn_independent_sampling),
         )
     elif sampler == "random":
@@ -92,6 +95,7 @@ def train_catboost_tuned_optuna(
             n_startup_trials=max(10, int(n_startup_trials)),
             multivariate=use_multivariate,
             group=use_group_tpe,
+            constant_liar=bool(constant_liar),
             warn_independent_sampling=bool(warn_independent_sampling),
         )
 
@@ -243,6 +247,7 @@ def train_catboost_tuned_optuna(
             timeout=timeout,
             show_progress_bar=False,
             gc_after_trial=bool(gc_after_trial),
+            n_jobs=max(1, int(n_jobs)),
         )
     else:
         complete_trials = [

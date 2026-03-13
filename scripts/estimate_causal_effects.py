@@ -133,6 +133,12 @@ def main(
     treatment: str = "int_rate",
     sample_size: int | None = None,
     run_tag: str | None = None,
+    cate_n_estimators: int = 200,
+    cate_cv: int = 3,
+    cate_mc_iters: int = 1,
+    cate_criterion: str = "mse",
+    cate_min_balancedness_tol: float = 0.45,
+    cate_honest: bool = True,
 ) -> None:
     run_tag_resolved = _resolve_run_tag(run_tag)
     train_df, train_path = _load_split("train_fe", "train")
@@ -181,6 +187,12 @@ def main(
         T=train_df[treatment],
         X=X,
         W=W,
+        n_estimators=cate_n_estimators,
+        cv=cate_cv,
+        mc_iters=cate_mc_iters,
+        criterion=cate_criterion,
+        min_balancedness_tol=cate_min_balancedness_tol,
+        honest=cate_honest,
     )
     estimator._effect_modifier_columns = list(effect_modifiers)
     estimator._confounder_columns = list(confounders)
@@ -294,5 +306,25 @@ if __name__ == "__main__":
     parser.add_argument("--treatment", default="int_rate")
     parser.add_argument("--sample_size", type=int, default=None)
     parser.add_argument("--run_tag", default=None)
+    parser.add_argument("--cate_n_estimators", type=int, default=200)
+    parser.add_argument("--cate_cv", type=int, default=3)
+    parser.add_argument("--cate_mc_iters", type=int, default=1)
+    parser.add_argument("--cate_criterion", choices=["mse", "het"], default="mse")
+    parser.add_argument("--cate_min_balancedness_tol", type=float, default=0.45)
+    parser.add_argument(
+        "--cate_honest",
+        choices=["true", "false"],
+        default="true",
+    )
     args = parser.parse_args()
-    main(args.treatment, args.sample_size, args.run_tag)
+    main(
+        args.treatment,
+        args.sample_size,
+        args.run_tag,
+        cate_n_estimators=args.cate_n_estimators,
+        cate_cv=args.cate_cv,
+        cate_mc_iters=args.cate_mc_iters,
+        cate_criterion=args.cate_criterion,
+        cate_min_balancedness_tol=args.cate_min_balancedness_tol,
+        cate_honest=args.cate_honest.lower() == "true",
+    )

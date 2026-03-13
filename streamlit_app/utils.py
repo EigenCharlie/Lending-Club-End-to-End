@@ -24,7 +24,12 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 DVC_REPORTS_DIR = REPORTS_DIR / "dvc"
 NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
-BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
+PRIMARY_BASELINE_REGISTRY_PATH = (
+    PROJECT_ROOT / "configs" / "baselines" / "canonical_operational_baseline.json"
+)
+LEGACY_BASELINE_REGISTRY_PATH = (
+    PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
+)
 GPU_REPLAY_DIR = REPORTS_DIR / "gpu_replay"
 GPU_INSIGHTS_DIR = REPORTS_DIR / "gpu_insights"
 OFFICIAL_GPU_REPLAY_TAG = "2026-03-09-official-gpu-replay-rapids-final"
@@ -292,12 +297,14 @@ def safe_metric_get(
 @st.cache_data(ttl=300, max_entries=4)
 def load_official_baseline_registry() -> dict:
     """Load the official CPU baseline registry."""
-    if not BASELINE_REGISTRY_PATH.exists():
-        return {}
-    try:
-        return json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+    for path in (PRIMARY_BASELINE_REGISTRY_PATH, LEGACY_BASELINE_REGISTRY_PATH):
+        if not path.exists():
+            continue
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return {}
 
 
 @st.cache_data(ttl=300, max_entries=8)
@@ -777,7 +784,7 @@ def page_error_boundary(page_name: str):
                 icon=":material/error:",
             )
             st.caption(
-                "Sugerencia: `uv run python scripts/end_to_end_pipeline.py` para regenerar artefactos."
+                "Sugerencia: `uv run python scripts/run_canonical_rebuild.py` para regenerar artefactos."
             )
             st.stop()
 

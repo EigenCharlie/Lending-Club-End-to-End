@@ -1,0 +1,12 @@
+schema_version: "2026-03-12.1"
+profile_name: insights_factory_canonical
+pipeline_family: insights_factory
+description: >
+  Perfil de insight factory ligero que consume artefactos canónicos y genera
+  evidencia editorial complementaria sin reabrir búsquedas de champion.
+
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: insight_only
+  profile: canonical
+  upstream_registry: configs/baselines/canonical_operational_baseline.json

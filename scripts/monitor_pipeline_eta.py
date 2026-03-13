@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Live pipeline monitor with subphase detection and ETA estimates.
 
-Reads run logs produced by scripts/run_long_pipeline.py and prints:
+Reads run logs produced by the canonical/champion pipeline entrypoints and prints:
 - current phase and exact subphase (when detectable from running process tree)
 - where it is inside heavy_main (k/N)
 - ETA for current subphase and remaining phases

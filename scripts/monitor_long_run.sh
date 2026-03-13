@@ -66,5 +66,5 @@ for f in preflight main_pre heavy_main causal cate_portfolio post_core rapids no
 done
 echo
 echo '== heavy processes =='
-ps -eo pid,etimes,rss,%mem,%cpu,cmd --sort=-%cpu | rg -i 'train_pd_model|run_survival_analysis|run_all_benchmarks.py|estimate_causal_effects|run_all_notebooks.py|run_long_pipeline.py' | head -n 15 || true
+ps -eo pid,etimes,rss,%mem,%cpu,cmd --sort=-%cpu | rg -i 'train_pd_model|run_survival_analysis|run_all_benchmarks.py|estimate_causal_effects|run_all_notebooks.py|run_champion_search.py|run_canonical_rebuild.py|run_insights_factory.py|run_long_pipeline.py' | head -n 15 || true
 "

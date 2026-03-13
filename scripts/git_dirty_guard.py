@@ -13,6 +13,7 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 # Generated outputs that should not block an official launch when they are the
 # only dirty paths left in the working tree.
 ALLOWED_PATTERNS = (
+    "configs/baselines/canonical_operational_baseline.json",
     "configs/baselines/core_official_baseline.json",
     "models/*_status.json",
     "models/*_policy.json",

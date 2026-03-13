@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-11T21:55:02.835814+00:00",
+  "generated_at_utc": "2026-03-13T12:05:55.167013+00:00",
   "benchmark_available": true,
   "selected_features": [
     "int_rate",
@@ -36,9 +36,9 @@
   ],
   "primary_threshold": 0.05,
   "champion_metrics": {
-    "auc": 0.7116441633266815,
-    "brier": 0.15478193881155655,
-    "ece": 0.0057192420491285435
+    "auc": 0.7127913494994733,
+    "brier": 0.15453854630270586,
+    "ece": 0.006247440054484605
   },
   "challenger_metrics": {
     "auc": 0.7031899417167963,
@@ -46,16 +46,16 @@
     "ece": 0.0394377909416114
   },
   "deltas": {
-    "auc_drop": 0.008454221609885182,
-    "brier_increase_pct": 0.022249839168969165,
-    "ece_delta": 0.03371854889248286
+    "auc_drop": 0.00960140778267704,
+    "brier_increase_pct": 0.02385984495057003,
+    "ece_delta": 0.033190350887126796
   },
   "interpretability": {
     "champion_effective_driver_count": 16,
     "challenger_effective_driver_count": 5,
     "champion_explanation_stability": 0.8,
     "challenger_explanation_stability": 0.8,
-    "champion_monotonic_violation_rate": 0.20859375,
+    "champion_monotonic_violation_rate": 0.2919270833333333,
     "challenger_monotonic_violation_rate": 0.0,
     "gains": {
       "fewer_effective_drivers": true,

@@ -16,7 +16,8 @@ import pyarrow.parquet as pq
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "dist" / "streamlit_deploy"
-BASELINE_REGISTRY_REL = "configs/baselines/core_official_baseline.json"
+PRIMARY_BASELINE_REGISTRY_REL = "configs/baselines/canonical_operational_baseline.json"
+LEGACY_BASELINE_REGISTRY_REL = "configs/baselines/core_official_baseline.json"
 
 DATASET_SHAPE_ASSETS: list[tuple[str, str]] = [
     ("data/raw/Loan_status_2007-2020Q3.csv", "csv"),
@@ -46,6 +47,8 @@ OPTIONAL_DIRS = [
 ]
 
 REQUIRED_FILES = [
+    PRIMARY_BASELINE_REGISTRY_REL,
+    LEGACY_BASELINE_REGISTRY_REL,
     "requirements.streamlit.txt",
     "docs/LCDataDictionary.xlsx",
     "feature_repo/feature_views.py",
@@ -124,12 +127,12 @@ REQUIRED_FILES = [
     "models/conformal_lgd_ead_status.json",
     "models/lgd_guardrails_status.json",
     "models/challenger_promotion_report.json",
+    "models/champion_portfolio_policy.json",
     "models/conformal_policy_status.json",
     "models/governance_status.json",
     "models/pd_model_contract.json",
     "models/time_series_status.json",
     "models/conformal_results_mondrian.pkl",
-    BASELINE_REGISTRY_REL,
 ]
 
 OPTIONAL_FILES = [
@@ -163,10 +166,11 @@ def _discover_release_governance_comparison_tags(project_root: Path) -> list[str
         value = str(pipeline_summary.get(key, "")).strip()
         if value:
             tags.add(value)
-    baseline_registry = _load_json_if_exists(project_root / BASELINE_REGISTRY_REL)
-    official_tag = str(baseline_registry.get("official_run_tag", "")).strip()
-    if official_tag:
-        tags.add(official_tag)
+    for rel_path in (PRIMARY_BASELINE_REGISTRY_REL, LEGACY_BASELINE_REGISTRY_REL):
+        baseline_registry = _load_json_if_exists(project_root / rel_path)
+        official_tag = str(baseline_registry.get("official_run_tag", "")).strip()
+        if official_tag:
+            tags.add(official_tag)
     return sorted(tags)
 
 

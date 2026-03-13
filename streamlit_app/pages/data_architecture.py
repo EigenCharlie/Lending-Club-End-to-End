@@ -1,4 +1,5 @@
 """Arquitectura y linaje de datos del proyecto."""
+# ruff: noqa: E402, I001
 
 from __future__ import annotations
 
@@ -13,7 +14,6 @@ if str(_REPO_ROOT) not in sys.path:
 import json
 import re
 import sqlite3
-from pathlib import Path
 from xml.etree import ElementTree as ET
 from zipfile import ZipFile
 
@@ -31,7 +31,7 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, page_error_boundary, query_duckdb, try_load_json, try_load_parquet
+from streamlit_app.utils import get_notebook_image_path, query_duckdb, try_load_json, try_load_parquet
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 DBT_MANIFEST_PATH = PROJECT_ROOT / "dbt_project" / "target" / "manifest.json"

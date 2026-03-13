@@ -696,9 +696,24 @@ def main(
 
 
 if __name__ == "__main__":
+
+    def _parse_float_tuple(raw: str) -> tuple[float, ...]:
+        values = [float(token.strip()) for token in str(raw).split(",") if token.strip()]
+        if not values:
+            raise ValueError("Expected at least one float value.")
+        return tuple(values)
+
+    def _parse_int_tuple(raw: str) -> tuple[int, ...]:
+        values = [int(token.strip()) for token in str(raw).split(",") if token.strip()]
+        if not values:
+            raise ValueError("Expected at least one integer value.")
+        return tuple(values)
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--alpha_target_90", type=float, default=0.10)
     parser.add_argument("--alpha_95", type=float, default=0.05)
+    parser.add_argument("--alpha_candidates_90", default="0.10,0.095,0.09,0.085,0.08")
+    parser.add_argument("--min_group_sizes", default="200,500,1000,2000")
     parser.add_argument("--min_group_coverage_target", type=float, default=0.88)
     parser.add_argument("--group_coverage_floor_target_90", type=float, default=0.90)
     parser.add_argument("--max_width_budget_90", type=float, default=0.80)
@@ -717,6 +732,8 @@ if __name__ == "__main__":
     main(
         alpha_target_90=args.alpha_target_90,
         alpha_95=args.alpha_95,
+        alpha_candidates_90=_parse_float_tuple(args.alpha_candidates_90),
+        min_group_sizes=_parse_int_tuple(args.min_group_sizes),
         min_group_coverage_target=args.min_group_coverage_target,
         group_coverage_floor_target_90=args.group_coverage_floor_target_90,
         max_width_budget_90=args.max_width_budget_90,

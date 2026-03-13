@@ -1,36 +1,41 @@
 # Artifact Retention Policy
 
-Version: 2026-03-05
+Version: 2026-03-13
 
 ## Scope
 
-This policy defines what to keep vs purge for local workspace artifacts after official core closure.
+This policy defines what to keep vs purge for local workspace artifacts after canonical operational closure.
 
-## Official Core Baseline
+## Canonical Operational Baseline
 
-- Source of truth: `configs/baselines/core_official_baseline.json`
-- Current official baseline run tag: `2026-03-04-C-core-balanced-cert2`
+- Source of truth: `configs/baselines/canonical_operational_baseline.json`
+- Legacy fallback: `configs/baselines/core_official_baseline.json`
+- Current official baseline run tag: `champion-2026-03-12-mega-definitive`
 - Snapshot artifact: `reports/run_comparisons/<run_tag>/baseline_snapshot.json`
 
 ## Retention Profile: `core_closure_6`
 
 ### Keep in `reports/run_logs/`
 
-1. `2026-03-04-C-core-balanced-cert2`
-2. `2026-03-04-C-core-balanced-e2e-cert1`
-3. `2026-03-04-C-core-balanced-pass2`
-4. `2026-03-01-C-official-smart`
-5. `2026-03-04-C-rapids-annex-pass3`
-6. `2026-03-04-C-notebooks-annex-pass2`
+1. `champion-2026-03-12-mega-definitive`
+2. `2026-03-11-C-official-selector-v3-freeze`
+3. `2026-03-04-C-core-balanced-cert2`
+4. `2026-03-04-C-core-balanced-e2e-cert1`
+5. `2026-03-04-C-core-balanced-pass2`
+6. `2026-03-01-C-official-smart`
+7. `2026-03-04-C-rapids-annex-pass3`
+8. `2026-03-04-C-notebooks-annex-pass2`
 
 ### Keep in `reports/run_comparisons/`
 
-1. `2026-03-04-C-core-balanced-cert2`
-2. `2026-03-04-C-core-balanced-e2e-cert1`
-3. `2026-03-04-C-core-balanced-pass2`
-4. `2026-03-03-C-core-balanced-pass1`
-5. `2026-03-03-C-core-balanced-ws1-manual`
-6. `2026-03-01-C-official-smart`
+1. `champion-2026-03-12-mega-definitive`
+2. `2026-03-11-C-official-selector-v3-freeze`
+3. `2026-03-04-C-core-balanced-cert2`
+4. `2026-03-04-C-core-balanced-e2e-cert1`
+5. `2026-03-04-C-core-balanced-pass2`
+6. `2026-03-03-C-core-balanced-pass1`
+7. `2026-03-03-C-core-balanced-ws1-manual`
+8. `2026-03-01-C-official-smart`
 
 ## Legacy and Temporary Artifact Cleanup
 

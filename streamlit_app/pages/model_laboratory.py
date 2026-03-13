@@ -39,7 +39,11 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, page_error_boundary, try_load_json, try_load_parquet
+from streamlit_app.utils import (
+    get_notebook_image_path,
+    try_load_json,
+    try_load_parquet,
+)
 
 
 @st.cache_data(ttl=600, max_entries=1)
@@ -247,7 +251,7 @@ def _plotly_model_auc_figure(
                 x=df["auc"],
                 y=df["model"],
                 orientation="h",
-                marker=dict(color=colors),
+                marker={"color": colors},
                 text=[f"{v:.4f}" for v in df["auc"].astype(float)],
                 textposition="outside",
                 customdata=customdata,
@@ -325,7 +329,7 @@ focus_items = [
     ("shap", "Interpretabilidad"),
     ("upgrades", "Upgrades"),
 ]
-id_to_label = {item_id: label for item_id, label in focus_items}
+id_to_label = dict(focus_items)
 label_to_id = {label: item_id for item_id, label in focus_items}
 
 focus_section = str(st.session_state.get("model_lab_focus", "comparison"))
@@ -423,7 +427,7 @@ Función conceptual: minimizar pérdida logarítmica y luego recalibrar para red
         r"\text{Brier} = \frac{1}{N}\sum_{i=1}^{N}(p_i-y_i)^2,\qquad \text{ECE}=\sum_b w_b\left|\hat{p}_b-\hat{y}_b\right|"
     )
 
-comparison = load_json("model_comparison")
+comparison = try_load_json("model_comparison", directory="data", default={})
 models = pd.DataFrame(comparison.get("models", []))
 final = comparison.get("final_test_metrics", {})
 cal_report = comparison.get("calibration_selection_report", {})
@@ -782,60 +786,66 @@ if _show_sections("comparison", "calibration"):
     st.dataframe(metricas_interpretacion, width="stretch", hide_index=True)
 
     st.subheader("Curvas ROC")
-    roc_df = load_parquet("roc_curve_data")
-    available_models = sorted(roc_df["model"].dropna().unique().tolist())
-    default_models = [
-        m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
-    ]
-    selected_models = st.multiselect(
-        "Modelos a comparar",
-        options=available_models,
-        default=default_models or available_models[:2],
-    )
-    roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
+    roc_df = try_load_parquet("roc_curve_data")
+    if roc_df.empty or "model" not in roc_df.columns:
+        st.info("No hay `roc_curve_data.parquet` oficial disponible para esta vista.")
+    else:
+        available_models = sorted(roc_df["model"].dropna().unique().tolist())
+        default_models = [
+            m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
+        ]
+        selected_models = st.multiselect(
+            "Modelos a comparar",
+            options=available_models,
+            default=default_models or available_models[:2],
+        )
+        roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
 
-    fig = px.line(
-        roc_filtered,
-        x="fpr",
-        y="tpr",
-        color="model",
-        title="Discriminación: ROC por modelo",
-        labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
-    )
-    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: medir discriminación entre buenos y malos pagadores. "
-        "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
-    )
+        fig = px.line(
+            roc_filtered,
+            x="fpr",
+            y="tpr",
+            color="model",
+            title="Discriminación: ROC por modelo",
+            labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
+        )
+        fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: medir discriminación entre buenos y malos pagadores. "
+            "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
+        )
 
     st.subheader("Calibración probabilística")
-    cal_df = load_parquet("calibration_curve_data")
-    fig = go.Figure()
-    for model_name in sorted(cal_df["model"].dropna().unique()):
-        subset = cal_df[cal_df["model"] == model_name]
-        fig.add_trace(
-            go.Scatter(
-                x=subset["predicted_prob"],
-                y=subset["observed_freq"],
-                mode="markers+lines",
-                name=model_name,
+    cal_df = try_load_parquet("calibration_curve_data")
+    if cal_df.empty or "model" not in cal_df.columns:
+        st.info("No hay `calibration_curve_data.parquet` oficial disponible para esta vista.")
+    else:
+        fig = go.Figure()
+        for model_name in sorted(cal_df["model"].dropna().unique()):
+            subset = cal_df[cal_df["model"] == model_name]
+            fig.add_trace(
+                go.Scatter(
+                    x=subset["predicted_prob"],
+                    y=subset["observed_freq"],
+                    mode="markers+lines",
+                    name=model_name,
+                )
             )
+        fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
+        fig.update_layout(
+            **PLOTLY_TEMPLATE["layout"],
+            title="Probabilidad predicha vs frecuencia observada",
+            xaxis_title="Probabilidad predicha",
+            yaxis_title="Frecuencia observada",
+            height=430,
         )
-    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
-    fig.update_layout(
-        **PLOTLY_TEMPLATE["layout"],
-        title="Probabilidad predicha vs frecuencia observada",
-        xaxis_title="Probabilidad predicha",
-        yaxis_title="Frecuencia observada",
-        height=430,
-    )
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
-        "esto es clave para IFRS9 y pricing."
-    )
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
+            "esto es clave para IFRS9 y pricing."
+        )
 
     col_nb1, col_nb2 = st.columns(2)
     with col_nb1:

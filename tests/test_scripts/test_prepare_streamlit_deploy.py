@@ -26,6 +26,7 @@ def test_prepare_streamlit_deploy_includes_reports_dirs() -> None:
 
 
 def test_prepare_streamlit_deploy_includes_baseline_registry() -> None:
+    assert "configs/baselines/canonical_operational_baseline.json" in deploy_mod.REQUIRED_FILES
     assert "configs/baselines/core_official_baseline.json" in deploy_mod.REQUIRED_FILES
 
 
@@ -41,6 +42,10 @@ def test_discover_release_governance_comparison_tags_collects_current_and_offici
         encoding="utf-8",
     )
     (repo / "configs/baselines/core_official_baseline.json").write_text(
+        '{"official_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+    (repo / "configs/baselines/canonical_operational_baseline.json").write_text(
         '{"official_run_tag":"run-official"}',
         encoding="utf-8",
     )

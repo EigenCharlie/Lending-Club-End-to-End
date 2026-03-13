@@ -1,4 +1,5 @@
 """Resumen ejecutivo del proyecto integral de riesgo de credito."""
+# ruff: noqa: E402, I001
 
 from __future__ import annotations
 
@@ -22,6 +23,7 @@ from streamlit_app.components.context_help import term_popover
 from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
+from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_decision_box,
     render_key_takeaway,
@@ -208,6 +210,7 @@ render_decision_box(
     owner="Riesgo / Data Science",
     cadence="snapshot por commit o release",
 )
+render_release_governance(show_title=True)
 render_global_kpi_spine("executive")
 
 rapids_summary = load_gpu_replay_summary()
