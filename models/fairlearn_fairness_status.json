@@ -1,0 +1,69 @@
+{
+  "primary_status_path": "models/fairness_audit_status.json",
+  "group_metrics_path": "data/processed/fairlearn_group_metrics.parquet",
+  "n_attributes": 6,
+  "attributes": [
+    {
+      "attribute": "home_ownership",
+      "demographic_parity_difference": 0.0026855232906354276,
+      "equalized_odds_difference": 0.00742467718794837,
+      "dpd_ci_low": 0.0021526076684338204,
+      "dpd_ci_high": 0.00464383986385915,
+      "eo_ci_low": 0.005189539436699697,
+      "eo_ci_high": 0.012696138383273228
+    },
+    {
+      "attribute": "annual_inc_quartile",
+      "demographic_parity_difference": 0.0021038933642938407,
+      "equalized_odds_difference": 0.006081163990756089,
+      "dpd_ci_low": 0.0020616293232195134,
+      "dpd_ci_high": 0.003462655376956514,
+      "eo_ci_low": 0.005378628724216983,
+      "eo_ci_high": 0.01267104153489348
+    },
+    {
+      "attribute": "verification_status",
+      "demographic_parity_difference": 0.003615069222727252,
+      "equalized_odds_difference": 0.008314154579834976,
+      "dpd_ci_low": 0.0038522860623413035,
+      "dpd_ci_high": 0.006509577372572065,
+      "eo_ci_low": 0.006971582889873737,
+      "eo_ci_high": 0.01428861015041948
+    },
+    {
+      "attribute": "home_ownership__x__annual_inc_quartile",
+      "demographic_parity_difference": 0.0038233772207210137,
+      "equalized_odds_difference": 0.010491606714628343,
+      "dpd_ci_low": 0.0035436588637445367,
+      "dpd_ci_high": 0.01207544594102659,
+      "eo_ci_low": 0.007239453845536958,
+      "eo_ci_high": 0.027214520676691743
+    },
+    {
+      "attribute": "home_ownership__x__verification_status",
+      "demographic_parity_difference": 0.010969357338738495,
+      "equalized_odds_difference": 0.021276595744680882,
+      "dpd_ci_low": 0.004451967296883,
+      "dpd_ci_high": 0.02278288549786401,
+      "eo_ci_low": 0.007915546971223816,
+      "eo_ci_high": 0.03986581316537158
+    },
+    {
+      "attribute": "annual_inc_quartile__x__verification_status",
+      "demographic_parity_difference": 0.005903046926241773,
+      "equalized_odds_difference": 0.01333992094861658,
+      "dpd_ci_low": 0.005272955804541795,
+      "dpd_ci_high": 0.01610227495551094,
+      "eo_ci_low": 0.010206896551724135,
+      "eo_ci_high": 0.04297034237948015
+    }
+  ],
+  "bootstrap_samples": 10,
+  "bootstrap_rows_used": 10000,
+  "bootstrap_max_rows": 10000,
+  "prediction_threshold": 0.35,
+  "outcome_mode": "approval",
+  "schema_version": "2026-03-06.1-fairlearn",
+  "generated_at_utc": "2026-03-16T04:43:11.571279+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650"
+}

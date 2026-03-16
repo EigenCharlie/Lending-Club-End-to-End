@@ -1,4 +1,5 @@
 {
+  "_DEPRECATED": "2026-03-13: Superseded by canonical_operational_baseline.json. Schedule for removal after Paper 3 (May 2026). Kept as compatibility fallback only.",
   "schema_version": "2026-03-05.1",
   "generated_at_utc": "2026-03-13T13:03:33.156794+00:00",
   "official_run_tag": "champion-2026-03-12-mega-definitive",

@@ -58,7 +58,7 @@ fi
     --alpha_candidates_90 0.1,0.095,0.09,0.085,0.08,0.075,0.07 \
     --min_group_sizes 150,250,500,1000,2000,4000 \
     --min_group_coverage_target 0.88 \
-    --group_coverage_floor_target_90 0.9 \
+    --group_coverage_floor_target_90 0.92 \
     --max_width_budget_90 0.9 \
     --coverage_guardband_90 0.02 \
     --min_group_guardband_90 0.0 \

@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-08.1",
-  "generated_at_utc": "2026-03-13T10:18:20.064949+00:00",
-  "run_tag": "champion-2026-03-12-mega-definitive",
+  "generated_at_utc": "2026-03-16T01:42:55.909072+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
   "selection_stage": "tradeoff_research_only",
   "selection_policy": {
     "rank_order": [
@@ -20,11 +20,11 @@
     ]
   },
   "selected_policy": {
-    "risk_tolerance": 0.18,
-    "policy_mode": "segment_relative_tail_blended_uncertainty",
-    "gamma": 0.05,
+    "risk_tolerance": 0.16,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.1,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.0,
+    "uncertainty_aversion": 0.1,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
@@ -32,29 +32,29 @@
   },
   "selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 157581.42773164125,
-    "realized_total_return": 236009.76201194176,
-    "price_of_robustness": -98418.02059536634,
-    "price_of_robustness_pct": -96.00279992790803,
-    "n_funded": 225
+    "ab_diff_total_return": 224189.23726692205,
+    "realized_total_return": 224189.23726692205,
+    "price_of_robustness": -207398.26797580507,
+    "price_of_robustness_pct": -20446227068449.992,
+    "n_funded": 251
   },
   "selected_policy_robustness_aware": {
-    "risk_tolerance": 0.2,
+    "risk_tolerance": 0.16,
     "policy_mode": "tail_blended_uncertainty",
     "gamma": 0.5,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.0,
+    "uncertainty_aversion": 0.1,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
     "solver_backend": "cuopt"
   },
   "selected_policy_balanced_robustness": {
-    "risk_tolerance": 0.18,
-    "policy_mode": "segment_relative_tail_blended_uncertainty",
-    "gamma": 0.05,
+    "risk_tolerance": 0.16,
+    "policy_mode": "tail_blended_uncertainty",
+    "gamma": 0.1,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.0,
+    "uncertainty_aversion": 0.1,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
@@ -62,12 +62,12 @@
   },
   "research_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 136846.68735968566,
-    "realized_total_return": 221850.66499999995,
-    "price_of_robustness": -95175.1457097489,
-    "price_of_robustness_pct": -88.77107633697969,
-    "n_funded": 214,
-    "robustness_aware_score": 156872.10963224503
+    "ab_diff_total_return": 223075.75788250487,
+    "realized_total_return": 223075.75788250487,
+    "price_of_robustness": -207524.39911463408,
+    "price_of_robustness_pct": -20458661626993.176,
+    "n_funded": 246,
+    "robustness_aware_score": 158527.07302263286
   },
   "balanced_selection_policy": {
     "name": "balanced_robustness",
@@ -81,11 +81,11 @@
   },
   "balanced_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 157581.42773164125,
-    "realized_total_return": 236009.76201194176,
-    "price_of_robustness": -98418.02059536634,
-    "price_of_robustness_pct": -96.00279992790803,
-    "n_funded": 225
+    "ab_diff_total_return": 224189.23726692205,
+    "realized_total_return": 224189.23726692205,
+    "price_of_robustness": -207398.26797580507,
+    "price_of_robustness_pct": -20446227068449.992,
+    "n_funded": 251
   },
   "guardrail_selection_policy": {
     "name": "guardrail_robustness",
@@ -103,11 +103,11 @@
     ]
   },
   "selected_policy_guardrail_robustness": {
-    "risk_tolerance": 0.16,
-    "policy_mode": "capped_blended_uncertainty",
-    "gamma": 0.5,
-    "delta_cap_quantile": 0.75,
-    "uncertainty_aversion": 0.0,
+    "risk_tolerance": 0.14,
+    "policy_mode": "hard_worst_case",
+    "gamma": 1.0,
+    "delta_cap_quantile": 1.0,
+    "uncertainty_aversion": 0.5,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
@@ -115,11 +115,11 @@
   },
   "guardrail_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 36575.43696935809,
-    "realized_total_return": 102022.36412259676,
-    "price_of_robustness": -24410.15145737065,
-    "price_of_robustness_pct": -24.975565489671027,
-    "n_funded": 208
+    "ab_diff_total_return": 0.0,
+    "realized_total_return": 0.0,
+    "price_of_robustness": 1.5641727185531631e-07,
+    "price_of_robustness_pct": 13.537550183037942,
+    "n_funded": 0
   },
   "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
   "summary_path": "data/processed/portfolio_robustness_summary.parquet",

@@ -399,6 +399,16 @@ PAGE_CONCEPT_MAP: dict[str, tuple[str, ...]] = {
         "aleatoric",
         "epistemic",
     ),
+    "roadmap_backlog": (
+        "decision_threshold",
+        "concept_drift",
+        "optimizer_curse",
+    ),
+    "papers_backlog": (
+        "no_free_lunch",
+        "proper_scoring_rules",
+        "prediction_interval",
+    ),
 }
 
 

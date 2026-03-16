@@ -1,10 +1,10 @@
 {
   "schema_version": "2026-03-07.1",
-  "run_tag": "champion-2026-03-12-mega-definitive",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
   "status": "warn",
   "warnings": [
     "interval_champion_not_promotable",
-    "exogenous_disabled_or_missing_future_contract"
+    "exogenous_available_but_disabled_by_policy"
   ],
   "config": {
     "horizon": 12,
@@ -45,8 +45,11 @@
     "coverage_90": 0.8101851851851852,
     "coverage_gap_90": 0.08981481481481479,
     "winkler_90": 0.35975890823617446,
+    "wis_90": 0.07804457277384988,
+    "pinball_90": 0.008993972705904364,
     "avg_interval_width_90": 0.17404434598567664,
-    "family": "statistical"
+    "family": "statistical",
+    "interval_subfamily": "native_statistical"
   },
   "panel_global_model": {
     "available": true,
@@ -57,8 +60,8 @@
   "diagnostics": {
     "forecastability": {
       "schema_version": "2026-03-07.1",
-      "generated_at_utc": "2026-03-13T06:26:46.743201+00:00",
-      "run_tag": "champion-2026-03-12-mega-definitive",
+      "generated_at_utc": "2026-03-15T16:11:41.518061+00:00",
+      "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
       "n_periods": 160,
       "series_start": "2007-06-01",
       "series_end": "2020-09-01",
@@ -134,7 +137,148 @@
     "scenarios_path": "data/processed/ts_ifrs9_scenarios.parquet",
     "diagnostics_path": "data/processed/ts_diagnostics.json",
     "panel_forecasts_path": "data/processed/ts_panel_forecasts.parquet",
-    "status_path": "models/time_series_status.json"
+    "status_path": "models/time_series_status.json",
+    "forecastability_report_path": "data/processed/ts_forecastability_report.parquet",
+    "forecastability_status_path": "models/time_series_forecastability_status.json",
+    "hierarchical_eval_path": "data/processed/ts_hierarchical_eval.parquet",
+    "hierarchy_status_path": "models/time_series_hierarchy_status.json",
+    "interval_eval_path": "data/processed/ts_interval_eval.parquet"
   },
-  "generated_at_utc": "2026-03-13T06:26:46.743201+00:00"
+  "generated_at_utc": "2026-03-15T16:11:41.518061+00:00",
+  "forecastability_summary": {
+    "available": true,
+    "series_evaluated": 22,
+    "routes": {
+      "intermittent_counts": 14,
+      "exogenous_challenger": 5,
+      "structured_statistical": 3
+    },
+    "intermittency": {
+      "erratic": 21,
+      "lumpy": 1
+    },
+    "levels": {
+      "grade_term": 14,
+      "grade": 7,
+      "portfolio": 1
+    }
+  },
+  "interval_benchmark": {
+    "available": true,
+    "estimator_name": "linear",
+    "best_method": "enbpi",
+    "candidate_methods_tested": [
+      "enbpi",
+      "aci"
+    ],
+    "results": [
+      {
+        "method": "enbpi",
+        "n_eval": 24,
+        "coverage_90": 0.8333333333333334,
+        "coverage_gap_90": 0.06666666666666665,
+        "avg_interval_width_90": 0.08555778278379522,
+        "winkler_90": 0.1492063183872844,
+        "pinball_90": 0.0037301579596821116,
+        "wis_90": 0.03850617753044722,
+        "rolling_coverage_summary": {
+          "min_rolling_coverage_6": 0.3333333333333333,
+          "last_rolling_coverage_6": 1.0
+        }
+      },
+      {
+        "method": "aci",
+        "n_eval": 24,
+        "coverage_90": 0.7083333333333334,
+        "coverage_gap_90": 0.19166666666666665,
+        "avg_interval_width_90": 0.09372322463850964,
+        "winkler_90": 0.17448460839509497,
+        "pinball_90": 0.004362115209877376,
+        "wis_90": 0.04080420389479363,
+        "rolling_coverage_summary": {
+          "min_rolling_coverage_6": 0.0,
+          "last_rolling_coverage_6": 1.0
+        }
+      }
+    ],
+    "rolling_coverage_summary": {
+      "min_rolling_coverage_6": 0.3333333333333333,
+      "last_rolling_coverage_6": 1.0
+    }
+  },
+  "exogenous_contract_available": true,
+  "exogenous_contract_version": "minimal_macro_covariates_v1",
+  "exogenous_active": false,
+  "ensemble_weights": {
+    "AutoARIMA": 0.2730550804361629,
+    "AutoETS": 0.27172184234396446,
+    "SARIMAX": 0.2282948755555333,
+    "STL_CatBoost": 0.22692820166433936
+  },
+  "candidate_methods_tested": [
+    "AutoARIMA",
+    "AutoETS",
+    "AutoTheta",
+    "SARIMAX",
+    "STL_CatBoost",
+    "SeasonalNaive",
+    "enbpi",
+    "aci"
+  ],
+  "rolling_coverage_summary": {
+    "official_interval_model": "AutoARIMA",
+    "official_interval_coverage_gap_90": 0.08981481481481479,
+    "mapie_best_method": "enbpi",
+    "mapie_best_summary": {
+      "min_rolling_coverage_6": 0.3333333333333333,
+      "last_rolling_coverage_6": 1.0
+    }
+  },
+  "rolling_coverage_by_horizon": {
+    "official_interval_model": {
+      "coverage_gap_90": 0.08981481481481479,
+      "avg_interval_width_90": 0.17404434598567664,
+      "winkler_90": 0.35975890823617446,
+      "wis_90": 0.07804457277384988,
+      "pinball_90": 0.008993972705904364
+    },
+    "adaptive_best_method": {
+      "method": "enbpi",
+      "coverage_gap_90": 0.06666666666666665,
+      "avg_interval_width_90": 0.08555778278379522,
+      "winkler_90": 0.1492063183872844,
+      "wis_90": 0.03850617753044722,
+      "pinball_90": 0.0037301579596821116,
+      "rolling_coverage_summary": {
+        "min_rolling_coverage_6": 0.3333333333333333,
+        "last_rolling_coverage_6": 1.0
+      }
+    }
+  },
+  "hierarchy_reconciliation": {
+    "available": false,
+    "reason": "hierarchy_reconciliation_disabled"
+  },
+  "interval_policy": {
+    "eligible_interval_families": [
+      "statistical"
+    ],
+    "max_coverage_gap": 0.03,
+    "max_winkler_90": null
+  },
+  "interval_selector_reason": "interval champion selected from eligible families under the governed coverage-gap policy; adaptive and conformal statistical candidates remain diagnostic unless they satisfy the same thresholds.",
+  "adaptive_method_status": {
+    "best_method": "enbpi",
+    "candidate_methods_tested": [
+      "enbpi",
+      "aci"
+    ],
+    "promotion_ready": false,
+    "notes": "Adaptive methods remain diagnostic until they beat the official interval policy."
+  },
+  "final_interval_decision": {
+    "status": "research_only",
+    "official_family": "statistical",
+    "reason": "interval champion selected from eligible families under the governed coverage-gap policy; adaptive and conformal statistical candidates remain diagnostic unless they satisfy the same thresholds."
+  }
 }

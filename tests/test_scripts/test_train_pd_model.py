@@ -2,12 +2,15 @@
 
 from __future__ import annotations
 
+import pickle
+import sys
 import types
 
 import numpy as np
 import pandas as pd
 
 from scripts import train_pd_model as train_mod
+from src.utils.io_utils import load_pickle_compat
 
 
 class _FakeState:
@@ -184,3 +187,52 @@ def test_apply_training_regime_full_weighted_emits_recency_weights() -> None:
     assert "_recency_weight" in out.columns
     assert float(out["_recency_weight"].iloc[-1]) >= float(out["_recency_weight"].iloc[0])
     assert meta["mode"] == "full_weighted"
+
+
+def test_venn_abers_score_calibrator_outputs_valid_probabilities() -> None:
+    scores = np.linspace(0.05, 0.95, 80)
+    y = (scores > 0.45).astype(int)
+
+    calibrator = train_mod.VennAbersScoreCalibrator().fit(scores, y)
+    preds = calibrator.predict(scores)
+    proba = calibrator.predict_proba(scores)
+
+    assert preds.shape == (80,)
+    assert proba.shape == (80, 2)
+    assert np.all(preds >= 0.0)
+    assert np.all(preds <= 1.0)
+    assert np.allclose(proba.sum(axis=1), 1.0, atol=1e-8)
+
+
+def test_venn_abers_score_calibrator_preserves_sorted_score_order() -> None:
+    scores = np.linspace(0.01, 0.99, 120)
+    y = (scores > 0.55).astype(int)
+
+    calibrator = train_mod.VennAbersScoreCalibrator().fit(scores, y)
+    preds = calibrator.predict(scores)
+
+    assert np.all(np.diff(preds) >= -1e-8)
+
+
+def test_load_pickle_compat_maps_legacy_main_module_calibrator(tmp_path) -> None:
+    class _LegacyVennAbers(train_mod.VennAbersScoreCalibrator):
+        pass
+
+    _LegacyVennAbers.__module__ = "__main__"
+    _LegacyVennAbers.__name__ = "VennAbersScoreCalibrator"
+    _LegacyVennAbers.__qualname__ = "VennAbersScoreCalibrator"
+    sys.modules["__main__"].VennAbersScoreCalibrator = _LegacyVennAbers
+    try:
+        scores = np.linspace(0.05, 0.95, 40)
+        y = (scores > 0.5).astype(int)
+        legacy_obj = _LegacyVennAbers().fit(scores, y)
+        target = tmp_path / "legacy_calibrator.pkl"
+        with open(target, "wb") as fh:
+            pickle.dump(legacy_obj, fh)
+
+        restored = load_pickle_compat(target)
+        assert isinstance(restored, train_mod.VennAbersScoreCalibrator)
+        assert np.allclose(restored.predict(scores), legacy_obj.predict(scores))
+    finally:
+        if hasattr(sys.modules["__main__"], "VennAbersScoreCalibrator"):
+            delattr(sys.modules["__main__"], "VennAbersScoreCalibrator")

@@ -2,9 +2,15 @@
 
 **Project:** Lending Club Risk - Conformal Predict-then-Optimize
 **Date:** 2026-02-07
-**Installed Versions:**
+**Installed / validated in repo (2026-03-13):**
 - MAPIE: 1.3.0
 - CREPES: 0.9.0
+- venn-abers: 1.5.1
+
+**Latest checked from PyPI on 2026-03-13:**
+- MAPIE: 1.3.0
+- CREPES: 0.9.0
+- venn-abers: 1.5.1
 
 ## Nota de contexto (2026-02-16)
 
@@ -33,7 +39,7 @@ This document compares conformal prediction libraries available in Python for cr
 | **Jackknife+** | ❌ | ✅ | ✅ | Hard |
 | **CQR (Quantile)** | ✅ | ❌ | ❌ | Hard |
 | **Mondrian CP** | Manual | ✅ Built-in | ✅ | Medium |
-| **Venn-ABERS** | ❌ | ✅ | ❌ | Very Hard |
+| **Venn-ABERS** | ✅ (`VennAbersCalibrator`) | ❌ p-values/predictive systems, not Venn-Abers calibration | ❌ | Very Hard |
 | **Classification Sets** | ✅ (LAC, APS, RAPS) | ❌ | Limited | Hard |
 | **Time Series** | Partial | ✅ | ❌ | Hard |
 | **Documentation** | Excellent | Good | Outdated | N/A |
@@ -94,7 +100,7 @@ y_intervals = mapie.predict_interval(X_test)
 ### Pros
 - **Flexible:** Works with any predictor (not just sklearn)
 - **Mondrian built-in:** Easy group-conditional coverage
-- **Venn-ABERS:** Probability intervals with guaranteed calibration
+- **p-values / predictive systems:** strong for conformal research and online diagnostics
 - **Conformal Predictive Systems:** Full probability distributions
 - **Fewer dependencies:** Just numpy
 - **Excellent for research:** Implements cutting-edge methods
@@ -107,9 +113,9 @@ y_intervals = mapie.predict_interval(X_test)
 - **Manual integration:** More boilerplate code
 
 ### Best For
-- **Research experiments:** Testing novel conformal methods
+- **Research experiments:** Testing conformal variants and online p-value diagnostics
 - Mondrian CP (if you don't want to implement manually)
-- Venn-ABERS for calibrated probability intervals
+- Conformal predictive systems
 - Non-sklearn models (e.g., custom neural nets)
 
 ### Code Example (Mondrian CP with CREPES)
@@ -142,7 +148,33 @@ for grade in grades:
     )
 ```
 
-**Verdict:** ⚠️ Use CREPES for experiments (Mondrian, Venn-ABERS) but not primary.
+Important clarification:
+- `WrapClassifier.predict_p(...)` returns **p-values**, not calibrated probabilities.
+- In this repo, treating `predict_p` as `[p0, p1]` probability bounds was incorrect and was removed.
+
+**Verdict:** ⚠️ Use CREPES for experiments and p-value diagnostics, not as a drop-in Venn-Abers calibrator.
+
+---
+
+## venn-abers 1.5.1 (Primary for Venn-Abers calibration)
+
+### Pros
+- Dedicated implementation of Venn-Abers calibration.
+- Supports score-based usage (`VennAbers`) and sklearn-style wrappers (`VennAbersCalibrator`).
+- Better semantic fit for post-hoc probability calibration than repurposing conformal p-values.
+
+### Cons
+- Smaller package and ecosystem than MAPIE.
+- Alpha-quality package metadata on PyPI, so changes should be wrapped behind local tests.
+
+### Best For
+- Post-hoc Venn-Abers calibration over raw classifier probabilities.
+- Direct comparison against Platt and Isotonic inside PD training.
+
+### Project decision
+- `venn-abers` is the canonical implementation for Venn-Abers in this repo.
+- `crepes` remains for conformal p-values / predictive systems / research.
+- `mapie` remains primary for conformal intervals and time-series conformal.
 
 ---
 
@@ -243,10 +275,10 @@ intervals = scf.predict_interval(X_test)
 
 **Use for:**
 1. **Mondrian CP analysis:** Group-conditional coverage by grade (Notebook 04)
-2. **Venn-ABERS comparison:** Alternative to Isotonic calibration (Appendix)
+2. **Conformal p-values / predictive systems:** research appendix and online diagnostics
 3. **Thesis appendix:** "We also explored CREPES for..."
 
-**Implementation status:** ❌ Not implemented. Add if time permits.
+**Implementation status:** partial research support only.
 
 ### Ignore: Nonconformist, Custom Code
 

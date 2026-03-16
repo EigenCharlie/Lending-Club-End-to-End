@@ -32,6 +32,41 @@ class ProbabilityRegressor(BaseEstimator, RegressorMixin):
         return self.classifier.predict_proba(X)[:, 1]
 
 
+class PrefitClassifierAdapter(BaseEstimator):
+    """Small sklearn-style adapter for prefit classifiers inside MAPIE checks."""
+
+    def __init__(self, classifier, n_features_in: int | None = None):
+        self.classifier = classifier
+        classes = getattr(classifier, "classes_", np.array([0, 1]))
+        self.classes_ = np.asarray(classes)
+        self.n_features_in_ = int(n_features_in or getattr(classifier, "n_features_in_", 0) or 0)
+        self.feature_names_in_ = np.asarray(
+            [f"f{i}" for i in range(self.n_features_in_)], dtype=object
+        )
+        self.is_fitted_ = True
+
+    def fit(self, X, y):
+        return self
+
+    def _is_minimal_probe(self, X: pd.DataFrame) -> bool:
+        if X.shape[0] != 1 or X.shape[1] != self.n_features_in_:
+            return False
+        numeric = X.apply(pd.to_numeric, errors="coerce")
+        return bool(np.isfinite(numeric.to_numpy()).all() and np.allclose(numeric.to_numpy(), 0.0))
+
+    def predict(self, X):
+        X_df = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        if self._is_minimal_probe(X_df):
+            return np.zeros(len(X_df), dtype=int)
+        return self.classifier.predict(X_df)
+
+    def predict_proba(self, X):
+        X_df = pd.DataFrame(X) if not isinstance(X, pd.DataFrame) else X
+        if self._is_minimal_probe(X_df):
+            return np.column_stack([np.ones(len(X_df)), np.zeros(len(X_df))])
+        return self.classifier.predict_proba(X_df)
+
+
 def apply_probability_calibrator(calibrator: Any, scores: np.ndarray) -> np.ndarray:
     """Apply calibrator robustly across sklearn calibrator API variants."""
     scores = np.asarray(scores, dtype=float)
@@ -260,22 +295,230 @@ def create_classification_sets(
     """Generate conformal prediction sets for classification."""
     from mapie.classification import SplitConformalClassifier
 
+    adapted = PrefitClassifierAdapter(classifier, n_features_in=X_cal.shape[1])
     mapie = SplitConformalClassifier(
-        estimator=classifier,
+        estimator=adapted,
         confidence_level=1 - alpha,
+        conformity_score=method,
         prefit=True,
     )
     mapie.conformalize(X_cal, y_cal)
 
     y_pred = mapie.predict(X_test)
     _, y_sets_raw = mapie.predict_set(X_test)
-    y_sets = y_sets_raw[:, :, 0]
+    y_sets = np.asarray(y_sets_raw[:, :, 0], dtype=int)
 
     singleton_rate = (y_sets.sum(axis=1) == 1).mean()
     logger.info(
         f"Conformal sets (alpha={alpha}, method={method}): singleton_rate={singleton_rate:.2%}"
     )
     return y_pred, y_sets
+
+
+def summarize_prediction_sets(
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    y_sets: np.ndarray,
+) -> dict[str, float]:
+    """Summarize binary conformal prediction sets for abstention analysis."""
+    true_arr = np.asarray(y_true, dtype=int).reshape(-1)
+    pred_arr = np.asarray(y_pred, dtype=int).reshape(-1)
+    sets = np.asarray(y_sets, dtype=int)
+    if sets.ndim != 2:
+        raise ValueError(f"Expected y_sets to be 2D, got shape={sets.shape}")
+    if len(true_arr) != len(sets):
+        raise ValueError("y_true and y_sets must have the same length.")
+
+    set_size = sets.sum(axis=1)
+    singleton_mask = set_size == 1
+    ambiguous_mask = set_size > 1
+    empty_mask = set_size == 0
+    covered_mask = sets[np.arange(len(true_arr)), true_arr] == 1
+    positive_singleton_mask = singleton_mask & (pred_arr == 1)
+
+    return {
+        "n_obs": float(len(true_arr)),
+        "set_coverage": float(covered_mask.mean()) if len(true_arr) else float("nan"),
+        "singleton_rate": float(singleton_mask.mean()) if len(true_arr) else float("nan"),
+        "ambiguity_rate": float(ambiguous_mask.mean()) if len(true_arr) else float("nan"),
+        "empty_set_rate": float(empty_mask.mean()) if len(true_arr) else float("nan"),
+        "default_rate_ambiguous": float(true_arr[ambiguous_mask].mean())
+        if ambiguous_mask.any()
+        else float("nan"),
+        "default_rate_singleton_positive": float(true_arr[positive_singleton_mask].mean())
+        if positive_singleton_mask.any()
+        else float("nan"),
+        "default_rate_overall": float(true_arr.mean()) if len(true_arr) else float("nan"),
+    }
+
+
+def build_mondrian_partition_labels(
+    *,
+    y_prob_cal: np.ndarray,
+    y_prob_eval: np.ndarray,
+    partition: str,
+    base_groups_cal: pd.Series | np.ndarray | None = None,
+    base_groups_eval: pd.Series | np.ndarray | None = None,
+    n_score_bins: int = 10,
+    min_group_size: int = 500,
+) -> tuple[pd.Series, pd.Series, dict[str, Any]]:
+    """Build partition labels for Mondrian-style calibration.
+
+    Supported partitions:
+    - grade: original subgroup labels.
+    - score_decile_mondrian: deciles of calibrated/raw score.
+    - grade_x_scoreband_mondrian: grade crossed with score bands, with fallback to
+      grade/global when calibration support is too small.
+    """
+
+    partition_key = str(partition).strip().lower()
+    if partition_key in {"grade", "group", "default"}:
+        if base_groups_cal is None or base_groups_eval is None:
+            raise ValueError("grade partition requires base group labels for calibration/eval.")
+        g_cal = pd.Series(base_groups_cal).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+        g_eval = pd.Series(base_groups_eval).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+        return (
+            g_cal,
+            g_eval,
+            {
+                "partition": "grade",
+                "score_band_count": 0,
+                "fallback_groups": [],
+            },
+        )
+
+    cal_scores = pd.Series(np.asarray(y_prob_cal, dtype=float).reshape(-1))
+    eval_scores = pd.Series(np.asarray(y_prob_eval, dtype=float).reshape(-1))
+    rank_source = cal_scores.rank(method="first")
+    n_bins_effective = int(max(1, min(int(n_score_bins), int(rank_source.nunique()))))
+    if n_bins_effective <= 1:
+        cal_band = pd.Series(["score_q0"] * len(cal_scores), dtype="string")
+        eval_band = pd.Series(["score_q0"] * len(eval_scores), dtype="string")
+        edges = np.array([0.0, 1.0], dtype=float)
+    else:
+        quantiles = np.linspace(0.0, 1.0, n_bins_effective + 1)
+        edges = np.unique(np.quantile(cal_scores.to_numpy(dtype=float), quantiles))
+        if len(edges) <= 2:
+            cal_band = pd.Series(["score_q0"] * len(cal_scores), dtype="string")
+            eval_band = pd.Series(["score_q0"] * len(eval_scores), dtype="string")
+        else:
+            labels = [f"score_q{i:02d}" for i in range(len(edges) - 1)]
+            cal_band = pd.cut(
+                cal_scores,
+                bins=edges,
+                labels=labels,
+                include_lowest=True,
+                duplicates="drop",
+            ).astype("string")
+            eval_band = pd.cut(
+                eval_scores,
+                bins=edges,
+                labels=labels,
+                include_lowest=True,
+                duplicates="drop",
+            ).astype("string")
+            cal_band = cal_band.fillna(labels[0])
+            eval_band = eval_band.fillna(labels[0])
+
+    if partition_key in {"score_decile_mondrian", "score_decile", "scoreband"}:
+        return (
+            cal_band.astype(str).reset_index(drop=True),
+            eval_band.astype(str).reset_index(drop=True),
+            {
+                "partition": "score_decile_mondrian",
+                "score_band_count": int(cal_band.nunique()),
+                "score_band_edges": [float(x) for x in np.asarray(edges, dtype=float)],
+                "fallback_groups": [],
+            },
+        )
+
+    if partition_key not in {"grade_x_scoreband_mondrian", "grade_scoreband", "hybrid"}:
+        raise ValueError(f"Unsupported partition mode: {partition}")
+
+    if base_groups_cal is None or base_groups_eval is None:
+        raise ValueError("grade_x_scoreband_mondrian requires base group labels.")
+
+    grade_cal = pd.Series(base_groups_cal).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    grade_eval = pd.Series(base_groups_eval).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    hybrid_cal = (grade_cal + "|" + cal_band.astype(str)).reset_index(drop=True)
+    hybrid_eval = (grade_eval + "|" + eval_band.astype(str)).reset_index(drop=True)
+
+    counts = hybrid_cal.value_counts(dropna=False).to_dict()
+    grade_counts = grade_cal.value_counts(dropna=False).to_dict()
+    fallback_groups: list[str] = []
+
+    def _resolve_label(label: str, base_grade: str) -> str:
+        n_label = int(counts.get(label, 0))
+        if n_label >= int(min_group_size):
+            return label
+        fallback_groups.append(label)
+        if int(grade_counts.get(base_grade, 0)) >= int(min_group_size):
+            return base_grade
+        return "GLOBAL"
+
+    resolved_cal = pd.Series(
+        [
+            _resolve_label(str(label), str(grade))
+            for label, grade in zip(hybrid_cal, grade_cal, strict=False)
+        ],
+        dtype="string",
+    )
+    resolved_eval = pd.Series(
+        [
+            _resolve_label(str(label), str(grade))
+            for label, grade in zip(hybrid_eval, grade_eval, strict=False)
+        ],
+        dtype="string",
+    )
+    return (
+        resolved_cal.astype(str).reset_index(drop=True),
+        resolved_eval.astype(str).reset_index(drop=True),
+        {
+            "partition": "grade_x_scoreband_mondrian",
+            "score_band_count": int(cal_band.nunique()),
+            "score_band_edges": [float(x) for x in np.asarray(edges, dtype=float)],
+            "fallback_groups": sorted(set(fallback_groups)),
+            "hybrid_group_count_cal": int(hybrid_cal.nunique()),
+            "resolved_group_count_cal": int(resolved_cal.nunique()),
+        },
+    )
+
+
+def create_cross_conformal_score_intervals(
+    y_cal: pd.Series | np.ndarray,
+    y_prob_cal: np.ndarray,
+    y_prob_test: np.ndarray,
+    *,
+    alpha: float = 0.1,
+    method: str = "plus",
+    cv: int = 5,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Run a lightweight cross conformal benchmark on raw score space.
+
+    This is intentionally a score-space benchmark, not a full feature-space
+    retraining of the upstream CatBoost classifier. It lets the repo compare a
+    cross conformal variant with low incremental cost while keeping the current
+    canonical model frozen.
+    """
+    from mapie.regression import CrossConformalRegressor
+    from sklearn.linear_model import LinearRegression
+
+    y_cal_arr = np.asarray(y_cal, dtype=float).reshape(-1)
+    X_cal = np.asarray(y_prob_cal, dtype=float).reshape(-1, 1)
+    X_test = np.asarray(y_prob_test, dtype=float).reshape(-1, 1)
+
+    regressor = CrossConformalRegressor(
+        estimator=LinearRegression(),
+        confidence_level=1 - alpha,
+        method=method,
+        cv=cv,
+    )
+    regressor.fit_conformalize(X_cal, y_cal_arr)
+    y_pred, y_intervals_raw = regressor.predict_interval(X_test)
+    y_pred_arr = np.clip(np.asarray(y_pred, dtype=float).reshape(-1), 0.0, 1.0)
+    y_intervals = np.asarray(y_intervals_raw[:, :, 0], dtype=float)
+    y_intervals = np.clip(y_intervals, 0.0, 1.0)
+    return y_pred_arr, y_intervals
 
 
 def create_pd_intervals_venn_abers(
@@ -301,16 +544,19 @@ def create_pd_intervals_venn_abers(
         - p0_array: lower probability bound per observation.
         - p1_array: upper probability bound per observation.
     """
-    from crepes import WrapClassifier
+    from venn_abers import VennAbers
 
-    wrapped = WrapClassifier(classifier)
-    X_cal_arr = X_cal.values if hasattr(X_cal, "values") else np.asarray(X_cal)
-    y_cal_arr = y_cal.values if hasattr(y_cal, "values") else np.asarray(y_cal)
-    X_test_arr = X_test.values if hasattr(X_test, "values") else np.asarray(X_test)
+    p_cal_pos = np.asarray(classifier.predict_proba(X_cal)[:, 1], dtype=float).reshape(-1)
+    p_cal = np.column_stack([1.0 - p_cal_pos, p_cal_pos])
+    y_cal_arr = np.asarray(y_cal.values if hasattr(y_cal, "values") else y_cal, dtype=int).reshape(
+        -1
+    )
+    p_test_pos = np.asarray(classifier.predict_proba(X_test)[:, 1], dtype=float).reshape(-1)
+    p_test = np.column_stack([1.0 - p_test_pos, p_test_pos])
 
-    wrapped.calibrate(X_cal_arr, y_cal_arr)
-    # predict_p returns array of shape (n, 2) — columns are [p0, p1]
-    p_result = wrapped.predict_p(X_test_arr)
+    wrapped = VennAbers()
+    wrapped.fit(p_cal, y_cal_arr)
+    y_pred_binary, p_result = wrapped.predict_proba(p_test)
     p0 = np.clip(np.asarray(p_result[:, 0], dtype=float), 0.0, 1.0)
     p1 = np.clip(np.asarray(p_result[:, 1], dtype=float), 0.0, 1.0)
 
@@ -318,7 +564,7 @@ def create_pd_intervals_venn_abers(
     p_low = np.minimum(p0, p1)
     p_high = np.maximum(p0, p1)
 
-    y_pred_point = (p_low + p_high) / 2.0
+    y_pred_point = np.clip(np.asarray(y_pred_binary[:, 1], dtype=float), 0.0, 1.0)
 
     avg_width = float((p_high - p_low).mean())
     logger.info(f"Venn-Abers PD intervals: avg_width={avg_width:.4f}, n_test={len(X_test)}")

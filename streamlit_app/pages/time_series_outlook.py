@@ -196,6 +196,8 @@ status_level = str(status.get("status", "warn"))
 point_model = str(point_champion.get("model") or _first_text(forecasts, "point_model"))
 interval_model = str(interval_champion.get("model") or _first_text(forecasts, "interval_model"))
 official_status = _first_text(forecasts, "official_status", default="desconocido")
+final_interval_decision = status.get("final_interval_decision", {})
+_interval_research_only = str(final_interval_decision.get("status", "")).lower() == "research_only"
 
 if status_level == "pass":
     st.success(
@@ -218,6 +220,15 @@ metric_cols[0].metric("Estado", official_status.capitalize())
 metric_cols[1].metric("Champion puntual", point_model)
 metric_cols[2].metric("MASE champion", _format_num(point_champion.get("mase"), 3))
 metric_cols[3].metric("Coverage 90% champion", _format_pct(interval_champion.get("coverage_90")))
+
+if _interval_research_only:
+    _gap = interval_champion.get("coverage_gap_90")
+    _gap_str = f"{_gap:.3f}" if _gap is not None else "n/d"
+    st.info(
+        f"⚠️ **Intervalos (Research Only):** el champion intervalar `{interval_model}` no supera el gate de cobertura "
+        f"(gap={_gap_str}, target≤0.03). Los intervalos pueden usarse como diagnóstico pero NO son promocionables. "
+        "Resolución pendiente: ACI/TCP rolling window (ver backlog P3.2)."
+    )
 
 st.markdown(
     """

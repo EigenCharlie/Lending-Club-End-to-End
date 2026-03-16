@@ -1,6 +1,8 @@
 # Prerequisites:
 #   1. Download Kaggle dataset to data/raw/
-#   2. Run the pipeline: uv run python scripts/end_to_end_pipeline.py
+#   2. Run the official pipeline entrypoint:
+#      uv run python scripts/run_paper_grade_final.py
+#      `scripts/end_to_end_pipeline.py` remains compatibility-only.
 #   3. (Optional) Build DuckDB for dbt views:
 #      cd dbt_project && uv run dbt run --target duckdb
 #   The DuckDB file (data/lending_club.duckdb) is created by dbt or Streamlit on first access.

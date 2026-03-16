@@ -1,0 +1,233 @@
+{
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-14T00:56:13.627224+00:00",
+  "pd_conformal": {
+    "closed_for_paper_grade": true,
+    "strict_overall_pass": false,
+    "canonical_methodological_justification_pass": true,
+    "sensitivity_methodological_closure_available": true,
+    "sensitivity_methodological_closure_threshold": 1.22,
+    "promotion_pass": false,
+    "failing_non_statistical_checks": [],
+    "failing_statistical_checks": [
+      "kupiec_pvalue_90",
+      "kupiec_pvalue_95",
+      "christoffersen_pvalue_90",
+      "christoffersen_pvalue_95"
+    ]
+  },
+  "time_series": {
+    "decision": "research_only",
+    "point_model": "AutoARIMA",
+    "interval_model": "AutoARIMA",
+    "interval_promotable": false,
+    "adaptive_best_method": "enbpi"
+  },
+  "causal_cate": {
+    "closed_for_paper_grade": true,
+    "selected_rule": "high_plus_medium_positive",
+    "selection_reason": "best_feasible",
+    "oot_status": {
+      "schema_version": "2026-03-07.1",
+      "generated_at_utc": "2026-03-13T22:05:45.023670+00:00",
+      "run_tag": "champion-2026-03-12-mega-definitive",
+      "rule_name": "high_plus_medium_positive",
+      "min_history_months": 12,
+      "n_months_evaluated": 106,
+      "avg_action_rate": 0.256981673192383,
+      "total_net_value": 41703388.91233453,
+      "p05_monthly_net": 2616.5367493968442,
+      "worst_month": "2008-09-01 00:00:00",
+      "best_month": "2016-03-01 00:00:00",
+      "selected_rule_path": "models/causal_policy_rule.json",
+      "effect_status_path": "models/causal_effect_status.json",
+      "policy_semantics": "local_cate_policy_simulation"
+    },
+    "uncertainty_diagnostic": {
+      "available": true,
+      "selected_rule": "high_plus_medium_positive",
+      "selected_n": 70885,
+      "selected_ambiguity_rate": 0.5215207730831629,
+      "selected_avg_interval_width_90": 0.7563092136375934,
+      "overall_ambiguity_rate": 0.5200943406448537,
+      "overall_avg_interval_width_90": 0.7569209206934802,
+      "artifact_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/causal_uncertainty_diagnostic.parquet"
+    }
+  },
+  "ab_evidence": {
+    "default_scenario": {
+      "schema_version": "2026-03-01.1",
+      "generated_at_utc": "2026-03-13T22:14:14.763374+00:00",
+      "run_tag": "untracked",
+      "strategy_a": "non_robust",
+      "strategy_b": "robust_selected_for_champion",
+      "comparison": {
+        "mean_a": -0.10471670567646797,
+        "mean_b": -2.1436967415389883,
+        "diff": -2.03898003586252,
+        "ci_low": -22.345707333620368,
+        "ci_high": 18.69506987894536,
+        "p_value": 0.405,
+        "significant": false
+      },
+      "metrics_a": {
+        "total_return": -523.5835283823399,
+        "n_funded": 158,
+        "total_allocated": 1000000.0,
+        "avg_return_per_funded": -3.313819799888273
+      },
+      "metrics_b": {
+        "total_return": -10718.48370769494,
+        "n_funded": 149,
+        "total_allocated": 1000000.0,
+        "avg_return_per_funded": -71.93613226640898
+      },
+      "n_candidates_available": 5000,
+      "n_candidates_used": 5000,
+      "max_candidates_requested": 5000,
+      "dataset_scope": "sampled_candidates",
+      "solver_backend": "highs",
+      "policy_selector": "promotion_first",
+      "decision_scenario": "baseline",
+      "max_portfolio_pd_requested": 0.1,
+      "max_portfolio_pd_effective": 0.18,
+      "robust_policy": {
+        "source": "champion_policy_artifact::promotion_first",
+        "risk_tolerance": 0.18,
+        "uncertainty_aversion": 0.0,
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0,
+        "policy_mode": "capped_blended_uncertainty",
+        "gamma": 0.05,
+        "delta_cap_quantile": 0.9,
+        "tail_focus_quantile": 1.0
+      },
+      "champion_policy_path": "models/champion_portfolio_policy.json",
+      "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+      "gate_contract": {
+        "gate": "no_regression",
+        "significance_role": "diagnostic"
+      },
+      "diagnostics": {
+        "p_value": 0.405,
+        "significant": false,
+        "n_boot": 1000,
+        "seed": 42
+      },
+      "policy_search": [],
+      "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+      "no_regression": {
+        "diff_total_return": -10194.9001793126,
+        "tolerance_total_return": 26.179176419116995,
+        "tolerance_pct_of_control": 0.05,
+        "passed": false
+      },
+      "decision_scenario_meta": {
+        "decision_scenario": "baseline",
+        "rows_removed": 0,
+        "rows_remaining": 5000,
+        "ambiguity_rate_removed": 0.0
+      }
+    },
+    "ambiguity_defer_scenario_available": true,
+    "ambiguity_defer_scenario": {
+      "schema_version": "2026-03-01.1",
+      "generated_at_utc": "2026-03-13T22:14:14.384710+00:00",
+      "run_tag": "untracked",
+      "strategy_a": "non_robust",
+      "strategy_b": "robust_selected_for_champion",
+      "comparison": {
+        "mean_a": 8.969765367052092,
+        "mean_b": 3.426570063254607,
+        "diff": -5.543195303797486,
+        "ci_low": -47.71516822272123,
+        "ci_high": 33.275841880866054,
+        "p_value": 0.375,
+        "significant": false
+      },
+      "metrics_a": {
+        "total_return": 21904.16702634121,
+        "n_funded": 126,
+        "total_allocated": 999999.9999999999,
+        "avg_return_per_funded": 173.84259544715238
+      },
+      "metrics_b": {
+        "total_return": 8367.68409446775,
+        "n_funded": 122,
+        "total_allocated": 1000000.0,
+        "avg_return_per_funded": 68.58757454481756
+      },
+      "n_candidates_available": 2442,
+      "n_candidates_used": 2442,
+      "max_candidates_requested": 5000,
+      "dataset_scope": "sampled_candidates",
+      "solver_backend": "highs",
+      "policy_selector": "promotion_first",
+      "decision_scenario": "ambiguity_defer",
+      "max_portfolio_pd_requested": 0.1,
+      "max_portfolio_pd_effective": 0.18,
+      "robust_policy": {
+        "source": "champion_policy_artifact::promotion_first",
+        "risk_tolerance": 0.18,
+        "uncertainty_aversion": 0.0,
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0,
+        "policy_mode": "capped_blended_uncertainty",
+        "gamma": 0.05,
+        "delta_cap_quantile": 0.9,
+        "tail_focus_quantile": 1.0
+      },
+      "champion_policy_path": "models/champion_portfolio_policy.json",
+      "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+      "gate_contract": {
+        "gate": "no_regression",
+        "significance_role": "diagnostic"
+      },
+      "diagnostics": {
+        "p_value": 0.375,
+        "significant": false,
+        "n_boot": 1000,
+        "seed": 42
+      },
+      "policy_search": [],
+      "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+      "no_regression": {
+        "diff_total_return": -13536.48293187346,
+        "tolerance_total_return": 1095.2083513170605,
+        "tolerance_pct_of_control": 0.05,
+        "passed": false
+      },
+      "decision_scenario_meta": {
+        "decision_scenario": "ambiguity_defer",
+        "rows_removed": 2558,
+        "rows_remaining": 2442,
+        "ambiguity_rate_removed": 0.5116,
+        "set_prediction_path": "data/processed/pd_set_prediction_cases.parquet"
+      }
+    },
+    "decision_rule": "prefer ambiguity_defer only if downside or interpretability improves without breaking no_regression"
+  },
+  "governance": {
+    "overall_pass": true,
+    "warnings": {
+      "warn_c2st": true,
+      "warn_distribution_tests": true,
+      "warn_explainability": false,
+      "warn_reason_code_stability": false
+    },
+    "contextualized_warning_note": "Warnings are interpreted with materiality and temporal/subgroup reliability; the project does not claim exact conditional coverage.",
+    "summary": {
+      "max_psi": 0.13944722694322031,
+      "distribution_warning_ratio": 0.9848484848484849,
+      "c2st_auc": 0.9853248444444445
+    }
+  },
+  "final_checks": {
+    "pd_conformal": true,
+    "time_series": true,
+    "causal_cate": true,
+    "ab_evidence": true,
+    "governance": true,
+    "protocol_frozen": true
+  }
+}

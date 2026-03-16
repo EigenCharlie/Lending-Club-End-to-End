@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-13T12:05:55.167013+00:00",
+  "generated_at_utc": "2026-03-16T04:42:25.147221+00:00",
   "benchmark_available": true,
   "selected_features": [
     "int_rate",
@@ -34,11 +34,11 @@
     "has_delinq_2yrs",
     "il_ratio"
   ],
-  "primary_threshold": 0.05,
+  "primary_threshold": 0.35,
   "champion_metrics": {
-    "auc": 0.7127913494994733,
-    "brier": 0.15453854630270586,
-    "ece": 0.006247440054484605
+    "auc": 0.7129967525110764,
+    "brier": 0.15451304235095986,
+    "ece": 0.005933135956720309
   },
   "challenger_metrics": {
     "auc": 0.7031899417167963,
@@ -46,34 +46,34 @@
     "ece": 0.0394377909416114
   },
   "deltas": {
-    "auc_drop": 0.00960140778267704,
-    "brier_increase_pct": 0.02385984495057003,
-    "ece_delta": 0.033190350887126796
+    "auc_drop": 0.00980681079428014,
+    "brier_increase_pct": 0.02402884344858003,
+    "ece_delta": 0.033504654984891094
   },
   "interpretability": {
-    "champion_effective_driver_count": 16,
+    "champion_effective_driver_count": 18,
     "challenger_effective_driver_count": 5,
-    "champion_explanation_stability": 0.8,
+    "champion_explanation_stability": 0.9,
     "challenger_explanation_stability": 0.8,
-    "champion_monotonic_violation_rate": 0.2919270833333333,
+    "champion_monotonic_violation_rate": 0.2763020833333333,
     "challenger_monotonic_violation_rate": 0.0,
     "gains": {
       "fewer_effective_drivers": true,
-      "more_stable_explanations": true,
+      "more_stable_explanations": false,
       "better_monotonic_consistency": true
     },
-    "gain_count": 3
+    "gain_count": 2
   },
   "fairness": {
     "overall_pass": true,
     "attributes": [
       {
         "attribute": "home_ownership",
-        "dpd": 0.00016557960059315757,
-        "eo_gap": 0.0004804035389727179,
-        "dir": 0.9998344203994066,
-        "tpr_gap": 9.65530559041694e-05,
-        "fpr_gap": 0.0004804035389727179,
+        "dpd": 0.00028796452277080054,
+        "eo_gap": 0.0008807398214499829,
+        "dir": 0.999712035477229,
+        "tpr_gap": 0.00015799590966147914,
+        "fpr_gap": 0.0008807398214499829,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,
@@ -81,11 +81,11 @@
       },
       {
         "attribute": "annual_inc_quartile",
-        "dpd": 0.0004180541740547161,
-        "eo_gap": 0.001059676519799213,
-        "dir": 0.9995819458259451,
-        "tpr_gap": 0.00019440502342582544,
-        "fpr_gap": 0.001059676519799213,
+        "dpd": 0.0007928613645864502,
+        "eo_gap": 0.0019520356943669714,
+        "dir": 0.9992071386354133,
+        "tpr_gap": 0.0003888100468516509,
+        "fpr_gap": 0.0019520356943669714,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,
@@ -93,11 +93,11 @@
       },
       {
         "attribute": "verification_status",
-        "dpd": 0.00022631592053368177,
-        "eo_gap": 0.0002958424754798683,
-        "dir": 0.9997736677137088,
-        "tpr_gap": 0.00021384791862821828,
-        "fpr_gap": 0.0002958424754798683,
+        "dpd": 0.00043396781225002456,
+        "eo_gap": 0.0004115651910685525,
+        "dir": 0.9995659694195141,
+        "tpr_gap": 0.00040134676474390396,
+        "fpr_gap": 0.0004115651910685525,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,

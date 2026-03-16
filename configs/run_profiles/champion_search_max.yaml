@@ -44,7 +44,7 @@ search_space:
     min_group_sizes: [150, 250, 500, 1000, 2000, 4000]
     benchmark_min_group_size_default: 150
     min_group_coverage_target: 0.88
-    group_coverage_floor_target_90: 0.90
+    group_coverage_floor_target_90: 0.92
     max_width_budget_90: 0.90
     coverage_guardband_90: 0.02
     min_group_guardband_90: 0.0

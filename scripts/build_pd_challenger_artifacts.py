@@ -34,6 +34,7 @@ from src.models.calibration import expected_calibration_error
 from src.models.pd_contract import CONTRACT_PATH, load_contract, resolve_model_path
 from src.models.pd_model import TARGET, resolve_feature_sets, temporal_train_val_split
 from src.utils.io_utils import read_split_with_fe_fallback
+from src.utils.threshold_semantics import load_threshold_semantics, resolve_operational_threshold
 
 
 def _load_config(path: str) -> dict[str, Any]:
@@ -122,6 +123,9 @@ def _permutation_scores(
 
 
 def _resolve_primary_threshold() -> float:
+    semantics = load_threshold_semantics()
+    if semantics:
+        return resolve_operational_threshold(semantics, default=0.5)
     decision_threshold = Path("models/decision_threshold.json")
     if decision_threshold.exists():
         try:

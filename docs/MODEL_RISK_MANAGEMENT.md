@@ -6,7 +6,7 @@
 |-------|-------|
 | **Model Name** | CorePDCanonical |
 | **Model Type** | Probability of Default (PD) — Binary Classification |
-| **Algorithm** | CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Isotonic Regression) |
+| **Algorithm** | CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Venn-Abers) |
 | **Uncertainty Quantification** | Mondrian Conformal Prediction (MAPIE 1.3) |
 | **Owner** | Carlos Vergara |
 | **Version** | See `models/pd_training_record.pkl` for current version |
@@ -52,7 +52,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 1. **Logistic Regression baseline** — regulatory interpretability benchmark
 2. **CatBoost default** — gradient boosting with default hyperparameters
 3. **CatBoost tuned** — Optuna HPO (when enabled by config)
-4. **Calibration selection** — temporal multi-metric policy selects Platt Sigmoid or Isotonic Regression
+4. **Calibration selection** — temporal multi-metric policy evaluates Platt Sigmoid, Isotonic Regression, and Venn-Abers; the current canonical artifact is Venn-Abers
 5. **Mondrian Conformal Prediction** — group-conditional coverage by grade using MAPIE 1.3 SplitConformalRegressor
 6. **Robust Portfolio Optimization** — Pyomo + HiGHS with box uncertainty sets from conformal intervals
 
@@ -162,7 +162,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 ## 7. Champion/Challenger Framework
 
 ### Current Champion
-- **Model**: `models/pd_canonical.cbm` (CatBoost + probabilistic calibration; current artifact is Isotonic)
+- **Model**: `models/pd_canonical.cbm` (CatBoost + probabilistic calibration; current artifact is Venn-Abers)
 - **Calibrator**: `models/pd_canonical_calibrator.pkl`
 - **Contract**: `models/pd_model_contract.json` (44 features)
 

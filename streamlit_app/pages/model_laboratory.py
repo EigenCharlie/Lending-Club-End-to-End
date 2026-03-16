@@ -40,7 +40,10 @@ from streamlit_app.components.story_shell import (
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
+    get_operational_threshold,
+    get_pd_internal_threshold,
     get_notebook_image_path,
+    load_pd_calibration_diagnostics,
     try_load_json,
     try_load_parquet,
 )
@@ -326,6 +329,7 @@ focus_items = [
     ("lr_odds", "LR Odds"),
     ("catboost_params", "CatBoost Avanzado"),
     ("calibration", "Calibración"),
+    ("venn_abers", "Venn-Abers"),
     ("shap", "Interpretabilidad"),
     ("upgrades", "Upgrades"),
 ]
@@ -354,6 +358,7 @@ focus_labels = {
     "lr_odds": "Regresión logística: log-odds, odds y odds ratios",
     "catboost_params": "CatBoost avanzado: hiperparámetros aplicables al proyecto",
     "calibration": "Calibración probabilística y selección de método",
+    "venn_abers": "Venn-Abers: calibración canónica con garantías conformales",
     "shap": "Resumen interpretativo y puente a la página dedicada",
     "upgrades": "Mejoras habilitadas por upgrades recientes",
 }
@@ -428,6 +433,11 @@ Función conceptual: minimizar pérdida logarítmica y luego recalibrar para red
     )
 
 comparison = try_load_json("model_comparison", directory="data", default={})
+st.caption(
+    "Contrato de thresholds: el cutoff interno PD para screening/search se reporta por separado del "
+    f"threshold operativo de aprobación (`{get_operational_threshold():.2f}`); "
+    f"threshold interno actual `{get_pd_internal_threshold():.2f}`."
+)
 models = pd.DataFrame(comparison.get("models", []))
 final = comparison.get("final_test_metrics", {})
 cal_report = comparison.get("calibration_selection_report", {})
@@ -435,6 +445,7 @@ hpo_trials = int(comparison.get("hpo_trials_executed", comparison.get("optuna_n_
 feature_count_tuned = int(comparison.get("feature_count_tuned", 0))
 test_predictions = try_load_parquet("test_predictions")
 pd_model_has_time = read_pd_model_has_time_flag()
+calib_diagnostics = load_pd_calibration_diagnostics()
 
 if _show_sections("comparison"):
     st.subheader("Comparativo de arquitecturas")
@@ -747,6 +758,71 @@ if _show_sections("comparison", "calibration"):
         ],
         n_cols=3,
     )
+
+    with st.expander(
+        "Venn-Abers: calibración canónica con garantías conformales",
+        expanded=focus_section == "venn_abers",
+    ):
+        va_candidates = calib_diagnostics.get("candidate_comparison", [])
+        selected_method = calib_diagnostics.get("selected_method", "n/d")
+        if va_candidates:
+            va_rows = []
+            for c in va_candidates:
+                va_rows.append(
+                    {
+                        "método": str(c.get("method", "")),
+                        "ECE (OOT)": f"{float(c.get('ece', 0)):.4f}",
+                        "Brier (OOT)": f"{float(c.get('brier', 0)):.4f}",
+                        "AUC (OOT)": f"{float(c.get('auc', 0)):.4f}",
+                        "seleccionado": str(c.get("method", "")) == selected_method,
+                    }
+                )
+            st.dataframe(pd.DataFrame(va_rows), width="stretch", hide_index=True)
+            va_meta = calib_diagnostics.get("venn_abers", {})
+            avg_w = va_meta.get("avg_width")
+            med_w = va_meta.get("median_width")
+            unbias = va_meta.get("unbiasedness_in_the_large")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Método canónico", selected_method.replace("_", "-").title())
+            if avg_w is not None:
+                c2.metric("VA avg_width (bounds)", f"{float(avg_w):.5f}", help="Ancho medio del intervalo [p0, p1]. Cerca de 0 = calibración muy estable.")
+            if med_w is not None:
+                c3.metric("VA median_width", f"{float(med_w):.5f}")
+            if unbias is not None:
+                st.caption(
+                    f"{'✅' if unbias else '⚠️'} `unbiasedness_in_the_large={'True' if unbias else 'False'}` — "
+                    + ("El modelo es marginalmente insesgado en el conjunto OOT." if unbias
+                       else "Leve shift de prevalencia cal→test (esperado en split OOT estricto; no afecta la validez conformal).")
+                )
+        else:
+            st.info("Artefacto `models/pd_calibration_diagnostics.json` no disponible.")
+
+        st.markdown(
+            """
+**¿Qué es Venn-Abers y por qué es coherente con el stack conformal?**
+
+Venn-Abers (Vovk & Petej 2012) es un método de calibración post-hoc que produce **pares de probabilidad** $(p_0, p_1)$
+con garantía de calibración finita bajo intercambiabilidad. No requiere hipótesis distribucionales.
+
+| Propiedad | Platt | Isotonic | **Venn-Abers** |
+|-----------|-------|----------|----------------|
+| Garantía distribución-libre | ✗ | ✗ | **✓** |
+| Muestra finita | ✗ | ✗ | **✓** |
+| Produce bounds (incertidumbre de calibración) | ✗ | ✗ | **✓** |
+| Monotonía | ✓ | ✓ | ✓ |
+
+**Coherencia arquitectónica:** el proyecto usa conformal prediction (MAPIE Mondrian) para los intervalos de PD.
+Usar Venn-Abers para la calibración base crea un stack de incertidumbre coherente:
+*calibración conformal → intervalos conformales → optimización robusta*.
+
+**Costo computacional:** O(n log n) vs O(1) de Platt — asumible para batch scoring (276K préstamos).
+"""
+        )
+        st.caption(
+            "Referencia: Vovk V. & Petej I. (2012). Venn-Abers predictors. UAI. | "
+            "Artefacto: `models/pd_calibration_diagnostics.json` | "
+            "Implementación: `src/models/venn_abers.py`"
+        )
 
     metricas_interpretacion = pd.DataFrame(
         [

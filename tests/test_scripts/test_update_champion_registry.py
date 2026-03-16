@@ -73,16 +73,31 @@ def test_update_champion_registry_aggregates_current_champion_state(
         json.dumps({"run_tag": "run-champion", "status": "ok"}),
         encoding="utf-8",
     )
+    (model_dir / "threshold_semantics.json").write_text(
+        json.dumps(
+            {
+                "run_tag": "run-champion",
+                "pd_internal_selected_threshold": 0.4,
+                "fairness_primary_threshold": 0.35,
+                "decision_policy_global_threshold": 0.35,
+            }
+        ),
+        encoding="utf-8",
+    )
 
     monkeypatch.setattr(reg_mod, "ROOT", tmp_path)
     monkeypatch.setattr(reg_mod, "MODELS", model_dir)
+    monkeypatch.setattr(reg_mod, "resolve_official_baseline_run_tag", lambda: "run-baseline")
 
     reg_mod.main()
 
     payload = json.loads((model_dir / "champion_registry.json").read_text(encoding="utf-8"))
     assert payload["run_tag"] == "run-champion"
+    assert payload["upstream_canonical_run_tag"] == "run-baseline"
     assert payload["pd"]["training_regime"]["mode"] == "recent_12q"
+    assert payload["pd"]["decision_threshold_semantics"]["fairness_primary_threshold"] == 0.35
     assert payload["portfolio"]["policy_mode"] == "blended_uncertainty"
     assert payload["fairness"]["decision_policy"]["global_threshold"] == 0.4
     assert payload["cate"]["cate_policy_mode"] == "research_only_fallback"
     assert payload["governance"]["overall_pass"] is True
+    assert payload["threshold_semantics"]["pd_internal_selected_threshold"] == 0.4

@@ -143,3 +143,44 @@ def test_resolve_robust_policy_explicit_champion_only_requires_artifact(tmp_path
         pass
     else:
         raise AssertionError("Expected FileNotFoundError for explicit_champion_only")
+
+
+def test_apply_decision_scenario_baseline_is_noop() -> None:
+    test_df = pd.DataFrame({"id": ["a", "b"], "default_flag": [0, 1]})
+    intervals = pd.DataFrame({"id": ["a", "b"], "pd_high": [0.2, 0.7]})
+
+    test_out, ints_out, meta = ab_mod._apply_decision_scenario(
+        test_df,
+        intervals,
+        decision_scenario="baseline",
+    )
+
+    assert len(test_out) == 2
+    assert len(ints_out) == 2
+    assert meta["decision_scenario"] == "baseline"
+    assert meta["rows_removed"] == 0
+
+
+def test_apply_decision_scenario_ambiguity_defer_filters_ambiguous_ids(tmp_path) -> None:
+    set_path = tmp_path / "pd_set_prediction_cases.parquet"
+    pd.DataFrame(
+        {
+            "id": ["a", "b", "c"],
+            "ambiguous": [0, 1, 0],
+        }
+    ).to_parquet(set_path, index=False)
+
+    test_df = pd.DataFrame({"id": ["a", "b", "c"], "default_flag": [0, 1, 0]})
+    intervals = pd.DataFrame({"id": ["a", "b", "c"], "pd_high": [0.2, 0.7, 0.3]})
+
+    test_out, ints_out, meta = ab_mod._apply_decision_scenario(
+        test_df,
+        intervals,
+        decision_scenario="ambiguity_defer",
+        set_prediction_path=str(set_path),
+    )
+
+    assert test_out["id"].tolist() == ["a", "c"]
+    assert ints_out["id"].tolist() == ["a", "c"]
+    assert meta["rows_removed"] == 1
+    assert meta["rows_remaining"] == 2

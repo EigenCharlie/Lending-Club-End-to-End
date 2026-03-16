@@ -20,11 +20,18 @@ point_champion:
 interval_policy:
   target_level: 90
   max_coverage_gap: 0.03
+  max_winkler_90: null
   tiebreakers:
     - "winkler_90"
     - "avg_interval_width_90"
   official_family: "statistical"
+  eligible_interval_families:
+    - "statistical"
   ml_intervals_diagnostic_only_if_unpromoted: true
+  include_conformal_statistical: false
+  conformal_n_windows: 3
+  mapie_estimator: "linear"
+  mapie_evaluation_size: 24
 
 exogenous:
   enabled: false
@@ -51,6 +58,56 @@ diagnostics:
   enable_entropy: true
   enable_variance_ratio: true
   enable_residual_drift: true
+
+forecastability:
+  enabled: true
+  intermittent_adi_threshold: 1.32
+  intermittent_cv2_threshold: 0.49
+  routing_levels:
+    - "portfolio"
+    - "grade"
+    - "grade_term"
+
+interval_metrics:
+  include_wis: true
+  include_pinball: true
+
+ensemble:
+  enabled: false
+  candidates:
+    - "AutoARIMA"
+    - "AutoETS"
+    - "SARIMAX"
+    - "STL_CatBoost"
+  weight_metric: "mase"
+  model_name: "WeightedEnsemble"
+
+hierarchy_reconciliation:
+  enabled: false
+  methods:
+    - "BottomUp"
+    - "TopDown"
+    - "MinTrace"
+  target_columns:
+    - "default_count"
+    - "loan_count"
+  evaluation_horizon: 12
+
+outputs:
+  backtest_predictions_path: "data/processed/ts_backtest_predictions.parquet"
+  backtest_metrics_path: "data/processed/ts_backtest_metrics.parquet"
+  cv_stats_path: "data/processed/ts_cv_stats.parquet"
+  forecasts_path: "data/processed/ts_forecasts.parquet"
+  scenarios_path: "data/processed/ts_ifrs9_scenarios.parquet"
+  diagnostics_path: "data/processed/ts_diagnostics.json"
+  panel_forecasts_path: "data/processed/ts_panel_forecasts.parquet"
+  status_path: "models/time_series_status.json"
+  forecastability_report_path: "data/processed/ts_forecastability_report.parquet"
+  forecastability_status_path: "models/time_series_forecastability_status.json"
+  interval_eval_path: "data/processed/ts_interval_eval.parquet"
+  hierarchical_eval_path: "data/processed/ts_hierarchical_eval.parquet"
+  hierarchy_status_path: "models/time_series_hierarchy_status.json"
+  research_status_path: "models/time_series_research_status.json"
 
 research_backlog:
   - "ACI"

@@ -46,10 +46,10 @@ def test_page_has_streamlit_import(page_path: Path) -> None:
     )
 
 
-def test_all_28_pages_discovered() -> None:
-    """Ensure we have exactly 28 page files."""
-    assert len(PAGE_FILES) == 28, (
-        f"Expected 28 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
+def test_all_30_pages_discovered() -> None:
+    """Ensure page discovery matches the current multipage app surface."""
+    assert len(PAGE_FILES) == 30, (
+        f"Expected 30 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
     )
 
 

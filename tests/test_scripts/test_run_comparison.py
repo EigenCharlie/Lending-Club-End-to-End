@@ -87,6 +87,99 @@ def test_gate_artifact_coherence_fails_on_missing_or_mismatched_run_tag() -> Non
     assert "models/fairness_audit_status.json" in gate.details["missing_metadata_artifacts"]
 
 
+def test_gate_semantic_coherence_passes_with_consistent_thresholds_and_protocols() -> None:
+    current = {
+        "threshold_semantics": {
+            "pd_internal_selected_threshold": 0.05,
+            "fairness_primary_threshold": 0.35,
+            "decision_policy_global_threshold": 0.35,
+        },
+        "fairness_status": {
+            "primary_threshold": 0.35,
+            "prediction_threshold": 0.35,
+        },
+        "fairness_decision_policy": {
+            "global_threshold": 0.35,
+        },
+        "time_series_status": {
+            "interval_champion": {"promotable": False},
+            "final_interval_decision": {"status": "research_only"},
+        },
+        "paper_grade_protocol_status": {
+            "pd_conformal": {"canonical_methodological_justification_pass": True},
+            "time_series": {
+                "decision": "research_only",
+                "interval_promotable": False,
+            },
+        },
+        "storytelling_snapshot": {
+            "headline_metrics": {"fairness_primary_threshold": 0.35},
+            "time_series_interval_promotable": False,
+            "time_series_final_interval_decision": "research_only",
+            "conformal_strict_policy_pass": False,
+            "conformal_methodological_justification_pass": True,
+        },
+        "conformal_status": {
+            "strict_overall_pass": False,
+            "methodological_justification_pass": True,
+        },
+    }
+
+    gate = rc._gate_semantic_coherence(current)
+
+    assert gate.passed is True
+    assert gate.details["checks"]["operational_thresholds_ok"] is True
+    assert gate.details["checks"]["threshold_role_separation_ok"] is True
+    assert gate.details["checks"]["time_series_protocol_ok"] is True
+    assert gate.details["checks"]["storytelling_conformal_ok"] is True
+
+
+def test_gate_semantic_coherence_fails_on_threshold_and_storytelling_mismatch() -> None:
+    current = {
+        "threshold_semantics": {
+            "pd_internal_selected_threshold": 0.05,
+            "fairness_primary_threshold": 0.35,
+            "decision_policy_global_threshold": 0.35,
+        },
+        "fairness_status": {
+            "primary_threshold": 0.35,
+            "prediction_threshold": 0.35,
+        },
+        "fairness_decision_policy": {
+            "global_threshold": 0.40,
+        },
+        "time_series_status": {
+            "interval_champion": {"promotable": False},
+            "final_interval_decision": {"status": "research_only"},
+        },
+        "paper_grade_protocol_status": {
+            "pd_conformal": {"canonical_methodological_justification_pass": False},
+            "time_series": {
+                "decision": "promoted",
+                "interval_promotable": True,
+            },
+        },
+        "storytelling_snapshot": {
+            "headline_metrics": {"fairness_primary_threshold": 0.40},
+            "time_series_interval_promotable": True,
+            "time_series_final_interval_decision": "promoted",
+            "conformal_strict_policy_pass": True,
+            "conformal_methodological_justification_pass": False,
+        },
+        "conformal_status": {
+            "strict_overall_pass": False,
+            "methodological_justification_pass": True,
+        },
+    }
+
+    gate = rc._gate_semantic_coherence(current)
+
+    assert gate.passed is False
+    assert gate.details["checks"]["operational_thresholds_ok"] is False
+    assert gate.details["checks"]["time_series_protocol_ok"] is False
+    assert gate.details["checks"]["paper_pd_conformal_ok"] is False
+
+
 def test_gate_conformal_passes_with_statistical_warning() -> None:
     baseline = {
         "conformal_status": {

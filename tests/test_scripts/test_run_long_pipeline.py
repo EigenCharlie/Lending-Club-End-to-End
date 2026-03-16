@@ -88,6 +88,22 @@ def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
     )
 
 
+def test_profile_default_comparison_baseline_run_tag_is_resolved(tmp_path, monkeypatch) -> None:
+    comparisons = tmp_path / "reports" / "run_comparisons" / "baseline-tag"
+    comparisons.mkdir(parents=True)
+    (comparisons / "baseline_snapshot.json").write_text("{}", encoding="utf-8")
+
+    profile_cfg = {
+        "defaults": {
+            "comparison_baseline_run_tag": "baseline-tag",
+        }
+    }
+    monkeypatch.setattr(lp, "REPO_ROOT", tmp_path)
+
+    resolved = lp._resolve_comparison_baseline_from_profile(profile_cfg)
+    assert resolved == (comparisons / "baseline_snapshot.json").resolve()
+
+
 def test_build_steps_mega64safe_caps_survival_memory_pressure() -> None:
     steps = lp.build_steps(
         "run-mega64safe",

@@ -92,6 +92,15 @@ def default_confounders() -> list[str]:
     return ["grade_woe", "purpose_woe", "home_ownership_woe"]
 
 
+def required_causal_columns(
+    *,
+    treatment: str = "int_rate",
+    outcome: str = "default_flag",
+) -> list[str]:
+    """Columns required by the official observed-variable causal contract."""
+    return [treatment, outcome, *default_effect_modifiers(), *default_confounders()]
+
+
 def build_overlap_diagnostics(
     df: pd.DataFrame,
     *,
@@ -232,7 +241,7 @@ def estimate_ate_dowhy(
         graph=graph,
     )
 
-    identified = model.identify_effect(proceed_when_unidentifiable=True)
+    identified = model.identify_effect(proceed_when_unidentifiable=False)
     estimate = model.estimate_effect(
         identified,
         method_name="backdoor.linear_regression",
@@ -301,8 +310,11 @@ def estimate_cate(
     )
     est.fit(Y=Y, T=T, X=X, W=W)
 
-    cate = est.effect(X)
-    lb, ub = est.effect_interval(X, alpha=0.05)
+    cate = est.const_marginal_effect(X) if hasattr(est, "const_marginal_effect") else est.effect(X)
+    if hasattr(est, "const_marginal_effect_interval"):
+        lb, ub = est.const_marginal_effect_interval(X, alpha=0.05)
+    else:
+        lb, ub = est.effect_interval(X, alpha=0.05)
 
     logger.info(
         f"CATE estimated: mean={cate.mean():.6f}, "

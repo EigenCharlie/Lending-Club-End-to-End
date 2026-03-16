@@ -1,0 +1,108 @@
+{
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-13T23:02:59.803032+00:00",
+  "status": "completed",
+  "stage_a_evaluated": 18,
+  "stage_b_evaluated": 216,
+  "stage_c_evaluated": 12,
+  "generated_namespaces": [
+    "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+    "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+    "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+    "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t0_ts500",
+    "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+    "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+    "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+    "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t0_ts500",
+    "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+    "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+    "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+    "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t0_ts500"
+  ],
+  "best_final_candidate": {
+    "experiment_stage": "C",
+    "artifact_namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+    "parent_variant_key": "grade|scaled=0|mgs=200|alpha=0.090",
+    "partition": "grade",
+    "scaled_scores": false,
+    "min_group_size": 200,
+    "alpha_used_90": 0.09,
+    "group_coverage_floor_target_90": 0.92,
+    "coverage_guardband_90": 0.0,
+    "max_width_budget_90": 0.76,
+    "multiplier_grid_name": "coarse",
+    "temporal_segment_floor_enabled": true,
+    "temporal_segment_min_size": 250,
+    "coverage_90": 0.9038245524056503,
+    "min_group_coverage_90": 0.8623666906117036,
+    "avg_width_90": 0.7795184192394283,
+    "winkler_90": 1.1908212395442632,
+    "max_monthly_gap": 0.08958333333333335,
+    "stability_over_time": 0.0260563191921343,
+    "strict_overall_pass": false,
+    "methodological_justification_pass": false,
+    "failing_non_statistical_checks": [
+      "min_group_coverage_90"
+    ],
+    "checks_passed": 8,
+    "sensitivity_results": {
+      "metric": "winkler_90",
+      "results": [
+        {
+          "max_winkler_90": 1.2,
+          "strict_overall_pass": false,
+          "non_statistical_checks_pass": false,
+          "methodological_justification_pass": false,
+          "failing_non_statistical_checks": [
+            "min_group_coverage_90"
+          ],
+          "failing_statistical_checks": [
+            "kupiec_pvalue_90",
+            "kupiec_pvalue_95",
+            "christoffersen_pvalue_90",
+            "christoffersen_pvalue_95"
+          ]
+        },
+        {
+          "max_winkler_90": 1.22,
+          "strict_overall_pass": false,
+          "non_statistical_checks_pass": false,
+          "methodological_justification_pass": false,
+          "failing_non_statistical_checks": [
+            "min_group_coverage_90"
+          ],
+          "failing_statistical_checks": [
+            "kupiec_pvalue_90",
+            "kupiec_pvalue_95",
+            "christoffersen_pvalue_90",
+            "christoffersen_pvalue_95"
+          ]
+        },
+        {
+          "max_winkler_90": 1.25,
+          "strict_overall_pass": false,
+          "non_statistical_checks_pass": false,
+          "methodological_justification_pass": false,
+          "failing_non_statistical_checks": [
+            "min_group_coverage_90"
+          ],
+          "failing_statistical_checks": [
+            "kupiec_pvalue_90",
+            "kupiec_pvalue_95",
+            "christoffersen_pvalue_90",
+            "christoffersen_pvalue_95"
+          ]
+        }
+      ]
+    },
+    "selection_rank": 1
+  },
+  "experiments_path": "data/processed/pd_conformal_gap_experiments.parquet",
+  "top_candidates_path": "data/processed/pd_conformal_gap_top_candidates.parquet",
+  "success_gate": {
+    "target_winkler_90": 1.2,
+    "reviewable_winkler_90": 1.22,
+    "target_min_group_coverage_90": 0.88,
+    "target_coverage_90": 0.9
+  }
+}

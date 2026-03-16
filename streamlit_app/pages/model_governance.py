@@ -25,7 +25,14 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import try_load_json, try_load_parquet, page_error_boundary
+from streamlit_app.utils import (
+    get_operational_threshold,
+    get_pd_internal_threshold,
+    load_threshold_semantics,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
+)
 
 
 def _artifact_health_rows() -> pd.DataFrame:
@@ -157,6 +164,13 @@ fairness_status = try_load_json("fairness_audit_status", directory="models", def
 fairness_frontier = try_load_parquet("fairness_threshold_frontier")
 explanation_drift = try_load_parquet("explanation_drift")
 challenger_report = try_load_json("challenger_promotion_report", directory="models", default={})
+threshold_semantics = load_threshold_semantics()
+operational_threshold = get_operational_threshold(
+    default=float(fairness_status.get("primary_threshold", 0.5))
+)
+pd_internal_threshold = get_pd_internal_threshold(
+    default=float((try_load_json("decision_threshold", directory="models", default={}) or {}).get("selected_threshold", 0.5))
+)
 
 passed = int(checks["passed"].sum()) if "passed" in checks.columns else 0
 total = int(len(checks))
@@ -228,9 +242,13 @@ if governance:
                 if governance.get("reason_code_stability_pass", False)
                 else "FAIL",
             },
-            {"label": "Threshold principal", "value": f"{float(governance.get('primary_threshold', 0.5)):.2f}"},
+            {"label": "Threshold operativo", "value": f"{operational_threshold:.2f}"},
         ],
         n_cols=4,
+    )
+    st.caption(
+        f"Semántica canónica: threshold interno PD = `{pd_internal_threshold:.2f}`; "
+        f"threshold operativo fairness/aprobación = `{operational_threshold:.2f}`."
     )
     with st.expander("Ver resumen ejecutivo de gobernanza"):
         st.json(governance)
@@ -280,6 +298,25 @@ else:
     )
 
 st.subheader("4) Auditoría de equidad multi-atributo (Fairness)")
+if threshold_semantics:
+    st.info(
+        "Contrato narrativo activo: `selected_threshold` en `decision_threshold.json` es interno de PD; "
+        "`primary_threshold/global_threshold` gobiernan fairness y decisión operativa."
+    )
+    with st.expander("Threshold Semantics — detalle canónico"):
+        _internal = threshold_semantics.get("pd_internal_selected_threshold", "n/d")
+        _operational = threshold_semantics.get("fairness_primary_threshold", "n/d")
+        st.markdown(
+            f"**Threshold interno PD (screening/search):** `{_internal}` — "
+            "selecciona candidatos para optimización de portfolio. NO es el threshold de aprobación.\n\n"
+            f"**Threshold operativo de aprobación/fairness:** `{_operational}` — "
+            "gobierna la auditoría de fairness y las narrativas de decisión operativa. "
+            "Fuente: `models/fairness_decision_policy.json` → `global_threshold`.\n\n"
+            "Artefacto canónico: `models/threshold_semantics.json`."
+        )
+        _bm = threshold_semantics.get("business_meaning", {})
+        if _bm:
+            st.json(_bm)
 if not fairness_audit.empty:
     n_pass = int(fairness_audit["passed_all"].sum())
     n_attr = len(fairness_audit)

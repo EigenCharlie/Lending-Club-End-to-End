@@ -5,9 +5,15 @@ from __future__ import annotations
 import json
 
 import pandas as pd
+import pytest
 import yaml
 
 from scripts import run_fairness_audit as fairness_mod
+
+
+@pytest.fixture(autouse=True)
+def _set_run_tag(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("PIPELINE_RUN_TAG", "run-fairness-test")
 
 
 def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
@@ -65,6 +71,12 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
             "frontier_parquet": str(data_dir / "fairness_threshold_frontier.parquet"),
             "status_json": str(model_dir / "fairness_audit_status.json"),
         },
+        "fairlearn_sidecar": {
+            "enabled": True,
+            "status_json": str(model_dir / "fairlearn_fairness_status.json"),
+            "group_metrics_parquet": str(data_dir / "fairlearn_group_metrics.parquet"),
+            "bootstrap_samples": 5,
+        },
         "intersectional": {"enabled": True, "max_order": 2, "min_group_size": 1},
         "threshold_frontier": {"enabled": True, "window_radius": 0.10, "step": 0.10},
     }
@@ -75,6 +87,10 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
     fairness_mod.main(str(cfg_path))
 
     status = json.loads((model_dir / "fairness_audit_status.json").read_text(encoding="utf-8"))
+    fairlearn_status = json.loads(
+        (model_dir / "fairlearn_fairness_status.json").read_text(encoding="utf-8")
+    )
+    fairlearn_groups = pd.read_parquet(data_dir / "fairlearn_group_metrics.parquet")
     frontier = pd.read_parquet(data_dir / "fairness_threshold_frontier.parquet")
     assert status["schema_version"]
     assert status["generated_at_utc"]
@@ -84,6 +100,9 @@ def test_run_fairness_uses_threshold_artifact(tmp_path) -> None:
     assert status["prediction_threshold_source"] == "artifact"
     assert status["outcome_mode"] == "approval"
     assert status["n_intersectional_attributes"] > 0
+    assert fairlearn_status["run_tag"] == "run-fairness-test"
+    assert fairlearn_status["n_attributes"] >= 1
+    assert not fairlearn_groups.empty
     assert not frontier.empty
     assert frontier["is_primary_threshold"].any()
 
@@ -140,6 +159,12 @@ def test_run_fairness_auto_selects_threshold_and_writes_decision_policy(tmp_path
             "audit_parquet": str(data_dir / "fairness_audit.parquet"),
             "frontier_parquet": str(data_dir / "fairness_threshold_frontier.parquet"),
             "status_json": str(model_dir / "fairness_audit_status.json"),
+        },
+        "fairlearn_sidecar": {
+            "enabled": True,
+            "status_json": str(model_dir / "fairlearn_fairness_status.json"),
+            "group_metrics_parquet": str(data_dir / "fairlearn_group_metrics.parquet"),
+            "bootstrap_samples": 5,
         },
         "intersectional": {"enabled": True, "max_order": 2, "min_group_size": 1},
         "threshold_frontier": {"enabled": True, "thresholds": [0.35, 0.40, 0.45, 0.50]},

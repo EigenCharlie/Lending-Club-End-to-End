@@ -160,15 +160,24 @@ def choose_best_tuning_row(
     for tier_name, mask in tiers:
         candidate = df[mask].copy()
         if not candidate.empty:
-            candidate = candidate.sort_values(
-                by=[
+            sort_cols = [
+                col
+                for col in [
+                    "winkler_90",
                     "avg_interval_width",
+                    "max_monthly_gap",
+                    "stability_over_time",
                     "coverage_guard_shortfall",
                     "group_guard_shortfall",
                     "coverage_gap",
                     "min_group_coverage",
-                ],
-                ascending=[True, True, True, True, False],
+                ]
+                if col in candidate.columns
+            ]
+            ascending = [col not in {"min_group_coverage"} for col in sort_cols]
+            candidate = candidate.sort_values(
+                by=sort_cols,
+                ascending=ascending,
             )
             return candidate.iloc[0], tier_name
 
@@ -186,17 +195,33 @@ def choose_best_tuning_row(
         fallback["width_excess"] = (fallback["avg_interval_width"] - max_width_budget).clip(
             lower=0.0
         )
+    fallback["winkler_penalty"] = fallback.get("winkler_90", pd.Series(0.0, index=fallback.index))
+    fallback["monthly_gap_penalty"] = fallback.get(
+        "max_monthly_gap", pd.Series(0.0, index=fallback.index)
+    )
+    fallback["stability_penalty"] = fallback.get(
+        "stability_over_time", pd.Series(0.0, index=fallback.index)
+    )
     fallback["score"] = (
         120.0 * fallback["coverage_guard_shortfall"]
         + 80.0 * fallback["group_guard_shortfall"]
         + 40.0 * fallback["coverage_shortfall"]
         + 20.0 * fallback["group_shortfall"]
         + 10.0 * fallback["width_excess"]
+        + 8.0 * fallback["winkler_penalty"]
+        + 6.0 * fallback["monthly_gap_penalty"]
+        + 4.0 * fallback["stability_penalty"]
         + fallback["avg_interval_width"]
     )
     fallback = fallback.sort_values(
-        by=["score", "coverage_shortfall", "group_shortfall", "avg_interval_width"],
-        ascending=[True, True, True, True],
+        by=[
+            "score",
+            "coverage_shortfall",
+            "group_shortfall",
+            "winkler_penalty",
+            "avg_interval_width",
+        ],
+        ascending=[True, True, True, True, True],
     )
     return fallback.iloc[0], "fallback_penalty"
 
@@ -404,3 +429,353 @@ def to_python_scalar(value: Any) -> Any:
     if isinstance(value, np.floating | np.integer | np.bool_):
         return value.item()
     return value
+
+
+def empirical_interval_coverage(y_true: np.ndarray, y_intervals: np.ndarray) -> float:
+    y_true_arr = np.asarray(y_true, dtype=float)
+    intervals = np.asarray(y_intervals, dtype=float)
+    if len(y_true_arr) == 0 or len(intervals) == 0:
+        return float("nan")
+    inside = (y_true_arr >= intervals[:, 0]) & (y_true_arr <= intervals[:, 1])
+    return float(np.mean(inside))
+
+
+def min_group_interval_coverage(
+    y_true: np.ndarray,
+    y_intervals: np.ndarray,
+    groups: pd.Series | np.ndarray,
+) -> float:
+    g = pd.Series(groups).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    y_true_arr = np.asarray(y_true, dtype=float)
+    intervals = np.asarray(y_intervals, dtype=float)
+    covs: list[float] = []
+    for group in sorted(g.unique()):
+        mask = g == group
+        if not mask.any():
+            continue
+        inside = (y_true_arr[mask] >= intervals[mask, 0]) & (y_true_arr[mask] <= intervals[mask, 1])
+        covs.append(float(np.mean(inside)))
+    return float(min(covs)) if covs else float("nan")
+
+
+def average_interval_width(y_intervals: np.ndarray) -> float:
+    intervals = np.asarray(y_intervals, dtype=float)
+    if len(intervals) == 0:
+        return float("nan")
+    return float(np.mean(intervals[:, 1] - intervals[:, 0]))
+
+
+def mean_winkler_score(
+    y_true: np.ndarray,
+    y_intervals: np.ndarray,
+    *,
+    alpha: float,
+) -> float:
+    y_true_arr = np.asarray(y_true, dtype=float)
+    intervals = np.asarray(y_intervals, dtype=float)
+    if len(y_true_arr) == 0 or len(intervals) == 0:
+        return float("inf")
+    low = intervals[:, 0]
+    high = intervals[:, 1]
+    width = np.maximum(high - low, 0.0)
+    below = np.maximum(low - y_true_arr, 0.0)
+    above = np.maximum(y_true_arr - high, 0.0)
+    penalty = (2.0 / max(float(alpha), 1e-12)) * (below + above)
+    return float(np.mean(width + penalty))
+
+
+def temporal_stability_summary(
+    y_true: np.ndarray,
+    y_intervals: np.ndarray,
+    issue_dates: pd.Series | np.ndarray | None,
+    *,
+    target_coverage: float,
+    freq: str = "M",
+) -> dict[str, float]:
+    if issue_dates is None:
+        return {
+            "min_monthly_coverage": float("nan"),
+            "last_monthly_coverage": float("nan"),
+            "max_monthly_gap": float("nan"),
+            "stability_over_time": float("nan"),
+        }
+    dates = pd.to_datetime(pd.Series(issue_dates), errors="coerce")
+    y_true_arr = np.asarray(y_true, dtype=float)
+    intervals = np.asarray(y_intervals, dtype=float)
+    if len(dates) == 0 or len(y_true_arr) == 0 or len(intervals) == 0:
+        return {
+            "min_monthly_coverage": float("nan"),
+            "last_monthly_coverage": float("nan"),
+            "max_monthly_gap": float("nan"),
+            "stability_over_time": float("nan"),
+        }
+    frame = pd.DataFrame(
+        {
+            "month": dates.dt.to_period(freq).dt.to_timestamp(),
+            "y_true": y_true_arr,
+            "low": intervals[:, 0],
+            "high": intervals[:, 1],
+        }
+    ).dropna(subset=["month"])
+    if frame.empty:
+        return {
+            "min_monthly_coverage": float("nan"),
+            "last_monthly_coverage": float("nan"),
+            "max_monthly_gap": float("nan"),
+            "stability_over_time": float("nan"),
+        }
+    frame["covered"] = (
+        (frame["y_true"] >= frame["low"]) & (frame["y_true"] <= frame["high"])
+    ).astype(float)
+    monthly = (
+        frame.groupby("month", observed=True)
+        .agg(coverage=("covered", "mean"))
+        .reset_index()
+        .sort_values("month")
+    )
+    monthly["gap"] = (monthly["coverage"] - float(target_coverage)).abs()
+    return {
+        "min_monthly_coverage": float(monthly["coverage"].min()),
+        "last_monthly_coverage": float(monthly["coverage"].iloc[-1]),
+        "max_monthly_gap": float(monthly["gap"].max()),
+        "stability_over_time": float(monthly["gap"].mean()),
+    }
+
+
+def shrink_group_multipliers(
+    *,
+    y_true: np.ndarray,
+    y_pred: np.ndarray,
+    base_intervals: np.ndarray,
+    groups: pd.Series | np.ndarray,
+    issue_dates: pd.Series | np.ndarray | None,
+    group_factors: dict[str, float] | None = None,
+    temporal_segments: pd.Series | np.ndarray | None = None,
+    temporal_factors: dict[str, float] | None = None,
+    target_coverage: float = 0.90,
+    min_group_coverage_target: float = 0.88,
+    max_monthly_gap_target: float | None = None,
+    alpha: float = 0.10,
+    group_multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
+    temporal_multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
+) -> tuple[np.ndarray, dict[str, float], dict[str, float], pd.DataFrame]:
+    """Greedily shrink learned widening factors while preserving constraints."""
+    group_factors_cur = {
+        str(k): float(v) for k, v in (group_factors or {}).items() if float(v) > 1.0
+    }
+    temporal_factors_cur = {
+        str(k): float(v) for k, v in (temporal_factors or {}).items() if float(v) > 1.0
+    }
+    base = np.asarray(base_intervals, dtype=float)
+    y_pred_arr = np.asarray(y_pred, dtype=float)
+    y_true_arr = np.asarray(y_true, dtype=float)
+    group_series = pd.Series(groups).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    temporal_series = (
+        pd.Series(temporal_segments).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+        if temporal_segments is not None
+        else None
+    )
+
+    def _apply_all(
+        gf: dict[str, float],
+        tf: dict[str, float],
+    ) -> np.ndarray:
+        intervals = base.copy()
+        if gf:
+            intervals = apply_group_multipliers(y_pred_arr, intervals, group_series, gf)
+        if tf and temporal_series is not None:
+            intervals = apply_group_multipliers(y_pred_arr, intervals, temporal_series, tf)
+        return intervals
+
+    def _metrics(intervals: np.ndarray) -> dict[str, float]:
+        temporal = temporal_stability_summary(
+            y_true_arr,
+            intervals,
+            issue_dates,
+            target_coverage=float(target_coverage),
+            freq="M",
+        )
+        return {
+            "coverage": empirical_interval_coverage(y_true_arr, intervals),
+            "min_group_coverage": min_group_interval_coverage(y_true_arr, intervals, group_series),
+            "avg_width": average_interval_width(intervals),
+            "winkler_90": mean_winkler_score(y_true_arr, intervals, alpha=alpha),
+            "max_monthly_gap": float(temporal["max_monthly_gap"]),
+            "stability_over_time": float(temporal["stability_over_time"]),
+        }
+
+    def _constraints_ok(metrics: dict[str, float]) -> bool:
+        if float(metrics["coverage"]) < float(target_coverage):
+            return False
+        if float(metrics["min_group_coverage"]) < float(min_group_coverage_target):
+            return False
+        return not (
+            max_monthly_gap_target is not None
+            and np.isfinite(max_monthly_gap_target)
+            and float(metrics["max_monthly_gap"]) > float(max_monthly_gap_target)
+        )
+
+    current_intervals = _apply_all(group_factors_cur, temporal_factors_cur)
+    current_metrics = _metrics(current_intervals)
+    report_rows: list[dict[str, Any]] = [
+        {
+            "stage": "initial",
+            "factor_scope": "all",
+            "factor_key": "all",
+            "candidate_factor": np.nan,
+            "accepted": True,
+            **current_metrics,
+        }
+    ]
+
+    if not _constraints_ok(current_metrics):
+        report_rows.append(
+            {
+                "stage": "initial_infeasible",
+                "factor_scope": "all",
+                "factor_key": "all",
+                "candidate_factor": np.nan,
+                "accepted": False,
+                **current_metrics,
+            }
+        )
+        return current_intervals, group_factors_cur, temporal_factors_cur, pd.DataFrame(report_rows)
+
+    def _next_lower(value: float, grid: tuple[float, ...]) -> float | None:
+        ordered = sorted({round(float(x), 6) for x in grid if float(x) <= float(value) + 1e-9})
+        current = round(float(value), 6)
+        if current not in ordered:
+            ordered.append(current)
+            ordered = sorted(set(ordered))
+        idx = ordered.index(current)
+        if idx == 0:
+            return None
+        return float(ordered[idx - 1])
+
+    while True:
+        best_candidate: dict[str, Any] | None = None
+
+        for key, value in list(group_factors_cur.items()):
+            next_factor = _next_lower(value, group_multiplier_grid)
+            if next_factor is None:
+                continue
+            trial_group = dict(group_factors_cur)
+            if next_factor <= 1.0:
+                trial_group.pop(key, None)
+            else:
+                trial_group[key] = next_factor
+            trial_intervals = _apply_all(trial_group, temporal_factors_cur)
+            trial_metrics = _metrics(trial_intervals)
+            accepted = _constraints_ok(trial_metrics)
+            candidate = {
+                "scope": "group",
+                "key": key,
+                "factor": next_factor,
+                "accepted": accepted,
+                "intervals": trial_intervals,
+                "group_factors": trial_group,
+                "temporal_factors": dict(temporal_factors_cur),
+                "metrics": trial_metrics,
+            }
+            if accepted and (
+                best_candidate is None
+                or float(candidate["metrics"]["avg_width"])
+                < float(best_candidate["metrics"]["avg_width"])
+                or (
+                    np.isclose(
+                        float(candidate["metrics"]["avg_width"]),
+                        float(best_candidate["metrics"]["avg_width"]),
+                    )
+                    and float(candidate["metrics"]["winkler_90"])
+                    < float(best_candidate["metrics"]["winkler_90"])
+                )
+            ):
+                best_candidate = candidate
+            report_rows.append(
+                {
+                    "stage": "attempt",
+                    "factor_scope": "group",
+                    "factor_key": key,
+                    "candidate_factor": float(next_factor),
+                    "accepted": bool(accepted),
+                    **trial_metrics,
+                }
+            )
+
+        for key, value in list(temporal_factors_cur.items()):
+            next_factor = _next_lower(value, temporal_multiplier_grid)
+            if next_factor is None:
+                continue
+            trial_temporal = dict(temporal_factors_cur)
+            if next_factor <= 1.0:
+                trial_temporal.pop(key, None)
+            else:
+                trial_temporal[key] = next_factor
+            trial_intervals = _apply_all(group_factors_cur, trial_temporal)
+            trial_metrics = _metrics(trial_intervals)
+            accepted = _constraints_ok(trial_metrics)
+            candidate = {
+                "scope": "temporal",
+                "key": key,
+                "factor": next_factor,
+                "accepted": accepted,
+                "intervals": trial_intervals,
+                "group_factors": dict(group_factors_cur),
+                "temporal_factors": trial_temporal,
+                "metrics": trial_metrics,
+            }
+            if accepted and (
+                best_candidate is None
+                or float(candidate["metrics"]["avg_width"])
+                < float(best_candidate["metrics"]["avg_width"])
+                or (
+                    np.isclose(
+                        float(candidate["metrics"]["avg_width"]),
+                        float(best_candidate["metrics"]["avg_width"]),
+                    )
+                    and float(candidate["metrics"]["winkler_90"])
+                    < float(best_candidate["metrics"]["winkler_90"])
+                )
+            ):
+                best_candidate = candidate
+            report_rows.append(
+                {
+                    "stage": "attempt",
+                    "factor_scope": "temporal",
+                    "factor_key": key,
+                    "candidate_factor": float(next_factor),
+                    "accepted": bool(accepted),
+                    **trial_metrics,
+                }
+            )
+
+        if best_candidate is None:
+            break
+
+        current_intervals = np.asarray(best_candidate["intervals"], dtype=float)
+        group_factors_cur = dict(best_candidate["group_factors"])
+        temporal_factors_cur = dict(best_candidate["temporal_factors"])
+        current_metrics = dict(best_candidate["metrics"])
+        report_rows.append(
+            {
+                "stage": "accepted",
+                "factor_scope": str(best_candidate["scope"]),
+                "factor_key": str(best_candidate["key"]),
+                "candidate_factor": float(best_candidate["factor"]),
+                "accepted": True,
+                **current_metrics,
+            }
+        )
+
+    report_rows.append(
+        {
+            "stage": "final",
+            "factor_scope": "all",
+            "factor_key": "all",
+            "candidate_factor": np.nan,
+            "accepted": True,
+            **current_metrics,
+        }
+    )
+    report = pd.DataFrame(report_rows)
+    return current_intervals, group_factors_cur, temporal_factors_cur, report

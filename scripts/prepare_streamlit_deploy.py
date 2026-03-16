@@ -136,6 +136,8 @@ REQUIRED_FILES = [
 ]
 
 OPTIONAL_FILES = [
+    "models/decision_threshold.json",
+    "models/pd_calibration_diagnostics.json",
     "dbt_project/target/catalog.json",
     "data/lending_club.duckdb",
     "data/processed/efficient_frontier.parquet",

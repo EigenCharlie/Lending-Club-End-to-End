@@ -6,6 +6,7 @@ from scripts import (
     run_canonical_rebuild,
     run_champion_search,
     run_insights_factory,
+    run_paper_grade_final,
     run_smoke_pipeline,
 )
 
@@ -37,6 +38,24 @@ def test_run_canonical_rebuild_delegates(monkeypatch) -> None:
     assert run_canonical_rebuild.main(["--run-tag", "canonical-test"]) == 0
     assert captured["kwargs"]["default_pipeline_family"] == "canonical_rebuild"
     assert captured["kwargs"]["default_sampling_profile"] == "champion64safe"
+
+
+def test_run_paper_grade_final_injects_profile_and_baseline(monkeypatch) -> None:
+    captured: dict[str, object] = {}
+
+    def _fake_main(argv, **kwargs):
+        captured["argv"] = argv
+        captured["kwargs"] = kwargs
+        return 0
+
+    monkeypatch.setattr(run_paper_grade_final, "_main", _fake_main)
+    assert run_paper_grade_final.main(["--run-tag", "paper-grade-final"]) == 0
+    assert "--pipeline-profile" in captured["argv"]
+    assert "paper_grade_final" in captured["argv"]
+    assert "--comparison-baseline-run-tag" in captured["argv"]
+    assert "champion-2026-03-12-mega-definitive" in captured["argv"]
+    assert captured["kwargs"]["default_pipeline_family"] == "champion_search"
+    assert captured["kwargs"]["default_sampling_profile"] == "mega64plus"
 
 
 def test_run_smoke_pipeline_delegates(monkeypatch) -> None:

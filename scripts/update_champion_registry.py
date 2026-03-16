@@ -9,10 +9,21 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from src.utils.baseline_registry import resolve_official_baseline_run_tag
+from src.utils.threshold_semantics import load_threshold_semantics
+
 ROOT = Path(__file__).resolve().parents[1]
 MODELS = ROOT / "models"
 
-SCHEMA_VERSION = "2026-03-08.1"
+SCHEMA_VERSION = "2026-03-13.2"
+
+
+def _meaningful_run_tag(*values: object) -> str:
+    for value in values:
+        candidate = str(value or "").strip()
+        if candidate and candidate.lower() not in {"untracked", "unknown"}:
+            return candidate
+    return "untracked"
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -41,25 +52,39 @@ def main() -> None:
     champion_policy = _load_json(MODELS / "champion_portfolio_policy.json")
     cate_status = _load_json(MODELS / "cate_portfolio_status.json")
     time_series_status = _load_json(MODELS / "time_series_status.json")
+    threshold_semantics = load_threshold_semantics()
+    official_baseline_run_tag = resolve_official_baseline_run_tag()
 
-    resolved_run_tag = (
-        str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-        or str(governance_status.get("run_tag", "")).strip()
-        or str(fairness_status.get("run_tag", "")).strip()
-        or str(champion_policy.get("run_tag", "")).strip()
-        or "untracked"
+    resolved_run_tag = _meaningful_run_tag(
+        os.environ.get("PIPELINE_RUN_TAG", ""),
+        governance_status.get("run_tag", ""),
+        fairness_status.get("run_tag", ""),
+        champion_policy.get("run_tag", ""),
+        threshold_semantics.get("run_tag", ""),
+        official_baseline_run_tag,
     )
 
     payload = {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "run_tag": resolved_run_tag,
+        "upstream_canonical_run_tag": official_baseline_run_tag,
+        "threshold_semantics": threshold_semantics,
         "pd": {
             "training_regime": train_rec.get("training_regime", {}),
             "stable_core": train_rec.get("stable_core", {}),
             "decision_threshold": (
                 train_rec.get("decision_threshold", {}) if isinstance(train_rec, dict) else {}
             ),
+            "decision_threshold_semantics": {
+                "pd_internal_selected_threshold": threshold_semantics.get(
+                    "pd_internal_selected_threshold"
+                ),
+                "fairness_primary_threshold": threshold_semantics.get("fairness_primary_threshold"),
+                "decision_policy_global_threshold": threshold_semantics.get(
+                    "decision_policy_global_threshold"
+                ),
+            },
         },
         "portfolio": champion_policy,
         "fairness": {

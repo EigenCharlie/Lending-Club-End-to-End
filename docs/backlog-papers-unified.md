@@ -9,52 +9,107 @@ Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble
 
 ## Prioridad global (orden recomendado)
 
-1. PD conformal estricto (bloquea Paper 3 y Paper Estrella)
-2. Time series intervals (bloquea Paper 2)
-3. A/B más fuerte (alimenta Paper Estrella)
-4. Governance warnings (alimenta Paper 2 y Estrella)
-5. Causal policy / CATE (insights, no bloquea papers core)
-6. Cierre de protocolo paper
-7. Study limpio de PD + mega corrida final paper-grade
-8. Migración Quarto (paralelo, no bloquea corrida)
-9. Writing papers (post corrida final)
+1. Study limpio de PD + corrida final paper-grade
+2. Migración Quarto + companion Streamlit
+3. Writing papers con artifacts ya congelados
+4. Research opcional post-freeze
 
 ---
 
 ## Resumen ejecutivo
 
-### Ya promovido (mega run 2026-03-12)
+### Ya promovido / cerrado
 
 - PD core: CatBoost tuned + calibrated, AUC 0.7128, Brier 0.1545
-- Calibración: Isotonic Regression
+- Calibración oficial vigente: Venn-Abers
 - Portfolio champion: risk_tol=0.18, capped_blended_uncertainty
 - Survival RSF: c-index 0.6797 (mejora fuerte)
 - Fairness: 6/6 PASS, threshold 0.35
 - Governance: overall_pass, challenger_promotable
 - LGD/EAD conformal: promovido
+- PD conformal: cerrado para paper-grade con regla formal de Winkler compensado
+- Time series: decisión final documentada como `research_only` para intervalos
+- Causal/CATE: decisión final documentada
+- A/B: evidencia ampliada y decisión final documentada
+- Protocolo paper-grade congelado y versionado
 - Baseline operativo completo
 
-### Pendiente de cierre (pipeline)
+### Pendiente de cierre real (pipeline)
 
-- PD conformal estricto (promotable con warning estadístico)
-- Time series intervals (coverage 81% vs target 90%)
-- Causal/CATE (research only, -4.47% portfolio delta)
-- A/B significancia (p=0.4495)
-- Governance narrative (c2st + distribution warnings)
+- `study_name` limpio de PD
+- corrida final paper-grade confirmatoria
+- si esa corrida mueve artefactos, refrescar protocolo/snapshot/bundle
 
 ### Pendiente nuevo (papers + Quarto)
 
-- Benchmark variantes CP para Paper 3
-- Uncertainty set baselines para Paper Estrella
-- Bound teórico alpha-Gamma para Paper Estrella
+- empaquetado editorial de variantes CP ya benchmarkeadas para Paper 3
+- uncertainty set baselines para Paper Estrella
+- bound teórico alpha-Gamma para Paper Estrella
 - SICR trigger formalización para Paper 2
 - ECL sensitivity a alpha conformal para Paper 2
 - Migración Streamlit a Quarto + Streamlit
 - Writing de 3 papers + Quarto book
 
+### Pendiente de documentación real
+
+- convertir artifacts finales en tablas/figuras para Paper 3
+- reflejar en Quarto la decisión final de `PD conformal`, `time series`, `A/B`, `causal/CATE` y `governance`
+- sincronizar narrativa histórica vs narrativa vigente en capítulos, apéndices y companion app
+- dejar explícito qué resultados son:
+  - baseline histórico de la mega run
+  - estado canónico vigente post-validación P0 / paper-grade
+
+### Pendiente real de hardening/policy
+
+Fuente canónica:
+- `docs/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`
+
+Conclusión de auditoría:
+- el stack de `gates` y `policies` ya no necesita rediseño mayor;
+- lo pendiente para dejar el protocolo óptimo es normalización contractual y narrativa final.
+
+Estado:
+- `P0 contract fix`: cerrado
+- `P1 policy normalization`: cerrado
+- `P1 test hardening`: cerrado
+- `P2 editorial cleanup`: cerrado
+
+Implementado:
+- `run_tag` normalizado en artifacts refreshed post-hoc relevantes
+- `threshold_semantics` propagado a `champion_registry` y `champion_search_bundle`
+- fallback de fairness alineado al threshold operativo vigente `0.35`
+- `storytelling_snapshot` refrescado con schema vigente
+- tests de coherencia semántica añadidos
+- dossier histórico bannerizado como histórico
+
+### Estado consolidado del protocolo
+
+Fuente canónica:
+- [paper_grade_protocol_status.json](/home/eigenlinux/projects/lending-club-risk-project/models/paper_grade_protocol_status.json)
+
+Estado:
+- `pd_conformal=true`
+- `time_series=true`
+- `causal_cate=true`
+- `ab_evidence=true`
+- `governance=true`
+- `protocol_frozen=true`
+
 ---
 
 ## 1. PD conformal estricto
+
+Estado actual:
+- cerrado para paper-grade
+- no promotable operativamente (`promotion_pass=false`)
+- cierre canónico logrado con:
+  - `strict_overall_pass=false`
+  - `methodological_justification_pass=true`
+  - regla formal de `winkler_90` con banda compensada
+
+Qué queda:
+- convertir artifacts y tablas actuales en material de Paper 3
+- no reabrir el método salvo que la corrida final limpia contradiga el estado actual
 
 Prioridad: **1 (CRÍTICA)**
 Bloquea: Paper 3 (COPA), Paper Estrella (MS/OR)
@@ -62,58 +117,59 @@ Conexión papers: es el corazón metodológico de Paper 3 y componente clave del
 
 ### 1.1 Benchmark de variantes CP (backlog original + paper)
 
-Pendientes:
+Estado:
+- benchmark ya extendido con variantes relevantes para el carril actual:
+  - `global_split`
+  - `mondrian_scaled`
+  - `mondrian_unscaled`
+  - `score_decile_mondrian`
+  - `grade_x_scoreband_mondrian`
+  - `cross_conformal_score_space`
+- artifacts vigentes:
+  - `data/processed/conformal_variant_selection_report.parquet`
+  - `data/processed/conformal_temporal_diagnostics.parquet`
+  - `data/processed/conformal_local_diagnostics.parquet`
 
-- Ampliar benchmark con:
-  - CrossConformal
-  - JackknifeAfterBootstrap (Jackknife+)
-  - Venn-Abers intervals
-  - CQR (Conformalized Quantile Regression, Romano et al. 2019)
-  - Variantes localizadas (locally-weighted)
-  - Variantes group-weighted
-- Mantener variante actual como baseline operativo
-- Comparar por variante:
-  - coverage_90, coverage_95
-  - min_group_coverage_90
-  - avg_width_90, avg_width_95
-  - kupiec_pvalue_90, kupiec_pvalue_95
-  - christoffersen_pvalue_90, christoffersen_pvalue_95
-  - estabilidad temporal por mes
-  - rolling windows 3m y 6m (nuevo para Paper 3)
+Pendiente editorial:
+- tablas/figuras para Paper 3
+- decidir si vale la pena añadir variantes nuevas solo para publicación, no para canónico
 
 ### 1.2 Selector de variante conformal
 
-Pendientes:
-
-- Definir selector explícito con prioridad:
-  - Prioridad 1: tests estadísticos (Kupiec, Christoffersen)
-  - Prioridad 2: cobertura por grupo (min_group_coverage)
-  - Prioridad 3: anchura (eficiencia)
-- Artefacto final: variante elegida + tabla comparativa + razón de selección
-- Estado objetivo: `operationally_promotable` + `research_closed`
+Estado:
+- selector explícito ya existe y quedó endurecido con:
+  - cobertura
+  - subgroup coverage
+  - `winkler_90`
+  - estabilidad temporal
+- `promotion_pass` sigue en `false`
+- `research_closed` ya sí queda resuelto para paper-grade
 
 ### 1.3 Posicionamiento académico (nuevo, para Paper 3)
 
 Pendientes:
-
-- Posicionar vs Kandinsky CP (Bairaktari et al. 2025, ICML): credit grades son disjuntos, Mondrian es correcto
-- Citar: Gibbs & Cherian (2024 JRSS-B), Zhou & Sesia (2024 NeurIPS)
-- Agregar experiment: robustez a cambio de partición de grades
-- Análisis de finite-sample effects en grades con bajo n
+- posicionamiento narrativo y citas en el paper
+- opcional: robustness appendix sobre partición de grades
 
 Entregable:
-
-- Política conformal PD con estado `research_closed`
-- Material para Paper 3 (tablas, figuras, narrativa)
-- Variante seleccionada con justificación publicable
+- material para Paper 3 (tablas, figuras, narrativa)
+- variante seleccionada con justificación publicable
 
 ---
 
 ## 2. Time series intervals
 
 Prioridad: **2**
-Bloquea: Paper 2 (JBF) si se quiere integrar forecast intervals en ECL
+Bloquea: integración fuerte en Paper 2, no la corrida final
 Conexión papers: alimenta escenarios ECL en Paper 2
+
+Estado actual:
+- decisión final documentada: `research_only` (reconfirmada en paper-grade run 2026-03-13)
+- point forecast `AutoARIMA` sigue promotable
+- champion intervalar `AutoARIMA`: coverage_90=81%, coverage_gap=0.090 — supera el target máximo de 0.03
+- `EnbPI` también falla gate (coverage~36%) — ambos métodos son diagnóstico, no baseline oficial
+- mejora pendiente: ACI/TCP rolling window (ver P3.2 en research-p3-p4-backlog.md)
+- no hay bloqueo metodológico abierto; sí queda oportunidad research/editorial
 
 ### 2.1 Benchmark TS intervals (backlog original)
 
@@ -141,17 +197,20 @@ Pendientes:
   - Shift temporal
 
 Entregable:
-
-- `interval_promotable=true` o decisión formal de dejar intervalos fuera del camino canónico
-- Si promotable: integrar en escenarios ECL para Paper 2
+- mantener la decisión formal actual o reabrir solo si aparece mejora material en research posterior
 
 ---
 
 ## 3. A/B más fuerte
 
 Prioridad: **3**
-Bloquea: Paper Estrella (contribución decisional)
+Bloquea: fortalecimiento del Paper Estrella, no la corrida final
 Conexión papers: evidencia económica para Paper Estrella
+
+Estado actual:
+- evidencia A/B ya documentada en protocolo final
+- escenario `ambiguity_defer` no mejora y no debe promoverse
+- la policy actual se mantiene
 
 ### 3.1 Ampliar evidencia A/B (backlog original + paper)
 
@@ -180,16 +239,19 @@ Pendientes:
 
 Entregable:
 
-- Evidencia económica convincente (más allá de no_regression)
-- Figuras de Pareto frontier para Paper Estrella
+- si se hace trabajo extra aquí, ya es para reforzar publicación, no para cerrar backlog operativo
 
 ---
 
 ## 4. Governance warnings
 
 Prioridad: **4**
-Bloquea: narrativa de Paper 2 y Paper Estrella
+Bloquea: narrativa más fuerte, no la corrida final
 Conexión papers: contexto regulatorio MRM
+
+Estado actual:
+- governance ya quedó contextualizado y cerrado en protocolo
+- warnings permanecen visibles, no maquillados
 
 ### 4.1 Contextualizar warnings (backlog original)
 
@@ -220,6 +282,11 @@ Prioridad: **5**
 No bloquea papers core. Alimenta insights_factory y Quarto book.
 Conexión papers: mención en Paper 2, extensión futura en Paper Estrella
 
+Estado actual:
+- decisión final ya documentada
+- regla elegida: `high_plus_medium_positive`
+- queda como carril cerrado metodológicamente; mejoras adicionales son opcionales
+
 ### 5.1 Reforzar evidencia causal (backlog original)
 
 Pendientes:
@@ -239,33 +306,19 @@ Pendientes:
 
 Entregable:
 
-- Decisión final: canonical_candidate o insights_only
 - Material para Quarto cap 7
 
 ---
 
 ## 6. Cierre de protocolo paper
 
-Prioridad: **6** (después de items 1-5)
-Bloquea: corrida final paper-grade
+Prioridad: **ya cerrado**
+Bloquea: nada, salvo contradicciones documentales nuevas
 
 ### 6.1 Congelar metodología (backlog original)
 
-Pendientes:
-
-- Fijar:
-  - Split temporal (ya fijo)
-  - Feature universe (42 features, ya fijo)
-  - Training regime PD (CatBoost tuned, ya fijo)
-  - Calibración oficial (Isotonic, ya fijo)
-  - Shortlist conformal (cerrar en item 1)
-  - Survival methodology (RSF promovido, ya fijo)
-  - Policy portfolio oficial (capped_blended, ya fijo)
-  - Criterio de promoción (ya documentado)
-- Decidir definitivamente:
-  - Qué queda en pipeline canónico
-  - Qué queda en insights_factory
-- Escribir documento de protocolo final
+Pendientes residuales:
+- sincronización documental si la corrida final limpia produce cambios materiales
 
 Entregable:
 
@@ -459,17 +512,13 @@ Entregable:
 
 ## Orden recomendado entre sesiones
 
-- Sesión 1: PD conformal estricto (benchmark variantes + selector)
-- Sesión 2: Time series intervals
-- Sesión 3: A/B más fuerte + decision regret
-- Sesión 4: Governance warnings + contextualización
-- Sesión 5: Causal policy / CATE decisión final
-- Sesión 6: Cierre de protocolo paper
-- Sesión 7: Study limpio + mega corrida final paper-grade
-- Sesión 8: Scaffolding Quarto book (paralelo desde sesión 4+)
-- Sesión 9: Writing Paper 3 (COPA deadline)
-- Sesión 10: Writing Paper 2 (JBF)
-- Sesión 11+: Writing Paper Estrella (MS/OR/EJOR)
+- Sesión 1: study limpio de PD + preparación de corrida final
+- Sesión 2: mega corrida final paper-grade
+- Sesión 3: refresh de protocolo/snapshot si cambia algo
+- Sesión 4: scaffolding Quarto book
+- Sesión 5: writing Paper 3
+- Sesión 6: writing Paper 2
+- Sesión 7+: writing Paper Estrella y research opcional
 
 ---
 
@@ -477,11 +526,11 @@ Entregable:
 
 Antes de la corrida final paper-grade:
 
-- PD conformal: sin warning crítico o con justificación metodológica publicable
-- Time series: decisión final documentada (promotable o fuera del canónico)
-- A/B: evidencia económica ampliada con sensibilidad y regret
-- Governance: warnings contextualizados con política de materialidad
-- Causal/CATE: decisión final documentada (canonical o insights_only)
+- PD conformal: cerrado
+- Time series: cerrado
+- A/B: cerrado
+- Governance: cerrado
+- Causal/CATE: cerrado
 - Protocolo: congelado y versionado
 - Quarto scaffolding: estructura lista (no necesita contenido completo)
 

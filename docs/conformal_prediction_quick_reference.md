@@ -12,6 +12,12 @@
 - La referencia canónica para resultados actuales es:
   - `models/conformal_results_mondrian.pkl`
   - `data/processed/conformal_intervals_mondrian.parquet`
+- Librerías y roles actuales:
+  - `mapie`: intervalos conformales principales y `TimeSeriesRegressor` (`ACI`, `EnbPI`)
+  - `crepes`: p-values / predictive systems / research
+  - `venn-abers`: calibración Venn-Abers real
+- Aclaración crítica:
+  - `crepes.WrapClassifier.predict_p(...)` devuelve p-values; no debe leerse como probabilidad calibrada ni como reemplazo de Venn-Abers.
 
 ---
 

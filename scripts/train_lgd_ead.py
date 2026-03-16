@@ -19,11 +19,13 @@ import pandas as pd
 from catboost import CatBoostRegressor
 from loguru import logger
 from sklearn.base import BaseEstimator, RegressorMixin
+from sklearn.ensemble import HistGradientBoostingRegressor
 
 from src.models.conformal import _conformal_quantile, create_regression_intervals, validate_coverage
 from src.models.ead_model import train_ead_model
 from src.models.lgd_model import predict_two_stage, train_direct_lgd, train_two_stage_lgd
 from src.models.pd_model import NUMERIC_FEATURES, WOE_FEATURES
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
 SCHEMA_VERSION = "2026-03-02.1"
 SNAPSHOT_DATE = pd.Timestamp("2020-09-30")
@@ -37,6 +39,7 @@ MIN_GROUP_SUPPORT = 500
 MIN_YEAR_SUPPORT = 250
 MAX_WIDTH_INFLATION = 1.25
 MAX_ABS_BIAS = 0.10
+BENCHMARK_SHORT_SAMPLE_SIZE = 25000
 
 
 def _gpu_replay_artifact_root() -> Path | None:
@@ -425,14 +428,16 @@ def main(
     sample_size: int | None = None,
     run_tag: str | None = None,
     catboost_backend: str = "cpu",
+    benchmark_short: bool = False,
 ) -> None:
     sample_size = _normalize_sample_size(sample_size)
+    if benchmark_short:
+        if sample_size is None:
+            sample_size = BENCHMARK_SHORT_SAMPLE_SIZE
+        else:
+            sample_size = min(int(sample_size), BENCHMARK_SHORT_SAMPLE_SIZE)
     backend_params = _catboost_backend_params(catboost_backend)
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
+    resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
 
     train = _sample_df(_load_split("train"), sample_size)
     cal = _sample_df(_load_split("calibration"), sample_size)
@@ -457,7 +462,18 @@ def main(
     model_dir.mkdir(parents=True, exist_ok=True)
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    status = _status_template(resolved_run_tag)
+    status = {
+        **_status_template(resolved_run_tag),
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
+    }
+    status["benchmark_mode"] = {
+        "benchmark_short": bool(benchmark_short),
+        "effective_sample_size_per_split": None if sample_size is None else int(sample_size),
+    }
     status_path = model_dir / "conformal_lgd_ead_status.json"
 
     # LGD defaults-only slices.
@@ -677,6 +693,65 @@ def main(
                 index_df=test_d,
                 variant="direct_adaptive_grade_temporal",
             )
+
+            # Variant E: short J+aB benchmark when MAPIE supports it and runtime is bounded.
+            try:
+                from mapie.regression import JackknifeAfterBootstrapRegressor
+
+                jab_train = pd.concat([train_d[features], cal_d[features]], axis=0).reset_index(
+                    drop=True
+                )
+                jab_target = pd.concat(
+                    [train_d["lgd"].astype(float), cal_d["lgd"].astype(float)],
+                    axis=0,
+                ).reset_index(drop=True)
+                jab_estimator = HistGradientBoostingRegressor(
+                    max_depth=6,
+                    learning_rate=0.05,
+                    max_iter=200 if benchmark_short else 300,
+                    random_state=42,
+                )
+                jab_90 = JackknifeAfterBootstrapRegressor(
+                    estimator=jab_estimator,
+                    confidence_level=0.90,
+                    method="plus",
+                    resampling=20 if benchmark_short else 30,
+                    aggregation_method="mean",
+                    random_state=42,
+                )
+                jab_90.fit_conformalize(jab_train, jab_target)
+                y_pred_jab_90, y_int_jab_90_raw = jab_90.predict_interval(X_test)
+                y_int_jab_90 = np.asarray(y_int_jab_90_raw[:, :, 0], dtype=float)
+
+                jab_95 = JackknifeAfterBootstrapRegressor(
+                    estimator=HistGradientBoostingRegressor(
+                        max_depth=6,
+                        learning_rate=0.05,
+                        max_iter=200 if benchmark_short else 300,
+                        random_state=42,
+                    ),
+                    confidence_level=0.95,
+                    method="plus",
+                    resampling=20 if benchmark_short else 30,
+                    aggregation_method="mean",
+                    random_state=42,
+                )
+                jab_95.fit_conformalize(jab_train, jab_target)
+                _y_pred_jab_95, y_int_jab_95_raw = jab_95.predict_interval(X_test)
+                y_int_jab_95 = np.asarray(y_int_jab_95_raw[:, :, 0], dtype=float)
+
+                variant_frames["jackknife_after_bootstrap_short_benchmark"] = _build_interval_frame(
+                    y_true=y_test.to_numpy(),
+                    y_pred=np.asarray(y_pred_jab_90, dtype=float),
+                    low_90=y_int_jab_90[:, 0],
+                    high_90=y_int_jab_90[:, 1],
+                    low_95=y_int_jab_95[:, 0],
+                    high_95=y_int_jab_95[:, 1],
+                    index_df=test_d,
+                    variant="jackknife_after_bootstrap_short_benchmark",
+                )
+            except Exception as exc:
+                logger.warning("Skipping Jackknife-after-Bootstrap short benchmark: {}", exc)
 
             # Benchmark and guardrails.
             benchmark_rows: list[dict[str, Any]] = []
@@ -915,9 +990,11 @@ if __name__ == "__main__":
     parser.add_argument("--sample_size", type=int, default=None)
     parser.add_argument("--run-tag", default=None)
     parser.add_argument("--catboost_backend", choices=["cpu", "gpu"], default="cpu")
+    parser.add_argument("--benchmark-short", action="store_true")
     args = parser.parse_args()
     main(
         sample_size=args.sample_size,
         run_tag=args.run_tag,
         catboost_backend=args.catboost_backend,
+        benchmark_short=args.benchmark_short,
     )

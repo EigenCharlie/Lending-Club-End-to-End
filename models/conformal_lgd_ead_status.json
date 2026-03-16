@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-02.1",
-  "generated_at_utc": "2026-03-13T09:10:54.695826+00:00",
-  "run_tag": "champion-2026-03-12-mega-definitive",
+  "generated_at_utc": "2026-03-15T22:44:14.433675+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
   "lgd": {
     "available": true,
     "n_train": 249380,
@@ -12,9 +12,9 @@
     "selection_reason": "selected_best_pass_by_width",
     "model_metrics": {
       "two_stage": {
-        "stage1_auc": 0.5677841786923506,
-        "lgd_mae": 0.1919839766675818,
-        "lgd_rmse": 0.2239807202598068
+        "stage1_auc": 0.5602996285460702,
+        "lgd_mae": 0.19195242640539895,
+        "lgd_rmse": 0.22395157153985468
       },
       "direct": {
         "lgd_mae": 0.19285851809419047,
@@ -89,8 +89,8 @@
       "coverage_90": 0.9049958915365653,
       "coverage_95": 0.9550205423171734,
       "min_grade_coverage_90": 0.9046563192904656,
-      "width_inflation_90": 0.8737837619940267,
-      "width_inflation_95": 0.8751762552198116,
+      "width_inflation_90": 0.8739102019697839,
+      "width_inflation_95": 0.8752456960308506,
       "abs_bias": 0.08987255055006704,
       "status_path": "models/lgd_guardrails_status.json"
     },
@@ -104,13 +104,13 @@
     "benchmark_variants": [
       {
         "variant": "two_stage_split",
-        "coverage_90": 0.7827115858668858,
-        "coverage_95": 0.8748069022185703,
-        "avg_width_90": 0.5666193675516393,
-        "avg_width_95": 0.6551257132494638,
-        "bias": -0.17840078319630984,
-        "min_grade_coverage_90": 0.5330248883216337,
-        "min_year_coverage_90": 0.48411352746037595,
+        "coverage_90": 0.7827608874281019,
+        "coverage_95": 0.8747740345110928,
+        "avg_width_90": 0.5665373873448226,
+        "avg_width_95": 0.6550737364604697,
+        "bias": -0.17836487664854805,
+        "min_grade_coverage_90": 0.5331844288449266,
+        "min_year_coverage_90": 0.48418724659049023,
         "n_test": 60850.0,
         "n_grades_eval": 6.0,
         "n_years_eval": 2.0,
@@ -136,8 +136,8 @@
         "n_test": 60850.0,
         "n_grades_eval": 6.0,
         "n_years_eval": 2.0,
-        "width_inflation_90": 1.0017029953481975,
-        "width_inflation_95": 1.0016805152502481,
+        "width_inflation_90": 1.0018479457443443,
+        "width_inflation_95": 1.0017599935347263,
         "check_coverage_90": false,
         "check_coverage_95": false,
         "check_min_grade_coverage_90": false,
@@ -158,8 +158,8 @@
         "n_test": 60850.0,
         "n_grades_eval": 6.0,
         "n_years_eval": 2.0,
-        "width_inflation_90": 0.9865649180772975,
-        "width_inflation_95": 1.07615463172007,
+        "width_inflation_90": 0.986707677933626,
+        "width_inflation_95": 1.0762400191491557,
         "check_coverage_90": false,
         "check_coverage_95": false,
         "check_min_grade_coverage_90": false,
@@ -180,8 +180,8 @@
         "n_test": 60850.0,
         "n_grades_eval": 6.0,
         "n_years_eval": 2.0,
-        "width_inflation_90": 0.8737837619940267,
-        "width_inflation_95": 0.8751762552198116,
+        "width_inflation_90": 0.8739102019697839,
+        "width_inflation_95": 0.8752456960308506,
         "check_coverage_90": true,
         "check_coverage_95": true,
         "check_min_grade_coverage_90": true,
@@ -218,5 +218,13 @@
       }
     },
     "intervals_path": "data/processed/conformal_intervals_ead.parquet"
-  }
+  },
+  "benchmark_mode": {
+    "benchmark_short": false,
+    "effective_sample_size_per_split": null
+  },
+  "promoted_variant": "direct_adaptive_grade_temporal",
+  "promoted": true,
+  "promoted_at_utc": "2026-03-16T00:22:00+00:00",
+  "promotion_rationale": "Promoted 2026-03-16: only variant with overall_pass=true (coverage 90%=0.9052, min_grade_coverage=0.9047, bias=-0.090). Confirmed in paper-grade run 2026-03-13."
 }

@@ -165,14 +165,24 @@ def _build_origination_pd(train: pd.DataFrame, test: pd.DataFrame) -> np.ndarray
 def _prepare_base_vectors(
     intervals: pd.DataFrame, train: pd.DataFrame, test: pd.DataFrame
 ) -> tuple[dict[str, np.ndarray], pd.DataFrame]:
-    n = min(len(intervals), len(test))
-    if len(intervals) != len(test):
-        logger.warning(
-            f"Length mismatch intervals={len(intervals):,}, test={len(test):,}. Using first {n:,} rows."
+    if "_row_number" in intervals.columns:
+        tst = test.reset_index(drop=True).copy()
+        tst["_row_number"] = np.arange(len(tst))
+        merged = tst.merge(intervals, on="_row_number", how="inner", suffixes=("", "_int"))
+        assert len(merged) == len(tst), (
+            f"_row_number merge size mismatch: {len(merged)} != {len(tst)}"
         )
-
-    ints = intervals.iloc[:n].reset_index(drop=True)
-    tst = test.iloc[:n].reset_index(drop=True)
+        ints = merged[[c for c in intervals.columns if c in merged.columns]].reset_index(drop=True)
+        tst = merged[tst.columns.difference(["_row_number"])].reset_index(drop=True)
+        logger.info(f"Aligned IFRS9 test and intervals by _row_number: n={len(tst):,}")
+    else:
+        n = min(len(intervals), len(test))
+        if len(intervals) != len(test):
+            logger.warning(
+                f"Length mismatch intervals={len(intervals):,}, test={len(test):,}. Using first {n:,} rows."
+            )
+        ints = intervals.iloc[:n].reset_index(drop=True)
+        tst = test.iloc[:n].reset_index(drop=True)
 
     pd_point = (
         ints["y_pred"].to_numpy(dtype=float)

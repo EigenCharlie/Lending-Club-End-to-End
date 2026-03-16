@@ -83,7 +83,7 @@ def _render_promotions() -> None:
         """
 - `baseline oficial`: `champion-2026-03-12-mega-definitive`
 - `PD core`: CatBoost tuned + calibrated
-- `calibración oficial`: Isotonic Regression
+- `calibración oficial vigente`: Venn-Abers
 - `portfolio champion`: risk_tolerance 0.18 + capped_blended_uncertainty
 - `survival`: RSF mejorado y promovido
 - `fairness`: 6/6 atributos pasan con threshold operativo 0.35

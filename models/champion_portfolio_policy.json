@@ -1,78 +1,82 @@
 {
-  "schema_version": "2026-03-10.1",
-  "generated_at_utc": "2026-03-13T11:23:53.390784+00:00",
-  "run_tag": "champion-2026-03-12-mega-definitive",
   "selection_stage": "economic_actual_ab_v3",
   "selection_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "decision_scenario": "baseline",
   "selection_outcome": "robust_selected",
   "selected_policy": {
     "source": "economic_actual_ab_v1",
     "risk_tolerance": 0.18,
-    "uncertainty_aversion": 0.0,
+    "uncertainty_aversion": 0.1,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
-    "policy_mode": "capped_blended_uncertainty",
-    "gamma": 0.05,
-    "delta_cap_quantile": 0.9,
-    "tail_focus_quantile": 1.0
+    "policy_mode": "segment_relative_tail_blended_uncertainty",
+    "gamma": 0.1,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.75
   },
   "economic_metrics": {
-    "diff_total_return": 6332.143182532862,
+    "diff_total_return": -5405.160046539037,
     "passed_no_regression": true,
-    "funded_ratio": 1.1148325358851674,
+    "funded_ratio": 1.1715481171548117,
     "total_allocated_ratio": 1.0,
-    "return_per_funded_delta": -81.88842894387642
+    "return_per_funded_delta": -147.66701133626464
   },
   "robustness_metrics": {
-    "worst_case_pd_reduction_bps": 663.7332376127403,
-    "price_of_robustness_pct": 0.0,
-    "allocation_similarity": 0.8247973859018106,
-    "breadth_score": 0.9649594771803622
+    "worst_case_pd_reduction_bps": 902.9321062170281,
+    "price_of_robustness_pct": -2.5798655268866653,
+    "allocation_similarity": 0.6874462541723316,
+    "breadth_score": 0.9374892508344663
   },
   "research_alternatives": {
     "promotion_first": {
-      "risk_tolerance": 0.18,
-      "policy_mode": "segment_relative_tail_blended_uncertainty",
-      "gamma": 0.05,
+      "risk_tolerance": 0.16,
+      "policy_mode": "tail_blended_uncertainty",
+      "gamma": 0.1,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.0,
+      "uncertainty_aversion": 0.1,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
       "solver_backend": "cuopt"
     },
     "robustness_aware": {
-      "risk_tolerance": 0.2,
+      "risk_tolerance": 0.16,
       "policy_mode": "tail_blended_uncertainty",
       "gamma": 0.5,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.0,
+      "uncertainty_aversion": 0.1,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
       "solver_backend": "cuopt"
     },
     "balanced_robustness": {
-      "risk_tolerance": 0.18,
-      "policy_mode": "segment_relative_tail_blended_uncertainty",
-      "gamma": 0.05,
+      "risk_tolerance": 0.16,
+      "policy_mode": "tail_blended_uncertainty",
+      "gamma": 0.1,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.0,
+      "uncertainty_aversion": 0.1,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
       "solver_backend": "cuopt"
     },
     "guardrail_robustness": {
-      "risk_tolerance": 0.16,
-      "policy_mode": "capped_blended_uncertainty",
-      "gamma": 0.5,
-      "delta_cap_quantile": 0.75,
-      "uncertainty_aversion": 0.0,
+      "risk_tolerance": 0.14,
+      "policy_mode": "hard_worst_case",
+      "gamma": 1.0,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.5,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
       "solver_backend": "cuopt"
     }
-  }
+  },
+  "schema_version": "2026-03-10.1",
+  "generated_at_utc": "2026-03-16T04:36:39.485237+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "promoted": true,
+  "promoted_at_utc": "2026-03-16T00:20:00+00:00",
+  "promotion_rationale": "Promoted 2026-03-16 after paper-grade run. Selected by economic selector v3 + A/B baseline no-regression PASS. Ambiguity-defer scenario NOT promoted (diff=-$13.5K, outside tolerance)."
 }

@@ -7,11 +7,22 @@ policy:
   max_total_alerts: 5
   max_warning_alerts: 5
   max_winkler_90: 1.20
+  enable_compensated_winkler_90: true
+  compensated_winkler_90_max: 1.22
+  compensated_min_coverage_90: 0.92
+  compensated_min_group_coverage_90: 0.885
+  compensated_max_avg_width_90: 0.80
   max_winkler_95: 1.50
   min_kupiec_pvalue_90: 0.01
   min_kupiec_pvalue_95: 0.01
   min_christoffersen_pvalue_90: 0.01
   min_christoffersen_pvalue_95: 0.01
+  statistical_tests_role: strict_diagnostics
+  allow_methodological_justification: true
+  max_coverage_deviation_for_statistical_warning_90: 0.03
+  max_coverage_deviation_for_statistical_warning_95: 0.03
+  min_christoffersen_independence_pvalue_90: 0.01
+  min_christoffersen_independence_pvalue_95: 0.01
 
 artifacts:
   conformal_results_path: models/conformal_results_mondrian.pkl

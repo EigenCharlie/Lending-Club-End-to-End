@@ -1,0 +1,236 @@
+{
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-13T23:00:34.057747+00:00",
+  "run_tag": "untracked",
+  "status": "research_sidecar",
+  "method": "lac",
+  "alpha": 0.1,
+  "confidence_level": 0.9,
+  "summary": {
+    "n_obs": 276869.0,
+    "set_coverage": 0.8974605318760858,
+    "singleton_rate": 0.4799056593551463,
+    "ambiguity_rate": 0.5200943406448537,
+    "empty_set_rate": 0.0,
+    "default_rate_ambiguous": 0.24753816025222572,
+    "default_rate_singleton_positive": 0.45639733866330806,
+    "default_rate_overall": 0.21977902907151034
+  },
+  "artifact_path": "data/processed/pd_set_prediction_cases.parquet",
+  "by_slice_path": "data/processed/pd_set_prediction_by_slice.parquet",
+  "calibration_size_sensitivity_path": "data/processed/pd_set_prediction_sensitivity.parquet",
+  "slice_metrics": {
+    "grade": [
+      {
+        "slice_name": "grade",
+        "slice_value": "A",
+        "n_obs": 72388,
+        "set_coverage": 0.9312593247499585,
+        "singleton_rate": 0.8958252749074432,
+        "ambiguity_rate": 0.10417472509255678,
+        "default_rate": 0.08658893739293806,
+        "default_rate_ambiguous": 0.1718604959554436
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "B",
+        "n_obs": 75311,
+        "set_coverage": 0.9484803016823572,
+        "singleton_rate": 0.37602740635498133,
+        "ambiguity_rate": 0.6239725936450187,
+        "default_rate": 0.17861932519817822,
+        "default_rate_ambiguous": 0.21052519577800477
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "C",
+        "n_obs": 70568,
+        "set_coverage": 0.9156274798775649,
+        "singleton_rate": 0.1868694025620678,
+        "ambiguity_rate": 0.8131305974379323,
+        "default_rate": 0.2760741412538261,
+        "default_rate_ambiguous": 0.26161969990066397
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "D",
+        "n_obs": 45637,
+        "set_coverage": 0.7872340425531915,
+        "singleton_rate": 0.4013410171571313,
+        "ambiguity_rate": 0.5986589828428687,
+        "default_rate": 0.34745929837631745,
+        "default_rate_ambiguous": 0.28776399106914097
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "E",
+        "n_obs": 10828,
+        "set_coverage": 0.7195234577022535,
+        "singleton_rate": 0.5858884373845585,
+        "ambiguity_rate": 0.41411156261544146,
+        "default_rate": 0.4314739564093092,
+        "default_rate_ambiguous": 0.3298394290811775
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "F",
+        "n_obs": 1731,
+        "set_coverage": 0.5979202772963604,
+        "singleton_rate": 0.8844598497978048,
+        "ambiguity_rate": 0.11554015020219527,
+        "default_rate": 0.5210860774119006,
+        "default_rate_ambiguous": 0.375
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "G",
+        "n_obs": 406,
+        "set_coverage": 0.6625615763546798,
+        "singleton_rate": 0.8054187192118226,
+        "ambiguity_rate": 0.19458128078817735,
+        "default_rate": 0.5344827586206896,
+        "default_rate_ambiguous": 0.35443037974683544
+      }
+    ],
+    "term": [
+      {
+        "slice_name": "term",
+        "slice_value": "36",
+        "n_obs": 204234,
+        "set_coverage": 0.9403870070605286,
+        "singleton_rate": 0.4870589617791357,
+        "ambiguity_rate": 0.5129410382208643,
+        "default_rate": 0.18582116591752598,
+        "default_rate_ambiguous": 0.24965635738831615
+      },
+      {
+        "slice_name": "term",
+        "slice_value": "60",
+        "n_obs": 72635,
+        "set_coverage": 0.7767605149032836,
+        "singleton_rate": 0.45979211124113717,
+        "ambiguity_rate": 0.5402078887588628,
+        "default_rate": 0.31526123769532594,
+        "default_rate_ambiguous": 0.24188286864773945
+      }
+    ],
+    "issue_quarter": [
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q1",
+        "n_obs": 53924,
+        "set_coverage": 0.8962984941769898,
+        "singleton_rate": 0.49015280765521846,
+        "ambiguity_rate": 0.5098471923447816,
+        "default_rate": 0.2329945849714413,
+        "default_rate_ambiguous": 0.26454006474375297
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q2",
+        "n_obs": 56915,
+        "set_coverage": 0.8938592638144601,
+        "singleton_rate": 0.4898884301150839,
+        "ambiguity_rate": 0.5101115698849161,
+        "default_rate": 0.2556268119125011,
+        "default_rate_ambiguous": 0.2874315434161127
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q3",
+        "n_obs": 47168,
+        "set_coverage": 0.8915366350067843,
+        "singleton_rate": 0.49238890773405697,
+        "ambiguity_rate": 0.507611092265943,
+        "default_rate": 0.23289094301221167,
+        "default_rate_ambiguous": 0.26274902894374136
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q4",
+        "n_obs": 39171,
+        "set_coverage": 0.8987005692987159,
+        "singleton_rate": 0.4722881723724184,
+        "ambiguity_rate": 0.5277118276275816,
+        "default_rate": 0.23305506624798958,
+        "default_rate_ambiguous": 0.2572202602680083
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q1",
+        "n_obs": 27508,
+        "set_coverage": 0.9015922640686346,
+        "singleton_rate": 0.45586738403373567,
+        "ambiguity_rate": 0.5441326159662644,
+        "default_rate": 0.21241093500072705,
+        "default_rate_ambiguous": 0.23984500267236772
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q2",
+        "n_obs": 22737,
+        "set_coverage": 0.9067159255838501,
+        "singleton_rate": 0.4606588380173286,
+        "ambiguity_rate": 0.5393411619826715,
+        "default_rate": 0.20191757927606985,
+        "default_rate_ambiguous": 0.23322188697708554
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q3",
+        "n_obs": 16603,
+        "set_coverage": 0.9039330241522616,
+        "singleton_rate": 0.4713003674034813,
+        "ambiguity_rate": 0.5286996325965188,
+        "default_rate": 0.1451544901523821,
+        "default_rate_ambiguous": 0.1724766461608567
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q4",
+        "n_obs": 8557,
+        "set_coverage": 0.8941217716489424,
+        "singleton_rate": 0.45529975458688793,
+        "ambiguity_rate": 0.5447002454131121,
+        "default_rate": 0.08425850181138249,
+        "default_rate_ambiguous": 0.09182578845741257
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q1",
+        "n_obs": 2977,
+        "set_coverage": 0.9022505878401075,
+        "singleton_rate": 0.4635539133355727,
+        "ambiguity_rate": 0.5364460866644273,
+        "default_rate": 0.0141081625797783,
+        "default_rate_ambiguous": 0.011897307451471509
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q2",
+        "n_obs": 824,
+        "set_coverage": 0.9502427184466019,
+        "singleton_rate": 0.5497572815533981,
+        "ambiguity_rate": 0.45024271844660196,
+        "default_rate": 0.01820388349514563,
+        "default_rate_ambiguous": 0.0215633423180593
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q3",
+        "n_obs": 485,
+        "set_coverage": 0.9752577319587629,
+        "singleton_rate": 0.5463917525773195,
+        "ambiguity_rate": 0.4536082474226804,
+        "default_rate": 0.002061855670103093,
+        "default_rate_ambiguous": 0.0
+      }
+    ]
+  },
+  "decision_use_case": {
+    "probability_first": true,
+    "set_first": false,
+    "recommended_guardrail": "ambiguity_defer"
+  },
+  "promotion_note": "Binary set prediction is currently a research-sidecar for abstention/triage. It is not part of the operational champion decision policy."
+}

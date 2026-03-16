@@ -52,11 +52,17 @@ def _resolve_upstream_canonical_run_tag(explicit: str | None) -> str:
 def _build_profile_commands(profile: str, run_tag: str) -> list[str]:
     if profile == "canonical":
         return [
+            "uv run python -u scripts/export_conformal_method_registry.py",
+            "uv run python -u scripts/benchmark_pd_set_prediction.py",
+            "uv run python -u scripts/analyze_pd_rare_event_calibration.py",
             "uv run python -u scripts/run_paper_notebook_suite.py --output-dir reports/notebook_exec",
             "uv run python -u scripts/extract_notebook_images.py",
             "uv run python -u scripts/export_storytelling_snapshot.py",
         ]
     return [
+        "uv run python -u scripts/export_conformal_method_registry.py",
+        "uv run python -u scripts/benchmark_pd_set_prediction.py",
+        "uv run python -u scripts/analyze_pd_rare_event_calibration.py",
         "uv run python -u scripts/run_paper_notebook_suite.py --output-dir reports/notebook_exec",
         "uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec",
         "uv run python -u scripts/extract_notebook_images.py",

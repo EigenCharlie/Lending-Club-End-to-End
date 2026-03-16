@@ -8,7 +8,10 @@ from src.models.conformal import (
     ProbabilityRegressor,
     _conformal_quantile,
     apply_probability_calibrator,
+    build_mondrian_partition_labels,
     conditional_coverage_by_group,
+    create_cross_conformal_score_intervals,
+    summarize_prediction_sets,
     validate_coverage,
 )
 
@@ -214,6 +217,88 @@ def test_conditional_coverage_single_group():
     assert result["coverage"].iloc[0] == 1.0
 
 
+def test_build_mondrian_partition_labels_score_decile_returns_score_bands():
+    y_prob_cal = np.linspace(0.01, 0.99, 20)
+    y_prob_eval = np.array([0.05, 0.55, 0.95])
+
+    group_cal, group_eval, meta = build_mondrian_partition_labels(
+        y_prob_cal=y_prob_cal,
+        y_prob_eval=y_prob_eval,
+        partition="score_decile_mondrian",
+    )
+
+    assert len(group_cal) == len(y_prob_cal)
+    assert len(group_eval) == len(y_prob_eval)
+    assert meta["partition"] == "score_decile_mondrian"
+    assert meta["score_band_count"] >= 2
+    assert all(label.startswith("score_q") for label in group_cal)
+
+
+def test_build_mondrian_partition_labels_hybrid_falls_back_for_small_groups():
+    y_prob_cal = np.linspace(0.01, 0.99, 12)
+    y_prob_eval = np.array([0.15, 0.85])
+    base_groups_cal = pd.Series(["A"] * 10 + ["B"] * 2)
+    base_groups_eval = pd.Series(["A", "B"])
+
+    group_cal, group_eval, meta = build_mondrian_partition_labels(
+        y_prob_cal=y_prob_cal,
+        y_prob_eval=y_prob_eval,
+        partition="grade_x_scoreband_mondrian",
+        base_groups_cal=base_groups_cal,
+        base_groups_eval=base_groups_eval,
+        n_score_bins=4,
+        min_group_size=5,
+    )
+
+    assert meta["partition"] == "grade_x_scoreband_mondrian"
+    assert meta["fallback_groups"]
+    assert "GLOBAL" in set(group_eval)
+    assert all(isinstance(label, str) for label in group_cal)
+
+
+def test_summarize_prediction_sets_reports_ambiguity_metrics():
+    y_true = np.array([0, 1, 1, 0])
+    y_pred = np.array([0, 1, 1, 0])
+    y_sets = np.array(
+        [
+            [1, 0],  # singleton negative
+            [0, 1],  # singleton positive
+            [1, 1],  # ambiguous
+            [0, 0],  # empty
+        ]
+    )
+
+    result = summarize_prediction_sets(y_true, y_pred, y_sets)
+
+    assert result["singleton_rate"] == pytest.approx(0.5)
+    assert result["ambiguity_rate"] == pytest.approx(0.25)
+    assert result["empty_set_rate"] == pytest.approx(0.25)
+    assert result["set_coverage"] == pytest.approx(0.75)
+
+
+def test_cross_conformal_score_intervals_output_shape():
+    rng = np.random.RandomState(42)
+    y_cal = rng.binomial(1, 0.25, size=80)
+    y_prob_cal = rng.uniform(0.05, 0.8, size=80)
+    y_prob_test = rng.uniform(0.05, 0.8, size=20)
+
+    y_pred, y_intervals = create_cross_conformal_score_intervals(
+        y_cal=y_cal,
+        y_prob_cal=y_prob_cal,
+        y_prob_test=y_prob_test,
+        alpha=0.1,
+        cv=3,
+    )
+
+    assert y_pred.shape == (20,)
+    assert y_intervals.shape == (20, 2)
+    assert np.all(y_pred >= 0.0)
+    assert np.all(y_pred <= 1.0)
+    assert np.all(y_intervals[:, 0] <= y_intervals[:, 1])
+    assert np.all(y_intervals >= 0.0)
+    assert np.all(y_intervals <= 1.0)
+
+
 # ── Residual Intervals (bootstrap-style benchmark) ──
 
 
@@ -284,7 +369,7 @@ class FakeBinaryClassifier:
 
 def test_venn_abers_output_shape():
     """Venn-Abers should return point predictions and p0/p1 arrays."""
-    pytest.importorskip("crepes")
+    pytest.importorskip("venn_abers")
     from src.models.conformal import create_pd_intervals_venn_abers
 
     clf = FakeBinaryClassifier(seed=42)
@@ -302,7 +387,7 @@ def test_venn_abers_output_shape():
 
 def test_venn_abers_bounds_valid():
     """p0 <= p1 and both in [0, 1]."""
-    pytest.importorskip("crepes")
+    pytest.importorskip("venn_abers")
     from src.models.conformal import create_pd_intervals_venn_abers
 
     clf = FakeBinaryClassifier(seed=123)

@@ -5,7 +5,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -16,11 +15,13 @@ from loguru import logger
 from scripts.optimize_portfolio_tradeoff import _allocation_similarity
 from scripts.simulate_ab_test import (
     _apply_candidate_universe,
+    _apply_decision_scenario,
     _build_common_inputs,
     _candidate_metrics,
     _run_strategy,
 )
 from src.evaluation.ab_testing import compare_strategies
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
 SCHEMA_VERSION = "2026-03-10.1"
 
@@ -215,6 +216,7 @@ def main(
     candidate_universe_path: str = "data/processed/champion_candidate_universe.parquet",
     run_tag: str | None = None,
     solver_backend: str = "highs",
+    decision_scenario: str = "baseline",
 ) -> None:
     with open(config_path, encoding="utf-8") as f:
         config = yaml.safe_load(f)
@@ -250,6 +252,11 @@ def main(
         intervals,
         candidate_universe_path=candidate_universe_path,
         max_candidates=0,
+    )
+    test_df, intervals, scenario_meta = _apply_decision_scenario(
+        test_df,
+        intervals,
+        decision_scenario=decision_scenario,
     )
     common, default_flag, loan_amnt, int_rates, pd_high = _build_common_inputs(test_df, intervals)
     total_budget = float(config["portfolio"]["total_budget"])
@@ -473,18 +480,12 @@ def main(
             "eligible_hard_filters": False,
         }
 
-    resolved_run_tag = (
-        str(run_tag or "").strip()
-        or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-        or "untracked"
-    )
+    resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
     research_policy = _load_json(_artifact_path(research_policy_path))
     champion_payload = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "selection_stage": selector_name,
         "selection_universe_path": universe_source or str(_artifact_path(candidate_universe_path)),
+        "decision_scenario": str(decision_scenario),
         "selection_outcome": selector_outcome,
         "selected_policy": selected["policy"],
         "economic_metrics": {
@@ -506,14 +507,18 @@ def main(
             "balanced_robustness": research_policy.get("selected_policy_balanced_robustness"),
             "guardrail_robustness": research_policy.get("selected_policy_guardrail_robustness"),
         },
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
     selected_clean = {k: v for k, v in selected.items() if not str(k).startswith("_returns_")}
     status_payload = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "selector_name": selector_name,
         "universe_path": universe_source or str(_artifact_path(candidate_universe_path)),
+        "decision_scenario": str(decision_scenario),
+        "decision_scenario_meta": scenario_meta,
         "control_metrics": {str(k): dict(v["metrics"]) for k, v in controls.items()},
         "evaluated_candidates": [
             {k: v for k, v in item.items() if not str(k).startswith("_returns_")}
@@ -523,6 +528,11 @@ def main(
         "selector_outcome": selector_outcome,
         "fallback_applied": fallback_applied,
         "fallback_reason": fallback_reason,
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
 
     champion_out = _artifact_path(champion_policy_path)
@@ -549,6 +559,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--run-tag", default=None)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument("--decision-scenario", default="baseline")
     args = parser.parse_args()
     main(
         config_path=args.config,
@@ -559,4 +570,5 @@ if __name__ == "__main__":
         candidate_universe_path=args.candidate_universe_path,
         run_tag=args.run_tag,
         solver_backend=args.solver_backend,
+        decision_scenario=args.decision_scenario,
     )

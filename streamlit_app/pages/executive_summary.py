@@ -23,7 +23,6 @@ from streamlit_app.components.context_help import term_popover
 from streamlit_app.components.dvc_kpi_spine import render_global_kpi_spine
 from streamlit_app.components.metric_cards import kpi_row
 from streamlit_app.components.narrative import next_page_teaser, storytelling_intro
-from streamlit_app.components.release_governance import render_release_governance
 from streamlit_app.components.story_shell import (
     render_decision_box,
     render_key_takeaway,
@@ -35,6 +34,8 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     format_pct,
+    get_operational_threshold,
+    get_pd_internal_threshold,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
     load_rapids_pd_benchmark_stage_table,
@@ -210,8 +211,12 @@ render_decision_box(
     owner="Riesgo / Data Science",
     cadence="snapshot por commit o release",
 )
-render_release_governance(show_title=True)
 render_global_kpi_spine("executive")
+st.caption(
+    "Thresholds canónicos: "
+    f"interno PD `{get_pd_internal_threshold():.2f}` vs operativo fairness/aprobación "
+    f"`{get_operational_threshold():.2f}`."
+)
 
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()

@@ -27,6 +27,7 @@ from src.optimization.portfolio_model import (
     compute_effective_pd,
     optimize_portfolio_allocation,
 )
+from src.utils.artifact_metadata import resolve_run_tag
 
 SCHEMA_VERSION = "2026-03-08.1"
 
@@ -110,8 +111,30 @@ def _align_loans_and_intervals(
         )
         return loans, ints_aligned
 
+    if "_row_number" in intervals.columns:
+        cand = candidates.copy()
+        ints = intervals.copy()
+        cand["_row_number"] = np.arange(len(cand))
+        merged = cand.merge(ints, on="_row_number", how="inner", suffixes=("", "_int"))
+        assert len(merged) == len(cand), (
+            f"_row_number merge size mismatch: {len(merged)} != {len(cand)}"
+        )
+        n = len(merged) if max_candidates_norm is None else min(len(merged), max_candidates_norm)
+        if len(merged) > n:
+            idx = np.random.default_rng(random_state).choice(
+                np.arange(len(merged)), size=n, replace=False
+            )
+            merged = merged.iloc[np.sort(idx)].reset_index(drop=True)
+        else:
+            merged = merged.reset_index(drop=True)
+        loans = merged[candidates.columns].copy()
+        interval_cols = [c for c in intervals.columns if c in merged.columns]
+        ints_aligned = merged[interval_cols].copy()
+        logger.info(f"Aligned tradeoff candidates and intervals by _row_number: n={len(loans):,}")
+        return loans, ints_aligned
+
     logger.warning(
-        "Conformal interval artifact has no id alignment key; using positional fallback in tradeoff analysis."
+        "Conformal interval artifact has no id or _row_number alignment key; using positional fallback in tradeoff analysis."
     )
     n = min(len(candidates), len(intervals))
     if max_candidates_norm is not None:
@@ -473,7 +496,7 @@ def main(
         random_state=random_state,
     )
     n = len(loans)
-    resolved_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip() or "untracked"
+    resolved_run_tag = resolve_run_tag(require_explicit=True)
     _write_candidate_universe(loans, path=candidate_universe_path, run_tag=resolved_run_tag)
     candidate_universe_resolved = _artifact_path(candidate_universe_path)
 

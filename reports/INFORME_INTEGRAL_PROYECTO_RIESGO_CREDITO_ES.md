@@ -4,6 +4,19 @@ Autor del estado: Auditoria tecnica de cierre
 
 ---
 
+## ESTADO DE ESTE DOCUMENTO (2026-03-13)
+
+Documento historico.
+Cuando este informe contradiga artefactos vivos, prevalecen:
+- `configs/baselines/canonical_operational_baseline.json`
+- `SESSION_STATE.md`
+- `models/threshold_semantics.json`
+- status JSON/parquet vigentes en `models/` y `data/processed/`
+
+No usar este archivo como snapshot operativo actual.
+
+---
+
 ## ADENDA DE ALINEACION (2026-02-15)
 
 Este informe conserva su valor historico, pero varios puntos de "stubs/deferred" quedaron desactualizados respecto al codigo actual del repositorio.

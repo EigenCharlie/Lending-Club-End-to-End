@@ -144,6 +144,42 @@ def _resolve_comparison_baseline(
     return None
 
 
+def _resolve_comparison_baseline_from_profile(profile_cfg: dict[str, object]) -> Path | None:
+    defaults_cfg = dict(_profile_value(profile_cfg, "defaults", default={}) or {})
+    baseline_path = str(defaults_cfg.get("comparison_baseline", "") or "").strip() or None
+    baseline_run_tag = (
+        str(defaults_cfg.get("comparison_baseline_run_tag", "") or "").strip() or None
+    )
+    return _resolve_comparison_baseline(
+        baseline_path_arg=baseline_path,
+        baseline_run_tag_arg=baseline_run_tag,
+    )
+
+
+def _extract_sqlite_db_path_from_pd_config(config_path: str | None) -> Path | None:
+    if not config_path:
+        return None
+    path = Path(str(config_path)).expanduser()
+    if not path.is_absolute():
+        path = REPO_ROOT / path
+    if not path.exists():
+        return None
+    try:
+        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    except Exception:
+        return None
+    if not isinstance(payload, dict):
+        return None
+    storage = str((payload.get("hpo", {}) or {}).get("study_storage", "")).strip()
+    prefix = "sqlite:///"
+    if not storage.startswith(prefix):
+        return None
+    db_path = Path(storage[len(prefix) :].strip()).expanduser()
+    if not db_path.is_absolute():
+        db_path = REPO_ROOT / db_path
+    return db_path.resolve()
+
+
 def _resolve_registry_baseline_run_tag() -> str | None:
     for path in _baseline_registry_paths():
         if not path.exists():
@@ -999,11 +1035,21 @@ def build_steps(
         if selection_max_candidates > 0
         else "--max_candidates 0"
     )
-    selection_tradeoff_grid = (
-        f"--grid-profile {selection_grid_profile}"
-        if "--grid-profile" in optimize_tradeoff_text
-        else ""
-    )
+    selection_tradeoff_grid_parts: list[str] = []
+    if "--grid-profile" in optimize_tradeoff_text:
+        selection_tradeoff_grid_parts.append(f"--grid-profile {selection_grid_profile}")
+    if tradeoff_search_cfg.get("risk_grid") is not None and "--risk_grid" in optimize_tradeoff_text:
+        selection_tradeoff_grid_parts.append(
+            f"--risk_grid {shlex.quote(_csv_cli(tradeoff_search_cfg['risk_grid']))}"
+        )
+    if (
+        tradeoff_search_cfg.get("aversion_grid") is not None
+        and "--aversion_grid" in optimize_tradeoff_text
+    ):
+        selection_tradeoff_grid_parts.append(
+            f"--aversion_grid {shlex.quote(_csv_cli(tradeoff_search_cfg['aversion_grid']))}"
+        )
+    selection_tradeoff_grid = " ".join(selection_tradeoff_grid_parts)
     compare_baseline_arg = (
         f" --baseline {shlex.quote(str(comparison_baseline))}" if comparison_baseline else ""
     )
@@ -1132,14 +1178,23 @@ def build_steps(
     )
     steps.append(("preflight", True, preflight_cmd))
 
+    optuna_db_cleanup_path = _extract_sqlite_db_path_from_pd_config(pd_config)
+    optuna_cleanup_cmd = "true"
+    if optuna_db_cleanup_path is not None:
+        optuna_cleanup_cmd = (
+            "uv run python -u scripts/cleanup_optuna_stale_trials.py "
+            f"--db-path {shlex.quote(str(optuna_db_cleanup_path))} --min-age-hours 6 || true"
+        )
+
     main_pre_cmd = f"""
         {activate_main} &&
-        (uv run python -u scripts/cleanup_optuna_stale_trials.py --db-path models/optuna_pd_catboost.db --min-age-hours 6 || true) &&
+        ({optuna_cleanup_cmd}) &&
         {pd_train_cmd} &&
         {conformal_cmd} &&
         {benchmark_cmd} &&
         uv run python -u scripts/backtest_conformal_coverage.py &&
         uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} &&
+        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml &&
         uv run python -u scripts/forecast_default_rates.py --horizon 12
     """
     steps.append(("main_pre", True, main_pre_cmd))
@@ -1217,6 +1272,7 @@ def build_steps(
     post_core_cmd = f"""
         {activate_main} &&
         uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} &&
+        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml &&
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
         uv run python -u scripts/build_pipeline_results.py &&
         if [ -f scripts/build_pd_challenger_artifacts.py ]; then uv run python -u scripts/build_pd_challenger_artifacts.py --config {pd_config}; else true; fi &&
@@ -1445,6 +1501,11 @@ def main(
         baseline_run_tag_arg=args.comparison_baseline_run_tag,
     )
     comparison_baseline_source = "cli"
+    if comparison_baseline_path is None:
+        profile_baseline = _resolve_comparison_baseline_from_profile(profile_cfg)
+        if profile_baseline is not None:
+            comparison_baseline_path = profile_baseline
+            comparison_baseline_source = "profile_default"
     if comparison_baseline_path is None and _run_tag_requires_explicit_baseline(run_tag):
         registry_baseline = _resolve_registry_baseline_path()
         if registry_baseline is not None:

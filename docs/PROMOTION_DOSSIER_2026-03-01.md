@@ -1,5 +1,14 @@
 # Promotion Dossier - 2026-03-01
 
+## Historical Status
+
+This document is a historical snapshot of the March 1, 2026 promotion exercise.
+
+Do not treat it as the live canonical policy state.
+
+For current truth, use live artifacts under `models/`, `data/processed/`, `reports/storytelling_snapshot.json`,
+and the current paper-grade audit in `docs/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`.
+
 ## Scope
 This dossier captures the smart-profile promotion decision executed on **March 1, 2026** for branches:
 - A: `main` (`dbf5f18`)

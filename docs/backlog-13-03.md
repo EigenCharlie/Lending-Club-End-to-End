@@ -9,37 +9,211 @@ Estado base:
 - Baseline operativo actual: `champion-2026-03-12-mega-definitive`
 - Registry oficial: `configs/baselines/canonical_operational_baseline.json`
 - Objetivo de este backlog: cerrar pendientes metodológicos y operativos antes de la corrida final paper-grade con `study_name` limpio de PD
+- Regla de verdad vigente:
+  - artefactos vivos actuales en `models/`, `data/processed/` y `reports/storytelling_snapshot.json` mandan sobre snapshots históricos
+  - la mega run `champion-2026-03-12-mega-definitive` sigue siendo el baseline oficial
+  - pero varias decisiones fueron revalidadas y actualizadas después, sin relanzar `champion_search`
 
 ## Prioridad global
 
 Orden recomendado:
-1. PD conformal estricto
-2. Time series intervals
-3. Causal policy / CATE
-4. A/B más fuerte
-5. Governance warnings
-6. Cierre de protocolo paper
-7. Study limpio de PD + mega corrida final paper-grade
+1. Study limpio de PD + corrida final paper-grade
+2. Congelar documentación final del protocolo y narrativa
+3. Preparar writing / Quarto / figures publication-grade
+4. Mantener research opcional fuera del carril canónico
 
 ## Resumen ejecutivo
 
 Lo ya promovido:
-- PD core con calibración isotónica
+- PD core con calibración `Venn-Abers`
 - policy champion de portfolio
 - survival RSF
 - fairness
 - governance operativo
 - LGD/EAD conformal
+- panel de time series regularizado con grilla mensual completa
+- semántica canónica de thresholds `0.05` interno PD vs `0.35` operativo fairness/aprobación
+- registry oficial de librerías/métodos conformales (`models/conformal_method_registry.json`)
+- benchmark binario de `classification sets` como sidecar research (`models/pd_set_prediction_status.json`)
+- auditoría de `rare-event calibration` para PD (`models/pd_rare_event_calibration_status.json`)
 
 Lo pendiente de cierre:
-- PD conformal estricto
-- intervalos de time series
-- decisión causal/CATE
-- evidencia A/B más fuerte
-- limpieza narrativa de governance
-- congelación formal del protocolo final
+- `study_name` limpio de PD para la corrida confirmatoria final
+- corrida final paper-grade con protocolo ya congelado
+- limpieza editorial final de docs/backlogs/Quarto/papers
+- cualquier exploración adicional queda como research opcional, no como bloqueo
+
+## Auditoría hardening/policy
+
+Fuente canónica de esta auditoría:
+- `docs/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`
+
+Diagnóstico global:
+- la arquitectura de `gates`, `thresholds`, `promotion` y `paper-grade closure` ya es coherente en código;
+- el pendiente real ya no es rediseñar policies, sino normalizar contratos, metadata y narrativa.
+
+Cierres ejecutados de hardening/policy:
+- `P0 contract fix`
+  - `run_tag` normalizado en:
+    - `models/conformal_policy_status.json`
+    - `models/governance_status.json`
+    - `models/champion_registry.json`
+    - `models/champion_search_bundle.json`
+  - `threshold_semantics` propagado a:
+    - `models/champion_registry.json`
+    - `models/champion_search_bundle.json`
+  - resultado: `0.05` interno PD y `0.35` operativo ya conviven explícitamente en artifacts secundarios
+- `P1 policy normalization`
+  - fallback de `configs/fairness_policy.yaml` alineado a `0.35`
+  - `reports/storytelling_snapshot.json` refrescado con `SCHEMA_VERSION` vigente y decisión final TS explícita
+- `P1 test hardening`
+  - tests nuevos/extendidos para:
+    - coherencia semántica entre artifacts
+    - `strict` vs `promotion` vs `paper-grade`
+    - `research_only` vs `promoted`
+    - banner histórico en dossier de promoción
+- `P2 editorial cleanup`
+  - `docs/PROMOTION_DOSSIER_2026-03-01.md` ya quedó marcado como snapshot histórico
+
+Clasificación de hallazgos:
+- `contracto canónico correcto`
+  - `threshold_semantics`
+  - separación `strict` / `promotion` / `paper-grade`
+  - `time_series` como `research_only` solo para intervalos
+- `duplicado incoherente`
+  - fallback fairness `0.50` vs threshold operativo `0.35`
+  - artifacts secundarios que muestran `0.05` sin semántica operativa adjunta
+- `regla ad hoc a formalizar`
+  - versionado narrativo de `storytelling_snapshot`
+  - coherencia semántica entre artifacts, no solo metadata
+
+## Estado vigente tras validación P0
+
+Esta sección reemplaza como verdad operativa actual cualquier lectura más vieja del documento.
+
+### Qué cambió de forma oficial después del baseline
+
+- El baseline oficial sigue siendo `champion-2026-03-12-mega-definitive`
+- No se relanzó `champion_search`
+- Sí se hicieron reruns focalizados y refreshes de artefactos para validar cambios P0
+- La calibración PD canónica vigente pasó de `Isotonic Regression` a `Venn-Abers`
+- `PD conformal` dejó de tener lectura de promoción operativa simple y hoy queda como:
+  - `promotion_pass=false`
+  - `overall_pass=false`
+  - `checks_passed=9/13`
+  - con semántica nueva:
+    - `strict_overall_pass=false`
+    - `methodological_justification_pass=true`
+    - `non_statistical_checks_pass=true`
+    - `winkler_90` ya no queda como deuda abierta, sino como check formal con banda compensada documentada
+- `time_series` sigue con:
+  - point champion usable/promotable
+  - interval champion no promotable
+- El carril TS quedó corregido estructuralmente:
+  - panel `grade_term` mensual sin gaps internos
+  - autorebuild de artifacts viejos/irregulares en `forecast_default_rates.py`
+
+### Métricas vigentes relevantes
+
+#### PD core vigente
+
+- Best model: `CatBoost (tuned + calibrated)`
+- Best calibration: `Venn-Abers`
+- OOT AUC: `0.712813`
+- Brier: `0.154537`
+- ECE: `0.006129`
+
+Lectura:
+- el fix de `Venn-Abers` sí valió la pena
+- la mejora numérica es pequeña pero real
+- metodológicamente corrige un bug importante y debe quedarse oficial
+
+#### Thresholds vigentes
+
+- Threshold interno PD: `0.05`
+- Threshold operativo fairness/aprobación: `0.35`
+
+Lectura:
+- esta separación ya debe tratarse como contrato estable del proyecto
+
+#### PD conformal vigente
+
+- `checks_passed=9/13`
+- `overall_pass=false`
+- `promotion_pass=false`
+- `strict_overall_pass=false`
+- `methodological_justification_pass=true`
+- `coverage_90=0.9283`
+- `coverage_95=0.9605`
+- `avg_width_90=0.7569`
+- `min_group_coverage_90=0.8873`
+- `winkler_90=1.2032`
+- `winkler_90_policy_mode=compensated_band`
+
+Lectura:
+- el cierre paper-grade ya queda aceptable por regla formal de compensación, no por sensibilidad ad hoc
+- el único bloqueo estricto restante sigue siendo estadístico (`Kupiec/Christoffersen`)
+- `promotion_pass` permanece en `false`; esto cierra narrativa/método, no promoción operativa automática
+- `non_statistical_checks_pass=true`, así que no queda un gap metodológico abierto en el backlog operativo
+
+#### Time series vigente
+
+- Point champion: `AutoARIMA`
+- `point_promotable=true`
+- Interval champion: `AutoARIMA`
+- `interval_promotable=false`
+- interval benchmark MAPIE:
+  - `best_method=enbpi`
+  - sigue en carril diagnóstico
+
+Lectura:
+- el fix estructural del panel sí sirve y debe promoverse
+- el problema restante no es de integridad del panel sino de calidad de intervalos
+- semántica operativa formal:
+  - `models/time_series_status.json` gobierna el carril canónico
+  - `research_only` no apaga forecasts ni escenarios; solo evita promocionar la capa de intervalos como contrato oficial
+  - `promoted` implicaría `interval_champion.promotable=true` y cierre completo del carril TS en snapshot, bundle y protocolo
+
+### Estado de promoción actual
+
+Promover ya a código y pipelines:
+- `Venn-Abers`
+- `refresh_pd_calibration_artifacts.py`
+- `threshold_semantics`
+- panel TS mensual regularizado
+- autorebuild defensivo de `forecast_default_rates.py`
+- floor conformal más conservador (`group_coverage_floor_target_90=0.92`)
+- selector conformal con `stability_over_time` y sidecar `cross_conformal_score_space`
+- method registry y descarte explícito de `Nonconformist` / `Fortuna` / `NeuralProphet`
+- set prediction binario y auditoría de rare-event calibration como carriles diagnósticos
+
+No promover todavía como configuración ganadora:
+- `PD conformal` actual
+- `time series intervals` actuales
+
+## Estado de cierre paper-grade
+
+Según [paper_grade_protocol_status.json](/home/eigenlinux/projects/lending-club-risk-project/models/paper_grade_protocol_status.json), los checks de cierre metodológico ya están cerrados:
+
+- `PD conformal`: cerrado para paper-grade
+  - `strict_overall_pass=false`
+  - `canonical_methodological_justification_pass=true`
+  - `promotion_pass=false`
+- `time_series`: decisión final documentada como `research_only`
+- `causal/CATE`: decisión final documentada y cerrada
+- `A/B`: evidencia ampliada y regla de decisión documentada
+- `governance`: warnings contextualizados y cerrados narrativamente
+- `protocol_frozen=true`
+
+Lectura:
+- ya no hay bloqueos metodológicos abiertos antes de la corrida final
+- lo pendiente ya es confirmatorio/editorial, no de diseño del pipeline
 
 ## Update incorporado de la mega run `champion-2026-03-12-mega-definitive`
+
+Nota:
+- Esta sección describe el resultado histórico de la mega run promovida.
+- Si entra en conflicto con la sección `Estado vigente tras validación P0`, tomar la sección P0 como verdad actual.
 
 ### Estado general de la corrida
 
@@ -66,7 +240,7 @@ Lo pendiente de cierre:
 #### PD core
 
 - Mejor modelo final: `CatBoost (tuned + calibrated)`
-- Calibración elegida: `Isotonic Regression`
+- Calibración elegida en la mega run: `Isotonic Regression`
 - Trials HPO ejecutados: `295`
 - Mejor AUC de validación temporal en HPO: `0.7226`
 - Métricas finales del modelo promovido:
@@ -78,7 +252,8 @@ Lo pendiente de cierre:
 Lectura:
 - hubo mejora real sobre el baseline anterior
 - la mejora de AUC fue marginal pero limpia
-- la mejora fuerte siguió viniendo más de calibración y capa de decisión que de AUC puro
+- esa fue la decisión vigente al cierre de la mega run
+- hoy la calibración canónica ya fue revalidada y actualizada a `Venn-Abers`
 
 #### Quality gate PD vs baseline anterior
 
@@ -161,8 +336,8 @@ Lectura:
 
 #### PD conformal
 
-- `conformal_policy`: `PASS` en comparación operativa
-- `conformal_promotion_pass=true`
+- `conformal_policy`: `PASS` en comparación operativa de la mega run
+- `conformal_promotion_pass=true` en ese snapshot histórico
 - `conformal_statistical_warning=true`
 - Métricas principales:
   - `coverage_90=0.9257`
@@ -176,8 +351,14 @@ Lectura:
   - `christoffersen_pvalue_95`
 
 Lectura:
-- mejora suficiente para promoción operativa
-- todavía no cerrada para narrativa Q1 estricta
+- esa fue la lectura al cierre de la mega run
+- hoy ya no debe tomarse como estado vigente
+- tras validación P0 actual:
+  - `promotion_pass=false`
+  - `overall_pass=false`
+  - `checks_passed=9/13`
+  - `methodological_justification_pass=true`
+  - `non_statistical_checks_pass=true`
 
 #### LGD/EAD conformal
 
@@ -208,6 +389,7 @@ Lectura:
 Lectura:
 - el punto sirve y sigue siendo usable
 - los intervalos siguen siendo una deuda central del proyecto
+- tras validación P0 se cerró la deuda estructural del panel, pero no la de promoción de intervalos
 
 #### Causal / CATE
 
@@ -261,14 +443,15 @@ No promovido al camino canónico:
 Si un plan anterior todavía asumía como baseline el snapshot de `2026-03-11-C-official-selector-v3-freeze`, actualizarlo así:
 - baseline oficial nuevo: `champion-2026-03-12-mega-definitive`
 - PD core nuevo: `CatBoost tuned + calibrated`
-- calibración oficial: `Isotonic Regression`
+- calibración oficial en la mega run: `Isotonic Regression`
+- calibración canónica vigente hoy: `Venn-Abers`
 - policy champion nueva: `risk_tolerance=0.18`, `capped_blended_uncertainty`
 - survival RSF mejorado
 - fairness y governance promovidos
 - LGD/EAD conformal promovido
-- PD conformal sigue con warning estadístico
-- time series intervalos siguen abiertos
-- causal/CATE sigue research-only
+- PD conformal queda cerrado para paper-grade, pero no promovido operativamente
+- time series intervalos ya tienen decisión final documentada (`research_only`)
+- causal/CATE ya tiene decisión final documentada
 
 ### Tabla rápida de handoff: antes vs ahora
 
@@ -276,7 +459,8 @@ Si un plan anterior todavía asumía como baseline el snapshot de `2026-03-11-C-
 |---|---|---|---|
 | Baseline oficial | `2026-03-11-C-official-selector-v3-freeze` | `champion-2026-03-12-mega-definitive` | Promovido y activo |
 | PD best model | champion anterior | `CatBoost (tuned + calibrated)` | Promovido |
-| Calibración oficial | baseline anterior | `Isotonic Regression` | Promovido |
+| Calibración oficial en la mega run | baseline anterior | `Isotonic Regression` | Histórico |
+| Calibración canónica vigente | `Isotonic Regression` | `Venn-Abers` | Promovido |
 | PD AUC | `0.7116` | `0.7128` | Mejora marginal real |
 | PD Gini | `0.4233` | `0.4256` | Mejora |
 | PD Brier | `0.1548` | `0.1545` | Mejora |
@@ -289,7 +473,7 @@ Si un plan anterior todavía asumía como baseline el snapshot de `2026-03-11-C-
 | Survival RSF c-index | `0.66341` | `0.67966` | Mejora fuerte, promovido |
 | Fairness | ya importante, no congelado en este run | `6/6` atributos pasan con threshold `0.35` | Promovido |
 | Governance | baseline anterior | `overall_pass=true`, `challenger_promotable=true` | Promovido con warnings |
-| PD conformal | baseline anterior operativo | cobertura mejorada, `conformal_promotion_pass=true` | Promovido con warning estadístico |
+| PD conformal | baseline anterior operativo | mega run `conformal_promotion_pass=true`; hoy `promotion_pass=false`, `methodological_justification_pass=true` | Cerrado para paper-grade, no promovido operativamente |
 | LGD conformal | variantes previas | `direct_adaptive_grade_temporal` | Promovido |
 | EAD conformal | baseline previo | cobertura alineada a target | Promovido |
 | Time series point forecast | usable | `AutoARIMA` promotable | Se mantiene usable |
@@ -301,7 +485,7 @@ Si un plan anterior todavía asumía como baseline el snapshot de `2026-03-11-C-
 ### Mini resumen para pegar en otra sesión
 
 - Nuevo baseline oficial: `champion-2026-03-12-mega-definitive`
-- PD promovido: `CatBoost tuned + calibrated`, calibración `Isotonic Regression`
+- PD promovido en la mega run: `CatBoost tuned + calibrated`, calibración `Isotonic Regression`
 - Mejoras PD: AUC `0.7116 -> 0.7128`, Gini `0.4233 -> 0.4256`, Brier `0.1548 -> 0.1545`
 - HPO extendido: `295` trials, mejor validation AUC `0.7226`
 - Portfolio champion promovido: `risk_tolerance=0.18`, `capped_blended_uncertainty`, `gamma=0.05`
@@ -309,163 +493,86 @@ Si un plan anterior todavía asumía como baseline el snapshot de `2026-03-11-C-
 - Survival RSF mejora fuerte: `0.66341 -> 0.67966`
 - Fairness promovido: `6/6` atributos pasan, threshold operativo `0.35`
 - Governance promovido: pasa, pero con warnings `c2st` y distribution drift
-- PD conformal: promotable operativo, no cerrado aún para paper/Q1 por tests estadísticos
+- PD conformal en la mega run: promotable operativo, no cerrado aún para paper/Q1 por tests estadísticos
+- PD conformal vigente post-validación P0: `promotion_pass=false`, `9/13`, `methodological_justification_pass=true`
 - LGD/EAD conformal: promovido
-- Time series: point forecast usable, intervalos siguen pendientes
-- Causal/CATE: siguen en `insights_factory`, no en camino canónico
+- Time series: point forecast usable, intervalos siguen pendientes; panel mensual regularizado ya corregido
+- Calibración vigente post-validación P0: `Venn-Abers`
+- Causal/CATE: decisión final documentada; se mantiene fuera del camino canónico operativo
 
 ## Backlog por pipeline
 
 ### 1. `champion_search`
 
-#### 1.1 PD conformal estricto
+#### 1.1 Estado actual
 Objetivo:
-- convertir el estado actual de “promotable operativo con warning” en una política conformal defendible también para narrativa Q1
+- no reabrir `champion_search` todavía
+- dejar sembrados en código y bundle todos los cambios ya validados
+- reservar este pipeline para la corrida confirmatoria final, no para seguir explorando metodología
 
 Pendientes:
-- ampliar benchmark de variantes PD conformal con:
-  - `CrossConformal`
-  - `JackknifeAfterBootstrap`
+- ninguno metodológico bloqueante
+- mantener sembrado:
   - `Venn-Abers`
-  - variantes localizadas
-  - variantes group-weighted
-- mantener la variante actual como baseline operativo
-- comparar por variante:
-  - `coverage_90`
-  - `coverage_95`
-  - `min_group_coverage_90`
-  - `avg_width_90`
-  - `avg_width_95`
-  - `kupiec_pvalue_90`
-  - `kupiec_pvalue_95`
-  - `christoffersen_pvalue_90`
-  - `christoffersen_pvalue_95`
-  - estabilidad temporal por mes
-- definir selector explícito de variante conformal:
-  - prioridad 1: tests estadísticos
-  - prioridad 2: cobertura por grupo
-  - prioridad 3: anchura
-- dejar artefacto final con:
-  - variante elegida
-  - tabla comparativa
-  - razón de selección
+  - `threshold_semantics`
+  - selector conformal endurecido con `winkler_90`
+  - banda compensada formal de `winkler_90`
+  - diagnostics de rare-event calibration y set prediction
+  - benchmark time series con metadata extendida
+- ejecutar solo cuando exista `study_name` limpio de PD y se quiera la corrida confirmatoria final
 
 Entregable:
-- nueva política conformal PD con estado claro:
-  - `operationally_promotable`
-  - `research_closed`
+- pipeline listo para heredar el estado metodológico ya cerrado sin reabrir búsqueda
 
-#### 1.2 Time series intervals
+Estado actual:
+- cerrado para paper-grade con `methodological_justification_pass=true`
+- sigue sin `promotion_pass`, así que no obliga a cambiar la postura operativa conservadora
+
+#### 1.2 Corrida final paper-grade
 Objetivo:
-- sacar intervalos de `warn` y decidir si entran al carril canónico o quedan como research
+- ejecutar una sola corrida confirmatoria limpia, con protocolo ya congelado
 
 Pendientes:
-- mantener point forecast actual como baseline
-- benchmarkear:
-  - `ACI`
-  - `EnbPI`
-  - `OnlineConformal`
-  - variantes Nixtla / StatsForecast
-- medir:
-  - cobertura 80/90/95
-  - sharpness
-  - estabilidad rolling
-  - degradación por horizonte
-  - comportamiento en cambio de régimen
-- revisar criterio de selección:
-  - horizonte 12 fijo
-  - selección multi-horizonte
-  - selección a 6 y evaluación a 12
-- determinar si la falla viene de:
-  - forecast base
-  - método conformal
-  - shift temporal
+- crear `study_name` nuevo y limpio para PD
+- ejecutar la corrida final confirmatoria
+- refrescar `paper_grade_protocol_status.json`, `storytelling_snapshot.json` y `champion_search_bundle.json` solo si la corrida mueve artefactos oficiales
+
+Estado actual:
+- esta ya es la única pieza realmente bloqueante a nivel pipeline
 
 Entregable:
-- `interval_promotable=true` o decisión formal de dejar intervalos fuera del camino canónico
+- evidencia confirmatoria final para paper/Q1
 
-#### 1.3 Causal policy / CATE
+#### 1.3 No reabrir durante esta fase
 Objetivo:
-- decidir si causalidad entra al camino canónico o queda consolidada en `insights_factory`
+- preservar alcance y evitar que la corrida final se mezcle con research extra
 
 Pendientes:
-- reforzar refutaciones:
-  - placebo
-  - random common cause
-  - subset
-  - sensitivity / robustness
-- ampliar tuning de `CausalForestDML`:
-  - `cv`
-  - `mc_iters`
-  - `criterion`
-  - `min_balancedness_tol`
-  - hiperparámetros estructurales del bosque
-- revisar validez de diseño:
-  - tratamiento continuo
-  - overlap
-  - confounders
-  - effect modifiers
-- repetir evaluación OOT:
-  - valor neto
-  - tail risk
-  - robustez por segmentos
-  - comparación contra champion portfolio
-- fijar criterio binario de promoción:
-  - señal causal no trivial
-  - refutaciones aceptables
-  - valor económico robusto
+- causal/CATE ya está cerrado metodológicamente
+- A/B ya tiene evidencia ampliada suficiente para protocolo
+- time series ya tiene decisión final documentada
+- dejar extensiones adicionales para `insights_factory`
 
 Entregable:
-- decisión final:
-  - `canonical_candidate`
-  - o `insights_only`
-
-#### 1.4 A/B más fuerte
-Objetivo:
-- pasar de `no_regression` a una historia económica más convincente
-
-Pendientes:
-- aumentar bootstrap y seeds
-- correr sensibilidad por:
-  - cohortes temporales
-  - segmentos de riesgo
-  - segmentos de monto
-  - segmentos de ingreso
-- ampliar reporte con:
-  - retorno total
-  - retorno por funded
-  - variabilidad
-  - downside
-  - robustez del uplift
-- revisar si la policy champion debe optimizar una métrica más alineada al A/B final
-
-Entregable:
-- evidencia económica más fuerte que la simple no regresión
+- corrida final enfocada en confirmación, no en ampliación de alcance
 
 ### 2. `canonical_rebuild`
 
-#### 2.1 Governance warnings
+#### 2.1 Estado actual
 Objetivo:
-- dejar mejor cerrada la historia regulatoria sin cambiar el baseline promovido salvo necesidad real
+- reproducir el estado metodológico ya cerrado sin abrir búsquedas pesadas
 
 Pendientes:
-- analizar por qué `c2st` y distribution tests disparan warning
-- separar drift benigno de drift material
-- construir política de materialidad:
-  - PSI
-  - importancia de feature
-  - efecto sobre score
-  - efecto sobre decisión
-- reforzar narrativa de estabilidad:
-  - SHAP
-  - reason codes
-  - threshold operativo
-- dejar disclaimer estándar para:
-  - drift estadístico esperado por tiempo
-  - ausencia de deterioro operativo material
+- heredar y congelar:
+  - calibración `Venn-Abers`
+  - thresholds canónicos
+  - `PD conformal` cerrado para paper-grade
+  - `time_series` con decisión `research_only`
+  - `causal/CATE` con decisión final documentada
+  - governance contextualizado
 
 Entregable:
-- governance más defendible para tesis, libro y paper
+- rebuild barato, reproducible y consistente con el protocolo final
 
 #### 2.2 Freeze operativo más explícito
 Objetivo:
@@ -483,6 +590,20 @@ Pendientes:
 
 Entregable:
 - rebuild canónico totalmente reproducible y barato
+
+#### 2.3 Refresh PD sin retraining completo
+Objetivo:
+- oficializar el camino barato para recalibrar y refrescar artifacts PD sin reabrir HPO ni reruns pesados
+
+Pendientes:
+- mantener `scripts/refresh_pd_calibration_artifacts.py` como workflow oficial
+- documentar en runbook cuándo usar:
+  - refresh liviano
+  - rerun PD completo
+- asegurar que `canonical_rebuild` lo pueda invocar cuando el modelo base no cambie
+
+Entregable:
+- recalibración PD rápida, reproducible y barata
 
 ### 3. `insights_factory`
 
@@ -538,23 +659,16 @@ Entregable:
 
 ## Cierre de protocolo paper
 
+Estado actual:
+- cerrado en [paper_grade_protocol_status.json](/home/eigenlinux/projects/lending-club-risk-project/models/paper_grade_protocol_status.json)
+- mantener solo sincronización documental si cambian artifacts oficiales
+
 Objetivo:
 - congelar la metodología antes de la corrida final paper-grade
 
-Pendientes:
-- fijar:
-  - split temporal
-  - feature universe
-  - training regime PD
-  - calibración oficial
-  - shortlist conformal
-  - survival methodology
-  - policy portfolio oficial
-  - criterio de promoción
-- decidir de forma definitiva:
-  - qué queda en pipeline canónico
-  - qué queda en `insights_factory`
-- escribir documento de protocolo final
+Pendientes residuales:
+- reflejar el cierre final en todos los docs narrativos si aparece alguna contradicción
+- no reabrir metodología salvo evidencia nueva material
 
 Entregable:
 - protocolo fijo y versionado para la corrida final
@@ -581,29 +695,26 @@ Pendientes:
 Entregable:
 - evidencia confirmatoria final para paper/Q1
 
+Nota:
+- esta ya es la única pieza realmente bloqueante a nivel pipeline
+
 ## Orden recomendado entre sesiones
 
 Sesión 1:
-- PD conformal estricto
+- definir `study_name` limpio de PD
+- preparar corrida final confirmatoria
 
 Sesión 2:
-- time series intervals
+- ejecutar corrida final paper-grade
 
 Sesión 3:
-- causal policy / CATE
+- refrescar protocolo/snapshot/bundle si la corrida final cambia artefactos
 
 Sesión 4:
-- A/B más fuerte
+- Quarto / figures / tables publication-grade
 
-Sesión 5:
-- governance warnings
-
-Sesión 6:
-- cierre de protocolo paper
-
-Sesión 7:
-- diseño de `study_name` limpio de PD
-- preparación de mega corrida final
+Sesión 5+:
+- research opcional y writing de papers
 
 ## Definición de terminado
 
@@ -614,6 +725,10 @@ Antes de la corrida final paper-grade, deben quedar cerrados estos checks:
 - A/B con evidencia ampliada
 - governance con warnings contextualizados
 - protocolo final congelado y versionado
+
+Estado actual:
+- todos esos checks ya figuran cerrados en `models/paper_grade_protocol_status.json`
+- lo pendiente antes de terminar el proyecto es confirmarlos en la corrida final limpia y luego cerrar la capa editorial/publicación
 
 ## Nota de uso
 

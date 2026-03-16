@@ -93,9 +93,14 @@ portfolio_selection:
     )
 
 
+def _set_run_tag(monkeypatch) -> None:
+    monkeypatch.setenv("PIPELINE_RUN_TAG", "run-policy-test")
+
+
 def test_selector_promotes_robust_candidate_when_one_passes(tmp_path, monkeypatch) -> None:
     _write_common_inputs(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _set_run_tag(monkeypatch)
 
     def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
         _ = kwargs
@@ -146,6 +151,7 @@ def test_selector_promotes_robust_candidate_when_one_passes(tmp_path, monkeypatc
 def test_selector_falls_back_when_no_robust_candidate_passes(tmp_path, monkeypatch) -> None:
     _write_common_inputs(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _set_run_tag(monkeypatch)
 
     def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
         _ = kwargs
@@ -187,6 +193,7 @@ def test_selector_falls_back_when_no_robust_candidate_passes(tmp_path, monkeypat
 def test_selector_v2_prefers_breadth_aware_candidate(tmp_path, monkeypatch) -> None:
     _write_common_inputs(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _set_run_tag(monkeypatch)
 
     def fake_run_strategy(*, robust, robust_policy=None, **kwargs):
         _ = kwargs
@@ -236,6 +243,7 @@ def test_selector_v2_prefers_breadth_aware_candidate(tmp_path, monkeypatch) -> N
 def test_selector_v3_uses_ab_like_ranking(tmp_path, monkeypatch) -> None:
     _write_common_inputs(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _set_run_tag(monkeypatch)
     (tmp_path / "configs" / "optimization.yaml").write_text(
         """
 portfolio:
@@ -305,6 +313,7 @@ portfolio_selection:
 def test_selector_v3_respects_breadth_hard_filters(tmp_path, monkeypatch) -> None:
     _write_common_inputs(tmp_path)
     monkeypatch.chdir(tmp_path)
+    _set_run_tag(monkeypatch)
     (tmp_path / "configs" / "optimization.yaml").write_text(
         """
 portfolio:

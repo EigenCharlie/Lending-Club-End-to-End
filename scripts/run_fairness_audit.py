@@ -15,20 +15,27 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import yaml
+from fairlearn.metrics import (
+    MetricFrame,
+    demographic_parity_difference,
+    equalized_odds_difference,
+    selection_rate,
+)
 from loguru import logger
+from sklearn.metrics import accuracy_score
 
 from src.evaluation.fairness import (
     build_intersectional_groups,
     fairness_report_from_binary,
     fairness_threshold_frontier,
 )
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.threshold_semantics import write_threshold_semantics
 
 SCHEMA_VERSION = "2026-03-06.1"
 
@@ -242,11 +249,7 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     else:
         y_true_eval = y_true
         y_proba_eval = y_proba
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
+    resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
 
     intersectional_cfg = cfg.get("intersectional", {}) or {}
     intersectional_groups = (
@@ -302,9 +305,6 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
 
     if auto_select:
         decision_policy = {
-            "schema_version": SCHEMA_VERSION,
-            "generated_at_utc": datetime.now(UTC).isoformat(),
-            "run_tag": resolved_run_tag,
             "global_threshold": primary_threshold,
             "overrides": decision_policy.get("overrides", [])
             if isinstance(decision_policy, dict)
@@ -315,6 +315,11 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
                 "worst_eo_gap": float(selected_threshold_info.get("worst_eo_gap", 0.0)),
                 "approval_rate": float(selected_threshold_info.get("approval_rate", 0.0)),
             },
+            **build_artifact_metadata(
+                schema_version=SCHEMA_VERSION,
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
         }
         decision_policy_path.parent.mkdir(parents=True, exist_ok=True)
         decision_policy_path.write_text(
@@ -368,9 +373,6 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
             ).iloc[0]["attribute"]
         )
     status = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "n_attributes": len(report),
         "n_base_attributes": int(
@@ -409,6 +411,11 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
             else 0,
         },
         "policy_config": str(config_path),
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
 
     status_path = Path(output["status_json"])
@@ -416,6 +423,138 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)
     logger.info(f"Saved fairness status: {status_path}")
+
+    sidecar_cfg = cfg.get("fairlearn_sidecar", {}) or {}
+    if bool(sidecar_cfg.get("enabled", True)):
+        group_rows: list[dict[str, object]] = []
+        summary_rows: list[dict[str, object]] = []
+        rng = np.random.default_rng(int(sidecar_cfg.get("bootstrap_random_state", 42)))
+        n_boot = int(sidecar_cfg.get("bootstrap_samples", 200))
+        bootstrap_max_rows = int(sidecar_cfg.get("bootstrap_max_rows", 50_000))
+        y_true_arr = np.asarray(y_true_eval, dtype=float)
+        y_pred_arr = np.asarray(y_pred_binary, dtype=float)
+        if bootstrap_max_rows > 0 and len(y_true_arr) > bootstrap_max_rows:
+            bootstrap_idx = np.sort(
+                rng.choice(len(y_true_arr), size=bootstrap_max_rows, replace=False)
+            )
+        else:
+            bootstrap_idx = np.arange(len(y_true_arr))
+
+        for attribute, labels in groups_all.items():
+            sensitive = pd.Series(labels).astype(str).reset_index(drop=True)
+            mf = MetricFrame(
+                metrics={"selection_rate": selection_rate, "accuracy": accuracy_score},
+                y_true=y_true_arr,
+                y_pred=y_pred_arr,
+                sensitive_features=sensitive,
+            )
+            by_group = mf.by_group.reset_index()
+            by_group.columns = ["group", *[str(col) for col in by_group.columns[1:]]]
+            for row in by_group.to_dict(orient="records"):
+                row["attribute"] = attribute
+                group_rows.append(row)
+
+            dpd = float(
+                demographic_parity_difference(
+                    y_true=y_true_arr,
+                    y_pred=y_pred_arr,
+                    sensitive_features=sensitive,
+                )
+            )
+            eo = float(
+                equalized_odds_difference(
+                    y_true=y_true_arr,
+                    y_pred=y_pred_arr,
+                    sensitive_features=sensitive,
+                )
+            )
+            boot_sensitive_base = sensitive.iloc[bootstrap_idx].reset_index(drop=True)
+            boot_true_base = y_true_arr[bootstrap_idx]
+            boot_pred_base = y_pred_arr[bootstrap_idx]
+            dpd_boot: list[float] = []
+            eo_boot: list[float] = []
+            for _ in range(max(n_boot, 0)):
+                idx = rng.integers(0, len(boot_true_base), len(boot_true_base))
+                boot_sensitive = boot_sensitive_base.iloc[idx]
+                boot_true = boot_true_base[idx]
+                boot_pred = boot_pred_base[idx]
+                dpd_boot.append(
+                    float(
+                        demographic_parity_difference(
+                            y_true=boot_true,
+                            y_pred=boot_pred,
+                            sensitive_features=boot_sensitive,
+                        )
+                    )
+                )
+                eo_boot.append(
+                    float(
+                        equalized_odds_difference(
+                            y_true=boot_true,
+                            y_pred=boot_pred,
+                            sensitive_features=boot_sensitive,
+                        )
+                    )
+                )
+            summary_rows.append(
+                {
+                    "attribute": attribute,
+                    "demographic_parity_difference": dpd,
+                    "equalized_odds_difference": eo,
+                    "dpd_ci_low": float(np.quantile(dpd_boot, 0.025)) if dpd_boot else None,
+                    "dpd_ci_high": float(np.quantile(dpd_boot, 0.975)) if dpd_boot else None,
+                    "eo_ci_low": float(np.quantile(eo_boot, 0.025)) if eo_boot else None,
+                    "eo_ci_high": float(np.quantile(eo_boot, 0.975)) if eo_boot else None,
+                }
+            )
+
+        sidecar_path = Path(sidecar_cfg.get("status_json", "models/fairlearn_fairness_status.json"))
+        group_metrics_path = Path(
+            sidecar_cfg.get(
+                "group_metrics_parquet", "data/processed/fairlearn_group_metrics.parquet"
+            )
+        )
+        group_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        sidecar_path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(group_rows).to_parquet(group_metrics_path, index=False)
+        sidecar_payload = {
+            "primary_status_path": str(status_path),
+            "group_metrics_path": str(group_metrics_path),
+            "n_attributes": len(summary_rows),
+            "attributes": summary_rows,
+            "bootstrap_samples": n_boot,
+            "bootstrap_rows_used": int(len(bootstrap_idx)),
+            "bootstrap_max_rows": bootstrap_max_rows,
+            "prediction_threshold": float(primary_threshold),
+            "outcome_mode": outcome_mode,
+            **build_artifact_metadata(
+                schema_version=f"{SCHEMA_VERSION}-fairlearn",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
+        }
+        sidecar_path.write_text(
+            json.dumps(sidecar_payload, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved fairlearn sidecar status: {sidecar_path}")
+    write_threshold_semantics(
+        fairness_primary_threshold=float(primary_threshold),
+        decision_policy_global_threshold=float(
+            decision_policy.get("global_threshold", primary_threshold)
+        )
+        if isinstance(decision_policy, dict)
+        else float(primary_threshold),
+        source_artifacts={
+            "fairness_status": str(status_path),
+            "fairness_decision_policy": str(decision_policy_path),
+            "fairness_frontier": str(frontier_path),
+        },
+        run_tag=resolved_run_tag,
+        extra={
+            "fairness_threshold_source": threshold_source,
+            "outcome_mode": outcome_mode,
+        },
+    )
 
     pass_label = "PASS" if overall_pass else "FAIL"
     logger.info(

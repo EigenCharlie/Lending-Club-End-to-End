@@ -15,6 +15,12 @@ import httpx
 import pandas as pd
 import streamlit as st
 
+from src.utils.threshold_semantics import (
+    load_threshold_semantics as _load_threshold_semantics_payload,
+    resolve_operational_threshold,
+    resolve_pd_internal_threshold,
+)
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
@@ -305,6 +311,32 @@ def load_official_baseline_registry() -> dict:
         except Exception:
             continue
     return {}
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_threshold_semantics() -> dict:
+    """Load canonical threshold semantics artifact."""
+    return _load_threshold_semantics_payload()
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_pd_calibration_diagnostics() -> dict:
+    """Load Venn-Abers calibration diagnostics artifact.
+
+    Returns the 3-way comparison (Platt / Isotonic / Venn-Abers) with
+    the selected method, ECE/Brier/AUC per candidate, and VA bounds metadata.
+    """
+    return try_load_json("pd_calibration_diagnostics", directory="models", default={})
+
+
+def get_operational_threshold(default: float = 0.5) -> float:
+    """Resolve the operational approval/fairness threshold."""
+    return resolve_operational_threshold(load_threshold_semantics(), default=default)
+
+
+def get_pd_internal_threshold(default: float = 0.5) -> float:
+    """Resolve the internal PD screening/search threshold."""
+    return resolve_pd_internal_threshold(load_threshold_semantics(), default=default)
 
 
 @st.cache_data(ttl=300, max_entries=8)
