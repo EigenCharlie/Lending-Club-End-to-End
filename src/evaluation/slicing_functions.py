@@ -23,8 +23,9 @@ SLICES: dict[str, Callable[[pd.DataFrame], pd.Series]] = {
     "small_loan": lambda df: df["loan_amnt"] < 5_000,
     "large_loan": lambda df: df["loan_amnt"] >= 25_000,
     "high_dti": lambda df: df["dti"] > 30,
-    "early_cohort": lambda df: df["issue_year"] < 2014,
-    "late_cohort": lambda df: df["issue_year"] >= 2018,
+    # OOT test covers 2018-01 to 2020-09 only; split within OOT window.
+    "early_cohort": lambda df: df["issue_year"] == 2018,
+    "late_cohort": lambda df: df["issue_year"] >= 2019,
 }
 
 MIN_SLICE_SIZE = 100

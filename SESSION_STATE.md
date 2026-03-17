@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-13
+Last Updated: 2026-03-16
 
 ---
 
@@ -89,12 +89,16 @@ Source artifacts:
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
 - Calibration selected: `Venn-Abers`
-- AUC: `0.7128`
-- Gini: `0.4256`
-- KS: `0.3134`
-- Brier: `0.1545`
-- ECE: `0.0062`
-- HPO: reused best trial 855 (val AUC 0.7201) from prior Optuna study
+- AUC: `0.7145`
+- Gini: `0.4260`
+- KS: `0.3149`
+- Brier: `0.1543`
+- ECE: `0.0087`
+- PR-AUC: `0.3998`
+- Recall@0.35: `0.360`
+- F1@0.35: `0.392`
+- HPO: 320 Optuna trials (hpo_enabled=false in confirmatory run, uses prior best params)
+- Confirmatory run tag: `paper-grade-pre-quarto` (2026-03-16)
 
 ### 4.2 Conformal (Mondrian)
 - Variant: `score_decile_mondrian`

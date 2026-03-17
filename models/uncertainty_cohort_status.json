@@ -116,5 +116,6 @@
       "default_rate": 0.5344827586206896
     }
   ],
-  "methodology": "Conformal interval width (pd_high_90 - pd_low_90) as distribution-free uncertainty proxy. Deferral rule: width_90 > p95 AND pd_point > 0.35 → defer to human underwriting. Adapts uncertainty sampling from active learning (Settles 2012) to conformal prediction guarantees. Connects with Mondrian grade partitions for group-conditional analysis."
+  "methodology": "Conformal interval width (pd_high_90 - pd_low_90) as distribution-free uncertainty proxy. Deferral rule: width_90 > p95 AND pd_point > 0.35 → defer to human underwriting. Adapts uncertainty sampling from active learning (Settles 2012) to conformal prediction guarantees. Connects with Mondrian grade partitions for group-conditional analysis.",
+  "width_90_saturation_note": "For grades B-G, median and p75/p95 of width_90 = 1.0. This is expected: MAPIE clips predicted intervals to the [0,1] probability domain, and high-risk loans have non-conformity scores that push pd_high_90 to the ceiling. The uncertainty signal is most discriminating for Grade A (mean_uncertainty=0.22); for B-G it effectively acts as a binary flag. Documented in thesis conformal chapter: intervals are informative for low-risk cohorts; for high-risk cohorts the [0,1] boundary saturates the width."
 }
