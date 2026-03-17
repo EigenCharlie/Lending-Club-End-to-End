@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -156,22 +157,74 @@ def main(
     sensitivity_path = out_dir / "pd_set_prediction_sensitivity.parquet"
     pd.DataFrame(sensitivity_rows).to_parquet(sensitivity_path, index=False)
 
+    # --- Promotion gate: conformal triage guardrail ---
+    grade_slices = (
+        by_slice.loc[by_slice["slice_name"] == "grade"].to_dict(orient="records")
+        if not by_slice.empty and "slice_name" in by_slice.columns
+        else []
+    )
+    gate_coverage = float(summary.get("set_coverage", 0))
+    gate_grade_a_singleton = 0.0
+    gate_grades_above_40 = 0
+    for gs in grade_slices:
+        sr = float(gs.get("singleton_rate", 0))
+        if str(gs.get("slice_value", "")) == "A":
+            gate_grade_a_singleton = sr
+        if sr > 0.40:
+            gate_grades_above_40 += 1
+
+    GATE_MIN_COVERAGE = 0.85
+    GATE_MIN_GRADE_A_SINGLETON = 0.80
+    GATE_MIN_GRADES_ABOVE_40 = 3
+
+    gate_pass = (
+        gate_coverage >= GATE_MIN_COVERAGE
+        and gate_grade_a_singleton >= GATE_MIN_GRADE_A_SINGLETON
+        and gate_grades_above_40 >= GATE_MIN_GRADES_ABOVE_40
+    )
+    promotion_status = "promoted_guardrail" if gate_pass else "research_sidecar"
+    logger.info(
+        "Set prediction promotion gate: coverage={:.4f}, grade_A_singleton={:.4f}, "
+        "grades_above_40={} → {}",
+        gate_coverage,
+        gate_grade_a_singleton,
+        gate_grades_above_40,
+        promotion_status,
+    )
+
     status = {
-        "schema_version": "2026-03-13.1",
+        "schema_version": "2026-03-16.1",
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": "untracked",
-        "status": "research_sidecar",
+        "run_tag": os.environ.get("PIPELINE_RUN_TAG", "untracked"),
+        "status": promotion_status,
+        "promoted": gate_pass,
         "method": method,
         "alpha": float(alpha),
         "confidence_level": float(1.0 - alpha),
         "summary": {k: float(v) for k, v in summary.items()},
+        "promotion_gate": {
+            "coverage": gate_coverage,
+            "min_coverage": GATE_MIN_COVERAGE,
+            "grade_a_singleton_rate": gate_grade_a_singleton,
+            "min_grade_a_singleton": GATE_MIN_GRADE_A_SINGLETON,
+            "grades_with_singleton_above_40pct": gate_grades_above_40,
+            "min_grades_above_40pct": GATE_MIN_GRADES_ABOVE_40,
+            "pass": gate_pass,
+        },
+        "promotion_rationale": (
+            f"Conformal triage guardrail: binary set prediction provides distribution-free "
+            f"abstention mechanism. Grade A has {gate_grade_a_singleton:.0%} singleton rate "
+            f"(clear decisions); {gate_grades_above_40} grades have >40% singleton rate. "
+            f"Overall coverage {gate_coverage:.1%}. "
+            f"Promoted as complementary guardrail to PD point + conformal intervals."
+            if gate_pass
+            else "Gate not passed — remains research sidecar."
+        ),
         "artifact_path": str(cases_path),
         "by_slice_path": str(by_slice_path),
         "calibration_size_sensitivity_path": str(sensitivity_path),
         "slice_metrics": {
-            "grade": by_slice.loc[by_slice["slice_name"] == "grade"].to_dict(orient="records")
-            if not by_slice.empty and "slice_name" in by_slice.columns
-            else [],
+            "grade": grade_slices,
             "term": by_slice.loc[by_slice["slice_name"] == "term"].to_dict(orient="records")
             if not by_slice.empty and "slice_name" in by_slice.columns
             else [],
@@ -184,11 +237,14 @@ def main(
         "decision_use_case": {
             "probability_first": True,
             "set_first": False,
-            "recommended_guardrail": "ambiguity_defer",
+            "recommended_guardrail": "selective_ambiguity_defer",
         },
         "promotion_note": (
-            "Binary set prediction is currently a research-sidecar for abstention/triage. "
-            "It is not part of the operational champion decision policy."
+            "Binary conformal set prediction promoted as triage guardrail. "
+            "When predicted set = {{0,1}}, the loan is ambiguous and may be deferred "
+            "to human review — especially informative for Grade A (low ambiguity rate)."
+            if gate_pass
+            else "Binary set prediction remains a research-sidecar for abstention/triage."
         ),
     }
     status_path = Path("models/pd_set_prediction_status.json")

@@ -306,7 +306,7 @@ def _apply_decision_scenario(
             },
         )
 
-    if scenario != "ambiguity_defer":
+    if scenario not in {"ambiguity_defer", "selective_ambiguity_defer"}:
         raise ValueError(f"Unsupported decision scenario: {decision_scenario}")
 
     path = _artifact_path(set_prediction_path)
@@ -319,8 +319,39 @@ def _apply_decision_scenario(
     if "ambiguous" not in cases.columns:
         raise KeyError("Expected 'ambiguous' column in pd_set_prediction_cases artifact.")
 
+    # Build defer mask depending on scenario
+    if scenario == "selective_ambiguity_defer":
+        # Selective: only defer ambiguous loans that are in LOW-ambiguity grades
+        # (where ambiguity IS informative) OR have very high conformal uncertainty.
+        LOW_AMBIGUITY_GRADES = {"A", "F", "G"}  # grades with ambiguity_rate < 20%
+        is_ambiguous = cases["ambiguous"].astype(int) == 1
+        in_low_amb_grade = (
+            cases["grade"].astype(str).isin(LOW_AMBIGUITY_GRADES)
+            if "grade" in cases.columns
+            else pd.Series(False, index=cases.index)
+        )
+        # Join width_90 from intervals if available
+        has_high_uncertainty = pd.Series(False, index=cases.index)
+        width_col = next((c for c in ["width_90"] if c in intervals.columns), None)
+        if width_col is not None and len(intervals) >= len(cases):
+            width_vals = intervals[width_col].iloc[: len(cases)].reset_index(drop=True)
+            p90_threshold = float(width_vals.quantile(0.90))
+            has_high_uncertainty = width_vals > p90_threshold
+        defer_mask = is_ambiguous & (in_low_amb_grade | has_high_uncertainty)
+        keep_mask_cases = ~defer_mask
+        logger.info(
+            "Selective defer: {} deferred ({:.1%}) from {} ambiguous ({:.1%})",
+            int(defer_mask.sum()),
+            float(defer_mask.mean()),
+            int(is_ambiguous.sum()),
+            float(is_ambiguous.mean()),
+        )
+    else:
+        # Original: defer ALL ambiguous
+        keep_mask_cases = cases["ambiguous"].astype(int) == 0
+
     if "id" in test_df.columns and "id" in cases.columns:
-        eligible_ids = set(cases.loc[cases["ambiguous"].astype(int) == 0, "id"].astype(str))
+        eligible_ids = set(cases.loc[keep_mask_cases, "id"].astype(str))
         test_work = test_df.copy()
         int_work = intervals.copy()
         test_work["_join_id"] = test_work["id"].astype(str)
@@ -334,7 +365,7 @@ def _apply_decision_scenario(
         ints_out = int_work.loc[keep_mask_int].drop(columns=["_join_id"]).reset_index(drop=True)
     else:
         n = min(len(test_df), len(intervals), len(cases))
-        keep_mask = cases.iloc[:n]["ambiguous"].astype(int).to_numpy() == 0
+        keep_mask = keep_mask_cases.iloc[:n].to_numpy()
         test_out = test_df.iloc[:n].loc[keep_mask].reset_index(drop=True)
         ints_out = intervals.iloc[:n].loc[keep_mask].reset_index(drop=True)
 
@@ -343,7 +374,7 @@ def _apply_decision_scenario(
     rows_removed = max(rows_initial - rows_remaining, 0)
     ambiguity_rate_removed = float(rows_removed / rows_initial) if rows_initial else 0.0
     logger.info(
-        "Applied decision scenario '{}': removed {} ambiguous rows, remaining={}",
+        "Applied decision scenario '{}': removed {} rows, remaining={}",
         scenario,
         rows_removed,
         rows_remaining,
@@ -879,7 +910,11 @@ if __name__ == "__main__":
         ],
         default="promotion_first",
     )
-    parser.add_argument("--decision-scenario", default="baseline")
+    parser.add_argument(
+        "--decision-scenario",
+        default="baseline",
+        choices=["baseline", "ambiguity_defer", "selective_ambiguity_defer"],
+    )
     args = parser.parse_args()
     main(
         total_budget=args.total_budget,

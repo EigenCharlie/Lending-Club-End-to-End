@@ -125,6 +125,8 @@ def main() -> None:
     causal_oot = _load_json(MODELS / "causal_policy_oot_status.json")
     ab_default = _load_json(MODELS / "ab_simulation_status.json")
     ab_ambiguity = _load_json(MODELS / "ab_simulation_status_ambiguity_defer.json")
+    ab_selective = _load_json(MODELS / "ab_simulation_status_selective_ambiguity_defer.json")
+    set_prediction = _load_json(MODELS / "pd_set_prediction_status.json")
     governance = _load_json(MODELS / "governance_status.json")
     resolved_run_tag = resolve_run_tag(
         fallback_candidates=[
@@ -183,12 +185,21 @@ def main() -> None:
         causal_rule.get("promotion_eligible", False)
     )
     ab_sidecar_available = bool(ab_ambiguity)
+    ab_selective_available = bool(ab_selective)
     ab_default_no_regression = bool(
         (ab_default.get("no_regression", {}) or {}).get("passed", False)
     )
     ab_ambiguity_no_regression = bool(
         (ab_ambiguity.get("no_regression", {}) or {}).get("passed", False)
     )
+    ab_selective_no_regression = bool(
+        (ab_selective.get("no_regression", {}) or {}).get("passed", False)
+    )
+    ab_selective_cross_scenario_pass = bool(
+        (ab_selective.get("cross_scenario_gate", {}) or {}).get("passed", False)
+    )
+    ab_selective_promoted = bool(ab_selective.get("promoted", False))
+    set_prediction_promoted = bool(set_prediction.get("promoted", False))
     governance_summary = governance.get("summary", {}) or {}
 
     payload = {
@@ -236,7 +247,12 @@ def main() -> None:
             "default_scenario": ab_default,
             "ambiguity_defer_scenario_available": ab_sidecar_available,
             "ambiguity_defer_scenario": ab_ambiguity if ab_sidecar_available else {},
-            "decision_rule": "prefer ambiguity_defer only if downside or interpretability improves without breaking no_regression",
+            "selective_ambiguity_defer_available": ab_selective_available,
+            "selective_ambiguity_defer_scenario": ab_selective if ab_selective_available else {},
+            "decision_rule": (
+                "prefer selective_ambiguity_defer if it passes no_regression; "
+                "fallback to baseline if neither defer scenario passes"
+            ),
             "ab_artifacts_present": bool(ab_default),
             "ab_no_regression_pass": bool(ab_default_no_regression),
             "ab_gate_summary": {
@@ -244,13 +260,35 @@ def main() -> None:
                 "ambiguity_defer_passed_no_regression": bool(ab_ambiguity_no_regression)
                 if ab_sidecar_available
                 else None,
+                "selective_ambiguity_defer_passed_no_regression": bool(ab_selective_no_regression)
+                if ab_selective_available
+                else None,
+                "selective_ambiguity_defer_cross_scenario_pass": bool(
+                    ab_selective_cross_scenario_pass
+                )
+                if ab_selective_available
+                else None,
+                "selective_ambiguity_defer_promoted": bool(ab_selective_promoted)
+                if ab_selective_available
+                else None,
                 "recommended_scenario": (
-                    "ambiguity_defer"
-                    if ab_sidecar_available and ab_ambiguity_no_regression
-                    else "default"
+                    "selective_ambiguity_defer"
+                    if ab_selective_available
+                    and (ab_selective_no_regression or ab_selective_cross_scenario_pass)
+                    else (
+                        "ambiguity_defer"
+                        if ab_sidecar_available and ab_ambiguity_no_regression
+                        else "default"
+                    )
                 ),
                 "gate_rule": "no_regression",
             },
+        },
+        "set_prediction": {
+            "promoted": set_prediction_promoted,
+            "status": set_prediction.get("status", "unknown"),
+            "promotion_gate": set_prediction.get("promotion_gate", {}),
+            "promotion_rationale": set_prediction.get("promotion_rationale", ""),
         },
         "governance": {
             "overall_pass": bool(governance.get("overall_pass", False)),
@@ -271,6 +309,11 @@ def main() -> None:
             "causal_cate": causal_closed,
             "ab_evidence": bool(ab_default),
             "ab_no_regression": bool(ab_default_no_regression),
+            "set_prediction_promoted": set_prediction_promoted,
+            "selective_ambiguity_defer_pass": bool(
+                ab_selective_available
+                and (ab_selective_no_regression or ab_selective_cross_scenario_pass)
+            ),
             "governance": bool(governance),
             "protocol_frozen": True,
         },

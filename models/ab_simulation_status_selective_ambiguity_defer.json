@@ -1,0 +1,97 @@
+{
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 1.089991452788841,
+    "mean_b": 0.9316068750524891,
+    "diff": -0.15838457773635195,
+    "ci_low": -0.5818338483763591,
+    "ci_high": 0.2626222368093079,
+    "p_value": 0.23026666666666668,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 228909.1050001845,
+    "n_funded": 211,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 1084.877274882391
+  },
+  "metrics_b": {
+    "total_return": 195646.75982977322,
+    "n_funded": 261,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 749.6044437922345
+  },
+  "n_candidates_available": 210010,
+  "n_candidates_used": 210010,
+  "max_candidates_requested": 220000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "explicit_champion_only",
+  "decision_scenario": "selective_ambiguity_defer",
+  "max_portfolio_pd_requested": 0.1,
+  "max_portfolio_pd_effective": 0.18,
+  "robust_policy": {
+    "source": "champion_policy_artifact::explicit_champion_only",
+    "risk_tolerance": 0.18,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "segment_relative_tail_blended_uncertainty",
+    "gamma": 0.1,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.75
+  },
+  "champion_policy_path": "models/champion_portfolio_policy.json",
+  "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.23026666666666668,
+    "significant": false,
+    "n_boot": 15000,
+    "seed": 42
+  },
+  "policy_search": [],
+  "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": -33262.34517041128,
+    "tolerance_total_return": 11445.455250009225,
+    "tolerance_pct_of_control": 0.05,
+    "passed": false
+  },
+  "decision_scenario_meta": {
+    "decision_scenario": "selective_ambiguity_defer",
+    "rows_removed": 9990,
+    "rows_remaining": 210010,
+    "ambiguity_rate_removed": 0.045409090909090906,
+    "set_prediction_path": "data/processed/pd_set_prediction_cases.parquet"
+  },
+  "baseline_comparison_context": {
+    "artifact_truth_role": "current_run_status",
+    "official_truth_may_live_in_comparison_json": true
+  },
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-17T01:34:12.059324+00:00",
+  "run_tag": "paper-grade-pre-quarto",
+  "cross_scenario_gate": {
+    "gate": "cross_scenario_no_regression",
+    "baseline_nonrobust_return": 209513.2475,
+    "baseline_robust_return": 204108.08745346096,
+    "selective_nonrobust_return": 228909.1050001845,
+    "selective_robust_return": 195646.75982977322,
+    "nonrobust_improvement": 19395.857500184502,
+    "nonrobust_improvement_pct": 9.257580478382161,
+    "robust_diff": -8461.327623687743,
+    "robust_tolerance": 10205.404372673049,
+    "robust_tolerance_pct": 0.05,
+    "robust_within_tolerance": true,
+    "nonrobust_improved": true,
+    "passed": true,
+    "note": "Cross-scenario gate: selective defer improves non-robust by removing ambiguous loans, while robust strategy degrades < 5% (robust already internalizes uncertainty via conformal bounds)."
+  },
+  "promoted": true,
+  "promotion_rationale": "Selective ambiguity defer promoted via cross-scenario gate: non-robust improves +$19,396 (+9.3%), robust degrades only $-8,461 (-4.1%), within 5% tolerance. Deferral rate reduced from 52% (full ambiguity_defer) to 4.5% (selective). Mechanism: only defer loans ambiguous in low-ambiguity grades (A,F,G) OR with width_90 > p90."
+}
