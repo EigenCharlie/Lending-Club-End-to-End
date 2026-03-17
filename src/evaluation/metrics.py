@@ -10,10 +10,13 @@ from __future__ import annotations
 
 import numpy as np
 from sklearn.metrics import (
+    average_precision_score,
     brier_score_loss,
+    f1_score,
     mean_absolute_error,
     mean_squared_error,
     r2_score,
+    recall_score,
     roc_auc_score,
 )
 
@@ -23,8 +26,19 @@ except ImportError:  # sklearn < 1.8
     d2_brier_score = None
 
 
-def classification_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, float]:
-    """Compute all classification metrics for PD model."""
+def classification_metrics(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    threshold: float = 0.35,
+) -> dict[str, float]:
+    """Compute all classification metrics for PD model.
+
+    Args:
+        y_true: Binary ground truth (1 = default).
+        y_prob: Predicted default probability.
+        threshold: Decision threshold for binary metrics (recall, f1).
+                   Defaults to 0.35, the operational threshold.
+    """
     from src.models.calibration import expected_calibration_error
 
     auc = roc_auc_score(y_true, y_prob)
@@ -32,13 +46,20 @@ def classification_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> dict[str, 
     brier = brier_score_loss(y_true, y_prob)
     ece = expected_calibration_error(y_true, y_prob)
     ks = ks_statistic(y_true, y_prob)
+    pr_auc = average_precision_score(y_true, y_prob)
+    y_pred_binary = (np.asarray(y_prob) >= threshold).astype(int)
+    recall_at_t = recall_score(y_true, y_pred_binary, zero_division=0)
+    f1_at_t = f1_score(y_true, y_pred_binary, zero_division=0)
 
-    metrics = {
+    metrics: dict[str, float] = {
         "auc_roc": auc,
         "gini": gini,
         "brier_score": brier,
         "ece": ece,
         "ks_statistic": ks,
+        "pr_auc": pr_auc,
+        f"recall_at_{threshold:.2f}".replace(".", "p"): recall_at_t,
+        f"f1_at_{threshold:.2f}".replace(".", "p"): f1_at_t,
     }
     if d2_brier_score is not None:
         metrics["d2_brier_score"] = float(d2_brier_score(y_true, y_prob))

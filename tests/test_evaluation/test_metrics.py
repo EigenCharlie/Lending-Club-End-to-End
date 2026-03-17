@@ -18,7 +18,16 @@ def test_classification_metrics_keys():
     y_true = rng.randint(0, 2, 100)
     y_prob = rng.random(100)
     result = classification_metrics(y_true, y_prob)
-    expected_keys = {"auc_roc", "gini", "brier_score", "ece", "ks_statistic"}
+    expected_keys = {
+        "auc_roc",
+        "gini",
+        "brier_score",
+        "ece",
+        "ks_statistic",
+        "pr_auc",
+        "recall_at_0p35",
+        "f1_at_0p35",
+    }
     if "d2_brier_score" in result:
         expected_keys.add("d2_brier_score")
     assert expected_keys == set(result.keys())

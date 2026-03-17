@@ -1,0 +1,107 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-16T14:14:18.469753+00:00",
+  "n_observations": 276869,
+  "slice_performance": [
+    {
+      "slice": "overall",
+      "count": 276869,
+      "skipped": false,
+      "default_rate": 0.21977902907151034,
+      "auc_roc": 0.7129967525110764,
+      "pr_auc": 0.3984052568389177,
+      "brier_score": 0.15451304235095986
+    },
+    {
+      "slice": "grade_A",
+      "count": 72388,
+      "skipped": false,
+      "default_rate": 0.08658893739293806,
+      "auc_roc": 0.6428434264189069,
+      "pr_auc": 0.1415053813142964,
+      "brier_score": 0.07747062329132352
+    },
+    {
+      "slice": "grade_B",
+      "count": 75311,
+      "skipped": false,
+      "default_rate": 0.17861932519817822,
+      "auc_roc": 0.6228425625874334,
+      "pr_auc": 0.25490437409025923,
+      "brier_score": 0.14266888486122842
+    },
+    {
+      "slice": "grade_C",
+      "count": 70568,
+      "skipped": false,
+      "default_rate": 0.2760741412538261,
+      "auc_roc": 0.6235934619256686,
+      "pr_auc": 0.3730950781849462,
+      "brier_score": 0.19226673472201028
+    },
+    {
+      "slice": "grade_D_F",
+      "count": 58196,
+      "skipped": false,
+      "default_rate": 0.3682555502096364,
+      "auc_roc": 0.6405917832961567,
+      "pr_auc": 0.49449909401250447,
+      "brier_score": 0.21930261412707303
+    },
+    {
+      "slice": "small_loan",
+      "count": 31885,
+      "skipped": false,
+      "default_rate": 0.13156656735141917,
+      "auc_roc": 0.7018874685723215,
+      "pr_auc": 0.2583955196840247,
+      "brier_score": 0.10741040776848096
+    },
+    {
+      "slice": "large_loan",
+      "count": 52980,
+      "skipped": false,
+      "default_rate": 0.2823518308795772,
+      "auc_roc": 0.6973964539484294,
+      "pr_auc": 0.45699558868043566,
+      "brier_score": 0.18415336837039853
+    },
+    {
+      "slice": "high_dti",
+      "count": 35482,
+      "skipped": false,
+      "default_rate": 0.28031114367848486,
+      "auc_roc": 0.6798173718909176,
+      "pr_auc": 0.43656782292396124,
+      "brier_score": 0.18579211519731884
+    },
+    {
+      "slice": "early_cohort",
+      "count": 0,
+      "skipped": true,
+      "reason": "too_small"
+    },
+    {
+      "slice": "late_cohort",
+      "count": 276869,
+      "skipped": false,
+      "default_rate": 0.21977902907151034,
+      "auc_roc": 0.7129967525110764,
+      "pr_auc": 0.3984052568389177,
+      "brier_score": 0.15451304235095986
+    }
+  ],
+  "isolation_forest": {
+    "label": "oot_test",
+    "n_total": 276869,
+    "n_anomalies": 28882,
+    "anomaly_rate": 0.10431648180186298,
+    "score_mean": 0.05698822594824991,
+    "score_std": 0.0423807239387715,
+    "score_p5": -0.022037668858287295,
+    "score_p95": 0.1152383447561214,
+    "n_features": 33,
+    "train_rows": 1346311
+  },
+  "run_tag": "paper-grade-slice-anomaly"
+}

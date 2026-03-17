@@ -1,17 +1,18 @@
 {
   "schema_version": "2026-03-13.1",
-  "generated_at_utc": "2026-03-16T05:59:48.694012+00:00",
-  "run_tag": "run-fairness-auto",
+  "generated_at_utc": "2026-03-17T00:22:52.470284+00:00",
+  "run_tag": "paper-grade-cost-matrix",
   "pd_internal_selected_threshold": 0.05,
   "pd_internal_fallback_threshold": 0.35,
   "fairness_primary_threshold": 0.35,
   "decision_policy_global_threshold": 0.35,
   "source_artifacts": {
-    "fairness_status": "/tmp/pytest-of-eigenlinux/pytest-9/test_run_fairness_auto_selects0/models/fairness_audit_status.json",
-    "fairness_decision_policy": "/tmp/pytest-of-eigenlinux/pytest-9/test_run_fairness_auto_selects0/models/fairness_decision_policy.json",
-    "fairness_frontier": "/tmp/pytest-of-eigenlinux/pytest-9/test_run_fairness_auto_selects0/data/processed/fairness_threshold_frontier.parquet",
+    "fairness_status": "/tmp/pytest-of-eigenlinux/pytest-11/test_run_fairness_auto_selects0/models/fairness_audit_status.json",
+    "fairness_decision_policy": "/tmp/pytest-of-eigenlinux/pytest-11/test_run_fairness_auto_selects0/models/fairness_decision_policy.json",
+    "fairness_frontier": "/tmp/pytest-of-eigenlinux/pytest-11/test_run_fairness_auto_selects0/data/processed/fairness_threshold_frontier.parquet",
     "decision_threshold": "models/decision_threshold.json",
-    "decision_threshold_v2": "models/decision_threshold_v2.json"
+    "decision_threshold_v2": "models/decision_threshold_v2.json",
+    "test_predictions": "data/processed/test_predictions.parquet"
   },
   "business_meaning": {
     "pd_internal_selected_threshold": "Threshold interno de screening/seleccion PD usado en busqueda y analisis tecnico.",
@@ -19,6 +20,17 @@
     "fairness_primary_threshold": "Threshold operativo principal para auditoria de fairness y narrativa de aprobacion.",
     "decision_policy_global_threshold": "Threshold operativo global aplicado por la policy de decision/aprobacion."
   },
-  "fairness_threshold_source": "decision_policy_artifact_auto_selected",
-  "outcome_mode": "approval"
+  "cost_matrix_result": {
+    "optimal_threshold": 0.10404040404040403,
+    "min_cost": 23198.84,
+    "fn_cost": 1.0,
+    "fp_cost": 0.12,
+    "fn_fp_ratio": 8.333333333333334,
+    "cost_at_035": 42405.72,
+    "threshold_at_035": 0.35,
+    "n_thresholds_evaluated": 199,
+    "generated_at_utc": "2026-03-17T00:22:52.469933+00:00",
+    "n_observations": 276869,
+    "dataset": "oot_test_2018_2020"
+  }
 }

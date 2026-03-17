@@ -132,3 +132,53 @@ def resolve_pd_internal_threshold(
         if value is not None:
             return value
     return float(default)
+
+
+def optimal_threshold_cost_matrix(
+    y_true: Any,
+    y_prob: Any,
+    fn_cost: float = 1.0,
+    fp_cost: float = 0.12,
+    n_steps: int = 99,
+) -> dict[str, Any]:
+    """Find classification threshold that minimises expected misclassification cost.
+
+    In credit risk, missing a default (FN) costs LGD × EAD; rejecting a good
+    borrower (FP) costs foregone interest.  This function sweeps thresholds and
+    returns the one with minimum total expected cost.
+
+    Args:
+        y_true: Binary ground truth (1 = default).
+        y_prob: Predicted default probability.
+        fn_cost: Cost weight for false negatives. Typically normalised LGD × EAD.
+        fp_cost: Cost weight for false positives. Typically approx. interest rate.
+        n_steps: Number of candidate thresholds evaluated between 0.01 and 0.99.
+
+    Returns:
+        Dict with optimal_threshold, min_cost, fn_cost, fp_cost, cost_at_035,
+        and fn_fp_ratio.
+    """
+    import numpy as np
+
+    y_true_arr = np.asarray(y_true, dtype=float)
+    y_prob_arr = np.asarray(y_prob, dtype=float)
+    thresholds = np.linspace(0.01, 0.99, n_steps)
+    costs = []
+    for t in thresholds:
+        y_pred = (y_prob_arr >= t).astype(int)
+        fp = int(((y_pred == 1) & (y_true_arr == 0)).sum())
+        fn = int(((y_pred == 0) & (y_true_arr == 1)).sum())
+        costs.append(fn * fn_cost + fp * fp_cost)
+
+    best_idx = int(np.argmin(costs))
+    idx_035 = int(np.argmin(np.abs(thresholds - 0.35)))
+    return {
+        "optimal_threshold": float(thresholds[best_idx]),
+        "min_cost": float(costs[best_idx]),
+        "fn_cost": float(fn_cost),
+        "fp_cost": float(fp_cost),
+        "fn_fp_ratio": float(fn_cost / fp_cost) if fp_cost > 0 else None,
+        "cost_at_035": float(costs[idx_035]),
+        "threshold_at_035": 0.35,
+        "n_thresholds_evaluated": n_steps,
+    }

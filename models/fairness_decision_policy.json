@@ -4,10 +4,10 @@
   "selection": {
     "source": "fairness_frontier_auto_select",
     "n_passed": 6,
-    "worst_eo_gap": 0.021276595744680882,
-    "approval_rate": 0.9988622778281425
+    "worst_eo_gap": 0.023658304223563076,
+    "approval_rate": 0.9986961342728872
   },
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-16T04:42:37.211898+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650"
+  "generated_at_utc": "2026-03-16T18:12:58.687117+00:00",
+  "run_tag": "paper-grade-pre-quarto"
 }

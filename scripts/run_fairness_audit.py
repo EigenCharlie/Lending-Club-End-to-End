@@ -38,6 +38,8 @@ from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.threshold_semantics import write_threshold_semantics
 
 SCHEMA_VERSION = "2026-03-06.1"
+SHAP_STATUS_PATH = Path("models/shap_fairness_status.json")
+SHAP_SAMPLE_SIZE = 10_000
 
 
 def _load_config(config_path: str) -> dict:
@@ -194,6 +196,196 @@ def _apply_decision_policy(
         thresholds[mask] = threshold
 
     return (y_pred_proba >= thresholds).astype(float)
+
+
+def _compute_shap_per_group(
+    data: pd.DataFrame,
+    groups_dict: dict[str, np.ndarray],
+    model_path: str | Path = "models/pd_canonical.cbm",
+    shap_sample_size: int = SHAP_SAMPLE_SIZE,
+    random_state: int = 42,
+) -> dict[str, object] | None:
+    """Compute per-group SHAP analysis to identify which features drive disparities.
+
+    For each protected attribute, computes mean |SHAP| per group and the
+    top-5 features per group. Also computes pairwise group differences
+    |mean_SHAP_A - mean_SHAP_B| to identify the features responsible for
+    any observed fairness gaps.
+
+    Args:
+        data: Test feature DataFrame (test_fe.parquet, n=276K rows).
+        groups_dict: Base attribute groups from fairness audit.
+        model_path: Path to the trained CatBoost model (.cbm).
+        shap_sample_size: Max rows to use for SHAP (performance cap).
+        random_state: Random seed for sampling.
+
+    Returns:
+        Dict with per-attribute SHAP analysis, or None on failure.
+    """
+    try:
+        from catboost import CatBoostClassifier
+    except ImportError as e:
+        logger.warning(f"SHAP per-group analysis skipped — missing dependency: {e}")
+        return None
+
+    model_path = Path(model_path)
+    if not model_path.exists():
+        logger.warning(f"SHAP per-group analysis skipped — model not found: {model_path}")
+        return None
+
+    try:
+        model = CatBoostClassifier()
+        model.load_model(str(model_path))
+        feature_names: list[str] = list(model.feature_names_)
+    except Exception as e:
+        logger.warning(f"SHAP per-group analysis skipped — model load error: {e}")
+        return None
+
+    available_features = [f for f in feature_names if f in data.columns]
+    if not available_features:
+        logger.warning("SHAP per-group analysis skipped — no model features found in test data")
+        return None
+
+    X_full = data[available_features].copy()
+
+    rng = np.random.default_rng(random_state)
+    n = len(X_full)
+    if n > shap_sample_size:
+        sample_idx = np.sort(rng.choice(n, size=shap_sample_size, replace=False))
+        X_sample = X_full.iloc[sample_idx].reset_index(drop=True)
+    else:
+        sample_idx = np.arange(n)
+        X_sample = X_full.reset_index(drop=True)
+
+    logger.info(
+        f"Computing SHAP values on {len(X_sample):,} rows, {len(available_features)} features"
+    )
+    try:
+        # Use CatBoost's native SHAP via Pool + get_feature_importance — avoids the shap
+        # library's cat/NaN handling issues entirely.  model.get_cat_feature_indices() works
+        # on .cbm-loaded models without needing the sklearn feature_names_ attribute.
+        import pandas as _pd
+        from catboost import Pool as _CatPool
+
+        # Identify cat feature column names.
+        # Primary: use model metadata (works on .cbm loaded models when feature_names_ is set).
+        # Fallback: detect from data — any column whose non-null values cannot be cast to float
+        # is genuinely categorical (e.g. "very_high__E" WOE bin labels, grade strings).
+        _cat_feat_names: list[str] = []
+        try:
+            _fn = list(getattr(model, "feature_names_", None) or [])
+            if _fn:
+                _cat_idx = model.get_cat_feature_indices()
+                _cat_feat_names = [
+                    _fn[i] for i in _cat_idx if i < len(_fn) and _fn[i] in X_sample.columns
+                ]
+        except Exception:
+            pass
+
+        # Always supplement with content-based detection: any column whose non-null values
+        # cannot be cast to float is categorical, regardless of model metadata.
+        # This catches columns that have string values but are not in model.get_cat_feature_indices()
+        # (e.g. WOE bin labels stored as strings in the parquet instead of numeric WOE scores).
+        _cat_set = set(_cat_feat_names)
+        for _col in X_sample.columns:
+            if _col in _cat_set or _pd.api.types.is_numeric_dtype(X_sample[_col]):
+                continue
+            _probe = X_sample[_col].dropna().head(5)
+            if _probe.empty:
+                continue
+            try:
+                _pd.to_numeric(_probe, errors="raise")
+            except (ValueError, TypeError):
+                _cat_feat_names.append(_col)
+                _cat_set.add(_col)
+
+        # Fill NaN: cat features → "missing", numeric features → 0.0
+        # Only touch NaN cells; never alter non-NaN values.
+        X_sample = X_sample.copy()
+        _cat_set = set(_cat_feat_names)
+        for _col in list(X_sample.columns):
+            if not X_sample[_col].isna().any():
+                continue
+            if _col in _cat_set:
+                X_sample[_col] = X_sample[_col].astype(object).fillna("missing").astype(str)
+            elif _pd.api.types.is_numeric_dtype(X_sample[_col]):
+                X_sample[_col] = X_sample[_col].fillna(0.0)
+
+        pool = _CatPool(X_sample, cat_features=_cat_feat_names if _cat_feat_names else None)
+        shap_raw = model.get_feature_importance(pool, type="ShapValues")
+        # get_feature_importance returns (n_samples, n_features + 1); last col is bias
+        shap_matrix = np.abs(np.asarray(shap_raw[:, :-1], dtype=float))
+    except Exception as e:
+        logger.warning(f"SHAP per-group analysis skipped — SHAP computation error: {e}")
+        return None
+
+    feature_names_sample = available_features
+    attribute_results: list[dict[str, object]] = []
+
+    for attribute, labels in groups_dict.items():
+        if "__x__" in attribute:
+            continue
+        group_labels = pd.Series(labels).iloc[sample_idx].reset_index(drop=True).astype(str)
+        unique_groups = sorted(group_labels.unique())
+        group_shap: dict[str, np.ndarray] = {}
+        group_top5: dict[str, list[dict[str, object]]] = {}
+
+        for grp in unique_groups:
+            mask = group_labels == grp
+            if mask.sum() < 10:
+                continue
+            mean_abs_shap = shap_matrix[mask].mean(axis=0)
+            group_shap[grp] = mean_abs_shap
+            top5_idx = np.argsort(mean_abs_shap)[::-1][:5]
+            group_top5[grp] = [
+                {"feature": feature_names_sample[i], "mean_abs_shap": float(mean_abs_shap[i])}
+                for i in top5_idx
+            ]
+
+        pairwise_diffs: list[dict[str, object]] = []
+        groups_with_shap = list(group_shap.keys())
+        for i in range(len(groups_with_shap)):
+            for j in range(i + 1, len(groups_with_shap)):
+                g_a, g_b = groups_with_shap[i], groups_with_shap[j]
+                diff = np.abs(group_shap[g_a] - group_shap[g_b])
+                top3_idx = np.argsort(diff)[::-1][:3]
+                pairwise_diffs.append(
+                    {
+                        "group_a": g_a,
+                        "group_b": g_b,
+                        "top_driving_features": [
+                            {
+                                "feature": feature_names_sample[k],
+                                "shap_diff": float(diff[k]),
+                            }
+                            for k in top3_idx
+                        ],
+                    }
+                )
+
+        attribute_results.append(
+            {
+                "attribute": attribute,
+                "groups_analyzed": groups_with_shap,
+                "top5_per_group": group_top5,
+                "pairwise_feature_diffs": pairwise_diffs,
+            }
+        )
+        logger.info(f"SHAP per-group: {attribute} ({len(groups_with_shap)} groups)")
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "model_path": str(model_path),
+        "shap_sample_size": len(X_sample),
+        "n_features": len(available_features),
+        "attributes": attribute_results,
+        "interpretation": (
+            "For each protected attribute, top-5 features by mean |SHAP| per group. "
+            "Pairwise diffs show which features drive SHAP disparities between groups. "
+            "Features like dti/loan_amnt are legitimate credit risk factors; "
+            "home_ownership may proxy for race in US ECOA context."
+        ),
+    }
 
 
 def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
@@ -537,6 +729,24 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
             json.dumps(sidecar_payload, indent=2, default=str), encoding="utf-8"
         )
         logger.info(f"Saved fairlearn sidecar status: {sidecar_path}")
+
+    shap_result = _compute_shap_per_group(
+        data=data.iloc[:n],
+        groups_dict=groups_dict,
+    )
+    if shap_result is not None:
+        shap_result["generated_at_utc"] = str(
+            __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
+        )
+        shap_result["run_tag"] = resolved_run_tag
+        shap_result["prediction_threshold"] = float(primary_threshold)
+        shap_result["outcome_mode"] = outcome_mode
+        SHAP_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SHAP_STATUS_PATH.write_text(
+            json.dumps(shap_result, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved SHAP per-group fairness analysis: {SHAP_STATUS_PATH}")
+
     write_threshold_semantics(
         fairness_primary_threshold=float(primary_threshold),
         decision_policy_global_threshold=float(
