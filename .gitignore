@@ -88,6 +88,9 @@ error_log.txt
 catboost_info/
 notebooks/catboost_info/
 
+# Thesis Word documents (binary, large)
+thesis_poster/*.docx
+
 # LaTeX build artifacts
 thesis_poster/*.aux
 thesis_poster/*.log
