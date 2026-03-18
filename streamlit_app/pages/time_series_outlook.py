@@ -69,13 +69,15 @@ def _build_horizon_quality(predictions: pd.DataFrame, model: str) -> pd.DataFram
         pd.to_numeric(frame["y_true"], errors="coerce") - pd.to_numeric(frame["y_pred"], errors="coerce")
     ).abs()
     if {"lo_90", "hi_90"}.issubset(frame.columns):
-        frame["covered_90"] = (
-            pd.to_numeric(frame["y_true"], errors="coerce").between(
-                pd.to_numeric(frame["lo_90"], errors="coerce"),
-                pd.to_numeric(frame["hi_90"], errors="coerce"),
-                inclusive="both",
-            )
-        ).astype(float)
+        lo = pd.to_numeric(frame["lo_90"], errors="coerce")
+        hi = pd.to_numeric(frame["hi_90"], errors="coerce")
+        if lo.isna().all() or hi.isna().all():
+            # Interval bounds are all None/NaN — no conformal intervals in this artifact
+            frame["covered_90"] = np.nan
+        else:
+            frame["covered_90"] = (
+                pd.to_numeric(frame["y_true"], errors="coerce").between(lo, hi, inclusive="both")
+            ).astype(float)
     else:
         frame["covered_90"] = np.nan
 
@@ -171,6 +173,9 @@ backtest_metrics = try_load_parquet("ts_backtest_metrics")
 panel_forecasts = try_load_parquet("ts_panel_forecasts")
 status = try_load_json("time_series_status", directory="models", default={})
 diagnostics = try_load_json("ts_diagnostics", default={})
+forecastability_status = try_load_json("time_series_forecastability_status", directory="models", default={})
+hierarchy_status = try_load_json("time_series_hierarchy_status", directory="models", default={})
+research_status = try_load_json("time_series_research_status", directory="models", default={})
 
 if scenarios.empty and not forecasts.empty and {"ds", "y", "y_lo_90", "y_hi_90", "y_lo_95", "y_hi_95"}.issubset(
     forecasts.columns
@@ -364,23 +369,37 @@ else:
 
 st.subheader("3) Cobertura y error por horizonte")
 horizon_quality = _build_horizon_quality(backtest_predictions, interval_model)
+_no_coverage = horizon_quality.empty or horizon_quality["coverage_90"].isna().all()
 if horizon_quality.empty:
     st.info("Cobertura por horizonte no disponible: faltan predicciones reales de backtest.")
 else:
     col_a, col_b = st.columns(2)
     with col_a:
-        fig = px.line(
-            horizon_quality,
-            x="horizon_step",
-            y="coverage_90",
-            markers=True,
-            title=f"Cobertura 90% por horizonte ({interval_model})",
-            labels={"horizon_step": "Paso", "coverage_90": "Coverage"},
-        )
-        fig.add_hline(y=0.90, line_dash="dash", line_color="#B91C1C")
-        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
-        fig.update_yaxes(tickformat=".0%")
-        st.plotly_chart(fig, width="stretch")
+        if _no_coverage:
+            # Interval bounds were None in predictions — show per-model coverage from metrics table
+            if not backtest_metrics.empty and {"model", "coverage_90"}.issubset(backtest_metrics.columns):
+                _cov_row = backtest_metrics[backtest_metrics["model"] == interval_model]
+                _cov_val = float(_cov_row["coverage_90"].iloc[0]) if not _cov_row.empty else None
+                if _cov_val is not None:
+                    st.metric(f"Cobertura 90% global ({interval_model})", f"{_cov_val:.1%}")
+                    st.caption("Cobertura promedio sobre todos los horizontes; desglose por horizonte no disponible porque los bounds del artifact de predicciones están vacíos.")
+                else:
+                    st.info("Cobertura por horizonte no disponible: intervalos sin datos en el artifact de predicciones.")
+            else:
+                st.info("Cobertura por horizonte no disponible: intervalos sin datos en el artifact de predicciones.")
+        else:
+            fig = px.line(
+                horizon_quality,
+                x="horizon_step",
+                y="coverage_90",
+                markers=True,
+                title=f"Cobertura 90% por horizonte ({interval_model})",
+                labels={"horizon_step": "Paso", "coverage_90": "Coverage"},
+            )
+            fig.add_hline(y=0.90, line_dash="dash", line_color="#B91C1C")
+            fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=360)
+            fig.update_yaxes(tickformat=".0%")
+            st.plotly_chart(fig, width="stretch")
     with col_b:
         point_horizon = _build_horizon_quality(backtest_predictions, point_model)
         fig = px.bar(
@@ -512,13 +531,108 @@ with st.expander("Diagnóstico temporal y backlog metodológico"):
 """
     )
 
-img = get_notebook_image_path("05_time_series_forecasting", "cell_017_out_01.png")
-if img.exists():
-    st.image(
-        str(img),
-        caption="Notebook 05: evidencia exploratoria previa a la versión gobernada del subsistema temporal.",
-        width="stretch",
-    )
+_cv_img = get_notebook_image_path("05_time_series_forecasting", "cv_model_comparison.png")
+_fan_img = get_notebook_image_path("05_time_series_forecasting", "ifrs9_scenario_fan_chart.png")
+_ts_overview_img = get_notebook_image_path("05_time_series_forecasting", "portfolio_time_series_overview.png")
+_cell_img = get_notebook_image_path("05_time_series_forecasting", "cell_017_out_01.png")
+
+_nb_ts_imgs = [(_cv_img, "NB05: comparación cross-validation por modelo (AutoARIMA, ETS, LightGBM, Theta)."),
+               (_fan_img, "NB05: fan chart de escenarios IFRS9 — base / severo / recuperación."),
+               (_ts_overview_img, "NB05: series temporales del portafolio — volumen, tasa de default y montos.")]
+_nb_ts_valid = [(p, c) for p, c in _nb_ts_imgs if p.exists()]
+if not _nb_ts_valid and _cell_img.exists():
+    _nb_ts_valid = [(_cell_img, "Notebook 05: evidencia exploratoria del subsistema temporal.")]
+
+if _nb_ts_valid:
+    with st.expander("Figuras del notebook de pronóstico temporal", expanded=True):
+        _ts_cols = st.columns(min(len(_nb_ts_valid), 3))
+        for _ci, (_p, _cap) in enumerate(_nb_ts_valid):
+            with _ts_cols[_ci % 3]:
+                st.image(str(_p), caption=_cap, width="stretch")
+
+with st.expander("Forecastabilidad: rutas por serie y tipo de intermitencia", expanded=False):
+    if forecastability_status:
+        c1, c2 = st.columns(2)
+        c1.metric("Series evaluadas", forecastability_status.get("series_evaluated", "N/A"))
+        available = forecastability_status.get("available", False)
+        c2.metric("Disponible", "Sí" if available else "No")
+        routes = forecastability_status.get("routes", {})
+        if routes:
+            routes_df = pd.DataFrame(
+                [{"Ruta": k, "N series": v} for k, v in routes.items()]
+            )
+            st.markdown("**Distribución de series por ruta de modelado**")
+            st.dataframe(routes_df, hide_index=True, width="stretch")
+        intermittency = forecastability_status.get("intermittency", {})
+        levels = forecastability_status.get("levels", {})
+        if intermittency or levels:
+            col_a, col_b = st.columns(2)
+            if intermittency:
+                with col_a:
+                    st.markdown("**Tipo de intermitencia**")
+                    st.dataframe(
+                        pd.DataFrame([{"Tipo": k, "N": v} for k, v in intermittency.items()]),
+                        hide_index=True,
+                    )
+            if levels:
+                with col_b:
+                    st.markdown("**Niveles de jerarquía**")
+                    st.dataframe(
+                        pd.DataFrame([{"Nivel": k, "N": v} for k, v in levels.items()]),
+                        hide_index=True,
+                    )
+        st.caption(
+            "Intermitente/errático = series con muchos ceros o alta varianza; "
+            "requiere métodos especializados (ADIDA, IMAPA) o retroceso a nivel portafolio."
+        )
+    else:
+        st.info("No hay `models/time_series_forecastability_status.json` disponible.")
+
+with st.expander("Jerarquía temporal: estado de reconciliación", expanded=False):
+    if hierarchy_status:
+        available_h = hierarchy_status.get("available", False)
+        reason = hierarchy_status.get("reason", "")
+        if available_h:
+            st.success("Reconciliación jerárquica habilitada.")
+        else:
+            st.warning(f"Reconciliación jerárquica deshabilitada. Razón: `{reason}`")
+        st.caption(
+            "La reconciliación jerárquica alinea pronósticos grade-term → grade → portafolio. "
+            "Cuando está deshabilitada, los pronósticos por subgrupo no suman al total."
+        )
+    else:
+        st.info("No hay `models/time_series_hierarchy_status.json` disponible.")
+
+with st.expander("Research status: estado completo del módulo de pronóstico", expanded=False):
+    if research_status:
+        rs_status = research_status.get("status", "N/A")
+        warnings = research_status.get("warnings", [])
+        summary_rs = research_status.get("summary", {})
+        point_champ = research_status.get("point_champion", {})
+        interval_champ = research_status.get("interval_champion", {})
+        c1, c2, c3 = st.columns(3)
+        color = "normal" if rs_status == "ok" else "inverse"
+        c1.metric("Estado", rs_status.upper())
+        c2.metric("Modelos evaluados", summary_rs.get("n_models_evaluated", "N/A"))
+        c3.metric("Backtest rows", f"{int(summary_rs.get('n_backtest_rows', 0)):,}" if summary_rs.get('n_backtest_rows') else "N/A")
+        if warnings:
+            for w in warnings:
+                st.warning(f"⚠ {w}")
+        if summary_rs:
+            st.markdown(
+                f"**Punto:** {summary_rs.get('point_model', 'N/A')} "
+                f"({'promotable' if summary_rs.get('point_promotable') else 'no promotable'}) | "
+                f"**Intervalo:** {summary_rs.get('interval_model', 'N/A')} "
+                f"({'promotable' if summary_rs.get('interval_promotable') else 'no promotable'})"
+            )
+        cfg = research_status.get("config", {})
+        if cfg:
+            st.caption(
+                f"Horizon: {cfg.get('horizon', 'N/A')}m | Freq: {cfg.get('freq', 'N/A')} | "
+                f"Season: {cfg.get('season_length', 'N/A')} | Exogenous: {cfg.get('exogenous_enabled', False)}"
+            )
+    else:
+        st.info("No hay `models/time_series_research_status.json` disponible.")
 
 render_caveats(
     [

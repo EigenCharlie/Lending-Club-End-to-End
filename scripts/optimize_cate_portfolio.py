@@ -47,7 +47,12 @@ def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
     )
 
 
+_CLI_RUN_TAG: str | None = None
+
+
 def _resolve_run_tag() -> str:
+    if _CLI_RUN_TAG:
+        return _CLI_RUN_TAG
     candidates: list[str | None] = []
     for candidate_path in [
         Path("models/causal_effect_status.json"),
@@ -430,7 +435,10 @@ if __name__ == "__main__":
     parser.add_argument("--max_candidates", type=int, default=5_000)
     parser.add_argument("--uncertainty_aversion", type=float, default=0.0)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        _CLI_RUN_TAG = args.run_tag
     main(
         delta_rate=args.delta_rate,
         total_budget=args.total_budget,

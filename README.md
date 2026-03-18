@@ -22,7 +22,7 @@ This repository is built as a reproducible, research-to-production-style workflo
 Core methodological chain:
 
 ```text
-CatBoost PD -> Isotonic Calibration -> Mondrian Conformal Intervals
+CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Mondrian Conformal Intervals
 -> Causal Policy Simulation -> IFRS9 Scenario Sensitivity
 -> Robust Portfolio Optimization
 ```

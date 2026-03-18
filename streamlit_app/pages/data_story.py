@@ -37,7 +37,6 @@ from streamlit_app.utils import (
     format_number,
     format_pct,
     get_notebook_image_path,
-    page_error_boundary,
     query_duckdb,
     try_load_json,
     try_load_parquet,

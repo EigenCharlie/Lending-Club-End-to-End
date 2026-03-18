@@ -23,6 +23,7 @@ REQUIRED_INTRO_PAGES = [
 ]
 
 RESEARCH_STYLE_PAGES = [
+    Path("streamlit_app/pages/paper_estrella_predict_optimize.py"),
     Path("streamlit_app/pages/paper_1_cp_robust_opt.py"),
     Path("streamlit_app/pages/paper_2_ifrs9_e2e.py"),
     Path("streamlit_app/pages/paper_3_mondrian.py"),

@@ -15,11 +15,42 @@ import httpx
 import pandas as pd
 import streamlit as st
 
-from src.utils.threshold_semantics import (
-    load_threshold_semantics as _load_threshold_semantics_payload,
-    resolve_operational_threshold,
-    resolve_pd_internal_threshold,
-)
+
+# Inline threshold semantics helpers (avoid src/ dependency in deploy bundle)
+def _load_threshold_semantics_payload(path: str | Path | None = None) -> dict:
+    target = Path(path) if path else Path(__file__).resolve().parent.parent / "models" / "threshold_semantics.json"
+    if not target.exists():
+        return {}
+    try:
+        payload = json.loads(target.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def _safe_float(value: object) -> float | None:
+    try:
+        return float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+
+
+def resolve_operational_threshold(semantics: dict | None = None, default: float = 0.5) -> float:
+    payload = semantics or {}
+    for key in ("decision_policy_global_threshold", "fairness_primary_threshold"):
+        value = _safe_float(payload.get(key))
+        if value is not None:
+            return value
+    return float(default)
+
+
+def resolve_pd_internal_threshold(semantics: dict | None = None, default: float = 0.5) -> float:
+    payload = semantics or {}
+    for key in ("pd_internal_selected_threshold", "pd_internal_fallback_threshold"):
+        value = _safe_float(payload.get(key))
+        if value is not None:
+            return value
+    return float(default)
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
@@ -316,7 +347,7 @@ def load_official_baseline_registry() -> dict:
 @st.cache_data(ttl=300, max_entries=4)
 def load_threshold_semantics() -> dict:
     """Load canonical threshold semantics artifact."""
-    return _load_threshold_semantics_payload()
+    return _load_threshold_semantics_payload(MODEL_DIR / "threshold_semantics.json")
 
 
 @st.cache_data(ttl=300, max_entries=4)

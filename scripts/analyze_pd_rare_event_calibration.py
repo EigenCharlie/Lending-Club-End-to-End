@@ -14,6 +14,24 @@ import yaml
 from loguru import logger
 from sklearn.metrics import average_precision_score, brier_score_loss
 
+_CLI_RUN_TAG: str | None = None
+
+
+def _resolve_run_tag() -> str:
+    """Resolve run_tag: CLI arg > pipeline_summary > fallback."""
+    if _CLI_RUN_TAG:
+        return _CLI_RUN_TAG
+    pipeline_path = Path("data/processed/pipeline_summary.json")
+    if pipeline_path.exists():
+        try:
+            data = json.loads(pipeline_path.read_text(encoding="utf-8"))
+            tag = data.get("run_tag")
+            if tag:
+                return str(tag)
+        except Exception:
+            pass
+    return "untracked"
+
 
 def _ece(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> float:
     y_true_arr = np.asarray(y_true, dtype=float)
@@ -237,7 +255,7 @@ def main() -> None:
     status: dict[str, Any] = {
         "schema_version": "2026-03-13.1",
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": "untracked",
+        "run_tag": _resolve_run_tag(),
         "summary": {
             "n_obs": int(len(df)),
             "prevalence": float(df["y_true"].mean()),
@@ -275,5 +293,9 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    _ = argparse.ArgumentParser().parse_args()
+    _parser = argparse.ArgumentParser()
+    _parser.add_argument("--run-tag", default=None, help="Run tag to stamp on status artifact")
+    _args = _parser.parse_args()
+    if _args.run_tag:
+        _CLI_RUN_TAG = _args.run_tag
     main()

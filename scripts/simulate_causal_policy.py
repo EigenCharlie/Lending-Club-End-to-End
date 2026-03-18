@@ -23,6 +23,7 @@ from loguru import logger
 from src.utils.artifact_metadata import resolve_run_tag
 
 POLICY_SEMANTICS = "local_cate_policy_simulation"
+_CLI_RUN_TAG: str | None = None
 
 
 def _load_causal_inputs() -> tuple[pd.DataFrame, dict, dict]:
@@ -77,7 +78,7 @@ def main(
     cate = pd.to_numeric(df["cate"], errors="coerce").fillna(0.0).to_numpy(dtype=float)
     treatment = summary.get("treatment", "int_rate")
     run_tag = resolve_run_tag(
-        effect_status.get("run_tag"),
+        _CLI_RUN_TAG or effect_status.get("run_tag"),
         fallback_candidates=[summary.get("run_tag")],
         require_explicit=True,
     )
@@ -227,7 +228,10 @@ if __name__ == "__main__":
     parser.add_argument("--lgd", type=float, default=0.45)
     parser.add_argument("--high_discount_pp", type=float, default=-1.25)
     parser.add_argument("--medium_discount_pp", type=float, default=-0.75)
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        _CLI_RUN_TAG = args.run_tag
     main(
         lgd=args.lgd,
         high_discount_pp=args.high_discount_pp,

@@ -24,7 +24,13 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_number, format_pct, page_error_boundary, try_load_json, try_load_parquet
+from streamlit_app.utils import (
+    format_number,
+    format_pct,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
+)
 
 st.title("🧩 Mapa Integrado de Métodos")
 st.caption(

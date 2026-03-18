@@ -21,7 +21,6 @@ from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     get_notebook_image_path,
-    page_error_boundary,
     try_load_json,
     try_load_parquet,
 )
@@ -469,23 +468,17 @@ st.warning(
 # ── 6. Notebook Images ──
 st.subheader("6) Evidencia visual del Notebook 02")
 
+iv_img = get_notebook_image_path("02_feature_engineering", "iv_ranking.png")
+woe_img = get_notebook_image_path("02_feature_engineering", "woe_binning_top6.png")
 col_img1, col_img2 = st.columns(2)
 with col_img1:
-    img = get_notebook_image_path("02_feature_engineering", "cell_017_out_00.png")
-    if img.exists():
-        st.image(
-            str(img),
-            caption="WOE binning: transformación monotónica supervisada.",
-            width="stretch",
-        )
+    src = iv_img if iv_img.exists() else get_notebook_image_path("02_feature_engineering", "cell_018_out_00.png")
+    if src.exists():
+        st.image(str(src), caption="IV ranking: top features por poder predictivo (NB02).", width="stretch")
 with col_img2:
-    img = get_notebook_image_path("02_feature_engineering", "cell_018_out_00.png")
-    if img.exists():
-        st.image(
-            str(img),
-            caption="IV ranking: selección de features por poder predictivo.",
-            width="stretch",
-        )
+    src = woe_img if woe_img.exists() else get_notebook_image_path("02_feature_engineering", "cell_017_out_00.png")
+    if src.exists():
+        st.image(str(src), caption="WOE binning top 6: monotonicidad supervisada (NB02).", width="stretch")
 
 # ── Closing ──
 st.markdown(

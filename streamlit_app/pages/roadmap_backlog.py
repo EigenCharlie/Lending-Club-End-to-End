@@ -13,8 +13,8 @@ from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.utils import PROJECT_ROOT, load_official_baseline_registry, try_load_json
 
 DOCS_DIR = PROJECT_ROOT / "docs"
-BACKLOG_PRIMARY = DOCS_DIR / "backlog-13-03.md"
-BACKLOG_UNIFIED = DOCS_DIR / "backlog-papers-unified.md"
+BACKLOG_PRIMARY = DOCS_DIR / "backlog-papers-unified.md"
+BACKLOG_LEGACY = DOCS_DIR / "backlog-13-03.md"
 
 
 def _read_text(path: Path) -> str:
@@ -130,21 +130,28 @@ primary_text = _read_text(BACKLOG_PRIMARY)
 st.markdown("## Documentos de trabajo")
 if primary_text:
     st.download_button(
-        "Descargar backlog-13-03.md",
+        "Descargar backlog-papers-unified.md",
         data=primary_text,
-        file_name="backlog-13-03.md",
+        file_name="backlog-papers-unified.md",
         mime="text/markdown",
     )
     st.markdown(primary_text)
 else:
-    st.error("No se pudo cargar `docs/backlog-13-03.md`.")
+    st.error("No se pudo cargar `docs/backlog-papers-unified.md`.")
+
+with st.expander("Backlog histórico (backlog-13-03.md — DEPRECATED)", expanded=False):
+    legacy_text = _read_text(BACKLOG_LEGACY)
+    if legacy_text:
+        st.markdown(legacy_text)
+    else:
+        st.info("Archivo histórico no encontrado.")
 
 with st.expander("Cómo usar esta página entre sesiones"):
     st.markdown(
         """
 1. Validar primero el baseline oficial y los gates de promoción.
 2. Leer el bloque de promociones para no reabrir decisiones ya congeladas.
-3. Usar `Backlog 13-03` como agenda operativa inmediata.
-4. Ir a `Backlog Papers y Quarto` cuando la discusión pase a roadmap editorial / publicaciones.
+3. El backlog unificado (`backlog-papers-unified.md`) organiza los pendientes por paper y por Quarto.
+4. El backlog histórico `backlog-13-03.md` está disponible como referencia pero está superseded.
 """
     )

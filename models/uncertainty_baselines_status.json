@@ -1,0 +1,53 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T03:22:56.954003+00:00",
+  "run_tag": "untracked",
+  "methods": [
+    "conformal_mondrian",
+    "bootstrap",
+    "parametric_gaussian",
+    "ellipsoidal_grade"
+  ],
+  "n_test": 276869,
+  "n_calibration": 237584,
+  "bootstrap_B": 200,
+  "nominal_coverage": 0.9,
+  "results": {
+    "conformal_mondrian": {
+      "method": "conformal_mondrian",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.925185,
+      "avg_width": 0.754581,
+      "min_group_coverage": 0.8901,
+      "fundable_loans_pd_high_lt_010": 3526,
+      "n_obs": 276869
+    },
+    "bootstrap": {
+      "method": "bootstrap",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.898277,
+      "avg_width": 0.952253,
+      "min_group_coverage": 0.619295,
+      "fundable_loans_pd_high_lt_010": 0,
+      "n_obs": 276869
+    },
+    "parametric_gaussian": {
+      "method": "parametric_gaussian",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.853223,
+      "avg_width": 0.844622,
+      "min_group_coverage": 0.796041,
+      "fundable_loans_pd_high_lt_010": 0,
+      "n_obs": 276869
+    },
+    "ellipsoidal_grade": {
+      "method": "ellipsoidal_grade",
+      "nominal_coverage": 0.9,
+      "empirical_coverage": 0.886535,
+      "avg_width": 0.790569,
+      "min_group_coverage": 0.824169,
+      "fundable_loans_pd_high_lt_010": 0,
+      "n_obs": 276869
+    }
+  }
+}

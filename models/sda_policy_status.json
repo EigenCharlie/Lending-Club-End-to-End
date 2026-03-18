@@ -1,0 +1,12 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T03:07:55.030830+00:00",
+  "months": 12,
+  "actions": {
+    "TIGHTEN": 9,
+    "EXPAND": 3
+  },
+  "avg_origination_factor": 0.7375,
+  "target_pd": 0.08,
+  "current_portfolio_pd": 0.21772715384642047
+}

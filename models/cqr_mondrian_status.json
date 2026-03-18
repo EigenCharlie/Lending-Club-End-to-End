@@ -1,0 +1,76 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T15:03:27.268880+00:00",
+  "run_tag": "untracked",
+  "alpha": 0.1,
+  "n_numeric_features": 35,
+  "n_test": 276869,
+  "cqr_mondrian_group_offsets": {
+    "A": 9.999298880321093e-07,
+    "B": 1.000000465989359e-06,
+    "C": 1.000000465989359e-06,
+    "D": 1.000000465989359e-06,
+    "E": 1.000000465989359e-06,
+    "F": 1.000000465989359e-06,
+    "G": 1.000000465989359e-06
+  },
+  "methods": {
+    "symmetric_global": {
+      "method": "symmetric_global",
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "empirical_coverage": 0.899064178365942,
+      "coverage_gap": 0.0009358216340580316,
+      "min_group_coverage": 0.5880993645291739,
+      "avg_width": 0.9560809238980794,
+      "median_width": 1.0,
+      "std_width": 0.06814587264074508,
+      "n_eligible": 0,
+      "eligible_pct": 0.0
+    },
+    "symmetric_mondrian": {
+      "method": "symmetric_mondrian",
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "empirical_coverage": 0.8729001802296393,
+      "coverage_gap": 0.02709981977036069,
+      "min_group_coverage": 0.8502237939990054,
+      "avg_width": 0.8703068871888459,
+      "median_width": 0.9841398534896959,
+      "std_width": 0.18198601796418745,
+      "n_eligible": 0,
+      "eligible_pct": 0.0
+    },
+    "cqr_global": {
+      "method": "cqr_global",
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "empirical_coverage": 0.9826271630265577,
+      "coverage_gap": -0.0826271630265577,
+      "min_group_coverage": 0.9522572802121899,
+      "avg_width": 0.9695708112572983,
+      "median_width": 1.0,
+      "std_width": 0.09458606914237175,
+      "n_eligible": 0,
+      "eligible_pct": 0.0
+    },
+    "cqr_mondrian": {
+      "method": "cqr_mondrian",
+      "alpha": 0.1,
+      "target_coverage": 0.9,
+      "empirical_coverage": 0.976692948650806,
+      "coverage_gap": -0.076692948650806,
+      "min_group_coverage": 0.9295601480908438,
+      "avg_width": 0.9695708112413847,
+      "median_width": 1.0,
+      "std_width": 0.09458606915953721,
+      "n_eligible": 0,
+      "eligible_pct": 0.0
+    }
+  },
+  "summary": {
+    "best_coverage": "cqr_global",
+    "tightest": "symmetric_mondrian",
+    "best_min_group_cov": "cqr_global"
+  }
+}

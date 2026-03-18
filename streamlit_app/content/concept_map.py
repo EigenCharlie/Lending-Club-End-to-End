@@ -322,6 +322,12 @@ PAGE_CONCEPT_MAP: dict[str, tuple[str, ...]] = {
         "concept_drift",
         "optimizer_curse",
     ),
+    "paper_estrella_predict_optimize": (
+        "extrapolation",
+        "convex_hull",
+        "optimizer_curse",
+        "nested_cv",
+    ),
     "paper_1_cp_robust_opt": (
         "extrapolation",
         "convex_hull",

@@ -17,10 +17,14 @@ from sklearn.base import BaseEstimator, RegressorMixin
 
 
 class ProbabilityRegressor(BaseEstimator, RegressorMixin):
-    """Wrap classifier predict_proba as a regression predictor."""
+    """Wrap classifier predict_proba as a regression predictor.
 
-    def __init__(self, classifier):
+    Optionally applies a probability calibrator after raw predictions.
+    """
+
+    def __init__(self, classifier, calibrator: Any | None = None):
         self.classifier = classifier
+        self.calibrator = calibrator
         self.is_fitted_ = True  # required for MAPIE prefit checks
 
     def fit(self, X, y):
@@ -28,8 +32,9 @@ class ProbabilityRegressor(BaseEstimator, RegressorMixin):
         return self
 
     def predict(self, X):
-        """Return P(default)."""
-        return self.classifier.predict_proba(X)[:, 1]
+        """Return calibrated P(default) in [0, 1]."""
+        raw = self.classifier.predict_proba(X)[:, 1]
+        return apply_probability_calibrator(self.calibrator, raw)
 
 
 class PrefitClassifierAdapter(BaseEstimator):
@@ -108,11 +113,12 @@ def create_pd_intervals(
     y_cal: pd.Series,
     X_test: pd.DataFrame,
     alpha: float = 0.1,
+    calibrator: Any | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Generate global split-conformal PD intervals via MAPIE."""
     from mapie.regression import SplitConformalRegressor
 
-    prob_reg = ProbabilityRegressor(classifier)
+    prob_reg = ProbabilityRegressor(classifier, calibrator=calibrator)
     mapie = SplitConformalRegressor(
         estimator=prob_reg,
         confidence_level=1 - alpha,

@@ -197,7 +197,23 @@ def _build_skops_sidecar(
     }
 
 
-def main(config_path: str = "configs/mrm_policy.yaml") -> None:
+def _resolve_run_tag(run_tag_arg: str | None) -> str:
+    """Resolve run_tag: CLI arg > pipeline_summary > fallback."""
+    if run_tag_arg:
+        return run_tag_arg
+    pipeline_path = Path("data/processed/pipeline_summary.json")
+    if pipeline_path.exists():
+        try:
+            data = json.loads(pipeline_path.read_text(encoding="utf-8"))
+            tag = data.get("run_tag")
+            if tag:
+                return str(tag)
+        except Exception:
+            pass
+    return "untracked"
+
+
+def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = None) -> None:
     """Generate the MRM validation report."""
     with open(config_path) as f:
         cfg = yaml.safe_load(f)
@@ -213,9 +229,15 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
     }
 
     compliance = _overall_compliance(statuses)
+    resolved_run_tag = _resolve_run_tag(run_tag)
+    now_iso = datetime.now(tz=UTC).isoformat()
 
     report = {
-        "generated_at": datetime.now(tz=UTC).isoformat(),
+        "schema_version": "2026-03-14.1",
+        "generated_at_utc": now_iso,
+        "generated_at": now_iso,
+        "run_tag": resolved_run_tag,
+        "overall_pass": compliance["overall_pass"],
         "model": cfg["model"],
         "governance_policy": cfg["governance"],
         "retraining_triggers": cfg["retraining_triggers"],
@@ -233,16 +255,37 @@ def main(config_path: str = "configs/mrm_policy.yaml") -> None:
     with open(output_path, "w", encoding="utf-8") as f:
         json.dump(report, f, indent=2, default=str)
 
+    # Write models/mrm_report_status.json wrapper for Streamlit pages
+    status_path = Path("models/mrm_report_status.json")
+    status_path.parent.mkdir(parents=True, exist_ok=True)
+    status_path.write_text(
+        json.dumps(
+            {
+                "schema_version": "2026-03-14.1",
+                "generated_at_utc": now_iso,
+                "run_tag": resolved_run_tag,
+                "overall_pass": compliance["overall_pass"],
+                "compliance_summary": compliance,
+                "report_path": str(output_path),
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     pass_label = "PASS" if compliance["overall_pass"] else "FAIL"
     logger.info(
         f"MRM report: {pass_label} "
         f"({compliance['n_passing']}/{compliance['n_subsystems']} subsystems). "
         f"Saved: {output_path}"
     )
+    logger.info(f"MRM status wrapper: {status_path}")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Generate MRM validation report")
     parser.add_argument("--config", default="configs/mrm_policy.yaml")
+    parser.add_argument("--run-tag", default=None, help="Run tag to stamp on the report")
     args = parser.parse_args()
-    main(config_path=args.config)
+    main(config_path=args.config, run_tag=args.run_tag)

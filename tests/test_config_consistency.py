@@ -30,15 +30,15 @@ def pd_config() -> dict:
 class TestCalibrationConfig:
     def test_calibration_method_is_valid(self, pd_config: dict) -> None:
         method = pd_config["calibration"]["method"]
-        assert method in {"isotonic", "platt", "venn_abers"}, (
+        assert method in {"isotonic", "platt", "venn_abers", "auto"}, (
             f"Unknown calibration method: {method}"
         )
 
-    def test_calibration_method_matches_thesis(self, pd_config: dict) -> None:
-        """Thesis selected Platt sigmoid (ECE=0.0128). Config must agree."""
+    def test_calibration_method_is_auto(self, pd_config: dict) -> None:
+        """Calibration method is auto-selected at runtime via temporal multi-metric policy."""
         method = pd_config["calibration"]["method"]
-        assert method == "platt", (
-            f"Config says '{method}' but thesis/CLAUDE.md specifies Platt sigmoid"
+        assert method == "auto", (
+            f"Config says '{method}' but should be 'auto' (runtime selects best via temporal policy)"
         )
 
     def test_calibration_candidates_include_supported_methods(self, pd_config: dict) -> None:

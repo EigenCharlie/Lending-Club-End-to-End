@@ -41,8 +41,10 @@ from streamlit_app.utils import (
 
 st.title("🏦 Provisiones IFRS9")
 st.caption(
-    "Estimación de ECL por stage, grade y escenario macroeconómico. "
-    "Incluye sensibilidad PD/LGD y lectura de riesgo regulatorio."
+    "IFRS9 es la norma internacional que obliga a los bancos a reservar dinero hoy "
+    "por las pérdidas que esperan tener mañana. "
+    "Esta página cuantifica cuánto reservar (ECL) por tipo de préstamo y escenario económico, "
+    "y cómo la incertidumbre del modelo afecta esa estimación."
 )
 
 page_contract = get_page_contract("ifrs9_provisions")

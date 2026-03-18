@@ -248,6 +248,23 @@ _nb_builtins.print(f"{{_GUARD_TAG}} active; sandbox={{_GUARD_ROOT}}")
 """.strip()
 
 
+def _is_fully_executed(nb_path: Path) -> bool:
+    """Return True if all code cells in the notebook have a non-None execution_count.
+
+    A cell with execution_count=None means it was added or edited after the last
+    run (nbformat sets it to null on edit). A notebook with every code cell executed
+    has not changed since the last run.
+    """
+    try:
+        nb = nbformat.read(nb_path, as_version=4)
+    except Exception:
+        return False
+    code_cells = [c for c in nb.cells if c.cell_type == "code"]
+    if not code_cells:
+        return True  # no code → nothing to execute
+    return all(c.get("execution_count") is not None for c in code_cells)
+
+
 def _sandbox_root_for_notebook(nb_path: Path, output_dir: Path | None) -> Path:
     rel = nb_path.relative_to(PROJECT_ROOT).with_suffix("")
     base = output_dir if output_dir is not None else NOTEBOOK_SANDBOX_ROOT
@@ -341,9 +358,21 @@ def main() -> None:
         ),
     )
     parser.add_argument("--timeout", type=int, default=1800)
-    parser.add_argument("--inplace", default="false", help="Write outputs back to source notebooks")
+    parser.add_argument("--inplace", default="true", help="Write outputs back to source notebooks")
     parser.add_argument("--output-dir", default="reports/notebook_exec")
     parser.add_argument("--stop-on-error", action="store_true")
+    parser.add_argument(
+        "--skip-if-executed",
+        action="store_true",
+        default=True,
+        help="Skip notebooks where all code cells are already executed (no edits since last run)",
+    )
+    parser.add_argument(
+        "--no-skip-if-executed",
+        dest="skip_if_executed",
+        action="store_false",
+        help="Force re-execution of all notebooks regardless of execution state",
+    )
     args = parser.parse_args()
 
     inplace = _parse_bool(args.inplace)
@@ -363,7 +392,21 @@ def main() -> None:
 
     results: list[NotebookRunResult] = []
     for nb_path in notebooks:
-        print(f"[nb] Executing {nb_path.relative_to(PROJECT_ROOT)}")
+        rel = nb_path.relative_to(PROJECT_ROOT)
+        if args.skip_if_executed and _is_fully_executed(nb_path):
+            print(f"[nb] Skipping {rel} (all cells already executed, no edits detected)")
+            results.append(
+                NotebookRunResult(
+                    notebook=nb_path.name,
+                    source_path=str(rel),
+                    output_path=str(rel),
+                    success=True,
+                    duration_seconds=0.0,
+                    error=None,
+                )
+            )
+            continue
+        print(f"[nb] Executing {rel}")
         res = _execute_notebook(
             nb_path,
             timeout=int(args.timeout),
@@ -376,13 +419,16 @@ def main() -> None:
         if (not res.success) and args.stop_on_error:
             break
 
+    skipped_count = int(sum(1 for r in results if r.success and r.duration_seconds == 0.0))
     manifest = {
         "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "schema_version": "2026-02-26.1",
+        "schema_version": "2026-02-26.2",
         "inplace": bool(inplace),
+        "skip_if_executed": bool(args.skip_if_executed),
         "timeout_seconds": int(args.timeout),
         "notebooks_total": len(notebooks),
-        "executed": len(results),
+        "executed": len(results) - skipped_count,
+        "skipped": skipped_count,
         "success_count": int(sum(1 for r in results if r.success)),
         "failure_count": int(sum(1 for r in results if not r.success)),
         "results": [asdict(r) for r in results],

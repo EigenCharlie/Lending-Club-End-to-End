@@ -65,8 +65,12 @@ Design implication:
 22. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
 23. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
 24. scripts/export_storytelling_snapshot.py -> storytelling JSON
-25. scripts/end_to_end_pipeline.py        -> orchestration
+25. scripts/end_to_end_pipeline.py        -> orchestration (legacy, see run_smoke_pipeline.py)
 26. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
+27. scripts/run_insights_factory.py       -> complementary insight generation (canonical/research profiles)
+28. scripts/run_spo_comparison.py          -> SPO+ decision regret comparison (Paper Estrella)
+29. scripts/run_spo_real.py               -> SPO+ v2: point-wise MLP, calibrated PD, multi-seed (Paper Estrella)
+30. scripts/run_sicr_conformal.py         -> SICR width trigger + ECL alpha sensitivity (Paper 2)
 ```
 
 ---
@@ -148,6 +152,24 @@ Source artifacts:
 - Diff B-A: `0.0422` with CI `[-0.5790, 0.6600]`
 - No-regression gate: PASS
 
+### 4.8 SPO+ v2 (Paper Estrella)
+- Architecture: point-wise permutation-equivariant MLP (n_features=10 input, not flat 500-dim)
+- Costs: calibrated PD via Venn-Abers (continuous [-0.24, +0.17]), not binary default_flag
+- Multi-seed: 5 seeds × 200 test instances = 1,000 paired observations
+- Two-stage mean regret: `0.4259 ± 0.1173`
+- SPO+ mean regret: `0.2168 ± 0.0721` (**49.1% improvement**)
+- Conformal robust mean regret: `0.9474 ± 0.2007` (worst-case ≠ expected-cost opt)
+- Wilcoxon p-value: `0.0000` (H1: two-stage > SPO+)
+- Artifact: `models/spo_real_training_status.json` (SCHEMA_VERSION 2026-03-17.2)
+
+### 4.9 SICR Conformal (Paper 2)
+- Optimal width threshold: `t* = 0.30` (F1=0.2515, precision=15.1%, recall of missed=75.8%)
+- ECL additional at t*: `$56.6M` (incremental Stage 2 provisioning)
+- Alpha sensitivity: ECL goes from `$54.6M` (alpha=0.20) to `$66.4M` (alpha=0.01) — +22% regulatory cost for 99% vs 90% confidence
+- Grid: 5 PD thresholds × 20 width thresholds = 100 rows
+- Alpha sweep: 8 Mondrian alpha levels from pareto
+- Artifacts: `models/sicr_conformal_status.json`, `data/processed/sicr_conformal_grid.parquet`, `data/processed/ecl_alpha_sensitivity.parquet`
+
 ---
 
 ## 5) Delivery Layer Status (Current)
@@ -156,7 +178,14 @@ Source artifacts:
 - Historical note: page counts in this file are snapshots and may drift; use runtime exports and Streamlit utilities for live inventory.
 - Professional light theme with audience toggle (General/Negocio/Técnico).
 - Model laboratory and thesis pages consume runtime artifacts for metrics.
-- Includes A/B testing simulation, fairness audit, CATE portfolio, and 3 paper draft pages.
+- Includes A/B testing simulation, fairness audit, CATE portfolio, 3 paper draft pages, and Paper Estrella page.
+
+### Insights Factory
+- Entrypoint: `scripts/run_insights_factory.py`
+- Two profiles: `canonical` (lightweight) and `research` (GPU + notebooks + SPO+).
+- Consumes canonical artifacts without modifying or promoting.
+- Canonical profile: conformal method registry, set prediction benchmark, rare-event calibration, paper notebooks, image extraction, storytelling snapshot.
+- Research profile adds: all notebooks, PD RAPIDS benchmark, RAPIDS insight factory (cuDF/cuML/cuGraph), SPO+ comparison.
 
 ### FastAPI
 - Endpoints implemented in `api/`:

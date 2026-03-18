@@ -21,6 +21,8 @@ from streamlit_app.utils import (
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
     load_runtime_status,
+    try_load_json,
+    try_load_parquet,
 )
 
 
@@ -847,6 +849,28 @@ st.caption(
     "Cinco capas independientes conectadas por artefactos (parquets, modelos serializados, JSON contracts). "
     "Cada capa se puede reemplazar sin afectar las demás."
 )
+
+_nb_status = try_load_json("notebooks_inventory", directory="models", default={})
+_nb_df = try_load_parquet("notebooks_inventory")
+if _nb_status or not _nb_df.empty:
+    with st.expander("Inventario de notebooks: clasificación por categoría y reutilización", expanded=False):
+        if _nb_status:
+            bc = _nb_status.get("by_category", {})
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Core tesis (01-09)", bc.get("core_thesis", 0))
+            c2.metric("Papers (10-13)", bc.get("paper_research", 0))
+            c3.metric("Side projects", bc.get("side_projects", 0))
+        if not _nb_df.empty:
+            cols_show = [c for c in ["category", "number", "chapter", "reuse_status", "quarto_chapter", "key_artifacts"] if c in _nb_df.columns]
+            st.dataframe(_nb_df[cols_show], hide_index=True, width="stretch")
+            st.caption(
+                "reuse_status: evidence_reusable = código/resultados reutilizables directamente en tesis/papers | "
+                "paper_material = material específico de paper | exploratory_side_project = no parte del core pipeline."
+            )
+        if _nb_status:
+            rules = _nb_status.get("classification_rules", {})
+            for k, v in rules.items():
+                st.caption(f"**{k}**: {v}")
 
 render_page_feedback("tech_stack")
 

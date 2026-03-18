@@ -214,7 +214,12 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         key_decision="Priorizar correctamente el siguiente bloque de trabajo sin reabrir decisiones ya promovidas.",
         required_sections=("status", "promotions", "backlog", "handoff"),
         next_pages=("executive_summary", "model_governance", "research_landscape"),
-        glossary_terms=("baseline oficial", "champion_search", "canonical_rebuild", "insights_factory"),
+        glossary_terms=(
+            "baseline oficial",
+            "champion_search",
+            "canonical_rebuild",
+            "insights_factory",
+        ),
     ),
     "papers_backlog": PageStoryContract(
         page_id="papers_backlog",
@@ -243,6 +248,16 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         goal="Mapear literatura y huecos de investigación relevantes para la tesis.",
         next_pages=("paper_1_cp_robust_opt", "paper_2_ifrs9_e2e", "paper_3_mondrian"),
     ),
+    "paper_estrella_predict_optimize": PageStoryContract(
+        page_id="paper_estrella_predict_optimize",
+        page_type="paper_draft",
+        primary_audience="Técnico",
+        narrative_axis="insight_factory",
+        pipeline_role="paper_draft",
+        artifact_scope="research",
+        book_chapter="11-paper-predict-then-optimize",
+        goal="Paper Estrella: predict-then-optimize con bound alpha-Gamma, SPO+ regret y baselines de uncertainty sets. Absorbe Paper 1.",
+    ),
     "paper_1_cp_robust_opt": PageStoryContract(
         page_id="paper_1_cp_robust_opt",
         page_type="paper_draft",
@@ -251,7 +266,7 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         pipeline_role="paper_draft",
         artifact_scope="research",
         book_chapter="11-paper-cp-robust-opt",
-        goal="Documentar draft del paper CP + robust optimization.",
+        goal="Draft historico del paper CP + robust optimization (absorbido por Paper Estrella).",
     ),
     "paper_2_ifrs9_e2e": PageStoryContract(
         page_id="paper_2_ifrs9_e2e",

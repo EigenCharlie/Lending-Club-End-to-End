@@ -176,8 +176,13 @@ pg = st.navigation(
                 icon=":material/search:",
             ),
             st.Page(
+                "pages/paper_estrella_predict_optimize.py",
+                title="Paper Estrella: Predict-then-Optimize",
+                icon=":material/star:",
+            ),
+            st.Page(
                 "pages/paper_1_cp_robust_opt.py",
-                title="Paper 1: CP + Robust Opt",
+                title="Paper 1: CP + Robust Opt (Draft Hist.)",
                 icon=":material/experiment:",
             ),
             st.Page(
@@ -199,6 +204,7 @@ pg = st.navigation(
     }
 )
 
+
 # ── Sidebar info ──
 def _render_sidebar_health() -> None:
     st.markdown("#### Estado del proyecto")
@@ -219,6 +225,7 @@ with st.sidebar:
     )
     st.caption("Snapshot canónico (DVC) para lectura rápida")
     if hasattr(st, "fragment"):
+
         @st.fragment
         def _sidebar_fragment() -> None:
             _render_sidebar_health()

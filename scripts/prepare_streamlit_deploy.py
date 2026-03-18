@@ -131,8 +131,39 @@ REQUIRED_FILES = [
     "models/conformal_policy_status.json",
     "models/governance_status.json",
     "models/pd_model_contract.json",
+    "models/pd_rare_event_calibration_status.json",
+    "models/pd_set_prediction_status.json",
+    "models/spo_comparison_status.json",
+    "models/cqr_comparison_status.json",
+    "models/cqr_mondrian_status.json",
+    "models/cif_ecl_impact_status.json",
+    "models/competing_risks_status.json",
+    "models/spo_real_training_status.json",
     "models/time_series_status.json",
     "models/conformal_results_mondrian.pkl",
+    "data/processed/alpha_sweep_pareto_mondrian.parquet",
+    "data/processed/alpha_sweep_pareto_both.parquet",
+    "data/processed/cqr_comparison.parquet",
+    "data/processed/cqr_mondrian_comparison.parquet",
+    "data/processed/cqr_mondrian_group_coverage.parquet",
+    "data/processed/conformal_intervals_cqr_mondrian.parquet",
+    "data/processed/uncertainty_baselines_comparison.parquet",
+    "data/processed/competing_risks_cif.parquet",
+    "data/processed/competing_risks_cif_timeseries.parquet",
+    "data/processed/spo_training_loss.parquet",
+    "data/processed/cif_ecl_impact.parquet",
+    "models/sicr_conformal_status.json",
+    "data/processed/sicr_conformal_grid.parquet",
+    "data/processed/ecl_alpha_sensitivity.parquet",
+    "models/bma_comparison_status.json",
+    "data/processed/bma_comparison.parquet",
+    "data/processed/bma_grade_coverage.parquet",
+    "models/ts_ecl_intervals_status.json",
+    "data/processed/ts_ecl_intervals.parquet",
+    "models/stage_misclassification_status.json",
+    "data/processed/stage_misclassification_cost.parquet",
+    "data/processed/stage_cost_by_grade.parquet",
+    "models/threshold_semantics.json",
 ]
 
 OPTIONAL_FILES = [
@@ -149,6 +180,56 @@ OPTIONAL_FILES = [
     "data/processed/shap_summary.parquet",
     "data/processed/shap_local_cases.parquet",
     "data/processed/ts_panel_forecasts.parquet",
+    # uncertainty_quantification.py — advanced conformal diagnostics
+    "data/processed/conformal_mondrian_tuning_90_pareto.parquet",
+    "data/processed/conformal_temporal_diagnostics.parquet",
+    "data/processed/conformal_shrinkback_report.parquet",
+    "data/processed/uncertainty_baselines_by_grade.parquet",
+    "data/processed/pd_set_prediction_by_slice.parquet",
+    "data/processed/pd_set_prediction_sensitivity.parquet",
+    "models/conformal_method_registry.json",
+    "models/conformal_variant_selection_status.json",
+    "models/uncertainty_baselines_status.json",
+    "models/uncertainty_cohort_status.json",
+    # model_governance.py — SHAP fairness, SDA, portfolio research, paper-grade protocol
+    "models/shap_fairness_status.json",
+    "models/sda_policy_status.json",
+    "models/portfolio_research_policy.json",
+    "models/paper_grade_protocol_status.json",
+    # model_laboratory.py — conformal gap analysis, rare event calibration, HPO stability
+    "data/processed/pd_conformal_gap_experiments.parquet",
+    "data/processed/pd_conformal_gap_top_candidates.parquet",
+    "data/processed/pd_conformal_width_attribution.parquet",
+    "data/processed/pd_rare_event_calibration_report.parquet",
+    "models/conformal_gap_summary.json",
+    "models/pd_slice_performance.json",
+    "models/pd_hpo_seed_replay_status.json",
+    # survival_analysis.py — SICR trigger optimization
+    "data/processed/sicr_trigger_optimization.parquet",
+    "models/sicr_ecl_sensitivity_status.json",
+    # tesis_especializacion.py — LGD per-loan diagnostics, alpha sweep
+    "data/processed/lgd_coverage_diagnostics.parquet",
+    "models/alpha_sweep_status.json",
+    # time_series_outlook.py — forecastability, hierarchy, research status
+    "models/time_series_forecastability_status.json",
+    "models/time_series_hierarchy_status.json",
+    "models/time_series_research_status.json",
+    # ab_testing_simulation.py — A/B portfolio attribution + Sharpe-like
+    "models/ab_attribution_status.json",
+    "data/processed/ab_attribution_by_grade.parquet",
+    "data/processed/ab_attribution_by_cohort.parquet",
+    "data/processed/ab_attribution_by_amount.parquet",
+    # model_governance.py — feature-level PSI drift monitoring
+    "data/processed/drift_monitoring.parquet",
+    # causal_intelligence.py — refutation summary + OOT tail risk
+    "models/causal_refutation_summary.json",
+    "data/processed/causal_oot_tail_risk.parquet",
+    # gpu_benchmark.py — consolidated CPU vs GPU table
+    "models/gpu_consolidated_summary.json",
+    "data/processed/gpu_consolidated_table.parquet",
+    # tech_stack.py — notebooks classification inventory
+    "models/notebooks_inventory.json",
+    "data/processed/notebooks_inventory.parquet",
 ]
 
 

@@ -1,0 +1,32 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-18T01:44:20.745591+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "sharpe_metrics": {
+    "n_bootstrap": 15000,
+    "bootstrap_exceeds_10k": true,
+    "sharpe_like_diff": -0.1276,
+    "roic_a": 0.2095,
+    "roic_b": 0.2041,
+    "calmar_like_a": 0.5179,
+    "calmar_like_b": 0.5046,
+    "std_diff_approx": 0.1925,
+    "ci_95": [
+      -0.4045,
+      0.35
+    ],
+    "p_value": 0.44753333333333334,
+    "note": "n_bootstrap=15,000 (\u226510K \u2713). Sharpe-like = E[diff] / std(diff) from 95% CI of bootstrap distribution. ROIC = total_return / total_allocated. Calmar-like = ROIC / |downside_CI|."
+  },
+  "breakdown_dimensions": [
+    "grade",
+    "cohort",
+    "amount"
+  ],
+  "artifact_paths": {
+    "grade": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/ab_attribution_by_grade.parquet",
+    "cohort": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/ab_attribution_by_cohort.parquet",
+    "amount": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/ab_attribution_by_amount.parquet"
+  },
+  "note": "Attribution uses canonical portfolio_allocations + conformal_intervals_mondrian (OOT test set)."
+}

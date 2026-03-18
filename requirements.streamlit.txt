@@ -4,6 +4,7 @@ numpy==2.3.5
 pyarrow==22.0.0
 duckdb==1.4.4
 plotly==6.5.2
+scikit-learn==1.6.1
 httpx==0.28.1
 streamlit-flow-component==1.6.1
 streamlit-mermaid==0.3.0

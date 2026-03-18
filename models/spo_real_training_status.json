@@ -1,0 +1,89 @@
+{
+  "schema_version": "2026-03-17.2",
+  "generated_at_utc": "2026-03-17T21:26:39.535885+00:00",
+  "run_tag": "untracked",
+  "n_items": 100,
+  "budget": 30,
+  "n_train_instances": 800,
+  "n_test_instances": 200,
+  "epochs": 50,
+  "n_seeds": 5,
+  "n_features": 10,
+  "n_input": 1000,
+  "feature_names": [
+    "loan_amnt",
+    "int_rate",
+    "annual_inc",
+    "dti",
+    "open_acc",
+    "revol_bal",
+    "total_acc",
+    "installment",
+    "pub_rec",
+    "inq_last_6mths"
+  ],
+  "use_calibrated_pd": true,
+  "results": {
+    "two_stage": {
+      "mean_regret": 0.42589625543096554,
+      "std_regret": 0.11730970254404055,
+      "median_regret": 0.4202735126018524,
+      "per_seed_means": [
+        0.42230466941739,
+        0.4333206938111107,
+        0.42092101838105916,
+        0.4321245922071921,
+        0.42081030333807573
+      ]
+    },
+    "spo_plus": {
+      "mean_regret": 0.21683697549265343,
+      "std_regret": 0.07209975985046715,
+      "median_regret": 0.2091974391369149,
+      "per_seed_means": [
+        0.21375546352006494,
+        0.22162729088333435,
+        0.21555744345736458,
+        0.2248545097958413,
+        0.20839016980666203
+      ]
+    },
+    "conformal_robust": {
+      "mean_regret": 0.947429495839504,
+      "std_regret": 0.20072584379003774,
+      "median_regret": 0.9429778149351478,
+      "per_seed_means": [
+        0.9489048032654682,
+        0.949352919847297,
+        0.934174150505969,
+        0.9438320429868327,
+        0.9608835625919528
+      ]
+    },
+    "spo_improvement_vs_ts_pct": 49.08690245137174,
+    "wilcoxon_spo_vs_ts": {
+      "statistic": 499793.0,
+      "pvalue": 1.3850868417957067e-164,
+      "alternative": "two_stage > spo_plus",
+      "significant_at_0.05": true
+    },
+    "n_paired_observations": 1000
+  },
+  "config": {
+    "n_items": 100,
+    "budget": 30,
+    "selection_rate": 0.3,
+    "lgd": 0.4,
+    "lr": 0.001,
+    "batch_size": 32
+  },
+  "fixes_applied": {
+    "fix1_pointwise_mlp": true,
+    "fix2_calibrated_pd_costs": true,
+    "fix3_multi_seed_wilcoxon": true,
+    "fix4_conformal_robust": true,
+    "fix5_larger_n_items": true
+  },
+  "train_time_seconds": 195.93516969680786,
+  "note": "SPO+ v2: point-wise MLP + calibrated PD costs + multi-seed Wilcoxon test + conformal robust as 3rd comparison method. Two-stage uses Ridge regression to predict calibrated cost. SPO+ trains end-to-end to minimize decision regret directly."
+}

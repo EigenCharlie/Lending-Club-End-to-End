@@ -3,6 +3,8 @@
 
 # Backlog 13-03
 
+> **DEPRECATED** — Este backlog fue reemplazado por [`docs/backlog-papers-unified.md`](backlog-papers-unified.md) (2026-03-13). Este archivo se mantiene como referencia histórica.
+
 Fecha: 2026-03-13
 
 Estado base:

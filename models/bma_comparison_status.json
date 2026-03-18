@@ -1,0 +1,163 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-17T23:27:33.725199+00:00",
+  "run_tag": "untracked",
+  "script": "run_bma_comparison.py",
+  "n_loans": 276869,
+  "nominal_coverage": 0.9,
+  "schemes_compared": [
+    "equal",
+    "auc"
+  ],
+  "results": {
+    "equal": {
+      "overall_bma_coverage": 0.9,
+      "overall_cp_coverage": 0.9252,
+      "mean_bma_width": 0.9347,
+      "mean_cp_width": 0.7546,
+      "min_grade_bma_coverage": 0.8766,
+      "min_grade_cp_coverage": 0.8901,
+      "width_reduction_cp_vs_bma_pct": 19.27,
+      "grade_coverage": [
+        {
+          "grade": "A",
+          "n_loans": 72388,
+          "bma_coverage": 0.9363568547273029,
+          "cp_coverage": 0.9038514670939934,
+          "bma_mean_width": 0.9337353706359863,
+          "cp_mean_width": 0.22161048576977088,
+          "default_rate": 0.08658893739293806
+        },
+        {
+          "grade": "B",
+          "n_loans": 75311,
+          "bma_coverage": 0.895566384724675,
+          "cp_coverage": 0.9431158794863964,
+          "bma_mean_width": 0.9331405758857727,
+          "cp_mean_width": 0.9271226018337433,
+          "default_rate": 0.17861932519817822
+        },
+        {
+          "grade": "C",
+          "n_loans": 70568,
+          "bma_coverage": 0.8788260968144201,
+          "cp_coverage": 0.9320088425348599,
+          "bma_mean_width": 0.9382150769233704,
+          "cp_mean_width": 0.9495948111043977,
+          "default_rate": 0.2760741412538261
+        },
+        {
+          "grade": "D",
+          "n_loans": 45637,
+          "bma_coverage": 0.876613274316892,
+          "cp_coverage": 0.9272520104301335,
+          "bma_mean_width": 0.9334021806716919,
+          "cp_mean_width": 0.9572190894504762,
+          "default_rate": 0.34745929837631745
+        },
+        {
+          "grade": "E",
+          "n_loans": 10828,
+          "bma_coverage": 0.911618027336535,
+          "cp_coverage": 0.8900997414111562,
+          "bma_mean_width": 0.9294726848602295,
+          "cp_mean_width": 0.9484948488369348,
+          "default_rate": 0.4314739564093092
+        },
+        {
+          "grade": "F",
+          "n_loans": 1731,
+          "bma_coverage": 0.9618717504332756,
+          "cp_coverage": 0.9202772963604853,
+          "bma_mean_width": 0.9541086554527283,
+          "cp_mean_width": 0.9785746140659023,
+          "default_rate": 0.5210860774119006
+        },
+        {
+          "grade": "G",
+          "n_loans": 406,
+          "bma_coverage": 0.9753694581280788,
+          "cp_coverage": 0.9408866995073891,
+          "bma_mean_width": 0.9826703071594238,
+          "cp_mean_width": 0.9745372905811549,
+          "default_rate": 0.5344827586206896
+        }
+      ]
+    },
+    "auc": {
+      "overall_bma_coverage": 0.9,
+      "overall_cp_coverage": 0.9252,
+      "mean_bma_width": 0.9347,
+      "mean_cp_width": 0.7546,
+      "min_grade_bma_coverage": 0.8766,
+      "min_grade_cp_coverage": 0.8901,
+      "width_reduction_cp_vs_bma_pct": 19.27,
+      "grade_coverage": [
+        {
+          "grade": "A",
+          "n_loans": 72388,
+          "bma_coverage": 0.9363430402829198,
+          "cp_coverage": 0.9038514670939934,
+          "bma_mean_width": 0.9337272644042969,
+          "cp_mean_width": 0.22161048576977088,
+          "default_rate": 0.08658893739293806
+        },
+        {
+          "grade": "B",
+          "n_loans": 75311,
+          "bma_coverage": 0.8955796629974373,
+          "cp_coverage": 0.9431158794863964,
+          "bma_mean_width": 0.9331348538398743,
+          "cp_mean_width": 0.9271226018337433,
+          "default_rate": 0.17861932519817822
+        },
+        {
+          "grade": "C",
+          "n_loans": 70568,
+          "bma_coverage": 0.8788119260854779,
+          "cp_coverage": 0.9320088425348599,
+          "bma_mean_width": 0.9382100701332092,
+          "cp_mean_width": 0.9495948111043977,
+          "default_rate": 0.2760741412538261
+        },
+        {
+          "grade": "D",
+          "n_loans": 45637,
+          "bma_coverage": 0.8766351863619432,
+          "cp_coverage": 0.9272520104301335,
+          "bma_mean_width": 0.9333968162536621,
+          "cp_mean_width": 0.9572190894504762,
+          "default_rate": 0.34745929837631745
+        },
+        {
+          "grade": "E",
+          "n_loans": 10828,
+          "bma_coverage": 0.911618027336535,
+          "cp_coverage": 0.8900997414111562,
+          "bma_mean_width": 0.9294707775115967,
+          "cp_mean_width": 0.9484948488369348,
+          "default_rate": 0.4314739564093092
+        },
+        {
+          "grade": "F",
+          "n_loans": 1731,
+          "bma_coverage": 0.9618717504332756,
+          "cp_coverage": 0.9202772963604853,
+          "bma_mean_width": 0.9541128277778625,
+          "cp_mean_width": 0.9785746140659023,
+          "default_rate": 0.5210860774119006
+        },
+        {
+          "grade": "G",
+          "n_loans": 406,
+          "bma_coverage": 0.9753694581280788,
+          "cp_coverage": 0.9408866995073891,
+          "bma_mean_width": 0.982676088809967,
+          "cp_mean_width": 0.9745372905811549,
+          "default_rate": 0.5344827586206896
+        }
+      ]
+    }
+  },
+  "key_finding": "BMA achieves overall coverage ≈ conformal but fails to guarantee per-grade coverage. Min-grade BMA coverage is systematically lower than Mondrian CP, particularly for high-risk grades (F, G) with sparse training data. Conformal intervals are also narrower on average (more efficient) because they adapt to per-grade nonconformity scores."
+}

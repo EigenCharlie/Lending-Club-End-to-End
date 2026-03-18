@@ -32,7 +32,9 @@ st.caption(
 page_contract = get_page_contract("research_landscape")
 render_page_header(page_contract)
 render_key_takeaway(
-    "Esta página debe leerse como registro maestro de posicionamiento académico: concentra el mapa temático y reduce duplicación entre los drafts de paper."
+    "Este proyecto llena un gap real: combina conformal prediction con optimización robusta de portafolio "
+    "crediticio, un enfoque que la literatura actual trata por separado. Esta página muestra dónde encajamos "
+    "en el mapa de investigación y qué aportamos de nuevo."
 )
 _causal_status = try_load_json("causal_effect_status", directory="models", default={})
 _causal_ate = _causal_status.get("ate")
@@ -55,14 +57,14 @@ st.info(
     "online/adaptive CP) se concentra aquí."
 )
 methodology_dialog(
-    "Cómo usar esta página (modo experto)",
+    "Cómo leer esta página (referencia interna de papers)",
     """
-Uso recomendado para lector técnico:
+Uso recomendado:
 - Usa la matriz temática como índice de gaps y claims antes de entrar a cada sección.
 - Revisa las propuestas de publicación solo después de confirmar el posicionamiento frente a literatura.
-- Toma esta página como registro maestro para evitar duplicar referencias y claims en cada draft.
+- Esta página es el registro maestro para evitar duplicar referencias y claims en cada draft.
 """,
-    button_label="Ver guía de lectura (experto)",
+    button_label="Ver guía de lectura",
 )
 
 st.subheader("0) Matriz temática y de posicionamiento (registro maestro)")

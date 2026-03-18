@@ -1,0 +1,30 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-17T23:27:38.562286+00:00",
+  "run_tag": "untracked",
+  "script": "run_stage_misclassification_cost.py",
+  "lgd": 0.4,
+  "w_fn": 5.0,
+  "w_fp": 1.0,
+  "n_loans": 276869,
+  "default_rate": 0.2198,
+  "part_a_pure_pd": {
+    "best_pd_threshold": 0.15,
+    "total_cost_M": 97.33,
+    "fn_cost_M": 6.27,
+    "fp_cost_M": 65.96,
+    "fn_rate": 0.1422,
+    "fp_rate": 0.5914
+  },
+  "part_b_combined": {
+    "best_pd_threshold": 0.15,
+    "best_width_threshold": 0.95,
+    "total_cost_M": 97.28,
+    "fn_cost_M": 6.24,
+    "fp_cost_M": 66.07,
+    "fn_rate": 0.1416,
+    "fp_rate": 0.5922,
+    "cost_reduction_vs_pure_pd_pct": 0.05
+  },
+  "key_finding": "Adding the conformal width trigger reduces total IFRS9 misclassification cost by 0.0% vs pure PD threshold. The asymmetric cost function (w_fn=5.0, w_fp=1.0) reflects that under-provisioning (FN) is regulatorily costlier than over-provisioning (FP). The combined trigger reduces FN errors by capturing high-uncertainty loans that the PD threshold alone misses."
+}

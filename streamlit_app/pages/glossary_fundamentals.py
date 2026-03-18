@@ -14,7 +14,14 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.concept_map import get_page_concepts
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import format_number, format_pct, load_json, try_load_json, try_load_parquet, page_error_boundary
+from streamlit_app.utils import (
+    format_number,
+    format_pct,
+    load_json,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
+)
 
 st.title("📖 Glosario y Fundamentos")
 st.caption(

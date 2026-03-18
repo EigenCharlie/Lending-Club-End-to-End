@@ -40,9 +40,9 @@ from streamlit_app.components.story_shell import (
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
+    get_notebook_image_path,
     get_operational_threshold,
     get_pd_internal_threshold,
-    get_notebook_image_path,
     load_pd_calibration_diagnostics,
     try_load_json,
     try_load_parquet,
@@ -1104,6 +1104,116 @@ if _show_sections("upgrades"):
                 "Nota de arquitectura: `econml` se movió fuera del entorno principal para evitar bloquear "
                 "upgrades de `scikit-learn` y `shap`. Los workflows causales siguen disponibles en un env separado."
             )
+
+# ── Rare Event Calibration Diagnostics ──────────────────────────────────
+rare_event_status = try_load_json("pd_rare_event_calibration_status", directory="models", default={})
+with st.expander("Rare Event Calibration Diagnostics", expanded=False):
+    if rare_event_status:
+        re_cols = st.columns(3)
+        _re_summ = rare_event_status.get("summary", rare_event_status.get("global", {}))
+        _re_method = rare_event_status.get("method") or rare_event_status.get("config", {}).get("calibration_method") or "auto"
+        _re_brier = _re_summ.get("brier") or rare_event_status.get("brier_score")
+        _re_ece = _re_summ.get("ece") or rare_event_status.get("ece")
+        re_cols[0].metric("Método", _re_method)
+        re_cols[1].metric("Brier Score", f"{_re_brier:.4f}" if isinstance(_re_brier, float) else "N/D")
+        re_cols[2].metric("ECE", f"{_re_ece:.4f}" if isinstance(_re_ece, float) else "N/D")
+        if "class_balance" in rare_event_status:
+            st.markdown(f"**Balance de clase (default rate):** {rare_event_status['class_balance']}")
+        if "notes" in rare_event_status:
+            st.caption(rare_event_status["notes"])
+        st.caption(
+            "Lectura: estas métricas reflejan la calidad de calibración bajo desbalance de clase severo. "
+            "Un Brier Score bajo y ECE cercano a cero indican calibración confiable para eventos raros."
+        )
+    else:
+        st.info(
+            "No se encontró `models/pd_rare_event_calibration_status.json`. "
+            "Ejecute el pipeline de calibración de eventos raros para generar este artefacto."
+        )
+
+# ── PD Conformal Gap Analysis ────────────────────────────────────────────
+with st.expander("Análisis de gap conformal y atribución de ancho de intervalo", expanded=False):
+    _gap_summary = try_load_json("conformal_gap_summary", directory="models", default={})
+    _gap_exp = try_load_parquet("pd_conformal_gap_experiments")
+    _gap_top = try_load_parquet("pd_conformal_gap_top_candidates")
+    _width_attr = try_load_parquet("pd_conformal_width_attribution")
+
+    if _gap_summary:
+        st.markdown(
+            f"**Propósito:** {_gap_summary.get('purpose', 'Exploración del espacio de configuración conformal.')}  \n"
+            f"**Decisión:** {_gap_summary.get('decision', 'N/D')}  \n"
+            f"**Justificación:** {_gap_summary.get('decision_rationale', 'N/D')}"
+        )
+        _nc = _gap_summary.get("n_candidates", 0)
+        st.caption(f"Candidatos evaluados: {_nc}")
+
+    if not _gap_top.empty:
+        st.markdown("**Top candidatos seleccionados (Pareto-óptimos)**")
+        _top_cols = [c for c in ["selection_rank", "partition", "scaled_scores", "coverage_90",
+                                  "min_group_coverage_90", "avg_width_90", "strict_overall_pass",
+                                  "checks_passed"] if c in _gap_top.columns]
+        st.dataframe(_gap_top[_top_cols], width="stretch", hide_index=True)
+
+    if not _width_attr.empty:
+        st.markdown("**Atribución de ancho por etapa de experimento**")
+        _attr_cols = [c for c in ["dataset_scope", "stage", "coverage_90", "min_group_coverage_90",
+                                   "avg_width_90", "winkler_90"] if c in _width_attr.columns]
+        st.dataframe(_width_attr[_attr_cols], width="stretch", hide_index=True)
+        st.caption("Cómo el ancho del intervalo varía según el dataset de referencia y la etapa del experimento.")
+
+    if _gap_exp.empty and not _gap_summary:
+        st.info("Ejecuta `scripts/run_conformal_gap_analysis.py` para generar estos diagnósticos.")
+
+# ── Rare Event Calibration Report (Parquet detail) ────────────────────────
+with st.expander("Reporte detallado: calibración para eventos raros", expanded=False):
+    _rare_report = try_load_parquet("pd_rare_event_calibration_report")
+    if not _rare_report.empty:
+        st.markdown(
+            "Diagnóstico de calibración por decil de score y por tipo de slice. "
+            "Las barras de ECE revelan zonas donde el modelo sobreestima o subestima la PD real."
+        )
+        _decile_view = _rare_report[_rare_report["report_type"] == "decile"] if "report_type" in _rare_report.columns else _rare_report
+        if not _decile_view.empty:
+            _decile_cols = [c for c in ["score_decile", "n", "prevalence", "mean_score", "brier", "ece_component"] if c in _decile_view.columns]
+            st.dataframe(_decile_view[_decile_cols], width="stretch", hide_index=True)
+            st.caption("Prevalencia = default rate real en cada decil. mean_score = PD predicha promedio. ece_component = contribución al ECE global.")
+    else:
+        st.info("Ejecuta `scripts/analyze_pd_rare_event_calibration.py` para generar el reporte detallado.")
+
+# ── PD Slice Performance + HPO Seed Replay ────────────────────────────────
+with st.expander("Performance por slice temporal/grade y estabilidad HPO", expanded=False):
+    _slice_perf = try_load_json("pd_slice_performance", directory="models", default={})
+    _hpo_replay = try_load_json("pd_hpo_seed_replay_status", directory="models", default={})
+
+    if _slice_perf:
+        st.markdown("**Performance por slice** (AUC, Brier, ECE por combinación temporal/grade)")
+        _slices = _slice_perf.get("slice_performance", [])
+        if _slices:
+            _slice_df = pd.DataFrame(_slices)
+            st.dataframe(_slice_df, width="stretch", hide_index=True)
+        _if_diag = _slice_perf.get("isolation_forest", {})
+        if _if_diag:
+            st.markdown(f"**Isolation Forest (anomalías):** {_if_diag.get('n_anomalies', 0)} slices anómalos detectados de {_if_diag.get('n_total', 0)} total.")
+
+    if _hpo_replay:
+        st.markdown("**Estabilidad HPO (replay de seeds)**")
+        replay = _hpo_replay.get("replay", {})
+        hc1, hc2, hc3, hc4 = st.columns(4)
+        hc1.metric("Calibración seleccionada", str(_hpo_replay.get("selected_calibration_method", "N/D")))
+        hc2.metric("AUC validación", f"{_hpo_replay.get('validation_auc', 0):.4f}" if _hpo_replay.get("validation_auc") else "N/D")
+        hc3.metric("AUC OOT", f"{_hpo_replay.get('oot_auc', 0):.4f}" if _hpo_replay.get("oot_auc") else "N/D")
+        hc4.metric("Brier", f"{_hpo_replay.get('brier', 0):.4f}" if _hpo_replay.get("brier") else "N/D")
+        if replay:
+            _n_seeds = replay.get("n_seeds", "N/D")
+            _auc_std = replay.get("auc_std", None)
+            st.caption(
+                f"Seeds evaluados: {_n_seeds}. "
+                + (f"Std AUC entre seeds: {_auc_std:.5f} — " if _auc_std else "")
+                + "Baja varianza entre seeds confirma estabilidad del proceso de entrenamiento."
+            )
+
+    if not _slice_perf and not _hpo_replay:
+        st.info("Ejecuta los scripts de diagnóstico de PD para generar estos artefactos.")
 
 st.markdown(
     """

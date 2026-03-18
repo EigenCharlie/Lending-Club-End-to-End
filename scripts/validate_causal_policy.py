@@ -21,6 +21,8 @@ from loguru import logger
 
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
+_CLI_RUN_TAG: str | None = None
+
 CAUSAL_POLICY_SCHEMA_VERSION = "2026-03-07.1"
 
 
@@ -91,7 +93,7 @@ def main(
         if effect_status_path.exists()
         else {}
     )
-    run_tag = resolve_run_tag(effect_status.get("run_tag"), require_explicit=True)
+    run_tag = resolve_run_tag(_CLI_RUN_TAG or effect_status.get("run_tag"), require_explicit=True)
 
     q85 = float(df["cate"].quantile(0.85))
     q90 = float(df["cate"].quantile(0.90))
@@ -204,7 +206,10 @@ if __name__ == "__main__":
     parser.add_argument("--min_grade_total_net", type=float, default=0.0)
     parser.add_argument("--bootstrap_samples", type=int, default=200)
     parser.add_argument("--random_state", type=int, default=42)
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        _CLI_RUN_TAG = args.run_tag
     main(
         max_action_rate=args.max_action_rate,
         min_bootstrap_p05_net=args.min_bootstrap_p05_net,
