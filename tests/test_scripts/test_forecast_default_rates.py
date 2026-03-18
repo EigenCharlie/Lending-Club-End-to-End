@@ -315,8 +315,9 @@ def test_main_with_v2_config_writes_namespaced_outputs(tmp_path, monkeypatch) ->
     )
     monkeypatch.setattr(forecast_mod, "infer_run_tag", lambda: "test-run")
 
+    _project_root = Path(__file__).resolve().parent.parent.parent
     forecast_mod.main(
-        config_path="/home/eigenlinux/projects/lending-club-risk-project/configs/time_series_v2.yaml",
+        config_path=str(_project_root / "configs" / "time_series_v2.yaml"),
         horizon=12,
     )
 
