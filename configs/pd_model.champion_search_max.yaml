@@ -1,0 +1,161 @@
+# Champion-search PD configuration: searches around the current champion regime,
+# but reopens HPO, walk-forward validation and seed replay to squeeze the last
+# improvements without changing the business protocol.
+model:
+  type: catboost
+  params:
+    iterations: 3000
+    learning_rate: 0.02762511818970642
+    depth: 6
+    l2_leaf_reg: 14.910998969314008
+    min_data_in_leaf: 195
+    rsm: 0.7972651915505469
+    random_strength: 3.276099048942537e-05
+    border_count: 148
+    bootstrap_type: Bernoulli
+    subsample: 0.8270994520471426
+    loss_function: Logloss
+    auto_class_weights: Balanced
+    eval_metric: AUC
+    has_time: true
+    allow_writing_files: false
+    random_seed: 42
+    early_stopping_rounds: 150
+
+feature_source:
+  mode: feature_config
+  feature_config_path: data/processed/feature_config.pkl
+
+hpo:
+  enabled: true
+  n_trials: 240
+  sampler: tpe
+  pruner: median
+  timeout_minutes: 0
+  n_startup_trials: 64
+  multivariate_tpe: true
+  group_tpe: true
+  constant_liar: false
+  n_jobs: 1
+  warn_independent_sampling: false
+  pruner_n_startup_trials: 32
+  pruner_n_warmup_steps: 120
+  use_pruning_callback: true
+  study_storage: sqlite:///models/optuna_pd_catboost.db
+  study_name: pd_catboost_optuna_temporal
+  load_if_exists: true
+  refit_full_train: true
+  gc_after_trial: true
+  storage_heartbeat_interval: 60
+  storage_grace_period: 180
+  sqlite_timeout_seconds: 120
+  retry_failed_trials: 2
+
+validation:
+  scheme: temporal_train_val_cal_test
+  val_from_tail_fraction_of_train: 0.15
+  oot_test_cutoff: "2018-01-01"
+  walk_forward:
+    enabled: true
+    n_windows: 4
+    min_train_rows: 200000
+    window_rows: 100000
+    date_col: issue_d
+    max_rows: 0
+  seed_replay:
+    enabled: true
+    top_k_trials: 5
+    seeds: [42, 52, 62, 72]
+    prioritize_gate_pass: true
+
+data:
+  train_path: data/processed/train_fe.parquet
+  test_path: data/processed/test_fe.parquet
+  calibration_path: data/processed/calibration_fe.parquet
+  cutoff_date: "2018-01-01"
+
+training_regime:
+  mode: recent_8q
+  recent_window_quarters: 8
+  half_life_quarters: 8
+
+stable_core:
+  enabled: true
+  exclude_features: [rev_utilization, high_util_pct]
+
+features:
+  numeric:
+    - loan_amnt
+    - annual_inc
+    - loan_to_income
+    - dti
+    - rev_utilization
+    - num_delinq_2yrs
+    - days_since_last_delinq
+    - int_rate
+    - installment
+  woe:
+    - grade_woe
+    - purpose_woe
+    - home_ownership_woe
+  categorical:
+    - int_rate_bucket
+    - term
+  target: default_flag
+
+conformal:
+  confidence_level: 0.9
+  prefit: true
+  estimator: SplitConformalRegressor
+
+calibration:
+  method: auto  # auto = temporal multi-metric policy selects best (Platt/Isotonic/Venn-Abers)
+  candidates: [platt, isotonic, venn_abers]
+  default_threshold: 0.50
+
+decision_threshold:
+  enabled: true
+  fairness_policy_path: configs/fairness_policy.yaml
+  min_threshold: 0.05
+  max_threshold: 0.95
+  step: 0.01
+  output_path: models/decision_threshold.json
+  output_path_v2: models/decision_threshold_v2.json
+
+challenger_pipeline:
+  enabled: false
+  random_state: 42
+  sample_rows: 150000
+  top_k: 30
+  permutation_max_rows: 80000
+  boruta_n_estimators: 120
+  no_smote: true
+  feature_selection_output: data/processed/challenger_feature_selection.parquet
+  spec_output: models/pd_challenger_spec.json
+  spec_output_v2: models/pd_challenger_spec_v2.json
+  promotion_report_output: models/challenger_promotion_report.json
+  validation_fraction: 0.15
+  benchmark_max_depth: 6
+  benchmark_max_iter: 220
+  benchmark_learning_rate: 0.05
+  max_auc_drop: 0.01
+  max_brier_increase_pct: 0.05
+  min_interpretability_gains: 2
+  monotonic_constraints:
+    annual_inc: -1
+    loan_to_income: 1
+    dti: 1
+    rev_utilization: 1
+    num_delinq_2yrs: 1
+    days_since_last_delinq: -1
+    int_rate: 1
+    installment: 1
+    grade_woe: 1
+
+mlflow:
+  experiment_name: pd_model
+  tracking_uri: null
+
+output:
+  model_path: models/pd_canonical.cbm
+  conformal_path: models/pd_canonical_calibrator.pkl

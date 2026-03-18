@@ -322,6 +322,12 @@ PAGE_CONCEPT_MAP: dict[str, tuple[str, ...]] = {
         "concept_drift",
         "optimizer_curse",
     ),
+    "paper_estrella_predict_optimize": (
+        "extrapolation",
+        "convex_hull",
+        "optimizer_curse",
+        "nested_cv",
+    ),
     "paper_1_cp_robust_opt": (
         "extrapolation",
         "convex_hull",
@@ -398,6 +404,16 @@ PAGE_CONCEPT_MAP: dict[str, tuple[str, ...]] = {
         "prediction_interval",
         "aleatoric",
         "epistemic",
+    ),
+    "roadmap_backlog": (
+        "decision_threshold",
+        "concept_drift",
+        "optimizer_curse",
+    ),
+    "papers_backlog": (
+        "no_free_lunch",
+        "proper_scoring_rules",
+        "prediction_interval",
     ),
 }
 

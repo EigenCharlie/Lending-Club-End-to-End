@@ -1,0 +1,156 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-16T00:30:00+00:00",
+  "experiment_name": "conformal_gap_stage_c",
+  "purpose": "Stage C gap-correction experiments: test whether post-hoc group-coverage gap correction can push min_group_coverage_90 above 0.88 threshold while keeping winkler <= 1.22.",
+  "n_candidates": 12,
+  "decision": "REJECTED — score_decile_mondrian retained as champion",
+  "decision_rationale": "All 12 Stage C candidates fail min_group_coverage_90 gate (0.8624 < 0.88 target). The existing champion score_decile_mondrian achieves min_group_coverage_90=0.8873, which passes. Gap correction did not improve group coverage sufficiently.",
+  "champion_comparison": {
+    "champion_variant": "score_decile_mondrian",
+    "champion_min_group_coverage_90": 0.8873,
+    "champion_coverage_90": 0.9283,
+    "champion_winkler_90": 1.2032,
+    "champion_methodological_justification_pass": true,
+    "best_stage_c_min_group_coverage_90": 0.8624,
+    "best_stage_c_coverage_90": 0.9038,
+    "best_stage_c_winkler_90": 1.1908,
+    "best_stage_c_namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts250"
+  },
+  "candidates_ranked": [
+    {
+      "rank": 1,
+      "namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 2,
+      "namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 3,
+      "namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 4,
+      "namespace": "gap_stage_c_1_grade_scaled0_mgs200_alpha009_floor092_t0_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 5,
+      "namespace": "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 6,
+      "namespace": "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 7,
+      "namespace": "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 8,
+      "namespace": "gap_stage_c_2_grade_scaled0_mgs200_alpha009_floor092_t0_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 9,
+      "namespace": "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t1_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 10,
+      "namespace": "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t0_ts250",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 11,
+      "namespace": "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t1_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    },
+    {
+      "rank": 12,
+      "namespace": "gap_stage_c_3_grade_scaled0_mgs200_alpha009_floor092_t0_ts500",
+      "coverage_90": 0.9038,
+      "min_group_coverage_90": 0.8624,
+      "avg_width_90": 0.7795,
+      "winkler_90": 1.1908,
+      "strict_overall_pass": false,
+      "methodological_justification_pass": false,
+      "failing_non_statistical_checks": ["min_group_coverage_90"]
+    }
+  ],
+  "archived_at_utc": "2026-03-16T00:30:00+00:00",
+  "archived_by": "P2.3 audit — declarative-chasing-kahan plan"
+}

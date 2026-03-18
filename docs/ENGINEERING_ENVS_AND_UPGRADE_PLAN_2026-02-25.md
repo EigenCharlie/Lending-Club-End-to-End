@@ -21,10 +21,10 @@
 - Kept outside the main `pyproject.toml` because `feast` pins `uvicorn<=0.34.0`, which blocks API upgrades in the main lock.
 - Install from `requirements/feast-platform.txt`.
 
-### Causal EconML environment (`.venv-causal`, managed with `uv`)
-- Scope: EconML-backed causal estimators (`CausalForestDML`) used by `src/models/causal.py`.
-- Kept outside the main `pyproject.toml` because `econml==0.16.0` pins `scikit-learn<1.7` and `shap<0.49`.
-- Install from `requirements/causal-econml.txt`.
+### Causal overlay environment (`.venv-causal`, managed with `uv`)
+- Scope: EconML-backed causal estimators (`CausalForestDML`) used by `src/models/causal.py` plus `CausalPy` for quasi-experimental research.
+- Kept outside the main `pyproject.toml` because `econml==0.16.0` pins `scikit-learn<1.7` and `shap<0.49`, and `CausalPy` adds `pymc`-family dependencies not needed by the canonical pipeline.
+- Install from `requirements/causal-econml.txt` and `requirements/causal-causalpy.txt`.
 - This is a task-specific overlay env (not a general replacement for `lending-club-venv`).
 
 ### Recommended command pattern for GPU side-projects

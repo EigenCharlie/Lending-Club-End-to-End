@@ -5,6 +5,8 @@ Uses OptBinning for mathematically optimal WOE binning.
 
 from __future__ import annotations
 
+import pickle
+from pathlib import Path
 from typing import Any
 
 import numpy as np
@@ -65,6 +67,10 @@ def create_interactions(df: pd.DataFrame) -> pd.DataFrame:
             )
     if "loan_to_income" in df.columns:
         df["loan_to_income_sq"] = df["loan_to_income"] ** 2
+    if "annual_inc" in df.columns and "dti" in df.columns:
+        df["annual_inc_x_dti"] = df["annual_inc"] * df["dti"]
+    if "fico_score" in df.columns and "dti" in df.columns:
+        df["fico_x_dti"] = df["fico_score"] * df["dti"]
     logger.info("Created interaction features")
     return df
 
@@ -73,22 +79,46 @@ def compute_woe(
     df: pd.DataFrame,
     feature: str,
     target: str = "default_flag",
+    use_cache: bool = True,
+    cache_dir: Path = Path("models"),
     **optbinning_kwargs: Any,
 ) -> tuple[pd.Series, Any]:
     """Compute WOE encoding using OptBinning.
 
+    Args:
+        df: Input dataframe with feature and target columns.
+        feature: Column name to encode.
+        target: Binary target column name.
+        use_cache: If True, load fitted OptBinning from cache when available.
+        cache_dir: Directory for cached OptBinning objects.
+        **optbinning_kwargs: Additional kwargs passed to OptimalBinning.
+
     Returns:
-        Tuple of (woe_encoded_series, fitted_optbinning_object)
+        Tuple of (woe_encoded_series, fitted_optbinning_object).
     """
     from optbinning import OptimalBinning
 
-    optb = OptimalBinning(
-        name=feature,
-        dtype="numerical" if df[feature].dtype in ["float64", "int64"] else "categorical",
-        solver="cp",  # constraint programming for optimal bins
-        **optbinning_kwargs,
-    )
-    optb.fit(df[feature].values, df[target].values)
+    cache_path = Path(cache_dir) / f"woe_optbinning_{feature}.pkl"
+
+    if use_cache and cache_path.exists():
+        with open(cache_path, "rb") as f:
+            optb = pickle.load(f)  # noqa: S301
+        logger.info(f"Loaded cached OptBinning for {feature} from {cache_path}")
+    else:
+        optb = OptimalBinning(
+            name=feature,
+            dtype="numerical" if df[feature].dtype in ["float64", "int64"] else "categorical",
+            solver="cp",  # constraint programming for optimal bins
+            **optbinning_kwargs,
+        )
+        optb.fit(df[feature].values, df[target].values)
+
+        # Persist fitted object to cache
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(cache_path, "wb") as f:
+            pickle.dump(optb, f)
+        logger.info(f"Cached fitted OptBinning for {feature} to {cache_path}")
+
     woe_values = optb.transform(df[feature].values, metric="woe")
 
     iv = optb.binning_table.build()["IV"].sum() if hasattr(optb, "binning_table") else None

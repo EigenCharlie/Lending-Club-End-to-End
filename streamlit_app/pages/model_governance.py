@@ -25,7 +25,14 @@ from streamlit_app.components.story_shell import (
     render_page_header,
 )
 from streamlit_app.content.page_contracts import get_page_contract
-from streamlit_app.utils import try_load_json, try_load_parquet, page_error_boundary
+from streamlit_app.utils import (
+    get_operational_threshold,
+    get_pd_internal_threshold,
+    load_threshold_semantics,
+    page_error_boundary,
+    try_load_json,
+    try_load_parquet,
+)
 
 
 def _artifact_health_rows() -> pd.DataFrame:
@@ -157,6 +164,18 @@ fairness_status = try_load_json("fairness_audit_status", directory="models", def
 fairness_frontier = try_load_parquet("fairness_threshold_frontier")
 explanation_drift = try_load_parquet("explanation_drift")
 challenger_report = try_load_json("challenger_promotion_report", directory="models", default={})
+shap_fairness_status = try_load_json("shap_fairness_status", directory="models", default={})
+sda_policy_status = try_load_json("sda_policy_status", directory="models", default={})
+portfolio_research_policy = try_load_json("portfolio_research_policy", directory="models", default={})
+paper_grade_protocol_status = try_load_json("paper_grade_protocol_status", directory="models", default={})
+drift_monitoring = try_load_parquet("drift_monitoring")
+threshold_semantics = load_threshold_semantics()
+operational_threshold = get_operational_threshold(
+    default=float(fairness_status.get("primary_threshold", 0.5))
+)
+pd_internal_threshold = get_pd_internal_threshold(
+    default=float((try_load_json("decision_threshold", directory="models", default={}) or {}).get("selected_threshold", 0.5))
+)
 
 passed = int(checks["passed"].sum()) if "passed" in checks.columns else 0
 total = int(len(checks))
@@ -228,9 +247,13 @@ if governance:
                 if governance.get("reason_code_stability_pass", False)
                 else "FAIL",
             },
-            {"label": "Threshold principal", "value": f"{float(governance.get('primary_threshold', 0.5)):.2f}"},
+            {"label": "Threshold operativo", "value": f"{operational_threshold:.2f}"},
         ],
         n_cols=4,
+    )
+    st.caption(
+        f"Semántica canónica: threshold interno PD = `{pd_internal_threshold:.2f}`; "
+        f"threshold operativo fairness/aprobación = `{operational_threshold:.2f}`."
     )
     with st.expander("Ver resumen ejecutivo de gobernanza"):
         st.json(governance)
@@ -280,6 +303,25 @@ else:
     )
 
 st.subheader("4) Auditoría de equidad multi-atributo (Fairness)")
+if threshold_semantics:
+    st.info(
+        "Contrato narrativo activo: `selected_threshold` en `decision_threshold.json` es interno de PD; "
+        "`primary_threshold/global_threshold` gobiernan fairness y decisión operativa."
+    )
+    with st.expander("Threshold Semantics — detalle canónico"):
+        _internal = threshold_semantics.get("pd_internal_selected_threshold", "n/d")
+        _operational = threshold_semantics.get("fairness_primary_threshold", "n/d")
+        st.markdown(
+            f"**Threshold interno PD (screening/search):** `{_internal}` — "
+            "selecciona candidatos para optimización de portfolio. NO es el threshold de aprobación.\n\n"
+            f"**Threshold operativo de aprobación/fairness:** `{_operational}` — "
+            "gobierna la auditoría de fairness y las narrativas de decisión operativa. "
+            "Fuente: `models/fairness_decision_policy.json` → `global_threshold`.\n\n"
+            "Artefacto canónico: `models/threshold_semantics.json`."
+        )
+        _bm = threshold_semantics.get("business_meaning", {})
+        if _bm:
+            st.json(_bm)
 if not fairness_audit.empty:
     n_pass = int(fairness_audit["passed_all"].sum())
     n_attr = len(fairness_audit)
@@ -419,6 +461,40 @@ with page_error_boundary("model_governance"):
     - `BLOQUEAR`: drift severo + incumplimiento de policy checks críticos.
     """
     )
+
+    if not drift_monitoring.empty:
+        with st.expander("PSI per feature: drift de covariables (materialidad)", expanded=False):
+            max_psi = float(drift_monitoring["psi"].max()) if "psi" in drift_monitoring.columns else 0.0
+            mean_psi = float(drift_monitoring["psi"].mean()) if "psi" in drift_monitoring.columns else 0.0
+            n_breach = int((drift_monitoring["psi"] > 0.25).sum()) if "psi" in drift_monitoring.columns else 0
+            n_warn = int(((drift_monitoring["psi"] > 0.10) & (drift_monitoring["psi"] <= 0.25)).sum()) if "psi" in drift_monitoring.columns else 0
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Features analizadas", len(drift_monitoring))
+            c2.metric("PSI máximo", f"{max_psi:.4f}")
+            c3.metric("PSI medio", f"{mean_psi:.4f}")
+            c4.metric("Breaches >0.25", n_breach, delta=f"{n_warn} warns >0.10")
+            if n_breach == 0:
+                st.success(
+                    f"Ninguna feature supera el umbral crítico PSI=0.25. "
+                    f"PSI máximo={max_psi:.4f} (fico_score) refleja drift estadístico esperado "
+                    f"en ventana OOT 2018-2020 — sin deterioro operativo material."
+                )
+            else:
+                st.warning(f"{n_breach} feature(s) con PSI>0.25. Revisar materialidad operativa.")
+            if "psi" in drift_monitoring.columns:
+                psi_sorted = drift_monitoring.sort_values("psi", ascending=False).copy()
+                for col in ["psi", "ks_statistic", "ks_pvalue"]:
+                    if col in psi_sorted.columns:
+                        psi_sorted[col] = psi_sorted[col].round(4)
+                st.dataframe(
+                    psi_sorted[["feature", "psi", "ks_pvalue", "pass_psi", "pass_ks"]],
+                    hide_index=True, width="stretch",
+                )
+                st.caption(
+                    "PSI < 0.10 = sin cambio material | 0.10–0.25 = cambio moderado (monitorear) | "
+                    "> 0.25 = cambio severo (investigar). "
+                    "KS p-value test de distribución train vs OOT test set."
+                )
     st.markdown("**Micro-panel CP: ruptura de supuestos y respuesta**")
     st.dataframe(
         pd.DataFrame(
@@ -452,6 +528,125 @@ with page_error_boundary("model_governance"):
     - El framework conformal mejora el control de cobertura por partición (Mondrian) bajo monitoreo.
     """
     )
+    with st.expander("Challenger Promotion Report"):
+        _promo = try_load_json("challenger_promotion_report", directory="models", default={})
+        if _promo:
+            _promo_checks = _promo.get("promotion_checks", {})
+            _promo_deltas = _promo.get("deltas", {})
+            st.markdown(
+                f"**Promotable:** {'Yes' if _promo.get('challenger_promotable', False) else 'No'}  \n"
+                f"**AUC drop:** {float(_promo_deltas.get('auc_drop', 0.0)):.4f}  \n"
+                f"**Brier increase:** {float(_promo_deltas.get('brier_increase_pct', 0.0)) * 100:.2f}%  \n"
+                f"**Checks passed:** {sum(1 for v in _promo_checks.values() if v)}/{len(_promo_checks)}"
+            )
+            st.json(_promo)
+        else:
+            st.info("No `models/challenger_promotion_report.json` available — run the challenger pipeline to generate it.")
+
+    with st.expander("SHAP fairness: importancia diferencial por atributo protegido", expanded=False):
+        if shap_fairness_status:
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Features analizadas", shap_fairness_status.get("n_features", "N/A"))
+            c2.metric("Muestra SHAP", f"{shap_fairness_status.get('shap_sample_size', 0):,}")
+            c3.metric("Modo", shap_fairness_status.get("outcome_mode", "N/A"))
+            attributes = shap_fairness_status.get("attributes", [])
+            if attributes:
+                rows = []
+                for attr in attributes:
+                    top5 = attr.get("top5_per_group", {})
+                    for group, feats in top5.items():
+                        top_feat = feats[0]["feature"] if feats else "N/A"
+                        top_shap = round(float(feats[0]["mean_abs_shap"]), 4) if feats else 0.0
+                        rows.append(
+                            {
+                                "Atributo": attr.get("attribute", "N/A"),
+                                "Grupo": group,
+                                "Top feature": top_feat,
+                                "Mean |SHAP|": top_shap,
+                            }
+                        )
+                st.markdown(
+                    "Top feature por grupo (atributo protegido × grupo → feature con mayor impacto SHAP medio)."
+                )
+                st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+            interp = shap_fairness_status.get("interpretation", "")
+            if interp:
+                st.caption(str(interp))
+        else:
+            st.info("No hay `models/shap_fairness_status.json` — ejecutar `scripts/run_fairness_audit.py`.")
+
+    with st.expander("SDA: política de ajuste por dominancia estocástica", expanded=False):
+        if sda_policy_status:
+            months = sda_policy_status.get("months", "N/A")
+            actions = sda_policy_status.get("actions", {})
+            avg_factor = sda_policy_status.get("avg_origination_factor", 0.0)
+            target_pd = sda_policy_status.get("target_pd", 0.0)
+            current_pd = sda_policy_status.get("current_portfolio_pd", 0.0)
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("Horizon (meses)", months)
+            c2.metric("PD objetivo", f"{float(target_pd):.2%}")
+            c3.metric("PD portafolio actual", f"{float(current_pd):.2%}")
+            c4.metric("Factor originación medio", f"{float(avg_factor):.2f}")
+            if isinstance(actions, dict) and actions:
+                st.markdown("**Distribución de acciones recomendadas (SDA)**")
+                acts_df = pd.DataFrame(
+                    [{"Acción": k, "Meses": v} for k, v in actions.items()]
+                )
+                st.dataframe(acts_df, hide_index=True, width="stretch")
+            st.caption(
+                "SDA (Stochastic Dominance Analysis) compara distribuciones de retorno bajo escenarios "
+                "para recomendar TIGHTEN/EXPAND en originación mes a mes."
+            )
+        else:
+            st.info("No hay `models/sda_policy_status.json` — ejecutar pipeline de optimización.")
+
+    with st.expander("Portfolio research policy: selección de política óptima de investigación", expanded=False):
+        if portfolio_research_policy:
+            sel_policy = portfolio_research_policy.get("selected_policy", "N/A")
+            sel_stage = portfolio_research_policy.get("selection_stage", "N/A")
+            run_tag = portfolio_research_policy.get("run_tag", "N/A")
+            c1, c2 = st.columns(2)
+            c1.metric("Política seleccionada", str(sel_policy))
+            c2.metric("Stage de selección", str(sel_stage))
+            st.caption(f"Run tag: {run_tag}")
+            sel_metrics = portfolio_research_policy.get("selection_metrics", {})
+            if isinstance(sel_metrics, dict) and sel_metrics:
+                metrics_rows = [{"Métrica": k, "Valor": v} for k, v in sel_metrics.items()]
+                st.dataframe(pd.DataFrame(metrics_rows), hide_index=True, width="stretch")
+            research_policy = portfolio_research_policy.get("research_selection_policy", {})
+            if isinstance(research_policy, dict):
+                rank_order = research_policy.get("rank_order", [])
+                if rank_order:
+                    st.markdown("**Criterio de ranking research policy:**")
+                    for i, rule in enumerate(rank_order, 1):
+                        st.markdown(f"{i}. `{rule}`")
+        else:
+            st.info("No hay `models/portfolio_research_policy.json` — ejecutar optimización de portafolio.")
+
+    with st.expander("Paper grade protocol: estado de cierre por dimensión", expanded=False):
+        if paper_grade_protocol_status:
+            dims = ["pd_conformal", "time_series", "causal_cate", "ab_evidence", "set_prediction", "governance"]
+            rows = []
+            for dim in dims:
+                val = paper_grade_protocol_status.get(dim, {})
+                if isinstance(val, dict):
+                    closed = val.get("closed_for_paper_grade", val.get("decision", val.get("status", "N/A")))
+                else:
+                    closed = val
+                rows.append({"Dimensión": dim, "Estado": str(closed)})
+            final_checks = paper_grade_protocol_status.get("final_checks", {})
+            if isinstance(final_checks, dict):
+                for k, v in final_checks.items():
+                    rows.append({"Dimensión": f"final_checks.{k}", "Estado": str(v)})
+            st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+            run_tag = paper_grade_protocol_status.get("run_tag", "N/A")
+            promoted = paper_grade_protocol_status.get("final_run_promoted", False)
+            st.caption(
+                f"Run tag final: {run_tag} | Promovido: {'Sí' if promoted else 'No'}"
+            )
+        else:
+            st.info("No hay `models/paper_grade_protocol_status.json` — ejecutar pipeline paper-grade.")
+
     render_caveats(
         [
             "Un estado global 'OK' no elimina la necesidad de monitoreo continuo por lote/segmento.",

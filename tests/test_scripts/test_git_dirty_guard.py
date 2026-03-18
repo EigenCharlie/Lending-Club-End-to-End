@@ -10,6 +10,7 @@ def test_parse_porcelain_line_handles_modified_and_rename() -> None:
 
 def test_split_dirty_paths_respects_allowlist() -> None:
     dirty = [
+        "configs/baselines/canonical_operational_baseline.json",
         "configs/baselines/core_official_baseline.json",
         "models/governance_status.json",
         "reports/gpu_benchmark/cuml_benchmark.csv",
@@ -18,6 +19,7 @@ def test_split_dirty_paths_respects_allowlist() -> None:
     ]
     allowed, blocked = guard.split_dirty_paths(dirty)
 
+    assert "configs/baselines/canonical_operational_baseline.json" in allowed
     assert "configs/baselines/core_official_baseline.json" in allowed
     assert "models/governance_status.json" in allowed
     assert "reports/gpu_benchmark/cuml_benchmark.csv" in allowed

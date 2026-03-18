@@ -10,12 +10,15 @@ ENV_DIR="${1:-.venv-causal}"
 echo "[1/2] Syncing project stack into ${ENV_DIR} (Python 3.12)..."
 UV_PROJECT_ENVIRONMENT="${ENV_DIR}" uv sync --python 3.12 --extra dev --extra platform
 
-echo "[2/2] Installing EconML overlay into ${ENV_DIR}..."
+echo "[2/3] Installing EconML overlay into ${ENV_DIR}..."
 uv pip install --python "${ENV_DIR}/bin/python" -r requirements/causal-econml.txt
+
+echo "[3/3] Installing CausalPy overlay into ${ENV_DIR}..."
+uv pip install --python "${ENV_DIR}/bin/python" -r requirements/causal-causalpy.txt
 
 echo
 echo "Causal env ready: ${ENV_DIR}"
-echo "Note: this is a task-specific overlay env for causal workflows (EconML may downgrade sklearn/shap)."
+echo "Note: this is a task-specific overlay env for causal workflows (EconML/CausalPy stay out of the main lock)."
 echo "      Do not use it as a general-purpose replacement for the main project env."
 echo "Run a causal script with:"
 echo "  ${ENV_DIR}/bin/python scripts/estimate_causal_effects.py"

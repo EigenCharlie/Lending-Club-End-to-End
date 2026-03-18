@@ -1,5 +1,7 @@
 # OFFICIAL RERUN MASTER PLAN (2026-02-27)
 
+> **HISTORICAL** — This plan was executed and completed in February-March 2026. For current state, see `SESSION_STATE.md` and `docs/backlog-papers-unified.md`.
+
 ## 1) Objetivo y alcance oficial
 
 Este documento define la corrida oficial candidata a promocion a `main`, con atribucion correcta de impacto por capa de rama:

@@ -14,9 +14,12 @@ from src.models.conformal_tuning import (
     apply_group_multipliers,
     build_group_temporal_segments,
     choose_best_tuning_row,
+    empirical_interval_coverage,
     enforce_group_coverage_floor,
     enforce_segment_coverage_floor,
     mark_pareto_front,
+    min_group_interval_coverage,
+    shrink_group_multipliers,
     split_calibration_for_tuning,
     to_python_scalar,
 )
@@ -191,6 +194,27 @@ class TestChooseBestTuningRow:
         assert row_strict["empirical_coverage"] >= 0.90 or tier_strict == "fallback_penalty"
         assert row_loose["empirical_coverage"] >= 0.90 or tier_loose == "fallback_penalty"
 
+    def test_prefers_lower_winkler_within_same_feasible_tier(self):
+        df = pd.DataFrame(
+            {
+                "empirical_coverage": [0.915, 0.915],
+                "min_group_coverage": [0.89, 0.89],
+                "avg_interval_width": [0.15, 0.16],
+                "winkler_90": [1.10, 1.35],
+                "max_monthly_gap": [0.03, 0.03],
+                "stability_over_time": [0.02, 0.02],
+                "coverage_gap": [0.015, 0.015],
+            }
+        )
+        row, tier = choose_best_tuning_row(
+            df,
+            target_coverage=0.90,
+            min_group_coverage_target=0.88,
+            max_width_budget=0.20,
+        )
+        assert tier == "strong_global+strong_group+width"
+        assert row["winkler_90"] == pytest.approx(1.10)
+
 
 # ---------------------------------------------------------------------------
 # apply_group_multipliers
@@ -296,6 +320,49 @@ class TestTemporalSegmentCoverageFloor:
         assert "B|vintage=2020Q1" in report["segment"].values
         assert "A|vintage=2020Q1" in factors
         assert "B|vintage=2020Q1" not in factors
+
+
+class TestShrinkGroupMultipliers:
+    def test_reduces_width_while_preserving_constraints(self):
+        n_a = 80
+        n_b = 80
+        y_pred = np.concatenate([np.full(n_a, 0.20), np.full(n_b, 0.80)])
+        y_true = np.concatenate([np.full(n_a, 0.14), np.full(n_b, 0.82)])
+        base_intervals = np.column_stack(
+            [
+                np.concatenate([np.full(n_a, 0.15), np.full(n_b, 0.75)]),
+                np.concatenate([np.full(n_a, 0.25), np.full(n_b, 0.85)]),
+            ]
+        )
+        groups = np.array(["A"] * n_a + ["B"] * n_b)
+        issue_dates = pd.Series(pd.date_range("2024-01-01", periods=n_a + n_b, freq="D"))
+
+        widened, shrunk_group_factors, shrunk_temporal_factors, report = shrink_group_multipliers(
+            y_true=y_true,
+            y_pred=y_pred,
+            base_intervals=base_intervals,
+            groups=groups,
+            issue_dates=issue_dates,
+            group_factors={"A": 1.20, "B": 1.20},
+            temporal_segments=None,
+            temporal_factors=None,
+            target_coverage=0.90,
+            min_group_coverage_target=0.88,
+            max_monthly_gap_target=0.20,
+            alpha=0.10,
+            group_multiplier_grid=(1.0, 1.05, 1.10, 1.15, 1.20),
+        )
+
+        baseline_width = float(np.mean((base_intervals[:, 1] - base_intervals[:, 0]) * 1.20))
+        shrunk_width = float(np.mean(widened[:, 1] - widened[:, 0]))
+
+        assert isinstance(report, pd.DataFrame)
+        assert "accepted" in report.columns
+        assert shrunk_width < baseline_width
+        assert empirical_interval_coverage(y_true, widened) >= 0.90
+        assert min_group_interval_coverage(y_true, widened, groups) >= 0.88
+        assert all(f <= 1.20 for f in shrunk_group_factors.values())
+        assert shrunk_temporal_factors == {}
 
 
 # ---------------------------------------------------------------------------

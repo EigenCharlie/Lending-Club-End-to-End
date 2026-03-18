@@ -8,9 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import pickle
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -19,6 +17,8 @@ import yaml
 from loguru import logger
 
 import src.evaluation.backtesting as _bt
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.baseline_registry import resolve_official_baseline_run_tag
 
 
 def _fallback_interval_violations(
@@ -117,18 +117,39 @@ def _check(
     }
 
 
-def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None = None):
+def _safe_float(value: object, default: float = float("nan")) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def main(
+    config_path: str = "configs/conformal_policy.yaml",
+    run_tag: str | None = None,
+    sensitivity_config_path: str | None = None,
+) -> None:
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
+
+    if sensitivity_config_path is not None:
+        with open(sensitivity_config_path, encoding="utf-8") as f:
+            sens_cfg = yaml.safe_load(f)
+        if "policy_sensitivity" in sens_cfg:
+            cfg["policy_sensitivity"] = sens_cfg["policy_sensitivity"]
+            logger.info(
+                f"Overriding policy_sensitivity from {sensitivity_config_path}: "
+                f"{cfg['policy_sensitivity']}"
+            )
 
     policy = cfg["policy"]
     artifacts = cfg["artifacts"]
     output = cfg["output"]
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    resolved_run_tag = resolve_run_tag(
+        run_tag,
+        fallback_candidates=[resolve_official_baseline_run_tag()],
+        require_explicit=True,
     )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
 
     with open(artifacts["conformal_results_path"], "rb") as f:
         results = pickle.load(f)
@@ -206,10 +227,59 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
 
     max_winkler_90 = float(policy.get("max_winkler_90", float("inf")))
     max_winkler_95 = float(policy.get("max_winkler_95", float("inf")))
+    enable_compensated_winkler_90 = bool(policy.get("enable_compensated_winkler_90", False))
+    compensated_winkler_90_max = float(policy.get("compensated_winkler_90_max", max_winkler_90))
+    compensated_min_coverage_90 = float(
+        policy.get("compensated_min_coverage_90", policy["target_coverage_90_min"])
+    )
+    compensated_min_group_coverage_90 = float(
+        policy.get(
+            "compensated_min_group_coverage_90",
+            policy["min_group_coverage_90_min"],
+        )
+    )
+    compensated_max_avg_width_90 = float(
+        policy.get("compensated_max_avg_width_90", policy["max_avg_width_90"])
+    )
     min_kupiec_p90 = float(policy.get("min_kupiec_pvalue_90", 0.0))
     min_kupiec_p95 = float(policy.get("min_kupiec_pvalue_95", 0.0))
     min_christ_p90 = float(policy.get("min_christoffersen_pvalue_90", 0.0))
     min_christ_p95 = float(policy.get("min_christoffersen_pvalue_95", 0.0))
+    allow_methodological_justification = bool(
+        policy.get("allow_methodological_justification", False)
+    )
+    statistical_tests_role = str(policy.get("statistical_tests_role", "strict_blocking"))
+    max_cov_dev_90 = float(policy.get("max_coverage_deviation_for_statistical_warning_90", 0.0))
+    max_cov_dev_95 = float(policy.get("max_coverage_deviation_for_statistical_warning_95", 0.0))
+    min_ind_p90 = float(policy.get("min_christoffersen_independence_pvalue_90", 0.0))
+    min_ind_p95 = float(policy.get("min_christoffersen_independence_pvalue_95", 0.0))
+
+    winkler_90_raw_pass = bool(winkler_90 <= max_winkler_90)
+    winkler_90_compensated_pass = bool(
+        enable_compensated_winkler_90
+        and (not winkler_90_raw_pass)
+        and winkler_90 <= compensated_winkler_90_max
+        and coverage_90 >= compensated_min_coverage_90
+        and min_group_coverage_90 >= compensated_min_group_coverage_90
+        and avg_width_90 <= compensated_max_avg_width_90
+        and critical_alerts <= float(policy["max_critical_alerts"])
+    )
+    winkler_90_policy_pass = bool(winkler_90_raw_pass or winkler_90_compensated_pass)
+    winkler_90_policy_mode = (
+        "strict"
+        if winkler_90_raw_pass
+        else "compensated_band"
+        if winkler_90_compensated_pass
+        else "strict"
+    )
+    winkler_90_check = _check("winkler_90", winkler_90, max_winkler_90, "<=", "quality")
+    winkler_90_check["passed"] = bool(winkler_90_policy_pass)
+    winkler_90_check["policy_mode"] = str(winkler_90_policy_mode)
+    winkler_90_check["raw_threshold"] = float(max_winkler_90)
+    winkler_90_check["raw_passed"] = bool(winkler_90_raw_pass)
+    winkler_90_check["compensated_band_enabled"] = bool(enable_compensated_winkler_90)
+    winkler_90_check["compensated_threshold"] = float(compensated_winkler_90_max)
+    winkler_90_check["compensated_passed"] = bool(winkler_90_compensated_pass)
 
     checks = [
         _check(
@@ -247,7 +317,7 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
             "<=",
             "monitoring",
         ),
-        _check("winkler_90", winkler_90, max_winkler_90, "<=", "quality"),
+        winkler_90_check,
         _check("winkler_95", winkler_95, max_winkler_95, "<=", "quality"),
         _check(
             "kupiec_pvalue_90",
@@ -279,7 +349,66 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
         ),
     ]
     checks_df = pd.DataFrame(checks)
-    overall_pass = bool(checks_df["passed"].all())
+    statistical_mask = checks_df["scope"].eq("statistical_coverage")
+    coverage_deviation_90 = abs(coverage_90 - float(policy["target_coverage_90_min"]))
+    coverage_deviation_95 = abs(coverage_95 - float(policy["target_coverage_95_min"]))
+    christ_p_ind_90 = _safe_float(christ_90.get("p_ind"))
+    christ_p_ind_95 = _safe_float(christ_95.get("p_ind"))
+    independence_ok_90 = (not np.isfinite(christ_p_ind_90)) or christ_p_ind_90 >= min_ind_p90
+    independence_ok_95 = (not np.isfinite(christ_p_ind_95)) or christ_p_ind_95 >= min_ind_p95
+    coverage_materiality_ok = bool(
+        coverage_deviation_90 <= max_cov_dev_90 and coverage_deviation_95 <= max_cov_dev_95
+    )
+
+    def _evaluate_check_frame(frame: pd.DataFrame) -> dict[str, object]:
+        strict = bool(frame["passed"].all())
+        non_stat_pass = bool(frame.loc[~statistical_mask, "passed"].all())
+        failing_all = frame.loc[~frame["passed"], "metric"].astype(str).tolist()
+        failing_stats = (
+            frame.loc[statistical_mask & ~frame["passed"], "metric"].astype(str).tolist()
+        )
+        failing_non_stats = (
+            frame.loc[~statistical_mask & ~frame["passed"], "metric"].astype(str).tolist()
+        )
+        only_stats = bool((not strict) and len(failing_stats) > 0 and len(failing_non_stats) == 0)
+        methodological_pass = bool(
+            allow_methodological_justification
+            and only_stats
+            and coverage_materiality_ok
+            and independence_ok_90
+            and independence_ok_95
+        )
+        if strict:
+            methodological_status = "not_needed_strict_pass"
+        elif methodological_pass:
+            methodological_status = "eligible_statistical_warning_only"
+        elif not allow_methodological_justification:
+            methodological_status = "disabled"
+        elif len(failing_non_stats) > 0:
+            methodological_status = "blocked_non_statistical_failures"
+        elif not coverage_materiality_ok:
+            methodological_status = "blocked_materiality"
+        else:
+            methodological_status = "blocked_statistical_pattern"
+        return {
+            "strict_overall_pass": strict,
+            "non_statistical_checks_pass": non_stat_pass,
+            "failing_checks": failing_all,
+            "failing_statistical_checks": failing_stats,
+            "failing_non_statistical_checks": failing_non_stats,
+            "methodological_justification_pass": methodological_pass,
+            "methodological_justification_status": methodological_status,
+        }
+
+    evaluation = _evaluate_check_frame(checks_df)
+    strict_overall_pass = bool(evaluation["strict_overall_pass"])
+    non_statistical_checks_pass = bool(evaluation["non_statistical_checks_pass"])
+    failing_checks = list(evaluation["failing_checks"])
+    failing_statistical_checks = list(evaluation["failing_statistical_checks"])
+    failing_non_statistical_checks = list(evaluation["failing_non_statistical_checks"])
+    methodological_justification_pass = bool(evaluation["methodological_justification_pass"])
+    methodological_status = str(evaluation["methodological_justification_status"])
+    overall_pass = strict_overall_pass
 
     latest_month = (
         backtest_monthly.sort_values("month").iloc[-1]["month"]
@@ -288,12 +417,17 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
     )
 
     out_status = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
+        "strict_overall_pass": strict_overall_pass,
+        "non_statistical_checks_pass": non_statistical_checks_pass,
+        "methodological_justification_pass": methodological_justification_pass,
+        "methodological_justification_status": methodological_status,
+        "statistical_tests_role": statistical_tests_role,
         "checks_passed": int(checks_df["passed"].sum()),
         "checks_total": int(len(checks_df)),
+        "failing_checks": failing_checks,
+        "failing_statistical_checks": failing_statistical_checks,
+        "failing_non_statistical_checks": failing_non_statistical_checks,
         "coverage_90": coverage_90,
         "coverage_95": coverage_95,
         "avg_width_90": avg_width_90,
@@ -302,6 +436,11 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
         "warning_alerts": warning_alerts,
         "total_alerts": total_alerts,
         "winkler_90": winkler_90,
+        "winkler_90_raw_pass": bool(winkler_90_raw_pass),
+        "winkler_90_policy_pass": bool(winkler_90_policy_pass),
+        "winkler_90_policy_mode": str(winkler_90_policy_mode),
+        "winkler_90_compensated_pass": bool(winkler_90_compensated_pass),
+        "winkler_90_compensated_threshold": float(compensated_winkler_90_max),
         "winkler_95": winkler_95,
         "kupiec_pvalue_90": float(kupiec_90["p_value"]),
         "kupiec_pvalue_95": float(kupiec_95["p_value"]),
@@ -313,12 +452,89 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
             "christoffersen_90": christ_90,
             "christoffersen_95": christ_95,
         },
+        "sample_size_context": {
+            "n_total_90": int(y90.size),
+            "n_total_95": int(y95.size),
+            "violation_rate_90": _safe_float(
+                kupiec_90.get("violation_rate", kupiec_90.get("fail_rate"))
+            ),
+            "violation_rate_95": _safe_float(
+                kupiec_95.get("violation_rate", kupiec_95.get("fail_rate"))
+            ),
+            "nominal_alpha_90": _safe_float(kupiec_90.get("nominal_alpha")),
+            "nominal_alpha_95": _safe_float(kupiec_95.get("nominal_alpha")),
+            "christoffersen_independence_pvalue_90": christ_p_ind_90,
+            "christoffersen_independence_pvalue_95": christ_p_ind_95,
+        },
+        "methodological_justification": {
+            "allowed": allow_methodological_justification,
+            "only_statistical_failures": bool(
+                (not strict_overall_pass)
+                and len(failing_statistical_checks) > 0
+                and len(failing_non_statistical_checks) == 0
+            ),
+            "coverage_materiality_ok": coverage_materiality_ok,
+            "coverage_deviation_90": coverage_deviation_90,
+            "coverage_deviation_95": coverage_deviation_95,
+            "max_coverage_deviation_for_statistical_warning_90": max_cov_dev_90,
+            "max_coverage_deviation_for_statistical_warning_95": max_cov_dev_95,
+            "independence_ok_90": bool(independence_ok_90),
+            "independence_ok_95": bool(independence_ok_95),
+            "min_christoffersen_independence_pvalue_90": min_ind_p90,
+            "min_christoffersen_independence_pvalue_95": min_ind_p95,
+            "winkler_90_policy_mode": str(winkler_90_policy_mode),
+            "winkler_90_raw_pass": bool(winkler_90_raw_pass),
+            "winkler_90_compensated_pass": bool(winkler_90_compensated_pass),
+            "winkler_90_compensated_threshold": float(compensated_winkler_90_max),
+            "decision": bool(methodological_justification_pass),
+            "justification_role": (
+                "diagnostic_warning_not_blocking_for_promotion"
+                if statistical_tests_role == "strict_diagnostics"
+                else "strict_blocking"
+            ),
+        },
         "latest_backtest_month": str(latest_month) if latest_month is not None else None,
         "intervals_path": str(intervals_path),
         "policy_config": config_path,
         "lgd_ead_conformal_status_path": str(lgd_ead_status_path),
         "lgd_ead_conformal_status": lgd_ead_status,
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
+
+    sensitivity_cfg = cfg.get("policy_sensitivity", {}) or {}
+    max_winkler_values = [
+        float(x) for x in sensitivity_cfg.get("max_winkler_90_values", []) or [] if x is not None
+    ]
+    if max_winkler_values:
+        sensitivity_rows: list[dict[str, object]] = []
+        for threshold in max_winkler_values:
+            checks_sens = checks_df.copy()
+            mask = checks_sens["metric"].eq("winkler_90")
+            checks_sens.loc[mask, "threshold"] = float(threshold)
+            checks_sens.loc[mask, "passed"] = float(winkler_90) <= float(threshold)
+            sens_eval = _evaluate_check_frame(checks_sens)
+            sensitivity_rows.append(
+                {
+                    "max_winkler_90": float(threshold),
+                    "strict_overall_pass": bool(sens_eval["strict_overall_pass"]),
+                    "non_statistical_checks_pass": bool(sens_eval["non_statistical_checks_pass"]),
+                    "methodological_justification_pass": bool(
+                        sens_eval["methodological_justification_pass"]
+                    ),
+                    "failing_non_statistical_checks": list(
+                        sens_eval["failing_non_statistical_checks"]
+                    ),
+                    "failing_statistical_checks": list(sens_eval["failing_statistical_checks"]),
+                }
+            )
+        out_status["policy_sensitivity"] = {
+            "metric": "winkler_90",
+            "results": sensitivity_rows,
+        }
 
     checks_path = Path(output["policy_checks_parquet"])
     checks_path.parent.mkdir(parents=True, exist_ok=True)
@@ -332,7 +548,9 @@ def main(config_path: str = "configs/conformal_policy.yaml", run_tag: str | None
     logger.info(f"Policy checks saved: {checks_path}")
     logger.info(f"Policy status saved: {status_path}")
     logger.info(
-        f"Conformal policy pass={overall_pass} ({out_status['checks_passed']}/{out_status['checks_total']})"
+        "Conformal policy strict_pass="
+        f"{strict_overall_pass} ({out_status['checks_passed']}/{out_status['checks_total']}); "
+        f"methodological_justification_pass={methodological_justification_pass}"
     )
 
 
@@ -340,5 +558,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", default="configs/conformal_policy.yaml")
     parser.add_argument("--run-tag", default=None)
+    parser.add_argument(
+        "--sensitivity-config",
+        default=None,
+        help="Optional YAML with policy_sensitivity overrides (e.g. configs/conformal_policy_sensitivity.yaml)",
+    )
     args = parser.parse_args()
-    main(args.config, run_tag=args.run_tag)
+    main(args.config, run_tag=args.run_tag, sensitivity_config_path=args.sensitivity_config)

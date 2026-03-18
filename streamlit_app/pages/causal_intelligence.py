@@ -60,6 +60,8 @@ def _build_causal_snapshot() -> dict:
     rule_status = try_load_json("causal_policy_rule", directory="models", default={})
     oot_status = try_load_json("causal_policy_oot_status", directory="models", default={})
     portfolio_status = try_load_json("cate_portfolio_status", directory="models", default={})
+    refutation_summary = try_load_json("causal_refutation_summary", directory="models", default={})
+    causal_oot_tail_risk = try_load_parquet("causal_oot_tail_risk")
     selected_metrics = rule_status.get("selected_metrics", {})
     return {
         "effect_status": effect_status,
@@ -88,6 +90,8 @@ def _build_causal_snapshot() -> dict:
         ),
         "official_method": effect_status.get("official_method", {})
         or pipeline_causal.get("official_method", {}),
+        "refutation_summary": refutation_summary,
+        "causal_oot_tail_risk": causal_oot_tail_risk,
     }
 
 st.title("🧬 Inteligencia Causal")
@@ -465,6 +469,24 @@ with col_j:
             width="stretch",
         )
 
+_cate_seg_img = get_notebook_image_path("07_causal_inference", "cate_segment_heterogeneity.png")
+_cate_oot_img = get_notebook_image_path("07_causal_inference", "cate_distribution_train_vs_oot.png")
+_cate_kpi_img = get_notebook_image_path("07_causal_inference", "causal_policy_kpis.png")
+_ate_ci_img = get_notebook_image_path("07_causal_inference", "ate_confidence_interval.png")
+_causal_named = [
+    (_cate_seg_img, "NB07: heterogeneidad CATE por segmento — quién es más sensible al ajuste de tasa."),
+    (_cate_oot_img, "NB07: distribución CATE train vs OOT — estabilidad de efectos en test temporal."),
+    (_cate_kpi_img, "NB07: KPIs de política causal — acción rate, valor neto esperado y reducción de pérdida."),
+    (_ate_ci_img, "NB07: ATE con intervalo de confianza bootstrap — magnitud e incertidumbre del efecto promedio."),
+]
+_causal_named_valid = [(p, c) for p, c in _causal_named if p.exists()]
+if _causal_named_valid:
+    with st.expander("Figuras del notebook: heterogeneidad CATE y KPIs de política", expanded=True):
+        _cn_cols = st.columns(min(len(_causal_named_valid), 2))
+        for _ci, (_p, _cap) in enumerate(_causal_named_valid):
+            with _cn_cols[_ci % 2]:
+                st.image(str(_p), caption=_cap, width="stretch")
+
 with st.expander("Muestra de simulación de política por préstamo"):
     cols = [
         "id",
@@ -518,6 +540,33 @@ if not cate_comparison.empty and len(cate_comparison) == 2:
     )
 else:
     st.info("Ejecuta `scripts/optimize_cate_portfolio.py` para comparar portafolios baseline vs CATE-adjusted.")
+
+_refutation_summary = causal_snapshot.get("refutation_summary", {})
+if _refutation_summary:
+    with st.expander("Refutaciones DoWhy + tail risk OOT en CATE", expanded=False):
+        refs = _refutation_summary.get("refutation_tests", [])
+        verdict = _refutation_summary.get("refutation_verdict", "")
+        if verdict:
+            st.info(verdict)
+        if refs:
+            ref_df = pd.DataFrame([{
+                "Test": r.get("test", ""),
+                "Status": r.get("status", ""),
+                "Interpretación": r.get("interpretation", ""),
+            } for r in refs])
+            st.dataframe(ref_df, hide_index=True, width="stretch")
+        oot_summ = _refutation_summary.get("oot_cate_summary", {})
+        if oot_summ:
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("N OOT loans", f"{oot_summ.get('n_obs', 0):,}")
+            c2.metric("ATE OOT", f"{float(oot_summ.get('ate_oot', 0)):.5f}")
+            c3.metric("CATE P5 (tail riesgo)", f"{oot_summ.get('percentiles', {}).get('p5', 0):.5f}")
+            c4.metric("CATE P95 (mayor beneficio)", f"{oot_summ.get('percentiles', {}).get('p95', 0):.5f}")
+            st.caption(oot_summ.get("tail_risk_interpretation", ""))
+        _tail_df = causal_snapshot.get("causal_oot_tail_risk", pd.DataFrame())
+        if isinstance(_tail_df, pd.DataFrame) and not _tail_df.empty:
+            st.markdown("**Distribución CATE por grade (OOT test set)**")
+            st.dataframe(_tail_df.round(5), hide_index=True, width="stretch")
 
 render_caveats(
     [

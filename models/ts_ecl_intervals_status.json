@@ -1,0 +1,24 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-17T23:27:35.367007+00:00",
+  "run_tag": "untracked",
+  "script": "run_ts_ecl_intervals.py",
+  "lgd": 0.4,
+  "discount_rate": 0.05,
+  "ts_forecast": {
+    "n_forecast_months": 12,
+    "mean_ecl_point": 107854204.6162805,
+    "mean_ecl_adverse_90": 336028884.6382693,
+    "mean_ecl_optimistic_90": 47520474.47573834,
+    "ecl_band_width_90": 288508410.16253096,
+    "ecl_band_width_90_pct_of_point": 267.5,
+    "pd_mult_point": 1.0172,
+    "pd_mult_adverse": 3.0,
+    "pd_mult_optimistic": 0.5,
+    "mean_ts_point_forecast": 0.027374,
+    "mean_ts_adverse_90": 0.111875,
+    "mean_ts_optimistic_90": -0.046888
+  },
+  "existing_scenario_ecl_range": 796670788.5868194,
+  "key_finding": "TS forecast uncertainty at 90% level creates an ECL band of ~$288.5M. The TS-driven band is narrower than the full scenario range but is derived from empirical forecast intervals, not judgmental stresses. Lower alpha (more conservative forecast intervals) directly widens the ECL band — a new regulatory lever for ICAAP stress testing."
+}

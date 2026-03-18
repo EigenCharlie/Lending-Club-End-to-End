@@ -1,0 +1,31 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at": "2026-03-17T03:23:38.413621+00:00",
+  "status": "success",
+  "sicr_optimization": {
+    "n_thresholds": 16,
+    "best_threshold": 0.8,
+    "best_f1": 0.4262662171825518,
+    "best_precision": 0.28366553365057784,
+    "best_recall": 0.8571733771569433,
+    "best_stage2_share": 0.6641227439691695,
+    "best_stage2_default_rate": 0.28366553365057784
+  },
+  "ecl_alpha_sensitivity": {
+    "alphas_swept": [
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "ecl_point_total": 424778865.27594805,
+    "ecl_range_at_90pct": 1112367805.7558248,
+    "ecl_range_at_95pct": 1236228546.5942924,
+    "ecl_range_at_80pct": 941592966.0425035,
+    "base_lgd": 0.45
+  },
+  "artifacts": {
+    "sicr_trigger_optimization": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/sicr_trigger_optimization.parquet",
+    "ecl_alpha_sensitivity": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/ecl_alpha_sensitivity.parquet"
+  }
+}

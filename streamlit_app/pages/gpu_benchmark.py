@@ -33,14 +33,15 @@ from streamlit_app.utils import (
     load_rapids_ifrs9_correlated_metrics,
     load_rapids_ifrs9_mc_tail_metrics,
     load_rapids_insight_detail,
-    load_rapids_pd_benchmark_stage_table,
     load_rapids_insight_stage_table,
+    load_rapids_pd_benchmark_stage_table,
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
     load_rapids_tradeoff_full_policy,
     try_load_gpu_replay_json,
+    try_load_json,
+    try_load_parquet,
 )
-
 
 STAGE_LABELS = {
     "pd": "PD CatBoost",
@@ -187,7 +188,6 @@ st.dataframe(compare_df, width="stretch", hide_index=True)
 download_table(compare_df, "rapids_stage_comparison.csv", "Descargar comparación CPU vs GPU")
 
 speedup_plot = stage_table.dropna(subset=["speedup_gpu_vs_cpu"]).copy()
-speedup_plot["Speedup"] = speedup_plot["speedup_gpu_vs_cpu"].round(2)
 fig_speedup = px.bar(
     speedup_plot,
     x="speedup_gpu_vs_cpu",
@@ -195,15 +195,18 @@ fig_speedup = px.bar(
     orientation="h",
     color="speedup_gpu_vs_cpu",
     color_continuous_scale="Blues",
+    text="speedup_gpu_vs_cpu",
     labels={"stage_label": "Stage", "speedup_gpu_vs_cpu": "GPU speedup vs CPU"},
-    title="Aceleración real del replay RAPIDS frente al champion CPU",
+    title="Aceleración real del replay RAPIDS frente al champion CPU (escala log)",
 )
-fig_speedup.add_vline(x=1.0, line_dash="dash", line_color="#E45756")
-fig_speedup.update_layout(**PLOTLY_TEMPLATE["layout"], height=460, coloraxis_showscale=False)
+fig_speedup.update_traces(texttemplate="%{text:.1f}x", textposition="outside")
+fig_speedup.add_vline(x=1.0, line_dash="dash", line_color="#E45756", annotation_text="1× (break-even)")
+fig_speedup.update_xaxes(type="log")
+fig_speedup.update_layout(**PLOTLY_TEMPLATE["layout"], height=420, coloraxis_showscale=False)
 st.plotly_chart(fig_speedup, width="stretch")
 
 st.markdown(
-    f"""
+    """
 **Lectura principal**
 
 - La GPU ya es claramente ganadora en **investigación de operaciones**: portfolio, frontier tradeoff, A/B y CATE.
@@ -231,19 +234,28 @@ Eso permitió correr en GPU las etapas que de verdad son caras en OR:
 """
     )
     or_df = stage_table[stage_table["stage"].isin(["portfolio", "tradeoff", "ab", "cate_portfolio"])].copy()
-    fig_or = px.scatter(
-        or_df,
-        x="gpu_seconds",
-        y="speedup_gpu_vs_cpu",
-        size="peak_memory_used_mb",
-        color="stage_label",
-        text="stage_label",
-        labels={"gpu_seconds": "GPU seconds", "speedup_gpu_vs_cpu": "GPU speedup vs CPU"},
-        title="OR en GPU: speedup vs costo temporal del stage",
+    or_long = (
+        or_df[["stage_label", "cpu_seconds", "gpu_seconds"]]
+        .melt(id_vars="stage_label", value_vars=["cpu_seconds", "gpu_seconds"],
+              var_name="Engine", value_name="Seconds")
+        .dropna(subset=["Seconds"])
     )
-    fig_or.update_traces(textposition="top center")
-    fig_or.update_layout(**PLOTLY_TEMPLATE["layout"], height=420)
+    or_long["Engine"] = or_long["Engine"].map({"cpu_seconds": "CPU (HiGHS)", "gpu_seconds": "GPU (cuOpt)"})
+    fig_or = px.bar(
+        or_long,
+        x="stage_label",
+        y="Seconds",
+        color="Engine",
+        barmode="group",
+        text="Seconds",
+        color_discrete_map={"CPU (HiGHS)": "#5F6B7A", "GPU (cuOpt)": "#00D4AA"},
+        labels={"stage_label": "Stage", "Seconds": "Segundos"},
+        title="OR en GPU: tiempo de ejecución CPU vs GPU por etapa",
+    )
+    fig_or.update_traces(texttemplate="%{text:.1f}s", textposition="outside")
+    fig_or.update_layout(**PLOTLY_TEMPLATE["layout"], height=400)
     st.plotly_chart(fig_or, width="stretch")
+    st.caption("Barra más corta = más rápido. Columnas vacías = etapa GPU-only sin baseline CPU disponible.")
 
     selected_policy = policy_status.get("selected_policy", {})
     selection_metrics = policy_status.get("selection_metrics", {})
@@ -524,21 +536,41 @@ if not insight_stage_table.empty:
             "cugraph_similarity": "cuGraph similarity",
         }
     )
-    st.dataframe(
-        insights_view.rename(
-            columns={
-                "stage": "Workload",
-                "cpu_seconds": "CPU seconds",
-                "gpu_seconds": "GPU seconds",
-                "speedup_gpu_vs_cpu": "GPU speedup vs CPU",
-                "rows_input": "Rows",
-                "n_features": "Features",
-                "knn_k": "k",
-            }
-        ),
-        width="stretch",
-        hide_index=True,
-    )
+    # Clean summary — only the columns that are always meaningful
+    _summary_cols = {
+        "stage": "Workload",
+        "rows_input": "Filas",
+        "cpu_seconds": "CPU (s)",
+        "gpu_seconds": "GPU (s)",
+        "speedup_gpu_vs_cpu": "Speedup GPU/CPU",
+    }
+    _avail = {k: v for k, v in _summary_cols.items() if k in insights_view.columns}
+    clean_insights = insights_view[list(_avail.keys())].rename(columns=_avail)
+    st.dataframe(clean_insights, width="stretch", hide_index=True)
+
+    # Visual speedup bar
+    _speedup_data = insights_view.dropna(subset=["speedup_gpu_vs_cpu"]).copy()
+    if not _speedup_data.empty:
+        fig_insight_speedup = px.bar(
+            _speedup_data,
+            x="stage",
+            y="speedup_gpu_vs_cpu",
+            color="speedup_gpu_vs_cpu",
+            color_continuous_scale="RdYlGn",
+            text="speedup_gpu_vs_cpu",
+            labels={"stage": "Workload", "speedup_gpu_vs_cpu": "Speedup GPU/CPU"},
+            title="Insight Factory: speedup GPU/CPU por workload",
+        )
+        _speedup_data_max = float(_speedup_data["speedup_gpu_vs_cpu"].max())
+        fig_insight_speedup.update_traces(texttemplate="%{text:.2f}x", textposition="outside")
+        fig_insight_speedup.add_hline(y=1.0, line_dash="dash", line_color="#E45756", annotation_text="break-even")
+        fig_insight_speedup.update_layout(**PLOTLY_TEMPLATE["layout"], height=360, coloraxis_showscale=False,
+                                          yaxis_range=[0, _speedup_data_max * 1.25])
+        st.plotly_chart(fig_insight_speedup, width="stretch")
+
+    with st.expander("Detalle completo por workload (columnas específicas de cada método)"):
+        st.dataframe(insights_view, width="stretch", hide_index=True)
+
     st.markdown(
         """
 La segunda iteración de *insight factory* ya deja un mapa bastante más útil:
@@ -594,6 +626,42 @@ st.markdown(
 - claims artificiales de aceleración donde el stage completo sigue dominado por CPU.
 """
 )
+
+with st.expander("Bridge Loans (cuGraph)", expanded=False):
+    _bridge_df = load_rapids_insight_detail("cugraph_bridge_loans")
+    if not _bridge_df.empty:
+        st.markdown(
+            "Préstamos puente identificados por cuGraph: nodos con alta intermediación "
+            "que conectan comunidades distintas en el grafo de similitud."
+        )
+        st.dataframe(_bridge_df, width="stretch", hide_index=True)
+        download_table(_bridge_df, "cugraph_bridge_loans.csv", "Descargar bridge loans")
+    else:
+        st.info(
+            "Artefacto `cugraph_bridge_loans.parquet` no encontrado en el run "
+            f"`{OFFICIAL_GPU_INSIGHT_TAG}`. Ejecuta la insight factory con cuGraph "
+            "para generar este artefacto."
+        )
+
+_gpu_summary = try_load_json("gpu_consolidated_summary", directory="models", default={})
+_gpu_table = try_load_parquet("gpu_consolidated_table")
+if _gpu_summary or not _gpu_table.empty:
+    with st.expander("Tabla consolidada CPU vs GPU — todas las secciones", expanded=False):
+        if _gpu_summary:
+            hw = _gpu_summary.get("hardware", {})
+            c1, c2, c3, c4 = st.columns(4)
+            c1.metric("GPU", hw.get("gpu", "N/A"))
+            c2.metric("Tasks comparados", _gpu_summary.get("n_tasks", "N/A"))
+            c3.metric("Speedup medio vs CPU", f"{_gpu_summary.get('mean_speedup_vs_cpu', 0):.1f}x")
+            c4.metric(
+                f"Máx speedup ({_gpu_summary.get('max_speedup_section', '?')})",
+                f"{(_gpu_summary.get('max_speedup') or 0):.1f}x",
+            )
+            st.caption(f"Task más rápida: `{_gpu_summary.get('max_speedup_task', 'N/A')}` — {hw.get('cpu', '')} vs {hw.get('gpu', '')}")
+        if not _gpu_table.empty:
+            cols_show = [c for c in ["section", "task", "backend_cpu", "backend_gpu", "cpu_seconds", "gpu_seconds", "speedup_cpu_vs_gpu", "speedup_vs_pandas"] if c in _gpu_table.columns]
+            st.dataframe(_gpu_table[cols_show].dropna(subset=["cpu_seconds", "gpu_seconds"], how="all"), hide_index=True, width="stretch")
+            st.caption("cpu_seconds / gpu_seconds = tiempo de ejecución en segundos. speedup_cpu_vs_gpu = cuántas veces más rápido es GPU vs CPU.")
 
 st.success(
     f"Conclusión final: la GPU ya es parte defendible del proyecto, pero en un carril específico. El champion oficial sigue siendo CPU canónico; RAPIDS es el carril de aceleración comparativa, de OR con `cuopt`, de Monte Carlo con `cupy` y de una nueva insight factory donde hoy el mejor candidato claro es `cuGraph` ({OFFICIAL_GPU_INSIGHT_TAG})."

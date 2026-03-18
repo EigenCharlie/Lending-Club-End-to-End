@@ -10,6 +10,7 @@ TARGETS = [
     Path("streamlit_app/pages/thesis_contribution.py"),
     Path("streamlit_app/pages/research_landscape.py"),
     Path("docs/conformal_prediction_README.md"),
+    Path("docs/PROMOTION_DOSSIER_2026-03-01.md"),
 ]
 
 UI_TARGETS = [
@@ -28,6 +29,33 @@ STALE_UI_PATTERNS = [
     "C=0.6838",
     "el 91.97% de las veces",
 ]
+
+
+def test_session_state_points_to_current_official_baseline() -> None:
+    text = Path("SESSION_STATE.md").read_text(encoding="utf-8")
+    assert "champion-2026-03-12-mega-definitive" in text
+    assert "configs/baselines/canonical_operational_baseline.json" in text
+
+
+def test_threshold_narrative_separates_internal_vs_operational_roles() -> None:
+    for path in (
+        Path("SESSION_STATE.md"),
+        Path("docs/RUNBOOK.md"),
+        Path("docs/ANALISIS_TOBOML_VS_PROYECTO_2026-03-13.md"),
+    ):
+        text = path.read_text(encoding="utf-8").lower()
+        assert "threshold interno" in text
+        assert "threshold operativo" in text
+
+
+def test_crepes_predict_p_not_described_as_probabilities() -> None:
+    for path in (
+        Path("docs/conformal_libraries_comparison.md"),
+        Path("docs/conformal_prediction_quick_reference.md"),
+    ):
+        text = path.read_text(encoding="utf-8").lower()
+        assert "predict_p" in text
+        assert "p-values" in text
 
 
 def test_no_stale_7_over_7_claims() -> None:
@@ -56,3 +84,9 @@ def test_no_stale_ui_metric_snapshots() -> None:
         + ", ".join(sorted(violations))
         + ". Load metrics from canonical artifacts instead of hardcoding snapshot numbers."
     )
+
+
+def test_historical_dossier_is_explicitly_marked_as_historical() -> None:
+    text = Path("docs/PROMOTION_DOSSIER_2026-03-01.md").read_text(encoding="utf-8").lower()
+    assert "historical snapshot" in text
+    assert "do not treat it as the live canonical policy state" in text

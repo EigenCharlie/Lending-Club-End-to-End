@@ -6,6 +6,13 @@ Guía editorial y de UX para mantener consistencia narrativa en el dashboard de 
 - Reducir carga cognitiva sin perder rigor técnico.
 - Alinear cómo se presentan métricas, gráficos y decisiones entre páginas.
 - Mantener tono experto en `Investigación` y `paper_*`.
+- Reorganizar la experiencia alrededor de dos ejes explícitos:
+  `Pipeline Operativo` e `Insight Factory`.
+
+## Ejes narrativos oficiales
+- `Pipeline Operativo`: datos -> PD -> calibración -> conformal -> survival/time series -> IFRS9 -> portfolio policy -> governance.
+- `Insight Factory`: explicabilidad, causalidad extendida, notebooks, benchmarks RAPIDS, drafts de paper y exploración.
+- `Libro/Quarto future-ready`: cada página debe declarar `book_chapter`, `artifact_scope` y `pipeline_role` para permitir migración editorial posterior sin rehacer el contenido.
 
 ## Estructura recomendada por tipo de página
 

@@ -11,14 +11,22 @@ from scripts import estimate_causal_effects as estimate_mod
 
 
 class DummyEstimator:
-    def effect(self, X: pd.DataFrame) -> np.ndarray:
+    def const_marginal_effect(self, X: pd.DataFrame) -> np.ndarray:
         return np.linspace(0.01, 0.02, len(X))
+
+    def const_marginal_effect_interval(
+        self, X: pd.DataFrame, alpha: float = 0.05
+    ) -> tuple[np.ndarray, np.ndarray]:
+        effect = self.const_marginal_effect(X)
+        return effect - 0.001, effect + 0.001
+
+    def effect(self, X: pd.DataFrame) -> np.ndarray:
+        return self.const_marginal_effect(X)
 
     def effect_interval(
         self, X: pd.DataFrame, alpha: float = 0.05
     ) -> tuple[np.ndarray, np.ndarray]:
-        effect = self.effect(X)
-        return effect - 0.001, effect + 0.001
+        return self.const_marginal_effect_interval(X, alpha=alpha)
 
 
 def test_estimate_causal_effects_writes_official_artifacts(tmp_path, monkeypatch) -> None:
@@ -67,7 +75,7 @@ def test_estimate_causal_effects_writes_official_artifacts(tmp_path, monkeypatch
     monkeypatch.setattr(
         estimate_mod,
         "estimate_cate",
-        lambda Y, T, X, W: (
+        lambda Y, T, X, W, **kwargs: (
             DummyEstimator(),
             np.linspace(0.01, 0.02, len(X)),
             (np.linspace(0.009, 0.019, len(X)), np.linspace(0.011, 0.021, len(X))),
@@ -84,7 +92,40 @@ def test_estimate_causal_effects_writes_official_artifacts(tmp_path, monkeypatch
     assert status["run_tag"] == "run-causal-test"
     assert status["treatment"] == "int_rate"
     assert status["identification_strategy"] == "backdoor"
+    assert status["identification_valid"] is True
+    assert status["role"] == "insights_only"
+    assert status["promotion_eligible"] is False
+    assert status["continuous_treatment_semantics"]["estimand"] == "const_marginal_effect"
     assert len(status["refutation_summary"]) == 3
     assert list(cate_train.columns[:4]) == ["id", "cate", "cate_lb", "cate_ub"]
     assert len(cate_oot) == len(test)
     assert {"segment_type", "segment_value", "support_ok"}.issubset(overlap.columns)
+
+
+def test_estimate_causal_effects_fails_when_required_columns_are_missing(
+    tmp_path, monkeypatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    data_dir = tmp_path / "data" / "processed"
+    data_dir.mkdir(parents=True)
+
+    train = pd.DataFrame(
+        {
+            "id": ["1", "2"],
+            "int_rate": [10.0, 12.0],
+            "default_flag": [0, 1],
+            "loan_amnt": [5000, 7000],
+            "annual_inc": [50000, 55000],
+            "dti": [10.0, 12.0],
+            "grade_woe": [0.2, 0.3],
+        }
+    )
+    train.to_parquet(data_dir / "train_fe.parquet", index=False)
+    train.to_parquet(data_dir / "test_fe.parquet", index=False)
+
+    try:
+        estimate_mod.main(treatment="int_rate", run_tag="run-causal-missing-cols")
+    except ValueError as exc:
+        assert "Missing required causal columns" in str(exc)
+    else:
+        raise AssertionError("estimate_causal_effects should fail when required columns are absent")

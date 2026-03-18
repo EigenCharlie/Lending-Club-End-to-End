@@ -249,7 +249,7 @@
     "output_index": 1,
     "image_path": "reports/notebook_images/03_pd_modeling/cell_010_out_01.png",
     "context": "03 — Probability of Default (PD) Modeling",
-    "text_output": "<Figure size 1000x1320 with 1 Axes>"
+    "text_output": "<Figure size 1000x1260 with 1 Axes>"
   },
   {
     "notebook": "03_pd_modeling.ipynb",
@@ -330,7 +330,7 @@
     "output_index": 1,
     "image_path": "reports/notebook_images/03_pd_modeling/cell_032_out_01.png",
     "context": "03 — Probability of Default (PD) Modeling",
-    "text_output": "<Figure size 1200x875 with 1 Axes>"
+    "text_output": "<Figure size 1200x825 with 1 Axes>"
   },
   {
     "notebook": "03_pd_modeling.ipynb",

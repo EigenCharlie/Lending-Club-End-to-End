@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +18,7 @@ import pandas as pd
 from loguru import logger
 
 from src.optimization.causal_portfolio import build_cate_adjusted_portfolio
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
 CAUSAL_PORTFOLIO_SCHEMA_VERSION = "2026-03-07.1"
 
@@ -47,7 +47,13 @@ def _parse_percent_series(s: pd.Series, default: float = 0.12) -> np.ndarray:
     )
 
 
+_CLI_RUN_TAG: str | None = None
+
+
 def _resolve_run_tag() -> str:
+    if _CLI_RUN_TAG:
+        return _CLI_RUN_TAG
+    candidates: list[str | None] = []
     for candidate_path in [
         Path("models/causal_effect_status.json"),
         Path("models/causal_policy_rule.json"),
@@ -59,11 +65,8 @@ def _resolve_run_tag() -> str:
             payload = json.loads(candidate_path.read_text(encoding="utf-8"))
         except Exception:
             continue
-        tag = str(payload.get("run_tag", "")).strip()
-        if tag:
-            return tag
-    env_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    return env_tag or "untracked"
+        candidates.append(payload.get("run_tag"))
+    return resolve_run_tag(*candidates, require_explicit=True)
 
 
 def _load_json_if_exists(path: Path) -> dict[str, Any]:
@@ -258,6 +261,21 @@ def main(
     )
 
     max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
+
+    # Align intervals to test_df using _row_number when available; fall back to positional.
+    if "_row_number" in intervals.columns:
+        test_df = test_df.reset_index(drop=True).copy()
+        test_df["_row_number"] = np.arange(len(test_df))
+        merged_ints = test_df.merge(intervals, on="_row_number", how="inner", suffixes=("", "_int"))
+        assert len(merged_ints) == len(test_df), (
+            f"_row_number merge size mismatch: {len(merged_ints)} != {len(test_df)}"
+        )
+        intervals = merged_ints[
+            [c for c in intervals.columns if c in merged_ints.columns]
+        ].reset_index(drop=True)
+        test_df = test_df.drop(columns=["_row_number"])
+        logger.info(f"Aligned CATE portfolio test and intervals by _row_number: n={len(test_df):,}")
+
     n = min(len(test_df), len(intervals), len(cate_series))
     if max_candidates_norm is not None:
         n = min(n, max_candidates_norm)
@@ -344,9 +362,6 @@ def main(
     run_tag = _resolve_run_tag()
     binding_reason = _constraint_binding_reason(result)
     status = {
-        "schema_version": CAUSAL_PORTFOLIO_SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": run_tag,
         "delta_rate": delta_rate,
         "baseline_objective": baseline["objective_value"],
         "cate_adjusted_objective": adjusted["objective_value"],
@@ -385,6 +400,9 @@ def main(
         "n_missing_cate": int(cate_meta["n_missing_cate"]),
         "cate_shrink": shrink_meta,
         "constraint_binding_reason": binding_reason,
+        "role": "insights_only" if not promotion_eligible else "operational_candidate",
+        "promotion_decider": "formal_optimizer_objective",
+        "policy_evaluation_consistent": bool(promotion_eligible),
         "warning": cate_meta["warning"]
         or (
             "Integracion causal no utilizable en este run."
@@ -392,6 +410,11 @@ def main(
             else ("CATE portfolio left in research-only fallback mode." if fallback_applied else "")
         ),
         "source_effect_status_path": "models/causal_effect_status.json",
+        **build_artifact_metadata(
+            schema_version=CAUSAL_PORTFOLIO_SCHEMA_VERSION,
+            run_tag=run_tag,
+            require_explicit=True,
+        ),
     }
 
     effect_status = _load_json_if_exists(Path("models/causal_effect_status.json"))
@@ -412,7 +435,10 @@ if __name__ == "__main__":
     parser.add_argument("--max_candidates", type=int, default=5_000)
     parser.add_argument("--uncertainty_aversion", type=float, default=0.0)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        _CLI_RUN_TAG = args.run_tag
     main(
         delta_rate=args.delta_rate,
         total_budget=args.total_budget,

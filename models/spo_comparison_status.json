@@ -1,0 +1,112 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T13:51:52.567738+00:00",
+  "run_tag": "spo-comparison-2026-03-17-135148",
+  "sample_size": 50000,
+  "prediction_column": "y_prob_final",
+  "two_stage": {
+    "approach": "two_stage_point",
+    "rank_regret": 0.2861425024,
+    "mae": 0.31006220505671045,
+    "description": "Point PD estimate, optimize directly on predictions"
+  },
+  "robust_conformal": {
+    "approach": "robust_conformal",
+    "rank_regret": 0.2988450904,
+    "mae_point": 0.31006220505671045,
+    "mae_high": 0.5729341047503984,
+    "worst_case_coverage": 0.92328,
+    "description": "Conformal pd_high as worst-case, optimize conservatively"
+  },
+  "spo_plus": {
+    "approach": "spo_plus",
+    "status": "capability_available",
+    "reason": "pyepo and torch installed; full training requires optmodel setup",
+    "description": "SPO+ trains neural net with decision-focused loss (Elmachtoub & Grigas 2022)",
+    "reference_code": "src/optimization/spo_integration.py"
+  },
+  "portfolio_economics": {
+    "tol_0.05": {
+      "risk_tolerance": 0.05,
+      "robust_return": 127965.77482191283,
+      "nonrobust_return": 1.77860275305654e-07,
+      "price_of_robustness": -127965.77482173497,
+      "price_of_robustness_pct": -10864257629244.516
+    },
+    "tol_0.06": {
+      "risk_tolerance": 0.06,
+      "robust_return": 142523.17192359804,
+      "nonrobust_return": 4.843798021980999e-09,
+      "price_of_robustness": -142523.1719235932,
+      "price_of_robustness_pct": -14183614627880.256
+    },
+    "tol_0.07": {
+      "risk_tolerance": 0.07,
+      "robust_return": 153667.5222482712,
+      "nonrobust_return": 1.0475260551701673e-07,
+      "price_of_robustness": -153667.52224816647,
+      "price_of_robustness_pct": -13909677287092.807
+    },
+    "tol_0.08": {
+      "risk_tolerance": 0.08,
+      "robust_return": 164116.9927100543,
+      "nonrobust_return": 5.8359038880871145e-09,
+      "price_of_robustness": -164116.99271004845,
+      "price_of_robustness_pct": -16316477874338.11
+    },
+    "tol_0.09": {
+      "risk_tolerance": 0.09,
+      "robust_return": 174190.41415113155,
+      "nonrobust_return": 1.1114099521228605e-07,
+      "price_of_robustness": -174190.4141510204,
+      "price_of_robustness_pct": -15676715637491.256
+    },
+    "tol_0.10": {
+      "risk_tolerance": 0.1,
+      "robust_return": 183071.3499921966,
+      "nonrobust_return": 3.88537264920913e-11,
+      "price_of_robustness": -183071.34999219657,
+      "price_of_robustness_pct": -18306423726439.14
+    },
+    "tol_0.12": {
+      "risk_tolerance": 0.12,
+      "robust_return": 197319.5040261472,
+      "nonrobust_return": 7.6950807995654e-09,
+      "price_of_robustness": -197319.5040261395,
+      "price_of_robustness_pct": -19581270940568.1
+    },
+    "tol_0.14": {
+      "risk_tolerance": 0.14,
+      "robust_return": 204462.5428333754,
+      "nonrobust_return": 1.5543262806369112e-07,
+      "price_of_robustness": -204462.54283321995,
+      "price_of_robustness_pct": -17695756365809.44
+    },
+    "tol_0.16": {
+      "risk_tolerance": 0.16,
+      "robust_return": 207398.26797579072,
+      "nonrobust_return": -1.4359604251072927e-08,
+      "price_of_robustness": -207398.26797580507,
+      "price_of_robustness_pct": -20446227068449.992
+    },
+    "tol_0.18": {
+      "risk_tolerance": 0.18,
+      "robust_return": 207098.72793462727,
+      "nonrobust_return": 1.3635021966207329e-08,
+      "price_of_robustness": -207098.72793461365,
+      "price_of_robustness_pct": -20431291682571.516
+    },
+    "tol_0.20": {
+      "risk_tolerance": 0.2,
+      "robust_return": 207550.1780223529,
+      "nonrobust_return": -2.5684107366079056e-07,
+      "price_of_robustness": -207550.17802260973,
+      "price_of_robustness_pct": -16513637433735.361
+    }
+  },
+  "summary": {
+    "two_stage_rank_regret": 0.2861425024,
+    "robust_rank_regret": 0.2988450904,
+    "robust_vs_two_stage_pct": -4.4392524331261365
+  }
+}

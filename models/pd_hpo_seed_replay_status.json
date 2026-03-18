@@ -1,0 +1,17 @@
+{
+  "selected_calibration_method": "venn_abers",
+  "validation_auc": 0.7200122985482411,
+  "oot_auc": 0.7144987224810557,
+  "brier": 0.15431938226993186,
+  "ece": 0.00871346886926656,
+  "replay": {
+    "enabled": false,
+    "reason": "hpo_disabled",
+    "rows": [],
+    "selected_trial": null,
+    "selected_params": null
+  },
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-16T15:42:45.020665+00:00",
+  "run_tag": "paper-grade-pre-quarto"
+}

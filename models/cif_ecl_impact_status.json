@@ -1,0 +1,23 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-17T19:24:48.215125+00:00",
+  "run_tag": "untracked",
+  "n_grades": 7,
+  "overall_km_t60m": 0.1689862317589712,
+  "overall_cif_t60m": 0.12389695845362438,
+  "km_overestimate_pp": 4.5089,
+  "overall": {
+    "km_t60m": 0.1689862317589712,
+    "cif_t60m": 0.12389695845362438,
+    "km_overestimate_t60m_pp": 4.5089,
+    "cf_lifetime": 0.733178,
+    "cf_12m": 0.996233
+  },
+  "ecl_impact": {
+    "total_ecl_km": 1002580797.0272369,
+    "total_ecl_cif_adjusted": 876753702.13,
+    "total_excess_reserve": 125827094.9,
+    "excess_reserve_pct": 12.55
+  },
+  "note": "KM ignores prepayment as a competing risk, inflating lifetime PD. CIF (Aalen-Johansen) corrects this. Excess reserve = ECL_KM - ECL_CIF. Stage 1 impact is minimal (12m horizon); Stage 2 impact is significant (lifetime)."
+}

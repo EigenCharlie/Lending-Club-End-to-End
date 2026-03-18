@@ -16,10 +16,14 @@ def test_freeze_core_baseline_sets_current_and_history(tmp_path, monkeypatch) ->
     snapshot.write_text(json.dumps({"run_tag": run_tag}), encoding="utf-8")
 
     registry_path = tmp_path / "configs" / "baselines" / "core_official_baseline.json"
+    primary_registry_path = (
+        tmp_path / "configs" / "baselines" / "canonical_operational_baseline.json"
+    )
 
     monkeypatch.setattr(freeze_mod, "ROOT", tmp_path)
     monkeypatch.setattr(freeze_mod, "RUN_COMPARISONS", tmp_path / "reports" / "run_comparisons")
     monkeypatch.setattr(freeze_mod, "REGISTRY_PATH", registry_path)
+    monkeypatch.setattr(freeze_mod, "PRIMARY_REGISTRY_PATH", primary_registry_path)
     monkeypatch.setattr(
         sys,
         "argv",
@@ -36,7 +40,9 @@ def test_freeze_core_baseline_sets_current_and_history(tmp_path, monkeypatch) ->
     freeze_mod.main()
 
     payload = json.loads(registry_path.read_text(encoding="utf-8"))
+    primary_payload = json.loads(primary_registry_path.read_text(encoding="utf-8"))
     assert payload["official_run_tag"] == run_tag
+    assert primary_payload["official_run_tag"] == run_tag
     assert payload["baseline_snapshot_path"].endswith(
         f"reports/run_comparisons/{run_tag}/baseline_snapshot.json"
     )

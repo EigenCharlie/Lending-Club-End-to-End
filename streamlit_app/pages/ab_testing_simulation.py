@@ -68,6 +68,10 @@ storytelling_intro(
 results = try_load_parquet("ab_simulation_results")
 summary = try_load_parquet("ab_simulation_summary")
 status = try_load_json("ab_simulation_status", directory="models", default={})
+ab_attribution_status = try_load_json("ab_attribution_status", directory="models", default={})
+ab_grade_df = try_load_parquet("ab_attribution_by_grade")
+ab_cohort_df = try_load_parquet("ab_attribution_by_cohort")
+ab_amount_df = try_load_parquet("ab_attribution_by_amount")
 gpu_status = try_load_gpu_replay_json(
     OFFICIAL_GPU_REPLAY_TAG, "artifacts/models/ab_simulation_status.json"
 )
@@ -197,6 +201,33 @@ Eso importa porque esta página dejó de ser solo un resultado económico; ahora
         )
         st.info(
             "La lectura más valiosa del replay full no es solo el tiempo. Es que, al escalar el universo, la policy seleccionada converge a una versión casi no robusta. Eso indica que el reto restante del A/B es de diseño de policy selection, no de solver ni de hardware."
+        )
+
+if ab_attribution_status:
+    sharpe = ab_attribution_status.get("sharpe_metrics", {})
+    with st.expander("Sharpe-like ratio y atribución por grade/cohort/monto", expanded=False):
+        c1, c2, c3, c4 = st.columns(4)
+        c1.metric("Bootstrap replications", f"{sharpe.get('n_bootstrap', 0):,}")
+        c2.metric("ROIC estrategia A", f"{float(sharpe.get('roic_a', 0)):.2%}")
+        c3.metric("ROIC estrategia B", f"{float(sharpe.get('roic_b', 0)):.2%}")
+        c4.metric("Sharpe-like diff", f"{float(sharpe.get('sharpe_like_diff', 0)):.3f}")
+        st.caption(
+            f"Calmar-like A: {float(sharpe.get('calmar_like_a', 0)):.2f} | "
+            f"Calmar-like B: {float(sharpe.get('calmar_like_b', 0)):.2f} | "
+            f"{sharpe.get('note', '')}"
+        )
+        if not ab_grade_df.empty:
+            st.markdown("**Atribución por grade (capital asignado + retorno real vs esperado)**")
+            st.dataframe(ab_grade_df, hide_index=True, width="stretch")
+        if not ab_cohort_df.empty:
+            st.markdown("**Atribución por cohorte temporal (segmento OOT)**")
+            st.dataframe(ab_cohort_df, hide_index=True, width="stretch")
+        if not ab_amount_df.empty:
+            st.markdown("**Atribución por bucket de monto**")
+            st.dataframe(ab_amount_df, hide_index=True, width="stretch")
+        st.caption(
+            "Atribución calculada sobre portfolio_allocations canónico + conformal_intervals_mondrian (OOT test set). "
+            "allocated_k = capital asignado en miles $. actual_return_k = retorno con defaults realizados."
         )
 
 decision_checklist(

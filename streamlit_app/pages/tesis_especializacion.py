@@ -41,10 +41,10 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     format_pct,
+    page_error_boundary,
     try_load_json,
     try_load_parquet,
     try_load_report_json,
-    page_error_boundary,
 )
 
 # Section tokens are kept for narrative contract checks but intentionally not rendered in UI.
@@ -1242,6 +1242,7 @@ with page_error_boundary("tesis_especializacion"):
         lgd_coverage_by_grade: pd.DataFrame,
         lgd_coverage_by_year: pd.DataFrame,
         lgd_guardrails: dict,
+        lgd_coverage_diagnostics: pd.DataFrame,
     ) -> None:
         st.subheader("Capitulo 7. Resultados LGD/EAD")
         _render_story_block(
@@ -1421,6 +1422,51 @@ with page_error_boundary("tesis_especializacion"):
                         fig_year.update_layout(**PLOTLY_TEMPLATE["layout"])
                         fig_year.update_layout(title="Estabilidad temporal de cobertura LGD")
                         st.plotly_chart(fig_year, width="stretch")
+                if not lgd_coverage_diagnostics.empty and all(
+                    c in lgd_coverage_diagnostics.columns
+                    for c in ["grade", "hit_90", "hit_95", "width_90", "width_95"]
+                ):
+                    with st.expander(
+                        "Diagnosticos per-loan LGD: cobertura y ancho por grade", expanded=False
+                    ):
+                        diag = lgd_coverage_diagnostics.copy()
+                        agg = (
+                            diag.groupby("grade")
+                            .agg(
+                                n=("hit_90", "count"),
+                                coverage_90=("hit_90", "mean"),
+                                coverage_95=("hit_95", "mean"),
+                                avg_width_90=("width_90", "mean"),
+                                avg_width_95=("width_95", "mean"),
+                            )
+                            .reset_index()
+                        )
+                        for col in ["coverage_90", "coverage_95", "avg_width_90", "avg_width_95"]:
+                            agg[col] = agg[col].round(4)
+                        st.markdown(
+                            "Cobertura empirica y ancho medio de intervalos LGD por grade "
+                            f"(n={len(diag):,} prestamos en el conjunto de calibracion/test)."
+                        )
+                        st.dataframe(agg, hide_index=True, width="stretch")
+                        if "variant" in diag.columns:
+                            variants = diag["variant"].unique().tolist()
+                            st.caption(f"Variante activa: {', '.join(str(v) for v in variants)}")
+                        fig_cov_diag = px.bar(
+                            agg.melt(
+                                id_vars="grade",
+                                value_vars=["coverage_90", "coverage_95"],
+                                var_name="nivel",
+                                value_name="coverage",
+                            ),
+                            x="grade",
+                            y="coverage",
+                            color="nivel",
+                            barmode="group",
+                            title="Cobertura LGD per-loan por grade (diagnostico)",
+                        )
+                        fig_cov_diag.update_layout(**PLOTLY_TEMPLATE["layout"])
+                        st.plotly_chart(fig_cov_diag, width="stretch")
+
         if not lgd_available:
             st.markdown("**Diagnostico tecnico de la brecha LGD**")
             lgd_diag_df = pd.DataFrame(
@@ -1556,6 +1602,7 @@ with page_error_boundary("tesis_especializacion"):
         conformal_variant_benchmark: pd.DataFrame,
         conformal_alerts: pd.DataFrame,
         conformal_variant_by_group: pd.DataFrame,
+        alpha_sweep_status: dict,
     ) -> None:
         st.subheader("Capitulo 8. Conformal prediction y evaluacion comparativa")
         _render_story_block(
@@ -1936,6 +1983,45 @@ with page_error_boundary("tesis_especializacion"):
             hide_index=True,
             width="stretch",
         )
+
+        if alpha_sweep_status:
+            with st.expander("Alpha sweep: Pareto cobertura-ancho-elegibilidad por variante", expanded=False):
+                n_alphas = alpha_sweep_status.get("n_alphas", "N/A")
+                alphas = alpha_sweep_status.get("alphas", [])
+                n_cal = alpha_sweep_status.get("n_cal", 0)
+                n_test = alpha_sweep_status.get("n_test", 0)
+                low_risk_thr = alpha_sweep_status.get("low_risk_threshold", "N/A")
+                c1, c2, c3, c4 = st.columns(4)
+                c1.metric("Alphas evaluados", n_alphas)
+                c2.metric("Cal set", f"{n_cal:,}" if isinstance(n_cal, int) else n_cal)
+                c3.metric("Test set", f"{n_test:,}" if isinstance(n_test, int) else n_test)
+                c4.metric("Umbral bajo riesgo", low_risk_thr)
+                st.caption(
+                    f"Alphas: {alphas} | Incluye variantes: "
+                    f"{'Mondrian' if alpha_sweep_status.get('mondrian') else '—'}, "
+                    f"{'Global' if alpha_sweep_status.get('global') else '—'}"
+                )
+                summaries = alpha_sweep_status.get("summaries", {})
+                if summaries:
+                    rows = []
+                    for variant, smry in summaries.items():
+                        rows.append(
+                            {
+                                "Variante": variant,
+                                "Mejor cobertura (alpha)": smry.get("best_coverage_alpha", "N/A"),
+                                "Mejor cobertura": round(float(smry.get("best_coverage", 0)), 4),
+                                "Alpha más ajustado": smry.get("tightest_avg_width_alpha", "N/A"),
+                                "Ancho mínimo": round(float(smry.get("tightest_avg_width", 0)), 4),
+                                "Alpha más elegible": smry.get("most_eligible_alpha", "N/A"),
+                                "N elegibles": int(smry.get("most_eligible_n", 0)),
+                            }
+                        )
+                    st.dataframe(pd.DataFrame(rows), hide_index=True, width="stretch")
+                st.markdown(
+                    "Lectura: para cada variante (global/Mondrian) se muestra el alpha que maximiza cobertura, "
+                    "el que minimiza ancho, y el que maximiza prestamos elegibles bajo el umbral de bajo riesgo. "
+                    "Mondrian domina en elegibilidad, confirmando la ventaja de la particion por grade."
+                )
 
         st.markdown(
             "Cierre del capitulo: conformal no se presenta como promesa abstracta, sino como un sistema con "
@@ -2546,6 +2632,10 @@ with page_error_boundary("tesis_especializacion"):
     lgd_coverage_by_year = _to_dataframe(
         try_load_parquet("lgd_coverage_by_year", default=pd.DataFrame())
     )
+    lgd_coverage_diagnostics = _to_dataframe(
+        try_load_parquet("lgd_coverage_diagnostics", default=pd.DataFrame())
+    )
+    alpha_sweep_status = try_load_json("alpha_sweep_status", directory="models", default={})
 
     conformal_checks = _to_dataframe(
         try_load_parquet("conformal_policy_checks", default=pd.DataFrame())
@@ -2638,6 +2728,7 @@ with page_error_boundary("tesis_especializacion"):
             lgd_coverage_by_grade,
             lgd_coverage_by_year,
             lgd_guardrails,
+            lgd_coverage_diagnostics,
         )
 
     with tabs[7]:
@@ -2651,6 +2742,7 @@ with page_error_boundary("tesis_especializacion"):
             conformal_variant_benchmark,
             conformal_alerts,
             conformal_variant_benchmark_by_group,
+            alpha_sweep_status,
         )
 
     with tabs[8]:

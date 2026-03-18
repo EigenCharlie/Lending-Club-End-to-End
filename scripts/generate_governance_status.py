@@ -13,9 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-import pickle
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -34,7 +31,10 @@ from src.evaluation.backtesting import (
 )
 from src.evaluation.explainability import dominant_reason_match_rate, rank_overlap_ratio
 from src.models.pd_contract import load_contract, resolve_calibrator_path, resolve_model_path
-from src.utils.io_utils import read_split_with_fe_fallback
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.baseline_registry import resolve_official_baseline_run_tag
+from src.utils.io_utils import load_pickle_compat, read_split_with_fe_fallback
+from src.utils.threshold_semantics import load_threshold_semantics, resolve_operational_threshold
 
 SCHEMA_VERSION = "2026-03-06.1"
 
@@ -63,8 +63,7 @@ def _load_training_record() -> dict[str, Any]:
     if not path.exists():
         return {}
     try:
-        with open(path, "rb") as f:
-            payload = pickle.load(f)
+        payload = load_pickle_compat(path)
     except Exception:
         return {}
     return payload if isinstance(payload, dict) else {}
@@ -81,8 +80,7 @@ def _load_calibrator() -> Any | None:
     if path is None or not path.exists():
         return None
     try:
-        with open(path, "rb") as f:
-            return pickle.load(f)
+        return load_pickle_compat(path)
     except Exception:
         return None
 
@@ -227,6 +225,9 @@ def _safe_mean(series: pd.Series) -> float:
 
 
 def _resolve_primary_threshold() -> float:
+    semantics = load_threshold_semantics()
+    if semantics:
+        return resolve_operational_threshold(semantics, default=0.5)
     fairness_status_path = Path("models/fairness_audit_status.json")
     if fairness_status_path.exists():
         try:
@@ -361,11 +362,12 @@ def _build_explanation_drift_report(
 
 def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = None) -> None:
     cfg = _load_cfg(config_path)
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
+    semantics = load_threshold_semantics()
+    resolved_run_tag = resolve_run_tag(
+        run_tag,
+        fallback_candidates=[semantics.get("run_tag"), resolve_official_baseline_run_tag()],
+        require_explicit=True,
     )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
 
     triggers = cfg.get("retraining_triggers", {})
     checks = cfg.get("governance_checks", {})
@@ -547,9 +549,6 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
         else []
     )
     status = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "checks": {
             "pass_psi": pass_psi,
@@ -635,6 +634,11 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
         "reason_code_stability_pass": reason_code_stability_pass,
         "challenger_promotable": challenger_promotable,
         "policy_config": config_path,
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
 
     status_path.parent.mkdir(parents=True, exist_ok=True)

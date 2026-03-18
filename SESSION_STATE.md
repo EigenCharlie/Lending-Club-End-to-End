@@ -1,18 +1,20 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-05
+Last Updated: 2026-03-16
 
 ---
 
 ## 1) Executive Status
 
 Project is operational and artifact-consistent across the thesis pipeline.
-Main branch finalized with full C smart promotion package.
+Current truth is baseline-registry-first.
 
-Closure updates (2026-03-05):
-- Official core baseline frozen at `2026-03-04-C-core-balanced-cert2`.
-- Baseline registry enabled in `configs/baselines/core_official_baseline.json`.
-- Core launcher resolves baseline automatically from registry when not explicitly passed.
-- Canonical status artifacts are single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
+Canonical update (2026-03-13):
+- Official operational baseline: `champion-2026-03-12-mega-definitive`.
+- Source of truth for baseline resolution: `configs/baselines/canonical_operational_baseline.json`.
+- Legacy registry `configs/baselines/core_official_baseline.json` is compatibility fallback only.
+- Canonical status artifacts remain single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
+- Threshold semantics are now explicit in `models/threshold_semantics.json`:
+  internal PD screening/search threshold is separate from the operational fairness/approval threshold.
 
 - Serving strategy remains Streamlit-first (thesis showcase mode).
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
@@ -63,8 +65,12 @@ Design implication:
 22. scripts/build_pipeline_results.py     -> pipeline KPI aggregation
 23. scripts/export_streamlit_artifacts.py -> Streamlit-ready data export
 24. scripts/export_storytelling_snapshot.py -> storytelling JSON
-25. scripts/end_to_end_pipeline.py        -> orchestration
+25. scripts/end_to_end_pipeline.py        -> orchestration (legacy, see run_smoke_pipeline.py)
 26. scripts/export_dvc_metrics.py         -> DVC metrics + plot exports
+27. scripts/run_insights_factory.py       -> complementary insight generation (canonical/research profiles)
+28. scripts/run_spo_comparison.py          -> SPO+ decision regret comparison (Paper Estrella)
+29. scripts/run_spo_real.py               -> SPO+ v2: point-wise MLP, calibrated PD, multi-seed (Paper Estrella)
+30. scripts/run_sicr_conformal.py         -> SICR width trigger + ECL alpha sensitivity (Paper 2)
 ```
 
 ---
@@ -86,22 +92,26 @@ Source artifacts:
 
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
-- Calibration selected: `Isotonic Regression`
-- AUC: `0.7117`
-- Gini: `0.4234`
-- KS: `0.3129`
-- Brier: `0.1548`
-- ECE: `0.0072`
-- HPO: reused best trial 855 (val AUC 0.7201) from prior Optuna study
+- Calibration selected: `Venn-Abers`
+- AUC: `0.7145`
+- Gini: `0.4260`
+- KS: `0.3149`
+- Brier: `0.1543`
+- ECE: `0.0087`
+- PR-AUC: `0.3998`
+- Recall@0.35: `0.360`
+- F1@0.35: `0.392`
+- HPO: 320 Optuna trials (hpo_enabled=false in confirmatory run, uses prior best params)
+- Confirmatory run tag: `paper-grade-pre-quarto` (2026-03-16)
 
 ### 4.2 Conformal (Mondrian)
-- Coverage 90%: `0.9167`
-- Coverage 95%: `0.9559`
-- Avg width 90%: `0.7442`
-- Min group coverage 90%: `0.8840`
-- Policy checks passed: `8/13`
-- Overall policy pass: `false` (Kupiec/Christoffersen fail on 276K OOT sample — expected; promotion gate treats these as non-blocking diagnostics)
-- Conformal promotion pass: `true`
+- Variant: `score_decile_mondrian`
+- Coverage 90%: see `models/conformal_policy_status.json`
+- Coverage 95%: see `models/conformal_policy_status.json`
+- Min group coverage 90%: see `models/conformal_policy_status.json`
+- Policy checks: Kupiec/Christoffersen are diagnostic only (expected to fail on 276K OOT — statistical power artifact)
+- Methodological justification pass: `true` (paper-grade closure authoritative)
+- `comparison.json` operational_overall_pass: `true` (paper-grade run 2026-03-13)
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
@@ -110,35 +120,72 @@ Source artifacts:
 - Selected bootstrap p05 net value: `5.82M`
 
 ### 4.4 IFRS9 Sensitivity
-- Baseline total ECL: `0.977B`
-- Conservative total ECL: `1.791B`
-- ECL range: `0.814B`
+- Baseline total ECL: `0.999B`
+- Conservative total ECL: `1.802B`
+- ECL range: `0.803B`
 
 ### 4.5 Optimization Robustness
-- Non-robust return: `$111,438` (155 loans funded)
-- Robust return: `$67,871` (90 loans funded)
-- Price of robustness (absolute): `$43,567`
+
+- Non-robust return: `$82,483` (155 loans funded)
+- Robust return: `$169,491` (300 loans funded)
+- Price of robustness (absolute): `$-87,007`
+
+### 4.5.1 Champion Portfolio Policy (Promoted 2026-03-16)
+
+- Artifact: `models/champion_portfolio_policy.json` (`promoted: true`)
+- `risk_tolerance`: `0.18`
+- `policy_mode`: `segment_relative_tail_blended_uncertainty`
+- `gamma`: `0.1`
+- `uncertainty_aversion`: `0.1`
+- Selected by: economic selector v3 + A/B baseline no-regression PASS
+- Ambiguity-defer scenario: NOT promoted (diff=-$13.5K, outside $1.1K tolerance; gate is diagnostic only)
 
 ### 4.6 Fairness Audit
-- Overall pass: `false` (2/3 attributes pass)
-- home_ownership: PASS (DPD=0.073, EO_gap=0.079, DIR=0.924)
-- annual_inc_quartile: FAIL (DPD=0.116, EO_gap=0.133)
-- verification_status: PASS (DPD=0.075, EO_gap=0.081, DIR=0.922)
+- Overall pass: `true` (`6/6` attributes pass)
+- Threshold operativo oficial: `0.35`
+- Threshold interno PD search/screening: ver `models/threshold_semantics.json`
+- Fairness y decisión operativa deben leerse con el threshold oficial, no con el threshold interno PD.
 
 ### 4.7 A/B Simulation
-- Strategy A (non-robust): $17,067 return, 153 loans
-- Strategy B (robust): $17,918 return, 81 loans
+- Strategy A (non-robust): mean return `1.4753`
+- Strategy B (robust): mean return `1.5175`
+- Diff B-A: `0.0422` with CI `[-0.5790, 0.6600]`
 - No-regression gate: PASS
+
+### 4.8 SPO+ v2 (Paper Estrella)
+- Architecture: point-wise permutation-equivariant MLP (n_features=10 input, not flat 500-dim)
+- Costs: calibrated PD via Venn-Abers (continuous [-0.24, +0.17]), not binary default_flag
+- Multi-seed: 5 seeds × 200 test instances = 1,000 paired observations
+- Two-stage mean regret: `0.4259 ± 0.1173`
+- SPO+ mean regret: `0.2168 ± 0.0721` (**49.1% improvement**)
+- Conformal robust mean regret: `0.9474 ± 0.2007` (worst-case ≠ expected-cost opt)
+- Wilcoxon p-value: `0.0000` (H1: two-stage > SPO+)
+- Artifact: `models/spo_real_training_status.json` (SCHEMA_VERSION 2026-03-17.2)
+
+### 4.9 SICR Conformal (Paper 2)
+- Optimal width threshold: `t* = 0.30` (F1=0.2515, precision=15.1%, recall of missed=75.8%)
+- ECL additional at t*: `$56.6M` (incremental Stage 2 provisioning)
+- Alpha sensitivity: ECL goes from `$54.6M` (alpha=0.20) to `$66.4M` (alpha=0.01) — +22% regulatory cost for 99% vs 90% confidence
+- Grid: 5 PD thresholds × 20 width thresholds = 100 rows
+- Alpha sweep: 8 Mondrian alpha levels from pareto
+- Artifacts: `models/sicr_conformal_status.json`, `data/processed/sicr_conformal_grid.parquet`, `data/processed/ecl_alpha_sensitivity.parquet`
 
 ---
 
 ## 5) Delivery Layer Status (Current)
 
 ### Streamlit
-- 27-page multi-page app in `streamlit_app/`, all registered in `app.py`.
+- Historical note: page counts in this file are snapshots and may drift; use runtime exports and Streamlit utilities for live inventory.
 - Professional light theme with audience toggle (General/Negocio/Técnico).
 - Model laboratory and thesis pages consume runtime artifacts for metrics.
-- Includes A/B testing simulation, fairness audit, CATE portfolio, and 3 paper draft pages.
+- Includes A/B testing simulation, fairness audit, CATE portfolio, 3 paper draft pages, and Paper Estrella page.
+
+### Insights Factory
+- Entrypoint: `scripts/run_insights_factory.py`
+- Two profiles: `canonical` (lightweight) and `research` (GPU + notebooks + SPO+).
+- Consumes canonical artifacts without modifying or promoting.
+- Canonical profile: conformal method registry, set prediction benchmark, rare-event calibration, paper notebooks, image extraction, storytelling snapshot.
+- Research profile adds: all notebooks, PD RAPIDS benchmark, RAPIDS insight factory (cuDF/cuML/cuGraph), SPO+ comparison.
 
 ### FastAPI
 - Endpoints implemented in `api/`:
@@ -167,11 +214,10 @@ Source artifacts:
 
 ## 7) Test Suite
 
-Local verification on 2026-03-01:
+Historical verification snapshot on 2026-03-01:
 
-- `463/463` tests passing (`pytest -q`, Python 3.12.12)
-- `49` test files (`tests/**/test_*.py`)
-- Streamlit smoke/import coverage includes all `27` pages (`tests/test_streamlit/test_page_imports.py`)
+- Prior pass counts in this file are historical only and must not be read as live inventory.
+- Current test/page counts are generated dynamically by runtime exports and Streamlit utilities.
 
 Operational note:
 - `data/processed/runtime_status.json` is a generated snapshot and may lag until `scripts/export_streamlit_artifacts.py` is re-run.
@@ -181,7 +227,7 @@ Operational note:
 1. Keep docs and Streamlit narratives strictly artifact-driven (no stale hardcoded claims).
 2. Config files are templates — runtime calibration selection is artifact-driven.
 3. Preserve reproducibility gates (`ruff`, `pytest`, `dvc`) in routine runs.
-4. DVC pipeline has 26 stages; `dvc.lock` is authoritative for artifact hashes.
+4. DVC stage counts in this file are historical snapshots; `dvc.lock` is authoritative for artifact hashes.
 
 ---
 
@@ -192,7 +238,10 @@ Operational note:
 | `SESSION_STATE.md` | Current official state |
 | `docs/PROJECT_JUSTIFICATION.md` | Current official design rationale |
 | `docs/DECISION_CHANGES_AND_LEARNINGS.md` | Historical decisions, errors, learnings, and session history |
+| `models/threshold_semantics.json` | Canonical split between internal PD threshold and operational fairness/approval threshold |
 | `data/processed/model_comparison.json` | PD model comparison and final metrics |
 | `models/conformal_policy_status.json` | Conformal policy gate snapshot |
 | `models/causal_policy_rule.json` | Causal policy rule and selected metrics |
 | `data/processed/pipeline_summary.json` | Cross-module pipeline KPI snapshot |
+| `models/champion_portfolio_policy.json` | Promoted portfolio champion policy (risk_tolerance=0.18) |
+| `models/champion_registry.json` | Full champion registry across all modules |

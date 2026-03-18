@@ -8,9 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import pickle
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -24,8 +22,10 @@ from src.models.causal import (
     default_effect_modifiers,
     estimate_ate_dowhy,
     estimate_cate,
+    required_causal_columns,
     specify_causal_graph,
 )
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
 CAUSAL_SCHEMA_VERSION = "2026-03-07.1"
 
@@ -61,20 +61,14 @@ def _numeric_frame(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
     return df[columns].apply(pd.to_numeric, errors="coerce").fillna(0.0)
 
 
-def _resolve_run_tag(run_tag: str | None) -> str:
-    candidate = str(run_tag or "").strip()
-    if candidate:
-        return candidate
-    env_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    return env_run_tag or "untracked"
-
-
 def _artifact_metadata(run_tag: str, dataset_scope: str) -> dict[str, Any]:
     return {
-        "schema_version": CAUSAL_SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": run_tag,
         "dataset_scope": dataset_scope,
+        **build_artifact_metadata(
+            schema_version=CAUSAL_SCHEMA_VERSION,
+            run_tag=run_tag,
+            require_explicit=True,
+        ),
     }
 
 
@@ -109,8 +103,14 @@ def _save_oot_cate_artifact(
     test_df = _ensure_id(test_df)
     test_df[treatment] = _coerce_treatment(test_df[treatment])
     X_test = _numeric_frame(test_df, effect_modifiers)
-    cate = estimator.effect(X_test)
-    lb, ub = estimator.effect_interval(X_test, alpha=0.05)
+    if hasattr(estimator, "const_marginal_effect"):
+        cate = estimator.const_marginal_effect(X_test)
+    else:
+        cate = estimator.effect(X_test)
+    if hasattr(estimator, "const_marginal_effect_interval"):
+        lb, ub = estimator.const_marginal_effect_interval(X_test, alpha=0.05)
+    else:
+        lb, ub = estimator.effect_interval(X_test, alpha=0.05)
 
     oot_df = pd.DataFrame(
         {
@@ -133,8 +133,14 @@ def main(
     treatment: str = "int_rate",
     sample_size: int | None = None,
     run_tag: str | None = None,
+    cate_n_estimators: int = 200,
+    cate_cv: int = 3,
+    cate_mc_iters: int = 1,
+    cate_criterion: str = "mse",
+    cate_min_balancedness_tol: float = 0.45,
+    cate_honest: bool = True,
 ) -> None:
-    run_tag_resolved = _resolve_run_tag(run_tag)
+    run_tag_resolved = resolve_run_tag(run_tag, require_explicit=True)
     train_df, train_path = _load_split("train_fe", "train")
     test_df, test_path = _load_split("test_fe", "test")
 
@@ -144,6 +150,15 @@ def main(
         raise ValueError(f"Treatment column '{treatment}' not found in {train_path}")
     if treatment not in test_df.columns:
         raise ValueError(f"Treatment column '{treatment}' not found in {test_path}")
+
+    missing_required_columns = [
+        col for col in required_causal_columns(treatment=treatment) if col not in train_df.columns
+    ]
+    if missing_required_columns:
+        raise ValueError(
+            "Missing required causal columns for the official DAG/contract: "
+            + ", ".join(sorted(missing_required_columns))
+        )
 
     train_df[treatment] = _coerce_treatment(train_df[treatment])
     train_df = train_df.dropna(subset=[treatment, "default_flag"]).copy()
@@ -181,6 +196,12 @@ def main(
         T=train_df[treatment],
         X=X,
         W=W,
+        n_estimators=cate_n_estimators,
+        cv=cate_cv,
+        mc_iters=cate_mc_iters,
+        criterion=cate_criterion,
+        min_balancedness_tol=cate_min_balancedness_tol,
+        honest=cate_honest,
     )
     estimator._effect_modifier_columns = list(effect_modifiers)
     estimator._confounder_columns = list(confounders)
@@ -251,7 +272,8 @@ def main(
                 "ci_mean_ub": float(np.mean(ub)),
                 "effect_modifiers": effect_modifiers,
                 "confounders": confounders,
-                "policy_semantics": "local_cate_policy_simulation",
+                "policy_semantics": "insights_only_continuous_treatment",
+                "continuous_treatment_semantics": "const_marginal_effect",
             },
             f,
         )
@@ -275,10 +297,20 @@ def main(
         "cate_artifact_path": str(cate_path),
         "oot_cate_artifact_path": str(data_dir / "cate_estimates_oot.parquet"),
         "overlap_artifact_path": str(overlap_path),
+        "identification_valid": True,
+        "missing_required_columns": [],
+        "continuous_treatment_semantics": {
+            "estimand": "const_marginal_effect",
+            "interpretation": "default_probability_delta_per_1pp_rate_change",
+            "policy_safe": False,
+        },
+        "policy_evaluation_consistent": False,
+        "role": "insights_only",
+        "promotion_eligible": False,
         "official_method": {
             "identification": "DoWhy backdoor identification/refutation",
             "heterogeneity": "EconML CausalForestDML",
-            "policy_semantics": "local_cate_policy_simulation",
+            "policy_semantics": "insights_only_continuous_treatment",
         },
     }
     status_path = model_dir / "causal_effect_status.json"
@@ -294,5 +326,25 @@ if __name__ == "__main__":
     parser.add_argument("--treatment", default="int_rate")
     parser.add_argument("--sample_size", type=int, default=None)
     parser.add_argument("--run_tag", default=None)
+    parser.add_argument("--cate_n_estimators", type=int, default=200)
+    parser.add_argument("--cate_cv", type=int, default=3)
+    parser.add_argument("--cate_mc_iters", type=int, default=1)
+    parser.add_argument("--cate_criterion", choices=["mse", "het"], default="mse")
+    parser.add_argument("--cate_min_balancedness_tol", type=float, default=0.45)
+    parser.add_argument(
+        "--cate_honest",
+        choices=["true", "false"],
+        default="true",
+    )
     args = parser.parse_args()
-    main(args.treatment, args.sample_size, args.run_tag)
+    main(
+        args.treatment,
+        args.sample_size,
+        args.run_tag,
+        cate_n_estimators=args.cate_n_estimators,
+        cate_cv=args.cate_cv,
+        cate_mc_iters=args.cate_mc_iters,
+        cate_criterion=args.cate_criterion,
+        cate_min_balancedness_tol=args.cate_min_balancedness_tol,
+        cate_honest=args.cate_honest.lower() == "true",
+    )

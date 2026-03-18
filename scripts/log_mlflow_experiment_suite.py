@@ -32,7 +32,11 @@ from src.utils.mlflow_utils import init_dagshub
 
 ROOT = Path(__file__).resolve().parents[1]
 MAX_ARTIFACT_MB = int(os.getenv("MLFLOW_MAX_ARTIFACT_MB", "64"))
-BASELINE_REGISTRY_PATH = ROOT / "configs" / "baselines" / "core_official_baseline.json"
+PRIMARY_BASELINE_REGISTRY_PATH = (
+    ROOT / "configs" / "baselines" / "canonical_operational_baseline.json"
+)
+LEGACY_BASELINE_REGISTRY_PATH = ROOT / "configs" / "baselines" / "core_official_baseline.json"
+BASELINE_REGISTRY_PATH = PRIMARY_BASELINE_REGISTRY_PATH
 
 
 def _load_json(path: str) -> dict[str, Any]:
@@ -46,6 +50,21 @@ def _load_pickle(path: str) -> dict[str, Any]:
     if not isinstance(obj, dict):
         raise TypeError(f"Expected dict in pickle artifact: {path}")
     return obj
+
+
+def _nested_numeric(payload: dict[str, Any], *keys: str, default: float = 0.0) -> float:
+    current: Any = payload
+    for key in keys:
+        if not isinstance(current, dict):
+            return default
+        current = current.get(key)
+    if isinstance(current, dict):
+        current = current.get("value", default)
+    try:
+        value = float(current if current is not None else default)
+    except (TypeError, ValueError):
+        return default
+    return value if math.isfinite(value) else default
 
 
 def _to_metrics(data: dict[str, Any], prefix: str = "") -> dict[str, float]:
@@ -125,14 +144,21 @@ def _resolve_official_baseline_run_tag(cli_value: str | None = None) -> str:
     env_value = os.getenv("OFFICIAL_BASELINE_RUN_TAG", "").strip()
     if env_value:
         return env_value
-    if not BASELINE_REGISTRY_PATH.exists():
-        return "unknown"
-    try:
-        payload = json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return "unknown"
-    value = str(payload.get("official_run_tag", "")).strip()
-    return value or "unknown"
+    for path in (
+        BASELINE_REGISTRY_PATH,
+        PRIMARY_BASELINE_REGISTRY_PATH,
+        LEGACY_BASELINE_REGISTRY_PATH,
+    ):
+        if not path.exists():
+            continue
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        value = str(payload.get("official_run_tag", "")).strip()
+        if value:
+            return value
+    return "unknown"
 
 
 def _configure_tracking_non_interactive(repo_owner: str, repo_name: str) -> None:
@@ -486,6 +512,12 @@ def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
         else "unknown"
     )
     recent_actual_mean = status.get("summary", {}).get("recent_actual_mean_12m")
+    seasonal_strength = _nested_numeric(
+        diagnostics,
+        "seasonal_strength",
+        default=_nested_numeric(diagnostics, "stl", "seasonal_strength", default=0.0),
+    )
+    variance_ratio = _nested_numeric(diagnostics, "variance_ratio", default=0.0)
 
     metrics = {
         "n_forecast_rows": float(len(forecasts)),
@@ -514,8 +546,8 @@ def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
         "point_promotable": float(bool(point_champion.get("promotable", False))),
         "interval_promotable": float(bool(interval_champion.get("promotable", False))),
         "status_pass": float(str(status.get("status", "")) == "pass"),
-        "seasonal_strength": float(diagnostics.get("seasonal_strength", 0.0) or 0.0),
-        "variance_ratio": float(diagnostics.get("variance_ratio", 0.0) or 0.0),
+        "seasonal_strength": seasonal_strength,
+        "variance_ratio": variance_ratio,
     }
     params = {
         "series_id": str(forecasts["unique_id"].iloc[0]) if len(forecasts) else "unknown",

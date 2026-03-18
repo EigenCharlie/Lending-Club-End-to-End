@@ -1,4 +1,5 @@
 """Resumen ejecutivo del proyecto integral de riesgo de credito."""
+# ruff: noqa: E402, I001
 
 from __future__ import annotations
 
@@ -33,6 +34,8 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     format_pct,
+    get_operational_threshold,
+    get_pd_internal_threshold,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
     load_rapids_pd_benchmark_stage_table,
@@ -209,6 +212,11 @@ render_decision_box(
     cadence="snapshot por commit o release",
 )
 render_global_kpi_spine("executive")
+st.caption(
+    "Thresholds canónicos: "
+    f"interno PD `{get_pd_internal_threshold():.2f}` vs operativo fairness/aprobación "
+    f"`{get_operational_threshold():.2f}`."
+)
 
 rapids_summary = load_gpu_replay_summary()
 rapids_compare = load_rapids_stage_comparison()

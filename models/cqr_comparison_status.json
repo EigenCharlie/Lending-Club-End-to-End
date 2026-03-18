@@ -1,0 +1,78 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T14:11:11.921734+00:00",
+  "run_tag": "untracked",
+  "alpha": 0.1,
+  "low_risk_threshold": 0.1,
+  "n_test": 276869,
+  "cqr_status": "success",
+  "methods": {
+    "global_splitconf": {
+      "method": "global_splitconf",
+      "empirical_coverage": 0.899064178365942,
+      "min_group_coverage": 0.5880993645291739,
+      "avg_width": 0.9560809238980794,
+      "median_width": 1.0,
+      "std_width": 0.06814587264074508,
+      "n_eligible": 0,
+      "n_test": 276869,
+      "eligible_pct": 0.0
+    },
+    "mondrian_splitconf": {
+      "method": "mondrian_splitconf",
+      "empirical_coverage": 0.8729001802296393,
+      "min_group_coverage": 0.8502237939990054,
+      "avg_width": 0.8703068871888459,
+      "median_width": 0.9841398534896959,
+      "std_width": 0.18198601796418745,
+      "n_eligible": 0,
+      "n_test": 276869,
+      "eligible_pct": 0.0
+    },
+    "cqr_asymmetric": {
+      "method": "cqr_asymmetric",
+      "empirical_coverage": 0.9826271630265577,
+      "min_group_coverage": 0.9522572802121899,
+      "avg_width": 0.9695708112572741,
+      "median_width": 1.0,
+      "std_width": 0.09458606914238259,
+      "n_eligible": 0,
+      "n_test": 276869,
+      "eligible_pct": 0.0
+    }
+  },
+  "per_group_coverage": {
+    "global_splitconf": {
+      "A": 0.9404873735978339,
+      "B": 0.9662731871838112,
+      "C": 0.9190426255526585,
+      "D": 0.7541687665709841,
+      "E": 0.6940339859623199,
+      "F": 0.5880993645291739,
+      "G": 0.6551724137931034
+    },
+    "mondrian_splitconf": {
+      "A": 0.8502237939990054,
+      "B": 0.8763660023104195,
+      "C": 0.8840692665230699,
+      "D": 0.8789359510923155,
+      "E": 0.893424455116365,
+      "F": 0.9081455805892548,
+      "G": 0.9556650246305419
+    },
+    "cqr_asymmetric": {
+      "A": 0.9522572802121899,
+      "B": 0.9839731247759291,
+      "C": 0.9989797075161546,
+      "D": 0.9988824857023906,
+      "E": 0.9980605836719616,
+      "F": 0.9982668977469671,
+      "G": 1.0
+    }
+  },
+  "summary": {
+    "best_coverage_method": "cqr_asymmetric",
+    "tightest_method": "mondrian_splitconf",
+    "most_eligible_method": "global_splitconf"
+  }
+}

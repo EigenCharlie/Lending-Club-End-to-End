@@ -16,6 +16,7 @@ import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.yaml"
+PAPER_GRADE_PD_CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.paper_grade_final.yaml"
 CONTRACT_PATH = PROJECT_ROOT / "models" / "pd_model_contract.json"
 DVC_YAML_PATH = PROJECT_ROOT / "dvc.yaml"
 DVC_LOCK_PATH = PROJECT_ROOT / "dvc.lock"
@@ -29,15 +30,15 @@ def pd_config() -> dict:
 class TestCalibrationConfig:
     def test_calibration_method_is_valid(self, pd_config: dict) -> None:
         method = pd_config["calibration"]["method"]
-        assert method in {"isotonic", "platt", "venn_abers"}, (
+        assert method in {"isotonic", "platt", "venn_abers", "auto"}, (
             f"Unknown calibration method: {method}"
         )
 
-    def test_calibration_method_matches_thesis(self, pd_config: dict) -> None:
-        """Thesis selected Platt sigmoid (ECE=0.0128). Config must agree."""
+    def test_calibration_method_is_auto(self, pd_config: dict) -> None:
+        """Calibration method is auto-selected at runtime via temporal multi-metric policy."""
         method = pd_config["calibration"]["method"]
-        assert method == "platt", (
-            f"Config says '{method}' but thesis/CLAUDE.md specifies Platt sigmoid"
+        assert method == "auto", (
+            f"Config says '{method}' but should be 'auto' (runtime selects best via temporal policy)"
         )
 
     def test_calibration_candidates_include_supported_methods(self, pd_config: dict) -> None:
@@ -109,6 +110,15 @@ class TestPDValidationConfig:
             assert int(sign) in {-1, 0, 1}, (
                 f"monotonic constraint for {feature} must be -1/0/1, got {sign}"
             )
+
+    def test_paper_grade_final_pd_config_uses_clean_study_name_and_storage(self) -> None:
+        payload = yaml.safe_load(PAPER_GRADE_PD_CONFIG_PATH.read_text())
+        hpo = payload.get("hpo", {})
+        assert hpo.get("enabled") is True
+        assert hpo.get("study_name") == "pd_catboost_optuna_temporal_paper_grade_final"
+        assert (
+            hpo.get("study_storage") == "sqlite:///models/optuna_pd_catboost_paper_grade_final.db"
+        )
 
 
 class TestModelContract:

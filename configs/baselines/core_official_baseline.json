@@ -1,12 +1,13 @@
 {
+  "_DEPRECATED": "2026-03-13: Superseded by canonical_operational_baseline.json. Schedule for removal after Paper 3 (May 2026). Kept as compatibility fallback only.",
   "schema_version": "2026-03-05.1",
-  "generated_at_utc": "2026-03-09T06:11:46.923245+00:00",
-  "official_run_tag": "2026-03-09-C-official-champion64safe",
-  "baseline_snapshot_path": "reports/run_comparisons/2026-03-09-C-official-champion64safe/baseline_snapshot.json",
-  "baseline_snapshot_sha256": "5f1bcfee787800325db1926694488bcded3d4858c9bcda0fa8f7f2f56dc70b60",
-  "baseline_snapshot_mtime_utc": "2026-03-09T06:11:46.871924+00:00",
-  "frozen_at_utc": "2026-03-09T06:11:46.923245+00:00",
-  "notes": "Official champion baseline frozen after official PASS; official release run with clean repo and official tag.",
+  "generated_at_utc": "2026-03-13T13:03:33.156794+00:00",
+  "official_run_tag": "champion-2026-03-12-mega-definitive",
+  "baseline_snapshot_path": "reports/run_comparisons/champion-2026-03-12-mega-definitive/baseline_snapshot.json",
+  "baseline_snapshot_sha256": "e4fbdaac292afa4d921c091cf735534ab824ed7bba1f6fd77137da76d1ebc962",
+  "baseline_snapshot_mtime_utc": "2026-03-13T13:03:33.081613+00:00",
+  "frozen_at_utc": "2026-03-13T13:03:33.156794+00:00",
+  "notes": "Promoted from champion_search_max mega run. Operationally promoted: PD core, isotonic calibration, portfolio policy, survival RSF, fairness, governance, LGD/EAD conformal. Warnings retained for PD conformal statistics and time-series intervals.",
   "history": [
     {
       "frozen_at_utc": "2026-03-05T01:37:53.218435+00:00",
@@ -31,6 +32,22 @@
       "baseline_snapshot_sha256": "5f1bcfee787800325db1926694488bcded3d4858c9bcda0fa8f7f2f56dc70b60",
       "baseline_snapshot_mtime_utc": "2026-03-09T06:11:46.871924+00:00",
       "notes": "Official champion baseline frozen after official PASS; official release run with clean repo and official tag."
+    },
+    {
+      "frozen_at_utc": "2026-03-12T00:00:00+00:00",
+      "run_tag": "2026-03-11-C-official-selector-v3-freeze",
+      "baseline_snapshot_path": "reports/run_comparisons/2026-03-11-C-official-selector-v3-freeze/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "e456e0073f50a33d479e8a80e252b6d36b4d09d22bed25d074dd25cc4dbb9e77",
+      "baseline_snapshot_mtime_utc": "2026-03-11T20:55:47.344824+00:00",
+      "notes": "Selector-v3 freeze adopted as operational canonical baseline."
+    },
+    {
+      "frozen_at_utc": "2026-03-13T13:03:33.156794+00:00",
+      "run_tag": "champion-2026-03-12-mega-definitive",
+      "baseline_snapshot_path": "reports/run_comparisons/champion-2026-03-12-mega-definitive/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "e4fbdaac292afa4d921c091cf735534ab824ed7bba1f6fd77137da76d1ebc962",
+      "baseline_snapshot_mtime_utc": "2026-03-13T13:03:33.081613+00:00",
+      "notes": "Promoted from champion_search_max mega run. Operationally promoted: PD core, isotonic calibration, portfolio policy, survival RSF, fairness, governance, LGD/EAD conformal. Warnings retained for PD conformal statistics and time-series intervals."
     }
   ]
 }

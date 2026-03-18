@@ -36,9 +36,9 @@ from streamlit_app.theme import PLOTLY_TEMPLATE
 from streamlit_app.utils import (
     format_number,
     get_notebook_image_path,
+    load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
     load_rapids_tradeoff_full_policy,
-    load_rapids_stage_comparison,
     page_error_boundary,
     try_load_json,
     try_load_parquet,
@@ -661,6 +661,15 @@ if not roi_term.empty:
             "Los préstamos a **60 meses** tienen consistentemente mayor default rate y menor ROI. "
             "El plazo largo amplifica la exposición temporal al riesgo, lo que se alinea con los "
             "hallazgos del análisis de supervivencia (mayor PD lifetime)."
+        )
+
+_uset_img = get_notebook_image_path("08_portfolio_optimization", "uncertainty_sets.png")
+if _uset_img.exists():
+    with st.expander("Figura del notebook: sets de incertidumbre conformales", expanded=False):
+        st.image(
+            str(_uset_img),
+            caption="NB08: sets de incertidumbre box construidos a partir de intervalos conformales — visualización del espacio de PD plausibles que alimenta el optimizador robusto.",
+            width="stretch",
         )
 
 st.markdown(

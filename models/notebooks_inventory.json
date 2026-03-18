@@ -1,0 +1,207 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-18T01:44:29.438195+00:00",
+  "total_notebooks": 14,
+  "by_category": {
+    "core_thesis": 9,
+    "paper_research": 4,
+    "side_projects": 1
+  },
+  "notebooks": [
+    {
+      "filename": "01_eda_lending_club.ipynb",
+      "stem": "01_eda_lending_club",
+      "number": "01",
+      "category": "core_thesis",
+      "chapter": "EDA y Dataset",
+      "quarto_chapter": 3,
+      "key_artifacts": [
+        "eda_summary.json",
+        "dataset_dictionary.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/01_eda_lending_club.ipynb"
+    },
+    {
+      "filename": "02_feature_engineering.ipynb",
+      "stem": "02_feature_engineering",
+      "number": "02",
+      "category": "core_thesis",
+      "chapter": "Feature Engineering",
+      "quarto_chapter": 4,
+      "key_artifacts": [
+        "feature_config.pkl",
+        "feature_importance_iv.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/02_feature_engineering.ipynb"
+    },
+    {
+      "filename": "03_pd_modeling.ipynb",
+      "stem": "03_pd_modeling",
+      "number": "03",
+      "category": "core_thesis",
+      "chapter": "Modelado PD",
+      "quarto_chapter": 5,
+      "key_artifacts": [
+        "pd_canonical.cbm",
+        "model_comparison.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/03_pd_modeling.ipynb"
+    },
+    {
+      "filename": "04_conformal_prediction.ipynb",
+      "stem": "04_conformal_prediction",
+      "number": "04",
+      "category": "core_thesis",
+      "chapter": "Conformal Prediction",
+      "quarto_chapter": 5,
+      "key_artifacts": [
+        "conformal_intervals_mondrian.parquet"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/04_conformal_prediction.ipynb"
+    },
+    {
+      "filename": "05_time_series_forecasting.ipynb",
+      "stem": "05_time_series_forecasting",
+      "number": "05",
+      "category": "core_thesis",
+      "chapter": "Series Temporales",
+      "quarto_chapter": 6,
+      "key_artifacts": [
+        "ts_forecasts.parquet",
+        "time_series_status.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/05_time_series_forecasting.ipynb"
+    },
+    {
+      "filename": "06_survival_analysis.ipynb",
+      "stem": "06_survival_analysis",
+      "number": "06",
+      "category": "core_thesis",
+      "chapter": "Análisis de Supervivencia",
+      "quarto_chapter": 6,
+      "key_artifacts": [
+        "km_curve_data.parquet"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/06_survival_analysis.ipynb"
+    },
+    {
+      "filename": "07_causal_inference.ipynb",
+      "stem": "07_causal_inference",
+      "number": "07",
+      "category": "core_thesis",
+      "chapter": "Inferencia Causal",
+      "quarto_chapter": 7,
+      "key_artifacts": [
+        "cate_estimates.parquet",
+        "causal_effect_status.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/07_causal_inference.ipynb"
+    },
+    {
+      "filename": "08_portfolio_optimization.ipynb",
+      "stem": "08_portfolio_optimization",
+      "number": "08",
+      "category": "core_thesis",
+      "chapter": "Optimización de Portafolio",
+      "quarto_chapter": 8,
+      "key_artifacts": [
+        "portfolio_allocations.parquet",
+        "portfolio_robustness_frontier.parquet"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/08_portfolio_optimization.ipynb"
+    },
+    {
+      "filename": "09_end_to_end_pipeline.ipynb",
+      "stem": "09_end_to_end_pipeline",
+      "number": "09",
+      "category": "core_thesis",
+      "chapter": "Pipeline End-to-End",
+      "quarto_chapter": null,
+      "key_artifacts": [
+        "pipeline_summary.json"
+      ],
+      "reuse_status": "evidence_reusable",
+      "relative_path": "notebooks/09_end_to_end_pipeline.ipynb"
+    },
+    {
+      "filename": "10_paper1_cp_robust_opt.ipynb",
+      "stem": "10_paper1_cp_robust_opt",
+      "number": "10",
+      "category": "paper_research",
+      "chapter": "Paper 1: CP + Robust Optimization",
+      "quarto_chapter": 11,
+      "key_artifacts": [
+        "spo_comparison_status.json"
+      ],
+      "reuse_status": "paper_material",
+      "relative_path": "notebooks/10_paper1_cp_robust_opt.ipynb"
+    },
+    {
+      "filename": "11_paper2_ifrs9_e2e.ipynb",
+      "stem": "11_paper2_ifrs9_e2e",
+      "number": "11",
+      "category": "paper_research",
+      "chapter": "Paper 2: IFRS9 E2E",
+      "quarto_chapter": 12,
+      "key_artifacts": [
+        "ifrs9_scenario_summary.parquet",
+        "sicr_trigger_optimization.parquet"
+      ],
+      "reuse_status": "paper_material",
+      "relative_path": "notebooks/11_paper2_ifrs9_e2e.ipynb"
+    },
+    {
+      "filename": "12_paper3_mondrian.ipynb",
+      "stem": "12_paper3_mondrian",
+      "number": "12",
+      "category": "paper_research",
+      "chapter": "Paper 3: Mondrian CP",
+      "quarto_chapter": 13,
+      "key_artifacts": [
+        "conformal_variant_benchmark.parquet"
+      ],
+      "reuse_status": "paper_material",
+      "relative_path": "notebooks/12_paper3_mondrian.ipynb"
+    },
+    {
+      "filename": "13_model_explainability.ipynb",
+      "stem": "13_model_explainability",
+      "number": "13",
+      "category": "paper_research",
+      "chapter": "Explicabilidad del Modelo",
+      "quarto_chapter": null,
+      "key_artifacts": [
+        "explainability_global.parquet",
+        "shap_summary.parquet"
+      ],
+      "reuse_status": "paper_material",
+      "relative_path": "notebooks/13_model_explainability.ipynb"
+    },
+    {
+      "filename": "10_rapids_gpu_benchmark_lending_club.ipynb",
+      "stem": "10_rapids_gpu_benchmark_lending_club",
+      "number": "10",
+      "category": "side_projects",
+      "chapter": "Paper 1: CP + Robust Optimization",
+      "quarto_chapter": 11,
+      "key_artifacts": [
+        "spo_comparison_status.json"
+      ],
+      "reuse_status": "exploratory_side_project",
+      "relative_path": "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
+    }
+  ],
+  "classification_rules": {
+    "core_thesis": "Notebooks 01-09: main pipeline chapters, evidence reusable for thesis",
+    "paper_research": "Notebooks 10-13: paper-specific material and deep dives",
+    "side_projects": "Notebooks in side_projects/: exploratory, not part of core pipeline"
+  }
+}

@@ -51,7 +51,7 @@ conformal:
   prefit: true
   estimator: SplitConformalRegressor
 calibration:
-  method: platt
+  method: auto  # auto = temporal multi-metric policy selects best (Platt/Isotonic/Venn-Abers)
 mlflow:
   experiment_name: pd_model
   tracking_uri: null

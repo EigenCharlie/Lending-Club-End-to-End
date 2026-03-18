@@ -10,10 +10,12 @@ import pytest
 from src.models.time_series import (
     _conf_int_bounds,
     build_backtest_cutoffs,
+    compute_forecastability_report,
     compute_revision_metrics,
     diebold_mariano_test,
     infer_run_tag,
     load_future_covariates,
+    load_time_series_config,
     select_time_series_champions,
 )
 
@@ -118,6 +120,84 @@ def test_select_time_series_champions_applies_point_and_interval_policy() -> Non
     assert "rmsse_worse_than_allowed_vs_seasonal_naive" in champions["point"]["reasons"]
     assert champions["interval"]["model"] == "AutoARIMA"
     assert champions["interval"]["promotable"] is True
+
+
+def test_select_time_series_champions_accepts_adaptive_family_when_eligible() -> None:
+    metrics = pd.DataFrame(
+        [
+            {
+                "model": "SeasonalNaive",
+                "mae": 0.10,
+                "mase": 1.00,
+                "rmsse": 1.00,
+                "abs_bias": 0.020,
+                "coverage_90": 0.86,
+                "coverage_gap_90": 0.04,
+                "winkler_90": 0.20,
+                "wis_90": 0.19,
+                "avg_interval_width_90": 0.12,
+                "family": "statistical",
+                "point_eligible": True,
+                "interval_eligible": True,
+            },
+            {
+                "model": "MAPIE_ENBPI",
+                "mae": 0.12,
+                "mase": 1.10,
+                "rmsse": 1.05,
+                "abs_bias": 0.030,
+                "coverage_90": 0.91,
+                "coverage_gap_90": 0.01,
+                "winkler_90": 0.07,
+                "wis_90": 0.06,
+                "avg_interval_width_90": 0.08,
+                "family": "adaptive",
+                "interval_subfamily": "adaptive",
+                "point_eligible": False,
+                "interval_eligible": True,
+            },
+        ]
+    )
+    config = {
+        "point_champion": {
+            "must_beat_seasonal_naive": True,
+            "max_rmsse_vs_seasonal_naive": 1.0,
+        },
+        "interval_policy": {
+            "max_coverage_gap": 0.03,
+            "eligible_interval_families": ["statistical", "adaptive"],
+        },
+    }
+    champions = select_time_series_champions(metrics, config)
+    assert champions["interval"]["model"] == "MAPIE_ENBPI"
+    assert champions["interval"]["promotable"] is True
+    assert champions["interval"]["family"] == "adaptive"
+
+
+def test_compute_forecastability_report_assigns_intermittent_routes() -> None:
+    ds = pd.date_range("2018-01-01", periods=24, freq="MS")
+    panel = pd.DataFrame(
+        {
+            "series_level": ["grade_term"] * 24 + ["portfolio"] * 24,
+            "unique_id": ["grade_term::A__36"] * 24 + ["portfolio"] * 24,
+            "ds": list(ds) + list(ds),
+            "default_count": ([0.0] * 10 + [2.0] + [0.0] * 5 + [3.0] + [0.0] * 7) + ([1.0] * 24),
+            "loan_count": ([10.0] * 24) + ([100.0] * 24),
+            "default_rate": ([0.0] * 10 + [0.2] + [0.0] * 5 + [0.3] + [0.0] * 7) + ([0.01] * 24),
+        }
+    )
+    report, status = compute_forecastability_report(panel)
+    bottom = report.loc[report["unique_id"] == "grade_term::A__36"].iloc[0]
+    assert bottom["route"] == "intermittent_counts"
+    assert status["series_evaluated"] == 2
+
+
+def test_load_time_series_config_includes_v2_defaults() -> None:
+    cfg = load_time_series_config("configs/time_series_v2.yaml")
+    assert cfg["exogenous"]["enabled"] is True
+    assert cfg["ensemble"]["enabled"] is True
+    assert cfg["hierarchy_reconciliation"]["enabled"] is True
+    assert cfg["interval_policy"]["eligible_interval_families"] == ["statistical", "adaptive"]
 
 
 def test_load_future_covariates_requires_contract_when_enabled(tmp_path) -> None:

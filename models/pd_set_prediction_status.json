@@ -1,0 +1,247 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T01:31:44.067312+00:00",
+  "run_tag": "paper-grade-pre-quarto",
+  "status": "promoted_guardrail",
+  "promoted": true,
+  "method": "lac",
+  "alpha": 0.1,
+  "confidence_level": 0.9,
+  "summary": {
+    "n_obs": 276869.0,
+    "set_coverage": 0.899064178365942,
+    "singleton_rate": 0.43073439063239294,
+    "ambiguity_rate": 0.5692656093676071,
+    "empty_set_rate": 0.0,
+    "default_rate_ambiguous": 0.23274877547394868,
+    "default_rate_singleton_positive": 0.45228718570130266,
+    "default_rate_overall": 0.21977902907151034
+  },
+  "promotion_gate": {
+    "coverage": 0.899064178365942,
+    "min_coverage": 0.85,
+    "grade_a_singleton_rate": 0.8298198596452451,
+    "min_grade_a_singleton": 0.8,
+    "grades_with_singleton_above_40pct": 5,
+    "min_grades_above_40pct": 3,
+    "pass": true
+  },
+  "promotion_rationale": "Conformal triage guardrail: binary set prediction provides distribution-free abstention mechanism. Grade A has 83% singleton rate (clear decisions); 5 grades have >40% singleton rate. Overall coverage 89.9%. Promoted as complementary guardrail to PD point + conformal intervals.",
+  "artifact_path": "data/processed/pd_set_prediction_cases.parquet",
+  "by_slice_path": "data/processed/pd_set_prediction_by_slice.parquet",
+  "calibration_size_sensitivity_path": "data/processed/pd_set_prediction_sensitivity.parquet",
+  "slice_metrics": {
+    "grade": [
+      {
+        "slice_name": "grade",
+        "slice_value": "A",
+        "n_obs": 72388,
+        "set_coverage": 0.9404873735978339,
+        "singleton_rate": 0.8298198596452451,
+        "ambiguity_rate": 0.17018014035475493,
+        "default_rate": 0.08658893739293806,
+        "default_rate_ambiguous": 0.1589414725221203
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "B",
+        "n_obs": 75311,
+        "set_coverage": 0.9662731871838112,
+        "singleton_rate": 0.24769290010755401,
+        "ambiguity_rate": 0.752307099892446,
+        "default_rate": 0.17861932519817822,
+        "default_rate_ambiguous": 0.19821028293061757
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "C",
+        "n_obs": 70568,
+        "set_coverage": 0.9190426255526585,
+        "singleton_rate": 0.1634026754336243,
+        "ambiguity_rate": 0.8365973245663757,
+        "default_rate": 0.2760741412538261,
+        "default_rate_ambiguous": 0.25699137828819213
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "D",
+        "n_obs": 45637,
+        "set_coverage": 0.7541687665709841,
+        "singleton_rate": 0.4464360058724281,
+        "ambiguity_rate": 0.553563994127572,
+        "default_rate": 0.34745929837631745,
+        "default_rate_ambiguous": 0.2749871353362625
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "E",
+        "n_obs": 10828,
+        "set_coverage": 0.6940339859623199,
+        "singleton_rate": 0.6229220539342446,
+        "ambiguity_rate": 0.37707794606575545,
+        "default_rate": 0.4314739564093092,
+        "default_rate_ambiguous": 0.31496448689688955
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "F",
+        "n_obs": 1731,
+        "set_coverage": 0.5880993645291739,
+        "singleton_rate": 0.8971692663200462,
+        "ambiguity_rate": 0.10283073367995378,
+        "default_rate": 0.5210860774119006,
+        "default_rate_ambiguous": 0.3651685393258427
+      },
+      {
+        "slice_name": "grade",
+        "slice_value": "G",
+        "n_obs": 406,
+        "set_coverage": 0.6551724137931034,
+        "singleton_rate": 0.8152709359605911,
+        "ambiguity_rate": 0.18472906403940886,
+        "default_rate": 0.5344827586206896,
+        "default_rate_ambiguous": 0.3466666666666667
+      }
+    ],
+    "term": [
+      {
+        "slice_name": "term",
+        "slice_value": "36",
+        "n_obs": 204234,
+        "set_coverage": 0.9461549007510992,
+        "singleton_rate": 0.4208848673580305,
+        "ambiguity_rate": 0.5791151326419695,
+        "default_rate": 0.18582116591752598,
+        "default_rate_ambiguous": 0.23266962587190868
+      },
+      {
+        "slice_name": "term",
+        "slice_value": "60",
+        "n_obs": 72635,
+        "set_coverage": 0.7666551937771047,
+        "singleton_rate": 0.45842913196117574,
+        "ambiguity_rate": 0.5415708680388243,
+        "default_rate": 0.31526123769532594,
+        "default_rate_ambiguous": 0.23298675547194753
+      }
+    ],
+    "issue_quarter": [
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q1",
+        "n_obs": 53924,
+        "set_coverage": 0.8959646910466582,
+        "singleton_rate": 0.44284548623989317,
+        "ambiguity_rate": 0.5571545137601068,
+        "default_rate": 0.2329945849714413,
+        "default_rate_ambiguous": 0.24703767807216084
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q2",
+        "n_obs": 56915,
+        "set_coverage": 0.896951594483001,
+        "singleton_rate": 0.4396731968725292,
+        "ambiguity_rate": 0.5603268031274707,
+        "default_rate": 0.2556268119125011,
+        "default_rate_ambiguous": 0.2687905678718134
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q3",
+        "n_obs": 47168,
+        "set_coverage": 0.8946531546811397,
+        "singleton_rate": 0.4414433514246947,
+        "ambiguity_rate": 0.5585566485753053,
+        "default_rate": 0.23289094301221167,
+        "default_rate_ambiguous": 0.2456160327943521
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2018Q4",
+        "n_obs": 39171,
+        "set_coverage": 0.9012024201577697,
+        "singleton_rate": 0.4218937479257614,
+        "ambiguity_rate": 0.5781062520742386,
+        "default_rate": 0.23305506624798958,
+        "default_rate_ambiguous": 0.24402737911238684
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q1",
+        "n_obs": 27508,
+        "set_coverage": 0.9042096844554312,
+        "singleton_rate": 0.4070088701468664,
+        "ambiguity_rate": 0.5929911298531336,
+        "default_rate": 0.21241093500072705,
+        "default_rate_ambiguous": 0.226397743992153
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q2",
+        "n_obs": 22737,
+        "set_coverage": 0.9073316620486431,
+        "singleton_rate": 0.41562211373532126,
+        "ambiguity_rate": 0.5843778862646787,
+        "default_rate": 0.20191757927606985,
+        "default_rate_ambiguous": 0.2216452171295251
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q3",
+        "n_obs": 16603,
+        "set_coverage": 0.9031500331265434,
+        "singleton_rate": 0.42046618081069687,
+        "ambiguity_rate": 0.5795338191893031,
+        "default_rate": 0.1451544901523821,
+        "default_rate_ambiguous": 0.163167740594471
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2019Q4",
+        "n_obs": 8557,
+        "set_coverage": 0.8902652798878111,
+        "singleton_rate": 0.4090218534533131,
+        "ambiguity_rate": 0.5909781465466869,
+        "default_rate": 0.08425850181138249,
+        "default_rate_ambiguous": 0.08898556456397073
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q1",
+        "n_obs": 2977,
+        "set_coverage": 0.8978837756130332,
+        "singleton_rate": 0.40846489754786697,
+        "ambiguity_rate": 0.591535102452133,
+        "default_rate": 0.0141081625797783,
+        "default_rate_ambiguous": 0.014196479273140262
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q2",
+        "n_obs": 824,
+        "set_coverage": 0.9648058252427184,
+        "singleton_rate": 0.508495145631068,
+        "ambiguity_rate": 0.49150485436893204,
+        "default_rate": 0.01820388349514563,
+        "default_rate_ambiguous": 0.024691358024691357
+      },
+      {
+        "slice_name": "issue_quarter",
+        "slice_value": "2020Q3",
+        "n_obs": 485,
+        "set_coverage": 0.979381443298969,
+        "singleton_rate": 0.5010309278350515,
+        "ambiguity_rate": 0.49896907216494846,
+        "default_rate": 0.002061855670103093,
+        "default_rate_ambiguous": 0.0
+      }
+    ]
+  },
+  "decision_use_case": {
+    "probability_first": true,
+    "set_first": false,
+    "recommended_guardrail": "selective_ambiguity_defer"
+  },
+  "promotion_note": "Binary conformal set prediction promoted as triage guardrail. When predicted set = {{0,1}}, the loan is ambiguous and may be deferred to human review — especially informative for Grade A (low ambiguity rate)."
+}

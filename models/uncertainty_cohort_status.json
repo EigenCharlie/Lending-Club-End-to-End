@@ -1,0 +1,121 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-16T06:34:29.471701+00:00",
+  "n_observations": 276869,
+  "uncertainty_col": "width_90",
+  "uncertainty_summary": {
+    "mean": 0.7545805465617317,
+    "median": 0.9572119486220559,
+    "std": 0.33050936373239953,
+    "p5": 0.1418856351739205,
+    "p25": 0.3744385057579027,
+    "p75": 1.0,
+    "p95": 1.0,
+    "p99": 1.0
+  },
+  "quintile_metrics": [
+    {
+      "quintile": "Q1_certero",
+      "count": 57420,
+      "default_rate": 0.0699582027168234,
+      "mean_pd_point": 0.062005007316277,
+      "mean_uncertainty": 0.18824823065358895,
+      "p25_uncertainty": 0.14284108777122023,
+      "p75_uncertainty": 0.2337984639704911,
+      "conformal_coverage_90": 0.9300417972831766,
+      "auc_roc": 0.6065398884693427
+    },
+    {
+      "quintile": "Q2",
+      "count": 54587,
+      "default_rate": 0.14027149321266968,
+      "mean_pd_point": 0.13969816861738138,
+      "mean_uncertainty": 0.6580716806648155,
+      "p25_uncertainty": 0.43185679892813206,
+      "p75_uncertainty": 0.8318934180951457,
+      "conformal_coverage_90": 0.8474545221389708,
+      "auc_roc": 0.5948889154682596
+    },
+    {
+      "quintile": "Q3_incierto",
+      "count": 164862,
+      "default_rate": 0.2982858390654001,
+      "mean_pd_point": 0.2977997835030933,
+      "mean_uncertainty": 0.9837839472372089,
+      "p25_uncertainty": 1.0,
+      "p75_uncertainty": 1.0,
+      "conformal_coverage_90": 0.9492302653128071,
+      "auc_roc": 0.6438713440438805
+    }
+  ],
+  "deferral_stats": {
+    "deferral_rule": "width_90 > p95 AND pd_point > 0.35",
+    "uncertainty_p95_threshold": 1.0,
+    "n_total": 276869,
+    "n_high_uncertainty_only": 125284,
+    "n_deferred": 47091,
+    "deferral_rate": 0.1700840469680607,
+    "deferral_percentile": 95,
+    "deferral_prob_threshold": 0.35
+  },
+  "grade_uncertainty_stats": [
+    {
+      "grade": "A",
+      "count": 72388,
+      "mean_uncertainty": 0.22161048576977088,
+      "median_uncertainty": 0.2109273582790847,
+      "p95_uncertainty": 0.3744385057579027,
+      "default_rate": 0.08658893739293806
+    },
+    {
+      "grade": "B",
+      "count": 75311,
+      "mean_uncertainty": 0.9271226018337433,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.17861932519817822
+    },
+    {
+      "grade": "C",
+      "count": 70568,
+      "mean_uncertainty": 0.9495948111043977,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.2760741412538261
+    },
+    {
+      "grade": "D",
+      "count": 45637,
+      "mean_uncertainty": 0.9572190894504762,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.34745929837631745
+    },
+    {
+      "grade": "E",
+      "count": 10828,
+      "mean_uncertainty": 0.9484948488369348,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.4314739564093092
+    },
+    {
+      "grade": "F",
+      "count": 1731,
+      "mean_uncertainty": 0.9785746140659023,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.5210860774119006
+    },
+    {
+      "grade": "G",
+      "count": 406,
+      "mean_uncertainty": 0.9745372905811549,
+      "median_uncertainty": 1.0,
+      "p95_uncertainty": 1.0,
+      "default_rate": 0.5344827586206896
+    }
+  ],
+  "methodology": "Conformal interval width (pd_high_90 - pd_low_90) as distribution-free uncertainty proxy. Deferral rule: width_90 > p95 AND pd_point > 0.35 → defer to human underwriting. Adapts uncertainty sampling from active learning (Settles 2012) to conformal prediction guarantees. Connects with Mondrian grade partitions for group-conditional analysis.",
+  "width_90_saturation_note": "For grades B-G, median and p75/p95 of width_90 = 1.0. This is expected: MAPIE clips predicted intervals to the [0,1] probability domain, and high-risk loans have non-conformity scores that push pd_high_90 to the ceiling. The uncertainty signal is most discriminating for Grade A (mean_uncertainty=0.22); for B-G it effectively acts as a binary flag. Documented in thesis conformal chapter: intervals are informative for low-risk cohorts; for high-risk cohorts the [0,1] boundary saturates the width."
+}

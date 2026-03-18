@@ -107,6 +107,7 @@ def compute_ecl(
     lifetime_pd: np.ndarray | None = None,
     discount_rate: float = 0.05,
     horizon_12m: int = 12,
+    lifetime_pd_multiplier: float = 3.0,
 ) -> pd.DataFrame:
     """Compute Expected Credit Loss by stage.
 
@@ -121,8 +122,12 @@ def compute_ecl(
         stages: IFRS9 stages (1, 2, 3).
         lifetime_pd: Lifetime PD for Stage 2. Can be loan-specific (from
             survival model via compute_lifetime_pd_from_survival) or
-            grade-level averages. If None, uses pd * 3 scaling proxy.
+            grade-level averages. If None, uses pd * lifetime_pd_multiplier
+            as a scaling proxy.
         discount_rate: Annual discount rate (EIR).
+        lifetime_pd_multiplier: Scaling factor applied to 12-month PD as a
+            proxy for lifetime PD when no survival model is available.
+            Default is 3.0 (i.e., lifetime PD ≈ 3× the 12-month PD).
 
     Returns:
         DataFrame with ECL calculations per loan.
@@ -136,7 +141,9 @@ def compute_ecl(
     if lifetime_pd is not None:
         effective_pd[stages == 2] = lifetime_pd[stages == 2]
     else:
-        effective_pd[stages == 2] = np.minimum(pd_values[stages == 2] * 3, 1.0)  # Scaled proxy
+        effective_pd[stages == 2] = np.minimum(
+            pd_values[stages == 2] * lifetime_pd_multiplier, 1.0
+        )  # Scaled proxy
     effective_pd[stages == 3] = 1.0  # Credit-impaired
 
     ecl = effective_pd * lgd_values * ead_values * discount_factor
@@ -172,14 +179,31 @@ def ecl_with_conformal_range(
     lgd: np.ndarray,
     ead: np.ndarray,
     stages: np.ndarray,
+    discount_rate: float = 0.05,
 ) -> pd.DataFrame:
     """Compute ECL range using conformal prediction intervals.
 
-    Provides [ECL_low, ECL_point, ECL_high] for provision planning.
+    Provides [ECL_low, ECL_point, ECL_high] for provision planning,
+    applying a discount factor consistent with compute_ecl().
+
+    Args:
+        pd_low: Lower conformal bound on PD.
+        pd_point: Point estimate PD.
+        pd_high: Upper conformal bound on PD.
+        lgd: LGD estimates.
+        ead: EAD estimates.
+        stages: IFRS9 stages (1, 2, 3).
+        discount_rate: Annual discount rate (EIR). Applied as
+            1 / (1 + discount_rate) to match compute_ecl().
+
+    Returns:
+        DataFrame with ECL range per loan (ecl_low, ecl_point, ecl_high, ecl_range).
     """
-    ecl_low = pd_low * lgd * ead
-    ecl_point = pd_point * lgd * ead
-    ecl_high = pd_high * lgd * ead
+    discount_factor = 1 / (1 + discount_rate)
+
+    ecl_low = pd_low * lgd * ead * discount_factor
+    ecl_point = pd_point * lgd * ead * discount_factor
+    ecl_high = pd_high * lgd * ead * discount_factor
 
     result = pd.DataFrame(
         {

@@ -1,0 +1,29 @@
+{
+  "schema_version": "2026-03-16.1",
+  "generated_at_utc": "2026-03-17T14:08:41.846373+00:00",
+  "run_tag": "untracked",
+  "n_total": 1860764,
+  "n_default": 362981,
+  "n_prepay": 1497783,
+  "cif_summary_path": "data/processed/competing_risks_cif.parquet",
+  "n_grades_computed": 7,
+  "km_default_rates": {
+    "km_default_prob_t12m": 0.0004202283286910413,
+    "km_default_prob_t24m": 0.012585176671051634,
+    "km_default_prob_t36m": 0.044630156899814644,
+    "km_default_prob_t60m": 0.1689862317589712
+  },
+  "km_bias_vs_cif": {
+    "km_overestimate_t12m": 1.5830840495929571e-06,
+    "km_overestimate_t24m": 0.00035794097646597335,
+    "km_overestimate_t36m": 0.003416977797037521,
+    "km_overestimate_t60m": 0.04508927330534683
+  },
+  "overall": {
+    "cif_default_12m": 0.00041864524464144836,
+    "cif_default_36m": 0.04121317910277712,
+    "cif_default_final": 0.19507094935198654,
+    "cif_prepay_final": 0.8049290506480133
+  },
+  "note": "KM overestimates PD at all horizons because it ignores prepayment as a competing exit. CIF (Aalen-Johansen) corrects this by accounting for the sub-distribution hazard of each competing event."
+}

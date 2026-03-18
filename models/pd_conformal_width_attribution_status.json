@@ -1,0 +1,19 @@
+{
+  "artifact_namespace": "",
+  "selected_partition": "grade",
+  "selected_alpha_used_90": 0.08,
+  "selected_min_group_size": 200,
+  "selected_scaled_scores": true,
+  "group_factors_after_shrinkback": {
+    "A": 1.2,
+    "B": 1.02
+  },
+  "temporal_factors_after_shrinkback": {
+    "A|vintage=2017Q4": 1.2
+  },
+  "width_attribution_path": "data/processed/pd_conformal_width_attribution.parquet",
+  "shrinkback_path": "data/processed/conformal_shrinkback_report.parquet",
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-16T05:18:43.494171+00:00",
+  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650"
+}

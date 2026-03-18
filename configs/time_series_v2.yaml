@@ -1,0 +1,133 @@
+# Research lane config for time series v2 diagnostics.
+# Consumed by: scripts/forecast_default_rates.py --config configs/time_series_v2.yaml
+# Output: models/time_series_research_status.json (research only, does NOT overwrite canonical status)
+# Purpose: extended benchmark including conformal/adaptive intervals, exogenous vars, hierarchy reconciliation.
+# NOT a replacement for configs/time_series.yaml (canonical pipeline config).
+# Relationship to P3.2 backlog: when ACI/TCP rolling window is implemented, this config will be updated
+#   to include the new interval family. See research-p3-p4-backlog.md § P3.2.
+schema_version: "2026-03-13.1"
+horizon: 12
+freq: "MS"
+season_length: 12
+
+rolling_origin:
+  min_train_periods: 72
+  step_months: 1
+  embargo_periods: 12
+  max_windows: 36
+
+point_champion:
+  primary_metric: "mase"
+  tiebreakers:
+    - "rmsse"
+    - "abs_bias"
+  must_beat_seasonal_naive: true
+  max_rmsse_vs_seasonal_naive: 1.0
+
+interval_policy:
+  target_level: 90
+  max_coverage_gap: 0.03
+  max_winkler_90: null
+  tiebreakers:
+    - "coverage_gap_90"
+    - "wis_90"
+    - "winkler_90"
+    - "avg_interval_width_90"
+  official_family: "statistical"
+  eligible_interval_families:
+    - "statistical"
+    - "adaptive"
+  ml_intervals_diagnostic_only_if_unpromoted: true
+  include_conformal_statistical: true
+  conformal_n_windows: 3
+  mapie_estimator: "catboost"
+  mapie_evaluation_size: 36
+
+exogenous:
+  enabled: true
+  future_covariates_path: "data/processed/ts_future_covariates.parquet"
+  required_columns:
+    - "ds"
+    - "month_sin"
+    - "month_cos"
+    - "macro_event_count_12m"
+
+models:
+  statistical:
+    - "SeasonalNaive"
+    - "AutoARIMA"
+    - "AutoETS"
+    - "AutoTheta"
+  challengers:
+    - "SARIMAX"
+    - "STL_CatBoost"
+  intermittent:
+    - "ADIDA"
+    - "CrostonSBA"
+    - "IMAPA"
+    - "TSB"
+  panel_global: "GlobalCatBoostPanel"
+
+panel:
+  bottom_level: "grade_term"
+
+diagnostics:
+  enable_kpss: true
+  enable_entropy: true
+  enable_variance_ratio: true
+  enable_residual_drift: true
+
+forecastability:
+  enabled: true
+  intermittent_adi_threshold: 1.32
+  intermittent_cv2_threshold: 0.49
+  routing_levels:
+    - "portfolio"
+    - "grade"
+    - "grade_term"
+
+interval_metrics:
+  include_wis: true
+  include_pinball: true
+
+ensemble:
+  enabled: true
+  candidates:
+    - "AutoARIMA"
+    - "AutoETS"
+    - "SARIMAX"
+    - "STL_CatBoost"
+  weight_metric: "mase"
+  model_name: "WeightedEnsemble"
+
+hierarchy_reconciliation:
+  enabled: true
+  methods:
+    - "BottomUp"
+    - "TopDown"
+    - "MinTrace"
+  target_columns:
+    - "default_count"
+    - "loan_count"
+  evaluation_horizon: 12
+
+outputs:
+  backtest_predictions_path: "data/processed/ts_backtest_predictions_v2.parquet"
+  backtest_metrics_path: "data/processed/ts_backtest_metrics_v2.parquet"
+  cv_stats_path: "data/processed/ts_cv_stats_v2.parquet"
+  forecasts_path: "data/processed/ts_forecasts_v2.parquet"
+  scenarios_path: "data/processed/ts_ifrs9_scenarios_v2.parquet"
+  diagnostics_path: "data/processed/ts_diagnostics_v2.json"
+  panel_forecasts_path: "data/processed/ts_panel_forecasts_v2.parquet"
+  status_path: "models/time_series_research_status.json"
+  forecastability_report_path: "data/processed/ts_forecastability_report.parquet"
+  forecastability_status_path: "models/time_series_forecastability_status.json"
+  interval_eval_path: "data/processed/ts_interval_eval.parquet"
+  hierarchical_eval_path: "data/processed/ts_hierarchical_eval.parquet"
+  hierarchy_status_path: "models/time_series_hierarchy_status.json"
+  research_status_path: "models/time_series_research_status.json"
+
+research_backlog:
+  - "ACI"
+  - "EnbPI"
+  - "OnlineConformal"

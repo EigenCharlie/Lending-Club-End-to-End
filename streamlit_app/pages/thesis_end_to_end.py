@@ -31,12 +31,11 @@ from streamlit_app.utils import (
     get_notebook_image_path,
     load_gpu_replay_summary,
     load_rapids_ifrs9_mc_tail_metrics,
-    load_rapids_pd_benchmark_stage_table,
     load_rapids_insight_stage_table,
+    load_rapids_pd_benchmark_stage_table,
     load_rapids_stage_comparison,
     load_rapids_tradeoff_full_ab_status,
     load_rapids_tradeoff_full_policy,
-    page_error_boundary,
     try_load_json,
     try_load_parquet,
 )

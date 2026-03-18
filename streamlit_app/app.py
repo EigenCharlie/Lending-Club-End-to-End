@@ -2,6 +2,7 @@
 
 Run: uv run streamlit run streamlit_app/app.py
 """
+# ruff: noqa: E402
 
 import sys
 from pathlib import Path
@@ -36,7 +37,7 @@ contracts_total = len(PAGE_CONTRACTS)
 # ── Navigation ──
 pg = st.navigation(
     {
-        "Inicio": [
+        "Libro y Fundamentos": [
             st.Page(
                 "pages/executive_summary.py",
                 title="Resumen Ejecutivo",
@@ -49,7 +50,7 @@ pg = st.navigation(
                 icon=":material/menu_book:",
             ),
         ],
-        "Recorrido End-to-End": [
+        "Pipeline Operativo": [
             st.Page(
                 "pages/thesis_end_to_end.py",
                 title="Visión End-to-End",
@@ -66,31 +67,14 @@ pg = st.navigation(
                 icon=":material/hub:",
             ),
             st.Page(
-                "pages/notebook_evidence.py",
-                title="Atlas de Evidencia",
-                icon=":material/library_books:",
-            ),
-        ],
-        "Analítica": [
-            st.Page(
                 "pages/feature_engineering.py",
                 title="Ingeniería de Features",
                 icon=":material/build:",
             ),
             st.Page(
-                "pages/data_story.py",
-                title="Historia de Datos",
-                icon=":material/bar_chart:",
-            ),
-            st.Page(
                 "pages/model_laboratory.py",
                 title="Laboratorio de Modelos",
                 icon=":material/science:",
-            ),
-            st.Page(
-                "pages/model_interpretability.py",
-                title="Explicabilidad e Interpretabilidad",
-                icon=":material/psychology:",
             ),
             st.Page(
                 "pages/uncertainty_quantification.py",
@@ -108,21 +92,9 @@ pg = st.navigation(
                 icon=":material/hourglass_bottom:",
             ),
             st.Page(
-                "pages/causal_intelligence.py",
-                title="Inteligencia Causal",
-                icon=":material/genetics:",
-            ),
-        ],
-        "Decisiones": [
-            st.Page(
                 "pages/portfolio_optimizer.py",
                 title="Optimizador de Portafolio",
                 icon=":material/work:",
-            ),
-            st.Page(
-                "pages/ab_testing_simulation.py",
-                title="Simulación A/B",
-                icon=":material/experiment:",
             ),
             st.Page(
                 "pages/ifrs9_provisions.py",
@@ -130,26 +102,64 @@ pg = st.navigation(
                 icon=":material/account_balance:",
             ),
         ],
-        "Gobernanza": [
+        "Insight Factory": [
+            st.Page(
+                "pages/notebook_evidence.py",
+                title="Atlas de Evidencia",
+                icon=":material/library_books:",
+            ),
+            st.Page(
+                "pages/data_story.py",
+                title="Historia de Datos",
+                icon=":material/bar_chart:",
+            ),
+            st.Page(
+                "pages/model_interpretability.py",
+                title="Explicabilidad e Interpretabilidad",
+                icon=":material/psychology:",
+            ),
+            st.Page(
+                "pages/causal_intelligence.py",
+                title="Inteligencia Causal",
+                icon=":material/genetics:",
+            ),
+            st.Page(
+                "pages/ab_testing_simulation.py",
+                title="Simulación A/B",
+                icon=":material/experiment:",
+            ),
+            st.Page(
+                "pages/chat_with_data.py",
+                title="Chat con Datos",
+                icon=":material/chat:",
+            ),
+            st.Page(
+                "pages/gpu_benchmark.py",
+                title="Benchmark RAPIDS GPU",
+                icon=":material/bolt:",
+            ),
+        ],
+        "Gobernanza y Libro": [
             st.Page(
                 "pages/model_governance.py",
                 title="Gobernanza del Modelo",
                 icon=":material/shield:",
             ),
             st.Page(
+                "pages/roadmap_backlog.py",
+                title="Roadmap y Backlog",
+                icon=":material/checklist:",
+            ),
+            st.Page(
+                "pages/papers_backlog.py",
+                title="Backlog Papers y Quarto",
+                icon=":material/article:",
+            ),
+            st.Page(
                 "pages/tech_stack.py",
                 title="Stack Tecnológico",
                 icon=":material/handyman:",
             ),
-        ],
-        "Exploración": [
-            st.Page(
-                "pages/chat_with_data.py",
-                title="Chat con Datos",
-                icon=":material/chat:",
-            ),
-        ],
-        "Investigación": [
             st.Page(
                 "pages/tesis_especializacion.py",
                 title="Tesis Especialización",
@@ -166,8 +176,13 @@ pg = st.navigation(
                 icon=":material/search:",
             ),
             st.Page(
+                "pages/paper_estrella_predict_optimize.py",
+                title="Paper Estrella: Predict-then-Optimize",
+                icon=":material/star:",
+            ),
+            st.Page(
                 "pages/paper_1_cp_robust_opt.py",
-                title="Paper 1: CP + Robust Opt",
+                title="Paper 1: CP + Robust Opt (Draft Hist.)",
                 icon=":material/experiment:",
             ),
             st.Page(
@@ -186,15 +201,9 @@ pg = st.navigation(
                 icon=":material/construction:",
             ),
         ],
-        "Anexos": [
-            st.Page(
-                "pages/gpu_benchmark.py",
-                title="Benchmark RAPIDS GPU",
-                icon=":material/bolt:",
-            ),
-        ],
     }
 )
+
 
 # ── Sidebar info ──
 def _render_sidebar_health() -> None:
@@ -212,10 +221,11 @@ with st.sidebar:
         f"**Proyecto de Tesis** · Carlos Vergara\n\n"
         f"1.35M préstamos · 2007-2020\n\n"
         f"{tests_label} tests · {pages_label} páginas · {contracts_total} contratos\n\n"
-        f"_CatBoost + Conformal + Pyomo_"
+        f"_canonical_rebuild + champion_search + insights_factory_"
     )
     st.caption("Snapshot canónico (DVC) para lectura rápida")
     if hasattr(st, "fragment"):
+
         @st.fragment
         def _sidebar_fragment() -> None:
             _render_sidebar_health()
@@ -239,7 +249,7 @@ except KeyError as exc:
     )
     st.caption(
         "Los artefactos pueden estar desactualizados. "
-        "Ejecute: `uv run python scripts/end_to_end_pipeline.py`"
+        "Ejecute: `uv run python scripts/run_canonical_rebuild.py`"
     )
 except IndexError as exc:
     st.error(
@@ -256,5 +266,5 @@ except Exception as exc:
         icon=":material/error:",
     )
     st.caption(
-        "Sugerencia: `uv run python scripts/end_to_end_pipeline.py` para regenerar artefactos."
+        "Sugerencia: `uv run python scripts/run_canonical_rebuild.py` para regenerar artefactos."
     )

@@ -1,12 +1,10 @@
-# Long Run Execution Playbook
+# Champion Search Execution Playbook
 
-## Block 1: Core Launch with Official Frozen Baseline
+## Block 1: Champion Search Launch with Frozen Baseline
 
 ### Launch / Relaunch (recommended defaults)
 ```bash
-bash scripts/start_long_run.sh 2026-03-05-C-core-next \
-  --sampling-profile balanced \
-  --no-rapids --no-notebooks \
+bash scripts/start_long_run.sh champion-2026-03-12-max \
   --stop-on-optional-failure
 ```
 
@@ -15,18 +13,19 @@ Applied by default (unless overridden):
 - `--sampling-profile full`
 - `--env-file .env` (if present)
 - `--refresh-baseline-on-resume`
-- If run tag is core/official and no baseline flag is provided:
-  launcher auto-resolves baseline from `configs/baselines/core_official_baseline.json`.
+- If run tag is `official`, `canonical-*`, `champion-*`, or `insights-*` and no baseline flag is provided:
+  launcher auto-resolves baseline from `configs/baselines/canonical_operational_baseline.json`
+  with fallback to `configs/baselines/core_official_baseline.json`.
 
 ### Monitor (terminal view)
 ```bash
-bash scripts/monitor_long_run.sh 2026-03-05-C-core-next
+bash scripts/monitor_long_run.sh champion-2026-03-12-max
 ```
 
 ### Monitor (structured samples + incidents every 15 min)
 ```bash
 uv run python scripts/monitor_pipeline_health.py \
-  --run-tag 2026-03-05-C-core-next \
+  --run-tag champion-2026-03-12-max \
   --interval-seconds 900
 ```
 
@@ -37,10 +36,10 @@ Outputs:
 
 ### Directed rerun by phase window
 ```bash
-uv run python scripts/run_long_pipeline.py \
-  --run-tag 2026-03-05-C-core-next \
+uv run python scripts/run_champion_search.py \
+  --run-tag champion-2026-03-12-max \
   --resume \
-  --sampling-profile balanced \
+  --sampling-profile full \
   --env-file .env \
   --from-step rapids \
   --until-step notebooks \
@@ -93,14 +92,14 @@ uv run python scripts/run_ab_sensitivity.py \
 ### Comparison gate (conformal strict + A/B no-regression)
 ```bash
 uv run python scripts/run_comparison.py compare \
-  --run-tag 2026-03-05-C-core-next \
-  --baseline reports/run_comparisons/2026-03-04-C-core-balanced-cert2/baseline_snapshot.json
+  --run-tag champion-2026-03-12-mega-definitive \
+  --baseline reports/run_comparisons/champion-2026-03-12-mega-definitive/baseline_snapshot.json
 ```
 
-### Freeze official baseline
+### Freeze canonical operational baseline
 ```bash
 uv run python scripts/freeze_core_baseline.py \
-  --run-tag 2026-03-04-C-core-balanced-cert2 \
+  --run-tag champion-2026-03-12-mega-definitive \
   --refresh-snapshot \
   --set-current
 ```

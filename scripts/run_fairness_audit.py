@@ -15,22 +15,31 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 import yaml
+from fairlearn.metrics import (
+    MetricFrame,
+    demographic_parity_difference,
+    equalized_odds_difference,
+    selection_rate,
+)
 from loguru import logger
+from sklearn.metrics import accuracy_score
 
 from src.evaluation.fairness import (
     build_intersectional_groups,
     fairness_report_from_binary,
     fairness_threshold_frontier,
 )
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.threshold_semantics import write_threshold_semantics
 
 SCHEMA_VERSION = "2026-03-06.1"
+SHAP_STATUS_PATH = Path("models/shap_fairness_status.json")
+SHAP_SAMPLE_SIZE = 10_000
 
 
 def _load_config(config_path: str) -> dict:
@@ -189,6 +198,196 @@ def _apply_decision_policy(
     return (y_pred_proba >= thresholds).astype(float)
 
 
+def _compute_shap_per_group(
+    data: pd.DataFrame,
+    groups_dict: dict[str, np.ndarray],
+    model_path: str | Path = "models/pd_canonical.cbm",
+    shap_sample_size: int = SHAP_SAMPLE_SIZE,
+    random_state: int = 42,
+) -> dict[str, object] | None:
+    """Compute per-group SHAP analysis to identify which features drive disparities.
+
+    For each protected attribute, computes mean |SHAP| per group and the
+    top-5 features per group. Also computes pairwise group differences
+    |mean_SHAP_A - mean_SHAP_B| to identify the features responsible for
+    any observed fairness gaps.
+
+    Args:
+        data: Test feature DataFrame (test_fe.parquet, n=276K rows).
+        groups_dict: Base attribute groups from fairness audit.
+        model_path: Path to the trained CatBoost model (.cbm).
+        shap_sample_size: Max rows to use for SHAP (performance cap).
+        random_state: Random seed for sampling.
+
+    Returns:
+        Dict with per-attribute SHAP analysis, or None on failure.
+    """
+    try:
+        from catboost import CatBoostClassifier
+    except ImportError as e:
+        logger.warning(f"SHAP per-group analysis skipped — missing dependency: {e}")
+        return None
+
+    model_path = Path(model_path)
+    if not model_path.exists():
+        logger.warning(f"SHAP per-group analysis skipped — model not found: {model_path}")
+        return None
+
+    try:
+        model = CatBoostClassifier()
+        model.load_model(str(model_path))
+        feature_names: list[str] = list(model.feature_names_)
+    except Exception as e:
+        logger.warning(f"SHAP per-group analysis skipped — model load error: {e}")
+        return None
+
+    available_features = [f for f in feature_names if f in data.columns]
+    if not available_features:
+        logger.warning("SHAP per-group analysis skipped — no model features found in test data")
+        return None
+
+    X_full = data[available_features].copy()
+
+    rng = np.random.default_rng(random_state)
+    n = len(X_full)
+    if n > shap_sample_size:
+        sample_idx = np.sort(rng.choice(n, size=shap_sample_size, replace=False))
+        X_sample = X_full.iloc[sample_idx].reset_index(drop=True)
+    else:
+        sample_idx = np.arange(n)
+        X_sample = X_full.reset_index(drop=True)
+
+    logger.info(
+        f"Computing SHAP values on {len(X_sample):,} rows, {len(available_features)} features"
+    )
+    try:
+        # Use CatBoost's native SHAP via Pool + get_feature_importance — avoids the shap
+        # library's cat/NaN handling issues entirely.  model.get_cat_feature_indices() works
+        # on .cbm-loaded models without needing the sklearn feature_names_ attribute.
+        import pandas as _pd
+        from catboost import Pool as _CatPool
+
+        # Identify cat feature column names.
+        # Primary: use model metadata (works on .cbm loaded models when feature_names_ is set).
+        # Fallback: detect from data — any column whose non-null values cannot be cast to float
+        # is genuinely categorical (e.g. "very_high__E" WOE bin labels, grade strings).
+        _cat_feat_names: list[str] = []
+        try:
+            _fn = list(getattr(model, "feature_names_", None) or [])
+            if _fn:
+                _cat_idx = model.get_cat_feature_indices()
+                _cat_feat_names = [
+                    _fn[i] for i in _cat_idx if i < len(_fn) and _fn[i] in X_sample.columns
+                ]
+        except Exception:
+            pass
+
+        # Always supplement with content-based detection: any column whose non-null values
+        # cannot be cast to float is categorical, regardless of model metadata.
+        # This catches columns that have string values but are not in model.get_cat_feature_indices()
+        # (e.g. WOE bin labels stored as strings in the parquet instead of numeric WOE scores).
+        _cat_set = set(_cat_feat_names)
+        for _col in X_sample.columns:
+            if _col in _cat_set or _pd.api.types.is_numeric_dtype(X_sample[_col]):
+                continue
+            _probe = X_sample[_col].dropna().head(5)
+            if _probe.empty:
+                continue
+            try:
+                _pd.to_numeric(_probe, errors="raise")
+            except (ValueError, TypeError):
+                _cat_feat_names.append(_col)
+                _cat_set.add(_col)
+
+        # Fill NaN: cat features → "missing", numeric features → 0.0
+        # Only touch NaN cells; never alter non-NaN values.
+        X_sample = X_sample.copy()
+        _cat_set = set(_cat_feat_names)
+        for _col in list(X_sample.columns):
+            if not X_sample[_col].isna().any():
+                continue
+            if _col in _cat_set:
+                X_sample[_col] = X_sample[_col].astype(object).fillna("missing").astype(str)
+            elif _pd.api.types.is_numeric_dtype(X_sample[_col]):
+                X_sample[_col] = X_sample[_col].fillna(0.0)
+
+        pool = _CatPool(X_sample, cat_features=_cat_feat_names if _cat_feat_names else None)
+        shap_raw = model.get_feature_importance(pool, type="ShapValues")
+        # get_feature_importance returns (n_samples, n_features + 1); last col is bias
+        shap_matrix = np.abs(np.asarray(shap_raw[:, :-1], dtype=float))
+    except Exception as e:
+        logger.warning(f"SHAP per-group analysis skipped — SHAP computation error: {e}")
+        return None
+
+    feature_names_sample = available_features
+    attribute_results: list[dict[str, object]] = []
+
+    for attribute, labels in groups_dict.items():
+        if "__x__" in attribute:
+            continue
+        group_labels = pd.Series(labels).iloc[sample_idx].reset_index(drop=True).astype(str)
+        unique_groups = sorted(group_labels.unique())
+        group_shap: dict[str, np.ndarray] = {}
+        group_top5: dict[str, list[dict[str, object]]] = {}
+
+        for grp in unique_groups:
+            mask = group_labels == grp
+            if mask.sum() < 10:
+                continue
+            mean_abs_shap = shap_matrix[mask].mean(axis=0)
+            group_shap[grp] = mean_abs_shap
+            top5_idx = np.argsort(mean_abs_shap)[::-1][:5]
+            group_top5[grp] = [
+                {"feature": feature_names_sample[i], "mean_abs_shap": float(mean_abs_shap[i])}
+                for i in top5_idx
+            ]
+
+        pairwise_diffs: list[dict[str, object]] = []
+        groups_with_shap = list(group_shap.keys())
+        for i in range(len(groups_with_shap)):
+            for j in range(i + 1, len(groups_with_shap)):
+                g_a, g_b = groups_with_shap[i], groups_with_shap[j]
+                diff = np.abs(group_shap[g_a] - group_shap[g_b])
+                top3_idx = np.argsort(diff)[::-1][:3]
+                pairwise_diffs.append(
+                    {
+                        "group_a": g_a,
+                        "group_b": g_b,
+                        "top_driving_features": [
+                            {
+                                "feature": feature_names_sample[k],
+                                "shap_diff": float(diff[k]),
+                            }
+                            for k in top3_idx
+                        ],
+                    }
+                )
+
+        attribute_results.append(
+            {
+                "attribute": attribute,
+                "groups_analyzed": groups_with_shap,
+                "top5_per_group": group_top5,
+                "pairwise_feature_diffs": pairwise_diffs,
+            }
+        )
+        logger.info(f"SHAP per-group: {attribute} ({len(groups_with_shap)} groups)")
+
+    return {
+        "schema_version": SCHEMA_VERSION,
+        "model_path": str(model_path),
+        "shap_sample_size": len(X_sample),
+        "n_features": len(available_features),
+        "attributes": attribute_results,
+        "interpretation": (
+            "For each protected attribute, top-5 features by mean |SHAP| per group. "
+            "Pairwise diffs show which features drive SHAP disparities between groups. "
+            "Features like dti/loan_amnt are legitimate credit risk factors; "
+            "home_ownership may proxy for race in US ECOA context."
+        ),
+    }
+
+
 def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None = None) -> None:
     """Run the fairness audit pipeline."""
     cfg = _load_config(config_path)
@@ -242,11 +441,7 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     else:
         y_true_eval = y_true
         y_proba_eval = y_proba
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
+    resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
 
     intersectional_cfg = cfg.get("intersectional", {}) or {}
     intersectional_groups = (
@@ -302,9 +497,6 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
 
     if auto_select:
         decision_policy = {
-            "schema_version": SCHEMA_VERSION,
-            "generated_at_utc": datetime.now(UTC).isoformat(),
-            "run_tag": resolved_run_tag,
             "global_threshold": primary_threshold,
             "overrides": decision_policy.get("overrides", [])
             if isinstance(decision_policy, dict)
@@ -315,6 +507,11 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
                 "worst_eo_gap": float(selected_threshold_info.get("worst_eo_gap", 0.0)),
                 "approval_rate": float(selected_threshold_info.get("approval_rate", 0.0)),
             },
+            **build_artifact_metadata(
+                schema_version=SCHEMA_VERSION,
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
         }
         decision_policy_path.parent.mkdir(parents=True, exist_ok=True)
         decision_policy_path.write_text(
@@ -368,9 +565,6 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
             ).iloc[0]["attribute"]
         )
     status = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "overall_pass": overall_pass,
         "n_attributes": len(report),
         "n_base_attributes": int(
@@ -409,6 +603,11 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
             else 0,
         },
         "policy_config": str(config_path),
+        **build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
 
     status_path = Path(output["status_json"])
@@ -416,6 +615,156 @@ def main(config_path: str = "configs/fairness_policy.yaml", run_tag: str | None 
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2, default=str)
     logger.info(f"Saved fairness status: {status_path}")
+
+    sidecar_cfg = cfg.get("fairlearn_sidecar", {}) or {}
+    if bool(sidecar_cfg.get("enabled", True)):
+        group_rows: list[dict[str, object]] = []
+        summary_rows: list[dict[str, object]] = []
+        rng = np.random.default_rng(int(sidecar_cfg.get("bootstrap_random_state", 42)))
+        n_boot = int(sidecar_cfg.get("bootstrap_samples", 200))
+        bootstrap_max_rows = int(sidecar_cfg.get("bootstrap_max_rows", 50_000))
+        y_true_arr = np.asarray(y_true_eval, dtype=float)
+        y_pred_arr = np.asarray(y_pred_binary, dtype=float)
+        if bootstrap_max_rows > 0 and len(y_true_arr) > bootstrap_max_rows:
+            bootstrap_idx = np.sort(
+                rng.choice(len(y_true_arr), size=bootstrap_max_rows, replace=False)
+            )
+        else:
+            bootstrap_idx = np.arange(len(y_true_arr))
+
+        for attribute, labels in groups_all.items():
+            sensitive = pd.Series(labels).astype(str).reset_index(drop=True)
+            mf = MetricFrame(
+                metrics={"selection_rate": selection_rate, "accuracy": accuracy_score},
+                y_true=y_true_arr,
+                y_pred=y_pred_arr,
+                sensitive_features=sensitive,
+            )
+            by_group = mf.by_group.reset_index()
+            by_group.columns = ["group", *[str(col) for col in by_group.columns[1:]]]
+            for row in by_group.to_dict(orient="records"):
+                row["attribute"] = attribute
+                group_rows.append(row)
+
+            dpd = float(
+                demographic_parity_difference(
+                    y_true=y_true_arr,
+                    y_pred=y_pred_arr,
+                    sensitive_features=sensitive,
+                )
+            )
+            eo = float(
+                equalized_odds_difference(
+                    y_true=y_true_arr,
+                    y_pred=y_pred_arr,
+                    sensitive_features=sensitive,
+                )
+            )
+            boot_sensitive_base = sensitive.iloc[bootstrap_idx].reset_index(drop=True)
+            boot_true_base = y_true_arr[bootstrap_idx]
+            boot_pred_base = y_pred_arr[bootstrap_idx]
+            dpd_boot: list[float] = []
+            eo_boot: list[float] = []
+            for _ in range(max(n_boot, 0)):
+                idx = rng.integers(0, len(boot_true_base), len(boot_true_base))
+                boot_sensitive = boot_sensitive_base.iloc[idx]
+                boot_true = boot_true_base[idx]
+                boot_pred = boot_pred_base[idx]
+                dpd_boot.append(
+                    float(
+                        demographic_parity_difference(
+                            y_true=boot_true,
+                            y_pred=boot_pred,
+                            sensitive_features=boot_sensitive,
+                        )
+                    )
+                )
+                eo_boot.append(
+                    float(
+                        equalized_odds_difference(
+                            y_true=boot_true,
+                            y_pred=boot_pred,
+                            sensitive_features=boot_sensitive,
+                        )
+                    )
+                )
+            summary_rows.append(
+                {
+                    "attribute": attribute,
+                    "demographic_parity_difference": dpd,
+                    "equalized_odds_difference": eo,
+                    "dpd_ci_low": float(np.quantile(dpd_boot, 0.025)) if dpd_boot else None,
+                    "dpd_ci_high": float(np.quantile(dpd_boot, 0.975)) if dpd_boot else None,
+                    "eo_ci_low": float(np.quantile(eo_boot, 0.025)) if eo_boot else None,
+                    "eo_ci_high": float(np.quantile(eo_boot, 0.975)) if eo_boot else None,
+                }
+            )
+
+        sidecar_path = Path(sidecar_cfg.get("status_json", "models/fairlearn_fairness_status.json"))
+        group_metrics_path = Path(
+            sidecar_cfg.get(
+                "group_metrics_parquet", "data/processed/fairlearn_group_metrics.parquet"
+            )
+        )
+        group_metrics_path.parent.mkdir(parents=True, exist_ok=True)
+        sidecar_path.parent.mkdir(parents=True, exist_ok=True)
+        pd.DataFrame(group_rows).to_parquet(group_metrics_path, index=False)
+        sidecar_payload = {
+            "primary_status_path": str(status_path),
+            "group_metrics_path": str(group_metrics_path),
+            "n_attributes": len(summary_rows),
+            "attributes": summary_rows,
+            "bootstrap_samples": n_boot,
+            "bootstrap_rows_used": int(len(bootstrap_idx)),
+            "bootstrap_max_rows": bootstrap_max_rows,
+            "prediction_threshold": float(primary_threshold),
+            "outcome_mode": outcome_mode,
+            **build_artifact_metadata(
+                schema_version=f"{SCHEMA_VERSION}-fairlearn",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
+        }
+        sidecar_path.write_text(
+            json.dumps(sidecar_payload, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved fairlearn sidecar status: {sidecar_path}")
+
+    shap_result = _compute_shap_per_group(
+        data=data.iloc[:n],
+        groups_dict=groups_dict,
+    )
+    if shap_result is not None:
+        shap_result["generated_at_utc"] = str(
+            __import__("datetime").datetime.now(__import__("datetime").timezone.utc).isoformat()
+        )
+        shap_result["run_tag"] = resolved_run_tag
+        shap_result["prediction_threshold"] = float(primary_threshold)
+        shap_result["outcome_mode"] = outcome_mode
+        SHAP_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+        SHAP_STATUS_PATH.write_text(
+            json.dumps(shap_result, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved SHAP per-group fairness analysis: {SHAP_STATUS_PATH}")
+
+    write_threshold_semantics(
+        fairness_primary_threshold=float(primary_threshold),
+        decision_policy_global_threshold=float(
+            decision_policy.get("global_threshold", primary_threshold)
+        )
+        if isinstance(decision_policy, dict)
+        else float(primary_threshold),
+        source_artifacts={
+            "fairness_status": str(status_path),
+            "fairness_decision_policy": str(decision_policy_path),
+            "fairness_frontier": str(frontier_path),
+        },
+        run_tag=resolved_run_tag,
+        extra={
+            "fairness_threshold_source": threshold_source,
+            "outcome_mode": outcome_mode,
+        },
+    )
 
     pass_label = "PASS" if overall_pass else "FAIL"
     logger.info(

@@ -56,7 +56,14 @@ has_resume=0
 has_sampling=0
 has_env_file=0
 has_comparison_baseline=0
-BASELINE_REGISTRY="configs/baselines/core_official_baseline.json"
+PRIMARY_BASELINE_REGISTRY="configs/baselines/canonical_operational_baseline.json"
+LEGACY_BASELINE_REGISTRY="configs/baselines/core_official_baseline.json"
+BASELINE_REGISTRY=""
+if [[ -f "${PRIMARY_BASELINE_REGISTRY}" ]]; then
+  BASELINE_REGISTRY="${PRIMARY_BASELINE_REGISTRY}"
+elif [[ -f "${LEGACY_BASELINE_REGISTRY}" ]]; then
+  BASELINE_REGISTRY="${LEGACY_BASELINE_REGISTRY}"
+fi
 for arg in "${EXTRA_ARGS[@]}"; do
   case "${arg}" in
     --resume)
@@ -74,12 +81,13 @@ for arg in "${EXTRA_ARGS[@]}"; do
   esac
 done
 
-if [[ "${RUN_TAG,,}" == *official* || "${RUN_TAG,,}" == *-core-* || "${RUN_TAG,,}" == *-core ]]; then
-  if [[ "${has_comparison_baseline}" -eq 0 ]] && [[ -f "${BASELINE_REGISTRY}" ]]; then
-    auto_baseline_tag="$("${PY_BIN}" - <<'PY'
+if [[ "${RUN_TAG,,}" == *official* || "${RUN_TAG,,}" == *-core-* || "${RUN_TAG,,}" == *-core || "${RUN_TAG,,}" == champion-* || "${RUN_TAG,,}" == canonical-* || "${RUN_TAG,,}" == insights-* ]]; then
+  if [[ "${has_comparison_baseline}" -eq 0 ]] && [[ -n "${BASELINE_REGISTRY}" ]] && [[ -f "${BASELINE_REGISTRY}" ]]; then
+    auto_baseline_tag="$(BASELINE_REGISTRY="${BASELINE_REGISTRY}" "${PY_BIN}" - <<'PY'
 import json
+import os
 from pathlib import Path
-p = Path("configs/baselines/core_official_baseline.json")
+p = Path(os.environ["BASELINE_REGISTRY"])
 if not p.exists():
     raise SystemExit("")
 try:
@@ -103,7 +111,7 @@ if [[ "${RUN_TAG,,}" == *official* || "${RUN_TAG,,}" == *-core-* || "${RUN_TAG,,
   if [[ "${has_comparison_baseline}" -eq 0 ]]; then
     echo "Run tag '${RUN_TAG}' requires explicit comparison baseline."
     echo "Add --comparison-baseline <path> or --comparison-baseline-run-tag <tag>,"
-    echo "or define configs/baselines/core_official_baseline.json."
+    echo "or define configs/baselines/canonical_operational_baseline.json."
     exit 3
   fi
 fi
@@ -113,18 +121,22 @@ if [[ "${has_resume}" -eq 0 ]]; then
   DEFAULT_ARGS+=(--resume)
 fi
 if [[ "${has_sampling}" -eq 0 ]]; then
-  DEFAULT_ARGS+=(--sampling-profile full)
+  if [[ "${RUN_TAG,,}" == champion-* ]]; then
+    DEFAULT_ARGS+=(--sampling-profile mega64plus)
+  else
+    DEFAULT_ARGS+=(--sampling-profile full)
+  fi
 fi
 if [[ "${has_env_file}" -eq 0 ]] && [[ -f ".env" ]]; then
   DEFAULT_ARGS+=(--env-file .env)
 fi
 
 if command -v setsid >/dev/null 2>&1; then
-  setsid "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+  setsid "${PY_BIN}" -u scripts/run_champion_search.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
     >"${LAUNCH_LOG}" 2>&1 < /dev/null &
   pid=$!
 else
-  nohup "${PY_BIN}" -u scripts/run_long_pipeline.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+  nohup "${PY_BIN}" -u scripts/run_champion_search.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
     >"${LAUNCH_LOG}" 2>&1 < /dev/null &
   pid=$!
 fi

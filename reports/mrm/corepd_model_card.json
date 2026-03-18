@@ -1,0 +1,25 @@
+{
+  "model_name": "CorePDCanonical",
+  "model_version": "1.0",
+  "champion_artifact": "models/pd_canonical.cbm",
+  "subsystem_pass": {
+    "pipeline": false,
+    "conformal": false,
+    "governance": true,
+    "fairness": true
+  },
+  "limitations": [
+    "Champion artifact remains CatBoost/CBM; skops export is limited to sklearn-compatible artifacts.",
+    "Fairlearn is integrated as a sidecar audit and does not replace the canonical fairness gate in this phase.",
+    "Observational causal outputs remain insights_only and are not promotion-eligible."
+  ],
+  "exports": [
+    {
+      "name": "pd_logreg_baseline",
+      "source_path": "models/pd_logreg_baseline.pkl",
+      "export_path": "reports/mrm/skops/pd_logreg_baseline.skops",
+      "status": "exported"
+    }
+  ],
+  "card_render_status": "rendered"
+}

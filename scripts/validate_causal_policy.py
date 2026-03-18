@@ -13,13 +13,15 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from loguru import logger
+
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+
+_CLI_RUN_TAG: str | None = None
 
 CAUSAL_POLICY_SCHEMA_VERSION = "2026-03-07.1"
 
@@ -70,17 +72,6 @@ def _evaluate_rule(
     }
 
 
-def _resolve_run_tag(*payloads: dict) -> str:
-    for payload in payloads:
-        if not isinstance(payload, dict):
-            continue
-        value = str(payload.get("run_tag", "")).strip()
-        if value:
-            return value
-    env_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    return env_tag or "untracked"
-
-
 def main(
     max_action_rate: float = 0.35,
     min_bootstrap_p05_net: float = 0.0,
@@ -102,7 +93,7 @@ def main(
         if effect_status_path.exists()
         else {}
     )
-    run_tag = _resolve_run_tag(effect_status)
+    run_tag = resolve_run_tag(_CLI_RUN_TAG or effect_status.get("run_tag"), require_explicit=True)
 
     q85 = float(df["cate"].quantile(0.85))
     q90 = float(df["cate"].quantile(0.90))
@@ -164,9 +155,6 @@ def main(
 
     selected_row = selected.iloc[0].to_dict()
     status = {
-        "schema_version": CAUSAL_POLICY_SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(tz=UTC).isoformat(),
-        "run_tag": run_tag,
         "selection_reason": selection_reason,
         "selected_rule": selected_row["rule_name"],
         "selected_metrics": {
@@ -186,6 +174,15 @@ def main(
         "source_effect_status_path": str(effect_status_path),
         "effect_status_run_tag": effect_status.get("run_tag"),
         "policy_semantics": "local_cate_policy_simulation",
+        "role": "diagnostic_rule_selection",
+        "promotion_eligible": False,
+        "promotion_decider": "optimize_cate_portfolio.py",
+        "policy_evaluation_consistent": False,
+        **build_artifact_metadata(
+            schema_version=CAUSAL_POLICY_SCHEMA_VERSION,
+            run_tag=run_tag,
+            require_explicit=True,
+        ),
     }
     status_path = model_dir / "causal_policy_rule.json"
     with open(status_path, "w", encoding="utf-8") as f:
@@ -209,7 +206,10 @@ if __name__ == "__main__":
     parser.add_argument("--min_grade_total_net", type=float, default=0.0)
     parser.add_argument("--bootstrap_samples", type=int, default=200)
     parser.add_argument("--random_state", type=int, default=42)
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        _CLI_RUN_TAG = args.run_tag
     main(
         max_action_rate=args.max_action_rate,
         min_bootstrap_p05_net=args.min_bootstrap_p05_net,

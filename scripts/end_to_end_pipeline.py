@@ -1,7 +1,11 @@
-"""Core/minimal pipeline orchestrator.
+"""Compatibility smoke/core pipeline orchestrator.
 
-This script is a lightweight local smoke/integration flow. The canonical full rebuild
-for thesis-grade artifacts is `uv run dvc repro` or `scripts/run_long_pipeline.py`.
+This script remains available for backward compatibility. The canonical entrypoint
+for the lightweight local flow is now `scripts/run_smoke_pipeline.py`.
+
+The canonical full rebuild for thesis-grade artifacts is `uv run dvc repro`,
+`scripts/run_canonical_rebuild.py`, or `scripts/run_champion_search.py`
+depending on the objective.
 
 Usage:
     uv run python scripts/end_to_end_pipeline.py --run_name smoke
@@ -300,6 +304,10 @@ def main(
 
 
 if __name__ == "__main__":
+    print(
+        "[deprecated] scripts/end_to_end_pipeline.py is a compatibility entrypoint. "
+        "Use scripts/run_smoke_pipeline.py instead."
+    )
     parser = argparse.ArgumentParser()
     parser.add_argument("--run_name", default="v2")
     parser.add_argument("--continue-on-error", action="store_true")

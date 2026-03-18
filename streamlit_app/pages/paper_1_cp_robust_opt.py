@@ -25,18 +25,28 @@ from streamlit_app.utils import (
     try_load_parquet,
 )
 
-st.title("🧪 Paper 1 — Working Draft")
+st.title("🧪 Paper 1 — Draft Histórico (absorbido por Paper Estrella)")
 st.caption(
     "Conformal Prediction Intervals as Uncertainty Sets for Robust Credit Portfolio Optimization"
 )
 page_contract = get_page_contract("paper_1_cp_robust_opt")
 render_page_header(page_contract)
+
+st.info(
+    "**Este draft ha sido absorbido por Paper Estrella** "
+    "(Management Science / Operations Research / EJOR). "
+    "El contenido completo y actualizado — incluyendo SPO+ v2, alpha sweep, CQR comparison, "
+    "uncertainty baselines, bound teórico α↔Γ — está en la página **Paper Estrella**. "
+    "Este archivo se mantiene como borrador histórico de referencia."
+)
+
 render_key_takeaway(
-    "Novelty claim del draft: usar intervalos conformales Mondrian como conjuntos de incertidumbre operativos para optimización robusta de portafolio crediticio."
+    "Novelty claim original: usar intervalos conformales Mondrian como conjuntos de incertidumbre "
+    "operativos para optimización robusta de portafolio crediticio. "
+    "Expandido en Paper Estrella con SPO+, alpha sweep y bound teórico formal."
 )
 st.warning(
-    "Borrador de trabajo para revisión académica. Los claims y tablas están ligados a artefactos "
-    "canónicos del proyecto y pueden refinarse tras feedback del profesor."
+    "Borrador histórico. Ver **Paper Estrella** para la versión completa y actualizada."
 )
 methodology_dialog(
     "Qué NO duplicar en este draft (usa el registro maestro)",

@@ -150,6 +150,32 @@ class TestBuildTimeSeriesPanel:
             check_dtype=False,
         )
 
+    def test_fills_missing_months_with_zero_volume_rows(self) -> None:
+        df = pd.DataFrame(
+            {
+                "id": [1, 2],
+                "loan_amnt": [10000, 12000],
+                "default_flag": [0, 1],
+                "issue_d": pd.to_datetime(["2018-01-01", "2018-03-01"]),
+                "grade": ["A", "A"],
+                "term": [36, 36],
+                "int_rate": [10.0, 10.0],
+                "dti": [15.0, 15.0],
+            }
+        )
+        result = build_time_series_panel(df)
+        bottom = result.loc[result["unique_id"] == "grade_term::A__36"].sort_values("ds")
+
+        assert bottom["ds"].tolist() == [
+            pd.Timestamp("2018-01-01"),
+            pd.Timestamp("2018-02-01"),
+            pd.Timestamp("2018-03-01"),
+        ]
+        feb = bottom.loc[bottom["ds"] == pd.Timestamp("2018-02-01")].iloc[0]
+        assert float(feb["loan_count"]) == 0.0
+        assert float(feb["default_count"]) == 0.0
+        assert float(feb["default_rate"]) == 0.0
+
 
 class TestBuildEadDataset:
     def test_only_defaults(self, feature_df: pd.DataFrame) -> None:

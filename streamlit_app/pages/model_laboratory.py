@@ -39,7 +39,14 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import get_notebook_image_path, page_error_boundary, try_load_json, try_load_parquet
+from streamlit_app.utils import (
+    get_notebook_image_path,
+    get_operational_threshold,
+    get_pd_internal_threshold,
+    load_pd_calibration_diagnostics,
+    try_load_json,
+    try_load_parquet,
+)
 
 
 @st.cache_data(ttl=600, max_entries=1)
@@ -247,7 +254,7 @@ def _plotly_model_auc_figure(
                 x=df["auc"],
                 y=df["model"],
                 orientation="h",
-                marker=dict(color=colors),
+                marker={"color": colors},
                 text=[f"{v:.4f}" for v in df["auc"].astype(float)],
                 textposition="outside",
                 customdata=customdata,
@@ -322,10 +329,11 @@ focus_items = [
     ("lr_odds", "LR Odds"),
     ("catboost_params", "CatBoost Avanzado"),
     ("calibration", "Calibración"),
+    ("venn_abers", "Venn-Abers"),
     ("shap", "Interpretabilidad"),
     ("upgrades", "Upgrades"),
 ]
-id_to_label = {item_id: label for item_id, label in focus_items}
+id_to_label = dict(focus_items)
 label_to_id = {label: item_id for item_id, label in focus_items}
 
 focus_section = str(st.session_state.get("model_lab_focus", "comparison"))
@@ -350,6 +358,7 @@ focus_labels = {
     "lr_odds": "Regresión logística: log-odds, odds y odds ratios",
     "catboost_params": "CatBoost avanzado: hiperparámetros aplicables al proyecto",
     "calibration": "Calibración probabilística y selección de método",
+    "venn_abers": "Venn-Abers: calibración canónica con garantías conformales",
     "shap": "Resumen interpretativo y puente a la página dedicada",
     "upgrades": "Mejoras habilitadas por upgrades recientes",
 }
@@ -423,7 +432,12 @@ Función conceptual: minimizar pérdida logarítmica y luego recalibrar para red
         r"\text{Brier} = \frac{1}{N}\sum_{i=1}^{N}(p_i-y_i)^2,\qquad \text{ECE}=\sum_b w_b\left|\hat{p}_b-\hat{y}_b\right|"
     )
 
-comparison = load_json("model_comparison")
+comparison = try_load_json("model_comparison", directory="data", default={})
+st.caption(
+    "Contrato de thresholds: el cutoff interno PD para screening/search se reporta por separado del "
+    f"threshold operativo de aprobación (`{get_operational_threshold():.2f}`); "
+    f"threshold interno actual `{get_pd_internal_threshold():.2f}`."
+)
 models = pd.DataFrame(comparison.get("models", []))
 final = comparison.get("final_test_metrics", {})
 cal_report = comparison.get("calibration_selection_report", {})
@@ -431,6 +445,7 @@ hpo_trials = int(comparison.get("hpo_trials_executed", comparison.get("optuna_n_
 feature_count_tuned = int(comparison.get("feature_count_tuned", 0))
 test_predictions = try_load_parquet("test_predictions")
 pd_model_has_time = read_pd_model_has_time_flag()
+calib_diagnostics = load_pd_calibration_diagnostics()
 
 if _show_sections("comparison"):
     st.subheader("Comparativo de arquitecturas")
@@ -744,6 +759,71 @@ if _show_sections("comparison", "calibration"):
         n_cols=3,
     )
 
+    with st.expander(
+        "Venn-Abers: calibración canónica con garantías conformales",
+        expanded=focus_section == "venn_abers",
+    ):
+        va_candidates = calib_diagnostics.get("candidate_comparison", [])
+        selected_method = calib_diagnostics.get("selected_method", "n/d")
+        if va_candidates:
+            va_rows = []
+            for c in va_candidates:
+                va_rows.append(
+                    {
+                        "método": str(c.get("method", "")),
+                        "ECE (OOT)": f"{float(c.get('ece', 0)):.4f}",
+                        "Brier (OOT)": f"{float(c.get('brier', 0)):.4f}",
+                        "AUC (OOT)": f"{float(c.get('auc', 0)):.4f}",
+                        "seleccionado": str(c.get("method", "")) == selected_method,
+                    }
+                )
+            st.dataframe(pd.DataFrame(va_rows), width="stretch", hide_index=True)
+            va_meta = calib_diagnostics.get("venn_abers", {})
+            avg_w = va_meta.get("avg_width")
+            med_w = va_meta.get("median_width")
+            unbias = va_meta.get("unbiasedness_in_the_large")
+            c1, c2, c3 = st.columns(3)
+            c1.metric("Método canónico", selected_method.replace("_", "-").title())
+            if avg_w is not None:
+                c2.metric("VA avg_width (bounds)", f"{float(avg_w):.5f}", help="Ancho medio del intervalo [p0, p1]. Cerca de 0 = calibración muy estable.")
+            if med_w is not None:
+                c3.metric("VA median_width", f"{float(med_w):.5f}")
+            if unbias is not None:
+                st.caption(
+                    f"{'✅' if unbias else '⚠️'} `unbiasedness_in_the_large={'True' if unbias else 'False'}` — "
+                    + ("El modelo es marginalmente insesgado en el conjunto OOT." if unbias
+                       else "Leve shift de prevalencia cal→test (esperado en split OOT estricto; no afecta la validez conformal).")
+                )
+        else:
+            st.info("Artefacto `models/pd_calibration_diagnostics.json` no disponible.")
+
+        st.markdown(
+            """
+**¿Qué es Venn-Abers y por qué es coherente con el stack conformal?**
+
+Venn-Abers (Vovk & Petej 2012) es un método de calibración post-hoc que produce **pares de probabilidad** $(p_0, p_1)$
+con garantía de calibración finita bajo intercambiabilidad. No requiere hipótesis distribucionales.
+
+| Propiedad | Platt | Isotonic | **Venn-Abers** |
+|-----------|-------|----------|----------------|
+| Garantía distribución-libre | ✗ | ✗ | **✓** |
+| Muestra finita | ✗ | ✗ | **✓** |
+| Produce bounds (incertidumbre de calibración) | ✗ | ✗ | **✓** |
+| Monotonía | ✓ | ✓ | ✓ |
+
+**Coherencia arquitectónica:** el proyecto usa conformal prediction (MAPIE Mondrian) para los intervalos de PD.
+Usar Venn-Abers para la calibración base crea un stack de incertidumbre coherente:
+*calibración conformal → intervalos conformales → optimización robusta*.
+
+**Costo computacional:** O(n log n) vs O(1) de Platt — asumible para batch scoring (276K préstamos).
+"""
+        )
+        st.caption(
+            "Referencia: Vovk V. & Petej I. (2012). Venn-Abers predictors. UAI. | "
+            "Artefacto: `models/pd_calibration_diagnostics.json` | "
+            "Implementación: `src/models/venn_abers.py`"
+        )
+
     metricas_interpretacion = pd.DataFrame(
         [
             {
@@ -782,60 +862,66 @@ if _show_sections("comparison", "calibration"):
     st.dataframe(metricas_interpretacion, width="stretch", hide_index=True)
 
     st.subheader("Curvas ROC")
-    roc_df = load_parquet("roc_curve_data")
-    available_models = sorted(roc_df["model"].dropna().unique().tolist())
-    default_models = [
-        m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
-    ]
-    selected_models = st.multiselect(
-        "Modelos a comparar",
-        options=available_models,
-        default=default_models or available_models[:2],
-    )
-    roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
+    roc_df = try_load_parquet("roc_curve_data")
+    if roc_df.empty or "model" not in roc_df.columns:
+        st.info("No hay `roc_curve_data.parquet` oficial disponible para esta vista.")
+    else:
+        available_models = sorted(roc_df["model"].dropna().unique().tolist())
+        default_models = [
+            m for m in ["catboost_calibrated", "catboost_tuned", "logreg"] if m in available_models
+        ]
+        selected_models = st.multiselect(
+            "Modelos a comparar",
+            options=available_models,
+            default=default_models or available_models[:2],
+        )
+        roc_filtered = roc_df[roc_df["model"].isin(selected_models)]
 
-    fig = px.line(
-        roc_filtered,
-        x="fpr",
-        y="tpr",
-        color="model",
-        title="Discriminación: ROC por modelo",
-        labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
-    )
-    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
-    fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: medir discriminación entre buenos y malos pagadores. "
-        "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
-    )
+        fig = px.line(
+            roc_filtered,
+            x="fpr",
+            y="tpr",
+            color="model",
+            title="Discriminación: ROC por modelo",
+            labels={"fpr": "FPR", "tpr": "TPR", "model": "Modelo"},
+        )
+        fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#888"})
+        fig.update_layout(**PLOTLY_TEMPLATE["layout"], height=470)
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: medir discriminación entre buenos y malos pagadores. "
+            "Insight: CatBoost calibrado/tuned domina baseline logístico en casi todo el rango."
+        )
 
     st.subheader("Calibración probabilística")
-    cal_df = load_parquet("calibration_curve_data")
-    fig = go.Figure()
-    for model_name in sorted(cal_df["model"].dropna().unique()):
-        subset = cal_df[cal_df["model"] == model_name]
-        fig.add_trace(
-            go.Scatter(
-                x=subset["predicted_prob"],
-                y=subset["observed_freq"],
-                mode="markers+lines",
-                name=model_name,
+    cal_df = try_load_parquet("calibration_curve_data")
+    if cal_df.empty or "model" not in cal_df.columns:
+        st.info("No hay `calibration_curve_data.parquet` oficial disponible para esta vista.")
+    else:
+        fig = go.Figure()
+        for model_name in sorted(cal_df["model"].dropna().unique()):
+            subset = cal_df[cal_df["model"] == model_name]
+            fig.add_trace(
+                go.Scatter(
+                    x=subset["predicted_prob"],
+                    y=subset["observed_freq"],
+                    mode="markers+lines",
+                    name=model_name,
+                )
             )
+        fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
+        fig.update_layout(
+            **PLOTLY_TEMPLATE["layout"],
+            title="Probabilidad predicha vs frecuencia observada",
+            xaxis_title="Probabilidad predicha",
+            yaxis_title="Frecuencia observada",
+            height=430,
         )
-    fig.add_shape(type="line", x0=0, y0=0, x1=1, y1=1, line={"dash": "dash", "color": "#999"})
-    fig.update_layout(
-        **PLOTLY_TEMPLATE["layout"],
-        title="Probabilidad predicha vs frecuencia observada",
-        xaxis_title="Probabilidad predicha",
-        yaxis_title="Frecuencia observada",
-        height=430,
-    )
-    st.plotly_chart(fig, width="stretch")
-    st.caption(
-        "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
-        "esto es clave para IFRS9 y pricing."
-    )
+        st.plotly_chart(fig, width="stretch")
+        st.caption(
+            "Propósito: evaluar calidad de probabilidad. Insight: cercanía a la diagonal indica menor sesgo de calibración; "
+            "esto es clave para IFRS9 y pricing."
+        )
 
     col_nb1, col_nb2 = st.columns(2)
     with col_nb1:
@@ -1018,6 +1104,116 @@ if _show_sections("upgrades"):
                 "Nota de arquitectura: `econml` se movió fuera del entorno principal para evitar bloquear "
                 "upgrades de `scikit-learn` y `shap`. Los workflows causales siguen disponibles en un env separado."
             )
+
+# ── Rare Event Calibration Diagnostics ──────────────────────────────────
+rare_event_status = try_load_json("pd_rare_event_calibration_status", directory="models", default={})
+with st.expander("Rare Event Calibration Diagnostics", expanded=False):
+    if rare_event_status:
+        re_cols = st.columns(3)
+        _re_summ = rare_event_status.get("summary", rare_event_status.get("global", {}))
+        _re_method = rare_event_status.get("method") or rare_event_status.get("config", {}).get("calibration_method") or "auto"
+        _re_brier = _re_summ.get("brier") or rare_event_status.get("brier_score")
+        _re_ece = _re_summ.get("ece") or rare_event_status.get("ece")
+        re_cols[0].metric("Método", _re_method)
+        re_cols[1].metric("Brier Score", f"{_re_brier:.4f}" if isinstance(_re_brier, float) else "N/D")
+        re_cols[2].metric("ECE", f"{_re_ece:.4f}" if isinstance(_re_ece, float) else "N/D")
+        if "class_balance" in rare_event_status:
+            st.markdown(f"**Balance de clase (default rate):** {rare_event_status['class_balance']}")
+        if "notes" in rare_event_status:
+            st.caption(rare_event_status["notes"])
+        st.caption(
+            "Lectura: estas métricas reflejan la calidad de calibración bajo desbalance de clase severo. "
+            "Un Brier Score bajo y ECE cercano a cero indican calibración confiable para eventos raros."
+        )
+    else:
+        st.info(
+            "No se encontró `models/pd_rare_event_calibration_status.json`. "
+            "Ejecute el pipeline de calibración de eventos raros para generar este artefacto."
+        )
+
+# ── PD Conformal Gap Analysis ────────────────────────────────────────────
+with st.expander("Análisis de gap conformal y atribución de ancho de intervalo", expanded=False):
+    _gap_summary = try_load_json("conformal_gap_summary", directory="models", default={})
+    _gap_exp = try_load_parquet("pd_conformal_gap_experiments")
+    _gap_top = try_load_parquet("pd_conformal_gap_top_candidates")
+    _width_attr = try_load_parquet("pd_conformal_width_attribution")
+
+    if _gap_summary:
+        st.markdown(
+            f"**Propósito:** {_gap_summary.get('purpose', 'Exploración del espacio de configuración conformal.')}  \n"
+            f"**Decisión:** {_gap_summary.get('decision', 'N/D')}  \n"
+            f"**Justificación:** {_gap_summary.get('decision_rationale', 'N/D')}"
+        )
+        _nc = _gap_summary.get("n_candidates", 0)
+        st.caption(f"Candidatos evaluados: {_nc}")
+
+    if not _gap_top.empty:
+        st.markdown("**Top candidatos seleccionados (Pareto-óptimos)**")
+        _top_cols = [c for c in ["selection_rank", "partition", "scaled_scores", "coverage_90",
+                                  "min_group_coverage_90", "avg_width_90", "strict_overall_pass",
+                                  "checks_passed"] if c in _gap_top.columns]
+        st.dataframe(_gap_top[_top_cols], width="stretch", hide_index=True)
+
+    if not _width_attr.empty:
+        st.markdown("**Atribución de ancho por etapa de experimento**")
+        _attr_cols = [c for c in ["dataset_scope", "stage", "coverage_90", "min_group_coverage_90",
+                                   "avg_width_90", "winkler_90"] if c in _width_attr.columns]
+        st.dataframe(_width_attr[_attr_cols], width="stretch", hide_index=True)
+        st.caption("Cómo el ancho del intervalo varía según el dataset de referencia y la etapa del experimento.")
+
+    if _gap_exp.empty and not _gap_summary:
+        st.info("Ejecuta `scripts/run_conformal_gap_analysis.py` para generar estos diagnósticos.")
+
+# ── Rare Event Calibration Report (Parquet detail) ────────────────────────
+with st.expander("Reporte detallado: calibración para eventos raros", expanded=False):
+    _rare_report = try_load_parquet("pd_rare_event_calibration_report")
+    if not _rare_report.empty:
+        st.markdown(
+            "Diagnóstico de calibración por decil de score y por tipo de slice. "
+            "Las barras de ECE revelan zonas donde el modelo sobreestima o subestima la PD real."
+        )
+        _decile_view = _rare_report[_rare_report["report_type"] == "decile"] if "report_type" in _rare_report.columns else _rare_report
+        if not _decile_view.empty:
+            _decile_cols = [c for c in ["score_decile", "n", "prevalence", "mean_score", "brier", "ece_component"] if c in _decile_view.columns]
+            st.dataframe(_decile_view[_decile_cols], width="stretch", hide_index=True)
+            st.caption("Prevalencia = default rate real en cada decil. mean_score = PD predicha promedio. ece_component = contribución al ECE global.")
+    else:
+        st.info("Ejecuta `scripts/analyze_pd_rare_event_calibration.py` para generar el reporte detallado.")
+
+# ── PD Slice Performance + HPO Seed Replay ────────────────────────────────
+with st.expander("Performance por slice temporal/grade y estabilidad HPO", expanded=False):
+    _slice_perf = try_load_json("pd_slice_performance", directory="models", default={})
+    _hpo_replay = try_load_json("pd_hpo_seed_replay_status", directory="models", default={})
+
+    if _slice_perf:
+        st.markdown("**Performance por slice** (AUC, Brier, ECE por combinación temporal/grade)")
+        _slices = _slice_perf.get("slice_performance", [])
+        if _slices:
+            _slice_df = pd.DataFrame(_slices)
+            st.dataframe(_slice_df, width="stretch", hide_index=True)
+        _if_diag = _slice_perf.get("isolation_forest", {})
+        if _if_diag:
+            st.markdown(f"**Isolation Forest (anomalías):** {_if_diag.get('n_anomalies', 0)} slices anómalos detectados de {_if_diag.get('n_total', 0)} total.")
+
+    if _hpo_replay:
+        st.markdown("**Estabilidad HPO (replay de seeds)**")
+        replay = _hpo_replay.get("replay", {})
+        hc1, hc2, hc3, hc4 = st.columns(4)
+        hc1.metric("Calibración seleccionada", str(_hpo_replay.get("selected_calibration_method", "N/D")))
+        hc2.metric("AUC validación", f"{_hpo_replay.get('validation_auc', 0):.4f}" if _hpo_replay.get("validation_auc") else "N/D")
+        hc3.metric("AUC OOT", f"{_hpo_replay.get('oot_auc', 0):.4f}" if _hpo_replay.get("oot_auc") else "N/D")
+        hc4.metric("Brier", f"{_hpo_replay.get('brier', 0):.4f}" if _hpo_replay.get("brier") else "N/D")
+        if replay:
+            _n_seeds = replay.get("n_seeds", "N/D")
+            _auc_std = replay.get("auc_std", None)
+            st.caption(
+                f"Seeds evaluados: {_n_seeds}. "
+                + (f"Std AUC entre seeds: {_auc_std:.5f} — " if _auc_std else "")
+                + "Baja varianza entre seeds confirma estabilidad del proceso de entrenamiento."
+            )
+
+    if not _slice_perf and not _hpo_replay:
+        st.info("Ejecuta los scripts de diagnóstico de PD para generar estos artefactos.")
 
 st.markdown(
     """

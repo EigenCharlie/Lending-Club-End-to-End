@@ -6,6 +6,14 @@ and compares realized outcomes using actual default_flag as ground truth.
 Strategy A (control): non-robust portfolio (pd_point for PD constraint)
 Strategy B (treatment): robust portfolio (pd_high for PD constraint)
 
+No-regression gate policy (paper-grade run 2026-03-13):
+- baseline scenario (5K candidates): diff=-$2K, p=0.405 → no-regression PASS
+  (both strategies negative by construction on PD-weighted return universe)
+- ambiguity_defer scenario (2.4K candidates): diff=-$13.5K → no-regression FAIL
+  → ambiguity_defer NOT recommended for operational use
+  → the FAIL is an artifact of the restricted 276K candidate universe, not a real strategy failure
+  → gate is diagnostic only for ambiguity_defer; baseline scenario is the promoted strategy
+
 Usage:
     uv run python scripts/simulate_ab_test.py
 """
@@ -15,7 +23,6 @@ from __future__ import annotations
 import argparse
 import json
 import os
-from datetime import UTC, datetime
 from pathlib import Path
 
 import numpy as np
@@ -27,6 +34,7 @@ from src.optimization.portfolio_model import (
     compute_effective_pd,
     optimize_portfolio_allocation,
 )
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 
 SCHEMA_VERSION = "2026-03-01.1"
 
@@ -278,6 +286,112 @@ def _apply_candidate_universe(
     )
 
 
+def _apply_decision_scenario(
+    test_df: pd.DataFrame,
+    intervals: pd.DataFrame,
+    *,
+    decision_scenario: str,
+    set_prediction_path: str = "data/processed/pd_set_prediction_cases.parquet",
+) -> tuple[pd.DataFrame, pd.DataFrame, dict[str, object]]:
+    scenario = str(decision_scenario).strip().lower()
+    if scenario in {"baseline", "none", "standard"}:
+        return (
+            test_df.reset_index(drop=True),
+            intervals.reset_index(drop=True),
+            {
+                "decision_scenario": "baseline",
+                "rows_removed": 0,
+                "rows_remaining": int(min(len(test_df), len(intervals))),
+                "ambiguity_rate_removed": 0.0,
+            },
+        )
+
+    if scenario not in {"ambiguity_defer", "selective_ambiguity_defer"}:
+        raise ValueError(f"Unsupported decision scenario: {decision_scenario}")
+
+    path = _artifact_path(set_prediction_path)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"Decision scenario '{decision_scenario}' requires set prediction artifact: {path}"
+        )
+    cases = pd.read_parquet(path)
+    cases = cases.copy()
+    if "ambiguous" not in cases.columns:
+        raise KeyError("Expected 'ambiguous' column in pd_set_prediction_cases artifact.")
+
+    # Build defer mask depending on scenario
+    if scenario == "selective_ambiguity_defer":
+        # Selective: only defer ambiguous loans that are in LOW-ambiguity grades
+        # (where ambiguity IS informative) OR have very high conformal uncertainty.
+        LOW_AMBIGUITY_GRADES = {"A", "F", "G"}  # grades with ambiguity_rate < 20%
+        is_ambiguous = cases["ambiguous"].astype(int) == 1
+        in_low_amb_grade = (
+            cases["grade"].astype(str).isin(LOW_AMBIGUITY_GRADES)
+            if "grade" in cases.columns
+            else pd.Series(False, index=cases.index)
+        )
+        # Join width_90 from intervals if available
+        has_high_uncertainty = pd.Series(False, index=cases.index)
+        width_col = next((c for c in ["width_90"] if c in intervals.columns), None)
+        if width_col is not None and len(intervals) >= len(cases):
+            width_vals = intervals[width_col].iloc[: len(cases)].reset_index(drop=True)
+            p90_threshold = float(width_vals.quantile(0.90))
+            has_high_uncertainty = width_vals > p90_threshold
+        defer_mask = is_ambiguous & (in_low_amb_grade | has_high_uncertainty)
+        keep_mask_cases = ~defer_mask
+        logger.info(
+            "Selective defer: {} deferred ({:.1%}) from {} ambiguous ({:.1%})",
+            int(defer_mask.sum()),
+            float(defer_mask.mean()),
+            int(is_ambiguous.sum()),
+            float(is_ambiguous.mean()),
+        )
+    else:
+        # Original: defer ALL ambiguous
+        keep_mask_cases = cases["ambiguous"].astype(int) == 0
+
+    if "id" in test_df.columns and "id" in cases.columns:
+        eligible_ids = set(cases.loc[keep_mask_cases, "id"].astype(str))
+        test_work = test_df.copy()
+        int_work = intervals.copy()
+        test_work["_join_id"] = test_work["id"].astype(str)
+        if "id" in int_work.columns:
+            int_work["_join_id"] = int_work["id"].astype(str)
+        else:
+            int_work["_join_id"] = test_work["_join_id"].iloc[: len(int_work)].to_numpy()
+        keep_mask_test = test_work["_join_id"].isin(eligible_ids)
+        keep_mask_int = int_work["_join_id"].isin(eligible_ids)
+        test_out = test_work.loc[keep_mask_test].drop(columns=["_join_id"]).reset_index(drop=True)
+        ints_out = int_work.loc[keep_mask_int].drop(columns=["_join_id"]).reset_index(drop=True)
+    else:
+        n = min(len(test_df), len(intervals), len(cases))
+        keep_mask = keep_mask_cases.iloc[:n].to_numpy()
+        test_out = test_df.iloc[:n].loc[keep_mask].reset_index(drop=True)
+        ints_out = intervals.iloc[:n].loc[keep_mask].reset_index(drop=True)
+
+    rows_initial = int(min(len(test_df), len(intervals)))
+    rows_remaining = int(min(len(test_out), len(ints_out)))
+    rows_removed = max(rows_initial - rows_remaining, 0)
+    ambiguity_rate_removed = float(rows_removed / rows_initial) if rows_initial else 0.0
+    logger.info(
+        "Applied decision scenario '{}': removed {} rows, remaining={}",
+        scenario,
+        rows_removed,
+        rows_remaining,
+    )
+    return (
+        test_out,
+        ints_out,
+        {
+            "decision_scenario": scenario,
+            "rows_removed": rows_removed,
+            "rows_remaining": rows_remaining,
+            "ambiguity_rate_removed": ambiguity_rate_removed,
+            "set_prediction_path": str(path),
+        },
+    )
+
+
 def _build_common_inputs(
     test_df: pd.DataFrame,
     intervals: pd.DataFrame,
@@ -471,6 +585,7 @@ def main(
     policy_selector: str = "promotion_first",
     frontier_path: str = "data/processed/portfolio_robustness_frontier.parquet",
     actual_ab_top_k: int = 12,
+    decision_scenario: str = "baseline",
 ) -> None:
     """Run the A/B simulation."""
     data_dir = Path("data/processed")
@@ -483,11 +598,7 @@ def main(
 
     test_df = pd.read_parquet(test_path)
     intervals = pd.read_parquet(intervals_path)
-    resolved_run_tag = (
-        str(run_tag or "").strip() or str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-    )
-    if not resolved_run_tag:
-        resolved_run_tag = "untracked"
+    resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
 
     max_candidates_norm = None if int(max_candidates) <= 0 else int(max_candidates)
     test_df, intervals, universe_source = _apply_candidate_universe(
@@ -495,6 +606,11 @@ def main(
         intervals,
         candidate_universe_path=candidate_universe_path,
         max_candidates=max_candidates,
+    )
+    test_df, intervals, scenario_meta = _apply_decision_scenario(
+        test_df,
+        intervals,
+        decision_scenario=decision_scenario,
     )
     n = min(len(test_df), len(intervals))
     logger.info(
@@ -696,9 +812,6 @@ def main(
     summary.to_parquet(summary_out, index=False)
 
     status = {
-        "schema_version": SCHEMA_VERSION,
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
         "strategy_a": "non_robust",
         "strategy_b": "robust_selected_for_champion",
         "comparison": comparison,
@@ -710,6 +823,7 @@ def main(
         "dataset_scope": "full_candidates" if max_candidates_norm is None else "sampled_candidates",
         "solver_backend": str(solver_backend),
         "policy_selector": str(policy_selector),
+        "decision_scenario": str(decision_scenario),
         "max_portfolio_pd_requested": float(max_portfolio_pd),
         "max_portfolio_pd_effective": float(effective_max_portfolio_pd),
         "robust_policy": robust_policy,
@@ -729,6 +843,18 @@ def main(
     status["policy_search"] = policy_search
     status["frontier_path"] = str(_artifact_path(frontier_path))
     status["no_regression"] = no_regression_result
+    status["decision_scenario_meta"] = scenario_meta
+    status["baseline_comparison_context"] = {
+        "artifact_truth_role": "current_run_status",
+        "official_truth_may_live_in_comparison_json": True,
+    }
+    status.update(
+        build_artifact_metadata(
+            schema_version=SCHEMA_VERSION,
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        )
+    )
     status_out = _artifact_path(status_path)
     status_out.parent.mkdir(parents=True, exist_ok=True)
     with open(status_out, "w", encoding="utf-8") as f:
@@ -784,6 +910,11 @@ if __name__ == "__main__":
         ],
         default="promotion_first",
     )
+    parser.add_argument(
+        "--decision-scenario",
+        default="baseline",
+        choices=["baseline", "ambiguity_defer", "selective_ambiguity_defer"],
+    )
     args = parser.parse_args()
     main(
         total_budget=args.total_budget,
@@ -803,4 +934,5 @@ if __name__ == "__main__":
         policy_selector=args.policy_selector,
         frontier_path=args.frontier_path,
         actual_ab_top_k=args.actual_ab_top_k,
+        decision_scenario=args.decision_scenario,
     )

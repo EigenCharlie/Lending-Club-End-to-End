@@ -41,7 +41,14 @@ from streamlit_app.components.story_shell import (
 )
 from streamlit_app.content.page_contracts import get_page_contract
 from streamlit_app.theme import PLOTLY_TEMPLATE
-from streamlit_app.utils import format_pct, get_notebook_image_path, load_json, load_parquet
+from streamlit_app.utils import (
+    format_pct,
+    get_notebook_image_path,
+    load_json,
+    load_parquet,
+    try_load_json,
+    try_load_parquet,
+)
 
 st.title("📐 Cuantificación de Incertidumbre")
 st.caption(
@@ -678,6 +685,27 @@ else:
     )
     st.dataframe(failed_checks, width="stretch", hide_index=True)
 
+_cov_grade_img = get_notebook_image_path("04_conformal_prediction", "coverage_by_grade.png")
+_cov_tradeoff_img = get_notebook_image_path("04_conformal_prediction", "coverage_width_tradeoff.png")
+_width_dist_img = get_notebook_image_path("04_conformal_prediction", "interval_width_distribution.png")
+_any_named = _cov_grade_img.exists() or _cov_tradeoff_img.exists() or _width_dist_img.exists()
+if _any_named:
+    with st.expander("Figuras del notebook: cobertura por grade y trade-off ancho-cobertura", expanded=True):
+        _nc = sum([_cov_grade_img.exists(), _cov_tradeoff_img.exists(), _width_dist_img.exists()])
+        _nb_cols = st.columns(_nc)
+        _ci = 0
+        if _cov_grade_img.exists():
+            with _nb_cols[_ci]:
+                st.image(str(_cov_grade_img), caption="NB04: cobertura por grade (Mondrian vs marginal).", width="stretch")
+            _ci += 1
+        if _cov_tradeoff_img.exists():
+            with _nb_cols[_ci]:
+                st.image(str(_cov_tradeoff_img), caption="NB04: trade-off cobertura vs ancho por alpha.", width="stretch")
+            _ci += 1
+        if _width_dist_img.exists():
+            with _nb_cols[_ci]:
+                st.image(str(_width_dist_img), caption="NB04: distribución del ancho del intervalo por grade.", width="stretch")
+
 st.markdown(
     """
 **Interpretación para riesgo de crédito:**
@@ -702,6 +730,212 @@ debe leerse siempre junto a retorno robusto y a sensibilidad IFRS9 para decidir 
 adecuado para el apetito de riesgo del portafolio.
 """
 )
+# ── Set Prediction Benchmark ──
+with st.expander("Set Prediction Benchmark (LAC/APS/RAPS)"):
+    set_pred_status = try_load_json("pd_set_prediction_status", directory="models", default={})
+    if set_pred_status:
+        sp_cols = st.columns(3)
+        _sp_summ = set_pred_status.get("summary", {})
+        with sp_cols[0]:
+            st.metric("Method", set_pred_status.get("method") or "N/D")
+        with sp_cols[1]:
+            sp_cov = _sp_summ.get("set_coverage") or set_pred_status.get("coverage", 0)
+            st.metric("Coverage", f"{sp_cov:.1%}" if isinstance(sp_cov, (int, float)) else str(sp_cov))
+        with sp_cols[2]:
+            sp_size = _sp_summ.get("ambiguity_rate") or set_pred_status.get("avg_set_size", 0)
+            st.metric("Avg Set Size (ambiguity rate)", f"{sp_size:.2%}" if isinstance(sp_size, (int, float)) else str(sp_size))
+        if "details" in set_pred_status:
+            st.json(set_pred_status["details"])
+    else:
+        st.info(
+            "No se encontró `models/pd_set_prediction_status.json`. "
+            "Ejecuta el benchmark de set prediction (LAC/APS/RAPS) para generar este artefacto."
+        )
+
+# ── CQR Mondrian Benchmark ──
+with st.expander("CQR Mondrian: Cobertura por grupo y comparación de métodos"):
+    st.markdown(
+        """
+**Conformalized Quantile Regression (CQR) Mondrian** es una variante que usa regresión de cuantiles
+como modelo base, en lugar de residuos simétricos. Esto permite intervalos asimétricos que se adaptan
+mejor a distribuciones sesgadas como PD.
+
+**¿Por qué comparar?** El método estándar (Mondrian simétrico) es más interpretable y estable, pero
+CQR puede producir intervalos más eficientes (más estrechos) cuando la distribución de errores es asimétrica.
+"""
+    )
+    cqr_group = try_load_parquet("cqr_mondrian_group_coverage")
+    cqr_comparison = try_load_parquet("cqr_mondrian_comparison")
+
+    if not cqr_group.empty:
+        st.markdown("**Cobertura por grade — CQR Mondrian**")
+        fig_cqr_group = px.bar(
+            cqr_group,
+            x="grade",
+            y="coverage",
+            color="method",
+            barmode="group",
+            error_y=None,
+            title="Cobertura empírica por grade y método CQR",
+            labels={"coverage": "Cobertura", "grade": "Grade", "method": "Método"},
+            template=PLOTLY_TEMPLATE,
+        )
+        fig_cqr_group.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B", annotation_text="Meta 90%")
+        fig_cqr_group.update_yaxes(tickformat=".0%")
+        st.plotly_chart(fig_cqr_group, width="stretch")
+        st.caption("Comparación de cobertura por grade entre variantes CQR. Cada barra muestra si el método cumple la meta por subgrupo.")
+        st.dataframe(cqr_group, width="stretch", hide_index=True)
+    else:
+        st.info("No se encontró `cqr_mondrian_group_coverage.parquet`. Ejecuta el benchmark CQR para generar este artefacto.")
+
+    if not cqr_comparison.empty:
+        st.markdown("**Comparación global de métodos CQR (cobertura vs ancho)**")
+        fig_cqr_cmp = px.scatter(
+            cqr_comparison,
+            x="avg_width",
+            y="empirical_coverage",
+            color="method",
+            size="n_eligible" if "n_eligible" in cqr_comparison.columns else None,
+            hover_data=[c for c in ["alpha", "coverage_gap", "min_group_coverage", "eligible_pct"] if c in cqr_comparison.columns],
+            title="Trade-off cobertura vs eficiencia (ancho) por método CQR",
+            labels={"avg_width": "Ancho promedio", "empirical_coverage": "Cobertura empírica"},
+            template=PLOTLY_TEMPLATE,
+        )
+        fig_cqr_cmp.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B", annotation_text="Meta 90%")
+        fig_cqr_cmp.update_yaxes(tickformat=".0%")
+        st.plotly_chart(fig_cqr_cmp, width="stretch")
+        st.caption(
+            "Cada punto es un método/alpha. La zona ideal es esquina inferior derecha: alta cobertura (≥90%) con intervalos estrechos. "
+            "El método canónico (Mondrian simétrico) prioriza interpretabilidad; CQR prioriza eficiencia cuando la distribución es asimétrica."
+        )
+        st.dataframe(cqr_comparison, width="stretch", hide_index=True)
+    else:
+        st.info("No se encontró `cqr_mondrian_comparison.parquet`. Ejecuta el benchmark CQR para generar este artefacto.")
+
+# ── Conformal Tuning & Temporal Diagnostics ──
+with st.expander("Diagnósticos avanzados: tuning, drift temporal y shrinkage"):
+    st.markdown(
+        "Exploración del grid de tuning alpha/min_group, diagnósticos de drift mensual y análisis de shrinkage en los intervalos finales."
+    )
+    _tune_pareto = try_load_parquet("conformal_mondrian_tuning_90_pareto")
+    if not _tune_pareto.empty:
+        st.markdown("**Grid de tuning Mondrian 90% (candidatos Pareto)**")
+        _view_cols = [c for c in ["alpha_target_90", "alpha_used_90", "min_group_size",
+                                   "empirical_coverage", "avg_interval_width", "min_group_coverage",
+                                   "winkler_90", "is_pareto", "global_ok", "group_ok"] if c in _tune_pareto.columns]
+        st.dataframe(_tune_pareto[_view_cols], width="stretch", hide_index=True)
+        st.caption("Cada fila es una combinación alpha/min_group_size evaluada. is_pareto=True indica candidatos Pareto-óptimos en cobertura vs eficiencia.")
+
+    _temp_diag = try_load_parquet("conformal_temporal_diagnostics")
+    if not _temp_diag.empty:
+        st.markdown("**Drift mensual por variante**")
+        _td_pivot = _temp_diag.pivot_table(index="month", columns="variant", values="coverage_90")
+        fig_td = px.line(_td_pivot.reset_index(), x="month", y=_td_pivot.columns.tolist(),
+                         title="Cobertura 90% por variante a lo largo del tiempo",
+                         labels={"month": "Mes", "value": "Cobertura 90%", "variable": "Variante"},
+                         template=PLOTLY_TEMPLATE)
+        fig_td.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B")
+        fig_td.update_yaxes(tickformat=".0%")
+        fig_td.update_layout(height=360)
+        st.plotly_chart(fig_td, width="stretch")
+
+    _shrink = try_load_parquet("conformal_shrinkback_report")
+    if not _shrink.empty:
+        st.markdown("**Reporte de shrinkback (candidatos aceptados/rechazados)**")
+        st.dataframe(_shrink, width="stretch", hide_index=True)
+    elif _tune_pareto.empty and _temp_diag.empty:
+        st.info("Diagnósticos de tuning no encontrados. Ejecuta `benchmark_conformal_variants.py`.")
+
+# ── Conformal Method Registry ──
+with st.expander("Registro de métodos conformales y decisión de selección"):
+    _registry = try_load_json("conformal_method_registry", directory="models", default={})
+    _sel_status = try_load_json("conformal_variant_selection_status", directory="models", default={})
+    if _registry:
+        st.markdown(f"**Run:** `{_registry.get('run_tag', 'N/D')}` — generado `{_registry.get('generated_at_utc', 'N/D')[:10]}`")
+        methods = _registry.get("methods", {})
+        if methods:
+            _method_rows = [{"Método": k, **{kk: vv for kk, vv in v.items() if kk in ["type", "description", "canonical"]}}
+                            for k, v in methods.items()]
+            st.dataframe(pd.DataFrame(_method_rows), width="stretch", hide_index=True)
+    if _sel_status:
+        sv, sv1, sv2, sv3 = st.columns(4)
+        sv.metric("Variante seleccionada", str(_sel_status.get("selected_variant", "N/D")))
+        sv1.metric("Promotion pass", "✅" if _sel_status.get("promotion_pass") else "⚠️")
+        sv2.metric("Selection rank", str(_sel_status.get("selection_rank", "N/D")))
+        sv3.metric("Variantes evaluadas", str(len(_sel_status.get("variants_tested", []))))
+    if not _registry and not _sel_status:
+        st.info("Registros no encontrados. Ejecuta `export_conformal_method_registry.py`.")
+
+# ── Uncertainty Baselines by Grade ──
+with st.expander("Baselines de incertidumbre por grade (bootstrap / BMA / paramétrico)"):
+    st.markdown(
+        "Comparación de métodos alternativos de cuantificación de incertidumbre por grade. "
+        "El objetivo es mostrar que Mondrian CP supera los baselines en cobertura garantizada."
+    )
+    _ub_grade = try_load_parquet("uncertainty_baselines_by_grade")
+    _ub_status = try_load_json("uncertainty_baselines_status", directory="models", default={})
+    _ub_cohort = try_load_json("uncertainty_cohort_status", directory="models", default={})
+    if not _ub_grade.empty:
+        fig_ub = px.bar(_ub_grade, x="grade", y="coverage", color="method", barmode="group",
+                        title="Cobertura por grade y método de incertidumbre",
+                        labels={"coverage": "Cobertura", "grade": "Grade", "method": "Método"},
+                        template=PLOTLY_TEMPLATE)
+        fig_ub.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B", annotation_text="Meta 90%")
+        fig_ub.update_yaxes(tickformat=".0%")
+        fig_ub.update_layout(height=360)
+        st.plotly_chart(fig_ub, width="stretch")
+        st.dataframe(_ub_grade, width="stretch", hide_index=True)
+    if _ub_status:
+        res = _ub_status.get("results", {})
+        if res:
+            _res_rows = [{"Método": m, **{k: v for k, v in vals.items()
+                                          if k in ["coverage", "avg_width", "min_grade_coverage"]}}
+                         for m, vals in res.items()]
+            st.markdown("**Resumen global por método**")
+            st.dataframe(pd.DataFrame(_res_rows), width="stretch", hide_index=True)
+    if _ub_cohort:
+        st.markdown("**Análisis de cohort por cuantil de incertidumbre**")
+        _q_metrics = _ub_cohort.get("quintile_metrics", [])
+        if _q_metrics:
+            st.dataframe(pd.DataFrame(_q_metrics), width="stretch", hide_index=True)
+        _defer = _ub_cohort.get("deferral_stats", {})
+        if _defer:
+            d1, d2, d3 = st.columns(3)
+            d1.metric("Tasa de deferral", f"{_defer.get('deferral_rate', 0):.1%}")
+            d2.metric("Default rate en deferidos", f"{_defer.get('deferred_default_rate', 0):.1%}")
+            d3.metric("Default rate en aceptados", f"{_defer.get('accepted_default_rate', 0):.1%}")
+    if _ub_grade.empty and not _ub_status:
+        st.info("Artefactos de baselines no encontrados. Ejecuta `scripts/run_uncertainty_baselines.py`.")
+
+# ── Set Prediction Detail ──
+with st.expander("Set Prediction: detalle por slice, casos y sensibilidad al alpha"):
+    _sp_slice = try_load_parquet("pd_set_prediction_by_slice")
+    _sp_sens = try_load_parquet("pd_set_prediction_sensitivity")
+    if not _sp_slice.empty:
+        st.markdown("**Cobertura y tasa de ambigüedad por slice**")
+        fig_sp = px.bar(_sp_slice, x="slice_value", y="set_coverage", color="slice_name",
+                        barmode="group", text="ambiguity_rate",
+                        title="Set prediction coverage y ambiguity por slice",
+                        labels={"slice_value": "Slice", "set_coverage": "Cobertura set", "ambiguity_rate": "Ambigüedad"},
+                        template=PLOTLY_TEMPLATE)
+        fig_sp.add_hline(y=0.90, line_dash="dash", line_color="#FF6B6B")
+        fig_sp.update_yaxes(tickformat=".0%")
+        fig_sp.update_traces(texttemplate="%{text:.1%}", textposition="outside")
+        fig_sp.update_layout(height=360)
+        st.plotly_chart(fig_sp, width="stretch")
+        st.dataframe(_sp_slice, width="stretch", hide_index=True)
+    if not _sp_sens.empty:
+        st.markdown("**Sensibilidad al alpha (fracción de calibración)**")
+        fig_sens = px.line(_sp_sens, x="calibration_fraction", y=["set_coverage", "singleton_rate", "ambiguity_rate"],
+                           markers=True, title="Set prediction metrics vs fracción de calibración",
+                           labels={"calibration_fraction": "Fracción calibración", "value": "Tasa", "variable": "Métrica"},
+                           template=PLOTLY_TEMPLATE)
+        fig_sens.update_yaxes(tickformat=".0%")
+        fig_sens.update_layout(height=320)
+        st.plotly_chart(fig_sens, width="stretch")
+    if _sp_slice.empty and _sp_sens.empty:
+        st.info("Detalle de set prediction no encontrado. Ejecuta `benchmark_pd_set_prediction.py`.")
+
 render_section_checkpoint(
     "Checkpoint: qué debe quedar claro antes de pasar a la siguiente página",
     [

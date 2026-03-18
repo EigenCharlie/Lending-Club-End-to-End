@@ -1630,6 +1630,22 @@ wheels = [
 ]
 
 [[package]]
+name = "fairlearn"
+version = "0.13.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "narwhals" },
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scikit-learn" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/8d/66/822cdbfc85908cebc0314a8ebb238dee548f7d8980803ff80125ce1b5325/fairlearn-0.13.0.tar.gz", hash = "sha256:58ef3d0f100b10e21427f34687cc1ff1809678d089e22b0ecb4b6aef300c6719", size = 184051, upload-time = "2025-10-19T19:47:52.452Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/94/48/6d29ca1982e27442feecf2f15a1bbb477dc1d35187c3394235f2ecbbbd10/fairlearn-0.13.0-py3-none-any.whl", hash = "sha256:f322eecac24c4799c9ea6cf6f203bf1a76db5d4c13182f887905974b344adc91", size = 251625, upload-time = "2025-10-19T19:47:51.308Z" },
+]
+
+[[package]]
 name = "fastapi"
 version = "0.135.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2722,18 +2738,18 @@ version = "0.1.0"
 source = { editable = "." }
 dependencies = [
     { name = "catboost" },
-    { name = "crepes" },
-    { name = "cvxpy" },
     { name = "dagshub" },
     { name = "dowhy" },
     { name = "duckdb" },
     { name = "dvc", extra = ["s3"] },
+    { name = "fairlearn" },
     { name = "fastapi" },
     { name = "hierarchicalforecast" },
     { name = "highspy" },
     { name = "httpx" },
     { name = "joblib" },
     { name = "lifelines" },
+    { name = "lightgbm" },
     { name = "loguru" },
     { name = "mapie" },
     { name = "matplotlib" },
@@ -2746,7 +2762,6 @@ dependencies = [
     { name = "pandas" },
     { name = "pandera" },
     { name = "plotly" },
-    { name = "polars" },
     { name = "pyarrow" },
     { name = "pydantic" },
     { name = "pyomo" },
@@ -2755,7 +2770,7 @@ dependencies = [
     { name = "scikit-learn" },
     { name = "scikit-survival" },
     { name = "seaborn" },
-    { name = "shap" },
+    { name = "skops" },
     { name = "statsforecast", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12' and sys_platform == 'win32'" },
     { name = "statsforecast", version = "2.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12' or sys_platform != 'win32'" },
     { name = "streamlit" },
@@ -2763,6 +2778,7 @@ dependencies = [
     { name = "streamlit-mermaid" },
     { name = "tqdm" },
     { name = "uvicorn" },
+    { name = "venn-abers" },
 ]
 
 [package.optional-dependencies]
@@ -2779,6 +2795,11 @@ dev = [
 platform = [
     { name = "dbt-duckdb" },
 ]
+research = [
+    { name = "crepes" },
+    { name = "polars" },
+    { name = "shap" },
+]
 spo = [
     { name = "pyepo" },
 ]
@@ -2786,13 +2807,13 @@ spo = [
 [package.metadata]
 requires-dist = [
     { name = "catboost", specifier = ">=1.2" },
-    { name = "crepes", specifier = ">=0.7" },
-    { name = "cvxpy", specifier = ">=1.6" },
+    { name = "crepes", marker = "extra == 'research'", specifier = ">=0.7" },
     { name = "dagshub", specifier = ">=0.4" },
     { name = "dbt-duckdb", marker = "extra == 'platform'", specifier = ">=1.10" },
     { name = "dowhy", specifier = ">=0.12" },
     { name = "duckdb", specifier = ">=1.1" },
     { name = "dvc", extras = ["s3"], specifier = ">=3.56" },
+    { name = "fairlearn", specifier = ">=0.13,<0.14" },
     { name = "fastapi", specifier = ">=0.115" },
     { name = "hierarchicalforecast", specifier = ">=1.0" },
     { name = "highspy", specifier = ">=1.10" },
@@ -2802,6 +2823,7 @@ requires-dist = [
     { name = "jupyter", marker = "extra == 'dev'", specifier = ">=1.1" },
     { name = "jupytext", marker = "extra == 'dev'", specifier = ">=1.17" },
     { name = "lifelines", specifier = ">=0.30" },
+    { name = "lightgbm", specifier = ">=4.5" },
     { name = "loguru", specifier = ">=0.7" },
     { name = "mapie", specifier = ">=1.3.0,<2" },
     { name = "matplotlib", specifier = ">=3.9" },
@@ -2815,7 +2837,7 @@ requires-dist = [
     { name = "pandas", specifier = ">=2.2,<3" },
     { name = "pandera", specifier = ">=0.22" },
     { name = "plotly", specifier = ">=5.24" },
-    { name = "polars", specifier = ">=1.20" },
+    { name = "polars", marker = "extra == 'research'", specifier = ">=1.20" },
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "pyarrow", specifier = ">=18.0" },
     { name = "pydantic", specifier = ">=2.10" },
@@ -2829,15 +2851,17 @@ requires-dist = [
     { name = "scikit-learn", specifier = ">=1.6,<2" },
     { name = "scikit-survival", specifier = ">=0.24" },
     { name = "seaborn", specifier = ">=0.13" },
-    { name = "shap", specifier = ">=0.47" },
+    { name = "shap", marker = "extra == 'research'", specifier = ">=0.47" },
+    { name = "skops", specifier = ">=0.13,<0.14" },
     { name = "statsforecast", specifier = ">=2.0" },
     { name = "streamlit", specifier = ">=1.42" },
     { name = "streamlit-flow-component", specifier = ">=1.6.1" },
     { name = "streamlit-mermaid", specifier = ">=0.3.0" },
     { name = "tqdm", specifier = ">=4.67" },
     { name = "uvicorn", specifier = ">=0.34" },
+    { name = "venn-abers", specifier = ">=1.5,<2" },
 ]
-provides-extras = ["dev", "spo", "platform"]
+provides-extras = ["dev", "spo", "platform", "research"]
 
 [[package]]
 name = "lifelines"
@@ -2855,6 +2879,23 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/70/8d/615b79979ad672d5c482614e4ddbb967e6abfdab9cfbe828f227e719ac45/lifelines-0.30.1.tar.gz", hash = "sha256:31a7e239a512318f8cf408e452f953848c8eaf80182e52bf2f41a529e00cbc35", size = 384603, upload-time = "2026-02-04T02:46:46.457Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0d/52/219224a40cfafc2bfa3495affc0355a13f5276e33612f4fe388bec82f7f6/lifelines-0.30.1-py3-none-any.whl", hash = "sha256:46d16809a0e67d7ed4c144984c7cc0fd34bca759d459440a3e59162e1d7e88dc", size = 350035, upload-time = "2026-02-04T02:46:44.619Z" },
+]
+
+[[package]]
+name = "lightgbm"
+version = "4.6.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "scipy" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/68/0b/a2e9f5c5da7ef047cc60cef37f86185088845e8433e54d2e7ed439cce8a3/lightgbm-4.6.0.tar.gz", hash = "sha256:cb1c59720eb569389c0ba74d14f52351b573af489f230032a1c9f314f8bab7fe", size = 1703705, upload-time = "2025-02-15T04:03:03.111Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f2/75/cffc9962cca296bc5536896b7e65b4a7cdeb8db208e71b9c0133c08f8f7e/lightgbm-4.6.0-py3-none-macosx_10_15_x86_64.whl", hash = "sha256:b7a393de8a334d5c8e490df91270f0763f83f959574d504c7ccb9eee4aef70ed", size = 2010151, upload-time = "2025-02-15T04:02:50.961Z" },
+    { url = "https://files.pythonhosted.org/packages/21/1b/550ee378512b78847930f5d74228ca1fdba2a7fbdeaac9aeccc085b0e257/lightgbm-4.6.0-py3-none-macosx_12_0_arm64.whl", hash = "sha256:2dafd98d4e02b844ceb0b61450a660681076b1ea6c7adb8c566dfd66832aafad", size = 1592172, upload-time = "2025-02-15T04:02:53.937Z" },
+    { url = "https://files.pythonhosted.org/packages/64/41/4fbde2c3d29e25ee7c41d87df2f2e5eda65b431ee154d4d462c31041846c/lightgbm-4.6.0-py3-none-manylinux2014_aarch64.whl", hash = "sha256:4d68712bbd2b57a0b14390cbf9376c1d5ed773fa2e71e099cac588703b590336", size = 3454567, upload-time = "2025-02-15T04:02:56.443Z" },
+    { url = "https://files.pythonhosted.org/packages/42/86/dabda8fbcb1b00bcfb0003c3776e8ade1aa7b413dff0a2c08f457dace22f/lightgbm-4.6.0-py3-none-manylinux_2_28_x86_64.whl", hash = "sha256:cb19b5afea55b5b61cbb2131095f50538bd608a00655f23ad5d25ae3e3bf1c8d", size = 3569831, upload-time = "2025-02-15T04:02:58.925Z" },
+    { url = "https://files.pythonhosted.org/packages/5e/23/f8b28ca248bb629b9e08f877dd2965d1994e1674a03d67cd10c5246da248/lightgbm-4.6.0-py3-none-win_amd64.whl", hash = "sha256:37089ee95664b6550a7189d887dbf098e3eadab03537e411f52c63c121e3ba4b", size = 1451509, upload-time = "2025-02-15T04:03:01.515Z" },
 ]
 
 [[package]]
@@ -5710,6 +5751,8 @@ dependencies = [
 wheels = [
     { url = "https://files.pythonhosted.org/packages/0f/8b/4b61d6e13f7108f36910df9ab4b58fd389cc2520d54d81b88660804aad99/torch-2.10.0-2-cp311-none-macosx_11_0_arm64.whl", hash = "sha256:418997cb02d0a0f1497cf6a09f63166f9f5df9f3e16c8a716ab76a72127c714f", size = 79423467, upload-time = "2026-02-10T21:44:48.711Z" },
     { url = "https://files.pythonhosted.org/packages/d3/54/a2ba279afcca44bbd320d4e73675b282fcee3d81400ea1b53934efca6462/torch-2.10.0-2-cp312-none-macosx_11_0_arm64.whl", hash = "sha256:13ec4add8c3faaed8d13e0574f5cd4a323c11655546f91fbe6afa77b57423574", size = 79498202, upload-time = "2026-02-10T21:44:52.603Z" },
+    { url = "https://files.pythonhosted.org/packages/36/ab/7b562f1808d3f65414cd80a4f7d4bb00979d9355616c034c171249e1a303/torch-2.10.0-3-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:ac5bdcbb074384c66fa160c15b1ead77839e3fe7ed117d667249afce0acabfac", size = 915518691, upload-time = "2026-03-11T14:15:43.147Z" },
+    { url = "https://files.pythonhosted.org/packages/b3/7a/abada41517ce0011775f0f4eacc79659bc9bc6c361e6bfe6f7052a6b9363/torch-2.10.0-3-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:98c01b8bb5e3240426dcde1446eed6f40c778091c8544767ef1168fc663a05a6", size = 915622781, upload-time = "2026-03-11T14:17:11.354Z" },
     { url = "https://files.pythonhosted.org/packages/78/89/f5554b13ebd71e05c0b002f95148033e730d3f7067f67423026cc9c69410/torch-2.10.0-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:3282d9febd1e4e476630a099692b44fdc214ee9bf8ee5377732d9d9dfe5712e4", size = 145992610, upload-time = "2026-01-21T16:25:26.327Z" },
     { url = "https://files.pythonhosted.org/packages/ae/30/a3a2120621bf9c17779b169fc17e3dc29b230c29d0f8222f499f5e159aa8/torch-2.10.0-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:a2f9edd8dbc99f62bc4dfb78af7bf89499bca3d753423ac1b4e06592e467b763", size = 915607863, upload-time = "2026-01-21T16:25:06.696Z" },
     { url = "https://files.pythonhosted.org/packages/6f/3d/c87b33c5f260a2a8ad68da7147e105f05868c281c63d65ed85aa4da98c66/torch-2.10.0-cp311-cp311-win_amd64.whl", hash = "sha256:29b7009dba4b7a1c960260fc8ac85022c784250af43af9fb0ebafc9883782ebd", size = 113723116, upload-time = "2026-01-21T16:25:21.916Z" },
@@ -5924,6 +5967,17 @@ sdist = { url = "https://files.pythonhosted.org/packages/32/ce/eeb58ae4ac36fe09e
 wheels = [
     { url = "https://files.pythonhosted.org/packages/83/e4/d04a086285c20886c0daad0e026f250869201013d18f81d9ff5eada73a88/uvicorn-0.41.0-py3-none-any.whl", hash = "sha256:29e35b1d2c36a04b9e180d4007ede3bcb32a85fbdfd6c6aeb3f26839de088187", size = 68783, upload-time = "2026-02-16T23:07:22.357Z" },
 ]
+
+[[package]]
+name = "venn-abers"
+version = "1.5.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "numpy" },
+    { name = "pandas" },
+    { name = "scikit-learn" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/02/69/79c7b64dab44ed29acd47117d424c1a99379bf24f5b77e8de2df364a936d/venn_abers-1.5.1.tar.gz", hash = "sha256:87ce6732d8cba5b2e8601cfb27a684552504fa6e607818328846d9bdebf7e652", size = 18956, upload-time = "2026-03-08T16:42:39.071Z" }
 
 [[package]]
 name = "vine"

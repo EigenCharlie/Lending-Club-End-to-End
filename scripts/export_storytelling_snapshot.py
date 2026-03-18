@@ -13,12 +13,17 @@ from pathlib import Path
 import pandas as pd
 from loguru import logger
 
+from src.utils.threshold_semantics import load_threshold_semantics
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
 REPORTS_DIR = PROJECT_ROOT / "reports"
 OUT_PATH = REPORTS_DIR / "storytelling_snapshot.json"
-SCHEMA_VERSION = "2026-02-26.1"
+BASELINE_REGISTRY_PATH = (
+    PROJECT_ROOT / "configs" / "baselines" / "canonical_operational_baseline.json"
+)
+SCHEMA_VERSION = "2026-03-13.2"
 
 
 def _load_json(path: Path) -> dict:
@@ -57,7 +62,23 @@ def _safe_float(value: object, default: float = 0.0) -> float:
 def main() -> None:
     pipeline_summary = _load_json(DATA_DIR / "pipeline_summary.json")
     conformal_status = _load_json(MODEL_DIR / "conformal_policy_status.json")
+    conformal_sensitivity = _load_json(MODEL_DIR / "conformal_policy_sensitivity_status.json")
+    conformal_variant_status = _load_json(MODEL_DIR / "conformal_variant_selection_status.json")
+    conformal_method_registry = _load_json(MODEL_DIR / "conformal_method_registry.json")
     model_comparison = _load_json(DATA_DIR / "model_comparison.json")
+    baseline_registry = _load_json(BASELINE_REGISTRY_PATH)
+    threshold_semantics = load_threshold_semantics()
+    fairness_status = _load_json(MODEL_DIR / "fairness_audit_status.json")
+    time_series_status = _load_json(MODEL_DIR / "time_series_status.json")
+    causal_status = _load_json(MODEL_DIR / "causal_policy_rule.json")
+    pd_set_prediction = _load_json(MODEL_DIR / "pd_set_prediction_status.json")
+    pd_rare_event = _load_json(MODEL_DIR / "pd_rare_event_calibration_status.json")
+    official_run_tag = str(baseline_registry.get("official_run_tag", "")).strip()
+    comparison_payload = (
+        _load_json(REPORTS_DIR / "run_comparisons" / official_run_tag / "comparison.json")
+        if official_run_tag
+        else {}
+    )
 
     required_files = {
         "pipeline_summary": DATA_DIR / "pipeline_summary.json",
@@ -98,17 +119,72 @@ def main() -> None:
         DATA_DIR / "ifrs9_scenario_summary.parquet",
     ]
 
+    sensitivity_results = (conformal_sensitivity.get("policy_sensitivity", {}) or {}).get(
+        "results", []
+    ) or []
+    sensitivity_closure = next(
+        (
+            row
+            for row in sensitivity_results
+            if bool(row.get("methodological_justification_pass", False))
+            and not (row.get("failing_non_statistical_checks", []) or [])
+        ),
+        None,
+    )
+
     snapshot = {
         "snapshot_name": "storytelling_snapshot",
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(tz=UTC).isoformat(),
         "dataset_scope": pipeline_summary.get("dataset_scope", "unknown"),
+        "official_run_tag": official_run_tag or conformal_status.get("run_tag", "unknown"),
+        "threshold_semantics": threshold_semantics,
+        "conformal_promotion_pass": bool(
+            conformal_variant_status.get(
+                "promotion_pass",
+                comparison_payload.get("conformal_promotion_pass", False),
+            )
+        ),
+        "conformal_strict_policy_pass": bool(conformal_status.get("strict_overall_pass", False)),
+        "conformal_methodological_justification_pass": bool(
+            conformal_status.get("methodological_justification_pass", False)
+        ),
+        "conformal_methodological_closure_candidate": bool(sensitivity_closure),
+        "conformal_methodological_closure_threshold": (
+            float(sensitivity_closure.get("max_winkler_90"))
+            if sensitivity_closure is not None
+            else None
+        ),
+        "conformal_statistical_warning": bool(
+            len(conformal_status.get("failing_statistical_checks", []) or []) > 0
+            or (conformal_status.get("warning_alerts", 0) or 0) > 0
+            or comparison_payload.get("conformal_statistical_warning", False)
+        ),
+        "time_series_interval_promotable": bool(
+            (time_series_status.get("interval_champion", {}) or {}).get("promotable", False)
+        ),
+        "time_series_final_interval_decision": (
+            (time_series_status.get("final_interval_decision", {}) or {}).get("status")
+        ),
+        "causal_status": {
+            "selected_rule": causal_status.get("selected_rule"),
+            "selection_reason": causal_status.get("selection_reason"),
+            "run_tag": causal_status.get("run_tag"),
+        },
+        "ab_gate_mode": str(comparison_payload.get("ab_gate_mode") or "comparison_gate_unknown"),
+        "method_registry_status": str(
+            conformal_method_registry.get("libraries", {}).get("mapie", {}).get("status", "unknown")
+        ),
         "headline_metrics": {
             "auc_oot": _safe_float(
                 final_metrics.get("auc_roc"), _safe_float(pipeline.get("pd_auc"))
             ),
             "coverage_90": _safe_float(conformal_status.get("coverage_90")),
             "coverage_95": _safe_float(conformal_status.get("coverage_95")),
+            "pd_pr_auc": _safe_float((pd_rare_event.get("global", {}) or {}).get("pr_auc")),
+            "pd_ambiguity_rate": _safe_float(
+                (pd_set_prediction.get("summary", {}) or {}).get("ambiguity_rate")
+            ),
             "price_of_robustness": _safe_float(pipeline.get("price_of_robustness"), robust_price),
             "price_of_robustness_pct": robust_price_pct,
             "robust_return": _safe_float(pipeline.get("robust_return")),
@@ -118,11 +194,17 @@ def main() -> None:
             "severe_uplift_pct": ((severe_ecl / baseline_ecl - 1.0) * 100.0)
             if baseline_ecl > 0
             else 0.0,
+            "fairness_primary_threshold": _safe_float(
+                threshold_semantics.get("fairness_primary_threshold"),
+                _safe_float(fairness_status.get("primary_threshold")),
+            ),
         },
         "artifact_health": [_artifact_meta(path) for path in required_artifacts],
         "notes": [
             "Snapshot con métricas para storytelling reproducible.",
             "Fuente conformal canónica: conformal_results_mondrian.pkl + conformal_intervals_mondrian.parquet.",
+            "Threshold PD interno y threshold operativo de fairness se reportan por separado.",
+            "Classification sets y rare-event calibration son sidecars diagnósticos; no forman parte del champion operativo actual.",
         ],
     }
 

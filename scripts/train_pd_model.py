@@ -11,7 +11,6 @@ import json
 import os
 import pickle
 import shutil
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -45,7 +44,10 @@ from src.models.pd_model import (
     train_catboost_default,
     train_catboost_tuned_optuna,
 )
+from src.models.venn_abers import VennAbersScoreCalibrator
+from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.io_utils import read_split_with_fe_fallback
+from src.utils.threshold_semantics import write_threshold_semantics
 
 
 def load_config(config_path: str) -> dict[str, Any]:
@@ -232,53 +234,6 @@ def _apply_calibrator(calibrator: Any, y_prob_raw: np.ndarray) -> np.ndarray:
     if hasattr(calibrator, "predict"):
         return calibrator.predict(y_prob_raw)
     raise TypeError(f"Unsupported calibrator type: {type(calibrator)}")
-
-
-class VennAbersScoreCalibrator:
-    """Score-based Venn-Abers calibrator over 1D raw probabilities.
-
-    Uses a logistic base estimator over raw scores and calibrates it with crepes.
-    The midpoint of [p0, p1] is used as point prediction.
-    """
-
-    def __init__(self) -> None:
-        self._wrapped = None
-        self._is_fitted = False
-
-    def fit(self, y_prob_raw: np.ndarray, y_true: np.ndarray) -> VennAbersScoreCalibrator:
-        from crepes import WrapClassifier
-
-        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
-        y = np.asarray(y_true, dtype=int)
-
-        base = LogisticRegression(max_iter=1000)
-        base.fit(X, y)
-
-        wrapped = WrapClassifier(base)
-        wrapped.calibrate(X, y)
-        self._wrapped = wrapped
-        self._is_fitted = True
-        return self
-
-    def _predict_bounds(self, y_prob_raw: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
-        if not self._is_fitted or self._wrapped is None:
-            raise RuntimeError("VennAbersScoreCalibrator is not fitted.")
-        X = np.asarray(y_prob_raw, dtype=float).reshape(-1, 1)
-        p = self._wrapped.predict_p(X)
-        p0 = np.clip(np.asarray(p[:, 0], dtype=float), 0.0, 1.0)
-        p1 = np.clip(np.asarray(p[:, 1], dtype=float), 0.0, 1.0)
-        low = np.minimum(p0, p1)
-        high = np.maximum(p0, p1)
-        return low, high
-
-    def predict(self, y_prob_raw: np.ndarray) -> np.ndarray:
-        low, high = self._predict_bounds(y_prob_raw)
-        return np.clip((low + high) / 2.0, 0.0, 1.0)
-
-    def predict_proba(self, y_prob_raw: np.ndarray) -> np.ndarray:
-        p1 = self.predict(y_prob_raw)
-        p0 = 1.0 - p1
-        return np.column_stack([p0, p1])
 
 
 def _build_fairness_groups_for_threshold(
@@ -1095,6 +1050,7 @@ def main(
             multivariate_tpe=bool(hpo_cfg.get("multivariate_tpe", True)),
             group_tpe=bool(hpo_cfg.get("group_tpe", True)),
             warn_independent_sampling=bool(hpo_cfg.get("warn_independent_sampling", True)),
+            constant_liar=bool(hpo_cfg.get("constant_liar", False)),
             pruner_n_startup_trials=int(hpo_cfg.get("pruner_n_startup_trials", 20)),
             pruner_n_warmup_steps=int(hpo_cfg.get("pruner_n_warmup_steps", 50)),
             use_pruning_callback=bool(hpo_cfg.get("use_pruning_callback", True)),
@@ -1107,6 +1063,7 @@ def main(
             storage_grace_period=int(hpo_cfg.get("storage_grace_period", 0)),
             sqlite_timeout_seconds=int(hpo_cfg.get("sqlite_timeout_seconds", 60)),
             retry_failed_trials=int(hpo_cfg.get("retry_failed_trials", 0)),
+            n_jobs=int(hpo_cfg.get("n_jobs", 1)),
             sample_weight=train_fit_weights,
             eval_sample_weight=train_val_weights,
         )
@@ -1250,14 +1207,16 @@ def main(
     )
 
     decision_cfg = config.get("decision_threshold", {})
-    resolved_run_tag = str(os.environ.get("PIPELINE_RUN_TAG", "")).strip() or "untracked"
+    resolved_run_tag = resolve_run_tag(require_explicit=True)
     decision_threshold_artifact = {
         "enabled": False,
         "selected_threshold": float(config.get("calibration", {}).get("default_threshold", 0.5)),
         "source": "fallback_default",
-        "schema_version": "2026-03-01.1",
-        "generated_at_utc": datetime.now(UTC).isoformat(),
-        "run_tag": resolved_run_tag,
+        **build_artifact_metadata(
+            schema_version="2026-03-01.1",
+            run_tag=resolved_run_tag,
+            require_explicit=True,
+        ),
     }
     if bool(decision_cfg.get("enabled", True)):
         fairness_policy_path = str(
@@ -1302,9 +1261,11 @@ def main(
             "validation_rows": int(len(train_val)),
             "secondary_validation_rows": int(len(cal)),
             "calibration_method": selected_cal_method,
-            "schema_version": "2026-03-01.1",
-            "generated_at_utc": datetime.now(UTC).isoformat(),
-            "run_tag": resolved_run_tag,
+            **build_artifact_metadata(
+                schema_version="2026-03-01.1",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
         }
 
     # Conformal (keeps calibration split isolated from model training)
@@ -1357,6 +1318,21 @@ def main(
     decision_threshold_v2_path.parent.mkdir(parents=True, exist_ok=True)
     with open(decision_threshold_v2_path, "w", encoding="utf-8") as f:
         json.dump(decision_threshold_artifact, f, indent=2, default=str)
+    write_threshold_semantics(
+        pd_internal_selected_threshold=float(decision_threshold_artifact["selected_threshold"]),
+        pd_internal_fallback_threshold=float(
+            decision_threshold_artifact.get("fallback_threshold", 0.5)
+        ),
+        source_artifacts={
+            "decision_threshold": str(decision_threshold_path),
+            "decision_threshold_v2": str(decision_threshold_v2_path),
+        },
+        run_tag=resolved_run_tag,
+        extra={
+            "pd_internal_threshold_source": str(decision_threshold_artifact.get("source", "")),
+            "calibration_method": selected_cal_method,
+        },
+    )
 
     logreg_model_path = _artifact_path("models/pd_logreg_baseline.pkl")
     logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1457,6 +1433,26 @@ def main(
     record_path.parent.mkdir(parents=True, exist_ok=True)
     with open(record_path, "wb") as f:
         pickle.dump(training_record, f)
+    if seed_replay_report:
+        seed_replay_status_path = _artifact_path("models/pd_hpo_seed_replay_status.json")
+        seed_replay_status = {
+            "selected_calibration_method": selected_cal_method,
+            "validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+            "oot_auc": float(final_test_metrics.get("auc_roc", 0.0)),
+            "brier": float(final_test_metrics.get("brier_score", 0.0)),
+            "ece": float(final_test_metrics.get("ece", 0.0)),
+            "replay": seed_replay_report,
+            **build_artifact_metadata(
+                schema_version="2026-03-13.1",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            ),
+        }
+        seed_replay_status_path.write_text(
+            json.dumps(seed_replay_status, indent=2, default=str),
+            encoding="utf-8",
+        )
+        logger.info("Saved PD HPO seed replay status to {}", seed_replay_status_path)
 
     logger.info("Saved default model to {}", default_model_path)
     logger.info("Saved tuned model to {}", model_path)

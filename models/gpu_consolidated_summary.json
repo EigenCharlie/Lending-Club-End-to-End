@@ -1,0 +1,33 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-18T01:44:29.000345+00:00",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 3080",
+    "vram_mb": 10240,
+    "cpu": "AMD Ryzen 5 5600X",
+    "ram_gb": 24,
+    "platform": "WSL2",
+    "driver": "595.71",
+    "graphics_clock_mhz": 210,
+    "temperature_c": 43,
+    "gpu_utilization_pct": 3,
+    "memory_used_mb": 1350,
+    "memory_total_mb_reported": 10240,
+    "wsl_free_m": "               total        used        free      shared  buff/cache   available\nMem:           60268        9073       42002           3        9299       51194\nSwap:          24576           0       24576\n"
+  },
+  "n_tasks": 17,
+  "n_sections": 5,
+  "sections": [
+    "cuDF ETL",
+    "cuML Models",
+    "cuGraph Analytics",
+    "cuOpt Portfolio",
+    "CuPy IFRS9 MC"
+  ],
+  "mean_speedup_vs_cpu": 0.0,
+  "max_speedup": null,
+  "max_speedup_task": null,
+  "max_speedup_section": null,
+  "table_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/gpu_consolidated_table.parquet",
+  "source": "/home/eigenlinux/projects/lending-club-risk-project/reports/gpu_benchmark/benchmark_summary_all_sections.parquet"
+}

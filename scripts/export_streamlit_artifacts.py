@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import pickle
 import subprocess
 from collections import Counter
@@ -31,6 +30,9 @@ except ImportError:  # sklearn < 1.8
     d2_brier_score = None
 
 from src.evaluation.explainability import compute_ale_curve, pairwise_shap_redundancy
+from src.utils.artifact_metadata import resolve_run_tag
+from src.utils.io_utils import load_pickle_compat
+from src.utils.threshold_semantics import load_threshold_semantics, resolve_operational_threshold
 
 # ── Paths ──
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -158,13 +160,14 @@ def _infer_calibration_method(rec: dict[str, Any]) -> str:
         if not p.exists():
             continue
         try:
-            with open(p, "rb") as f:
-                obj = pickle.load(f)
+            obj = load_pickle_compat(p)
             cls = obj.__class__.__name__.lower()
             if "isotonic" in cls:
                 return "Isotonic Regression"
             if "logistic" in cls:
                 return "Platt Sigmoid"
+            if "vennabers" in cls or "venn" in cls:
+                return "Venn-Abers"
         except Exception:
             continue
     # Fallback to previous export if available.
@@ -213,6 +216,9 @@ def _json_compact(payload: Any) -> str:
 
 
 def _resolve_primary_threshold() -> float:
+    semantics = load_threshold_semantics()
+    if semantics:
+        return resolve_operational_threshold(semantics, default=0.5)
     threshold_path = MODEL_DIR / "decision_threshold.json"
     if threshold_path.exists():
         try:
@@ -1164,11 +1170,13 @@ def export_pipeline_summary() -> None:
     causal_rule_status = _load_json_if_exists(MODEL_DIR / "causal_policy_rule.json")
     causal_oot_status = _load_json_if_exists(MODEL_DIR / "causal_policy_oot_status.json")
     cate_portfolio_status = _load_json_if_exists(MODEL_DIR / "cate_portfolio_status.json")
-    resolved_run_tag = (
-        str(os.environ.get("PIPELINE_RUN_TAG", "")).strip()
-        or str(conformal_status.get("run_tag", "")).strip()
-        or str(causal_effect_status.get("run_tag", "")).strip()
-        or "untracked"
+    resolved_run_tag = resolve_run_tag(
+        fallback_candidates=[
+            conformal_status.get("run_tag"),
+            causal_effect_status.get("run_tag"),
+            causal_rule_status.get("run_tag"),
+        ],
+        require_explicit=True,
     )
 
     prior_model_comparison = _load_json_if_exists(DATA_DIR / "model_comparison.json")

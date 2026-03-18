@@ -43,3 +43,17 @@ def test_research_contracts_remain_expert_first() -> None:
                 f"{page_id}: research should be expert-first"
             )
             assert "how_to_read" not in contract.required_sections
+
+
+def test_contracts_expose_book_and_pipeline_metadata() -> None:
+    valid_axes = {"operational_pipeline", "insight_factory", "book_foundations"}
+    valid_scopes = {"canonical", "insight", "research", "shared"}
+    for page_id, contract in PAGE_CONTRACTS.items():
+        assert contract.narrative_axis in valid_axes, (
+            f"{page_id}: invalid narrative_axis {contract.narrative_axis}"
+        )
+        assert contract.artifact_scope in valid_scopes, (
+            f"{page_id}: invalid artifact_scope {contract.artifact_scope}"
+        )
+        assert contract.pipeline_role, f"{page_id}: pipeline_role should not be empty"
+        assert contract.book_chapter, f"{page_id}: book_chapter should not be empty"

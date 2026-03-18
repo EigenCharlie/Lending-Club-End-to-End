@@ -1,0 +1,35 @@
+{
+  "schema_version": "2026-03-17.1",
+  "generated_at_utc": "2026-03-17T21:54:19.064343+00:00",
+  "run_tag": "untracked",
+  "n_loans": 276869,
+  "default_rate": 0.2198,
+  "pd_threshold": 0.2,
+  "lgd": 0.4,
+  "n_pd_triggered": 129822,
+  "part_a": {
+    "optimal_width_threshold": 0.3,
+    "optimal_f1": 0.2515,
+    "optimal_precision": 0.1507,
+    "optimal_recall_of_missed": 0.7579,
+    "ecl_additional_at_optimal": 56648512.08,
+    "n_pd_thresholds_tested": 5,
+    "n_width_thresholds_tested": 20
+  },
+  "part_b": {
+    "alpha_levels_tested": [
+      0.01,
+      0.03,
+      0.05,
+      0.07,
+      0.1,
+      0.12,
+      0.15,
+      0.2
+    ],
+    "ecl_at_alpha_010": 56648512.08,
+    "ecl_at_alpha_005": 62662570.29,
+    "ecl_at_alpha_020": 54611259.52
+  },
+  "note": "SICR trigger: a loan is reclassified from Stage 1 to Stage 2 if pd_calibrated > pd_threshold OR conformal_width_90 > t. Part A optimizes t via F1 of the width trigger for loans missed by PD threshold. Part B shows how additional ECL changes as a function of conformal alpha (smaller alpha = wider intervals = more loans reclassified = higher ECL reserve)."
+}

@@ -57,13 +57,13 @@ Convert project artifacts into publication-ready papers with repeatable, auditab
 - ACM artifact review and badging: https://www.acm.org/publications/policies/artifact-review-and-badging-current
 
 ## 5) Recommended Workflow in This Repo
-1. Rebuild canonical artifacts:
-   - `uv run dvc repro build_pipeline_results export_streamlit_artifacts`
-2. Generate paper-specific evidence tables from processed artifacts.
-3. Keep manuscript claims tied to concrete artifact paths.
-4. Run tests before snapshotting manuscript numbers:
+1. Refresh the operational baseline when needed with `scripts/run_canonical_rebuild.py`.
+2. Use `scripts/run_champion_search.py` only when searching for a better champion or new frozen parameters.
+3. Run `scripts/run_insights_factory.py --profile canonical|research` for complementary figures, notebook evidence, and paper material.
+4. Keep manuscript claims tied to concrete artifact paths.
+5. Run tests before snapshotting manuscript numbers:
    - `uv run pytest -q`
-5. Refresh DVC/remote status before freezing a paper draft:
+6. Refresh DVC/remote status before freezing a paper draft:
    - `uv run dvc status --json`
    - `uv run dvc status -c --json`
 

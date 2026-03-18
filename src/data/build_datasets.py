@@ -126,9 +126,70 @@ def _aggregate_time_series(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFr
     return grouped.sort_values(["ds", *group_cols]).reset_index(drop=True)
 
 
+def _complete_monthly_grid(
+    df: pd.DataFrame,
+    *,
+    group_cols: list[str],
+    date_col: str = "ds",
+) -> pd.DataFrame:
+    """Fill missing monthly timestamps within each series lifecycle.
+
+    For issuance-count panels, missing months inside a series should be represented
+    explicitly as zero-volume months rather than irregular timestamps.
+    """
+    if df.empty:
+        return df.copy()
+
+    work = df.copy()
+    work[date_col] = pd.to_datetime(work[date_col], errors="coerce")
+    work = work.dropna(subset=[date_col]).reset_index(drop=True)
+    if work.empty:
+        return work
+
+    key_cols = list(group_cols)
+    numeric_fill_zero = [
+        col for col in ["loan_count", "default_count", "total_amt_funded"] if col in work.columns
+    ]
+
+    frames: list[pd.DataFrame] = []
+    grouped = work.groupby(key_cols, dropna=False, observed=True) if key_cols else [((), work)]
+    for keys, part in grouped:
+        group_df = part.sort_values(date_col).reset_index(drop=True)
+        start = group_df[date_col].min()
+        end = group_df[date_col].max()
+        if pd.isna(start) or pd.isna(end):
+            continue
+
+        full_dates = pd.date_range(start=start, end=end, freq="MS")
+        base = pd.DataFrame({date_col: full_dates})
+        if key_cols:
+            key_values = keys if isinstance(keys, tuple) else (keys,)
+            for col, value in zip(key_cols, key_values, strict=False):
+                base[col] = value
+
+        merged = base.merge(group_df, on=[date_col, *key_cols], how="left", sort=True)
+        for col in numeric_fill_zero:
+            merged[col] = pd.to_numeric(merged[col], errors="coerce").fillna(0.0)
+        if "default_rate" in merged.columns:
+            merged["default_rate"] = (
+                pd.to_numeric(merged.get("default_count"), errors="coerce").fillna(0.0)
+                / pd.to_numeric(merged.get("loan_count"), errors="coerce").replace(0, np.nan)
+            ).fillna(0.0)
+        frames.append(merged)
+
+    if not frames:
+        return work.sort_values([*key_cols, date_col]).reset_index(drop=True)
+    return (
+        pd.concat(frames, ignore_index=True, sort=False)
+        .sort_values([*key_cols, date_col])
+        .reset_index(drop=True)
+    )
+
+
 def build_time_series(df: pd.DataFrame) -> pd.DataFrame:
     """Build the canonical monthly portfolio series for forecasting."""
     ts = _aggregate_time_series(df, [])
+    ts = _complete_monthly_grid(ts, group_cols=[])
     ts["unique_id"] = "portfolio"
     ts["y"] = ts["default_rate"].astype(float)
     logger.info("Built time_series: {} ({} -> {})", ts.shape, ts["ds"].min(), ts["ds"].max())
@@ -148,13 +209,16 @@ def build_time_series_panel(df: pd.DataFrame) -> pd.DataFrame:
         )
     frame["term_months"] = frame["term_months"].fillna(-1).astype(int)
 
-    grade_term = _aggregate_time_series(frame, ["grade", "term_months"])
+    grade_term = _complete_monthly_grid(
+        _aggregate_time_series(frame, ["grade", "term_months"]),
+        group_cols=["grade", "term_months"],
+    )
     grade_term["series_level"] = "grade_term"
     grade_term["unique_id"] = grade_term.apply(
         lambda row: f"grade_term::{row['grade']}__{int(row['term_months'])}", axis=1
     )
 
-    grade = _aggregate_time_series(frame, ["grade"])
+    grade = _complete_monthly_grid(_aggregate_time_series(frame, ["grade"]), group_cols=["grade"])
     grade["series_level"] = "grade"
     grade["term_months"] = np.nan
     grade["unique_id"] = grade["grade"].map(lambda grade_value: f"grade::{grade_value}")

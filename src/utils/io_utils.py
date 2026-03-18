@@ -1,8 +1,10 @@
-"""Shared I/O utilities for data loading with fallback logic."""
+"""Shared I/O utilities for data loading with fallback and pickle compatibility."""
 
 from __future__ import annotations
 
+import pickle
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from loguru import logger
@@ -61,3 +63,20 @@ def read_split_with_fe_fallback(path: str | Path) -> pd.DataFrame:
         return pd.read_parquet(alt)
 
     raise FileNotFoundError(f"Neither configured path nor fallback exists: {p}")
+
+
+class _CompatUnpickler(pickle.Unpickler):
+    """Restore legacy objects that were pickled from script-local ``__main__`` classes."""
+
+    def find_class(self, module: str, name: str) -> Any:
+        if module == "__main__" and name == "VennAbersScoreCalibrator":
+            from src.models.venn_abers import VennAbersScoreCalibrator
+
+            return VennAbersScoreCalibrator
+        return super().find_class(module, name)
+
+
+def load_pickle_compat(path: str | Path) -> Any:
+    target = Path(path)
+    with open(target, "rb") as f:
+        return _CompatUnpickler(f).load()

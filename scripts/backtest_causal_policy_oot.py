@@ -94,7 +94,8 @@ def main(
         else {}
     )
     run_tag = str(
-        selected_rule_payload.get("run_tag")
+        os.environ.get("PIPELINE_RUN_TAG_OVERRIDE", "")
+        or selected_rule_payload.get("run_tag")
         or effect_status.get("run_tag")
         or os.environ.get("PIPELINE_RUN_TAG", "")
         or "untracked"
@@ -205,5 +206,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--min_history_months", type=int, default=12)
     parser.add_argument("--selected_rule_path", default="models/causal_policy_rule.json")
+    parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
+    if args.run_tag:
+        os.environ["PIPELINE_RUN_TAG_OVERRIDE"] = args.run_tag
     main(min_history_months=args.min_history_months, selected_rule_path=args.selected_rule_path)

@@ -1,0 +1,75 @@
+{
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-13T22:14:14.384710+00:00",
+  "run_tag": "untracked",
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 8.969765367052092,
+    "mean_b": 3.426570063254607,
+    "diff": -5.543195303797486,
+    "ci_low": -47.71516822272123,
+    "ci_high": 33.275841880866054,
+    "p_value": 0.375,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 21904.16702634121,
+    "n_funded": 126,
+    "total_allocated": 999999.9999999999,
+    "avg_return_per_funded": 173.84259544715238
+  },
+  "metrics_b": {
+    "total_return": 8367.68409446775,
+    "n_funded": 122,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 68.58757454481756
+  },
+  "n_candidates_available": 2442,
+  "n_candidates_used": 2442,
+  "max_candidates_requested": 5000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "promotion_first",
+  "decision_scenario": "ambiguity_defer",
+  "max_portfolio_pd_requested": 0.1,
+  "max_portfolio_pd_effective": 0.18,
+  "robust_policy": {
+    "source": "champion_policy_artifact::promotion_first",
+    "risk_tolerance": 0.18,
+    "uncertainty_aversion": 0.0,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "capped_blended_uncertainty",
+    "gamma": 0.05,
+    "delta_cap_quantile": 0.9,
+    "tail_focus_quantile": 1.0
+  },
+  "champion_policy_path": "models/champion_portfolio_policy.json",
+  "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.375,
+    "significant": false,
+    "n_boot": 1000,
+    "seed": 42
+  },
+  "policy_search": [],
+  "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": -13536.48293187346,
+    "tolerance_total_return": 1095.2083513170605,
+    "tolerance_pct_of_control": 0.05,
+    "passed": false
+  },
+  "decision_scenario_meta": {
+    "decision_scenario": "ambiguity_defer",
+    "rows_removed": 2558,
+    "rows_remaining": 2442,
+    "ambiguity_rate_removed": 0.5116,
+    "set_prediction_path": "data/processed/pd_set_prediction_cases.parquet"
+  }
+}

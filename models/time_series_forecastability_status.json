@@ -1,0 +1,18 @@
+{
+  "available": true,
+  "series_evaluated": 22,
+  "routes": {
+    "intermittent_counts": 14,
+    "exogenous_challenger": 5,
+    "structured_statistical": 3
+  },
+  "intermittency": {
+    "erratic": 21,
+    "lumpy": 1
+  },
+  "levels": {
+    "grade_term": 14,
+    "grade": 7,
+    "portfolio": 1
+  }
+}

@@ -15,6 +15,43 @@ import httpx
 import pandas as pd
 import streamlit as st
 
+
+# Inline threshold semantics helpers (avoid src/ dependency in deploy bundle)
+def _load_threshold_semantics_payload(path: str | Path | None = None) -> dict:
+    target = Path(path) if path else Path(__file__).resolve().parent.parent / "models" / "threshold_semantics.json"
+    if not target.exists():
+        return {}
+    try:
+        payload = json.loads(target.read_text(encoding="utf-8"))
+        return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def _safe_float(value: object) -> float | None:
+    try:
+        return float(value)  # type: ignore[arg-type]
+    except (TypeError, ValueError):
+        return None
+
+
+def resolve_operational_threshold(semantics: dict | None = None, default: float = 0.5) -> float:
+    payload = semantics or {}
+    for key in ("decision_policy_global_threshold", "fairness_primary_threshold"):
+        value = _safe_float(payload.get(key))
+        if value is not None:
+            return value
+    return float(default)
+
+
+def resolve_pd_internal_threshold(semantics: dict | None = None, default: float = 0.5) -> float:
+    payload = semantics or {}
+    for key in ("pd_internal_selected_threshold", "pd_internal_fallback_threshold"):
+        value = _safe_float(payload.get(key))
+        if value is not None:
+            return value
+    return float(default)
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DATA_DIR = PROJECT_ROOT / "data" / "processed"
 MODEL_DIR = PROJECT_ROOT / "models"
@@ -24,7 +61,12 @@ REPORTS_DIR = PROJECT_ROOT / "reports"
 DVC_REPORTS_DIR = REPORTS_DIR / "dvc"
 NOTEBOOK_IMAGE_DIR = REPORTS_DIR / "notebook_images"
 NOTEBOOK_IMAGE_MANIFEST = NOTEBOOK_IMAGE_DIR / "manifest.json"
-BASELINE_REGISTRY_PATH = PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
+PRIMARY_BASELINE_REGISTRY_PATH = (
+    PROJECT_ROOT / "configs" / "baselines" / "canonical_operational_baseline.json"
+)
+LEGACY_BASELINE_REGISTRY_PATH = (
+    PROJECT_ROOT / "configs" / "baselines" / "core_official_baseline.json"
+)
 GPU_REPLAY_DIR = REPORTS_DIR / "gpu_replay"
 GPU_INSIGHTS_DIR = REPORTS_DIR / "gpu_insights"
 OFFICIAL_GPU_REPLAY_TAG = "2026-03-09-official-gpu-replay-rapids-final"
@@ -292,12 +334,40 @@ def safe_metric_get(
 @st.cache_data(ttl=300, max_entries=4)
 def load_official_baseline_registry() -> dict:
     """Load the official CPU baseline registry."""
-    if not BASELINE_REGISTRY_PATH.exists():
-        return {}
-    try:
-        return json.loads(BASELINE_REGISTRY_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return {}
+    for path in (PRIMARY_BASELINE_REGISTRY_PATH, LEGACY_BASELINE_REGISTRY_PATH):
+        if not path.exists():
+            continue
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+    return {}
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_threshold_semantics() -> dict:
+    """Load canonical threshold semantics artifact."""
+    return _load_threshold_semantics_payload(MODEL_DIR / "threshold_semantics.json")
+
+
+@st.cache_data(ttl=300, max_entries=4)
+def load_pd_calibration_diagnostics() -> dict:
+    """Load Venn-Abers calibration diagnostics artifact.
+
+    Returns the 3-way comparison (Platt / Isotonic / Venn-Abers) with
+    the selected method, ECE/Brier/AUC per candidate, and VA bounds metadata.
+    """
+    return try_load_json("pd_calibration_diagnostics", directory="models", default={})
+
+
+def get_operational_threshold(default: float = 0.5) -> float:
+    """Resolve the operational approval/fairness threshold."""
+    return resolve_operational_threshold(load_threshold_semantics(), default=default)
+
+
+def get_pd_internal_threshold(default: float = 0.5) -> float:
+    """Resolve the internal PD screening/search threshold."""
+    return resolve_pd_internal_threshold(load_threshold_semantics(), default=default)
 
 
 @st.cache_data(ttl=300, max_entries=8)
@@ -777,7 +847,7 @@ def page_error_boundary(page_name: str):
                 icon=":material/error:",
             )
             st.caption(
-                "Sugerencia: `uv run python scripts/end_to_end_pipeline.py` para regenerar artefactos."
+                "Sugerencia: `uv run python scripts/run_canonical_rebuild.py` para regenerar artefactos."
             )
             st.stop()
 
