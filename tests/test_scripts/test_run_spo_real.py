@@ -8,7 +8,9 @@ regret computation, and instance sampling.
 from __future__ import annotations
 
 import numpy as np
-import torch
+import pytest
+
+torch = pytest.importorskip("torch", reason="torch not installed (needs spo extra)")
 
 # ── CreditPortfolioLP ────────────────────────────────────────────────────────
 
