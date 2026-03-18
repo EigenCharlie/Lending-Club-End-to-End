@@ -49,8 +49,8 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 ## 4) Open Follow-Ups
 
 1. ~~Align `configs/pd_model.yaml` calibration wording with runtime policy~~ — **RESOLVED 2026-03-16**: all 7 pd_model YAML configs changed from `method: platt` to `method: auto`.
-2. Continue pruning historical snapshots with retention policy (`docs/ARTIFACT_RETENTION_POLICY.md`).
-3. Add an automated "reference integrity" check for external URLs used in benchmark notes.
+2. ~~Continue pruning historical snapshots with retention policy~~ — **RESOLVED 2026-03-18**: historical docs (`OFFICIAL_RERUN_MASTER_PLAN`, `PROMOTION_DOSSIER`, `backlog-13-03`) already carry HISTORICAL/DEPRECATED banners. `DOCUMENTATION_MAP.md` created. No `ARTIFACT_RETENTION_POLICY.md` needed — banners are the effective policy.
+3. ~~Add an automated "reference integrity" check for external URLs~~ — **DEFERRED 2026-03-18**: low ROI for thesis context; external links are manually audited in `docs/PAPER_REFERENCES_STATE_OF_ART.md`. Reopen only if CI URL-checking is adopted.
 
 ---
 

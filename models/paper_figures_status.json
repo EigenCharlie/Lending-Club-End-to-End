@@ -1,0 +1,19 @@
+{
+  "generated_at_utc": "2026-03-18T05:32:21.930446+00:00",
+  "output_dir": "/home/eigenlinux/projects/lending-club-risk-project/reports/paper_material/figures_publication",
+  "figures_attempted": 10,
+  "figures_succeeded": 10,
+  "errors": {},
+  "files": [
+    "estrella_fig10_cqr_per_grade.pdf",
+    "estrella_fig7_uncertainty_baselines.pdf",
+    "estrella_fig8_alpha_pareto.pdf",
+    "estrella_fig9_spo_regret.pdf",
+    "p2_fig4_sicr_grid.pdf",
+    "p2_fig5_ecl_alpha_sensitivity.pdf",
+    "p2_fig6_bma_vs_cp.pdf",
+    "p3_fig1_variant_scatter.pdf",
+    "p3_fig2_grade_coverage_heatmap.pdf",
+    "p3_fig3_temporal_stability.pdf"
+  ]
+}
