@@ -69,6 +69,33 @@ def _stage_label(stage: str) -> str:
     return STAGE_LABELS.get(stage, stage)
 
 
+def _safe_float(value: object) -> float | None:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return None
+    return None if pd.isna(out) else out
+
+
+def _fmt_metric(
+    value: object,
+    digits: int = 1,
+    suffix: str = "",
+    default: str = "N/D",
+) -> str:
+    number = _safe_float(value)
+    if number is None:
+        return default
+    return f"{number:.{digits}f}{suffix}"
+
+
+def _fmt_count(value: object, default: str = "N/D") -> str:
+    number = _safe_float(value)
+    if number is None:
+        return default
+    return format_number(number)
+
+
 def _build_stage_table() -> pd.DataFrame:
     df = load_rapids_stage_comparison(OFFICIAL_GPU_REPLAY_TAG).copy()
     if df.empty:
@@ -138,14 +165,15 @@ kpi_row(
         {
             "label": "Mayor speedup",
             "value": (
-                f"{_stage_label(str(best_row['stage']))} · {best_row['speedup_gpu_vs_cpu']:.1f}x"
+                f"{_stage_label(str(best_row['stage']))} · "
+                f"{_fmt_metric(best_row.get('speedup_gpu_vs_cpu'), digits=1, suffix='x')}"
                 if best_row is not None
                 else "N/D"
             ),
         },
         {
             "label": "IFRS9 Monte Carlo",
-            "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.1f}x",
+            "value": _fmt_metric(ifrs9_mc.get("speedup_gpu_vs_cpu"), digits=1, suffix="x"),
         },
     ],
     n_cols=3,
@@ -368,19 +396,29 @@ with tab_pd:
         [
             {
                 "label": "PD fit-only",
-                "value": f"{fit_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+                "value": _fmt_metric(fit_row.get("speedup_gpu_vs_cpu"), digits=2, suffix="x"),
             },
             {
                 "label": "PD HPO GPU",
-                "value": "inestable" if pd.isna(hpo_row.get("gpu_seconds")) else f"{hpo_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+                "value": (
+                    "inestable"
+                    if pd.isna(hpo_row.get("gpu_seconds"))
+                    else _fmt_metric(hpo_row.get("speedup_gpu_vs_cpu"), digits=2, suffix="x")
+                ),
             },
             {
                 "label": "PD full-stage",
-                "value": f"{full_row.get('speedup_gpu_vs_cpu', 0):.2f}x",
+                "value": _fmt_metric(full_row.get("speedup_gpu_vs_cpu"), digits=2, suffix="x"),
             },
-            {"label": "LGD/EAD GPU", "value": f"{lgd_row['gpu_seconds']:.0f}s"},
-            {"label": "LGD/EAD speedup", "value": f"{lgd_row['speedup_gpu_vs_cpu']:.2f}x"},
-            {"label": "LGD/EAD peak VRAM", "value": f"{lgd_row['peak_memory_used_mb']:.0f} MB"},
+            {"label": "LGD/EAD GPU", "value": _fmt_metric(lgd_row.get("gpu_seconds"), digits=0, suffix="s")},
+            {
+                "label": "LGD/EAD speedup",
+                "value": _fmt_metric(lgd_row.get("speedup_gpu_vs_cpu"), digits=2, suffix="x"),
+            },
+            {
+                "label": "LGD/EAD peak VRAM",
+                "value": _fmt_metric(lgd_row.get("peak_memory_used_mb"), digits=0, suffix=" MB"),
+            },
         ],
         n_cols=3,
     )
@@ -413,14 +451,18 @@ with tab_ifrs9:
     st.markdown("### IFRS9: el salto serio aparece con Monte Carlo, no con la sensibilidad pequeña")
     kpi_row(
         [
-            {"label": "Loans", "value": format_number(float(ifrs9_mc.get("n_loans", 0)))},
-            {"label": "Escenarios", "value": format_number(float(ifrs9_mc.get("n_scenarios", 0)))},
-            {"label": "CPU", "value": f"{ifrs9_mc.get('cpu_seconds', 0):.2f}s"},
-            {"label": "GPU", "value": f"{ifrs9_mc.get('gpu_seconds', 0):.2f}s"},
-            {"label": "Speedup", "value": f"{ifrs9_mc.get('speedup_gpu_vs_cpu', 0):.2f}x"},
+            {"label": "Loans", "value": _fmt_count(ifrs9_mc.get("n_loans"))},
+            {"label": "Escenarios", "value": _fmt_count(ifrs9_mc.get("n_scenarios"))},
+            {"label": "CPU", "value": _fmt_metric(ifrs9_mc.get("cpu_seconds"), digits=2, suffix="s")},
+            {"label": "GPU", "value": _fmt_metric(ifrs9_mc.get("gpu_seconds"), digits=2, suffix="s")},
+            {"label": "Speedup", "value": _fmt_metric(ifrs9_mc.get("speedup_gpu_vs_cpu"), digits=2, suffix="x")},
             {
                 "label": "Error medio relativo",
-                "value": f"{ifrs9_mc.get('mean_rel_diff_total_ecl_pct', 0):.4f}%",
+                "value": _fmt_metric(
+                    ifrs9_mc.get("mean_rel_diff_total_ecl_pct"),
+                    digits=4,
+                    suffix="%",
+                ),
             },
         ],
         n_cols=3,
@@ -652,10 +694,13 @@ if _gpu_summary or not _gpu_table.empty:
             c1, c2, c3, c4 = st.columns(4)
             c1.metric("GPU", hw.get("gpu", "N/A"))
             c2.metric("Tasks comparados", _gpu_summary.get("n_tasks", "N/A"))
-            c3.metric("Speedup medio vs CPU", f"{_gpu_summary.get('mean_speedup_vs_cpu', 0):.1f}x")
+            c3.metric(
+                "Speedup medio vs CPU",
+                _fmt_metric(_gpu_summary.get("mean_speedup_vs_cpu"), digits=1, suffix="x"),
+            )
             c4.metric(
                 f"Máx speedup ({_gpu_summary.get('max_speedup_section', '?')})",
-                f"{(_gpu_summary.get('max_speedup') or 0):.1f}x",
+                _fmt_metric(_gpu_summary.get("max_speedup"), digits=1, suffix="x"),
             )
             st.caption(f"Task más rápida: `{_gpu_summary.get('max_speedup_task', 'N/A')}` — {hw.get('cpu', '')} vs {hw.get('gpu', '')}")
         if not _gpu_table.empty:

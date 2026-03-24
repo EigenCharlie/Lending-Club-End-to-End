@@ -1,0 +1,93 @@
+## Análisis de Supervivencia {#sec-survival}
+
+### De la PD Puntual a la PD Temporal
+
+Un modelo de clasificación binaria asigna a cada préstamo una probabilidad de incumplimiento (PD), pero no dice *cuándo* podría ocurrir ese incumplimiento. Dos préstamos con PD = 10% tienen riesgo nominal idéntico; sin embargo, si uno incumple en el mes 3 y otro en el mes 48, la pérdida económica real es radicalmente diferente --- el primero apenas ha amortizado capital, mientras que el segundo ya ha devuelto la mayor parte del saldo.
+
+El análisis de supervivencia modela explícitamente el **tiempo hasta el evento** (time-to-default), generando curvas de probabilidad acumulada a cualquier horizonte temporal. Esto es un insumo directo para:
+
+- **IFRS9 Stage 2**: Provisiones basadas en PD lifetime, no en PD a 12 meses.
+- **Priorización de seguimiento**: Préstamos con riesgo de incumplimiento temprano requieren intervención inmediata.
+- **Valoración de cartera**: El timing del default afecta los flujos de caja descontados.
+
+### Modelos Implementados
+
+No usamos modelos temporales por completitud académica, sino porque responden preguntas distintas sobre el mismo préstamo. Uno privilegia interpretabilidad y lectura de drivers; el otro captura interacciones y no linealidades sin imponer una forma rígida. Esa combinación permite explicar el fenómeno y, al mismo tiempo, producir curvas útiles para IFRS9 y seguimiento.
+
+#### Cox Proportional Hazards
+
+El modelo de Cox PH [@cox1972] puede leerse aquí sin álgebra pesada: toma un conjunto de variables y estima cómo cambia el **riesgo instantáneo de default** cuando una de ellas sube o baja, manteniendo las demás comparables. La salida más intuitiva son los **hazard ratios**: si una variable tiene hazard ratio mayor que 1, acelera la llegada esperada del default; si es menor que 1, la retrasa.
+
+::: {.callout-note}
+## Supuesto de proporcionalidad
+El modelo Cox PH asume que los hazard ratios son constantes en el tiempo --- la función `check_assumptions()` valida este supuesto mediante tests de Schoenfeld. Cuando se viola, el RSF es preferible porque no impone restricciones sobre la forma de la relación hazard-covariables.
+:::
+
+#### Random Survival Forest (RSF)
+
+El Random Survival Forest [@ishwaran2008] complementa a Cox PH porque no obliga al modelo a comportarse de forma lineal ni a mantener el mismo patrón a lo largo del tiempo. En este libro lo usamos como la opción más flexible para capturar interacciones entre plazo, tasa, score e historial.
+
+La métrica de evaluación es el **C-index** (concordancia de Harrell): la probabilidad de que, dados dos préstamos, el modelo ordene correctamente cuál incumple primero. Un C-index de 0.5 es aleatorio; 1.0 es perfecto. El RSF alcanza un **C-index = 0.6797** en el conjunto OOT, indicando capacidad discriminativa moderada --- consistente con la dificultad inherente de predecir el timing exacto de default en crédito al consumo.
+
+### Riesgos Competitivos y la Función de Incidencia Acumulada
+
+Un préstamo no solo puede hacer default: también puede **prepagar** antes de su vencimiento. Estos dos eventos compiten entre sí. Si ignoramos el prepago, terminamos sobreestimando la probabilidad de default lifetime. Por eso el libro insiste en la lectura CIF: distingue correctamente entre “cayó en default” y “salió de la cartera por otra vía”.
+
+::: {.callout-warning}
+## KM vs CIF: Sobreestimación del 26.7%
+En el dataset, Kaplan-Meier sobreestima la PD lifetime en **26.7%** respecto a la CIF correcta. Esto se traduce en un exceso de reserva de **\$125.8M** (12.6% de la provisión ECL calculada con KM). Para provisiones IFRS9, la CIF debe usarse siempre que existan eventos competitivos --- lo cual es la norma en carteras de crédito al consumo. El desglose por grade y las implicaciones completas para la gobernanza de provisiones se desarrollan en @sec-competing-risks.
+:::
+
+![Curvas de supervivencia y default acumulado por segmento, generadas desde los notebooks del bloque temporal y de supervivencia.](../../assets/figures/notebooks/kaplan_meier_curves.png){#fig-kaplan-meier fig-alt="Curvas Kaplan-Meier y funciones de supervivencia para segmentos del dataset Lending Club."}
+
+La figura @fig-kaplan-meier aterriza la intuición temporal: no basta con saber quién es riesgoso; importa cuándo emerge ese riesgo y cómo difiere entre segmentos.
+
+| Dos préstamos con la misma PD puntual | Lectura temporal |
+|---|---|
+| PD = 10%, pero default probable en meses tempranos | más severidad económica, menos tiempo de amortización, más presión para seguimiento y Stage 2 |
+| PD = 10%, pero default probable mucho más tarde | misma “etiqueta” de riesgo puntual, pero impacto prudencial distinto |
+
+: Ejemplo divulgativo: misma PD, distinto impacto temporal {#tbl-same-pd-different-time}
+
+### Curvas de PD Lifetime para IFRS9
+
+La función `generate_lifetime_pd_curve()` genera probabilidades acumuladas de default a intervalos de 30 días hasta 5 años (60 meses), que son el insumo directo para el cálculo de ECL lifetime en IFRS9 Stage 2:
+
+$$
+\text{PD}_{\text{lifetime}}(t) = 1 - S(t \mid \mathbf{x})
+$$
+
+```{python}
+#| label: tbl-survival-summary
+#| tbl-cap: "Resumen de modelos de supervivencia y métricas clave"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+summary = try_load_json("pipeline_summary")
+surv = summary.get("survival", {})
+
+rows = [
+    {"Modelo": "Cox PH", "Tipo": "Semi-paramétrico",
+     "C-index": f"{surv.get('cox_concordance', 0):.4f}",
+     "Ventaja": "Interpretable (hazard ratios)", "Limitación": "Supuesto de proporcionalidad"},
+    {"Modelo": "RSF (500 árboles)", "Tipo": "Ensemble no paramétrico",
+     "C-index": f"{surv.get('rsf_concordance', 0):.4f}",
+     "Ventaja": "Captura no-linealidades", "Limitación": "Menos interpretable"},
+    {"Modelo": "CIF (Aalen-Johansen)", "Tipo": "No paramétrico",
+     "C-index": "---",
+     "Ventaja": "Riesgos competitivos correctos", "Limitación": "No condicional a covariables"},
+]
+
+pd.DataFrame(rows)
+```
+
+::: {.callout-tip}
+## Conexión con el pipeline
+Las curvas de PD lifetime alimentan directamente el cálculo de ECL en @sec-ecl-calculation. La corrección CIF $\rightarrow$ KM evita sobreprovisionar por \$125.8M. Los hazard ratios de Cox PH complementan la interpretación de los coeficientes SHAP del modelo PD (@sec-global-explanations), proporcionando una perspectiva temporal sobre los mismos drivers de riesgo.
+:::

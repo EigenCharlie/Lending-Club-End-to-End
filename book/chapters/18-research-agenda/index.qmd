@@ -1,0 +1,33 @@
+---
+title: "Agenda de Investigación"
+page-layout: article
+close_takeaway: "Esta parte no existe para listar ideas futuras sin jerarquía, sino para ordenar qué ya es claim defendible, qué ya es paper posible y qué todavía pertenece a la agenda."
+close_connects: "Cierra el libro conectando resultados técnicos, papers, tesis y backlog de investigación en una sola lectura."
+close_reuse: "Su matriz de temas y prioridades sirve para defensa, planificación de papers y evolución del companion académico."
+---
+
+::: {.whole-game-intro}
+<span class="whole-game-question">Pregunta central</span>
+
+¿Qué parte de este proyecto ya es una contribución defendible y qué parte sigue siendo agenda? Esta landing existe para separar resultados consolidados de oportunidades reales de investigación.
+
+Ejemplo concreto: una misma pieza puede nacer como hallazgo del pipeline, madurar como capítulo del libro, convertirse en draft de paper y terminar como línea de tesis. Esta parte ordena ese tránsito para que la conversación académica no se diluya entre backlog e intuiciones.
+:::
+
+## Qué resuelve esta parte
+
+- posiciona el proyecto frente a literatura cercana;
+- separa claims ya defendibles de exploraciones prometedoras;
+- traduce el backlog de investigación a una ruta académica coherente.
+
+## Navegación curada
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="18a-state-of-the-art.html">93. Estado del Arte</a></h4><p>Mapa de papers, gaps y posicionamiento.</p></div>
+  <div class="chapter-card"><h4><a href="18b-thesis-contributions.html">94. Contribuciones</a></h4><p>Claims técnicos, operativos y de defendibilidad.</p></div>
+  <div class="chapter-card"><h4><a href="18c-future-directions.html">95. Futuro</a></h4><p>Agenda de papers, producto y extensiones metodológicas.</p></div>
+</div>
+```
+
+{{< include ../../includes/_whole-game-close.qmd >}}

@@ -14,7 +14,7 @@ execution:
   writes_canonical_artifacts: false
   promotion_state: research_open
   include_rapids: true
-  include_notebooks: false
+  include_notebooks: true
 
 defaults:
   sampling_profile: mega64plus

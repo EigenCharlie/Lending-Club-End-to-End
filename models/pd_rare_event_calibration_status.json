@@ -1,37 +1,37 @@
 {
   "schema_version": "2026-03-13.1",
-  "generated_at_utc": "2026-03-18T02:32:58.184768+00:00",
+  "generated_at_utc": "2026-03-23T03:05:44.840708+00:00",
   "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
   "summary": {
     "n_obs": 276869,
     "prevalence": 0.21977902907151034,
-    "pr_auc": 0.39976303719344647,
-    "brier": 0.15431938226993186,
-    "ece": 0.00871346886926656
+    "pr_auc": 0.39507015755835906,
+    "brier": 0.1547803501068238,
+    "ece": 0.005662533056922205
   },
   "global": {
     "n_obs": 276869,
     "prevalence": 0.21977902907151034,
-    "pr_auc": 0.39976303719344647,
-    "brier": 0.15431938226993186,
-    "ece": 0.00871346886926656
+    "pr_auc": 0.39507015755835906,
+    "brier": 0.1547803501068238,
+    "ece": 0.005662533056922205
   },
-  "worst_protected_group_ece": 0.04782160763621962,
-  "worst_grade_brier": 0.24009298253316674,
-  "max_decile_gap": 0.014371705174153815,
+  "worst_protected_group_ece": 0.02500473472281258,
+  "worst_grade_brier": 0.24014580527744148,
+  "max_decile_gap": 0.02701170598826369,
   "worst_protected_group": {
     "slice_name": "home_ownership",
     "slice_value": "ANY",
-    "ece": 0.04782160763621962,
-    "brier": 0.17147350559157912,
-    "pr_auc": 0.38655704114538497,
+    "ece": 0.02500473472281258,
+    "brier": 0.16898696746548392,
+    "pr_auc": 0.39285533709716103,
     "n": 704
   },
   "worst_grade_group": {
     "slice_value": "F",
-    "ece": 0.031199279927300216,
-    "brier": 0.24009298253316674,
-    "pr_auc": 0.6240102943086956,
+    "ece": 0.03168587711394081,
+    "brier": 0.24014580527744148,
+    "pr_auc": 0.6216265722844164,
     "n": 1731
   },
   "report_path": "data/processed/pd_rare_event_calibration_report.parquet",

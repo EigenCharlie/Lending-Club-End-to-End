@@ -1,0 +1,56 @@
+## Introduccion {#sec-p2-intro}
+
+IFRS9 obliga a convertir riesgo en provision bajo una logica prospectiva y defendible. En la practica, muchos pipelines siguen descansando en PD puntuales y reglas SICR relativamente toscas. Este paper propone una extension concreta: incorporar incertidumbre conformal dentro de un pipeline IFRS9 end-to-end.
+
+### Contexto regulatorio {#sec-p2-regulatory}
+
+La norma IFRS 9, emitida por el IASB en 2014 [@iasb2014] y obligatoria desde enero de 2018, reemplazo al anterior IAS 39 con un cambio filosofico fundamental: el reconocimiento de perdidas crediticias paso de un modelo de *perdida incurrida* a uno de *perdida esperada* (*Expected Credit Loss*, ECL). Bajo el nuevo esquema, las instituciones financieras deben estimar provisiones de forma prospectiva, incorporando informacion macroeconomica y escenarios futuros, no solo evidencia de deterioro ya materializado.
+
+El mecanismo central de IFRS 9 es el modelo de tres etapas (*staging*). Los activos se clasifican en Stage 1 (sin deterioro significativo), Stage 2 (con incremento significativo del riesgo crediticio, SICR) y Stage 3 (deterioro confirmado). La provision en Stage 1 cubre solo las perdidas esperadas a 12 meses, mientras que en Stage 2 y 3 cubre las perdidas esperadas a lo largo de toda la vida del instrumento (*lifetime ECL*). Esta diferencia implica que la transicion de Stage 1 a Stage 2 puede multiplicar la provision varias veces, convirtiendo el trigger SICR en una de las decisiones mas sensibles del pipeline prudencial.
+
+### Practica actual de la industria {#sec-p2-industry}
+
+En la mayoria de las implementaciones bancarias actuales, la evaluacion SICR se basa en una combinacion de umbrales estaticos sobre la PD puntual (por ejemplo, un incremento relativo superior al 200% respecto a la PD original) y en indicadores cualitativos como los dias de mora (DPD >= 30). Esta practica, si bien operativamente simple, presenta tres debilidades fundamentales.
+
+Primero, los umbrales estaticos no capturan la incertidumbre inherente a la estimacion de PD: un prestamo cuya PD puntual se ubica marginalmente por debajo del umbral es tratado identicamente a uno cuya PD esta muy por debajo, aunque la confianza en ambas estimaciones pueda ser radicalmente distinta. Segundo, el uso exclusivo de PD puntuales impide cuantificar la sensibilidad de las provisiones ante la incertidumbre del modelo, lo cual dificulta el analisis de escenarios requerido por el regulador [@ecb2024]. Tercero, la deteccion de deterioro basada en DPD es inherentemente reactiva: cuando un prestamo acumula 30 dias de mora, el deterioro ya se ha materializado parcialmente, reduciendo la utilidad prospectiva que IFRS 9 busca capturar.
+
+### Problema
+
+Una PD puntual ordena riesgo, pero no informa cuanta confianza merece esa estimacion justo cuando la decision contable se vuelve mas sensible. Esa limitacion afecta tres frentes:
+
+1. staging (`Stage 1/2/3`): el trigger SICR opera sobre una estimacion puntual sin cuantificar su precision;
+2. provision esperada (`ECL`): la formula $ECL = PD \times LGD \times EAD \times DF$ produce un unico numero sin indicar el rango plausible de esa cifra;
+3. sensibilidad ante escenarios macro y drift temporal: la ausencia de bandas de incertidumbre impide evaluar cuanto se moverian las provisiones bajo escenarios alternativos.
+
+### Brecha en la literatura {#sec-p2-gap}
+
+La revision sistematica de la literatura (vease @sec-state-of-art y `docs/PAPER_REFERENCES_STATE_OF_ART.md`) identifica un vacio notable y claramente delimitado. Existen trabajos que aplican metodos avanzados de ML a la estimacion de PD para IFRS 9 [@barcena2024; @botha2026], trabajos que discuten las definiciones y metricas de SICR [@sicr2025; @ifrsboard2024], y un cuerpo creciente de literatura sobre prediccion conformal en finanzas [@noguer2024survey; @fantazzini2024]. Sin embargo, *ningun paper identificado conecta explicitamente prediccion conformal con provisiones IFRS 9 end-to-end*. Esa ausencia es particularmente sorprendente dado que IFRS 9 es, en esencia, un problema de cuantificacion de incertidumbre: la norma exige estimaciones prospectivas que incorporen escenarios y reflejen la informacion disponible sobre el futuro.
+
+::: {.callout-note}
+## Relevancia regulatoria
+El BCE ha senalado explicitamente la necesidad de mejorar los *overlays* y modelos de riesgo novedosos bajo IFRS 9 [@ecb2024], y el IFRS Board ha publicado un analisis de retroalimentacion sobre SICR [@ifrsboard2024] que reconoce las dificultades practicas de los umbrales actuales. Un pipeline que incorpore incertidumbre distribution-free con garantias formales de cobertura responderia directamente a estas preocupaciones regulatorias, ofreciendo un mecanismo de staging mas sensible y un rango de provisiones mas informativo para la toma de decisiones prudenciales.
+:::
+
+### Preguntas de investigacion {#sec-p2-questions}
+
+El paper se estructura alrededor de tres preguntas formales:
+
+1. **RQ1**: Como se transforma la provision ECL cuando se calcula no solo con la PD puntual sino con las bandas conformales $[PD_{low}, PD_{high}]$, y que rango de provision resulta para cada escenario macroeconomico?
+2. **RQ2**: Puede el ancho del intervalo conformal ($PD_{high} - PD_{point}$) funcionar como una senal SICR complementaria a los triggers tradicionales basados en DPD y umbrales de PD, mejorando la deteccion temprana de deterioro?
+3. **RQ3**: Cual es la sensibilidad de las provisiones IFRS 9 ante variaciones en el nivel de confianza conformal ($\alpha$), el metodo de estimacion de supervivencia y los escenarios macroeconomicos, y como puede esa sensibilidad informar decisiones prudenciales?
+
+### Pregunta del paper
+
+> Como integrar incertidumbre distribution-free en un pipeline IFRS9 sin romper trazabilidad, gobernanza ni interpretabilidad operacional?
+
+### Contribuciones {#sec-p2-contributions}
+
+Las contribuciones del paper se organizan en tres ejes complementarios:
+
+1. **ECL por rango**: el pipeline produce no solo una estimacion puntual de ECL sino un rango $[ECL_{optimista}, ECL_{adverso}]$ derivado de las bandas conformales, permitiendo cuantificar la incertidumbre de la provision para cada prestamo y para el portafolio agregado. Los resultados muestran que la banda ECL puede alcanzar el 267% de la estimacion puntual, evidenciando la magnitud de incertidumbre que las practicas actuales ignoran.
+2. **Trigger SICR conformal**: se propone y evalua el ancho del intervalo conformal como senal complementaria de deterioro crediticio, optimizando el umbral $t^*$ mediante busqueda en grilla sobre el F1-score. El umbral optimo $t^* = 0.30$ logra recall de 75.8% sobre defaults no detectados por los triggers tradicionales, con un impacto en ECL adicional de \$56.6M.
+3. **Sensibilidad explicita**: el paper cuantifica como las provisiones IFRS 9 varian ante tres dimensiones de incertidumbre simultaneamente --- nivel conformal, metodo de supervivencia y escenario macroeconomico ---, proporcionando un mapa de sensibilidad que los equipos prudenciales pueden usar directamente en sus ejercicios de estres.
+
+### Relevancia de la brecha
+
+La revision de `docs/PAPER_REFERENCES_STATE_OF_ART.md` identifica un vacio notable: el proyecto no encontro papers que conecten explicitamente conformal prediction con provisiones IFRS9 end-to-end. Esa ausencia vuelve el caso mas valioso, pero tambien exige una escritura prudente y muy bien trazada.

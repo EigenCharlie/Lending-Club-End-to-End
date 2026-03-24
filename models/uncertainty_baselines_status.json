@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-16.1",
-  "generated_at_utc": "2026-03-17T03:22:56.954003+00:00",
+  "generated_at_utc": "2026-03-23T03:05:47.660401+00:00",
   "run_tag": "untracked",
   "methods": [
     "conformal_mondrian",
@@ -25,27 +25,27 @@
     "bootstrap": {
       "method": "bootstrap",
       "nominal_coverage": 0.9,
-      "empirical_coverage": 0.898277,
-      "avg_width": 0.952253,
-      "min_group_coverage": 0.619295,
+      "empirical_coverage": 0.900686,
+      "avg_width": 0.957076,
+      "min_group_coverage": 0.629694,
       "fundable_loans_pd_high_lt_010": 0,
       "n_obs": 276869
     },
     "parametric_gaussian": {
       "method": "parametric_gaussian",
       "nominal_coverage": 0.9,
-      "empirical_coverage": 0.853223,
-      "avg_width": 0.844622,
-      "min_group_coverage": 0.796041,
+      "empirical_coverage": 0.853451,
+      "avg_width": 0.849375,
+      "min_group_coverage": 0.802531,
       "fundable_loans_pd_high_lt_010": 0,
       "n_obs": 276869
     },
     "ellipsoidal_grade": {
       "method": "ellipsoidal_grade",
       "nominal_coverage": 0.9,
-      "empirical_coverage": 0.886535,
-      "avg_width": 0.790569,
-      "min_group_coverage": 0.824169,
+      "empirical_coverage": 0.890981,
+      "avg_width": 0.794625,
+      "min_group_coverage": 0.82486,
       "fundable_loans_pd_high_lt_010": 0,
       "n_obs": 276869
     }

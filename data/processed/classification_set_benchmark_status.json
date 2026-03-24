@@ -1,0 +1,31 @@
+{
+  "schema_version": "2026-03-21.1",
+  "generated_at_utc": "2026-03-21T21:55:59.157603+00:00",
+  "run_tag": "2026-03-21-canonical-refresh-clean",
+  "benchmark_rows": 4,
+  "confidence_levels": [
+    0.8,
+    0.85,
+    0.9,
+    0.95
+  ],
+  "methods": [
+    "lac",
+    "aps",
+    "raps"
+  ],
+  "supported_methods": [
+    "lac"
+  ],
+  "skipped_methods": [
+    "aps",
+    "raps"
+  ],
+  "summary_at_90": {
+    "lac": {
+      "empirical_coverage": 0.8735,
+      "mean_set_size": 1.35998,
+      "pct_ambiguous": 35.998
+    }
+  }
+}

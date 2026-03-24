@@ -1,0 +1,77 @@
+---
+title: "Paper Quantum: Gradient Boosting Cuántico para Estimación de Pérdida Crediticia"
+page-layout: article
+---
+
+{{< include ../../includes/_paper-autocontenido.qmd >}}
+
+::: {.whole-game-intro}
+<span class="whole-game-question">Pregunta central</span>
+
+¿Puede un kernel cuántico, combinado con un meta-learner de gradient boosting y un wrapper conformal adaptativo que explota la varianza de shots del hardware NISQ, mejorar la cuantificación de incertidumbre en la estimación de pérdida crediticia (LGD) sobre datos tabulares?
+
+Ejemplo concreto: en lugar de alimentar features crudas a CatBoost, este paper propone computar una **matriz de similaridad cuántica** (quantum kernel) sobre el espacio de Hilbert, usarla como entrada enriquecida para un CatBoost Regressor, y envolver todo en un **wrapper conformal Mondrian** que utiliza la varianza de shots NISQ como señal de incertidumbre adaptativa --- aprovechando lo mejor de ambos mundos: la expresividad del espacio cuántico y la robustez probada de los árboles en datos tabulares.
+:::
+
+::: {.callout-warning}
+## Propuesta de investigación
+Este capítulo es una **propuesta detallada** de investigación, no un paper completado. Describe la hipótesis, el estado del arte validado, la arquitectura propuesta, lo que ya existe en el proyecto, lo que falta construir, y la estrategia de ejecución con presupuesto y timeline.
+:::
+
+::: {.callout-note .mini-abstract}
+## Mini-abstract
+**Problema**: La Loss Given Default (LGD) es bimodal, difícil de predecir con modelos clásicos, y prácticamente inexplorada en Quantum Machine Learning. Los intervalos conformales clásicos sobre LGD, aunque funcionales (90.5% de cobertura en este proyecto), producen bandas anchas por la heterogeneidad del target.
+**Método propuesto**: Quantum kernel (ZZFeatureMap con Angular Encoding, 8--12 features $\rightarrow$ 8--12 qubits) que computa una matriz de similaridad en el espacio de Hilbert, alimentando un **CatBoost Regressor** como meta-learner híbrido. El sistema se envuelve en un Quantum Conformal Prediction Wrapper (QCP/AQCP) Mondrian que utiliza la varianza de shots como score de no-conformidad adaptativo.
+**Hallazgo esperado**: Intervalos conformales con garantías de cobertura distribution-free que se mantienen incluso bajo ruido de hardware NISQ, potencialmente más estrechos que los intervalos clásicos gracias a la representación enriquecida del kernel cuántico.
+:::
+
+## Por qué Quantum Kernel y no QNN para datos tabulares
+
+La decisión arquitectónica central de este paper se apoya en evidencia reciente robusta:
+
+1. **Los árboles superan al deep learning en datos tabulares** [@grinsztajn2022tree]: un benchmark extensivo en NeurIPS 2022 demostró que modelos como CatBoost, XGBoost y Random Forest superan consistentemente a redes neuronales profundas en datos tabulares estructurados --- exactamente el tipo de datos de este proyecto.
+
+2. **Barren plateaus en QNNs profundas** [@mcclean2018barren]: los gradientes de circuitos cuánticos parametrizados profundos se desvanecen exponencialmente, haciendo el entrenamiento impracticable en hardware NISQ.
+
+3. **Quantum kernels son más estables** [@havlicek2019supervised]: los kernels cuánticos proyectan datos a un espacio de Hilbert de alta dimensión sin necesidad de optimizar parámetros del circuito --- eliminando el problema de barren plateaus y reduciendo la susceptibilidad al ruido NISQ.
+
+La combinación **quantum kernel + CatBoost** es la arquitectura óptima para este problema: el kernel proporciona una representación enriquecida en el espacio cuántico, y CatBoost explota esa representación con la robustez demostrada de los árboles sobre datos tabulares.
+
+## Diagrama del paper
+
+La figura siguiente resume la arquitectura propuesta completa en 5 fases: filtro clásico, capa de kernel cuántico, meta-learner híbrido, wrapper conformal cuántico, e integración prudencial.
+
+![Diagrama maestro del Paper Quantum: 5 fases desde filtro clásico de datos, kernel cuántico (ZZFeatureMap), meta-learner CatBoost/XGBoost, wrapper conformal Mondrian con varianza NISQ, hasta integración IFRS9 y optimización robusta.](../../assets/figures/editorial/diagrama-paper-quantum.png){#fig-paper-quantum-overview fig-alt="Diagrama horizontal del Paper Quantum con etapas de filtro clásico, quantum kernel, meta-learner híbrido, wrapper conformal cuántico y decisiones financieras."}
+
+## Complementariedad con los otros papers
+
+Este paper no compite con los otros cuatro papers del proyecto. Los complementa de una forma precisa:
+
+| Paper existente | Componente LGD | Lo que aporta Paper Quantum |
+|---|---|---|
+| **Estrella** (Predict-then-Optimize) | Usa LGD clásico como input | Upgradea LGD con features de kernel cuántico |
+| **IFRS9** (ECL End-to-End) | ECL = PD × **LGD** × EAD | LGD con kernel cuántico propaga incertidumbre más informada al ECL |
+| **Mondrian** (Group-Conditional) | Valida cobertura por grade para PD | Extiende la validación Mondrian a intervalos LGD con kernel cuántico |
+| **GPU** (Aceleración Selectiva) | Mide speedup en workloads PD/OR | Abre un carril completamente nuevo: QPU como recurso complementario |
+
+: Complementariedad del Paper Quantum con los papers existentes {#tbl-paper-quantum-complementarity}
+
+El timing es estratégico: el campo de QML financiero está en un punto de inflexión (2025--2026) donde los primeros papers aplicados con rigor metodológico tienen impacto desproporcionado.
+
+## Cómo leer esta parte
+
+- **87** fija el contexto, la hipótesis y la brecha triple en la literatura.
+- **88** revisa el estado del arte en quantum kernels, QML financiero y QCP/AQCP.
+- **89** describe la arquitectura propuesta: quantum kernel + CatBoost + wrapper conformal.
+- **90** mapea lo que ya existe vs. lo que falta, con plan de ejecución, presupuesto y venues.
+
+## Navegación curada
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="18a-context-hypothesis.html">87. Contexto e Hipótesis</a></h4><p>LGD como problema abierto, brecha triple y preguntas de investigación.</p></div>
+  <div class="chapter-card"><h4><a href="18b-state-of-art.html">88. Estado del Arte</a></h4><p>Quantum kernels, trees vs deep learning en tabular, QCP/AQCP y hardware NISQ.</p></div>
+  <div class="chapter-card"><h4><a href="18c-proposed-methodology.html">89. Metodología Propuesta</a></h4><p>Arquitectura quantum kernel + CatBoost + wrapper QCP Mondrian.</p></div>
+  <div class="chapter-card"><h4><a href="18d-gap-execution-strategy.html">90. Brecha y Ejecución</a></h4><p>Inventario, plan de experimentos, presupuesto, venues y readiness.</p></div>
+</div>
+```

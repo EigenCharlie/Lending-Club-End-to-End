@@ -1,0 +1,86 @@
+## Fundamentos de Riesgo Crediticio {#sec-credit-risk-fundamentals}
+
+### Probabilidad de Default (PD)
+
+La **Probabilidad de Default** (PD) es la probabilidad estimada de que un deudor no cumpla con sus obligaciones de pago dentro de un horizonte de tiempo definido. En el marco de Basilea y IFRS9, la PD es el primer componente del cálculo de pérdida esperada.
+
+::: {.callout-note}
+## PD a 12 meses vs PD de por vida
+- **PD a 12 meses (PD₁₂)**: Probabilidad de default dentro de los próximos 12 meses. Se usa para préstamos en Stage 1 bajo IFRS9.
+- **PD de por vida (PD_lifetime)**: Probabilidad de default durante toda la vida restante del préstamo. Se usa para préstamos en Stage 2. Se estima típicamente con modelos de supervivencia (Cox PH, Random Survival Forest).
+:::
+
+En este proyecto, el modelo PD se entrena como un clasificador binario (default/no-default) sobre datos de Lending Club resueltos. La salida es una probabilidad continua en [0, 1] que se calibra para reflejar frecuencias reales de default.
+
+### Loss Given Default (LGD)
+
+La **Pérdida dado el Default** (LGD) mide la fracción del saldo expuesto que no se recupera cuando un préstamo entra en default. Se calcula como:
+
+$$
+\text{LGD} = 1 - \text{Tasa de Recuperación} = 1 - \frac{\text{Monto Recuperado}}{\text{Exposición al Default}}
+$$ {#eq-lgd}
+
+Valores típicos de LGD varían entre 20% y 80% según el tipo de producto, la presencia de colateral y la efectividad de los procesos de cobranza. En Lending Club, los préstamos son no garantizados, lo que resulta en LGD relativamente altas.
+
+### Exposure at Default (EAD)
+
+La **Exposición al Default** (EAD) es el monto total que el prestamista tiene en riesgo en el momento del default. Para préstamos a plazo fijo (como Lending Club), la EAD es el saldo pendiente del principal más intereses acumulados. Para líneas de crédito revolventes, la EAD incluye estimaciones de utilización futura (*Credit Conversion Factor*, CCF).
+
+### Expected Credit Loss (ECL)
+
+La **Pérdida Crediticia Esperada** (ECL) es el producto de los tres componentes anteriores, descontado al valor presente:
+
+$$
+\text{ECL} = \text{PD} \times \text{LGD} \times \text{EAD} \times \text{Factor de Descuento}
+$$ {#eq-ecl}
+
+Este es el cálculo central de IFRS9 y determina las provisiones que un banco debe reservar para cubrir pérdidas anticipadas.
+
+### IFRS9 y el Modelo de Tres Stages
+
+IFRS9 (International Financial Reporting Standard 9) es la norma contable internacional que rige la clasificación y medición de instrumentos financieros. Su modelo de deterioro se basa en tres stages:
+
+| Stage | Condición | PD Utilizada | Provisión |
+|-------|-----------|-------------|-----------|
+| **Stage 1** | Sin deterioro significativo | PD a 12 meses | ECL a 12 meses |
+| **Stage 2** | Incremento significativo de riesgo (SICR) | PD de por vida | ECL de por vida |
+| **Stage 3** | Default confirmado (≥90 DPD) | PD ≈ 1.0 | ECL total |
+
+: Modelo de deterioro de tres stages de IFRS9 {#tbl-ifrs9-stages}
+
+### Incremento Significativo de Riesgo Crediticio (SICR)
+
+El **SICR** (Significant Increase in Credit Risk) es el trigger que mueve un préstamo de Stage 1 a Stage 2. IFRS9 no prescribe un método único para detectarlo --- cada institución define sus propios criterios. Criterios comunes incluyen:
+
+- Incremento absoluto o relativo de PD respecto a la originación
+- Días de mora (30+ DPD como backstop)
+- Downgrade de calificación interna
+
+::: {.callout-tip}
+## Innovación del proyecto
+En este proyecto proponemos usar el **ancho del intervalo conformal** como señal adicional de SICR. Un intervalo más ancho indica mayor incertidumbre sobre la PD, lo que puede señalar deterioro antes de que se refleje en el punto estimado. Esta es una contribución original --- no existen papers previos que usen el ancho conformal como trigger SICR.
+:::
+
+### Basilea III y Capital Regulatorio
+
+El **marco de Basilea III** establece requerimientos mínimos de capital que los bancos deben mantener para absorber pérdidas inesperadas. Los tres pilares relevantes son:
+
+1. **Pilar 1 --- Capital mínimo**: Fórmulas regulatorias basadas en PD, LGD y EAD para calcular activos ponderados por riesgo (RWA).
+2. **Pilar 2 --- Supervisión**: Evaluaciones internas de adecuación de capital (ICAAP), incluyendo tests de estrés.
+3. **Pilar 3 --- Transparencia**: Divulgación pública de métricas de riesgo y modelos utilizados.
+
+### Grados de Riesgo (Credit Grades)
+
+En Lending Club, los préstamos se clasifican en grados de A (menor riesgo) a G (mayor riesgo), basados en la evaluación crediticia del solicitante al momento de la originación. Estos grados determinan la tasa de interés y se utilizan en este proyecto como **variable de partición Mondrian** para predicción conformal condicional.
+
+| Grado | Tasa de Default Típica | Tasa de Interés Típica |
+|-------|----------------------|----------------------|
+| A | ~5--8% | ~6--8% |
+| B | ~10--14% | ~10--12% |
+| C | ~15--20% | ~13--16% |
+| D | ~20--28% | ~17--21% |
+| E | ~28--35% | ~22--26% |
+| F | ~35--45% | ~26--30% |
+| G | ~45--55% | ~30--31% |
+
+: Grados de riesgo de Lending Club (valores aproximados del dataset) {#tbl-credit-grades}

@@ -1,0 +1,81 @@
+## Direcciones Futuras {#sec-future-directions}
+
+La agenda futura del proyecto no consiste en abrir veinte frentes nuevos, sino en profundizar las lineas que ya tienen evidencia y potencial de publicacion. Las direcciones se organizan por horizonte temporal, con una evaluacion explicita de viabilidad y prioridad basada en los resultados actuales del proyecto.
+
+### Prioridad inmediata
+
+| Horizonte | Objetivo |
+|---|---|
+| 0-3 meses | cerrar version publicable de los tres papers |
+| 3-6 meses | endurecer benchmarks, backtesting y pruebas de estabilidad |
+| 6-12 meses | explorar extensiones causales, temporales y de fairness conformal |
+
+: Agenda temporal sugerida {#tbl-future-roadmap}
+
+### Corto plazo: 0--6 meses {#sec-future-short}
+
+Las extensiones de corto plazo se focalizan en endurecer los claims existentes y cerrar las brechas identificadas en los tres papers.
+
+**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension es computacionalmente trivial (solo requiere actualizar un cuantil running) y tendria impacto directo en los tres papers: estabilidad de intervalos para el Paper Estrella, cobertura temporal para el Paper 3, y robustez ante crisis para el Paper 2.
+
+**Portafolio multi-periodo con costos de transaccion.** La formulacion actual del portafolio robusto (@sec-robust-portfolio) es uniperiodo: asigna capital una unica vez sin considerar el costo de rebalancear la cartera. En la practica bancaria, las carteras de credito se originan y vencen continuamente, y los costos de transaccion (originacion, servicing, venta de cartera) son relevantes. La extension a una formulacion multi-periodo con costos de transaccion requeriria reformular el programa lineal como un problema de optimizacion dinamica, posiblemente utilizando programacion estocastica multi-etapa con intervalos conformales como conjuntos de incertidumbre en cada periodo.
+
+**Promocion de intervalos conformales para LGD y EAD.** El pipeline actual genera intervalos conformales solo para PD. La extension a LGD (Loss Given Default) y EAD (Exposure at Default) produciria una cuantificacion de incertidumbre completa sobre los tres componentes de ECL. Los resultados preliminares (vease @sec-lgd-ead-conformal) sugieren que los intervalos de LGD son significativamente mas anchos que los de PD, reflejando la mayor dificultad de prediccion de la severidad de perdida. Esta extension es tecnica mas que conceptualmente novedosa --- MAPIE puede aplicarse directamente sobre cualquier regresor --- pero su impacto regulatorio seria sustancial, dado que el ECL con incertidumbre triple proporcionaria el rango de provisiones mas informativo posible.
+
+### Mediano plazo: 1--2 anios {#sec-future-medium}
+
+Las extensiones de mediano plazo abren lineas de investigacion que requieren trabajo conceptual adicional y posiblemente nuevos datos.
+
+**Intervalos conformales sobre estimaciones CATE.** La inferencia causal en credito (vease @sec-causal-inference) produce estimaciones de efectos heterogeneos de tratamiento (CATE) que informan donde intervenir es mas eficiente. Sin embargo, las estimaciones CATE puntuales ignoran la incertidumbre inherente a la estimacion causal, que es generalmente mayor que la incertidumbre predictiva pura. La construccion de intervalos conformales sobre las estimaciones CATE --- combinando las tecnicas de [@athey2019] con prediccion conformal --- produciria conjuntos de incertidumbre sobre el efecto esperado de la intervencion, lo cual permitiria formular portafolios CATE-adjusted robustos. Esta linea conecta con el trabajo emergente sobre *conformal causal inference* y tiene potencial para una publicacion independiente.
+
+**Redes neuronales graficas para riesgo de credito.** Las Graph Neural Networks (GNN) han mostrado promesa en la deteccion de fraude y en la modelizacion de contagio crediticio, donde las relaciones entre prestatarios (co-deudores, redes empresariales, proximidad geografica) aportan informacion que los modelos tabulares no capturan. La combinacion de GNN con prediccion conformal es un area emergente que podria mejorar tanto la discriminacion como la calibracion de los intervalos, especialmente en segmentos donde la informacion relacional es densa. Esta direccion requiere datasets con estructura de grafo que Lending Club no proporciona directamente, lo cual implica la necesidad de datos adicionales o sinteticos.
+
+**Aprendizaje federado para modelos de riesgo.** La regulacion de proteccion de datos (GDPR, CCPA) dificulta la agregacion centralizada de datos de credito de multiples instituciones. El aprendizaje federado permitiria entrenar modelos de PD sobre datos distribuidos sin compartir informacion individual, y la prediccion conformal federada es un area de investigacion activa. La combinacion de ambas tecnicas produciria intervalos conformales construidos sobre una base de datos efectivamente mayor, con mejores garantias de cobertura por subgrupo, sin comprometer la privacidad.
+
+### Largo plazo: 3+ anios {#sec-future-long}
+
+Las extensiones de largo plazo son mas especulativas pero potencialmente transformadoras.
+
+**Modelos de fundacion para riesgo crediticio.** Los modelos de lenguaje de gran escala (LLM) y los modelos tabulares pre-entrenados (TabPFN, XTab) estan comenzando a aplicarse a datos financieros. Un modelo de fundacion pre-entrenado sobre multiples carteras de credito podria proporcionar representaciones transferibles que mejoren la discriminacion en carteras pequenas o en segmentos con pocos datos historicos. La prediccion conformal sobre las salidas de un modelo de fundacion seria particularmente valiosa, ya que cuantificaria no solo la incertidumbre aletoria sino tambien la incertidumbre epistemica asociada a la transferencia de dominio.
+
+**Sandboxes regulatorios para modelos conformales.** Varios reguladores (FCA en Reino Unido, MAS en Singapur, CNBV en Mexico) han establecido sandboxes regulatorios donde las instituciones pueden probar metodologias novedosas bajo supervision. Un sandbox diseado para evaluar prediccion conformal en el pipeline IFRS 9 permitiria validar el enfoque propuesto en esta tesis bajo condiciones regulatorias reales, con datos de carteras activas y supervision directa. Esta direccion depende de la evolucion del apetito regulatorio por innovacion metodologica, pero la creciente demanda de transparencia en modelos de ML sugiere que el momento sera favorable en los proximos anios.
+
+**Monitoreo conformal en tiempo real.** La vision a largo plazo del pipeline propuesto es un sistema de monitoreo continuo que recalibra los intervalos conformales en tiempo real, detecta violaciones de cobertura por subgrupo en el momento en que ocurren, y ajusta automaticamente las politicas de asignacion y provision. Este sistema requeriria integracion con infraestructura de streaming (Kafka, Flink), almacenamiento de features en tiempo real (Feast online store), y un motor de decision que traduzca los intervalos actualizados en acciones operativas. La prediccion conformal online [@liu2026portfolio] y el control de riesgo conformal [@angelopoulos2024risk] proporcionan los fundamentos teoricos; la ingenieria de sistemas para implementarlos a escala bancaria es el desafio principal.
+
+### Direcciones metodologicas adicionales
+
+1. formalizacion completa del vinculo `alpha <-> robustez` en el Paper Estrella;
+2. extension de Mondrian hacia garantias mas cercanas a validez condicional, utilizando tecnicas como [@gibbs2024] y [@plassier2024];
+3. integracion de forecasting temporal y riesgos competitivos dentro de una policy IFRS9 mas fuerte;
+4. comparadores adicionales con decision-focused learning y CRO contextual [@patel2024; @chenreddy2024].
+
+| Item editorial / research | Paper natural | Capitulo Quarto mas cercano hoy |
+|---|---|---|
+| benchmark de variantes conformales | Paper 3 | @sec-mondrian |
+| uncertainty sets y trade-off alpha-robustez | Paper Estrella | @sec-robust-portfolio |
+| TS intervals y banda ECL | Paper 2 | @sec-ecl-calculation y @sec-ts-ecl |
+| A/B y regret economico | Paper Estrella | @sec-ab-testing |
+| gobernanza y warnings metodologicos | transversal | @sec-mrm |
+
+: Tabla estable de continuidad entre backlog editorial, papers y libro {#tbl-paper-chapter-bridge}
+
+### Direcciones de producto y plataforma
+
+- automatizar aun mas los reportes MRM y de companion editorial;
+- consolidar exportables selectivos a `.docx` para asesoria y revision;
+- convertir algunos anexos en catalogos generados automaticamente desde manifests.
+
+::: {.callout-note}
+## Cuales direcciones son mas prometedoras
+Basandose en los resultados actuales del proyecto, las tres direcciones con mayor relacion esfuerzo/impacto son: (1) la recalibracion conformal online, que resuelve la limitacion mas critica del pipeline actual con un costo de implementacion minimo; (2) la promocion de intervalos conformales para LGD y EAD, que completa la cuantificacion de incertidumbre del ECL con herramientas ya disponibles; y (3) los intervalos conformales sobre estimaciones CATE, que abren una linea de investigacion novedosa con potencial de publicacion independiente. Las tres se benefician directamente de la infraestructura ya construida en el proyecto y no requieren datos adicionales.
+:::
+
+### Regla de priorizacion
+
+La agenda debe seguir una disciplina simple:
+
+1. primero fortalecer claims ya casi defendibles;
+2. despues ampliar comparadores y teoria;
+3. solo al final abrir lineas totalmente nuevas.
+
+Con esa secuencia, el proyecto mantiene foco y evita diluir una contribucion que ya es cientificamente interesante.

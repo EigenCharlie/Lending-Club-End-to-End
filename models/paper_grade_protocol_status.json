@@ -364,9 +364,9 @@
     "governance": true,
     "protocol_frozen": true
   },
-  "final_run_tag": "None",
+  "final_run_tag": "champion-2026-03-12-mega-definitive",
   "final_run_promoted": null,
-  "final_run_comparison_path": "None",
+  "final_run_comparison_path": null,
   "final_rebuild_verified": null,
   "schema_version": "2026-03-13.1",
   "generated_at_utc": "2026-03-17T01:36:59.956729+00:00",

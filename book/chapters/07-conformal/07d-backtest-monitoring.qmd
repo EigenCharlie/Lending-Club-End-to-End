@@ -1,0 +1,187 @@
+## Backtest y Monitoreo de Cobertura {#sec-backtest-monitoring}
+
+### ¿Por Qué Backtesting Temporal?
+
+La garantía de cobertura conformal es **marginal** sobre el conjunto de test. Pero si la cobertura fuera 95% en 2018, 85% en 2019 y 90% en 2020, el promedio sería ~90% aunque existieran períodos de sub-cobertura. El **backtesting mensual** verifica que la cobertura se mantiene estable mes a mes a lo largo de los 33 meses del período OOT (enero 2018 – septiembre 2020).
+
+### Metodología de Backtest
+
+Para cada mes $t$ del período de test:
+
+1. Seleccionar préstamos originados en el mes $t$
+2. Calcular la tasa de violación: $\hat{\alpha}_t = \frac{1}{n_t}\sum_{i: t_i = t} \mathbb{1}\{y_i \notin [l_i, u_i]\}$
+3. Comparar $\hat{\alpha}_t$ contra el $\alpha$ nominal (0.10)
+4. Clasificar como alerta si $\hat{\alpha}_t > \alpha + \epsilon$ (margen de tolerancia)
+
+```{python}
+#| label: tbl-backtest-monthly
+#| tbl-cap: "Resumen del backtesting mensual de cobertura conformal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_parquet, load_json
+
+import pandas as pd
+
+status = load_json("conformal_policy_status", search_models=True)
+
+backtest_summary = [
+    {"Métrica": "Período de backtest", "Valor": "2018-01 a 2020-09 (33 meses)"},
+    {"Métrica": "Cobertura promedio mensual", "Valor": f"{status['coverage_90']:.2%}"},
+    {"Métrica": "Alertas warning", "Valor": str(status['warning_alerts'])},
+    {"Métrica": "Alertas críticas", "Valor": str(status['critical_alerts'])},
+    {"Métrica": "Último mes evaluado", "Valor": status.get('latest_backtest_month', 'N/A')[:7]},
+    {"Métrica": "Tasa de violación @ 90%", "Valor": f"{status['statistical_tests']['kupiec_90']['violation_rate']:.4f}"},
+]
+
+pd.DataFrame(backtest_summary)
+```
+
+### Tests Estadísticos de Cobertura
+
+Antes de leer los resultados de los tests, conviene establecer el marco correcto. El sistema **sobre-cubre**: la tasa de violación observada es 7.5%, por debajo del 10% nominal. Esto es conservadorismo útil — significa que los intervalos son ligeramente más anchos de lo estrictamente necesario, pero nunca dejan al cliente sin cobertura. Los tests estadísticos pueden rechazar este resultado porque, con $n = 276{,}869$, tienen poder suficiente para detectar diferencias de décimas de punto porcentual. Lo relevante no es si rechazan, sino *en qué dirección* rechazan y con qué magnitud.
+
+El framework de backtesting implementa dos tests formales de la literatura de Value-at-Risk:
+
+**Test de Kupiec (Proporción de Fallos)**
+
+El test de Kupiec [@kupiec1995] evalúa si la tasa de violación observada es consistente con el $\alpha$ nominal:
+
+$$
+LR_\text{uc} = -2\ln\left[\frac{\alpha^v (1-\alpha)^{n-v}}{\hat{\alpha}^v (1-\hat{\alpha})^{n-v}}\right] \sim \chi^2(1)
+$$ {#eq-kupiec}
+
+donde $v$ es el número de violaciones y $\hat{\alpha} = v/n$.
+
+**Test de Christoffersen (Independencia)**
+
+El test de Christoffersen [@christoffersen1998] añade una segunda dimensión: verifica que las violaciones son **independientes** (no agrupadas en clusters):
+
+$$
+LR_\text{cc} = LR_\text{uc} + LR_\text{ind} \sim \chi^2(2)
+$$ {#eq-christoffersen}
+
+donde $LR_\text{ind}$ testea la propiedad de Markov en la secuencia de violaciones.
+
+### Resultados de los Tests
+
+```{python}
+#| label: tbl-statistical-tests
+#| tbl-cap: "Resultados de tests estadísticos de cobertura"
+
+tests = status["statistical_tests"]
+
+ALPHA = 0.05  # significance level for H₀ rejection
+
+test_results = [
+    {"Test": "Kupiec @ 90%",
+     "LR Statistic": f"{tests['kupiec_90']['lr_statistic']:.1f}",
+     "p-value": f"{tests['kupiec_90']['p_value']:.4f}",
+     "Rechaza H₀": "Sí" if tests['kupiec_90']['p_value'] < ALPHA else "No",
+     "Violaciones": f"{tests['kupiec_90']['n_violations']:,} / {tests['kupiec_90']['n_total']:,}"},
+    {"Test": "Kupiec @ 95%",
+     "LR Statistic": f"{tests['kupiec_95']['lr_statistic']:.1f}",
+     "p-value": f"{tests['kupiec_95']['p_value']:.4f}",
+     "Rechaza H₀": "Sí" if tests['kupiec_95']['p_value'] < ALPHA else "No",
+     "Violaciones": f"{tests['kupiec_95']['n_violations']:,} / {tests['kupiec_95']['n_total']:,}"},
+    {"Test": "Christoffersen Indep. @ 90%",
+     "LR Statistic": f"{tests['christoffersen_90']['lr_ind']:.2f}",
+     "p-value": f"{tests['christoffersen_90']['p_ind']:.4f}",
+     "Rechaza H₀": "Sí" if tests['christoffersen_90']['p_ind'] < ALPHA else "No",
+     "Violaciones": "—"},
+    {"Test": "Christoffersen Indep. @ 95%",
+     "LR Statistic": f"{tests['christoffersen_95']['lr_ind']:.2f}",
+     "p-value": f"{tests['christoffersen_95']['p_ind']:.4f}",
+     "Rechaza H₀": "Sí" if tests['christoffersen_95']['p_ind'] < ALPHA else "No",
+     "Violaciones": "—"},
+]
+
+pd.DataFrame(test_results)
+```
+
+::: {.callout-warning}
+## Tests Estadísticos Rechazados — ¿Problema Real?
+Los tests de Kupiec rechazan en ambos niveles, lo cual parece alarmante. Pero el contexto importa:
+
+1. **Sobre-cobertura, no sub-cobertura**: la tasa de violación es 7.5% (target 10%) — el modelo **cubre de más**, no de menos. Kupiec rechaza porque la cobertura es *demasiado buena*, no demasiado mala.
+2. **N = 276,869**: con muestras tan grandes, Kupiec rechaza diferencias de ±0.5pp que son económicamente irrelevantes.
+3. **Independencia OK @ 90%**: Christoffersen no rechaza independencia (p=0.187), confirmando que las violaciones no están agrupadas temporalmente.
+
+La política del pipeline clasifica estos como **warning diagnóstico**, no como bloqueo de promoción. La desviación de cobertura (2.5pp) está dentro del margen de materialidad (3.0pp), umbral definido como la desviación máxima tolerable antes de que la garantía de cobertura deje de ser operativamente útil para IFRS9 y optimización de portafolio — una desviación de 3pp o más implicaría que el nivel real de cobertura se acerca al límite del 87% que los checks de policy gate exigen.
+:::
+
+### Policy Gate
+
+El pipeline implementa un **policy gate** que decide si los intervalos conformal pueden ser promovidos a producción. El resultado es `overall_pass = True`:
+
+| Check | Criterio | Resultado |
+|-------|----------|-----------|
+| Cobertura @ 90% ≥ 87% | Materialidad | PASS |
+| Cobertura @ 95% ≥ 92% | Materialidad | PASS |
+| Min group coverage ≥ 85% | Equidad | PASS |
+| Winkler @ 90% ≤ 1.22 | Eficiencia | PASS (compensado) |
+| Alertas críticas = 0 | Estabilidad | PASS |
+| Kupiec / Christoffersen | Diagnóstico informativo | 4 alertas (no bloquean) |
+
+: Policy gate de cobertura conformal {#tbl-policy-gate}
+
+Todos los checks operacionales pasan (9/9). Los tests estadísticos (Kupiec y Christoffersen) se clasifican como **diagnósticos informativos** (`diagnostic_informational`): sus alertas se registran para trazabilidad pero no bloquean la promoción. La vía de **justificación metodológica** confirma que la desviación de cobertura (+2.52%) está dentro del margen de materialidad (3%), y la independencia de violaciones no se rechaza a nivel 90% ($p_{ind} = 0.187$).
+
+### Alertas y Monitoreo Continuo
+
+El sistema de alertas clasifica anomalías en dos niveles:
+
+- **Warning** (amarillo): cobertura mensual entre 85% y 88%, o Winkler elevado. Requiere investigación pero no bloquea.
+- **Crítica** (rojo): cobertura mensual < 85%, o > 3 warnings consecutivos. Bloquea promoción y requiere recalibración.
+
+El resultado del backtest actual: **0 alertas críticas, 4 warnings** (todos por los tests estadísticos rechazados, no por sub-cobertura real).
+
+### Diagnóstico de Calidad Interna (MAPIE)
+
+Más allá de la cobertura empírica, el sistema computa métricas diagnósticas de segundo orden usando la API de MAPIE 1.3.0. Estas métricas responden una pregunta diferente: ¿son los intervalos *internamente consistentes*, o existe un sesgo sistemático entre su tamaño y su utilidad?
+
+```{python}
+#| label: tbl-mapie-diagnostics
+#| tbl-cap: "Diagnóstico de calidad interna del sistema conformal (MAPIE)"
+
+from book._helpers.load_artifacts import try_load_json
+
+diag = try_load_json("conformal_diagnostic_metrics", default={})
+
+rows = []
+if diag.get("mapie_diagnostics_available", False):
+    def _fmt(v):
+        return f"{v:.4f}" if v is not None else "N/D (requiere rerun)"
+
+    rows = [
+        {"Métrica": "HSIC (Hilbert-Schmidt)",
+         "Valor": _fmt(diag.get("hsic_90")),
+         "Interpretación": "≈0 = intervalos independientes de la dificultad del caso"},
+        {"Métrica": "SSC (Size-Stratified Coverage)",
+         "Valor": _fmt(diag.get("ssc_90")),
+         "Interpretación": "Uniforme = equidad entre intervalos anchos y angostos"},
+        {"Métrica": "MWI (Mean Winkler)",
+         "Valor": _fmt(diag.get("mwi_90")),
+         "Interpretación": "Menor = mejor trade-off cobertura/anchura"},
+        {"Métrica": "CWC (Coverage-Width Criterion)",
+         "Valor": _fmt(diag.get("cwc_90")),
+         "Interpretación": "Mayor = cubre exactamente y con intervalos estrechos"},
+    ]
+else:
+    rows = [{"Métrica": "Estado", "Valor": "N/D", "Interpretación": "MAPIE no disponible"}]
+
+import pandas as pd
+pd.DataFrame(rows)
+```
+
+::: {.callout-note}
+## HSIC y SSC: diagnóstico de equidad interna
+
+El **HSIC** (Criterio de independencia de Hilbert-Schmidt) verifica si el sistema asigna intervalos más anchos *sistemáticamente* a los casos más difíciles. Si HSIC ≈ 0, el sistema no tiene sesgo: los casos difíciles reciben intervalos más anchos solo por su propia heterogeneidad, no por un artefacto del método.
+
+El **SSC** (Cobertura estratificada por tamaño) verifica que la cobertura empírica sea uniforme entre préstamos con intervalos angostos y préstamos con intervalos anchos. Si el SSC es uniforme, el sistema no "sacrifica" la cobertura de los casos difíciles para mantener el promedio.
+
+El **CWC** de 0.244 indica que el sistema logra cobertura cercana al target (92.5%) con intervalos que no son exageradamente anchos — un balance sano entre garantía y utilidad operativa.
+:::

@@ -1,0 +1,353 @@
+## Optimización e Investigación de Operaciones {#sec-optimization-or}
+
+La investigación de operaciones (OR) proporciona el marco matemático para tomar decisiones óptimas bajo restricciones. En riesgo crediticio, esto se traduce en preguntas como: *¿a qué préstamos asignar capital para maximizar retorno manteniendo el riesgo agregado bajo control?* Esta sección presenta los fundamentos de optimización necesarios para entender el pipeline de este proyecto, desde la programación lineal hasta la optimización robusta con conjuntos de incertidumbre conformales.
+
+### Programación Lineal (LP) {#sec-lp}
+
+La **Programación Lineal** es la forma más fundamental de optimización matemática. Un problema de LP consiste en maximizar (o minimizar) una función objetivo lineal sujeta a restricciones lineales de igualdad y desigualdad.
+
+::: {.equation-card}
+<span class="equation-card__label">Ecuación interpretada</span>
+
+::: {.equation-card__formula}
+$$
+\max_{\mathbf{x}} \; \mathbf{c}^{\top}\mathbf{x}
+\quad \text{s.a.} \quad
+A\mathbf{x}\leq\mathbf{b}, \; \mathbf{x}\geq 0
+$$
+:::
+
+::: {.equation-card__body}
+**Lectura en este proyecto:** elegir cuánto capital asignar a cada préstamo para empujar el retorno esperado hacia arriba sin violar presupuesto, concentración ni tolerancia agregada al riesgo. La ecuación importa menos como símbolo abstracto y más como traducción formal de una pregunta de comité: *qué financiar y cuánto*.
+:::
+:::
+
+#### Forma Estándar
+
+Un LP en forma estándar se escribe como:
+
+$$
+\begin{aligned}
+\max_{\mathbf{x}} \quad & \mathbf{c}^\top \mathbf{x} \\
+\text{s.a.} \quad & A\mathbf{x} \leq \mathbf{b} \\
+& \mathbf{x} \geq \mathbf{0}
+\end{aligned}
+$$ {#eq-lp-standard}
+
+donde:
+
+- $\mathbf{x} \in \mathbb{R}^n$ es el **vector de variables de decisión** (en nuestro caso, la fracción de capital asignada a cada préstamo),
+- $\mathbf{c} \in \mathbb{R}^n$ es el **vector de costos** u **objetivo** (retornos esperados netos de pérdida),
+- $A \in \mathbb{R}^{m \times n}$ es la **matriz de restricciones**,
+- $\mathbf{b} \in \mathbb{R}^m$ es el **vector de recursos** o **límites** de las restricciones.
+
+#### Conceptos Clave
+
+- **Región factible**: El conjunto de todos los $\mathbf{x}$ que satisfacen simultáneamente todas las restricciones. En LP, esta región es un **poliedro convexo** (la intersección de semiespacios).
+- **Solución óptima**: Un punto $\mathbf{x}^*$ en la región factible que alcanza el valor máximo (o mínimo) de la función objetivo. El teorema fundamental de la programación lineal garantiza que, si existe una solución óptima finita, al menos una se encuentra en un **vértice** del poliedro.
+- **Infactibilidad**: Si las restricciones son contradictorias (no existe ningún $\mathbf{x}$ que las satisfaga simultáneamente), el problema es **infactible**.
+- **No-acotamiento**: Si la función objetivo puede crecer indefinidamente dentro de la región factible, el problema es **no acotado**.
+- **Dualidad**: Todo LP tiene un **problema dual** asociado. Si el primal maximiza, el dual minimiza. El teorema de dualidad fuerte establece que, si ambos problemas son factibles, sus valores óptimos coinciden.
+
+::: {.callout-note}
+## LP en asignación de portafolio crediticio
+En este proyecto, el LP de asignación de portafolio tiene la forma:
+
+- **Variables**: $x_i \in [0, 1]$ = fracción del préstamo $i$ que se financia.
+- **Objetivo**: maximizar retorno esperado neto = $\sum_i x_i \cdot \text{monto}_i \cdot (\text{tasa}_i - \text{PD}_i \cdot \text{LGD}_i)$.
+- **Restricciones**: presupuesto total, PD promedio del portafolio $\leq$ umbral, concentración máxima por préstamo.
+
+El LP se resuelve en milisegundos con solvers modernos, lo que permite explorar miles de escenarios de política.
+:::
+
+### Programación Lineal Entera Mixta (MILP) {#sec-milp}
+
+En muchos problemas reales, algunas decisiones son **discretas**: financiar o no financiar un préstamo, abrir o cerrar una sucursal, seleccionar $k$ de $n$ candidatos. Cuando las variables de decisión incluyen tanto continuas como enteras (típicamente binarias), el problema se convierte en un **MILP**.
+
+$$
+\begin{aligned}
+\max_{\mathbf{x}, \mathbf{y}} \quad & \mathbf{c}^\top \mathbf{x} + \mathbf{d}^\top \mathbf{y} \\
+\text{s.a.} \quad & A\mathbf{x} + B\mathbf{y} \leq \mathbf{b} \\
+& \mathbf{x} \geq \mathbf{0}, \quad \mathbf{y} \in \{0, 1\}^p
+\end{aligned}
+$$ {#eq-milp}
+
+donde $\mathbf{y} \in \{0, 1\}^p$ son las **variables binarias** de decisión.
+
+#### Diferencias con LP
+
+| Aspecto | LP | MILP |
+|---------|-----|------|
+| Variables | Continuas | Continuas + enteras/binarias |
+| Región factible | Poliedro convexo | No convexo (puntos discretos) |
+| Complejidad | Polinomial (Simplex, punto interior) | NP-hard en general |
+| Solución | Vértice del poliedro | Branch-and-bound / Branch-and-cut |
+| Tiempo de solución | Milisegundos (miles de variables) | Segundos a horas (según instancia) |
+
+: Comparación entre LP y MILP {#tbl-lp-vs-milp}
+
+::: {.callout-tip}
+## Decisión de diseño: LP vs MILP
+En este proyecto utilizamos **LP con variables continuas** $x_i \in [0,1]$ en lugar de MILP con variables binarias $y_i \in \{0,1\}$. Esto se justifica porque Lending Club permite financiar fracciones de préstamos (participación parcial). La relajación continua resuelve órdenes de magnitud más rápido y permite explorar el espacio de políticas robustas con miles de candidatos ($n \leq 80{,}000$).
+:::
+
+### Optimización Robusta {#sec-robust-optimization}
+
+La optimización clásica (LP, MILP) asume que los parámetros del problema --- costos, coeficientes, límites --- son **conocidos con certeza**. En la práctica, los parámetros son **estimaciones con incertidumbre**: la PD predicha por un modelo de ML no es un valor exacto, sino una estimación sujeta a error.
+
+La **optimización robusta** aborda esta realidad buscando soluciones que sean **factibles y de buen desempeño para todos los valores posibles** de los parámetros inciertos dentro de un **conjunto de incertidumbre** predefinido.
+
+#### Formulación General
+
+Sea $\mathcal{U}$ un conjunto de incertidumbre que contiene los posibles valores del parámetro incierto $\mathbf{d}$. La formulación robusta del LP es:
+
+$$
+\begin{aligned}
+\max_{\mathbf{x}} \quad & \min_{\mathbf{d} \in \mathcal{U}} \; \mathbf{c}(\mathbf{d})^\top \mathbf{x} \\
+\text{s.a.} \quad & A(\mathbf{d})\mathbf{x} \leq \mathbf{b}(\mathbf{d}), \quad \forall \mathbf{d} \in \mathcal{U} \\
+& \mathbf{x} \geq \mathbf{0}
+\end{aligned}
+$$ {#eq-robust-general}
+
+La clave es el operador $\min_{\mathbf{d} \in \mathcal{U}}$: el optimizador busca la **mejor decisión asumiendo que la naturaleza jugará en su contra**, eligiendo la realización más adversa de la incertidumbre dentro de $\mathcal{U}$. Es un juego minimax.
+
+#### El Framework de Bertsimas y Sim
+
+El enfoque seminal de @bertsimas2004 introduce un parámetro $\Gamma$ (Gamma) que controla el **grado de conservadurismo** de la solución robusta. La intuición es que, en la práctica, es improbable que *todos* los parámetros inciertos alcancen simultáneamente su peor caso.
+
+Considérese una restricción nominal:
+
+$$
+\sum_{j=1}^{n} \bar{a}_j x_j \leq b
+$$ {#eq-nominal-constraint}
+
+donde $\bar{a}_j$ es el valor nominal del coeficiente $a_j$ y su valor real puede variar en el intervalo $[\bar{a}_j - \hat{a}_j, \; \bar{a}_j + \hat{a}_j]$ con $\hat{a}_j$ la **semi-amplitud** de incertidumbre.
+
+El parámetro $\Gamma \in [0, n]$ limita el número de coeficientes que pueden desviarse simultáneamente de su valor nominal. La restricción robusta de Bertsimas--Sim se escribe:
+
+$$
+\sum_{j=1}^{n} \bar{a}_j x_j + \max_{\substack{S \subseteq \{1,\ldots,n\} \\ |S| \leq \Gamma}} \sum_{j \in S} \hat{a}_j |x_j| \leq b
+$$ {#eq-bertsimas-sim}
+
+donde el segundo término representa el **peor caso** de que a lo sumo $\Gamma$ coeficientes se desvíen al máximo.
+
+::: {.callout-important}
+## Interpretación de $\Gamma$
+- $\Gamma = 0$: Solución nominal (sin protección contra incertidumbre). Equivalente a ignorar la incertidumbre.
+- $\Gamma = n$: Protección total (todos los parámetros en su peor caso simultáneamente). Máximamente conservador.
+- $0 < \Gamma < n$: Protección parcial. Bertsimas y Sim demuestran que la probabilidad de violación de la restricción decrece **exponencialmente** con $\Gamma$, lo que permite calibrar el nivel de conservadurismo de forma precisa.
+
+En este proyecto, $\Gamma$ se controla mediante el parámetro `gamma` en las políticas de incertidumbre (`blended_uncertainty`, `tail_blended_uncertainty`, etc.), que interpola entre la PD puntual y el límite superior conformal.
+:::
+
+La gran ventaja de este framework es que la formulación robusta resultante se resuelve como un **LP** (no requiere solvers de optimización robusta especializados), con apenas $n$ variables y $n$ restricciones adicionales respecto al LP nominal [@bertsimas2004].
+
+### Conjuntos de Incertidumbre de Caja (Box Uncertainty Sets) {#sec-box-uncertainty}
+
+Un **conjunto de incertidumbre de caja** es la forma más simple de representar incertidumbre: para cada parámetro incierto definimos un valor mínimo y un valor máximo aceptables, y el optimizador asume que la realidad podría caer en cualquier punto dentro de ese rango.
+
+La forma más útil de entenderlo en este proyecto no es con geometría abstracta, sino con un ejemplo de negocio:
+
+- si un préstamo tiene PD puntual de `0.12`,
+- pero el módulo conformal dice que su rango plausible es `[0.08, 0.19]`,
+- entonces el optimizador no trabaja con un único número fijo, sino con la idea de que ese préstamo podría comportarse como un caso moderado o como uno bastante más riesgoso.
+
+Cuando esto se hace para todos los préstamos elegibles, el portafolio deja de optimizar contra una foto puntual y empieza a optimizar contra una banda de riesgo plausible.
+
+#### Conexión con Predicción Conformal
+
+La innovación central de este proyecto es que los conjuntos de incertidumbre de caja se construyen **directamente a partir de los intervalos de predicción conformal**. Es decir, los límites inferior y superior no salen de una heurística arbitraria, sino de la misma capa que ya cuantificó incertidumbre en la PD.
+
+En Lending Club, esto significa que dos préstamos con PD puntual parecida pueden entrar al optimizador con cajas muy distintas:
+
+- uno puede tener un rango estrecho y, por tanto, una decisión relativamente confiable;
+- otro puede tener un rango ancho, lo que obliga al optimizador a tratarlo con más cautela.
+
+Esto conecta dos campos que históricamente han operado por separado:
+
+| Componente | Campo de origen | Aporte al pipeline |
+|------------|----------------|-------------------|
+| Intervalos $[\text{PD}^{\text{low}}, \text{PD}^{\text{high}}]$ | Predicción conformal (ML/estadística) | **Garantía de cobertura** finita sin supuestos distribucionales |
+| Conjunto $\mathcal{U}_{\text{box}}$ | Optimización robusta (OR) | **Protección contra peor caso** dentro del conjunto |
+| Pipeline completo | Predict-then-Optimize | Decisiones óptimas con **incertidumbre cuantificada y garantizada** |
+
+: Conexión entre predicción conformal y optimización robusta {#tbl-conformal-robust-connection}
+
+::: {.callout-note}
+## Implementación en el proyecto
+En `src/optimization/robust_opt.py`, la función `build_box_uncertainty_set()` toma los vectores `pd_low` y `pd_high` del predictor conformal y arma los rangos que luego consume el optimizador. El modelo de portafolio en `src/optimization/portfolio_model.py` utiliza diferentes **políticas de incertidumbre** que deciden cuánto peso dar a la PD puntual y cuánto peso dar al límite superior conformal.
+:::
+
+@johnstone2021 formalizan esta conexión y muestran por qué tiene sentido pasar de intervalos conformales a conjuntos de incertidumbre utilizables por optimización robusta.
+
+### Precio de la Robustez (Price of Robustness) {#sec-price-of-robustness}
+
+Toda protección contra incertidumbre tiene un costo. El **Precio de la Robustez** (PoR) cuantifica cuánto retorno se sacrifica al adoptar una solución robusta en lugar de la solución nominal que ignora la incertidumbre.
+
+En lenguaje simple, el PoR responde a esta pregunta: **¿cuánto dinero dejo sobre la mesa por volverme más prudente?**
+
+Ejemplo con el proyecto:
+
+- una política nominal puede prometer un retorno más alto porque cree ciegamente en la PD puntual;
+- una política robusta acepta un retorno algo menor para no sobreexponerse a préstamos cuyo riesgo real podría estar más cerca de `PD_high`;
+- la diferencia relativa entre ambas es el Precio de la Robustez.
+
+Si el sacrificio es pequeño, la prudencia sale barata. Si el sacrificio es demasiado grande, probablemente estamos siendo más conservadores de lo que el negocio puede justificar.
+
+#### Interpretación Práctica
+
+| PoR | Interpretación |
+|-----|---------------|
+| 0% | Sin protección (solución nominal) |
+| 1--5% | Protección moderada con sacrificio mínimo |
+| 5--15% | Protección significativa; típica en portafolios regulados |
+| > 15% | Excesivamente conservador; puede indicar intervalos demasiado anchos |
+
+: Guía interpretativa del Precio de la Robustez {#tbl-por-interpretation}
+
+::: {.callout-warning}
+## Umbral del proyecto
+En la configuración del proyecto (`configs/optimization.yaml`), el parámetro `max_price_of_robustness_pct` establece un umbral de `-15%`. Si una política robusta sacrifica más del 15% de retorno respecto al equivalente no robusto, se activa la política de *fallback* (`nonrobust_equivalent`). Este mecanismo evita que intervalos conformales excesivamente conservadores produzcan portafolios poco defendibles desde negocio.
+:::
+
+La frontera de Pareto entre retorno y robustez se explora en el script `scripts/optimize_portfolio_tradeoff.py`, que genera el *tradeoff curve* variando el parámetro $\gamma$ y registrando el PoR resultante.
+
+### Smart Predict, then Optimize (SPO+) {#sec-spo-plus}
+
+Esta sección existe porque el pipeline del libro no se detiene en “predecir bien”: necesita que la predicción ayude a **decidir mejor**. Antes de entrar a la pérdida SPO+, conviene fijar esa intuición en lenguaje de negocio: un error pequeño en MSE puede ser irrelevante, mientras que un error que cruce un umbral de aprobación o cambie una asignación de capital sí puede destruir valor.
+
+#### El Problema del Two-Stage Pipeline
+
+El enfoque clásico en ML operacional sigue un pipeline de **dos etapas** desacopladas:
+
+1. **Predict**: Entrenar un modelo ML para minimizar error de predicción (MSE, log-loss, etc.).
+2. **Optimize**: Usar las predicciones como entrada para un modelo de optimización que toma decisiones.
+
+El problema fundamental es que **minimizar el error de predicción no es equivalente a maximizar la calidad de las decisiones**. Un modelo con menor MSE no necesariamente produce mejores decisiones de portafolio, porque las predicciones que más importan para la decisión óptima no son necesariamente las que más contribuyen al MSE agregado.
+
+::: {.callout-tip}
+## Ejemplo intuitivo
+Supongamos dos préstamos con PD real de 0.09 y 0.11, y un umbral de aprobación en PD = 0.10.
+
+- **Modelo A** (MSE menor): predice 0.085 y 0.115. Buen MSE, decisión correcta (rechaza el segundo).
+- **Modelo B** (MSE mayor): predice 0.12 y 0.08. Peor MSE, pero **decisión incorrecta** (aprueba el segundo, rechaza el primero).
+
+La pérdida de predicción no captura que el error de B cruza el umbral de decisión, generando una mala asignación de capital.
+:::
+
+#### La Pérdida SPO+
+
+@elmachtoub2022 proponen la pérdida **SPO+** (*Smart Predict, then Optimize*), que entrena el modelo de predicción directamente para optimizar la calidad de las decisiones downstream. La idea central es reemplazar la pérdida de predicción por una pérdida de **regret** (arrepentimiento decisional).
+
+Sea $\mathbf{c}$ el vector de costos verdadero y $\hat{\mathbf{c}}$ la predicción. Sea $\mathbf{x}^*(\mathbf{c})$ la decisión óptima bajo costos verdaderos y $\mathbf{x}^*(\hat{\mathbf{c}})$ la decisión tomada con la predicción. El **regret** se define como:
+
+$$
+\text{Regret}(\hat{\mathbf{c}}, \mathbf{c}) = \mathbf{c}^\top \mathbf{x}^*(\hat{\mathbf{c}}) - \mathbf{c}^\top \mathbf{x}^*(\mathbf{c})
+$$ {#eq-regret}
+
+Es decir, la diferencia de costo real entre la decisión tomada con la predicción y la decisión que se habría tomado con información perfecta. El regret es siempre $\geq 0$.
+
+La pérdida SPO+ es una **cota superior convexa** del regret, diseñada para ser diferenciable y tratable computacionalmente:
+
+$$
+\ell_{\text{SPO+}}(\hat{\mathbf{c}}, \mathbf{c}) = -\min_{\mathbf{x} \in \mathcal{X}} (2\hat{\mathbf{c}} - \mathbf{c})^\top \mathbf{x} + 2\hat{\mathbf{c}}^\top \mathbf{x}^*(\mathbf{c}) - \mathbf{c}^\top \mathbf{x}^*(\mathbf{c})
+$$ {#eq-spo-plus-loss}
+
+donde $\mathcal{X}$ es el conjunto factible del problema de optimización.
+
+#### Propiedades de SPO+
+
+1. **Consistencia Fisher**: Minimizar SPO+ en expectativa implica minimizar el regret verdadero.
+2. **Convexidad**: $\ell_{\text{SPO+}}$ es convexa en $\hat{\mathbf{c}}$, lo que permite optimización con gradiente.
+3. **Subgradiente simple**: El subgradiente respecto a $\hat{\mathbf{c}}$ es $2(\mathbf{x}^*_{\text{SPO}} - \mathbf{x}^*(\mathbf{c}))$, donde $\mathbf{x}^*_{\text{SPO}}$ es la solución del LP con costos $2\hat{\mathbf{c}} - \mathbf{c}$.
+4. **Generalidad**: Funciona para cualquier problema de optimización lineal (LP, shortest path, knapsack, etc.).
+
+#### Comparación: MSE vs SPO+
+
+| Aspecto | MSE (Two-Stage) | SPO+ (Decision-Focused) |
+|---------|-----------------|------------------------|
+| Objetivo | Minimizar error de predicción | Minimizar regret decisional |
+| Gradiente | $2(\hat{\mathbf{c}} - \mathbf{c})$ | $2(\mathbf{x}^*_{\text{SPO}} - \mathbf{x}^*(\mathbf{c}))$ |
+| Sensibilidad a la decisión | Ninguna | Total: penaliza errores que cambian la decisión óptima |
+| Costo computacional | Bajo (sin resolver LP) | Alto (requiere resolver LP en cada forward pass) |
+| Garantía teórica | Consistencia estadística para predicción | Consistencia Fisher para decisión óptima |
+
+: Comparación entre pérdida MSE y SPO+ {#tbl-mse-vs-spo}
+
+#### Aplicación en Riesgo Crediticio
+
+En este proyecto, SPO+ se aplica de la siguiente manera:
+
+1. Los **costos** $\mathbf{c}$ son las PD calibradas de cada préstamo (costos continuos, no binarios).
+2. El **problema de optimización** es el LP de asignación de portafolio.
+3. Una **red neuronal** (MLP) se entrena con SPO+ loss para predecir PDs que minimicen el regret de la asignación de portafolio.
+4. El resultado se compara contra el pipeline two-stage (CatBoost PD → LP) para cuantificar la **reducción de regret**.
+
+::: {.callout-note}
+## Resultado empírico
+El pipeline SPO+ v2 del proyecto logra una **reducción de regret del 49.1%** respecto al two-stage baseline, con significancia estadística (Wilcoxon $p < 0.0001$). Esto demuestra que optimizar directamente la calidad de la decisión crediticia produce portafolios sustancialmente mejores que optimizar la precisión de la predicción y luego usar esas predicciones como entrada a un optimizador.
+:::
+
+Un aspecto crítico de implementación es que SPO+ requiere costos **continuos**, no binarios. Usar labels binarios de default (0/1) produce un paisaje de pérdida plano donde el gradiente de SPO+ es casi cero. Por esto, el proyecto utiliza las PDs calibradas como costos del LP, lo que produce un paisaje de gradientes informativo.
+
+### El Solver HiGHS {#sec-highs-solver}
+
+La resolución de los problemas LP y MILP formulados en este proyecto se realiza mediante **HiGHS** (High-performance Software for Linear Optimization), un solver de código abierto desarrollado en la Universidad de Edimburgo.
+
+#### Justificación de la elección
+
+| Criterio | HiGHS | Gurobi | CPLEX |
+|----------|-------|--------|-------|
+| Licencia | MIT (código abierto) | Comercial (\$\$\$) | Comercial (\$\$\$) |
+| Rendimiento LP | Estado del arte | Estado del arte | Estado del arte |
+| Rendimiento MILP | Competitivo | Superior | Superior |
+| Reproducibilidad | Total (sin licencia) | Limitada (requiere licencia) | Limitada (requiere licencia) |
+| Integración Python | `highspy`, Pyomo, CVXPY | `gurobipy`, Pyomo | `docplex`, Pyomo |
+| Uso académico | Sin restricciones | Licencia académica gratuita | Licencia académica gratuita |
+
+: Comparación de solvers de optimización {#tbl-solver-comparison}
+
+::: {.callout-note}
+## Decisión de diseño
+Se eligió HiGHS por tres razones: (1) **reproducibilidad total** --- cualquier persona puede ejecutar el pipeline sin obtener una licencia comercial; (2) rendimiento suficiente para las instancias del proyecto (hasta 80,000 variables, resuelto en milisegundos a segundos); y (3) integración nativa con Pyomo, el framework de modelado algebraico utilizado en `src/optimization/portfolio_model.py`. Para instancias de escala industrial donde MILP con cientos de miles de variables binarias sea necesario, Gurobi o CPLEX ofrecerían tiempos de solución menores.
+:::
+
+En el proyecto, HiGHS se invoca a través de Pyomo con la configuración definida en `configs/optimization.yaml`: tiempo límite de 300 segundos y 16 threads de paralelismo.
+
+### Pipeline Integrado: Predict-then-Optimize con Incertidumbre Conformal {#sec-integrated-pipeline}
+
+El pipeline completo del proyecto integra todos los conceptos presentados en esta sección en una cadena coherente:
+
+```{=html}
+<div class="pipeline-inline" aria-label="Cadena integrada predict-then-optimize con incertidumbre conformal">
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">CatBoost PD</span><span class="pipeline-inline__meta">Predicción</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Calibración</span><span class="pipeline-inline__meta">Platt / Isotonic</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">Mondrian</span><span class="pipeline-inline__meta">Intervalos</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">[PD_low, PD_high]</span><span class="pipeline-inline__meta">Garantía 1−α</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">U_box</span><span class="pipeline-inline__meta">Conjuntos</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">LP Robusto</span><span class="pipeline-inline__meta">HiGHS / Pyomo</span></span>
+  <span class="pipeline-inline__arrow" aria-hidden="true">→</span>
+  <span class="pipeline-inline__step"><span class="pipeline-inline__label">x*</span><span class="pipeline-inline__meta">Portafolio</span></span>
+</div>
+```
+
+Este pipeline tiene tres propiedades que lo distinguen del enfoque estándar en credit risk analytics:
+
+1. **Garantía de cobertura**: Los intervalos conformales tienen cobertura $\geq 1 - \alpha$ en muestra finita, sin supuestos distribucionales.
+2. **Protección contra incertidumbre**: La solución robusta es factible para cualquier realización de la PD dentro del conjunto de incertidumbre.
+3. **Costo controlado**: El Precio de la Robustez cuantifica explícitamente el tradeoff retorno-resiliencia, permitiendo decisiones informadas.
+
+El enfoque SPO+ complementa este pipeline: donde el pipeline clásico (predict-then-optimize) toma las predicciones como dadas y optimiza sobre ellas, SPO+ cierra el ciclo entrenando el predictor para que produzca las predicciones que generen las mejores *decisiones*, no las mejores *predicciones*.
+
+### Referencias Clave {#sec-optimization-references}
+
+Las referencias fundamentales para los conceptos de esta sección son:
+
+- **@bertsimas2004** — *The Price of Robustness*: Introduce el framework de optimización robusta con el parámetro $\Gamma$ que controla el conservadurismo, demostrando que la protección contra incertidumbre tiene un costo predecible y controlable. Formulación tratable (LP) para problemas robustos.
+- **@elmachtoub2022** — *Smart Predict, then Optimize*: Propone la pérdida SPO+ para entrenamiento decision-focused, demostrando consistencia Fisher y superioridad empírica sobre el pipeline two-stage desacoplado. Publicado en *Management Science*.
+- **@johnstone2021** — *Conformal Uncertainty Sets for Robust Optimization*: Formaliza la conexión entre intervalos conformales y conjuntos de incertidumbre para optimización robusta, proporcionando la base teórica para el uso de predicción conformal en el contexto de OR.

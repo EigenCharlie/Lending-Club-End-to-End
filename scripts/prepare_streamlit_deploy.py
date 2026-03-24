@@ -18,6 +18,19 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "dist" / "streamlit_deploy"
 PRIMARY_BASELINE_REGISTRY_REL = "configs/baselines/canonical_operational_baseline.json"
 LEGACY_BASELINE_REGISTRY_REL = "configs/baselines/core_official_baseline.json"
+GPU_REPLAY_SHOWCASE_TAGS = [
+    "2026-03-09-official-gpu-replay-rapids-final",
+    "2026-03-10-tradeoff-full-v3",
+    "ifrs9-mc-correlated-smoke",
+    "2026-03-10-pd-rapids-benchmark-v1",
+]
+GPU_INSIGHT_SHOWCASE_TAGS = [
+    "2026-03-10-rapids-insight-v4",
+]
+SHOWCASE_DOC_FILES = [
+    "docs/backlog-papers-unified.md",
+    "docs/backlog-13-03.md",
+]
 
 DATASET_SHAPE_ASSETS: list[tuple[str, str]] = [
     ("data/raw/Loan_status_2007-2020Q3.csv", "csv"),
@@ -40,6 +53,8 @@ REQUIRED_DIRS = [
     "reports/dvc",
     "reports/gpu_benchmark",
     "dbt_project/models",
+    *[f"reports/gpu_replay/{tag}" for tag in GPU_REPLAY_SHOWCASE_TAGS],
+    *[f"reports/gpu_insights/{tag}" for tag in GPU_INSIGHT_SHOWCASE_TAGS],
 ]
 
 OPTIONAL_DIRS = [
@@ -49,6 +64,7 @@ OPTIONAL_DIRS = [
 REQUIRED_FILES = [
     PRIMARY_BASELINE_REGISTRY_REL,
     LEGACY_BASELINE_REGISTRY_REL,
+    *SHOWCASE_DOC_FILES,
     "requirements.streamlit.txt",
     "docs/LCDataDictionary.xlsx",
     "feature_repo/feature_views.py",
@@ -82,6 +98,7 @@ REQUIRED_FILES = [
     "data/processed/conformal_backtest_alerts.parquet",
     "data/processed/conformal_backtest_monthly.parquet",
     "data/processed/conformal_backtest_monthly_grade.parquet",
+    "data/processed/conformal_diagnostic_metrics.json",
     "data/processed/conformal_group_metrics_mondrian.parquet",
     "data/processed/conformal_intervals_ead.parquet",
     "data/processed/conformal_intervals_mondrian.parquet",
@@ -257,6 +274,13 @@ def _discover_release_governance_comparison_tags(project_root: Path) -> list[str
     return sorted(tags)
 
 
+def _discover_release_governance_run_log_files(project_root: Path) -> list[str]:
+    return [
+        f"reports/run_logs/{tag}/master.log"
+        for tag in _discover_release_governance_comparison_tags(project_root)
+    ]
+
+
 def _human_size(size_bytes: int) -> str:
     units = ["B", "KB", "MB", "GB", "TB"]
     value = float(size_bytes)
@@ -379,6 +403,14 @@ def build_bundle(output_dir: Path, clean: bool, strict: bool, skip_duckdb: bool)
             missing_optional.append(rel_dir)
             continue
         copied_bytes += _copy_dir(src, dst)
+
+    for rel_file in _discover_release_governance_run_log_files(PROJECT_ROOT):
+        src = PROJECT_ROOT / rel_file
+        dst = output_dir / rel_file
+        if not src.exists():
+            missing_optional.append(rel_file)
+            continue
+        copied_bytes += _copy_file(src, dst)
 
     optional_files = [
         f for f in OPTIONAL_FILES if not (skip_duckdb and f == "data/lending_club.duckdb")

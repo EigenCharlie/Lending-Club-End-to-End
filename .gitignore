@@ -132,3 +132,23 @@ models/conformal_gap/
 
 # Thesis poster PDFs (large binaries; not version-controlled)
 thesis_poster/*.pdf
+thesis_poster/*.png
+thesis_poster/*.jpg
+
+/.quarto/
+**/*.quarto_ipynb
+
+# Quarto rendered output (disposable; _freeze/ is committed for reproducibility)
+book/_output/
+book/_output-core/
+
+# Large editorial diagram PNGs (>1MB, exceed pre-commit maxkb guard)
+# Originals live in thesis_poster/; copy into book/assets via build script
+book/assets/figures/editorial/diagrama-paper-*.png
+book/assets/figures/editorial/diagrama-paper-*.jpg
+
+# Large publication PDFs in book assets (>1MB)
+book/assets/figures/publication/p3_fig_calibration_stat_tests.pdf
+
+# Dev utilities (not project code)
+.dev-bin/

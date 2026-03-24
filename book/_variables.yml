@@ -1,0 +1,10 @@
+project-links:
+  repo: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
+  dagshub: "https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"
+  streamlit: "https://lending-club-showcase.streamlit.app/"
+
+editorial:
+  book-role: "companion editorial largo y citable"
+  streamlit-role: "companion interactivo y operativo"
+  reading-rule: "En Quarto cristalizamos hallazgos estables; en Streamlit dejamos exploración, contraste y navegación viva."
+  evidence-rule: "Una pieza visual entra al libro si explica mejor, demuestra mejor o conecta mejor con negocio."

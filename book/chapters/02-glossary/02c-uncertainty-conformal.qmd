@@ -1,0 +1,343 @@
+## Incertidumbre y Predicción Conformal {#sec-uncertainty-conformal}
+
+La cuantificación de incertidumbre es una de las piezas más críticas --- y frecuentemente ignoradas --- en la modelación de riesgo crediticio. Un modelo que produce una estimación puntual de $\hat{p} = 0.15$ para la probabilidad de default de un préstamo no transmite si esa estimación es confiable o altamente incierta. En un portafolio de miles de préstamos, tomar decisiones de asignación basadas exclusivamente en puntos estimados sin considerar su incertidumbre conduce a portafolios frágiles que se deterioran bajo condiciones adversas.
+
+Esta sección introduce los fundamentos teóricos de la cuantificación de incertidumbre, con énfasis particular en la **predicción conformal** --- un marco que ofrece garantías matemáticas de cobertura sin requerir supuestos distribucionales sobre los datos.
+
+### Incertidumbre Aleatórica vs Epistémica {#sec-aleatoric-epistemic}
+
+La incertidumbre en las predicciones de un modelo tiene dos fuentes fundamentalmente distintas:
+
+**Incertidumbre aleatórica** (irreducible): Es la variabilidad inherente al fenómeno observado. Proviene de la estocasticidad intrínseca del proceso generador de datos y no puede eliminarse recopilando más datos ni mejorando el modelo. En riesgo crediticio, la incertidumbre aleatórica refleja que dos prestatarios con exactamente las mismas características observables pueden tener outcomes distintos: uno paga y el otro entra en default. Esto ocurre porque existen factores no observados --- eventos de salud, pérdida de empleo, decisiones personales --- que afectan el repago pero no están capturados en las features del modelo.
+
+**Incertidumbre epistémica** (reducible): Es la incertidumbre que surge de la limitación del conocimiento del modelo. Se debe a datos insuficientes, especificación incorrecta del modelo, o regiones del espacio de features con poca representación en el conjunto de entrenamiento. A diferencia de la aleatórica, esta incertidumbre *puede* reducirse con más datos o un modelo mejor especificado.
+
+::: {.callout-note}
+## Ejemplo en riesgo crediticio
+Considérese un préstamo de grado G con un historial crediticio muy corto. La incertidumbre sobre su PD tiene ambos componentes:
+
+- **Aleatórica**: Aun conociendo perfectamente todas las características del prestatario, existe variabilidad inherente en si entrará o no en default.
+- **Epistémica**: Dado que los préstamos grado G con historial corto son relativamente escasos en el conjunto de entrenamiento, el modelo tiene menos evidencia para estimar su PD con precisión. Con más datos de prestatarios similares, esta componente se reduciría.
+
+En la práctica, los intervalos conformales capturan ambas fuentes de incertidumbre simultáneamente, sin necesidad de descomponerlas explícitamente.
+:::
+
+En la modelación Bayesiana, la incertidumbre epistémica se captura a través de la distribución posterior sobre los parámetros del modelo, mientras que la aleatórica se captura a través de la distribución predictiva posterior. Los métodos conformales, en cambio, producen intervalos que absorben ambas fuentes de forma agnóstica --- no requieren especificar un prior ni una verosimilitud, lo que los hace especialmente atractivos para aplicaciones regulatorias donde la transparencia y la ausencia de supuestos son valoradas.
+
+### Intervalos de Predicción vs Intervalos de Confianza {#sec-prediction-vs-confidence}
+
+Una confusión frecuente en la práctica estadística --- y particularmente peligrosa en gestión de riesgo --- es la diferencia entre intervalos de confianza e intervalos de predicción. Aunque ambos producen rangos numéricos, cuantifican objetos fundamentalmente distintos.
+
+**Intervalo de confianza** para un parámetro $\theta$ al nivel $1 - \alpha$: Es un rango $[\hat{\theta}_L, \hat{\theta}_U]$ tal que, bajo muestreo repetido:
+
+$$
+P\left(\theta \in [\hat{\theta}_L, \hat{\theta}_U]\right) \geq 1 - \alpha
+$$ {#eq-confidence-interval}
+
+El intervalo de confianza cuantifica la incertidumbre sobre un *parámetro poblacional* (por ejemplo, la tasa de default promedio de un segmento). Se estrecha con más datos porque la estimación del parámetro mejora.
+
+**Intervalo de predicción** para una nueva observación $Y_{n+1}$ al nivel $1 - \alpha$: Es un rango $[L(X_{n+1}), U(X_{n+1})]$ tal que:
+
+$$
+P\left(Y_{n+1} \in [L(X_{n+1}), U(X_{n+1})]\right) \geq 1 - \alpha
+$$ {#eq-prediction-interval}
+
+El intervalo de predicción cuantifica la incertidumbre sobre una *observación futura individual*. Incluye tanto la incertidumbre sobre el parámetro (epistémica) como la variabilidad inherente del outcome (aleatórica), por lo que es necesariamente más ancho que el intervalo de confianza correspondiente.
+
+| Propiedad | Intervalo de Confianza | Intervalo de Predicción |
+|-----------|----------------------|------------------------|
+| **Objeto cuantificado** | Parámetro poblacional $\theta$ | Observación futura $Y_{n+1}$ |
+| **Fuentes de incertidumbre** | Solo epistémica | Epistémica + aleatórica |
+| **Comportamiento con $n \to \infty$** | Se estrecha a cero | Converge a un ancho mínimo > 0 |
+| **Uso en riesgo crediticio** | Tasa de default de un segmento | PD de un préstamo individual |
+| **Error común** | Usar como si fuera predicción | Ignorar la componente aleatórica |
+
+: Comparación entre intervalos de confianza e intervalos de predicción {#tbl-ci-vs-pi}
+
+::: {.callout-warning}
+## Error frecuente en la práctica bancaria
+En muchos modelos de riesgo crediticio en producción, se reportan intervalos de confianza sobre la PD media de un segmento como si fueran intervalos de predicción para préstamos individuales. Esto subestima sistemáticamente la incertidumbre: un intervalo de confianza al 95% para la PD media de grado B podría ser [0.11, 0.13], mientras que el intervalo de predicción individual correcto podría ser [0.02, 0.35]. La diferencia es crucial para la gestión de portafolio y la determinación de provisiones bajo IFRS9.
+:::
+
+En este proyecto, todos los intervalos generados son **intervalos de predicción** --- cuantifican la incertidumbre sobre la PD de cada préstamo individual, no sobre parámetros promedio de segmentos.
+
+### Fundamentos de la Predicción Conformal {#sec-conformal-fundamentals}
+
+La predicción conformal, introducida por Vovk, Gammerman y Shafer [@vovk2005], es un marco teórico para construir intervalos de predicción con **garantías finitas de cobertura** sin asumir una distribución paramétrica específica para los datos. Esta propiedad la distingue fundamentalmente de los intervalos paramétricos (que requieren supuestos distribucionales) y los intervalos bootstrap (que son asintóticos y pueden fallar en muestras finitas).
+
+#### El supuesto de intercambiabilidad {#sec-exchangeability}
+
+El único supuesto teórico requerido por la predicción conformal es la **intercambiabilidad** (*exchangeability*) de los datos. Una secuencia de variables aleatorias $(Z_1, Z_2, \ldots, Z_n)$ es intercambiable si su distribución conjunta es invariante bajo cualquier permutación:
+
+$$
+P(Z_1, Z_2, \ldots, Z_n) = P(Z_{\pi(1)}, Z_{\pi(2)}, \ldots, Z_{\pi(n)}) \quad \forall \pi \in S_n
+$$ {#eq-exchangeability}
+
+donde $S_n$ es el grupo de todas las permutaciones de $\{1, 2, \ldots, n\}$.
+
+La intercambiabilidad es estrictamente más débil que el supuesto i.i.d. (independiente e idénticamente distribuido): todas las secuencias i.i.d. son intercambiables, pero no toda secuencia intercambiable es i.i.d. Por ejemplo, un muestreo sin reemplazo de una urna finita produce secuencias intercambiables pero no independientes.
+
+::: {.callout-tip}
+## Intercambiabilidad en datos de crédito
+En este proyecto, los splits temporales (train/calibración/test) violan la intercambiabilidad estricta porque la distribución de préstamos puede cambiar con el tiempo (concept drift). Sin embargo, la predicción conformal es notablemente robusta en la práctica: incluso bajo desviaciones moderadas de la intercambiabilidad, la cobertura empírica permanece cercana a la garantía teórica. En nuestros experimentos con datos OOT (2018--2020), la cobertura empírica al 90% alcanza 92.52% --- ligeramente por encima de la garantía, lo que indica conservadurismo saludable.
+:::
+
+#### La garantía de cobertura {#sec-coverage-guarantee}
+
+La idea importante no es memorizar el teorema, sino entender qué promete el método: si pedimos cobertura del 90%, el procedimiento está construido para que, en promedio, el valor real quede dentro del intervalo alrededor de 9 de cada 10 veces. En nuestro conjunto de calibración, que tiene 237,584 préstamos, esa garantía teórica se vuelve muy precisa porque hay mucha evidencia empírica para fijar el umbral conformal.
+
+::: {.callout-note}
+## ¿Qué significa esa garantía en este libro?
+- Si el intervalo sale **muy estrecho**, puede perder cobertura.
+- Si sale **muy ancho**, cubre más, pero aporta menos para decidir.
+- La gracia de conformal es que ofrece un equilibrio práctico: cobertura controlada sin asumir una distribución paramétrica exacta.
+:::
+
+Esta garantía es **marginal** --- se cumple en promedio sobre la distribución conjunta de los datos de calibración y el nuevo punto de test. No garantiza cobertura condicional para cada subgrupo de préstamos (para eso se necesita el enfoque Mondrian, descrito en @sec-mondrian-primer).
+
+#### Scores de nonconformidad {#sec-nonconformity-scores-primer}
+
+El concepto central del framework conformal es el **score de nonconformidad** (*nonconformity score*), denotado $s(x, y)$. Este score mide qué tan "inusual" o "no conforme" es una observación $(x, y)$ respecto al patrón aprendido por el modelo. A mayor score, más atípica es la observación.
+
+Para regresión (y para la estimación de intervalos de PD), el score más común es el **residuo absoluto**:
+
+$$
+s_i = |y_i - \hat{f}(x_i)|
+$$ {#eq-residual-score}
+
+donde $\hat{f}(x_i)$ es la predicción del modelo para la observación $i$. En nuestro caso, $\hat{f}(x_i)$ es la PD calibrada y $y_i \in \{0, 1\}$ es el indicador binario de default.
+
+Otros scores de nonconformidad incluyen:
+
+- **Residuo escalado**: $s_i = \frac{|y_i - \hat{f}(x_i)|}{\hat{\sigma}(x_i)}$, donde $\hat{\sigma}(x_i)$ es una estimación local de dispersión. Produce intervalos de ancho variable (*heteroscedásticos*).
+- **Residuo normalizado**: $s_i = \frac{|y_i - \hat{f}(x_i)|}{\sqrt{\hat{f}(x_i)(1 - \hat{f}(x_i))}}$, que normaliza por la varianza binomial. En nuestro código, esto corresponde al parámetro `scaled_scores=True`.
+- **Score CQR**: Basado en cuantiles condicionales (ver @sec-cqr).
+
+La elección del score afecta la *eficiencia* (ancho de los intervalos) pero no la *validez* (garantía de cobertura). Cualquier función de score produce intervalos con cobertura válida; scores más sofisticados producen intervalos más estrechos.
+
+### Split Conformal {#sec-split-conformal-primer}
+
+El **Split Conformal** (o *Inductive Conformal Prediction*) es la variante más práctica y computacionalmente eficiente de la predicción conformal. Su lógica puede resumirse sin entrar en demostraciones:
+
+1. **Entrenar primero el modelo base** con un conjunto de datos histórico.
+2. **Reservar un conjunto de calibración** que el modelo no haya visto durante el entrenamiento.
+3. **Medir en calibración qué tan grandes son los errores típicos** del modelo.
+4. **Usar ese error típico como colchón** para construir un intervalo alrededor de cada nueva predicción.
+
+En términos intuitivos, Split Conformal toma la predicción puntual del modelo y le agrega una banda de seguridad aprendida a partir del comportamiento real del modelo en un conjunto separado. Si el modelo viene fallando por márgenes grandes, la banda se ensancha. Si el modelo viene siendo estable, la banda se hace más corta.
+
+Para PD, además, esa banda siempre se recorta al rango válido de probabilidades, es decir, entre 0 y 1.
+
+::: {.callout-tip}
+## Elegancia computacional
+Nótese que el procedimiento Split Conformal requiere una sola pasada de predicción sobre el conjunto de calibración y el cálculo de un único cuantil. No hay refitting del modelo, no hay bootstrapping, no hay simulación Monte Carlo. Esto hace que sea extremadamente eficiente computacionalmente --- en nuestro pipeline, generar intervalos conformales para 276,869 préstamos de test toma menos de un segundo una vez que el modelo está entrenado.
+:::
+
+#### Requisito del conjunto de calibración separado {#sec-calibration-holdout}
+
+Un aspecto fundamental del Split Conformal es que el conjunto de calibración debe ser **estrictamente independiente** del conjunto de entrenamiento. Si se usan los mismos datos para entrenar el modelo y para calcular los scores de nonconformidad, los scores serán optimistamente pequeños (el modelo se ajusta bien a sus propios datos de entrenamiento) y los intervalos resultantes serán demasiado estrechos, violando la garantía de cobertura.
+
+En nuestro proyecto, la separación se garantiza mediante splits temporales:
+
+| Conjunto | Período | Uso |
+|----------|---------|-----|
+| Train | 2007-06 a 2017-03 | Entrenamiento del modelo CatBoost |
+| Calibración | 2017-03 a 2017-12 | Cálculo de scores conformales ($n = 237{,}584$) |
+| Test (OOT) | 2018-01 a 2020-09 | Evaluación de cobertura ($n = 276{,}869$) |
+
+: Splits temporales del proyecto y su rol en el framework conformal {#tbl-temporal-splits}
+
+#### Implementación con MAPIE 1.3.0 {#sec-mapie-api}
+
+La biblioteca MAPIE (Model Agnostic Prediction Interval Estimator) [@taquet2025mapie] provee una implementación robusta y bien mantenida del framework conformal para Python. La versión 1.3.0 introdujo una API renovada con clases dedicadas.
+
+Para intervalos de PD, el flujo de trabajo con `SplitConformalRegressor` es:
+
+1. **Envolver** el clasificador CatBoost en un `ProbabilityRegressor` que expone `predict()` retornando $P(\text{default})$.
+2. **Instanciar** el conformal regressor con `prefit=True` y el nivel de confianza deseado.
+3. **Conformizar** sobre el conjunto de calibración con `conformalize(X_cal, y_cal)`.
+4. **Predecir** intervalos sobre nuevos datos con `predict_interval(X_test)`.
+
+::: {.callout-note}
+## API de MAPIE 1.3.0
+La versión 1.3.0 de MAPIE reemplazó completamente la API anterior. Los cambios clave son:
+
+- `SplitConformalRegressor` reemplaza a `MapieRegressor`
+- `SplitConformalClassifier` reemplaza a `MapieClassifier`
+- El flujo es `fit()` → `conformalize()` → `predict_interval()`
+- El nivel de confianza se especifica en `__init__` con `confidence_level` (no `alpha` en `predict`)
+- Los modelos pre-entrenados usan `prefit=True` (no `cv="prefit"`)
+:::
+
+### Predicción Conformal Mondrian {#sec-mondrian-primer}
+
+La garantía de cobertura de la @eq-coverage-guarantee es **marginal** --- se cumple en promedio sobre toda la distribución. Esto significa que si un modelo tiene 90% de cobertura global, podría tener 98% de cobertura para préstamos grado A y solo 72% para préstamos grado G. En gestión de riesgo crediticio, esta heterogeneidad es inaceptable: los préstamos de alto riesgo son precisamente los que más necesitan intervalos confiables.
+
+La **predicción conformal Mondrian** [@bostrom2021] resuelve este problema proporcionando **garantías de cobertura condicionales por grupo**.
+
+#### Formulación formal {#sec-mondrian-formal}
+
+Sea $\mathcal{G} = \{g_1, g_2, \ldots, g_K\}$ una partición del espacio de observaciones en $K$ grupos disjuntos. La predicción conformal Mondrian construye cuantiles conformales separados para cada grupo:
+
+$$
+\hat{q}_\alpha^{(k)} = \text{Quantile}\left(\{s_i : G(X_i) = g_k, \; i \in \mathcal{D}_\text{cal}\}, \; \frac{\lceil (n_k + 1)(1-\alpha) \rceil}{n_k}\right)
+$$ {#eq-mondrian-quantile}
+
+donde $n_k = |\{i \in \mathcal{D}_\text{cal} : G(X_i) = g_k\}|$ es el número de observaciones de calibración en el grupo $k$, y $G(X_i)$ es la función que asigna la observación $i$ al grupo correspondiente.
+
+El intervalo para una nueva observación en el grupo $g_k$ es:
+
+$$
+C_\alpha^{(k)}(X_{n+1}) = \left[\hat{f}(X_{n+1}) - \hat{q}_\alpha^{(k)}, \; \hat{f}(X_{n+1}) + \hat{q}_\alpha^{(k)}\right]
+$$ {#eq-mondrian-interval}
+
+#### Garantía de cobertura condicional por grupo {#sec-mondrian-guarantee}
+
+Bajo intercambiabilidad *dentro de cada grupo*, la predicción Mondrian satisface:
+
+$$
+P\left(Y_{n+1} \in C_\alpha^{(k)}(X_{n+1}) \mid G(X_{n+1}) = g_k\right) \geq 1 - \alpha, \quad \forall k \in \{1, \ldots, K\}
+$$ {#eq-mondrian-coverage}
+
+Esta garantía es estrictamente más fuerte que la garantía marginal: cobertura condicional por grupo implica cobertura marginal, pero no al revés.
+
+#### ¿Por qué el grado de riesgo como partición? {#sec-grade-partition}
+
+La elección de la variable de partición Mondrian es crítica. En riesgo crediticio, el **grado de riesgo** (A--G en Lending Club) es una partición natural por varias razones:
+
+1. **Grupos disjuntos por diseño**: Cada préstamo pertenece a exactamente un grado, cumpliendo el requisito de partición.
+2. **Heterogeneidad de riesgo**: Las tasas de default varían dramáticamente entre grados (véase @tbl-credit-grades), por lo que el modelo tiene diferentes niveles de incertidumbre por grupo.
+3. **Relevancia regulatoria**: Las matrices de transición y las reservas IFRS9 se calculan por grado, alineando los intervalos conformales con el framework regulatorio existente.
+4. **Tamaño muestral adecuado**: Incluso el grado más pequeño (G) tiene miles de observaciones en calibración, asegurando cuantiles estables.
+
+::: {.callout-tip}
+## Particiones alternativas
+Además del grado, nuestro proyecto implementa otras particiones Mondrian: por deciles de score (`score_decile_mondrian`) y por grado cruzado con bandas de score (`grade_x_scoreband_mondrian`). Las particiones más finas producen intervalos más adaptativos pero requieren más datos de calibración por celda. Cuando una celda tiene pocos datos (debajo de un umbral `min_group_size`, por defecto 500), se aplica fallback al cuantil del grado o al cuantil global.
+:::
+
+#### Ancho diferencial por grado {#sec-mondrian-width}
+
+Una consecuencia directa del enfoque Mondrian es que los intervalos tienen **ancho diferente por grado**. Préstamos de grado A (bajo riesgo, PD bien calibrada) obtienen intervalos estrechos, mientras que préstamos de grado G (alto riesgo, mayor incertidumbre) obtienen intervalos más anchos. Esto es deseable porque refleja la realidad: hay más incertidumbre sobre préstamos de alto riesgo.
+
+En términos simples: si el modelo se equivoca más en un grupo, ese grupo recibe un intervalo más ancho. Eso es justamente lo que queremos en Lending Club: más prudencia donde el riesgo es menos estable.
+
+### Regresión Cuantílica Conformalizada (CQR) {#sec-cqr}
+
+La **Regresión Cuantílica Conformalizada** (CQR), propuesta por Romano, Patterson y Candès [@romano2019], combina la flexibilidad de la regresión cuantílica con las garantías de la predicción conformal. A diferencia del Split Conformal estándar que produce intervalos de ancho constante (para un mismo grupo), CQR produce intervalos de **ancho adaptativo** que varían observación por observación.
+
+#### Idea central {#sec-cqr-idea}
+
+CQR opera en dos etapas:
+
+**Etapa 1 --- Entrenamiento de regresión cuantílica**: Se entrena un modelo de regresión cuantílica que produce estimaciones de los cuantiles inferior $\hat{q}_{\alpha/2}(x)$ y superior $\hat{q}_{1-\alpha/2}(x)$ condicionales en $x$.
+
+**Etapa 2 --- Conformización**: Se define un score de nonconformidad que mide cuánto se extiende la observación real fuera del intervalo cuantílico estimado:
+
+$$
+s_i = \max\left(\hat{q}_{\alpha/2}(X_i) - Y_i, \; Y_i - \hat{q}_{1-\alpha/2}(X_i)\right)
+$$ {#eq-cqr-score}
+
+Se calcula el cuantil conformal $\hat{Q}_\alpha$ de estos scores sobre el conjunto de calibración, y el intervalo final es:
+
+$$
+C_\alpha^{\text{CQR}}(X_{n+1}) = \left[\hat{q}_{\alpha/2}(X_{n+1}) - \hat{Q}_\alpha, \; \hat{q}_{1-\alpha/2}(X_{n+1}) + \hat{Q}_\alpha\right]
+$$ {#eq-cqr-interval}
+
+#### Ventajas sobre Split Conformal estándar {#sec-cqr-advantages}
+
+La principal ventaja de CQR es que hereda la estructura de los cuantiles condicionales: si la varianza condicional de $Y|X = x$ varía con $x$ (heteroscedasticidad), los intervalos CQR serán más estrechos donde la varianza es baja y más anchos donde es alta, todo sin sacrificar la garantía de cobertura.
+
+En el contexto de PD, esto significa que un préstamo con features que lo ubican en una región de alta certeza del modelo obtendrá un intervalo más estrecho que uno en una región de baja certeza, *dentro del mismo grado*. El enfoque Mondrian + CQR combinaría ambas ventajas: adaptación entre grupos (Mondrian) y adaptación dentro de grupos (CQR).
+
+::: {.callout-note}
+## CQR en este proyecto
+En la implementación actual, el pipeline principal usa Split Conformal con partición Mondrian por grado. CQR está disponible como benchmark alternativo. La elección se justifica porque: (1) el Split Conformal Mondrian ya captura la principal fuente de heterogeneidad (el grado), (2) CQR requiere entrenar un modelo cuantílico adicional, y (3) los resultados empíricos muestran que la cobertura condicional por grado del enfoque Mondrian es satisfactoria (mínimo 89.0% para el peor grado al nivel 90%).
+:::
+
+### Tradeoff entre Cobertura y Ancho {#sec-coverage-width-tradeoff}
+
+Los dos criterios fundamentales para evaluar intervalos de predicción son la **cobertura** y el **ancho** (también llamado *sharpness*). Existe una tensión inherente entre ambos:
+
+- **Cobertura** ($1 - \alpha$): Fracción de observaciones cuyo valor verdadero cae dentro del intervalo predicho. Mayor cobertura requiere intervalos más amplios.
+- **Ancho** ($w = U - L$): Diferencia entre el límite superior e inferior del intervalo. Intervalos más estrechos son más informativos pero arriesgan cobertura insuficiente.
+
+El intervalo trivial $[0, 1]$ para PD tiene cobertura perfecta (100%) pero ancho máximo (1.0) --- no aporta ninguna información. El desafío es construir intervalos lo más **estrechos** posible sujeto a la restricción de cobertura.
+
+Si dos métodos alcanzan prácticamente la misma cobertura, preferimos el que produzca intervalos más estrechos. Esa es la idea operativa de eficiencia en este capítulo: **misma seguridad, menor ambigüedad para la decisión**.
+
+#### Efecto de $\alpha$ sobre cobertura y ancho {#sec-alpha-effect}
+
+Al variar $\alpha$, se traza una **curva de Pareto** entre cobertura y ancho:
+
+| Nivel $\alpha$ | Cobertura objetivo | Comportamiento del ancho |
+|:-------:|:----:|:----|
+| 0.20 | 80% | Intervalos estrechos, menor protección |
+| 0.10 | 90% | Balance habitual en la práctica |
+| 0.05 | 95% | Intervalos más anchos, mayor protección |
+| 0.01 | 99% | Intervalos muy anchos, máxima protección |
+
+: Efecto del nivel de significancia sobre cobertura y ancho {#tbl-alpha-effect}
+
+::: {.callout-warning}
+## Cobertura condicional vs marginal
+Es posible que un método logre excelente cobertura *marginal* (promedio global) pero falle en subgrupos específicos. En riesgo crediticio, la cobertura condicional por grado es más relevante que la marginal: un banco necesita saber que los intervalos son confiables *para cada segmento de riesgo*, no solo en promedio. El enfoque Mondrian aborda precisamente este problema al garantizar cobertura condicional por grupo.
+
+En nuestros experimentos de alpha sweep, el enfoque Mondrian identifica 25,625 préstamos elegibles (9.3% del test set) para reclasificación a alpha = 0.10, mientras que el enfoque global no identifica ninguno al mismo nivel --- demostrando que la granularidad condicional es operativamente superior.
+:::
+
+#### Métricas de evaluación integral {#sec-evaluation-metrics}
+
+Para evaluar intervalos conformales de forma integral, se utilizan las siguientes métricas:
+
+**PICP** (Prediction Interval Coverage Probability): Cobertura empírica, que debe ser $\geq 1 - \alpha$.
+
+$$
+\text{PICP} = \frac{1}{n_\text{test}} \sum_{i=1}^{n_\text{test}} \mathbb{1}\left[Y_i \in [L_i, U_i]\right]
+$$ {#eq-picp}
+
+**MPIW** (Mean Prediction Interval Width): Ancho promedio de los intervalos.
+
+$$
+\text{MPIW} = \frac{1}{n_\text{test}} \sum_{i=1}^{n_\text{test}} (U_i - L_i)
+$$ {#eq-mpiw}
+
+**NMPIW** (Normalized MPIW): Ancho normalizado por el rango de la variable respuesta, que permite comparar entre escalas.
+
+$$
+\text{NMPIW} = \frac{\text{MPIW}}{Y_\text{max} - Y_\text{min}}
+$$ {#eq-nmpiw}
+
+Un método conformal ideal maximiza PICP (cumpliendo $\geq 1 - \alpha$) y minimiza MPIW simultáneamente.
+
+### Comparación con Alternativas {#sec-alternatives-comparison}
+
+Para contextualizar las ventajas de la predicción conformal, comparamos con los métodos alternativos más utilizados para cuantificar incertidumbre en modelos de riesgo crediticio:
+
+| Método | Garantía de cobertura | Supuestos distribucionales | Costo computacional | Adaptabilidad |
+|--------|:----:|:----:|:----:|:----:|
+| **Bootstrap** | Asintótica | Ninguno explícito | Alto ($B$ refits) | Baja |
+| **Bayesiano** | Subjetiva (prior-dependent) | Verosimilitud + prior | Muy alto (MCMC) | Alta |
+| **Conformal** | Finita, exacta | Intercambiabilidad | Bajo (1 cuantil) | Media |
+| **Venn-Abers** | Multiprobabilística | Intercambiabilidad | Bajo | Baja |
+
+: Comparación de métodos de cuantificación de incertidumbre {#tbl-uq-comparison}
+
+**Bootstrap**: Requiere $B$ (típicamente 100--1000) re-entrenamientos del modelo. Sus intervalos son asintóticos --- la cobertura nominal solo se alcanza cuando $n \to \infty$. En muestras finitas, puede sub-cubrir significativamente, especialmente en las colas de la distribución.
+
+**Métodos Bayesianos (BMA)**: Proporcionan la distribución posterior predictiva completa, pero requieren especificar un prior y una verosimilitud. La calidad de los intervalos depende críticamente de que estos supuestos sean correctos. En nuestras comparaciones, BMA logra cobertura del 90.0% versus 92.52% del conformal Mondrian, pero con intervalos 19.3% más anchos (ancho medio 0.9347 vs 0.7546).
+
+**Predicción conformal**: Ofrece el mejor balance entre garantía teórica, eficiencia computacional y ausencia de supuestos. Su principal limitación es que la garantía es marginal (sin Mondrian) y requiere un conjunto de calibración holdout que "pierde" datos para el entrenamiento.
+
+**Venn-Abers**: Produce intervalos multiprobabilísticos con calibración automática [@vovk2014]. Es complementario a la predicción conformal y se usa en este proyecto como método de calibración.
+
+### Referencias Clave {#sec-uq-references}
+
+Los fundamentos teóricos presentados en esta sección se basan en los siguientes trabajos:
+
+- **Vovk, Gammerman y Shafer** [@vovk2005]: La monografía fundacional de la predicción conformal. Establece el marco teórico completo, incluyendo el teorema de cobertura, las variantes transductiva e inductiva, y las conexiones con la teoría algorítmica de la aleatoriedad. Lectura esencial para la comprensión profunda del framework.
+
+- **Romano, Patterson y Candès** [@romano2019]: Introduce CQR (Conformalized Quantile Regression), que combina regresión cuantílica con conformalización para producir intervalos adaptativos. Este trabajo demostró que la predicción conformal puede ser simultáneamente válida y *sharp* (eficiente en ancho).
+
+- **Angelopoulos y Bates** [@angelopoulos2023]: Una introducción tutorial moderna y accesible a la predicción conformal, publicada en *Foundations and Trends in Machine Learning*. Cubre Split Conformal, CQR, conjuntos de predicción para clasificación, y extensiones recientes. Recomendada como primer punto de entrada.
+
+- **Boström et al.** [@bostrom2021]: Formaliza las distribuciones predictivas conformales Mondrian con garantías de cobertura condicional por grupo. Es la base teórica directa de nuestro enfoque de partición por grado crediticio.

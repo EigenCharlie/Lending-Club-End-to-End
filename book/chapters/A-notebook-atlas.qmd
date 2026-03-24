@@ -1,0 +1,44 @@
+---
+title: "Atlas de Evidencia"
+page-layout: article
+listing:
+  id: atlas-evidence
+  contents: ../listing-data/atlas.yml
+  type: grid
+  categories: false
+  fields: [image, title, description]
+  sort: "title"
+  sort-ui: false
+  filter-ui: false
+---
+
+Este apéndice no inventaria procedencia de notebooks. Su función es otra: **mostrar qué evidencia visual del proyecto sí merece quedar cristalizada en el libro** y cómo conecta con decisiones reales de modelado, incertidumbre, provisión y negocio.
+
+Cada entrada del atlas cumple la misma regla editorial: una figura entra aquí si ayuda a explicar mejor, demostrar mejor o conectar mejor con negocio. Si una imagen solo sirve para recordar de qué notebook salió, no pertenece al libro.
+
+## Evidencia visual reutilizable
+
+```{=html}
+<div id="atlas-evidence"></div>
+```
+
+## Inventario de notebooks y su relación con el libro
+
+| Notebook | Tema | Capítulos relacionados |
+|---|---|---|
+| `01_eda_lending_club.ipynb` | Exploración del dataset, distribuciones, defaults por grade | @sec-eda-highlights, @sec-geographic-temporal |
+| `02_feature_engineering.ipynb` | WOE/IV, OptBinning, features derivadas | @sec-woe-iv, @sec-derived-features |
+| `03_pd_modeling.ipynb` | LR baseline, CatBoost, HPO, calibración | @sec-lr-baseline, @sec-catboost-tuned, @sec-calibration-selection |
+| `04_conformal_prediction.ipynb` | Split conformal, Mondrian, variantes | @sec-split-conformal, @sec-mondrian, @sec-cqr-variants |
+| `05_time_series_forecasting.ipynb` | AutoARIMA, reconciliación jerárquica | @sec-time-series |
+| `06_survival_analysis.ipynb` | Cox PH, RSF, CIF | @sec-survival |
+| `07_causal_inference.ipynb` | DML, CATE, policy, simulación A/B | @sec-causal-inference, @sec-ab-testing |
+| `08_portfolio_optimization.ipynb` | Formulación LP, robust, frontera | @sec-deterministic-portfolio, @sec-robust-portfolio |
+| `09_end_to_end_pipeline.ipynb` | ECL, escenarios, SICR, sensibilidad | @sec-ecl-calculation, @sec-scenario-analysis |
+| `13_model_explainability.ipynb` | SHAP global/local, ALE, drift | @sec-global-explanations, @sec-local-explanations |
+
+: Mapeo de notebooks del proyecto a capítulos del libro {#tbl-notebook-chapter-map}
+
+## Regla editorial
+
+{{< var editorial.evidence-rule >}}

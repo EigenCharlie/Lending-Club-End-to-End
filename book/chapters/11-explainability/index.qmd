@@ -1,0 +1,33 @@
+---
+title: "Explicabilidad e Interpretabilidad"
+page-layout: article
+---
+
+::: {.whole-game-intro}
+**Pregunta central**: ¿Puede el modelo PD defender sus decisiones ante un comité de riesgo, un regulador, y un prestatario?
+:::
+
+La interpretabilidad convierte un modelo de caja negra en una capacidad operativa defendible ante reguladores, auditores y comités de riesgo. En el contexto de SR 11-7 y IFRS9, un modelo de ML que no puede explicar *por qué* asignó determinada PD a un préstamo no es apto para producción, independientemente de su AUC.
+
+Este capítulo triangula tres lentes complementarias:
+
+| Lente | Pregunta que responde | Herramienta principal |
+|---|---|---|
+| **Global** | ¿Qué señales usa el modelo *en promedio* para asignar riesgo? | SHAP summary, permutation importance, ALE |
+| **Local** | ¿Por qué *este* préstamo obtuvo esa PD específica? | SHAP waterfall, force plots, reason codes |
+| **Temporal** | ¿Las explicaciones son *estables* a lo largo del tiempo? | Rank overlap, PSI por feature, SHAP drift |
+
+: Tres lentes de explicabilidad del modelo PD {#tbl-explainability-lenses}
+
+::: {.callout-note}
+## Explicabilidad ≠ Interpretabilidad
+En este libro usamos "explicabilidad" para referirnos a técnicas post-hoc (SHAP, ALE) que explican un modelo complejo, e "interpretabilidad" para modelos intrínsecamente transparentes (regresión logística). El baseline LR del @sec-lr-baseline es interpretable; el CatBoost champion requiere explicabilidad.
+:::
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="11a-global-explanations.html">47. Globales</a></h4><p>Drivers globales, familias y sensibilidad.</p></div>
+  <div class="chapter-card"><h4><a href="11b-local-explanations.html">48. Locales</a></h4><p>Casos representativos, reason codes y decisiones.</p></div>
+  <div class="chapter-card"><h4><a href="11c-explanation-drift.html">49. Drift</a></h4><p>Estabilidad temporal de SHAP y explicaciones.</p></div>
+</div>
+```

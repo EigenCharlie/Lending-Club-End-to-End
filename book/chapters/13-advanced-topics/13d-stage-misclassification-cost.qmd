@@ -1,0 +1,52 @@
+## Costo de Misclasificación de Stages {#sec-stage-cost}
+
+Clasificar mal un préstamo entre Stage 1 y Stage 2 no es un error abstracto; tiene costo económico. Este capítulo convierte esa intuición en una superficie cuantificada usando `stage_misclassification_cost.parquet`.
+
+### Qué se penaliza
+
+La matriz de costo separa dos fallas:
+
+- **False Negative**: un préstamo que debió estar en Stage 2 pero quedó en Stage 1;
+- **False Positive**: un préstamo sobre-clasificado a Stage 2, generando provisión y fricción innecesaria.
+
+El costo total puede resumirse como:
+
+$$
+\text{Costo total} = \text{Costo}_{FN} + \text{Costo}_{FP}
+$$
+
+pero el interés real está en cómo cambia ese costo con el umbral de PD y con el uso del trigger por ancho conformal.
+
+### Superficie base por umbral PD
+
+Sin trigger adicional de ancho, la tabla muestra:
+
+| Umbral PD | `%` Stage 2 | FN cost | FP cost | Total cost |
+|---|---:|---:|---:|---:|
+| 0.10 | 77.14% | \$3.49M | \$83.14M | \$100.57M |
+| 0.15 | 64.99% | \$6.27M | \$65.96M | \$97.33M |
+| 0.20 | 46.89% | \$12.17M | \$41.24M | \$102.10M |
+| 0.25 | 36.95% | \$16.20M | \$28.91M | \$109.90M |
+| 0.30 | 26.64% | \$20.91M | \$17.15M | \$121.70M |
+
+: Costo de clasificación Stage 2 sin trigger de ancho {#tbl-stage-cost}
+
+El mínimo aparece en `pd_threshold = 0.15` con un costo total de \$97.3M, y la estructura de la superficie revela por qué. A umbrales bajos (0.10), el 77% del portafolio se clasifica como Stage 2, lo cual captura prácticamente todos los defaults futuros (FN cost = \$3.5M) pero a un costo enorme de falsos positivos (\$83M en sobre-reserva). A medida que el umbral sube, los falsos positivos caen rápidamente --- de \$83M a \$66M al pasar de 0.10 a 0.15 --- porque cada punto de PD adicional libera una franja grande de préstamos de bajo riesgo. Pero los falsos negativos crecen más lentamente al principio: de \$3.5M a \$6.3M, porque los defaults que se “pierden” entre 0.10 y 0.15 son préstamos marginales cuyo costo individual es moderado. El mínimo en 0.15 marca exactamente el punto donde la reducción marginal de FP cost deja de compensar el incremento marginal de FN cost. Por encima de 0.20, la pendiente se invierte: cada punto adicional de umbral libera pocos préstamos de Stage 2 (los que quedan son genuinamente riesgosos) pero pierde defaults costosos, disparando el costo total a \$122M en 0.30.
+
+La superficie opera con un peso implícito de $w_{FN} = 5.0$ (cada falso negativo cuesta 5 veces más que un falso positivo), reflejando la asimetría regulatoria: sub-provisionar un default es más grave que sobre-provisionar un préstamo sano, porque lo primero puede generar una insuficiencia de capital, mientras lo segundo solo inmoviliza fondos temporalmente.
+
+### Lectura de trade-off
+
+Umbrales bajos reducen falsos negativos, pero disparan falsos positivos y sobrerreserva. Umbrales altos hacen lo contrario. La forma de U de la superficie de costo hace visible una zona de tolerancia entre 0.13 y 0.18 donde el costo total varía menos del 5% --- lo cual da flexibilidad al gestor para ajustar el umbral según el apetito institucional de riesgo sin salirse del rango óptimo. El capítulo sobre SICR conformal (@sec-sicr-signal) introduce precisamente una tercera vía: usar ancho de incertidumbre para rescatar casos que la PD puntual deja en zona gris, capturando 75.8% de los defaults missed a un costo adicional de \$56.6M.
+
+### Por qué importa para política
+
+Una política IFRS9 defendible no debería fijar thresholds solo por tradición. Debería responder a una pregunta explícita:
+
+> ¿Cuál es el costo aceptable de sub-provisionar frente al costo aceptable de sobre-provisionar?
+
+El artefacto de costo obliga a esa conversación y evita que el umbral sea tratado como una constante técnica incuestionable. Si un comité de riesgos decide que sub-provisionar es 10 veces más grave que sobre-provisionar (por ejemplo, en un entorno regulatorio más estricto), el óptimo se desplaza hacia umbrales más bajos; si la prioridad es liberar capital, se desplaza hacia arriba. La superficie de costo convierte una decisión que tradicionalmente se toma por convención en una decisión cuantificada con trade-offs explícitos.
+
+### Limitación
+
+La superficie actual resume un esquema de costos y una definición operacional concreta de FN/FP. Si cambian supuestos de negocio o escenario macro, el óptimo puede moverse. Aun así, el valor del capítulo permanece: los *stages* dejan de ser etiquetas y pasan a ser decisiones con función de pérdida explícita.

@@ -1,0 +1,225 @@
+project:
+  type: book
+  output-dir: _output
+
+quarto-required: "1.9.35"
+jupyter: bookcpu
+metadata-files:
+  - _variables.yml
+
+book:
+  title: "Gestión de Riesgo Crediticio con Predicción Conformal y Optimización Robusta"
+  subtitle: "Un Pipeline Completo de ML, Incertidumbre, Optimización e IFRS9 sobre Lending Club"
+  author: "Carlos Alfredo Vergara Rojas"
+  date: today
+  date-format: "MMMM YYYY"
+  search:
+    location: sidebar
+    type: textbox
+    show-item-context: true
+    collapse-after: 4
+    copy-button: true
+  reader-mode: false
+  page-navigation: true
+  downloads: [pdf]
+  repo-url: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
+  repo-actions: [edit, issue]
+  page-footer:
+    left: "Companion editorial del Lending Club Risk Project."
+    right: "Edición digital del proyecto"
+  sidebar:
+    collapse-level: 2
+    style: docked
+    tools:
+      - icon: github
+        href: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
+        text: "GitHub"
+      - icon: box-arrow-up-right
+        href: "https://lending-club-showcase.streamlit.app/"
+        text: "Streamlit"
+      - icon: diagram-3
+        href: "https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"
+        text: "DagsHub"
+  chapters:
+    - index.qmd
+    - chapters/00a-dedication.qmd
+    - chapters/00b-abstract.qmd
+    - part: "Parte I: Fundamentos"
+      chapters:
+        - chapters/00-preface.qmd
+        - chapters/01-executive-map.qmd
+        - chapters/02-glossary/index.qmd
+        - chapters/02-glossary/02a-credit-risk-fundamentals.qmd
+        - chapters/02-glossary/02b-ml-statistics-foundations.qmd
+        - chapters/02-glossary/02c-uncertainty-conformal.qmd
+        - chapters/02-glossary/02d-optimization-or.qmd
+        - chapters/02-glossary/02e-causal-inference-primer.qmd
+        - chapters/03-tech-stack.qmd
+    - part: "Parte II: Pipeline End-to-End"
+      chapters:
+        - chapters/04-pipeline-overview/index.qmd
+        - chapters/04-pipeline-overview/04a-data-ingestion-lineage.qmd
+        - chapters/04-pipeline-overview/04b-temporal-splitting.qmd
+        - chapters/05-feature-engineering/index.qmd
+        - chapters/05-feature-engineering/05a-woe-iv-optbinning.qmd
+        - chapters/05-feature-engineering/05b-derived-features-ratios.qmd
+        - chapters/05-feature-engineering/05c-feature-contract.qmd
+        - chapters/06-pd-modeling/index.qmd
+        - chapters/06-pd-modeling/06a-logistic-regression-baseline.qmd
+        - chapters/06-pd-modeling/06b-catboost-tuned.qmd
+        - chapters/06-pd-modeling/06c-calibration-selection.qmd
+        - chapters/06-pd-modeling/06d-model-comparison-champion.qmd
+        - chapters/07-conformal/index.qmd
+        - chapters/07-conformal/07a-split-conformal-basics.qmd
+        - chapters/07-conformal/07b-mondrian-group-conditional.qmd
+        - chapters/07-conformal/07c-cqr-variants-benchmark.qmd
+        - chapters/07-conformal/07d-backtest-monitoring.qmd
+        - chapters/07-conformal/07e-lgd-ead-conformal.qmd
+        - chapters/08-time-survival-causal/index.qmd
+        - chapters/08-time-survival-causal/08a-survival-analysis.qmd
+        - chapters/08-time-survival-causal/08b-time-series-forecasting.qmd
+        - chapters/08-time-survival-causal/08c-causal-inference.qmd
+        - chapters/08-time-survival-causal/08d-ab-testing-simulation.qmd
+        - chapters/09-portfolio/index.qmd
+        - chapters/09-portfolio/09a-deterministic-portfolio.qmd
+        - chapters/09-portfolio/09b-robust-portfolio.qmd
+        - chapters/09-portfolio/09c-policy-selection.qmd
+        - chapters/09-portfolio/09d-cate-adjusted-portfolio.qmd
+        - chapters/09-portfolio/09e-efficient-frontier.qmd
+        - chapters/10-ifrs9-governance/index.qmd
+        - chapters/10-ifrs9-governance/10a-ecl-calculation.qmd
+        - chapters/10-ifrs9-governance/10b-scenario-analysis.qmd
+        - chapters/10-ifrs9-governance/10c-sicr-conformal-signal.qmd
+        - chapters/10-ifrs9-governance/10d-sensitivity-stress.qmd
+        - chapters/10-ifrs9-governance/10e-model-risk-management.qmd
+        - chapters/10-ifrs9-governance/10f-mrm-deep-dive.qmd
+    - part: "Parte III: Insights Factory"
+      chapters:
+        - chapters/11-explainability/index.qmd
+        - chapters/11-explainability/11a-global-explanations.qmd
+        - chapters/11-explainability/11b-local-explanations.qmd
+        - chapters/11-explainability/11c-explanation-drift.qmd
+        - chapters/12-dataset-360/index.qmd
+        - chapters/12-dataset-360/12a-eda-highlights.qmd
+        - chapters/12-dataset-360/12b-geographic-temporal.qmd
+        - chapters/12-dataset-360/12c-literature-benchmark.qmd
+        - chapters/13-advanced-topics/index.qmd
+        - chapters/13-advanced-topics/13a-uncertainty-baselines.qmd
+        - chapters/13-advanced-topics/13b-alpha-sweep-pareto.qmd
+        - chapters/13-advanced-topics/13c-competing-risks-ecl.qmd
+        - chapters/13-advanced-topics/13d-stage-misclassification-cost.qmd
+        - chapters/13-advanced-topics/13e-ts-ecl-intervals.qmd
+        - chapters/13-advanced-topics/13f-gpu-edge-research.qmd
+        - chapters/13-advanced-topics/13g-gpu-edge-results.qmd
+    - part: "Parte IV: Papers de Investigación"
+      chapters:
+        - chapters/14-paper-estrella/index.qmd
+        - chapters/14-paper-estrella/14a-introduction-motivation.qmd
+        - chapters/14-paper-estrella/14b-theoretical-framework.qmd
+        - chapters/14-paper-estrella/14c-methodology.qmd
+        - chapters/14-paper-estrella/14d-results.qmd
+        - chapters/14-paper-estrella/14e-discussion-conclusions.qmd
+        - chapters/15-paper-ifrs9/index.qmd
+        - chapters/15-paper-ifrs9/15a-introduction.qmd
+        - chapters/15-paper-ifrs9/15b-methodology.qmd
+        - chapters/15-paper-ifrs9/15c-results.qmd
+        - chapters/15-paper-ifrs9/15d-discussion.qmd
+        - chapters/16-paper-mondrian/index.qmd
+        - chapters/16-paper-mondrian/16a-introduction.qmd
+        - chapters/16-paper-mondrian/16b-methodology.qmd
+        - chapters/16-paper-mondrian/16c-results.qmd
+        - chapters/16-paper-mondrian/16d-discussion.qmd
+        - chapters/17-paper-gpu/index.qmd
+        - chapters/17-paper-gpu/17a-positioning.qmd
+        - chapters/17-paper-gpu/17b-theoretical-framework.qmd
+        - chapters/17-paper-gpu/17c-existing-evidence.qmd
+        - chapters/17-paper-gpu/17d-gap-and-experiments.qmd
+        - chapters/18-paper-quantum/index.qmd
+        - chapters/18-paper-quantum/18a-context-hypothesis.qmd
+        - chapters/18-paper-quantum/18b-state-of-art.qmd
+        - chapters/18-paper-quantum/18c-proposed-methodology.qmd
+        - chapters/18-paper-quantum/18d-gap-execution-strategy.qmd
+    - part: "Parte V: Puente Académico y Agenda"
+      chapters:
+        - chapters/17-specialization-bridge.qmd
+        - chapters/18-research-agenda/index.qmd
+        - chapters/18-research-agenda/18a-state-of-the-art.qmd
+        - chapters/18-research-agenda/18b-thesis-contributions.qmd
+        - chapters/18-research-agenda/18c-future-directions.qmd
+    - part: "Apéndices"
+      chapters:
+        - chapters/A-notebook-atlas.qmd
+        - chapters/B-gpu-benchmarks.qmd
+        - chapters/C-artifact-catalog.qmd
+        - chapters/D-configuration-reference.qmd
+        - chapters/E-streamlit-companion.qmd
+
+bibliography: references.bib
+csl: apa.csl
+reference-section-title: "Referencias"
+lang: es
+language:
+  search-text-placeholder: "Buscar capítulos, conceptos y artefactos"
+
+format:
+  html:
+    theme:
+      light: [cosmo, brand, styles.scss]
+      dark: [slate, brand, styles.scss]
+    respect-user-color-scheme: true
+    page-layout: article
+    grid:
+      sidebar-width: 340px
+      body-width: 1080px
+      margin-width: 320px
+      gutter-width: 1.35rem
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    number-depth: 3
+    code-fold: false
+    code-summary: "Mostrar código"
+    code-tools: false
+    code-copy: true
+    code-line-numbers: false
+    code-overflow: wrap
+    code-block-bg: true
+    code-block-border-left: "#1E5AA8"
+    highlight-style: pygments
+    fig-responsive: true
+    fig-cap-location: top
+    fig-align: center
+    lightbox: false
+    callout-appearance: simple
+    citations-hover: true
+    footnotes-hover: true
+    crossrefs-hover: true
+    include-after-body: includes/apa-figures.html
+  pdf:
+    documentclass: scrbook
+    papersize: letter
+    fontsize: 11pt
+    geometry:
+      - margin=1in
+    toc: true
+    toc-depth: 2
+    lof: true
+    lot: true
+    number-sections: true
+    code-fold: false
+    keep-tex: true
+    include-in-header:
+      - latex/preamble.tex
+
+execute:
+  freeze: true
+  echo: false
+  warning: false
+  error: false
+
+crossref:
+  chapters: true
+  fig-prefix: "Figura"
+  tbl-prefix: "Tabla"
+  eq-prefix: "Ecuación"
+  sec-prefix: "Sección"

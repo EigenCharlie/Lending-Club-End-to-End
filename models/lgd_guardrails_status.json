@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-02.1",
-  "generated_at_utc": "2026-03-15T22:45:27.505873+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "generated_at_utc": "2026-03-22T05:19:39.540297+00:00",
+  "run_tag": "paper-grade-2026-03-22",
   "selected_variant": "direct_adaptive_grade_temporal",
   "selection_reason": "selected_best_pass_by_width",
   "checks": {

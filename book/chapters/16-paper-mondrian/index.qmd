@@ -1,0 +1,71 @@
+---
+title: "Paper 3: Predicción Conformal Mondrian para Riesgo Crediticio"
+page-layout: article
+---
+
+{{< include ../../includes/_paper-autocontenido.qmd >}}
+
+::: {.whole-game-intro}
+<span class="whole-game-question">Pregunta central</span>
+
+¿Por qué una cobertura global aceptable no basta para promover una variante conformal en riesgo crediticio? Esta landing abre el paper que responde esa pregunta mirando subgrupo y tiempo al mismo tiempo.
+
+Ejemplo concreto: un sistema puede reportar `92.5%` de cobertura global y aun así fallar donde más importa si algunos grades quedan subprotegidos o si la estabilidad mensual se erosiona. El paper usa Mondrian para obligar a mirar la cobertura útil y no solo el promedio.
+:::
+
+La evidencia central aparece cuando se pasa del promedio a los grupos: la cobertura 90% agregada llega a `92.5%`, pero la cobertura mínima por grupo sigue cerca de `89%`, con alertas temporales explícitas en vez de una falsa sensación de validación perfecta. Ese es el corazón metodológico del draft.
+
+::: {.callout-note .mini-abstract}
+## Mini-abstract
+**Problema**: una cobertura marginal aceptable puede esconder fallas serias en grupos relevantes para negocio.
+**Método**: variantes conformales con partición Mondrian, benchmark de cobertura y monitoreo temporal.
+**Hallazgo**: la validez útil en crédito exige mirar subgrupo y tiempo a la vez; el promedio global no basta para promoción metodológica.
+:::
+
+## Diagrama del paper
+
+La figura siguiente resume el flujo completo del `Paper 3`, desde la construcción de grupos y variantes conformales hasta la lectura final de cobertura útil, estabilidad temporal y decisión editorial de promoción.
+
+![Diagrama maestro del Paper 3: variantes conformales Mondrian, benchmark por grupo, estabilidad temporal y promoción metodológica.](../../assets/figures/editorial/diagrama-paper-3.png){#fig-paper-3-overview fig-alt="Diagrama horizontal del Paper 3 con variantes conformales, evaluación por grupo, monitoreo temporal y promoción metodológica."}
+
+Leído de forma simple, el flujo del paper hace algo muy concreto: toma varias variantes conformales que en promedio pueden parecer buenas, las obliga a rendir examen por grade, por segmento y por tiempo, y solo entonces decide cuáles merecen promoción metodológica. La idea no es complicar la cobertura, sino volverla útil para un entorno real de riesgo crediticio donde importa tanto el promedio como el peor grupo y la estabilidad mensual. Además, esa parte ya no está en modo hipotético: los resultados del benchmark, los heatmaps por grade y la evidencia temporal ya existen en el repo y alimentan directamente el capítulo de resultados.
+
+## Cómo se diferencia y cómo complementa a los otros papers
+
+La diferencia con el `Paper Estrella` es que aquí la incertidumbre no entra todavía al optimizador para mover una decisión riesgo-retorno; aquí primero se valida **qué tipo de cobertura merece confianza operativa** antes de usarla aguas abajo. La diferencia con el `Paper 2` es que este draft no está centrado en provisión, staging ni escenarios IFRS9, sino en la calidad metodológica de la cobertura cuando se mira por subgrupos y tiempo. Y frente a la tesis completa, el `Paper 3` funciona como una pieza fundacional: no intenta cubrir todo el sistema, sino cerrar la pregunta de validez útil que luego sostiene mejor tanto al carril de optimización como al prudencial. En ese sentido, complementa los otros papers y la tesis porque fija el estándar de confianza que permite que las demás aplicaciones de incertidumbre no descansen solo en cobertura global promedio.
+
+## Mapa de complementariedad
+
+```{mermaid}
+%%| label: fig-paper-3-complement
+%%| fig-cap: "Cómo se posiciona el Paper 3 frente al Paper Estrella, el Paper 2 y la tesis completa."
+flowchart LR
+    T["Tesis completa<br/>Sistema integral de riesgo, papers, GPU y narrativa end-to-end"]
+    P1["Paper Estrella<br/>Incertidumbre -> optimización y trade-off riesgo-retorno"]
+    P2["Paper 2<br/>Incertidumbre -> staging, escenarios y provisión IFRS9"]
+    P3["Paper 3<br/>Cobertura útil por grupo y estabilidad temporal"]
+
+    P3 -->|"valida qué cobertura merece promoción"| P1
+    P3 -->|"endurece la base metodológica prudencial"| P2
+    P1 -->|"decisión robusta"| T
+    P2 -->|"lectura prudencial"| T
+    P3 -->|"estándar de validez útil"| T
+```
+
+## Cómo leer esta parte
+
+- **74** fija el gap entre cobertura marginal y cobertura operativa por grupo.
+- **75** describe particiones, benchmark y policy de selección.
+- **76** concentra la evidencia fuerte: scatter de variantes, heatmaps y estabilidad temporal.
+- **77** aterriza el aporte metodológico y sus límites.
+
+## Navegación curada
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="16a-introduction.html">74. Introducción</a></h4><p>Cobertura por subgrupo y gap en crédito real.</p></div>
+  <div class="chapter-card"><h4><a href="16b-methodology.html">75. Metodología</a></h4><p>Particiones, monitoreo y criterio de selección.</p></div>
+  <div class="chapter-card"><h4><a href="16c-results.html">76. Resultados</a></h4><p>Coverage heatmaps, estabilidad temporal y trade-offs.</p></div>
+  <div class="chapter-card"><h4><a href="16d-discussion.html">77. Discusión</a></h4><p>Validez útil, límites y aportes a COPA.</p></div>
+</div>
+```

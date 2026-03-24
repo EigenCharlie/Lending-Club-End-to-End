@@ -18,7 +18,7 @@ def main(argv: list[str] | None = None) -> int:
         default_pipeline_family="canonical_rebuild",
         default_sampling_profile="champion64safe",
         default_include_rapids=False,
-        default_include_notebooks=False,
+        default_include_notebooks=True,
     )
 
 

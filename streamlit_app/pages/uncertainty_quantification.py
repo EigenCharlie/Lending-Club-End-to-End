@@ -209,11 +209,65 @@ with st.status(
     backtest = load_parquet("conformal_backtest_monthly")
     backtest_grade = load_parquet("conformal_backtest_monthly_grade")
     variant_benchmark = load_parquet("conformal_variant_benchmark")
+    mapie_diag = try_load_json("conformal_diagnostic_metrics")
     _cp_status.update(label="Artefactos conformal cargados", state="complete")
 
 st.subheader("0) Qué está garantizado y qué no")
 render_cp_guarantees_and_limits()
 st.dataframe(pd.DataFrame(build_cp_concept_matrix_rows()), width="stretch", hide_index=True)
+
+# ── MAPIE Diagnostic Metrics (HSIC / SSC / MWI / CWC) ────────────────────────
+if mapie_diag and mapie_diag.get("mapie_diagnostics_available"):
+    st.subheader("0.0) Diagnóstico MAPIE: independencia y equidad del intervalo")
+    chart_help_popover(
+        "hsic_ssc",
+        "**HSIC** (Hilbert-Schmidt Independence Criterion): mide si el tamaño del intervalo es "
+        "independiente de si cubre o no al valor real. HSIC ≈ 0 significa sin sesgo sistemático — "
+        "los intervalos anchos no son más ni menos propensos a fallar que los estrechos.\n\n"
+        "**SSC** (Size-Stratified Coverage): cobertura estratificada por tamaño del intervalo. "
+        "SSC alto indica que los intervalos de distintos tamaños tienen coberturas comparables.\n\n"
+        "**MWI** (Mean Winkler Interval): penaliza ancho excesivo *y* fallas de cobertura "
+        "conjuntamente — es la métrica de eficiencia del intervalo.\n\n"
+        "**CWC** (Coverage Width-based Criterion): criterio combinado que premia cobertura exacta "
+        "con intervalos estrechos. Penaliza desviaciones de la cobertura objetivo.",
+    )
+    _hsic = mapie_diag.get("hsic_90")
+    _ssc = mapie_diag.get("ssc_90")
+    _mwi = mapie_diag.get("mwi_90")
+    _cwc = mapie_diag.get("cwc_90")
+    _n_diag = mapie_diag.get("n", "?")
+    kpi_row(
+        [
+            {
+                "label": "HSIC @ 90%",
+                "value": f"{_hsic:.5f}" if _hsic is not None else "N/A",
+                "help": "≈ 0 = sin sesgo (bueno)",
+                "delta": "sin sesgo" if (_hsic is not None and _hsic < 0.01) else "revisar",
+                "delta_color": "normal" if (_hsic is not None and _hsic < 0.01) else "inverse",
+            },
+            {
+                "label": "SSC @ 90%",
+                "value": f"{_ssc:.4f}" if _ssc is not None else "N/A",
+                "help": "Cobertura estratificada por ancho (↑ mejor)",
+            },
+            {
+                "label": "MWI @ 90%",
+                "value": f"{_mwi:.4f}" if _mwi is not None else "N/A",
+                "help": "Mean Winkler Interval MAPIE (↓ mejor, = ancho + penalización)",
+            },
+            {
+                "label": "CWC @ 90%",
+                "value": f"{_cwc:.4f}" if _cwc is not None else "N/A",
+                "help": "Coverage-Width Criterion MAPIE (↓ mejor)",
+            },
+        ]
+    )
+    st.caption(
+        f"Métricas calculadas sobre n={_n_diag:,} observaciones OOT con MAPIE 1.3.0 "
+        f"(`mapie.metrics.regression`). Re-ejecutar `backtest_conformal_coverage.py` para actualizar."
+        if isinstance(_n_diag, int) else
+        f"Métricas calculadas con MAPIE 1.3.0. Re-ejecutar `backtest_conformal_coverage.py` para actualizar."
+    )
 
 st.subheader("0.1) Estabilidad por tamaño de muestra")
 group_stability = build_coverage_stability_table(

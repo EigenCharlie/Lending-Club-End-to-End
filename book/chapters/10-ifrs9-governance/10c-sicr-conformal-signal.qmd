@@ -1,0 +1,105 @@
+## Señal SICR Conformal {#sec-sicr-signal}
+
+### Motivación: Incertidumbre como Señal de Deterioro
+
+El mecanismo SICR (*Significant Increase in Credit Risk*) tradicional se basa en comparar la PD actual con la PD de originación. Sin embargo, un préstamo puede tener una PD puntual estable mientras el modelo se vuelve **más incierto** sobre su predicción --- señal de que las características del préstamo se alejan de la distribución de entrenamiento.
+
+Nuestra contribución es usar el **ancho del intervalo conformal** como señal adicional de SICR:
+
+$$
+w_i = \text{PD}_{i}^{\text{high}} - \text{PD}_{i}^{\text{point}}
+$$ {#eq-width-signal}
+
+Un ancho $w_i$ grande indica que el modelo tiene alta incertidumbre epistémica sobre el préstamo $i$. Si esta incertidumbre coexiste con un perfil de riesgo no-mejorante, es un indicador legítimo de deterioro potencial que el PD puntual no captura.
+
+::: {.callout-note}
+## Fundamento Teórico
+Los intervalos conformales tienen **garantía de cobertura** (ver @sec-split-conformal): si el intervalo es ancho, es porque los residuos de calibración para préstamos similares son grandes. Esto es una señal estadísticamente fundamentada --- no un heurístico ad-hoc.
+:::
+
+### Diseño del Trigger
+
+El trigger conformal funciona como complemento del trigger tradicional de PD. Para un umbral de PD $\tau_{\text{PD}}$ y un umbral de ancho $t$:
+
+$$
+\text{SICR}_i = \begin{cases}
+1 & \text{si } \text{PD}_i > \tau_{\text{PD}} \\
+1 & \text{si } w_i > t \text{ y } \text{PD}_i \leq \tau_{\text{PD}} \\
+0 & \text{en otro caso}
+\end{cases}
+$$ {#eq-sicr-trigger}
+
+El valor de este trigger se mide sobre los préstamos que el umbral de PD **no detecta**: de los defaults no capturados por $\tau_{\text{PD}}$, ¿cuántos identifica el ancho conformal?
+
+### Optimización del Umbral $t^*$
+
+El script `scripts/run_sicr_conformal.py` ejecuta un grid search sobre $(\tau_{\text{PD}}, t)$ con 5 umbrales de PD $\times$ 20 umbrales de ancho, evaluando precisión, recall y F1 del trigger de ancho sobre los defaults no capturados:
+
+```{python}
+#| label: tbl-sicr-grid-sample
+#| tbl-cap: "Muestra de la grilla SICR: rendimiento del trigger conformal para pd_threshold=0.20."
+#| echo: false
+
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+
+from book._helpers.load_artifacts import try_load_parquet, format_money
+import pandas as pd
+import numpy as np
+
+grid = try_load_parquet("sicr_conformal_grid")
+
+if not grid.empty:
+    primary = grid[np.isclose(grid["pd_threshold"], 0.20)].copy()
+    primary = primary.dropna(subset=["f1_width"])
+    display_df = pd.DataFrame({
+        "Umbral ancho ($t$)": primary["width_threshold"],
+        "Préstamos adicionales": primary["n_additional_sicr"].apply(lambda x: f"{int(x):,}"),
+        "Precisión": primary["precision_width"].round(4),
+        "Recall (missed)": primary["recall_width_of_missed"].round(4),
+        "F1": primary["f1_width"].round(4),
+        "ECL adicional": primary["ecl_additional"].apply(lambda x: format_money(x)),
+    })
+    from IPython.display import Markdown
+    Markdown(display_df.head(10).to_markdown(index=False))
+else:
+    from IPython.display import Markdown
+    Markdown("*Artefacto `sicr_conformal_grid.parquet` no disponible.*")
+```
+
+### Resultado Óptimo
+
+Para $\tau_{\text{PD}} = 0.20$, el umbral óptimo es $t^* = 0.30$, que maximiza el F1 del trigger conformal:
+
+| Métrica | Valor |
+|---------|------:|
+| Umbral óptimo $t^*$ | 0.30 |
+| F1 | 0.2515 |
+| Recall de defaults no capturados | 75.8% |
+| Precisión del trigger | 8.9% |
+| ECL adicional | \$56.6M |
+
+: Resultado óptimo del SICR conformal {#tbl-sicr-optimal}
+
+El recall de 75.8% significa que el trigger conformal captura **tres de cada cuatro defaults** que el umbral tradicional de PD no detecta. La precisión baja (8.9%) es esperada: el trigger es conservador por diseño --- prefiere reclasificar de más (Stage 1 → 2) que dejar defaults sin provisionar.
+
+::: {.callout-warning}
+## Trade-off Precisión vs Costo
+Los \$56.6M de ECL adicional representan el **costo de la prudencia**: provisiones extra para préstamos reclasificados a Stage 2 que podrían no defaultear. Sin embargo, comparado con el ECL baseline de \$870M (con corrección CIF, ver @sec-cif-correction), este monto es un 6.5% --- un buffer razonable por capturar 75.8% de los defaults que de otra manera estarían sub-provisionados.
+:::
+
+### Sensibilidad al Nivel de Confianza $\alpha$
+
+El ancho del intervalo conformal depende directamente del nivel de confianza $\alpha$. A menor $\alpha$ (mayor confianza), los intervalos son más anchos y más préstamos superan el umbral $t^*$, incrementando el ECL:
+
+$$
+\alpha \downarrow \implies w_i \uparrow \implies \text{más SICR triggers} \implies \text{ECL} \uparrow
+$$ {#eq-alpha-ecl}
+
+El análisis de sensibilidad (Parte B del script) muestra que pasar de 90% a 99% de confianza incrementa el ECL adicional en un **22%**. Esto cuantifica el **costo regulatorio** de elegir un nivel de confianza más conservador --- información directamente accionable para la política de provisiones.
+
+::: {.callout-tip}
+## Implicación Regulatoria
+El regulador puede usar esta relación $\alpha \leftrightarrow \text{ECL}$ como palanca de política: exigir intervalos al 99% implica ~22% más provisiones que al 90%, pero con mayor protección contra defaults no anticipados. La elección de $\alpha$ deja de ser un parámetro técnico y se convierte en una decisión de política regulatoria con consecuencias cuantificables.
+:::

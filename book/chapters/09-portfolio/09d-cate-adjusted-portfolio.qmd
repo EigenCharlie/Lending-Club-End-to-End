@@ -1,0 +1,66 @@
+## Portafolio Ajustado por CATE {#sec-cate-portfolio}
+
+El portafolio determinístico y el robusto utilizan retornos esperados basados unicamente en la tasa de interes y la perdida esperada. Sin embargo, la inferencia causal (@sec-causal-inference) estima el **efecto heterogeneo del tratamiento** (CATE) para cada prestamo, lo que permite ajustar la expectativa de retorno incorporando informacion causal. Esta seccion describe como el CATE modifica la funcion objetivo de la optimizacion.
+
+### Integracion del CATE en el retorno
+
+Sea $\tau_i$ el CATE estimado para el prestamo $i$, que representa el efecto causal diferencial de la politica de aprobacion sobre la probabilidad de repago. El retorno ajustado es:
+
+$$
+\text{Retorno}_i^{\text{CATE}} = r_i - \widehat{PD}_i \cdot LGD_i + \delta \cdot \tau_i
+$$ {#eq-cate-return}
+
+donde $\delta$ es un factor de escala (por defecto $\delta = -1$, indicando que un CATE positivo reduce el riesgo y mejora el retorno). La funcion `build_cate_adjusted_portfolio()` en `src/optimization/causal_portfolio.py` resuelve el LP con este retorno modificado y lo compara contra el baseline sin CATE.
+
+### Alineacion de CATE al set OOT
+
+Un desafio tecnico importante es que los estimados CATE se producen originalmente sobre el set de entrenamiento (1.34M prestamos), mientras que la optimizacion opera sobre el set OOT (276K prestamos) con cero solapamiento de IDs. El script `scripts/optimize_cate_portfolio.py` implementa una cascada de estrategias de alineacion:
+
+1. **OOT directo**: si existe `cate_estimates_oot.parquet`, se hace join por `id`.
+2. **Training fallback**: join por `id` con CATE del set de entrenamiento.
+3. **Grade mediana**: para IDs sin match, se imputa la mediana de CATE por grado crediticio.
+4. **Zero-fill**: prestamos restantes reciben CATE = 0 (efecto neutral).
+
+El orden de la cascada no es arbitrario: va de mayor especificidad a mayor seguridad. El OOT directo es la opción más precisa porque usa estimados CATE calculados sobre exactamente los mismos préstamos que se van a optimizar. El training fallback sacrifica precisión temporal (los estimados son de un período anterior) pero mantiene la especificidad individual. La grade mediana sacrifica la especificidad individual pero preserva la señal a nivel de segmento, lo cual es razonable si el efecto causal varía más entre grades que dentro de un mismo grade. Y el zero-fill es el fallback conservador: asumir efecto neutral es preferible a imputar un CATE ruidoso que podría distorsionar la optimización. En la práctica, la mayoría de los préstamos OOT caen en la imputación por grade mediana, dado que los IDs de train y test no se solapan.
+
+### Shrinkage del CATE
+
+Los estimados CATE crudos pueden contener senales ruidosas o valores extremos. Para mitigar esto, se aplica un procedimiento de **shrinkage** antes de la optimizacion:
+
+1. **Winsorization**: se recortan los valores por debajo del percentil 5 y por encima del percentil 95.
+2. **Shrinkage a mediana de segmento**: $\tau_i^{\text{shrunk}} = 0.5 \cdot \tau_i^{\text{clip}} + 0.5 \cdot \tilde{\tau}_{\text{seg}(i)}$, donde $\tilde{\tau}_{\text{seg}(i)}$ es la mediana del CATE en el segmento (grado $\times$ plazo $\times$ verificacion).
+3. **Piso de senal debil**: valores con $|\tau_i^{\text{shrunk}}| < \text{floor}$ se anulan a cero.
+
+### Resultados: CATE crudo vs shrunk
+
+El script ejecuta ambas versiones (CATE crudo y shrunk) para cuantificar el efecto del shrinkage:
+
+| Escenario | Retorno baseline | Retorno CATE-ajustado | Diferencia |
+|-----------|-----------------|----------------------|------------|
+| CATE crudo | \$57,094 | \$57,350 | +\$257 (+0.45%) |
+| CATE shrunk | \$57,094 | \$54,540 | -\$2,554 (-4.47%) |
+
+: Comparacion de portafolios baseline vs CATE-ajustado. {#tbl-cate-comparison}
+
+La divergencia entre CATE crudo (+0.45%) y shrunk (-4.47%) es el resultado más informativo de este capítulo, porque revela la fragilidad de la señal causal en este contexto. El CATE crudo parece mejorar el portafolio, pero esa mejora se apoya en estimados extremos que la winsorización y el shrinkage revelan como ruido. Cuando esos extremos se suavizan, la señal causal neta es negativa: incorporar el efecto causal estimado empeora el portafolio en \$2,554 respecto al baseline. Esto no significa que la inferencia causal sea inútil --- significa que la señal CATE en este dataset no es lo suficientemente fuerte o estable como para mejorar una optimización que ya incorpora PD calibrada e incertidumbre conformal. Es un resultado honesto que delimita el alcance práctico de la integración causal en el pipeline actual.
+
+::: {.callout-tip}
+## Interpretacion del efecto del shrinkage
+El CATE crudo muestra una mejora marginal (+\$257), mientras que el CATE shrunk reduce el retorno (-\$2,554). Esto es esperado: el shrinkage elimina senal ruidosa que artificialmente inflaba el retorno ajustado, produciendo una estimacion mas conservadora pero mas confiable del efecto causal real.
+:::
+
+### Criterio de promocion
+
+La politica CATE-ajustada se promueve a candidata operativa solo si cumple dos condiciones:
+
+1. El retorno del portafolio CATE-ajustado $\geq$ retorno baseline.
+2. El numero de prestamos financiados $\geq 90\%$ del baseline.
+
+El umbral del 90% de préstamos financiados evita que el ajuste causal rechace una proporción excesiva del portafolio. Si el CATE shrunk concentra el capital en muy pocos préstamos con efecto causal favorable, el portafolio resultante podría ser rentable pero operativamente inviable: un banco no puede decirle a su equipo comercial que el modelo solo aprueba el 50% de los solicitantes habituales. El 90% es un compromiso entre permitir que la señal causal redirija capital (hasta un 10% de reasignación) sin desmantelar la operación de originación.
+
+Si no se cumplen, la politica queda en modo `research_only_fallback` --- util para analisis academico pero no para produccion. El artefacto `models/cate_portfolio_status.json` registra la decision y las metricas de evaluacion.
+
+::: {.callout-note}
+## Conexion con inferencia causal
+Los estimados CATE provienen de Causal Forests (ver @sec-causal-inference). La calidad de la integracion causal depende directamente de la identificabilidad del efecto y la cobertura del overlap entre tratados y controles. Las limitaciones de la estimacion causal se propagan a la optimizacion de portafolio.
+:::

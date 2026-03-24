@@ -25,6 +25,8 @@ ARCHIVE_DIR = ROOT / "reports" / "archive"
 RETENTION_PROFILES = {
     "core_closure_6": {
         "run_logs_keep": {
+            "champion-2026-03-12-mega-definitive",
+            "2026-03-11-C-official-selector-v3-freeze",
             "2026-03-04-C-core-balanced-cert2",
             "2026-03-04-C-core-balanced-e2e-cert1",
             "2026-03-04-C-core-balanced-pass2",
@@ -33,6 +35,8 @@ RETENTION_PROFILES = {
             "2026-03-04-C-notebooks-annex-pass2",
         },
         "run_comparisons_keep": {
+            "champion-2026-03-12-mega-definitive",
+            "2026-03-11-C-official-selector-v3-freeze",
             "2026-03-04-C-core-balanced-cert2",
             "2026-03-04-C-core-balanced-e2e-cert1",
             "2026-03-04-C-core-balanced-pass2",

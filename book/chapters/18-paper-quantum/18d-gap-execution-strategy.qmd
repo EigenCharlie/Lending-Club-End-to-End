@@ -1,0 +1,199 @@
+---
+title: "Brecha, Estrategia de Ejecución y Viabilidad"
+---
+
+## Brecha, Estrategia de Ejecución y Viabilidad {#sec-pq-execution}
+
+### Inventario: lo que tenemos vs lo que falta {#sec-pq-inventory}
+
+La ventaja estratégica de esta propuesta es que ~70% del ecosistema necesario ya existe en el proyecto. La siguiente tabla detalla el estado componente por componente:
+
+| Componente | Estado | Artefacto existente | Acción necesaria |
+|---|---|---|---|
+| Datos LGD limpios | Completo | `data/processed/ead_dataset.parquet` (defaults only) | Ninguna |
+| Splits temporales OOT | Completo | `train/calibration/test.parquet` | Ninguna |
+| Feature engineering | Completo | `data/processed/feature_config.pkl`, `models/pd_model_contract.json` | Seleccionar 8--12 features LGD-relevantes |
+| Modelo LGD clásico (baseline) | Completo | `src/models/lgd_model.py`, intervalos en `conformal_intervals_lgd.parquet` | Ninguna --- es el benchmark |
+| Lógica conformal (MAPIE) | Completo | `src/models/conformal.py` (SplitConformalRegressor, Mondrian) | Extender con custom QCP score |
+| Pipeline IFRS9 y ECL | Completo | `scripts/run_ifrs9_sensitivity.py` | Reutilizar directamente |
+| Quantum kernel (ZZFeatureMap) | Diseño completo | --- | Implementar en PennyLane/Qiskit |
+| Angular encoding + scaling | Diseño completo | --- | Script: MinMaxScaler a $[0, \pi/2]$ |
+| Wrapper QCP/AQCP Mondrian | Diseño completo | Score function (@eq-qcp-nonconformity) | Implementar + calibrar en cal set |
+| Nyström kernel features | Diseño completo | --- | Seleccionar landmarks, computar features |
+| Integración AWS Braket | Pendiente | --- | Configurar cuenta, SV1 + IonQ Aria |
+| Kernel en hardware real | Pendiente | --- | Kernel matrix sobre 500 loans, IonQ Aria |
+| Framework de comparación | Pendiente | --- | QKernel+CatBoost+QCP vs CatBoost+SplitConformal |
+
+: Inventario de componentes para el Paper Quantum {#tbl-quantum-inventory}
+
+### Plan de experimentos {#sec-pq-experiments}
+
+El plan se estructura en 4 fases secuenciales:
+
+#### Fase 1: Desarrollo local (Semanas 1--3)
+
+**Objetivo**: validar que el quantum kernel compila, produce matrices de similaridad válidas, y que CatBoost puede consumirlas.
+
+- Seleccionar 8--12 features por importancia SHAP sobre target LGD
+- Implementar `scripts/compute_quantum_kernel.py` con PennyLane
+- Computar kernel matrix en simulador `default.qubit` sobre un subset de 100--500 préstamos
+- Verificar que $K_Q$ es PSD (positiva semidefinida) y no concentrada
+- Extraer Nyström features y entrenar CatBoost meta-learner
+- Comparar con baseline clásico en el mismo subset
+- **Entregable**: código funcional, kernel matrix visualizada, primer benchmark local
+
+#### Fase 2: Entrenamiento completo en simulador (Semanas 4--7)
+
+**Objetivo**: computar el kernel sobre el dataset completo de defaults y optimizar la configuración.
+
+- Migrar cómputo de kernel a AWS Braket SV1 (state-vector simulator)
+- Grid search sobre: número de features $n \in \{8, 10, 12\}$, profundidad $D \in \{1, 2, 3\}$, número de landmarks $m \in \{50, 100, 200\}$
+- Computar kernel matrix sobre $\sim$362,000 préstamos en default (split temporal)
+- Entrenar CatBoost meta-learner sobre features híbridas (originales + kernel)
+- Evaluar en validation set: MAE, RMSE, $R^2$, distribución de residuos
+- **Entregable**: modelo entrenado, métricas de validación, comparación con CatBoost baseline puro
+
+#### Fase 3: Inferencia en hardware real + calibración QCP (Semanas 8--10)
+
+**Objetivo**: computar kernel en IonQ Aria, recolectar varianza de shots, calibrar el wrapper conformal.
+
+- Seleccionar 500 préstamos representativos del test set (estratificados por grade)
+- Computar kernel matrix en IonQ Aria con $K = 1{,}000\text{--}8{,}192$ shots por par
+- Recolectar: $K_Q(\mathbf{x}_i, \mathbf{l}_j)$ (kernel entries) y varianza de shots por entrada
+- Generar predicciones LGD del CatBoost meta-learner sobre kernel features reales
+- Calibrar el wrapper QCP Mondrian usando el calibration set
+- Calcular cuantil conformal $\hat{q}_{1-\alpha}^{\text{QCP}}$ por grade
+- **Entregable**: intervalos QCP sobre 500 préstamos, distribución de varianza de shots, cobertura por grade
+
+#### Fase 4: Comparación y paper (Semanas 11--14)
+
+**Objetivo**: comparación controlada end-to-end y escritura del paper.
+
+Métricas de comparación QKernel+CatBoost+QCP vs CatBoost+SplitConformal:
+
+| Métrica | Descripción | Objetivo |
+|---|---|---|
+| MAE / RMSE | Precisión puntual | $\leq$ baseline clásico |
+| Cobertura empírica (90%, 95%) | Proporción de observaciones cubiertas | $\geq$ 90%, $\geq$ 95% |
+| Ancho promedio de intervalo | Eficiencia del intervalo | $<$ baseline clásico |
+| Winkler score | Penalización conjunta miss + ancho | $<$ baseline clásico |
+| Cobertura por grade | Equidad por segmento (Mondrian) | $\geq$ 88% min |
+| Correlación $\bar{\sigma}_K$ vs ancho | Adaptividad del intervalo | Positiva y significativa |
+| SHAP sobre kernel features | Interpretabilidad | Kernel features en top-10 |
+
+: Métricas de comparación para el benchmark {#tbl-comparison-metrics}
+
+- Propagar LGD cuántica al pipeline IFRS9 y medir impacto en ECL
+- Integrar con SPO+ para medir impacto en regret de portafolio
+- Escribir el paper siguiendo estructura de journals target
+- **Entregable**: paper completo, figuras, tablas, código reproducible
+
+### Presupuesto y viabilidad {#sec-pq-budget}
+
+| Componente | Costo estimado | Notas |
+|---|---|---|
+| Desarrollo local | $0 | PennyLane + Qiskit, simulador |
+| AWS Braket SV1 (kernel training) | $50--100 | $0.0075/min, ~10--15 horas de cómputo |
+| IonQ Aria (kernel inferencia) | $500--1,000 | 500 préstamos × landmarks × shots, batched |
+| AWS Braket (experimentación/reruns) | $100--200 | Pruebas adicionales, debugging |
+| **Total** | **$650--1,300** | Dentro de presupuesto académico estándar |
+
+: Presupuesto estimado para el Paper Quantum {#tbl-quantum-budget}
+
+Este presupuesto es viable para un proyecto de maestría. A modo de comparación, la suscripción mensual a GPU cloud (para el Paper GPU) tiene costos similares.
+
+### Threat model y limitaciones anticipadas {#sec-pq-threats}
+
+Toda propuesta honesta debe anticipar sus riesgos. Los principales son:
+
+**Riesgo 1: Concentración exponencial del kernel**
+
+Thanasilp et al. [@thanasilp2024exponential] demostraron que los quantum kernels pueden concentrarse (todos los valores convergen a una constante) cuando el número de qubits crece y el feature map es demasiado expresivo. Si esto ocurre, el kernel no aporta información discriminativa.
+
+*Mitigación*: con 8--12 qubits y $D = 2$, estamos en la zona segura empírica. Validar midiendo $\text{std}(K_Q)$ sobre el training set --- si $\text{std} < 0.01$, hay concentración. Además, la profundidad $D$ se trata como hiperparámetro.
+
+**Riesgo 2: Varianza de shots como ruido, no señal**
+
+La varianza de shots es informativa solo si correlaciona con la dificultad predictiva real. Si el ruido es puramente aleatorio (no dependiente de la observación), el wrapper QCP no aportará información adicional respecto a conformal clásico.
+
+*Mitigación*: validar empíricamente la correlación $\bar{\sigma}_{K}$ vs. residuo en la Fase 3. Si es nula, el paper reporta este resultado negativo como hallazgo (igualmente publicable).
+
+**Riesgo 3: Simulador vs hardware gap**
+
+La matriz de kernel computada en simulador (estados puros, sin ruido) puede diferir de la computada en hardware real. Las entradas del kernel en IonQ Aria incluirán bias sistemáticos.
+
+*Mitigación*: este gap es precisamente lo que el wrapper QCP está diseñado para manejar. La varianza de shots captura la divergencia simulador-hardware como incertidumbre adicional.
+
+**Riesgo 4: Escalabilidad del kernel**
+
+Computar la matriz de kernel tiene complejidad $O(n^2)$ en el número de observaciones. Para $n = 362{,}000$ préstamos, esto es prohibitivo.
+
+*Mitigación*: la aproximación Nyström con $m = 50\text{--}100$ landmarks reduce la complejidad a $O(n \cdot m)$. Solo se computan $n \times m$ entradas del kernel, no la matriz completa.
+
+**Riesgo 5: Colas de acceso a IonQ**
+
+Las QPU reales en AWS Braket tienen tiempos de queue variables (minutos a horas). Esto puede alargar la Fase 3.
+
+*Mitigación*: planificar ventanas de ejecución nocturnas, usar batching para minimizar tareas individuales.
+
+### Posicionamiento frente a los otros papers {#sec-pq-positioning}
+
+| Dimensión | Estrella | IFRS9 | Mondrian | GPU | **Quantum** |
+|---|---|---|---|---|---|
+| **Target** | PD (optimización) | PD/ECL (provisión) | PD (cobertura) | Varios (speedup) | **LGD** |
+| **Técnica core** | Robust optimization | ECL scenarios | Mondrian CP | GPU benchmark | **Q-Kernel + CatBoost** |
+| **Hardware** | CPU | CPU | CPU | GPU/RAPIDS | **QPU (IonQ)** |
+| **Incertidumbre** | Conformal → Pyomo | Conformal → ECL bands | Conformal → per-grade | --- | **Shot variance → QCP** |
+| **Novedad principal** | CP como input del optimizador | Width como señal SICR | Cobertura group-conditional | Evaluación selectiva fidelidad | **Triple gap: Q-Kernel+CP+LGD** |
+
+: Posicionamiento del Paper Quantum vs los otros 4 papers {#tbl-quantum-positioning}
+
+### Venue targeting {#sec-pq-venue}
+
+Los venues objetivo están ordenados por ambición/impacto:
+
+| Venue | Tipo | Impact Factor | Fit |
+|---|---|---|---|
+| **Nature Computational Science** | Journal Q1 | ~12 | Ambicioso; requiere resultado strong |
+| **Quantum Machine Intelligence** (Springer) | Journal Q1 | ~5 | Excelente fit: QML + aplicación concreta |
+| **IEEE Trans. Quantum Engineering** | Journal Q1 | ~4 | Buen fit: enfoque ingenieril |
+| **Quantitative Finance** | Journal Q1 | ~2 | Audiencia financiera, menor fluencia en QML |
+| **NeurIPS/ICML Workshop on QML** | Workshop | --- | Buen primer paso para visibilidad |
+| **COPA 2027** | Conference | --- | Conformal prediction community |
+
+: Venues objetivo para el Paper Quantum {#tbl-quantum-venues}
+
+La estrategia recomendada es: (1) workshop en NeurIPS/ICML para feedback rápido, (2) journal submission a Quantum Machine Intelligence como target principal, (3) Nature Computational Science si los resultados son excepcionales.
+
+### Readiness checklist {#sec-pq-readiness}
+
+| Requisito | Estado | Notas |
+|---|---|---|
+| Pregunta de investigación definida | Listo | @sec-pq-rqs |
+| Estado del arte revisado | Listo | @sec-pq-sota: 15+ papers, gap validado |
+| Arquitectura diseñada | Listo | @sec-pq-architecture: Q-Kernel + CatBoost + QCP |
+| Justificación trees > DL tabular | Listo | @grinsztajn2022tree, NeurIPS 2022 |
+| Baseline clásico operativo | Listo | CatBoost LGD + SplitConformal (90.5%) |
+| Dataset preparado | Listo | OOT splits + defaults filter |
+| Infraestructura conformal | Listo | MAPIE 1.3.0, ProbabilityRegressor wrapper |
+| Pipeline IFRS9 (downstream) | Listo | ECL propagation, scenarios |
+| Implementación Q-Kernel | Pendiente | PennyLane + Qiskit, ~2 semanas |
+| Integración AWS Braket | Pendiente | Configuración de cuenta y acceso |
+| Kernel en hardware real | Pendiente | ~$500--1,000, ~2 semanas |
+| Paper escrito | Pendiente | ~4 semanas después de resultados |
+| Figuras publicación | Pendiente | Reutilizar pipeline `generate_paper_figures.py` |
+
+: Readiness checklist del Paper Quantum {#tbl-quantum-readiness}
+
+### Conclusión de la propuesta {#sec-pq-conclusion}
+
+Esta propuesta describe un paper que ataca una intersección triple sin precedente publicado: quantum kernels, predicción conformal, y estimación de pérdida crediticia. La novedad no está en ninguno de los tres dominios individuales --- todos tienen actividad reciente --- sino en su combinación con un enfoque pragmático que:
+
+1. **Respeta la evidencia empírica**: usa CatBoost (no QNN) como predictor, alineado con Grinsztajn et al. [@grinsztajn2022tree] sobre la dominancia de árboles en datos tabulares.
+2. **Reutiliza ~70% de la infraestructura existente** del proyecto (datos, splits, conformal, IFRS9, portafolio).
+3. **Propone un mecanismo concreto** (varianza de shots del quantum kernel como score de no-conformidad) para convertir el ruido NISQ en señal informativa.
+4. **Evita los barren plateaus** [@mcclean2018barren] al usar quantum kernels en lugar de QNNs profundas.
+5. **Define un benchmark controlado** contra un baseline clásico maduro.
+6. Tiene un **presupuesto realista** ($\sim$\$1,000) y un **timeline ejecutable** (14 semanas).
+
+El resultado mínimo publicable es: "reportamos que el quantum kernel aporta features discriminativas adicionales para LGD [sí / no], que la varianza de shots [correlaciona / no correlaciona] con la dificultad predictiva, y que los intervalos QCP Mondrian [son / no son] más eficientes que los conformales clásicos al mismo nivel de cobertura". Incluso un resultado negativo bien documentado tendría valor en un campo donde la mayoría de claims carecen de validación empírica rigurosa.

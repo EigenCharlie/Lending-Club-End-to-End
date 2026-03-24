@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-16
+Last Updated: 2026-03-23
 
 ---
 
@@ -18,7 +18,12 @@ Canonical update (2026-03-13):
 
 - Serving strategy remains Streamlit-first (thesis showcase mode).
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
+- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates; runtime auto-selection via temporal policy).
 - Temporal validation and OOT evaluation remain mandatory.
+- Notebooks 10-12 executed with outputs (`include_notebooks=True` in both canonical and paper-grade profiles).
+- 690 tests passing, 0 failures, 0 skips.
+- All metadata run_tags fixed (MRM, pd_rare_event, mrm_report_status wrapper created).
+- Conformal policy test fixed with methodological justification logic.
 - This file is only for current state. Historical logs are consolidated in `docs/DECISION_CHANGES_AND_LEARNINGS.md` (section "Session History (Consolidated)").
 
 ---
@@ -92,16 +97,20 @@ Source artifacts:
 
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
-- Calibration selected: `Venn-Abers`
+- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates)
+- Calibration selected: `Venn-Abers` (runtime auto-selection via temporal multi-metric policy)
 - AUC: `0.7145`
 - Gini: `0.4260`
 - KS: `0.3149`
 - Brier: `0.1543`
 - ECE: `0.0087`
+- Log-loss: tracked per calibrator per temporal fold
 - PR-AUC: `0.3998`
 - Recall@0.35: `0.360`
 - F1@0.35: `0.392`
 - HPO: 320 Optuna trials (hpo_enabled=false in confirmatory run, uses prior best params)
+- Temporal calibration monitoring: per-fold degradation rate + monthly log-loss tracking
+- Murphy diagram: available via `src/utils/visualization.py::plot_murphy_diagram()`
 - Confirmatory run tag: `paper-grade-pre-quarto` (2026-03-16)
 
 ### 4.2 Conformal (Mondrian)
@@ -214,13 +223,18 @@ Source artifacts:
 
 ## 7) Test Suite
 
-Historical verification snapshot on 2026-03-01:
+Current state (2026-03-23): **690 tests passing, 0 failures, 0 skips**.
 
-- Prior pass counts in this file are historical only and must not be read as live inventory.
-- Current test/page counts are generated dynamically by runtime exports and Streamlit utilities.
+Key changes since last snapshot:
+- CRPTO test skip removed (test now runs normally)
+- Conformal policy test fixed (methodological justification pass logic)
+- Beta calibration tests added
+- Classification set benchmark tests added
+- Quarto book guardrail tests (3/3 passing)
 
 Operational note:
 - `data/processed/runtime_status.json` is a generated snapshot and may lag until `scripts/export_streamlit_artifacts.py` is re-run.
+- For live inventory: `uv run pytest --collect-only -q`
 
 ## 8) Current Priorities
 

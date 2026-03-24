@@ -1,0 +1,42 @@
+## Positioning {#sec-paper-gpu-positioning}
+
+El gap correcto de este paper no es “faltan más benchmarks RAPIDS”. Ese framing sería demasiado chico y demasiado systems-only para lo que ya construyó el repo. El gap real es otro: **faltan benchmarks aplicados de GPU que midan simultáneamente velocidad, fidelidad y relevancia de decisión dentro de un pipeline de riesgo crediticio**.
+
+### Por qué este framing sí vale la pena
+
+Hay tres razones:
+
+1. el proyecto ya tiene evidencia en scoring, IFRS9, optimización y analytics estructural;
+2. varias claims GPU ya tienen respaldo empírico, pero están dispersas entre replay, benchmark PD, insight factory y side-projects;
+3. el valor económico y prudencial del pipeline permite ir más allá de “seconds saved”.
+
+### Por qué no sería redundante con los otros papers
+
+| Paper | Claim central | Qué hace el GPU paper distinto |
+|---|---|---|
+| Paper Estrella | incertidumbre conformal dentro del optimizador | GPU paper mide cuándo acelerar y escalar ese tipo de workloads |
+| Paper IFRS9 | provisión y staging con incertidumbre explícita | GPU paper usa IFRS9 Monte Carlo como caso fuerte de aceleración con fidelidad |
+| Paper Mondrian | cobertura útil por grupo y tiempo | GPU paper no compite en garantías; compite en arquitectura aplicada y régimen de escala |
+
+: Posicionamiento relativo del Paper GPU {#tbl-paper-gpu-relative}
+
+### Por qué el framing correcto es applied finance + OR
+
+El paper conversa mejor con `INFORMS Journal on Computing`, `Expert Systems with Applications` o `JORS` que con una nota corta de benchmarking de librerías. La razón es simple: el centro del resultado no es la librería, sino el sistema de decisión.
+
+El paper propone evaluar cuatro familias de workload dentro del mismo pipeline:
+
+- scoring;
+- provisioning / IFRS9;
+- prescriptive OR;
+- exploratory structure learning.
+
+Esa combinación es mucho más rica que un benchmark genérico de RAPIDS y le da un ángulo publicable propio.
+
+### Gap statement
+
+Podemos formular el gap así:
+
+> La literatura disponible ofrece benchmarks GPU aislados o aplicaciones parciales, pero todavía falta un mapa workload-selective y fidelity-aware para pipelines de riesgo crediticio donde importan a la vez runtime, equivalencia material de resultados y consecuencias de decisión.
+
+Ese es el hueco que este draft sí puede llenar.

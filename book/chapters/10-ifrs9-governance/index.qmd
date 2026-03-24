@@ -1,0 +1,41 @@
+---
+title: "IFRS9 y Gobernanza del Modelo"
+page-layout: article
+close_takeaway: "IFRS9 traduce las predicciones del pipeline en provisiones contables bajo cuatro escenarios (ECL $870M baseline → $1,479M severe, +69.9%), con corrección CIF por riesgos competitivos. La señal conformal como trigger SICR (t*=0.30) y la auditoría fairness 6/6 PASS cierran el ciclo de accountability del modelo."
+close_connects: "Este capítulo es el consumidor final de todo el pipeline: PD calibrada (@sec-catboost-tuned), intervalos conformales (@sec-mondrian), supervivencia (@sec-survival) y portafolio (@sec-robust-portfolio) convergen aquí en provisiones y gobernanza."
+close_reuse: "Los resultados IFRS9 son el núcleo del Paper 2 (@sec-p2-intro). La señal SICR conformal y el alpha sweep ECL reaparecen en temas avanzados (Parte III). El MRM report es referencia para la defensa de tesis."
+---
+
+Este capítulo conecta los modelos de riesgo crediticio con sus consecuencias contables y regulatorias. IFRS9 traduce PD, LGD y EAD en provisiones (ECL) bajo múltiples escenarios macroeconómicos, mientras que la gobernanza asegura que el sistema sea confiable, justo y auditable a lo largo del tiempo.
+
+### Pipeline ECL Completo
+
+El siguiente diagrama muestra cómo fluye la información desde los modelos hasta las provisiones y la gobernanza:
+
+![Grid editorial de SICR y staging conformal del carril IFRS9.](../../assets/figures/publication/p2_fig4_sicr_grid.png){fig-alt="Figura de staging y SICR conformal para el bloque IFRS9."}
+
+### Resumen de Métricas Clave
+
+| Métrica | Valor | Sección |
+|---------|-------|---------|
+| ECL Baseline (con CIF) | \$870M | @sec-ecl-calculation |
+| ECL Severe | \$1,479M | @sec-scenario-analysis |
+| Uplift Severe | +69.9% | @sec-scenario-analysis |
+| SICR $t^*$ conformal | 0.30 (F1=0.2515) | @sec-sicr-signal |
+| ECL adicional SICR | \$56.6M | @sec-sicr-signal |
+| Sensibilidad $\alpha$ | ECL +22% (90%→99%) | @sec-sensitivity-stress |
+| Fairness | 6/6 PASS | @sec-mrm |
+
+: Resumen de resultados IFRS9 y gobernanza {#tbl-ifrs9-summary}
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="10a-ecl-calculation.html">41. ECL</a></h4><p>Descomposición PD × LGD × EAD × DF.</p></div>
+  <div class="chapter-card"><h4><a href="10b-scenario-analysis.html">42. Escenarios</a></h4><p>Baseline, mild, adverse y severe bajo lectura prudencial.</p></div>
+  <div class="chapter-card"><h4><a href="10c-sicr-conformal-signal.html">43. SICR Conformal</a></h4><p>Ancho conformal como apoyo al trigger Stage 2.</p></div>
+  <div class="chapter-card"><h4><a href="10d-sensitivity-stress.html">44. Sensibilidad</a></h4><p>Grid PD×LGD, Monte Carlo GPU y alpha sweep.</p></div>
+  <div class="chapter-card"><h4><a href="10e-model-risk-management.html">45. MRM</a></h4><p>Fairness, drift, model card y cierre SR 11-7.</p></div>
+</div>
+```
+
+{{< include ../../includes/_whole-game-close.qmd >}}

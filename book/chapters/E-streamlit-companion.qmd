@@ -1,0 +1,58 @@
+---
+title: "Companion Interactivo Streamlit"
+page-layout: article
+listing:
+  id: streamlit-companion-map
+  contents: ../listing-data/streamlit.yml
+  type: grid
+  categories: false
+  fields: [title, description]
+  sort: "title"
+  sort-ui: false
+  filter-ui: false
+---
+
+Este companion es la capa interactiva del proyecto y convive con el libro Quarto sin duplicar responsabilidades. Mientras Quarto organiza una narrativa larga, citable y editorial, Streamlit resuelve otras funciones: exploración rápida de KPIs y artefactos, lectura por audiencias distintas y validación visual antes de cristalizar un hallazgo en un capítulo o un paper.
+
+## Qué resuelve Streamlit {#sec-streamlit-companion}
+
+```{=html}
+<div id="streamlit-companion-map"></div>
+```
+
+## Mapeo Streamlit → Libro
+
+| Página Streamlit | Capítulo del libro | Qué aporta Streamlit |
+|---|---|---|
+| `executive_summary.py` | Capítulo 1 (Mapa Ejecutivo) | KPIs navegables, diagrama interactivo |
+| `data_architecture.py` | [Ingesta de datos y linaje](04-pipeline-overview/04a-data-ingestion-lineage.html#sec-data-ingestion) | Exploración de splits y diccionario de variables |
+| `feature_engineering.py` | @sec-woe-iv, @sec-derived-features | Navegación de bins WOE y ranking IV interactivo |
+| `model_laboratory.py` | @sec-lr-baseline a @sec-model-champion | Comparación dinámica de métricas por modelo |
+| `uncertainty_quantification.py` | @sec-split-conformal a @sec-lgd-ead-conformal | Exploración de variantes y cobertura por grupo |
+| `portfolio_optimizer.py` | @sec-deterministic-portfolio a @sec-efficient-frontier | Sliders de risk tolerance y simulación en vivo |
+| `ifrs9_provisions.py` | @sec-ecl-calculation a @sec-sensitivity-stress | Navegación de escenarios y grid de sensibilidad |
+| `model_governance.py` | @sec-mrm | Dashboard de fairness y model card interactiva |
+| `model_interpretability.py` | @sec-global-explanations a @sec-explanation-drift | SHAP interactivo por préstamo y período |
+| `causal_intelligence.py` | @sec-causal-inference | Exploración CATE por segmento |
+| `paper_estrella_predict_optimize.py` | @sec-estrella-intro a @sec-estrella-discussion | Framing y claims del paper en formato navegable |
+| `paper_2_ifrs9_e2e.py` | @sec-p2-intro a @sec-p2-discussion | Draft y métricas del Paper 2 |
+| `paper_3_mondrian.py` | Paper 3 (Mondrian) | Draft y evidencia del Paper 3, mantenido como carril separado |
+
+: Mapeo de páginas Streamlit a capítulos del libro Quarto {#tbl-streamlit-book-map}
+
+## Cómo leerlo junto al libro
+
+El companion no es un duplicado interactivo del libro — es una herramienta de trabajo con flujos distintos según la audiencia y la pregunta. Tres recorridos ilustran cómo usarlo:
+
+**Recorrido del director de riesgo**: empezar por `executive_summary.py` para obtener una foto de los KPIs del portafolio (AUC, cobertura conformal, ECL por escenario). Si el ECL bajo estrés severo parece alto, navegar a `ifrs9_provisions.py` para explorar el grid de sensibilidad y ver cómo se mueve la provisión al endurecer el escenario o bajar alpha. Si la pregunta es sobre la composición del portafolio robusto, `portfolio_optimizer.py` permite mover sliders de risk tolerance y gamma para ver en tiempo real qué préstamos entran y cuáles salen.
+
+**Recorrido del validador de modelos (MRM)**: empezar por `model_laboratory.py` para verificar AUC, Brier y ECE por modelo y por split temporal. Pasar a `uncertainty_quantification.py` para inspeccionar cobertura por grade y por variante conformal — aquí es donde se verifica que el intervalo Mondrian realmente cubre por grupo, no solo en promedio. Luego `model_governance.py` para el dashboard de fairness (disparate impact, equalized odds) y la model card interactiva. Este recorrido termina con `model_interpretability.py` para verificar que los SHAP drivers tienen sentido económico y no han cambiado respecto al período de referencia.
+
+**Recorrido del investigador**: empezar por `paper_estrella_predict_optimize.py` para el framing del Paper Estrella y sus claims de regret y cobertura. Contrastar con `paper_2_ifrs9_e2e.py` para la lectura IFRS9 y con `paper_3_mondrian.py` para la evidencia Mondrian. `causal_intelligence.py` permite explorar CATE por segmento para evaluar si la señal causal es estable. Finalmente, `feature_engineering.py` da acceso a los bins WOE y al ranking IV, útil para entender qué variables sostienen el modelo.
+
+En los tres casos, la regla es la misma: Streamlit sirve para explorar y contrastar antes de cristalizar un hallazgo en Quarto. Si un gráfico interactivo revela un patrón interesante, el paso siguiente es verificar si ya está documentado en el capítulo correspondiente (usando la tabla de mapeo arriba) y, si no, incorporarlo al libro con la narrativa y las referencias apropiadas.
+
+::: {.callout-note}
+## Regla de frontera editorial
+Quarto absorbe la historia estable y defendible. Streamlit conserva interacción, contraste y navegación por audiencia. Ambos leen los mismos artefactos canónicos (`models/`, `data/processed/`), lo cual garantiza que no hay divergencia entre lo que muestra el dashboard y lo que documenta el libro.
+:::

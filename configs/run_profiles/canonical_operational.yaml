@@ -13,7 +13,7 @@ execution:
   writes_canonical_artifacts: true
   promotion_state: operationally_frozen
   include_rapids: false
-  include_notebooks: false
+  include_notebooks: true
 
 defaults:
   sampling_profile: champion64safe

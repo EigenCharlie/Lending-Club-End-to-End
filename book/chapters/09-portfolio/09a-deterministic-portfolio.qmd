@@ -1,0 +1,86 @@
+## Portafolio Determinístico {#sec-deterministic-portfolio}
+
+El punto de partida de la optimizacion de portafolio es un programa lineal (LP) que maximiza el retorno esperado neto de perdida, sujeto a restricciones de presupuesto, riesgo y diversificacion. Esta formulacion deterministica usa unicamente la PD puntual ---sin incorporar incertidumbre--- y sirve como **baseline** contra el cual se mide el costo de la robustez.
+
+### Formulacion matematica
+
+Sea $\mathcal{I} = \{1, \dots, n\}$ el conjunto de prestamos candidatos. Para cada prestamo $i$ definimos:
+
+- $x_i \in [0, 1]$: fraccion del prestamo $i$ a financiar (variable de decision),
+- $a_i$: monto del prestamo,
+- $r_i$: tasa de interes (retorno esperado),
+- $\widehat{PD}_i$: probabilidad de default estimada (puntual),
+- $LGD_i$: perdida dado el default (fija en 0.45 para este dataset).
+
+El programa lineal determinístico es:
+
+$$
+\max_{x} \sum_{i \in \mathcal{I}} x_i \cdot a_i \cdot \left( r_i - \widehat{PD}_i \cdot LGD_i \right)
+$$ {#eq-deterministic-objective}
+
+sujeto a:
+
+$$
+\sum_{i \in \mathcal{I}} x_i \cdot a_i \leq B
+$$ {#eq-budget-constraint}
+
+$$
+\frac{\sum_{i \in \mathcal{I}} x_i \cdot a_i \cdot \widehat{PD}_i}{\sum_{i \in \mathcal{I}} x_i \cdot a_i} \leq \bar{PD}
+$$ {#eq-pd-cap-constraint}
+
+$$
+\frac{\sum_{i \in \mathcal{S}_p} x_i \cdot a_i}{\sum_{i \in \mathcal{I}} x_i \cdot a_i} \leq c_{\max}, \quad \forall p \in \mathcal{P}
+$$ {#eq-concentration-constraint}
+
+donde $B$ es el presupuesto total, $\bar{PD}$ es el techo de PD ponderada del portafolio (tolerancia al riesgo), $\mathcal{S}_p$ son los prestamos del segmento $p$ (por proposito de credito), y $c_{\max}$ es la concentracion maxima permitida por segmento.
+
+### Parametros de configuracion
+
+Los valores por defecto se definen en `configs/optimization.yaml`:
+
+| Parametro | Valor | Descripcion |
+|-----------|-------|-------------|
+| `total_budget` | \$1,000,000 | Capital total disponible |
+| `max_concentration` | 25% | Concentracion maxima por segmento de proposito |
+| `max_portfolio_pd` | 10% | Techo de PD ponderada del portafolio |
+| `solver` | HiGHS | Solver LP open-source |
+| `time_limit` | 300 s | Limite de tiempo del solver |
+
+: Configuracion del modelo de portafolio determinístico. {#tbl-deterministic-config}
+
+Los valores de la tabla no son arbitrarios. El presupuesto de \$1M es deliberadamente modesto: a la escala del dataset (préstamos con montos medianos de \$10--15K), \$1M permite financiar entre 60 y 100 préstamos, lo suficiente para que las restricciones de concentración y riesgo sean activas sin que el solver trivialice el problema. Un presupuesto más grande (por ejemplo, \$100M) financiaría casi todo el portafolio, convirtiendo la optimización en un ejercicio vacío. La concentración máxima del 25% por segmento de propósito evita que el optimizador concentre todo el capital en un solo tipo de préstamo (por ejemplo, consolidación de deuda, que domina el dataset), lo cual sería óptimo en expectativa pero frágil ante shocks sectoriales. El techo de PD ponderada al 10% refleja un apetito de riesgo moderado: dado que la tasa de default promedio del set OOT es ~22%, un cap de 10% obliga al portafolio a ser selectivo, descartando la mayoría del universo candidato. Este umbral es suficientemente estricto para que la restricción sea binding (y por tanto para que el precio de la robustez sea medible, ver @sec-robust-portfolio), pero no tan agresivo como para que el LP sea infactible.
+
+### Implementacion en Pyomo
+
+El modelo se construye con `build_portfolio_model()` en `src/optimization/portfolio_model.py`. Las decisiones son variables continuas $x_i \in [0, 1]$ (relajacion LP del problema de aprobacion binario), lo que permite asignaciones parciales y garantiza solucion en tiempo polinomial.
+
+```
+model.x = pyo.Var(model.I, domain=pyo.NonNegativeReals, bounds=(0, 1))
+```
+
+La funcion objetivo (@eq-deterministic-objective) calcula el retorno neto como la diferencia entre el ingreso por intereses y la perdida esperada:
+
+$$
+\text{Retorno neto}_i = r_i - \widehat{PD}_i \cdot LGD_i
+$$
+
+::: {.callout-tip}
+## Variables continuas vs binarias
+La relajacion continua $x_i \in [0, 1]$ produce una cota superior del problema binario (aprobar/rechazar) y se resuelve ordenes de magnitud mas rapido. Para 5,000 candidatos, HiGHS resuelve el LP en menos de 2 segundos. El modelo MILP binario (`build_binary_model`) esta disponible pero no se usa en el pipeline principal.
+:::
+
+### Resolucion y artefactos
+
+El script `scripts/optimize_portfolio.py` ejecuta el pipeline completo:
+
+1. Carga candidatos de `data/processed/test_fe.parquet` (hasta 5,000 por defecto),
+2. Alinea intervalos conformal por `id` del prestamo,
+3. Construye y resuelve el modelo Pyomo con HiGHS,
+4. Persiste `portfolio_allocations.parquet` con la asignacion optima.
+
+El artefacto de salida contiene para cada prestamo: la fraccion asignada, el monto, la PD puntual, los limites conformal y la tasa de interes. Este resultado alimenta directamente el analisis de escenarios (mejor caso, esperado, peor caso) implementado en `scenario_analysis()` de `src/optimization/robust_opt.py`.
+
+::: {.callout-warning}
+## Fragilidad del baseline determinístico
+El portafolio determinístico ignora completamente la incertidumbre de estimacion. Si la PD real es mayor que la estimada, el portafolio puede violar su techo de riesgo. Esta fragilidad motiva la formulacion robusta de @sec-robust-portfolio.
+:::

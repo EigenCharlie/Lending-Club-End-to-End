@@ -1,0 +1,15 @@
+% Custom LaTeX preamble for PDF output
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mathtools}
+\usepackage{float}
+
+% Quarto already loads babel via `lang: es`; only customize captions here.
+\AtBeginDocument{%
+  \providecommand{\tablename}{Tabla}%
+  \providecommand{\listtablename}{Lista de tablas}%
+}
+
+% Better table formatting
+\renewcommand{\arraystretch}{1.2}

@@ -1,0 +1,86 @@
+## Contribuciones de la Tesis {#sec-contributions}
+
+La tesis completa debe leerse como un sistema de contribuciones encadenadas, no como una suma de notebooks o dashboards. El companion `streamlit_app/pages/thesis_contribution.py` ya anticipa esa lectura. Las contribuciones se organizan en cuatro dimensiones --- metodologica, tecnica, operativa y regulatoria --- que reflejan las capas del pipeline y las audiencias a las que cada aporte se dirige.
+
+::: {.callout-tip}
+## La tesis en una oracion
+Esta tesis demuestra que la combinacion de calibracion probabilistica, prediccion conformal Mondrian e incertidumbre distribution-free produce un sistema de gestion de riesgo crediticio que es simultaneamente mas robusto en sus decisiones, mas transparente en su gobernanza y mas informativo en sus provisiones que los pipelines convencionales basados en predicciones puntuales.
+:::
+
+### Contribuciones metodologicas {#sec-contrib-methodological}
+
+Las contribuciones metodologicas constituyen el nucleo teorico de la tesis y representan los aportes con mayor potencial de generalizacion mas alla del dominio de credito.
+
+**Predict-then-optimize con prediccion conformal.** La contribucion central de la tesis es la formalizacion del uso de intervalos conformales como conjuntos de incertidumbre para optimizacion robusta de portafolio crediticio (@sec-estrella-intro). A diferencia de los conjuntos de incertidumbre clasicos de [@bertsimas2004], que requieren especificacion ad hoc o supuestos distribucionales, los intervalos conformales heredan directamente la garantia de cobertura del procedimiento conformal. La evidencia empirica muestra que esta conexion produce portafolios cuya calidad es verificable en terminos de cobertura y estabilidad, y que el nivel conformal $1-\alpha$ funciona como una palanca de robustez con consecuencias economicas observables.
+
+**Mondrian conformal para scoring crediticio.** La evaluacion sistematica de Mondrian conformal prediction sobre particiones de riesgo crediticio (grades A--G) con datos out-of-time constituye la primera evidencia aplicada de esta configuracion en credito minorista. Los resultados demuestran que la cobertura global puede enmascarar subcobertura sistematica en los grades de mayor riesgo, y que Mondrian corrige esta deficiencia con un costo controlado en anchura de intervalo. La version detallada de ese draft vive en el carril Paper 3, fuera del build core.
+
+**IFRS 9 con incertidumbre distribution-free.** La integracion de intervalos conformales en el pipeline completo de IFRS 9 --- abarcando staging (SICR conformal), provision (ECL por rango) y analisis de sensibilidad (@sec-p2-intro) --- es una contribucion sin precedentes en la literatura identificada. El ancho del intervalo conformal como senal complementaria de deterioro crediticio y la cuantificacion del rango de provisiones bajo incertidumbre responden directamente a las demandas regulatorias de mayor transparencia y prospectividad.
+
+**Calibracion integrada en el pipeline conformal.** El pipeline establece una secuencia rigurosa calibracion -> conformal -> decision que garantiza que los intervalos se construyen sobre probabilidades genuinas, no sobre scores arbitrarios. La seleccion automatica entre Platt [@platt1999], isotonica [@zadrozny2002] y Venn-Abers [@vovk2014] mediante validacion temporal multi-metrica asegura que la calibracion es optima para cada run experimental.
+
+### Contribuciones tecnicas {#sec-contrib-technical}
+
+Las contribuciones tecnicas reflejan la implementacion del pipeline end-to-end y las decisiones de ingenieria que hacen posible la reproducibilidad y escalabilidad del sistema.
+
+**Pipeline completo CatBoost -> Calibracion -> MAPIE -> Pyomo.** La tesis implementa un pipeline operativo que conecta cuatro capas tecnologicas: un modelo de scoring (CatBoost con busqueda de hiperparametros via Optuna), una capa de calibracion probabilistica (con seleccion automatica de metodo), un generador de intervalos conformales (MAPIE 1.3.0 con SplitConformalRegressor y particion Mondrian), y un optimizador de portafolio (Pyomo con solver HiGHS [@huangfu_parallelizing_2018]). Cada capa persiste sus artefactos de forma trazable, y el contrato de modelo (`models/pd_model_contract.json`) garantiza la coherencia de features a lo largo de todo el flujo.
+
+**Integracion de SPO+.** El pipeline incorpora una implementacion de la perdida SPO+ [@elmachtoub2022] que permite comparar el paradigma predict-then-optimize conformal con decision-focused learning. La implementacion utiliza un MLP punto-a-punto con costos calibrados de PD (no binarios), lo cual resolvio el problema del paisaje plano que impedia la convergencia en versiones anteriores. Los resultados muestran una reduccion de regret del 49.1% frente al enfoque two-stage, con significancia estadistica verificada via test de Wilcoxon.
+
+**Infraestructura de champion search.** El sistema de busqueda de champion implementa cuatro modos de ejecucion (smoke, canonical_rebuild, champion_search, insights_factory) con perfiles configurables en YAML, persistencia de resultados en `models/champion_registry.json`, y soporte para aceleracion GPU via RAPIDS en los componentes de optimizacion y simulacion A/B.
+
+### Contribuciones operativas {#sec-contrib-operational}
+
+Las contribuciones operativas demuestran que el pipeline no es solo un prototipo academico sino un sistema desplegable con gobernanza explicita.
+
+| Contribucion | Claim defendible |
+|---|---|
+| calibracion + conformal + robustez | el proyecto deja de decidir sobre un punto y pasa a decidir sobre un rango plausible |
+| survival + IFRS9 | misma PD puntual puede tener lecturas prudenciales distintas segun el tiempo |
+| causalidad + policy | no solo clasificamos riesgo; tambien preguntamos donde intervenir |
+| explainability + MRM | el modelo puede discutirse en lenguaje de negocio y control, no solo con metricas |
+
+: Matriz corta de claims de tesis y su valor practico {#tbl-thesis-claims}
+
+**Pipeline end-to-end reproducible.** La tesis implementa un pipeline de 14 scripts orquestados secuencialmente, con artefactos congelados y persistidos en cada etapa. El Quarto book, el companion Streamlit (31 paginas) y los artefactos DVC forman un sistema de documentacion integrado que permite a cualquier evaluador reproducir los resultados desde los datos crudos hasta las decisiones de portafolio.
+
+**Simulacion A/B retroactiva.** El script `scripts/simulate_ab_test.py` implementa una simulacion retroactiva que compara la politica robusta (conformal) contra la politica no-robusta (puntual) sobre los mismos datos historicos, cuantificando la diferencia en retorno ajustado por riesgo. Esta simulacion proporciona evidencia causal contrafactual que refuerza los claims de superioridad de la politica conformal.
+
+**Auditoria de fairness.** El pipeline incluye una auditoria completa de paridad demografica, igualdad de oportunidades e impacto disparejo sobre los grupos protegidos, lo cual anticipa las crecientes demandas regulatorias sobre equidad algoritmica en credito.
+
+| Aporte | Evidencia |
+|---|---|
+| Pipeline end-to-end reproducible | libro + Streamlit + artefactos congelados |
+| Gobernanza explicita | fairness, MRM, champion registry |
+| Companion interactivo | 31 paginas tematicas |
+| Trazabilidad de notebooks | inventario y manifests |
+
+: Contribuciones operativas de la tesis {#tbl-thesis-contrib}
+
+### Contribuciones regulatorias {#sec-contrib-regulatory}
+
+Las contribuciones regulatorias conectan el pipeline con los marcos normativos que rigen la gestion de riesgo crediticio en instituciones financieras.
+
+**Senal SICR conformal.** El ancho del intervalo conformal como senal complementaria de deterioro crediticio (@sec-sicr-signal) responde directamente a las criticas del IFRS Board [@ifrsboard2024] sobre la insuficiencia de los triggers actuales basados en DPD y umbrales estaticos de PD. El umbral optimo $t^* = 0.30$ captura el 75.8% de defaults no detectados por triggers tradicionales, lo cual demuestra el valor anadido de la senal conformal.
+
+**ECL con bandas de incertidumbre.** La produccion de provisiones ECL por rango --- donde cada prestamo y el portafolio agregado tienen una estimacion puntual, un limite optimista y un limite adverso --- proporciona la informacion que los equipos prudenciales necesitan para calibrar *overlays* y buffers de capital (@sec-ecl-calculation). La banda ECL de \$288.5M (267% de la estimacion puntual de \$107.9M) cuantifica la magnitud de incertidumbre que las practicas actuales ignoran.
+
+**Sensibilidad multi-dimensional.** El analisis de sensibilidad que combina nivel conformal, metodo de supervivencia y escenario macroeconomico (@sec-sensitivity-stress) produce un mapa de provisiones que facilita la comunicacion con supervisores y la definicion de politicas prudenciales informadas.
+
+**Validacion MRM conforme a SR 11-7.** El reporte MRM generado por `scripts/generate_mrm_report.py` organiza la evidencia de validacion del modelo siguiendo los lineamientos SR 11-7 de la Reserva Federal, lo cual demuestra que el pipeline conformal es compatible con los marcos de gobernanza existentes.
+
+### Contribuciones de defendibilidad
+
+La tesis tambien aporta algo menos visible, pero crucial: una forma de documentar proyectos de riesgo donde claims, artefactos y narrativa permanecen alineados. Esa disciplina reduce la brecha entre:
+
+- investigacion aplicada,
+- revision de jurados,
+- y preparacion de papers.
+
+### Claim central
+
+El claim mas fuerte y sostenible del proyecto es:
+
+> en riesgo crediticio, la combinacion de calibracion, incertidumbre conformal y decision robusta produce un sistema mas defendible que un pipeline centrado solo en prediccion puntual.
+
+Ese claim se sostiene porque cada componente tiene evidencia propia y, ademas, porque la integracion completa ya fue ejecutada y documentada. La calibracion mejora la confiabilidad de las probabilidades predichas; los intervalos conformales cuantifican la incertidumbre con garantias formales; la optimizacion robusta traduce esa incertidumbre en decisiones mas estables; y la trazabilidad completa permite auditar cada paso del proceso. Ningun componente por separado seria suficiente para sostener el claim; es la integracion coherente de los cuatro la que constituye la contribucion central de la tesis.

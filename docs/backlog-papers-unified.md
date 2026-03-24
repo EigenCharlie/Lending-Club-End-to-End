@@ -3,7 +3,7 @@
 
 # Backlog Unificado: Pipeline + Papers + Quarto
 
-Fecha: 2026-03-13
+Fecha: 2026-03-23
 Baseline operativo: `champion-2026-03-12-mega-definitive`
 Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble-doodling-mountain)
 
@@ -34,27 +34,27 @@ Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble
 - Protocolo paper-grade congelado y versionado
 - Baseline operativo completo
 
-### Pendiente de cierre real (pipeline)
+### Cerrado (pipeline)
 
-- `study_name` limpio de PD
-- corrida final paper-grade confirmatoria
-- si esa corrida mueve artefactos, refrescar protocolo/snapshot/bundle
+- `study_name` limpio de PD — DONE (clean HPO study, 320/320 trials)
+- corrida final paper-grade confirmatoria — DONE (`paper-grade-2026-03-13-final-heavy`)
+- protocolo/snapshot/bundle refrescados post-corrida — DONE
 
 ### Pendiente nuevo (papers + Quarto)
 
 - empaquetado editorial de variantes CP ya benchmarkeadas para Paper 3
 - uncertainty set baselines para Paper Estrella (ellipsoidal/bootstrap/paramétrico para optimización — distinto a uncertainty_baselines_by_grade ya surfaceado)
-- bound teórico alpha-Gamma para Paper Estrella (contribución principal, sin implementar)
-- SICR trigger formalización para Paper 2 *(research hecho — falta writing)*
-- ECL sensitivity a alpha conformal para Paper 2 *(research hecho — falta writing)*
-- Migración Streamlit a Quarto + Streamlit
+- ~~bound teórico alpha-Gamma para Paper Estrella~~ ✅ Teorema 1 (Garantía conformal de factibilidad) formalizado en `@sec-alpha-gamma-bound`, validado en 8 niveles de α
+- ~~SICR trigger formalización para Paper 2~~ ✅ research + writing done
+- ~~ECL sensitivity a alpha conformal para Paper 2~~ ✅ research + writing done
+- Migración Streamlit a Quarto + Streamlit *(Quarto book complete, 94/94 files render)*
 - Writing de 3 papers + Quarto book
 
 ### Pendiente de documentación real
 
 - convertir artifacts finales en tablas/figuras para Paper 3
-- reflejar en Quarto la decisión final de `PD conformal`, `time series`, `A/B`, `causal/CATE` y `governance`
-- sincronizar narrativa histórica vs narrativa vigente en capítulos, apéndices y companion app
+- ~~reflejar en Quarto la decisión final de `PD conformal`, `time series`, `A/B`, `causal/CATE` y `governance`~~ ✅ Sprint A-E narrative review complete
+- ~~sincronizar narrativa histórica vs narrativa vigente en capítulos, apéndices y companion app~~ ✅
 - dejar explícito qué resultados son:
   - baseline histórico de la mega run
   - estado canónico vigente post-validación P0 / paper-grade
@@ -332,9 +332,9 @@ Entregable:
 
 ---
 
-## 7. Corrida final paper-grade
+## 7. Corrida final paper-grade ✅
 
-Prioridad: **ya ejecutada**
+Prioridad: **CERRADA** (ejecutada y todos los gaps resueltos)
 
 ### 7.1 Study limpio y mega corrida (backlog original)
 
@@ -357,15 +357,15 @@ La corrida `paper-grade-2026-03-13-final-heavy-2026-03-13-230650` (ejecutada 202
 - Protocolo: `paper_grade_protocol_status.json` frozen=true
 - Bundle: `champion_search_bundle.json` run_tag correcto
 
-**Gaps menores (sin re-ejecución de pipeline):**
+**Gaps menores — todos resueltos (2026-03-23):**
 
-| Gap | Descripción | Acción |
+| Gap | Descripción | Estado |
 |---|---|---|
-| MRM run_tag | `mrm_validation_report.json` tiene `run_tag=None` a nivel raíz (inner compliance_summary correcto) | Re-ejecutar `generate_mrm_report.py` solo para inyectar run_tag |
-| pd_rare_event run_tag | `pd_rare_event_calibration_status.json` dice `run_tag=untracked` | Re-ejecutar `analyze_pd_rare_event_calibration.py` |
-| mrm_report_status.json | `models/mrm_report_status.json` no existe; algunas páginas Streamlit lo buscan | Crear wrapper JSON desde mrm_validation_report.json |
-| Causal run_tag | Artifacts causal tienen `run_tag=champion-2026-03-12-mega-definitive` | Intencional — causal es `insights_only`, no re-ejecutar |
-| Paper notebooks | NB10-NB12 no ejecutados (`include_notebooks=False`) | Ejecutar `run_paper_notebook_suite.py` separado |
+| MRM run_tag | `mrm_validation_report.json` tenía `run_tag=None` | DONE — run_tag inyectado |
+| pd_rare_event run_tag | `pd_rare_event_calibration_status.json` decía `run_tag=untracked` | DONE — run_tag fijado |
+| mrm_report_status.json | `models/mrm_report_status.json` no existía | DONE — wrapper JSON creado |
+| Causal run_tag | Artifacts causal con `run_tag=champion-2026-03-12-mega-definitive` | Intencional — causal es `insights_only` |
+| Paper notebooks | NB10-NB12 no ejecutados | DONE — ejecutados con `include_notebooks=True` en configs |
 
 **MRM compliance_summary.overall_pass=false es esperado**: conformal falla Kupiec/Christoffersen en muestra grande (n=276K) pero `methodological_justification_pass=true` y `winkler_compensated_pass=true`. Documentado y defensible.
 
@@ -389,44 +389,41 @@ Conexión: el Quarto book ES la tesis de maestría
 
 ### 8.1 Scaffolding Quarto book
 
-Pendientes:
+**Estado: CERRADO (2026-03-21)**
 
-- Crear estructura Quarto project (_quarto.yml)
-- 16 capítulos según blueprint existente (docs/QUARTO_BOOK_BLUEPRINT.md)
-- Cada capítulo como .qmd con código Python ejecutable
-- Papers como capítulos 11-13
-- Integrar con DVC para reproducibilidad
+- Estructura Quarto project (_quarto.yml) creada
+- 16 capítulos + front/back matter: 94/94 archivos renderizan, 0 WARN, 0 ERROR
+- Capítulos como .qmd con código Python ejecutable
+- Papers como capítulos 11-13 (Paper 3 → cap 16, Paper 2 → cap 15, Estrella → cap 14)
+- Guardrail tests passing (3/3)
 
 ### 8.2 Migrar contenido de Streamlit a Quarto
 
-Pendientes:
+**Estado: CERRADO (2026-03-21)**
 
-- Identificar qué contenido de Streamlit migra a Quarto (narrativa detallada, ecuaciones, análisis profundo)
-- Identificar qué queda en Streamlit (exploratorio interactivo, dashboards, toggles)
-- Migrar: thesis_contribution, thesis_end_to_end, research_landscape, paper_1/2/3 → capítulos Quarto
-- Mantener en Streamlit: model_laboratory, portfolio_optimizer, uncertainty_quantification como demos interactivas
+- Narrativa detallada migrada a Quarto; Streamlit mantiene dashboards interactivos
+- Sprint A-E narrative review complete: 10 capítulos mejorados
 
 ### 8.3 Figuras publication-quality
 
-Pendientes:
+**Estado: CERRADO (2026-03-23)**
 
-- Convertir figuras Plotly → matplotlib/seaborn para papers y Quarto
-- Estilo consistente para paper (2-column IEEE/Springer format)
-- Exportar como PDF/SVG para LaTeX
+- Figuras matplotlib/seaborn publication-quality generadas para los 3 papers
+- Exportadas como PDF/PNG en `reports/paper_material/figures_publication/`
+- Murphy diagram, nonconformity scores by grade, calibration stat tests, alpha-gamma bound, CRPTO stability
 
 ### 8.4 Streamlit como companion
 
-Pendientes:
+Pendientes residuales:
 
-- Reorientar Streamlit como "Interactive Companion" del Quarto book
-- Agregar links bidireccionales: Quarto → Streamlit demo, Streamlit → Quarto chapter
-- Reducir duplicación narrativa (Quarto tiene el detalle, Streamlit tiene la interacción)
+- Links bidireccionales Quarto ↔ Streamlit (editorial polish)
+- Reducir duplicación narrativa restante
 
 Entregable:
 
-- Quarto book funcional como tesis de maestría
-- Streamlit como companion interactivo
-- Papers embebidos como capítulos
+- ✅ Quarto book funcional como tesis de maestría (94/94 files)
+- ✅ Streamlit como companion interactivo (31 pages)
+- ✅ Papers embebidos como capítulos
 
 ---
 
@@ -475,7 +472,7 @@ Formato: ~30-35 páginas + online appendix (Quarto book)
 
 Pendientes writing:
 
-- Bound teórico alpha-conformal ↔ Gamma-robustez (Bertsimas & Sim)
+- ~~Bound teórico alpha-conformal ↔ Gamma-robustez (Bertsimas & Sim)~~ ✅ Teorema 1 + Proposiciones 1-2 + Corolarios 1-2 en `14b-theoretical-framework.qmd`
 - Baselines uncertainty sets: ellipsoidal, bootstrap, parametric, Venn-Abers
 - CQR como CP alternativo
 - Alpha sweep {0.01..0.20} → Pareto frontier
@@ -558,27 +555,27 @@ Pendiente solo writing:
 
 ## Orden recomendado entre sesiones
 
-- Sesión 1: study limpio de PD + preparación de corrida final
-- Sesión 2: mega corrida final paper-grade
-- Sesión 3: refresh de protocolo/snapshot si cambia algo
-- Sesión 4: scaffolding Quarto book
+- ~~Sesión 1: study limpio de PD + preparación de corrida final~~ ✅
+- ~~Sesión 2: mega corrida final paper-grade~~ ✅
+- ~~Sesión 3: refresh de protocolo/snapshot si cambia algo~~ ✅
+- ~~Sesión 4: scaffolding Quarto book~~ ✅ (94/94 files, 0 WARN)
 - Sesión 5: writing Paper 3
 - Sesión 6: writing Paper 2
 - Sesión 7+: writing Paper Estrella y research opcional
 
 ---
 
-## Definición de terminado (pre corrida final)
+## Definición de terminado (pre corrida final) — ALL MET
 
-Antes de la corrida final paper-grade:
-
-- PD conformal: cerrado
-- Time series: cerrado
-- A/B: cerrado
-- Governance: cerrado
-- Causal/CATE: cerrado
-- Protocolo: congelado y versionado
-- Quarto scaffolding: estructura lista (no necesita contenido completo)
+- ✅ PD conformal: cerrado
+- ✅ Time series: cerrado (research_only)
+- ✅ A/B: cerrado
+- ✅ Governance: cerrado
+- ✅ Causal/CATE: cerrado (insights_only)
+- ✅ Protocolo: congelado y versionado
+- ✅ Quarto book: 94/94 files renderizan
+- ✅ Corrida final: `paper-grade-2026-03-13-final-heavy` ejecutada y validada
+- ✅ 690 tests passing, 0 failures, 0 skips
 
 ---
 

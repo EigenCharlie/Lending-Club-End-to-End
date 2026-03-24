@@ -1,0 +1,16 @@
+{
+  "calibrated": {
+    "ks_pvalue": 0.0004268179960864593,
+    "kuiper_pvalue": 0.00015298808115282725,
+    "spiegelhalter_pvalue": 1.2764136729792597e-06,
+    "length_scale_sigma": 0.0007432752595478094,
+    "n": 276869
+  },
+  "uncalibrated": {
+    "ks_pvalue": -4.685141163918161e-12,
+    "kuiper_pvalue": 1.475486399726833e-13,
+    "spiegelhalter_pvalue": 0.0,
+    "length_scale_sigma": 0.0008604490160268246,
+    "n": 276869
+  }
+}

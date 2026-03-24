@@ -1,0 +1,78 @@
+## Discusion y Conclusiones {#sec-estrella-discussion}
+
+El Paper Estrella articula la tesis mas ambiciosa del proyecto: convertir incertidumbre predictiva en un objeto directamente util para optimizacion de decision. La evidencia actual ya permite sostener tres conclusiones provisionales.
+
+Conviene leer este capitulo como una pieza focalizada y no como sinonimo de la tesis completa. La tesis integra ademas implementacion end-to-end, arquitectura documental, benchmarking GPU, narrativa IFRS9 y agenda de investigacion; el `Paper Estrella` recorta ese universo para defender una pregunta mas precisa: cuando una banda conformal deja de ser solo diagnostico y pasa a modificar una decision financiera de forma economica y metodologicamente justificable.
+
+### Implicaciones practicas para gestores de portafolio {#sec-estrella-practical}
+
+Los resultados del Paper Estrella tienen consecuencias directas para la gestion operativa de portafolios de credito. En primer lugar, la frontera eficiente entre nivel conformal y retorno economico (vease @sec-estrella-results) proporciona un mapa de decision que los gestores pueden navegar segun su apetito de riesgo institucional. Un gestor conservador puede seleccionar un nivel de confianza alto ($1-\alpha = 0.95$), aceptando intervalos mas anchos y portafolios mas defensivos, mientras que un gestor agresivo puede operar en niveles mas bajos, asumiendo mayor exposicion a cambio de mayor retorno esperado.
+
+En segundo lugar, la trazabilidad completa del pipeline --- desde la PD calibrada hasta la decision de portafolio, pasando por intervalos con cobertura verificable --- simplifica sustancialmente la gobernanza ante comites de riesgo. Un auditor puede verificar la cobertura empirica del intervalo conformal, examinar el artefacto `models/champion_registry.json` donde la politica queda congelada, y evaluar la sensibilidad de la decision ante cambios en $\alpha$. Esta capacidad de auditoria no es accesoria: en el contexto de los lineamientos SR 11-7 de la Fed y las expectativas del BCE sobre validacion de modelos, la transparencia del proceso decisional es un requisito operativo.
+
+Finalmente, el enfoque permite una respuesta rapida ante cambios de regimen. Cuando las condiciones macroeconomicas se deterioran, la anchura de los intervalos conformales aumenta naturalmente (reflejando mayor incertidumbre del modelo), lo cual endurece automaticamente la politica de asignacion sin necesidad de intervencion manual o recalibracion ad hoc del modelo.
+
+### Comparacion con metodos existentes {#sec-estrella-comparison}
+
+Es importante situar la contribucion del Paper Estrella en relacion con los enfoques clasicos de gestion de portafolio bajo incertidumbre. La optimizacion media-varianza de Markowitz asume normalidad de retornos y estima la matriz de covarianza a partir de datos historicos; ambos supuestos son fragiles en credito, donde las distribuciones de perdida son fuertemente asimetricas y las correlaciones entre defaults cambian con el ciclo economico. El modelo Black-Litterman mejora la situacion incorporando *views* del gestor, pero esas views siguen siendo puntuales y no llevan garantias formales de cobertura.
+
+La optimizacion robusta clasica de [@bertsimas2004] resuelve parcialmente el problema al no requerir supuestos distribucionales especificos, pero deja abierta la pregunta de como calibrar el tamano del conjunto de incertidumbre. El enfoque CRPTO responde a esa pregunta de forma natural: el conjunto de incertidumbre hereda directamente la garantia de cobertura del intervalo conformal, y su tamano se ajusta empiricamente al nivel de confianza $1-\alpha$ elegido.
+
+La comparacion con SPO+ [@elmachtoub2022] es particularmente reveladora. SPO+ logra un 49.1% de reduccion de regret respecto al enfoque two-stage clasico --- un resultado impresionante que confirma la tesis de Elmachtoub y Grigas de que entrenar end-to-end para la decision produce mejores decisiones que entrenar para la prediccion. Sin embargo, SPO+ opera como una caja negra decisional: su calidad depende de que la distribucion de entrenamiento se mantenga estable, y no ofrece mecanismos verificables de proteccion ante colas de riesgo. CRPTO, en cambio, paga un precio de regret mayor pero obtiene a cambio: (i) cobertura verificable por grupo (92.52% global, 89.01% minima por grade), (ii) trazabilidad completa para auditoria regulatoria (SR 11-7), y (iii) respuesta automatica ante cambios de regimen via ensanchamiento natural de intervalos. La pregunta relevante para un gestor de portafolio no es "cual tiene menor regret?" sino "cual puedo defender ante el comite de riesgos?".
+
+El analisis de estabilidad bajo distributional shift (vease @sec-estrella-shift-stability) refuerza esta lectura con evidencia empirica. A lo largo de cinco periodos OOT donde la tasa de default cae de 24.5% a 1.35%, la cobertura conformal se mantiene por encima del target 90% en todos los periodos (rango 92.07%--98.58%). SPO+ tambien muestra regret estable en este dataset (0.074--0.087), lo cual confirma que es un comparador formidable; pero esa estabilidad empirica en un unico evento de shift no equivale a la garantia formal que la cobertura conformal ofrece por construccion. Un regulador puede auditar la cobertura realizada; no puede auditar si el regret de SPO+ se mantendra bajo el proximo cambio de regimen.
+
+Frente al bootstrap, que requiere re-entrenar el modelo multiples veces y no ofrece garantias finitas de cobertura, y frente a BMA, cuya cobertura depende de la correcta especificacion del espacio de modelos, los intervalos conformales ofrecen una combinacion unica de simplicidad computacional y garantias formales.
+
+### Conclusiones
+
+1. Los intervalos conformales funcionan como conjuntos de incertidumbre operativos y trazables, con cobertura empirica consistente con la garantia teorica.
+2. Frente a baselines simples, ofrecen mejor compromiso entre cobertura, anchura y estabilidad por grupo, particularmente en los segmentos de mayor riesgo donde la incertidumbre es mas relevante para la decision.
+3. El nivel conformal puede interpretarse como una palanca de robustez con consecuencias economicas observables, lo cual convierte un parametro estadistico en una herramienta de gestion.
+
+### Limitaciones {#sec-estrella-limitations}
+
+La version actual todavia enfrenta limites claros que deben ser reconocidos explicitamente:
+
+- **Dataset estatico**: Lending Club es un dataset cerrado (2007--2020) que no permite evaluar el comportamiento del sistema ante datos verdaderamente nuevos. Los resultados OOT (2018--2020) simulan un escenario prospectivo, pero no equivalen a un despliegue en produccion con datos en streaming.
+- **Ausencia de conformal online**: el pipeline actual recalibra los intervalos conformales sobre un set de calibracion fijo. En un entorno productivo, seria deseable usar variantes de conformal prediction adaptativa [@gibbs2021aci] que ajusten la cobertura ante distribution shift.
+- **Clase de activo unica**: todos los resultados se obtienen sobre prestamos personales no garantizados. La generalizacion a hipotecas, tarjetas de credito o creditos corporativos requiere validacion especifica, ya que las distribuciones de PD y LGD difieren sustancialmente.
+- **Holgura de la cota teórica**: el @thm-conformal-feasibility establece la correspondencia formal entre $\alpha$ y la garantía de factibilidad del portafolio, pero la cota es Markov-tight (la mejor posible sin supuestos distribucionales adicionales). Bajo hipótesis más fuertes --- por ejemplo, independencia entre indicadores de no cobertura, lo cual no es exacto bajo split conformal --- se podrían obtener cotas exponencialmente más ajustadas vía desigualdades de Hoeffding o Bernstein. Esa extensión queda como trabajo futuro para la versión journal.
+- **Portafolio uniperiodo**: la formulacion actual no incorpora costos de transaccion ni decisiones multi-periodo, lo cual limita su aplicabilidad directa a entornos donde la cartera se rebalancea con frecuencia.
+
+### Threats to validity
+
+- la cota del @thm-conformal-feasibility es conservadora (Markov); cotas más ajustadas requieren supuestos de independencia que split conformal no garantiza estrictamente;
+- el resultado economico depende de una policy y un run concretos;
+- el analisis de estabilidad bajo distributional shift (@sec-estrella-shift-stability) confirma que la cobertura conformal se mantiene, pero se basa en un unico evento natural de shift (Lending Club 2018--2020). Una validacion mas robusta requeriria multiples datasets independientes o escenarios sinteticos de shift.
+
+### Trabajo futuro {#sec-estrella-future}
+
+Las extensiones mas prometedoras del Paper Estrella se organizan en tres horizontes. A corto plazo, la prioridad es endurecer la cota del @thm-conformal-feasibility usando desigualdades de concentración más finas (Hoeffding, Bernstein) bajo supuestos explícitos de independencia condicional entre indicadores de no cobertura. El analisis de estabilidad OOT ya esta completo (vease @sec-estrella-shift-stability): la cobertura conformal se mantiene por encima del target en los cinco periodos evaluados, incluyendo el quiebre de regimen COVID. La extension natural es replicar este analisis sobre escenarios sinteticos de shift o datasets independientes para evaluar si el patron se generaliza. Tambien es relevante explorar el entrenamiento conformal de riesgo [@yeh2025training] como puente entre CRPTO y SPO+. A mediano plazo, la extension a portafolios multi-periodo con costos de transaccion y la incorporacion de conformal prediction online [@gibbs2021aci] permitirian evaluar el sistema en un entorno mas cercano a la operacion bancaria real. A largo plazo, la integracion con sistemas de monitoreo en tiempo real y la extension a multiples clases de activo constituirian la validacion definitiva de la propuesta.
+
+### Reproducibility appendix
+
+La reproducibilidad del paper esta mejor resuelta que su cierre teorico. El capitulo se apoya en:
+
+- `data/processed/model_comparison.json`
+- `data/processed/pipeline_summary.json`
+- `data/processed/alpha_sweep_pareto_both.parquet`
+- `data/processed/bma_comparison.parquet`
+- `data/processed/crpto_vs_spo_stability.json` + `crpto_vs_spo_stability_detail.parquet`
+- `models/champion_registry.json`
+
+Ademas, la carpeta `reports/paper_material/figures_publication/` conserva las figuras editoriales congeladas para escritura y revision.
+
+### Proximo paso editorial
+
+La mejor continuacion no es expandir alcance indiscriminadamente, sino endurecer el claim central con una version journal:
+
+1. endurecer la cota del @thm-conformal-feasibility con desigualdades de concentración (Hoeffding/Bernstein) bajo supuestos explícitos de independencia condicional;
+2. replicacion del analisis de estabilidad (@sec-estrella-shift-stability) sobre datasets independientes o escenarios sinteticos de shift;
+3. analisis de sensibilidad por segmento y periodo.
+
+### Conclusion general {#sec-estrella-conclusion}
+
+En sintesis, el Paper Estrella demuestra que el enfoque **Conformal Robust Predict-then-Optimize** (CRPTO) puede trascender el rol tradicional de los intervalos conformales como herramienta diagnostica para convertirlos en un insumo operativo de decision financiera. La combinacion de una PD calibrada, intervalos con cobertura verificable y un programa lineal robusto parametrizado por esos intervalos produce un sistema que es simultaneamente mas defensible ante auditoria y mas sensible ante cambios en el regimen de riesgo.
+
+La comparacion con SPO+ ilumina la contribucion real: CRPTO no compite en regret (donde SPO+ es superior por diseno con 49.1% de reduccion) sino en **auditabilidad y gobernanza** --- dimensiones que la literatura de decision-focused learning ha tratado como secundarias pero que son centrales en credito regulado. Aunque las limitaciones identificadas --- dataset estatico, clase de activo unica, holgura de la cota teórica --- exigen cautela en la generalizacion, la evidencia empirica presentada sostiene que esta linea de investigacion merece atencion tanto de la comunidad academica como de los profesionales de gestion de riesgo. Con eso, el paper queda bien posicionado como pieza bandera de la agenda de maestria.

@@ -1,0 +1,16 @@
+---
+title: "Dedicatoria"
+page-layout: article
+---
+
+::: {.dedication style="text-align: center; margin-top: 15%; font-style: italic; font-size: 1.15em;"}
+
+A la Shofi, por su apoyo incondicional y su paciencia infinita
+durante las noches largas de código y ecuaciones.
+
+A mi familia, por creer siempre en el valor de seguir aprendiendo.
+
+A la comunidad de código abierto,
+cuyo trabajo generoso hace posible proyectos como este.
+
+:::

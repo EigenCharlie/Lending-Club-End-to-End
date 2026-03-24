@@ -1,0 +1,71 @@
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  // Prevent column-page / page-full from breaking sidebar with negative margins
+  const stripLayoutClasses = (node) => {
+    if (!node || !node.classList) return;
+    node.classList.remove("page-columns", "page-full", "column-page",
+                          "column-screen", "column-screen-inset");
+  };
+
+  document.querySelectorAll("main.content figure.quarto-float-fig").forEach((figure) => {
+    if (!figure.querySelector("img")) return;
+
+    // Strip Quarto layout classes that use negative margins
+    stripLayoutClasses(figure);
+    if (figure.parentElement?.matches(
+      "p.page-columns, div.page-columns, p.page-full, div.page-full"
+    )) {
+      stripLayoutClasses(figure.parentElement);
+    }
+
+    const caption = figure.querySelector("figcaption.quarto-float-caption");
+    if (caption && !caption.dataset.apaReady) {
+      const text = caption.textContent.replace(/\s+/g, " ").trim();
+      const match = text.match(/^(Figura\s+[0-9.]+):\s*(.+)$/);
+      if (match) {
+        const fullText = match[2];
+        // Split on first ". " to separate title from note
+        const splitIdx = fullText.indexOf(". ");
+        let title, note;
+        if (splitIdx > 20) {
+          title = fullText.substring(0, splitIdx + 1);
+          note = fullText.substring(splitIdx + 2).trim();
+        } else {
+          title = fullText;
+          note = "";
+        }
+
+        // Caption above: label + title only
+        caption.innerHTML =
+          `<span class="apa-figure-label">${match[1]}</span>` +
+          `<span class="apa-figure-title">${title}</span>`;
+
+        // Move caption to top of figure (above image)
+        figure.prepend(caption);
+
+        // If there's a note, add it below the image
+        if (note) {
+          const noteEl = document.createElement("div");
+          noteEl.className = "apa-figure-note";
+          noteEl.innerHTML = `<span class="apa-note-label">Nota. </span>${note}`;
+          figure.appendChild(noteEl);
+        }
+      } else {
+        // No match — still move caption above
+        figure.prepend(caption);
+      }
+      caption.dataset.apaReady = "true";
+    }
+
+    // Detect existing Nota. paragraphs after the figure
+    const noteCandidate = figure.parentElement?.nextElementSibling;
+    if (
+      noteCandidate &&
+      noteCandidate.tagName === "P" &&
+      noteCandidate.textContent.trim().startsWith("Nota.")
+    ) {
+      noteCandidate.classList.add("figure-note");
+    }
+  });
+});
+</script>

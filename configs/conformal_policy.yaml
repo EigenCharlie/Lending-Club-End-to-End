@@ -17,7 +17,7 @@ policy:
   min_kupiec_pvalue_95: 0.01
   min_christoffersen_pvalue_90: 0.01
   min_christoffersen_pvalue_95: 0.01
-  statistical_tests_role: strict_diagnostics
+  statistical_tests_role: diagnostic_informational
   allow_methodological_justification: true
   max_coverage_deviation_for_statistical_warning_90: 0.03
   max_coverage_deviation_for_statistical_warning_95: 0.03

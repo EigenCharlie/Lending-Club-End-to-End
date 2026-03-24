@@ -1,0 +1,280 @@
+---
+title: "Stack Tecnológico"
+close_takeaway: "El stack importa menos como lista de librerías que como sistema de decisiones: baseline abierto, contratos explícitos, separación de carriles y trazabilidad sobre artefactos."
+close_connects: "Sostiene todo lo que ocurre después: ETL, modelado PD, conformal, portafolio, IFRS9, companion y libro."
+close_reuse: "Sus prácticas se reutilizan en MLOps, benchmark GPU, papers y defensa metodológica del proyecto."
+---
+
+Este capítulo documenta las librerías y herramientas utilizadas en el proyecto, junto con la **justificación** de por qué cada una fue seleccionada sobre sus alternativas. El stack completo se gestiona con `uv` (no pip) y las versiones están fijadas en `pyproject.toml`.
+
+## Principio de selección
+
+Las herramientas se eligieron con tres criterios:
+
+1. **Calidad y madurez**: Librerías con publicaciones académicas asociadas, mantenimiento activo y adopción en la comunidad.
+2. **Código abierto**: Ninguna dependencia de licencias comerciales. Esto es especialmente relevante para el solver de optimización (HiGHS vs Gurobi/CPLEX).
+3. **Interoperabilidad**: Todas las herramientas trabajan sobre el ecosistema pandas/numpy estándar y se integran sin adaptadores custom.
+
+| Principio de ingeniería | Cómo se materializa en este proyecto |
+|---|---|
+| una sola fuente de verdad | lógica reusable en `src/`, no duplicada entre scripts, notebooks y Streamlit |
+| contratos explícitos | schemas Pandera, configs YAML y artefactos versionados |
+| baseline abierto | CatBoost, MAPIE, Pyomo, HiGHS, DVC y Quarto sin dependencia de licencias cerradas |
+| separación de carriles | baseline operativo CPU vs insight factory / research en GPU |
+
+: Prácticas de ingeniería que sostienen el stack, más allá de la lista de librerías {#tbl-stack-engineering-principles}
+
+## Machine Learning y Modelado
+
+```{python}
+#| label: tbl-ml-stack
+#| tbl-cap: "Librerías de Machine Learning y modelado"
+
+import pandas as pd
+
+ml_stack = [
+    {"Librería": "CatBoost 1.2.8", "Rol": "Modelo PD (gradient boosting)",
+     "Alternativas": "XGBoost, LightGBM",
+     "Justificación": "Manejo nativo de categorías y NaN, ordered boosting reduce overfitting, mejor calibración out-of-the-box para credit scoring"},
+    {"Librería": "scikit-learn 1.6.1", "Rol": "Baseline LR, calibración, métricas",
+     "Alternativas": "—",
+     "Justificación": "Estándar de facto para ML en Python. Provee CalibratedClassifierCV, IsotonicRegression, y todas las métricas de evaluación"},
+    {"Librería": "Optuna 4.7", "Rol": "HPO (320 trials CatBoost)",
+     "Alternativas": "Hyperopt, Ray Tune, Optuna",
+     "Justificación": "TPE sampler es state-of-the-art para HPO con presupuesto limitado, pruning via MedianPruner, integración nativa con CatBoost"},
+    {"Librería": "OptBinning 0.19+", "Rol": "WOE/IV binning",
+     "Alternativas": "scorecardpy, binning manual",
+     "Justificación": "Binning óptimo basado en programación matemática, soporta constraints regulatorios (monotonía, máximo de bins)"},
+    {"Librería": "SHAP 0.48", "Rol": "Explicabilidad (TreeExplainer)",
+     "Alternativas": "LIME, ELI5",
+     "Justificación": "SHAP values tienen fundamento teórico en teoría de juegos (Shapley values), TreeExplainer es exacto para tree ensembles"},
+]
+
+pd.DataFrame(ml_stack)
+```
+
+## Predicción Conformal
+
+```{python}
+#| label: tbl-conformal-stack
+#| tbl-cap: "Librerías de predicción conformal"
+
+conformal_stack = [
+    {"Librería": "MAPIE 1.3.0", "Rol": "Split Conformal, Mondrian, CQR",
+     "Alternativas": "crepes, nonconformist, conformal_tights",
+     "Justificación": "API moderna (SplitConformalRegressor), soporte Mondrian nativo, mantenida por Quantmetry con publicación asociada [@taquet2025mapie]"},
+    {"Librería": "crepes", "Rol": "Referencia cruzada conformal",
+     "Alternativas": "—",
+     "Justificación": "Alternativa ligera para validación cruzada de resultados MAPIE"},
+]
+
+pd.DataFrame(conformal_stack)
+```
+
+::: {.callout-warning}
+## MAPIE 1.3.0 — Cambio de API
+MAPIE 1.3.0 introdujo una API completamente nueva. La clase principal es `SplitConformalRegressor` (no `MapieRegressor`). El workflow es: `fit()` → `conformalize()` → `predict_interval()`. El parámetro `confidence_level` se define en `__init__`, no `alpha` en `predict`. Usamos `prefit=True` para integrar con modelos CatBoost pre-entrenados.
+:::
+
+## Series de Tiempo y Supervivencia
+
+```{python}
+#| label: tbl-ts-survival-stack
+#| tbl-cap: "Librerías de series de tiempo y supervivencia"
+
+ts_stack = [
+    {"Librería": "statsforecast 2.0+", "Rol": "AutoARIMA, ETS, point forecasts",
+     "Alternativas": "prophet, darts, sktime",
+     "Justificación": "Implementaciones rápidas en C/Numba de modelos clásicos, API Nixtla consistente, jerárquica y panel-ready"},
+    {"Librería": "mlforecast 0.13+", "Rol": "ML-based forecasting",
+     "Alternativas": "sktime, tsfresh",
+     "Justificación": "Integración nativa con statsforecast, permite features de lag/rolling con CatBoost/LightGBM como base learner"},
+    {"Librería": "hierarchicalforecast 1.0+", "Rol": "Reconciliación jerárquica",
+     "Alternativas": "—",
+     "Justificación": "Reconciliación coherente top-down/bottom-up/MinTrace para forecasts por grade y agregado"},
+    {"Librería": "lifelines 0.30+", "Rol": "Cox PH, Kaplan-Meier",
+     "Alternativas": "pycox, scikit-survival",
+     "Justificación": "API limpia para análisis de supervivencia paramétrica y semi-paramétrica, hazard ratios interpretables"},
+    {"Librería": "scikit-survival 0.24+", "Rol": "Random Survival Forest",
+     "Alternativas": "pycox, aalen-johansen",
+     "Justificación": "RSF implementado sobre scikit-learn API, compatible con SHAP para explicabilidad de supervivencia"},
+]
+
+pd.DataFrame(ts_stack)
+```
+
+## Inferencia Causal
+
+```{python}
+#| label: tbl-causal-stack
+#| tbl-cap: "Librerías de inferencia causal"
+
+causal_stack = [
+    {"Librería": "DoWhy 0.12+", "Rol": "Identificación causal y refutaciones",
+     "Alternativas": "CausalNex, causalml",
+     "Justificación": "Framework de 4 pasos (model → identify → estimate → refute) con grafos causales explícitos, desarrollado por Microsoft Research"},
+    {"Librería": "EconML 0.16+", "Rol": "CausalForestDML, efectos heterogéneos",
+     "Alternativas": "causalml (Uber), grf (R)",
+     "Justificación": "Implementación de Double/Debiased ML con CausalForestDML para CATE, integración nativa con DoWhy"},
+]
+
+pd.DataFrame(causal_stack)
+```
+
+## Optimización
+
+```{python}
+#| label: tbl-optim-stack
+#| tbl-cap: "Librerías de optimización"
+
+optim_stack = [
+    {"Librería": "Pyomo 6.8+", "Rol": "Formulación de modelos de optimización",
+     "Alternativas": "PuLP, OR-Tools, cvxpy",
+     "Justificación": "Lenguaje de modelado algebraico completo, soporta LP/MILP/NLP, robust counterpart nativo, amplia comunidad académica"},
+    {"Librería": "HiGHS 1.10+", "Rol": "Solver LP/MILP",
+     "Alternativas": "Gurobi, CPLEX, GLPK",
+     "Justificación": "Solver open-source state-of-the-art para LP/MILP. Performance comparable a solvers comerciales para problemas de tamaño medio. Sin restricción de licencia académica"},
+    {"Librería": "PyEPO (torch)", "Rol": "SPO+ loss para predict-then-optimize",
+     "Alternativas": "Implementación custom",
+     "Justificación": "Implementación oficial de SPO+ [@elmachtoub2022] con autograd para PyTorch, optDataset para pre-resolver instancias LP"},
+]
+
+pd.DataFrame(optim_stack)
+```
+
+::: {.callout-tip}
+## ¿Por qué HiGHS y no Gurobi?
+Gurobi y CPLEX son más rápidos para problemas grandes (>100K variables), pero requieren licencias comerciales costosas o licencias académicas con restricciones de uso. HiGHS logra performance comparable para nuestro tamaño de problema (~5,000 candidatos de portafolio) y es completamente open-source. Esto asegura reproducibilidad sin barreras de acceso.
+:::
+
+## MLOps y Trazabilidad Operativa
+
+```{python}
+#| label: tbl-mlops-stack
+#| tbl-cap: "Herramientas de MLOps y trazabilidad operativa"
+
+mlops_stack = [
+    {"Librería": "DVC 3.56+", "Rol": "Versionado de datos y artefactos",
+     "Alternativas": "git-lfs, lakefs",
+     "Justificación": "Linaje claro de artefactos parquet/pkl/cbm, integración con Git y control explícito de qué dato alimenta cada etapa del pipeline"},
+    {"Librería": "MLflow 3.9+", "Rol": "Tracking de experimentos",
+     "Alternativas": "Weights & Biases, Neptune",
+     "Justificación": "Open-source, logging local sin servidor externo, compatible con CatBoost y Optuna, integración DagsHub para tracking remoto"},
+    {"Librería": "Pandera 0.22+", "Rol": "Validación de schemas de datos",
+     "Alternativas": "great_expectations, pydantic",
+     "Justificación": "Validación de DataFrames con decoradores, schemas tipados que documentan el contrato de datos en cada etapa del pipeline"},
+    {"Librería": "Feast 0.59", "Rol": "Feature store",
+     "Alternativas": "Hopsworks, Tecton",
+     "Justificación": "Feature store open-source con DuckDB backend para serving local, Field API + feast.types para definición de features"},
+    {"Librería": "dbt-duckdb 1.10", "Rol": "Transformaciones SQL sobre parquet",
+     "Alternativas": "pandas puro, polars",
+     "Justificación": "SQL semántico sobre parquet via read_parquet(), staging/marts/tests, linaje documentable para auditoría"},
+]
+
+pd.DataFrame(mlops_stack)
+```
+
+## Desarrollo y Calidad
+
+```{python}
+#| label: tbl-dev-stack
+#| tbl-cap: "Herramientas de desarrollo"
+
+dev_stack = [
+    {"Librería": "uv", "Rol": "Package manager y virtual envs",
+     "Alternativas": "pip, poetry, conda",
+     "Justificación": "10-100x más rápido que pip, resolución determinística, lockfile, compatible con pyproject.toml estándar"},
+    {"Librería": "ruff", "Rol": "Linter + formatter",
+     "Alternativas": "flake8 + black + isort",
+     "Justificación": "Un solo tool reemplaza tres. Reglas: E, F, W, I, UP, B, SIM, C4. 10-100x más rápido que flake8"},
+    {"Librería": "pytest", "Rol": "Testing framework",
+     "Alternativas": "unittest, nose2",
+     "Justificación": "681 tests con --strict-markers --strict-config, fixtures para artefactos, markers para tests lentos"},
+    {"Librería": "pre-commit", "Rol": "Hooks de calidad pre-commit",
+     "Alternativas": "husky, lefthook",
+     "Justificación": "ruff lint+format, nbstripout (limpia notebooks), trailing-whitespace, check-yaml/toml, large file guard"},
+    {"Librería": "nbstripout", "Rol": "Limpieza de outputs de notebooks",
+     "Alternativas": "nbconvert --clear-output",
+     "Justificación": "Hook automático que evita commits con outputs de notebooks, reduce tamaño del repo"},
+    {"Librería": "loguru", "Rol": "Logging estructurado",
+     "Alternativas": "stdlib logging",
+     "Justificación": "Configuración mínima, formato coloreado, rotación de archivos, mejor DX que logging estándar"},
+]
+
+pd.DataFrame(dev_stack)
+```
+
+## Entrega y Visualización
+
+```{python}
+#| label: tbl-delivery-stack
+#| tbl-cap: "Herramientas de entrega"
+
+delivery_stack = [
+    {"Librería": "Streamlit 1.42+", "Rol": "Dashboard interactivo (companion)",
+     "Alternativas": "Dash, Panel, Gradio",
+     "Justificación": "Prototipado rápido de dashboards analíticos, 31 páginas con st.navigation(), deploy gratuito en Streamlit Cloud"},
+    {"Librería": "Quarto 1.9.35", "Rol": "Libro técnico (este documento)",
+     "Alternativas": "Jupyter Book, Sphinx, bookdown",
+     "Justificación": "Soporte nativo para Python+Mermaid+LaTeX, output HTML/PDF dual, cross-references, bibliografía, code folding"},
+    {"Librería": "FastAPI 0.115+", "Rol": "API REST (servicio opcional)",
+     "Alternativas": "Flask, Django REST",
+     "Justificación": "Async, tipado con Pydantic, OpenAPI automático, integración con modelos CatBoost+MAPIE para serving de predicciones"},
+    {"Librería": "matplotlib + seaborn", "Rol": "Figuras publication-quality",
+     "Alternativas": "plotly (para HTML interactivo)",
+     "Justificación": "Vector graphics para PDF/LaTeX, estilo APA/IEEE, reproducibles desde artefactos congelados"},
+]
+
+pd.DataFrame(delivery_stack)
+```
+
+## GPU / Aceleración (Opcional)
+
+```{python}
+#| label: tbl-gpu-stack
+#| tbl-cap: "Librerías GPU (insights factory, no baseline operativo)"
+
+gpu_stack = [
+    {"Librería": "RAPIDS (cuDF, cuML, cuPy)", "Rol": "Aceleración GPU para ETL, ML, Monte Carlo",
+     "Alternativas": "pandas, scikit-learn, numpy",
+     "Justificación": "Speedup selectivo: Monte Carlo IFRS9 (16K scenarios), HPO masivo, benchmark comparativo. No reemplaza CPU baseline canónico"},
+    {"Librería": "NVIDIA cuOpt", "Rol": "Optimización combinatoria GPU",
+     "Alternativas": "OR-Tools, Pyomo+HiGHS",
+     "Justificación": "Exploración de formulaciones alternativas en GPU para portafolio. Resultado: HiGHS CPU sigue siendo óptimo para nuestro tamaño"},
+]
+
+pd.DataFrame(gpu_stack)
+```
+
+::: {.callout-warning}
+## GPU no es el baseline
+Las herramientas GPU son parte del *insights factory* --- un carril de investigación complementario. El baseline operativo corre enteramente en CPU. Los benchmarks GPU se documentan en el Apéndice B.
+:::
+
+## Arquitectura end-to-end y riesgos metodológicos
+
+| Bloque | Riesgo metodológico dominante | Mitigación en el stack |
+|---|---|---|
+| datos | leakage, mezcla de cortes temporales, drift silencioso | DVC, dbt, Pandera, splits OOT |
+| modelado PD | sobreajuste, mala calibración, métricas engañosas | Optuna, calibration layer, tests y benchmarks |
+| conformal | buena cobertura global pero mala utilidad por grupo o en el tiempo | Mondrian, policy status, backtesting, Winkler |
+| optimización | maximizar retorno ignorando ambigüedad | uncertainty sets + policy champion |
+| IFRS9 / governance | provisiones sensibles a supuestos y artefactos opacos | escenarios, MRM, registry, fairness, explainability |
+
+: Riesgos metodológicos y la parte del stack que los contiene {#tbl-stack-risk-checklist}
+
+## Resumen de versiones clave
+
+| Componente | Versión | Verificable en |
+|------------|---------|----------------|
+| Python | 3.12.12 | `python --version` |
+| CatBoost | 1.2.8 | `pyproject.toml` |
+| MAPIE | 1.3.0 | `pyproject.toml` |
+| Pyomo | 6.8+ | `pyproject.toml` |
+| HiGHS | 1.10+ | `pyproject.toml` |
+| Quarto | 1.9.35 | `quarto --version` |
+| uv | latest | `uv --version` |
+
+: Versiones clave del stack {#tbl-versions}
+
+{{< include ../includes/_whole-game-close.qmd >}}

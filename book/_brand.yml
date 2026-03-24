@@ -1,0 +1,101 @@
+meta:
+  name: "Lending Club Risk Project"
+  link:
+    home: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
+    github: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
+    dagshub: "https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"
+    streamlit: "https://lending-club-showcase.streamlit.app/"
+
+logo:
+  images:
+    mark:
+      path: assets/brand/lcrp-mark-light.svg
+      alt: "Monograma del Lending Club Risk Project"
+    mark-dark:
+      path: assets/brand/lcrp-mark-dark.svg
+      alt: "Monograma del Lending Club Risk Project para modo oscuro"
+    lockup:
+      path: assets/brand/lcrp-lockup-light.svg
+      alt: "Logotipo del Lending Club Risk Project"
+    lockup-dark:
+      path: assets/brand/lcrp-lockup-dark.svg
+      alt: "Logotipo del Lending Club Risk Project para modo oscuro"
+  small:
+    light: mark
+    dark: mark-dark
+  medium:
+    light: lockup
+    dark: lockup-dark
+  large:
+    light: lockup
+    dark: lockup-dark
+
+color:
+  palette:
+    ink: "#152238"
+    paper: "#F6F8FB"
+    mist: "#EEF2F7"
+    accent: "#1E5AA8"
+    accent-soft: "#DCE8F7"
+    success: "#0D7A5F"
+    warning: "#B56D16"
+    danger: "#A33131"
+    night: "#111927"
+    silver: "#7B8794"
+  foreground:
+    light: ink
+    dark: "#E7EDF5"
+  background:
+    light: paper
+    dark: night
+  primary:
+    light: accent
+    dark: "#77A9F2"
+  secondary:
+    light: silver
+    dark: "#B7C3D4"
+  success: success
+  warning: warning
+  danger: danger
+
+typography:
+  fonts:
+    - family: "Source Sans 3"
+      source: google
+    - family: "Merriweather"
+      source: google
+    - family: "IBM Plex Mono"
+      source: google
+  base:
+    family: "Source Sans 3"
+    line-height: 1.7
+  headings:
+    family: "Merriweather"
+    weight: 700
+    line-height: 1.2
+    color:
+      light: ink
+      dark: "#F7F9FC"
+  link:
+    weight: 600
+    color:
+      light: accent
+      dark: "#9BC2FF"
+    decoration: underline
+  monospace:
+    family: "IBM Plex Mono"
+    size: 0.94rem
+  monospace-inline:
+    background-color:
+      light: accent-soft
+      dark: "#1B2740"
+    color:
+      light: "#24406E"
+      dark: "#D5E6FF"
+  monospace-block:
+    background-color:
+      light: mist
+      dark: "#162132"
+    color:
+      light: "#20314D"
+      dark: "#E5EEF8"

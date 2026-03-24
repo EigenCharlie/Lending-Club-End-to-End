@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
         default_pipeline_family="champion_search",
         default_sampling_profile="mega64plus",
         default_include_rapids=True,
-        default_include_notebooks=False,
+        default_include_notebooks=True,
     )
 
 

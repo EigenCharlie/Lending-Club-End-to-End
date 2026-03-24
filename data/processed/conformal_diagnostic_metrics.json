@@ -1,0 +1,13 @@
+{
+  "mapie_diagnostics_available": true,
+  "n": 276869,
+  "hsic_90": 0.009215479859214238,
+  "hsic_n_subsample": 5000,
+  "ssc_90": 0.9251851049228881,
+  "mwi_90": 1.2103663060412444,
+  "cwc_90": 0.24386774325736674,
+  "empirical_coverage_global": 0.9251848347052216,
+  "schema_version": "2026-03-21.1",
+  "generated_at_utc": "2026-03-22T06:23:00.414342+00:00",
+  "run_tag": "untracked"
+}

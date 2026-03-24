@@ -1,0 +1,192 @@
+## Marco Teórico {#sec-estrella-theory}
+
+El marco teórico del paper combina tres tradiciones que normalmente se estudian por separado: predicción probabilística calibrada, incertidumbre distribution-free y optimización robusta.
+
+### De probabilidad puntual a banda de riesgo
+
+La primera pieza es el intervalo conformal por observación:
+
+$$
+\widehat{C}_{1-\alpha}(x,g)=\left[\max\{0,\widehat{p}(x)-q_{1-\alpha,g}\},\min\{1,\widehat{p}(x)+q_{1-\alpha,g}\}\right]
+$$
+
+donde `g` representa la partición Mondrian. El objeto importante no es solo la cobertura marginal, sino la posibilidad de traducir la cota superior del intervalo en una versión prudente del riesgo.
+
+### Del intervalo al conjunto de incertidumbre
+
+Para portafolio, la lectura operativa es inmediata:
+
+$$
+p_i^{H}(\alpha)=\sup \widehat{C}_{1-\alpha}(x_i,g_i)
+$$
+
+Ese `p_i^H` funciona como probabilidad de default en peor caso admisible bajo el nivel conformal elegido. En lugar de construir un conjunto elipsoidal o bootstrap exógeno, el conjunto nace de la propia capa predictiva.
+
+### Optimización robusta
+
+El portafolio robusto puede expresarse, de forma esquemática, como:
+
+$$
+\max_{z \in \{0,1\}^n}\sum_i z_i\,r_i
+\quad\text{s.a.}\quad
+\sum_i z_i a_i \le B,\;
+\sum_i z_i p_i^{H}(\alpha)a_i \le \tau B
+$$
+
+La restricción de pérdida esperada usa la frontera superior inducida por el intervalo. Así, la robustez deja de ser un parámetro abstracto y pasa a estar anclada a un objeto con garantía empírica de cobertura.
+
+### Formalización del vínculo $\alpha \leftrightarrow \Gamma$ {#sec-alpha-gamma-bound}
+
+La intuición del pipeline es directa: a menor $\alpha$ (mayor confianza), los intervalos se ensanchan, $p_i^H$ sube y la restricción robusta se endurece. Pero una intuición no es un teorema. Esta sección formaliza esa correspondencia y establece garantías probabilísticas sobre la factibilidad del portafolio bajo la realización verdadera de PD.
+
+#### Presupuesto conformal de robustez
+
+::: {#def-gamma-cp}
+## Presupuesto conformal de robustez
+Sea $x^*$ la asignación óptima del LP robusto con pesos normalizados $w_i = x_i^* a_i / \sum_j x_j^* a_j$ y cotas superiores conformales $u_i = p_i^H(\alpha)$. El **presupuesto conformal de robustez** es:
+
+$$
+\Gamma_{\text{CP}}(\alpha) = \sum_{i} w_i \cdot \bigl(u_i - \widehat{p}_i\bigr) = \sum_{i} w_i \cdot q_{1-\alpha,\,g_i}
+$$ {#eq-gamma-cp}
+
+donde $q_{1-\alpha,g_i}$ es el cuantil conformal de scores de no conformidad en el grupo Mondrian $g_i$.
+:::
+
+$\Gamma_{\text{CP}}$ mide la prima promedio ponderada de PD que el portafolio paga por protegerse contra la incertidumbre. Es el análogo conformal del presupuesto $\Gamma$ de Bertsimas y Sim [-@bertsimas_price_2004], pero con una diferencia fundamental: su tamaño no se elige por convención o calibración experta, sino que se hereda directamente de la garantía de cobertura del intervalo conformal.
+
+#### Proposición 1: Monotonicidad {#sec-prop-monotonicity}
+
+::: {#prp-monotonicity}
+## Monotonicidad del presupuesto conformal
+$\Gamma_{\text{CP}}(\alpha)$ es monótonamente no creciente en $\alpha$. A menor $\alpha$ (mayor confianza conformal), el presupuesto de robustez aumenta.
+:::
+
+*Demostración.* El cuantil $q_{1-\alpha,g}$ es la función cuantil evaluada en el nivel $1-\alpha$ de la distribución empírica de scores de no conformidad del grupo $g$. La función cuantil es no decreciente, por lo que $q_{1-\alpha,g}$ es no decreciente en $(1-\alpha)$, equivalentemente no creciente en $\alpha$. Dado que $\Gamma_{\text{CP}} = \sum_i w_i \cdot q_{1-\alpha,g_i}$ es una suma ponderada con pesos no negativos fijos, hereda la monotonicidad. $\square$
+
+La consecuencia práctica es inmediata: si un gestor decide endurecer la protección de 90% a 95%, el presupuesto de robustez crece de forma predecible --- y con él, el costo económico de la protección.
+
+#### Proposición 2: Embedding en Bertsimas-Sim {#sec-prop-embedding}
+
+::: {#prp-embedding}
+## Embedding del conjunto conformal en Bertsimas-Sim
+El conjunto de incertidumbre box conformal $\mathcal{U}_{\text{CP}}(\alpha) = \{p : p_i \leq p_i^H(\alpha)\;\forall i\}$ se embebe en el conjunto de Bertsimas-Sim con presupuesto $\Gamma_{\text{BS}} = n$ y desviaciones $\hat{\delta}_i = q_{1-\alpha,g_i}$. Sin embargo, la garantía conformal implica que el número esperado de desviaciones simultáneamente activas es como máximo $n\alpha$, induciendo un **presupuesto efectivo** $\Gamma_{\text{eff}} = n\alpha \ll n$.
+:::
+
+*Demostración.* En el marco de Bertsimas-Sim, el conjunto de incertidumbre es $\mathcal{U}_{\text{BS}} = \{\tilde{a} : |\tilde{a}_i - \hat{a}_i| \leq \hat{\delta}_i,\;\sum_i |\tilde{a}_i - \hat{a}_i|/\hat{\delta}_i \leq \Gamma\}$. Con $\Gamma = n$, la restricción de presupuesto se vuelve no activa (todos los coeficientes pueden desviarse al máximo simultáneamente), recuperando el conjunto box. Para la cota de presupuesto efectivo: sea $Z_i = \mathbf{1}\{PD_i^{\text{true}} > u_i\}$ el indicador de no cobertura. Por la garantía conformal marginal, $\mathbb{E}[Z_i] \leq \alpha$ para cada $i$. Por linealidad de la esperanza, $\mathbb{E}[\sum_i Z_i] \leq n\alpha$. $\square$
+
+Para el portafolio actual ($n = 299$ préstamos financiados, $\alpha = 0.10$), el presupuesto efectivo es $\Gamma_{\text{eff}} \approx 30$ --- solo se espera que 30 de 299 préstamos excedan su cota superior simultáneamente, no los 299.
+
+#### Teorema 1: Garantía conformal de factibilidad {#sec-thm-feasibility}
+
+::: {#thm-conformal-feasibility}
+## Garantía conformal de factibilidad del portafolio
+Sea $x^*$ la solución del LP robusto con cotas conformales $u_i = p_i^H(\alpha)$ en la restricción de PD ponderada: $\sum_i w_i u_i \leq \tau$. Bajo intercambiabilidad de datos de calibración y test:
+
+**(a)** La violación esperada de la restricción está acotada por $\alpha$:
+
+$$
+\mathbb{E}\!\left[\max\!\left(0,\;\sum_i w_i\, PD_i^{\text{true}} - \tau\right)\right] \leq \alpha
+$$ {#eq-expected-violation}
+
+**(b)** Para cualquier $t > 0$, la probabilidad de violación está acotada:
+
+$$
+\mathbb{P}\!\left(\sum_i w_i\, PD_i^{\text{true}} > \tau + t\right) \leq \frac{\alpha}{t}
+$$ {#eq-prob-violation}
+
+**(c)** Evaluando en $t = \sqrt{\alpha}$ (tasa óptima de Markov):
+
+$$
+\mathbb{P}\!\left(\sum_i w_i\, PD_i^{\text{true}} > \tau + \sqrt{\alpha}\right) \leq \sqrt{\alpha}
+$$ {#eq-markov-tight}
+:::
+
+*Demostración.* La prueba descansa en descomponer la PD ponderada verdadera usando indicadores de cobertura.
+
+**Paso 1 (Descomposición).** Sea $Z_i = \mathbf{1}\{PD_i^{\text{true}} > u_i\}$. Para los préstamos cubiertos ($Z_i = 0$), $PD_i^{\text{true}} \leq u_i$. Para los no cubiertos ($Z_i = 1$), $PD_i^{\text{true}} \leq 1$ (cota trivial ya que PD $\in [0,1]$), de modo que $PD_i^{\text{true}} - u_i \leq 1$. Entonces:
+
+$$
+\sum_i w_i\, PD_i^{\text{true}} = \sum_i w_i\, PD_i^{\text{true}}\,(1-Z_i) + \sum_i w_i\, PD_i^{\text{true}}\, Z_i \leq \sum_i w_i\, u_i + \sum_i w_i\, Z_i \leq \tau + V
+$$
+
+donde $V = \sum_i w_i Z_i$ es la **no cobertura ponderada**.
+
+**Paso 2 (Cota de la esperanza).** Por la garantía conformal marginal, $\mathbb{E}[Z_i] \leq \alpha$ para cada $i$. Por linealidad y dado que $\sum_i w_i = 1$:
+
+$$
+\mathbb{E}[V] = \sum_i w_i\, \mathbb{E}[Z_i] \leq \sum_i w_i \cdot \alpha = \alpha
+$$
+
+**Paso 3 (Resultados).** La parte (a) sigue de $\mathbb{E}[\max(0, \sum w_i PD_i - \tau)] \leq \mathbb{E}[V] \leq \alpha$. La parte (b) aplica la desigualdad de Markov a $V$: $\mathbb{P}(V > t) \leq \mathbb{E}[V]/t \leq \alpha/t$. La parte (c) sustituye $t = \sqrt{\alpha}$. $\square$
+
+#### Validación empírica del vínculo $\alpha \leftrightarrow \Gamma$
+
+La @fig-alpha-gamma-bound muestra la validación empírica del vínculo teórico en 8 niveles de $\alpha$. A medida que $\alpha$ decrece (mayor confianza), $\Gamma_{\text{CP}}$ crece monótonamente --- confirmando la @prp-monotonicity --- y la cobertura empírica se mantiene por encima del target nominal en todos los niveles.
+
+![Validación del vínculo $\alpha \leftrightarrow \Gamma_{\text{CP}}$: presupuesto conformal de robustez (izq.) y cobertura empírica vs. target nominal (der.) para 8 niveles de confianza. La monotonicidad de $\Gamma_{\text{CP}}(\alpha)$ y la sobre-cobertura consistente confirman las proposiciones teóricas.](../../assets/figures/publication/estrella_fig_alpha_gamma_bound.png){#fig-alpha-gamma-bound}
+
+#### Interpretación práctica
+
+El @thm-conformal-feasibility traduce la garantía estadística del intervalo conformal en una garantía operativa sobre el portafolio. Para los valores del proyecto ($\alpha = 0.10$, $\tau = 0.10$):
+
+| Nivel conformal $\alpha$ | Violación esperada | $\mathbb{P}(\text{PD pond.} > \tau + 0.05)$ | $\mathbb{P}(\text{PD pond.} > \tau + \sqrt{\alpha})$ |
+|---:|---:|---:|---:|
+| 0.20 | $\leq 0.20$ | $\leq 1.00$ | $\leq 0.447$ |
+| 0.10 | $\leq 0.10$ | $\leq 1.00$ | $\leq 0.316$ |
+| 0.05 | $\leq 0.05$ | $\leq 1.00$ | $\leq 0.224$ |
+| 0.01 | $\leq 0.01$ | $\leq 0.20$ | $\leq 0.100$ |
+
+: Garantías del Teorema 1 para diferentes niveles conformales {#tbl-bound-values}
+
+En lenguaje de comité de riesgos: con $\alpha = 0.10$, la PD ponderada verdadera del portafolio excede el techo $\tau$ por más de $\sqrt{0.10} \approx 0.316$ con probabilidad menor al 31.6%. Para $\alpha = 0.01$, la misma violación se reduce a probabilidad menor al 10%. La cota es conservadora (basada en Markov, sin supuestos distribucionales), lo cual es consistente con el espíritu distribution-free del enfoque conformal.
+
+::: {.callout-note}
+## Sobre la holgura de la cota
+
+La cota del @thm-conformal-feasibility es Markov-tight: es la mejor cota posible que usa solo la esperanza de $V$ sin supuestos adicionales. Bajo hipótesis más fuertes --- por ejemplo, si los indicadores de no cobertura $Z_i$ fuesen independientes (lo cual no es cierto bajo split conformal, donde comparten el conjunto de calibración) --- se podrían obtener cotas exponencialmente más ajustadas vía Hoeffding o Bernstein. Esa extensión queda como trabajo futuro para la versión journal.
+:::
+
+#### Corolario 1: Precio de la robustez {#sec-cor-por}
+
+::: {#cor-por}
+El precio de la robustez $\text{PoR}(\alpha) = (Z^* - Z^*_{\text{rob}})/Z^*$ satisface, aproximadamente:
+
+$$
+\text{PoR}(\alpha) \lesssim \frac{\Gamma_{\text{CP}}(\alpha) \cdot \overline{LGD}}{\bar{r}}
+$$ {#eq-por-bound}
+
+donde $\bar{r}$ es el retorno neto promedio por unidad de exposición. A menor $\alpha$, $\Gamma_{\text{CP}}$ crece y el precio aumenta.
+:::
+
+Este corolario formaliza la observación empírica del proyecto: el *price of robustness* de $-2.58\%$ (ver @sec-robust-portfolio) no es un accidente numérico, sino una consecuencia directa del presupuesto conformal $\Gamma_{\text{CP}}$ evaluado en $\alpha = 0.10$.
+
+#### Corolario 2: Refinamiento Mondrian {#sec-cor-mondrian}
+
+::: {#cor-mondrian}
+Bajo predicción conformal Mondrian con grupos $\{g_1, \dots, g_G\}$, la cota del @thm-conformal-feasibility se refina a:
+
+$$
+\mathbb{E}[V] \leq \sum_{g=1}^{G} \left(\sum_{i \in g} w_i\right) \cdot \alpha_g
+$$ {#eq-mondrian-refinement}
+
+donde $\alpha_g \leq \alpha$ para cada grupo con $n_g \geq n_{\min}$ (tamaño mínimo de calibración).
+:::
+
+El refinamiento Mondrian tiene una lectura directa: los grupos con mayor soporte muestral de calibración (grades A, B, C con miles de observaciones) logran cobertura más ajustada que el target nominal, reduciendo $\alpha_g$ por debajo de $\alpha$. Esto significa que el presupuesto de robustez se distribuye de forma no uniforme: los segmentos bien representados contribuyen menos al costo de robustez, mientras que los segmentos con menor soporte (grade G) consumen una fracción mayor del presupuesto. En la práctica del proyecto, esto se traduce en que la cobertura mínima por grade es 89.01% frente al target de 90% --- solo 1 punto porcentual por debajo del target, concentrado en el grupo de mayor riesgo y menor representación.
+
+### Relación con decision-focused learning {#sec-estrella-dfl}
+
+El marco CRPTO dialoga directamente con SPO+ y la literatura de decision-focused learning. La diferencia central es filosófica y tiene consecuencias prácticas medibles:
+
+- **SPO+** entrena end-to-end para minimizar regret de decisión. En este proyecto, logra una reducción de regret del 49.1% sobre el two-stage clásico (5 seeds, 1,000 observaciones pareadas, Wilcoxon $p < 10^{-164}$). Su fortaleza es la eficiencia decisional.
+- **CRPTO** protege la decisión a partir de una cuantificación explícita de incertidumbre con garantías distribution-free. Su fortaleza es la **auditabilidad**: cobertura verificable (92.52% al target 90%), estabilidad por grupo (mínimo 89.01% por grade), y trazabilidad completa para reguladores (SR 11-7).
+
+El trade-off es concreto: CRPTO paga un **precio de auditabilidad** en regret (su policy worst-case es más conservadora que la de SPO+), pero a cambio obtiene garantías formales que SPO+ no puede ofrecer --- un auditor puede verificar la cobertura empírica del conjunto de incertidumbre, pero no puede verificar si el regret de SPO+ se mantendrá estable bajo cambio de régimen.
+
+Los enfoques no son incompatibles. De hecho, una agenda de integración natural sería incorporar la pérdida SPO+ como objetivo de entrenamiento del modelo base mientras se mantiene el wrapper conformal para la capa de decisión. El paper los presenta como comparadores complementarios que iluminan diferentes dimensiones del problema.
+
+### Hipótesis defendible
+
+La hipótesis que el resto del paper pone a prueba es concreta:
+
+> En crédito minorista real, un conjunto de incertidumbre conformal puede ofrecer mejor equilibrio entre garantía y accionabilidad que baselines clásicos más anchos o menos estables por grupo.

@@ -1,0 +1,66 @@
+## Metodología {#sec-p2-methodology}
+
+La metodología reutiliza el stack productivo del proyecto y lo reorganiza en clave de paper. El objetivo es mostrar que IFRS9 no es una “aplicación lateral”, sino una consecuencia natural del pipeline de riesgo ya construido.
+
+### Componentes del pipeline
+
+La arquitectura del Paper 2 se organiza en cinco capas que reflejan la lógica operativa de un sistema de provisiones IFRS 9: primero se necesita una probabilidad de default confiable (PD calibrada), luego se cuantifica cuánto confiar en esa probabilidad (incertidumbre conformal), después se proyecta el impacto económico bajo distintos escenarios macro (escenarios IFRS 9), se evalúa la sensibilidad de las provisiones a parámetros prudenciales (sensibilidad), y finalmente se enriquece el mecanismo de detección de deterioro crediticio con información de incertidumbre (SICR conformal). El orden no es arbitrario: cada capa consume el output de la anterior, y eliminar una capa intermedia rompe la cadena de trazabilidad que un auditor necesita para defender las provisiones ante un comité de riesgos.
+
+| Capa | Artefacto principal | Rol |
+|---|---|---|
+| PD calibrada | `data/processed/model_comparison.json` | probabilidad puntual defendible |
+| Incertidumbre | `models/conformal_policy_status.json` | bandas low/point/high |
+| Escenarios IFRS9 | `data/processed/ifrs9_scenario_summary.parquet` | provisiones por severidad macro |
+| Sensibilidad | `data/processed/ifrs9_sensitivity_grid.parquet` | stress sobre PD, LGD y tasa |
+| SICR | `scripts/run_sicr_conformal.py` + artefactos asociados | trigger enriquecido por ancho |
+
+: Capas metodológicas del Paper 2 {#tbl-p2-method}
+
+### Fórmula central
+
+La pérdida esperada por préstamo y escenario se resume como:
+
+$$
+\mathrm{ECL}_{i,s}^{(h)}=\mathrm{PD}_{i,s}^{(h)}\times \mathrm{LGD}_{i,s}\times \mathrm{EAD}_{i,s}\times \mathrm{DF}_{i,s},
+\qquad h \in \{\text{low},\text{point},\text{high}\}
+$$
+
+La novedad práctica está en que `PD^(h)` ya no es únicamente puntual. El horizonte `high` define una lectura prudencial, mientras `low` marca un piso de incertidumbre.
+
+Operativamente, producir tres estimaciones de ECL en lugar de una cambia la naturaleza de la conversación con el regulador. El `ECL_point` es la mejor estimación disponible --- lo que el banco reportaría en ausencia de incertidumbre. El `ECL_high` cuantifica cuánto podrían costar las provisiones si la PD del modelo subestima el riesgo real dentro de la banda conformal al 90%; es la cifra que un regulador prudencial pedirá en un escenario de estrés. El `ECL_low` marca el piso: aun en el escenario más favorable para el modelo, las provisiones no pueden ser menores que esta cifra. La distancia entre `ECL_high` y `ECL_low` es una medida directa de cuánta incertidumbre del modelo se propaga a las decisiones de capital. Cuando esa distancia es pequeña, la provisión puntual es defendible; cuando es grande, el banco necesita colchones de capital adicionales o una revisión del modelo.
+
+### Escenarios congelados
+
+El artefacto `ifrs9_scenario_summary.parquet` reporta cuatro escenarios:
+
+| Escenario | `pd_mult` | `lgd_mult` | `discount_rate` |
+|---|---:|---:|---:|
+| baseline | 1.0172 | 1.00 | 0.05 |
+| mild_stress | 1.1697 | 1.05 | 0.06 |
+| adverse | 1.3223 | 1.12 | 0.07 |
+| severe | 1.5766 | 1.20 | 0.08 |
+
+: Escenarios del Paper 2 {#tbl-p2-scenarios}
+
+### Trigger SICR con incertidumbre
+
+El capítulo de SICR mostró una regla complementaria basada en ancho conformal. Conceptualmente:
+
+$$
+\mathrm{Stage2}_i=\mathbb{1}\left[\Delta \widehat{PD}_i>\theta_{PD}\;\lor\;(w_i>t \wedge \Delta \widehat{PD}_i \ge 0)\right]
+$$
+
+Esto permite capturar deterioro potencial aun cuando la PD puntual no cruce el umbral absoluto clásico.
+
+Para ilustrar con un ejemplo concreto: considérese un préstamo Grade C cuya PD puntual es 0.14, justo por debajo de un umbral SICR clásico de $\theta_{PD} = 0.15$. Bajo la regla tradicional, este préstamo permanecería en Stage 1 con provisión a 12 meses. Sin embargo, si el intervalo conformal para este préstamo es [0.08, 0.22] --- un ancho de 0.14 que supera el umbral $t$ --- la regla conformal complementaria lo reclasifica a Stage 2, exigiendo provisión a vida completa. La intuición es que el modelo tiene alta incertidumbre sobre este préstamo: aunque su mejor estimación es 0.14, el extremo superior del intervalo (0.22) sugiere que podría estar significativamente deteriorado. Ignorar esta señal sería equivalente a tratar como iguales a dos préstamos con la misma PD puntual pero incertidumbre radicalmente distinta --- exactamente la clase de error que IFRS 9 buscaba corregir al introducir el concepto de incremento significativo de riesgo.
+
+### Protocolo de evaluación
+
+El paper reporta:
+
+1. ECL agregado por escenario;
+2. composición de stages;
+3. efecto del trigger SICR conformal;
+4. sensibilidad a parámetros prudenciales y extensiones con riesgos competitivos.
+
+Estas cuatro dimensiones de evaluación responden a preguntas distintas pero complementarias. La primera (ECL por escenario) mide el impacto bruto de la incertidumbre macro sobre las provisiones --- responde a "¿cuánto más debe provisionar el banco si la economía se deteriora?". La segunda (composición de stages) evalúa si la clasificación del portafolio es razonable: una proporción excesiva de préstamos en Stage 2 sugiere un trigger demasiado sensible, mientras que una proporción demasiado baja indica que el sistema no está capturando deterioro. La tercera (trigger SICR conformal) cuantifica directamente la contribución del ancho conformal a la detección de deterioro: ¿cuántos préstamos adicionales reclasifica la señal de incertidumbre, y cuál es el costo en provisiones adicionales? La cuarta (sensibilidad) es la más relevante para gobernanza: muestra cómo las provisiones cambian ante variaciones en PD, LGD y tasa de descuento, lo cual permite al comité de riesgos evaluar si el sistema es estable o si pequeños cambios en los supuestos producen variaciones desproporcionadas en el capital requerido.

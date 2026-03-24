@@ -40,3 +40,12 @@ portfolio_selection:
 
 conformal:
   alpha: 0.1  # 90% coverage for uncertainty sets
+
+# CIF correction for lifetime PD (competing risks adjustment)
+# KM overestimates lifetime PD by ~26.7% because it treats prepayment as censoring.
+# CIF (Aalen-Johansen) correctly models prepayment as a competing event.
+# Source: scripts/run_cif_ecl_impact.py → models/cif_ecl_impact_status.json
+cif_correction:
+  enabled: true
+  cf_lifetime: 0.7332  # CIF/KM ratio at 60 months (Stage 2 lifetime PD)
+  cf_12m: 0.9962       # CIF/KM ratio at 12 months (Stage 1, near 1.0)
