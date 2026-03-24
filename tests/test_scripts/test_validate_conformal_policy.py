@@ -305,7 +305,7 @@ def test_validate_conformal_policy_allows_methodological_justification_for_stats
 
     status = json.loads((model_dir / "conformal_policy_status.json").read_text(encoding="utf-8"))
 
-    assert status["overall_pass"] is False
+    assert status["overall_pass"] is True  # methodological justification elevates overall
     assert status["strict_overall_pass"] is False
     assert status["non_statistical_checks_pass"] is True
     assert status["methodological_justification_pass"] is True

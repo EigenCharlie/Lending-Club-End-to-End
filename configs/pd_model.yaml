@@ -106,8 +106,8 @@ conformal:
   estimator: SplitConformalRegressor
 
 calibration:
-  method: auto  # auto = temporal multi-metric policy selects best (Platt/Isotonic/Venn-Abers)
-  candidates: [platt, isotonic, venn_abers]
+  method: auto  # auto = temporal multi-metric policy selects best
+  candidates: [platt, isotonic, venn_abers, beta]
   default_threshold: 0.50
 
 decision_threshold:

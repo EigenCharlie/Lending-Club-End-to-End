@@ -20,7 +20,7 @@ import yaml
 from loguru import logger
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import brier_score_loss, roc_auc_score
+from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 from src.evaluation.fairness import fairness_report
 from src.evaluation.metrics import classification_metrics
@@ -224,6 +224,10 @@ def _fit_calibrator_from_scores(
         model = IsotonicRegression(y_min=0, y_max=1, out_of_bounds="clip")
         model.fit(y_prob_raw, y_true)
         return model
+    if method == "beta":
+        from src.models.calibration import calibrate_beta
+
+        return calibrate_beta(y_true, y_prob_raw)
     raise ValueError(f"Unsupported calibration method: {method}")
 
 
@@ -451,6 +455,9 @@ def _evaluate_calibration_method(
         if raw_auc is not None and cal_auc is not None:
             auc_drop = float(raw_auc - cal_auc)
 
+        brier_raw = float(brier_score_loss(y_eval, p_eval))
+        brier_cal = float(brier_score_loss(y_eval, p_eval_cal))
+
         fold_rows.append(
             {
                 "fold": fold_id,
@@ -459,7 +466,10 @@ def _evaluate_calibration_method(
                 "raw_auc": None if raw_auc is None else float(raw_auc),
                 "cal_auc": None if cal_auc is None else float(cal_auc),
                 "auc_drop": float(auc_drop),
-                "brier": float(brier_score_loss(y_eval, p_eval_cal)),
+                "brier": brier_cal,
+                "brier_raw": brier_raw,
+                "brier_degraded": brier_cal > brier_raw,
+                "log_loss": float(log_loss(y_eval, p_eval_cal)),
                 "ece": float(expected_calibration_error(y_eval, p_eval_cal)),
             }
         )
@@ -469,27 +479,33 @@ def _evaluate_calibration_method(
             "method": method,
             "folds_used": 0,
             "mean_brier": float("inf"),
+            "mean_log_loss": float("inf"),
             "mean_ece": float("inf"),
             "mean_auc_drop": float("inf"),
             "brier_variance": float("inf"),
             "ece_variance": float("inf"),
             "stability": float("inf"),
+            "degradation_rate": 1.0,
             "folds": [],
         }
 
     briers = np.array([r["brier"] for r in fold_rows], dtype=float)
+    log_losses = np.array([r["log_loss"] for r in fold_rows], dtype=float)
     eces = np.array([r["ece"] for r in fold_rows], dtype=float)
     auc_drops = np.array([r["auc_drop"] for r in fold_rows], dtype=float)
+    n_degraded = sum(1 for r in fold_rows if r.get("brier_degraded", False))
 
     return {
         "method": method,
         "folds_used": int(len(fold_rows)),
         "mean_brier": float(np.mean(briers)),
+        "mean_log_loss": float(np.mean(log_losses)),
         "mean_ece": float(np.mean(eces)),
         "mean_auc_drop": float(np.mean(auc_drops)),
         "brier_variance": float(np.var(briers)),
         "ece_variance": float(np.var(eces)),
         "stability": float(np.var(briers) + np.var(eces)),
+        "degradation_rate": float(n_degraded / len(fold_rows)),
         "folds": fold_rows,
     }
 
@@ -543,6 +559,8 @@ def _human_calibration_name(method: str) -> str:
         return "Isotonic Regression"
     if method == "venn_abers":
         return "Venn-Abers"
+    if method == "beta":
+        return "Beta Calibration"
     return method
 
 
@@ -1179,11 +1197,13 @@ def main(
                     "method": str(method),
                     "folds_used": 0,
                     "mean_brier": float("inf"),
+                    "mean_log_loss": float("inf"),
                     "mean_ece": float("inf"),
                     "mean_auc_drop": float("inf"),
                     "brier_variance": float("inf"),
                     "ece_variance": float("inf"),
                     "stability": float("inf"),
+                    "degradation_rate": 1.0,
                     "error": str(exc),
                     "folds": [],
                 }
@@ -1275,6 +1295,83 @@ def main(
 
     final_test_metrics = classification_metrics(y_test.values, y_prob_final)
     tuned_raw_test_metrics = classification_metrics(y_test.values, y_prob_tuned_test)
+
+    # Statistical calibration hypothesis tests (MAPIE)
+    # Tests H0: scores are well-calibrated. High p-value → well calibrated.
+    statistical_cal_tests: dict[str, object] = {}
+    try:
+        from mapie.metrics.calibration import (
+            cumulative_differences,
+            kolmogorov_smirnov_p_value,
+            kuiper_p_value,
+            length_scale,
+            spiegelhalter_p_value,
+        )
+
+        y_test_arr = y_test.values.astype(float)
+        # Calibrated (champion) vs uncalibrated
+        for tag, probs in [("calibrated", y_prob_final), ("uncalibrated", y_prob_tuned_test)]:
+            try:
+                ks_p = float(kolmogorov_smirnov_p_value(y_test_arr, probs))
+                ku_p = float(kuiper_p_value(y_test_arr, probs))
+                sp_p = float(spiegelhalter_p_value(y_test_arr, probs))
+                cum_diff = cumulative_differences(y_test_arr, probs)
+                sigma = float(length_scale(probs))
+                statistical_cal_tests[tag] = {
+                    "ks_pvalue": ks_p,
+                    "kuiper_pvalue": ku_p,
+                    "spiegelhalter_pvalue": sp_p,
+                    "length_scale_sigma": sigma,
+                    "n": int(len(y_test_arr)),
+                }
+                logger.info(
+                    f"Calibration tests [{tag}]: KS_p={ks_p:.4f} "
+                    f"Kuiper_p={ku_p:.4f} Spiegelhalter_p={sp_p:.4f}"
+                )
+                # Save cumulative differences for the figure (calibrated only)
+                if tag == "calibrated":
+                    statistical_cal_tests["_cum_diff_calibrated"] = cum_diff.tolist()
+                    statistical_cal_tests["_sigma"] = sigma
+                elif tag == "uncalibrated":
+                    statistical_cal_tests["_cum_diff_uncalibrated"] = cum_diff.tolist()
+            except Exception as exc_inner:
+                logger.warning(f"Statistical calibration tests [{tag}] failed: {exc_inner}")
+                statistical_cal_tests[tag] = {"error": str(exc_inner)}
+
+        # Save cumulative differences parquet for figure generation
+        if "_cum_diff_calibrated" in statistical_cal_tests:
+            k_idx = np.arange(len(y_test_arr)) / len(y_test_arr)
+            sigma_val = float(statistical_cal_tests.get("_sigma", 0.0))
+            cum_diff_df = pd.DataFrame(
+                {
+                    "k": k_idx,
+                    "cum_diff_calibrated": statistical_cal_tests.pop("_cum_diff_calibrated"),
+                    "cum_diff_uncalibrated": statistical_cal_tests.pop(
+                        "_cum_diff_uncalibrated",
+                        [float("nan")] * len(k_idx),
+                    ),
+                    "sigma_upper": sigma_val * 2,
+                    "sigma_lower": -sigma_val * 2,
+                }
+            )
+            cum_diff_path = _artifact_path("data/processed/calibration_cumulative_diffs.parquet")
+            cum_diff_path.parent.mkdir(parents=True, exist_ok=True)
+            cum_diff_df.to_parquet(cum_diff_path, index=False)
+            logger.info(f"Saved calibration cumulative diffs: {cum_diff_path}")
+            statistical_cal_tests.pop("_sigma", None)
+
+        stat_cal_path = _artifact_path("data/processed/statistical_calibration_tests.json")
+        stat_cal_path.parent.mkdir(parents=True, exist_ok=True)
+        stat_cal_path.write_text(
+            json.dumps(statistical_cal_tests, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved statistical calibration tests: {stat_cal_path}")
+    except ImportError:
+        logger.warning(
+            "mapie.metrics.calibration not available — statistical calibration tests skipped."
+        )
+    except Exception as exc:
+        logger.warning(f"Statistical calibration tests block failed: {exc}")
 
     # Persist models/calibrator
     model_path = _artifact_path(config["output"].get("model_path", "models/pd_catboost_tuned.cbm"))

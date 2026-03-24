@@ -13,6 +13,7 @@ from sklearn.metrics import (
     average_precision_score,
     brier_score_loss,
     f1_score,
+    log_loss,
     mean_absolute_error,
     mean_squared_error,
     r2_score,
@@ -51,10 +52,13 @@ def classification_metrics(
     recall_at_t = recall_score(y_true, y_pred_binary, zero_division=0)
     f1_at_t = f1_score(y_true, y_pred_binary, zero_division=0)
 
+    logloss = log_loss(y_true, y_prob)
+
     metrics: dict[str, float] = {
         "auc_roc": auc,
         "gini": gini,
         "brier_score": brier,
+        "log_loss": logloss,
         "ece": ece,
         "ks_statistic": ks,
         "pr_auc": pr_auc,

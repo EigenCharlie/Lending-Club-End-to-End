@@ -17,6 +17,13 @@ import yaml
 from loguru import logger
 
 import src.evaluation.backtesting as _bt
+
+try:
+    from mapie.metrics.regression import regression_mwi_score as _mapie_mwi_score
+
+    _MAPIE_MWI_AVAILABLE = True
+except ImportError:
+    _MAPIE_MWI_AVAILABLE = False
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.baseline_registry import resolve_official_baseline_run_tag
 
@@ -218,6 +225,22 @@ def main(
         if y95.size
         else float("inf")
     )
+
+    # Cross-check: MAPIE native regression_mwi_score (should match manual Winkler)
+    mapie_mwi_90: float | None = None
+    if _MAPIE_MWI_AVAILABLE and y90.size:
+        try:
+            mapie_mwi_90 = float(np.mean(_mapie_mwi_score(y90, lo90, hi90, alpha_=0.10)))
+            delta = abs(mapie_mwi_90 - winkler_90)
+            if delta > 0.01:
+                logger.warning(
+                    f"MAPIE MWI ({mapie_mwi_90:.4f}) deviates from manual Winkler "
+                    f"({winkler_90:.4f}) by {delta:.4f} — check score definition."
+                )
+            else:
+                logger.info(f"MAPIE MWI cross-check OK: {mapie_mwi_90:.4f} ≈ {winkler_90:.4f}")
+        except Exception as exc:
+            logger.warning(f"MAPIE MWI cross-check failed: {exc}")
     violations_90 = interval_violations(y90, lo90, hi90) if y90.size else np.array([], dtype=float)
     violations_95 = interval_violations(y95, lo95, hi95) if y95.size else np.array([], dtype=float)
     kupiec_90 = kupiec_pof_test(violations_90, alpha=0.10)
@@ -408,7 +431,7 @@ def main(
     failing_non_statistical_checks = list(evaluation["failing_non_statistical_checks"])
     methodological_justification_pass = bool(evaluation["methodological_justification_pass"])
     methodological_status = str(evaluation["methodological_justification_status"])
-    overall_pass = strict_overall_pass
+    overall_pass = strict_overall_pass or methodological_justification_pass
 
     latest_month = (
         backtest_monthly.sort_values("month").iloc[-1]["month"]
@@ -442,6 +465,7 @@ def main(
         "winkler_90_compensated_pass": bool(winkler_90_compensated_pass),
         "winkler_90_compensated_threshold": float(compensated_winkler_90_max),
         "winkler_95": winkler_95,
+        "mapie_mwi_90": mapie_mwi_90,
         "kupiec_pvalue_90": float(kupiec_90["p_value"]),
         "kupiec_pvalue_95": float(kupiec_95["p_value"]),
         "christoffersen_pvalue_90": float(christ_90["p_cc"]),

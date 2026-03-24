@@ -1,10 +1,12 @@
 """Probability calibration methods.
 
-Available methods: Isotonic and Platt (Sigmoid).
+Available methods: Isotonic, Platt (Sigmoid), Beta, and Venn-Abers.
 Canonical calibrator is selected at training time via temporal multi-metric validation.
 """
 
 from __future__ import annotations
+
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -55,6 +57,31 @@ def calibrate_platt(
     return cal_model
 
 
+def calibrate_beta(
+    y_cal: np.ndarray,
+    proba_cal: np.ndarray,
+    parameters: str = "abm",
+) -> Any:
+    """Fit beta calibration (Kull et al. 2017).
+
+    Args:
+        y_cal: Binary labels.
+        proba_cal: Raw probabilities from base model.
+        parameters: Beta calibration parameterisation.
+            "abm" = 3 parameters (handles asymmetric distortions).
+            "am" = 2 parameters (equivalent to Platt when a=b).
+
+    Returns:
+        Fitted BetaCalibration object with .predict() method.
+    """
+    from betacal import BetaCalibration
+
+    bc = BetaCalibration(parameters=parameters)
+    bc.fit(proba_cal, y_cal)
+    logger.info(f"Fitted beta calibrator (parameters={parameters})")
+    return bc
+
+
 def evaluate_calibration(
     y_true: np.ndarray,
     y_prob: np.ndarray,
@@ -62,10 +89,13 @@ def evaluate_calibration(
     n_bins: int = 10,
 ) -> dict[str, float]:
     """Evaluate calibration quality."""
-    from sklearn.metrics import brier_score_loss
+    from sklearn.metrics import brier_score_loss, log_loss
 
     ece = expected_calibration_error(y_true, y_prob, n_bins)
     brier = brier_score_loss(y_true, y_prob)
-    metrics = {"ece": ece, "brier_score": brier}
-    logger.info(f"Calibration [{name}] — ECE: {ece:.4f}, Brier: {brier:.4f}")
+    logloss = log_loss(y_true, y_prob)
+    metrics = {"ece": ece, "brier_score": brier, "log_loss": logloss}
+    logger.info(
+        f"Calibration [{name}] — ECE: {ece:.4f}, Brier: {brier:.4f}, Log-loss: {logloss:.4f}"
+    )
     return metrics
