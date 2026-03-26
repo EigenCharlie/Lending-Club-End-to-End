@@ -41,7 +41,7 @@ optb.fit(X_train[feature], y_train)
 woe_values = optb.transform(X[feature], metric="woe")
 ```
 
-Los objetos OptBinning ajustados se persisten en `models/woe_optbinning_{feature}.pkl` para reutilización en inferencia.
+Los objetos OptBinning ajustados se persisten en `models/woe_optbinning_{feature}.pkl` para reutilización en inferencia. Adicionalmente, el pipeline exporta las **tablas de binning** como CSV a `reports/binning_tables/{feature}_bins.csv`, proporcionando una traza de auditoría completa que documenta los límites de cada bin, el WOE asignado, la tasa de eventos y el IV por bin --- un requisito de gobernanza para validación de modelos (SR 11-7).
 
 ### Variables WOE del Proyecto
 

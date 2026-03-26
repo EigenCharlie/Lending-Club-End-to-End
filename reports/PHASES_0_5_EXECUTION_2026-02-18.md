@@ -1,3 +1,5 @@
+> **HISTORICAL** — Snapshot of the 2026-02-18 validity hardening execution. Superseded by the paper-grade run (2026-03-13) and mega-definitive baseline (2026-03-12). Kept for audit trail.
+
 # Ejecucion Fases 0-5 (Validity Hardening + Panorama de Investigacion)
 Fecha de ejecucion: 2026-02-18
 Branch: `publication/validity-hardening`

@@ -313,3 +313,65 @@ def train_catboost_tuned_optuna(
         f"trials={len(study.trials)}, multivariate_tpe={use_multivariate}, group_tpe={use_group_tpe}"
     )
     return best_model, metrics
+
+
+def export_hpo_visualizations(
+    study_storage: str,
+    study_name: str | None = None,
+    output_dir: str = "reports/figures/hpo",
+) -> list[str]:
+    """Load an Optuna study and export visualization plots as HTML + PNG.
+
+    Args:
+        study_storage: SQLite URL (e.g., ``sqlite:///models/optuna_pd_catboost.db``).
+        study_name: Study name (auto-resolved with search-space version if None).
+        output_dir: Directory to write plots to.
+
+    Returns:
+        List of paths to generated plot files.
+    """
+    from pathlib import Path as _Path
+
+    import optuna
+
+    out = _Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    resolved_name = resolve_optuna_study_name(study_name)
+    study = optuna.load_study(study_name=resolved_name, storage=study_storage)
+    complete = [t for t in study.trials if t.state.name == "COMPLETE"]
+    if len(complete) < 2:
+        logger.warning("Study has <2 complete trials — skipping visualization export.")
+        return []
+
+    try:
+        from optuna.visualization import (
+            plot_optimization_history,
+            plot_parallel_coordinate,
+            plot_param_importances,
+            plot_slice,
+        )
+    except ImportError:
+        logger.warning("optuna.visualization requires plotly — install plotly to export HPO plots.")
+        return []
+
+    plots = {
+        "optimization_history": plot_optimization_history(study),
+        "param_importances": plot_param_importances(study),
+        "parallel_coordinate": plot_parallel_coordinate(study),
+        "slice": plot_slice(study),
+    }
+
+    saved: list[str] = []
+    for name, fig in plots.items():
+        html_path = out / f"{name}.html"
+        fig.write_html(str(html_path))
+        saved.append(str(html_path))
+        try:
+            png_path = out / f"{name}.png"
+            fig.write_image(str(png_path), width=1200, height=700, scale=2)
+            saved.append(str(png_path))
+        except Exception:
+            logger.debug(f"PNG export skipped for {name} (kaleido not installed)")
+
+    logger.info(f"Exported {len(saved)} HPO visualization files to {out}")
+    return saved

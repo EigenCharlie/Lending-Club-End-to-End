@@ -1,3 +1,5 @@
+> **HISTORICAL** — Streamlit narrative audit from 2026-02-20. Superseded by later refactors and the 31-page dashboard. Kept for audit trail.
+
 # Storytelling Audit (Streamlit)
 Fecha: 2026-02-20
 

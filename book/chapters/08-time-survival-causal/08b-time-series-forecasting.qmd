@@ -67,6 +67,67 @@ El framework distingue tres niveles de estado:
 
 : Semántica editorial de estado para series de tiempo {#tbl-ts-status-badges}
 
+### Estado canónico del carril temporal
+
+El companion temporal local mostraba algo que conviene fijar aquí con artefactos: el bloque de series de tiempo no está “apagado”, sino en un estado gobernado de `warn`. El champion puntual es promocionable (`AutoARIMA`), pero el champion intervalar no supera todavía la política de gap de cobertura; por eso el uso oficial de intervalos queda como diagnóstico y no como baseline operativo.
+
+```{python}
+#| label: tbl-ts-governed-status
+#| tbl-cap: "Estado canónico del forecast temporal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("time_series_status", directory="models", default={})
+summary = status.get("summary", {})
+point = status.get("point_champion", {})
+interval = status.get("interval_champion", {})
+
+rows = [
+    {"Indicador": "status", "Valor": status.get("status"), "Lectura": "Estado editorial del bloque temporal."},
+    {"Indicador": "point_model", "Valor": point.get("model"), "Lectura": "Champion puntual oficial."},
+    {"Indicador": "point_promotable", "Valor": point.get("promotable"), "Lectura": "Puede alimentar lectura puntual."},
+    {"Indicador": "interval_model", "Valor": interval.get("model"), "Lectura": "Champion intervalar oficial."},
+    {"Indicador": "interval_promotable", "Valor": interval.get("promotable"), "Lectura": "No supera todavía la policy de cobertura."},
+    {"Indicador": "coverage_90", "Valor": interval.get("coverage_90"), "Lectura": "Cobertura empírica del champion intervalar."},
+    {"Indicador": "coverage_gap_90", "Valor": interval.get("coverage_gap_90"), "Lectura": "Brecha frente al target 90%."},
+    {"Indicador": "n_models_evaluated", "Valor": summary.get("n_models_evaluated"), "Lectura": "Cantidad de candidatos evaluados bajo backtest."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-ts-forecastability-hierarchy
+#| tbl-cap: "Forecastability, jerarquía y backlog del carril temporal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("time_series_status", directory="models", default={})
+forecastability = try_load_json("time_series_forecastability_status", directory="models", default={})
+hierarchy = try_load_json("time_series_hierarchy_status", directory="models", default={})
+
+pd.DataFrame(
+    [
+        {"Bloque": "forecastability_available", "Valor": forecastability.get("available"), "Lectura": "Existe diagnóstico de predictibilidad por rutas."},
+        {"Bloque": "series_evaluated", "Valor": forecastability.get("series_evaluated"), "Lectura": "Número de series auditadas."},
+        {"Bloque": "hierarchy_available", "Valor": hierarchy.get("available"), "Lectura": "La reconciliación jerárquica oficial está deshabilitada en este snapshot."},
+        {"Bloque": "research_backlog", "Valor": ", ".join(status.get("research_backlog", [])), "Lectura": "Métodos pendientes antes de una promoción más agresiva."},
+    ]
+)
+```
+
 ### Escenarios IFRS9 y Multiplicador Temporal
 
 El pronóstico genera tres escenarios para el cálculo de ECL:

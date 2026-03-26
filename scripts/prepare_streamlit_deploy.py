@@ -29,7 +29,6 @@ GPU_INSIGHT_SHOWCASE_TAGS = [
 ]
 SHOWCASE_DOC_FILES = [
     "docs/backlog-papers-unified.md",
-    "docs/backlog-13-03.md",
 ]
 
 DATASET_SHAPE_ASSETS: list[tuple[str, str]] = [

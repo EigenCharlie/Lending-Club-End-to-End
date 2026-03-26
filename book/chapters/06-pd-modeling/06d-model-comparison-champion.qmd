@@ -105,6 +105,66 @@ pd.DataFrame(list(metrics.items()), columns=["Métrica", "Valor"])
 
 La figura @fig-pd-pr complementa el AUC-ROC con una lectura más exigente para clases desbalanceadas. El champion no solo separa mejor que el baseline; también conserva una frontera precision-recall competitiva cuando la tasa de default observada es baja.
 
+### Diagnóstico fino del champion
+
+El Streamlit local añadía una capa diagnóstica que vale la pena fijar en el libro porque responde una objeción frecuente: un champion puede verse sólido en promedio y aun así esconder problemas en eventos raros, slices de cartera o corridas de replay. El snapshot oficial deja tres conclusiones claras:
+
+1. la calibración global sigue siendo fuerte (`ECE = 0.0057`);
+2. los puntos más exigentes aparecen en slices específicos, no en el promedio;
+3. el replay de HPO ya no mueve la decisión del champion, porque el carril de búsqueda quedó deshabilitado en el run oficial y la calibración seleccionada fue `Venn-Abers`.
+
+```{python}
+#| label: tbl-champion-diagnostic-extensions
+#| tbl-cap: "Diagnósticos extendidos del champion PD absorbidos desde el companion"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+rare = try_load_json("pd_rare_event_calibration_status", directory="models", default={})
+hpo = try_load_json("pd_hpo_seed_replay_status", directory="models", default={})
+slice_status = try_load_json("pd_slice_performance", directory="models", default={})
+
+rows = [
+    {"Diagnóstico": "ECE global", "Valor": f"{rare.get('global', {}).get('ece', 0):.4f}", "Lectura": "Error de calibración promedio muy bajo."},
+    {"Diagnóstico": "Worst protected-group ECE", "Valor": f"{rare.get('worst_protected_group_ece', 0):.4f}", "Lectura": "El peor corte protegido sigue lejos de una ruptura material."},
+    {"Diagnóstico": "Worst grade Brier", "Valor": f"{rare.get('worst_grade_brier', 0):.4f}", "Lectura": "El grade más exigente concentra la mayor pérdida probabilística."},
+    {"Diagnóstico": "Max decile gap", "Valor": f"{rare.get('max_decile_gap', 0):.4f}", "Lectura": "Brecha máxima entre prevalencia observada y score medio por decil."},
+    {"Diagnóstico": "Selected calibration method", "Valor": str(hpo.get('selected_calibration_method', 'N/D')), "Lectura": "Método promovido en el carril oficial."},
+    {"Diagnóstico": "HPO replay enabled", "Valor": str(hpo.get('replay', {}).get('enabled', False)), "Lectura": "La búsqueda pesada no decide el champion en este snapshot oficial."},
+    {"Diagnóstico": "OOT AUC (replay status)", "Valor": f"{hpo.get('oot_auc', 0):.4f}", "Lectura": "Consistencia del champion bajo replay del estado HPO."},
+    {"Diagnóstico": "Slices evaluados", "Valor": str(len(slice_status.get('slice_performance', []))), "Lectura": "Cortes operativos revisados más allá del promedio global."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-champion-slice-performance
+#| tbl-cap: "Slices operativos del champion PD"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+slice_status = try_load_json("pd_slice_performance", directory="models", default={})
+slice_df = pd.DataFrame(slice_status.get("slice_performance", []))
+if not slice_df.empty:
+    slice_df = slice_df.loc[~slice_df["skipped"].astype(bool), ["slice", "count", "default_rate", "auc_roc", "pr_auc", "brier_score"]]
+    slice_df = slice_df.sort_values("brier_score", ascending=False).head(6)
+slice_df
+```
+
+La tabla @tbl-champion-slice-performance muestra por qué el companion reducido sigue teniendo sentido: no para repetir el capítulo, sino para navegar estos cortes en vivo. El libro fija la lectura oficial; el laboratorio conserva la exploración interactiva por segmento.
+
 **4. Estabilidad temporal**
 
 El modelo se evalúa no solo en métricas agregadas sino en su **estabilidad mensual** a lo largo del período de test (33 meses). Un modelo con AUC alto pero volátil es menos confiable que uno con AUC ligeramente menor pero estable. El backtesting conformal mensual (ver @sec-backtest-monitoring) complementa esta evaluación verificando que la cobertura se mantiene mes a mes.

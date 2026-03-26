@@ -90,6 +90,13 @@ def build_loan_master(df: pd.DataFrame) -> pd.DataFrame:
     id_cols = ["id"] if "id" in df.columns else []
     available = [c for c in feature_cols + target_cols + id_cols if c in df.columns]
     loan_master = df[available].copy()
+    try:
+        from src.features.schemas import validate_loan_master
+
+        validate_loan_master(loan_master)
+        logger.info("Pandera: loan_master schema validated ✓")
+    except Exception as exc:  # noqa: BLE001 — Pandera SchemaError + import/type errors; warn-only gate
+        logger.warning("Pandera: loan_master validation failed — {}", exc)
     logger.info("Built loan_master: {}", loan_master.shape)
     return loan_master
 
@@ -238,6 +245,13 @@ def build_time_series_panel(df: pd.DataFrame) -> pd.DataFrame:
 
 def build_ead_dataset(df: pd.DataFrame) -> pd.DataFrame:
     ead = df[df["default_flag"] == 1].copy()
+    try:
+        from src.features.schemas import ead_schema
+
+        ead_schema.validate(ead)
+        logger.info("Pandera: ead_dataset schema validated ✓")
+    except Exception as exc:  # noqa: BLE001 — Pandera SchemaError + import/type errors; warn-only gate
+        logger.warning("Pandera: ead_dataset validation failed — {}", exc)
     logger.info("Built ead_dataset: {}", ead.shape)
     return ead
 

@@ -33,12 +33,3 @@ def test_concept_capsule_has_executive_and_technical_blocks() -> None:
 def test_story_shell_header_does_not_inject_concept_stack_globally() -> None:
     source = STORY_SHELL_PATH.read_text(encoding="utf-8")
     assert "render_concept_stack(" not in source
-
-
-def test_uncertainty_page_keeps_targeted_concept_stack() -> None:
-    page_id = "uncertainty_quantification"
-    page_path = PAGES_DIR / f"{page_id}.py"
-    assert page_path.exists(), f"Missing page file for `{page_id}`"
-    assert _has_call(page_path, "render_concept_stack"), (
-        f"{page_id} should keep a puntual concept stack"
-    )

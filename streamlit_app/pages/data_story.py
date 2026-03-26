@@ -42,10 +42,9 @@ from streamlit_app.utils import (
     try_load_parquet,
 )
 
-st.title("📊 Historia de Datos")
+st.title("🗺️ Data Explorer")
 st.caption(
-    "Radiografía del dataset: composición, riesgo por segmento y dinámica temporal. "
-    "Analiza el split de entrenamiento (1.35M préstamos, 2007-2017) del total de 1.86M resueltos."
+    "Exploración interactiva de composición, mezcla temporal y gradientes de riesgo del universo Lending Club."
 )
 page_contract = get_page_contract("data_story")
 render_page_header(page_contract)

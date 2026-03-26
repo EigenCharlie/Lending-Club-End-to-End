@@ -121,7 +121,18 @@ def compute_woe(
 
     woe_values = optb.transform(df[feature].values, metric="woe")
 
-    iv = optb.binning_table.build()["IV"].sum() if hasattr(optb, "binning_table") else None
+    iv = None
+    if hasattr(optb, "binning_table"):
+        bin_table = optb.binning_table.build()
+        iv = bin_table["IV"].sum()
+
+        # Export bin table for governance/audit trail
+        bin_export_dir = Path(cache_dir).parent / "reports" / "binning_tables"
+        bin_export_dir.mkdir(parents=True, exist_ok=True)
+        bin_csv_path = bin_export_dir / f"{feature}_bins.csv"
+        bin_table.to_csv(bin_csv_path, index=False)
+        logger.info(f"Exported binning table for {feature} to {bin_csv_path}")
+
     logger.info(f"WOE for {feature}: IV={iv:.4f}" if iv else f"WOE computed for {feature}")
 
     return pd.Series(woe_values, index=df.index, name=f"{feature}_woe"), optb

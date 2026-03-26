@@ -531,10 +531,9 @@ def _render_notebook_gallery() -> None:
                 st.markdown(f"**Cómo conecta:** {item['bridge']}")
 
 
-st.title("🧠 Explicabilidad e Interpretabilidad")
+st.title("🔍 Explainability Explorer")
 st.caption(
-    "Pagina canónica para explicar el modelo PD con drivers globales, efectos, reason codes, "
-    "intervalos y estabilidad de explicaciones."
+    "Exploración interactiva de drivers globales, casos locales, reason codes y estabilidad explicativa del champion PD."
 )
 page_contract = get_page_contract("model_interpretability")
 render_page_header(page_contract)
@@ -1087,14 +1086,14 @@ render_page_feedback("model_interpretability")
 render_next_steps(
     [
         (
-            "Cuantificación de Incertidumbre",
-            "Conectar la explicacion del score con los intervalos conformales que consume el resto del pipeline.",
-            "pages/uncertainty_quantification.py",
+            "PD & Uncertainty Lab",
+            "Conectar la explicacion del score con calibración, cobertura y trade-offs de incertidumbre.",
+            "pages/model_laboratory.py",
         ),
         (
-            "Gobernanza del Modelo",
-            "Ver cómo esta capa de explicabilidad entra al semáforo formal de drift, fairness y promoción del challenger.",
-            "pages/model_governance.py",
+            "Portfolio & IFRS9 Simulator",
+            "Ver cómo los drivers y reason codes terminan influyendo en decisiones de cartera y provisión.",
+            "pages/portfolio_optimizer.py",
         ),
     ]
 )

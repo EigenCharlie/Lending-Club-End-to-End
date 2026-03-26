@@ -1,10 +1,13 @@
-# Deploy Gratis en Streamlit Community Cloud
+# Deploy Gratis del Showcase Historico en Streamlit Community Cloud
 
-Guía operativa recomendada para publicar esta app con costo **$0**, siguiendo buenas prácticas de estabilidad y reproducibilidad.
+> **STATUS: HISTORICAL / OPTIONAL ONLY**
+> Esta guía ya no describe una superficie oficial del proyecto. Quarto es la fuente oficial y actualizada; este deploy solo aplica si alguna vez necesitas reconstruir el showcase público congelado.
+
+Guía operativa para reconstruir el showcase público histórico con costo **$0**, manteniendo estabilidad y reproducibilidad.
 
 ## Objetivo
 
-Publicar una app pública de showcase (tesis/portafolio) sin ejecutar entrenamiento en cloud.
+Publicar o reconstruir una app pública de showcase histórico (tesis/portafolio) sin ejecutar entrenamiento en cloud.
 
 ## 1) Preflight local
 
@@ -47,15 +50,13 @@ git push -u origin main
    - Python version: **3.12** (alineado con el proyecto)
 4. Deploy.
 
-## 4) Secrets (opcional)
+## 4) Secrets (solo si reactivas capacidades legacy)
 
-Solo para habilitar NL->SQL con Grok:
+El companion local actual ya no depende de chat/NL->SQL. Si alguna versión histórica del showcase todavía conserva esa capacidad, la secret opcional era:
 
 ```toml
 GROK_API_KEY = "tu_api_key"
 ```
-
-Sin esa secret, la app funciona igual (la funcionalidad de chat se desactiva de forma segura).
 
 ## Buenas Prácticas Aplicadas en Este Repo
 
@@ -64,6 +65,7 @@ Sin esa secret, la app funciona igual (la funcionalidad de chat se desactiva de 
 3. **Dependencias explícitas por app** con `streamlit_app/requirements.txt` para evitar que Streamlit Cloud tome `uv.lock` del monorepo.
 4. **Degradación controlada**: páginas toleran artefactos opcionales ausentes.
 5. **Repositorio de despliegue liviano**: publicar bundle, no todo el pipeline de entrenamiento.
+6. **Aislamiento editorial**: el showcase se trata como snapshot histórico, no como objetivo de sincronización continua.
 
 ## Límites Relevantes de Community Cloud (referencia oficial)
 
@@ -84,15 +86,15 @@ Implicación práctica:
 | `ModuleNotFoundError` en deploy | Dependencias incorrectas detectadas | Verifica que exista `streamlit_app/requirements.txt` en el repo desplegado |
 | App lenta al iniciar | Artefactos pesados o cold start | Esperar primer arranque, luego revisar tamaño de bundle |
 | Error de memoria/recurso | Carga de datos grande en runtime | Regenerar bundle sin DuckDB (`--skip-duckdb`) y validar páginas SQL |
-| `GROK_API_KEY` no detectada | Secret no configurada | Cargar secret en panel de Streamlit Cloud |
+| `GROK_API_KEY` no detectada | Solo aplica a capacidades legacy opcionales | Ignorar si el showcase no expone chat/NL->SQL |
 
 ## Ciclo de actualización
 
-Cuando cambies páginas o artefactos:
+Si alguna vez necesitas refrescar el showcase histórico:
 
 ```bash
 uv run python scripts/export_streamlit_artifacts.py
 uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
 
-Luego push al repo de showcase y redeploy.
+Luego push al repo de showcase y redeploy. No usar este flujo como mecanismo normal de publicación del proyecto: la publicación oficial vive en Quarto.

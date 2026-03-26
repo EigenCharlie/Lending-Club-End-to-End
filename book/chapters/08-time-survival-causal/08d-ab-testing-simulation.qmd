@@ -107,6 +107,92 @@ design = [
 pd.DataFrame(design)
 ```
 
+### Veredicto canónico del replay A/B
+
+El companion local enriquecía este capítulo con el resultado operativo ya empaquetado en artefactos. Esa lectura merece entrar al libro porque traduce la simulación a una decisión: en el snapshot oficial, la estrategia robusta **no gana** en retorno total, pero tampoco dispara una regresión material bajo el gate definido.
+
+```{python}
+#| label: tbl-ab-official-status
+#| tbl-cap: "Veredicto canónico del replay A/B robusto vs no robusto"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("ab_simulation_status", directory="models", default={})
+comparison = status.get("comparison", {})
+metrics_a = status.get("metrics_a", {})
+metrics_b = status.get("metrics_b", {})
+no_reg = status.get("no_regression", {})
+
+rows = [
+    {"Métrica": "Total return A", "Valor": f"${metrics_a.get('total_return', 0):,.0f}", "Lectura": "Estrategia control no robusta."},
+    {"Métrica": "Total return B", "Valor": f"${metrics_b.get('total_return', 0):,.0f}", "Lectura": "Estrategia robusta champion."},
+    {"Métrica": "Diff medio A-B", "Valor": f"{comparison.get('diff', 0):.4f}", "Lectura": "Uplift promedio bootstrap."},
+    {"Métrica": "CI 95%", "Valor": f"[{comparison.get('ci_low', 0):.4f}, {comparison.get('ci_high', 0):.4f}]", "Lectura": "El intervalo cruza cero."},
+    {"Métrica": "p-value", "Valor": f"{comparison.get('p_value', 1):.4f}", "Lectura": "No hay superioridad estadística."},
+    {"Métrica": "No-regression gate", "Valor": str(no_reg.get('passed', False)), "Lectura": "La robustez no se bloquea por regresión material."},
+]
+
+pd.DataFrame(rows)
+```
+
+La lectura prudente no es “la robustez fracasó”, sino que el champion robusto quedó **económicamente comparable pero no estadísticamente superior** en este replay. Eso importa porque desplaza la conversación desde “ganar siempre en retorno” hacia “cuánto downside estamos comprando y a qué costo”.
+
+### Atribución por grade, cohorte y monto
+
+El companion también hacía visible dónde se concentra la diferencia económica entre estrategias. Aunque el universo financiado en este replay es pequeño, la descomposición sigue siendo valiosa porque muestra que la discusión de robustez no es uniforme por segmento.
+
+```{python}
+#| label: tbl-ab-attribution-grade
+#| tbl-cap: "Atribución del replay A/B por grade"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+grade = try_load_parquet("ab_attribution_by_grade")
+if not grade.empty:
+    grade = grade[["grade", "n_funded", "mean_pd", "actual_return_k", "actual_default_rate", "return_on_capital_pct"]]
+grade
+```
+
+```{python}
+#| label: tbl-ab-attribution-cohort-amount
+#| tbl-cap: "Atribución del replay A/B por cohorte y bucket de monto"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+import pandas as pd
+
+cohort = try_load_parquet("ab_attribution_by_cohort")
+amount = try_load_parquet("ab_attribution_by_amount")
+
+frames = []
+if not cohort.empty:
+    tmp = cohort[["temporal_segment", "n_funded", "actual_return_k", "return_on_capital_pct"]].copy()
+    tmp.insert(0, "Dimensión", "cohort")
+    tmp = tmp.rename(columns={"temporal_segment": "Segmento"})
+    frames.append(tmp)
+if not amount.empty:
+    tmp = amount[["amount_bucket", "n_funded", "actual_return_k", "return_on_capital_pct"]].copy()
+    tmp.insert(0, "Dimensión", "amount")
+    tmp = tmp.rename(columns={"amount_bucket": "Segmento"})
+    frames.append(tmp)
+
+pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+```
+
 ::: {.callout-warning}
 ## Limitaciones del diseño retroactivo
 Esta simulación no es un A/B test aleatorizado en producción. Las principales limitaciones son: (1) no hay efecto de feedback --- en producción, aprobar/rechazar un préstamo afecta la composición futura del portafolio; (2) ambas estrategias se aplican al mismo pool de candidatos, sin competencia real por funding; (3) si se prueban muchas variantes de política sin corrección por multiplicidad, la probabilidad de encontrar mejoras espurias aumenta.

@@ -4,20 +4,24 @@ Credit risk thesis platform organized around three execution narratives:
 `canonical_rebuild`, `champion_search`, and `insights_factory`.
 
 [![CI](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml/badge.svg)](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml)
-[![Live Streamlit](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
+[![Historical Showcase](https://img.shields.io/badge/Historical%20Showcase-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
 [![DagsHub](https://img.shields.io/badge/DagsHub-MLOps-00A86B)](https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End)
 ![Python](https://img.shields.io/badge/Python-3.12-blue)
 ![License](https://img.shields.io/badge/License-MIT-lightgrey)
 
-## Live Demo
+## Official Surfaces
 
-Public Streamlit showcase:
+- Quarto book is the official, citable, up-to-date source of truth for the project.
+- The local Streamlit app is an optional companion lab for interaction that is not worth duplicating in Quarto.
+- The public Streamlit showcase is a historical snapshot and is no longer the primary product surface.
+
+Historical public showcase:
 
 `https://lending-club-showcase.streamlit.app/`
 
 ## Project Scope
 
-This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with Streamlit as the interactive layer and a future-ready contract for Quarto book delivery.
+This repository is built as a reproducible, research-to-production-style workflow over Lending Club historical loans, with Quarto as the official editorial layer and Streamlit as a reduced local companion for interactive analysis.
 
 Core methodological chain:
 
@@ -35,11 +39,12 @@ CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Mondrian Conforma
 4. IFRS9 sensitivity links predictive risk to accounting impact.
 5. Causal policy analysis goes beyond correlation for intervention design.
 
-## Architecture (Thesis Mode)
+## Architecture (Quarto-First)
 
 | Layer | Role |
 |---|---|
-| Streamlit | Primary UX and storytelling |
+| Quarto | Official narrative, figures, tables, and defendable results |
+| Streamlit | Local companion lab for interaction, simulation, and exploratory slicing |
 | DuckDB | Local analytical engine for queries and derived marts |
 | dbt | Data lineage/tests/docs over analytical models |
 | Feast | Feature-store consistency narrative |
@@ -93,7 +98,7 @@ uv run python scripts/run_champion_search.py --run-tag champion-local-max --samp
 # 7) Run complementary insight generation
 uv run python scripts/run_insights_factory.py --run-tag insights-local --profile canonical
 
-# 8) Run app locally
+# 8) Run local companion lab
 uv run streamlit run streamlit_app/app.py
 ```
 
@@ -136,9 +141,11 @@ set -a && source .env && set +a
 uv run python scripts/log_mlflow_experiment_suite.py
 ```
 
-## Deploy Streamlit for Free
+## Historical Streamlit Showcase
 
-Build a deploy bundle optimized for Streamlit Community Cloud:
+The public Streamlit showcase is intentionally frozen as a historical snapshot. The local Streamlit app should evolve independently from that deploy target.
+
+If you need to rebuild the historical showcase bundle anyway:
 
 ```bash
 uv run python scripts/export_streamlit_artifacts.py
@@ -167,8 +174,8 @@ CI workflow:
 2. `docs/RUNBOOK.md` - end-to-end reproducibility runbook
 3. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
 4. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale
-5. `docs/THESIS_SHOWCASE_PLAN_ES.md` - showcase execution plan
-6. `docs/QUARTO_BOOK_BLUEPRINT.md` - future-ready editorial contract for the book
+5. `docs/QUARTO_BOOK_BLUEPRINT.md` - Quarto-first editorial contract for the book
+6. `docs/DOCUMENTATION_MAP.md` - active vs historical documentation map
 
 ## License
 

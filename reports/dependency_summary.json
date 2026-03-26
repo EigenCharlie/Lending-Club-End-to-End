@@ -1,0 +1,903 @@
+[
+  {
+    "name": "betacal",
+    "repo_version": "0.0.9",
+    "latest": "0.0.9",
+    "up_to_date": true,
+    "sources": [
+      "transitive (via mapie)"
+    ],
+    "files": [
+      "src/models/calibration.py"
+    ],
+    "file_count": 1,
+    "notes": "4th calibration candidate (Beta). BetaCalibration(parameters=\"abm\") 3-parameter asymmetric form."
+  },
+  {
+    "name": "catboost",
+    "repo_version": "1.2.10",
+    "latest": "1.2.10",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "api/dependencies.py",
+      "scripts/build_pd_challenger_artifacts.py",
+      "scripts/build_pd_model_contract.py",
+      "scripts/export_streamlit_artifacts.py",
+      "scripts/generate_book_editorial_figures.py",
+      "scripts/generate_conformal_intervals.py",
+      "scripts/generate_governance_status.py",
+      "scripts/refresh_pd_calibration_artifacts.py",
+      "scripts/run_alpha_sweep.py",
+      "scripts/run_cqr_comparison.py"
+    ],
+    "file_count": 21
+  },
+  {
+    "name": "CausalPy",
+    "repo_version": "<0.8,>=0.7",
+    "latest": "0.8.0",
+    "up_to_date": false,
+    "sources": [
+      "requirements/causal-causalpy.txt"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "crepes",
+    "repo_version": "0.9.0",
+    "latest": "0.9.0",
+    "up_to_date": true,
+    "sources": [
+      "optional:research"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "dagshub",
+    "repo_version": "0.6.9",
+    "latest": "0.6.9",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/utils/mlflow_utils.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "dbt-duckdb",
+    "repo_version": "1.10.1",
+    "latest": "1.10.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:platform"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "dowhy",
+    "repo_version": "0.13",
+    "latest": "0.14",
+    "up_to_date": false,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/causal.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "duckdb",
+    "repo_version": "1.5.1",
+    "latest": "1.5.1",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "api/dependencies.py",
+      "mcp_server/server.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_dataframe.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_duckdb.py",
+      "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py",
+      "streamlit_app/utils.py"
+    ],
+    "file_count": 6
+  },
+  {
+    "name": "dvc",
+    "repo_version": "3.66.1",
+    "latest": "3.67.0",
+    "up_to_date": false,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "econml",
+    "repo_version": "<0.17,>=0.16",
+    "latest": "0.16.0",
+    "up_to_date": false,
+    "sources": [
+      "requirements/causal-econml.txt"
+    ],
+    "files": [
+      "src/models/causal.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "fairlearn",
+    "repo_version": "0.13.0",
+    "latest": "0.13.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/run_fairness_audit.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "fastapi",
+    "repo_version": "0.135.2",
+    "latest": "0.135.2",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "api/main.py",
+      "api/routers/analytics.py",
+      "api/routers/conformal.py",
+      "api/routers/ecl.py",
+      "api/routers/health.py",
+      "api/routers/predict.py",
+      "tests/test_api/test_health_endpoints.py",
+      "tests/test_api/test_router_normalization.py"
+    ],
+    "file_count": 8
+  },
+  {
+    "name": "feast",
+    "repo_version": ">=0.59",
+    "latest": "0.61.0",
+    "up_to_date": false,
+    "sources": [
+      "requirements/feast-platform.txt"
+    ],
+    "files": [
+      "feature_repo/data_sources.py",
+      "feature_repo/entities.py",
+      "feature_repo/feature_services.py",
+      "feature_repo/feature_views.py"
+    ],
+    "file_count": 4
+  },
+  {
+    "name": "hierarchicalforecast",
+    "repo_version": "1.5.1",
+    "latest": "1.5.1",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/time_series.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "highspy",
+    "repo_version": "1.13.1",
+    "latest": "1.13.1",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "httpx",
+    "repo_version": "0.28.1",
+    "latest": "0.28.1",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "streamlit_app/utils.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "ipykernel",
+    "repo_version": "7.2.0",
+    "latest": "7.2.0",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "joblib",
+    "repo_version": "1.5.3",
+    "latest": "1.5.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "streamlit_app/pages/model_laboratory.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "jupyter",
+    "repo_version": "1.1.1",
+    "latest": "1.1.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "jupytext",
+    "repo_version": "1.19.1",
+    "latest": "1.19.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "lifelines",
+    "repo_version": "0.30.3",
+    "latest": "0.30.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/export_streamlit_artifacts.py",
+      "scripts/run_competing_risks.py",
+      "src/models/survival.py"
+    ],
+    "file_count": 3
+  },
+  {
+    "name": "lightgbm",
+    "repo_version": "4.6.0",
+    "latest": "4.6.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "loguru",
+    "repo_version": "0.7.3",
+    "latest": "0.7.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "api/dependencies.py",
+      "api/main.py",
+      "api/services/duckdb_service.py",
+      "api/services/model_service.py",
+      "scripts/analyze_pd_rare_event_calibration.py",
+      "scripts/analyze_time_series_forecastability.py",
+      "scripts/analyze_uncertainty_cohorts.py",
+      "scripts/backtest_causal_policy_oot.py",
+      "scripts/backtest_conformal_coverage.py",
+      "scripts/benchmark_conformal_variants.py"
+    ],
+    "file_count": 98
+  },
+  {
+    "name": "mapie",
+    "repo_version": "1.3.0",
+    "latest": "1.3.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/backtest_conformal_coverage.py",
+      "scripts/run_classification_set_benchmark.py",
+      "scripts/run_cqr_comparison.py",
+      "scripts/train_lgd_ead.py",
+      "scripts/train_pd_model.py",
+      "scripts/validate_conformal_policy.py",
+      "src/models/conformal.py",
+      "src/models/time_series.py"
+    ],
+    "file_count": 8
+  },
+  {
+    "name": "matplotlib",
+    "repo_version": "3.10.8",
+    "latest": "3.10.8",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "book/_helpers/plot_helpers.py",
+      "scripts/build_student_thesis_presentation_elegant_v3.py",
+      "scripts/generate_book_editorial_figures.py",
+      "scripts/generate_paper_figures.py",
+      "scripts/run_crpto_vs_spo_stability.py",
+      "scripts/validate_alpha_gamma_bound.py",
+      "src/utils/visualization.py",
+      "thesis_poster/generate_ifrs9_figure.py"
+    ],
+    "file_count": 8
+  },
+  {
+    "name": "mcp",
+    "repo_version": "1.26.0",
+    "latest": "1.26.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "mcp_server/server.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "mlflow",
+    "repo_version": "3.10.1",
+    "latest": "3.10.1",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/log_mlflow_experiment_suite.py",
+      "src/utils/mlflow_utils.py"
+    ],
+    "file_count": 2
+  },
+  {
+    "name": "mlforecast",
+    "repo_version": "1.0.31",
+    "latest": "1.0.31",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/time_series.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "nbstripout",
+    "repo_version": "0.9.1",
+    "latest": "0.9.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "numpy",
+    "repo_version": "2.4.3",
+    "latest": "2.4.3",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "api/services/model_service.py",
+      "book/_helpers/plot_helpers.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_dataframe.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_duckdb.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_graph.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_ml.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_opt_cupy.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_pandas.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_polars.py",
+      "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py"
+    ],
+    "file_count": 132
+  },
+  {
+    "name": "optbinning",
+    "repo_version": "0.21.0",
+    "latest": "0.21.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/features/feature_engineering.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "optuna",
+    "repo_version": "4.8.0",
+    "latest": "4.8.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/recover_hpo_evidence.py",
+      "scripts/train_pd_model.py",
+      "src/models/optuna_tuning.py"
+    ],
+    "file_count": 3
+  },
+  {
+    "name": "optuna-integration",
+    "repo_version": "4.8.0",
+    "latest": "4.8.0",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [
+      "src/models/optuna_tuning.py"
+    ],
+    "file_count": 1,
+    "notes": "Added 2026-03-24. Provides CatBoostPruningCallback for HPO. [catboost] extra pins numpy<2 so installed without it."
+  },
+  {
+    "name": "pandas",
+    "repo_version": "2.3.3",
+    "latest": "3.0.1",
+    "up_to_date": false,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "api/routers/ecl.py",
+      "api/services/model_service.py",
+      "book/_helpers/load_artifacts.py",
+      "mcp_server/server.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_dataframe.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_graph.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_ml.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_opt_cupy.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_pandas.py",
+      "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py"
+    ],
+    "file_count": 181
+  },
+  {
+    "name": "pandera",
+    "repo_version": "0.30.1",
+    "latest": "0.30.1",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/features/schemas.py",
+      "tests/test_features/test_schemas.py"
+    ],
+    "file_count": 2
+  },
+  {
+    "name": "plotly",
+    "repo_version": "6.6.0",
+    "latest": "6.6.0",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "streamlit_app/components/dvc_kpi_spine.py",
+      "streamlit_app/pages/ab_testing_simulation.py",
+      "streamlit_app/pages/causal_intelligence.py",
+      "streamlit_app/pages/chat_with_data.py",
+      "streamlit_app/pages/data_architecture.py",
+      "streamlit_app/pages/data_story.py",
+      "streamlit_app/pages/executive_summary.py",
+      "streamlit_app/pages/feature_engineering.py",
+      "streamlit_app/pages/gpu_benchmark.py",
+      "streamlit_app/pages/ifrs9_provisions.py"
+    ],
+    "file_count": 24
+  },
+  {
+    "name": "polars",
+    "repo_version": "1.38.1",
+    "latest": "1.39.3",
+    "up_to_date": false,
+    "sources": [
+      "optional:research"
+    ],
+    "files": [
+      "reports/gpu_benchmark/tmp_scripts/bench_dataframe.py",
+      "reports/gpu_benchmark/tmp_scripts/bench_polars.py",
+      "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py"
+    ],
+    "file_count": 3
+  },
+  {
+    "name": "pre-commit",
+    "repo_version": "4.5.1",
+    "latest": "4.5.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "pyarrow",
+    "repo_version": "23.0.1",
+    "latest": "23.0.1",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "scripts/prepare_streamlit_deploy.py",
+      "streamlit_app/pages/data_architecture.py"
+    ],
+    "file_count": 2
+  },
+  {
+    "name": "pydantic",
+    "repo_version": "2.12.5",
+    "latest": "2.12.5",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "api/schemas/analytics.py",
+      "api/schemas/conformal.py",
+      "api/schemas/ecl.py",
+      "api/schemas/health.py",
+      "api/schemas/loan.py",
+      "api/schemas/portfolio.py"
+    ],
+    "file_count": 6
+  },
+  {
+    "name": "pyepo",
+    "repo_version": "1.1.1",
+    "latest": "1.1.1",
+    "up_to_date": true,
+    "sources": [
+      "optional:spo"
+    ],
+    "files": [
+      "scripts/run_spo_comparison.py",
+      "scripts/run_spo_real.py",
+      "src/optimization/spo_integration.py"
+    ],
+    "file_count": 3
+  },
+  {
+    "name": "pyomo",
+    "repo_version": "6.10.0",
+    "latest": "6.10.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/optimization/portfolio_model.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "pytest",
+    "repo_version": "9.0.2",
+    "latest": "9.0.2",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [
+      "tests/test_api/test_router_normalization.py",
+      "tests/test_config_consistency.py",
+      "tests/test_data/test_build_datasets.py",
+      "tests/test_data/test_make_dataset.py",
+      "tests/test_data/test_prepare_dataset.py",
+      "tests/test_evaluation/test_ab_testing.py",
+      "tests/test_evaluation/test_backtesting.py",
+      "tests/test_evaluation/test_fairness.py",
+      "tests/test_evaluation/test_ifrs9.py",
+      "tests/test_features/test_feature_engineering.py"
+    ],
+    "file_count": 34
+  },
+  {
+    "name": "pytest-cov",
+    "repo_version": "7.1.0",
+    "latest": "7.1.0",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "python-dotenv",
+    "repo_version": "1.2.2",
+    "latest": "1.2.2",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      ".agents/skills/scientific-schematics/scripts/generate_schematic_ai.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "pyyaml",
+    "repo_version": "6.0.3",
+    "latest": "6.0.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "book/_helpers/load_artifacts.py",
+      "scripts/analyze_pd_rare_event_calibration.py",
+      "scripts/benchmark_conformal_variants.py",
+      "scripts/build_pd_challenger_artifacts.py",
+      "scripts/end_to_end_pipeline.py",
+      "scripts/generate_governance_status.py",
+      "scripts/generate_mrm_report.py",
+      "scripts/optimize_portfolio.py",
+      "scripts/optimize_portfolio_tradeoff.py",
+      "scripts/refresh_pd_calibration_artifacts.py"
+    ],
+    "file_count": 26
+  },
+  {
+    "name": "ruff",
+    "repo_version": "0.15.7",
+    "latest": "0.15.7",
+    "up_to_date": true,
+    "sources": [
+      "optional:dev"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "scikit-learn",
+    "repo_version": "1.8.0",
+    "latest": "1.8.0",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "reports/gpu_benchmark/tmp_scripts/bench_ml.py",
+      "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py",
+      "scripts/analyze_pd_rare_event_calibration.py",
+      "scripts/analyze_uncertainty_cohorts.py",
+      "scripts/backtest_conformal_coverage.py",
+      "scripts/build_pd_challenger_artifacts.py",
+      "scripts/end_to_end_pipeline.py",
+      "scripts/export_dvc_metrics.py",
+      "scripts/export_streamlit_artifacts.py",
+      "scripts/generate_book_editorial_figures.py"
+    ],
+    "file_count": 38
+  },
+  {
+    "name": "scikit-survival",
+    "repo_version": "0.27.0",
+    "latest": "0.27.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/survival.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "seaborn",
+    "repo_version": "0.13.2",
+    "latest": "0.13.2",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "shap",
+    "repo_version": "0.50.0",
+    "latest": "0.51.0",
+    "up_to_date": false,
+    "sources": [
+      "optional:research"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "skops",
+    "repo_version": "0.13.0",
+    "latest": "0.13.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "scripts/generate_mrm_report.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "statsforecast",
+    "repo_version": "2.0.3",
+    "latest": "2.0.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/time_series.py"
+    ],
+    "file_count": 1
+  },
+  {
+    "name": "streamlit",
+    "repo_version": "1.55.0",
+    "latest": "1.55.0",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "streamlit_app/app.py",
+      "streamlit_app/components/audience_toggle.py",
+      "streamlit_app/components/concept_capsules.py",
+      "streamlit_app/components/conformal_applied_blocks.py",
+      "streamlit_app/components/context_help.py",
+      "streamlit_app/components/decision_panels.py",
+      "streamlit_app/components/dvc_kpi_spine.py",
+      "streamlit_app/components/metric_cards.py",
+      "streamlit_app/components/narrative.py",
+      "streamlit_app/components/paper_scaffold.py"
+    ],
+    "file_count": 49
+  },
+  {
+    "name": "streamlit-flow-component",
+    "repo_version": "1.6.1",
+    "latest": "1.6.1",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "streamlit-mermaid",
+    "repo_version": "0.3.0",
+    "latest": "0.3.0",
+    "up_to_date": true,
+    "sources": [
+      "dist/streamlit_deploy/requirements.streamlit.txt",
+      "dist/streamlit_deploy/requirements.txt",
+      "pyproject",
+      "requirements.streamlit.txt",
+      "streamlit_app/requirements.txt"
+    ],
+    "files": [
+      "streamlit_app/pages/tech_stack.py",
+      "streamlit_app/pages/thesis_contribution.py"
+    ],
+    "file_count": 2
+  },
+  {
+    "name": "tqdm",
+    "repo_version": "4.67.3",
+    "latest": "4.67.3",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "uvicorn",
+    "repo_version": "0.42.0",
+    "latest": "0.42.0",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [],
+    "file_count": 0
+  },
+  {
+    "name": "venn-abers",
+    "repo_version": "1.5.1",
+    "latest": "1.5.1",
+    "up_to_date": true,
+    "sources": [
+      "pyproject"
+    ],
+    "files": [
+      "src/models/conformal.py",
+      "src/models/venn_abers.py"
+    ],
+    "file_count": 2
+  }
+]

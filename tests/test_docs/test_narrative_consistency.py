@@ -7,18 +7,18 @@ from pathlib import Path
 TARGETS = [
     Path("SESSION_STATE.md"),
     Path("docs/RUNBOOK.md"),
-    Path("streamlit_app/pages/thesis_contribution.py"),
-    Path("streamlit_app/pages/research_landscape.py"),
+    Path("streamlit_app/pages/model_laboratory.py"),
+    Path("streamlit_app/pages/causal_intelligence.py"),
     Path("docs/conformal_prediction_README.md"),
     Path("docs/PROMOTION_DOSSIER_2026-03-01.md"),
 ]
 
 UI_TARGETS = [
-    Path("streamlit_app/pages/executive_summary.py"),
-    Path("streamlit_app/pages/glossary_fundamentals.py"),
+    Path("streamlit_app/pages/data_story.py"),
     Path("streamlit_app/pages/model_laboratory.py"),
-    Path("streamlit_app/pages/survival_analysis.py"),
-    Path("streamlit_app/pages/thesis_contribution.py"),
+    Path("streamlit_app/pages/model_interpretability.py"),
+    Path("streamlit_app/pages/portfolio_optimizer.py"),
+    Path("streamlit_app/pages/causal_intelligence.py"),
 ]
 
 STALE_UI_PATTERNS = [

@@ -234,6 +234,65 @@ def drift_monitoring_report(
     return out
 
 
+def filter_high_psi_features(
+    train_df: pd.DataFrame,
+    test_df: pd.DataFrame,
+    features: list[str],
+    psi_threshold: float = 0.25,
+    n_bins: int = 10,
+) -> dict[str, list[str] | pd.DataFrame]:
+    """Identify and filter features with high PSI (distribution drift).
+
+    Equivalent to feature-engine's DropHighPSIFeatures but using the
+    project's existing PSI implementation.
+
+    Args:
+        train_df: Training data (reference distribution).
+        test_df: Test/production data (current distribution).
+        features: List of numeric feature names to evaluate.
+        psi_threshold: Features with PSI above this are flagged for removal.
+        n_bins: Number of bins for PSI computation.
+
+    Returns:
+        Dict with:
+        - 'stable_features': Features with PSI <= threshold.
+        - 'drifted_features': Features with PSI > threshold.
+        - 'psi_table': DataFrame with per-feature PSI values.
+    """
+    psi_records: list[dict[str, float | str]] = []
+    for feat in features:
+        if feat not in train_df.columns or feat not in test_df.columns:
+            continue
+        tr = pd.to_numeric(train_df[feat], errors="coerce").to_numpy(dtype=float)
+        te = pd.to_numeric(test_df[feat], errors="coerce").to_numpy(dtype=float)
+        tr = tr[np.isfinite(tr)]
+        te = te[np.isfinite(te)]
+        if tr.size < 30 or te.size < 30:
+            psi_records.append({"feature": feat, "psi": 0.0, "stable": True})
+            continue
+        psi = population_stability_index(tr, te, n_bins=n_bins)
+        psi_records.append(
+            {
+                "feature": feat,
+                "psi": float(psi),
+                "stable": bool(psi <= psi_threshold),
+            }
+        )
+
+    psi_table = pd.DataFrame(psi_records).sort_values("psi", ascending=False).reset_index(drop=True)
+    stable = [r["feature"] for r in psi_records if r["stable"]]
+    drifted = [r["feature"] for r in psi_records if not r["stable"]]
+
+    if drifted:
+        logger.warning(
+            f"PSI filter: {len(drifted)} features drifted (PSI > {psi_threshold}): {drifted}"
+        )
+    else:
+        logger.info(f"PSI filter: all {len(stable)} features stable (PSI <= {psi_threshold})")
+
+    return {"stable_features": stable, "drifted_features": drifted, "psi_table": psi_table}
+
+
 def interval_violations(
     y_true: np.ndarray,
     lower: np.ndarray,

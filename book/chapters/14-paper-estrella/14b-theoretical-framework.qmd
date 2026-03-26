@@ -185,6 +185,54 @@ El trade-off es concreto: CRPTO paga un **precio de auditabilidad** en regret (s
 
 Los enfoques no son incompatibles. De hecho, una agenda de integración natural sería incorporar la pérdida SPO+ como objetivo de entrenamiento del modelo base mientras se mantiene el wrapper conformal para la capa de decisión. El paper los presenta como comparadores complementarios que iluminan diferentes dimensiones del problema.
 
+### Posicionamiento en el marco universal de Powell (SDAM) {#sec-estrella-sdam}
+
+El pipeline CRPTO puede clasificarse rigurosamente dentro del *Universal Modeling Framework* para problemas de decisión secuencial propuesto por @powell2026sdam. Powell organiza cualquier problema de decisión bajo incertidumbre en cinco elementos canónicos: estado ($S_t$), decisión ($x_t$), información exógena ($W_{t+1}$), función de transición ($S^M$) y función objetivo ($C(S_t, x_t)$). Sobre esa base, clasifica toda política de decisión en cuatro meta-clases universales: *Policy Function Approximations* (PFA), *Cost Function Approximations* (CFA), *Value Function Approximations* (VFA) y *Direct Lookahead Approximations* (DLA).
+
+#### Mapeo de los cinco elementos
+
+La @tbl-sdam-mapping presenta el mapeo entre los elementos SDAM y su instanciación concreta en nuestro pipeline.
+
+| Elemento SDAM | Notación | Instanciación en el proyecto |
+|---|---|---|
+| Estado $S_t$ | $S_0 = (X_{\text{feat}}, B, \tau, [\hat{p}_i, p_i^L, p_i^H])$ | Covariables de los préstamos OOT, presupuesto $B$, límite de PD $\tau$, intervalos conformales Mondrian |
+| Decisión $x_t$ | $x_0 \in [0,1]^n$ | Vector de asignación: fracción de cada préstamo a financiar |
+| Información exógena $W_{t+1}$ | $W_1 = (y_{\text{true},1}, \dots, y_{\text{true},n})$ | Defaults reales observados en el período OOT (2018--2020) |
+| Función de transición $S^M$ | $S_1 = S^M(S_0, x_0, W_1)$ | Cálculo del P\&L realizado del portafolio dados los defaults observados |
+| Métrica de contribución $C(S_t, x_t)$ | $\sum_i x_i [r_i - p_i^{\text{eff}} \cdot \text{LGD}]$ | Retorno neto menos pérdida esperada ajustada por incertidumbre |
+
+: Mapeo entre los elementos del Universal Modeling Framework [@powell2026sdam] y el pipeline CRPTO {#tbl-sdam-mapping}
+
+#### Clasificación como política CFA
+
+La distinción más importante del framework SDAM para nuestro caso es la clasificación de la política. Powell define una CFA como una política que *resuelve un problema de optimización que es una simplificación del problema original, con parámetros introducidos para mejorar el desempeño bajo incertidumbre*. Nuestro LP robusto es exactamente eso:
+
+- El **problema original** (intratable) sería un programa estocástico que enumera todas las $2^n$ realizaciones posibles de default y optimiza en esperanza sobre ellas --- una instancia de DLA en la taxonomía de Powell.
+- Nuestra **simplificación CFA** reemplaza esa distribución completa por la cota superior conformal $p_i^H(\alpha)$, resolviendo un LP determinista cuya restricción de pérdida incorpora la incertidumbre de forma paramétrica.
+- Los **parámetros de política** $\theta = (\alpha, \gamma, \tau)$ --- nivel conformal, aversión a incertidumbre, y tolerancia de riesgo --- no existen en el problema estocástico original; son artefactos de la aproximación CFA que permiten controlar el trade-off retorno-robustez.
+
+El barrido sobre $\alpha \in \{0.01, \dots, 0.20\}$ con evaluación en el dataset OOT constituye *policy search* en la terminología de Powell: simulamos la política $X^\pi(S_0|\theta)$ sobre el sample path histórico $\omega$ (defaults 2018--2020) para encontrar la combinación de parámetros que maximiza el retorno ajustado por riesgo.
+
+#### Diferenciación respecto a las otras clases de política
+
+La clasificación CFA es deliberada y distingue nuestro enfoque de las alternativas:
+
+- **No es PFA** (regla analítica simple): no usamos un umbral fijo tipo "rechazar si PD > 0.15". La decisión emerge de resolver un LP completo con restricciones de presupuesto, concentración y PD.
+- **No es VFA** (función de valor aproximada): no estimamos el valor futuro de un estado de portafolio para guiar la decisión actual, como haría un enfoque de *approximate dynamic programming*.
+- **No es DLA** (programación estocástica): no optimizamos sobre escenarios simulados del futuro mediante Monte Carlo o programación multi-etapa. En particular, la distinción con DLA es operativamente crucial: una DLA requeriría generar miles de escenarios de default, resolver un programa estocástico masivo y actualizar iterativamente --- un costo computacional que además dificulta la auditabilidad del proceso decisional.
+
+La ventaja de la CFA es triple: es **determinista** (un LP resuelto una vez con HiGHS en milisegundos), **auditable** (el regulador puede inspeccionar la restricción $\sum w_i p_i^H(\alpha) \leq \tau$ directamente) y **matemáticamente fundamentada** (la garantía de cobertura conformal del @thm-conformal-feasibility se hereda a la restricción de forma verificable).
+
+::: {.callout-important}
+## Sobre la naturaleza uniperiodo
+
+La formulación actual es estrictamente uniperiodo ($T = 1$): se toma una decisión de asignación y se observa un único vector de defaults. Esto es el caso más simple del framework SDAM, donde la función de transición $S^M$ es trivial (calcula P\&L) y no hay secuencia de decisiones adaptativas. La riqueza secuencial del framework --- actualización de creencias $B_t$, evolución de recursos $R_t$, encadenamiento de decisiones --- queda latente y se activa en la extensión a producción (véase @sec-future-sdam-production).
+:::
+
+#### Interpretación de $\alpha$ como parámetro de sintonización de política
+
+A diferencia de los parámetros de penalización en optimización robusta clásica --- que se calibran por convención o juicio experto --- el nivel conformal $\alpha$ tiene una semántica estadística directa: controla la probabilidad de no cobertura del intervalo predictivo. Esto significa que el parameter tuning de la CFA no es heurístico sino que está anclado a una garantía distribution-free sobre la información exógena $W_{t+1}$. En el lenguaje de Powell, $\alpha$ es un tunable parameter cuyo efecto sobre la contribución $C(S_t, x_t)$ puede cuantificarse formalmente a través del @thm-conformal-feasibility y el @cor-por.
+
 ### Hipótesis defendible
 
 La hipótesis que el resto del paper pone a prueba es concreta:

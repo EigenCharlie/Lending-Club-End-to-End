@@ -245,14 +245,70 @@ def _log_pd(timestamp: str, common_tags: dict[str, str]) -> str:
         "data/processed/model_comparison.json",
         "configs/pd_model.yaml",
     ]
-    return _log_run(
-        experiment_name="lending_club/pd_model",
-        run_name=f"artifact_backfill_pd_{timestamp}",
-        metrics=metrics,
-        params=params,
-        tags=tags,
-        artifacts=artifacts,
-    )
+
+    # Log CatBoost model with signature when available
+    model_path = ROOT / "models" / "pd_canonical.cbm"
+    catboost_logged = False
+    if model_path.exists():
+        try:
+            import mlflow.catboost
+            from catboost import CatBoostClassifier
+            from mlflow.models.signature import infer_signature
+
+            cb_model = CatBoostClassifier()
+            cb_model.load_model(str(model_path))
+
+            # Use test predictions for signature inference
+            test_preds_path = ROOT / "data" / "processed" / "test_predictions.parquet"
+            sig = None
+            if test_preds_path.exists():
+                try:
+                    test_preds = pd.read_parquet(test_preds_path)
+                    sig = infer_signature(
+                        pd.DataFrame({"y_prob": test_preds["y_prob_final"].head(5)}),
+                        test_preds["y_prob_final"].head(5).values,
+                    )
+                except Exception:
+                    pass
+            catboost_logged = True
+        except ImportError:
+            catboost_logged = False
+
+    run_name = f"artifact_backfill_pd_{timestamp}"
+    mlflow.set_experiment("lending_club/pd_model")
+    clean_metrics = {k: float(v) for k, v in metrics.items() if math.isfinite(float(v))}
+    clean_params = _to_params(params)
+    clean_tags = {**tags, "pipeline_scope": "pd_model"}
+
+    with mlflow.start_run(run_name=run_name) as run:
+        if clean_params:
+            mlflow.log_params(clean_params)
+        if clean_metrics:
+            mlflow.log_metrics(clean_metrics)
+        if clean_tags:
+            mlflow.set_tags(clean_tags)
+
+        # Log CatBoost model natively with signature
+        if catboost_logged:
+            try:
+                mlflow.catboost.log_model(
+                    cb_model,
+                    artifact_path="pd_catboost",
+                    signature=sig,
+                )
+                logger.info("Logged CatBoost model to MLflow with native catboost flavor")
+            except Exception as exc:
+                logger.warning(f"CatBoost model logging failed: {exc}")
+
+        for rel_path in artifacts:
+            path = ROOT / rel_path
+            if path.exists():
+                size_mb = path.stat().st_size / (1024 * 1024)
+                if size_mb <= MAX_ARTIFACT_MB:
+                    mlflow.log_artifact(str(path))
+
+        logger.info(f"Logged PD run: run_id={run.info.run_id}")
+        return run.info.run_id
 
 
 def _log_conformal(timestamp: str, common_tags: dict[str, str]) -> str:

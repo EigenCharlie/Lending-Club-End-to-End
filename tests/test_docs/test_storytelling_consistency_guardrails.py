@@ -5,9 +5,10 @@ from __future__ import annotations
 from pathlib import Path
 
 TARGETS = [
-    Path("streamlit_app/pages/executive_summary.py"),
-    Path("streamlit_app/pages/thesis_contribution.py"),
-    Path("streamlit_app/pages/tech_stack.py"),
+    Path("streamlit_app/pages/data_story.py"),
+    Path("streamlit_app/pages/model_laboratory.py"),
+    Path("streamlit_app/pages/portfolio_optimizer.py"),
+    Path("streamlit_app/pages/causal_intelligence.py"),
 ]
 
 FORBIDDEN_PATTERNS = [

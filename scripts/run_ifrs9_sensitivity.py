@@ -345,6 +345,7 @@ def _run_single_scenario(
         lgd=lgd,
         ead=ead,
         stages=stages,
+        discount_rate=float(params["discount_rate"]),
     )
 
     summary = pd.DataFrame(
@@ -440,7 +441,15 @@ def _sensitivity_grid(
                     lifetime_pd=lifetime_pd,
                     discount_rate=float(disc),
                 )
-                ecl_range = ecl_with_conformal_range(pd_low, pd12, pd_high, lgd, ead, stages)
+                ecl_range = ecl_with_conformal_range(
+                    pd_low,
+                    pd12,
+                    pd_high,
+                    lgd,
+                    ead,
+                    stages,
+                    discount_rate=float(disc),
+                )
                 rows.append(
                     {
                         "pd_mult": float(pd_mult),

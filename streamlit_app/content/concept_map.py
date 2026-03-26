@@ -254,166 +254,44 @@ REQUIRED_CONCEPT_KEYS: tuple[str, ...] = tuple(CONCEPT_REGISTRY.keys())
 
 
 PAGE_CONCEPT_MAP: dict[str, tuple[str, ...]] = {
-    "ab_testing_simulation": (
-        "confidence_interval",
-        "prediction_interval",
-        "decision_threshold",
-    ),
     "causal_intelligence": (
+        "confidence_interval",
+        "extrapolation",
         "no_free_lunch",
         "iid_caveat",
         "decision_threshold",
-    ),
-    "chat_with_data": (
-        "data_leakage",
-        "covariate_shift",
-        "c2st",
-    ),
-    "data_architecture": (
-        "mcar_mar_mnar",
-        "data_leakage",
-        "concept_drift",
     ),
     "data_story": (
-        "no_free_lunch",
-        "covariate_shift",
-        "class_imbalance",
-    ),
-    "executive_summary": (
-        "prediction_interval",
-        "aleatoric",
-        "epistemic",
-        "proper_scoring_rules",
-    ),
-    "feature_engineering": (
         "mcar_mar_mnar",
         "data_leakage",
-        "class_imbalance",
-    ),
-    "glossary_fundamentals": REQUIRED_CONCEPT_KEYS,
-    "gpu_benchmark": (
-        "no_free_lunch",
-        "extrapolation",
-    ),
-    "ifrs9_provisions": (
-        "prediction_interval",
-        "decision_threshold",
-        "concept_drift",
-    ),
-    "model_governance": (
         "covariate_shift",
-        "concept_drift",
-        "c2st",
+        "class_imbalance",
+        "iid_caveat",
     ),
     "model_interpretability": (
-        "prediction_interval",
-        "decision_threshold",
-        "concept_drift",
-    ),
-    "model_laboratory": (
-        "proper_scoring_rules",
-        "decision_threshold",
-        "class_imbalance",
-        "optimizer_curse",
-        "nested_cv",
-    ),
-    "notebook_evidence": (
-        "proper_scoring_rules",
-        "concept_drift",
-        "optimizer_curse",
-    ),
-    "paper_estrella_predict_optimize": (
-        "extrapolation",
-        "convex_hull",
-        "optimizer_curse",
-        "nested_cv",
-    ),
-    "paper_1_cp_robust_opt": (
-        "extrapolation",
-        "convex_hull",
-        "optimizer_curse",
-        "nested_cv",
-    ),
-    "paper_2_ifrs9_e2e": (
-        "confidence_interval",
-        "prediction_interval",
-        "decision_threshold",
-    ),
-    "paper_3_mondrian": (
-        "iid_caveat",
         "concept_drift",
         "c2st",
-    ),
-    "portfolio_optimizer": (
-        "extrapolation",
-        "convex_hull",
-        "optimizer_curse",
-    ),
-    "research_best_practices": (
-        "nested_cv",
-        "data_leakage",
-        "optimizer_curse",
-    ),
-    "research_landscape": (
-        "nested_cv",
-        "class_imbalance",
-        "extrapolation",
-        "optimizer_curse",
-        "no_free_lunch",
-    ),
-    "survival_analysis": (
-        "prediction_interval",
-        "iid_caveat",
-        "concept_drift",
-    ),
-    "tech_stack": (
-        "optimizer_curse",
-        "no_free_lunch",
-        "nested_cv",
-        "data_leakage",
-    ),
-    "tesis_especializacion": (
-        "prediction_interval",
-        "proper_scoring_rules",
-        "data_leakage",
-        "concept_drift",
-        "optimizer_curse",
-    ),
-    "thesis_contribution": (
-        "prediction_interval",
-        "optimizer_curse",
-        "no_free_lunch",
-    ),
-    "thesis_defense": (
-        "no_free_lunch",
-        "optimizer_curse",
-        "decision_threshold",
-    ),
-    "thesis_end_to_end": (
-        "data_leakage",
-        "decision_threshold",
         "covariate_shift",
+        "proper_scoring_rules",
+        "decision_threshold",
     ),
-    "time_series_outlook": (
-        "prediction_interval",
-        "concept_drift",
-        "iid_caveat",
-    ),
-    "uncertainty_quantification": (
-        "confidence_interval",
-        "prediction_interval",
+    "model_laboratory": (
         "aleatoric",
         "epistemic",
-    ),
-    "roadmap_backlog": (
-        "decision_threshold",
-        "concept_drift",
-        "optimizer_curse",
-    ),
-    "papers_backlog": (
-        "no_free_lunch",
-        "proper_scoring_rules",
         "prediction_interval",
+        "proper_scoring_rules",
+        "decision_threshold",
+        "class_imbalance",
+        "optimizer_curse",
+        "nested_cv",
+    ),
+    "portfolio_optimizer": (
+        "confidence_interval",
+        "prediction_interval",
+        "decision_threshold",
+        "extrapolation",
+        "convex_hull",
+        "no_free_lunch",
     ),
 }
 
@@ -427,32 +305,27 @@ PAGE_ANTI_PATTERNS: dict[str, tuple[str, ...]] = {
         "No confundir AUC alto con probabilidad bien calibrada.",
         "Now change random_state antes de consolidar claim de mejora.",
     ),
-    "feature_engineering": (
-        "No imputar todo igual sin distinguir MCAR/MAR/MNAR.",
-        "No codificar target leakage en variables post-evento.",
-    ),
     "portfolio_optimizer": (
         "No extrapolar política fuera del soporte observado sin caveat.",
         "No presentar robustez sin cuantificar su costo económico.",
     ),
-    "chat_with_data": (
-        "Consulta SQL no implica causalidad ni validez de política.",
-        "No usar resultados exploratorios como evidencia final sin validación.",
+    "data_story": (
+        "No imputar todo igual sin distinguir MCAR/MAR/MNAR.",
+        "No asumir estabilidad de mix sin revisar shift temporal.",
     ),
-    "research_landscape": (
-        "No vender una técnica como universal (no-free-lunch).",
-        "No reportar solo mejor resultado sin variabilidad y límites.",
+    "causal_intelligence": (
+        "No leer correlación como intervención útil.",
+        "No vender el ATE débil como cierre causal definitivo.",
     ),
 }
 
 
 PAGE_FOCUS_NOTES: dict[str, str] = {
-    "executive_summary": "Lectura rápida: traducir conceptos técnicos a impacto de decisión.",
+    "data_story": "Lectura de contexto: mezcla, shift y sesgos antes de modelar.",
     "model_interpretability": "Lectura interpretativa: separar atribución, efecto, caso local y estabilidad.",
-    "model_laboratory": "Lectura técnica: separar ranking, calibración y umbral de decisión.",
-    "uncertainty_quantification": "Lectura de riesgo: cobertura vs ancho, no una sola métrica.",
+    "model_laboratory": "Lectura técnica: separar ranking, calibración, cobertura y umbral de decisión.",
     "portfolio_optimizer": "Lectura de política: retorno esperado vs resiliencia en peor caso.",
-    "model_governance": "Lectura operativa: cuándo monitorear, recalibrar o bloquear despliegue.",
+    "causal_intelligence": "Lectura de intervención: heterogeneidad, regla causal y límites de identificabilidad.",
 }
 
 

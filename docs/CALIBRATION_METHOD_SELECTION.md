@@ -25,7 +25,7 @@ donde $B_b$ es el bin $b$, $\text{acc}(B_b)$ es la tasa de default observada en 
 
 ---
 
-## Métodos evaluados
+## Métodos evaluados (4 candidatos)
 
 ### 1. Platt Scaling (Platt 1999)
 
@@ -62,6 +62,18 @@ $$\hat{p}_{\text{VA}} = \frac{p_0 + p_1}{2}$$
 - **Ventaja**: distribución-libre, calibración con garantía finita, produce bounds que cuantifican incertidumbre epistémica de la calibración
 - **Ventaja adicional**: el ancho del intervalo VA (`avg_width`) es un indicador de confianza en la calibración por punto
 - **Limitación**: overhead computacional O(n log n) vs O(1) de Platt; no aplica `unbiasedness_in_the_large` cuando hay shift de prevalencia
+
+### 4. Beta Calibration (Kull et al. 2017)
+
+Ajuste paramétrico flexible con tres parámetros (a, b, m) que modela la transformación score → probabilidad mediante una distribución Beta:
+
+$$\hat{p}_{\text{Beta}}(s) = \frac{1}{1 + \frac{1-s^a}{s^a} \cdot \frac{1}{e^{b + m \cdot \log(s/(1-s))}}}$$
+
+- **Ventaja**: más flexible que Platt (3 parámetros vs 2), captura asimetrías en la distribución de scores
+- **Ventaja adicional**: forma funcional paramétrica → no sobreajusta como Isotonic con muestras pequeñas
+- **Limitación**: requiere scores en (0,1); puede ser inestable con scores extremos (< 0.001 o > 0.999)
+- **Garantía teórica**: consistencia asintótica; sin garantía distribución-libre finita (a diferencia de Venn-Abers)
+- **Implementación**: `betacal.BetaCalibration(parameters="abm")` en `src/models/calibration.py`
 
 ---
 
@@ -115,7 +127,7 @@ Venn-Abers fue seleccionado como método canónico por tres razones:
 
 | Artefacto | Ruta | Contenido |
 |-----------|------|-----------|
-| Diagnósticos completos | `models/pd_calibration_diagnostics.json` | Comparación 3-way, VA bounds, bins de confiabilidad |
+| Diagnósticos completos | `models/pd_calibration_diagnostics.json` | Comparación 4-way, VA bounds, bins de confiabilidad |
 | Calibrador serializado | `models/pd_canonical_calibrator.pkl` | Objeto `VennAbersScoreCalibrator` fitted |
 | Estado de calibración rare-event | `models/pd_rare_event_calibration_status.json` | ECE por grupo protegido, worst-grade Brier |
 | Reporte rare-event | `data/processed/pd_rare_event_calibration_report.parquet` | Por slice: ECE, Brier, PR-AUC |

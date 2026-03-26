@@ -1,8 +1,10 @@
 # Quarto Book Blueprint
 
+> **STATUS: IMPLEMENTED** — The Quarto book is complete as of 2026-03-23: 99 chapters, 5 parts + appendices, 0 WARN, 0 ERROR. See `book/` directory. The blueprint below documents the original design contract; the actual structure expanded to 99 chapters during implementation.
+
 ## Objective
-- Leave the repository future-ready for a Quarto book without migrating the main narrative yet.
-- Keep Streamlit as the interactive/exploratory layer and Quarto as the long-form editorial layer.
+- ~~Leave the repository future-ready for a Quarto book without migrating the main narrative yet.~~
+- The Quarto book (`book/`) is the **tesis de maestría**; Streamlit is the interactive companion layer.
 
 ## Official narrative axes
 - `Pipeline Operativo`

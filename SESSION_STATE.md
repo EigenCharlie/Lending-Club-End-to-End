@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-23
+Last Updated: 2026-03-25
 
 ---
 
@@ -16,7 +16,7 @@ Canonical update (2026-03-13):
 - Threshold semantics are now explicit in `models/threshold_semantics.json`:
   internal PD screening/search threshold is separate from the operational fairness/approval threshold.
 
-- Serving strategy remains Streamlit-first (thesis showcase mode).
+- Serving strategy is now Quarto-first with a reduced local Streamlit companion.
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
 - Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates; runtime auto-selection via temporal policy).
 - Temporal validation and OOT evaluation remain mandatory.
@@ -28,18 +28,20 @@ Canonical update (2026-03-13):
 
 ---
 
-## 2) Serving Architecture Decision (Thesis Mode)
+## 2) Serving Architecture Decision (Quarto-First)
 
 Given fixed historical data and showcase objective:
 
-1. Streamlit is the primary delivery layer.
-2. DuckDB is used for local analytical queries.
-3. dbt provides governance/lineage/tests over analytical assets.
-4. Feast is kept as a feature-store consistency layer for train/serve narrative.
-5. FastAPI and MCP remain optional support services.
+1. Quarto is the primary delivery layer and official source of truth.
+2. Streamlit local is an optional companion lab with 5 pages.
+3. The public Streamlit showcase is a historical frozen snapshot.
+4. DuckDB is used for local analytical queries.
+5. dbt provides governance/lineage/tests over analytical assets.
+6. Feast is kept as a feature-store consistency layer for train/serve narrative.
+7. FastAPI and MCP remain optional support services.
 
 Design implication:
-- Priority is narrative quality, reproducibility, and auditability over online serving complexity.
+- Priority is narrative quality, reproducibility, and auditability over online serving complexity; Streamlit only keeps interaction that is stronger in app form than in Quarto.
 
 ---
 

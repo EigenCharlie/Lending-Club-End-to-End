@@ -1470,6 +1470,57 @@ def main(
     )
     save_contract(contract_payload, contract_path)
 
+    # ── SHAP feature importance export (CatBoost native) ──
+    shap_artifact: dict[str, Any] = {"exported": False}
+    try:
+        from catboost import Pool as _SHAPPool
+
+        shap_pool = _SHAPPool(X_test_cb, cat_features=categorical_features)
+        shap_raw = cb_tuned_model.get_feature_importance(type="ShapValues", data=shap_pool)
+        # ShapValues returns (n_samples, n_features + 1); last col = expected value
+        shap_values = shap_raw[:, :-1]
+        shap_expected = float(shap_raw[0, -1])
+
+        mean_abs_shap = np.abs(shap_values).mean(axis=0)
+        shap_importance = sorted(
+            zip(catboost_features, mean_abs_shap.tolist(), strict=False),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        shap_dir = _artifact_path("reports/figures/shap")
+        shap_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save raw SHAP values (compressed)
+        np.savez_compressed(
+            str(shap_dir / "shap_values_test.npz"),
+            shap_values=shap_values,
+            expected_value=np.array([shap_expected]),
+            feature_names=np.array(catboost_features),
+        )
+
+        # Save top-N importance as JSON for Streamlit/governance
+        top_n = min(20, len(shap_importance))
+        shap_summary = {
+            "expected_value": shap_expected,
+            "n_samples": int(shap_values.shape[0]),
+            "n_features": int(shap_values.shape[1]),
+            "top_features": [
+                {"feature": f, "mean_abs_shap": round(v, 6)} for f, v in shap_importance[:top_n]
+            ],
+        }
+        shap_summary_path = shap_dir / "shap_feature_importance.json"
+        shap_summary_path.write_text(json.dumps(shap_summary, indent=2), encoding="utf-8")
+        shap_artifact = {"exported": True, "n_features": top_n, "path": str(shap_dir)}
+        logger.info(
+            "SHAP export: top feature={} (|SHAP|={:.4f}), saved to {}",
+            shap_importance[0][0],
+            shap_importance[0][1],
+            shap_dir,
+        )
+    except Exception as exc:
+        logger.warning("SHAP feature importance export skipped: {}", exc)
+        shap_artifact["error"] = str(exc)
+
     # Persist test predictions for downstream contracts.
     test_predictions_path = _artifact_path("data/processed/test_predictions.parquet")
     test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1524,6 +1575,7 @@ def main(
         "calibration_metrics": cal_metrics,
         "conformal_metrics": cp_metrics,
         "final_test_metrics": final_test_metrics,
+        "shap_export": shap_artifact,
     }
 
     record_path = _artifact_path("models/pd_training_record.pkl")

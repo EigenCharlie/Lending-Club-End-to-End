@@ -36,9 +36,9 @@ Repository separation:
 - `notebooks/`: diagnostics and narrative analysis
 - `configs/`: parameter control
 - `data/` and `models/`: reproducible assets
-- `api/`, `streamlit_app/`: delivery layer (implemented, Streamlit-first in thesis mode)
+- `api/`, `streamlit_app/`: delivery layer (implemented, but no longer the official narrative surface)
 
-This supports both research-speed iteration and a clean migration path to a future Quarto-based book without discarding Streamlit as the interactive layer.
+This supports both research-speed iteration and a Quarto-first publication contract where the book is official and Streamlit survives only as an optional interaction layer.
 
 ---
 
@@ -47,7 +47,7 @@ This supports both research-speed iteration and a clean migration path to a futu
 ### 3.1 PD and Calibration
 - `Logistic Regression` is the mandatory baseline for interpretability, governance, and regulatory auditability.
 - `CatBoost` is the final-model family for stronger tabular discrimination (nonlinearities/interactions, native categorical + NaN handling).
-- Calibration is selected by temporal multi-metric policy (Platt/Isotonic) under OOT-oriented constraints.
+- Calibration is selected by temporal multi-metric policy (Platt/Isotonic/Venn-Abers/Beta) under OOT-oriented constraints.
 - Lending decisions, IFRS9, and pricing require probability quality, not only ranking quality.
 
 ### 3.2 Conformal Uncertainty
@@ -95,7 +95,7 @@ This supports both research-speed iteration and a clean migration path to a futu
 
 ## 5) Remaining Technical Priorities
 
-1. Keep artifact narratives fully dynamic in Streamlit (no stale hardcoded metrics/claims).
+1. Keep artifact narratives official in Quarto first; Streamlit should only expose interaction that is genuinely stronger in app form.
 2. Continue benchmark refresh against Kaggle/public literature with temporal-validation comparability checks.
 3. Tighten config semantics where current runtime behavior differs from legacy config wording.
-4. Preserve API as optional support layer; Streamlit remains primary thesis interface.
+4. Preserve API as optional support layer; Quarto remains the primary thesis interface.

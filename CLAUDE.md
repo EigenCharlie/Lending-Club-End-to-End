@@ -33,7 +33,7 @@ Why this matters:
 
 ## CURRENT OFFICIAL DECISIONS
 
-- **Serving mode**: Streamlit-first Thesis Mode, with FastAPI/MCP as optional support services.
+- **Serving mode**: Quarto-first publication mode, with a reduced local Streamlit companion for optional interactive analysis and FastAPI/MCP as optional support services.
 - **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model.
 - **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
 - **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
@@ -98,7 +98,7 @@ uv run ruff format src/ # Format
 
 ```
 ├── CLAUDE.md               # This file
-├── SESSION_STATE.md         # Current project state & metrics (source of truth)
+├── SESSION_STATE.md         # Current project state snapshot + operating notes
 ├── README.md                # Project overview
 ├── pyproject.toml           # Dependencies
 ├── configs/                 # YAML configurations
@@ -138,7 +138,7 @@ uv run ruff format src/ # Format
 ├── reports/                 # Generated reports & figures
 ├── docs/                    # Technical documentation
 ├── api/                     # FastAPI services (optional in thesis mode)
-└── streamlit_app/           # Primary storytelling dashboard
+└── streamlit_app/           # Reduced local interactive companion (5 labs)
 ```
 
 ### Pipeline Order (scripts)

@@ -1,6 +1,6 @@
 ## Contribuciones de la Tesis {#sec-contributions}
 
-La tesis completa debe leerse como un sistema de contribuciones encadenadas, no como una suma de notebooks o dashboards. El companion `streamlit_app/pages/thesis_contribution.py` ya anticipa esa lectura. Las contribuciones se organizan en cuatro dimensiones --- metodologica, tecnica, operativa y regulatoria --- que reflejan las capas del pipeline y las audiencias a las que cada aporte se dirige.
+La tesis completa debe leerse como un sistema de contribuciones encadenadas, no como una suma de notebooks o dashboards. Esa lectura ya no depende de una página específica de Streamlit: queda fijada oficialmente en este capítulo del libro. Las contribuciones se organizan en cuatro dimensiones --- metodologica, tecnica, operativa y regulatoria --- que reflejan las capas del pipeline y las audiencias a las que cada aporte se dirige.
 
 ::: {.callout-tip}
 ## La tesis en una oracion
@@ -42,7 +42,7 @@ Las contribuciones operativas demuestran que el pipeline no es solo un prototipo
 
 : Matriz corta de claims de tesis y su valor practico {#tbl-thesis-claims}
 
-**Pipeline end-to-end reproducible.** La tesis implementa un pipeline de 14 scripts orquestados secuencialmente, con artefactos congelados y persistidos en cada etapa. El Quarto book, el companion Streamlit (31 paginas) y los artefactos DVC forman un sistema de documentacion integrado que permite a cualquier evaluador reproducir los resultados desde los datos crudos hasta las decisiones de portafolio.
+**Pipeline end-to-end reproducible.** La tesis implementa un pipeline de 14 scripts orquestados secuencialmente, con artefactos congelados y persistidos en cada etapa. El Quarto book, el companion Streamlit reducido (5 labs) y los artefactos DVC forman un sistema de documentacion integrado que permite a cualquier evaluador reproducir los resultados desde los datos crudos hasta las decisiones de portafolio.
 
 **Simulacion A/B retroactiva.** El script `scripts/simulate_ab_test.py` implementa una simulacion retroactiva que compara la politica robusta (conformal) contra la politica no-robusta (puntual) sobre los mismos datos historicos, cuantificando la diferencia en retorno ajustado por riesgo. Esta simulacion proporciona evidencia causal contrafactual que refuerza los claims de superioridad de la politica conformal.
 
@@ -52,7 +52,7 @@ Las contribuciones operativas demuestran que el pipeline no es solo un prototipo
 |---|---|
 | Pipeline end-to-end reproducible | libro + Streamlit + artefactos congelados |
 | Gobernanza explicita | fairness, MRM, champion registry |
-| Companion interactivo | 31 paginas tematicas |
+| Companion interactivo | 5 labs locales opcionales |
 | Trazabilidad de notebooks | inventario y manifests |
 
 : Contribuciones operativas de la tesis {#tbl-thesis-contrib}

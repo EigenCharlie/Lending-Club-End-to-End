@@ -1,3 +1,5 @@
+> **HISTORICAL** — Research notes from 2026-02-19. HPO policy is now captured in `configs/pd_model.yaml` and `src/models/optuna_tuning.py`. Kept as design rationale reference.
+
 # HPO Research Notes (CatBoost + Optuna) — 2026-02-19
 
 ## Fuentes revisadas

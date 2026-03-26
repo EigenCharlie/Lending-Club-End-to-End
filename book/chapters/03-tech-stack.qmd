@@ -213,7 +213,7 @@ pd.DataFrame(dev_stack)
 delivery_stack = [
     {"Librería": "Streamlit 1.42+", "Rol": "Dashboard interactivo (companion)",
      "Alternativas": "Dash, Panel, Gradio",
-     "Justificación": "Prototipado rápido de dashboards analíticos, 31 páginas con st.navigation(), deploy gratuito en Streamlit Cloud"},
+     "Justificación": "Companion local reducido para exploración interactiva (5 labs), con showcase público histórico congelado y sin desplazar a Quarto como superficie oficial."},
     {"Librería": "Quarto 1.9.35", "Rol": "Libro técnico (este documento)",
      "Alternativas": "Jupyter Book, Sphinx, bookdown",
      "Justificación": "Soporte nativo para Python+Mermaid+LaTeX, output HTML/PDF dual, cross-references, bibliografía, code folding"},

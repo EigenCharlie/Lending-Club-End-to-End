@@ -71,6 +71,8 @@ schemas = [
      "Validaciones clave": "default_flag = 1 (solo defaults), loan_amnt > 0"},
     {"Schema": "prediction_schema", "Dataset": "Predicciones PD",
      "Validaciones clave": "pd_low ≤ pd_point ≤ pd_high, todos en [0,1]"},
+    {"Schema": "conformal_output_schema", "Dataset": "Intervalos conformales",
+     "Validaciones clave": "y_pred, pd_low_90, pd_high_90 ∈ [0,1], width_90 ≥ 0, low ≤ high"},
 ]
 
 pd.DataFrame(schemas)

@@ -4,7 +4,7 @@ project-links:
   streamlit: "https://lending-club-showcase.streamlit.app/"
 
 editorial:
-  book-role: "companion editorial largo y citable"
-  streamlit-role: "companion interactivo y operativo"
-  reading-rule: "En Quarto cristalizamos hallazgos estables; en Streamlit dejamos exploración, contraste y navegación viva."
+  book-role: "source of truth editorial, oficial y citable"
+  streamlit-role: "companion local opcional orientado a interacción real"
+  reading-rule: "En Quarto cristalizamos hallazgos estables; en Streamlit local dejamos simulación, slicing y análisis interactivo."
   evidence-rule: "Una pieza visual entra al libro si explica mejor, demuestra mejor o conecta mejor con negocio."

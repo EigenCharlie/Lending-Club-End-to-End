@@ -581,7 +581,7 @@ def create_pd_intervals_venn_abers(
         )
         return y_pred_point, p_low, p_high
 
-    except Exception as exc:
+    except (ImportError, ValueError, TypeError, RuntimeError, AttributeError) as exc:
         logger.warning(
             f"MAPIE VennAbersCalibrator failed ({exc}) — falling back to venn_abers library."
         )

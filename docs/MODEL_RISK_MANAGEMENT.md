@@ -52,7 +52,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 1. **Logistic Regression baseline** — regulatory interpretability benchmark
 2. **CatBoost default** — gradient boosting with default hyperparameters
 3. **CatBoost tuned** — Optuna HPO (when enabled by config)
-4. **Calibration selection** — temporal multi-metric policy evaluates Platt Sigmoid, Isotonic Regression, and Venn-Abers; the current canonical artifact is Venn-Abers
+4. **Calibration selection** — temporal multi-metric policy evaluates Platt Sigmoid, Isotonic Regression, Venn-Abers, and Beta Calibration; the current canonical artifact is Venn-Abers
 5. **Mondrian Conformal Prediction** — group-conditional coverage by grade using MAPIE 1.3 SplitConformalRegressor
 6. **Robust Portfolio Optimization** — Pyomo + HiGHS with box uncertainty sets from conformal intervals
 
@@ -143,7 +143,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 | AUC degradation | < 0.03 vs baseline | Quarterly | Pipeline summary |
 | Conformal coverage | > 0.88 (at 0.90 target) | Quarterly | Conformal policy |
 | Fairness (DIR) | > 0.80 | Quarterly | Fairness audit |
-| Conformal statistical validity | Kupiec/Christoffersen p-value >= 0.01 | Quarterly | Conformal policy v2 |
+| Conformal statistical validity | Kupiec/Christoffersen (diagnostic only; `methodological_justification_pass` is the operational gate) | Quarterly | Conformal policy v2 |
 | Drift governance | KS/CvM/C2ST policy pass | Quarterly | Governance status |
 
 ### Retraining Triggers

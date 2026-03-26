@@ -220,7 +220,7 @@ Research ejecutado:
 - Sharpe-like ratio derivado de CI de 15K bootstrap (std_diff = (ci_high - ci_low) / 3.92)
 - Calmar-like = ROIC / |downside_CI| para medida de riesgo ajustado
 - Atribución por grade (A/B/C), cohorte temporal (4 segmentos), bucket de monto (<5K, 5-10K, 10-20K, 20-35K, >35K)
-- Surfaceado en `streamlit_app/pages/ab_testing_simulation.py` (expander "A/B Attribution & Risk-Adjusted Returns")
+- Surfaceado originalmente en el Streamlit legacy `ab_testing_simulation.py`; hoy absorbido en Quarto y, cuando aplica, en el lab local `Portfolio & IFRS9 Simulator`
 
 Artifacts:
 - `models/ab_attribution_status.json` — bootstrap count, ROIC A/B, Sharpe-like, Calmar-like
@@ -264,7 +264,7 @@ Research ejecutado:
 - PSI por feature calculado y clasificado (benigno <0.10, moderado 0.10-0.25, severo >0.25)
 - Separación drift benigno vs material con conteo de breaches/warns
 - Narrativa de estabilidad reforzada: SHAP rank overlap 0.90, reason codes 1.0, threshold estable
-- Disclaimer formal surfaceado en `streamlit_app/pages/model_governance.py` (expander "Feature Stability: PSI per Feature")
+- Disclaimer formal surfaceado originalmente en el Streamlit legacy `model_governance.py`; hoy absorbido en Quarto MRM
 
 Artifacts:
 - `data/processed/drift_monitoring.parquet` — PSI por feature con max/mean/clasificación
@@ -294,7 +294,7 @@ Research ejecutado:
 - ATE OOT, distribución CATE P5/P25/P50/P75/P95, n_positive/n_negative surfaceados
 - Per-grade CATE con tail risk interpretado
 - OOT policy validation: n_months=106, total_net_value, p05_monthly_net, worst_month
-- Surfaceado en `streamlit_app/pages/causal_intelligence.py` (expander "Causal Refutations & OOT Tail Risk")
+- Surfaceado en el lab actual `causal_intelligence.py` y ya absorbido editorialmente en Quarto
 
 Artifacts:
 - `models/causal_refutation_summary.json` — refutation interpretation + CATE distribution + OOT policy stats
@@ -422,7 +422,7 @@ Pendientes residuales:
 Entregable:
 
 - ✅ Quarto book funcional como tesis de maestría (94/94 files)
-- ✅ Streamlit como companion interactivo (31 pages)
+- ✅ Streamlit como companion interactivo reducido (5 labs)
 - ✅ Papers embebidos como capítulos
 
 ---
@@ -495,8 +495,7 @@ Research ejecutado:
 - Tabla consolidada CPU vs GPU con speedup por tarea (17 tareas, 5 secciones: cuDF, cuML, cuGraph, cuOpt, cuPy)
 - Hardware info surfaceado (RTX 3080, AMD Ryzen 5 5600X)
 - Mean/max speedup disponibles
-- Surfaceado en `streamlit_app/pages/gpu_benchmark.py` (expander "Consolidated CPU vs GPU Benchmark")
-- Surfaceado en `streamlit_app/pages/tech_stack.py` (notebooks inventory)
+- Surfaceado originalmente en el Streamlit legacy (`gpu_benchmark.py`, `tech_stack.py`); hoy queda como evidencia histórica y contenido editorial en Quarto/docs
 
 Artifacts:
 - `models/gpu_consolidated_summary.json` — mean_speedup, max_speedup, hardware
@@ -522,7 +521,7 @@ Research ejecutado:
 - 14 notebooks clasificados: core_thesis (01-09), paper_research (10-13), side_projects
 - Reuse status: `evidence_reusable` | `paper_material` | `exploratory_side_project`
 - Cada notebook con quarto_chapter, key_artifacts asociados
-- Surfaceado en `streamlit_app/pages/tech_stack.py` (expander "Notebooks Inventory")
+- Surfaceado originalmente en el Streamlit legacy `tech_stack.py`; hoy queda en docs/Quarto
 
 Artifacts:
 - `models/notebooks_inventory.json` — 14 notebooks clasificados

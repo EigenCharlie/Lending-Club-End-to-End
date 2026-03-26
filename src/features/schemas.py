@@ -61,6 +61,31 @@ prediction_schema = pa.DataFrameSchema(
 )
 
 
+# ── Conformal Output Schema ──
+conformal_output_schema = pa.DataFrameSchema(
+    columns={
+        "y_pred": pa.Column(float, pa.Check.in_range(0, 1), nullable=False),
+        "pd_low_90": pa.Column(float, pa.Check.in_range(0, 1), nullable=False),
+        "pd_high_90": pa.Column(float, pa.Check.in_range(0, 1), nullable=False),
+        "grade": pa.Column(str, nullable=True),
+        "width_90": pa.Column(float, pa.Check.greater_than_or_equal_to(0), nullable=False),
+    },
+    checks=[
+        pa.Check(
+            lambda df: (df["pd_low_90"] <= df["pd_high_90"]).all(),
+            error="pd_low_90 must be <= pd_high_90",
+        ),
+    ],
+    coerce=True,
+    strict=False,
+)
+
+
+def validate_conformal_output(df: pd.DataFrame) -> pd.DataFrame:
+    """Validate conformal intervals DataFrame."""
+    return conformal_output_schema.validate(df)
+
+
 def validate_loan_master(df: pd.DataFrame) -> pd.DataFrame:
     """Validate loan_master DataFrame."""
     return loan_master_schema.validate(df)

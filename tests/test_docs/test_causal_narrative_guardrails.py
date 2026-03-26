@@ -10,10 +10,8 @@ from pathlib import Path
 
 PRIORITY_PAGES = [
     Path("streamlit_app/pages/causal_intelligence.py"),
-    Path("streamlit_app/pages/executive_summary.py"),
-    Path("streamlit_app/pages/research_landscape.py"),
-    Path("streamlit_app/pages/glossary_fundamentals.py"),
-    Path("streamlit_app/pages/thesis_end_to_end.py"),
+    Path("streamlit_app/pages/model_laboratory.py"),
+    Path("streamlit_app/pages/portfolio_optimizer.py"),
 ]
 
 FORBIDDEN_PATTERNS = [

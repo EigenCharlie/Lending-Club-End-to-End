@@ -142,6 +142,22 @@ else:
 El rango conformal es fuertemente asimétrico: la cota superior excede el punto central significativamente, mientras la cota inferior está cerca de cero. Esto refleja que la distribución de PD es right-skewed --- la mayoría de préstamos tienen PD baja, pero la cola derecha puede generar pérdidas significativas. Esta asimetría es precisamente lo que justifica la optimización robusta del portafolio (ver @sec-robust-portfolio).
 :::
 
+### ECL Conformal con Ajuste por Stage {#sec-ecl-conformal-staging}
+
+Un detalle técnico importante: los intervalos conformales $[\text{PD}_\text{low}, \text{PD}_\text{high}]$ se estiman sobre la PD a 12 meses. Aplicarlos directamente como cotas de ECL sin ajuste de stage produciría rangos inconsistentes --- Stage 2 usa PD lifetime, no PD 12m. La función `ecl_with_conformal_range()` resuelve esto aplicando transformaciones stage-aware:
+
+| Stage | PD efectiva low | PD efectiva point | PD efectiva high |
+|:-----:|-----------------|-------------------|------------------|
+| **1** | $\text{PD}_\text{low}^{12m}$ | $\text{PD}_\text{point}^{12m}$ | $\text{PD}_\text{high}^{12m}$ |
+| **2** | $\min(\text{PD}_\text{low}^{12m} \times \kappa,\; 1)$ | $\min(\text{PD}_\text{point}^{12m} \times \kappa,\; 1)$ | $\min(\text{PD}_\text{high}^{12m} \times \kappa,\; 1)$ |
+| **3** | 1.0 | 1.0 | 1.0 |
+
+: Ajuste de cotas conformales por stage IFRS9. $\kappa$ es el multiplicador lifetime (default 3.0) o proviene de PD lifetime explícita del modelo de supervivencia. {#tbl-conformal-staging-adjustment}
+
+Para Stage 1, las cotas conformales de 12 meses se usan directamente. Para Stage 2, se escalan por el factor lifetime $\kappa$ (o se reemplazan por cotas lifetime explícitas si el modelo de supervivencia las provee). Para Stage 3, todas las cotas colapsan a 1.0 --- el préstamo ya está en default, no hay incertidumbre sobre la PD.
+
+Este ajuste garantiza que el rango ECL conformal sea coherente con la lógica de staging: $\text{ECL}_\text{low} \leq \text{ECL}_\text{point} \leq \text{ECL}_\text{high}$ para todo stage, y que la amplitud del rango en Stage 2 refleje la incertidumbre amplificada por el horizonte lifetime.
+
 ### Implementación
 
-La función `compute_ecl()` en `src/evaluation/ifrs9.py` aplica la @eq-ecl-formula por stage, mientras `ecl_with_conformal_range()` produce el rango $[\text{ECL}_\text{low}, \text{ECL}_\text{point}, \text{ECL}_\text{high}]$ usando los intervalos conformales de PD como inputs directos. El script `scripts/run_ifrs9_sensitivity.py` orquesta el cálculo completo incluyendo la derivación de DPD, la construcción de PD de originación por vintage y la aplicación del factor de corrección CIF para lifetime PD de Stage 2.
+La función `compute_ecl()` en `src/evaluation/ifrs9.py` aplica la @eq-ecl-formula por stage, mientras `ecl_with_conformal_range()` produce el rango $[\text{ECL}_\text{low}, \text{ECL}_\text{point}, \text{ECL}_\text{high}]$ usando los intervalos conformales de PD como inputs directos, con el ajuste stage-aware descrito en @tbl-conformal-staging-adjustment. El script `scripts/run_ifrs9_sensitivity.py` orquesta el cálculo completo incluyendo la derivación de DPD, la construcción de PD de originación por vintage y la aplicación del factor de corrección CIF para lifetime PD de Stage 2.

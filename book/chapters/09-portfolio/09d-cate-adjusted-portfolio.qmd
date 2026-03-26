@@ -44,6 +44,61 @@ El script ejecuta ambas versiones (CATE crudo y shrunk) para cuantificar el efec
 
 La divergencia entre CATE crudo (+0.45%) y shrunk (-4.47%) es el resultado más informativo de este capítulo, porque revela la fragilidad de la señal causal en este contexto. El CATE crudo parece mejorar el portafolio, pero esa mejora se apoya en estimados extremos que la winsorización y el shrinkage revelan como ruido. Cuando esos extremos se suavizan, la señal causal neta es negativa: incorporar el efecto causal estimado empeora el portafolio en \$2,554 respecto al baseline. Esto no significa que la inferencia causal sea inútil --- significa que la señal CATE en este dataset no es lo suficientemente fuerte o estable como para mejorar una optimización que ya incorpora PD calibrada e incertidumbre conformal. Es un resultado honesto que delimita el alcance práctico de la integración causal en el pipeline actual.
 
+### Estado oficial del portafolio causal
+
+La versión reciente del companion dejaba este punto más explícito y conviene fijarlo aquí: el portafolio CATE-ajustado sí existe, sí corre de extremo a extremo y sí tiene artefacto canónico, pero su estado oficial sigue siendo `research_only_fallback`. El valor del bloque no está en “promoverlo a toda costa”, sino en mostrar con transparencia dónde la señal causal todavía no supera al champion de portafolio.
+
+```{python}
+#| label: tbl-cate-portfolio-status
+#| tbl-cap: "Estado canónico del portafolio CATE-ajustado"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("cate_portfolio_status", directory="models", default={})
+
+rows = [
+    {"Métrica": "Modo de policy", "Valor": str(status.get("cate_policy_mode", "N/D")), "Lectura": "Estado editorial del carril causal en portafolio."},
+    {"Métrica": "Promotion eligible", "Valor": str(status.get("promotion_eligible", False)), "Lectura": "No cumple condiciones para promoción operativa."},
+    {"Métrica": "Cambio objetivo crudo", "Valor": f"{status.get('raw_objective_change_pct', 0):.3f}%", "Lectura": "Mejora aparente antes de shrinkage."},
+    {"Métrica": "Cambio objetivo shrunk", "Valor": f"{status.get('shrunk_objective_change_pct', 0):.3f}%", "Lectura": "Lectura prudente usada para decisión final."},
+    {"Métrica": "Alignment strategy", "Valor": str(status.get("alignment_strategy", "N/D")), "Lectura": "Cómo se alineó CATE al universo OOT."},
+    {"Métrica": "Fallback applied", "Valor": str(status.get("fallback_applied", False)), "Lectura": "Se prefirió modo conservador ante señal insuficiente."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-cate-shrinkage-policy
+#| tbl-cap: "Parámetros de shrinkage usados en el portafolio causal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("cate_portfolio_status", directory="models", default={})
+shrink = status.get("cate_shrink", {})
+
+pd.DataFrame(
+    [
+        {"Parámetro": "winsor_p05", "Valor": shrink.get("winsor_p05")},
+        {"Parámetro": "winsor_p95", "Valor": shrink.get("winsor_p95")},
+        {"Parámetro": "weak_signal_floor", "Valor": shrink.get("weak_signal_floor")},
+        {"Parámetro": "shrink_weight_segment_median", "Valor": shrink.get("shrink_weight_segment_median")},
+    ]
+)
+```
+
 ::: {.callout-tip}
 ## Interpretacion del efecto del shrinkage
 El CATE crudo muestra una mejora marginal (+\$257), mientras que el CATE shrunk reduce el retorno (-\$2,554). Esto es esperado: el shrinkage elimina senal ruidosa que artificialmente inflaba el retorno ajustado, produciendo una estimacion mas conservadora pero mas confiable del efecto causal real.

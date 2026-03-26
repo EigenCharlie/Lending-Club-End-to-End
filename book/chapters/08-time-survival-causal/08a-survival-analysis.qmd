@@ -91,3 +91,9 @@ pd.DataFrame(rows)
 ## Conexión con el pipeline
 Las curvas de PD lifetime alimentan directamente el cálculo de ECL en @sec-ecl-calculation. La corrección CIF $\rightarrow$ KM evita sobreprovisionar por \$125.8M. Los hazard ratios de Cox PH complementan la interpretación de los coeficientes SHAP del modelo PD (@sec-global-explanations), proporcionando una perspectiva temporal sobre los mismos drivers de riesgo.
 :::
+
+### Exportación de Curvas KM y Tests Log-Rank
+
+La función `fit_kaplan_meier()` en `src/models/survival.py` ajusta estimadores KM estratificados por grade y ejecuta **tests log-rank pairwise** entre grades adyacentes (A vs B, B vs C, ..., F vs G). Los tests log-rank verifican formalmente si las curvas de supervivencia difieren entre grades --- un requisito para justificar el uso de grade como variable de partición en el conformal Mondrian y en la tabla de PD lifetime por grade.
+
+Los resultados se exportan como CSV via `export_km_curves()`: curvas KM overall y por grade, más la tabla de p-valores de los tests log-rank pairwise. Esto proporciona evidencia estadística reproducible para la gobernanza del modelo.

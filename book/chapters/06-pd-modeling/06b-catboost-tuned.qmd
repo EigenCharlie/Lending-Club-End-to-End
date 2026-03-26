@@ -193,6 +193,17 @@ pd.DataFrame(list(optuna_results.items()), columns=["Aspecto", "Valor"])
 
 Los 320 trials alcanzaron un AUC de validación de 0.7227, pero el AUC en el test OOT es 0.7131 --- una brecha de 0.0096 que indica *temporal overfitting* al set de validación. El set de validación temporal cubre un período específico (cola del período 2007--2017), mientras que el test OOT abarca 2018--2020 con condiciones macroeconómicas potencialmente diferentes.
 
+#### Visualización del Proceso HPO
+
+La función `export_hpo_visualizations()` en `src/models/optuna_tuning.py` genera cuatro diagnósticos interactivos a partir del estudio SQLite persistido:
+
+1. **Optimization History**: Evolución del mejor AUC por trial, mostrando la convergencia del TPE.
+2. **Parameter Importances**: Ranking fANOVA de qué hiperparámetros más impactan al AUC.
+3. **Parallel Coordinate**: Vista multidimensional de las combinaciones exploradas.
+4. **Slice Plot**: Relación marginal de cada hiperparámetro con el AUC.
+
+Los plots se exportan como HTML interactivo (Plotly) y opcionalmente como PNG estático a `reports/figures/hpo/`.
+
 #### Hiperparámetros Ganadores
 
 ```{python}
@@ -350,3 +361,12 @@ La calibración (ver @sec-calibration-selection) reduce el Brier Score en $\sim$
 ## Implicación para el pipeline predict-then-optimize
 La robustez de CatBoost a los hiperparámetros es una ventaja en el contexto del pipeline predict-then-optimize (@sec-robust-portfolio). Si pequeños cambios en hiperparámetros produjeran grandes cambios en las PD estimadas, la incertidumbre de los intervalos conformales (ver @sec-split-conformal) sería atribuible en parte a inestabilidad del modelo, no solo a incertidumbre epistémica genuina. La estabilidad de CatBoost permite interpretar los intervalos conformales como reflejo de la incertidumbre real del problema.
 :::
+
+### Exportación de SHAP Values {#sec-shap-export}
+
+El pipeline exporta valores SHAP usando la implementación **nativa de CatBoost** (`get_feature_importance(type='ShapValues')`), que es exacta para árboles oblivious --- a diferencia de la librería SHAP genérica, que usa aproximaciones kernel o tree para modelos de terceros. Los artefactos generados son:
+
+- `models/shap_values_test.npz`: Matriz completa de SHAP values para el test set (comprimida).
+- `models/shap_feature_importance.json`: Top-20 features ordenados por $|\text{SHAP}|$ medio.
+
+Estos artefactos alimentan las explicaciones globales y locales del capítulo de interpretabilidad (@sec-global-explanations) y el reporte MRM (@sec-mrm-report).

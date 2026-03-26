@@ -27,8 +27,11 @@ Actualizacion de estado:
 - Test suite actual: `76` pruebas (no `5`).
 - `docker-compose.yml` y Dockerfiles ya existen y ejecutan stack de showcase.
 
+Nota editorial 2026-03-25:
+- Esta adenda tambien es historica. La arquitectura vigente ya no es Streamlit-first.
+
 Decision arquitectonica vigente:
-- Modo **Streamlit-first Thesis Mode**.
+- Modo **Quarto-first** con companion local reducido en Streamlit y showcase publico historico congelado.
 - DuckDB como motor local de analitica.
 - dbt como capa de gobernanza/documentacion/linaje.
 - Feast como capa de feature store para narrativa de consistencia train/serve.

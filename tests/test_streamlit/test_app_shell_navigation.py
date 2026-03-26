@@ -13,4 +13,4 @@ def test_app_shell_renders_without_exceptions() -> None:
     at.run(timeout=20)
     assert len(at.exception) == 0
     assert len(at.title) >= 1
-    assert any("Resumen Ejecutivo" in str(title.value) for title in at.title)
+    assert any("PD & Uncertainty Lab" in str(title.value) for title in at.title)

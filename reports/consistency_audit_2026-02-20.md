@@ -1,3 +1,5 @@
+> **HISTORICAL** — Audit snapshot from 2026-02-20. Issues found were resolved at the time. For current state, see `docs/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`.
+
 # Consistency Audit — 2026-02-20
 
 ## Scope

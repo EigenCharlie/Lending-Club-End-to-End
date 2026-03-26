@@ -92,6 +92,81 @@ En esta implementación, el registro deja explícito que:
 - el threshold operativo principal de fairness y decisión es `0.35`;
 - el threshold interno de búsqueda PD es distinto (`0.05`) y no debe confundirse con el de aprobación.
 
+### Semántica de thresholds y validación contractual
+
+El companion local tenía dos bloques de gobernanza fina que merecen quedar oficiales porque evitan un error muy común: confundir thresholds internos de búsqueda/modelado con thresholds operativos de decisión. El artefacto `threshold_semantics.json` separa esos roles de forma explícita, y `pd_model_contract_validation.parquet` confirma que el contrato de features llega intacto a train, calibration y test.
+
+```{python}
+#| label: tbl-mrm-threshold-semantics
+#| tbl-cap: "Semántica oficial de thresholds en el sistema de riesgo"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+semantics = try_load_json("threshold_semantics", directory="models", default={})
+meaning = semantics.get("business_meaning", {})
+
+rows = [
+    {"Threshold": "pd_internal_selected_threshold", "Valor": semantics.get("pd_internal_selected_threshold"), "Rol": meaning.get("pd_internal_selected_threshold", "")},
+    {"Threshold": "pd_internal_fallback_threshold", "Valor": semantics.get("pd_internal_fallback_threshold"), "Rol": meaning.get("pd_internal_fallback_threshold", "")},
+    {"Threshold": "fairness_primary_threshold", "Valor": semantics.get("fairness_primary_threshold"), "Rol": meaning.get("fairness_primary_threshold", "")},
+    {"Threshold": "decision_policy_global_threshold", "Valor": semantics.get("decision_policy_global_threshold"), "Rol": meaning.get("decision_policy_global_threshold", "")},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-mrm-contract-validation
+#| tbl-cap: "Validación del contrato de features del champion"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+contract = try_load_parquet("pd_model_contract_validation")
+contract
+```
+
+### Challenger promotion y drift de features
+
+Otra capa que vivía mejor explicada en Streamlit era la conexión entre drift, challenger y promotion readiness. El estado actual es interesante: el challenger monotónico resulta `promotable` bajo sus guardrails, pero el champion vigente sigue siendo el bundle canónico congelado. Eso no es contradicción; es una separación sana entre disponibilidad de un challenger y promoción efectiva del sistema oficial.
+
+```{python}
+#| label: tbl-mrm-challenger-promotion
+#| tbl-cap: "Resumen de challenger promotion absorbido desde el companion"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+promotion = try_load_json("challenger_promotion_report", directory="models", default={})
+deltas = promotion.get("deltas", {})
+checks = promotion.get("promotion_checks", {})
+
+rows = [
+    {"Chequeo": "challenger_promotable", "Valor": promotion.get("challenger_promotable"), "Lectura": "Disponibilidad del challenger bajo guardrails."},
+    {"Chequeo": "auc_drop", "Valor": deltas.get("auc_drop"), "Lectura": "Pérdida de ranking frente al champion."},
+    {"Chequeo": "brier_increase_pct", "Valor": deltas.get("brier_increase_pct"), "Lectura": "Costo en calidad probabilística."},
+    {"Chequeo": "ece_delta", "Valor": deltas.get("ece_delta"), "Lectura": "Diferencia de calibración."},
+    {"Chequeo": "fairness_ok", "Valor": checks.get("fairness_ok"), "Lectura": "El challenger no rompe fairness."},
+    {"Chequeo": "predictive_drift_ok", "Valor": checks.get("predictive_drift_ok"), "Lectura": "Guardrail de drift superado."},
+]
+
+pd.DataFrame(rows)
+```
+
 | Señal MRM | Estado actual | Acción sugerida |
 |---|---|---|
 | fairness | verde (6/6) | mantener monitoreo por threshold e intersecciones |

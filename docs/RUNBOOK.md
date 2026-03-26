@@ -56,7 +56,7 @@ If you want to run individual stages:
 | 1 | `uv run python -c "from src.data.make_dataset import main; main()"` | `data/interim/lending_club_cleaned.parquet` |
 | 2 | `uv run python -c "from src.data.prepare_dataset import main; main()"` | Train/calibration/test splits |
 | 3 | `uv run python -c "from src.data.build_datasets import main; main()"` | loan_master, time_series, ead_dataset |
-| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers) + `models/decision_threshold.json` |
+| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers/Beta) + `models/decision_threshold.json` |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
 | 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
@@ -282,7 +282,7 @@ uv run python scripts/export_streamlit_artifacts.py
 uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
 
-Then follow `docs/DEPLOY_STREAMLIT_FREE.md` to publish the generated `dist/streamlit_deploy/` bundle.
+Then follow `docs/DEPLOY_STREAMLIT_FREE.md` only if you intentionally want to rebuild the frozen historical showcase bundle in `dist/streamlit_deploy/`.
 
 ## Integrations (DVC + MLflow + DagsHub)
 

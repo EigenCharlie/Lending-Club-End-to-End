@@ -141,6 +141,38 @@ pd.DataFrame(rows)
 
 La figura @fig-causal-policy-backtest hace visible la capa económica que la tabla resume: la policy causal no solo existe como regla estática, sino como trayectoria mensual de valor que puede evaluarse con suavizado y ventanas adversas.
 
+### Refutaciones canónicas y lectura prudente
+
+La versión reciente del companion hacía explícito algo importante que conviene dejar en el libro: las refutaciones de DoWhy no fallaron por encontrar un efecto adverso oculto, sino por la propia debilidad del ATE lineal en este snapshot. Esa es una señal metodológica valiosa, porque obliga a leer el bloque causal como evidencia aplicada útil para segmentación y policy design, no como un cierre definitivo sobre causalidad fuerte en promedio.
+
+```{python}
+#| label: tbl-causal-refutation-status
+#| tbl-cap: "Estado canónico de las refutaciones causales"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+refutation = try_load_json("causal_refutation_summary", directory="models", default={})
+tests = pd.DataFrame(refutation.get("refutation_tests", []))
+if not tests.empty:
+    tests = tests[["test", "status", "p_value", "interpretation"]]
+tests
+```
+
+::: {.callout-note}
+## Cómo leer este resultado
+La señal útil del carril causal no viene de un ATE lineal “cerrado”, sino de combinar:
+
+- heterogeneidad CATE útil para segmentación;
+- reglas causales con valor económico OOT positivo;
+- una lectura honesta de que la refutación lineal quedó `unavailable` porque el efecto promedio es débil y su intervalo cruza cero.
+:::
+
 | Segmento ilustrativo | Si subimos tasa | Lectura práctica |
 |---|---|---|
 | perfiles más frágiles y caros | el default tiende a subir más | subir precio puede destruir valor en vez de protegerlo |
@@ -155,6 +187,53 @@ La robustez del estimado causal se valida mediante tres tests de refutación est
 1. **Placebo treatment** (permutación): Se permuta aleatoriamente el tratamiento. Si el efecto estimado persiste, la estimación original es espuria. El efecto bajo placebo debe ser cercano a cero.
 2. **Random common cause**: Se añade un confusor aleatorio. Si el efecto cambia significativamente, el modelo es sensible a confusores no observados.
 3. **Data subset** (80%): Se re-estima sobre un subconjunto aleatorio. La estabilidad del efecto indica robustez ante variaciones muestrales.
+
+### Frontera de reglas causales y tail risk OOT
+
+El companion también añadía una capa operativa que vale la pena cristalizar: no solo qué regla causal quedó seleccionada, sino contra qué alternativas compitió y cómo se distribuye el tail risk por grade en el conjunto OOT.
+
+```{python}
+#| label: tbl-causal-rule-frontier
+#| tbl-cap: "Frontera económica de reglas causales candidatas"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+import pandas as pd
+
+rules = try_load_parquet("causal_policy_rule_candidates")
+if not rules.empty:
+    rules = rules[[
+        "rule_name",
+        "action_rate",
+        "total_net_value",
+        "bootstrap_p05_net",
+        "min_grade_total_net",
+        "pass_all",
+    ]].sort_values("total_net_value", ascending=False)
+rules
+```
+
+```{python}
+#| label: tbl-causal-tail-risk-grade
+#| tbl-cap: "Tail risk OOT del CATE por grade"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+tail = try_load_parquet("causal_oot_tail_risk")
+if not tail.empty:
+    tail = tail[["grade", "n", "mean", "std", "p5", "p95"]].sort_values("grade")
+tail
+```
+
+La regla promovida en el artefacto oficial, `high_plus_medium_positive`, no es la que maximiza agresivamente el action rate, sino la que logra el mejor valor neto cumpliendo restricciones de bootstrap y piso por grade. Ese matiz es clave: el carril causal del proyecto ya está leyendo economía y robustez conjunta, no solo heterogeneidad estadística.
 
 ::: {.callout-warning}
 ## Limitaciones de la inferencia observacional

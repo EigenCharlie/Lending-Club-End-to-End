@@ -25,7 +25,7 @@ book:
   repo-url: "https://github.com/EigenCharlie/Lending-Club-End-to-End"
   repo-actions: [edit, issue]
   page-footer:
-    left: "Companion editorial del Lending Club Risk Project."
+    left: "Quarto es la edición oficial del Lending Club Risk Project."
     right: "Edición digital del proyecto"
   sidebar:
     collapse-level: 2
@@ -36,7 +36,7 @@ book:
         text: "GitHub"
       - icon: box-arrow-up-right
         href: "https://lending-club-showcase.streamlit.app/"
-        text: "Streamlit"
+        text: "Showcase histórico"
       - icon: diagram-3
         href: "https://dagshub.com/EigenCharlie94/Lending-Club-End-to-End"
         text: "DagsHub"

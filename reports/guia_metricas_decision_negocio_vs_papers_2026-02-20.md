@@ -1,3 +1,5 @@
+> **HISTORICAL** — Pedagogical guide from 2026-02-20. Metric values may not reflect current baseline (champion-2026-03-12-mega-definitive). Kept as reference.
+
 # Guía pedagógica de métricas y decisiones (negocio vs papers)
 Fecha: 2026-02-20
 
@@ -235,10 +237,10 @@ Conclusión práctica:
 
 ## 7) Guion corto para presentar a alguien no técnico
 
-“Primero medimos qué tan bien el modelo ordena riesgo (AUC/KS).  
-Luego validamos que sus probabilidades sean confiables (Brier/ECE).  
-Después le agregamos incertidumbre con conformal para no decidir con un solo número puntual.  
-Con eso optimizamos cartera en modo robusto y medimos su costo (Price of Robustness).  
+“Primero medimos qué tan bien el modelo ordena riesgo (AUC/KS).
+Luego validamos que sus probabilidades sean confiables (Brier/ECE).
+Después le agregamos incertidumbre con conformal para no decidir con un solo número puntual.
+Con eso optimizamos cartera en modo robusto y medimos su costo (Price of Robustness).
 Finalmente vemos el impacto contable real en IFRS9 (ECL baseline y severo).”
 
 ---
