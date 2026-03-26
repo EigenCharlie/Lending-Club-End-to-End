@@ -38,9 +38,13 @@ def test_simulate_causal_policy_persists_policy_metadata(tmp_path, monkeypatch) 
     simulate_mod.main()
 
     sim_df = pd.read_parquet(data_dir / "causal_policy_simulation.parquet")
+    runtime_status = json.loads(
+        (model_dir / "causal_policy_simulation_runtime_status.json").read_text(encoding="utf-8")
+    )
     with open(model_dir / "causal_policy_summary.pkl", "rb") as f:
         payload = pickle.load(f)
 
     assert "recommended_action" in sim_df.columns
+    assert runtime_status["state"] == "completed"
     assert payload["overall"]["run_tag"] == "run-causal-test"
     assert payload["metadata"]["policy_semantics"] == "local_cate_policy_simulation"

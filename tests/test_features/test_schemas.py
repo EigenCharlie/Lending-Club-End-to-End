@@ -35,3 +35,18 @@ def test_loan_master_schema_invalid_default_flag():
     )
     with pytest.raises(pa_errors.SchemaError):
         validate_loan_master(df)
+
+
+def test_loan_master_schema_allows_zero_annual_income() -> None:
+    df = pd.DataFrame(
+        {
+            "loan_amnt": [10000.0],
+            "annual_inc": [0.0],
+            "loan_to_income": [None],
+            "dti": [15.0],
+            "default_flag": [0],
+            "int_rate": [7.5],
+        }
+    )
+    result = validate_loan_master(df)
+    assert float(result.loc[0, "annual_inc"]) == 0.0

@@ -21,6 +21,13 @@ import pandas as pd
 from loguru import logger
 
 from src.utils.artifact_metadata import resolve_run_tag
+from src.utils.pipeline_runtime import (
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 POLICY_SEMANTICS = "local_cate_policy_simulation"
 _CLI_RUN_TAG: str | None = None
@@ -71,7 +78,14 @@ def main(
     high_discount_pp: float = -1.25,
     medium_discount_pp: float = -0.75,
 ):
+    stage_name = "causal_policy_simulation"
     df, summary, effect_status = _load_causal_inputs()
+    write_runtime_status(
+        stage_name,
+        phase="loading_inputs",
+        state="running",
+        run_tag=effect_status.get("run_tag"),
+    )
     if "cate" not in df.columns:
         raise KeyError("CATE column not present in cate_estimates artifact.")
 
@@ -81,6 +95,14 @@ def main(
         _CLI_RUN_TAG or effect_status.get("run_tag"),
         fallback_candidates=[summary.get("run_tag")],
         require_explicit=True,
+    )
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_loaded",
+        {
+            "rows": int(len(df)),
+            "treatment": str(treatment),
+        },
     )
     base_rate = _coerce_numeric(
         df, treatment if treatment in df.columns else "int_rate", default=12.0
@@ -198,24 +220,38 @@ def main(
     details_path = data_dir / "causal_policy_simulation.parquet"
     seg_path = data_dir / "causal_policy_segment_summary.parquet"
     grade_path = data_dir / "causal_policy_grade_summary.parquet"
-    out.to_parquet(details_path, index=False)
-    summary_segment.to_parquet(seg_path, index=False)
-    summary_grade.to_parquet(grade_path, index=False)
+    atomic_write_parquet(out, details_path, index=False)
+    atomic_write_parquet(summary_segment, seg_path, index=False)
+    atomic_write_parquet(summary_grade, grade_path, index=False)
 
-    with open(model_dir / "causal_policy_summary.pkl", "wb") as f:
-        pickle.dump(
-            {
-                "overall": overall,
-                "segment_summary": summary_segment.to_dict(orient="records"),
-                "grade_summary": summary_grade.to_dict(orient="records"),
-                "metadata": {
-                    "run_tag": run_tag,
-                    "policy_semantics": POLICY_SEMANTICS,
-                    "source_effect_status_path": "models/causal_effect_status.json",
-                },
+    summary_path = model_dir / "causal_policy_summary.pkl"
+    atomic_write_pickle(
+        summary_path,
+        {
+            "overall": overall,
+            "segment_summary": summary_segment.to_dict(orient="records"),
+            "grade_summary": summary_grade.to_dict(orient="records"),
+            "metadata": {
+                "run_tag": run_tag,
+                "policy_semantics": POLICY_SEMANTICS,
+                "source_effect_status_path": "models/causal_effect_status.json",
             },
-            f,
-        )
+        },
+    )
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="causal_policy_summary",
+        artifact_path=summary_path,
+        run_tag=run_tag,
+        extra={"rows": int(len(out))},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=run_tag,
+        extra={"summary_path": str(summary_path), "rows": int(len(out))},
+    )
 
     logger.info(f"Saved policy simulation details: {details_path} ({len(out):,} rows)")
     logger.info(f"Saved segment policy summary: {seg_path}")

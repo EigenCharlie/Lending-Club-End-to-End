@@ -51,9 +51,13 @@ def test_backtest_causal_policy_oot_writes_status_with_sources(tmp_path, monkeyp
     backtest_mod.main(min_history_months=2)
 
     status = json.loads((model_dir / "causal_policy_oot_status.json").read_text(encoding="utf-8"))
+    runtime_status = json.loads(
+        (model_dir / "causal_policy_oot_runtime_status.json").read_text(encoding="utf-8")
+    )
     backtest_df = pd.read_parquet(data_dir / "causal_policy_oot_backtest.parquet")
 
     assert status["run_tag"] == "run-causal-test"
     assert status["selected_rule_path"] == "models/causal_policy_rule.json"
     assert status["effect_status_path"] == "models/causal_effect_status.json"
     assert not backtest_df.empty
+    assert runtime_status["state"] == "completed"

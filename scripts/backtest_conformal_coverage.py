@@ -113,6 +113,7 @@ def _monthly_metrics(df: pd.DataFrame) -> pd.DataFrame:
                     log_loss(
                         aux.loc[s.index, "y_true"],
                         aux.loc[s.index, "y_pred"].clip(1e-15, 1 - 1e-15),
+                        labels=[0.0, 1.0],
                     )
                 ),
             ),

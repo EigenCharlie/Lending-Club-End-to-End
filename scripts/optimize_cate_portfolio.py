@@ -66,7 +66,9 @@ def _resolve_run_tag() -> str:
         except Exception:
             continue
         candidates.append(payload.get("run_tag"))
-    return resolve_run_tag(*candidates, require_explicit=True)
+    primary = next((candidate for candidate in candidates if candidate), None)
+    fallbacks = [candidate for candidate in candidates[1:] if candidate] if primary else []
+    return resolve_run_tag(primary, fallback_candidates=fallbacks, require_explicit=True)
 
 
 def _load_json_if_exists(path: Path) -> dict[str, Any]:

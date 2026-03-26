@@ -13,28 +13,29 @@ from loguru import logger
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
+from src.features.feature_engineering import (
+    CATBOOST_FEATURES as CANONICAL_CATBOOST_FEATURES,
+)
+from src.features.feature_engineering import (
+    CATEGORICAL_FEATURES as CANONICAL_CATEGORICAL_FEATURES,
+)
+from src.features.feature_engineering import (
+    LOGREG_FEATURES as CANONICAL_LOGREG_FEATURES,
+)
+from src.features.feature_engineering import (
+    NUMERIC_FEATURES as CANONICAL_NUMERIC_FEATURES,
+)
+from src.features.feature_engineering import (
+    WOE_FEATURES as CANONICAL_WOE_FEATURES,
+)
+
 # ── Backward-compatible default feature configuration ──
-NUMERIC_FEATURES = [
-    "loan_amnt",
-    "annual_inc",
-    "loan_to_income",
-    "dti",
-    "rev_utilization",
-    "num_delinq_2yrs",
-    "days_since_last_delinq",
-    "int_rate",
-    "installment",
+NUMERIC_FEATURES = list(CANONICAL_NUMERIC_FEATURES)
+WOE_FEATURES = list(CANONICAL_WOE_FEATURES)
+CATEGORICAL_FEATURES = list(CANONICAL_CATEGORICAL_FEATURES)
+ALL_FEATURES = list(CANONICAL_CATBOOST_FEATURES) + [
+    f for f in CANONICAL_LOGREG_FEATURES if f not in CANONICAL_CATBOOST_FEATURES
 ]
-WOE_FEATURES = [
-    "grade_woe",
-    "purpose_woe",
-    "home_ownership_woe",
-]
-CATEGORICAL_FEATURES = [
-    "int_rate_bucket",
-    "term",
-]
-ALL_FEATURES = NUMERIC_FEATURES + WOE_FEATURES + CATEGORICAL_FEATURES
 TARGET = "default_flag"
 
 

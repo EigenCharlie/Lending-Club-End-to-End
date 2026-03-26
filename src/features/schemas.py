@@ -9,7 +9,7 @@ import pandera.pandas as pa
 loan_master_schema = pa.DataFrameSchema(
     columns={
         "loan_amnt": pa.Column(float, pa.Check.greater_than(0), nullable=False),
-        "annual_inc": pa.Column(float, pa.Check.greater_than(0), nullable=True),
+        "annual_inc": pa.Column(float, pa.Check.greater_than_or_equal_to(0), nullable=True),
         "loan_to_income": pa.Column(float, pa.Check.in_range(0, 100), nullable=True),
         "dti": pa.Column(float, pa.Check.in_range(0, 999), nullable=True),
         "default_flag": pa.Column(int, pa.Check.isin([0, 1]), nullable=False),

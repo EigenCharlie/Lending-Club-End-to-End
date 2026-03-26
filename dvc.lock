@@ -23,26 +23,26 @@ stages:
     deps:
     - path: data/interim/lending_club_cleaned.parquet
       hash: md5
-      md5: 1f8e65aff91652f21b8caf3d6e1de1b3
-      size: 199619673
+      md5: 57f4d76b512f900111c175a5f8e951d5
+      size: 203291457
     - path: src/data/prepare_dataset.py
       hash: md5
-      md5: ac417634eb1bf88124d2cd2947237914
-      size: 3448
+      md5: e1281e74163743ad95f34d3437572b8c
+      size: 3946
       isexec: true
     outs:
     - path: data/processed/calibration.parquet
       hash: md5
-      md5: 443cbb9ac237cb2c843d97284a61b30a
-      size: 27408793
+      md5: 530b6dbf1e5a561995f142023b8c355b
+      size: 27931750
     - path: data/processed/test.parquet
       hash: md5
-      md5: c12de73016756f1c279f09178fa36ff9
-      size: 31875314
+      md5: 16bf66b611311120d8b55768f88fe7c4
+      size: 32441172
     - path: data/processed/train.parquet
       hash: md5
-      md5: 1a12195e1b06c2a2c8d2f3af79edc9d0
-      size: 140607600
+      md5: 88d8fbcb58640f47d4c02e2ff66bcb90
+      size: 142993295
   build_datasets:
     cmd: uv run python -c "from src.data.build_datasets import main; main()"
     deps:
@@ -1088,3 +1088,89 @@ stages:
       hash: md5
       md5: c81f2069f4367195ecaec9dae2853245
       size: 1973
+  generate_dependency_summary:
+    cmd: uv run python scripts/generate_dependency_summary.py
+    deps:
+    - path: pyproject.toml
+      hash: md5
+      md5: 7ddee24fc213e8644f46f1a281c183e0
+      size: 2942
+      isexec: true
+    - path: requirements/causal-causalpy.txt
+      hash: md5
+      md5: 6b9f47ac5a2beff88104ee7b945369a1
+      size: 19
+    - path: requirements/causal-econml.txt
+      hash: md5
+      md5: 038e9310b2033561d0bc7049d5fc3ed1
+      size: 19
+    - path: requirements/feast-platform.txt
+      hash: md5
+      md5: dbe999c258c213eb52dcd66fbec44946
+      size: 252
+    - path: scripts/generate_dependency_summary.py
+      hash: md5
+      md5: f2241f398566367ae1cff9a1e4d4728a
+      size: 9023
+    - path: uv.lock
+      hash: md5
+      md5: 9b3de7709a17d599b36565283dfb32e7
+      size: 680500
+      isexec: true
+    outs:
+    - path: models/dependency_audit_runtime_status.json
+      hash: md5
+      md5: d6812f4061659aa549bfe82be20bf935
+      size: 273
+  materialize_feature_artifacts:
+    cmd: uv run python scripts/materialize_feature_artifacts.py
+    deps:
+    - path: data/processed/calibration.parquet
+      hash: md5
+      md5: 530b6dbf1e5a561995f142023b8c355b
+      size: 27931750
+    - path: data/processed/test.parquet
+      hash: md5
+      md5: 16bf66b611311120d8b55768f88fe7c4
+      size: 32441172
+    - path: data/processed/train.parquet
+      hash: md5
+      md5: 88d8fbcb58640f47d4c02e2ff66bcb90
+      size: 142993295
+    - path: scripts/materialize_feature_artifacts.py
+      hash: md5
+      md5: 9fe4eb6600292f541dd0aaef8a859973
+      size: 3263
+    - path: src/features/feature_engineering.py
+      hash: md5
+      md5: 2e3fab675ca2eae612b5b40f9e924846
+      size: 27451
+    outs:
+    - path: data/processed/calibration_fe.parquet
+      hash: md5
+      md5: 701b80b182503c3a9af10f984226f17b
+      size: 39692703
+    - path: data/processed/feature_config.pkl
+      hash: md5
+      md5: 5861e569a3827a3744718cb07aefc5d6
+      size: 3553
+    - path: data/processed/feature_manifest_v2.json
+      hash: md5
+      md5: 708c07e865c3c56c00dadbba2c17480f
+      size: 55786
+    - path: data/processed/feature_manifest_v2.parquet
+      hash: md5
+      md5: 2fadc6d8dc39f853babf4768d7e5f4fd
+      size: 10282
+    - path: data/processed/test_fe.parquet
+      hash: md5
+      md5: fed7b14bc94c6c94d3cbc2fc3feb2862
+      size: 46317435
+    - path: data/processed/train_fe.parquet
+      hash: md5
+      md5: 2ec9d33780710ee21971a519c9ad3509
+      size: 207855161
+    - path: data/processed/woe_encoders.pkl
+      hash: md5
+      md5: b31fe5cf0249a2e96c862fc900ee9406
+      size: 3184

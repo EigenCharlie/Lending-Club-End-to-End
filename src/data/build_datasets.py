@@ -48,20 +48,35 @@ def build_loan_master(df: pd.DataFrame) -> pd.DataFrame:
     """Build loan-level dataset for PD, LGD, and survival models."""
     feature_cols = [
         "loan_amnt",
+        "int_rate",
+        "installment",
         "annual_inc",
         "loan_to_income",
+        "installment_burden",
         "dti",
         "rev_utilization",
-        "num_delinq_2yrs",
-        "days_since_last_delinq",
+        "revol_bal_to_income",
+        "open_acc_ratio",
+        "fico_score",
+        "credit_age_years",
+        "emp_length_num",
         "grade_woe",
-        "purpose_woe",
+        "sub_grade_woe",
         "home_ownership_woe",
+        "verification_status_woe",
+        "term_woe",
+        "int_rate_woe",
+        "dti_woe",
+        "annual_inc_woe",
+        "loan_amnt_woe",
+        "fico_score_woe",
+        "installment_burden_woe",
+        "inq_last_6mths_woe",
         "int_rate_bucket",
+        "dti_bucket",
+        "fico_bucket",
         "int_rate_bucket__grade",
-        "int_rate",
         "term",
-        "installment",
         "grade",
         "sub_grade",
         "home_ownership",
@@ -73,11 +88,51 @@ def build_loan_master(df: pd.DataFrame) -> pd.DataFrame:
         "revol_bal",
         "revol_util",
         "total_acc",
-        "fico_range_low",
-        "fico_range_high",
         "credit_history_months",
-        "early_delinq",
+        "delinq_severity",
+        "delinq_recency",
+        "il_ratio",
+        "high_util_pct",
+        "log_annual_inc",
+        "log_revol_bal",
+        "has_delinq_2yrs",
+        "has_pub_rec",
+        "has_bankruptcy",
+        "has_recent_inq",
+        "has_mortgage",
+        "many_recent_opens",
+        "recent_chargeoff",
+        "bc_util",
+        "bc_open_to_buy",
+        "percent_bc_gt_75",
+        "acc_open_past_24mths",
+        "tot_cur_bal",
+        "tot_hi_cred_lim",
+        "total_bal_ex_mort",
+        "total_bc_limit",
+        "total_il_high_credit_limit",
+        "avg_cur_bal",
+        "pct_tl_nvr_dlq",
+        "mths_since_recent_bc",
+        "num_accts_ever_120_pd",
+        "num_actv_bc_tl",
+        "num_actv_rev_tl",
+        "num_bc_sats",
+        "num_bc_tl",
+        "num_il_tl",
+        "num_op_rev_tl",
+        "num_rev_accts",
+        "num_rev_tl_bal_gt_0",
+        "num_sats",
+        "num_tl_30dpd",
+        "num_tl_90g_dpd_24m",
+        "num_tl_op_past_12m",
+        "mo_sin_old_il_acct",
+        "mo_sin_old_rev_tl_op",
+        "mo_sin_rcnt_rev_tl_op",
+        "mo_sin_rcnt_tl",
         "loan_to_income_sq",
+        "fico_x_dti",
     ]
     target_cols = [
         "default_flag",
@@ -90,6 +145,15 @@ def build_loan_master(df: pd.DataFrame) -> pd.DataFrame:
     id_cols = ["id"] if "id" in df.columns else []
     available = [c for c in feature_cols + target_cols + id_cols if c in df.columns]
     loan_master = df[available].copy()
+    if "annual_inc" in loan_master.columns:
+        annual_inc = pd.to_numeric(loan_master["annual_inc"], errors="coerce")
+        zero_income_count = int(annual_inc.eq(0).fillna(False).sum())
+        if zero_income_count:
+            logger.warning(
+                "loan_master contains {} rows with annual_inc == 0; schema accepts non-negative "
+                "income, and downstream ratios are handled with safe division.",
+                zero_income_count,
+            )
     try:
         from src.features.schemas import validate_loan_master
 
@@ -297,16 +361,15 @@ def save_datasets(
     logger.info("Saved analytical datasets to {}", output_dir)
 
 
-def main(input_path: str = "data/processed/train.parquet", output_dir: str = "data/processed/"):
-    from src.features.feature_engineering import run_feature_pipeline
+def main(input_path: str = "data/processed/train_fe.parquet", output_dir: str = "data/processed/"):
+    from src.utils.io_utils import read_split_with_fe_fallback
 
-    train_df = pd.read_parquet(input_path)
+    train_df = read_split_with_fe_fallback(input_path)
     logger.info("Loaded training split: {} rows from {}", len(train_df), input_path)
 
     train_clean = clean_raw_columns(train_df)
-    train_featured = run_feature_pipeline(train_clean)
-    loan_master = build_loan_master(train_featured)
-    ead_dataset = build_ead_dataset(train_featured)
+    loan_master = build_loan_master(train_clean)
+    ead_dataset = build_ead_dataset(train_clean)
 
     history_df = clean_raw_columns(load_historical_time_series_source(input_path))
     time_series_full = build_time_series(history_df)
@@ -326,7 +389,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--input", default="data/processed/train.parquet")
+    parser.add_argument("--input", default="data/processed/train_fe.parquet")
     parser.add_argument("--output", default="data/processed/")
     args = parser.parse_args()
     main(args.input, args.output)

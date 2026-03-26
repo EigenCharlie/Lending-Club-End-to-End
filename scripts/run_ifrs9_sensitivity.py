@@ -13,7 +13,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import pickle
 from pathlib import Path
 
 import numpy as np
@@ -23,6 +22,13 @@ from loguru import logger
 
 from src.evaluation.ifrs9 import assign_stage, compute_ecl, ecl_with_conformal_range
 from src.models.conformal_artifacts import load_conformal_intervals
+from src.utils.pipeline_runtime import (
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 
 def _load_intervals() -> pd.DataFrame:
@@ -473,6 +479,8 @@ def _sensitivity_grid(
 
 
 def main(base_lgd: float = 0.45):
+    stage_name = "ifrs9"
+    write_runtime_status(stage_name, phase="loading_inputs", state="running")
     intervals = _load_intervals()
     train_raw, test_raw = _load_raw_splits()
     lifetime_table = _load_lifetime_table()
@@ -485,6 +493,16 @@ def main(base_lgd: float = 0.45):
     quality["temporal_interval_model"] = str(temporal_context["interval_model"])
     quality["temporal_status"] = str(temporal_context["status"])
     quality["temporal_official_status"] = str(temporal_context["official_status"])
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_prepared",
+        {
+            "interval_rows": int(len(intervals)),
+            "train_rows": int(len(train_raw)),
+            "test_rows": int(len(test_raw)),
+            "temporal_source": str(temporal_context["source"]),
+        },
+    )
 
     # Keep console output concise during large sensitivity loops.
     logger.disable("src.evaluation.ifrs9")
@@ -510,6 +528,7 @@ def main(base_lgd: float = 0.45):
         lifetime_table=lifetime_table,
         cif_correction=cif_correction,
     )
+    write_runtime_status(stage_name, phase="scenarios_computed", state="running")
 
     for frame in (scenario_summary, grade_summary, sensitivity):
         frame["temporal_source"] = str(temporal_context["source"])
@@ -530,24 +549,33 @@ def main(base_lgd: float = 0.45):
     grade_path = data_dir / "ifrs9_scenario_grade_summary.parquet"
     sensitivity_path = data_dir / "ifrs9_sensitivity_grid.parquet"
     quality_path = data_dir / "ifrs9_input_quality.parquet"
-    scenario_summary.to_parquet(scenario_path, index=False)
-    grade_summary.to_parquet(grade_path, index=False)
-    sensitivity.to_parquet(sensitivity_path, index=False)
-    quality.to_parquet(quality_path, index=False)
+    atomic_write_parquet(scenario_summary, scenario_path, index=False)
+    atomic_write_parquet(grade_summary, grade_path, index=False)
+    atomic_write_parquet(sensitivity, sensitivity_path, index=False)
+    atomic_write_parquet(quality, quality_path, index=False)
+    write_runtime_checkpoint(
+        stage_name,
+        "artifacts_persisted",
+        {
+            "scenario_count": int(len(scenario_summary)),
+            "grade_rows": int(len(grade_summary)),
+            "sensitivity_rows": int(len(sensitivity)),
+            "quality_rows": int(len(quality)),
+        },
+    )
 
-    with open(model_dir / "ifrs9_sensitivity_summary.pkl", "wb") as f:
-        pickle.dump(
-            {
-                "scenario_summary": scenario_summary.to_dict(orient="records"),
-                "sensitivity_extremes": {
-                    "min_total_ecl": float(sensitivity["total_ecl"].min()),
-                    "max_total_ecl": float(sensitivity["total_ecl"].max()),
-                },
-                "input_quality": quality.to_dict(orient="records")[0],
-                "temporal_context": temporal_context,
+    atomic_write_pickle(
+        model_dir / "ifrs9_sensitivity_summary.pkl",
+        {
+            "scenario_summary": scenario_summary.to_dict(orient="records"),
+            "sensitivity_extremes": {
+                "min_total_ecl": float(sensitivity["total_ecl"].min()),
+                "max_total_ecl": float(sensitivity["total_ecl"].max()),
             },
-            f,
-        )
+            "input_quality": quality.to_dict(orient="records")[0],
+            "temporal_context": temporal_context,
+        },
+    )
 
     base_ecl = float(
         scenario_summary.loc[scenario_summary["scenario"] == "baseline", "total_ecl"].iloc[0]
@@ -569,6 +597,23 @@ def main(base_lgd: float = 0.45):
     )
     logger.info(
         f"Baseline ECL={base_ecl:,.0f}, Severe ECL={severe_ecl:,.0f}, Uplift={(severe_ecl / base_ecl - 1) * 100:.2f}%"
+    )
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="ifrs9_scenario_summary",
+        artifact_path=scenario_path,
+        extra={"baseline_ecl": base_ecl, "severe_ecl": severe_ecl},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        extra={
+            "scenario_summary_path": str(scenario_path),
+            "summary_pickle_path": str(model_dir / "ifrs9_sensitivity_summary.pkl"),
+            "baseline_ecl": base_ecl,
+            "severe_ecl": severe_ecl,
+        },
     )
 
 

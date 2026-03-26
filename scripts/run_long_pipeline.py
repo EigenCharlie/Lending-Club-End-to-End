@@ -29,6 +29,8 @@ from pathlib import Path
 
 import yaml
 
+from src.utils.pipeline_runtime import atomic_write_json, load_runtime_status
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_RUN_TAG = datetime.now(UTC).strftime("%Y-%m-%d-long-run")
 STATUS_SCHEMA_VERSION = "2026-03-01.1"
@@ -59,6 +61,36 @@ STEP_ORDER = [
     "rapids",
     "notebooks",
 ]
+SCRIPT_RUNTIME_STATUS_PATHS = {
+    "scripts/materialize_feature_artifacts.py": REPO_ROOT
+    / "models"
+    / "feature_artifacts_runtime_status.json",
+    "scripts/train_pd_model.py": REPO_ROOT / "models" / "pd_training_status.json",
+    "scripts/run_survival_analysis.py": REPO_ROOT / "models" / "survival_runtime_status.json",
+    "scripts/train_lgd_ead.py": REPO_ROOT / "models" / "lgd_ead_runtime_status.json",
+    "scripts/estimate_causal_effects.py": REPO_ROOT
+    / "models"
+    / "causal_effect_runtime_status.json",
+    "scripts/simulate_causal_policy.py": REPO_ROOT
+    / "models"
+    / "causal_policy_simulation_runtime_status.json",
+    "scripts/validate_causal_policy.py": REPO_ROOT
+    / "models"
+    / "causal_policy_validation_runtime_status.json",
+    "scripts/backtest_causal_policy_oot.py": REPO_ROOT
+    / "models"
+    / "causal_policy_oot_runtime_status.json",
+    "scripts/run_ifrs9_sensitivity.py": REPO_ROOT / "models" / "ifrs9_runtime_status.json",
+    "scripts/optimize_portfolio.py": REPO_ROOT
+    / "models"
+    / "portfolio_optimization_runtime_status.json",
+    "scripts/optimize_portfolio_tradeoff.py": REPO_ROOT
+    / "models"
+    / "portfolio_tradeoff_runtime_status.json",
+    "scripts/generate_dependency_summary.py": REPO_ROOT
+    / "models"
+    / "dependency_audit_runtime_status.json",
+}
 
 PIPELINE_PROFILE_DEFAULTS = {
     "champion_search": "champion_search_max",
@@ -404,8 +436,25 @@ def _write_subphase_progress(
 
 
 def write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    atomic_write_json(path, payload)
+
+
+def _runtime_status_snapshot_for_subphase(subphase: str | None) -> dict[str, object]:
+    candidate = str(subphase or "").strip()
+    if not candidate:
+        return {}
+    for script_path, status_path in SCRIPT_RUNTIME_STATUS_PATHS.items():
+        if script_path in candidate:
+            payload = load_runtime_status(status_path)
+            if not payload:
+                return {"runtime_status_path": str(status_path)}
+            return {
+                "runtime_status_path": str(status_path),
+                "runtime_status_phase": payload.get("phase"),
+                "runtime_status_state": payload.get("state"),
+                "runtime_status_updated_at_utc": payload.get("updated_at_utc"),
+            }
+    return {}
 
 
 def append_master(run_tag: str, message: str) -> None:
@@ -693,6 +742,7 @@ def run_step(
                             ).isoformat(),
                             "stalled": stalled,
                             "stall_window_seconds": int(stall_window_seconds),
+                            **_runtime_status_snapshot_for_subphase(status.subphase),
                         },
                     )
                     if stalled and not stall_warn_emitted:
@@ -860,6 +910,23 @@ def build_steps(
         )
         causal_sample = "--sample_size 200000"
         cate_candidates = "--max_candidates 10000"
+        rapids_profile = "current"
+    elif sampling_profile == "smoke":
+        pd_sample = "--sample_size 20000"
+        survival_args = (
+            "--sample_size 5000 --rsf_n_estimators 10 --rsf_sample_size 2000 "
+            "--rsf_max_samples 0.25 --rsf_n_jobs 1"
+        )
+        lgd_ead_sample = "--sample_size 10000 --benchmark-short"
+        optimize_portfolio_candidates = (
+            "--max_candidates 100" if optimize_portfolio_has_max_candidates else ""
+        )
+        ab_candidates = (
+            "--max_portfolio_pd 0.18 --max_candidates 100 --n_boot 100 --seed 42 "
+            "--no_regression_tolerance_pct 0.05"
+        )
+        causal_sample = "--sample_size 2000"
+        cate_candidates = "--max_candidates 100"
         rapids_profile = "current"
     elif sampling_profile == "balanced":
         pd_sample = "--sample_size 0"
@@ -1172,6 +1239,7 @@ def build_steps(
     preflight_cmd = (
         f"{activate_main} && "
         f"{rapids_validate_cmd}"
+        f"uv run python -u scripts/train_pd_model.py --config {pd_config} --validate-only && "
         "python -m pytest -q tests/test_docs tests/test_streamlit/test_page_imports.py "
         "tests/test_config_consistency.py && "
         f"python scripts/run_comparison.py snapshot --run-tag {run_tag}"
@@ -1188,6 +1256,8 @@ def build_steps(
 
     main_pre_cmd = f"""
         {activate_main} &&
+        uv run python -u scripts/materialize_feature_artifacts.py &&
+        uv run python -u -c "from src.data.build_datasets import main; main()" &&
         ({optuna_cleanup_cmd}) &&
         {pd_train_cmd} &&
         {conformal_cmd} &&
@@ -1222,8 +1292,7 @@ def build_steps(
             uv run python -u scripts/run_survival_analysis.py {survival_args} &&
             uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg} &&
             {portfolio_cmd} &&
-            {ab_cmd} &&
-            (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
+            {ab_cmd}
         """
     else:
         heavy_main_cmd = f"""
@@ -1233,8 +1302,7 @@ def build_steps(
             {portfolio_cmd} &&
             {tradeoff_cmd} &&
             {selector_cmd} &&
-            {ab_cmd} &&
-            (uv run python -u scripts/log_mlflow_experiment_suite.py || true)
+            {ab_cmd}
         """
     steps.append(("heavy_main", False, heavy_main_cmd))
 
@@ -1255,10 +1323,18 @@ def build_steps(
         causal_args.append(
             f"--cate_honest {'true' if bool(causal_search_cfg['cate_honest']) else 'false'}"
         )
+    causal_runner = "bash scripts/causal/run_in_causal_env.sh"
+    estimate_cmd = f"{causal_runner} scripts/estimate_causal_effects.py {' '.join(arg for arg in causal_args if arg.strip())}"
+    simulate_cmd = f"{causal_runner} scripts/simulate_causal_policy.py"
+    validate_cmd = f"{causal_runner} scripts/validate_causal_policy.py"
+    backtest_cmd = f"{causal_runner} scripts/backtest_causal_policy_oot.py"
     causal_cmd = f"""
         {activate_main} &&
         {causal_headroom_guard} &&
-        bash scripts/causal/run_causal_pipeline.sh {" ".join(arg for arg in causal_args if arg.strip())}
+        {estimate_cmd} &&
+        {simulate_cmd} &&
+        {validate_cmd} &&
+        {backtest_cmd}
     """
     steps.append(("causal", False, causal_cmd))
 
@@ -1276,6 +1352,7 @@ def build_steps(
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
         uv run python -u scripts/build_pipeline_results.py &&
         if [ -f scripts/build_pd_challenger_artifacts.py ]; then uv run python -u scripts/build_pd_challenger_artifacts.py --config {pd_config}; else true; fi &&
+        uv run python -u scripts/generate_dependency_summary.py &&
         uv run python -u scripts/run_fairness_audit.py --run-tag {run_tag} &&
         if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/update_champion_registry.py ]; then uv run python -u scripts/update_champion_registry.py; else true; fi &&
@@ -1284,6 +1361,7 @@ def build_steps(
         uv run python -u scripts/export_streamlit_artifacts.py &&
         uv run python -u scripts/export_storytelling_snapshot.py &&
         uv run python -u scripts/export_dvc_metrics.py --run-tag {run_tag} &&
+        (uv run python -u scripts/log_mlflow_experiment_suite.py || true) &&
         uv run python -u scripts/run_comparison.py compare --run-tag {run_tag}{compare_baseline_arg}
     """
     steps.append(("post_core", False, post_core_cmd))
@@ -1410,6 +1488,7 @@ def parse_args(
             "mega64plus",
             "mega64safe",
             "champion64safe",
+            "smoke",
         ],
         default=default_sampling_profile,
         help=(
@@ -1417,7 +1496,8 @@ def parse_args(
             "mega (max data, OOM-safe caps), mega64 (24 threads / ~60GB WSL tuned), "
             "mega64plus (same hardware, more aggressive optimization caps), "
             "mega64safe (recovery profile with survival RSF memory guardrails), "
-            "champion64safe (promotion-first rerun using pd_model.champion.yaml)"
+            "champion64safe (promotion-first rerun using pd_model.champion.yaml), "
+            "smoke (tiny end-to-end resumability validation profile)"
         ),
     )
     p.add_argument(
@@ -1496,6 +1576,13 @@ def main(
         upstream_canonical_run_tag=upstream_canonical_run_tag,
     )
     profile_cfg = _load_pipeline_profile_config(str(pipeline_contract["pipeline_profile"]))
+    execution_cfg = dict(_profile_value(profile_cfg, "execution", default={}) or {})
+    include_rapids_effective = (not bool(args.no_rapids)) and bool(
+        execution_cfg.get("include_rapids", True)
+    )
+    include_notebooks_effective = (not bool(args.no_notebooks)) and bool(
+        execution_cfg.get("include_notebooks", True)
+    )
     comparison_baseline_path = _resolve_comparison_baseline(
         baseline_path_arg=args.comparison_baseline,
         baseline_run_tag_arg=args.comparison_baseline_run_tag,
@@ -1551,8 +1638,8 @@ def main(
             "writes_canonical_artifacts": pipeline_contract["writes_canonical_artifacts"],
             "resume": bool(args.resume),
             "refresh_baseline_on_resume": bool(args.refresh_baseline_on_resume),
-            "include_rapids": not bool(args.no_rapids),
-            "include_notebooks": not bool(args.no_notebooks),
+            "include_rapids": include_rapids_effective,
+            "include_notebooks": include_notebooks_effective,
             "sampling_profile": str(args.sampling_profile),
             "env_file": str(args.env_file) if args.env_file else None,
             "from_step": str(args.from_step) if args.from_step else None,
@@ -1576,8 +1663,8 @@ def main(
 
     steps = build_steps(
         run_tag,
-        include_rapids=not bool(args.no_rapids),
-        include_notebooks=not bool(args.no_notebooks),
+        include_rapids=include_rapids_effective,
+        include_notebooks=include_notebooks_effective,
         sampling_profile=str(args.sampling_profile),
         comparison_baseline=comparison_baseline,
         pipeline_family=str(pipeline_contract["pipeline_family"]),

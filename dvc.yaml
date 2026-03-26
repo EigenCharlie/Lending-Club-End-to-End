@@ -15,28 +15,55 @@ stages:
     - data/processed/calibration.parquet
     - data/processed/test.parquet
     - data/processed/train.parquet
+  materialize_feature_artifacts:
+    cmd: uv run python scripts/materialize_feature_artifacts.py
+    deps:
+    - data/processed/calibration.parquet
+    - data/processed/test.parquet
+    - data/processed/train.parquet
+    - scripts/materialize_feature_artifacts.py
+    - src/features/feature_engineering.py
+    outs:
+    - data/processed/calibration_fe.parquet
+    - data/processed/test_fe.parquet
+    - data/processed/train_fe.parquet
+    - data/processed/feature_config.pkl
+    - data/processed/woe_encoders.pkl
+    - data/processed/feature_manifest_v2.json
+    - data/processed/feature_manifest_v2.parquet
   build_datasets:
     cmd: uv run python -c "from src.data.build_datasets import main; main()"
     deps:
     - data/processed/calibration.parquet
     - data/processed/test.parquet
     - data/processed/train.parquet
+    - data/processed/train_fe.parquet
     - src/data/build_datasets.py
-    - src/features/feature_engineering.py
     outs:
     - data/processed/ead_dataset.parquet
     - data/processed/loan_master.parquet
     - data/processed/time_series.parquet
     - data/processed/time_series_full.parquet
     - data/processed/time_series_panel.parquet
+  generate_dependency_summary:
+    cmd: uv run python scripts/generate_dependency_summary.py
+    deps:
+    - pyproject.toml
+    - uv.lock
+    - requirements/causal-causalpy.txt
+    - requirements/causal-econml.txt
+    - requirements/feast-platform.txt
+    - scripts/generate_dependency_summary.py
+    outs:
+    - models/dependency_audit_runtime_status.json
   train_pd_model:
     cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
     deps:
     - configs/pd_model.yaml
-    - data/processed/calibration.parquet
+    - data/processed/calibration_fe.parquet
     - data/processed/feature_config.pkl
-    - data/processed/test.parquet
-    - data/processed/train.parquet
+    - data/processed/test_fe.parquet
+    - data/processed/train_fe.parquet
     - scripts/train_pd_model.py
     outs:
     - data/processed/test_predictions.parquet

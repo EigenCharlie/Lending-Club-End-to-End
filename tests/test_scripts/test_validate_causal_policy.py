@@ -41,8 +41,12 @@ def test_validate_causal_policy_writes_traceable_status(tmp_path, monkeypatch) -
     validate_mod.main(max_action_rate=1.0, bootstrap_samples=50)
 
     status = json.loads((model_dir / "causal_policy_rule.json").read_text(encoding="utf-8"))
+    runtime_status = json.loads(
+        (model_dir / "causal_policy_validation_runtime_status.json").read_text(encoding="utf-8")
+    )
     assert status["run_tag"] == "run-causal-test"
     assert status["schema_version"]
     assert status["generated_at_utc"]
     assert status["source_effect_status_path"] == "models/causal_effect_status.json"
     assert status["selected_rule"]
+    assert runtime_status["state"] == "completed"

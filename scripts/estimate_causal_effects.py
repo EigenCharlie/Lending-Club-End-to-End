@@ -26,6 +26,11 @@ from src.models.causal import (
     specify_causal_graph,
 )
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.pipeline_runtime import (
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 CAUSAL_SCHEMA_VERSION = "2026-03-07.1"
 
@@ -141,6 +146,13 @@ def main(
     cate_honest: bool = True,
 ) -> None:
     run_tag_resolved = resolve_run_tag(run_tag, require_explicit=True)
+    stage_name = "causal_effect"
+    write_runtime_status(
+        stage_name,
+        phase="loading_inputs",
+        state="running",
+        run_tag=run_tag_resolved,
+    )
     train_df, train_path = _load_split("train_fe", "train")
     test_df, test_path = _load_split("test_fe", "test")
 
@@ -172,6 +184,16 @@ def main(
         f"Loaded {len(train_df):,} loans for causal analysis from {train_path} "
         f"(run_tag={run_tag_resolved})"
     )
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_loaded",
+        {
+            "train_rows": int(len(train_df)),
+            "test_rows": int(len(test_df)),
+            "dataset_scope": dataset_scope,
+            "treatment": treatment,
+        },
+    )
 
     effect_modifiers = [c for c in default_effect_modifiers() if c in train_df.columns]
     confounders = [c for c in default_confounders() if c in train_df.columns]
@@ -202,6 +224,12 @@ def main(
         criterion=cate_criterion,
         min_balancedness_tol=cate_min_balancedness_tol,
         honest=cate_honest,
+    )
+    write_runtime_status(
+        stage_name,
+        phase="cate_estimated",
+        state="running",
+        run_tag=run_tag_resolved,
     )
     estimator._effect_modifier_columns = list(effect_modifiers)
     estimator._confounder_columns = list(confounders)
@@ -315,6 +343,24 @@ def main(
     }
     status_path = model_dir / "causal_effect_status.json"
     _write_json(status_path, status)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="causal_effect_status",
+        artifact_path=status_path,
+        run_tag=run_tag_resolved,
+        extra={"cate_mean": float(np.mean(cate)), "n_obs": int(len(train_df))},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=run_tag_resolved,
+        extra={
+            "status_path": str(status_path),
+            "cate_artifact_path": str(cate_path),
+            "overlap_artifact_path": str(overlap_path),
+        },
+    )
 
     logger.info(f"Saved causal train CATE: {cate_path} ({len(cate_df):,} rows)")
     logger.info(f"Saved overlap diagnostics: {overlap_path} ({len(overlap):,} rows)")

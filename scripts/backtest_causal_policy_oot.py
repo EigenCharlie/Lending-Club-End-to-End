@@ -18,6 +18,14 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+from src.utils.pipeline_runtime import (
+    atomic_write_json,
+    atomic_write_parquet,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
+
 CAUSAL_OOT_SCHEMA_VERSION = "2026-03-07.1"
 
 
@@ -54,6 +62,7 @@ def main(
     min_history_months: int = 12,
     selected_rule_path: str = "models/causal_policy_rule.json",
 ) -> None:
+    stage_name = "causal_policy_oot"
     sim_path = Path("data/processed/causal_policy_simulation.parquet")
     effect_status_path = Path("models/causal_effect_status.json")
     train_path = Path("data/processed/train_fe.parquet")
@@ -100,12 +109,28 @@ def main(
         or os.environ.get("PIPELINE_RUN_TAG", "")
         or "untracked"
     ).strip()
+    write_runtime_status(
+        stage_name,
+        phase="loading_inputs",
+        state="running",
+        run_tag=run_tag,
+    )
     months = sorted(df["month"].dropna().unique().tolist())
     if len(months) <= min_history_months:
         raise ValueError(
             f"Not enough months for temporal backtest. months={len(months)}, "
             f"min_history_months={min_history_months}"
         )
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_loaded",
+        {
+            "rows": int(len(df)),
+            "months": int(len(months)),
+            "selected_rule": selected_rule,
+            "min_history_months": int(min_history_months),
+        },
+    )
 
     rows: list[dict[str, float | int | str]] = []
     grade_rows: list[dict[str, float | int | str]] = []
@@ -173,8 +198,8 @@ def main(
     out_dir.mkdir(parents=True, exist_ok=True)
     backtest_path = out_dir / "causal_policy_oot_backtest.parquet"
     grade_path = out_dir / "causal_policy_oot_backtest_by_grade.parquet"
-    backtest.to_parquet(backtest_path, index=False)
-    by_grade.to_parquet(grade_path, index=False)
+    atomic_write_parquet(backtest, backtest_path, index=False)
+    atomic_write_parquet(by_grade, grade_path, index=False)
 
     status = {
         "schema_version": CAUSAL_OOT_SCHEMA_VERSION,
@@ -194,7 +219,21 @@ def main(
     }
     status_path = Path("models/causal_policy_oot_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
-    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    atomic_write_json(status_path, status)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="causal_policy_oot_status",
+        artifact_path=status_path,
+        run_tag=run_tag,
+        extra={"n_months_evaluated": int(len(backtest)), "rule_name": selected_rule},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=run_tag,
+        extra={"status_path": str(status_path), "n_months_evaluated": int(len(backtest))},
+    )
 
     logger.info(f"Saved causal OOT backtest: {backtest_path} ({len(backtest):,} rows)")
     logger.info(f"Saved causal OOT backtest by grade: {grade_path} ({len(by_grade):,} rows)")

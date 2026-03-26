@@ -21,6 +21,7 @@ def test_build_steps_post_core_runs_governance_before_mrm() -> None:
     assert post_core_cmd.index("generate_governance_status.py") < post_core_cmd.index(
         "generate_mrm_report.py"
     )
+    assert "generate_dependency_summary.py" in post_core_cmd
 
 
 def test_split_step_command_extracts_prelude_and_subcommands() -> None:
@@ -45,6 +46,7 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
     cate_cmd = by_name["cate_portfolio"]
     rapids_cmd = by_name["rapids"]
 
+    assert "materialize_feature_artifacts.py" in main_pre_cmd
     assert "--sample_size 0" in main_pre_cmd
     assert "run_survival_analysis.py --sample_size 250000 --rsf_n_estimators 200" in heavy_main_cmd
     assert "train_lgd_ead.py --sample_size 0" in heavy_main_cmd
@@ -66,11 +68,73 @@ def test_build_steps_balanced_profile_applies_expected_sampling_mix() -> None:
     )
     assert "--policy_selector explicit_champion_only" in heavy_main_cmd
     assert (
-        "bash scripts/causal/run_causal_pipeline.sh --treatment int_rate --sample_size 200000 --run_tag run-balanced"
+        "bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate --sample_size 200000 --run_tag run-balanced"
+        in causal_cmd
+    )
+    assert (
+        "bash scripts/causal/run_in_causal_env.sh scripts/simulate_causal_policy.py" in causal_cmd
+    )
+    assert (
+        "bash scripts/causal/run_in_causal_env.sh scripts/validate_causal_policy.py" in causal_cmd
+    )
+    assert (
+        "bash scripts/causal/run_in_causal_env.sh scripts/backtest_causal_policy_oot.py"
         in causal_cmd
     )
     assert "scripts.optimize_cate_portfolio --max_candidates 20000" in cate_cmd
     assert "--profile current" in rapids_cmd
+
+
+def test_build_steps_smoke_profile_uses_small_resumability_args() -> None:
+    steps = lp.build_steps(
+        "run-smoke",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="smoke",
+        profile_cfg={
+            "search_space": {
+                "pd": {"config_path": "configs/pd_model.smart.yaml"},
+                "survival": {
+                    "full_data": False,
+                    "sample_size": 5000,
+                    "rsf_sample_size": 2000,
+                    "rsf_n_estimators": 10,
+                    "rsf_max_samples": 0.25,
+                    "rsf_n_jobs": 1,
+                },
+                "portfolio": {"max_candidates": 100},
+                "tradeoff": {"max_candidates": 100, "grid_profile": "quick"},
+                "ab": {
+                    "max_portfolio_pd": 0.18,
+                    "max_candidates": 100,
+                    "n_boot": 100,
+                    "seed": 42,
+                    "no_regression_tolerance_pct": 0.05,
+                },
+                "causal": {"sample_size": 2000},
+                "cate_portfolio": {"max_candidates": 100},
+            }
+        },
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    assert "--sample_size 20000" in by_name["main_pre"]
+    assert (
+        "run_survival_analysis.py --sample_size 5000 --rsf_n_estimators 10 --rsf_sample_size 2000 "
+        "--rsf_n_jobs 1 --rsf_max_samples 0.25" in by_name["heavy_main"]
+    )
+    assert "train_lgd_ead.py --sample_size 10000 --benchmark-short" in by_name["heavy_main"]
+    assert (
+        "scripts.optimize_portfolio --config configs/optimization.yaml --max_candidates 100"
+        in by_name["heavy_main"]
+    )
+    assert (
+        "scripts.optimize_portfolio_tradeoff --config configs/optimization.yaml --max_candidates 100 --grid-profile quick"
+        in by_name["heavy_main"]
+    )
+    assert (
+        "bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate --sample_size 2000 --run_tag run-smoke"
+        in by_name["causal"]
+    )
 
 
 def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
@@ -206,6 +270,13 @@ portfolio_selection:
     assert "scripts.optimize_portfolio_tradeoff" not in by_name["heavy_main"]
     assert "scripts.select_economic_portfolio_policy" not in by_name["heavy_main"]
     assert "build_champion_search_bundle.py" in by_name["post_core"]
+
+
+def test_preflight_validates_pd_config_before_long_run() -> None:
+    steps = lp.build_steps("run-preflight", include_rapids=False, include_notebooks=False)
+    preflight_cmd = next(cmd for name, _required, cmd in steps if name == "preflight")
+    assert "scripts/train_pd_model.py --config" in preflight_cmd
+    assert "--validate-only" in preflight_cmd
 
 
 def test_build_steps_profile_can_route_or_phases_to_rapids(tmp_path, monkeypatch) -> None:

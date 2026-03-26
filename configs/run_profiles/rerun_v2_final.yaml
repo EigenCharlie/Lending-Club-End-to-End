@@ -1,0 +1,104 @@
+schema_version: "2026-03-26.1"
+profile_name: rerun_v2_final
+pipeline_family: champion_search
+description: >
+  Rerun V2 final, amplio y OOM-safe. Mantiene el carril PD champion search
+  agresivo, abre conformal y causal con configuración rica, pero endurece
+  survival al perfil seguro aprendido en corridas previas para evitar OOM.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+  rapids_conda: rapids
+
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: true
+  include_notebooks: true
+
+defaults:
+  sampling_profile: mega64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+  bundle_output: models/champion_search_bundle.json
+  rapids_profile: full_data
+
+resource_policy:
+  pd_hpo_backend: cpu
+  lgd_ead_backend: gpu_if_stable
+  portfolio_backend: cuopt
+  tradeoff_backend: cuopt
+  selector_backend: cuopt
+  ab_backend: cuopt
+  cate_backend: cuopt
+  ifrs9_mc_backend: gpu_research
+
+search_space:
+  pd:
+    config_path: configs/pd_model.champion_search_max.yaml
+
+  conformal:
+    alpha_target_90: 0.10
+    alpha_95: 0.05
+    alpha_candidates_90: [0.10, 0.0975, 0.095, 0.0925, 0.09, 0.0875, 0.085, 0.0825, 0.08, 0.0775, 0.075, 0.0725, 0.07]
+    min_group_sizes: [100, 150, 250, 500, 750, 1000, 2000, 4000, 8000]
+    benchmark_min_group_size_default: 100
+    min_group_coverage_target: 0.88
+    group_coverage_floor_target_90: 0.92
+    max_width_budget_90: 0.90
+    coverage_guardband_90: 0.02
+    min_group_guardband_90: 0.0
+    tuning_holdout_ratio: 0.25
+    tuning_random_state: 42
+    temporal_segment_floor_enabled: true
+    temporal_segment_freq: M
+    temporal_segment_min_size: 100
+    global_rebalance_enabled: true
+    global_rebalance_min_factor: 0.70
+    global_rebalance_max_factor: 1.10
+    global_rebalance_step: 0.0025
+
+  survival:
+    full_data: false
+    sample_size: 500000
+    rsf_sample_size: 500000
+    rsf_n_estimators: 200
+    rsf_max_depth: 14
+    rsf_max_samples: 0.5
+    rsf_min_samples_leaf: 8
+    rsf_n_jobs: 12
+
+  portfolio:
+    max_candidates: 150000
+
+  tradeoff:
+    max_candidates: 80000
+    grid_profile: balanced
+
+  ab:
+    max_portfolio_pd: 0.18
+    max_candidates: 150000
+    n_boot: 5000
+    seed: 42
+    no_regression_tolerance_pct: 0.05
+
+  causal:
+    sample_size: 0
+    cate_n_estimators: 400
+    cate_cv: 4
+    cate_mc_iters: 3
+    cate_criterion: het
+    cate_min_balancedness_tol: 0.45
+    cate_honest: true
+
+  cate_portfolio:
+    max_candidates: 150000
+
+  rapids:
+    ifrs9_mc:
+      n_scenarios: 8192
+      chunk_size: 256
+
+  notebooks:
+    timeout: 5400
+    output_dir: reports/notebook_exec

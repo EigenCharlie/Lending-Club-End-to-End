@@ -7,9 +7,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import os
-import pickle
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -26,6 +24,14 @@ from src.models.ead_model import train_ead_model
 from src.models.lgd_model import predict_two_stage, train_direct_lgd, train_two_stage_lgd
 from src.models.pd_model import NUMERIC_FEATURES, WOE_FEATURES
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.pipeline_runtime import (
+    atomic_write_json,
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 SCHEMA_VERSION = "2026-03-02.1"
 SNAPSHOT_DATE = pd.Timestamp("2020-09-30")
@@ -53,6 +59,15 @@ def _artifact_path(path_like: str | Path) -> Path:
     if root is None:
         return path
     return root / path
+
+
+def _atomic_save_catboost_model(model: Any, path: str | Path) -> Path:
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    tmp = target.with_name(f".{target.name}.tmp-{os.getpid()}")
+    model.save_model(str(tmp))
+    tmp.replace(target)
+    return target
 
 
 def _catboost_backend_params(backend: str) -> dict[str, Any]:
@@ -438,6 +453,13 @@ def main(
             sample_size = min(int(sample_size), BENCHMARK_SHORT_SAMPLE_SIZE)
     backend_params = _catboost_backend_params(catboost_backend)
     resolved_run_tag = resolve_run_tag(run_tag, require_explicit=True)
+    stage_name = "lgd_ead"
+    write_runtime_status(
+        stage_name,
+        phase="loading_splits",
+        state="running",
+        run_tag=resolved_run_tag,
+    )
 
     train = _sample_df(_load_split("train"), sample_size)
     cal = _sample_df(_load_split("calibration"), sample_size)
@@ -453,6 +475,17 @@ def main(
 
     if not features:
         raise ValueError("No model features available for LGD/EAD training.")
+    write_runtime_checkpoint(
+        stage_name,
+        "splits_loaded",
+        {
+            "train_rows": int(len(train)),
+            "calibration_rows": int(len(cal)),
+            "test_rows": int(len(test)),
+            "feature_count": int(len(features)),
+            "backend": catboost_backend,
+        },
+    )
 
     for df in (train, cal, test):
         df[features] = df[features].apply(pd.to_numeric, errors="coerce").fillna(0.0)
@@ -484,6 +517,12 @@ def main(
         mask_test = test["default_flag"] == 1
 
         if mask_train.any() and mask_cal.any() and mask_test.any():
+            write_runtime_status(
+                stage_name,
+                phase="training_lgd_variants",
+                state="running",
+                run_tag=resolved_run_tag,
+            )
             train_d = train.loc[mask_train].copy().reset_index(drop=True)
             cal_d = cal.loc[mask_cal].copy().reset_index(drop=True)
             test_d = test.loc[mask_test].copy().reset_index(drop=True)
@@ -495,39 +534,51 @@ def main(
             X_test = test_d[features]
             y_test = test_d["lgd"].astype(float)
 
-            # Variant A: two-stage + split conformal.
-            clf, reg, lgd_two_stage_metrics = train_two_stage_lgd(
-                X_train,
-                y_train,
-                X_test,
-                y_test,
-                params=backend_params,
-            )
-            with open(model_dir / "lgd_stage1_clf.pkl", "wb") as f:
-                pickle.dump(clf, f)
-            with open(model_dir / "lgd_stage2_reg.pkl", "wb") as f:
-                pickle.dump(reg, f)
-
-            p_cal_two_stage = _clip01(predict_two_stage(clf, reg, X_cal))
-            p_test_two_stage = _clip01(predict_two_stage(clf, reg, X_test))
-            y_pred_ts_90, low_ts_90, high_ts_90, q_ts_90 = _point_split_intervals(
-                y_cal.to_numpy(), p_cal_two_stage, p_test_two_stage, alpha=0.10
-            )
-            _y_pred_ts_95, low_ts_95, high_ts_95, q_ts_95 = _point_split_intervals(
-                y_cal.to_numpy(), p_cal_two_stage, p_test_two_stage, alpha=0.05
-            )
-
             variant_frames: dict[str, pd.DataFrame] = {}
-            variant_frames["two_stage_split"] = _build_interval_frame(
-                y_true=y_test.to_numpy(),
-                y_pred=y_pred_ts_90,
-                low_90=low_ts_90,
-                high_90=high_ts_90,
-                low_95=low_ts_95,
-                high_95=high_ts_95,
-                index_df=test_d,
-                variant="two_stage_split",
-            )
+            lgd_two_stage_metrics: dict[str, float] | None = None
+            baseline_variant = "direct_split"
+
+            # Variant A: two-stage + split conformal, only when the defaults-only slice
+            # still contains both zero-recovery and positive-recovery cases.
+            y_train_binary = (y_train > 0).astype(int)
+            if int(y_train_binary.nunique()) >= 2:
+                clf, reg, lgd_two_stage_metrics = train_two_stage_lgd(
+                    X_train,
+                    y_train,
+                    X_test,
+                    y_test,
+                    params=backend_params,
+                )
+                atomic_write_pickle(model_dir / "lgd_stage1_clf.pkl", clf)
+                atomic_write_pickle(model_dir / "lgd_stage2_reg.pkl", reg)
+
+                p_cal_two_stage = _clip01(predict_two_stage(clf, reg, X_cal))
+                p_test_two_stage = _clip01(predict_two_stage(clf, reg, X_test))
+                y_pred_ts_90, low_ts_90, high_ts_90, q_ts_90 = _point_split_intervals(
+                    y_cal.to_numpy(), p_cal_two_stage, p_test_two_stage, alpha=0.10
+                )
+                _y_pred_ts_95, low_ts_95, high_ts_95, q_ts_95 = _point_split_intervals(
+                    y_cal.to_numpy(), p_cal_two_stage, p_test_two_stage, alpha=0.05
+                )
+
+                variant_frames["two_stage_split"] = _build_interval_frame(
+                    y_true=y_test.to_numpy(),
+                    y_pred=y_pred_ts_90,
+                    low_90=low_ts_90,
+                    high_90=high_ts_90,
+                    low_95=low_ts_95,
+                    high_95=high_ts_95,
+                    index_df=test_d,
+                    variant="two_stage_split",
+                )
+                baseline_variant = "two_stage_split"
+            else:
+                logger.warning(
+                    "Skipping two_stage LGD variant because defaults-only training slice has a "
+                    "single recovery class (sample_size={}, positives={}).",
+                    sample_size,
+                    int(y_train_binary.sum()),
+                )
 
             # Variant B: direct regressor + split conformal.
             direct_model, lgd_direct_metrics = train_direct_lgd(
@@ -537,8 +588,7 @@ def main(
                 y_test,
                 params=backend_params,
             )
-            with open(model_dir / "lgd_direct_reg.pkl", "wb") as f:
-                pickle.dump(direct_model, f)
+            atomic_write_pickle(model_dir / "lgd_direct_reg.pkl", direct_model)
 
             p_cal_direct = _clip01(direct_model.predict(X_cal))
             p_test_direct = _clip01(direct_model.predict(X_test))
@@ -606,14 +656,10 @@ def main(
             q025.fit(X_train, y_train, eval_set=(X_test, y_test))
             q975.fit(X_train, y_train, eval_set=(X_test, y_test))
 
-            with open(model_dir / "lgd_q05_reg.pkl", "wb") as f:
-                pickle.dump(q05, f)
-            with open(model_dir / "lgd_q95_reg.pkl", "wb") as f:
-                pickle.dump(q95, f)
-            with open(model_dir / "lgd_q025_reg.pkl", "wb") as f:
-                pickle.dump(q025, f)
-            with open(model_dir / "lgd_q975_reg.pkl", "wb") as f:
-                pickle.dump(q975, f)
+            atomic_write_pickle(model_dir / "lgd_q05_reg.pkl", q05)
+            atomic_write_pickle(model_dir / "lgd_q95_reg.pkl", q95)
+            atomic_write_pickle(model_dir / "lgd_q025_reg.pkl", q025)
+            atomic_write_pickle(model_dir / "lgd_q975_reg.pkl", q975)
 
             q05_cal = q05.predict(X_cal)
             q95_cal = q95.predict(X_cal)
@@ -760,21 +806,23 @@ def main(
                 benchmark_rows.append(row)
 
             benchmark = pd.DataFrame(benchmark_rows)
-            benchmark = _apply_guardrails(benchmark, baseline_variant="two_stage_split")
+            benchmark = _apply_guardrails(benchmark, baseline_variant=baseline_variant)
             chosen_variant, selection_reason = _choose_variant(benchmark)
 
             benchmark_path = data_dir / "lgd_variant_benchmark.parquet"
-            benchmark.to_parquet(benchmark_path, index=False)
+            atomic_write_parquet(benchmark, benchmark_path, index=False)
 
             diagnostics_path = data_dir / "lgd_coverage_diagnostics.parquet"
             diagnostics_df = pd.concat(list(variant_frames.values()), ignore_index=True)
             diagnostics_df.insert(0, "run_tag", resolved_run_tag)
-            diagnostics_df.to_parquet(diagnostics_path, index=False)
+            atomic_write_parquet(diagnostics_df, diagnostics_path, index=False)
 
             selected_df = variant_frames[chosen_variant].copy()
             lgd_intervals_path = data_dir / "conformal_intervals_lgd.parquet"
-            selected_df.drop(columns=["variant"], errors="ignore").to_parquet(
-                lgd_intervals_path, index=False
+            atomic_write_parquet(
+                selected_df.drop(columns=["variant"], errors="ignore"),
+                lgd_intervals_path,
+                index=False,
             )
 
             guardrail_row = benchmark[benchmark["variant"] == chosen_variant].iloc[0].to_dict()
@@ -808,10 +856,7 @@ def main(
                 },
             }
             guardrails_path = model_dir / "lgd_guardrails_status.json"
-            guardrails_path.write_text(
-                json.dumps(guardrails_payload, indent=2, ensure_ascii=False),
-                encoding="utf-8",
-            )
+            atomic_write_json(guardrails_path, guardrails_payload)
 
             metrics_90 = validate_coverage(
                 selected_df["y_true"].to_numpy(dtype=float),
@@ -834,7 +879,7 @@ def main(
                 .reset_index()
             )
             grade_cov_path = data_dir / "lgd_coverage_by_grade.parquet"
-            grade_cov.to_parquet(grade_cov_path, index=False)
+            atomic_write_parquet(grade_cov, grade_cov_path, index=False)
 
             year_cov = (
                 selected_df.assign(
@@ -849,7 +894,7 @@ def main(
                 .reset_index()
             )
             year_cov_path = data_dir / "lgd_coverage_by_year.parquet"
-            year_cov.to_parquet(year_cov_path, index=False)
+            atomic_write_parquet(year_cov, year_cov_path, index=False)
 
             status["lgd"] = {
                 "available": True,
@@ -860,7 +905,9 @@ def main(
                 "selected_variant": chosen_variant,
                 "selection_reason": selection_reason,
                 "model_metrics": {
-                    "two_stage": {k: float(v) for k, v in lgd_two_stage_metrics.items()},
+                    "two_stage": None
+                    if lgd_two_stage_metrics is None
+                    else {k: float(v) for k, v in lgd_two_stage_metrics.items()},
                     "direct": {k: float(v) for k, v in lgd_direct_metrics.items()},
                 },
                 "conformal": {
@@ -916,6 +963,12 @@ def main(
 
     # EAD: defaults-only regression target.
     if "loan_amnt" in train.columns and "loan_amnt" in cal.columns and "loan_amnt" in test.columns:
+        write_runtime_status(
+            stage_name,
+            phase="training_ead_variants",
+            state="running",
+            run_tag=resolved_run_tag,
+        )
         mask_train = train["default_flag"] == 1
         mask_cal = cal["default_flag"] == 1
         mask_test = test["default_flag"] == 1
@@ -934,7 +987,7 @@ def main(
                 y_test,
                 params=backend_params,
             )
-            ead_model.save_model(str(model_dir / "ead_catboost.cbm"))
+            _atomic_save_catboost_model(ead_model, model_dir / "ead_catboost.cbm")
 
             y_pred_90, y_int_90 = create_regression_intervals(
                 ead_model, X_cal=X_cal, y_cal=y_cal, X_test=X_test, alpha=0.10
@@ -958,7 +1011,7 @@ def main(
             ead_df["width_95"] = ead_df["y_high_95"] - ead_df["y_low_95"]
             if "id" in test.columns:
                 ead_df["id"] = test.loc[mask_test, "id"].astype(str).to_numpy()
-            ead_df.to_parquet(ead_intervals_path, index=False)
+            atomic_write_parquet(ead_df, ead_intervals_path, index=False)
 
             status["ead"] = {
                 "available": True,
@@ -981,7 +1034,32 @@ def main(
     else:
         status["ead"] = {"available": False, "reason": "missing_loan_amnt_column"}
 
-    status_path.write_text(json.dumps(status, indent=2, ensure_ascii=False), encoding="utf-8")
+    write_runtime_checkpoint(
+        stage_name,
+        "artifacts_ready",
+        {
+            "lgd_available": bool(status.get("lgd", {}).get("available", False)),
+            "ead_available": bool(status.get("ead", {}).get("available", False)),
+        },
+    )
+    atomic_write_json(status_path, status)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="conformal_lgd_ead_status",
+        artifact_path=status_path,
+        run_tag=resolved_run_tag,
+        extra={
+            "lgd_available": bool(status.get("lgd", {}).get("available", False)),
+            "ead_available": bool(status.get("ead", {}).get("available", False)),
+        },
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=resolved_run_tag,
+        extra={"status_path": str(status_path)},
+    )
     logger.info(f"Saved LGD/EAD conformal status: {status_path}")
 
 

@@ -20,6 +20,13 @@ import pandas as pd
 from loguru import logger
 
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.pipeline_runtime import (
+    atomic_write_json,
+    atomic_write_parquet,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 _CLI_RUN_TAG: str | None = None
 
@@ -79,6 +86,7 @@ def main(
     bootstrap_samples: int = 200,
     random_state: int = 42,
 ):
+    stage_name = "causal_policy_validation"
     input_path = Path("data/processed/causal_policy_simulation.parquet")
     effect_status_path = Path("models/causal_effect_status.json")
     if not input_path.exists():
@@ -94,6 +102,20 @@ def main(
         else {}
     )
     run_tag = resolve_run_tag(_CLI_RUN_TAG or effect_status.get("run_tag"), require_explicit=True)
+    write_runtime_status(
+        stage_name,
+        phase="loading_inputs",
+        state="running",
+        run_tag=run_tag,
+    )
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_loaded",
+        {
+            "rows": int(len(df)),
+            "bootstrap_samples": int(bootstrap_samples),
+        },
+    )
 
     q85 = float(df["cate"].quantile(0.85))
     q90 = float(df["cate"].quantile(0.90))
@@ -150,8 +172,8 @@ def main(
 
     candidates_path = data_dir / "causal_policy_rule_candidates.parquet"
     selected_path = data_dir / "causal_policy_rule_selected.parquet"
-    candidates.to_parquet(candidates_path, index=False)
-    selected.to_parquet(selected_path, index=False)
+    atomic_write_parquet(candidates, candidates_path, index=False)
+    atomic_write_parquet(selected, selected_path, index=False)
 
     selected_row = selected.iloc[0].to_dict()
     status = {
@@ -185,8 +207,21 @@ def main(
         ),
     }
     status_path = model_dir / "causal_policy_rule.json"
-    with open(status_path, "w", encoding="utf-8") as f:
-        json.dump(status, f, indent=2)
+    atomic_write_json(status_path, status)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="causal_policy_rule",
+        artifact_path=status_path,
+        run_tag=run_tag,
+        extra={"selected_rule": str(selected_row["rule_name"])},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=run_tag,
+        extra={"status_path": str(status_path), "selected_rule": str(selected_row["rule_name"])},
+    )
 
     logger.info(f"Saved policy rule candidates: {candidates_path}")
     logger.info(f"Saved selected policy rule: {selected_path}")

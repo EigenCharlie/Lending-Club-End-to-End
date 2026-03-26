@@ -23,7 +23,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 from src.evaluation.fairness import fairness_report
-from src.evaluation.metrics import classification_metrics
+from src.evaluation.metrics import brier_score_decomposition, classification_metrics
 from src.models.calibration import evaluate_calibration, expected_calibration_error
 from src.models.conformal import create_pd_intervals, validate_coverage
 from src.models.optuna_tuning import resolve_optuna_study_name
@@ -47,12 +47,100 @@ from src.models.pd_model import (
 from src.models.venn_abers import VennAbersScoreCalibrator
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.io_utils import read_split_with_fe_fallback
+from src.utils.pipeline_runtime import atomic_write_json
 from src.utils.threshold_semantics import write_threshold_semantics
+from src.utils.visualization import plot_murphy_diagram
 
 
 def load_config(config_path: str) -> dict[str, Any]:
     with open(config_path, encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def validate_pd_config(config: dict[str, Any], *, config_path: str) -> dict[str, Any]:
+    """Fail fast on missing PD config sections and required keys."""
+    if not isinstance(config, dict):
+        raise ValueError(f"PD config must be a mapping: {config_path}")
+
+    required_sections = ("output", "feature_source", "data", "hpo", "validation")
+    missing_sections = [section for section in required_sections if section not in config]
+    if missing_sections:
+        raise ValueError(
+            f"PD config {config_path} missing required sections: {', '.join(missing_sections)}"
+        )
+
+    required_data_keys = ("train_path", "test_path", "calibration_path")
+    missing_data_keys = [
+        key
+        for key in required_data_keys
+        if not str((config.get("data", {}) or {}).get(key, "")).strip()
+    ]
+    if missing_data_keys:
+        raise ValueError(
+            f"PD config {config_path} missing required data keys: {', '.join(missing_data_keys)}"
+        )
+
+    normalized = dict(config)
+    normalized["output"] = dict(config.get("output", {}) or {})
+    normalized["feature_source"] = dict(config.get("feature_source", {}) or {})
+    normalized["data"] = dict(config.get("data", {}) or {})
+    normalized["hpo"] = dict(config.get("hpo", {}) or {})
+    normalized["validation"] = dict(config.get("validation", {}) or {})
+    normalized["model"] = dict(config.get("model", {}) or {})
+    normalized["conformal"] = dict(config.get("conformal", {}) or {})
+    normalized["calibration"] = dict(config.get("calibration", {}) or {})
+
+    output_defaults = {
+        "model_path": "models/pd_canonical.cbm",
+        "default_model_path": "models/pd_catboost_default.cbm",
+        "tuned_model_path": "models/pd_canonical.cbm",
+        "conformal_path": "models/pd_canonical_calibrator.pkl",
+        "status_path": "models/pd_training_status.json",
+        "checkpoint_dir": "models/pd_training_checkpoints",
+        "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
+        "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png",
+    }
+    for key, value in output_defaults.items():
+        normalized["output"].setdefault(key, value)
+
+    normalized["feature_source"].setdefault("mode", "auto")
+    normalized["feature_source"].setdefault(
+        "feature_config_path", "data/processed/feature_config.pkl"
+    )
+    return normalized
+
+
+def _write_json(path: str | Path, payload: dict[str, Any]) -> None:
+    target = Path(path)
+    atomic_write_json(target, payload)
+
+
+def _write_training_status(
+    status_path: str | Path,
+    *,
+    phase: str,
+    state: str,
+    config_path: str,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    payload = {
+        "stage_name": "pd_training",
+        "phase": phase,
+        "state": state,
+        "config_path": config_path,
+        "updated_at_utc": pd.Timestamp.utcnow().isoformat(),
+        **(extra or {}),
+    }
+    _write_json(status_path, payload)
+
+
+def _write_checkpoint(
+    checkpoint_dir: str | Path,
+    name: str,
+    payload: dict[str, Any],
+) -> None:
+    target = Path(checkpoint_dir) / f"{name}.json"
+    _write_json(target, payload)
 
 
 def _gpu_replay_artifact_root() -> Path | None:
@@ -881,10 +969,11 @@ def main(
     walk_forward_enabled: bool | None = None,
     seed_replay_enabled: bool | None = None,
     catboost_iterations: int | None = None,
+    validate_only: bool = False,
 ) -> None:
     if sample_size is not None and int(sample_size) <= 0:
         sample_size = None
-    config = load_config(config_path)
+    config = validate_pd_config(load_config(config_path), config_path=config_path)
     regime_cfg = dict(config.get("training_regime", {}) or {})
     if training_regime_mode is not None:
         regime_cfg["mode"] = str(training_regime_mode)
@@ -929,12 +1018,60 @@ def main(
     model_cfg["params"] = model_params
     config["model"] = model_cfg
 
+    status_path = _artifact_path(
+        config["output"].get("status_path", "models/pd_training_status.json")
+    )
+    checkpoint_dir = _artifact_path(
+        config["output"].get("checkpoint_dir", "models/pd_training_checkpoints")
+    )
+    _write_training_status(
+        status_path,
+        phase="config_validated",
+        state="running",
+        config_path=config_path,
+        extra={"validate_only": bool(validate_only)},
+    )
+    _write_checkpoint(
+        checkpoint_dir,
+        "config_validation",
+        {
+            "config_path": config_path,
+            "output": config["output"],
+            "feature_source": config["feature_source"],
+            "data": config["data"],
+            "hpo_enabled": bool(config["hpo"].get("enabled", True)),
+            "validation": config["validation"],
+        },
+    )
+
+    if validate_only:
+        logger.info("PD config validation passed for {}", config_path)
+        _write_training_status(
+            status_path,
+            phase="config_validated",
+            state="completed",
+            config_path=config_path,
+            extra={"validate_only": True},
+        )
+        return
+
     logger.info(f"Config loaded from {config_path}")
 
     train = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["train_path"]))
     test = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["test_path"]))
     cal = _normalize_percent_columns(
         read_split_with_fe_fallback(config["data"]["calibration_path"])
+    )
+    _write_training_status(
+        status_path,
+        phase="data_loaded",
+        state="running",
+        config_path=config_path,
+        extra={
+            "train_rows": int(len(train)),
+            "calibration_rows": int(len(cal)),
+            "test_rows": int(len(test)),
+        },
     )
 
     train, regime_meta = _apply_training_regime(train, regime_cfg, date_col="issue_d")
@@ -994,6 +1131,26 @@ def main(
             len(categorical_features),
         )
     )
+    _write_checkpoint(
+        checkpoint_dir,
+        "feature_resolution",
+        {
+            "feature_source": feature_sets.get("feature_source", feature_mode),
+            "catboost_features": catboost_features,
+            "logreg_features": logreg_features,
+            "categorical_features": categorical_features,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="features_resolved",
+        state="running",
+        config_path=config_path,
+        extra={
+            "catboost_feature_count": int(len(catboost_features)),
+            "logreg_feature_count": int(len(logreg_features)),
+        },
+    )
 
     val_cfg = config.get("validation", {})
     walk_cfg = val_cfg.get("walk_forward", {})
@@ -1026,6 +1183,13 @@ def main(
         y_test,
         sample_weight=train_fit_weights,
     )
+    _write_training_status(
+        status_path,
+        phase="baseline_trained",
+        state="running",
+        config_path=config_path,
+        extra={"baseline_auc": float(lr_metrics.get("auc_roc", 0.0))},
+    )
 
     # CatBoost default
     cb_default_model, cb_default_metrics = train_catboost_default(
@@ -1039,6 +1203,13 @@ def main(
         params=config["model"].get("params", {}),
         sample_weight=train_fit_weights,
         eval_sample_weight=train_val_weights,
+    )
+    _write_training_status(
+        status_path,
+        phase="default_catboost_trained",
+        state="running",
+        config_path=config_path,
+        extra={"validation_auc": float(cb_default_metrics.get("validation_auc", 0.0))},
     )
 
     # CatBoost tuned (Optuna)
@@ -1144,6 +1315,26 @@ def main(
         cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
         cb_tuned_metrics["best_params"] = config["model"].get("params", {})
         seed_replay_report["reason"] = "hpo_disabled"
+    _write_checkpoint(
+        checkpoint_dir,
+        "hpo_summary",
+        {
+            "best_params": cb_tuned_metrics.get("best_params", {}),
+            "hpo_trials_executed": int(cb_tuned_metrics.get("hpo_trials_executed", 0)),
+            "hpo_best_validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+            "seed_replay_report": seed_replay_report,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="tuned_catboost_trained",
+        state="running",
+        config_path=config_path,
+        extra={
+            "validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+            "best_iteration": int(cb_tuned_metrics.get("best_iteration", 0)),
+        },
+    )
 
     walk_forward_report: dict[str, Any]
     if bool(walk_cfg.get("enabled", True)):
@@ -1211,6 +1402,22 @@ def main(
     selected_cal_method, cal_selection_report = _select_calibration_method(
         cal_reports,
         auc_drop_limit=0.0015,
+    )
+    _write_checkpoint(
+        checkpoint_dir,
+        "calibration_selection",
+        {
+            "selected_method": selected_cal_method,
+            "selection_report": cal_selection_report,
+            "candidate_reports": cal_reports,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="calibration_selected",
+        state="running",
+        config_path=config_path,
+        extra={"selected_calibration_method": selected_cal_method},
     )
 
     calibrator = _fit_calibrator_from_scores(
@@ -1295,6 +1502,8 @@ def main(
 
     final_test_metrics = classification_metrics(y_test.values, y_prob_final)
     tuned_raw_test_metrics = classification_metrics(y_test.values, y_prob_tuned_test)
+    calibrated_decomposition = brier_score_decomposition(y_test.values, y_prob_final)
+    raw_decomposition = brier_score_decomposition(y_test.values, y_prob_tuned_test)
 
     # Statistical calibration hypothesis tests (MAPIE)
     # Tests H0: scores are well-calibrated. High p-value → well calibrated.
@@ -1372,6 +1581,45 @@ def main(
         )
     except Exception as exc:
         logger.warning(f"Statistical calibration tests block failed: {exc}")
+
+    brier_decomposition_path = _artifact_path(
+        config["output"].get(
+            "brier_decomposition_path", "data/processed/brier_score_decomposition.json"
+        )
+    )
+    _write_json(
+        brier_decomposition_path,
+        {
+            "calibrated": calibrated_decomposition,
+            "uncalibrated": raw_decomposition,
+            "selected_calibration_method": selected_cal_method,
+        },
+    )
+
+    murphy_diagram_path = _artifact_path(
+        config["output"].get(
+            "murphy_diagram_path", "reports/figures/calibration/murphy_diagram.png"
+        )
+    )
+    try:
+        import matplotlib.pyplot as plt
+
+        ax = plot_murphy_diagram(
+            y_test.values,
+            {
+                "CatBoost tuned raw": y_prob_tuned_test,
+                f"CatBoost tuned calibrated ({selected_cal_method})": y_prob_final,
+                "LogReg baseline": lr_model.predict_proba(X_test_lr)[:, 1],
+            },
+            title="Murphy Diagram: Raw vs Calibrated PD Forecasts",
+        )
+        ax.figure.tight_layout()
+        murphy_diagram_path.parent.mkdir(parents=True, exist_ok=True)
+        ax.figure.savefig(murphy_diagram_path, dpi=180, bbox_inches="tight")
+        plt.close(ax.figure)
+        logger.info("Saved Murphy diagram to {}", murphy_diagram_path)
+    except Exception as exc:
+        logger.warning("Murphy diagram export skipped: {}", exc)
 
     # Persist models/calibrator
     model_path = _artifact_path(config["output"].get("model_path", "models/pd_catboost_tuned.cbm"))
@@ -1572,10 +1820,13 @@ def main(
         "catboost_default_metrics": cb_default_metrics,
         "catboost_tuned_metrics": cb_tuned_metrics,
         "catboost_tuned_raw_test_metrics": tuned_raw_test_metrics,
+        "brier_decomposition_calibrated": calibrated_decomposition,
+        "brier_decomposition_uncalibrated": raw_decomposition,
         "calibration_metrics": cal_metrics,
         "conformal_metrics": cp_metrics,
         "final_test_metrics": final_test_metrics,
         "shap_export": shap_artifact,
+        "murphy_diagram_path": str(murphy_diagram_path),
     }
 
     record_path = _artifact_path("models/pd_training_record.pkl")
@@ -1614,6 +1865,19 @@ def main(
     logger.info("Saved PD contract to {}", contract_path)
     logger.info("Saved test predictions to {}", test_predictions_path)
     logger.info("Saved training record to {}", record_path)
+    _write_training_status(
+        status_path,
+        phase="artifacts_saved",
+        state="completed",
+        config_path=config_path,
+        extra={
+            "model_path": str(model_path),
+            "calibrator_path": str(cal_path),
+            "record_path": str(record_path),
+            "auc_roc": float(final_test_metrics.get("auc_roc", 0.0)),
+            "brier_score": float(final_test_metrics.get("brier_score", 0.0)),
+        },
+    )
     logger.info(
         "Final metrics | AUC={:.4f} Gini={:.4f} KS={:.4f} Brier={:.4f} ECE={:.4f}",
         final_test_metrics["auc_roc"],
@@ -1658,6 +1922,7 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument("--catboost_iterations", type=int, default=None)
+    parser.add_argument("--validate-only", action="store_true")
     args = parser.parse_args()
     main(
         args.config,
@@ -1682,4 +1947,5 @@ if __name__ == "__main__":
             None if args.seed_replay_enabled is None else args.seed_replay_enabled.lower() == "true"
         ),
         catboost_iterations=args.catboost_iterations,
+        validate_only=bool(args.validate_only),
     )

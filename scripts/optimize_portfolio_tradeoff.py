@@ -11,9 +11,7 @@ Usage:
 from __future__ import annotations
 
 import argparse
-import json
 import os
-import pickle
 from datetime import UTC, datetime
 from pathlib import Path
 
@@ -28,6 +26,14 @@ from src.optimization.portfolio_model import (
     optimize_portfolio_allocation,
 )
 from src.utils.artifact_metadata import resolve_run_tag
+from src.utils.pipeline_runtime import (
+    atomic_write_json,
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 SCHEMA_VERSION = "2026-03-08.1"
 
@@ -482,6 +488,8 @@ def main(
     solver_backend: str = "highs",
     candidate_universe_path: str = "data/processed/champion_candidate_universe.parquet",
 ):
+    stage_name = "portfolio_tradeoff"
+    write_runtime_status(stage_name, phase="loading_inputs", state="running")
     with open(config_path, encoding="utf-8") as f:
         config = yaml.safe_load(f)
 
@@ -499,6 +507,16 @@ def main(
     resolved_run_tag = resolve_run_tag(require_explicit=True)
     _write_candidate_universe(loans, path=candidate_universe_path, run_tag=resolved_run_tag)
     candidate_universe_resolved = _artifact_path(candidate_universe_path)
+    write_runtime_checkpoint(
+        stage_name,
+        "candidate_universe_prepared",
+        {
+            "n_candidates_available": int(min(len(candidates), len(intervals))),
+            "n_candidates_used": int(n),
+            "risk_grid_count": int(len(risk_values)),
+            "aversion_grid_count": int(len(aversion_values)),
+        },
+    )
 
     col_point, col_low, col_high = _resolve_interval_columns(ints)
     pd_point = ints[col_point].to_numpy(dtype=float)
@@ -587,6 +605,12 @@ def main(
     logger.info(
         f"Starting robustness trade-off optimization on n={n:,}, "
         f"risk_grid={risk_values}, aversion_grid={aversion_values}"
+    )
+    write_runtime_status(
+        stage_name,
+        phase="solving_frontier",
+        state="running",
+        run_tag=resolved_run_tag,
     )
 
     for risk_tol in risk_values:
@@ -753,8 +777,8 @@ def main(
     frontier_path = data_dir / "portfolio_robustness_frontier.parquet"
     summary_path = data_dir / "portfolio_robustness_summary.parquet"
     research_policy_path = model_dir / "portfolio_research_policy.json"
-    frontier.to_parquet(frontier_path, index=False)
-    summary.to_parquet(summary_path, index=False)
+    atomic_write_parquet(frontier, frontier_path, index=False)
+    atomic_write_parquet(summary, summary_path, index=False)
 
     research_payload = {
         "schema_version": SCHEMA_VERSION,
@@ -907,10 +931,7 @@ def main(
         "summary_path": str(summary_path),
         "candidate_universe_path": str(candidate_universe_resolved),
     }
-    research_policy_path.write_text(
-        json.dumps(research_payload, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
+    atomic_write_json(research_policy_path, research_payload)
 
     payload = {
         "risk_grid": risk_values,
@@ -937,8 +958,30 @@ def main(
         "selected_policy": research_payload["selected_policy"],
         "summary_rows": summary.to_dict(orient="records"),
     }
-    with open(model_dir / "portfolio_robustness_results.pkl", "wb") as f:
-        pickle.dump(payload, f)
+    atomic_write_pickle(model_dir / "portfolio_robustness_results.pkl", payload)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="portfolio_robustness_summary",
+        artifact_path=summary_path,
+        run_tag=resolved_run_tag,
+        extra={
+            "frontier_rows": int(len(frontier)),
+            "summary_rows": int(len(summary)),
+            "selected_policy_mode": str(champion_row["policy_mode"]),
+        },
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=resolved_run_tag,
+        extra={
+            "frontier_path": str(frontier_path),
+            "summary_path": str(summary_path),
+            "research_policy_path": str(research_policy_path),
+            "n_candidates_used": int(n),
+        },
+    )
 
     logger.info(f"Saved robustness frontier: {frontier_path} ({len(frontier):,} rows)")
     logger.info(f"Saved robustness summary: {summary_path} ({len(summary):,} rows)")
