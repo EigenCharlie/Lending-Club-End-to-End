@@ -1,0 +1,64 @@
+defaults:
+  treatment: int_rate
+  policy_semantics: research_grade_pricing_intervention
+  policy_value_method: local_cate_discrete_grid
+  treatment_unit: percentage_points
+  action_grid_bps: [0, -50, -100]
+
+data:
+  train_path: data/processed/train_fe.parquet
+  test_path: data/processed/test_fe.parquet
+  max_covariate_missing_rate: 0.05
+  max_row_drop_rate: 0.02
+  impute_covariates: median
+
+overlap:
+  segment_columns: [grade, purpose, home_ownership]
+  min_segment_size: 50
+  min_support_ok_share: 0.80
+
+variables:
+  effect_modifiers: [loan_amnt, annual_inc, dti, fico_range_low]
+  confounders: [grade_woe, purpose_woe, home_ownership_woe]
+  extra_effect_modifiers: []
+  extra_confounders: []
+
+estimators:
+  ate_primary: linear_dml
+  ate_audit: dowhy_backdoor_linear_regression
+  cate_candidates: [causal_forest_dml, linear_dml]
+  cate_selector: rscorer
+  nuisance_model: gradient_boosting
+  random_state: 42
+  linear_dml:
+    cv: 3
+    mc_iters: 1
+  causal_forest_dml:
+    n_estimators: 200
+    cv: 3
+    mc_iters: 1
+    criterion: mse
+    min_balancedness_tol: 0.45
+    honest: true
+    max_samples: 0.45
+    n_jobs: -1
+
+sensitivity:
+  alpha: 0.05
+  c_y: 0.05
+  c_t: 0.05
+  rho: 1.0
+  min_robustness_value: 0.05
+
+policy:
+  max_action_rate: 0.35
+  min_bootstrap_p05_net: 0.0
+  min_grade_total_net: 0.0
+  bootstrap_samples: 200
+  min_history_months: 12
+  positive_value_quantiles: [0.80, 0.90]
+  use_policy_gate_for_portfolio: true
+
+portfolio:
+  require_validated_policy: true
+  max_candidates_default: 5000

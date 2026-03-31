@@ -1,9 +1,9 @@
 {
   "selected_calibration_method": "venn_abers",
-  "validation_auc": 0.7214210494863852,
-  "oot_auc": 0.7116427759293199,
-  "brier": 0.1547803501068238,
-  "ece": 0.005662533056922205,
+  "validation_auc": 0.7220671439531414,
+  "oot_auc": 0.7126809898257414,
+  "brier": 0.15456155709655775,
+  "ece": 0.006731531345207926,
   "replay": {
     "enabled": false,
     "reason": "hpo_disabled",
@@ -12,6 +12,6 @@
     "selected_params": null
   },
   "schema_version": "2026-03-13.1",
-  "generated_at_utc": "2026-03-21T21:51:49.574375+00:00",
-  "run_tag": "2026-03-21-canonical-refresh-clean"
+  "generated_at_utc": "2026-03-30T16:42:42.226400+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
 }

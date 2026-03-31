@@ -1,37 +1,37 @@
 {
   "schema_version": "2026-03-13.1",
-  "generated_at_utc": "2026-03-23T03:05:44.840708+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "generated_at_utc": "2026-03-30T22:27:44.125259+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
   "summary": {
     "n_obs": 276869,
     "prevalence": 0.21977902907151034,
-    "pr_auc": 0.39507015755835906,
-    "brier": 0.1547803501068238,
-    "ece": 0.005662533056922205
+    "pr_auc": 0.3974083356465099,
+    "brier": 0.15456155709655775,
+    "ece": 0.006731531345207926
   },
   "global": {
     "n_obs": 276869,
     "prevalence": 0.21977902907151034,
-    "pr_auc": 0.39507015755835906,
-    "brier": 0.1547803501068238,
-    "ece": 0.005662533056922205
+    "pr_auc": 0.3974083356465099,
+    "brier": 0.15456155709655775,
+    "ece": 0.006731531345207926
   },
-  "worst_protected_group_ece": 0.02500473472281258,
-  "worst_grade_brier": 0.24014580527744148,
-  "max_decile_gap": 0.02701170598826369,
+  "worst_protected_group_ece": 0.0311334448299655,
+  "worst_grade_brier": 0.23886587275250126,
+  "max_decile_gap": 0.013935543367215697,
   "worst_protected_group": {
     "slice_name": "home_ownership",
     "slice_value": "ANY",
-    "ece": 0.02500473472281258,
-    "brier": 0.16898696746548392,
-    "pr_auc": 0.39285533709716103,
+    "ece": 0.0311334448299655,
+    "brier": 0.16760473017800878,
+    "pr_auc": 0.3936964098652919,
     "n": 704
   },
   "worst_grade_group": {
     "slice_value": "F",
-    "ece": 0.03168587711394081,
-    "brier": 0.24014580527744148,
-    "pr_auc": 0.6216265722844164,
+    "ece": 0.03052609946128685,
+    "brier": 0.23886587275250126,
+    "pr_auc": 0.6294638331859685,
     "n": 1731
   },
   "report_path": "data/processed/pd_rare_event_calibration_report.parquet",

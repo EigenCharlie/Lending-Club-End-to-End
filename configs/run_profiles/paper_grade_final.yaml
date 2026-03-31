@@ -41,21 +41,27 @@ search_space:
     alpha_target_90: 0.10
     alpha_95: 0.05
     alpha_candidates_90: [0.10, 0.0975, 0.095, 0.0925, 0.09, 0.0875, 0.085, 0.0825, 0.08, 0.0775, 0.075, 0.0725, 0.07]
+    partition_candidates: [score_decile_mondrian, grade, grade_x_scoreband_mondrian]
+    scaled_scores_options: [true, false]
     min_group_sizes: [100, 150, 250, 500, 750, 1000, 2000, 4000, 8000]
     benchmark_min_group_size_default: 100
-    min_group_coverage_target: 0.88
+    min_group_coverage_target: 0.89
     group_coverage_floor_target_90: 0.92
     max_width_budget_90: 0.90
-    coverage_guardband_90: 0.02
+    coverage_guardband_90: 0.005
     min_group_guardband_90: 0.0
     tuning_holdout_ratio: 0.25
     tuning_random_state: 42
     temporal_segment_floor_enabled: true
     temporal_segment_freq: M
     temporal_segment_min_size: 100
+    group_coverage_floor_enabled: true
+    shrinkback_enabled: false
+    group_multiplier_grid: [1.0, 1.01, 1.02, 1.03, 1.05, 1.08, 1.12, 1.16]
+    temporal_multiplier_grid: [1.0, 1.01, 1.02, 1.03, 1.05, 1.08, 1.12, 1.16]
     global_rebalance_enabled: true
-    global_rebalance_min_factor: 0.70
-    global_rebalance_max_factor: 1.10
+    global_rebalance_min_factor: 0.65
+    global_rebalance_max_factor: 1.05
     global_rebalance_step: 0.0025
 
   survival:

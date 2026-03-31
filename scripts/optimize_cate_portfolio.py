@@ -17,10 +17,12 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+from src.models.causal import load_causal_config
 from src.optimization.causal_portfolio import build_cate_adjusted_portfolio
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
+from src.utils.pipeline_runtime import atomic_write_json, atomic_write_parquet
 
-CAUSAL_PORTFOLIO_SCHEMA_VERSION = "2026-03-07.1"
+CAUSAL_PORTFOLIO_SCHEMA_VERSION = "2026-03-26.1"
 
 
 def _artifact_path(path_like: str | Path) -> Path:
@@ -78,6 +80,10 @@ def _load_json_if_exists(path: Path) -> dict[str, Any]:
         return json.loads(path.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
+
+def _load_policy_gate() -> dict[str, Any]:
+    return _load_json_if_exists(Path("models/causal_policy_rule.json"))
 
 
 def _fallback_grade_map(train_cate: pd.DataFrame) -> dict[str, float]:
@@ -242,7 +248,10 @@ def main(
     max_candidates: int = 5_000,
     uncertainty_aversion: float = 0.0,
     solver_backend: str = "highs",
+    config_path: str = "configs/causal_lane.yaml",
 ) -> None:
+    cfg = load_causal_config(config_path)
+    require_validated_policy = bool(cfg.get("portfolio", {}).get("require_validated_policy", True))
     input_data_dir = Path("data/processed")
     output_data_dir = _artifact_path("data/processed")
     test_path = input_data_dir / "test_fe.parquet"
@@ -255,6 +264,73 @@ def main(
     intervals = pd.read_parquet(intervals_path)
     if "id" in test_df.columns:
         test_df = test_df.assign(id=test_df["id"].astype(str))
+    policy_rule = _load_policy_gate()
+    effect_status = _load_json_if_exists(Path("models/causal_effect_status.json"))
+    run_tag = _resolve_run_tag()
+    if require_validated_policy and not bool(
+        policy_rule.get("policy_evaluation_consistent", False)
+    ):
+        output_data_dir.mkdir(parents=True, exist_ok=True)
+        comparison_path = output_data_dir / "cate_portfolio_comparison.parquet"
+        atomic_write_parquet(
+            pd.DataFrame(
+                [
+                    {
+                        "scenario": "research_blocked_by_policy_gate",
+                        "objective_value": 0.0,
+                        "n_funded": 0,
+                        "cate_policy_mode": "research_blocked_by_policy_gate",
+                    }
+                ]
+            ),
+            comparison_path,
+            index=False,
+        )
+        status = {
+            "delta_rate": delta_rate,
+            "baseline_objective": None,
+            "cate_adjusted_objective": None,
+            "baseline_n_funded": None,
+            "cate_adjusted_n_funded": None,
+            "objective_change_pct": None,
+            "n_candidates_available": int(len(test_df)),
+            "n_candidates_used": 0,
+            "max_candidates_requested": None if int(max_candidates) <= 0 else int(max_candidates),
+            "dataset_scope": "blocked_by_policy_gate",
+            "solver_backend": str(solver_backend),
+            "feasible_baseline": False,
+            "feasible_adjusted": False,
+            "cate_policy_mode": "research_blocked_by_policy_gate",
+            "promotion_eligible": False,
+            "promotion_state": "research_blocked_by_policy_gate",
+            "fallback_applied": True,
+            "raw_objective_change_pct": None,
+            "shrunk_objective_change_pct": None,
+            "alignment_strategy": None,
+            "source_cate_artifact": None,
+            "n_missing_cate": None,
+            "cate_shrink": {},
+            "constraint_binding_reason": "research_blocked_by_policy_gate",
+            "role": "insights_only",
+            "promotion_decider": "causal_policy_rule.json",
+            "policy_evaluation_consistent": False,
+            "warning": "CATE portfolio blocked because the causal policy did not pass overlap/sensitivity/policy gates.",
+            "source_effect_status_path": "models/causal_effect_status.json",
+            "source_policy_rule_path": "models/causal_policy_rule.json",
+            "effect_status_run_tag": effect_status.get("run_tag"),
+            "policy_rule_run_tag": policy_rule.get("run_tag"),
+            **build_artifact_metadata(
+                schema_version=CAUSAL_PORTFOLIO_SCHEMA_VERSION,
+                run_tag=run_tag,
+                require_explicit=True,
+            ),
+        }
+        status_path = _artifact_path("models/cate_portfolio_status.json")
+        status_path.parent.mkdir(parents=True, exist_ok=True)
+        atomic_write_json(status_path, status)
+        logger.info("CATE portfolio blocked by policy gate: {}", status_path)
+        return
+
     cate_series, cate_meta = _align_cate_to_test(test_df, input_data_dir)
     shrunk_cate, shrink_meta = _shrink_cate(test_df, cate_series)
     logger.info(
@@ -340,14 +416,15 @@ def main(
     adjusted = result["cate_adjusted"]
     feasible_baseline = bool(int(baseline["n_funded"]) > 0)
     feasible_adjusted = bool(int(adjusted["n_funded"]) > 0)
-    promotion_eligible = bool(
+    stress_test_consistent = bool(
         feasible_baseline
         and feasible_adjusted
-        and float(adjusted["objective_value"]) >= float(baseline["objective_value"])
-        and int(adjusted["n_funded"]) >= 0.9 * int(baseline["n_funded"])
+        and policy_rule.get("policy_evaluation_consistent", False)
     )
-    fallback_applied = not promotion_eligible
-    selected_mode = "shrunk" if promotion_eligible else "research_only_fallback"
+    fallback_applied = not stress_test_consistent
+    selected_mode = (
+        "validated_policy_stress_test" if stress_test_consistent else "research_only_fallback"
+    )
 
     output_data_dir.mkdir(parents=True, exist_ok=True)
     comparison_path = output_data_dir / "cate_portfolio_comparison.parquet"
@@ -358,10 +435,9 @@ def main(
         ],
         ignore_index=True,
     )
-    comparison_df.to_parquet(comparison_path, index=False)
+    atomic_write_parquet(comparison_df, comparison_path, index=False)
     logger.info(f"Saved comparison: {comparison_path}")
 
-    run_tag = _resolve_run_tag()
     binding_reason = _constraint_binding_reason(result)
     status = {
         "delta_rate": delta_rate,
@@ -382,7 +458,10 @@ def main(
         "feasible_baseline": feasible_baseline,
         "feasible_adjusted": feasible_adjusted,
         "cate_policy_mode": selected_mode,
-        "promotion_eligible": promotion_eligible,
+        "promotion_eligible": False,
+        "promotion_state": "validated_policy_stress_test"
+        if stress_test_consistent
+        else "insights_only",
         "fallback_applied": fallback_applied,
         "raw_objective_change_pct": float(
             (
@@ -402,9 +481,9 @@ def main(
         "n_missing_cate": int(cate_meta["n_missing_cate"]),
         "cate_shrink": shrink_meta,
         "constraint_binding_reason": binding_reason,
-        "role": "insights_only" if not promotion_eligible else "operational_candidate",
-        "promotion_decider": "formal_optimizer_objective",
-        "policy_evaluation_consistent": bool(promotion_eligible),
+        "role": "stress_test" if stress_test_consistent else "insights_only",
+        "promotion_decider": "causal_policy_rule.json",
+        "policy_evaluation_consistent": bool(stress_test_consistent),
         "warning": cate_meta["warning"]
         or (
             "Integracion causal no utilizable en este run."
@@ -412,6 +491,7 @@ def main(
             else ("CATE portfolio left in research-only fallback mode." if fallback_applied else "")
         ),
         "source_effect_status_path": "models/causal_effect_status.json",
+        "source_policy_rule_path": "models/causal_policy_rule.json",
         **build_artifact_metadata(
             schema_version=CAUSAL_PORTFOLIO_SCHEMA_VERSION,
             run_tag=run_tag,
@@ -419,13 +499,14 @@ def main(
         ),
     }
 
-    effect_status = _load_json_if_exists(Path("models/causal_effect_status.json"))
     if effect_status:
         status["effect_status_run_tag"] = effect_status.get("run_tag")
+    if policy_rule:
+        status["policy_rule_run_tag"] = policy_rule.get("run_tag")
 
     status_path = _artifact_path("models/cate_portfolio_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
-    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    atomic_write_json(status_path, status)
     logger.info(f"Saved status: {status_path}")
 
 
@@ -437,6 +518,7 @@ if __name__ == "__main__":
     parser.add_argument("--max_candidates", type=int, default=5_000)
     parser.add_argument("--uncertainty_aversion", type=float, default=0.0)
     parser.add_argument("--solver_backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument("--config", default="configs/causal_lane.yaml")
     parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
     if args.run_tag:
@@ -448,4 +530,5 @@ if __name__ == "__main__":
         max_candidates=args.max_candidates,
         uncertainty_aversion=args.uncertainty_aversion,
         solver_backend=args.solver_backend,
+        config_path=args.config,
     )

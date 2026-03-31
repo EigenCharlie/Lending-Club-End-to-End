@@ -131,6 +131,44 @@ CatBoost y otros modelos de ensemble basados en árboles descubren interacciones
 
 En conjunto, los ratios, flags, transformaciones logarítmicas e interacciones capturan tres dimensiones complementarias del riesgo crediticio de un prestatario. La primera dimensión es **carga financiera**: ratios como `loan_to_income`, `installment_burden` y `revol_bal_to_income` miden cuánto del ingreso disponible está comprometido con deuda --- a mayor carga, menor capacidad de absorber shocks. La segunda dimensión es **estabilidad crediticia**: features como `credit_history_months`, `has_delinq_2yrs` y `has_bankruptcy` capturan la profundidad y calidad del historial --- un historial largo sin incidentes es la señal más fuerte de bajo riesgo. La tercera dimensión es **comportamiento reciente de búsqueda de crédito**: `has_recent_inq`, `open_acc_ratio` y `many_recent_opens` detectan patrones de solicitud activa que, en la literatura de credit scoring, se asocian con estrés financiero incipiente. Estas tres dimensiones cubren la mayor parte de la señal de creditworthiness disponible en datos de buró, y su combinación permite que el modelo capture perfiles de riesgo que una sola variable no podría representar.
 
-La @fig-feature-family-decomposition muestra la distribución de las 44 features del contrato canónico por familia de origen. La mezcla resultante combina señales crudas del buró con ratios derivados, flags binarios y codificaciones WOE, lo que le da al modelo múltiples vistas complementarias del mismo prestatario.
+La @fig-feature-family-decomposition muestra la distribución de las 42 features del contrato canónico por familia de origen. La mezcla resultante combina señales crudas del buró con ratios derivados, flags binarios y codificaciones WOE, lo que le da al modelo múltiples vistas complementarias del mismo prestatario.
 
 ![Descomposición del feature set canónico por familia de origen: ratios, flags, categorías, WOE y variables crudas.](../../assets/figures/notebooks/feature_family_decomposition.png){#fig-feature-family-decomposition fig-alt="Gráfico de barras mostrando la composición del feature set por familia: numéricas, categóricas, flags, ratios, interacciones."}
+
+### Qué cambió en el rerun V2
+
+El rerun V2 reabrió esta capa de feature engineering con una decisión importante: distinguir entre **feature universe** y **contrato champion**. Antes, parte de la narrativa del proyecto mezclaba ambos niveles; después de la refactorización quedaron separados:
+
+- `44` features core CatBoost en el manifest V2, de las cuales `42` quedan en el contrato champion final tras el filtro `stable_core`;
+- `47` para el baseline logístico;
+- `49` features challenger-only;
+- `164` columnas en el manifest total, incluyendo metadata, targets, WOE, candidatos bureau y señales auxiliares.
+
+Además del set derivado clásico, el universo candidato absorbió una familia nueva de variables de buró de alta cobertura (`bc_util`, `bc_open_to_buy`, `percent_bc_gt_75`, `acc_open_past_24mths`, `tot_cur_bal`, `total_bc_limit`, `avg_cur_bal`, `mths_since_recent_bc`, entre otras). No todas entraron al champion final, pero sí quedaron auditadas y disponibles para challengers y análisis research.
+
+```{python}
+#| label: tbl-feature-families-v2
+#| tbl-cap: "Familias de features en el manifest V2"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+import pandas as pd
+
+manifest = try_load_parquet("feature_manifest_v2")
+if not manifest.empty:
+    fam = (
+        manifest["family"]
+        .value_counts(dropna=False)
+        .rename_axis("Familia")
+        .reset_index(name="Conteo")
+    )
+else:
+    fam = pd.DataFrame()
+fam
+```
+
+El aprendizaje importante no es que “más variables siempre mejoran”. Es que el proyecto ahora puede demostrar qué quedó en el champion, qué quedó como challenger y qué quedó fuera por sparsity o por bajo valor editorial. Esa trazabilidad era una de las metas centrales del rerun.

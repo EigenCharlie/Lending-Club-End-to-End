@@ -112,6 +112,7 @@ def test_generate_governance_status_emits_explanation_and_fairness_fields(
     gov_mod.main(config_path=str(cfg_path), run_tag="run-governance-test")
 
     status = json.loads((model_dir / "governance_status.json").read_text(encoding="utf-8"))
+    model_shift = json.loads((model_dir / "model_shift_status.json").read_text(encoding="utf-8"))
     explanation = pd.read_parquet(data_dir / "explanation_drift.parquet")
 
     assert status["run_tag"] == "run-governance-test"
@@ -121,6 +122,14 @@ def test_generate_governance_status_emits_explanation_and_fairness_fields(
     assert "warnings" in status
     assert "warn_c2st" in status["warnings"]
     assert "distribution_warning_ratio" in status["summary"]
+    assert "c2st_materiality" in status["summary"]
+    assert "c2st_effective_driver_count" in status["summary"]
+    assert "c2st" in status
+    assert "top_drivers" in status["c2st"]
+    assert "model_shift" in status
+    assert "shift_type" in status["model_shift"]
     assert "challenger_promotable" in status
     assert "explanation_drift_path" in status["artifacts"]
+    assert model_shift["diagnostic_only"] is True
+    assert "summary" in model_shift
     assert not explanation.empty

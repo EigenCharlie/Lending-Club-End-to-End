@@ -1,0 +1,17 @@
+{
+  "dataset_scope": "full_data",
+  "schema_version": "2026-03-26.1",
+  "generated_at_utc": "2026-03-30T18:38:31.884755+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "overlap_pass": true,
+  "support_ok_share": 0.9629629629629629,
+  "failing_segments": [
+    {
+      "segment_type": "home_ownership",
+      "segment_value": "NONE",
+      "n_obs": 45
+    }
+  ],
+  "n_segments": 27,
+  "overlap_artifact_path": "data/processed/causal_overlap_diagnostics.parquet"
+}

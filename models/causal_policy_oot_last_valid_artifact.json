@@ -1,0 +1,9 @@
+{
+  "stage_name": "causal_policy_oot",
+  "artifact_key": "causal_policy_oot_status",
+  "artifact_path": "models/causal_policy_oot_status.json",
+  "validated_at_utc": "2026-03-30T19:27:27.887707+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "n_months_evaluated": 106,
+  "rule_name": "discount_100_only"
+}

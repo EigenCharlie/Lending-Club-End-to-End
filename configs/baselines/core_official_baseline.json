@@ -1,13 +1,13 @@
 {
   "_DEPRECATED": "2026-03-13: Superseded by canonical_operational_baseline.json. Schedule for removal after Paper 3 (May 2026). Kept as compatibility fallback only.",
   "schema_version": "2026-03-05.1",
-  "generated_at_utc": "2026-03-13T13:03:33.156794+00:00",
-  "official_run_tag": "champion-2026-03-12-mega-definitive",
-  "baseline_snapshot_path": "reports/run_comparisons/champion-2026-03-12-mega-definitive/baseline_snapshot.json",
-  "baseline_snapshot_sha256": "e4fbdaac292afa4d921c091cf735534ab824ed7bba1f6fd77137da76d1ebc962",
-  "baseline_snapshot_mtime_utc": "2026-03-13T13:03:33.081613+00:00",
-  "frozen_at_utc": "2026-03-13T13:03:33.156794+00:00",
-  "notes": "Promoted from champion_search_max mega run. Operationally promoted: PD core, isotonic calibration, portfolio policy, survival RSF, fairness, governance, LGD/EAD conformal. Warnings retained for PD conformal statistics and time-series intervals.",
+  "generated_at_utc": "2026-03-30T16:10:25.163415+00:00",
+  "official_run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
+  "baseline_snapshot_path": "reports/run_comparisons/canonical-monotonic-promotion-2026-03-29-0929/baseline_snapshot.json",
+  "baseline_snapshot_sha256": "7aed681f724a4c155a771b82d8e0a7da67daa2af36fa5c9fdb7b64fd55ccf070",
+  "baseline_snapshot_mtime_utc": "2026-03-30T16:10:25.104711+00:00",
+  "frozen_at_utc": "2026-03-30T16:10:25.163415+00:00",
+  "notes": "Paper-grade final heavy run promoted after final comparison gates.",
   "history": [
     {
       "frozen_at_utc": "2026-03-05T01:37:53.218435+00:00",
@@ -48,6 +48,30 @@
       "baseline_snapshot_sha256": "e4fbdaac292afa4d921c091cf735534ab824ed7bba1f6fd77137da76d1ebc962",
       "baseline_snapshot_mtime_utc": "2026-03-13T13:03:33.081613+00:00",
       "notes": "Promoted from champion_search_max mega run. Operationally promoted: PD core, isotonic calibration, portfolio policy, survival RSF, fairness, governance, LGD/EAD conformal. Warnings retained for PD conformal statistics and time-series intervals."
+    },
+    {
+      "frozen_at_utc": "2026-03-26T19:05:24.795545+00:00",
+      "run_tag": "rerun-v2-final-2026-03-26",
+      "baseline_snapshot_path": "reports/run_comparisons/rerun-v2-final-2026-03-26/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "7cd916daf590af1a3abf7efee04db3e47b625fa5206e4c6ca4509ae034202093",
+      "baseline_snapshot_mtime_utc": "2026-03-26T19:05:24.737822+00:00",
+      "notes": "Paper-grade final heavy run promoted after final comparison gates."
+    },
+    {
+      "frozen_at_utc": "2026-03-27T17:50:31.764831+00:00",
+      "run_tag": "baseline-clean-final-2026-03-27-confirmatory-r3",
+      "baseline_snapshot_path": "reports/run_comparisons/baseline-clean-final-2026-03-27-confirmatory-r3/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "6cc78aa74cc7d2286b6077bbc914b2b97bc6cad87452055ee0c8f2c2dc4aacf3",
+      "baseline_snapshot_mtime_utc": "2026-03-27T17:50:31.703403+00:00",
+      "notes": "Paper-grade final heavy run promoted after final comparison gates."
+    },
+    {
+      "frozen_at_utc": "2026-03-30T16:10:25.163415+00:00",
+      "run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
+      "baseline_snapshot_path": "reports/run_comparisons/canonical-monotonic-promotion-2026-03-29-0929/baseline_snapshot.json",
+      "baseline_snapshot_sha256": "7aed681f724a4c155a771b82d8e0a7da67daa2af36fa5c9fdb7b64fd55ccf070",
+      "baseline_snapshot_mtime_utc": "2026-03-30T16:10:25.104711+00:00",
+      "notes": "Paper-grade final heavy run promoted after final comparison gates."
     }
   ]
 }

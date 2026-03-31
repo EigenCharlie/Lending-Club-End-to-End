@@ -288,6 +288,13 @@ donde $\bar{p}_b$ es la probabilidad media predicha en el bin $b$, $\bar{o}_b$ e
 
 La mejora de Brier de 0.2051 a 0.1545 se debe casi enteramente a la reducción del término de **reliability** (REL), mientras que la resolución se mantiene constante --- exactamente lo que esperamos de una calibración post-hoc que no altera el ranking del modelo.
 
+El rerun V2 dejó además dos mejoras de gobernanza que antes estaban solo parcialmente absorbidas:
+
+- la **descomposición de Murphy/Brier** ahora se persiste como artefacto explícito (`brier_score_decomposition.json`);
+- el **Murphy diagram** dejó de ser una idea disponible solo en utilidades internas y pasó a producirse como evidencia editorial real del calibrador ganador.
+
+Esa mejora importa porque permite explicar la calibración no solo con un score agregado, sino con una lectura más rica de reliability versus resolution.
+
 ::: {.callout-tip}
 ## Interpretación práctica del ECE
 Un ECE de 0.0059 significa que, si el modelo asigna PD = 0.20 a un grupo de préstamos, la tasa real de default en ese grupo será aproximadamente 19.4% a 20.6%. Para cálculos de ECL bajo IFRS9, esta precisión es más que suficiente --- la incertidumbre en LGD y EAD típicamente domina sobre la incertidumbre en PD calibrada.

@@ -14,49 +14,38 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
 from book._helpers.load_artifacts import load_json, try_load_json, format_pct, format_number, format_money
+
+import pandas as pd
 ```
 
 ## KPIs del Pipeline
 
-```{=html}
-<div class="signal-grid" aria-label="KPIs ejecutivos del pipeline">
-  <div class="signal-card signal-card--info">
-    <span class="signal-card__eyebrow">Discriminación</span>
-    <span class="signal-card__value">0.713</span>
-    <span class="signal-card__label">AUC OOT</span>
-    <span class="signal-card__detail">El score ordena razonablemente el riesgo sin prometer precisión exacta caso a caso.</span>
-  </div>
-  <div class="signal-card signal-card--success">
-    <span class="signal-card__eyebrow">Calibración</span>
-    <span class="signal-card__value">0.006</span>
-    <span class="signal-card__label">ECE final</span>
-    <span class="signal-card__detail">La PD calibrada queda muy cerca de la frecuencia observada y ya sirve para provisión y policy.</span>
-  </div>
-  <div class="signal-card signal-card--warning">
-    <span class="signal-card__eyebrow">Incertidumbre</span>
-    <span class="signal-card__value">92.6%</span>
-    <span class="signal-card__label">Cobertura @ 90%</span>
-    <span class="signal-card__detail">La banda conformal cumple la garantía operativa y permite distinguir préstamos más ambiguos.</span>
-  </div>
-  <div class="signal-card signal-card--neutral">
-    <span class="signal-card__eyebrow">Portafolio</span>
-    <span class="signal-card__value">$183K</span>
-    <span class="signal-card__label">Retorno robusto</span>
-    <span class="signal-card__detail">La robustez entra al comité con un costo explícito y no como prudencia abstracta.</span>
-  </div>
-  <div class="signal-card signal-card--danger">
-    <span class="signal-card__eyebrow">IFRS9</span>
-    <span class="signal-card__value">$0.87B–$1.48B</span>
-    <span class="signal-card__label">Rango ECL (con CIF)</span>
-    <span class="signal-card__detail">Las provisiones cambian materialmente cuando la incertidumbre, los escenarios y los riesgos competitivos entran de verdad.</span>
-  </div>
-  <div class="signal-card signal-card--success">
-    <span class="signal-card__eyebrow">Gobernanza</span>
-    <span class="signal-card__value">PASS</span>
-    <span class="signal-card__label">MRM + fairness</span>
-    <span class="signal-card__detail">La historia no es solo “predice bien”, sino “se deja auditar, monitorear y defender”.</span>
-  </div>
-</div>
+La foto ejecutiva ya no corresponde a un score PD “clásico” aislado. El stack vigente es un **champion monotónico** con calibración probabilística, fairness sobre decisiones de aprobación, incertidumbre conformal y una capa de gobernanza/MRM mucho más rica que la del baseline original.
+
+```{python}
+#| label: tbl-executive-signals
+#| tbl-cap: "Señales ejecutivas del stack vigente"
+
+summary = load_json("pipeline_summary")
+registry = load_json("champion_registry", directory="models")
+fairness = load_json("fairness_audit_status", directory="models")
+monotonicity = load_json("monotonicity_audit_status", directory="models")
+pd_validation = load_json("pd_validation_interpretation_status", directory="models")
+ifrs9_diag = load_json("ifrs9_diagnostics_status", directory="models")
+encoding = load_json("encoding_stability_status", directory="models")
+
+signal_rows = [
+    {"Capa": "Champion PD", "Estado": "vigente", "Lectura": "CatBoost monotónico + Venn-Abers como champion oficial.", "Evidencia": registry.get("run_tag", "N/D")},
+    {"Capa": "Discriminación", "Estado": f"AUC {summary.get('pd_auc', 0):.3f}", "Lectura": "El ranking sigue competitivo bajo split temporal estricto.", "Evidencia": "pipeline_summary.json"},
+    {"Capa": "Calibración", "Estado": f"ECE {summary.get('pd_ece', 0):.4f}", "Lectura": "La PD calibrada sigue siendo usable para policy, provisión y monitoreo.", "Evidencia": "pipeline_summary.json"},
+    {"Capa": "Fairness", "Estado": f"{fairness.get('n_passed', 0)}/{fairness.get('n_attributes', 0)} PASS", "Lectura": "La auditoría oficial ya se lee sobre decisiones de aprobación.", "Evidencia": "fairness_audit_status.json"},
+    {"Capa": "Monotonicidad", "Estado": "PASS" if monotonicity.get("overall_pass") else "FAIL", "Lectura": "El champion promovido mantiene coherencia estructural en la auditoría monotónica.", "Evidencia": "monotonicity_audit_status.json"},
+    {"Capa": "PD validation", "Estado": str(pd_validation.get("severity", "N/D")).upper(), "Lectura": "El gap global es chico, pero hay desvíos persistentes por cohortes.", "Evidencia": "pd_validation_interpretation_status.json"},
+    {"Capa": "IFRS9 diagnostics", "Estado": "PASS" if ifrs9_diag.get("overall_pass") else "DIAGNOSTIC FAIL", "Lectura": "La sensibilidad ya se entiende mejor, pero la estabilidad temporal sigue abierta.", "Evidencia": "ifrs9_diagnostics_status.json"},
+    {"Capa": "Encoding stability", "Estado": "PASS" if encoding.get("overall_pass") else "FAIL", "Lectura": "La capa estructural de WOE/buckets no justifica reabrir el contrato de features.", "Evidencia": "encoding_stability_status.json"},
+]
+
+pd.DataFrame(signal_rows)
 ```
 
 ```{python}
@@ -93,6 +82,17 @@ df_kpis = pd.DataFrame(list(kpis.items()), columns=["Métrica", "Valor"])
 df_kpis
 ```
 
+## Qué hace moderno al pipeline actual
+
+El libro empezó explicando un problema clásico de riesgo crediticio: estimar PD, calibrar y traducirla a decisiones. Hoy el proyecto sigue resolviendo ese problema, pero con una arquitectura más moderna y más defendible:
+
+- el **champion** ya incorpora restricciones monotónicas con racional económico;
+- la **equidad** se audita sobre decisiones de aprobación, no sobre un corte interno de modelado;
+- la **gobernanza** ya no se queda en PSI o fairness agregado, sino que incorpora C2ST, backtesting PD, interpretación por cohortes, auditoría monotónica e IFRS9 diagnostics;
+- el proyecto separa mejor lo **operacional** de lo **research-grade**, sin esconder las limitaciones abiertas.
+
+Ese cambio importa porque mueve la conversación desde “el modelo predice razonablemente bien” hacia “el sistema se deja defender con evidencia metodológica, operativa y regulatoria”.
+
 ## De la métrica técnica a la decisión de negocio
 
 | Señal técnica | Qué nos dice de verdad | Implicación de negocio / regulación |
@@ -103,7 +103,7 @@ df_kpis
 | Ancho medio del intervalo | Mide cuánta incertidumbre práctica acompaña a cada PD | Dos préstamos con la misma PD puntual pueden merecer acciones distintas si uno tiene banda mucho más ancha |
 | Retorno robusto y price of robustness | Cuantifican el costo de protegerse contra escenarios plausibles | Comité de riesgo puede discutir resiliencia vs retorno con un número explícito, no con intuiciones |
 | ECL por escenario | Muestra sensibilidad prudencial del balance | IFRS9 deja de verse como un cálculo único y pasa a leerse como rango bajo hipótesis macro |
-| Fairness y MRM en PASS | El sistema no solo predice; también se deja auditar | La conversación cambia de “modelo bueno” a “modelo defendible” |
+| Fairness y MRM en PASS | El sistema no solo predice; también explicita qué capas están en warning o en diagnóstico | La conversación cambia de “modelo bueno” a “modelo defendible y monitoreable” |
 
 : Traducción de métricas técnicas a lectura ejecutiva {#tbl-technical-to-business}
 
@@ -135,7 +135,7 @@ La secuencia @fig-decision-flow, @fig-pipeline-pd-grade y @fig-pipeline-ecl-scen
 No todas las métricas viven en el mismo plano.
 
 - **Calidad técnica**: AUC, calibración, cobertura, drift, fairness, estabilidad explicativa.
-- **Impacto económico**: retorno, préstamos financiados, regret, ahorro causal, price of robustness.
+- **Impacto económico**: retorno, préstamos financiados, regret, valor causal research, price of robustness.
 - **Impacto regulatorio**: ECL, staging, sensibilidad a escenario, MRM, trazabilidad.
 
 La decisión ejecutiva correcta surge cuando esas tres capas se leen juntas. Un modelo con buen AUC pero mala calibración o con provisiones frágiles sigue siendo una mala solución para riesgo.
@@ -206,6 +206,48 @@ La contribución principal del proyecto es el puente formal entre **predicción 
 
 : Resumen de componentes del pipeline {#tbl-innovation}
 
+## Capas metodológicas activas que no estaban en la versión clásica
+
+```{python}
+#| label: tbl-modern-layers
+#| tbl-cap: "Capas modernas activas del pipeline más allá del score PD tradicional"
+
+modern_layers = [
+    {
+        "Técnica": "Champion monotónico",
+        "Qué agrega": "Coherencia económica local y mejor narrativa de promoción",
+        "Evidencia viva": "champion_registry.json + monotonicity_audit_status.json",
+    },
+    {
+        "Técnica": "Fairness sobre aprobación",
+        "Qué agrega": "Semántica alineada con la decisión real de negocio",
+        "Evidencia viva": "fairness_audit_status.json + threshold_semantics.json",
+    },
+    {
+        "Técnica": "C2ST con drivers",
+        "Qué agrega": "Diagnóstico de representatividad más fino que PSI aislado",
+        "Evidencia viva": "governance_status.json",
+    },
+    {
+        "Técnica": "PD validation interpretation",
+        "Qué agrega": "Lectura material de cohortes y persistencia, no solo p-values",
+        "Evidencia viva": "pd_validation_interpretation_status.json",
+    },
+    {
+        "Técnica": "IFRS9 diagnostics",
+        "Qué agrega": "Estabilidad temporal, potencia ADF y lectura de incertidumbre macro",
+        "Evidencia viva": "ifrs9_diagnostics_status.json",
+    },
+    {
+        "Técnica": "Encoding/binning stability",
+        "Qué agrega": "Gobernanza estructural del contrato de features",
+        "Evidencia viva": "encoding_stability_status.json",
+    },
+]
+
+pd.DataFrame(modern_layers)
+```
+
 ## Linaje operativo congelado
 
 | Capa | Artefactos clave | Productores | Consumidores |
@@ -235,7 +277,7 @@ research = {
     "ECL band (TS intervals)": "$288.5M (267% del punto)",
     "Stage cost óptimo": "pd_thr=0.15, $97.3M",
     "ATE (int_rate)": f"{causal.get('ate', 0):.5f}",
-    "CATE net value": format_money(causal.get("total_net_value", 0)),
+    "Valor policy causal (research)": format_money(causal.get("total_net_value", 0)),
 }
 
 df_research = pd.DataFrame(list(research.items()), columns=["Métrica", "Valor"])

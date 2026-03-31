@@ -182,7 +182,7 @@ El subsistema conformal es el mas complejo de interpretar porque combina control
 
 ```{python}
 #| label: tbl-mrm-conformal-operational
-#| tbl-cap: "Controles operacionales del sistema conformal: 9/9 aprobados."
+#| tbl-cap: "Controles operacionales del sistema conformal tras la recuperación V3: PASS operacional con warnings estadísticos diagnósticos."
 #| echo: false
 
 from IPython.display import Markdown
@@ -194,12 +194,12 @@ if mrm:
         {"Control": "Cobertura empirica 90%", "Valor": f"{cs['coverage_90']:.2%}", "Umbral": ">= 90%", "Estado": "PASS"},
         {"Control": "Cobertura empirica 95%", "Valor": f"{cs['coverage_95']:.2%}", "Umbral": ">= 95%", "Estado": "PASS"},
         {"Control": "Cobertura minima por grupo (90%)", "Valor": f"{cs['min_group_coverage_90']:.2%}", "Umbral": ">= 85%", "Estado": "PASS"},
-        {"Control": "Ancho promedio 90%", "Valor": f"{cs['avg_width_90']:.4f}", "Umbral": "< 1.0", "Estado": "PASS"},
-        {"Control": "Winkler score 90% (compensado)", "Valor": f"{cs['winkler_90']:.4f}", "Umbral": f"< {cs.get('winkler_90_compensated_threshold', 1.22)}", "Estado": "PASS"},
+        {"Control": "Ancho promedio 90%", "Valor": f"{cs['avg_width_90']:.4f}", "Umbral": "< 0.80", "Estado": "FAIL" if "avg_width_90" in cs.get("failing_non_statistical_checks", []) else "PASS"},
+        {"Control": "Winkler score 90% (compensado)", "Valor": f"{cs['winkler_90']:.4f}", "Umbral": f"< {cs.get('winkler_90_compensated_threshold', 1.22)}", "Estado": "PASS" if cs.get("winkler_90_policy_pass") else "FAIL"},
         {"Control": "Alertas criticas", "Valor": str(cs['critical_alerts']), "Umbral": "= 0", "Estado": "PASS"},
         {"Control": "Alertas warning", "Valor": str(cs['warning_alerts']), "Umbral": "Informativo", "Estado": "INFO"},
-        {"Control": "Checks no-estadisticos", "Valor": "9/9", "Umbral": "Todos PASS", "Estado": "PASS"},
-        {"Control": "overall_pass", "Valor": str(cs['overall_pass']), "Umbral": "True", "Estado": "PASS"},
+        {"Control": "Checks no-estadisticos", "Valor": f"{9 - len(cs.get('failing_non_statistical_checks', []))}/9", "Umbral": "Todos PASS", "Estado": "PASS" if cs.get("non_statistical_checks_pass") else "FAIL"},
+        {"Control": "overall_pass", "Valor": str(cs['overall_pass']), "Umbral": "True", "Estado": "PASS" if cs.get("overall_pass") else "FAIL"},
         {"Control": "strict_overall_pass", "Valor": str(cs['strict_overall_pass']), "Umbral": "Diagnostico", "Estado": "INFO"},
     ]
     Markdown(pd.DataFrame(rows).astype(str).to_markdown(index=False, disable_numparse=True))
@@ -260,20 +260,20 @@ else:
 ```
 
 ::: {.callout-warning}
-## Por que `overall_pass = True` con `strict_overall_pass = False`
+## Por que el sistema conformal hoy pasa aunque los tests estadisticos sigan rechazando
 
-Las pruebas de Kupiec y Christoffersen rechazan $H_0$ (cobertura nominal = cobertura empirica) con $p \approx 0$. Esto ocurre porque con $N = 276{,}869$ observaciones, la potencia estadistica es tan alta que detecta cualquier desviacion, por minima que sea. La desviacion observada es de +2.52% (92.52% vs 90%), que:
+Las pruebas de Kupiec y Christoffersen siguen rechazando $H_0$ (cobertura nominal = cobertura empirica) con $p \approx 0$. Esto ocurre porque con $N = 276{,}869$ observaciones, la potencia estadistica detecta cualquier desviacion persistente, incluso cuando esa desviacion es operativamente aceptable. La recuperacion conformal V3 redujo el ancho promedio (`avg_width_90 ≈ 0.756`), elimino el fallo no estadistico y dejo el gate operativo en PASS.
 
-1. **Esta dentro del umbral de materialidad** (3%), configurado en `configs/conformal_policy.yaml`.
-2. **Es conservadora**: sobre-cobertura significa que los intervalos son mas anchos de lo necesario, lo cual protege contra sub-provision.
-3. **No presenta agrupamiento temporal**: la prueba de independencia de Christoffersen al 90% no rechaza ($p_{ind} = 0.187$), confirmando que las violaciones estan dispersas en el tiempo.
+1. **La desviacion de cobertura queda dentro de materialidad**: +2.02pp al 90% y +1.54pp al 95%, ambas por debajo del umbral de 3%.
+2. **Sigue siendo conservadora**: sobre-cobertura significa que los intervalos protegen mas de lo nominal, no menos.
+3. **No rompe estabilidad operativa**: `critical_alerts = 0`, `warning_alerts = 2`, y la independencia al 90% sigue siendo aceptable.
 
-Esta distincion entre significancia estadistica y materialidad operativa es fundamental en MRM. Un regulador no bloquea un modelo porque un test con $N > 250{,}000$ rechaze al 5% --- lo bloquea si la desviacion tiene consecuencias economicas materiales.
+La conclusion oficial ya no es "FAIL metodologico acotado al lane conformal", sino **PASS operacional con diagnosticos estadisticos informativos**.
 :::
 
 ##### Justificacion Metodologica Formal
 
-El sistema implementa un mecanismo de justificacion metodologica (`methodological_justification`) que permite que el veredicto global sea PASS cuando las unicas fallas son de tests estadisticos, siempre que se cumplan tres condiciones simultaneas:
+El sistema implementa un mecanismo de justificacion metodologica (`methodological_justification`) para exactamente este caso: cuando las unicas fallas que permanecen son estadisticas y el resto de la policy operativa ya paso. En el estado actual, esa justificacion **si aplica** y por eso `overall_pass = True` mientras `strict_overall_pass = False`.
 
 ```{python}
 #| label: tbl-mrm-justification
@@ -349,6 +349,8 @@ if mrm:
         {"Control": "Estabilidad reason codes", "Valor": f"{summary['min_reason_code_stability']:.2f}", "Umbral": f">= {gs['thresholds']['reason_code_stability_min']}", "Estado": "PASS" if checks["pass_reason_code_stability"] else "FAIL"},
         {"Control": "Fairness global", "Valor": str(summary['fairness_overall_pass']), "Umbral": "True", "Estado": "PASS" if checks["pass_fairness"] else "FAIL"},
         {"Control": "C2ST (drift clasificador)", "Valor": f"{summary['c2st_auc']:.4f}", "Umbral": f"< {gs['thresholds']['c2st_auc_max']}", "Estado": "FAIL" if not checks["pass_c2st"] else "PASS"},
+        {"Control": "Shift type", "Valor": gs.get("model_shift", {}).get("shift_type", "N/D"), "Umbral": "Lectura MRM", "Estado": "INFO"},
+        {"Control": "Governance posture", "Valor": gs.get("model_shift", {}).get("governance_posture", "N/D"), "Umbral": "Lectura MRM", "Estado": "INFO"},
     ]
     Markdown(pd.DataFrame(rows).astype(str).to_markdown(index=False, disable_numparse=True))
 else:
@@ -357,7 +359,17 @@ else:
 
 ::: {.callout-tip}
 ## El caso especial del C2ST
-El test Classifier Two-Sample Test (C2ST) entrena un clasificador para distinguir entre datos de entrenamiento y test. Un AUC de 0.985 indica que el clasificador puede distinguirlos casi perfectamente --- lo cual es esperado en un esquema temporal OOT donde las distribuciones cambian en el tiempo. Sin embargo, el C2ST genera solo un **warning**, no un bloqueo, porque el PSI de features (0.14 maximo) y el PSI de score (0.012) estan dentro de umbrales. El C2ST es excesivamente sensible en muestras grandes con separacion temporal; lo relevante para produccion es si el drift detectado afecta la performance, y la evidencia (delta AUC < 5%, Brier < 2%) dice que no.
+El test Classifier Two-Sample Test (C2ST) entrena un clasificador para distinguir entre train y test [@lopezpaz2018c2st]. En este proyecto la señal es deliberadamente fuerte porque el split es temporal y el período OOT sí representa un régimen distinto. La pregunta importante ya no es “¿el C2ST pasa o falla?”, sino **qué tan material es esa separabilidad para el uso del champion**.
+
+En el snapshot vigente:
+
+- el `C2ST` sigue siendo severo y no debe maquillarse;
+- pero PSI, score PSI y degradación predictiva siguen dentro de política;
+- además, la gobernanza ahora ya expone *drivers* del shift, con `int_rate` dominando la separación train-vs-test.
+
+Por eso el C2ST se interpreta como **warning severo con valor explicativo**, no como trigger automático de rollback. Esa lectura es más honesta y más útil que la dicotomía clásica “pass/fail”.
+
+La capa nueva `model_shift_status.json` formaliza esa intuición. En vez de colapsar toda la señal en el p-valor o en `pass_c2st`, ahora el sistema distingue si el problema es de **representatividad estructural**, de **degradación predictiva**, o de **mezcla de ambas**. En el snapshot vigente la conclusión es `mixed_shift`: suficiente para endurecer el lenguaje de gobernanza, pero no para despromover automáticamente al champion.
 :::
 
 ##### Top Features con Mayor Drift
@@ -452,22 +464,73 @@ else:
 
 La conclusion de fairness no es que "el modelo es justo" en sentido absoluto --- esa afirmacion seria epistemologicamente insostenible. Lo que el subsistema documenta es que **bajo los umbrales regulatorios vigentes y el threshold de decision actual (0.35), no se detectan disparidades materiales** en los atributos auditados.
 
+#### Capas diagnósticas adicionales absorbidas por MRM
+
+El reporte MRM ahora arrastra diagnósticos que antes no quedaban bien contados en la narrativa central del libro. No son un quinto “subsistema” de compliance_summary, pero sí son parte de la evidencia que hoy vuelve al proyecto más defendible:
+
+```{python}
+#| label: tbl-mrm-diagnostic-sidecars
+#| tbl-cap: "Capas diagnósticas adicionales integradas al MRM vigente"
+#| echo: false
+
+from IPython.display import Markdown
+import pandas as pd
+
+if mrm:
+    diag = mrm.get("diagnostic_statuses", {})
+    rows = []
+    label_map = {
+        "monotonicity": "Monotonicity audit",
+        "pd_backtesting": "PD backtesting suite",
+        "bootstrap_validation": "Bootstrap validation",
+        "pd_validation_interpretation": "PD validation interpretation",
+        "calibration_mapping": "Calibration mapping",
+        "ifrs9_diagnostics": "IFRS9 diagnostics",
+        "encoding_stability": "Encoding stability",
+        "model_shift": "Model-shift semantics",
+    }
+    for key, payload in diag.items():
+        rows.append({
+            "Capa": label_map.get(key, key),
+            "overall_pass": payload.get("overall_pass"),
+            "diagnostic_only": payload.get("diagnostic_only"),
+            "run_tag": payload.get("run_tag", "N/D"),
+        })
+    Markdown(pd.DataFrame(rows).astype(str).to_markdown(index=False, disable_numparse=True))
+else:
+    Markdown("*No disponible.*")
+```
+
+La lectura editorial importante es esta: el proyecto ya no se queda con “4/4 PASS” y se acabó la historia. Ahora también puede decir:
+
+- el champion monotónico pasó su auditoría estructural;
+- el bootstrap confirma que la materialidad por slices sigue viva aun con gap agregado pequeño;
+- la validación PD global no está rota, pero sí hay desviaciones persistentes por cohortes;
+- un remapeo ligero de calibración no resolvió el problema por sí solo;
+- IFRS9 tiene una limitación abierta de estabilidad temporal;
+- el encoding y binning no parecen ser la fuente del problema;
+- el lenguaje de drift ahora distingue separabilidad estructural de degradación predictiva.
+
 ### Interpretacion de Resultados {#sec-mrm-interpretation}
 
 #### Que Significa "4/4 PASS" Operativamente
 
-El veredicto `overall_pass = True` con 4/4 subsistemas aprobados significa que el modelo:
+El veredicto actual `overall_pass = True` con 4/4 subsistemas aprobados significa que el modelo:
 
-1. **Puede permanecer en produccion** sin necesidad de re-entrenamiento inmediato ni restricciones de uso.
-2. **Los triggers de re-entrenamiento no estan activados**: PSI < 0.25, degradacion AUC < 3%, degradacion cobertura < 2%.
-3. **No hay hallazgos que requieran escalamiento** al comite de riesgos como items de accion.
+1. **Es defendible en el core predictivo**: pipeline, gobernanza, fairness y conformal pasan bajo la policy operativa.
+2. **No activa una crisis general del modelo**, porque los triggers duros de drift/pipeline no estan disparados.
+3. **Mantiene warnings metodologicos acotados**, sobre todo en la capa estadistica conformal, sin bloquear el uso del sistema.
 4. **La documentacion es trazable**: artefactos, configuracion, run tags y versiones estan registrados.
 
-Sin embargo, 4/4 PASS **no significa ausencia de observaciones**. El reporte registra:
+El hecho de quedar en 4/4 PASS **no significa que todo sea perfecto**. El reporte todavía registra:
 
-- 4 warnings estadisticos (Kupiec/Christoffersen) catalogados como informativos.
-- C2ST warning por alta separabilidad temporal (esperada en OOT).
-- Distribuciones marginales de features con drift estadisticamente significativo (pero no material por PSI).
+- 4 fallas estadisticas conformales (Kupiec/Christoffersen) que diagnostican sobre-cobertura.
+- C2ST warning severo por alta separabilidad temporal, ahora con drivers identificados.
+- `bootstrap_validation = diagnostic fail` por persistencia material en varios slices bajo remuestreo explícito.
+- Drift estadisticamente detectable en algunas distribuciones marginales, pero no material por PSI.
+- `pd_validation_interpretation = warning` por persistencia de gaps en cohortes específicas.
+- `calibration_mapping = diagnostic fail` porque el mejor candidato sigue siendo el calibrador vigente; no apareció una corrección liviana claramente superior.
+- `ifrs9_diagnostics = diagnostic fail` por inestabilidad temporal y potencia ADF débil.
 
 Estas observaciones quedan documentadas como items de monitoreo continuo, no como bloqueos.
 
@@ -535,13 +598,13 @@ Markdown(pd.DataFrame(rows).astype(str).to_markdown(index=False, disable_numpars
 
 Un punto que merece enfasis especial es la relacion entre la desviacion de cobertura observada y el umbral de materialidad.
 
-La **cobertura nominal** del sistema conformal es 90%. La **cobertura empirica** observada en el test OOT es 92.52%, una desviacion de +2.52 puntos porcentuales. El umbral de materialidad configurado es 3%.
+La **cobertura nominal** del sistema conformal es 90%. La **cobertura empirica** observada en el test OOT es 93.07%, una desviacion de +3.07 puntos porcentuales. El umbral de materialidad configurado es 3%.
 
 $$
-\text{Desviacion} = |92.52\% - 90\%| = 2.52\% < 3\% = \text{Umbral de materialidad}
+\text{Desviacion} = |92.02\% - 90\%| = 2.02\% < 3\% = \text{Umbral de materialidad}
 $$
 
-Esta sobre-cobertura es **conservadora por diseno**: el sistema conformal produce intervalos ligeramente mas anchos de lo estrictamente necesario, lo cual:
+Esta sobre-cobertura sigue siendo **conservadora por diseño**, pero ya no bloquea el gate operativo. El sistema conformal produce intervalos prudentes, con anchura ya dentro del umbral definido, lo cual:
 
 - **Reduce el riesgo de sub-provision**: intervalos mas anchos implican ECL conservativo mayor, que es preferible a sub-estimar.
 - **Es corregible con ACI**: Adaptive Conformal Inference ajustaria dinamicamente los cuantiles para acercarse al 90% nominal.
@@ -555,7 +618,7 @@ En una institucion financiera, el reporte MRM no es un artefacto tecnico que se 
 
 El comite recibe un resumen ejecutivo con tres elementos:
 
-1. **Semaforo de subsistemas**: la tabla 4/4 PASS con indicadores visuales.
+1. **Semaforo de subsistemas**: la tabla consolidada 4/4 PASS, con observaciones estadísticas localizadas en conformal.
 2. **Metricas clave**: AUC, cobertura, PSI maximo, y estado de fairness.
 3. **Observaciones pendientes**: items que requieren monitoreo pero no accion inmediata.
 
@@ -606,7 +669,7 @@ rows = [
 Markdown(pd.DataFrame(rows).astype(str).to_markdown(index=False, disable_numparse=True))
 ```
 
-**Nuestro caso actual**: estamos en el escenario "4/4 PASS, con observaciones informativas" (los 4 warnings estadisticos conformales y el C2ST warning). La decision correspondiente es **aprobacion con nota**, documentando las observaciones y manteniendo el monitoreo trimestral.
+**Nuestro caso actual**: estamos en el escenario "4/4 PASS, con observaciones informativas". La decision correspondiente es **aprobacion del stack core con monitoreo continuo**, no una reapertura del pipeline completo. La remediación pendiente en conformal ya no es un bloqueo, sino una oportunidad de mejora incremental si se quiere reducir todavía más la sobre-cobertura.
 
 #### La Diferencia Entre "Pasa" y "Es Bueno"
 
@@ -753,11 +816,11 @@ El monitoreo conformal detallado, incluyendo metricas HSIC, SSC, MWI y CWC, esta
 | Dimension | Estado | Referencia |
 |-----------|--------|-----------|
 | Pipeline predictivo | PASS (AUC 0.7130, ECE 0.006) | @sec-mrm-pipeline-subsystem |
-| Sistema conformal | PASS (cobertura 92.52%, 9/9 operacionales) | @sec-mrm-conformal-subsystem |
-| Gobernanza y drift | PASS (PSI < 0.25, SHAP estable) | @sec-mrm-governance-subsystem |
+| Sistema conformal | PASS operacional (warnings estadísticos; justificación metodológica activa) | @sec-mrm-conformal-subsystem |
+| Gobernanza y drift | PASS (PSI < 0.25; drift explicable, no material) | @sec-mrm-governance-subsystem |
 | Fairness | PASS (6/6 atributos, threshold 0.35) | @sec-mrm-fairness-subsystem |
 | **Veredicto global** | **4/4 PASS** | @sec-mrm-report-detail |
 
 : Resumen de resultados MRM por subsistema {#tbl-mrm-deep-dive-summary}
 
-El sistema MRM implementado traduce los principios de SR 11-7 en controles concretos, automatizados y trazables. La distincion entre `overall_pass` y `strict_overall_pass` ejemplifica un tema central de la gestion de riesgo de modelo: la diferencia entre significancia estadistica y materialidad operativa. Un sistema de gobernanza maduro no solo detecta desviaciones --- las contextualiza, las documenta, y las escala solo cuando tienen consecuencias economicas.
+El sistema MRM implementado traduce los principios de SR 11-7 en controles concretos, automatizados y trazables. La recuperacion conformal posterior al rerun V2 deja una lectura mas madura que la version anterior: el core predictivo queda fuerte y el lane conformal ya cruza los gates operativos, pero sin esconder que persisten warnings estadisticos por sobre-cobertura. Un sistema de gobernanza maduro no solo detecta desviaciones --- las contextualiza, las documenta, y distingue entre alertas diagnósticas y bloqueos reales.

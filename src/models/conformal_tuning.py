@@ -163,13 +163,13 @@ def choose_best_tuning_row(
             sort_cols = [
                 col
                 for col in [
-                    "winkler_90",
-                    "avg_interval_width",
-                    "max_monthly_gap",
-                    "stability_over_time",
                     "coverage_guard_shortfall",
                     "group_guard_shortfall",
                     "coverage_gap",
+                    "avg_interval_width",
+                    "winkler_90",
+                    "max_monthly_gap",
+                    "stability_over_time",
                     "min_group_coverage",
                 ]
                 if col in candidate.columns

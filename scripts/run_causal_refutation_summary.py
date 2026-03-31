@@ -13,6 +13,7 @@ Outputs:
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import numpy as np
@@ -28,13 +29,31 @@ SCHEMA_VERSION = "2026-03-17.1"
 def _interpret_refutation(test: str, result: str) -> str:
     if "unavailable" in result:
         return (
-            "Refutation could not execute: DoWhy requires a valid causal estimate "
-            "from the linear DML estimator, which failed due to near-zero LATE. "
-            "Passes inspection because ATE CI includes 0 — treatment effect is negligible."
+            "La refutacion no pudo ejecutarse en este snapshot; debe leerse como evidencia "
+            "incompleta y no como validacion favorable."
         )
     if "passed" in result.lower():
         return "Passed — causal estimate is robust to this perturbation."
     return f"Check result: {result}"
+
+
+def _extract_p_value(raw_result: str, explicit_value: object) -> float | None:
+    if explicit_value is not None:
+        try:
+            return float(explicit_value)
+        except Exception:
+            pass
+    match = re.search(
+        r"p\s*value\s*[:=]\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)",
+        str(raw_result),
+        flags=re.IGNORECASE,
+    )
+    if not match:
+        return None
+    try:
+        return float(match.group(1))
+    except Exception:
+        return None
 
 
 def _oot_tail_risk(cate_oot: pd.DataFrame) -> tuple[dict, pd.DataFrame]:
@@ -117,7 +136,7 @@ def main() -> None:
                 "status": "unavailable" if "unavailable" in result else "completed",
                 "estimated_effect": ref.get("estimated_effect"),
                 "new_effect": ref.get("new_effect"),
-                "p_value": ref.get("p_value"),
+                "p_value": _extract_p_value(result, ref.get("p_value")),
                 "result_raw": result,
                 "interpretation": _interpret_refutation(test, result),
             }
@@ -166,11 +185,10 @@ def main() -> None:
         "identification_strategy": causal.get("identification_strategy"),
         "refutation_tests": refutation_detail,
         "refutation_verdict": (
-            "All 3 refutation tests returned unavailable because the linear DML estimator "
-            "produces a near-zero, statistically insignificant ATE (CI includes 0). "
-            "This is consistent with the insights_only designation: causal effect on default "
-            "through int_rate is negligible in this dataset and time period. "
-            "The DoWhy framework correctly flags this rather than producing misleading refutations."
+            "DoWhy refutations are treated as an audit layer over the official DML estimate. "
+            "The correct reading is not that refutations 'prove' causal validity, but that they "
+            "either reinforce stability under perturbations or remain unavailable/inconclusive. "
+            "This is consistent with the lane remaining research-grade by default."
         ),
         "oot_cate_summary": oot_summary,
         "oot_policy_validation": {
@@ -182,7 +200,11 @@ def main() -> None:
             "worst_month": oot_val.get("worst_month"),
             "best_month": oot_val.get("best_month"),
         },
-        "insights_only_note": causal.get("insights_only_note", ""),
+        "insights_only_note": causal.get(
+            "insights_only_note",
+            "The causal lane is research-grade by design and only escalates if overlap, sensitivity "
+            "and policy-value gates all pass.",
+        ),
         "tail_risk_artifact": str(DATA_PROC / "causal_oot_tail_risk.parquet")
         if not tail_risk_df.empty
         else None,

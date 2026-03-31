@@ -1,0 +1,122 @@
+{
+  "diagnostic_only": true,
+  "overall_pass": false,
+  "summary": {
+    "n_obs": 276869,
+    "n_defaults": 60850,
+    "observed_default_rate": 0.21977902907151034,
+    "mean_predicted_pd": 0.21608988807287652,
+    "exact_binomial_p_value": 2.5060596013157924e-06,
+    "z_score": 4.716415573480093,
+    "z_test_p_value": 2.400359042420419e-06,
+    "jeffreys_lower": 0.2182395072187258,
+    "jeffreys_upper": 0.22132440958103988,
+    "predicted_pd_inside_jeffreys": false,
+    "hl_statistic": 207.114888255962,
+    "hl_p_value": 0.0,
+    "hl_n_groups": 10,
+    "n_grade_rows": 7,
+    "n_band_rows": 10
+  },
+  "grade_rows": [
+    {
+      "n_obs": 72388,
+      "n_defaults": 6268,
+      "observed_default_rate": 0.08658893739293806,
+      "mean_predicted_pd": 0.07975306123550936,
+      "exact_binomial_p_value": 2.0420544485942893e-11,
+      "z_score": 6.78893426174792,
+      "z_test_p_value": 1.1296519275560968e-11,
+      "jeffreys_lower": 0.0845567573524567,
+      "jeffreys_upper": 0.08865417552686435,
+      "predicted_pd_inside_jeffreys": false,
+      "grade": "A"
+    },
+    {
+      "n_obs": 75311,
+      "n_defaults": 13452,
+      "observed_default_rate": 0.17861932519817822,
+      "mean_predicted_pd": 0.17317296325380477,
+      "exact_binomial_p_value": 8.356742505788308e-05,
+      "z_score": 3.9499202552806985,
+      "z_test_p_value": 7.817723496983398e-05,
+      "jeffreys_lower": 0.17589608605242957,
+      "jeffreys_upper": 0.18136726597796185,
+      "predicted_pd_inside_jeffreys": false,
+      "grade": "B"
+    },
+    {
+      "n_obs": 70568,
+      "n_defaults": 19482,
+      "observed_default_rate": 0.2760741412538261,
+      "mean_predicted_pd": 0.2738180396815583,
+      "exact_binomial_p_value": 0.17950841550206903,
+      "z_score": 1.3440294848739025,
+      "z_test_p_value": 0.1789388525800648,
+      "jeffreys_lower": 0.2727849683053475,
+      "jeffreys_upper": 0.2793816821496447,
+      "predicted_pd_inside_jeffreys": true,
+      "grade": "C"
+    },
+    {
+      "n_obs": 45637,
+      "n_defaults": 15857,
+      "observed_default_rate": 0.34745929837631745,
+      "mean_predicted_pd": 0.3540901038617386,
+      "exact_binomial_p_value": 0.0030669488183689367,
+      "z_score": -2.961978952329159,
+      "z_test_p_value": 0.0030566867826373745,
+      "jeffreys_lower": 0.34310045111346843,
+      "jeffreys_upper": 0.35183749325750985,
+      "predicted_pd_inside_jeffreys": false,
+      "grade": "D"
+    },
+    {
+      "n_obs": 10828,
+      "n_defaults": 4672,
+      "observed_default_rate": 0.4314739564093092,
+      "mean_predicted_pd": 0.41111459972361625,
+      "exact_binomial_p_value": 1.805402323060577e-05,
+      "z_score": 4.305675848070046,
+      "z_test_p_value": 1.6647668350522338e-05,
+      "jeffreys_lower": 0.4221644883388704,
+      "jeffreys_upper": 0.4408200527890372,
+      "predicted_pd_inside_jeffreys": false,
+      "grade": "E"
+    },
+    {
+      "n_obs": 1731,
+      "n_defaults": 902,
+      "observed_default_rate": 0.5210860774119006,
+      "mean_predicted_pd": 0.5094169033663736,
+      "exact_binomial_p_value": 0.33631162600438236,
+      "z_score": 0.9711709551067303,
+      "z_test_p_value": 0.3314631548232603,
+      "jeffreys_lower": 0.49753397123279935,
+      "jeffreys_upper": 0.5445677357547705,
+      "predicted_pd_inside_jeffreys": true,
+      "grade": "F"
+    },
+    {
+      "n_obs": 406,
+      "n_defaults": 217,
+      "observed_default_rate": 0.5344827586206896,
+      "mean_predicted_pd": 0.4873067704557328,
+      "exact_binomial_p_value": 0.05924425561636225,
+      "z_score": 1.9017525566095785,
+      "z_test_p_value": 0.0572035113834255,
+      "jeffreys_lower": 0.485861877622091,
+      "jeffreys_upper": 0.5826139491785194,
+      "predicted_pd_inside_jeffreys": true,
+      "grade": "G"
+    }
+  ],
+  "artifacts": {
+    "by_grade_path": "data/processed/pd_backtesting_by_grade.parquet",
+    "by_band_path": "data/processed/pd_backtesting_by_band.parquet"
+  },
+  "config_path": "configs/pd_model.champion.yaml",
+  "schema_version": "2026-03-30.1",
+  "generated_at_utc": "2026-03-30T19:29:24.238850+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+}

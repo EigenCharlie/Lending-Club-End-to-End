@@ -1,0 +1,10 @@
+{
+  "stage_name": "survival",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T18:34:33.091653+00:00",
+  "summary_path": "models/survival_summary.pkl",
+  "cox_model_path": "models/cox_ph_model.pkl",
+  "rsf_model_path": "models/rsf_model.pkl",
+  "rsf_artifact_placeholder": true
+}

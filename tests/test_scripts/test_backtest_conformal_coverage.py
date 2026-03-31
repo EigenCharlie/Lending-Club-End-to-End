@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from scripts.backtest_conformal_coverage import _monthly_metrics
+from scripts.backtest_conformal_coverage import _load_intervals, _monthly_metrics
 
 
 def test_monthly_metrics_handles_single_class_months() -> None:
@@ -24,3 +24,13 @@ def test_monthly_metrics_handles_single_class_months() -> None:
 
     assert len(monthly) == 2
     assert monthly["cal_log_loss"].notna().all()
+
+
+def test_load_intervals_supports_explicit_path(tmp_path) -> None:
+    path = tmp_path / "intervals.parquet"
+    expected = pd.DataFrame({"y_true": [0.0, 1.0], "pd_low_90": [0.0, 0.2]})
+    expected.to_parquet(path, index=False)
+
+    loaded = _load_intervals(str(path))
+
+    pd.testing.assert_frame_equal(loaded, expected)

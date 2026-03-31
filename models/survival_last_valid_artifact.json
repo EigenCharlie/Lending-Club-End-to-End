@@ -1,0 +1,12 @@
+{
+  "stage_name": "survival",
+  "artifact_key": "survival_summary",
+  "artifact_path": "models/survival_summary.pkl",
+  "validated_at_utc": "2026-03-30T18:34:33.090898+00:00",
+  "rsf_artifact": {
+    "saved": false,
+    "size_mb": 23932.23,
+    "placeholder": true,
+    "reason": "max_size_exceeded"
+  }
+}

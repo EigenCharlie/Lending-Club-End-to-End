@@ -400,6 +400,9 @@ def _log_causal(timestamp: str, common_tags: dict[str, str]) -> str:
     artifacts = [
         "models/causal_summary.pkl",
         "models/causal_effect_status.json",
+        "models/causal_overlap_status.json",
+        "models/causal_sensitivity_status.json",
+        "models/causal_estimator_selection_status.json",
         "models/causal_effect_runtime_status.json",
         "models/causal_policy_simulation_runtime_status.json",
         "models/causal_policy_validation_runtime_status.json",

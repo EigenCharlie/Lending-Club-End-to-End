@@ -33,16 +33,23 @@ if not sensitivity.empty:
     Markdown(pivot.to_markdown())
 else:
     from IPython.display import Markdown
-    Markdown("*Artefacto `ifrs9_sensitivity_grid.parquet` no disponible.*")
+Markdown("*Artefacto `ifrs9_sensitivity_grid.parquet` no disponible.*")
 ```
 
 ### Patrones de Sensibilidad
 
-La grilla revela dos patrones importantes:
+La grilla sigue siendo útil, pero la lectura vigente ya no es la misma que en los snapshots anteriores. El artefacto `models/ifrs9_diagnostics_status.json` añade una interpretación nueva: el driver dominante en la superficie actual es `lgd_mult`, no `pd_mult`.
 
-1. **Sensibilidad dominante a PD**: un aumento de PD tiene un efecto amplificado porque no solo incrementa la pérdida por préstamo, sino que **migra préstamos entre stages** --- efecto que la LGD no produce.
+La combinación de la grilla determinista y la capa diagnóstica más reciente revela tres patrones importantes. En términos metodológicos, esta capa nueva mezcla dos familias clásicas de validación macro:
 
-2. **No linealidad por staging**: el ECL no crece linealmente con PD porque la migración Stage 1 → 2 convierte PD de 12 meses en PD lifetime, un salto discreto que puede multiplicar la provisión individual por 3--5x.
+- estabilidad de relaciones mediante regresiones recursivas [@brown1975recursive];
+- evaluación de raíz unitaria y potencia ADF [@dickey1979unitroot].
+
+1. **Sensibilidad dominante a LGD en la superficie actual**: el slope medio de `lgd_mult` sobre el ECL es hoy más fuerte que el de `pd_mult`. Eso no niega el rol del staging, pero sí cambia la prioridad de trabajo: el siguiente cuello de botella IFRS9 parece vivir más en la lane LGD/incertidumbre de escenarios que en un rediseño simple del multiplicador PD.
+
+2. **No linealidad por staging**: aun cuando LGD domina la pendiente media, la PD sigue importando porque puede mover staging y, con ello, convertir PD a 12 meses en PD lifetime.
+
+3. **Anchura de incertidumbre macro muy alta**: la nueva capa diagnóstica reporta `mean_relative_width_90 ≈ 6.99x`. La historia ya no es solo “qué escenario mueve más el ECL”, sino “cuánta incertidumbre temporal y macro acompaña ese ECL”.
 
 ::: {.callout-note}
 ## Rango de la Grilla
@@ -92,3 +99,30 @@ Los resultados de sensibilidad alimentan directamente la optimización robusta d
 ## Lectura para Estrés Testing
 La grilla de sensibilidad no pretende reemplazar los ejercicios formales de estrés testing (DFAST/CCAR en EE.UU., EBA en Europa). Su valor está en proporcionar una visión **continua** de cómo cambian las provisiones ante variaciones de parámetros, complementando los escenarios discretos que requiere la normativa.
 :::
+
+### IFRS9 diagnostics: qué está abierto hoy
+
+```{python}
+#| label: tbl-ifrs9-diagnostics
+#| tbl-cap: "Diagnósticos IFRS9 que hoy condicionan la lectura prudencial del proyecto"
+
+from book._helpers.load_artifacts import try_load_json
+
+diag = try_load_json("ifrs9_diagnostics_status", directory="models", default={})
+summary = diag.get("summary", {})
+
+rows = [
+    {"Diagnóstico": "overall_pass", "Valor": diag.get("overall_pass"), "Lectura": "Sigue siendo una capa diagnóstica, no un gate de reversión del champion."},
+    {"Diagnóstico": "driver dominante", "Valor": summary.get("dominant_ifrs9_driver", "N/D"), "Lectura": "El surface actual responde más a LGD que a PD."},
+    {"Diagnóstico": "recursive_min_sign_match_share", "Valor": f"{summary.get('recursive_min_sign_match_share', 0):.3f}", "Lectura": "Las relaciones macro no son suficientemente estables a lo largo del tiempo."},
+    {"Diagnóstico": "recursive_max_sign_flips", "Valor": summary.get("recursive_max_sign_flips"), "Lectura": "Hay inversión de signos en regresiones recursivas."},
+    {"Diagnóstico": "ADF p-value nivel", "Valor": f"{summary.get('adf_pvalue_level', 0):.4f}", "Lectura": "No hay evidencia fuerte de estacionariedad en nivel."},
+    {"Diagnóstico": "near_unit_root_power", "Valor": f"{summary.get('near_unit_root_power', 0):.3f}", "Lectura": "La potencia cerca de raíz unitaria sigue siendo débil."},
+    {"Diagnóstico": "mean_relative_width_90", "Valor": f"{summary.get('mean_relative_width_90', 0):.2f}x", "Lectura": "La incertidumbre de escenarios es muy ancha respecto al punto."},
+    {"Diagnóstico": "sign_coherence", "Valor": summary.get("scenario_sign_coherence_pass"), "Lectura": "La escalera baseline → severe sí mantiene coherencia direccional."},
+]
+
+pd.DataFrame(rows)
+```
+
+La conclusión práctica es importante para el resto del libro: el problema IFRS9 actual no es ausencia de framework, ni falta de escenarios, ni incoherencia de la escalera de estrés. El problema abierto es **defendibilidad temporal** y **anchura de incertidumbre**. Eso orienta mejor el backlog futuro que una narrativa genérica de “falta más modelado macro”.

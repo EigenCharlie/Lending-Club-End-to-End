@@ -1,0 +1,49 @@
+schema_version: "2026-03-26.1"
+description: >
+  Search space for serious monotonic CatBoost competitors against the frozen
+  clean baseline. Designed to test partial vs strict monotonicity under the
+  same calibrated evaluation regime as the champion.
+
+defaults:
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  config_path: configs/pd_model.champion.yaml
+  output_path: models/monotonic_competitor_search.json
+  best_output_path: models/monotonic_competitor_best.json
+
+promotion_policy:
+  max_auc_drop: 0.003
+  max_brier_increase_pct: 0.015
+  max_ece_delta: 0.01
+  require_fairness_ok: true
+
+constraint_profiles:
+  strict_all:
+    use_all_declared_constraints: true
+  core_partial:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      dti: 1
+      int_rate: 1
+      installment: 1
+      grade_woe: 1
+  cautious_partial:
+    features:
+      annual_inc: -1
+      dti: 1
+      int_rate: 1
+      grade_woe: 1
+
+param_variants:
+  - id: base
+    learning_rate_multiplier: 1.0
+    l2_leaf_reg_multiplier: 1.0
+    depth_offset: 0
+  - id: reg_up
+    learning_rate_multiplier: 0.9
+    l2_leaf_reg_multiplier: 1.5
+    depth_offset: -1
+  - id: smoother
+    learning_rate_multiplier: 0.85
+    l2_leaf_reg_multiplier: 1.75
+    depth_offset: -1

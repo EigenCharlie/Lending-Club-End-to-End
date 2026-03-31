@@ -8,8 +8,8 @@ La propuesta ya no depende de notas sueltas. Hoy puede apoyarse en un set relati
 
 | Rol | Artefacto | Lectura en el paper |
 |---|---|---|
-| baseline operacional vigente | `champion-2026-03-12-mega-definitive` | source of truth canónico del proyecto |
-| registry integral paper-grade | `models/champion_registry.json` (`paper-grade-2026-03-13-final-heavy-2026-03-13-230650`) | snapshot más reciente de promociones selectivas y resultados integrales |
+| champion operacional vigente | `models/champion_registry.json` (`canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`) | source of truth canónico actual del proyecto |
+| baseline histórico de comparación GPU | `champion-2026-03-12-mega-definitive` | baseline útil para leer benchmarks GPU tempranos, no champion vigente |
 | replay GPU estable | `2026-03-09-official-gpu-replay-rapids-final` | benchmark oficial stage-by-stage del carril GPU |
 | benchmark PD separado | `2026-03-10-pd-rapids-benchmark-v1` | evidencia limpia para `fit-only`, `full-stage` y `HPO` |
 | IFRS9 MC masivo | `data/processed/ifrs9_mc_tail_metrics.json` | caso fuerte de speedup + fidelidad |

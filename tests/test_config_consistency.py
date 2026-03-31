@@ -308,6 +308,7 @@ class TestMRMConfig:
 # ── Conformal Policy Config ──
 
 CONFORMAL_POLICY_PATH = PROJECT_ROOT / "configs" / "conformal_policy.yaml"
+CAUSAL_LANE_PATH = PROJECT_ROOT / "configs" / "causal_lane.yaml"
 
 
 class TestConformalPolicyConfig:
@@ -367,6 +368,41 @@ class TestConformalPolicyConfig:
             assert path.endswith((".pkl", ".parquet", ".json")), (
                 f"Artifact '{key}' has unexpected extension: {path}"
             )
+
+
+class TestCausalLaneConfig:
+    """Validate causal lane configuration structure."""
+
+    @pytest.fixture(autouse=True)
+    def _load(self):
+        if not CAUSAL_LANE_PATH.exists():
+            pytest.skip("Causal lane config not found")
+        with open(CAUSAL_LANE_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+
+    def test_required_sections_exist(self):
+        required = {
+            "defaults",
+            "data",
+            "overlap",
+            "estimators",
+            "sensitivity",
+            "policy",
+            "portfolio",
+        }
+        assert required.issubset(self.cfg.keys()), (
+            f"Missing keys: {required - set(self.cfg.keys())}"
+        )
+
+    def test_action_grid_contains_hold_and_discounts(self):
+        grid = self.cfg["defaults"]["action_grid_bps"]
+        assert 0 in grid
+        assert any(value < 0 for value in grid)
+
+    def test_cate_candidates_include_two_families(self):
+        candidates = self.cfg["estimators"]["cate_candidates"]
+        assert "causal_forest_dml" in candidates
+        assert "linear_dml" in candidates
 
 
 # ── Fairness Policy Config ──

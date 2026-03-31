@@ -48,6 +48,7 @@ from src.models.venn_abers import VennAbersScoreCalibrator
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.io_utils import read_split_with_fe_fallback
 from src.utils.pipeline_runtime import atomic_write_json
+from src.utils.replay_manifest import load_replay_manifest, manifest_section
 from src.utils.threshold_semantics import write_threshold_semantics
 from src.utils.visualization import plot_murphy_diagram
 
@@ -141,6 +142,54 @@ def _write_checkpoint(
 ) -> None:
     target = Path(checkpoint_dir) / f"{name}.json"
     _write_json(target, payload)
+
+
+def _metric_with_aliases(payload: dict[str, Any], *keys: str) -> float | None:
+    for key in keys:
+        value = payload.get(key)
+        try:
+            if value is not None:
+                return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _validate_replay_expectations(
+    *,
+    replay_cfg: dict[str, Any],
+    final_test_metrics: dict[str, Any],
+    feature_names: list[str],
+    config_path: str,
+) -> None:
+    expected = dict(replay_cfg.get("expectations") or {})
+    tolerances = dict(replay_cfg.get("tolerances") or {})
+    expected_features = [str(x) for x in replay_cfg.get("feature_names", [])]
+    if expected_features and list(feature_names) != expected_features:
+        raise ValueError("Replay feature order mismatch against frozen manifest.")
+    manifest_config_path = str(replay_cfg.get("config_path", "")).strip()
+    if manifest_config_path and manifest_config_path != str(config_path):
+        raise ValueError("Replay config_path does not match frozen manifest.")
+
+    aliases = {
+        "auc_roc": ("auc_roc",),
+        "brier_score": ("brier_score",),
+        "ece": ("ece",),
+        "d2_brier_score": ("d2_brier_score",),
+    }
+    violations: list[str] = []
+    for name, key_aliases in aliases.items():
+        expected_value = _metric_with_aliases(expected, name, *key_aliases)
+        tolerance = _metric_with_aliases(tolerances, name, *key_aliases)
+        observed = _metric_with_aliases(final_test_metrics, name, *key_aliases)
+        if expected_value is None or tolerance is None or observed is None:
+            continue
+        if abs(observed - expected_value) > tolerance:
+            violations.append(
+                f"{name}: observed={observed:.6f} expected={expected_value:.6f} tol={tolerance:.6f}"
+            )
+    if violations:
+        raise ValueError("Replay metric validation failed: " + "; ".join(violations))
 
 
 def _gpu_replay_artifact_root() -> Path | None:
@@ -970,10 +1019,14 @@ def main(
     seed_replay_enabled: bool | None = None,
     catboost_iterations: int | None = None,
     validate_only: bool = False,
+    mode: str = "search",
+    replay_manifest_path: str | None = None,
 ) -> None:
     if sample_size is not None and int(sample_size) <= 0:
         sample_size = None
     config = validate_pd_config(load_config(config_path), config_path=config_path)
+    run_mode = str(mode or "search").strip().lower() or "search"
+    replay_cfg = manifest_section(load_replay_manifest(replay_manifest_path), "pd")
     regime_cfg = dict(config.get("training_regime", {}) or {})
     if training_regime_mode is not None:
         regime_cfg["mode"] = str(training_regime_mode)
@@ -1017,6 +1070,19 @@ def main(
         model_params["iterations"] = int(catboost_iterations)
     model_cfg["params"] = model_params
     config["model"] = model_cfg
+
+    if run_mode == "replay":
+        if not replay_cfg:
+            raise ValueError("Replay mode requires a PD section in the replay manifest.")
+        fixed_params = dict(replay_cfg.get("selected_params") or {})
+        if not fixed_params:
+            raise ValueError("Replay manifest missing pd.selected_params.")
+        config["hpo"]["enabled"] = False
+        config["validation"]["seed_replay"]["enabled"] = False
+        config["challenger_pipeline"]["enabled"] = False
+        merged_params = dict(config["model"].get("params", {}) or {})
+        merged_params.update(fixed_params)
+        config["model"]["params"] = merged_params
 
     status_path = _artifact_path(
         config["output"].get("status_path", "models/pd_training_status.json")
@@ -1100,6 +1166,13 @@ def main(
     logreg_features = feature_sets["logreg_features"]
     categorical_features = feature_sets["categorical_features"]
 
+    if run_mode == "replay":
+        replay_features = [str(x) for x in replay_cfg.get("feature_names", [])]
+        replay_categorical = [str(x) for x in replay_cfg.get("categorical_features", [])]
+        if replay_features:
+            catboost_features = replay_features
+            categorical_features = replay_categorical
+
     # enforce availability in all splits
     catboost_features = [
         c
@@ -1114,7 +1187,7 @@ def main(
     catboost_features, categorical_features, stable_core_meta = _apply_stable_core(
         catboost_features,
         categorical_features,
-        config.get("stable_core", {}) or {},
+        {} if run_mode == "replay" else (config.get("stable_core", {}) or {}),
     )
     logreg_features = [c for c in logreg_features if c in catboost_features]
 
@@ -1221,7 +1294,27 @@ def main(
         "selected_trial": None,
         "selected_params": None,
     }
-    if bool(hpo_cfg.get("enabled", True)):
+    if run_mode == "replay":
+        replay_params = dict(replay_cfg.get("selected_params") or {})
+        cb_tuned_model, cb_tuned_metrics = train_catboost_default(
+            X_train_fit_cb,
+            y_train_fit,
+            X_val_cb,
+            y_val,
+            X_test=X_test_cb,
+            y_test=y_test,
+            cat_features=categorical_features,
+            params=replay_params,
+            sample_weight=train_fit_weights,
+            eval_sample_weight=train_val_weights,
+        )
+        cb_tuned_metrics["hpo_trials_executed"] = 0
+        cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
+        cb_tuned_metrics["best_params"] = replay_params
+        cb_tuned_metrics["model_type"] = "catboost_replay_manifest"
+        seed_replay_report["reason"] = "replay_manifest"
+        seed_replay_report["selected_params"] = replay_params
+    elif bool(hpo_cfg.get("enabled", True)):
         cb_tuned_model, cb_tuned_metrics = train_catboost_tuned_optuna(
             X_train_fit_cb,
             y_train_fit,
@@ -1372,11 +1465,12 @@ def main(
     cal_cfg = config.get("calibration", {})
     cal_candidates = cal_cfg.get("candidates", ["platt", "isotonic", "venn_abers"])
     cal_reports: list[dict[str, Any]] = []
-    for method in cal_candidates:
+    if run_mode == "replay":
+        selected_cal_method = str(replay_cfg.get("selected_calibration_method", "venn_abers"))
         try:
             cal_reports.append(
                 _evaluate_calibration_method(
-                    str(method),
+                    selected_cal_method,
                     y_cal.to_numpy(),
                     y_prob_tuned_cal,
                     cal_splits,
@@ -1385,7 +1479,7 @@ def main(
         except Exception as exc:
             cal_reports.append(
                 {
-                    "method": str(method),
+                    "method": selected_cal_method,
                     "folds_used": 0,
                     "mean_brier": float("inf"),
                     "mean_log_loss": float("inf"),
@@ -1399,10 +1493,47 @@ def main(
                     "folds": [],
                 }
             )
-    selected_cal_method, cal_selection_report = _select_calibration_method(
-        cal_reports,
-        auc_drop_limit=0.0015,
-    )
+        cal_selection_report = {
+            "selected_method": selected_cal_method,
+            "selection_reason": "frozen_replay_manifest",
+            "auc_drop_limit": 0.0015,
+            "candidates": cal_reports,
+            "feasible_candidates": [
+                row for row in cal_reports if row.get("method") == selected_cal_method
+            ],
+        }
+    else:
+        for method in cal_candidates:
+            try:
+                cal_reports.append(
+                    _evaluate_calibration_method(
+                        str(method),
+                        y_cal.to_numpy(),
+                        y_prob_tuned_cal,
+                        cal_splits,
+                    )
+                )
+            except Exception as exc:
+                cal_reports.append(
+                    {
+                        "method": str(method),
+                        "folds_used": 0,
+                        "mean_brier": float("inf"),
+                        "mean_log_loss": float("inf"),
+                        "mean_ece": float("inf"),
+                        "mean_auc_drop": float("inf"),
+                        "brier_variance": float("inf"),
+                        "ece_variance": float("inf"),
+                        "stability": float("inf"),
+                        "degradation_rate": 1.0,
+                        "error": str(exc),
+                        "folds": [],
+                    }
+                )
+        selected_cal_method, cal_selection_report = _select_calibration_method(
+            cal_reports,
+            auc_drop_limit=0.0015,
+        )
     _write_checkpoint(
         checkpoint_dir,
         "calibration_selection",
@@ -1445,7 +1576,17 @@ def main(
             require_explicit=True,
         ),
     }
-    if bool(decision_cfg.get("enabled", True)):
+    if run_mode == "replay" and replay_cfg.get("decision_threshold_artifact"):
+        decision_threshold_artifact = dict(replay_cfg["decision_threshold_artifact"])
+        decision_threshold_artifact.update(
+            build_artifact_metadata(
+                schema_version="2026-03-01.1",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            )
+        )
+        decision_threshold_artifact["source"] = "frozen_replay_manifest"
+    elif bool(decision_cfg.get("enabled", True)):
         fairness_policy_path = str(
             decision_cfg.get("fairness_policy_path", "configs/fairness_policy.yaml")
         )
@@ -1504,6 +1645,13 @@ def main(
     tuned_raw_test_metrics = classification_metrics(y_test.values, y_prob_tuned_test)
     calibrated_decomposition = brier_score_decomposition(y_test.values, y_prob_final)
     raw_decomposition = brier_score_decomposition(y_test.values, y_prob_tuned_test)
+    if run_mode == "replay":
+        _validate_replay_expectations(
+            replay_cfg=replay_cfg,
+            final_test_metrics=final_test_metrics,
+            feature_names=catboost_features,
+            config_path=config_path,
+        )
 
     # Statistical calibration hypothesis tests (MAPIE)
     # Tests H0: scores are well-calibrated. High p-value → well calibrated.
@@ -1788,6 +1936,8 @@ def main(
     preds_df.to_parquet(test_predictions_path, index=False)
 
     training_record = {
+        "run_mode": run_mode,
+        "replay_manifest_path": str(replay_manifest_path) if replay_manifest_path else None,
         "best_model": "CatBoost (tuned + calibrated)",
         "best_calibration": _human_calibration_name(selected_cal_method),
         "calibration_selection_report": cal_selection_report,
@@ -1923,6 +2073,8 @@ if __name__ == "__main__":
     )
     parser.add_argument("--catboost_iterations", type=int, default=None)
     parser.add_argument("--validate-only", action="store_true")
+    parser.add_argument("--mode", choices=["search", "replay"], default="search")
+    parser.add_argument("--replay_manifest", default=None)
     args = parser.parse_args()
     main(
         args.config,
@@ -1948,4 +2100,6 @@ if __name__ == "__main__":
         ),
         catboost_iterations=args.catboost_iterations,
         validate_only=bool(args.validate_only),
+        mode=str(args.mode),
+        replay_manifest_path=args.replay_manifest,
     )

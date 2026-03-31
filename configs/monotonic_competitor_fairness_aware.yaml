@@ -1,0 +1,76 @@
+schema_version: "2026-03-28.1"
+description: >
+  Focused second-pass monotonic search. This pass assumes monotonicity is
+  already competitive on PD and targets the real blocker observed in the
+  expanded search: fairness at the operational threshold. It narrows to the
+  strongest profiles and explores threshold-aware promotion.
+
+defaults:
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  config_path: configs/pd_model.champion_search_max.yaml
+  output_path: models/monotonic_competitor_search_fairness_aware.json
+  best_output_path: models/monotonic_competitor_best_fairness_aware.json
+
+promotion_policy:
+  max_auc_drop: 0.003
+  max_brier_increase_pct: 0.015
+  max_ece_delta: 0.01
+  require_fairness_ok: true
+
+calibration_methods:
+  - venn_abers
+  - isotonic
+
+seed_offsets:
+  - 0
+
+decision_threshold_candidates:
+  - 0.30
+  - 0.325
+  - 0.35
+  - 0.375
+  - 0.40
+
+constraint_profiles:
+  affordability_only:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      dti: 1
+      installment: 1
+  bureau_capacity:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      grade_woe: 1
+  risk_core:
+    features:
+      dti: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      int_rate: 1
+      grade_woe: 1
+
+param_variants:
+  - id: base
+    learning_rate_multiplier: 1.0
+    l2_leaf_reg_multiplier: 1.0
+    depth_offset: 0
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.0
+  - id: reg_up
+    learning_rate_multiplier: 0.9
+    l2_leaf_reg_multiplier: 1.5
+    depth_offset: -1
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.25
+  - id: deeper_regularized
+    learning_rate_multiplier: 0.82
+    l2_leaf_reg_multiplier: 1.8
+    depth_offset: 1
+    iterations_multiplier: 1.15
+    random_strength_multiplier: 1.2

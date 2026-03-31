@@ -21,13 +21,16 @@ from loguru import logger
 from skops.card import Card
 from skops.io import dump as skops_dump
 
+from src.utils.artifact_metadata import resolve_run_tag as resolve_artifact_run_tag
 from src.utils.io_utils import load_pickle_compat
 
 
 def _load_status(path: str | Path) -> dict:
     """Load a JSON status file, returning empty dict if missing."""
+    if not path:
+        return {}
     p = Path(path)
-    if not p.exists():
+    if not p.exists() or p.is_dir():
         logger.warning(f"Status file not found: {p}")
         return {}
     with open(p) as f:
@@ -198,19 +201,22 @@ def _build_skops_sidecar(
 
 
 def _resolve_run_tag(run_tag_arg: str | None) -> str:
-    """Resolve run_tag: CLI arg > pipeline_summary > fallback."""
-    if run_tag_arg:
-        return run_tag_arg
+    """Resolve run_tag with official pipeline env fallback before pipeline_summary."""
     pipeline_path = Path("data/processed/pipeline_summary.json")
+    pipeline_tag = None
     if pipeline_path.exists():
         try:
             data = json.loads(pipeline_path.read_text(encoding="utf-8"))
             tag = data.get("run_tag")
             if tag:
-                return str(tag)
+                pipeline_tag = str(tag)
         except Exception:
-            pass
-    return "untracked"
+            pipeline_tag = None
+    return resolve_artifact_run_tag(
+        run_tag_arg,
+        fallback_candidates=[pipeline_tag],
+        allow_untracked=True,
+    )
 
 
 def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = None) -> None:
@@ -226,6 +232,18 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
         "conformal": _load_status(artifacts["conformal_status"]),
         "governance": _load_status(artifacts["governance_status"]),
         "fairness": _load_status(artifacts["fairness_status"]),
+    }
+    diagnostic_statuses = {
+        "pd_backtesting": _load_status(artifacts.get("pd_backtesting_status", "")),
+        "bootstrap_validation": _load_status(artifacts.get("bootstrap_validation_status", "")),
+        "monotonicity": _load_status(artifacts.get("monotonicity_status", "")),
+        "ifrs9_diagnostics": _load_status(artifacts.get("ifrs9_diagnostics_status", "")),
+        "encoding_stability": _load_status(artifacts.get("encoding_stability_status", "")),
+        "pd_validation_interpretation": _load_status(
+            artifacts.get("pd_validation_interpretation_status", "")
+        ),
+        "calibration_mapping": _load_status(artifacts.get("calibration_mapping_status", "")),
+        "model_shift": _load_status(artifacts.get("model_shift_status", "")),
     }
 
     compliance = _overall_compliance(statuses)
@@ -246,6 +264,7 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
         "conformal_status": statuses["conformal"],
         "governance_status": statuses["governance"],
         "fairness_status": statuses["fairness"],
+        "diagnostic_statuses": diagnostic_statuses,
         "compliance_summary": compliance,
     }
 

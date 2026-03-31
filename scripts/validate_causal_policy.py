@@ -1,13 +1,4 @@
-"""Validate and select a deployable causal policy rule.
-
-Uses simulated row-level policy economics and selects a rule that:
-- has positive downside (bootstrap p05 net value > 0)
-- limits action rate
-- avoids negative grade-level total net value
-
-Usage:
-    uv run python scripts/validate_causal_policy.py
-"""
+"""Validate and select a discrete causal pricing policy rule."""
 
 from __future__ import annotations
 
@@ -19,6 +10,7 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+from src.models.causal import load_causal_config
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.pipeline_runtime import (
     atomic_write_json,
@@ -30,7 +22,7 @@ from src.utils.pipeline_runtime import (
 
 _CLI_RUN_TAG: str | None = None
 
-CAUSAL_POLICY_SCHEMA_VERSION = "2026-03-07.1"
+CAUSAL_POLICY_SCHEMA_VERSION = "2026-03-26.1"
 
 
 def _bootstrap_total(
@@ -80,13 +72,16 @@ def _evaluate_rule(
 
 
 def main(
-    max_action_rate: float = 0.35,
-    min_bootstrap_p05_net: float = 0.0,
-    min_grade_total_net: float = 0.0,
-    bootstrap_samples: int = 200,
+    max_action_rate: float | None = None,
+    min_bootstrap_p05_net: float | None = None,
+    min_grade_total_net: float | None = None,
+    bootstrap_samples: int | None = None,
     random_state: int = 42,
+    config_path: str = "configs/causal_lane.yaml",
 ):
     stage_name = "causal_policy_validation"
+    cfg = load_causal_config(config_path)
+    policy_cfg = cfg.get("policy", {})
     input_path = Path("data/processed/causal_policy_simulation.parquet")
     effect_status_path = Path("models/causal_effect_status.json")
     if not input_path.exists():
@@ -94,7 +89,7 @@ def main(
             "Missing causal policy simulation artifact. Run scripts/simulate_causal_policy.py first."
         )
     df = pd.read_parquet(input_path)
-    if "segment" not in df.columns or "net_value" not in df.columns:
+    if "recommended_action" not in df.columns or "net_value" not in df.columns:
         raise KeyError("Required columns missing in causal_policy_simulation artifact.")
     effect_status = (
         json.loads(effect_status_path.read_text(encoding="utf-8"))
@@ -108,6 +103,24 @@ def main(
         state="running",
         run_tag=run_tag,
     )
+
+    max_action_rate = float(
+        policy_cfg.get("max_action_rate", 0.35) if max_action_rate is None else max_action_rate
+    )
+    min_bootstrap_p05_net = float(
+        policy_cfg.get("min_bootstrap_p05_net", 0.0)
+        if min_bootstrap_p05_net is None
+        else min_bootstrap_p05_net
+    )
+    min_grade_total_net = float(
+        policy_cfg.get("min_grade_total_net", 0.0)
+        if min_grade_total_net is None
+        else min_grade_total_net
+    )
+    bootstrap_samples = int(
+        policy_cfg.get("bootstrap_samples", 200) if bootstrap_samples is None else bootstrap_samples
+    )
+
     write_runtime_checkpoint(
         stage_name,
         "inputs_loaded",
@@ -117,19 +130,31 @@ def main(
         },
     )
 
-    q85 = float(df["cate"].quantile(0.85))
-    q90 = float(df["cate"].quantile(0.90))
+    action_mask = df["recommended_action"].ne("hold_rate")
+    q80 = (
+        float(df.loc[action_mask, "policy_value_score"].quantile(0.80))
+        if action_mask.any()
+        else 0.0
+    )
+    q90 = (
+        float(df.loc[action_mask, "policy_value_score"].quantile(0.90))
+        if action_mask.any()
+        else 0.0
+    )
     rules = {
-        "high_only": df["segment"].eq("high_sensitivity").to_numpy(),
-        "high_plus_medium_all": df["segment"]
-        .isin(["high_sensitivity", "medium_sensitivity"])
+        "discount_100_only": df["recommended_action"].eq("decrease_100bps").to_numpy(),
+        "discount_50_or_100": df["recommended_action"]
+        .isin(["decrease_50bps", "decrease_100bps"])
         .to_numpy(),
-        "high_plus_medium_positive": (
-            df["segment"].eq("high_sensitivity")
-            | (df["segment"].eq("medium_sensitivity") & (df["net_value"] > 0))
+        "positive_value_only": (action_mask & (df["net_value"] > 0)).to_numpy(),
+        "top20_policy_value": (
+            action_mask
+            & (pd.to_numeric(df["policy_value_score"], errors="coerce").fillna(0.0) >= q80)
         ).to_numpy(),
-        "top15_cate": (df["cate"] >= q85).to_numpy(),
-        "top10_cate": (df["cate"] >= q90).to_numpy(),
+        "top10_policy_value": (
+            action_mask
+            & (pd.to_numeric(df["policy_value_score"], errors="coerce").fillna(0.0) >= q90)
+        ).to_numpy(),
     }
 
     rows = []
@@ -176,6 +201,18 @@ def main(
     atomic_write_parquet(selected, selected_path, index=False)
 
     selected_row = selected.iloc[0].to_dict()
+    policy_gate_pass = bool(
+        selected_row.get("pass_all", False)
+        and effect_status.get("overlap_pass", False)
+        and effect_status.get("sensitivity_pass", False)
+    )
+    promotion_state = (
+        "operational_candidate"
+        if policy_gate_pass
+        else "validated_research_policy"
+        if bool(selected_row.get("pass_all", False))
+        else "insights_only"
+    )
     status = {
         "selection_reason": selection_reason,
         "selected_rule": selected_row["rule_name"],
@@ -195,11 +232,21 @@ def main(
         "source_simulation_path": str(input_path),
         "source_effect_status_path": str(effect_status_path),
         "effect_status_run_tag": effect_status.get("run_tag"),
-        "policy_semantics": "local_cate_policy_simulation",
-        "role": "diagnostic_rule_selection",
-        "promotion_eligible": False,
-        "promotion_decider": "optimize_cate_portfolio.py",
-        "policy_evaluation_consistent": False,
+        "policy_semantics": cfg.get("defaults", {}).get(
+            "policy_semantics", "research_grade_pricing_intervention"
+        ),
+        "policy_value_method": cfg.get("defaults", {}).get(
+            "policy_value_method", "local_cate_discrete_grid"
+        ),
+        # Research-only policies are intentionally classified as insights_only so
+        # downstream paper-grade closure can accept them without implying promotion.
+        "role": "insights_only" if not policy_gate_pass else "operational_candidate",
+        "promotion_eligible": policy_gate_pass,
+        "promotion_state": promotion_state,
+        "promotion_decider": "validate_causal_policy.py",
+        "policy_evaluation_consistent": policy_gate_pass,
+        "overlap_pass": bool(effect_status.get("overlap_pass", False)),
+        "sensitivity_pass": bool(effect_status.get("sensitivity_pass", False)),
         **build_artifact_metadata(
             schema_version=CAUSAL_POLICY_SCHEMA_VERSION,
             run_tag=run_tag,
@@ -223,24 +270,19 @@ def main(
         extra={"status_path": str(status_path), "selected_rule": str(selected_row["rule_name"])},
     )
 
-    logger.info(f"Saved policy rule candidates: {candidates_path}")
-    logger.info(f"Saved selected policy rule: {selected_path}")
-    logger.info(f"Saved policy rule status: {status_path}")
-    logger.info(
-        "Selected rule: "
-        f"{selected_row['rule_name']} | action_rate={selected_row['action_rate']:.4f}, "
-        f"total_net={selected_row['total_net_value']:,.2f}, "
-        f"bootstrap_p05={selected_row['bootstrap_p05_net']:,.2f}"
-    )
+    logger.info("Saved policy rule candidates: {}", candidates_path)
+    logger.info("Saved selected policy rule: {}", selected_path)
+    logger.info("Saved policy rule status: {}", status_path)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--max_action_rate", type=float, default=0.35)
-    parser.add_argument("--min_bootstrap_p05_net", type=float, default=0.0)
-    parser.add_argument("--min_grade_total_net", type=float, default=0.0)
-    parser.add_argument("--bootstrap_samples", type=int, default=200)
+    parser.add_argument("--max_action_rate", type=float, default=None)
+    parser.add_argument("--min_bootstrap_p05_net", type=float, default=None)
+    parser.add_argument("--min_grade_total_net", type=float, default=None)
+    parser.add_argument("--bootstrap_samples", type=int, default=None)
     parser.add_argument("--random_state", type=int, default=42)
+    parser.add_argument("--config", default="configs/causal_lane.yaml")
     parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
     if args.run_tag:
@@ -251,4 +293,5 @@ if __name__ == "__main__":
         min_grade_total_net=args.min_grade_total_net,
         bootstrap_samples=args.bootstrap_samples,
         random_state=args.random_state,
+        config_path=args.config,
     )

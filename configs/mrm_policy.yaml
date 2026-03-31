@@ -59,6 +59,14 @@ artifacts:
   conformal_status: models/conformal_policy_status.json
   governance_status: models/governance_status.json
   fairness_status: models/fairness_audit_status.json
+  pd_backtesting_status: models/pd_backtesting_status.json
+  bootstrap_validation_status: models/bootstrap_validation_status.json
+  monotonicity_status: models/monotonicity_audit_status.json
+  ifrs9_diagnostics_status: models/ifrs9_diagnostics_status.json
+  encoding_stability_status: models/encoding_stability_status.json
+  pd_validation_interpretation_status: models/pd_validation_interpretation_status.json
+  calibration_mapping_status: models/calibration_mapping_status.json
+  model_shift_status: models/model_shift_status.json
 
 governance_output:
   drift_monitoring_path: data/processed/drift_monitoring.parquet
@@ -67,6 +75,7 @@ governance_output:
   fairness_frontier_path: data/processed/fairness_threshold_frontier.parquet
   challenger_promotion_report_path: models/challenger_promotion_report.json
   governance_status_path: models/governance_status.json
+  model_shift_status_path: models/model_shift_status.json
 
 output:
   mrm_report_json: reports/mrm/mrm_validation_report.json

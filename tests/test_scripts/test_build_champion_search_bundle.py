@@ -69,6 +69,8 @@ def test_build_champion_search_bundle_carries_threshold_semantics_and_baseline(
     payload = json.loads((model_dir / "champion_search_bundle.json").read_text(encoding="utf-8"))
     assert payload["run_tag"] == "run-live"
     assert payload["upstream_canonical_run_tag"] == "run-baseline"
+    assert payload["artifact_run_tags"]["causal_effect_status"] == "run-live"
+    assert payload["mixed_run_tags_present"] is False
     assert payload["threshold_semantics"]["fairness_primary_threshold"] == 0.35
     assert payload["pd"]["decision_threshold"]["selected_threshold"] == 0.05
     assert payload["pd"]["decision_threshold_semantics"]["decision_policy_global_threshold"] == 0.35

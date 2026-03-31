@@ -6,13 +6,13 @@
 |-------|-------|
 | **Model Name** | CorePDCanonical |
 | **Model Type** | Probability of Default (PD) — Binary Classification |
-| **Algorithm** | CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Venn-Abers) |
+| **Algorithm** | Monotonic CatBoost Gradient Boosting + probabilistic calibration (current champion artifact uses Venn-Abers) |
 | **Uncertainty Quantification** | Mondrian Conformal Prediction (MAPIE 1.3) |
 | **Owner** | Carlos Vergara |
 | **Version** | See `models/pd_training_record.pkl` for current version |
 | **Champion Artifact** | `models/pd_canonical.cbm` |
 | **Calibrator Artifact** | `models/pd_canonical_calibrator.pkl` |
-| **Feature Contract** | `models/pd_model_contract.json` (44 features) |
+| **Feature Contract** | `models/pd_model_contract.json` (42 champion features; broader FE universe tracked in `data/processed/feature_manifest_v2.parquet`) |
 
 ### Intended Use
 - **Primary**: PD estimation for credit portfolio optimization under uncertainty
@@ -43,7 +43,7 @@
 **Data Leakage Prevention**: Post-loan variables removed in `src/data/make_dataset.py`:
 total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_pymnt_*, settlement_*, hardship_*, funded_amnt*.
 
-**Feature Engineering**: 44 features including WOE-encoded categoricals (OptBinning), financial ratios, and temporal features. Schema enforced by Pandera (`src/features/schemas.py`).
+**Feature Engineering**: The rerun V2 introduced a canonical feature producer that materializes `train_fe`, `calibration_fe`, `test_fe`, `feature_config.pkl`, `woe_encoders.pkl`, and `feature_manifest_v2`. The official champion now freezes a **42-feature contract**, while the broader FE universe retains additional bureau, ratio, missingness-flag, and challenger-only variables. Schema enforced by Pandera (`src/features/schemas.py`).
 
 ### 2.2 Methodology
 
@@ -53,8 +53,10 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 2. **CatBoost default** — gradient boosting with default hyperparameters
 3. **CatBoost tuned** — Optuna HPO (when enabled by config)
 4. **Calibration selection** — temporal multi-metric policy evaluates Platt Sigmoid, Isotonic Regression, Venn-Abers, and Beta Calibration; the current canonical artifact is Venn-Abers
-5. **Mondrian Conformal Prediction** — group-conditional coverage by grade using MAPIE 1.3 SplitConformalRegressor
-6. **Robust Portfolio Optimization** — Pyomo + HiGHS with box uncertainty sets from conformal intervals
+5. **Fairness on approval decisions** — official fairness and threshold semantics are read on approval outcomes, not on internal PD search thresholds
+6. **Mondrian Conformal Prediction** — group-conditional coverage by grade using MAPIE 1.3 SplitConformalRegressor
+7. **Robust Portfolio Optimization** — Pyomo + HiGHS with box uncertainty sets from conformal intervals
+8. **Post-promotion diagnostics** — C2ST with drivers, monotonicity audit, PD backtesting suite, PD validation interpretation, IFRS9 diagnostics, and encoding stability
 
 ### 2.3 Key Assumptions and Limitations
 
@@ -72,6 +74,12 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 - **Metrics**: AUC-ROC, Gini, Brier score, KS statistic, ECE
 - **Source**: `data/processed/pipeline_summary.json`
 - The OOT test set (2018-2020) was never seen during training or calibration
+- Additional diagnostic layers now exist for post-promotion validation:
+  - `models/pd_backtesting_status.json` — exact binomial, Jeffreys, z-score, HL;
+  - `models/bootstrap_validation_status.json` — bootstrap materiality layer for aggregate and slice-level calibration gaps;
+  - `models/pd_validation_interpretation_status.json` — materiality-oriented interpretation of those tests plus quarter persistence;
+  - `models/calibration_mapping_status.json` — shadow remap/intercept comparison without replacing the canonical calibrator;
+  - `models/pd_rare_event_calibration_status.json` — rare-event and slice calibration sidecar.
 
 ### 3.2 Benchmarking
 - **Comparison**: Logistic Regression vs CatBoost default vs CatBoost tuned
@@ -81,13 +89,14 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 ### 3.3 Conformal Coverage
 - **Target**: 90% coverage (alpha = 0.10)
 - **Mondrian groups**: By grade (A-G) for group-conditional coverage
-- **Policy gate**: 7/7 checks must pass
+- **Policy gate**: the current canonical status is `overall_pass = true`, `strict_overall_pass = false`, and `methodological_justification_pass = true`; non-statistical checks pass and statistical tests remain diagnostic because coverage is conservatively above nominal in a very large OOT sample
 - **Source**: `models/conformal_policy_status.json`
 
 ### 3.4 Fairness Audit
 - **Metrics**: Demographic Parity Difference, Equalized Odds Gap, Disparate Impact Ratio
 - **Attributes**: home_ownership, annual_inc quartile, verification_status
 - **Thresholds**: DPD < 0.10, EO gap < 0.10, DIR > 0.80
+- **Decision semantics**: `outcome_mode=approval`
 - **Source**: `models/fairness_audit_status.json`
 
 ---
@@ -145,6 +154,13 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 | Fairness (DIR) | > 0.80 | Quarterly | Fairness audit |
 | Conformal statistical validity | Kupiec/Christoffersen (diagnostic only; `methodological_justification_pass` is the operational gate) | Quarterly | Conformal policy v2 |
 | Drift governance | KS/CvM/C2ST policy pass | Quarterly | Governance status |
+| PD validation interpretation | `warning` or better | Quarterly | PD validation interpretation status |
+| Bootstrap validation | Large-`N` calibration gap uncertainty by aggregate and slice | Quarterly | Bootstrap validation status |
+| Calibration mapping sidecar | Shadow remap/intercept review for cohort persistence | Quarterly | Calibration mapping status |
+| IFRS9 diagnostics | Diagnostic review required when recursive stability / ADF power deteriorate | Quarterly | IFRS9 diagnostics status |
+| Monotonicity audit | `overall_pass = true` expected for the promoted monotonic champion | Quarterly | Monotonicity audit status |
+| Encoding stability | `overall_pass = true` expected unless bins/WOE become unstable | Quarterly | Encoding stability status |
+| Model-shift posture | Structural shift vs predictive degradation distinction | Quarterly | Model shift status |
 
 ### Retraining Triggers
 - PSI exceeds 0.25 on any monitored feature
@@ -162,22 +178,23 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 ## 7. Champion/Challenger Framework
 
 ### Current Champion
-- **Model**: `models/pd_canonical.cbm` (CatBoost + probabilistic calibration; current artifact is Venn-Abers)
+- **Model**: `models/pd_canonical.cbm` (monotonic CatBoost + probabilistic calibration; current artifact is Venn-Abers)
 - **Calibrator**: `models/pd_canonical_calibrator.pkl`
-- **Contract**: `models/pd_model_contract.json` (44 features)
+- **Contract**: `models/pd_model_contract.json` (42 champion features)
+- **Registry source**: `models/champion_registry.json`
 
 ### Challenger Criteria
 A challenger model must demonstrate:
 - AUC improvement ≥ 0.005 over champion on OOT test set
 - ECE improvement ≥ 0.002 (better calibration)
 - No degradation in conformal coverage or fairness metrics
-- Monotonic constraints aligned with domain priors (income inverse risk; burden/utilization direct risk)
+- Monotonic constraints aligned with domain priors when the challenger lane is explicitly monotonic
 - Feature-selection evidence package (`data/processed/challenger_feature_selection.parquet`)
 - Explicit policy: **no SMOTE** in challenger or champion training flows
 
 ### Promotion Gate
 All of the following must pass:
-1. Conformal policy gate (7/7 checks)
+1. Conformal policy gate (current canonical artifact passes operationally via `methodological_justification_pass = true`; strict statistical diagnostics remain documented but non-blocking)
 2. Fairness audit (all attributes pass thresholds)
 3. Governance checks (drift, robustness, slicing)
 4. Independent validation review

@@ -1,0 +1,13 @@
+{
+  "mapie_diagnostics_available": true,
+  "n": 276869,
+  "hsic_90": 0.010187614634662225,
+  "hsic_n_subsample": 5000,
+  "ssc_90": 0.920247769711417,
+  "mwi_90": 1.2041503794894093,
+  "cwc_90": 0.24341149527792286,
+  "empirical_coverage_global": 0.9202474816610021,
+  "schema_version": "2026-03-21.1",
+  "generated_at_utc": "2026-03-26T18:27:54.009567+00:00",
+  "run_tag": "conformal-v3-recovery-2026-03-26"
+}

@@ -16,9 +16,56 @@ def test_build_steps_post_core_runs_governance_before_mrm() -> None:
     assert post_core_cmd.index("validate_conformal_policy.py") < post_core_cmd.index(
         "run_ifrs9_sensitivity.py"
     )
+    assert "run_ifrs9_diagnostics.py --run-tag run-x" in post_core_cmd
+    assert "analyze_pd_rare_event_calibration.py --run-tag run-x" in post_core_cmd
     assert "generate_governance_status.py" in post_core_cmd
+    assert "run_monotonicity_audit.py" in post_core_cmd
+    assert "run_pd_backtesting_suite.py" in post_core_cmd
+    assert "run_bootstrap_validation_diagnostics.py --run-tag run-x" in post_core_cmd
+    assert "run_pd_validation_interpretation.py --run-tag run-x" in post_core_cmd
+    assert "run_calibration_mapping_diagnostics.py --run-tag run-x" in post_core_cmd
+    assert "run_encoding_stability_audit.py" in post_core_cmd
+    assert "--run-tag run-x" in post_core_cmd
+    assert "generate_paper_grade_protocol.py" in post_core_cmd
     assert "generate_mrm_report.py" in post_core_cmd
+    assert "generate_mrm_report.py --run-tag run-x" in post_core_cmd
+    assert post_core_cmd.index("run_ifrs9_sensitivity.py") < post_core_cmd.index(
+        "run_ifrs9_diagnostics.py"
+    )
+    assert post_core_cmd.index("build_pipeline_results.py") < post_core_cmd.index(
+        "analyze_pd_rare_event_calibration.py"
+    )
+    assert post_core_cmd.index("run_fairness_audit.py") < post_core_cmd.index(
+        "run_monotonicity_audit.py"
+    )
+    assert post_core_cmd.index("run_monotonicity_audit.py") < post_core_cmd.index(
+        "run_pd_backtesting_suite.py"
+    )
+    assert post_core_cmd.index("run_pd_backtesting_suite.py") < post_core_cmd.index(
+        "run_bootstrap_validation_diagnostics.py"
+    )
+    assert post_core_cmd.index("run_bootstrap_validation_diagnostics.py") < post_core_cmd.index(
+        "run_pd_validation_interpretation.py"
+    )
+    assert post_core_cmd.index("run_pd_validation_interpretation.py") < post_core_cmd.index(
+        "run_calibration_mapping_diagnostics.py"
+    )
+    assert post_core_cmd.index("run_calibration_mapping_diagnostics.py") < post_core_cmd.index(
+        "run_encoding_stability_audit.py"
+    )
+    assert post_core_cmd.index("run_pd_backtesting_suite.py") < post_core_cmd.index(
+        "run_encoding_stability_audit.py"
+    )
+    assert post_core_cmd.index("run_pd_backtesting_suite.py") < post_core_cmd.index(
+        "generate_governance_status.py"
+    )
+    assert post_core_cmd.index("run_encoding_stability_audit.py") < post_core_cmd.index(
+        "generate_governance_status.py"
+    )
     assert post_core_cmd.index("generate_governance_status.py") < post_core_cmd.index(
+        "generate_paper_grade_protocol.py"
+    )
+    assert post_core_cmd.index("generate_paper_grade_protocol.py") < post_core_cmd.index(
         "generate_mrm_report.py"
     )
     assert "generate_dependency_summary.py" in post_core_cmd
@@ -152,6 +199,41 @@ def test_build_steps_post_core_includes_explicit_comparison_baseline() -> None:
     )
 
 
+def test_build_steps_conformal_search_passes_partition_candidates_and_shrinkback() -> None:
+    steps = lp.build_steps(
+        "run-conf",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="smoke",
+        profile_cfg={
+            "search_space": {
+                "pd": {"config_path": "configs/pd_model.smart.yaml"},
+                "conformal": {
+                    "partition_candidates": [
+                        "score_decile_mondrian",
+                        "grade",
+                        "grade_x_scoreband_mondrian",
+                    ],
+                    "shrinkback_enabled": True,
+                    "group_coverage_floor_enabled": True,
+                    "scaled_scores_options": [True, False],
+                    "group_multiplier_grid": [1.0, 1.01, 1.03],
+                    "temporal_multiplier_grid": [1.0, 1.01, 1.03],
+                },
+            }
+        },
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+    main_pre_cmd = by_name["main_pre"]
+    assert (
+        "--partition_candidates score_decile_mondrian,grade,grade_x_scoreband_mondrian"
+        in main_pre_cmd
+    )
+    assert "--shrinkback_enabled 1" in main_pre_cmd
+    assert "--group_coverage_floor_enabled 1" in main_pre_cmd
+    assert "--scaled_scores_options True,False" in main_pre_cmd
+
+
 def test_profile_default_comparison_baseline_run_tag_is_resolved(tmp_path, monkeypatch) -> None:
     comparisons = tmp_path / "reports" / "run_comparisons" / "baseline-tag"
     comparisons.mkdir(parents=True)
@@ -223,6 +305,127 @@ portfolio_selection:
     assert "scripts.select_economic_portfolio_policy" in heavy_main_cmd
     assert "scripts.simulate_ab_test" in heavy_main_cmd
     assert "--policy_selector explicit_champion_only" in heavy_main_cmd
+
+
+def test_build_steps_challenger_promotion_uses_economic_search_driver(
+    tmp_path, monkeypatch
+) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "pd_model.champion.yaml").write_text("{}", encoding="utf-8")
+    (repo / "configs" / "optimization.yaml").write_text(
+        """
+portfolio_selection:
+  canonical_execution_mode: freeze_if_available
+  frozen_champion_policy_path: models/champion_portfolio_policy.json
+  actual_ab_top_k: 20
+""".strip(),
+        encoding="utf-8",
+    )
+    (repo / "models").mkdir(parents=True, exist_ok=True)
+    (repo / "models" / "champion_portfolio_policy.json").write_text("{}", encoding="utf-8")
+    (repo / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo / "scripts" / "optimize_portfolio.py").write_text(
+        "parser.add_argument('--max_candidates')", encoding="utf-8"
+    )
+    (repo / "scripts" / "optimize_portfolio_tradeoff.py").write_text(
+        "parser.add_argument('--grid-profile')", encoding="utf-8"
+    )
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+
+    steps = lp.build_steps(
+        "run-monotonic",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+        pipeline_family="challenger_promotion",
+        profile_cfg={
+            "search_space": {
+                "portfolio": {"max_candidates": 150000},
+                "tradeoff": {"max_candidates": 80000, "grid_profile": "balanced"},
+                "ab": {
+                    "execution_mode": "economic_search",
+                    "max_portfolio_pd": 0.18,
+                    "max_candidates": 150000,
+                    "n_boot": 5000,
+                    "seed": 42,
+                    "policy_selector_default": "explicit_champion_only",
+                    "policy_selector_candidates": [
+                        "explicit_champion_only",
+                        "actual_ab_guarded",
+                    ],
+                    "decision_scenarios": ["baseline", "selective_ambiguity_defer"],
+                    "actual_ab_top_k": 20,
+                },
+            }
+        },
+    )
+    heavy_main_cmd = next(cmd for name, _required, cmd in steps if name == "heavy_main")
+
+    assert (
+        "scripts.optimize_portfolio --config configs/optimization.yaml --max_candidates 150000"
+        in heavy_main_cmd
+    )
+    assert "scripts/search_monotonic_economic_promotion.py" in heavy_main_cmd
+    assert "--policy_selector_candidates explicit_champion_only,actual_ab_guarded" in heavy_main_cmd
+    assert "--decision_scenarios baseline,selective_ambiguity_defer" in heavy_main_cmd
+    assert "--tradeoff_max_candidates 80000" in heavy_main_cmd
+    assert "--grid_profile balanced" in heavy_main_cmd
+    assert "scripts.select_economic_portfolio_policy" not in heavy_main_cmd
+
+
+def test_build_steps_canonical_confirmatory_full_uses_replay_and_full_policy_path(
+    tmp_path, monkeypatch
+) -> None:
+    repo = tmp_path
+    (repo / "configs").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "pd_model.champion.yaml").write_text("{}", encoding="utf-8")
+    (repo / "configs" / "optimization.yaml").write_text(
+        """
+portfolio_selection:
+  canonical_execution_mode: freeze_if_available
+  frozen_champion_policy_path: models/champion_portfolio_policy.json
+""".strip(),
+        encoding="utf-8",
+    )
+    (repo / "configs" / "baselines").mkdir(parents=True, exist_ok=True)
+    (repo / "configs" / "baselines" / "clean_baseline_manifest.json").write_text(
+        "{}", encoding="utf-8"
+    )
+    (repo / "models").mkdir(parents=True, exist_ok=True)
+    (repo / "models" / "champion_portfolio_policy.json").write_text("{}", encoding="utf-8")
+    (repo / "scripts").mkdir(parents=True, exist_ok=True)
+    (repo / "scripts" / "optimize_portfolio.py").write_text(
+        "parser.add_argument('--max_candidates')", encoding="utf-8"
+    )
+    (repo / "scripts" / "optimize_portfolio_tradeoff.py").write_text(
+        "parser.add_argument('--grid-profile')", encoding="utf-8"
+    )
+    monkeypatch.setattr(lp, "REPO_ROOT", repo)
+
+    steps = lp.build_steps(
+        "run-confirm",
+        include_rapids=False,
+        include_notebooks=False,
+        sampling_profile="champion64safe",
+        pipeline_family="canonical_rebuild",
+        profile_cfg={
+            "defaults": {
+                "replay_manifest": "configs/baselines/clean_baseline_manifest.json",
+                "pd_replay": True,
+                "conformal_replay": True,
+                "confirmatory_full": True,
+            }
+        },
+    )
+    by_name = {name: cmd for name, _required, cmd in steps}
+
+    assert "--mode replay --replay_manifest" in by_name["preflight"]
+    assert "--mode replay --replay_manifest" in by_name["main_pre"]
+    heavy_main_cmd = by_name["heavy_main"]
+    assert "scripts.optimize_portfolio_tradeoff" in heavy_main_cmd
+    assert "scripts.select_economic_portfolio_policy" in heavy_main_cmd
+    assert "scripts.simulate_ab_test" in heavy_main_cmd
 
 
 def test_build_steps_notebooks_avoids_redundant_paper_suite_execution() -> None:

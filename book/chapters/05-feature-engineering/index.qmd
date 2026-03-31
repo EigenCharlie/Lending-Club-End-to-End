@@ -1,8 +1,8 @@
 ---
 title: "Ingeniería de Features"
 page-layout: article
-close_takeaway: "La ingeniería de features traduce 142 columnas crudas en 44 señales canónicas validadas. Lo que importa no es cuántas variables se generan, sino cuántas sobreviven al contrato y siguen siendo interpretables, auditables y estables temporalmente."
-close_connects: "Las 44 features del contrato canónico alimentan directamente el modelado PD (@sec-lr-baseline, @sec-catboost-tuned), la calibración (@sec-calibration-selection), y por transitividad la capa conformal y la optimización robusta."
+close_takeaway: "La ingeniería de features traduce columnas crudas en un manifest auditable y luego congela un contrato champion de 42 señales. Lo que importa no es cuántas variables se generan, sino cuántas sobreviven al contrato y siguen siendo interpretables, auditables y estables temporalmente."
+close_connects: "El manifest V2 separa universo de features y contrato champion: 42 features alimentan directamente el modelado PD (@sec-lr-baseline, @sec-catboost-tuned), mientras challengers y research lanes consumen subsets más amplios."
 close_reuse: "El contrato `pd_model_contract.json` reaparece en validación Pandera, en el feature drift de explicabilidad (@sec-explanation-drift), y como restricción de producción en el MRM report (@sec-mrm)."
 ---
 
@@ -18,7 +18,7 @@ El detalle fino de bins WOE se desarrolla en el capítulo 15. En esta landing se
 |-------|-------|--------|-------------|
 | WOE/IV binning | Variables categóricas (grade, purpose, home_ownership) | Variables `_woe` (numéricas, monótonas) | OptBinning (solver CP) |
 | Derivación | Variables numéricas y WOE | Ratios, logs, flags, buckets, interacciones | `feature_engineering.py` |
-| Contrato | Todas las features candidatas | 44 features canónicas validadas | `pd_model_contract.json` + Pandera |
+| Contrato | Todas las features candidatas | 42 features canónicas validadas | `pd_model_contract.json` + Pandera |
 
 : Etapas del pipeline de features {#tbl-feature-stages}
 

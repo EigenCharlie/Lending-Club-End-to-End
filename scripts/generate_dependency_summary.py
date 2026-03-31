@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import subprocess
+import sys
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -74,6 +75,14 @@ MANUAL_PACKAGES: dict[str, dict[str, Any]] = {
         "repo_version": None,
         "sources": ["transitive (via mapie)"],
     }
+}
+CAUSAL_ENV_COMPATIBILITY: dict[str, str] = {
+    "dowhy": ">=0.14,<0.15",
+    "econml": ">=0.16,<0.17",
+    "statsmodels": ">=0.14,<0.15",
+    "networkx": ">=3.5,<4",
+    "scikit-learn": ">=1.0,<1.7",
+    "shap": ">=0.38.1,<0.49",
 }
 
 
@@ -201,6 +210,10 @@ def _build_summary_rows() -> list[dict[str, Any]]:
     for key, payload in MANUAL_PACKAGES.items():
         deps.setdefault(key, dict(payload))
     lock_versions = _load_lock_versions()
+    actual_main_versions = _load_python_env_versions(Path(sys.executable))
+    actual_causal_versions = _load_python_env_versions(
+        REPO_ROOT / ".venv-causal" / "bin" / "python"
+    )
     rows: list[dict[str, Any]] = []
     for key in sorted(deps):
         row = dict(deps[key])
@@ -213,6 +226,9 @@ def _build_summary_rows() -> list[dict[str, Any]]:
                 "repo_version": repo_version,
                 "latest": latest or repo_version,
                 "up_to_date": _is_up_to_date(repo_version, latest or repo_version),
+                "actual_main_env_version": actual_main_versions.get(key),
+                "actual_causal_env_version": actual_causal_versions.get(key),
+                "causal_env_compatible_version": CAUSAL_ENV_COMPATIBILITY.get(key),
                 "sources": row.get("sources", []),
                 "files": usage_files,
                 "file_count": len(usage_files),
@@ -220,6 +236,34 @@ def _build_summary_rows() -> list[dict[str, Any]]:
             }
         )
     return rows
+
+
+def _load_python_env_versions(python_executable: Path) -> dict[str, str]:
+    if not python_executable.exists():
+        return {}
+    cmd = [
+        str(python_executable),
+        "-c",
+        (
+            "import importlib.metadata as m, json; "
+            "print(json.dumps({dist.metadata['Name'].lower().replace('_','-'): dist.version "
+            "for dist in m.distributions()}))"
+        ),
+    ]
+    result = subprocess.run(
+        cmd,
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if result.returncode != 0:
+        return {}
+    try:
+        payload = json.loads(result.stdout)
+    except Exception:
+        return {}
+    return {str(k): str(v) for k, v in payload.items()}
 
 
 def main(output_path: str = str(OUTPUT_PATH)) -> None:

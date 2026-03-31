@@ -1,0 +1,9 @@
+{
+  "stage_name": "portfolio_optimization",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T18:37:45.165619+00:00",
+  "portfolio_results_path": "models/portfolio_results.pkl",
+  "portfolio_allocations_path": "data/processed/portfolio_allocations.parquet",
+  "solver_status": "TerminationCondition.optimal"
+}

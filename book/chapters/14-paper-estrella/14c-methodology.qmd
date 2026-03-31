@@ -1,6 +1,6 @@
 ## Metodología {#sec-estrella-methodology}
 
-El experimento se construye sobre el pipeline canónico congelado en el run `paper-grade-2026-03-13-final-heavy-2026-03-13-230650`. La metodología reutiliza artefactos productivos del proyecto para evitar una bifurcación artificial entre “demo académica” y sistema real.
+El experimento se construye sobre el pipeline canónico vigente del proyecto, hoy congelado en el champion monotónico confirmado `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`. La metodología reutiliza artefactos productivos del proyecto para evitar una bifurcación artificial entre “demo académica” y sistema real.
 
 ### Datos y split
 

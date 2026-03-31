@@ -9,7 +9,7 @@ Esta distinción es operativamente crítica:
 - **Correlación**: "Los préstamos con tasa >20% tienen 24% de default" --- describe el pasado, útil para scoring.
 - **Causalidad**: "Si movemos la tasa 1pp, el default esperado cambia en +0.00974pp" --- permite diseñar políticas de precio.
 
-El pipeline causal combina **DoWhy** para identificación y refutación con **EconML** para estimación heterogénea, siguiendo el marco de Double Machine Learning [@chernozhukov2018].
+El pipeline causal combina **DoWhy** para identificación y refutación con **EconML** para estimación ortogonal y heterogeneidad, siguiendo el marco de Double Machine Learning [@chernozhukov2018]. En la versión actual del proyecto, DoWhy queda como capa de auditoría causal y el ATE oficial se reporta con DML, no con la regresión lineal de backdoor como única referencia.
 
 | Pregunta | Correlación | Causalidad |
 |---|---|---|
@@ -52,15 +52,9 @@ En este proyecto eso importa mucho porque `int_rate` no se asigna al azar: norma
 
 ### Efecto Promedio (ATE)
 
-El ATE estimado por DoWhy con identificación backdoor y estimación por regresión lineal es:
+El ATE oficial del carril causal se estima con **LinearDML**, mientras que DoWhy se conserva para identificación y refutación. Esa combinación es más estable para este proyecto que usar la regresión lineal de backdoor como estimador principal, especialmente en full-data y con tratamiento continuo.
 
-$$
-\text{ATE} = +0.00974
-$$
-
-**Interpretación**: Un aumento de 1 punto porcentual en la tasa de interés se asocia causalmente con un incremento de **0.974 puntos porcentuales** en la probabilidad de default, controlando por grado, propósito, vivienda, DTI, ingreso, monto y FICO.
-
-Sin embargo, el intervalo de confianza del artefacto canónico todavía cruza cero. La lectura correcta no es “efecto causal cerrado”, sino “señal positiva y operativamente útil, pero con incertidumbre suficiente para tratar el ATE agregado con cautela y apoyarse más en heterogeneidad y backtesting de política”.
+La lectura correcta del ATE en este proyecto sigue siendo prudente: en el snapshot oficial reciente el intervalo ya no cruza cero, pero eso **no basta** para promover el lane. El bloqueo actual viene por sensibilidad, no por signo. Por eso el carril causal se mantiene como `insights_only` por defecto y el peso operativo recae más en heterogeneidad, overlap, sensibilidad y backtesting de policy que en un ATE agregado “cerrado”.
 
 ### Efectos Heterogéneos (CATE) con CausalForestDML
 
@@ -89,7 +83,7 @@ Las figuras @fig-cate-heterogeneity y @fig-causal-kpis resumen el paso de una po
 
 ### Política Causal y Valor Económico
 
-La estimación CATE permite diseñar **políticas de precio segmentadas**: ajustar la tasa de interés en los segmentos donde el efecto causal es más adverso. La simulación de política sobre el conjunto OOT estima un ahorro potencial de **\$41.7M** por reducción de defaults en segmentos con CATE alto, comparado con la política uniforme actual.
+La estimación CATE permite diseñar **políticas de precio segmentadas**, pero en la versión oficial reciente deben leerse como un carril de investigación para pricing, no como una policy promovida a producción analítica. La pregunta relevante no es solo si existe heterogeneidad, sino si esa heterogeneidad sobrevive filtros de overlap, sensibilidad y valor económico OOT con reglas discretas de acción.
 
 ```{python}
 #| label: tbl-causal-summary
@@ -103,34 +97,48 @@ from book._helpers.load_artifacts import try_load_json
 
 import pandas as pd
 
-pipeline = try_load_json("pipeline_summary")
-causal = pipeline.get("causal", {})
+causal = try_load_json("causal_effect_status", directory="models", default={})
+policy = try_load_json("causal_policy_rule", directory="models", default={})
+oot = try_load_json("causal_policy_oot_status", directory="models", default={})
+sensitivity = try_load_json("causal_sensitivity_status", directory="models", default={})
+ate_ci = causal.get("ate_ci", [None, None]) or [None, None]
+
+def fmt_num(value, decimals=4):
+    if value is None:
+        return "N/D"
+    return f"{float(value):.{decimals}f}"
 
 rows = [
     {"Métrica": "ATE (int_rate → default)",
-     "Valor": f"{causal.get('ate', 0.00974):.5f}",
-     "Interpretación": "+1pp tasa → +0.974pp probabilidad de default"},
+     "Valor": fmt_num(causal.get('ate', 0), 5),
+     "Interpretación": "Cambio esperado en default por +1pp de tasa bajo el estimador DML oficial"},
     {"Métrica": "IC 95% del ATE",
-     "Valor": f"[{causal.get('ate_ci', [-0.0331, 0.0525])[0]:.4f}, {causal.get('ate_ci', [-0.0331, 0.0525])[1]:.4f}]",
-     "Interpretación": "El intervalo aún cruza cero; la señal es útil pero no tajante"},
+     "Valor": f"[{fmt_num(ate_ci[0], 4)}, {fmt_num(ate_ci[1], 4)}]",
+     "Interpretación": "En el snapshot oficial el intervalo no cruza cero, pero el lane sigue bloqueado por sensibilidad, no por signo"},
     {"Métrica": "CATE medio",
-     "Valor": f"{causal.get('cate_mean', 0.00974):.5f}",
+     "Valor": fmt_num(causal.get('cate_mean', 0), 5),
      "Interpretación": "Efecto promedio heterogéneo (≈ATE si homogéneo)"},
-    {"Métrica": "Ahorro potencial (política CATE)",
-     "Valor": "$41.7M",
-     "Interpretación": "Reducción de pérdidas por ajuste de tasa segmentado"},
+    {"Métrica": "Overlap pass",
+     "Valor": str(causal.get('overlap_pass', 'N/A')),
+     "Interpretación": "El soporte de tratamiento es suficiente en casi todos los segmentos auditados"},
+    {"Métrica": "Sensitivity pass",
+     "Valor": str(sensitivity.get('sensitivity_pass', 'N/A')),
+     "Interpretación": "Este es el gate que hoy bloquea promoción operativa"},
     {"Métrica": "Action rate OOT",
-     "Valor": f"{causal.get('avg_action_rate', 0):.2%}",
+     "Valor": f"{oot.get('avg_action_rate', 0):.2%}",
      "Interpretación": "Porción del portafolio donde la policy causal sugiere actuar"},
     {"Métrica": "P05 net mensual OOT",
-     "Valor": f"${causal.get('oot_p05_monthly_net', 0):,.0f}",
+     "Valor": f"${oot.get('p05_monthly_net', 0):,.0f}",
      "Interpretación": "Lectura conservadora del valor mensual bajo bootstrap"},
     {"Métrica": "Regla seleccionada",
-     "Valor": str(causal.get('selected_rule', 'N/A')),
-     "Interpretación": "Policy semántica promovida para el análisis causal"},
+     "Valor": str(policy.get('selected_rule', 'N/A')),
+     "Interpretación": "Regla discreta seleccionada para evaluación research-grade"},
+    {"Métrica": "Promotion state",
+     "Valor": str(causal.get('promotion_state', 'N/A')),
+     "Interpretación": "El lane oficial queda en `insights_only`, aunque la policy pase sus tests económicos internos"},
     {"Métrica": "Método de identificación",
-     "Valor": "Backdoor (DoWhy)",
-     "Interpretación": "Condicional sobre grade, purpose, home_ownership WOE"},
+     "Valor": "LinearDML + DoWhy audit",
+     "Interpretación": "DML como estimador oficial, DoWhy como auditoría/refutación"},
     {"Métrica": "Estimador",
      "Valor": "CausalForestDML (EconML)",
      "Interpretación": "DML con honest causal forests, 200 árboles"},
@@ -139,7 +147,7 @@ rows = [
 pd.DataFrame(rows)
 ```
 
-La figura @fig-causal-policy-backtest hace visible la capa económica que la tabla resume: la policy causal no solo existe como regla estática, sino como trayectoria mensual de valor que puede evaluarse con suavizado y ventanas adversas.
+La figura @fig-causal-policy-backtest hace visible la capa económica que la tabla resume: la policy causal no solo existe como regla estática, sino como trayectoria mensual de valor que puede evaluarse con suavizado y ventanas adversas. Aun así, el criterio oficial del proyecto sigue siendo prudente: si overlap, sensibilidad o policy value no pasan sus gates, el carril causal conserva valor científico, pero no escala a candidato operativo.
 
 ### Refutaciones canónicas y lectura prudente
 
@@ -166,11 +174,11 @@ tests
 
 ::: {.callout-note}
 ## Cómo leer este resultado
-La señal útil del carril causal no viene de un ATE lineal “cerrado”, sino de combinar:
+La señal útil del carril causal no viene de un ATE “cerrado”, sino de combinar:
 
 - heterogeneidad CATE útil para segmentación;
-- reglas causales con valor económico OOT positivo;
-- una lectura honesta de que la refutación lineal quedó `unavailable` porque el efecto promedio es débil y su intervalo cruza cero.
+- reglas causales discretas con evaluación OOT;
+- una lectura honesta de que la capa causal sigue siendo `insights_only` cuando overlap, sensibilidad o consistencia económica no son suficientes.
 :::
 
 | Segmento ilustrativo | Si subimos tasa | Lectura práctica |
@@ -233,7 +241,7 @@ if not tail.empty:
 tail
 ```
 
-La regla promovida en el artefacto oficial, `high_plus_medium_positive`, no es la que maximiza agresivamente el action rate, sino la que logra el mejor valor neto cumpliendo restricciones de bootstrap y piso por grade. Ese matiz es clave: el carril causal del proyecto ya está leyendo economía y robustez conjunta, no solo heterogeneidad estadística.
+La regla seleccionada en el artefacto oficial no debe leerse como “policy ganadora definitiva”, sino como la mejor candidata dentro de un carril explícitamente research-grade. Ese matiz es clave: el bloque causal del proyecto está diseñado para leer heterogeneidad, economía y robustez conjunta, incluso cuando el resultado final es no promover la policy.
 
 ::: {.callout-warning}
 ## Limitaciones de la inferencia observacional
@@ -242,5 +250,5 @@ Estos resultados son evidencia causal bajo supuestos de identificación --- no u
 
 ::: {.callout-tip}
 ## Conexión con el pipeline
-La estimación CATE alimenta la optimización de portafolio CATE-adjusted (@sec-cate-portfolio), donde los préstamos con CATE alto reciben penalizaciones en la función objetivo. La simulación A/B (@sec-ab-testing) valida retrospectivamente si incorporar esta señal causal mejora el retorno realizado. Los confusores WOE provienen del feature engineering documentado en @sec-woe-iv.
+Históricamente el proyecto trató de empujar CATE hasta portafolio, A/B y política económica como un carril end-to-end. Después del rerun y la refactorización, la lectura oficial es más precisa: el bloque causal **sí corre de extremo a extremo como carril research**, pero **no forma parte del pipeline champion operativo** mientras overlap, sensibilidad y consistencia de policy no pasen juntos. En otras palabras, causal sigue conectado al stack completo, pero como laboratorio de intervención y stress test, no como componente promotable del champion bundle.
 :::

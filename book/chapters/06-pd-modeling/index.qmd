@@ -29,8 +29,9 @@ import pandas as pd
 comparison = load_json("model_comparison")
 models = comparison.get("models", [])
 
-df_models = pd.DataFrame(models)[["model", "calibrated", "auc", "gini", "brier", "d2_brier"]]
-df_models.columns = ["Modelo", "Calibrado", "AUC", "Gini", "Brier", "D² Brier"]
+cols = ["model", "auc", "gini", "brier", "d2_brier"]
+df_models = pd.DataFrame(models)[[c for c in cols if c in pd.DataFrame(models).columns]]
+df_models.columns = ["Modelo", "AUC", "Gini", "Brier", "D² Brier"][:len(df_models.columns)]
 df_models
 ```
 

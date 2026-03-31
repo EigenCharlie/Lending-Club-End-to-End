@@ -4,6 +4,9 @@
     "repo_version": null,
     "latest": null,
     "up_to_date": null,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": null,
+    "causal_env_compatible_version": null,
     "sources": [
       "transitive (via mapie)"
     ],
@@ -21,6 +24,9 @@
     "repo_version": ">=1.2",
     "latest": "1.2.10",
     "up_to_date": true,
+    "actual_main_env_version": "1.2.10",
+    "actual_causal_env_version": "1.2.10",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -40,6 +46,7 @@
       "book/_quarto-core.yml",
       "book/_quarto-later.yml",
       "book/_quarto.yml",
+      "book/chapters/05-feature-engineering/05c-feature-contract.qmd",
       "book/chapters/05-feature-engineering/index.qmd",
       "book/chapters/06-pd-modeling/06b-catboost-tuned.qmd",
       "book/chapters/06-pd-modeling/06d-model-comparison-champion.qmd",
@@ -48,6 +55,7 @@
       "book/chapters/10-ifrs9-governance/index.qmd",
       "book/chapters/18-paper-quantum/18c-proposed-methodology.qmd",
       "book/chapters/A-notebook-atlas.qmd",
+      "book/chapters/F-rerun-v2-refactor.qmd",
       "docs/DECISION_CHANGES_AND_LEARNINGS.md",
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
       "docs/LONG_RUN_EXECUTION_PLAYBOOK.md",
@@ -73,9 +81,12 @@
       "scripts/run_fairness_audit.py",
       "scripts/run_gpu_replay.py",
       "scripts/run_long_pipeline.py",
+      "scripts/run_monotonicity_audit.py",
+      "scripts/run_pd_backtesting_suite.py",
       "scripts/run_pd_rapids_benchmark.py",
       "scripts/run_spo_real.py",
       "scripts/run_uncertainty_baselines.py",
+      "scripts/search_monotonic_competitor.py",
       "scripts/train_lgd_ead.py",
       "scripts/train_pd_model.py",
       "src/features/feature_engineering.py",
@@ -97,7 +108,7 @@
       "tests/test_scripts/test_run_long_pipeline.py",
       "tests/test_scripts/test_train_pd_model.py"
     ],
-    "file_count": 71,
+    "file_count": 76,
     "notes": ""
   },
   {
@@ -105,6 +116,9 @@
     "repo_version": "<0.8,>=0.7",
     "latest": "<0.8,>=0.7",
     "up_to_date": null,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": "0.7.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "requirements/causal-causalpy.txt"
     ],
@@ -122,6 +136,9 @@
     "repo_version": ">=0.7",
     "latest": "0.9.0",
     "up_to_date": true,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": null,
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:research"
     ],
@@ -146,6 +163,9 @@
     "repo_version": ">=0.6",
     "latest": "0.6.9",
     "up_to_date": true,
+    "actual_main_env_version": "0.6.9",
+    "actual_causal_env_version": "0.6.9",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -172,6 +192,9 @@
     "repo_version": ">=1.10",
     "latest": "1.10.1",
     "up_to_date": true,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": "1.10.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:platform"
     ],
@@ -199,6 +222,9 @@
     "repo_version": ">=0.12",
     "latest": "0.13",
     "up_to_date": true,
+    "actual_main_env_version": "0.13",
+    "actual_causal_env_version": "0.14",
+    "causal_env_compatible_version": ">=0.14,<0.15",
     "sources": [
       "pyproject"
     ],
@@ -210,13 +236,14 @@
       "book/chapters/08-time-survival-causal/08c-causal-inference.qmd",
       "book/references.bib",
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
+      "scripts/causal/setup_causal_env.sh",
       "scripts/estimate_causal_effects.py",
       "scripts/generate_dependency_summary.py",
       "src/models/causal.py",
       "streamlit_app/pages/model_laboratory.py",
       "tests/test_scripts/test_estimate_causal_effects.py"
     ],
-    "file_count": 12,
+    "file_count": 13,
     "notes": ""
   },
   {
@@ -224,6 +251,9 @@
     "repo_version": ">=1.4",
     "latest": "1.5.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.5.1",
+    "actual_causal_env_version": "1.5.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -257,6 +287,9 @@
     "repo_version": ">=3.56",
     "latest": "3.66.1",
     "up_to_date": true,
+    "actual_main_env_version": "3.66.1",
+    "actual_causal_env_version": "3.66.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -305,6 +338,9 @@
     "repo_version": "<0.17,>=0.16",
     "latest": "<0.17,>=0.16",
     "up_to_date": null,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": "0.16.0",
+    "causal_env_compatible_version": ">=0.16,<0.17",
     "sources": [
       "requirements/causal-econml.txt"
     ],
@@ -314,11 +350,13 @@
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
       "docs/RUNBOOK.md",
       "scripts/causal/setup_causal_env.sh",
+      "scripts/estimate_causal_effects.py",
       "scripts/generate_dependency_summary.py",
       "src/models/causal.py",
-      "streamlit_app/pages/model_laboratory.py"
+      "streamlit_app/pages/model_laboratory.py",
+      "tests/test_scripts/test_estimate_causal_effects.py"
     ],
-    "file_count": 8,
+    "file_count": 10,
     "notes": ""
   },
   {
@@ -326,6 +364,9 @@
     "repo_version": "<0.14,>=0.13",
     "latest": "0.13.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.13.0",
+    "actual_causal_env_version": "0.13.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -343,6 +384,9 @@
     "repo_version": ">=0.135",
     "latest": "0.135.2",
     "up_to_date": true,
+    "actual_main_env_version": "0.135.2",
+    "actual_causal_env_version": "0.135.2",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -367,6 +411,9 @@
     "repo_version": ">=0.59",
     "latest": ">=0.59",
     "up_to_date": null,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": null,
+    "causal_env_compatible_version": null,
     "sources": [
       "requirements/feast-platform.txt"
     ],
@@ -390,6 +437,9 @@
     "repo_version": ">=1.4",
     "latest": "1.5.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.5.1",
+    "actual_causal_env_version": "1.5.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -409,6 +459,9 @@
     "repo_version": ">=1.10",
     "latest": "1.13.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.13.1",
+    "actual_causal_env_version": "1.13.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -426,6 +479,9 @@
     "repo_version": ">=0.27",
     "latest": "0.28.1",
     "up_to_date": true,
+    "actual_main_env_version": "0.28.1",
+    "actual_causal_env_version": "0.28.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -443,6 +499,9 @@
     "repo_version": ">=6.29",
     "latest": "7.2.0",
     "up_to_date": true,
+    "actual_main_env_version": "7.2.0",
+    "actual_causal_env_version": "7.2.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -457,6 +516,9 @@
     "repo_version": ">=1.4",
     "latest": "1.5.3",
     "up_to_date": true,
+    "actual_main_env_version": "1.5.3",
+    "actual_causal_env_version": "1.5.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -474,6 +536,9 @@
     "repo_version": ">=1.1",
     "latest": "1.1.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.1.1",
+    "actual_causal_env_version": "1.1.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -545,6 +610,7 @@
       "book/_freeze/chapters/15-paper-ifrs9/15c-results/execute-results/html.json",
       "book/_freeze/chapters/18-paper-quantum/18c-proposed-methodology/execute-results/html.json",
       "book/_freeze/chapters/B-gpu-benchmarks/execute-results/html.json",
+      "book/_freeze/chapters/F-rerun-v2-refactor/execute-results/html.json",
       "book/_quarto.yml",
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
       "docs/PAPER_DEVELOPMENT_PLAYBOOK_2026.md",
@@ -553,7 +619,7 @@
       "scripts/setup_gpu_notebook_wsl.sh",
       "streamlit_app/components/paper_scaffold.py"
     ],
-    "file_count": 74,
+    "file_count": 75,
     "notes": ""
   },
   {
@@ -561,6 +627,9 @@
     "repo_version": ">=1.17",
     "latest": "1.19.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.19.1",
+    "actual_causal_env_version": "1.19.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -576,6 +645,9 @@
     "repo_version": ">=0.30",
     "latest": "0.30.3",
     "up_to_date": true,
+    "actual_main_env_version": "0.30.3",
+    "actual_causal_env_version": "0.30.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -598,6 +670,9 @@
     "repo_version": ">=4.5",
     "latest": "4.6.0",
     "up_to_date": true,
+    "actual_main_env_version": "4.6.0",
+    "actual_causal_env_version": "4.6.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:research"
     ],
@@ -612,6 +687,9 @@
     "repo_version": ">=0.7",
     "latest": "0.7.3",
     "up_to_date": true,
+    "actual_main_env_version": "0.7.3",
+    "actual_causal_env_version": "0.7.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -671,7 +749,9 @@
       "scripts/run_gpu_replay.py",
       "scripts/run_ifrs9_monte_carlo_gpu.py",
       "scripts/run_ifrs9_sensitivity.py",
+      "scripts/run_monotonicity_audit.py",
       "scripts/run_notebooks_inventory.py",
+      "scripts/run_pd_backtesting_suite.py",
       "scripts/run_pd_conformal_gap_experiments.py",
       "scripts/run_pd_rapids_benchmark.py",
       "scripts/run_rapids_insight_factory.py",
@@ -683,6 +763,7 @@
       "scripts/run_survival_analysis.py",
       "scripts/run_ts_ecl_intervals.py",
       "scripts/run_uncertainty_baselines.py",
+      "scripts/search_monotonic_economic_promotion.py",
       "scripts/select_economic_portfolio_policy.py",
       "scripts/simulate_ab_test.py",
       "scripts/simulate_causal_policy.py",
@@ -691,6 +772,7 @@
       "scripts/update_cost_matrix_threshold.py",
       "scripts/validate_alpha_gamma_bound.py",
       "scripts/validate_causal_policy.py",
+      "scripts/validate_conformal_experiment.py",
       "scripts/validate_conformal_policy.py",
       "src/data/build_datasets.py",
       "src/data/make_dataset.py",
@@ -723,7 +805,7 @@
       "src/utils/io_utils.py",
       "src/utils/mlflow_utils.py"
     ],
-    "file_count": 106,
+    "file_count": 110,
     "notes": ""
   },
   {
@@ -731,6 +813,9 @@
     "repo_version": "<2,>=1.3.0",
     "latest": "1.3.0",
     "up_to_date": true,
+    "actual_main_env_version": "1.3.0",
+    "actual_causal_env_version": "1.3.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -740,6 +825,7 @@
       "book/_freeze/chapters/07-conformal/07a-split-conformal-basics/execute-results/tex.json",
       "book/_freeze/chapters/07-conformal/07b-mondrian-group-conditional/execute-results/html.json",
       "book/_freeze/chapters/07-conformal/07b-mondrian-group-conditional/execute-results/tex.json",
+      "book/_freeze/chapters/07-conformal/07d-backtest-monitoring/execute-results/html.json",
       "book/chapters/02-glossary/02c-uncertainty-conformal.qmd",
       "book/chapters/03-tech-stack.qmd",
       "book/chapters/07-conformal/07a-split-conformal-basics.qmd",
@@ -770,7 +856,7 @@
       "tests/test_scripts/test_build_champion_search_bundle.py",
       "tests/test_scripts/test_forecast_default_rates.py"
     ],
-    "file_count": 34,
+    "file_count": 35,
     "notes": ""
   },
   {
@@ -778,6 +864,9 @@
     "repo_version": ">=3.9",
     "latest": "3.10.8",
     "up_to_date": true,
+    "actual_main_env_version": "3.10.8",
+    "actual_causal_env_version": "3.10.8",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -812,6 +901,9 @@
     "repo_version": ">=1.2",
     "latest": "1.26.0",
     "up_to_date": true,
+    "actual_main_env_version": "1.26.0",
+    "actual_causal_env_version": "1.26.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -824,6 +916,9 @@
     "repo_version": ">=3.10",
     "latest": "3.10.1",
     "up_to_date": true,
+    "actual_main_env_version": "3.10.1",
+    "actual_causal_env_version": "3.10.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -851,6 +946,9 @@
     "repo_version": ">=1.0",
     "latest": "1.0.31",
     "up_to_date": true,
+    "actual_main_env_version": "1.0.31",
+    "actual_causal_env_version": "1.0.31",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -871,6 +969,9 @@
     "repo_version": ">=0.8",
     "latest": "0.9.1",
     "up_to_date": true,
+    "actual_main_env_version": "0.9.1",
+    "actual_causal_env_version": "0.9.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -889,6 +990,9 @@
     "repo_version": ">=2.4",
     "latest": "2.4.3",
     "up_to_date": true,
+    "actual_main_env_version": "2.4.3",
+    "actual_causal_env_version": "2.4.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -940,6 +1044,8 @@
       "scripts/run_gpu_consolidated.py",
       "scripts/run_ifrs9_monte_carlo_gpu.py",
       "scripts/run_ifrs9_sensitivity.py",
+      "scripts/run_monotonicity_audit.py",
+      "scripts/run_pd_backtesting_suite.py",
       "scripts/run_pd_conformal_gap_experiments.py",
       "scripts/run_pd_rapids_benchmark.py",
       "scripts/run_rapids_insight_factory.py",
@@ -951,6 +1057,7 @@
       "scripts/run_survival_analysis.py",
       "scripts/run_ts_ecl_intervals.py",
       "scripts/run_uncertainty_baselines.py",
+      "scripts/search_monotonic_competitor.py",
       "scripts/select_economic_portfolio_policy.py",
       "scripts/setup_gpu_notebook_wsl.sh",
       "scripts/side_projects/build_gpu_benchmark_notebook.py",
@@ -969,6 +1076,7 @@
       "src/evaluation/fairness.py",
       "src/evaluation/ifrs9.py",
       "src/evaluation/metrics.py",
+      "src/evaluation/monotonicity.py",
       "src/evaluation/slicing_functions.py",
       "src/features/feature_engineering.py",
       "src/models/anomaly.py",
@@ -996,9 +1104,11 @@
       "tests/test_data/test_build_datasets.py",
       "tests/test_evaluation/test_ab_testing.py",
       "tests/test_evaluation/test_backtesting.py",
+      "tests/test_evaluation/test_backtesting_adsfcr.py",
       "tests/test_evaluation/test_fairness.py",
       "tests/test_evaluation/test_ifrs9.py",
       "tests/test_evaluation/test_metrics.py",
+      "tests/test_evaluation/test_monotonicity.py",
       "tests/test_features/test_feature_engineering.py",
       "tests/test_integration.py",
       "tests/test_models/test_boundary_conditions.py",
@@ -1028,11 +1138,12 @@
       "tests/test_scripts/test_run_spo_real.py",
       "tests/test_scripts/test_run_stage_misclassification_cost.py",
       "tests/test_scripts/test_run_ts_ecl_intervals.py",
+      "tests/test_scripts/test_search_monotonic_competitor.py",
       "tests/test_scripts/test_select_economic_portfolio_policy.py",
       "tests/test_scripts/test_train_pd_model.py",
       "tests/test_scripts/test_validate_conformal_policy.py"
     ],
-    "file_count": 138,
+    "file_count": 145,
     "notes": ""
   },
   {
@@ -1040,6 +1151,9 @@
     "repo_version": ">=0.19",
     "latest": "0.21.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.21.0",
+    "actual_causal_env_version": "0.21.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1065,6 +1179,9 @@
     "repo_version": ">=4.7",
     "latest": "4.8.0",
     "up_to_date": true,
+    "actual_main_env_version": "4.8.0",
+    "actual_causal_env_version": "4.8.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1078,6 +1195,7 @@
       "docs/LONG_RUN_EXECUTION_PLAYBOOK.md",
       "docs/OFFICIAL_RERUN_MASTER_PLAN_2026-02-27.md",
       "docs/backlog-papers-unified.md",
+      "scripts/build_clean_baseline_manifest.py",
       "scripts/cleanup_optuna_stale_trials.py",
       "scripts/export_streamlit_artifacts.py",
       "scripts/generate_dependency_summary.py",
@@ -1094,7 +1212,7 @@
       "tests/test_scripts/test_export_streamlit_artifacts.py",
       "tests/test_scripts/test_train_pd_model.py"
     ],
-    "file_count": 24,
+    "file_count": 25,
     "notes": ""
   },
   {
@@ -1102,6 +1220,9 @@
     "repo_version": ">=4.1",
     "latest": "4.8.0",
     "up_to_date": true,
+    "actual_main_env_version": "4.8.0",
+    "actual_causal_env_version": "4.8.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -1117,6 +1238,9 @@
     "repo_version": "<3,>=2.2",
     "latest": "2.3.3",
     "up_to_date": true,
+    "actual_main_env_version": "2.3.3",
+    "actual_causal_env_version": "2.3.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1168,6 +1292,7 @@
       "book/chapters/13-advanced-topics/13g-gpu-edge-results.qmd",
       "book/chapters/15-paper-ifrs9/15c-results.qmd",
       "book/chapters/B-gpu-benchmarks.qmd",
+      "book/chapters/F-rerun-v2-refactor.qmd",
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
       "docs/PAPER_DEVELOPMENT_PLAYBOOK_2026.md",
       "docs/conformal_prediction_research_2026.md",
@@ -1220,7 +1345,9 @@
       "scripts/run_gpu_consolidated.py",
       "scripts/run_ifrs9_monte_carlo_gpu.py",
       "scripts/run_ifrs9_sensitivity.py",
+      "scripts/run_monotonicity_audit.py",
       "scripts/run_notebooks_inventory.py",
+      "scripts/run_pd_backtesting_suite.py",
       "scripts/run_pd_conformal_gap_experiments.py",
       "scripts/run_pd_rapids_benchmark.py",
       "scripts/run_rapids_insight_factory.py",
@@ -1232,6 +1359,7 @@
       "scripts/run_survival_analysis.py",
       "scripts/run_ts_ecl_intervals.py",
       "scripts/run_uncertainty_baselines.py",
+      "scripts/search_monotonic_competitor.py",
       "scripts/select_economic_portfolio_policy.py",
       "scripts/setup_gpu_notebook_wsl.sh",
       "scripts/side_projects/build_gpu_benchmark_notebook.py",
@@ -1251,6 +1379,7 @@
       "src/evaluation/explainability.py",
       "src/evaluation/fairness.py",
       "src/evaluation/ifrs9.py",
+      "src/evaluation/monotonicity.py",
       "src/evaluation/slicing_functions.py",
       "src/features/feature_engineering.py",
       "src/features/schemas.py",
@@ -1287,7 +1416,9 @@
       "tests/test_data/test_make_dataset.py",
       "tests/test_data/test_prepare_dataset.py",
       "tests/test_evaluation/test_ab_testing.py",
+      "tests/test_evaluation/test_backtesting_adsfcr.py",
       "tests/test_evaluation/test_ifrs9.py",
+      "tests/test_evaluation/test_monotonicity.py",
       "tests/test_features/test_feature_engineering.py",
       "tests/test_features/test_schemas.py",
       "tests/test_integration.py",
@@ -1327,6 +1458,7 @@
       "tests/test_scripts/test_run_sicr_conformal.py",
       "tests/test_scripts/test_run_stage_misclassification_cost.py",
       "tests/test_scripts/test_run_ts_ecl_intervals.py",
+      "tests/test_scripts/test_search_monotonic_competitor.py",
       "tests/test_scripts/test_select_economic_portfolio_policy.py",
       "tests/test_scripts/test_simulate_ab_test.py",
       "tests/test_scripts/test_simulate_causal_policy.py",
@@ -1334,7 +1466,7 @@
       "tests/test_scripts/test_validate_causal_policy.py",
       "tests/test_scripts/test_validate_conformal_policy.py"
     ],
-    "file_count": 212,
+    "file_count": 220,
     "notes": ""
   },
   {
@@ -1342,6 +1474,9 @@
     "repo_version": ">=0.29",
     "latest": "0.30.1",
     "up_to_date": true,
+    "actual_main_env_version": "0.30.1",
+    "actual_causal_env_version": "0.30.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1364,6 +1499,9 @@
     "repo_version": ">=6.5",
     "latest": "6.6.0",
     "up_to_date": true,
+    "actual_main_env_version": "6.6.0",
+    "actual_causal_env_version": "6.6.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1394,6 +1532,9 @@
     "repo_version": ">=1.20",
     "latest": "1.38.1",
     "up_to_date": true,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": null,
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:research"
     ],
@@ -1415,6 +1556,9 @@
     "repo_version": ">=4.0",
     "latest": "4.5.1",
     "up_to_date": true,
+    "actual_main_env_version": "4.5.1",
+    "actual_causal_env_version": "4.5.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -1435,6 +1579,9 @@
     "repo_version": ">=18.0",
     "latest": "23.0.1",
     "up_to_date": true,
+    "actual_main_env_version": "23.0.1",
+    "actual_causal_env_version": "23.0.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1454,6 +1601,9 @@
     "repo_version": ">=2.10",
     "latest": "2.12.5",
     "up_to_date": true,
+    "actual_main_env_version": "2.12.5",
+    "actual_causal_env_version": "2.12.5",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1477,6 +1627,9 @@
     "repo_version": ">=0.5",
     "latest": "1.1.1",
     "up_to_date": true,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": null,
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:spo"
     ],
@@ -1494,6 +1647,9 @@
     "repo_version": ">=6.8",
     "latest": "6.10.0",
     "up_to_date": true,
+    "actual_main_env_version": "6.10.0",
+    "actual_causal_env_version": "6.10.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1513,6 +1669,9 @@
     "repo_version": ">=8.3",
     "latest": "9.0.2",
     "up_to_date": true,
+    "actual_main_env_version": "9.0.2",
+    "actual_causal_env_version": "9.0.2",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -1575,6 +1734,9 @@
     "repo_version": ">=7.0",
     "latest": "7.1.0",
     "up_to_date": true,
+    "actual_main_env_version": "7.1.0",
+    "actual_causal_env_version": "7.1.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -1589,6 +1751,9 @@
     "repo_version": ">=1.0",
     "latest": "1.2.2",
     "up_to_date": true,
+    "actual_main_env_version": "1.2.2",
+    "actual_causal_env_version": "1.2.2",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1601,6 +1766,9 @@
     "repo_version": ">=6.0",
     "latest": "6.0.3",
     "up_to_date": true,
+    "actual_main_env_version": "6.0.3",
+    "actual_causal_env_version": "6.0.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1613,6 +1781,9 @@
     "repo_version": ">=0.15",
     "latest": "0.15.7",
     "up_to_date": true,
+    "actual_main_env_version": "0.15.7",
+    "actual_causal_env_version": "0.15.7",
+    "causal_env_compatible_version": null,
     "sources": [
       "optional:dev"
     ],
@@ -1639,6 +1810,9 @@
     "repo_version": "<2,>=1.8",
     "latest": "1.8.0",
     "up_to_date": true,
+    "actual_main_env_version": "1.8.0",
+    "actual_causal_env_version": "1.6.1",
+    "causal_env_compatible_version": ">=1.0,<1.7",
     "sources": [
       "pyproject"
     ],
@@ -1659,13 +1833,16 @@
       "docs/RUNBOOK.md",
       "docs/conformal_prediction_README.md",
       "docs/conformal_prediction_research_2026.md",
+      "scripts/causal/setup_causal_env.sh",
+      "scripts/generate_dependency_summary.py",
       "scripts/generate_thesis_document.py",
       "scripts/setup_gpu_notebook_wsl.sh",
       "scripts/side_projects/build_gpu_benchmark_notebook.py",
+      "src/models/causal.py",
       "streamlit_app/pages/model_laboratory.py",
       "streamlit_app/requirements.txt"
     ],
-    "file_count": 21,
+    "file_count": 24,
     "notes": ""
   },
   {
@@ -1673,6 +1850,9 @@
     "repo_version": ">=0.27",
     "latest": "0.27.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.27.0",
+    "actual_causal_env_version": "0.27.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1689,6 +1869,9 @@
     "repo_version": ">=0.13",
     "latest": "0.13.2",
     "up_to_date": true,
+    "actual_main_env_version": "0.13.2",
+    "actual_causal_env_version": "0.13.2",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1711,6 +1894,9 @@
     "repo_version": ">=0.50",
     "latest": "0.50.0",
     "up_to_date": true,
+    "actual_main_env_version": null,
+    "actual_causal_env_version": "0.48.0",
+    "causal_env_compatible_version": ">=0.38.1,<0.49",
     "sources": [
       "optional:research"
     ],
@@ -1729,6 +1915,7 @@
       "book/chapters/11-explainability/11c-explanation-drift.qmd",
       "book/chapters/13-advanced-topics/13g-gpu-edge-results.qmd",
       "book/chapters/18-paper-quantum/18c-proposed-methodology.qmd",
+      "book/chapters/F-rerun-v2-refactor.qmd",
       "book/listing-data/atlas.yml",
       "docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md",
       "docs/RUNBOOK.md",
@@ -1741,9 +1928,12 @@
       "scripts/build_pd_challenger_artifacts.py",
       "scripts/build_pd_model_contract.py",
       "scripts/build_student_thesis_presentation_elegant_v3.py",
+      "scripts/causal/setup_causal_env.sh",
+      "scripts/estimate_causal_effects.py",
       "scripts/export_streamlit_artifacts.py",
       "scripts/forecast_default_rates.py",
       "scripts/generate_book_editorial_figures.py",
+      "scripts/generate_dependency_summary.py",
       "scripts/generate_governance_status.py",
       "scripts/materialize_feature_artifacts.py",
       "scripts/prepare_streamlit_deploy.py",
@@ -1752,12 +1942,16 @@
       "scripts/run_crpto_vs_spo_stability.py",
       "scripts/run_fairness_audit.py",
       "scripts/run_ifrs9_monte_carlo_gpu.py",
+      "scripts/run_monotonicity_audit.py",
       "scripts/run_notebooks_inventory.py",
       "scripts/run_paper_grade_pre_quarto.sh",
+      "scripts/run_pd_backtesting_suite.py",
       "scripts/run_rapids_insight_factory.py",
       "scripts/run_spo_real.py",
       "scripts/run_survival_analysis.py",
+      "scripts/search_monotonic_competitor.py",
       "scripts/side_projects/build_gpu_benchmark_notebook.py",
+      "scripts/simulate_causal_policy.py",
       "scripts/train_pd_model.py",
       "src/data/build_datasets.py",
       "src/evaluation/backtesting.py",
@@ -1779,6 +1973,7 @@
       "streamlit_app/pages/model_interpretability.py",
       "streamlit_app/pages/model_laboratory.py",
       "tests/test_evaluation/test_backtesting.py",
+      "tests/test_evaluation/test_backtesting_adsfcr.py",
       "tests/test_integration.py",
       "tests/test_models/test_boundary_conditions.py",
       "tests/test_models/test_conformal.py",
@@ -1793,7 +1988,7 @@
       "tests/test_scripts/test_run_spo_real.py",
       "tests/test_scripts/test_train_pd_model.py"
     ],
-    "file_count": 77,
+    "file_count": 86,
     "notes": ""
   },
   {
@@ -1801,6 +1996,9 @@
     "repo_version": "<0.14,>=0.13",
     "latest": "0.13.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.13.0",
+    "actual_causal_env_version": "0.13.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1818,6 +2016,9 @@
     "repo_version": ">=2.0",
     "latest": "2.0.2",
     "up_to_date": true,
+    "actual_main_env_version": "2.0.3",
+    "actual_causal_env_version": "2.0.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1838,6 +2039,9 @@
     "repo_version": ">=1.54",
     "latest": "1.55.0",
     "up_to_date": true,
+    "actual_main_env_version": "1.55.0",
+    "actual_causal_env_version": "1.55.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1916,6 +2120,9 @@
     "repo_version": ">=1.6.1",
     "latest": "1.6.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.6.1",
+    "actual_causal_env_version": "1.6.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1930,6 +2137,9 @@
     "repo_version": ">=0.3.0",
     "latest": "0.3.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.3.0",
+    "actual_causal_env_version": "0.3.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1944,6 +2154,9 @@
     "repo_version": ">=4.67",
     "latest": "4.67.3",
     "up_to_date": true,
+    "actual_main_env_version": "4.67.3",
+    "actual_causal_env_version": "4.67.3",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1956,6 +2169,9 @@
     "repo_version": ">=0.41",
     "latest": "0.42.0",
     "up_to_date": true,
+    "actual_main_env_version": "0.42.0",
+    "actual_causal_env_version": "0.42.0",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1973,6 +2189,9 @@
     "repo_version": "<2,>=1.5",
     "latest": "1.5.1",
     "up_to_date": true,
+    "actual_main_env_version": "1.5.1",
+    "actual_causal_env_version": "1.5.1",
+    "causal_env_compatible_version": null,
     "sources": [
       "pyproject"
     ],
@@ -1980,11 +2199,14 @@
       "book/_freeze/chapters/06-pd-modeling/06c-calibration-selection/execute-results/html.json",
       "book/_freeze/chapters/06-pd-modeling/06c-calibration-selection/execute-results/tex.json",
       "book/chapters/06-pd-modeling/06c-calibration-selection.qmd",
+      "docs/ADSFCR_AUDIT_AND_MONOTONIC_CHALLENGER_PLAN_2026-03-29.md",
       "docs/ANALISIS_TOBOML_VS_PROYECTO_2026-03-13.md",
       "docs/CALIBRATION_METHOD_SELECTION.md",
+      "scripts/build_clean_baseline_manifest.py",
       "scripts/generate_book_editorial_figures.py",
       "scripts/generate_dependency_summary.py",
       "scripts/refresh_pd_calibration_artifacts.py",
+      "scripts/search_monotonic_competitor.py",
       "scripts/train_pd_model.py",
       "src/models/conformal.py",
       "src/models/conformal_registry.py",
@@ -1996,7 +2218,7 @@
       "tests/test_scripts/test_build_champion_search_bundle.py",
       "tests/test_scripts/test_train_pd_model.py"
     ],
-    "file_count": 18,
+    "file_count": 21,
     "notes": ""
   }
 ]

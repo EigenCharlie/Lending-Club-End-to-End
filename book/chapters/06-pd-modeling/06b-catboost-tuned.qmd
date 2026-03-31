@@ -50,6 +50,19 @@ La selección de CatBoost como modelo principal no es arbitraria. Para aplicacio
 La combinación de ordered boosting y árboles oblivious produce predicciones que son *a priori* mejor calibradas que las de XGBoost/LightGBM. Esto es relevante en credit scoring, donde las probabilidades no solo deben ordenar bien a los clientes (discriminación), sino reflejar la tasa de default real (calibración). Aun así, la calibración post-hoc es necesaria para uso regulatorio --- ver @sec-calibration-selection.
 :::
 
+::: {.callout-note}
+## Monotonic constraints: de challenger interpretable a champion vigente
+El proyecto pasó por dos etapas distintas. Primero, el carril monotónico apareció como challenger interpretable: forzaba coherencia económica local en variables como `loan_to_income` y otras señales estructurales. Más tarde, después de corregir la semántica de fairness para que la búsqueda y la auditoría oficial midieran lo mismo, el carril monotónico terminó **promoviéndose al champion vigente**.
+
+La razón por la que hoy sí se justifica no es solo “monotonía por elegancia”. Es una combinación de tres cosas:
+
+- mejora competitiva o al menos no regresiva en AUC/Brier bajo comparación operativa;
+- cierre de fairness bajo la semántica oficial de aprobación;
+- evidencia estructural posterior a la promoción: `models/monotonicity_audit_status.json` queda en `PASS` con `0` disrupciones entre bandas y `0` violaciones en las features monotónicas activas.
+
+La lectura correcta hoy es entonces más fuerte: la monotonicidad no se quedó en una ganancia de gobernanza; pasó a ser parte del **stack campeón** del proyecto porque mejoró la defendibilidad sin romper la calidad operativa.
+:::
+
 ### CatBoost Default {#sec-catboost-default}
 
 El primer modelo CatBoost se entrena con hiperparámetros base conservadores, heredados del estándar de scikit-learn adaptado a la escala del dataset:
@@ -243,7 +256,7 @@ Los hiperparámetros en `configs/pd_model.yaml` reflejan los mejores valores enc
 
 ### Features Nativos de CatBoost {#sec-catboost-features}
 
-Una ventaja clave de CatBoost es la capacidad de consumir directamente variables categóricas y valores faltantes sin preprocesamiento. El contrato canónico del modelo define 44 features, de las cuales 9 son categóricas:
+Una ventaja clave de CatBoost es la capacidad de consumir directamente variables categóricas y valores faltantes sin preprocesamiento. El contrato canónico del modelo define 42 features, de las cuales 9 son categóricas:
 
 ```{python}
 #| label: tbl-categorical-features
@@ -369,4 +382,4 @@ El pipeline exporta valores SHAP usando la implementación **nativa de CatBoost*
 - `models/shap_values_test.npz`: Matriz completa de SHAP values para el test set (comprimida).
 - `models/shap_feature_importance.json`: Top-20 features ordenados por $|\text{SHAP}|$ medio.
 
-Estos artefactos alimentan las explicaciones globales y locales del capítulo de interpretabilidad (@sec-global-explanations) y el reporte MRM (@sec-mrm-report).
+Estos artefactos alimentan las explicaciones globales y locales del capítulo de interpretabilidad (@sec-global-explanations) y el desarrollo ampliado de MRM (@sec-mrm-report-detail).

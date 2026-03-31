@@ -153,6 +153,7 @@ book:
         - chapters/C-artifact-catalog.qmd
         - chapters/D-configuration-reference.qmd
         - chapters/E-streamlit-companion.qmd
+        - chapters/F-rerun-v2-refactor.qmd
 
 bibliography: references.bib
 csl: apa.csl

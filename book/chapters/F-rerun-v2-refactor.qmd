@@ -1,0 +1,194 @@
+## Rerun V2 y Refactorización {#sec-rerun-v2}
+
+### Qué cambió realmente
+
+El rerun V2 no fue solo “correr de nuevo” el pipeline. Fue una refactorización metodológica y operativa cuyo objetivo era convertir el proyecto en algo más reproducible, más auditable y más honesto editorialmente. Los cambios más importantes fueron:
+
+1. **Producer canónico de features**: el pipeline ya no depende de artefactos heredados o notebooks viejos para reconstruir `train_fe`, `calibration_fe`, `test_fe`, `feature_config.pkl` y `woe_encoders.pkl`.
+2. **Separación explícita entre champion y universo research**: el manifest V2 distingue core CatBoost, core logístico, challenger-only y columnas metadata/target.
+3. **Hardening de runs largos**: validación temprana de configs, checkpoints, runtime status y artefactos atómicos.
+4. **Calibración más defendible**: Brier decomposition y Murphy diagram como evidencia persistida, no solo como narrativa.
+5. **Causal reubicado**: deja de venderse como parte promotable del pipeline champion y pasa a ser un lane research-grade de intervención/pricing.
+6. **Bundle trazable**: el champion bundle ahora puede mostrar explícitamente cuando consume artefactos de run tags mezclados.
+
+### Estado del contrato V2
+
+```{python}
+#| label: tbl-rerun-v2-feature-contract
+#| tbl-cap: "Estado del contrato y del manifest tras el rerun V2"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json, try_load_parquet
+
+import pandas as pd
+
+manifest = try_load_parquet("feature_manifest_v2")
+contract = try_load_json("pd_model_contract", directory="models", default={})
+
+rows = [
+    {"Elemento": "Columnas en splits FE canónicos", "Valor": int(len(manifest)) if not manifest.empty else None, "Lectura": "Universo auditable completo de features y metadata."},
+    {"Elemento": "Features champion CatBoost", "Valor": int(manifest["is_core_catboost"].sum()) if not manifest.empty else contract.get("n_features"), "Lectura": "Contrato oficial del champion."},
+    {"Elemento": "Features baseline logístico", "Valor": int(manifest["is_core_logreg"].sum()) if not manifest.empty else None, "Lectura": "Baseline lineal más ancho que el champion tabular."},
+    {"Elemento": "Features challenger-only", "Valor": int(manifest["is_challenger_only"].sum()) if not manifest.empty else None, "Lectura": "Espacio de búsqueda research sin contaminar el contrato champion."},
+    {"Elemento": "Shapes FE (train/cal/test)", "Valor": str(contract.get("split_shapes", {})), "Lectura": "Todos los splits comparten el mismo universo de columnas antes de congelar subsets."},
+]
+
+pd.DataFrame(rows)
+```
+
+La mejora conceptual aquí es importante: el champion ya no se confunde con el dataframe FE completo. El champion es un **subset congelado**, no el universo total de columnas disponibles.
+
+### Qué aportó la refactorización
+
+La refactorización sí tuvo valor real en cinco frentes:
+
+- **Reproducibilidad**: ahora existe una cadena canónica desde splits temporales hasta artefactos de libro.
+- **Gobernanza**: quedó visible qué se usa en champion, qué se deja en challenger y qué se excluye por sparsity o por rol editorial.
+- **Resumibilidad**: los runs largos ya no dependen de “que no se caiga la máquina”; hay runtime statuses y checkpoints.
+- **Narrativa honesta**: Quarto puede leer artefactos reales en vez de sostener claims congelados.
+- **Recuperación conformal**: el rerun V2 dejó visible que el problema no era “MAPIE no sirve”, sino que el canónico estaba demasiado conservador y además el `shrinkback` deshacía parte del ajuste útil por grupo. La segunda vuelta conformal posterior recuperó el gate operativo.
+
+```{python}
+#| label: tbl-rerun-v2-conformal-recovery
+#| tbl-cap: "Recuperación conformal posterior al rerun V2"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+conformal = try_load_json("conformal_policy_status", directory="models", default={})
+
+rows = [
+    {"Indicador": "overall_pass", "Valor": conformal.get("overall_pass"), "Lectura": "La policy conformal ya cierra operativamente."},
+    {"Indicador": "strict_overall_pass", "Valor": conformal.get("strict_overall_pass"), "Lectura": "La capa estadística estricta sigue siendo diagnóstica."},
+    {"Indicador": "methodological_justification_pass", "Valor": conformal.get("methodological_justification_pass"), "Lectura": "La justificación metodológica ya aplica."},
+    {"Indicador": "coverage_90", "Valor": conformal.get("coverage_90"), "Lectura": "Cobertura prudente dentro de materialidad."},
+    {"Indicador": "avg_width_90", "Valor": conformal.get("avg_width_90"), "Lectura": "Ancho ya por debajo del máximo 0.80."},
+    {"Indicador": "warning_alerts", "Valor": conformal.get("warning_alerts"), "Lectura": "Persisten solo 2 warnings mensuales concentrados."},
+]
+
+pd.DataFrame(rows)
+```
+
+### Monotonic constraints: qué sirvieron y qué no
+
+Las restricciones monotónicas sí dejaron algo valioso, pero la lectura final del proyecto cambió respecto al momento del rerun V2. Primero consolidaron:
+
+- un spec monotónico auditable;
+- el resolver canónico hacia el orden CatBoost;
+- un challenger promotion report con guardrails explícitos.
+
+```{python}
+#| label: tbl-rerun-v2-monotonic
+#| tbl-cap: "Resultado del challenger monotónico"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+promotion = try_load_json("challenger_promotion_report", directory="models", default={})
+deltas = promotion.get("deltas", {})
+checks = promotion.get("promotion_checks", {})
+
+rows = [
+    {"Chequeo": "challenger_promotable", "Valor": promotion.get("challenger_promotable"), "Lectura": "Resultado final del challenger monotónico."},
+    {"Chequeo": "auc_drop", "Valor": deltas.get("auc_drop"), "Lectura": "Costo en ranking frente al champion."},
+    {"Chequeo": "brier_increase_pct", "Valor": deltas.get("brier_increase_pct"), "Lectura": "Costo en calidad probabilística."},
+    {"Chequeo": "ece_delta", "Valor": deltas.get("ece_delta"), "Lectura": "Costo en calibración."},
+    {"Chequeo": "fairness_ok", "Valor": checks.get("fairness_ok"), "Lectura": "No rompe fairness."},
+    {"Chequeo": "predictive_drift_ok", "Valor": checks.get("predictive_drift_ok"), "Lectura": "No pasó el guardrail predictivo/drift."},
+]
+
+pd.DataFrame(rows)
+```
+
+Esa fue la lectura intermedia. La lectura final del proyecto es más fuerte: después de corregir la semántica de fairness para que la búsqueda del challenger y la auditoría oficial midieran lo mismo, el carril monotónico sí terminó **promoviéndose al champion vigente**. Lo que convirtió a monotonicidad en champion no fue una sola métrica aislada, sino la combinación de:
+
+- no regresión operativa en AUC/Brier bajo la comparación oficial;
+- cierre de fairness sobre `approval`;
+- y evidencia posterior a la promoción: `monotonicity_audit_status.json` queda en `PASS` con cero disrupciones entre bandas y cero violaciones en las features monotónicas activas.
+
+La lección útil del rerun V2 no es entonces “la monotonicidad no funcionó”, sino algo más interesante: el rerun dejó la infraestructura y el lenguaje de promoción listos, y el cierre final llegó cuando la semántica de fairness quedó alineada con la decisión real.
+
+### Por qué causal antes se narraba más “end-to-end”
+
+Durante buena parte del proyecto sí tenía sentido contar causalidad como parte del pipeline end-to-end, pero en un sentido amplio: el carril causal tenía estimación, policy simulation, backtest y una integración tentativa con portafolio. En ese momento el valor del bloque era explorar si una capa de intervención podía convivir con el stack predictivo.
+
+El rerun V2 cambió esa lectura por dos razones:
+
+1. el proyecto ya tiene guardrails mejores y más explícitos;
+2. una vez esos guardrails existen, el lane causal **no pasa sensibilidad**, aunque sí pase overlap y aunque la policy luzca económicamente interesante.
+
+```{python}
+#| label: tbl-rerun-v2-causal-status
+#| tbl-cap: "Estado oficial del lane causal tras la refactorización"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+effect = try_load_json("causal_effect_status", directory="models", default={})
+sensitivity = try_load_json("causal_sensitivity_status", directory="models", default={})
+policy = try_load_json("causal_policy_rule", directory="models", default={})
+oot = try_load_json("causal_policy_oot_status", directory="models", default={})
+portfolio = try_load_json("cate_portfolio_status", directory="models", default={})
+
+rows = [
+    {"Métrica": "ATE oficial", "Valor": effect.get("ate"), "Lectura": "Señal causal media positiva bajo LinearDML."},
+    {"Métrica": "Overlap pass", "Valor": effect.get("overlap_pass"), "Lectura": "El soporte de tratamiento es suficiente."},
+    {"Métrica": "Sensitivity pass", "Valor": sensitivity.get("sensitivity_pass"), "Lectura": "Este es el bloqueo real."},
+    {"Métrica": "Robustness value", "Valor": sensitivity.get("robustness_value"), "Lectura": "Queda por debajo del umbral de promoción."},
+    {"Métrica": "Policy rule", "Valor": policy.get("selected_rule"), "Lectura": "La mejor regla discreta sigue siendo research-grade."},
+    {"Métrica": "OOT total net value", "Valor": oot.get("total_net_value"), "Lectura": "La policy es económicamente prometedora, pero no suficiente."},
+    {"Métrica": "CATE portfolio state", "Valor": portfolio.get("promotion_state"), "Lectura": "El optimizador causal queda bloqueado por policy gate."},
+]
+
+pd.DataFrame(rows)
+```
+
+Entonces, la respuesta correcta es:
+
+- **sí** tuvo sentido narrarlo como parte del pipeline end-to-end durante la fase exploratoria;
+- **no** corresponde seguir narrándolo así en la versión oficial del libro, porque hoy ya sabemos que no forma parte del champion pipeline.
+
+No fue un error histórico grave: fue una hipótesis de integración razonable que el proyecto terminó falsando de forma útil.
+
+### Qué más amerita ampliar búsqueda
+
+Después del rerun y de la recuperación conformal, la frontera principal que sigue justificando nueva búsqueda es **causal**. Conformal ya no está bloqueado; lo que queda allí es una mejora incremental de eficiencia, no una deuda estructural del pipeline.
+
+Sí amerita exploración adicional:
+
+- **Causal**: si y solo si la búsqueda se enfoca en robustez/sensibilidad, no en “forzar” otro rerun full.
+- **Conformal**: solo como optimización fina para reducir sobre-cobertura manteniendo el gate actual en PASS.
+- **Calibración slice-aware / PD validation**: porque la nueva lectura por cohortes ya mostró que el siguiente cuello de botella no es AUC sino persistencia de desviaciones por quarter y grade.
+- **IFRS9 temporal defensibility**: porque la capa diagnóstica nueva muestra anchura de incertidumbre macro alta y estabilidad temporal insuficiente.
+
+Solo amerita búsqueda secundaria:
+
+- **Monotonic challengers adicionales**: ya no como sustituto urgente del champion, sino como carril de refinamiento estructural si aparece una mejora clara sin romper el hardening actual.
+- **Time-series intervals**: si se quiere mejorar la narrativa IFRS9 de incertidumbre macro, pero no parece la mayor fuente de upside inmediato.
+
+No amerita ampliar búsqueda de forma prioritaria:
+
+- PD champion base;
+- survival core;
+- LGD/EAD base;
+- portfolio champion robusto.
+
+La lectura general post-rerun es que el proyecto ya no necesita “buscar en todas partes”, sino **cerrar bien la frontera causal y, si compensa el costo marginal, afinar la eficiencia conformal sin reabrir la arquitectura**.

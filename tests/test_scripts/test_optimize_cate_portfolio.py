@@ -3,13 +3,14 @@
 from __future__ import annotations
 
 import json
+from unittest.mock import Mock
 
 import pandas as pd
 
 from scripts import optimize_cate_portfolio as opt_mod
 
 
-def test_optimize_cate_portfolio_prefers_oot_alignment_and_flags_infeasible_runs(
+def test_optimize_cate_portfolio_blocks_when_policy_gate_is_not_validated(
     tmp_path, monkeypatch
 ) -> None:
     monkeypatch.chdir(tmp_path)
@@ -44,34 +45,24 @@ def test_optimize_cate_portfolio_prefers_oot_alignment_and_flags_infeasible_runs
         json.dumps({"run_tag": "run-causal-test"}),
         encoding="utf-8",
     )
-
-    monkeypatch.setattr(
-        opt_mod,
-        "build_cate_adjusted_portfolio",
-        lambda **kwargs: {
-            "baseline": {"objective_value": 0.0, "n_funded": 0},
-            "cate_adjusted": {"objective_value": 0.0, "n_funded": 0},
-            "comparison_df": pd.DataFrame(
-                [
-                    {"scenario": "baseline", "objective_value": 0.0, "n_funded": 0},
-                    {"scenario": "cate_adjusted", "objective_value": 0.0, "n_funded": 0},
-                ]
-            ),
-        },
+    (model_dir / "causal_policy_rule.json").write_text(
+        json.dumps({"run_tag": "run-causal-test", "policy_evaluation_consistent": False}),
+        encoding="utf-8",
     )
+
+    build_mock = Mock()
+    monkeypatch.setattr(opt_mod, "build_cate_adjusted_portfolio", build_mock)
 
     opt_mod.main(max_candidates=0)
 
     status = json.loads((model_dir / "cate_portfolio_status.json").read_text(encoding="utf-8"))
     assert status["run_tag"] == "run-causal-test"
-    assert status["alignment_strategy"] == "id_join_oot_cate_plus_grade_fallback"
+    assert status["cate_policy_mode"] == "research_blocked_by_policy_gate"
+    assert status["promotion_state"] == "research_blocked_by_policy_gate"
     assert status["feasible_baseline"] is False
     assert status["feasible_adjusted"] is False
-    assert (
-        status["constraint_binding_reason"]
-        == "no_feasible_loans_under_current_budget_or_pd_constraints"
-    )
-    assert "Integracion causal no utilizable" in status["warning"]
+    assert status["constraint_binding_reason"] == "research_blocked_by_policy_gate"
+    assert "blocked" in status["warning"].lower()
     assert status["promotion_eligible"] is False
     assert status["fallback_applied"] is True
-    assert status["cate_policy_mode"] == "research_only_fallback"
+    build_mock.assert_not_called()

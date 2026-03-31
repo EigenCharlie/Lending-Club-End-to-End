@@ -1,7 +1,7 @@
 {
-  "schema_version": "2026-03-16.1",
-  "generated_at_utc": "2026-03-16T00:22:00+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-03-30T16:09:15.677245+00:00",
+  "run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
   "project_scope": "credit_risk_tabular",
   "decision_principles": [
     "roi_high",
@@ -49,28 +49,6 @@
     "neuralprophet": {
       "status": "excluded_from_canonical_stack",
       "reason": "beta_ts_stack_outside_current_tabular_credit_scope"
-    },
-    "fairlearn": {
-      "version_family": "0.13.x",
-      "role": [
-        "fairness_audit",
-        "demographic_parity",
-        "equalized_odds"
-      ],
-      "status": "adopted",
-      "notes": "Adopted as sidecar fairness auditor in paper-grade run. Runs alongside canonical fairness gate in run_fairness_audit.py. Results in models/fairlearn_fairness_status.json.",
-      "adopted_at": "2026-03-13"
-    },
-    "skops": {
-      "version_family": "0.13.x",
-      "role": [
-        "model_card",
-        "sklearn_export",
-        "sr11_7_compliance"
-      ],
-      "status": "adopted",
-      "notes": "Adopted for SR 11-7 model card generation and sklearn-compatible artifact export. Baseline LR exported to reports/mrm/skops/. Card rendered via generate_mrm_report.py.",
-      "adopted_at": "2026-03-13"
     }
   },
   "methods": {

@@ -1,6 +1,6 @@
 ## Portafolio Ajustado por CATE {#sec-cate-portfolio}
 
-El portafolio determinístico y el robusto utilizan retornos esperados basados unicamente en la tasa de interes y la perdida esperada. Sin embargo, la inferencia causal (@sec-causal-inference) estima el **efecto heterogeneo del tratamiento** (CATE) para cada prestamo, lo que permite ajustar la expectativa de retorno incorporando informacion causal. Esta seccion describe como el CATE modifica la funcion objetivo de la optimizacion.
+El portafolio determinístico y el robusto utilizan retornos esperados basados unicamente en la tasa de interes y la perdida esperada. La inferencia causal (@sec-causal-inference) estima el **efecto heterogeneo del tratamiento** (CATE) para cada prestamo, pero en la version oficial reciente esa señal se usa como **stress test económico research-grade**, no como capa promotable del champion optimizer. Esta seccion describe cómo se evalúa esa integración y por qué hoy se reporta de forma prudente.
 
 ### Integracion del CATE en el retorno
 
@@ -10,7 +10,7 @@ $$
 \text{Retorno}_i^{\text{CATE}} = r_i - \widehat{PD}_i \cdot LGD_i + \delta \cdot \tau_i
 $$ {#eq-cate-return}
 
-donde $\delta$ es un factor de escala (por defecto $\delta = -1$, indicando que un CATE positivo reduce el riesgo y mejora el retorno). La funcion `build_cate_adjusted_portfolio()` en `src/optimization/causal_portfolio.py` resuelve el LP con este retorno modificado y lo compara contra el baseline sin CATE.
+donde $\delta$ es un factor de escala local. Esta aproximación sigue siendo útil como experimento de sensibilidad, pero no debe leerse como un contrafactual estructural exacto. Por eso el portafolio CATE-ajustado del proyecto quedó formalmente reubicado como `stress_test`, condicionado a que la policy causal pase primero sus propios gates.
 
 ### Alineacion de CATE al set OOT
 
@@ -31,22 +31,13 @@ Los estimados CATE crudos pueden contener senales ruidosas o valores extremos. P
 2. **Shrinkage a mediana de segmento**: $\tau_i^{\text{shrunk}} = 0.5 \cdot \tau_i^{\text{clip}} + 0.5 \cdot \tilde{\tau}_{\text{seg}(i)}$, donde $\tilde{\tau}_{\text{seg}(i)}$ es la mediana del CATE en el segmento (grado $\times$ plazo $\times$ verificacion).
 3. **Piso de senal debil**: valores con $|\tau_i^{\text{shrunk}}| < \text{floor}$ se anulan a cero.
 
-### Resultados: CATE crudo vs shrunk
+### Resultados: lectura prudente
 
-El script ejecuta ambas versiones (CATE crudo y shrunk) para cuantificar el efecto del shrinkage:
-
-| Escenario | Retorno baseline | Retorno CATE-ajustado | Diferencia |
-|-----------|-----------------|----------------------|------------|
-| CATE crudo | \$57,094 | \$57,350 | +\$257 (+0.45%) |
-| CATE shrunk | \$57,094 | \$54,540 | -\$2,554 (-4.47%) |
-
-: Comparacion de portafolios baseline vs CATE-ajustado. {#tbl-cate-comparison}
-
-La divergencia entre CATE crudo (+0.45%) y shrunk (-4.47%) es el resultado más informativo de este capítulo, porque revela la fragilidad de la señal causal en este contexto. El CATE crudo parece mejorar el portafolio, pero esa mejora se apoya en estimados extremos que la winsorización y el shrinkage revelan como ruido. Cuando esos extremos se suavizan, la señal causal neta es negativa: incorporar el efecto causal estimado empeora el portafolio en \$2,554 respecto al baseline. Esto no significa que la inferencia causal sea inútil --- significa que la señal CATE en este dataset no es lo suficientemente fuerte o estable como para mejorar una optimización que ya incorpora PD calibrada e incertidumbre conformal. Es un resultado honesto que delimita el alcance práctico de la integración causal en el pipeline actual.
+El aprendizaje estable de este capítulo no es un número fijo de uplift, sino la fragilidad de la señal causal cuando se fuerza dentro del optimizador. El carril actual ejecuta ambas versiones, cruda y shrunk, precisamente para cuantificar cuánto depende el resultado de extremos ruidosos. Cuando esa dependencia es alta, la integración causal deja de ser candidata a promoción y se conserva como evidencia negativa útil, no como fracaso metodológico.
 
 ### Estado oficial del portafolio causal
 
-La versión reciente del companion dejaba este punto más explícito y conviene fijarlo aquí: el portafolio CATE-ajustado sí existe, sí corre de extremo a extremo y sí tiene artefacto canónico, pero su estado oficial sigue siendo `research_only_fallback`. El valor del bloque no está en “promoverlo a toda costa”, sino en mostrar con transparencia dónde la señal causal todavía no supera al champion de portafolio.
+La versión reciente del companion dejaba este punto más explícito y conviene fijarlo aquí: el portafolio CATE-ajustado sí existe, sí corre de extremo a extremo y sí tiene artefacto canónico, pero su estado oficial ya no es “promotion candidate”. Si la policy causal no pasa overlap, sensibilidad y policy gates, el portfolio causal queda bloqueado como `research_blocked_by_policy_gate` o `stress_test`. El valor del bloque no está en “promoverlo a toda costa”, sino en mostrar con transparencia dónde la señal causal todavía no supera al champion de portafolio.
 
 ```{python}
 #| label: tbl-cate-portfolio-status
@@ -64,9 +55,10 @@ status = try_load_json("cate_portfolio_status", directory="models", default={})
 
 rows = [
     {"Métrica": "Modo de policy", "Valor": str(status.get("cate_policy_mode", "N/D")), "Lectura": "Estado editorial del carril causal en portafolio."},
-    {"Métrica": "Promotion eligible", "Valor": str(status.get("promotion_eligible", False)), "Lectura": "No cumple condiciones para promoción operativa."},
-    {"Métrica": "Cambio objetivo crudo", "Valor": f"{status.get('raw_objective_change_pct', 0):.3f}%", "Lectura": "Mejora aparente antes de shrinkage."},
-    {"Métrica": "Cambio objetivo shrunk", "Valor": f"{status.get('shrunk_objective_change_pct', 0):.3f}%", "Lectura": "Lectura prudente usada para decisión final."},
+    {"Métrica": "Promotion state", "Valor": str(status.get("promotion_state", "N/D")), "Lectura": "Estado editorial del bloque causal dentro del pipeline."},
+    {"Métrica": "Promotion eligible", "Valor": str(status.get("promotion_eligible", False)), "Lectura": "El carril causal ya no se usa para promover el champion optimizer."},
+    {"Métrica": "Cambio objetivo crudo", "Valor": f"{(status.get('raw_objective_change_pct') or 0):.3f}%", "Lectura": "Mejora aparente antes de shrinkage."},
+    {"Métrica": "Cambio objetivo shrunk", "Valor": f"{(status.get('shrunk_objective_change_pct') or 0):.3f}%", "Lectura": "Lectura prudente usada para decisión final."},
     {"Métrica": "Alignment strategy", "Valor": str(status.get("alignment_strategy", "N/D")), "Lectura": "Cómo se alineó CATE al universo OOT."},
     {"Métrica": "Fallback applied", "Valor": str(status.get("fallback_applied", False)), "Lectura": "Se prefirió modo conservador ante señal insuficiente."},
 ]
@@ -100,20 +92,15 @@ pd.DataFrame(
 ```
 
 ::: {.callout-tip}
-## Interpretacion del efecto del shrinkage
-El CATE crudo muestra una mejora marginal (+\$257), mientras que el CATE shrunk reduce el retorno (-\$2,554). Esto es esperado: el shrinkage elimina senal ruidosa que artificialmente inflaba el retorno ajustado, produciendo una estimacion mas conservadora pero mas confiable del efecto causal real.
+## Interpretacion del efecto del shrinkage y del gate causal
+La lectura correcta de esta seccion no es “cuanto uplift exacto produjo CATE”, sino **si la señal causal resiste una integración conservadora**. En el snapshot oficial reciente, el portfolio CATE ya ni siquiera intenta promotion: queda bloqueado por `research_blocked_by_policy_gate` porque la policy causal no superó sensibilidad. Ese resultado es metodológicamente sano. El shrinkage sigue siendo útil para no sobreleer extremos ruidosos, pero el bloqueo final viene de gobernanza causal, no de una simple falta de tuning del optimizador.
 :::
 
-### Criterio de promocion
+### Criterio de uso downstream
 
-La politica CATE-ajustada se promueve a candidata operativa solo si cumple dos condiciones:
+La integración CATE-ajustada solo se evalúa downstream si la policy causal ya pasó sus propios gates de overlap, sensibilidad y consistencia económica. Aun así, el resultado se interpreta como stress test y no como reemplazo automático del champion optimizer.
 
-1. El retorno del portafolio CATE-ajustado $\geq$ retorno baseline.
-2. El numero de prestamos financiados $\geq 90\%$ del baseline.
-
-El umbral del 90% de préstamos financiados evita que el ajuste causal rechace una proporción excesiva del portafolio. Si el CATE shrunk concentra el capital en muy pocos préstamos con efecto causal favorable, el portafolio resultante podría ser rentable pero operativamente inviable: un banco no puede decirle a su equipo comercial que el modelo solo aprueba el 50% de los solicitantes habituales. El 90% es un compromiso entre permitir que la señal causal redirija capital (hasta un 10% de reasignación) sin desmantelar la operación de originación.
-
-Si no se cumplen, la politica queda en modo `research_only_fallback` --- util para analisis academico pero no para produccion. El artefacto `models/cate_portfolio_status.json` registra la decision y las metricas de evaluacion.
+Si esos gates no se cumplen, la politica queda bloqueada para el optimizador y el artefacto `models/cate_portfolio_status.json` lo registra explícitamente. Esa salida conservadora es una mejora metodológica del proyecto: evita forzar una integración causal cuando la evidencia todavía no la respalda. En ese sentido, el aprendizaje del rerun no fue “causal fracasó”, sino algo más útil: **el carril causal sí aporta insight económico y segmentación, pero todavía no justifica contaminar la selección del champion portfolio**.
 
 ::: {.callout-note}
 ## Conexion con inferencia causal

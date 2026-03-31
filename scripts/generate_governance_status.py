@@ -30,6 +30,7 @@ from src.evaluation.backtesting import (
     population_stability_index,
 )
 from src.evaluation.explainability import dominant_reason_match_rate, rank_overlap_ratio
+from src.evaluation.model_shift import interpret_model_shift
 from src.models.pd_contract import load_contract, resolve_calibrator_path, resolve_model_path
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.baseline_registry import resolve_official_baseline_run_tag
@@ -408,6 +409,9 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
     challenger_report_path = Path(
         outputs.get("challenger_promotion_report_path", "models/challenger_promotion_report.json")
     )
+    model_shift_status_path = Path(
+        outputs.get("model_shift_status_path", "models/model_shift_status.json")
+    )
 
     train_df = read_split_with_fe_fallback("data/processed/train_fe.parquet")
     test_df = read_split_with_fe_fallback("data/processed/test_fe.parquet")
@@ -461,6 +465,9 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
     min_ks_pvalue = float(drift_df["ks_pvalue"].min()) if n_features else 1.0
     min_cvm_pvalue = float(drift_df["cvm_pvalue"].min()) if n_features else 1.0
     c2st_auc = float(c2st["c2st_auc"])
+    c2st_materiality = str(c2st.get("materiality", "none"))
+    c2st_effective_driver_count = int(c2st.get("effective_driver_count", 0))
+    c2st_top_drivers = list(c2st.get("top_drivers", []) or [])
     performance_report = _score_and_performance_report(
         train_df,
         test_df,
@@ -480,6 +487,19 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
     pass_brier_increase = bool(brier_increase <= brier_increase_max)
     pass_calibration_gap_delta = bool(calibration_gap_delta <= calibration_gap_delta_max)
     pass_c2st = bool(c2st_auc <= c2st_auc_max)
+    model_shift = interpret_model_shift(
+        c2st_auc=c2st_auc,
+        c2st_materiality=c2st_materiality,
+        score_psi=score_psi,
+        auc_delta=auc_delta,
+        brier_increase=brier_increase,
+        calibration_gap_delta=calibration_gap_delta,
+        distribution_warning_ratio=distribution_warning_ratio,
+        score_psi_max=score_psi_max,
+        auc_delta_max=auc_delta_max,
+        brier_increase_max=brier_increase_max,
+        calibration_gap_delta_max=calibration_gap_delta_max,
+    )
 
     drift_path.parent.mkdir(parents=True, exist_ok=True)
     drift_df.to_parquet(drift_path, index=False)
@@ -591,6 +611,8 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
             "feature_breach_ratio": feature_breach_ratio,
             "distribution_warning_ratio": distribution_warning_ratio,
             "c2st_rows_used": int(c2st.get("n_rows", 0)),
+            "c2st_materiality": c2st_materiality,
+            "c2st_effective_driver_count": c2st_effective_driver_count,
             **performance_report,
             "n_explanation_segments": int(len(explanation_drift)),
             "min_rank_overlap_top10": float(explanation_drift["rank_overlap_top10"].min())
@@ -611,14 +633,24 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
             if fairness_status
             else 0.5,
             "challenger_promotable": challenger_promotable,
+            "model_shift_type": str(model_shift["shift_type"]),
+            "governance_posture": str(model_shift["governance_posture"]),
         },
         "warnings": warning_flags,
+        "c2st": {
+            "auc": c2st_auc,
+            "materiality": c2st_materiality,
+            "effective_driver_count": c2st_effective_driver_count,
+            "top_drivers": c2st_top_drivers,
+        },
+        "model_shift": model_shift,
         "artifacts": {
             "drift_monitoring_path": str(drift_path),
             "explanation_drift_path": str(explanation_drift_path),
             "fairness_status_path": str(fairness_status_path),
             "fairness_frontier_path": str(fairness_frontier_path),
             "challenger_promotion_report_path": str(challenger_report_path),
+            "model_shift_status_path": str(model_shift_status_path),
         },
         "top_drift_features": top_breaches,
         "top_explanation_breaches": top_explanation_breaches,
@@ -645,8 +677,28 @@ def main(config_path: str = "configs/mrm_policy.yaml", run_tag: str | None = Non
     with open(status_path, "w", encoding="utf-8") as f:
         json.dump(status, f, indent=2)
 
+    model_shift_status_path.parent.mkdir(parents=True, exist_ok=True)
+    model_shift_status_path.write_text(
+        json.dumps(
+            {
+                "diagnostic_only": True,
+                "overall_pass": bool(model_shift["governance_posture"] != "candidate_gate"),
+                "summary": model_shift,
+                "artifacts": {"governance_status_path": str(status_path)},
+                **build_artifact_metadata(
+                    schema_version=SCHEMA_VERSION,
+                    run_tag=resolved_run_tag,
+                    require_explicit=True,
+                ),
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
     logger.info("Saved drift monitoring: {}", drift_path)
     logger.info("Saved governance status: {}", status_path)
+    logger.info("Saved model-shift interpretation: {}", model_shift_status_path)
     logger.info(
         "Governance checks pass={} (max_psi={:.4f}, score_psi={:.4f}, auc_delta={:.4f}, brier_increase={:.4f}, c2st_auc={:.4f})",
         overall_pass,

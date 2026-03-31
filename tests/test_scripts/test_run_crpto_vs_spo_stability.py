@@ -9,6 +9,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
+pytest.importorskip("pyepo", reason="pyepo not installed")
+
 from scripts.run_crpto_vs_spo_stability import (
     _assign_periods,
     _evaluate_period_coverage,

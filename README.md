@@ -26,9 +26,9 @@ This repository is built as a reproducible, research-to-production-style workflo
 Core methodological chain:
 
 ```text
-CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Mondrian Conformal Intervals
--> Causal Policy Simulation -> IFRS9 Scenario Sensitivity
--> Robust Portfolio Optimization
+Monotonic CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Fairness on Approval Decisions
+-> Mondrian Conformal Intervals -> Governance / MRM Diagnostics
+-> IFRS9 Scenario Sensitivity -> Robust Portfolio Optimization
 ```
 
 ## Why It Matters
@@ -37,7 +37,8 @@ CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Mondrian Conforma
 2. Conformal prediction introduces finite-sample uncertainty quantification.
 3. Robust optimization converts uncertainty into actionable portfolio constraints.
 4. IFRS9 sensitivity links predictive risk to accounting impact.
-5. Causal policy analysis goes beyond correlation for intervention design.
+5. Governance layers like fairness, C2ST, monotonicity audits, and PD validation interpretation make the stack defendable rather than merely predictive.
+6. Causal policy analysis remains a research-grade intervention lane beyond correlation.
 
 ## Architecture (Quarto-First)
 
@@ -171,11 +172,12 @@ CI workflow:
 ## Key Documents
 
 1. `SESSION_STATE.md` - canonical status, snapshots, recovery logs
-2. `docs/RUNBOOK.md` - end-to-end reproducibility runbook
-3. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
-4. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale
-5. `docs/QUARTO_BOOK_BLUEPRINT.md` - Quarto-first editorial contract for the book
-6. `docs/DOCUMENTATION_MAP.md` - active vs historical documentation map
+2. `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md` - canonical editorial ledger for live techniques, claims, and Quarto mapping
+3. `docs/RUNBOOK.md` - end-to-end reproducibility runbook
+4. `docs/INTEGRATIONS_SETUP.md` - GitHub/DagsHub/DVC/MLflow setup
+5. `docs/PROJECT_JUSTIFICATION.md` - methodological rationale
+6. `docs/QUARTO_BOOK_BLUEPRINT.md` - Quarto-first editorial contract for the book
+7. `docs/DOCUMENTATION_MAP.md` - active vs historical documentation map
 
 ## License
 

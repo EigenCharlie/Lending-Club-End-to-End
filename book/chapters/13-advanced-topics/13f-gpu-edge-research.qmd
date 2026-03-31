@@ -95,7 +95,13 @@ stage_df = load_rapids_stage_comparison(OFFICIAL_GPU_REPLAY_TAG)
 pd_df = load_rapids_pd_benchmark_stage_table(OFFICIAL_PD_RAPIDS_BENCHMARK_TAG)
 insight_df = load_rapids_insight_stage_table(OFFICIAL_GPU_INSIGHT_TAG)
 baseline_registry = _safe_json(ROOT / "configs" / "baselines" / "canonical_operational_baseline.json")
-baseline_snapshot = _safe_json(ROOT / "reports" / "run_comparisons" / "champion-2026-03-12-mega-definitive" / "baseline_snapshot.json")
+baseline_snapshot = _safe_json(
+    ROOT
+    / "reports"
+    / "run_comparisons"
+    / baseline_registry.get("official_run_tag", "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129")
+    / "baseline_snapshot.json"
+)
 champion_registry = _safe_json(ROOT / "models" / "champion_registry.json")
 
 taxonomy_rows = [
@@ -174,7 +180,7 @@ current_stack_rows = [
     },
     {
         "Componente": "PD champion",
-        "Versión campeona": "CatBoost tuned + isotonic",
+        "Versión campeona": "CatBoost monotónico + Venn-Abers",
         "Resultado clave": f"AUC {_fmt_float(dvc_metrics.get('pd.auc'), 4)} | Brier {_fmt_float(dvc_metrics.get('pd.brier'), 4)} | ECE {_fmt_float(dvc_metrics.get('pd.ece'), 4)}",
     },
     {
@@ -309,14 +315,14 @@ pd.DataFrame(current_stack_rows)
 
 La lectura correcta es:
 
-- el champion operacional vigente del proyecto está congelado en `champion-2026-03-12-mega-definitive`;
+- el champion operacional vigente del proyecto ya vive en `models/champion_registry.json` y no en el baseline CPU histórico que se usó para varios benchmarks GPU tempranos;
 - el replay GPU sigue siendo útil, pero conversa contra un baseline GPU-era anterior y por eso sus claims deben leerse como **carril selectivo de aceleración**, no como sustitución del source of truth operacional.
 
 ## Mapa narrativo del carril GPU
 
 ```{mermaid}
 flowchart LR
-    A[Baseline CPU vigente<br/>champion-2026-03-12-mega-definitive] --> B[GPU Edge Research]
+    A[Champion vigente<br/>champion_registry.json] --> B[GPU Edge Research]
     B --> C[Operational acceleration<br/>PD fit, LGD/EAD, IFRS9 MC]
     B --> D[Research acceleration<br/>UMAP, HDBSCAN, cuGraph]
     B --> E[Exploratory sidecar<br/>benchmarks clásicos RAPIDS]

@@ -4,10 +4,10 @@
   "selection": {
     "source": "fairness_frontier_auto_select",
     "n_passed": 6,
-    "worst_eo_gap": 0.023658304223563076,
-    "approval_rate": 0.9986961342728872
+    "worst_eo_gap": 0.05026883471246557,
+    "approval_rate": 0.9966373989142879
   },
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-16T18:12:58.687117+00:00",
-  "run_tag": "paper-grade-pre-quarto"
+  "generated_at_utc": "2026-03-30T19:28:38.155697+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
 }

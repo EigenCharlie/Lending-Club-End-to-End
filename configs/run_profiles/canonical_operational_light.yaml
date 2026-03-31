@@ -1,0 +1,25 @@
+schema_version: "2026-03-26.2"
+profile_name: canonical_operational_light
+pipeline_family: canonical_rebuild
+description: >
+  Rebuild operativo ligero. Reusa replay frozen cuando existe, evita selector
+  económico pesado y sirve para verificaciones frecuentes.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+  rapids_conda: rapids
+
+execution:
+  writes_canonical_artifacts: true
+  promotion_state: operationally_frozen
+  include_rapids: false
+  include_notebooks: true
+
+defaults:
+  sampling_profile: champion64safe
+  expected_upstream_registry: configs/baselines/canonical_operational_baseline.json
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  pd_replay: true
+  conformal_replay: true
+  confirmatory_full: false

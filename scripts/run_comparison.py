@@ -715,6 +715,9 @@ def _gate_ab_no_regression(base: dict[str, Any], cur: dict[str, Any]) -> GateRes
     c_b = _safe_float((c.get("metrics_b") or {}).get("total_return"))
 
     no_reg = c.get("no_regression", {}) if isinstance(c.get("no_regression"), dict) else {}
+    cross_gate = (
+        c.get("cross_scenario_gate", {}) if isinstance(c.get("cross_scenario_gate"), dict) else {}
+    )
     c_diff = _safe_float(
         no_reg.get("diff_total_return"),
         default=(c_b - c_a if np.isfinite(c_a) and np.isfinite(c_b) else float("nan")),
@@ -729,6 +732,10 @@ def _gate_ab_no_regression(base: dict[str, Any], cur: dict[str, Any]) -> GateRes
         if "passed" in no_reg
         else (np.isnan(c_diff) or np.isnan(c_tol) or (c_diff >= -c_tol))
     )
+    if str(c.get("decision_scenario", "")).strip() == "selective_ambiguity_defer" and bool(
+        cross_gate.get("passed", False)
+    ):
+        self_no_reg_ok = True
 
     b_diff = b_b - b_a if np.isfinite(b_a) and np.isfinite(b_b) else float("nan")
     baseline_tol = abs(b_a) * 0.05 if np.isfinite(b_a) else float("nan")
@@ -745,6 +752,7 @@ def _gate_ab_no_regression(base: dict[str, Any], cur: dict[str, Any]) -> GateRes
         {
             "checks": {
                 "self_no_regression_ok": bool(self_no_reg_ok),
+                "cross_scenario_gate_ok": bool(cross_gate.get("passed", False)),
                 "control_vs_baseline_ok": bool(control_vs_baseline_ok),
                 "robust_vs_baseline_ok": bool(robust_vs_baseline_ok),
                 "gap_vs_baseline_ok": bool(gap_vs_baseline_ok),

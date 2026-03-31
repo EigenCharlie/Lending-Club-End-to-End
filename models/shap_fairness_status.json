@@ -2,7 +2,7 @@
   "schema_version": "2026-03-06.1",
   "model_path": "models/pd_canonical.cbm",
   "shap_sample_size": 10000,
-  "n_features": 44,
+  "n_features": 42,
   "attributes": [
     {
       "attribute": "home_ownership",
@@ -16,89 +16,89 @@
         "ANY": [
           {
             "feature": "term",
-            "mean_abs_shap": 0.36198262955717225
+            "mean_abs_shap": 0.27253176107002747
           },
           {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.13154570479137692
-          },
-          {
-            "feature": "grade",
-            "mean_abs_shap": 0.12793272967121125
-          },
-          {
-            "feature": "many_recent_opens",
-            "mean_abs_shap": 0.1100258477512595
+            "feature": "int_rate",
+            "mean_abs_shap": 0.23711711008132227
           },
           {
             "feature": "fico_score",
-            "mean_abs_shap": 0.09967454736521288
+            "mean_abs_shap": 0.18620760213194965
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.08790152958531941
+          },
+          {
+            "feature": "dti",
+            "mean_abs_shap": 0.07428151339971577
           }
         ],
         "MORTGAGE": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.3079594393785411
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.1488597366640875
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.12973680688666123
+            "mean_abs_shap": 0.2854703427944438
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.1235811293572891
+            "feature": "term",
+            "mean_abs_shap": 0.23583807119591702
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.21042413893881498
+          },
+          {
+            "feature": "home_ownership",
+            "mean_abs_shap": 0.1025738195401265
           },
           {
             "feature": "many_recent_opens",
-            "mean_abs_shap": 0.10713386161945222
+            "mean_abs_shap": 0.09156301720590095
           }
         ],
         "OWN": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.2915709369691758
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14672871958184802
-          },
-          {
-            "feature": "grade",
-            "mean_abs_shap": 0.12210071739020868
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.11792108126964217
+            "mean_abs_shap": 0.2675362846250073
+          },
+          {
+            "feature": "term",
+            "mean_abs_shap": 0.2296302019113571
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.19278792799848216
           },
           {
             "feature": "many_recent_opens",
-            "mean_abs_shap": 0.10735443853015048
+            "mean_abs_shap": 0.08990572041540448
+          },
+          {
+            "feature": "dti",
+            "mean_abs_shap": 0.0814601078532029
           }
         ],
         "RENT": [
           {
+            "feature": "int_rate",
+            "mean_abs_shap": 0.27023754088528723
+          },
+          {
             "feature": "term",
-            "mean_abs_shap": 0.295340164503851
+            "mean_abs_shap": 0.22758281192381233
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.1803785125862039
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.1766702126446162
+            "mean_abs_shap": 0.10202698255331172
           },
           {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14492911303448575
-          },
-          {
-            "feature": "grade",
-            "mean_abs_shap": 0.11884967231059206
-          },
-          {
-            "feature": "int_rate",
-            "mean_abs_shap": 0.11798730345771985
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.09003057769658337
           }
         ]
       },
@@ -108,34 +108,34 @@
           "group_b": "MORTGAGE",
           "top_driving_features": [
             {
+              "feature": "int_rate",
+              "shap_diff": 0.0483532327131215
+            },
+            {
               "feature": "term",
-              "shap_diff": 0.054023190178631164
+              "shap_diff": 0.03669368987411045
+            },
+            {
+              "feature": "home_ownership",
+              "shap_diff": 0.03258300799746616
+            }
+          ]
+        },
+        {
+          "group_a": "ANY",
+          "group_b": "OWN",
+          "top_driving_features": [
+            {
+              "feature": "term",
+              "shap_diff": 0.04290155915867036
             },
             {
               "feature": "int_rate",
-              "shap_diff": 0.031385742912627385
-            },
-            {
-              "feature": "dti",
-              "shap_diff": 0.023182176964389054
-            }
-          ]
-        },
-        {
-          "group_a": "ANY",
-          "group_b": "OWN",
-          "top_driving_features": [
-            {
-              "feature": "term",
-              "shap_diff": 0.07041169258799646
+              "shap_diff": 0.030419174543685007
             },
             {
               "feature": "home_ownership",
-              "shap_diff": 0.032204552094234506
-            },
-            {
-              "feature": "dti_bucket",
-              "shap_diff": 0.026314145345758395
+              "shap_diff": 0.025380725504890657
             }
           ]
         },
@@ -144,16 +144,16 @@
           "group_b": "RENT",
           "top_driving_features": [
             {
-              "feature": "home_ownership",
-              "shap_diff": 0.10606611754162744
-            },
-            {
               "feature": "term",
-              "shap_diff": 0.06664246505332128
+              "shap_diff": 0.04494894914621514
             },
             {
-              "feature": "dti",
-              "shap_diff": 0.02075370526230881
+              "feature": "int_rate",
+              "shap_diff": 0.033120430803964956
+            },
+            {
+              "feature": "home_ownership",
+              "shap_diff": 0.032036171010651385
             }
           ]
         },
@@ -163,15 +163,15 @@
           "top_driving_features": [
             {
               "feature": "home_ownership",
-              "shap_diff": 0.040911347928904204
+              "shap_diff": 0.05796373350235682
             },
             {
-              "feature": "term",
-              "shap_diff": 0.01638850240936529
+              "feature": "int_rate",
+              "shap_diff": 0.017934058169436495
             },
             {
-              "feature": "dti",
-              "shap_diff": 0.012006035556288847
+              "feature": "fico_score",
+              "shap_diff": 0.017636210940332825
             }
           ]
         },
@@ -180,16 +180,16 @@
           "group_b": "RENT",
           "top_driving_features": [
             {
-              "feature": "home_ownership",
-              "shap_diff": 0.09735932170695774
+              "feature": "fico_score",
+              "shap_diff": 0.03004562635261107
             },
             {
-              "feature": "il_ratio",
-              "shap_diff": 0.01441514835453818
+              "feature": "mort_acc",
+              "shap_diff": 0.01720936633530412
             },
             {
-              "feature": "revol_bal_to_income",
-              "shap_diff": 0.013748175340177901
+              "feature": "int_rate",
+              "shap_diff": 0.015232801909156546
             }
           ]
         },
@@ -199,15 +199,15 @@
           "top_driving_features": [
             {
               "feature": "home_ownership",
-              "shap_diff": 0.13827066963586193
+              "shap_diff": 0.05741689651554204
             },
             {
               "feature": "il_ratio",
-              "shap_diff": 0.013102064746871464
+              "shap_diff": 0.014816667424604683
             },
             {
-              "feature": "dti",
-              "shap_diff": 0.009577563854208604
+              "feature": "fico_score",
+              "shap_diff": 0.012409415412278246
             }
           ]
         }
@@ -224,90 +224,90 @@
       "top5_per_group": {
         "Q1": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.2842292567839133
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.139050946352141
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.11639483471801845
+            "mean_abs_shap": 0.26092472619930285
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.11541023552010861
+            "feature": "term",
+            "mean_abs_shap": 0.2234887806833601
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.1869510995327643
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.09065043547301942
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.11379798321257274
+            "mean_abs_shap": 0.08873972299727413
           }
         ],
         "Q2": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.3030052702021321
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14781405839123504
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.12246439535131896
+            "mean_abs_shap": 0.2770233334112098
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.12095420932801249
+            "feature": "term",
+            "mean_abs_shap": 0.23464181256980884
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.19512041333516392
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.11223200017146362
+            "mean_abs_shap": 0.09527259801001137
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.09353624256444627
           }
         ],
         "Q3": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.311925347518369
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14808255609858675
-          },
-          {
-            "feature": "grade",
-            "mean_abs_shap": 0.12344899568464818
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.12249569346757988
+            "mean_abs_shap": 0.27792000418038026
+          },
+          {
+            "feature": "term",
+            "mean_abs_shap": 0.2374385904236119
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.19602189947542312
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.11005700410751337
+            "mean_abs_shap": 0.09771675900533953
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.09101412633973381
           }
         ],
         "Q4": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.3063897545281774
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.15313025063793537
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.13382845706923402
+            "mean_abs_shap": 0.29360261529970516
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.12671217156291728
+            "feature": "term",
+            "mean_abs_shap": 0.23277132229076875
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.20994009929388924
+          },
+          {
+            "feature": "home_ownership",
+            "mean_abs_shap": 0.09913548987958214
           },
           {
             "feature": "dti",
-            "mean_abs_shap": 0.1129661285130501
+            "mean_abs_shap": 0.09784034626844386
           }
         ]
       },
@@ -318,15 +318,15 @@
           "top_driving_features": [
             {
               "feature": "log_annual_inc",
-              "shap_diff": 0.03013610677952179
+              "shap_diff": 0.019725852770774627
             },
             {
-              "feature": "annual_inc",
-              "shap_diff": 0.022326184958125633
+              "feature": "int_rate",
+              "shap_diff": 0.01609860721190698
             },
             {
-              "feature": "dti_bucket",
-              "shap_diff": 0.021019376268832494
+              "feature": "term",
+              "shap_diff": 0.011153031886448755
             }
           ]
         },
@@ -335,16 +335,16 @@
           "group_b": "Q3",
           "top_driving_features": [
             {
-              "feature": "term",
-              "shap_diff": 0.02769609073445567
+              "feature": "int_rate",
+              "shap_diff": 0.016995277981077417
             },
             {
-              "feature": "dti_bucket",
-              "shap_diff": 0.020494696562215642
+              "feature": "mort_acc",
+              "shap_diff": 0.01655553366993774
             },
             {
               "feature": "log_annual_inc",
-              "shap_diff": 0.01928199752341451
+              "shap_diff": 0.01433642413267526
             }
           ]
         },
@@ -353,16 +353,16 @@
           "group_b": "Q4",
           "top_driving_features": [
             {
+              "feature": "int_rate",
+              "shap_diff": 0.03267788910040231
+            },
+            {
               "feature": "mort_acc",
-              "shap_diff": 0.03563723487758102
+              "shap_diff": 0.03122278240104072
             },
             {
-              "feature": "term",
-              "shap_diff": 0.022160497744264096
-            },
-            {
-              "feature": "dti_bucket",
-              "shap_diff": 0.02155118409383585
+              "feature": "fico_score",
+              "shap_diff": 0.02298899976112495
             }
           ]
         },
@@ -371,16 +371,16 @@
           "group_b": "Q3",
           "top_driving_features": [
             {
+              "feature": "mort_acc",
+              "shap_diff": 0.006223564610142104
+            },
+            {
               "feature": "log_annual_inc",
-              "shap_diff": 0.01085410925610728
+              "shap_diff": 0.005389428638099365
             },
             {
-              "feature": "annual_inc",
-              "shap_diff": 0.009710562749731646
-            },
-            {
-              "feature": "term",
-              "shap_diff": 0.008920077316236896
+              "feature": "dti",
+              "shap_diff": 0.0043196192087301966
             }
           ]
         },
@@ -390,15 +390,15 @@
           "top_driving_features": [
             {
               "feature": "log_annual_inc",
-              "shap_diff": 0.02645971859334667
+              "shap_diff": 0.02648782342046844
             },
             {
               "feature": "mort_acc",
-              "shap_diff": 0.026233038388708253
+              "shap_diff": 0.020890813341245082
             },
             {
-              "feature": "annual_inc",
-              "shap_diff": 0.02525632740828234
+              "feature": "int_rate",
+              "shap_diff": 0.016579281888495334
             }
           ]
         },
@@ -407,16 +407,16 @@
           "group_b": "Q4",
           "top_driving_features": [
             {
-              "feature": "mort_acc",
-              "shap_diff": 0.019779953352555273
-            },
-            {
               "feature": "log_annual_inc",
-              "shap_diff": 0.015605609337239389
+              "shap_diff": 0.021098394782369072
             },
             {
-              "feature": "annual_inc",
-              "shap_diff": 0.015545764658550693
+              "feature": "int_rate",
+              "shap_diff": 0.015682611119324896
+            },
+            {
+              "feature": "mort_acc",
+              "shap_diff": 0.014667248731102978
             }
           ]
         }
@@ -432,68 +432,68 @@
       "top5_per_group": {
         "Not Verified": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.2910909336106275
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.15267870608507098
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.13754030441843001
+            "mean_abs_shap": 0.294958864424036
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.12730260347817804
+            "feature": "term",
+            "mean_abs_shap": 0.22835534952376785
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.22418053671988644
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.11101524032793506
+            "mean_abs_shap": 0.09581728945385651
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.0914606744145255
           }
         ],
         "Source Verified": [
           {
-            "feature": "term",
-            "mean_abs_shap": 0.299740567995733
-          },
-          {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14376553367093858
-          },
-          {
-            "feature": "grade",
-            "mean_abs_shap": 0.11869419199997432
-          },
-          {
             "feature": "int_rate",
-            "mean_abs_shap": 0.1178612501709724
+            "mean_abs_shap": 0.26867410065767816
+          },
+          {
+            "feature": "term",
+            "mean_abs_shap": 0.2306798859049575
+          },
+          {
+            "feature": "fico_score",
+            "mean_abs_shap": 0.18281403270058957
           },
           {
             "feature": "home_ownership",
-            "mean_abs_shap": 0.11329706209889431
+            "mean_abs_shap": 0.09402422525920263
+          },
+          {
+            "feature": "many_recent_opens",
+            "mean_abs_shap": 0.09028230066581518
           }
         ],
         "Verified": [
           {
+            "feature": "int_rate",
+            "mean_abs_shap": 0.2588521353111327
+          },
+          {
             "feature": "term",
-            "mean_abs_shap": 0.3265950642888113
+            "mean_abs_shap": 0.24300673006388995
           },
           {
-            "feature": "sub_grade",
-            "mean_abs_shap": 0.14211409512066572
+            "feature": "fico_score",
+            "mean_abs_shap": 0.16931478972890637
           },
           {
-            "feature": "grade",
-            "mean_abs_shap": 0.11589841612388316
+            "feature": "home_ownership",
+            "mean_abs_shap": 0.0965535085334028
           },
           {
             "feature": "many_recent_opens",
-            "mean_abs_shap": 0.10829901551391488
-          },
-          {
-            "feature": "int_rate",
-            "mean_abs_shap": 0.10737778326623063
+            "mean_abs_shap": 0.09037250454078483
           }
         ]
       },
@@ -503,16 +503,16 @@
           "group_b": "Source Verified",
           "top_driving_features": [
             {
-              "feature": "int_rate",
-              "shap_diff": 0.01967905424745761
-            },
-            {
               "feature": "fico_score",
-              "shap_diff": 0.019529264435795585
+              "shap_diff": 0.04136650401929687
             },
             {
               "feature": "verification_status",
-              "shap_diff": 0.013106817005025927
+              "shap_diff": 0.030028811587581156
+            },
+            {
+              "feature": "int_rate",
+              "shap_diff": 0.026284763766357855
             }
           ]
         },
@@ -521,16 +521,16 @@
           "group_b": "Verified",
           "top_driving_features": [
             {
-              "feature": "term",
-              "shap_diff": 0.03550413067818381
+              "feature": "fico_score",
+              "shap_diff": 0.05486574699098007
             },
             {
               "feature": "int_rate",
-              "shap_diff": 0.03016252115219939
+              "shap_diff": 0.0361067291129033
             },
             {
-              "feature": "fico_score",
-              "shap_diff": 0.02540142374423518
+              "feature": "verification_status",
+              "shap_diff": 0.019050429261957352
             }
           ]
         },
@@ -539,16 +539,16 @@
           "group_b": "Verified",
           "top_driving_features": [
             {
+              "feature": "fico_score",
+              "shap_diff": 0.0134992429716832
+            },
+            {
               "feature": "term",
-              "shap_diff": 0.02685449629307829
+              "shap_diff": 0.012326844158932454
             },
             {
-              "feature": "int_rate",
-              "shap_diff": 0.010483466904741778
-            },
-            {
-              "feature": "home_ownership",
-              "shap_diff": 0.009781964164436358
+              "feature": "verification_status",
+              "shap_diff": 0.010978382325623804
             }
           ]
         }
@@ -556,8 +556,8 @@
     }
   ],
   "interpretation": "For each protected attribute, top-5 features by mean |SHAP| per group. Pairwise diffs show which features drive SHAP disparities between groups. Features like dti/loan_amnt are legitimate credit risk factors; home_ownership may proxy for race in US ECOA context.",
-  "generated_at_utc": "2026-03-16T18:13:35.191222+00:00",
-  "run_tag": "paper-grade-pre-quarto",
+  "generated_at_utc": "2026-03-30T19:29:17.274673+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
   "prediction_threshold": 0.35,
   "outcome_mode": "approval"
 }

@@ -4,6 +4,9 @@ Produces monthly and month-grade coverage diagnostics with alert flags.
 
 Usage:
     uv run python scripts/backtest_conformal_coverage.py
+    uv run python scripts/backtest_conformal_coverage.py \
+        --intervals-path data/processed/conformal_gap/my_ns/conformal_intervals_mondrian.parquet \
+        --output-dir data/processed/conformal_gap/my_ns
 """
 
 from __future__ import annotations
@@ -33,7 +36,15 @@ except ImportError:
     logger.warning("mapie.metrics.regression not available — HSIC/SSC diagnostics skipped.")
 
 
-def _load_intervals() -> pd.DataFrame:
+def _load_intervals(intervals_path: str | None = None) -> pd.DataFrame:
+    if intervals_path:
+        path = Path(intervals_path)
+        if not path.exists():
+            raise FileNotFoundError(f"Configured conformal intervals artifact not found: {path}")
+        df = pd.read_parquet(path)
+        logger.info(f"Loaded intervals: {path} ({len(df):,} rows, legacy=False)")
+        return df
+
     df, path, is_legacy = load_conformal_intervals(allow_legacy_fallback=False)
     logger.info(f"Loaded intervals: {path} ({len(df):,} rows, legacy={is_legacy})")
     return df
@@ -316,8 +327,8 @@ def _global_diagnostic_metrics(df: pd.DataFrame) -> dict[str, object]:
     return diag
 
 
-def main():
-    intervals = _load_intervals()
+def main(intervals_path: str | None = None, output_dir: str = "data/processed"):
+    intervals = _load_intervals(intervals_path)
     meta = _load_test_metadata()
     df = _prepare_backtest_frame(intervals, meta)
 
@@ -326,7 +337,7 @@ def main():
     alerts = _build_alerts(monthly, by_grade)
     global_diag = _global_diagnostic_metrics(df)
 
-    out_dir = Path("data/processed")
+    out_dir = Path(output_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     monthly_path = out_dir / "conformal_backtest_monthly.parquet"
     grade_path = out_dir / "conformal_backtest_monthly_grade.parquet"
@@ -368,5 +379,7 @@ def main():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    _ = parser.parse_args()
-    main()
+    parser.add_argument("--intervals-path", default=None)
+    parser.add_argument("--output-dir", default="data/processed")
+    args = parser.parse_args()
+    main(intervals_path=args.intervals_path, output_dir=args.output_dir)

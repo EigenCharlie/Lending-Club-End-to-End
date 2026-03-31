@@ -1,47 +1,53 @@
 # Quarto Book Blueprint
 
-> **STATUS: IMPLEMENTED** — The Quarto book is complete as of 2026-03-23: 99 chapters, 5 parts + appendices, 0 WARN, 0 ERROR. See `book/` directory. The blueprint below documents the original design contract; the actual structure expanded to 99 chapters during implementation.
+> **STATUS: LIVE AND UNDER CONTINUOUS MAINTENANCE** — The Quarto book is the official, citable surface of the project, but it must be maintained against the live canonical artifacts. The monotonic champion promotion plus the ADSFCR-inspired tranches made the earlier “book complete” status insufficient as a maintenance statement.
 
 ## Objective
-- ~~Leave the repository future-ready for a Quarto book without migrating the main narrative yet.~~
-- The Quarto book (`book/`) is the **tesis de maestría**; Streamlit is the interactive companion layer.
+
+- The Quarto book (`book/`) is the master's thesis and the official narrative layer.
+- Streamlit is a reduced companion for interaction, not the primary source of project truth.
+- The book must explain the current champion stack, the current monitoring/governance stack, and the research lanes without mixing them.
 
 ## Official narrative axes
+
 - `Pipeline Operativo`
-  Data -> PD -> calibration -> conformal -> survival/time series -> IFRS9 -> portfolio policy -> governance.
+  Data -> PD -> calibration -> fairness semantics -> conformal -> survival/time series -> IFRS9 -> portfolio policy -> governance / MRM.
 - `Insight Factory`
-  Explainability, causal extensions, notebooks, RAPIDS benchmarks, side projects, extended figures and paper drafts.
+  Explainability, causal extensions, notebooks, RAPIDS benchmarks, side projects, extended figures, and paper drafts.
+- `Modernización metodológica`
+  The modern layers are integrated into the main narrative, not isolated in a single appendix: monotonic promotion, approval-based fairness semantics, C2ST, PD backtesting interpretation, bootstrap gap diagnostics, calibration mapping sidecars, model-shift semantics, IFRS9 diagnostics, and encoding stability.
 
-## Artifact contract for future Quarto chapters
-- Every narrative page should declare:
-  - `narrative_axis`
-  - `pipeline_role`
-  - `artifact_scope`
-  - `book_chapter`
-- Quarto chapters must consume frozen artifacts only.
-- Interactive widgets remain in Streamlit unless they become static evidence tables/figures.
+## Editorial contract
 
-## Initial chapter map
-- `00-executive-map`
-- `01-glossary-and-foundations`
-- `02-operational-pipeline`
-- `03-pd-modeling-and-calibration`
-- `04-conformal-and-uncertainty`
-- `05-survival-time-series-and-causal`
-- `06-portfolio-policy-and-selection`
-- `07-ifrs9-and-governance`
-- `08-explainability-and-insights`
-- `09-specialization-to-masters-bridge`
-- `10-research-agenda-and-contributions`
-- `11-paper-cp-robust-opt`
-- `12-paper-ifrs9-e2e`
-- `13-paper-mondrian`
-- `14-appendix-notebook-atlas`
-- `15-streamlit-exploration`
-- `16-quarto-and-publication-contracts`
+- Quarto chapters must read canonical artifacts whenever possible.
+- Hardcoded metric snapshots should be avoided unless clearly marked as historical context.
+- Current-state claims must be traceable through:
+  - canonical runtime artifacts;
+  - `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md`;
+  - primary external references.
+- Research lanes may be described in the book, but must never be narrated as champion behavior when they are not promoted.
 
-## Streamlit -> Quarto mapping rules
-- Canonical pipeline pages become core book chapters.
-- Insight factory pages become appendices, sidebars, research chapters, or optional companion notes.
-- Pages marked `artifact_scope=shared` can feed both layers.
-- Pages marked `artifact_scope=research` should never be presented as operationally frozen evidence.
+## Maintenance rules
+
+- If a champion changes, the following chapters should be reviewed first:
+  - executive map;
+  - PD champion narrative;
+  - conformal / fairness / MRM sections;
+  - IFRS9 / sensitivity sections;
+  - any paper or GPU chapter that names the active baseline.
+- If a new diagnostic layer is added, the book should answer five questions:
+  - what the technique is;
+  - why it was added here;
+  - what value it adds in this project;
+  - what the current artifact says;
+  - what limitation remains open.
+
+## Primary maintenance companion
+
+Use `docs/CANONICAL_DOCUMENTATION_AND_QUARTO_TRACEABILITY_2026-03-30.md` as the living editorial ledger that maps:
+
+- technique -> artifact;
+- artifact -> Quarto chapter;
+- claim -> evidence;
+- primary source -> bibliography target;
+- stale claim -> rewrite/remove action.
