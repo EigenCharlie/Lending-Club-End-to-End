@@ -62,6 +62,26 @@ def _load_dependency_summary() -> list[dict[str, Any]]:
         return []
 
 
+def _project_audit_snapshot_rel_path() -> str | None:
+    for rel_path in (
+        "reports/project_audit_snapshot.json",
+        "reports/history/project_audit_snapshot.json",
+    ):
+        if (ROOT / rel_path).exists():
+            return rel_path
+    return None
+
+
+def _load_project_audit_snapshot() -> dict[str, Any]:
+    rel_path = _project_audit_snapshot_rel_path()
+    if not rel_path:
+        return {}
+    try:
+        return _load_json(rel_path)
+    except Exception:
+        return {}
+
+
 def _nested_numeric(payload: dict[str, Any], *keys: str, default: float = 0.0) -> float:
     current: Any = payload
     for key in keys:
@@ -683,7 +703,7 @@ def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
 
 
 def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
-    audit = _load_json("reports/project_audit_snapshot.json")
+    audit = _load_project_audit_snapshot()
     summary = _load_json("data/processed/pipeline_summary.json")
     dependency_summary = _load_dependency_summary()
     feature_manifest = (
@@ -715,14 +735,17 @@ def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
         "domain": "end_to_end",
     }
     artifacts = [
-        "reports/project_audit_snapshot.json",
-        "reports/dependency_summary.json",
         "data/processed/pipeline_summary.json",
         "data/processed/feature_manifest_v2.parquet",
         "models/pipeline_results.pkl",
         "dvc.yaml",
         "dvc.lock",
     ]
+    audit_artifact = _project_audit_snapshot_rel_path()
+    if audit_artifact:
+        artifacts.insert(0, audit_artifact)
+    if (ROOT / "reports" / "dependency_summary.json").exists():
+        artifacts.insert(1 if audit_artifact else 0, "reports/dependency_summary.json")
     return _log_run(
         experiment_name="lending_club/end_to_end",
         run_name=f"artifact_backfill_end_to_end_{timestamp}",

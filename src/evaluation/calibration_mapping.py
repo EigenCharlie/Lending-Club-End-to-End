@@ -13,7 +13,7 @@ from sklearn.metrics import brier_score_loss, log_loss
 from src.evaluation.backtesting import hosmer_lemeshow_test
 from src.evaluation.metrics import classification_metrics
 from src.evaluation.pd_validation_interpretation import summarize_slice_materiality
-from src.models.calibration import expected_calibration_error
+from src.models.calibration import LogitShiftCalibrator, expected_calibration_error
 
 
 def _clip_prob(y_prob: np.ndarray, eps: float = 1e-6) -> np.ndarray:
@@ -222,6 +222,53 @@ def temporal_otv_split(
     return adaptation, evaluation
 
 
+def evaluate_stage_a_gate(
+    current_candidate: dict[str, Any],
+    challenger_candidate: dict[str, Any],
+) -> dict[str, Any]:
+    """Evaluate whether a shadow calibrator is promising enough for downstream validation."""
+    gap_improvement_bp = float(current_candidate.get("abs_global_gap_bp", 0.0)) - float(
+        challenger_candidate.get("abs_global_gap_bp", 0.0)
+    )
+    max_quarter_improvement_bp = float(current_candidate.get("max_quarter_gap_bp", 0.0)) - float(
+        challenger_candidate.get("max_quarter_gap_bp", 0.0)
+    )
+    quarter_breaches_delta = int(challenger_candidate.get("material_quarter_breaches", 0)) - int(
+        current_candidate.get("material_quarter_breaches", 0)
+    )
+    brier_delta = float(challenger_candidate.get("brier_score", 0.0)) - float(
+        current_candidate.get("brier_score", 0.0)
+    )
+    ece_delta = float(challenger_candidate.get("ece", 0.0)) - float(
+        current_candidate.get("ece", 0.0)
+    )
+    auc_delta = float(challenger_candidate.get("auc_roc", 0.0)) - float(
+        current_candidate.get("auc_roc", 0.0)
+    )
+
+    checks = {
+        "min_gap_improvement_bp": bool(gap_improvement_bp >= 10.0),
+        "quarter_breaches_non_increasing": bool(quarter_breaches_delta <= 0),
+        "max_quarter_gap_non_worsening": bool(max_quarter_improvement_bp >= 0.0),
+        "brier_within_tolerance": bool(brier_delta <= 0.002),
+        "ece_within_tolerance": bool(ece_delta <= 0.002),
+        "auc_within_tolerance": bool(auc_delta >= -0.001),
+    }
+    return {
+        "stage_a_pass": bool(all(checks.values())),
+        "checks": checks,
+        "reasons": [name for name, passed in checks.items() if not passed],
+        "deltas": {
+            "abs_global_gap_improvement_bp": gap_improvement_bp,
+            "max_quarter_gap_improvement_bp": max_quarter_improvement_bp,
+            "material_quarter_breaches_delta": quarter_breaches_delta,
+            "brier_delta": brier_delta,
+            "ece_delta": ece_delta,
+            "auc_delta": auc_delta,
+        },
+    }
+
+
 def calibration_mapping_candidates_report(
     frame: pd.DataFrame,
     *,
@@ -247,6 +294,8 @@ def calibration_mapping_candidates_report(
             "fit_window_rows": int(len(adaptation)),
             "eval_window_rows": int(len(evaluation)),
             "fit_notes": "No remapping; current canonical calibrated PD.",
+            "candidate_kind": "identity",
+            "candidate_spec": {"type": "identity"},
             **evaluate_calibration_candidate(
                 current_eval, score_col="candidate_score", target_col=target_col
             ),
@@ -268,6 +317,8 @@ def calibration_mapping_candidates_report(
             "fit_window_rows": int(len(adaptation)),
             "eval_window_rows": int(len(evaluation)),
             "fit_notes": f"Delta fitted on earlier OOT window: {delta:.4f}",
+            "candidate_kind": "calibrator_object",
+            "candidate_spec": {"type": "logit_shift", "delta": float(delta)},
             "intercept_delta": float(delta),
             **evaluate_calibration_candidate(
                 intercept_eval, score_col="candidate_score", target_col=target_col
@@ -292,6 +343,14 @@ def calibration_mapping_candidates_report(
             "fit_window_rows": int(len(adaptation)),
             "eval_window_rows": int(len(evaluation)),
             "fit_notes": "Monotone remap fitted on earlier OOT window only.",
+            "candidate_kind": "calibrator_object",
+            "candidate_spec": {
+                "type": "isotonic",
+                "x_thresholds": [float(x) for x in np.asarray(iso.X_thresholds_, dtype=float)],
+                "y_thresholds": [float(y) for y in np.asarray(iso.y_thresholds_, dtype=float)],
+                "y_min": 0.0,
+                "y_max": 1.0,
+            },
             **evaluate_calibration_candidate(
                 isotonic_eval, score_col="candidate_score", target_col=target_col
             ),
@@ -299,7 +358,42 @@ def calibration_mapping_candidates_report(
     )
 
     report = pd.DataFrame(candidates)
+    report["stage_a_pass"] = False
+    report["stage_a_reasons"] = [[] for _ in range(len(report))]
+    report["stage_a_deltas"] = [{} for _ in range(len(report))]
+    if not report.empty and (report["candidate_id"] == "current_identity").any():
+        current = report.loc[report["candidate_id"] == "current_identity"].iloc[0].to_dict()
+        for idx, row in report.iterrows():
+            if str(row.get("candidate_id")) == "current_identity":
+                continue
+            evaluation = evaluate_stage_a_gate(current, row.to_dict())
+            report.at[idx, "stage_a_pass"] = bool(evaluation["stage_a_pass"])
+            report.at[idx, "stage_a_reasons"] = list(evaluation["reasons"])
+            report.at[idx, "stage_a_deltas"] = dict(evaluation["deltas"])
     return report.sort_values(
-        ["abs_global_gap_bp", "material_quarter_breaches", "brier_score", "ece"],
-        ascending=[True, True, True, True],
+        ["stage_a_pass", "abs_global_gap_bp", "material_quarter_breaches", "brier_score", "ece"],
+        ascending=[False, True, True, True, True],
     ).reset_index(drop=True)
+
+
+def materialize_candidate_calibrator(candidate_spec: dict[str, Any] | None) -> Any | None:
+    """Build a serializable calibrator object from a persisted candidate spec."""
+    spec = dict(candidate_spec or {})
+    candidate_type = str(spec.get("type", "")).strip().lower()
+    if candidate_type in {"", "identity"}:
+        return None
+    if candidate_type == "logit_shift":
+        return LogitShiftCalibrator(float(spec["delta"]))
+    if candidate_type == "isotonic":
+        x_thresholds = np.asarray(spec.get("x_thresholds", []), dtype=float)
+        y_thresholds = np.asarray(spec.get("y_thresholds", []), dtype=float)
+        iso = IsotonicRegression(
+            y_min=float(spec.get("y_min", 0.0)),
+            y_max=float(spec.get("y_max", 1.0)),
+            out_of_bounds="clip",
+        )
+        if x_thresholds.size == 0 or y_thresholds.size == 0:
+            raise ValueError("Isotonic candidate spec requires non-empty thresholds.")
+        iso.fit(x_thresholds, y_thresholds)
+        return iso
+    raise ValueError(f"Unsupported calibration mapping candidate type: {candidate_type}")

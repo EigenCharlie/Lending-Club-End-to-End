@@ -1,6 +1,6 @@
 # Documentation Map
 
-Quick reference for the current documentation stack after the monotonic promotion and the ADSFCR-inspired documentation refresh.
+Quick reference for the current documentation stack after the pipeline-first refactor, the monotonic promotion work, and the ADSFCR-inspired documentation refresh.
 
 ## Keep Closest To Hand
 
@@ -17,6 +17,7 @@ Quick reference for the current documentation stack after the monotonic promotio
 | **History / learnings** | `docs/DECISION_CHANGES_AND_LEARNINGS.md` | Historical decisions, fixes, and practical learnings |
 | **Paper references** | `docs/PAPER_REFERENCES_STATE_OF_ART.md` | Curated literature map for papers and thesis chapters |
 | **Backlog** | `docs/backlog-papers-unified.md` | Unified backlog for papers, experiments, and documentation follow-ups |
+| **Conformal note** | `docs/conformal_prediction_README.md` | Compact operational/research entrypoint for conformal material |
 
 ## Runtime Sources Of Truth
 
@@ -38,14 +39,30 @@ Use these before trusting any prose:
 - `reports/mrm/mrm_validation_report.json`
 - `reports/run_comparisons/canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129/comparison.json`
 
+## Directory Contract
+
+- `docs/` root contains active technical and editorial surfaces only.
+- `docs/history/` contains archived plans, audits, and historical snapshots retained for provenance.
+- `docs/research/` contains literature notes, exploratory comparisons, and research-only reference material that is not part of the live operational contract.
+
 ## Historical but Still Useful
 
 | File | Why it remains |
 |---|---|
-| `docs/OFFICIAL_RERUN_MASTER_PLAN_2026-02-27.md` | Provenance of the earlier paper-grade rerun program |
-| `docs/PROMOTION_DOSSIER_2026-03-01.md` | Historical promotion snapshot; not live policy state |
-| `docs/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md` | Environment migration notes if tooling breaks |
-| `docs/DEPLOY_STREAMLIT_FREE.md` | Historical showcase deployment only |
+| `docs/history/OFFICIAL_RERUN_MASTER_PLAN_2026-02-27.md` | Provenance of the earlier paper-grade rerun program |
+| `docs/history/PROMOTION_DOSSIER_2026-03-01.md` | Historical promotion snapshot; not live policy state |
+| `docs/history/ENGINEERING_ENVS_AND_UPGRADE_PLAN_2026-02-25.md` | Environment migration notes if tooling breaks |
+| `docs/history/DEPLOY_STREAMLIT_FREE.md` | Historical showcase deployment only |
+
+## Research-Only References
+
+| File | Why it remains |
+|---|---|
+| `docs/research/conformal_prediction_research_2026.md` | Deep conformal theory and implementation notes |
+| `docs/research/conformal_prediction_quick_reference.md` | Coding patterns and formula crib sheet |
+| `docs/research/conformal_libraries_comparison.md` | Library comparison retained for justification and appendix work |
+| `docs/research/CALIBRATION_METHOD_SELECTION.md` | Calibration writeup preserved as research/method note |
+| `docs/research/portfolio_selector_literature_2020_2026.md` | Literature support for portfolio selection writing |
 
 ## Editorial Rule
 

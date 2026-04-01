@@ -1,10 +1,10 @@
-# Conformal Prediction Research Documentation
+# Conformal Prediction Documentation
 
 **Project:** Lending Club Risk - Master's Thesis
 **Generated:** 2026-02-07
 **MAPIE Version:** 1.3.0
 
-## Estado actual del proyecto (2026-02-16)
+## Estado actual del proyecto
 
 - **Fuente canónica para storytelling y serving interno**:
   - `models/conformal_results_mondrian.pkl`
@@ -14,16 +14,16 @@
   - Métricas y estado (`overall_pass`, `checks_passed`, coberturas) cambian por corrida.
   - Evitar hardcodear conteos o ratios de checks en documentación estática.
 
-> Nota: este documento incluye secciones de investigación y objetivos exploratorios de febrero 2026.
+> Nota: este es el entrypoint activo y compacto. El material largo de teoría/comparativas vive ahora en `docs/research/`.
 > Para resultados “oficiales” del proyecto, priorizar siempre los artefactos canónicos listados arriba.
 
 ---
 
 ## Document Index
 
-This directory contains comprehensive research and implementation guidance for conformal prediction in credit risk modeling.
+Use this note to orient yourself quickly. Deep research and literature support now live under `docs/research/`.
 
-### 1. [conformal_prediction_research_2026.md](conformal_prediction_research_2026.md)
+### 1. [docs/research/conformal_prediction_research_2026.md](research/conformal_prediction_research_2026.md)
 **Main research document** with detailed analysis of:
 - MAPIE 1.3.0 API (verified by code inspection)
 - Conformal prediction theory for credit risk
@@ -39,7 +39,7 @@ This directory contains comprehensive research and implementation guidance for c
 
 **Read this first** for comprehensive understanding.
 
-### 2. [conformal_prediction_quick_reference.md](conformal_prediction_quick_reference.md)
+### 2. [docs/research/conformal_prediction_quick_reference.md](research/conformal_prediction_quick_reference.md)
 **Code snippets and patterns** for rapid implementation:
 - Basic workflow (5 steps)
 - MAPIE class signatures
@@ -52,7 +52,7 @@ This directory contains comprehensive research and implementation guidance for c
 
 **Use this** when coding Notebook 04.
 
-### 3. [conformal_libraries_comparison.md](conformal_libraries_comparison.md)
+### 3. [docs/research/conformal_libraries_comparison.md](research/conformal_libraries_comparison.md)
 **Library comparison and benchmarking**:
 - MAPIE vs CREPES vs Nonconformist
 - Feature matrix comparison
@@ -65,7 +65,7 @@ This directory contains comprehensive research and implementation guidance for c
 **Read this** to justify MAPIE choice in thesis.
 
 ### 4. Implementation plan (merged into docs 1 and 2)
-**Complete notebook implementation guidance** (covered across `conformal_prediction_research_2026.md` and `conformal_prediction_quick_reference.md`):
+**Complete notebook implementation guidance** (covered across `docs/research/conformal_prediction_research_2026.md` and `docs/research/conformal_prediction_quick_reference.md`):
 - 17-cell structure with full code
 - Section-by-section implementation
 - Expected outputs and metrics
@@ -74,7 +74,7 @@ This directory contains comprehensive research and implementation guidance for c
 - Troubleshooting guide
 - Thesis contribution narrative
 
-**Use docs 1 + 2** to build Notebook 04.
+**Use docs 1 + 2** to build Notebook 04 when you explicitly want the research notes, not the live policy summary.
 
 ---
 

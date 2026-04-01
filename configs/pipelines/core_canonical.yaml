@@ -1,0 +1,32 @@
+schema_version: "2026-03-31.1"
+pipeline_family: core_canonical
+description: >
+  Rebuild reproducible y compartible del stack canónico. Solo CPU por defecto,
+  sin causal, sin survival derivado, sin GPU y sin notebooks.
+artifact_scope: canonical
+promotion_state: operationally_frozen
+writes_canonical_artifacts: true
+upstream_required: false
+default_profile: core_canonical_cpu
+papers_served: [paper1, paper2]
+allowed_step_groups:
+  - preflight
+  - core_data_pd
+  - core_conformal
+  - core_ts
+  - core_portfolio
+  - core_ifrs9
+  - diagnostics_governance
+  - publication_exports
+forbidden_step_groups:
+  - paper2_survival
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries:
+  - pipeline_matrix
+  - script_role_registry
+  - artifact_flow_registry
+  - search_registry

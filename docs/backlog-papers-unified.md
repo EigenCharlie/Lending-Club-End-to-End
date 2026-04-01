@@ -62,7 +62,7 @@ Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble
 ### Pendiente real de hardening/policy
 
 Fuente canónica:
-- `docs/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`
+- `docs/history/AUDITORIA_HARDENING_GATES_PAPER_GRADE_2026-03-13.md`
 
 Conclusión de auditoría:
 - el stack de `gates` y `policies` ya no necesita rediseño mayor;
@@ -518,8 +518,8 @@ Conexión: atlas de notebooks en Quarto
 **Estado: CERRADO (2026-03-17)**
 
 Research ejecutado:
-- 14 notebooks clasificados: core_thesis (01-09), paper_research (10-13), side_projects
-- Reuse status: `evidence_reusable` | `paper_material` | `exploratory_side_project`
+- 14 notebooks clasificados en taxonomía pipeline-first: `reusable_evidence`, `research_labs`, `historical_demo`, `paper_notebooks`, `explainability_lab`
+- Reuse status: `evidence_reusable` | `research_only` | `historical_reference` | `paper_material` | `explainability_reference`
 - Cada notebook con quarto_chapter, key_artifacts asociados
 - Surfaceado originalmente en el Streamlit legacy `tech_stack.py`; hoy queda en docs/Quarto
 

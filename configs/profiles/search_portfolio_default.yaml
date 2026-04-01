@@ -1,0 +1,28 @@
+schema_version: "2026-03-31.1"
+profile_name: search_portfolio_default
+pipeline_family: search_portfolio
+description: >
+  Selector económico y frontera de robustez usando artefactos core ya
+  congelados, sin reentrenar PD.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: champion64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  portfolio:
+    max_candidates: 150000
+  tradeoff:
+    max_candidates: 80000
+    grid_profile: balanced
+  ab:
+    execution_mode: search
+    max_portfolio_pd: 0.18
+    max_candidates: 150000
+    n_boot: 5000
+    seed: 42
+    no_regression_tolerance_pct: 0.05

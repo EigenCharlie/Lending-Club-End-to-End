@@ -79,7 +79,13 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
   - `models/bootstrap_validation_status.json` — bootstrap materiality layer for aggregate and slice-level calibration gaps;
   - `models/pd_validation_interpretation_status.json` — materiality-oriented interpretation of those tests plus quarter persistence;
   - `models/calibration_mapping_status.json` — shadow remap/intercept comparison without replacing the canonical calibrator;
+  - `models/calibration_mapping_shadow_impact_status.json` — consolidated decision artifact for the executed shadow lane;
   - `models/pd_rare_event_calibration_status.json` — rare-event and slice calibration sidecar.
+
+Current reading after execution:
+- the shadow lane was executed on the confirmatory monotonic run and closed with `keep_current_calibrator`;
+- no lightweight remap candidate improved cohort persistence without degrading calibration quality;
+- therefore the remaining PD work is better framed as cohort-sensitive analytical interpretation, not as a simple calibrator replacement exercise.
 
 ### 3.2 Benchmarking
 - **Comparison**: Logistic Regression vs CatBoost default vs CatBoost tuned
@@ -156,7 +162,7 @@ total_pymnt, total_rec_*, recoveries, collection_recovery_fee, out_prncp*, last_
 | Drift governance | KS/CvM/C2ST policy pass | Quarterly | Governance status |
 | PD validation interpretation | `warning` or better | Quarterly | PD validation interpretation status |
 | Bootstrap validation | Large-`N` calibration gap uncertainty by aggregate and slice | Quarterly | Bootstrap validation status |
-| Calibration mapping sidecar | Shadow remap/intercept review for cohort persistence | Quarterly | Calibration mapping status |
+| Calibration mapping sidecar | Shadow remap/intercept review for cohort persistence; currently closed as keep-current-calibrator | Quarterly | Calibration mapping status + shadow impact status |
 | IFRS9 diagnostics | Diagnostic review required when recursive stability / ADF power deteriorate | Quarterly | IFRS9 diagnostics status |
 | Monotonicity audit | `overall_pass = true` expected for the promoted monotonic champion | Quarterly | Monotonicity audit status |
 | Encoding stability | `overall_pass = true` expected unless bins/WOE become unstable | Quarterly | Encoding stability status |

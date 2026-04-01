@@ -131,12 +131,17 @@ if [[ "${has_env_file}" -eq 0 ]] && [[ -f ".env" ]]; then
   DEFAULT_ARGS+=(--env-file .env)
 fi
 
+ENTRYPOINT="scripts/search/run_pd_search.py"
+if [[ ! -f "${ENTRYPOINT}" ]]; then
+  ENTRYPOINT="scripts/run_champion_search.py"
+fi
+
 if command -v setsid >/dev/null 2>&1; then
-  setsid "${PY_BIN}" -u scripts/run_champion_search.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+  setsid "${PY_BIN}" -u "${ENTRYPOINT}" --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
     >"${LAUNCH_LOG}" 2>&1 < /dev/null &
   pid=$!
 else
-  nohup "${PY_BIN}" -u scripts/run_champion_search.py --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
+  nohup "${PY_BIN}" -u "${ENTRYPOINT}" --run-tag "${RUN_TAG}" "${DEFAULT_ARGS[@]}" "${EXTRA_ARGS[@]}" \
     >"${LAUNCH_LOG}" 2>&1 < /dev/null &
   pid=$!
 fi
@@ -144,6 +149,7 @@ echo "${pid}" > "${PID_FILE}"
 
 echo "Started run_tag=${RUN_TAG} pid=${pid}"
 echo "Run dir: ${RUN_DIR}"
+echo "Entrypoint: ${ENTRYPOINT}"
 if [[ "${#DEFAULT_ARGS[@]}" -gt 0 ]]; then
   echo "Defaults applied: ${DEFAULT_ARGS[*]}"
 fi

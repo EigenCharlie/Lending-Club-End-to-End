@@ -1,0 +1,30 @@
+schema_version: "2026-03-31.1"
+pipeline_family: research_labs
+description: >
+  Lanes research-only: causal, GPU/RAPIDS, notebooks y side projects. Nunca
+  deben sobrescribir artefactos canónicos.
+artifact_scope: insight
+promotion_state: insight_only
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: research_labs_default
+papers_served: [paper3]
+allowed_step_groups:
+  - preflight
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+forbidden_step_groups:
+  - core_data_pd
+  - core_conformal
+  - core_ts
+  - paper2_survival
+  - core_portfolio
+  - core_ifrs9
+  - diagnostics_governance
+  - publication_exports
+required_envs: [main, causal]
+produced_registries:
+  - script_role_registry
+  - artifact_flow_registry

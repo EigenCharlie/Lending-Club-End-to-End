@@ -30,6 +30,7 @@ from pathlib import Path
 import yaml
 
 from src.utils.pipeline_runtime import atomic_write_json, load_runtime_status
+from src.utils.pipeline_topology import build_pipeline_contract, load_profile_config
 from src.utils.replay_manifest import load_replay_manifest, manifest_section
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -44,24 +45,36 @@ BASELINE_REGISTRY_PATH = PRIMARY_BASELINE_REGISTRY_PATH
 DEFAULT_STALL_WINDOW_MINUTES = 15
 STEP_DEFAULT_SECONDS = {
     "preflight": 5 * 60.0,
-    "main_pre": 120 * 60.0,
-    "heavy_main": 4.0 * 3600.0,
-    "causal": 60 * 60.0,
-    "cate_portfolio": 20 * 60.0,
-    "post_core": 60 * 60.0,
-    "rapids": 2.5 * 3600.0,
-    "notebooks": 5.0 * 3600.0,
+    "core_data_pd": 120 * 60.0,
+    "core_conformal": 90 * 60.0,
+    "core_ts": 30 * 60.0,
+    "paper2_survival": 3.5 * 3600.0,
+    "core_portfolio": 2.5 * 3600.0,
+    "core_ifrs9": 45 * 60.0,
+    "diagnostics_governance": 75 * 60.0,
+    "publication_exports": 30 * 60.0,
+    "research_causal": 60 * 60.0,
+    "research_cate_portfolio": 20 * 60.0,
+    "research_rapids": 2.5 * 3600.0,
+    "research_notebooks": 5.0 * 3600.0,
 }
 STEP_ORDER = [
     "preflight",
-    "main_pre",
-    "heavy_main",
-    "causal",
-    "cate_portfolio",
-    "post_core",
-    "rapids",
-    "notebooks",
+    "core_data_pd",
+    "core_conformal",
+    "core_ts",
+    "paper2_survival",
+    "core_portfolio",
+    "core_ifrs9",
+    "diagnostics_governance",
+    "publication_exports",
+    "research_causal",
+    "research_cate_portfolio",
+    "research_rapids",
+    "research_notebooks",
 ]
+STEP_GROUP_SEQUENCE = STEP_ORDER
+STEP_GROUP_SET = set(STEP_GROUP_SEQUENCE)
 SCRIPT_RUNTIME_STATUS_PATHS = {
     "scripts/materialize_feature_artifacts.py": REPO_ROOT
     / "models"
@@ -91,30 +104,6 @@ SCRIPT_RUNTIME_STATUS_PATHS = {
     "scripts/generate_dependency_summary.py": REPO_ROOT
     / "models"
     / "dependency_audit_runtime_status.json",
-}
-
-PIPELINE_PROFILE_DEFAULTS = {
-    "champion_search": "champion_search_max",
-    "canonical_rebuild": "canonical_operational",
-    "challenger_promotion": "canonical_monotonic_promotion_full",
-}
-
-PIPELINE_CONTRACT_DEFAULTS = {
-    "champion_search": {
-        "artifact_scope": "search",
-        "promotion_state": "research_open",
-        "writes_canonical_artifacts": False,
-    },
-    "canonical_rebuild": {
-        "artifact_scope": "canonical",
-        "promotion_state": "operationally_frozen",
-        "writes_canonical_artifacts": True,
-    },
-    "challenger_promotion": {
-        "artifact_scope": "search",
-        "promotion_state": "research_open",
-        "writes_canonical_artifacts": False,
-    },
 }
 
 VALID_SELECTION_EXECUTION_MODES = frozenset(
@@ -279,8 +268,6 @@ def _resolve_upstream_canonical_run_tag(
     explicit = str(upstream_run_tag_arg or "").strip()
     if explicit:
         return explicit
-    if pipeline_family == "canonical_rebuild":
-        return _resolve_registry_baseline_run_tag()
     return _resolve_registry_baseline_run_tag()
 
 
@@ -292,29 +279,13 @@ def _derive_pipeline_contract(
     writes_canonical_artifacts_arg: bool | None,
     upstream_canonical_run_tag: str | None,
 ) -> dict[str, object]:
-    family = str(pipeline_family).strip().lower() or "champion_search"
-    defaults = dict(
-        PIPELINE_CONTRACT_DEFAULTS.get(family, PIPELINE_CONTRACT_DEFAULTS["champion_search"])
+    return build_pipeline_contract(
+        pipeline_family=pipeline_family,
+        pipeline_profile_arg=pipeline_profile_arg,
+        sampling_profile=sampling_profile,
+        writes_canonical_artifacts_arg=writes_canonical_artifacts_arg,
+        upstream_canonical_run_tag=upstream_canonical_run_tag,
     )
-    pipeline_profile = str(pipeline_profile_arg or "").strip() or PIPELINE_PROFILE_DEFAULTS.get(
-        family, sampling_profile
-    )
-    if family == "champion_search" and not pipeline_profile_arg:
-        pipeline_profile = (
-            "champion_search_max"
-            if sampling_profile in {"mega", "mega64", "mega64plus", "mega64safe", "champion64safe"}
-            else pipeline_profile
-        )
-    if writes_canonical_artifacts_arg is not None:
-        defaults["writes_canonical_artifacts"] = bool(writes_canonical_artifacts_arg)
-    return {
-        "pipeline_family": family,
-        "pipeline_profile": pipeline_profile,
-        "artifact_scope": str(defaults["artifact_scope"]),
-        "promotion_state": str(defaults["promotion_state"]),
-        "writes_canonical_artifacts": bool(defaults["writes_canonical_artifacts"]),
-        "upstream_canonical_run_tag": upstream_canonical_run_tag,
-    }
 
 
 def _dedupe_cli_values(values: object, *, lowercase: bool = False) -> list[str]:
@@ -334,20 +305,6 @@ def _dedupe_cli_values(values: object, *, lowercase: bool = False) -> list[str]:
     return out
 
 
-def _load_pipeline_profile_config(profile_name: str | None) -> dict[str, object]:
-    name = str(profile_name or "").strip()
-    if not name:
-        return {}
-    path = REPO_ROOT / "configs" / "run_profiles" / f"{name}.yaml"
-    if not path.exists():
-        return {}
-    try:
-        payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
-    except Exception:
-        return {}
-    return dict(payload) if isinstance(payload, dict) else {}
-
-
 def _profile_value(profile_cfg: dict[str, object], *path: str, default: object = None) -> object:
     current: object = profile_cfg
     for key in path:
@@ -361,6 +318,34 @@ def _csv_cli(values: object) -> str:
     if isinstance(values, (list, tuple)):
         return ",".join(str(v) for v in values)
     return str(values)
+
+
+def _select_step_groups(
+    pipeline_contract: dict[str, object],
+    *,
+    include_rapids: bool,
+    include_notebooks: bool,
+) -> list[str]:
+    allowed = [
+        str(step).strip()
+        for step in list(pipeline_contract.get("allowed_step_groups", []) or [])
+        if str(step).strip() in STEP_GROUP_SET
+    ]
+    forbidden = {
+        str(step).strip()
+        for step in list(pipeline_contract.get("forbidden_step_groups", []) or [])
+        if str(step).strip()
+    }
+    out: list[str] = []
+    for step in STEP_GROUP_SEQUENCE:
+        if step not in allowed or step in forbidden:
+            continue
+        if step == "research_rapids" and not include_rapids:
+            continue
+        if step == "research_notebooks" and not include_notebooks:
+            continue
+        out.append(step)
+    return out
 
 
 def _resolve_conda_env_python(env_name: str) -> Path | None:
@@ -626,11 +611,21 @@ def _build_step_eta_defaults(run_tag: str, steps: list[tuple[str, bool, str]]) -
 
 
 def _extract_subphase_from_line(step: str, line: str, fallback: str | None) -> str | None:
-    if step in {"main_pre", "heavy_main", "causal", "post_core", "notebooks"}:
+    if step in {
+        "core_data_pd",
+        "core_conformal",
+        "paper2_survival",
+        "core_portfolio",
+        "core_ifrs9",
+        "diagnostics_governance",
+        "publication_exports",
+        "research_causal",
+        "research_notebooks",
+    }:
         m = re.search(r"scripts/[A-Za-z0-9_./-]+\.py", line)
         if m:
             return m.group(0)
-    if step == "rapids":
+    if step == "research_rapids":
         if "run_all_benchmarks.py" in line:
             return "reports/gpu_benchmark/tmp_scripts/run_all_benchmarks.py"
         if "run_rapids_benchmarks.sh" in line:
@@ -872,7 +867,8 @@ def build_steps(
     include_notebooks: bool,
     sampling_profile: str = "full",
     comparison_baseline: str | None = None,
-    pipeline_family: str = "champion_search",
+    pipeline_family: str = "paper1_e2e",
+    pipeline_contract: dict[str, object] | None = None,
     profile_cfg: dict[str, object] | None = None,
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
@@ -892,6 +888,7 @@ def build_steps(
 
     search_cfg = dict(_profile_value(profile_cfg, "search_space", default={}) or {})
     resource_policy = dict(_profile_value(profile_cfg, "resource_policy", default={}) or {})
+    execution_cfg = dict(_profile_value(profile_cfg, "execution", default={}) or {})
     defaults_cfg = dict(_profile_value(profile_cfg, "defaults", default={}) or {})
     pd_search_cfg = dict(search_cfg.get("pd", {}) or {})
     conformal_search_cfg = dict(search_cfg.get("conformal", {}) or {})
@@ -914,13 +911,13 @@ def build_steps(
     pd_replay_enabled = bool(
         defaults_cfg.get(
             "pd_replay",
-            pipeline_family == "canonical_rebuild" and replay_manifest_exists,
+            pipeline_family == "core_canonical" and replay_manifest_exists,
         )
     )
     conformal_replay_enabled = bool(
         defaults_cfg.get(
             "conformal_replay",
-            pipeline_family == "canonical_rebuild" and replay_manifest_exists,
+            pipeline_family == "core_canonical" and replay_manifest_exists,
         )
     )
 
@@ -929,7 +926,7 @@ def build_steps(
     champion_search_pd_config = str(pd_search_cfg.get("config_path", "")).strip()
     replay_pd_config = str(replay_pd_cfg.get("config_path", "")).strip()
     if (
-        pipeline_family == "champion_search"
+        pipeline_family in {"paper1_e2e", "search_pd"}
         and champion_search_pd_config
         and (REPO_ROOT / champion_search_pd_config).exists()
     ):
@@ -937,7 +934,7 @@ def build_steps(
     elif pd_replay_enabled and replay_pd_config and (REPO_ROOT / replay_pd_config).exists():
         pd_config = replay_pd_config
     elif champion_pd_config_exists and (
-        pipeline_family == "canonical_rebuild" or sampling_profile in {"champion64safe"}
+        pipeline_family == "core_canonical" or sampling_profile in {"champion64safe"}
     ):
         pd_config = "configs/pd_model.champion.yaml"
     elif sampling_profile in {"smart", "balanced"} and smart_pd_config_exists:
@@ -1132,7 +1129,7 @@ def build_steps(
         .strip()
         .lower()
     )
-    if pipeline_family in {"champion_search", "challenger_promotion"} and (
+    if pipeline_family in {"paper1_e2e", "search_pd", "search_portfolio"} and (
         selection_execution_mode == "freeze_if_available"
     ):
         selection_execution_mode = "rebuild_selector"
@@ -1215,7 +1212,7 @@ def build_steps(
         selection_execution_mode == "freeze_if_available"
         and (REPO_ROOT / frozen_policy_path).exists()
         and (
-            pipeline_family == "canonical_rebuild"
+            pipeline_family == "core_canonical"
             or sampling_profile in {"mega64safe", "champion64safe"}
         )
     )
@@ -1395,9 +1392,9 @@ def build_steps(
         f" --solver_backend {cate_backend}" if cate_backend in {"highs", "cuopt"} else ""
     )
 
-    heavy_headroom_guard = (
+    extended_compute_headroom_guard = (
         "uv run python -u scripts/ensure_memory_headroom.py "
-        "--label heavy_main --min-mem-gb 8 --min-swap-gb 6 "
+        "--label extended_compute --min-mem-gb 8 --min-swap-gb 6 "
         "--min-total-headroom-gb 16 --max-wait-seconds 3600 --poll-seconds 20"
     )
     causal_headroom_guard = (
@@ -1420,7 +1417,6 @@ def build_steps(
         "tests/test_config_consistency.py && "
         f"python scripts/run_comparison.py snapshot --run-tag {run_tag}"
     )
-    steps.append(("preflight", True, preflight_cmd))
 
     optuna_db_cleanup_path = _extract_sqlite_db_path_from_pd_config(pd_config)
     optuna_cleanup_cmd = "true"
@@ -1430,20 +1426,34 @@ def build_steps(
             f"--db-path {shlex.quote(str(optuna_db_cleanup_path))} --min-age-hours 6 || true"
         )
 
-    main_pre_cmd = f"""
+    core_data_pd_cmd = f"""
         {activate_main} &&
         uv run python -u scripts/materialize_feature_artifacts.py &&
         uv run python -u -c "from src.data.build_datasets import main; main()" &&
         ({optuna_cleanup_cmd}) &&
-        {pd_train_cmd} &&
-        {conformal_cmd} &&
-        {benchmark_cmd} &&
-        uv run python -u scripts/backtest_conformal_coverage.py &&
-        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} &&
-        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml &&
+        {pd_train_cmd}
+    """
+
+    conformal_validation_cmds = [
+        conformal_cmd,
+        benchmark_cmd,
+        "uv run python -u scripts/backtest_conformal_coverage.py",
+        f"uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag}",
+    ]
+    if bool(execution_cfg.get("include_conformal_sensitivity", False)):
+        conformal_validation_cmds.append(
+            "uv run python -u scripts/validate_conformal_policy.py "
+            f"--run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml"
+        )
+    core_conformal_cmd = f"""
+        {activate_main} &&
+        {" && ".join(conformal_validation_cmds)}
+    """
+
+    core_ts_cmd = f"""
+        {activate_main} &&
         uv run python -u scripts/forecast_default_rates.py --horizon 12
     """
-    steps.append(("main_pre", True, main_pre_cmd))
 
     portfolio_cmd = (
         f"{portfolio_exec} scripts.optimize_portfolio --config configs/optimization.yaml "
@@ -1481,34 +1491,32 @@ def build_steps(
         f"--no_regression_tolerance_pct {float(ab_search_cfg.get('no_regression_tolerance_pct', 0.05))} "
         f"--actual_ab_top_k {ab_actual_ab_top_k}"
     )
-    heavy_main_prefix = f"{activate_main} && {heavy_headroom_guard} &&"
+    extended_compute_prefix = f"{activate_main} && {extended_compute_headroom_guard} &&"
+    paper2_survival_cmd = f"""
+        {extended_compute_prefix}
+        uv run python -u scripts/run_survival_analysis.py {survival_args} &&
+        uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg}
+    """
     if use_frozen_policy:
-        heavy_main_cmd = f"""
-            {heavy_main_prefix}
-            uv run python -u scripts/run_survival_analysis.py {survival_args} &&
-            uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg} &&
+        core_portfolio_cmd = f"""
+            {extended_compute_prefix}
             {portfolio_cmd} &&
             {ab_cmd}
         """
     elif economic_search_enabled:
-        heavy_main_cmd = f"""
-            {heavy_main_prefix}
-            uv run python -u scripts/run_survival_analysis.py {survival_args} &&
-            uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg} &&
+        core_portfolio_cmd = f"""
+            {extended_compute_prefix}
             {portfolio_cmd} &&
             {economic_search_cmd}
         """
     else:
-        heavy_main_cmd = f"""
-            {heavy_main_prefix}
-            uv run python -u scripts/run_survival_analysis.py {survival_args} &&
-            uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg} &&
+        core_portfolio_cmd = f"""
+            {extended_compute_prefix}
             {portfolio_cmd} &&
             {tradeoff_cmd} &&
             {selector_cmd} &&
             {ab_cmd}
         """
-    steps.append(("heavy_main", False, heavy_main_cmd))
 
     causal_args = ["--treatment int_rate", causal_sample, f"--run_tag {run_tag}"]
     if causal_search_cfg.get("cate_n_estimators") is not None:
@@ -1540,24 +1548,24 @@ def build_steps(
         {validate_cmd} &&
         {backtest_cmd}
     """
-    steps.append(("causal", False, causal_cmd))
 
-    cate_cmd = f"""
+    research_cate_portfolio_cmd = f"""
         {activate_main} &&
         {causal_headroom_guard} &&
         {cate_exec} scripts.optimize_cate_portfolio {cate_candidates}{cate_solver_arg}
     """
-    steps.append(("cate_portfolio", False, cate_cmd))
 
-    post_core_cmd = f"""
+    core_ifrs9_cmd = f"""
         {activate_main} &&
-        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} &&
-        uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml &&
         uv run python -u scripts/run_ifrs9_sensitivity.py &&
-        if [ -f scripts/run_ifrs9_diagnostics.py ]; then uv run python -u scripts/run_ifrs9_diagnostics.py --run-tag {run_tag}; else true; fi &&
-        uv run python -u scripts/build_pipeline_results.py &&
+        if [ -f scripts/run_ifrs9_diagnostics.py ]; then uv run python -u scripts/run_ifrs9_diagnostics.py --run-tag {run_tag}; else true; fi
+    """
+
+    diagnostics_governance_cmd = f"""
+        {activate_main} &&
         if [ -f scripts/analyze_pd_rare_event_calibration.py ]; then uv run python -u scripts/analyze_pd_rare_event_calibration.py --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/build_pd_challenger_artifacts.py ]; then uv run python -u scripts/build_pd_challenger_artifacts.py --config {pd_config}; else true; fi &&
+        if [ -f scripts/generate_pipeline_registries.py ]; then uv run python -u scripts/generate_pipeline_registries.py; else true; fi &&
         uv run python -u scripts/generate_dependency_summary.py &&
         uv run python -u scripts/run_fairness_audit.py --run-tag {run_tag} &&
         if [ -f scripts/run_monotonicity_audit.py ]; then uv run python -u scripts/run_monotonicity_audit.py --config {pd_config} --run-tag {run_tag}; else true; fi &&
@@ -1568,58 +1576,105 @@ def build_steps(
         if [ -f scripts/run_encoding_stability_audit.py ]; then uv run python -u scripts/run_encoding_stability_audit.py --config {pd_config} --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/generate_paper_grade_protocol.py ]; then uv run python -u scripts/generate_paper_grade_protocol.py; else true; fi &&
-        if [ -f scripts/update_champion_registry.py ]; then uv run python -u scripts/update_champion_registry.py; else true; fi &&
-        if [ -f scripts/build_champion_search_bundle.py ]; then uv run python -u scripts/build_champion_search_bundle.py; else true; fi &&
-        uv run python -u scripts/generate_mrm_report.py --run-tag {run_tag} &&
+        uv run python -u scripts/generate_mrm_report.py --run-tag {run_tag}
+    """
+
+    update_registry_cmd = (
+        "if [ -f scripts/update_champion_registry.py ]; then "
+        "uv run python -u scripts/update_champion_registry.py; else true; fi"
+        if pipeline_family == "core_canonical"
+        else "true"
+    )
+    build_bundle_cmd = (
+        "if [ -f scripts/build_champion_search_bundle.py ]; then "
+        "uv run python -u scripts/build_champion_search_bundle.py; else true; fi"
+        if pipeline_family == "paper1_e2e"
+        else "true"
+    )
+    publication_exports_cmd = f"""
+        {activate_main} &&
+        uv run python -u scripts/build_pipeline_results.py &&
+        {update_registry_cmd} &&
+        {build_bundle_cmd} &&
         uv run python -u scripts/export_streamlit_artifacts.py &&
         uv run python -u scripts/export_storytelling_snapshot.py &&
         uv run python -u scripts/export_dvc_metrics.py --run-tag {run_tag} &&
         (uv run python -u scripts/log_mlflow_experiment_suite.py || true) &&
         uv run python -u scripts/run_comparison.py compare --run-tag {run_tag}{compare_baseline_arg}
     """
-    steps.append(("post_core", False, post_core_cmd))
 
-    if include_rapids:
-        rapids_headroom_guard = (
-            "uv run python -u scripts/ensure_memory_headroom.py "
-            "--label rapids --min-mem-gb 6 --min-swap-gb 4 "
-            "--min-total-headroom-gb 12 --max-wait-seconds 1800 --poll-seconds 20"
+    rapids_headroom_guard = (
+        "uv run python -u scripts/ensure_memory_headroom.py "
+        "--label research_rapids --min-mem-gb 6 --min-swap-gb 4 "
+        "--min-total-headroom-gb 12 --max-wait-seconds 1800 --poll-seconds 20"
+    )
+    rapids_extra_cmd = ""
+    if str(resource_policy.get("ifrs9_mc_backend", "")).strip().lower() == "gpu_research":
+        ifrs9_cfg = dict(rapids_search_cfg.get("ifrs9_mc", {}) or {})
+        n_scenarios = int(ifrs9_cfg.get("n_scenarios", 8192))
+        chunk_size = int(ifrs9_cfg.get("chunk_size", 256))
+        rapids_extra_cmd = (
+            " && "
+            f"{rapids_script_cmd} scripts/run_ifrs9_monte_carlo_gpu.py "
+            f"--n-scenarios {n_scenarios} --chunk-size {chunk_size}"
         )
-        rapids_extra_cmd = ""
-        if str(resource_policy.get("ifrs9_mc_backend", "")).strip().lower() == "gpu_research":
-            ifrs9_cfg = dict(rapids_search_cfg.get("ifrs9_mc", {}) or {})
-            n_scenarios = int(ifrs9_cfg.get("n_scenarios", 8192))
-            chunk_size = int(ifrs9_cfg.get("chunk_size", 256))
-            rapids_extra_cmd = (
-                " && "
-                f"{rapids_script_cmd} scripts/run_ifrs9_monte_carlo_gpu.py "
-                f"--n-scenarios {n_scenarios} --chunk-size {chunk_size}"
-            )
-        rapids_cmd = (
-            f"{activate_main} && "
-            f"{rapids_headroom_guard} && "
-            f"bash scripts/side_projects/run_rapids_benchmarks.sh --profile {rapids_profile}"
-            f"{rapids_extra_cmd}"
-        )
-        steps.append(("rapids", False, rapids_cmd))
+    research_rapids_cmd = (
+        f"{activate_main} && "
+        f"{rapids_headroom_guard} && "
+        f"bash scripts/side_projects/run_rapids_benchmarks.sh --profile {rapids_profile}"
+        f"{rapids_extra_cmd}"
+    )
 
-    if include_notebooks:
-        notebooks_headroom_guard = (
-            "uv run python -u scripts/ensure_memory_headroom.py "
-            "--label notebooks --min-mem-gb 5 --min-swap-gb 3 "
-            "--min-total-headroom-gb 9 --max-wait-seconds 1800 --poll-seconds 20"
+    notebooks_headroom_guard = (
+        "uv run python -u scripts/ensure_memory_headroom.py "
+        "--label research_notebooks --min-mem-gb 5 --min-swap-gb 3 "
+        "--min-total-headroom-gb 9 --max-wait-seconds 1800 --poll-seconds 20"
+    )
+    notebook_timeout = int(notebook_search_cfg.get("timeout", 5400))
+    notebook_output_dir = str(
+        notebook_search_cfg.get("output_dir", "reports/notebook_exec")
+    ).strip()
+    research_notebooks_cmd = f"""
+        {activate_main} &&
+        {notebooks_headroom_guard} &&
+        uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout {notebook_timeout} --inplace false --output-dir {notebook_output_dir} &&
+        uv run python -u scripts/extract_notebook_images.py
+    """
+
+    step_catalog: dict[str, tuple[bool, str]] = {
+        "preflight": (True, preflight_cmd),
+        "core_data_pd": (True, core_data_pd_cmd),
+        "core_conformal": (False, core_conformal_cmd),
+        "core_ts": (False, core_ts_cmd),
+        "paper2_survival": (False, paper2_survival_cmd),
+        "core_portfolio": (False, core_portfolio_cmd),
+        "core_ifrs9": (False, core_ifrs9_cmd),
+        "diagnostics_governance": (False, diagnostics_governance_cmd),
+        "publication_exports": (False, publication_exports_cmd),
+        "research_causal": (False, causal_cmd),
+        "research_cate_portfolio": (False, research_cate_portfolio_cmd),
+        "research_rapids": (False, research_rapids_cmd),
+        "research_notebooks": (False, research_notebooks_cmd),
+    }
+
+    effective_contract = dict(pipeline_contract or {})
+    if not effective_contract:
+        effective_contract = _derive_pipeline_contract(
+            pipeline_family=pipeline_family,
+            pipeline_profile_arg=str(profile_cfg.get("profile_name", "")) if profile_cfg else None,
+            sampling_profile=sampling_profile,
+            writes_canonical_artifacts_arg=None,
+            upstream_canonical_run_tag=None,
         )
-        notebook_timeout = int(notebook_search_cfg.get("timeout", 5400))
-        notebook_output_dir = str(
-            notebook_search_cfg.get("output_dir", "reports/notebook_exec")
-        ).strip()
-        notebooks_cmd = f"""
-            {activate_main} &&
-            {notebooks_headroom_guard} &&
-            uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout {notebook_timeout} --inplace false --output-dir {notebook_output_dir} &&
-            uv run python -u scripts/extract_notebook_images.py
-        """
-        steps.append(("notebooks", False, notebooks_cmd))
+    selected_steps = _select_step_groups(
+        effective_contract,
+        include_rapids=include_rapids,
+        include_notebooks=include_notebooks,
+    )
+
+    for step_name in selected_steps:
+        required, cmd = step_catalog[step_name]
+        steps.append((step_name, required, cmd))
 
     return [(name, req, " ".join(cmd.split())) for name, req, cmd in steps]
 
@@ -1627,7 +1682,7 @@ def build_steps(
 def parse_args(
     argv: list[str] | None = None,
     *,
-    default_pipeline_family: str = "champion_search",
+    default_pipeline_family: str = "paper1_e2e",
     default_sampling_profile: str = "full",
     default_include_rapids: bool = True,
     default_include_notebooks: bool = True,
@@ -1636,7 +1691,19 @@ def parse_args(
     p.add_argument("--run-tag", default=DEFAULT_RUN_TAG)
     p.add_argument(
         "--pipeline-family",
-        choices=["champion_search", "canonical_rebuild", "challenger_promotion"],
+        choices=[
+            "core_canonical",
+            "search_pd",
+            "search_conformal",
+            "search_portfolio",
+            "paper1_e2e",
+            "paper2_e2e",
+            "diagnostics_governance",
+            "research_labs",
+            "champion_search",
+            "canonical_rebuild",
+            "challenger_promotion",
+        ],
         default=default_pipeline_family,
         help="Semantic pipeline family used for metadata contracts and execution defaults.",
     )
@@ -1746,7 +1813,7 @@ def parse_args(
 def main(
     argv: list[str] | None = None,
     *,
-    default_pipeline_family: str = "champion_search",
+    default_pipeline_family: str = "paper1_e2e",
     default_sampling_profile: str = "full",
     default_include_rapids: bool = True,
     default_include_notebooks: bool = True,
@@ -1754,7 +1821,7 @@ def main(
 ) -> int:
     if (
         argv is None
-        and default_pipeline_family == "champion_search"
+        and default_pipeline_family == "paper1_e2e"
         and default_sampling_profile == "full"
         and default_include_rapids is True
         and default_include_notebooks is True
@@ -1788,7 +1855,7 @@ def main(
         writes_canonical_artifacts_arg=writes_canonical_artifacts_arg,
         upstream_canonical_run_tag=upstream_canonical_run_tag,
     )
-    profile_cfg = _load_pipeline_profile_config(str(pipeline_contract["pipeline_profile"]))
+    profile_cfg = load_profile_config(str(pipeline_contract["pipeline_profile"]))
     execution_cfg = dict(_profile_value(profile_cfg, "execution", default={}) or {})
     include_rapids_effective = (not bool(args.no_rapids)) and bool(
         execution_cfg.get("include_rapids", True)
@@ -1847,8 +1914,12 @@ def main(
             "pipeline_profile": pipeline_contract["pipeline_profile"],
             "artifact_scope": pipeline_contract["artifact_scope"],
             "promotion_state": pipeline_contract["promotion_state"],
+            "description": pipeline_contract["description"],
             "upstream_canonical_run_tag": pipeline_contract["upstream_canonical_run_tag"],
             "writes_canonical_artifacts": pipeline_contract["writes_canonical_artifacts"],
+            "allowed_step_groups": pipeline_contract["allowed_step_groups"],
+            "forbidden_step_groups": pipeline_contract["forbidden_step_groups"],
+            "produced_registries": pipeline_contract["produced_registries"],
             "resume": bool(args.resume),
             "refresh_baseline_on_resume": bool(args.refresh_baseline_on_resume),
             "include_rapids": include_rapids_effective,
@@ -1881,6 +1952,7 @@ def main(
         sampling_profile=str(args.sampling_profile),
         comparison_baseline=comparison_baseline,
         pipeline_family=str(pipeline_contract["pipeline_family"]),
+        pipeline_contract=pipeline_contract,
         profile_cfg=profile_cfg,
     )
     if args.from_step or args.until_step:
@@ -1988,7 +2060,8 @@ def main(
 if __name__ == "__main__":
     print(
         "[deprecated] scripts/run_long_pipeline.py is a compatibility entrypoint. "
-        "Use scripts/run_champion_search.py instead.",
+        "Use scripts/run_canonical_rebuild.py, scripts/run_champion_search.py, "
+        "scripts/run_paper_grade_final.py, or scripts/run_insights_factory.py instead.",
         file=sys.stderr,
     )
     raise SystemExit(main(compatibility_entrypoint="scripts/run_long_pipeline.py"))

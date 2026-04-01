@@ -1,0 +1,29 @@
+schema_version: "2026-03-31.1"
+pipeline_family: diagnostics_governance
+description: >
+  Lane diagnóstica y de gobernanza: backtesting, bootstrap, interpretación,
+  calibration mapping, fairness, encoding stability, governance y MRM.
+artifact_scope: diagnostic
+promotion_state: diagnostic_only
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: diagnostics_governance_default
+papers_served: [paper3]
+allowed_step_groups:
+  - preflight
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_data_pd
+  - core_conformal
+  - core_ts
+  - paper2_survival
+  - core_portfolio
+  - core_ifrs9
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries:
+  - artifact_flow_registry

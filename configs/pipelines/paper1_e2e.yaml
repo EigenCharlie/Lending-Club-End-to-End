@@ -1,0 +1,30 @@
+schema_version: "2026-03-31.1"
+pipeline_family: paper1_e2e
+description: >
+  Stack end-to-end del paper estrella: PD, conformal, portfolio, A/B y
+  comparadores paper-grade, sin lanes research sueltas.
+artifact_scope: paper
+promotion_state: paper_grade
+writes_canonical_artifacts: false
+upstream_required: false
+default_profile: paper_grade_final
+papers_served: [paper1]
+allowed_step_groups:
+  - preflight
+  - core_data_pd
+  - core_conformal
+  - core_portfolio
+  - diagnostics_governance
+  - publication_exports
+forbidden_step_groups:
+  - core_ts
+  - paper2_survival
+  - core_ifrs9
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries:
+  - pipeline_matrix
+  - search_registry

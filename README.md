@@ -1,7 +1,7 @@
 # Lending Club End-to-End Risk Intelligence Platform
 
-Credit risk thesis platform organized around three execution narratives:
-`canonical_rebuild`, `champion_search`, and `insights_factory`.
+Credit risk thesis platform organized around pipeline-first execution families:
+`core_canonical`, `search_*`, `paper*_e2e`, `diagnostics_governance`, and `research_labs`.
 
 [![CI](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml/badge.svg)](https://github.com/EigenCharlie/Lending-Club-End-to-End/actions/workflows/ci.yml)
 [![Historical Showcase](https://img.shields.io/badge/Historical%20Showcase-Streamlit-ff4b4b?logo=streamlit&logoColor=white)](https://lending-club-showcase.streamlit.app/)
@@ -91,13 +91,13 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 uv run dvc repro
 
 # 5) Run the frozen operational rebuild
-uv run python scripts/run_canonical_rebuild.py --run-tag canonical-local-smoke
+uv run python scripts/core/run_canonical_rebuild.py --run-tag canonical-local-smoke
 
-# 6) Run the heavyweight champion search when needed
-uv run python scripts/run_champion_search.py --run-tag champion-local-max --sampling-profile mega64plus
+# 6) Run the focused PD search lane when needed
+uv run python scripts/search/run_pd_search.py --run-tag champion-local-max --sampling-profile mega64plus
 
-# 7) Run complementary insight generation
-uv run python scripts/run_insights_factory.py --run-tag insights-local --profile canonical
+# 7) Run research-only complementary insight generation
+uv run python scripts/labs/run_research_labs.py --run-tag insights-local --profile canonical
 
 # 8) Run local companion lab
 uv run streamlit run streamlit_app/app.py
@@ -107,6 +107,7 @@ Notes:
 - `uv run dvc repro` is the canonical thesis-grade rebuild path.
 - `uv run python scripts/run_smoke_pipeline.py` is the lightweight smoke pipeline.
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` remain as compatibility entrypoints only.
+- The organized wrappers under `scripts/core`, `scripts/search`, `scripts/papers`, `scripts/diagnostics`, and `scripts/labs` are the preferred public entrypoints.
 - `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` is the canonical standalone causal runner when you only need the causal layer.
 
 ## Reproducibility and MLOps
@@ -155,7 +156,7 @@ uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 
 Detailed guide:
 
-`docs/DEPLOY_STREAMLIT_FREE.md`
+`docs/history/DEPLOY_STREAMLIT_FREE.md`
 
 ## Quality Gates
 

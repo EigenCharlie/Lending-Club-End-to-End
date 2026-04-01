@@ -1,9 +1,11 @@
 """Notebooks classification inventory.
 
-Classifies all notebooks into:
-  - core_thesis: notebooks 01-09 (main pipeline chapters)
-  - paper_research: notebooks 10-13 (paper materials)
-  - side_projects: notebooks in side_projects/ (non-core exploratory)
+Classifies notebooks into the pipeline-first editorial taxonomy:
+  - reusable_evidence: reusable evidence notebooks (01-06, 08)
+  - research_labs: causal + side projects
+  - historical_demo: historical end-to-end notebook kept for provenance
+  - paper_notebooks: paper-support notebooks (10-12)
+  - explainability_lab: explainability deep dive (13)
 
 Outputs:
     models/notebooks_inventory.json
@@ -20,7 +22,7 @@ from loguru import logger
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 MODELS_DIR = PROJECT_ROOT / "models"
-SCHEMA_VERSION = "2026-03-17.1"
+SCHEMA_VERSION = "2026-03-31.1"
 
 # Canonical mapping of notebook number → chapter info
 NOTEBOOK_META = {
@@ -91,14 +93,6 @@ NOTEBOOK_META = {
     },
 }
 
-SIDE_PROJECT_META = {
-    "10_rapids": {
-        "chapter": "GPU Benchmark RAPIDS",
-        "type": "side_project",
-        "artifacts": ["benchmark_summary_all_sections.parquet"],
-    }
-}
-
 
 def _classify_notebook(path: Path) -> dict:
     name = path.stem
@@ -107,10 +101,26 @@ def _classify_notebook(path: Path) -> dict:
     num = parts[0] if parts else "00"
     is_side = "side_project" in str(path)
 
-    category = (
-        "side_projects" if is_side else ("core_thesis" if int(num) <= 9 else "paper_research")
-    )
+    if is_side or num == "07":
+        category = "research_labs"
+    elif num == "09":
+        category = "historical_demo"
+    elif num in {"10", "11", "12"}:
+        category = "paper_notebooks"
+    elif num == "13":
+        category = "explainability_lab"
+    else:
+        category = "reusable_evidence"
+
     meta = NOTEBOOK_META.get(num, {})
+
+    reuse_status_map = {
+        "reusable_evidence": "evidence_reusable",
+        "research_labs": "research_only",
+        "historical_demo": "historical_reference",
+        "paper_notebooks": "paper_material",
+        "explainability_lab": "explainability_reference",
+    }
 
     return {
         "filename": path.name,
@@ -120,13 +130,7 @@ def _classify_notebook(path: Path) -> dict:
         "chapter": meta.get("chapter", name.replace("_", " ").title()),
         "quarto_chapter": meta.get("quarto_cap"),
         "key_artifacts": meta.get("artifacts", []),
-        "reuse_status": (
-            "evidence_reusable"
-            if category == "core_thesis"
-            else "paper_material"
-            if category == "paper_research"
-            else "exploratory_side_project"
-        ),
+        "reuse_status": reuse_status_map[category],
         "relative_path": str(path.relative_to(PROJECT_ROOT)),
     }
 
@@ -137,28 +141,37 @@ def main() -> None:
     notebooks = sorted(NOTEBOOKS_DIR.glob("**/*.ipynb"))
     records = [_classify_notebook(nb) for nb in notebooks]
 
-    core = [r for r in records if r["category"] == "core_thesis"]
-    paper = [r for r in records if r["category"] == "paper_research"]
-    side = [r for r in records if r["category"] == "side_projects"]
+    by_category = {
+        "reusable_evidence": [r for r in records if r["category"] == "reusable_evidence"],
+        "research_labs": [r for r in records if r["category"] == "research_labs"],
+        "historical_demo": [r for r in records if r["category"] == "historical_demo"],
+        "paper_notebooks": [r for r in records if r["category"] == "paper_notebooks"],
+        "explainability_lab": [r for r in records if r["category"] == "explainability_lab"],
+    }
 
     logger.info(
-        f"Total: {len(records)} | core: {len(core)} | paper: {len(paper)} | side: {len(side)}"
+        "Total: {} | reusable: {} | research: {} | historical: {} | paper: {} | explainability: {}".format(
+            len(records),
+            len(by_category["reusable_evidence"]),
+            len(by_category["research_labs"]),
+            len(by_category["historical_demo"]),
+            len(by_category["paper_notebooks"]),
+            len(by_category["explainability_lab"]),
+        )
     )
 
     status = {
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": pd.Timestamp.utcnow().isoformat(),
         "total_notebooks": len(records),
-        "by_category": {
-            "core_thesis": len(core),
-            "paper_research": len(paper),
-            "side_projects": len(side),
-        },
+        "by_category": {key: len(value) for key, value in by_category.items()},
         "notebooks": records,
         "classification_rules": {
-            "core_thesis": "Notebooks 01-09: main pipeline chapters, evidence reusable for thesis",
-            "paper_research": "Notebooks 10-13: paper-specific material and deep dives",
-            "side_projects": "Notebooks in side_projects/: exploratory, not part of core pipeline",
+            "reusable_evidence": "Notebooks 01-06 and 08: reusable evidence connected to the live thesis stack",
+            "research_labs": "Notebook 07 and notebooks/side_projects/: research-only exploratory labs",
+            "historical_demo": "Notebook 09: archived end-to-end demonstration notebook",
+            "paper_notebooks": "Notebooks 10-12: paper-support notebooks executed in reference mode",
+            "explainability_lab": "Notebook 13: explainability deep dive retained as a focused lab",
         },
     }
 

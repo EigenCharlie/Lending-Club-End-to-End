@@ -7,7 +7,7 @@ Este capítulo evita una ruptura artificial entre dos etapas académicas del pro
 
 ### Qué queda cerrado en la especialización
 
-El documento espejo `reports/tesis_especializacion.md` deja claro que la fase de especialización ya consolidó una columna vertebral defendible:
+El documento espejo archivado en `reports/history/tesis_especializacion.md`, junto con los artefactos vivos del proyecto, deja claro que la fase de especialización ya consolidó una columna vertebral defendible:
 
 | Componente | Estado narrativo |
 |---|---|

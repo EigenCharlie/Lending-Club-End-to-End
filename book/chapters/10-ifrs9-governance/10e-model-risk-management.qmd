@@ -45,7 +45,7 @@ rows = [
     {"Componente": "PD backtesting suite", "Estado": "PASS" if pd_backtesting.get("overall_pass") else "DIAGNOSTIC FAIL", "Lectura": "La suite estadística es exigente; no reabre la promoción pero sí informa trabajo futuro."},
     {"Componente": "Bootstrap validation", "Estado": str(bootstrap_validation.get("severity", "N/D")).upper(), "Lectura": "Añade una capa bootstrap para distinguir materialidad de slice frente a p-values demasiado sensibles."},
     {"Componente": "PD validation interpretation", "Estado": str(pd_validation.get("severity", "N/D")).upper(), "Lectura": "El promedio global no alarma; la persistencia por cohortes sí merece atención."},
-    {"Componente": "Calibration mapping", "Estado": str(calibration_mapping.get("severity", "N/D")).upper(), "Lectura": "Prueba sidecars de remapeo sin reemplazar el calibrador canónico."},
+    {"Componente": "Calibration mapping", "Estado": str(calibration_mapping.get("severity", "N/D")).upper(), "Lectura": "Prueba sidecars de remapeo sin reemplazar el calibrador canónico; el cierre actual es keep-current-calibrator."},
     {"Componente": "IFRS9 diagnostics", "Estado": "PASS" if ifrs9_diag.get("overall_pass") else "DIAGNOSTIC FAIL", "Lectura": "La escalera de estrés es coherente, pero la estabilidad temporal sigue abierta."},
     {"Componente": "Encoding stability", "Estado": "PASS" if encoding.get("overall_pass") else "FAIL", "Lectura": "No hay evidencia de fragilidad estructural que fuerce reabrir el contrato."},
     {"Componente": "Model shift semantics", "Estado": str(model_shift.get("summary", {}).get("shift_type", "N/D")), "Lectura": "Distingue shift estructural de degradación predictiva en el lenguaje de gobernanza."},
@@ -170,7 +170,7 @@ pd.DataFrame(rows)
 
 Estas capas no deben leerse como adornos. Son exactamente el tipo de evidencia que convierte una historia de “modelo de scoring” en una historia de **plataforma de riesgo defendible**.
 
-La secuencia importa. `PD backtesting` dice que la capa estadística es exigente; `bootstrap_validation` muestra que la materialidad por slices sigue viva incluso cuando el gap agregado es pequeño [@efron1994]; `pd_validation_interpretation` traduce esa señal a lenguaje de cohortes; y `calibration_mapping` deja claro que un remapeo ligero no resuelve por sí solo el problema. Esa cadena de evidencia es más fuerte que reportar un único `p≈0`.
+La secuencia importa. `PD backtesting` dice que la capa estadística es exigente; `bootstrap_validation` muestra que la materialidad por slices sigue viva incluso cuando el gap agregado es pequeño [@efron1994]; `pd_validation_interpretation` traduce esa señal a lenguaje de cohortes; y `calibration_mapping`, ya ejecutado también en su wrapper shadow, cerró con `keep_current_calibrator` después de mostrar que los sidecars ligeros empeoraban el balance entre gap, persistencia temporal y ECE. Esa cadena de evidencia es más fuerte que reportar un único `p≈0`, porque convierte una hipótesis abierta en un control efectivamente ejecutado y documentado.
 
 ### Qué dicen hoy los diagnósticos más exigentes
 
@@ -188,6 +188,7 @@ rows = [
     {"Tema": "PD gap global", "Señal": f"{pdv.get('gap_bp', 0):.1f} bp", "Lectura": "La desviación agregada es baja frente a la escala del portafolio."},
     {"Tema": "Bootstrap slice CI exclusions", "Señal": boot.get("slice_ci_exclusions"), "Lectura": "Varios slices quedan persistentemente lejos de cero bajo remuestreo explícito."},
     {"Tema": "Calibration mapping winner", "Señal": calibration_mapping.get("best_candidate", {}).get("candidate_id"), "Lectura": "El calibrador vigente sigue siendo el mejor observable en la lane sidecar."},
+    {"Tema": "Calibration mapping decision", "Señal": calibration_mapping.get("recommendation"), "Lectura": "La lane shadow cerró con `keep_current_calibrator`; el valor restante es interpretativo, no un remapeo fácil."},
     {"Tema": "Peor grade gap", "Señal": f"{pdv.get('max_grade_gap_bp', 0):.1f} bp", "Lectura": "Los slices siguen importando más que la media global."},
     {"Tema": "IFRS9 dominant driver", "Señal": ifrs9_summary.get("dominant_ifrs9_driver"), "Lectura": "La sensibilidad actual del ECL parece más dominada por LGD que por PD."},
     {"Tema": "ADF near-unit-root power", "Señal": f"{ifrs9_summary.get('near_unit_root_power', 0):.3f}", "Lectura": "La potencia cerca de raíz unitaria sigue siendo baja."},
@@ -247,7 +248,7 @@ El sistema actual puede presentarse como defendible porque:
 
 Las oportunidades de mejora siguen siendo concretas:
 
-1. afinar calibración y lectura por cohortes en PD usando la nueva evidencia slice-aware;
+1. afinar la interpretación y lectura por cohortes en PD usando la nueva evidencia slice-aware, no perseguir otro remapeo ligero del calibrador;
 2. fortalecer la lane IFRS9 en estabilidad temporal y tratamiento de incertidumbre;
 3. mantener C2ST, conformal y backtesting como señales vivas de vigilancia, no como anexos decorativos.
 

@@ -1,0 +1,31 @@
+schema_version: "2026-03-31.1"
+profile_name: search_conformal_default
+pipeline_family: search_conformal
+description: >
+  Benchmark conformal sobre PD congelado. Ejecuta sensibilidad conformal fuera
+  del lane canónico.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: true
+defaults:
+  sampling_profile: champion64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  conformal:
+    alpha_target_90: 0.10
+    alpha_95: 0.05
+    alpha_candidates_90: [0.10, 0.095, 0.09, 0.085, 0.08]
+    partition_candidates: [score_decile_mondrian, grade, grade_x_scoreband_mondrian]
+    scaled_scores_options: [true, false]
+    min_group_sizes: [150, 250, 500, 1000, 2000]
+    benchmark_min_group_size_default: 150
+    min_group_coverage_target: 0.89
+    group_coverage_floor_target_90: 0.92
+    max_width_budget_90: 0.90
+    temporal_segment_floor_enabled: true
+    temporal_segment_freq: M
+    group_coverage_floor_enabled: true
+    shrinkback_enabled: false

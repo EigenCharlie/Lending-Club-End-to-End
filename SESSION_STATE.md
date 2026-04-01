@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-25
+Last Updated: 2026-03-31
 
 ---
 
@@ -7,6 +7,13 @@ Last Updated: 2026-03-25
 
 Project is operational and artifact-consistent across the thesis pipeline.
 Current truth is baseline-registry-first.
+
+Repository hygiene update (2026-03-31):
+- Pipeline-first orchestration is now the active execution contract.
+- Active vs historical vs research documentation is explicitly separated under `docs/`, `docs/history/`, and `docs/research/`.
+- `reports/` root has been reduced to live editorial/technical artifacts; historical snapshots moved to `reports/history/`.
+- Research scratch under `models/*_runtime_checkpoints/` was purged; only the still-referenced `conformal_v3_grade_noshrink_2026_03_26` namespace remains under `conformal_gap/`.
+- Historical pre-Quarto helpers were archived under `scripts/history/` with compatibility wrappers left in place.
 
 Canonical update (2026-03-13):
 - Official operational baseline: `champion-2026-03-12-mega-definitive`.

@@ -75,6 +75,7 @@ The book should explicitly document the following as part of the live system, no
 | PD validation / backtesting | exact-binomial, Jeffreys-aware interpretation, HL/Z-style reading, material slice persistence | `models/pd_backtesting_status.json`, `models/pd_validation_interpretation_status.json` | implemented |
 | Bootstrap hypothesis tests | bootstrap-based gap uncertainty for aggregate and slice calibration interpretation | `models/bootstrap_validation_status.json` | implemented |
 | Calibration mapping diagnostics | intercept-shift and monotone remap sidecars on OOT windows | `models/calibration_mapping_status.json` | implemented |
+| Calibration mapping shadow validation | consolidated wrapper to test whether a promising remap survives downstream Mondrian checks | `models/calibration_mapping_shadow_impact_status.json` | implemented and executed; closed as `keep_current_calibrator` |
 | IFRS9 diagnostics | recursive regressions, ADF power, sign coherence, interval-width interpretation | `models/ifrs9_diagnostics_status.json` | implemented |
 | Binning/encoding stability | WOE and bucket stability diagnostics | `models/encoding_stability_status.json` | implemented |
 | Model-shift and p-value hardening | structural-vs-predictive shift semantics in governance and MRM | `models/model_shift_status.json`, `models/governance_status.json` | implemented |
@@ -113,6 +114,7 @@ The book should explicitly document the following as part of the live system, no
 | PD validation is not globally broken, but some cohorts deviate materially | `models/pd_validation_interpretation_status.json` | internal canonical artifact | `07d`, `10e`, `10f` |
 | Bootstrap diagnostics add a large-`N` materiality lens on top of classical calibration tests | `models/bootstrap_validation_status.json` | internal canonical artifact + bootstrap testing references | `07d`, `10e`, `10f` |
 | Calibration mapping is now monitored as a shadow lane, not as a canonical calibrator replacement | `models/calibration_mapping_status.json` | internal canonical artifact | `06d`, `07d`, `10e`, `10f` |
+| Calibration mapping shadow validation closed with no promotable remap candidate; the next PD work is analytical cohort interpretation, not a lightweight remap | `models/calibration_mapping_shadow_impact_status.json` | internal canonical artifact | `06d`, `07d`, `10e`, `10f` |
 | IFRS9 currently needs stronger temporal defensibility | `models/ifrs9_diagnostics_status.json` | internal canonical artifact + primary time-series references | `10d`, `10e`, `10f` |
 | Encoding/binning is structurally stable today | `models/encoding_stability_status.json` | internal canonical artifact | `05c`, `10e` |
 | Governance separates structural shift from predictive degradation instead of collapsing both into raw p-values | `models/model_shift_status.json`, `models/governance_status.json` | internal canonical artifact + governance methodology | `10e`, `10f` |

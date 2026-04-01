@@ -57,7 +57,7 @@ echo '== master tail =='
 tail -n 15 ${RUN_DIR}/master.log 2>/dev/null || true
 echo
 echo '== current log tails =='
-for f in preflight main_pre heavy_main causal cate_portfolio post_core rapids notebooks; do
+for f in preflight core_data_pd core_conformal core_ts paper2_survival core_portfolio core_ifrs9 diagnostics_governance publication_exports research_causal research_cate_portfolio research_rapids research_notebooks; do
   lf=${RUN_DIR}/\${f}.log
   if [ -f \"\$lf\" ]; then
     echo \"--- \${f}.log\"
@@ -66,5 +66,5 @@ for f in preflight main_pre heavy_main causal cate_portfolio post_core rapids no
 done
 echo
 echo '== heavy processes =='
-ps -eo pid,etimes,rss,%mem,%cpu,cmd --sort=-%cpu | rg -i 'train_pd_model|run_survival_analysis|run_all_benchmarks.py|estimate_causal_effects|run_all_notebooks.py|run_champion_search.py|run_canonical_rebuild.py|run_insights_factory.py|run_long_pipeline.py' | head -n 15 || true
+ps -eo pid,etimes,rss,%mem,%cpu,cmd --sort=-%cpu | rg -i 'train_pd_model|run_survival_analysis|run_all_benchmarks.py|estimate_causal_effects|run_all_notebooks.py|run_pd_search.py|run_champion_search.py|run_canonical_rebuild.py|run_research_labs.py|run_insights_factory.py|run_long_pipeline.py' | head -n 15 || true
 "

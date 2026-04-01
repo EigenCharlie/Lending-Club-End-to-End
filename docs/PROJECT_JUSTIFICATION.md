@@ -25,10 +25,12 @@ The core thesis value is **decision quality under uncertainty**, not only predic
 
 ## 2) Architecture Rationale
 
-The repository separation is intentional and now maps to three execution families:
-- `canonical_rebuild`: reconstrucción operativa congelada para auditoría, packaging y narrativa canónica.
-- `champion_search`: corrida pesada de búsqueda para HPO, selección conformal/fairness/time-series/portfolio/causal.
-- `insights_factory`: métodos complementarios, notebooks, benchmarks GPU y evidencia extendida.
+The repository separation is intentional and now maps to pipeline-first families:
+- `core_canonical`: reconstrucción operativa congelada para auditoría, packaging y narrativa canónica.
+- `search_pd`, `search_conformal`, `search_portfolio`: búsquedas focalizadas por capa, sin reruns innecesarios del resto del stack.
+- `paper1_e2e` y `paper2_e2e`: ensamblajes end-to-end orientados a los papers, consumiendo artefactos congelados aguas arriba.
+- `diagnostics_governance`: backtesting, interpretación, MRM y validaciones diagnósticas.
+- `research_labs`: causal, GPU, notebooks y side projects explícitamente fuera del baseline reproducible oficial.
 
 Repository separation:
 - `src/`: reusable analytical logic
@@ -38,7 +40,7 @@ Repository separation:
 - `data/` and `models/`: reproducible assets
 - `api/`, `streamlit_app/`: delivery layer (implemented, but no longer the official narrative surface)
 
-This supports both research-speed iteration and a Quarto-first publication contract where the book is official and Streamlit survives only as an optional interaction layer.
+This supports both research-speed iteration and a Quarto-first publication contract where the book is official and Streamlit survives only as an optional interaction layer. It also prevents a PD/challenger search from re-triggering survival, causal, GPU, or notebook lanes unless a pipeline explicitly asks for them.
 
 ---
 

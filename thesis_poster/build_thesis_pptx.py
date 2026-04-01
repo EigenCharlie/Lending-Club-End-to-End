@@ -278,22 +278,25 @@ def build():
     # SLIDE 5: OBJECTIVES (reformulated from document)
     # ════════════════════════════════════════════════════════
     s = prs.slides.add_slide(blank)
-    _add_text(s, "Seis objetivos especificos reformulados con alcance acotado y medible",
+    _add_text(s, "Seis objetivos especificos con alcance acotado, medible y cumplido",
               0.5, 0.2, 9.0, 0.7, size=24, bold=True, color=PRIMARY)
     _add_rule(s, 0.5, 0.85, 9.0)
 
-    objs = [
-        "OE1: Fundamentar teoricamente CP en riesgo crediticio mediante revision sistematica (Split, Mondrian, CQR).",
-        "OE2: Construir dataset analitico con separacion temporal estricta OOT y variables PD, LGD, EAD sin leakage.",
-        "OE3: Implementar modelo base PD calibrado (CatBoost + calibracion post-hoc) evaluando AUC, Brier, ECE.",
-        "OE4: Aplicar CP Mondrian sobre PD y variantes adaptativas sobre LGD/EAD, evaluando cobertura condicional.",
-        "OE5: Evaluar impacto en IFRS 9: ECL por escenarios, clasificacion Stage 1-3, y sensibilidad de provisiones.",
-        "OE6: Proponer lineamientos de adopcion: monitoreo de cobertura, alertas de degradacion, gobernanza.",
-    ]
-    _add_multiline(s, objs, 0.6, 1.0, 8.8, 4.3, size=16, spacing=Pt(10))
+    _add_table(s, ["OE", "Alcance planificado", "Resultado obtenido"],
+               [
+                   ["OE1", "Marco teorico CP (revision sistematica)", "19 fuentes, vacio PD-only identificado"],
+                   ["OE2", "Dataset OOT sin leakage (PD/LGD/EAD)", "1.86M prestamos, 42 features, 3 splits"],
+                   ["OE3", "PD calibrado (AUC, Brier, ECE)", "AUC 0.713, Brier 0.155, ECE 0.007"],
+                   ["OE4", "CP Mondrian PD + variantes LGD/EAD", "PD 92.42%, LGD 90.50%, EAD 91.20%"],
+                   ["OE5", "Impacto IFRS 9 (ECL, stages, SICR)", "$1,001M-$1,799M, SICR conformal"],
+                   ["OE6", "Lineamientos de adopcion practica", "Backtesting 35m, gate 7/13, dashboard"],
+               ], 0.3, 0.95, 9.4, row_h=0.42, font_size=12)
+
+    _add_text(s, "Todos los objetivos cumplidos con evidencia cuantitativa verificable (Tabla 12 del documento tecnico).",
+              0.5, 4.1, 9.0, 0.35, size=14, bold=True, color=GREEN)
 
     _add_text(s, "Cambio vs. anteproyecto: se acoto alcance a CP sobre PD/LGD/EAD e IFRS 9, excluyendo optimizacion robusta e inferencia causal (reservados para maestria).",
-              0.5, 5.0, 9.0, 0.5, size=12, color=MUTED)
+              0.5, 4.55, 9.0, 0.5, size=12, color=MUTED)
 
     # ════════════════════════════════════════════════════════
     # SLIDE 6: WHY CP - conceptual
@@ -441,28 +444,29 @@ def build():
     # SLIDE 12: PD MODEL RESULTS
     # ════════════════════════════════════════════════════════
     s = prs.slides.add_slide(blank)
-    _add_text(s, "CatBoost calibrado con Venn-Abers logra AUC 0.7130 y ECE 0.0059\n— calibracion mejora calidad probabilistica sin perder discriminacion",
+    _add_text(s, "CatBoost monotonico calibrado con Venn-Abers logra AUC 0.713\ny ECE 0.0067 — calibracion mejora calidad sin perder discriminacion",
               0.5, 0.2, 9.0, 0.8, size=22, bold=True, color=PRIMARY)
     _add_rule(s, 0.5, 1.0, 9.0)
 
     # Table: model comparison
-    _add_table(s, ["Modelo", "AUC-ROC", "Gini", "Brier", "D2-Brier", "ECE"],
+    _add_table(s, ["Modelo", "AUC-ROC", "Gini", "Brier", "D2-Brier", "ECE", "KS"],
                [
-                   ["Reg. Logistica", "0.683", "0.366", "0.231", "-0.349", "—"],
-                   ["CatBoost (default)", "0.711", "0.424", "0.208", "-0.211", "—"],
-                   ["CatBoost (tuned)", "0.7118", "0.424", "0.208", "-0.211", "—"],
-                   ["CatBoost (calibrado)", "0.7130", "0.423", "0.155", "+0.097", "0.0059"],
-               ], 0.5, 1.1, 5.5, font_size=12)
+                   ["Reg. Logistica", "0.679", "0.358", "0.233", "-0.356", "—", "—"],
+                   ["CatBoost (default)", "0.713", "0.426", "0.210", "-0.222", "—", "—"],
+                   ["CatBoost (tuned)", "0.713", "0.426", "0.210", "-0.222", "—", "—"],
+                   ["CatBoost (calibrado)", "0.713", "0.425", "0.155", "+0.099", "0.007", "0.313"],
+               ], 0.5, 1.1, 5.5, font_size=11)
 
     # Image: ROC curves
     roc_path = NB_IMG / "03_pd_modeling" / "roc_curves.png"
     _add_image_safe(s, roc_path, 6.2, 1.0, 3.5, 2.2)
 
     _add_multiline(s, [
-        "D2-Brier negativo = peor que predecir la prevalencia. Calibracion lo corrige a +0.097.",
-        "Venn-Abers seleccionado automaticamente via politica multi-fold temporal (4 folds).",
-        "ECE 0.0059 = excelente calibracion, pero aun no responde: con que confianza lo digo?",
-    ], 0.5, 3.4, 9.0, 1.6, size=16, bold_prefix=False)
+        "D2-Brier negativo = peor que predecir la prevalencia. Calibracion Venn-Abers lo corrige a +0.099.",
+        "Restricciones monotonicas: annual_inc (neg.) y loan_to_income (pos.) — coherencia economica garantizada.",
+        "Venn-Abers seleccionado automaticamente via politica multi-fold temporal (4 candidatos, 4 folds).",
+        "ECE 0.0067 = buena calibracion, pero no responde: con que confianza lo digo? Eso lo resuelve CP.",
+    ], 0.5, 3.3, 9.0, 1.8, size=15, bold_prefix=False)
 
     _add_text(s, "Evaluacion sobre 276,869 prestamos OOT (2018-01 a 2020-09).",
               0.5, 5.1, 9.0, 0.35, size=12, color=MUTED)
@@ -498,12 +502,12 @@ def build():
     # SLIDE 14: CONFORMAL PD MONDRIAN
     # ════════════════════════════════════════════════════════
     s = prs.slides.add_slide(blank)
-    _add_text(s, "Mondrian Conformal logra 92.52% de cobertura global\ncon 89.01% minima por grado al 90% de confianza",
+    _add_text(s, "Mondrian Conformal logra 92.42% de cobertura global\ncon 89.01% minima por grado al 90% de confianza",
               0.5, 0.2, 9.0, 0.8, size=22, bold=True, color=PRIMARY)
     _add_rule(s, 0.5, 1.0, 9.0)
 
     # KPIs
-    _kpi_box(s, 0.5, 1.15, "Coverage 90%", "92.52%", w=2.1)
+    _kpi_box(s, 0.5, 1.15, "Coverage 90%", "92.42%", w=2.1)
     _kpi_box(s, 2.8, 1.15, "Coverage 95%", "95.93%", w=2.1)
     _kpi_box(s, 5.1, 1.15, "Min. por grado", "89.01%", w=2.1)
     _kpi_box(s, 7.4, 1.15, "Ancho medio", "0.7546", w=2.1)
@@ -533,14 +537,17 @@ def build():
     # Comparison table
     _add_table(s, ["Metrica", "Global", "Mondrian", "Diferencia"],
                [
-                   ["Cobertura 90%", "89.84%", "92.52%", "+2.68 pp"],
+                   ["Cobertura 90%", "89.84%", "92.42%", "+2.58 pp"],
                    ["Min. cobertura por grado", "58.69%", "89.01%", "+30.32 pp"],
                    ["Ancho medio 90%", "0.955", "0.7546", "-21.3%"],
                ], 0.5, 1.1, 5.5, font_size=14)
 
     # Image: variant scatter or coverage-width tradeoff
+    # Prefer publication heatmap; fall back to tradeoff plot
+    heatmap_path = FIG_DIR / "p3_fig2_grade_coverage_heatmap.png"
     tradeoff_path = NB_IMG / "04_conformal_prediction" / "coverage_width_tradeoff.png"
-    _add_image_safe(s, tradeoff_path, 6.2, 1.0, 3.5, 2.2)
+    if not _add_image_safe(s, heatmap_path, 6.2, 1.0, 3.5, 2.2):
+        _add_image_safe(s, tradeoff_path, 6.2, 1.0, 3.5, 2.2)
 
     _add_multiline(s, [
         "Global: 41.3% de grado G fuera del intervalo — invalida la garantia.",
@@ -569,7 +576,7 @@ def build():
                ], 0.5, 1.5, 5.5, font_size=12)
 
     # EAD box
-    _kpi_box(s, 6.5, 1.2, "EAD Cob. 90%", "90.82%", w=2.5)
+    _kpi_box(s, 6.5, 1.2, "EAD Cob. 90%", "91.20%", w=2.5)
     _kpi_box(s, 6.5, 2.3, "EAD Cob. 95%", "95.28%", w=2.5)
 
     _add_multiline(s, [
@@ -578,6 +585,52 @@ def build():
         "EAD: alta precision porque la exposicion es contractual (ancho medio $132.58 USD).",
         "Contribucion: la mayoria de literatura (Bellotti, 2017) solo cubre PD, no LGD/EAD.",
     ], 0.5, 3.6, 9.0, 1.6, size=16, bold_prefix=False)
+
+    # ════════════════════════════════════════════════════════
+    # SLIDE 16b: THREE COMPLEMENTARY LAYERS (NEW)
+    # ════════════════════════════════════════════════════════
+    s = prs.slides.add_slide(blank)
+    _add_text(s, "Tres capas complementarias de calidad del modelo\n— cada una resuelve un problema distinto",
+              0.5, 0.2, 9.0, 0.8, size=22, bold=True, color=PRIMARY)
+    _add_rule(s, 0.5, 1.0, 9.0)
+
+    from pptx.enum.shapes import MSO_SHAPE as _MSO
+    layers = [
+        ("Capa 1: Calibracion", "Venn-Abers",
+         ["Corrige nivel probabilistico", "ECE: 0.210 -> 0.0067",
+          "D2-Brier: -0.222 -> +0.099"],
+         "Cuanto riesgo hay?", ACCENT),
+        ("Capa 2: Monotonia", "CatBoost constraints",
+         ["Coherencia economica", "annual_inc: negativa",
+          "loan_to_income: positiva", "0% violaciones"],
+         "Tiene sentido economico?", GREEN),
+        ("Capa 3: Conformal", "Mondrian CP",
+         ["Cuantifica incertidumbre", "Cobertura: 92.42%",
+          "Min grado: 89.01%", "Ancho: 0.7546"],
+         "Con que confianza lo digo?", RGBColor(0xE6, 0x7E, 0x22)),
+    ]
+    for i, (title, method, bullets, question, col) in enumerate(layers):
+        x = 0.3 + i * 3.2
+        box = s.shapes.add_shape(_MSO.ROUNDED_RECTANGLE, Inches(x), Inches(1.15),
+                                  Inches(3.0), Inches(3.3))
+        box.fill.solid()
+        box.fill.fore_color.rgb = LIGHT_BG
+        box.line.color.rgb = col
+        box.line.width = Pt(2)
+        _add_text(s, title, x + 0.15, 1.2, 2.7, 0.3, size=15, bold=True, color=col,
+                  align=PP_ALIGN.CENTER)
+        _add_text(s, method, x + 0.15, 1.5, 2.7, 0.3, size=13, color=MUTED,
+                  align=PP_ALIGN.CENTER)
+        _add_multiline(s, bullets, x + 0.25, 1.85, 2.5, 1.6, size=14, color=BODY,
+                       spacing=Pt(4))
+        _add_text(s, f'"{question}"', x + 0.15, 3.65, 2.7, 0.5, size=13, bold=True,
+                  color=col, align=PP_ALIGN.CENTER)
+
+    _add_text(s, "Resultado: un modelo que no solo predice bien, sino que predice con coherencia y con incertidumbre cuantificada.",
+              0.5, 4.6, 9.0, 0.5, size=16, bold=True, color=PRIMARY, align=PP_ALIGN.CENTER)
+
+    _add_text(s, "Ninguna capa por si sola es suficiente. Las tres juntas producen predicciones utiles para decision, no solo para ranking.",
+              0.5, 5.15, 9.0, 0.35, size=12, color=MUTED)
 
     # ════════════════════════════════════════════════════════
     # SLIDE 17: IFRS9 ECL IMPACT
@@ -593,7 +646,7 @@ def build():
                    ["Baseline (PD puntual)", "$1,001M", "—", "PD calibrada"],
                    ["Mild stress", "$1,200M", "+22.8%", "PD + 0.5 x ancho CP"],
                    ["Adverse", "$1,463M", "+49.7%", "PD + 0.75 x ancho CP"],
-                   ["Severe (PD alta CP)", "$1,799M", "+83.3%", "PD_high (95%)"],
+                   ["Severe (PD alta CP)", "$1,799M", "+79.7%", "PD_high (95%)"],
                ], 0.5, 1.1, 6.0, font_size=13)
 
     # KPIs
@@ -606,11 +659,13 @@ def build():
     _add_image_safe(s, fan_path, 0.3, 3.3, 5.0, 1.8)
 
     _add_multiline(s, [
-        "Innovacion: ancho CP (PD_high - PD_point) como senal adicional de SICR.",
-        "Un prestamo con intervalo amplio indica fragilidad, incluso si PD puntual no cambia.",
-    ], 5.5, 3.9, 4.2, 1.0, size=15, bold_prefix=False)
+        "Sin CP: el banco ve $1,001M y no sabe si es robusto o fragil.",
+        "Con CP: rango $1,001M-$1,799M (+79.7%) — cuantificacion explicita.",
+        "Implicacion: provisiones deben cubrir incertidumbre, no solo la media.",
+        "Innovacion SICR: ancho conformal como senal de deterioro crediticio.",
+    ], 5.5, 3.6, 4.2, 1.5, size=14, bold_prefix=True)
 
-    _add_text(s, "Sin CP, el banco solo ve $1,001M sin saber si es robusto o fragil. CP cuantifica la incertidumbre.",
+    _add_text(s, "De estimaciones puntuales a intervalos con garantia formal: la incertidumbre deja de ser invisible y se convierte en informacion accionable.",
               0.5, 5.15, 9.0, 0.35, size=12, color=MUTED)
 
     # ════════════════════════════════════════════════════════
@@ -623,21 +678,32 @@ def build():
     # SLIDE 19: EVALUATOR RESPONSE
     # ════════════════════════════════════════════════════════
     s = prs.slides.add_slide(blank)
-    _add_text(s, "Anteproyecto aprobado 4.5/5.0 — todos los ajustes solicitados\nfueron implementados con evidencia verificable",
+    _add_text(s, "Evaluaciones aprobadas: anteproyecto 4.5/5.0 y documento 4.2/5.0\n— todas las correcciones solicitadas fueron implementadas",
               0.5, 0.2, 9.0, 0.8, size=22, bold=True, color=PRIMARY)
     _add_rule(s, 0.5, 1.0, 9.0)
 
-    _add_table(s, ["Criterio", "Nota", "Observacion", "Como se abordo"],
+    _add_text(s, "Evaluacion del anteproyecto (Feb 2026)", 0.5, 1.05, 5.5, 0.3,
+              size=14, bold=True, color=ACCENT)
+    _add_table(s, ["Criterio", "Nota", "Como se abordo"],
                [
-                   ["Pertinencia", "4.8", "Util y alineada", "Coberturas >90%, $814M incertidumbre"],
-                   ["Planteamiento", "4.3", "Objetivos a mejorar", "6 OE reformulados con impacto medible"],
-                   ["Metodologia", "4.6", "Alcance riesgoso", "CatBoost unico + Mondrian focalizado"],
-                   ["Innovacion", "4.7", "Novedosa integracion", "CP triada PD-LGD-EAD + SICR conformal"],
-                   ["Viabilidad", "3.5", "Cronograma ajustado", "Profundidad > amplitud, automatizacion"],
-                   ["Comunicacion", "4.8", "Forma adecuada", "Pruebas Kupiec/Christoffersen + tablas"],
-               ], 0.3, 1.1, 9.4, row_h=0.38, font_size=11)
+                   ["Pertinencia", "4.8", "Coberturas >90%, $798M incertidumbre"],
+                   ["Planteamiento", "4.3", "6 OE reformulados, medibles"],
+                   ["Metodologia", "4.6", "CatBoost + Mondrian focalizado"],
+                   ["Innovacion", "4.7", "CP triada PD-LGD-EAD + SICR"],
+                   ["Viabilidad", "3.5", "Profundidad > amplitud"],
+                   ["Comunicacion", "4.8", "Kupiec/Christoffersen + tablas"],
+               ], 0.3, 1.35, 5.5, row_h=0.33, font_size=10)
 
-    _add_text(s, "Evaluador: Andres Felipe Garcia Ospina, 25 de febrero de 2026. Concepto: Aprobado con Ajustes.",
+    _add_text(s, "Evaluacion del documento (Mar 2026): 4.2/5.0", 6.0, 1.05, 3.7, 0.3,
+              size=14, bold=True, color=ACCENT)
+    _add_multiline(s, [
+        "Correcciones solicitadas (todas implementadas):",
+        "(a) Agregar resumen/abstract y palabras clave.",
+        "(b) Reescribir conclusiones por objetivo (Tabla 12).",
+        "(c) Estandarizar formato de citacion IEEE.",
+    ], 6.2, 1.4, 3.5, 1.8, size=14, bold_prefix=False)
+
+    _add_text(s, "Evaluador: Andres Felipe Garcia Ospina. Concepto documento: Aprobado con Ajustes (4.2/5.0, 19 de marzo de 2026).",
               0.5, 5.1, 9.0, 0.35, size=12, color=MUTED)
 
     # ════════════════════════════════════════════════════════
@@ -673,9 +739,9 @@ def build():
                [
                    ["OE1: Marco teorico CP", "19 fuentes, 5 subsecciones, vacio PD-only identificado"],
                    ["OE2: Dataset OOT", "1.35M/237K/277K, 22 vars leakage, 42 features"],
-                   ["OE3: PD calibrado", "AUC 0.7130, ECE 0.0059, Brier 0.155, KS 0.311"],
-                   ["OE4: CP Mondrian PD/LGD/EAD", "PD 92.52%, LGD 90.50%, EAD 90.82% cob."],
-                   ["OE5: Impacto IFRS 9", "ECL $1,001M-$1,799M (+83.3%), SICR conformal"],
+                   ["OE3: PD calibrado", "AUC 0.713, ECE 0.007, Brier 0.155, KS 0.313"],
+                   ["OE4: CP Mondrian PD/LGD/EAD", "PD 92.42%, LGD 90.50%, EAD 91.20% cob."],
+                   ["OE5: Impacto IFRS 9", "ECL $1,001M-$1,799M (+79.7%), SICR conformal"],
                    ["OE6: Lineamientos adopcion", "Backtesting 35 meses, gate 7/13, dashboard"],
                ], 0.3, 1.1, 9.4, row_h=0.4, font_size=12)
 
@@ -686,28 +752,7 @@ def build():
     ], 0.5, 4.1, 9.0, 1.2, size=15, bold_prefix=False)
 
     # ════════════════════════════════════════════════════════
-    # SLIDE 22: CRISP-DM TABLE
-    # ════════════════════════════════════════════════════════
-    s = prs.slides.add_slide(blank)
-    _add_text(s, "CRISP-DM se uso como marco de ejecucion real, no como formalidad,\ncon entregables concretos en cada fase",
-              0.5, 0.2, 9.0, 0.8, size=22, bold=True, color=PRIMARY)
-    _add_rule(s, 0.5, 1.0, 9.0)
-
-    _add_table(s, ["Fase CRISP-DM", "Actividades", "Entregables"],
-               [
-                   ["1. Negocio", "IFRS 9, Basilea III, gap identificado", "Pregunta + 6 OE"],
-                   ["2. Datos", "EDA 2.9M registros, 140+ vars", "Gradiente A-G, 22 vars leakage"],
-                   ["3. Preparacion", "Limpieza, FE (42 feats), OOT", "3 splits + 3 datasets analiticos"],
-                   ["4. Modelado", "LR + CatBoost + Venn-Abers + Mondrian", "AUC 0.713, cob. 92.52%"],
-                   ["5. Evaluacion", "Kupiec, Christoffersen, backtesting", "+30pp Mondrian vs Global"],
-                   ["6. Despliegue", "Streamlit 31pp, DVC pipeline", "Dashboard + gobernanza"],
-               ], 0.3, 1.1, 9.4, row_h=0.38, font_size=11)
-
-    _add_text(s, "Cada fase tiene artefactos verificables. Los gaps son transparentes, no ocultos.",
-              0.5, 5.1, 9.0, 0.35, size=12, color=MUTED)
-
-    # ════════════════════════════════════════════════════════
-    # SLIDE 23: FEATURE IMPORTANCE (SHAP)
+    # SLIDE 22: FEATURE IMPORTANCE (SHAP) + MONOTONICITY
     # ════════════════════════════════════════════════════════
     s = prs.slides.add_slide(blank)
     _add_text(s, "Las cinco variables mas importantes son consistentes con la\nliteratura de riesgo crediticio y refuerzan la interpretabilidad",
@@ -721,14 +766,18 @@ def build():
     _add_image_safe(s, shap_path, 0.3, 1.1, 5.5, 3.5)
 
     _add_multiline(s, [
-        "int_rate: mayor tasa = mayor riesgo (pricing refleja scoring previo).",
-        "grade/sub_grade: gradiente de riesgo confirmado por SHAP.",
-        "term: 60 meses = mayor riesgo que 36 meses.",
-        "fico_score: score crediticio como factor protector.",
-        "dti: razon deuda-ingreso como indicador de fragilidad.",
-    ], 6.0, 1.2, 3.7, 3.0, size=15, bold_prefix=True)
+        "int_rate: mayor tasa = mayor riesgo.",
+        "grade/sub_grade: gradiente confirmado.",
+        "term: 60m = mayor riesgo que 36m.",
+        "fico_score: factor protector.",
+        "dti: indicador de fragilidad.",
+    ], 6.0, 1.2, 3.7, 1.8, size=14, bold_prefix=True)
 
-    _add_text(s, "SHAP values calculados sobre CatBoost tuned. Top 10 features mostradas.",
+    # Monotonicity verification
+    mono_path = NB_IMG / "13_model_explainability" / "monotonicity_verification.png"
+    _add_image_safe(s, mono_path, 6.0, 3.2, 3.5, 1.5)
+
+    _add_text(s, "SHAP + Auditoria de monotonia: 0% violaciones en annual_inc y loan_to_income.",
               0.5, 5.1, 9.0, 0.35, size=12, color=MUTED)
 
     # ════════════════════════════════════════════════════════
@@ -740,13 +789,15 @@ def build():
     _add_rule(s, 0.5, 0.6, 9.0, 0.04, ACCENT)
 
     conclusions = [
-        "1. Calibracion y CP son complementarios: calibracion responde \"cuanto riesgo hay\"; CP responde \"con que confianza lo digo\". Venn-Abers redujo ECE a 0.0059.",
+        "1. Calibracion y CP son complementarios: Venn-Abers corrigio D2-Brier de -0.222 a +0.099. CP agrega bandas de incertidumbre con garantia formal de cobertura.",
         "",
-        "2. Mondrian supera a Split Global: +30pp en cobertura minima por grado (89% vs 59%) con intervalos 21% mas eficientes. La garantia solo promedio es insuficiente.",
+        "2. Mondrian supera a Split Global: +30pp en cobertura minima por grado (89% vs 59%) con intervalos 21% mas eficientes. La garantia solo promedio oculta fallos graves.",
         "",
-        "3. Extension exitosa a la triada PD-LGD-EAD: PD 92.52%, LGD 90.50%, EAD 90.82%. Cierra vacio en literatura que solo cubria PD.",
+        "3. Triada PD-LGD-EAD con CP: PD 92.42%, LGD 90.50%, EAD 91.20%. Cierra vacio en literatura (Bellotti, 2017) que solo cubria PD.",
         "",
-        "4. Impacto material en IFRS 9: rango ECL de $798M (+83.3%) cuantifica incertidumbre en provisiones. Ancho conformal propuesto como senal SICR.",
+        "4. Impacto IFRS 9: ECL de $1,001M a $1,799M (+79.7%) — $798M de incertidumbre cuantificada. Ancho conformal como senal SICR.",
+        "",
+        "5. Restricciones monotonicas garantizan coherencia economica sin sacrificio discriminativo (AUC invariante: 0.7127 vs 0.7128).",
     ]
     _add_multiline(s, conclusions, 0.5, 0.8, 9.0, 3.8, size=18, color=WHITE, spacing=Pt(4))
 
@@ -821,7 +872,7 @@ def build():
                ], 0.3, 1.4, 9.4, font_size=12)
 
     _add_multiline(s, [
-        "Con N=276K, incluso desviaciones de 1.76pp son significativas. Lo relevante: cobertura supera el objetivo.",
+        "Con N=276K, incluso desviaciones de 2.42pp son significativas. Lo relevante: cobertura supera el objetivo.",
         "Christoffersen confirma que las violaciones no se agrupan temporalmente (p=0.512 > 0.05).",
     ], 0.5, 4.0, 9.0, 1.0, size=15)
 

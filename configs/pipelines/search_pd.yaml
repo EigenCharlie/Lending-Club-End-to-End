@@ -1,0 +1,28 @@
+schema_version: "2026-03-31.1"
+pipeline_family: search_pd
+description: >
+  Búsqueda PD focalizada: HPO, challenger/monotonic, calibración del PD y
+  sidecars de evaluación del propio modelo.
+artifact_scope: search
+promotion_state: research_open
+writes_canonical_artifacts: false
+upstream_required: false
+default_profile: search_pd_default
+papers_served: [paper1]
+allowed_step_groups:
+  - preflight
+  - core_data_pd
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_conformal
+  - core_ts
+  - paper2_survival
+  - core_portfolio
+  - core_ifrs9
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries: [search_registry]

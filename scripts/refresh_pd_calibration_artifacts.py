@@ -29,6 +29,7 @@ from src.models.pd_contract import (
     load_contract,
 )
 from src.models.pd_model import TARGET, temporal_train_val_split
+from src.utils.baseline_registry import resolve_official_baseline_run_tag
 from src.utils.io_utils import read_split_with_fe_fallback
 from src.utils.threshold_semantics import write_threshold_semantics
 
@@ -316,7 +317,7 @@ def main(config_path: str = "configs/pd_model.yaml") -> None:
     )
 
     decision_cfg = cfg.get("decision_threshold", {}) or {}
-    resolved_run_tag = str(Path("reports/run_logs/champion-2026-03-12-mega-definitive").name)
+    resolved_run_tag = str(resolve_official_baseline_run_tag(default="untracked") or "untracked")
     fairness_policy_path = str(
         decision_cfg.get("fairness_policy_path", "configs/fairness_policy.yaml")
     )

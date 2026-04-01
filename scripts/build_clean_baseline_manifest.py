@@ -60,15 +60,14 @@ def _snapshot_metrics(snapshot: dict[str, Any] | None, key: str) -> dict[str, An
 
 
 def _infer_pd_config_path_from_run(source_run_tag: str) -> str | None:
-    status_path = ROOT / "reports" / "run_logs" / source_run_tag / "status" / "main_pre.json"
-    payload = _load_json(status_path)
+    status_dir = ROOT / "reports" / "run_logs" / source_run_tag / "status"
+    payload = _load_json(status_dir / "core_data_pd.json")
     command = str(payload.get("command", "")).strip()
-    if not command:
-        return None
-    match = re.search(r"scripts/train_pd_model\.py\s+--config\s+(\S+)", command)
-    if not match:
-        return None
-    return str(match.group(1)).strip()
+    if command:
+        match = re.search(r"scripts/train_pd_model\.py\s+--config\s+(\S+)", command)
+        if match:
+            return str(match.group(1)).strip()
+    return None
 
 
 def build_manifest(

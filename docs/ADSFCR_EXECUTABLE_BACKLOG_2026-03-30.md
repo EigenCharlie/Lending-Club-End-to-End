@@ -15,6 +15,7 @@ Update after implementation wave:
 
 - `P1` bootstrap diagnostics: implemented
 - `P1` calibration mapping diagnostics: implemented
+- `P1` calibration mapping shadow validation: implemented and closed as `negative but valuable result`
 - `P2` model-shift / p-value interpretation hardening: implemented
 - remaining valuable backlog: `LGD survival / PoC calibration` and `blockwise / constrained-threshold challenger ideas`
 
@@ -47,12 +48,31 @@ Update after implementation wave:
 - live artifacts:
   - `models/calibration_mapping_status.json`
   - `data/processed/calibration_mapping_candidates.parquet`
+  - `models/calibration_mapping_shadow_impact_status.json`
 - repo integration:
   - `src/evaluation/calibration_mapping.py`
   - `scripts/run_calibration_mapping_diagnostics.py`
+  - `scripts/run_calibration_mapping_shadow_validation.py`
   - `scripts/run_long_pipeline.py`
   - `scripts/generate_mrm_report.py`
   - `configs/mrm_policy.yaml`
+
+### Calibration mapping shadow validation closeout
+
+- status: implemented and executed on the confirmatory monotonic run
+- live artifacts:
+  - `models/calibration_mapping_status.json`
+  - `models/calibration_mapping_shadow_impact_status.json`
+- operational result:
+  - no shadow candidate passed `Gate PD`
+  - `current_identity` remained the best observable candidate
+  - neither `logit_intercept_shift` nor `isotonic_sidecar` improved cohort persistence
+  - downstream Mondrian rerun was therefore not triggered
+- implication:
+  - this line should remain documented as a useful negative result for thesis / MRM
+  - the next PD work is better spent on cohort-sensitive analytical interpretation than on more lightweight remapping
+
+Suggested thesis/documentation reading: the shadow validation is worth preserving not because it changed the champion, but because it closed a plausible methodological alternative. A lightweight post-hoc remap was a reasonable hypothesis given the residual cohort persistence, yet the executed evidence showed that the simple sidecars worsened calibration quality instead of improving it. That makes the remaining issue better understood: what is left to explain is not a missing easy recalibration trick, but a cohort-level temporal pattern that deserves analytical interpretation rather than another quick remapping pass.
 
 ### Model-shift and p-value interpretation hardening
 
@@ -139,6 +159,14 @@ This should begin as a sidecar diagnostic, not as a replacement for Venn-Abers.
 - report effect on global gap, quarter persistence, and slice materiality;
 - do not overwrite the canonical calibrator;
 - document whether this lane is promising enough to justify a later calibration challenger.
+
+### Execution result after implementation
+
+- the lane was executed through `scripts/run_calibration_mapping_shadow_validation.py`;
+- the final decision was `keep_current_calibrator`;
+- `current_identity` remained the best candidate in `models/calibration_mapping_status.json`;
+- the two lightweight challengers worsened absolute gap, quarter breaches, worst-quarter gap, and ECE;
+- this means the remaining issue is not a simple post-hoc remap problem but a cohort-interpretation problem.
 
 ### P2. Model Shift and P-Value Interpretation Hardening
 

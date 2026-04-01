@@ -1,0 +1,175 @@
+schema_version: "2026-03-31.1"
+pipelines:
+  - pipeline: core_canonical
+    objective: rebuild reproducible y compartible del champion stack
+    upstream: raw_data
+    outputs:
+      - models/pd_canonical.cbm
+      - models/conformal_policy_status.json
+      - models/fairness_audit_status.json
+      - models/champion_registry.json
+    papers_served: [paper1, paper2]
+    allowed_lanes:
+      - preflight
+      - core_data_pd
+      - core_conformal
+      - core_ts
+      - core_portfolio
+      - core_ifrs9
+      - diagnostics_governance
+      - publication_exports
+    forbidden_lanes:
+      - paper2_survival
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: search_pd
+    objective: busqueda PD focalizada y challenger evaluation
+    upstream: raw_data
+    outputs:
+      - models/pd_training_status.json
+      - models/pd_challenger_spec.json
+      - models/monotonicity_audit_status.json
+    papers_served: [paper1]
+    allowed_lanes: [preflight, core_data_pd, diagnostics_governance]
+    forbidden_lanes:
+      - core_conformal
+      - core_ts
+      - paper2_survival
+      - core_portfolio
+      - core_ifrs9
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: search_conformal
+    objective: benchmark y tuning Mondrian/CQR/variant selection
+    upstream: core_canonical
+    outputs:
+      - models/conformal_variant_selection_status.json
+      - models/conformal_policy_status.json
+      - data/processed/conformal_variant_benchmark.parquet
+    papers_served: [paper1, paper3]
+    allowed_lanes: [preflight, core_conformal, diagnostics_governance]
+    forbidden_lanes:
+      - core_data_pd
+      - core_ts
+      - paper2_survival
+      - core_portfolio
+      - core_ifrs9
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: search_portfolio
+    objective: selector economico, frontera y A/B guarded
+    upstream: core_canonical
+    outputs:
+      - models/champion_policy_selection_status.json
+      - data/processed/portfolio_robustness_summary.parquet
+      - models/champion_portfolio_policy.json
+    papers_served: [paper1]
+    allowed_lanes: [preflight, core_portfolio, diagnostics_governance]
+    forbidden_lanes:
+      - core_data_pd
+      - core_conformal
+      - core_ts
+      - paper2_survival
+      - core_ifrs9
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: paper1_e2e
+    objective: stack paper estrella end to end
+    upstream: raw_data
+    outputs:
+      - models/champion_search_bundle.json
+      - reports/run_comparisons/<run_tag>/comparison_summary.json
+    papers_served: [paper1]
+    allowed_lanes:
+      - preflight
+      - core_data_pd
+      - core_conformal
+      - core_portfolio
+      - diagnostics_governance
+      - publication_exports
+    forbidden_lanes:
+      - core_ts
+      - paper2_survival
+      - core_ifrs9
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: paper2_e2e
+    objective: stack derivado TS + survival + IFRS9/SICR
+    upstream: core_canonical
+    outputs:
+      - models/time_series_status.json
+      - models/survival_summary.pkl
+      - models/ifrs9_diagnostics_status.json
+    papers_served: [paper2]
+    allowed_lanes:
+      - preflight
+      - core_ts
+      - paper2_survival
+      - core_ifrs9
+      - diagnostics_governance
+    forbidden_lanes:
+      - core_data_pd
+      - core_conformal
+      - core_portfolio
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: diagnostics_governance
+    objective: backtesting, fairness, governance y MRM
+    upstream: core_canonical
+    outputs:
+      - models/governance_status.json
+      - models/mrm_report_status.json
+      - models/pd_backtesting_status.json
+    papers_served: [paper3]
+    allowed_lanes: [preflight, diagnostics_governance]
+    forbidden_lanes:
+      - core_data_pd
+      - core_conformal
+      - core_ts
+      - paper2_survival
+      - core_portfolio
+      - core_ifrs9
+      - publication_exports
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+  - pipeline: research_labs
+    objective: causal, gpu, notebooks y side projects research only
+    upstream: core_canonical
+    outputs:
+      - models/causal_effect_status.json
+      - reports/notebook_exec
+      - reports/gpu_benchmark
+    papers_served: [paper3]
+    allowed_lanes:
+      - preflight
+      - research_causal
+      - research_cate_portfolio
+      - research_rapids
+      - research_notebooks
+    forbidden_lanes:
+      - core_data_pd
+      - core_conformal
+      - core_ts
+      - paper2_survival
+      - core_portfolio
+      - core_ifrs9
+      - diagnostics_governance
+      - publication_exports

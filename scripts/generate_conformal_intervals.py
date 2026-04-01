@@ -18,6 +18,7 @@ import pandas as pd
 from catboost import CatBoostClassifier
 from loguru import logger
 
+from src.models.calibration import load_probability_calibrator
 from src.models.conformal import (
     build_mondrian_partition_labels,
     conditional_coverage_by_group,
@@ -46,7 +47,7 @@ from src.models.pd_contract import (
     resolve_model_path,
 )
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
-from src.utils.io_utils import load_pickle_compat, read_with_fallback
+from src.utils.io_utils import read_with_fallback
 from src.utils.replay_manifest import load_replay_manifest, manifest_section
 
 TARGET_COL = "default_flag"
@@ -161,14 +162,16 @@ def _load_model() -> tuple[CatBoostClassifier, Path]:
     return model, model_path
 
 
-def _load_calibrator() -> Any | None:
-    """Load canonical calibrator (with fallback candidates)."""
-    cal_path = resolve_calibrator_path()
+def _load_calibrator(calibrator_override_path: str | None = None) -> Any | None:
+    """Load canonical or shadow calibrator."""
+    cal_path = (
+        Path(calibrator_override_path) if calibrator_override_path else resolve_calibrator_path()
+    )
     if cal_path is None:
         logger.warning("No calibrator found. Using raw probabilities.")
         return None
-    calibrator = load_pickle_compat(cal_path)
-    logger.info(f"Loaded calibrator: {type(calibrator).__name__}")
+    calibrator = load_probability_calibrator(str(cal_path))
+    logger.info(f"Loaded calibrator: {type(calibrator).__name__} ({cal_path})")
     return calibrator
 
 
@@ -292,6 +295,7 @@ def main(
     scaled_scores_options: tuple[bool, ...] = (True, False),
     mode: str = "search",
     replay_manifest_path: str | None = None,
+    calibrator_override_path: str | None = None,
 ):
     logger.info("Starting Mondrian conformal interval generation with 90% auto-tuning")
     run_mode = str(mode or "search").strip().lower() or "search"
@@ -308,7 +312,7 @@ def main(
 
     # Load artifacts and data.
     model, model_path = _load_model()
-    calibrator = _load_calibrator()
+    calibrator = _load_calibrator(calibrator_override_path)
     cal_df = read_with_fallback(
         "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
     )
@@ -999,6 +1003,7 @@ def main(
 
     payload = {
         "model_path": str(model_path),
+        "calibrator_override_path": str(calibrator_override_path or ""),
         "metrics_90": {k: to_python_scalar(v) for k, v in metrics_90.items()},
         "metrics_95": {k: to_python_scalar(v) for k, v in metrics_95.items()},
         "diag_90": diag_90,
@@ -1127,6 +1132,7 @@ if __name__ == "__main__":
     parser.add_argument("--partition", default="grade")
     parser.add_argument("--partition_candidates", default=None)
     parser.add_argument("--artifact_namespace", default=None)
+    parser.add_argument("--calibrator_override_path", default=None)
     parser.add_argument("--mode", choices=["search", "replay"], default="search")
     parser.add_argument("--replay_manifest", default=None)
     args = parser.parse_args()
@@ -1164,6 +1170,7 @@ if __name__ == "__main__":
             else None
         ),
         artifact_namespace=args.artifact_namespace,
+        calibrator_override_path=args.calibrator_override_path,
         scaled_scores_options=tuple(
             token.strip().lower() in {"1", "true", "yes", "y"}
             for token in str(args.scaled_scores_options).split(",")

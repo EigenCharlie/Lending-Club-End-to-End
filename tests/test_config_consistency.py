@@ -212,16 +212,30 @@ class TestDvcPipeline:
         """DVC DAG should include governance/export stages used by Streamlit + MLflow."""
         stages = set(dvc_config.get("stages", {}).keys())
         required = {
-            "backtest_conformal_coverage",
-            "validate_conformal_policy",
-            "generate_governance_status",
-            "build_pd_challenger_artifacts",
-            "run_fairness_audit",
-            "export_streamlit_artifacts",
-            "export_storytelling_snapshot",
+            "diagnostic.conformal.backtest_coverage",
+            "diagnostic.conformal.validate_policy",
+            "core.governance.generate_status",
+            "diagnostic.pd.build_challenger_artifacts",
+            "core.governance.run_fairness_audit",
+            "core.governance.export_streamlit_artifacts",
+            "core.governance.export_storytelling_snapshot",
         }
         missing = required - stages
         assert not missing, f"Missing DVC showcase stages: {sorted(missing)}"
+
+    @pytest.mark.skipif(not DVC_YAML_PATH.exists(), reason="No dvc.yaml found")
+    def test_dvc_stage_prefixes_match_pipeline_taxonomy(self, dvc_config: dict) -> None:
+        valid_prefixes = (
+            "core.",
+            "paper2.",
+            "search.",
+            "diagnostic.",
+            "research.",
+        )
+        for stage_name in dvc_config.get("stages", {}):
+            assert stage_name.startswith(valid_prefixes), (
+                f"Stage '{stage_name}' does not follow pipeline-first prefix taxonomy"
+            )
 
     @pytest.mark.skipif(not DVC_LOCK_PATH.exists(), reason="No dvc.lock found")
     def test_dvc_yaml_outs_have_lock_metadata(self, dvc_config: dict, dvc_lock: dict) -> None:

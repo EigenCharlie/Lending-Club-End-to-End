@@ -1,4 +1,4 @@
-"""Assemble a promotion-ready bundle from the latest champion-search artifacts."""
+"""Assemble a promotion-ready search bundle from current project artifacts."""
 
 from __future__ import annotations
 
@@ -109,11 +109,9 @@ def main() -> None:
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "run_tag": run_tag,
-        "pipeline_family": str(
-            os.environ.get("PIPELINE_FAMILY", "champion_search") or "champion_search"
-        ),
+        "pipeline_family": str(os.environ.get("PIPELINE_FAMILY", "search_pd") or "search_pd"),
         "pipeline_profile": str(
-            os.environ.get("PIPELINE_PROFILE", "champion_search_max") or "champion_search_max"
+            os.environ.get("PIPELINE_PROFILE", "search_pd_default") or "search_pd_default"
         ),
         "artifact_scope": "search",
         "promotion_state": str(

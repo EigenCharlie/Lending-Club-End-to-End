@@ -149,6 +149,29 @@ def _promotion_pass(row: pd.Series, policy: dict[str, Any]) -> bool:
     )
 
 
+def _build_output_paths(namespace: str | None = None) -> dict[str, Path]:
+    if namespace:
+        ns = str(namespace).strip().replace("/", "_")
+        data_dir = Path("data/processed/conformal_gap") / ns
+        models_dir = Path("models/conformal_gap") / ns
+    else:
+        data_dir = Path("data/processed")
+        models_dir = Path("models")
+    data_dir.mkdir(parents=True, exist_ok=True)
+    models_dir.mkdir(parents=True, exist_ok=True)
+    return {
+        "data_dir": data_dir,
+        "models_dir": models_dir,
+        "benchmark": data_dir / "conformal_variant_benchmark.parquet",
+        "benchmark_by_group": data_dir / "conformal_variant_benchmark_by_group.parquet",
+        "selection_report": data_dir / "conformal_variant_selection_report.parquet",
+        "temporal_diagnostics": data_dir / "conformal_temporal_diagnostics.parquet",
+        "local_diagnostics": data_dir / "conformal_local_diagnostics.parquet",
+        "selection_status": models_dir / "conformal_variant_selection_status.json",
+        "selected_intervals": data_dir / "conformal_intervals_mondrian.parquet",
+    }
+
+
 def main(
     alpha: float = 0.10,
     selected_config_path: str = "models/conformal_results_mondrian.pkl",
@@ -156,10 +179,12 @@ def main(
     cross_cal_sample_size: int = 5000,
     cross_test_sample_size: int = 5000,
     calibration_size_fractions: tuple[float, ...] = (0.25, 0.50, 0.75, 1.0),
+    artifact_namespace: str | None = None,
+    calibrator_override_path: str | None = None,
 ) -> None:
     policy = _load_policy_config().get("policy", {}) or {}
     model, _ = _load_model()
-    calibrator = _load_calibrator()
+    calibrator = _load_calibrator(calibrator_override_path)
     cal_df = read_with_fallback(
         "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
     )
@@ -480,8 +505,9 @@ def main(
             ignore_index=True,
             sort=False,
         )
+    output_paths = _build_output_paths(artifact_namespace)
     selected_cfg_path = Path(selected_config_path)
-    selected_intervals_path = Path("data/processed/conformal_intervals_mondrian.parquet")
+    selected_intervals_path = output_paths["selected_intervals"]
     if selected_cfg_path.exists() and selected_intervals_path.exists():
         with open(selected_cfg_path, "rb") as f:
             selected_payload = pickle.load(f)
@@ -509,13 +535,11 @@ def main(
                 sort=False,
             )
 
-    out_dir = Path("data/processed")
-    out_dir.mkdir(parents=True, exist_ok=True)
-    bench_path = out_dir / "conformal_variant_benchmark.parquet"
-    bench_group_path = out_dir / "conformal_variant_benchmark_by_group.parquet"
-    selection_path = out_dir / "conformal_variant_selection_report.parquet"
-    temporal_path = out_dir / "conformal_temporal_diagnostics.parquet"
-    local_path = out_dir / "conformal_local_diagnostics.parquet"
+    bench_path = output_paths["benchmark"]
+    bench_group_path = output_paths["benchmark_by_group"]
+    selection_path = output_paths["selection_report"]
+    temporal_path = output_paths["temporal_diagnostics"]
+    local_path = output_paths["local_diagnostics"]
     bench.to_parquet(bench_path, index=False)
     bench_by_group.to_parquet(bench_group_path, index=False)
     bench.to_parquet(selection_path, index=False)
@@ -524,13 +548,15 @@ def main(
         local_diagnostics.to_parquet(local_path, index=False)
 
     selected = bench.iloc[0].to_dict()
-    status_path = Path("models/conformal_variant_selection_status.json")
+    status_path = output_paths["selection_status"]
     status_path.parent.mkdir(parents=True, exist_ok=True)
     status_path.write_text(
         json.dumps(
             {
                 "schema_version": "2026-03-13.1",
                 "generated_at_utc": datetime.now(tz=UTC).isoformat(),
+                "artifact_namespace": artifact_namespace or "",
+                "calibrator_override_path": str(calibrator_override_path or ""),
                 "selected_variant": str(selected.get("variant", "")),
                 "selection_rank": int(selected.get("selection_rank", 1)),
                 "promotion_pass": bool(selected.get("promotion_pass", False)),
@@ -589,6 +615,8 @@ if __name__ == "__main__":
     parser.add_argument("--cross_cal_sample_size", type=int, default=5000)
     parser.add_argument("--cross_test_sample_size", type=int, default=5000)
     parser.add_argument("--calibration_size_fractions", default="0.25,0.50,0.75,1.0")
+    parser.add_argument("--artifact_namespace", default=None)
+    parser.add_argument("--calibrator_override_path", default=None)
     args = parser.parse_args()
     calibration_size_fractions = tuple(
         float(x.strip()) for x in str(args.calibration_size_fractions).split(",") if x.strip()
@@ -600,4 +628,6 @@ if __name__ == "__main__":
         cross_cal_sample_size=args.cross_cal_sample_size,
         cross_test_sample_size=args.cross_test_sample_size,
         calibration_size_fractions=calibration_size_fractions,
+        artifact_namespace=args.artifact_namespace,
+        calibrator_override_path=args.calibrator_override_path,
     )

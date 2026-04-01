@@ -1,5 +1,5 @@
 # Decision Changes and Learnings Log
-Version: 2026-03-26
+Version: 2026-03-31
 
 This file stores project history: decision changes, mistakes, inconsistencies, and practical learnings.
 Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUSTIFICATION.md`.
@@ -35,6 +35,7 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 | 2026-03-23 | Metadata run_tags fixed | MRM and pd_rare_event artifacts had `run_tag=None`/`untracked` | All metadata run_tags corrected to paper-grade run tag; `mrm_report_status.json` wrapper created | Metadata consistency for artifact traceability | `models/mrm_report_status.json`, `models/pd_rare_event_calibration_status.json` |
 | 2026-03-23 | Conformal policy test fixed | Test expected strict `overall_pass` which fails on large OOT (276K) | Test now validates `methodological_justification_pass` logic correctly | Kupiec/Christoffersen are known to fail at high sample sizes; the methodological justification path is the correct paper-grade gate | `scripts/validate_conformal_policy.py`, tests |
 | 2026-03-25 | Streamlit reduced to 5 local labs | Streamlit local retained 31 pages and broad narrative duplication | Streamlit local reduced physically to 5 optional labs; Quarto becomes explicit source of truth and public Streamlit is treated as historical showcase | Remove editorial duplication, keep only high-value interaction, and decouple local development from frozen showcase | `streamlit_app/pages/`, `book/chapters/E-streamlit-companion.qmd`, `docs/STREAMLIT_QUARTO_MIGRATION_REGISTRY.yml` |
+| 2026-03-31 | Pipeline-first repository cleanup | Long-run orchestration, docs, reports, scripts, and scratch artifacts still mixed active and historical surfaces | Active vs history/research namespaces enforced; pre-Quarto helpers archived; notebook taxonomy updated; scratch runtime checkpoints purged conservatively | Reduce noise, stop accidental dependence on stale artifacts, and make sync/rebuild behavior easier to defend | `docs/DOCUMENTATION_MAP.md`, `docs/ARTIFACT_RETENTION_POLICY.md`, `scripts/history/`, `reports/history/`, `configs/pipeline_registry/*` |
 
 ---
 
@@ -42,8 +43,8 @@ Do not store this type of historical content in `CLAUDE.md` or `docs/PROJECT_JUS
 
 | Date | Issue | Impact | Resolution | Evidence |
 |------|-------|--------|------------|----------|
-| 2026-02-20 | Peer-reviewed Lending Club link pointed to unrelated COVID paper (`PMC9533764`) | External benchmark credibility risk | Corrected to Lending Club paper `PMC9222552` and updated benchmark artifact | `reports/hpo_research_notes_2026-02-19.md`, `scripts/benchmark_kaggle_lendingclub.py` |
-| 2026-02-20 | Hardcoded Streamlit claims for old calibration/method snapshots | UI could present stale or incorrect conclusions | Replaced with dynamic/neutral text tied to artifacts | `streamlit_app/pages/*.py`, `reports/consistency_audit_2026-02-20.md` |
+| 2026-02-20 | Peer-reviewed Lending Club link pointed to unrelated COVID paper (`PMC9533764`) | External benchmark credibility risk | Corrected to Lending Club paper `PMC9222552` and updated benchmark artifact | `reports/history/hpo_research_notes_2026-02-19.md`, `scripts/benchmark_kaggle_lendingclub.py` |
+| 2026-02-20 | Hardcoded Streamlit claims for old calibration/method snapshots | UI could present stale or incorrect conclusions | Replaced with dynamic/neutral text tied to artifacts | `streamlit_app/pages/*.py`, `reports/history/consistency_audit_2026-02-20.md` |
 | 2026-02-20 | Confusion between Optuna trial validation AUC and final OOT calibrated AUC | Misinterpretation of model selection quality | Documented split clearly: trial score is validation; final score is calibrated OOT | `models/pd_training_record.pkl`, `data/processed/model_comparison.json` |
 
 ---
@@ -72,9 +73,9 @@ All items resolved:
 
 ## 5) Related Audit Reports
 
-- `reports/consistency_audit_2026-02-20.md`
-- `reports/hpo_research_notes_2026-02-19.md`
-- `reports/before_after_recompute_comparison_longrun.json`
+- `reports/history/consistency_audit_2026-02-20.md`
+- `reports/history/hpo_research_notes_2026-02-19.md`
+- `reports/history/before_after_recompute_comparison_longrun.json`
 
 ---
 
@@ -86,9 +87,9 @@ This section replaces the need for a separate `SESSION_HISTORY.md`.
 |------|---------|-------------------|---------|----------|
 | 2026-02-17 | Post-reboot recovery | Quality gates (`ruff`, `pytest`), DVC local/cloud status, DVC push smoke, DAG verification | Environment recovered and synchronized; integrity checks green | `SESSION_STATE.md` (section "Post-Reboot Recovery Log") |
 | 2026-02-18 | Repro-contract closure | `dvc repro` for pipeline/export stages, DVC push, MLflow suite backfill | Reproducibility contract restored; artifacts and tracking refreshed | `SESSION_STATE.md` (section "Repro-Contract Closure Log") |
-| 2026-02-18 | Validity hardening phases 0-5 | Leakage hardening, optimization fixes, dynamic narrative updates, CP/OR benchmark updates, temporal causal backtest | `pytest` green and DVC status consistent after rerun | `SESSION_STATE.md` (section "Validity Hardening Log"), `reports/PHASES_0_5_EXECUTION_2026-02-18.md` |
-| 2026-02-19 | HPO research + long-run setup | CatBoost/Optuna best practices review; HPO policy strengthened (multivariate TPE + pruning + persistent study) | Long-run search configured for 400 trials with reproducible tracking | `reports/hpo_research_notes_2026-02-19.md`, `configs/pd_model.yaml` |
-| 2026-02-20 | Consistency and reference audit | External link verification, narrative consistency cleanup, artifact/process cross-check | Incorrect literature link fixed; stale claims reduced; open items documented | `reports/consistency_audit_2026-02-20.md` |
+| 2026-02-18 | Validity hardening phases 0-5 | Leakage hardening, optimization fixes, dynamic narrative updates, CP/OR benchmark updates, temporal causal backtest | `pytest` green and DVC status consistent after rerun | `SESSION_STATE.md` (section "Validity Hardening Log"), `reports/history/PHASES_0_5_EXECUTION_2026-02-18.md` |
+| 2026-02-19 | HPO research + long-run setup | CatBoost/Optuna best practices review; HPO policy strengthened (multivariate TPE + pruning + persistent study) | Long-run search configured for 400 trials with reproducible tracking | `reports/history/hpo_research_notes_2026-02-19.md`, `configs/pd_model.yaml` |
+| 2026-02-20 | Consistency and reference audit | External link verification, narrative consistency cleanup, artifact/process cross-check | Incorrect literature link fixed; stale claims reduced; open items documented | `reports/history/consistency_audit_2026-02-20.md` |
 | 2026-02-27 | Conformal rerun hardening v1 | Soft promotion diagnostics for statistical tests, governance stage added before MRM, optional-failure exit code fix, incremental HPO budget | Rerun orchestration aligned with production promotion policy and resumable core profile | `scripts/run_comparison.py`, `scripts/run_long_pipeline.py`, `configs/run_profiles/overnight_full.yaml`, `configs/pd_model.yaml` |
 | 2026-03-13 | Paper-grade final run | Run `paper-grade-2026-03-13-final-heavy` completed: AUC=0.7128, conformal 90%≥0.92, fairness 6/6 PASS, governance 6/6 PASS, Venn-Abers selected (ECE=0.0061), HPO trial 151 seed-invariant | All individual module gates PASS; full integral promotion blocked by `comparison.json` semantic gate (fixed 2026-03-16). TS intervals remain research_only. | `models/paper_grade_protocol_status.json`, `reports/run_comparisons/paper-grade-2026-03-13-final-heavy-2026-03-13-230650/comparison.json` |
 | 2026-03-16 | P0/P1 fixes and selective promotions | Fixed semantic gates in `run_comparison.py` (P0.1), skops render bug (P0.3), `_row_number` added to conformal intervals (P0.4); promoted portfolio policy, LGD conformal, fairlearn+skops | `operational_overall_pass=true`, `card_render_status=rendered`, parquet has `_row_number`. 3 components promoted with explicit flags. | `models/champion_portfolio_policy.json`, `models/conformal_lgd_ead_status.json`, `models/conformal_method_registry.json` |

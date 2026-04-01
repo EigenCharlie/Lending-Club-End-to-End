@@ -4,18 +4,30 @@ from __future__ import annotations
 
 import argparse
 import json
+import pickle
 from pathlib import Path
 
 import pandas as pd
 from loguru import logger
 
-from src.evaluation.calibration_mapping import calibration_mapping_candidates_report
+from src.evaluation.calibration_mapping import (
+    calibration_mapping_candidates_report,
+    materialize_candidate_calibrator,
+)
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.baseline_registry import resolve_official_baseline_run_tag
 
 SCHEMA_VERSION = "2026-03-30.1"
 DATA_DIR = Path("data/processed")
 MODEL_DIR = Path("models")
+
+
+def _shadow_namespace(candidate_id: str) -> str:
+    return f"calibration_mapping_{str(candidate_id).strip().replace('/', '_')}"
+
+
+def _shadow_calibrator_path(namespace: str) -> Path:
+    return MODEL_DIR / "calibration_mapping_shadow" / namespace / "pd_shadow_calibrator.pkl"
 
 
 def _coerce_issue_quarter(meta: pd.DataFrame) -> pd.Series:
@@ -53,7 +65,13 @@ def main(run_tag: str | None = None) -> None:
     report = calibration_mapping_candidates_report(frame)
     report_path = DATA_DIR / "calibration_mapping_candidates.parquet"
     report_path.parent.mkdir(parents=True, exist_ok=True)
-    report.to_parquet(report_path, index=False)
+    report_for_write = report.copy()
+    for col in ("candidate_spec", "stage_a_reasons", "stage_a_deltas"):
+        if col in report_for_write.columns:
+            report_for_write[col] = report_for_write[col].map(
+                lambda value: json.dumps(value, ensure_ascii=False) if value is not None else None
+            )
+    report_for_write.to_parquet(report_path, index=False)
 
     current = (
         report.loc[report["candidate_id"] == "current_identity"].iloc[0].to_dict()
@@ -61,17 +79,22 @@ def main(run_tag: str | None = None) -> None:
         else {}
     )
     best = report.iloc[0].to_dict() if not report.empty else {}
-    promising = bool(
-        best
-        and current
-        and str(best.get("candidate_id")) != "current_identity"
-        and float(current.get("abs_global_gap_bp", 0.0)) - float(best.get("abs_global_gap_bp", 0.0))
-        >= 10.0
-        and float(best.get("brier_score", 1.0)) <= float(current.get("brier_score", 1.0)) + 0.002
-        and float(best.get("ece", 1.0)) <= float(current.get("ece", 1.0)) + 0.002
-        and int(best.get("material_quarter_breaches", 0))
-        <= int(current.get("material_quarter_breaches", 0))
+    stage_a_pass = bool(
+        best and str(best.get("candidate_id")) != "current_identity" and best.get("stage_a_pass")
     )
+    promising = bool(stage_a_pass)
+    shadow_candidate_path: str | None = None
+    shadow_namespace: str | None = None
+    downstream_validation_required = bool(stage_a_pass)
+    if stage_a_pass:
+        shadow_namespace = _shadow_namespace(str(best.get("candidate_id", "candidate")))
+        shadow_path = _shadow_calibrator_path(shadow_namespace)
+        shadow_path.parent.mkdir(parents=True, exist_ok=True)
+        calibrator = materialize_candidate_calibrator(best.get("candidate_spec"))
+        with open(shadow_path, "wb") as f:
+            pickle.dump(calibrator, f)
+        shadow_candidate_path = str(shadow_path)
+
     severity = "pass"
     if promising:
         severity = "warning"
@@ -87,6 +110,10 @@ def main(run_tag: str | None = None) -> None:
         "severity": severity,
         "promising_candidate_exists": promising,
         "recommendation": "shadow_candidate" if promising else "keep_current_calibrator",
+        "stage_a_pass": bool(stage_a_pass),
+        "downstream_validation_required": bool(downstream_validation_required),
+        "shadow_candidate_path": shadow_candidate_path,
+        "shadow_namespace": shadow_namespace,
         "best_candidate": best,
         "current_candidate": current,
         "top_candidates": report.head(10).to_dict(orient="records") if not report.empty else [],

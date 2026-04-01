@@ -243,9 +243,6 @@ OPTIONAL_FILES = [
     # gpu_benchmark.py — consolidated CPU vs GPU table
     "models/gpu_consolidated_summary.json",
     "data/processed/gpu_consolidated_table.parquet",
-    # tech_stack.py — notebooks classification inventory
-    "models/notebooks_inventory.json",
-    "data/processed/notebooks_inventory.parquet",
 ]
 
 

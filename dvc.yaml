@@ -1,12 +1,12 @@
 stages:
-  make_dataset:
+  core.data.make_dataset:
     cmd: uv run python -c "from src.data.make_dataset import main; main()"
     deps:
     - data/raw/Loan_status_2007-2020Q3.csv
     - src/data/make_dataset.py
     outs:
     - data/interim/lending_club_cleaned.parquet
-  prepare_dataset:
+  core.data.prepare_dataset:
     cmd: uv run python -c "from src.data.prepare_dataset import main; main()"
     deps:
     - data/interim/lending_club_cleaned.parquet
@@ -15,7 +15,7 @@ stages:
     - data/processed/calibration.parquet
     - data/processed/test.parquet
     - data/processed/train.parquet
-  materialize_feature_artifacts:
+  core.data.materialize_feature_artifacts:
     cmd: uv run python scripts/materialize_feature_artifacts.py
     deps:
     - data/processed/calibration.parquet
@@ -31,7 +31,7 @@ stages:
     - data/processed/woe_encoders.pkl
     - data/processed/feature_manifest_v2.json
     - data/processed/feature_manifest_v2.parquet
-  build_datasets:
+  core.data.build_datasets:
     cmd: uv run python -c "from src.data.build_datasets import main; main()"
     deps:
     - data/processed/calibration.parquet
@@ -45,7 +45,7 @@ stages:
     - data/processed/time_series.parquet
     - data/processed/time_series_full.parquet
     - data/processed/time_series_panel.parquet
-  generate_dependency_summary:
+  diagnostic.governance.dependency_summary:
     cmd: uv run python scripts/generate_dependency_summary.py
     deps:
     - pyproject.toml
@@ -56,7 +56,7 @@ stages:
     - scripts/generate_dependency_summary.py
     outs:
     - models/dependency_audit_runtime_status.json
-  train_pd_model:
+  core.pd.train_model:
     cmd: uv run python scripts/train_pd_model.py --config configs/pd_model.yaml
     deps:
     - configs/pd_model.yaml
@@ -70,7 +70,7 @@ stages:
     - models/pd_training_record.pkl
     - models/pd_canonical.cbm
     - models/pd_canonical_calibrator.pkl
-  generate_conformal:
+  core.conformal.generate_intervals:
     cmd: uv run python scripts/generate_conformal_intervals.py
     deps:
     - data/processed/calibration.parquet
@@ -85,7 +85,7 @@ stages:
     - data/processed/conformal_mondrian_tuning_90_pareto.parquet
     - data/processed/conformal_group_coverage_floor_report.parquet
     - models/conformal_results_mondrian.pkl
-  benchmark_conformal_variants:
+  search.conformal.benchmark_variants:
     cmd: uv run python scripts/benchmark_conformal_variants.py
     deps:
     - data/processed/calibration.parquet
@@ -97,7 +97,7 @@ stages:
     outs:
     - data/processed/conformal_variant_benchmark.parquet
     - data/processed/conformal_variant_benchmark_by_group.parquet
-  forecast_default_rates:
+  core.ts.forecast_default_rates:
     cmd: uv run python scripts/forecast_default_rates.py --horizon 12
     deps:
     - configs/time_series.yaml
@@ -114,7 +114,7 @@ stages:
     - data/processed/ts_diagnostics.json
     - data/processed/ts_panel_forecasts.parquet
     - models/time_series_status.json
-  estimate_causal_effects:
+  research.causal.estimate_effects:
     cmd: bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate
     deps:
     - data/processed/train.parquet
@@ -129,7 +129,7 @@ stages:
     - models/causal_forest_dml.pkl
     - models/causal_effect_status.json
     - models/causal_summary.pkl
-  simulate_causal_policy:
+  research.causal.simulate_policy:
     cmd: bash scripts/causal/run_in_causal_env.sh scripts/simulate_causal_policy.py
     deps:
     - data/processed/cate_estimates.parquet
@@ -141,7 +141,7 @@ stages:
     - data/processed/causal_policy_segment_summary.parquet
     - data/processed/causal_policy_grade_summary.parquet
     - models/causal_policy_summary.pkl
-  validate_causal_policy:
+  research.causal.validate_policy:
     cmd: bash scripts/causal/run_in_causal_env.sh scripts/validate_causal_policy.py
     deps:
     - data/processed/causal_policy_simulation.parquet
@@ -152,7 +152,7 @@ stages:
     - data/processed/causal_policy_rule_candidates.parquet
     - data/processed/causal_policy_rule_selected.parquet
     - models/causal_policy_rule.json
-  backtest_causal_policy_oot:
+  research.causal.backtest_oot:
     cmd: bash scripts/causal/run_in_causal_env.sh scripts/backtest_causal_policy_oot.py
     deps:
     - data/processed/causal_policy_simulation.parquet
@@ -165,7 +165,7 @@ stages:
     - data/processed/causal_policy_oot_backtest.parquet
     - data/processed/causal_policy_oot_backtest_by_grade.parquet
     - models/causal_policy_oot_status.json
-  run_ifrs9_sensitivity:
+  core.ifrs9.run_sensitivity:
     cmd: uv run python scripts/run_ifrs9_sensitivity.py
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
@@ -180,7 +180,7 @@ stages:
     - data/processed/ifrs9_sensitivity_grid.parquet
     - data/processed/ifrs9_input_quality.parquet
     - models/ifrs9_sensitivity_summary.pkl
-  optimize_portfolio:
+  core.portfolio.optimize:
     cmd: uv run python scripts/optimize_portfolio.py --config
       configs/optimization.yaml --risk_tolerance 0.10 --max_candidates 30000
     deps:
@@ -191,7 +191,7 @@ stages:
     outs:
     - data/processed/portfolio_allocations.parquet
     - models/portfolio_results.pkl
-  optimize_portfolio_tradeoff:
+  search.portfolio.tradeoff:
     cmd: uv run python scripts/optimize_portfolio_tradeoff.py --config
       configs/optimization.yaml --max_candidates 30000 --grid-profile night
     deps:
@@ -203,7 +203,7 @@ stages:
     - data/processed/portfolio_robustness_frontier.parquet
     - data/processed/portfolio_robustness_summary.parquet
     - models/portfolio_robustness_results.pkl
-  run_survival_analysis:
+  paper2.survival.run_analysis:
     cmd: uv run python scripts/run_survival_analysis.py
     deps:
     - data/processed/loan_master.parquet
@@ -213,7 +213,7 @@ stages:
     - models/cox_ph_model.pkl
     - models/rsf_model.pkl
     - models/survival_summary.pkl
-  backtest_conformal_coverage:
+  diagnostic.conformal.backtest_coverage:
     cmd: uv run python scripts/backtest_conformal_coverage.py
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
@@ -223,7 +223,7 @@ stages:
     - data/processed/conformal_backtest_monthly.parquet
     - data/processed/conformal_backtest_monthly_grade.parquet
     - data/processed/conformal_backtest_alerts.parquet
-  validate_conformal_policy:
+  diagnostic.conformal.validate_policy:
     cmd: uv run python scripts/validate_conformal_policy.py --config configs/conformal_policy.yaml
     deps:
     - configs/conformal_policy.yaml
@@ -235,7 +235,7 @@ stages:
     outs:
     - data/processed/conformal_policy_checks.parquet
     - models/conformal_policy_status.json
-  build_pipeline_results:
+  core.governance.build_pipeline_results:
     cmd: uv run python scripts/build_pipeline_results.py
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
@@ -246,7 +246,7 @@ stages:
     - scripts/end_to_end_pipeline.py
     outs:
     - models/pipeline_results.pkl
-  export_streamlit_artifacts:
+  core.governance.export_streamlit_artifacts:
     cmd: uv run python scripts/export_streamlit_artifacts.py
     deps:
     - configs/explainability_taxonomy.json
@@ -285,7 +285,7 @@ stages:
     - data/processed/roi_by_grade.parquet
     - data/processed/roi_by_grade_term.parquet
     - data/processed/runtime_status.json
-  run_fairness_audit:
+  core.governance.run_fairness_audit:
     cmd: uv run python scripts/run_fairness_audit.py --config configs/fairness_policy.yaml
     deps:
     - configs/fairness_policy.yaml
@@ -297,7 +297,7 @@ stages:
     - data/processed/fairness_audit.parquet
     - data/processed/fairness_threshold_frontier.parquet
     - models/fairness_audit_status.json
-  generate_governance_status:
+  core.governance.generate_status:
     cmd: uv run python scripts/generate_governance_status.py --config configs/mrm_policy.yaml
     deps:
     - configs/mrm_policy.yaml
@@ -314,7 +314,7 @@ stages:
     - data/processed/drift_monitoring.parquet
     - data/processed/explanation_drift.parquet
     - models/governance_status.json
-  build_pd_challenger_artifacts:
+  diagnostic.pd.build_challenger_artifacts:
     cmd: uv run python scripts/build_pd_challenger_artifacts.py --config configs/pd_model.yaml
     deps:
     - configs/pd_model.yaml
@@ -329,7 +329,7 @@ stages:
     - models/challenger_promotion_report.json
     - models/pd_challenger_spec.json
     - models/pd_challenger_spec_v2.json
-  optimize_cate_portfolio:
+  research.causal.optimize_cate_portfolio:
     cmd: uv run python scripts/optimize_cate_portfolio.py --max_candidates 30000
     deps:
     - data/processed/cate_estimates.parquet
@@ -342,7 +342,7 @@ stages:
     outs:
     - data/processed/cate_portfolio_comparison.parquet
     - models/cate_portfolio_status.json
-  simulate_ab_test:
+  search.portfolio.simulate_ab_test:
     cmd: uv run python scripts/simulate_ab_test.py --max_candidates 30000
     deps:
     - data/processed/conformal_intervals_mondrian.parquet
@@ -353,7 +353,7 @@ stages:
     - data/processed/ab_simulation_results.parquet
     - data/processed/ab_simulation_summary.parquet
     - models/ab_simulation_status.json
-  generate_mrm_report:
+  core.governance.generate_mrm_report:
     cmd: uv run python scripts/generate_mrm_report.py --config configs/mrm_policy.yaml
     deps:
     - configs/mrm_policy.yaml
@@ -364,7 +364,7 @@ stages:
     - scripts/generate_mrm_report.py
     outs:
     - reports/mrm/mrm_validation_report.json
-  export_storytelling_snapshot:
+  core.governance.export_storytelling_snapshot:
     cmd: uv run python scripts/export_storytelling_snapshot.py
     deps:
     - data/processed/ifrs9_scenario_summary.parquet
@@ -375,7 +375,7 @@ stages:
     - scripts/export_storytelling_snapshot.py
     outs:
     - reports/storytelling_snapshot.json
-  export_dvc_metrics:
+  core.governance.export_dvc_metrics:
     cmd: uv run python scripts/export_dvc_metrics.py
     deps:
     - data/processed/conformal_backtest_monthly.parquet

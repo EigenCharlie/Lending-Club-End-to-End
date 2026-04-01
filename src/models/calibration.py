@@ -14,6 +14,30 @@ from loguru import logger
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
 
+from src.utils.io_utils import load_pickle_compat
+
+
+class LogitShiftCalibrator:
+    """Lightweight serializable calibrator that shifts log-odds by a fixed delta."""
+
+    def __init__(self, delta: float):
+        self.delta = float(delta)
+
+    def transform(self, scores: np.ndarray) -> np.ndarray:
+        scores_arr = np.clip(np.asarray(scores, dtype=float), 1e-6, 1.0 - 1e-6)
+        logits = np.log(scores_arr / (1.0 - scores_arr))
+        shifted = 1.0 / (1.0 + np.exp(-(logits + self.delta)))
+        return np.clip(np.asarray(shifted, dtype=float), 0.0, 1.0)
+
+    def predict(self, scores: np.ndarray) -> np.ndarray:
+        return self.transform(scores)
+
+    def get_params(self, deep: bool = True) -> dict[str, float]:
+        return {"delta": float(self.delta)}
+
+    def __repr__(self) -> str:
+        return f"LogitShiftCalibrator(delta={self.delta:.6f})"
+
 
 def expected_calibration_error(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> float:
     """Compute Expected Calibration Error (ECE)."""
@@ -99,3 +123,10 @@ def evaluate_calibration(
         f"Calibration [{name}] — ECE: {ece:.4f}, Brier: {brier:.4f}, Log-loss: {logloss:.4f}"
     )
     return metrics
+
+
+def load_probability_calibrator(path: str | None) -> Any | None:
+    """Load a canonical or shadow calibrator from disk."""
+    if not path:
+        return None
+    return load_pickle_compat(path)

@@ -5,10 +5,13 @@ Covers ECE computation, isotonic/Platt calibrators, and evaluation metrics.
 
 from __future__ import annotations
 
+import pickle
+
 import numpy as np
 import pytest
 
 from src.models.calibration import (
+    LogitShiftCalibrator,
     calibrate_isotonic,
     evaluate_calibration,
     expected_calibration_error,
@@ -108,3 +111,19 @@ class TestEvaluateCalibration:
         y_prob = rng.uniform(0, 1, 500)
         metrics = evaluate_calibration(y_true, y_prob)
         assert 0.0 <= metrics["brier_score"] <= 1.0
+
+
+class TestLogitShiftCalibrator:
+    def test_predictions_are_clipped_and_monotonic(self):
+        calibrator = LogitShiftCalibrator(delta=0.75)
+        scores = np.linspace(0.001, 0.999, 50)
+        preds = calibrator.transform(scores)
+        assert np.all(preds >= 0.0)
+        assert np.all(preds <= 1.0)
+        assert np.all(np.diff(preds) >= 0.0)
+
+    def test_pickle_round_trip_preserves_outputs(self):
+        calibrator = LogitShiftCalibrator(delta=-0.25)
+        scores = np.array([0.05, 0.2, 0.5, 0.8], dtype=float)
+        restored = pickle.loads(pickle.dumps(calibrator))
+        np.testing.assert_allclose(calibrator.predict(scores), restored.predict(scores))

@@ -1,9 +1,8 @@
-"""Run complementary insight-factory workloads from canonical artifacts.
+"""Run research-lab workloads from canonical artifacts.
 
-`insights_factory` never promotes a champion and is intended to consume the
-current canonical baseline as upstream evidence. The `canonical` profile keeps
-to lightweight evidence generation, while `research` adds heavier notebooks and
-GPU-centric exploratory workloads.
+This wrapper is the research-only companion lane. It consumes canonical
+artifacts upstream and writes only auxiliary evidence, notebook outputs, and
+side-project research material.
 """
 
 from __future__ import annotations
@@ -75,7 +74,6 @@ def _build_profile_commands(profile: str, run_tag: str) -> list[str]:
         "uv run python -u scripts/run_bma_comparison.py",
         "uv run python -u scripts/run_ts_ecl_intervals.py",
         "uv run python -u scripts/run_stage_misclassification_cost.py",
-        "uv run python -u scripts/run_paper_notebook_suite.py --output-dir reports/notebook_exec",
         "uv run python -u scripts/run_all_notebooks.py --execute-all --include-side-projects --timeout 3600 --inplace false --output-dir reports/notebook_exec",
         "uv run python -u scripts/extract_notebook_images.py",
         f"uv run python -u scripts/run_pd_rapids_benchmark.py --run-tag {run_tag}-pd-rapids",
@@ -108,8 +106,8 @@ def main() -> int:
     run_info = {
         "schema_version": SCHEMA_VERSION,
         "run_tag": run_tag,
-        "pipeline_family": "insights_factory",
-        "pipeline_profile": f"insights_factory_{profile}",
+        "pipeline_family": "research_labs",
+        "pipeline_profile": f"research_labs_{profile}",
         "artifact_scope": "insight",
         "promotion_state": "insight_only",
         "writes_canonical_artifacts": False,
@@ -124,8 +122,8 @@ def main() -> int:
     env = {
         **os.environ,
         "PIPELINE_RUN_TAG": run_tag,
-        "PIPELINE_FAMILY": "insights_factory",
-        "PIPELINE_PROFILE": f"insights_factory_{profile}",
+        "PIPELINE_FAMILY": "research_labs",
+        "PIPELINE_PROFILE": f"research_labs_{profile}",
         "PIPELINE_ARTIFACT_SCOPE": "insight",
         "PIPELINE_PROMOTION_STATE": "insight_only",
         "WRITES_CANONICAL_ARTIFACTS": "0",
@@ -161,8 +159,8 @@ def main() -> int:
     run_summary = {
         "schema_version": SCHEMA_VERSION,
         "run_tag": run_tag,
-        "pipeline_family": "insights_factory",
-        "pipeline_profile": f"insights_factory_{profile}",
+        "pipeline_family": "research_labs",
+        "pipeline_profile": f"research_labs_{profile}",
         "artifact_scope": "insight",
         "promotion_state": "insight_only",
         "writes_canonical_artifacts": False,

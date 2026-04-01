@@ -1,0 +1,33 @@
+{
+  "best_params": {
+    "iterations": 3000,
+    "learning_rate": 0.037305000897172216,
+    "depth": 8,
+    "l2_leaf_reg": 69.85331447137025,
+    "min_data_in_leaf": 185,
+    "rsm": 0.66554189303626,
+    "random_strength": 1.4335179612557639e-06,
+    "border_count": 148,
+    "bootstrap_type": "MVS",
+    "subsample": 0.771052860633893,
+    "loss_function": "Logloss",
+    "auto_class_weights": "Balanced",
+    "eval_metric": "AUC",
+    "has_time": true,
+    "allow_writing_files": false,
+    "random_seed": 42,
+    "early_stopping_rounds": 150,
+    "grow_policy": "SymmetricTree",
+    "leaf_estimation_iterations": 3,
+    "monotone_constraints": "annual_inc:-1,loan_to_income:1"
+  },
+  "hpo_trials_executed": 0,
+  "hpo_best_validation_auc": 0.7220671439531414,
+  "seed_replay_report": {
+    "enabled": false,
+    "reason": "hpo_disabled",
+    "rows": [],
+    "selected_trial": null,
+    "selected_params": null
+  }
+}

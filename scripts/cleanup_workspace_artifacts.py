@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
 
+from src.utils.baseline_registry import resolve_official_baseline_run_tag
+
 ROOT = Path(__file__).resolve().parents[1]
 RUN_LOGS = ROOT / "reports" / "run_logs"
 RUN_COMPARISONS = ROOT / "reports" / "run_comparisons"
@@ -25,7 +27,6 @@ ARCHIVE_DIR = ROOT / "reports" / "archive"
 RETENTION_PROFILES = {
     "core_closure_6": {
         "run_logs_keep": {
-            "champion-2026-03-12-mega-definitive",
             "2026-03-11-C-official-selector-v3-freeze",
             "2026-03-04-C-core-balanced-cert2",
             "2026-03-04-C-core-balanced-e2e-cert1",
@@ -35,7 +36,6 @@ RETENTION_PROFILES = {
             "2026-03-04-C-notebooks-annex-pass2",
         },
         "run_comparisons_keep": {
-            "champion-2026-03-12-mega-definitive",
             "2026-03-11-C-official-selector-v3-freeze",
             "2026-03-04-C-core-balanced-cert2",
             "2026-03-04-C-core-balanced-e2e-cert1",
@@ -115,6 +115,10 @@ def build_cleanup_plan(profile: str) -> CleanupPlan:
     cfg = RETENTION_PROFILES[profile]
     run_logs_keep = set(cfg["run_logs_keep"])
     run_comparisons_keep = set(cfg["run_comparisons_keep"])
+    official_run_tag = str(resolve_official_baseline_run_tag(default="")).strip()
+    if official_run_tag:
+        run_logs_keep.add(official_run_tag)
+        run_comparisons_keep.add(official_run_tag)
 
     run_logs_to_delete = [p for p in _list_dirs(RUN_LOGS) if p.name not in run_logs_keep]
     run_log_files_to_delete = _list_files(RUN_LOGS)

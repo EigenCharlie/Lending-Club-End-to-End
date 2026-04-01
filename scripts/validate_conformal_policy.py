@@ -131,10 +131,41 @@ def _safe_float(value: object, default: float = float("nan")) -> float:
         return default
 
 
+def _apply_artifact_namespace(
+    cfg: dict[str, object],
+    artifact_namespace: str | None,
+) -> dict[str, object]:
+    if not artifact_namespace:
+        return cfg
+    ns = str(artifact_namespace).strip().replace("/", "_")
+    data_dir = Path("data/processed/conformal_gap") / ns
+    models_dir = Path("models/conformal_gap") / ns
+    updated = dict(cfg)
+    updated["artifacts"] = dict(updated.get("artifacts", {}) or {})
+    updated["output"] = dict(updated.get("output", {}) or {})
+    updated["artifacts"]["conformal_results_path"] = str(
+        models_dir / "conformal_results_mondrian.pkl"
+    )
+    updated["artifacts"]["group_metrics_path"] = str(
+        data_dir / "conformal_group_metrics_mondrian.parquet"
+    )
+    updated["artifacts"]["backtest_monthly_path"] = str(
+        data_dir / "conformal_backtest_monthly.parquet"
+    )
+    updated["artifacts"]["backtest_alerts_path"] = str(
+        data_dir / "conformal_backtest_alerts.parquet"
+    )
+    updated["artifacts"]["intervals_path"] = str(data_dir / "conformal_intervals_mondrian.parquet")
+    updated["output"]["policy_status_json"] = str(models_dir / "conformal_policy_status.json")
+    updated["output"]["policy_checks_parquet"] = str(data_dir / "conformal_policy_checks.parquet")
+    return updated
+
+
 def main(
     config_path: str = "configs/conformal_policy.yaml",
     run_tag: str | None = None,
     sensitivity_config_path: str | None = None,
+    artifact_namespace: str | None = None,
 ) -> None:
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
@@ -148,6 +179,8 @@ def main(
                 f"Overriding policy_sensitivity from {sensitivity_config_path}: "
                 f"{cfg['policy_sensitivity']}"
             )
+
+    cfg = _apply_artifact_namespace(cfg, artifact_namespace)
 
     policy = cfg["policy"]
     artifacts = cfg["artifacts"]
@@ -519,6 +552,7 @@ def main(
         },
         "latest_backtest_month": str(latest_month) if latest_month is not None else None,
         "intervals_path": str(intervals_path),
+        "artifact_namespace": artifact_namespace or "",
         "policy_config": config_path,
         "lgd_ead_conformal_status_path": str(lgd_ead_status_path),
         "lgd_ead_conformal_status": lgd_ead_status,
@@ -587,5 +621,11 @@ if __name__ == "__main__":
         default=None,
         help="Optional YAML with policy_sensitivity overrides (e.g. configs/conformal_policy_sensitivity.yaml)",
     )
+    parser.add_argument("--artifact-namespace", default=None)
     args = parser.parse_args()
-    main(args.config, run_tag=args.run_tag, sensitivity_config_path=args.sensitivity_config)
+    main(
+        args.config,
+        run_tag=args.run_tag,
+        sensitivity_config_path=args.sensitivity_config,
+        artifact_namespace=args.artifact_namespace,
+    )
