@@ -1,5 +1,5 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-16
+Last Updated: 2026-03-31
 
 ---
 
@@ -7,6 +7,13 @@ Last Updated: 2026-03-16
 
 Project is operational and artifact-consistent across the thesis pipeline.
 Current truth is baseline-registry-first.
+
+Repository hygiene update (2026-03-31):
+- Pipeline-first orchestration is now the active execution contract.
+- Active vs historical vs research documentation is explicitly separated under `docs/`, `docs/history/`, and `docs/research/`.
+- `reports/` root has been reduced to live editorial/technical artifacts; historical snapshots moved to `reports/history/`.
+- Research scratch under `models/*_runtime_checkpoints/` was purged; only the still-referenced `conformal_v3_grade_noshrink_2026_03_26` namespace remains under `conformal_gap/`.
+- Historical pre-Quarto helpers were archived under `scripts/history/` with compatibility wrappers left in place.
 
 Canonical update (2026-03-13):
 - Official operational baseline: `champion-2026-03-12-mega-definitive`.
@@ -16,25 +23,32 @@ Canonical update (2026-03-13):
 - Threshold semantics are now explicit in `models/threshold_semantics.json`:
   internal PD screening/search threshold is separate from the operational fairness/approval threshold.
 
-- Serving strategy remains Streamlit-first (thesis showcase mode).
+- Serving strategy is now Quarto-first with a reduced local Streamlit companion.
 - PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
+- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates; runtime auto-selection via temporal policy).
 - Temporal validation and OOT evaluation remain mandatory.
+- Notebooks 10-12 executed with outputs (`include_notebooks=True` in both canonical and paper-grade profiles).
+- 690 tests passing, 0 failures, 0 skips.
+- All metadata run_tags fixed (MRM, pd_rare_event, mrm_report_status wrapper created).
+- Conformal policy test fixed with methodological justification logic.
 - This file is only for current state. Historical logs are consolidated in `docs/DECISION_CHANGES_AND_LEARNINGS.md` (section "Session History (Consolidated)").
 
 ---
 
-## 2) Serving Architecture Decision (Thesis Mode)
+## 2) Serving Architecture Decision (Quarto-First)
 
 Given fixed historical data and showcase objective:
 
-1. Streamlit is the primary delivery layer.
-2. DuckDB is used for local analytical queries.
-3. dbt provides governance/lineage/tests over analytical assets.
-4. Feast is kept as a feature-store consistency layer for train/serve narrative.
-5. FastAPI and MCP remain optional support services.
+1. Quarto is the primary delivery layer and official source of truth.
+2. Streamlit local is an optional companion lab with 5 pages.
+3. The public Streamlit showcase is a historical frozen snapshot.
+4. DuckDB is used for local analytical queries.
+5. dbt provides governance/lineage/tests over analytical assets.
+6. Feast is kept as a feature-store consistency layer for train/serve narrative.
+7. FastAPI and MCP remain optional support services.
 
 Design implication:
-- Priority is narrative quality, reproducibility, and auditability over online serving complexity.
+- Priority is narrative quality, reproducibility, and auditability over online serving complexity; Streamlit only keeps interaction that is stronger in app form than in Quarto.
 
 ---
 
@@ -92,16 +106,20 @@ Source artifacts:
 
 ### 4.1 PD Model (OOT, calibrated final)
 - Best model: `CatBoost (tuned + calibrated)`
-- Calibration selected: `Venn-Abers`
+- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates)
+- Calibration selected: `Venn-Abers` (runtime auto-selection via temporal multi-metric policy)
 - AUC: `0.7145`
 - Gini: `0.4260`
 - KS: `0.3149`
 - Brier: `0.1543`
 - ECE: `0.0087`
+- Log-loss: tracked per calibrator per temporal fold
 - PR-AUC: `0.3998`
 - Recall@0.35: `0.360`
 - F1@0.35: `0.392`
 - HPO: 320 Optuna trials (hpo_enabled=false in confirmatory run, uses prior best params)
+- Temporal calibration monitoring: per-fold degradation rate + monthly log-loss tracking
+- Murphy diagram: available via `src/utils/visualization.py::plot_murphy_diagram()`
 - Confirmatory run tag: `paper-grade-pre-quarto` (2026-03-16)
 
 ### 4.2 Conformal (Mondrian)
@@ -214,13 +232,18 @@ Source artifacts:
 
 ## 7) Test Suite
 
-Historical verification snapshot on 2026-03-01:
+Current state (2026-03-23): **690 tests passing, 0 failures, 0 skips**.
 
-- Prior pass counts in this file are historical only and must not be read as live inventory.
-- Current test/page counts are generated dynamically by runtime exports and Streamlit utilities.
+Key changes since last snapshot:
+- CRPTO test skip removed (test now runs normally)
+- Conformal policy test fixed (methodological justification pass logic)
+- Beta calibration tests added
+- Classification set benchmark tests added
+- Quarto book guardrail tests (3/3 passing)
 
 Operational note:
 - `data/processed/runtime_status.json` is a generated snapshot and may lag until `scripts/export_streamlit_artifacts.py` is re-run.
+- For live inventory: `uv run pytest --collect-only -q`
 
 ## 8) Current Priorities
 

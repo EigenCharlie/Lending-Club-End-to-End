@@ -13,15 +13,22 @@ from __future__ import annotations
 
 import argparse
 import json
-import pickle
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import yaml
 from loguru import logger
 
 from src.evaluation.ifrs9 import assign_stage, compute_ecl, ecl_with_conformal_range
 from src.models.conformal_artifacts import load_conformal_intervals
+from src.utils.pipeline_runtime import (
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 
 def _load_intervals() -> pd.DataFrame:
@@ -174,7 +181,8 @@ def _prepare_base_vectors(
         )
         ints = merged[[c for c in intervals.columns if c in merged.columns]].reset_index(drop=True)
         tst = merged[tst.columns.difference(["_row_number"])].reset_index(drop=True)
-        logger.info(f"Aligned IFRS9 test and intervals by _row_number: n={len(tst):,}")
+        n = len(tst)
+        logger.info(f"Aligned IFRS9 test and intervals by _row_number: n={n:,}")
     else:
         n = min(len(intervals), len(test))
         if len(intervals) != len(test):
@@ -251,12 +259,32 @@ def _scenario_config(
     return scenario_cfg
 
 
+def _load_cif_correction() -> dict[str, float | bool]:
+    """Load CIF competing-risk correction factors from optimization config."""
+    config_path = Path("configs/optimization.yaml")
+    if not config_path.exists():
+        return {"enabled": False, "cf_lifetime": 1.0, "cf_12m": 1.0}
+    with open(config_path, encoding="utf-8") as f:
+        cfg = yaml.safe_load(f)
+    cif_cfg = cfg.get("cif_correction", {}) or {}
+    enabled = bool(cif_cfg.get("enabled", False))
+    cf_lifetime = float(cif_cfg.get("cf_lifetime", 1.0))
+    cf_12m = float(cif_cfg.get("cf_12m", 1.0))
+    if enabled:
+        logger.info(f"CIF correction enabled: cf_lifetime={cf_lifetime:.4f}, cf_12m={cf_12m:.4f}")
+    return {"enabled": enabled, "cf_lifetime": cf_lifetime, "cf_12m": cf_12m}
+
+
 def _lifetime_pd(
     pd12: np.ndarray,
     grade: np.ndarray,
     pd_mult: float,
     lifetime_table: pd.DataFrame | None,
+    cif_correction: dict[str, float | bool] | None = None,
 ) -> tuple[np.ndarray, str]:
+    cf = float((cif_correction or {}).get("cf_lifetime", 1.0))
+    cif_enabled = bool((cif_correction or {}).get("enabled", False))
+
     if lifetime_table is not None and "PD_60m" in lifetime_table.columns:
         table = lifetime_table.copy()
         if table.index.name is None and "Grade" in table.columns:
@@ -264,8 +292,20 @@ def _lifetime_pd(
         mapped = pd.Series(grade).map(table["PD_60m"]).fillna(np.nan).to_numpy(dtype=float)
         fallback = np.clip(1.0 - np.power(1.0 - pd12, 5.0), 0.0, 1.0)
         life = np.where(np.isfinite(mapped), np.clip(mapped * pd_mult, 0.0, 1.0), fallback)
-        return life, "grade_lifetime_pd_table_scaled"
-    return np.clip(1.0 - np.power(1.0 - pd12, 5.0), 0.0, 1.0), "formula_1_minus_1_minus_pd_power_5"
+        if cif_enabled:
+            life = np.clip(life * cf, 0.0, 1.0)
+        source = "grade_lifetime_pd_table_scaled"
+        if cif_enabled:
+            source += f"_cif_corrected_{cf:.4f}"
+        return life, source
+
+    life = np.clip(1.0 - np.power(1.0 - pd12, 5.0), 0.0, 1.0)
+    if cif_enabled:
+        life = np.clip(life * cf, 0.0, 1.0)
+    source = "formula_1_minus_1_minus_pd_power_5"
+    if cif_enabled:
+        source += f"_cif_corrected_{cf:.4f}"
+    return life, source
 
 
 def _run_single_scenario(
@@ -274,6 +314,7 @@ def _run_single_scenario(
     base: dict[str, np.ndarray],
     base_lgd: float,
     lifetime_table: pd.DataFrame | None,
+    cif_correction: dict[str, float | bool] | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     pd12 = np.clip(base["pd_point"] * params["pd_mult"], 0.0, 1.0)
     pd_low = np.clip(base["pd_low"] * params["pd_mult"], 0.0, 1.0)
@@ -286,6 +327,7 @@ def _run_single_scenario(
         grade=base["grade"],
         pd_mult=float(params["pd_mult"]),
         lifetime_table=lifetime_table,
+        cif_correction=cif_correction,
     )
 
     stages = assign_stage(
@@ -309,6 +351,7 @@ def _run_single_scenario(
         lgd=lgd,
         ead=ead,
         stages=stages,
+        discount_rate=float(params["discount_rate"]),
     )
 
     summary = pd.DataFrame(
@@ -370,7 +413,10 @@ def _run_single_scenario(
 
 
 def _sensitivity_grid(
-    base: dict[str, np.ndarray], base_lgd: float, lifetime_table: pd.DataFrame | None
+    base: dict[str, np.ndarray],
+    base_lgd: float,
+    lifetime_table: pd.DataFrame | None,
+    cif_correction: dict[str, float | bool] | None = None,
 ) -> pd.DataFrame:
     pd_mult_grid = [0.90, 1.00, 1.10, 1.20, 1.30]
     lgd_mult_grid = [0.90, 1.00, 1.10, 1.20]
@@ -386,7 +432,11 @@ def _sensitivity_grid(
                 lgd = np.clip(np.full_like(pd12, base_lgd) * lgd_mult, 0.0, 1.0)
                 ead = base["loan_amnt"]
                 lifetime_pd, _ = _lifetime_pd(
-                    pd12, base["grade"], pd_mult=pd_mult, lifetime_table=lifetime_table
+                    pd12,
+                    base["grade"],
+                    pd_mult=pd_mult,
+                    lifetime_table=lifetime_table,
+                    cif_correction=cif_correction,
                 )
                 stages = assign_stage(base["pd_orig"], pd12, dpd=base["dpd"], pd_high=pd_high)
                 ecl_df = compute_ecl(
@@ -397,7 +447,15 @@ def _sensitivity_grid(
                     lifetime_pd=lifetime_pd,
                     discount_rate=float(disc),
                 )
-                ecl_range = ecl_with_conformal_range(pd_low, pd12, pd_high, lgd, ead, stages)
+                ecl_range = ecl_with_conformal_range(
+                    pd_low,
+                    pd12,
+                    pd_high,
+                    lgd,
+                    ead,
+                    stages,
+                    discount_rate=float(disc),
+                )
                 rows.append(
                     {
                         "pd_mult": float(pd_mult),
@@ -421,10 +479,13 @@ def _sensitivity_grid(
 
 
 def main(base_lgd: float = 0.45):
+    stage_name = "ifrs9"
+    write_runtime_status(stage_name, phase="loading_inputs", state="running")
     intervals = _load_intervals()
     train_raw, test_raw = _load_raw_splits()
     lifetime_table = _load_lifetime_table()
     temporal_context = _load_temporal_context()
+    cif_correction = _load_cif_correction()
     base, quality = _prepare_base_vectors(intervals=intervals, train=train_raw, test=test_raw)
     quality["temporal_source"] = str(temporal_context["source"])
     quality["temporal_pd_baseline_mult"] = float(temporal_context["baseline_pd_mult"])
@@ -432,6 +493,16 @@ def main(base_lgd: float = 0.45):
     quality["temporal_interval_model"] = str(temporal_context["interval_model"])
     quality["temporal_status"] = str(temporal_context["status"])
     quality["temporal_official_status"] = str(temporal_context["official_status"])
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_prepared",
+        {
+            "interval_rows": int(len(intervals)),
+            "train_rows": int(len(train_raw)),
+            "test_rows": int(len(test_raw)),
+            "temporal_source": str(temporal_context["source"]),
+        },
+    )
 
     # Keep console output concise during large sensitivity loops.
     logger.disable("src.evaluation.ifrs9")
@@ -440,13 +511,24 @@ def main(base_lgd: float = 0.45):
     grade_rows = []
     for scenario, params in _scenario_config(temporal_context).items():
         s, g = _run_single_scenario(
-            scenario, params, base, base_lgd=base_lgd, lifetime_table=lifetime_table
+            scenario,
+            params,
+            base,
+            base_lgd=base_lgd,
+            lifetime_table=lifetime_table,
+            cif_correction=cif_correction,
         )
         scenario_rows.append(s)
         grade_rows.append(g)
     scenario_summary = pd.concat(scenario_rows, ignore_index=True)
     grade_summary = pd.concat(grade_rows, ignore_index=True)
-    sensitivity = _sensitivity_grid(base, base_lgd=base_lgd, lifetime_table=lifetime_table)
+    sensitivity = _sensitivity_grid(
+        base,
+        base_lgd=base_lgd,
+        lifetime_table=lifetime_table,
+        cif_correction=cif_correction,
+    )
+    write_runtime_status(stage_name, phase="scenarios_computed", state="running")
 
     for frame in (scenario_summary, grade_summary, sensitivity):
         frame["temporal_source"] = str(temporal_context["source"])
@@ -467,24 +549,33 @@ def main(base_lgd: float = 0.45):
     grade_path = data_dir / "ifrs9_scenario_grade_summary.parquet"
     sensitivity_path = data_dir / "ifrs9_sensitivity_grid.parquet"
     quality_path = data_dir / "ifrs9_input_quality.parquet"
-    scenario_summary.to_parquet(scenario_path, index=False)
-    grade_summary.to_parquet(grade_path, index=False)
-    sensitivity.to_parquet(sensitivity_path, index=False)
-    quality.to_parquet(quality_path, index=False)
+    atomic_write_parquet(scenario_summary, scenario_path, index=False)
+    atomic_write_parquet(grade_summary, grade_path, index=False)
+    atomic_write_parquet(sensitivity, sensitivity_path, index=False)
+    atomic_write_parquet(quality, quality_path, index=False)
+    write_runtime_checkpoint(
+        stage_name,
+        "artifacts_persisted",
+        {
+            "scenario_count": int(len(scenario_summary)),
+            "grade_rows": int(len(grade_summary)),
+            "sensitivity_rows": int(len(sensitivity)),
+            "quality_rows": int(len(quality)),
+        },
+    )
 
-    with open(model_dir / "ifrs9_sensitivity_summary.pkl", "wb") as f:
-        pickle.dump(
-            {
-                "scenario_summary": scenario_summary.to_dict(orient="records"),
-                "sensitivity_extremes": {
-                    "min_total_ecl": float(sensitivity["total_ecl"].min()),
-                    "max_total_ecl": float(sensitivity["total_ecl"].max()),
-                },
-                "input_quality": quality.to_dict(orient="records")[0],
-                "temporal_context": temporal_context,
+    atomic_write_pickle(
+        model_dir / "ifrs9_sensitivity_summary.pkl",
+        {
+            "scenario_summary": scenario_summary.to_dict(orient="records"),
+            "sensitivity_extremes": {
+                "min_total_ecl": float(sensitivity["total_ecl"].min()),
+                "max_total_ecl": float(sensitivity["total_ecl"].max()),
             },
-            f,
-        )
+            "input_quality": quality.to_dict(orient="records")[0],
+            "temporal_context": temporal_context,
+        },
+    )
 
     base_ecl = float(
         scenario_summary.loc[scenario_summary["scenario"] == "baseline", "total_ecl"].iloc[0]
@@ -506,6 +597,23 @@ def main(base_lgd: float = 0.45):
     )
     logger.info(
         f"Baseline ECL={base_ecl:,.0f}, Severe ECL={severe_ecl:,.0f}, Uplift={(severe_ecl / base_ecl - 1) * 100:.2f}%"
+    )
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="ifrs9_scenario_summary",
+        artifact_path=scenario_path,
+        extra={"baseline_ecl": base_ecl, "severe_ecl": severe_ecl},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        extra={
+            "scenario_summary_path": str(scenario_path),
+            "summary_pickle_path": str(model_dir / "ifrs9_sensitivity_summary.pkl"),
+            "baseline_ecl": base_ecl,
+            "severe_ecl": severe_ecl,
+        },
     )
 
 

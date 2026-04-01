@@ -1,0 +1,18 @@
+{
+  "diagnostic_only": true,
+  "overall_pass": false,
+  "summary": {
+    "shift_type": "mixed_shift",
+    "structural_shift_level": "severe",
+    "predictive_degradation_level": "moderate",
+    "governance_posture": "candidate_gate",
+    "c2st_materiality": "severe",
+    "pvalue_interpretation": "Both structural shift and predictive degradation are present. This combination deserves the strongest governance posture."
+  },
+  "artifacts": {
+    "governance_status_path": "models/governance_status.json"
+  },
+  "schema_version": "2026-03-06.1",
+  "generated_at_utc": "2026-03-30T23:22:31.061198+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+}

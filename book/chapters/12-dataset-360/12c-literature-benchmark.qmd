@@ -1,0 +1,57 @@
+## Benchmark contra Literatura {#sec-literature-benchmark}
+
+El valor de este libro no depende de superar un leaderboard aislado. Aun así, es importante ubicar el resultado del pipeline frente a referencias publicadas para evitar dos errores opuestos: vender de más lo conseguido o subestimar su relevancia.
+
+### Punto de comparación disponible
+
+El artefacto `lendingclub_literature_benchmark.parquet` registra una referencia explícita revisada por pares sobre Lending Club:
+
+| Fuente | Familia de modelo | AUC reportado |
+|---|---|---:|
+| Li et al. (2022, benchmark Lending Club) | LightGBM / Gradient Boosting | 0.7492 |
+| Survey de explicabilidad P2P | Árboles + SHAP/LIME | n/a |
+
+: Benchmark externo curado para Lending Club {#tbl-literature-benchmark}
+
+Nuestro pipeline canónico reporta `AUC = 0.7130` para CatBoost calibrado con Venn-Abers sobre evaluación OOT.
+
+### Comparación correcta, no tramposa
+
+La diferencia entre 0.7130 y 0.7492 **no** debe leerse automáticamente como inferioridad metodológica. Hay al menos tres razones:
+
+1. el protocolo de split puede no coincidir;
+2. el objetivo del proyecto no es solo maximizar AUC, sino producir probabilidades calibradas y gobernables;
+3. el libro optimiza un pipeline completo con incertidumbre, IFRS9, explicabilidad y robustez, no solo clasificación.
+
+En otras palabras, una comparación honesta requiere comparar tanto el contexto experimental como el producto final de decisión.
+
+::: {.callout-note}
+## Métrica líder vs sistema líder
+Una AUC más alta puede coexistir con peor calibración, peor cobertura y menor capacidad de auditoría. Este libro privilegia el sistema líder, no la métrica líder aislada.
+:::
+
+### Dónde sí hay fortaleza comparativa
+
+Aunque el AUC puro no busque romper el techo de la literatura, el proyecto sí aporta en dimensiones poco cubiertas por benchmarks clásicos:
+
+- calibración probabilística explícita con Venn-Abers;
+- cuantificación de incertidumbre conformal con cobertura observable;
+- conexión operacional a optimización robusta e IFRS9;
+- monitoreo de fairness y drift dentro del mismo marco narrativo.
+
+Estas capas son justamente las que suelen faltar en papers de scoring centrados solo en clasificación.
+
+### Lectura académica
+
+La literatura más reciente que el proyecto curó en `docs/PAPER_REFERENCES_STATE_OF_ART.md` sugiere que los vacíos están menos en “otro modelo tabular para Lending Club” y más en las combinaciones:
+
+1. conformal + robust optimization;
+2. conformal + IFRS9 / SICR;
+3. cobertura por subgrupo en crédito real;
+4. gobernanza reproducible de punta a punta.
+
+Ese es el espacio donde el libro y los papers derivados son más competitivos.
+
+### Conclusión
+
+El benchmark externo sirve como calibrador de humildad: el pipeline no pretende vender un nuevo récord absoluto de AUC. Su contribución más defendible es distinta: convertir un stack de riesgo crediticio en un sistema calibrado, explicable, incierto-de-forma-medible y gobernable.

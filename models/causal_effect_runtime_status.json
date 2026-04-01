@@ -1,0 +1,11 @@
+{
+  "stage_name": "causal_effect",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T19:27:12.533319+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "status_path": "models/causal_effect_status.json",
+  "cate_artifact_path": "data/processed/cate_estimates.parquet",
+  "overlap_artifact_path": "data/processed/causal_overlap_diagnostics.parquet",
+  "selected_estimator_family": "causal_forest_dml"
+}

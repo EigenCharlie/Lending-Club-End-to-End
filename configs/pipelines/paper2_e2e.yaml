@@ -1,0 +1,30 @@
+schema_version: "2026-03-31.1"
+pipeline_family: paper2_e2e
+description: >
+  Pipeline derivado para Paper 2: time series, survival/LGD-EAD e IFRS9/SICR
+  sobre artefactos core ya congelados.
+artifact_scope: paper
+promotion_state: paper_grade
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: paper2_e2e_default
+papers_served: [paper2]
+allowed_step_groups:
+  - preflight
+  - core_ts
+  - paper2_survival
+  - core_ifrs9
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_data_pd
+  - core_conformal
+  - core_portfolio
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries:
+  - pipeline_matrix
+  - artifact_flow_registry

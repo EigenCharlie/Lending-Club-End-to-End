@@ -538,25 +538,59 @@ def create_pd_intervals_venn_abers(
     Venn-Abers predictors produce automatically well-calibrated probability
     intervals [p0, p1] with theoretical guarantees (Vovk & Petej, 2014).
 
+    Uses MAPIE's native VennAbersCalibrator (mapie.calibration) when available,
+    falling back to the external venn_abers library otherwise.
+
     Args:
         classifier: Fitted classifier with predict_proba.
-        X_cal: Calibration features.
+        X_cal: Calibration features (required for MAPIE path).
         y_cal: Calibration labels.
-        X_test: Test features.
+        X_test: Test features (required for MAPIE path).
 
     Returns:
         Tuple of (y_pred_point, p0_array, p1_array) where:
-        - y_pred_point: midpoint (p0+p1)/2 as point estimate.
+        - y_pred_point: positive-class probability as point estimate.
         - p0_array: lower probability bound per observation.
         - p1_array: upper probability bound per observation.
     """
+    y_cal_arr = np.asarray(y_cal.values if hasattr(y_cal, "values") else y_cal, dtype=int).reshape(
+        -1
+    )
+
+    # ── MAPIE native path (preferred) ─────────────────────────────────────────
+    try:
+        from mapie.calibration import VennAbersCalibrator
+
+        va = VennAbersCalibrator(estimator=classifier, inductive=True, random_state=42)
+        va.fit(
+            X_cal,
+            y_cal_arr,
+            X_calib=X_cal,
+            y_calib=y_cal_arr,
+        )
+        probs = va.predict_proba(X_test)  # shape (n, 2): [p_neg, p_pos]
+        p_low_raw = np.clip(np.asarray(probs[:, 0], dtype=float), 0.0, 1.0)
+        p_high_raw = np.clip(np.asarray(probs[:, 1], dtype=float), 0.0, 1.0)
+        # VennAbersCalibrator returns [p0, p1] bounds for positive class
+        p_low = np.minimum(p_low_raw, p_high_raw)
+        p_high = np.maximum(p_low_raw, p_high_raw)
+        y_pred_point = np.clip((p_low + p_high) / 2.0, 0.0, 1.0)
+        avg_width = float((p_high - p_low).mean())
+        logger.info(
+            f"Venn-Abers PD intervals [MAPIE]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
+        )
+        return y_pred_point, p_low, p_high
+
+    except (ImportError, ValueError, TypeError, RuntimeError, AttributeError) as exc:
+        logger.warning(
+            f"MAPIE VennAbersCalibrator failed ({exc}) — falling back to venn_abers library."
+        )
+
+    # ── External venn_abers fallback ──────────────────────────────────────────
     from venn_abers import VennAbers
 
     p_cal_pos = np.asarray(classifier.predict_proba(X_cal)[:, 1], dtype=float).reshape(-1)
     p_cal = np.column_stack([1.0 - p_cal_pos, p_cal_pos])
-    y_cal_arr = np.asarray(y_cal.values if hasattr(y_cal, "values") else y_cal, dtype=int).reshape(
-        -1
-    )
     p_test_pos = np.asarray(classifier.predict_proba(X_test)[:, 1], dtype=float).reshape(-1)
     p_test = np.column_stack([1.0 - p_test_pos, p_test_pos])
 
@@ -566,14 +600,14 @@ def create_pd_intervals_venn_abers(
     p0 = np.clip(np.asarray(p_result[:, 0], dtype=float), 0.0, 1.0)
     p1 = np.clip(np.asarray(p_result[:, 1], dtype=float), 0.0, 1.0)
 
-    # Ensure p0 <= p1
     p_low = np.minimum(p0, p1)
     p_high = np.maximum(p0, p1)
-
     y_pred_point = np.clip(np.asarray(y_pred_binary[:, 1], dtype=float), 0.0, 1.0)
 
     avg_width = float((p_high - p_low).mean())
-    logger.info(f"Venn-Abers PD intervals: avg_width={avg_width:.4f}, n_test={len(X_test)}")
+    logger.info(
+        f"Venn-Abers PD intervals [fallback]: avg_width={avg_width:.4f}, n_test={len(X_test)}"
+    )
     return y_pred_point, p_low, p_high
 
 

@@ -212,16 +212,30 @@ class TestDvcPipeline:
         """DVC DAG should include governance/export stages used by Streamlit + MLflow."""
         stages = set(dvc_config.get("stages", {}).keys())
         required = {
-            "backtest_conformal_coverage",
-            "validate_conformal_policy",
-            "generate_governance_status",
-            "build_pd_challenger_artifacts",
-            "run_fairness_audit",
-            "export_streamlit_artifacts",
-            "export_storytelling_snapshot",
+            "diagnostic.conformal.backtest_coverage",
+            "diagnostic.conformal.validate_policy",
+            "core.governance.generate_status",
+            "diagnostic.pd.build_challenger_artifacts",
+            "core.governance.run_fairness_audit",
+            "core.governance.export_streamlit_artifacts",
+            "core.governance.export_storytelling_snapshot",
         }
         missing = required - stages
         assert not missing, f"Missing DVC showcase stages: {sorted(missing)}"
+
+    @pytest.mark.skipif(not DVC_YAML_PATH.exists(), reason="No dvc.yaml found")
+    def test_dvc_stage_prefixes_match_pipeline_taxonomy(self, dvc_config: dict) -> None:
+        valid_prefixes = (
+            "core.",
+            "paper2.",
+            "search.",
+            "diagnostic.",
+            "research.",
+        )
+        for stage_name in dvc_config.get("stages", {}):
+            assert stage_name.startswith(valid_prefixes), (
+                f"Stage '{stage_name}' does not follow pipeline-first prefix taxonomy"
+            )
 
     @pytest.mark.skipif(not DVC_LOCK_PATH.exists(), reason="No dvc.lock found")
     def test_dvc_yaml_outs_have_lock_metadata(self, dvc_config: dict, dvc_lock: dict) -> None:
@@ -308,6 +322,7 @@ class TestMRMConfig:
 # ── Conformal Policy Config ──
 
 CONFORMAL_POLICY_PATH = PROJECT_ROOT / "configs" / "conformal_policy.yaml"
+CAUSAL_LANE_PATH = PROJECT_ROOT / "configs" / "causal_lane.yaml"
 
 
 class TestConformalPolicyConfig:
@@ -367,6 +382,41 @@ class TestConformalPolicyConfig:
             assert path.endswith((".pkl", ".parquet", ".json")), (
                 f"Artifact '{key}' has unexpected extension: {path}"
             )
+
+
+class TestCausalLaneConfig:
+    """Validate causal lane configuration structure."""
+
+    @pytest.fixture(autouse=True)
+    def _load(self):
+        if not CAUSAL_LANE_PATH.exists():
+            pytest.skip("Causal lane config not found")
+        with open(CAUSAL_LANE_PATH) as f:
+            self.cfg = yaml.safe_load(f)
+
+    def test_required_sections_exist(self):
+        required = {
+            "defaults",
+            "data",
+            "overlap",
+            "estimators",
+            "sensitivity",
+            "policy",
+            "portfolio",
+        }
+        assert required.issubset(self.cfg.keys()), (
+            f"Missing keys: {required - set(self.cfg.keys())}"
+        )
+
+    def test_action_grid_contains_hold_and_discounts(self):
+        grid = self.cfg["defaults"]["action_grid_bps"]
+        assert 0 in grid
+        assert any(value < 0 for value in grid)
+
+    def test_cate_candidates_include_two_families(self):
+        candidates = self.cfg["estimators"]["cate_candidates"]
+        assert "causal_forest_dml" in candidates
+        assert "linear_dml" in candidates
 
 
 # ── Fairness Policy Config ──

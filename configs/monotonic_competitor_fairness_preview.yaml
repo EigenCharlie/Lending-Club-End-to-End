@@ -1,0 +1,81 @@
+schema_version: "2026-03-29.1"
+description: >
+  Fast preview run after fairness-group fix. Uses a small sub-sample and only
+  the most promising monotonic profiles/variants to sanity-check whether the
+  fairness-aware ranking changes once quartile binning is aligned with the
+  official audit.
+
+defaults:
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  config_path: configs/pd_model.champion_search_max.yaml
+  output_path: models/monotonic_competitor_search_fairness_preview.json
+  best_output_path: models/monotonic_competitor_best_fairness_preview.json
+
+promotion_policy:
+  max_auc_drop: 0.003
+  max_brier_increase_pct: 0.015
+  max_ece_delta: 0.01
+  require_fairness_ok: true
+
+calibration_methods:
+  - venn_abers
+
+seed_offsets:
+  - 0
+
+decision_threshold_candidates:
+  - 0.30
+  - 0.325
+  - 0.35
+  - 0.375
+  - 0.40
+
+sampling:
+  train_max_rows: 80000
+  calibration_max_rows: 20000
+  test_max_rows: 20000
+  random_state: 42
+
+constraint_profiles:
+  bureau_capacity:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      grade_woe: 1
+  affordability_only:
+    features:
+      annual_inc: -1
+      loan_to_income: 1
+      dti: 1
+      installment: 1
+  risk_core:
+    features:
+      dti: 1
+      rev_utilization: 1
+      num_delinq_2yrs: 1
+      days_since_last_delinq: -1
+      int_rate: 1
+      grade_woe: 1
+
+param_variants:
+  - id: base
+    learning_rate_multiplier: 1.0
+    l2_leaf_reg_multiplier: 1.0
+    depth_offset: 0
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.0
+  - id: reg_up
+    learning_rate_multiplier: 0.9
+    l2_leaf_reg_multiplier: 1.5
+    depth_offset: -1
+    iterations_multiplier: 1.0
+    random_strength_multiplier: 1.25
+  - id: deeper_regularized
+    learning_rate_multiplier: 0.82
+    l2_leaf_reg_multiplier: 1.8
+    depth_offset: 1
+    iterations_multiplier: 1.15
+    random_strength_multiplier: 1.2

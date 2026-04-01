@@ -1,0 +1,76 @@
+## Análisis Geográfico y Temporal {#sec-geographic-temporal}
+
+La heterogeneidad geográfica y temporal es una de las razones por las que este problema no puede tratarse como una tabla tabular estática. El mismo score puede significar cosas distintas cuando cambia el estado, el ciclo crediticio o el régimen macroeconómico.
+
+### Cobertura geográfica
+
+El artefacto `state_aggregates.parquet` resume 51 jurisdicciones. La dispersión es amplia tanto en volumen como en default:
+
+| Estado | N préstamos | Default rate | Volumen total |
+|---|---:|---:|---:|
+| CA | 264,525 | 19.47% | \$3.94B |
+| AZ | 45,521 | 19.03% | \$0.64B |
+| AL | 22,802 | 22.72% | \$0.32B |
+| AR | 14,087 | 23.62% | \$0.19B |
+| AK | 4,343 | 18.97% | \$0.07B |
+
+: Muestra del agregado geográfico {#tbl-state-sample}
+
+La presencia de estados con mucho menor soporte muestral también es una advertencia metodológica: no toda heterogeneidad observable amerita una partición operacional. En varios capítulos posteriores se privilegia `grade` como grupo Mondrian precisamente porque tiene mejor estabilidad y sentido regulatorio.
+
+| Lo que muestra la geografía | Lo que no conviene sobrerreaccionar | Lectura útil para el libro |
+|---|---|---|
+| algunos estados combinan más volumen y más default | no toda diferencia estatal justifica una política separada | usar geografía como contexto, no como partición principal del pipeline |
+| hay jurisdicciones con soporte muestral bajo | un grupo pequeño puede inducir falsas señales | preferir grupos con estabilidad y semántica de negocio como `grade` |
+
+: Cómo leer la geografía sin sobreprometer segmentación {#tbl-geography-reading}
+
+La tentación de segmentar por estado es comprensible: la diferencia entre Alabama (22.72% default rate) y Alaska (18.97%) parece material y accionable. Pero esa tentación esconde un riesgo conocido en la industria bancaria: la sobre-segmentación geográfica produce modelos que capturan idiosincrasias locales (regulación estatal de intereses, composición sectorial) a costa de estabilidad temporal. Un modelo calibrado para California no se comportará igual cuando el mercado inmobiliario de California se mueva — y si la partición conformal también se hace por estado, los grupos con bajo soporte muestral (Alaska con 4,343 préstamos, Arkansas con 14,087) producirán intervalos inestables que oscilarán entre excesiva estrechez y excesiva amplitud según la composición del set de calibración. Los reguladores (OCC, BCE) generalmente aceptan segmentaciones geográficas solo cuando el banco puede demostrar que la señal geográfica es estable en el tiempo y que el soporte muestral por grupo es suficiente para sostener las garantías estadísticas del modelo. En este proyecto, `grade` cumple ambas condiciones mejor que `state`: tiene 7 niveles (no 51), cada nivel tiene soporte muestral robusto, y su semántica de riesgo es directamente interpretable por un comité. La geografía, en cambio, aporta su máximo valor como variable de contexto — útil para entender *por qué* un segmento se comporta de cierta manera, no como eje principal de partición.
+
+### No estacionariedad temporal
+
+El proyecto usa una división temporal explícita, no un *shuffle split*. La narrativa sincronizada con la tesis fija el esquema canónico:
+
+| Split | Filas | Periodo narrativo |
+|---|---:|---|
+| Train | 1,346,311 | 2007-2017 |
+| Calibration | 237,584 | ventana de ajuste intermedia |
+| Test OOT | 276,869 | 2018-2020 |
+
+: Esquema temporal del pipeline {#tbl-temporal-split}
+
+Esta estructura cumple dos objetivos. Primero, evita contaminación entre desarrollo y evaluación. Segundo, reproduce la forma en que un banco realmente desplegaría el modelo: entrenando en historia conocida y enfrentándolo luego a un periodo futuro.
+
+::: {.column-page}
+![Vista agregada de series temporales del portafolio Lending Club: default, volumen, tasa y DTI a lo largo del tiempo.](../../assets/figures/notebooks/portfolio_time_series_overview.png){#fig-portfolio-time-overview fig-alt="Vista agregada de series temporales del portafolio Lending Club."}
+:::
+
+La figura @fig-portfolio-time-overview ayuda a leer el capítulo con ojos de negocio: el portafolio cambia en volumen, precio promedio y fragilidad financiera. Por eso el test más creíble del libro nunca es aleatorio; siempre es temporal.
+
+### La geografía no es solo un mapa
+
+En crédito, el estado resume mezcla de regulación local, composición sectorial, mercado laboral y comportamiento del prestatario. Sin embargo, este libro evita sobredimensionar esa dimensión. La lectura correcta es:
+
+- la geografía aporta contexto;
+- el tiempo aporta el verdadero test de robustez;
+- la combinación de ambos obliga a monitoreo continuo.
+
+### Por qué la validación temporal manda
+
+La evidencia de drift en variables como `fico_score` e `int_rate` confirma que el portafolio cambia en el tiempo. Si a eso se suma la heterogeneidad por estado, el costo de ignorar la dimensión temporal sería alto:
+
+$$
+\text{validación aleatoria} \;\Rightarrow\; \text{optimismo artificial en desempeño y cobertura}
+$$
+
+Por eso los resultados fuertes del libro se reportan siempre en ventanas OOT o con trazabilidad temporal explícita.
+
+### Implicación para capítulos posteriores
+
+Este capítulo habilita tres decisiones de diseño:
+
+1. monitoreo de drift con PSI, KS y CvM;
+2. cobertura conformal evaluada por cohorte temporal y por grupo;
+3. escenarios IFRS9 y proyecciones ECL como extensiones naturales del análisis temporal.
+
+La conclusión de fondo es sencilla: el dataset no es solo grande; es dinámico y heterogéneo. El pipeline completo fue construido para respetar esa realidad.

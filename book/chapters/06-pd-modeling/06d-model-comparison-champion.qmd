@@ -1,0 +1,265 @@
+## Comparación de Modelos y Selección del Champion {#sec-model-champion}
+
+### Framework de Comparación
+
+La selección del modelo champion no se basa en una sola métrica --- utiliza un framework multi-dimensional que evalúa discriminación, calibración, estabilidad temporal y operabilidad.
+
+```{python}
+#| label: tbl-model-comparison-full
+#| tbl-cap: "Comparación completa de modelos PD (métricas OOT)"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_json
+
+import pandas as pd
+
+comparison = load_json("model_comparison")
+final = comparison.get("final_test_metrics", {})
+pipeline_summary = load_json("pipeline_summary")
+fairness = load_json("fairness_audit_status", directory="models")
+monotonicity = load_json("monotonicity_audit_status", directory="models")
+registry = load_json("champion_registry", directory="models")
+
+models_data = [
+    {"Modelo": "Logistic Regression", "AUC": 0.683, "Gini": 0.366,
+     "Brier": 0.2313, "ECE": "N/A", "D² Brier": -0.349,
+     "Calibrado": "No", "Status": "Baseline"},
+    {"Modelo": "CatBoost (default)", "AUC": 0.7125, "Gini": 0.425,
+     "Brier": 0.2058, "ECE": "N/A", "D² Brier": -0.200,
+     "Calibrado": "No", "Status": "Candidato"},
+    {"Modelo": "CatBoost (tuned)", "AUC": 0.7131, "Gini": 0.4262,
+     "Brier": 0.2051, "ECE": "N/A", "D² Brier": -0.196,
+     "Calibrado": "No", "Status": "Candidato"},
+    {"Modelo": "CatBoost monotónico + Venn-Abers", "AUC": round(pipeline_summary.get("pd_auc", 0), 4),
+     "Gini": round(pipeline_summary.get("pd_gini", 0), 4),
+     "Brier": round(pipeline_summary.get("pd_brier", 0), 4),
+     "ECE": round(pipeline_summary.get("pd_ece", 0), 4),
+     "D² Brier": round(pipeline_summary.get("pd_d2_brier", 0), 4),
+     "Calibrado": "Sí (Venn-Abers)", "Status": "Champion vigente"},
+]
+
+pd.DataFrame(models_data)
+```
+
+### Criterios de Selección
+
+El modelo champion ya no se define solo por “máximo AUC”. La selección vigente evalúa al menos seis dimensiones:
+
+**1. Discriminación (AUC, Gini, KS)**
+
+El AUC mide la capacidad del modelo para separar defaults de no-defaults. Los cuatro modelos muestran una progresión clara:
+
+- LR → CatBoost default: **+0.030 AUC** (salto principal, justifica la complejidad)
+- CatBoost default → tuned: **+0.0006 AUC** (marginal, HPO tiene rendimientos decrecientes)
+- Tuned → calibrado: **AUC invariante** (la calibración no afecta el ranking)
+
+El KS (Kolmogorov-Smirnov) del modelo champion es **0.315**, indicando buena separación entre las distribuciones de scores de defaults y no-defaults.
+
+**2. Calibración (Brier, ECE, D² Brier)**
+
+La calibración es donde la diferencia entre modelos raw y calibrados es más dramática:
+
+| Métrica | CatBoost raw | CatBoost calibrado | Mejora |
+|---------|-------------|-------------------|--------|
+| Brier | 0.2051 | 0.1545 | -24.7% |
+| ECE | N/A (no medido) | 0.0059 | Excelente |
+| D² Brier | -0.196 | +0.099 | De peor a mejor que naive |
+
+: Impacto de la calibración sobre métricas de Brier {#tbl-calibration-impact}
+
+Un ECE de ~0.0067 significa que las probabilidades predichas están, en promedio, muy cerca de las frecuencias de default observadas. Para IFRS9, fairness, staging y policy de portafolio, esta calidad probabilística importa más que una mejora marginal de ranking aislada.
+
+::: {.column-page}
+![Curvas ROC de los modelos PD principales evaluados en el proyecto.](../../assets/figures/editorial/pd_roc_curve.png){#fig-pd-roc fig-alt="Curvas ROC comparando los modelos de probabilidad de default del proyecto."}
+:::
+
+::: {.column-page}
+![Diagrama de confiabilidad del champion y sus comparadores, usado para justificar la promoción del calibrador Venn-Abers.](../../assets/figures/editorial/pd_reliability_curve.png){#fig-pd-calibration fig-alt="Curvas de calibración comparando probabilidades observadas y predichas en los modelos PD."}
+:::
+
+Las figuras @fig-pd-roc y @fig-pd-calibration muestran por qué el champion no se define solo por ranking. El desempeño discriminativo se mantiene alto, pero la mejora verdaderamente material aparece en la calibración posterior.
+
+**3. Monotonicidad y defendibilidad estructural**
+
+La promoción actual añade una dimensión que en la versión clásica del libro todavía no aparecía como criterio formal: el champion vigente también debe ser **económicamente coherente y auditable en estructura**. Eso se ve en dos artefactos nuevos:
+
+- `models/monotonicity_audit_status.json`
+- `models/fairness_audit_status.json`
+
+```{python}
+#| label: tbl-champion-structural-guardrails
+#| tbl-cap: "Guardrails estructurales del champion monotónico vigente"
+
+structural_rows = [
+    {"Guardrail": "Run tag campeón", "Valor": registry.get("run_tag"), "Lectura": "La promoción quedó congelada con trazabilidad explícita."},
+    {"Guardrail": "Fairness overall_pass", "Valor": fairness.get("overall_pass"), "Lectura": "La auditoría oficial de fairness no bloquea la política vigente."},
+    {"Guardrail": "Fairness outcome_mode", "Valor": fairness.get("outcome_mode"), "Lectura": "La equidad se lee sobre decisiones de aprobación, no sobre un corte PD interno."},
+    {"Guardrail": "Atributos auditados", "Valor": fairness.get("n_attributes"), "Lectura": "La vista oficial ya incluye atributos base e interseccionales."},
+    {"Guardrail": "Threshold operativo", "Valor": fairness.get("prediction_threshold"), "Lectura": "El threshold oficial vive en la política de decisión y fairness."},
+    {"Guardrail": "Monotonicidad overall_pass", "Valor": monotonicity.get("overall_pass"), "Lectura": "La auditoría monotónica confirma que la promoción no dejó incoherencia estructural."},
+    {"Guardrail": "Disrupciones entre bandas", "Valor": monotonicity.get("summary", {}).get("n_disruptions"), "Lectura": "El snapshot vigente no detecta saltos adversos entre bandas."},
+    {"Guardrail": "Violación monotónica máxima", "Valor": monotonicity.get("summary", {}).get("max_feature_violation_rate"), "Lectura": "Las features monotónicas activas se mantienen consistentes."},
+]
+
+pd.DataFrame(structural_rows)
+```
+
+**4. Métricas complementarias**
+
+```{python}
+#| label: tbl-champion-metrics
+#| tbl-cap: "Métricas completas del modelo champion (test OOT)"
+
+metrics = {
+    "AUC-ROC": f"{pipeline_summary.get('pd_auc', 0):.4f}",
+    "Gini": f"{pipeline_summary.get('pd_gini', 0):.4f}",
+    "Brier Score": f"{pipeline_summary.get('pd_brier', 0):.4f}",
+    "ECE": f"{pipeline_summary.get('pd_ece', 0):.4f}",
+    "KS Statistic": f"{final.get('ks_statistic', 0):.4f}",
+    "D² Brier": f"{pipeline_summary.get('pd_d2_brier', 0):.4f}",
+    "PR-AUC": f"{final.get('pr_auc', 0):.4f}",
+    "Recall @ 0.35": f"{final.get('recall_at_0p35', 0):.4f}",
+    "F1 @ 0.35": f"{final.get('f1_at_0p35', 0):.4f}",
+}
+
+pd.DataFrame(list(metrics.items()), columns=["Métrica", "Valor"])
+```
+
+::: {.column-page}
+![Curva Precision-Recall del champion y sus comparadores, relevante por el desbalance de clases del problema.](../../assets/figures/editorial/pd_pr_curve.png){#fig-pd-pr fig-alt="Curvas Precision-Recall comparando el champion calibrado con modelos PD alternativos."}
+:::
+
+La figura @fig-pd-pr complementa el AUC-ROC con una lectura más exigente para clases desbalanceadas. El champion no solo separa mejor que el baseline; también conserva una frontera precision-recall competitiva cuando la tasa de default observada es baja.
+
+### Diagnóstico fino del champion
+
+El Streamlit local añadía una capa diagnóstica que vale la pena fijar en el libro porque responde una objeción frecuente: un champion puede verse sólido en promedio y aun así esconder problemas en eventos raros, slices de cartera o corridas de replay. El snapshot oficial deja tres conclusiones claras:
+
+1. la calibración global sigue siendo fuerte (`ECE = 0.0057`);
+2. los puntos más exigentes aparecen en slices específicos, no en el promedio;
+3. el replay de HPO ya no mueve la decisión del champion, porque el carril de búsqueda quedó deshabilitado en el run oficial y la calibración seleccionada fue `Venn-Abers`.
+
+```{python}
+#| label: tbl-champion-diagnostic-extensions
+#| tbl-cap: "Diagnósticos extendidos del champion PD absorbidos desde el companion"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+rare = try_load_json("pd_rare_event_calibration_status", directory="models", default={})
+hpo = try_load_json("pd_hpo_seed_replay_status", directory="models", default={})
+slice_status = try_load_json("pd_slice_performance", directory="models", default={})
+bootstrap_validation = try_load_json("bootstrap_validation_status", directory="models", default={})
+calibration_mapping = try_load_json("calibration_mapping_status", directory="models", default={})
+
+rows = [
+    {"Diagnóstico": "ECE global", "Valor": f"{rare.get('global', {}).get('ece', 0):.4f}", "Lectura": "Error de calibración promedio muy bajo."},
+    {"Diagnóstico": "Worst protected-group ECE", "Valor": f"{rare.get('worst_protected_group_ece', 0):.4f}", "Lectura": "El peor corte protegido sigue lejos de una ruptura material."},
+    {"Diagnóstico": "Worst grade Brier", "Valor": f"{rare.get('worst_grade_brier', 0):.4f}", "Lectura": "El grade más exigente concentra la mayor pérdida probabilística."},
+    {"Diagnóstico": "Max decile gap", "Valor": f"{rare.get('max_decile_gap', 0):.4f}", "Lectura": "Brecha máxima entre prevalencia observada y score medio por decil."},
+    {"Diagnóstico": "Bootstrap severity", "Valor": str(bootstrap_validation.get('severity', 'N/D')).upper(), "Lectura": "El gap global es chico, pero bootstrap sigue viendo slices materialmente alejados de cero."},
+    {"Diagnóstico": "Calibration mapping best candidate", "Valor": str(calibration_mapping.get('best_candidate', {}).get('candidate_id', 'N/D')), "Lectura": "El calibrador vigente sigue siendo el mejor candidato observable en la lane sidecar."},
+    {"Diagnóstico": "Selected calibration method", "Valor": str(hpo.get('selected_calibration_method', 'N/D')), "Lectura": "Método promovido en el carril oficial."},
+    {"Diagnóstico": "HPO replay enabled", "Valor": str(hpo.get('replay', {}).get('enabled', False)), "Lectura": "La búsqueda pesada no decide el champion en este snapshot oficial."},
+    {"Diagnóstico": "OOT AUC (replay status)", "Valor": f"{hpo.get('oot_auc', 0):.4f}", "Lectura": "Consistencia del champion bajo replay del estado HPO."},
+    {"Diagnóstico": "Slices evaluados", "Valor": str(len(slice_status.get('slice_performance', []))), "Lectura": "Cortes operativos revisados más allá del promedio global."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-champion-slice-performance
+#| tbl-cap: "Slices operativos del champion PD"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+slice_status = try_load_json("pd_slice_performance", directory="models", default={})
+slice_df = pd.DataFrame(slice_status.get("slice_performance", []))
+if not slice_df.empty:
+    slice_df = slice_df.loc[~slice_df["skipped"].astype(bool), ["slice", "count", "default_rate", "auc_roc", "pr_auc", "brier_score"]]
+    slice_df = slice_df.sort_values("brier_score", ascending=False).head(6)
+slice_df
+```
+
+La tabla de slices operativos muestra por qué el companion reducido sigue teniendo sentido: no para repetir el capítulo, sino para navegar estos cortes en vivo. El libro fija la lectura oficial; el laboratorio conserva la exploración interactiva por segmento.
+
+Un matiz importante del champion actual es que la siguiente mejora ya no parece salir de “otro calibrador mágico”. Como prueba específica, el proyecto ejecutó una lane `shadow` de recalibración post-hoc sobre la ventana OOT, comparando el calibrador canónico contra dos sidecars ligeros: `logit_intercept_shift` e `isotonic_sidecar`. El resultado fue negativo, pero metodológicamente valioso: `current_identity` siguió siendo el mejor candidato observable y la validación consolidada cerró con `keep_current_calibrator`, porque ninguno de los remapeos redujo la persistencia por cohortes sin empeorar simultáneamente gap absoluto, breaches temporales, peor quarter o ECE. Esta evidencia importa porque descarta una explicación demasiado cómoda del problema restante. La lectura correcta no es que “falta probar otro calibrador”, sino que la desviación residual debe entenderse mejor a nivel de cohortes, slices y dinámica temporal antes de justificar una nueva intervención sobre la función de calibración [@zadrozny2002].
+
+**5. Estabilidad temporal**
+
+El modelo se evalúa no solo en métricas agregadas sino en su **estabilidad mensual** a lo largo del período de test (33 meses). Un modelo con AUC alto pero volátil es menos confiable que uno con AUC ligeramente menor pero estable. El backtesting conformal mensual (ver @sec-backtest-monitoring) complementa esta evaluación verificando que la cobertura se mantiene mes a mes.
+
+**6. Operabilidad**
+
+- **Tiempo de inferencia**: CatBoost predice 276,869 scores en < 1 segundo (batch).
+- **Tamaño del modelo**: El archivo `pd_canonical.cbm` pesa < 10 MB.
+- **Dependencias**: Solo requiere `catboost` (no TensorFlow, no ONNX runtime).
+- **Contrato estable**: Las 42 features del contrato (@sec-feature-contract) están documentadas y validadas.
+
+### Artefactos del Champion
+
+La selección del champion produce tres artefactos canónicos que son consumidos por todas las etapas downstream:
+
+| Artefacto | Path | Consumidores |
+|-----------|------|-------------|
+| **Modelo CatBoost** | `models/pd_canonical.cbm` | Conformal, SHAP, portfolio, IFRS9 |
+| **Calibrador** | `models/pd_canonical_calibrator.pkl` | Conformal (PD calibrada como input) |
+| **Contrato** | `models/pd_model_contract.json` | Todos (validación de features) |
+
+: Artefactos canónicos del modelo champion {#tbl-champion-artifacts}
+
+::: {.callout-important}
+## Principio de inmutabilidad
+Una vez designado como champion, el modelo y su calibrador se **congelan**. Los scripts downstream cargan estos artefactos y los usan sin modificación. Si se necesita un modelo nuevo, se ejecuta el pipeline completo de entrenamiento y se genera un nuevo set de artefactos canónicos. Esto garantiza reproducibilidad: los mismos artefactos producen los mismos intervalos conformales, las mismas asignaciones de portafolio y las mismas provisiones IFRS9.
+:::
+
+### Por qué el champion actual merece contarse distinto en el libro
+
+La versión original del libro presentaba el carril monotónico como un challenger útil pero no promovido. Ese estado ya no es correcto. El champion actual merece una narrativa distinta por tres razones:
+
+1. el proyecto ya demostró que puede sostener **mejora o no regresión operativa** con monotonicidad activa;
+2. la equidad quedó cerrada bajo la **semántica oficial de aprobación**;
+3. el post-promotion hardening añadió evidencia que antes no existía: auditoría monotónica, C2ST con drivers, PD backtesting e interpretación por cohortes.
+
+Eso cambia el tono de esta sección. Ya no se trata solo de “qué modelo tuvo mejor AUC”, sino de por qué la versión promovida del champion es la que mejor equilibra ranking, calibración, equidad y defendibilidad estructural.
+
+### Posicionamiento en la Literatura
+
+El AUC alrededor de `0.713` se sitúa en el rango competitivo para modelos de ML sobre el dataset de Lending Club:
+
+| Estudio | Mejor modelo | AUC reportado |
+|---------|-------------|--------------|
+| @lessmann2015 | Random Forest | 0.69--0.71 |
+| @ayari2026 | CatBoost | 0.71--0.73 |
+| @xia2017 | XGBoost + stacking | 0.72--0.74 |
+| **Este proyecto** | CatBoost + Venn-Abers | **0.713** |
+
+: Comparación con literatura publicada sobre Lending Club {#tbl-literature-comparison}
+
+Nuestro AUC está en el centro del rango publicado. Estudios que reportan AUC > 0.74 generalmente usan random splits (no OOT), features post-originación, o subconjuntos más pequeños del dataset. Con split temporal estricto y contrato champion de 42 features anti-leakage sobre un universo FE mucho más amplio, 0.713 es un resultado competitivo y honesto.
+
+### Evidencia Visual: Curvas ROC
+
+La @fig-roc-curves-comparison muestra las curvas ROC de todos los modelos evaluados (Logistic Regression, CatBoost default, CatBoost tuned) sobre el test set OOT. La separación entre LR y CatBoost es visible, pero la diferencia entre CatBoost default y tuned es marginal --- consistente con la discusión en @sec-tuning-gain sobre la robustez de los hiperparámetros por defecto.
+
+![Curvas ROC comparativas de los modelos evaluados sobre el test set OOT (276,869 préstamos).](../../assets/figures/notebooks/roc_curves.png){#fig-roc-curves-comparison fig-alt="Curvas ROC de Logistic Regression, CatBoost default y CatBoost tuned sobre datos out-of-time."}
+
+::: {.callout-tip}
+## Más allá del AUC
+La contribución de este proyecto no es obtener el AUC más alto posible --- es construir un pipeline end-to-end que transforma el AUC 0.713 en **decisiones óptimas** de portafolio con **protección contra incertidumbre garantizada**. El modelo PD es un componente, no el producto final. Un modelo con AUC 0.75 pero sin intervalos conformales ni optimización robusta produce peores decisiones que un modelo con AUC 0.71 integrado en el pipeline completo.
+:::

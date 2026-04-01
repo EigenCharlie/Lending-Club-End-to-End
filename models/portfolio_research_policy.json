@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-08.1",
-  "generated_at_utc": "2026-03-16T01:42:55.909072+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "generated_at_utc": "2026-03-30T04:59:30.432853+00:00",
+  "run_tag": "canonical-monotonic-economic-only-2026-03-29",
   "selection_stage": "tradeoff_research_only",
   "selection_policy": {
     "rank_order": [
@@ -20,54 +20,54 @@
     ]
   },
   "selected_policy": {
-    "risk_tolerance": 0.16,
-    "policy_mode": "tail_blended_uncertainty",
-    "gamma": 0.1,
+    "risk_tolerance": 0.18,
+    "policy_mode": "segment_relative_tail_blended_uncertainty",
+    "gamma": 0.05,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.1,
+    "uncertainty_aversion": 0.25,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
-    "solver_backend": "cuopt"
+    "solver_backend": "highs"
   },
   "selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 224189.23726692205,
-    "realized_total_return": 224189.23726692205,
-    "price_of_robustness": -207398.26797580507,
-    "price_of_robustness_pct": -20446227068449.992,
-    "n_funded": 251
+    "ab_diff_total_return": 109355.94344553433,
+    "realized_total_return": 188082.30554512228,
+    "price_of_robustness": -84147.84413026311,
+    "price_of_robustness_pct": -91.48305325690951,
+    "n_funded": 268
   },
   "selected_policy_robustness_aware": {
-    "risk_tolerance": 0.16,
+    "risk_tolerance": 0.14,
     "policy_mode": "tail_blended_uncertainty",
     "gamma": 0.5,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.1,
+    "uncertainty_aversion": 0.25,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
-    "solver_backend": "cuopt"
+    "solver_backend": "highs"
   },
   "selected_policy_balanced_robustness": {
-    "risk_tolerance": 0.16,
-    "policy_mode": "tail_blended_uncertainty",
-    "gamma": 0.1,
+    "risk_tolerance": 0.18,
+    "policy_mode": "segment_relative_tail_blended_uncertainty",
+    "gamma": 0.05,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.1,
+    "uncertainty_aversion": 0.25,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
-    "solver_backend": "cuopt"
+    "solver_backend": "highs"
   },
   "research_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 223075.75788250487,
-    "realized_total_return": 223075.75788250487,
-    "price_of_robustness": -207524.39911463408,
-    "price_of_robustness_pct": -20458661626993.176,
-    "n_funded": 246,
-    "robustness_aware_score": 158527.07302263286
+    "ab_diff_total_return": 117165.95970745408,
+    "realized_total_return": 179647.6554428785,
+    "price_of_robustness": -82060.69039312552,
+    "price_of_robustness_pct": -98.8670389787912,
+    "n_funded": 267,
+    "robustness_aware_score": 128617.95133027282
   },
   "balanced_selection_policy": {
     "name": "balanced_robustness",
@@ -81,11 +81,11 @@
   },
   "balanced_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 224189.23726692205,
-    "realized_total_return": 224189.23726692205,
-    "price_of_robustness": -207398.26797580507,
-    "price_of_robustness_pct": -20446227068449.992,
-    "n_funded": 251
+    "ab_diff_total_return": 109355.94344553433,
+    "realized_total_return": 188082.30554512228,
+    "price_of_robustness": -84147.84413026311,
+    "price_of_robustness_pct": -91.48305325690951,
+    "n_funded": 268
   },
   "guardrail_selection_policy": {
     "name": "guardrail_robustness",
@@ -103,23 +103,23 @@
     ]
   },
   "selected_policy_guardrail_robustness": {
-    "risk_tolerance": 0.14,
-    "policy_mode": "hard_worst_case",
-    "gamma": 1.0,
+    "risk_tolerance": 0.16,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.5,
     "delta_cap_quantile": 1.0,
-    "uncertainty_aversion": 0.5,
+    "uncertainty_aversion": 0.0,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "pd_cap_slack": 0.0,
-    "solver_backend": "cuopt"
+    "solver_backend": "highs"
   },
   "guardrail_selection_metrics": {
     "ab_pass": true,
-    "ab_diff_total_return": 0.0,
-    "realized_total_return": 0.0,
-    "price_of_robustness": 1.5641727185531631e-07,
-    "price_of_robustness_pct": 13.537550183037942,
-    "n_funded": 0
+    "ab_diff_total_return": 21851.288575788043,
+    "realized_total_return": 95115.02411714007,
+    "price_of_robustness": -21159.73868102758,
+    "price_of_robustness_pct": -24.177351023304254,
+    "n_funded": 195
   },
   "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
   "summary_path": "data/processed/portfolio_robustness_summary.parquet",

@@ -1,0 +1,385 @@
+## CatBoost: Default y Optimizado con Optuna {#sec-catboost-tuned}
+
+### Arquitectura de CatBoost
+
+CatBoost (*Categorical Boosting*) es un algoritmo de gradient boosting desarrollado por Yandex que introduce dos innovaciones fundamentales respecto a sus competidores XGBoost y LightGBM: **ordered boosting** y **arboles oblivious** (simétricos).
+
+#### Ordered Boosting
+
+El gradient boosting estándar calcula los residuos sobre las mismas observaciones usadas para construir los árboles anteriores, lo que introduce un sesgo de *target leakage* especialmente en datasets pequeños. CatBoost resuelve esto con *ordered boosting*: para estimar el error de una observación, se apoya en un modelo construido solo con observaciones anteriores dentro de una permutación del dataset. La intuición es simple: evita "mirar el futuro" del mismo registro cuando está aprendiendo. A cambio, paga un poco más de costo computacional, pero gana estabilidad y reduce leakage.
+
+#### Arboles Oblivious (Simétricos)
+
+CatBoost utiliza por defecto *oblivious decision trees* (ODT), donde cada nivel del árbol usa la **misma condición de split** para todos los nodos de ese nivel. Esto significa que un árbol de profundidad $d$ tiene exactamente $2^d$ hojas, y la estructura se puede representar como una tabla de verdad de $d$ condiciones binarias.
+
+Las ventajas para credit scoring son:
+
+- **Regularización implícita**: la simetría reduce drásticamente el número de parámetros libres, previniendo overfitting.
+- **Velocidad de inferencia**: la predicción se resuelve como una tabla de lookup, no como una travesía del árbol.
+- **Estabilidad**: modelos entrenados con semillas diferentes producen predicciones más similares entre sí.
+
+#### Manejo Nativo de Categorías y NaN
+
+CatBoost procesa variables categóricas sin necesidad de one-hot encoding o WOE, usando *target statistics* con suavizado:
+
+$$
+\hat{x}_k^i = \frac{\sum_{j \in \sigma_{<i}} \mathbb{1}[x_j^k = x_i^k] \cdot y_j + a \cdot p}{\sum_{j \in \sigma_{<i}} \mathbb{1}[x_j^k = x_i^k] + a}
+$$ {#eq-target-statistics}
+
+donde $p$ es la media global del target, $a$ es un parámetro de suavizado, y $\sigma_{<i}$ es el conjunto de observaciones anteriores en la permutación. Este esquema evita el target leakage que afecta al encoding naive de medias condicionales.
+
+Para valores faltantes (NaN), CatBoost asigna cada observación con NaN a la rama óptima en cada split --- izquierda o derecha --- maximizando la métrica objetivo. Esto convierte la ausencia de datos en una señal informativa sin requerir imputación manual.
+
+### Ventajas sobre XGBoost/LightGBM para Credit Scoring {#sec-catboost-advantages}
+
+La selección de CatBoost como modelo principal no es arbitraria. Para aplicaciones de credit scoring, presenta ventajas concretas:
+
+| Aspecto | CatBoost | XGBoost | LightGBM |
+|---------|----------|---------|----------|
+| **Categorías** | Nativo (target statistics) | Requiere encoding manual | Nativo (split por subconjuntos) |
+| **NaN** | Nativo (optimal branch) | Nativo (default direction) | Nativo (zero bin) |
+| **Calibración** | Mejor out-of-box | Requiere post-hoc | Requiere post-hoc |
+| **Sensibilidad a HPO** | Baja (defaults robustos) | Media-alta | Alta |
+| **Arboles** | Oblivious (regularizados) | Asimétricos | Asimétricos (leaf-wise) |
+| **Ordered boosting** | Si | No | No |
+
+: Comparación de frameworks de gradient boosting para credit scoring {#tbl-catboost-vs-others}
+
+::: {.callout-tip}
+## Calibración out-of-box
+La combinación de ordered boosting y árboles oblivious produce predicciones que son *a priori* mejor calibradas que las de XGBoost/LightGBM. Esto es relevante en credit scoring, donde las probabilidades no solo deben ordenar bien a los clientes (discriminación), sino reflejar la tasa de default real (calibración). Aun así, la calibración post-hoc es necesaria para uso regulatorio --- ver @sec-calibration-selection.
+:::
+
+::: {.callout-note}
+## Monotonic constraints: de challenger interpretable a champion vigente
+El proyecto pasó por dos etapas distintas. Primero, el carril monotónico apareció como challenger interpretable: forzaba coherencia económica local en variables como `loan_to_income` y otras señales estructurales. Más tarde, después de corregir la semántica de fairness para que la búsqueda y la auditoría oficial midieran lo mismo, el carril monotónico terminó **promoviéndose al champion vigente**.
+
+La razón por la que hoy sí se justifica no es solo “monotonía por elegancia”. Es una combinación de tres cosas:
+
+- mejora competitiva o al menos no regresiva en AUC/Brier bajo comparación operativa;
+- cierre de fairness bajo la semántica oficial de aprobación;
+- evidencia estructural posterior a la promoción: `models/monotonicity_audit_status.json` queda en `PASS` con `0` disrupciones entre bandas y `0` violaciones en las features monotónicas activas.
+
+La lectura correcta hoy es entonces más fuerte: la monotonicidad no se quedó en una ganancia de gobernanza; pasó a ser parte del **stack campeón** del proyecto porque mejoró la defendibilidad sin romper la calidad operativa.
+:::
+
+### CatBoost Default {#sec-catboost-default}
+
+El primer modelo CatBoost se entrena con hiperparámetros base conservadores, heredados del estándar de scikit-learn adaptado a la escala del dataset:
+
+```{python}
+#| label: tbl-catboost-default-params
+#| tbl-cap: "Hiperparámetros del CatBoost default"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+
+import pandas as pd
+
+default_params = {
+    "iterations": "1,000",
+    "learning_rate": "0.05",
+    "depth": "6",
+    "l2_leaf_reg": "3.0",
+    "loss_function": "Logloss",
+    "auto_class_weights": "Balanced",
+    "eval_metric": "AUC",
+    "early_stopping_rounds": "50",
+    "has_time": "True",
+}
+
+df_params = pd.DataFrame(
+    list(default_params.items()),
+    columns=["Hiperparámetro", "Valor"],
+)
+df_params
+```
+
+El parámetro `has_time=True` indica a CatBoost que el orden de las observaciones es informativo (temporal), lo cual ajusta las permutaciones del ordered boosting para respetar la estructura temporal --- un detalle importante para datos de crédito donde la distribución cambia con el ciclo económico.
+
+El entrenamiento utiliza un split temporal donde el 15% final del set de entrenamiento sirve como validación para early stopping, garantizando que la selección de la mejor iteración es prospectiva.
+
+```{python}
+#| label: tbl-catboost-default-metrics
+#| tbl-cap: "Métricas del CatBoost default (test OOT)"
+
+from book._helpers.load_artifacts import load_json
+
+comparison = load_json("model_comparison")
+models = comparison.get("models", [])
+
+# Extraer métricas del modelo default
+cb_default = next((m for m in models if m["model"] == "CatBoost (default)"), None)
+
+if cb_default:
+    metrics_default = {
+        "AUC-ROC": f"{cb_default['auc']:.4f}",
+        "Gini": f"{cb_default['gini']:.3f}",
+        "Brier Score (raw)": f"{cb_default['brier']:.4f}",
+        "D² Brier": f"{cb_default['d2_brier']:.4f}",
+        "Gap vs LR baseline": f"+{cb_default['auc'] - 0.683:.4f} AUC (+{(cb_default['auc'] - 0.683)/0.683*100:.1f}% relativo)",
+    }
+    pd.DataFrame(list(metrics_default.items()), columns=["Métrica", "Valor"])
+```
+
+Con un AUC de 0.7125, el CatBoost default ya supera sustancialmente a la LR baseline (0.683, ver @sec-lr-baseline), demostrando que las interacciones no lineales y el procesamiento nativo de categorías aportan +0.030 AUC (+4.3% relativo). La pregunta es si la optimización de hiperparámetros puede mejorar aún más este rendimiento.
+
+### Optimización con Optuna (HPO) {#sec-optuna-hpo}
+
+El modelo default ya funciona bien, así que la pregunta correcta no es “¿podemos tunear algo?”, sino “¿queda ganancia material después de defaults robustos, categorías nativas y orden temporal?”. Esta sección documenta esa búsqueda para dejar claro qué sí aporta el HPO y qué parte del valor del pipeline viene, en realidad, de calibración y downstream.
+
+#### Diseño del Experimento
+
+La optimización de hiperparámetros se ejecuta con Optuna, un framework de HPO que implementa el **Tree-structured Parzen Estimator** (TPE) como sampler por defecto. A diferencia de grid search o random search, TPE modela la distribución de hiperparámetros condicionalmente al rendimiento observado:
+
+$$
+p(\lambda \mid y) = \frac{p(y \mid \lambda) \, p(\lambda)}{p(y)} \propto \begin{cases} \ell(\lambda) & \text{si } y < y^* \\ g(\lambda) & \text{si } y \geq y^* \end{cases}
+$$ {#eq-tpe}
+
+donde $y^*$ es el cuantil $\gamma$ de los valores observados, $\ell(\lambda)$ modela la densidad de los hiperparámetros que produjeron buenos resultados, y $g(\lambda)$ modela los que produjeron malos resultados. TPE maximiza el ratio $\ell(\lambda)/g(\lambda)$, lo cual es equivalente a maximizar el *Expected Improvement* (EI).
+
+La configuración de Optuna incluye además:
+
+- **TPE multivariado con agrupación** (`multivariate=True`, `group=True`): modela las dependencias entre hiperparámetros en lugar de tratarlos como independientes. Esto captura interacciones importantes como la relación entre `depth` y `learning_rate`.
+- **MedianPruner**: detiene tempranamente trials que a la iteración $t$ del boosting tienen AUC inferior a la mediana de los trials completados, ahorrando entre 40--60% del cómputo total.
+- **Estudio persistente en SQLite**: permite retomar la búsqueda en sesiones posteriores sin perder el historial de trials.
+
+#### Espacio de Búsqueda
+
+```{python}
+#| label: tbl-search-space
+#| tbl-cap: "Espacio de búsqueda de Optuna para CatBoost"
+
+search_space = {
+    "learning_rate": "LogUniform(0.005, 0.20)",
+    "depth": "Int(4, 10)",
+    "l2_leaf_reg": "LogUniform(0.5, 100.0)",
+    "min_data_in_leaf": "Int(20, 500)",
+    "random_strength": "LogUniform(1e-9, 10.0)",
+    "border_count": "Int(64, 254)",
+    "rsm (column sampling)": "Uniform(0.5, 1.0)",
+    "bootstrap_type": "Categorical(Bayesian, Bernoulli, MVS)",
+    "grow_policy": "Categorical(SymmetricTree, Depthwise, Lossguide)",
+    "subsample*": "Uniform(0.5, 0.95)",
+    "bagging_temperature*": "Uniform(0.0, 10.0)",
+    "leaf_estimation_iterations": "Int(1, 10)",
+}
+
+pd.DataFrame(
+    list(search_space.items()),
+    columns=["Hiperparámetro", "Distribución"],
+)
+```
+
+*\* `subsample` se aplica cuando `bootstrap_type` es Bernoulli o MVS; `bagging_temperature` se aplica cuando es Bayesian. Optuna maneja esta condicionalidad automáticamente.*
+
+El espacio de búsqueda está diseñado para explorar tres familias de regularización simultáneamente:
+
+1. **Regularización del árbol**: `depth`, `min_data_in_leaf`, `grow_policy`
+2. **Regularización del gradiente**: `learning_rate`, `l2_leaf_reg`, `random_strength`
+3. **Regularización por submuestreo**: `bootstrap_type`, `subsample`/`bagging_temperature`, `rsm`
+
+#### Resultados de la Búsqueda
+
+```{python}
+#| label: tbl-optuna-results
+#| tbl-cap: "Resultados de la optimización con Optuna"
+
+n_trials = comparison.get("hpo_trials_executed", 320)
+best_val_auc = comparison.get("hpo_best_validation_auc", 0.7227)
+cb_tuned = next((m for m in models if m["model"] == "CatBoost (tuned)"), None)
+
+optuna_results = {
+    "Trials ejecutados": f"{n_trials:,}",
+    "Mejor AUC validación": f"{best_val_auc:.4f}",
+    "AUC test OOT (tuned)": f"{cb_tuned['auc']:.4f}" if cb_tuned else "N/A",
+    "AUC test OOT (default)": f"{cb_default['auc']:.4f}" if cb_default else "N/A",
+    "Mejora absoluta": f"+{cb_tuned['auc'] - cb_default['auc']:.4f}" if cb_tuned and cb_default else "N/A",
+    "Sampler": "TPE multivariado con agrupación",
+    "Pruner": "MedianPruner (n_warmup=120)",
+}
+
+pd.DataFrame(list(optuna_results.items()), columns=["Aspecto", "Valor"])
+```
+
+Los 320 trials alcanzaron un AUC de validación de 0.7227, pero el AUC en el test OOT es 0.7131 --- una brecha de 0.0096 que indica *temporal overfitting* al set de validación. El set de validación temporal cubre un período específico (cola del período 2007--2017), mientras que el test OOT abarca 2018--2020 con condiciones macroeconómicas potencialmente diferentes.
+
+#### Visualización del Proceso HPO
+
+La función `export_hpo_visualizations()` en `src/models/optuna_tuning.py` genera cuatro diagnósticos interactivos a partir del estudio SQLite persistido:
+
+1. **Optimization History**: Evolución del mejor AUC por trial, mostrando la convergencia del TPE.
+2. **Parameter Importances**: Ranking fANOVA de qué hiperparámetros más impactan al AUC.
+3. **Parallel Coordinate**: Vista multidimensional de las combinaciones exploradas.
+4. **Slice Plot**: Relación marginal de cada hiperparámetro con el AUC.
+
+Los plots se exportan como HTML interactivo (Plotly) y opcionalmente como PNG estático a `reports/figures/hpo/`.
+
+#### Hiperparámetros Ganadores
+
+```{python}
+#| label: tbl-best-params
+#| tbl-cap: "Hiperparámetros óptimos seleccionados por Optuna"
+
+from book._helpers.load_artifacts import load_yaml
+
+config = load_yaml("pd_model")
+tuned_params = config.get("model", {}).get("params", {})
+
+# Mostrar los parámetros más relevantes
+key_params = {
+    "iterations": tuned_params.get("iterations", "N/A"),
+    "learning_rate": f"{tuned_params.get('learning_rate', 'N/A'):.4f}" if isinstance(tuned_params.get('learning_rate'), (int, float)) else "N/A",
+    "depth": tuned_params.get("depth", "N/A"),
+    "l2_leaf_reg": f"{tuned_params.get('l2_leaf_reg', 'N/A'):.2f}" if isinstance(tuned_params.get('l2_leaf_reg'), (int, float)) else "N/A",
+    "min_data_in_leaf": tuned_params.get("min_data_in_leaf", "N/A"),
+    "border_count": tuned_params.get("border_count", "N/A"),
+    "bootstrap_type": tuned_params.get("bootstrap_type", "N/A"),
+    "subsample": f"{tuned_params.get('subsample', 'N/A'):.4f}" if isinstance(tuned_params.get('subsample'), (int, float)) else "N/A",
+    "rsm": f"{tuned_params.get('rsm', 'N/A'):.4f}" if isinstance(tuned_params.get('rsm'), (int, float)) else "N/A",
+    "random_strength": f"{tuned_params.get('random_strength', 'N/A'):.2e}" if isinstance(tuned_params.get('random_strength'), (int, float)) else "N/A",
+    "early_stopping_rounds": tuned_params.get("early_stopping_rounds", "N/A"),
+}
+
+pd.DataFrame(
+    list(key_params.items()),
+    columns=["Hiperparámetro", "Valor Óptimo"],
+)
+```
+
+::: {.callout-note}
+## Configuración como template
+Los hiperparámetros en `configs/pd_model.yaml` reflejan los mejores valores encontrados en la última búsqueda. Sin embargo, como se establece en la política del proyecto, los artefactos de runtime (`data/processed/model_comparison.json`, `models/pd_training_record.pkl`) son la fuente de verdad para métricas y decisiones --- el YAML es un template que puede ser actualizado en búsquedas futuras.
+:::
+
+### Features Nativos de CatBoost {#sec-catboost-features}
+
+Una ventaja clave de CatBoost es la capacidad de consumir directamente variables categóricas y valores faltantes sin preprocesamiento. El contrato canónico del modelo define 42 features, de las cuales 9 son categóricas:
+
+```{python}
+#| label: tbl-categorical-features
+#| tbl-cap: "Features categóricos procesados nativamente por CatBoost"
+
+from book._helpers.load_artifacts import load_json
+
+contract = load_json("pd_model_contract", directory="models")
+cat_features = contract.get("categorical_features", [])
+n_features = contract.get("n_features", 0)
+
+cat_descriptions = {
+    "grade": "Grado de riesgo Lending Club (A-G)",
+    "sub_grade": "Sub-grado detallado (A1-G5, 35 niveles)",
+    "home_ownership": "Tipo de propiedad (RENT, OWN, MORTGAGE, OTHER)",
+    "purpose": "Propósito del préstamo (14 categorías)",
+    "verification_status": "Estado de verificación de ingresos",
+    "term": "Plazo del préstamo (36 o 60 meses)",
+    "int_rate_bucket": "Bucket discretizado de tasa de interés",
+    "dti_bucket": "Bucket discretizado de debt-to-income",
+    "fico_bucket": "Bucket discretizado de FICO score",
+}
+
+rows = []
+for feat in cat_features:
+    desc = cat_descriptions.get(feat, "")
+    rows.append({"Feature": feat, "Descripción": desc})
+
+df_cat = pd.DataFrame(rows)
+df_cat
+```
+
+```{python}
+#| label: fig-feature-composition
+#| fig-cap: "Composición del vector de features del modelo canónico"
+
+n_categorical = len(cat_features)
+n_numeric = n_features - n_categorical
+
+composition = {
+    "Tipo": ["Numéricos (continuos + binarios + interacciones)", "Categóricos (nativos CatBoost)"],
+    "Cantidad": [n_numeric, n_categorical],
+    "Porcentaje": [f"{n_numeric/n_features*100:.0f}%", f"{n_categorical/n_features*100:.0f}%"],
+}
+
+pd.DataFrame(composition)
+```
+
+#### Manejo de NaN como Señal Informativa
+
+La diferencia entre el tratamiento de NaN en CatBoost y en la LR baseline ilustra por qué los árboles de decisión son preferibles para datos de crédito con patrones de ausencia informativa:
+
+| Escenario | LR (fillna=0) | CatBoost (nativo) |
+|-----------|---------------|-------------------|
+| DTI faltante | Se trata como DTI=0 (sin deuda) | Se asigna a la rama óptima por split |
+| Ingreso faltante | Se trata como ingreso=0 | Puede indicar autoempleado; CatBoost lo aprende |
+| FICO faltante | Se trata como FICO=0 (score mínimo) | Se distingue de FICO bajo real |
+| Delinquency faltante | Se trata como 0 delinquencies | Puede indicar historial crediticio corto |
+
+: Comparación del tratamiento de NaN entre LR y CatBoost {#tbl-nan-handling}
+
+En datos de crédito, el patrón de ausencia frecuentemente es informativo: un `dti` faltante puede indicar un autoempleado cuyo DTI no se calculó, no un DTI de cero. CatBoost captura esta información aprendiendo la dirección óptima para observaciones con NaN en cada nodo del árbol, sin requerir ingeniería de features adicional.
+
+### ¿Por Qué la Ganancia del Tuning es Tan Pequeña? {#sec-tuning-gain}
+
+Vale la pena explicitar esta sección porque, sin ese contexto, una mejora pequeña puede leerse como decepción. Aquí ocurre lo contrario: una ganancia marginal confirma que el modelo ya estaba bien especificado y que el cuello de botella real del proyecto está en cómo usamos la PD, no en seguir exprimiendo décimas de AUC.
+
+::: {.callout-warning}
+## Ganancia marginal: 0.0006 AUC
+La mejora del tuning con 320 trials de Optuna es de apenas 0.0006 AUC (0.7125 $\rightarrow$ 0.7131). Esto no es un fallo del proceso de optimización --- es un resultado esperado y bien documentado en la literatura.
+:::
+
+Tres factores explican esta convergencia:
+
+**1. Los defaults de CatBoost ya son robustos.** A diferencia de XGBoost (donde la elección de `max_depth`, `min_child_weight` y `learning_rate` puede cambiar el AUC en 2--5 puntos), CatBoost fue diseñado con defaults que funcionan bien sin tuning extensivo. Los árboles oblivious proporcionan regularización estructural que reduce la sensibilidad a los hiperparámetros.
+
+**2. El techo discriminativo del dataset.** Los features disponibles en Lending Club --- FICO score, DTI, ingreso, propósito del préstamo --- tienen un poder discriminativo limitado. @lessmann2015 documentan que en benchmarks de credit scoring, la diferencia entre el mejor y peor modelo rara vez excede 2--3 puntos de AUC, y que la ganancia por HPO es típicamente inferior a 1 punto. El verdadero cuello de botella no son los hiperparámetros sino la información contenida en los features.
+
+**3. La ganancia real está en la calibración, no en la discriminación.** Observemos la diferencia en las métricas clave:
+
+```{python}
+#| label: tbl-gain-analysis
+#| tbl-cap: "Análisis de la fuente de ganancia: HPO vs calibración"
+
+cb_calibrated = next((m for m in models if m["model"] == "CatBoost (tuned + calibrated)"), None)
+final_metrics = comparison.get("final_test_metrics", {})
+ece = final_metrics.get("ece", 0.006)
+
+gain_analysis = []
+
+if cb_default and cb_tuned:
+    gain_analysis.append({
+        "Transición": "Default → Tuned (HPO)",
+        "Δ AUC": f"+{cb_tuned['auc'] - cb_default['auc']:.4f}",
+        "Δ Brier": f"{cb_tuned['brier'] - cb_default['brier']:.4f}",
+        "Δ D² Brier": f"+{cb_tuned['d2_brier'] - cb_default['d2_brier']:.4f}",
+        "Interpretación": "Mejora marginal en discriminación",
+    })
+
+if cb_tuned and cb_calibrated:
+    gain_analysis.append({
+        "Transición": "Tuned → Tuned + Calibrado",
+        "Δ AUC": f"{cb_calibrated['auc'] - cb_tuned['auc']:.4f}",
+        "Δ Brier": f"{cb_calibrated['brier'] - cb_tuned['brier']:.4f}",
+        "Δ D² Brier": f"+{cb_calibrated['d2_brier'] - cb_tuned['d2_brier']:.4f}",
+        "Interpretación": "Mejora masiva en calibración (ECE → " + f"{ece:.4f})",
+    })
+
+pd.DataFrame(gain_analysis)
+```
+
+La calibración (ver @sec-calibration-selection) reduce el Brier Score en $\sim$0.05 y lleva el D² Brier de negativo a positivo --- una mejora de un orden de magnitud mayor que la del HPO. Esto confirma que para un pipeline de credit scoring donde las probabilidades deben ser interpretables y usables en cálculos de ECL (ver @sec-ecl-calculation), la prioridad de inversión computacional debe ser calibración > conformal > HPO.
+
+::: {.callout-note}
+## Implicación para el pipeline predict-then-optimize
+La robustez de CatBoost a los hiperparámetros es una ventaja en el contexto del pipeline predict-then-optimize (@sec-robust-portfolio). Si pequeños cambios en hiperparámetros produjeran grandes cambios en las PD estimadas, la incertidumbre de los intervalos conformales (ver @sec-split-conformal) sería atribuible en parte a inestabilidad del modelo, no solo a incertidumbre epistémica genuina. La estabilidad de CatBoost permite interpretar los intervalos conformales como reflejo de la incertidumbre real del problema.
+:::
+
+### Exportación de SHAP Values {#sec-shap-export}
+
+El pipeline exporta valores SHAP usando la implementación **nativa de CatBoost** (`get_feature_importance(type='ShapValues')`), que es exacta para árboles oblivious --- a diferencia de la librería SHAP genérica, que usa aproximaciones kernel o tree para modelos de terceros. Los artefactos generados son:
+
+- `models/shap_values_test.npz`: Matriz completa de SHAP values para el test set (comprimida).
+- `models/shap_feature_importance.json`: Top-20 features ordenados por $|\text{SHAP}|$ medio.
+
+Estos artefactos alimentan las explicaciones globales y locales del capítulo de interpretabilidad (@sec-global-explanations) y el desarrollo ampliado de MRM (@sec-mrm-report-detail).

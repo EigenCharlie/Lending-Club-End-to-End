@@ -1,0 +1,250 @@
+{
+  "schema_version": "2026-03-31.1",
+  "scripts": [
+    {
+      "script": "scripts/run_canonical_rebuild.py",
+      "role": "canonical wrapper",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_champion_search.py",
+      "role": "pd search wrapper",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_paper_grade_final.py",
+      "role": "paper 1 e2e wrapper",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_insights_factory.py",
+      "role": "research labs wrapper",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_long_pipeline.py",
+      "role": "compatibility orchestrator",
+      "category": "compat",
+      "pipeline_owner": "compat",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/end_to_end_pipeline.py",
+      "role": "compatibility smoke orchestrator",
+      "category": "compat",
+      "pipeline_owner": "compat",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/materialize_feature_artifacts.py",
+      "role": "canonical feature artifacts",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/train_pd_model.py",
+      "role": "pd training and calibration",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/generate_conformal_intervals.py",
+      "role": "canonical conformal generator",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/benchmark_conformal_variants.py",
+      "role": "conformal search benchmark",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/backtest_conformal_coverage.py",
+      "role": "conformal temporal backtest",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/validate_conformal_policy.py",
+      "role": "conformal gate validation",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/forecast_default_rates.py",
+      "role": "time series point forecast",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_survival_analysis.py",
+      "role": "survival analysis",
+      "category": "paper",
+      "pipeline_owner": "paper2_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/train_lgd_ead.py",
+      "role": "lgd and ead training",
+      "category": "paper",
+      "pipeline_owner": "paper2_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ifrs9_sensitivity.py",
+      "role": "ifrs9 scenario sensitivity",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/optimize_portfolio.py",
+      "role": "deterministic portfolio optimization",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/optimize_portfolio_tradeoff.py",
+      "role": "portfolio frontier search",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/select_economic_portfolio_policy.py",
+      "role": "portfolio selector",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/simulate_ab_test.py",
+      "role": "guarded policy comparison",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/estimate_causal_effects.py",
+      "role": "causal estimation",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/simulate_causal_policy.py",
+      "role": "causal policy simulation",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/validate_causal_policy.py",
+      "role": "causal policy validation",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/backtest_causal_policy_oot.py",
+      "role": "causal oot backtest",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/optimize_cate_portfolio.py",
+      "role": "cate portfolio optimization",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_all_notebooks.py",
+      "role": "notebook executor",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_paper_notebook_suite.py",
+      "role": "paper notebook executor",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_pd_rapids_benchmark.py",
+      "role": "gpu benchmark",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_rapids_insight_factory.py",
+      "role": "gpu insight builder",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/build_champion_search_bundle.py",
+      "role": "paper bundle/export",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/update_champion_registry.py",
+      "role": "canonical registry update",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_paper_grade_pre_quarto.sh",
+      "role": "archived pre-Quarto batch helper",
+      "category": "compat",
+      "pipeline_owner": "history",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/export_pr_auc_metrics.py",
+      "role": "archived pre-Quarto metric patch helper",
+      "category": "compat",
+      "pipeline_owner": "history",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/generate_slice_anomaly_report.py",
+      "role": "archived pre-Quarto slice anomaly helper",
+      "category": "compat",
+      "pipeline_owner": "history",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/update_cost_matrix_threshold.py",
+      "role": "archived pre-Quarto threshold helper",
+      "category": "compat",
+      "pipeline_owner": "history",
+      "status": "legacy"
+    }
+  ]
+}

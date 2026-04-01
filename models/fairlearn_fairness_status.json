@@ -5,57 +5,57 @@
   "attributes": [
     {
       "attribute": "home_ownership",
-      "demographic_parity_difference": 0.0031492107652775214,
-      "equalized_odds_difference": 0.008249641319942658,
-      "dpd_ci_low": 0.0030234213478415014,
-      "dpd_ci_high": 0.005632896327222254,
-      "eo_ci_low": 0.006127171227761075,
-      "eo_ci_high": 0.01489257978669099
+      "demographic_parity_difference": 0.006889830359128268,
+      "equalized_odds_difference": 0.01770489363145389,
+      "dpd_ci_low": 0.006666991783552087,
+      "dpd_ci_high": 0.009675169195497236,
+      "eo_ci_low": 0.013208927239039742,
+      "eo_ci_high": 0.023921665089877024
     },
     {
       "attribute": "annual_inc_quartile",
-      "demographic_parity_difference": 0.0022616724700572632,
-      "equalized_odds_difference": 0.006340077790260246,
-      "dpd_ci_low": 0.002555400409852493,
-      "dpd_ci_high": 0.00461910251351888,
-      "eo_ci_low": 0.008601816613787564,
-      "eo_ci_high": 0.017940433749257315
+      "demographic_parity_difference": 0.006470025746612151,
+      "equalized_odds_difference": 0.017440762137960086,
+      "dpd_ci_low": 0.0053399055922071035,
+      "dpd_ci_high": 0.010393957927463612,
+      "eo_ci_low": 0.013707526708972623,
+      "eo_ci_high": 0.030592715580856005
     },
     {
       "attribute": "verification_status",
-      "demographic_parity_difference": 0.0038151993333279677,
-      "equalized_odds_difference": 0.008508118825409361,
-      "dpd_ci_low": 0.005104606441060061,
-      "dpd_ci_high": 0.0080816648537405,
-      "eo_ci_low": 0.006302527959764398,
-      "eo_ci_high": 0.01885694999649347
+      "demographic_parity_difference": 0.008941886950530664,
+      "equalized_odds_difference": 0.019226656076939297,
+      "dpd_ci_low": 0.007603926256451357,
+      "dpd_ci_high": 0.012729751884877408,
+      "eo_ci_low": 0.012786286991751637,
+      "eo_ci_high": 0.03063014505752948
     },
     {
       "attribute": "home_ownership__x__annual_inc_quartile",
-      "demographic_parity_difference": 0.004295264816931654,
-      "equalized_odds_difference": 0.011490807354116672,
-      "dpd_ci_low": 0.0050698862799202216,
-      "dpd_ci_high": 0.011431219512195138,
-      "eo_ci_low": 0.015784050219620614,
-      "eo_ci_high": 0.029927234927234918
+      "demographic_parity_difference": 0.011476463365722056,
+      "equalized_odds_difference": 0.029276578737010395,
+      "dpd_ci_low": 0.00785256410256408,
+      "dpd_ci_high": 0.016471707317073175,
+      "eo_ci_low": 0.02261363636363636,
+      "eo_ci_high": 0.03989770938975342
     },
     {
       "attribute": "home_ownership__x__verification_status",
-      "demographic_parity_difference": 0.012340527006080793,
-      "equalized_odds_difference": 0.023658304223563076,
-      "dpd_ci_low": 0.006551439574546139,
-      "dpd_ci_high": 0.03197349236482372,
-      "eo_ci_low": 0.01160926030491245,
-      "eo_ci_high": 0.054534630617655726
+      "demographic_parity_difference": 0.026822101739420012,
+      "equalized_odds_difference": 0.05026883471246557,
+      "dpd_ci_low": 0.017040125065138106,
+      "dpd_ci_high": 0.03739482026089551,
+      "eo_ci_low": 0.02316617099709721,
+      "eo_ci_high": 0.07106339643309484
     },
     {
       "attribute": "annual_inc_quartile__x__verification_status",
-      "demographic_parity_difference": 0.0064411046124231985,
-      "equalized_odds_difference": 0.014285714285714235,
-      "dpd_ci_low": 0.00576885202853517,
-      "dpd_ci_high": 0.018505056184789485,
-      "eo_ci_low": 0.014666586567343511,
-      "eo_ci_high": 0.04806338028169011
+      "demographic_parity_difference": 0.01626364901860511,
+      "equalized_odds_difference": 0.036263736263736246,
+      "dpd_ci_low": 0.013490022768862842,
+      "dpd_ci_high": 0.025097732080220612,
+      "eo_ci_low": 0.02326984126984131,
+      "eo_ci_high": 0.06788391640163563
     }
   ],
   "bootstrap_samples": 10,
@@ -64,6 +64,6 @@
   "prediction_threshold": 0.35,
   "outcome_mode": "approval",
   "schema_version": "2026-03-06.1-fairlearn",
-  "generated_at_utc": "2026-03-16T18:13:33.297620+00:00",
-  "run_tag": "paper-grade-pre-quarto"
+  "generated_at_utc": "2026-03-30T19:29:12.976863+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
 }

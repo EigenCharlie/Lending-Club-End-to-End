@@ -1,0 +1,49 @@
+---
+title: "Catálogo de Artefactos"
+page-layout: article
+listing:
+  id: artifact-catalog
+  contents: ../listing-data/artifacts.yml
+  type: table
+  fields: [title, path, producer, consumer, role]
+  sort: "title"
+  sort-ui: false
+  filter-ui: false
+---
+
+Este catálogo no pretende listar cada archivo generado en el proyecto. Su función editorial es más precisa: **registrar los artefactos canónicos que sostienen claims del libro, del companion y de los papers**.
+
+## Catálogo mínimo de artefactos críticos
+
+```{=html}
+<div id="artifact-catalog"></div>
+```
+
+## Regla de trazabilidad
+
+Cada claim importante del libro debería poder seguir esta cadena:
+
+$$
+\text{claim} \rightarrow \text{artefacto} \rightarrow \text{script/config} \rightarrow \text{run tag}
+$$
+
+Cuando esa cadena se rompe, el proyecto pierde defendibilidad. Por eso este catálogo no es un anexo ornamental: es una herramienta de auditoría narrativa.
+
+## Artefactos adicionales frecuentemente consultados
+
+| Artefacto | Path | Uso principal |
+|---|---|---|
+| Contrato del modelo PD | `models/pd_model_contract.json` | Features canónicas, tipos, thresholds |
+| Modelo champion | `models/pd_canonical.cbm` | CatBoost entrenado y congelado |
+| Calibrador seleccionado | `models/pd_canonical_calibrator.pkl` | Platt/Isotonic/Venn-Abers promovido |
+| Intervalos conformales | `data/processed/conformal_intervals_mondrian.parquet` | $[PD_{low}, PD_{high}]$ por préstamo |
+| Backtesting mensual | `data/processed/conformal_backtest_monthly.parquet` | Cobertura temporal y alertas |
+| Grid SICR conformal | `data/processed/sicr_conformal_grid.parquet` | Búsqueda de $t^*$ óptimo |
+| Comparación BMA vs CP | `data/processed/bma_comparison.parquet` | Ancho, cobertura y min-grade |
+| Portafolio champion | `data/processed/portfolio_allocations.parquet` | Asignación robusta final |
+| Frontera de robustez | `data/processed/portfolio_robustness_frontier.parquet` | Pareto riesgo-retorno-robustez |
+| Resumen del pipeline | `data/processed/pipeline_summary.json` | KPIs cross-módulo |
+| Training record PD | `models/pd_training_record.pkl` | Historial completo de entrenamiento |
+| Registro MRM | `reports/mrm/mrm_validation_report.json` | Reporte SR 11-7 consolidado |
+
+: Artefactos canónicos adicionales del pipeline {#tbl-additional-artifacts}

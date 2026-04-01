@@ -1,0 +1,145 @@
+{
+  "diagnostic_only": true,
+  "overall_pass": true,
+  "summary": {
+    "n_woe_features": 13,
+    "n_bucket_features": 3,
+    "woe_failures": 0,
+    "bucket_failures": 0,
+    "max_woe_psi": 0.10608693157944711,
+    "max_bucket_category_psi": 0.1003346994585424
+  },
+  "top_woe_instabilities": [
+    {
+      "feature": "fico_score_woe",
+      "base_feature": "fico_score",
+      "psi": 0.10608693157944711,
+      "train_spearman_default": -0.11916273687858307,
+      "test_spearman_default": -0.13158339068843566,
+      "abs_spearman_delta": 0.012420653809852591,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "sub_grade_woe",
+      "base_feature": "sub_grade",
+      "psi": 0.09223400400726883,
+      "train_spearman_default": -0.2534810176791446,
+      "test_spearman_default": -0.2575391044121199,
+      "abs_spearman_delta": 0.004058086732975308,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "verification_status_woe",
+      "base_feature": "verification_status",
+      "psi": 0.07954765868429915,
+      "train_spearman_default": -0.08087367643109547,
+      "test_spearman_default": -0.09378849797139888,
+      "abs_spearman_delta": 0.012914821540303406,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "grade_woe",
+      "base_feature": "grade",
+      "psi": 0.053333294678026354,
+      "train_spearman_default": -0.24820072545334526,
+      "test_spearman_default": -0.25179197164003003,
+      "abs_spearman_delta": 0.003591246186684771,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "int_rate_woe",
+      "base_feature": "int_rate",
+      "psi": 0.030483774874434568,
+      "train_spearman_default": -0.24022941633935493,
+      "test_spearman_default": -0.23804071369188304,
+      "abs_spearman_delta": 0.0021887026474718962,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "loan_amnt_woe",
+      "base_feature": "loan_amnt",
+      "psi": 0.025017605027199387,
+      "train_spearman_default": -0.06631071159542272,
+      "test_spearman_default": -0.1049143965732922,
+      "abs_spearman_delta": 0.03860368497786948,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "installment_burden_woe",
+      "base_feature": "installment_burden",
+      "psi": 0.02166627974158798,
+      "train_spearman_default": -0.11182089075187897,
+      "test_spearman_default": -0.15987422451986308,
+      "abs_spearman_delta": 0.04805333376798411,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "dti_woe",
+      "base_feature": "dti",
+      "psi": 0.012755564928854449,
+      "train_spearman_default": -0.09546189823576824,
+      "test_spearman_default": -0.05988408209837229,
+      "abs_spearman_delta": 0.035577816137395954,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "annual_inc_woe",
+      "base_feature": "annual_inc",
+      "psi": 0.006785792547199207,
+      "train_spearman_default": -0.0611972187021634,
+      "test_spearman_default": -0.06339551620010127,
+      "abs_spearman_delta": 0.0021982974979378664,
+      "sign_consistent": true,
+      "overall_pass": true
+    },
+    {
+      "feature": "purpose_woe",
+      "base_feature": "purpose",
+      "psi": 0.004405278836604954,
+      "train_spearman_default": -0.04958647665452675,
+      "test_spearman_default": -0.0388688125469419,
+      "abs_spearman_delta": 0.010717664107584852,
+      "sign_consistent": true,
+      "overall_pass": true
+    }
+  ],
+  "top_bucket_instabilities": [
+    {
+      "feature": "fico_bucket",
+      "category_psi": 0.1003346994585424,
+      "max_share_shift": 0.08743569248778411,
+      "rank_corr_train_vs_test": 1.0,
+      "overall_pass": true
+    },
+    {
+      "feature": "dti_bucket",
+      "category_psi": 0.08188180225112404,
+      "max_share_shift": 0.0387876192005146,
+      "rank_corr_train_vs_test": 0.8857142857142858,
+      "overall_pass": true
+    },
+    {
+      "feature": "int_rate_bucket",
+      "category_psi": 0.06309509084061672,
+      "max_share_shift": 0.09619374082153495,
+      "rank_corr_train_vs_test": 0.9999999999999999,
+      "overall_pass": true
+    }
+  ],
+  "artifacts": {
+    "woe_report_path": "data/processed/woe_encoding_stability.parquet",
+    "bucket_report_path": "data/processed/bucket_binning_stability.parquet"
+  },
+  "config_path": "configs/pd_model.champion.yaml",
+  "schema_version": "2026-03-30.1",
+  "generated_at_utc": "2026-03-30T21:13:34.016227+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+}

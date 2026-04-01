@@ -1,0 +1,142 @@
+{
+  "schema_version": "2026-03-31.1",
+  "searches": [
+    {
+      "search": "pd_hpo",
+      "scripts": [
+        "scripts/train_pd_model.py"
+      ],
+      "artifacts": [
+        "models/pd_training_status.json",
+        "models/pd_training_record.pkl"
+      ],
+      "target_pipeline": "search_pd",
+      "can_promote": true
+    },
+    {
+      "search": "monotonic_competitor",
+      "scripts": [
+        "scripts/search_monotonic_competitor.py",
+        "scripts/train_pd_model.py"
+      ],
+      "artifacts": [
+        "models/monotonic_competitor_search_expanded.json",
+        "models/monotonic_competitor_best_fairness_aware.json"
+      ],
+      "target_pipeline": "search_pd",
+      "can_promote": true
+    },
+    {
+      "search": "challenger_promotion",
+      "scripts": [
+        "scripts/build_pd_challenger_artifacts.py",
+        "scripts/train_pd_model.py"
+      ],
+      "artifacts": [
+        "models/pd_challenger_spec.json",
+        "models/challenger_promotion_report.json"
+      ],
+      "target_pipeline": "search_pd",
+      "can_promote": true
+    },
+    {
+      "search": "conformal_variant_selector",
+      "scripts": [
+        "scripts/benchmark_conformal_variants.py",
+        "scripts/validate_conformal_policy.py"
+      ],
+      "artifacts": [
+        "models/conformal_variant_selection_status.json",
+        "models/conformal_policy_status.json"
+      ],
+      "target_pipeline": "search_conformal",
+      "can_promote": true
+    },
+    {
+      "search": "conformal_alpha_sweep",
+      "scripts": [
+        "scripts/run_alpha_sweep.py"
+      ],
+      "artifacts": [
+        "models/alpha_sweep_status.json"
+      ],
+      "target_pipeline": "search_conformal",
+      "can_promote": false
+    },
+    {
+      "search": "cqr_benchmarks",
+      "scripts": [
+        "scripts/run_cqr_comparison.py",
+        "scripts/run_cqr_mondrian.py"
+      ],
+      "artifacts": [
+        "models/cqr_comparison_status.json",
+        "models/cqr_mondrian_status.json"
+      ],
+      "target_pipeline": "search_conformal",
+      "can_promote": false
+    },
+    {
+      "search": "portfolio_selector",
+      "scripts": [
+        "scripts/optimize_portfolio_tradeoff.py",
+        "scripts/select_economic_portfolio_policy.py",
+        "scripts/simulate_ab_test.py"
+      ],
+      "artifacts": [
+        "models/champion_policy_selection_status.json",
+        "models/champion_portfolio_policy.json"
+      ],
+      "target_pipeline": "search_portfolio",
+      "can_promote": true
+    },
+    {
+      "search": "monotonic_economic_promotion",
+      "scripts": [
+        "scripts/search_monotonic_economic_promotion.py"
+      ],
+      "artifacts": [
+        "models/champion_policy_selection_status_candidate_canonical_monotonic_economic_only_2026_03_29.json"
+      ],
+      "target_pipeline": "search_portfolio",
+      "can_promote": true
+    },
+    {
+      "search": "survival_tuning",
+      "scripts": [
+        "scripts/run_survival_analysis.py"
+      ],
+      "artifacts": [
+        "models/survival_summary.pkl"
+      ],
+      "target_pipeline": "paper2_e2e",
+      "can_promote": false
+    },
+    {
+      "search": "causal_estimator_selection",
+      "scripts": [
+        "scripts/estimate_causal_effects.py",
+        "scripts/simulate_causal_policy.py",
+        "scripts/validate_causal_policy.py"
+      ],
+      "artifacts": [
+        "models/causal_effect_status.json",
+        "models/cate_portfolio_status.json"
+      ],
+      "target_pipeline": "research_labs",
+      "can_promote": false
+    },
+    {
+      "search": "gpu_benchmarks",
+      "scripts": [
+        "scripts/run_pd_rapids_benchmark.py",
+        "scripts/run_rapids_insight_factory.py"
+      ],
+      "artifacts": [
+        "reports/gpu_benchmark"
+      ],
+      "target_pipeline": "research_labs",
+      "can_promote": false
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+---
+title: "Referencia de Configuración"
+page-layout: article
+---
+
+El proyecto ya no depende de “parámetros escondidos en notebooks”. La capa `configs/` concentra las decisiones declarativas que gobiernan modelado, conformal, fairness, optimización y perfiles de ejecución.
+
+### Configuraciones clave
+
+| Archivo | Función |
+|---|---|
+| `configs/pd_model.yaml` | configuración base del modelo PD |
+| `configs/pd_model.paper_grade_final.yaml` | perfil del run canónico de papers |
+| `configs/conformal_policy.yaml` | metas y thresholds de cobertura |
+| `configs/fairness_policy.yaml` | límites de fairness y política de evaluación |
+| `configs/mrm_policy.yaml` | reglas de gobernanza y validación |
+| `configs/optimization.yaml` | parámetros de portafolio robusto |
+| `configs/time_series.yaml` | forecasting y escenarios temporales |
+
+: Núcleo de configuración declarativa {#tbl-config-core}
+
+### Perfiles de ejecución
+
+La carpeta `configs/run_profiles/` empaqueta modos de trabajo completos, por ejemplo:
+
+- `canonical_operational.yaml`
+- `paper_grade_final.yaml`
+- `insights_factory_canonical.yaml`
+- `overnight_full.yaml`
+
+Esta separación es valiosa porque desacopla:
+
+1. la lógica del pipeline,
+2. la política de validación,
+3. el contexto de ejecución.
+
+### Convención recomendada
+
+Una configuración útil en este proyecto debería responder tres preguntas sin ambigüedad:
+
+- qué método se está usando;
+- con qué thresholds o constraints;
+- bajo qué perfil narrativo u operacional corre.
+
+### Relación con el libro
+
+Muchos capítulos del libro citan resultados ya consolidados. Este anexo recuerda que esos resultados no nacen de magia editorial: nacen de YAML y JSON concretos, versionados y trazables. Esa disciplina es parte central de la madurez técnica del proyecto.

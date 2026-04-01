@@ -1,0 +1,83 @@
+## Explicaciones Locales {#sec-local-explanations}
+
+Las explicaciones locales convierten una predicción en una decisión discutible y trazable. Para originación, challenger review y atención a auditoría, la pregunta no es solo cuánto riesgo tiene un préstamo, sino **qué razones concretas empujaron esa evaluación**.
+
+### Casos representativos disponibles
+
+El artefacto `shap_local_cases.parquet` contiene 60 filas que describen préstamos representativos en distintos segmentos. Cada registro incluye:
+
+- `grade` e `issue_quarter` para contexto temporal;
+- PD puntual y bandas conformales al 90% y 95%;
+- razones positivas y negativas a nivel de feature;
+- familia de feature y marca de controlabilidad.
+
+Un caso de bajo riesgo del cuarto trimestre de 2019 ilustra bien el enfoque:
+
+| Campo | Valor |
+|---|---|
+| Segmento | `bajo_riesgo` |
+| Grade | `A` |
+| PD calibrada | 5.64% |
+| Intervalo 90% | [0.00%, 18.14%] |
+| Principales razones a favor | FICO alto, tasa baja, plazo 36 meses |
+
+: Ejemplo de explicación local defendible {#tbl-local-example}
+
+En este préstamo, el FICO de 767 y la tasa de 8.19% empujan fuertemente el score hacia abajo. El resultado es intuitivo para negocio y consistente con la lectura global del capítulo anterior.
+
+| Caso | Contexto | PD calibrada | Intervalo 90% | Drivers dominantes | Lectura operativa |
+|---|---|---:|---|---|---|
+| Aprobable con confianza | Grade A, plazo 36m, tasa baja | 5.64% | [0.00%, 18.14%] | FICO alto, tasa baja, menor presión financiera | decisión relativamente estable; el intervalo es amplio pero sigue lejos de zona crítica |
+| Zona gris | Grade C, plazo 60m, DTI alto | ≈ 18% | banda moderada-alta | tasa, plazo y capacidad se contrapesan | conviene revisión manual o política más prudente |
+| Riesgo alto con explicación consistente | Grade F/G, precio alto y estrés financiero | > 35% | banda alta y desplazada | precio, plazo largo, historial débil | rechazo o pricing muy defensivo; no hace falta “explicar de más” para ver el problema |
+
+: Tres minicasos que resumen cómo leer SHAP + PD + intervalo conformal {#tbl-local-mini-cases}
+
+### Del SHAP a reason codes operativos
+
+Una explicación local útil debe poder traducirse a reason codes. En este proyecto, la lógica narrativa se apoya en cuatro familias recurrentes:
+
+| Familia | Cómo se comunica |
+|---|---|
+| `credit_quality` | historial y calidad crediticia del solicitante |
+| `capacity` | presión financiera o capacidad de pago |
+| `pricing` | condiciones del contrato ofrecido |
+| `household_profile` | estabilidad del hogar y contexto del solicitante |
+
+: Familias de reason codes {#tbl-reason-families}
+
+La ventaja de esta capa es doble. Primero, evita exponer al usuario final una lista cruda de variables. Segundo, mantiene consistencia entre la narrativa de comité y la evidencia técnica subyacente.
+
+### Qué hace que una explicación local sea utilizable
+
+En el contexto de riesgo crediticio, una explicación local útil debe cumplir al menos tres criterios:
+
+1. ser coherente con la explicación global;
+2. distinguir señales controlables de señales meramente descriptivas;
+3. convivir con la banda de incertidumbre, no solo con la predicción puntual.
+
+Ese tercer punto es central. Dos préstamos con la misma PD puntual pueden requerir tratamientos distintos si uno tiene un intervalo mucho más ancho que el otro. La explicación local no debe ocultar esa diferencia.
+
+### Uso en revisión de casos
+
+Las explicaciones locales sirven para tres momentos operativos:
+
+| Momento | Pregunta de negocio | Uso de la explicación |
+|---|---|---|
+| Originación | ¿por qué este préstamo quedó en zona gris? | identificar palancas de precio, plazo o documentación |
+| Validación | ¿la razón local coincide con la teoría del modelo? | detectar atajos o señales no plausibles |
+| Auditoría | ¿puedo reconstruir la decisión? | asociar score, intervalo y drivers a un caso concreto |
+
+: Usos operativos de explicaciones locales {#tbl-local-uses}
+
+### Limitaciones
+
+Las explicaciones locales no prueban causalidad. Describen cómo el modelo usó la información disponible, no qué cambiaría realmente el outcome del prestatario en el mundo real. Por eso este libro mantiene separadas las capas de interpretabilidad y la capa de inferencia causal.
+
+También hay que evitar una falsa sensación de precisión: un *reason code* es más convincente cuando aparece junto a su contexto de incertidumbre. En este proyecto, la práctica recomendada es presentar siempre el trío:
+
+1. PD calibrada,
+2. intervalo conformal,
+3. top drivers locales.
+
+Con esa convención, la explicación deja de ser una nota anecdótica y se convierte en un artefacto formal de decisión.

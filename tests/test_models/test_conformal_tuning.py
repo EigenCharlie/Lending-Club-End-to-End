@@ -215,6 +215,27 @@ class TestChooseBestTuningRow:
         assert tier == "strong_global+strong_group+width"
         assert row["winkler_90"] == pytest.approx(1.10)
 
+    def test_prefers_closer_to_target_before_extra_conservatism(self):
+        df = pd.DataFrame(
+            {
+                "empirical_coverage": [0.905, 0.930],
+                "min_group_coverage": [0.89, 0.89],
+                "avg_interval_width": [0.78, 0.80],
+                "winkler_90": [1.12, 1.05],
+                "max_monthly_gap": [0.02, 0.02],
+                "stability_over_time": [0.01, 0.01],
+                "coverage_gap": [0.005, 0.03],
+            }
+        )
+        row, _tier = choose_best_tuning_row(
+            df,
+            target_coverage=0.90,
+            min_group_coverage_target=0.88,
+            max_width_budget=0.80,
+            coverage_guardband=0.0,
+        )
+        assert row["empirical_coverage"] == pytest.approx(0.905)
+
 
 # ---------------------------------------------------------------------------
 # apply_group_multipliers

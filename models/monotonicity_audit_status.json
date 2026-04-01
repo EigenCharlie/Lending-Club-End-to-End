@@ -1,0 +1,38 @@
+{
+  "diagnostic_only": true,
+  "overall_pass": true,
+  "summary": {
+    "n_bands": 10,
+    "n_pairs": 9,
+    "n_disruptions": 0,
+    "disruption_rate": 0.0,
+    "max_negative_step": 0.0,
+    "overall_pass": true,
+    "n_constrained_features": 2,
+    "mean_feature_violation_rate": 0.0,
+    "max_feature_violation_rate": 0.0,
+    "mean_predicted_pd": 0.21608988807287652,
+    "observed_default_rate": 0.21977902907151034
+  },
+  "top_feature_violations": [
+    {
+      "feature": "annual_inc",
+      "direction": -1,
+      "violation_rate": 0.0
+    },
+    {
+      "feature": "loan_to_income",
+      "direction": 1,
+      "violation_rate": 0.0
+    }
+  ],
+  "artifacts": {
+    "band_summary_path": "data/processed/monotonicity_band_summary.parquet",
+    "pair_report_path": "data/processed/monotonicity_pair_report.parquet",
+    "feature_report_path": "data/processed/monotonicity_feature_report.parquet"
+  },
+  "config_path": "configs/pd_model.champion.yaml",
+  "schema_version": "2026-03-30.1",
+  "generated_at_utc": "2026-03-30T19:29:20.795121+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+}

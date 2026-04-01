@@ -1,0 +1,70 @@
+---
+title: "Prefacio"
+page-layout: article
+---
+
+## Motivación
+
+En la práctica de gestión de riesgo crediticio, las decisiones de originación, provisión y capital se basan en modelos de Probabilidad de Default (PD). Sin embargo, un modelo que produce una PD puntual de 0.12 para un solicitante no comunica cuánta confianza debería depositar el decisor en ese número. ¿Es un 12% con margen de error de ±2%, o de ±15%? La diferencia importa: el primer caso permite decidir con certeza razonable; el segundo exige cautela.
+
+Este problema no es nuevo. Los intervalos de confianza clásicos requieren supuestos distribucionales fuertes. Los intervalos bootstrap son computacionalmente costosos y carecen de garantías en muestra finita. Los intervalos bayesianos exigen priors que pueden no reflejar la realidad. La **predicción conformal** resuelve este problema de manera elegante: produce intervalos de predicción con garantías matemáticas de cobertura, sin supuestos sobre la distribución de los datos, y en muestra finita.
+
+Este libro documenta un proyecto que lleva esa idea hasta sus consecuencias operativas: las PD calibradas se convierten en intervalos conformal, los intervalos se convierten en conjuntos de incertidumbre para optimización robusta, y la optimización robusta produce portafolios más resilientes frente a escenarios adversos plausibles. El pipeline completo conecta predicción → incertidumbre → decisión → provisión → gobernanza.
+
+## Sobre este libro
+
+Este no es un libro de texto convencional ni una tesis condensada. Es un **documento de referencia integral** que cubre todo el proyecto de riesgo crediticio sobre datos de Lending Club, con tres propósitos:
+
+1. **Documentar el pipeline completo**: Cada etapa del proceso --- desde la ingesta de datos hasta la optimización de portafolio y las provisiones IFRS9 --- se explica con la profundidad necesaria para entender *qué* hace, *por qué* se diseñó así, y *cómo* se conecta con las demás etapas.
+
+2. **Servir como plataforma de investigación**: Tres papers de investigación (Predicción Conformal Mondrian, IFRS9 End-to-End, y Predict-then-Optimize con incertidumbre conformal) se desarrollan como secciones autocontenidas, con sus propios marcos teóricos, estados del arte y resultados.
+
+3. **Proveer una visión 360° del dataset**: Lending Club es un dataset estático de 1.86 millones de préstamos. Al ser estático, podemos aplicar un arsenal completo de técnicas modernas para extraer la máxima información: desde análisis de supervivencia hasta inferencia causal, desde predicción conformal hasta optimización robusta.
+
+## Cómo leer este libro
+
+El libro está organizado en seis partes. No es necesario leerlo secuencialmente, pero la Parte II sigue un orden lógico de pipeline que construye cada capítulo sobre el anterior.
+
+::: {.callout-tip}
+## Guía de lectura por perfil
+
+- **Si tienes experiencia en ML/DS pero no en riesgo crediticio**: Comienza por el glosario de fundamentos de riesgo crediticio y luego sigue el pipeline desde el capítulo 11.
+- **Si tienes experiencia en riesgo crediticio pero no en ML avanzado**: Comienza por los fundamentos de ML y predicción conformal, y luego explora los capítulos que más te interesen.
+- **Si te interesan los papers de investigación**: Cada paper en la Parte IV es autocontenido. Puedes leerlos directamente sin necesidad de recorrer todo el pipeline.
+- **Si quieres una visión ejecutiva rápida**: El Mapa Ejecutivo (capítulo 3) proporciona un resumen de KPIs y resultados clave.
+:::
+
+## Convenciones del libro
+
+A lo largo del texto se utilizan las siguientes convenciones:
+
+::: {.callout-note}
+## Concepto de riesgo crediticio
+Los recuadros azules explican conceptos de riesgo crediticio relevantes para entender el contexto de la técnica o métrica presentada.
+:::
+
+::: {.callout-tip}
+## Interpretación práctica
+Los recuadros verdes proporcionan guías de interpretación: qué significa una métrica para un oficial de crédito, un regulador o un gestor de portafolio.
+:::
+
+::: {.callout-warning}
+## Limitación o caveat
+Los recuadros amarillos señalan limitaciones metodológicas, supuestos que deben tenerse en cuenta, o decisiones que podrían revisarse.
+:::
+
+Cuando aparezca código, será porque ayuda a entender una decisión importante o una implementación clave. En el resto del libro se prioriza la intuición, la lectura guiada de resultados y la interpretación de negocio.
+
+## El pipeline en una imagen
+
+![Diagrama editorial del pipeline completo, desde los datos crudos de Lending Club hasta la decisión robusta y la gobernanza regulatoria.](../assets/figures/poster/methods_flowchart.png){#fig-pipeline-overview fig-alt="Diagrama de flujo del método del proyecto con bloques de preparación de datos, modelado PD, calibración, predicción conformal, optimización robusta e IFRS9."}
+
+La figura @fig-pipeline-overview actúa como mapa de lectura de alto nivel. El capítulo [Visión General del Pipeline](04-pipeline-overview/index.qmd) descompone el mismo flujo en capas operativas y evidencia de artefactos congelados.
+
+## Agradecimientos
+
+Este proyecto se desarrolla como tesis de maestría en Analítica de Datos. Agradezco a los autores de las librerías de código abierto que hacen posible este trabajo: MAPIE (predicción conformal), CatBoost (gradient boosting), Pyomo/HiGHS (optimización), EconML/DoWhy (inferencia causal), Statsforecast (series de tiempo) y muchas otras documentadas en el capítulo de Stack Tecnológico.
+
+Agradecimientos a la Shofi por siempre estar a mi lado y ser un apoyo incondicional.
+
+El dataset de Lending Club fue publicado en Kaggle y cubre préstamos emitidos entre 2007 y 2020. Aunque la plataforma Lending Club ya no opera como marketplace de préstamos, su dataset sigue siendo uno de los más ricos y completos disponibles públicamente para investigación en riesgo crediticio.

@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-07.1",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
   "status": "warn",
   "warnings": [
     "interval_champion_not_promotable",
@@ -60,8 +60,8 @@
   "diagnostics": {
     "forecastability": {
       "schema_version": "2026-03-07.1",
-      "generated_at_utc": "2026-03-15T16:11:41.518061+00:00",
-      "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+      "generated_at_utc": "2026-03-30T16:45:28.670062+00:00",
+      "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
       "n_periods": 160,
       "series_start": "2007-06-01",
       "series_end": "2020-09-01",
@@ -144,7 +144,7 @@
     "hierarchy_status_path": "models/time_series_hierarchy_status.json",
     "interval_eval_path": "data/processed/ts_interval_eval.parquet"
   },
-  "generated_at_utc": "2026-03-15T16:11:41.518061+00:00",
+  "generated_at_utc": "2026-03-30T16:45:28.670062+00:00",
   "forecastability_summary": {
     "available": true,
     "series_evaluated": 22,

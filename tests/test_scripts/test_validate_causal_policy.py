@@ -19,6 +19,15 @@ def test_validate_causal_policy_writes_traceable_status(tmp_path, monkeypatch) -
     pd.DataFrame(
         {
             "cate": [0.03, 0.02, 0.01, 0.04, 0.025, 0.015],
+            "recommended_action": [
+                "decrease_100bps",
+                "decrease_100bps",
+                "decrease_50bps",
+                "decrease_100bps",
+                "decrease_50bps",
+                "hold_rate",
+            ],
+            "policy_value_score": [100, 120, 80, 90, 75, 5],
             "segment": [
                 "high_sensitivity",
                 "high_sensitivity",
@@ -34,15 +43,21 @@ def test_validate_causal_policy_writes_traceable_status(tmp_path, monkeypatch) -
         }
     ).to_parquet(data_dir / "causal_policy_simulation.parquet", index=False)
     (model_dir / "causal_effect_status.json").write_text(
-        json.dumps({"run_tag": "run-causal-test"}),
+        json.dumps({"run_tag": "run-causal-test", "overlap_pass": True, "sensitivity_pass": True}),
         encoding="utf-8",
     )
 
     validate_mod.main(max_action_rate=1.0, bootstrap_samples=50)
 
     status = json.loads((model_dir / "causal_policy_rule.json").read_text(encoding="utf-8"))
+    runtime_status = json.loads(
+        (model_dir / "causal_policy_validation_runtime_status.json").read_text(encoding="utf-8")
+    )
     assert status["run_tag"] == "run-causal-test"
     assert status["schema_version"]
     assert status["generated_at_utc"]
     assert status["source_effect_status_path"] == "models/causal_effect_status.json"
     assert status["selected_rule"]
+    assert status["policy_value_method"] == "local_cate_discrete_grid"
+    assert status["promotion_state"] in {"operational_candidate", "validated_research_policy"}
+    assert runtime_status["state"] == "completed"

@@ -1,0 +1,68 @@
+---
+title: "Paper Estrella: Conformal Robust Predict-then-Optimize"
+page-layout: article
+---
+
+{{< include ../../includes/_paper-autocontenido.qmd >}}
+
+::: {.whole-game-intro}
+<span class="whole-game-question">Pregunta central</span>
+
+¿Qué ganamos cuando la incertidumbre predictiva deja de ser un diagnóstico y se vuelve una entrada explícita del optimizador? Esta landing abre el paper principal del proyecto alrededor de esa tesis.
+
+Ejemplo concreto: en vez de optimizar con una sola PD de un préstamo, el paper usa una banda conformal `[PD_low, PD_high]` para construir un conjunto de incertidumbre y preguntarse cuánto retorno se preserva cuando la decisión se protege contra realizaciones plausibles del riesgo.
+:::
+
+Este draft existe para sostener un claim económico y metodológico al mismo tiempo: con una base predictiva de `AUC 0.713`, cobertura observada de `92.5%` al target `90%` y un retorno robusto congelado de `\$183K`, la pregunta ya no es si la incertidumbre “suena interesante”, sino si está lo bastante madura como para entrar al optimizador y cambiar la conversación sobre riesgo y retorno.
+
+::: {.callout-note .mini-abstract}
+## Mini-abstract
+**Problema**: la mayoría de pipelines de crédito optimizan con PD puntual y tratan la incertidumbre como diagnóstico tardío.
+**Método**: PD calibrada, bandas conformales Mondrian y optimización robusta sobre el conjunto resultante.
+**Hallazgo**: el resultado clave no es un AUC aislado, sino la posibilidad de cuantificar explícitamente el trade-off entre retorno y protección frente a cola de riesgo.
+:::
+
+## Qué propone exactamente este paper
+
+El `Paper Estrella` es la pieza metodológica principal del proyecto. Su propuesta no es solamente mejorar predicción, sino **convertir incertidumbre predictiva en una señal accionable para decidir mejor**. En vez de tratar la banda conformal como un apéndice diagnóstico, el paper la promueve a objeto central del optimizador. El enfoque se denomina **Conformal Robust Predict-then-Optimize** (CRPTO): la industria suele colapsar predicciones en valores esperados para la optimización; nosotros resolvemos esto inyectando los intervalos de Conformal Prediction directamente como conjuntos de incertidumbre.
+
+En términos concretos, el paper propone:
+
+- un carril **CRPTO** donde la PD calibrada alimenta bandas conformales trazables que se convierten en conjuntos de incertidumbre para el optimizador;
+- una lectura económica de `alpha` como palanca explícita de robustez y admisión de riesgo;
+- una comparación cuantitativa contra decisión puntual, SPO+ end-to-end y decisión robusta bajo conjuntos de incertidumbre;
+- una narrativa donde cobertura, anchura, regret económico y auditabilidad se evalúan juntas, no por separado.
+
+El claim editorial que organiza el paper es este:
+
+> La incertidumbre conformal no solo mejora diagnóstico estadístico; también puede convertirse en una restricción operativa que altera de manera defendible la frontera entre retorno y protección frente a cola de riesgo, con garantías formales de cobertura que los enfoques end-to-end de decision-focused learning no ofrecen.
+
+## Diagrama del paper
+
+La figura siguiente resume el flujo metodológico del `Paper Estrella`, desde datos y modelado hasta escenarios, optimización y decisiones financieras.
+
+![Diagrama maestro del Paper Estrella: fuente de datos, modelado, incertidumbre conformal, escenarios IFRS9, optimización y decisiones financieras.](../../assets/figures/editorial/diagrama-paper-estrella.png){#fig-paper-estrella-overview fig-alt="Diagrama horizontal del Paper Estrella con datos, calibración, incertidumbre conformal, escenarios IFRS9, optimización robusta y decisiones financieras."}
+
+## Cómo se diferencia de la tesis completa
+
+La tesis completa es más amplia: integra el mapa ejecutivo, el pipeline end-to-end, las decisiones de modelado, los carriles prudenciales, los experimentos GPU, la agenda de papers y la narrativa de implementación total del proyecto. El `Paper Estrella`, en cambio, **recorta deliberadamente una sola tesis fuerte**: demostrar que la incertidumbre predictiva puede entrar al optimizador como conjunto de robustez y producir una lectura económica defendible. Dicho de otro modo, la tesis documenta el sistema completo; este paper aísla la pregunta metodológica más potente y la lleva a formato publicable.
+
+## Cómo leer esta parte
+
+- **63** fija el gap y la motivación aplicada.
+- **64** explica alpha–gamma, price of robustness y conjuntos de incertidumbre.
+- **65** documenta el pipeline exacto y los baselines.
+- **66** concentra la evidencia económica: Pareto, regret y ablations.
+- **67** cierra con implicaciones, límites y claim publicable.
+
+## Navegación curada
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="14a-introduction-motivation.html">63. Introducción</a></h4><p>Problema, gap y framing CRPTO (Conformal Robust Predict-then-Optimize).</p></div>
+  <div class="chapter-card"><h4><a href="14b-theoretical-framework.html">64. Marco Teórico</a></h4><p>Alpha–Gamma, price of robustness y uncertainty sets.</p></div>
+  <div class="chapter-card"><h4><a href="14c-methodology.html">65. Metodología</a></h4><p>Pipeline CP → robustez → SPO+ y baselines.</p></div>
+  <div class="chapter-card"><h4><a href="14d-results.html">66. Resultados</a></h4><p>Pareto, regret, ablations y comparación con alternativas.</p></div>
+  <div class="chapter-card"><h4><a href="14e-discussion-conclusions.html">67. Discusión</a></h4><p>Implicaciones, limitaciones y cierre publicable.</p></div>
+</div>
+```

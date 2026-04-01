@@ -124,6 +124,7 @@ def main() -> None:
     causal_rule = _load_json(MODELS / "causal_policy_rule.json")
     causal_oot = _load_json(MODELS / "causal_policy_oot_status.json")
     ab_default = _load_json(MODELS / "ab_simulation_status.json")
+    ab_baseline = _load_json(MODELS / "ab_simulation_status_baseline.json")
     ab_ambiguity = _load_json(MODELS / "ab_simulation_status_ambiguity_defer.json")
     ab_selective = _load_json(MODELS / "ab_simulation_status_selective_ambiguity_defer.json")
     set_prediction = _load_json(MODELS / "pd_set_prediction_status.json")
@@ -188,6 +189,10 @@ def main() -> None:
     ab_selective_available = bool(ab_selective)
     ab_default_no_regression = bool(
         (ab_default.get("no_regression", {}) or {}).get("passed", False)
+        or (ab_default.get("cross_scenario_gate", {}) or {}).get("passed", False)
+    )
+    ab_baseline_no_regression = bool(
+        (ab_baseline.get("no_regression", {}) or {}).get("passed", False)
     )
     ab_ambiguity_no_regression = bool(
         (ab_ambiguity.get("no_regression", {}) or {}).get("passed", False)
@@ -244,18 +249,25 @@ def main() -> None:
             ),
         },
         "ab_evidence": {
+            "selected_scenario": str(ab_default.get("decision_scenario", "baseline")),
+            "baseline_scenario_available": bool(ab_baseline),
+            "baseline_scenario": ab_baseline if ab_baseline else {},
             "default_scenario": ab_default,
             "ambiguity_defer_scenario_available": ab_sidecar_available,
             "ambiguity_defer_scenario": ab_ambiguity if ab_sidecar_available else {},
             "selective_ambiguity_defer_available": ab_selective_available,
             "selective_ambiguity_defer_scenario": ab_selective if ab_selective_available else {},
             "decision_rule": (
-                "prefer selective_ambiguity_defer if it passes no_regression; "
-                "fallback to baseline if neither defer scenario passes"
+                "Treat ab_simulation_status.json as the canonical promoted scenario for the current run. "
+                "Baseline and defer sidecars remain diagnostic, and selective_ambiguity_defer may be "
+                "recommended when it passes no_regression or cross_scenario_gate."
             ),
             "ab_artifacts_present": bool(ab_default),
             "ab_no_regression_pass": bool(ab_default_no_regression),
             "ab_gate_summary": {
+                "baseline_passed_no_regression": bool(ab_baseline_no_regression)
+                if ab_baseline
+                else None,
                 "default_passed_no_regression": bool(ab_default_no_regression),
                 "ambiguity_defer_passed_no_regression": bool(ab_ambiguity_no_regression)
                 if ab_sidecar_available

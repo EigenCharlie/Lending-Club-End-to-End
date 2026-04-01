@@ -1,0 +1,57 @@
+## Metodología {#sec-estrella-methodology}
+
+El experimento se construye sobre el pipeline canónico vigente del proyecto, hoy congelado en el champion monotónico confirmado `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`. La metodología reutiliza artefactos productivos del proyecto para evitar una bifurcación artificial entre “demo académica” y sistema real.
+
+### Datos y split
+
+La evaluación usa el universo OOT del proyecto sobre Lending Club, con partición temporal fija y trazabilidad a `data/processed/pipeline_summary.json` y `data/processed/model_comparison.json`.
+
+| Componente | Valor |
+|---|---|
+| Modelo base | CatBoost calibrado |
+| Método de calibración | Venn-Abers (MAPIE nativo) |
+| AUC OOT | 0.7130 |
+| Ensayos HPO | 320 |
+
+: Base predictiva del experimento {#tbl-p1-base}
+
+### Construcción del conjunto de incertidumbre
+
+El diseño del conjunto de incertidumbre es deliberado: no basta con demostrar que los intervalos conformales "cubren"; es necesario mostrar que cubren *mejor* que las alternativas en las dimensiones que importan para decisión. Por eso el experimento incluye tres capas de comparación con roles distintos:
+
+- **Mondrian conformal** como método candidato principal --- produce intervalos con garantía por grupo (grade), lo cual es necesario para que la policy robusta no subsidie segmentos de alto riesgo con el excedente de cobertura de los de bajo riesgo;
+- **Bootstrap y BMA** como baselines de incertidumbre alternativos --- representan las opciones que un equipo de riesgo usaría en ausencia de conformal prediction. El bootstrap es la práctica más extendida en la industria; BMA es la alternativa bayesiana más sofisticada. Si Mondrian no domina a ambos, la propuesta pierde justificación práctica;
+- **Sweep de $\alpha$** para trazar la frontera cobertura-ancho-retorno --- esto convierte un hiperparámetro estadístico ($\alpha$) en una palanca explícita de política económica: el gestor de portafolio elige cuánta protección quiere y el sweep le muestra exactamente cuánto retorno cuesta cada nivel de confianza. En la terminología del marco de decisión secuencial de @powell2026sdam, este barrido constituye *policy search* sobre los parámetros $\theta = (\alpha, \gamma, \tau)$ de una política CFA (véase @sec-estrella-sdam): evaluamos cada configuración contra el sample path OOT para identificar la política de mayor contribución ajustada por riesgo.
+
+Los artefactos clave son `uncertainty_baselines_comparison.parquet`, `bma_comparison.parquet` y `alpha_sweep_pareto_both.parquet`.
+
+### Política económica evaluada
+
+La policy promovida en `models/champion_registry.json` usa:
+
+| Parámetro | Valor |
+|---|---:|
+| `risk_tolerance` | 0.18 |
+| `gamma` | 0.10 |
+| `uncertainty_aversion` | 0.10 |
+| `policy_mode` | `segment_relative_tail_blended_uncertainty` |
+
+: Política campeona de portafolio {#tbl-p1-policy}
+
+La lectura importante es que el paper no optimiza una policy abstracta; estudia una policy con semántica económica concreta y ya promovida a registro. El `risk_tolerance = 0.18` refleja un apetito de riesgo institucional moderado: el portafolio acepta hasta un 18% de pérdida esperada sobre capital asignado, lo cual es consistente con la práctica de crédito minorista no garantizado. El parámetro `gamma = 0.10` controla cuánto peso recibe el peor escenario del conjunto de incertidumbre en la función objetivo, y `uncertainty_aversion = 0.10` complementa ese control con una penalización explícita a la anchura del intervalo. Juntos, estos tres parámetros definen una postura que no es ni agresiva (que ignoraría la incertidumbre) ni excesivamente conservadora (que rechazaría todos los préstamos con intervalos anchos). El modo `segment_relative_tail_blended_uncertainty` combina la cola del intervalo con la posición relativa del préstamo dentro de su segmento de grade, lo cual produce una policy sensible tanto al nivel absoluto de riesgo como a la heterogeneidad dentro de cada segmento.
+
+### Métricas
+
+Las cuatro familias de métricas están diseñadas para responder a las tres preguntas de investigación del paper de forma verificable. No basta con reportar AUC (calidad predictiva) ni cobertura (incertidumbre) por separado: el argumento CRPTO solo se sostiene si la cadena completa --- predicción → incertidumbre → decisión → sensibilidad --- se evalúa de forma integrada.
+
+1. **Calidad predictiva y calibración de la PD base** --- verifica que la predicción es confiable *antes* de entrar al layer conformal. Un modelo mal calibrado produciría intervalos innecesariamente anchos (RQ1);
+2. **Cobertura, ancho y cobertura mínima por grupo del intervalo** --- evalúa la calidad del conjunto de incertidumbre *per se*. La cobertura mínima por grupo es especialmente crítica porque sin ella, un promedio global cómodo podría esconder fallas en los segmentos de mayor riesgo (RQ2);
+3. **Retorno y número de préstamos financiados bajo policy robusta** --- mide la consecuencia económica de usar incertidumbre en la decisión. Si la policy robusta no financia ningún préstamo, la incertidumbre es informativa pero no accionable (RQ1);
+4. **Sensibilidad de decisión al barrido de $\alpha$** --- cuantifica el trade-off entre confianza estadística y flexibilidad económica. Esta frontera es el output más útil para un gestor de portafolio porque convierte $\alpha$ en una palanca de política directamente interpretable (RQ3).
+
+### Reproducibilidad
+
+La versión del paper en el libro se apoya en artefactos ya generados y en figuras archivadas bajo `reports/paper_material/figures_publication/`. Esto permite separar claramente entre:
+
+- evidencia ya ejecutada y congelada;
+- extensiones teóricas o experimentales reservadas para la versión journal.

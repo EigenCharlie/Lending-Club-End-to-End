@@ -1,0 +1,254 @@
+## Inferencia Causal {#sec-causal-inference}
+
+### De Correlación a Causalidad en Riesgo de Crédito
+
+En el dataset de Lending Club, los préstamos con tasas de interés altas tienen más defaults. Pero, la tasa alta *causa* más defaults? O simplemente se cobra más a quienes ya eran riesgosos? Responder esta pregunta requiere pasar de asociación estadística a **estimación causal**, distinguiendo la relación correlacional (útil para predicción) de la relación causal (necesaria para intervención).
+
+Esta distinción es operativamente crítica:
+
+- **Correlación**: "Los préstamos con tasa >20% tienen 24% de default" --- describe el pasado, útil para scoring.
+- **Causalidad**: "Si movemos la tasa 1pp, el default esperado cambia en +0.00974pp" --- permite diseñar políticas de precio.
+
+El pipeline causal combina **DoWhy** para identificación y refutación con **EconML** para estimación ortogonal y heterogeneidad, siguiendo el marco de Double Machine Learning [@chernozhukov2018]. En la versión actual del proyecto, DoWhy queda como capa de auditoría causal y el ATE oficial se reporta con DML, no con la regresión lineal de backdoor como única referencia.
+
+| Pregunta | Correlación | Causalidad |
+|---|---|---|
+| ¿Qué describe? | cómo se movieron juntas dos variables en el pasado | qué esperamos que cambie si intervenimos una palanca |
+| Ejemplo en el dataset | tasas altas aparecen junto a más defaults | mover la tasa puede cambiar el default, pero no necesariamente en la misma magnitud observada |
+| Para qué sirve | scoring, segmentación, alertas | pricing, policy, experimentación, intervención |
+
+: Correlación vs intervención en el caso Lending Club {#tbl-correlation-vs-causality}
+
+### Grafo Causal y Estrategia de Identificación
+
+La identificación del efecto causal requiere especificar un **DAG** (Directed Acyclic Graph) con las relaciones causales asumidas. El grafo oficial del proyecto establece:
+
+::: {.figure-stack}
+
+![Intervalo de confianza del ATE para la tasa de interés como tratamiento.](../../assets/figures/notebooks/ate_confidence_interval.png){fig-alt="Intervalo de confianza del efecto promedio de tratamiento de la tasa de interés."}
+
+![Backtest mensual de la política causal simulada sobre el set OOT.](../../assets/figures/editorial/causal_policy_monthly_net.png){#fig-causal-policy-backtest fig-alt="Backtest mensual de la política causal aplicada al portafolio."}
+
+:::
+
+La estrategia de identificación es **backdoor adjustment**: condicionando sobre los confusores (grade\_woe, purpose\_woe, home\_ownership\_woe), la asignación de tratamiento (tasa de interés) se vuelve *as-if* aleatoria, permitiendo estimar el efecto causal.
+
+::: {.callout-note}
+## Qué necesitamos asumir para leer esto como causalidad
+Para interpretar estos resultados como evidencia causal y no solo como correlación, el análisis asume tres cosas razonables pero exigentes:
+
+1. que no estamos dejando por fuera una variable decisiva que afecte tanto la tasa como el default;
+2. que dentro de perfiles comparables sí existen préstamos observados con diferentes niveles de tasa;
+3. que las variables usadas como control estaban disponibles cuando el préstamo se originó.
+
+No podemos probar estos supuestos de forma absoluta, pero sí someterlos a chequeos de robustez con DoWhy.
+:::
+
+### Double Machine Learning (DML)
+
+El framework DML [@chernozhukov2018] puede entenderse como una estrategia para hacer una comparación más justa. Primero intenta explicar, por separado, qué parte del default y qué parte de la tasa ya estaban “anticipadas” por el perfil del cliente. Luego, sobre lo que sobra después de ese ajuste, estima cuánto cambia realmente el default cuando cambia la tasa.
+
+En este proyecto eso importa mucho porque `int_rate` no se asigna al azar: normalmente sube precisamente en los perfiles que ya eran más riesgosos. DML ayuda a descontar esa mezcla entre riesgo observado y decisión comercial antes de atribuirle a la tasa un efecto causal.
+
+### Efecto Promedio (ATE)
+
+El ATE oficial del carril causal se estima con **LinearDML**, mientras que DoWhy se conserva para identificación y refutación. Esa combinación es más estable para este proyecto que usar la regresión lineal de backdoor como estimador principal, especialmente en full-data y con tratamiento continuo.
+
+La lectura correcta del ATE en este proyecto sigue siendo prudente: en el snapshot oficial reciente el intervalo ya no cruza cero, pero eso **no basta** para promover el lane. El bloqueo actual viene por sensibilidad, no por signo. Por eso el carril causal se mantiene como `insights_only` por defecto y el peso operativo recae más en heterogeneidad, overlap, sensibilidad y backtesting de policy que en un ATE agregado “cerrado”.
+
+### Efectos Heterogéneos (CATE) con CausalForestDML
+
+El ATE es un promedio global, pero el efecto de la tasa puede variar sustancialmente entre segmentos. El **Conditional Average Treatment Effect** (CATE) captura esta heterogeneidad usando CausalForestDML [@athey2019]:
+
+No hace falta seguir el detalle algebraico para captar la intuición: el modelo aprende qué parte del riesgo era “propia” del prestatario y qué parte cambia cuando movemos la palanca de precio.
+
+Los **effect modifiers** --- variables que modulan el efecto causal --- son: `loan_amnt`, `annual_inc`, `dti` y `fico_range_low`. El modelo produce un CATE individual para cada préstamo, con intervalos de confianza al 95%.
+
+::: {.figure-stack}
+
+![Heterogeneidad del efecto causal de la tasa de interés por segmentos, estimada con CausalForestDML.](../../assets/figures/notebooks/cate_segment_heterogeneity.png){#fig-cate-heterogeneity fig-alt="Visualización de heterogeneidad CATE por segmentos del portafolio de crédito."}
+
+![KPIs agregados del efecto causal y del backtest de política causal.](../../assets/figures/notebooks/causal_policy_kpis.png){#fig-causal-kpis fig-alt="KPIs de ATE, CATE y backtest de la política causal del proyecto."}
+
+:::
+
+Las figuras @fig-cate-heterogeneity y @fig-causal-kpis resumen el paso de una política única a una política segmentada: el efecto de precio no es homogéneo y, por tanto, tampoco debería serlo la respuesta comercial.
+
+::: {.callout-tip}
+## Interpretación operativa del CATE
+- **CATE > 0**: Subir la tasa en ese segmento *aumenta* la probabilidad de default --- conviene no subir o incluso reducir la tasa.
+- **CATE < 0**: Subir la tasa no incrementa default o puede asociarse a mejor selección adversa --- hay margen para ajustar precio.
+- **CATE $\approx$ 0**: El efecto es nulo --- la tasa no es palanca relevante en ese segmento.
+:::
+
+### Política Causal y Valor Económico
+
+La estimación CATE permite diseñar **políticas de precio segmentadas**, pero en la versión oficial reciente deben leerse como un carril de investigación para pricing, no como una policy promovida a producción analítica. La pregunta relevante no es solo si existe heterogeneidad, sino si esa heterogeneidad sobrevive filtros de overlap, sensibilidad y valor económico OOT con reglas discretas de acción.
+
+```{python}
+#| label: tbl-causal-summary
+#| tbl-cap: "Resumen de estimación causal: ATE, CATE y refutaciones"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+causal = try_load_json("causal_effect_status", directory="models", default={})
+policy = try_load_json("causal_policy_rule", directory="models", default={})
+oot = try_load_json("causal_policy_oot_status", directory="models", default={})
+sensitivity = try_load_json("causal_sensitivity_status", directory="models", default={})
+ate_ci = causal.get("ate_ci", [None, None]) or [None, None]
+
+def fmt_num(value, decimals=4):
+    if value is None:
+        return "N/D"
+    return f"{float(value):.{decimals}f}"
+
+rows = [
+    {"Métrica": "ATE (int_rate → default)",
+     "Valor": fmt_num(causal.get('ate', 0), 5),
+     "Interpretación": "Cambio esperado en default por +1pp de tasa bajo el estimador DML oficial"},
+    {"Métrica": "IC 95% del ATE",
+     "Valor": f"[{fmt_num(ate_ci[0], 4)}, {fmt_num(ate_ci[1], 4)}]",
+     "Interpretación": "En el snapshot oficial el intervalo no cruza cero, pero el lane sigue bloqueado por sensibilidad, no por signo"},
+    {"Métrica": "CATE medio",
+     "Valor": fmt_num(causal.get('cate_mean', 0), 5),
+     "Interpretación": "Efecto promedio heterogéneo (≈ATE si homogéneo)"},
+    {"Métrica": "Overlap pass",
+     "Valor": str(causal.get('overlap_pass', 'N/A')),
+     "Interpretación": "El soporte de tratamiento es suficiente en casi todos los segmentos auditados"},
+    {"Métrica": "Sensitivity pass",
+     "Valor": str(sensitivity.get('sensitivity_pass', 'N/A')),
+     "Interpretación": "Este es el gate que hoy bloquea promoción operativa"},
+    {"Métrica": "Action rate OOT",
+     "Valor": f"{oot.get('avg_action_rate', 0):.2%}",
+     "Interpretación": "Porción del portafolio donde la policy causal sugiere actuar"},
+    {"Métrica": "P05 net mensual OOT",
+     "Valor": f"${oot.get('p05_monthly_net', 0):,.0f}",
+     "Interpretación": "Lectura conservadora del valor mensual bajo bootstrap"},
+    {"Métrica": "Regla seleccionada",
+     "Valor": str(policy.get('selected_rule', 'N/A')),
+     "Interpretación": "Regla discreta seleccionada para evaluación research-grade"},
+    {"Métrica": "Promotion state",
+     "Valor": str(causal.get('promotion_state', 'N/A')),
+     "Interpretación": "El lane oficial queda en `insights_only`, aunque la policy pase sus tests económicos internos"},
+    {"Métrica": "Método de identificación",
+     "Valor": "LinearDML + DoWhy audit",
+     "Interpretación": "DML como estimador oficial, DoWhy como auditoría/refutación"},
+    {"Métrica": "Estimador",
+     "Valor": "CausalForestDML (EconML)",
+     "Interpretación": "DML con honest causal forests, 200 árboles"},
+]
+
+pd.DataFrame(rows)
+```
+
+La figura @fig-causal-policy-backtest hace visible la capa económica que la tabla resume: la policy causal no solo existe como regla estática, sino como trayectoria mensual de valor que puede evaluarse con suavizado y ventanas adversas. Aun así, el criterio oficial del proyecto sigue siendo prudente: si overlap, sensibilidad o policy value no pasan sus gates, el carril causal conserva valor científico, pero no escala a candidato operativo.
+
+### Refutaciones canónicas y lectura prudente
+
+La versión reciente del companion hacía explícito algo importante que conviene dejar en el libro: las refutaciones de DoWhy no fallaron por encontrar un efecto adverso oculto, sino por la propia debilidad del ATE lineal en este snapshot. Esa es una señal metodológica valiosa, porque obliga a leer el bloque causal como evidencia aplicada útil para segmentación y policy design, no como un cierre definitivo sobre causalidad fuerte en promedio.
+
+```{python}
+#| label: tbl-causal-refutation-status
+#| tbl-cap: "Estado canónico de las refutaciones causales"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+refutation = try_load_json("causal_refutation_summary", directory="models", default={})
+tests = pd.DataFrame(refutation.get("refutation_tests", []))
+if not tests.empty:
+    tests = tests[["test", "status", "p_value", "interpretation"]]
+tests
+```
+
+::: {.callout-note}
+## Cómo leer este resultado
+La señal útil del carril causal no viene de un ATE “cerrado”, sino de combinar:
+
+- heterogeneidad CATE útil para segmentación;
+- reglas causales discretas con evaluación OOT;
+- una lectura honesta de que la capa causal sigue siendo `insights_only` cuando overlap, sensibilidad o consistencia económica no son suficientes.
+:::
+
+| Segmento ilustrativo | Si subimos tasa | Lectura práctica |
+|---|---|---|
+| perfiles más frágiles y caros | el default tiende a subir más | subir precio puede destruir valor en vez de protegerlo |
+| perfiles con mejor soporte y menor fragilidad | el efecto puede ser menor o casi nulo | ahí hay más margen para mover precio sin empeorar tanto el riesgo |
+
+: Cómo leer la heterogeneidad CATE en lenguaje de negocio {#tbl-cate-business-reading}
+
+### Refutaciones de DoWhy
+
+La robustez del estimado causal se valida mediante tres tests de refutación estándar [@dowhy2019]:
+
+1. **Placebo treatment** (permutación): Se permuta aleatoriamente el tratamiento. Si el efecto estimado persiste, la estimación original es espuria. El efecto bajo placebo debe ser cercano a cero.
+2. **Random common cause**: Se añade un confusor aleatorio. Si el efecto cambia significativamente, el modelo es sensible a confusores no observados.
+3. **Data subset** (80%): Se re-estima sobre un subconjunto aleatorio. La estabilidad del efecto indica robustez ante variaciones muestrales.
+
+### Frontera de reglas causales y tail risk OOT
+
+El companion también añadía una capa operativa que vale la pena cristalizar: no solo qué regla causal quedó seleccionada, sino contra qué alternativas compitió y cómo se distribuye el tail risk por grade en el conjunto OOT.
+
+```{python}
+#| label: tbl-causal-rule-frontier
+#| tbl-cap: "Frontera económica de reglas causales candidatas"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+import pandas as pd
+
+rules = try_load_parquet("causal_policy_rule_candidates")
+if not rules.empty:
+    rules = rules[[
+        "rule_name",
+        "action_rate",
+        "total_net_value",
+        "bootstrap_p05_net",
+        "min_grade_total_net",
+        "pass_all",
+    ]].sort_values("total_net_value", ascending=False)
+rules
+```
+
+```{python}
+#| label: tbl-causal-tail-risk-grade
+#| tbl-cap: "Tail risk OOT del CATE por grade"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet
+
+tail = try_load_parquet("causal_oot_tail_risk")
+if not tail.empty:
+    tail = tail[["grade", "n", "mean", "std", "p5", "p95"]].sort_values("grade")
+tail
+```
+
+La regla seleccionada en el artefacto oficial no debe leerse como “policy ganadora definitiva”, sino como la mejor candidata dentro de un carril explícitamente research-grade. Ese matiz es clave: el bloque causal del proyecto está diseñado para leer heterogeneidad, economía y robustez conjunta, incluso cuando el resultado final es no promover la policy.
+
+::: {.callout-warning}
+## Limitaciones de la inferencia observacional
+Estos resultados son evidencia causal bajo supuestos de identificación --- no un experimento aleatorizado. La ignorabilidad condicional no es testable directamente: si existe un confusor no observado (e.g., información privada del prestatario no capturada en las covariables), el ATE estimado podría estar sesgado. Las refutaciones proporcionan evidencia de plausibilidad, no prueba de causalidad absoluta.
+:::
+
+::: {.callout-tip}
+## Conexión con el pipeline
+Históricamente el proyecto trató de empujar CATE hasta portafolio, A/B y política económica como un carril end-to-end. Después del rerun y la refactorización, la lectura oficial es más precisa: el bloque causal **sí corre de extremo a extremo como carril research**, pero **no forma parte del pipeline champion operativo** mientras overlap, sensibilidad y consistencia de policy no pasen juntos. En otras palabras, causal sigue conectado al stack completo, pero como laboratorio de intervención y stress test, no como componente promotable del champion bundle.
+:::

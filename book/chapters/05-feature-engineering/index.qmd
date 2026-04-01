@@ -1,0 +1,33 @@
+---
+title: "Ingeniería de Features"
+page-layout: article
+close_takeaway: "La ingeniería de features traduce columnas crudas en un manifest auditable y luego congela un contrato champion de 42 señales. Lo que importa no es cuántas variables se generan, sino cuántas sobreviven al contrato y siguen siendo interpretables, auditables y estables temporalmente."
+close_connects: "El manifest V2 separa universo de features y contrato champion: 42 features alimentan directamente el modelado PD (@sec-lr-baseline, @sec-catboost-tuned), mientras challengers y research lanes consumen subsets más amplios."
+close_reuse: "El contrato `pd_model_contract.json` reaparece en validación Pandera, en el feature drift de explicabilidad (@sec-explanation-drift), y como restricción de producción en el MRM report (@sec-mrm)."
+---
+
+La ingeniería de features es la etapa donde el dataset deja de ser una tabla cruda y empieza a hablar en el lenguaje del problema de riesgo. Aquí no “inventamos variables por inventar”: convertimos columnas de originación en señales que luego pueden ser explicadas, auditadas y reutilizadas por conformal, causalidad, portafolio e IFRS9.
+
+El pipeline de features de este proyecto opera en tres etapas sucesivas:
+
+![Ranking IV de variables candidatas para el pipeline de feature engineering.](../../assets/figures/notebooks/iv_ranking.png){fig-alt="Ranking Information Value de variables del pipeline de features."}
+
+El detalle fino de bins WOE se desarrolla en el capítulo 15. En esta landing se privilegia el ranking IV porque comunica mejor la lógica de selección sin recurrir a un mosaico de subplots difícil de leer.
+
+| Etapa | Input | Output | Herramienta |
+|-------|-------|--------|-------------|
+| WOE/IV binning | Variables categóricas (grade, purpose, home_ownership) | Variables `_woe` (numéricas, monótonas) | OptBinning (solver CP) |
+| Derivación | Variables numéricas y WOE | Ratios, logs, flags, buckets, interacciones | `feature_engineering.py` |
+| Contrato | Todas las features candidatas | 42 features canónicas validadas | `pd_model_contract.json` + Pandera |
+
+: Etapas del pipeline de features {#tbl-feature-stages}
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="05a-woe-iv-optbinning.html">15. WOE / IV</a></h4><p>Binning óptimo, ranking IV y evidencia reusable.</p></div>
+  <div class="chapter-card"><h4><a href="05b-derived-features-ratios.html">16. Features Derivadas</a></h4><p>Ratios, logs, flags e interacciones operativas.</p></div>
+  <div class="chapter-card"><h4><a href="05c-feature-contract.html">17. Contrato</a></h4><p>Pandera, schemas y compatibilidad de producción.</p></div>
+</div>
+```
+
+{{< include ../../includes/_whole-game-close.qmd >}}

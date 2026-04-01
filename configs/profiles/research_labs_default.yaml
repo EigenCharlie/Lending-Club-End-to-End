@@ -1,0 +1,15 @@
+schema_version: "2026-03-31.1"
+profile_name: research_labs_default
+pipeline_family: research_labs
+description: >
+  Perfil research-only para causal, GPU y notebooks. Nunca debe sobrescribir
+  artefactos del champion.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: insight_only
+  include_rapids: true
+  include_notebooks: true
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: mega64plus
+  upstream_registry: configs/baselines/canonical_operational_baseline.json

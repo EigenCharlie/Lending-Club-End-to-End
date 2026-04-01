@@ -1,7 +1,7 @@
 {
   "schema_version": "2026-03-14.1",
-  "generated_at_utc": "2026-03-18T04:35:46.426635+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
+  "generated_at_utc": "2026-03-31T00:43:48.144682+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
   "overall_pass": true,
   "compliance_summary": {
     "overall_pass": true,
@@ -14,5 +14,5 @@
     "n_subsystems": 4,
     "n_passing": 4
   },
-  "report_path": "/tmp/pytest-of-eigenlinux/pytest-51/test_generate_mrm_report_overa0/reports/mrm/mrm_validation_report.json"
+  "report_path": "/tmp/pytest-of-eigenlinux/pytest-29/test_generate_mrm_report_overa0/reports/mrm/mrm_validation_report.json"
 }

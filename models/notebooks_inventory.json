@@ -1,18 +1,20 @@
 {
-  "schema_version": "2026-03-17.1",
-  "generated_at_utc": "2026-03-18T01:44:29.438195+00:00",
+  "schema_version": "2026-03-31.1",
+  "generated_at_utc": "2026-04-01T03:01:48.441378+00:00",
   "total_notebooks": 14,
   "by_category": {
-    "core_thesis": 9,
-    "paper_research": 4,
-    "side_projects": 1
+    "reusable_evidence": 7,
+    "research_labs": 2,
+    "historical_demo": 1,
+    "paper_notebooks": 3,
+    "explainability_lab": 1
   },
   "notebooks": [
     {
       "filename": "01_eda_lending_club.ipynb",
       "stem": "01_eda_lending_club",
       "number": "01",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "EDA y Dataset",
       "quarto_chapter": 3,
       "key_artifacts": [
@@ -26,7 +28,7 @@
       "filename": "02_feature_engineering.ipynb",
       "stem": "02_feature_engineering",
       "number": "02",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Feature Engineering",
       "quarto_chapter": 4,
       "key_artifacts": [
@@ -40,7 +42,7 @@
       "filename": "03_pd_modeling.ipynb",
       "stem": "03_pd_modeling",
       "number": "03",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Modelado PD",
       "quarto_chapter": 5,
       "key_artifacts": [
@@ -54,7 +56,7 @@
       "filename": "04_conformal_prediction.ipynb",
       "stem": "04_conformal_prediction",
       "number": "04",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Conformal Prediction",
       "quarto_chapter": 5,
       "key_artifacts": [
@@ -67,7 +69,7 @@
       "filename": "05_time_series_forecasting.ipynb",
       "stem": "05_time_series_forecasting",
       "number": "05",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Series Temporales",
       "quarto_chapter": 6,
       "key_artifacts": [
@@ -81,7 +83,7 @@
       "filename": "06_survival_analysis.ipynb",
       "stem": "06_survival_analysis",
       "number": "06",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Análisis de Supervivencia",
       "quarto_chapter": 6,
       "key_artifacts": [
@@ -94,21 +96,21 @@
       "filename": "07_causal_inference.ipynb",
       "stem": "07_causal_inference",
       "number": "07",
-      "category": "core_thesis",
+      "category": "research_labs",
       "chapter": "Inferencia Causal",
       "quarto_chapter": 7,
       "key_artifacts": [
         "cate_estimates.parquet",
         "causal_effect_status.json"
       ],
-      "reuse_status": "evidence_reusable",
+      "reuse_status": "research_only",
       "relative_path": "notebooks/07_causal_inference.ipynb"
     },
     {
       "filename": "08_portfolio_optimization.ipynb",
       "stem": "08_portfolio_optimization",
       "number": "08",
-      "category": "core_thesis",
+      "category": "reusable_evidence",
       "chapter": "Optimización de Portafolio",
       "quarto_chapter": 8,
       "key_artifacts": [
@@ -122,20 +124,20 @@
       "filename": "09_end_to_end_pipeline.ipynb",
       "stem": "09_end_to_end_pipeline",
       "number": "09",
-      "category": "core_thesis",
+      "category": "historical_demo",
       "chapter": "Pipeline End-to-End",
       "quarto_chapter": null,
       "key_artifacts": [
         "pipeline_summary.json"
       ],
-      "reuse_status": "evidence_reusable",
+      "reuse_status": "historical_reference",
       "relative_path": "notebooks/09_end_to_end_pipeline.ipynb"
     },
     {
       "filename": "10_paper1_cp_robust_opt.ipynb",
       "stem": "10_paper1_cp_robust_opt",
       "number": "10",
-      "category": "paper_research",
+      "category": "paper_notebooks",
       "chapter": "Paper 1: CP + Robust Optimization",
       "quarto_chapter": 11,
       "key_artifacts": [
@@ -148,7 +150,7 @@
       "filename": "11_paper2_ifrs9_e2e.ipynb",
       "stem": "11_paper2_ifrs9_e2e",
       "number": "11",
-      "category": "paper_research",
+      "category": "paper_notebooks",
       "chapter": "Paper 2: IFRS9 E2E",
       "quarto_chapter": 12,
       "key_artifacts": [
@@ -162,7 +164,7 @@
       "filename": "12_paper3_mondrian.ipynb",
       "stem": "12_paper3_mondrian",
       "number": "12",
-      "category": "paper_research",
+      "category": "paper_notebooks",
       "chapter": "Paper 3: Mondrian CP",
       "quarto_chapter": 13,
       "key_artifacts": [
@@ -175,33 +177,35 @@
       "filename": "13_model_explainability.ipynb",
       "stem": "13_model_explainability",
       "number": "13",
-      "category": "paper_research",
+      "category": "explainability_lab",
       "chapter": "Explicabilidad del Modelo",
       "quarto_chapter": null,
       "key_artifacts": [
         "explainability_global.parquet",
         "shap_summary.parquet"
       ],
-      "reuse_status": "paper_material",
+      "reuse_status": "explainability_reference",
       "relative_path": "notebooks/13_model_explainability.ipynb"
     },
     {
       "filename": "10_rapids_gpu_benchmark_lending_club.ipynb",
       "stem": "10_rapids_gpu_benchmark_lending_club",
       "number": "10",
-      "category": "side_projects",
+      "category": "research_labs",
       "chapter": "Paper 1: CP + Robust Optimization",
       "quarto_chapter": 11,
       "key_artifacts": [
         "spo_comparison_status.json"
       ],
-      "reuse_status": "exploratory_side_project",
+      "reuse_status": "research_only",
       "relative_path": "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
     }
   ],
   "classification_rules": {
-    "core_thesis": "Notebooks 01-09: main pipeline chapters, evidence reusable for thesis",
-    "paper_research": "Notebooks 10-13: paper-specific material and deep dives",
-    "side_projects": "Notebooks in side_projects/: exploratory, not part of core pipeline"
+    "reusable_evidence": "Notebooks 01-06 and 08: reusable evidence connected to the live thesis stack",
+    "research_labs": "Notebook 07 and notebooks/side_projects/: research-only exploratory labs",
+    "historical_demo": "Notebook 09: archived end-to-end demonstration notebook",
+    "paper_notebooks": "Notebooks 10-12: paper-support notebooks executed in reference mode",
+    "explainability_lab": "Notebook 13: explainability deep dive retained as a focused lab"
   }
 }

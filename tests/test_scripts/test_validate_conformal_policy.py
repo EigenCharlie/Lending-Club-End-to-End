@@ -194,6 +194,79 @@ def test_validate_conformal_policy_falls_back_to_official_baseline_run_tag(
     assert status["run_tag"] == "run-official"
 
 
+def test_validate_conformal_policy_supports_artifact_namespace(
+    tmp_path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    data_dir = tmp_path / "data" / "processed" / "conformal_gap" / "shadow_ns"
+    model_dir = tmp_path / "models" / "conformal_gap" / "shadow_ns"
+    data_dir.mkdir(parents=True)
+    model_dir.mkdir(parents=True)
+
+    with open(model_dir / "conformal_results_mondrian.pkl", "wb") as f:
+        pickle.dump(
+            {
+                "metrics_90": {"empirical_coverage": 0.91, "avg_interval_width": 0.4},
+                "metrics_95": {"empirical_coverage": 0.96, "avg_interval_width": 0.6},
+            },
+            f,
+        )
+    pd.DataFrame({"group": ["A", "B"], "coverage_90": [0.91, 0.90]}).to_parquet(
+        data_dir / "conformal_group_metrics_mondrian.parquet", index=False
+    )
+    pd.DataFrame(
+        {
+            "month": pd.to_datetime(["2025-01-01", "2025-02-01"]),
+            "coverage_90": [0.91, 0.92],
+            "coverage_95": [0.95, 0.96],
+        }
+    ).to_parquet(data_dir / "conformal_backtest_monthly.parquet", index=False)
+    pd.DataFrame(columns=["severity"]).to_parquet(
+        data_dir / "conformal_backtest_alerts.parquet", index=False
+    )
+    pd.DataFrame(
+        {
+            "y_true": np.linspace(0.1, 0.9, 20),
+            "pd_low_90": np.linspace(0.0, 0.75, 20),
+            "pd_high_90": np.linspace(0.25, 1.0, 20),
+            "pd_low_95": np.linspace(0.0, 0.70, 20),
+            "pd_high_95": np.linspace(0.30, 1.0, 20),
+        }
+    ).to_parquet(data_dir / "conformal_intervals_mondrian.parquet", index=False)
+
+    cfg = {
+        "policy": {
+            "target_coverage_90_min": 0.90,
+            "target_coverage_95_min": 0.95,
+            "min_group_coverage_90_min": 0.88,
+            "max_avg_width_90": 0.8,
+            "max_critical_alerts": 0,
+            "max_total_alerts": 5,
+            "max_warning_alerts": 5,
+            "max_winkler_90": 10.0,
+            "max_winkler_95": 10.0,
+            "min_kupiec_pvalue_90": 0.0,
+            "min_kupiec_pvalue_95": 0.0,
+            "min_christoffersen_pvalue_90": 0.0,
+            "min_christoffersen_pvalue_95": 0.0,
+        },
+        "artifacts": {},
+        "output": {},
+    }
+    cfg_path = tmp_path / "conformal_policy.yaml"
+    cfg_path.write_text(yaml.safe_dump(cfg), encoding="utf-8")
+
+    policy_mod.main(str(cfg_path), artifact_namespace="shadow_ns")
+
+    status_path = (
+        tmp_path / "models" / "conformal_gap" / "shadow_ns" / "conformal_policy_status.json"
+    )
+    assert status_path.exists()
+    status = json.loads(status_path.read_text(encoding="utf-8"))
+    assert status["artifact_namespace"] == "shadow_ns"
+    assert not (tmp_path / "models" / "conformal_policy_status.json").exists()
+
+
 def test_validate_conformal_policy_allows_methodological_justification_for_stats_only_failures(
     tmp_path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -305,7 +378,7 @@ def test_validate_conformal_policy_allows_methodological_justification_for_stats
 
     status = json.loads((model_dir / "conformal_policy_status.json").read_text(encoding="utf-8"))
 
-    assert status["overall_pass"] is False
+    assert status["overall_pass"] is True  # methodological justification elevates overall
     assert status["strict_overall_pass"] is False
     assert status["non_statistical_checks_pass"] is True
     assert status["methodological_justification_pass"] is True

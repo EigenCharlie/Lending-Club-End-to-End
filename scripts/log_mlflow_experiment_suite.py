@@ -52,6 +52,36 @@ def _load_pickle(path: str) -> dict[str, Any]:
     return obj
 
 
+def _load_dependency_summary() -> list[dict[str, Any]]:
+    path = ROOT / "reports" / "dependency_summary.json"
+    if not path.exists():
+        return []
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return []
+
+
+def _project_audit_snapshot_rel_path() -> str | None:
+    for rel_path in (
+        "reports/project_audit_snapshot.json",
+        "reports/history/project_audit_snapshot.json",
+    ):
+        if (ROOT / rel_path).exists():
+            return rel_path
+    return None
+
+
+def _load_project_audit_snapshot() -> dict[str, Any]:
+    rel_path = _project_audit_snapshot_rel_path()
+    if not rel_path:
+        return {}
+    try:
+        return _load_json(rel_path)
+    except Exception:
+        return {}
+
+
 def _nested_numeric(payload: dict[str, Any], *keys: str, default: float = 0.0) -> float:
     current: Any = payload
     for key in keys:
@@ -224,10 +254,16 @@ def _log_run(
 def _log_pd(timestamp: str, common_tags: dict[str, str]) -> str:
     record = _load_pickle("models/pd_training_record.pkl")
     comparison = _load_json("data/processed/model_comparison.json")
+    feature_manifest = (
+        pd.read_parquet(ROOT / "data/processed/feature_manifest_v2.parquet")
+        if (ROOT / "data/processed/feature_manifest_v2.parquet").exists()
+        else pd.DataFrame()
+    )
 
     metrics = {
         **_to_metrics(record.get("final_test_metrics", {}), prefix="test_"),
         "optuna_best_auc": float(record.get("optuna_best_auc", 0.0)),
+        "feature_manifest_rows": float(len(feature_manifest)),
     }
     params = {
         "best_calibration": record.get("best_calibration"),
@@ -242,17 +278,77 @@ def _log_pd(timestamp: str, common_tags: dict[str, str]) -> str:
         "models/pd_canonical.cbm",
         "models/pd_canonical_calibrator.pkl",
         "models/pd_training_record.pkl",
+        "models/pd_training_status.json",
         "data/processed/model_comparison.json",
+        "data/processed/feature_manifest_v2.parquet",
+        "data/processed/brier_score_decomposition.json",
+        "reports/figures/calibration/murphy_diagram.png",
         "configs/pd_model.yaml",
     ]
-    return _log_run(
-        experiment_name="lending_club/pd_model",
-        run_name=f"artifact_backfill_pd_{timestamp}",
-        metrics=metrics,
-        params=params,
-        tags=tags,
-        artifacts=artifacts,
-    )
+
+    # Log CatBoost model with signature when available
+    model_path = ROOT / "models" / "pd_canonical.cbm"
+    catboost_logged = False
+    if model_path.exists():
+        try:
+            import mlflow.catboost
+            from catboost import CatBoostClassifier
+            from mlflow.models.signature import infer_signature
+
+            cb_model = CatBoostClassifier()
+            cb_model.load_model(str(model_path))
+
+            # Use test predictions for signature inference
+            test_preds_path = ROOT / "data" / "processed" / "test_predictions.parquet"
+            sig = None
+            if test_preds_path.exists():
+                try:
+                    test_preds = pd.read_parquet(test_preds_path)
+                    sig = infer_signature(
+                        pd.DataFrame({"y_prob": test_preds["y_prob_final"].head(5)}),
+                        test_preds["y_prob_final"].head(5).values,
+                    )
+                except Exception:
+                    pass
+            catboost_logged = True
+        except ImportError:
+            catboost_logged = False
+
+    run_name = f"artifact_backfill_pd_{timestamp}"
+    mlflow.set_experiment("lending_club/pd_model")
+    clean_metrics = {k: float(v) for k, v in metrics.items() if math.isfinite(float(v))}
+    clean_params = _to_params(params)
+    clean_tags = {**tags, "pipeline_scope": "pd_model"}
+
+    with mlflow.start_run(run_name=run_name) as run:
+        if clean_params:
+            mlflow.log_params(clean_params)
+        if clean_metrics:
+            mlflow.log_metrics(clean_metrics)
+        if clean_tags:
+            mlflow.set_tags(clean_tags)
+
+        # Log CatBoost model natively with signature
+        if catboost_logged:
+            try:
+                mlflow.catboost.log_model(
+                    cb_model,
+                    artifact_path="pd_catboost",
+                    signature=sig,
+                )
+                logger.info("Logged CatBoost model to MLflow with native catboost flavor")
+            except Exception as exc:
+                logger.warning(f"CatBoost model logging failed: {exc}")
+
+        for rel_path in artifacts:
+            path = ROOT / rel_path
+            if path.exists():
+                size_mb = path.stat().st_size / (1024 * 1024)
+                if size_mb <= MAX_ARTIFACT_MB:
+                    mlflow.log_artifact(str(path))
+
+        logger.info(f"Logged PD run: run_id={run.info.run_id}")
+        return run.info.run_id
 
 
 def _log_conformal(timestamp: str, common_tags: dict[str, str]) -> str:
@@ -323,9 +419,19 @@ def _log_causal(timestamp: str, common_tags: dict[str, str]) -> str:
     }
     artifacts = [
         "models/causal_summary.pkl",
+        "models/causal_effect_status.json",
+        "models/causal_overlap_status.json",
+        "models/causal_sensitivity_status.json",
+        "models/causal_estimator_selection_status.json",
+        "models/causal_effect_runtime_status.json",
+        "models/causal_policy_simulation_runtime_status.json",
+        "models/causal_policy_validation_runtime_status.json",
+        "models/causal_policy_oot_runtime_status.json",
         "models/causal_policy_summary.pkl",
         "models/causal_policy_rule.json",
+        "models/causal_policy_oot_status.json",
         "data/processed/cate_estimates.parquet",
+        "data/processed/cate_estimates_oot.parquet",
         "data/processed/causal_policy_simulation.parquet",
         "data/processed/causal_policy_rule_selected.parquet",
     ]
@@ -370,9 +476,11 @@ def _log_ifrs9(timestamp: str, common_tags: dict[str, str]) -> str:
     }
     artifacts = [
         "models/ifrs9_sensitivity_summary.pkl",
+        "models/ifrs9_runtime_status.json",
         "data/processed/ifrs9_scenario_summary.parquet",
         "data/processed/ifrs9_scenario_grade_summary.parquet",
         "data/processed/ifrs9_sensitivity_grid.parquet",
+        "data/processed/ifrs9_input_quality.parquet",
     ]
     return _log_run(
         experiment_name="lending_club/ifrs9",
@@ -413,8 +521,12 @@ def _log_optimization(timestamp: str, common_tags: dict[str, str]) -> str:
     }
     artifacts = [
         "models/portfolio_robustness_results.pkl",
+        "models/portfolio_research_policy.json",
+        "models/portfolio_optimization_runtime_status.json",
+        "models/portfolio_tradeoff_runtime_status.json",
         "data/processed/portfolio_robustness_frontier.parquet",
         "data/processed/portfolio_robustness_summary.parquet",
+        "data/processed/champion_candidate_universe.parquet",
         "models/pipeline_results.pkl",
     ]
     return _log_run(
@@ -440,8 +552,10 @@ def _log_survival(timestamp: str, common_tags: dict[str, str]) -> str:
     }
     artifacts = [
         "models/survival_summary.pkl",
+        "models/survival_runtime_status.json",
         "models/cox_ph_model.pkl",
         "models/rsf_model.pkl",
+        "data/processed/lifetime_pd_table.parquet",
         "data/processed/km_curve_data.parquet",
     ]
     return _log_run(
@@ -589,8 +703,14 @@ def _log_time_series(timestamp: str, common_tags: dict[str, str]) -> str:
 
 
 def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
-    audit = _load_json("reports/project_audit_snapshot.json")
+    audit = _load_project_audit_snapshot()
     summary = _load_json("data/processed/pipeline_summary.json")
+    dependency_summary = _load_dependency_summary()
+    feature_manifest = (
+        pd.read_parquet(ROOT / "data/processed/feature_manifest_v2.parquet")
+        if (ROOT / "data/processed/feature_manifest_v2.parquet").exists()
+        else pd.DataFrame()
+    )
 
     metrics = {}
     metrics.update(_to_metrics(summary.get("pipeline", {}), prefix="pipeline_"))
@@ -599,6 +719,11 @@ def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
     metrics.update(_to_metrics(summary.get("survival", {}), prefix="survival_"))
     metrics.update(_to_metrics(summary.get("dataset", {}), prefix="dataset_"))
     metrics.update(_to_metrics(audit.get("ifrs9", {}), prefix="ifrs9_"))
+    metrics["dependency_count"] = float(len(dependency_summary))
+    metrics["dependency_with_usage_count"] = float(
+        sum(1 for row in dependency_summary if int(row.get("file_count", 0)) > 0)
+    )
+    metrics["feature_manifest_rows"] = float(len(feature_manifest))
 
     params = {
         "notebooks_executed": len(audit.get("notebooks", [])),
@@ -610,12 +735,17 @@ def _log_end_to_end(timestamp: str, common_tags: dict[str, str]) -> str:
         "domain": "end_to_end",
     }
     artifacts = [
-        "reports/project_audit_snapshot.json",
         "data/processed/pipeline_summary.json",
+        "data/processed/feature_manifest_v2.parquet",
         "models/pipeline_results.pkl",
         "dvc.yaml",
         "dvc.lock",
     ]
+    audit_artifact = _project_audit_snapshot_rel_path()
+    if audit_artifact:
+        artifacts.insert(0, audit_artifact)
+    if (ROOT / "reports" / "dependency_summary.json").exists():
+        artifacts.insert(1 if audit_artifact else 0, "reports/dependency_summary.json")
     return _log_run(
         experiment_name="lending_club/end_to_end",
         run_name=f"artifact_backfill_end_to_end_{timestamp}",

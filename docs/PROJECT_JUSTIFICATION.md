@@ -25,10 +25,12 @@ The core thesis value is **decision quality under uncertainty**, not only predic
 
 ## 2) Architecture Rationale
 
-The repository separation is intentional and now maps to three execution families:
-- `canonical_rebuild`: reconstrucción operativa congelada para auditoría, packaging y narrativa canónica.
-- `champion_search`: corrida pesada de búsqueda para HPO, selección conformal/fairness/time-series/portfolio/causal.
-- `insights_factory`: métodos complementarios, notebooks, benchmarks GPU y evidencia extendida.
+The repository separation is intentional and now maps to pipeline-first families:
+- `core_canonical`: reconstrucción operativa congelada para auditoría, packaging y narrativa canónica.
+- `search_pd`, `search_conformal`, `search_portfolio`: búsquedas focalizadas por capa, sin reruns innecesarios del resto del stack.
+- `paper1_e2e` y `paper2_e2e`: ensamblajes end-to-end orientados a los papers, consumiendo artefactos congelados aguas arriba.
+- `diagnostics_governance`: backtesting, interpretación, MRM y validaciones diagnósticas.
+- `research_labs`: causal, GPU, notebooks y side projects explícitamente fuera del baseline reproducible oficial.
 
 Repository separation:
 - `src/`: reusable analytical logic
@@ -36,9 +38,9 @@ Repository separation:
 - `notebooks/`: diagnostics and narrative analysis
 - `configs/`: parameter control
 - `data/` and `models/`: reproducible assets
-- `api/`, `streamlit_app/`: delivery layer (implemented, Streamlit-first in thesis mode)
+- `api/`, `streamlit_app/`: delivery layer (implemented, but no longer the official narrative surface)
 
-This supports both research-speed iteration and a clean migration path to a future Quarto-based book without discarding Streamlit as the interactive layer.
+This supports both research-speed iteration and a Quarto-first publication contract where the book is official and Streamlit survives only as an optional interaction layer. It also prevents a PD/challenger search from re-triggering survival, causal, GPU, or notebook lanes unless a pipeline explicitly asks for them.
 
 ---
 
@@ -47,7 +49,7 @@ This supports both research-speed iteration and a clean migration path to a futu
 ### 3.1 PD and Calibration
 - `Logistic Regression` is the mandatory baseline for interpretability, governance, and regulatory auditability.
 - `CatBoost` is the final-model family for stronger tabular discrimination (nonlinearities/interactions, native categorical + NaN handling).
-- Calibration is selected by temporal multi-metric policy (Platt/Isotonic) under OOT-oriented constraints.
+- Calibration is selected by temporal multi-metric policy (Platt/Isotonic/Venn-Abers/Beta) under OOT-oriented constraints.
 - Lending decisions, IFRS9, and pricing require probability quality, not only ranking quality.
 
 ### 3.2 Conformal Uncertainty
@@ -95,7 +97,7 @@ This supports both research-speed iteration and a clean migration path to a futu
 
 ## 5) Remaining Technical Priorities
 
-1. Keep artifact narratives fully dynamic in Streamlit (no stale hardcoded metrics/claims).
+1. Keep artifact narratives official in Quarto first; Streamlit should only expose interaction that is genuinely stronger in app form.
 2. Continue benchmark refresh against Kaggle/public literature with temporal-validation comparability checks.
 3. Tighten config semantics where current runtime behavior differs from legacy config wording.
-4. Preserve API as optional support layer; Streamlit remains primary thesis interface.
+4. Preserve API as optional support layer; Quarto remains the primary thesis interface.

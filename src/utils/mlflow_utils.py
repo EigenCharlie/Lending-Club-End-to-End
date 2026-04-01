@@ -63,6 +63,89 @@ def log_experiment(
         return run.info.run_id
 
 
+def log_catboost_model(
+    model: Any,
+    X_sample: Any,
+    run_name: str,
+    experiment_name: str | None = None,
+    registered_model_name: str | None = None,
+    params: dict[str, Any] | None = None,
+    metrics: dict[str, float] | None = None,
+    tags: dict[str, str] | None = None,
+    artifacts: dict[str, str] | None = None,
+) -> str:
+    """Log a CatBoost model with inferred signature to MLflow.
+
+    Uses mlflow.catboost autologging format with model signature for
+    schema validation at serving time.
+
+    Args:
+        model: Fitted CatBoostClassifier.
+        X_sample: Sample input DataFrame for signature inference.
+        run_name: MLflow run name.
+        experiment_name: Optional experiment name.
+        registered_model_name: If provided, register in Model Registry.
+        params: Hyperparameters to log.
+        metrics: Metrics to log.
+        tags: Tags to set.
+        artifacts: Additional artifacts {name: path}.
+
+    Returns:
+        Run ID string.
+    """
+    try:
+        import mlflow.catboost
+        from mlflow.models.signature import infer_signature
+    except ImportError:
+        logger.warning("mlflow.catboost not available — falling back to sklearn logging")
+        return log_experiment(
+            run_name=run_name,
+            params=params or {},
+            metrics=metrics or {},
+            experiment_name=experiment_name,
+            model=model,
+            model_name="pd_catboost",
+            artifacts=artifacts,
+            tags=tags,
+        )
+
+    if experiment_name:
+        mlflow.set_experiment(experiment_name)
+
+    with mlflow.start_run(run_name=run_name) as run:
+        if params:
+            mlflow.log_params(params)
+        if metrics:
+            mlflow.log_metrics(metrics)
+        if tags:
+            mlflow.set_tags(tags)
+
+        # Infer signature from sample prediction
+        try:
+            y_pred_sample = model.predict_proba(X_sample)[:, 1]
+            sig = infer_signature(X_sample, y_pred_sample)
+        except Exception as exc:
+            logger.warning("Signature inference failed: {}", exc)
+            sig = None
+
+        mlflow.catboost.log_model(
+            model,
+            artifact_path="pd_catboost",
+            signature=sig,
+            registered_model_name=registered_model_name,
+        )
+
+        if artifacts:
+            for name, path in artifacts.items():
+                mlflow.log_artifact(path, name)
+
+        logger.info(
+            f"Logged CatBoost run '{run_name}' (signature={'yes' if sig else 'no'}, "
+            f"registry={registered_model_name or 'none'}): {metrics}"
+        )
+        return run.info.run_id
+
+
 def log_conformal_experiment(
     run_name: str,
     base_model_params: dict[str, Any],

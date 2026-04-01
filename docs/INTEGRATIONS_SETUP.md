@@ -130,7 +130,7 @@ export MLFLOW_MAX_ARTIFACT_MB=0
 Este repo exporta un resumen canónico para `dvc metrics` y 2 CSVs para `dvc plots`:
 
 ```bash
-uv run dvc repro export_dvc_metrics
+uv run dvc repro core.governance.export_dvc_metrics
 uv run dvc metrics show
 uv run dvc plots show
 ```

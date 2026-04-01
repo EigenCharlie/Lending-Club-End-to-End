@@ -1,26 +1,19 @@
-"""Causal Machine Learning helpers for the official causal stack.
-
-Uses EconML (DML, CausalForestDML) and DoWhy (DAG, refutation).
-Key causal questions:
-  - What is the causal effect of interest rate on default?
-  - Does income verification causally reduce default probability?
-  - Optimal rate/limit per customer segment (policy learning).
-
-API notes (2025-2026 versions):
-  - DoWhy 0.12 + networkx 3.6: d_separated renamed to d_separation.is_d_separator
-  - EconML 0.16: CausalForestDML uses GBM nuisance models, shap_values returns nested dict
-"""
+"""Causal modeling helpers for the pricing-intervention research lane."""
 
 from __future__ import annotations
 
+import re
 from collections.abc import Iterable
+from importlib import metadata as importlib_metadata
+from pathlib import Path
 from typing import Any
 
-# Fix networkx 3.6 / DoWhy 0.12 incompatibility
 import networkx.algorithms as _nxa
 import numpy as np
 import pandas as pd
-from loguru import logger
+import yaml
+from packaging.specifiers import SpecifierSet
+from packaging.version import Version
 
 if not hasattr(_nxa, "d_separated"):
     from networkx.algorithms.d_separation import is_d_separator as _is_d_sep
@@ -28,8 +21,17 @@ if not hasattr(_nxa, "d_separated"):
     _nxa.d_separated = lambda G, x, y, z: _is_d_sep(G, x, y, z)
 
 
+DEFAULT_CAUSAL_CONFIG_PATH = Path("configs/causal_lane.yaml")
+CAUSAL_ENV_COMPATIBILITY: dict[str, str] = {
+    "dowhy": ">=0.14,<0.15",
+    "econml": ">=0.16,<0.17",
+    "statsmodels": ">=0.14,<0.15",
+    "scikit-learn": ">=1.0,<1.7",
+    "shap": ">=0.38.1,<0.49",
+}
+
+
 def _require_dowhy() -> None:
-    """Ensure DoWhy is installed before calling DoWhy-backed routines."""
     try:
         import dowhy  # noqa: F401
     except ImportError as exc:
@@ -40,26 +42,77 @@ def _require_dowhy() -> None:
 
 
 def _require_econml() -> None:
-    """Ensure EconML is installed before calling EconML-backed estimators."""
     try:
         import econml  # noqa: F401
     except ImportError as exc:
         raise ImportError(
             "EconML is optional in the main environment. Create a dedicated causal env (e.g., "
-            "`.venv-causal`) with the project stack first, then overlay EconML. Example: "
-            "`UV_PROJECT_ENVIRONMENT=.venv-causal uv sync --python 3.12 --extra dev --extra platform` "
-            "and `uv pip install --python .venv-causal/bin/python -r requirements/causal-econml.txt`."
+            "`.venv-causal`) with the project stack first, then overlay EconML."
         ) from exc
+
+
+def _package_version(package: str) -> str | None:
+    try:
+        return importlib_metadata.version(package)
+    except importlib_metadata.PackageNotFoundError:
+        return None
+
+
+def load_causal_config(config_path: str | Path = DEFAULT_CAUSAL_CONFIG_PATH) -> dict[str, Any]:
+    path = Path(config_path)
+    if not path.exists() and not path.is_absolute():
+        path = Path(__file__).resolve().parents[2] / path
+    if not path.exists():
+        raise FileNotFoundError(f"Causal config not found: {path}")
+    payload = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(payload, dict):
+        raise ValueError(f"Causal config must be a mapping: {path}")
+    return payload
+
+
+def inspect_causal_environment() -> dict[str, Any]:
+    packages: dict[str, Any] = {}
+    compatible = True
+    for package, spec in CAUSAL_ENV_COMPATIBILITY.items():
+        installed = _package_version(package)
+        package_ok = False
+        if installed is not None:
+            try:
+                package_ok = Version(installed) in SpecifierSet(spec)
+            except Exception:
+                package_ok = False
+        packages[package] = {
+            "installed": installed,
+            "expected": spec,
+            "compatible": package_ok,
+        }
+        compatible = compatible and package_ok
+    return {
+        "environment": "causal_lane",
+        "compatible": compatible,
+        "packages": packages,
+    }
+
+
+def validate_causal_environment(*, raise_on_incompatible: bool = True) -> dict[str, Any]:
+    payload = inspect_causal_environment()
+    if raise_on_incompatible and not payload.get("compatible", False):
+        incompatible = [
+            f"{name}={meta.get('installed')} expected {meta.get('expected')}"
+            for name, meta in payload.get("packages", {}).items()
+            if not meta.get("compatible", False)
+        ]
+        raise RuntimeError(
+            "Causal environment is incompatible with the official EconML lane: "
+            + ", ".join(incompatible)
+        )
+    return payload
 
 
 def specify_causal_graph(
     treatment: str = "int_rate",
     outcome: str = "default_flag",
 ) -> str:
-    """Specify the official observed-variable DAG for credit risk.
-
-    Returns DOT string for DoWhy.
-    """
     return f"""
     digraph {{
         grade_woe -> {treatment};
@@ -83,12 +136,10 @@ def specify_causal_graph(
 
 
 def default_effect_modifiers() -> list[str]:
-    """Official effect-modifier set used for heterogeneous treatment effects."""
     return ["loan_amnt", "annual_inc", "dti", "fico_range_low"]
 
 
 def default_confounders() -> list[str]:
-    """Official confounder set used for backdoor adjustment."""
     return ["grade_woe", "purpose_woe", "home_ownership_woe"]
 
 
@@ -97,8 +148,92 @@ def required_causal_columns(
     treatment: str = "int_rate",
     outcome: str = "default_flag",
 ) -> list[str]:
-    """Columns required by the official observed-variable causal contract."""
     return [treatment, outcome, *default_effect_modifiers(), *default_confounders()]
+
+
+def sanitize_causal_dataframe(
+    df: pd.DataFrame,
+    *,
+    treatment: str,
+    outcome: str,
+    covariate_columns: list[str],
+    max_covariate_missing_rate: float = 0.05,
+    max_row_drop_rate: float = 0.02,
+    impute_covariates: str = "median",
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    frame = df.copy()
+    frame = frame.replace([np.inf, -np.inf], np.nan)
+
+    required = [treatment, outcome, *covariate_columns]
+    missing_cols = [col for col in required if col not in frame.columns]
+    if missing_cols:
+        raise ValueError(
+            "Missing required causal columns for the official DAG/contract: "
+            + ", ".join(sorted(missing_cols))
+        )
+
+    numeric_cols = list(dict.fromkeys(required))
+    for col in numeric_cols:
+        frame[col] = pd.to_numeric(frame[col], errors="coerce")
+
+    n_rows_input = int(len(frame))
+    covariate_missing = {
+        col: float(frame[col].isna().mean()) for col in covariate_columns if col in frame.columns
+    }
+    high_missing = {
+        col: rate
+        for col, rate in covariate_missing.items()
+        if rate > float(max_covariate_missing_rate)
+    }
+    if high_missing:
+        formatted = ", ".join(f"{col}={rate:.4f}" for col, rate in sorted(high_missing.items()))
+        raise ValueError(
+            "Causal covariates exceeded max missing rate before sanitization: " + formatted
+        )
+
+    before_drop = len(frame)
+    frame = frame.dropna(subset=[treatment, outcome]).copy()
+    n_rows_dropped_nonfinite = int(before_drop - len(frame))
+    drop_rate = float(n_rows_dropped_nonfinite / max(n_rows_input, 1))
+    if drop_rate > float(max_row_drop_rate):
+        raise ValueError(
+            f"Causal row drop rate {drop_rate:.4%} exceeded max_row_drop_rate={max_row_drop_rate:.4%}"
+        )
+
+    imputation_values: dict[str, float] = {}
+    n_imputed_cells = 0
+    if str(impute_covariates).lower() == "median":
+        for col in covariate_columns:
+            missing_mask = frame[col].isna()
+            if not missing_mask.any():
+                continue
+            median = float(frame[col].median())
+            if np.isnan(median):
+                raise ValueError(f"Causal covariate {col} is entirely missing after sanitization.")
+            frame.loc[missing_mask, col] = median
+            imputation_values[col] = median
+            n_imputed_cells += int(missing_mask.sum())
+    elif str(impute_covariates).lower() not in {"none", "drop"}:
+        raise ValueError(f"Unsupported causal imputation strategy: {impute_covariates}")
+
+    remaining_missing = [col for col in required if frame[col].isna().any()]
+    if remaining_missing:
+        raise ValueError(
+            "Causal sanitization left missing values in required columns: "
+            + ", ".join(sorted(remaining_missing))
+        )
+
+    stats = {
+        "n_rows_input": n_rows_input,
+        "n_rows_after_sanitization": int(len(frame)),
+        "n_rows_dropped_nonfinite": n_rows_dropped_nonfinite,
+        "drop_rate": drop_rate,
+        "n_imputed_cells": int(n_imputed_cells),
+        "imputation_strategy": str(impute_covariates),
+        "imputation_values": imputation_values,
+        "covariate_missing_rate": covariate_missing,
+    }
+    return frame.reset_index(drop=True), stats
 
 
 def build_overlap_diagnostics(
@@ -109,11 +244,6 @@ def build_overlap_diagnostics(
     segment_columns: Iterable[str] | None = None,
     min_segment_size: int = 50,
 ) -> pd.DataFrame:
-    """Summarize treatment support by categorical segment.
-
-    The goal is operational traceability of positivity/overlap assumptions. This is
-    intentionally simple: the artifact is an auditable diagnostic, not a formal test.
-    """
     if treatment not in df.columns or outcome not in df.columns:
         return pd.DataFrame()
 
@@ -168,8 +298,27 @@ def build_overlap_diagnostics(
     return pd.DataFrame(rows).sort_values(["segment_type", "segment_value"], ignore_index=True)
 
 
+def evaluate_overlap_status(
+    overlap: pd.DataFrame,
+    *,
+    min_support_ok_share: float = 0.80,
+) -> dict[str, Any]:
+    if overlap.empty:
+        return {
+            "overlap_pass": False,
+            "support_ok_share": 0.0,
+            "failing_segments": [],
+        }
+    support_ok_share = float(overlap["support_ok"].mean())
+    failing = overlap.loc[~overlap["support_ok"], ["segment_type", "segment_value", "n_obs"]]
+    return {
+        "overlap_pass": bool(support_ok_share >= float(min_support_ok_share)),
+        "support_ok_share": support_ok_share,
+        "failing_segments": failing.to_dict(orient="records"),
+    }
+
+
 def _extract_ate_ci(estimate: Any) -> list[float | None]:
-    """Best-effort CI extraction from a DoWhy estimate object."""
     candidate = None
     if hasattr(estimate, "get_confidence_intervals"):
         try:
@@ -191,12 +340,23 @@ def _extract_ate_ci(estimate: Any) -> list[float | None]:
 
 
 def summarize_refutation(test_name: str, refutation: Any) -> dict[str, Any]:
-    """Serialize the most useful parts of a DoWhy refutation result."""
     p_value = getattr(refutation, "p_value", None)
     try:
         p_value = float(p_value) if p_value is not None else None
     except Exception:
         p_value = None
+    result_text = str(refutation)
+    if p_value is None:
+        match = re.search(
+            r"p\s*value\s*[:=]\s*([-+]?\d*\.?\d+(?:[eE][-+]?\d+)?)",
+            result_text,
+            flags=re.IGNORECASE,
+        )
+        if match:
+            try:
+                p_value = float(match.group(1))
+            except Exception:
+                p_value = None
 
     new_effect = getattr(refutation, "new_effect", None)
     try:
@@ -215,7 +375,7 @@ def summarize_refutation(test_name: str, refutation: Any) -> dict[str, Any]:
         "estimated_effect": estimated_effect,
         "new_effect": new_effect,
         "p_value": p_value,
-        "result": str(refutation),
+        "result": result_text,
     }
 
 
@@ -226,10 +386,6 @@ def estimate_ate_dowhy(
     common_causes: list[str],
     graph: str | None = None,
 ) -> dict[str, Any]:
-    """Estimate Average Treatment Effect using DoWhy.
-
-    Identifies causal effect, estimates, and runs refutation tests.
-    """
     _require_dowhy()
     import dowhy
 
@@ -254,11 +410,6 @@ def estimate_ate_dowhy(
         ate_value = float(ate_value) if ate_value is not None else None
     except Exception:
         ate_value = None
-    logger.info(
-        f"ATE of {treatment} on {outcome}: {ate_value:.6f}"
-        if ate_value is not None
-        else f"ATE of {treatment} on {outcome}: unavailable"
-    )
     return {
         "ate": ate_value,
         "ate_ci": ate_ci,
@@ -270,58 +421,209 @@ def estimate_ate_dowhy(
     }
 
 
-def estimate_cate(
+def _nuisance_regressor(random_state: int = 42):
+    from sklearn.ensemble import GradientBoostingRegressor
+
+    return GradientBoostingRegressor(n_estimators=100, max_depth=3, random_state=random_state)
+
+
+def estimate_ate_linear_dml(
+    *,
     Y: pd.Series,
     T: pd.Series,
     X: pd.DataFrame,
     W: pd.DataFrame | None = None,
-    n_estimators: int = 200,
     cv: int = 3,
     mc_iters: int = 1,
-    criterion: str = "mse",
-    min_balancedness_tol: float = 0.45,
-    honest: bool = True,
-) -> tuple[Any, np.ndarray, tuple[np.ndarray, np.ndarray]]:
-    """Estimate Conditional Average Treatment Effect using CausalForestDML.
-
-    Args:
-        Y: Outcome (default_flag).
-        T: Treatment (int_rate, verification_status, etc.).
-        X: Effect modifiers (customer features for heterogeneity).
-        W: Confounders to control for.
-
-    Returns:
-        Tuple of (fitted_model, cate_estimates, (lower_bound, upper_bound)).
-    """
+    random_state: int = 42,
+) -> dict[str, Any]:
     _require_econml()
-    from econml.dml import CausalForestDML
-    from sklearn.ensemble import GradientBoostingRegressor
+    from econml.dml import LinearDML
 
-    est = CausalForestDML(
-        model_y=GradientBoostingRegressor(n_estimators=100, max_depth=4, random_state=42),
-        model_t=GradientBoostingRegressor(n_estimators=100, max_depth=4, random_state=42),
-        n_estimators=n_estimators,
-        random_state=42,
+    est = LinearDML(
+        model_y=_nuisance_regressor(random_state),
+        model_t=_nuisance_regressor(random_state),
         cv=max(2, int(cv)),
         mc_iters=max(1, int(mc_iters)),
-        criterion=str(criterion),
-        min_balancedness_tol=float(min_balancedness_tol),
-        honest=bool(honest),
+        random_state=random_state,
     )
-    est.fit(Y=Y, T=T, X=X, W=W)
+    est.fit(Y=np.asarray(Y, dtype=float), T=np.asarray(T, dtype=float), X=X, W=W)
+    cate = np.asarray(est.const_marginal_effect(X), dtype=float).reshape(-1)
+    lb, ub = est.const_marginal_effect_interval(X, alpha=0.05)
+    return {
+        "estimator": est,
+        "ate": float(np.mean(cate)),
+        "ate_ci": [
+            float(np.mean(np.asarray(lb, dtype=float))),
+            float(np.mean(np.asarray(ub, dtype=float))),
+        ],
+        "cate": cate,
+        "cate_lb": np.asarray(lb, dtype=float).reshape(-1),
+        "cate_ub": np.asarray(ub, dtype=float).reshape(-1),
+        "estimator_family": "linear_dml",
+    }
 
-    cate = est.const_marginal_effect(X) if hasattr(est, "const_marginal_effect") else est.effect(X)
-    if hasattr(est, "const_marginal_effect_interval"):
-        lb, ub = est.const_marginal_effect_interval(X, alpha=0.05)
-    else:
-        lb, ub = est.effect_interval(X, alpha=0.05)
 
-    logger.info(
-        f"CATE estimated: mean={cate.mean():.6f}, "
-        f"std={cate.std():.6f}, "
-        f"range=[{cate.min():.6f}, {cate.max():.6f}]"
+def estimate_cate_candidates(
+    *,
+    Y: pd.Series,
+    T: pd.Series,
+    X: pd.DataFrame,
+    W: pd.DataFrame | None = None,
+    candidate_names: list[str],
+    random_state: int = 42,
+    causal_forest_cfg: dict[str, Any] | None = None,
+    linear_dml_cfg: dict[str, Any] | None = None,
+    selector: str = "rscorer",
+) -> dict[str, Any]:
+    _require_econml()
+    from econml.dml import CausalForestDML, LinearDML
+
+    successful: dict[str, dict[str, Any]] = {}
+    failures: dict[str, str] = {}
+    candidate_names = list(dict.fromkeys(candidate_names))
+    causal_forest_cfg = causal_forest_cfg or {}
+    linear_dml_cfg = linear_dml_cfg or {}
+
+    for name in candidate_names:
+        try:
+            if name == "causal_forest_dml":
+                est = CausalForestDML(
+                    model_y=_nuisance_regressor(random_state),
+                    model_t=_nuisance_regressor(random_state),
+                    n_estimators=int(causal_forest_cfg.get("n_estimators", 200)),
+                    cv=max(2, int(causal_forest_cfg.get("cv", 3))),
+                    mc_iters=max(1, int(causal_forest_cfg.get("mc_iters", 1))),
+                    criterion=str(causal_forest_cfg.get("criterion", "mse")),
+                    min_balancedness_tol=float(causal_forest_cfg.get("min_balancedness_tol", 0.45)),
+                    honest=bool(causal_forest_cfg.get("honest", True)),
+                    max_samples=float(causal_forest_cfg.get("max_samples", 0.45)),
+                    n_jobs=int(causal_forest_cfg.get("n_jobs", -1)),
+                    random_state=random_state,
+                )
+            elif name == "linear_dml":
+                est = LinearDML(
+                    model_y=_nuisance_regressor(random_state),
+                    model_t=_nuisance_regressor(random_state),
+                    cv=max(2, int(linear_dml_cfg.get("cv", 3))),
+                    mc_iters=max(1, int(linear_dml_cfg.get("mc_iters", 1))),
+                    random_state=random_state,
+                )
+            else:
+                raise ValueError(f"Unsupported causal estimator candidate: {name}")
+
+            est.fit(Y=np.asarray(Y, dtype=float), T=np.asarray(T, dtype=float), X=X, W=W)
+            cate = np.asarray(est.const_marginal_effect(X), dtype=float).reshape(-1)
+            lb, ub = est.const_marginal_effect_interval(X, alpha=0.05)
+            successful[name] = {
+                "estimator": est,
+                "cate": cate,
+                "cate_lb": np.asarray(lb, dtype=float).reshape(-1),
+                "cate_ub": np.asarray(ub, dtype=float).reshape(-1),
+                "cate_mean": float(np.mean(cate)),
+                "cate_std": float(np.std(cate)),
+                "estimator_family": name,
+                "selection_score": None,
+            }
+        except Exception as exc:
+            failures[name] = str(exc)
+
+    if not successful:
+        raise RuntimeError(
+            "No causal estimator candidate fitted successfully: "
+            + "; ".join(f"{name}: {err}" for name, err in failures.items())
+        )
+
+    selection_reason = "first_successful"
+    selected_name = next(iter(successful))
+    if selector == "rscorer" and len(successful) > 1:
+        try:
+            from econml.score import RScorer
+
+            scorer = RScorer(
+                model_y=_nuisance_regressor(random_state),
+                model_t=_nuisance_regressor(random_state),
+                cv=max(
+                    2,
+                    int(
+                        max(
+                            causal_forest_cfg.get("cv", 3),
+                            linear_dml_cfg.get("cv", 3),
+                        )
+                    ),
+                ),
+                random_state=random_state,
+            )
+            scorer.fit(np.asarray(Y, dtype=float), np.asarray(T, dtype=float), X=X, W=W)
+            best_score = None
+            for name, payload in successful.items():
+                score = float(scorer.score(payload["estimator"]))
+                payload["selection_score"] = score
+                if best_score is None or score > best_score:
+                    best_score = score
+                    selected_name = name
+            selection_reason = "rscorer"
+        except Exception as exc:
+            selection_reason = f"rscorer_unavailable: {exc}"
+
+    return {
+        "selected_name": selected_name,
+        "selected": successful[selected_name],
+        "candidates": successful,
+        "failures": failures,
+        "selection_reason": selection_reason,
+    }
+
+
+def build_sensitivity_status(
+    estimator: Any,
+    *,
+    min_robustness_value: float = 0.05,
+    alpha: float = 0.05,
+    c_y: float = 0.05,
+    c_t: float = 0.05,
+    rho: float = 1.0,
+) -> dict[str, Any]:
+    payload = {
+        "sensitivity_supported": False,
+        "sensitivity_pass": False,
+        "robustness_value": None,
+        "sensitivity_interval": [None, None],
+        "sensitivity_summary": None,
+    }
+    if estimator is None or not hasattr(estimator, "robustness_value"):
+        return payload
+    try:
+        robustness = float(estimator.robustness_value(alpha=alpha))
+    except Exception:
+        robustness = None
+    try:
+        interval = estimator.sensitivity_interval(alpha=alpha, c_y=c_y, c_t=c_t, rho=rho)
+        interval_arr = np.asarray(interval, dtype=float).reshape(-1)
+        sensitivity_interval = [
+            float(interval_arr[0]) if interval_arr.size > 0 else None,
+            float(interval_arr[1]) if interval_arr.size > 1 else None,
+        ]
+    except Exception:
+        sensitivity_interval = [None, None]
+    try:
+        summary = str(
+            estimator.sensitivity_summary(alpha=alpha, c_y=c_y, c_t=c_t, rho=rho, decimals=3)
+        )
+    except Exception:
+        summary = None
+    payload.update(
+        {
+            "sensitivity_supported": True,
+            "sensitivity_pass": bool(
+                robustness is not None and robustness >= float(min_robustness_value)
+            ),
+            "robustness_value": robustness,
+            "sensitivity_interval": sensitivity_interval,
+            "sensitivity_summary": summary,
+        }
     )
-    return est, cate, (lb, ub)
+    return payload
 
 
 def run_refutation_tests(
@@ -330,9 +632,7 @@ def run_refutation_tests(
     estimate,
     n_tests: int = 3,
 ) -> list[dict[str, Any]]:
-    """Run DoWhy refutation tests to validate causal estimates."""
     refutations = []
-
     refuter_specs = [
         (
             "placebo_treatment",
@@ -361,8 +661,4 @@ def run_refutation_tests(
                     "result": f"refutation_unavailable: {exc}",
                 }
             )
-
-    for r in refutations:
-        logger.info(f"Refutation [{r['test']}]: {r['result'][:100]}...")
-
     return refutations

@@ -1,0 +1,9 @@
+{
+  "stage_name": "causal_policy_simulation",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T19:27:17.874515+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "summary_path": "models/causal_policy_summary.pkl",
+  "rows": 1346311
+}

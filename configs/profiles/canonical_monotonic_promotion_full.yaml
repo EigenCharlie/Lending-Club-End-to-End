@@ -1,0 +1,66 @@
+schema_version: "2026-03-31.1"
+profile_name: canonical_monotonic_promotion_full
+pipeline_family: search_pd
+description: >
+  Candidate monotonic promotion profile. Reuses the monotonic PD champion
+  candidate, reruns conformal and economic lanes, and expands the economic
+  search before any promotion decision.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+
+defaults:
+  sampling_profile: champion64safe
+  expected_upstream_registry: configs/baselines/canonical_operational_baseline.json
+
+resource_policy:
+  portfolio_backend: highs
+  tradeoff_backend: highs
+  selector_backend: highs
+  ab_backend: highs
+  cate_backend: highs
+
+search_space:
+  pd:
+    config_path: configs/pd_model.champion.yaml
+  portfolio:
+    max_candidates: 150000
+  tradeoff:
+    max_candidates: 80000
+    grid_profile: balanced
+  ab:
+    execution_mode: economic_search
+    max_portfolio_pd: 0.18
+    max_candidates: 150000
+    n_boot: 5000
+    seed: 42
+    no_regression_tolerance_pct: 0.05
+    actual_ab_top_k: 20
+    policy_selector_default: explicit_champion_only
+    policy_selector_candidates:
+      - explicit_champion_only
+      - actual_ab_guarded
+      - robustness_aware
+      - balanced_robustness
+      - guardrail_robustness
+    decision_scenarios:
+      - baseline
+      - ambiguity_defer
+      - selective_ambiguity_defer
+  causal:
+    sample_size: 0
+    cate_n_estimators: 400
+    cate_cv: 4
+    cate_mc_iters: 3
+    cate_criterion: het
+    cate_min_balancedness_tol: 0.45
+    cate_honest: true
+  cate_portfolio:
+    max_candidates: 150000

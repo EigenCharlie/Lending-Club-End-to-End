@@ -1,4 +1,4 @@
-"""Assemble a promotion-ready bundle from the latest champion-search artifacts."""
+"""Assemble a promotion-ready search bundle from current project artifacts."""
 
 from __future__ import annotations
 
@@ -51,6 +51,17 @@ def _resolve_upstream_baseline() -> str | None:
     return resolve_official_baseline_run_tag()
 
 
+def _artifact_run_tags(payloads: dict[str, dict[str, Any]]) -> dict[str, str | None]:
+    return {
+        name: (
+            str(payload.get("run_tag")).strip()
+            if str(payload.get("run_tag") or "").strip()
+            else None
+        )
+        for name, payload in payloads.items()
+    }
+
+
 def main() -> None:
     training_record = _load_pickle(MODELS / "pd_training_record.pkl")
     model_comparison = _load_json(DATA / "model_comparison.json")
@@ -72,6 +83,20 @@ def main() -> None:
     survival_summary = _load_pickle(MODELS / "survival_summary.pkl")
     threshold_semantics = load_threshold_semantics()
     upstream_baseline = _resolve_upstream_baseline()
+    artifact_run_tags = _artifact_run_tags(
+        {
+            "governance": governance_status,
+            "portfolio": champion_policy,
+            "threshold_semantics": threshold_semantics,
+            "causal_effect_status": causal_effect,
+            "causal_policy_rule": causal_rule,
+            "causal_policy_oot_status": causal_oot,
+            "cate_portfolio_status": cate_status,
+            "conformal_policy_status": conformal_status,
+            "time_series": time_series,
+            "paper_grade_protocol": paper_grade_protocol,
+        }
+    )
 
     run_tag = _meaningful_run_tag(
         os.environ.get("PIPELINE_RUN_TAG", ""),
@@ -84,16 +109,28 @@ def main() -> None:
         "schema_version": SCHEMA_VERSION,
         "generated_at_utc": datetime.now(UTC).isoformat(),
         "run_tag": run_tag,
-        "pipeline_family": str(
-            os.environ.get("PIPELINE_FAMILY", "champion_search") or "champion_search"
-        ),
+        "pipeline_family": str(os.environ.get("PIPELINE_FAMILY", "search_pd") or "search_pd"),
         "pipeline_profile": str(
-            os.environ.get("PIPELINE_PROFILE", "champion_search_max") or "champion_search_max"
+            os.environ.get("PIPELINE_PROFILE", "search_pd_default") or "search_pd_default"
         ),
         "artifact_scope": "search",
-        "promotion_state": "research_open",
-        "writes_canonical_artifacts": False,
+        "promotion_state": str(
+            os.environ.get("PIPELINE_PROMOTION_STATE", "research_open") or "research_open"
+        ),
+        "writes_canonical_artifacts": str(
+            os.environ.get("WRITES_CANONICAL_ARTIFACTS", "false")
+        ).lower()
+        in {"1", "true", "yes", "on"},
         "upstream_canonical_run_tag": upstream_baseline,
+        "artifact_run_tags": artifact_run_tags,
+        "mixed_run_tags_present": len(
+            {
+                value
+                for value in artifact_run_tags.values()
+                if value and value not in {"untracked", "unknown"}
+            }
+        )
+        > 1,
         "threshold_semantics": threshold_semantics,
         "pd": {
             "best_model": model_comparison.get("best_model"),

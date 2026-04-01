@@ -618,16 +618,22 @@ def main(config_path: str = "configs/pd_model.yaml") -> None:
             sum(1 for passed in interpretability_gains.values() if passed)
         )
 
-        max_auc_drop = float(challenger_cfg.get("max_auc_drop", 0.01))
-        max_brier_increase_pct = float(challenger_cfg.get("max_brier_increase_pct", 0.05))
+        max_auc_drop = min(float(challenger_cfg.get("max_auc_drop", 0.01)), 0.005)
+        max_brier_increase_pct = min(
+            float(challenger_cfg.get("max_brier_increase_pct", 0.05)),
+            0.02,
+        )
+        max_ece_delta = float(challenger_cfg.get("max_ece_delta", 0.01))
         min_interpretability_gains = int(challenger_cfg.get("min_interpretability_gains", 2))
         auc_drop = float(champion_metrics["auc"] - challenger_metrics["auc"])
         brier_ratio = (
             float(challenger_metrics["brier"] / max(champion_metrics["brier"], 1e-9)) - 1.0
         )
+        ece_delta = float(challenger_metrics["ece"] - champion_metrics["ece"])
         promotion_checks = {
             "auc_drop_ok": bool(auc_drop <= max_auc_drop),
             "brier_guardrail_ok": bool(brier_ratio <= max_brier_increase_pct),
+            "ece_guardrail_ok": bool(ece_delta <= max_ece_delta),
             "fairness_ok": bool(challenger_fairness_pass),
             "predictive_drift_ok": bool(predictive_drift_pass),
             "interpretability_gain_count_ok": bool(
@@ -646,7 +652,7 @@ def main(config_path: str = "configs/pd_model.yaml") -> None:
             "deltas": {
                 "auc_drop": auc_drop,
                 "brier_increase_pct": brier_ratio,
-                "ece_delta": float(challenger_metrics["ece"] - champion_metrics["ece"]),
+                "ece_delta": ece_delta,
             },
             "interpretability": {
                 "champion_effective_driver_count": int(champion_driver_count),

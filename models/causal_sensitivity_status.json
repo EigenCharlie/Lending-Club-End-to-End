@@ -1,0 +1,15 @@
+{
+  "dataset_scope": "full_data",
+  "schema_version": "2026-03-26.1",
+  "generated_at_utc": "2026-03-30T19:01:26.495613+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "estimator_family": "linear_dml",
+  "sensitivity_supported": true,
+  "sensitivity_pass": false,
+  "robustness_value": 0.028423309326171875,
+  "sensitivity_interval": [
+    -0.006211774474708584,
+    0.023140066092297098
+  ],
+  "sensitivity_summary": "Sensitivity Analysis Summary for c_y=0.05, c_t=0.05, rho=1.0\n===============================================\nCI Lower Theta Lower Theta Theta Upper CI Upper\n-----------------------------------------------\n  -0.006      -0.006 0.008       0.023    0.023\n   Robustness Values for null_hypothesis=0    \n==============================================\nRobustness Value (Theta) Robustness Value (CI)\n----------------------------------------------\n                    0.03                 0.028\n----------------------------------------------"
+}

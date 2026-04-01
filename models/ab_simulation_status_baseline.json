@@ -1,0 +1,108 @@
+{
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 2.1491526782721784,
+    "mean_b": 2.3510288193140285,
+    "diff": 0.20187614104185014,
+    "ci_low": -0.9026192878904112,
+    "ci_high": 1.2683714159856168,
+    "p_value": 0.3598,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 171932.21426177426,
+    "n_funded": 231,
+    "total_allocated": 999999.9999999999,
+    "avg_return_per_funded": 744.2952998345206
+  },
+  "metrics_b": {
+    "total_return": 188082.30554512228,
+    "n_funded": 268,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 701.7996475564263
+  },
+  "n_candidates_available": 80000,
+  "n_candidates_used": 80000,
+  "max_candidates_requested": 150000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "actual_ab_guarded",
+  "decision_scenario": "baseline",
+  "max_portfolio_pd_requested": 0.18,
+  "max_portfolio_pd_effective": 0.18,
+  "robust_policy": {
+    "source": "frontier_actual_ab_search",
+    "risk_tolerance": 0.18,
+    "uncertainty_aversion": 0.25,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "segment_relative_tail_blended_uncertainty",
+    "gamma": 0.05,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.9
+  },
+  "champion_policy_path": "models/champion_portfolio_policy_candidate_canonical_monotonic_economic_only_2026_03_29.json",
+  "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.3598,
+    "significant": false,
+    "n_boot": 5000,
+    "seed": 42
+  },
+  "policy_search": [
+    {
+      "rank": 1,
+      "policy": {
+        "source": "frontier_actual_ab_search",
+        "risk_tolerance": 0.18,
+        "uncertainty_aversion": 0.25,
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0,
+        "policy_mode": "segment_relative_tail_blended_uncertainty",
+        "gamma": 0.05,
+        "delta_cap_quantile": 1.0,
+        "tail_focus_quantile": 0.9
+      },
+      "metrics_b": {
+        "total_return": 188082.30554512228,
+        "n_funded": 268,
+        "total_allocated": 1000000.0,
+        "avg_return_per_funded": 701.7996475564263
+      },
+      "diff_total_return": 16150.09128334801,
+      "tolerance_total_return": 8596.610713088714,
+      "passed": true
+    }
+  ],
+  "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": 16150.09128334801,
+    "tolerance_total_return": 8596.610713088714,
+    "tolerance_pct_of_control": 0.05,
+    "passed": true,
+    "selected_from_search_rank": 1
+  },
+  "decision_scenario_meta": {
+    "decision_scenario": "baseline",
+    "rows_removed": 0,
+    "rows_remaining": 80000,
+    "ambiguity_rate_removed": 0.0
+  },
+  "baseline_comparison_context": {
+    "artifact_truth_role": "current_run_status",
+    "official_truth_may_live_in_comparison_json": true
+  },
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-30T15:37:22.340444+00:00",
+  "run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
+  "economic_search_selection": {
+    "scenario": "baseline",
+    "selector": "actual_ab_guarded",
+    "selected_for_scenario": true
+  }
+}

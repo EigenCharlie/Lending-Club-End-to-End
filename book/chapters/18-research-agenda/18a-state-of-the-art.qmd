@@ -1,0 +1,102 @@
+## Estado del Arte {#sec-state-of-art}
+
+El proyecto se ubica en la interseccion de varias literaturas maduras y unas pocas intersecciones todavia poco exploradas. La fuente maestra para este mapa es `docs/PAPER_REFERENCES_STATE_OF_ART.md`, que cataloga aproximadamente 80 trabajos organizados en 12 categorias tematicas.
+
+### Mapa tematico
+
+| Eje | Estado de la literatura | Gap relevante para el proyecto |
+|---|---|---|
+| Conformal foundations | muy desarrollado | pocas aplicaciones integradas a decision crediticia |
+| Mondrian / group-conditional | activo 2023-2026 | evidencia aplicada en credito real aun limitada |
+| Conformal + robust optimization | emergente | casi nula integracion operativa en portafolio crediticio |
+| IFRS9 / lifetime credit risk | madura por separado | ausencia practica de UQ distribution-free en pipelines ECL |
+| Decision-focused learning | expansion rapida | poco dialogo con incertidumbre conformal en credito |
+
+: Panorama del estado del arte {#tbl-state-art}
+
+### Corriente 1: Fundamentos de prediccion conformal {#sec-sota-foundations}
+
+La prediccion conformal fue establecida formalmente por [@vovk2005] en el marco del *algorithmic learning*, proporcionando garantias de cobertura finita bajo la unica condicion de intercambiabilidad. El trabajo de [@papadopoulos2002] introdujo la variante inductiva (*split conformal*) que reduce drasticamente el costo computacional al separar el conjunto de calibracion del de entrenamiento, a cambio de una particion de datos. La guia introductoria de [@angelopoulos2023] popularizo el marco en la comunidad de ML, mientras que [@romano2019] propuso *Conformalized Quantile Regression* (CQR), que combina regresion cuantilica con calibracion conformal para producir intervalos adaptativos en anchura. Mas recientemente, [@angelopoulos2024risk] extendio el marco a control de riesgo conformal, y el survey de [@cpsurvey2025] consolida el estado del campo con una perspectiva de datos.
+
+**Brecha para este proyecto**: la mayoria de estos trabajos son fundamentales y genericos; la aplicacion a dominios especificos de decision financiera sigue siendo limitada.
+
+### Corriente 2: Cobertura condicional y Mondrian {#sec-sota-mondrian}
+
+El procedimiento Mondrian, introducido en [@vovk2005] y desarrollado como distribucion predictiva por [@bostrom2021], ofrece garantias de cobertura group-conditional al calibrar intervalos dentro de particiones predefinidas. [@ding2023] abordaron la escalabilidad del enfoque cuando el numero de clases es grande, mostrando que la particion debe equilibrar granularidad con tamano de muestra de calibracion. [@gibbs2024] formalizaron garantias condicionales mas fuertes, y [@bairaktari2025] propusieron *Kandinsky conformal prediction* para particiones multi-atributo. [@zhou2024] exploro la cobertura ecualizada para grupos seleccionados adaptativamente, y [@plassier2024] abordo la validez condicional aproximada.
+
+**Brecha para este proyecto**: ninguno de estos trabajos evalua Mondrian conformal sobre particiones de riesgo crediticio (grades A--G) con validacion out-of-time. La evidencia aplicada en credito es practicamente inexistente.
+
+### Corriente 3: Prediccion conformal y optimizacion robusta {#sec-sota-cro}
+
+La conexion entre conjuntos conformales y optimizacion robusta fue inaugurada por [@johnstone2021], quienes propusieron usar intervalos conformales como conjuntos de incertidumbre para programas robustos. [@patel2024] extendieron esta idea al caso contextual, donde los conjuntos de incertidumbre dependen de covariables observadas. [@yeh2026] propusieron calibracion conformal end-to-end para optimizacion bajo incertidumbre, y [@chenreddy2024] abordaron la optimizacion robusta condicional. [@zhao2025robust] formalizaron la interaccion entre conformal y *satisficing*, y [@bao2025croms] propusieron seleccion optima de modelo para optimizacion robusta conformada. [@chan2024inverse] exploraron la optimizacion inversa conformal, y [@iutzeler2025dro] conectaron prediccion de riesgo conformal con optimizacion distributivamente robusta.
+
+**Brecha para este proyecto**: a pesar de la riqueza de este subcampo, ninguno de los trabajos opera sobre portafolios de credito real. La conexion entre intervalos conformales, scoring crediticio calibrado y asignacion de capital permanece inexplorada.
+
+### Corriente 4: Prediccion conformal en finanzas {#sec-sota-finance}
+
+[@noguer2024survey] ofrecio un survey de prediccion conformal en finanzas que cubre portafolios de equity, commodities y derivados. [@kato2025] propuso seleccion de portafolios basada en predicciones conformales, y [@noguer2024portfolio] exploro la optimizacion de portafolio conformal. [@fantazzini2024] aplico inferencia conformal adaptativa a medidas de riesgo de mercado. [@liu2026portfolio] conecto prediccion conformal online con algoritmos de portafolio universal.
+
+**Brecha para este proyecto**: estos trabajos operan predominantemente en mercados de equity y derivados. La aplicacion a credito minorista --- donde el "retorno" es un cupon fijo y el "riesgo" es un evento binario de default --- tiene caracteristicas suficientemente distintas como para requerir evaluacion independiente.
+
+### Corriente 5: Decision-focused learning y predict-then-optimize {#sec-sota-dfl}
+
+[@elmachtoub2022] introdujeron la perdida SPO+ que optimiza la prediccion teniendo en cuenta directamente la calidad de la decision downstream. [@donti2017] propusieron aprendizaje end-to-end en optimizacion estocastica, y [@mandi2024] sistematizaron el campo en un survey comprensivo. [@kiyani2025] exploraron los fundamentos de teoria de decision para prediccion conformal, y [@yeh2025training] propusieron entrenamiento de riesgo conformal que optimiza directamente el control de riesgo conformal.
+
+**Brecha para este proyecto**: la interaccion entre decision-focused learning e incertidumbre conformal en credito es practicamente inexistente. El proyecto aborda esta brecha al incorporar tanto intervalos conformales como una implementacion de SPO+ (vease @sec-estrella-results), permitiendo la comparacion directa entre ambos paradigmas.
+
+### Corriente 6: Riesgo crediticio, IFRS 9 y analisis de supervivencia {#sec-sota-credit}
+
+[@barcena2024] aplicaron ML con riesgos competitivos para estimar PD lifetime bajo IFRS 9. [@sicr2025] compararon definiciones de eventos SICR, y [@ifrsboard2024] publico un analisis de retroalimentacion sobre las dificultades practicas de los triggers actuales. [@botha2026] abordaron la modelizacion de la estructura temporal de default bajo IFRS 9, y [@bellini2024] ofrecieron un tratamiento comprehensivo de modelizacion practica de riesgo de credito. [@ecb2024] documenta las expectativas supervisoras del BCE sobre *overlays* y mejoras de modelos. En el ambito de scoring, [@lessmann2015] y [@ayari2026] proporcionan benchmarks sistematicos de algoritmos de clasificacion para credito.
+
+**Brecha para este proyecto**: ningun trabajo identificado conecta prediccion conformal con el pipeline completo de IFRS 9, incluyendo staging (SICR), provision (ECL por rango) y analisis de sensibilidad. Esta ausencia es la motivacion central del Paper 2 (@sec-p2-intro).
+
+### Corriente 7: Inferencia causal en credito {#sec-sota-causal}
+
+[@chernozhukov2018] establecieron el marco de Double/Debiased ML para estimacion de parametros de tratamiento, y [@athey2019] propusieron los bosques causales para estimacion de efectos heterogeneos (CATE). [@causalfinance2023] reviso el uso de inferencia causal en banca y finanzas. El proyecto utiliza CATE para ajustar decisiones de portafolio (vease @sec-cate-portfolio), pero la combinacion de intervalos conformales sobre estimaciones CATE en credito permanece inexplorada.
+
+### Hallazgos de posicionamiento {#sec-sota-gaps}
+
+La revision curada del proyecto enfatiza seis vacios que se organizan en tres niveles de profundidad. Los dos primeros son **fundacionales**: la ausencia de papers que integren conformal con IFRS9 end-to-end y la casi nula evidencia de conformal prediction aplicada a robust portfolio allocation en credito. Estos vacios son los mas graves porque significan que las dos aplicaciones mas naturales de la incertidumbre conformal en banca — provisionar con bandas y asignar capital con proteccion — carecen de precedentes publicados. Sin resolver estos, las aplicaciones mas especificas no tienen base.
+
+Los dos siguientes son **metodologicos**: la falta de uso explicito del ancho conformal como senal SICR y la escasez de sistemas completos CatBoost → calibracion → CP → decision robusta. Estos vacios operan un nivel mas abajo: asumen que la integracion fundacional es posible y preguntan *como* implementarla. El ancho como senal SICR es una propuesta concreta que convierte un subproducto del intervalo en un trigger prudencial; el pipeline completo es la evidencia de que la cadena puede ejecutarse end-to-end sin que las piezas se desacoplen.
+
+Los dos ultimos son de **gobernanza y validacion**: la ausencia de evaluacion de Mondrian conformal sobre grades crediticios con datos OOT y la nula integracion de prediccion conformal con validacion de modelos (MRM / SR 11-7). Estos vacios son los que determinan si un resultado academico puede cruzar hacia la practica bancaria. Un regulador no pregunta solo si el modelo funciona — pregunta si se puede verificar que funciona, por segmento y en datos que el modelo no vio durante entrenamiento. Sin cobertura OOT verificable por grade y sin un marco de validacion compatible con SR 11-7, la prediccion conformal permanece como curiosidad metodologica.
+
+Cada uno de estos seis vacios corresponde a una contribucion especifica de la tesis, y su organizacion jerarquica refleja la estructura del propio pipeline: primero se establece la viabilidad fundacional (Papers 2 y Estrella), luego se demuestra la implementacion metodologica (Pipeline completo + SICR conformal), y finalmente se valida la gobernanza (Paper 3 + MRM).
+
+::: {.callout-important}
+## Seis vacios identificados en la literatura
+La revision sistematica de ~80 papers revela que, a marzo de 2026:
+
+1. **Zero papers** combinan prediccion conformal con provisiones IFRS 9 end-to-end.
+2. **Zero papers** evaluan Mondrian conformal sobre grades crediticios con validacion OOT.
+3. **Zero papers** utilizan intervalos conformales como conjuntos de incertidumbre para optimizacion robusta de portafolio *crediticio*.
+4. **Zero papers** integran la perdida SPO+ con incertidumbre conformal en un contexto de credito.
+5. **Zero papers** proponen el ancho conformal como senal SICR.
+6. **Zero papers** incorporan prediccion conformal en el marco de validacion de modelos (MRM/SR 11-7).
+
+Cada uno de estos vacios corresponde a una contribucion especifica de la tesis.
+:::
+
+### Como se posiciona el proyecto
+
+El proyecto no compite principalmente en "otra mejora incremental de scoring". Su posicionamiento mas fuerte es el de una plataforma aplicada que conecta:
+
+- probabilidad calibrada,
+- incertidumbre observable,
+- optimizacion / provision,
+- gobernanza y reproducibilidad.
+
+| Tema | Pregunta central | Donde se cristaliza en este proyecto |
+|---|---|---|
+| scoring calibrado | como convertir score en probabilidad defendible? | @sec-calibration-selection y @sec-model-champion |
+| conformal por grupo | como medir incertidumbre util por segmento? | @sec-mondrian y Paper 3 |
+| decision robusta | como usar esa incertidumbre para asignar capital? | @sec-robust-portfolio y Paper Estrella |
+| IFRS9 con incertidumbre | como se mueve la provision bajo escenarios y lifetime risk? | @sec-ecl-calculation y Paper 2 |
+| gobernanza aplicada | como sostener la conversacion ante auditoria y comite? | @sec-mrm |
+
+: Matriz tematica maestra del panorama research {#tbl-research-theme-matrix}
+
+### Implicacion
+
+Esta ubicacion permite una estrategia de publicacion por piezas sin perder coherencia global: cada paper vive en una interseccion distinta, pero todos beben del mismo nucleo experimental y del mismo vocabulario metodologico. La coherencia no es solo retorica: los tres papers comparten el mismo modelo base (CatBoost calibrado), el mismo pipeline conformal (MAPIE Mondrian), los mismos datos out-of-time y la misma infraestructura de reproducibilidad, lo cual elimina la posibilidad de que resultados contradictorios entre papers se deban a diferencias de implementacion.

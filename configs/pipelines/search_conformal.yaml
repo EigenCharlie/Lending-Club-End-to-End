@@ -1,0 +1,28 @@
+schema_version: "2026-03-31.1"
+pipeline_family: search_conformal
+description: >
+  Búsqueda conformal y benchmarking de incertidumbre sobre artefactos PD ya
+  congelados o reconstruidos aguas arriba.
+artifact_scope: search
+promotion_state: research_open
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: search_conformal_default
+papers_served: [paper1, paper3]
+allowed_step_groups:
+  - preflight
+  - core_conformal
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_data_pd
+  - core_ts
+  - paper2_survival
+  - core_portfolio
+  - core_ifrs9
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries: [search_registry]

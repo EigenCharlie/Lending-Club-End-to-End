@@ -18,6 +18,16 @@ NOTEBOOK_DIR = PROJECT_ROOT / "notebooks"
 EXECUTED_NOTEBOOK_DIR = PROJECT_ROOT / "reports" / "notebook_exec" / "notebooks"
 OUTPUT_DIR = PROJECT_ROOT / "reports" / "notebook_images"
 MANIFEST_PATH = OUTPUT_DIR / "manifest.json"
+ACTIVE_NOTEBOOK_STEMS = {
+    "01_eda_lending_club",
+    "02_feature_engineering",
+    "03_pd_modeling",
+    "04_conformal_prediction",
+    "05_time_series_forecasting",
+    "07_causal_inference",
+    "08_portfolio_optimization",
+    "13_model_explainability",
+}
 
 
 def _normalize_markdown(md: str) -> str:
@@ -68,6 +78,11 @@ def main() -> None:
             "Default: reports/notebook_exec/notebooks if present, else notebooks/."
         ),
     )
+    parser.add_argument(
+        "--include-all",
+        action="store_true",
+        help="Include historical/paper notebook figures instead of the curated editorial subset.",
+    )
     args = parser.parse_args()
 
     notebook_dir = _resolve_notebook_dir(args.notebook_dir)
@@ -76,6 +91,8 @@ def main() -> None:
     total_images = 0
 
     notebook_paths = sorted(notebook_dir.glob("*.ipynb"))
+    if not args.include_all:
+        notebook_paths = [path for path in notebook_paths if path.stem in ACTIVE_NOTEBOOK_STEMS]
     for nb_path in notebook_paths:
         nb = nbformat.read(nb_path, as_version=4)
         notebook_name = nb_path.stem

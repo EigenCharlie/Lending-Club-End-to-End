@@ -1,0 +1,141 @@
+{
+  "schema_version": "2026-03-31.1",
+  "artifacts": [
+    {
+      "artifact": "models/pd_canonical.cbm",
+      "producer": "scripts/train_pd_model.py",
+      "consumers": [
+        "generate_conformal_intervals.py",
+        "export_streamlit_artifacts.py",
+        "comparison"
+      ],
+      "category": "pd_model",
+      "canonicality": "canonical",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/pd_canonical_calibrator.pkl",
+      "producer": "scripts/train_pd_model.py",
+      "consumers": [
+        "generate_conformal_intervals.py",
+        "benchmark_conformal_variants.py"
+      ],
+      "category": "pd_calibration",
+      "canonicality": "canonical",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "data/processed/conformal_intervals_mondrian.parquet",
+      "producer": "scripts/generate_conformal_intervals.py",
+      "consumers": [
+        "optimize_portfolio.py",
+        "run_ifrs9_sensitivity.py",
+        "export_streamlit_artifacts.py"
+      ],
+      "category": "conformal",
+      "canonicality": "canonical",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/conformal_policy_status.json",
+      "producer": "scripts/validate_conformal_policy.py",
+      "consumers": [
+        "comparison",
+        "champion_registry",
+        "streamlit",
+        "storytelling"
+      ],
+      "category": "governance",
+      "canonicality": "canonical",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/fairness_audit_status.json",
+      "producer": "scripts/run_fairness_audit.py",
+      "consumers": [
+        "comparison",
+        "champion_registry",
+        "storytelling"
+      ],
+      "category": "fairness",
+      "canonicality": "canonical",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/time_series_status.json",
+      "producer": "scripts/forecast_default_rates.py",
+      "consumers": [
+        "run_ifrs9_sensitivity.py",
+        "streamlit",
+        "paper2"
+      ],
+      "category": "time_series",
+      "canonicality": "canonical_point_forecast",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/time_series_research_status.json",
+      "producer": "scripts/forecast_default_rates.py --config configs/time_series_v2.yaml",
+      "consumers": [
+        "paper2 research review"
+      ],
+      "category": "time_series",
+      "canonicality": "research_only",
+      "disposition": "namespace"
+    },
+    {
+      "artifact": "models/survival_summary.pkl",
+      "producer": "scripts/run_survival_analysis.py",
+      "consumers": [
+        "paper2",
+        "methodology discussion"
+      ],
+      "category": "survival",
+      "canonicality": "paper_derived",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/causal_effect_status.json",
+      "producer": "scripts/estimate_causal_effects.py",
+      "consumers": [
+        "research_labs",
+        "paper3"
+      ],
+      "category": "causal",
+      "canonicality": "research_only",
+      "disposition": "namespace"
+    },
+    {
+      "artifact": "reports/notebook_exec",
+      "producer": "scripts/run_all_notebooks.py",
+      "consumers": [
+        "book figures",
+        "editorial evidence"
+      ],
+      "category": "notebook_evidence",
+      "canonicality": "research_only",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "reports/gpu_benchmark",
+      "producer": "scripts/run_pd_rapids_benchmark.py",
+      "consumers": [
+        "research_labs",
+        "paper appendix"
+      ],
+      "category": "gpu",
+      "canonicality": "research_only",
+      "disposition": "keep"
+    },
+    {
+      "artifact": "models/champion_search_bundle.json",
+      "producer": "scripts/build_champion_search_bundle.py",
+      "consumers": [
+        "paper1 deliverables"
+      ],
+      "category": "paper_bundle",
+      "canonicality": "paper_derived",
+      "disposition": "keep"
+    }
+  ]
+}

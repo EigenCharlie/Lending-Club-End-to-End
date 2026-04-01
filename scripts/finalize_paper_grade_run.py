@@ -127,6 +127,10 @@ def _refresh_paper_grade_artifacts(
 ) -> None:
     env = os.environ.copy()
     env["PIPELINE_RUN_TAG"] = run_tag
+    env["PIPELINE_FAMILY"] = "paper_grade_finalized"
+    env["PIPELINE_PROFILE"] = "paper_grade_final"
+    env["PIPELINE_PROMOTION_STATE"] = "operationally_frozen"
+    env["WRITES_CANONICAL_ARTIFACTS"] = "true"
     env["PAPER_GRADE_FINAL_RUN_TAG"] = run_tag
     env["PAPER_GRADE_FINAL_RUN_PROMOTED"] = "true" if promoted else "false"
     env["PAPER_GRADE_FINAL_RUN_COMPARISON_PATH"] = str(comparison_path.relative_to(ROOT))
@@ -150,7 +154,7 @@ def _confirm_rebuild(run_tag: str) -> None:
             "--comparison-baseline-run-tag",
             run_tag,
             "--pipeline-profile",
-            "canonical_operational",
+            "canonical_confirmatory_full",
             "--sampling-profile",
             "champion64safe",
             "--no-notebooks",

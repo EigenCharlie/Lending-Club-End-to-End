@@ -1,0 +1,47 @@
+{
+  "config_path": "configs/pd_model.champion.yaml",
+  "output": {
+    "model_path": "models/pd_canonical.cbm",
+    "conformal_path": "models/pd_canonical_calibrator.pkl",
+    "default_model_path": "models/pd_catboost_default.cbm",
+    "tuned_model_path": "models/pd_canonical.cbm",
+    "status_path": "models/pd_training_status.json",
+    "checkpoint_dir": "models/pd_training_checkpoints",
+    "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
+    "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png"
+  },
+  "feature_source": {
+    "mode": "feature_config",
+    "feature_config_path": "data/processed/feature_config.pkl"
+  },
+  "data": {
+    "train_path": "data/processed/train_fe.parquet",
+    "test_path": "data/processed/test_fe.parquet",
+    "calibration_path": "data/processed/calibration_fe.parquet",
+    "cutoff_date": "2018-01-01"
+  },
+  "hpo_enabled": false,
+  "validation": {
+    "scheme": "temporal_train_val_cal_test",
+    "val_from_tail_fraction_of_train": 0.15,
+    "oot_test_cutoff": "2018-01-01",
+    "walk_forward": {
+      "enabled": false,
+      "n_windows": 3,
+      "min_train_rows": 200000,
+      "window_rows": 80000,
+      "date_col": "issue_d",
+      "max_rows": 0
+    },
+    "seed_replay": {
+      "enabled": false,
+      "top_k_trials": 3,
+      "seeds": [
+        42,
+        52,
+        62
+      ],
+      "prioritize_gate_pass": true
+    }
+  }
+}

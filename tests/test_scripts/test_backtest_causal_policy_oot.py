@@ -30,6 +30,8 @@ def test_backtest_causal_policy_oot_writes_status_with_sources(tmp_path, monkeyp
                     "id": loan_id,
                     "segment": "high_sensitivity" if offset == 0 else "medium_sensitivity",
                     "cate": 0.03 if offset == 0 else 0.015,
+                    "recommended_action": "decrease_100bps" if offset == 0 else "decrease_50bps",
+                    "policy_value_score": 100 + month_idx * 5 + offset,
                     "net_value": 100 + month_idx * 5 + offset,
                     "expected_loss_reduction": 150 + month_idx * 5,
                     "revenue_impact": -40,
@@ -40,7 +42,7 @@ def test_backtest_causal_policy_oot_writes_status_with_sources(tmp_path, monkeyp
     pd.DataFrame(sim_rows).to_parquet(data_dir / "causal_policy_simulation.parquet", index=False)
     pd.DataFrame(train_rows).to_parquet(data_dir / "train_fe.parquet", index=False)
     (model_dir / "causal_policy_rule.json").write_text(
-        json.dumps({"selected_rule": "high_only", "run_tag": "run-causal-test"}),
+        json.dumps({"selected_rule": "discount_100_only", "run_tag": "run-causal-test"}),
         encoding="utf-8",
     )
     (model_dir / "causal_effect_status.json").write_text(
@@ -51,9 +53,14 @@ def test_backtest_causal_policy_oot_writes_status_with_sources(tmp_path, monkeyp
     backtest_mod.main(min_history_months=2)
 
     status = json.loads((model_dir / "causal_policy_oot_status.json").read_text(encoding="utf-8"))
+    runtime_status = json.loads(
+        (model_dir / "causal_policy_oot_runtime_status.json").read_text(encoding="utf-8")
+    )
     backtest_df = pd.read_parquet(data_dir / "causal_policy_oot_backtest.parquet")
 
     assert status["run_tag"] == "run-causal-test"
     assert status["selected_rule_path"] == "models/causal_policy_rule.json"
     assert status["effect_status_path"] == "models/causal_effect_status.json"
+    assert status["policy_value_method"] == "local_cate_discrete_grid"
     assert not backtest_df.empty
+    assert runtime_status["state"] == "completed"

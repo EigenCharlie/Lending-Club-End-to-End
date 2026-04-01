@@ -40,10 +40,10 @@ uv run streamlit run streamlit_app/app.py
 ```
 
 Notes:
-- Canonical full rebuild: `uv run dvc repro` or `scripts/run_canonical_rebuild.py`.
-- Champion-search / heavy research run: `scripts/run_champion_search.py`.
-- Final paper-grade heavy run: `scripts/run_paper_grade_final.py`.
-- Insight-factory complement: `scripts/run_insights_factory.py --profile canonical|research`.
+- Canonical full rebuild: `uv run dvc repro` or `scripts/run_canonical_rebuild.py` (`core_canonical`).
+- PD/challenger search: `scripts/run_champion_search.py` (`search_pd` by default).
+- Final paper-grade run: `scripts/run_paper_grade_final.py` (`paper1_e2e`).
+- Insight-factory complement: `scripts/run_insights_factory.py --profile canonical|research` (`research_labs`).
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` are compatibility entrypoints only.
 - Canonical standalone causal runner: `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate`.
 
@@ -56,7 +56,7 @@ If you want to run individual stages:
 | 1 | `uv run python -c "from src.data.make_dataset import main; main()"` | `data/interim/lending_club_cleaned.parquet` |
 | 2 | `uv run python -c "from src.data.prepare_dataset import main; main()"` | Train/calibration/test splits |
 | 3 | `uv run python -c "from src.data.build_datasets import main; main()"` | loan_master, time_series, ead_dataset |
-| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers) + `models/decision_threshold.json` |
+| 4 | `uv run python scripts/train_pd_model.py` | CatBoost model + calibrator candidates (Platt/Isotonic/Venn-Abers/Beta) + `models/decision_threshold.json` |
 | 5 | `uv run python scripts/generate_conformal_intervals.py` | Mondrian conformal intervals |
 | 6 | `uv run python scripts/backtest_conformal_coverage.py` | Temporal monitoring |
 | 7 | `uv run python scripts/validate_conformal_policy.py` | Policy gate + Winkler + Kupiec/Christoffersen (`conformal_policy_status.json`) |
@@ -143,7 +143,7 @@ bash scripts/monitor_long_run.sh <run_tag>
 
 Notes:
 - Official / canonical / champion tags require baseline. If no baseline flag is passed, launcher resolves default from `configs/baselines/canonical_operational_baseline.json` and then falls back to the legacy core registry.
-- `reports/project_audit_snapshot.json` is historical context only; do not treat it as the live baseline snapshot.
+- `reports/history/project_audit_snapshot.json` is historical context only; do not treat it as the live baseline snapshot.
 - Launcher defaults are `--resume`, `--sampling-profile full`, and baseline snapshot refresh on resume.
 
 Official baseline freeze workflow:
@@ -282,7 +282,7 @@ uv run python scripts/export_streamlit_artifacts.py
 uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 ```
 
-Then follow `docs/DEPLOY_STREAMLIT_FREE.md` to publish the generated `dist/streamlit_deploy/` bundle.
+Then follow `docs/history/DEPLOY_STREAMLIT_FREE.md` only if you intentionally want to rebuild the frozen historical showcase bundle in `dist/streamlit_deploy/`.
 
 ## Integrations (DVC + MLflow + DagsHub)
 
@@ -321,7 +321,7 @@ uv run dvc push -r dagshub
 
 ```bash
 # Refresh canonical KPI summary + plot CSVs
-uv run dvc repro export_dvc_metrics
+uv run dvc repro core.governance.export_dvc_metrics
 
 # Show current KPI snapshot
 uv run dvc metrics show

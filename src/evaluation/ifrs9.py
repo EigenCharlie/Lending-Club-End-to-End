@@ -94,8 +94,10 @@ def compute_lifetime_pd_from_survival(
             f"mean={lifetime_pds.mean():.4f}, median={np.median(lifetime_pds):.4f}"
         )
         return lifetime_pds
-    except Exception:
-        logger.warning("Survival model prediction failed; returning None for lifetime PD fallback.")
+    except (ValueError, TypeError, AttributeError, IndexError) as exc:
+        logger.warning(
+            "Survival model prediction failed ({}); returning None for lifetime PD fallback.", exc
+        )
         return None
 
 
@@ -180,34 +182,67 @@ def ecl_with_conformal_range(
     ead: np.ndarray,
     stages: np.ndarray,
     discount_rate: float = 0.05,
+    lifetime_pd_low: np.ndarray | None = None,
+    lifetime_pd_high: np.ndarray | None = None,
+    lifetime_pd_multiplier: float = 3.0,
 ) -> pd.DataFrame:
-    """Compute ECL range using conformal prediction intervals.
+    """Compute staging-aware ECL range using conformal prediction intervals.
 
-    Provides [ECL_low, ECL_point, ECL_high] for provision planning,
-    applying a discount factor consistent with compute_ecl().
+    For each stage, the effective PD bounds are adjusted:
+    - Stage 1: 12-month conformal bounds [pd_low, pd_high].
+    - Stage 2: Lifetime-scaled conformal bounds. Uses explicit lifetime bounds
+      if provided; otherwise scales 12-month bounds by lifetime_pd_multiplier.
+    - Stage 3: PD = 1.0 (credit-impaired); conformal bounds collapsed.
 
     Args:
-        pd_low: Lower conformal bound on PD.
-        pd_point: Point estimate PD.
-        pd_high: Upper conformal bound on PD.
+        pd_low: Lower conformal bound on 12-month PD.
+        pd_point: Point estimate 12-month PD.
+        pd_high: Upper conformal bound on 12-month PD.
         lgd: LGD estimates.
         ead: EAD estimates.
         stages: IFRS9 stages (1, 2, 3).
-        discount_rate: Annual discount rate (EIR). Applied as
-            1 / (1 + discount_rate) to match compute_ecl().
+        discount_rate: Annual discount rate (EIR).
+        lifetime_pd_low: Optional lifetime lower bound for Stage 2 loans.
+        lifetime_pd_high: Optional lifetime upper bound for Stage 2 loans.
+        lifetime_pd_multiplier: Scaling factor for 12-month bounds when
+            lifetime bounds are not provided (default 3.0).
 
     Returns:
         DataFrame with ECL range per loan (ecl_low, ecl_point, ecl_high, ecl_range).
     """
     discount_factor = 1 / (1 + discount_rate)
 
-    ecl_low = pd_low * lgd * ead * discount_factor
-    ecl_point = pd_point * lgd * ead * discount_factor
-    ecl_high = pd_high * lgd * ead * discount_factor
+    eff_low = np.copy(pd_low)
+    eff_point = np.copy(pd_point)
+    eff_high = np.copy(pd_high)
+
+    # Stage 2: apply lifetime scaling to conformal bounds AND point estimate
+    s2 = stages == 2
+    if lifetime_pd_low is not None and lifetime_pd_high is not None:
+        eff_low[s2] = lifetime_pd_low[s2]
+        eff_high[s2] = lifetime_pd_high[s2]
+        # Point estimate also needs lifetime scaling for consistency
+        eff_point[s2] = np.minimum(pd_point[s2] * lifetime_pd_multiplier, 1.0)
+    else:
+        eff_low[s2] = np.minimum(pd_low[s2] * lifetime_pd_multiplier, 1.0)
+        eff_point[s2] = np.minimum(pd_point[s2] * lifetime_pd_multiplier, 1.0)
+        eff_high[s2] = np.minimum(pd_high[s2] * lifetime_pd_multiplier, 1.0)
+
+    # Stage 3: PD = 1.0 (credit-impaired, bounds collapsed)
+    s3 = stages == 3
+    eff_low[s3] = 1.0
+    eff_point[s3] = 1.0
+    eff_high[s3] = 1.0
+
+    ecl_low = eff_low * lgd * ead * discount_factor
+    ecl_point = eff_point * lgd * ead * discount_factor
+    ecl_high = eff_high * lgd * ead * discount_factor
 
     result = pd.DataFrame(
         {
             "stage": stages,
+            "pd_eff_low": eff_low,
+            "pd_eff_high": eff_high,
             "ecl_low": ecl_low,
             "ecl_point": ecl_point,
             "ecl_high": ecl_high,
@@ -215,9 +250,19 @@ def ecl_with_conformal_range(
         }
     )
 
+    for s in [1, 2, 3]:
+        mask = stages == s
+        if mask.sum() > 0:
+            logger.info(
+                f"ECL range Stage {s}: n={mask.sum():,}, "
+                f"low={ecl_low[mask].sum():,.0f}, "
+                f"point={ecl_point[mask].sum():,.0f}, "
+                f"high={ecl_high[mask].sum():,.0f}"
+            )
+
     logger.info(
-        f"ECL range: total_low={ecl_low.sum():,.0f}, "
-        f"total_point={ecl_point.sum():,.0f}, "
-        f"total_high={ecl_high.sum():,.0f}"
+        f"ECL range total: low={ecl_low.sum():,.0f}, "
+        f"point={ecl_point.sum():,.0f}, "
+        f"high={ecl_high.sum():,.0f}"
     )
     return result

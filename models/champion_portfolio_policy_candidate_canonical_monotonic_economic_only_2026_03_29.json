@@ -1,0 +1,79 @@
+{
+  "selection_stage": "economic_actual_ab_v3",
+  "selection_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "decision_scenario": "baseline",
+  "selection_outcome": "robust_selected",
+  "selected_policy": {
+    "source": "economic_actual_ab_v1",
+    "risk_tolerance": 0.18,
+    "uncertainty_aversion": 0.25,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.1,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0
+  },
+  "economic_metrics": {
+    "diff_total_return": -3821.294325418654,
+    "passed_no_regression": true,
+    "funded_ratio": 1.0995670995670996,
+    "total_allocated_ratio": 1.0000000000000002,
+    "return_per_funded_delta": -82.44128433705771
+  },
+  "robustness_metrics": {
+    "worst_case_pd_reduction_bps": 1670.7215683292975,
+    "price_of_robustness_pct": -2.2225586646481164,
+    "allocation_similarity": 0.8217975739614838,
+    "breadth_score": 0.9643595147922968
+  },
+  "research_alternatives": {
+    "promotion_first": {
+      "risk_tolerance": 0.18,
+      "policy_mode": "segment_relative_tail_blended_uncertainty",
+      "gamma": 0.05,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.25,
+      "min_budget_utilization": 0.0,
+      "pd_cap_slack_penalty": 0.0,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "robustness_aware": {
+      "risk_tolerance": 0.14,
+      "policy_mode": "tail_blended_uncertainty",
+      "gamma": 0.5,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.25,
+      "min_budget_utilization": 0.0,
+      "pd_cap_slack_penalty": 0.0,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "balanced_robustness": {
+      "risk_tolerance": 0.18,
+      "policy_mode": "segment_relative_tail_blended_uncertainty",
+      "gamma": 0.05,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.25,
+      "min_budget_utilization": 0.0,
+      "pd_cap_slack_penalty": 0.0,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    },
+    "guardrail_robustness": {
+      "risk_tolerance": 0.16,
+      "policy_mode": "blended_uncertainty",
+      "gamma": 0.5,
+      "delta_cap_quantile": 1.0,
+      "uncertainty_aversion": 0.0,
+      "min_budget_utilization": 0.0,
+      "pd_cap_slack_penalty": 0.0,
+      "pd_cap_slack": 0.0,
+      "solver_backend": "highs"
+    }
+  },
+  "schema_version": "2026-03-10.1",
+  "generated_at_utc": "2026-03-30T15:36:27.387544+00:00",
+  "run_tag": "canonical-monotonic-promotion-2026-03-29-0929"
+}

@@ -82,11 +82,17 @@ reports/gpu_benchmark/
 reports/policy_selector_canary/
 reports/policy_selector_smoke/
 reports/gpu_insights/*/artifacts/data/processed/cuml_umap_embedding.parquet
+reports/paper_material/paper1/figures/*.html
+reports/paper_material/paper2/figures/*.html
+reports/paper_material/paper3/figures/*.html
 error_log.txt
 
 # CatBoost training artifacts
 catboost_info/
 notebooks/catboost_info/
+
+# Thesis Word documents (binary, large)
+thesis_poster/*.docx
 
 # LaTeX build artifacts
 thesis_poster/*.aux
@@ -125,7 +131,31 @@ data/processed/ts_diagnostics_v2.json
 
 # Stage C conformal gap experiment directories (large; summary in models/conformal_gap_summary.json)
 data/processed/conformal_gap/gap_stage_c_*/
+data/processed/conformal_gap/*/
 models/conformal_gap/
+models/*_runtime_checkpoints/
+models/champion_policy_selection_status_candidate_*.json
+models/champion_portfolio_policy_candidate_*.json
 
 # Thesis poster PDFs (large binaries; not version-controlled)
 thesis_poster/*.pdf
+thesis_poster/*.png
+thesis_poster/*.jpg
+
+/.quarto/
+**/*.quarto_ipynb
+
+# Quarto rendered output (disposable; _freeze/ is committed for reproducibility)
+book/_output/
+book/_output-core/
+
+# Large editorial diagram PNGs (>1MB, exceed pre-commit maxkb guard)
+# Originals live in thesis_poster/; copy into book/assets via build script
+book/assets/figures/editorial/diagrama-paper-*.png
+book/assets/figures/editorial/diagrama-paper-*.jpg
+
+# Large publication PDFs in book assets (>1MB)
+book/assets/figures/publication/p3_fig_calibration_stat_tests.pdf
+
+# Dev utilities (not project code)
+.dev-bin/

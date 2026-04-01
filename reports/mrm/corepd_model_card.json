@@ -4,7 +4,7 @@
   "champion_artifact": "models/pd_canonical.cbm",
   "subsystem_pass": {
     "pipeline": false,
-    "conformal": false,
+    "conformal": true,
     "governance": true,
     "fairness": true
   },

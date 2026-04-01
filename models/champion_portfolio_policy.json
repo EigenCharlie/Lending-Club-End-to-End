@@ -1,82 +1,85 @@
 {
-  "selection_stage": "economic_actual_ab_v3",
+  "selection_stage": "monotonic_economic_promotion_v1",
   "selection_universe_path": "data/processed/champion_candidate_universe.parquet",
   "decision_scenario": "baseline",
   "selection_outcome": "robust_selected",
   "selected_policy": {
-    "source": "economic_actual_ab_v1",
+    "source": "frontier_actual_ab_search",
     "risk_tolerance": 0.18,
-    "uncertainty_aversion": 0.1,
+    "uncertainty_aversion": 0.25,
     "min_budget_utilization": 0.0,
     "pd_cap_slack_penalty": 0.0,
     "policy_mode": "segment_relative_tail_blended_uncertainty",
-    "gamma": 0.1,
+    "gamma": 0.05,
     "delta_cap_quantile": 1.0,
-    "tail_focus_quantile": 0.75
+    "tail_focus_quantile": 0.9
   },
   "economic_metrics": {
-    "diff_total_return": -5405.160046539037,
+    "diff_total_return": 16150.09128334801,
     "passed_no_regression": true,
-    "funded_ratio": 1.1715481171548117,
-    "total_allocated_ratio": 1.0,
-    "return_per_funded_delta": -147.66701133626464
+    "passed_cross_scenario_gate": false,
+    "funded_ratio": 1.1601731601731602,
+    "avg_return_per_funded_delta": -42.495652278094326
   },
   "robustness_metrics": {
-    "worst_case_pd_reduction_bps": 902.9321062170281,
-    "price_of_robustness_pct": -2.5798655268866653,
-    "allocation_similarity": 0.6874462541723316,
-    "breadth_score": 0.9374892508344663
+    "worst_case_pd_reduction_bps": 1670.7215683292975,
+    "price_of_robustness_pct": -2.2225586646481164,
+    "allocation_similarity": 0.8217975739614838,
+    "breadth_score": 0.9643595147922968
   },
   "research_alternatives": {
     "promotion_first": {
-      "risk_tolerance": 0.16,
-      "policy_mode": "tail_blended_uncertainty",
-      "gamma": 0.1,
+      "risk_tolerance": 0.18,
+      "policy_mode": "segment_relative_tail_blended_uncertainty",
+      "gamma": 0.05,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.1,
+      "uncertainty_aversion": 0.25,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
-      "solver_backend": "cuopt"
+      "solver_backend": "highs"
     },
     "robustness_aware": {
-      "risk_tolerance": 0.16,
+      "risk_tolerance": 0.14,
       "policy_mode": "tail_blended_uncertainty",
       "gamma": 0.5,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.1,
+      "uncertainty_aversion": 0.25,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
-      "solver_backend": "cuopt"
+      "solver_backend": "highs"
     },
     "balanced_robustness": {
-      "risk_tolerance": 0.16,
-      "policy_mode": "tail_blended_uncertainty",
-      "gamma": 0.1,
+      "risk_tolerance": 0.18,
+      "policy_mode": "segment_relative_tail_blended_uncertainty",
+      "gamma": 0.05,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.1,
+      "uncertainty_aversion": 0.25,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
-      "solver_backend": "cuopt"
+      "solver_backend": "highs"
     },
     "guardrail_robustness": {
-      "risk_tolerance": 0.14,
-      "policy_mode": "hard_worst_case",
-      "gamma": 1.0,
+      "risk_tolerance": 0.16,
+      "policy_mode": "blended_uncertainty",
+      "gamma": 0.5,
       "delta_cap_quantile": 1.0,
-      "uncertainty_aversion": 0.5,
+      "uncertainty_aversion": 0.0,
       "min_budget_utilization": 0.0,
       "pd_cap_slack_penalty": 0.0,
       "pd_cap_slack": 0.0,
-      "solver_backend": "cuopt"
+      "solver_backend": "highs"
     }
   },
   "schema_version": "2026-03-10.1",
-  "generated_at_utc": "2026-03-16T04:36:39.485237+00:00",
-  "run_tag": "paper-grade-2026-03-13-final-heavy-2026-03-13-230650",
-  "promoted": true,
-  "promoted_at_utc": "2026-03-16T00:20:00+00:00",
-  "promotion_rationale": "Promoted 2026-03-16 after paper-grade run. Selected by economic selector v3 + A/B baseline no-regression PASS. Ambiguity-defer scenario NOT promoted (diff=-$13.5K, outside tolerance)."
+  "generated_at_utc": "2026-03-30T15:42:17.540811+00:00",
+  "run_tag": "canonical-monotonic-promotion-2026-03-29-0929",
+  "selected_policy_source": "actual_ab_guarded",
+  "ab_status_path": "models/ab_simulation_status_actual_ab_guarded_baseline.json",
+  "promotion_decision": {
+    "selector": "actual_ab_guarded",
+    "scenario": "baseline"
+  }
 }

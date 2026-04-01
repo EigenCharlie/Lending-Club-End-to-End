@@ -1,0 +1,4 @@
+::: {.callout-important}
+## Paper autocontenido
+Esta landing funciona como la portada editorial del draft: explica el claim central, orienta la lectura y deja explícito qué parte del argumento se desarrolla en cada subcapítulo.
+:::

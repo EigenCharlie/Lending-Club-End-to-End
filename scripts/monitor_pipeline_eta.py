@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Live pipeline monitor with subphase detection and ETA estimates.
 
-Reads run logs produced by the canonical/champion pipeline entrypoints and prints:
+Reads run logs produced by the active pipeline entrypoints and prints:
 - current phase and exact subphase (when detectable from running process tree)
-- where it is inside heavy_main (k/N)
+- where it is inside the current step group (k/N)
 - ETA for current subphase and remaining phases
 
 ETA is best-effort:
@@ -28,64 +28,90 @@ RUN_LOGS_DIR = ROOT / "reports" / "run_logs"
 
 BASE_STEP_ORDER = [
     "preflight",
-    "main_pre",
-    "heavy_main",
-    "causal",
-    "cate_portfolio",
-    "post_core",
-    "rapids",
-    "notebooks",
+    "core_data_pd",
+    "core_conformal",
+    "core_ts",
+    "paper2_survival",
+    "core_portfolio",
+    "core_ifrs9",
+    "diagnostics_governance",
+    "publication_exports",
+    "research_causal",
+    "research_cate_portfolio",
+    "research_rapids",
+    "research_notebooks",
 ]
 
 STEP_DEFAULTS_SECONDS = {
     "preflight": 300.0,
-    "main_pre": 3600.0,
-    "heavy_main": 4.5 * 3600.0,
-    "causal": 5400.0,
-    "cate_portfolio": 1800.0,
-    "post_core": 7200.0,
-    "rapids": 7200.0,
-    "notebooks": 4.0 * 3600.0,
+    "core_data_pd": 3600.0,
+    "core_conformal": 2700.0,
+    "core_ts": 1800.0,
+    "paper2_survival": 4.5 * 3600.0,
+    "core_portfolio": 5400.0,
+    "core_ifrs9": 2700.0,
+    "diagnostics_governance": 7200.0,
+    "publication_exports": 1800.0,
+    "research_causal": 5400.0,
+    "research_cate_portfolio": 1800.0,
+    "research_rapids": 7200.0,
+    "research_notebooks": 4.0 * 3600.0,
 }
 
 STEP_SUBPHASES = {
-    "main_pre": [
+    "core_data_pd": [
+        "scripts/materialize_feature_artifacts.py",
         "scripts/train_pd_model.py",
+    ],
+    "core_conformal": [
         "scripts/generate_conformal_intervals.py",
         "scripts/benchmark_conformal_variants.py",
         "scripts/backtest_conformal_coverage.py",
         "scripts/validate_conformal_policy.py",
-        "scripts/forecast_default_rates.py",
     ],
-    "heavy_main": [
+    "core_ts": ["scripts/forecast_default_rates.py"],
+    "paper2_survival": [
         "scripts/run_survival_analysis.py",
         "scripts/train_lgd_ead.py",
+    ],
+    "core_portfolio": [
         "scripts/optimize_portfolio.py",
         "scripts/optimize_portfolio_tradeoff.py",
+        "scripts/select_economic_portfolio_policy.py",
         "scripts/simulate_ab_test.py",
-        "scripts/log_mlflow_experiment_suite.py",
     ],
-    "causal": [
-        "scripts/estimate_causal_effects.py",
-        "scripts/simulate_causal_policy.py",
-        "scripts/backtest_causal_policy_oot.py",
-    ],
-    "cate_portfolio": ["scripts/optimize_cate_portfolio.py"],
-    "post_core": [
+    "core_ifrs9": [
         "scripts/run_ifrs9_sensitivity.py",
-        "scripts/build_pipeline_results.py",
+        "scripts/run_ifrs9_diagnostics.py",
+    ],
+    "diagnostics_governance": [
         "scripts/build_pd_challenger_artifacts.py",
         "scripts/run_fairness_audit.py",
-        "scripts/validate_causal_policy.py",
+        "scripts/run_monotonicity_audit.py",
+        "scripts/run_pd_backtesting_suite.py",
+        "scripts/run_bootstrap_validation_diagnostics.py",
+        "scripts/run_pd_validation_interpretation.py",
+        "scripts/run_calibration_mapping_diagnostics.py",
+        "scripts/run_encoding_stability_audit.py",
         "scripts/generate_governance_status.py",
         "scripts/generate_mrm_report.py",
+    ],
+    "publication_exports": [
+        "scripts/build_pipeline_results.py",
         "scripts/export_streamlit_artifacts.py",
         "scripts/export_storytelling_snapshot.py",
         "scripts/export_dvc_metrics.py",
         "scripts/run_comparison.py",
     ],
-    "rapids": ["scripts/side_projects/run_rapids_benchmarks.sh"],
-    "notebooks": [
+    "research_causal": [
+        "scripts/estimate_causal_effects.py",
+        "scripts/simulate_causal_policy.py",
+        "scripts/validate_causal_policy.py",
+        "scripts/backtest_causal_policy_oot.py",
+    ],
+    "research_cate_portfolio": ["scripts/optimize_cate_portfolio.py"],
+    "research_rapids": ["scripts/side_projects/run_rapids_benchmarks.sh"],
+    "research_notebooks": [
         "scripts/run_all_notebooks.py",
         "scripts/extract_notebook_images.py",
     ],
@@ -313,7 +339,7 @@ def _read_current_rsf_estimators(heavy_status: dict | None) -> int:
     return int(m.group(1))
 
 
-def _estimate_survival_seconds(run_dir: Path, heavy_status: dict | None) -> float:
+def _estimate_survival_seconds(run_dir: Path, survival_status: dict | None) -> float:
     default_est = 2.0 * 3600.0
     summary_path = ROOT / "models" / "survival_summary.pkl"
     if not summary_path.exists():
@@ -333,12 +359,12 @@ def _estimate_survival_seconds(run_dir: Path, heavy_status: dict | None) -> floa
     if not isinstance(rsf_prev, int | float) or rsf_prev <= 0:
         return default_est
 
-    n_cur = _read_latest_loaded_n_loans(run_dir / "heavy_main.log")
+    n_cur = _read_latest_loaded_n_loans(run_dir / "paper2_survival.log")
     n_ratio = 1.0
     if isinstance(n_prev, int) and n_prev > 0 and isinstance(n_cur, int) and n_cur > 0:
         n_ratio = max(0.25, min(20.0, float(n_cur) / float(n_prev)))
 
-    est_cur = _read_current_rsf_estimators(heavy_status)
+    est_cur = _read_current_rsf_estimators(survival_status)
     est_ratio = 1.0
     if isinstance(est_prev, int) and est_prev > 0:
         est_ratio = max(0.5, min(4.0, float(est_cur) / float(est_prev)))
@@ -348,17 +374,15 @@ def _estimate_survival_seconds(run_dir: Path, heavy_status: dict | None) -> floa
     return max(20 * 60.0, min(8 * 3600.0, est))
 
 
-def _estimate_heavy_subphases(run_dir: Path, heavy_status: dict | None) -> dict[str, float]:
+def _estimate_portfolio_subphases(run_dir: Path, survival_status: dict | None) -> dict[str, float]:
     tlim = float(_read_optimization_time_limit(default=300))
     tradeoff_n_solves = 48.0  # grid-profile night: 6 risks * (1 baseline + 7 robust)
 
     return {
-        "scripts/run_survival_analysis.py": _estimate_survival_seconds(run_dir, heavy_status),
-        "scripts/train_lgd_ead.py": 30 * 60.0,
         "scripts/optimize_portfolio.py": max(120.0, min(tlim, tlim * 0.8)),
         "scripts/optimize_portfolio_tradeoff.py": max(45 * 60.0, tradeoff_n_solves * tlim * 0.55),
+        "scripts/select_economic_portfolio_policy.py": 12 * 60.0,
         "scripts/simulate_ab_test.py": 18 * 60.0,
-        "scripts/log_mlflow_experiment_suite.py": 15 * 60.0,
     }
 
 
@@ -367,9 +391,9 @@ def _step_order(run_info: dict) -> list[str]:
     include_notebooks = bool(run_info.get("include_notebooks", True))
     out = []
     for step in BASE_STEP_ORDER:
-        if step == "rapids" and not include_rapids:
+        if step == "research_rapids" and not include_rapids:
             continue
-        if step == "notebooks" and not include_notebooks:
+        if step == "research_notebooks" and not include_notebooks:
             continue
         out.append(step)
     return out
@@ -379,9 +403,12 @@ def _step_estimate_seconds(step: str, run_tag: str, run_dir: Path) -> tuple[floa
     hist = _collect_completed_history(step, exclude_run_tag=run_tag)
     if hist:
         return float(statistics.median(hist)), f"hist n={len(hist)}"
-    if step == "heavy_main":
-        heavy_status = _load_status(run_dir, "heavy_main")
-        sub = _estimate_heavy_subphases(run_dir, heavy_status)
+    if step == "paper2_survival":
+        survival_status = _load_status(run_dir, "paper2_survival")
+        return _estimate_survival_seconds(run_dir, survival_status), "heuristic(survival)"
+    if step == "core_portfolio":
+        portfolio_status = _load_status(run_dir, "core_portfolio")
+        sub = _estimate_portfolio_subphases(run_dir, portfolio_status)
         return float(sum(sub.values())), "heuristic(subphase)"
     return float(STEP_DEFAULTS_SECONDS.get(step, 3600.0)), "heuristic(default)"
 
@@ -396,10 +423,10 @@ def _remaining_current_step_seconds(
     subphase_elapsed_s: float | None,
 ) -> tuple[float, float, str]:
     # Returns low/high remaining seconds and source string.
-    if step == "heavy_main":
-        heavy_status = _load_status(run_dir, "heavy_main")
-        sub = _estimate_heavy_subphases(run_dir, heavy_status)
-        order = STEP_SUBPHASES["heavy_main"]
+    if step == "core_portfolio":
+        portfolio_status = _load_status(run_dir, "core_portfolio")
+        sub = _estimate_portfolio_subphases(run_dir, portfolio_status)
+        order = STEP_SUBPHASES["core_portfolio"]
         if active_subphase and active_subphase in order:
             idx = order.index(active_subphase)
             rem_est = 0.0
@@ -415,6 +442,11 @@ def _remaining_current_step_seconds(
         step_est, source = _step_estimate_seconds(step, run_tag, run_dir)
         rem = max(0.0, step_est - step_elapsed_s)
         return rem * 0.7, rem * 1.4, source
+
+    if step == "paper2_survival":
+        step_est, source = _step_estimate_seconds(step, run_tag, run_dir)
+        rem = max(0.0, step_est - step_elapsed_s)
+        return rem * 0.7, rem * 1.35, source
 
     step_est, source = _step_estimate_seconds(step, run_tag, run_dir)
     rem = max(0.0, step_est - step_elapsed_s)

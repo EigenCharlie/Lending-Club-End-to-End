@@ -52,19 +52,19 @@ def test_each_registered_concept_is_used_by_at_least_one_page() -> None:
 
 def test_critical_gaps_have_explicit_page_targets() -> None:
     expected_min_targets = {
-        "aleatoric": {"executive_summary", "uncertainty_quantification"},
-        "epistemic": {"executive_summary", "uncertainty_quantification"},
-        "confidence_interval": {"ab_testing_simulation", "paper_2_ifrs9_e2e"},
-        "prediction_interval": {"uncertainty_quantification", "ifrs9_provisions"},
-        "mcar_mar_mnar": {"data_architecture", "feature_engineering"},
-        "nested_cv": {"model_laboratory", "research_landscape"},
-        "class_imbalance": {"model_laboratory", "research_landscape"},
-        "extrapolation": {"portfolio_optimizer", "paper_1_cp_robust_opt"},
+        "aleatoric": {"model_laboratory"},
+        "epistemic": {"model_laboratory"},
+        "confidence_interval": {"portfolio_optimizer", "causal_intelligence"},
+        "prediction_interval": {"model_laboratory", "portfolio_optimizer"},
+        "mcar_mar_mnar": {"data_story"},
+        "nested_cv": {"model_laboratory"},
+        "class_imbalance": {"model_laboratory", "data_story"},
+        "extrapolation": {"portfolio_optimizer", "causal_intelligence"},
         "convex_hull": {"portfolio_optimizer"},
-        "optimizer_curse": {"model_laboratory", "tech_stack", "research_landscape"},
-        "no_free_lunch": {"thesis_defense", "gpu_benchmark", "tech_stack"},
-        "c2st": {"model_governance"},
-        "concept_drift": {"model_governance"},
+        "optimizer_curse": {"model_laboratory"},
+        "no_free_lunch": {"portfolio_optimizer", "causal_intelligence"},
+        "c2st": {"model_interpretability"},
+        "concept_drift": {"model_interpretability"},
     }
     for concept_key, expected_pages in expected_min_targets.items():
         pages_for_key = {
@@ -76,11 +76,10 @@ def test_critical_gaps_have_explicit_page_targets() -> None:
         assert not missing, f"Concept `{concept_key}` is missing expected page targets: {missing}"
 
 
-def test_glossary_page_is_master_index_for_all_concepts() -> None:
-    glossary_keys = set(PAGE_CONCEPT_MAP.get("glossary_fundamentals", ()))
-    assert glossary_keys == set(CONCEPT_REGISTRY), (
-        "glossary_fundamentals should expose every concept in CONCEPT_REGISTRY"
-    )
+def test_active_surface_keeps_concept_traceability_dense() -> None:
+    assert len(PAGE_CONCEPT_MAP) == 5
+    for page_id, keys in PAGE_CONCEPT_MAP.items():
+        assert len(keys) >= 3, f"{page_id} should retain at least 3 core concepts"
 
 
 def test_concept_index_rows_are_traceable() -> None:

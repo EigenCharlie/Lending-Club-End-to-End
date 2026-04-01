@@ -275,9 +275,9 @@ def _plotly_model_auc_figure(
     return fig
 
 
-st.title("🔬 Laboratorio de Modelos")
+st.title("🧪 PD & Uncertainty Lab")
 st.caption(
-    "Comparación de modelos PD y calibración; la interpretabilidad detallada vive en su página dedicada."
+    "Companion interactivo para comparar modelos PD, calibración, cobertura y trade-offs de incertidumbre."
 )
 page_contract = get_page_contract("model_laboratory")
 render_page_header(page_contract)

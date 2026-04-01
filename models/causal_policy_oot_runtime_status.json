@@ -1,0 +1,9 @@
+{
+  "stage_name": "causal_policy_oot",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T19:27:27.888091+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "status_path": "models/causal_policy_oot_status.json",
+  "n_months_evaluated": 106
+}

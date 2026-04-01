@@ -8,6 +8,7 @@ import types
 
 import numpy as np
 import pandas as pd
+import pytest
 
 from scripts import train_pd_model as train_mod
 from src.utils.io_utils import load_pickle_compat
@@ -187,6 +188,43 @@ def test_apply_training_regime_full_weighted_emits_recency_weights() -> None:
     assert "_recency_weight" in out.columns
     assert float(out["_recency_weight"].iloc[-1]) >= float(out["_recency_weight"].iloc[0])
     assert meta["mode"] == "full_weighted"
+
+
+def test_validate_pd_config_requires_output_section() -> None:
+    with pytest.raises(ValueError, match="missing required sections"):
+        train_mod.validate_pd_config(
+            {
+                "feature_source": {},
+                "data": {
+                    "train_path": "data/processed/train_fe.parquet",
+                    "test_path": "data/processed/test_fe.parquet",
+                    "calibration_path": "data/processed/calibration_fe.parquet",
+                },
+                "hpo": {},
+                "validation": {},
+            },
+            config_path="configs/bad.yaml",
+        )
+
+
+def test_validate_pd_config_injects_safe_output_defaults() -> None:
+    cfg = train_mod.validate_pd_config(
+        {
+            "output": {},
+            "feature_source": {},
+            "data": {
+                "train_path": "data/processed/train_fe.parquet",
+                "test_path": "data/processed/test_fe.parquet",
+                "calibration_path": "data/processed/calibration_fe.parquet",
+            },
+            "hpo": {},
+            "validation": {},
+        },
+        config_path="configs/good.yaml",
+    )
+
+    assert cfg["output"]["status_path"] == "models/pd_training_status.json"
+    assert cfg["output"]["checkpoint_dir"] == "models/pd_training_checkpoints"
 
 
 def test_venn_abers_score_calibrator_outputs_valid_probabilities() -> None:

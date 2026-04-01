@@ -1,0 +1,67 @@
+## Discusion {#sec-p3-discussion}
+
+El Paper 3 aporta una pieza metodologica importante a toda la agenda del proyecto: sin cobertura por grupo razonablemente estable, la conexion con IFRS9, optimizacion o gobernanza se vuelve mas fragil.
+
+### Trade-off entre cobertura y anchura {#sec-p3-tradeoff}
+
+Los resultados revelan un trade-off inherente al procedimiento Mondrian que merece atencion explicita. Al calibrar los cuantiles de no-conformidad de forma independiente por grupo, Mondrian asegura que cada grade alcanza la cobertura objetivo $1 - \alpha$, pero lo hace ajustando la anchura de los intervalos de forma heterogenea. En los grades de alto riesgo (F, G), donde la variabilidad de la PD es mayor y las predicciones del modelo son menos precisas, los intervalos Mondrian son sustancialmente mas anchos que los globales. Esto no es un defecto sino una virtud del metodo: refleja honestamente la mayor incertidumbre del modelo en esos segmentos. Un intervalo global que fuera mas estrecho en esos grades estaria subrepresentando la incertidumbre real, lo cual conduciria a decisiones falsamente confiadas en los tramos del portafolio donde el error es mas costoso.
+
+Desde una perspectiva de decision, la anchura diferencial por grupo tiene implicaciones operativas concretas. En el Paper Estrella (@sec-estrella-intro), los intervalos mas anchos en grades de alto riesgo se traducen en conjuntos de incertidumbre mas grandes para la optimizacion robusta, lo cual reduce la asignacion a esos segmentos. En el Paper 2 (@sec-p2-intro), la misma anchura funciona como senal SICR conformal: los prestamos en grades de alto riesgo tendran, sistematicamente, mayor probabilidad de activar el trigger conformal, lo cual es consistente con la logica prudencial de IFRS 9.
+
+### Beneficio diferencial por grade {#sec-p3-grade-benefit}
+
+No todos los grades se benefician por igual del procedimiento Mondrian, y esta heterogeneidad es precisamente lo que justifica el metodo. El analisis desagregado muestra que los grades de alto riesgo (G, F) son los principales beneficiarios: sin Mondrian, la cobertura global puede estar por encima del 90% mientras la cobertura especifica de estos grades cae significativamente por debajo del objetivo. Mondrian corrige esta subcobertura al dedicar calibracion especifica a cada grupo.
+
+Para dimensionar la magnitud del problema, considerese el contraste entre global split y Mondrian en los extremos del espectro de riesgo. Con split conformal global, el Grade G --- el segmento mas riesgoso, con tasas de default que superan el 40% --- puede quedar con cobertura cercana al 60%, lo cual significa que 4 de cada 10 intervalos fallan en contener la PD verdadera. Para un regulador que evalua la calidad de las provisiones IFRS 9, esto es inaceptable: las provisiones calculadas con intervalos que fallan sistematicamente en los prestamos mas riesgosos subestimarian el riesgo del portafolio exactamente donde mas importa. Mondrian corrige esto elevando la cobertura de esos grades por encima del 89%, pero lo hace a un costo: los intervalos son mas anchos en esos segmentos, reflejando honestamente que el modelo tiene mayor incertidumbre donde la variabilidad de la PD es mayor. Este "costo" es, en realidad, informacion util: le dice al gestor que los prestamos Grade G requieren mas colchon de provision, lo cual es exactamente la senal prudencial correcta.
+
+En contraste, los grades de bajo riesgo (A, B) experimentan una mejora marginal o incluso nula, dado que la cobertura global ya les es favorable. En estos segmentos, la homogeneidad de los prestatarios y la precision del modelo hacen que los intervalos globales sean naturalmente estrechos y bien calibrados. El valor de Mondrian en estos grades no esta en la mejora de cobertura sino en la *garantia formal* de que la cobertura se mantendra incluso si la composicion del portafolio cambia. En un escenario donde la proporcion de prestamos de alto riesgo disminuye (por ejemplo, por endurecimiento de politicas de originacion), los intervalos globales podrian sobre-calibrarse en los grades de bajo riesgo a expensas de los de alto riesgo; Mondrian previene este efecto de subsidio cruzado.
+
+### Conclusiones
+
+1. Mondrian conformal mejora de forma material la utilidad de la garantia en segmentos de credito, especialmente en los grades de alto riesgo donde la incertidumbre es mayor y las decisiones mas sensibles.
+2. La cobertura global del sistema es buena, pero su defensa depende de exponer abiertamente las alertas estadisticas remanentes, particularmente en el grade G donde el tamano de muestra de calibracion es menor.
+3. El enfoque ya es suficientemente reproducible para un paper aplicado con valor propio, y su conexion directa con los otros dos papers de la agenda refuerza su relevancia.
+
+### Amenazas a la validez {#sec-p3-threats}
+
+Las amenazas a la validez del Paper 3 deben ser analizadas en tres dimensiones:
+
+- **Intercambiabilidad**: la garantia conformal asume que los datos de calibracion y test son intercambiables. En la practica, la ventana de calibracion (2017) y la ventana de test (2018--2020) pueden exhibir distribution shift temporal que viole este supuesto. La evidencia de estabilidad temporal presentada en los resultados (@sec-p3-results) mitiga parcialmente esta preocupacion, pero no la elimina formalmente.
+- **Estacionariedad**: la asignacion de grades por parte de Lending Club puede haber cambiado a lo largo del periodo de estudio, lo cual implicaria que el "grade A" de 2017 no es estrictamente comparable con el "grade A" de 2019. Si la politica de asignacion se endurece o relaja, la interpretacion de la cobertura por grade se complica.
+- **Optimalidad de la particion**: la eleccion del grade como variable de particion es interpretable y operativamente natural, pero no necesariamente optima en terminos de eficiencia estadistica. Particiones mas finas (por ejemplo, sub-grade) o multidimensionales (grade x region geografica) podrian mejorar la cobertura condicional al costo de reducir el tamano de muestra de calibracion por grupo. La exploracion sistematica de particiones alternativas queda como trabajo futuro.
+
+### Threats to validity
+
+- la particion por `grade` es fuerte en interpretacion, pero no necesariamente optima en eficiencia;
+- la estabilidad temporal deberia evaluarse con ventanas mas largas y reglas de recalibracion mas explicitas;
+- faltan mas comparadores recientes de cobertura aproximadamente condicional.
+
+### Implicaciones operativas {#sec-p3-operational}
+
+Desde la perspectiva de un equipo de riesgo que monitorea modelos en produccion, los resultados del Paper 3 sugieren tres acciones concretas. Primero, implementar alertas de cobertura por subgrupo que se disparen cuando la cobertura empirica de algun grade caiga por debajo de un umbral predefinido (por ejemplo, $1 - \alpha - 0.05$). Estas alertas complementan el monitoreo de discriminacion global (AUC, Gini) con una dimension de calibracion por segmento que es especialmente relevante para IFRS 9.
+
+Segundo, establecer un protocolo de recalibracion que se active cuando las alertas persistan durante un periodo definido (por ejemplo, dos trimestres consecutivos). La recalibracion Mondrian es computacionalmente eficiente --- solo requiere recalcular los cuantiles de no-conformidad sobre un conjunto de calibracion actualizado --- y no necesita re-entrenar el modelo base, lo cual reduce el riesgo operativo.
+
+Tercero, documentar y auditar la particion Mondrian como parte del marco de validacion de modelos (MRM). La eleccion de la variable de particion, el tamano de muestra por grupo y la evidencia de cobertura por subgrupo deben formar parte del expediente de validacion del modelo, junto con las metricas de discriminacion y calibracion tradicionales.
+
+### Trabajo futuro {#sec-p3-future}
+
+Las direcciones futuras mas prometedoras para extender el Paper 3 incluyen las siguientes:
+
+- **Mondrian adaptativo**: combinar la particion por grade con conformal prediction adaptativa [@gibbs2021aci] para ajustar los intervalos ante distribution shift temporal sin necesidad de recalibrar sobre un nuevo conjunto fijo. Esto seria particularmente valioso en entornos de crisis donde la estacionariedad se rompe dentro de un mismo trimestre.
+- **Recalibracion online**: implementar un esquema de recalibracion rolling donde los cuantiles de no-conformidad se actualizan con cada nueva observacion, manteniendo la garantia Mondrian de forma continua. Este enfoque conectaria con la literatura de online conformal prediction [@liu2026portfolio] y permitiria un despliegue productivo genuino.
+- **Particiones multi-atributo**: explorar particiones basadas en multiples atributos simultaneamente --- por ejemplo, grade y region geografica, o grade y proposito del prestamo --- utilizando tecnicas como *Kandinsky conformal* [@bairaktari2025] para evitar la explosion combinatoria del tamano de muestra por grupo.
+- **Comparacion con garantias condicionales mas fuertes**: evaluar el enfoque Mondrian frente a metodos que buscan cobertura condicional mas fuerte [@gibbs2024; @plassier2024], cuantificando el trade-off entre la fuerza de la garantia y la practicabilidad en un contexto de credito con datos limitados por grupo.
+
+### Reproducibility appendix
+
+La evidencia del paper se ancla en:
+
+- `models/conformal_policy_status.json`
+- `data/processed/conformal_variant_selection_report.parquet`
+- artefactos de backtesting y monitoreo conformal del proyecto
+- `docs/PAPER_REFERENCES_STATE_OF_ART.md`
+
+### Conclusion {#sec-p3-conclusion}
+
+El valor final del paper es doble: produce una contribucion autonoma sobre cobertura por subgrupo en credito y, al mismo tiempo, sostiene metodologicamente los otros dos papers de la agenda. La demostracion de que Mondrian conformal mejora materialmente la cobertura en los segmentos de mayor riesgo --- precisamente donde la incertidumbre tiene mayor impacto economico --- establece una base solida para las aplicaciones downstream en optimizacion robusta y provisiones IFRS 9. La agenda futura de particiones adaptativas y recalibracion online promete extender estos resultados a entornos productivos genuinos, cerrando la brecha entre la garantia teorica y la operacion bancaria real.

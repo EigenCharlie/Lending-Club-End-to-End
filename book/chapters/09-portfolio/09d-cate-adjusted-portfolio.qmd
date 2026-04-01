@@ -1,0 +1,108 @@
+## Portafolio Ajustado por CATE {#sec-cate-portfolio}
+
+El portafolio determinístico y el robusto utilizan retornos esperados basados unicamente en la tasa de interes y la perdida esperada. La inferencia causal (@sec-causal-inference) estima el **efecto heterogeneo del tratamiento** (CATE) para cada prestamo, pero en la version oficial reciente esa señal se usa como **stress test económico research-grade**, no como capa promotable del champion optimizer. Esta seccion describe cómo se evalúa esa integración y por qué hoy se reporta de forma prudente.
+
+### Integracion del CATE en el retorno
+
+Sea $\tau_i$ el CATE estimado para el prestamo $i$, que representa el efecto causal diferencial de la politica de aprobacion sobre la probabilidad de repago. El retorno ajustado es:
+
+$$
+\text{Retorno}_i^{\text{CATE}} = r_i - \widehat{PD}_i \cdot LGD_i + \delta \cdot \tau_i
+$$ {#eq-cate-return}
+
+donde $\delta$ es un factor de escala local. Esta aproximación sigue siendo útil como experimento de sensibilidad, pero no debe leerse como un contrafactual estructural exacto. Por eso el portafolio CATE-ajustado del proyecto quedó formalmente reubicado como `stress_test`, condicionado a que la policy causal pase primero sus propios gates.
+
+### Alineacion de CATE al set OOT
+
+Un desafio tecnico importante es que los estimados CATE se producen originalmente sobre el set de entrenamiento (1.34M prestamos), mientras que la optimizacion opera sobre el set OOT (276K prestamos) con cero solapamiento de IDs. El script `scripts/optimize_cate_portfolio.py` implementa una cascada de estrategias de alineacion:
+
+1. **OOT directo**: si existe `cate_estimates_oot.parquet`, se hace join por `id`.
+2. **Training fallback**: join por `id` con CATE del set de entrenamiento.
+3. **Grade mediana**: para IDs sin match, se imputa la mediana de CATE por grado crediticio.
+4. **Zero-fill**: prestamos restantes reciben CATE = 0 (efecto neutral).
+
+El orden de la cascada no es arbitrario: va de mayor especificidad a mayor seguridad. El OOT directo es la opción más precisa porque usa estimados CATE calculados sobre exactamente los mismos préstamos que se van a optimizar. El training fallback sacrifica precisión temporal (los estimados son de un período anterior) pero mantiene la especificidad individual. La grade mediana sacrifica la especificidad individual pero preserva la señal a nivel de segmento, lo cual es razonable si el efecto causal varía más entre grades que dentro de un mismo grade. Y el zero-fill es el fallback conservador: asumir efecto neutral es preferible a imputar un CATE ruidoso que podría distorsionar la optimización. En la práctica, la mayoría de los préstamos OOT caen en la imputación por grade mediana, dado que los IDs de train y test no se solapan.
+
+### Shrinkage del CATE
+
+Los estimados CATE crudos pueden contener senales ruidosas o valores extremos. Para mitigar esto, se aplica un procedimiento de **shrinkage** antes de la optimizacion:
+
+1. **Winsorization**: se recortan los valores por debajo del percentil 5 y por encima del percentil 95.
+2. **Shrinkage a mediana de segmento**: $\tau_i^{\text{shrunk}} = 0.5 \cdot \tau_i^{\text{clip}} + 0.5 \cdot \tilde{\tau}_{\text{seg}(i)}$, donde $\tilde{\tau}_{\text{seg}(i)}$ es la mediana del CATE en el segmento (grado $\times$ plazo $\times$ verificacion).
+3. **Piso de senal debil**: valores con $|\tau_i^{\text{shrunk}}| < \text{floor}$ se anulan a cero.
+
+### Resultados: lectura prudente
+
+El aprendizaje estable de este capítulo no es un número fijo de uplift, sino la fragilidad de la señal causal cuando se fuerza dentro del optimizador. El carril actual ejecuta ambas versiones, cruda y shrunk, precisamente para cuantificar cuánto depende el resultado de extremos ruidosos. Cuando esa dependencia es alta, la integración causal deja de ser candidata a promoción y se conserva como evidencia negativa útil, no como fracaso metodológico.
+
+### Estado oficial del portafolio causal
+
+La versión reciente del companion dejaba este punto más explícito y conviene fijarlo aquí: el portafolio CATE-ajustado sí existe, sí corre de extremo a extremo y sí tiene artefacto canónico, pero su estado oficial ya no es “promotion candidate”. Si la policy causal no pasa overlap, sensibilidad y policy gates, el portfolio causal queda bloqueado como `research_blocked_by_policy_gate` o `stress_test`. El valor del bloque no está en “promoverlo a toda costa”, sino en mostrar con transparencia dónde la señal causal todavía no supera al champion de portafolio.
+
+```{python}
+#| label: tbl-cate-portfolio-status
+#| tbl-cap: "Estado canónico del portafolio CATE-ajustado"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("cate_portfolio_status", directory="models", default={})
+
+rows = [
+    {"Métrica": "Modo de policy", "Valor": str(status.get("cate_policy_mode", "N/D")), "Lectura": "Estado editorial del carril causal en portafolio."},
+    {"Métrica": "Promotion state", "Valor": str(status.get("promotion_state", "N/D")), "Lectura": "Estado editorial del bloque causal dentro del pipeline."},
+    {"Métrica": "Promotion eligible", "Valor": str(status.get("promotion_eligible", False)), "Lectura": "El carril causal ya no se usa para promover el champion optimizer."},
+    {"Métrica": "Cambio objetivo crudo", "Valor": f"{(status.get('raw_objective_change_pct') or 0):.3f}%", "Lectura": "Mejora aparente antes de shrinkage."},
+    {"Métrica": "Cambio objetivo shrunk", "Valor": f"{(status.get('shrunk_objective_change_pct') or 0):.3f}%", "Lectura": "Lectura prudente usada para decisión final."},
+    {"Métrica": "Alignment strategy", "Valor": str(status.get("alignment_strategy", "N/D")), "Lectura": "Cómo se alineó CATE al universo OOT."},
+    {"Métrica": "Fallback applied", "Valor": str(status.get("fallback_applied", False)), "Lectura": "Se prefirió modo conservador ante señal insuficiente."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-cate-shrinkage-policy
+#| tbl-cap: "Parámetros de shrinkage usados en el portafolio causal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("cate_portfolio_status", directory="models", default={})
+shrink = status.get("cate_shrink", {})
+
+pd.DataFrame(
+    [
+        {"Parámetro": "winsor_p05", "Valor": shrink.get("winsor_p05")},
+        {"Parámetro": "winsor_p95", "Valor": shrink.get("winsor_p95")},
+        {"Parámetro": "weak_signal_floor", "Valor": shrink.get("weak_signal_floor")},
+        {"Parámetro": "shrink_weight_segment_median", "Valor": shrink.get("shrink_weight_segment_median")},
+    ]
+)
+```
+
+::: {.callout-tip}
+## Interpretacion del efecto del shrinkage y del gate causal
+La lectura correcta de esta seccion no es “cuanto uplift exacto produjo CATE”, sino **si la señal causal resiste una integración conservadora**. En el snapshot oficial reciente, el portfolio CATE ya ni siquiera intenta promotion: queda bloqueado por `research_blocked_by_policy_gate` porque la policy causal no superó sensibilidad. Ese resultado es metodológicamente sano. El shrinkage sigue siendo útil para no sobreleer extremos ruidosos, pero el bloqueo final viene de gobernanza causal, no de una simple falta de tuning del optimizador.
+:::
+
+### Criterio de uso downstream
+
+La integración CATE-ajustada solo se evalúa downstream si la policy causal ya pasó sus propios gates de overlap, sensibilidad y consistencia económica. Aun así, el resultado se interpreta como stress test y no como reemplazo automático del champion optimizer.
+
+Si esos gates no se cumplen, la politica queda bloqueada para el optimizador y el artefacto `models/cate_portfolio_status.json` lo registra explícitamente. Esa salida conservadora es una mejora metodológica del proyecto: evita forzar una integración causal cuando la evidencia todavía no la respalda. En ese sentido, el aprendizaje del rerun no fue “causal fracasó”, sino algo más útil: **el carril causal sí aporta insight económico y segmentación, pero todavía no justifica contaminar la selección del champion portfolio**.
+
+::: {.callout-note}
+## Conexion con inferencia causal
+Los estimados CATE provienen de Causal Forests (ver @sec-causal-inference). La calidad de la integracion causal depende directamente de la identificabilidad del efecto y la cobertura del overlap entre tratados y controles. Las limitaciones de la estimacion causal se propagan a la optimizacion de portafolio.
+:::

@@ -1,0 +1,24 @@
+schema_version: "2026-03-31.1"
+profile_name: paper2_e2e_default
+pipeline_family: paper2_e2e
+description: >
+  Perfil derivado para TS + survival + IFRS9/SICR, sin causal, notebooks ni
+  GPU por defecto.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: paper_grade
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: champion64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  survival:
+    full_data: true
+    rsf_n_estimators: 200
+    rsf_max_depth: 12
+    rsf_max_samples: 0.50
+    rsf_min_samples_leaf: 6
+    rsf_sample_size: 500000
+    rsf_n_jobs: 12

@@ -14,13 +14,14 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from streamlit_app.components.dvc_kpi_spine import build_metric_cards
+from streamlit_app.content.companion_surface import ACTIVE_COMPANION_LABS
 from streamlit_app.content.page_contracts import PAGE_CONTRACTS
 from streamlit_app.theme import inject_custom_css
 from streamlit_app.utils import load_dvc_metrics_summary, load_runtime_status
 
 st.set_page_config(
-    page_title="Riesgo de Credito E2E",
-    page_icon="📊",
+    page_title="Lending Club Companion Lab",
+    page_icon="🧪",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -37,170 +38,10 @@ contracts_total = len(PAGE_CONTRACTS)
 # ── Navigation ──
 pg = st.navigation(
     {
-        "Libro y Fundamentos": [
-            st.Page(
-                "pages/executive_summary.py",
-                title="Resumen Ejecutivo",
-                icon=":material/home:",
-                default=True,
-            ),
-            st.Page(
-                "pages/glossary_fundamentals.py",
-                title="Glosario y Fundamentos",
-                icon=":material/menu_book:",
-            ),
-        ],
-        "Pipeline Operativo": [
-            st.Page(
-                "pages/thesis_end_to_end.py",
-                title="Visión End-to-End",
-                icon=":material/explore:",
-            ),
-            st.Page(
-                "pages/data_architecture.py",
-                title="Arquitectura y Linaje de Datos",
-                icon=":material/account_tree:",
-            ),
-            st.Page(
-                "pages/thesis_defense.py",
-                title="Mapa Integrado de Métodos",
-                icon=":material/hub:",
-            ),
-            st.Page(
-                "pages/feature_engineering.py",
-                title="Ingeniería de Features",
-                icon=":material/build:",
-            ),
-            st.Page(
-                "pages/model_laboratory.py",
-                title="Laboratorio de Modelos",
-                icon=":material/science:",
-            ),
-            st.Page(
-                "pages/uncertainty_quantification.py",
-                title="Cuantificación de Incertidumbre",
-                icon=":material/straighten:",
-            ),
-            st.Page(
-                "pages/time_series_outlook.py",
-                title="Panorama Temporal",
-                icon=":material/timeline:",
-            ),
-            st.Page(
-                "pages/survival_analysis.py",
-                title="Análisis de Supervivencia",
-                icon=":material/hourglass_bottom:",
-            ),
-            st.Page(
-                "pages/portfolio_optimizer.py",
-                title="Optimizador de Portafolio",
-                icon=":material/work:",
-            ),
-            st.Page(
-                "pages/ifrs9_provisions.py",
-                title="Provisiones IFRS9",
-                icon=":material/account_balance:",
-            ),
-        ],
-        "Insight Factory": [
-            st.Page(
-                "pages/notebook_evidence.py",
-                title="Atlas de Evidencia",
-                icon=":material/library_books:",
-            ),
-            st.Page(
-                "pages/data_story.py",
-                title="Historia de Datos",
-                icon=":material/bar_chart:",
-            ),
-            st.Page(
-                "pages/model_interpretability.py",
-                title="Explicabilidad e Interpretabilidad",
-                icon=":material/psychology:",
-            ),
-            st.Page(
-                "pages/causal_intelligence.py",
-                title="Inteligencia Causal",
-                icon=":material/genetics:",
-            ),
-            st.Page(
-                "pages/ab_testing_simulation.py",
-                title="Simulación A/B",
-                icon=":material/experiment:",
-            ),
-            st.Page(
-                "pages/chat_with_data.py",
-                title="Chat con Datos",
-                icon=":material/chat:",
-            ),
-            st.Page(
-                "pages/gpu_benchmark.py",
-                title="Benchmark RAPIDS GPU",
-                icon=":material/bolt:",
-            ),
-        ],
-        "Gobernanza y Libro": [
-            st.Page(
-                "pages/model_governance.py",
-                title="Gobernanza del Modelo",
-                icon=":material/shield:",
-            ),
-            st.Page(
-                "pages/roadmap_backlog.py",
-                title="Roadmap y Backlog",
-                icon=":material/checklist:",
-            ),
-            st.Page(
-                "pages/papers_backlog.py",
-                title="Backlog Papers y Quarto",
-                icon=":material/article:",
-            ),
-            st.Page(
-                "pages/tech_stack.py",
-                title="Stack Tecnológico",
-                icon=":material/handyman:",
-            ),
-            st.Page(
-                "pages/tesis_especializacion.py",
-                title="Tesis Especialización",
-                icon=":material/school:",
-            ),
-            st.Page(
-                "pages/thesis_contribution.py",
-                title="Contribución de Tesis",
-                icon=":material/target:",
-            ),
-            st.Page(
-                "pages/research_landscape.py",
-                title="Panorama de Investigación",
-                icon=":material/search:",
-            ),
-            st.Page(
-                "pages/paper_estrella_predict_optimize.py",
-                title="Paper Estrella: Predict-then-Optimize",
-                icon=":material/star:",
-            ),
-            st.Page(
-                "pages/paper_1_cp_robust_opt.py",
-                title="Paper 1: CP + Robust Opt (Draft Hist.)",
-                icon=":material/experiment:",
-            ),
-            st.Page(
-                "pages/paper_2_ifrs9_e2e.py",
-                title="Paper 2: IFRS9 E2E",
-                icon=":material/account_balance:",
-            ),
-            st.Page(
-                "pages/paper_3_mondrian.py",
-                title="Paper 3: Mondrian",
-                icon=":material/straighten:",
-            ),
-            st.Page(
-                "pages/research_best_practices.py",
-                title="Buenas Prácticas y Herramientas",
-                icon=":material/construction:",
-            ),
-        ],
+        "Companion Labs": [
+            st.Page(lab.path, title=lab.title, icon=lab.icon, default=lab.default)
+            for lab in ACTIVE_COMPANION_LABS
+        ]
     }
 )
 
@@ -218,12 +59,12 @@ def _render_sidebar_health() -> None:
 
 with st.sidebar:
     st.caption(
-        f"**Proyecto de Tesis** · Carlos Vergara\n\n"
+        f"**Quarto = source of truth** · Streamlit = companion local opcional\n\n"
         f"1.35M préstamos · 2007-2020\n\n"
-        f"{tests_label} tests · {pages_label} páginas · {contracts_total} contratos\n\n"
-        f"_canonical_rebuild + champion_search + insights_factory_"
+        f"{tests_label} tests · {pages_label} páginas en snapshot · {contracts_total} contratos\n\n"
+        f"_5 labs activos · showcase público congelado_"
     )
-    st.caption("Snapshot canónico (DVC) para lectura rápida")
+    st.caption("Este companion solo conserva exploración interactiva que no vale la pena duplicar en Quarto.")
     if hasattr(st, "fragment"):
 
         @st.fragment

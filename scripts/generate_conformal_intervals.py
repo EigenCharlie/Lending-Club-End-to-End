@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import pickle
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -17,6 +18,7 @@ import pandas as pd
 from catboost import CatBoostClassifier
 from loguru import logger
 
+from src.models.calibration import load_probability_calibrator
 from src.models.conformal import (
     build_mondrian_partition_labels,
     conditional_coverage_by_group,
@@ -45,7 +47,8 @@ from src.models.pd_contract import (
     resolve_model_path,
 )
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
-from src.utils.io_utils import load_pickle_compat, read_with_fallback
+from src.utils.io_utils import read_with_fallback
+from src.utils.replay_manifest import load_replay_manifest, manifest_section
 
 TARGET_COL = "default_flag"
 GROUP_COL = "grade"
@@ -75,6 +78,38 @@ def _resolve_artifact_paths(namespace: str | None = None) -> dict[str, Path]:
         "results": models_dir / "conformal_results_mondrian.pkl",
         "width_attr_status": models_dir / "pd_conformal_width_attribution_status.json",
     }
+
+
+def _copy_replay_artifact(source: Path, target: Path, *, run_tag: str) -> None:
+    if source.suffix.lower() == ".json":
+        payload = json.loads(source.read_text(encoding="utf-8"))
+        if isinstance(payload, dict):
+            payload["run_tag"] = run_tag
+            payload["generated_at_utc"] = build_artifact_metadata(
+                schema_version=str(payload.get("schema_version", "2026-03-26.1")),
+                run_tag=run_tag,
+            )["generated_at_utc"]
+            target.write_text(
+                json.dumps(payload, indent=2, ensure_ascii=False) + "\n",
+                encoding="utf-8",
+            )
+            return
+    shutil.copy2(source, target)
+
+
+def _restore_replay_namespace(source_namespace: str) -> None:
+    source_paths = _resolve_artifact_paths(source_namespace)
+    target_paths = _resolve_artifact_paths(None)
+    run_tag = resolve_run_tag(require_explicit=True)
+    for key, source in source_paths.items():
+        if key in {"data_dir", "models_dir"}:
+            continue
+        target = target_paths[key]
+        if not source.exists():
+            raise FileNotFoundError(f"Missing conformal replay source artifact: {source}")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        _copy_replay_artifact(source, target, run_tag=run_tag)
+    logger.info("Restored blessed conformal artifacts from namespace {}", source_namespace)
 
 
 def _stage_metrics(
@@ -127,14 +162,16 @@ def _load_model() -> tuple[CatBoostClassifier, Path]:
     return model, model_path
 
 
-def _load_calibrator() -> Any | None:
-    """Load canonical calibrator (with fallback candidates)."""
-    cal_path = resolve_calibrator_path()
+def _load_calibrator(calibrator_override_path: str | None = None) -> Any | None:
+    """Load canonical or shadow calibrator."""
+    cal_path = (
+        Path(calibrator_override_path) if calibrator_override_path else resolve_calibrator_path()
+    )
     if cal_path is None:
         logger.warning("No calibrator found. Using raw probabilities.")
         return None
-    calibrator = load_pickle_compat(cal_path)
-    logger.info(f"Loaded calibrator: {type(calibrator).__name__}")
+    calibrator = load_probability_calibrator(str(cal_path))
+    logger.info(f"Loaded calibrator: {type(calibrator).__name__} ({cal_path})")
     return calibrator
 
 
@@ -249,18 +286,33 @@ def main(
     global_rebalance_max_factor: float = 1.05,
     global_rebalance_step: float = 0.01,
     partition: str = "grade",
+    partition_candidates: tuple[str, ...] | None = None,
     group_coverage_floor_enabled: bool = True,
     shrinkback_enabled: bool = False,
     group_multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
     temporal_multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
     artifact_namespace: str | None = None,
     scaled_scores_options: tuple[bool, ...] = (True, False),
+    mode: str = "search",
+    replay_manifest_path: str | None = None,
+    calibrator_override_path: str | None = None,
 ):
     logger.info("Starting Mondrian conformal interval generation with 90% auto-tuning")
+    run_mode = str(mode or "search").strip().lower() or "search"
+    replay_cfg = manifest_section(load_replay_manifest(replay_manifest_path), "conformal")
+    if run_mode == "replay":
+        source_namespace = str(replay_cfg.get("source_namespace", "")).strip()
+        replay_mode = str(replay_cfg.get("replay_mode", "")).strip().lower()
+        if replay_mode != "restore_blessed_namespace" or not source_namespace:
+            raise ValueError(
+                "Conformal replay requires source_namespace + restore_blessed_namespace."
+            )
+        _restore_replay_namespace(source_namespace)
+        return
 
     # Load artifacts and data.
     model, model_path = _load_model()
-    calibrator = _load_calibrator()
+    calibrator = _load_calibrator(calibrator_override_path)
     cal_df = read_with_fallback(
         "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
     )
@@ -279,18 +331,9 @@ def main(
     group_test_base = test_df[GROUP_COL].fillna("UNKNOWN").astype(str)
     y_prob_cal_raw = model.predict_proba(X_cal)[:, 1]
     y_prob_test_raw = model.predict_proba(X_test)[:, 1]
-    group_cal, group_test, partition_meta = build_mondrian_partition_labels(
-        y_prob_cal=y_prob_cal_raw,
-        y_prob_eval=y_prob_test_raw,
-        partition=partition,
-        base_groups_cal=group_cal_base,
-        base_groups_eval=group_test_base,
-        n_score_bins=10,
-        min_group_size=min(min_group_sizes) if min_group_sizes else 500,
-    )
     idx_cal_fit, idx_cal_tune = split_calibration_for_tuning(
         y_cal=y_cal,
-        group_cal=group_cal,
+        group_cal=group_cal_base,
         issue_dates=cal_df.get("issue_d"),
         holdout_ratio=tuning_holdout_ratio,
         random_state=tuning_random_state,
@@ -300,10 +343,12 @@ def main(
 
     X_cal_fit = X_cal.iloc[idx_cal_fit].reset_index(drop=True)
     y_cal_fit = y_cal.iloc[idx_cal_fit].reset_index(drop=True)
-    group_cal_fit = group_cal.iloc[idx_cal_fit].reset_index(drop=True)
     X_tune = X_cal.iloc[idx_cal_tune].reset_index(drop=True)
     y_tune = y_cal.iloc[idx_cal_tune].reset_index(drop=True)
-    group_tune = group_cal.iloc[idx_cal_tune].reset_index(drop=True)
+    y_prob_cal_fit = y_prob_cal_raw[idx_cal_fit]
+    y_prob_cal_tune = y_prob_cal_raw[idx_cal_tune]
+    group_cal_fit_base = group_cal_base.iloc[idx_cal_fit].reset_index(drop=True)
+    group_tune_base = group_cal_base.iloc[idx_cal_tune].reset_index(drop=True)
     issue_cal = (
         pd.to_datetime(cal_df.get("issue_d"), errors="coerce")
         if "issue_d" in cal_df.columns
@@ -336,62 +381,91 @@ def main(
         float(min_group_coverage_target),
         float(group_coverage_floor_target_90),
     )
+    partition_candidates = tuple(
+        dict.fromkeys(
+            [
+                str(token).strip()
+                for token in (partition_candidates or (partition,))
+                if str(token).strip()
+            ]
+        )
+    ) or (str(partition).strip() or "grade",)
     tuning_rows: list[dict[str, Any]] = []
 
-    # Tune 90% interval config.
-    for alpha_used in alpha_candidates_90:
-        for scaled_scores in tuple(bool(x) for x in scaled_scores_options):
-            for min_group_size in min_group_sizes:
-                y_pred, y_int, _diag = create_pd_intervals_mondrian(
-                    classifier=model,
-                    X_cal=X_cal_fit,
-                    y_cal=y_cal_fit,
-                    X_test=X_tune,
-                    group_cal=group_cal_fit,
-                    group_test=group_tune,
-                    alpha=alpha_used,
-                    min_group_size=min_group_size,
-                    calibrator=calibrator,
-                    scaled_scores=scaled_scores,
-                )
+    # Tune 90% interval config across candidate Mondrian partitions.
+    for partition_candidate in partition_candidates:
+        for alpha_used in alpha_candidates_90:
+            for scaled_scores in tuple(bool(x) for x in scaled_scores_options):
+                for min_group_size in min_group_sizes:
+                    group_cal_fit, group_tune, partition_meta_candidate = (
+                        build_mondrian_partition_labels(
+                            y_prob_cal=y_prob_cal_fit,
+                            y_prob_eval=y_prob_cal_tune,
+                            partition=partition_candidate,
+                            base_groups_cal=group_cal_fit_base,
+                            base_groups_eval=group_tune_base,
+                            n_score_bins=10,
+                            min_group_size=min_group_size,
+                        )
+                    )
+                    y_pred, y_int, _diag = create_pd_intervals_mondrian(
+                        classifier=model,
+                        X_cal=X_cal_fit,
+                        y_cal=y_cal_fit,
+                        X_test=X_tune,
+                        group_cal=group_cal_fit,
+                        group_test=group_tune,
+                        alpha=alpha_used,
+                        min_group_size=min_group_size,
+                        calibrator=calibrator,
+                        scaled_scores=scaled_scores,
+                    )
 
-                metrics = validate_coverage(y_tune.to_numpy(dtype=float), y_int, alpha_target_90)
-                g_metrics = conditional_coverage_by_group(
-                    y_tune.to_numpy(dtype=float), y_int, group_tune
-                )
-                temporal_metrics = temporal_stability_summary(
-                    y_tune.to_numpy(dtype=float),
-                    y_int,
-                    issue_tune,
-                    target_coverage=target_coverage_90,
-                    freq="M",
-                )
+                    metrics = validate_coverage(
+                        y_tune.to_numpy(dtype=float), y_int, alpha_target_90
+                    )
+                    g_metrics = conditional_coverage_by_group(
+                        y_tune.to_numpy(dtype=float), y_int, group_tune
+                    )
+                    temporal_metrics = temporal_stability_summary(
+                        y_tune.to_numpy(dtype=float),
+                        y_int,
+                        issue_tune,
+                        target_coverage=target_coverage_90,
+                        freq="M",
+                    )
 
-                tuning_rows.append(
-                    {
-                        "alpha_target_90": alpha_target_90,
-                        "alpha_used_90": alpha_used,
-                        "scaled_scores": bool(scaled_scores),
-                        "min_group_size": int(min_group_size),
-                        "empirical_coverage": float(metrics["empirical_coverage"]),
-                        "target_coverage": float(metrics["target_coverage"]),
-                        "coverage_gap": float(metrics["coverage_gap"]),
-                        "avg_interval_width": float(metrics["avg_interval_width"]),
-                        "median_interval_width": float(metrics["median_interval_width"]),
-                        "min_group_coverage": float(g_metrics["coverage"].min()),
-                        "max_group_coverage": float(g_metrics["coverage"].max()),
-                        "std_group_coverage": float(g_metrics["coverage"].std(ddof=0)),
-                        "winkler_90": float(
-                            mean_winkler_score(
-                                y_tune.to_numpy(dtype=float),
-                                y_int,
-                                alpha=alpha_target_90,
-                            )
-                        ),
-                        "max_monthly_gap": float(temporal_metrics["max_monthly_gap"]),
-                        "stability_over_time": float(temporal_metrics["stability_over_time"]),
-                    }
-                )
+                    tuning_rows.append(
+                        {
+                            "partition": str(
+                                partition_meta_candidate.get("partition", partition_candidate)
+                            ),
+                            "fallback_groups_n": int(
+                                len(partition_meta_candidate.get("fallback_groups", []))
+                            ),
+                            "alpha_target_90": alpha_target_90,
+                            "alpha_used_90": alpha_used,
+                            "scaled_scores": bool(scaled_scores),
+                            "min_group_size": int(min_group_size),
+                            "empirical_coverage": float(metrics["empirical_coverage"]),
+                            "target_coverage": float(metrics["target_coverage"]),
+                            "coverage_gap": float(metrics["coverage_gap"]),
+                            "avg_interval_width": float(metrics["avg_interval_width"]),
+                            "median_interval_width": float(metrics["median_interval_width"]),
+                            "min_group_coverage": float(g_metrics["coverage"].min()),
+                            "max_group_coverage": float(g_metrics["coverage"].max()),
+                            "std_group_coverage": float(g_metrics["coverage"].std(ddof=0)),
+                            "winkler_90": float(
+                                mean_winkler_score(
+                                    y_tune.to_numpy(dtype=float),
+                                    y_int,
+                                    alpha=alpha_target_90,
+                                )
+                            ),
+                            "max_monthly_gap": float(temporal_metrics["max_monthly_gap"]),
+                            "stability_over_time": float(temporal_metrics["stability_over_time"]),
+                        }
+                    )
 
     tuning_df = pd.DataFrame(tuning_rows)
     tuning_df["is_pareto"] = mark_pareto_front(tuning_df)
@@ -414,11 +488,12 @@ def main(
         min_group_guardband=min_group_guardband_90,
     )
     best_cfg = {
+        "partition": str(best_row.get("partition", partition_candidates[0])),
+        "partition_candidates": list(partition_candidates),
         "alpha_target_90": float(alpha_target_90),
         "alpha_used_90": float(best_row["alpha_used_90"]),
         "scaled_scores": bool(best_row["scaled_scores"]),
         "min_group_size": int(best_row["min_group_size"]),
-        "partition": str(partition_meta.get("partition", partition)),
         "min_group_coverage_target": float(min_group_coverage_target),
         "group_coverage_floor_target_90": float(group_coverage_floor_target_90),
         "coverage_guardband_90": float(coverage_guardband_90),
@@ -428,12 +503,32 @@ def main(
     }
     logger.info(
         "Best 90% tuning config: "
+        f"partition={best_cfg['partition']}, "
         f"alpha_used={best_cfg['alpha_used_90']}, scaled_scores={best_cfg['scaled_scores']}, "
         f"min_group_size={best_cfg['min_group_size']}, "
         f"coverage={best_row['empirical_coverage']:.4f}, "
         f"min_group_coverage={best_row['min_group_coverage']:.4f}, "
         f"width={best_row['avg_interval_width']:.4f}, "
         f"tier={selection_tier}"
+    )
+
+    group_cal_fit, group_test, partition_meta = build_mondrian_partition_labels(
+        y_prob_cal=y_prob_cal_fit,
+        y_prob_eval=y_prob_test_raw,
+        partition=best_cfg["partition"],
+        base_groups_cal=group_cal_fit_base,
+        base_groups_eval=group_test_base,
+        n_score_bins=10,
+        min_group_size=best_cfg["min_group_size"],
+    )
+    group_cal_fit_holdout, group_tune, _ = build_mondrian_partition_labels(
+        y_prob_cal=y_prob_cal_fit,
+        y_prob_eval=y_prob_cal_tune,
+        partition=best_cfg["partition"],
+        base_groups_cal=group_cal_fit_base,
+        base_groups_eval=group_tune_base,
+        n_score_bins=10,
+        min_group_size=best_cfg["min_group_size"],
     )
 
     # Final 90% intervals with tuned config.
@@ -472,7 +567,7 @@ def main(
         X_cal=X_cal_fit,
         y_cal=y_cal_fit,
         X_test=X_tune,
-        group_cal=group_cal_fit,
+        group_cal=group_cal_fit_holdout,
         group_test=group_tune,
         alpha=best_cfg["alpha_used_90"],
         min_group_size=best_cfg["min_group_size"],
@@ -908,6 +1003,7 @@ def main(
 
     payload = {
         "model_path": str(model_path),
+        "calibrator_override_path": str(calibrator_override_path or ""),
         "metrics_90": {k: to_python_scalar(v) for k, v in metrics_90.items()},
         "metrics_95": {k: to_python_scalar(v) for k, v in metrics_95.items()},
         "diag_90": diag_90,
@@ -1034,7 +1130,11 @@ if __name__ == "__main__":
     parser.add_argument("--global_rebalance_max_factor", type=float, default=1.05)
     parser.add_argument("--global_rebalance_step", type=float, default=0.01)
     parser.add_argument("--partition", default="grade")
+    parser.add_argument("--partition_candidates", default=None)
     parser.add_argument("--artifact_namespace", default=None)
+    parser.add_argument("--calibrator_override_path", default=None)
+    parser.add_argument("--mode", choices=["search", "replay"], default="search")
+    parser.add_argument("--replay_manifest", default=None)
     args = parser.parse_args()
     main(
         alpha_target_90=args.alpha_target_90,
@@ -1060,10 +1160,22 @@ if __name__ == "__main__":
         global_rebalance_max_factor=args.global_rebalance_max_factor,
         global_rebalance_step=args.global_rebalance_step,
         partition=args.partition,
+        partition_candidates=(
+            tuple(
+                token.strip()
+                for token in str(args.partition_candidates).split(",")
+                if token.strip()
+            )
+            if args.partition_candidates is not None
+            else None
+        ),
         artifact_namespace=args.artifact_namespace,
+        calibrator_override_path=args.calibrator_override_path,
         scaled_scores_options=tuple(
             token.strip().lower() in {"1", "true", "yes", "y"}
             for token in str(args.scaled_scores_options).split(",")
             if token.strip()
         ),
+        mode=str(args.mode),
+        replay_manifest_path=args.replay_manifest,
     )

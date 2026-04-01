@@ -21,7 +21,7 @@ This file and `docs/PROJECT_JUSTIFICATION.md` contain only **current official de
 The central innovation is a **predict-then-optimize pipeline with conformal prediction**:
 
 ```
-CatBoost PD → Calibration Selection (Platt/Isotonic) → MAPIE Mondrian Conformal → [PD_low, PD_high]
+CatBoost PD → Calibration Selection (Platt/Isotonic/Venn-Abers/Beta) → MAPIE Mondrian Conformal → [PD_low, PD_high]
   → Box Uncertainty Sets → Pyomo Robust Optimization (HiGHS) → Optimal Portfolio
 ```
 
@@ -33,12 +33,12 @@ Why this matters:
 
 ## CURRENT OFFICIAL DECISIONS
 
-- **Serving mode**: Streamlit-first Thesis Mode, with FastAPI/MCP as optional support services.
+- **Serving mode**: Quarto-first publication mode, with a reduced local Streamlit companion for optional interactive analysis and FastAPI/MCP as optional support services.
 - **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model.
 - **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
 - **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
 - **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config.
-- **Calibration policy**: method selected by temporal multi-metric validation policy; resulting method persisted in artifacts. Config files are **templates** with defaults; runtime artifacts are the source of truth.
+- **Calibration policy**: 4 candidates (Platt, Isotonic, Venn-Abers, Beta); method selected by temporal multi-metric validation policy with log-loss + degradation rate tracking per fold. Config files are **templates** with defaults (`method: auto`); runtime artifacts are the source of truth.
 
 Current runtime metrics and winners must be read from artifacts, primarily:
 - `data/processed/model_comparison.json`
@@ -98,7 +98,7 @@ uv run ruff format src/ # Format
 
 ```
 ├── CLAUDE.md               # This file
-├── SESSION_STATE.md         # Current project state & metrics (source of truth)
+├── SESSION_STATE.md         # Current project state snapshot + operating notes
 ├── README.md                # Project overview
 ├── pyproject.toml           # Dependencies
 ├── configs/                 # YAML configurations
@@ -138,7 +138,7 @@ uv run ruff format src/ # Format
 ├── reports/                 # Generated reports & figures
 ├── docs/                    # Technical documentation
 ├── api/                     # FastAPI services (optional in thesis mode)
-└── streamlit_app/           # Primary storytelling dashboard
+└── streamlit_app/           # Reduced local interactive companion (5 labs)
 ```
 
 ### Pipeline Order (scripts)
@@ -217,6 +217,6 @@ Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 - WOE features are computed in NB02 via OptBinning (not pre-existing in raw data)
 - CatBoost handles NaN natively — no imputation needed. LogReg baseline uses fillna(0).
 - LGD modeling only uses defaults (default_flag=1). ~88% null LGD values are expected.
-- Calibration method can change across runs by temporal model-selection policy; check `data/processed/model_comparison.json` for the active winner.
+- Calibration method can change across runs by temporal model-selection policy (4 candidates: Platt, Isotonic, Venn-Abers, Beta); check `data/processed/model_comparison.json` for the active winner.
 - Side projects (RAPIDS GPU benchmark) are in `*/side_projects/` — not part of core thesis.
 - History of decision changes, errors, and learnings lives in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.

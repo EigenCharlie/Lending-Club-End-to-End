@@ -35,6 +35,12 @@ class PageStoryContract:
     required_sections: tuple[str, ...] = ()
     next_pages: tuple[str, ...] = ()
     glossary_terms: tuple[str, ...] = ()
+    retention_decision: str = "drop"
+    interaction_strength: str = "light"
+    quarto_coverage_status: str = "partial"
+    target_surface: str = "quarto"
+    target_quarto_chapter: str = ""
+    target_streamlit_lab: str = ""
 
 
 @dataclass(frozen=True)
@@ -106,7 +112,7 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         business_value="Evita usar probabilidades mal calibradas en pricing, límites e IFRS9.",
         key_decision="Adoptar baseline/challenger y campeón canónico.",
         required_sections=("model_compare", "calibration", "explainability", "caveats"),
-        next_pages=("model_interpretability", "uncertainty_quantification", "model_governance"),
+        next_pages=("model_interpretability", "portfolio_optimizer", "causal_intelligence"),
         glossary_terms=("calibración", "ece", "brier", "ks", "gini", "baseline vs canonical"),
     ),
     "model_interpretability": PageStoryContract(
@@ -122,7 +128,7 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         business_value="Permite explicar drivers, casos individuales y estabilidad del modelo con artefactos canónicos.",
         key_decision="Adoptar un lenguaje común de explicabilidad para operación, auditoría y defensa académica.",
         required_sections=("map", "global", "local", "effects", "stability"),
-        next_pages=("uncertainty_quantification", "model_governance"),
+        next_pages=("model_laboratory", "portfolio_optimizer"),
         glossary_terms=("canónico", "prediction_interval", "concept_drift"),
     ),
     "uncertainty_quantification": PageStoryContract(
@@ -154,7 +160,7 @@ _MANUAL_CONTRACTS: dict[str, PageStoryContract] = {
         business_value="Cuantificar el costo de robustez y el impacto comercial de la política.",
         key_decision="Elegir tolerancia de riesgo y aversión a incertidumbre.",
         required_sections=("kpis", "tradeoff", "frontier", "policy"),
-        next_pages=("ifrs9_provisions", "model_governance"),
+        next_pages=("causal_intelligence", "data_story"),
         glossary_terms=("price of robustness", "conformal", "canónico"),
     ),
     "ifrs9_provisions": PageStoryContract(
@@ -400,6 +406,184 @@ _BOOK_CHAPTER_BY_PAGE: dict[str, str] = {
     "time_series_outlook": "05-survival-time-series-and-causal",
 }
 
+_RETENTION_DECISION_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "drop",
+    "causal_intelligence": "keep_streamlit_only",
+    "chat_with_data": "drop",
+    "data_architecture": "drop",
+    "data_story": "keep_streamlit_only",
+    "executive_summary": "already_in_quarto",
+    "feature_engineering": "drop",
+    "glossary_fundamentals": "already_in_quarto",
+    "gpu_benchmark": "already_in_quarto",
+    "ifrs9_provisions": "drop",
+    "model_governance": "already_in_quarto",
+    "model_interpretability": "keep_streamlit_only",
+    "model_laboratory": "keep_streamlit_only",
+    "notebook_evidence": "drop",
+    "paper_1_cp_robust_opt": "already_in_quarto",
+    "paper_2_ifrs9_e2e": "already_in_quarto",
+    "paper_3_mondrian": "already_in_quarto",
+    "paper_estrella_predict_optimize": "already_in_quarto",
+    "papers_backlog": "drop",
+    "portfolio_optimizer": "keep_streamlit_only",
+    "research_best_practices": "drop",
+    "research_landscape": "already_in_quarto",
+    "roadmap_backlog": "drop",
+    "survival_analysis": "migrate_to_quarto",
+    "tech_stack": "drop",
+    "tesis_especializacion": "already_in_quarto",
+    "thesis_contribution": "already_in_quarto",
+    "thesis_defense": "already_in_quarto",
+    "thesis_end_to_end": "already_in_quarto",
+    "time_series_outlook": "migrate_to_quarto",
+    "uncertainty_quantification": "drop",
+}
+
+_INTERACTION_STRENGTH_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "light",
+    "causal_intelligence": "strong",
+    "chat_with_data": "strong",
+    "data_architecture": "light",
+    "data_story": "strong",
+    "executive_summary": "light",
+    "feature_engineering": "strong",
+    "glossary_fundamentals": "light",
+    "gpu_benchmark": "light",
+    "ifrs9_provisions": "light",
+    "model_governance": "light",
+    "model_interpretability": "strong",
+    "model_laboratory": "strong",
+    "notebook_evidence": "light",
+    "paper_1_cp_robust_opt": "light",
+    "paper_2_ifrs9_e2e": "light",
+    "paper_3_mondrian": "light",
+    "paper_estrella_predict_optimize": "light",
+    "papers_backlog": "light",
+    "portfolio_optimizer": "strong",
+    "research_best_practices": "light",
+    "research_landscape": "light",
+    "roadmap_backlog": "light",
+    "survival_analysis": "light",
+    "tech_stack": "light",
+    "tesis_especializacion": "light",
+    "thesis_contribution": "light",
+    "thesis_defense": "light",
+    "thesis_end_to_end": "light",
+    "time_series_outlook": "light",
+    "uncertainty_quantification": "light",
+}
+
+_QUARTO_COVERAGE_STATUS_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "partial",
+    "causal_intelligence": "partial",
+    "chat_with_data": "none",
+    "data_architecture": "partial",
+    "data_story": "partial",
+    "executive_summary": "full",
+    "feature_engineering": "partial",
+    "glossary_fundamentals": "full",
+    "gpu_benchmark": "full",
+    "ifrs9_provisions": "partial",
+    "model_governance": "partial",
+    "model_interpretability": "partial",
+    "model_laboratory": "partial",
+    "notebook_evidence": "partial",
+    "paper_1_cp_robust_opt": "full",
+    "paper_2_ifrs9_e2e": "full",
+    "paper_3_mondrian": "full",
+    "paper_estrella_predict_optimize": "full",
+    "papers_backlog": "none",
+    "portfolio_optimizer": "partial",
+    "research_best_practices": "none",
+    "research_landscape": "full",
+    "roadmap_backlog": "none",
+    "survival_analysis": "partial",
+    "tech_stack": "none",
+    "tesis_especializacion": "full",
+    "thesis_contribution": "full",
+    "thesis_defense": "full",
+    "thesis_end_to_end": "full",
+    "time_series_outlook": "partial",
+    "uncertainty_quantification": "partial",
+}
+
+_TARGET_SURFACE_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "streamlit_lab",
+    "causal_intelligence": "streamlit_lab",
+    "chat_with_data": "drop",
+    "data_architecture": "streamlit_lab",
+    "data_story": "streamlit_lab",
+    "executive_summary": "quarto",
+    "feature_engineering": "streamlit_lab",
+    "glossary_fundamentals": "quarto",
+    "gpu_benchmark": "quarto",
+    "ifrs9_provisions": "streamlit_lab",
+    "model_governance": "quarto",
+    "model_interpretability": "streamlit_lab",
+    "model_laboratory": "streamlit_lab",
+    "notebook_evidence": "docs_internal",
+    "paper_1_cp_robust_opt": "quarto",
+    "paper_2_ifrs9_e2e": "quarto",
+    "paper_3_mondrian": "quarto",
+    "paper_estrella_predict_optimize": "quarto",
+    "papers_backlog": "docs_internal",
+    "portfolio_optimizer": "streamlit_lab",
+    "research_best_practices": "docs_internal",
+    "research_landscape": "quarto",
+    "roadmap_backlog": "docs_internal",
+    "survival_analysis": "quarto",
+    "tech_stack": "docs_internal",
+    "tesis_especializacion": "quarto",
+    "thesis_contribution": "quarto",
+    "thesis_defense": "quarto",
+    "thesis_end_to_end": "quarto",
+    "time_series_outlook": "quarto",
+    "uncertainty_quantification": "streamlit_lab",
+}
+
+_TARGET_QUARTO_CHAPTER_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "08d-ab-testing-simulation",
+    "causal_intelligence": "08c-causal-inference / 09d-cate-adjusted-portfolio",
+    "data_architecture": "04a-data-ingestion-lineage",
+    "data_story": "12a-eda-highlights / 12b-geographic-temporal",
+    "executive_summary": "01-executive-map",
+    "feature_engineering": "05a-woe-iv-optbinning / 05b-derived-features-ratios",
+    "glossary_fundamentals": "02-glossary/*",
+    "gpu_benchmark": "13f-gpu-edge-research / 13g-gpu-edge-results / B-gpu-benchmarks",
+    "ifrs9_provisions": "10a-ecl-calculation / 10b-scenario-analysis / 10d-sensitivity-stress",
+    "model_governance": "10e-model-risk-management / 10f-mrm-deep-dive",
+    "model_interpretability": "11a-global-explanations / 11b-local-explanations / 11c-explanation-drift",
+    "model_laboratory": "06c-calibration-selection / 06d-model-comparison-champion / 07d-backtest-monitoring",
+    "notebook_evidence": "A-notebook-atlas",
+    "paper_1_cp_robust_opt": "14-paper-estrella/*",
+    "paper_2_ifrs9_e2e": "15-paper-ifrs9/*",
+    "paper_3_mondrian": "16-paper-mondrian/*",
+    "paper_estrella_predict_optimize": "14-paper-estrella/*",
+    "portfolio_optimizer": "09a-deterministic-portfolio / 09b-robust-portfolio / 09c-policy-selection / 09e-efficient-frontier",
+    "research_landscape": "18a-state-of-the-art / 18b-thesis-contributions",
+    "survival_analysis": "08a-survival-analysis / 10c-sicr-conformal-signal / 13c-competing-risks-ecl",
+    "tesis_especializacion": "17-specialization-bridge",
+    "thesis_contribution": "18b-thesis-contributions",
+    "thesis_defense": "01-executive-map / 04-pipeline-overview/*",
+    "thesis_end_to_end": "04-pipeline-overview/*",
+    "time_series_outlook": "08b-time-series-forecasting / 13e-ts-ecl-intervals",
+    "uncertainty_quantification": "07-conformal/* / 13a-uncertainty-baselines / 13b-alpha-sweep-pareto",
+}
+
+_TARGET_STREAMLIT_LAB_BY_PAGE: dict[str, str] = {
+    "ab_testing_simulation": "portfolio_ifrs9_simulator",
+    "causal_intelligence": "causal_policy_lab",
+    "data_architecture": "data_explorer",
+    "data_story": "data_explorer",
+    "feature_engineering": "explainability_explorer",
+    "ifrs9_provisions": "portfolio_ifrs9_simulator",
+    "model_interpretability": "explainability_explorer",
+    "model_laboratory": "pd_uncertainty_lab",
+    "portfolio_optimizer": "portfolio_ifrs9_simulator",
+    "uncertainty_quantification": "pd_uncertainty_lab",
+}
+
 
 def _default_contract(page_id: str) -> PageStoryContract:
     page_type = _TYPE_BY_PAGE.get(page_id, "analytics")
@@ -419,6 +603,12 @@ def _default_contract(page_id: str) -> PageStoryContract:
         book_chapter=_BOOK_CHAPTER_BY_PAGE.get(page_id, f"zz-{page_id}"),
         goal=f"Presentar resultados y narrativa de `{page_id}` con estructura consistente.",
         required_sections=("evidence", "interpretation"),
+        retention_decision=_RETENTION_DECISION_BY_PAGE.get(page_id, "drop"),
+        interaction_strength=_INTERACTION_STRENGTH_BY_PAGE.get(page_id, "light"),
+        quarto_coverage_status=_QUARTO_COVERAGE_STATUS_BY_PAGE.get(page_id, "partial"),
+        target_surface=_TARGET_SURFACE_BY_PAGE.get(page_id, "quarto"),
+        target_quarto_chapter=_TARGET_QUARTO_CHAPTER_BY_PAGE.get(page_id, ""),
+        target_streamlit_lab=_TARGET_STREAMLIT_LAB_BY_PAGE.get(page_id, ""),
     )
 
 

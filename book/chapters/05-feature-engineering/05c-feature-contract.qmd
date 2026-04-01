@@ -1,0 +1,211 @@
+## Contrato de Features y Validación {#sec-feature-contract}
+
+### El Concepto de Contrato Canónico
+
+En un pipeline de ML con múltiples etapas (features → modelo → calibración → conformal → optimización), la consistencia de features entre etapas es crítica. Si el modelo se entrena con 42 features en cierto orden y la inferencia recibe 41 en orden diferente, los resultados son silenciosamente incorrectos --- no hay error de runtime, solo predicciones degradadas que solo se detectan cuando se monitorean métricas en producción.
+
+El **contrato canónico de features** (`models/pd_model_contract.json`) resuelve este problema documentando la interfaz exacta del modelo:
+
+```{python}
+#| label: tbl-contract-summary
+#| tbl-cap: "Resumen del contrato canónico de features"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+contract = try_load_json("pd_model_contract", directory="models", default={})
+
+contract_summary = [
+    {"Atributo": "Features totales", "Valor": str(contract.get("n_features", "N/A"))},
+    {"Atributo": "Features categóricas", "Valor": str(len(contract.get("categorical_features", [])))},
+    {"Atributo": "Features numéricas", "Valor": str(contract.get("n_features", 0) - len(contract.get("categorical_features", [])))},
+    {"Atributo": "Modelo canónico", "Valor": contract.get("model_path", "N/A")},
+    {"Atributo": "Calibrador", "Valor": contract.get("calibrator_path", "N/A")},
+]
+
+pd.DataFrame(contract_summary)
+```
+
+### Producer canónico de features en el rerun V2
+
+El rerun V2 cerró una deuda técnica importante del proyecto: antes, varias partes del pipeline dependían de artefactos históricos (`train_fe`, `feature_config.pkl`, `woe_encoders.pkl`) cuyo proceso de reconstrucción no estaba expresado como stage canónico del pipeline. Eso ya no es cierto. El stage `scripts/materialize_feature_artifacts.py` ahora materializa de forma explícita:
+
+- `train_fe.parquet`, `calibration_fe.parquet`, `test_fe.parquet`
+- `feature_config.pkl`
+- `woe_encoders.pkl`
+- `feature_manifest_v2.parquet`
+
+El punto metodológico importante no es solo la comodidad operativa. Es gobernanza: el proyecto ahora puede reconstruir desde splits temporales hasta contrato de features y artefactos downstream sin depender de notebooks viejos o de pickles manualmente heredados.
+
+```{python}
+#| label: tbl-feature-manifest-v2
+#| tbl-cap: "Contrato canónico y manifest del rerun V2"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_parquet, try_load_json
+
+import pandas as pd
+
+manifest = try_load_parquet("feature_manifest_v2")
+contract = try_load_json("pd_model_contract", directory="models", default={})
+
+rows = [
+    {"Atributo": "Columnas en splits FE", "Valor": str(int(len(manifest))) if not manifest.empty else "N/D"},
+    {"Atributo": "Features core CatBoost", "Valor": str(int(manifest["is_core_catboost"].sum())) if not manifest.empty else "N/D"},
+    {"Atributo": "Features core LR", "Valor": str(int(manifest["is_core_logreg"].sum())) if not manifest.empty else "N/D"},
+    {"Atributo": "Features challenger-only", "Valor": str(int(manifest["is_challenger_only"].sum())) if not manifest.empty else "N/D"},
+    {"Atributo": "Features del contrato champion", "Valor": str(contract.get("n_features", "N/D"))},
+]
+
+pd.DataFrame(rows)
+```
+
+### Estructura del Contrato
+
+El contrato JSON contiene cuatro secciones:
+
+**1. Lista ordenada de features** (`feature_names`): Las 42 features exactas que el modelo espera, en el orden exacto en que fueron presentadas durante el entrenamiento. Cualquier discrepancia en nombres o en orden invalida las predicciones.
+
+**2. Features categóricas** (`categorical_features`): Las 9 features que CatBoost trata como categorías nativas:
+
+```{python}
+#| label: tbl-categorical-features
+#| tbl-cap: "Features categóricas del contrato (CatBoost nativo)"
+
+cat_features = contract.get("categorical_features", [])
+cat_df = pd.DataFrame({"Feature categórica": cat_features, "#": range(1, len(cat_features) + 1)})
+cat_df
+```
+
+CatBoost aplica target encoding con ordered boosting a estas features internamente. No requieren one-hot encoding ni WOE --- el modelo las consume en su formato original (strings o categorías pandas).
+
+**3. Shapes de los splits** (`split_shapes`): Dimensiones de train, calibración y test al momento del entrenamiento, para verificar que los datasets no han cambiado.
+
+**4. Features faltantes por split** (`split_missing_features`): Listas vacías si todos los splits contienen todas las features del contrato. Si algún split tiene features faltantes, esta sección lo documenta explícitamente.
+
+En el rerun V2 conviene distinguir dos niveles que antes se mezclaban:
+
+- el **split FE canónico** contiene 164 columnas, incluyendo metadata, targets, families WOE, candidatos challenger y columnas auxiliares;
+- el **contrato champion** selecciona solo las 42 features que el modelo CatBoost canónico realmente consume.
+
+Esa separación es sana. El split FE no es “el input del champion” sino el universo auditable desde el cual se congelan subsets distintos para champion, challengers, survival y análisis research.
+
+### Pandera: Validación de Schemas en Runtime
+
+El contrato JSON es una especificación estática. Para validación dinámica en tiempo de ejecución, el pipeline usa **Pandera** (`src/features/schemas.py`) con schemas tipados para cada dataset analítico:
+
+```{python}
+#| label: tbl-pandera-schemas
+#| tbl-cap: "Schemas Pandera para validación de datos"
+
+schemas = [
+    {"Schema": "loan_master_schema", "Dataset": "loan_master.parquet",
+     "Validaciones clave": "loan_amnt > 0, default_flag ∈ {0,1}, int_rate ∈ [0,100], dti ∈ [0,999]"},
+    {"Schema": "time_series_schema", "Dataset": "time_series.parquet",
+     "Validaciones clave": "ds es datetime, y ∈ [0,1] (default_rate), loan_count > 0"},
+    {"Schema": "ead_schema", "Dataset": "ead_dataset.parquet",
+     "Validaciones clave": "default_flag = 1 (solo defaults), loan_amnt > 0"},
+    {"Schema": "prediction_schema", "Dataset": "Predicciones PD",
+     "Validaciones clave": "pd_low ≤ pd_point ≤ pd_high, todos en [0,1]"},
+    {"Schema": "conformal_output_schema", "Dataset": "Intervalos conformales",
+     "Validaciones clave": "y_pred, pd_low_90, pd_high_90 ∈ [0,1], width_90 ≥ 0, low ≤ high"},
+]
+
+pd.DataFrame(schemas)
+```
+
+El `prediction_schema` incluye una validación crítica para predicción conformal: la relación de orden `pd_low ≤ pd_point ≤ pd_high` se verifica con checks de DataFrame que cruzan columnas. Si un intervalo conformal tiene el límite inferior por encima del punto estimado, el schema falla y detiene el pipeline.
+
+### Estabilidad estructural de encoding y binning
+
+Después de la promoción del champion monotónico, el proyecto añadió una capa diagnóstica inspirada en ADSFCR para responder una objeción frecuente de gobernanza: que el contrato parezca estable por nombres y orden, pero esconda fragilidad en los encodings o discretizaciones. El artefacto `models/encoding_stability_status.json` resume esa lectura estructural.
+
+```{python}
+#| label: tbl-encoding-stability
+#| tbl-cap: "Auditoría de estabilidad de encoding y binning del contrato vigente"
+
+encoding = try_load_json("encoding_stability_status", directory="models", default={})
+summary = encoding.get("summary", {})
+
+rows = [
+    {"Chequeo": "Estado global", "Valor": "PASS" if encoding.get("overall_pass") else "FAIL", "Lectura": "El contrato transformado sigue siendo estructuralmente estable."},
+    {"Chequeo": "WOE features auditadas", "Valor": summary.get("n_woe_features"), "Lectura": "Cantidad de variables WOE revisadas con PSI y consistencia de signo."},
+    {"Chequeo": "Bucket features auditadas", "Valor": summary.get("n_bucket_features"), "Lectura": "Cantidad de discretizaciones bucket revisadas."},
+    {"Chequeo": "Fallas WOE", "Valor": summary.get("woe_failures"), "Lectura": "El snapshot vigente no activa reescritura del encoding."},
+    {"Chequeo": "Fallas bucket", "Valor": summary.get("bucket_failures"), "Lectura": "No hay buckets con ruptura material en la auditoría actual."},
+    {"Chequeo": "Máximo WOE PSI", "Valor": f"{summary.get('max_woe_psi', 0):.4f}", "Lectura": "El peor PSI WOE sigue en zona monitoreable, no crítica."},
+    {"Chequeo": "Máximo bucket PSI", "Valor": f"{summary.get('max_bucket_category_psi', 0):.4f}", "Lectura": "La distribución bucket más exigente sigue dentro de límites razonables."},
+]
+
+pd.DataFrame(rows)
+```
+
+La lectura importante es que el contrato no solo llega íntegro; también llega **estable en semántica transformada**. Eso fortalece tres historias a la vez:
+
+- la defensa del champion monotónico;
+- la consistencia del contrato a través de train/calibration/test;
+- la decisión de **no** reabrir todavía el espacio de bins o encodings como workstream principal.
+
+::: {.callout-note}
+## Validación estricta vs. tolerante
+Los schemas usan `strict=False`, lo que permite columnas adicionales no especificadas en el schema. Esto es deliberado: a medida que el pipeline evoluciona, nuevas features pueden agregarse sin romper las validaciones existentes. Solo las columnas críticas se validan estrictamente; el resto se ignora. Si se requiriera validación estricta (no permitir columnas extra), se cambiaría a `strict=True`.
+:::
+
+### Flujo de Validación
+
+La validación se integra en el pipeline como un *gate* entre etapas:
+
+```{=html}
+<div class="book-flow">
+  <div class="book-flow__row">
+    <div class="book-flow__card">
+      <strong>Feature Engineering</strong>
+      <span>Genera el dataset maestro con variables ya transformadas y listas para modelar.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>Schema Pandera</strong>
+      <span>Valida tipos, rangos y columnas críticas antes de entrenar o predecir.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>Train PD Model</strong>
+      <span>Entrena el champion sobre una interfaz de features ya estable y validada.</span>
+    </div>
+  </div>
+  <div class="book-flow__row" style="margin-top:0.8rem;">
+    <div class="book-flow__card">
+      <strong>Contrato JSON</strong>
+      <span>Congela nombres, orden y metadatos de las features que el modelo espera recibir.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>Predicción Conformal</strong>
+      <span>Produce intervalos con la misma semántica y el mismo orden de columnas del champion.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>Portfolio Optimizer</strong>
+      <span>Consume salidas validadas; si algo no cuadra, el pipeline falla antes de tomar decisiones.</span>
+    </div>
+  </div>
+  <p class="book-flow__note">La idea central es simple: validar temprano para no descubrir inconsistencias recién cuando ya estamos optimizando portafolio o calculando IFRS9.</p>
+</div>
+```
+
+Si una validación falla, el pipeline se detiene con un error descriptivo que indica qué columna, qué regla y qué valores violaron el schema. Esto es preferible a dejar que un error de datos se propague silenciosamente hasta producir predicciones incorrectas o portafolios subóptimos.
+
+::: {.callout-warning}
+## Manejo de NaN
+El contrato permite NaN en la mayoría de features numéricas (`nullable=True`) porque CatBoost trata los valores faltantes como un valor informativo adicional, asignándolos a la rama óptima de cada split. Sin embargo, `loan_amnt` y `default_flag` son no-nullable --- un valor faltante en estas columnas indica un error de datos que debe corregirse antes de proceder.
+
+Para la regresión logística baseline, los NaN se reemplazan con `fillna(0)` como estrategia simple. Esta asimetría en el tratamiento de NaN es una de las ventajas de CatBoost sobre modelos lineales para datos financieros con missing values informativos.
+:::

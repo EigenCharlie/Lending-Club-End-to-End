@@ -1,0 +1,180 @@
+## Pronóstico de Series de Tiempo {#sec-time-series}
+
+### Motivación: El Default Agregado como Señal Macro
+
+Mientras que la PD modela el riesgo individual de cada préstamo, la **tasa de default agregada mensual** captura dinámicas de nivel portafolio que no son visibles desde la predicción cross-sectional: estacionalidad, tendencias macroeconómicas y cambios de régimen. Estas señales temporales son el insumo para:
+
+- **Escenarios IFRS9**: Los multiplicadores `temporal_pd_baseline_mult` ajustan la PD puntual según el régimen temporal proyectado.
+- **Planeación de provisiones**: Anticipar deterioro antes de que se materialice en defaults realizados.
+- **Apetito de riesgo**: Ajustar políticas de originación según la tendencia proyectada.
+
+El dataset de series de tiempo (`time_series.parquet`) contiene 118 observaciones mensuales agregadas con formato Nixtla-ready (`unique_id`, `ds`, `y`), donde `y` es la tasa de default mensual del portafolio.
+
+### Framework de Pronóstico Gobernado
+
+El módulo `src/models/time_series.py` implementa un framework completo de pronóstico con selección automática de champion, backtest por rolling-origin y gobernanza de estado (oficial vs. exploratorio):
+
+![Comparación de modelos en validación cruzada rolling-origin para series de tiempo.](../../assets/figures/notebooks/cv_model_comparison.png){fig-alt="Comparación de modelos de forecasting en validación temporal."}
+
+![Vista temporal agregada del portafolio Lending Club con volumen, tasa de default, tasa promedio y DTI.](../../assets/figures/notebooks/portfolio_time_series_overview.png){#fig-ts-portfolio-overview fig-alt="Vista temporal agregada del portafolio Lending Club."}
+
+#### Modelos Candidatos
+
+La librería StatsForecast provee los modelos estadísticos base, todos evaluados en backtest:
+
+| Modelo | Familia | Descripción |
+|--------|---------|-------------|
+| SeasonalNaive | Benchmark | Repite el valor de hace 12 meses |
+| AutoARIMA | Estadístico | Selección automática de orden (p,d,q)(P,D,Q) |
+| AutoETS | Estadístico | Error-Trend-Seasonality con selección por AIC |
+| AutoTheta | Estadístico | Método Theta con descomposición |
+| SARIMAX | Challenger | ARIMA estacional con covariables exógenas |
+| STL\_CatBoost | ML | Descomposición STL + residuos con CatBoost |
+
+La selección de champion sigue una política declarativa configurada en `configs/time_series.yaml`: la métrica primaria es **MASE** (Mean Absolute Scaled Error), con desempates por RMSSE y sesgo absoluto. El champion debe superar al SeasonalNaive para ser promovido a estado oficial.
+
+#### Backtest por Rolling-Origin
+
+A diferencia del train/test split único, el backtest utiliza **rolling-origin** con ventanas expandibles:
+
+- **Entrenamiento mínimo**: 72 periodos (6 años).
+- **Horizonte**: 12 meses adelante.
+- **Paso**: 1 mes entre cutoffs sucesivos.
+- **Máximo de ventanas**: 36 (3 años de evaluación).
+
+Esta estrategia evalúa la estabilidad del pronóstico a lo largo de distintos regímenes temporales, no solo sobre un corte fijo.
+
+### Estado del Pronóstico: Oficial vs. Exploratorio
+
+Esta etiqueta editorial evita una confusión común: que un pronóstico exista no significa que ya esté listo para gobernar decisiones automáticas. El libro separa de forma explícita la evidencia exploratoria, la señal prometedora y el insumo oficialmente promovido, porque cada nivel exige un estándar de validación distinto.
+
+::: {.callout-warning}
+## Status: research\_only
+El bloque de series de tiempo tiene status `research_only` en el pipeline actual. Esto significa que los pronósticos se generan y evalúan, pero no se promueven automáticamente a insumos oficiales para IFRS9 o decisiones de portafolio. La promoción requiere evidencia suficiente de backtest (cobertura y calibración) según la política de gobernanza.
+:::
+
+El framework distingue tres niveles de estado:
+
+1. **official**: Backtest satisfactorio, cobertura de intervalos dentro de tolerancia, champion supera benchmark. El pronóstico puede usarse como insumo de provisiones.
+2. **warn**: Métricas cercanas al umbral. Se genera el pronóstico pero con alertas de gobernanza.
+3. **research\_only**: Evidencia insuficiente. El pronóstico es informativo pero no se usa en decisiones automatizadas.
+
+| Badge editorial | Qué significa en la práctica |
+|---|---|
+| `official` | puede alimentar decisiones o reportes operativos sin advertencia mayor |
+| `warn` | produce señal útil, pero requiere lectura cauta o validación extra |
+| `research_only` | sirve para exploración, papers o sensibilidad; no para automatizar decisiones |
+
+: Semántica editorial de estado para series de tiempo {#tbl-ts-status-badges}
+
+### Estado canónico del carril temporal
+
+El companion temporal local mostraba algo que conviene fijar aquí con artefactos: el bloque de series de tiempo no está “apagado”, sino en un estado gobernado de `warn`. El champion puntual es promocionable (`AutoARIMA`), pero el champion intervalar no supera todavía la política de gap de cobertura; por eso el uso oficial de intervalos queda como diagnóstico y no como baseline operativo.
+
+```{python}
+#| label: tbl-ts-governed-status
+#| tbl-cap: "Estado canónico del forecast temporal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("time_series_status", directory="models", default={})
+summary = status.get("summary", {})
+point = status.get("point_champion", {})
+interval = status.get("interval_champion", {})
+
+rows = [
+    {"Indicador": "status", "Valor": status.get("status"), "Lectura": "Estado editorial del bloque temporal."},
+    {"Indicador": "point_model", "Valor": point.get("model"), "Lectura": "Champion puntual oficial."},
+    {"Indicador": "point_promotable", "Valor": point.get("promotable"), "Lectura": "Puede alimentar lectura puntual."},
+    {"Indicador": "interval_model", "Valor": interval.get("model"), "Lectura": "Champion intervalar oficial."},
+    {"Indicador": "interval_promotable", "Valor": interval.get("promotable"), "Lectura": "No supera todavía la policy de cobertura."},
+    {"Indicador": "coverage_90", "Valor": interval.get("coverage_90"), "Lectura": "Cobertura empírica del champion intervalar."},
+    {"Indicador": "coverage_gap_90", "Valor": interval.get("coverage_gap_90"), "Lectura": "Brecha frente al target 90%."},
+    {"Indicador": "n_models_evaluated", "Valor": summary.get("n_models_evaluated"), "Lectura": "Cantidad de candidatos evaluados bajo backtest."},
+]
+
+pd.DataFrame(rows)
+```
+
+```{python}
+#| label: tbl-ts-forecastability-hierarchy
+#| tbl-cap: "Forecastability, jerarquía y backlog del carril temporal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import try_load_json
+
+import pandas as pd
+
+status = try_load_json("time_series_status", directory="models", default={})
+forecastability = try_load_json("time_series_forecastability_status", directory="models", default={})
+hierarchy = try_load_json("time_series_hierarchy_status", directory="models", default={})
+
+pd.DataFrame(
+    [
+        {"Bloque": "forecastability_available", "Valor": forecastability.get("available"), "Lectura": "Existe diagnóstico de predictibilidad por rutas."},
+        {"Bloque": "series_evaluated", "Valor": forecastability.get("series_evaluated"), "Lectura": "Número de series auditadas."},
+        {"Bloque": "hierarchy_available", "Valor": hierarchy.get("available"), "Lectura": "La reconciliación jerárquica oficial está deshabilitada en este snapshot."},
+        {"Bloque": "research_backlog", "Valor": ", ".join(status.get("research_backlog", [])), "Lectura": "Métodos pendientes antes de una promoción más agresiva."},
+    ]
+)
+```
+
+### Escenarios IFRS9 y Multiplicador Temporal
+
+El pronóstico genera tres escenarios para el cálculo de ECL:
+
+$$
+\text{PD}_{\text{ajustada}} = \text{PD}_{\text{puntual}} \times \text{temporal\_pd\_baseline\_mult}
+$$ {#eq-temporal-mult}
+
+donde `temporal_pd_baseline_mult` es el ratio entre la PD promedio proyectada y la PD promedio histórica. En el run champion, este multiplicador es **1.017154**, indicando un deterioro marginal proyectado del 1.7% respecto al baseline histórico.
+
+```{python}
+#| label: tbl-ts-scenarios
+#| tbl-cap: "Escenarios temporales para ajuste de PD en IFRS9"
+
+import pandas as pd
+
+scenarios = [
+    {"Escenario": "Optimista (P10)", "Descripción": "Banda inferior del intervalo de pronóstico",
+     "Uso": "Piso de provisiones", "Fuente": "y_lo_90 del forecast"},
+    {"Escenario": "Baseline", "Descripción": "Pronóstico puntual del champion",
+     "Uso": "Provisión central (temporal_pd_mult = 1.017)",
+     "Fuente": "y del forecast"},
+    {"Escenario": "Adverso (P90)", "Descripción": "Banda superior del intervalo de pronóstico",
+     "Uso": "Techo de provisiones / stress test",
+     "Fuente": "y_hi_90 del forecast"},
+]
+
+pd.DataFrame(scenarios)
+```
+
+![Fan chart del forecast IFRS9 con bandas de incertidumbre y escenarios baseline, optimista y adverso.](../../assets/figures/notebooks/ifrs9_scenario_fan_chart.png){#fig-ifrs9-fan-chart fig-alt="Fan chart del pronóstico de tasas de default para IFRS9 con bandas de incertidumbre."}
+
+La figura @fig-ifrs9-fan-chart deja visible la propagación de incertidumbre temporal: un abanico relativamente moderado en la tasa agregada se amplifica al pasar por LGD y EAD.
+
+| Horizonte | Qué se suele degradar primero | Qué conviene mirar |
+|---|---|---|
+| corto (1-3 meses) | sesgo coyuntural | error puntual y cobertura local |
+| medio (4-6 meses) | estabilidad del champion | backtest rolling y desvíos por régimen |
+| largo (7-12 meses) | cobertura y ancho de banda | si el forecast sigue siendo explicable o ya es solo exploratorio |
+
+: Cómo leer cobertura y utilidad por horizonte {#tbl-ts-horizon-reading}
+
+### Propagación de Intervalos a ECL
+
+Los intervalos de pronóstico temporal se propagan de forma no lineal al cálculo de ECL. En el análisis de Paper 2, la banda de ECL resultante es de **\$288.5M** (267% del ECL puntual de \$107.9M), con un escenario adverso de \$336M versus un optimista de \$47.5M. Esta amplificación refleja que la incertidumbre en forecasts cercanos a cero se propaga de forma no lineal cuando se multiplica por LGD y EAD.
+
+::: {.callout-tip}
+## Conexión con el pipeline
+El multiplicador temporal alimenta el cálculo de ECL en @sec-ecl-calculation. Los escenarios adverso/optimista definen la banda de provisiones bajo distintas hipótesis macro. La reconciliación jerárquica (cuando está habilitada) garantiza consistencia entre pronósticos a nivel portafolio y por grado/plazo.
+:::

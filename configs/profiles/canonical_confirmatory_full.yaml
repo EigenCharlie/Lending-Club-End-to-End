@@ -1,0 +1,62 @@
+schema_version: "2026-03-31.1"
+profile_name: canonical_confirmatory_full
+pipeline_family: core_canonical
+description: >
+  Rebuild confirmatorio full para baseline limpio. Reproduce PD/conformal desde
+  manifest congelado y reconstruye la policy económica champion completa.
+
+python_envs:
+  main: lending-club-venv
+  causal: .venv-causal
+  rapids_conda: rapids
+
+execution:
+  writes_canonical_artifacts: true
+  promotion_state: operationally_frozen
+  include_rapids: false
+  include_notebooks: false
+
+defaults:
+  sampling_profile: champion64safe
+  expected_upstream_registry: configs/baselines/canonical_operational_baseline.json
+  replay_manifest: configs/baselines/clean_baseline_manifest.json
+  pd_replay: true
+  conformal_replay: true
+  confirmatory_full: true
+
+resource_policy:
+  portfolio_backend: cuopt
+  tradeoff_backend: cuopt
+  selector_backend: cuopt
+  ab_backend: cuopt
+  cate_backend: cuopt
+
+search_space:
+  conformal:
+    partition_candidates: [grade]
+    scaled_scores_options: [true]
+    shrinkback_enabled: false
+    min_group_sizes: [100]
+    min_group_coverage_target: 0.89
+    group_coverage_floor_target_90: 0.92
+    max_width_budget_90: 0.9
+    coverage_guardband_90: 0.005
+    min_group_guardband_90: 0.005
+    temporal_segment_floor_enabled: true
+    temporal_segment_freq: M
+    temporal_segment_min_size: 100
+    group_coverage_floor_enabled: true
+    group_multiplier_grid: [1.0, 1.01, 1.02, 1.03, 1.05, 1.08, 1.12, 1.16]
+    temporal_multiplier_grid: [1.0, 1.01, 1.02, 1.03, 1.05, 1.08, 1.12, 1.16]
+    global_rebalance_enabled: false
+  portfolio:
+    max_candidates: 150000
+  tradeoff:
+    max_candidates: 80000
+    grid_profile: balanced
+  ab:
+    max_portfolio_pd: 0.18
+    max_candidates: 150000
+    n_boot: 5000
+    seed: 42
+    no_regression_tolerance_pct: 0.05

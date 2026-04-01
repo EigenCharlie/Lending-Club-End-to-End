@@ -11,9 +11,13 @@ from collections import Counter
 from datetime import datetime
 from pathlib import Path
 
-import httpx
 import pandas as pd
 import streamlit as st
+
+try:
+    import httpx
+except ImportError:  # pragma: no cover - optional dependency for lightweight imports
+    httpx = None
 
 
 # Inline threshold semantics helpers (avoid src/ dependency in deploy bundle)

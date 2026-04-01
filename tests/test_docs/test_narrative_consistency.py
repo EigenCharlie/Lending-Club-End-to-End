@@ -7,18 +7,18 @@ from pathlib import Path
 TARGETS = [
     Path("SESSION_STATE.md"),
     Path("docs/RUNBOOK.md"),
-    Path("streamlit_app/pages/thesis_contribution.py"),
-    Path("streamlit_app/pages/research_landscape.py"),
+    Path("streamlit_app/pages/model_laboratory.py"),
+    Path("streamlit_app/pages/causal_intelligence.py"),
     Path("docs/conformal_prediction_README.md"),
-    Path("docs/PROMOTION_DOSSIER_2026-03-01.md"),
+    Path("docs/history/PROMOTION_DOSSIER_2026-03-01.md"),
 ]
 
 UI_TARGETS = [
-    Path("streamlit_app/pages/executive_summary.py"),
-    Path("streamlit_app/pages/glossary_fundamentals.py"),
+    Path("streamlit_app/pages/data_story.py"),
     Path("streamlit_app/pages/model_laboratory.py"),
-    Path("streamlit_app/pages/survival_analysis.py"),
-    Path("streamlit_app/pages/thesis_contribution.py"),
+    Path("streamlit_app/pages/model_interpretability.py"),
+    Path("streamlit_app/pages/portfolio_optimizer.py"),
+    Path("streamlit_app/pages/causal_intelligence.py"),
 ]
 
 STALE_UI_PATTERNS = [
@@ -41,7 +41,7 @@ def test_threshold_narrative_separates_internal_vs_operational_roles() -> None:
     for path in (
         Path("SESSION_STATE.md"),
         Path("docs/RUNBOOK.md"),
-        Path("docs/ANALISIS_TOBOML_VS_PROYECTO_2026-03-13.md"),
+        Path("docs/history/ANALISIS_TOBOML_VS_PROYECTO_2026-03-13.md"),
     ):
         text = path.read_text(encoding="utf-8").lower()
         assert "threshold interno" in text
@@ -50,8 +50,8 @@ def test_threshold_narrative_separates_internal_vs_operational_roles() -> None:
 
 def test_crepes_predict_p_not_described_as_probabilities() -> None:
     for path in (
-        Path("docs/conformal_libraries_comparison.md"),
-        Path("docs/conformal_prediction_quick_reference.md"),
+        Path("docs/research/conformal_libraries_comparison.md"),
+        Path("docs/research/conformal_prediction_quick_reference.md"),
     ):
         text = path.read_text(encoding="utf-8").lower()
         assert "predict_p" in text
@@ -87,6 +87,6 @@ def test_no_stale_ui_metric_snapshots() -> None:
 
 
 def test_historical_dossier_is_explicitly_marked_as_historical() -> None:
-    text = Path("docs/PROMOTION_DOSSIER_2026-03-01.md").read_text(encoding="utf-8").lower()
+    text = Path("docs/history/PROMOTION_DOSSIER_2026-03-01.md").read_text(encoding="utf-8").lower()
     assert "historical snapshot" in text
     assert "do not treat it as the live canonical policy state" in text

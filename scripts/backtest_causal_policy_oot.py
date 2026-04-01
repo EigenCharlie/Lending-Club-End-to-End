@@ -1,10 +1,4 @@
-"""Temporal backtesting for selected causal policy rule.
-
-Evaluates month-by-month stability of the selected policy using issue-date vintages.
-
-Usage:
-    uv run python scripts/backtest_causal_policy_oot.py
-"""
+"""Temporal backtesting for the selected discrete causal policy rule."""
 
 from __future__ import annotations
 
@@ -18,7 +12,16 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
-CAUSAL_OOT_SCHEMA_VERSION = "2026-03-07.1"
+from src.models.causal import load_causal_config
+from src.utils.pipeline_runtime import (
+    atomic_write_json,
+    atomic_write_parquet,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
+
+CAUSAL_OOT_SCHEMA_VERSION = "2026-03-26.1"
 
 
 def _load_selected_rule(path: Path) -> str:
@@ -32,28 +35,40 @@ def _load_selected_rule(path: Path) -> str:
 
 
 def _policy_mask(df: pd.DataFrame, rule_name: str, train_ref: pd.DataFrame) -> np.ndarray:
-    if rule_name == "high_only":
-        return df["segment"].eq("high_sensitivity").to_numpy()
-    if rule_name == "high_plus_medium_all":
-        return df["segment"].isin(["high_sensitivity", "medium_sensitivity"]).to_numpy()
-    if rule_name == "high_plus_medium_positive":
+    if rule_name == "discount_100_only":
+        return df["recommended_action"].eq("decrease_100bps").to_numpy()
+    if rule_name == "discount_50_or_100":
+        return df["recommended_action"].isin(["decrease_50bps", "decrease_100bps"]).to_numpy()
+    if rule_name == "positive_value_only":
+        return (df["recommended_action"].ne("hold_rate") & (df["net_value"] > 0)).to_numpy()
+    if rule_name == "top20_policy_value":
+        q80 = float(
+            train_ref.loc[
+                train_ref["recommended_action"].ne("hold_rate"), "policy_value_score"
+            ].quantile(0.80)
+        )
         return (
-            df["segment"].eq("high_sensitivity")
-            | (df["segment"].eq("medium_sensitivity") & (df["net_value"] > 0))
+            df["recommended_action"].ne("hold_rate") & (df["policy_value_score"] >= q80)
         ).to_numpy()
-    if rule_name == "top15_cate":
-        q85 = float(train_ref["cate"].quantile(0.85))
-        return (df["cate"] >= q85).to_numpy()
-    if rule_name == "top10_cate":
-        q90 = float(train_ref["cate"].quantile(0.90))
-        return (df["cate"] >= q90).to_numpy()
+    if rule_name == "top10_policy_value":
+        q90 = float(
+            train_ref.loc[
+                train_ref["recommended_action"].ne("hold_rate"), "policy_value_score"
+            ].quantile(0.90)
+        )
+        return (
+            df["recommended_action"].ne("hold_rate") & (df["policy_value_score"] >= q90)
+        ).to_numpy()
     raise ValueError(f"Unsupported rule name: {rule_name}")
 
 
 def main(
     min_history_months: int = 12,
     selected_rule_path: str = "models/causal_policy_rule.json",
+    config_path: str = "configs/causal_lane.yaml",
 ) -> None:
+    stage_name = "causal_policy_oot"
+    cfg = load_causal_config(config_path)
     sim_path = Path("data/processed/causal_policy_simulation.parquet")
     effect_status_path = Path("models/causal_effect_status.json")
     train_path = Path("data/processed/train_fe.parquet")
@@ -100,12 +115,28 @@ def main(
         or os.environ.get("PIPELINE_RUN_TAG", "")
         or "untracked"
     ).strip()
+    write_runtime_status(
+        stage_name,
+        phase="loading_inputs",
+        state="running",
+        run_tag=run_tag,
+    )
     months = sorted(df["month"].dropna().unique().tolist())
     if len(months) <= min_history_months:
         raise ValueError(
             f"Not enough months for temporal backtest. months={len(months)}, "
             f"min_history_months={min_history_months}"
         )
+    write_runtime_checkpoint(
+        stage_name,
+        "inputs_loaded",
+        {
+            "rows": int(len(df)),
+            "months": int(len(months)),
+            "selected_rule": selected_rule,
+            "min_history_months": int(min_history_months),
+        },
+    )
 
     rows: list[dict[str, float | int | str]] = []
     grade_rows: list[dict[str, float | int | str]] = []
@@ -173,8 +204,8 @@ def main(
     out_dir.mkdir(parents=True, exist_ok=True)
     backtest_path = out_dir / "causal_policy_oot_backtest.parquet"
     grade_path = out_dir / "causal_policy_oot_backtest_by_grade.parquet"
-    backtest.to_parquet(backtest_path, index=False)
-    by_grade.to_parquet(grade_path, index=False)
+    atomic_write_parquet(backtest, backtest_path, index=False)
+    atomic_write_parquet(by_grade, grade_path, index=False)
 
     status = {
         "schema_version": CAUSAL_OOT_SCHEMA_VERSION,
@@ -190,11 +221,31 @@ def main(
         "best_month": str(backtest.loc[backtest["total_net_value"].idxmax(), "month"]),
         "selected_rule_path": str(selected_rule_path),
         "effect_status_path": str(effect_status_path),
-        "policy_semantics": "local_cate_policy_simulation",
+        "policy_semantics": cfg.get("defaults", {}).get(
+            "policy_semantics", "research_grade_pricing_intervention"
+        ),
+        "policy_value_method": cfg.get("defaults", {}).get(
+            "policy_value_method", "local_cate_discrete_grid"
+        ),
+        "promotion_state": selected_rule_payload.get("promotion_state", "insights_only"),
     }
     status_path = Path("models/causal_policy_oot_status.json")
     status_path.parent.mkdir(parents=True, exist_ok=True)
-    status_path.write_text(json.dumps(status, indent=2), encoding="utf-8")
+    atomic_write_json(status_path, status)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="causal_policy_oot_status",
+        artifact_path=status_path,
+        run_tag=run_tag,
+        extra={"n_months_evaluated": int(len(backtest)), "rule_name": selected_rule},
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        run_tag=run_tag,
+        extra={"status_path": str(status_path), "n_months_evaluated": int(len(backtest))},
+    )
 
     logger.info(f"Saved causal OOT backtest: {backtest_path} ({len(backtest):,} rows)")
     logger.info(f"Saved causal OOT backtest by grade: {grade_path} ({len(by_grade):,} rows)")
@@ -206,8 +257,13 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--min_history_months", type=int, default=12)
     parser.add_argument("--selected_rule_path", default="models/causal_policy_rule.json")
+    parser.add_argument("--config", default="configs/causal_lane.yaml")
     parser.add_argument("--run-tag", default=None, help="Override run_tag on output artifacts")
     args = parser.parse_args()
     if args.run_tag:
         os.environ["PIPELINE_RUN_TAG_OVERRIDE"] = args.run_tag
-    main(min_history_months=args.min_history_months, selected_rule_path=args.selected_rule_path)
+    main(
+        min_history_months=args.min_history_months,
+        selected_rule_path=args.selected_rule_path,
+        config_path=args.config,
+    )

@@ -44,10 +44,9 @@ from streamlit_app.utils import (
     try_load_parquet,
 )
 
-st.title("💼 Optimizador de Portafolio")
+st.title("💼 Portfolio & IFRS9 Simulator")
 st.caption(
-    "Decisión de asignación de capital usando predicción de riesgo y "
-    "bandas de incertidumbre conformal."
+    "Simulador interactivo de asignación de capital, provisiones y costo económico de robustez."
 )
 page_contract = get_page_contract("portfolio_optimizer")
 render_page_header(page_contract)
@@ -697,7 +696,7 @@ render_caveats(
 render_page_feedback("portfolio_optimizer")
 
 next_page_teaser(
-    "Provisiones IFRS9",
-    "Traducción de riesgo y escenarios a provisiones regulatorias.",
-    "pages/ifrs9_provisions.py",
+    "Causal Policy Lab",
+    "Explora reglas causales, heterogeneidad CATE y sensibilidad económica de intervención.",
+    "pages/causal_intelligence.py",
 )

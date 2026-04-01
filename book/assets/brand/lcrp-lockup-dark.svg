@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="140" viewBox="0 0 720 140" role="img" aria-labelledby="title desc">
+  <title id="title">Lending Club Risk Project</title>
+  <desc id="desc">Logotipo del Lending Club Risk Project para modo oscuro</desc>
+  <rect x="14" y="14" width="112" height="112" rx="28" fill="#77A9F2"/>
+  <path d="M45 41v58h34" fill="none" stroke="#111927" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+  <path d="M91 41c-16 0-27 11-27 29s11 29 27 29" fill="none" stroke="#111927" stroke-linecap="round" stroke-linejoin="round" stroke-width="11"/>
+  <text x="156" y="62" fill="#F7F9FC" font-family="'Merriweather', Georgia, serif" font-size="29" font-weight="700">Lending Club Risk Project</text>
+  <text x="156" y="96" fill="#D4DDEA" font-family="'Source Sans 3', Arial, sans-serif" font-size="24">Predicción conformal, robustez e IFRS9</text>
+</svg>

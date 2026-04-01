@@ -1,0 +1,7 @@
+{
+  "stage_name": "dependency_audit",
+  "artifact_key": "dependency_summary",
+  "artifact_path": "/home/eigenlinux/projects/lending-club-risk-project/reports/dependency_summary.json",
+  "validated_at_utc": "2026-04-01T03:00:05.418819+00:00",
+  "dependency_count": 61
+}

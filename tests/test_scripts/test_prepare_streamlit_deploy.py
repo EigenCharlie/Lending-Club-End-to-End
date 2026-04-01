@@ -23,11 +23,16 @@ def _artifact_contract_paths() -> set[str]:
 def test_prepare_streamlit_deploy_includes_reports_dirs() -> None:
     assert "reports/dvc" in deploy_mod.REQUIRED_DIRS
     assert "reports/gpu_benchmark" in deploy_mod.REQUIRED_DIRS
+    assert (
+        "reports/gpu_replay/2026-03-09-official-gpu-replay-rapids-final" in deploy_mod.REQUIRED_DIRS
+    )
+    assert "reports/gpu_insights/2026-03-10-rapids-insight-v4" in deploy_mod.REQUIRED_DIRS
 
 
 def test_prepare_streamlit_deploy_includes_baseline_registry() -> None:
     assert "configs/baselines/canonical_operational_baseline.json" in deploy_mod.REQUIRED_FILES
     assert "configs/baselines/core_official_baseline.json" in deploy_mod.REQUIRED_FILES
+    assert "docs/backlog-papers-unified.md" in deploy_mod.REQUIRED_FILES
 
 
 def test_discover_release_governance_comparison_tags_collects_current_and_official(
@@ -52,6 +57,31 @@ def test_discover_release_governance_comparison_tags_collects_current_and_offici
 
     tags = deploy_mod._discover_release_governance_comparison_tags(repo)
     assert tags == ["run-current", "run-official"]
+
+
+def test_discover_release_governance_run_log_files_matches_tags(tmp_path) -> None:
+    repo = tmp_path
+    (repo / "data/processed").mkdir(parents=True, exist_ok=True)
+    (repo / "configs/baselines").mkdir(parents=True, exist_ok=True)
+
+    (repo / "data/processed/pipeline_summary.json").write_text(
+        '{"run_tag":"run-current","official_baseline_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+    (repo / "configs/baselines/core_official_baseline.json").write_text(
+        '{"official_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+    (repo / "configs/baselines/canonical_operational_baseline.json").write_text(
+        '{"official_run_tag":"run-official"}',
+        encoding="utf-8",
+    )
+
+    rel_files = deploy_mod._discover_release_governance_run_log_files(repo)
+    assert rel_files == [
+        "reports/run_logs/run-current/master.log",
+        "reports/run_logs/run-official/master.log",
+    ]
 
 
 def test_prepare_streamlit_deploy_covers_streamlit_loader_artifacts() -> None:

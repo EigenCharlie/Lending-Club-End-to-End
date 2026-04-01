@@ -1,0 +1,124 @@
+## Existing Evidence {#sec-paper-gpu-evidence}
+
+La evidencia ya disponible en el repo es suficiente para justificar el paper como propuesta seria. No alcanza todavía para submission final, pero sí para una narrativa sólida y bien delimitada.
+
+## Qué artefactos vigentes sostienen hoy el paper
+
+La propuesta ya no depende de notas sueltas. Hoy puede apoyarse en un set relativamente claro de artefactos recientes:
+
+| Rol | Artefacto | Lectura en el paper |
+|---|---|---|
+| champion operacional vigente | `models/champion_registry.json` (`canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`) | source of truth canónico actual del proyecto |
+| baseline histórico de comparación GPU | `champion-2026-03-12-mega-definitive` | baseline útil para leer benchmarks GPU tempranos, no champion vigente |
+| replay GPU estable | `2026-03-09-official-gpu-replay-rapids-final` | benchmark oficial stage-by-stage del carril GPU |
+| benchmark PD separado | `2026-03-10-pd-rapids-benchmark-v1` | evidencia limpia para `fit-only`, `full-stage` y `HPO` |
+| IFRS9 MC masivo | `data/processed/ifrs9_mc_tail_metrics.json` | caso fuerte de speedup + fidelidad |
+| insight factory estable | `2026-03-10-rapids-insight-v4` | source of truth estable para UMAP / HDBSCAN / cuGraph |
+| insight factory más reciente | `2026-03-10-rapids-insight-v5` | rerun exploratorio más nuevo, útil para matizar estabilidad |
+
+: Artefactos recientes que sostienen la propuesta del Paper GPU {#tbl-paper-gpu-artifacts}
+
+La distinción entre `estable` y `más reciente` importa. El run `v5` del insight factory es más nuevo, pero no necesariamente más conveniente como source of truth principal en todas las claims: mejora UMAP, pero degrada cuGraph y ensancha algunos gaps de fidelidad. Por eso el paper puede usar `v4` como baseline estable y `v5` como evidencia de sensibilidad / estabilidad.
+
+## 1. Replay GPU sobre el proyecto real
+
+El replay oficial ya cubre `pd`, `lgd_ead`, `portfolio`, `tradeoff`, `ab`, `cate_portfolio` e `ifrs9_mc`. Su valor no está solo en los tiempos GPU, sino en que usa el pipeline real y el baseline CPU oficial como punto de comparación editorial.
+
+Lo más valioso aquí es que este replay no es un benchmark de juguete. Recorre exactamente los bloques del proyecto donde la GPU parecía tener sentido:
+
+- entrenamiento PD con backend GPU;
+- `LGD/EAD` como bloque de modelado relativamente compacto;
+- solves de `portfolio`, `tradeoff`, `A/B` y `CATE` con `cuopt`;
+- `IFRS9 Monte Carlo` como extensión GPU-native.
+
+Ese alcance ya es suficientemente rico para un paper aplicado, porque cubre **prediction**, **provisioning**, **prescriptive analytics** y **research sidecars** en la misma narrativa.
+
+## 2. Benchmark PD separado
+
+Este benchmark es clave porque evita sobrecontar el resultado PD:
+
+- `fit-only` mejora;
+- `full-stage` no mejora;
+- `HPO` GPU todavía no es estable.
+
+Sin esta separación, el paper correría el riesgo de inflar el caso GPU en scoring.
+
+Además, el benchmark deja una lectura muy útil para el framing del paper:
+
+- la GPU sí acelera el corazón del fit;
+- el pipeline completo sigue arrastrando overhead alrededor del entrenamiento;
+- por tanto, `scoring` debe describirse como una **victoria parcial y localizada**, no como un reemplazo end-to-end del carril CPU.
+
+## 3. IFRS9 Monte Carlo con equivalencia explícita
+
+Este es hoy el caso más defendible del paper. La GPU acelera de forma fuerte y las diferencias relativas en ECL se mantienen pequeñas. Además, el workload es naturalmente relevante para provisión, escenarios y lectura prudencial.
+
+Aquí ya tenemos casi todos los ingredientes de un caso submission-grade:
+
+- universo real del proyecto (`276,869` préstamos);
+- escalamiento fuerte de escenarios (`16,384`);
+- speedup alto (`75.58x`);
+- métricas de cola explícitas (`p95`, `p99`, `expected shortfall`);
+- y diferencias relativas muy pequeñas entre CPU y GPU.
+
+No es solo una historia de velocidad. Es una historia de **fidelidad prudencial bajo escala masiva**. Ese ángulo es probablemente el más fuerte de todo el paper.
+
+## 4. Insight Factory RAPIDS
+
+El carril `UMAP/HDBSCAN/cuGraph` aporta otra dimensión:
+
+- `UMAP` acelera mucho, pero con gap de trustworthiness que debe declararse;
+- `HDBSCAN` muestra una consistencia razonable;
+- `cuGraph` abre una lectura estructural útil del portafolio.
+
+Este bloque no es operacional, pero sí paper-relevant porque muestra una segunda familia de valor GPU: aprendizaje estructural rápido.
+
+También aquí ya hay una historia más rica de lo que parecía:
+
+- `v4` deja un paquete bastante balanceado: UMAP fuerte, HDBSCAN razonable y cuGraph todavía ganador;
+- `v5` muestra sensibilidad: UMAP sube hasta ~`52x`, pero cuGraph cae por debajo de `1x` y HDBSCAN abre más gap de ruido;
+- eso le da al paper algo valioso: no solo un benchmark bonito, sino una lectura de **estabilidad y fragilidad por workload**.
+
+## Qué ya parece paper-grade vs qué sigue prometiendo más de lo que demuestra
+
+| Bloque | Estado |
+|---|---|
+| IFRS9 Monte Carlo | ya paper-grade como claim de aceleración con fidelidad |
+| PD fit-only | paper-grade como mejora parcial bien delimitada |
+| LGD/EAD | defendible como mejora táctica |
+| UMAP/HDBSCAN/cuGraph | defendibles como research acceleration con disclosure |
+| PD full-stage | evidencia negativa útil |
+| GPU HPO | no paper-grade hoy |
+| portfolio/tradeoff/A-B/CATE | prometedores, pero aún mejor como potencial que como claim final |
+
+: Estado actual de la evidencia para Paper GPU {#tbl-paper-gpu-status}
+
+## Qué ya tenemos, en lenguaje de paper
+
+Visto como paper, el repo ya ofrece cinco piezas muy concretas:
+
+1. un benchmark applied y no sintético sobre un pipeline de riesgo crediticio real;
+2. una separación metodológica limpia entre `fit-only` y `full-stage`;
+3. un caso fuerte de provisión/IFRS9 donde velocidad y fidelidad ya conviven;
+4. un carril de analítica estructural que muestra que GPU no solo sirve para entrenar modelos, sino para acelerar descubrimiento;
+5. evidencia negativa útil, que en vez de debilitar el paper lo vuelve más creíble.
+
+Eso último importa mucho: `PD full-stage` y `GPU HPO` no son ruido, son parte del aporte. Ayudan a mostrar que el paper no está intentando vender “GPU everywhere”, sino un mapa selectivo de valor.
+
+## Lectura sintética
+
+La combinación de estos cuatro carriles ya permite defender una tesis central:
+
+> el valor de GPU en riesgo crediticio es selectivo, no uniforme; aparece con más fuerza en Monte Carlo, optimización y algunos workloads de estructura, mientras que scoring end-to-end sigue cargando overhead que la GPU no elimina por sí sola.
+
+Ese claim es suficientemente fuerte para justificar el paper y suficientemente honesto para no sobreprometer.
+
+## Qué propone el paper a partir de esta evidencia
+
+La propuesta final sería posicionar el paper como un estudio aplicado de plataforma y decisión:
+
+- no solo qué acelera la GPU;
+- sino qué acelera **con fidelidad suficiente**;
+- y qué de esa aceleración cambia realmente la conversación de provisión, optimización o benchmarking en crédito.
+
+Eso lo vuelve más interesante que un simple benchmark de RAPIDS y más generalizable que un caso aislado de Monte Carlo.

@@ -20,10 +20,10 @@ import yaml
 from loguru import logger
 from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import brier_score_loss, roc_auc_score
+from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 from src.evaluation.fairness import fairness_report
-from src.evaluation.metrics import classification_metrics
+from src.evaluation.metrics import brier_score_decomposition, classification_metrics
 from src.models.calibration import evaluate_calibration, expected_calibration_error
 from src.models.conformal import create_pd_intervals, validate_coverage
 from src.models.optuna_tuning import resolve_optuna_study_name
@@ -47,12 +47,149 @@ from src.models.pd_model import (
 from src.models.venn_abers import VennAbersScoreCalibrator
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.io_utils import read_split_with_fe_fallback
+from src.utils.pipeline_runtime import atomic_write_json
+from src.utils.replay_manifest import load_replay_manifest, manifest_section
 from src.utils.threshold_semantics import write_threshold_semantics
+from src.utils.visualization import plot_murphy_diagram
 
 
 def load_config(config_path: str) -> dict[str, Any]:
     with open(config_path, encoding="utf-8") as f:
         return yaml.safe_load(f)
+
+
+def validate_pd_config(config: dict[str, Any], *, config_path: str) -> dict[str, Any]:
+    """Fail fast on missing PD config sections and required keys."""
+    if not isinstance(config, dict):
+        raise ValueError(f"PD config must be a mapping: {config_path}")
+
+    required_sections = ("output", "feature_source", "data", "hpo", "validation")
+    missing_sections = [section for section in required_sections if section not in config]
+    if missing_sections:
+        raise ValueError(
+            f"PD config {config_path} missing required sections: {', '.join(missing_sections)}"
+        )
+
+    required_data_keys = ("train_path", "test_path", "calibration_path")
+    missing_data_keys = [
+        key
+        for key in required_data_keys
+        if not str((config.get("data", {}) or {}).get(key, "")).strip()
+    ]
+    if missing_data_keys:
+        raise ValueError(
+            f"PD config {config_path} missing required data keys: {', '.join(missing_data_keys)}"
+        )
+
+    normalized = dict(config)
+    normalized["output"] = dict(config.get("output", {}) or {})
+    normalized["feature_source"] = dict(config.get("feature_source", {}) or {})
+    normalized["data"] = dict(config.get("data", {}) or {})
+    normalized["hpo"] = dict(config.get("hpo", {}) or {})
+    normalized["validation"] = dict(config.get("validation", {}) or {})
+    normalized["model"] = dict(config.get("model", {}) or {})
+    normalized["conformal"] = dict(config.get("conformal", {}) or {})
+    normalized["calibration"] = dict(config.get("calibration", {}) or {})
+
+    output_defaults = {
+        "model_path": "models/pd_canonical.cbm",
+        "default_model_path": "models/pd_catboost_default.cbm",
+        "tuned_model_path": "models/pd_canonical.cbm",
+        "conformal_path": "models/pd_canonical_calibrator.pkl",
+        "status_path": "models/pd_training_status.json",
+        "checkpoint_dir": "models/pd_training_checkpoints",
+        "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
+        "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png",
+    }
+    for key, value in output_defaults.items():
+        normalized["output"].setdefault(key, value)
+
+    normalized["feature_source"].setdefault("mode", "auto")
+    normalized["feature_source"].setdefault(
+        "feature_config_path", "data/processed/feature_config.pkl"
+    )
+    return normalized
+
+
+def _write_json(path: str | Path, payload: dict[str, Any]) -> None:
+    target = Path(path)
+    atomic_write_json(target, payload)
+
+
+def _write_training_status(
+    status_path: str | Path,
+    *,
+    phase: str,
+    state: str,
+    config_path: str,
+    extra: dict[str, Any] | None = None,
+) -> None:
+    payload = {
+        "stage_name": "pd_training",
+        "phase": phase,
+        "state": state,
+        "config_path": config_path,
+        "updated_at_utc": pd.Timestamp.utcnow().isoformat(),
+        **(extra or {}),
+    }
+    _write_json(status_path, payload)
+
+
+def _write_checkpoint(
+    checkpoint_dir: str | Path,
+    name: str,
+    payload: dict[str, Any],
+) -> None:
+    target = Path(checkpoint_dir) / f"{name}.json"
+    _write_json(target, payload)
+
+
+def _metric_with_aliases(payload: dict[str, Any], *keys: str) -> float | None:
+    for key in keys:
+        value = payload.get(key)
+        try:
+            if value is not None:
+                return float(value)
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _validate_replay_expectations(
+    *,
+    replay_cfg: dict[str, Any],
+    final_test_metrics: dict[str, Any],
+    feature_names: list[str],
+    config_path: str,
+) -> None:
+    expected = dict(replay_cfg.get("expectations") or {})
+    tolerances = dict(replay_cfg.get("tolerances") or {})
+    expected_features = [str(x) for x in replay_cfg.get("feature_names", [])]
+    if expected_features and list(feature_names) != expected_features:
+        raise ValueError("Replay feature order mismatch against frozen manifest.")
+    manifest_config_path = str(replay_cfg.get("config_path", "")).strip()
+    if manifest_config_path and manifest_config_path != str(config_path):
+        raise ValueError("Replay config_path does not match frozen manifest.")
+
+    aliases = {
+        "auc_roc": ("auc_roc",),
+        "brier_score": ("brier_score",),
+        "ece": ("ece",),
+        "d2_brier_score": ("d2_brier_score",),
+    }
+    violations: list[str] = []
+    for name, key_aliases in aliases.items():
+        expected_value = _metric_with_aliases(expected, name, *key_aliases)
+        tolerance = _metric_with_aliases(tolerances, name, *key_aliases)
+        observed = _metric_with_aliases(final_test_metrics, name, *key_aliases)
+        if expected_value is None or tolerance is None or observed is None:
+            continue
+        if abs(observed - expected_value) > tolerance:
+            violations.append(
+                f"{name}: observed={observed:.6f} expected={expected_value:.6f} tol={tolerance:.6f}"
+            )
+    if violations:
+        raise ValueError("Replay metric validation failed: " + "; ".join(violations))
 
 
 def _gpu_replay_artifact_root() -> Path | None:
@@ -224,6 +361,10 @@ def _fit_calibrator_from_scores(
         model = IsotonicRegression(y_min=0, y_max=1, out_of_bounds="clip")
         model.fit(y_prob_raw, y_true)
         return model
+    if method == "beta":
+        from src.models.calibration import calibrate_beta
+
+        return calibrate_beta(y_true, y_prob_raw)
     raise ValueError(f"Unsupported calibration method: {method}")
 
 
@@ -451,6 +592,9 @@ def _evaluate_calibration_method(
         if raw_auc is not None and cal_auc is not None:
             auc_drop = float(raw_auc - cal_auc)
 
+        brier_raw = float(brier_score_loss(y_eval, p_eval))
+        brier_cal = float(brier_score_loss(y_eval, p_eval_cal))
+
         fold_rows.append(
             {
                 "fold": fold_id,
@@ -459,7 +603,10 @@ def _evaluate_calibration_method(
                 "raw_auc": None if raw_auc is None else float(raw_auc),
                 "cal_auc": None if cal_auc is None else float(cal_auc),
                 "auc_drop": float(auc_drop),
-                "brier": float(brier_score_loss(y_eval, p_eval_cal)),
+                "brier": brier_cal,
+                "brier_raw": brier_raw,
+                "brier_degraded": brier_cal > brier_raw,
+                "log_loss": float(log_loss(y_eval, p_eval_cal)),
                 "ece": float(expected_calibration_error(y_eval, p_eval_cal)),
             }
         )
@@ -469,27 +616,33 @@ def _evaluate_calibration_method(
             "method": method,
             "folds_used": 0,
             "mean_brier": float("inf"),
+            "mean_log_loss": float("inf"),
             "mean_ece": float("inf"),
             "mean_auc_drop": float("inf"),
             "brier_variance": float("inf"),
             "ece_variance": float("inf"),
             "stability": float("inf"),
+            "degradation_rate": 1.0,
             "folds": [],
         }
 
     briers = np.array([r["brier"] for r in fold_rows], dtype=float)
+    log_losses = np.array([r["log_loss"] for r in fold_rows], dtype=float)
     eces = np.array([r["ece"] for r in fold_rows], dtype=float)
     auc_drops = np.array([r["auc_drop"] for r in fold_rows], dtype=float)
+    n_degraded = sum(1 for r in fold_rows if r.get("brier_degraded", False))
 
     return {
         "method": method,
         "folds_used": int(len(fold_rows)),
         "mean_brier": float(np.mean(briers)),
+        "mean_log_loss": float(np.mean(log_losses)),
         "mean_ece": float(np.mean(eces)),
         "mean_auc_drop": float(np.mean(auc_drops)),
         "brier_variance": float(np.var(briers)),
         "ece_variance": float(np.var(eces)),
         "stability": float(np.var(briers) + np.var(eces)),
+        "degradation_rate": float(n_degraded / len(fold_rows)),
         "folds": fold_rows,
     }
 
@@ -543,6 +696,8 @@ def _human_calibration_name(method: str) -> str:
         return "Isotonic Regression"
     if method == "venn_abers":
         return "Venn-Abers"
+    if method == "beta":
+        return "Beta Calibration"
     return method
 
 
@@ -863,10 +1018,15 @@ def main(
     walk_forward_enabled: bool | None = None,
     seed_replay_enabled: bool | None = None,
     catboost_iterations: int | None = None,
+    validate_only: bool = False,
+    mode: str = "search",
+    replay_manifest_path: str | None = None,
 ) -> None:
     if sample_size is not None and int(sample_size) <= 0:
         sample_size = None
-    config = load_config(config_path)
+    config = validate_pd_config(load_config(config_path), config_path=config_path)
+    run_mode = str(mode or "search").strip().lower() or "search"
+    replay_cfg = manifest_section(load_replay_manifest(replay_manifest_path), "pd")
     regime_cfg = dict(config.get("training_regime", {}) or {})
     if training_regime_mode is not None:
         regime_cfg["mode"] = str(training_regime_mode)
@@ -911,12 +1071,73 @@ def main(
     model_cfg["params"] = model_params
     config["model"] = model_cfg
 
+    if run_mode == "replay":
+        if not replay_cfg:
+            raise ValueError("Replay mode requires a PD section in the replay manifest.")
+        fixed_params = dict(replay_cfg.get("selected_params") or {})
+        if not fixed_params:
+            raise ValueError("Replay manifest missing pd.selected_params.")
+        config["hpo"]["enabled"] = False
+        config["validation"]["seed_replay"]["enabled"] = False
+        config["challenger_pipeline"]["enabled"] = False
+        merged_params = dict(config["model"].get("params", {}) or {})
+        merged_params.update(fixed_params)
+        config["model"]["params"] = merged_params
+
+    status_path = _artifact_path(
+        config["output"].get("status_path", "models/pd_training_status.json")
+    )
+    checkpoint_dir = _artifact_path(
+        config["output"].get("checkpoint_dir", "models/pd_training_checkpoints")
+    )
+    _write_training_status(
+        status_path,
+        phase="config_validated",
+        state="running",
+        config_path=config_path,
+        extra={"validate_only": bool(validate_only)},
+    )
+    _write_checkpoint(
+        checkpoint_dir,
+        "config_validation",
+        {
+            "config_path": config_path,
+            "output": config["output"],
+            "feature_source": config["feature_source"],
+            "data": config["data"],
+            "hpo_enabled": bool(config["hpo"].get("enabled", True)),
+            "validation": config["validation"],
+        },
+    )
+
+    if validate_only:
+        logger.info("PD config validation passed for {}", config_path)
+        _write_training_status(
+            status_path,
+            phase="config_validated",
+            state="completed",
+            config_path=config_path,
+            extra={"validate_only": True},
+        )
+        return
+
     logger.info(f"Config loaded from {config_path}")
 
     train = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["train_path"]))
     test = _normalize_percent_columns(read_split_with_fe_fallback(config["data"]["test_path"]))
     cal = _normalize_percent_columns(
         read_split_with_fe_fallback(config["data"]["calibration_path"])
+    )
+    _write_training_status(
+        status_path,
+        phase="data_loaded",
+        state="running",
+        config_path=config_path,
+        extra={
+            "train_rows": int(len(train)),
+            "calibration_rows": int(len(cal)),
+            "test_rows": int(len(test)),
+        },
     )
 
     train, regime_meta = _apply_training_regime(train, regime_cfg, date_col="issue_d")
@@ -945,6 +1166,13 @@ def main(
     logreg_features = feature_sets["logreg_features"]
     categorical_features = feature_sets["categorical_features"]
 
+    if run_mode == "replay":
+        replay_features = [str(x) for x in replay_cfg.get("feature_names", [])]
+        replay_categorical = [str(x) for x in replay_cfg.get("categorical_features", [])]
+        if replay_features:
+            catboost_features = replay_features
+            categorical_features = replay_categorical
+
     # enforce availability in all splits
     catboost_features = [
         c
@@ -959,7 +1187,7 @@ def main(
     catboost_features, categorical_features, stable_core_meta = _apply_stable_core(
         catboost_features,
         categorical_features,
-        config.get("stable_core", {}) or {},
+        {} if run_mode == "replay" else (config.get("stable_core", {}) or {}),
     )
     logreg_features = [c for c in logreg_features if c in catboost_features]
 
@@ -975,6 +1203,26 @@ def main(
             len(logreg_features),
             len(categorical_features),
         )
+    )
+    _write_checkpoint(
+        checkpoint_dir,
+        "feature_resolution",
+        {
+            "feature_source": feature_sets.get("feature_source", feature_mode),
+            "catboost_features": catboost_features,
+            "logreg_features": logreg_features,
+            "categorical_features": categorical_features,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="features_resolved",
+        state="running",
+        config_path=config_path,
+        extra={
+            "catboost_feature_count": int(len(catboost_features)),
+            "logreg_feature_count": int(len(logreg_features)),
+        },
     )
 
     val_cfg = config.get("validation", {})
@@ -1008,6 +1256,13 @@ def main(
         y_test,
         sample_weight=train_fit_weights,
     )
+    _write_training_status(
+        status_path,
+        phase="baseline_trained",
+        state="running",
+        config_path=config_path,
+        extra={"baseline_auc": float(lr_metrics.get("auc_roc", 0.0))},
+    )
 
     # CatBoost default
     cb_default_model, cb_default_metrics = train_catboost_default(
@@ -1022,6 +1277,13 @@ def main(
         sample_weight=train_fit_weights,
         eval_sample_weight=train_val_weights,
     )
+    _write_training_status(
+        status_path,
+        phase="default_catboost_trained",
+        state="running",
+        config_path=config_path,
+        extra={"validation_auc": float(cb_default_metrics.get("validation_auc", 0.0))},
+    )
 
     # CatBoost tuned (Optuna)
     hpo_cfg = config.get("hpo", {})
@@ -1032,7 +1294,27 @@ def main(
         "selected_trial": None,
         "selected_params": None,
     }
-    if bool(hpo_cfg.get("enabled", True)):
+    if run_mode == "replay":
+        replay_params = dict(replay_cfg.get("selected_params") or {})
+        cb_tuned_model, cb_tuned_metrics = train_catboost_default(
+            X_train_fit_cb,
+            y_train_fit,
+            X_val_cb,
+            y_val,
+            X_test=X_test_cb,
+            y_test=y_test,
+            cat_features=categorical_features,
+            params=replay_params,
+            sample_weight=train_fit_weights,
+            eval_sample_weight=train_val_weights,
+        )
+        cb_tuned_metrics["hpo_trials_executed"] = 0
+        cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
+        cb_tuned_metrics["best_params"] = replay_params
+        cb_tuned_metrics["model_type"] = "catboost_replay_manifest"
+        seed_replay_report["reason"] = "replay_manifest"
+        seed_replay_report["selected_params"] = replay_params
+    elif bool(hpo_cfg.get("enabled", True)):
         cb_tuned_model, cb_tuned_metrics = train_catboost_tuned_optuna(
             X_train_fit_cb,
             y_train_fit,
@@ -1126,6 +1408,26 @@ def main(
         cb_tuned_metrics["hpo_best_validation_auc"] = float(cb_tuned_metrics["validation_auc"])
         cb_tuned_metrics["best_params"] = config["model"].get("params", {})
         seed_replay_report["reason"] = "hpo_disabled"
+    _write_checkpoint(
+        checkpoint_dir,
+        "hpo_summary",
+        {
+            "best_params": cb_tuned_metrics.get("best_params", {}),
+            "hpo_trials_executed": int(cb_tuned_metrics.get("hpo_trials_executed", 0)),
+            "hpo_best_validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+            "seed_replay_report": seed_replay_report,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="tuned_catboost_trained",
+        state="running",
+        config_path=config_path,
+        extra={
+            "validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),
+            "best_iteration": int(cb_tuned_metrics.get("best_iteration", 0)),
+        },
+    )
 
     walk_forward_report: dict[str, Any]
     if bool(walk_cfg.get("enabled", True)):
@@ -1163,11 +1465,12 @@ def main(
     cal_cfg = config.get("calibration", {})
     cal_candidates = cal_cfg.get("candidates", ["platt", "isotonic", "venn_abers"])
     cal_reports: list[dict[str, Any]] = []
-    for method in cal_candidates:
+    if run_mode == "replay":
+        selected_cal_method = str(replay_cfg.get("selected_calibration_method", "venn_abers"))
         try:
             cal_reports.append(
                 _evaluate_calibration_method(
-                    str(method),
+                    selected_cal_method,
                     y_cal.to_numpy(),
                     y_prob_tuned_cal,
                     cal_splits,
@@ -1176,21 +1479,76 @@ def main(
         except Exception as exc:
             cal_reports.append(
                 {
-                    "method": str(method),
+                    "method": selected_cal_method,
                     "folds_used": 0,
                     "mean_brier": float("inf"),
+                    "mean_log_loss": float("inf"),
                     "mean_ece": float("inf"),
                     "mean_auc_drop": float("inf"),
                     "brier_variance": float("inf"),
                     "ece_variance": float("inf"),
                     "stability": float("inf"),
+                    "degradation_rate": 1.0,
                     "error": str(exc),
                     "folds": [],
                 }
             )
-    selected_cal_method, cal_selection_report = _select_calibration_method(
-        cal_reports,
-        auc_drop_limit=0.0015,
+        cal_selection_report = {
+            "selected_method": selected_cal_method,
+            "selection_reason": "frozen_replay_manifest",
+            "auc_drop_limit": 0.0015,
+            "candidates": cal_reports,
+            "feasible_candidates": [
+                row for row in cal_reports if row.get("method") == selected_cal_method
+            ],
+        }
+    else:
+        for method in cal_candidates:
+            try:
+                cal_reports.append(
+                    _evaluate_calibration_method(
+                        str(method),
+                        y_cal.to_numpy(),
+                        y_prob_tuned_cal,
+                        cal_splits,
+                    )
+                )
+            except Exception as exc:
+                cal_reports.append(
+                    {
+                        "method": str(method),
+                        "folds_used": 0,
+                        "mean_brier": float("inf"),
+                        "mean_log_loss": float("inf"),
+                        "mean_ece": float("inf"),
+                        "mean_auc_drop": float("inf"),
+                        "brier_variance": float("inf"),
+                        "ece_variance": float("inf"),
+                        "stability": float("inf"),
+                        "degradation_rate": 1.0,
+                        "error": str(exc),
+                        "folds": [],
+                    }
+                )
+        selected_cal_method, cal_selection_report = _select_calibration_method(
+            cal_reports,
+            auc_drop_limit=0.0015,
+        )
+    _write_checkpoint(
+        checkpoint_dir,
+        "calibration_selection",
+        {
+            "selected_method": selected_cal_method,
+            "selection_report": cal_selection_report,
+            "candidate_reports": cal_reports,
+        },
+    )
+    _write_training_status(
+        status_path,
+        phase="calibration_selected",
+        state="running",
+        config_path=config_path,
+        extra={"selected_calibration_method": selected_cal_method},
     )
 
     calibrator = _fit_calibrator_from_scores(
@@ -1218,7 +1576,17 @@ def main(
             require_explicit=True,
         ),
     }
-    if bool(decision_cfg.get("enabled", True)):
+    if run_mode == "replay" and replay_cfg.get("decision_threshold_artifact"):
+        decision_threshold_artifact = dict(replay_cfg["decision_threshold_artifact"])
+        decision_threshold_artifact.update(
+            build_artifact_metadata(
+                schema_version="2026-03-01.1",
+                run_tag=resolved_run_tag,
+                require_explicit=True,
+            )
+        )
+        decision_threshold_artifact["source"] = "frozen_replay_manifest"
+    elif bool(decision_cfg.get("enabled", True)):
         fairness_policy_path = str(
             decision_cfg.get("fairness_policy_path", "configs/fairness_policy.yaml")
         )
@@ -1275,6 +1643,131 @@ def main(
 
     final_test_metrics = classification_metrics(y_test.values, y_prob_final)
     tuned_raw_test_metrics = classification_metrics(y_test.values, y_prob_tuned_test)
+    calibrated_decomposition = brier_score_decomposition(y_test.values, y_prob_final)
+    raw_decomposition = brier_score_decomposition(y_test.values, y_prob_tuned_test)
+    if run_mode == "replay":
+        _validate_replay_expectations(
+            replay_cfg=replay_cfg,
+            final_test_metrics=final_test_metrics,
+            feature_names=catboost_features,
+            config_path=config_path,
+        )
+
+    # Statistical calibration hypothesis tests (MAPIE)
+    # Tests H0: scores are well-calibrated. High p-value → well calibrated.
+    statistical_cal_tests: dict[str, object] = {}
+    try:
+        from mapie.metrics.calibration import (
+            cumulative_differences,
+            kolmogorov_smirnov_p_value,
+            kuiper_p_value,
+            length_scale,
+            spiegelhalter_p_value,
+        )
+
+        y_test_arr = y_test.values.astype(float)
+        # Calibrated (champion) vs uncalibrated
+        for tag, probs in [("calibrated", y_prob_final), ("uncalibrated", y_prob_tuned_test)]:
+            try:
+                ks_p = float(kolmogorov_smirnov_p_value(y_test_arr, probs))
+                ku_p = float(kuiper_p_value(y_test_arr, probs))
+                sp_p = float(spiegelhalter_p_value(y_test_arr, probs))
+                cum_diff = cumulative_differences(y_test_arr, probs)
+                sigma = float(length_scale(probs))
+                statistical_cal_tests[tag] = {
+                    "ks_pvalue": ks_p,
+                    "kuiper_pvalue": ku_p,
+                    "spiegelhalter_pvalue": sp_p,
+                    "length_scale_sigma": sigma,
+                    "n": int(len(y_test_arr)),
+                }
+                logger.info(
+                    f"Calibration tests [{tag}]: KS_p={ks_p:.4f} "
+                    f"Kuiper_p={ku_p:.4f} Spiegelhalter_p={sp_p:.4f}"
+                )
+                # Save cumulative differences for the figure (calibrated only)
+                if tag == "calibrated":
+                    statistical_cal_tests["_cum_diff_calibrated"] = cum_diff.tolist()
+                    statistical_cal_tests["_sigma"] = sigma
+                elif tag == "uncalibrated":
+                    statistical_cal_tests["_cum_diff_uncalibrated"] = cum_diff.tolist()
+            except Exception as exc_inner:
+                logger.warning(f"Statistical calibration tests [{tag}] failed: {exc_inner}")
+                statistical_cal_tests[tag] = {"error": str(exc_inner)}
+
+        # Save cumulative differences parquet for figure generation
+        if "_cum_diff_calibrated" in statistical_cal_tests:
+            k_idx = np.arange(len(y_test_arr)) / len(y_test_arr)
+            sigma_val = float(statistical_cal_tests.get("_sigma", 0.0))
+            cum_diff_df = pd.DataFrame(
+                {
+                    "k": k_idx,
+                    "cum_diff_calibrated": statistical_cal_tests.pop("_cum_diff_calibrated"),
+                    "cum_diff_uncalibrated": statistical_cal_tests.pop(
+                        "_cum_diff_uncalibrated",
+                        [float("nan")] * len(k_idx),
+                    ),
+                    "sigma_upper": sigma_val * 2,
+                    "sigma_lower": -sigma_val * 2,
+                }
+            )
+            cum_diff_path = _artifact_path("data/processed/calibration_cumulative_diffs.parquet")
+            cum_diff_path.parent.mkdir(parents=True, exist_ok=True)
+            cum_diff_df.to_parquet(cum_diff_path, index=False)
+            logger.info(f"Saved calibration cumulative diffs: {cum_diff_path}")
+            statistical_cal_tests.pop("_sigma", None)
+
+        stat_cal_path = _artifact_path("data/processed/statistical_calibration_tests.json")
+        stat_cal_path.parent.mkdir(parents=True, exist_ok=True)
+        stat_cal_path.write_text(
+            json.dumps(statistical_cal_tests, indent=2, default=str), encoding="utf-8"
+        )
+        logger.info(f"Saved statistical calibration tests: {stat_cal_path}")
+    except ImportError:
+        logger.warning(
+            "mapie.metrics.calibration not available — statistical calibration tests skipped."
+        )
+    except Exception as exc:
+        logger.warning(f"Statistical calibration tests block failed: {exc}")
+
+    brier_decomposition_path = _artifact_path(
+        config["output"].get(
+            "brier_decomposition_path", "data/processed/brier_score_decomposition.json"
+        )
+    )
+    _write_json(
+        brier_decomposition_path,
+        {
+            "calibrated": calibrated_decomposition,
+            "uncalibrated": raw_decomposition,
+            "selected_calibration_method": selected_cal_method,
+        },
+    )
+
+    murphy_diagram_path = _artifact_path(
+        config["output"].get(
+            "murphy_diagram_path", "reports/figures/calibration/murphy_diagram.png"
+        )
+    )
+    try:
+        import matplotlib.pyplot as plt
+
+        ax = plot_murphy_diagram(
+            y_test.values,
+            {
+                "CatBoost tuned raw": y_prob_tuned_test,
+                f"CatBoost tuned calibrated ({selected_cal_method})": y_prob_final,
+                "LogReg baseline": lr_model.predict_proba(X_test_lr)[:, 1],
+            },
+            title="Murphy Diagram: Raw vs Calibrated PD Forecasts",
+        )
+        ax.figure.tight_layout()
+        murphy_diagram_path.parent.mkdir(parents=True, exist_ok=True)
+        ax.figure.savefig(murphy_diagram_path, dpi=180, bbox_inches="tight")
+        plt.close(ax.figure)
+        logger.info("Saved Murphy diagram to {}", murphy_diagram_path)
+    except Exception as exc:
+        logger.warning("Murphy diagram export skipped: {}", exc)
 
     # Persist models/calibrator
     model_path = _artifact_path(config["output"].get("model_path", "models/pd_catboost_tuned.cbm"))
@@ -1373,6 +1866,57 @@ def main(
     )
     save_contract(contract_payload, contract_path)
 
+    # ── SHAP feature importance export (CatBoost native) ──
+    shap_artifact: dict[str, Any] = {"exported": False}
+    try:
+        from catboost import Pool as _SHAPPool
+
+        shap_pool = _SHAPPool(X_test_cb, cat_features=categorical_features)
+        shap_raw = cb_tuned_model.get_feature_importance(type="ShapValues", data=shap_pool)
+        # ShapValues returns (n_samples, n_features + 1); last col = expected value
+        shap_values = shap_raw[:, :-1]
+        shap_expected = float(shap_raw[0, -1])
+
+        mean_abs_shap = np.abs(shap_values).mean(axis=0)
+        shap_importance = sorted(
+            zip(catboost_features, mean_abs_shap.tolist(), strict=False),
+            key=lambda x: x[1],
+            reverse=True,
+        )
+        shap_dir = _artifact_path("reports/figures/shap")
+        shap_dir.mkdir(parents=True, exist_ok=True)
+
+        # Save raw SHAP values (compressed)
+        np.savez_compressed(
+            str(shap_dir / "shap_values_test.npz"),
+            shap_values=shap_values,
+            expected_value=np.array([shap_expected]),
+            feature_names=np.array(catboost_features),
+        )
+
+        # Save top-N importance as JSON for Streamlit/governance
+        top_n = min(20, len(shap_importance))
+        shap_summary = {
+            "expected_value": shap_expected,
+            "n_samples": int(shap_values.shape[0]),
+            "n_features": int(shap_values.shape[1]),
+            "top_features": [
+                {"feature": f, "mean_abs_shap": round(v, 6)} for f, v in shap_importance[:top_n]
+            ],
+        }
+        shap_summary_path = shap_dir / "shap_feature_importance.json"
+        shap_summary_path.write_text(json.dumps(shap_summary, indent=2), encoding="utf-8")
+        shap_artifact = {"exported": True, "n_features": top_n, "path": str(shap_dir)}
+        logger.info(
+            "SHAP export: top feature={} (|SHAP|={:.4f}), saved to {}",
+            shap_importance[0][0],
+            shap_importance[0][1],
+            shap_dir,
+        )
+    except Exception as exc:
+        logger.warning("SHAP feature importance export skipped: {}", exc)
+        shap_artifact["error"] = str(exc)
+
     # Persist test predictions for downstream contracts.
     test_predictions_path = _artifact_path("data/processed/test_predictions.parquet")
     test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
@@ -1392,6 +1936,8 @@ def main(
     preds_df.to_parquet(test_predictions_path, index=False)
 
     training_record = {
+        "run_mode": run_mode,
+        "replay_manifest_path": str(replay_manifest_path) if replay_manifest_path else None,
         "best_model": "CatBoost (tuned + calibrated)",
         "best_calibration": _human_calibration_name(selected_cal_method),
         "calibration_selection_report": cal_selection_report,
@@ -1424,9 +1970,13 @@ def main(
         "catboost_default_metrics": cb_default_metrics,
         "catboost_tuned_metrics": cb_tuned_metrics,
         "catboost_tuned_raw_test_metrics": tuned_raw_test_metrics,
+        "brier_decomposition_calibrated": calibrated_decomposition,
+        "brier_decomposition_uncalibrated": raw_decomposition,
         "calibration_metrics": cal_metrics,
         "conformal_metrics": cp_metrics,
         "final_test_metrics": final_test_metrics,
+        "shap_export": shap_artifact,
+        "murphy_diagram_path": str(murphy_diagram_path),
     }
 
     record_path = _artifact_path("models/pd_training_record.pkl")
@@ -1465,6 +2015,19 @@ def main(
     logger.info("Saved PD contract to {}", contract_path)
     logger.info("Saved test predictions to {}", test_predictions_path)
     logger.info("Saved training record to {}", record_path)
+    _write_training_status(
+        status_path,
+        phase="artifacts_saved",
+        state="completed",
+        config_path=config_path,
+        extra={
+            "model_path": str(model_path),
+            "calibrator_path": str(cal_path),
+            "record_path": str(record_path),
+            "auc_roc": float(final_test_metrics.get("auc_roc", 0.0)),
+            "brier_score": float(final_test_metrics.get("brier_score", 0.0)),
+        },
+    )
     logger.info(
         "Final metrics | AUC={:.4f} Gini={:.4f} KS={:.4f} Brier={:.4f} ECE={:.4f}",
         final_test_metrics["auc_roc"],
@@ -1509,6 +2072,9 @@ if __name__ == "__main__":
         default=None,
     )
     parser.add_argument("--catboost_iterations", type=int, default=None)
+    parser.add_argument("--validate-only", action="store_true")
+    parser.add_argument("--mode", choices=["search", "replay"], default="search")
+    parser.add_argument("--replay_manifest", default=None)
     args = parser.parse_args()
     main(
         args.config,
@@ -1533,4 +2099,7 @@ if __name__ == "__main__":
             None if args.seed_replay_enabled is None else args.seed_replay_enabled.lower() == "true"
         ),
         catboost_iterations=args.catboost_iterations,
+        validate_only=bool(args.validate_only),
+        mode=str(args.mode),
+        replay_manifest_path=args.replay_manifest,
     )

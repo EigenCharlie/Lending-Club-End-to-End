@@ -1,0 +1,388 @@
+## Inferencia Causal {#sec-causal-inference-primer}
+
+La inferencia causal es la rama de la estadística y la ciencia de datos que se ocupa de una pregunta fundamental: **¿cuál es el efecto de una intervención?** Mientras que los modelos de machine learning son extraordinariamente buenos para capturar patrones predictivos en datos observacionales, la mayoría de las decisiones de negocio en riesgo crediticio requieren entender relaciones causales, no meramente correlacionales. Esta sección presenta los fundamentos teóricos y las herramientas computacionales que permiten pasar de predicción a prescripción causal.
+
+### Correlación vs Causalidad {#sec-corr-vs-causal}
+
+Uno de los errores más comunes en la aplicación de modelos de ML a decisiones de política crediticia es confundir correlación con causalidad. Un modelo de gradient boosting entrenado sobre datos históricos de Lending Club puede asignar alta importancia predictiva a la tasa de interés (`int_rate`) como predictor de default. Esto refleja una correlación real en los datos --- préstamos con tasas más altas tienen mayor probabilidad de default. Sin embargo, la pregunta de política es distinta:
+
+> **¿Aumentar la tasa de interés a un solicitante *causa* que sea más probable que entre en default?**
+
+La respuesta no es trivialmente afirmativa. La correlación observada puede deberse a al menos tres mecanismos distintos:
+
+1. **Confusión (*confounding*)**: Prestatarios de mayor riesgo (FICO bajo, DTI alto) reciben tasas más altas *y* tienen mayor probabilidad de default. La tasa de interés no causa el default --- ambos son consecuencia de variables de riesgo subyacentes.
+2. **Efecto causal directo**: Una tasa más alta incrementa la carga financiera mensual, reduciendo la capacidad de pago y aumentando la probabilidad de default (*moral hazard* o *debt burden effect*).
+3. **Selección adversa**: Solicitantes que aceptan tasas altas pueden tener información privada sobre su propia probabilidad de impago que no está capturada en las variables observables.
+
+::: {.callout-warning}
+## Peligro de decisiones basadas en correlación
+Si un banco usa un modelo predictivo para fijar tasas de interés sin distinguir correlación de causalidad, podría *aumentar* los defaults al subir las tasas a segmentos que ya están bajo estrés financiero --- exactamente lo contrario de lo que busca una política de pricing basada en riesgo. Las decisiones de política (*¿cuánto cobrar?*, *¿a quién aprobar?*, *¿qué límite asignar?*) requieren estimaciones causales, no predictivas.
+:::
+
+Una forma sencilla de verlo es esta: un modelo predictivo responde "qué suele pasar cuando observo cierto perfil", mientras que una pregunta causal responde "qué cambiaría si yo modificara activamente una variable". Esa diferencia es la que separa una correlación útil de una decisión de política bien fundamentada.
+
+En el contexto de este proyecto, las preguntas causales centrales son:
+
+| Pregunta causal | Tratamiento ($T$) | Outcome ($Y$) | Confusores clave |
+|----------------|-------------------|----------------|------------------|
+| ¿La tasa de interés causa default? | `int_rate` | `default_flag` | FICO, DTI, grado, ingreso |
+| ¿La verificación de ingresos reduce default? | `verification_status` | `default_flag` | Ingreso, monto, grado |
+| ¿Un mayor monto aprobado causa default? | `loan_amnt` | `default_flag` | Ingreso, DTI, propósito |
+
+: Preguntas causales centrales del proyecto de riesgo crediticio {#tbl-causal-questions}
+
+
+### Marco de Resultados Potenciales (Rubin) {#sec-potential-outcomes}
+
+El **Marco de Resultados Potenciales** (*Potential Outcomes Framework*), formalizado por Donald Rubin y también conocido como el **modelo de Rubin** o **modelo Neyman-Rubin**, es el fundamento matemático de la inferencia causal moderna. La idea central es que cada individuo tiene *dos* resultados potenciales, pero solo observamos uno de ellos.
+
+Para cada préstamo $i$, definimos:
+
+- $T_i \in \{0, 1\}$: indicador de tratamiento (por ejemplo, $T_i = 1$ si recibe tasa alta, $T_i = 0$ si recibe tasa baja).
+- $Y_i(1)$: resultado potencial si el préstamo $i$ recibe el tratamiento ($T = 1$).
+- $Y_i(0)$: resultado potencial si el préstamo $i$ *no* recibe el tratamiento ($T = 0$).
+
+El **efecto causal individual** (*Individual Treatment Effect*, ITE) se define como:
+
+$$
+\tau_i = Y_i(1) - Y_i(0)
+$$ {#eq-ite}
+
+::: {.callout-note}
+## El Problema Fundamental de la Inferencia Causal
+Para cada préstamo, solo observamos *uno* de los dos resultados potenciales:
+
+$$
+Y_i^{\text{obs}} = T_i \cdot Y_i(1) + (1 - T_i) \cdot Y_i(0)
+$$ {#eq-observed-outcome}
+
+El resultado contrafactual --- lo que habría ocurrido bajo la condición alternativa --- nunca es observado. Este es el **Problema Fundamental de la Inferencia Causal** (*Fundamental Problem of Causal Inference*, Holland 1986): es imposible calcular el ITE $\tau_i$ directamente porque requiere observar ambos $Y_i(1)$ y $Y_i(0)$ simultáneamente para el mismo individuo.
+:::
+
+Para superar este problema, la inferencia causal se apoya en **supuestos de identificación** que permiten estimar efectos promedio a partir de datos observacionales:
+
+1. **SUTVA** (*Stable Unit Treatment Value Assumption*): El resultado de un individuo no depende del tratamiento asignado a otros individuos (no interferencia), y no existen versiones múltiples ocultas del tratamiento.
+
+2. **Ignorabilidad** (*Unconfoundedness* o *Conditional Independence*):
+
+$$
+\{Y(0), Y(1)\} \perp\!\!\!\perp T \mid X
+$$ {#eq-unconfoundedness}
+
+Dado un conjunto suficiente de covariables $X$, la asignación del tratamiento es independiente de los resultados potenciales. Esto significa que, condicionando en $X$, es como si el tratamiento se asignara aleatoriamente.
+
+3. **Positividad** (*Overlap*):
+
+$$
+0 < P(T = 1 \mid X = x) < 1 \quad \forall x \in \text{soporte}(X)
+$$ {#eq-positivity}
+
+Todos los individuos tienen probabilidad positiva de recibir tanto el tratamiento como el control. Si ciertos perfiles *nunca* reciben una tasa alta (por ejemplo, grado A), no podemos estimar el efecto causal para ese subgrupo.
+
+::: {.callout-warning}
+## Violación de supuestos en datos de Lending Club
+En datos observacionales como Lending Club, la ignorabilidad es *inverificable* --- siempre puede existir un confusor no observado (por ejemplo, estabilidad laboral real, intención de pago). Los tests de refutación (@sec-refutation-tests) son esenciales para evaluar la robustez de las estimaciones causales frente a estas violaciones potenciales.
+:::
+
+
+### Efecto Promedio del Tratamiento (ATE) {#sec-ate}
+
+Dado que el ITE individual es inobservable, la inferencia causal trabaja con promedios poblacionales. El **Efecto Promedio del Tratamiento** (*Average Treatment Effect*, ATE) se define como:
+
+$$
+\tau_{\text{ATE}} = \mathbb{E}[Y(1) - Y(0)] = \mathbb{E}[Y(1)] - \mathbb{E}[Y(0)]
+$$ {#eq-ate}
+
+El ATE responde a la pregunta: **en promedio, ¿cuánto cambia la probabilidad de default si aplicamos el tratamiento a toda la población?**
+
+Bajo los supuestos de identificación (ignorabilidad, positividad y SUTVA), el ATE se puede estimar a partir de datos observacionales mediante la fórmula de ajuste:
+
+$$
+\tau_{\text{ATE}} = \mathbb{E}_X \left[ \mathbb{E}[Y \mid T=1, X] - \mathbb{E}[Y \mid T=0, X] \right]
+$$ {#eq-ate-adjustment}
+
+En riesgo crediticio, un ATE significativamente positivo para `int_rate` implicaría que, ajustando por todas las características observables del prestatario, una tasa más alta *causa* un incremento en la probabilidad de default. Esto tendría implicaciones directas para la política de pricing: el beneficio de cobrar más se erosiona por el incremento inducido en pérdidas.
+
+Variantes importantes del ATE incluyen:
+
+- **ATT** (*Average Treatment Effect on the Treated*): $\mathbb{E}[Y(1) - Y(0) \mid T = 1]$ --- el efecto promedio *solo* sobre quienes recibieron el tratamiento.
+- **ATC** (*Average Treatment Effect on the Control*): $\mathbb{E}[Y(1) - Y(0) \mid T = 0]$ --- el efecto promedio *solo* sobre quienes no recibieron el tratamiento.
+
+
+### Efecto Condicional del Tratamiento (CATE) {#sec-cate}
+
+El ATE es un promedio global que oculta heterogeneidad fundamental. En riesgo crediticio, es razonable esperar que el efecto de la tasa de interés sobre el default no sea uniforme:
+
+- Para un prestatario con alto ingreso y bajo DTI, un incremento de tasa puede tener efecto insignificante (tiene margen de pago).
+- Para un prestatario ya al borde de la capacidad de pago, el mismo incremento puede ser el factor que dispare el default.
+
+El **Efecto Condicional del Tratamiento** (*Conditional Average Treatment Effect*, CATE) captura esta heterogeneidad:
+
+$$
+\tau(x) = \mathbb{E}[Y(1) - Y(0) \mid X = x]
+$$ {#eq-cate}
+
+donde $x$ es un vector de características del prestatario. El CATE es una *función* --- no un escalar --- que mapea cada perfil de riesgo a un efecto causal estimado.
+
+::: {.callout-note}
+## ¿Por qué el CATE es central para la optimización de portafolio?
+Si el CATE $\tau(x)$ varía entre segmentos, entonces una política de pricing uniforme es subóptima. El portafolio óptimo debería:
+
+- **Reducir tasas** para segmentos donde $\tau(x) > 0$ (la tasa causa default), recapturando valor mediante menores pérdidas.
+- **Mantener o incrementar tasas** para segmentos donde $\tau(x) \approx 0$ (la tasa no afecta default), maximizando el spread.
+
+Esta es la lógica detrás de la *policy learning* causal: usar las estimaciones de CATE para diseñar políticas personalizadas de crédito. En este proyecto, el CATE estimado se integra directamente en el optimizador de portafolio (@sec-cate para detalles de implementación).
+:::
+
+
+### Double/Debiased Machine Learning (DML) {#sec-dml}
+
+Los métodos clásicos de inferencia causal (regresión lineal, propensity score matching) asumen formas funcionales específicas para la relación entre covariables y resultados. En presencia de datos de alta dimensionalidad con relaciones no lineales --- como es típico en credit scoring --- estas restricciones funcionales pueden sesgar las estimaciones causales.
+
+**Double/Debiased Machine Learning** (DML), propuesto por @chernozhukov2018, resuelve este problema al permitir el uso de modelos de ML flexibles (CatBoost, Random Forest, redes neuronales) para estimar los **parámetros de nuisance** (funciones condicionales intermedias), mientras preserva la validez inferencial para el **parámetro causal de interés** $\theta$.
+
+#### Intuición del problema
+
+Consideremos el modelo parcialmente lineal:
+
+$$
+Y = \theta \cdot T + g(X) + \varepsilon
+$$ {#eq-partial-linear}
+
+$$
+T = m(X) + \eta
+$$ {#eq-treatment-model}
+
+donde $g(X) = \mathbb{E}[Y \mid X]$ es la función de resultado condicional (nuisance), $m(X) = \mathbb{E}[T \mid X]$ es el *propensity score* generalizado (nuisance), y $\theta$ es el efecto causal que queremos estimar.
+
+Si simplemente usamos ML para estimar $\hat{g}$ y luego regresamos los residuos, obtenemos un estimador con **sesgo de regularización**: el error de aproximación en $\hat{g}$ contamina la estimación de $\theta$.
+
+#### La solución: ortogonalización y cross-fitting
+
+DML resuelve este problema con dos ingredientes clave:
+
+**1. Neyman Orthogonality (Doble Residualización)**:
+En lugar de regresar $Y$ sobre $T$ ajustando por $\hat{g}$, DML residualiza *ambas* ecuaciones:
+
+$$
+\tilde{Y}_i = Y_i - \hat{g}(X_i), \quad \tilde{T}_i = T_i - \hat{m}(X_i)
+$$ {#eq-dml-residuals}
+
+Luego estima $\theta$ por OLS sobre los residuos:
+
+$$
+\hat{\theta}_{\text{DML}} = \frac{\sum_{i=1}^{n} \tilde{T}_i \cdot \tilde{Y}_i}{\sum_{i=1}^{n} \tilde{T}_i^2}
+$$ {#eq-dml-estimator}
+
+La residualización del tratamiento elimina la correlación espuria entre $T$ y los confusores, haciendo que el estimador sea **robusto (Neyman-ortogonal)** a errores de primer orden en la estimación de $\hat{g}$ y $\hat{m}$.
+
+**2. Cross-fitting (partición de muestra)**:
+Para evitar el overfitting en las estimaciones de nuisance, DML divide los datos en $K$ folds. Para cada fold $k$:
+
+- Estima $\hat{g}^{(-k)}$ y $\hat{m}^{(-k)}$ usando los datos *excluyendo* fold $k$.
+- Calcula los residuos $\tilde{Y}_i$, $\tilde{T}_i$ para las observaciones *en* fold $k$.
+- Combina los residuos de todos los folds para la estimación final.
+
+Este procedimiento garantiza que las predicciones de nuisance nunca se calculan sobre los mismos datos usados para la estimación del parámetro causal.
+
+::: {.callout-note}
+## Propiedades teóricas de DML
+Bajo condiciones de regularidad (convergencia de los modelos de nuisance a tasa $n^{-1/4}$), el estimador DML es:
+
+- **$\sqrt{n}$-consistente**: converge al valor real a la tasa paramétrica estándar.
+- **Asintóticamente normal**: $\sqrt{n}(\hat{\theta} - \theta_0) \xrightarrow{d} \mathcal{N}(0, V)$, lo que permite construir intervalos de confianza y tests de hipótesis válidos.
+- **Robusto a sesgo de regularización**: los errores de los modelos de ML (que convergen más lento que $\sqrt{n}$) no contaminan la inferencia sobre $\theta$.
+
+Esto es notable: se obtiene inferencia estadística clásica (p-valores, intervalos de confianza) usando modelos de ML de caja negra para los componentes de nuisance.
+:::
+
+#### Extensión a efectos heterogéneos
+
+DML se extiende naturalmente a la estimación de CATE. En lugar de un escalar $\theta$, se estima una función $\theta(x)$ que varía con las covariables. La clase `CausalForestDML` de EconML combina el framework DML para la residualización con Causal Forests para la estimación del efecto heterogéneo.
+
+
+### Causal Forests {#sec-causal-forests}
+
+Los **Causal Forests**, introducidos por @athey2019, son una adaptación de los Random Forests específicamente diseñada para estimar efectos de tratamiento heterogéneos (CATE). Mientras que un Random Forest estándar predice $\mathbb{E}[Y \mid X]$, un Causal Forest predice $\tau(x) = \mathbb{E}[Y(1) - Y(0) \mid X = x]$.
+
+#### Diferencias clave con Random Forests estándar
+
+| Aspecto | Random Forest estándar | Causal Forest |
+|---------|----------------------|---------------|
+| **Objetivo** | Minimizar MSE de $Y$ | Maximizar heterogeneidad de $\tau(x)$ |
+| **Criterio de split** | Reducir varianza de $Y$ | Maximizar diferencia de efectos entre hijos |
+| **Honestidad** | No requerida | Splitting y estimación en submuestras disjuntas |
+| **Salida** | $\hat{Y}(x)$ | $\hat{\tau}(x)$ con intervalos de confianza |
+| **Inferencia** | Limitada | Asintóticamente normal, IC válidos |
+
+: Comparación entre Random Forest estándar y Causal Forest {#tbl-rf-vs-cf}
+
+#### Funcionamiento
+
+El algoritmo opera en cuatro pasos:
+
+1. **Subsampling**: Para cada árbol, se extrae una submuestra sin reemplazo del dataset.
+2. **Honest splitting**: La submuestra se divide en dos mitades:
+   - **Muestra de splitting**: Se usa para determinar la estructura del árbol (dónde hacer los cortes).
+   - **Muestra de estimación**: Se usa para estimar $\hat{\tau}$ dentro de cada hoja.
+3. **Criterio de split causal**: En cada nodo, el algoritmo busca divisiones que separen grupos con efectos de tratamiento realmente distintos, no solo grupos con outcomes distintos.
+
+4. **Estimación en hoja**: Para una observación nueva, el bosque promedia la evidencia local de muchos árboles para estimar qué tan sensible sería ese perfil a una intervención.
+
+::: {.callout-note}
+## Honestidad y validez inferencial
+La propiedad de **honestidad** (*honesty*) es lo que distingue a un Causal Forest de un Random Forest con truco. Al usar submuestras disjuntas para la estructura del árbol y para la estimación del efecto, se evita el overfitting adaptativo que invalidaría la inferencia. Esto permite obtener intervalos de confianza asintóticamente válidos para $\hat{\tau}(x)$, algo que no es posible con un Random Forest estándar.
+:::
+
+
+### DoWhy + EconML: El Stack de Software {#sec-dowhy-econml}
+
+La implementación computacional de la inferencia causal en este proyecto se basa en dos bibliotecas complementarias que reflejan los dos pasos del análisis causal: **identificación** (DoWhy) y **estimación** (EconML).
+
+#### DoWhy: Identificación y refutación
+
+**DoWhy** (Microsoft Research) implementa el flujo de trabajo causal de cuatro pasos:
+
+1. **Modelar**: Especificar el grafo causal (DAG) que representa las relaciones causales entre variables. En este proyecto, el DAG incluye variables como `grade_woe`, `dti`, `annual_inc`, `fico_range_low` como confusores de la relación entre `int_rate` y `default_flag`.
+
+2. **Identificar**: Dado el DAG, DoWhy determina automáticamente si el efecto causal es identificable y cuál es la estrategia de identificación apropiada (back-door, front-door, variable instrumental). Para nuestro DAG, la estrategia es **back-door adjustment** condicionando en los confusores observados.
+
+3. **Estimar**: Delega la estimación al método elegido (puede ser un estimador de EconML).
+
+4. **Refutar**: Ejecuta tests automáticos para evaluar la robustez de la estimación causal.
+
+#### EconML: Estimación de efectos heterogéneos
+
+**EconML** (Microsoft Research) proporciona los estimadores de CATE, siendo `CausalForestDML` el más utilizado en este proyecto. Este estimador combina:
+
+- **DML** (@sec-dml) para la residualización de nuisance parameters usando modelos de ML flexibles (CatBoost como modelo de outcome, Logistic Regression como modelo de propensity).
+- **Causal Forest** (@sec-causal-forests) para la estimación no paramétrica del efecto heterogéneo sobre los residuos.
+
+El flujo computacional puede leerse así:
+
+```{=html}
+<div class="book-flow">
+  <div class="book-flow__row">
+    <div class="book-flow__card">
+      <strong>Datos observacionales</strong>
+      <span>Préstamos reales con covariables, tratamiento y outcome.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>DoWhy</strong>
+      <span>Valida el DAG y confirma que la estrategia de identificación elegida tiene sentido.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>EconML / CausalForestDML</strong>
+      <span>Ajusta por confusores y estima heterogeneidad del efecto entre perfiles.</span>
+    </div>
+    <div class="book-flow__arrow">→</div>
+    <div class="book-flow__card">
+      <strong>Política</strong>
+      <span>El CATE resultante se integra en reglas y decisiones downstream.</span>
+    </div>
+  </div>
+  <p class="book-flow__note">La idea no es reemplazar el score, sino añadir una capa que ayude a decidir cuándo intervenir y en qué segmentos.</p>
+</div>
+```
+
+::: {.callout-note}
+## Modelos de nuisance en este proyecto
+La elección de modelos de nuisance afecta la calidad de la residualización:
+
+- **Modelo de outcome** $g(X) = \mathbb{E}[Y \mid X]$: CatBoost (mismo framework del modelo PD, aprovechando su manejo nativo de categorías y NaN).
+- **Modelo de tratamiento** $m(X) = \mathbb{E}[T \mid X]$: Regresión logística o Gradient Boosting, dependiendo de si el tratamiento es binario o continuo.
+
+La convergencia de estos modelos de nuisance a tasa $n^{-1/4}$ es suficiente para garantizar la validez inferencial de DML con más de un millón de observaciones en el split de entrenamiento.
+:::
+
+#### SHAP para interpretabilidad causal
+
+Una ventaja del Causal Forest es que, al ser un ensemble de árboles, se pueden calcular valores SHAP (*SHapley Additive exPlanations*) sobre las predicciones de CATE. Esto permite responder no solo *cuánto* varía el efecto causal entre individuos, sino *qué variables* explican esa variación. Por ejemplo, si FICO score tiene alto SHAP importance para el CATE, esto indica que el efecto causal de la tasa de interés sobre el default depende fuertemente del perfil crediticio del prestatario.
+
+
+### Tests de Refutación {#sec-refutation-tests}
+
+En un experimento aleatorizado (A/B test), la validez causal está garantizada por diseño. En datos observacionales, las estimaciones causales dependen de supuestos no verificables --- particularmente la ignorabilidad (@sec-potential-outcomes). Los **tests de refutación** (*refutation tests*) evalúan la robustez de las estimaciones frente a violaciones de estos supuestos. No pueden *probar* que la estimación es correcta, pero si la estimación sobrevive a múltiples intentos de refutación, su credibilidad aumenta sustancialmente.
+
+DoWhy implementa tres tests de refutación principales:
+
+#### 1. Tratamiento placebo (*Placebo Treatment*)
+
+Se reemplaza el tratamiento real por un tratamiento aleatorio (permutado) y se re-estima el efecto causal. Si el efecto original es genuinamente causal, el efecto placebo debería ser estadísticamente indistinguible de cero.
+
+$$
+H_0: \hat{\tau}_{\text{placebo}} = 0 \quad \text{(si el efecto original es causal)}
+$$ {#eq-placebo}
+
+**Interpretación**: Si el efecto placebo es significativamente distinto de cero, sugiere que la estimación original está contaminada por confusión residual o correlaciones espurias en la estructura de los datos.
+
+#### 2. Causa común aleatoria (*Random Common Cause*)
+
+Se agrega una variable aleatoria (ruido puro) al conjunto de confusores y se re-estima el efecto. Si el modelo causal está correctamente especificado, agregar una variable irrelevante no debería cambiar significativamente la estimación.
+
+$$
+\frac{|\hat{\tau}_{\text{original}} - \hat{\tau}_{\text{+ruido}}|}{|\hat{\tau}_{\text{original}}|} < \epsilon \quad \text{(criterio de robustez)}
+$$ {#eq-random-cause}
+
+**Interpretación**: Un cambio sustancial en la estimación al agregar ruido indica que el modelo es inestable y posiblemente mal especificado --- los confusores controlados son insuficientes o la forma funcional es inadecuada.
+
+#### 3. Subconjunto de datos (*Data Subset*)
+
+Se re-estima el efecto causal usando subconjuntos aleatorios de los datos (típicamente 70--90% del dataset original). Si la estimación es robusta, debería ser estable a través de diferentes subconjuntos.
+
+$$
+\text{CV}_{\tau} = \frac{\text{sd}(\hat{\tau}_{\text{subsets}})}{\bar{\hat{\tau}}_{\text{subsets}}} < \delta \quad \text{(criterio de estabilidad)}
+$$ {#eq-subset}
+
+**Interpretación**: Alta variabilidad entre subconjuntos sugiere que la estimación depende fuertemente de observaciones particulares y no refleja un efecto poblacional robusto.
+
+::: {.callout-warning}
+## Limitaciones de los tests de refutación
+Los tests de refutación son condiciones *necesarias* pero no *suficientes* para la validez causal. Una estimación puede pasar los tres tests y aún así estar sesgada si existe un confusor no observado fuerte. En particular:
+
+- **Placebo**: Detecta correlaciones espurias pero no confusión por variables omitidas.
+- **Random common cause**: Solo evalúa sensibilidad local, no identifica el confusor faltante.
+- **Data subset**: Evalúa estabilidad estadística, no validez causal.
+
+Para datasets observacionales como Lending Club, los resultados causales deben interpretarse como **estimaciones bajo los supuestos del DAG especificado**, no como verdades causales absolutas. El análisis de sensibilidad (*sensitivity analysis*) --- que evalúa cuánta confusión no observada sería necesaria para anular el efecto estimado --- complementa los tests de refutación pero queda fuera del alcance de esta sección introductoria.
+:::
+
+La @tbl-refutation-summary presenta un resumen de los tres tests:
+
+| Test | Qué evalúa | Señal de alarma | Criterio de éxito |
+|------|-----------|-----------------|------------------|
+| **Placebo** | ¿El efecto es genuino o espurio? | $\hat{\tau}_{\text{placebo}} \neq 0$ | p-valor > 0.05 para $H_0$: efecto = 0 |
+| **Random cause** | ¿El modelo es estable a ruido? | Cambio > 10% en $\hat{\tau}$ | Diferencia relativa < 5% |
+| **Data subset** | ¿La estimación es robusta? | Alta varianza entre subsets | CV < 15% |
+
+: Resumen de tests de refutación para validación de estimaciones causales {#tbl-refutation-summary}
+
+
+### Integración en el Pipeline de Riesgo Crediticio {#sec-causal-integration}
+
+La inferencia causal no es un ejercicio académico aislado en este proyecto --- se integra directamente en el pipeline de optimización de portafolio. La cadena de valor es:
+
+1. **Estimación**: `CausalForestDML` produce $\hat{\tau}(x_i)$ para cada préstamo $i$ en el dataset de test.
+2. **Validación**: DoWhy ejecuta tests de refutación. Solo se procede si los tres tests son satisfactorios.
+3. **Propagación**: Las estimaciones CATE se cruzan con el dataset de optimización, ajustando los costos esperados de cada préstamo.
+4. **Optimización**: El portafolio CATE-ajustado difiere del portafolio base porque incorpora el efecto *causal* de las condiciones de crédito sobre el default, no solo la correlación observada.
+
+::: {.callout-tip}
+## Contribución del proyecto
+La integración de estimaciones CATE en la optimización robusta de portafolio crediticio es una contribución original. La mayoría de la literatura de portfolio optimization en crédito usa PD predictivas (correlacionales) como input. Al usar PD causales (ajustadas por CATE), el portafolio resultante es robusto no solo a incertidumbre estadística (via predicción conformal) sino también a confusión causal. Este enfoque de *triple robustez* --- conformal + causal + optimización robusta --- es, hasta donde sabemos, novedoso en la literatura de riesgo crediticio.
+:::
+
+
+### Referencias Clave {#sec-causal-references}
+
+Los fundamentos teóricos de esta sección se basan en los siguientes trabajos seminales:
+
+- **@chernozhukov2018**: Formalizan el framework de Double/Debiased Machine Learning, demostrando que modelos de ML pueden usarse para nuisance parameters sin comprometer la inferencia sobre el efecto causal. Es la base teórica del estimador `CausalForestDML` utilizado en este proyecto.
+
+- **@athey2019**: Introducen los Causal Forests con la propiedad de honestidad, proporcionando estimaciones de CATE con intervalos de confianza asintóticamente válidos. Su trabajo extiende la teoría de Random Forests al marco de resultados potenciales.
+
+- **@causalfinance2023**: Survey comprehensivo de aplicaciones de inferencia causal en banca, finanzas y seguros, que contextualiza nuestro enfoque dentro de la literatura emergente de ML causal en servicios financieros.
+
+Para una discusión más detallada de la implementación y los resultados obtenidos con el dataset de Lending Club, véanse los capítulos correspondientes a la estimación de efectos causales y la optimización de portafolio CATE-ajustado.

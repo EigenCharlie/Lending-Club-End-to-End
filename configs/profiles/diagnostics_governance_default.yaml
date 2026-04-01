@@ -1,0 +1,14 @@
+schema_version: "2026-03-31.1"
+profile_name: diagnostics_governance_default
+pipeline_family: diagnostics_governance
+description: >
+  Lane diagnóstica pura. No produce bundles de search ni anexos de notebooks.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: diagnostic_only
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: true
+defaults:
+  sampling_profile: champion64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json

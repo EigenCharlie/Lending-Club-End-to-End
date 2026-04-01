@@ -23,6 +23,7 @@ def test_classification_metrics_keys():
         "gini",
         "brier_score",
         "ece",
+        "log_loss",
         "ks_statistic",
         "pr_auc",
         "recall_at_0p35",

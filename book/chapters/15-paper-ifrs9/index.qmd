@@ -1,0 +1,53 @@
+---
+title: "Paper 2: IFRS9 End-to-End con Incertidumbre Conformal"
+page-layout: article
+---
+
+{{< include ../../includes/_paper-autocontenido.qmd >}}
+
+::: {.whole-game-intro}
+<span class="whole-game-question">Pregunta central</span>
+
+¿Qué cambia en IFRS9 cuando dejamos de tratar la PD como un número exacto y empezamos a leerla como una banda con incertidumbre explícita? Esta landing introduce ese problema como paper autocontenido.
+
+Ejemplo concreto: un mismo préstamo puede permanecer estable en score puntual, pero cambiar de lectura prudencial cuando su intervalo conformal se ensancha, cuando el trigger SICR incorpora ancho y cuando un escenario severo empuja el ECL total hacia otra zona contable.
+:::
+
+Este paper no se limita a “calcular ECL”. Su identidad está en mostrar que staging, sensibilidad macro y provisión agregada cambian de forma material cuando la incertidumbre entra a la lectura prudencial. Entre escenario `baseline` y `severe`, el ECL agregado sube cerca de `79%`, y el trigger SICR enriquecido con ancho conformal añade alrededor de `\$56.6M` de ECL prudencial.
+
+::: {.callout-note .mini-abstract}
+## Mini-abstract
+**Problema**: IFRS9 suele descansar en PD puntuales y reglas SICR demasiado rígidas para capturar ambigüedad real.
+**Método**: pipeline end-to-end con PD calibrada, bandas conformales, staging y escenarios de provisión.
+**Hallazgo**: la banda de incertidumbre cambia de forma material la lectura de provisiones, staging y sensibilidad macro, incluso cuando el score puntual no cambia.
+:::
+
+## Diagrama del paper
+
+La figura siguiente resume el flujo metodológico del `Paper 2`, desde la construcción de cohortes y señales de riesgo hasta la propagación hacia staging, escenarios y provisión final bajo IFRS9.
+
+![Diagrama maestro del Paper 2: pipeline IFRS9 end-to-end con incertidumbre conformal, staging, escenarios y provisión.](../../assets/figures/editorial/diagrama-paper-2.png){#fig-paper-2-overview fig-alt="Diagrama horizontal del Paper 2 con datos, modelado, incertidumbre conformal, staging IFRS9, escenarios y provisión final."}
+
+Este diagrama cuenta la historia central del paper: la incertidumbre no se queda en el modelo de PD, sino que se propaga por todo el carril prudencial. La gracia del flujo es que conecta bandas conformales, trigger SICR, escenarios macro y cálculo de ECL dentro de un mismo objeto analítico, permitiendo mostrar cómo una misma cartera puede cambiar de lectura contable y de sensibilidad regulatoria aun sin un cambio drástico en el score puntual.
+
+## Cómo se diferencia de la tesis completa y del Paper Estrella
+
+La tesis completa documenta el sistema entero: modelado, conformal, optimización, IFRS9, GPU, agenda de papers y arquitectura de implementación. El `Paper 2`, en cambio, recorta una pregunta prudencial muy específica: cómo cambia la lectura de provisión y deterioro cuando la incertidumbre entra explícitamente al pipeline IFRS9. Y frente al `Paper Estrella`, la diferencia también es clara: el `Paper Estrella` usa la incertidumbre para mover una decisión de optimización riesgo-retorno; el `Paper 2` usa esa incertidumbre para mover staging, provisión, sensibilidad macro y gobernanza contable.
+
+## Cómo leer esta parte
+
+- **69** presenta el gap regulatorio y el framing del problema.
+- **70** arma el pipeline ECL, SICR y escenarios.
+- **71** concentra sensibilidad, bandas de provisión y comparativas.
+- **72** cierra con lectura prudencial, límites y agenda siguiente.
+
+## Navegación curada
+
+```{=html}
+<div class="chapter-landing-grid">
+  <div class="chapter-card"><h4><a href="15a-introduction.html">69. Introducción</a></h4><p>Gap regulatorio y framing de incertidumbre en IFRS9.</p></div>
+  <div class="chapter-card"><h4><a href="15b-methodology.html">70. Metodología</a></h4><p>Pipeline ECL, SICR conformal y escenarios.</p></div>
+  <div class="chapter-card"><h4><a href="15c-results.html">71. Resultados</a></h4><p>ECL por rango, sensibilidad alpha y comparativas.</p></div>
+  <div class="chapter-card"><h4><a href="15d-discussion.html">72. Discusión</a></h4><p>Lectura prudencial, límites y agenda siguiente.</p></div>
+</div>
+```

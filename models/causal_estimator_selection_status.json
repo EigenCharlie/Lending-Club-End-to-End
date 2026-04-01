@@ -1,0 +1,23 @@
+{
+  "dataset_scope": "full_data",
+  "schema_version": "2026-03-26.1",
+  "generated_at_utc": "2026-03-30T19:26:46.495741+00:00",
+  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129",
+  "selected_estimator_family": "causal_forest_dml",
+  "selection_reason": "rscorer",
+  "candidate_metrics": {
+    "causal_forest_dml": {
+      "estimator_family": "causal_forest_dml",
+      "cate_mean": 0.008261572107039006,
+      "cate_std": 0.018584600775105254,
+      "selection_score": 0.04999812317038299
+    },
+    "linear_dml": {
+      "estimator_family": "linear_dml",
+      "cate_mean": 0.008349399779009324,
+      "cate_std": 0.002503330286776148,
+      "selection_score": 8.21480635738725e-05
+    }
+  },
+  "failures": {}
+}

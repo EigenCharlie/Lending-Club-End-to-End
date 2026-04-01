@@ -1,0 +1,28 @@
+schema_version: "2026-03-31.1"
+pipeline_family: search_portfolio
+description: >
+  Búsqueda económica y selector de portafolio usando PD/conformal congelados
+  aguas arriba, sin reentrenar el modelo principal.
+artifact_scope: search
+promotion_state: research_open
+writes_canonical_artifacts: false
+upstream_required: true
+default_profile: search_portfolio_default
+papers_served: [paper1]
+allowed_step_groups:
+  - preflight
+  - core_portfolio
+  - diagnostics_governance
+forbidden_step_groups:
+  - core_data_pd
+  - core_conformal
+  - core_ts
+  - paper2_survival
+  - core_ifrs9
+  - publication_exports
+  - research_causal
+  - research_cate_portfolio
+  - research_rapids
+  - research_notebooks
+required_envs: [main]
+produced_registries: [search_registry]

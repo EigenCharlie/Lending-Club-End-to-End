@@ -48,6 +48,10 @@ def test_research_contracts_remain_expert_first() -> None:
 def test_contracts_expose_book_and_pipeline_metadata() -> None:
     valid_axes = {"operational_pipeline", "insight_factory", "book_foundations"}
     valid_scopes = {"canonical", "insight", "research", "shared"}
+    valid_retention = {"already_in_quarto", "migrate_to_quarto", "keep_streamlit_only", "drop"}
+    valid_interaction = {"none", "light", "strong"}
+    valid_coverage = {"none", "partial", "full"}
+    valid_target_surfaces = {"quarto", "streamlit_lab", "docs_internal", "drop"}
     for page_id, contract in PAGE_CONTRACTS.items():
         assert contract.narrative_axis in valid_axes, (
             f"{page_id}: invalid narrative_axis {contract.narrative_axis}"
@@ -57,3 +61,7 @@ def test_contracts_expose_book_and_pipeline_metadata() -> None:
         )
         assert contract.pipeline_role, f"{page_id}: pipeline_role should not be empty"
         assert contract.book_chapter, f"{page_id}: book_chapter should not be empty"
+        assert contract.retention_decision in valid_retention
+        assert contract.interaction_strength in valid_interaction
+        assert contract.quarto_coverage_status in valid_coverage
+        assert contract.target_surface in valid_target_surfaces

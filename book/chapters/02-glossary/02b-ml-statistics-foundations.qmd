@@ -1,0 +1,90 @@
+## Fundamentos de ML y Estadística {#sec-ml-foundations}
+
+### Métricas de Discriminación
+
+Las métricas de discriminación evalúan qué tan bien un modelo separa defaults de no-defaults.
+
+**AUC-ROC** (Area Under the Receiver Operating Characteristic Curve): Mide la probabilidad de que el modelo asigne un score más alto a un default positivo seleccionado al azar que a un negativo seleccionado al azar. Rango: 0.5 (aleatorio) a 1.0 (perfecto). En credit scoring, AUC > 0.70 se considera aceptable para producción.
+
+**Gini**: Transformación lineal del AUC: $\text{Gini} = 2 \times \text{AUC} - 1$. Rango: 0 (aleatorio) a 1 (perfecto). Es la métrica más utilizada en la industria bancaria europea.
+
+**KS (Kolmogorov-Smirnov)**: Máxima distancia vertical entre las distribuciones acumuladas de los scores de defaults y no-defaults. Indica el punto de máxima separación entre las dos poblaciones.
+
+**PR-AUC** (Area Under the Precision-Recall Curve): Especialmente relevante para datasets desbalanceados. En Lending Club, con ~20% de default rate, PR-AUC complementa al AUC-ROC capturando el rendimiento sobre la clase minoritaria (o mayoritaria en riesgo).
+
+En credit scoring, estas métricas de discriminación tienen umbrales prácticos que conviene conocer. Un AUC de 0.70 se considera el mínimo aceptable para un modelo de producción en retail banking; por debajo de eso, el modelo no separa suficientemente bien a los buenos y malos prestatarios para justificar decisiones automatizadas. Un AUC de 0.75-0.80 es típico para modelos bien calibrados con datos ricos (incluidos datos de buró), y valores por encima de 0.85 suelen indicar leakage o variables no disponibles en producción. El Gini amplifica las diferencias: un modelo con AUC 0.70 tiene Gini 0.40, mientras que uno con AUC 0.75 tiene Gini 0.50 --- una ganancia de 5 puntos de AUC se traduce en 10 puntos de Gini, lo que facilita la comunicación con comités de riesgo acostumbrados a la escala Gini. Pero ni AUC ni Gini dicen nada sobre calibración: un modelo que ordena perfectamente puede asignar PD=0.50 a un grupo donde solo el 5% defaultea, lo cual destruye cualquier cálculo de provisiones.
+
+### Métricas de Calibración
+
+La calibración mide si las probabilidades predichas reflejan las frecuencias reales de default. Un modelo puede tener excelente discriminación (AUC alto) pero mala calibración.
+
+**Brier Score**: Error cuadrático medio entre las probabilidades predichas y los outcomes binarios:
+
+$$
+\text{Brier} = \frac{1}{n} \sum_{i=1}^{n} (\hat{p}_i - y_i)^2
+$$ {#eq-brier}
+
+Rango: 0 (perfecto) a 1 (peor caso). Para un dataset con 20% default rate, un modelo naive que predice 0.20 para todos obtiene Brier ≈ 0.16.
+
+**ECE** (Expected Calibration Error): Promedio ponderado de la diferencia absoluta entre la confianza predicha y la precisión observada, calculada por bins:
+
+$$
+\text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|
+$$ {#eq-ece}
+
+Un ECE < 0.01 indica calibración excelente. Nuestro modelo calibrado con Venn-Abers logra ECE = 0.006.
+
+**D² Brier**: Análogo al R² para el Brier Score, mide la mejora relativa del modelo sobre un predictor naive (frecuencia marginal).
+
+### Gradient Boosting y CatBoost
+
+**Gradient Boosting** es un ensemble de árboles de decisión entrenados secuencialmente, donde cada árbol corrige los errores del anterior. La predicción final es la suma ponderada de todas las predicciones individuales.
+
+**CatBoost** (Categorical Boosting) es una implementación de gradient boosting desarrollada por Yandex con tres ventajas clave para credit scoring:
+
+1. **Manejo nativo de categorías**: No requiere one-hot encoding ni WOE manual para variables categóricas --- aplica target encoding con regularización ordered boosting.
+2. **Manejo nativo de valores faltantes**: Trata NaN como un valor informativo, asignándolo a la rama óptima de cada split.
+3. **Ordered boosting**: Reduce el overfitting al usar subconjuntos de datos históricos para calcular los target statistics de cada observación.
+
+::: {.callout-note}
+## ¿Por qué CatBoost y no XGBoost o LightGBM?
+En credit scoring con datos tabulares, CatBoost ofrece: (1) mejor calibración out-of-the-box gracias al ordered boosting, (2) manejo transparente de categorías sin preprocesamiento manual, y (3) menor sensibilidad a hiperparámetros. Estudios comparativos recientes en credit scoring [@ayari2026; @lessmann2015] confirman que los tres frameworks logran AUC comparable, pero CatBoost simplifica el pipeline de features y reduce el riesgo de data leakage por target encoding incorrecto.
+:::
+
+### Optimización de Hiperparámetros (HPO)
+
+**Optuna** es un framework de optimización de hiperparámetros basado en Tree-structured Parzen Estimator (TPE). A diferencia de grid search o random search, TPE modela la distribución de hiperparámetros condicional a su rendimiento y muestrea nuevos candidatos de las regiones más prometedoras.
+
+En este proyecto, Optuna ejecuta 320 trials para el espacio de CatBoost, optimizando profundidad, learning rate, regularización L2, bagging temperature y otros hiperparámetros. La métrica objetivo es AUC validado sobre el split temporal de validación.
+
+### Calibración de Probabilidades
+
+Un modelo de clasificación produce scores que no necesariamente son probabilidades bien calibradas. Los métodos de calibración post-hoc transforman los scores en probabilidades:
+
+- **Platt Scaling**: Ajusta una regresión logística sobre los scores del modelo para producir probabilidades calibradas. Supone una relación sigmoide entre score y probabilidad.
+- **Isotonic Regression**: Ajuste no paramétrico monótono. Más flexible que Platt pero propenso a overfitting con pocas muestras.
+- **Venn-Abers**: Produce intervalos de probabilidad con garantías de validez multiprobabilística. Es el método más conservador y el seleccionado en este proyecto por su robustez temporal.
+
+### Weight of Evidence (WOE) e Information Value (IV)
+
+**WOE** (Weight of Evidence) transforma variables categóricas o numéricas binneadas en una escala que refleja su poder predictivo:
+
+$$
+\text{WOE}_i = \ln \left( \frac{\% \text{ no-defaults en bin } i}{\% \text{ defaults en bin } i} \right)
+$$ {#eq-woe}
+
+**IV** (Information Value) mide el poder predictivo total de una variable:
+
+$$
+\text{IV} = \sum_{i=1}^{k} (\% \text{ no-defaults}_i - \% \text{ defaults}_i) \times \text{WOE}_i
+$$ {#eq-iv}
+
+| IV | Poder predictivo |
+|----|-----------------|
+| < 0.02 | No útil |
+| 0.02 -- 0.10 | Débil |
+| 0.10 -- 0.30 | Medio |
+| 0.30 -- 0.50 | Fuerte |
+| > 0.50 | Sospechosamente fuerte (posible leakage) |
+
+: Interpretación del Information Value {#tbl-iv-interpretation}

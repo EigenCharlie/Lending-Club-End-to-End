@@ -1,0 +1,8 @@
+{
+  "stage_name": "feature_artifacts",
+  "phase": "completed",
+  "state": "completed",
+  "updated_at_utc": "2026-03-30T16:29:58.738872+00:00",
+  "feature_manifest_path": "data/processed/feature_manifest_v2.parquet",
+  "feature_config_path": "data/processed/feature_config.pkl"
+}

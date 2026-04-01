@@ -1,0 +1,10 @@
+::: {.callout-tip .chapter-close}
+## Qué debes quedarte
+{{< meta close_takeaway >}}
+
+## Esto conecta con…
+{{< meta close_connects >}}
+
+## Dónde se reutiliza esta señal o artefacto
+{{< meta close_reuse >}}
+:::

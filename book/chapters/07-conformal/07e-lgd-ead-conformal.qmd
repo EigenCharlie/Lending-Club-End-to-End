@@ -1,0 +1,132 @@
+## Intervalos Conformal para LGD y EAD {#sec-lgd-ead-conformal}
+
+### Más Allá de la PD: Incertidumbre en los Tres Componentes
+
+La fórmula ECL tiene tres inputs estocásticos: PD, LGD y EAD. Cuantificar incertidumbre solo en PD es un avance, pero incompleto — un LGD puntual de 0.40 ignora que la pérdida real puede ser 0.15 o 0.65 dependiendo del colateral, la recuperación y las condiciones de mercado. El pipeline extiende la predicción conformal a **los tres componentes**.
+
+### LGD Conformal: Adaptive Grade-Temporal {#sec-lgd-conformal}
+
+La LGD (Loss Given Default) se modela solo sobre préstamos en default ($n = 362{,}981$, ~88% del dataset tiene LGD nula porque no defaulteó). El modelo enfrenta dos desafíos específicos:
+
+1. **Distribución bimodal**: LGD concentrada en ~0 (recuperación total) y ~1 (pérdida total)
+2. **Heterogeneidad extrema por grade**: Grade A tiene LGD media de ~0.10, Grade G de ~0.50
+
+```{python}
+#| label: tbl-lgd-conformal
+#| tbl-cap: "Métricas del modelo LGD y sus intervalos conformal"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_json
+
+import pandas as pd
+
+status = load_json("conformal_policy_status", search_models=True)
+lgd = status.get("lgd_ead_conformal_status", {}).get("lgd", {})
+
+lgd_metrics = [
+    {"Métrica": "MAE (modelo directo)", "Valor": f"{lgd['model_metrics']['direct']['lgd_mae']:.4f}"},
+    {"Métrica": "RMSE (modelo directo)", "Valor": f"{lgd['model_metrics']['direct']['lgd_rmse']:.4f}"},
+    {"Métrica": "Cobertura empírica @ 90%", "Valor": f"{lgd['conformal']['metrics_90']['empirical_coverage']:.2%}"},
+    {"Métrica": "Cobertura empírica @ 95%", "Valor": f"{lgd['conformal']['metrics_95']['empirical_coverage']:.2%}"},
+    {"Métrica": "Ancho promedio @ 90%", "Valor": f"{lgd['conformal']['metrics_90']['avg_interval_width']:.4f}"},
+    {"Métrica": "Min coverage por grade @ 90%", "Valor": f"{lgd['guardrails']['min_grade_coverage_90']:.2%}"},
+    {"Métrica": "Variante seleccionada", "Valor": lgd.get('selected_variant', 'N/A')},
+    {"Métrica": "N test", "Valor": f"{lgd.get('n_test', 0):,}"},
+]
+
+pd.DataFrame(lgd_metrics)
+```
+
+#### Benchmark de Variantes LGD
+
+Se evaluaron 4 variantes para encontrar la que cumpla cobertura por grade:
+
+```{python}
+#| label: tbl-lgd-variants
+#| tbl-cap: "Benchmark de variantes conformal para LGD"
+
+variants = lgd.get("benchmark_variants", [])
+
+variant_data = []
+for v in variants:
+    variant_data.append({
+        "Variante": v["variant"].replace("_", " ").title(),
+        "Cobertura 90%": f"{v['coverage_90']:.1%}",
+        "Min Grade 90%": f"{v['min_grade_coverage_90']:.1%}",
+        "Ancho 90%": f"{v['avg_width_90']:.3f}",
+        "PASS": "✓" if v["overall_pass"] else "✗",
+    })
+
+pd.DataFrame(variant_data)
+```
+
+::: {.callout-note}
+## ¿Por qué las variantes estándar fallan?
+Las variantes `two_stage_split`, `direct_split` y `direct_cqr` logran ~78% de cobertura (vs 90% target) porque la distribución de LGD es altamente heterogénea: los residuos de Grade A son radicalmente diferentes de los de Grade G. Solo la variante **adaptive grade-temporal** — que calcula cuantiles adaptativos por grade con corrección temporal — logra cobertura adecuada en todos los segmentos.
+:::
+
+La variante promovida (`direct_adaptive_grade_temporal`) usa tres mecanismos:
+
+1. **Quantiles adaptativos por grade**: cada grade tiene su propio cuantil conformal
+2. **Corrección temporal**: offsets por grade que compensan drift entre calibración y test
+3. **Parámetros de política**: `eta=0.12`, `offset_rho=0.03`, `maturity_uncertainty_lambda=0.25`
+
+### EAD Conformal {#sec-ead-conformal}
+
+La EAD (Exposure at Default) se modela como regresión directa sobre el monto expuesto al momento del default. A diferencia de LGD, EAD tiene una distribución más regular y predecible.
+
+```{python}
+#| label: tbl-ead-conformal
+#| tbl-cap: "Métricas del modelo EAD y sus intervalos conformal"
+
+ead = status.get("lgd_ead_conformal_status", {}).get("ead", {})
+
+ead_metrics = [
+    {"Métrica": "MAE", "Valor": f"${ead['model_metrics']['ead_mae']:.2f}"},
+    {"Métrica": "R²", "Valor": f"{ead['model_metrics']['ead_r2']:.6f}"},
+    {"Métrica": "Cobertura empírica @ 90%", "Valor": f"{ead['conformal']['metrics_90']['empirical_coverage']:.2%}"},
+    {"Métrica": "Cobertura empírica @ 95%", "Valor": f"{ead['conformal']['metrics_95']['empirical_coverage']:.2%}"},
+    {"Métrica": "Ancho promedio @ 90%", "Valor": f"${ead['conformal']['metrics_90']['avg_interval_width']:.2f}"},
+    {"Métrica": "N test", "Valor": f"{ead.get('n_test', 0):,}"},
+]
+
+pd.DataFrame(ead_metrics)
+```
+
+El R² de 0.9999 indica que EAD es casi completamente predecible (el monto de exposición es en gran medida determinístico). Los intervalos conformal son estrechos (\$133 promedio @ 90%) y la cobertura es precisa (90.82% vs 90% target).
+
+::: {.callout-tip}
+## EAD vs LGD: Niveles de Dificultad Opuestos
+EAD es el componente "fácil" — casi determinístico con R² > 0.999. LGD es el componente "difícil" — bimodal, heterogéneo, y con MAE de 0.19. PD está en el medio. Esta asimetría implica que la incertidumbre en ECL viene principalmente de PD y LGD, no de EAD.
+:::
+
+### Impacto en ECL con Intervalos Completos
+
+Con intervalos conformal para los tres componentes (PD, LGD, EAD), el cálculo de ECL pasa de un punto a un **rango**:
+
+$$
+\text{ECL}_\text{low} = \text{PD}_\text{low} \times \text{LGD}_\text{low} \times \text{EAD}_\text{low} \times \text{DF}
+$$ {#eq-ecl-low}
+
+$$
+\text{ECL}_\text{high} = \text{PD}_\text{high} \times \text{LGD}_\text{high} \times \text{EAD}_\text{high} \times \text{DF}
+$$ {#eq-ecl-high}
+
+Esto transforma las provisiones IFRS9 de un ejercicio de punto a un ejercicio de **bandas de incertidumbre**, donde el ancho de la banda refleja la confianza del modelo en cada préstamo. Los detalles de esta propagación se discuten en @sec-ecl-calculation.
+
+### Guardrails de Calidad
+
+Antes de promover los intervalos LGD/EAD a producción, se verifican guardrails automáticos:
+
+| Guardrail | Criterio | LGD | EAD |
+|-----------|----------|-----|-----|
+| Cobertura @ 90% | ≥ 89% | 90.5% ✓ | 90.0% ✓ |
+| Cobertura @ 95% | ≥ 94% | 95.5% ✓ | 94.1% ✓ |
+| Min grade coverage | ≥ 88% | 90.5% ✓ | — |
+| Width inflation | ≤ 1.10 | 0.87 ✓ | — |
+| Overall | All pass | ✓ | ✓ |
+
+: Guardrails de calidad para intervalos LGD/EAD {#tbl-lgd-ead-guardrails}

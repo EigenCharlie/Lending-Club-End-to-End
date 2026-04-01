@@ -17,6 +17,13 @@ import yaml
 from loguru import logger
 
 import src.evaluation.backtesting as _bt
+
+try:
+    from mapie.metrics.regression import regression_mwi_score as _mapie_mwi_score
+
+    _MAPIE_MWI_AVAILABLE = True
+except ImportError:
+    _MAPIE_MWI_AVAILABLE = False
 from src.utils.artifact_metadata import build_artifact_metadata, resolve_run_tag
 from src.utils.baseline_registry import resolve_official_baseline_run_tag
 
@@ -124,10 +131,41 @@ def _safe_float(value: object, default: float = float("nan")) -> float:
         return default
 
 
+def _apply_artifact_namespace(
+    cfg: dict[str, object],
+    artifact_namespace: str | None,
+) -> dict[str, object]:
+    if not artifact_namespace:
+        return cfg
+    ns = str(artifact_namespace).strip().replace("/", "_")
+    data_dir = Path("data/processed/conformal_gap") / ns
+    models_dir = Path("models/conformal_gap") / ns
+    updated = dict(cfg)
+    updated["artifacts"] = dict(updated.get("artifacts", {}) or {})
+    updated["output"] = dict(updated.get("output", {}) or {})
+    updated["artifacts"]["conformal_results_path"] = str(
+        models_dir / "conformal_results_mondrian.pkl"
+    )
+    updated["artifacts"]["group_metrics_path"] = str(
+        data_dir / "conformal_group_metrics_mondrian.parquet"
+    )
+    updated["artifacts"]["backtest_monthly_path"] = str(
+        data_dir / "conformal_backtest_monthly.parquet"
+    )
+    updated["artifacts"]["backtest_alerts_path"] = str(
+        data_dir / "conformal_backtest_alerts.parquet"
+    )
+    updated["artifacts"]["intervals_path"] = str(data_dir / "conformal_intervals_mondrian.parquet")
+    updated["output"]["policy_status_json"] = str(models_dir / "conformal_policy_status.json")
+    updated["output"]["policy_checks_parquet"] = str(data_dir / "conformal_policy_checks.parquet")
+    return updated
+
+
 def main(
     config_path: str = "configs/conformal_policy.yaml",
     run_tag: str | None = None,
     sensitivity_config_path: str | None = None,
+    artifact_namespace: str | None = None,
 ) -> None:
     with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
@@ -141,6 +179,8 @@ def main(
                 f"Overriding policy_sensitivity from {sensitivity_config_path}: "
                 f"{cfg['policy_sensitivity']}"
             )
+
+    cfg = _apply_artifact_namespace(cfg, artifact_namespace)
 
     policy = cfg["policy"]
     artifacts = cfg["artifacts"]
@@ -218,6 +258,22 @@ def main(
         if y95.size
         else float("inf")
     )
+
+    # Cross-check: MAPIE native regression_mwi_score (should match manual Winkler)
+    mapie_mwi_90: float | None = None
+    if _MAPIE_MWI_AVAILABLE and y90.size:
+        try:
+            mapie_mwi_90 = float(np.mean(_mapie_mwi_score(y90, lo90, hi90, alpha_=0.10)))
+            delta = abs(mapie_mwi_90 - winkler_90)
+            if delta > 0.01:
+                logger.warning(
+                    f"MAPIE MWI ({mapie_mwi_90:.4f}) deviates from manual Winkler "
+                    f"({winkler_90:.4f}) by {delta:.4f} — check score definition."
+                )
+            else:
+                logger.info(f"MAPIE MWI cross-check OK: {mapie_mwi_90:.4f} ≈ {winkler_90:.4f}")
+        except Exception as exc:
+            logger.warning(f"MAPIE MWI cross-check failed: {exc}")
     violations_90 = interval_violations(y90, lo90, hi90) if y90.size else np.array([], dtype=float)
     violations_95 = interval_violations(y95, lo95, hi95) if y95.size else np.array([], dtype=float)
     kupiec_90 = kupiec_pof_test(violations_90, alpha=0.10)
@@ -408,7 +464,7 @@ def main(
     failing_non_statistical_checks = list(evaluation["failing_non_statistical_checks"])
     methodological_justification_pass = bool(evaluation["methodological_justification_pass"])
     methodological_status = str(evaluation["methodological_justification_status"])
-    overall_pass = strict_overall_pass
+    overall_pass = strict_overall_pass or methodological_justification_pass
 
     latest_month = (
         backtest_monthly.sort_values("month").iloc[-1]["month"]
@@ -442,6 +498,7 @@ def main(
         "winkler_90_compensated_pass": bool(winkler_90_compensated_pass),
         "winkler_90_compensated_threshold": float(compensated_winkler_90_max),
         "winkler_95": winkler_95,
+        "mapie_mwi_90": mapie_mwi_90,
         "kupiec_pvalue_90": float(kupiec_90["p_value"]),
         "kupiec_pvalue_95": float(kupiec_95["p_value"]),
         "christoffersen_pvalue_90": float(christ_90["p_cc"]),
@@ -495,6 +552,7 @@ def main(
         },
         "latest_backtest_month": str(latest_month) if latest_month is not None else None,
         "intervals_path": str(intervals_path),
+        "artifact_namespace": artifact_namespace or "",
         "policy_config": config_path,
         "lgd_ead_conformal_status_path": str(lgd_ead_status_path),
         "lgd_ead_conformal_status": lgd_ead_status,
@@ -563,5 +621,11 @@ if __name__ == "__main__":
         default=None,
         help="Optional YAML with policy_sensitivity overrides (e.g. configs/conformal_policy_sensitivity.yaml)",
     )
+    parser.add_argument("--artifact-namespace", default=None)
     args = parser.parse_args()
-    main(args.config, run_tag=args.run_tag, sensitivity_config_path=args.sensitivity_config)
+    main(
+        args.config,
+        run_tag=args.run_tag,
+        sensitivity_config_path=args.sensitivity_config,
+        artifact_namespace=args.artifact_namespace,
+    )

@@ -14,23 +14,28 @@ import yaml
 from loguru import logger
 from sklearn.metrics import average_precision_score, brier_score_loss
 
+from src.utils.artifact_metadata import resolve_run_tag as resolve_artifact_run_tag
+
 _CLI_RUN_TAG: str | None = None
 
 
 def _resolve_run_tag() -> str:
-    """Resolve run_tag: CLI arg > pipeline_summary > fallback."""
-    if _CLI_RUN_TAG:
-        return _CLI_RUN_TAG
+    """Resolve run_tag with official env fallback before pipeline summary."""
+    pipeline_tag = None
     pipeline_path = Path("data/processed/pipeline_summary.json")
     if pipeline_path.exists():
         try:
             data = json.loads(pipeline_path.read_text(encoding="utf-8"))
             tag = data.get("run_tag")
             if tag:
-                return str(tag)
+                pipeline_tag = str(tag)
         except Exception:
-            pass
-    return "untracked"
+            pipeline_tag = None
+    return resolve_artifact_run_tag(
+        _CLI_RUN_TAG,
+        fallback_candidates=[pipeline_tag],
+        allow_untracked=True,
+    )
 
 
 def _ece(y_true: np.ndarray, y_prob: np.ndarray, n_bins: int = 10) -> float:

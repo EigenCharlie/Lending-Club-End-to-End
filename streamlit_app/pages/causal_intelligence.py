@@ -94,10 +94,9 @@ def _build_causal_snapshot() -> dict:
         "causal_oot_tail_risk": causal_oot_tail_risk,
     }
 
-st.title("🧬 Inteligencia Causal")
+st.title("🧬 Causal Policy Lab")
 st.caption(
-    "Estimación de efectos causales heterogéneos para orientar políticas de precio "
-    "y acciones de mitigación de riesgo."
+    "Laboratorio interactivo para explorar CATE, reglas causales y sensibilidad económica de políticas de intervención."
 )
 page_contract = get_page_contract("causal_intelligence")
 render_page_header(page_contract)

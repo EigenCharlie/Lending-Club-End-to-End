@@ -13,28 +13,29 @@ from loguru import logger
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import roc_auc_score
 
+from src.features.feature_engineering import (
+    CATBOOST_FEATURES as CANONICAL_CATBOOST_FEATURES,
+)
+from src.features.feature_engineering import (
+    CATEGORICAL_FEATURES as CANONICAL_CATEGORICAL_FEATURES,
+)
+from src.features.feature_engineering import (
+    LOGREG_FEATURES as CANONICAL_LOGREG_FEATURES,
+)
+from src.features.feature_engineering import (
+    NUMERIC_FEATURES as CANONICAL_NUMERIC_FEATURES,
+)
+from src.features.feature_engineering import (
+    WOE_FEATURES as CANONICAL_WOE_FEATURES,
+)
+
 # ── Backward-compatible default feature configuration ──
-NUMERIC_FEATURES = [
-    "loan_amnt",
-    "annual_inc",
-    "loan_to_income",
-    "dti",
-    "rev_utilization",
-    "num_delinq_2yrs",
-    "days_since_last_delinq",
-    "int_rate",
-    "installment",
+NUMERIC_FEATURES = list(CANONICAL_NUMERIC_FEATURES)
+WOE_FEATURES = list(CANONICAL_WOE_FEATURES)
+CATEGORICAL_FEATURES = list(CANONICAL_CATEGORICAL_FEATURES)
+ALL_FEATURES = list(CANONICAL_CATBOOST_FEATURES) + [
+    f for f in CANONICAL_LOGREG_FEATURES if f not in CANONICAL_CATBOOST_FEATURES
 ]
-WOE_FEATURES = [
-    "grade_woe",
-    "purpose_woe",
-    "home_ownership_woe",
-]
-CATEGORICAL_FEATURES = [
-    "int_rate_bucket",
-    "term",
-]
-ALL_FEATURES = NUMERIC_FEATURES + WOE_FEATURES + CATEGORICAL_FEATURES
 TARGET = "default_flag"
 
 
@@ -148,6 +149,56 @@ def _catboost_base_params(params: dict[str, Any] | None = None) -> dict[str, Any
     if params:
         base.update(params)
     return base
+
+
+def resolve_monotonic_constraints(
+    feature_names: list[str],
+    constraints_config: dict[str, int] | None = None,
+    config_path: str = "configs/pd_model.yaml",
+) -> str | None:
+    """Build CatBoost monotonic_constraints string from config.
+
+    Reads the constraint map from YAML challenger_pipeline.monotonic_constraints
+    and maps it to feature order. Returns a comma-separated string like
+    "0,1,-1,0,..." for CatBoost's monotone_constraints parameter.
+
+    Args:
+        feature_names: Ordered list of features used by the model.
+        constraints_config: Direct constraint dict {feature: direction}.
+            If None, reads from YAML config.
+        config_path: Path to pd_model.yaml.
+
+    Returns:
+        Constraint string for CatBoost, or None if no constraints configured.
+    """
+    if constraints_config is None:
+        try:
+            from pathlib import Path as _P
+
+            import yaml
+
+            cfg_path = _P(config_path)
+            if cfg_path.exists():
+                with open(cfg_path) as f:
+                    cfg = yaml.safe_load(f) or {}
+                constraints_config = (
+                    cfg.get("challenger_pipeline", {}).get("monotonic_constraints") or {}
+                )
+            else:
+                return None
+        except Exception:
+            return None
+
+    if not constraints_config:
+        return None
+
+    vector = [constraints_config.get(feat, 0) for feat in feature_names]
+    if all(v == 0 for v in vector):
+        return None
+
+    n_constrained = sum(1 for v in vector if v != 0)
+    logger.info(f"Monotonic constraints: {n_constrained}/{len(feature_names)} features constrained")
+    return ",".join(str(v) for v in vector)
 
 
 def train_catboost_default(

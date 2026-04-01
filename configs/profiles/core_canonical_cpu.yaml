@@ -1,0 +1,14 @@
+schema_version: "2026-03-31.1"
+profile_name: core_canonical_cpu
+pipeline_family: core_canonical
+description: >
+  Perfil canónico reproducible por CPU, sin notebooks ni RAPIDS.
+execution:
+  writes_canonical_artifacts: true
+  promotion_state: operationally_frozen
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: champion64safe
+  expected_upstream_registry: configs/baselines/canonical_operational_baseline.json

@@ -1,0 +1,42 @@
+{
+  "schema_version": "2026-02-28.1",
+  "study_name": "pd_catboost_optuna_temporal",
+  "study_storage": "sqlite:///models/optuna_pd_catboost.db",
+  "generated_at_utc": "2026-02-28T17:39:47.381669+00:00",
+  "cutoff_policy": {
+    "max_trial_number_inclusive": 925,
+    "exclude_states": [
+      "RUNNING"
+    ]
+  },
+  "counts": {
+    "subset_total_trials": 925,
+    "state_counts": {
+      "COMPLETE": 249,
+      "PRUNED": 674,
+      "FAIL": 2
+    },
+    "completed_trials": 249
+  },
+  "best_within_cutoff": {
+    "trial_number": 855,
+    "validation_auc": 0.7201277317172485,
+    "params": {
+      "bootstrap_type": "Bernoulli",
+      "learning_rate": 0.02762511818970642,
+      "depth": 6,
+      "l2_leaf_reg": 14.910998969314008,
+      "min_data_in_leaf": 195,
+      "rsm": 0.7972651915505469,
+      "random_strength": 3.276099048942537e-05,
+      "border_count": 148,
+      "subsample": 0.8270994520471426
+    }
+  },
+  "best_after_cutoff": null,
+  "delta_best_after_minus_best_within": null,
+  "notes": [
+    "Cutoff summary for thesis/audit traceability when using a bounded HPO budget.",
+    "best_within_cutoff reflects Optuna validation objective (temporal validation AUC)."
+  ]
+}

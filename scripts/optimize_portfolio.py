@@ -18,6 +18,13 @@ from loguru import logger
 from src.models.conformal_artifacts import load_conformal_intervals
 from src.optimization.portfolio_model import optimize_portfolio_allocation
 from src.optimization.robust_opt import scenario_analysis
+from src.utils.pipeline_runtime import (
+    atomic_write_parquet,
+    atomic_write_pickle,
+    write_last_valid_artifact,
+    write_runtime_checkpoint,
+    write_runtime_status,
+)
 
 
 def _artifact_path(path_like: str | Path) -> Path:
@@ -136,6 +143,8 @@ def main(
     random_state: int = 42,
     solver_backend: str | None = None,
 ):
+    stage_name = "portfolio_optimization"
+    write_runtime_status(stage_name, phase="loading_inputs", state="running")
     with open(config_path) as f:
         config = yaml.safe_load(f)
 
@@ -145,6 +154,18 @@ def main(
         test, intervals, max_candidates=max_candidates, random_state=random_state
     )
     n = len(test_sample)
+    write_runtime_checkpoint(
+        stage_name,
+        "candidate_pool_prepared",
+        {
+            "candidate_rows_available": int(len(test)),
+            "interval_rows_available": int(len(intervals)),
+            "candidate_rows_used": int(n),
+            "max_candidates_requested": None
+            if max_candidates is None or int(max_candidates) <= 0
+            else int(max_candidates),
+        },
+    )
 
     lgd = np.full(n, 0.45)
     if "int_rate" in test_sample.columns:
@@ -152,6 +173,7 @@ def main(
     else:
         int_rates = np.full(n, 0.12)
 
+    write_runtime_status(stage_name, phase="solving_portfolio", state="running")
     solution = optimize_portfolio_allocation(
         loans=test_sample,
         pd_point=pd_point,
@@ -170,6 +192,7 @@ def main(
         threads=config["optimization"]["threads"],
         solver_backend=solver_backend or config.get("optimization", {}).get("solver", "highs"),
     )
+    write_runtime_status(stage_name, phase="optimization_complete", state="running")
 
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
     loan_amounts = (
@@ -189,31 +212,28 @@ def main(
     model_dir.mkdir(parents=True, exist_ok=True)
     data_dir.mkdir(parents=True, exist_ok=True)
 
-    with open(model_dir / "portfolio_results.pkl", "wb") as f:
-        import pickle
-
-        pickle.dump(
-            {
-                "solution": solution,
-                "scenario_analysis": scenarios.to_dict(orient="records")[0],
-                "n_candidates": n,
-                "risk_tolerance": risk_tolerance,
-                "uncertainty_aversion": uncertainty_aversion,
-                "min_budget_utilization": min_budget_utilization,
-                "pd_cap_slack_penalty": pd_cap_slack_penalty,
-                "n_candidates_available": int(min(len(test), len(intervals))),
-                "n_candidates_used": int(n),
-                "max_candidates_requested": None
-                if max_candidates is None or int(max_candidates) <= 0
-                else int(max_candidates),
-                "dataset_scope": "full_candidates"
-                if max_candidates is None or int(max_candidates) <= 0
-                else "sampled_candidates",
-                "solver_backend_requested": solver_backend
-                or config.get("optimization", {}).get("solver", "highs"),
-            },
-            f,
-        )
+    atomic_write_pickle(
+        model_dir / "portfolio_results.pkl",
+        {
+            "solution": solution,
+            "scenario_analysis": scenarios.to_dict(orient="records")[0],
+            "n_candidates": n,
+            "risk_tolerance": risk_tolerance,
+            "uncertainty_aversion": uncertainty_aversion,
+            "min_budget_utilization": min_budget_utilization,
+            "pd_cap_slack_penalty": pd_cap_slack_penalty,
+            "n_candidates_available": int(min(len(test), len(intervals))),
+            "n_candidates_used": int(n),
+            "max_candidates_requested": None
+            if max_candidates is None or int(max_candidates) <= 0
+            else int(max_candidates),
+            "dataset_scope": "full_candidates"
+            if max_candidates is None or int(max_candidates) <= 0
+            else "sampled_candidates",
+            "solver_backend_requested": solver_backend
+            or config.get("optimization", {}).get("solver", "highs"),
+        },
+    )
 
     alloc_df = pd.DataFrame(
         {
@@ -226,7 +246,27 @@ def main(
             "int_rate": int_rates,
         }
     )
-    alloc_df.to_parquet(data_dir / "portfolio_allocations.parquet", index=False)
+    atomic_write_parquet(alloc_df, data_dir / "portfolio_allocations.parquet", index=False)
+    write_last_valid_artifact(
+        stage_name,
+        artifact_key="portfolio_allocations",
+        artifact_path=data_dir / "portfolio_allocations.parquet",
+        extra={
+            "solver_status": str(solution["solver_status"]),
+            "n_candidates_used": int(n),
+            "objective_value": float(solution["objective_value"]),
+        },
+    )
+    write_runtime_status(
+        stage_name,
+        phase="completed",
+        state="completed",
+        extra={
+            "portfolio_results_path": str(model_dir / "portfolio_results.pkl"),
+            "portfolio_allocations_path": str(data_dir / "portfolio_allocations.parquet"),
+            "solver_status": str(solution["solver_status"]),
+        },
+    )
 
 
 if __name__ == "__main__":

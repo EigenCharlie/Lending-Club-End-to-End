@@ -27,3 +27,12 @@ def test_resolve_notebook_dir_uses_arg_when_provided(tmp_path, monkeypatch) -> N
 
     resolved = extractor._resolve_notebook_dir("custom_nb_dir")
     assert resolved == custom_dir.resolve()
+
+
+def test_active_notebook_stems_exclude_historical_and_paper_exports() -> None:
+    assert "09_end_to_end_pipeline" not in extractor.ACTIVE_NOTEBOOK_STEMS
+    assert "10_paper1_cp_robust_opt" not in extractor.ACTIVE_NOTEBOOK_STEMS
+    assert "11_paper2_ifrs9_e2e" not in extractor.ACTIVE_NOTEBOOK_STEMS
+    assert "12_paper3_mondrian" not in extractor.ACTIVE_NOTEBOOK_STEMS
+    assert "03_pd_modeling" in extractor.ACTIVE_NOTEBOOK_STEMS
+    assert "04_conformal_prediction" in extractor.ACTIVE_NOTEBOOK_STEMS

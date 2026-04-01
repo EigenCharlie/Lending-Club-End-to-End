@@ -46,10 +46,10 @@ def test_page_has_streamlit_import(page_path: Path) -> None:
     )
 
 
-def test_all_31_pages_discovered() -> None:
-    """Ensure page discovery matches the current multipage app surface."""
-    assert len(PAGE_FILES) == 31, (
-        f"Expected 31 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
+def test_all_5_pages_discovered() -> None:
+    """Ensure page discovery matches the reduced companion surface."""
+    assert len(PAGE_FILES) == 5, (
+        f"Expected 5 pages, found {len(PAGE_FILES)}: {[p.name for p in PAGE_FILES]}"
     )
 
 

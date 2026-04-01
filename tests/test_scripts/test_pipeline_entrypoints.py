@@ -22,8 +22,10 @@ def test_run_champion_search_delegates(monkeypatch) -> None:
     monkeypatch.setattr(run_champion_search, "_main", _fake_main)
     assert run_champion_search.main(["--run-tag", "champion-test"]) == 0
     assert captured["argv"] == ["--run-tag", "champion-test"]
-    assert captured["kwargs"]["default_pipeline_family"] == "champion_search"
+    assert captured["kwargs"]["default_pipeline_family"] == "search_pd"
     assert captured["kwargs"]["default_sampling_profile"] == "mega64plus"
+    assert captured["kwargs"]["default_include_rapids"] is False
+    assert captured["kwargs"]["default_include_notebooks"] is False
 
 
 def test_run_canonical_rebuild_delegates(monkeypatch) -> None:
@@ -36,8 +38,9 @@ def test_run_canonical_rebuild_delegates(monkeypatch) -> None:
 
     monkeypatch.setattr(run_canonical_rebuild, "_main", _fake_main)
     assert run_canonical_rebuild.main(["--run-tag", "canonical-test"]) == 0
-    assert captured["kwargs"]["default_pipeline_family"] == "canonical_rebuild"
+    assert captured["kwargs"]["default_pipeline_family"] == "core_canonical"
     assert captured["kwargs"]["default_sampling_profile"] == "champion64safe"
+    assert captured["kwargs"]["default_include_notebooks"] is False
 
 
 def test_run_paper_grade_final_injects_profile_and_baseline(monkeypatch) -> None:
@@ -48,14 +51,21 @@ def test_run_paper_grade_final_injects_profile_and_baseline(monkeypatch) -> None
         captured["kwargs"] = kwargs
         return 0
 
+    monkeypatch.setattr(
+        run_paper_grade_final,
+        "resolve_official_baseline_run_tag",
+        lambda: "baseline-dynamic-tag",
+    )
     monkeypatch.setattr(run_paper_grade_final, "_main", _fake_main)
     assert run_paper_grade_final.main(["--run-tag", "paper-grade-final"]) == 0
     assert "--pipeline-profile" in captured["argv"]
     assert "paper_grade_final" in captured["argv"]
     assert "--comparison-baseline-run-tag" in captured["argv"]
-    assert "champion-2026-03-12-mega-definitive" in captured["argv"]
-    assert captured["kwargs"]["default_pipeline_family"] == "champion_search"
+    assert "baseline-dynamic-tag" in captured["argv"]
+    assert captured["kwargs"]["default_pipeline_family"] == "paper1_e2e"
     assert captured["kwargs"]["default_sampling_profile"] == "mega64plus"
+    assert captured["kwargs"]["default_include_rapids"] is False
+    assert captured["kwargs"]["default_include_notebooks"] is False
 
 
 def test_run_smoke_pipeline_delegates(monkeypatch) -> None:

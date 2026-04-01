@@ -1,5 +1,5 @@
 {
-  "created_at_utc": "2026-03-16T15:42:44.814873+00:00",
+  "created_at_utc": "2026-03-30T16:42:23.153935+00:00",
   "model_path": "models/pd_canonical.cbm",
   "calibrator_path": "models/pd_canonical_calibrator.pkl",
   "feature_names": [
@@ -10,7 +10,6 @@
     "dti",
     "loan_to_income",
     "installment_burden",
-    "rev_utilization",
     "revol_bal_to_income",
     "open_acc_ratio",
     "fico_score",
@@ -25,7 +24,6 @@
     "delinq_severity",
     "delinq_recency",
     "il_ratio",
-    "high_util_pct",
     "log_annual_inc",
     "log_revol_bal",
     "loan_to_income_sq",
@@ -59,19 +57,19 @@
     "dti_bucket",
     "fico_bucket"
   ],
-  "n_features": 44,
+  "n_features": 42,
   "split_shapes": {
     "train": [
-      1346311,
-      60
+      798550,
+      164
     ],
     "calibration": [
       237584,
-      60
+      164
     ],
     "test": [
       276869,
-      60
+      164
     ]
   },
   "split_missing_features": {

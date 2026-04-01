@@ -1,0 +1,79 @@
+{
+  "strategy_a": "non_robust",
+  "strategy_b": "robust_selected_for_champion",
+  "comparison": {
+    "mean_a": 2.2508207392381037,
+    "mean_b": 2.1444647749702295,
+    "diff": -0.10635596426787419,
+    "ci_low": -1.182732192434122,
+    "ci_high": 0.9907985382714429,
+    "p_value": 0.4066,
+    "significant": false
+  },
+  "metrics_a": {
+    "total_return": 174236.03342442162,
+    "n_funded": 230,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 757.547971410529
+  },
+  "metrics_b": {
+    "total_return": 166003.01823044545,
+    "n_funded": 272,
+    "total_allocated": 1000000.0,
+    "avg_return_per_funded": 610.30521408252
+  },
+  "n_candidates_available": 77410,
+  "n_candidates_used": 77410,
+  "max_candidates_requested": 150000,
+  "dataset_scope": "sampled_candidates",
+  "solver_backend": "highs",
+  "policy_selector": "guardrail_robustness",
+  "decision_scenario": "selective_ambiguity_defer",
+  "max_portfolio_pd_requested": 0.18,
+  "max_portfolio_pd_effective": 0.18,
+  "robust_policy": {
+    "source": "champion_policy_artifact::guardrail_robustness",
+    "risk_tolerance": 0.18,
+    "uncertainty_aversion": 0.25,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.1,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0
+  },
+  "champion_policy_path": "models/champion_portfolio_policy_candidate_canonical_monotonic_economic_only_2026_03_29.json",
+  "candidate_universe_path": "data/processed/champion_candidate_universe.parquet",
+  "gate_contract": {
+    "gate": "no_regression",
+    "significance_role": "diagnostic"
+  },
+  "diagnostics": {
+    "p_value": 0.4066,
+    "significant": false,
+    "n_boot": 5000,
+    "seed": 42
+  },
+  "policy_search": [],
+  "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
+  "no_regression": {
+    "diff_total_return": -8233.01519397617,
+    "tolerance_total_return": 8711.801671221081,
+    "tolerance_pct_of_control": 0.05,
+    "passed": true
+  },
+  "decision_scenario_meta": {
+    "decision_scenario": "selective_ambiguity_defer",
+    "rows_removed": 2590,
+    "rows_remaining": 77410,
+    "ambiguity_rate_removed": 0.032375,
+    "set_prediction_path": "data/processed/pd_set_prediction_cases.parquet"
+  },
+  "baseline_comparison_context": {
+    "artifact_truth_role": "current_run_status",
+    "official_truth_may_live_in_comparison_json": true
+  },
+  "schema_version": "2026-03-01.1",
+  "generated_at_utc": "2026-03-30T15:42:16.686760+00:00",
+  "run_tag": "canonical-monotonic-promotion-2026-03-29-0929"
+}

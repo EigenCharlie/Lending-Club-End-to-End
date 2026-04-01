@@ -13,6 +13,7 @@ from sklearn.metrics import (
     average_precision_score,
     brier_score_loss,
     f1_score,
+    log_loss,
     mean_absolute_error,
     mean_squared_error,
     r2_score,
@@ -51,10 +52,13 @@ def classification_metrics(
     recall_at_t = recall_score(y_true, y_pred_binary, zero_division=0)
     f1_at_t = f1_score(y_true, y_pred_binary, zero_division=0)
 
+    logloss = log_loss(y_true, y_prob)
+
     metrics: dict[str, float] = {
         "auc_roc": auc,
         "gini": gini,
         "brier_score": brier,
+        "log_loss": logloss,
         "ece": ece,
         "ks_statistic": ks,
         "pr_auc": pr_auc,
@@ -74,6 +78,68 @@ def ks_statistic(y_true: np.ndarray, y_prob: np.ndarray) -> float:
     non_defaults = y_prob[y_true == 0]
     ks_stat, _ = ks_2samp(defaults, non_defaults)
     return ks_stat
+
+
+def brier_score_decomposition(
+    y_true: np.ndarray,
+    y_prob: np.ndarray,
+    n_bins: int = 10,
+) -> dict[str, float]:
+    """Decompose Brier score into reliability, resolution, and uncertainty.
+
+    Murphy (1973) decomposition:
+        Brier = Reliability - Resolution + Uncertainty
+
+    - Reliability (calibration): lower is better. Measures how close
+      predicted probabilities are to observed frequencies per bin.
+    - Resolution (discrimination): higher is better. Measures how much
+      bin-level frequencies deviate from the overall base rate.
+    - Uncertainty: irreducible, depends only on the base rate.
+
+    Args:
+        y_true: Binary ground truth.
+        y_prob: Predicted probabilities.
+        n_bins: Number of calibration bins.
+
+    Returns:
+        Dict with brier, reliability, resolution, uncertainty,
+        and normalized miscalibration_share.
+    """
+    y_true = np.asarray(y_true, dtype=float)
+    y_prob = np.asarray(y_prob, dtype=float)
+    n = len(y_true)
+
+    base_rate = y_true.mean()
+    uncertainty = base_rate * (1 - base_rate)
+
+    bin_edges = np.linspace(0, 1, n_bins + 1)
+    reliability = 0.0
+    resolution = 0.0
+
+    for i in range(n_bins):
+        mask = (y_prob >= bin_edges[i]) & (y_prob < bin_edges[i + 1])
+        if i == n_bins - 1:
+            mask = mask | (y_prob == bin_edges[i + 1])
+        n_k = mask.sum()
+        if n_k == 0:
+            continue
+        avg_pred = y_prob[mask].mean()
+        avg_true = y_true[mask].mean()
+        reliability += n_k * (avg_pred - avg_true) ** 2
+        resolution += n_k * (avg_true - base_rate) ** 2
+
+    reliability /= n
+    resolution /= n
+    brier = reliability - resolution + uncertainty
+
+    return {
+        "brier_decomposed": float(brier),
+        "reliability": float(reliability),
+        "resolution": float(resolution),
+        "uncertainty": float(uncertainty),
+        "miscalibration_share": float(reliability / max(brier, 1e-10)),
+        "discrimination_share": float(resolution / max(brier, 1e-10)),
+    }
 
 
 def regression_metrics(y_true: np.ndarray, y_pred: np.ndarray) -> dict[str, float]:
