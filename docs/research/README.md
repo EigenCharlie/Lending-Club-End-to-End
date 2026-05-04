@@ -11,3 +11,5 @@ This directory stores research-only notes, comparative writeups, and literature 
   improvement audit for the CRPTO paper.
 - `repo_sync_closure_2026-05-04.md`: final repository/DVC cleanup decisions after
   promoting the bound-aware economic champion.
+- `paper_estrella_backlog_2026-05-04.md`: prioritized backlog for journal-grade
+  extensions that require new experiments or theory.

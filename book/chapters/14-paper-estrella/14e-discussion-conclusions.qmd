@@ -60,6 +60,20 @@ La version actual todavia enfrenta limites claros que deben ser reconocidos expl
 
 Las extensiones mas prometedoras del Paper Estrella se organizan en tres horizontes. A corto plazo, la prioridad es endurecer la cota del @thm-conformal-feasibility usando desigualdades de concentración más finas (Hoeffding, Bernstein) bajo supuestos explícitos de independencia condicional entre indicadores de no cobertura. Esa agenda vale la pena, pero con una cautela importante: seria un tightening **bajo supuestos adicionales**, no un reemplazo del resultado Markov principal que sostiene el paper actual. El analisis de estabilidad OOT ya esta completo (vease @sec-estrella-shift-stability): la cobertura conformal se mantiene por encima del target en los cinco periodos evaluados, incluyendo el quiebre de regimen COVID. La extension natural es replicar este analisis sobre escenarios sinteticos de shift o datasets independientes para evaluar si el patron se generaliza, conectándolo con cobertura robusta multi-distribución [@yang2026multidistribution], selección de modelos CROMS [@bao2025croms] y satisficing conformal robusto [@zhao2025robust]. Tambien es relevante explorar el entrenamiento conformal de riesgo [@yeh2025training], en particular variantes OCE/CVaR para colas de perdida, y la calibración conformal end-to-end [@yeh2026] como puentes entre CRPTO y SPO+. A mediano plazo, la extensión a un pipeline genuinamente secuencial en el sentido de @powell2026sdam --- donde la política CFA se re-ejecute en cada ciclo de originación, la función de transición $S^M$ capture la evolución del portafolio, y el estado de creencias $B_t$ se actualice mediante conformal prediction online [@gibbs2021aci; @liu2026portfolio] u online DFL [@capitaine2026online] --- permitiría evaluar el sistema en un entorno operativo real y abriría la puerta a la comparación formal entre políticas CFA, VFA y DLA dentro del mismo problema (véase @sec-future-sdam-production). A largo plazo, la integracion con sistemas de monitoreo en tiempo real y la extension a multiples clases de activo constituirian la validacion definitiva de la propuesta.
 
+La hoja de ruta queda entonces ordenada por dependencia, no por entusiasmo bibliografico:
+
+| Prioridad | Mejora | Paper que la motiva | Criterio de cierre |
+|---|---|---|---|
+| P0 | mantener el champion economico y el bound exacto sincronizados | auditoria interna / CRC-LTT | `models/final_project_promotion.json`, DVC y tablas paper-facing coinciden |
+| P1 | nested holdout para seleccion bound-aware post-seleccion | LTT / RCPS | la policy se selecciona en un split y se valida en otro |
+| P1 | selector conformal decision-aware | CROMS [@bao2025croms] | ranking por retorno robusto, `V`, `gamma_cp`, violacion y cobertura |
+| P1 | tightening condicional del bound | CRC + concentracion clasica | lemma separado que no reemplace Markov |
+| P2 | funded-set risk con OCE/CVaR | conformal risk training [@yeh2025training] | controlar cola de perdida, no solo esperanza |
+| P2 | robustez multi-distribucion / grupos desconocidos | MDCP [@yang2026multidistribution] | cobertura robusta ante fuente o grupo test-time no observado |
+| P2 | conformal online y DFL online | UP-OCP [@liu2026portfolio], Online DFL [@capitaine2026online] | recalibracion secuencial bajo drift y originacion continua |
+
+: Roadmap journal priorizado para CRPTO {#tbl-p1-journal-roadmap}
+
 ### Reproducibility appendix
 
 La reproducibilidad del paper esta mejor resuelta que su cierre teorico. El capitulo se apoya en:
@@ -76,13 +90,30 @@ La reproducibilidad del paper esta mejor resuelta que su cierre teorico. El capi
 
 Ademas, la carpeta `reports/paper_material/figures_publication/` conserva las figuras editoriales congeladas para escritura y revision.
 
+La tabla siguiente convierte esa trazabilidad en una regla de defensa editorial: cada claim importante debe tener un artefacto y un guardrail.
+
+| Claim | Artefacto canonico | Guardrail / verificacion |
+|---|---|---|
+| Champion oficial = economic champion | `models/final_project_promotion.json`, `models/champion_portfolio_policy.json` | `tests/test_docs/test_paper_estrella_final_sync.py` |
+| Retorno oficial `$170.5K` | `final_champion.realized_total_return` | tabla `paper1_table0_key_metrics.csv` y DVC metric `paper1.final.robust_return` |
+| `alpha01_exact_pass=true` | `final_champion.alpha01_exact_pass` | guardrail de sync del Paper Estrella |
+| `V=0.03645`, `gamma_cp=0.18591`, `violation=0` | `final_champion` y bound eval `276k` | guardrail de sync + tablas paper-facing |
+| Region robusta `45/45` | `robust_region_summary` | DVC metrics `paper1.final.robust_region_*` |
+| Winner conformal `coverage_90=92.97%` | `conformal_upstream.winner_metrics` | `scripts/export_paper1_canonical_tables.py` |
+| PD operativo AUC/Brier/ECE | `data/processed/pipeline_summary.json`, `reports/dvc/metrics_summary.json` | comparacion solo dentro de familia PD |
+| Ownership DVC/Git correcto | `dvc.yaml`, `dvc.lock`, punteros `.dvc` | `test_dvc_outputs_are_not_tracked_directly_by_git` |
+
+: Mapa claim--artefacto--test para la version journal {#tbl-p1-claim-artifact-test}
+
 ### Proximo paso editorial
 
 La mejor continuacion no es expandir alcance indiscriminadamente, sino endurecer el claim central con una version journal:
 
-1. endurecer la cota del @thm-conformal-feasibility con desigualdades de concentración (Hoeffding/Bernstein) bajo supuestos explícitos de independencia condicional, dejando claro que ese tightening sería condicional y no sustituye el resultado principal actual;
-2. replicacion del analisis de estabilidad (@sec-estrella-shift-stability) sobre datasets independientes o escenarios sinteticos de shift;
-3. analisis de sensibilidad por segmento y periodo.
+1. defender el paper actual como **CRPTO post-hoc auditable** con el champion economico ya congelado;
+2. agregar nested holdout para separar seleccion bound-aware de validacion final;
+3. endurecer la cota del @thm-conformal-feasibility con desigualdades de concentración (Hoeffding/Bernstein) bajo supuestos explícitos, dejando claro que ese tightening sería condicional y no sustituye el resultado principal actual;
+4. replicar el analisis de estabilidad (@sec-estrella-shift-stability) sobre datasets independientes o escenarios sinteticos de shift;
+5. construir una segunda contribucion, no mezclada con el paper actual, donde CROMS / OCE-CVaR / online conformal conviertan la seleccion conformal en una capa plenamente decision-aware.
 
 ### Conclusion general {#sec-estrella-conclusion}
 

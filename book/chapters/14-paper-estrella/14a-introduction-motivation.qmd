@@ -22,6 +22,8 @@ La curaduria de `docs/PAPER_REFERENCES_STATE_OF_ART.md` muestra un panorama suge
 
 Esa brecha es especialmente interesante en Lending Club, donde el paso de score a decision economica es inmediato y medible. Ninguno de los trabajos identificados en las categorias C (conformal + robust optimization), D (conformal en finanzas) y E (decision-focused learning) del repositorio de referencias combina simultaneamente: (i) un modelo de scoring calibrado sobre datos de credito reales, (ii) intervalos conformales Mondrian con una partición regulatoriamente interpretable de base y una variante empíricamente promovida por benchmark, (iii) una formulacion de portafolio robusta parametrizada por dichos intervalos, y (iv) una traduccion explicita desde el control de riesgo conformal tipo RCPS/LTT/CRC hacia una restriccion lineal de PD ponderada. Esta ausencia constituye la brecha central que motiva el presente trabajo.
 
+El refresh de literatura de mayo de 2026 refina, pero no desplaza, esta brecha. Los trabajos nuevos muestran que el campo se mueve hacia calibracion conformal end-to-end [@yeh2026], seleccion de modelos conformal robustos por riesgo decisional [@bao2025croms], control de riesgo OCE/CVaR [@yeh2025training], cobertura multi-distribucion [@yang2026multidistribution] y actualizacion online [@liu2026portfolio; @capitaine2026online]. Esa direccion confirma que CRPTO debe presentarse como una arquitectura **post-hoc, auditable y portfolio-aware**: no pretende ser la ultima palabra end-to-end, sino una instancia concreta donde la incertidumbre conformal ya cambia una decision financiera real y deja una cadena de evidencia reproducible.
+
 ::: {.callout-note}
 ## Por que esta brecha importa para los profesionales
 En la practica bancaria, la asignacion de capital crediticio se realiza diariamente sobre estimaciones puntuales de PD. Cuando esas estimaciones fallan --- por cambios macroeconomicos, drift temporal o simple error de calibracion --- las perdidas se materializan antes de que los modelos de monitoreo las detecten. Un sistema que incorpore incertidumbre *con garantias formales* directamente en la decision de asignacion no solo mejora la robustez del portafolio, sino que facilita la gobernanza ante comites de riesgo y reguladores, quienes pueden auditar tanto la cobertura del intervalo como la sensibilidad de la decision.
@@ -51,6 +53,11 @@ El paper *no* cubre: una version mas ajustada del bound bajo supuestos adicional
 2. Compara CRPTO contra baselines alternativos de incertidumbre (bootstrap, BMA) y contra decision-focused learning (SPO+), con metricas que abarcan cobertura, anchura, regret economico y auditabilidad regulatoria.
 3. Cuantifica la frontera entre cobertura, ancho y retorno economico bajo una misma trazabilidad experimental, proporcionando una herramienta operativa para gestores de portafolio.
 4. Demuestra que la ventaja competitiva de CRPTO frente a SPO+ no es el regret (donde SPO+ es superior por diseno) sino la **trazabilidad**: cobertura verificable por grupo, auditabilidad ante SR 11-7, y respuesta automatica ante cambios de regimen via ensanchamiento natural de intervalos.
+
+::: {.callout-tip}
+## Lectura editorial recomendada
+El claim fuerte no es "CRPTO domina a SPO+ en toda metrica". El claim publicable es mas preciso: CRPTO paga un precio de regret para comprar auditabilidad, cobertura verificable y una region robusta exacta dentro de la cual la policy economica puede promoverse sin ambiguedad. Esa lectura alinea el paper con Management Science / Operations Research / EJOR mejor que una narrativa de leaderboard unico.
+:::
 
 ### Relevancia metodologica
 

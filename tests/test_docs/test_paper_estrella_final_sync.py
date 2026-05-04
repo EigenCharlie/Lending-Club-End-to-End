@@ -15,6 +15,8 @@ EXPECTED_LABEL = "bound_aware_276k_economic_champion"
 EXPECTED_RETURN = 170464.5429284627
 EXPECTED_V = 0.03645
 EXPECTED_GAMMA_CP = 0.18591
+PAPER_ESTRELLA_DISCUSSION = Path("book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd")
+PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
 
 
 def _load_json(path: str) -> dict:
@@ -92,3 +94,29 @@ def test_dvc_outputs_are_not_tracked_directly_by_git() -> None:
                 duplicate_owned_outputs.append(output_path)
 
     assert not duplicate_owned_outputs
+
+
+def test_paper_estrella_journal_backlog_is_documented() -> None:
+    assert PAPER_ESTRELLA_BACKLOG.exists()
+
+    discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
+    backlog = PAPER_ESTRELLA_BACKLOG.read_text(encoding="utf-8")
+
+    for token in (
+        "tbl-p1-claim-artifact-test",
+        "tbl-p1-journal-roadmap",
+        "nested holdout",
+        "CROMS",
+        "OCE/CVaR",
+        "paper1.final.robust_return",
+    ):
+        assert token in discussion
+
+    for token in (
+        "Do Not Reopen Without Approval",
+        EXPECTED_RUN_TAG,
+        "Decision-aware conformal selector",
+        "OCE/CVaR funded-set conformal risk",
+        "Online conformal recalibration",
+    ):
+        assert token in backlog

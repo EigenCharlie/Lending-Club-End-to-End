@@ -35,6 +35,21 @@ Para evitar mezclar resultados de familias experimentales incompatibles, este ca
 
 Las tablas de `reports/paper_material/paper1/tables/*` se regeneran con `scripts/export_paper1_canonical_tables.py` desde esta jerarquía. Si se vuelven a ejecutar runs antiguos, la regla editorial se mantiene: cualquier tabla paper-facing debe heredar primero de `models/final_project_promotion.json`.
 
+### Estado decision-aware del diseño actual {#sec-estrella-decision-aware-status}
+
+El pipeline actual ya es decision-aware en la capa de portafolio, pero todavia no en toda la cadena conformal. Esta distincion evita sobreprometer y, al mismo tiempo, deja claro donde esta la contribucion real:
+
+| Capa | Estado actual | Lectura correcta |
+|---|---|---|
+| PD base | seleccionada por calidad predictiva, calibracion y gobernanza monotónica | upstream regulatorio y probabilistico |
+| Conformal winner | seleccionado por cobertura, ancho, cobertura minima de grupo y Winkler | uncertainty set eficiente, todavia no entrenado por perdida economica |
+| Bound-aware portfolio | seleccionado por retorno dentro de una region que pasa `alpha01` exactamente | capa decision-aware del paper |
+| Paper/journal futuro | seleccionar o entrenar el score conformal por retorno robusto, `V`, `gamma_cp` y violacion | extension CROMS / end-to-end conformal risk |
+
+: Estado decision-aware por capa del pipeline CRPTO {#tbl-p1-decision-aware-status}
+
+Esta separacion es importante porque CROMS [@bao2025croms], conformal calibration end-to-end [@yeh2026] y conformal risk training [@yeh2025training] sugieren una version mas integrada del mismo programa. El presente paper no necesita esa extension para sostener su claim actual: la contribucion demostrada es que una capa conformal ya calibrada puede alimentar una policy robusta exacta, auditable y economicamente promotable. La version journal puede cerrar el ciclo completo haciendo que la seleccion conformal sea tambien decision-aware.
+
 ### Construcción del conjunto de incertidumbre
 
 El diseño del conjunto de incertidumbre es deliberado: no basta con demostrar que los intervalos conformales "cubren"; es necesario mostrar que cubren *mejor* que las alternativas en las dimensiones que importan para decisión. Por eso el experimento incluye tres capas de comparación con roles distintos:

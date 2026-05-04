@@ -151,7 +151,7 @@ Riesgo matematico que sigue abierto para journal: formalizar si el wrapper confo
 
 ## Plan de mejora priorizado
 
-1. Crear una tabla journal `claim -> artifact -> test` dentro del apendice reproducible.
+1. Crear una tabla journal `claim -> artifact -> test` dentro del apendice reproducible. **Aplicado** en `book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd` como `tbl-p1-claim-artifact-test`.
 2. Formalizar un lemma separado para la lectura de PD latente, o retirar esa lectura del theorem principal.
 3. Agregar experimento future-work minimo: nested holdout para confirmar que la seleccion bound-aware no usa el mismo OOT como unica evidencia.
 4. Agregar un selector conformal decision-aware inspirado en CROMS: comparar familias por retorno robusto, `V`, `gamma_cp`, violación y métricas conformales, manteniendo la selección en holdout separado.
@@ -159,3 +159,5 @@ Riesgo matematico que sigue abierto para journal: formalizar si el wrapper confo
 6. Incorporar `@capitaine2026online`, `@liu2026portfolio` y `@yang2026multidistribution` como trabajo futuro secuencial/no estacionario y como robustez multi-fuente.
 7. Mantener SPO+ como comparador de regret, no como baseline de cobertura.
 8. Abrir issue especifico para el drift del Paper Mondrian y no mezclarlo con el cierre del Paper Estrella.
+
+Backlog operativo creado: `docs/research/paper_estrella_backlog_2026-05-04.md` separa P0/P1/P2/P3 y marca que el champion `paper-thesis-final-economic-2026-04-06` no debe reabrirse sin una busqueda nueva aprobada.
