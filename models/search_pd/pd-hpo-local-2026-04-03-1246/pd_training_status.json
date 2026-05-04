@@ -1,0 +1,8 @@
+{
+  "stage_name": "pd_training",
+  "phase": "default_catboost_trained",
+  "state": "running",
+  "config_path": "models/search_pd/pd-hpo-local-2026-04-03-1246/pd_model_hpo_local.yaml",
+  "updated_at_utc": "2026-04-03T17:54:54.936338+00:00",
+  "validation_auc": 0.7220507990187348
+}

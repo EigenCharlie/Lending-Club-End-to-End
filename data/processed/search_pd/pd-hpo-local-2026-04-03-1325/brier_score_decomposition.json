@@ -1,0 +1,19 @@
+{
+  "calibrated": {
+    "brier_decomposed": 0.15507404932735266,
+    "reliability": 9.155623852016315e-05,
+    "resolution": 0.016493714363062045,
+    "uncertainty": 0.17147620745189454,
+    "miscalibration_share": 0.0005904033519295871,
+    "discrimination_share": 0.10636024811762498
+  },
+  "uncalibrated": {
+    "brier_decomposed": 0.20858715883203494,
+    "reliability": 0.05390245003274515,
+    "resolution": 0.016791498652604767,
+    "uncertainty": 0.17147620745189454,
+    "miscalibration_share": 0.258416914706385,
+    "discrimination_share": 0.08050111400254578
+  },
+  "selected_calibration_method": "venn_abers"
+}

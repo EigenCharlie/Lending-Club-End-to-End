@@ -115,6 +115,10 @@ nul
 # Generated JSON artifacts not worth tracking directly in Git
 data/processed/ts_diagnostics.json
 data/processed/ts_diagnostics_v2.json
+models/time_series_status.json
+models/time_series_vnext_status.json
+models/time_series_policy_review.json
+models/challenger_promotion_report.json
 
 # Stage C conformal gap experiment directories (large; summary in models/conformal_gap_summary.json)
 data/processed/conformal_gap/gap_stage_c_*/

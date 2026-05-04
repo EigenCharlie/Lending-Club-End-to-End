@@ -1,0 +1,17 @@
+{
+  "selected_calibration_method": "venn_abers",
+  "validation_auc": 0.722336975744382,
+  "oot_auc": 0.7138518124963467,
+  "brier": 0.15439302183275685,
+  "ece": 0.006992904064761958,
+  "replay": {
+    "enabled": false,
+    "reason": "study_load_failed: 'Record does not exist.'",
+    "rows": [],
+    "selected_trial": null,
+    "selected_params": null
+  },
+  "schema_version": "2026-03-13.1",
+  "generated_at_utc": "2026-04-04T00:44:42.650349+00:00",
+  "run_tag": "pd-hpo-local-2026-04-03-1325"
+}

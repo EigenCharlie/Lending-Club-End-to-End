@@ -1,0 +1,5 @@
+outs:
+- md5: 31b8fe298cec91e519a57168fa2140ba
+  size: 12563996
+  hash: md5
+  path: pd_local_hpo_default.cbm

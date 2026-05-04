@@ -1,0 +1,12 @@
+{
+  "stage_name": "pd_training",
+  "phase": "artifacts_saved",
+  "state": "completed",
+  "config_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_model_hpo_local.yaml",
+  "updated_at_utc": "2026-04-04T00:44:42.651248+00:00",
+  "model_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_local_hpo_tuned.cbm",
+  "calibrator_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_local_hpo_calibrator.pkl",
+  "record_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_training_record.pkl",
+  "auc_roc": 0.7138518124963467,
+  "brier_score": 0.15439302183275685
+}

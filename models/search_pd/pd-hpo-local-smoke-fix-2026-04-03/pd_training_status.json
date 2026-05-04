@@ -1,0 +1,8 @@
+{
+  "stage_name": "pd_training",
+  "phase": "config_validated",
+  "state": "completed",
+  "config_path": "models/search_pd/pd-hpo-local-smoke-fix-2026-04-03/pd_model_hpo_local.yaml",
+  "updated_at_utc": "2026-04-03T17:45:36.116256+00:00",
+  "validate_only": true
+}

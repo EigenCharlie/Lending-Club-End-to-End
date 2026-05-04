@@ -74,28 +74,13 @@
         "scripts/generate_conformal_intervals.py",
         "scripts/benchmark_conformal_variants.py",
         "scripts/benchmark_pd_set_prediction.py",
-        "scripts/validate_conformal_experiment.py"
-      ],
-      "artifacts": [
-        "models/conformal_gap/<run_tag>/conformal_reopen_status.json",
-        "data/processed/conformal_gap/<run_tag>/conformal_reopen_inner_aggregate.parquet",
-        "data/processed/conformal_gap/<run_tag>/conformal_reopen_phase1_final_candidates.parquet"
-      ],
-      "target_pipeline": "search_conformal",
-      "can_promote": true
-    },
-    {
-      "search": "conformal_reopen_exhaustive",
-      "scripts": [
-        "scripts/search/run_conformal_reopen_search.py",
-        "scripts/generate_conformal_intervals.py",
-        "scripts/benchmark_conformal_variants.py",
-        "scripts/benchmark_pd_set_prediction.py",
+        "scripts/validate_conformal_experiment.py",
         "scripts/validate_conformal_policy.py"
       ],
       "artifacts": [
         "models/conformal_gap/<run_tag>/conformal_reopen_status.json",
         "data/processed/conformal_gap/<run_tag>/conformal_reopen_inner_aggregate.parquet",
+        "data/processed/conformal_gap/<run_tag>/conformal_reopen_phase1_final_candidates.parquet",
         "data/processed/conformal_gap/<run_tag>/pd_set_prediction_benchmark.parquet"
       ],
       "target_pipeline": "search_conformal",

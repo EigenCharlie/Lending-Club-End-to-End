@@ -1,0 +1,80 @@
+{
+  "created_at_utc": "2026-04-04T00:44:26.058643+00:00",
+  "model_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_candidate_model.cbm",
+  "calibrator_path": "models/search_pd/pd-hpo-local-2026-04-03-1325/pd_candidate_calibrator.pkl",
+  "feature_names": [
+    "loan_amnt",
+    "int_rate",
+    "installment",
+    "annual_inc",
+    "dti",
+    "loan_to_income",
+    "installment_burden",
+    "revol_bal_to_income",
+    "open_acc_ratio",
+    "fico_score",
+    "credit_age_years",
+    "emp_length_num",
+    "open_acc",
+    "total_acc",
+    "revol_bal",
+    "pub_rec",
+    "inq_last_6mths",
+    "mort_acc",
+    "delinq_severity",
+    "delinq_recency",
+    "il_ratio",
+    "log_annual_inc",
+    "log_revol_bal",
+    "loan_to_income_sq",
+    "fico_x_dti",
+    "has_delinq_2yrs",
+    "has_pub_rec",
+    "has_bankruptcy",
+    "has_recent_inq",
+    "has_mortgage",
+    "many_recent_opens",
+    "recent_chargeoff",
+    "grade",
+    "sub_grade",
+    "home_ownership",
+    "purpose",
+    "verification_status",
+    "term",
+    "int_rate_bucket",
+    "dti_bucket",
+    "fico_bucket",
+    "int_rate_bucket__grade"
+  ],
+  "categorical_features": [
+    "grade",
+    "sub_grade",
+    "home_ownership",
+    "purpose",
+    "verification_status",
+    "term",
+    "int_rate_bucket",
+    "dti_bucket",
+    "fico_bucket"
+  ],
+  "n_features": 42,
+  "split_shapes": {
+    "train": [
+      798550,
+      164
+    ],
+    "calibration": [
+      237584,
+      164
+    ],
+    "test": [
+      276869,
+      164
+    ]
+  },
+  "split_missing_features": {
+    "train": [],
+    "calibration": [],
+    "test": []
+  }
+}

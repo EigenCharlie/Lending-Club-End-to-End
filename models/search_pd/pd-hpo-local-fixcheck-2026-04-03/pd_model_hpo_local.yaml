@@ -1,0 +1,256 @@
+model:
+  type: catboost
+  params:
+    iterations: 3450
+    learning_rate: 0.030590100735681216
+    depth: 9
+    l2_leaf_reg: 125.73596604846647
+    min_data_in_leaf: 185
+    rsm: 0.66554189303626
+    random_strength: 1.7202215535069166e-06
+    border_count: 148
+    bootstrap_type: MVS
+    subsample: 0.771052860633893
+    loss_function: Logloss
+    auto_class_weights: Balanced
+    eval_metric: AUC
+    has_time: true
+    allow_writing_files: false
+    random_seed: 42
+    early_stopping_rounds: 150
+    grow_policy: SymmetricTree
+    leaf_estimation_iterations: 3
+    monotone_constraints: installment:1,annual_inc:-1,dti:1,loan_to_income:1
+feature_source:
+  mode: feature_config
+  feature_config_path: data/processed/feature_config.pkl
+hpo:
+  enabled: true
+  n_trials: 5
+  sampler: tpe
+  pruner: median
+  timeout_minutes: 0
+  n_startup_trials: 30
+  multivariate_tpe: true
+  group_tpe: true
+  warn_independent_sampling: false
+  pruner_n_startup_trials: 20
+  pruner_n_warmup_steps: 75
+  use_pruning_callback: true
+  study_storage: sqlite:///models/search_pd/pd-hpo-local-fixcheck-2026-04-03/optuna_pd_hpo_local.db
+  study_name: pd_hpo_local_blockwise_affordability_deeper_regularized
+  load_if_exists: true
+  refit_full_train: true
+  gc_after_trial: true
+  storage_heartbeat_interval: 60
+  storage_grace_period: 240
+  sqlite_timeout_seconds: 120
+  retry_failed_trials: 2
+  constant_liar: false
+  n_jobs: 1
+  search_space_mode: local_refine
+  search_space_version: cb_local_refine_v1
+  local_refine:
+    enqueue_base_trial: true
+    fixed_params:
+      bootstrap_type: MVS
+      grow_policy: SymmetricTree
+    iterations:
+      low: 2800
+      high: 4200
+      step: 50
+    learning_rate:
+      low: 0.015
+      high: 0.06
+      log: true
+    depth:
+      choices:
+      - 8
+      - 9
+      - 10
+    l2_leaf_reg:
+      low: 30.0
+      high: 260.0
+      log: true
+    min_data_in_leaf:
+      low: 120
+      high: 260
+      step: 5
+    rsm:
+      low: 0.55
+      high: 0.85
+    random_strength:
+      low: 1.0e-08
+      high: 0.001
+      log: true
+    border_count:
+      choices:
+      - 128
+      - 148
+      - 192
+      - 254
+    subsample:
+      low: 0.65
+      high: 0.9
+    leaf_estimation_iterations:
+      choices:
+      - 2
+      - 3
+      - 4
+      - 5
+    penalties_coefficient:
+    - 0.75
+    - 1.0
+    - 1.25
+    - 1.5
+    first_feature_use_penalties:
+      rev_utilization:
+      - 0.0
+      - 0.2
+      - 0.5
+      delinq_recency:
+      - 0.0
+      - 0.2
+      - 0.5
+    feature_weights:
+      loan_to_income:
+      - 1.0
+      - 1.15
+      - 1.3
+      annual_inc:
+      - 1.0
+      - 1.1
+      - 1.2
+      dti:
+      - 1.0
+      - 1.1
+      - 1.2
+      installment:
+      - 1.0
+      - 1.05
+      - 1.1
+  constraints_policy:
+    max_brier_delta: 0.001
+    max_ece_delta: 0.0025
+    min_auc_delta: -0.001
+validation:
+  scheme: temporal_train_val_cal_test
+  val_from_tail_fraction_of_train: 0.15
+  oot_test_cutoff: '2018-01-01'
+  walk_forward:
+    enabled: false
+    n_windows: 3
+    min_train_rows: 200000
+    window_rows: 80000
+    date_col: issue_d
+    max_rows: 0
+  seed_replay:
+    enabled: true
+    top_k_trials: 3
+    seeds:
+    - 42
+    - 59
+    - 76
+    prioritize_gate_pass: true
+data:
+  train_path: data/processed/train_fe.parquet
+  test_path: data/processed/test_fe.parquet
+  calibration_path: data/processed/calibration_fe.parquet
+  cutoff_date: '2018-01-01'
+training_regime:
+  mode: recent_8q
+  recent_window_quarters: 8
+  half_life_quarters: 8
+stable_core:
+  enabled: true
+  exclude_features:
+  - rev_utilization
+  - high_util_pct
+features:
+  numeric:
+  - loan_amnt
+  - annual_inc
+  - loan_to_income
+  - dti
+  - rev_utilization
+  - num_delinq_2yrs
+  - days_since_last_delinq
+  - int_rate
+  - installment
+  woe:
+  - grade_woe
+  - purpose_woe
+  - home_ownership_woe
+  categorical:
+  - int_rate_bucket
+  - term
+  target: default_flag
+conformal:
+  confidence_level: 0.9
+  prefit: true
+  estimator: SplitConformalRegressor
+calibration:
+  method: venn_abers
+  candidates:
+  - venn_abers
+  default_threshold: 0.5
+decision_threshold:
+  enabled: true
+  fairness_policy_path: configs/fairness_policy.yaml
+  min_threshold: 0.05
+  max_threshold: 0.95
+  step: 0.01
+  output_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/decision_threshold.json
+  output_path_v2: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/decision_threshold_v2.json
+challenger_pipeline:
+  enabled: false
+  random_state: 42
+  sample_rows: 150000
+  top_k: 30
+  permutation_max_rows: 80000
+  boruta_n_estimators: 120
+  no_smote: true
+  feature_selection_output: data/processed/challenger_feature_selection.parquet
+  spec_output: models/pd_challenger_spec.json
+  spec_output_v2: models/pd_challenger_spec_v2.json
+  promotion_report_output: models/challenger_promotion_report.json
+  validation_fraction: 0.15
+  benchmark_max_depth: 6
+  benchmark_max_iter: 220
+  benchmark_learning_rate: 0.05
+  max_auc_drop: 0.01
+  max_brier_increase_pct: 0.05
+  min_interpretability_gains: 2
+  monotonic_constraints:
+    annual_inc: -1
+    loan_to_income: 1
+mlflow:
+  experiment_name: pd_model
+  tracking_uri: null
+output:
+  model_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_local_hpo_tuned.cbm
+  conformal_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_local_hpo_calibrator.pkl
+  default_model_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_local_hpo_default.cbm
+  tuned_model_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_local_hpo_tuned_alias.cbm
+  status_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_training_status.json
+  checkpoint_dir: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_training_checkpoints
+  brier_decomposition_path: data/processed/search_pd/pd-hpo-local-fixcheck-2026-04-03/brier_score_decomposition.json
+  murphy_diagram_path: reports/figures/search_pd/pd-hpo-local-fixcheck-2026-04-03/murphy_diagram.png
+  canonical_model_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_candidate_model.cbm
+  canonical_calibrator_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_candidate_calibrator.pkl
+  contract_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_model_contract.json
+  logreg_model_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_logreg_baseline.pkl
+  training_record_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_training_record.pkl
+  seed_replay_status_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/pd_hpo_seed_replay_status.json
+  test_predictions_path: data/processed/search_pd/pd-hpo-local-fixcheck-2026-04-03/test_predictions.parquet
+  shap_dir: reports/figures/search_pd/pd-hpo-local-fixcheck-2026-04-03/shap
+  threshold_semantics_path: models/search_pd/pd-hpo-local-fixcheck-2026-04-03/threshold_semantics.json
+metadata:
+  run_tag: pd-hpo-local-fixcheck-2026-04-03
+  base_search_run_tag: pd-blockwise-exhaustive-2026-04-02-0940
+  base_config_path: configs/pd_model.champion.yaml
+  best_search_profile: blockwise_affordability
+  best_search_variant_id: deeper_regularized
+  best_search_calibration_method: venn_abers
+  best_search_threshold_mean: 0.25
+  feature_prior_valid_count: 44

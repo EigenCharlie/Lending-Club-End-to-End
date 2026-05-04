@@ -121,6 +121,65 @@ def test_log_conformal_includes_explicit_policy_metrics(monkeypatch) -> None:
     assert params["overall_pass"] is False
 
 
+def test_log_paper1_final_uses_final_project_promotion(monkeypatch) -> None:
+    import scripts.log_mlflow_experiment_suite as suite_mod
+
+    promotion = {
+        "run_tag": "paper-thesis-final-economic-2026-04-06",
+        "final_champion": {
+            "label": "bound_aware_276k_economic_champion",
+            "family": "portfolio_bound_aware",
+            "champion_role": "economic_champion",
+            "risk_tolerance": 0.175,
+            "policy_mode": "blended_uncertainty",
+            "gamma": 0.45,
+            "uncertainty_aversion": 0.1,
+            "selection_reason": "economic_champion",
+            "realized_total_return": 170464.5429284627,
+            "price_of_robustness": -14465.688162534818,
+            "price_of_robustness_pct": -10.557772959426375,
+            "alpha01_exact_pass": True,
+            "alpha03_exact_pass": True,
+            "alpha10_exact_pass": True,
+            "alpha01_weighted_miscoverage_V": 0.03645,
+            "alpha01_gamma_cp": 0.18591,
+            "alpha01_violation": 0.0,
+        },
+        "robust_region_summary": {
+            "alpha01_pass_rate": 1.0,
+            "n_unique_policies": 45,
+        },
+        "conformal_upstream": {
+            "winner_metrics": {
+                "coverage_90": 0.9297140524941399,
+                "coverage_95": 0.9663884364085542,
+                "avg_width_90": 0.7842303100675323,
+                "min_group_coverage_90": 0.9189831313851271,
+                "winkler_90": 1.110742432294828,
+            }
+        },
+    }
+    captured: dict = {}
+
+    def fake_log_run(**kwargs):
+        captured.update(kwargs)
+        return "paper1-final-run-id"
+
+    monkeypatch.setattr(suite_mod, "_load_json", lambda *_args, **_kwargs: promotion)
+    monkeypatch.setattr(suite_mod, "_log_run", fake_log_run)
+
+    run_id = suite_mod._log_paper1_final("20260504", {"git_sha": "abc"})
+
+    assert run_id == "paper1-final-run-id"
+    assert captured["experiment_name"] == "lending_club/paper1_final"
+    assert captured["tags"]["paper1_final_run_tag"] == "paper-thesis-final-economic-2026-04-06"
+    assert captured["params"]["champion_label"] == "bound_aware_276k_economic_champion"
+    assert captured["metrics"]["robust_return"] == 170464.5429284627
+    assert captured["metrics"]["alpha01_exact_pass"] == 1.0
+    assert captured["metrics"]["robust_region_n_policies"] == 45.0
+    assert "models/final_project_promotion.json" in captured["artifacts"]
+
+
 def test_configure_tracking_non_interactive_uses_local_fallback(monkeypatch, tmp_path) -> None:
     import scripts.log_mlflow_experiment_suite as suite_mod
 
