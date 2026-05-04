@@ -79,7 +79,7 @@ La intercambiabilidad es estrictamente más débil que el supuesto i.i.d. (indep
 
 ::: {.callout-tip}
 ## Intercambiabilidad en datos de crédito
-En este proyecto, los splits temporales (train/calibración/test) violan la intercambiabilidad estricta porque la distribución de préstamos puede cambiar con el tiempo (concept drift). Sin embargo, la predicción conformal es notablemente robusta en la práctica: incluso bajo desviaciones moderadas de la intercambiabilidad, la cobertura empírica permanece cercana a la garantía teórica. En nuestros experimentos con datos OOT (2018--2020), la cobertura empírica al 90% alcanza 92.52% --- ligeramente por encima de la garantía, lo que indica conservadurismo saludable.
+En este proyecto, los splits temporales (train/calibración/test) violan la intercambiabilidad estricta porque la distribución de préstamos puede cambiar con el tiempo (concept drift). Sin embargo, la predicción conformal es notablemente robusta en la práctica: incluso bajo desviaciones moderadas de la intercambiabilidad, la cobertura empírica permanece cercana a la garantía teórica. En el cierre final OOT (2018--2020), la variante promovida `score_decile_mondrian` alcanza 92.97% de cobertura al 90% con cobertura mínima por grupo de 91.90%, lo que indica un conservadurismo útil sin perder legibilidad regulatoria del baseline.
 :::
 
 #### La garantía de cobertura {#sec-coverage-guarantee}
@@ -212,7 +212,15 @@ La elección de la variable de partición Mondrian es crítica. En riesgo credit
 
 ::: {.callout-tip}
 ## Particiones alternativas
-Además del grado, nuestro proyecto implementa otras particiones Mondrian: por deciles de score (`score_decile_mondrian`) y por grado cruzado con bandas de score (`grade_x_scoreband_mondrian`). Las particiones más finas producen intervalos más adaptativos pero requieren más datos de calibración por celda. Cuando una celda tiene pocos datos (debajo de un umbral `min_group_size`, por defecto 500), se aplica fallback al cuantil del grado o al cuantil global.
+Además del grado, nuestro proyecto implementa otras particiones Mondrian: por deciles de score (`score_decile_mondrian`) y por grado cruzado con bandas de score (`grade_x_scoreband_mondrian`). Las particiones más finas producen intervalos más adaptativos pero requieren más datos de calibración por celda. Cuando una celda tiene pocos datos (debajo de un umbral `min_group_size`), se aplica fallback al cuantil del grado o al cuantil global.
+
+La jerarquía correcta en el proyecto es esta:
+
+- `grade` sigue siendo la **partición natural e interpretable** que justifica por qué Mondrian tiene sentido en crédito;
+- `score_decile_mondrian` es la **variante final objetivamente promovida** por el benchmark/reopen conformal;
+- `grade_x_scoreband_mondrian` funciona como prueba de granularidad adicional, no como winner final.
+
+Es decir: el grado no desaparece, pero ya no compite como campeón final. Su rol es estructural y explicativo; el winner único del proyecto es `score_decile_mondrian`.
 :::
 
 #### Ancho diferencial por grado {#sec-mondrian-width}
@@ -251,7 +259,7 @@ En el contexto de PD, esto significa que un préstamo con features que lo ubican
 
 ::: {.callout-note}
 ## CQR en este proyecto
-En la implementación actual, el pipeline principal usa Split Conformal con partición Mondrian por grado. CQR está disponible como benchmark alternativo. La elección se justifica porque: (1) el Split Conformal Mondrian ya captura la principal fuente de heterogeneidad (el grado), (2) CQR requiere entrenar un modelo cuantílico adicional, y (3) los resultados empíricos muestran que la cobertura condicional por grado del enfoque Mondrian es satisfactoria (mínimo 89.0% para el peor grado al nivel 90%).
+En la implementación actual, el pipeline conserva dos capas conceptuales distintas: `grade` como baseline interpretativo y `score_decile_mondrian` como winner final seleccionado. CQR está disponible como benchmark alternativo. La elección del winner final no se apoya en “usar grades por defecto”, sino en un benchmark objetivo que mostró que `score_decile_mondrian` entrega mejor combinación de cobertura, cobertura mínima por grupo y anchura útil sobre OOT. El rol de `grade` sigue siendo necesario porque captura la semántica económica y regulatoria que motiva Mondrian desde el dominio de crédito.
 :::
 
 ### Tradeoff entre Cobertura y Ancho {#sec-coverage-width-tradeoff}
@@ -324,7 +332,7 @@ Para contextualizar las ventajas de la predicción conformal, comparamos con los
 
 **Bootstrap**: Requiere $B$ (típicamente 100--1000) re-entrenamientos del modelo. Sus intervalos son asintóticos --- la cobertura nominal solo se alcanza cuando $n \to \infty$. En muestras finitas, puede sub-cubrir significativamente, especialmente en las colas de la distribución.
 
-**Métodos Bayesianos (BMA)**: Proporcionan la distribución posterior predictiva completa, pero requieren especificar un prior y una verosimilitud. La calidad de los intervalos depende críticamente de que estos supuestos sean correctos. En nuestras comparaciones, BMA logra cobertura del 90.0% versus 92.52% del conformal Mondrian, pero con intervalos 19.3% más anchos (ancho medio 0.9347 vs 0.7546).
+**Métodos Bayesianos (BMA)**: Proporcionan la distribución posterior predictiva completa, pero requieren especificar un prior y una verosimilitud. La calidad de los intervalos depende críticamente de que estos supuestos sean correctos. En nuestras comparaciones, BMA se acerca a la cobertura nominal pero con intervalos materialmente más anchos que el winner conformal final. En el stack vigente, `score_decile_mondrian` conserva una cobertura empírica superior al 92% al 90% nominal y lo hace con una banda más útil para decisión que los baselines bayesianos simples evaluados en el proyecto.
 
 **Predicción conformal**: Ofrece el mejor balance entre garantía teórica, eficiencia computacional y ausencia de supuestos. Su principal limitación es que la garantía es marginal (sin Mondrian) y requiere un conjunto de calibración holdout que "pierde" datos para el entrenamiento.
 

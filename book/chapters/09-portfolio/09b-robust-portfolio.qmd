@@ -1,6 +1,6 @@
 ## Portafolio Robusto con Conjuntos de Incertidumbre {#sec-robust-portfolio}
 
-La formulacion determinística de @sec-deterministic-portfolio asume que $\widehat{PD}_i$ es conocida con certeza. En la practica, la PD estimada tiene un error de estimacion que los intervalos conformal cuantifican con garantias finitas de cobertura (@sec-split-conformal). Esta seccion formaliza como convertir esos intervalos en **conjuntos de incertidumbre** para optimizacion robusta, siguiendo el marco de Bertsimas y Sim [-@bertsimas_price_2004].
+La formulacion determinística de @sec-deterministic-portfolio asume que $\widehat{PD}_i$ es conocida con certeza. En la practica, la PD estimada tiene un error de estimacion que los intervalos conformal cuantifican con garantias finitas de cobertura (@sec-split-conformal). Esta seccion formaliza como convertir esos intervalos en **conjuntos de incertidumbre** para optimizacion robusta, siguiendo el marco de Bertsimas y Sim [-@bertsimas2004].
 
 ### Conjuntos de incertidumbre box
 
@@ -54,7 +54,7 @@ El sistema implementa siete modos de calculo para $PD_i^{\text{eff}}$, organizad
 
 La progresión de estas siete políticas refleja un diseño deliberado de sofisticación creciente. Las dos primeras (`point_estimate` y `hard_worst_case`) son los extremos: la primera ignora completamente la incertidumbre, mientras la segunda asume que todos los préstamos están en su peor escenario simultáneamente --- una posición tan conservadora que en la práctica no financia ningún préstamo. Las políticas 3--4 (`blended` y `capped_blended`) introducen la interpolación con $\gamma$, pero la aplican a todos los préstamos por igual, lo cual penaliza innecesariamente a préstamos con intervalos estrechos (alta confianza). Las políticas 5--6 (`tail_blended` y `segment_tail`) resuelven esto aplicando el ajuste solo a la cola de incertidumbre, pero la cola se define en términos absolutos del ancho, lo cual no distingue entre un préstamo Grade A con ancho 0.10 (relativamente enorme para ese segmento) y un préstamo Grade G con ancho 0.10 (relativamente estrecho). La política 7 (`segment_relative_tail_blended`) cierra esa brecha: define la cola en términos del ancho *relativo* a la PD puntual, y lo hace por segmento. Un préstamo Grade A con ancho/PD = 2.0 recibe ajuste de robustez porque su incertidumbre es desproporcionada; un préstamo Grade G con ancho/PD = 0.3 no, porque su incertidumbre es proporcional a su riesgo.
 
-La politica seleccionada para el champion actual es **`segment_relative_tail_blended_uncertainty`** con $\gamma = 0.10$, lo que significa que solo los prestamos con ancho relativo de incertidumbre en la cola superior (por segmento) reciben un ajuste de robustez.
+La historia final del proyecto matiza esa progresión. El champion operativo previo efectivamente favoreció políticas `segment_*` porque ofrecían una lectura económica muy buena en el carril monotónico. Sin embargo, el cierre final del proyecto terminó promoviendo **`blended_uncertainty`** con `risk_tolerance = 0.175`, `gamma = 0.45` y `uncertainty_aversion = 0.10`, porque ese punto maximiza retorno dentro de la región exacta completa ya validada sobre el funded set completo. El punto `gamma = 0.55` se conserva como comparador theorem-tight dentro de la misma región.
 
 ### Penalizacion de incertidumbre en el objetivo
 
@@ -68,11 +68,11 @@ donde $\lambda \geq 0$ es la **aversion a la incertidumbre** (`uncertainty_avers
 
 ### Resultados de la contraparte robusta
 
-El champion seleccionado presenta los siguientes indicadores de robustez, cargados del artefacto `models/champion_portfolio_policy.json`:
+El champion final presenta los siguientes indicadores, cargados del artefacto `models/champion_portfolio_policy.json`:
 
 ```{python}
 #| label: tbl-robust-metrics
-#| tbl-cap: "Métricas de robustez del portafolio champion (cargadas del artefacto canónico)"
+#| tbl-cap: "Métricas del champion final económico"
 
 import sys
 from pathlib import Path
@@ -81,27 +81,26 @@ from book._helpers.load_artifacts import try_load_json
 import pandas as pd
 
 champ = try_load_json("champion_portfolio_policy", directory="models", default={})
+econ = champ.get("economic_metrics", {})
 rob = champ.get("robustness_metrics", {})
 
 rows = [
-    {"Métrica": "Reducción de PD en peor caso",
-     "Valor": f"{rob.get('worst_case_pd_reduction_bps', 'N/A'):.0f} bps" if rob.get('worst_case_pd_reduction_bps') else "N/A"},
-    {"Métrica": "Price of Robustness",
-     "Valor": f"{rob.get('price_of_robustness_pct', 'N/A'):.2f}%" if rob.get('price_of_robustness_pct') else "N/A"},
-    {"Métrica": "Similitud de asignación vs baseline",
-     "Valor": f"{rob.get('allocation_similarity', 'N/A'):.3f} (coseno)" if rob.get('allocation_similarity') else "N/A"},
-    {"Métrica": "Breadth score",
-     "Valor": f"{rob.get('breadth_score', 'N/A'):.3f}" if rob.get('breadth_score') else "N/A"},
+    {"Métrica": "Retorno realizado", "Valor": f"${econ.get('realized_total_return', 0):,.0f}"},
+    {"Métrica": "Price of Robustness (%)", "Valor": f"{econ.get('price_of_robustness_pct', 0):.2f}%"},
+    {"Métrica": "alpha=0.01 exact pass", "Valor": str(econ.get('alpha01_exact_pass'))},
+    {"Métrica": "Weighted miscoverage V", "Valor": f"{rob.get('alpha01_weighted_miscoverage_V', 0):.6f}"},
+    {"Métrica": "Gamma CP", "Valor": f"{rob.get('alpha01_gamma_cp', 0):.6f}"},
+    {"Métrica": "Robust region cardinality", "Valor": int(rob.get('robust_region_cardinality', 0))},
 ]
 
 pd.DataFrame(rows)
 ```
 
 ::: {.callout-tip}
-## Precio de la robustez como "prima de seguro"
-El *Price of Robustness* de −2.58% significa que el portafolio robusto sacrifica solo 2.58% de retorno esperado a cambio de una reducción de ~903 puntos base en la PD del peor caso. Para contextualizarlo: los spreads de riesgo crediticio en préstamos de grado medio (C–D) suelen estar entre 200–600bp. Absorber 903bp de incertidumbre de modelo por solo 2.58% de retorno es una prima competitiva.
+## Precio de la robustez como prima de defendibilidad
+En el cierre final del proyecto el *Price of Robustness* ya no debe leerse solo como sacrificio de retorno, sino como prima pagada por una policy que pasa `alpha = 0.01` exacto y mantiene un bound empírico fuerte sin renunciar al mayor retorno dentro de la región robusta validada. El champion económico oficial maximiza valor realizado bajo esa restricción exacta; el comparator theorem-tight sigue disponible para mostrar el extremo más conservador del trade-off.
 
-Lo más importante no es el porcentaje en abstracto: **bajo la misma política de riesgo, el portafolio determinístico (sin robustez) financia cero préstamos** porque no puede satisfacer la restricción de PD sin el intervalo conformal como buffer. La robustez no es un costo opcional — es lo que hace viable el portafolio.
+La lectura práctica cambia: la robustez deja de ser un “costo opcional” y pasa a ser el mecanismo que sincroniza score, incertidumbre y funded set con el claim teórico del Paper Estrella.
 :::
 
 ### Analisis de escenarios

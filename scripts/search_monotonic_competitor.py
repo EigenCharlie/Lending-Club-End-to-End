@@ -319,6 +319,7 @@ def _variant_params(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Search serious monotonic CatBoost competitors.")
     parser.add_argument("--config", default="configs/monotonic_competitor.yaml")
+    parser.add_argument("--run-tag", default="untracked")
     args = parser.parse_args(argv)
 
     cfg = _load_yaml(args.config)
@@ -618,9 +619,11 @@ def main(argv: list[str] | None = None) -> int:
         ),
     )
     best = dict(aggregate_rows[0])
+    resolved_run_tag = str(args.run_tag or "untracked").strip() or "untracked"
     payload = {
         "schema_version": "2026-03-29.1",
         "generated_at_utc": datetime.now(UTC).isoformat(),
+        "run_tag": resolved_run_tag,
         "baseline_manifest": str(defaults.get("replay_manifest", "")),
         "baseline_expectations": expected,
         "promotion_policy": policy,
@@ -633,11 +636,18 @@ def main(argv: list[str] | None = None) -> int:
         "best_variant_promotable": bool(best["promotable_all_seeds"]),
     }
 
-    output_path = Path(defaults.get("output_path", "models/monotonic_competitor_search.json"))
+    output_path = Path(
+        str(defaults.get("output_path", "models/monotonic_competitor_search.json")).format(
+            run_tag=resolved_run_tag
+        )
+    )
     best_output_path = Path(
-        defaults.get("best_output_path", "models/monotonic_competitor_best.json")
+        str(defaults.get("best_output_path", "models/monotonic_competitor_best.json")).format(
+            run_tag=resolved_run_tag
+        )
     )
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    best_output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
     best_output_path.write_text(json.dumps(best, indent=2, default=str), encoding="utf-8")
     print(

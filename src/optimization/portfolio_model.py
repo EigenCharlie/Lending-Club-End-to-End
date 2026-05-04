@@ -324,6 +324,8 @@ def optimize_portfolio_allocation(
     time_limit: int = 300,
     threads: int = 4,
     solver_backend: str = "highs",
+    random_seed: int | None = None,
+    cuopt_presolve: int | None = 1,
 ) -> dict[str, Any]:
     """Unified portfolio solve entrypoint for CPU and native cuOpt backends."""
     backend = solver_backend.strip().lower()
@@ -345,6 +347,8 @@ def optimize_portfolio_allocation(
             pd_cap_slack_penalty=pd_cap_slack_penalty,
             pd_constraint_override=pd_constraint_override,
             time_limit=time_limit,
+            random_seed=random_seed,
+            presolve=cuopt_presolve,
         )
 
     model = build_portfolio_model(

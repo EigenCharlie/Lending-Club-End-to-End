@@ -1,7 +1,7 @@
 ---
 title: "Modelado de PD y Calibración"
 page-layout: article
-close_takeaway: "El modelo champion (CatBoost calibrado, AUC 0.713, ECE 0.0059) se selecciona por validación temporal estricta sobre datos OOT. La calibración no es opcional: un modelo con buen ranking pero probabilidades incorrectas produce provisiones IFRS9 erróneas y portafolios frágiles."
+close_takeaway: "El modelo champion (CatBoost calibrado, AUC 0.7124, ECE 0.0064) se selecciona por validación temporal estricta sobre datos OOT. La calibración no es opcional: un modelo con buen ranking pero probabilidades incorrectas produce provisiones IFRS9 erróneas y portafolios frágiles."
 close_connects: "El modelo calibrado alimenta la capa conformal (@sec-split-conformal) que produce intervalos de incertidumbre, y estos intervalos se convierten en conjuntos de incertidumbre para la optimización robusta (@sec-robust-portfolio)."
 close_reuse: "Las métricas del champion (`model_comparison.json`, `pd_training_record.pkl`) son la referencia canónica para explicabilidad (@sec-global-explanations), fairness (@sec-mrm), backtesting conformal (@sec-backtest-monitoring) y los tres papers de investigación."
 ---

@@ -4,16 +4,16 @@ Una afirmación fuerte sobre incertidumbre no se sostiene sin comparación. Por 
 
 ### Qué se compara
 
-El artefacto `uncertainty_baselines_comparison.parquet` resume el contraste entre métodos sobre el mismo universo OOT. En el run actual, la diferencia clave es:
+El contraste entre métodos sobre el mismo universo OOT sigue siendo válido, pero la lectura final del proyecto debe anclarse en el winner conformal promovido por la reapertura. La diferencia clave queda así:
 
 | Método | Cobertura empírica | Ancho medio | Cobertura mínima por grupo |
 |---|---:|---:|---:|
-| Conformal Mondrian | 92.52% | 0.7546 | 89.01% |
+| Winner conformal (`score_decile_mondrian`) | 92.97% | 0.7842 | 91.90% |
 | Bootstrap | 89.83% | 0.9523 | 61.93% |
 
 : Baselines de incertidumbre relevantes {#tbl-uncertainty-baselines}
 
-Los números cuentan una historia concreta. Bootstrap logra 89.83% de cobertura *en promedio*, pero solo 61.93% en Grade A — casi 4 de cada 10 préstamos de ese grade quedan fuera del intervalo, sin ninguna advertencia. CP Mondrian garantiza 89.01% en el peor grupo, con intervalos un 20% más angostos. Para IFRS9, la diferencia no es académica: un sistema con 61.93% de cobertura en Grade A sistematiza provisiones basadas en incertidumbre sesgada hacia el segmento de mayor volumen. El supervisor de riesgo que pregunta "¿sus intervalos cubren en todos los segmentos?" no puede satisfacerse con un promedio del 89%.
+Los números cuentan una historia concreta. Bootstrap logra 89.83% de cobertura *en promedio*, pero solo 61.93% en su peor grupo. El winner conformal final `score_decile_mondrian` supera 91.9% en cobertura mínima por grupo y además mantiene intervalos materialmente más estrechos. Para IFRS9, la diferencia no es académica: un sistema que solo luce bien en promedio sistematiza provisiones basadas en incertidumbre sesgada hacia ciertos segmentos. El supervisor de riesgo que pregunta "¿sus intervalos cubren en todos los segmentos?" no puede satisfacerse con un promedio del 89%.
 
 ::: {.column-page}
 ![Trade-off entre cobertura, anchura y cobertura mínima por grupo para los baselines de incertidumbre evaluados.](../../assets/figures/editorial/uncertainty_baselines_tradeoff.png){#fig-uncertainty-baselines-editorial fig-alt="Comparación visual de baselines de incertidumbre del proyecto."}
@@ -46,7 +46,7 @@ Este capítulo justifica dos movimientos posteriores:
 
 Esta comparación usa un BMA simple sobre dos modelos (LogReg + CatBoost). Un BMA más sofisticado — con mayor diversidad de modelos o priors mejor calibrados — podría mejorar sus intervalos. Del mismo modo, conjuntos de incertidumbre elipsoidales (más eficientes en alta dimensión) o métodos conformales adaptativos por instancia (más estrechos para casos fáciles) son extensiones naturales.
 
-El trade-off actual — Mondrian grade-based — no maximiza eficiencia teórica. Lo que sí hace es priorizar tres propiedades que un comité de riesgo puede defender: particiones con significado regulatorio (A–G), garantía de cobertura por grupo (no solo promedio), e intervalos que el optimizador de portafolio puede usar directamente como conjuntos de incertidumbre tipo caja. Esa es la decisión correcta para este contexto.
+El trade-off actual no se interpreta ya como "usar grade porque sí". La lectura correcta es: `grade` fue la partición natural necesaria para justificar Mondrian en crédito, pero el benchmark final promovió `score_decile_mondrian` como winner único porque mejoró la combinación de cobertura, cobertura mínima y eficiencia. Esa jerarquía es la decisión correcta para este contexto.
 
 ### Evidencia de Publicación
 

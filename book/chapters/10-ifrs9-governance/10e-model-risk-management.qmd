@@ -237,6 +237,45 @@ Esta semántica importa porque evita dos errores narrativos muy comunes:
 - confundir un threshold técnico de búsqueda con una política de negocio;
 - leer fairness y decisión como si dependieran del mismo parámetro interno que usa el modelado.
 
+### Overlay final paper/thesis sobre la base regulatoria
+
+El libro debe distinguir dos capas de gobernanza que coexisten sin contradecirse:
+
+- **base regulatoria/operativa**: el champion monotónico confirmatorio sigue siendo el upstream canónico del proyecto;
+- **overlay final paper/thesis**: la combinación `conformal reopen winner + portfolio economic champion`, promovida para cerrar el argumento exacto del Paper Estrella sin mantener dos cierres oficiales.
+
+```{python}
+#| label: tbl-mrm-final-overlay
+#| tbl-cap: "Overlay final paper/thesis sobre la base canónica"
+
+promotion = try_load_json("final_project_promotion", directory="models", default={})
+final_champion = promotion.get("final_champion", {})
+conformal_upstream = promotion.get("conformal_upstream", {})
+base_upstream = promotion.get("upstream_canonical_base", {})
+
+rows = [
+    {
+        "Capa": "Base canónica",
+        "Artefacto rector": base_upstream.get("run_tag"),
+        "Lectura": "Champion monotónico, fairness, governance y MRM base.",
+    },
+    {
+        "Capa": "Conformal upstream final",
+        "Artefacto rector": conformal_upstream.get("winner_family"),
+        "Lectura": "Reapertura conformal que mejora la calidad downstream de la incertidumbre.",
+    },
+    {
+        "Capa": "Portfolio champion final",
+        "Artefacto rector": final_champion.get("label"),
+        "Lectura": "Policy económica promovida como champion único dentro de la región robusta exacta; theorem-tight queda como comparador.",
+    },
+]
+
+pd.DataFrame(rows)
+```
+
+Esta capa final no reemplaza el champion PD. Lo que hace es endurecer la parte que antes estaba metodológicamente más débil: la traducción desde intervalos conformales hacia un funded set exacto y defendible. Por eso el cierre final debe narrarse como una **superposición prudencial** sobre la base vigente, no como una ruptura del stack regulatorio.
+
 ### Cierre prudencial honesto
 
 El sistema actual puede presentarse como defendible porque:

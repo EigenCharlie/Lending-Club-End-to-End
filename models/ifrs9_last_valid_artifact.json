@@ -2,7 +2,7 @@
   "stage_name": "ifrs9",
   "artifact_key": "ifrs9_scenario_summary",
   "artifact_path": "data/processed/ifrs9_scenario_summary.parquet",
-  "validated_at_utc": "2026-03-30T19:27:41.950648+00:00",
+  "validated_at_utc": "2026-04-07T04:02:13.150060+00:00",
   "baseline_ecl": 875935946.2736094,
   "severe_ecl": 1487900897.2686803
 }

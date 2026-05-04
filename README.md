@@ -40,6 +40,20 @@ Monotonic CatBoost PD -> Auto Calibration (Platt/Isotonic/Venn-Abers) -> Fairnes
 5. Governance layers like fairness, C2ST, monotonicity audits, and PD validation interpretation make the stack defendable rather than merely predictive.
 6. Causal policy analysis remains a research-grade intervention lane beyond correlation.
 
+## Current Champion (Paper Estrella, 2026-04-06)
+
+| Component | Status |
+|---|---|
+| PD model | Monotonic CatBoost (HPO local trial 56) + Venn-Abers calibrator — AUC 0.7124, Brier 0.1546, ECE 0.0064 |
+| Conformal | `score_decile_mondrian` (rank1 reopen) — coverage 92.97%, Winkler 1.111 |
+| Portfolio | `bound_aware_276k_economic_champion` — `rt=0.175, gamma=0.45, blended_uncertainty`, return $170,464.54 |
+| Robust region | 45/45 policies pass `alpha=0.01` exactly on full 276K OOT |
+| Run tag | `paper-thesis-final-economic-2026-04-06` |
+| Source of truth | `models/final_project_promotion.json`, `models/champion_portfolio_policy.json` |
+| Audit dossier | `docs/research/paper_estrella_audit_2026-05-04.md` |
+
+The `theorem-tight` (gamma=0.55) and `balanced` (rt=0.17) policies inside the same robust region are documented internal comparators, not official champions.
+
 ## Architecture (Quarto-First)
 
 | Layer | Role |
@@ -91,7 +105,7 @@ bash scripts/causal/setup_causal_env.sh .venv-causal
 uv run dvc repro
 
 # 5) Run the frozen operational rebuild
-uv run python scripts/core/run_canonical_rebuild.py --run-tag canonical-local-smoke
+uv run python scripts/run_canonical_rebuild.py --run-tag canonical-local-smoke
 
 # 6) Run the focused PD search lane when needed
 uv run python scripts/search/run_pd_search.py --run-tag champion-local-max --sampling-profile mega64plus
@@ -107,8 +121,9 @@ Notes:
 - `uv run dvc repro` is the canonical thesis-grade rebuild path.
 - `uv run python scripts/run_smoke_pipeline.py` is the lightweight smoke pipeline.
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` remain as compatibility entrypoints only.
-- The organized wrappers under `scripts/core`, `scripts/search`, `scripts/papers`, `scripts/diagnostics`, and `scripts/labs` are the preferred public entrypoints.
+- The preferred public entrypoints live under `scripts/`, `scripts/search`, `scripts/papers`, `scripts/diagnostics`, and `scripts/labs`.
 - `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate` is the canonical standalone causal runner when you only need the causal layer.
+- `uv run python scripts/run_time_series_vnext.py --config configs/time_series_vnext.yaml` is the research-only TS/IFRS9 redesign lane; it must not overwrite canonical `time_series` artifacts.
 
 ## Reproducibility and MLOps
 
@@ -157,6 +172,20 @@ uv run python scripts/prepare_streamlit_deploy.py --clean --strict
 Detailed guide:
 
 `docs/history/DEPLOY_STREAMLIT_FREE.md`
+
+## Time Series Status
+
+The canonical time-series lane remains operational for point forecasting and IFRS9 overlay, but its interval layer is still not promoted.
+
+- Canonical lane: `scripts/forecast_default_rates.py` -> `models/time_series_status.json`
+- Research redesign lane: `scripts/run_time_series_vnext.py` -> `models/time_series_vnext_status.json`
+- Current decision: keep canonical point forecast, keep TS->IFRS9 overlay, keep vNext sample paths and ECL translation as research, and do not promote the interval layer yet
+
+The latest decision package for this redesign lives in:
+
+- `models/time_series_vnext_status.json`
+- `models/time_series_policy_review.json`
+- `docs/TIME_SERIES_VNEXT_DECISION_2026-04-02.md`
 
 ## Quality Gates
 

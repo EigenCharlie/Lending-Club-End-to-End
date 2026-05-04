@@ -13,11 +13,11 @@ El artefacto `lendingclub_literature_benchmark.parquet` registra una referencia 
 
 : Benchmark externo curado para Lending Club {#tbl-literature-benchmark}
 
-Nuestro pipeline canónico reporta `AUC = 0.7130` para CatBoost calibrado con Venn-Abers sobre evaluación OOT.
+Nuestro pipeline canónico reporta `AUC = 0.7124` para CatBoost calibrado con Venn-Abers sobre evaluación OOT.
 
 ### Comparación correcta, no tramposa
 
-La diferencia entre 0.7130 y 0.7492 **no** debe leerse automáticamente como inferioridad metodológica. Hay al menos tres razones:
+La diferencia entre 0.7124 y 0.7492 **no** debe leerse automáticamente como inferioridad metodológica. Hay al menos tres razones:
 
 1. el protocolo de split puede no coincidir;
 2. el objetivo del proyecto no es solo maximizar AUC, sino producir probabilidades calibradas y gobernables;

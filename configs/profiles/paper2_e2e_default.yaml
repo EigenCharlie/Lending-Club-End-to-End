@@ -1,9 +1,9 @@
-schema_version: "2026-03-31.1"
+schema_version: "2026-04-07.1"
 profile_name: paper2_e2e_default
 pipeline_family: paper2_e2e
 description: >
   Perfil derivado para TS + survival + IFRS9/SICR, sin causal, notebooks ni
-  GPU por defecto.
+  GPU por defecto. Usa frozen portfolio champion.
 execution:
   writes_canonical_artifacts: false
   promotion_state: paper_grade
@@ -22,3 +22,6 @@ search_space:
     rsf_min_samples_leaf: 6
     rsf_sample_size: 500000
     rsf_n_jobs: 12
+  ab:
+    execution_mode: freeze_if_available
+    policy_selector_default: explicit_champion_only

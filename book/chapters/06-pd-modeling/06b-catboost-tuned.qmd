@@ -124,7 +124,7 @@ if cb_default:
     pd.DataFrame(list(metrics_default.items()), columns=["Métrica", "Valor"])
 ```
 
-Con un AUC de 0.7125, el CatBoost default ya supera sustancialmente a la LR baseline (0.683, ver @sec-lr-baseline), demostrando que las interacciones no lineales y el procesamiento nativo de categorías aportan +0.030 AUC (+4.3% relativo). La pregunta es si la optimización de hiperparámetros puede mejorar aún más este rendimiento.
+Con un AUC de 0.7128, el CatBoost default ya supera sustancialmente a la LR baseline (0.679, ver @sec-lr-baseline), demostrando que las interacciones no lineales y el procesamiento nativo de categorías aportan +0.034 AUC (+5.0% relativo). La pregunta es si la optimización de hiperparámetros y las restricciones monotónicas pueden mejorar aún más este rendimiento.
 
 ### Optimización con Optuna (HPO) {#sec-optuna-hpo}
 
@@ -204,7 +204,7 @@ optuna_results = {
 pd.DataFrame(list(optuna_results.items()), columns=["Aspecto", "Valor"])
 ```
 
-Los 320 trials alcanzaron un AUC de validación de 0.7227, pero el AUC en el test OOT es 0.7131 --- una brecha de 0.0096 que indica *temporal overfitting* al set de validación. El set de validación temporal cubre un período específico (cola del período 2007--2017), mientras que el test OOT abarca 2018--2020 con condiciones macroeconómicas potencialmente diferentes.
+Los trials de Optuna alcanzaron un AUC de validación de 0.7221, pero el AUC en el test OOT es 0.7128 --- una brecha de 0.0093 que indica *temporal overfitting* al set de validación. El set de validación temporal cubre un período específico (cola del período 2007--2017), mientras que el test OOT abarca 2018--2020 con condiciones macroeconómicas potencialmente diferentes. El champion actual utiliza cuatro restricciones monotónicas (`installment:1`, `annual_inc:-1`, `dti:1`, `loan_to_income:1`) seleccionadas por búsqueda exhaustiva por bloques y refinadas por HPO local, y el calibrador Venn-Abers fue promovido automáticamente por la política temporal multi-fold.
 
 #### Visualización del Proceso HPO
 
@@ -325,8 +325,8 @@ En datos de crédito, el patrón de ausencia frecuentemente es informativo: un `
 Vale la pena explicitar esta sección porque, sin ese contexto, una mejora pequeña puede leerse como decepción. Aquí ocurre lo contrario: una ganancia marginal confirma que el modelo ya estaba bien especificado y que el cuello de botella real del proyecto está en cómo usamos la PD, no en seguir exprimiendo décimas de AUC.
 
 ::: {.callout-warning}
-## Ganancia marginal: 0.0006 AUC
-La mejora del tuning con 320 trials de Optuna es de apenas 0.0006 AUC (0.7125 $\rightarrow$ 0.7131). Esto no es un fallo del proceso de optimización --- es un resultado esperado y bien documentado en la literatura.
+## Ganancia marginal del HPO
+La mejora del tuning de Optuna sobre el CatBoost default es marginal en AUC OOT (0.7128 con y sin HPO). El valor real del pipeline no reside en exprimir décimas de AUC, sino en la calibración post-hoc, las restricciones monotónicas, y la capa conformal downstream.
 :::
 
 Tres factores explican esta convergencia:

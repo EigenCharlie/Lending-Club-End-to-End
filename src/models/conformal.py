@@ -72,6 +72,22 @@ class PrefitClassifierAdapter(BaseEstimator):
         return self.classifier.predict_proba(X_df)
 
 
+class PrefitCalibratedClassifierAdapter(PrefitClassifierAdapter):
+    """Prefit classifier adapter that applies a probability calibrator."""
+
+    def __init__(self, classifier, calibrator: Any | None = None, n_features_in: int | None = None):
+        super().__init__(classifier, n_features_in=n_features_in)
+        self.calibrator = calibrator
+
+    def predict_proba(self, X):
+        raw = super().predict_proba(X)
+        if self.calibrator is None:
+            return raw
+        p_pos = apply_probability_calibrator(self.calibrator, raw[:, 1])
+        p_neg = np.clip(1.0 - p_pos, 0.0, 1.0)
+        return np.column_stack([p_neg, p_pos])
+
+
 def apply_probability_calibrator(calibrator: Any, scores: np.ndarray) -> np.ndarray:
     """Apply calibrator robustly across sklearn calibrator API variants."""
     scores = np.asarray(scores, dtype=float)
@@ -105,6 +121,36 @@ def _conformal_quantile(scores: np.ndarray, alpha: float) -> float:
     n = scores.size
     q_level = min(1.0, np.ceil((n + 1) * (1 - alpha)) / n)
     return float(np.quantile(scores, q_level, method="higher"))
+
+
+def _resolve_score_scale_family(*, scaled_scores: bool, score_scale_family: str | None) -> str:
+    family = str(score_scale_family or "").strip().lower()
+    if family in {"", "auto"}:
+        family = "bernoulli_sqrt" if scaled_scores else "none"
+    valid = {
+        "none",
+        "bernoulli_sqrt",
+        "bernoulli_sqrt_clipped_0.02",
+        "bernoulli_sqrt_clipped_0.05",
+    }
+    if family not in valid:
+        raise ValueError(f"Unsupported score_scale_family: {score_scale_family}")
+    return family
+
+
+def _compute_score_scale(y_prob: np.ndarray, score_scale_family: str) -> np.ndarray:
+    y_prob_arr = np.clip(np.asarray(y_prob, dtype=float), 1e-6, 1.0 - 1e-6)
+    if score_scale_family == "none":
+        return np.ones_like(y_prob_arr)
+    if score_scale_family == "bernoulli_sqrt":
+        return np.sqrt(np.clip(y_prob_arr * (1.0 - y_prob_arr), 1e-6, None))
+    if score_scale_family == "bernoulli_sqrt_clipped_0.02":
+        clipped = np.clip(y_prob_arr, 0.02, 0.98)
+        return np.sqrt(np.clip(clipped * (1.0 - clipped), 1e-6, None))
+    if score_scale_family == "bernoulli_sqrt_clipped_0.05":
+        clipped = np.clip(y_prob_arr, 0.05, 0.95)
+        return np.sqrt(np.clip(clipped * (1.0 - clipped), 1e-6, None))
+    raise ValueError(f"Unsupported score_scale_family: {score_scale_family}")
 
 
 def create_pd_intervals(
@@ -152,6 +198,7 @@ def create_pd_intervals_mondrian(
     min_group_size: int = 500,
     calibrator: Any | None = None,
     scaled_scores: bool = False,
+    score_scale_family: str = "none",
 ) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
     """Create group-conditional split-conformal PD intervals.
 
@@ -168,7 +215,8 @@ def create_pd_intervals_mondrian(
         alpha: significance level.
         min_group_size: fallback to global quantile for small groups.
         calibrator: optional probability calibrator.
-        scaled_scores: if True, scale residuals by sqrt(p*(1-p)).
+        scaled_scores: legacy shortcut for Bernoulli scaling.
+        score_scale_family: explicit scaling family for residual scores.
 
     Returns:
         y_pred_test, y_intervals, diagnostics
@@ -183,12 +231,14 @@ def create_pd_intervals_mondrian(
     g_test = pd.Series(group_test).fillna("UNKNOWN").astype(str).to_numpy()
 
     scores = np.abs(y_cal_arr - y_cal_pred)
-    if scaled_scores:
-        cal_scale = np.sqrt(np.clip(y_cal_pred * (1.0 - y_cal_pred), 1e-6, None))
-        test_scale = np.sqrt(np.clip(y_test_pred * (1.0 - y_test_pred), 1e-6, None))
+    resolved_scale_family = _resolve_score_scale_family(
+        scaled_scores=scaled_scores,
+        score_scale_family=score_scale_family,
+    )
+    cal_scale = _compute_score_scale(y_cal_pred, resolved_scale_family)
+    test_scale = _compute_score_scale(y_test_pred, resolved_scale_family)
+    if resolved_scale_family != "none":
         scores = scores / cal_scale
-    else:
-        test_scale = np.ones_like(y_test_pred)
 
     global_q = _conformal_quantile(scores, alpha)
     group_quantiles: dict[str, float] = {}
@@ -218,7 +268,8 @@ def create_pd_intervals_mondrian(
         "group_quantiles": group_quantiles,
         "group_cal_counts": group_cal_counts,
         "fallback_groups": fallback_groups,
-        "scaled_scores": scaled_scores,
+        "scaled_scores": bool(resolved_scale_family != "none"),
+        "score_scale_family": resolved_scale_family,
         "min_group_size": min_group_size,
         "avg_width": float((high - low).mean()),
         "median_width": float(np.median(high - low)),
@@ -297,26 +348,42 @@ def create_classification_sets(
     X_test: pd.DataFrame,
     alpha: float = 0.1,
     method: str = "lac",
+    calibrator: Any | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
     """Generate conformal prediction sets for classification."""
-    from mapie.classification import SplitConformalClassifier
+    method_key = str(method or "lac").strip().lower()
+    if method_key == "margin":
+        y_pred, y_sets = _create_margin_classification_sets(
+            classifier=classifier,
+            X_cal=X_cal,
+            y_cal=y_cal,
+            X_test=X_test,
+            alpha=alpha,
+            calibrator=calibrator,
+        )
+    else:
+        from mapie.classification import SplitConformalClassifier
 
-    adapted = PrefitClassifierAdapter(classifier, n_features_in=X_cal.shape[1])
-    mapie = SplitConformalClassifier(
-        estimator=adapted,
-        confidence_level=1 - alpha,
-        conformity_score=method,
-        prefit=True,
-    )
-    mapie.conformalize(X_cal, y_cal)
+        adapted = PrefitCalibratedClassifierAdapter(
+            classifier,
+            calibrator=calibrator,
+            n_features_in=X_cal.shape[1],
+        )
+        mapie = SplitConformalClassifier(
+            estimator=adapted,
+            confidence_level=1 - alpha,
+            conformity_score=method_key,
+            prefit=True,
+        )
+        mapie.conformalize(X_cal, y_cal)
 
-    y_pred = mapie.predict(X_test)
-    _, y_sets_raw = mapie.predict_set(X_test)
-    y_sets = np.asarray(y_sets_raw[:, :, 0], dtype=int)
+        y_pred = mapie.predict(X_test)
+        _, y_sets_raw = mapie.predict_set(X_test)
+        y_sets = np.asarray(y_sets_raw[:, :, 0], dtype=int)
 
     singleton_rate = (y_sets.sum(axis=1) == 1).mean()
     logger.info(
-        f"Conformal sets (alpha={alpha}, method={method}): singleton_rate={singleton_rate:.2%}"
+        f"Conformal sets (alpha={alpha}, method={method_key}): singleton_rate={singleton_rate:.2%}"
     )
     return y_pred, y_sets
 
@@ -358,6 +425,92 @@ def summarize_prediction_sets(
     }
 
 
+def _create_margin_classification_sets(
+    *,
+    classifier,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+    alpha: float,
+    calibrator: Any | None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Binary margin-style conformal sets over calibrated probabilities."""
+    p_cal = apply_probability_calibrator(calibrator, classifier.predict_proba(X_cal)[:, 1])
+    p_test = apply_probability_calibrator(calibrator, classifier.predict_proba(X_test)[:, 1])
+    y_cal_arr = np.asarray(y_cal, dtype=int).reshape(-1)
+
+    p_true = np.where(y_cal_arr == 1, p_cal, 1.0 - p_cal)
+    nonconformity = 2.0 * (1.0 - p_true)
+    q_alpha = _conformal_quantile(nonconformity, alpha)
+
+    include_pos = (2.0 * (1.0 - p_test)) <= q_alpha
+    include_neg = (2.0 * p_test) <= q_alpha
+    y_sets = np.column_stack([include_neg.astype(int), include_pos.astype(int)])
+    y_pred = (p_test >= 0.5).astype(int)
+    return y_pred, y_sets
+
+
+def create_classification_sets_mondrian(
+    classifier,
+    X_cal: pd.DataFrame,
+    y_cal: pd.Series,
+    X_test: pd.DataFrame,
+    group_cal: pd.Series,
+    group_test: pd.Series,
+    alpha: float = 0.1,
+    method: str = "lac",
+    min_group_size: int = 500,
+    calibrator: Any | None = None,
+) -> tuple[np.ndarray, np.ndarray, dict[str, Any]]:
+    """Generate group-conditional conformal prediction sets for binary classification."""
+    g_cal = pd.Series(group_cal).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    g_test = pd.Series(group_test).fillna("UNKNOWN").astype(str).reset_index(drop=True)
+    all_groups = sorted(set(g_cal).union(set(g_test)))
+    group_counts = {group: int((g_cal == group).sum()) for group in all_groups}
+    fallback_groups: list[str] = []
+
+    global_pred, global_sets = create_classification_sets(
+        classifier=classifier,
+        X_cal=X_cal,
+        y_cal=y_cal,
+        X_test=X_test,
+        alpha=alpha,
+        method=method,
+        calibrator=calibrator,
+    )
+    y_pred = np.asarray(global_pred, dtype=int).copy()
+    y_sets = np.asarray(global_sets, dtype=int).copy()
+
+    for group in all_groups:
+        cal_mask = g_cal == group
+        test_mask = g_test == group
+        if not test_mask.any():
+            continue
+        if int(cal_mask.sum()) < int(min_group_size):
+            fallback_groups.append(group)
+            continue
+        group_pred, group_sets = create_classification_sets(
+            classifier=classifier,
+            X_cal=X_cal.loc[cal_mask].reset_index(drop=True),
+            y_cal=y_cal.loc[cal_mask].reset_index(drop=True),
+            X_test=X_test.loc[test_mask].reset_index(drop=True),
+            alpha=alpha,
+            method=method,
+            calibrator=calibrator,
+        )
+        y_pred[np.asarray(test_mask)] = np.asarray(group_pred, dtype=int)
+        y_sets[np.asarray(test_mask)] = np.asarray(group_sets, dtype=int)
+
+    diagnostics = {
+        "alpha": float(alpha),
+        "method": str(method),
+        "min_group_size": int(min_group_size),
+        "group_cal_counts": group_counts,
+        "fallback_groups": sorted(set(fallback_groups)),
+    }
+    return y_pred, y_sets, diagnostics
+
+
 def build_mondrian_partition_labels(
     *,
     y_prob_cal: np.ndarray,
@@ -367,6 +520,7 @@ def build_mondrian_partition_labels(
     base_groups_eval: pd.Series | np.ndarray | None = None,
     n_score_bins: int = 10,
     min_group_size: int = 500,
+    fallback_mode: str = "grade_then_global",
 ) -> tuple[pd.Series, pd.Series, dict[str, Any]]:
     """Build partition labels for Mondrian-style calibration.
 
@@ -393,8 +547,8 @@ def build_mondrian_partition_labels(
             },
         )
 
-    cal_scores = pd.Series(np.asarray(y_prob_cal, dtype=float).reshape(-1))
-    eval_scores = pd.Series(np.asarray(y_prob_eval, dtype=float).reshape(-1))
+    cal_scores = pd.Series(np.asarray(y_prob_cal, dtype=float).reshape(-1)).clip(0.0, 1.0)
+    eval_scores = pd.Series(np.asarray(y_prob_eval, dtype=float).reshape(-1)).clip(0.0, 1.0)
     rank_source = cal_scores.rank(method="first")
     n_bins_effective = int(max(1, min(int(n_score_bins), int(rank_source.nunique()))))
     if n_bins_effective <= 1:
@@ -435,6 +589,7 @@ def build_mondrian_partition_labels(
                 "score_band_count": int(cal_band.nunique()),
                 "score_band_edges": [float(x) for x in np.asarray(edges, dtype=float)],
                 "fallback_groups": [],
+                "fallback_mode": "score_only",
             },
         )
 
@@ -452,13 +607,18 @@ def build_mondrian_partition_labels(
     counts = hybrid_cal.value_counts(dropna=False).to_dict()
     grade_counts = grade_cal.value_counts(dropna=False).to_dict()
     fallback_groups: list[str] = []
+    fallback_mode_key = str(fallback_mode or "grade_then_global").strip().lower()
+    if fallback_mode_key not in {"grade_then_global", "global_only"}:
+        raise ValueError(f"Unsupported fallback_mode: {fallback_mode}")
 
     def _resolve_label(label: str, base_grade: str) -> str:
         n_label = int(counts.get(label, 0))
         if n_label >= int(min_group_size):
             return label
         fallback_groups.append(label)
-        if int(grade_counts.get(base_grade, 0)) >= int(min_group_size):
+        if fallback_mode_key == "grade_then_global" and int(grade_counts.get(base_grade, 0)) >= int(
+            min_group_size
+        ):
             return base_grade
         return "GLOBAL"
 
@@ -486,6 +646,7 @@ def build_mondrian_partition_labels(
             "fallback_groups": sorted(set(fallback_groups)),
             "hybrid_group_count_cal": int(hybrid_cal.nunique()),
             "resolved_group_count_cal": int(resolved_cal.nunique()),
+            "fallback_mode": fallback_mode_key,
         },
     )
 

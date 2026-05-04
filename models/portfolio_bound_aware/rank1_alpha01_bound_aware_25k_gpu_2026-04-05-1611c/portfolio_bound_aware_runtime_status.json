@@ -1,0 +1,21 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "selection_complete",
+  "state": "completed",
+  "updated_at_utc": "2026-04-05T22:17:22.186831+00:00",
+  "run_tag": "rank1_alpha01_bound_aware_25k_gpu_2026-04-05-1611c",
+  "frontier_total_units": 910,
+  "frontier_completed_units": 910,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 480,
+  "bound_completed_checks": 480,
+  "bound_pct_complete": 1.0,
+  "global_total_units": 1390,
+  "global_completed_units": 1390,
+  "global_pct_complete": 1.0,
+  "elapsed_sec": 1682.9757338070194,
+  "eta_sec": 0.0,
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "selected_alpha01_exact_pass": true,
+  "selected_realized_total_return": 105520.69190669092
+}

@@ -7,6 +7,7 @@ This script reads existing project artifacts and logs one run per domain:
 - causal_policy
 - ifrs9
 - optimization
+- paper1_final
 - survival
 - time_series
 """
@@ -539,6 +540,68 @@ def _log_optimization(timestamp: str, common_tags: dict[str, str]) -> str:
     )
 
 
+def _log_paper1_final(timestamp: str, common_tags: dict[str, str]) -> str:
+    promotion = _load_json("models/final_project_promotion.json")
+    champion = promotion.get("final_champion", {})
+    conformal = promotion.get("conformal_upstream", {}).get("winner_metrics", {})
+    region = promotion.get("robust_region_summary", {})
+
+    metrics = {
+        "robust_return": float(champion.get("realized_total_return", 0.0)),
+        "price_of_robustness": float(champion.get("price_of_robustness", 0.0)),
+        "price_of_robustness_pct": float(champion.get("price_of_robustness_pct", 0.0)),
+        "alpha01_exact_pass": float(bool(champion.get("alpha01_exact_pass", False))),
+        "alpha03_exact_pass": float(bool(champion.get("alpha03_exact_pass", False))),
+        "alpha10_exact_pass": float(bool(champion.get("alpha10_exact_pass", False))),
+        "alpha01_weighted_miscoverage_V": float(
+            champion.get("alpha01_weighted_miscoverage_V", 0.0)
+        ),
+        "alpha01_gamma_cp": float(champion.get("alpha01_gamma_cp", 0.0)),
+        "alpha01_violation": float(champion.get("alpha01_violation", 0.0)),
+        "robust_region_alpha01_pass_rate": float(region.get("alpha01_pass_rate", 0.0)),
+        "robust_region_n_policies": float(region.get("n_unique_policies", 0.0)),
+        "conformal_coverage90": float(conformal.get("coverage_90", 0.0)),
+        "conformal_coverage95": float(conformal.get("coverage_95", 0.0)),
+        "conformal_avg_width90": float(conformal.get("avg_width_90", 0.0)),
+        "conformal_min_group_coverage90": float(conformal.get("min_group_coverage_90", 0.0)),
+        "conformal_winkler90": float(conformal.get("winkler_90", 0.0)),
+    }
+    params = {
+        "run_tag": promotion.get("run_tag", ""),
+        "champion_label": champion.get("label", ""),
+        "champion_family": champion.get("family", ""),
+        "champion_role": champion.get("champion_role", ""),
+        "risk_tolerance": champion.get("risk_tolerance", ""),
+        "policy_mode": champion.get("policy_mode", ""),
+        "gamma": champion.get("gamma", ""),
+        "uncertainty_aversion": champion.get("uncertainty_aversion", ""),
+        "selection_reason": champion.get("selection_reason", ""),
+    }
+    tags = {
+        **common_tags,
+        "domain": "paper1_final",
+        "paper1_final_run_tag": str(promotion.get("run_tag", "")),
+    }
+    artifacts = [
+        "models/final_project_promotion.json",
+        "models/champion_portfolio_policy.json",
+        "models/champion_registry.json",
+        "data/processed/final_project_summary.parquet",
+        "reports/paper_material/paper1/tables/paper1_table0_key_metrics.csv",
+        "reports/paper_material/paper1/tables/paper1_table1_robustness_summary.csv",
+        "reports/paper_material/paper1/tables/paper1_table2_conformal_variant_benchmark.csv",
+        "reports/paper_material/paper1/tables/paper1_tableA2_robustness_frontier.csv",
+    ]
+    return _log_run(
+        experiment_name="lending_club/paper1_final",
+        run_name=f"artifact_backfill_paper1_final_{timestamp}",
+        metrics=metrics,
+        params=params,
+        tags=tags,
+        artifacts=artifacts,
+    )
+
+
 def _log_survival(timestamp: str, common_tags: dict[str, str]) -> str:
     summary = _load_pickle("models/survival_summary.pkl")
     metrics = _to_metrics(summary)
@@ -783,7 +846,7 @@ def main(repo_owner: str, repo_name: str, official_baseline_run_tag: str | None 
                 "repo_owner": repo_owner,
                 "repo_name": repo_name,
                 "sync_mode": "artifact_backfill",
-                "domains_expected": 8,
+                "domains_expected": 9,
                 "official_baseline_run_tag": baseline_tag,
             }
         )
@@ -808,6 +871,7 @@ def main(repo_owner: str, repo_name: str, official_baseline_run_tag: str | None 
         "causal_policy": _log_causal(timestamp, common_tags),
         "ifrs9": _log_ifrs9(timestamp, common_tags),
         "optimization": _log_optimization(timestamp, common_tags),
+        "paper1_final": _log_paper1_final(timestamp, common_tags),
         "survival": _log_survival(timestamp, common_tags),
         "time_series": _log_time_series(timestamp, common_tags),
     }

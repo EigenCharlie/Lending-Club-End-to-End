@@ -96,7 +96,7 @@ ead_metrics = [
 pd.DataFrame(ead_metrics)
 ```
 
-El R² de 0.9999 indica que EAD es casi completamente predecible (el monto de exposición es en gran medida determinístico). Los intervalos conformal son estrechos (\$133 promedio @ 90%) y la cobertura es precisa (90.82% vs 90% target).
+El R² de 0.9999 indica que EAD es casi completamente predecible (el monto de exposición es en gran medida determinístico). Los intervalos conformal son estrechos (\$146 promedio @ 90%) y la cobertura es precisa (91.20% vs 90% target).
 
 ::: {.callout-tip}
 ## EAD vs LGD: Niveles de Dificultad Opuestos

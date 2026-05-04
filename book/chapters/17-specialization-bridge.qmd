@@ -3,6 +3,8 @@ title: "Puente: De la Especialización a la Maestría"
 page-layout: article
 ---
 
+## De la Especialización a la Maestría {#sec-bridge-specialization}
+
 Este capítulo evita una ruptura artificial entre dos etapas académicas del proyecto. La especialización no queda como un prototipo aislado y la maestría no arranca desde cero: ambas comparten artefactos, lenguaje metodológico y trazabilidad.
 
 ### Qué queda cerrado en la especialización
@@ -19,7 +21,7 @@ El documento espejo archivado en `reports/history/tesis_especializacion.md`, jun
 
 : Cierre de especialización {#tbl-bridge-specialization}
 
-La tesis de especialización, entonces, no termina con “ideas prometedoras”, sino con evidencia suficiente para una defensa seria y un cierre técnico sólido.
+La tesis de especialización, entonces, no termina con “ideas prometedoras”, sino con evidencia suficiente para una defensa seria y un cierre técnico sólido. Las métricas congeladas al momento de la defensa se documentan en @sec-specialization-snapshot.
 
 ### Qué cambia al entrar a maestría
 
@@ -53,7 +55,7 @@ La maestría no necesita rehacer el stack base. Lo que cambia es el nivel de amb
 El proyecto ya cuenta con señales de madurez poco comunes para un trabajo de transición:
 
 - una base amplia de pruebas automatizadas registradas en el proyecto;
-- `30` páginas Streamlit temáticas;
+- `5` páginas Streamlit temáticas (companion interactivo reducido);
 - registro de campeón y semántica de thresholds congelados;
 - manifests de notebooks y artefactos reutilizables.
 

@@ -6,7 +6,7 @@ Loads test predictions and training features, computes:
 - Combined status artifact: models/pd_slice_performance.json
 
 Usage:
-    uv run python scripts/generate_slice_anomaly_report.py
+    uv run python scripts/history/generate_slice_anomaly_report.py
 """
 
 from __future__ import annotations

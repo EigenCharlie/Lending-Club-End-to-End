@@ -2,10 +2,11 @@
   "stage_name": "portfolio_tradeoff",
   "phase": "completed",
   "state": "completed",
-  "updated_at_utc": "2026-03-30T04:59:30.434623+00:00",
-  "run_tag": "canonical-monotonic-economic-only-2026-03-29",
+  "updated_at_utc": "2026-04-07T16:09:24.690876+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07",
   "frontier_path": "data/processed/portfolio_robustness_frontier.parquet",
   "summary_path": "data/processed/portfolio_robustness_summary.parquet",
   "research_policy_path": "models/portfolio_research_policy.json",
-  "n_candidates_used": 80000
+  "n_candidates_used": 80000,
+  "artifact_namespace": ""
 }

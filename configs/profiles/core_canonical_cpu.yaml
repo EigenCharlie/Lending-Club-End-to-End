@@ -1,8 +1,10 @@
-schema_version: "2026-03-31.1"
+schema_version: "2026-04-07.1"
 profile_name: core_canonical_cpu
 pipeline_family: core_canonical
 description: >
   Perfil canónico reproducible por CPU, sin notebooks ni RAPIDS.
+  Usa PD champion (HPO local trial 56), conformal rank1 (reopen),
+  portfolio economic champion (freeze, no re-search).
 execution:
   writes_canonical_artifacts: true
   promotion_state: operationally_frozen
@@ -12,3 +14,14 @@ execution:
 defaults:
   sampling_profile: champion64safe
   expected_upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  conformal:
+    partition_probability_sources: [calibrated]
+    n_score_bins_candidates: [10]
+    fallback_modes: [global_only]
+    score_scale_families: [bernoulli_sqrt]
+    min_group_sizes: [100]
+    calibration_fraction: 0.5
+  ab:
+    execution_mode: freeze_if_available
+    policy_selector_default: explicit_champion_only

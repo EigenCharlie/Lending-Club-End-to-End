@@ -199,7 +199,7 @@ La contribución principal del proyecto es el puente formal entre **predicción 
 |------------|---------|-----------------|
 | Predicción | CatBoost calibrado con Venn-Abers | AUC 0.713, ECE 0.006 |
 | Incertidumbre | Mondrian Conformal (MAPIE 1.3.0) | Cobertura 92.6% @ 90% target |
-| Decisión | Optimización robusta (Pyomo/HiGHS) | 299 préstamos, \$183K retorno |
+| Decisión | Optimización robusta + cierre bound-aware | región robusta `45/45` en 276k OOT; economic champion oficial ~\$170K |
 | Aprendizaje | SPO+ loss (PyEPO) | 49.1% reducción de regret |
 | Regulatorio | ECL bajo 4 escenarios (con CIF) | \$0.87B -- \$1.48B rango |
 | Gobernanza | Fairness + MRM + Conformal Policy | 6/6 tests de equidad pasados |
@@ -215,7 +215,7 @@ La contribución principal del proyecto es el puente formal entre **predicción 
 modern_layers = [
     {
         "Técnica": "Champion monotónico",
-        "Qué agrega": "Coherencia económica local y mejor narrativa de promoción",
+        "Qué agrega": "Coherencia económica local, mejor defensa regulatoria y upstream estable para conformal/portfolio",
         "Evidencia viva": "champion_registry.json + monotonicity_audit_status.json",
     },
     {
@@ -239,6 +239,11 @@ modern_layers = [
         "Evidencia viva": "ifrs9_diagnostics_status.json",
     },
     {
+        "Técnica": "Portfolio bound-aware closure",
+        "Qué agrega": "Sincroniza el teorema con el funded set real y revela una región robusta completa",
+        "Evidencia viva": "final_project_promotion.json + final_project_summary.parquet",
+    },
+    {
         "Técnica": "Encoding/binning stability",
         "Qué agrega": "Gobernanza estructural del contrato de features",
         "Evidencia viva": "encoding_stability_status.json",
@@ -259,6 +264,31 @@ pd.DataFrame(modern_layers)
 | Gobierno | `mrm_validation_report.json`, `fairness_audit_status.json` | `scripts/generate_mrm_report.py`, `scripts/run_fairness_audit.py` | capítulo 40, agenda, appendix |
 
 : Linaje operativo de artefactos congelados {#tbl-operational-lineage}
+
+## Fuente maestra del proyecto
+
+El repositorio ya no tiene un único artefacto que “explique todo”. Para evitar ambigüedades, el libro debe tratar como fuentes maestras cuatro piezas con roles distintos:
+
+| Artefacto | Qué fija | Cómo debe leerse |
+|---|---|---|
+| `models/champion_registry.json` | champion PD, base regulatoria, fairness/governance | upstream canónico del proyecto |
+| `models/champion_portfolio_policy.json` | champion portfolio final paper/thesis | policy final promovida para tesis/paper |
+| `models/final_project_promotion.json` | decisión editorial final y promotion basis | puente entre base canónica y cierre económico unificado |
+| `data/processed/final_project_summary.parquet` | progresión completa del cierre | evidencia comparativa consolidada |
+
+: Ledger mínimo de source-of-truth del proyecto {#tbl-source-of-truth}
+
+::: {.callout-note}
+## Cómo resolver aparentes contradicciones entre artefactos
+Si dos artefactos parecen contar historias distintas, la regla correcta es esta:
+
+- `champion_registry.json` manda sobre la **base operativa/canónica**;
+- `final_project_promotion.json` manda sobre la **promoción final paper/thesis**;
+- `champion_portfolio_policy.json` materializa la **policy final promovida**;
+- `final_project_summary.parquet` explica **cómo llegamos** desde la base al cierre económico unificado.
+
+Esta jerarquía editorial evita confundir el selector económico de un run con la promoción final del proyecto.
+:::
 
 ## Métricas de investigación
 

@@ -16,7 +16,6 @@ import yaml
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.yaml"
-PAPER_GRADE_PD_CONFIG_PATH = PROJECT_ROOT / "configs" / "pd_model.paper_grade_final.yaml"
 CONTRACT_PATH = PROJECT_ROOT / "models" / "pd_model_contract.json"
 DVC_YAML_PATH = PROJECT_ROOT / "dvc.yaml"
 DVC_LOCK_PATH = PROJECT_ROOT / "dvc.lock"
@@ -110,15 +109,6 @@ class TestPDValidationConfig:
             assert int(sign) in {-1, 0, 1}, (
                 f"monotonic constraint for {feature} must be -1/0/1, got {sign}"
             )
-
-    def test_paper_grade_final_pd_config_uses_clean_study_name_and_storage(self) -> None:
-        payload = yaml.safe_load(PAPER_GRADE_PD_CONFIG_PATH.read_text())
-        hpo = payload.get("hpo", {})
-        assert hpo.get("enabled") is True
-        assert hpo.get("study_name") == "pd_catboost_optuna_temporal_paper_grade_final"
-        assert (
-            hpo.get("study_storage") == "sqlite:///models/optuna_pd_catboost_paper_grade_final.db"
-        )
 
 
 class TestModelContract:

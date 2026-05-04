@@ -172,7 +172,7 @@ else:
     Markdown("*No disponible.*")
 ```
 
-**Interpretacion**: El AUC de 0.7130 indica poder discriminante moderado-bueno, consistente con la dificultad inherente del problema (predecir default en prestamos personales no asegurados con informacion de originacion solamente). El Brier score de 0.1545 y el ECE de 0.0059 confirman buena calibracion --- el modelo no solo ordena bien los riesgos, sino que las probabilidades asignadas son confiables.
+**Interpretacion**: El AUC de 0.7124 indica poder discriminante moderado-bueno, consistente con la dificultad inherente del problema (predecir default en prestamos personales no asegurados con informacion de originacion solamente). El Brier score de 0.1546 y el ECE de 0.0064 confirman buena calibracion --- el modelo no solo ordena bien los riesgos, sino que las probabilidades asignadas son confiables.
 
 El metodo de calibracion (Venn-Abers) fue seleccionado automaticamente por la politica temporal de validacion, no fijado a priori. Esto es un ejemplo de como la configuracion (`configs/pd_model.yaml`) define `method: auto` y el artefacto runtime (`data/processed/model_comparison.json`) registra la seleccion efectiva.
 
@@ -815,7 +815,7 @@ El monitoreo conformal detallado, incluyendo metricas HSIC, SSC, MWI y CWC, esta
 
 | Dimension | Estado | Referencia |
 |-----------|--------|-----------|
-| Pipeline predictivo | PASS (AUC 0.7130, ECE 0.006) | @sec-mrm-pipeline-subsystem |
+| Pipeline predictivo | PASS (AUC 0.7124, ECE 0.006) | @sec-mrm-pipeline-subsystem |
 | Sistema conformal | PASS operacional (warnings estadísticos; justificación metodológica activa) | @sec-mrm-conformal-subsystem |
 | Gobernanza y drift | PASS (PSI < 0.25; drift explicable, no material) | @sec-mrm-governance-subsystem |
 | Fairness | PASS (6/6 atributos, threshold 0.35) | @sec-mrm-fairness-subsystem |

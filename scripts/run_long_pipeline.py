@@ -870,6 +870,7 @@ def build_steps(
     pipeline_family: str = "paper1_e2e",
     pipeline_contract: dict[str, object] | None = None,
     profile_cfg: dict[str, object] | None = None,
+    pd_config_override: str | None = None,
 ) -> list[tuple[str, bool, str]]:
     steps: list[tuple[str, bool, str]] = []
     profile_cfg = dict(profile_cfg or {})
@@ -907,7 +908,6 @@ def build_steps(
     replay_manifest_exists = bool(replay_manifest_path and replay_manifest_path.exists())
     replay_manifest = load_replay_manifest(replay_manifest_path) if replay_manifest_exists else {}
     replay_pd_cfg = manifest_section(replay_manifest, "pd")
-    confirmatory_full = bool(defaults_cfg.get("confirmatory_full", False))
     pd_replay_enabled = bool(
         defaults_cfg.get(
             "pd_replay",
@@ -924,8 +924,11 @@ def build_steps(
     smart_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.smart.yaml").exists()
     champion_pd_config_exists = (REPO_ROOT / "configs" / "pd_model.champion.yaml").exists()
     champion_search_pd_config = str(pd_search_cfg.get("config_path", "")).strip()
+    pd_config_override = str(pd_config_override or "").strip()
     replay_pd_config = str(replay_pd_cfg.get("config_path", "")).strip()
-    if (
+    if pd_config_override and (REPO_ROOT / pd_config_override).exists():
+        pd_config = pd_config_override
+    elif (
         pipeline_family in {"paper1_e2e", "search_pd"}
         and champion_search_pd_config
         and (REPO_ROOT / champion_search_pd_config).exists()
@@ -1129,11 +1132,12 @@ def build_steps(
         .strip()
         .lower()
     )
-    if pipeline_family in {"paper1_e2e", "search_pd", "search_portfolio"} and (
+    # Only force rebuild for explicit search pipelines.
+    # paper1_e2e / canonical_rebuild / core_canonical respect the profile's execution_mode
+    # so they can use freeze_if_available with the promoted champion_portfolio_policy.json.
+    if pipeline_family in {"search_portfolio"} and (
         selection_execution_mode == "freeze_if_available"
     ):
-        selection_execution_mode = "rebuild_selector"
-    if confirmatory_full and selection_execution_mode == "freeze_if_available":
         selection_execution_mode = "rebuild_selector"
     if selection_execution_mode not in VALID_SELECTION_EXECUTION_MODES:
         raise ValueError(
@@ -1212,7 +1216,7 @@ def build_steps(
         selection_execution_mode == "freeze_if_available"
         and (REPO_ROOT / frozen_policy_path).exists()
         and (
-            pipeline_family == "core_canonical"
+            pipeline_family in {"core_canonical", "paper1_e2e", "paper2_e2e", "canonical_rebuild"}
             or sampling_profile in {"mega64safe", "champion64safe"}
         )
     )
@@ -1280,13 +1284,31 @@ def build_steps(
             + " && "
         )
 
+    monotonic_search_config = str(pd_search_cfg.get("monotonic_competitor_config", "")).strip()
+    monotonic_search_cmd = ""
+    if monotonic_search_config and (REPO_ROOT / monotonic_search_config).exists():
+        monotonic_search_cmd = (
+            " && uv run python -u scripts/search_monotonic_competitor.py "
+            f"--config {shlex.quote(monotonic_search_config)} --run-tag {shlex.quote(run_tag)}"
+        )
+
     pd_train_cmd = f"uv run python -u scripts/train_pd_model.py --config {pd_config} {pd_sample}"
     if pd_replay_enabled and replay_manifest_path is not None:
         pd_train_cmd += f" --mode replay --replay_manifest {shlex.quote(str(replay_manifest_path))}"
     conformal_cmd_parts = ["uv run python -u scripts/generate_conformal_intervals.py"]
+    conformal_artifact_namespace = run_tag if pipeline_family == "search_conformal" else None
+    conformal_artifact_data_dir = (
+        Path("data/processed/conformal_gap") / conformal_artifact_namespace
+        if conformal_artifact_namespace
+        else None
+    )
     if conformal_replay_enabled and replay_manifest_path is not None:
         conformal_cmd_parts.append("--mode replay")
         conformal_cmd_parts.append(f"--replay_manifest {shlex.quote(str(replay_manifest_path))}")
+    if conformal_artifact_namespace:
+        conformal_cmd_parts.append(
+            f"--artifact_namespace {shlex.quote(str(conformal_artifact_namespace))}"
+        )
     if conformal_search_cfg:
         if conformal_search_cfg.get("alpha_target_90") is not None:
             conformal_cmd_parts.append(
@@ -1298,6 +1320,10 @@ def build_steps(
             conformal_cmd_parts.append(
                 f"--alpha_candidates_90 {shlex.quote(_csv_cli(conformal_search_cfg['alpha_candidates_90']))}"
             )
+        if conformal_search_cfg.get("alpha_candidates_95") is not None:
+            conformal_cmd_parts.append(
+                f"--alpha_candidates_95 {shlex.quote(_csv_cli(conformal_search_cfg['alpha_candidates_95']))}"
+            )
         if conformal_search_cfg.get("min_group_sizes") is not None:
             conformal_cmd_parts.append(
                 f"--min_group_sizes {shlex.quote(_csv_cli(conformal_search_cfg['min_group_sizes']))}"
@@ -1305,6 +1331,24 @@ def build_steps(
         if conformal_search_cfg.get("partition_candidates") is not None:
             conformal_cmd_parts.append(
                 f"--partition_candidates {shlex.quote(_csv_cli(conformal_search_cfg['partition_candidates']))}"
+            )
+        if conformal_search_cfg.get("partition_probability_sources") is not None:
+            conformal_cmd_parts.append(
+                "--partition_probability_sources "
+                + shlex.quote(_csv_cli(conformal_search_cfg["partition_probability_sources"]))
+            )
+        if conformal_search_cfg.get("n_score_bins_candidates") is not None:
+            conformal_cmd_parts.append(
+                f"--n_score_bins_candidates {shlex.quote(_csv_cli(conformal_search_cfg['n_score_bins_candidates']))}"
+            )
+        if conformal_search_cfg.get("fallback_modes") is not None:
+            conformal_cmd_parts.append(
+                f"--fallback_modes {shlex.quote(_csv_cli(conformal_search_cfg['fallback_modes']))}"
+            )
+        if conformal_search_cfg.get("score_scale_families") is not None:
+            conformal_cmd_parts.append(
+                "--score_scale_families "
+                + shlex.quote(_csv_cli(conformal_search_cfg["score_scale_families"]))
             )
         for key in (
             "min_group_coverage_target",
@@ -1318,9 +1362,14 @@ def build_steps(
             "global_rebalance_min_factor",
             "global_rebalance_max_factor",
             "global_rebalance_step",
+            "calibration_fraction",
         ):
             if conformal_search_cfg.get(key) is not None:
                 conformal_cmd_parts.append(f"--{key} {conformal_search_cfg[key]}")
+        if conformal_search_cfg.get("evaluation_scope") is not None:
+            conformal_cmd_parts.append(
+                f"--evaluation_scope {shlex.quote(str(conformal_search_cfg['evaluation_scope']))}"
+            )
         if conformal_search_cfg.get("temporal_segment_floor_enabled") is not None:
             conformal_cmd_parts.append(
                 "--temporal_segment_floor_enabled "
@@ -1365,6 +1414,34 @@ def build_steps(
         min_group_size_default = min(conformal_search_cfg["min_group_sizes"])
     if min_group_size_default is not None:
         benchmark_cmd += f" --min_group_size_default {int(min_group_size_default)}"
+    if conformal_search_cfg.get("partition_candidates") is not None:
+        benchmark_cmd += " --partition_candidates " + shlex.quote(
+            _csv_cli(conformal_search_cfg["partition_candidates"])
+        )
+    if conformal_search_cfg.get("partition_probability_sources") is not None:
+        benchmark_cmd += " --partition_probability_sources " + shlex.quote(
+            _csv_cli(conformal_search_cfg["partition_probability_sources"])
+        )
+    if conformal_search_cfg.get("n_score_bins_candidates") is not None:
+        benchmark_cmd += " --n_score_bins_candidates " + shlex.quote(
+            _csv_cli(conformal_search_cfg["n_score_bins_candidates"])
+        )
+    if conformal_search_cfg.get("fallback_modes") is not None:
+        benchmark_cmd += " --fallback_modes " + shlex.quote(
+            _csv_cli(conformal_search_cfg["fallback_modes"])
+        )
+    if conformal_search_cfg.get("score_scale_families") is not None:
+        benchmark_cmd += " --score_scale_families " + shlex.quote(
+            _csv_cli(conformal_search_cfg["score_scale_families"])
+        )
+    if conformal_search_cfg.get("scaled_scores_options") is not None:
+        benchmark_cmd += " --scaled_scores_options " + shlex.quote(
+            _csv_cli(conformal_search_cfg["scaled_scores_options"])
+        )
+    if conformal_search_cfg.get("calibration_size_fractions") is not None:
+        benchmark_cmd += " --calibration_size_fractions " + shlex.quote(
+            _csv_cli(conformal_search_cfg["calibration_size_fractions"])
+        )
 
     lgd_backend = str(resource_policy.get("lgd_ead_backend", "cpu")).strip().lower()
     lgd_backend_arg = " --catboost_backend gpu" if lgd_backend.startswith("gpu") else ""
@@ -1432,19 +1509,40 @@ def build_steps(
         uv run python -u -c "from src.data.build_datasets import main; main()" &&
         ({optuna_cleanup_cmd}) &&
         {pd_train_cmd}
+        {monotonic_search_cmd}
     """
+
+    if conformal_artifact_namespace:
+        benchmark_cmd += f" --artifact_namespace {shlex.quote(str(conformal_artifact_namespace))}"
+        backtest_cmd = (
+            "uv run python -u scripts/backtest_conformal_coverage.py "
+            f"--intervals-path {shlex.quote(str(conformal_artifact_data_dir / 'conformal_intervals_mondrian.parquet'))} "
+            f"--output-dir {shlex.quote(str(conformal_artifact_data_dir))}"
+        )
+        validate_cmd = (
+            "uv run python -u scripts/validate_conformal_policy.py "
+            f"--run-tag {run_tag} --artifact-namespace {shlex.quote(str(conformal_artifact_namespace))}"
+        )
+    else:
+        backtest_cmd = "uv run python -u scripts/backtest_conformal_coverage.py"
+        validate_cmd = f"uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag}"
 
     conformal_validation_cmds = [
         conformal_cmd,
         benchmark_cmd,
-        "uv run python -u scripts/backtest_conformal_coverage.py",
-        f"uv run python -u scripts/validate_conformal_policy.py --run-tag {run_tag}",
+        backtest_cmd,
+        validate_cmd,
     ]
     if bool(execution_cfg.get("include_conformal_sensitivity", False)):
-        conformal_validation_cmds.append(
+        sensitivity_cmd = (
             "uv run python -u scripts/validate_conformal_policy.py "
             f"--run-tag {run_tag} --sensitivity-config configs/conformal_policy_sensitivity.yaml"
         )
+        if conformal_artifact_namespace:
+            sensitivity_cmd += (
+                f" --artifact-namespace {shlex.quote(str(conformal_artifact_namespace))}"
+            )
+        conformal_validation_cmds.append(sensitivity_cmd)
     core_conformal_cmd = f"""
         {activate_main} &&
         {" && ".join(conformal_validation_cmds)}
@@ -1498,10 +1596,18 @@ def build_steps(
         uv run python -u scripts/train_lgd_ead.py {lgd_ead_sample} --run-tag {run_tag}{lgd_backend_arg}
     """
     if use_frozen_policy:
+        # Frozen policy mode: skip tradeoff + selector entirely.
+        # Force explicit_champion_only so AB uses champion_portfolio_policy.json directly.
+        frozen_ab_cmd = (
+            f"{ab_exec} scripts.simulate_ab_test {ab_candidates} --run-tag {run_tag} "
+            f"--policy_selector explicit_champion_only "
+            f"--decision-scenario {ab_decision_scenario_default} "
+            f"--actual_ab_top_k {ab_actual_ab_top_k}{ab_solver_arg}"
+        )
         core_portfolio_cmd = f"""
             {extended_compute_prefix}
             {portfolio_cmd} &&
-            {ab_cmd}
+            {frozen_ab_cmd}
         """
     elif economic_search_enabled:
         core_portfolio_cmd = f"""
@@ -1575,7 +1681,6 @@ def build_steps(
         if [ -f scripts/run_calibration_mapping_diagnostics.py ]; then uv run python -u scripts/run_calibration_mapping_diagnostics.py --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/run_encoding_stability_audit.py ]; then uv run python -u scripts/run_encoding_stability_audit.py --config {pd_config} --run-tag {run_tag}; else true; fi &&
         if [ -f scripts/generate_governance_status.py ]; then uv run python -u scripts/generate_governance_status.py --config configs/mrm_policy.yaml --run-tag {run_tag}; else true; fi &&
-        if [ -f scripts/generate_paper_grade_protocol.py ]; then uv run python -u scripts/generate_paper_grade_protocol.py; else true; fi &&
         uv run python -u scripts/generate_mrm_report.py --run-tag {run_tag}
     """
 
@@ -1696,6 +1801,7 @@ def parse_args(
             "search_pd",
             "search_conformal",
             "search_portfolio",
+            "search_paper2_ifrs9",
             "paper1_e2e",
             "paper2_e2e",
             "diagnostics_governance",
@@ -1806,6 +1912,11 @@ def parse_args(
         action=argparse.BooleanOptionalAction,
         default=None,
         help="Override the default write contract for the selected pipeline family.",
+    )
+    p.add_argument(
+        "--pd-config-override",
+        default=None,
+        help="Optional config path that overrides the PD config selected by profile/topology.",
     )
     return p.parse_args(argv)
 
@@ -1934,6 +2045,7 @@ def main(
             else None,
             "comparison_baseline_source": comparison_baseline_source,
             "stall_window_minutes": int(args.stall_window_minutes),
+            "pd_config_override": str(args.pd_config_override) if args.pd_config_override else None,
         },
     )
 
@@ -1954,6 +2066,7 @@ def main(
         pipeline_family=str(pipeline_contract["pipeline_family"]),
         pipeline_contract=pipeline_contract,
         profile_cfg=profile_cfg,
+        pd_config_override=str(args.pd_config_override) if args.pd_config_override else None,
     )
     if args.from_step or args.until_step:
         names = [s for s, _req, _cmd in steps]
@@ -2061,7 +2174,7 @@ if __name__ == "__main__":
     print(
         "[deprecated] scripts/run_long_pipeline.py is a compatibility entrypoint. "
         "Use scripts/run_canonical_rebuild.py, scripts/run_champion_search.py, "
-        "scripts/run_paper_grade_final.py, or scripts/run_insights_factory.py instead.",
+        "or scripts/run_insights_factory.py instead.",
         file=sys.stderr,
     )
     raise SystemExit(main(compatibility_entrypoint="scripts/run_long_pipeline.py"))

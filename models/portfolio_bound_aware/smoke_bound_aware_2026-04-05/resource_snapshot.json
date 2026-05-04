@@ -1,0 +1,38 @@
+{
+  "schema_version": "2026-04-05.2",
+  "run_label": "smoke_bound_aware_2026-04-05",
+  "solver_backend": "highs",
+  "start": {
+    "captured_at_utc": "2026-04-05T20:31:01.110807+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714552,
+    "memory_available_kib": 57837992,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 3784.0,
+      "memory_free_mb": 6270.0,
+      "gpu_util_pct": 3.0,
+      "memory_util_pct": 10.0
+    }
+  },
+  "backend_validation": null,
+  "end": {
+    "captured_at_utc": "2026-04-05T20:31:05.125661+00:00",
+    "cpu_count": 24,
+    "memory_total_kib": 61714552,
+    "memory_available_kib": 56968632,
+    "swap_free_kib": 25165824,
+    "gpu": {
+      "name": "NVIDIA GeForce RTX 3080",
+      "driver_version": "595.71",
+      "memory_total_mb": 10240.0,
+      "memory_used_mb": 3808.0,
+      "memory_free_mb": 6246.0,
+      "gpu_util_pct": 5.0,
+      "memory_util_pct": 14.0
+    }
+  }
+}

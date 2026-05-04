@@ -3,6 +3,8 @@
 Curated bibliography for the Lending Club Risk Project publication strategy.
 Each entry includes a direct link for easy access.
 
+May 2026 update: the Paper Estrella audit re-read the 17 local PDFs in `C:\Users\carlos\Documents\Papers_tesis`, corrected metadata for the new papers, and added online, multi-distribution, end-to-end and satisficing conformal work as explicit future-work references.
+
 ---
 
 ## A. Conformal Prediction — Foundations
@@ -34,14 +36,15 @@ Each entry includes a direct link for easy access.
 |---|-------|---------|------|-------|------|
 | C1 | Conformal Uncertainty Sets for Robust Optimization | Johnstone & Cox | 2021 | COPA (PMLR v152) | [arXiv](https://arxiv.org/abs/2105.14957) |
 | C2 | Conformal Contextual Robust Optimization | Patel, Rayan & Tewari | 2024 | AISTATS (PMLR v238) | [arXiv](https://arxiv.org/abs/2310.10003) |
-| C3 | End-to-End Conformal Calibration for Optimization Under Uncertainty | Yeh, Christianson, Wu, Wierman & Yue | 2026 | arXiv | [arXiv](https://arxiv.org/abs/2409.20534) |
+| C3 | End-to-End Conformal Calibration for Optimization Under Uncertainty | Christopher Yeh, Christianson, Wu, Wierman & Yue | 2025 | TMLR / arXiv v2 2026 | [arXiv](https://arxiv.org/abs/2409.20534) |
 | C4 | End-to-End Conditional Robust Optimization | Chenreddy et al. | 2024 | UAI (PMLR v244) | [arXiv](https://arxiv.org/abs/2403.04670) |
-| C5 | Conformal Robust Optimization and Satisficing for Prescriptive Analytics | Zhao, Jiang & Qi | 2025 | SSRN | [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5338354) |
-| C6 | Optimal Model Selection for Conformalized Robust Optimization (CROMS) | Bao, Hu, Ren, Zhao & Zou | 2025 | arXiv | [arXiv](https://arxiv.org/abs/2507.04716) |
+| C5 | Conformal Robust Optimization and Satisficing for Prescriptive Analytics with Black-Box Predictors | Lingjie Zhao, Hansheng Jiang & Wei Qi | 2026 | AISTATS workshop / SSRN | [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5338354) |
+| C6 | Optimal Model Selection for Conformalized Robust Optimization (CROMS) | Yajie Bao, Yang Hu, Haojie Ren, Peng Zhao & Changliang Zou | 2025 | arXiv | [arXiv](https://arxiv.org/abs/2507.04716) |
 | C7 | Calibrating Decision Robustness via Inverse Conformal Risk Control | Zhou & Zhu | 2026 | arXiv | [arXiv](https://arxiv.org/abs/2510.07750) |
 | C8 | Conformal Predictive Programming for Chance Constrained Optimization | Zhao, Yu, Deshmukh & Lindemann | 2024 | arXiv | [arXiv](https://arxiv.org/abs/2402.07407) |
 | C9 | Conformal Inverse Optimization | Chan, Delage & Lin | 2024 | NeurIPS 2024 | [arXiv](https://arxiv.org/abs/2402.01489) |
 | C10 | Risk-controlling Prediction with Distributionally Robust Optimization | Iutzeler & Mazoyer | 2025 | TMLR | [HAL](https://hal.science/hal-05217569v1) |
+| C11 | Multi-Distribution Robust Conformal Prediction | Yang & Jin | 2026 | arXiv | [arXiv](https://arxiv.org/abs/2601.02998) |
 
 ## D. Conformal Prediction in Finance & Portfolios
 
@@ -50,7 +53,7 @@ Each entry includes a direct link for easy access.
 | D1 | Conformal Predictive Portfolio Selection | Kato | 2025 | arXiv | [arXiv](https://arxiv.org/abs/2410.16333) |
 | D2 | Conformal Portfolio Optimization | Noguer i Alonso | 2024 | SSRN | [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5011129) |
 | D3 | Conformal Prediction in Finance (survey) | Noguer i Alonso | 2024 | SSRN | [SSRN](https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4939336) |
-| D4 | Online Conformal Prediction via Universal Portfolio Algorithms | Liu, Dobriban & Orabona | 2026 | arXiv | [arXiv](https://arxiv.org/abs/2602.03168) |
+| D4 | Online Conformal Prediction via Universal Portfolio Algorithms | Tuo Liu, Dobriban & Orabona | 2026 | arXiv | [arXiv](https://arxiv.org/abs/2602.03168) |
 | D5 | Adaptive Conformal Inference for Computing Market Risk Measures | Fantazzini | 2024 | JRFM | [MPRA](https://mpra.ub.uni-muenchen.de/121214/1/MPRA_paper_121214.pdf) |
 | D6 | Temporal Conformal Prediction (TCP) | — | 2025 | arXiv | [arXiv](https://arxiv.org/abs/2507.05470) |
 
@@ -62,9 +65,10 @@ Each entry includes a direct link for easy access.
 | E2 | Decision-Focused Learning: Foundations, State of the Art, Benchmark | Mandi et al. | 2024 | JAIR (survey) | [arXiv](https://arxiv.org/abs/2307.13565) |
 | E3 | Task-based End-to-end Model Learning in Stochastic Optimization | Donti, Amos & Kolter | 2017 | NeurIPS | [arXiv](https://arxiv.org/abs/1703.04529) |
 | E4 | Decision Theoretic Foundations for Conformal Prediction | Kiyani et al. | 2025 | AISTATS / ICML 2025 | [arXiv](https://arxiv.org/abs/2502.02561) |
-| E5 | Conformal Risk Training: End-to-End Optimization of Conformal Risk Control | Yeh et al. | 2025 | NeurIPS 2025 | [arXiv](https://arxiv.org/abs/2510.08748) |
+| E5 | Conformal Risk Training: End-to-End Optimization of Conformal Risk Control | Christopher Yeh, Christianson, Wierman & Yue | 2025 | NeurIPS 2025 | [arXiv](https://arxiv.org/abs/2510.08748) |
 | E6 | Utility-Directed Conformal Prediction | — | 2025 | ICLR 2025 | [arXiv](https://arxiv.org/abs/2410.01767) |
 | E7 | The Price of Robustness | Bertsimas & Sim | 2004 | Operations Research | [DOI](https://doi.org/10.1287/opre.1030.0065) |
+| E8 | Online Decision-Focused Learning | Capitaine, Haddouche, Moulines, Jordan, Boursier & Durmus | 2026 | ICLR 2026 | [arXiv](https://arxiv.org/abs/2505.13564) |
 
 ## F. Credit Risk, IFRS9 & Survival Analysis
 

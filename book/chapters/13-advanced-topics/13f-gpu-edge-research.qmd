@@ -185,7 +185,7 @@ current_stack_rows = [
     },
     {
         "Componente": "Portfolio policy champion",
-        "Versión campeona": "segment_relative_tail_blended_uncertainty",
+        "Versión campeona": champion_registry.get("portfolio_champion_policy", {}).get("key_params", {}).get("policy_mode", "N/D"),
         "Resultado clave": (
             f"risk_tol={_fmt_float(champion_registry.get('portfolio_champion_policy', {}).get('key_params', {}).get('risk_tolerance'), 2)} | "
             f"gamma={_fmt_float(champion_registry.get('portfolio_champion_policy', {}).get('key_params', {}).get('gamma'), 2)} | "

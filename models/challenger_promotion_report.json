@@ -1,6 +1,6 @@
 {
   "schema_version": "2026-03-06.1",
-  "generated_at_utc": "2026-03-30T19:28:23.997747+00:00",
+  "generated_at_utc": "2026-04-07T17:42:03.415081+00:00",
   "benchmark_available": true,
   "selected_features": [
     "int_rate",
@@ -36,26 +36,26 @@
   ],
   "primary_threshold": 0.35,
   "champion_metrics": {
-    "auc": 0.7126809898257414,
-    "brier": 0.15456155709655775,
-    "ece": 0.006731531345207926
+    "auc": 0.712438241693818,
+    "brier": 0.15463051782916892,
+    "ece": 0.006379675621599359
   },
   "challenger_metrics": {
-    "auc": 0.7024788883208002,
-    "brier": 0.1583990203898265,
-    "ece": 0.04094978659778442
+    "auc": 0.7033087393561119,
+    "brier": 0.1582181321450245,
+    "ece": 0.03953591222692074
   },
   "deltas": {
-    "auc_drop": 0.010202101504941163,
-    "brier_increase_pct": 0.024828057929511038,
-    "ece_delta": 0.0342182552525765
+    "auc_drop": 0.009129502337706041,
+    "brier_increase_pct": 0.023201204821800214,
+    "ece_delta": 0.03315623660532138
   },
   "interpretability": {
     "champion_effective_driver_count": 20,
     "challenger_effective_driver_count": 5,
     "champion_explanation_stability": 0.8,
     "challenger_explanation_stability": 0.8,
-    "champion_monotonic_violation_rate": 0.0,
+    "champion_monotonic_violation_rate": 0.004231770833333333,
     "challenger_monotonic_violation_rate": 0.0,
     "gains": {
       "fewer_effective_drivers": true,
@@ -69,11 +69,11 @@
     "attributes": [
       {
         "attribute": "home_ownership",
-        "dpd": 0.0010987357571445866,
-        "eo_gap": 0.006263581746133173,
-        "dir": 0.9988997013185918,
-        "tpr_gap": 0.0007286770094634409,
-        "fpr_gap": 0.006263581746133173,
+        "dpd": 0.001600426780474784,
+        "eo_gap": 0.004403699107250136,
+        "dir": 0.998399573219525,
+        "tpr_gap": 0.0009567530085053955,
+        "fpr_gap": 0.004403699107250136,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,
@@ -81,11 +81,11 @@
       },
       {
         "attribute": "annual_inc_quartile",
-        "dpd": 0.0045242514168618575,
-        "eo_gap": 0.0102441491789943,
-        "dir": 0.9954744335466837,
-        "tpr_gap": 0.002463627155729342,
-        "fpr_gap": 0.0102441491789943,
+        "dpd": 0.00367418064595193,
+        "eo_gap": 0.008391717046160707,
+        "dir": 0.9963249650424404,
+        "tpr_gap": 0.0019744759614839236,
+        "fpr_gap": 0.008391717046160707,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,
@@ -93,11 +93,11 @@
       },
       {
         "attribute": "verification_status",
-        "dpd": 0.004367151954958737,
-        "eo_gap": 0.0070298535779399485,
-        "dir": 0.9956272974030576,
-        "tpr_gap": 0.0027684831924014164,
-        "fpr_gap": 0.0070298535779399485,
+        "dpd": 0.0031571773789915714,
+        "eo_gap": 0.00479336708092204,
+        "dir": 0.9968397648628486,
+        "tpr_gap": 0.002241969112037445,
+        "fpr_gap": 0.00479336708092204,
         "passed_dpd": true,
         "passed_eo": true,
         "passed_dir": true,

@@ -1,12 +1,8 @@
 {
   "stage_name": "pd_training",
-  "phase": "artifacts_saved",
+  "phase": "config_validated",
   "state": "completed",
   "config_path": "configs/pd_model.champion.yaml",
-  "updated_at_utc": "2026-03-30T16:42:42.227022+00:00",
-  "model_path": "models/pd_canonical.cbm",
-  "calibrator_path": "models/pd_canonical_calibrator.pkl",
-  "record_path": "models/pd_training_record.pkl",
-  "auc_roc": 0.7126809898257414,
-  "brier_score": 0.15456155709655775
+  "updated_at_utc": "2026-04-07T18:31:44.231035+00:00",
+  "validate_only": true
 }

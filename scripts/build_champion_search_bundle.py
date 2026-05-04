@@ -79,7 +79,6 @@ def main() -> None:
     pd_set_prediction = _load_json(MODELS / "pd_set_prediction_status.json")
     pd_rare_event = _load_json(MODELS / "pd_rare_event_calibration_status.json")
     pd_calibration_diagnostics = _load_json(MODELS / "pd_calibration_diagnostics.json")
-    paper_grade_protocol = _load_json(MODELS / "paper_grade_protocol_status.json")
     survival_summary = _load_pickle(MODELS / "survival_summary.pkl")
     threshold_semantics = load_threshold_semantics()
     upstream_baseline = _resolve_upstream_baseline()
@@ -94,7 +93,6 @@ def main() -> None:
             "cate_portfolio_status": cate_status,
             "conformal_policy_status": conformal_status,
             "time_series": time_series,
-            "paper_grade_protocol": paper_grade_protocol,
         }
     )
 
@@ -167,7 +165,6 @@ def main() -> None:
             "cate_portfolio_status": cate_status,
         },
         "governance": governance_status,
-        "paper_grade_protocol": paper_grade_protocol,
     }
     out_path = MODELS / "champion_search_bundle.json"
     out_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")

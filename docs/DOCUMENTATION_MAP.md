@@ -14,6 +14,8 @@ Quick reference for the current documentation stack after the pipeline-first ref
 | **Quarto contract** | `docs/QUARTO_BOOK_BLUEPRINT.md` | Book architecture, editorial contract, and maintenance rules |
 | **Project rationale** | `docs/PROJECT_JUSTIFICATION.md` | Methodological and architectural why |
 | **Runbook** | `docs/RUNBOOK.md` | Reproducibility playbook |
+| **Search wave 2026-04** | `docs/PIPELINE_FIRST_TOPOLOGY_2026-03-31.md` | Pipeline-first taxonomy including the new `search_paper2_ifrs9` lane for exhaustive April runs |
+| **TS vNext decision** | `docs/TIME_SERIES_VNEXT_DECISION_2026-04-02.md` | Current keep / research / do-not-promote decision for the time-series redesign lane |
 | **History / learnings** | `docs/DECISION_CHANGES_AND_LEARNINGS.md` | Historical decisions, fixes, and practical learnings |
 | **Paper references** | `docs/PAPER_REFERENCES_STATE_OF_ART.md` | Curated literature map for papers and thesis chapters |
 | **Backlog** | `docs/backlog-papers-unified.md` | Unified backlog for papers, experiments, and documentation follow-ups |

@@ -13,7 +13,7 @@ page-layout: article
 Ejemplo concreto: en vez de optimizar con una sola PD de un préstamo, el paper usa una banda conformal `[PD_low, PD_high]` para construir un conjunto de incertidumbre y preguntarse cuánto retorno se preserva cuando la decisión se protege contra realizaciones plausibles del riesgo.
 :::
 
-Este draft existe para sostener un claim económico y metodológico al mismo tiempo: con una base predictiva de `AUC 0.713`, cobertura observada de `92.5%` al target `90%` y un retorno robusto congelado de `\$183K`, la pregunta ya no es si la incertidumbre “suena interesante”, sino si está lo bastante madura como para entrar al optimizador y cambiar la conversación sobre riesgo y retorno.
+Este paper existe para sostener un claim económico y metodológico al mismo tiempo: con una base predictiva de `AUC 0.713`, cobertura observada de `92.97%` al target `90%` (Score-Decile Mondrian promovido) y un retorno robusto de `\$170.5K`, la pregunta ya no es si la incertidumbre “suena interesante”, sino si está lo bastante madura como para entrar al optimizador y cambiar la conversación sobre riesgo y retorno.
 
 ::: {.callout-note .mini-abstract}
 ## Mini-abstract

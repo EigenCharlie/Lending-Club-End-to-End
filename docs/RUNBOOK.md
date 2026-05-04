@@ -42,10 +42,39 @@ uv run streamlit run streamlit_app/app.py
 Notes:
 - Canonical full rebuild: `uv run dvc repro` or `scripts/run_canonical_rebuild.py` (`core_canonical`).
 - PD/challenger search: `scripts/run_champion_search.py` (`search_pd` by default).
-- Final paper-grade run: `scripts/run_paper_grade_final.py` (`paper1_e2e`).
+- Paper 2 IFRS9 search: `scripts/search/run_paper2_ifrs9_search.py` (`search_paper2_ifrs9`).
 - Insight-factory complement: `scripts/run_insights_factory.py --profile canonical|research` (`research_labs`).
 - `scripts/end_to_end_pipeline.py` and `scripts/run_long_pipeline.py` are compatibility entrypoints only.
 - Canonical standalone causal runner: `bash scripts/causal/run_causal_pipeline.sh --treatment int_rate`.
+
+## Final Paper / Thesis Closure (2026-04-05)
+
+The live repo now carries two layers that must not be confused:
+
+- **Canonical operational base**: the monotonic confirmatory stack `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`
+- **Final paper/thesis promoted stack**: the same upstream PD/governance base plus the conformal reopen winner and the economic `portfolio_bound_aware` closure
+
+Current final promoted portfolio policy:
+
+- `risk_tolerance=0.175`
+- `policy_mode=blended_uncertainty`
+- `gamma=0.45`
+- `uncertainty_aversion=0.10`
+
+Source-of-truth artifacts:
+
+- `models/final_project_promotion.json`
+- `data/processed/final_project_summary.parquet`
+- `models/champion_portfolio_policy.json`
+- `models/champion_registry.json`
+
+Interpretation rules:
+
+- the monotonic canonical run remains the regulatory and operational upstream base;
+- the conformal reopen winner remains `rank1_score_decile_raw_bins5_mgs100`, i.e. the project-level conformal winner is `score_decile_mondrian`;
+- `grade Mondrian` remains necessary as the natural/interpretable baseline for business, IFRS9, and governance narratives, but it is **not** a co-winner;
+- the final promoted paper/thesis portfolio champion is **not** the old monotonic economic policy;
+- the `276k` full-OOT mini-grid established a **robust region** (`45/45` alpha01 passers), and the final promoted champion is now the economic selector inside that region, with the theorem-tight point retained only as a documented comparator.
 
 ## Step-by-Step Pipeline
 
@@ -170,14 +199,96 @@ bash scripts/start_long_run.sh <run_tag> --resume \
   --no-rapids --no-notebooks --stop-on-optional-failure
 ```
 
+## Exhaustive Search Wave 2026-04
+
+Pipeline-first exhaustive search lanes now split into:
+- `search_pd` for blockwise / constrained-threshold monotonic challenger work
+- `search_paper2_ifrs9` for survival / PoC / IFRS9 search
+- `search_conformal` for strictness-oriented Mondrian / CQR tuning
+
+Suggested launch commands:
+
+```bash
+uv run python scripts/search/run_pd_search.py \
+  --run-tag pd-blockwise-exhaustive-2026-04 \
+  --pipeline-profile search_pd_blockwise_exhaustive \
+  --sampling-profile mega64plus \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+
+uv run python scripts/search/run_paper2_ifrs9_search.py \
+  --run-tag paper2-ifrs9-exhaustive-2026-04 \
+  --pipeline-profile search_paper2_ifrs9_exhaustive \
+  --sampling-profile mega64safe \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+
+uv run python scripts/search/run_conformal_search.py \
+  --run-tag conformal-strict-exhaustive-2026-04 \
+  --pipeline-profile search_conformal_exhaustive \
+  --sampling-profile champion64safe \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+```
+
+Conformal reopen workflow over the refined PD candidate:
+
+```bash
+uv run python scripts/search/run_conformal_reopen_search.py \
+  --run-tag conformal-reopen-2026-04 \
+  --pipeline-profile search_conformal_reopen_exhaustive \
+  --upstream-canonical-run-tag pd-hpo-local-2026-04-03-1325
+```
+
+This workflow performs:
+- repeated inner search on calibration holdout only,
+- single OOT confirmation under namespace,
+- set-prediction sidecar benchmark,
+- optional phase-2 calibrator search (`venn_abers`, `isotonic`, `platt`, `beta`) if phase 1 still fails policy.
+
+Bound-aware portfolio closure on top of the conformal winner:
+
+1. `5k` corrected shortlist run to prove an `alpha=0.01` exact passer exists;
+2. `25k` hybrid run (GPU frontier + exact CPU) to confirm the region is not a subset artifact;
+3. `276k` full-OOT mini-grid to certify the final region and promote the economic champion.
+
+Important lesson:
+- the failed wide `5k` refinement did **not** show that `alpha01-safe` was impossible;
+- it exposed a shortlist bug where return/PoR ranking was done before exact bound ranking;
+- current promotion artifacts already encode the corrected shortlist logic and the final economic closure.
+- analogously, the conformal stack should not be narrated as having “two winners”:
+  `grade` is the explanatory/regulatory baseline, while `score_decile_mondrian` is the single final winner promoted by objective benchmark/reopen criteria.
+
+Monitoring:
+
+```bash
+uv run python scripts/monitor_pipeline_eta.py --run-tag <run_tag>
+bash scripts/monitor_long_run.sh
+```
+
+Local HPO refinement on top of the best blockwise challenger:
+
+```bash
+uv run python scripts/search/run_pd_hpo_local.py \
+  --run-tag pd-hpo-local-2026-04 \
+  --base-search-run-tag pd-blockwise-exhaustive-2026-04-02-0940 \
+  --hpo-n-trials 120 \
+  --sampling-profile mega64plus \
+  --upstream-canonical-run-tag canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129 \
+  --env-file .env --no-rapids --no-notebooks
+```
+
 ## Time Series Operational Semantics
 
 The time-series lane is governed by a single status contract:
 - canonical status artifact: `models/time_series_status.json`
 - experimental / research status artifact: `models/time_series_research_status.json`
+- vNext redesign research artifact: `models/time_series_vnext_status.json`
+- vNext policy decision artifact: `models/time_series_policy_review.json`
 
 End-to-end producer:
 - `scripts/forecast_default_rates.py`
+- `scripts/run_time_series_vnext.py` for the enriched redesign lane
 
 Core outputs:
 - `data/processed/ts_forecasts.parquet`
@@ -201,7 +312,7 @@ Artifact flow:
 
 | Artifact | Produced by | Main consumers | If `research_only` | If `promoted` |
 |----------|-------------|----------------|--------------------|---------------|
-| `models/time_series_status.json` | `scripts/forecast_default_rates.py` | `export_storytelling_snapshot.py`, `generate_paper_grade_protocol.py`, `build_champion_search_bundle.py`, `update_champion_registry.py`, Streamlit | Canonical point forecast stays official; interval layer is reported with warning | Point + interval layers become fully official |
+| `models/time_series_status.json` | `scripts/forecast_default_rates.py` | `export_storytelling_snapshot.py`, `build_champion_search_bundle.py`, `update_champion_registry.py`, Streamlit | Canonical point forecast stays official; interval layer is reported with warning | Point + interval layers become fully official |
 | `data/processed/ts_forecasts.parquet` | `scripts/forecast_default_rates.py` | Streamlit, MLflow logging | Forecasts visible and usable, but interval interpretation stays diagnostic | Forecasts and their intervals are both official |
 | `data/processed/ts_ifrs9_scenarios.parquet` | `scripts/forecast_default_rates.py` | `run_ifrs9_sensitivity.py`, Streamlit, MLflow logging | Scenarios remain useful, but interval-backed uncertainty is not promoted | Scenarios inherit an officially validated interval layer |
 | `data/processed/ts_panel_forecasts.parquet` | `scripts/forecast_default_rates.py` | Streamlit deploy bundle, architecture views | Bottom-up/panel outputs remain analytical support | Bottom-up/panel outputs sit on top of a promoted TS contract |
@@ -211,10 +322,27 @@ Current project interpretation:
 - canonical point forecast is official
 - canonical interval forecast is not promotable yet
 - therefore the lane is operationally useful, but its interval layer remains `research_only`
+- the `vNext` redesign lane was executed on `2026-04-02` and the decision was `maintain_canonical_keep_vnext_research`
+- the enriched contract, `MAPIE_ENBPI` interval challenger, joint sample paths, and TS->ECL translation remain research evidence only unless a future rerun clears the same governed promotion logic
 
 Promotion rule of thumb:
 - do not promote because a challenger is more sophisticated
 - promote only if the interval challenger beats the canonical lane under the governed policy and then updates `models/time_series_status.json`
+
+Current keep / research / discard posture:
+
+| Component | Current posture | Why |
+|----------|------------------|-----|
+| Canonical point forecast | keep | `AutoARIMA` remains operationally usable and the vNext redesign did not produce a material point improvement |
+| Canonical IFRS9 temporal overlay | keep | still useful for scenario scaling even with interval caution |
+| Canonical interval layer | keep as diagnostic only | still published, still not promotable |
+| Enriched internal-only data contract | research only | useful for benchmarking, not yet justified as canonical replacement |
+| `MAPIE_ENBPI` / adaptive interval challengers | research only | improved coverage gap but still failed governed promotion threshold |
+| Joint sample paths (`gaussian_copula`, `schaake_shuffle`) | research only | add prudential insight for accumulated risk, but not yet an operational policy layer |
+| vNext TS->ECL interval translation | keep as research support | numerically stable and useful for review, but not a canonical downstream dependency |
+
+Reference closeout:
+- `docs/TIME_SERIES_VNEXT_DECISION_2026-04-02.md`
 
 ## Optional: Platform Layer (dbt + Feast)
 

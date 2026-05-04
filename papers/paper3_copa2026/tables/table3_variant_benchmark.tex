@@ -1,0 +1,18 @@
+\begin{table}[t]
+\centering
+\caption{Conformal variant benchmark on OOT test set ($\alpha = 0.10$, $N = 276{,}869$). The promoted variant is marked with~$\star$.}
+\label{tab:variant-benchmark}
+\begin{tabular}{lcccccc}
+\toprule
+Variant & Coverage & Min Grp & Width & Winkler & Pass \\
+\midrule
+Score-Decile Mondrian$^\star$ & 92.0\% & 88.1\% & 0.790 & 1.103 & \checkmark \\
+Cross-Conformal & 90.1\% & 85.5\% & 0.909 & 1.090 & --- \\
+Global Split-CP & 89.8\% & 59.2\% & 0.952 & 1.105 & --- \\
+Mondrian (unscaled) & 89.4\% & 86.4\% & 0.776 & 1.195 & --- \\
+Mondrian (scaled) & 89.2\% & 86.4\% & 0.731 & 1.253 & --- \\
+Grade$\times$Scoreband & 92.2\% & 83.2\% & 0.792 & 1.103 & --- \\
+Mondrian (cfg-selected) & 91.4\% & 87.6\% & 0.743 & 1.225 & --- \\
+\bottomrule
+\end{tabular}
+\end{table}

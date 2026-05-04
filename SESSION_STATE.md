@@ -1,37 +1,52 @@
 # SESSION STATE - Lending Club Risk Project
-Last Updated: 2026-03-31
+Last Updated: 2026-05-04
 
 ---
 
 ## 1) Executive Status
 
 Project is operational and artifact-consistent across the thesis pipeline.
-Current truth is baseline-registry-first.
+Current truth is **`models/final_project_promotion.json` + `models/champion_portfolio_policy.json`**.
 
-Repository hygiene update (2026-03-31):
-- Pipeline-first orchestration is now the active execution contract.
-- Active vs historical vs research documentation is explicitly separated under `docs/`, `docs/history/`, and `docs/research/`.
-- `reports/` root has been reduced to live editorial/technical artifacts; historical snapshots moved to `reports/history/`.
-- Research scratch under `models/*_runtime_checkpoints/` was purged; only the still-referenced `conformal_v3_grade_noshrink_2026_03_26` namespace remains under `conformal_gap/`.
-- Historical pre-Quarto helpers were archived under `scripts/history/` with compatibility wrappers left in place.
+### Current closure (Paper Estrella, 2026-05-04)
 
-Canonical update (2026-03-13):
-- Official operational baseline: `champion-2026-03-12-mega-definitive`.
+The Paper Estrella closure is now anchored on the **bound-aware 276K economic champion**:
+
+- Run tag canonical paper: `paper-thesis-final-economic-2026-04-06`
+- Promotion basis: `economic_champion_within_exact_robust_region`
+- Champion policy: `risk_tolerance=0.175`, `gamma=0.45`, `policy_mode=blended_uncertainty`, `uncertainty_aversion=0.10`
+- `theorem_tight_comparator` (gamma=0.55) and `balanced_comparator` (rt=0.17) remain as documented internal comparators, NOT as official champions
+- Robust region: 45/45 policies pass `alpha=0.01` exactly on full 276K OOT
+- Conformal winner: `score_decile_mondrian` (rank1 reopen), coverage 92.97%, Winkler 1.111
+- PD upstream: HPO local trial 56 (val_AUC 0.722, OOT AUC 0.7124, Brier 0.1546, ECE 0.0064, Venn-Abers calibrator)
+- Paper-facing tables regenerated via `scripts/export_paper1_canonical_tables.py` from canonical sources
+
+### Pipeline freeze policy (2026-05-04)
+
+Non-search pipelines (`paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild`) now use `freeze_if_available` execution mode:
+
+- `core_portfolio` runs in ~1 min (LP + AB on frozen champion) instead of ~3 hours (tradeoff + selector + AB rebuild)
+- AB simulation uses `--policy_selector explicit_champion_only` to read directly from `models/champion_portfolio_policy.json`
+- Search-only pipelines (`search_portfolio`, `search_pd`) still do full search when invoked explicitly
+- See `configs/profiles/{paper1_e2e_default, core_canonical_cpu, canonical_operational, canonical_confirmatory_full, paper2_e2e_default}.yaml`
+
+### Repository hygiene
+
+- Pipeline-first orchestration is the active execution contract.
+- Active/historical/research docs separated under `docs/`, `docs/history/`, `docs/research/`.
+- 716 tests passing, 0 failures, 2 skips (as of 2026-05-04).
+- All metadata run_tags fixed; conformal policy test fixed with methodological justification logic.
+- This file is only for current state. Historical logs in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.
+
+### Canonical baselines
+
+- Official operational PD baseline: `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`.
+- Paper Estrella final closure: `paper-thesis-final-economic-2026-04-06`.
 - Source of truth for baseline resolution: `configs/baselines/canonical_operational_baseline.json`.
-- Legacy registry `configs/baselines/core_official_baseline.json` is compatibility fallback only.
-- Canonical status artifacts remain single-write (`conformal_policy_status.json`, `fairness_audit_status.json`, `governance_status.json`).
-- Threshold semantics are now explicit in `models/threshold_semantics.json`:
-  internal PD screening/search threshold is separate from the operational fairness/approval threshold.
-
-- Serving strategy is now Quarto-first with a reduced local Streamlit companion.
-- PD architecture remains Logistic Regression baseline + CatBoost final (tuned + calibrated).
-- Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates; runtime auto-selection via temporal policy).
-- Temporal validation and OOT evaluation remain mandatory.
-- Notebooks 10-12 executed with outputs (`include_notebooks=True` in both canonical and paper-grade profiles).
-- 690 tests passing, 0 failures, 0 skips.
-- All metadata run_tags fixed (MRM, pd_rare_event, mrm_report_status wrapper created).
-- Conformal policy test fixed with methodological justification logic.
-- This file is only for current state. Historical logs are consolidated in `docs/DECISION_CHANGES_AND_LEARNINGS.md` (section "Session History (Consolidated)").
+- Threshold semantics in `models/threshold_semantics.json`: internal PD screening (0.05) vs operational approval (0.35).
+- Serving: Quarto-first with reduced local Streamlit companion (5 pages).
+- PD: LR baseline + CatBoost (tuned monotónico + Venn-Abers calibrator); auto-selection from 4 calibrators.
+- Notebooks 10-12 executed with outputs preserved (`include_notebooks=True`).
 
 ---
 
@@ -105,31 +120,30 @@ Source artifacts:
 - `reports/mrm/mrm_validation_report.json`
 
 ### 4.1 PD Model (OOT, calibrated final)
-- Best model: `CatBoost (tuned + calibrated)`
+
+- Best model: `CatBoost (tuned + calibrated)` with monotonic constraints `installment:1, annual_inc:-1, dti:1, loan_to_income:1`
 - Calibration candidates: Platt, Isotonic, Venn-Abers, Beta (4 candidates)
 - Calibration selected: `Venn-Abers` (runtime auto-selection via temporal multi-metric policy)
-- AUC: `0.7145`
-- Gini: `0.4260`
-- KS: `0.3149`
-- Brier: `0.1543`
-- ECE: `0.0087`
-- Log-loss: tracked per calibrator per temporal fold
-- PR-AUC: `0.3998`
-- Recall@0.35: `0.360`
-- F1@0.35: `0.392`
-- HPO: 320 Optuna trials (hpo_enabled=false in confirmatory run, uses prior best params)
-- Temporal calibration monitoring: per-fold degradation rate + monthly log-loss tracking
-- Murphy diagram: available via `src/utils/visualization.py::plot_murphy_diagram()`
-- Confirmatory run tag: `paper-grade-pre-quarto` (2026-03-16)
+- AUC: `0.7124` (latest: `paper1-e2e-all-champions-2026-04-07` run)
+- Brier: `0.1546`
+- ECE: `0.0064`
+- KS: `0.3115`
+- Best historical PD-only: `pd-hpo-local-2026-04-03-1325` (AUC 0.7139, Brier 0.1544 — documented but not promoted as paper champion to avoid family-mixing)
+- Confirmatory run tag (operational/regulatory): `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`
+- Source of truth: `data/processed/pipeline_summary.json`, `reports/dvc/metrics_summary.json`
 
-### 4.2 Conformal (Mondrian)
-- Variant: `score_decile_mondrian`
-- Coverage 90%: see `models/conformal_policy_status.json`
-- Coverage 95%: see `models/conformal_policy_status.json`
-- Min group coverage 90%: see `models/conformal_policy_status.json`
+### 4.2 Conformal (Mondrian — Reopen Rank1 Winner)
+
+- Variant: `score_decile_mondrian` (winner from `conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612`)
+- Config: `partition=grade, prob_source=calibrated, n_bins=10, fallback=global_only, score_scale=bernoulli_sqrt, min_group_size=100, calibration_fraction=0.5`
+- Coverage 90%: `0.9293` (target 0.90)
+- Coverage 95%: `0.9663` (target 0.95)
+- Avg width 90%: `0.7642`
+- Min group coverage 90%: `0.9004`
+- Winkler 90: `1.1937` (raw pass, policy pass)
 - Policy checks: Kupiec/Christoffersen are diagnostic only (expected to fail on 276K OOT — statistical power artifact)
 - Methodological justification pass: `true` (paper-grade closure authoritative)
-- `comparison.json` operational_overall_pass: `true` (paper-grade run 2026-03-13)
+- Source of truth: `models/conformal_policy_status.json`
 
 ### 4.3 Causal Policy
 - Selected rule: `high_plus_medium_positive`
@@ -142,21 +156,27 @@ Source artifacts:
 - Conservative total ECL: `1.802B`
 - ECL range: `0.803B`
 
-### 4.5 Optimization Robustness
+### 4.5 Optimization Robustness — Bound-Aware 276K Closure
 
-- Non-robust return: `$82,483` (155 loans funded)
-- Robust return: `$169,491` (300 loans funded)
-- Price of robustness (absolute): `$-87,007`
+- **Champion run tag**: `paper-thesis-final-economic-2026-04-06`
+- **Champion label**: `bound_aware_276k_economic_champion`
+- **Realized total return**: `$170,464.54`
+- **Price of robustness**: `-$14,465.69` (-10.56%)
+- **Robust region cardinality**: 45 unique policies, 100% pass `alpha=0.01` exactly
+- **Region span**: `risk_tolerance ∈ [0.155, 0.175]`, `gamma ∈ [0.45, 0.55]`, `uncertainty_aversion ∈ [0.0, 0.1]`
+- **Bound-aware metrics** at champion: `V=0.03645`, `gamma_cp=0.18591`, `violation=0.0`
 
-### 4.5.1 Champion Portfolio Policy (Promoted 2026-03-16)
+### 4.5.1 Champion Portfolio Policy (Promoted 2026-04-06, restored 2026-05-04)
 
-- Artifact: `models/champion_portfolio_policy.json` (`promoted: true`)
-- `risk_tolerance`: `0.18`
-- `policy_mode`: `segment_relative_tail_blended_uncertainty`
-- `gamma`: `0.1`
-- `uncertainty_aversion`: `0.1`
-- Selected by: economic selector v3 + A/B baseline no-regression PASS
-- Ambiguity-defer scenario: NOT promoted (diff=-$13.5K, outside $1.1K tolerance; gate is diagnostic only)
+- Artifact: `models/champion_portfolio_policy.json` (mirror of `models/final_project_promotion.json::final_champion`)
+- `risk_tolerance`: `0.175`
+- `policy_mode`: `blended_uncertainty`
+- `gamma`: `0.45`
+- `uncertainty_aversion`: `0.10`
+- Selected by: bound-aware 276K full-OOT mini-grid + economic ranking inside the exact robust region
+- Comparators (documented, not champions):
+  - `theorem_tight_comparator`: `rt=0.175, gamma=0.55` — best `V`/`gamma_cp` tightness, return $166,270
+  - `balanced_comparator`: `rt=0.17, gamma=0.45` — middle of region, return $169,390
 
 ### 4.6 Fairness Audit
 - Overall pass: `true` (`6/6` attributes pass)

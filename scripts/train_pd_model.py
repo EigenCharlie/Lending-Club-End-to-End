@@ -100,6 +100,15 @@ def validate_pd_config(config: dict[str, Any], *, config_path: str) -> dict[str,
         "checkpoint_dir": "models/pd_training_checkpoints",
         "brier_decomposition_path": "data/processed/brier_score_decomposition.json",
         "murphy_diagram_path": "reports/figures/calibration/murphy_diagram.png",
+        "canonical_model_path": str(CANONICAL_MODEL_PATH),
+        "canonical_calibrator_path": str(CANONICAL_CALIBRATOR_PATH),
+        "contract_path": str(CONTRACT_PATH),
+        "logreg_model_path": "models/pd_logreg_baseline.pkl",
+        "training_record_path": "models/pd_training_record.pkl",
+        "seed_replay_status_path": "models/pd_hpo_seed_replay_status.json",
+        "test_predictions_path": "data/processed/test_predictions.parquet",
+        "shap_dir": "reports/figures/shap",
+        "threshold_semantics_path": "models/threshold_semantics.json",
     }
     for key, value in output_defaults.items():
         normalized["output"].setdefault(key, value)
@@ -1348,6 +1357,10 @@ def main(
             n_jobs=int(hpo_cfg.get("n_jobs", 1)),
             sample_weight=train_fit_weights,
             eval_sample_weight=train_val_weights,
+            search_space_mode=str(hpo_cfg.get("search_space_mode", "global")),
+            local_refine_space=dict(hpo_cfg.get("local_refine", {}) or {}),
+            constraints_policy=dict(hpo_cfg.get("constraints_policy", {}) or {}),
+            search_space_version=str(hpo_cfg.get("search_space_version", "cb_space_v2")),
         )
 
         if bool(seed_replay_cfg.get("enabled", True)):
@@ -1821,13 +1834,18 @@ def main(
             "decision_threshold_v2": str(decision_threshold_v2_path),
         },
         run_tag=resolved_run_tag,
+        path=_artifact_path(
+            config["output"].get("threshold_semantics_path", "models/threshold_semantics.json")
+        ),
         extra={
             "pd_internal_threshold_source": str(decision_threshold_artifact.get("source", "")),
             "calibration_method": selected_cal_method,
         },
     )
 
-    logreg_model_path = _artifact_path("models/pd_logreg_baseline.pkl")
+    logreg_model_path = _artifact_path(
+        config["output"].get("logreg_model_path", "models/pd_logreg_baseline.pkl")
+    )
     logreg_model_path.parent.mkdir(parents=True, exist_ok=True)
     with open(logreg_model_path, "wb") as f:
         pickle.dump(
@@ -1840,9 +1858,13 @@ def main(
         )
 
     # Canonical artifacts for downstream loading.
-    canonical_model_path = _artifact_path(CANONICAL_MODEL_PATH)
-    canonical_calibrator_path = _artifact_path(CANONICAL_CALIBRATOR_PATH)
-    contract_path = _artifact_path(CONTRACT_PATH)
+    canonical_model_path = _artifact_path(
+        config["output"].get("canonical_model_path", str(CANONICAL_MODEL_PATH))
+    )
+    canonical_calibrator_path = _artifact_path(
+        config["output"].get("canonical_calibrator_path", str(CANONICAL_CALIBRATOR_PATH))
+    )
+    contract_path = _artifact_path(config["output"].get("contract_path", str(CONTRACT_PATH)))
     canonical_model_path.parent.mkdir(parents=True, exist_ok=True)
     canonical_calibrator_path.parent.mkdir(parents=True, exist_ok=True)
     if model_path.resolve() != canonical_model_path.resolve():
@@ -1883,7 +1905,7 @@ def main(
             key=lambda x: x[1],
             reverse=True,
         )
-        shap_dir = _artifact_path("reports/figures/shap")
+        shap_dir = _artifact_path(config["output"].get("shap_dir", "reports/figures/shap"))
         shap_dir.mkdir(parents=True, exist_ok=True)
 
         # Save raw SHAP values (compressed)
@@ -1918,7 +1940,9 @@ def main(
         shap_artifact["error"] = str(exc)
 
     # Persist test predictions for downstream contracts.
-    test_predictions_path = _artifact_path("data/processed/test_predictions.parquet")
+    test_predictions_path = _artifact_path(
+        config["output"].get("test_predictions_path", "data/processed/test_predictions.parquet")
+    )
     test_predictions_path.parent.mkdir(parents=True, exist_ok=True)
     y_prob_lr = lr_model.predict_proba(X_test_lr)[:, 1]
     preds_df = pd.DataFrame(
@@ -1979,12 +2003,16 @@ def main(
         "murphy_diagram_path": str(murphy_diagram_path),
     }
 
-    record_path = _artifact_path("models/pd_training_record.pkl")
+    record_path = _artifact_path(
+        config["output"].get("training_record_path", "models/pd_training_record.pkl")
+    )
     record_path.parent.mkdir(parents=True, exist_ok=True)
     with open(record_path, "wb") as f:
         pickle.dump(training_record, f)
     if seed_replay_report:
-        seed_replay_status_path = _artifact_path("models/pd_hpo_seed_replay_status.json")
+        seed_replay_status_path = _artifact_path(
+            config["output"].get("seed_replay_status_path", "models/pd_hpo_seed_replay_status.json")
+        )
         seed_replay_status = {
             "selected_calibration_method": selected_cal_method,
             "validation_auc": float(cb_tuned_metrics.get("hpo_best_validation_auc", 0.0)),

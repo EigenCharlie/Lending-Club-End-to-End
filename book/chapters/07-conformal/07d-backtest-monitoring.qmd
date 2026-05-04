@@ -130,6 +130,33 @@ El pipeline implementa un **policy gate** que decide si los intervalos conformal
 
 La lectura correcta es esta: la cobertura sigue siendo prudente, el ancho promedio ya volvió a una zona defendible (`avg_width_90 ≈ 0.756`) y el gate operativo cierra. Lo que permanece abierto no es un problema de implementación, sino una tensión conocida entre cobertura exacta y potencia estadística cuando el tamaño muestral es enorme. Por eso la historia actual de conformal ya no es “falta una segunda vuelta para cerrarlo”, sino “cerró operativamente, y la siguiente mejora sería refinar todavía más la sobre-cobertura sin romper los guardrails”.
 
+### Base canónica vs reapertura final
+
+El repositorio contiene dos capas conformales que deben leerse con una jerarquía clara:
+
+- **capa canónica base**: vive en `models/conformal_policy_status.json` y resume el estado operativo del stack monotónico confirmado;
+- **capa final paper/thesis**: vive en la lane derivada de reapertura `conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612`, donde el winner `rank-1` pasa por rerun OOT completo, sidecars y validación final.
+
+La reapertura no creó dos winners conformales. Dejó un único winner final:
+
+- `score_decile_mondrian` como variante promovida;
+- `grade Mondrian` como baseline natural, regulatorio e interpretable.
+
+La reapertura no cambió el champion PD ni el posture regulatorio upstream. Cambió la calidad de la incertidumbre downstream:
+
+- sustituyó una capa demasiado conservadora por un winner con mejor anchura útil;
+- mantuvo pass operativo por `methodological_justification`;
+- y dejó explícito que `grade` sigue siendo necesario para la lectura económica y de gobernanza, aunque ya no sea el campeón final.
+
+::: {.callout-note}
+## Cómo leer los artefactos conformales finales
+- `models/conformal_policy_status.json`: snapshot prudencial/canónico del stack base.
+- `models/conformal_gap/.../conformal_reopen_status.json`: cierre oficial de la reapertura.
+- `models/conformal_gap/...__rank-1/conformal_policy_status.json`: evidencia OOT del winner final `score_decile_mondrian`.
+
+La tesis correcta ya no es “hay dos winners conformales”. La tesis correcta es: hay un **baseline canónico** que preserva la legibilidad regulatoria y un **winner final único** (`score_decile_mondrian`) con trazabilidad explícita.
+:::
+
 ### Qué aprendió el proyecto al endurecer el backtesting PD
 
 La evolución reciente del stack añadió otra capa de lectura que conviene mencionar aquí porque cambia cómo interpretamos los “fails” estadísticos en general. El artefacto `models/pd_validation_interpretation_status.json` no reemplaza el backtesting conformal; lo complementa conceptualmente con una pregunta más útil para comité y MRM: ¿el fallo estadístico es solo efecto de tamaño muestral, o hay una desviación material persistente por cohortes?

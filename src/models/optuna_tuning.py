@@ -9,8 +9,9 @@ import numpy as np
 import pandas as pd
 from catboost import CatBoostClassifier, Pool
 from loguru import logger
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import brier_score_loss, roc_auc_score
 
+from src.models.calibration import expected_calibration_error
 from src.models.pd_model import CATEGORICAL_FEATURES, _catboost_base_params
 
 SEARCH_SPACE_VERSION = "cb_space_v2"
@@ -66,6 +67,10 @@ def train_catboost_tuned_optuna(
     n_jobs: int = 1,
     sample_weight: np.ndarray | None = None,
     eval_sample_weight: np.ndarray | None = None,
+    search_space_mode: str = "global",
+    local_refine_space: dict[str, Any] | None = None,
+    constraints_policy: dict[str, Any] | None = None,
+    search_space_version: str = SEARCH_SPACE_VERSION,
 ) -> tuple[CatBoostClassifier, dict[str, Any]]:
     """Tune CatBoost with Optuna and return best fitted model and metadata."""
     import optuna
@@ -75,9 +80,241 @@ def train_catboost_tuned_optuna(
 
     base = _catboost_base_params(base_params)
     base["verbose"] = 0
+    search_space_mode_resolved = str(search_space_mode or "global").strip().lower() or "global"
+    local_refine_space = dict(local_refine_space or {})
+    constraints_policy = dict(constraints_policy or {})
+
+    incumbent_metrics: dict[str, float] = {}
+
+    def _local_choice(trial: optuna.Trial, name: str, spec: Any, default: Any) -> Any:
+        if spec is None:
+            return default
+        if isinstance(spec, dict):
+            if spec.get("choices") is not None:
+                return trial.suggest_categorical(name, list(spec["choices"]))
+            low = spec.get("low")
+            high = spec.get("high")
+            step = spec.get("step")
+            log = bool(spec.get("log", False))
+            if low is None or high is None:
+                return default
+            if isinstance(low, int) and isinstance(high, int) and not log:
+                return trial.suggest_int(name, int(low), int(high), step=int(step or 1))
+            return trial.suggest_float(
+                name,
+                float(low),
+                float(high),
+                step=None if log else (float(step) if step is not None else None),
+                log=log,
+            )
+        if isinstance(spec, list):
+            return trial.suggest_categorical(name, list(spec))
+        return spec
+
+    def _apply_local_feature_priors(trial: optuna.Trial, params: dict[str, Any]) -> None:
+        feature_weights_cfg = dict(local_refine_space.get("feature_weights", {}) or {})
+        if feature_weights_cfg:
+            weights: dict[str, float] = {}
+            for feature, spec in feature_weights_cfg.items():
+                value = float(_local_choice(trial, f"feature_weight__{feature}", spec, 1.0))
+                weights[str(feature)] = value
+            if any(abs(value - 1.0) > 1e-12 for value in weights.values()):
+                params["feature_weights"] = weights
+        penalties_cfg = dict(local_refine_space.get("first_feature_use_penalties", {}) or {})
+        if penalties_cfg:
+            penalties: dict[str, float] = {}
+            for feature, spec in penalties_cfg.items():
+                value = float(_local_choice(trial, f"first_use_penalty__{feature}", spec, 0.0))
+                penalties[str(feature)] = value
+            if any(abs(value) > 1e-12 for value in penalties.values()):
+                params["first_feature_use_penalties"] = penalties
+        penalties_coeff_spec = local_refine_space.get("penalties_coefficient")
+        if penalties_coeff_spec is not None:
+            params["penalties_coefficient"] = float(
+                _local_choice(trial, "penalties_coefficient", penalties_coeff_spec, 1.0)
+            )
+
+    def _materialize_study_params(sampled_params: dict[str, Any]) -> dict[str, Any]:
+        params = {**base}
+        feature_weights: dict[str, float] = {}
+        penalties: dict[str, float] = {}
+
+        for key, value in dict(sampled_params or {}).items():
+            key_str = str(key)
+            if key_str.startswith("feature_weight__"):
+                feature_name = key_str.split("__", 1)[1]
+                feature_weights[feature_name] = float(value)
+                continue
+            if key_str.startswith("first_use_penalty__"):
+                feature_name = key_str.split("__", 1)[1]
+                penalties[feature_name] = float(value)
+                continue
+            params[key_str] = value
+
+        if feature_weights and any(
+            abs(weight - 1.0) > 1e-12 for weight in feature_weights.values()
+        ):
+            params["feature_weights"] = feature_weights
+        else:
+            params.pop("feature_weights", None)
+        if penalties and any(abs(weight) > 1e-12 for weight in penalties.values()):
+            params["first_feature_use_penalties"] = penalties
+        else:
+            params.pop("first_feature_use_penalties", None)
+
+        if str(params.get("bootstrap_type", "")).strip() == "Bayesian":
+            params.pop("subsample", None)
+        else:
+            params.pop("bagging_temperature", None)
+
+        if str(params.get("grow_policy", "")).strip() == "Lossguide":
+            params.pop("depth", None)
+        else:
+            params.pop("max_leaves", None)
+
+        if str(params.get("task_type", "")).strip().upper() == "GPU":
+            params.pop("rsm", None)
+
+        return {key: value for key, value in params.items() if value is not None}
+
+    def _local_refine_params(trial: optuna.Trial, *, is_gpu: bool) -> dict[str, Any]:
+        params = {**base}
+        fixed_params = dict(local_refine_space.get("fixed_params", {}) or {})
+        params.update(fixed_params)
+
+        params["iterations"] = int(
+            _local_choice(
+                trial,
+                "iterations",
+                local_refine_space.get("iterations"),
+                base.get("iterations", 3000),
+            )
+        )
+        params["learning_rate"] = float(
+            _local_choice(
+                trial,
+                "learning_rate",
+                local_refine_space.get("learning_rate"),
+                base.get("learning_rate", 0.03),
+            )
+        )
+        params["l2_leaf_reg"] = float(
+            _local_choice(
+                trial,
+                "l2_leaf_reg",
+                local_refine_space.get("l2_leaf_reg"),
+                base.get("l2_leaf_reg", 3.0),
+            )
+        )
+        params["min_data_in_leaf"] = int(
+            _local_choice(
+                trial,
+                "min_data_in_leaf",
+                local_refine_space.get("min_data_in_leaf"),
+                base.get("min_data_in_leaf", 64),
+            )
+        )
+        params["random_strength"] = float(
+            _local_choice(
+                trial,
+                "random_strength",
+                local_refine_space.get("random_strength"),
+                base.get("random_strength", 1e-6),
+            )
+        )
+        params["border_count"] = int(
+            _local_choice(
+                trial,
+                "border_count",
+                local_refine_space.get("border_count"),
+                base.get("border_count", 128),
+            )
+        )
+        params["leaf_estimation_iterations"] = int(
+            _local_choice(
+                trial,
+                "leaf_estimation_iterations",
+                local_refine_space.get("leaf_estimation_iterations"),
+                base.get("leaf_estimation_iterations", 3),
+            )
+        )
+        params["bootstrap_type"] = _local_choice(
+            trial,
+            "bootstrap_type",
+            local_refine_space.get("bootstrap_type"),
+            base.get("bootstrap_type", "MVS"),
+        )
+        params["grow_policy"] = _local_choice(
+            trial,
+            "grow_policy",
+            local_refine_space.get("grow_policy"),
+            base.get("grow_policy", "SymmetricTree"),
+        )
+
+        if is_gpu:
+            params.pop("rsm", None)
+        else:
+            params["rsm"] = float(
+                _local_choice(trial, "rsm", local_refine_space.get("rsm"), base.get("rsm", 1.0))
+            )
+        if str(params.get("grow_policy", "SymmetricTree")) == "Lossguide":
+            params.pop("depth", None)
+            params["max_leaves"] = int(
+                _local_choice(trial, "max_leaves", local_refine_space.get("max_leaves"), 32)
+            )
+        else:
+            params["depth"] = int(
+                _local_choice(trial, "depth", local_refine_space.get("depth"), base.get("depth", 8))
+            )
+            params.pop("max_leaves", None)
+        if str(params.get("bootstrap_type", "MVS")) == "Bayesian":
+            params.pop("subsample", None)
+            bagging_spec = local_refine_space.get("bagging_temperature", {"low": 0.0, "high": 10.0})
+            params["bagging_temperature"] = float(
+                _local_choice(
+                    trial,
+                    "bagging_temperature",
+                    bagging_spec,
+                    base.get("bagging_temperature", 1.0),
+                )
+            )
+        else:
+            params.pop("bagging_temperature", None)
+            params["subsample"] = float(
+                _local_choice(
+                    trial,
+                    "subsample",
+                    local_refine_space.get("subsample"),
+                    base.get("subsample", 0.8),
+                )
+            )
+        _apply_local_feature_priors(trial, params)
+        return params
 
     use_multivariate = bool(multivariate_tpe)
     use_group_tpe = bool(group_tpe and use_multivariate)
+    constraints_func = None
+    if constraints_policy:
+        max_brier_delta = constraints_policy.get("max_brier_delta")
+        max_ece_delta = constraints_policy.get("max_ece_delta")
+        min_auc_delta = constraints_policy.get("min_auc_delta")
+
+        def constraints_func(frozen_trial: optuna.trial.FrozenTrial) -> list[float]:
+            attrs = frozen_trial.user_attrs
+            violations: list[float] = []
+            if max_brier_delta is not None:
+                ceiling = float(incumbent_metrics.get("validation_brier", 0.0)) + float(
+                    max_brier_delta
+                )
+                violations.append(float(attrs.get("validation_brier", float("inf"))) - ceiling)
+            if max_ece_delta is not None:
+                ceiling = float(incumbent_metrics.get("validation_ece", 0.0)) + float(max_ece_delta)
+                violations.append(float(attrs.get("validation_ece", float("inf"))) - ceiling)
+            if min_auc_delta is not None:
+                floor = float(incumbent_metrics.get("validation_auc", 0.0)) + float(min_auc_delta)
+                violations.append(floor - float(attrs.get("validation_auc", float("-inf"))))
+            return violations
+
     if sampler == "tpe":
         sampler_obj = optuna.samplers.TPESampler(
             seed=42,
@@ -86,6 +323,7 @@ def train_catboost_tuned_optuna(
             group=use_group_tpe,
             constant_liar=bool(constant_liar),
             warn_independent_sampling=bool(warn_independent_sampling),
+            constraints_func=constraints_func,
         )
     elif sampler == "random":
         sampler_obj = optuna.samplers.RandomSampler(seed=42)
@@ -116,46 +354,58 @@ def train_catboost_tuned_optuna(
 
     train_pool = Pool(X_train, y_train, cat_features=cat_features, weight=sample_weight)
     val_pool = Pool(X_val, y_val, cat_features=cat_features, weight=eval_sample_weight)
+    if constraints_policy:
+        incumbent_model = CatBoostClassifier(**base)
+        incumbent_model.fit(train_pool, eval_set=val_pool, use_best_model=True)
+        incumbent_y_val_prob = incumbent_model.predict_proba(X_val)[:, 1]
+        incumbent_metrics = {
+            "validation_auc": float(roc_auc_score(y_val, incumbent_y_val_prob)),
+            "validation_brier": float(brier_score_loss(y_val, incumbent_y_val_prob)),
+            "validation_ece": float(expected_calibration_error(y_val, incumbent_y_val_prob)),
+        }
 
     def objective(trial: optuna.Trial) -> float:
-        bootstrap_type = trial.suggest_categorical(
-            "bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]
-        )
-        grow_policy = trial.suggest_categorical(
-            "grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]
-        )
         is_gpu = str(base.get("task_type", "")).strip().upper() == "GPU"
-        params = {
-            **base,
-            "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.20, log=True),
-            "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 0.5, 100.0, log=True),
-            "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 500),
-            "random_strength": trial.suggest_float("random_strength", 1e-9, 10.0, log=True),
-            "border_count": trial.suggest_int("border_count", 64, 254),
-            "bootstrap_type": bootstrap_type,
-            "grow_policy": grow_policy,
-            "leaf_estimation_iterations": trial.suggest_int("leaf_estimation_iterations", 1, 10),
-            "random_seed": int(base.get("random_seed", 42)),
-        }
-        if is_gpu:
-            params.pop("rsm", None)
+        if search_space_mode_resolved == "local_refine":
+            params = _local_refine_params(trial, is_gpu=is_gpu)
         else:
-            params["rsm"] = trial.suggest_float("rsm", 0.5, 1.0)
-        # Grow policy: SymmetricTree/Depthwise use depth; Lossguide uses max_leaves
-        if grow_policy == "Lossguide":
-            params["max_leaves"] = trial.suggest_int("max_leaves", 16, 64)
-            params.pop("depth", None)
-        else:
-            params["depth"] = trial.suggest_int("depth", 4, 10)
-        # Bayesian bootstrap is incompatible with subsample; Bernoulli/MVS need
-        # subsample but not bagging_temperature.  Clean inherited base keys
-        # before adding the correct bootstrap-specific parameter.
-        if bootstrap_type == "Bayesian":
-            params.pop("subsample", None)
-            params["bagging_temperature"] = trial.suggest_float("bagging_temperature", 0.0, 10.0)
-        else:
-            params.pop("bagging_temperature", None)
-            params["subsample"] = trial.suggest_float("subsample", 0.5, 0.95)
+            bootstrap_type = trial.suggest_categorical(
+                "bootstrap_type", ["Bayesian", "Bernoulli", "MVS"]
+            )
+            grow_policy = trial.suggest_categorical(
+                "grow_policy", ["SymmetricTree", "Depthwise", "Lossguide"]
+            )
+            params = {
+                **base,
+                "learning_rate": trial.suggest_float("learning_rate", 0.005, 0.20, log=True),
+                "l2_leaf_reg": trial.suggest_float("l2_leaf_reg", 0.5, 100.0, log=True),
+                "min_data_in_leaf": trial.suggest_int("min_data_in_leaf", 20, 500),
+                "random_strength": trial.suggest_float("random_strength", 1e-9, 10.0, log=True),
+                "border_count": trial.suggest_int("border_count", 64, 254),
+                "bootstrap_type": bootstrap_type,
+                "grow_policy": grow_policy,
+                "leaf_estimation_iterations": trial.suggest_int(
+                    "leaf_estimation_iterations", 1, 10
+                ),
+                "random_seed": int(base.get("random_seed", 42)),
+            }
+            if is_gpu:
+                params.pop("rsm", None)
+            else:
+                params["rsm"] = trial.suggest_float("rsm", 0.5, 1.0)
+            if grow_policy == "Lossguide":
+                params["max_leaves"] = trial.suggest_int("max_leaves", 16, 64)
+                params.pop("depth", None)
+            else:
+                params["depth"] = trial.suggest_int("depth", 4, 10)
+            if bootstrap_type == "Bayesian":
+                params.pop("subsample", None)
+                params["bagging_temperature"] = trial.suggest_float(
+                    "bagging_temperature", 0.0, 10.0
+                )
+            else:
+                params.pop("bagging_temperature", None)
+                params["subsample"] = trial.suggest_float("subsample", 0.5, 0.95)
 
         model = CatBoostClassifier(**params)
         pruning_callback = None
@@ -188,8 +438,15 @@ def train_catboost_tuned_optuna(
         if val_auc is None:
             y_val_prob = model.predict_proba(X_val)[:, 1]
             val_auc = roc_auc_score(y_val, y_val_prob)
+        else:
+            y_val_prob = model.predict_proba(X_val)[:, 1]
+        val_brier = float(brier_score_loss(y_val, y_val_prob))
+        val_ece = float(expected_calibration_error(y_val, y_val_prob))
 
         trial.set_user_attr("best_iteration", int(model.get_best_iteration()))
+        trial.set_user_attr("validation_auc", float(val_auc))
+        trial.set_user_attr("validation_brier", val_brier)
+        trial.set_user_attr("validation_ece", val_ece)
         return float(val_auc)
 
     create_study_kwargs: dict[str, Any] = {
@@ -229,10 +486,53 @@ def train_catboost_tuned_optuna(
                     f"reason={exc}"
                 )
         create_study_kwargs["storage"] = storage_obj
-        create_study_kwargs["study_name"] = resolve_optuna_study_name(study_name)
+        create_study_kwargs["study_name"] = resolve_optuna_study_name(
+            study_name,
+            search_space_version=search_space_version,
+        )
         create_study_kwargs["load_if_exists"] = bool(load_if_exists)
 
     study = optuna.create_study(**create_study_kwargs)
+    if search_space_mode_resolved == "local_refine" and bool(
+        local_refine_space.get("enqueue_base_trial", True)
+    ):
+        try:
+            study.enqueue_trial(
+                {
+                    key: value
+                    for key, value in {
+                        "iterations": int(base.get("iterations", 3000)),
+                        "learning_rate": float(base.get("learning_rate", 0.03)),
+                        "l2_leaf_reg": float(base.get("l2_leaf_reg", 3.0)),
+                        "min_data_in_leaf": int(base.get("min_data_in_leaf", 64)),
+                        "random_strength": float(base.get("random_strength", 1e-6)),
+                        "border_count": int(base.get("border_count", 128)),
+                        "leaf_estimation_iterations": int(
+                            base.get("leaf_estimation_iterations", 3)
+                        ),
+                        "bootstrap_type": str(base.get("bootstrap_type", "MVS")),
+                        "grow_policy": str(base.get("grow_policy", "SymmetricTree")),
+                        "rsm": None
+                        if str(base.get("task_type", "")).strip().upper() == "GPU"
+                        else float(base.get("rsm", 1.0)),
+                        "depth": None
+                        if str(base.get("grow_policy", "SymmetricTree")) == "Lossguide"
+                        else int(base.get("depth", 8)),
+                        "max_leaves": int(base.get("max_leaves", 32))
+                        if str(base.get("grow_policy", "SymmetricTree")) == "Lossguide"
+                        else None,
+                        "subsample": None
+                        if str(base.get("bootstrap_type", "MVS")) == "Bayesian"
+                        else float(base.get("subsample", 0.8)),
+                        "bagging_temperature": float(base.get("bagging_temperature", 1.0))
+                        if str(base.get("bootstrap_type", "MVS")) == "Bayesian"
+                        else None,
+                    }.items()
+                    if value is not None
+                }
+            )
+        except Exception as exc:
+            logger.warning("Optuna enqueue_trial for local_refine skipped: {}", exc)
     if retry_callback is not None and hasattr(optuna.storages, "fail_stale_trials"):
         try:
             optuna.storages.fail_stale_trials(study)
@@ -265,7 +565,7 @@ def train_catboost_tuned_optuna(
         )
     gc.collect()
 
-    best_params = {**base, **study.best_params}
+    best_params = _materialize_study_params(study.best_params)
     best_params["verbose"] = 100
     selection_model = CatBoostClassifier(**best_params)
     selection_model.fit(train_pool, eval_set=val_pool, use_best_model=True)
@@ -297,11 +597,14 @@ def train_catboost_tuned_optuna(
         "validation_auc": float(val_auc),
         "best_iteration": best_iteration,
         "best_params": study.best_params,
+        "best_params_resolved": best_params,
         "hpo_trials_executed": len(study.trials),
         "hpo_best_validation_auc": float(study.best_value),
         "study_name_resolved": study.study_name,
         "refit_full_train": bool(refit_full_train),
         "model_type": "catboost_tuned",
+        "search_space_mode": search_space_mode_resolved,
+        "constraint_baseline_metrics": incumbent_metrics,
     }
     if X_test is not None and y_test is not None:
         y_test_prob = best_model.predict_proba(X_test)[:, 1]

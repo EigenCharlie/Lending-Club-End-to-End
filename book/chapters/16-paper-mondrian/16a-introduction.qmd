@@ -1,12 +1,12 @@
 ## Introduccion {#sec-p3-intro}
 
-La cobertura marginal global puede ser una garantia enganosa en riesgo crediticio. Un modelo puede cubrir "en promedio" y, al mismo tiempo, fallar sistematicamente en segmentos economicamente relevantes. Este paper toma esa tension como problema central y evalua Mondrian conformal sobre particiones naturales del portafolio.
+La cobertura marginal global puede ser una garantia enganosa en riesgo crediticio. Un modelo puede cubrir "en promedio" y, al mismo tiempo, fallar sistematicamente en segmentos economicamente relevantes. Este paper toma esa tension como problema central y evalua Mondrian conformal sobre particiones economicamente significativas, usando `grade` como baseline natural e interpretable y dejando que el benchmark final determine objetivamente el winner empírico.
 
 ### Contexto: cobertura marginal versus condicional {#sec-p3-context}
 
 La prediccion conformal clasica, tal como fue establecida por [@vovk2005] y formalizada en el marco inductivo por [@papadopoulos2002], garantiza cobertura marginal: la probabilidad de que el valor verdadero caiga dentro del intervalo predicho es al menos $1 - \alpha$, promediada sobre toda la distribucion de test. Esta garantia es poderosa en su generalidad, pero puede ocultar desbalances sistematicos. En el contexto de riesgo crediticio, un modelo que alcance 90% de cobertura global podria, simultaneamente, cubrir el 98% de los prestamos grado A (bajo riesgo, alta homogeneidad) y solo el 78% de los prestamos grado G (alto riesgo, alta heterogeneidad). Para un gestor de riesgo, esa segunda cifra es la que importa: los segmentos de mayor riesgo son precisamente aquellos donde la incertidumbre tiene mayor impacto economico y donde una subcobertura sistematica puede traducirse en decisiones de provision insuficientes.
 
-El procedimiento Mondrian, propuesto originalmente por [@vovk2005] y desarrollado en detalle por [@bostrom2021], resuelve esta tension al calibrar los intervalos conformales de forma independiente dentro de cada particion predefinida del espacio de observaciones. En lugar de un unico conjunto de calibracion global, Mondrian divide el conjunto de calibracion segun una variable de particion (en nuestro caso, el grade crediticio A--G) y computa los cuantiles de no-conformidad por separado para cada grupo. El resultado es una garantia de cobertura *group-conditional*: para cada grupo $g$, la cobertura es al menos $1 - \alpha$ marginalmente dentro de ese grupo.
+El procedimiento Mondrian, propuesto originalmente por [@vovk2005] y desarrollado en detalle por [@bostrom2021], resuelve esta tension al calibrar los intervalos conformales de forma independiente dentro de cada particion predefinida del espacio de observaciones. En lugar de un unico conjunto de calibracion global, Mondrian divide el conjunto de calibracion segun una variable de particion y computa los cuantiles de no-conformidad por separado para cada grupo. En este proyecto, el punto de partida natural es el grade crediticio A--G; el cierre empírico final promueve `score_decile_mondrian` como winner, pero precisamente porque la lectura por grades mostró que la heterogeneidad grupal era real y no cosmética. El resultado es una garantia de cobertura *group-conditional*: para cada grupo $g$, la cobertura es al menos $1 - \alpha$ marginalmente dentro de ese grupo.
 
 ### Literatura sobre cobertura condicional {#sec-p3-lit}
 
@@ -20,6 +20,8 @@ En Lending Club, los grades A--G no son una conveniencia estadistica; son segmen
 
 Esta estructura hace de los grades una particion Mondrian ideal por tres razones: (i) son predefinidos y exogenos al modelo de prediccion, evitando el riesgo de data snooping que surgiria si la particion se optimizara sobre los mismos datos; (ii) son interpretables para todos los actores del ecosistema crediticio --- gestores, auditores, reguladores ---; y (iii) particionan el portafolio en grupos de tamano suficiente para la calibracion conformal, con el posible desafio del grade G, que tiene el menor numero de observaciones.
 
+El punto metodologico importante es que "particion natural" no significa automaticamente "winner final". En el cierre del proyecto, `grade` queda como baseline necesario para justificar el uso de Mondrian en credito, mientras `score_decile_mondrian` se convierte en la variante finalmente promovida por benchmark/reopen OOT.
+
 ### Brecha en la literatura {#sec-p3-gap}
 
 La revision sistematica del repositorio de referencias (vease @sec-state-of-art) revela una ausencia especifica: no se identificaron trabajos que evaluen Mondrian conformal prediction sobre datos de credito reales con validacion out-of-time. Los trabajos existentes sobre Mondrian [@bostrom2021] operan en datasets genericos de ML, y los trabajos sobre conformal en finanzas [@noguer2024survey; @kato2025] no desagregan la cobertura por subgrupos de riesgo. Esta brecha es relevante porque la utilidad practica de la prediccion conformal en credito depende crucialmente de la calidad de la cobertura en los segmentos donde las decisiones son mas sensibles.
@@ -32,8 +34,8 @@ La revision sistematica del repositorio de referencias (vease @sec-state-of-art)
 
 El paper realiza tres contribuciones formales:
 
-1. **Evaluacion empirica de cobertura por grupo**: documenta la cobertura y anchura de intervalos conformales Mondrian sobre siete grades crediticios (A--G) en una ventana out-of-time de Lending Club (2018--2020), proporcionando la primera evidencia aplicada de esta configuracion en credito minorista.
-2. **Comparacion sistematica de variantes**: compara conformal global (*split conformal*) con conformal Mondrian particionado por grade, cuantificando la mejora en cobertura minima por grupo y el costo en anchura promedio, e incorpora la comparacion con CQR (Conformalized Quantile Regression) [@romano2019].
+1. **Evaluacion empirica de cobertura por grupo**: documenta por que la lectura por grades A--G es necesaria para detectar heterogeneidad de cobertura en una ventana out-of-time de Lending Club (2018--2020), proporcionando evidencia aplicada de por que Mondrian es pertinente en credito minorista.
+2. **Comparacion sistematica de variantes**: compara conformal global (*split conformal*), `grade Mondrian` como baseline interpretable y `score_decile_mondrian` como variante final promovida, cuantificando la mejora en cobertura minima por grupo y el costo en anchura promedio, e incorporando la comparacion con CQR (Conformalized Quantile Regression) [@romano2019].
 3. **Marco de monitoreo temporal**: propone un protocolo de monitoreo que detecta violaciones de cobertura por subgrupo a lo largo del tiempo, generando alertas operativas para recalibracion, lo cual conecta directamente con las necesidades downstream de IFRS 9 (@sec-p2-intro) y optimizacion robusta (@sec-estrella-intro).
 
 ::: {.callout-tip}

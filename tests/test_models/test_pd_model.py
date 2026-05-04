@@ -167,6 +167,65 @@ def test_resolve_optuna_study_name_appends_search_space_suffix_once():
     assert resolve_optuna_study_name(resolved) == resolved
 
 
+def test_local_refine_best_params_are_materialized_for_catboost():
+    df = pd.DataFrame(
+        {
+            "issue_d": pd.date_range("2019-01-01", periods=120, freq="D"),
+            "x1": np.linspace(0.0, 1.0, 120),
+            "x2": np.linspace(1.0, 0.0, 120),
+            "bucket": np.where(np.arange(120) % 2 == 0, "A", "B"),
+            "target": (np.arange(120) % 3 == 0).astype(int),
+        }
+    )
+    train_df = df.iloc[:80].copy()
+    val_df = df.iloc[80:100].copy()
+    test_df = df.iloc[100:].copy()
+
+    X_fit = train_df[["x1", "x2", "bucket"]].copy()
+    y_fit = train_df["target"].astype(int)
+    X_val = val_df[["x1", "x2", "bucket"]].copy()
+    y_val = val_df["target"].astype(int)
+    X_test = test_df[["x1", "x2", "bucket"]].copy()
+    y_test = test_df["target"].astype(int)
+
+    _, tuned_metrics = train_catboost_tuned_optuna(
+        X_fit,
+        y_fit,
+        X_val,
+        y_val,
+        X_test=X_test,
+        y_test=y_test,
+        cat_features=["bucket"],
+        base_params={"iterations": 60, "early_stopping_rounds": 15},
+        n_trials=2,
+        sampler="tpe",
+        pruner="median",
+        timeout_minutes=0,
+        search_space_mode="local_refine",
+        local_refine_space={
+            "enqueue_base_trial": False,
+            "iterations": {"choices": [60]},
+            "learning_rate": {"choices": [0.05]},
+            "depth": {"choices": [4]},
+            "l2_leaf_reg": {"choices": [3.0]},
+            "min_data_in_leaf": {"choices": [20]},
+            "random_strength": {"choices": [1e-6]},
+            "border_count": {"choices": [64]},
+            "subsample": {"choices": [0.8]},
+            "leaf_estimation_iterations": {"choices": [2]},
+            "feature_weights": {"x1": [1.2]},
+            "first_feature_use_penalties": {"x2": [0.5]},
+            "penalties_coefficient": [1.25],
+        },
+    )
+
+    resolved = tuned_metrics["best_params_resolved"]
+    assert "feature_weight__x1" not in resolved
+    assert "first_use_penalty__x2" not in resolved
+    assert resolved["feature_weights"]["x1"] == pytest.approx(1.2)
+    assert resolved["first_feature_use_penalties"]["x2"] == pytest.approx(0.5)
+
+
 # ── Calibration ──
 
 

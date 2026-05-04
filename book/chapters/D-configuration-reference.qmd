@@ -10,7 +10,6 @@ El proyecto ya no depende de “parámetros escondidos en notebooks”. La capa 
 | Archivo | Función |
 |---|---|
 | `configs/pd_model.yaml` | configuración base del modelo PD |
-| `configs/pd_model.paper_grade_final.yaml` | perfil del run canónico de papers |
 | `configs/conformal_policy.yaml` | metas y thresholds de cobertura |
 | `configs/fairness_policy.yaml` | límites de fairness y política de evaluación |
 | `configs/mrm_policy.yaml` | reglas de gobernanza y validación |
@@ -21,12 +20,12 @@ El proyecto ya no depende de “parámetros escondidos en notebooks”. La capa 
 
 ### Perfiles de ejecución
 
-La carpeta `configs/run_profiles/` empaqueta modos de trabajo completos, por ejemplo:
+La carpeta `configs/profiles/` empaqueta modos de trabajo completos, por ejemplo:
 
 - `canonical_operational.yaml`
-- `paper_grade_final.yaml`
-- `insights_factory_canonical.yaml`
-- `overnight_full.yaml`
+- `canonical_confirmatory_full.yaml`
+- `paper1_e2e_default.yaml`
+- `search_pd_default.yaml`
 
 Esta separación es valiosa porque desacopla:
 

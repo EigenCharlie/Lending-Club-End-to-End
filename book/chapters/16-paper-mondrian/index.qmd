@@ -10,10 +10,10 @@ page-layout: article
 
 ¿Por qué una cobertura global aceptable no basta para promover una variante conformal en riesgo crediticio? Esta landing abre el paper que responde esa pregunta mirando subgrupo y tiempo al mismo tiempo.
 
-Ejemplo concreto: un sistema puede reportar `92.5%` de cobertura global y aun así fallar donde más importa si algunos grades quedan subprotegidos o si la estabilidad mensual se erosiona. El paper usa Mondrian para obligar a mirar la cobertura útil y no solo el promedio.
+Ejemplo concreto: un sistema puede reportar `92.97%` de cobertura global y aun así necesitar verificación por subgrupo. El paper usa Mondrian para obligar a mirar la cobertura útil y no solo el promedio, promoviendo Score-Decile Mondrian con cobertura mínima por grupo de `91.90%`.
 :::
 
-La evidencia central aparece cuando se pasa del promedio a los grupos: la cobertura 90% agregada llega a `92.5%`, pero la cobertura mínima por grupo sigue cerca de `89%`, con alertas temporales explícitas en vez de una falsa sensación de validación perfecta. Ese es el corazón metodológico del draft.
+La evidencia central aparece cuando se pasa del promedio a los grupos: la cobertura 90% agregada llega a `92.97%` con Score-Decile Mondrian, y la cobertura mínima por grupo alcanza `91.90%`, eliminando la subcobertura catastrófica que el enfoque global muestra en segmentos de alto riesgo (58.69% min group). Ese es el corazón metodológico del draft.
 
 ::: {.callout-note .mini-abstract}
 ## Mini-abstract

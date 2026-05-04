@@ -139,9 +139,14 @@ book:
         - chapters/18-paper-quantum/18b-state-of-art.qmd
         - chapters/18-paper-quantum/18c-proposed-methodology.qmd
         - chapters/18-paper-quantum/18d-gap-execution-strategy.qmd
+    # NOTE: Part V reuses directory prefixes 17- and 18- from Part IV.
+    # Quarto resolves chapters by path, not by numeric prefix, so this
+    # causes no rendering conflict. Renumbering would break cross-references
+    # across the book — the trade-off is not worth it.
     - part: "Parte V: Puente Académico y Agenda"
       chapters:
         - chapters/17-specialization-bridge.qmd
+        - chapters/19-specialization-snapshot.qmd
         - chapters/18-research-agenda/index.qmd
         - chapters/18-research-agenda/18a-state-of-the-art.qmd
         - chapters/18-research-agenda/18b-thesis-contributions.qmd

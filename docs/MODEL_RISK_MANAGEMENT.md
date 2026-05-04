@@ -189,6 +189,27 @@ Current reading after execution:
 - **Contract**: `models/pd_model_contract.json` (42 champion features)
 - **Registry source**: `models/champion_registry.json`
 
+### Final Paper / Thesis Promoted Portfolio Closure
+
+The repository now distinguishes between:
+
+- **canonical operational base**: monotonic confirmatory stack
+- **final paper/thesis promoted portfolio champion**: economic `portfolio_bound_aware` closure
+
+Promoted final portfolio policy:
+
+- `risk_tolerance=0.175`
+- `policy_mode=blended_uncertainty`
+- `gamma=0.45`
+- `uncertainty_aversion=0.10`
+
+Why this matters for MRM / SR 11-7:
+
+- the monotonic upstream model remains the regulatory base because it is economically coherent and audit-backed;
+- the conformal reopen improves uncertainty quality without changing the upstream governance posture;
+- the final portfolio closure promotes the policy that maximizes realized return inside the exact robust region while still passing `alpha=0.01` with `violation=0`;
+- the theorem-tight point remains documented as a comparator that shows the trade-off between tighter exact-bound metrics and slightly lower economic upside.
+
 ### Challenger Criteria
 A challenger model must demonstrate:
 - AUC improvement ≥ 0.005 over champion on OOT test set
@@ -204,6 +225,12 @@ All of the following must pass:
 2. Fairness audit (all attributes pass thresholds)
 3. Governance checks (drift, robustness, slicing)
 4. Independent validation review
+
+For the final paper/thesis portfolio closure, an additional overlay applies:
+
+5. Exact bound evidence on the promoted funded set (`alpha=0.01`, `alpha=0.03`, `alpha=0.10`)
+6. `violation = 0`
+7. selection inside a full robust region when available, promoting the economic champion as the single official policy and retaining tighter points as documented comparators
 
 ### Retirement Policy
 - Superseded models archived with version tag in DVC

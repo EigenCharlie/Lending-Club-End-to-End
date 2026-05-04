@@ -116,6 +116,7 @@ METHOD_LABELS = {
     "score_decile_mondrian": "Score-Decile Mondrian",
     "grade_x_scoreband_mondrian": "Grade×Scoreband",
     "cross_conformal_score_space": "Cross-Conformal",
+    "mondrian_selected_cfg": "Mondrian (cfg-selected)",
 }
 
 
@@ -181,7 +182,7 @@ def _paper3_fig1_variant_scatter() -> None:
     ax.set_xlabel("Empirical Coverage")
     ax.set_ylabel("Mean Interval Width")
     ax.set_title("Conformal Variants: Coverage–Efficiency Trade-off (OOT, $n=276{,}869$)")
-    ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
+    ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=1))
     ax.set_xlim(0.893, 0.937)
     ax.set_ylim(max(0.71, agg["width"].min() - 0.01), agg["width"].max() + 0.02)
     from matplotlib.patches import Patch
@@ -294,7 +295,7 @@ def _paper3_fig3_temporal_stability() -> None:
             zorder=3,
         )
 
-    ax.set_xlabel("Mes OOT")
+    ax.set_xlabel("Month (OOT)")
     ax.set_ylabel("Empirical Coverage")
     ax.set_title("Temporal Coverage Stability — Top Conformal Variants")
     ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
@@ -816,6 +817,328 @@ def _estrella_fig11_crpto_stability() -> None:
     _generate_stability_figure(detail_df, OUT_DIR)
 
 
+def _paper3_fig2_global_vs_mondrian() -> None:
+    """Fig 2 — Global vs Mondrian per-grade coverage (paired bar chart).
+
+    The single most powerful visual: shows 59% vs 88%+ min-group coverage
+    side by side for each credit grade.
+    """
+    # Global split per-grade coverage from variant benchmark
+    df = pd.read_parquet(DATA_DIR / "conformal_variant_benchmark_by_group.parquet")
+    var_col = "variant" if "variant" in df.columns else "method"
+    grp_col = "group" if "group" in df.columns else "grade"
+
+    grades = ["A", "B", "C", "D", "E", "F", "G"]
+    df = df[df[grp_col].astype(str).isin(grades)]
+    global_df = df[df[var_col] == "global_split"].set_index(grp_col)["coverage"]
+
+    # Mondrian per-grade coverage from the promoted group metrics
+    gm = pd.read_parquet(DATA_DIR / "conformal_group_metrics_mondrian.parquet")
+    gm_grp = "group" if "group" in gm.columns else "grade"
+    gm_cov = "coverage_90" if "coverage_90" in gm.columns else "coverage"
+    mondrian_df = gm.set_index(gm_grp)[gm_cov]
+
+    x = np.arange(len(grades))
+    width = 0.35
+
+    fig, ax = plt.subplots(figsize=(COL2, HEIGHT_M))
+    bars_g = ax.bar(
+        x - width / 2,
+        [global_df.get(g, 0) for g in grades],
+        width,
+        label="Global Split-CP",
+        color=PALETTE["gray"],
+        edgecolor="white",
+        linewidth=0.5,
+    )
+    bars_m = ax.bar(
+        x + width / 2,
+        [mondrian_df.get(g, 0) for g in grades],
+        width,
+        label="Score-Decile Mondrian",
+        color=PALETTE["blue"],
+        edgecolor="white",
+        linewidth=0.5,
+    )
+
+    ax.axhline(0.90, color=PALETTE["red"], lw=1.2, ls="--", label="Target 90%", zorder=4)
+
+    # Annotate bars
+    for bar in bars_g:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                h + 0.005,
+                f"{h:.0%}",
+                ha="center",
+                va="bottom",
+                fontsize=6.5,
+                color=PALETTE["gray"],
+            )
+    for bar in bars_m:
+        h = bar.get_height()
+        if h > 0:
+            ax.text(
+                bar.get_x() + bar.get_width() / 2,
+                h + 0.005,
+                f"{h:.0%}",
+                ha="center",
+                va="bottom",
+                fontsize=6.5,
+                color=PALETTE["blue"],
+            )
+
+    ax.set_xticks(x)
+    ax.set_xticklabels(grades)
+    ax.set_xlabel("Credit Grade")
+    ax.set_ylabel("Empirical Coverage")
+    ax.set_title("Per-Grade Coverage: Global Split-CP vs Mondrian ($\\alpha=0.10$, OOT)")
+    ax.yaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
+    ax.set_ylim(0.50, 1.02)
+    ax.legend(loc="lower left", fontsize=8)
+    fig.tight_layout()
+    _save(fig, "p3_fig2_global_vs_mondrian")
+
+
+def _paper3_fig6_efficiency_paradox() -> None:
+    """Fig 6 — Width-Coverage efficiency paradox scatter.
+
+    Per-grade scatter (x=coverage, y=avg_width) for Global vs Mondrian
+    with arrows showing improvement direction.  Demonstrates the
+    counter-intuitive finding: Mondrian has BOTH better coverage AND
+    narrower intervals.
+    """
+    # Global split coverage per grade
+    by_group = pd.read_parquet(DATA_DIR / "conformal_variant_benchmark_by_group.parquet")
+    var_col = "variant" if "variant" in by_group.columns else "method"
+    grp_col = "group" if "group" in by_group.columns else "grade"
+
+    grades = ["A", "B", "C", "D", "E", "F", "G"]
+    by_group = by_group[by_group[grp_col].astype(str).isin(grades)]
+    global_cov = by_group[by_group[var_col] == "global_split"].set_index(grp_col)["coverage"]
+
+    # Mondrian coverage AND width per grade from promoted group metrics
+    group_metrics = pd.read_parquet(DATA_DIR / "conformal_group_metrics_mondrian.parquet")
+    grp_col2 = "group" if "group" in group_metrics.columns else "grade"
+    mondrian_width = group_metrics.set_index(grp_col2)["avg_width_90"].to_dict()
+    gm_cov_col = "coverage_90" if "coverage_90" in group_metrics.columns else "coverage"
+    mondrian_cov = group_metrics.set_index(grp_col2)[gm_cov_col]
+
+    # Global split has same width for all grades (single quantile)
+    global_width_val = 0.9521  # from conformal_variant_selection_status.json
+
+    grade_colors = {
+        "A": PALETTE["green"],
+        "B": PALETTE["sky"],
+        "C": PALETTE["blue"],
+        "D": PALETTE["orange"],
+        "E": PALETTE["yellow"],
+        "F": PALETTE["red"],
+        "G": PALETTE["purple"],
+    }
+
+    fig, ax = plt.subplots(figsize=(COL1, COL1))
+
+    for g in grades:
+        gc = global_cov.get(g, np.nan)
+        mc = mondrian_cov.get(g, np.nan)
+        gw = global_width_val
+        mw = mondrian_width.get(g, np.nan)
+        color = grade_colors.get(g, PALETTE["blue"])
+
+        if pd.isna(gc) or pd.isna(mc) or pd.isna(mw):
+            continue
+
+        # Global point (hollow circle)
+        ax.scatter(gc, gw, s=50, facecolors="none", edgecolors=color, lw=1.2, zorder=5)
+        # Mondrian point (filled)
+        ax.scatter(mc, mw, s=50, color=color, zorder=6, edgecolors="white", lw=0.5)
+        # Arrow from Global to Mondrian
+        ax.annotate(
+            "",
+            xy=(mc, mw),
+            xytext=(gc, gw),
+            arrowprops={"arrowstyle": "->", "color": color, "lw": 0.8, "alpha": 0.6},
+        )
+        # Label at Mondrian point
+        ax.annotate(
+            g,
+            (mc, mw),
+            textcoords="offset points",
+            xytext=(5, 3),
+            fontsize=7,
+            fontweight="bold",
+            color=color,
+        )
+
+    ax.axvline(0.90, color=PALETTE["red"], lw=0.8, ls="--", alpha=0.5, label="Target 90%")
+    ax.set_xlabel("Empirical Coverage")
+    ax.set_ylabel("Mean Interval Width")
+    ax.set_title("Efficiency Paradox:\nGlobal (○) → Mondrian (●)")
+    ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
+
+    from matplotlib.lines import Line2D
+
+    ax.legend(
+        handles=[
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="none",
+                markeredgecolor="k",
+                label="Global",
+                ms=7,
+            ),
+            Line2D([0], [0], marker="o", color="w", markerfacecolor="k", ms=7, label="Mondrian"),
+        ],
+        loc="upper left",
+        fontsize=7,
+    )
+    fig.tight_layout()
+    _save(fig, "p3_fig6_efficiency_paradox")
+
+
+def _paper3_figA1_monthly_coverage_by_grade() -> None:
+    """Fig A1 — Faceted monthly coverage by grade (7 panels).
+
+    Shows temporal stability per grade, more granular than the aggregate
+    temporal stability figure.
+    """
+    df = pd.read_parquet(DATA_DIR / "conformal_backtest_monthly_grade.parquet")
+
+    if df.empty:
+        logger.warning("conformal_backtest_monthly_grade empty — skipping figA1")
+        return
+
+    grades = [g for g in ["A", "B", "C", "D", "E", "F", "G"] if g in df["grade"].unique()]
+    n_grades = len(grades)
+    if n_grades == 0:
+        return
+
+    grade_colors = {
+        "A": PALETTE["green"],
+        "B": PALETTE["sky"],
+        "C": PALETTE["blue"],
+        "D": PALETTE["orange"],
+        "E": PALETTE["yellow"],
+        "F": PALETTE["red"],
+        "G": PALETTE["purple"],
+    }
+
+    cov_col = "coverage_90" if "coverage_90" in df.columns else "coverage"
+    month_col = "month" if "month" in df.columns else "temporal_segment"
+
+    fig, axes = plt.subplots(1, n_grades, figsize=(COL2, HEIGHT_M), sharey=True)
+    if n_grades == 1:
+        axes = [axes]
+
+    for ax, grade in zip(axes, grades, strict=False):
+        sub = df[df["grade"] == grade].sort_values(month_col)
+        color = grade_colors.get(grade, PALETTE["blue"])
+        ax.plot(
+            pd.to_datetime(sub[month_col]),
+            sub[cov_col].values,
+            color=color,
+            marker=".",
+            ms=3,
+            lw=1.0,
+        )
+        ax.axhline(0.90, color=PALETTE["red"], lw=0.7, ls="--", alpha=0.5)
+        ax.set_title(f"Grade {grade}", fontsize=7)
+        ax.tick_params(labelsize=5, axis="x", rotation=90)
+        ax.tick_params(labelsize=6, axis="y")
+        ax.set_ylim(0.60, 1.05)
+        if grade == grades[0]:
+            ax.set_ylabel("Coverage", fontsize=7)
+
+    fig.suptitle("Monthly Coverage by Grade — Mondrian CP (OOT)", fontsize=9)
+    fig.tight_layout()
+    _save(fig, "p3_figA1_monthly_coverage_by_grade")
+
+
+def _paper3_figA2_coverage_floor_multiplier() -> None:
+    """Fig A2 — Coverage floor multiplier adjustment (before/after per grade).
+
+    Shows how multiplier adjustments (A:1.20x, B:1.05x, G:1.05x) push
+    coverage above the 90% floor.
+    """
+    df = pd.read_parquet(DATA_DIR / "conformal_group_coverage_floor_report.parquet")
+
+    if df.empty:
+        logger.warning("conformal_group_coverage_floor_report empty — skipping figA2")
+        return
+
+    grp_col = "group" if "group" in df.columns else "grade"
+    grades = df[grp_col].tolist()
+    n = len(grades)
+
+    fig, ax = plt.subplots(figsize=(COL1, HEIGHT_M))
+
+    y = np.arange(n)
+    before = df["coverage_before"].values
+    after = df["coverage_after"].values
+    adjusted = df["adjusted"].values if "adjusted" in df.columns else [False] * n
+
+    for i in range(n):
+        color = PALETTE["blue"] if adjusted[i] else PALETTE["gray"]
+        ax.plot([before[i], after[i]], [y[i], y[i]], color=color, lw=1.5, zorder=3)
+        ax.scatter(before[i], y[i], color="white", edgecolors=color, s=40, zorder=4, lw=1.2)
+        ax.scatter(
+            after[i],
+            y[i],
+            color=color,
+            s=40,
+            zorder=5,
+            marker="D",
+            edgecolors="white",
+            lw=0.5,
+        )
+        mult = df["multiplier"].iloc[i]
+        if adjusted[i]:
+            ax.annotate(
+                f"×{mult:.2f}",
+                (after[i], y[i]),
+                textcoords="offset points",
+                xytext=(8, 0),
+                fontsize=7,
+                color=color,
+                fontweight="bold",
+            )
+
+    ax.axvline(0.90, color=PALETTE["red"], lw=1.0, ls="--", alpha=0.5, label="Target 90%")
+    ax.set_yticks(y)
+    ax.set_yticklabels(grades)
+    ax.set_xlabel("Empirical Coverage")
+    ax.set_ylabel("Grade")
+    ax.set_title("Coverage Floor Adjustment\n(○ before → ◆ after)")
+    ax.xaxis.set_major_formatter(mticker.PercentFormatter(xmax=1.0, decimals=0))
+
+    from matplotlib.lines import Line2D
+
+    ax.legend(
+        handles=[
+            Line2D(
+                [0],
+                [0],
+                marker="o",
+                color="w",
+                markerfacecolor="none",
+                markeredgecolor="k",
+                ms=7,
+                label="Before",
+            ),
+            Line2D([0], [0], marker="D", color="w", markerfacecolor="k", ms=6, label="After"),
+        ],
+        loc="lower right",
+        fontsize=7,
+    )
+    fig.tight_layout()
+    _save(fig, "p3_figA2_coverage_floor_multiplier")
+
+
 def _paper3_fig_nonconformity_scores_by_grade() -> None:
     """Fig — Nonconformity score distribution by grade with quantile thresholds.
 
@@ -944,10 +1267,14 @@ def _paper3_fig_calibration_stat_tests() -> None:
 
 PAPER3_FIGS = [
     _paper3_fig1_variant_scatter,
+    _paper3_fig2_global_vs_mondrian,
     _paper3_fig2_grade_coverage_heatmap,
     _paper3_fig3_temporal_stability,
+    _paper3_fig6_efficiency_paradox,
     _paper3_fig_nonconformity_scores_by_grade,
     _paper3_fig_calibration_stat_tests,
+    _paper3_figA1_monthly_coverage_by_grade,
+    _paper3_figA2_coverage_floor_multiplier,
 ]
 PAPER2_FIGS = [
     _paper2_fig4_sicr_grid,

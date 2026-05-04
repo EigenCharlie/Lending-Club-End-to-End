@@ -1,5 +1,5 @@
 {
-  "schema_version": "2026-03-31.1",
+  "schema_version": "2026-04-06.1",
   "scripts": [
     {
       "script": "scripts/run_canonical_rebuild.py",
@@ -7,41 +7,6 @@
       "category": "core",
       "pipeline_owner": "core_canonical",
       "status": "core"
-    },
-    {
-      "script": "scripts/run_champion_search.py",
-      "role": "pd search wrapper",
-      "category": "search",
-      "pipeline_owner": "search_pd",
-      "status": "core"
-    },
-    {
-      "script": "scripts/run_paper_grade_final.py",
-      "role": "paper 1 e2e wrapper",
-      "category": "paper",
-      "pipeline_owner": "paper1_e2e",
-      "status": "paper"
-    },
-    {
-      "script": "scripts/run_insights_factory.py",
-      "role": "research labs wrapper",
-      "category": "research",
-      "pipeline_owner": "research_labs",
-      "status": "research"
-    },
-    {
-      "script": "scripts/run_long_pipeline.py",
-      "role": "compatibility orchestrator",
-      "category": "compat",
-      "pipeline_owner": "compat",
-      "status": "legacy"
-    },
-    {
-      "script": "scripts/end_to_end_pipeline.py",
-      "role": "compatibility smoke orchestrator",
-      "category": "compat",
-      "pipeline_owner": "compat",
-      "status": "legacy"
     },
     {
       "script": "scripts/materialize_feature_artifacts.py",
@@ -65,20 +30,6 @@
       "status": "core"
     },
     {
-      "script": "scripts/benchmark_conformal_variants.py",
-      "role": "conformal search benchmark",
-      "category": "search",
-      "pipeline_owner": "search_conformal",
-      "status": "paper"
-    },
-    {
-      "script": "scripts/backtest_conformal_coverage.py",
-      "role": "conformal temporal backtest",
-      "category": "diagnostic",
-      "pipeline_owner": "diagnostics_governance",
-      "status": "diagnostic"
-    },
-    {
       "script": "scripts/validate_conformal_policy.py",
       "role": "conformal gate validation",
       "category": "core",
@@ -93,32 +44,270 @@
       "status": "core"
     },
     {
-      "script": "scripts/run_survival_analysis.py",
-      "role": "survival analysis",
-      "category": "paper",
-      "pipeline_owner": "paper2_e2e",
-      "status": "paper"
-    },
-    {
-      "script": "scripts/train_lgd_ead.py",
-      "role": "lgd and ead training",
-      "category": "paper",
-      "pipeline_owner": "paper2_e2e",
-      "status": "paper"
-    },
-    {
-      "script": "scripts/run_ifrs9_sensitivity.py",
-      "role": "ifrs9 scenario sensitivity",
-      "category": "core",
-      "pipeline_owner": "core_canonical",
-      "status": "core"
-    },
-    {
       "script": "scripts/optimize_portfolio.py",
       "role": "deterministic portfolio optimization",
       "category": "core",
       "pipeline_owner": "core_canonical",
       "status": "core"
+    },
+    {
+      "script": "scripts/update_champion_registry.py",
+      "role": "canonical registry update",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/build_pipeline_results.py",
+      "role": "pipeline KPI aggregation",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_comparison.py",
+      "role": "gatekeeper semantic comparison",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_fairness_audit.py",
+      "role": "demographic fairness audit",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_monotonicity_audit.py",
+      "role": "monotonic constraint audit",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/generate_governance_status.py",
+      "role": "per-feature drift diagnostics",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/generate_mrm_report.py",
+      "role": "sr 11-7 consolidated mrm report",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/export_dvc_metrics.py",
+      "role": "dvc metrics and plot exports",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/export_storytelling_snapshot.py",
+      "role": "storytelling json export",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/export_streamlit_artifacts.py",
+      "role": "streamlit-ready data export",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/freeze_core_baseline.py",
+      "role": "baseline freeze and lock",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/build_clean_baseline_manifest.py",
+      "role": "baseline manifest builder",
+      "category": "core",
+      "pipeline_owner": "core_canonical",
+      "status": "core"
+    },
+    {
+      "script": "scripts/run_champion_search.py",
+      "role": "pd search wrapper",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "core"
+    },
+    {
+      "script": "scripts/search/run_pd_search.py",
+      "role": "pd search orchestrator",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "core"
+    },
+    {
+      "script": "scripts/search/run_pd_hpo_local.py",
+      "role": "pd local hpo refinement wrapper",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search_monotonic_competitor.py",
+      "role": "monotonic challenger exhaustive search",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search_monotonic_economic_promotion.py",
+      "role": "monotonic economic promotion gate",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/build_pd_hpo_local_config.py",
+      "role": "pd local hpo config builder",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/build_pd_challenger_artifacts.py",
+      "role": "challenger artifact builder",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/refresh_pd_calibration_artifacts.py",
+      "role": "calibration artifact refresh",
+      "category": "search",
+      "pipeline_owner": "search_pd",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/run_conformal_search.py",
+      "role": "conformal search orchestrator",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "core"
+    },
+    {
+      "script": "scripts/search/run_conformal_reopen_search.py",
+      "role": "exhaustive conformal reopen wrapper",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/resume_conformal_reopen_closure.py",
+      "role": "conformal reopen closure resume",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/compare_conformal_portfolio_finalists.py",
+      "role": "conformal portfolio finalist comparison",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/benchmark_conformal_variants.py",
+      "role": "conformal search benchmark",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/benchmark_pd_set_prediction.py",
+      "role": "conformal set-prediction sidecar benchmark",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_classification_set_benchmark.py",
+      "role": "classification set prediction benchmark",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_cqr_comparison.py",
+      "role": "cqr variant comparison",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_cqr_mondrian.py",
+      "role": "cqr mondrian hybrid",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_pd_conformal_gap_experiments.py",
+      "role": "conformal gap experiments",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_alpha_sweep.py",
+      "role": "conformal alpha level sweep",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/validate_conformal_experiment.py",
+      "role": "conformal experiment validation",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/export_conformal_method_registry.py",
+      "role": "conformal method registry export",
+      "category": "search",
+      "pipeline_owner": "search_conformal",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/run_portfolio_search.py",
+      "role": "portfolio search orchestrator",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "core"
+    },
+    {
+      "script": "scripts/search/run_portfolio_bound_aware_search.py",
+      "role": "bound-aware portfolio search",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/run_portfolio_bound_exact_eval.py",
+      "role": "bound exact evaluation",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/sweep_alpha_gamma_bound_finalists.py",
+      "role": "alpha gamma bound finalist sweep",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
     },
     {
       "script": "scripts/optimize_portfolio_tradeoff.py",
@@ -129,7 +318,7 @@
     },
     {
       "script": "scripts/select_economic_portfolio_policy.py",
-      "role": "portfolio selector",
+      "role": "portfolio economic selector",
       "category": "search",
       "pipeline_owner": "search_portfolio",
       "status": "paper"
@@ -140,6 +329,272 @@
       "category": "search",
       "pipeline_owner": "search_portfolio",
       "status": "paper"
+    },
+    {
+      "script": "scripts/validate_alpha_gamma_bound.py",
+      "role": "alpha gamma bound validation",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ab_sensitivity.py",
+      "role": "ab test sensitivity analysis",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ab_portfolio_attribution.py",
+      "role": "ab portfolio attribution analysis",
+      "category": "search",
+      "pipeline_owner": "search_portfolio",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/search/run_paper2_ifrs9_search.py",
+      "role": "paper 2 ifrs9 search wrapper",
+      "category": "search",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_survival_analysis.py",
+      "role": "survival analysis",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/train_lgd_ead.py",
+      "role": "lgd and ead training",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ifrs9_sensitivity.py",
+      "role": "ifrs9 scenario sensitivity",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_sicr_conformal.py",
+      "role": "sicr width trigger and ecl alpha",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_sicr_ecl_sensitivity.py",
+      "role": "sicr ecl sensitivity analysis",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_cif_ecl_impact.py",
+      "role": "competing risks ecl impact",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_competing_risks.py",
+      "role": "competing risks model",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_time_series_vnext.py",
+      "role": "time series vnext experiments",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ts_ecl_intervals.py",
+      "role": "time series ecl intervals",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ifrs9_diagnostics.py",
+      "role": "ifrs9 stage diagnostic analysis",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_ifrs9_monte_carlo_gpu.py",
+      "role": "ifrs9 monte carlo gpu simulation",
+      "category": "research",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_stage_misclassification_cost.py",
+      "role": "ifrs9 stage misclassification cost",
+      "category": "paper",
+      "pipeline_owner": "search_paper2_ifrs9",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_paper_notebook_suite.py",
+      "role": "paper notebook executor",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/build_champion_search_bundle.py",
+      "role": "paper bundle/export",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_spo_comparison.py",
+      "role": "spo+ vs two-stage comparison",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_spo_real.py",
+      "role": "spo+ v2 multi-seed real data",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/run_crpto_vs_spo_stability.py",
+      "role": "crpto vs spo stability comparison",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/generate_paper_figures.py",
+      "role": "publication figure generation",
+      "category": "paper",
+      "pipeline_owner": "paper1_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/papers/run_paper2_e2e.py",
+      "role": "paper 2 end-to-end orchestrator",
+      "category": "paper",
+      "pipeline_owner": "paper2_e2e",
+      "status": "paper"
+    },
+    {
+      "script": "scripts/diagnostics/run_governance_diagnostics.py",
+      "role": "governance diagnostics wrapper",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/backtest_conformal_coverage.py",
+      "role": "conformal temporal backtest",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_bootstrap_validation_diagnostics.py",
+      "role": "bootstrap validation diagnostics",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_pd_backtesting_suite.py",
+      "role": "pd backtesting suite",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_pd_validation_interpretation.py",
+      "role": "pd shap and interpretation",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_encoding_stability_audit.py",
+      "role": "feature encoding stability audit",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_calibration_mapping_diagnostics.py",
+      "role": "calibration mapping diagnostics",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_calibration_mapping_shadow_validation.py",
+      "role": "calibration shadow validation",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/analyze_pd_rare_event_calibration.py",
+      "role": "rare event calibration analysis",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/analyze_uncertainty_cohorts.py",
+      "role": "uncertainty cohort analysis",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_uncertainty_baselines.py",
+      "role": "uncertainty baseline comparison",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_bma_comparison.py",
+      "role": "bayesian model averaging comparison",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_causal_refutation_summary.py",
+      "role": "causal refutation summary",
+      "category": "diagnostic",
+      "pipeline_owner": "diagnostics_governance",
+      "status": "diagnostic"
+    },
+    {
+      "script": "scripts/run_insights_factory.py",
+      "role": "research labs wrapper",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/labs/run_research_labs.py",
+      "role": "research labs orchestrator",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
     },
     {
       "script": "scripts/estimate_causal_effects.py",
@@ -184,13 +639,6 @@
       "status": "research"
     },
     {
-      "script": "scripts/run_paper_notebook_suite.py",
-      "role": "paper notebook executor",
-      "category": "paper",
-      "pipeline_owner": "paper1_e2e",
-      "status": "paper"
-    },
-    {
       "script": "scripts/run_pd_rapids_benchmark.py",
       "role": "gpu benchmark",
       "category": "research",
@@ -205,46 +653,256 @@
       "status": "research"
     },
     {
-      "script": "scripts/build_champion_search_bundle.py",
-      "role": "paper bundle/export",
-      "category": "paper",
-      "pipeline_owner": "paper1_e2e",
-      "status": "paper"
+      "script": "scripts/run_gpu_consolidated.py",
+      "role": "consolidated gpu benchmark",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
     },
     {
-      "script": "scripts/update_champion_registry.py",
-      "role": "canonical registry update",
-      "category": "core",
-      "pipeline_owner": "core_canonical",
+      "script": "scripts/run_gpu_replay.py",
+      "role": "gpu benchmark replay",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/side_projects/build_gpu_benchmark_notebook.py",
+      "role": "gpu benchmark notebook builder",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/extract_notebook_images.py",
+      "role": "notebook image extractor",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_notebooks_inventory.py",
+      "role": "notebook inventory report",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/run_long_pipeline.py",
+      "role": "compatibility orchestrator",
+      "category": "compat",
+      "pipeline_owner": "compat",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/end_to_end_pipeline.py",
+      "role": "compatibility smoke orchestrator",
+      "category": "compat",
+      "pipeline_owner": "compat",
+      "status": "legacy"
+    },
+    {
+      "script": "scripts/run_smoke_pipeline.py",
+      "role": "quick smoke test pipeline",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
       "status": "core"
     },
     {
-      "script": "scripts/run_paper_grade_pre_quarto.sh",
-      "role": "archived pre-Quarto batch helper",
-      "category": "compat",
-      "pipeline_owner": "history",
-      "status": "legacy"
+      "script": "scripts/cleanup_optuna_stale_trials.py",
+      "role": "optuna stale trial cleanup",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
     },
     {
-      "script": "scripts/export_pr_auc_metrics.py",
-      "role": "archived pre-Quarto metric patch helper",
-      "category": "compat",
-      "pipeline_owner": "history",
-      "status": "legacy"
+      "script": "scripts/cleanup_workspace_artifacts.py",
+      "role": "workspace artifact cleanup",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
     },
     {
-      "script": "scripts/generate_slice_anomaly_report.py",
-      "role": "archived pre-Quarto slice anomaly helper",
-      "category": "compat",
-      "pipeline_owner": "history",
-      "status": "legacy"
+      "script": "scripts/ensure_memory_headroom.py",
+      "role": "memory headroom guard",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
     },
     {
-      "script": "scripts/update_cost_matrix_threshold.py",
-      "role": "archived pre-Quarto threshold helper",
-      "category": "compat",
-      "pipeline_owner": "history",
-      "status": "legacy"
+      "script": "scripts/monitor_pipeline_eta.py",
+      "role": "pipeline eta monitor",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/monitor_pipeline_health.py",
+      "role": "pipeline health monitor",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/git_dirty_guard.py",
+      "role": "git dirty state guard",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/log_mlflow_experiment_suite.py",
+      "role": "mlflow experiment logger",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/generate_dependency_summary.py",
+      "role": "dependency summary report",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/generate_pipeline_registries.py",
+      "role": "pipeline registry generation",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/generate_book_editorial_figures.py",
+      "role": "quarto editorial figure generation",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/export_final_project_promotion.py",
+      "role": "final project promotion export",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/prepare_streamlit_deploy.py",
+      "role": "streamlit deploy preparation",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/serve_book_core.py",
+      "role": "quarto book local server",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/recover_champion_search_run.sh",
+      "role": "champion search recovery",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/recover_hpo_evidence.py",
+      "role": "hpo evidence recovery",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/apply_github_ruleset.sh",
+      "role": "github branch protection",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/configure_integrations.sh",
+      "role": "dagshub/mlflow integration setup",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/render_quarto.sh",
+      "role": "quarto render wrapper",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "core"
+    },
+    {
+      "script": "scripts/monitor_long_run.sh",
+      "role": "long run log monitor",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/start_long_run.sh",
+      "role": "long run launcher",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/setup_gpu_notebook_wsl.sh",
+      "role": "gpu wsl environment setup",
+      "category": "infrastructure",
+      "pipeline_owner": "infra",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/side_projects/run_rapids_benchmarks.sh",
+      "role": "rapids benchmark runner",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/causal/run_causal_pipeline.sh",
+      "role": "causal pipeline orchestrator",
+      "category": "research",
+      "pipeline_owner": "research_labs",
+      "status": "research"
+    },
+    {
+      "script": "scripts/causal/run_in_causal_env.sh",
+      "role": "causal environment runner",
+      "category": "infrastructure",
+      "pipeline_owner": "research_labs",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/causal/setup_causal_env.sh",
+      "role": "causal venv setup",
+      "category": "infrastructure",
+      "pipeline_owner": "research_labs",
+      "status": "utility"
+    },
+    {
+      "script": "scripts/history/export_pr_auc_metrics.py",
+      "role": "pr-auc metrics export (archived)",
+      "category": "history",
+      "pipeline_owner": "archived",
+      "status": "archived"
+    },
+    {
+      "script": "scripts/history/generate_slice_anomaly_report.py",
+      "role": "slice anomaly report (archived)",
+      "category": "history",
+      "pipeline_owner": "archived",
+      "status": "archived"
+    },
+    {
+      "script": "scripts/history/update_cost_matrix_threshold.py",
+      "role": "cost matrix threshold update (archived)",
+      "category": "history",
+      "pipeline_owner": "archived",
+      "status": "archived"
     }
   ]
 }

@@ -96,21 +96,29 @@ Menor Winkler = intervalos más estrechos que aún cubren correctamente.
 
 ### El Score-Decile Mondrian como Champion
 
-La variante seleccionada (score-decile Mondrian) combina las mejores propiedades:
+El benchmark inicial ya favorecía a `score_decile_mondrian`, y la reapertura final confirmó esa decisión sobre OOT completo. La tabla siguiente resume las métricas del winner **ya promovido** en el cierre del proyecto, no solo el snapshot preliminar del benchmark de 7 variantes:
 
 | Propiedad | Valor | Interpretación |
 |-----------|-------|---------------|
-| Cobertura empírica | 91.4% | +1.4pp sobre target |
-| Min group coverage | 89.7% | Cercano a 90% en todos los deciles |
-| Ancho promedio | 0.796 | Menor que global (0.947) |
-| Winkler | 1.098 | Mejor que la mayoría |
-| Fallback groups | 0 | Todos los grupos son viables |
+| Cobertura empírica | 92.97% | +2.97pp sobre target |
+| Min group coverage | 91.90% | Cobertura útil en todos los grupos efectivos |
+| Ancho promedio | 0.784 | Banda todavía informativa |
+| Winkler | 1.111 | Buen equilibrio entre cobertura y sharpness |
+| Fallback groups | 0 | Todos los grupos promovidos son viables |
 
 : Propiedades del score-decile Mondrian {#tbl-champion-variant}
 
 ::: {.callout-tip}
-## Pero en producción usamos grade Mondrian
-El score-decile gana el benchmark, pero para la optimización de portafolio y IFRS9 usamos **grade Mondrian** como variante operativa. La razón es práctica: los grades (A-G) tienen significado regulatorio y de negocio — los intervalos por grade alimentan directamente la asignación de capital y el staging IFRS9. El score-decile queda como referencia para validar que no perdemos eficiencia material al usar grades.
+## Un winner final y un baseline necesario
+El benchmark original sí justificó mantener **grade Mondrian** como baseline operativo/regulatorio porque sus grupos (A-G) son legibles para negocio, IFRS9 y gobernanza. Pero esa utilidad interpretativa no lo convierte en co-winner.
+
+La lectura correcta del proyecto es esta:
+
+- `score_decile_mondrian` es el **winner final único** de la capa conformal;
+- `grade Mondrian` sigue siendo el **baseline natural e interpretable** que justifica la partición Mondrian en crédito;
+- la coexistencia no es de campeones, sino de **roles**: baseline explicativo versus variante objetivamente promovida.
+
+Esto elimina la ambigüedad “ganó el benchmark pero no se usa”. El proyecto sí usa `score_decile_mondrian` como winner final; mantiene `grade` porque su semántica de negocio sigue siendo necesaria para explicar y auditar por qué Mondrian tiene sentido.
 :::
 
 ### Predicción por Conjuntos para Clasificación Binaria {#sec-classification-sets}

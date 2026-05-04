@@ -5,57 +5,57 @@
   "attributes": [
     {
       "attribute": "home_ownership",
-      "demographic_parity_difference": 0.006889830359128268,
-      "equalized_odds_difference": 0.01770489363145389,
-      "dpd_ci_low": 0.006666991783552087,
-      "dpd_ci_high": 0.009675169195497236,
-      "eo_ci_low": 0.013208927239039742,
-      "eo_ci_high": 0.023921665089877024
+      "demographic_parity_difference": 0.008742234380824332,
+      "equalized_odds_difference": 0.022086796811760956,
+      "dpd_ci_low": 0.00953831531946169,
+      "dpd_ci_high": 0.01338160527857427,
+      "eo_ci_low": 0.01675560254403783,
+      "eo_ci_high": 0.029423131504257353
     },
     {
       "attribute": "annual_inc_quartile",
-      "demographic_parity_difference": 0.006470025746612151,
-      "equalized_odds_difference": 0.017440762137960086,
-      "dpd_ci_low": 0.0053399055922071035,
-      "dpd_ci_high": 0.010393957927463612,
-      "eo_ci_low": 0.013707526708972623,
-      "eo_ci_high": 0.030592715580856005
+      "demographic_parity_difference": 0.008400704557627536,
+      "equalized_odds_difference": 0.022249134036549156,
+      "dpd_ci_low": 0.006981762248958292,
+      "dpd_ci_high": 0.01345159921475334,
+      "eo_ci_low": 0.019293967031339274,
+      "eo_ci_high": 0.04380429053341763
     },
     {
       "attribute": "verification_status",
-      "demographic_parity_difference": 0.008941886950530664,
-      "equalized_odds_difference": 0.019226656076939297,
-      "dpd_ci_low": 0.007603926256451357,
-      "dpd_ci_high": 0.012729751884877408,
-      "eo_ci_low": 0.012786286991751637,
-      "eo_ci_high": 0.03063014505752948
+      "demographic_parity_difference": 0.01152366673334193,
+      "equalized_odds_difference": 0.024771462501377073,
+      "dpd_ci_low": 0.008401353349679794,
+      "dpd_ci_high": 0.013176169941118563,
+      "eo_ci_low": 0.011089250099697393,
+      "eo_ci_high": 0.03205558241323281
     },
     {
       "attribute": "home_ownership__x__annual_inc_quartile",
-      "demographic_parity_difference": 0.011476463365722056,
-      "equalized_odds_difference": 0.029276578737010395,
-      "dpd_ci_low": 0.00785256410256408,
-      "dpd_ci_high": 0.016471707317073175,
-      "eo_ci_low": 0.02261363636363636,
-      "eo_ci_high": 0.03989770938975342
+      "demographic_parity_difference": 0.014363846487668086,
+      "equalized_odds_difference": 0.03637090327737813,
+      "dpd_ci_low": 0.011677299308878281,
+      "dpd_ci_high": 0.017165245649591144,
+      "eo_ci_low": 0.0187982195845697,
+      "eo_ci_high": 0.04479807513049959
     },
     {
       "attribute": "home_ownership__x__verification_status",
-      "demographic_parity_difference": 0.026822101739420012,
-      "equalized_odds_difference": 0.05026883471246557,
-      "dpd_ci_low": 0.017040125065138106,
-      "dpd_ci_high": 0.03739482026089551,
-      "eo_ci_low": 0.02316617099709721,
-      "eo_ci_high": 0.07106339643309484
+      "demographic_parity_difference": 0.0343875474383778,
+      "equalized_odds_difference": 0.0636573811298401,
+      "dpd_ci_low": 0.02823498181736677,
+      "dpd_ci_high": 0.045446982772927906,
+      "eo_ci_low": 0.03538279343935319,
+      "eo_ci_high": 0.08757241988805607
     },
     {
       "attribute": "annual_inc_quartile__x__verification_status",
-      "demographic_parity_difference": 0.01626364901860511,
-      "equalized_odds_difference": 0.036263736263736246,
-      "dpd_ci_low": 0.013490022768862842,
-      "dpd_ci_high": 0.025097732080220612,
-      "eo_ci_low": 0.02326984126984131,
-      "eo_ci_high": 0.06788391640163563
+      "demographic_parity_difference": 0.02054232397484057,
+      "equalized_odds_difference": 0.04371873973202878,
+      "dpd_ci_low": 0.015066526101497746,
+      "dpd_ci_high": 0.027925765159232813,
+      "eo_ci_low": 0.02860218728639783,
+      "eo_ci_high": 0.07252232082281743
     }
   ],
   "bootstrap_samples": 10,
@@ -64,6 +64,6 @@
   "prediction_threshold": 0.35,
   "outcome_mode": "approval",
   "schema_version": "2026-03-06.1-fairlearn",
-  "generated_at_utc": "2026-03-30T19:29:12.976863+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T17:42:54.658367+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07"
 }

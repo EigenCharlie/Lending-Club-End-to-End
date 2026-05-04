@@ -1,0 +1,34 @@
+schema_version: "2026-04-07.2"
+profile_name: paper1_e2e_default
+pipeline_family: paper1_e2e
+description: >
+  Perfil del Paper Estrella (CRPTO): PD champion (HPO local trial 56),
+  conformal rank1 (reopen), portfolio economic champion (bound-aware 276K),
+  A/B con explicit_champion_only, sin búsquedas de portfolio.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: paper_grade
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: full
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  pd:
+    config_path: configs/pd_model.champion.yaml
+  conformal:
+    partition_probability_sources: [calibrated]
+    n_score_bins_candidates: [10]
+    fallback_modes: [global_only]
+    score_scale_families: [bernoulli_sqrt]
+    min_group_sizes: [100]
+    calibration_fraction: 0.5
+  ab:
+    execution_mode: freeze_if_available
+    policy_selector_default: explicit_champion_only
+    max_portfolio_pd: 0.18
+    max_candidates: 0
+    n_boot: 5000
+    seed: 42
+    no_regression_tolerance_pct: 0.05

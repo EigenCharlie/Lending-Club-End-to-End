@@ -483,6 +483,36 @@ stages:
       hash: md5
       md5: e17dc36a002dff31d9d96bbc15d6bbc0
       size: 421
+  research.ts.run_vnext:
+    cmd: uv run python scripts/run_time_series_vnext.py --config
+      configs/time_series_vnext.yaml
+    deps:
+    - path: configs/time_series_vnext.yaml
+    - path: data/processed/conformal_intervals_mondrian.parquet
+    - path: data/processed/ifrs9_ecl_comparison.parquet
+    - path: data/processed/time_series_full.parquet
+    - path: data/processed/time_series_panel.parquet
+    - path: data/processed/train.parquet
+    - path: models/time_series_status.json
+    - path: scripts/run_time_series_vnext.py
+    - path: src/data/build_datasets.py
+    - path: src/models/time_series.py
+    - path: src/models/time_series_vnext.py
+    outs:
+    - path: data/processed/time_series_vnext.parquet
+    - path: data/processed/time_series_panel_vnext.parquet
+    - path: data/processed/ts_backtest_predictions_vnext.parquet
+    - path: data/processed/ts_backtest_metrics_vnext.parquet
+    - path: data/processed/ts_interval_eval_vnext.parquet
+    - path: data/processed/ts_forecasts_vnext.parquet
+    - path: data/processed/ts_ifrs9_scenarios_vnext.parquet
+    - path: data/processed/ts_panel_forecasts_vnext.parquet
+    - path: data/processed/ts_joint_path_eval_vnext.parquet
+    - path: data/processed/ts_joint_path_samples_vnext.parquet
+    - path: data/processed/ts_ecl_intervals_vnext.parquet
+    - path: data/processed/time_series_policy_review_matrix.parquet
+    - path: models/time_series_vnext_status.json
+    - path: models/time_series_policy_review.json
   diagnostic.conformal.backtest_coverage:
     cmd: uv run python scripts/backtest_conformal_coverage.py
     deps:
@@ -969,49 +999,54 @@ stages:
       md5: 1fe8f452e016003ef4d91356621a6ce5
       size: 10244
   core.governance.export_dvc_metrics:
-    cmd: uv run python scripts/export_dvc_metrics.py
+    cmd: uv run python scripts/export_dvc_metrics.py --run-tag
+      paper1-e2e-all-champions-2026-04-07
     deps:
     - path: data/processed/conformal_backtest_monthly.parquet
       hash: md5
-      md5: 2050afd19080a2a8a5ba07a35fc50c27
-      size: 11887
+      md5: 0de8d1fe3cd556ae563a350c22087d47
+      size: 13615
     - path: data/processed/ifrs9_scenario_summary.parquet
       hash: md5
-      md5: 887920433180ac03dc2b17f8d1608947
-      size: 13611
+      md5: 25396d2d604bddaea934437ce1669f31
+      size: 17684
     - path: data/processed/portfolio_robustness_frontier.parquet
       hash: md5
-      md5: 9b8ef2f172316d1ea6e553bee126c3ed
-      size: 14355
+      md5: 939c056a39b0964c75f7a243f0473044
+      size: 43654
     - path: data/processed/test_predictions.parquet
       hash: md5
-      md5: 80251561efe23c2ba7c1485ff8a312c2
-      size: 12492032
+      md5: d16ecc0b4badc4c0949e6eb1e1adbbce
+      size: 12547567
     - path: models/conformal_policy_status.json
       hash: md5
-      md5: 68b7731c81b1fdf9a596127801ab6718
-      size: 397
+      md5: 63dcff41cf2d52ff2ff8e115046eb555
+      size: 12465
+    - path: models/final_project_promotion.json
+      hash: md5
+      md5: 5d789be10b37de798d6de0d66c843b6e
+      size: 8066
     - path: models/pipeline_results.pkl
       hash: md5
-      md5: cd6b1b4bb7af775594a479543fae48dc
+      md5: 90d0feda81752caf88972136cf7b8e78
       size: 366
     - path: scripts/export_dvc_metrics.py
       hash: md5
-      md5: 9eb2396d91b95668589cf63e5682dd40
-      size: 5742
+      md5: c134f67c2d3c546284adc457991c7c6e
+      size: 9465
     outs:
     - path: reports/dvc/conformal_coverage_backtest.csv
       hash: md5
-      md5: e908a1424971de2acf5814db94f735c7
-      size: 4616
+      md5: 712461abcdef32a5d2ffefba36600852
+      size: 4555
     - path: reports/dvc/metrics_summary.json
       hash: md5
-      md5: bbabe14e9561780fa6a4db8d0e69625b
-      size: 807
+      md5: aa99d6415edd8a876050de4d4521c7c6
+      size: 3626
     - path: reports/dvc/robustness_frontier.csv
       hash: md5
-      md5: df94f1e1ea4c2e68f85f65644c300cc7
-      size: 3165
+      md5: f854ae76759ec6593ce89b97a7da0117
+      size: 91212
   core.governance.generate_status:
     cmd: uv run python scripts/generate_governance_status.py --config
       configs/mrm_policy.yaml

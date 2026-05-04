@@ -8,6 +8,20 @@ import numpy as np
 import pandas as pd
 from loguru import logger
 
+_GRADE_LEVELS = tuple("ABCDEFG")
+_SUBGRADE_LEVELS = tuple(f"{grade}{bucket}" for grade in _GRADE_LEVELS for bucket in range(1, 6))
+_PURPOSE_LEVELS = (
+    "debt_consolidation",
+    "credit_card",
+    "home_improvement",
+    "major_purchase",
+    "small_business",
+    "medical",
+)
+_VERIFICATION_LEVELS = ("Not Verified", "Source Verified", "Verified")
+_HOME_OWNERSHIP_LEVELS = ("RENT", "MORTGAGE", "OWN")
+_APPLICATION_LEVELS = ("Individual", "Joint App")
+
 
 def clean_raw_columns(df: pd.DataFrame) -> pd.DataFrame:
     """Parse and clean raw Lending Club column formats."""
@@ -197,6 +211,183 @@ def _aggregate_time_series(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFr
     return grouped.sort_values(["ds", *group_cols]).reset_index(drop=True)
 
 
+def _safe_float_series(values: pd.Series, default: float = 0.0) -> pd.Series:
+    return pd.to_numeric(values, errors="coerce").fillna(default).astype(float)
+
+
+def _safe_string_series(values: pd.Series | object, default: str = "UNKNOWN") -> pd.Series:
+    if isinstance(values, pd.Series):
+        return values.astype(str).replace({"nan": default, "None": default}).fillna(default)
+    return pd.Series([default], dtype="object")
+
+
+def _prepare_time_series_vnext_frame(df: pd.DataFrame) -> pd.DataFrame:
+    frame = clean_raw_columns(df)
+    if "default_flag" not in frame.columns:
+        frame["default_flag"] = 0
+    frame = frame.dropna(subset=["issue_d", "loan_amnt"]).copy()
+    frame["issue_month"] = (
+        pd.to_datetime(frame["issue_d"], errors="coerce").dt.to_period("M").dt.to_timestamp()
+    )
+    frame = frame.dropna(subset=["issue_month"]).copy()
+
+    frame["grade"] = _safe_string_series(
+        frame.get("grade", pd.Series(["UNKNOWN"] * len(frame)))
+    ).str.upper()
+    frame["sub_grade"] = _safe_string_series(
+        frame.get("sub_grade", pd.Series(["UNKNOWN"] * len(frame)))
+    ).str.upper()
+    frame["purpose"] = _safe_string_series(
+        frame.get("purpose", pd.Series(["other"] * len(frame))), default="other"
+    ).str.lower()
+    frame["verification_status"] = _safe_string_series(
+        frame.get("verification_status", pd.Series(["UNKNOWN"] * len(frame)))
+    )
+    frame["home_ownership"] = _safe_string_series(
+        frame.get("home_ownership", pd.Series(["UNKNOWN"] * len(frame)))
+    ).str.upper()
+    frame["application_type"] = _safe_string_series(
+        frame.get("application_type", pd.Series(["Individual"] * len(frame))),
+        default="Individual",
+    )
+    frame["term_months"] = pd.to_numeric(frame.get("term"), errors="coerce")
+    if "term" in frame.columns and frame["term_months"].isna().all():
+        frame["term_months"] = (
+            frame["term"].astype(str).str.extract(r"(\d+)")[0].pipe(pd.to_numeric, errors="coerce")
+        )
+    frame["term_months"] = frame["term_months"].fillna(-1).astype(int)
+    frame["annual_inc"] = _safe_float_series(
+        frame.get("annual_inc", pd.Series([np.nan] * len(frame)))
+    )
+    frame["installment"] = _safe_float_series(
+        frame.get("installment", pd.Series([np.nan] * len(frame)))
+    )
+    frame["dti"] = _safe_float_series(frame.get("dti", pd.Series([np.nan] * len(frame))))
+    frame["int_rate"] = _safe_float_series(frame.get("int_rate", pd.Series([np.nan] * len(frame))))
+    frame["loan_amnt"] = _safe_float_series(
+        frame.get("loan_amnt", pd.Series([np.nan] * len(frame)))
+    )
+    frame["revol_util"] = _safe_float_series(
+        frame.get("revol_util", pd.Series([np.nan] * len(frame)))
+    )
+    frame["mort_acc"] = _safe_float_series(frame.get("mort_acc", pd.Series([np.nan] * len(frame))))
+    frame["inq_last_6mths"] = _safe_float_series(
+        frame.get("inq_last_6mths", pd.Series([np.nan] * len(frame)))
+    )
+    frame["delinq_2yrs"] = _safe_float_series(
+        frame.get("delinq_2yrs", pd.Series([np.nan] * len(frame)))
+    )
+    frame["acc_now_delinq"] = _safe_float_series(
+        frame.get("acc_now_delinq", pd.Series([np.nan] * len(frame)))
+    )
+    frame["num_tl_30dpd"] = _safe_float_series(
+        frame.get("num_tl_30dpd", pd.Series([np.nan] * len(frame)))
+    )
+    frame["num_tl_90g_dpd_24m"] = _safe_float_series(
+        frame.get("num_tl_90g_dpd_24m", pd.Series([np.nan] * len(frame)))
+    )
+    frame["fico_score"] = _safe_float_series(
+        frame.get("fico_range_low", pd.Series([np.nan] * len(frame)))
+    )
+    fico_high = _safe_float_series(frame.get("fico_range_high", pd.Series([np.nan] * len(frame))))
+    has_high = fico_high.notna() & (fico_high > 0)
+    frame.loc[has_high, "fico_score"] = (
+        frame.loc[has_high, "fico_score"].to_numpy(dtype=float)
+        + fico_high.loc[has_high].to_numpy(dtype=float)
+    ) / 2.0
+
+    frame["share_term_36"] = frame["term_months"].eq(36).astype(float)
+    frame["share_term_60"] = frame["term_months"].eq(60).astype(float)
+    frame["share_verified"] = frame["verification_status"].eq("Verified").astype(float)
+    frame["share_source_verified"] = (
+        frame["verification_status"].eq("Source Verified").astype(float)
+    )
+    frame["share_not_verified"] = frame["verification_status"].eq("Not Verified").astype(float)
+    frame["share_home_mortgage"] = frame["home_ownership"].eq("MORTGAGE").astype(float)
+    frame["share_home_own"] = frame["home_ownership"].eq("OWN").astype(float)
+    frame["share_home_rent"] = frame["home_ownership"].eq("RENT").astype(float)
+    frame["share_joint_app"] = frame["application_type"].eq("Joint App").astype(float)
+
+    for grade in _GRADE_LEVELS:
+        frame[f"share_grade_{grade}"] = frame["grade"].eq(grade).astype(float)
+    for sub_grade in _SUBGRADE_LEVELS:
+        frame[f"share_subgrade_{sub_grade}"] = frame["sub_grade"].eq(sub_grade).astype(float)
+    for purpose in _PURPOSE_LEVELS:
+        frame[f"share_purpose_{purpose}"] = frame["purpose"].eq(purpose).astype(float)
+    frame["share_purpose_other"] = (~frame["purpose"].isin(_PURPOSE_LEVELS)).astype(float)
+    return frame
+
+
+def _aggregate_time_series_vnext(df: pd.DataFrame, group_cols: list[str]) -> pd.DataFrame:
+    frame = _prepare_time_series_vnext_frame(df)
+    agg_spec: dict[str, tuple[str, str | callable]] = {
+        "loan_count": ("loan_amnt", "count"),
+        "default_count": ("default_flag", "sum"),
+        "total_amt_funded": ("loan_amnt", "sum"),
+        "avg_loan_amnt": ("loan_amnt", "mean"),
+        "std_loan_amnt": ("loan_amnt", "std"),
+        "avg_installment": ("installment", "mean"),
+        "avg_int_rate": ("int_rate", "mean"),
+        "std_int_rate": ("int_rate", "std"),
+        "avg_dti": ("dti", "mean"),
+        "std_dti": ("dti", "std"),
+        "avg_annual_inc": ("annual_inc", "mean"),
+        "std_annual_inc": ("annual_inc", "std"),
+        "avg_fico_score": ("fico_score", "mean"),
+        "std_fico_score": ("fico_score", "std"),
+        "avg_revol_util": ("revol_util", "mean"),
+        "avg_mort_acc": ("mort_acc", "mean"),
+        "avg_inq_last_6mths": ("inq_last_6mths", "mean"),
+        "avg_delinq_2yrs": ("delinq_2yrs", "mean"),
+        "avg_acc_now_delinq": ("acc_now_delinq", "mean"),
+        "avg_num_tl_30dpd": ("num_tl_30dpd", "mean"),
+        "avg_num_tl_90g_dpd_24m": ("num_tl_90g_dpd_24m", "mean"),
+    }
+    share_cols = [
+        "share_term_36",
+        "share_term_60",
+        "share_verified",
+        "share_source_verified",
+        "share_not_verified",
+        "share_home_mortgage",
+        "share_home_own",
+        "share_home_rent",
+        "share_joint_app",
+        *[f"share_grade_{grade}" for grade in _GRADE_LEVELS],
+        *[f"share_subgrade_{sub_grade}" for sub_grade in _SUBGRADE_LEVELS],
+        *[f"share_purpose_{purpose}" for purpose in _PURPOSE_LEVELS],
+        "share_purpose_other",
+    ]
+    for col in share_cols:
+        agg_spec[col] = (col, "mean")
+
+    grouped = (
+        frame.groupby(["issue_month", *group_cols], dropna=False, observed=True)
+        .agg(**agg_spec)
+        .reset_index()
+        .rename(columns={"issue_month": "ds"})
+    )
+    for col in grouped.columns:
+        if col.startswith("std_"):
+            grouped[col] = pd.to_numeric(grouped[col], errors="coerce").fillna(0.0)
+    grouped["loan_count"] = pd.to_numeric(grouped["loan_count"], errors="coerce").fillna(0.0)
+    grouped["default_count"] = pd.to_numeric(grouped["default_count"], errors="coerce").fillna(0.0)
+    grouped["default_rate"] = (
+        grouped["default_count"].astype(float) / grouped["loan_count"].replace(0, np.nan)
+    ).fillna(0.0)
+    grouped["smoothed_default_rate"] = (
+        (grouped["default_count"].astype(float) + 0.5) / (grouped["loan_count"].astype(float) + 1.0)
+    ).clip(1e-6, 1.0 - 1e-6)
+    grouped["default_rate_logit"] = np.log(
+        grouped["smoothed_default_rate"] / (1.0 - grouped["smoothed_default_rate"])
+    )
+    grouped["exposure_loan_count"] = grouped["loan_count"].astype(float)
+    grouped["unique_id"] = "portfolio"
+    grouped["y"] = grouped["default_rate"].astype(float)
+    grouped["y_logit"] = grouped["default_rate_logit"].astype(float)
+    return grouped.sort_values(["ds", *group_cols]).reset_index(drop=True)
+
+
 def _complete_monthly_grid(
     df: pd.DataFrame,
     *,
@@ -304,6 +495,77 @@ def build_time_series_panel(df: pd.DataFrame) -> pd.DataFrame:
     panel["term_months"] = pd.to_numeric(panel.get("term_months"), errors="coerce")
     panel = panel.sort_values(["series_level", "unique_id", "ds"]).reset_index(drop=True)
     logger.info("Built time_series_panel: {}", panel.shape)
+    return panel
+
+
+def build_time_series_vnext(df: pd.DataFrame) -> pd.DataFrame:
+    """Build enriched monthly portfolio series with exposure-aware targets."""
+    ts = _aggregate_time_series_vnext(df, [])
+    ts = _complete_monthly_grid(ts, group_cols=[])
+    numeric_cols = [col for col in ts.columns if col not in {"ds", "unique_id"}]
+    ts[numeric_cols] = ts[numeric_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+    ts["unique_id"] = "portfolio"
+    ts["default_rate"] = (
+        ts["default_count"].astype(float) / ts["loan_count"].replace(0, np.nan)
+    ).fillna(0.0)
+    ts["smoothed_default_rate"] = (
+        (ts["default_count"].astype(float) + 0.5) / (ts["loan_count"].astype(float) + 1.0)
+    ).clip(1e-6, 1.0 - 1e-6)
+    ts["y"] = ts["default_rate"].astype(float)
+    ts["y_logit"] = np.log(
+        ts["smoothed_default_rate"].clip(1e-6, 1.0 - 1e-6)
+        / (1.0 - ts["smoothed_default_rate"].clip(1e-6, 1.0 - 1e-6))
+    )
+    logger.info("Built time_series_vnext: {} ({} -> {})", ts.shape, ts["ds"].min(), ts["ds"].max())
+    return ts
+
+
+def build_time_series_panel_vnext(df: pd.DataFrame) -> pd.DataFrame:
+    """Build enriched panel series with exposure-aware targets for vNext research."""
+    frame = _prepare_time_series_vnext_frame(df)
+
+    grade_term = _complete_monthly_grid(
+        _aggregate_time_series_vnext(frame, ["grade", "term_months"]),
+        group_cols=["grade", "term_months"],
+    )
+    grade_term["series_level"] = "grade_term"
+    grade_term["unique_id"] = grade_term.apply(
+        lambda row: f"grade_term::{row['grade']}__{int(row['term_months'])}", axis=1
+    )
+
+    grade = _complete_monthly_grid(
+        _aggregate_time_series_vnext(frame, ["grade"]),
+        group_cols=["grade"],
+    )
+    grade["series_level"] = "grade"
+    grade["term_months"] = np.nan
+    grade["unique_id"] = grade["grade"].map(lambda grade_value: f"grade::{grade_value}")
+
+    portfolio = build_time_series_vnext(frame)
+    portfolio["series_level"] = "portfolio"
+    portfolio["grade"] = "ALL"
+    portfolio["term_months"] = np.nan
+
+    panel = pd.concat([portfolio, grade, grade_term], ignore_index=True, sort=False)
+    panel["grade"] = panel.get("grade", pd.Series(["ALL"] * len(panel))).fillna("ALL")
+    panel["term_months"] = pd.to_numeric(panel.get("term_months"), errors="coerce")
+    numeric_cols = [
+        col for col in panel.columns if col not in {"ds", "unique_id", "series_level", "grade"}
+    ]
+    panel[numeric_cols] = panel[numeric_cols].apply(pd.to_numeric, errors="coerce").fillna(0.0)
+    panel["default_rate"] = (
+        panel["default_count"].astype(float) / panel["loan_count"].replace(0, np.nan)
+    ).fillna(0.0)
+    panel["smoothed_default_rate"] = (
+        (panel["default_count"].astype(float) + 0.5) / (panel["loan_count"].astype(float) + 1.0)
+    ).clip(1e-6, 1.0 - 1e-6)
+    panel["y"] = panel["default_rate"].astype(float)
+    panel["y_logit"] = np.log(
+        panel["smoothed_default_rate"].clip(1e-6, 1.0 - 1e-6)
+        / (1.0 - panel["smoothed_default_rate"].clip(1e-6, 1.0 - 1e-6))
+    )
+    panel = panel.sort_values(["series_level", "unique_id", "ds"]).reset_index(drop=True)
+    logger.info("Built time_series_panel_vnext: {}", panel.shape)
     return panel
 
 

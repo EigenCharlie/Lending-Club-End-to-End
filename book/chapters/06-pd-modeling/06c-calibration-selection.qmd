@@ -267,10 +267,10 @@ pd.DataFrame(metrics_rows)
 
 El impacto de la calibración es dramático:
 
-- **Brier Score**: De 0.2051 a 0.1545, una reducción del 24.7%. La calibración mejora la calidad de las probabilidades sin reentrenar el modelo.
-- **ECE**: 0.0059 --- la frecuencia observada de default en cada bin de probabilidad difiere en promedio solo 0.6 puntos porcentuales de la probabilidad predicha. Esto es excelente para uso en ECL e IFRS9.
-- **D² Brier**: De -0.1963 (peor que el predictor naive) a +0.0989 (mejor que el predictor naive). La calibración transforma un modelo que, en términos de probabilidad absoluta, era **peor que predecir siempre la tasa base**, en uno que genuinamente agrega valor probabilístico.
-- **AUC**: 0.7131 $\rightarrow$ 0.7130, variación en la cuarta decimal. La calibración no afecta la discriminación, como esperamos teóricamente.
+- **Brier Score**: De 0.2095 a 0.1546, una reducción del 26.2%. La calibración mejora la calidad de las probabilidades sin reentrenar el modelo.
+- **ECE**: 0.0064 --- la frecuencia observada de default en cada bin de probabilidad difiere en promedio solo 0.64 puntos porcentuales de la probabilidad predicha. Esto es excelente para uso en ECL e IFRS9.
+- **D² Brier**: De -0.2217 (peor que el predictor naive) a +0.0986 (mejor que el predictor naive). La calibración transforma un modelo que, en términos de probabilidad absoluta, era **peor que predecir siempre la tasa base**, en uno que genuinamente agrega valor probabilístico.
+- **AUC**: 0.7128 $\rightarrow$ 0.7127, variación en la cuarta decimal. La calibración no afecta la discriminación, como esperamos teóricamente.
 
 ### Descomposición del Brier Score
 
@@ -286,7 +286,7 @@ donde $\bar{p}_b$ es la probabilidad media predicha en el bin $b$, $\bar{o}_b$ e
 - **RES (resolution)**: Recompensa la capacidad de distinguir grupos con diferentes tasas de default. Depende de la discriminación del modelo.
 - **UNC (uncertainty)**: Constante que depende solo de la frecuencia marginal de default.
 
-La mejora de Brier de 0.2051 a 0.1545 se debe casi enteramente a la reducción del término de **reliability** (REL), mientras que la resolución se mantiene constante --- exactamente lo que esperamos de una calibración post-hoc que no altera el ranking del modelo.
+La mejora de Brier de 0.2095 a 0.1546 se debe casi enteramente a la reducción del término de **reliability** (REL), mientras que la resolución se mantiene constante --- exactamente lo que esperamos de una calibración post-hoc que no altera el ranking del modelo.
 
 El rerun V2 dejó además dos mejoras de gobernanza que antes estaban solo parcialmente absorbidas:
 
@@ -297,7 +297,7 @@ Esa mejora importa porque permite explicar la calibración no solo con un score 
 
 ::: {.callout-tip}
 ## Interpretación práctica del ECE
-Un ECE de 0.0059 significa que, si el modelo asigna PD = 0.20 a un grupo de préstamos, la tasa real de default en ese grupo será aproximadamente 19.4% a 20.6%. Para cálculos de ECL bajo IFRS9, esta precisión es más que suficiente --- la incertidumbre en LGD y EAD típicamente domina sobre la incertidumbre en PD calibrada.
+Un ECE de 0.0064 significa que, si el modelo asigna PD = 0.20 a un grupo de préstamos, la tasa real de default en ese grupo será aproximadamente 19.4% a 20.6%. Para cálculos de ECL bajo IFRS9, esta precisión es más que suficiente --- la incertidumbre en LGD y EAD típicamente domina sobre la incertidumbre en PD calibrada.
 :::
 
 ### Por qué Venn-Abers y no Platt {#sec-why-venn-abers}
@@ -411,7 +411,7 @@ Con $n = 276{,}869$, los tests de KS y Kuiper tienen poder estadístico tan alto
 
 La métrica realmente informativa en este contexto es el **length scale σ** de las diferencias acumuladas: mide la magnitud de la desviación, no solo si existe. El modelo calibrado tiene σ = 0.000743 vs σ = 0.000860 sin calibrar — una reducción del 14%. Ambos son pequeños en términos absolutos, pero el calibrado es consistentemente mejor.
 
-**Conclusión práctica**: No interpretar el rechazo del test KS como "el modelo no está calibrado". Interpretar la diferencia de σ entre calibrado y sin calibrar como evidencia de que la calibración Venn-Abers reduce la desviación sistemática, compatible con el ECE de 0.0059 observado.
+**Conclusión práctica**: No interpretar el rechazo del test KS como "el modelo no está calibrado". Interpretar la diferencia de σ entre calibrado y sin calibrar como evidencia de que la calibración Venn-Abers reduce la desviación sistemática, compatible con el ECE de 0.0064 observado.
 :::
 
 ### Evidencia Visual: Curvas de Calibración

@@ -20,10 +20,11 @@ Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble
 
 ### Ya promovido / cerrado
 
-- PD core: CatBoost tuned + calibrated, AUC 0.7128, Brier 0.1545
-- Calibración oficial vigente: Venn-Abers
-- Portfolio champion: risk_tol=0.18, capped_blended_uncertainty
-- Survival RSF: c-index 0.6797 (mejora fuerte)
+- PD core: CatBoost monotónico + Venn-Abers, AUC 0.7124, Brier 0.1546, ECE 0.0064 (HPO local trial 56)
+- Calibración oficial vigente: Venn-Abers (auto-selected)
+- Portfolio champion: rt=0.175, γ=0.45, blended_uncertainty (bound-aware economic champion, 45/45 robust region)
+- Conformal champion: score_decile_mondrian (reopen rank1), coverage 92.93%/96.64%
+- Survival RSF: c-index 0.6715
 - Fairness: 6/6 PASS, threshold 0.35
 - Governance: overall_pass, challenger_promotable
 - LGD/EAD conformal: promovido
@@ -84,8 +85,7 @@ Implementado:
 
 ### Estado consolidado del protocolo
 
-Fuente canónica:
-- [paper_grade_protocol_status.json](/home/eigenlinux/projects/lending-club-risk-project/models/paper_grade_protocol_status.json)
+Fuente canónica: protocolo cerrado y archivado con la defensa de especialización (abril 2026).
 
 Estado:
 - `pd_conformal=true`
@@ -345,7 +345,7 @@ La corrida `paper-grade-2026-03-13-final-heavy-2026-03-13-230650` (ejecutada 202
 **Completado:**
 
 - Study limpio: `pd_catboost_optuna_temporal_paper_grade_final__cb_space_v2` — 320/320 trials completos, DB separada (`optuna_pd_catboost_paper_grade_final.db`, 716KB sin contaminación histórica)
-- PD: AUC 0.7130, Brier 0.1545, ECE 0.0059, Venn-Abers, conformal 92.52% / 95.93%
+- PD: AUC 0.7130, Brier 0.1545, ECE 0.0059, Venn-Abers, conformal 92.52% / 95.93% (**milestone histórico pre-reopen; no usar como estado conformal final vigente**)
 - Survival: RSF c-index=0.6715, Cox c-index=0.6643, dataset_scope=full_data (500K loans)
 - LGD/EAD conformal: promovido, variant=`direct_adaptive_grade_temporal`
 - Portfolio: champion seleccionado risk_tol=0.18, capped_blended_uncertainty, A/B no-regression pass
@@ -354,7 +354,7 @@ La corrida `paper-grade-2026-03-13-final-heavy-2026-03-13-230650` (ejecutada 202
 - Governance: overall_pass=true, challenger_promotable=true
 - MRM: reporte generado en `reports/mrm/mrm_validation_report.json`
 - RAPIDS: benchmarks + IFRS9 MC GPU completados
-- Protocolo: `paper_grade_protocol_status.json` frozen=true
+- Protocolo: cerrado y archivado (especialización defendida abril 2026)
 - Bundle: `champion_search_bundle.json` run_tag correcto
 
 **Gaps menores — todos resueltos (2026-03-23):**

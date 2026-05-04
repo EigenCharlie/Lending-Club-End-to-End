@@ -114,6 +114,35 @@ stages:
     - data/processed/ts_diagnostics.json
     - data/processed/ts_panel_forecasts.parquet
     - models/time_series_status.json
+  research.ts.run_vnext:
+    cmd: uv run python scripts/run_time_series_vnext.py --config configs/time_series_vnext.yaml
+    deps:
+    - configs/time_series_vnext.yaml
+    - data/processed/conformal_intervals_mondrian.parquet
+    - data/processed/ifrs9_ecl_comparison.parquet
+    - data/processed/time_series_full.parquet
+    - data/processed/time_series_panel.parquet
+    - data/processed/train.parquet
+    - models/time_series_status.json
+    - scripts/run_time_series_vnext.py
+    - src/data/build_datasets.py
+    - src/models/time_series.py
+    - src/models/time_series_vnext.py
+    outs:
+    - data/processed/time_series_vnext.parquet
+    - data/processed/time_series_panel_vnext.parquet
+    - data/processed/ts_backtest_predictions_vnext.parquet
+    - data/processed/ts_backtest_metrics_vnext.parquet
+    - data/processed/ts_interval_eval_vnext.parquet
+    - data/processed/ts_forecasts_vnext.parquet
+    - data/processed/ts_ifrs9_scenarios_vnext.parquet
+    - data/processed/ts_panel_forecasts_vnext.parquet
+    - data/processed/ts_joint_path_eval_vnext.parquet
+    - data/processed/ts_joint_path_samples_vnext.parquet
+    - data/processed/ts_ecl_intervals_vnext.parquet
+    - data/processed/time_series_policy_review_matrix.parquet
+    - models/time_series_vnext_status.json
+    - models/time_series_policy_review.json
   research.causal.estimate_effects:
     cmd: bash scripts/causal/run_in_causal_env.sh scripts/estimate_causal_effects.py --treatment int_rate
     deps:
@@ -376,13 +405,14 @@ stages:
     outs:
     - reports/storytelling_snapshot.json
   core.governance.export_dvc_metrics:
-    cmd: uv run python scripts/export_dvc_metrics.py
+    cmd: uv run python scripts/export_dvc_metrics.py --run-tag paper1-e2e-all-champions-2026-04-07
     deps:
     - data/processed/conformal_backtest_monthly.parquet
     - data/processed/ifrs9_scenario_summary.parquet
     - data/processed/portfolio_robustness_frontier.parquet
     - data/processed/test_predictions.parquet
     - models/conformal_policy_status.json
+    - models/final_project_promotion.json
     - models/pipeline_results.pkl
     - scripts/export_dvc_metrics.py
     outs:

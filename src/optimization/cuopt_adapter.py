@@ -51,6 +51,8 @@ def solve_portfolio_cuopt_native(
     pd_cap_slack_penalty: float = 0.0,
     pd_constraint_override: np.ndarray | None = None,
     time_limit: int = 300,
+    random_seed: int | None = None,
+    presolve: int | None = 1,
 ) -> dict[str, Any]:
     """Solve the portfolio LP natively with cuOpt."""
     lp_api = _require_cuopt()
@@ -142,6 +144,12 @@ def solve_portfolio_cuopt_native(
     with suppress(Exception):
         settings.set_parameter("log_to_console", False)
     settings.set_parameter("time_limit", int(time_limit))
+    if random_seed is not None:
+        with suppress(Exception):
+            settings.set_parameter("random_seed", int(random_seed))
+    if presolve is not None:
+        with suppress(Exception):
+            settings.set_parameter("presolve", int(presolve))
 
     solution = lp_api.Solve(dm, settings)
     termination_reason = str(solution.get_termination_reason())

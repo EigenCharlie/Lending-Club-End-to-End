@@ -140,6 +140,6 @@
   },
   "config_path": "configs/pd_model.champion.yaml",
   "schema_version": "2026-03-30.1",
-  "generated_at_utc": "2026-03-30T21:13:34.016227+00:00",
-  "run_tag": "canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129"
+  "generated_at_utc": "2026-04-07T17:43:28.456544+00:00",
+  "run_tag": "paper1-e2e-all-champions-2026-04-07"
 }

@@ -20,6 +20,7 @@ from loguru import logger
 
 from src.models.calibration import load_probability_calibrator
 from src.models.conformal import (
+    apply_probability_calibrator,
     build_mondrian_partition_labels,
     conditional_coverage_by_group,
     create_pd_intervals_mondrian,
@@ -266,10 +267,52 @@ def _scale_intervals_around_prediction(
     return np.column_stack([out_low, out_high])
 
 
+def _subset_calibration_frame(
+    cal_df: pd.DataFrame,
+    *,
+    calibration_fraction: float,
+) -> pd.DataFrame:
+    """Optionally restrict calibration to the most recent fraction."""
+    frac = float(np.clip(calibration_fraction, 0.05, 1.0))
+    if frac >= 0.999:
+        return cal_df.reset_index(drop=True)
+
+    n_total = len(cal_df)
+    n_keep = max(1000, int(round(n_total * frac)))
+    n_keep = min(n_total, n_keep)
+    if n_keep >= n_total:
+        return cal_df.reset_index(drop=True)
+
+    if "issue_d" in cal_df.columns:
+        ordered = cal_df.copy()
+        ordered["_issue_d_order"] = pd.to_datetime(ordered["issue_d"], errors="coerce").fillna(
+            pd.Timestamp("1900-01-01")
+        )
+        ordered = (
+            ordered.sort_values(["_issue_d_order"]).tail(n_keep).drop(columns=["_issue_d_order"])
+        )
+        logger.info(
+            "Using most recent calibration fraction: kept={} / {} ({:.0%})",
+            len(ordered),
+            n_total,
+            frac,
+        )
+        return ordered.reset_index(drop=True)
+
+    logger.info(
+        "Using tail calibration fraction without issue_d ordering: kept={} / {} ({:.0%})",
+        n_keep,
+        n_total,
+        frac,
+    )
+    return cal_df.tail(n_keep).reset_index(drop=True)
+
+
 def main(
     alpha_target_90: float = 0.10,
     alpha_95: float = 0.05,
     alpha_candidates_90: tuple[float, ...] = (0.10, 0.095, 0.09, 0.085, 0.08),
+    alpha_candidates_95: tuple[float, ...] = (0.05,),
     min_group_sizes: tuple[int, ...] = (200, 500, 1000, 2000),
     min_group_coverage_target: float = 0.88,
     group_coverage_floor_target_90: float = 0.92,
@@ -293,6 +336,12 @@ def main(
     temporal_multiplier_grid: tuple[float, ...] = (1.0, 1.02, 1.05, 1.08, 1.12, 1.16, 1.20),
     artifact_namespace: str | None = None,
     scaled_scores_options: tuple[bool, ...] = (True, False),
+    score_scale_families: tuple[str, ...] = ("bernoulli_sqrt", "none"),
+    partition_probability_sources: tuple[str, ...] = ("raw",),
+    n_score_bins_candidates: tuple[int, ...] = (10,),
+    fallback_modes: tuple[str, ...] = ("grade_then_global",),
+    calibration_fraction: float = 1.0,
+    evaluation_scope: str = "test",
     mode: str = "search",
     replay_manifest_path: str | None = None,
     calibrator_override_path: str | None = None,
@@ -316,6 +365,7 @@ def main(
     cal_df = read_with_fallback(
         "data/processed/calibration_fe.parquet", "data/processed/calibration.parquet"
     )
+    cal_df = _subset_calibration_frame(cal_df, calibration_fraction=calibration_fraction)
     test_df = read_with_fallback("data/processed/test_fe.parquet", "data/processed/test.parquet")
     if TARGET_COL not in cal_df.columns or TARGET_COL not in test_df.columns:
         raise KeyError(f"Missing target column '{TARGET_COL}' in calibration/test data.")
@@ -331,6 +381,16 @@ def main(
     group_test_base = test_df[GROUP_COL].fillna("UNKNOWN").astype(str)
     y_prob_cal_raw = model.predict_proba(X_cal)[:, 1]
     y_prob_test_raw = model.predict_proba(X_test)[:, 1]
+    y_prob_calibrated = (
+        apply_probability_calibrator(calibrator, y_prob_cal_raw)
+        if calibrator is not None
+        else np.asarray(y_prob_cal_raw, dtype=float)
+    )
+    y_prob_test_calibrated = (
+        apply_probability_calibrator(calibrator, y_prob_test_raw)
+        if calibrator is not None
+        else np.asarray(y_prob_test_raw, dtype=float)
+    )
     idx_cal_fit, idx_cal_tune = split_calibration_for_tuning(
         y_cal=y_cal,
         group_cal=group_cal_base,
@@ -381,6 +441,9 @@ def main(
         float(min_group_coverage_target),
         float(group_coverage_floor_target_90),
     )
+    evaluation_scope_key = str(evaluation_scope or "test").strip().lower() or "test"
+    if evaluation_scope_key not in {"test", "holdout"}:
+        raise ValueError(f"Unsupported evaluation_scope: {evaluation_scope}")
     partition_candidates = tuple(
         dict.fromkeys(
             [
@@ -390,82 +453,150 @@ def main(
             ]
         )
     ) or (str(partition).strip() or "grade",)
+    partition_probability_sources = tuple(
+        dict.fromkeys(
+            str(source).strip().lower()
+            for source in partition_probability_sources
+            if str(source).strip()
+        )
+    ) or ("raw",)
+    n_score_bins_candidates = tuple(int(x) for x in n_score_bins_candidates if int(x) > 0) or (10,)
+    fallback_modes = tuple(
+        dict.fromkeys(
+            str(mode_name).strip().lower() for mode_name in fallback_modes if str(mode_name).strip()
+        )
+    ) or ("grade_then_global",)
+    score_scale_families = tuple(
+        dict.fromkeys(
+            str(scale_name).strip().lower()
+            for scale_name in score_scale_families
+            if str(scale_name).strip()
+        )
+    ) or ("none",)
     tuning_rows: list[dict[str, Any]] = []
 
     # Tune 90% interval config across candidate Mondrian partitions.
+    prob_fit_lookup = {"raw": y_prob_cal_fit, "calibrated": y_prob_calibrated[idx_cal_fit]}
+    prob_tune_lookup = {"raw": y_prob_cal_tune, "calibrated": y_prob_calibrated[idx_cal_tune]}
+    prob_test_lookup = {"raw": y_prob_test_raw, "calibrated": y_prob_test_calibrated}
+
     for partition_candidate in partition_candidates:
-        for alpha_used in alpha_candidates_90:
-            for scaled_scores in tuple(bool(x) for x in scaled_scores_options):
-                for min_group_size in min_group_sizes:
-                    group_cal_fit, group_tune, partition_meta_candidate = (
-                        build_mondrian_partition_labels(
-                            y_prob_cal=y_prob_cal_fit,
-                            y_prob_eval=y_prob_cal_tune,
-                            partition=partition_candidate,
-                            base_groups_cal=group_cal_fit_base,
-                            base_groups_eval=group_tune_base,
-                            n_score_bins=10,
-                            min_group_size=min_group_size,
-                        )
-                    )
-                    y_pred, y_int, _diag = create_pd_intervals_mondrian(
-                        classifier=model,
-                        X_cal=X_cal_fit,
-                        y_cal=y_cal_fit,
-                        X_test=X_tune,
-                        group_cal=group_cal_fit,
-                        group_test=group_tune,
-                        alpha=alpha_used,
-                        min_group_size=min_group_size,
-                        calibrator=calibrator,
-                        scaled_scores=scaled_scores,
-                    )
+        for partition_probability_source in partition_probability_sources:
+            if partition_probability_source not in prob_fit_lookup:
+                raise ValueError(
+                    f"Unsupported partition_probability_source: {partition_probability_source}"
+                )
+            for n_score_bins in n_score_bins_candidates:
+                for fallback_mode in fallback_modes:
+                    for alpha_used in alpha_candidates_90:
+                        for scaled_scores in tuple(bool(x) for x in scaled_scores_options):
+                            for score_scale_family in score_scale_families:
+                                for min_group_size in min_group_sizes:
+                                    group_cal_fit, group_tune, partition_meta_candidate = (
+                                        build_mondrian_partition_labels(
+                                            y_prob_cal=prob_fit_lookup[
+                                                partition_probability_source
+                                            ],
+                                            y_prob_eval=prob_tune_lookup[
+                                                partition_probability_source
+                                            ],
+                                            partition=partition_candidate,
+                                            base_groups_cal=group_cal_fit_base,
+                                            base_groups_eval=group_tune_base,
+                                            n_score_bins=n_score_bins,
+                                            min_group_size=min_group_size,
+                                            fallback_mode=fallback_mode,
+                                        )
+                                    )
+                                    y_pred, y_int, _diag = create_pd_intervals_mondrian(
+                                        classifier=model,
+                                        X_cal=X_cal_fit,
+                                        y_cal=y_cal_fit,
+                                        X_test=X_tune,
+                                        group_cal=group_cal_fit,
+                                        group_test=group_tune,
+                                        alpha=alpha_used,
+                                        min_group_size=min_group_size,
+                                        calibrator=calibrator,
+                                        scaled_scores=scaled_scores,
+                                        score_scale_family=score_scale_family,
+                                    )
 
-                    metrics = validate_coverage(
-                        y_tune.to_numpy(dtype=float), y_int, alpha_target_90
-                    )
-                    g_metrics = conditional_coverage_by_group(
-                        y_tune.to_numpy(dtype=float), y_int, group_tune
-                    )
-                    temporal_metrics = temporal_stability_summary(
-                        y_tune.to_numpy(dtype=float),
-                        y_int,
-                        issue_tune,
-                        target_coverage=target_coverage_90,
-                        freq="M",
-                    )
+                                    metrics = validate_coverage(
+                                        y_tune.to_numpy(dtype=float), y_int, alpha_target_90
+                                    )
+                                    g_metrics = conditional_coverage_by_group(
+                                        y_tune.to_numpy(dtype=float), y_int, group_tune
+                                    )
+                                    temporal_metrics = temporal_stability_summary(
+                                        y_tune.to_numpy(dtype=float),
+                                        y_int,
+                                        issue_tune,
+                                        target_coverage=target_coverage_90,
+                                        freq="M",
+                                    )
 
-                    tuning_rows.append(
-                        {
-                            "partition": str(
-                                partition_meta_candidate.get("partition", partition_candidate)
-                            ),
-                            "fallback_groups_n": int(
-                                len(partition_meta_candidate.get("fallback_groups", []))
-                            ),
-                            "alpha_target_90": alpha_target_90,
-                            "alpha_used_90": alpha_used,
-                            "scaled_scores": bool(scaled_scores),
-                            "min_group_size": int(min_group_size),
-                            "empirical_coverage": float(metrics["empirical_coverage"]),
-                            "target_coverage": float(metrics["target_coverage"]),
-                            "coverage_gap": float(metrics["coverage_gap"]),
-                            "avg_interval_width": float(metrics["avg_interval_width"]),
-                            "median_interval_width": float(metrics["median_interval_width"]),
-                            "min_group_coverage": float(g_metrics["coverage"].min()),
-                            "max_group_coverage": float(g_metrics["coverage"].max()),
-                            "std_group_coverage": float(g_metrics["coverage"].std(ddof=0)),
-                            "winkler_90": float(
-                                mean_winkler_score(
-                                    y_tune.to_numpy(dtype=float),
-                                    y_int,
-                                    alpha=alpha_target_90,
-                                )
-                            ),
-                            "max_monthly_gap": float(temporal_metrics["max_monthly_gap"]),
-                            "stability_over_time": float(temporal_metrics["stability_over_time"]),
-                        }
-                    )
+                                    tuning_rows.append(
+                                        {
+                                            "partition": str(
+                                                partition_meta_candidate.get(
+                                                    "partition", partition_candidate
+                                                )
+                                            ),
+                                            "partition_probability_source": partition_probability_source,
+                                            "n_score_bins": int(n_score_bins),
+                                            "fallback_mode": str(
+                                                partition_meta_candidate.get(
+                                                    "fallback_mode", fallback_mode
+                                                )
+                                            ),
+                                            "fallback_groups_n": int(
+                                                len(
+                                                    partition_meta_candidate.get(
+                                                        "fallback_groups", []
+                                                    )
+                                                )
+                                            ),
+                                            "alpha_target_90": alpha_target_90,
+                                            "alpha_used_90": alpha_used,
+                                            "scaled_scores": bool(scaled_scores),
+                                            "score_scale_family": str(score_scale_family),
+                                            "min_group_size": int(min_group_size),
+                                            "empirical_coverage": float(
+                                                metrics["empirical_coverage"]
+                                            ),
+                                            "target_coverage": float(metrics["target_coverage"]),
+                                            "coverage_gap": float(metrics["coverage_gap"]),
+                                            "avg_interval_width": float(
+                                                metrics["avg_interval_width"]
+                                            ),
+                                            "median_interval_width": float(
+                                                metrics["median_interval_width"]
+                                            ),
+                                            "min_group_coverage": float(
+                                                g_metrics["coverage"].min()
+                                            ),
+                                            "max_group_coverage": float(
+                                                g_metrics["coverage"].max()
+                                            ),
+                                            "std_group_coverage": float(
+                                                g_metrics["coverage"].std(ddof=0)
+                                            ),
+                                            "winkler_90": float(
+                                                mean_winkler_score(
+                                                    y_tune.to_numpy(dtype=float),
+                                                    y_int,
+                                                    alpha=alpha_target_90,
+                                                )
+                                            ),
+                                            "max_monthly_gap": float(
+                                                temporal_metrics["max_monthly_gap"]
+                                            ),
+                                            "stability_over_time": float(
+                                                temporal_metrics["stability_over_time"]
+                                            ),
+                                        }
+                                    )
 
     tuning_df = pd.DataFrame(tuning_rows)
     tuning_df["is_pareto"] = mark_pareto_front(tuning_df)
@@ -490,9 +621,13 @@ def main(
     best_cfg = {
         "partition": str(best_row.get("partition", partition_candidates[0])),
         "partition_candidates": list(partition_candidates),
+        "partition_probability_source": str(best_row.get("partition_probability_source", "raw")),
+        "n_score_bins": int(best_row.get("n_score_bins", 10)),
+        "fallback_mode": str(best_row.get("fallback_mode", "grade_then_global")),
         "alpha_target_90": float(alpha_target_90),
         "alpha_used_90": float(best_row["alpha_used_90"]),
         "scaled_scores": bool(best_row["scaled_scores"]),
+        "score_scale_family": str(best_row.get("score_scale_family", "none")),
         "min_group_size": int(best_row["min_group_size"]),
         "min_group_coverage_target": float(min_group_coverage_target),
         "group_coverage_floor_target_90": float(group_coverage_floor_target_90),
@@ -504,7 +639,10 @@ def main(
     logger.info(
         "Best 90% tuning config: "
         f"partition={best_cfg['partition']}, "
+        f"prob_source={best_cfg['partition_probability_source']}, "
+        f"n_bins={best_cfg['n_score_bins']}, "
         f"alpha_used={best_cfg['alpha_used_90']}, scaled_scores={best_cfg['scaled_scores']}, "
+        f"score_scale_family={best_cfg['score_scale_family']}, "
         f"min_group_size={best_cfg['min_group_size']}, "
         f"coverage={best_row['empirical_coverage']:.4f}, "
         f"min_group_coverage={best_row['min_group_coverage']:.4f}, "
@@ -512,23 +650,28 @@ def main(
         f"tier={selection_tier}"
     )
 
+    best_prob_fit = prob_fit_lookup[best_cfg["partition_probability_source"]]
+    best_prob_tune = prob_tune_lookup[best_cfg["partition_probability_source"]]
+    best_prob_test = prob_test_lookup[best_cfg["partition_probability_source"]]
     group_cal_fit, group_test, partition_meta = build_mondrian_partition_labels(
-        y_prob_cal=y_prob_cal_fit,
-        y_prob_eval=y_prob_test_raw,
+        y_prob_cal=best_prob_fit,
+        y_prob_eval=best_prob_test,
         partition=best_cfg["partition"],
         base_groups_cal=group_cal_fit_base,
         base_groups_eval=group_test_base,
-        n_score_bins=10,
+        n_score_bins=best_cfg["n_score_bins"],
         min_group_size=best_cfg["min_group_size"],
+        fallback_mode=best_cfg["fallback_mode"],
     )
     group_cal_fit_holdout, group_tune, _ = build_mondrian_partition_labels(
-        y_prob_cal=y_prob_cal_fit,
-        y_prob_eval=y_prob_cal_tune,
+        y_prob_cal=best_prob_fit,
+        y_prob_eval=best_prob_tune,
         partition=best_cfg["partition"],
         base_groups_cal=group_cal_fit_base,
         base_groups_eval=group_tune_base,
-        n_score_bins=10,
+        n_score_bins=best_cfg["n_score_bins"],
         min_group_size=best_cfg["min_group_size"],
+        fallback_mode=best_cfg["fallback_mode"],
     )
 
     # Final 90% intervals with tuned config.
@@ -536,27 +679,31 @@ def main(
         classifier=model,
         X_cal=X_cal_fit,
         y_cal=y_cal_fit,
-        X_test=X_test,
+        X_test=X_test if evaluation_scope_key == "test" else X_tune,
         group_cal=group_cal_fit,
-        group_test=group_test,
+        group_test=group_test if evaluation_scope_key == "test" else group_tune,
         alpha=best_cfg["alpha_used_90"],
         min_group_size=best_cfg["min_group_size"],
         calibrator=calibrator,
         scaled_scores=best_cfg["scaled_scores"],
+        score_scale_family=best_cfg["score_scale_family"],
     )
-    metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
+    y_eval_90 = y_test if evaluation_scope_key == "test" else y_tune
+    eval_groups_90 = group_test if evaluation_scope_key == "test" else group_tune
+    eval_issue_90 = issue_test if evaluation_scope_key == "test" else issue_tune
+    metrics_90 = validate_coverage(y_eval_90.to_numpy(dtype=float), y_int_90, alpha_target_90)
     group_metrics_90 = conditional_coverage_by_group(
-        y_test.to_numpy(dtype=float), y_int_90, group_test
+        y_eval_90.to_numpy(dtype=float), y_int_90, eval_groups_90
     )
     width_attr_rows: list[dict[str, Any]] = [
         _stage_metrics(
-            dataset_scope="test",
+            dataset_scope="test" if evaluation_scope_key == "test" else "holdout",
             stage="base_interval",
-            y_true=y_test.to_numpy(dtype=float),
+            y_true=y_eval_90.to_numpy(dtype=float),
             y_pred=y_pred_90,
             y_intervals=y_int_90,
-            groups=group_test,
-            issue_dates=issue_test,
+            groups=eval_groups_90,
+            issue_dates=eval_issue_90,
             alpha=alpha_target_90,
             target_coverage=target_coverage_90,
         )
@@ -573,6 +720,7 @@ def main(
         min_group_size=best_cfg["min_group_size"],
         calibrator=calibrator,
         scaled_scores=best_cfg["scaled_scores"],
+        score_scale_family=best_cfg["score_scale_family"],
     )
     tune_metrics_90_before = validate_coverage(
         y_tune.to_numpy(dtype=float), y_int_tune, alpha_target_90
@@ -628,7 +776,7 @@ def main(
             target_coverage=target_coverage_90,
         )
     )
-    test_temporal_segments: pd.Series | None = None
+    eval_temporal_segments: pd.Series | None = None
     temporal_segment_multipliers: dict[str, float] = {}
     temporal_segment_report = pd.DataFrame(
         columns=[
@@ -650,22 +798,22 @@ def main(
             "Applying group coverage floor multipliers learned on calibration holdout: "
             f"{group_multipliers}"
         )
-        y_int_90 = apply_group_multipliers(y_pred_90, y_int_90, group_test, group_multipliers)
-        metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
+        y_int_90 = apply_group_multipliers(y_pred_90, y_int_90, eval_groups_90, group_multipliers)
+        metrics_90 = validate_coverage(y_eval_90.to_numpy(dtype=float), y_int_90, alpha_target_90)
         group_metrics_90 = conditional_coverage_by_group(
-            y_test.to_numpy(dtype=float), y_int_90, group_test
+            y_eval_90.to_numpy(dtype=float), y_int_90, eval_groups_90
         )
     else:
         logger.info("No group coverage floor adjustments were required.")
     width_attr_rows.append(
         _stage_metrics(
-            dataset_scope="test",
+            dataset_scope="test" if evaluation_scope_key == "test" else "holdout",
             stage="after_group_floor",
-            y_true=y_test.to_numpy(dtype=float),
+            y_true=y_eval_90.to_numpy(dtype=float),
             y_pred=y_pred_90,
             y_intervals=y_int_90,
-            groups=group_test,
-            issue_dates=issue_test,
+            groups=eval_groups_90,
+            issue_dates=eval_issue_90,
             alpha=alpha_target_90,
             target_coverage=target_coverage_90,
         )
@@ -673,18 +821,18 @@ def main(
     if (
         temporal_segment_floor_enabled
         and issue_tune.notna().any()
-        and issue_test.notna().any()
+        and eval_issue_90.notna().any()
         and len(issue_tune) == len(group_tune)
-        and len(issue_test) == len(group_test)
+        and len(eval_issue_90) == len(eval_groups_90)
     ):
         tune_temporal_segments = build_group_temporal_segments(
             groups=group_tune,
             issue_dates=issue_tune,
             freq=temporal_segment_freq,
         )
-        test_temporal_segments = build_group_temporal_segments(
-            groups=group_test,
-            issue_dates=issue_test,
+        eval_temporal_segments = build_group_temporal_segments(
+            groups=eval_groups_90,
+            issue_dates=eval_issue_90,
             freq=temporal_segment_freq,
         )
         y_int_90_tune_temporal, temporal_segment_multipliers, temporal_segment_report = (
@@ -723,12 +871,14 @@ def main(
             y_int_90 = apply_group_multipliers(
                 y_pred_90,
                 y_int_90,
-                test_temporal_segments,
+                eval_temporal_segments,
                 temporal_segment_multipliers,
             )
-            metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
+            metrics_90 = validate_coverage(
+                y_eval_90.to_numpy(dtype=float), y_int_90, alpha_target_90
+            )
             group_metrics_90 = conditional_coverage_by_group(
-                y_test.to_numpy(dtype=float), y_int_90, group_test
+                y_eval_90.to_numpy(dtype=float), y_int_90, eval_groups_90
             )
         else:
             logger.info("No temporal segment coverage adjustments were required.")
@@ -736,13 +886,13 @@ def main(
         logger.info("Temporal segment coverage adjustments skipped (missing issue_d coverage).")
     width_attr_rows.append(
         _stage_metrics(
-            dataset_scope="test",
+            dataset_scope="test" if evaluation_scope_key == "test" else "holdout",
             stage="after_temporal_floor",
-            y_true=y_test.to_numpy(dtype=float),
+            y_true=y_eval_90.to_numpy(dtype=float),
             y_pred=y_pred_90,
             y_intervals=y_int_90,
-            groups=group_test,
-            issue_dates=issue_test,
+            groups=eval_groups_90,
+            issue_dates=eval_issue_90,
             alpha=alpha_target_90,
             target_coverage=target_coverage_90,
         )
@@ -796,17 +946,19 @@ def main(
         )
         y_int_90 = np.asarray(y_int_90_base_test, dtype=float).copy()
         if group_multipliers:
-            y_int_90 = apply_group_multipliers(y_pred_90, y_int_90, group_test, group_multipliers)
-        if temporal_segment_multipliers and test_temporal_segments is not None:
+            y_int_90 = apply_group_multipliers(
+                y_pred_90, y_int_90, eval_groups_90, group_multipliers
+            )
+        if temporal_segment_multipliers and eval_temporal_segments is not None:
             y_int_90 = apply_group_multipliers(
                 y_pred_90,
                 y_int_90,
-                test_temporal_segments,
+                eval_temporal_segments,
                 temporal_segment_multipliers,
             )
-        metrics_90 = validate_coverage(y_test.to_numpy(dtype=float), y_int_90, alpha_target_90)
+        metrics_90 = validate_coverage(y_eval_90.to_numpy(dtype=float), y_int_90, alpha_target_90)
         group_metrics_90 = conditional_coverage_by_group(
-            y_test.to_numpy(dtype=float), y_int_90, group_test
+            y_eval_90.to_numpy(dtype=float), y_int_90, eval_groups_90
         )
     width_attr_rows.append(
         _stage_metrics(
@@ -823,13 +975,13 @@ def main(
     )
     width_attr_rows.append(
         _stage_metrics(
-            dataset_scope="test",
+            dataset_scope="test" if evaluation_scope_key == "test" else "holdout",
             stage="after_shrinkback",
-            y_true=y_test.to_numpy(dtype=float),
+            y_true=y_eval_90.to_numpy(dtype=float),
             y_pred=y_pred_90,
             y_intervals=y_int_90,
-            groups=group_test,
-            issue_dates=issue_test,
+            groups=eval_groups_90,
+            issue_dates=eval_issue_90,
             alpha=alpha_target_90,
             target_coverage=target_coverage_90,
         )
@@ -896,41 +1048,72 @@ def main(
                     y_pred_90, y_int_90, global_rebalance_factor
                 )
                 metrics_90 = validate_coverage(
-                    y_test.to_numpy(dtype=float), y_int_90, alpha_target_90
+                    y_eval_90.to_numpy(dtype=float), y_int_90, alpha_target_90
                 )
                 group_metrics_90 = conditional_coverage_by_group(
-                    y_test.to_numpy(dtype=float), y_int_90, group_test
+                    y_eval_90.to_numpy(dtype=float), y_int_90, eval_groups_90
                 )
+
+    best_alpha_95 = float(alpha_95)
+    if alpha_candidates_95:
+        best_score_95: tuple[float, float] | None = None
+        for alpha_candidate_95 in alpha_candidates_95:
+            _y_pred_95_tune, y_int_95_tune, _diag_95_tune = create_pd_intervals_mondrian(
+                classifier=model,
+                X_cal=X_cal_fit,
+                y_cal=y_cal_fit,
+                X_test=X_tune,
+                group_cal=group_cal_fit_holdout,
+                group_test=group_tune,
+                alpha=float(alpha_candidate_95),
+                min_group_size=best_cfg["min_group_size"],
+                calibrator=calibrator,
+                scaled_scores=best_cfg["scaled_scores"],
+                score_scale_family=best_cfg["score_scale_family"],
+            )
+            metrics_95_tune = validate_coverage(
+                y_tune.to_numpy(dtype=float),
+                y_int_95_tune,
+                alpha=float(alpha_candidate_95),
+            )
+            score_95 = (
+                abs(float(metrics_95_tune["coverage_gap"])),
+                float(metrics_95_tune["avg_interval_width"]),
+            )
+            if best_score_95 is None or score_95 < best_score_95:
+                best_score_95 = score_95
+                best_alpha_95 = float(alpha_candidate_95)
 
     # 95% intervals using same structure settings for consistency.
     y_pred_95, y_int_95, diag_95 = create_pd_intervals_mondrian(
         classifier=model,
         X_cal=X_cal_fit,
         y_cal=y_cal_fit,
-        X_test=X_test,
+        X_test=X_test if evaluation_scope_key == "test" else X_tune,
         group_cal=group_cal_fit,
-        group_test=group_test,
-        alpha=alpha_95,
+        group_test=group_test if evaluation_scope_key == "test" else group_tune,
+        alpha=best_alpha_95,
         min_group_size=best_cfg["min_group_size"],
         calibrator=calibrator,
         scaled_scores=best_cfg["scaled_scores"],
+        score_scale_family=best_cfg["score_scale_family"],
     )
     if group_multipliers:
-        y_int_95 = apply_group_multipliers(y_pred_95, y_int_95, group_test, group_multipliers)
-    if temporal_segment_multipliers and test_temporal_segments is not None:
+        y_int_95 = apply_group_multipliers(y_pred_95, y_int_95, eval_groups_90, group_multipliers)
+    if temporal_segment_multipliers and eval_temporal_segments is not None:
         y_int_95 = apply_group_multipliers(
-            y_pred_95, y_int_95, test_temporal_segments, temporal_segment_multipliers
+            y_pred_95, y_int_95, eval_temporal_segments, temporal_segment_multipliers
         )
     if abs(global_rebalance_factor - 1.0) > 1e-9:
         y_int_95 = _scale_intervals_around_prediction(y_pred_95, y_int_95, global_rebalance_factor)
-    metrics_95 = validate_coverage(y_test.to_numpy(dtype=float), y_int_95, alpha_95)
+    metrics_95 = validate_coverage(y_eval_90.to_numpy(dtype=float), y_int_95, best_alpha_95)
     group_metrics_95 = conditional_coverage_by_group(
-        y_test.to_numpy(dtype=float), y_int_95, group_test
+        y_eval_90.to_numpy(dtype=float), y_int_95, eval_groups_90
     )
 
     # Compose output tables.
     intervals_payload = {
-        "y_true": y_test.to_numpy(dtype=float),
+        "y_true": y_eval_90.to_numpy(dtype=float),
         "y_pred": y_pred_90,
         "pd_low_90": y_int_90[:, 0],
         "pd_high_90": y_int_90[:, 1],
@@ -938,15 +1121,24 @@ def main(
         "pd_high_95": y_int_95[:, 1],
         "width_90": y_int_90[:, 1] - y_int_90[:, 0],
         "width_95": y_int_95[:, 1] - y_int_95[:, 0],
-        GROUP_COL: group_test.to_numpy(dtype=str),
-        "loan_amnt": test_df["loan_amnt"].to_numpy(dtype=float)
-        if "loan_amnt" in test_df.columns
-        else np.nan,
+        GROUP_COL: eval_groups_90.to_numpy(dtype=str),
+        "loan_amnt": (
+            test_df["loan_amnt"].to_numpy(dtype=float)
+            if evaluation_scope_key == "test" and "loan_amnt" in test_df.columns
+            else cal_df.iloc[idx_cal_tune]["loan_amnt"].reset_index(drop=True).to_numpy(dtype=float)
+            if evaluation_scope_key == "holdout" and "loan_amnt" in cal_df.columns
+            else np.nan
+        ),
     }
-    if "id" in test_df.columns:
-        intervals_payload["id"] = test_df["id"].astype(str).to_numpy()
-    if test_temporal_segments is not None:
-        intervals_payload["temporal_segment"] = test_temporal_segments.to_numpy(dtype=str)
+    eval_df = (
+        test_df.reset_index(drop=True)
+        if evaluation_scope_key == "test"
+        else cal_df.iloc[idx_cal_tune].reset_index(drop=True)
+    )
+    if "id" in eval_df.columns:
+        intervals_payload["id"] = eval_df["id"].astype(str).to_numpy()
+    if eval_temporal_segments is not None:
+        intervals_payload["temporal_segment"] = eval_temporal_segments.to_numpy(dtype=str)
     intervals_df = pd.DataFrame(intervals_payload)
     intervals_df.insert(0, "_row_number", range(len(intervals_df)))
 
@@ -1013,6 +1205,8 @@ def main(
         "group_metrics_90": group_metrics_90.to_dict(orient="records"),
         "group_metrics_95": group_metrics_95.to_dict(orient="records"),
         "tuning_90_best": best_cfg,
+        "alpha_candidates_95": [float(x) for x in alpha_candidates_95],
+        "alpha_used_95": float(best_alpha_95),
         "tuning_90_table_path": str(tuning_path),
         "tuning_90_pareto_path": str(pareto_path),
         "group_coverage_floor_path": str(coverage_floor_path),
@@ -1035,8 +1229,10 @@ def main(
             "holdout_n": int(len(X_tune)),
             "holdout_ratio": float(tuning_holdout_ratio),
             "random_state": int(tuning_random_state),
+            "calibration_fraction": float(calibration_fraction),
             "preferred_mode": "temporal_if_issue_d_available",
         },
+        "evaluation_scope": str(evaluation_scope_key),
         "tune_metrics_90_before_floor": {
             k: to_python_scalar(v) for k, v in tune_metrics_90_before.items()
         },
@@ -1054,13 +1250,21 @@ def main(
             {
                 "artifact_namespace": artifact_namespace or "",
                 "selected_partition": str(partition_meta.get("partition", partition)),
+                "selected_partition_probability_source": str(
+                    best_cfg.get("partition_probability_source", "raw")
+                ),
+                "selected_n_score_bins": int(best_cfg.get("n_score_bins", 10)),
+                "selected_fallback_mode": str(best_cfg.get("fallback_mode", "grade_then_global")),
                 "selected_alpha_used_90": float(best_cfg["alpha_used_90"]),
+                "selected_alpha_used_95": float(best_alpha_95),
                 "selected_min_group_size": int(best_cfg["min_group_size"]),
                 "selected_scaled_scores": bool(best_cfg["scaled_scores"]),
+                "selected_score_scale_family": str(best_cfg.get("score_scale_family", "none")),
                 "group_factors_after_shrinkback": group_multipliers,
                 "temporal_factors_after_shrinkback": temporal_segment_multipliers,
                 "width_attribution_path": str(width_attr_path),
                 "shrinkback_path": str(shrinkback_path),
+                "evaluation_scope": str(evaluation_scope_key),
                 **build_artifact_metadata(
                     schema_version="2026-03-13.1",
                     run_tag=resolved_run_tag,
@@ -1109,6 +1313,7 @@ if __name__ == "__main__":
     parser.add_argument("--alpha_target_90", type=float, default=0.10)
     parser.add_argument("--alpha_95", type=float, default=0.05)
     parser.add_argument("--alpha_candidates_90", default="0.10,0.095,0.09,0.085,0.08")
+    parser.add_argument("--alpha_candidates_95", default="0.05")
     parser.add_argument("--min_group_sizes", default="200,500,1000,2000")
     parser.add_argument("--min_group_coverage_target", type=float, default=0.88)
     parser.add_argument("--group_coverage_floor_target_90", type=float, default=0.92)
@@ -1131,6 +1336,12 @@ if __name__ == "__main__":
     parser.add_argument("--global_rebalance_step", type=float, default=0.01)
     parser.add_argument("--partition", default="grade")
     parser.add_argument("--partition_candidates", default=None)
+    parser.add_argument("--partition_probability_sources", default="raw")
+    parser.add_argument("--n_score_bins_candidates", default="10")
+    parser.add_argument("--fallback_modes", default="grade_then_global")
+    parser.add_argument("--score_scale_families", default="bernoulli_sqrt,none")
+    parser.add_argument("--calibration_fraction", type=float, default=1.0)
+    parser.add_argument("--evaluation_scope", choices=["test", "holdout"], default="test")
     parser.add_argument("--artifact_namespace", default=None)
     parser.add_argument("--calibrator_override_path", default=None)
     parser.add_argument("--mode", choices=["search", "replay"], default="search")
@@ -1140,6 +1351,7 @@ if __name__ == "__main__":
         alpha_target_90=args.alpha_target_90,
         alpha_95=args.alpha_95,
         alpha_candidates_90=_parse_float_tuple(args.alpha_candidates_90),
+        alpha_candidates_95=_parse_float_tuple(args.alpha_candidates_95),
         min_group_sizes=_parse_int_tuple(args.min_group_sizes),
         min_group_coverage_target=args.min_group_coverage_target,
         group_coverage_floor_target_90=args.group_coverage_floor_target_90,
@@ -1169,6 +1381,20 @@ if __name__ == "__main__":
             if args.partition_candidates is not None
             else None
         ),
+        partition_probability_sources=tuple(
+            token.strip()
+            for token in str(args.partition_probability_sources).split(",")
+            if token.strip()
+        ),
+        n_score_bins_candidates=_parse_int_tuple(args.n_score_bins_candidates),
+        fallback_modes=tuple(
+            token.strip() for token in str(args.fallback_modes).split(",") if token.strip()
+        ),
+        score_scale_families=tuple(
+            token.strip() for token in str(args.score_scale_families).split(",") if token.strip()
+        ),
+        calibration_fraction=args.calibration_fraction,
+        evaluation_scope=args.evaluation_scope,
         artifact_namespace=args.artifact_namespace,
         calibrator_override_path=args.calibrator_override_path,
         scaled_scores_options=tuple(

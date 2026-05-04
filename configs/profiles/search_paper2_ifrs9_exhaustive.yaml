@@ -1,0 +1,25 @@
+schema_version: "2026-04-02.1"
+profile_name: search_paper2_ifrs9_exhaustive
+pipeline_family: search_paper2_ifrs9
+description: >
+  Búsqueda exhaustiva para la lane Paper 2 / IFRS9. Mantiene el point TS
+  canónico, deja `time_series_vnext` como research-only, y amplía survival,
+  LGD-EAD y diagnósticos IFRS9.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+  include_conformal_sensitivity: false
+defaults:
+  sampling_profile: mega64safe
+  upstream_registry: configs/baselines/canonical_operational_baseline.json
+search_space:
+  survival:
+    full_data: true
+    rsf_n_estimators: 300
+    rsf_max_depth: 16
+    rsf_max_samples: 0.65
+    rsf_min_samples_leaf: 4
+    rsf_sample_size: 650000
+    rsf_n_jobs: 16

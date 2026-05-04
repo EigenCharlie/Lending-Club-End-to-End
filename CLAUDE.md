@@ -34,16 +34,23 @@ Why this matters:
 ## CURRENT OFFICIAL DECISIONS
 
 - **Serving mode**: Quarto-first publication mode, with a reduced local Streamlit companion for optional interactive analysis and FastAPI/MCP as optional support services.
-- **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model.
+- **PD architecture**: `Logistic Regression` baseline + `CatBoost` default/tuned + calibrated final model. Champion uses monotonic constraints `installment:1, annual_inc:-1, dti:1, loan_to_income:1`.
 - **Validation scheme**: temporal `train/val/cal/test` with strict OOT evaluation.
 - **Feature contract**: driven by `data/processed/feature_config.pkl` and persisted in `models/pd_model_contract.json`.
-- **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config.
-- **Calibration policy**: 4 candidates (Platt, Isotonic, Venn-Abers, Beta); method selected by temporal multi-metric validation policy with log-loss + degradation rate tracking per fold. Config files are **templates** with defaults (`method: auto`); runtime artifacts are the source of truth.
+- **HPO policy**: Optuna tuning for CatBoost in canonical training when enabled by config. Champion uses HPO local trial 56 params (refined from prior monotonic search).
+- **Calibration policy**: 4 candidates (Platt, Isotonic, Venn-Abers, Beta); method selected by temporal multi-metric validation policy with log-loss + degradation rate tracking per fold. Champion calibrator: Venn-Abers (auto-selected). Config files are **templates** with defaults (`method: auto`); runtime artifacts are the source of truth.
+- **Conformal champion**: `score_decile_mondrian` (rank1 reopen, 2026-04-05). Config: `partition=grade, prob_source=calibrated, n_bins=10, fallback=global_only, score_scale=bernoulli_sqrt, min_group_size=100, calibration_fraction=0.5`.
+- **Portfolio champion**: `bound_aware_276k_economic_champion` from `paper-thesis-final-economic-2026-04-06`. Policy: `risk_tolerance=0.175, gamma=0.45, policy_mode=blended_uncertainty, uncertainty_aversion=0.10`. The `theorem_tight_comparator` (gamma=0.55) and `balanced_comparator` (rt=0.17) are documented internal comparators ONLY, not official champions.
+- **Pipeline freeze policy**: Non-search pipelines (`paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild`) use `freeze_if_available` execution mode — no portfolio re-search. Search pipelines (`search_portfolio`, `search_pd`) still do full search when invoked explicitly.
 
 Current runtime metrics and winners must be read from artifacts, primarily:
-- `data/processed/model_comparison.json`
-- `models/pd_training_record.pkl`
-- `data/processed/pipeline_summary.json`
+
+- `models/final_project_promotion.json` (paper-grade champion + comparators + robust region)
+- `models/champion_portfolio_policy.json` (frozen policy used by all non-search pipelines)
+- `models/champion_registry.json` (broader registry incl. PD, conformal, threshold semantics)
+- `data/processed/pipeline_summary.json` (operational PD/conformal/portfolio snapshot)
+- `data/processed/model_comparison.json` (PD model family comparison)
+- `models/pd_training_record.pkl` (PD training audit log)
 
 ## DATASET
 
@@ -219,4 +226,7 @@ Ruff rules: `E, F, W, I, UP, B, SIM, C4` (includes flake8-comprehensions).
 - LGD modeling only uses defaults (default_flag=1). ~88% null LGD values are expected.
 - Calibration method can change across runs by temporal model-selection policy (4 candidates: Platt, Isotonic, Venn-Abers, Beta); check `data/processed/model_comparison.json` for the active winner.
 - Side projects (RAPIDS GPU benchmark) are in `*/side_projects/` — not part of core thesis.
+- **Paper-facing tables** (`reports/paper_material/paper1/tables/*`) are regenerated ONLY via `scripts/export_paper1_canonical_tables.py` from `models/final_project_promotion.json` and the bound-aware 276K shortlist. Do NOT mix legacy frontier outputs with paper tables.
+- **The portfolio champion is `economic`, not `theorem_tight`**: rt=0.175, gamma=0.45, blended_uncertainty (return $170,464.54). The theorem-tight policy (gamma=0.55) and balanced policy (rt=0.17) are documented comparators, NOT champions. See `docs/research/paper_estrella_audit_2026-05-04.md` for the full audit dossier.
+- **Pipeline freeze**: `paper1_e2e`, `paper2_e2e`, `core_canonical`, `canonical_rebuild` use `freeze_if_available` mode and the AB selector `explicit_champion_only` to read `models/champion_portfolio_policy.json` directly — no portfolio re-search.
 - History of decision changes, errors, and learnings lives in `docs/DECISION_CHANGES_AND_LEARNINGS.md`.

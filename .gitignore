@@ -91,19 +91,6 @@ error_log.txt
 catboost_info/
 notebooks/catboost_info/
 
-# Thesis Word documents (binary, large)
-thesis_poster/*.docx
-
-# LaTeX build artifacts
-thesis_poster/*.aux
-thesis_poster/*.log
-thesis_poster/*.nav
-thesis_poster/*.out
-thesis_poster/poster_preview*.png
-thesis_poster/poster_tesis.pdf
-thesis_poster/*.snm
-thesis_poster/*.toc
-
 # DuckDB
 *.duckdb
 *.duckdb.wal
@@ -137,11 +124,6 @@ models/*_runtime_checkpoints/
 models/champion_policy_selection_status_candidate_*.json
 models/champion_portfolio_policy_candidate_*.json
 
-# Thesis poster PDFs (large binaries; not version-controlled)
-thesis_poster/*.pdf
-thesis_poster/*.png
-thesis_poster/*.jpg
-
 /.quarto/
 **/*.quarto_ipynb
 
@@ -150,7 +132,6 @@ book/_output/
 book/_output-core/
 
 # Large editorial diagram PNGs (>1MB, exceed pre-commit maxkb guard)
-# Originals live in thesis_poster/; copy into book/assets via build script
 book/assets/figures/editorial/diagrama-paper-*.png
 book/assets/figures/editorial/diagrama-paper-*.jpg
 
@@ -159,3 +140,29 @@ book/assets/figures/publication/p3_fig_calibration_stat_tests.pdf
 
 # Dev utilities (not project code)
 .dev-bin/
+
+# Large search-only artifacts (pre-commit maxkb guard rejects >3MB)
+reports/figures/shap/shap_values_test.npz
+models/search_pd/*/optuna_*.db
+models/search_pd/*/*.cbm
+models/search_pd/*/pd_*calibrator.pkl
+data/processed/search_pd/*/test_predictions.parquet
+reports/figures/search_pd/*/shap/shap_values_test.npz
+reports/history/kaggle_faressayah_lendingclub.html
+
+# LaTeX build artifacts in papers/
+papers/**/*.aux
+papers/**/*.bbl
+papers/**/*.blg
+papers/**/*.log
+papers/**/*.out
+
+# Stray bound figures in repo root (regenerable)
+canonical_alpha_gamma_bound.pdf
+canonical_alpha_gamma_bound.png
+
+# Search-only PD artifacts (large)
+models/search_pd/*/optuna_*.db
+models/search_pd/*/*.cbm
+models/search_pd/*/*calibrator.pkl
+data/processed/search_pd/*/test_predictions.parquet

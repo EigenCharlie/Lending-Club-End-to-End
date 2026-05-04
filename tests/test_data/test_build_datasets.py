@@ -11,6 +11,8 @@ from src.data.build_datasets import (
     build_loan_master,
     build_time_series,
     build_time_series_panel,
+    build_time_series_panel_vnext,
+    build_time_series_vnext,
     clean_raw_columns,
 )
 
@@ -175,6 +177,87 @@ class TestBuildTimeSeriesPanel:
         assert float(feb["loan_count"]) == 0.0
         assert float(feb["default_count"]) == 0.0
         assert float(feb["default_rate"]) == 0.0
+
+
+class TestBuildTimeSeriesVNext:
+    def test_enriched_portfolio_contains_vnext_targets_and_mix_features(
+        self,
+        feature_df: pd.DataFrame,
+    ) -> None:
+        enriched = feature_df.assign(
+            sub_grade=["A1"] * len(feature_df),
+            purpose=["debt_consolidation"] * len(feature_df),
+            verification_status=["Verified"] * len(feature_df),
+            home_ownership=["RENT"] * len(feature_df),
+            application_type=["Individual"] * len(feature_df),
+            fico_range_low=[680] * len(feature_df),
+            fico_range_high=[700] * len(feature_df),
+            revol_util=[55.0] * len(feature_df),
+            mort_acc=[1.0] * len(feature_df),
+            inq_last_6mths=[1.0] * len(feature_df),
+            delinq_2yrs=[0.0] * len(feature_df),
+            acc_now_delinq=[0.0] * len(feature_df),
+            num_tl_30dpd=[0.0] * len(feature_df),
+            num_tl_90g_dpd_24m=[0.0] * len(feature_df),
+        )
+        result = build_time_series_vnext(enriched)
+
+        expected = {
+            "y",
+            "y_logit",
+            "smoothed_default_rate",
+            "share_grade_A",
+            "share_term_36",
+            "share_verified",
+            "avg_fico_score",
+            "std_loan_amnt",
+        }
+        assert expected.issubset(result.columns)
+        assert np.isfinite(result["y_logit"]).all()
+        assert result["smoothed_default_rate"].between(0, 1).all()
+
+    def test_vnext_panel_fills_missing_months_and_recomputes_targets(self) -> None:
+        df = pd.DataFrame(
+            {
+                "id": [1, 2],
+                "loan_amnt": [10000, 12000],
+                "annual_inc": [50000, 60000],
+                "dti": [15.0, 18.0],
+                "int_rate": [10.0, 11.0],
+                "installment": [320.0, 360.0],
+                "term": [36, 36],
+                "grade": ["A", "A"],
+                "sub_grade": ["A1", "A1"],
+                "purpose": ["debt_consolidation", "debt_consolidation"],
+                "verification_status": ["Verified", "Verified"],
+                "home_ownership": ["RENT", "RENT"],
+                "application_type": ["Individual", "Individual"],
+                "fico_range_low": [680, 690],
+                "fico_range_high": [700, 710],
+                "revol_util": [50.0, 55.0],
+                "mort_acc": [1.0, 1.0],
+                "inq_last_6mths": [1.0, 2.0],
+                "delinq_2yrs": [0.0, 0.0],
+                "acc_now_delinq": [0.0, 0.0],
+                "num_tl_30dpd": [0.0, 0.0],
+                "num_tl_90g_dpd_24m": [0.0, 0.0],
+                "default_flag": [0, 1],
+                "issue_d": pd.to_datetime(["2018-01-01", "2018-03-01"]),
+            }
+        )
+        result = build_time_series_panel_vnext(df)
+        bottom = result.loc[result["unique_id"] == "grade_term::A__36"].sort_values("ds")
+        feb = bottom.loc[bottom["ds"] == pd.Timestamp("2018-02-01")].iloc[0]
+
+        assert bottom["ds"].tolist() == [
+            pd.Timestamp("2018-01-01"),
+            pd.Timestamp("2018-02-01"),
+            pd.Timestamp("2018-03-01"),
+        ]
+        assert float(feb["loan_count"]) == 0.0
+        assert float(feb["default_count"]) == 0.0
+        assert float(feb["default_rate"]) == 0.0
+        assert np.isfinite(float(feb["y_logit"]))
 
 
 class TestBuildEadDataset:

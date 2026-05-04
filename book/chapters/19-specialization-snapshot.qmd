@@ -1,0 +1,125 @@
+---
+title: "Snapshot: Tesis de Especialización (Abril 2026)"
+page-layout: article
+---
+
+## Contexto {#sec-specialization-snapshot}
+
+En abril de 2026 se defendió la tesis de especialización titulada **"Conformal Prediction para la Calibración y Cuantificación de Incertidumbre en Modelos de Riesgo Crediticio"**, dentro del programa de Especialización en Analítica y Ciencia de Datos Aplicada de la Universidad Tecnológica de Pereira (UTP).
+
+El alcance de la especialización fue aplicar predicción conformal a los tres componentes de la fórmula ECL — PD, LGD y EAD — sobre datos reales de Lending Club (1.86 millones de préstamos, 2007--2020), evaluando el impacto de la cuantificación de incertidumbre en provisiones IFRS9 y staging. La contribución no fue optimización ni decisión robusta (eso queda para la maestría), sino demostrar que la incertidumbre distribution-free puede integrarse operativamente en un pipeline de riesgo crediticio real.
+
+Esta página congela las métricas y el estado del proyecto al momento de la defensa. Los valores aquí son **hardcoded** y no cambian con futuras corridas del pipeline, lo que permite medir cuánto mejoran las técnicas y métricas en la tesis de maestría y los papers.
+
+El archivo espejo de la defensa se conserva en `reports/history/tesis_especializacion.md`. Los capítulos del libro que explican cada componente en profundidad se referencian al final de esta página.
+
+## Modelo Champion al momento de la defensa
+
+| Métrica | Valor |
+|---|---|
+| Modelo | CatBoost monotónico (`installment:1`, `annual_inc:-1`, `dti:1`, `loan_to_income:1`) |
+| Calibrador | Venn-Abers (auto-seleccionado de 4 candidatos) |
+| Run tag vigente | `paper-thesis-final-economic-2026-04-06` |
+| AUC (OOT) | 0.7124 |
+| Brier Score | 0.1546 |
+| ECE | 0.0064 |
+| KS Statistic | 0.3115 |
+| Auditoría monotónica | PASS (0 disrupciones, 0% violación) |
+| Fairness | 6/6 atributos PASS (`outcome_mode=approval`, `threshold=0.35`) |
+
+: Métricas del modelo PD champion — defensa especialización {#tbl-snapshot-pd}
+
+## Predicción Conformal PD
+
+| Métrica | Valor |
+|---|---|
+| Variante promovida | Score-Decile Mondrian (`rank1_score_decile_raw_bins5_mgs100`) |
+| Cobertura empírica al 90% | 92.97% |
+| Cobertura empírica al 95% | 96.64% |
+| Cobertura mínima por grupo al 90% | 91.90% |
+| Width promedio | 0.7842 |
+| Estabilidad temporal OOT | 33 meses, $\sigma = 0.035$, mín mensual 89.6% |
+
+: Métricas conformal PD — defensa especialización {#tbl-snapshot-conformal-pd}
+
+La variante Score-Decile Mondrian fue promovida tras una reapertura de benchmark conformal que evaluó múltiples particiones. La partición por deciles de score captura mejor la heterogeneidad residual que la partición por grade, manteniendo las garantías formales del marco Mondrian.
+
+## LGD y EAD Conformal
+
+| Componente | Métrica | Valor |
+|---|---|---|
+| LGD | Variante seleccionada | `direct_adaptive_grade_temporal` |
+| LGD | MAE | 0.1920 |
+| LGD | Cobertura al 90% | 90.50% |
+| LGD | Cobertura al 95% | 95.50% |
+| LGD | Min grade coverage al 90% | 90.50% |
+| EAD | R² | 0.9999 |
+| EAD | Cobertura al 90% | 91.20% |
+| EAD | Cobertura al 95% | 95.10% |
+| EAD | Width promedio al 90% | \$146.40 |
+
+: Métricas conformal LGD/EAD — defensa especialización {#tbl-snapshot-lgd-ead}
+
+La LGD fue el componente más difícil — distribución bimodal y heterogeneidad extrema por grade — y solo la variante adaptive con cuantiles por grade y corrección temporal logró cobertura adecuada en todos los segmentos. EAD fue casi determinístico (R² > 0.999), confirmando que la incertidumbre en ECL viene principalmente de PD y LGD.
+
+## IFRS9 y ECL por escenarios
+
+| Escenario | ECL | Δ vs Baseline |
+|---|---|---|
+| Baseline | \$875.9M | — |
+| Mild Stress | \$1,033.0M | +17.9% |
+| Adverse | \$1,220.2M | +39.3% |
+| Severe | \$1,487.9M | +69.9% |
+
+: ECL por escenario IFRS9 — defensa especialización {#tbl-snapshot-ecl}
+
+| Stage | Distribución | Préstamos |
+|---|---|---|
+| Stage 1 | 29.42% | 81,459 |
+| Stage 2 | 48.09% | 133,159 |
+| Stage 3 | 22.48% | 62,251 |
+
+: Distribución de stages IFRS9 — defensa especialización {#tbl-snapshot-stages}
+
+El trigger SICR basado en ancho conformal ($t^* = 0.30$) capturó el 75.8% de los defaults omitidos por umbrales convencionales, a un costo de \$56.6M en provisiones adicionales. Este mecanismo fue la principal contribución aplicada de la especialización al carril prudencial.
+
+## Estado de papers y conexión con maestría
+
+Al momento de la defensa, el proyecto de especialización alimentaba tres líneas de investigación para la maestría:
+
+| Línea | Paper | Venue objetivo | Conexión con especialización |
+|---|---|---|---|
+| Cobertura por subgrupo | Paper 3 (Mondrian) | COPA 2026 | Benchmark de variantes, heatmaps por grade, estabilidad temporal |
+| IFRS9 con incertidumbre | Paper 2 | JBF | ECL con bandas conformales, staging con SICR conformal |
+| Predict-then-optimize | Paper Estrella (CRPTO) | MS/OR | PD calibrada + bandas CP → conjuntos de incertidumbre → optimización robusta |
+
+: Conexión especialización → papers de maestría {#tbl-snapshot-papers}
+
+La especialización consolidó la base predictiva y conformal; la maestría extiende esa base hacia optimización robusta (Paper Estrella), provisiones con incertidumbre (Paper 2) y validez útil por subgrupo (Paper 3). La transición se describe en detalle en el capítulo puente (@sec-bridge-specialization).
+
+## Infraestructura del proyecto al momento de la defensa
+
+| Concepto | Valor |
+|---|---|
+| Dataset | 1,860,764 préstamos (2007--2020) |
+| Split OOT (test) | 276,869 préstamos (2018-01 a 2020-09, 33 meses) |
+| Tests automatizados | 695 |
+| Capítulos Quarto | 104 |
+| Páginas Streamlit | 5 (companion interactivo reducido) |
+| Scripts de pipeline | 108 |
+| Artefactos JSON de status | 87 |
+| Parquets procesados | 193 |
+
+: Infraestructura del proyecto — defensa especialización {#tbl-snapshot-infra}
+
+## Referencias cruzadas
+
+Los temas aquí resumidos se explican en profundidad en los siguientes capítulos del libro:
+
+- **Modelo PD y calibración**: @sec-catboost-tuned, @sec-calibration-selection, @sec-model-champion
+- **Predicción conformal**: @sec-split-conformal, @sec-mondrian, @sec-cqr-variants
+- **LGD/EAD conformal**: @sec-lgd-ead-conformal
+- **IFRS9 y ECL**: @sec-ecl-calculation, @sec-scenario-analysis, @sec-sicr-signal
+- **Puente especialización → maestría**: @sec-bridge-specialization
+- **Paper Estrella**: @sec-estrella-intro
+- **Paper 3 (Mondrian)**: @sec-p3-intro

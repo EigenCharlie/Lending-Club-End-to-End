@@ -7,7 +7,7 @@ artifact_scope: paper
 promotion_state: paper_grade
 writes_canonical_artifacts: false
 upstream_required: false
-default_profile: paper_grade_final
+default_profile: paper1_e2e_default
 papers_served: [paper1]
 allowed_step_groups:
   - preflight

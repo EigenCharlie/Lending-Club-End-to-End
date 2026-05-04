@@ -20,7 +20,7 @@ $$
 \text{PoR}(\%) = \frac{R_{\text{baseline}} - R_{\text{robusto}}}{|R_{\text{baseline}}|} \times 100
 $$ {#eq-price-of-robustness}
 
-La curva de PoR en funcion de $\gamma$ tiene forma convexa: robustez marginal es barata (primeros puntos base de proteccion cuestan poco retorno), pero la proteccion total ($\gamma = 1.0$) es desproporcionadamente costosa. El champion seleccionado en @sec-policy-selection opera en la zona de bajo costo marginal con un PoR de solo -2.58%.
+La curva de PoR en funcion de $\gamma$ tiene forma convexa: robustez marginal es barata (primeros puntos base de proteccion cuestan poco retorno), pero la proteccion total ($\gamma = 1.0$) es desproporcionadamente costosa. El cierre final del proyecto refina esta lectura: dentro de una región robusta completa, el champion económico se ubica en una zona de retorno máximo todavía exacta en `alpha=0.01`, mientras el comparator theorem-tight representa el costo adicional de apretar más el bound.
 
 ### Frontera de Pareto
 
@@ -41,7 +41,7 @@ La @tbl-frontier-example muestra las politicas Pareto-dominantes a lo largo de l
 
 : Zonas de la frontera de robustez. {#tbl-frontier-example}
 
-El champion actual ($\gamma = 0.10$, $\lambda = 0.10$, PoR = -2.58%, ~903 bps de reduccion) se ubica firmemente en la **zona balanceada**, donde el costo marginal de la robustez es bajo y la diversificacion del portafolio se mantiene alta.
+El champion económico (`risk_tolerance = 0.175`, `gamma = 0.45`, `lambda = 0.10`) se ubica en la transición entre la zona agresiva y la balanceada: conserva exactitud en `alpha=0.01` y maximiza retorno dentro de la región robusta. El comparator theorem-tight (`gamma = 0.55`) se mueve hacia una postura más conservadora y gana tightness adicional al costo de algunos miles de dólares de retorno realizado.
 
 ### Dimensiones del trade-off
 
@@ -49,11 +49,11 @@ El analisis de la frontera revela tres dimensiones del trade-off:
 
 1. **Retorno vs proteccion**: la curva clasica de PoR. Mayor $\gamma$ protege mas pero cuesta mas retorno.
 2. **Volumen vs conservadurismo**: tolerancias al riesgo mas bajas ($\bar{PD} = 0.06$) rechazan mas prestamos, reduciendo el volumen financiado. El piso de utilizacion de presupuesto (`min_budget_utilization = 0.05`) evita soluciones degeneradas a niveles estrictos de riesgo.
-3. **Granularidad del ajuste**: las politicas `segment_*` son mas selectivas que `blended_uncertainty` global, penalizando solo donde la incertidumbre relativa es alta. Esto permite mayor robustez sin sacrificio excesivo de retorno.
+3. **Composición del funded set**: el proyecto terminó mostrando que el cuello de botella real no era solo el modo de política, sino qué funded set exacto inducía cada combinación de `(risk_tolerance, gamma, lambda)`. Una policy más simple (`blended_uncertainty`) puede dominar a una más sofisticada si deja una región exacta completa y, dentro de ella, un champion económico superior.
 
 ::: {.callout-note}
 ## Frontera como herramienta de gobernanza
-La frontera de robustez no solo es un resultado analitico --- es una herramienta de decision para el comite de riesgo. Permite comunicar explicitamente: "por cada punto porcentual adicional de proteccion, el portafolio sacrifica $X de retorno". Esto transforma la decision de nivel de robustez en una decision economica cuantificable, no una eleccion subjetiva.
+La frontera de robustez no solo es un resultado analitico --- es una herramienta de decision para el comite de riesgo. Permite comunicar explicitamente: "por cada punto adicional de tightness teórica, el portafolio sacrifica cierto retorno". Esto transforma la comparación entre el champion económico oficial y el comparator theorem-tight en una elección económicamente cuantificable, no en una preferencia subjetiva.
 :::
 
 ### Conexion con el pipeline completo

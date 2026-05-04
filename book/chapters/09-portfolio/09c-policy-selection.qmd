@@ -1,6 +1,9 @@
 ## Selección de Política Económica {#sec-policy-selection}
 
-Con multiples combinaciones de tolerancia al riesgo ($\bar{PD}$), modo de politica, parametro de robustez ($\gamma$) y aversion a la incertidumbre ($\lambda$), el espacio de politicas viables es enorme. El **selector economico v3** (`economic_actual_ab_v3`) automatiza la seleccion de la politica champion mediante un proceso de tres etapas: evaluacion exhaustiva, test de no-regresion A/B y seleccion multicriterio.
+Con multiples combinaciones de tolerancia al riesgo ($\bar{PD}$), modo de politica, parametro de robustez ($\gamma$) y aversion a la incertidumbre ($\lambda$), el espacio de politicas viables es enorme. El proyecto hoy tiene dos capas distintas y complementarias:
+
+1. el **selector economico** del carril monotónico, que promovió la policy operativa base;
+2. el **cierre `bound-aware`**, que reranqueó políticas contra el bound exacto, reveló una región robusta completa y dejó comparadores claros dentro de esa región.
 
 ### Proceso de seleccion
 
@@ -23,25 +26,25 @@ $$ {#eq-ab-no-regression}
 
 Es decir, el portafolio robusto puede perder hasta un 5% del retorno realizado del baseline sin ser descartado. Este margen reconoce que la robustez tiene un costo, pero limita cuanto puede costar.
 
-### Politica champion seleccionada
+### Política champion seleccionada
 
-El selector economico v3 eligio la siguiente politica como champion:
+El cierre final paper/thesis promueve la siguiente política económica unificada:
 
 | Parametro | Valor |
 |-----------|-------|
-| `risk_tolerance` | 0.18 |
+| `risk_tolerance` | 0.175 |
 | `uncertainty_aversion` ($\lambda$) | 0.10 |
-| `policy_mode` | `segment_relative_tail_blended_uncertainty` |
-| `gamma` | 0.10 |
-| `tail_focus_quantile` | 0.75 |
+| `policy_mode` | `blended_uncertainty` |
+| `gamma` | 0.45 |
+| `tail_focus_quantile` | 1.0 |
 | `delta_cap_quantile` | 1.0 |
-| A/B no-regresion | PASS |
+| `alpha=0.01` exact | PASS |
 
-: Politica champion seleccionada por el selector economico v3. {#tbl-champion-policy}
+: Politica champion económica unificada del cierre final. {#tbl-champion-policy}
 
 ```{python}
 #| label: tbl-champion-policy-metrics
-#| tbl-cap: "Métricas económicas y de robustez de la policy promovida"
+#| tbl-cap: "Métricas económicas y exactas de la policy promovida"
 
 import sys
 from pathlib import Path
@@ -56,12 +59,15 @@ econ = policy.get("economic_metrics", {})
 rob = policy.get("robustness_metrics", {})
 
 rows = [
-    {"Métrica": "No-regression A/B", "Valor": str(econ.get("passed_no_regression"))},
-    {"Métrica": "Price of robustness (%)", "Valor": f"{rob.get('price_of_robustness_pct', 0):.2f}%"},
-    {"Métrica": "Worst-case PD reduction (bps)", "Valor": f"{rob.get('worst_case_pd_reduction_bps', 0):.1f}"},
-    {"Métrica": "Allocation similarity", "Valor": f"{rob.get('allocation_similarity', 0):.3f}"},
-    {"Métrica": "Breadth score", "Valor": f"{rob.get('breadth_score', 0):.3f}"},
-    {"Métrica": "Funded ratio vs baseline", "Valor": f"{econ.get('funded_ratio', 0):.3f}"},
+    {"Métrica": "A/B pass all", "Valor": str(econ.get("ab_pass_all"))},
+    {"Métrica": "alpha=0.01 exact pass", "Valor": str(econ.get("alpha01_exact_pass"))},
+    {"Métrica": "alpha=0.03 exact pass", "Valor": str(econ.get("alpha03_exact_pass"))},
+    {"Métrica": "alpha=0.10 exact pass", "Valor": str(econ.get("alpha10_exact_pass"))},
+    {"Métrica": "Retorno realizado", "Valor": f"${econ.get('realized_total_return', 0):,.0f}"},
+    {"Métrica": "Price of robustness (%)", "Valor": f"{econ.get('price_of_robustness_pct', 0):.2f}%"},
+    {"Métrica": "Weighted miscoverage V", "Valor": f"{rob.get('alpha01_weighted_miscoverage_V', 0):.6f}"},
+    {"Métrica": "Gamma CP", "Valor": f"{rob.get('alpha01_gamma_cp', 0):.6f}"},
+    {"Métrica": "Violación alpha01", "Valor": f"{rob.get('alpha01_violation', 0):.6f}"},
 ]
 
 pd.DataFrame(rows)
@@ -69,35 +75,136 @@ pd.DataFrame(rows)
 
 ::: {.callout-note}
 ## Interpretacion de la politica champion
-La politica `segment_relative_tail_blended_uncertainty` con $\gamma = 0.10$ aplica un ajuste de robustez solo al 25% superior de prestamos por ancho relativo de incertidumbre, dentro de cada segmento (grado $\times$ plazo $\times$ verificacion). Esto significa que los prestamos con PD bien estimada no reciben penalizacion, mientras que aquellos donde el modelo tiene mayor incertidumbre relativa si la reciben.
+La política final `blended_uncertainty` con $\gamma = 0.45$ y `risk_tolerance = 0.175` es ahora el champion oficial del proyecto porque elimina la ambigüedad entre “selector económico del run” y “promoción editorial final”. Sigue pasando `alpha=0.01` exacto con `violation = 0`, maximiza retorno dentro de la región robusta validada y mantiene métricas de tightness ya defendibles. El punto theorem-tight `0.175 / 0.55 / 0.10` se conserva como comparador metodológico importante, no como champion oficial separado.
+:::
+
+::: {.callout-warning}
+## Unificacion del selector y la promoción final
+El cierre actualizado del proyecto elimina esa bifurcación. El artefacto del run `276k` ya dejaba al **ganador económico del grid** como selección natural del barrido, y el proyecto final adopta ahora ese mismo punto como champion oficial en `models/final_project_promotion.json` y `models/champion_portfolio_policy.json`.
+
+La decisión final queda así unificada:
+
+- el **run selector** responde “qué punto maximizó retorno dentro de los passers”;
+- la **promoción final** adopta ese mismo punto como champion oficial del proyecto;
+- el **comparador theorem-tight** queda documentado para explicar el trade-off retorno-vs-tightness dentro de la región robusta.
 :::
 
 ### Alternativas de investigacion
 
-El selector evalua cuatro estrategias de seleccion alternativas para comparacion academica:
+El cierre final deja tres alternativas importantes para comparación académica y editorial:
 
 | Selector | Criterio principal | Risk tolerance | Policy mode |
 |----------|-------------------|----------------|-------------|
-| **promotion_first** | Maximiza retorno realizado | 0.16 | `tail_blended_uncertainty` |
-| **robustness_aware** | Retorno $\times \sqrt{\gamma}$ | 0.16 | `tail_blended_uncertainty` |
-| **balanced** | Retorno + $\gamma$ alto | 0.16 | `tail_blended_uncertainty` |
-| **guardrail** | PoR $\geq$ -25% + retorno | 0.14 | `hard_worst_case` |
+| **economic champion** | Maximiza retorno dentro de la región alpha01-safe | 0.175 | `blended_uncertainty` |
+| **theorem-tight** | Minimiza `V` y mejora `gamma_cp` | 0.175 | `blended_uncertainty` |
+| **balanced comparator** | Casi mismo retorno con postura un poco menos agresiva | 0.170 | `blended_uncertainty` |
 
-: Alternativas de seleccion de politica para investigacion. {#tbl-research-alternatives}
+: Alternativas finales dentro de la región robusta. {#tbl-research-alternatives}
 
-La estrategia `robustness_aware` pondera el retorno realizado por $\sqrt{\gamma}$, incentivando politicas que realmente usen la informacion de incertidumbre (no trivialmente $\gamma = 0$). La estrategia `guardrail` impone un piso al Price of Robustness para evitar politicas extremadamente conservadoras.
+La lectura nueva ya no es “qué selector histórico ganó”, sino “qué punto de la región robusta conviene promover”. El proyecto final promueve el economic champion y conserva el theorem-tight como comparador metodológico para documentar el trade-off exacto entre retorno y tightness.
+
+```{python}
+#| label: tbl-robust-region-snapshot
+#| tbl-cap: "Snapshot de la región robusta final: top puntos alpha01-safe en el full OOT"
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import REPO_ROOT
+
+import pandas as pd
+
+region_path = REPO_ROOT / "data" / "processed" / "portfolio_bound_aware" / "rank1_alpha01_bound_aware_276k_full_2026-04-05-1734" / "portfolio_bound_aware_bound_eval.parquet"
+region = pd.read_parquet(region_path)
+alpha01 = region[(region["alpha"] == 0.01) & (region["all_bounds_hold"])].copy()
+editorial_points = alpha01[
+    (
+        (alpha01["risk_tolerance"] == 0.175)
+        & (alpha01["gamma"] == 0.45)
+        & (alpha01["uncertainty_aversion"] == 0.10)
+    )
+    | (
+        (alpha01["risk_tolerance"] == 0.175)
+        & (alpha01["gamma"] == 0.55)
+        & (alpha01["uncertainty_aversion"] == 0.10)
+    )
+    | (
+        (alpha01["risk_tolerance"] == 0.170)
+        & (alpha01["gamma"] == 0.45)
+        & (alpha01["uncertainty_aversion"] == 0.10)
+    )
+]
+top_returns = alpha01.nlargest(5, "realized_total_return")
+alpha01 = (
+    pd.concat([editorial_points, top_returns], ignore_index=True)
+    .drop_duplicates(
+        subset=[
+            "risk_tolerance",
+            "policy_mode",
+            "gamma",
+            "uncertainty_aversion",
+            "delta_cap_quantile",
+            "tail_focus_quantile",
+            "min_budget_utilization",
+            "pd_cap_slack_penalty",
+        ]
+    )
+    .sort_values(["realized_total_return", "weighted_miscoverage_V"], ascending=[False, True])
+    .head(8)
+    .copy()
+)
+
+alpha01["Rol editorial"] = ""
+alpha01.loc[
+    (alpha01["risk_tolerance"] == 0.175)
+    & (alpha01["gamma"] == 0.45)
+    & (alpha01["uncertainty_aversion"] == 0.10),
+    "Rol editorial",
+] = "economic champion"
+alpha01.loc[
+    (alpha01["risk_tolerance"] == 0.175)
+    & (alpha01["gamma"] == 0.55)
+    & (alpha01["uncertainty_aversion"] == 0.10),
+    "Rol editorial",
+] = "theorem-tight"
+alpha01.loc[
+    (alpha01["risk_tolerance"] == 0.170)
+    & (alpha01["gamma"] == 0.45)
+    & (alpha01["uncertainty_aversion"] == 0.10),
+    "Rol editorial",
+] = "balanced comparator"
+
+alpha01 = alpha01[
+    [
+        "risk_tolerance",
+        "gamma",
+        "uncertainty_aversion",
+        "weighted_miscoverage_V",
+        "gamma_cp",
+        "realized_total_return",
+        "price_of_robustness_pct",
+        "Rol editorial",
+    ]
+]
+alpha01.columns = [
+    "Risk tol",
+    "Gamma",
+    "Lambda",
+    "V",
+    "gamma_cp",
+    "Retorno realizado",
+    "PoR (%)",
+    "Rol editorial",
+]
+alpha01
+```
 
 ### Breadth score
 
-Para verificar que la politica robusta no colapsa el portafolio a un subconjunto degenerado de prestamos, se calcula un **breadth score** compuesto:
-
-$$
-\text{Breadth} = w_1 \cdot \frac{n_{\text{funded}}^{\text{robusto}}}{n_{\text{funded}}^{\text{baseline}}} + w_2 \cdot \frac{\text{allocated}^{\text{robusto}}}{\text{allocated}^{\text{baseline}}} + w_3 \cdot \text{sim}(\mathbf{x}^{\text{robusto}}, \mathbf{x}^{\text{baseline}})
-$$ {#eq-breadth-score}
-
-con pesos $w_1 = 0.50$, $w_2 = 0.30$, $w_3 = 0.20$ y similitud coseno entre vectores de asignacion. El umbral minimo es 0.93; el champion actual alcanza **0.937**, indicando que la politica robusta mantiene un portafolio amplio y diversificado.
+En la versión previa, el capítulo usaba un **breadth score** compuesto para verificar que la política robusta no colapsara el portafolio a un subconjunto degenerado. Esa intuición sigue siendo útil, pero el cierre final del proyecto aporta una señal más fuerte: no hay un único punto viable, sino una región robusta completa de `45/45` políticas alpha01-safe sobre el OOT completo. Esa evidencia reduce el riesgo de depender de una solución frágil o sobreajustada.
 
 ::: {.callout-warning}
 ## Configuracion como template
-Los archivos YAML en `configs/` son **templates** con valores por defecto. La politica efectiva en produccion es el artefacto `models/champion_portfolio_policy.json`, que captura la decision del selector economico con todos los parametros resueltos y las metricas de seleccion.
+Los archivos YAML en `configs/` son **templates** con valores por defecto. La política efectiva promovida en el cierre final vive en `models/champion_portfolio_policy.json`, y la narrativa consolidada para paper/tesis se apoya además en `models/final_project_promotion.json`.
 :::
