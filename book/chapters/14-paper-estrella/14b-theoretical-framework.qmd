@@ -182,10 +182,37 @@ En lenguaje de comité de riesgos: con $\alpha = 0.10$, el target de riesgo pond
 
 La novedad empírica del cierre final es esta: el canónico monotónico y el conformal-only todavía no cerraban el punto `alpha = 0.01`, mientras que el carril `portfolio_bound_aware` sobre el conformal winner sí lo hace, y además no con un único punto aislado sino con una región completa de políticas exactas.
 
-::: {.callout-note}
-## Sobre la holgura de la cota
+#### Lemma 1: tightening condicional bajo independencia adicional {#sec-lem-conditional-tightening}
 
-La cota del @thm-conformal-feasibility es Markov-tight: es la mejor cota posible que usa solo la esperanza de $V$ sin supuestos adicionales. Bajo hipótesis más fuertes --- por ejemplo, si los indicadores de no cobertura $Z_i$ fuesen independientes (lo cual no es cierto bajo split conformal, donde comparten el conjunto de calibración) --- se podrían obtener cotas exponencialmente más ajustadas vía Hoeffding o Bernstein. Esa extensión queda como trabajo futuro para la versión journal.
+::: {#lem-conditional-tightening}
+## Tightening condicional del bound de factibilidad
+Manteniendo los supuestos del @thm-conformal-feasibility, sea $Z_i=\mathbf{1}\{Y_i>u_i\}$ y $V=\sum_i w_i Z_i$. Condicional en el conjunto de calibración y en una asignación $x^*$ fijada antes de observar los labels evaluados, suponga además que los $Z_i$ son independientes y que $\mathbb{E}[Z_i\mid\mathcal{F}_{cal}]\leq \alpha_i$. Defina $\mu_w=\sum_i w_i\alpha_i$, $\sigma_w^2=\sum_i w_i^2\alpha_i(1-\alpha_i)$ y $w_{\max}=\max_i w_i$. Entonces, para cualquier $s>0$:
+
+$$
+\mathbb{P}\!\left(V \geq \mu_w+s \mid \mathcal{F}_{cal}\right)
+\leq
+\exp\!\left(-\frac{2s^2}{\sum_i w_i^2}\right)
+$$ {#eq-hoeffding-tightening}
+
+y, con Bernstein,
+
+$$
+\mathbb{P}\!\left(V \geq \mu_w+s \mid \mathcal{F}_{cal}\right)
+\leq
+\exp\!\left(
+-\frac{s^2}{2\left(\sigma_w^2+w_{\max}s/3\right)}
+\right).
+$$ {#eq-bernstein-tightening}
+
+Por la descomposición del @thm-conformal-feasibility, esto implica una cota condicional análoga para $\mathbb{P}(\sum_i w_iY_i>\tau+\mu_w+s\mid\mathcal{F}_{cal})$.
+:::
+
+*Demostración.* Condicional en $\mathcal{F}_{cal}$ y en $x^*$, las variables $w_iZ_i$ son independientes y están acotadas en $[0,w_i]$. La primera desigualdad aplica Hoeffding a la suma ponderada $V$ y usa $\mathbb{E}[V\mid\mathcal{F}_{cal}]\leq\mu_w$. La segunda aplica Bernstein con varianza condicional acotada por $\sigma_w^2$ y rango máximo $w_{\max}$. La transferencia a la violación del portafolio sigue de $\sum_i w_iY_i\leq\tau+V$ cuando $\sum_i w_iu_i\leq\tau$. $\square$
+
+::: {.callout-warning}
+## Lectura correcta del tightening
+
+El Lemma 1 **no reemplaza** el @thm-conformal-feasibility. Markov sigue siendo la garantía distribution-free principal porque solo requiere control de $\mathbb{E}[V]$. Hoeffding/Bernstein son útiles para una versión journal más fuerte, pero dependen de independencia condicional de los indicadores de no cobertura, supuesto que split conformal no garantiza estrictamente porque todos los préstamos comparten la misma muestra de calibración.
 :::
 
 #### Corolario 1: Precio de la robustez {#sec-cor-por}

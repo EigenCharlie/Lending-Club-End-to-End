@@ -25,6 +25,20 @@ champion unless a new search run is explicitly approved.
 | External or synthetic shift replication | MDCP, online CP | Create stress scenarios or an external credit dataset validation of coverage, width, return, and `V` | coverage and funded-set risk are reported by period/source, not only globally |
 | Segment-period sensitivity | model risk / governance | Expand the stability table by grade, period and funded-set composition | no hidden weak segment drives the champion result |
 
+### P1 Implementation Snapshot - 2026-05-04
+
+The P1 items above now have a first reproducible evidence layer around the
+official champion. This layer strengthens the current paper without reopening
+the champion search.
+
+| Item | Implemented artifact | What it proves now | Remaining journal hardening |
+|---|---|---|---|
+| Nested holdout / post-selection validation | `paper1_tableA3_nested_holdout.csv`, `models/paper1_p1_evidence_status.json` | the 5K -> 25K -> 276K chain is explicit, and the final 276K confirmation matches the official champion with return `$170.5K`, `V=0.03645`, `gamma_cp=0.18591` | a fresh strictly disjoint funded-set selection/confirmation split if a reviewer asks for pure post-selection correction |
+| Decision-aware conformal selector | `paper1_tableA5_decision_aware_selector.csv` | a CROMS-style screen selects rank 1 after combining conformal gates, A/B pass, tradeoff return and exact bound availability | full prospective selection/training where all conformal variants receive exact bound-aware portfolio evaluations |
+| Conditional tightening lemma | `book/chapters/14-paper-estrella/14b-theoretical-framework.qmd` | Hoeffding/Bernstein tightening is stated as conditional on additional independence assumptions, while Markov remains the main distribution-free theorem | empirical or theoretical justification of conditional independence, or a weaker dependence-aware concentration result |
+| External or synthetic shift replication | `paper1_tableA6_synthetic_shift.csv` | OOT covariate-reweighting stress tests keep weighted coverage above 90% across high-PD, high-grade-risk and late-period scenarios | true external credit dataset replication |
+| Segment-period sensitivity | `paper1_tableA4_segment_period_sensitivity.csv` | all observed period-grade cuts stay above 90% coverage; worst cut is `2018H1/B` at about 90.32% | funded-set composition by period/grade if per-loan final allocation exports are added |
+
 ## P2 - Methodological Extensions
 
 | Item | Literature driver | Implementation sketch | Acceptance criteria |

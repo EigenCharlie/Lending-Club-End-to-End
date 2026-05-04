@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any
 
 import pandas as pd
+from analyze_paper1_p1_evidence import build_p1_evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA = ROOT / "data" / "processed"
@@ -273,6 +274,7 @@ def main() -> int:
     )
     _write_table("paper1_tableA1_benchmark_by_group", _table_a1_group_benchmark())
     _write_table("paper1_tableA2_robustness_frontier", _table_a2_frontier(shortlist, promotion))
+    build_p1_evidence()
     return 0
 
 

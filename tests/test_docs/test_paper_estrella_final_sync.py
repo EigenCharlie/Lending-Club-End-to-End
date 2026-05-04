@@ -17,6 +17,18 @@ EXPECTED_V = 0.03645
 EXPECTED_GAMMA_CP = 0.18591
 PAPER_ESTRELLA_DISCUSSION = Path("book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd")
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
+P1_EVIDENCE_STATUS = Path("models/paper1_p1_evidence_status.json")
+P1_EVIDENCE_DOSSIER = Path("docs/research/paper_estrella_p1_evidence_2026-05-04.md")
+P1_TABLES = {
+    "nested": Path("reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.csv"),
+    "segment": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA4_segment_period_sensitivity.csv"
+    ),
+    "selector": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA5_decision_aware_selector.csv"
+    ),
+    "shift": Path("reports/paper_material/paper1/tables/paper1_tableA6_synthetic_shift.csv"),
+}
 
 
 def _load_json(path: str) -> dict:
@@ -28,6 +40,11 @@ def _load_key_metric_table() -> dict[str, str]:
         encoding="utf-8"
     ) as handle:
         return {row["metric"]: row["value"] for row in csv.DictReader(handle)}
+
+
+def _read_csv_rows(path: Path) -> list[dict[str, str]]:
+    with path.open(encoding="utf-8") as handle:
+        return list(csv.DictReader(handle))
 
 
 def test_paper_estrella_champion_artifacts_agree() -> None:
@@ -120,3 +137,40 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "Online conformal recalibration",
     ):
         assert token in backlog
+
+
+def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
+    assert P1_EVIDENCE_STATUS.exists()
+    assert P1_EVIDENCE_DOSSIER.exists()
+    for table in P1_TABLES.values():
+        assert table.exists()
+
+    status = _load_json(str(P1_EVIDENCE_STATUS))
+    assert status["run_tag"] == EXPECTED_RUN_TAG
+    assert status["champion_label"] == EXPECTED_LABEL
+
+    nested = _read_csv_rows(P1_TABLES["nested"])
+    assert len(nested) == 3
+    final_nested = next(row for row in nested if row["stage"] == "bound_aware_276k")
+    assert final_nested["alpha01_exact_pass"] == "True"
+    assert final_nested["selected_matches_final_champion"] == "True"
+    assert float(final_nested["realized_total_return"]) == pytest.approx(EXPECTED_RETURN)
+    assert float(final_nested["alpha01_weighted_miscoverage_V"]) == pytest.approx(EXPECTED_V)
+    assert float(final_nested["alpha01_gamma_cp"]) == pytest.approx(EXPECTED_GAMMA_CP)
+
+    selector = _read_csv_rows(P1_TABLES["selector"])
+    selected = [row for row in selector if row["decision_aware_selected"] == "True"]
+    assert len(selected) == 1
+    assert selected[0]["rank"] == "1"
+    assert selected[0]["gate_pass"] == "True"
+    assert selected[0]["exact_bound_available"] == "True"
+
+    segment = _read_csv_rows(P1_TABLES["segment"])
+    assert len(segment) >= 20
+    assert min(float(row["coverage_90"]) for row in segment) >= 0.90
+    assert status["segment_period"]["flagged_segments"] == 0
+
+    shift = _read_csv_rows(P1_TABLES["shift"])
+    assert {row["scenario"] for row in shift} >= {"baseline", "high_pd_tail_3x"}
+    assert all(row["coverage90_pass"] == "True" for row in shift)
+    assert status["synthetic_shift"]["all_coverage90_pass"] is True

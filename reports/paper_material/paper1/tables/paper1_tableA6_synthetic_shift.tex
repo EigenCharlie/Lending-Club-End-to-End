@@ -1,0 +1,11 @@
+\begin{tabular}{llrrrrrrrr}
+\toprule
+scenario & description & effective\_n & weighted\_default\_rate & weighted\_coverage\_90 & weighted\_coverage\_95 & weighted\_avg\_width\_90 & loan\_weighted\_miscoverage\_90\_proxy & coverage90\_pass & coverage95\_pass \\
+\midrule
+baseline & Unweighted OOT 2018-2020. & 276869.000000 & 0.219779 & 0.929714 & 0.966388 & 0.784230 & 0.072438 & True & True \\
+high\_pd\_tail\_3x & Triples the top predicted-PD quartile. & 207686.337124 & 0.280567 & 0.938060 & 0.977777 & 0.857247 & 0.061517 & True & True \\
+grade\_efg\_3x & Triples original grades E/F/G. & 240908.787172 & 0.239208 & 0.931301 & 0.968606 & 0.802042 & 0.069859 & True & True \\
+late\_period\_3x & Triples 2019H2 and 2020 originations. & 219998.651778 & 0.200226 & 0.935222 & 0.968984 & 0.782861 & 0.067484 & True & True \\
+low\_pd\_2020\_3x & Triples 2020 or bottom predicted-PD quartile loans. & 207713.620572 & 0.168226 & 0.929891 & 0.957042 & 0.592780 & 0.074654 & True & True \\
+\bottomrule
+\end{tabular}

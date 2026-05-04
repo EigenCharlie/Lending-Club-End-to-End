@@ -20,6 +20,7 @@ The Paper Estrella closure is now anchored on the **bound-aware 276K economic ch
 - Conformal winner: `score_decile_mondrian` (rank1 reopen), coverage 92.97%, Winkler 1.111
 - PD upstream: HPO local trial 56 (val_AUC 0.722, OOT AUC 0.7124, Brier 0.1546, ECE 0.0064, Venn-Abers calibrator)
 - Paper-facing tables regenerated via `scripts/export_paper1_canonical_tables.py` from canonical sources
+- P1 journal evidence now materialized in `models/paper1_p1_evidence_status.json` and tables `paper1_tableA3`--`paper1_tableA6` (post-selection progression, segment-period sensitivity, decision-aware conformal screen, synthetic shift)
 
 ### Pipeline freeze policy (2026-05-04)
 
