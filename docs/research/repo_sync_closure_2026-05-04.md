@@ -54,3 +54,17 @@ The duplicated `conformal_reopen_exhaustive` search entry was fused into one
 registry row containing both validation scripts and all expected final artifacts.
 `models/pipeline_registry/search_registry.json` was regenerated from the YAML
 source.
+
+## DVC, Dagshub, and MLflow Closure
+
+- `dvc commit -f` was used to accept existing artifacts without retraining.
+- `dvc push -r dagshub` synchronized the final cache state; the remote check
+  returned `Cache and remote 'dagshub' are in sync.`
+- The DagsHub MLflow artifact backfill was run on 2026-05-04 with suite run
+  `519719aaa5754a9684e02bbf23a9a56a`.
+- Paper Estrella final MLflow run:
+  `6af4b95d152c47ec9420d5b1a2e78959` in experiment
+  `lending_club/paper1_final`.
+- Large artifacts above the MLflow artifact limit remain DVC-owned; for example,
+  the survival `cox_ph_model.pkl` was skipped by MLflow and remains available
+  through DVC/Dagshub.
