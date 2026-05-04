@@ -1,0 +1,11 @@
+\begin{tabular}{llrrrrrrr}
+\toprule
+scenario & description & added\_defaults & default\_rate & coverage\_90 & coverage\_95 & loan\_weighted\_coverage\_90 & loan\_weighted\_coverage\_95 & coverage90\_pass \\
+\midrule
+baseline\_observed & Observed OOT labels. & 0 & 0.219779 & 0.929714 & 0.966388 & 0.927562 & 0.966477 & True \\
+top\_pd\_nondefaults\_to\_default\_5pct & Flips 5\% of top-PD nondefaults to default. & 2167 & 0.227606 & 0.931166 & 0.966468 & 0.929421 & 0.966575 & True \\
+grade\_efg\_nondefaults\_to\_default\_10pct & Flips 10\% of grade E/F/G nondefaults to default. & 718 & 0.222372 & 0.930523 & 0.966439 & 0.928601 & 0.966539 & True \\
+late\_period\_nondefaults\_to\_default\_10pct & Flips 10\% of late-period nondefaults to default. & 2626 & 0.229264 & 0.929826 & 0.966399 & 0.927701 & 0.966491 & True \\
+worst\_segment\_2018h1\_b\_nondefaults\_to\_default\_5pct & Flips 5\% of nondefaults in the weakest observed period-grade segment. & 1261 & 0.224334 & 0.929136 & 0.966388 & 0.926765 & 0.966477 & True \\
+\bottomrule
+\end{tabular}

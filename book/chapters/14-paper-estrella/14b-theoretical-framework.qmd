@@ -215,6 +215,8 @@ Por la descomposición del @thm-conformal-feasibility, esto implica una cota con
 El Lemma 1 **no reemplaza** el @thm-conformal-feasibility. Markov sigue siendo la garantía distribution-free principal porque solo requiere control de $\mathbb{E}[V]$. Hoeffding/Bernstein son útiles para una versión journal más fuerte, pero dependen de independencia condicional de los indicadores de no cobertura, supuesto que split conformal no garantiza estrictamente porque todos los préstamos comparten la misma muestra de calibración.
 :::
 
+El apéndice de dependencia `docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md` fija la regla editorial para no sobreprometer este resultado: Markov es el claim principal, mientras Hoeffding/Bernstein quedan como tightening condicional bajo independencia adicional o bajo una futura prueba de concentración con dependencia controlada.
+
 #### Corolario 1: Precio de la robustez {#sec-cor-por}
 
 ::: {#cor-por}

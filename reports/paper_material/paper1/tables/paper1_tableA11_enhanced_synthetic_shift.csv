@@ -1,0 +1,6 @@
+scenario,description,added_defaults,default_rate,coverage_90,coverage_95,loan_weighted_coverage_90,loan_weighted_coverage_95,coverage90_pass
+baseline_observed,Observed OOT labels.,0,0.21977902907151034,0.9297140524941399,0.9663884364085542,0.9275617735542727,0.9664774370678135,True
+top_pd_nondefaults_to_default_5pct,Flips 5% of top-PD nondefaults to default.,2167,0.22760583525060588,0.9311660026944151,0.9664678963697633,0.9294209835827003,0.9665751745737241,True
+grade_efg_nondefaults_to_default_10pct,Flips 10% of grade E/F/G nondefaults to default.,718,0.22237231326006163,0.9305230993719051,0.9664390018384146,0.9286005099739589,0.9665390241089689,True
+late_period_nondefaults_to_default_10pct,Flips 10% of late-period nondefaults to default.,2626,0.22926365898674103,0.9298260188031163,0.96639927185781,0.927701452013379,0.966491482714133,True
+worst_segment_2018h1_b_nondefaults_to_default_5pct,Flips 5% of nondefaults in the weakest observed period-grade segment.,1261,0.22433352957535874,0.9291361618671646,0.9663884364085542,0.9267651389410181,0.9664774370678135,True

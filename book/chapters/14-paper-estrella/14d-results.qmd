@@ -266,7 +266,7 @@ La cobertura conformal se mantiene por encima del target 90% en **todos** los pe
 
 ### Evidencia P1 añadida para versión journal {#sec-estrella-p1-evidence}
 
-La auditoría posterior al cierre del champion agregó cuatro tablas reproducibles que endurecen el paper sin cambiar la policy oficial. Todas se regeneran desde la ruta canónica `scripts/export_paper1_canonical_tables.py` y quedan documentadas en `models/paper1_p1_evidence_status.json`. La primera convierte la historia 5K $\rightarrow$ 25K $\rightarrow$ 276K en una lectura post-selección explícita: el 5K detecta existencia, el 25K refina, y el 276K confirma el economic champion en el OOT completo.
+La auditoría posterior al cierre del champion agregó una capa P1 reproducible que endurece el paper sin cambiar la policy oficial. Las tablas A3--A6 se regeneran desde `scripts/export_paper1_canonical_tables.py`; las tablas A7--A11, que dependen de solves exactos, se regeneran explícitamente con `scripts/analyze_paper1_p1_evidence.py --include-hardening` y quedan registradas en `models/paper1_p1_evidence_status.json`. La primera pieza convierte la historia 5K $\rightarrow$ 25K $\rightarrow$ 276K en una lectura post-selección explícita: el 5K detecta existencia, el 25K refina, y el 276K confirma el economic champion en el OOT completo.
 
 ```{python}
 #| label: tbl-p1-p1-nested-confirmation
@@ -303,7 +303,30 @@ nested[
 ]
 ```
 
-La segunda tabla aplica una lectura tipo CROMS: no selecciona la variante conformal solo por cobertura o anchura, sino que añade compatibilidad con A/B, retorno de la policy tradeoff y disponibilidad de métricas exactas del bound. El resultado es conservador pero útil: confirma que `score_decile_mondrian` es el único finalist que pasa el gate conjunto; las variantes por grade tienen menor ancho, pero fallan cobertura mínima de grupo.
+La confirmación estrictamente disjunta separa temporalmente el OOT en 2018 y 2019--2020. No es una búsqueda nueva: evalúa la policy congelada en dos slices sin solapamiento. La señal que importa es que ambos slices mantienen `alpha01_exact_pass = true`, violación cero y funded sets suficientemente distintos como para descartar que el cierre dependa solo de una ventana temporal.
+
+```{python}
+#| label: tbl-p1-p1-strict-temporal-holdout
+#| tbl-cap: "Confirmación temporal estrictamente disjunta de la policy congelada"
+
+strict_holdout = pd.read_csv(tables_dir / "paper1_tableA9_strict_temporal_holdout.csv")
+strict_holdout[
+    [
+        "holdout_slice",
+        "periods",
+        "n_oot",
+        "n_funded",
+        "realized_total_return",
+        "alpha01_gamma_cp",
+        "alpha01_weighted_miscoverage_V",
+        "alpha01_violation",
+        "alpha01_empirical_coverage_funded",
+        "alpha01_exact_pass",
+    ]
+]
+```
+
+La segunda tabla aplica una lectura tipo CROMS: no selecciona la variante conformal solo por cobertura o anchura, sino que añade compatibilidad con A/B, retorno de la policy tradeoff y métricas exactas del bound. El resultado es conservador pero útil: confirma que `score_decile_mondrian` es el único finalist que pasa el gate conjunto; las variantes por grade tienen menor ancho, pero fallan cobertura mínima de grupo.
 
 ```{python}
 #| label: tbl-p1-p1-decision-aware-selector
@@ -320,9 +343,38 @@ selector[
         "policy_overall_pass",
         "ab_pass",
         "exact_bound_available",
+        "alpha01_exact_pass",
+        "alpha01_weighted_miscoverage_V",
+        "alpha01_gamma_cp",
         "gate_pass",
         "decision_aware_score",
         "decision_aware_selected",
+    ]
+]
+```
+
+La tabla exacta de finalists completa el punto que faltaba en la primera auditoría: ranks 1, 2 y 3 reciben evaluación bound-aware exacta en el OOT completo. Los tres pasan el bound de portfolio bajo sus policies de tradeoff, pero rank 2 y rank 3 no pasan el gate conformal por cobertura mínima de grupo. Por eso A10 fortalece el selector sin cambiar el conformal winner.
+
+```{python}
+#| label: tbl-p1-p1-finalist-exact-eval
+#| tbl-cap: "Evaluación exacta 276K de los finalists conformales"
+
+finalist_exact = pd.read_csv(
+    tables_dir / "paper1_tableA10_conformal_finalist_exact_bound_eval.csv"
+)
+finalist_exact[
+    [
+        "rank",
+        "partition",
+        "policy_overall_pass",
+        "coverage_90",
+        "min_group_coverage_90",
+        "n_funded",
+        "realized_total_return",
+        "alpha01_gamma_cp",
+        "alpha01_weighted_miscoverage_V",
+        "alpha01_violation",
+        "alpha01_exact_pass",
     ]
 ]
 ```
@@ -349,7 +401,29 @@ segment.sort_values("coverage_90").head(12)[
 ]
 ```
 
-Finalmente, la tabla de stress sintético repondera el OOT hacia cola de PD, grades E/F/G, periodos tardíos y mezcla de bajo riesgo/COVID. Es un test de covariate shift, no un reemplazo de dataset externo, pero sirve como primer puente hacia MDCP y conformal online: bajo todas las reponderaciones, la cobertura ponderada al 90% se mantiene sobre el target.
+La exportación per-loan del funded set completa la trazabilidad de composición. La tabla A7 conserva las 335 posiciones financiadas exactas; para lectura editorial, A8 resume exposición por periodo y grade. La concentración máxima por segmento queda documentada y permite revisar si el retorno de `$170.5K` dependía de un corte escondido del funded set.
+
+```{python}
+#| label: tbl-p1-p1-funded-composition
+#| tbl-cap: "Composición periodo-grade del funded set exacto"
+
+funded_composition = pd.read_csv(tables_dir / "paper1_tableA8_funded_set_composition.csv")
+funded_composition.sort_values("exposure_share", ascending=False).head(12)[
+    [
+        "period",
+        "original_grade",
+        "n_funded",
+        "funded_exposure",
+        "exposure_share",
+        "weighted_default_rate",
+        "weighted_pd_point",
+        "weighted_pd_high_alpha01",
+        "portfolio_V_contribution",
+    ]
+]
+```
+
+La tabla de stress sintético repondera el OOT hacia cola de PD, grades E/F/G, periodos tardíos y mezcla de bajo riesgo/COVID. Es un test de covariate shift, no un reemplazo de dataset externo, pero sirve como primer puente hacia MDCP y conformal online: bajo todas las reponderaciones, la cobertura ponderada al 90% se mantiene sobre el target.
 
 ```{python}
 #| label: tbl-p1-p1-synthetic-shift
@@ -365,6 +439,27 @@ synthetic[
         "weighted_coverage_95",
         "weighted_avg_width_90",
         "loan_weighted_miscoverage_90_proxy",
+        "coverage90_pass",
+    ]
+]
+```
+
+El stress endurecido agrega perturbaciones adversariales de labels: convierte una fracción de no-defaults en defaults en la cola de PD, grades E/F/G, periodos tardíos y el segmento más débil observado. Esto no simula una fuente externa completa, pero sí responde a una crítica más dura: incluso cuando forzamos defaults adicionales en cortes relevantes, la cobertura 90% permanece por encima del target.
+
+```{python}
+#| label: tbl-p1-p1-enhanced-synthetic-shift
+#| tbl-cap: "Stress sintético endurecido por flips adversariales de defaults"
+
+enhanced_shift = pd.read_csv(tables_dir / "paper1_tableA11_enhanced_synthetic_shift.csv")
+enhanced_shift[
+    [
+        "scenario",
+        "added_defaults",
+        "default_rate",
+        "coverage_90",
+        "coverage_95",
+        "loan_weighted_coverage_90",
+        "loan_weighted_coverage_95",
         "coverage90_pass",
     ]
 ]

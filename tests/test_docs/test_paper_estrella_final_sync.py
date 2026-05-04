@@ -19,6 +19,9 @@ PAPER_ESTRELLA_DISCUSSION = Path("book/chapters/14-paper-estrella/14e-discussion
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
 P1_EVIDENCE_STATUS = Path("models/paper1_p1_evidence_status.json")
 P1_EVIDENCE_DOSSIER = Path("docs/research/paper_estrella_p1_evidence_2026-05-04.md")
+P1_THEORY_APPENDIX = Path(
+    "docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md"
+)
 P1_TABLES = {
     "nested": Path("reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.csv"),
     "segment": Path(
@@ -28,6 +31,21 @@ P1_TABLES = {
         "reports/paper_material/paper1/tables/paper1_tableA5_decision_aware_selector.csv"
     ),
     "shift": Path("reports/paper_material/paper1/tables/paper1_tableA6_synthetic_shift.csv"),
+    "funded_loans": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA7_funded_set_loans.csv"
+    ),
+    "funded_composition": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA8_funded_set_composition.csv"
+    ),
+    "strict_holdout": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.csv"
+    ),
+    "finalist_exact": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA10_conformal_finalist_exact_bound_eval.csv"
+    ),
+    "enhanced_shift": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.csv"
+    ),
 }
 
 
@@ -126,6 +144,9 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "CROMS",
         "OCE/CVaR",
         "paper1.final.robust_return",
+        "tbl-p1-p1-strict-temporal-holdout",
+        "tbl-p1-p1-finalist-exact-eval",
+        "tbl-p1-p1-enhanced-synthetic-shift",
     ):
         assert token in discussion
 
@@ -133,6 +154,8 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "Do Not Reopen Without Approval",
         EXPECTED_RUN_TAG,
         "Decision-aware conformal selector",
+        "paper1_tableA10_conformal_finalist_exact_bound_eval.csv",
+        "paper1_tableA11_enhanced_synthetic_shift.csv",
         "OCE/CVaR funded-set conformal risk",
         "Online conformal recalibration",
     ):
@@ -142,6 +165,7 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
 def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
     assert P1_EVIDENCE_STATUS.exists()
     assert P1_EVIDENCE_DOSSIER.exists()
+    assert P1_THEORY_APPENDIX.exists()
     for table in P1_TABLES.values():
         assert table.exists()
 
@@ -164,6 +188,8 @@ def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
     assert selected[0]["rank"] == "1"
     assert selected[0]["gate_pass"] == "True"
     assert selected[0]["exact_bound_available"] == "True"
+    assert all(row["exact_bound_available"] == "True" for row in selector)
+    assert status["decision_aware_selector"]["exact_bound_available_for_all_ranks"] is True
 
     segment = _read_csv_rows(P1_TABLES["segment"])
     assert len(segment) >= 20
@@ -174,3 +200,35 @@ def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
     assert {row["scenario"] for row in shift} >= {"baseline", "high_pd_tail_3x"}
     assert all(row["coverage90_pass"] == "True" for row in shift)
     assert status["synthetic_shift"]["all_coverage90_pass"] is True
+
+    funded_loans = _read_csv_rows(P1_TABLES["funded_loans"])
+    assert len(funded_loans) >= 300
+    total_exposure = sum(float(row["funded_exposure"]) for row in funded_loans)
+    assert total_exposure == pytest.approx(1_000_000.0)
+    assert status["funded_set_export"]["status"] == "implemented"
+    assert status["funded_set_export"]["n_funded_loans"] == len(funded_loans)
+
+    funded_composition = _read_csv_rows(P1_TABLES["funded_composition"])
+    assert len(funded_composition) >= 20
+    assert max(float(row["exposure_share"]) for row in funded_composition) < 0.25
+    assert status["funded_set_composition"]["status"] == "implemented"
+
+    strict_holdout = _read_csv_rows(P1_TABLES["strict_holdout"])
+    assert len(strict_holdout) == 2
+    assert all(row["alpha01_exact_pass"] == "True" for row in strict_holdout)
+    assert all(float(row["alpha01_violation"]) == pytest.approx(0.0) for row in strict_holdout)
+    assert status["strict_temporal_holdout"]["strict_disjoint_split"] is True
+    assert status["strict_temporal_holdout"]["all_alpha01_pass"] is True
+
+    finalist_exact = _read_csv_rows(P1_TABLES["finalist_exact"])
+    assert {row["rank"] for row in finalist_exact} == {"1", "2", "3"}
+    assert all(row["alpha01_exact_pass"] == "True" for row in finalist_exact)
+    assert status["conformal_finalist_exact_eval"]["status"] == "implemented"
+    assert status["conformal_finalist_exact_eval"]["alpha01_pass_ranks"] == [1, 2, 3]
+
+    enhanced_shift = _read_csv_rows(P1_TABLES["enhanced_shift"])
+    assert len(enhanced_shift) >= 5
+    assert all(row["coverage90_pass"] == "True" for row in enhanced_shift)
+    assert status["enhanced_synthetic_shift"]["status"] == "implemented"
+    assert status["enhanced_synthetic_shift"]["all_coverage90_pass"] is True
+    assert status["conditional_tightening"]["appendix_artifact"] == str(P1_THEORY_APPENDIX)
