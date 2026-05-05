@@ -40,11 +40,33 @@ the champion search.
 | External or synthetic shift replication | `paper1_tableA6_synthetic_shift.csv`, `paper1_tableA11_enhanced_synthetic_shift.csv` | OOT covariate-reweighting and adversarial label-flip stress tests keep coverage above 90% across high-PD, high-grade-risk, late-period and weakest-segment scenarios | true external credit dataset replication |
 | Segment-period sensitivity | `paper1_tableA4_segment_period_sensitivity.csv`, `paper1_tableA7_funded_set_loans.csv`, `paper1_tableA8_funded_set_composition.csv` | all observed period-grade cuts stay above 90% coverage; the exact funded set is exported loan-by-loan and summarized by period/grade composition | external or prospective funded-set composition replication |
 
+### Journal Package Implementation Snapshot - 2026-05-04
+
+The immediate paper-to-journal packaging items are also implemented. This
+package is deliberately diagnostic: it strengthens the current Paper Estrella
+without changing the official champion or reopening the search.
+
+| Item | Implemented artifact | What it adds | Scope caveat |
+|---|---|---|---|
+| Convert chapter 14 into paper blueprint | `book/chapters/14-paper-estrella/14g-manuscript-blueprint.qmd` | target venue, abstract, claims C1--C7, manuscript outline, final table/figure plan and notation | blueprint, not final manuscript |
+| Appendix A12--A18 | `book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd` | renders tail risk, satisficing, dependency, stress, bootstrap, LGD/cap and robust-region evidence | appendix material unless a journal asks for more body evidence |
+| Clean CRPTO figure | `estrella_fig12_crpto_conceptual_pipeline.png` | candidate Figure 1 | visual explanation only |
+| Alpha -> Gamma_CP -> funded set figure | `estrella_fig13_alpha_gamma_funded_set.png` | connects conformal alpha to portfolio quantities | diagnostic curve from frozen artifacts |
+| Robust region heatmap | `estrella_fig14_robust_region_heatmap.png` | visualizes the `45/45` robust region | summarizes final mini-grid, not a new search |
+| OCE/CVaR funded-set risk | `paper1_tableA12_tail_risk_oce_cvar.csv` | reports mean loss, entropic OCE and CVaR under LGD 35/45/60 | return column is funded-set repricing diagnostic, not official champion return |
+| Satisficing margin | `paper1_tableA13_satisficing_margins.csv` | expresses return, `V`, `Gamma_CP`, violation and robust-region pass as OR thresholds | editorial thresholds should be justified if used in paper body |
+| Dependence diagnostics | `paper1_tableA14_dependency_cluster_diagnostics.csv` | documents concentration by period, grade and period-grade for the tightening appendix | does not prove independence |
+| Leave-one-period-out stress | `paper1_tableA15_leave_one_period_stress.csv` | checks temporal sensitivity by dropping or overweighting OOT periods | reweights exported funded set, not re-optimized policies |
+| Bootstrap funded-set metrics | `paper1_tableA16_bootstrap_funded_set_metrics.csv` | adds empirical intervals for return, default, `V` and miscoverage counts | descriptive bootstrap, not formal conformal guarantee |
+| Budget / LGD / cap sensitivity | `paper1_tableA17_budget_cap_lgd_sensitivity.csv` | reprices under budgets, LGD alternatives and segment caps | cap check is diagnostic, not a constrained optimization |
+| Robust region by policy family | `paper1_tableA18_robust_region_policy_family.csv` | groups final policies by `risk_tolerance x gamma` and confirms all pass | compatible leaderboard only within bound-aware family |
+| Reproducible generator | `scripts/build_paper1_journal_package.py`, `models/paper1_journal_package_status.json` | regenerates A12--A18 and figures from frozen artifacts | no champion promotion logic |
+
 ## P2 - Methodological Extensions
 
 | Item | Literature driver | Implementation sketch | Acceptance criteria |
 |---|---|---|---|
-| OCE/CVaR funded-set conformal risk | Conformal Risk Training | Replace or augment expected weighted miscoverage with OCE/CVaR-style tail risk of funded-set loss | reports tail-risk metrics alongside return, `V`, `gamma_cp` and price of robustness |
+| OCE/CVaR funded-set conformal risk as optimization target | Conformal Risk Training | A12 now reports diagnostic OCE/CVaR; the P2 version would replace or augment expected weighted miscoverage with OCE/CVaR-style tail risk during search | reports tail-risk metrics as constraints/objectives alongside official return, `V`, `gamma_cp` and price of robustness |
 | Multi-distribution robust conformal layer | MDCP | Calibrate for multiple possible sources/groups without assuming test-time group availability | reports worst-source coverage and robust set width |
 | Online conformal recalibration | UP-OCP / ACI | Update conformal quantiles under streaming monthly originations | coverage regret or online miscoverage is tracked over time |
 | Online DFL comparison | Online DFL | Compare CRPTO, SPO+ and online DFL under drift and repeated decisions | reports static/dynamic regret plus coverage and auditability metrics |
@@ -62,11 +84,17 @@ the champion search.
 
 ## Documentation Layer
 
-The Quarto book now includes an explicit editorial guide for Paper Estrella:
-`book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd`. This page
-is intentionally more explanatory than a journal paper. It keeps the claim
-ladder, reviewer Q&A, artifact placement map and local numbered references
-`[1]`, `[2]`, ... that can later be compressed into the manuscript.
+The Quarto book now includes an explicit editorial guide and two journal-facing
+pages for Paper Estrella:
+
+- `book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd`
+- `book/chapters/14-paper-estrella/14g-manuscript-blueprint.qmd`
+- `book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd`
+
+These pages are intentionally more explanatory than a journal paper. They keep
+the claim ladder, reviewer Q&A, artifact placement map, local numbered
+references `[1]`, `[2]`, ... and the A12--A18 appendix package that can later be
+compressed into the manuscript.
 
 The companion research note is
 `docs/research/paper_estrella_quarto_expansion_2026-05-04.md`.

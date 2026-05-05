@@ -1,0 +1,10 @@
+sensitivity_type,scenario,value,funded_set_repriced_return_lgd45,weighted_default_rate,weighted_miscoverage_V,diagnostic_pass,note
+budget_scaling_diagnostic,budget_500000,500000.0,86664.83170792255,0.036449999999999996,0.036449999999999996,True,Linear funded-set rescale; not a re-optimized portfolio.
+budget_scaling_diagnostic,budget_1000000,1000000.0,173329.6634158451,0.036449999999999996,0.036449999999999996,True,Linear funded-set rescale; not a re-optimized portfolio.
+budget_scaling_diagnostic,budget_2000000,2000000.0,346659.3268316902,0.036449999999999996,0.036449999999999996,True,Linear funded-set rescale; not a re-optimized portfolio.
+lgd_sensitivity,lgd_0.35,0.35,176974.6634158451,0.036449999999999996,0.036449999999999996,True,Reprices realized funded set under alternative LGD.
+lgd_sensitivity,lgd_0.45,0.45,173329.6634158451,0.036449999999999996,0.036449999999999996,True,Reprices realized funded set under alternative LGD.
+lgd_sensitivity,lgd_0.60,0.6,167862.1634158451,0.036449999999999996,0.036449999999999996,True,Reprices realized funded set under alternative LGD.
+segment_cap_diagnostic,segment_cap_0.25,0.25,173329.6634158451,0.036449999999999996,0.036449999999999996,True,Checks period-grade funded-set concentration; not a re-optimized portfolio.
+segment_cap_diagnostic,segment_cap_0.20,0.2,173329.6634158451,0.036449999999999996,0.036449999999999996,True,Checks period-grade funded-set concentration; not a re-optimized portfolio.
+segment_cap_diagnostic,segment_cap_0.15,0.15,173329.6634158451,0.036449999999999996,0.036449999999999996,False,Checks period-grade funded-set concentration; not a re-optimized portfolio.

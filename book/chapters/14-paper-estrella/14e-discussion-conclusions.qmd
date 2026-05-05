@@ -69,7 +69,8 @@ La hoja de ruta queda entonces ordenada por dependencia, no por entusiasmo bibli
 | P1 | selector conformal decision-aware | CROMS [@bao2025croms] | implementado como screen en `paper1_tableA5_decision_aware_selector.csv` con exact eval ranks 1--3 en `paper1_tableA10_conformal_finalist_exact_bound_eval.csv`; entrenamiento decision-aware queda como extension |
 | P1 | tightening condicional del bound | CRC + concentracion clasica | implementado como @lem-conditional-tightening y apendice de dependencia; no reemplaza Markov |
 | P1 | sensibilidad periodo-segmento, funded-set composition y shift sintetico | MDCP / online CP | implementado en `paper1_tableA4_segment_period_sensitivity.csv`, `paper1_tableA7_funded_set_loans.csv`, `paper1_tableA8_funded_set_composition.csv`, `paper1_tableA6_synthetic_shift.csv` y `paper1_tableA11_enhanced_synthetic_shift.csv` |
-| P2 | funded-set risk con OCE/CVaR | conformal risk training [@yeh2025training] | controlar cola de perdida, no solo esperanza |
+| P1/J | paquete journal de tail risk, satisficing, dependencia, stress temporal, bootstrap, LGD/caps y region robusta por familia | conformal risk training / satisficing / robustness | implementado en `paper1_tableA12_tail_risk_oce_cvar.csv`--`paper1_tableA18_robust_region_policy_family.csv`, `models/paper1_journal_package_status.json` y @sec-p1-journal-appendix |
+| P2 | funded-set risk OCE/CVaR como constraint re-optimizado | conformal risk training [@yeh2025training] | ya existe diagnostico A12; faltaria convertirlo en objetivo o restriccion de search |
 | P2 | robustez multi-distribucion / grupos desconocidos | MDCP [@yang2026multidistribution] | cobertura robusta ante fuente o grupo test-time no observado |
 | P2 | conformal online y DFL online | UP-OCP [@liu2026portfolio], Online DFL [@capitaine2026online] | recalibracion secuencial bajo drift y originacion continua |
 
@@ -98,6 +99,15 @@ La reproducibilidad del paper esta mejor resuelta que su cierre teorico. El capi
 - `reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.csv`
 - `reports/paper_material/paper1/tables/paper1_tableA10_conformal_finalist_exact_bound_eval.csv`
 - `reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA12_tail_risk_oce_cvar.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA13_satisficing_margins.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA14_dependency_cluster_diagnostics.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA15_leave_one_period_stress.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA16_bootstrap_funded_set_metrics.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA17_budget_cap_lgd_sensitivity.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA18_robust_region_policy_family.csv`
+- `models/paper1_journal_package_status.json`
+- `docs/research/paper_estrella_journal_package_2026-05-04.md`
 - `docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md`
 
 Ademas, la carpeta `reports/paper_material/figures_publication/` conserva las figuras editoriales congeladas para escritura y revision.
@@ -115,6 +125,7 @@ La tabla siguiente convierte esa trazabilidad en una regla de defensa editorial:
 | P1 post-seleccion 5K--25K--276K y holdout temporal estricto | `paper1_tableA3_nested_holdout.csv`, `paper1_tableA9_strict_temporal_holdout.csv`, `paper1_p1_evidence_status.json` | `test_paper_estrella_p1_evidence_artifacts_exist` |
 | P1 selector CROMS-style + exact finalists | `paper1_tableA5_decision_aware_selector.csv`, `paper1_tableA10_conformal_finalist_exact_bound_eval.csv` | `test_paper_estrella_p1_evidence_artifacts_exist` |
 | P1 segment/funded-set/shift sensitivity | `paper1_tableA4_segment_period_sensitivity.csv`, `paper1_tableA7_funded_set_loans.csv`, `paper1_tableA8_funded_set_composition.csv`, `paper1_tableA6_synthetic_shift.csv`, `paper1_tableA11_enhanced_synthetic_shift.csv` | `test_paper_estrella_p1_evidence_artifacts_exist` |
+| Journal package A12--A18 | `paper1_tableA12_tail_risk_oce_cvar.csv`--`paper1_tableA18_robust_region_policy_family.csv`, `estrella_fig12`--`estrella_fig14` | `test_paper_estrella_journal_package_artifacts_exist` |
 | PD operativo AUC/Brier/ECE | `data/processed/pipeline_summary.json`, `reports/dvc/metrics_summary.json` | comparacion solo dentro de familia PD |
 | Ownership DVC/Git correcto | `dvc.yaml`, `dvc.lock`, punteros `.dvc` | `test_dvc_outputs_are_not_tracked_directly_by_git` |
 

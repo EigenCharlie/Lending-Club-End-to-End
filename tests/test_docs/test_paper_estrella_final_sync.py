@@ -19,6 +19,12 @@ PAPER_ESTRELLA_DISCUSSION = Path("book/chapters/14-paper-estrella/14e-discussion
 PAPER_ESTRELLA_EDITORIAL_GUIDE = Path(
     "book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd"
 )
+PAPER_ESTRELLA_MANUSCRIPT_BLUEPRINT = Path(
+    "book/chapters/14-paper-estrella/14g-manuscript-blueprint.qmd"
+)
+PAPER_ESTRELLA_JOURNAL_APPENDIX = Path(
+    "book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd"
+)
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
 PAPER_ESTRELLA_QUARTO_EXPANSION = Path(
     "docs/research/paper_estrella_quarto_expansion_2026-05-04.md"
@@ -28,6 +34,8 @@ P1_EVIDENCE_DOSSIER = Path("docs/research/paper_estrella_p1_evidence_2026-05-04.
 P1_THEORY_APPENDIX = Path(
     "docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md"
 )
+P1_JOURNAL_STATUS = Path("models/paper1_journal_package_status.json")
+P1_JOURNAL_DOSSIER = Path("docs/research/paper_estrella_journal_package_2026-05-04.md")
 P1_TABLES = {
     "nested": Path("reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.csv"),
     "segment": Path(
@@ -51,6 +59,40 @@ P1_TABLES = {
     ),
     "enhanced_shift": Path(
         "reports/paper_material/paper1/tables/paper1_tableA11_enhanced_synthetic_shift.csv"
+    ),
+}
+P1_JOURNAL_TABLES = {
+    "tail_risk": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA12_tail_risk_oce_cvar.csv"
+    ),
+    "satisficing": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA13_satisficing_margins.csv"
+    ),
+    "dependency": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA14_dependency_cluster_diagnostics.csv"
+    ),
+    "period_stress": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA15_leave_one_period_stress.csv"
+    ),
+    "bootstrap": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA16_bootstrap_funded_set_metrics.csv"
+    ),
+    "budget_lgd_cap": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA17_budget_cap_lgd_sensitivity.csv"
+    ),
+    "robust_region_family": Path(
+        "reports/paper_material/paper1/tables/paper1_tableA18_robust_region_policy_family.csv"
+    ),
+}
+P1_JOURNAL_FIGURES = {
+    "crpto": Path(
+        "reports/paper_material/figures_publication/estrella_fig12_crpto_conceptual_pipeline.png"
+    ),
+    "alpha_gamma": Path(
+        "reports/paper_material/figures_publication/estrella_fig13_alpha_gamma_funded_set.png"
+    ),
+    "robust_region": Path(
+        "reports/paper_material/figures_publication/estrella_fig14_robust_region_heatmap.png"
     ),
 }
 
@@ -140,10 +182,14 @@ def test_dvc_outputs_are_not_tracked_directly_by_git() -> None:
 def test_paper_estrella_journal_backlog_is_documented() -> None:
     assert PAPER_ESTRELLA_BACKLOG.exists()
     assert PAPER_ESTRELLA_EDITORIAL_GUIDE.exists()
+    assert PAPER_ESTRELLA_MANUSCRIPT_BLUEPRINT.exists()
+    assert PAPER_ESTRELLA_JOURNAL_APPENDIX.exists()
     assert PAPER_ESTRELLA_QUARTO_EXPANSION.exists()
 
     discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
     editorial_guide = PAPER_ESTRELLA_EDITORIAL_GUIDE.read_text(encoding="utf-8")
+    manuscript_blueprint = PAPER_ESTRELLA_MANUSCRIPT_BLUEPRINT.read_text(encoding="utf-8")
+    journal_appendix = PAPER_ESTRELLA_JOURNAL_APPENDIX.read_text(encoding="utf-8")
     backlog = PAPER_ESTRELLA_BACKLOG.read_text(encoding="utf-8")
     quarto_config = Path("book/_quarto.yml").read_text(encoding="utf-8")
 
@@ -157,6 +203,9 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "tbl-p1-p1-strict-temporal-holdout",
         "tbl-p1-p1-finalist-exact-eval",
         "tbl-p1-p1-enhanced-synthetic-shift",
+        "paper1_tableA12_tail_risk_oce_cvar.csv",
+        "paper1_tableA18_robust_region_policy_family.csv",
+        "test_paper_estrella_journal_package_artifacts_exist",
     ):
         assert token in discussion
 
@@ -167,6 +216,11 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "paper1_tableA10_conformal_finalist_exact_bound_eval.csv",
         "paper1_tableA11_enhanced_synthetic_shift.csv",
         "14f-editorial-claims-references.qmd",
+        "14g-manuscript-blueprint.qmd",
+        "14h-journal-appendix-robustness.qmd",
+        "paper1_tableA12_tail_risk_oce_cvar.csv",
+        "paper1_tableA18_robust_region_policy_family.csv",
+        "scripts/build_paper1_journal_package.py",
         "OCE/CVaR funded-set conformal risk",
         "Online conformal recalibration",
     ):
@@ -178,10 +232,32 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "tbl-p1-claim-ladder",
         "tbl-p1-reviewer-audiences",
         "tbl-p1-paper-placement",
+        "tbl-p1-journal-ready-package",
         "[1] Vovk",
         "[17] Powell",
     ):
         assert token in quarto_config + editorial_guide
+
+    for token in (
+        "chapters/14-paper-estrella/14g-manuscript-blueprint.qmd",
+        "chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd",
+        "Management Science",
+        "C1",
+        "tbl-p1-manuscript-figures",
+        "tbl-p1-claim-artifact-test-location",
+        "tbl-p1-notation-unified",
+    ):
+        assert token in quarto_config + manuscript_blueprint
+
+    for token in (
+        "tbl-p1-journal-tail-risk",
+        "fig-p1-crpto-conceptual",
+        "fig-p1-alpha-gamma-funded-set",
+        "fig-p1-robust-region-heatmap",
+        "paper1_tableA18_robust_region_policy_family.csv",
+        "models/paper1_journal_package_status.json",
+    ):
+        assert token in journal_appendix
 
 
 def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
@@ -254,3 +330,73 @@ def test_paper_estrella_p1_evidence_artifacts_exist() -> None:
     assert status["enhanced_synthetic_shift"]["status"] == "implemented"
     assert status["enhanced_synthetic_shift"]["all_coverage90_pass"] is True
     assert status["conditional_tightening"]["appendix_artifact"] == str(P1_THEORY_APPENDIX)
+
+
+def test_paper_estrella_journal_package_artifacts_exist() -> None:
+    assert P1_JOURNAL_STATUS.exists()
+    assert P1_JOURNAL_DOSSIER.exists()
+    for table in P1_JOURNAL_TABLES.values():
+        assert table.exists()
+        assert _read_csv_rows(table)
+    for figure in P1_JOURNAL_FIGURES.values():
+        assert figure.exists()
+        assert figure.stat().st_size > 0
+
+    status = _load_json(str(P1_JOURNAL_STATUS))
+    assert status["run_tag"] == EXPECTED_RUN_TAG
+    assert status["champion_label"] == EXPECTED_LABEL
+    assert status["bootstrap_draws"] == 2000
+    assert status["bootstrap_seed"] == 20260504
+
+    generated = set(status["generated_artifacts"])
+    for table in P1_JOURNAL_TABLES.values():
+        assert str(table) in generated
+    for figure in P1_JOURNAL_FIGURES.values():
+        assert str(figure) in generated
+
+    tail_risk = _read_csv_rows(P1_JOURNAL_TABLES["tail_risk"])
+    assert {row["lgd"] for row in tail_risk} == {"0.35", "0.45", "0.6"}
+    lgd45 = next(row for row in tail_risk if row["lgd"] == "0.45")
+    assert float(lgd45["cvar_95_loss_rate"]) > 0
+    assert "funded_set_repriced_return" in lgd45
+
+    satisficing = _read_csv_rows(P1_JOURNAL_TABLES["satisficing"])
+    assert {row["criterion"] for row in satisficing} >= {
+        "return_beats_theorem_tight",
+        "V_below_sqrt_alpha01",
+        "gamma_cp_below_020",
+        "violation_zero",
+        "robust_region_all_pass",
+    }
+    assert all(row["pass"] == "True" for row in satisficing)
+
+    dependency = _read_csv_rows(P1_JOURNAL_TABLES["dependency"])
+    assert {"period", "grade", "period_grade"} <= {row["cluster_type"] for row in dependency}
+    assert max(float(row["exposure_share"]) for row in dependency) < 0.5
+
+    period_stress = _read_csv_rows(P1_JOURNAL_TABLES["period_stress"])
+    assert "baseline" in {row["scenario"] for row in period_stress}
+    assert any(row["scenario"].startswith("leave_out_") for row in period_stress)
+    assert any(row["scenario"].startswith("overweight_2x_") for row in period_stress)
+    assert all("funded_set_repriced_return_lgd45" in row for row in period_stress)
+
+    bootstrap = _read_csv_rows(P1_JOURNAL_TABLES["bootstrap"])
+    assert all(int(row["n_draws"]) == 2000 for row in bootstrap)
+    assert {row["metric"] for row in bootstrap} >= {
+        "funded_set_repriced_return_lgd45",
+        "weighted_default_rate",
+        "weighted_miscoverage_V",
+    }
+
+    budget_lgd_cap = _read_csv_rows(P1_JOURNAL_TABLES["budget_lgd_cap"])
+    assert {row["sensitivity_type"] for row in budget_lgd_cap} == {
+        "budget_scaling_diagnostic",
+        "lgd_sensitivity",
+        "segment_cap_diagnostic",
+    }
+    assert any(row["scenario"] == "lgd_0.60" for row in budget_lgd_cap)
+
+    robust_region = _read_csv_rows(P1_JOURNAL_TABLES["robust_region_family"])
+    assert len(robust_region) == 15
+    assert all(row["all_alpha01_pass"] == "True" for row in robust_region)
+    assert sum(int(row["n_policies"]) for row in robust_region) == 45

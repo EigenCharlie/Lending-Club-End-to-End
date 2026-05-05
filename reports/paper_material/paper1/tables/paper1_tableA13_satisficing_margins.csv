@@ -1,0 +1,6 @@
+criterion,observed,threshold,margin,pass,interpretation
+return_beats_theorem_tight,170464.5429284627,166269.82231927008,4194.72060919262,True,Economic champion preserves more return than the tightness comparator.
+V_below_sqrt_alpha01,0.03645,0.1,0.06355,True,Weighted funded-set noncoverage stays below Markov sqrt(alpha).
+gamma_cp_below_020,0.18591,0.2,0.01409000000000002,True,Conformal premium remains below an editorial 20pp diagnostic ceiling.
+violation_zero,0.0,0.0,-0.0,True,Exact funded-set risk violation is zero.
+robust_region_all_pass,1.0,1.0,0.0,True,The final 276K robust region is not a single-point result.

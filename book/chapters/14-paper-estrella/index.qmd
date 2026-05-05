@@ -65,6 +65,10 @@ comprimirán al manuscrito. La lectura recomendada es:
   journal o paper futuro.
 - **Guía editorial** traduce todo lo anterior en claims defendibles, preguntas
   de reviewer y referencias numeradas locales.
+- **Blueprint del manuscrito** convierte el dossier en estructura de paper,
+  venue target, claims C1--C7 y plan de figuras/tablas.
+- **Apéndice journal** organiza A12--A18, figuras paper-grade y checklist de
+  reproducibilidad.
 
 ::: {.callout-tip}
 ## Regla de lectura
@@ -84,5 +88,7 @@ tablas; el libro preserva el razonamiento, las cautelas y la trazabilidad.
   <div class="chapter-card"><h4><a href="14d-results.html">Resultados</a></h4><p>Pareto, region robusta, stress tests, funded set y comparación con alternativas.</p></div>
   <div class="chapter-card"><h4><a href="14e-discussion-conclusions.html">Discusión</a></h4><p>Implicaciones, limitaciones y cierre publicable.</p></div>
   <div class="chapter-card"><h4><a href="14f-editorial-claims-references.html">Guía editorial</a></h4><p>Claims, preguntas de reviewer, artefactos y referencias numeradas [1].</p></div>
+  <div class="chapter-card"><h4><a href="14g-manuscript-blueprint.html">Blueprint</a></h4><p>Venue, abstract, claims C1-C7, estructura del paper y plan de tablas/figuras.</p></div>
+  <div class="chapter-card"><h4><a href="14h-journal-appendix-robustness.html">Apéndice journal</a></h4><p>A12-A18, figuras CRPTO, robustness package y checklist reproducible.</p></div>
 </div>
 ```

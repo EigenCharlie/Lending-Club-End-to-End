@@ -165,6 +165,30 @@ pero una validación externa real sigue siendo trabajo futuro.
 
 : Destino editorial probable del material del libro {#tbl-p1-paper-placement}
 
+### Paquete journal-ready agregado
+
+Las paginas @sec-p1-manuscript-blueprint y @sec-p1-journal-appendix convierten
+esta guia editorial en un paquete de escritura mas cercano al manuscrito. El
+blueprint define venue target, abstract operativo, claims C1--C7, notacion unica
+y plan de figuras/tablas. El appendix journal agrega A12--A18 y tres figuras
+paper-grade generadas desde artefactos congelados.
+
+| Nuevo material | Papel editorial | Artefacto |
+|---|---|---|
+| Blueprint del manuscrito | estructura paper-ready y mapa claim -> artifact -> test -> location | `14g-manuscript-blueprint.qmd` |
+| Figura CRPTO limpia | Figura 1 candidata | `estrella_fig12_crpto_conceptual_pipeline.png` |
+| Figura alpha -> `Gamma_CP` -> funded set | puente teoria-metodo | `estrella_fig13_alpha_gamma_funded_set.png` |
+| Heatmap region robusta | evidencia visual `45/45` | `estrella_fig14_robust_region_heatmap.png` |
+| A12--A18 | robustness appendix journal | `scripts/build_paper1_journal_package.py` |
+| Status del paquete | trazabilidad y fuente canonica | `models/paper1_journal_package_status.json` |
+
+: Material journal-ready agregado al Paper Estrella {#tbl-p1-journal-ready-package}
+
+La regla de jerarquia sigue intacta: si una tabla diagnostica nueva entra en
+tension con `models/final_project_promotion.json`, gana la promocion oficial.
+A12--A18 fortalecen robustez y escritura journal, pero no re-promueven el
+champion.
+
 ### Referencias numeradas locales
 
 [1] Vovk, Gammerman and Shafer (2005), *Algorithmic Learning in a Random
