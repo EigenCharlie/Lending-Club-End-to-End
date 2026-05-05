@@ -122,6 +122,12 @@ book:
         - chapters/14-paper-estrella/14f-editorial-claims-references.qmd
         - chapters/14-paper-estrella/14g-manuscript-blueprint.qmd
         - chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd
+        - chapters/14-paper-estrella/14i-mondrian-ablation.qmd
+        - chapters/14-paper-estrella/14j-spo-protocol-and-regret.qmd
+        - chapters/14-paper-estrella/14k-fair-lending-checkpoint.qmd
+        - chapters/14-paper-estrella/14l-governance-mrm-approval.qmd
+        - chapters/14-paper-estrella/14m-funded-set-composition.qmd
+        - chapters/14-paper-estrella/14n-artifact-traceability.qmd
         - chapters/15-paper-ifrs9/index.qmd
         - chapters/15-paper-ifrs9/15a-introduction.qmd
         - chapters/15-paper-ifrs9/15b-methodology.qmd

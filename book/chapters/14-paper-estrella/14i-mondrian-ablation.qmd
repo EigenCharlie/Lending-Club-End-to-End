@@ -1,0 +1,145 @@
+---
+title: "Ablación Mondrian: Por qué `score_decile_mondrian` Ganó"
+page-layout: article
+---
+
+## Ablación de la Capa Conformal {#sec-p1-mondrian-ablation}
+
+El paper afirma que el winner conformal es `score_decile_mondrian` (@sec-mondrian, @sec-estrella-methodology) sin mostrar una tabla cabeza a cabeza contra los rivales. Esta página completa esa ablación. La pregunta operativa es directa: **¿por qué `score_decile_mondrian` gana frente al baseline regulatorio `grade` y frente a variantes alternativas evaluadas en el reopen conformal final?**
+
+La respuesta combina tres dimensiones — cobertura, ancho y mínimo por grupo — y un cuarto eje que aparece sólo cuando el bound exacto entra en juego: la **promovibilidad** del candidato como insumo del LP robusto.
+
+```{python}
+#| label: p1-mondrian-ablation-setup
+#| include: false
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_json, REPO_ROOT
+
+import pandas as pd
+
+candidates_path = (
+    REPO_ROOT
+    / "data"
+    / "processed"
+    / "conformal_gap"
+    / "conformal-reopen-2026-04-03-2149__resume__2026-04-05-1612"
+    / "conformal_reopen_phase1_final_candidates.parquet"
+)
+candidates = pd.read_parquet(candidates_path)
+promotion = load_json("final_project_promotion", directory="models")
+```
+
+### Tabla cabeza a cabeza: candidatos finales del reopen
+
+```{python}
+#| label: tbl-p1-mondrian-ablation-final-candidates
+#| tbl-cap: "Candidatos finales del reopen conformal evaluados sobre el OOT 276,869 (rank 1, 2, 3)"
+
+table = candidates[
+    [
+        "partition",
+        "partition_probability_source",
+        "n_score_bins",
+        "min_group_size",
+        "fallback_mode",
+        "coverage_90",
+        "avg_width_90",
+        "min_group_coverage_90",
+        "policy_overall_pass",
+        "methodological_justification_pass",
+    ]
+].copy()
+table["coverage_90"] = table["coverage_90"].map(lambda v: f"{v:.4f}")
+table["avg_width_90"] = table["avg_width_90"].map(lambda v: f"{v:.4f}")
+table["min_group_coverage_90"] = table["min_group_coverage_90"].map(lambda v: f"{v:.4f}")
+table.columns = [
+    "Partición",
+    "Prob. source",
+    "Bins",
+    "MGS",
+    "Fallback",
+    "Cobertura 90%",
+    "Ancho 90%",
+    "Min group 90%",
+    "Policy pass",
+    "Method. pass",
+]
+table.insert(0, "Rank", [1, 2, 3])
+table
+```
+
+::: {.callout-note}
+## Lectura editorial de la ablación
+
+El **rank 1** (`score_decile_mondrian`) es el único candidato que pasa simultáneamente la auditoría metodológica y la regla de promoción. Los rangos 2 y 3 (ambos `grade`) sobre-cubren a nivel marginal pero **fallan en el piso por grupo**: `min_group_coverage_90 = 87.77%`, debajo del target nominal del 90% que el bound exacto necesita para que el LP robusto no subvencione segmentos de alto riesgo con excedente de cobertura de los de bajo riesgo.
+
+La diferencia de ancho (0.7842 vs 0.7533) es real pero modesta: `score_decile_mondrian` paga ~4 puntos porcentuales más de ancho a cambio de **3.7 puntos porcentuales adicionales** de cobertura mínima por grupo. Esa es exactamente la prima conformal útil que el cierre `bound-aware` después convierte en una región robusta exacta.
+:::
+
+### Ejes de comparación
+
+::: {#tbl-p1-mondrian-ablation-axes}
+
+| Eje | `score_decile_mondrian` (winner) | `grade` (baseline regulatorio) | Lectura |
+|---|---|---|---|
+| Cobertura marginal 90% | 92.97% | 92.24% | Ambos sobre-cubren; diferencia de ~73 bps. |
+| Ancho medio 90% | 0.7842 | 0.7533 | El baseline es más estrecho; gana en eficiencia marginal. |
+| Cobertura mínima por grupo | 91.90% | 87.77% | Diferencia decisiva: el winner respeta el piso 90% por grupo. |
+| Winkler 90% | 1.111 | no reportado | Penaliza ancho cuando hay miscoverage; coherente con lectura de eficiencia. |
+| Promovibilidad (`policy_overall_pass`) | True | False | Sólo el winner pasa el gate de promoción. |
+| Justificación metodológica | True | False | Sólo el winner satisface la auditoría conformal. |
+| Aporte al cierre `bound-aware` | habilita región exacta `45/45` | aún fallaba `α=0.01` exacto | Diferencia decisiva del cierre final. |
+
+Comparación de ejes entre el winner conformal y el baseline regulatorio `grade`.
+:::
+
+### Por qué `grade` no basta — incluso siendo regulatoriamente natural
+
+`grade` es la partición más interpretable para un comité de riesgo: cada préstamo entra al grupo Mondrian que coincide con su grado (A–G). Si el comité pregunta "¿por qué este intervalo es tan ancho?", la respuesta es trivial: "porque tu grado tiene esa heterogeneidad histórica de score residual".
+
+El problema empírico, sin embargo, es que **la heterogeneidad intra-grado es alta**. Un préstamo grado B con FICO bajo y DTI alto se parece más a un préstamo grado C bien-puntuado que a otro grado B promedio. Cuando la calibración Mondrian agrupa todos los grado B juntos, el cuantil empírico de no conformidad termina dominado por la cola del grupo, lo que ensancha el intervalo del préstamo "central" y deja descubierto al préstamo "marginal". Eso explica por qué `min_group_coverage_90` cae a 87.77% en `grade` mientras que `score_decile_mondrian` la mantiene en 91.90%.
+
+`score_decile_mondrian` resuelve ese problema porque agrupa por **decil de score calibrado** dentro de cada grado: dos préstamos del mismo decil son equivalentes en riesgo posterior calibrado, y el cuantil de no conformidad calculado dentro del grupo es local al régimen de probabilidad. La interpretabilidad regulatoria se mantiene (cada grado sigue siendo identificable), pero la garantía finita-sample por grupo se vuelve mucho más estable.
+
+### Configuración exacta del winner promovido
+
+```{python}
+#| label: tbl-p1-mondrian-ablation-winner-config
+#| tbl-cap: "Configuración exacta del conformal winner promovido en `final_project_promotion.json`"
+
+cu = promotion["conformal_upstream"]
+ws = cu["winner_snapshot"]
+wm = cu["winner_metrics"]
+
+pd.DataFrame(
+    [
+        {"Parámetro": "Familia", "Valor": cu["winner_family"]},
+        {"Parámetro": "Partición primaria", "Valor": ws["partition"]},
+        {"Parámetro": "Partición secundaria (interpretable)", "Valor": cu["project_level_winner_partition"]},
+        {"Parámetro": "Cobertura 90%", "Valor": f"{wm['coverage_90']:.4f}"},
+        {"Parámetro": "Cobertura 95%", "Valor": f"{wm['coverage_95']:.4f}"},
+        {"Parámetro": "Ancho medio 90%", "Valor": f"{wm['avg_width_90']:.4f}"},
+        {"Parámetro": "Min group coverage 90%", "Valor": f"{wm['min_group_coverage_90']:.4f}"},
+        {"Parámetro": "Winkler 90%", "Valor": f"{wm['winkler_90']:.4f}"},
+        {"Parámetro": "Decisión de promoción", "Valor": cu["promotion_decision"]},
+    ]
+)
+```
+
+::: {.callout-tip}
+## Doble lectura del winner
+
+El proyecto preserva una **doble lectura editorial** del winner conformal: `score_decile_mondrian` es la partición ganadora por la regla de promoción objetiva, y `grade` se mantiene como **baseline natural e interpretable** para gobernanza y diagnóstico por grupo. Ambos coexisten en `final_project_promotion.json::conformal_upstream`. La regla del paper es: usar `score_decile_mondrian` para todo lo que entra al LP robusto, y citar `grade` cuando un revisor o un comité quiera leer cobertura por grado regulatorio sin reagrupar.
+:::
+
+### Por qué la ablación importa para el cierre final
+
+El reopen conformal documentó algo que el canónico monotónico solo hacía implícitamente: una capa conformal mejor compuesta deja una **prima conformal útil menor** (ancho razonable, piso por grupo respetado) sin sacrificar cobertura marginal. Ese resultado por sí solo no cierra el bound a `α = 0.01` (el conformal-only seguía fallando exacto), pero **abre la puerta** al carril `portfolio_bound_aware` donde la composición del funded set pasa a ser el determinante final.
+
+Dicho de otra forma: si la capa conformal tiene piso 87.77% por grupo, el LP robusto necesita endurecer mucho `risk_tolerance` o `gamma` para compensar — y eso colapsa el funded set a un puñado de préstamos sin retorno realista. Con piso 91.90%, en cambio, el LP tiene espacio para encontrar una región completa de policies exactas. Eso es lo que documentan los 45/45 passers del cierre 276K (@sec-estrella-results).
+
+La ablación, entonces, no es un torneo aislado de coverage — es la pieza que hace viable el resto del cierre.

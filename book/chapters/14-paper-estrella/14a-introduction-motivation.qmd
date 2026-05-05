@@ -83,4 +83,21 @@ Las siguientes secciones desarrollan:
 1. el marco teorico que conecta conformal y robustez (@sec-estrella-theory);
 2. el protocolo experimental congelado del proyecto (@sec-estrella-methodology);
 3. la evidencia empirica sobre trade-offs y politicas resultantes (@sec-estrella-results);
-4. las amenazas a la validez y la agenda de cierre para version journal (@sec-estrella-discussion).
+4. las amenazas a la validez y la agenda de cierre para version journal (@sec-estrella-discussion);
+5. el paquete de soporte que el libro conserva para escritura posterior:
+   ablacion Mondrian (@sec-p1-mondrian-ablation), protocolo SPO+
+   (@sec-p1-spo-protocol), checkpoint de fair lending (@sec-p1-fair-lending),
+   MRM/SR 11-7 (@sec-p1-mrm-approval), composicion del funded set
+   (@sec-p1-funded-set-composition) y trazabilidad completa
+   (@sec-p1-artifact-traceability).
+
+::: {.callout-note}
+## Por que el libro conserva mas material que el paper
+
+La version actual de Quarto funciona como una mesa de trabajo editorial. No
+todo entrara en el primer manuscrito: parte sera cuerpo del paper, parte ira al
+appendix journal y parte quedara como tesis/libro. Mantener aqui el material
+amplio evita perder decisiones, cautelas, artefactos y argumentos que luego
+pueden ser decisivos cuando se escoja venue o cuando lleguen comentarios de
+reviewers.
+:::

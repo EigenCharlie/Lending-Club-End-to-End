@@ -119,7 +119,7 @@ $$
 $$ {#eq-markov-tight}
 :::
 
-*Demostración.* La prueba descansa en descomponer el target de riesgo ponderado usando indicadores de cobertura.
+*Demostración.* La estructura de la prueba es la misma que el control distribution-free de pérdidas monotónicas acotadas en [@angelopoulos2024risk] y RCPS en [@bates2021rcps], pero instanciada sobre una pérdida específica al portafolio: la **no-cobertura ponderada por funded set**. Esa especialización es lo que hace que la garantía conformal del intervalo se herede de forma directa hacia la factibilidad del LP robusto. La prueba descansa en descomponer el target de riesgo ponderado usando indicadores de cobertura.
 
 **Paso 1 (Descomposición).** Sea $Z_i = \mathbf{1}\{Y_i > u_i\}$. Para los préstamos cubiertos ($Z_i = 0$), $Y_i \leq u_i$. Para los no cubiertos ($Z_i = 1$), $Y_i \leq 1$ (cota trivial ya que $Y_i \in [0,1]$), de modo que $Y_i - u_i \leq 1$. Entonces:
 

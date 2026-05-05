@@ -1,0 +1,301 @@
+---
+title: "Trazabilidad de Artefactos y Runbook"
+page-layout: article
+---
+
+## Mapa Maestro Claim → Artefacto → Test {#sec-p1-artifact-traceability}
+
+Esta página es el **índice maestro** del paper Estrella. Cumple un rol específico que ningún chapter narrativo cumple: dar a un revisor (académico, regulatorio o interno) la capacidad de tomar cualquier claim del paper, encontrar el artefacto exacto que lo soporta, identificar el script generador y verificar el guardrail que mantiene la coherencia. Es el contrato de trazabilidad operativa del proyecto.
+
+```{python}
+#| label: p1-traceability-setup
+#| include: false
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_json
+
+import pandas as pd
+```
+
+### Tabla maestra: claims C1–C7
+
+```{python}
+#| label: tbl-p1-claim-artifact-test
+#| tbl-cap: "Mapa de cada claim del paper a su artefacto, script generador y test guardrail"
+
+pd.DataFrame(
+    [
+        {
+            "Claim": "C1: PD calibrada estable",
+            "Evidencia": "AUC 0.7124, Brier 0.1546, ECE 0.0064",
+            "Artefacto": "data/processed/pipeline_summary.json + reports/dvc/metrics_summary.json",
+            "Script": "scripts/train_pd_model.py + src/models/calibration.py",
+            "Test": "tests/test_scripts/test_train_pd_model.py + tests/test_evaluation/test_calibration_mapping.py",
+        },
+        {
+            "Claim": "C2: Capa conformal Mondrian útil y trazable",
+            "Evidencia": "coverage_90 92.97%, min_group 91.90%, Winkler 1.111",
+            "Artefacto": "models/final_project_promotion.json::conformal_upstream + paper1_tableA10",
+            "Script": "scripts/generate_conformal_intervals.py + scripts/search/run_conformal_reopen_search.py",
+            "Test": "tests/test_models/test_conformal.py + tests/test_scripts/test_run_conformal_reopen_search.py",
+        },
+        {
+            "Claim": "C3: Intervalo conformal mapeado a uncertainty set del LP robusto",
+            "Evidencia": "Definición u_i(α), Γ_CP, policy_modes (blended_uncertainty etc.)",
+            "Artefacto": "src/optimization/portfolio_model.py::compute_effective_pd",
+            "Script": "scripts/optimize_portfolio.py + scripts/search/run_portfolio_bound_aware_search.py",
+            "Test": "tests/test_optimization/test_portfolio.py + tests/test_optimization/test_portfolio_model.py",
+        },
+        {
+            "Claim": "C4: Bound distribution-free (Theorem 1)",
+            "Evidencia": "V <= sqrt(α) sobre OOT 276K; alpha01_violation = 0",
+            "Artefacto": "data/processed/portfolio_bound_aware/.../portfolio_bound_aware_bound_eval.parquet",
+            "Script": "scripts/validate_alpha_gamma_bound.py",
+            "Test": "tests/test_docs/test_paper_estrella_final_sync.py + tests/test_scripts/test_run_portfolio_bound_aware_search.py",
+        },
+        {
+            "Claim": "C5: Champion oficial es economic, no theorem-tight",
+            "Evidencia": "rt=0.175, gamma=0.45, blended, retorno $170,464.54",
+            "Artefacto": "models/final_project_promotion.json::final_champion + champion_portfolio_policy.json",
+            "Script": "scripts/search/run_portfolio_bound_aware_search.py + scripts/export_final_project_promotion.py",
+            "Test": "tests/test_docs/test_paper_estrella_final_sync.py",
+        },
+        {
+            "Claim": "C6: Región robusta completa (45/45 alpha01-safe)",
+            "Evidencia": "n_alpha01_passers=45, alpha01_pass_rate=1.00",
+            "Artefacto": "models/final_project_promotion.json::robust_region_summary + paper1_tableA18",
+            "Script": "scripts/search/run_portfolio_bound_aware_search.py + scripts/build_paper1_journal_package.py",
+            "Test": "tests/test_docs/test_paper_estrella_final_sync.py",
+        },
+        {
+            "Claim": "C7: Evidencia P1 + journal-package fortalece sin cambiar dirección",
+            "Evidencia": "A3-A11 (P1) + A12-A18 (journal) todas pasan policy oficial",
+            "Artefacto": "models/paper1_p1_evidence_status.json + paper1_journal_package_status.json",
+            "Script": "scripts/analyze_paper1_p1_evidence.py + scripts/build_paper1_journal_package.py",
+            "Test": "tests/test_docs/test_paper_estrella_final_sync.py",
+        },
+    ]
+)
+```
+
+### Mapa figura → script → fuente
+
+```{python}
+#| label: tbl-p1-figure-traceability
+#| tbl-cap: "Mapa de figuras del paper a su script generador y artefactos fuente"
+
+pd.DataFrame(
+    [
+        {
+            "Figura": "Fig 7: uncertainty baselines tradeoff",
+            "Path": "reports/paper_material/figures_publication/estrella_fig7_uncertainty_baselines.png",
+            "Script": "scripts/generate_paper_figures.py",
+            "Fuente": "uncertainty_baselines_comparison.parquet",
+        },
+        {
+            "Figura": "Fig 8: alpha Pareto frontier",
+            "Path": "reports/paper_material/figures_publication/estrella_fig8_alpha_pareto.png",
+            "Script": "scripts/generate_paper_figures.py",
+            "Fuente": "alpha_sweep_pareto_both.parquet",
+        },
+        {
+            "Figura": "Fig 9: SPO+ regret comparison",
+            "Path": "reports/paper_material/figures_publication/estrella_fig9_spo_regret.png",
+            "Script": "scripts/run_spo_real.py + scripts/generate_paper_figures.py",
+            "Fuente": "crpto_vs_spo_stability.json + spo_training_loss.parquet",
+        },
+        {
+            "Figura": "Fig 10: CQR per grade",
+            "Path": "reports/paper_material/figures_publication/estrella_fig10_cqr_per_grade.png",
+            "Script": "scripts/generate_paper_figures.py",
+            "Fuente": "conformal_intervals.parquet (winner)",
+        },
+        {
+            "Figura": "Fig 11: CRPTO temporal stability",
+            "Path": "reports/paper_material/figures_publication/estrella_fig11_crpto_stability.png",
+            "Script": "scripts/run_crpto_vs_spo_stability.py + scripts/generate_paper_figures.py",
+            "Fuente": "crpto_vs_spo_stability_detail.parquet",
+        },
+        {
+            "Figura": "Fig 12: CRPTO conceptual pipeline",
+            "Path": "reports/paper_material/figures_publication/estrella_fig12_crpto_conceptual_pipeline.png",
+            "Script": "scripts/build_paper1_journal_package.py",
+            "Fuente": "diagrama editorial (manual)",
+        },
+        {
+            "Figura": "Fig 13: alpha → Γ_CP → funded set",
+            "Path": "reports/paper_material/figures_publication/estrella_fig13_alpha_gamma_funded_set.png",
+            "Script": "scripts/build_paper1_journal_package.py",
+            "Fuente": "alpha_sweep_pareto_both.parquet + bound_eval.parquet",
+        },
+        {
+            "Figura": "Fig 14: heatmap región robusta",
+            "Path": "reports/paper_material/figures_publication/estrella_fig14_robust_region_heatmap.png",
+            "Script": "scripts/build_paper1_journal_package.py",
+            "Fuente": "paper1_tableA18_robust_region_policy_family.csv",
+        },
+        {
+            "Figura": "Fig α-Γ bound validation",
+            "Path": "book/assets/figures/publication/estrella_fig_alpha_gamma_bound.png",
+            "Script": "scripts/validate_alpha_gamma_bound.py",
+            "Fuente": "alpha_sweep_pareto_both.parquet",
+        },
+    ]
+)
+```
+
+### Mapa tabla A → script → fuente
+
+```{python}
+#| label: tbl-p1-table-traceability
+#| tbl-cap: "Mapa de tablas A1–A18 a su rol y script generador"
+
+pd.DataFrame(
+    [
+        {"Tabla": "A1", "Rol": "Benchmark por grupo (legacy)", "Generador": "export_paper1_canonical_tables.py"},
+        {"Tabla": "A2", "Rol": "Robustness frontier (legacy)", "Generador": "export_paper1_canonical_tables.py"},
+        {"Tabla": "A3", "Rol": "Nested holdout 5K → 25K → 276K", "Generador": "analyze_paper1_p1_evidence.py"},
+        {"Tabla": "A4", "Rol": "Sensibilidad periodo × grade", "Generador": "analyze_paper1_p1_evidence.py"},
+        {"Tabla": "A5", "Rol": "Decision-aware conformal selector (CROMS-style)", "Generador": "analyze_paper1_p1_evidence.py"},
+        {"Tabla": "A6", "Rol": "Synthetic shift básico", "Generador": "analyze_paper1_p1_evidence.py"},
+        {"Tabla": "A7", "Rol": "Funded-set loan-level export (335 préstamos)", "Generador": "analyze_paper1_p1_evidence.py --include-hardening"},
+        {"Tabla": "A8", "Rol": "Funded-set composition por periodo × grade", "Generador": "analyze_paper1_p1_evidence.py --include-hardening"},
+        {"Tabla": "A9", "Rol": "Strict temporal holdout (2018 select / 2019-20 eval)", "Generador": "analyze_paper1_p1_evidence.py --include-hardening"},
+        {"Tabla": "A10", "Rol": "Exact eval ranks 1/2/3 conformal finalists", "Generador": "analyze_paper1_p1_evidence.py --include-hardening"},
+        {"Tabla": "A11", "Rol": "Enhanced synthetic shift (label flips adversariales)", "Generador": "analyze_paper1_p1_evidence.py --include-hardening"},
+        {"Tabla": "A12", "Rol": "Tail risk OCE/CVaR del funded set", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A13", "Rol": "Satisficing margins de la policy oficial", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A14", "Rol": "Dependency clusters (para tightening Hoeffding/Bernstein)", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A15", "Rol": "Leave-one-period-out stress sobre el funded set", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A16", "Rol": "Bootstrap empírico del funded set", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A17", "Rol": "Sensibilidad presupuesto, LGD, caps de concentración", "Generador": "build_paper1_journal_package.py"},
+        {"Tabla": "A18", "Rol": "Región robusta por familia risk_tolerance × gamma", "Generador": "build_paper1_journal_package.py"},
+    ]
+)
+```
+
+### Runbook: regenerar el paquete completo
+
+```bash
+# 1. Activar entorno
+source .venv/bin/activate
+
+# 2. Regenerar tablas paper-facing canónicas (A0-A6)
+uv run python scripts/export_paper1_canonical_tables.py
+
+# 3. Regenerar evidencia P1 con hardening (A7-A11)
+uv run python scripts/analyze_paper1_p1_evidence.py --include-hardening
+
+# 4. Regenerar journal package (A12-A18 + Figuras 12-14)
+uv run python scripts/build_paper1_journal_package.py
+
+# 5. (Opcional) Regenerar figuras publicación (7-11)
+uv run python scripts/generate_paper_figures.py
+
+# 6. Validar coherencia con tests guardrail
+uv run pytest tests/test_docs/ -k "estrella or paper_estrella or paper1"
+
+# 7. Renderizar libro Quarto
+bash scripts/render_quarto.sh render book/ --to html
+
+# 8. Abrir resultado
+ls book/_output/index.html
+```
+
+### Regla sobre `_freeze`
+
+El libro usa `execute: freeze: true` en `book/_quarto.yml`. Eso significa que
+un render intencional puede crear o actualizar archivos bajo `book/_freeze/`.
+La regla operativa es simple: si el render se hizo para cerrar una página del
+Paper Estrella, el cache asociado se versiona junto con la página; si el render
+fue exploratorio, se revisa antes de incluirlo en un commit. No hay que borrar
+`_freeze` como limpieza automática porque forma parte de la reproducibilidad del
+libro.
+
+::: {.callout-important}
+## Regla de sincronización canónica
+
+Si cualquier tabla del paquete (A0–A18) o cualquier figura (7–14) contradice los valores en `models/final_project_promotion.json`, **gana siempre `final_project_promotion.json`**. Las tablas/figuras son evidencia de robustez, sensibilidad y empaque journal; nunca son una promoción nueva del champion. La regla está implementada en los tests `tests/test_docs/test_paper_estrella_final_sync.py` y se ejecuta en CI.
+:::
+
+### Estado de los status JSONs canónicos
+
+```{python}
+#| label: tbl-p1-status-jsons
+#| tbl-cap: "Status JSONs canónicos del paper Estrella y su rol"
+
+status_files = [
+    {
+        "Path": "models/final_project_promotion.json",
+        "Rol": "Champion oficial + region robusta + comparadores documentados",
+        "Schema": "2026-04-05.1",
+    },
+    {
+        "Path": "models/champion_portfolio_policy.json",
+        "Rol": "Policy congelada (mirror de final_champion para freeze pipelines)",
+        "Schema": "v1",
+    },
+    {
+        "Path": "models/champion_registry.json",
+        "Rol": "Registry amplio: PD, conformal, threshold semantics",
+        "Schema": "v1",
+    },
+    {
+        "Path": "models/paper1_p1_evidence_status.json",
+        "Rol": "Estado de la generación P1 (A3-A11) + decision-aware selector",
+        "Schema": "2026-04-05.1",
+    },
+    {
+        "Path": "models/paper1_journal_package_status.json",
+        "Rol": "Estado del journal package (A12-A18 + Figuras 12-14)",
+        "Schema": "2026-05-04.1",
+    },
+    {
+        "Path": "models/mrm_report_status.json",
+        "Rol": "Estado del reporte MRM (compliance summary, 4/4 PASS)",
+        "Schema": "2026-03-14.1",
+    },
+    {
+        "Path": "models/fairness_audit_status.json",
+        "Rol": "Estado de la auditoría fair lending (6/6 atributos PASS)",
+        "Schema": "v1",
+    },
+    {
+        "Path": "data/processed/pipeline_summary.json",
+        "Rol": "Métricas operativas vigentes (PD AUC/Brier/ECE, conformal, portfolio)",
+        "Schema": "2026-03-06.1",
+    },
+    {
+        "Path": "data/processed/statistical_calibration_tests.json",
+        "Rol": "p-values KS/Kuiper/Spiegelhalter calibrado vs uncalibrated",
+        "Schema": "v1",
+    },
+    {
+        "Path": "data/processed/crpto_vs_spo_stability.json",
+        "Rol": "Estabilidad SPO+ vs CRPTO sobre 5 periodos OOT",
+        "Schema": "2026-03-22.1",
+    },
+]
+pd.DataFrame(status_files)
+```
+
+### Where to look first (índice por pregunta de revisor)
+
+| Si el revisor pregunta… | Ir directamente a… |
+|---|---|
+| ¿Cuál es el champion y por qué? | [`14g-manuscript-blueprint.qmd`](14g-manuscript-blueprint.qmd) + `models/final_project_promotion.json` |
+| ¿Por qué `score_decile_mondrian` y no `grade`? | [`14i-mondrian-ablation.qmd`](14i-mondrian-ablation.qmd) (@sec-p1-mondrian-ablation) |
+| ¿Cómo se midió el 49.1% de SPO+? | [`14j-spo-protocol-and-regret.qmd`](14j-spo-protocol-and-regret.qmd) (@sec-p1-spo-protocol) |
+| ¿Pasa fairness? | [`14k-fair-lending-checkpoint.qmd`](14k-fair-lending-checkpoint.qmd) (@sec-p1-fair-lending) |
+| ¿Pasa MRM/SR 11-7? | [`14l-governance-mrm-approval.qmd`](14l-governance-mrm-approval.qmd) (@sec-p1-mrm-approval) |
+| ¿Cómo está compuesto el funded set? | [`14m-funded-set-composition.qmd`](14m-funded-set-composition.qmd) (@sec-p1-funded-set-composition) |
+| ¿Cuál es el bound exacto y cómo se demuestra? | [`14b-theoretical-framework.qmd`](14b-theoretical-framework.qmd) (@thm-conformal-feasibility) |
+| ¿Cuál es la región robusta? | [`14d-results.qmd`](14d-results.qmd) sección `Región robusta completa` + Fig 14 |
+| ¿Qué pasó con el shift COVID? | [`14d-results.qmd`](14d-results.qmd) (@sec-estrella-shift-stability) |
+| ¿Cuáles son los appendices journal? | [`14h-journal-appendix-robustness.qmd`](14h-journal-appendix-robustness.qmd) (@sec-p1-journal-appendix) |
+| ¿Cómo regenero todo? | Esta página, sección Runbook arriba |
+
+Esta tabla cumple un propósito muy concreto: cuando un revisor mande comentarios, no hay que buscar — hay un mapa directo.

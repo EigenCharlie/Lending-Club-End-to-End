@@ -24,6 +24,13 @@ experiments or theory.
 | P1 | Implemented | Synthetic/period shift evidence | robustness | A4, A6, A7, A8, A11 | No for current paper | strengthens current paper | external dataset remains future work |
 | P1/J | Implemented | Manuscript blueprint | paper structure | `14g-manuscript-blueprint.qmd` | No | prepares manuscript | compress into actual paper draft when writing starts |
 | P1/J | Implemented | Journal appendix A12--A18 | appendix evidence | `14h-journal-appendix-robustness.qmd` | No | complements paper | use as appendix package, not new champion evidence |
+| P1/J | Implemented | Mondrian ablation page | conformal winner defense | `14i-mondrian-ablation.qmd` | No | strengthens method selection | use when reviewer asks why score-decile, not grade |
+| P1/J | Implemented | SPO+ protocol page | DFL comparator | `14j-spo-protocol-and-regret.qmd` | No | strengthens comparator narrative | keep train-time 49.1% and temporal stability configs separate |
+| P1/J | Implemented | Fair lending checkpoint | governance/funded set | `14k-fair-lending-checkpoint.qmd` | No | strengthens auditability | cite as proxy/intersectional audit, not legal protected-attribute proof |
+| P1/J | Implemented | MRM/SR 11-7 approval page | model risk management | `14l-governance-mrm-approval.qmd` | No | strengthens deployment credibility | keep triggers and challenger criteria aligned with MRM artifacts |
+| P1/J | Implemented | Funded-set composition page | portfolio evidence | `14m-funded-set-composition.qmd` | No | strengthens result audit | use in appendix to show no hidden segment drives champion |
+| P1/J | Implemented | Artifact traceability runbook | reproducibility | `14n-artifact-traceability.qmd` | No | strengthens reviewer response | keep claim-script-test paths real and guarded |
+| P1/J | Implemented | Paper/journal/thesis extraction map | editorial planning | `14-paper-estrella/index.qmd` | No | preserves rich book content | later compress, but do not delete useful thesis evidence now |
 | P1/J | Implemented | Journal figures | visual explanation/results | `estrella_fig12`--`estrella_fig14` | No | improves paper readability | choose which figures go to body vs appendix |
 | P1/J | Implemented | Tail risk diagnostics | funded-set risk | A12 | No | complements paper | do not cite repriced return as official return |
 | P1/J | Implemented | Satisficing margins | OR framing | A13 | No | complements paper | justify thresholds if moved to body |
@@ -39,7 +46,7 @@ experiments or theory.
 | P2 | Pending | Robust satisficing policy | OR objective | A13 is diagnostic only | Yes | new OR variant | optimize thresholds/margins directly |
 | P3 | Future | Multi-period portfolio | production realism | none | Yes | new paper/product track | model state transitions and rebalancing |
 | P3 | Future | Multi-asset credit validation | external validity | none | Yes | broader thesis validation | test another credit product |
-| P3 | Future | Intersectional fairness conformal audit | fairness/governance | attribute-level fairness exists elsewhere | Yes | complements thesis | evaluate coverage and decisions on intersections |
+| P3 | Future | Direct protected-attribute / temporal fairness validation | fairness/governance | proxy base + proxy-intersectional audit exists in `14k` | Yes | complements thesis | repeat with protected attributes if available and monitor disparity over time |
 | P3 | Future | Production monitoring dashboard | productization | artifacts exist, dashboard not live | Yes | product track | expose champion/DVC/MLflow/drift in one view |
 
 ## Current Rule of Record
@@ -109,6 +116,25 @@ without changing the official champion or reopening the search.
 | Robust region by policy family | `paper1_tableA18_robust_region_policy_family.csv` | groups final policies by `risk_tolerance x gamma` and confirms all pass | compatible leaderboard only within bound-aware family |
 | Reproducible generator | `scripts/build_paper1_journal_package.py`, `models/paper1_journal_package_status.json` | regenerates A12--A18 and figures from frozen artifacts | no champion promotion logic |
 
+### Quarto Expansion Snapshot - 2026-05-05
+
+The Paper Estrella section is intentionally richer than the future manuscript.
+The current book package now preserves the material needed to later extract a
+short paper, a journal version and a thesis chapter without losing context.
+
+| Page | Status | What it adds | Later placement |
+|---|---|---|---|
+| `index.qmd` | Implemented | curated navigation through `14a`--`14n` and extraction rule paper/journal/thesis | editorial hub |
+| `14i-mondrian-ablation.qmd` | Implemented | rank 1/2/3 conformal ablation and winner configuration | appendix or method robustness |
+| `14j-spo-protocol-and-regret.qmd` | Implemented | SPO+ train-time vs temporal protocol split | comparator appendix |
+| `14k-fair-lending-checkpoint.qmd` | Implemented | 3 base + 3 proxy-intersectional fairness checks, all PASS | governance appendix |
+| `14l-governance-mrm-approval.qmd` | Implemented | SR 11-7 gates, challenger criteria and retraining triggers | governance appendix / thesis |
+| `14m-funded-set-composition.qmd` | Implemented | funded-set loan/period/grade composition | results appendix |
+| `14n-artifact-traceability.qmd` | Implemented | claim -> artifact -> script -> test map and runbook | reproducibility appendix |
+
+Remaining Quarto maintenance is not about reducing content. It is about keeping
+paths, claims and caches synchronized as new evidence pages are added.
+
 ## P2 - Methodological Extensions
 
 | Item | Literature driver | Implementation sketch | Acceptance criteria |
@@ -126,22 +152,34 @@ without changing the official champion or reopening the search.
 |---|---|---|
 | Multi-period portfolio with rebalancing | Current CRPTO is one-period | state transition, transaction costs and repeated decisions are explicitly modeled |
 | Multi-asset credit validation | Lending Club is one asset class | method tested on another loan/credit product |
-| Intersectional fairness conformal audit | Current fairness is attribute-level | coverage and decision impact are evaluated on intersections |
+| Direct protected-attribute / temporal fairness validation | Current fairness uses available proxy attributes and proxy intersections, not protected attributes directly | coverage and decision impact are evaluated on protected attributes if legally available, plus temporal disparity monitoring |
 | Production monitoring dashboard | Paper is artifact-backed but not live | champion metrics, DVC version, MLflow run and conformal drift visible in one operational view |
 
 ## Documentation Layer
 
 The Quarto book now includes an explicit editorial guide and two journal-facing
-pages for Paper Estrella:
+pages for Paper Estrella, plus the new support pages that make the book useful
+as a staging area for paper, journal and thesis:
 
 - `book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd`
 - `book/chapters/14-paper-estrella/14g-manuscript-blueprint.qmd`
 - `book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd`
+- `book/chapters/14-paper-estrella/14i-mondrian-ablation.qmd`
+- `book/chapters/14-paper-estrella/14j-spo-protocol-and-regret.qmd`
+- `book/chapters/14-paper-estrella/14k-fair-lending-checkpoint.qmd`
+- `book/chapters/14-paper-estrella/14l-governance-mrm-approval.qmd`
+- `book/chapters/14-paper-estrella/14m-funded-set-composition.qmd`
+- `book/chapters/14-paper-estrella/14n-artifact-traceability.qmd`
 
 These pages are intentionally more explanatory than a journal paper. They keep
 the claim ladder, reviewer Q&A, artifact placement map, local numbered
 references `[1]`, `[2]`, ... and the A12--A18 appendix package that can later be
 compressed into the manuscript.
+
+Because `book/_quarto.yml` uses `execute.freeze: true`, rendered cache updates
+under `book/_freeze/chapters/14-paper-estrella/` should be treated as
+intentional reproducibility artifacts when they correspond to a real Quarto page
+update. Do not clean them blindly; review them with the page they freeze.
 
 The companion research note is
 `docs/research/paper_estrella_quarto_expansion_2026-05-04.md`.

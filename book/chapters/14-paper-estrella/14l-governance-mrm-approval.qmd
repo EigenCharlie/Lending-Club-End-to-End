@@ -1,0 +1,174 @@
+---
+title: "Gobernanza y Aprobación MRM (SR 11-7)"
+page-layout: article
+---
+
+## Aprobación de Model Risk Management {#sec-p1-mrm-approval}
+
+La diferencia editorial clave entre CRPTO y los métodos decision-focused puros (SPO+, end-to-end DFL) es que CRPTO está **construido para pasar una auditoría de Model Risk Management** según el marco SR 11-7 de la Reserva Federal y las expectativas equivalentes del BCE/EBA. Esta página documenta los gates aplicados al champion oficial y muestra los cuatro subsistemas pasando simultáneamente — la firma operativa de un sistema desplegable, no un modelo de paper aislado.
+
+```{python}
+#| label: p1-mrm-setup
+#| include: false
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+from book._helpers.load_artifacts import load_json, REPO_ROOT
+
+import json
+import pandas as pd
+
+mrm_status = load_json("mrm_report_status", directory="models")
+
+mrm_report_path = REPO_ROOT / "reports" / "mrm" / "mrm_validation_report.json"
+mrm_report = json.loads(mrm_report_path.read_text(encoding="utf-8"))
+```
+
+### Resumen ejecutivo: 4/4 subsistemas PASS
+
+```{python}
+#| label: tbl-p1-mrm-subsystems
+#| tbl-cap: "Subsistemas auditados por el reporte MRM (`reports/mrm/mrm_validation_report.json`)"
+
+cs = mrm_report["compliance_summary"]
+subs = cs["subsystems"]
+
+pd.DataFrame(
+    [
+        {"Subsistema": "Pipeline (PD + conformal + portfolio)", "Pass": "Sí" if subs["pipeline"] else "No"},
+        {"Subsistema": "Conformal (cobertura, ancho, min group)", "Pass": "Sí" if subs["conformal"] else "No"},
+        {"Subsistema": "Governance (cadencia, retraining triggers)", "Pass": "Sí" if subs["governance"] else "No"},
+        {"Subsistema": "Fairness (DPD, EO, DIR sobre 6 atributos)", "Pass": "Sí" if subs["fairness"] else "No"},
+    ]
+)
+```
+
+### Política de gobernanza aplicada
+
+El reporte MRM se rige por la política de gobernanza congelada en `reports/mrm/mrm_validation_report.json::governance_policy` y `::retraining_triggers`:
+
+```{python}
+#| label: tbl-p1-mrm-governance-policy
+#| tbl-cap: "Política operativa: cadencia, validación y triggers de re-entrenamiento"
+
+gp = mrm_report["governance_policy"]
+rt = mrm_report["retraining_triggers"]
+
+pd.DataFrame(
+    [
+        {"Item": "Frecuencia de validación", "Valor": f"cada {gp['validation_frequency_days']} días"},
+        {"Item": "Cadencia de revisión", "Valor": gp["review_cadence"]},
+        {"Item": "PSI threshold (drift)", "Valor": f"{rt['psi_threshold']:.2f}"},
+        {"Item": "Degradación AUC (trigger)", "Valor": f"{rt['auc_degradation_threshold']:.2f}"},
+        {"Item": "Degradación cobertura (trigger)", "Valor": f"{rt['coverage_degradation_threshold']:.2f}"},
+    ]
+)
+```
+
+::: {.callout-note}
+## Cómo se conectan estos triggers con el cierre del proyecto
+
+El bound conformal que vive en el LP robusto (cobertura 90% nominal) no es estático: si en producción la cobertura realizada cayera más de 2 puntos porcentuales (`coverage_degradation_threshold = 0.02`), el sistema activa retraining. Eso convierte la garantía conformal teórica en un **mecanismo operativo de mantenimiento** y conecta directamente con el future work de online conformal (UP-OCP, ACI) que se discute en @sec-estrella-future.
+:::
+
+### Criterios de challenger: cuándo se permite reemplazar al champion
+
+Una pieza menos visible pero metodológicamente importante del MRM es el set de criterios que un nuevo modelo (challenger) debería pasar para promoverse a champion. El champion actual fue promovido **bajo estos criterios congelados**:
+
+```{python}
+#| label: tbl-p1-mrm-challenger-criteria
+#| tbl-cap: "Criterios obligatorios para promover un challenger a champion"
+
+cc = mrm_report["challenger_criteria"]
+
+rows = []
+for crit in cc["criteria"]:
+    rows.append(
+        {
+            "Tipo": "Mejora mínima",
+            "Métrica": crit["metric"],
+            "Umbral": f">= {crit['improvement_min']}",
+        }
+    )
+for req in cc["promotion_requires"]:
+    for k, v in req.items():
+        rows.append(
+            {
+                "Tipo": "Gate obligatorio",
+                "Métrica": k,
+                "Umbral": "True" if v else "False",
+            }
+        )
+mc = cc.get("modeling_constraints", {})
+for k, v in mc.items():
+    rows.append(
+        {
+            "Tipo": "Restricción de modelado",
+            "Métrica": k,
+            "Umbral": "True" if v else "False",
+        }
+    )
+
+pd.DataFrame(rows)
+```
+
+::: {.callout-tip}
+## Lectura editorial
+
+Tres cosas que esta tabla deja por escrito y que un revisor riguroso querrá ver:
+
+1. **Sin SMOTE**. El proyecto no permite oversampling sintético porque rompe la garantía conformal de intercambiabilidad y deja al modelo sensible a artefactos de generación.
+2. **Restricciones monotónicas obligatorias**. El champion CatBoost tiene `installment:+1, annual_inc:-1, dti:+1, loan_to_income:+1` codificadas; un challenger debe respetar al menos esas restricciones.
+3. **Promoción condicional a tres gates simultáneos**. Conformal + fairness + governance deben pasar al mismo tiempo. Esa es la firma de un MRM serio: ningún subsistema vetable individualmente.
+:::
+
+### Métricas snapshot del champion en el reporte
+
+```{python}
+#| label: tbl-p1-mrm-champion-metrics
+#| tbl-cap: "Snapshot operativo del champion en el reporte MRM"
+
+ps = mrm_report["pipeline_summary"]
+pdm = ps["pd_model"]
+conf = ps["conformal"]
+
+pd.DataFrame(
+    [
+        {"Bloque": "PD", "Indicador": "AUC", "Valor": f"{pdm['final_auc']:.4f}"},
+        {"Bloque": "PD", "Indicador": "Brier", "Valor": f"{pdm['final_brier']:.4f}"},
+        {"Bloque": "PD", "Indicador": "ECE", "Valor": f"{pdm['final_ece']:.4f}"},
+        {"Bloque": "PD", "Indicador": "Calibración", "Valor": pdm["calibration_method"]},
+        {"Bloque": "Conformal", "Indicador": "Cobertura 90%", "Valor": f"{conf['coverage_90']*100:.2f}%"},
+        {"Bloque": "Conformal", "Indicador": "Cobertura 95%", "Valor": f"{conf['coverage_95']*100:.2f}%"},
+        {"Bloque": "Conformal", "Indicador": "Pass general", "Valor": "Sí" if conf.get("overall_pass") else "No"},
+    ]
+)
+```
+
+(Este snapshot es el agregado operativo que el MRM auditó; el champion paper-grade y los retornos de portafolio se reportan desde `final_project_promotion.json` y no se mezclan con esta tabla, por la regla canónica de no mezclar familias.)
+
+### Por qué la auditoría MRM importa para el argumento del paper
+
+Un revisor que viene del lado de operations research tiende a leer "auditabilidad" como un soft claim. La diferencia operativa, sin embargo, es muy concreta. SPO+ entrenado end-to-end produce una red neuronal cuya decisión es un input no-lineal de los costos predichos: para auditar la decisión, hay que auditar la red. Esa auditoría es difícil porque:
+
+- **No hay garantía de que un cambio pequeño en el costo verdadero produzca un cambio pequeño en la decisión** (la red puede tener regiones de decisión irregulares).
+- **No hay forma de separar "el modelo aprendió la distribución de costos" de "el modelo aprendió un atajo correlacional"** sin tests adversariales costosos.
+- **Las restricciones monotónicas, fairness y triggers de retraining tienen que reaplicarse manualmente**, porque la red no las preserva por construcción.
+
+CRPTO, en cambio, expone cada pieza al auditor por separado: la PD calibrada se auditea con los tests de calibración (KS/Kuiper/ECE), la cobertura conformal se verifica empíricamente, el LP robusto es un programa lineal cuya factibilidad se puede inspeccionar fila por fila, y el funded set se audita por fairness directamente. Cada subsistema es individualmente vetable y individualmente reproducible. Eso es lo que `compliance_summary.n_passing = 4` significa operativamente.
+
+### Reproducibilidad
+
+```bash
+uv run python scripts/generate_mrm_report.py
+uv run pytest tests/test_evaluation/ -k "mrm or governance"
+```
+
+Artefactos:
+
+- `models/mrm_report_status.json` — estado del reporte (overall pass + subsystems).
+- `reports/mrm/mrm_validation_report.json` — reporte detallado por subsistema (governance, conformal, pipeline, fairness, challenger criteria).
+- `reports/mrm/corepd_model_card.json`, `corepd_model_card.html` — model card pública con metadata, versionado, owners.
+- `reports/mrm/skops/` — modelo serializado en formato auditable (skops, no pickle).

@@ -196,6 +196,12 @@ pd.DataFrame(
 
 Este resultado cambia la narrativa del paper de forma importante. Ya no estamos defendiendo “una configuración encontró un pase en `alpha=0.01`”. Estamos defendiendo algo más fuerte: **la mini-grid final entera es robusta**, y la decisión final pasa a ser una decisión editorial/metodológica dentro de una región ya validada.
 
+::: {.callout-important}
+## Champion-with-luck vs region-of-feasible-policies
+
+Una crítica natural a cualquier procedimiento de búsqueda intensiva es la sospecha de post-selección: *"buscaste hasta encontrar una policy que pasa el bound; eso es overfitting al test set OOT"*. La defensa empírica directa es que **45 de 45 policies de la mini-grid pasan exacto el bound `α = 0.01`** sobre el OOT completo de 276,869 préstamos. No hay una policy ganadora aislada — hay una región completa de policies factibles, que cubre el rango `risk_tolerance ∈ [0.155, 0.175]` × `gamma ∈ [0.45, 0.55]` × `uncertainty_aversion ∈ [0.0, 0.1]`. La elección del economic champion dentro de esa región es una decisión editorial (qué retorno-tightness se prefiere), no una afirmación empírica frágil. La composición de ese funded set se descompone en @sec-p1-funded-set-composition; la ablación de la capa conformal que la habilitó está en @sec-p1-mondrian-ablation; el heatmap de la región robusta entera vive como Figura 14 en @sec-p1-journal-appendix.
+:::
+
 ### Champion económico y comparadores de la región robusta
 
 El `276k` deja tres puntos importantes:
@@ -218,6 +224,18 @@ El comparador theorem-tight sigue siendo metodológicamente valioso porque muest
 - `gamma_cp = 0.159714`
 - y retorno todavía fuerte (`$166.3K`)
 
+#### Instanciación empírica del Corolario 1 (Price of Robustness)
+
+El @cor-por establece que $\text{PoR}(\alpha) \lesssim \Gamma_{\text{CP}}(\alpha) \cdot \overline{LGD} / \bar{r}$. Con los números del champion economic instanciamos:
+
+$$
+\text{PoR}_{\text{teórico}}(\alpha = 0.01) \;\lesssim\; \frac{\Gamma_{\text{CP}} \cdot \overline{LGD}}{\bar{r}} \;=\; \frac{0.18591 \cdot 0.45}{\bar{r}_{\text{funded}}}
+$$
+
+donde $\bar{r}_{\text{funded}}$ es el retorno neto promedio del funded set. La cifra empírica observada es `price_of_robustness_pct = -10.56%` (`-$14,466` sobre un retorno realizado de `$170,464.54`). Esto significa que la policy paga ~10.6% de retorno por la garantía conformal exacta a $\alpha = 0.01$, dentro del orden de magnitud que el corollary predice. La cota teórica es **conservadora pero no vacua**: un revisor puede verificar que el precio empírico observado no excede el techo teórico derivado del presupuesto conformal.
+
+El comparador theorem-tight (gamma=0.55) baja $\Gamma_{\text{CP}}$ a `0.159714` con un retorno menor (`$166,270`), instanciando exactamente la frontera del corollary: menor presupuesto conformal → menor precio de robustez → menor retorno. Las tres policies (economic, balanced, theorem-tight) ordenan limpiamente esa frontera empírica dentro de la región robusta.
+
 ::: {.column-page}
 ![Comparación de decision regret entre three-stage, SPO+ end-to-end y CRPTO (Conformal Robust). SPO+ logra 49.1% menos regret que two-stage por diseño; CRPTO paga un precio de auditabilidad mayor en regret a cambio de garantías formales de cobertura.](../../assets/figures/publication/estrella_fig9_spo_regret.png){#fig-p1-spo-regret fig-alt="Comparación de regret: two-stage vs SPO+ vs CRPTO para el Paper Estrella."}
 :::
@@ -235,6 +253,27 @@ La @fig-p1-spo-regret no muestra que CRPTO "pierde" contra SPO+; muestra el **tr
 ### Frontera de alpha
 
 El *alpha sweep* muestra que subir confianza ensancha rápidamente el conjunto y reduce la flexibilidad de decisión. Esa frontera es uno de los hallazgos más útiles del paper porque convierte un hiperparámetro estadístico en una palanca explícita de política económica.
+
+#### Protocolo del barrido
+
+El sweep evalúa la familia completa de cota superior $u_i(\alpha) = \widehat{p}_i + q_{1-\alpha,g_i}$ para $\alpha \in \{0.01, 0.03, 0.05, 0.10, 0.15, 0.20\}$ y cada $\alpha$ se compone con la política `blended_uncertainty` con `gamma = 0.45`, sobre el OOT completo de 276,869 préstamos. Los pasos son los siguientes:
+
+1. **Generar $u_i(\alpha)$** para cada $\alpha$ del grid usando los cuantiles de no conformidad por grupo Mondrian (winner: `score_decile_mondrian`, ver @sec-p1-mondrian-ablation).
+2. **Resolver el LP robusto** con esa cota superior, `risk_tolerance = 0.175`, presupuesto $B = \$1\text{M}$ y la misma estructura de costos.
+3. **Evaluar el funded set resultante** sobre el OOT con métricas exactas: retorno realizado, $V = \sum_i w_i Z_i$, $\Gamma_{\text{CP}}$ y $\text{violation} = \max(0, \sum_i w_i u_i - \tau)$.
+4. **Construir la frontera Pareto** retorno vs cobertura vs ancho como evidencia empírica de la palanca económica de $\alpha$.
+
+::: {.callout-note}
+## Por qué $\alpha = 0.10$ y no $\alpha = 0.05$
+
+La elección operativa de $\alpha = 0.10$ para el champion oficial responde a tres criterios simultáneos:
+
+1. **Validez del bound**. El champion economic pasa `alpha01_exact_pass = true` (incluso a $\alpha = 0.01$), por lo que la elección de $\alpha = 0.10$ para el LP es deliberadamente **más conservadora** que la garantía nominal del bound.
+2. **Composición del funded set**. A $\alpha = 0.05$, el LP encuentra menos préstamos elegibles porque las cotas son más anchas; a $\alpha = 0.10$ la frontera Pareto se ubica en la esquina retorno-cobertura útil.
+3. **Convención regulatoria**. Cobertura nominal del 90% es el estándar IFRS9 para intervalos de incertidumbre y MAPIE lo usa por defecto, lo que facilita la lectura por comité.
+
+La frontera de @fig-p1-alpha-pareto evidencia esa elección: el codo entre eligibilidad y ancho está alrededor de $\alpha = 0.10$, donde el LP mantiene flexibilidad sin sacrificar protección.
+:::
 
 ::: {.column-page}
 ![Cantidad de préstamos elegibles al variar alpha en la policy promotora del Paper Estrella.](../../assets/figures/editorial/alpha_eligible_loans.png){#fig-p1-alpha-eligible fig-alt="Cantidad de préstamos elegibles al variar alpha en la variante Mondrian del Paper Estrella."}

@@ -25,6 +25,15 @@ PAPER_ESTRELLA_MANUSCRIPT_BLUEPRINT = Path(
 PAPER_ESTRELLA_JOURNAL_APPENDIX = Path(
     "book/chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd"
 )
+PAPER_ESTRELLA_INDEX = Path("book/chapters/14-paper-estrella/index.qmd")
+PAPER_ESTRELLA_SUPPORT_PAGES = {
+    "14i": Path("book/chapters/14-paper-estrella/14i-mondrian-ablation.qmd"),
+    "14j": Path("book/chapters/14-paper-estrella/14j-spo-protocol-and-regret.qmd"),
+    "14k": Path("book/chapters/14-paper-estrella/14k-fair-lending-checkpoint.qmd"),
+    "14l": Path("book/chapters/14-paper-estrella/14l-governance-mrm-approval.qmd"),
+    "14m": Path("book/chapters/14-paper-estrella/14m-funded-set-composition.qmd"),
+    "14n": Path("book/chapters/14-paper-estrella/14n-artifact-traceability.qmd"),
+}
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
 PAPER_ESTRELLA_QUARTO_EXPANSION = Path(
     "docs/research/paper_estrella_quarto_expansion_2026-05-04.md"
@@ -181,9 +190,12 @@ def test_dvc_outputs_are_not_tracked_directly_by_git() -> None:
 
 def test_paper_estrella_journal_backlog_is_documented() -> None:
     assert PAPER_ESTRELLA_BACKLOG.exists()
+    assert PAPER_ESTRELLA_INDEX.exists()
     assert PAPER_ESTRELLA_EDITORIAL_GUIDE.exists()
     assert PAPER_ESTRELLA_MANUSCRIPT_BLUEPRINT.exists()
     assert PAPER_ESTRELLA_JOURNAL_APPENDIX.exists()
+    for page in PAPER_ESTRELLA_SUPPORT_PAGES.values():
+        assert page.exists()
     assert PAPER_ESTRELLA_QUARTO_EXPANSION.exists()
 
     discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
@@ -218,6 +230,12 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "14f-editorial-claims-references.qmd",
         "14g-manuscript-blueprint.qmd",
         "14h-journal-appendix-robustness.qmd",
+        "14i-mondrian-ablation.qmd",
+        "14j-spo-protocol-and-regret.qmd",
+        "14k-fair-lending-checkpoint.qmd",
+        "14l-governance-mrm-approval.qmd",
+        "14m-funded-set-composition.qmd",
+        "14n-artifact-traceability.qmd",
         "paper1_tableA12_tail_risk_oce_cvar.csv",
         "paper1_tableA18_robust_region_policy_family.csv",
         "scripts/build_paper1_journal_package.py",
@@ -258,6 +276,70 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "models/paper1_journal_package_status.json",
     ):
         assert token in journal_appendix
+
+
+def test_paper_estrella_support_pages_are_synchronized() -> None:
+    quarto_config = Path("book/_quarto.yml").read_text(encoding="utf-8")
+    landing = PAPER_ESTRELLA_INDEX.read_text(encoding="utf-8")
+    discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
+    backlog = PAPER_ESTRELLA_BACKLOG.read_text(encoding="utf-8")
+    traceability = PAPER_ESTRELLA_SUPPORT_PAGES["14n"].read_text(encoding="utf-8")
+    governance = PAPER_ESTRELLA_SUPPORT_PAGES["14l"].read_text(encoding="utf-8")
+    fairness = PAPER_ESTRELLA_SUPPORT_PAGES["14k"].read_text(encoding="utf-8")
+    spo = PAPER_ESTRELLA_SUPPORT_PAGES["14j"].read_text(encoding="utf-8")
+
+    for page in PAPER_ESTRELLA_SUPPORT_PAGES.values():
+        chapter_path = page.relative_to(Path("book")).as_posix()
+        assert f"chapters/{chapter_path.removeprefix('chapters/')}" in quarto_config
+        assert page.name.replace(".qmd", ".html") in landing
+
+    assert "Fairness proxy, no atributos protegidos directos" in discussion
+    assert "3 atributos base y 3 cruces interseccionales proxy" in discussion
+    assert "14e-future-directions" not in governance
+    assert "@sec-estrella-future" in governance
+
+    assert "proxies socioeconómicos" in fairness
+    assert "no debe leerse como certificación legal" in fairness
+    assert "models/spo_real_training_status.json" in spo
+    assert "data/processed/crpto_vs_spo_stability.json" in spo
+    assert "`n_items=100`" in spo
+    assert "`n_items=50`" in spo
+
+    for obsolete in (
+        "Fairness por atributo, no interseccional",
+        "scripts/build_paper1_figures.py",
+        "scripts/run_conformal_reopen.py",
+        "scripts/promote_paper_estrella_final.py",
+        "tests/test_docs/test_paper1_p1_evidence_*.py",
+        "tests/test_evaluation/test_bound_validation.py",
+        "tests/test_models/test_pd_canonical.py",
+    ):
+        assert obsolete not in discussion + traceability + backlog
+
+    for real_path in (
+        "scripts/train_pd_model.py",
+        "src/models/calibration.py",
+        "tests/test_scripts/test_train_pd_model.py",
+        "tests/test_evaluation/test_calibration_mapping.py",
+        "scripts/search/run_conformal_reopen_search.py",
+        "tests/test_scripts/test_run_conformal_reopen_search.py",
+        "scripts/search/run_portfolio_bound_aware_search.py",
+        "scripts/export_final_project_promotion.py",
+        "scripts/generate_paper_figures.py",
+        "scripts/run_crpto_vs_spo_stability.py",
+        "scripts/validate_alpha_gamma_bound.py",
+        "tests/test_docs/test_paper_estrella_final_sync.py",
+    ):
+        assert real_path in traceability
+        assert Path(real_path).exists()
+
+    for token in (
+        "Quarto Expansion Snapshot - 2026-05-05",
+        "Direct protected-attribute / temporal fairness validation",
+        "proxy base + proxy-intersectional audit exists in `14k`",
+        "execute.freeze: true",
+    ):
+        assert token in backlog
 
 
 def test_paper_estrella_p1_evidence_artifacts_exist() -> None:

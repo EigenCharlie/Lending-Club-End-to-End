@@ -52,7 +52,17 @@ La tesis completa es más amplia: integra el mapa ejecutivo, el pipeline end-to-
 Esta parte del libro no intenta ser todavía el paper final. Funciona como el
 dossier editorial del paper: conserva explicaciones largas, decisiones
 metodológicas, vínculos con artefactos y preguntas de reviewer que luego se
-comprimirán al manuscrito. La lectura recomendada es:
+comprimirán al manuscrito. Justamente por eso conviene que esta parte sea más
+rica que el paper: de aquí saldrán, más adelante, tres productos distintos:
+
+- **Paper corto**: claim CRPTO, teorema, champion, región robusta, comparación
+  SPO+ y tablas esenciales.
+- **Journal version**: appendices A3--A18, trazabilidad, MRM, fairness,
+  composición del funded set y stress tests.
+- **Tesis/libro**: razonamiento completo, decisiones descartadas, runbooks,
+  vínculos con IFRS9, causalidad, monitoreo y agenda futura.
+
+La lectura recomendada es:
 
 - **Introducción y motivación** fija el gap aplicado y explica por qué CRPTO no
   es simplemente "otro modelo de PD".
@@ -69,6 +79,11 @@ comprimirán al manuscrito. La lectura recomendada es:
   venue target, claims C1--C7 y plan de figuras/tablas.
 - **Apéndice journal** organiza A12--A18, figuras paper-grade y checklist de
   reproducibilidad.
+- **Ablación Mondrian** explica por qué el winner conformal promovido no es una
+  elección cosmética de partición.
+- **Protocolo SPO+** separa el claim de regret del claim de auditabilidad.
+- **Fair lending, MRM, funded set y trazabilidad** documentan los gates que
+  vuelven defendible el paper ante comité, reviewer o auditor.
 
 ::: {.callout-tip}
 ## Regla de lectura
@@ -90,5 +105,11 @@ tablas; el libro preserva el razonamiento, las cautelas y la trazabilidad.
   <div class="chapter-card"><h4><a href="14f-editorial-claims-references.html">Guía editorial</a></h4><p>Claims, preguntas de reviewer, artefactos y referencias numeradas [1].</p></div>
   <div class="chapter-card"><h4><a href="14g-manuscript-blueprint.html">Blueprint</a></h4><p>Venue, abstract, claims C1-C7, estructura del paper y plan de tablas/figuras.</p></div>
   <div class="chapter-card"><h4><a href="14h-journal-appendix-robustness.html">Apéndice journal</a></h4><p>A12-A18, figuras CRPTO, robustness package y checklist reproducible.</p></div>
+  <div class="chapter-card"><h4><a href="14i-mondrian-ablation.html">Ablación Mondrian</a></h4><p>Comparación rank 1/2/3, por qué score-decile gana y qué no aporta grade por sí solo.</p></div>
+  <div class="chapter-card"><h4><a href="14j-spo-protocol-and-regret.html">Protocolo SPO+</a></h4><p>Configuración, regret 49.1%, estabilidad temporal y lectura correcta frente a CRPTO.</p></div>
+  <div class="chapter-card"><h4><a href="14k-fair-lending-checkpoint.html">Fair Lending</a></h4><p>Auditoría base e interseccional proxy sobre el funded set efectivo.</p></div>
+  <div class="chapter-card"><h4><a href="14l-governance-mrm-approval.html">MRM / SR 11-7</a></h4><p>Gates de gobernanza, challenger criteria, triggers y aprobación operativa.</p></div>
+  <div class="chapter-card"><h4><a href="14m-funded-set-composition.html">Funded Set</a></h4><p>Anatomía loan-level y periodo-grade del portafolio financiado.</p></div>
+  <div class="chapter-card"><h4><a href="14n-artifact-traceability.html">Trazabilidad</a></h4><p>Mapa claim → artefacto → script → test y runbook reproducible.</p></div>
 </div>
 ```
