@@ -16,7 +16,13 @@ EXPECTED_RETURN = 170464.5429284627
 EXPECTED_V = 0.03645
 EXPECTED_GAMMA_CP = 0.18591
 PAPER_ESTRELLA_DISCUSSION = Path("book/chapters/14-paper-estrella/14e-discussion-conclusions.qmd")
+PAPER_ESTRELLA_EDITORIAL_GUIDE = Path(
+    "book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd"
+)
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
+PAPER_ESTRELLA_QUARTO_EXPANSION = Path(
+    "docs/research/paper_estrella_quarto_expansion_2026-05-04.md"
+)
 P1_EVIDENCE_STATUS = Path("models/paper1_p1_evidence_status.json")
 P1_EVIDENCE_DOSSIER = Path("docs/research/paper_estrella_p1_evidence_2026-05-04.md")
 P1_THEORY_APPENDIX = Path(
@@ -133,9 +139,13 @@ def test_dvc_outputs_are_not_tracked_directly_by_git() -> None:
 
 def test_paper_estrella_journal_backlog_is_documented() -> None:
     assert PAPER_ESTRELLA_BACKLOG.exists()
+    assert PAPER_ESTRELLA_EDITORIAL_GUIDE.exists()
+    assert PAPER_ESTRELLA_QUARTO_EXPANSION.exists()
 
     discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
+    editorial_guide = PAPER_ESTRELLA_EDITORIAL_GUIDE.read_text(encoding="utf-8")
     backlog = PAPER_ESTRELLA_BACKLOG.read_text(encoding="utf-8")
+    quarto_config = Path("book/_quarto.yml").read_text(encoding="utf-8")
 
     for token in (
         "tbl-p1-claim-artifact-test",
@@ -156,10 +166,22 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "Decision-aware conformal selector",
         "paper1_tableA10_conformal_finalist_exact_bound_eval.csv",
         "paper1_tableA11_enhanced_synthetic_shift.csv",
+        "14f-editorial-claims-references.qmd",
         "OCE/CVaR funded-set conformal risk",
         "Online conformal recalibration",
     ):
         assert token in backlog
+
+    for token in (
+        "chapters/14-paper-estrella/14f-editorial-claims-references.qmd",
+        "Guía Editorial, Claims y Referencias",
+        "tbl-p1-claim-ladder",
+        "tbl-p1-reviewer-audiences",
+        "tbl-p1-paper-placement",
+        "[1] Vovk",
+        "[17] Powell",
+    ):
+        assert token in quarto_config + editorial_guide
 
 
 def test_paper_estrella_p1_evidence_artifacts_exist() -> None:

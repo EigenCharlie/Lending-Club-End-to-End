@@ -49,20 +49,40 @@ La tesis completa es más amplia: integra el mapa ejecutivo, el pipeline end-to-
 
 ## Cómo leer esta parte
 
-- **63** fija el gap y la motivación aplicada.
-- **64** explica alpha–gamma, price of robustness y conjuntos de incertidumbre.
-- **65** documenta el pipeline exacto y los baselines.
-- **66** concentra la evidencia económica: Pareto, regret y ablations.
-- **67** cierra con implicaciones, límites y claim publicable.
+Esta parte del libro no intenta ser todavía el paper final. Funciona como el
+dossier editorial del paper: conserva explicaciones largas, decisiones
+metodológicas, vínculos con artefactos y preguntas de reviewer que luego se
+comprimirán al manuscrito. La lectura recomendada es:
+
+- **Introducción y motivación** fija el gap aplicado y explica por qué CRPTO no
+  es simplemente "otro modelo de PD".
+- **Marco teórico** separa la garantía distribution-free principal del
+  tightening condicional, para no prometer más de lo que los artefactos validan.
+- **Metodología** documenta la cadena exacta de artefactos, selección y
+  evidencia P1.
+- **Resultados** concentra la evidencia económica y los checks de robustez.
+- **Discusión** explica qué fortalece el paper actual y qué queda como versión
+  journal o paper futuro.
+- **Guía editorial** traduce todo lo anterior en claims defendibles, preguntas
+  de reviewer y referencias numeradas locales.
+
+::: {.callout-tip}
+## Regla de lectura
+
+Si una explicación es demasiado larga para un paper de 30--40 páginas, puede
+seguir siendo valiosa en este libro. El paper final heredará los claims y las
+tablas; el libro preserva el razonamiento, las cautelas y la trazabilidad.
+:::
 
 ## Navegación curada
 
 ```{=html}
 <div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="14a-introduction-motivation.html">63. Introducción</a></h4><p>Problema, gap y framing CRPTO (Conformal Robust Predict-then-Optimize).</p></div>
-  <div class="chapter-card"><h4><a href="14b-theoretical-framework.html">64. Marco Teórico</a></h4><p>Alpha–Gamma, price of robustness y uncertainty sets.</p></div>
-  <div class="chapter-card"><h4><a href="14c-methodology.html">65. Metodología</a></h4><p>Pipeline CP → robustez → SPO+ y baselines.</p></div>
-  <div class="chapter-card"><h4><a href="14d-results.html">66. Resultados</a></h4><p>Pareto, regret, ablations y comparación con alternativas.</p></div>
-  <div class="chapter-card"><h4><a href="14e-discussion-conclusions.html">67. Discusión</a></h4><p>Implicaciones, limitaciones y cierre publicable.</p></div>
+  <div class="chapter-card"><h4><a href="14a-introduction-motivation.html">Introducción</a></h4><p>Problema, gap y framing CRPTO (Conformal Robust Predict-then-Optimize).</p></div>
+  <div class="chapter-card"><h4><a href="14b-theoretical-framework.html">Marco Teórico</a></h4><p>Alpha–Gamma, Markov, tightening condicional y uncertainty sets.</p></div>
+  <div class="chapter-card"><h4><a href="14c-methodology.html">Metodología</a></h4><p>Pipeline CP → robustez → P1 evidence, SPO+ y baselines.</p></div>
+  <div class="chapter-card"><h4><a href="14d-results.html">Resultados</a></h4><p>Pareto, region robusta, stress tests, funded set y comparación con alternativas.</p></div>
+  <div class="chapter-card"><h4><a href="14e-discussion-conclusions.html">Discusión</a></h4><p>Implicaciones, limitaciones y cierre publicable.</p></div>
+  <div class="chapter-card"><h4><a href="14f-editorial-claims-references.html">Guía editorial</a></h4><p>Claims, preguntas de reviewer, artefactos y referencias numeradas [1].</p></div>
 </div>
 ```

@@ -45,7 +45,13 @@ El paper se estructura alrededor de las siguientes preguntas:
 
 Este trabajo cubre el pipeline completo desde la prediccion calibrada de PD hasta la decision de portafolio robusta, pasando por la generacion de intervalos conformales Mondrian. Especificamente, el paper aborda: la calibracion de CatBoost con seleccion automatica entre Platt, isotonica y Venn-Abers (vease @sec-calibration-selection); la generacion de intervalos conformales via MAPIE con `grade` como baseline natural e interpretable y `score_decile_mondrian` como winner final promovido (vease @sec-mondrian); la formulacion de un programa lineal robusto parametrizado por las bandas conformales (vease @sec-robust-portfolio); y la evaluacion empirica sobre datos out-of-time de Lending Club.
 
-El paper *no* cubre: una version mas ajustada del bound bajo supuestos adicionales (por ejemplo, concentraciones tipo Hoeffding/Bernstein), la extension a portafolios multi-periodo o con costos de transaccion, ni la comparacion con metodos de optimizacion end-to-end como el entrenamiento conformal de riesgo propuesto por [@yeh2025training]. Tampoco aborda la prediccion online conformal, online DFL [@capitaine2026online] ni la adaptacion a distribuciones no estacionarias mediante algoritmos tipo universal portfolio [@liu2026portfolio] o cobertura robusta multi-distribución [@yang2026multidistribution], temas que se discuten en @sec-future-directions.
+El paper *no* cubre: una demostracion distribution-free mas fuerte que Markov para el bound de funded set, la extension a portafolios multi-periodo o con costos de transaccion, ni la comparacion con metodos de optimizacion end-to-end como el entrenamiento conformal de riesgo propuesto por [@yeh2025training]. El tightening Hoeffding/Bernstein sí queda documentado como apendice condicional bajo supuestos adicionales de independencia, pero no reemplaza el teorema principal. Tampoco aborda la prediccion online conformal, online DFL [@capitaine2026online] ni la adaptacion a distribuciones no estacionarias mediante algoritmos tipo universal portfolio [@liu2026portfolio] o cobertura robusta multi-distribución [@yang2026multidistribution], temas que se discuten en @sec-future-directions.
+
+::: {.callout-important}
+## Alcance honesto del claim
+
+El paper actual es fuerte como **CRPTO post-hoc auditable**: toma una PD calibrada, construye intervalos conformales, los usa como conjunto de incertidumbre y promueve una policy económica dentro de una región exacta. No afirma todavía que toda la selección conformal sea end-to-end decision-aware ni que el bound post-selección sea más fuerte que el resultado distribution-free documentado en @sec-alpha-gamma-bound.
+:::
 
 ### Contribuciones del paper
 
@@ -53,6 +59,7 @@ El paper *no* cubre: una version mas ajustada del bound bajo supuestos adicional
 2. Compara CRPTO contra baselines alternativos de incertidumbre (bootstrap, BMA) y contra decision-focused learning (SPO+), con metricas que abarcan cobertura, anchura, regret economico y auditabilidad regulatoria.
 3. Cuantifica la frontera entre cobertura, ancho y retorno economico bajo una misma trazabilidad experimental, proporcionando una herramienta operativa para gestores de portafolio.
 4. Demuestra que la ventaja competitiva de CRPTO frente a SPO+ no es el regret (donde SPO+ es superior por diseno) sino la **trazabilidad**: cobertura verificable por grupo, auditabilidad ante SR 11-7, y respuesta automatica ante cambios de regimen via ensanchamiento natural de intervalos.
+5. Materializa una capa P1 de evidencia journal sin cambiar el champion: funded-set export, strict temporal holdout, exact eval de finalists conformales, stress sintético endurecido y apéndice de dependencia para el tightening condicional.
 
 ::: {.callout-tip}
 ## Lectura editorial recomendada

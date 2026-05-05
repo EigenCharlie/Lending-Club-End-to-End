@@ -35,6 +35,34 @@ Para evitar mezclar resultados de familias experimentales incompatibles, este ca
 
 Las tablas de `reports/paper_material/paper1/tables/*` se regeneran con `scripts/export_paper1_canonical_tables.py` desde esta jerarquía. Si se vuelven a ejecutar runs antiguos, la regla editorial se mantiene: cualquier tabla paper-facing debe heredar primero de `models/final_project_promotion.json`.
 
+### Capa P1 de evidencia journal {#sec-estrella-p1-methodology}
+
+La versión del libro conserva más detalle que el futuro manuscrito porque aquí
+queremos que cada claim tenga una ruta de auditoría. La capa P1 no cambia el
+champion y no reabre la búsqueda; endurece el cierre actual con evidencia
+adicional alrededor de la policy congelada.
+
+| Evidencia P1 | Artefacto | Qué responde | Cómo leerla |
+|---|---|---|---|
+| Progresión post-selección | `paper1_tableA3_nested_holdout.csv` | ¿El 276K final coincide con la cadena 5K -> 25K -> full OOT? | confirma que el economic champion no salió de una tabla aislada |
+| Holdout temporal estricto | `paper1_tableA9_strict_temporal_holdout.csv` | ¿La policy congelada sobrevive a slices temporales sin solapamiento? | confirma robustez temporal sin afirmar selección prospectiva completa |
+| Funded-set loan export | `paper1_tableA7_funded_set_loans.csv` | ¿Qué préstamos exactos financia el champion? | permite inspección loan-level y composición real del riesgo |
+| Composición funded set | `paper1_tableA8_funded_set_composition.csv` | ¿Algún periodo/grade domina el retorno? | resume concentración, default ponderado y contribución a `V` |
+| Selector decision-aware | `paper1_tableA5_decision_aware_selector.csv` | ¿El conformal winner sigue siendo razonable al mirar decisión? | rank 1 gana por gate conjunto, no solo por cobertura global |
+| Exact eval finalists | `paper1_tableA10_conformal_finalist_exact_bound_eval.csv` | ¿Ranks 2/3 fueron evaluados con bound exacto? | pasan portfolio exacto, pero fallan cobertura mínima de grupo |
+| Shift sintético | `paper1_tableA6_synthetic_shift.csv` | ¿La cobertura aguanta reponderaciones OOT? | primer stress de covariate shift |
+| Shift endurecido | `paper1_tableA11_enhanced_synthetic_shift.csv` | ¿La cobertura aguanta flips adversariales de defaults? | stress más duro, todavía no external validation |
+| Tightening condicional | `docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md` | ¿Cuándo se pueden usar Hoeffding/Bernstein? | solo bajo independencia adicional; Markov sigue siendo principal |
+
+: Mapa metodológico de evidencia P1 para el Paper Estrella {#tbl-p1-evidence-methodology}
+
+El punto práctico es que las tablas A7--A11 convierten preguntas de reviewer en
+artefactos. Si alguien pregunta por post-selección, composición del funded set,
+ranks conformales alternativos o sensibilidad ante shift, el libro ya tiene una
+respuesta reproducible. El paper final probablemente no incluya todas estas
+tablas en el cuerpo principal, pero sí puede moverlas a appendix o usar sus
+resultados para fortalecer la narrativa.
+
 ### Estado decision-aware del diseño actual {#sec-estrella-decision-aware-status}
 
 El pipeline actual ya es decision-aware en la capa de portafolio, pero todavia no en toda la cadena conformal. Esta distincion evita sobreprometer y, al mismo tiempo, deja claro donde esta la contribucion real:

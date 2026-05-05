@@ -14,6 +14,7 @@ champion unless a new search run is explicitly approved.
 | Keep tables generated from canonical promotion | Avoids legacy 5,001-frontier drift | `scripts/export_paper1_canonical_tables.py` | table 0 reports `$170.5K`, `V=0.03645`, `gamma_cp=0.18591`, `45/45` region |
 | Keep DVC/Dagshub ownership clean | Makes results reproducible without Git blobs | `dvc.lock`, `.dvc` pointers | `dvc status --no-updates` and `dvc status -c -r dagshub` are clean |
 | Keep MLflow Paper Estrella final run discoverable | Preserves experiment tracking for the paper-facing closure | DagsHub MLflow run `6af4b95d152c47ec9420d5b1a2e78959` | run logs final champion metrics and canonical artifacts |
+| Keep the Quarto book richer than the manuscript | Preserves reviewer-facing reasoning before paper compression | `book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd` | claim ladder, reviewer Q&A, paper-placement table and numbered references stay rendered |
 
 ## P1 - Journal-Grade Evidence
 
@@ -58,6 +59,17 @@ the champion search.
 | Multi-asset credit validation | Lending Club is one asset class | method tested on another loan/credit product |
 | Intersectional fairness conformal audit | Current fairness is attribute-level | coverage and decision impact are evaluated on intersections |
 | Production monitoring dashboard | Paper is artifact-backed but not live | champion metrics, DVC version, MLflow run and conformal drift visible in one operational view |
+
+## Documentation Layer
+
+The Quarto book now includes an explicit editorial guide for Paper Estrella:
+`book/chapters/14-paper-estrella/14f-editorial-claims-references.qmd`. This page
+is intentionally more explanatory than a journal paper. It keeps the claim
+ladder, reviewer Q&A, artifact placement map and local numbered references
+`[1]`, `[2]`, ... that can later be compressed into the manuscript.
+
+The companion research note is
+`docs/research/paper_estrella_quarto_expansion_2026-05-04.md`.
 
 ## Do Not Reopen Without Approval
 
