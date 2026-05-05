@@ -12,4 +12,9 @@ This directory stores research-only notes, comparative writeups, and literature 
 - `repo_sync_closure_2026-05-04.md`: final repository/DVC cleanup decisions after
   promoting the bound-aware economic champion.
 - `paper_estrella_backlog_2026-05-04.md`: prioritized backlog for journal-grade
-  extensions that require new experiments or theory.
+  maintenance, implemented journal evidence, and extensions that require new
+  experiments or theory.
+- `paper_estrella_quarto_expansion_2026-05-04.md`: book-side record of the
+  Paper Estrella editorial guide, manuscript blueprint, and journal appendix.
+- `paper_estrella_journal_package_2026-05-04.md`: generated A12--A18 and figure
+  package for the journal-ready appendix.

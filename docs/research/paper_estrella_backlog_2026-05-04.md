@@ -6,6 +6,53 @@ external validation. The current official champion remains
 `bound_aware_276k_economic_champion`; this backlog must not be used to reopen the
 champion unless a new search run is explicitly approved.
 
+## Consolidated Status Matrix
+
+This matrix is the current operational backlog view. It separates maintenance,
+implemented journal-facing evidence, and work that would require genuinely new
+experiments or theory.
+
+| Priority | Status | Work item | Affects | Current artifact | Needs new run/metric? | Paper impact | Next action |
+|---|---|---|---|---|---|---|---|
+| P0 | Maintenance | Champion sync guardrails | official Paper Estrella metrics | `tests/test_docs/test_paper_estrella_final_sync.py` | No | keeps paper aligned | keep tests green before any paper/table change |
+| P0 | Maintenance | Canonical paper tables | body tables and DVC metrics | `scripts/export_paper1_canonical_tables.py` | No | prevents metric drift | regenerate only from canonical promotion |
+| P0 | Maintenance | DVC/Dagshub ownership | reproducibility | `dvc.lock`, `.dvc` pointers | No | supports artifact-backed claims | keep local and remote status clean |
+| P0 | Maintenance | MLflow final run discoverability | experiment lineage | DagsHub MLflow run `6af4b95d152c47ec9420d5b1a2e78959` | No | supports reproducibility appendix | keep final metrics and artifacts traceable |
+| P1 | Implemented | Nested/post-selection evidence | post-selection criticism | A3, A9, `paper1_p1_evidence_status.json` | No for current paper | strengthens current paper | only future hardening is a prospective pre-declared split |
+| P1 | Implemented | Decision-aware conformal selector | CROMS-style selector narrative | A5, A10 | No for current paper | strengthens current paper | future work is training score by decision loss |
+| P1 | Implemented | Conditional tightening lemma | theory appendix | `14b`, tightening appendix | No for current paper | strengthens theory with caveat | prove dependence-aware version only for journal extension |
+| P1 | Implemented | Synthetic/period shift evidence | robustness | A4, A6, A7, A8, A11 | No for current paper | strengthens current paper | external dataset remains future work |
+| P1/J | Implemented | Manuscript blueprint | paper structure | `14g-manuscript-blueprint.qmd` | No | prepares manuscript | compress into actual paper draft when writing starts |
+| P1/J | Implemented | Journal appendix A12--A18 | appendix evidence | `14h-journal-appendix-robustness.qmd` | No | complements paper | use as appendix package, not new champion evidence |
+| P1/J | Implemented | Journal figures | visual explanation/results | `estrella_fig12`--`estrella_fig14` | No | improves paper readability | choose which figures go to body vs appendix |
+| P1/J | Implemented | Tail risk diagnostics | funded-set risk | A12 | No | complements paper | do not cite repriced return as official return |
+| P1/J | Implemented | Satisficing margins | OR framing | A13 | No | complements paper | justify thresholds if moved to body |
+| P1/J | Implemented | Dependence diagnostics | conditional tightening | A14 | No | complements theory | do not claim independence from this table |
+| P1/J | Implemented | Temporal stress and bootstrap | robustness | A15, A16 | No | complements paper | keep as descriptive appendix evidence |
+| P1/J | Implemented | Budget/LGD/cap sensitivity | applied credit robustness | A17 | No | complements paper | cap checks are diagnostics, not solver constraints |
+| P1/J | Implemented | Robust region family table | compatible leaderboard | A18 | No | strengthens results | report only inside bound-aware family |
+| P2 | Pending | OCE/CVaR as optimization target | portfolio search objective | A12 is diagnostic only | Yes | can strengthen or redirect method | implement tail-risk-aware search if approved |
+| P2 | Pending | Multi-distribution robust CP | conformal layer | none | Yes | new methodological direction | design source/group robust calibration |
+| P2 | Pending | Online conformal recalibration | deployment/streaming | none | Yes | new sequential direction | simulate monthly recalibration and coverage regret |
+| P2 | Pending | Online DFL comparison | DFL benchmark | SPO+ static evidence exists | Yes | new comparison direction | build repeated-decision experiment |
+| P2 | Pending | SPO+ + conformal hybrid | model training/calibration | current SPO+ and CP are separate | Yes | could change method | train decision-loss-aware predictor/calibrator with CP wrapper |
+| P2 | Pending | Robust satisficing policy | OR objective | A13 is diagnostic only | Yes | new OR variant | optimize thresholds/margins directly |
+| P3 | Future | Multi-period portfolio | production realism | none | Yes | new paper/product track | model state transitions and rebalancing |
+| P3 | Future | Multi-asset credit validation | external validity | none | Yes | broader thesis validation | test another credit product |
+| P3 | Future | Intersectional fairness conformal audit | fairness/governance | attribute-level fairness exists elsewhere | Yes | complements thesis | evaluate coverage and decisions on intersections |
+| P3 | Future | Production monitoring dashboard | productization | artifacts exist, dashboard not live | Yes | product track | expose champion/DVC/MLflow/drift in one view |
+
+## Current Rule of Record
+
+- The current paper is a **CRPTO post-hoc auditable** paper with a frozen
+  economic champion.
+- P0/P1/P1-J items strengthen the current paper without changing its direction.
+- P2 items are real methodological extensions and should be opened only with a
+  named run/protocol.
+- P3 items belong to broader thesis/product work.
+- If any diagnostic table contradicts `models/final_project_promotion.json`,
+  the promotion artifact wins.
+
 ## P0 - Keep Current Paper Publishable
 
 | Item | Why it matters | Artifact / owner | Acceptance criteria |
