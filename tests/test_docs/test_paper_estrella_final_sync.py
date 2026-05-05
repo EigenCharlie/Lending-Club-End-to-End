@@ -33,6 +33,7 @@ PAPER_ESTRELLA_SUPPORT_PAGES = {
     "14l": Path("book/chapters/14-paper-estrella/14l-governance-mrm-approval.qmd"),
     "14m": Path("book/chapters/14-paper-estrella/14m-funded-set-composition.qmd"),
     "14n": Path("book/chapters/14-paper-estrella/14n-artifact-traceability.qmd"),
+    "14o": Path("book/chapters/14-paper-estrella/14o-extraction-release-manifest.qmd"),
 }
 PAPER_ESTRELLA_BACKLOG = Path("docs/research/paper_estrella_backlog_2026-05-04.md")
 PAPER_ESTRELLA_QUARTO_EXPANSION = Path(
@@ -236,6 +237,8 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
         "14l-governance-mrm-approval.qmd",
         "14m-funded-set-composition.qmd",
         "14n-artifact-traceability.qmd",
+        "14o-extraction-release-manifest.qmd",
+        "Extraction/release manifest",
         "paper1_tableA12_tail_risk_oce_cvar.csv",
         "paper1_tableA18_robust_region_policy_family.csv",
         "scripts/build_paper1_journal_package.py",
@@ -284,6 +287,7 @@ def test_paper_estrella_support_pages_are_synchronized() -> None:
     discussion = PAPER_ESTRELLA_DISCUSSION.read_text(encoding="utf-8")
     backlog = PAPER_ESTRELLA_BACKLOG.read_text(encoding="utf-8")
     traceability = PAPER_ESTRELLA_SUPPORT_PAGES["14n"].read_text(encoding="utf-8")
+    manifest = PAPER_ESTRELLA_SUPPORT_PAGES["14o"].read_text(encoding="utf-8")
     governance = PAPER_ESTRELLA_SUPPORT_PAGES["14l"].read_text(encoding="utf-8")
     fairness = PAPER_ESTRELLA_SUPPORT_PAGES["14k"].read_text(encoding="utf-8")
     spo = PAPER_ESTRELLA_SUPPORT_PAGES["14j"].read_text(encoding="utf-8")
@@ -337,9 +341,26 @@ def test_paper_estrella_support_pages_are_synchronized() -> None:
         "Quarto Expansion Snapshot - 2026-05-05",
         "Direct protected-attribute / temporal fairness validation",
         "proxy base + proxy-intersectional audit exists in `14k`",
+        "14o-extraction-release-manifest.qmd",
+        "OCE/CVaR optimization",
+        "new method, guarantee or dataset",
         "execute.freeze: true",
     ):
         assert token in backlog
+
+    for token in (
+        "CRPTO post-hoc auditable con economic champion congelado",
+        "tbl-p1-no-direction-change-filter",
+        "tbl-p1-section-extraction-manifest",
+        "tbl-p1-table-extraction-manifest",
+        "tbl-p1-figure-extraction-manifest",
+        "tbl-p1-venue-response-bank",
+        "tbl-p1-release-checklist",
+        "OCE/CVaR como constraint de optimización",
+        "No implementar ahora",
+        "todo lo que crea una nueva policy, una nueva garantía o un nuevo dataset",
+    ):
+        assert token in manifest
 
 
 def test_paper_estrella_p1_evidence_artifacts_exist() -> None:

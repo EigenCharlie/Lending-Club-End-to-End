@@ -84,6 +84,8 @@ La lectura recomendada es:
 - **Protocolo SPO+** separa el claim de regret del claim de auditabilidad.
 - **Fair lending, MRM, funded set y trazabilidad** documentan los gates que
   vuelven defendible el paper ante comité, reviewer o auditor.
+- **Manifest de extracción y release** clasifica cada pieza como paper, journal,
+  tesis o backlog, y congela el checklist de release reproducible.
 
 ::: {.callout-tip}
 ## Regla de lectura
@@ -111,5 +113,6 @@ tablas; el libro preserva el razonamiento, las cautelas y la trazabilidad.
   <div class="chapter-card"><h4><a href="14l-governance-mrm-approval.html">MRM / SR 11-7</a></h4><p>Gates de gobernanza, challenger criteria, triggers y aprobación operativa.</p></div>
   <div class="chapter-card"><h4><a href="14m-funded-set-composition.html">Funded Set</a></h4><p>Anatomía loan-level y periodo-grade del portafolio financiado.</p></div>
   <div class="chapter-card"><h4><a href="14n-artifact-traceability.html">Trazabilidad</a></h4><p>Mapa claim → artefacto → script → test y runbook reproducible.</p></div>
+  <div class="chapter-card"><h4><a href="14o-extraction-release-manifest.html">Manifest</a></h4><p>Criba de dirección, matriz paper/journal/tesis, Q&A por venue y checklist de release.</p></div>
 </div>
 ```

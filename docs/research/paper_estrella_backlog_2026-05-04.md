@@ -31,6 +31,7 @@ experiments or theory.
 | P1/J | Implemented | Funded-set composition page | portfolio evidence | `14m-funded-set-composition.qmd` | No | strengthens result audit | use in appendix to show no hidden segment drives champion |
 | P1/J | Implemented | Artifact traceability runbook | reproducibility | `14n-artifact-traceability.qmd` | No | strengthens reviewer response | keep claim-script-test paths real and guarded |
 | P1/J | Implemented | Paper/journal/thesis extraction map | editorial planning | `14-paper-estrella/index.qmd` | No | preserves rich book content | later compress, but do not delete useful thesis evidence now |
+| P1/J | Implemented | Extraction/release manifest | paper/journal/thesis packaging | `14o-extraction-release-manifest.qmd` | No | strengthens editorial extraction | use before creating the standalone manuscript |
 | P1/J | Implemented | Journal figures | visual explanation/results | `estrella_fig12`--`estrella_fig14` | No | improves paper readability | choose which figures go to body vs appendix |
 | P1/J | Implemented | Tail risk diagnostics | funded-set risk | A12 | No | complements paper | do not cite repriced return as official return |
 | P1/J | Implemented | Satisficing margins | OR framing | A13 | No | complements paper | justify thresholds if moved to body |
@@ -124,13 +125,14 @@ short paper, a journal version and a thesis chapter without losing context.
 
 | Page | Status | What it adds | Later placement |
 |---|---|---|---|
-| `index.qmd` | Implemented | curated navigation through `14a`--`14n` and extraction rule paper/journal/thesis | editorial hub |
+| `index.qmd` | Implemented | curated navigation through `14a`--`14o` and extraction rule paper/journal/thesis | editorial hub |
 | `14i-mondrian-ablation.qmd` | Implemented | rank 1/2/3 conformal ablation and winner configuration | appendix or method robustness |
 | `14j-spo-protocol-and-regret.qmd` | Implemented | SPO+ train-time vs temporal protocol split | comparator appendix |
 | `14k-fair-lending-checkpoint.qmd` | Implemented | 3 base + 3 proxy-intersectional fairness checks, all PASS | governance appendix |
 | `14l-governance-mrm-approval.qmd` | Implemented | SR 11-7 gates, challenger criteria and retraining triggers | governance appendix / thesis |
 | `14m-funded-set-composition.qmd` | Implemented | funded-set loan/period/grade composition | results appendix |
 | `14n-artifact-traceability.qmd` | Implemented | claim -> artifact -> script -> test map and runbook | reproducibility appendix |
+| `14o-extraction-release-manifest.qmd` | Implemented | direction filter, table/figure placement, venue response bank and release checklist | editorial/reproducibility supplement |
 
 Remaining Quarto maintenance is not about reducing content. It is about keeping
 paths, claims and caches synchronized as new evidence pages are added.
@@ -170,11 +172,18 @@ as a staging area for paper, journal and thesis:
 - `book/chapters/14-paper-estrella/14l-governance-mrm-approval.qmd`
 - `book/chapters/14-paper-estrella/14m-funded-set-composition.qmd`
 - `book/chapters/14-paper-estrella/14n-artifact-traceability.qmd`
+- `book/chapters/14-paper-estrella/14o-extraction-release-manifest.qmd`
 
 These pages are intentionally more explanatory than a journal paper. They keep
 the claim ladder, reviewer Q&A, artifact placement map, local numbered
 references `[1]`, `[2]`, ... and the A12--A18 appendix package that can later be
 compressed into the manuscript.
+
+The extraction/release manifest explicitly classifies OCE/CVaR optimization,
+online conformal/Online DFL, MDCP, direct protected-attribute fairness,
+external-dataset validation and a dependence-aware main bound as backlog items
+because they would introduce a new method, guarantee or dataset rather than
+merely organizing existing evidence.
 
 Because `book/_quarto.yml` uses `execute.freeze: true`, rendered cache updates
 under `book/_freeze/chapters/14-paper-estrella/` should be treated as

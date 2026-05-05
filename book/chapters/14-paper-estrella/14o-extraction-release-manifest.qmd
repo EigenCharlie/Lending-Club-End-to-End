@@ -1,0 +1,171 @@
+---
+title: "Manifest de Extracción y Release"
+page-layout: article
+---
+
+## Manifest de Extracción Paper / Journal / Tesis {#sec-p1-extraction-release-manifest}
+
+Esta página fija una regla práctica para usar el dossier largo del Paper
+Estrella sin cambiar su dirección. El capítulo 14 no es todavía el manuscrito:
+es el repositorio editorial donde se conserva todo lo útil para escoger más
+adelante qué entra al paper corto, qué queda como appendix journal y qué debe
+vivir en la tesis/libro.
+
+La contribución central sigue siendo la misma: **CRPTO post-hoc auditable con economic champion congelado**. Nada en esta página reabre la búsqueda, cambia el champion ni convierte diagnósticos en nuevas métricas oficiales.
+
+### Criba: qué se implementa ahora y qué queda fuera
+
+::: {#tbl-p1-no-direction-change-filter}
+
+| Propuesta | ¿Cambia la dirección? | Decisión | Por qué |
+|---|---:|---|---|
+| Manifest de extracción paper/journal/tesis | No | Implementado aquí | Ordena contenido existente sin crear claims nuevos. |
+| Matriz completa de tablas/figuras | No | Implementado aquí | Clasifica evidencia ya generada A0--A18 y Fig 7--14. |
+| Banco de respuestas por venue | No | Implementado aquí | Ayuda a escribir y responder reviewers sin tocar artefactos. |
+| Release checklist con DVC/DagsHub/Quarto/tests | No | Implementado aquí | Formaliza reproducibilidad ya existente. |
+| Scaffold standalone del paper | No, pero es prematuro | Diferido | Conviene crearlo cuando elijamos venue y formato. |
+| Protocolo prospectivo pre-declarado | No para la tesis, sí para evidencia journal | Backlog | Requiere nuevo run o una regla declarada antes de buscar. |
+| Dataset externo | No cambia CRPTO, pero agrega evidencia nueva | Backlog | Necesita fuente externa comparable. |
+| Bound dependence-aware | Fortalece teoría, puede cambiar énfasis OR | Backlog | Requiere prueba nueva; Markov sigue como claim principal. |
+| OCE/CVaR como constraint de optimización | Sí | No implementar ahora | Cambia el objetivo del search; A12 queda diagnóstico. |
+| Online conformal / Online DFL | Sí | No implementar ahora | Convierte el paper en decisión secuencial. |
+| MDCP / multi-distribución | Sí | No implementar ahora | Cambia la capa conformal y la garantía. |
+| Fairness con atributos protegidos directos | No cambia CRPTO, pero requiere datos nuevos | Backlog | El dataset actual solo soporta proxy/intersectional audit. |
+
+Criba de mejoras según si preservan o cambian la dirección del paper.
+:::
+
+### Manifest por sección del capítulo 14
+
+::: {#tbl-p1-section-extraction-manifest}
+
+| Página | Rol actual en Quarto | Paper corto | Journal version | Tesis/libro | Regla editorial |
+|---|---|---|---|---|---|
+| `index` | Hub de lectura | no entra | no entra | sí | Mantener como navegación curada. |
+| `14a` | Introducción, gap y alcance | cuerpo | cuerpo | sí | Comprimir, no cambiar el claim. |
+| `14b` | Teoría CRPTO y bound | cuerpo teoría | cuerpo + appendix | sí | Markov principal; tightening condicional separado. |
+| `14c` | Metodología y artefactos | cuerpo método | cuerpo + supplement | sí | No mezclar familias de métricas. |
+| `14d` | Resultados y evidencia P1 | cuerpo resultados | cuerpo + appendix | sí | Champion y región robusta al cuerpo; A3--A11 al appendix. |
+| `14e` | Discusión, limitaciones y roadmap | cuerpo discusión | cuerpo + future work | sí | IFRS9/CATE como conexiones, no contribución central. |
+| `14f` | Guía editorial y referencias numeradas | insumo | insumo | sí | Convertir a related work formal al escribir. |
+| `14g` | Blueprint del manuscrito | insumo | insumo | sí | Usar como skeleton; no citar como resultado. |
+| `14h` | Appendix A12--A18 | appendix selectivo | appendix fuerte | sí | Diagnóstico journal, no nueva promoción del champion. |
+| `14i` | Ablación Mondrian | appendix corto | appendix | sí | Defender `score_decile_mondrian` vs `grade`. |
+| `14j` | Protocolo SPO+ | appendix corto | appendix | sí | Separar regret 49.1% de cobertura/auditabilidad. |
+| `14k` | Fair lending checkpoint | appendix/governance | appendix | sí | Proxy/intersectional, no certificación legal de atributos protegidos. |
+| `14l` | MRM / SR 11-7 | appendix/governance | appendix | sí | Fortalece auditabilidad, no metodología nueva. |
+| `14m` | Funded set composition | appendix resultados | appendix | sí | Mostrar que el champion no depende de un segmento oculto. |
+| `14n` | Trazabilidad y runbook | supplement | supplement | sí | Mantener paths y tests reales. |
+| `14o` | Manifest de extracción y release | no entra | supplement editorial | sí | Controlar qué se mueve al manuscrito. |
+
+Manifest de uso por sección del capítulo 14.
+:::
+
+### Manifest de tablas A0--A18
+
+::: {#tbl-p1-table-extraction-manifest}
+
+| Tabla | Rol | Paper corto | Journal appendix | Tesis/libro | Notas |
+|---|---|---:|---:|---:|---|
+| A0 / Table 0 | Métricas core | Sí | Sí | Sí | Fuente para retorno `$170.5K`, `V`, `Gamma_CP`, región. |
+| A1 | Benchmark por grupo | Quizá | Sí | Sí | Útil si el reviewer pide detalle conformal por grupo. |
+| A2 | Robustness frontier legacy | No | Quizá | Sí | Contexto histórico; evitar contradicción con promotion final. |
+| A3 | Nested holdout 5K--25K--276K | Appendix corto | Sí | Sí | Responde crítica de post-selección. |
+| A4 | Sensibilidad periodo × grade | Appendix corto | Sí | Sí | Evidencia de piso por segmento. |
+| A5 | Selector CROMS-style | Appendix corto | Sí | Sí | Decision-aware screen, no entrenamiento decision-aware. |
+| A6 | Synthetic shift básico | Appendix corto | Sí | Sí | Stress de covariate shift, no dataset externo. |
+| A7 | Funded-set loan export | No | Supplement | Sí | Demasiado granular para cuerpo. |
+| A8 | Funded-set composition | Appendix corto | Sí | Sí | Muy útil para reviewer de robustez aplicada. |
+| A9 | Strict temporal holdout | Appendix corto | Sí | Sí | Evidencia fuerte sin cambiar champion. |
+| A10 | Exact eval ranks 1--3 | Appendix corto | Sí | Sí | Defiende selector conformal completo. |
+| A11 | Enhanced synthetic shift | Appendix corto | Sí | Sí | Stress más duro que A6. |
+| A12 | Tail risk OCE/CVaR | No | Sí | Sí | Diagnóstico; no return oficial ni constraint optimizado. |
+| A13 | Satisficing margins | No | Sí | Sí | OR framing; thresholds deben justificarse si van al cuerpo. |
+| A14 | Dependency diagnostics | No | Sí | Sí | No prueba independencia; soporta cautela del tightening. |
+| A15 | Leave-one-period-out stress | No | Sí | Sí | Stress descriptivo del funded set. |
+| A16 | Bootstrap funded-set metrics | No | Sí | Sí | CI empírico, no garantía conformal formal. |
+| A17 | Budget/LGD/cap sensitivity | No | Sí | Sí | Diagnóstico aplicado, no solver con caps nuevos. |
+| A18 | Robust region by family | Sí o appendix corto | Sí | Sí | Evidencia visual/tabular de región `45/45`. |
+
+Manifest de tablas para decidir cuerpo, appendix y tesis.
+:::
+
+### Manifest de figuras
+
+::: {#tbl-p1-figure-extraction-manifest}
+
+| Figura | Artefacto | Paper corto | Journal appendix | Tesis/libro | Lectura |
+|---|---|---:|---:|---:|---|
+| Overview editorial | `diagrama-paper-estrella.png` | Quizá | No | Sí | Excelente para libro; el paper prefiere Fig 12. |
+| Fig 7 | `estrella_fig7_uncertainty_baselines` | No | Sí | Sí | Baselines de incertidumbre. |
+| Fig 8 | `estrella_fig8_alpha_pareto` | Quizá | Sí | Sí | Alpha frontier y trade-off. |
+| Fig 9 | `estrella_fig9_spo_regret` | Quizá | Sí | Sí | Comparador SPO+; acompañar con `14j`. |
+| Fig 10 | `estrella_fig10_cqr_per_grade` | No | Sí | Sí | Útil para appendix conformal. |
+| Fig 11 | `estrella_fig11_crpto_stability` | Quizá | Sí | Sí | Shift temporal y cobertura. |
+| Fig 12 | `estrella_fig12_crpto_conceptual_pipeline` | Sí | Sí | Sí | Candidata a Figura 1. |
+| Fig 13 | `estrella_fig13_alpha_gamma_funded_set` | Sí | Sí | Sí | Une teoría y decisión. |
+| Fig 14 | `estrella_fig14_robust_region_heatmap` | Sí | Sí | Sí | Muestra región robusta, no punto aislado. |
+| Fig alpha-gamma | `estrella_fig_alpha_gamma_bound` | Quizá | Sí | Sí | Figura técnica del bound. |
+
+Manifest de figuras para extraer paper y appendix.
+:::
+
+### Banco de respuestas por venue
+
+::: {#tbl-p1-venue-response-bank}
+
+| Reviewer pregunta | Respuesta corta | Mejor evidencia | Venue donde más importa |
+|---|---|---|---|
+| ¿No es solo otro modelo de PD? | No: la contribución es mapear incertidumbre conformal a una restricción robusta auditable. | `14b`, `14c`, Fig 12 | Todos |
+| ¿Por qué no optimizan solo SPO+? | SPO+ gana regret; CRPTO compra cobertura verificable y auditabilidad. | `14j`, Fig 9, `14e` | MS/EJOR |
+| ¿La garantía post-selección es demasiado optimista? | El teorema es distribution-free para asignación fija; P1 agrega evidencia temporal y exact eval, no sobrepromete garantía prospectiva. | A3, A9, A10, `14b` | OR/MS |
+| ¿Por qué `score_decile_mondrian` y no `grade`? | `grade` es baseline interpretable; `score_decile_mondrian` gana por cobertura mínima y selector objetivo. | `14i`, A10 | Todos |
+| ¿Markov no es muy flojo? | Sí, y por eso se declara como cota principal conservadora; Hoeffding/Bernstein quedan condicionales. | `14b`, A14 | OR |
+| ¿La región `45/45` es un artifact de tuning? | La región completa reduce el riesgo de single-point champion, y A18 reporta familia compatible. | Fig 14, A18 | MS/EJOR |
+| ¿Qué pasa con fairness? | Pasa proxy base + proxy-intersectional; atributos protegidos directos quedan fuera por limitación del dataset. | `14k`, `fairness_audit_status.json` | MS/EJOR |
+| ¿Qué pasa con regulación/MRM? | CRPTO es auditable por subsistema: PD, conformal, LP, fairness y governance. | `14l`, MRM report | MS/EJOR |
+| ¿Los stress tests reemplazan validación externa? | No; fortalecen robustez interna. Dataset externo queda como journal/future work. | A6, A11, `14e` | Todos |
+| ¿Por qué no OCE/CVaR como objetivo? | Hoy A12 es diagnóstico; convertirlo en objective cambia el search y sería paper siguiente. | A12, backlog | OR/MS |
+
+Banco de respuestas para preparar manuscrito y rebuttal.
+:::
+
+### Release checklist para congelar una versión paper-facing
+
+Este checklist no genera evidencia nueva. Sirve para declarar que una versión
+del dossier está lista para ser usada como fuente de manuscrito.
+
+::: {#tbl-p1-release-checklist}
+
+| Gate | Comando / artefacto | Criterio |
+|---|---|---|
+| Champion sincronizado | `uv run pytest tests/test_docs/test_paper_estrella_final_sync.py` | Todos los tests del Paper Estrella pasan. |
+| Quarto registrado | `uv run pytest tests/test_docs/test_quarto_book_guardrails.py` | Todas las páginas `.qmd` están en `_quarto.yml`. |
+| Tablas canónicas | `uv run python scripts/export_paper1_canonical_tables.py` | A0 usa `models/final_project_promotion.json`. |
+| P1 evidence | `uv run python scripts/analyze_paper1_p1_evidence.py --include-hardening` | A3--A11 actualizadas y status JSON coherente. |
+| Journal package | `uv run python scripts/build_paper1_journal_package.py` | A12--A18 y Fig 12--14 actualizadas. |
+| Figuras paper-facing | `uv run python scripts/generate_paper_figures.py` | Fig 7--11 reproducibles. |
+| DVC local | `uv run dvc status --no-updates` | Datos y pipelines al día. |
+| DagsHub remote | `uv run dvc status -c -r dagshub` | Cache y remoto sincronizados. |
+| Render targeted | `bash scripts/render_quarto.sh render book/chapters/14-paper-estrella/14o-extraction-release-manifest.qmd --to html` | Página renderiza sin errores. |
+| Hooks | `uv run pre-commit run` | Sin drift de formato ni archivos grandes. |
+
+Checklist de release paper-facing.
+:::
+
+### Qué queda explícitamente fuera de esta implementación
+
+Las siguientes piezas son valiosas, pero sí cambian método, evidencia o alcance.
+Por eso no se implementan como parte de este cierre:
+
+- reoptimizar el portafolio con OCE/CVaR como objetivo o constraint;
+- entrenar conformal decision-aware end-to-end;
+- convertir CRPTO en online conformal u online DFL;
+- agregar MDCP o cobertura multi-fuente;
+- probar el bound dependence-aware como claim principal;
+- declarar validación externa sin dataset externo;
+- usar atributos protegidos directos que Lending Club abierto no contiene.
+
+La regla de cierre es simple: **todo lo que clasifica evidencia existente sí
+entra; todo lo que crea una nueva policy, una nueva garantía o un nuevo dataset
+queda en backlog**.
