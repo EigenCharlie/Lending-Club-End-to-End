@@ -40,6 +40,8 @@ La tesis completa documenta el sistema entero: modelado, conformal, optimizació
 - **70** arma el pipeline ECL, SICR y escenarios.
 - **71** concentra sensibilidad, bandas de provisión y comparativas.
 - **72** cierra con lectura prudencial, límites y agenda siguiente.
+- **73** separa el Paper 2 actual de la futura mega extensión IFRS9 + CATE +
+  CRPTO.
 
 ## Navegación curada
 
@@ -49,5 +51,6 @@ La tesis completa documenta el sistema entero: modelado, conformal, optimizació
   <div class="chapter-card"><h4><a href="15b-methodology.html">70. Metodología</a></h4><p>Pipeline ECL, SICR conformal y escenarios.</p></div>
   <div class="chapter-card"><h4><a href="15c-results.html">71. Resultados</a></h4><p>ECL por rango, sensibilidad alpha y comparativas.</p></div>
   <div class="chapter-card"><h4><a href="15d-discussion.html">72. Discusión</a></h4><p>Lectura prudencial, límites y agenda siguiente.</p></div>
+  <div class="chapter-card"><h4><a href="15e-mega-extension-ifrs9-cate-crpto.html">73. Mega Extensión</a></h4><p>Ruta futura IFRS9-aware CRPTO, Causal CRPTO y champion robusto-contable-causal.</p></div>
 </div>
 ```
