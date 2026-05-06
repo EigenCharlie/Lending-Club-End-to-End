@@ -23,6 +23,7 @@ La contribución central sigue siendo la misma: **CRPTO post-hoc auditable con e
 | Matriz completa de tablas/figuras | No | Implementado aquí | Clasifica evidencia ya generada A0--A18 y Fig 7--14. |
 | Banco de respuestas por venue | No | Implementado aquí | Ayuda a escribir y responder reviewers sin tocar artefactos. |
 | Release checklist con DVC/DagsHub/Quarto/tests | No | Implementado aquí | Formaliza reproducibilidad ya existente. |
+| Decisión de companion URL | No | Implementado aquí | Declara que Quarto es la superficie primaria y Streamlit queda opcional. |
 | Scaffold standalone del paper | No, pero es prematuro | Diferido | Conviene crearlo cuando elijamos venue y formato. |
 | Protocolo prospectivo pre-declarado | No para la tesis, sí para evidencia journal | Backlog | Requiere nuevo run o una regla declarada antes de buscar. |
 | Dataset externo | No cambia CRPTO, pero agrega evidencia nueva | Backlog | Necesita fuente externa comparable. |
@@ -130,6 +131,32 @@ Manifest de figuras para extraer paper y appendix.
 Banco de respuestas para preparar manuscrito y rebuttal.
 :::
 
+### Companion y URL de publicación
+
+El companion del Paper Estrella no debe confundirse con el dashboard histórico.
+Para el manuscrito actual, la superficie estable es el libro Quarto y el
+paquete reproducible de artefactos; Streamlit queda como capa interactiva
+opcional, útil para demostración o producto, pero no bloquea el paper.
+
+::: {#tbl-p1-companion-surface}
+
+| Superficie | Rol para Paper Estrella | Estado | Regla |
+|---|---|---|---|
+| Quarto book | Companion primario y dossier largo | Actual | Fuente navegable para paper, journal y tesis. |
+| DVC/DagsHub | Companion de artefactos | Actual | Reproducibilidad de datos, modelos, métricas y runs. |
+| MLflow/DagsHub | Lineage experimental | Actual | Evidencia de run tags, métricas y promoción. |
+| Streamlit showcase | Demo histórica/interactiva | Diferido para paper | No se usa como fuente canónica; se enlaza solo si el venue pide demo. |
+| Standalone paper repo/page | Página corta del manuscrito | Futuro | Se crea al elegir venue/formato y extraer el paper. |
+
+Superficies de companion y regla de uso.
+:::
+
+::: {.callout-note}
+## Decisión actual
+
+Mientras el capítulo 14 siga funcionando como repositorio editorial amplio, el companion oficial es **Quarto + DVC/DagsHub/MLflow**. Streamlit puede volver como producto o visualización para comité, pero no debe arrastrar claims, métricas ni números que no estén sincronizados con `models/final_project_promotion.json`.
+:::
+
 ### Release checklist para congelar una versión paper-facing
 
 Este checklist no genera evidencia nueva. Sirve para declarar que una versión
@@ -147,6 +174,7 @@ del dossier está lista para ser usada como fuente de manuscrito.
 | Figuras paper-facing | `uv run python scripts/generate_paper_figures.py` | Fig 7--11 reproducibles. |
 | DVC local | `uv run dvc status --no-updates` | Datos y pipelines al día. |
 | DagsHub remote | `uv run dvc status -c -r dagshub` | Cache y remoto sincronizados. |
+| Companion surface | `14o` + `14n` | Quarto/DVC/MLflow declarados como companion primario; Streamlit no bloquea release. |
 | Render targeted | `bash scripts/render_quarto.sh render book/chapters/14-paper-estrella/14o-extraction-release-manifest.qmd --to html` | Página renderiza sin errores. |
 | Hooks | `uv run pre-commit run` | Sin drift de formato ni archivos grandes. |
 
@@ -165,6 +193,7 @@ Por eso no se implementan como parte de este cierre:
 - probar el bound dependence-aware como claim principal;
 - declarar validación externa sin dataset externo;
 - usar atributos protegidos directos que Lending Club abierto no contiene.
+- exigir un dashboard Streamlit vivo como condición del paper actual.
 
 La regla de cierre es simple: **todo lo que clasifica evidencia existente sí
 entra; todo lo que crea una nueva policy, una nueva garantía o un nuevo dataset

@@ -23,9 +23,9 @@ experiments or theory.
 | P1 | Implemented | Decision-aware conformal selector | CROMS-style selector narrative | A5, A10 | No for current paper | strengthens current paper | future work is training score by decision loss |
 | P1 | Implemented | Conditional tightening lemma | theory appendix | `14b`, tightening appendix | No for current paper | strengthens theory with caveat | prove dependence-aware version only for journal extension |
 | P1 | Implemented | Synthetic/period shift evidence | robustness | A4, A6, A7, A8, A11 | No for current paper | strengthens current paper | external dataset remains future work |
-| P1/J | Implemented | Alpha sweep and alpha-Gamma validation | alpha/robustness narrative | `alpha_sweep_pareto_mondrian.parquet`, `alpha_sweep_pareto_both.parquet`, `alpha_gamma_bound/*` | No | strengthens current paper | use as supporting alpha policy evidence, not a new champion search |
-| P1/J | Implemented | Uncertainty-set baselines | CP vs bootstrap/parametric/ellipsoidal evidence | `uncertainty_baselines_comparison.parquet`, `uncertainty_baselines_by_grade.parquet` | No | strengthens current paper | use to justify conformal robust set selection |
-| P1/J | Implemented | CQR comparator evidence | conformal alternative | `cqr_comparison_status.json`, `cqr_mondrian_status.json`, `estrella_fig10` | No | complements paper | keep as comparator/appendix; do not replace official Mondrian winner |
+| P1/J | Implemented | Alpha sweep and alpha-Gamma validation | alpha/robustness narrative | `alpha_sweep_pareto_mondrian.parquet`, `alpha_sweep_pareto_both.parquet`, `alpha_gamma_bound/*`, `14d` | No | strengthens current paper | use as supporting alpha policy evidence, not a new champion search |
+| P1/J | Implemented | Uncertainty-set baselines | CP vs bootstrap/parametric/ellipsoidal evidence | `uncertainty_baselines_comparison.parquet`, `uncertainty_baselines_by_grade.parquet`, `14d` | No | strengthens current paper | use to justify conformal robust set selection |
+| P1/J | Implemented | CQR comparator evidence | conformal alternative | `cqr_comparison_status.json`, `cqr_mondrian_status.json`, `estrella_fig10`, `14d` | No | complements paper | keep as comparator/appendix; do not replace official Mondrian winner |
 | P1/J | Implemented | Manuscript blueprint | paper structure | `14g-manuscript-blueprint.qmd` | No | prepares manuscript | compress into actual paper draft when writing starts |
 | P1/J | Pending | Standalone manuscript extraction | final submission artifact | `14g`, `14o`, A1--A18, figures | No | required for submission | write the short paper from the book package; no champion changes |
 | P1/J | Implemented | Journal appendix A12--A18 | appendix evidence | `14h-journal-appendix-robustness.qmd` | No | complements paper | use as appendix package, not new champion evidence |
@@ -34,9 +34,9 @@ experiments or theory.
 | P1/J | Implemented | Fair lending checkpoint | governance/funded set | `14k-fair-lending-checkpoint.qmd` | No | strengthens auditability | cite as proxy/intersectional audit, not legal protected-attribute proof |
 | P1/J | Implemented | MRM/SR 11-7 approval page | model risk management | `14l-governance-mrm-approval.qmd` | No | strengthens deployment credibility | keep triggers and challenger criteria aligned with MRM artifacts |
 | P1/J | Implemented | Funded-set composition page | portfolio evidence | `14m-funded-set-composition.qmd` | No | strengthens result audit | use in appendix to show no hidden segment drives champion |
-| P1/J | Implemented | Artifact traceability runbook | reproducibility | `14n-artifact-traceability.qmd` | No | strengthens reviewer response | keep claim-script-test paths real and guarded |
+| P1/J | Implemented | Artifact traceability runbook | reproducibility | `14n-artifact-traceability.qmd` | No | strengthens reviewer response | keep claim-script-test paths real, including freeze/search pipeline rules |
 | P1/J | Implemented | Paper/journal/thesis extraction map | editorial planning | `14-paper-estrella/index.qmd` | No | preserves rich book content | later compress, but do not delete useful thesis evidence now |
-| P1/J | Implemented | Extraction/release manifest | paper/journal/thesis packaging | `14o-extraction-release-manifest.qmd` | No | strengthens editorial extraction | use before creating the standalone manuscript |
+| P1/J | Implemented | Extraction/release manifest | paper/journal/thesis packaging | `14o-extraction-release-manifest.qmd` | No | strengthens editorial extraction | use before creating the standalone manuscript; Quarto is the primary companion surface |
 | P1/J | Implemented | Journal figures | visual explanation/results | `estrella_fig12`--`estrella_fig14` | No | improves paper readability | choose which figures go to body vs appendix |
 | P1/J | Implemented | Tail risk diagnostics | funded-set risk | A12 | No | complements paper | do not cite repriced return as official return |
 | P1/J | Implemented | Satisficing margins | OR framing | A13 | No | complements paper | justify thresholds if moved to body |
@@ -106,6 +106,20 @@ are about manuscript quality, not new champion selection.
 | Final obsolete-number sweep | Yes | No | prevents regression to old return, old tau or wrong champion-role claims | `rg` confirms no obsolete champion/metric language in Paper Estrella pages |
 | Submission reproducibility checklist | Yes | No | keeps reviewer package reproducible | DVC, MLflow, paper table export, Quarto render and guardrail tests are listed with commands |
 | Online companion URL decision | Yes | No | old backlogs asked for a companion; now the decision should be explicit | release manifest names the stable Quarto URL or documents that the companion is deferred |
+
+### Immediate Quarto Sync Applied - 2026-05-06
+
+The immediate items that used existing artifacts and did not change the paper
+direction are now reflected in the Paper Estrella Quarto pages.
+
+| Item closed in Quarto | Page | Evidence surfaced | Still pending |
+|---|---|---|---|
+| Uncertainty-baseline narrative | `14d-results.qmd` | comparator table from `uncertainty_baselines_comparison.parquet` and worst-grade table from `uncertainty_baselines_by_grade.parquet` | choose whether Fig 7/table stays in body or moves to appendix during manuscript extraction |
+| CQR comparator narrative | `14d-results.qmd` | CQR table from `cqr_mondrian_comparison.parquet` plus Fig 10 interpretation | only a future CQR retraining/decision-aware run would make it a method candidate |
+| Alpha sweep narrative | `14d-results.qmd` | compact alpha table from `alpha_sweep_pareto_both.parquet` and explicit warning that the sweep is not the champion source | final paper may compress this to one paragraph plus figure |
+| A/B bootstrap guard | `14d-results.qmd` | `ab_pass_all`, `45/45` region and official return from `champion_portfolio_policy.json` | no new metric needed |
+| Freeze/search pipeline rule | `14n-artifact-traceability.qmd` | family table for `paper1_e2e`, `paper2_e2e`, `core_canonical`, `search_pd`, `search_conformal`, `search_portfolio` | keep profiles and runbook aligned if pipeline families change |
+| Companion URL decision | `14o-extraction-release-manifest.qmd` | Quarto + DVC/DagsHub/MLflow declared as current companion; Streamlit deferred | stable public URL only when final deployment target is chosen |
 
 ### Keep As Future Paper / Journal Extension
 

@@ -64,6 +64,64 @@ Frente al bootstrap y otros métodos clásicos, la banda conformal entrega un me
 
 La ventaja competitiva del enfoque conformal no es solo cobertura --- es la combinación de **cobertura verificable**, **anchura controlable vía $\alpha$** y **garantía distribution-free sin supuestos sobre el DGP**. El bootstrap requiere re-entrenamiento múltiple sin garantías finitas; BMA requiere especificación correcta del espacio de modelos; Bertsimas-Sim deja abierta la calibración de $\Gamma$. CRPTO hereda el $\Gamma$ directamente de la capa conformal (@def-gamma-cp).
 
+La tabla anterior resume la lectura paper-facing. La siguiente tabla baja un nivel y muestra el comparador regenerado desde artefactos, donde todos los métodos se evalúan bajo el mismo protocolo de baseline de incertidumbre. La cifra conformal de esta tabla no reemplaza las métricas oficiales del champion (`92.97%`, `0.7842`, `91.90%`), sino que documenta el ejercicio comparativo que explica por qué el conjunto conformal es el único candidato que combina cobertura, anchura y préstamos operativamente fundables.
+
+```{python}
+#| label: tbl-p1-uncertainty-baselines-artifact
+#| tbl-cap: "Baselines de incertidumbre regenerados desde artefactos comparables"
+
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = next(
+    candidate
+    for candidate in [Path.cwd().resolve(), *Path.cwd().resolve().parents]
+    if (candidate / "data" / "processed").exists()
+)
+
+baseline_methods = {
+    "conformal_mondrian": "Conformal Mondrian",
+    "bootstrap": "Bootstrap percentil",
+    "parametric_gaussian": "Paramétrico gaussiano",
+    "ellipsoidal_grade": "Elipsoidal por grade",
+}
+
+baseline = pd.read_parquet(ROOT / "data/processed/uncertainty_baselines_comparison.parquet")
+baseline_table = baseline.assign(
+    Método=lambda df: df["method"].map(baseline_methods),
+    Cobertura=lambda df: df["empirical_coverage"].map(lambda x: f"{x:.2%}"),
+    Ancho=lambda df: df["avg_width"].map(lambda x: f"{x:.3f}"),
+    **{"Mínimo grupo": lambda df: df["min_group_coverage"].map(lambda x: f"{x:.2%}")},
+    **{"Préstamos fundables": lambda df: df["fundable_loans_pd_high_lt_010"].map("{:,.0f}".format)},
+)[["Método", "Cobertura", "Ancho", "Mínimo grupo", "Préstamos fundables"]]
+
+baseline_table
+```
+
+El corte por grado es todavía más revelador. Los métodos alternativos pueden parecer razonables en cobertura global, pero colapsan justo donde un comité de riesgo preguntaría primero: el peor grado o segmento.
+
+```{python}
+#| label: tbl-p1-uncertainty-baselines-worst-grade
+#| tbl-cap: "Peor grado por baseline de incertidumbre"
+
+by_grade = pd.read_parquet(ROOT / "data/processed/uncertainty_baselines_by_grade.parquet")
+worst_grade = by_grade.loc[by_grade.groupby("method")["coverage"].idxmin()].copy()
+worst_grade = worst_grade.sort_values("coverage").assign(
+    Método=lambda df: df["method"].map(baseline_methods),
+    **{"Grado crítico": lambda df: df["grade"]},
+    **{"Cobertura en grado crítico": lambda df: df["coverage"].map(lambda x: f"{x:.2%}")},
+)[["Método", "Grado crítico", "Cobertura en grado crítico"]]
+
+worst_grade
+```
+
+::: {.callout-important}
+## Qué enseñan los baselines
+
+El resultado fuerte no es que conformal sea el método con mayor cobertura global en cualquier protocolo. El resultado fuerte es que **solo el baseline conformal mantiene una cobertura mínima por grado cerca del target y además deja préstamos fundables bajo el criterio operativo `pd_high < 0.10`**. Bootstrap logra una cobertura global cercana al 90%, pero su peor grado cae a ~63% y no deja candidatos fundables bajo ese gate; el paramétrico y el elipsoidal tampoco cierran la combinación de cobertura por segmento y utilidad de decisión. Esa es exactamente la razón por la que el paper no vende "intervalos por intervalos", sino intervalos que sobreviven al paso de incertidumbre a decisión.
+:::
+
 ::: {.column-page}
 ![Comparación editorial de baselines de incertidumbre del Paper Estrella.](../../assets/figures/editorial/uncertainty_baselines_tradeoff.png){#fig-p1-uncertainty-baselines fig-alt="Figura de publicación comparando métodos de incertidumbre para el Paper Estrella."}
 :::
@@ -217,6 +275,40 @@ El artefacto del run `276k` conserva al champion económico como selección inte
 
 La validación A/B bootstrap refuerza este cierre: la simulación retroactiva de la policy champion contra la policy nominal (sin incertidumbre) sobre el OOT completo confirma que la región robusta no depende de una sola partición de datos. Las 45 políticas de la región pasan el gate A/B (`ab_pass_all = true`) con diferencia de retorno consistente, lo que permite defender el champion ante comité sin depender de un resultado puntual.
 
+```{python}
+#| label: tbl-p1-ab-bootstrap-guard
+#| tbl-cap: "Gate A/B bootstrap de la policy oficial y la región robusta"
+
+policy = load_json("champion_portfolio_policy", directory="models")
+economic = policy["economic_metrics"]
+robust = policy["robustness_metrics"]
+
+pd.DataFrame(
+    [
+        {
+            "Chequeo": "Champion oficial",
+            "Resultado": "economic champion",
+            "Lectura": "la policy congelada coincide con la promoción final",
+        },
+        {
+            "Chequeo": "A/B bootstrap",
+            "Resultado": str(economic["ab_pass_all"]),
+            "Lectura": "la política robusta pasa el gate contra el nominal",
+        },
+        {
+            "Chequeo": "Región alpha01-safe",
+            "Resultado": f'{robust["alpha01_passer_count"]}/{robust["robust_region_cardinality"]}',
+            "Lectura": "el resultado no depende de un único punto seleccionado",
+        },
+        {
+            "Chequeo": "Retorno realizado",
+            "Resultado": f'${economic["realized_total_return"]:,.2f}',
+            "Lectura": "retorno oficial reportable del Paper Estrella",
+        },
+    ]
+)
+```
+
 El comparador theorem-tight sigue siendo metodológicamente valioso porque muestra que la región robusta admite una variante con tightness adicional:
 - `alpha01_exact_pass = true`
 - `violation = 0`
@@ -250,6 +342,32 @@ La @fig-p1-spo-regret no muestra que CRPTO "pierde" contra SPO+; muestra el **tr
 ![Cobertura por grado bajo CQR y variantes conformales evaluadas en el Paper Estrella.](../../assets/figures/publication/estrella_fig10_cqr_per_grade.png){#fig-p1-cqr-grade fig-alt="Cobertura conformal por grado para variantes evaluadas en el Paper Estrella."}
 :::
 
+#### CQR como comparador, no reemplazo del winner
+
+La Figura @fig-p1-cqr-grade queda mejor interpretada con su tabla de soporte. CQR es valioso como comparador moderno porque aprende cuantiles condicionales, pero en este pipeline específico su versión evaluada termina siendo demasiado conservadora para la decisión de portafolio: cubre bastante, pero no produce préstamos elegibles bajo el gate `pd_high < 0.10`.
+
+```{python}
+#| label: tbl-p1-cqr-comparator-reading
+#| tbl-cap: "CQR y variantes simétricas como comparadores conformales"
+
+cqr = pd.read_parquet(ROOT / "data/processed/cqr_mondrian_comparison.parquet")
+cqr_table = cqr.assign(
+    Método=lambda df: df["method"],
+    Cobertura=lambda df: df["empirical_coverage"].map(lambda x: f"{x:.2%}"),
+    **{"Mínimo grupo": lambda df: df["min_group_coverage"].map(lambda x: f"{x:.2%}")},
+    Ancho=lambda df: df["avg_width"].map(lambda x: f"{x:.3f}"),
+    **{"Préstamos elegibles": lambda df: df["n_eligible"].map("{:,.0f}".format)},
+)[["Método", "Cobertura", "Mínimo grupo", "Ancho", "Préstamos elegibles"]]
+
+cqr_table
+```
+
+::: {.callout-note}
+## Lección de CQR
+
+CQR no queda descartado como literatura ni como línea futura. Queda descartado como reemplazo inmediato del `score_decile_mondrian` oficial porque, bajo los artefactos actuales, su ganancia de cobertura viene con anchura extrema y cero préstamos elegibles. En un paper journal podría volver como extensión si el modelo de cuantiles se reentrena con objetivo de decisión o si se relaja el gate operativo, pero eso ya sería un nuevo experimento y no una promoción editorial del champion actual.
+:::
+
 ### Frontera de alpha
 
 El *alpha sweep* muestra que subir confianza ensancha rápidamente el conjunto y reduce la flexibilidad de decisión. Esa frontera es uno de los hallazgos más útiles del paper porque convierte un hiperparámetro estadístico en una palanca explícita de política económica.
@@ -262,6 +380,32 @@ El sweep evalúa la familia completa de cota superior $u_i(\alpha) = \widehat{p}
 2. **Resolver el LP robusto** con esa cota superior, `risk_tolerance = 0.175`, presupuesto $B = \$1\text{M}$ y la misma estructura de costos.
 3. **Evaluar el funded set resultante** sobre el OOT con métricas exactas: retorno realizado, $V = \sum_i w_i Z_i$, $\Gamma_{\text{CP}}$ y $\text{violation} = \max(0, \sum_i w_i u_i - \tau)$.
 4. **Construir la frontera Pareto** retorno vs cobertura vs ancho como evidencia empírica de la palanca económica de $\alpha$.
+
+```{python}
+#| label: tbl-p1-alpha-sweep-artifact-reading
+#| tbl-cap: "Lectura compacta del barrido exploratorio de alpha"
+
+alpha_sweep = pd.read_parquet(ROOT / "data/processed/alpha_sweep_pareto_both.parquet")
+alpha_view = alpha_sweep[
+    alpha_sweep["alpha"].isin([0.01, 0.05, 0.10, 0.20])
+].copy()
+alpha_view = alpha_view.assign(
+    Método=lambda df: df["method"],
+    Alpha=lambda df: df["alpha"].map(lambda x: f"{x:.2f}"),
+    Target=lambda df: df["target_coverage"].map(lambda x: f"{x:.2%}"),
+    Cobertura=lambda df: df["empirical_coverage"].map(lambda x: f"{x:.2%}"),
+    **{"Mínimo grupo": lambda df: df["min_group_coverage"].map(lambda x: "" if pd.isna(x) else f"{x:.2%}")},
+    Ancho=lambda df: df["avg_width"].map(lambda x: f"{x:.3f}"),
+)[["Método", "Alpha", "Target", "Cobertura", "Mínimo grupo", "Ancho"]]
+
+alpha_view.sort_values(["Método", "Alpha"])
+```
+
+::: {.callout-warning}
+## Sweep exploratorio vs winner oficial
+
+`alpha_sweep_pareto_both.parquet` no es una nueva selección de champion. Es un artefacto de sensibilidad que explica la geometría cobertura-ancho al mover $\alpha$. Las métricas oficiales del Paper Estrella siguen ancladas en `models/final_project_promotion.json::conformal_upstream.winner_metrics` y en la evaluación exacta `276k`. Esta separación evita mezclar familias: el sweep enseña la palanca; la promoción final decide la policy.
+:::
 
 ::: {.callout-note}
 ## Por qué $\alpha = 0.10$ y no $\alpha = 0.05$

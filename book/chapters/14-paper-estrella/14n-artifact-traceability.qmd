@@ -111,7 +111,7 @@ pd.DataFrame(
             "Figura": "Fig 10: CQR per grade",
             "Path": "reports/paper_material/figures_publication/estrella_fig10_cqr_per_grade.png",
             "Script": "scripts/generate_paper_figures.py",
-            "Fuente": "conformal_intervals.parquet (winner)",
+            "Fuente": "cqr_mondrian_comparison.parquet + cqr_mondrian_group_coverage.parquet",
         },
         {
             "Figura": "Fig 11: CRPTO temporal stability",
@@ -205,6 +205,66 @@ bash scripts/render_quarto.sh render book/ --to html
 ls book/_output/index.html
 ```
 
+### Runbook: familias congeladas vs familias de búsqueda
+
+La regla operativa más importante para reproducibilidad es que los pipelines
+paper-facing no vuelven a buscar el champion. Consumen la policy congelada en
+`models/champion_portfolio_policy.json` mediante `explicit_champion_only`. Solo
+las familias nombradas como búsqueda pueden reabrir HPO, conformal search o
+portfolio search.
+
+```{python}
+#| label: tbl-p1-pipeline-freeze-policy
+#| tbl-cap: "Política de freeze por familia de pipeline"
+
+pd.DataFrame(
+    [
+        {
+            "Familia": "paper1_e2e",
+            "Modo": "freeze_if_available",
+            "Selector": "explicit_champion_only",
+            "Uso correcto": "regenerar evidencia del Paper Estrella sin re-search",
+        },
+        {
+            "Familia": "paper2_e2e",
+            "Modo": "freeze_if_available",
+            "Selector": "explicit_champion_only",
+            "Uso correcto": "consumir upstream congelado para IFRS9/ECL",
+        },
+        {
+            "Familia": "core_canonical / canonical_rebuild",
+            "Modo": "freeze_if_available",
+            "Selector": "explicit_champion_only",
+            "Uso correcto": "reconstrucción rápida y reproducible del stack canónico",
+        },
+        {
+            "Familia": "search_pd",
+            "Modo": "search",
+            "Selector": "no aplica",
+            "Uso correcto": "abrir HPO/challengers de PD explícitamente",
+        },
+        {
+            "Familia": "search_conformal",
+            "Modo": "search",
+            "Selector": "no aplica",
+            "Uso correcto": "abrir búsqueda conformal explícitamente",
+        },
+        {
+            "Familia": "search_portfolio",
+            "Modo": "rebuild_selector",
+            "Selector": "selector económico/bound-aware",
+            "Uso correcto": "abrir nueva búsqueda de portfolio solo cuando se apruebe",
+        },
+    ]
+)
+```
+
+::: {.callout-important}
+## Regla anti-regresión del champion
+
+`paper1_e2e`, `paper2_e2e`, `core_canonical` y `canonical_rebuild` son rutas de regeneración, no rutas de descubrimiento. Si un rerun de esas familias produce una policy distinta al economic champion `rt=0.175`, `gamma=0.45`, `blended_uncertainty`, `uncertainty_aversion=0.10`, eso es una regresión del pipeline y no un nuevo resultado del paper. La única forma válida de cambiar el champion es abrir una familia `search_*`, versionar el run, comparar por familia compatible y actualizar la promoción explícitamente.
+:::
+
 ### Regla sobre `_freeze`
 
 El libro usa `execute: freeze: true` en `book/_quarto.yml`. Eso significa que
@@ -278,6 +338,21 @@ status_files = [
         "Rol": "Estabilidad SPO+ vs CRPTO sobre 5 periodos OOT",
         "Schema": "2026-03-22.1",
     },
+    {
+        "Path": "models/alpha_sweep_status.json",
+        "Rol": "Estado del barrido exploratorio de alpha y frontera Pareto",
+        "Schema": "v1",
+    },
+    {
+        "Path": "models/uncertainty_baselines_status.json",
+        "Rol": "Estado de baselines bootstrap/paramétrico/elipsoidal/conformal",
+        "Schema": "v1",
+    },
+    {
+        "Path": "models/cqr_mondrian_status.json",
+        "Rol": "Estado del comparador CQR Mondrian",
+        "Schema": "v1",
+    },
 ]
 pd.DataFrame(status_files)
 ```
@@ -297,5 +372,6 @@ pd.DataFrame(status_files)
 | ¿Qué pasó con el shift COVID? | [`14d-results.qmd`](14d-results.qmd) (@sec-estrella-shift-stability) |
 | ¿Cuáles son los appendices journal? | [`14h-journal-appendix-robustness.qmd`](14h-journal-appendix-robustness.qmd) (@sec-p1-journal-appendix) |
 | ¿Cómo regenero todo? | Esta página, sección Runbook arriba |
+| ¿Cómo sé que un rerun no reabre búsqueda? | Esta página, sección `Runbook: familias congeladas vs familias de búsqueda` |
 
 Esta tabla cumple un propósito muy concreto: cuando un revisor mande comentarios, no hay que buscar — hay un mapa directo.
