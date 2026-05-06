@@ -224,6 +224,86 @@ cobertura por horizonte, genere intervalos forward operativamente coherentes y
 demuestre valor downstream en ECL, staging o selección de policy. Hasta entonces,
 TS es soporte analítico para Paper 2 y una ruta futura para CRPTO multi-periodo.
 
+Si esa capa temporal llegara a promoverse, el impacto sería grande. El proyecto
+pasaría de tener un forecast puntual útil y una sensibilidad ECL diagnóstica a
+tener una **capa temporal gobernada de incertidumbre**. Eso significa que la
+trayectoria futura de default ya no sería un único escenario central, sino un
+rango defendible por horizonte que puede entrar a provisión, staging, stress
+testing y optimización.
+
+Para la mega extensión, esos intervalos temporales exitosos serían el puente
+natural entre cuatro piezas:
+
+- **IFRS9**: provisiones, escenarios futuros, migración de stage y overlays
+  prudenciales;
+- **CRPTO**: decisiones robustas bajo incertidumbre predictiva y temporal;
+- **CATE**: valor causal de financiar, intervenir o modificar términos bajo
+  distintos estados futuros;
+- **MRM**: monitoreo, recalibración, triggers de cobertura y aceptación de
+  modelo.
+
+Una versión completa podría elegir policies que maximizan:
+
+```text
+retorno robusto esperado
+- costo ECL esperado
+- penalización por provisión adversa
++ valor causal estimado de la decisión
+```
+
+sujeto a:
+
+```text
+coverage temporal >= target
+coverage conformal individual >= target
+Stage 2 share <= umbral prudencial
+capital/provisión <= límite
+```
+
+Esto sería mucho más que “mejorar MAE”. Lo valioso no sería únicamente reducir
+error puntual, sino conseguir **cobertura temporal gobernada**. Un forecast
+puntual puede equivocarse sin decir cuánta incertidumbre hay. Un intervalo
+temporal promovido diría algo más útil para comité:
+
+> Para los próximos 12 meses, el default agregado plausible está entre `X` e `Y`
+> con cobertura controlada.
+
+Esa frase habilita decisiones concretas:
+
+- cuánto capital reservar;
+- cuándo activar un overlay prudencial;
+- cuándo recalibrar PD, conformal o SICR;
+- qué hacer si la trayectoria adversa dura tres meses consecutivos;
+- cuánto cambia el funded set si esperamos deterioro macro;
+- qué policy robusta conserva retorno neto de ECL bajo escenario temporal
+  adverso.
+
+::: {#tbl-p2-mega-time-series-promotion-gates}
+
+| Gate | Qué debería cumplir | Por qué importa |
+|---|---|---|
+| Coverage | cobertura 90 cercana al target y gap dentro de política | evita convertir incertidumbre temporal en falsa seguridad |
+| Horizon stability | cobertura razonable por horizontes 1--12 | impide que el intervalo funcione solo en el corto plazo |
+| Sharpness | intervalos informativos, no absurdamente anchos | mantiene utilidad de capital, provisión y optimización |
+| Forward coherence | el método ganador produce intervalos futuros, no solo backtest | requisito mínimo para uso mensual |
+| Drift behavior | no colapsa en cambios de régimen | necesario para crisis macro y stress prudencial |
+| ECL value | al propagarse a ECL aporta señal estable | justifica moverlo de forecasting a IFRS9 |
+| Governance | status, tests, DVC/MLflow y documentación claros | permite MRM y revisión de auditoría |
+
+Gates para promover intervalos temporales a la mega extensión.
+:::
+
+La frase editorial sería:
+
+> Si los intervalos temporales fueran exitosos, el proyecto pasaría de “tenemos
+> un forecast temporal útil y una sensibilidad ECL diagnóstica” a “tenemos una
+> capa temporal gobernada de incertidumbre que permite tomar decisiones robustas,
+> prudenciales y potencialmente causales a lo largo del tiempo”.
+
+Eso fortalecería muchísimo el Paper 2, abriría una versión journal más fuerte y
+sería una de las piezas centrales para convertir la mega extensión en un paper
+secuencial, no solo en una suma de módulos.
+
 ### Arquitectura conceptual
 
 El flujo completo se puede pensar como una extensión de dos puentes. El primer
