@@ -166,8 +166,8 @@ Conexión papers: alimenta escenarios ECL en Paper 2
 Estado actual:
 - decisión final documentada: `research_only` (reconfirmada en paper-grade run 2026-03-13)
 - point forecast `AutoARIMA` sigue promotable
-- champion intervalar `AutoARIMA`: coverage_90=81%, coverage_gap=0.090 — supera el target máximo de 0.03
-- `EnbPI` también falla gate (coverage~36%) — ambos métodos son diagnóstico, no baseline oficial
+- champion intervalar canónico `AutoARIMA`: coverage_90≈81%, coverage_gap≈0.090 — supera el target máximo de 0.03
+- `vNext` probó `MAPIE_ENBPI`/`ACI`; `MAPIE_ENBPI` mejora la brecha (coverage_90≈83.3%, gap≈0.067), pero también falla el gate y no queda listo para intervalos forward oficiales
 - mejora pendiente: ACI/TCP rolling window (ver P3.2 en research-p3-p4-backlog.md)
 - no hay bloqueo metodológico abierto; sí queda oportunidad research/editorial
 

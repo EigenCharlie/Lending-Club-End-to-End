@@ -189,6 +189,41 @@ Un champion de la mega extensión podría ser algo como:
 Ese champion ya no sería el champion actual. Sería un nuevo artefacto, con nuevo
 run tag, nuevos tests, nuevas tablas y una justificación editorial distinta.
 
+### Dónde entran las series de tiempo
+
+El trabajo de series de tiempo es relevante para la mega extensión, pero no como
+claim central ya resuelto. La documentación actual separa bien dos capas:
+
+- el forecast puntual `AutoARIMA` permanece como referencia canónica y puede
+  alimentar overlays IFRS9;
+- la capa intervalar/adaptativa (`AutoARIMA` nativo, `MAPIE_ENBPI`, `ACI`,
+  sample paths) sigue como `research_only` porque no superó el gate de cobertura
+  ni la coherencia operativa de intervalos forward.
+
+Esto no invalida el trabajo. Al contrario, lo ubica donde más valor tiene: como
+evidencia de que la versión completa debería ser **secuencial**. Una extensión
+`IFRS9 + CATE + CRPTO` no solo decidiría un funded set una vez; tendría un estado
+temporal $S_t$ con forecasts macro, stage mix, ECL esperado, cuantiles
+conformales vigentes y señales de drift.
+
+::: {#tbl-p2-mega-time-series-role}
+
+| Capa temporal | Qué ya tenemos | Por qué no es central hoy | Rol futuro |
+|---|---|---|---|
+| Forecast puntual | `AutoARIMA` canónico, `point_promotable=true` | útil, pero no selecciona el champion CRPTO | estado macro/prudencial |
+| Intervalo canónico | `coverage_90≈81%`, gap ≈ 0.09 | falla el umbral de cobertura | diagnóstico de fragilidad |
+| vNext adaptativo | `MAPIE_ENBPI` mejora gap, pero no promueve | backtest-strong, no forward-policy-ready | candidato para ACI/online CP |
+| Sample paths | `gaussian_copula`, `schaake_shuffle` | insight prudencial, no política oficial | distribución de trayectorias ECL |
+| TS→ECL | `ts_ecl_intervals` y `ts_ecl_intervals_vnext` | estable como investigación, no baseline mensual | costo temporal de provisión por policy |
+
+Rol de series de tiempo en la mega extensión.
+:::
+
+La condición de promoción sería clara: producir una capa temporal que mantenga
+cobertura por horizonte, genere intervalos forward operativamente coherentes y
+demuestre valor downstream en ECL, staging o selección de policy. Hasta entonces,
+TS es soporte analítico para Paper 2 y una ruta futura para CRPTO multi-periodo.
+
 ### Arquitectura conceptual
 
 El flujo completo se puede pensar como una extensión de dos puentes. El primer
@@ -223,6 +258,7 @@ conexión conceptual y no como contribución central.
 | `ifrs9_aware_crpto_champion.json` | Champion seleccionado con costo contable | final promotion + IFRS9 artifacts | Sí |
 | `net_return_after_ecl_table.csv` | Retorno robusto después de provisión | Table 0 + ECL scenarios | Sí |
 | `alpha_gamma_ecl_frontier.csv` | Curva alpha → Gamma_CP → ECL → funded set | alpha sweep + sensitivity grid | Complementa o cambia según uso |
+| `policy_time_ecl_state_grid.parquet` | Forecasts, stage mix y ECL temporal por policy | TS status + Paper 2 ECL + CRPTO policies | Sí, si entra al selector |
 | `cate_policy_value_by_segment.parquet` | Valor causal por segmento/funded set | CATE lane actual | Sí |
 | `causal_identification_report.md` | Justifica overlap, balance y sensibilidad | causal scripts | Sí |
 | `mega_extension_release_manifest.qmd` | Mapa claim → artifact → test de la extensión | 14n/14o style | No, es documental |

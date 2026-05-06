@@ -54,6 +54,25 @@ La conexión con el capítulo IFRS9 es directa. Si el ECL agregado por escenario
 
 : Estado actual del carril TS→ECL {#tbl-ts-ecl-status}
 
+### Relación con los papers y la mega extensión
+
+La capa temporal no cambia hoy el champion CRPTO ni el alcance del Paper 2. Su
+rol correcto es más específico:
+
+| Producto | Rol de las series de tiempo | Estado actual |
+|---|---|---|
+| Paper 2 | Soporta escenarios IFRS9, sensibilidad ECL y narrativa prudencial | útil como evidencia analítica; intervalos no promovidos |
+| Paper Estrella | No entra al champion CRPTO actual, que es one-shot/funded-set | conexión futura vía portafolio multi-periodo |
+| Paper 3 / Mondrian | Motiva cobertura temporal y online conformal como agenda | future work |
+| Mega extensión IFRS9 + CATE + CRPTO | Sería parte del estado temporal `S_t`: forecasts macro, stage mix y ECL esperado por policy | requiere artefactos nuevos antes de ser central |
+
+La lectura editorial es que el trabajo temporal “falló bien”: no produjo una
+capa intervalar suficientemente fuerte para promoción operativa, pero sí dejó
+artefactos y evidencia para explicar por qué una versión futura de CRPTO debería
+ser secuencial. En esa mega extensión, la señal temporal entraría como una
+variable de estado y como fuente de restricciones prudenciales, no como un
+reemplazo inmediato del champion actual.
+
 ### Qué falta
 
 Todavía no se ha integrado esta capa como política oficial de staging o provisión mensual. El valor actual es analítico y estratégico:

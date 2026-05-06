@@ -97,6 +97,22 @@ Overall recommendation:
 
 That means the right decision is not to discard the work, but to contain it as a reproducible research lane.
 
+## Relation To Papers And Mega Extension
+
+- **Paper 2**: the time-series lane supports IFRS9 scenario sensitivity and
+  TS->ECL interpretation. The point forecast can remain as overlay input, while
+  interval outputs should be described as analytical support rather than an
+  official monthly provisioning policy.
+- **Paper Estrella**: the current CRPTO champion is one-shot/funded-set and does
+  not consume time-series intervals. TS becomes relevant only for a future
+  multi-period or sequential CRPTO extension.
+- **Paper 3 / Mondrian**: the failed promotion of temporal intervals motivates
+  online/adaptive conformal coverage as future work, not as current evidence.
+- **Mega extension IFRS9 + CATE + CRPTO**: vNext sample paths and TS->ECL
+  artifacts are natural inputs to a future state variable `S_t` with macro
+  forecasts, stage mix and ECL by policy, but they require new selector
+  artifacts before becoming central to a champion.
+
 ## Practical Repo Policy
 
 - `scripts/forecast_default_rates.py` remains the canonical producer.
