@@ -160,6 +160,235 @@ paper IFRS9 conformal puro. Luego se abre **IFRS9-aware CRPTO** como puente
 natural hacia el Paper Estrella. Después, si la identificación causal es
 suficientemente defendible, se integra CATE.
 
+### Bloques que sí pertenecen a la mega extensión
+
+Hay varias ideas que no conviene volver centrales en el Paper Estrella actual
+porque cambiarían su dirección. Sin embargo, esas mismas ideas son perfectas
+para la mega extensión, precisamente porque la mega extensión ya sería otro
+nivel de ambición:
+
+> **IFRS9 + CATE + CRPTO + dimensión temporal/secuencial + gobernanza**.
+
+La lectura correcta es que estos bloques no son "pendientes menores" del paper
+actual. Son módulos de una arquitectura futura donde el sistema ya no solo
+elige un funded set robusto en un OOT estático, sino una política crediticia que
+se actualiza en el tiempo, controla incertidumbre contable, decide bajo riesgo
+causal y deja trazabilidad MRM.
+
+::: {#tbl-p2-mega-extension-blocks}
+
+| Bloque | ¿Vale para la mega extensión? | Rol natural | Qué agregaría |
+|---|---|---|---|
+| Online conformal / online DFL | Sí, muchísimo | Núcleo temporal/secuencial | Recalibrar incertidumbre mes a mes, medir coverage regret y comparar decisiones bajo drift. |
+| Multi-period portfolio | Sí, central | Motor dinámico de decisión | Pasar de CRPTO one-shot a originación/rebalanceo con estado, transición y costos de transacción. |
+| Causal CRPTO / CATE central | Sí, central | Capa causal de decisión | Decidir no solo qué préstamos financiar, sino qué intervención cambia riesgo, retorno o ECL. |
+| OCE/CVaR como objetivo | Sí, muy útil | Cola de pérdida contable/económica | Optimizar o restringir tail risk del funded set, no solo retorno esperado y bound Markov. |
+| Robust satisficing | Sí, muy natural | Lenguaje de comité y OR | Elegir policies que cumplen umbrales mínimos de retorno, riesgo, provisión, capital y coverage. |
+| MDCP como garantía principal | Sí, pero más teórico | Robustez multi-regimen/fuente | Cubrir múltiples distribuciones, regímenes macro, productos o segmentos sin depender de una fuente única. |
+| Fairness-constrained optimization formal | Sí, pero con cuidado | Gobernanza y aceptación regulatoria | Convertir fairness de auditoría proxy a restricción formal de decisión si existen atributos defendibles. |
+
+Bloques que cambian la dirección del Paper Estrella si entran al núcleo, pero que sí son naturales en la mega extensión.
+:::
+
+La columna vertebral que más sentido tiene para esta versión futura sería:
+
+1. **Multi-period + online conformal**. Esta sería la base temporal: originaciones
+   mensuales, drift, recalibración, monitoreo y actualización de cuantiles.
+2. **IFRS9 + OCE/CVaR + robust satisficing**. Esta sería la base
+   contable/financiera: ECL, provisión, capital, tail risk y umbrales
+   prudenciales.
+3. **CATE / Causal CRPTO**. Esta sería la capa de decisión avanzada: no solo
+   "qué préstamos financiar", sino "qué intervención cambia el riesgo, el
+   retorno o la provisión esperada".
+4. **MDCP + fairness formal**. Estas serían garantías ampliadas: robustez
+   multi-distribución y restricciones de equidad/gobernanza.
+
+Dos nombres editoriales posibles para esta línea serían:
+
+- **Sequential IFRS9-Aware Causal CRPTO**.
+- **Dynamic Conformal Robust Credit Decisioning under Accounting, Causal, and
+  Distributional Uncertainty**.
+
+El primero comunica continuidad con los papers actuales. El segundo comunica
+mejor la ambición journal/tesis: decisión crediticia dinámica bajo incertidumbre
+contable, causal y distribucional.
+
+#### Online conformal y online DFL
+
+El bloque online sería el que vuelve la extensión genuinamente secuencial. En el
+Paper Estrella actual, la garantía conformal se evalúa offline sobre un OOT
+congelado. En la mega extensión, cada mes de originación produciría nuevas
+observaciones, nuevo drift, nuevos cuantiles y posiblemente nueva composición
+del funded set.
+
+La pregunta dejaría de ser:
+
+> ¿Pasa la policy el bound en el OOT final?
+
+y pasaría a ser:
+
+> ¿Mantiene la policy cobertura, retorno neto de ECL y factibilidad robusta a lo
+> largo de una secuencia de decisiones?
+
+Online conformal permitiría actualizar cuantiles o pesos de cobertura bajo
+miscoverage observada. Online DFL permitiría comparar contra métodos que
+aprenden decisiones bajo regret dinámico. El aporte fuerte no sería solo
+forecasting, sino **gobernanza de incertidumbre durante operación**.
+
+Artefactos que habría que producir:
+
+- `online_conformal_coverage_regret.parquet`: miscoverage y coverage regret por
+  mes/horizonte/segmento;
+- `rolling_quantile_policy_status.json`: estado de cuantiles conformales
+  actualizados y triggers de recalibración;
+- `online_dfl_comparison.parquet`: static regret, dynamic regret, cobertura,
+  retorno neto de ECL y auditabilidad para CRPTO, SPO+, online DFL e híbridos;
+- `monthly_policy_replay.parquet`: funded set, ECL, `V`, `Gamma_CP`, provisión y
+  retorno por ciclo mensual.
+
+#### Multi-period portfolio
+
+El Paper Estrella actual optimiza una decisión de portafolio estática. Eso es
+correcto para el paper actual porque mantiene el bound claro y auditable. La
+mega extensión, en cambio, debería tratar la originación como una secuencia:
+
+```text
+S_t -> observar solicitudes, macro, PD, ECL, stage mix
+     -> elegir policy/funded set
+     -> observar defaults/prepagos/recalibración
+     -> actualizar S_{t+1}
+```
+
+En esa versión, el optimizador tendría que considerar:
+
+- presupuesto disponible por periodo;
+- capital reservado y liberado;
+- costos de transacción o rebalanceo;
+- deterioro o mejora macro;
+- cambios en Stage 1/2/3;
+- acumulación de provisiones;
+- efectos rezagados de intervenciones;
+- constraints de concentración a lo largo del tiempo.
+
+El claim ya no sería "esta policy es robusta en un test set", sino "esta
+política dinámica mantiene factibilidad, cobertura y prudencia contable a través
+del tiempo". Eso sí cambia la clase del problema, pero encaja perfectamente en
+la mega extensión.
+
+#### OCE/CVaR como objetivo o restricción
+
+Hoy el Paper Estrella ya tiene A12 como diagnóstico de tail risk OCE/CVaR del
+funded set. Eso es valioso, pero no cambia el champion porque A12 no entra al
+solver. En la mega extensión, OCE/CVaR sí podría entrar como objetivo o
+restricción:
+
+```text
+maximizar retorno robusto neto de ECL
+- penalización OCE/CVaR de pérdida adversa
+- penalización por provisión extrema
+```
+
+o:
+
+```text
+CVaR_loss(policy) <= limite_tail_risk
+OCE_provision(policy) <= limite_prudencial
+```
+
+Esto es especialmente natural para IFRS9 porque la preocupación contable no es
+solo la pérdida esperada, sino la cola: escenarios adversos, overlays,
+provisión severa y sensibilidad de capital. El resultado sería un champion que
+no se defiende solo con retorno medio, sino con comportamiento de cola.
+
+#### Robust satisficing
+
+Robust satisficing es muy compatible con comités de riesgo. En vez de
+"maximizar retorno a toda costa", la política se formula como:
+
+> Encuentra una policy que sea suficientemente rentable, suficientemente robusta,
+> suficientemente prudente y suficientemente auditable.
+
+Una policy satisficing podría exigir simultáneamente:
+
+```text
+retorno neto de ECL >= umbral_minimo
+V <= sqrt(alpha)
+Gamma_CP <= limite_robustez
+CVaR_loss <= limite_tail
+Stage 2 share <= limite_prudencial
+coverage por segmento >= target
+fairness gap <= tolerancia
+```
+
+Esto no reemplaza al Paper Estrella actual. Lo generaliza hacia una formulación
+OR más realista: el banco no siempre quiere el máximo retorno; muchas veces
+quiere una decisión que pase umbrales de comité y sea defendible bajo auditoría.
+
+#### MDCP como garantía principal
+
+MDCP entra cuando una sola distribución OOT deja de ser suficiente. En la mega
+extensión, podríamos tener múltiples fuentes o regímenes:
+
+- periodos macro distintos;
+- productos de crédito distintos;
+- segmentos de riesgo o geografía;
+- fuentes de datos internas/externas;
+- ventanas pre-crisis, crisis y post-crisis.
+
+El objetivo sería que la cobertura no dependa de que el futuro se parezca al OOT
+promedio. Una garantía MDCP-style permitiría decir:
+
+> La policy mantiene cobertura o control de riesgo bajo una familia de
+> distribuciones plausibles, no solo bajo una partición histórica.
+
+Esto sería fuerte para journal, pero debe entrar después de que la versión
+offline CRPTO esté completamente clara. Si MDCP entra demasiado temprano, puede
+opacar la contribución actual.
+
+#### Fairness-constrained optimization formal
+
+La capa fairness actual es auditabilidad proxy/intersectional. Para volverla
+central en la mega extensión, fairness tendría que entrar al optimizador o al
+selector de champion. Eso podría verse así:
+
+```text
+coverage_gap_by_group <= tolerancia
+approval_rate_gap <= tolerancia
+expected_loss_gap <= tolerancia
+pricing_or_intervention_gap <= tolerancia
+```
+
+El punto delicado es de datos y gobernanza: Lending Club abierto no contiene
+atributos protegidos directos como raza o género. Por eso, para una contribución
+formal habría que conseguir atributos defendibles, usar proxies con mucha
+cautela o formular fairness temporal/segmental con límites claros. El valor
+sería enorme para MRM y regulación, pero no debe venderse como prueba legal si
+solo tenemos proxy attributes.
+
+#### Causal CRPTO como capa integradora
+
+CATE es el módulo que convertiría la mega extensión en una contribución
+realmente distinta. IFRS9 y CRPTO preguntan "qué riesgo/provisión/retorno tiene
+esta decisión". Causal CRPTO preguntaría:
+
+> ¿Qué habría pasado si hubiéramos aprobado, rechazado, financiado, intervenido o
+> cambiado los términos de este préstamo?
+
+Eso abre decisiones como:
+
+- financiar vs no financiar;
+- aprobar vs rechazar;
+- ajustar tasa o monto;
+- ofrecer intervención temprana;
+- aplicar hardship/refinancing;
+- activar una política de cobranza o monitoreo.
+
+Para que sea central, necesitaríamos un paquete causal completo: treatment
+definido, outcome claro, identificación, overlap, balance, sensitivity checks,
+policy value y, eventualmente, incertidumbre conformal sobre efectos o sobre la
+decisión causal. Esta sería probablemente la parte más ambiciosa de la mega
+extensión.
+
 ### Qué tendría que medir la mega extensión
 
 La versión completa tendría que evaluar el champion en una métrica compuesta,
@@ -175,6 +404,11 @@ familias y después definir un selector explícito.
 | CRPTO | retorno robusto, `V`, `Gamma_CP`, violation, robust region | decisión robusta auditada |
 | IFRS9 | ECL scenario-weighted, Stage 2 share, provisión adversa, ECL range | costo prudencial y sensibilidad macro |
 | Causal | CATE, policy value, uplift, overlap, sensitivity bounds | valor causalmente ajustado |
+| Temporal | coverage regret, horizon coverage, rolling width, drift response | comportamiento secuencial y monitoreo mensual |
+| Tail risk | OCE, CVaR, expected shortfall, provisión severa | control de cola y capital prudencial |
+| Satisficing | margins vs thresholds, fragility score, pass/fail by committee gate | aceptación OR/comité |
+| Multi-distribución | worst-source coverage, group/source coverage gap, robust width | garantía bajo múltiples regímenes o fuentes |
+| Fairness formal | disparity gaps, equalized coverage, decision impact by protected/proxy group | restricciones de equidad y gobernanza |
 | Governance | reproducibilidad, DVC/MLflow, MRM gates, fairness proxy/directa si existe | aceptación operativa |
 
 Familias métricas que no deben mezclarse sin selector explícito.
@@ -306,9 +540,10 @@ secuencial, no solo en una suma de módulos.
 
 ### Arquitectura conceptual
 
-El flujo completo se puede pensar como una extensión de dos puentes. El primer
-puente une Paper 2 con el Paper Estrella; el segundo une esa decisión robusta con
-causalidad.
+El flujo completo se puede pensar como una extensión de cuatro puentes. El
+primer puente une Paper 2 con el Paper Estrella; el segundo une esa decisión
+robusta con causalidad; el tercero vuelve la decisión secuencial; y el cuarto
+agrega garantías ampliadas de cola, distribución y fairness.
 
 ```{mermaid}
 flowchart LR
@@ -317,10 +552,14 @@ flowchart LR
   B --> D[Paper Estrella: uncertainty set CRPTO]
   C --> E[IFRS9-aware CRPTO]
   D --> E
+  T[Online conformal + TS state] --> M[Multi-period CRPTO]
+  E --> M
+  R[OCE/CVaR + satisficing] --> M
   F[CATE / policy value] --> G[Causal CRPTO]
-  E --> H[Mega extensión: IFRS9 + CATE + CRPTO]
+  M --> H[Mega extensión: IFRS9 + CATE + CRPTO]
   G --> H
-  H --> I[Champion robusto, contable y causal]
+  Q[MDCP + fairness constraints] --> H
+  H --> I[Champion dinámico, robusto, contable y causal]
 ```
 
 El punto importante es que el flujo no fusiona todo por estética. Cada bloque
@@ -339,6 +578,13 @@ conexión conceptual y no como contribución central.
 | `net_return_after_ecl_table.csv` | Retorno robusto después de provisión | Table 0 + ECL scenarios | Sí |
 | `alpha_gamma_ecl_frontier.csv` | Curva alpha → Gamma_CP → ECL → funded set | alpha sweep + sensitivity grid | Complementa o cambia según uso |
 | `policy_time_ecl_state_grid.parquet` | Forecasts, stage mix y ECL temporal por policy | TS status + Paper 2 ECL + CRPTO policies | Sí, si entra al selector |
+| `online_conformal_coverage_regret.parquet` | Coverage y miscoverage acumulado por mes/horizonte/segmento | TS vNext + conformal artifacts | Sí, si la garantía pasa a ser secuencial |
+| `monthly_policy_replay.parquet` | Re-ejecuta o reevalúa policies por ciclo mensual | CRPTO policies + originaciones temporales | Sí |
+| `multi_period_crpto_policy.json` | Política dinámica con estado, transición y budget por periodo | portfolio solver + IFRS9 state | Sí |
+| `tail_risk_aware_search_results.parquet` | Search con OCE/CVaR como objetivo o constraint | A12 + optimizer | Sí |
+| `satisficing_policy_grid.parquet` | Policies evaluadas contra umbrales de comité | A13 + CRPTO region | Sí |
+| `mdcp_source_coverage_report.parquet` | Cobertura peor fuente/regimen/segmento | conformal + split/source metadata | Sí |
+| `fairness_constrained_policy_eval.parquet` | Disparidad y constraints de decisión por grupo | fairness audit + funded set | Sí, especialmente si hay protected attributes |
 | `cate_policy_value_by_segment.parquet` | Valor causal por segmento/funded set | CATE lane actual | Sí |
 | `causal_identification_report.md` | Justifica overlap, balance y sensibilidad | causal scripts | Sí |
 | `mega_extension_release_manifest.qmd` | Mapa claim → artifact → test de la extensión | 14n/14o style | No, es documental |
@@ -359,11 +605,18 @@ borrador. Podría organizarse en claims escalonados:
    o sujeto a provisión adversa.
 4. **Claim causal**: si la identificación es defendible, la decisión óptima debe
    depender de efectos heterogéneos, no solo de riesgo predictivo.
-5. **Claim integrado**: la mejor decisión crediticia es robusta frente a
+5. **Claim secuencial**: una política multi-periodo puede mantener cobertura,
+   provisión, retorno y factibilidad a través de originaciones mensuales.
+6. **Claim de cola/satisficing**: la política no solo maximiza retorno esperado,
+   sino que pasa gates de tail risk, provisión, capital y cobertura.
+7. **Claim multi-distribución/fairness**: la cobertura y la decisión se sostienen
+   bajo múltiples regímenes/fuentes y no dependen de un segmento oculto.
+8. **Claim integrado**: la mejor decisión crediticia es robusta frente a
    incertidumbre predictiva, contablemente prudente y causalmente informada.
 
-El quinto claim es atractivo, pero solo se vuelve publicable si los cuatro
-primeros están respaldados por artefactos separados.
+El claim integrado es atractivo, pero solo se vuelve publicable si los claims
+intermedios están respaldados por artefactos separados. Esa es la regla para no
+convertir una visión potente en una mezcla incontrolable de métricas.
 
 ### Riesgos editoriales
 
@@ -374,6 +627,10 @@ primeros están respaldados por artefactos separados.
 | Paper demasiado grande | IFRS9, CRPTO y CATE son tres comunidades distintas | escribir primero Paper 2 y Paper Estrella separados |
 | Confundir diagnóstico con optimización | ECL/CVaR/CATE pueden estar reportados sin afectar el champion | declarar si cada métrica es diagnóstico, constraint u objective |
 | Overclaim causal | CATE sin identificación fuerte invita rechazo | separar causal proof package antes de hacerlo central |
+| Overclaim online | backtests temporales pueden verse buenos sin generar intervalos forward útiles | exigir rolling/forward protocol, coverage regret y status de promoción |
+| Volver dinámico un bound estático | el bound actual es para asignación fija, no para redecisiones mensuales | definir si la garantía aplica por periodo, promedio temporal o política completa |
+| Usar CVaR/OCE sin reoptimizar | reportar tail risk no significa que el solver lo controle | separar A12 diagnóstico de `tail_risk_aware_search_results` |
+| Fairness sin atributos defendibles | proxies pueden ser útiles pero no equivalen a protected attributes | declarar alcance proxy y buscar fuente/partner si se quiere constraint formal |
 | Mezclar leaderboards | AUC, ECL, retorno y CATE no son comparables directamente | usar familias métricas y selector explícito |
 | Reabrir champion sin protocolo | cambiaría la historia oficial del Paper Estrella | exigir run tag, DVC/MLflow sync y guardrails nuevos |
 
@@ -389,10 +646,14 @@ Riesgos de mover Paper 2 hacia una mega extensión.
 | 0 | Mantener Paper 2 como IFRS9 conformal puro | paper prudencial claro, sin optimización CRPTO central |
 | 1 | Construir tabla policy × ECL × escenario para políticas CRPTO congeladas | evidencia puente sin cambiar champion |
 | 2 | Definir `net_return_after_ecl` y provisión adversa como diagnósticos | appendix o journal extension |
-| 3 | Reoptimizar con IFRS9 como objective/constraint, si se aprueba | nuevo champion IFRS9-aware CRPTO |
-| 4 | Validar CATE con identificación y sensitivity checks | causal package independiente |
-| 5 | Integrar CATE al selector de policy | champion causal CRPTO |
-| 6 | Unificar IFRS9 + CATE + CRPTO | mega extensión o capítulo fuerte de tesis |
+| 3 | Añadir OCE/CVaR y satisficing como diagnósticos primero | tail risk y margins sin reabrir champion |
+| 4 | Reoptimizar con IFRS9/OCE/CVaR/satisficing como objective/constraint, si se aprueba | nuevo champion IFRS9-aware CRPTO |
+| 5 | Promover una capa temporal: online conformal + replay mensual | evidencia secuencial con coverage regret y ECL temporal |
+| 6 | Formular multi-period CRPTO | política dinámica con estado, transición, presupuesto y provisión |
+| 7 | Validar CATE con identificación y sensitivity checks | causal package independiente |
+| 8 | Integrar CATE al selector de policy | champion causal CRPTO |
+| 9 | Agregar MDCP/fairness formal si hay datos y protocolo | garantías ampliadas por fuente/grupo/regimen |
+| 10 | Unificar IFRS9 + CATE + CRPTO secuencial | mega extensión o capítulo fuerte de tesis |
 
 Roadmap recomendado para no mezclar alcances prematuramente.
 :::
