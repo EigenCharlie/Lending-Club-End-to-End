@@ -1,0 +1,175 @@
+---
+title: "Roadmap Técnico"
+page-layout: article
+---
+
+## Roadmap de implementación de Paper 4 {#sec-paper4-roadmap}
+
+Paper 4 debe implementarse por fases. La regla es simple: primero diagnósticos
+sobre policies congeladas, luego selectors explícitos, y solo después nuevos
+solvers/champions.
+
+### Fases recomendadas
+
+::: {#tbl-paper4-roadmap}
+
+| Fase | Nombre | Qué implementa | Output | Gate |
+|---|---|---|---|---|
+| 0 | Congelar fuentes | confirma champions Papers 1--3, IFRS9, causal/TS status | `paper4_source_manifest.qmd` | no contradice promotion actual |
+| 1 | IFRS9 policy eval | policy × ECL × scenario × stage | `policy_ifrs9_ecl_grid.parquet` | todas las policies trazables |
+| 2 | Net return diagnostics | retorno robusto neto de ECL/provisión | `net_return_after_ecl_table.csv` | no reoptimiza |
+| 3 | Tail/satisficing diagnostics | OCE/CVaR + thresholds | `tail_risk_policy_eval.parquet`, `satisficing_policy_grid.parquet` | separa diagnóstico de selector |
+| 4 | Paper 4 MVP report | reporte integrado sin nuevo champion | `paper4_mvp_report.qmd` | reproduce y renderiza |
+| 5 | Selector IFRS9-aware | ranking explícito de policies congeladas | `ifrs9_aware_policy_selector.json` | pesos/gates declarados |
+| 6 | Temporal replay | metrics por mes/periodo | `monthly_policy_replay.parquet` | drift/coverage reportados |
+| 7 | Online conformal prototype | rolling quantiles + coverage regret | `online_conformal_coverage_regret.parquet` | mejora cobertura sin intervalos inútiles |
+| 8 | Multi-period optimizer | estado, transición, budget, provisión | `multi_period_crpto_policy.json` | garantía definida por periodo/política |
+| 9 | MDCP/fairness layer | worst-source coverage + fairness constraints | `mdcp_source_coverage_report.parquet`, `fairness_constrained_policy_eval.parquet` | alcance legal/proxy claro |
+| 10 | Causal layer | CATE/policy value con identificación | `causal_identification_report.md`, `cate_policy_value_by_segment.parquet` | sensitivity y overlap pasan |
+| 11 | Integrated champion | nuevo Paper 4 champion | `paper4_final_promotion.json` | run tag, DVC/MLflow/tests |
+
+Roadmap por fases para Paper 4.
+:::
+
+### Artefactos mínimos de la fase MVP
+
+La primera versión implementable debería producir:
+
+```text
+reports/paper_material/paper4/
+  tables/
+    paper4_table0_source_manifest.csv
+    paper4_table1_policy_ecl_scenario.csv
+    paper4_table2_net_return_after_ecl.csv
+    paper4_table3_tail_risk_oce_cvar_by_policy.csv
+    paper4_table4_satisficing_screen.csv
+    paper4_table5_temporal_replay_summary.csv
+  figures/
+    paper4_fig1_integrated_architecture.png
+    paper4_fig2_return_ecl_tail_frontier.png
+    paper4_fig3_policy_replay_by_period.png
+  status/
+    paper4_mvp_status.json
+```
+
+Ese MVP no debe producir `paper4_final_promotion.json`. Ese archivo solo nace si
+hay selector o solver nuevo.
+
+### Criterios de promoción
+
+::: {#tbl-paper4-promotion-gates}
+
+| Gate | Criterio |
+|---|---|
+| Source sync | no contradice `models/final_project_promotion.json` ni champions Papers 2/3 |
+| Artifact ownership | outputs grandes en DVC, summaries en Git |
+| Family separation | PD, conformal, CRPTO, IFRS9, tail, temporal, causal y fairness no se mezclan sin selector |
+| No silent champion change | cualquier nuevo champion requiere promotion JSON propio |
+| Temporal gate | online/TS solo promueve si cobertura por horizonte y forward coherence pasan |
+| Causal gate | CATE solo central si identificación, overlap y sensitivity están documentados |
+| Fairness gate | protected/proxy scope declarado antes de constraints |
+| Theoretical gate | cualquier bound multi-period/MDCP no contradice el bound one-shot |
+| Reproducibility | Quarto render, tests, DVC status, MLflow lineage |
+
+Gates mínimos de promoción.
+:::
+
+### Runs que sí habría que abrir
+
+::: {#tbl-paper4-run-plan}
+
+| Run | Perfil sugerido | Duración esperada | Riesgo | Prioridad |
+|---|---|---:|---|---|
+| `paper4_mvp_policy_eval` | consume artifacts | baja-media | bajo | alta |
+| `paper4_tail_satisficing_eval` | consume artifacts | baja | bajo | alta |
+| `paper4_temporal_replay` | research | media | medio | media |
+| `paper4_online_conformal_proto` | research | media-alta | medio | media |
+| `paper4_ifrs9_aware_selector` | search/paper4 | media | medio-alto | media |
+| `paper4_multi_period_solver` | research/search | alta | alto | baja-media |
+| `paper4_causal_policy_value` | research | alta | alto | baja-media |
+| `paper4_mdcp_fairness` | research | media-alta | medio-alto | baja-media |
+
+Plan de runs futuros.
+:::
+
+### Guardrails documentales
+
+Paper 4 necesitaría sus propios tests documentales:
+
+- `test_paper4_source_manifest_exists`
+- `test_paper4_mvp_artifacts_exist`
+- `test_paper4_does_not_override_paper1_champion`
+- `test_paper4_family_metrics_are_separated`
+- `test_paper4_promotion_requires_run_tag`
+- `test_paper4_causal_claim_requires_identification_report`
+- `test_paper4_temporal_claim_requires_coverage_regret`
+
+La filosofía es la misma del Paper Estrella: si una frase aparece en Quarto,
+debe tener artefacto o debe declararse como propuesta/future work.
+
+### Qué se puede hacer primero
+
+La secuencia más práctica sería:
+
+1. **Crear `paper4_source_manifest.qmd`** desde los artifacts existentes.
+2. **Construir policy × ECL × scenario** para las policies de la región robusta
+   del Paper Estrella.
+3. **Calcular net return after ECL** sin reoptimizar.
+4. **Extender A12/A13 a policy grid**: OCE/CVaR y satisficing por policy.
+5. **Crear un reporte MVP** con una tabla de ranking diagnóstico.
+6. **Decidir si vale abrir selector IFRS9-aware**.
+
+Eso ya sería útil porque podría revelar una de tres cosas:
+
+- el champion económico sigue siendo fuerte después de ECL/tail risk;
+- otro punto de la región robusta se vuelve preferible contablemente;
+- la región robusta completa es estable también bajo criterios IFRS9/tail.
+
+Cualquiera de los tres resultados fortalecería el proyecto sin comprometer el
+Paper Estrella actual.
+
+### Paquete de decisión MVP
+
+El primer entregable de Paper 4 debería leerse como un memo técnico de comité,
+no como una promoción automática. Una estructura útil sería:
+
+::: {#tbl-paper4-mvp-decision-pack}
+
+| Sección del memo | Pregunta que responde | Tipo de evidencia |
+|---|---|---|
+| Source manifest | ¿qué verdad canónica estoy usando? | paths, hashes, run tags |
+| Policy universe | ¿qué policies estoy comparando? | champion + robust region + comparadores |
+| Accounting overlay | ¿qué cambia al mirar ECL/provisión? | policy × scenario × stage |
+| Economic overlay | ¿qué cambia al descontar ECL? | net return after ECL |
+| Tail overlay | ¿qué pasa en cola adversa? | OCE/CVaR/expected shortfall |
+| Committee overlay | ¿qué policies cumplen thresholds mínimos? | satisficing margins |
+| Temporal overlay | ¿el resultado se concentra en un periodo? | replay descriptivo |
+| Governance overlay | ¿hay riesgos de fairness/MRM/reproducibilidad? | guardrails |
+| Decision readout | ¿hay señal para abrir selector nuevo? | recomendación no-promocional |
+
+Paquete MVP de decisión para Paper 4.
+:::
+
+### Cuándo detenerse
+
+Hay tres señales para no seguir escalando todavía:
+
+1. Si `net_return_after_ecl` no cambia nada material, Paper 4 debe quedar como
+   capítulo de tesis/MVP, no como nuevo paper urgente.
+2. Si los intervalos temporales siguen fallando cobertura, no se debe vender
+   online conformal ni multi-period como claim.
+3. Si CATE no tiene identificación defendible, debe quedarse como carril futuro,
+   no como contribución central.
+
+### Resultado ideal
+
+El resultado ideal de Paper 4 no es una tabla con un número más alto. Es un
+paquete que permita decir:
+
+> Tenemos una política crediticia robusta que conserva la trazabilidad conformal
+> del Paper Estrella, internaliza provisión IFRS9, controla cola de pérdida,
+> cumple umbrales de comité, se evalúa a través del tiempo y deja una ruta clara
+> para incorporar causalidad cuando la identificación sea defendible.
+
+Ese sería un aporte mucho más grande que un paper aislado: sería la arquitectura
+de decisión completa del proyecto.

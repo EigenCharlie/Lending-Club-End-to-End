@@ -140,6 +140,11 @@ book:
         - chapters/16-paper-mondrian/16b-methodology.qmd
         - chapters/16-paper-mondrian/16c-results.qmd
         - chapters/16-paper-mondrian/16d-discussion.qmd
+        - chapters/19-paper-mega-extension/index.qmd
+        - chapters/19-paper-mega-extension/19a-proposal-and-scope.qmd
+        - chapters/19-paper-mega-extension/19b-current-assets-and-gaps.qmd
+        - chapters/19-paper-mega-extension/19c-integrated-architecture.qmd
+        - chapters/19-paper-mega-extension/19d-implementation-roadmap.qmd
         - chapters/17-paper-gpu/index.qmd
         - chapters/17-paper-gpu/17a-positioning.qmd
         - chapters/17-paper-gpu/17b-theoretical-framework.qmd
@@ -150,7 +155,7 @@ book:
         - chapters/18-paper-quantum/18b-state-of-art.qmd
         - chapters/18-paper-quantum/18c-proposed-methodology.qmd
         - chapters/18-paper-quantum/18d-gap-execution-strategy.qmd
-    # NOTE: Part V reuses directory prefixes 17- and 18- from Part IV.
+    # NOTE: Part V reuses directory prefixes 17-, 18- and 19- from Part IV.
     # Quarto resolves chapters by path, not by numeric prefix, so this
     # causes no rendering conflict. Renumbering would break cross-references
     # across the book — the trade-off is not worth it.

@@ -8,7 +8,7 @@ page-layout: article
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-¿Dónde crea valor defendible la GPU en un pipeline real de riesgo crediticio cuando medimos velocidad, fidelidad y relevancia de decisión al mismo tiempo? Esta landing abre el paper GPU como una pieza complementaria a los tres drafts actuales del proyecto.
+¿Dónde crea valor defendible la GPU en un pipeline real de riesgo crediticio cuando medimos velocidad, fidelidad y relevancia de decisión al mismo tiempo? Esta landing abre el paper GPU como una pieza complementaria a los papers principales y a la propuesta integrada de Paper 4.
 
 Ejemplo concreto: un mismo carril GPU puede verse muy distinto según la métrica. `PD fit-only` sí mejora, `PD full-stage` no; `IFRS9 Monte Carlo` sí cambia el régimen de escala; `cuOpt` parece fuerte, pero todavía exige reruns CPU pareados para convertir intuición en claim paper-grade.
 :::
@@ -59,18 +59,18 @@ No compite con el Paper Estrella, con IFRS9 E2E ni con Mondrian. Los complementa
 
 ## Cómo leer esta parte
 
-- **79** fija el gap y por qué el framing correcto es applied finance + OR.
-- **80** define el marco teórico de cuatro lentes y la regla `speed + fidelity + decision impact + scale regime`.
-- **81** resume la evidencia ya disponible en el repo.
-- **82** enumera exactamente qué falta para volver submission-ready este draft.
+- **Positioning** fija el gap y por qué el framing correcto es applied finance + OR.
+- **Theoretical Framework** define el marco de cuatro lentes y la regla `speed + fidelity + decision impact + scale regime`.
+- **Existing Evidence** resume la evidencia ya disponible en el repo.
+- **Gap And Experiments** enumera exactamente qué falta para volver submission-ready este draft.
 
 ## Navegación curada
 
 ```{=html}
 <div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="17a-positioning.html">79. Positioning</a></h4><p>Gap, venue fit y relación con los otros tres papers.</p></div>
-  <div class="chapter-card"><h4><a href="17b-theoretical-framework.html">80. Theoretical Framework</a></h4><p>Cuatro lentes y regla de evaluación fidelidad-aware.</p></div>
-  <div class="chapter-card"><h4><a href="17c-existing-evidence.html">81. Existing Evidence</a></h4><p>Qué ya tenemos y qué claims ya son defendibles.</p></div>
-  <div class="chapter-card"><h4><a href="17d-gap-and-experiments.html">82. Gap And Experiments</a></h4><p>Experimentos faltantes, checklist y ruta de submission.</p></div>
+  <div class="chapter-card"><h4><a href="17a-positioning.html">Positioning</a></h4><p>Gap, venue fit y relación con los otros papers.</p></div>
+  <div class="chapter-card"><h4><a href="17b-theoretical-framework.html">Theoretical Framework</a></h4><p>Cuatro lentes y regla de evaluación fidelidad-aware.</p></div>
+  <div class="chapter-card"><h4><a href="17c-existing-evidence.html">Existing Evidence</a></h4><p>Qué ya tenemos y qué claims ya son defendibles.</p></div>
+  <div class="chapter-card"><h4><a href="17d-gap-and-experiments.html">Gap And Experiments</a></h4><p>Experimentos faltantes, checklist y ruta de submission.</p></div>
 </div>
 ```

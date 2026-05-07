@@ -11,6 +11,14 @@ el alcance del Paper 2 actual. Su función es dejar escrito, con suficiente
 detalle, qué tendría que pasar para que IFRS9 y CATE dejen de ser conexiones y
 se vuelvan parte central de un champion CRPTO.
 
+::: {.callout-note}
+## Paper 4
+
+Esta página funciona como puente desde Paper 2. La propuesta completa ahora vive
+como **Paper 4** en @sec-paper4-mega-extension, donde se separan alcance,
+activos, gaps, arquitectura y roadmap técnico.
+:::
+
 La regla base es estricta:
 
 > IFRS9 o CATE solo pueden volverse contribución central si el champion CRPTO se

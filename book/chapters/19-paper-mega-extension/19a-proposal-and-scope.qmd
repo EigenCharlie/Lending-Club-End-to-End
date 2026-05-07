@@ -1,0 +1,153 @@
+---
+title: "Propuesta y Alcance"
+page-layout: article
+---
+
+## Propuesta completa de Paper 4 {#sec-paper4-proposal-scope}
+
+Paper 4 debe nacer con una regla clara: no es el Paper Estrella reescrito, ni el
+Paper 2 inflado, ni un paper causal improvisado. Es una propuesta de sistema
+integrado que pregunta cómo se tomaría una decisión crediticia completa cuando
+la incertidumbre predictiva, contable, temporal, causal y distribucional se
+vuelve parte explícita de la política.
+
+La tesis de trabajo es:
+
+> Una política crediticia moderna no debería optimizar retorno esperado sobre una
+> PD puntual. Debería elegir decisiones robustas bajo incertidumbre conformal,
+> prudentes bajo IFRS9, estables en el tiempo, controladas en cola, defendibles
+> por comité y, cuando sea posible, causalmente informadas.
+
+El scope es deliberadamente grande. Eso es correcto para esta sección: queremos
+que nada valioso se pierda antes de decidir si el resultado final será un paper,
+un journal extension, un capítulo de tesis o un sistema completo.
+
+### Relación con los papers existentes
+
+::: {#tbl-paper4-relation-to-papers}
+
+| Pieza | Paper actual | Qué aporta a Paper 4 | Qué no debe arrastrar sin validar |
+|---|---|---|---|
+| Paper Estrella | CRPTO post-hoc auditable | bound `alpha/Gamma_CP`, robust region, champion económico, funded-set evidence | no convertir OCE/CVaR, CATE u online CP en claims del champion actual |
+| Paper 2 | IFRS9 + incertidumbre conformal | ECL, SICR, escenarios, provisión y sensibilidad macro | no asumir que IFRS9 ya selecciona la policy CRPTO |
+| Paper 3 | Mondrian conformal | cobertura por grupo, utilidad de partición y benchmarking conformal | no asumir cobertura online ni multi-distribución |
+| Carril causal | CATE `insights_only` | hipótesis de intervención y policy value futura | no vender causalidad sin identificación |
+| TS vNext | research-only temporal | evidencia de necesidad secuencial y gating temporal | no promover intervalos temporales que fallan cobertura |
+| Journal package Estrella | A12--A18 | tail risk, satisficing, dependencia, stress, bootstrap, LGD/caps | no confundir diagnósticos con optimización |
+
+Mapa de dependencia entre Paper 4 y los papers actuales.
+:::
+
+### Claims escalonados
+
+Paper 4 tendría que avanzar por claims. El error sería prometer el claim
+integrado desde el primer experimento.
+
+::: {#tbl-paper4-claim-ladder}
+
+| Claim | Estado actual | Qué faltaría para defenderlo |
+|---|---|---|
+| C1. La incertidumbre conformal cambia decisiones robustas | Fuerte en Paper Estrella | mantener artefactos sincronizados y no mezclar leaderboards |
+| C2. La incertidumbre conformal cambia ECL/SICR/provisión | Fuerte en Paper 2 | empaquetar como paper prudencial y conectar con policy |
+| C3. ECL/provisión cambia el ranking de policies CRPTO | No implementado como selector | tabla policy × ECL × escenario y `net_return_after_ecl` |
+| C4. Tail risk OCE/CVaR cambia la policy | Solo diagnóstico A12 | reoptimizar o restringir por OCE/CVaR |
+| C5. Satisficing produce policies más defendibles que maximización pura | Solo diagnóstico A13 | definir thresholds y selector satisficing |
+| C6. La política mantiene cobertura en el tiempo | No promovido; TS research-only | online conformal con coverage regret y replay mensual |
+| C7. Una política multi-periodo mejora la decisión | No implementado | estado, transición, presupuesto, provisión y redecisión |
+| C8. La política es robusta a múltiples fuentes/regímenes | No implementado | MDCP/source splits y worst-source coverage |
+| C9. La política cumple fairness formal | Proxy audit actual | atributos defendibles o fairness proxy-governance formal |
+| C10. La política es causalmente informada | CATE lane exploratorio | identificación, overlap, sensitivity y policy value |
+| C11. La política integrada domina bajo criterios robustos, contables y causales | Futuro | todos los claims intermedios con artefactos separados |
+
+Escalera de claims para evitar overclaiming.
+:::
+
+### Versión mínima viable vs versión completa
+
+Paper 4 puede tener dos niveles de ambición.
+
+La **versión mínima viable** no cambia causalidad ni MDCP todavía. Toma policies
+CRPTO congeladas, calcula ECL/provisión por policy, agrega OCE/CVaR diagnóstico,
+define satisficing margins y hace replay temporal descriptivo. Esa versión ya
+sería útil porque mostraría si la policy económica del Paper Estrella sigue
+siendo atractiva cuando se descuenta la provisión y se mira cola de pérdida.
+
+La **versión completa** reoptimiza. Ahí IFRS9, OCE/CVaR, satisficing,
+online conformal, multi-period state, MDCP, fairness y CATE pueden afectar el
+selector o el solver. En ese momento nace un nuevo champion y deja de ser una
+extensión editorial.
+
+::: {#tbl-paper4-mvp-vs-full}
+
+| Dimensión | MVP implementable cerca | Versión completa |
+|---|---|---|
+| Policy universe | policies CRPTO congeladas | búsqueda/reoptimización nueva |
+| IFRS9 | ECL/provisión por policy | ECL/provisión como objective/constraint |
+| Tail risk | OCE/CVaR diagnóstico | OCE/CVaR en solver |
+| Satisficing | pass/fail de thresholds | selector satisficing |
+| Temporal | replay por periodo/mes | multi-period policy |
+| Online conformal | monitoreo y coverage regret descriptivo | recalibración online que afecta decisiones |
+| CATE | policy value exploratorio | causal objective/constraint |
+| Fairness | proxy audit por policy | fairness-constrained optimization |
+| MDCP | stress por régimen/fuente | garantía principal multi-distribución |
+| Output | evidence package | nuevo champion Paper 4 |
+
+Dos niveles de implementación para Paper 4.
+:::
+
+### Fórmula editorial del objetivo integrado
+
+Una forma simple de expresar la ambición completa es:
+
+```text
+max_policy
+  retorno_robusto_esperado
+  - costo_ECL_esperado
+  - penalización_tail_risk
+  - penalización_provisión_adversa
+  + valor_causal_estimado
+```
+
+sujeto a:
+
+```text
+coverage_individual >= target
+coverage_temporal >= target
+V <= sqrt(alpha)
+Gamma_CP <= limite_robustez
+Stage 2 share <= umbral_prudencial
+CVaR_loss <= limite_tail
+fairness_gap <= tolerancia
+capital/provision <= limite
+```
+
+Esta no es todavía una formulación matemática final. Es un contrato editorial:
+cada término debe tener un artefacto, un script, un test y una interpretación
+antes de entrar al claim integrado.
+
+### Qué no se debe hacer
+
+- No promover un nuevo champion Paper 4 usando métricas diagnósticas sin
+  reoptimizar.
+- No mezclar AUC, ECL, CATE, retorno y fairness en un leaderboard único.
+- No llamar causal a una comparación observacional sin identificación.
+- No llamar online a un backtest que no produce intervalos forward.
+- No vender fairness formal si solo hay proxies.
+- No reemplazar el bound del Paper Estrella sin una garantía nueva.
+- No borrar la riqueza del libro para convertir esta visión en un paper corto
+  prematuramente.
+
+### Forma final esperada
+
+El resultado más realista no es un solo paper tradicional. Puede ser:
+
+1. Un **capítulo fuerte de tesis** que integra el sistema completo.
+2. Un **paper journal largo** si se recorta a IFRS9-aware CRPTO + tail risk.
+3. Un **paper causal futuro** si CATE llega a identificación defendible.
+4. Un **paper secuencial/OR** si multi-period + online conformal se vuelven
+   sólidos.
+5. Un **sistema implementable** con reproducibilidad, DVC/MLflow y MRM como
+   producto académico-técnico.
+
+La sección Paper 4 existe para preservar esa visión antes de que el proceso de
+publicación obligue a partirla en piezas más pequeñas.

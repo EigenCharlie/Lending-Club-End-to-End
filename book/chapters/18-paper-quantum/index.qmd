@@ -60,18 +60,18 @@ El timing es estratégico: el campo de QML financiero está en un punto de infle
 
 ## Cómo leer esta parte
 
-- **87** fija el contexto, la hipótesis y la brecha triple en la literatura.
-- **88** revisa el estado del arte en quantum kernels, QML financiero y QCP/AQCP.
-- **89** describe la arquitectura propuesta: quantum kernel + CatBoost + wrapper conformal.
-- **90** mapea lo que ya existe vs. lo que falta, con plan de ejecución, presupuesto y venues.
+- **Contexto e Hipótesis** fija el contexto, la hipótesis y la brecha triple en la literatura.
+- **Estado del Arte** revisa quantum kernels, QML financiero y QCP/AQCP.
+- **Metodología Propuesta** describe la arquitectura quantum kernel + CatBoost + wrapper conformal.
+- **Brecha y Ejecución** mapea lo que ya existe vs. lo que falta, con plan de ejecución, presupuesto y venues.
 
 ## Navegación curada
 
 ```{=html}
 <div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="18a-context-hypothesis.html">87. Contexto e Hipótesis</a></h4><p>LGD como problema abierto, brecha triple y preguntas de investigación.</p></div>
-  <div class="chapter-card"><h4><a href="18b-state-of-art.html">88. Estado del Arte</a></h4><p>Quantum kernels, trees vs deep learning en tabular, QCP/AQCP y hardware NISQ.</p></div>
-  <div class="chapter-card"><h4><a href="18c-proposed-methodology.html">89. Metodología Propuesta</a></h4><p>Arquitectura quantum kernel + CatBoost + wrapper QCP Mondrian.</p></div>
-  <div class="chapter-card"><h4><a href="18d-gap-execution-strategy.html">90. Brecha y Ejecución</a></h4><p>Inventario, plan de experimentos, presupuesto, venues y readiness.</p></div>
+  <div class="chapter-card"><h4><a href="18a-context-hypothesis.html">Contexto e Hipótesis</a></h4><p>LGD como problema abierto, brecha triple y preguntas de investigación.</p></div>
+  <div class="chapter-card"><h4><a href="18b-state-of-art.html">Estado del Arte</a></h4><p>Quantum kernels, trees vs deep learning en tabular, QCP/AQCP y hardware NISQ.</p></div>
+  <div class="chapter-card"><h4><a href="18c-proposed-methodology.html">Metodología Propuesta</a></h4><p>Arquitectura quantum kernel + CatBoost + wrapper QCP Mondrian.</p></div>
+  <div class="chapter-card"><h4><a href="18d-gap-execution-strategy.html">Brecha y Ejecución</a></h4><p>Inventario, plan de experimentos, presupuesto, venues y readiness.</p></div>
 </div>
 ```

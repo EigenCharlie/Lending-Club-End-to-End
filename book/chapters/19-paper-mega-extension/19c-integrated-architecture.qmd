@@ -1,0 +1,177 @@
+---
+title: "Arquitectura Integrada"
+page-layout: article
+---
+
+## Arquitectura de Paper 4 {#sec-paper4-integrated-architecture}
+
+Paper 4 se puede entender como una arquitectura por capas. Cada capa recibe
+artefactos de los papers actuales y agrega una decisión nueva solamente cuando
+tiene evidencia suficiente.
+
+```{mermaid}
+flowchart LR
+  A[Datos + splits temporales] --> B[PD calibrada]
+  B --> C[Conformal offline / Mondrian]
+  C --> D[CRPTO one-shot<br/>Paper Estrella]
+  C --> E[IFRS9 / ECL / SICR<br/>Paper 2]
+  C --> F[Coverage by group<br/>Paper 3]
+  E --> G[IFRS9-aware CRPTO]
+  D --> G
+  G --> H[OCE/CVaR + robust satisficing]
+  T[Time-series state + online conformal] --> I[Multi-period CRPTO]
+  H --> I
+  J[MDCP / multi-regime coverage] --> I
+  K[Fairness constraints] --> I
+  L[CATE / policy value] --> M[Causal CRPTO]
+  I --> N[Paper 4 integrated policy]
+  M --> N
+  N --> O[Champion Paper 4<br/>dynamic accounting causal robust policy]
+```
+
+La arquitectura tiene dos reglas:
+
+1. Un bloque puede entrar como **diagnóstico** sin cambiar el champion.
+2. Un bloque solo entra como **selector** u **objetivo** si produce un nuevo run,
+   un nuevo artefacto de promoción y guardrails.
+
+### Estado y transición
+
+La versión multi-periodo necesita un estado $S_t$. En el proyecto actual ya
+tenemos piezas de ese estado, aunque no estén integradas:
+
+::: {#tbl-paper4-state-components}
+
+| Estado | Fuente actual | Uso futuro |
+|---|---|---|
+| PD calibrada por préstamo | pipeline PD canónico | riesgo base |
+| Intervalo conformal por préstamo | Paper Estrella / Paper 3 | uncertainty set |
+| ECL por escenario | Paper 2 | costo contable |
+| Stage / SICR | Paper 2 | prudencia y deterioro |
+| Periodo de originación | splits temporales | replay y drift |
+| Default observado | OOT / labels | coverage y performance |
+| Funded set | CRPTO | decisión |
+| Return / LGD / EAD | portfolio + IFRS9 | retorno neto y cola |
+| Fairness proxy groups | fairness audit | gobernanza por segmento |
+| CATE/uplift | causal lane | valor causal futuro |
+| Forecast macro/default | TS / vNext | estado temporal futuro |
+
+Componentes del estado $S_t$ para Paper 4.
+:::
+
+Una transición mínima sería:
+
+```text
+S_t = {PD_t, U_t(alpha), ECL_t, Stage_t, Budget_t, Macro_t, Drift_t}
+a_t = policy decision / funded set / intervention
+S_{t+1} = update(S_t, observed defaults, repayments, drift, recalibration)
+```
+
+### Objetivo integrado
+
+El objetivo completo podría escribirse como un score de política:
+
+```text
+Score(policy) =
+  robust_return(policy)
+  - lambda_ecl * ECL(policy)
+  - lambda_tail * CVaR_loss(policy)
+  - lambda_prov * adverse_provision(policy)
+  + lambda_causal * policy_value_causal(policy)
+  - lambda_fair * disparity_penalty(policy)
+```
+
+sujeto a gates:
+
+```text
+alpha01_exact_pass(policy) = true
+V(policy) <= sqrt(alpha)
+Gamma_CP(policy) <= gamma_limit
+coverage_group(policy) >= target
+coverage_time(policy) >= target
+Stage2_share(policy) <= stage_limit
+CVaR_loss(policy) <= tail_limit
+fairness_gap(policy) <= fair_limit
+capital_usage(policy) <= capital_limit
+```
+
+No todos estos términos deben entrar a la vez. La arquitectura permite tres
+modos:
+
+::: {#tbl-paper4-policy-modes}
+
+| Modo | Qué hace | Cuándo usarlo |
+|---|---|---|
+| Diagnóstico | calcula métricas para policies congeladas | MVP y análisis inicial |
+| Selector | rankea policies existentes con score explícito | antes de reoptimizar |
+| Solver | incorpora objective/constraints al LP o DP | cuando se aprueba nuevo champion |
+
+Modos para no confundir análisis con promoción.
+:::
+
+### Familias métricas
+
+Paper 4 solo funciona si no mezcla leaderboards. Las familias deben reportarse
+separadas y el selector debe declarar pesos/gates.
+
+::: {#tbl-paper4-metric-families}
+
+| Familia | Métricas | Uso |
+|---|---|---|
+| Predictiva | AUC, Brier, ECE, PR-AUC | base de PD |
+| Conformal offline | coverage, width, min group coverage, Winkler | uncertainty set actual |
+| CRPTO | return, `V`, `Gamma_CP`, violation, robust region | decisión robusta |
+| IFRS9 | ECL, Stage 2 share, provision, adverse scenario cost | costo prudencial |
+| Tail risk | OCE, CVaR, expected shortfall | pérdida de cola |
+| Satisficing | margins, pass/fail gates, fragility score | comité |
+| Temporal | coverage regret, horizon coverage, monthly drift | secuencialidad |
+| MDCP | worst-source coverage, source gap, robust width | multi-regimen |
+| Fairness | disparity gap, equalized coverage, impact gap | gobernanza |
+| Causal | CATE, uplift, policy value, overlap, sensitivity | intervención |
+| Reproducibilidad | DVC status, MLflow run, tests, Quarto render | auditoría |
+
+Familias métricas de Paper 4.
+:::
+
+### Módulos técnicos
+
+::: {#tbl-paper4-technical-modules}
+
+| Módulo | Input | Output | Estado |
+|---|---|---|---|
+| `policy_ifrs9_ecl_eval` | policies CRPTO + ECL artifacts | ECL/provisión por policy | viable |
+| `tail_risk_policy_eval` | funded sets + LGD/EAD/returns | OCE/CVaR por policy | viable |
+| `satisficing_policy_screen` | policy metrics + thresholds | pass/fail + margin | viable |
+| `monthly_policy_replay` | temporal loans + policy rules | metrics por mes | viable con trabajo |
+| `online_conformal_update` | residuals/miscoverage stream | rolling quantiles/coverage regret | nuevo |
+| `multi_period_optimizer` | state + constraints | dynamic policy | nuevo |
+| `mdcp_calibrator` | source/regime splits | worst-source conformal set | nuevo |
+| `fairness_constrained_selector` | groups + policy decisions | fairness-aware policy | nuevo |
+| `causal_policy_value` | treatment/outcome/covariates | CATE/policy value | delicado |
+
+Módulos técnicos propuestos.
+:::
+
+### Diseño de resultados
+
+Una sección de resultados de Paper 4 no debería tener una sola tabla ganadora.
+Debería tener una progresión:
+
+1. **Base**: champion Paper Estrella y metrics IFRS9 actuales.
+2. **Diagnóstico contable**: cómo cambian retorno y ranking al descontar ECL.
+3. **Tail/satisficing**: qué policies pasan gates de cola y comité.
+4. **Temporal replay**: qué ocurre por mes/periodo bajo drift.
+5. **Online/MDCP/fairness/causal**: solo si los módulos pasan gate.
+6. **Selector integrado**: nuevo champion Paper 4, si existe.
+
+La tabla final debería decir no solo "gana X", sino:
+
+> X gana bajo un selector explícito, con estos pesos/gates, y mantiene estos
+> mínimos de cobertura, prudencia, cola, fairness y reproducibilidad.
+
+### Conexión con la página de mega extensión
+
+La página [Mega Extensión Futura](../15-paper-ifrs9/15e-mega-extension-ifrs9-cate-crpto.qmd)
+queda como puente desde Paper 2. Esta sección Paper 4 es la propuesta completa:
+reordena esos bloques en un paper/sistema con claims, arquitectura, artefactos y
+roadmap.
