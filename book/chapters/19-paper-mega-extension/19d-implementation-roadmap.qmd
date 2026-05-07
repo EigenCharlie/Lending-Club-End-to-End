@@ -55,6 +55,35 @@ reports/paper_material/paper4/
 Ese MVP no debe producir `paper4_final_promotion.json`. Ese archivo solo nace si
 hay selector o solver nuevo.
 
+### Artefactos completos de una versión extendida
+
+Si el MVP tiene señal, Paper 4 podría crecer hacia un paquete mucho más amplio.
+La lista completa no debe ejecutarse de una vez; sirve como mapa para no perder
+ninguna pieza de la visión integrada.
+
+::: {#tbl-paper4-full-artifacts}
+
+| Artefacto futuro | Para qué sirve | Reutiliza qué | Cambia dirección |
+|---|---|---|---|
+| `policy_ifrs9_ecl_grid.parquet` | ECL y stage mix por policy CRPTO | Paper 2 + robust region | Sí, si entra al selector |
+| `ifrs9_aware_crpto_champion.json` | champion seleccionado con costo contable | final promotion + IFRS9 artifacts | Sí |
+| `net_return_after_ecl_table.csv` | retorno robusto después de provisión | Table 0 + ECL scenarios | Sí |
+| `alpha_gamma_ecl_frontier.csv` | curva alpha → Gamma_CP → ECL → funded set | alpha sweep + sensitivity grid | complementa o cambia según uso |
+| `policy_time_ecl_state_grid.parquet` | forecasts, stage mix y ECL temporal por policy | TS status + ECL + CRPTO policies | Sí, si entra al selector |
+| `online_conformal_coverage_regret.parquet` | miscoverage acumulada por mes/horizonte/segmento | TS vNext + conformal artifacts | Sí |
+| `monthly_policy_replay.parquet` | reevalúa policies por ciclo mensual | CRPTO policies + originaciones temporales | Sí |
+| `multi_period_crpto_policy.json` | política dinámica con estado, transición y budget | portfolio solver + IFRS9 state | Sí |
+| `tail_risk_aware_search_results.parquet` | search con OCE/CVaR como objetivo o constraint | A12 + optimizer | Sí |
+| `satisficing_policy_grid.parquet` | policies contra umbrales de comité | A13 + CRPTO region | Sí |
+| `mdcp_source_coverage_report.parquet` | cobertura peor fuente/régimen/segmento | conformal + source metadata | Sí |
+| `fairness_constrained_policy_eval.parquet` | disparidad y constraints por grupo | fairness audit + funded set | Sí |
+| `cate_policy_value_by_segment.parquet` | valor causal por segmento/funded set | CATE lane actual | Sí |
+| `causal_identification_report.md` | overlap, balance y sensibilidad | causal scripts | Sí |
+| `paper4_release_manifest.qmd` | claim → artifact → test de la extensión | estilo 14n/14o | No, es documental |
+
+Artefactos completos para una versión extendida de Paper 4.
+:::
+
 ### Criterios de promoción
 
 ::: {#tbl-paper4-promotion-gates}
@@ -90,6 +119,25 @@ Gates mínimos de promoción.
 | `paper4_mdcp_fairness` | research | media-alta | medio-alto | baja-media |
 
 Plan de runs futuros.
+:::
+
+### Riesgos de integración
+
+::: {#tbl-paper4-integration-risks}
+
+| Riesgo | Por qué importa | Mitigación |
+|---|---|---|
+| Paper demasiado grande | IFRS9, CRPTO, CATE, TS, fairness y MDCP son comunidades distintas | tratar Paper 4 como programa de implementación antes que manuscrito corto |
+| Confundir diagnóstico con optimización | ECL/CVaR/CATE pueden estar reportados sin afectar el champion | declarar si cada métrica es diagnóstico, selector, objective o constraint |
+| Overclaim causal | CATE sin identificación fuerte invita rechazo | exigir causal proof package antes de volverlo central |
+| Overclaim online | un backtest temporal puede verse bueno sin intervalos forward útiles | pedir rolling/forward protocol, coverage regret y status de promoción |
+| Volver dinámico un bound estático | el bound actual es para asignación fija | definir garantía por periodo, promedio temporal o política completa |
+| Usar CVaR/OCE sin reoptimizar | reportar tail risk no significa que el solver lo controle | separar diagnóstico A12 de `tail_risk_aware_search_results` |
+| Fairness sin atributos defendibles | proxies no equivalen a protected attributes | declarar alcance proxy y buscar datos/partner si se quiere constraint formal |
+| Mezclar leaderboards | AUC, ECL, retorno, CATE y fairness no son comparables directamente | usar familias métricas y selector explícito |
+| Reabrir champion sin protocolo | cambiaría la historia oficial del Paper Estrella | exigir run tag, DVC/MLflow sync y promotion JSON nuevo |
+
+Riesgos de integración de Paper 4.
 :::
 
 ### Guardrails documentales

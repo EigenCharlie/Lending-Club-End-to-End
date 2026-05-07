@@ -152,6 +152,183 @@ Familias métricas de Paper 4.
 Módulos técnicos propuestos.
 :::
 
+### Módulos estratégicos en detalle
+
+La arquitectura anterior no es una lista decorativa de ideas. Cada bloque cambia
+algo concreto: el tipo de estado, el objetivo, la restricción, el selector o el
+paquete de validación. Esta sección conserva el detalle que antes estaba en la
+página puente de Paper 2 y lo deja dentro de Paper 4, que es su ubicación
+natural.
+
+#### Online conformal y online DFL
+
+El bloque online vuelve la extensión genuinamente secuencial. En el Paper
+Estrella actual, la garantía conformal se evalúa offline sobre un OOT congelado.
+En Paper 4, cada ciclo de originación produciría nuevas observaciones, drift,
+cuantiles y posiblemente una nueva composición del funded set.
+
+La pregunta deja de ser:
+
+> ¿Pasa la policy el bound en el OOT final?
+
+y pasa a ser:
+
+> ¿Mantiene la policy cobertura, retorno neto de ECL y factibilidad robusta a lo
+> largo de una secuencia de decisiones?
+
+Online conformal permitiría actualizar cuantiles o pesos de cobertura bajo
+miscoverage observada. Online DFL serviría como comparador dinámico de regret,
+pero no reemplaza automáticamente a CRPTO: tendría que demostrar cobertura,
+retorno neto de ECL y auditabilidad. El aporte fuerte no sería forecasting
+puntual, sino **gobernanza de incertidumbre durante operación**.
+
+Artefactos naturales:
+
+- `online_conformal_coverage_regret.parquet`
+- `rolling_quantile_policy_status.json`
+- `online_dfl_comparison.parquet`
+- `monthly_policy_replay.parquet`
+
+#### Multi-period portfolio
+
+El Paper Estrella optimiza una decisión estática. Eso es correcto para mantener
+el bound claro y auditable. Paper 4 trataría la originación como una secuencia:
+
+```text
+S_t -> observar solicitudes, macro, PD, ECL, stage mix
+     -> elegir policy/funded set
+     -> observar defaults/prepagos/recalibración
+     -> actualizar S_{t+1}
+```
+
+El optimizador tendría que considerar presupuesto por periodo, capital reservado
+y liberado, costos de transacción o rebalanceo, deterioro macro, cambios en
+Stage 1/2/3, provisiones acumuladas, efectos rezagados de intervenciones y
+constraints de concentración. El claim ya no sería "esta policy es robusta en
+un test set", sino "esta política dinámica mantiene factibilidad, cobertura y
+prudencia contable a través del tiempo".
+
+#### OCE/CVaR como objetivo o restricción
+
+El Paper Estrella ya tiene diagnósticos de tail risk OCE/CVaR del funded set.
+Eso es valioso, pero no cambia el champion si no entra al solver. En Paper 4,
+OCE/CVaR puede entrar como objetivo:
+
+```text
+maximizar retorno robusto neto de ECL
+- penalización OCE/CVaR de pérdida adversa
+- penalización por provisión extrema
+```
+
+o como restricción:
+
+```text
+CVaR_loss(policy) <= limite_tail_risk
+OCE_provision(policy) <= limite_prudencial
+```
+
+Esto encaja especialmente bien con IFRS9: la preocupación contable no es solo
+pérdida esperada, sino cola de escenarios adversos, overlays, provisión severa y
+sensibilidad de capital.
+
+#### Robust satisficing
+
+Robust satisficing traduce el sistema al lenguaje de comité. En vez de
+"maximizar retorno a toda costa", Paper 4 puede pedir:
+
+> Encuentra una policy suficientemente rentable, suficientemente robusta,
+> suficientemente prudente y suficientemente auditable.
+
+Un gate satisficing podría exigir:
+
+```text
+retorno neto de ECL >= umbral_minimo
+V <= sqrt(alpha)
+Gamma_CP <= limite_robustez
+CVaR_loss <= limite_tail
+Stage 2 share <= limite_prudencial
+coverage por segmento >= target
+fairness gap <= tolerancia
+```
+
+Esto no reemplaza el Paper Estrella: lo generaliza hacia una formulación OR más
+realista para comités de riesgo.
+
+#### MDCP como garantía principal
+
+MDCP entra cuando una sola distribución OOT deja de ser suficiente. Paper 4
+podría tener múltiples fuentes o regímenes: periodos macro distintos, productos
+de crédito, segmentos de riesgo, geografía, ventanas pre-crisis/crisis/post o
+fuentes externas.
+
+La promesa sería:
+
+> La policy mantiene cobertura o control de riesgo bajo una familia de
+> distribuciones plausibles, no solo bajo una partición histórica.
+
+Esto sería fuerte para una versión journal, pero debe entrar después de que la
+versión offline CRPTO esté completamente clara. Si MDCP entra demasiado pronto,
+puede opacar la contribución actual.
+
+#### Fairness-constrained optimization formal
+
+La capa fairness actual es auditabilidad proxy/intersectional. Para volverla
+central, fairness tendría que entrar al optimizador o al selector:
+
+```text
+coverage_gap_by_group <= tolerancia
+approval_rate_gap <= tolerancia
+expected_loss_gap <= tolerancia
+pricing_or_intervention_gap <= tolerancia
+```
+
+El punto delicado es de datos y gobernanza: Lending Club abierto no contiene
+atributos protegidos directos como raza o género. Por eso, una contribución
+formal requeriría atributos defendibles, proxies con alcance muy explícito o una
+formulación segmental/temporal menos ambiciosa. El valor para MRM y regulación
+sería alto, pero no debe venderse como prueba legal si solo hay proxies.
+
+#### Causal CRPTO como capa integradora
+
+CATE es el módulo que convertiría Paper 4 en una contribución realmente
+distinta. IFRS9 y CRPTO preguntan qué riesgo, provisión y retorno tiene una
+decisión. Causal CRPTO preguntaría:
+
+> ¿Qué habría pasado si hubiéramos aprobado, rechazado, financiado, intervenido
+> o cambiado los términos de este préstamo?
+
+Eso abre decisiones como financiar, ajustar tasa o monto, ofrecer intervención
+temprana, aplicar hardship/refinancing o activar monitoreo. Para que sea central
+se necesita un paquete causal completo: treatment definido, outcome claro,
+identificación, overlap, balance, sensitivity checks, policy value e
+incertidumbre sobre efectos o sobre la decisión causal.
+
+### Series de tiempo como puente secuencial
+
+El trabajo temporal no es un claim central ya resuelto, pero sí justifica que
+Paper 4 sea secuencial. La separación actual es correcta:
+
+- el forecast puntual `AutoARIMA` puede alimentar overlays IFRS9;
+- la capa intervalar/adaptativa (`MAPIE_ENBPI`, `ACI`, sample paths) sigue como
+  `research_only` porque no superó el gate de cobertura ni la coherencia
+  operativa de intervalos forward.
+
+Si los intervalos temporales se promovieran, el proyecto pasaría de:
+
+> Tenemos un forecast temporal útil y una sensibilidad ECL diagnóstica.
+
+a:
+
+> Tenemos una capa temporal gobernada de incertidumbre que permite tomar
+> decisiones robustas, prudenciales y potencialmente causales a lo largo del
+> tiempo.
+
+Esa capa temporal conectaría IFRS9, CRPTO, CATE y MRM: provisiones futuras,
+decisiones robustas por periodo, valor causal bajo estados futuros y triggers de
+monitoreo/recalibración. Su gate no es "mejor MAE"; es cobertura por horizonte,
+sharpness útil, forward coherence, drift behavior, valor downstream en ECL y
+trazabilidad DVC/MLflow.
+
 ### Diseño de resultados
 
 Una sección de resultados de Paper 4 no debería tener una sola tabla ganadora.
@@ -169,9 +346,9 @@ La tabla final debería decir no solo "gana X", sino:
 > X gana bajo un selector explícito, con estos pesos/gates, y mantiene estos
 > mínimos de cobertura, prudencia, cola, fairness y reproducibilidad.
 
-### Conexión con la página de mega extensión
+### Conexión con Paper 2
 
-La página [Mega Extensión Futura](../15-paper-ifrs9/15e-mega-extension-ifrs9-cate-crpto.qmd)
-queda como puente desde Paper 2. Esta sección Paper 4 es la propuesta completa:
-reordena esos bloques en un paper/sistema con claims, arquitectura, artefactos y
-roadmap.
+Paper 2 queda limpio como IFRS9 end-to-end con incertidumbre conformal. Paper 4
+absorbe la mega extensión: toma a Paper 2 como brazo prudencial, al Paper
+Estrella como motor CRPTO, a Paper 3 como capa Mondrian y al carril CATE/TS como
+agenda futura de decisión secuencial.

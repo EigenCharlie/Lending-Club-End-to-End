@@ -40,8 +40,11 @@ La tesis completa documenta el sistema entero: modelado, conformal, optimizació
 - **Metodología** arma el pipeline ECL, SICR y escenarios.
 - **Resultados** concentra sensibilidad, bandas de provisión y comparativas.
 - **Discusión** cierra con lectura prudencial, límites y agenda siguiente.
-- **Mega Extensión** separa el Paper 2 actual de la futura mega extensión IFRS9
-  + CATE + CRPTO, y apunta hacia la sección **Paper 4** como propuesta completa.
+
+La mega extensión IFRS9 + CATE + CRPTO ya no vive dentro de Paper 2. Queda como
+una sección propia, **Paper 4**, para que Paper 2 conserve su identidad
+prudencial y la propuesta integrada tenga su propio alcance, roadmap y
+guardrails.
 
 ## Navegación curada
 
@@ -51,6 +54,5 @@ La tesis completa documenta el sistema entero: modelado, conformal, optimizació
   <div class="chapter-card"><h4><a href="15b-methodology.html">Metodología</a></h4><p>Pipeline ECL, SICR conformal y escenarios.</p></div>
   <div class="chapter-card"><h4><a href="15c-results.html">Resultados</a></h4><p>ECL por rango, sensibilidad alpha y comparativas.</p></div>
   <div class="chapter-card"><h4><a href="15d-discussion.html">Discusión</a></h4><p>Lectura prudencial, límites y agenda siguiente.</p></div>
-  <div class="chapter-card"><h4><a href="15e-mega-extension-ifrs9-cate-crpto.html">Mega Extensión</a></h4><p>Puente hacia Paper 4: IFRS9-aware CRPTO, Causal CRPTO y champion robusto-contable-causal.</p></div>
 </div>
 ```
