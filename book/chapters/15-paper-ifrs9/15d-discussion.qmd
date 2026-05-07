@@ -44,7 +44,7 @@ Para que una institucion financiera adopte el enfoque propuesto, necesitaria imp
 
 Las extensiones mas naturales del Paper 2 se orientan en cuatro direcciones. Primero, la incorporacion de conformal prediction dinamica [@gibbs2021aci] permitiria ajustar los intervalos ante distribution shift sin necesidad de recalibrar el modelo completo, lo cual es especialmente relevante en contextos de crisis macroeconomica donde la estacionariedad se rompe. Segundo, una lectura mas rica de la persistencia temporal por cohortes en la capa PD permitiria entender mejor por que algunas desviaciones residuales sobreviven incluso cuando la calibracion global es buena; esa linea hoy parece mas prometedora que insistir en nuevos remapeos ligeros del calibrador. Tercero, la integracion multi-escenario con ponderacion probabilistica --- donde cada escenario macro produce un conjunto de intervalos conformales distinto --- enriqueceria el analisis prudencial y facilitaria la comunicacion con los reguladores. Cuarto, la extension del enfoque conformal a los otros componentes de ECL (LGD y EAD) produciria una cuantificacion de incertidumbre completa sobre la provision, lo cual es una demanda creciente de la supervision bancaria.
 
-La extension mas ambiciosa se separa en la pagina siguiente: una ruta futura
+La extension mas ambiciosa queda separada como **Paper 4**: una ruta futura
 `IFRS9 + CATE + CRPTO` donde el Paper 2 funcionaria como brazo prudencial, el
 Paper Estrella como motor robusto de optimizacion y CATE como capa causal de
 decision. Esa version no pertenece al alcance actual del Paper 2, pero si deja
