@@ -1803,3 +1803,48 @@ Keep v88 in the living notebook. Promote only after the repair loop terminates
 and stronger integer/dynamic/promotion gates pass.
 
 <!-- V88_POST_V87_ONE_SWAP_REPRICE_END -->
+
+<!-- V89_NEXT_ONE_SWAP_REPAIR_START -->
+
+## Wave v89: Fourth One-Swap Repair Candidate
+
+Generated: 2026-05-15T21:31:50.347037+00:00
+
+### Objective
+
+Apply the best feasible post-repair one-drop/one-add swap found by v88 and
+recompute portfolio return, budget, source and CVaR metrics. This continues the
+local integer repair loop; it is not a final champion or optimality certificate.
+
+### Results
+
+- Added loan: `165964183`.
+- Dropped loan: `126916681`.
+- Selected rows after repair: `171`.
+- Return delta vs v87: `193.93226645729737`.
+- CVaR90 delta vs v87: `73.96987690545211`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v89 improves the v87 repaired candidate while preserving budget, source and
+CVaR feasibility. The next required experiment is v90 post-repair one-swap
+pricing because every repair changes the set of possible improving exchanges.
+
+### Claim Impact
+
+- Allowed: fourth one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v89 in the living notebook. Promote only after the repair/reprice loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V89_NEXT_ONE_SWAP_REPAIR_END -->
