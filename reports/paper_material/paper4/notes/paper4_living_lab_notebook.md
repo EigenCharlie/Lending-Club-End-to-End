@@ -2995,3 +2995,52 @@ Keep v114 in the living notebook. Promote only after the repair loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V114_POST_V113_ONE_SWAP_REPRICE_END -->
+
+<!-- V115_NEXT_ONE_SWAP_REPAIR_START -->
+
+## Wave v115: Seventeenth One-Swap Repair Candidate
+
+Generated: 2026-05-15T23:34:32.433087+00:00
+
+### Objective
+
+Apply the best feasible post-v113 one-drop/one-add swap
+found by v114 and recompute portfolio return, budget, source and
+CVaR metrics. This continues the local integer repair loop; it is not a final
+champion or optimality certificate.
+
+### Results
+
+- Added loan: `157340979`.
+- Dropped loan: `126349193`.
+- Selected rows after repair: `171`.
+- Return delta vs v113:
+  `122.87735193600565`.
+- CVaR90 delta vs v113:
+  `89.22273831916391`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v115 improves the v113 repaired candidate while
+preserving budget, source and CVaR feasibility. The next required experiment is
+v116 post-repair one-swap pricing because every repair
+changes the set of possible improving exchanges.
+
+### Claim Impact
+
+- Allowed: seventeenth one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v115 in the living notebook. Promote only after the repair/reprice
+loop terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V115_NEXT_ONE_SWAP_REPAIR_END -->
