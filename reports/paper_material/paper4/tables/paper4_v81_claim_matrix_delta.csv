@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v81_single_add_integer_screen_executed,True,paper4_v81_integer_omitted_single_add_summary.csv,single whole-loan insertion screen only
+v81_single_add_integer_screen_cleared,True,paper4_v81_claim_blockers.csv,"allowed only for single-add screen, not global optimality"
+v81_full_universe_integer_optimality,False,paper4_v81_claim_blockers.csv,multi-swap/global gap certificate missing

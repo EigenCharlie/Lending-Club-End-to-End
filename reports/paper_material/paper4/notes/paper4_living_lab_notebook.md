@@ -1443,3 +1443,46 @@ Keep v80 in the living notebook. Promote only after omitted-universe integer
 pricing or an equivalent global gap certificate exists.
 
 <!-- V80_FULL_POOL_MILP_GAP_END -->
+
+<!-- V81_INTEGER_OMITTED_SINGLE_ADD_START -->
+
+## Wave v81: Integer Omitted Single-Add Screen
+
+Generated: 2026-05-15T20:42:17.014133+00:00
+
+### Objective
+
+Screen every omitted v55 loan as a single whole-loan addition to the v80 binary
+portfolio. This is an integer-pricing local check over omitted loans, not a
+multi-swap or branch-and-price global certificate.
+
+### Results
+
+- Omitted rows screened: `257954`.
+- Budget-feasible rows: `63528`.
+- Source-feasible rows: `203707`.
+- CVaR-feasible rows: `49492`.
+- Single-add feasible rows: `49492`.
+- Single-add improving rows: `0`.
+- Best feasible single-add return delta: `-92.29890441894531`.
+- Full-universe integer optimality claim allowed: `False`.
+
+### Interpretation
+
+v81 finds no omitted loan that can be added by itself as a whole loan while
+respecting budget, source and CVaR and improving return. This strengthens the
+integer story, but the remaining blocker is still real: multi-loan swaps and a
+global integer gap protocol are not covered by a single-add screen.
+
+### Claim Impact
+
+- Allowed: single-add integer screen over omitted v55 loans completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v81 in the living notebook. Promote only after multi-swap or global
+integer-gap evidence passes.
+
+<!-- V81_INTEGER_OMITTED_SINGLE_ADD_END -->

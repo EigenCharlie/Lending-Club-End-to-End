@@ -1,0 +1,7 @@
+source_family,rows_checked_v81,source_blocked_rows_v81,source_feasible_rows_v81,claim_boundary_v81
+grade,257954,53635,204319,single-add source feasibility only
+score_decile,257954,8728,249226,single-add source feasibility only
+income_band,257954,0,257954,single-add source feasibility only
+dti_band,257954,0,257954,single-add source feasibility only
+period,257954,0,257954,single-add source feasibility only
+state_top20,257954,0,257954,single-add source feasibility only

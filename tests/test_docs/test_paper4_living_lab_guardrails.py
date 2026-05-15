@@ -6007,6 +6007,126 @@ def test_paper4_v80_full_pool_milp_gap_probe_is_not_full_universe() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v81_integer_single_add_screen_is_not_global_optimality() -> None:
+    status = _read_json("paper4_v81_status.json")
+
+    assert status["phase"] == "v81_integer_omitted_single_add_screen"
+    assert status["screen_rows_v81"] == 257954
+    assert status["summary_rows_v81"] == 1
+    assert status["source_summary_rows_v81"] == 6
+    assert status["top_candidate_rows_v81"] == 200
+    assert status["claim_blocker_rows_v81"] == 3
+    assert status["omitted_rows_screened_v81"] == 257954
+    assert status["budget_feasible_rows_v81"] == 63528
+    assert status["positive_return_rows_v81"] == 3
+    assert status["source_feasible_rows_v81"] == 203707
+    assert status["cvar_feasible_rows_v81"] == 49492
+    assert status["single_add_feasible_rows_v81"] == 49492
+    assert status["single_add_improving_rows_v81"] == 0
+    assert status["best_single_add_return_delta_v81"] == pytest.approx(-92.29890441894531)
+    assert status["best_any_omitted_return_delta_v81"] == pytest.approx(161.50875854492188)
+    assert status["integer_single_add_screen_cleared_v81"] is True
+    assert status["full_universe_integer_optimality_claim_allowed_v81"] is False
+    assert status["paper1_promotion_allowed_v81"] is False
+    assert status["paper4_working_champion_changed_v81"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    screen = pd.read_parquet(TABLE_DIR / "paper4_v81_integer_omitted_single_add_screen.parquet")
+    assert not screen.empty
+    assert {
+        "policy_id",
+        "regime_v78",
+        "loan_id",
+        "loan_amnt",
+        "mean_return_if_added_v81",
+        "budget_add_feasible_v81",
+        "source_add_feasible_v81",
+        "cvar_add_feasible_v81",
+        "single_add_feasible_v81",
+        "single_add_improves_return_v81",
+        "claim_boundary_v81",
+    }.issubset(screen.columns)
+    assert len(screen) == status["screen_rows_v81"]
+    assert int(screen["budget_add_feasible_v81"].sum()) == status["budget_feasible_rows_v81"]
+    assert int(screen["source_add_feasible_v81"].sum()) == status["source_feasible_rows_v81"]
+    assert int(screen["cvar_add_feasible_v81"].sum()) == status["cvar_feasible_rows_v81"]
+    assert int(screen["single_add_feasible_v81"].sum()) == status["single_add_feasible_rows_v81"]
+    assert int(screen["single_add_improves_return_v81"].sum()) == 0
+    assert int(screen["mean_return_if_added_v81"].gt(0).sum()) == status["positive_return_rows_v81"]
+    positive = screen.loc[screen["mean_return_if_added_v81"].gt(0)]
+    assert not positive.empty
+    assert not positive["single_add_feasible_v81"].astype(bool).any()
+    assert screen["claim_boundary_v81"].str.contains("not multi-swap or global proof").all()
+
+    summary = _read_csv("paper4_v81_integer_omitted_single_add_summary.csv")
+    assert {
+        "omitted_rows_screened_v81",
+        "budget_feasible_rows_v81",
+        "positive_return_rows_v81",
+        "source_feasible_rows_v81",
+        "cvar_feasible_rows_v81",
+        "single_add_feasible_rows_v81",
+        "single_add_improving_rows_v81",
+        "integer_single_add_screen_cleared_v81",
+        "full_universe_integer_optimality_claim_allowed_v81",
+        "claim_boundary_v81",
+    }.issubset(summary.columns)
+    row = summary.iloc[0]
+    assert int(row["omitted_rows_screened_v81"]) == status["omitted_rows_screened_v81"]
+    assert int(row["single_add_improving_rows_v81"]) == 0
+    assert bool(row["integer_single_add_screen_cleared_v81"]) is True
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v81"]) is False
+    assert "multi-loan swaps" in str(row["claim_boundary_v81"])
+
+    source_summary = _read_csv("paper4_v81_integer_omitted_single_add_source_summary.csv")
+    assert {
+        "source_family",
+        "rows_checked_v81",
+        "source_blocked_rows_v81",
+        "source_feasible_rows_v81",
+        "claim_boundary_v81",
+    }.issubset(source_summary.columns)
+    assert len(source_summary) == status["source_summary_rows_v81"]
+    assert source_summary["rows_checked_v81"].eq(status["screen_rows_v81"]).all()
+    assert source_summary["source_blocked_rows_v81"].sum() > 0
+
+    top_candidates = _read_csv("paper4_v81_integer_omitted_single_add_top_candidates.csv")
+    assert len(top_candidates) == status["top_candidate_rows_v81"]
+    assert not top_candidates["single_add_improves_return_v81"].astype(bool).any()
+    assert top_candidates["single_add_feasible_v81"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v81_claim_blockers.csv")
+    assert {"blocker_id_v81", "blocking_v81", "evidence_count_v81", "claim_boundary_v81"}.issubset(
+        blockers.columns
+    )
+    blocker_map = dict(zip(blockers["blocker_id_v81"], blockers["blocking_v81"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v81"], blockers["evidence_count_v81"], strict=False)
+    )
+    assert bool(blocker_map["single_add_integer_improvement_found"]) is False
+    assert int(evidence_map["single_add_integer_improvement_found"]) == 0
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+
+    claim_delta = _read_csv("paper4_v81_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v81_single_add_integer_screen_executed"]) is True
+    assert bool(claim_map["v81_single_add_integer_screen_cleared"]) is True
+    assert bool(claim_map["v81_full_universe_integer_optimality"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v81 single-add integer screen over omitted v55 loans." in set(
+        current_boundaries["claim"]
+    )
+    assert "v81 proves full-universe integer optimality." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v81: Integer Omitted Single-Add Screen" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
