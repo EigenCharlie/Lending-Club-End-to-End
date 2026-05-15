@@ -1,0 +1,21 @@
+{
+  "claim_blocker_rows_v75": 3,
+  "claim_boundary": "v75 re-prices after v74 iteration; convergence remains blocked unless pricing, source-scope and integrality blockers all clear",
+  "column_generation_termination_claim_allowed_v75": false,
+  "dual_rows_v75": 880,
+  "exact_full_universe_cvar_claim_allowed_v75": false,
+  "generated_at_utc": "2026-05-15T20:04:00.907383+00:00",
+  "improving_columns_after_iteration_2_v75": 3897,
+  "negative_reduced_cost_detected_v75": true,
+  "paper1_promotion_allowed_v75": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v75": false,
+  "phase": "v75_reprice_after_column_generation_iteration_2",
+  "post_iteration_reprice_performed_v75": true,
+  "reprice_rows_v75": 1293070,
+  "runtime_seconds": 43.355,
+  "schema_version": "2026-05-15.75",
+  "source_scope_missing_ids_v75": 30,
+  "source_scope_rows_v75": 30,
+  "summary_rows_v75": 5
+}

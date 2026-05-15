@@ -5215,6 +5215,132 @@ def test_paper4_v74_column_generation_iteration_2_requires_repricing() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v75_post_iteration_2_reprice_blocks_convergence() -> None:
+    status = _read_json("paper4_v75_status.json")
+    v73_status = _read_json("paper4_v73_status.json")
+
+    assert status["phase"] == "v75_reprice_after_column_generation_iteration_2"
+    assert status["reprice_rows_v75"] == 1293070
+    assert status["summary_rows_v75"] == 5
+    assert status["dual_rows_v75"] == 880
+    assert status["source_scope_rows_v75"] == 30
+    assert status["claim_blocker_rows_v75"] == 3
+    assert status["improving_columns_after_iteration_2_v75"] == 3897
+    assert (
+        status["improving_columns_after_iteration_2_v75"]
+        < v73_status["improving_columns_after_iteration_v73"]
+    )
+    assert status["negative_reduced_cost_detected_v75"] is True
+    assert status["source_scope_missing_ids_v75"] == 30
+    assert status["post_iteration_reprice_performed_v75"] is True
+    assert status["column_generation_termination_claim_allowed_v75"] is False
+    assert status["exact_full_universe_cvar_claim_allowed_v75"] is False
+    assert status["paper1_promotion_allowed_v75"] is False
+    assert status["paper4_working_champion_changed_v75"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    repriced = pd.read_parquet(TABLE_DIR / "paper4_v75_reprice_after_iteration_2.parquet")
+    assert not repriced.empty
+    assert {
+        "policy_id",
+        "regime_v75",
+        "loan_id",
+        "minimization_reduced_cost_v75",
+        "return_improvement_signal_v75",
+        "improving_column_v75",
+        "post_iteration_reprice_v75",
+        "claim_boundary_v75",
+    }.issubset(repriced.columns)
+    assert repriced["policy_id"].nunique() == 4
+    assert (
+        int(repriced["improving_column_v75"].sum())
+        == status["improving_columns_after_iteration_2_v75"]
+    )
+    assert repriced["minimization_reduced_cost_v75"].min() < 0
+    assert repriced["post_iteration_reprice_v75"].eq(1).all()
+    assert repriced["claim_boundary_v75"].str.contains("termination allowed only").all()
+
+    summary = _read_csv("paper4_v75_reprice_summary.csv")
+    assert {
+        "policy_id",
+        "regime_v75",
+        "omitted_rows_priced_v75",
+        "improving_columns_v75",
+        "negative_reduced_cost_detected_v75",
+        "post_iteration_reprice_performed_v75",
+        "column_generation_termination_claim_allowed_v75",
+        "exact_full_universe_cvar_claim_allowed_v75",
+    }.issubset(summary.columns)
+    assert summary["omitted_rows_priced_v75"].sum() == status["reprice_rows_v75"]
+    assert (
+        summary["improving_columns_v75"].sum() == status["improving_columns_after_iteration_2_v75"]
+    )
+    assert summary["improving_columns_v75"].gt(0).sum() == 1
+    assert summary["negative_reduced_cost_detected_v75"].astype(bool).sum() == 1
+    assert summary["post_iteration_reprice_performed_v75"].astype(bool).all()
+    assert not summary["column_generation_termination_claim_allowed_v75"].astype(bool).any()
+    assert not summary["exact_full_universe_cvar_claim_allowed_v75"].astype(bool).any()
+
+    duals = _read_csv("paper4_v75_restricted_master_duals.csv")
+    assert {
+        "policy_id",
+        "regime_v75",
+        "constraint_index_v75",
+        "constraint_type_v75",
+        "marginal_v75",
+        "binding_v75",
+        "post_iteration_reprice_v75",
+        "claim_boundary_v75",
+    }.issubset(duals.columns)
+    assert {"budget_lower", "source_share", "cvar_path_excess"}.issubset(
+        set(duals["constraint_type_v75"])
+    )
+    assert duals["marginal_v75"].abs().gt(0).any()
+    assert duals["post_iteration_reprice_v75"].eq(1).all()
+    assert duals["claim_boundary_v75"].str.contains("not full-universe certificate").all()
+
+    source_scope = _read_csv("paper4_v75_source_scope_after_iteration_2.csv")
+    assert {
+        "policy_id",
+        "regime_v75",
+        "source_family",
+        "missing_source_ids_v75",
+        "source_constraint_scope_complete_v75",
+        "claim_boundary_v75",
+    }.issubset(source_scope.columns)
+    assert source_scope["missing_source_ids_v75"].sum() == status["source_scope_missing_ids_v75"]
+    assert not source_scope["source_constraint_scope_complete_v75"].astype(bool).all()
+
+    blockers = _read_csv("paper4_v75_claim_blockers.csv")
+    assert {"blocker_id_v75", "blocking_v75", "evidence_count_v75", "claim_boundary_v75"}.issubset(
+        blockers.columns
+    )
+    assert blockers["blocking_v75"].astype(bool).all()
+    assert {
+        "negative_reduced_cost_columns_after_iteration_2",
+        "source_scope_after_iteration_2_incomplete",
+        "continuous_relaxation_not_whole_loan_milp",
+    }.issubset(set(blockers["blocker_id_v75"]))
+
+    claim_delta = _read_csv("paper4_v75_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v75_post_iteration_2_reprice_executed"]) is True
+    assert bool(claim_map["v75_column_generation_converged"]) is False
+    assert bool(claim_map["v75_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has v75 post-iteration-2 re-pricing after v74 column generation." in set(
+        current_boundaries["claim"]
+    )
+    assert "v75 proves column-generation convergence." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v75: Re-Price After Column-Generation Iteration 2" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

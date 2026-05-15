@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v75_post_iteration_2_reprice_executed,True,paper4_v75_reprice_after_iteration_2.parquet,post-iteration-2 reduced-cost screen only
+v75_column_generation_converged,False,paper4_v75_claim_blockers.csv,"requires no improving columns, source-scope coverage and integrality review"
+v75_paper1_or_final_promotion,False,paper4_v75_reprice_summary.csv,no Paper Estrella or final Paper 4 promotion

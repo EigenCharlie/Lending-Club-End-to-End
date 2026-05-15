@@ -1180,3 +1180,46 @@ Keep v74 in the living notebook. Promote only after iteration-2 re-pricing,
 source-scope coverage and integrality review pass.
 
 <!-- V74_COLUMN_GENERATION_ITERATION_2_END -->
+
+<!-- V75_REPRICE_AFTER_ITERATION_2_START -->
+
+## Wave v75: Re-Price After Column-Generation Iteration 2
+
+Generated: 2026-05-15T20:04:00.907383+00:00
+
+### Objective
+
+Re-price omitted v55 columns after the v74 iteration-2 restricted-master solve.
+This tests whether the second iteration removed the negative reduced-cost
+columns found in v73.
+
+### Results
+
+- Re-price rows: `1293070`.
+- Summary rows: `5`.
+- Dual rows: `880`.
+- Improving columns after iteration 2: `3897`.
+- Source-scope rows: `30`.
+- Source-scope missing IDs: `30`.
+- Termination claim allowed: `False`.
+
+### Interpretation
+
+v75 is the stop-or-continue check after the second restricted-master iteration.
+If improving omitted columns remain, the laboratory should continue to
+iteration 3. If pricing clears, source-scope and integrality blockers still
+need to clear before stronger claims are allowed.
+
+### Claim Impact
+
+- Allowed: post-v74 re-pricing was executed and documented.
+- Still prohibited: convergence unless all blockers clear, exact full-universe
+  CVaR optimality, MILP whole-loan optimality, Paper Estrella replacement,
+  final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v75 in the living notebook. Promote only after pricing, source-scope
+coverage and integrality review all pass.
+
+<!-- V75_REPRICE_AFTER_ITERATION_2_END -->
