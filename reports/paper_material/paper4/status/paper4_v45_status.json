@@ -1,0 +1,19 @@
+{
+  "claim_boundary": "v45 upgrades direct holdout, CVaR slack accounting, and source caps; no live deployment, exact CVaR, or legal fairness claim",
+  "cvar_slack_certificate_rows_v45": 12,
+  "exact_full_universe_cvar_claim_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "full_universe_attempt_rows_v45": 1,
+  "generated_at_utc": "2026-05-15T15:09:41.519650+00:00",
+  "online_cell_diagnostic_rows_v45": 740,
+  "online_direct_gate_pass_families_v45": 0,
+  "online_direct_holdout_rows_v45": 7,
+  "online_recalibration_grid_rows_v45": 35,
+  "paper4_final_promotion_created": false,
+  "phase": "v45_online_cvar_source_solver",
+  "runtime_seconds": 4.074,
+  "schema_version": "2026-05-15.45",
+  "source_cap_sensitivity_rows_v45": 126,
+  "source_solver_frontier_rows_v45": 378,
+  "strict_live_deployability_claim_allowed": false
+}

@@ -1,0 +1,9 @@
+package,available,version,version_lookup_error,import_error,isolated_env_target_v46,main_env_mutated_v46,formal_differentiable_spo_claim_allowed,decision_v46
+numpy,True,2.4.3,,,.venv-paper4-spo-v45,False,False,usable_now
+cvxpy,False,1.4.4,,ImportError: numpy.core.multiarray failed to import,.venv-paper4-spo-v45,False,False,requires_isolated_env_validation
+cvxpylayers,False,,PackageNotFoundError: No package metadata was found for cvxpylayers,ModuleNotFoundError: No module named 'cvxpylayers',.venv-paper4-spo-v45,False,False,requires_isolated_env_validation
+torch,False,,PackageNotFoundError: No package metadata was found for torch,ModuleNotFoundError: No module named 'torch',.venv-paper4-spo-v45,False,False,requires_isolated_env_validation
+pyomo,True,6.10.0,,,.venv-paper4-spo-v45,False,False,usable_now
+highspy,True,1.13.1,,,.venv-paper4-spo-v45,False,False,usable_now
+catboost,True,1.2.10,,,.venv-paper4-spo-v45,False,False,usable_now
+sklearn,True,1.8.0,,,.venv-paper4-spo-v45,False,False,usable_now

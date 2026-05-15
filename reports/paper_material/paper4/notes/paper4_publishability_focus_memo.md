@@ -1,19 +1,27 @@
 # Paper 4 Publishability Focus Memo
 
-Generated: 2026-05-15T14:30:25.495510+00:00
+Generated: 2026-05-15T15:10:41.263186+00:00
 
-## Publication Strategy
+## Strategy
 
-- Paper Estrella is the near-term serious publication target for INFORMS Journal on Data Science within roughly one year.
-- Paper 4 remains a living laboratory. A Management Science path is credible only if future waves produce strong, robust sequential-decision evidence rather than more diagnostics.
-- Paper 4 results can later feed Paper Estrella only if they improve its core thesis without destabilizing the champion story or claim boundaries.
+- Paper Estrella remains the near-term INFORMS Journal on Data Science target.
+- Paper 4 remains a living lab. A Management Science path requires a stronger
+  dynamic sequential-decision result than the current diagnostic evidence.
+- Future Paper 4 findings may feed Paper Estrella only through a formal
+  promotion protocol that preserves the Paper Estrella thesis.
 
-## Current Assessment
+## Current Publication Readiness
 
-- Official now: governed sequential-decision laboratory, dynamic common-path stress, CVaR tail challenger, Powell/SDAM claim governance.
-- Promising but immature: source-family online conformal, oracle-regret SPO, ADP rollout, source-governed CVaR.
-- Blocked claims: contractual IFRS9, CATE policy value, fair-lending legal claim, formal differentiable SPO+, exact full-universe CVaR optimality.
+- Official and defensible: governed sequential-decision lab, compact Quarto
+  chapter, dynamic common-path replay, CVaR tail challenger, Powell/SDAM
+  claim governance.
+- Promising but immature: direct source-family conformal holdouts, source
+  governance inside solver, oracle-regret SPO, DLA/ADP replay.
+- Blocked: contractual IFRS9, CATE policy value, fair-lending legal claims,
+  formal differentiable SPO+, exact full-universe CVaR optimality.
 
-## Next Paper 4 Test
+## Management Science Gate
 
-The next publishable-level advance must show that a dynamic policy improves value or risk under common paths while preserving auditability and claim safety.
+A credible Management Science version needs a clear dynamic policy result:
+higher value or lower risk under common paths, robust paired intervals,
+auditability, and claim-safe governance. More tables alone are not enough.

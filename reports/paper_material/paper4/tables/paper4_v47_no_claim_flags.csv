@@ -1,0 +1,6 @@
+claim,allowed,reason
+contractual_ifrs9,False,missing servicing/DPD/cure/recovery/prepayment contractual panel
+cate_policy_value,False,"identification, hidden-bias and reject-inference gates do not pass"
+fair_lending_legal,False,protected attributes and approved proxy protocol absent
+formal_differentiable_spo,False,cvxpylayers/torch validated route not implemented
+exact_full_universe_cvar,False,full scenario-loss matrix and exact solver certificate absent

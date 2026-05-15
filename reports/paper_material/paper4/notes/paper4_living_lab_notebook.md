@@ -354,3 +354,49 @@ exact full-universe proof.
 Keep v41-v44 in the living notebook. Do not add new Quarto pages yet.
 
 <!-- V41_V44_LIVING_LAB_END -->
+<!-- V45_V48_LIVING_LAB_START -->
+
+## Wave v45-v48: Direct Holdouts, Slack Certificates and Registry Refresh
+
+Generated: 2026-05-15T15:10:41.263488+00:00
+
+### Objective
+
+Run the next executable Paper 4 living-lab wave while keeping Quarto compact.
+
+### Scripts
+
+- `scripts/papers/build_paper4_v45_online_cvar_source_solver.py`
+- `scripts/papers/build_paper4_v46_spo_dla_dynamic.py`
+- `scripts/papers/build_paper4_v47_ifrs9_cate_fairness_paths.py`
+- `scripts/papers/build_paper4_v48_registry_docs_guardrails.py`
+
+### Results
+
+- v45 direct online source-family rows: `7`.
+- v45 CVaR slack certificate rows: `12`.
+- v46 SPO loan-level allocation rows: `36000`.
+- v46 DLA common-path rows: `14`.
+- v47 champion decomposition rows: `2048`.
+- v48 candidate registry rows: `47`.
+
+### Interpretation
+
+The wave produced deeper executable evidence, but still does not unlock a
+new official Paper 4 contribution that should expand Quarto. The best use
+of the results is to sharpen the lab agenda: exact CVaR needs a persisted
+scenario matrix, formal SPO needs isolated dependencies, DLA needs a true
+validated policy improvement, and causal/fairness/IFRS9 claims remain gated.
+
+### Claim Impact
+
+- Paper Estrella remains unchanged and is still the INFORMS JDS target.
+- Paper 4 remains a Management Science possibility only after stronger
+  sequential-decision evidence.
+- Forbidden claims remain false.
+
+### Quarto Promotion Decision
+
+Keep v45-v48 in the living notebook. Do not register new Quarto pages.
+
+<!-- V45_V48_LIVING_LAB_END -->

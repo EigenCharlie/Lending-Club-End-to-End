@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v48_compact_quarto,True,book/_quarto.yml,Paper 4 official chapter remains <=12 pages
+v48_online_direct_replay,True,paper4_v45_online_source_family_direct_holdout.csv,"historical direct loan-level replay, not live deployability"
+v48_cvar_exact_full_universe,False,paper4_v45_cvar_full_universe_attempt.csv,exact full-universe claim remains false
+v48_spo_differentiable,False,paper4_v46_spo_isolated_env_smoke_test.csv,oracle-regret route only
+v48_ifrs9_contractual,False,paper4_v47_ifrs9_proxy_policy_summary.csv,IFRS9-inspired proxy only
+v48_cate_policy_value,False,paper4_v47_cate_treatment_outcome_search.csv,diagnostic only
+v48_fair_lending_legal,False,paper4_v47_fairness_source_protocol.csv,source governance only

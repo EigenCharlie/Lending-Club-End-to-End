@@ -1,0 +1,10 @@
+{
+  "claim_boundary": "Paper 4 lab/working champion only; no Paper Estrella promotion",
+  "generated_at_utc": "2026-05-15T15:10:41.262039+00:00",
+  "paper1_promotion_allowed": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion": "paper1_economic_champion",
+  "paper4_working_only": true,
+  "schema_version": "2026-05-15.48",
+  "working_champion_decision": "retained_reference_after_v45_v48_no_full_gate_challenger"
+}

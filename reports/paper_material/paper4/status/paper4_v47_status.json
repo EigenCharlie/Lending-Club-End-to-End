@@ -1,0 +1,19 @@
+{
+  "cate_policy_value_allowed": false,
+  "cate_search_rows_v47": 6,
+  "champion_case_study_rows_v47": 25,
+  "champion_decomposition_rows_v47": 2048,
+  "claim_boundary": "v47 improves proxy panels, path labels, decomposition and blocked gates without forbidden claims",
+  "contractual_ifrs9_claim_allowed": false,
+  "external_forecast_validation_claim_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "fairness_protocol_rows_v47": 864,
+  "generated_at_utc": "2026-05-15T15:10:40.287976+00:00",
+  "ifrs9_policy_summary_rows_v47": 14,
+  "paper4_final_promotion_created": false,
+  "phase": "v47_ifrs9_cate_fairness_paths",
+  "runtime_seconds": 6.782,
+  "sample_path_macro_rows_v47": 4,
+  "schema_version": "2026-05-15.47",
+  "sicr_robust_rows_v47": 168
+}

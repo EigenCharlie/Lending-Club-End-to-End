@@ -1,0 +1,16 @@
+{
+  "bellman_exact_claim_allowed": false,
+  "claim_boundary": "v46 improves SPO oracle-regret and DLA common-path replay; no differentiable SPO or Bellman exact claim",
+  "dla_common_path_rows_v46": 14,
+  "focused_1024_rerun_executed_v46": false,
+  "focused_dynamic_ci_rows_v46": 4,
+  "formal_differentiable_spo_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T15:09:55.175519+00:00",
+  "paper4_final_promotion_created": false,
+  "phase": "v46_spo_dla_dynamic",
+  "runtime_seconds": 13.656,
+  "schema_version": "2026-05-15.46",
+  "spo_allocation_rows_v46": 36000,
+  "spo_dependency_rows_v46": 8,
+  "spo_regret_rows_v46": 9
+}

@@ -3499,6 +3499,173 @@ def test_paper4_v41_v44_living_lab_artifacts_exist_and_preserve_claim_boundaries
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v45_v48_living_lab_artifacts_exist_and_preserve_claim_boundaries() -> None:
+    v45 = _read_json("paper4_v45_status.json")
+    v46 = _read_json("paper4_v46_status.json")
+    v47 = _read_json("paper4_v47_status.json")
+    v48 = _read_json("paper4_v48_status.json")
+
+    assert v45["phase"] == "v45_online_cvar_source_solver"
+    assert v46["phase"] == "v46_spo_dla_dynamic"
+    assert v47["phase"] == "v47_ifrs9_cate_fairness_paths"
+    assert v48["phase"] == "v48_registry_docs_guardrails"
+    assert v45["strict_live_deployability_claim_allowed"] is False
+    assert v45["exact_full_universe_cvar_claim_allowed"] is False
+    assert v45["fair_lending_legal_claim_allowed"] is False
+    assert v46["formal_differentiable_spo_claim_allowed"] is False
+    assert v46["bellman_exact_claim_allowed"] is False
+    assert v47["contractual_ifrs9_claim_allowed"] is False
+    assert v47["cate_policy_value_allowed"] is False
+    assert v47["fair_lending_legal_claim_allowed"] is False
+    assert v48["paper1_promotion_allowed_v48"] is False
+    assert v48["quarto_compact_guardrail_pass"] is True
+    assert int(v48["official_quarto_page_count"]) <= 12
+
+    expected_csvs = {
+        "paper4_v45_online_source_family_direct_holdout.csv": {
+            "source_family",
+            "source_family_defended_min_v45",
+            "policy_month_direct_min_v45",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v45_online_recalibration_grid.csv": {
+            "source_family",
+            "method_v45",
+            "gate_source80_policy90_width95_v45",
+            "claim_boundary_v45",
+        },
+        "paper4_v45_cvar_slack_lp_certificate.csv": {
+            "policy_id",
+            "required_cvar_slack_v45",
+            "exact_lp_certificate_claim_allowed_v45",
+            "claim_boundary_v45",
+        },
+        "paper4_v45_cvar_full_universe_attempt.csv": {
+            "attempt_id",
+            "full_universe_lp_executed_v45",
+            "exact_full_universe_claim_v45",
+            "blocker_v45",
+        },
+        "paper4_v45_mdcp_source_solver_frontier.csv": {
+            "policy_id",
+            "source_family",
+            "source_solver_cap_pass_v45",
+            "fair_lending_legal_claim_allowed",
+        },
+        "paper4_v46_spo_isolated_env_smoke_test.csv": {
+            "package",
+            "formal_differentiable_spo_claim_allowed",
+            "decision_v46",
+        },
+        "paper4_v46_spo_loan_level_oracle_regret.csv": {
+            "model_v46",
+            "decision_regret_v46",
+            "formal_differentiable_spo_claim_allowed",
+            "claim_boundary_v46",
+        },
+        "paper4_v46_dla_common_path_replay.csv": {
+            "policy_id",
+            "candidate_family_v46",
+            "bellman_exact_claim_allowed",
+            "claim_boundary_v46",
+        },
+        "paper4_v46_focused_dynamic_1024_ci.csv": {
+            "candidate_policy_id",
+            "prob_higher_wealth_v46",
+            "focused_1024_rerun_executed_v46",
+            "claim_boundary_v46",
+        },
+        "paper4_v47_ifrs9_proxy_policy_summary.csv": {
+            "policy_id",
+            "scenario",
+            "total_ecl_proxy",
+            "contractual_ifrs9_claim_allowed",
+        },
+        "paper4_v47_sicr_robust_calibration.csv": {
+            "policy_id",
+            "sicr_rule_v47",
+            "contractual_ifrs9_claim_allowed",
+            "claim_boundary_v47",
+        },
+        "paper4_v47_sample_path_macro_alignment.csv": {
+            "path_family_v19",
+            "external_forecast_validation_claim_allowed",
+            "claim_boundary_v47",
+        },
+        "paper4_v47_champion_case_studies.csv": {
+            "policy_id",
+            "selection_relation_v47",
+            "economic_case_label_v47",
+        },
+        "paper4_v47_cate_treatment_outcome_search.csv": {
+            "diagnostic_v47",
+            "cate_policy_value_allowed",
+            "claim_boundary_v47",
+        },
+        "paper4_v47_fairness_source_protocol.csv": {
+            "policy_id",
+            "support_gate_v47",
+            "fair_lending_legal_claim_allowed",
+        },
+        "paper4_v48_candidate_registry.csv": {
+            "policy_id",
+            "full_governance_score_v48",
+            "paper1_promotion_allowed_v48",
+            "claim_boundary_v48",
+        },
+        "paper4_v48_claim_matrix.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    online = _read_csv("paper4_v45_online_source_family_direct_holdout.csv")
+    assert not online["strict_live_deployability_claim_allowed"].astype(bool).any()
+
+    cvar = _read_csv("paper4_v45_cvar_full_universe_attempt.csv")
+    assert not cvar["exact_full_universe_claim_v45"].astype(bool).any()
+
+    spo = _read_csv("paper4_v46_spo_loan_level_oracle_regret.csv")
+    assert not spo["formal_differentiable_spo_claim_allowed"].astype(bool).any()
+
+    ifrs9 = _read_csv("paper4_v47_ifrs9_proxy_policy_summary.csv")
+    assert not ifrs9["contractual_ifrs9_claim_allowed"].astype(bool).any()
+
+    cate = _read_csv("paper4_v47_cate_treatment_outcome_search.csv")
+    assert not cate["cate_policy_value_allowed"].astype(bool).any()
+
+    fairness = _read_csv("paper4_v47_fairness_source_protocol.csv")
+    assert not fairness["fair_lending_legal_claim_allowed"].astype(bool).any()
+
+    registry = _read_csv("paper4_v48_candidate_registry.csv")
+    assert not registry["paper1_promotion_allowed_v48"].astype(bool).any()
+
+    champion = _read_json("paper4_v48_working_champion.json")
+    assert champion["paper4_working_only"] is True
+    assert champion["paper1_promotion_allowed"] is False
+
+    decomposition = pd.read_parquet(TABLE_DIR / "paper4_v47_champion_decomposition_loan_level.parquet")
+    assert not decomposition.empty
+    assert {"policy_id", "selection_relation_v47", "tail_loss_proxy_v47"}.issubset(
+        decomposition.columns
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v45-v48" in notebook
+    assert "Keep v45-v48 in the living notebook" in notebook
+    assert (PAPER4_ROOT / "notes" / "paper4_future_wave_template.md").exists()
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
