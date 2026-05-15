@@ -1848,3 +1848,47 @@ Keep v89 in the living notebook. Promote only after the repair/reprice loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V89_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V90_POST_V89_ONE_SWAP_REPRICE_START -->
+
+## Wave v90: Post-v89 One-Swap Repricing
+
+Generated: 2026-05-15T21:37:14.183868+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v89 fourth repair, using all
+non-selected loans from the comparable v55 universe as possible additions. This
+tests whether the v89 candidate is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `2099862`.
+- Exact source-feasible pairs: `7594`.
+- CVaR-feasible improving one-swaps: `7594`.
+- Best post-v89 one-swap return delta:
+  `164.41628375317225`.
+- Post-v89 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v90 is the required re-pricing after v89 changed the portfolio. If additional
+feasible improving one-swaps remain, the lab should continue the repair/reprice
+loop; if it clears, the next blocker would still be multi-swap/global integer
+evidence.
+
+### Claim Impact
+
+- Allowed: post-v89 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v90 in the living notebook. Promote only after the repair loop terminates
+and stronger integer/dynamic/promotion gates pass.
+
+<!-- V90_POST_V89_ONE_SWAP_REPRICE_END -->
