@@ -7521,6 +7521,117 @@ def test_paper4_v94_post_v93_reprice_still_finds_improvements() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v95_next_one_swap_repair_requires_repricing() -> None:
+    status = _read_json("paper4_v95_status.json")
+
+    assert status["phase"] == "v95_next_one_swap_repair"
+    assert status["allocation_rows_v95"] == 171
+    assert status["summary_rows_v95"] == 1
+    assert status["action_rows_v95"] == 1
+    assert status["source_summary_rows_v95"] == 51
+    assert status["claim_blocker_rows_v95"] == 4
+    assert status["added_loan_id_v95"] == "152314563"
+    assert status["dropped_loan_id_v95"] == "127844421"
+    assert status["selected_rows_v95"] == 171
+    assert status["portfolio_exposure_v95"] == pytest.approx(842450.0)
+    assert status["objective_return_v95"] == pytest.approx(-2794.570651281263)
+    assert status["scenario_loss_cvar90_v95"] == pytest.approx(92095.88635549332)
+    assert status["source_cap_violations_v95"] == 0
+    assert status["delta_return_vs_v93_v95"] == pytest.approx(157.0655454317639)
+    assert status["delta_cvar90_vs_v93_v95"] == pytest.approx(276.1732260913559)
+    assert status["delta_exposure_vs_v93_v95"] == pytest.approx(0.0)
+    assert status["budget_feasible_v95"] is True
+    assert status["source_feasible_v95"] is True
+    assert status["cvar_feasible_v95"] is True
+    assert status["repair_candidate_feasible_v95"] is True
+    assert status["post_repair_one_swap_optimality_claim_allowed_v95"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v95"] is False
+    assert status["paper1_promotion_allowed_v95"] is False
+    assert status["paper4_working_champion_changed_v95"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v95_next_one_swap_repair_allocations.parquet")
+    assert {
+        "loan_id",
+        "loan_amnt",
+        "mean_return_v95",
+        "selected_v95",
+        "portfolio_label_v95",
+        "repair_action_v95",
+        "claim_boundary_v95",
+    }.issubset(allocations.columns)
+    assert len(allocations) == status["allocation_rows_v95"]
+    assert int(allocations["selected_v95"].sum()) == status["selected_rows_v95"]
+    assert allocations["loan_amnt"].sum() == pytest.approx(status["portfolio_exposure_v95"])
+    assert "152314563" in set(allocations["loan_id"].astype(str))
+    assert "127844421" not in set(allocations["loan_id"].astype(str))
+    assert set(allocations["repair_action_v95"]) == {
+        "added_from_v94_best_swap",
+        "kept_from_v93",
+    }
+    assert allocations["claim_boundary_v95"].str.contains("requires post-repair repricing").all()
+
+    summary = _read_csv("paper4_v95_next_one_swap_repair_summary.csv")
+    row = summary.iloc[0]
+    assert bool(row["repair_candidate_feasible_v95"]) is True
+    assert bool(row["post_repair_one_swap_optimality_claim_allowed_v95"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v95"]) is False
+    assert "must rerun omitted-universe pricing" in str(row["claim_boundary_v95"])
+
+    action = _read_csv("paper4_v95_next_one_swap_repair_action.csv")
+    action_row = action.iloc[0]
+    assert str(action_row["added_loan_id_v95"]) == status["added_loan_id_v95"]
+    assert str(action_row["dropped_loan_id_v95"]) == status["dropped_loan_id_v95"]
+    assert float(action_row["return_delta_v95"]) == pytest.approx(157.0655454317594)
+    assert int(action_row["source_cap_violations_after_repair_v95"]) == 0
+
+    source_summary = _read_csv("paper4_v95_next_one_swap_repair_source_summary.csv")
+    assert {
+        "source_family",
+        "source_id",
+        "source_share_v95",
+        "source_slack_v95",
+        "source_cap_violated_v95",
+    }.issubset(source_summary.columns)
+    assert len(source_summary) == status["source_summary_rows_v95"]
+    assert not source_summary["source_cap_violated_v95"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v95_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v95"], blockers["blocking_v95"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v95"], blockers["evidence_count_v95"], strict=False)
+    )
+    assert bool(blocker_map["next_one_swap_repair_candidate_created"]) is False
+    assert int(evidence_map["next_one_swap_repair_candidate_created"]) == 1
+    assert bool(blocker_map["post_repair_one_swap_repricing_missing"]) is True
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+
+    claim_delta = _read_csv("paper4_v95_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v95_next_one_swap_repair_executed"]) is True
+    assert bool(claim_map["v95_repair_candidate_feasible"]) is True
+    assert bool(claim_map["v95_post_repair_one_swap_optimality"]) is False
+    assert bool(claim_map["v95_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v95_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v95 seventh one-swap repair candidate." in set(
+        current_boundaries["claim"]
+    )
+    assert "v95 repaired portfolio is post-repair locally optimal." in set(
+        current_boundaries["claim"]
+    )
+    assert "v95 replaces Paper Estrella or proves full-universe integer optimality." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v95: Seventh One-Swap Repair Candidate" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

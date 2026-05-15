@@ -2070,3 +2070,48 @@ Keep v94 in the living notebook. Promote only after the repair loop terminates
 and stronger integer/dynamic/promotion gates pass.
 
 <!-- V94_POST_V93_ONE_SWAP_REPRICE_END -->
+
+<!-- V95_NEXT_ONE_SWAP_REPAIR_START -->
+
+## Wave v95: Seventh One-Swap Repair Candidate
+
+Generated: 2026-05-15T22:06:49.412562+00:00
+
+### Objective
+
+Apply the best feasible post-v93 one-drop/one-add swap found by v94 and
+recompute portfolio return, budget, source and CVaR metrics. This continues the
+local integer repair loop; it is not a final champion or optimality certificate.
+
+### Results
+
+- Added loan: `152314563`.
+- Dropped loan: `127844421`.
+- Selected rows after repair: `171`.
+- Return delta vs v93: `157.0655454317639`.
+- CVaR90 delta vs v93: `276.1732260913559`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v95 improves the v93 repaired candidate while preserving budget, source and
+CVaR feasibility. The next required experiment is v96 post-repair one-swap
+pricing because every repair changes the set of possible improving exchanges.
+
+### Claim Impact
+
+- Allowed: seventh one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v95 in the living notebook. Promote only after the repair/reprice loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V95_NEXT_ONE_SWAP_REPAIR_END -->
