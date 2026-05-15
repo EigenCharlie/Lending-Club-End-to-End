@@ -1,0 +1,6 @@
+regime_v53,constraint_type,source_family,source_id,cap_v53,used_exposure_v53,slack_v53,active_v53
+committee,source_cap,score_decile,2,0.5485836336051584,548583.6336051584,0.0,True
+committee,source_cap,income_band,inc_q5,0.5315164991465959,531516.499146596,0.0,True
+committee,source_cap,dti_band,dti_q1,0.3203162336430875,320316.2336430875,0.0,True
+committee,source_cap,state_top20,CA,0.16999999999999998,169999.99999999997,0.0,True
+committee,source_cap,state_top20,other_state,0.16999999999999998,169999.99999999997,0.0,True

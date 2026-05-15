@@ -1,0 +1,4 @@
+regime_v53,constraint_type,source_family,source_id,cap_v53,used_exposure_v53,slack_v53,active_v53
+relaxed,source_cap,income_band,inc_q5,0.6747411189076429,674741.1189076429,0.0,True
+relaxed,source_cap,dti_band,dti_q1,0.404404779063152,404404.779063152,0.0,True
+relaxed,source_cap,state_top20,other_state,0.212,212000.0,0.0,True

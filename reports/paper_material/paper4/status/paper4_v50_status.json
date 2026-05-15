@@ -1,0 +1,14 @@
+{
+  "claim_boundary": "v50 solves exact LPs over restricted candidate pool; full-universe optimality remains false",
+  "cvar_allocation_rows_v50": 289,
+  "cvar_certificate_rows_v50": 4,
+  "cvar_frontier_rows_v50": 4,
+  "cvar_success_rows_v50": 4,
+  "exact_full_universe_cvar_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T15:36:47.556252+00:00",
+  "paper4_final_promotion_created": false,
+  "phase": "v50_cvar_source_lp_solver",
+  "restricted_pool_exact_lp_claim_allowed": true,
+  "runtime_seconds": 1.331,
+  "schema_version": "2026-05-15.50"
+}

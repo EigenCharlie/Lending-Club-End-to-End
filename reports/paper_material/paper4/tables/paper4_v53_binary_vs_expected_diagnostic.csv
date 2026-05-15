@@ -1,0 +1,3 @@
+diagnostic_id,source_artifact,rows,min_cvar,max_cvar,interpretation,claim_impact
+v50_binary_loss_zero_tail,paper4_v50_cvar_source_lp_frontier.csv,4,0.0,0.0,"v50 LP can select loans with no realized binary defaults in 128 paths; therefore zero CVaR is a simulation artifact, not a robust tail result",v50 kept as negative diagnostic; v53 expected/hybrid repair is the current runnable CVaR evidence
+v53_expected_loss_positive_tail,paper4_v53_expected_loss_frontier.csv,4,12456.53151903821,12759.74245933301,v53 uses expected/hybrid loss so tail metrics cannot be zeroed by finite binary default sparsity,restricted-pool CVaR evidence is more defensible but still not full-universe exact optimality

@@ -1,0 +1,15 @@
+{
+  "candidate_registry_rows_v52": 27,
+  "claim_boundary": "v52 updates self-directed registry/backlog; no official Quarto expansion or promotion",
+  "claim_matrix_rows_v52": 8,
+  "generated_at_utc": "2026-05-15T15:37:01.665159+00:00",
+  "living_backlog_rows_v52": 24,
+  "official_quarto_page_count": 10,
+  "paper1_promotion_allowed_v52": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v52": false,
+  "phase": "v52_registry_backlog_claims_self_directed",
+  "quarto_compact_guardrail_pass": true,
+  "runtime_seconds": 0.015,
+  "schema_version": "2026-05-15.52"
+}

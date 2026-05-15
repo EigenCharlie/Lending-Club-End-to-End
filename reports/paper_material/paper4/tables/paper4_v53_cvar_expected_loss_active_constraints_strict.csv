@@ -1,0 +1,10 @@
+regime_v53,constraint_type,source_family,source_id,cap_v53,used_exposure_v53,slack_v53,active_v53
+strict,source_cap,grade,B,0.5345167456855681,527286.8006827233,7229.94500284479,False
+strict,source_cap,score_decile,1,0.4228669068841267,422866.9068841267,0.0,True
+strict,source_cap,score_decile,2,0.4228669068841267,422866.9068841267,0.0,True
+strict,source_cap,income_band,inc_q5,0.40921319931727673,409213.1993172767,0.0,True
+strict,source_cap,dti_band,dti_q1,0.24025298691446995,240252.98691446995,0.0,True
+strict,source_cap,dti_band,dti_q2,0.24025298691446995,240252.98691446995,0.0,True
+strict,source_cap,state_top20,CA,0.12,120000.0,0.0,True
+strict,source_cap,state_top20,TX,0.12,120000.0,0.0,True
+strict,source_cap,state_top20,other_state,0.12,120000.0,0.0,True

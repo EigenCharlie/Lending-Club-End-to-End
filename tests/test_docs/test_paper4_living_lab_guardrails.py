@@ -3650,18 +3650,140 @@ def test_paper4_v45_v48_living_lab_artifacts_exist_and_preserve_claim_boundaries
     assert champion["paper4_working_only"] is True
     assert champion["paper1_promotion_allowed"] is False
 
-    decomposition = pd.read_parquet(TABLE_DIR / "paper4_v47_champion_decomposition_loan_level.parquet")
+    decomposition = pd.read_parquet(
+        TABLE_DIR / "paper4_v47_champion_decomposition_loan_level.parquet"
+    )
     assert not decomposition.empty
     assert {"policy_id", "selection_relation_v47", "tail_loss_proxy_v47"}.issubset(
         decomposition.columns
     )
 
-    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
-        encoding="utf-8"
-    )
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
     assert "Wave v45-v48" in notebook
     assert "Keep v45-v48 in the living notebook" in notebook
     assert (PAPER4_ROOT / "notes" / "paper4_future_wave_template.md").exists()
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
+def test_paper4_v49_v54_self_directed_loop_repairs_artifacts_and_claim_boundaries() -> None:
+    v49 = _read_json("paper4_v49_status.json")
+    v50 = _read_json("paper4_v50_status.json")
+    v51 = _read_json("paper4_v51_status.json")
+    v52 = _read_json("paper4_v52_status.json")
+    v53 = _read_json("paper4_v53_status.json")
+    v54 = _read_json("paper4_v54_status.json")
+
+    assert v49["phase"] == "v49_loss_matrix_online_repair"
+    assert v50["phase"] == "v50_cvar_source_lp_solver"
+    assert v51["phase"] == "v51_spo_dla_books_sicr_cases"
+    assert v52["phase"] == "v52_registry_backlog_claims_self_directed"
+    assert v53["phase"] == "v53_expected_loss_cvar_repair_and_budget_books"
+    assert v54["phase"] == "v54_dynamic_budget_capped_book_replay"
+    assert v49["strict_live_deployability_claim_allowed"] is False
+    assert v50["exact_full_universe_cvar_claim_allowed"] is False
+    assert v51["formal_differentiable_spo_claim_allowed"] is False
+    assert v51["bellman_exact_claim_allowed"] is False
+    assert v51["contractual_ifrs9_claim_allowed"] is False
+    assert v52["paper1_promotion_allowed_v52"] is False
+    assert v53["v50_zero_cvar_artifact_repaired_v53"] is True
+    assert v53["exact_full_universe_cvar_claim_allowed"] is False
+    assert v53["paper1_promotion_allowed_v53"] is False
+    assert v54["bellman_exact_claim_allowed"] is False
+    assert v54["live_no_leakage_claim_allowed"] is False
+    assert v54["paper1_promotion_allowed_v54"] is False
+
+    expected_csvs = {
+        "paper4_v49_online_qhat_recalibration_search.csv": {
+            "source_family",
+            "delta_qhat_v49",
+            "gate_source80_policy90_width95_v49",
+            "claim_boundary_v49",
+        },
+        "paper4_v50_cvar_source_lp_frontier.csv": {
+            "regime_v50",
+            "solver_success_v50",
+            "scenario_loss_cvar90_v50",
+            "exact_full_universe_claim_v50",
+        },
+        "paper4_v51_policy_scenario_replay.csv": {
+            "policy_id",
+            "mean_scenario_return_v51",
+            "p95_scenario_loss_v51",
+            "claim_boundary_v51",
+        },
+        "paper4_v52_claim_matrix.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+        "paper4_v53_expected_loss_frontier.csv": {
+            "regime_v53",
+            "solver_success_v53",
+            "scenario_loss_cvar90_v53",
+            "exact_full_universe_claim_v53",
+        },
+        "paper4_v53_binary_vs_expected_diagnostic.csv": {
+            "diagnostic_id",
+            "source_artifact",
+            "interpretation",
+            "claim_impact",
+        },
+        "paper4_v53_budget_capped_policy_replay.csv": {
+            "policy_id",
+            "funded_exposure_v53",
+            "budget_capped_v53",
+            "p95_scenario_loss_v53",
+        },
+        "paper4_v53_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+        "paper4_v54_dynamic_budget_capped_book_summary.csv": {
+            "policy_id",
+            "final_wealth_mean_v54",
+            "final_loss_p95_v54",
+            "live_no_leakage_claim_allowed_v54",
+        },
+        "paper4_v54_dynamic_champion_decision_memo.csv": {
+            "memo_id",
+            "best_policy_id",
+            "working_champion_change_allowed",
+            "claim_boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    matrix_v49 = pd.read_parquet(TABLE_DIR / "paper4_v49_loan_scenario_loss_matrix.parquet")
+    matrix_v53 = pd.read_parquet(TABLE_DIR / "paper4_v53_expected_loss_matrix.parquet")
+    trace_v54 = pd.read_parquet(TABLE_DIR / "paper4_v54_dynamic_budget_capped_book_trace.parquet")
+    assert len(matrix_v49) >= 1_000_000
+    assert len(matrix_v53) == len(matrix_v49)
+    assert {"hybrid_loss_amount_v53", "hybrid_return_amount_v53"}.issubset(matrix_v53.columns)
+    assert pd.to_numeric(matrix_v53["hybrid_loss_amount_v53"], errors="coerce").max() > 0
+    assert not trace_v54.empty
+    assert {"cash_v54", "outstanding_principal_v54", "wealth_v54"}.issubset(trace_v54.columns)
+
+    v50_frontier = _read_csv("paper4_v50_cvar_source_lp_frontier.csv")
+    v53_frontier = _read_csv("paper4_v53_expected_loss_frontier.csv")
+    assert pd.to_numeric(v50_frontier["scenario_loss_cvar90_v50"], errors="coerce").max() == 0
+    assert pd.to_numeric(v53_frontier["scenario_loss_cvar90_v53"], errors="coerce").min() > 0
+
+    replay = _read_csv("paper4_v53_budget_capped_policy_replay.csv")
+    assert replay["budget_capped_v53"].astype(bool).all()
+    summary = _read_csv("paper4_v54_dynamic_budget_capped_book_summary.csv")
+    assert not summary["live_no_leakage_claim_allowed_v54"].astype(bool).any()
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v49-v52" in notebook
+    assert "Wave v53: Expected-Loss CVaR Repair" in notebook
+    assert "Wave v54: Dynamic Replay Of Repaired Books" in notebook
     assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 

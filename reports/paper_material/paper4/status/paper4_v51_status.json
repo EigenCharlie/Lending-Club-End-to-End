@@ -1,0 +1,17 @@
+{
+  "bellman_exact_claim_allowed": false,
+  "case_study_rows_v51": 44,
+  "claim_boundary": "v51 materializes scenario-matrix books and SICR proxy search; no differentiable SPO, Bellman, or IFRS9 contractual claim",
+  "contractual_ifrs9_claim_allowed": false,
+  "formal_differentiable_spo_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T15:37:01.648646+00:00",
+  "paper4_final_promotion_created": false,
+  "phase": "v51_spo_dla_books_sicr_cases",
+  "policy_book_rows_v51": 99,
+  "policy_books_v51": 3,
+  "policy_scenario_replay_rows_v51": 3,
+  "runtime_seconds": 14.092,
+  "schema_version": "2026-05-15.51",
+  "sicr_targeted_rows_v51": 448,
+  "spo_solver_bridge_rows_v51": 9
+}

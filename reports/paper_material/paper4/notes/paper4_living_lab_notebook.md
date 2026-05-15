@@ -400,3 +400,133 @@ validated policy improvement, and causal/fairness/IFRS9 claims remain gated.
 Keep v45-v48 in the living notebook. Do not register new Quarto pages.
 
 <!-- V45_V48_LIVING_LAB_END -->
+<!-- V49_V52_SELF_DIRECTED_LOOP_START -->
+
+## Wave v49-v52: Self-Directed Loop Checkpoint
+
+Generated: 2026-05-15T15:37:01.665734+00:00
+
+### Objective
+
+Move from repeated diagnostics into harder artifacts: a loan-scenario loss
+matrix, restricted-pool CVaR/source LPs, direct online qhat repair,
+materialized SPO/DLA-style books, targeted SICR proxy search, and an
+updated self-directed backlog.
+
+### Scripts
+
+- `scripts/papers/build_paper4_v49_self_directed_loop.py`
+
+### Results
+
+- v49 loss matrix rows: `1536000`.
+- v49 scenarios: `128`.
+- v49 online repair rows: `63`.
+- v50 CVaR LP frontier rows: `4`.
+- v50 successful restricted LPs: `4`.
+- v51 materialized book rows: `99`.
+- v51 SICR targeted rows: `448`.
+- v52 registry rows: `27`.
+
+### Interpretation
+
+This checkpoint materially advances the lab because CVaR now has a persisted
+scenario matrix and exact restricted-pool LP artifacts. It also clarifies
+the remaining hard blockers: full-universe optimality needs an all-loan
+scenario matrix, live online deployability needs genuinely unseen source
+holdouts, and formal SPO/DLA claims need either validated dependencies or
+strong dynamic replay of materialized books.
+
+### Claim Impact
+
+- New allowed claim: restricted candidate-pool scenario matrix exists.
+- New allowed claim: restricted-pool CVaR/source LP is implemented.
+- Still prohibited: full-universe CVaR, live online deployability, formal
+  differentiable SPO+, Bellman exact DLA, contractual IFRS9, CATE policy
+  value, fair-lending legal claims, and Paper Estrella promotion.
+
+### Quarto Promotion Decision
+
+Keep v49-v52 in the living notebook for now. Promote later only if the
+restricted LP or materialized books survive dynamic validation strongly
+enough to become an official Paper 4 result.
+
+<!-- V49_V52_SELF_DIRECTED_LOOP_END -->
+<!-- V53_EXPECTED_LOSS_REPAIR_START -->
+
+## Wave v53: Expected-Loss CVaR Repair
+
+Generated: 2026-05-15T15:43:54.319731+00:00
+
+### Objective
+
+Repair the v50 CVaR artifact where binary default sparsity over 128
+internal paths allowed the solver to report zero portfolio tail loss.
+
+### Results
+
+- v53 expected/hybrid matrix rows: `1536000`.
+- v53 CVaR frontier rows: `4`.
+- v53 successful LP rows: `4`.
+- v53 budget-capped policy books: `3`.
+- v53 minimum CVaR90: `12456.53151903821`.
+
+### Interpretation
+
+The v50 zero-loss tail was not a credible CVaR finding. It was a finite
+binary-simulation artifact. v53 converts the same internal paths into an
+expected/hybrid loss matrix, reruns the restricted-pool LP, and creates
+budget-capped lab books so the next dynamic replay is not contaminated by
+over-budget monthly materialization.
+
+### Claim Impact
+
+- Allowed: restricted-pool expected/hybrid CVaR LP evidence.
+- Allowed: v50 zero-CVaR is documented as a negative diagnostic.
+- Still prohibited: exact full-universe CVaR, Bellman exact DLA, formal
+  differentiable SPO+, contractual IFRS9, fair-lending legal claims, CATE
+  policy value, final Paper 4 promotion, and Paper Estrella promotion.
+
+### Quarto Promotion Decision
+
+Keep v53 in the living notebook. It should influence the official chapter
+only after the repaired CVaR books survive dynamic replay.
+
+<!-- V53_EXPECTED_LOSS_REPAIR_END -->
+<!-- V54_DYNAMIC_REPLAY_START -->
+
+## Wave v54: Dynamic Replay Of Repaired Books
+
+Generated: 2026-05-15T16:00:09.723075+00:00
+
+### Objective
+
+Replay the repaired v53 budget-capped and CVaR books through monthly state
+variables instead of stopping at static book scores.
+
+### Results
+
+- Dynamic trace rows: `24576`.
+- Dynamic policies: `8`.
+- Best replay policy: `v53_dla_source_guard_book`.
+- Best mean final wealth: `995685.4673442353`.
+
+### Interpretation
+
+v54 moves the repaired books into a sequential replay with cash, outstanding
+principal, repayments, defaults, recoveries, losses, ECL proxy and wealth.
+It remains a lab evaluation because the books are restricted-pool and selected
+from internal scenario evidence, but it closes the immediate v53 runnable step.
+
+### Claim Impact
+
+- Allowed: internal dynamic replay exists for repaired budget-capped books.
+- Still prohibited: Bellman exact DLA, production no-leakage deployment,
+  official Paper Estrella replacement, exact full-universe CVaR.
+
+### Quarto Promotion Decision
+
+Keep v54 in the notebook. Promote only if later mapped against the official
+full-universe champion or repeated in an exact comparable universe.
+
+<!-- V54_DYNAMIC_REPLAY_END -->
