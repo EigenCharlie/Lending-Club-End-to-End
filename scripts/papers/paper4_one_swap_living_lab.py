@@ -109,6 +109,10 @@ def _append_or_replace_block(path: Path, start: str, end: str, block: str) -> No
     path.write_text(updated, encoding="utf-8")
 
 
+def _indefinite_article(text: str) -> str:
+    return "an" if text[:1].lower() in {"a", "e", "i", "o", "u"} else "a"
+
+
 def build_repair_wave(
     *,
     version: int,
@@ -400,8 +404,8 @@ def build_repair_wave(
         f"paper4_working_champion_changed_v{version}": False,
         "paper4_final_promotion_created": FORBIDDEN_FINAL_PROMOTION.exists(),
         "claim_boundary": (
-            f"v{version} creates a {ordinal} repaired candidate only; post-repair pricing "
-            "and global integer claims remain blocked"
+            f"v{version} creates {_indefinite_article(ordinal)} {ordinal} repaired "
+            "candidate only; post-repair pricing and global integer claims remain blocked"
         ),
     }
     write_json(STATUS_DIR / f"paper4_v{version}_status.json", status)
