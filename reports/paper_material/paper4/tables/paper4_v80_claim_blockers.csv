@@ -1,0 +1,4 @@
+blocker_id_v80,blocking_v80,evidence_count_v80,required_next_artifact_v80,claim_boundary_v80
+focused_full_pool_milp_gap_recorded,False,18915,paper4_v80_full_pool_milp_gap_summary.csv,focused restricted-pool MILP/gap evidence only
+full_universe_integer_pricing_missing,True,257954,paper4_v81_integer_pricing_or_global_gap_protocol.csv,binary MILP over generated pool is not full-universe proof
+paper_estrella_or_final_promotion_not_allowed,True,1,paper4_future_promotion_protocol.csv,MILP/gap probe does not replace Paper Estrella

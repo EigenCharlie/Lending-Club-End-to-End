@@ -1397,3 +1397,49 @@ Keep v79 in the living notebook. Promote only after a global MILP/gap protocol
 passes.
 
 <!-- V79_INTEGRALITY_PROBE_END -->
+
+<!-- V80_FULL_POOL_MILP_GAP_START -->
+
+## Wave v80: Focused Full-Pool MILP Gap Probe
+
+Generated: 2026-05-15T20:34:46.682040+00:00
+
+### Objective
+
+Attempt a binary whole-loan MILP over the focused generated restricted pool
+after pricing and source-scope diagnostics cleared. This expands v79 from the
+active support to the full generated pool, but it still does not cover every
+omitted v55 universe loan as integer alternatives.
+
+### Results
+
+- Pool rows: `18915`.
+- Constraint rows: `181`.
+- MILP success: `True`.
+- MILP incumbent available: `True`.
+- MILP gap: `6.352645430673639e-07`.
+- Selected rows: `171`.
+- Return delta vs LP: `-28.726313016571112`.
+- CVaR delta vs LP: `-35.06590165325906`.
+- Source cap violations: `0`.
+- Whole-loan full-universe claim allowed: `False`.
+
+### Interpretation
+
+v80 strengthens the integrality story from active support to the generated
+focused pool. The remaining blocker is not this pool solve itself; it is the
+absence of an integer-pricing or global-gap protocol for omitted full-universe
+loans outside the generated pool.
+
+### Claim Impact
+
+- Allowed: focused full-pool binary MILP/gap probe completed.
+- Still prohibited: whole-loan full-universe optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v80 in the living notebook. Promote only after omitted-universe integer
+pricing or an equivalent global gap certificate exists.
+
+<!-- V80_FULL_POOL_MILP_GAP_END -->
