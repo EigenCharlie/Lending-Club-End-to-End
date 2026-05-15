@@ -1,0 +1,4 @@
+blocker_id_v71,blocking_v71,evidence_count_v71,required_next_artifact_v71,claim_boundary_v71
+negative_reduced_cost_columns_detected,True,5738,paper4_v72_column_generation_iteration_1.csv,negative reduced-cost omitted columns mean the v70 master has not terminated
+source_constraint_scope_not_full_universe,True,46,paper4_v72_source_constraint_expansion.csv,restricted-master source rows may omit source IDs present in the full universe
+continuous_relaxation_not_whole_loan_milp,True,1,paper4_v72_integrality_gap_or_milp_probe.csv,"dual pricing is for continuous LP variables, not whole-loan integer allocations"

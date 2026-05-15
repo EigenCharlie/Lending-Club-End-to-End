@@ -1009,3 +1009,46 @@ Keep v70 in the living notebook. Promote only after omitted-column pricing and
 claim-boundary review are complete.
 
 <!-- V70_RESTRICTED_MASTER_SOLVER_END -->
+
+<!-- V71_FULL_UNIVERSE_REDUCED_COSTS_START -->
+
+## Wave v71: Full-Universe Reduced-Cost Screen
+
+Generated: 2026-05-15T19:36:53.387478+00:00
+
+### Objective
+
+Persist v70 restricted-master LP duals and apply them to all omitted v55
+comparable-universe columns. The goal is to test whether the v70 master has
+terminated under its own dual system, not to promote a full-universe claim.
+
+### Results
+
+- Dual rows: `1410`.
+- Reduced-cost rows: `2211304`.
+- Summary rows: `8`.
+- Improving omitted columns: `5738`.
+- Source-scope diagnostic rows: `48`.
+- Full-universe termination claim allowed: `False`.
+
+### Interpretation
+
+v71 turns v70's active-constraint diagnostics into a concrete pricing screen.
+If negative reduced-cost omitted columns exist, the restricted master has not
+terminated. Even if pricing improves later, the source-constraint scope and
+continuous-relaxation blockers must be resolved before any exact full-universe
+or whole-loan claim.
+
+### Claim Impact
+
+- Allowed: v71 prices omitted v55 columns under v70 restricted-master duals.
+- Still prohibited: full-universe column-generation termination, exact
+  full-universe CVaR optimality, MILP whole-loan optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v71 in the living notebook. Promote only after column-generation
+iterations converge, source-scope coverage is complete and claim review passes.
+
+<!-- V71_FULL_UNIVERSE_REDUCED_COSTS_END -->

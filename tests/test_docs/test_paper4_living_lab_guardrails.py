@@ -4680,6 +4680,124 @@ def test_paper4_v70_restricted_master_solver_keeps_full_universe_claim_blocked()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v71_reduced_cost_screen_blocks_column_generation_termination() -> None:
+    status = _read_json("paper4_v71_status.json")
+
+    assert status["phase"] == "v71_full_universe_reduced_cost_screen"
+    assert status["dual_rows_v71"] == 1410
+    assert status["reduced_cost_rows_v71"] == 2211304
+    assert status["summary_rows_v71"] == 8
+    assert status["source_cap_dual_rows_v71"] == 48
+    assert status["claim_blocker_rows_v71"] == 3
+    assert status["improving_omitted_columns_v71"] == 5738
+    assert status["policies_priced_v71"] == 4
+    assert status["regime_rows_priced_v71"] == 8
+    assert status["negative_reduced_cost_detected_v71"] is True
+    assert status["full_universe_termination_claim_allowed_v71"] is False
+    assert status["exact_full_universe_cvar_claim_allowed_v71"] is False
+    assert status["paper1_promotion_allowed_v71"] is False
+    assert status["paper4_working_champion_changed_v71"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    reduced_costs = pd.read_parquet(TABLE_DIR / "paper4_v71_full_universe_reduced_costs.parquet")
+    assert not reduced_costs.empty
+    assert {
+        "policy_id",
+        "regime_v71",
+        "loan_id",
+        "minimization_reduced_cost_v71",
+        "return_improvement_signal_v71",
+        "improving_column_v71",
+        "pricing_scope_v71",
+        "claim_boundary_v71",
+    }.issubset(reduced_costs.columns)
+    assert reduced_costs["policy_id"].nunique() == 4
+    assert set(reduced_costs["regime_v71"]) == {
+        "incumbent_cvar_relaxed_source_lp",
+        "target_source_cap_probe_lp",
+    }
+    assert (
+        int(reduced_costs["improving_column_v71"].sum()) == status["improving_omitted_columns_v71"]
+    )
+    assert reduced_costs["minimization_reduced_cost_v71"].min() < 0
+    assert reduced_costs["claim_boundary_v71"].str.contains("not full-universe termination").all()
+
+    summary = _read_csv("paper4_v71_reduced_cost_summary.csv")
+    assert {
+        "policy_id",
+        "regime_v71",
+        "omitted_rows_priced_v71",
+        "improving_columns_v71",
+        "negative_reduced_cost_detected_v71",
+        "column_generation_termination_certificate_v71",
+        "exact_full_universe_cvar_claim_allowed_v71",
+    }.issubset(summary.columns)
+    assert summary["omitted_rows_priced_v71"].sum() == status["reduced_cost_rows_v71"]
+    assert summary["improving_columns_v71"].sum() == status["improving_omitted_columns_v71"]
+    assert summary["negative_reduced_cost_detected_v71"].astype(bool).any()
+    assert not summary["column_generation_termination_certificate_v71"].astype(bool).any()
+    assert not summary["exact_full_universe_cvar_claim_allowed_v71"].astype(bool).any()
+
+    duals = _read_csv("paper4_v71_restricted_master_duals.csv")
+    assert {
+        "policy_id",
+        "regime_v71",
+        "constraint_index_v71",
+        "constraint_type_v71",
+        "marginal_v71",
+        "binding_v71",
+        "claim_boundary_v71",
+    }.issubset(duals.columns)
+    assert {"budget_lower", "source_share", "cvar_path_excess"}.issubset(
+        set(duals["constraint_type_v71"])
+    )
+    assert duals["marginal_v71"].abs().gt(0).any()
+    assert duals["claim_boundary_v71"].str.contains("not full-universe certificate").all()
+
+    source_diag = _read_csv("paper4_v71_source_cap_dual_diagnostics.csv")
+    assert {
+        "policy_id",
+        "regime_v71",
+        "source_family",
+        "missing_source_ids_v71",
+        "source_constraint_scope_complete_v71",
+        "claim_boundary_v71",
+    }.issubset(source_diag.columns)
+    assert source_diag["missing_source_ids_v71"].sum() > 0
+    assert not source_diag["source_constraint_scope_complete_v71"].astype(bool).all()
+
+    blockers = _read_csv("paper4_v71_claim_blockers.csv")
+    assert {"blocker_id_v71", "blocking_v71", "evidence_count_v71", "claim_boundary_v71"}.issubset(
+        blockers.columns
+    )
+    assert blockers["blocking_v71"].astype(bool).all()
+    assert {
+        "negative_reduced_cost_columns_detected",
+        "source_constraint_scope_not_full_universe",
+        "continuous_relaxation_not_whole_loan_milp",
+    }.issubset(set(blockers["blocker_id_v71"]))
+
+    claim_delta = _read_csv("paper4_v71_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v71_omitted_column_reduced_cost_screen"]) is True
+    assert bool(claim_map["v71_full_universe_column_generation_termination"]) is False
+    assert bool(claim_map["v71_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has v71 reduced-cost pricing for omitted v55 columns under v70 duals." in set(
+        current_boundaries["claim"]
+    )
+    assert "v71 proves full-universe column-generation termination." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v71: Full-Universe Reduced-Cost Screen" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
