@@ -1052,3 +1052,45 @@ Keep v71 in the living notebook. Promote only after column-generation
 iterations converge, source-scope coverage is complete and claim review passes.
 
 <!-- V71_FULL_UNIVERSE_REDUCED_COSTS_END -->
+
+<!-- V72_COLUMN_GENERATION_ITERATION_START -->
+
+## Wave v72: Column-Generation Iteration 1
+
+Generated: 2026-05-15T19:42:58.198185+00:00
+
+### Objective
+
+Use the v71 negative reduced-cost columns as actual master columns and resolve
+the restricted-master continuous LP. This converts the v71 pricing blocker into
+an executable first column-generation iteration.
+
+### Results
+
+- Candidate rows added: `5738`.
+- Iteration frontier rows: `5`.
+- Successful LP rows: `5`.
+- Allocation rows: `1094`.
+- Scenario rows: `640`.
+- Best return delta vs v70: `11425.034937237519`.
+- Re-price after iteration performed: `False`.
+
+### Interpretation
+
+v72 confirms that v71 was not just a diagnostic: the negative reduced-cost
+columns can be inserted into the restricted master and solved. The result still
+cannot claim convergence because the new solution must be priced again.
+
+### Claim Impact
+
+- Allowed: first restricted-master column-generation iteration completed.
+- Still prohibited: convergence, exact full-universe CVaR optimality, MILP
+  whole-loan optimality, Paper Estrella replacement, final Paper 4 promotion
+  and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v72 in the living notebook. Promote only after post-iteration re-pricing
+and integrality/source-scope review pass.
+
+<!-- V72_COLUMN_GENERATION_ITERATION_END -->

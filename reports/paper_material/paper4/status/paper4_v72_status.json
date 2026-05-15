@@ -1,0 +1,22 @@
+{
+  "active_constraint_rows_v72": 880,
+  "allocation_rows_v72": 1094,
+  "best_delta_return_vs_v70_iteration_v72": 11425.034937237519,
+  "candidate_rows_v72": 5738,
+  "claim_boundary": "v72 completes one restricted-master iteration; post-iteration re-pricing and integrality evidence remain missing",
+  "column_generation_termination_claim_allowed_v72": false,
+  "comparison_rows_v72": 5,
+  "exact_full_universe_cvar_claim_allowed_v72": false,
+  "frontier_rows_v72": 5,
+  "generated_at_utc": "2026-05-15T19:42:58.198185+00:00",
+  "paper1_promotion_allowed_v72": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v72": false,
+  "phase": "v72_column_generation_iteration_1",
+  "reprice_after_iteration_performed_v72": false,
+  "runtime_seconds": 9.363,
+  "scenario_rows_v72": 640,
+  "schema_version": "2026-05-15.72",
+  "successful_iteration_rows_v72": 5,
+  "v71_candidate_allocated_exposure_v72": 2707489.8875
+}
