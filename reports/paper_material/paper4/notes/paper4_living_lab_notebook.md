@@ -530,3 +530,160 @@ Keep v54 in the notebook. Promote only if later mapped against the official
 full-universe champion or repeated in an exact comparable universe.
 
 <!-- V54_DYNAMIC_REPLAY_END -->
+<!-- V55_V58_UNLOCK_LOOP_START -->
+
+## Wave v55-v58: Full Comparable Universe Unlock
+
+Generated: 2026-05-15T16:31:06.569113+00:00
+
+### Objective
+
+Turn the v54 blocker into a concrete unlock attempt: audit all loan-id
+lineage, build the largest comparable feature/prediction universe, expand
+CVaR/source-governed optimization beyond the 12k local pool, re-run direct
+online source-family repair, and update claim/storage governance.
+
+### Scripts
+
+- `scripts/papers/build_paper4_v55_unlock_loop.py`
+
+### Results
+
+- v55 comparable universe rows: `276869`.
+- v55 exact prediction-test join rate: `1.0`.
+- v56 restricted-master columns: `48000`.
+- v56 successful LP rows: `1`.
+- v57 online search rows: `140`.
+- v58 candidate registry rows: `10`.
+
+### Interpretation
+
+The important advance is lineage: Paper 4 can now construct a full
+comparable 276,869-loan universe from `test`, `test_predictions`,
+conformal intervals, and online interval diagnostics. The CVaR evidence
+is stronger than the 12k local pool because the restricted master is drawn
+from this full comparable universe, but exact full-universe optimality is
+still false until exact pricing or a complete full LP certificate exists.
+
+### Claim Impact
+
+- Allowed: full comparable feature/prediction universe exists.
+- Allowed: expanded restricted-master CVaR/source LP is implemented.
+- Still prohibited: exact full-universe CVaR optimality, live online
+  deployability, formal differentiable SPO+, Bellman exact DLA,
+  contractual IFRS9, CATE policy value, fair-lending legal claims, and
+  Paper Estrella promotion.
+
+### Quarto Promotion Decision
+
+Keep this in the living notebook for now. The lineage unlock may deserve a
+future compact Quarto update once the candidate registry stabilizes around
+a solver result that survives dynamic replay.
+
+<!-- V55_V58_UNLOCK_LOOP_END -->
+<!-- V59_ADAPTIVE_FRONTIER_START -->
+
+## Wave v59: Adaptive CVaR Feasibility Frontier
+
+Generated: 2026-05-15T16:33:49.486416+00:00
+
+### Objective
+
+Follow the v56 infeasibility result instead of stopping there: relax
+deployment, source caps, return floors, and CVaR caps in a controlled
+grid to identify whether the expanded comparable-universe solver can
+produce feasible committee policies.
+
+### Results
+
+- Frontier rows: `6`.
+- Feasible rows: `2`.
+- Allocation rows: `209`.
+
+### Interpretation
+
+v56 showed that the original strict floors/caps are too demanding for the
+expanded restricted master. v59 converts that negative result into a
+frontier: if feasible rows exist, they are committee-style lab candidates;
+if not, strict CVaR/source governance is documented as infeasible under
+the current internal loss model.
+
+### Claim Impact
+
+This is still restricted-master evidence. It improves the solver lane but
+does not allow exact full-universe CVaR, Paper Estrella promotion, or final
+Paper 4 promotion.
+
+<!-- V59_ADAPTIVE_FRONTIER_END -->
+<!-- V60_DYNAMIC_GATE_START -->
+
+## Wave v60: Dynamic Stress Gate For v59 Tail Candidates
+
+Generated: 2026-05-15T16:36:00.855918+00:00
+
+### Objective
+
+Decide whether the v59 feasible CVaR/source candidates deserve expensive
+512/1024-path dynamic stress. The rule is conservative: run the expensive
+stress only if a candidate can plausibly change the working champion.
+
+### Results
+
+- Candidate replay rows: `2`.
+- Expensive dynamic rerun executed: `False`.
+
+### Interpretation
+
+The v59 candidates are useful as tail-risk feasibility diagnostics, but
+their return level is not strong enough to justify a costly dynamic
+stress rerun or a working champion change in this checkpoint.
+
+<!-- V60_DYNAMIC_GATE_END -->
+<!-- V61_SOURCE_DIVERSIFICATION_START -->
+
+## Wave v61: Source-Diversified CVaR Frontier
+
+Generated: 2026-05-15T16:40:21.446595+00:00
+
+### Objective
+
+Repair the v59 all-grade-A concentration by adding absolute hard caps for
+grade, score decile, state, income, DTI and period. This tests whether the
+tail-risk solver can produce a less trivial diversified book.
+
+### Results
+
+- Frontier rows: `4`.
+- Feasible rows: `0`.
+- Allocation rows: `0`.
+
+### Interpretation
+
+If feasible, v61 candidates are stronger source-governance challengers than
+v59. If infeasible, the result says the current internal loss model can only
+get strong tail protection by collapsing into very low-risk sources.
+
+<!-- V61_SOURCE_DIVERSIFICATION_END -->
+<!-- V62_SOURCE_SLACK_CERTIFICATE_START -->
+
+## Wave v62: Source Diversification Slack Certificate
+
+Generated: 2026-05-15T16:43:38.710207+00:00
+
+### Objective
+
+Quantify why v59 feasible tail books fail v61 source-diversification
+governance. This turns infeasibility into a concrete slack requirement.
+
+### Results
+
+- Slack certificate rows: `12`.
+- Max required cap slack share: `0.5800000000000001`.
+
+### Interpretation
+
+The current tail-feasible books require large source-cap slack, especially
+for grade concentration. That makes them useful diagnostics, not working
+champion candidates.
+
+<!-- V62_SOURCE_SLACK_CERTIFICATE_END -->

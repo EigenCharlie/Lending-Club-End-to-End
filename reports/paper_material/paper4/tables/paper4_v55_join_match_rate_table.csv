@@ -1,0 +1,16 @@
+left_source,right_source,left_n,right_n,intersection_n,left_match_rate,right_match_rate,join_blocker_v55
+test_predictions.loan_id,test.id,276869,276869,276869,1.0,1.0,False
+test_predictions.loan_id,test_fe.id,276869,276869,276869,1.0,1.0,False
+test.id,test_fe.id,276869,276869,276869,1.0,1.0,False
+test_predictions.loan_id,champion_universe.id,276869,80000,80000,0.28894531348760605,1.0,False
+test.id,champion_universe.id,276869,80000,80000,0.28894531348760605,1.0,False
+test_fe.id,champion_universe.id,276869,80000,80000,0.28894531348760605,1.0,False
+test_predictions.loan_id,candidate_pool.loan_id,276869,12000,12000,0.04334179702314091,1.0,False
+test_fe.id,candidate_pool.loan_id,276869,12000,12000,0.04334179702314091,1.0,False
+test.id,candidate_pool.loan_id,276869,12000,12000,0.04334179702314091,1.0,False
+candidate_pool.loan_id,champion_universe.id,12000,80000,3519,0.29325,0.0439875,False
+test_predictions.loan_id,loan_master.id,276869,1346311,0,0.0,0.0,True
+test.id,loan_master.id,276869,1346311,0,0.0,0.0,True
+test_fe.id,loan_master.id,276869,1346311,0,0.0,0.0,True
+candidate_pool.loan_id,loan_master.id,12000,1346311,0,0.0,0.0,True
+champion_universe.id,loan_master.id,80000,1346311,0,0.0,0.0,True

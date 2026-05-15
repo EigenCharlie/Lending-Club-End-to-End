@@ -1,0 +1,2 @@
+memo_id,candidate_count_v60,best_candidate_return_mean_v60,best_candidate_loss_p95_v60,focused_512_or_1024_rerun_executed_v60,working_champion_change_allowed_v60,paper1_promotion_allowed_v60,decision_v60,claim_boundary_v60
+v60_dynamic_rerun_gate,2,23342.947867599454,40925.63901189504,False,False,False,do_not_run_expensive_dynamic_stress_until_candidate_return_improves,"gate memo only; v59 candidates are serious tail diagnostics, not champion replacements"

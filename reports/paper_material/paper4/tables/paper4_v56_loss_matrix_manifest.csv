@@ -1,0 +1,2 @@
+matrix_id,source_universe_rows,restricted_master_columns,scenario_count,loss_matrix_cells,persisted_full_matrix,storage_decision,exact_full_universe_claim,claim_boundary
+v56_expanded_restricted_master_expected_loss,276869,48000,128,6144000,False,matrix generated in memory; persist allocations/frontier/scenario summaries only,False,"largest comparable universe is 276,869 rows; solver is expanded restricted master, not full-universe exact"

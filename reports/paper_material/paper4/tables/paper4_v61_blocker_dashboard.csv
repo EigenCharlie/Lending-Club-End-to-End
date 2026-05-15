@@ -1,0 +1,7 @@
+lane,status,evidence_artifact,next_unlock
+full_universe_lineage,resolved,paper4_v55_maximal_comparable_universe.parquet,use exact pricing/full LP for optimality claim
+cvar_expected_loss_solver,near_resolved_with_plateau,paper4_v59_cvar_adaptive_feasible_frontier.csv,find feasible diversified return/tail point or prove pricing optimality
+source_diversified_cvar,implementation_blocked,paper4_v61_source_diversified_frontier.csv,"adjust loss model, source caps, or add pricing columns that improve diversified feasibility"
+online_conformal_live_deployability,near_resolved_with_plateau,paper4_v57_online_source_family_direct_repair.csv,genuinely unseen temporal/source holdout
+differentiable_spo,dependency_blocked,paper4_v57_spo_dependency_probe.csv,isolated numpy<2/cvxpy/cvxpylayers/torch environment
+contractual_ifrs9,data_blocked,paper4_v57_ifrs9_sicr_proxy_panel_update.csv,monthly DPD/cure/recovery/prepayment/EAD panel

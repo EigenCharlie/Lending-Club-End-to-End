@@ -1,0 +1,13 @@
+policy_id,source_family,top_source_id_v62,top_exposure_share_v62,hard_cap_v62,required_cap_slack_share_v62,required_cap_slack_exposure_v62,source_diversification_pass_v62,certificate_scope_v62
+v59_cvar_adaptive_strict_low_deploy,grade,A,1.0,0.55,0.44999999999999996,382499.99999999994,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_strict_low_deploy,score_decile,0,1.0,0.42,0.5800000000000001,493000.00000000006,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_strict_low_deploy,state_top20,other,0.22877346701287526,0.24,0.0,0.0,True,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_strict_low_deploy,income_band,4,0.6423597441072308,0.38,0.26235974410723084,223005.7824911462,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_strict_low_deploy,dti_band,0,0.5206558199540517,0.38,0.14065581995405174,119557.44696094398,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_strict_low_deploy,period,2018,0.5828714371444804,0.6,0.0,0.0,True,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,grade,A,1.0,0.55,0.44999999999999996,382499.99999999994,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,score_decile,0,1.0,0.42,0.5800000000000001,493000.00000000006,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,state_top20,other,0.23823529411764705,0.24,0.0,0.0,True,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,income_band,4,0.8498823529411764,0.38,0.4698823529411764,399399.99999999994,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,dti_band,0,0.7475,0.38,0.36750000000000005,312375.00000000006,False,post-solve source slack over v59 feasible books; practical governance certificate
+v59_cvar_adaptive_tail_first_low_budget,period,2018,0.6412058823529412,0.6,0.0412058823529412,35025.00000000002,False,post-solve source slack over v59 feasible books; practical governance certificate

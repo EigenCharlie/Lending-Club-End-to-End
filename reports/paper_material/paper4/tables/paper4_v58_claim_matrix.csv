@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v58_full_comparable_universe_unlocked,True,paper4_v55_maximal_comparable_universe.parquet,feature/prediction universe only; not exact CVaR optimality
+v58_expanded_restricted_cvar,True,paper4_v56_cvar_full_comparable_frontier.csv,"expanded restricted master over comparable universe, not full-universe exact LP"
+v58_exact_full_universe_cvar,False,paper4_v56_full_universe_attempt.csv,exact full-universe claim remains false
+v58_online_live_deployability,False,paper4_v57_online_source_family_direct_repair.csv,historical source-family repair only
+v58_formal_differentiable_spo,False,paper4_v57_spo_dependency_probe.csv,cvxpy/cvxpylayers/torch route not validated
+v58_contractual_ifrs9,False,paper4_v57_ifrs9_sicr_proxy_panel_update.csv,proxy only; missing servicing panel fields

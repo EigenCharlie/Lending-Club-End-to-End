@@ -1,0 +1,2 @@
+candidate_id_v57,oracle_source_v57,temporal_split_v57,oracle_return_v57,oracle_cvar90_v57,surrogate_regret_proxy_v57,formal_differentiable_spo_claim_allowed,claim_boundary_v57
+spo_oracle_bridge_strict_soft,paper4_v56_cvar_full_comparable_frontier.csv,historical_issue_month_proxy,-4762.3781667589565,111710.85190176312,0.0,False,solver-oracle regret bridge only; no differentiable SPO+ claim

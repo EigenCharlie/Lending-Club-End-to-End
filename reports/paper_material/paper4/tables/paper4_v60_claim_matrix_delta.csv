@@ -1,0 +1,3 @@
+claim_id,allowed,artifact,boundary
+v60_adaptive_cvar_tail_diagnostic,True,paper4_v60_v59_candidate_replay.csv,tail diagnostic over expanded restricted master; no champion replacement
+v60_expensive_dynamic_rerun_needed,False,paper4_v60_dynamic_rerun_gate_memo.csv,v59 candidates do not plausibly change working champion decision

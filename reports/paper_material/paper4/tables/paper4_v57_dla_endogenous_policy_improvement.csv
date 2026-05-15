@@ -1,0 +1,27 @@
+month,policy_id,selected_loans_v57,funded_exposure_v57,cash_after_decision_v57,mean_pd_v57,mean_qhat_v57,bellman_exact_claim_allowed,claim_boundary_v57
+2018-01,v57_endogenous_adp_source_guard,1,40000.0,960000.0,0.008474935079598057,0.55,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-02,v57_endogenous_adp_source_guard,1,40000.0,920000.0,0.023881728582259287,0.8583595887168145,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-03,v57_endogenous_adp_source_guard,1,40000.0,880000.0,0.008474935079598057,0.8600260370097219,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-04,v57_endogenous_adp_source_guard,1,39200.0,840800.0,0.020119225037257826,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-05,v57_endogenous_adp_source_guard,1,40000.0,800800.0,0.014118260406804414,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-06,v57_endogenous_adp_source_guard,1,40000.0,760800.0,0.014118260406804414,0.8699992313248515,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-07,v57_endogenous_adp_source_guard,1,40000.0,720800.0,0.008474935079598057,0.8556924489112899,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-08,v57_endogenous_adp_source_guard,1,35000.0,685800.0,0.008474935079598057,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-09,v57_endogenous_adp_source_guard,1,40000.0,645800.0,0.014118260406804414,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-10,v57_endogenous_adp_source_guard,1,40000.0,605800.0,0.008474935079598057,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-11,v57_endogenous_adp_source_guard,1,40000.0,565800.0,0.008474935079598057,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2018-12,v57_endogenous_adp_source_guard,1,40000.0,525800.0,0.014118260406804414,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-01,v57_endogenous_adp_source_guard,1,40000.0,485800.0,0.014118260406804414,0.8556924489112899,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-02,v57_endogenous_adp_source_guard,1,40000.0,445800.0,0.014118260406804414,0.8583595887168145,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-03,v57_endogenous_adp_source_guard,1,40000.0,405800.0,0.015625,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-04,v57_endogenous_adp_source_guard,1,32825.0,372975.0,0.014118260406804414,0.8631287183156444,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-05,v57_endogenous_adp_source_guard,1,40000.0,332975.0,0.014118260406804414,0.8583595887168145,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-06,v57_endogenous_adp_source_guard,1,32000.0,300975.0,0.020119225037257826,0.8583595887168145,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-07,v57_endogenous_adp_source_guard,1,40000.0,260975.0,0.014118260406804414,0.8522602295059791,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-08,v57_endogenous_adp_source_guard,1,40000.0,220975.0,0.014719918635581286,0.8495770058377625,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-09,v57_endogenous_adp_source_guard,1,40000.0,180975.0,0.004472271914132379,0.8313002989872251,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-10,v57_endogenous_adp_source_guard,1,35000.0,145975.0,0.014390397410537673,0.8366828912837867,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-11,v57_endogenous_adp_source_guard,1,40000.0,105975.0,0.020119225037257826,0.8348959206550073,False,endogenous monthly ADP-style score policy; not Bellman exact
+2019-12,v57_endogenous_adp_source_guard,1,30000.0,75975.0,0.008474935079598057,0.5912577580776912,False,endogenous monthly ADP-style score policy; not Bellman exact
+2020-01,v57_endogenous_adp_source_guard,1,40000.0,35975.0,0.008507388462631429,0.8495770058377625,False,endogenous monthly ADP-style score policy; not Bellman exact
+2020-02,v57_endogenous_adp_source_guard,1,40000.0,-4025.0,0.023881728582259287,0.5061157113833651,False,endogenous monthly ADP-style score policy; not Bellman exact

@@ -1,0 +1,15 @@
+{
+  "candidate_registry_rows_v58": 10,
+  "claim_boundary": "v58 updates registry/docs/storage; no Quarto expansion and no promotion",
+  "claim_matrix_rows_v58": 6,
+  "generated_at_utc": "2026-05-15T16:31:06.568140+00:00",
+  "heavy_artifact_manifest_rows_v58": 24,
+  "paper1_promotion_allowed_v58": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v58": false,
+  "phase": "v58_registry_claims_storage_notebook",
+  "quarto_compact_guardrail_pass": true,
+  "quarto_page_count_v58": 10,
+  "runtime_seconds": 0.044,
+  "schema_version": "2026-05-15.58"
+}

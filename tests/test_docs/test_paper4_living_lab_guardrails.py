@@ -3788,6 +3788,175 @@ def test_paper4_v49_v54_self_directed_loop_repairs_artifacts_and_claim_boundarie
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v55_v61_unlock_loop_keeps_claim_boundaries() -> None:
+    v55 = _read_json("paper4_v55_status.json")
+    v56 = _read_json("paper4_v56_status.json")
+    v57 = _read_json("paper4_v57_status.json")
+    v58 = _read_json("paper4_v58_status.json")
+    v59 = _read_json("paper4_v59_status.json")
+    v60 = _read_json("paper4_v60_status.json")
+    v61 = _read_json("paper4_v61_status.json")
+    v62 = _read_json("paper4_v62_status.json")
+
+    assert v55["phase"] == "v55_full_comparable_universe_lineage_unlock"
+    assert v55["maximal_comparable_universe_rows_v55"] == 276_869
+    assert v55["prediction_test_join_rate_v55"] == pytest.approx(1.0)
+    assert v56["phase"] == "v56_expanded_restricted_master_cvar_source_solver"
+    assert v56["restricted_master_columns_v56"] >= 36_000
+    assert v57["phase"] == "v57_online_spo_dla_ifrs9_gate_updates"
+    assert v58["phase"] == "v58_registry_claims_storage_notebook"
+    assert v59["phase"] == "v59_adaptive_cvar_feasibility_frontier"
+    assert v59["adaptive_feasible_rows_v59"] >= 1
+    assert v60["phase"] == "v60_dynamic_stress_gate_for_v59_candidates"
+    assert v61["phase"] == "v61_source_diversified_cvar_frontier"
+    assert v62["phase"] == "v62_source_diversification_slack_certificate"
+
+    for status in (v55, v56, v57, v58, v59, v60, v61, v62):
+        assert status.get("paper4_final_promotion_created") is False
+
+    assert v56["exact_full_universe_cvar_claim_allowed"] is False
+    assert v57["strict_live_deployability_claim_allowed"] is False
+    assert v57["formal_differentiable_spo_claim_allowed"] is False
+    assert v57["bellman_exact_claim_allowed"] is False
+    assert v57["contractual_ifrs9_claim_allowed"] is False
+    assert v57["cate_policy_value_allowed"] is False
+    assert v57["fair_lending_legal_claim_allowed"] is False
+    assert v60["focused_512_or_1024_rerun_executed_v60"] is False
+    assert v60["paper1_promotion_allowed_v60"] is False
+    assert v61["exact_full_universe_cvar_claim_allowed"] is False
+    assert v62["paper1_promotion_allowed_v62"] is False
+    assert v62["max_required_cap_slack_share_v62"] > 0
+
+    expected_csvs = {
+        "paper4_v55_full_universe_lineage_audit.csv": {
+            "lineage_item",
+            "status_v55",
+            "match_rows_v55",
+            "claim_boundary_v55",
+        },
+        "paper4_v55_join_match_rate_table.csv": {
+            "left_source",
+            "right_source",
+            "intersection_n",
+            "left_match_rate",
+        },
+        "paper4_v56_cvar_full_comparable_frontier.csv": {
+            "regime_v56",
+            "solver_success_v56",
+            "exact_full_universe_claim_v56",
+            "claim_boundary_v56",
+        },
+        "paper4_v56_cvar_slack_certificate.csv": {
+            "regime_v56",
+            "required_cvar_slack_v56",
+            "certificate_scope_v56",
+        },
+        "paper4_v57_online_source_family_direct_repair.csv": {
+            "source_family",
+            "gate_source80_policy90_width95_v57",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v57_spo_dependency_probe.csv": {
+            "package",
+            "formal_differentiable_spo_claim_allowed",
+            "claim_boundary_v57",
+        },
+        "paper4_v57_ifrs9_sicr_proxy_panel_update.csv": {
+            "sicr_rule_v57",
+            "contractual_ifrs9_claim_allowed",
+            "claim_boundary_v57",
+        },
+        "paper4_v58_candidate_registry.csv": {
+            "policy_id",
+            "full_governance_score_v58",
+            "paper1_promotion_allowed_v58",
+        },
+        "paper4_v58_claim_matrix.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+        "paper4_v59_cvar_adaptive_feasible_frontier.csv": {
+            "regime_v59",
+            "solver_success_v59",
+            "scenario_loss_cvar90_v59",
+            "claim_boundary_v59",
+        },
+        "paper4_v60_dynamic_rerun_gate_memo.csv": {
+            "memo_id",
+            "focused_512_or_1024_rerun_executed_v60",
+            "working_champion_change_allowed_v60",
+        },
+        "paper4_v61_source_diversified_frontier.csv": {
+            "regime_v61",
+            "solver_success_v61",
+            "hard_family_caps_v61",
+            "claim_boundary_v61",
+        },
+        "paper4_v61_blocker_dashboard.csv": {
+            "lane",
+            "status",
+            "evidence_artifact",
+            "next_unlock",
+        },
+        "paper4_v62_source_diversification_slack_certificate.csv": {
+            "policy_id",
+            "source_family",
+            "required_cap_slack_share_v62",
+            "certificate_scope_v62",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    universe = pd.read_parquet(
+        TABLE_DIR / "paper4_v55_maximal_comparable_universe.parquet",
+        columns=["loan_id", "pd_point", "qhat_v4", "grade"],
+    )
+    assert len(universe) == 276_869
+    assert universe["loan_id"].is_unique
+    assert universe["pd_point"].between(0, 1).all()
+
+    lineage = _read_csv("paper4_v55_full_universe_lineage_audit.csv")
+    assert (
+        lineage.loc[
+            lineage["lineage_item"].eq("exact_prediction_to_test_join"), "match_rows_v55"
+        ].iloc[0]
+        == 276_869
+    )
+
+    v56_frontier = _read_csv("paper4_v56_cvar_full_comparable_frontier.csv")
+    assert not v56_frontier["exact_full_universe_claim_v56"].astype(bool).any()
+
+    v57_online = _read_csv("paper4_v57_online_source_family_direct_repair.csv")
+    assert not v57_online["strict_live_deployability_claim_allowed"].astype(bool).any()
+
+    v58_claims = _read_csv("paper4_v58_claim_matrix.csv")
+    prohibited = v58_claims.loc[v58_claims["claim_id"].str.contains("exact|online|spo|ifrs9")]
+    assert not prohibited["allowed"].astype(bool).all()
+
+    v60_memo = _read_csv("paper4_v60_dynamic_rerun_gate_memo.csv")
+    assert not v60_memo["focused_512_or_1024_rerun_executed_v60"].astype(bool).any()
+    assert not v60_memo["working_champion_change_allowed_v60"].astype(bool).any()
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Source-diversified CVaR challenger is feasible and promotable." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v55-v58" in notebook
+    assert "Wave v59" in notebook
+    assert "Wave v60" in notebook
+    assert "Wave v61" in notebook
+    assert "Wave v62" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

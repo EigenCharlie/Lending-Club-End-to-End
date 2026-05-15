@@ -1,0 +1,12 @@
+{
+  "candidate_replay_rows_v60": 2,
+  "claim_boundary": "v60 gates expensive dynamic stress; no promotion",
+  "focused_512_or_1024_rerun_executed_v60": false,
+  "generated_at_utc": "2026-05-15T16:36:00.855631+00:00",
+  "paper1_promotion_allowed_v60": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v60": false,
+  "phase": "v60_dynamic_stress_gate_for_v59_candidates",
+  "runtime_seconds": 0.065,
+  "schema_version": "2026-05-15.60"
+}

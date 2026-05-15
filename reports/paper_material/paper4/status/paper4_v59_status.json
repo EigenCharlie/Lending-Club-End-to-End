@@ -1,0 +1,14 @@
+{
+  "adaptive_allocation_rows_v59": 209,
+  "adaptive_feasible_rows_v59": 2,
+  "adaptive_frontier_rows_v59": 6,
+  "claim_boundary": "adaptive CVaR feasibility frontier over expanded restricted master; no exact full-universe claim",
+  "exact_full_universe_cvar_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T16:33:49.485478+00:00",
+  "paper1_promotion_allowed_v59": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v59": false,
+  "phase": "v59_adaptive_cvar_feasibility_frontier",
+  "runtime_seconds": 55.506,
+  "schema_version": "2026-05-15.59"
+}

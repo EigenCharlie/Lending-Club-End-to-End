@@ -1,0 +1,20 @@
+{
+  "bellman_exact_claim_allowed": false,
+  "cate_policy_value_allowed": false,
+  "claim_boundary": "v57 updates gate diagnostics only; no forbidden claims unlocked",
+  "contractual_ifrs9_claim_allowed": false,
+  "dla_policy_month_rows_v57": 26,
+  "fair_lending_legal_claim_allowed": false,
+  "formal_differentiable_spo_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T16:31:06.522862+00:00",
+  "ifrs9_sicr_rows_v57": 4,
+  "online_gate_pass_rows_v57": 0,
+  "online_repair_rows_v57": 140,
+  "paper1_promotion_allowed_v57": false,
+  "paper4_final_promotion_created": false,
+  "phase": "v57_online_spo_dla_ifrs9_gate_updates",
+  "runtime_seconds": 71.801,
+  "schema_version": "2026-05-15.57",
+  "spo_oracle_bridge_rows_v57": 1,
+  "strict_live_deployability_claim_allowed": false
+}

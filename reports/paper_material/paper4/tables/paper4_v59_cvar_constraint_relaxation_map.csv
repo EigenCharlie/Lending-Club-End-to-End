@@ -1,0 +1,7 @@
+regime_v59,solver_success_v59,cvar_cap_v59,return_floor_v59,cap_multiplier_v59,min_deployment_v59,scenario_loss_cvar90_v59,objective_return_v59,claim_boundary_v59
+strict_low_deploy,True,85000.0,20000.0,1.35,0.72,43875.05758239633,22650.146812753595,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
+committee_low_deploy,False,105000.0,35000.0,1.55,0.8,,,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
+committee_balanced,False,125000.0,50000.0,1.8,0.85,,,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
+relaxed_balanced,False,160000.0,70000.0,2.15,0.9,,,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
+wealth_first,False,220000.0,95000.0,2.5,0.9,,,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
+tail_first_low_budget,True,75000.0,5000.0,2.2,0.55,42745.455721701495,23342.94786759945,adaptive feasible frontier over expanded restricted master; not exact full-universe optimality
