@@ -1223,3 +1223,46 @@ Keep v75 in the living notebook. Promote only after pricing, source-scope
 coverage and integrality review all pass.
 
 <!-- V75_REPRICE_AFTER_ITERATION_2_END -->
+
+<!-- V76_COLUMN_GENERATION_ITERATION_3_START -->
+
+## Wave v76: Column-Generation Iteration 3
+
+Generated: 2026-05-15T20:09:16.637423+00:00
+
+### Objective
+
+Use the remaining v75 negative reduced-cost columns as actual master columns.
+Because v75 found improving columns in only one policy/regime pair, v76 is a
+focused third restricted-master LP iteration.
+
+### Results
+
+- Candidate rows added: `3897`.
+- Iteration frontier rows: `1`.
+- Successful LP rows: `1`.
+- Allocation rows: `174`.
+- Scenario rows: `128`.
+- Best return delta vs v74: `9.094947017729282e-13`.
+- v75 candidate allocated exposure: `0.0`.
+- Re-price after iteration performed: `False`.
+
+### Interpretation
+
+v76 shows the column-generation loop can narrow from broad exploration to a
+single active regime. It remains a restricted-master continuous LP iteration,
+so post-iteration-3 re-pricing is required before any convergence statement.
+
+### Claim Impact
+
+- Allowed: third restricted-master column-generation iteration completed.
+- Still prohibited: convergence, exact full-universe CVaR optimality, MILP
+  whole-loan optimality, Paper Estrella replacement, final Paper 4 promotion
+  and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v76 in the living notebook. Promote only after iteration-3 re-pricing,
+source-scope coverage and integrality review pass.
+
+<!-- V76_COLUMN_GENERATION_ITERATION_3_END -->

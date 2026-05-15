@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v76_column_generation_iteration_3_completed,True,paper4_v76_iteration_3_frontier.csv,third restricted-master iteration only
+v76_column_generation_converged,False,paper4_v76_claim_blockers.csv,requires post-iteration-3 re-pricing with no improving columns
+v76_paper1_or_final_promotion,False,paper4_v76_iteration_3_comparison.csv,no Paper Estrella or final Paper 4 promotion

@@ -5341,6 +5341,162 @@ def test_paper4_v75_post_iteration_2_reprice_blocks_convergence() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v76_column_generation_iteration_3_requires_repricing() -> None:
+    status = _read_json("paper4_v76_status.json")
+
+    assert status["phase"] == "v76_column_generation_iteration_3"
+    assert status["candidate_rows_v76"] == 3897
+    assert status["frontier_rows_v76"] == 1
+    assert status["successful_iteration_rows_v76"] == 1
+    assert status["allocation_rows_v76"] == 174
+    assert status["scenario_rows_v76"] == 128
+    assert status["active_constraint_rows_v76"] == 175
+    assert status["comparison_rows_v76"] == 1
+    assert abs(status["best_delta_return_vs_v74_iteration_v76"]) < 1e-6
+    assert status["v75_candidate_allocated_exposure_v76"] == 0
+    assert status["v73_previous_candidate_allocated_exposure_v76"] > 180000
+    assert status["v71_previous_candidate_allocated_exposure_v76"] > 490000
+    assert status["reprice_after_iteration_performed_v76"] is False
+    assert status["column_generation_termination_claim_allowed_v76"] is False
+    assert status["exact_full_universe_cvar_claim_allowed_v76"] is False
+    assert status["paper1_promotion_allowed_v76"] is False
+    assert status["paper4_working_champion_changed_v76"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    candidates = pd.read_parquet(TABLE_DIR / "paper4_v76_iteration_3_candidates.parquet")
+    assert not candidates.empty
+    assert {
+        "policy_id",
+        "regime_v75",
+        "loan_id",
+        "minimization_reduced_cost_v75",
+        "return_improvement_signal_v75",
+        "master_role_v69",
+        "claim_boundary_v69",
+    }.issubset(candidates.columns)
+    assert len(candidates) == status["candidate_rows_v76"]
+    assert candidates["minimization_reduced_cost_v75"].lt(0).all()
+    assert set(candidates["master_role_v69"]) == {"v75_negative_reduced_cost_column"}
+    assert set(candidates["regime_v75"]) == {"incumbent_cvar_relaxed_source_lp"}
+
+    frontier = _read_csv("paper4_v76_iteration_3_frontier.csv")
+    assert {
+        "policy_id",
+        "regime_v76",
+        "solver_success_v76",
+        "negative_reduced_cost_candidates_added_v76",
+        "delta_return_vs_v74_iteration_v76",
+        "v75_candidate_allocated_exposure_v76",
+        "v73_previous_candidate_allocated_exposure_v76",
+        "v71_previous_candidate_allocated_exposure_v76",
+        "reprice_after_iteration_performed_v76",
+        "column_generation_termination_claim_allowed_v76",
+        "exact_full_universe_cvar_claim_allowed_v76",
+        "claim_boundary_v76",
+    }.issubset(frontier.columns)
+    assert frontier["solver_success_v76"].astype(bool).all()
+    assert (
+        frontier["negative_reduced_cost_candidates_added_v76"].sum() == status["candidate_rows_v76"]
+    )
+    assert frontier["delta_return_vs_v74_iteration_v76"].abs().max() < 1e-6
+    assert frontier["v75_candidate_allocated_exposure_v76"].sum() == 0
+    assert frontier["v73_previous_candidate_allocated_exposure_v76"].sum() > 180000
+    assert frontier["v71_previous_candidate_allocated_exposure_v76"].sum() > 490000
+    assert not frontier["reprice_after_iteration_performed_v76"].astype(bool).any()
+    assert not frontier["column_generation_termination_claim_allowed_v76"].astype(bool).any()
+    assert not frontier["exact_full_universe_cvar_claim_allowed_v76"].astype(bool).any()
+    assert frontier["claim_boundary_v76"].str.contains("re-pricing still required").all()
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v76_iteration_3_allocations.parquet")
+    assert not allocations.empty
+    assert {
+        "policy_id",
+        "regime_v76",
+        "loan_id",
+        "master_role_v76",
+        "allocation_fraction_v76",
+        "allocated_exposure_v76",
+        "claim_boundary_v76",
+    }.issubset(allocations.columns)
+    assert allocations["allocation_fraction_v76"].between(0, 1).all()
+    assert "v75_negative_reduced_cost_column" not in set(allocations["master_role_v76"])
+    assert {
+        "v71_negative_reduced_cost_column",
+        "v73_negative_reduced_cost_column",
+    }.issubset(set(allocations["master_role_v76"]))
+    assert allocations["claim_boundary_v76"].str.contains("re-pricing still required").all()
+
+    scenarios = _read_csv("paper4_v76_iteration_3_scenario_losses.csv")
+    assert {
+        "policy_id",
+        "regime_v76",
+        "path_id",
+        "scenario_loss_v76",
+        "scenario_return_v76",
+    }.issubset(scenarios.columns)
+    assert scenarios.groupby(["policy_id", "regime_v76"])["path_id"].nunique().eq(128).all()
+
+    active = _read_csv("paper4_v76_iteration_3_active_constraints.csv")
+    assert {
+        "policy_id",
+        "regime_v76",
+        "constraint_type_v76",
+        "lhs_v76",
+        "rhs_v76",
+        "slack_v76",
+        "binding_v76",
+    }.issubset(active.columns)
+    assert {"budget_lower", "source_share", "cvar_path_excess"}.issubset(
+        set(active["constraint_type_v76"])
+    )
+
+    comparison = _read_csv("paper4_v76_iteration_3_comparison.csv")
+    assert {
+        "policy_id",
+        "regime_v76",
+        "delta_return_vs_v74_iteration_v76",
+        "delta_cvar90_vs_v74_iteration_v76",
+        "v75_candidate_allocated_exposure_v76",
+        "column_generation_termination_claim_allowed_v76",
+    }.issubset(comparison.columns)
+    assert comparison["delta_return_vs_v74_iteration_v76"].abs().max() < 1e-6
+    assert comparison["v75_candidate_allocated_exposure_v76"].sum() == 0
+    assert not comparison["column_generation_termination_claim_allowed_v76"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v76_claim_blockers.csv")
+    assert {
+        "blocker_id_v76",
+        "blocking_v76",
+        "required_next_artifact_v76",
+        "claim_boundary_v76",
+    }.issubset(blockers.columns)
+    assert blockers["blocking_v76"].astype(bool).all()
+    assert {
+        "post_iteration_3_repricing_missing",
+        "source_constraint_scope_needs_reaudit_after_iteration_3",
+        "continuous_relaxation_not_whole_loan_milp",
+    }.issubset(set(blockers["blocker_id_v76"]))
+
+    claim_delta = _read_csv("paper4_v76_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v76_column_generation_iteration_3_completed"]) is True
+    assert bool(claim_map["v76_column_generation_converged"]) is False
+    assert bool(claim_map["v76_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert (
+        "Paper 4 has a v76 third column-generation iteration over remaining negative v75 columns."
+        in set(current_boundaries["claim"])
+    )
+    assert "v76 proves column-generation convergence." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v76: Column-Generation Iteration 3" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
