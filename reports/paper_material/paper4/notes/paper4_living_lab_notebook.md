@@ -1310,3 +1310,48 @@ Keep v77 in the living notebook. Promote only after source-scope coverage and
 integrality review pass.
 
 <!-- V77_REPRICE_AFTER_ITERATION_3_END -->
+
+<!-- V78_SOURCE_SCOPE_EXPANDED_REPRICE_START -->
+
+## Wave v78: Source-Scope Expanded Re-Price
+
+Generated: 2026-05-15T20:20:07.176777+00:00
+
+### Objective
+
+Rerun the focused v77 pricing check with source-share rows expanded to every
+source ID present in the full comparable v55 universe. This targets the
+remaining source-scope blocker without changing the continuous LP claim
+boundary.
+
+### Results
+
+- Re-price rows: `257954`.
+- Summary rows: `1`.
+- Dual rows: `182`.
+- Source-scope rows: `6`.
+- Missing source constraint IDs: `0`.
+- Improving columns after full source-scope pricing: `0`.
+- Pricing blocker cleared: `True`.
+- Source-scope blocker cleared: `True`.
+- Exact full-universe CVaR claim allowed: `False`.
+
+### Interpretation
+
+v78 separates another layer of evidence: pricing remains clean after adding
+full source-scope rows, and the source-scope diagnostic is locally complete.
+The remaining hard blocker is integrality/whole-loan evidence because the
+solver is still a continuous restricted-master LP.
+
+### Claim Impact
+
+- Allowed: focused pricing check has full comparable-universe source rows.
+- Still prohibited: exact full-universe CVaR optimality, MILP whole-loan
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v78 in the living notebook. Promote only after integrality evidence passes.
+
+<!-- V78_SOURCE_SCOPE_EXPANDED_REPRICE_END -->

@@ -5618,6 +5618,132 @@ def test_paper4_v77_post_iteration_3_reprice_clears_pricing_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v78_source_scope_expanded_reprice_clears_source_scope_only() -> None:
+    status = _read_json("paper4_v78_status.json")
+
+    assert status["phase"] == "v78_source_scope_expanded_reprice"
+    assert status["reprice_rows_v78"] == 257954
+    assert status["summary_rows_v78"] == 1
+    assert status["dual_rows_v78"] == 182
+    assert status["source_scope_rows_v78"] == 6
+    assert status["claim_blocker_rows_v78"] == 3
+    assert status["improving_columns_v78"] == 0
+    assert status["negative_reduced_cost_detected_v78"] is False
+    assert status["pricing_blocker_cleared_v78"] is True
+    assert status["missing_source_constraint_ids_v78"] == 0
+    assert status["source_scope_blocker_cleared_v78"] is True
+    assert status["exact_full_universe_cvar_claim_allowed_v78"] is False
+    assert status["paper1_promotion_allowed_v78"] is False
+    assert status["paper4_working_champion_changed_v78"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    repriced = pd.read_parquet(TABLE_DIR / "paper4_v78_source_scope_expanded_reprice.parquet")
+    assert not repriced.empty
+    assert {
+        "policy_id",
+        "regime_v78",
+        "loan_id",
+        "minimization_reduced_cost_v78",
+        "return_improvement_signal_v78",
+        "improving_column_v78",
+        "source_scope_expanded_reprice_v78",
+        "claim_boundary_v78",
+    }.issubset(repriced.columns)
+    assert len(repriced) == status["reprice_rows_v78"]
+    assert int(repriced["improving_column_v78"].sum()) == 0
+    assert repriced["minimization_reduced_cost_v78"].min() > 0
+    assert repriced["source_scope_expanded_reprice_v78"].eq(1).all()
+    assert repriced["claim_boundary_v78"].str.contains("integrality blocker remains").all()
+
+    summary = _read_csv("paper4_v78_source_scope_expanded_summary.csv")
+    assert {
+        "policy_id",
+        "regime_v78",
+        "omitted_rows_priced_v78",
+        "improving_columns_v78",
+        "negative_reduced_cost_detected_v78",
+        "source_scope_expanded_reprice_v78",
+        "exact_full_universe_cvar_claim_allowed_v78",
+    }.issubset(summary.columns)
+    assert summary["omitted_rows_priced_v78"].sum() == status["reprice_rows_v78"]
+    assert summary["improving_columns_v78"].sum() == 0
+    assert not summary["negative_reduced_cost_detected_v78"].astype(bool).any()
+    assert summary["source_scope_expanded_reprice_v78"].astype(bool).all()
+    assert not summary["exact_full_universe_cvar_claim_allowed_v78"].astype(bool).any()
+
+    duals = _read_csv("paper4_v78_source_scope_expanded_duals.csv")
+    assert {
+        "policy_id",
+        "regime_v78",
+        "constraint_index_v78",
+        "constraint_type_v78",
+        "marginal_v78",
+        "source_scope_expanded_v78",
+        "source_id_present_in_master_v78",
+        "source_scope_expanded_reprice_v78",
+        "claim_boundary_v78",
+    }.issubset(duals.columns)
+    assert {"budget_lower", "source_share", "cvar_path_excess"}.issubset(
+        set(duals["constraint_type_v78"])
+    )
+    source_rows = duals.loc[duals["constraint_type_v78"].eq("source_share")]
+    assert len(source_rows) == 51
+    assert source_rows["source_scope_expanded_v78"].astype(bool).all()
+    assert source_rows["source_id_present_in_master_v78"].eq(False).sum() == 7
+    assert duals["marginal_v78"].abs().gt(0).any()
+    assert duals["source_scope_expanded_reprice_v78"].eq(1).all()
+    assert duals["claim_boundary_v78"].str.contains("not whole-loan certificate").all()
+
+    source_scope = _read_csv("paper4_v78_source_scope_expanded_diagnostics.csv")
+    assert {
+        "policy_id",
+        "regime_v78",
+        "source_family",
+        "universe_source_ids_v78",
+        "constrained_source_ids_v78",
+        "missing_source_constraint_ids_v78",
+        "source_constraint_scope_complete_v78",
+        "claim_boundary_v78",
+    }.issubset(source_scope.columns)
+    assert (
+        source_scope["constrained_source_ids_v78"] == source_scope["universe_source_ids_v78"]
+    ).all()
+    assert source_scope["missing_source_constraint_ids_v78"].sum() == 0
+    assert source_scope["source_constraint_scope_complete_v78"].astype(bool).all()
+
+    blockers = _read_csv("paper4_v78_claim_blockers.csv")
+    assert {"blocker_id_v78", "blocking_v78", "evidence_count_v78", "claim_boundary_v78"}.issubset(
+        blockers.columns
+    )
+    blocker_map = dict(zip(blockers["blocker_id_v78"], blockers["blocking_v78"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v78"], blockers["evidence_count_v78"], strict=False)
+    )
+    assert bool(blocker_map["negative_reduced_cost_columns_after_full_source_scope"]) is False
+    assert int(evidence_map["negative_reduced_cost_columns_after_full_source_scope"]) == 0
+    assert bool(blocker_map["source_constraint_scope_incomplete"]) is False
+    assert int(evidence_map["source_constraint_scope_incomplete"]) == 0
+    assert bool(blocker_map["continuous_relaxation_not_whole_loan_milp"]) is True
+
+    claim_delta = _read_csv("paper4_v78_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v78_full_source_scope_reprice_executed"]) is True
+    assert bool(claim_map["v78_pricing_and_source_scope_cleared"]) is True
+    assert bool(claim_map["v78_exact_full_universe_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has v78 full source-scope rows for the focused pricing check." in set(
+        current_boundaries["claim"]
+    )
+    assert "v78 proves whole-loan full-universe optimality." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v78: Source-Scope Expanded Re-Price" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
