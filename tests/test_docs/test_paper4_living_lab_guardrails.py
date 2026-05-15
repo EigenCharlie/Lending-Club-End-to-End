@@ -3957,6 +3957,87 @@ def test_paper4_v55_v61_unlock_loop_keeps_claim_boundaries() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v63_source_governance_repair_is_lab_only() -> None:
+    status = _read_json("paper4_v63_status.json")
+
+    assert status["phase"] == "v63_source_governance_repair_frontier"
+    assert status["source_repair_frontier_rows_v63"] >= 4
+    assert status["source_repair_success_rows_v63"] >= 1
+    assert status["source_repair_book_rows_v63"] > 0
+    assert status["dynamic_rerun_recommended_rows_v63"] == 0
+    assert status["exact_full_universe_cvar_claim_allowed"] is False
+    assert status["paper1_promotion_allowed_v63"] is False
+    assert status["paper4_working_champion_changed_v63"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    expected_csvs = {
+        "paper4_v63_source_repair_frontier.csv": {
+            "policy_id",
+            "source_repair_success_v63",
+            "scenario_loss_cvar90_v63",
+            "max_required_cap_slack_share_v63",
+            "exact_full_universe_claim_v63",
+            "paper1_promotion_allowed_v63",
+            "claim_boundary_v63",
+        },
+        "paper4_v63_source_repair_concentration.csv": {
+            "policy_id",
+            "source_family",
+            "top_exposure_share_v63",
+            "target_cap_v63",
+            "required_cap_slack_share_v63",
+        },
+        "paper4_v63_dynamic_gate_memo.csv": {
+            "policy_id",
+            "dynamic_512_or_1024_rerun_recommended_v63",
+            "working_champion_change_allowed_v63",
+            "rerun_decision_reason_v63",
+        },
+        "paper4_v63_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    books = pd.read_parquet(TABLE_DIR / "paper4_v63_source_repair_candidate_books.parquet")
+    assert not books.empty
+    assert {"policy_id_v63", "allocated_exposure_v63", "claim_boundary_v63"}.issubset(books.columns)
+
+    frontier = _read_csv("paper4_v63_source_repair_frontier.csv")
+    assert frontier["source_repair_success_v63"].astype(bool).any()
+    assert not frontier["exact_full_universe_claim_v63"].astype(bool).any()
+    assert not frontier["paper1_promotion_allowed_v63"].astype(bool).any()
+    assert frontier["max_source_share_v63"].max() < 0.90
+
+    concentration = _read_csv("paper4_v63_source_repair_concentration.csv")
+    grade_top = concentration.loc[concentration["source_family"].eq("grade")]
+    assert grade_top["top_exposure_share_v63"].max() < 0.90
+    assert concentration["required_cap_slack_share_v63"].max() < 0.01
+
+    gate = _read_csv("paper4_v63_dynamic_gate_memo.csv")
+    assert not gate["dynamic_512_or_1024_rerun_recommended_v63"].astype(bool).any()
+    assert not gate["working_champion_change_allowed_v63"].astype(bool).any()
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has heuristic source-governance repair candidates after v59-v62." in set(
+        current_boundaries["claim"]
+    )
+    assert "A v63 source-repaired candidate replaces Paper Estrella." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v63: Source-Governance Repair Frontier" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

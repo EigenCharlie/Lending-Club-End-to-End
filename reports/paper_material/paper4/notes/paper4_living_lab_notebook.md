@@ -687,3 +687,43 @@ for grade concentration. That makes them useful diagnostics, not working
 champion candidates.
 
 <!-- V62_SOURCE_SLACK_CERTIFICATE_END -->
+<!-- V63_SOURCE_REPAIR_START -->
+
+## Wave v63: Source-Governance Repair Frontier
+
+Generated: 2026-05-15T18:34:40.025160+00:00
+
+### Objective
+
+Turn the v61-v62 source-diversification blocker into an executable
+repair frontier: build whole-loan candidate books that reduce source
+concentration while measuring the cost in return and tail loss.
+
+### Results
+
+- Frontier rows: `4`.
+- Successful repair rows: `4`.
+- Candidate book rows: `1624`.
+- Best repair score: `0.72`.
+- Dynamic rerun recommended rows: `0`.
+
+### Interpretation
+
+v63 shows whether the tail-feasible v59 idea can be made less trivial
+without pretending that a heuristic repair is an exact optimizer. If
+the dynamic gate stays closed, the value is still a publishable negative
+result: source governance imposes a measurable cost under the current
+internal loss model.
+
+### Claim Impact
+
+- Allowed: heuristic source-repair candidates and concentration certificates exist.
+- Still prohibited: Paper Estrella replacement, exact full-universe CVaR,
+  final Paper 4 promotion, live deployment and legal fairness claims.
+
+### Quarto Promotion Decision
+
+Keep v63 in the living notebook. Promote only after a candidate survives
+common-path dynamic replay and a separate editorial claim review.
+
+<!-- V63_SOURCE_REPAIR_END -->

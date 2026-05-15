@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v63_source_repair_frontier_exists,True,paper4_v63_source_repair_frontier.csv,heuristic whole-loan repair over expanded restricted master; not exact optimizer
+v63_source_repaired_candidate_promotable,False,paper4_v63_dynamic_gate_memo.csv,no Paper Estrella replacement and no final Paper 4 promotion from v63
+v63_exact_full_universe_cvar,False,paper4_v63_source_repair_frontier.csv,"candidate books are restricted-master heuristic repairs, not full-universe LP proof"
