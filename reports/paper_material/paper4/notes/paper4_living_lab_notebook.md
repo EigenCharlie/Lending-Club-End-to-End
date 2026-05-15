@@ -1534,3 +1534,50 @@ Keep v82 in the living notebook. Promote only after a repaired/re-solved
 portfolio survives follow-up pricing, source, CVaR and dynamic gates.
 
 <!-- V82_ONE_SWAP_INTEGER_PRICING_END -->
+
+<!-- V83_BEST_ONE_SWAP_REPAIR_START -->
+
+## Wave v83: Best One-Swap Repair Candidate
+
+Generated: 2026-05-15T20:58:50.066885+00:00
+
+### Objective
+
+Apply the best feasible one-drop/one-add swap found by v82 and recompute
+portfolio return, budget, source and CVaR metrics. This creates a repaired
+candidate for follow-up pricing; it is not a final champion or optimality
+certificate.
+
+### Results
+
+- Added loan: `154722969`.
+- Dropped loan: `127135245`.
+- Selected rows after repair: `171`.
+- Return delta vs v80: `201.74350209599243`.
+- CVaR90 delta vs v80: `231.72304392619117`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v83 improves the v80 binary portfolio's objective through the best v82 swap
+while preserving budget, source and CVaR feasibility. The next required
+experiment is a post-repair integer-pricing pass: once the portfolio changes,
+the omitted universe must be screened again.
+
+### Claim Impact
+
+- Allowed: best one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v83 in the living notebook. Promote only after post-repair pricing and
+dynamic/promotion gates pass.
+
+<!-- V83_BEST_ONE_SWAP_REPAIR_END -->
