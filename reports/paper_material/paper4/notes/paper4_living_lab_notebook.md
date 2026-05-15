@@ -1136,3 +1136,47 @@ Keep v73 in the living notebook. Promote only after convergence, source-scope
 coverage and integrality review pass.
 
 <!-- V73_REPRICE_AFTER_ITERATION_END -->
+
+<!-- V74_COLUMN_GENERATION_ITERATION_2_START -->
+
+## Wave v74: Column-Generation Iteration 2
+
+Generated: 2026-05-15T19:58:01.036544+00:00
+
+### Objective
+
+Use the v73 negative reduced-cost columns as actual master columns while
+retaining the v72 iteration-1 columns. This tests whether the laboratory can
+continue beyond a single column-generation step without promoting convergence.
+
+### Results
+
+- Candidate rows added: `83328`.
+- Iteration frontier rows: `5`.
+- Successful LP rows: `5`.
+- Allocation rows: `1091`.
+- Scenario rows: `640`.
+- Best return delta vs v72: `810.9294127615908`.
+- v73 candidate allocated exposure: `181163.99999999997`.
+- Re-price after iteration performed: `False`.
+
+### Interpretation
+
+v74 converts the v73 blocker into a second executable restricted-master LP
+iteration. The result is valuable because it proves the loop can continue with
+material newly allocated columns, but it still cannot claim convergence because
+the v74 solution has not been priced against omitted v55 columns.
+
+### Claim Impact
+
+- Allowed: second restricted-master column-generation iteration completed.
+- Still prohibited: convergence, exact full-universe CVaR optimality, MILP
+  whole-loan optimality, Paper Estrella replacement, final Paper 4 promotion
+  and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v74 in the living notebook. Promote only after iteration-2 re-pricing,
+source-scope coverage and integrality review pass.
+
+<!-- V74_COLUMN_GENERATION_ITERATION_2_END -->
