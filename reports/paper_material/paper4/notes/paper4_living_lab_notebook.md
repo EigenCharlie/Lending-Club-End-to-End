@@ -769,3 +769,43 @@ Keep v64 in the living notebook. Do not promote until an external/future
 holdout or a stronger all-split margin repair exists.
 
 <!-- V64_ONLINE_PSEUDO_UNSEEN_END -->
+
+<!-- V65_ONLINE_MARGIN_REPAIR_START -->
+
+## Wave v65: Online Margin Repair
+
+Generated: 2026-05-15T18:56:04.717109+00:00
+
+### Objective
+
+Repair the v64 near miss by replacing the coarse global qhat delta grid with
+a fine margin grid around the all-split boundary.
+
+### Results
+
+- Margin grid rows: `1176`.
+- All-split pass rows: `24`.
+- Families with all-split pass: `2`.
+- Best source family: `period`.
+- Best delta: `0.012`.
+- Best width margin to 0.95: `0.0031030181612764496`.
+
+### Interpretation
+
+v65 upgrades the online lane from a near miss to an internal historical
+pseudo-unseen all-split pass for coarse source views. This is valuable for
+Paper 4 because it identifies a frozen candidate for future external holdout,
+but it still does not prove live deployability.
+
+### Claim Impact
+
+- Allowed: internal pseudo-unseen margin repair with all-split historical pass.
+- Still prohibited: live deployability, external/future validation, legal
+  fairness claims, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v65 in the living notebook. Promote only after an external/future holdout
+protocol exists and passes with the method frozen ex ante.
+
+<!-- V65_ONLINE_MARGIN_REPAIR_END -->

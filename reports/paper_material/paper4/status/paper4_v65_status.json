@@ -1,0 +1,19 @@
+{
+  "all_split_gate_pass_rows_v65": 24,
+  "best_width_margin_to_0p95_v65": 0.0031030181612764496,
+  "cell_summary_rows_v65": 74,
+  "claim_boundary": "v65 is an internal historical margin repair only; no live deployability claim",
+  "external_unseen_data_available_v65": false,
+  "families_with_all_split_pass_v65": 2,
+  "generated_at_utc": "2026-05-15T18:56:04.717109+00:00",
+  "margin_grid_rows_v65": 1176,
+  "margin_summary_rows_v65": 294,
+  "paper1_promotion_allowed_v65": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v65": false,
+  "phase": "v65_online_margin_repair",
+  "runtime_seconds": 20.102,
+  "schema_version": "2026-05-15.65",
+  "strict_live_deployability_claim_allowed_v65": false,
+  "winner_rows_v65": 2
+}

@@ -4135,6 +4135,105 @@ def test_paper4_v64_online_pseudo_unseen_stress_is_lab_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v65_online_margin_repair_keeps_live_claim_blocked() -> None:
+    status = _read_json("paper4_v65_status.json")
+
+    assert status["phase"] == "v65_online_margin_repair"
+    assert status["margin_grid_rows_v65"] >= 1_000
+    assert status["margin_summary_rows_v65"] >= 250
+    assert status["winner_rows_v65"] == 2
+    assert status["cell_summary_rows_v65"] > 0
+    assert status["all_split_gate_pass_rows_v65"] > 0
+    assert status["families_with_all_split_pass_v65"] == 2
+    assert status["best_width_margin_to_0p95_v65"] > 0
+    assert status["external_unseen_data_available_v65"] is False
+    assert status["strict_live_deployability_claim_allowed_v65"] is False
+    assert status["paper1_promotion_allowed_v65"] is False
+    assert status["paper4_working_champion_changed_v65"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    expected_csvs = {
+        "paper4_v65_online_margin_repair_input_audit.csv": {
+            "audit_item_v64",
+            "value_v64",
+            "claim_boundary_v65",
+        },
+        "paper4_v65_online_margin_repair_grid.csv": {
+            "source_family",
+            "pseudo_unseen_split_v65",
+            "global_delta_v65",
+            "source_month_defended_min_v65",
+            "policy_month_defended_min_v65",
+            "avg_width_loan_v65",
+            "gate_source80_policy90_width95_v65",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v65_online_margin_repair_summary.csv": {
+            "source_family",
+            "all_splits_gate_pass_v65",
+            "source_margin_to_0p80_v65",
+            "policy_margin_to_0p90_v65",
+            "width_margin_to_0p95_v65",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v65_online_margin_repair_winners.csv": {
+            "source_family",
+            "global_delta_v65",
+            "recommendation_v65",
+            "all_splits_gate_pass_v65",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v65_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    summary = _read_csv("paper4_v65_online_margin_repair_summary.csv")
+    passing = summary.loc[summary["all_splits_gate_pass_v65"].astype(bool)]
+    assert not passing.empty
+    assert set(passing["source_family"].unique()) == {"period", "term"}
+    assert passing["source_margin_to_0p80_v65"].min() > 0
+    assert passing["policy_margin_to_0p90_v65"].min() >= 0
+    assert passing["width_margin_to_0p95_v65"].min() > 0
+    assert not passing["strict_live_deployability_claim_allowed"].astype(bool).any()
+
+    winners = _read_csv("paper4_v65_online_margin_repair_winners.csv")
+    assert set(winners["source_family"]) == {"period", "term"}
+    assert winners["all_splits_gate_pass_v65"].astype(bool).all()
+    assert winners["global_delta_v65"].min() == pytest.approx(0.012)
+    assert winners["width_margin_to_0p95_v65"].min() > 0
+    assert not winners["strict_live_deployability_claim_allowed"].astype(bool).any()
+
+    cells = pd.read_parquet(TABLE_DIR / "paper4_v65_online_margin_repair_cells.parquet")
+    assert not cells.empty
+    assert {
+        "source_family",
+        "pseudo_unseen_split_v65",
+        "coverage_v64",
+        "avg_width_v64",
+        "claim_boundary_v65",
+    }.issubset(cells.columns)
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert (
+        "Paper 4 has an internal pseudo-unseen online margin repair that passes all historical splits."
+        in set(current_boundaries["claim"])
+    )
+    assert "v65 margin repair proves live online deployability." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v65: Online Margin Repair" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
