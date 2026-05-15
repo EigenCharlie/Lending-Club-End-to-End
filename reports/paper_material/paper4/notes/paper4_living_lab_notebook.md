@@ -847,3 +847,40 @@ Keep v66 in the living notebook until actual external/future holdout data
 passes the frozen gate spec.
 
 <!-- V66_EXTERNAL_HOLDOUT_PROTOCOL_END -->
+
+<!-- V67_EXTERNAL_HOLDOUT_SCORER_START -->
+
+## Wave v67: External Holdout Scorer
+
+Generated: 2026-05-15T19:03:33.260598+00:00
+
+### Objective
+
+Implement the frozen v66 holdout scorer now, while external/future holdout
+data is still absent, so the scoring path is executable and claim-safe later.
+
+### Results
+
+- Readiness rows: `4`.
+- Scorecard rows: `2`.
+- Holdout data available: `False`.
+- Passing methods: `0`.
+
+### Interpretation
+
+v67 is deliberately blocked by missing external data. That is the correct
+result: the scorer exists and hashes the frozen method inputs, but it does not
+pretend to validate live deployment.
+
+### Claim Impact
+
+- Allowed: executable frozen scorer and blocked scorecard.
+- Still prohibited: live deployability, external validation, Paper Estrella
+  replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v67 in the living notebook. Promote only after actual external/future
+holdout rows are scored and pass the v66 gates without parameter edits.
+
+<!-- V67_EXTERNAL_HOLDOUT_SCORER_END -->

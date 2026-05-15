@@ -4331,6 +4331,73 @@ def test_paper4_v66_external_holdout_protocol_is_not_validation() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v67_external_holdout_scorer_blocks_without_data() -> None:
+    status = _read_json("paper4_v67_status.json")
+
+    assert status["phase"] == "v67_external_holdout_scorer"
+    assert status["readiness_rows_v67"] >= 4
+    assert status["scorecard_rows_v67"] == 2
+    assert status["holdout_data_available_v67"] is False
+    assert status["passing_methods_v67"] == 0
+    assert status["strict_live_deployability_claim_allowed_v67"] is False
+    assert status["paper1_promotion_allowed_v67"] is False
+    assert status["paper4_working_champion_changed_v67"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    expected_csvs = {
+        "paper4_v67_scorer_readiness.csv": {
+            "readiness_item_v67",
+            "pass_v67",
+            "detail_v67",
+            "claim_boundary_v67",
+        },
+        "paper4_v67_external_holdout_scorecard.csv": {
+            "frozen_method_id_v66",
+            "source_family",
+            "holdout_data_available_v67",
+            "all_gates_pass_v67",
+            "strict_live_deployability_claim_allowed",
+            "score_status_v67",
+            "claim_boundary_v67",
+        },
+        "paper4_v67_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    readiness = _read_csv("paper4_v67_scorer_readiness.csv")
+    readiness_map = dict(zip(readiness["readiness_item_v67"], readiness["pass_v67"], strict=False))
+    assert readiness_map["frozen_manifest_exists"] is True
+    assert readiness_map["selection_hash_matches_manifest"] is True
+    assert readiness_map["holdout_file_available"] is False
+    assert readiness_map["holdout_schema_complete"] is False
+
+    scorecard = _read_csv("paper4_v67_external_holdout_scorecard.csv")
+    assert set(scorecard["source_family"]) == {"period", "term"}
+    assert not scorecard["holdout_data_available_v67"].astype(bool).any()
+    assert not scorecard["all_gates_pass_v67"].astype(bool).any()
+    assert not scorecard["strict_live_deployability_claim_allowed"].astype(bool).any()
+    assert set(scorecard["score_status_v67"]) == {"blocked_missing_external_holdout_data"}
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has an executable frozen scorer for the v66 holdout protocol." in set(
+        current_boundaries["claim"]
+    )
+    assert "v67 validates live online deployment." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v67: External Holdout Scorer" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

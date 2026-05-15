@@ -1,0 +1,3 @@
+claim_id,allowed,artifact,boundary
+v67_frozen_holdout_scorer_implemented,True,paper4_v67_external_holdout_scorecard.csv,scorer exists and blocks when data is absent
+v67_live_deployability_validated,False,paper4_v67_external_holdout_scorecard.csv,no validation unless external holdout rows pass frozen gates

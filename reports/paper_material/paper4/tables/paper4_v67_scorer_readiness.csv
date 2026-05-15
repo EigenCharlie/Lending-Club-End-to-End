@@ -1,0 +1,5 @@
+readiness_item_v67,pass_v67,detail_v67,claim_boundary_v67
+frozen_manifest_exists,True,paper4_v66_frozen_method_manifest.csv,scorer readiness only; no validation claim
+selection_hash_matches_manifest,True,v65 winner artifact hash check,scorer readiness only; no validation claim
+holdout_file_available,False,reports/paper_material/paper4/tables/external_or_future_period_online_holdout.csv,scorer readiness only; no validation claim
+holdout_schema_complete,False,"data_snapshot_id,issue_month,loan_id,outcome_maturity_timestamp,period,policy_id,prediction_timestamp,qhat_v9,term,y_pred,y_true",scorer readiness only; no validation claim
