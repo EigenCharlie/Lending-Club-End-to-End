@@ -9992,6 +9992,121 @@ def test_paper4_v116_post_v115_reprice_still_finds_improvements() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v117_next_one_swap_repair_requires_repricing() -> None:
+    status = _read_json("paper4_v117_status.json")
+
+    assert status["phase"] == "v117_next_one_swap_repair"
+    assert status["schema_version"] == "2026-05-15.117"
+    assert status["allocation_rows_v117"] == 171
+    assert status["summary_rows_v117"] == 1
+    assert status["action_rows_v117"] == 1
+    assert status["source_summary_rows_v117"] == 51
+    assert status["claim_blocker_rows_v117"] == 4
+    assert status["added_loan_id_v117"] == "145935771"
+    assert status["dropped_loan_id_v117"] == "127794335"
+    assert status["selected_rows_v117"] == 171
+    assert status["portfolio_exposure_v117"] == pytest.approx(842450.0)
+    assert status["objective_return_v117"] == pytest.approx(-1204.0951168255942)
+    assert status["scenario_loss_cvar90_v117"] == pytest.approx(93254.73943831668)
+    assert status["source_cap_violations_v117"] == 0
+    assert status["delta_return_vs_v115_v117"] == pytest.approx(146.50898236742432)
+    assert status["delta_cvar90_vs_v115_v117"] == pytest.approx(-125.99488729427685)
+    assert status["delta_exposure_vs_v115_v117"] == pytest.approx(-100.0)
+    assert status["budget_feasible_v117"] is True
+    assert status["source_feasible_v117"] is True
+    assert status["cvar_feasible_v117"] is True
+    assert status["repair_candidate_feasible_v117"] is True
+    assert status["post_repair_one_swap_optimality_claim_allowed_v117"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v117"] is False
+    assert status["paper1_promotion_allowed_v117"] is False
+    assert status["paper4_working_champion_changed_v117"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v117_next_one_swap_repair_allocations.parquet"
+    )
+    assert {
+        "loan_id",
+        "loan_amnt",
+        "mean_return_v117",
+        "selected_v117",
+        "portfolio_label_v117",
+        "repair_action_v117",
+        "claim_boundary_v117",
+    }.issubset(allocations.columns)
+    assert len(allocations) == status["allocation_rows_v117"]
+    assert int(allocations["selected_v117"].sum()) == status["selected_rows_v117"]
+    assert allocations["loan_amnt"].sum() == pytest.approx(status["portfolio_exposure_v117"])
+    assert "145935771" in set(allocations["loan_id"].astype(str))
+    assert "127794335" not in set(allocations["loan_id"].astype(str))
+    assert set(allocations["repair_action_v117"]) == {
+        "added_from_v116_best_swap",
+        "kept_from_v115",
+    }
+    assert allocations["claim_boundary_v117"].str.contains("requires post-repair repricing").all()
+
+    summary = _read_csv("paper4_v117_next_one_swap_repair_summary.csv")
+    row = summary.iloc[0]
+    assert bool(row["repair_candidate_feasible_v117"]) is True
+    assert bool(row["post_repair_one_swap_optimality_claim_allowed_v117"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v117"]) is False
+    assert "must rerun omitted-universe pricing" in str(row["claim_boundary_v117"])
+
+    action = _read_csv("paper4_v117_next_one_swap_repair_action.csv")
+    action_row = action.iloc[0]
+    assert str(action_row["added_loan_id_v117"]) == status["added_loan_id_v117"]
+    assert str(action_row["dropped_loan_id_v117"]) == status["dropped_loan_id_v117"]
+    assert float(action_row["return_delta_v117"]) == pytest.approx(146.50898236741978)
+    assert int(action_row["source_cap_violations_after_repair_v117"]) == 0
+
+    source_summary = _read_csv("paper4_v117_next_one_swap_repair_source_summary.csv")
+    assert {
+        "source_family",
+        "source_id",
+        "source_share_v117",
+        "source_slack_v117",
+        "source_cap_violated_v117",
+    }.issubset(source_summary.columns)
+    assert len(source_summary) == status["source_summary_rows_v117"]
+    assert not source_summary["source_cap_violated_v117"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v117_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v117"], blockers["blocking_v117"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v117"], blockers["evidence_count_v117"], strict=False)
+    )
+    assert bool(blocker_map["next_one_swap_repair_candidate_created"]) is False
+    assert int(evidence_map["next_one_swap_repair_candidate_created"]) == 1
+    assert bool(blocker_map["post_repair_one_swap_repricing_missing"]) is True
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+
+    claim_delta = _read_csv("paper4_v117_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v117_next_one_swap_repair_executed"]) is True
+    assert bool(claim_map["v117_repair_candidate_feasible"]) is True
+    assert bool(claim_map["v117_post_repair_one_swap_optimality"]) is False
+    assert bool(claim_map["v117_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v117_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v117 eighteenth one-swap repair candidate." in set(
+        current_boundaries["claim"]
+    )
+    assert "v117 repaired portfolio is post-repair locally optimal." in set(
+        current_boundaries["claim"]
+    )
+    assert "v117 replaces Paper Estrella or proves full-universe integer optimality." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v117: Eighteenth One-Swap Repair Candidate" in notebook
+    assert "v118 post-repair one-swap pricing" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
