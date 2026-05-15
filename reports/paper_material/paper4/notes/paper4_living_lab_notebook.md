@@ -809,3 +809,41 @@ Keep v65 in the living notebook. Promote only after an external/future holdout
 protocol exists and passes with the method frozen ex ante.
 
 <!-- V65_ONLINE_MARGIN_REPAIR_END -->
+
+<!-- V66_EXTERNAL_HOLDOUT_PROTOCOL_START -->
+
+## Wave v66: External Holdout Protocol Freeze
+
+Generated: 2026-05-15T18:59:49.223567+00:00
+
+### Objective
+
+Freeze the external/future holdout protocol for the v65 online margin-repair
+candidates before any such holdout data is available.
+
+### Results
+
+- Frozen method rows: `2`.
+- Required schema rows: `11`.
+- Gate spec rows: `7`.
+- Leakage checklist rows: `7`.
+- External holdout data available: `False`.
+
+### Interpretation
+
+v66 prevents post-hoc tuning. The v65 candidates are now frozen with hashes,
+required columns, leakage checks and pass/fail gates. This is a protocol
+artifact, not an empirical validation artifact.
+
+### Claim Impact
+
+- Allowed: a frozen external-holdout protocol exists for v65 candidates.
+- Still prohibited: live deployability, external validation, final promotion
+  and Paper Estrella replacement.
+
+### Quarto Promotion Decision
+
+Keep v66 in the living notebook until actual external/future holdout data
+passes the frozen gate spec.
+
+<!-- V66_EXTERNAL_HOLDOUT_PROTOCOL_END -->

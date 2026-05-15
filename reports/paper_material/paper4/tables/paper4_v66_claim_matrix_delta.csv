@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v66_external_holdout_protocol_frozen,True,paper4_v66_external_holdout_protocol.csv,protocol exists before holdout; no validation claim
+v66_live_deployability_validated,False,paper4_v66_holdout_gate_spec.csv,future/external data must pass frozen gates first
+v66_paper1_or_final_promotion,False,paper4_v66_frozen_method_manifest.csv,no Paper Estrella or final Paper 4 promotion

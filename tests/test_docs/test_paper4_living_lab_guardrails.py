@@ -4234,6 +4234,103 @@ def test_paper4_v65_online_margin_repair_keeps_live_claim_blocked() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v66_external_holdout_protocol_is_not_validation() -> None:
+    status = _read_json("paper4_v66_status.json")
+
+    assert status["phase"] == "v66_external_holdout_protocol"
+    assert status["frozen_method_rows_v66"] == 2
+    assert status["required_schema_rows_v66"] >= 10
+    assert status["gate_spec_rows_v66"] >= 7
+    assert status["protocol_rows_v66"] >= 6
+    assert status["leakage_check_rows_v66"] >= 7
+    assert status["method_frozen_for_future_holdout_v66"] is True
+    assert status["external_holdout_data_available_v66"] is False
+    assert status["strict_live_deployability_claim_allowed_v66"] is False
+    assert status["paper1_promotion_allowed_v66"] is False
+    assert status["paper4_working_champion_changed_v66"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    expected_csvs = {
+        "paper4_v66_frozen_method_manifest.csv": {
+            "frozen_method_id_v66",
+            "source_family",
+            "selection_artifact_sha256_v66",
+            "allow_parameter_changes_before_external_holdout_v66",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v66_required_holdout_schema.csv": {
+            "column_name_v66",
+            "required_v66",
+            "validation_rule_v66",
+        },
+        "paper4_v66_holdout_gate_spec.csv": {
+            "gate_id_v66",
+            "threshold_v66",
+            "operator_v66",
+            "gate_required_for_live_claim_v66",
+        },
+        "paper4_v66_external_holdout_protocol.csv": {
+            "protocol_step_v66",
+            "action_v66",
+            "locked_instruction_v66",
+            "editable_after_v66_freeze",
+        },
+        "paper4_v66_leakage_prevention_checklist.csv": {
+            "leakage_check_id_v66",
+            "rule_v66",
+            "failure_action_v66",
+        },
+        "paper4_v66_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    manifest = _read_csv("paper4_v66_frozen_method_manifest.csv")
+    assert set(manifest["source_family"]) == {"period", "term"}
+    assert manifest["global_delta_v65"].eq(0.012).all()
+    assert not manifest["allow_parameter_changes_before_external_holdout_v66"].astype(bool).any()
+    assert not manifest["strict_live_deployability_claim_allowed"].astype(bool).any()
+    assert manifest["selection_artifact_sha256_v66"].str.len().eq(64).all()
+    assert manifest["script_sha256_v66"].str.len().eq(64).all()
+
+    schema = _read_csv("paper4_v66_required_holdout_schema.csv")
+    assert {"loan_id", "issue_month", "y_true", "y_pred", "qhat_v9", "period", "term"}.issubset(
+        set(schema["column_name_v66"])
+    )
+    assert schema["required_v66"].astype(bool).all()
+
+    gates = _read_csv("paper4_v66_holdout_gate_spec.csv")
+    assert {
+        "source_month_coverage_min",
+        "policy_month_coverage_min",
+        "avg_interval_width",
+    }.issubset(set(gates["gate_id_v66"]))
+    assert gates["gate_required_for_live_claim_v66"].astype(bool).all()
+
+    protocol = _read_csv("paper4_v66_external_holdout_protocol.csv")
+    assert not protocol["editable_after_v66_freeze"].astype(bool).any()
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a frozen external-holdout protocol for v65 online candidates." in set(
+        current_boundaries["claim"]
+    )
+    assert "v66 protocol itself validates live online deployment." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v66: External Holdout Protocol Freeze" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
