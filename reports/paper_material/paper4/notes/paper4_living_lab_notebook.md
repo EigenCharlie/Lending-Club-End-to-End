@@ -2480,3 +2480,48 @@ Keep v103 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V103_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V104_POST_V103_ONE_SWAP_REPRICE_START -->
+
+## Wave v104: Post-v103 One-Swap Repricing
+
+Generated: 2026-05-15T22:50:53.684461+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v103
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v103 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `2022487`.
+- Exact source-feasible pairs: `6398`.
+- CVaR-feasible improving one-swaps: `6398`.
+- Best post-v103 one-swap return delta:
+  `145.24803479210811`.
+- Post-v103 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v104 is the required re-pricing after v103 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v103 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v104 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V104_POST_V103_ONE_SWAP_REPRICE_END -->
