@@ -1,0 +1,22 @@
+{
+  "allocation_rows_v79": 174,
+  "claim_blocker_rows_v79": 3,
+  "claim_boundary": "v79 solves a support-restricted binary MILP only; full-pool/full-universe whole-loan optimality remains unproven",
+  "generated_at_utc": "2026-05-15T20:26:50.240089+00:00",
+  "lp_fractional_rows_v79": 3,
+  "milp_delta_cvar90_vs_lp_v79": 277.15277429476555,
+  "milp_delta_return_vs_lp_v79": -43.68935963552258,
+  "milp_selected_rows_v79": 172,
+  "milp_solver_success_v79": true,
+  "milp_source_cap_violations_v79": 0,
+  "paper1_promotion_allowed_v79": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v79": false,
+  "phase": "v79_support_integrality_probe",
+  "runtime_seconds": 2.032,
+  "schema_version": "2026-05-15.79",
+  "source_summary_rows_v79": 102,
+  "summary_rows_v79": 2,
+  "support_rows_v79": 174,
+  "whole_loan_full_universe_claim_allowed_v79": false
+}

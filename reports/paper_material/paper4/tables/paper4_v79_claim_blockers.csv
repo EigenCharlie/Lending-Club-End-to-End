@@ -1,0 +1,4 @@
+blocker_id_v79,blocking_v79,evidence_count_v79,required_next_artifact_v79,claim_boundary_v79
+support_integrality_gap_quantified,False,1,paper4_v79_integrality_probe_summary.csv,support binary MILP solved only over active LP rows
+full_pool_or_full_universe_milp_missing,True,174,paper4_v80_full_pool_milp_or_gap_certificate.csv,support MILP is not full-pool or full-universe optimality
+paper_estrella_or_final_promotion_not_allowed,True,1,paper4_future_promotion_protocol.csv,integrality probe does not replace Paper Estrella

@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v79_support_integrality_probe_executed,True,paper4_v79_integrality_probe_summary.csv,support-restricted binary MILP only
+v79_whole_loan_full_universe_optimality,False,paper4_v79_claim_blockers.csv,requires full-pool/full-universe MILP or global gap certificate
+v79_paper1_or_final_promotion,False,paper4_v79_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

@@ -1355,3 +1355,45 @@ solver is still a continuous restricted-master LP.
 Keep v78 in the living notebook. Promote only after integrality evidence passes.
 
 <!-- V78_SOURCE_SCOPE_EXPANDED_REPRICE_END -->
+
+<!-- V79_INTEGRALITY_PROBE_START -->
+
+## Wave v79: Support Integrality Probe
+
+Generated: 2026-05-15T20:26:50.240089+00:00
+
+### Objective
+
+Solve a binary MILP over the active v76 support to quantify how much the
+focused continuous LP depends on fractional loan allocations. This is an
+active-support probe only, not a full-pool or full-universe MILP certificate.
+
+### Results
+
+- Support rows: `174`.
+- LP fractional rows: `3`.
+- MILP solver success: `True`.
+- MILP selected rows: `172`.
+- Return delta vs LP: `-43.68935963552258`.
+- CVaR delta vs LP: `277.15277429476555`.
+- Full-universe MILP claim allowed: `False`.
+
+### Interpretation
+
+v79 is useful because it makes the remaining blocker concrete. It can say
+whether the active support has a nearby whole-loan solution, but it cannot
+certify global whole-loan optimality because unselected pool and universe loans
+are outside the MILP.
+
+### Claim Impact
+
+- Allowed: support-restricted binary integrality probe completed.
+- Still prohibited: full-pool/full-universe MILP optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v79 in the living notebook. Promote only after a global MILP/gap protocol
+passes.
+
+<!-- V79_INTEGRALITY_PROBE_END -->

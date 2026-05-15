@@ -5744,6 +5744,122 @@ def test_paper4_v78_source_scope_expanded_reprice_clears_source_scope_only() -> 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v79_integrality_probe_is_support_only() -> None:
+    status = _read_json("paper4_v79_status.json")
+
+    assert status["phase"] == "v79_support_integrality_probe"
+    assert status["summary_rows_v79"] == 2
+    assert status["allocation_rows_v79"] == 174
+    assert status["source_summary_rows_v79"] == 102
+    assert status["claim_blocker_rows_v79"] == 3
+    assert status["support_rows_v79"] == 174
+    assert status["lp_fractional_rows_v79"] == 3
+    assert status["milp_solver_success_v79"] is True
+    assert status["milp_selected_rows_v79"] == 172
+    assert status["milp_delta_return_vs_lp_v79"] == pytest.approx(-43.68935963552258)
+    assert status["milp_delta_cvar90_vs_lp_v79"] == pytest.approx(277.15277429476555)
+    assert status["milp_source_cap_violations_v79"] == 0
+    assert status["whole_loan_full_universe_claim_allowed_v79"] is False
+    assert status["paper1_promotion_allowed_v79"] is False
+    assert status["paper4_working_champion_changed_v79"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    summary = _read_csv("paper4_v79_integrality_probe_summary.csv")
+    assert {
+        "portfolio_label_v79",
+        "solver_success_v79",
+        "support_rows_v79",
+        "selected_rows_v79",
+        "fractional_rows_v79",
+        "portfolio_exposure_v79",
+        "objective_return_v79",
+        "scenario_loss_cvar90_v79",
+        "delta_return_vs_lp_v79",
+        "delta_cvar90_vs_lp_v79",
+        "claim_boundary_v79",
+    }.issubset(summary.columns)
+    assert set(summary["portfolio_label_v79"]) == {
+        "continuous_lp_reference",
+        "support_binary_milp",
+    }
+    lp = summary.loc[summary["portfolio_label_v79"].eq("continuous_lp_reference")].iloc[0]
+    milp_row = summary.loc[summary["portfolio_label_v79"].eq("support_binary_milp")].iloc[0]
+    assert int(lp["fractional_rows_v79"]) == 3
+    assert int(milp_row["fractional_rows_v79"]) == 0
+    assert int(milp_row["selected_rows_v79"]) == status["milp_selected_rows_v79"]
+    assert float(milp_row["portfolio_exposure_v79"]) == pytest.approx(845000.0)
+    assert float(milp_row["delta_return_vs_lp_v79"]) == pytest.approx(
+        status["milp_delta_return_vs_lp_v79"]
+    )
+    assert float(milp_row["delta_cvar90_vs_lp_v79"]) == pytest.approx(
+        status["milp_delta_cvar90_vs_lp_v79"]
+    )
+    assert bool(milp_row["solver_success_v79"]) is True
+    assert int(milp_row["source_cap_violations_v79"]) == 0
+    assert summary["claim_boundary_v79"].str.contains("not full-pool or full-universe").all()
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v79_integrality_probe_allocations.parquet")
+    assert not allocations.empty
+    assert {
+        "policy_id",
+        "regime_v79",
+        "loan_id",
+        "allocation_fraction_v76",
+        "support_binary_selected_v79",
+        "support_binary_exposure_v79",
+        "claim_boundary_v79",
+    }.issubset(allocations.columns)
+    assert set(allocations["support_binary_selected_v79"].unique()).issubset({0.0, 1.0})
+    assert int(allocations["support_binary_selected_v79"].sum()) == status["milp_selected_rows_v79"]
+    assert allocations["support_binary_exposure_v79"].sum() == pytest.approx(845000.0)
+    assert (
+        allocations.loc[allocations["support_binary_selected_v79"].eq(0), "loan_amnt"].sum() == 3500
+    )
+    assert allocations["claim_boundary_v79"].str.contains("support-restricted").all()
+
+    source_summary = _read_csv("paper4_v79_integrality_probe_source_summary.csv")
+    assert {
+        "portfolio_label_v79",
+        "source_family",
+        "source_id",
+        "cap_share_v79",
+        "source_share_v79",
+        "source_cap_violated_v79",
+    }.issubset(source_summary.columns)
+    assert set(source_summary["portfolio_label_v79"]) == {
+        "continuous_lp_reference",
+        "support_binary_milp",
+    }
+    assert not source_summary["source_cap_violated_v79"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v79_claim_blockers.csv")
+    assert {"blocker_id_v79", "blocking_v79", "evidence_count_v79", "claim_boundary_v79"}.issubset(
+        blockers.columns
+    )
+    blocker_map = dict(zip(blockers["blocker_id_v79"], blockers["blocking_v79"], strict=False))
+    assert bool(blocker_map["support_integrality_gap_quantified"]) is False
+    assert bool(blocker_map["full_pool_or_full_universe_milp_missing"]) is True
+    assert bool(blocker_map["paper_estrella_or_final_promotion_not_allowed"]) is True
+
+    claim_delta = _read_csv("paper4_v79_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v79_support_integrality_probe_executed"]) is True
+    assert bool(claim_map["v79_whole_loan_full_universe_optimality"]) is False
+    assert bool(claim_map["v79_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v79 support-restricted binary MILP integrality probe." in set(
+        current_boundaries["claim"]
+    )
+    assert "v79 proves whole-loan full-universe optimality." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v79: Support Integrality Probe" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
