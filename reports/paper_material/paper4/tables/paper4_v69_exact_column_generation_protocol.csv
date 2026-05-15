@@ -1,0 +1,8 @@
+protocol_step_v69,step_name_v69,artifact_v69,required_evidence_v69,claim_if_missing_v69,locked_v69
+1,freeze_inputs,paper4_v69_expanded_restricted_master.parquet,v63 incumbent books and v68 candidates are immutable inputs,no exact pricing claim,True
+2,solve_expanded_restricted_master,paper4_v70_restricted_master_solver_frontier.csv,exact LP/MILP solution over expanded master with persisted primal allocation,restricted-master improvement remains unproven,True
+3,persist_duals,paper4_v70_restricted_master_duals.csv,"budget, source, return floor and CVaR duals are persisted",cannot price omitted full-universe columns,True
+4,price_omitted_universe,paper4_v70_full_universe_reduced_costs.parquet,all omitted v55 comparable loans receive reduced-cost scores,no full-universe termination claim,True
+5,iterate_negative_reduced_cost_columns,paper4_v70_column_generation_iteration_log.csv,new improving columns are added until tolerance is met,column-generation loop is incomplete,True
+6,run_common_path_dynamic_gate,paper4_v70_dynamic_gate_or_replay.csv,"candidate survives existing dynamic, online and source gates",no working-champion or deployment claim,True
+7,claim_boundary_review,paper4_v70_claim_boundary_review.csv,editorial review maps each claim to exact artifacts,keep result in living notebook only,True

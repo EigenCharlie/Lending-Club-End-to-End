@@ -4470,6 +4470,107 @@ def test_paper4_v68_full_universe_pricing_screen_blocks_exact_claims() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v69_restricted_master_expansion_is_protocol_only() -> None:
+    status = _read_json("paper4_v69_status.json")
+
+    assert status["phase"] == "v69_restricted_master_expansion_protocol"
+    assert status["candidate_rows_v69"] == 200
+    assert status["expanded_master_rows_v69"] == 1824
+    assert status["swap_audit_rows_v69"] == 100
+    assert status["protocol_rows_v69"] == 7
+    assert status["policies_ready_for_restricted_solver_v69"] == 4
+    assert status["positive_swap_score_rows_v69"] == 100
+    assert status["restricted_master_pack_ready_v69"] is True
+    assert status["exact_column_generation_certificate_v69"] is False
+    assert status["exact_full_universe_cvar_claim_allowed_v69"] is False
+    assert status["paper1_promotion_allowed_v69"] is False
+    assert status["paper4_working_champion_changed_v69"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    candidates = pd.read_parquet(
+        TABLE_DIR / "paper4_v69_source_pricing_expansion_candidates.parquet"
+    )
+    assert not candidates.empty
+    assert {
+        "policy_id_v69",
+        "source_policy_id_v63",
+        "candidate_rank_v68",
+        "pricing_screen_score_v69",
+        "recommended_for_restricted_master_v69",
+        "claim_boundary_v69",
+    }.issubset(candidates.columns)
+    assert candidates["policy_id_v69"].nunique() == 4
+    assert candidates.groupby("policy_id_v69")["candidate_rank_v68"].max().eq(50).all()
+    assert candidates["recommended_for_restricted_master_v69"].astype(bool).all()
+
+    master = pd.read_parquet(TABLE_DIR / "paper4_v69_expanded_restricted_master.parquet")
+    assert not master.empty
+    assert {
+        "policy_id_v69",
+        "master_role_v69",
+        "pricing_screen_score_v69",
+        "exact_column_generation_certificate_v69",
+        "claim_boundary_v69",
+    }.issubset(master.columns)
+    assert set(master["master_role_v69"]) == {"incumbent_v63_book", "v68_pricing_candidate"}
+    assert not master["exact_column_generation_certificate_v69"].astype(bool).any()
+    assert master["claim_boundary_v69"].str.contains("not exact full-universe").all()
+
+    swaps = _read_csv("paper4_v69_candidate_swap_audit.csv")
+    assert {
+        "policy_id",
+        "swap_rank_v69",
+        "add_loan_id_v69",
+        "drop_loan_id_v69",
+        "delta_pricing_score_v69",
+        "valid_budget_after_swap_v69",
+        "claim_boundary_v69",
+    }.issubset(swaps.columns)
+    assert swaps["policy_id"].nunique() == 4
+    assert swaps.groupby("policy_id")["swap_rank_v69"].max().eq(25).all()
+    assert swaps["delta_pricing_score_v69"].gt(0).all()
+    assert swaps["valid_budget_after_swap_v69"].astype(bool).all()
+    assert swaps["claim_boundary_v69"].str.contains("heuristic").all()
+
+    protocol = _read_csv("paper4_v69_exact_column_generation_protocol.csv")
+    assert {
+        "protocol_step_v69",
+        "step_name_v69",
+        "artifact_v69",
+        "required_evidence_v69",
+        "claim_if_missing_v69",
+        "locked_v69",
+    }.issubset(protocol.columns)
+    assert protocol["locked_v69"].astype(bool).all()
+    assert {
+        "solve_expanded_restricted_master",
+        "persist_duals",
+        "price_omitted_universe",
+        "iterate_negative_reduced_cost_columns",
+    }.issubset(set(protocol["step_name_v69"]))
+
+    claim_delta = _read_csv("paper4_v69_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v69_restricted_master_expansion_pack_exists"]) is True
+    assert bool(claim_map["v69_exact_column_generation_certificate"]) is False
+    assert bool(claim_map["v69_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert (
+        "Paper 4 has a v69 restricted-master expansion pack for column-generation follow-up."
+        in set(current_boundaries["claim"])
+    )
+    assert "v69 is an exact full-universe column-generation certificate." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v69: Restricted-Master Expansion Pack" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

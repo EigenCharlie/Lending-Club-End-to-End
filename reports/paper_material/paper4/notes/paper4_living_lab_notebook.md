@@ -924,3 +924,45 @@ Keep v68 in the living notebook. Promote only after exact pricing or a
 column-generation certificate replaces the proxy screen.
 
 <!-- V68_FULL_UNIVERSE_PRICING_SCREEN_END -->
+
+<!-- V69_RESTRICTED_MASTER_EXPANSION_START -->
+
+## Wave v69: Restricted-Master Expansion Pack
+
+Generated: 2026-05-15T19:20:58.035422+00:00
+
+### Objective
+
+Turn the v68 source/pricing screen into executable inputs for the next exact
+solver attempt: an expanded restricted master, a source-aware swap audit and a
+locked column-generation protocol.
+
+### Results
+
+- Candidate rows: `200`.
+- Expanded restricted-master rows: `1824`.
+- Heuristic swap audit rows: `100`.
+- Protocol rows: `7`.
+- Restricted-master pack ready: `True`.
+- Exact column-generation certificate: `False`.
+
+### Interpretation
+
+v69 converts the v68 negative/proxy finding into a concrete solver queue. It
+does not certify global optimality, but it removes ambiguity about which
+columns should enter the next restricted-master solve and what evidence would
+be required to terminate a full-universe pricing loop.
+
+### Claim Impact
+
+- Allowed: v69 creates an executable restricted-master expansion pack.
+- Still prohibited: exact full-universe CVaR optimality, column-generation
+  termination, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment claims.
+
+### Quarto Promotion Decision
+
+Keep v69 in the living notebook. Promote only after v70 or later produces
+exact solver, dual-pricing and claim-boundary evidence.
+
+<!-- V69_RESTRICTED_MASTER_EXPANSION_END -->

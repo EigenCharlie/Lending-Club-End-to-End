@@ -1,0 +1,19 @@
+{
+  "candidate_rows_v69": 200,
+  "claim_boundary": "v69 creates restricted-master inputs and protocol only; exact full-universe CVaR remains blocked",
+  "exact_column_generation_certificate_v69": false,
+  "exact_full_universe_cvar_claim_allowed_v69": false,
+  "expanded_master_rows_v69": 1824,
+  "generated_at_utc": "2026-05-15T19:20:58.035422+00:00",
+  "paper1_promotion_allowed_v69": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v69": false,
+  "phase": "v69_restricted_master_expansion_protocol",
+  "policies_ready_for_restricted_solver_v69": 4,
+  "positive_swap_score_rows_v69": 100,
+  "protocol_rows_v69": 7,
+  "restricted_master_pack_ready_v69": true,
+  "runtime_seconds": 2.813,
+  "schema_version": "2026-05-15.69",
+  "swap_audit_rows_v69": 100
+}
