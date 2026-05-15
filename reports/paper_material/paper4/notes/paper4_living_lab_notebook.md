@@ -3044,3 +3044,48 @@ Keep v115 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V115_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V116_POST_V115_ONE_SWAP_REPRICE_START -->
+
+## Wave v116: Post-v115 One-Swap Repricing
+
+Generated: 2026-05-15T23:38:40.314993+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v115
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v115 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1964553`.
+- Exact source-feasible pairs: `6511`.
+- CVaR-feasible improving one-swaps: `6511`.
+- Best post-v115 one-swap return delta:
+  `146.50898236741978`.
+- Post-v115 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v116 is the required re-pricing after v115 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v115 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v116 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V116_POST_V115_ONE_SWAP_REPRICE_END -->
