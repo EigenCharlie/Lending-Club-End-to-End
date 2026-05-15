@@ -2293,3 +2293,47 @@ Keep v99 in the living notebook. Promote only after the repair/reprice loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V99_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V100_POST_V99_ONE_SWAP_REPRICE_START -->
+
+## Wave v100: Post-v99 One-Swap Repricing
+
+Generated: 2026-05-15T22:29:26.699180+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v99 ninth repair, using all
+non-selected loans from the comparable v55 universe as possible additions. This
+tests whether the v99 candidate is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `2046327`.
+- Exact source-feasible pairs: `10946`.
+- CVaR-feasible improving one-swaps: `10946`.
+- Best post-v99 one-swap return delta:
+  `191.1881191206193`.
+- Post-v99 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v100 is the required re-pricing after v99 changed the portfolio. If additional
+feasible improving one-swaps remain, the lab should continue the repair/reprice
+loop; if it clears, the next blocker would still be multi-swap/global integer
+evidence.
+
+### Claim Impact
+
+- Allowed: post-v99 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v100 in the living notebook. Promote only after the repair loop terminates
+and stronger integer/dynamic/promotion gates pass.
+
+<!-- V100_POST_V99_ONE_SWAP_REPRICE_END -->
