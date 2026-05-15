@@ -1,0 +1,7 @@
+stage_v82,pair_rows_v82,claim_boundary_v82
+all_pairs,44110134,screening count only
+return_improving,784725,"return delta only, before feasibility"
+budget_return_feasible,596651,budget plus return only
+source_prefilter_feasible,9636,necessary source checks before exact full source audit
+source_exact_feasible,8126,exact source caps after the swap
+cvar_feasible_improving,8126,one-swap feasible and improving only

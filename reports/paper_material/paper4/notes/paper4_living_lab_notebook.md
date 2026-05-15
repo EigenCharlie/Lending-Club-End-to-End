@@ -1486,3 +1486,51 @@ Keep v81 in the living notebook. Promote only after multi-swap or global
 integer-gap evidence passes.
 
 <!-- V81_INTEGER_OMITTED_SINGLE_ADD_END -->
+
+<!-- V82_ONE_SWAP_INTEGER_PRICING_START -->
+
+## Wave v82: One-Swap Integer Pricing Probe
+
+Generated: 2026-05-15T20:53:28.085065+00:00
+
+### Objective
+
+Screen every one-drop/one-add whole-loan swap between the v80 binary portfolio
+and omitted v55 loans. This expands v81 from single-add insertions to local
+integer exchanges, but it is still not a branch-and-price or global integer
+optimality proof.
+
+### Results
+
+- Pair rows screened: `44110134`.
+- Return-improving pairs: `784725`.
+- Budget+return feasible pairs: `596651`.
+- Exact source-feasible pairs: `8126`.
+- CVaR-feasible improving one-swaps: `8126`.
+- Best one-swap return delta: `201.74349922313803`.
+- Best one-swap CVaR after swap: `91625.73939095305`.
+- One-swap local optimality cleared: `False`.
+- Full-universe integer optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v82 finds feasible improving one-swaps against the v80 binary portfolio. That is
+valuable negative evidence against claiming integer local optimality for v80 and
+positive evidence for a v83 repair/re-optimization loop. It does not replace
+Paper Estrella, change the official champion, or prove global full-universe
+integer optimality.
+
+### Claim Impact
+
+- Allowed: one-swap integer pricing probe completed and improving swaps found.
+- Still prohibited: v80 one-swap local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v82 in the living notebook. Promote only after a repaired/re-solved
+portfolio survives follow-up pricing, source, CVaR and dynamic gates.
+
+<!-- V82_ONE_SWAP_INTEGER_PRICING_END -->
