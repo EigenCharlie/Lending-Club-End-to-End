@@ -1937,3 +1937,47 @@ Keep v91 in the living notebook. Promote only after the repair/reprice loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V91_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V92_POST_V91_ONE_SWAP_REPRICE_START -->
+
+## Wave v92: Post-v91 One-Swap Repricing
+
+Generated: 2026-05-15T21:49:17.380189+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v91 fifth repair, using all
+non-selected loans from the comparable v55 universe as possible additions. This
+tests whether the v91 candidate is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `2088968`.
+- Exact source-feasible pairs: `7563`.
+- CVaR-feasible improving one-swaps: `7563`.
+- Best post-v91 one-swap return delta:
+  `159.45366133732136`.
+- Post-v91 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v92 is the required re-pricing after v91 changed the portfolio. If additional
+feasible improving one-swaps remain, the lab should continue the repair/reprice
+loop; if it clears, the next blocker would still be multi-swap/global integer
+evidence.
+
+### Claim Impact
+
+- Allowed: post-v91 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v92 in the living notebook. Promote only after the repair loop terminates
+and stronger integer/dynamic/promotion gates pass.
+
+<!-- V92_POST_V91_ONE_SWAP_REPRICE_END -->
