@@ -1,0 +1,7 @@
+policy_id,regime_v77,source_family,universe_source_ids_v77,master_source_ids_v77,missing_source_ids_v77,binding_source_constraints_v77,nonzero_source_marginals_v77,max_abs_source_marginal_v77,source_constraint_scope_complete_v77,missing_source_examples_v77,claim_boundary_v77,post_iteration_reprice_v77
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,grade,7,5,2,1,1,0.21636988328954668,False,F|G,source scope after v76 iteration; incomplete scope blocks full certificate,1
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,score_decile,10,5,5,1,1,0.0545657640529419,False,5|6|7|8|9,source scope after v76 iteration; incomplete scope blocks full certificate,1
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,income_band,5,5,0,0,0,0.0,True,,source scope after v76 iteration; incomplete scope blocks full certificate,1
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,dti_band,5,5,0,0,0,0.0,True,,source scope after v76 iteration; incomplete scope blocks full certificate,1
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,period,3,3,0,0,0,0.0,True,,source scope after v76 iteration; incomplete scope blocks full certificate,1
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,state_top20,21,21,0,0,0,0.0,True,,source scope after v76 iteration; incomplete scope blocks full certificate,1

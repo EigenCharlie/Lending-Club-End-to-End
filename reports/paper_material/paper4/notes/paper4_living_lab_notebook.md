@@ -1266,3 +1266,47 @@ Keep v76 in the living notebook. Promote only after iteration-3 re-pricing,
 source-scope coverage and integrality review pass.
 
 <!-- V76_COLUMN_GENERATION_ITERATION_3_END -->
+
+<!-- V77_REPRICE_AFTER_ITERATION_3_START -->
+
+## Wave v77: Re-Price After Column-Generation Iteration 3
+
+Generated: 2026-05-15T20:14:22.302209+00:00
+
+### Objective
+
+Re-price omitted v55 columns after the focused v76 iteration-3 restricted-master
+solve. This tests whether adding the remaining v75 negative columns clears the
+pricing blocker in the affected regime.
+
+### Results
+
+- Re-price rows: `257954`.
+- Summary rows: `1`.
+- Dual rows: `175`.
+- Improving columns after iteration 3: `0`.
+- Source-scope rows: `6`.
+- Source-scope missing IDs: `7`.
+- Pricing blocker cleared: `True`.
+- Exact full-universe CVaR claim allowed: `False`.
+
+### Interpretation
+
+v77 separates the pricing story from the governance story. If no improving
+omitted columns remain, the column-generation pricing loop has locally cleared
+for the affected regime, but source-scope and continuous-relaxation blockers
+still prevent exact full-universe or whole-loan claims.
+
+### Claim Impact
+
+- Allowed: post-v76 re-pricing was executed and documented.
+- Still prohibited: exact full-universe CVaR optimality, MILP whole-loan
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v77 in the living notebook. Promote only after source-scope coverage and
+integrality review pass.
+
+<!-- V77_REPRICE_AFTER_ITERATION_3_END -->

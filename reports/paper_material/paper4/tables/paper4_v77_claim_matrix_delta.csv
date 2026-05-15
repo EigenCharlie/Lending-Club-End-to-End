@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v77_post_iteration_3_reprice_executed,True,paper4_v77_reprice_after_iteration_3.parquet,post-iteration-3 reduced-cost screen only
+v77_pricing_blocker_cleared,True,paper4_v77_claim_blockers.csv,allowed only if improving-column evidence count is zero
+v77_exact_full_universe_or_final_promotion,False,paper4_v77_claim_blockers.csv,source-scope and integrality blockers remain
