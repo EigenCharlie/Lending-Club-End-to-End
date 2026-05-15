@@ -1,0 +1,19 @@
+{
+  "active_constraint_rows_v70": 1410,
+  "allocation_rows_v70": 2814,
+  "best_delta_return_vs_incumbent_v70": 15836.794631189288,
+  "claim_boundary": "v70 solves restricted-master continuous LPs only; omitted-column pricing and integrality evidence remain missing",
+  "exact_full_universe_cvar_claim_allowed_v70": false,
+  "exact_restricted_master_lp_claim_allowed_v70": true,
+  "frontier_rows_v70": 8,
+  "generated_at_utc": "2026-05-15T19:27:50.983315+00:00",
+  "paper1_promotion_allowed_v70": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v70": false,
+  "phase": "v70_restricted_master_continuous_lp_solver",
+  "policies_with_successful_lp_v70": 4,
+  "runtime_seconds": 7.152,
+  "scenario_rows_v70": 1024,
+  "schema_version": "2026-05-15.70",
+  "successful_lp_rows_v70": 8
+}

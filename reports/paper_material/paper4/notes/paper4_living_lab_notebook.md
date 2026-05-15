@@ -966,3 +966,46 @@ Keep v69 in the living notebook. Promote only after v70 or later produces
 exact solver, dual-pricing and claim-boundary evidence.
 
 <!-- V69_RESTRICTED_MASTER_EXPANSION_END -->
+
+<!-- V70_RESTRICTED_MASTER_SOLVER_START -->
+
+## Wave v70: Restricted-Master Continuous LP Solver
+
+Generated: 2026-05-15T19:27:50.983315+00:00
+
+### Objective
+
+Use the v69 expanded restricted master in an exact continuous LP with budget,
+source-share and CVaR constraints. This tests whether the candidate columns can
+improve the restricted master before spending effort on full-universe reduced
+cost pricing.
+
+### Results
+
+- Frontier rows: `8`.
+- Successful LP rows: `8`.
+- Allocation rows: `2814`.
+- Scenario rows: `1024`.
+- Active constraint rows: `1410`.
+- Best return delta vs incumbent: `15836.794631189288`.
+- Exact full-universe CVaR claim allowed: `False`.
+
+### Interpretation
+
+v70 is the first real optimization over the v68-v69 candidate queue. It is
+valuable even when it remains bounded: it produces restricted-master primal
+allocations and active-constraint evidence, while making the missing next step
+explicit: full-universe reduced-cost pricing over omitted columns.
+
+### Claim Impact
+
+- Allowed: exact continuous LP solves over the v69 restricted master.
+- Still prohibited: exact full-universe optimality, MILP whole-loan optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v70 in the living notebook. Promote only after omitted-column pricing and
+claim-boundary review are complete.
+
+<!-- V70_RESTRICTED_MASTER_SOLVER_END -->

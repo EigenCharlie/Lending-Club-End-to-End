@@ -4571,6 +4571,115 @@ def test_paper4_v69_restricted_master_expansion_is_protocol_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v70_restricted_master_solver_keeps_full_universe_claim_blocked() -> None:
+    status = _read_json("paper4_v70_status.json")
+
+    assert status["phase"] == "v70_restricted_master_continuous_lp_solver"
+    assert status["frontier_rows_v70"] == 8
+    assert status["successful_lp_rows_v70"] == 8
+    assert status["allocation_rows_v70"] > 0
+    assert status["scenario_rows_v70"] == 1024
+    assert status["active_constraint_rows_v70"] >= 1000
+    assert status["policies_with_successful_lp_v70"] == 4
+    assert status["best_delta_return_vs_incumbent_v70"] > 0
+    assert status["exact_restricted_master_lp_claim_allowed_v70"] is True
+    assert status["exact_full_universe_cvar_claim_allowed_v70"] is False
+    assert status["paper1_promotion_allowed_v70"] is False
+    assert status["paper4_working_champion_changed_v70"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    frontier = _read_csv("paper4_v70_restricted_master_solver_frontier.csv")
+    assert {
+        "policy_id",
+        "regime_v70",
+        "solver_success_v70",
+        "delta_return_vs_incumbent_v70",
+        "candidate_allocation_share_v70",
+        "exact_restricted_master_lp_v70",
+        "exact_full_universe_cvar_claim_allowed_v70",
+        "claim_boundary_v70",
+    }.issubset(frontier.columns)
+    assert frontier["policy_id"].nunique() == 4
+    assert set(frontier["regime_v70"]) == {
+        "incumbent_cvar_relaxed_source_lp",
+        "target_source_cap_probe_lp",
+    }
+    assert frontier["solver_success_v70"].astype(bool).all()
+    assert frontier["delta_return_vs_incumbent_v70"].gt(0).all()
+    assert frontier["candidate_allocation_share_v70"].gt(0).all()
+    assert frontier["exact_restricted_master_lp_v70"].astype(bool).all()
+    assert not frontier["exact_full_universe_cvar_claim_allowed_v70"].astype(bool).any()
+    assert frontier["claim_boundary_v70"].str.contains("no omitted-column pricing").all()
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v70_restricted_master_allocations.parquet")
+    assert not allocations.empty
+    assert {
+        "policy_id",
+        "regime_v70",
+        "loan_id",
+        "master_role_v69",
+        "allocation_fraction_v70",
+        "allocated_exposure_v70",
+        "claim_boundary_v70",
+    }.issubset(allocations.columns)
+    assert allocations["allocation_fraction_v70"].between(0, 1).all()
+    assert "v68_pricing_candidate" in set(allocations["master_role_v69"])
+    assert allocations["claim_boundary_v70"].str.contains("not full-universe").all()
+
+    scenarios = _read_csv("paper4_v70_restricted_master_scenario_losses.csv")
+    assert {
+        "policy_id",
+        "regime_v70",
+        "path_id",
+        "scenario_loss_v70",
+        "scenario_return_v70",
+    }.issubset(scenarios.columns)
+    assert scenarios.groupby(["policy_id", "regime_v70"])["path_id"].nunique().eq(128).all()
+
+    active = _read_csv("paper4_v70_solver_active_constraints.csv")
+    assert {
+        "policy_id",
+        "regime_v70",
+        "constraint_type_v70",
+        "lhs_v70",
+        "rhs_v70",
+        "slack_v70",
+        "binding_v70",
+        "claim_boundary_v70",
+    }.issubset(active.columns)
+    assert {"budget_lower", "cvar_cap", "source_share", "cvar_path_excess"}.issubset(
+        set(active["constraint_type_v70"])
+    )
+
+    blockers = _read_csv("paper4_v70_solver_claim_blockers.csv")
+    assert {
+        "blocker_id_v70",
+        "status_v70",
+        "required_next_artifact_v70",
+        "claim_boundary_v70",
+    }.issubset(blockers.columns)
+    assert "omitted_column_reduced_costs_missing" in set(blockers["blocker_id_v70"])
+    assert "continuous_relaxation_not_whole_loan_milp" in set(blockers["blocker_id_v70"])
+
+    claim_delta = _read_csv("paper4_v70_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v70_exact_restricted_master_continuous_lp"]) is True
+    assert bool(claim_map["v70_exact_full_universe_cvar_optimality"]) is False
+    assert bool(claim_map["v70_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has exact continuous LP solves over the v69 restricted master." in set(
+        current_boundaries["claim"]
+    )
+    assert "v70 proves exact full-universe CVaR optimality." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v70: Restricted-Master Continuous LP Solver" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
