@@ -6665,6 +6665,115 @@ def test_paper4_v86_post_v85_reprice_still_finds_improvements() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v87_next_one_swap_repair_requires_repricing() -> None:
+    status = _read_json("paper4_v87_status.json")
+
+    assert status["phase"] == "v87_next_one_swap_repair"
+    assert status["allocation_rows_v87"] == 171
+    assert status["summary_rows_v87"] == 1
+    assert status["action_rows_v87"] == 1
+    assert status["source_summary_rows_v87"] == 51
+    assert status["claim_blocker_rows_v87"] == 4
+    assert status["added_loan_id_v87"] == "129036264"
+    assert status["dropped_loan_id_v87"] == "127726917"
+    assert status["selected_rows_v87"] == 171
+    assert status["portfolio_exposure_v87"] == pytest.approx(842500.0)
+    assert status["objective_return_v87"] == pytest.approx(-3469.4384082608176)
+    assert status["scenario_loss_cvar90_v87"] == pytest.approx(91778.02003085389)
+    assert status["source_cap_violations_v87"] == 0
+    assert status["delta_return_vs_v85_v87"] == pytest.approx(186.46858045165436)
+    assert status["delta_cvar90_vs_v85_v87"] == pytest.approx(110.2893309056526)
+    assert status["delta_exposure_vs_v85_v87"] == pytest.approx(100.0)
+    assert status["budget_feasible_v87"] is True
+    assert status["source_feasible_v87"] is True
+    assert status["cvar_feasible_v87"] is True
+    assert status["repair_candidate_feasible_v87"] is True
+    assert status["post_repair_one_swap_optimality_claim_allowed_v87"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v87"] is False
+    assert status["paper1_promotion_allowed_v87"] is False
+    assert status["paper4_working_champion_changed_v87"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v87_next_one_swap_repair_allocations.parquet")
+    assert {
+        "loan_id",
+        "loan_amnt",
+        "mean_return_v87",
+        "selected_v87",
+        "portfolio_label_v87",
+        "repair_action_v87",
+        "claim_boundary_v87",
+    }.issubset(allocations.columns)
+    assert len(allocations) == status["allocation_rows_v87"]
+    assert int(allocations["selected_v87"].sum()) == status["selected_rows_v87"]
+    assert allocations["loan_amnt"].sum() == pytest.approx(status["portfolio_exposure_v87"])
+    assert "129036264" in set(allocations["loan_id"].astype(str))
+    assert "127726917" not in set(allocations["loan_id"].astype(str))
+    assert set(allocations["repair_action_v87"]) == {
+        "added_from_v86_best_swap",
+        "kept_from_v85",
+    }
+    assert allocations["claim_boundary_v87"].str.contains("requires post-repair repricing").all()
+
+    summary = _read_csv("paper4_v87_next_one_swap_repair_summary.csv")
+    row = summary.iloc[0]
+    assert bool(row["repair_candidate_feasible_v87"]) is True
+    assert bool(row["post_repair_one_swap_optimality_claim_allowed_v87"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v87"]) is False
+    assert "must rerun omitted-universe pricing" in str(row["claim_boundary_v87"])
+
+    action = _read_csv("paper4_v87_next_one_swap_repair_action.csv")
+    action_row = action.iloc[0]
+    assert str(action_row["added_loan_id_v87"]) == status["added_loan_id_v87"]
+    assert str(action_row["dropped_loan_id_v87"]) == status["dropped_loan_id_v87"]
+    assert float(action_row["return_delta_v87"]) == pytest.approx(186.46858045165027)
+    assert int(action_row["source_cap_violations_after_repair_v87"]) == 0
+
+    source_summary = _read_csv("paper4_v87_next_one_swap_repair_source_summary.csv")
+    assert {
+        "source_family",
+        "source_id",
+        "source_share_v87",
+        "source_slack_v87",
+        "source_cap_violated_v87",
+    }.issubset(source_summary.columns)
+    assert len(source_summary) == status["source_summary_rows_v87"]
+    assert not source_summary["source_cap_violated_v87"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v87_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v87"], blockers["blocking_v87"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v87"], blockers["evidence_count_v87"], strict=False)
+    )
+    assert bool(blocker_map["next_one_swap_repair_candidate_created"]) is False
+    assert int(evidence_map["next_one_swap_repair_candidate_created"]) == 1
+    assert bool(blocker_map["post_repair_one_swap_repricing_missing"]) is True
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+
+    claim_delta = _read_csv("paper4_v87_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v87_next_one_swap_repair_executed"]) is True
+    assert bool(claim_map["v87_repair_candidate_feasible"]) is True
+    assert bool(claim_map["v87_post_repair_one_swap_optimality"]) is False
+    assert bool(claim_map["v87_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v87_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v87 third one-swap repair candidate." in set(current_boundaries["claim"])
+    assert "v87 repaired portfolio is post-repair locally optimal." in set(
+        current_boundaries["claim"]
+    )
+    assert "v87 replaces Paper Estrella or proves full-universe integer optimality." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v87: Third One-Swap Repair Candidate" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
