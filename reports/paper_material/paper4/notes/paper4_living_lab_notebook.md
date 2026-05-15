@@ -884,3 +884,43 @@ Keep v67 in the living notebook. Promote only after actual external/future
 holdout rows are scored and pass the v66 gates without parameter edits.
 
 <!-- V67_EXTERNAL_HOLDOUT_SCORER_END -->
+
+<!-- V68_FULL_UNIVERSE_PRICING_SCREEN_START -->
+
+## Wave v68: Full-Universe Source/Pricing Screen
+
+Generated: 2026-05-15T19:12:40.415751+00:00
+
+### Objective
+
+Audit the v63 source-repair books against the full v55 comparable universe
+using a proxy source/pricing screen. The goal is to detect whether plausible
+out-of-book columns remain, not to claim exact CVaR optimality.
+
+### Results
+
+- Screened policies: `4`.
+- Top candidate rows: `200`.
+- Benchmark rows: `4`.
+- Policies with candidate columns above book p25: `4`.
+- Exact full-universe CVaR claim allowed: `False`.
+
+### Interpretation
+
+v68 strengthens the source-governance audit: the comparable universe contains
+plausible out-of-book columns under a proxy pricing/source-relief screen. That
+keeps the exact full-universe CVaR claim blocked and gives v69 a concrete
+candidate-expansion target.
+
+### Claim Impact
+
+- Allowed: proxy full-universe source/pricing screen exists.
+- Still prohibited: exact full-universe optimality, Paper Estrella replacement,
+  final Paper 4 promotion and live deployment claims.
+
+### Quarto Promotion Decision
+
+Keep v68 in the living notebook. Promote only after exact pricing or a
+column-generation certificate replaces the proxy screen.
+
+<!-- V68_FULL_UNIVERSE_PRICING_SCREEN_END -->

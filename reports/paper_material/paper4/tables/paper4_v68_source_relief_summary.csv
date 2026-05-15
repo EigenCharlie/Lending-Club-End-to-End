@@ -1,0 +1,25 @@
+policy_id,source_family,top_source_id_v63,top_candidate_rows_not_top_source_v68,top_candidate_share_not_top_source_v68,source_top_share_v63,target_cap_v63,claim_boundary_v68
+v63_source_repair_diversity_first_repair,grade,A,50,1.0,0.6824496069042975,0.68,source relief screen over top candidate columns
+v63_source_repair_diversity_first_repair,score_decile,0,50,1.0,0.7218182892947922,0.72,source relief screen over top candidate columns
+v63_source_repair_diversity_first_repair,income_band,3,34,0.68,0.2294733108707217,0.62,source relief screen over top candidate columns
+v63_source_repair_diversity_first_repair,dti_band,0,36,0.72,0.5678016196725187,0.62,source relief screen over top candidate columns
+v63_source_repair_diversity_first_repair,period,2018,50,1.0,0.6827747236507655,0.68,source relief screen over top candidate columns
+v63_source_repair_diversity_first_repair,state_top20,other,40,0.8,0.1940946976414257,0.26,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,grade,A,50,1.0,0.8531348749298603,0.85,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,score_decile,0,40,0.8,0.8780603053660554,0.9,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,income_band,4,43,0.86,0.3247689081834559,0.85,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,dti_band,0,27,0.54,0.5909158028410265,0.85,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,period,2018,8,0.16,0.7697646259708809,0.82,source relief screen over top candidate columns
+v63_source_repair_return_guarded_repair,state_top20,other,40,0.8,0.1949440359115206,0.35,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,grade,A,50,1.0,0.581647420183703,0.58,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,score_decile,0,48,0.96,0.6289022121149472,0.64,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,income_band,3,39,0.78,0.2449274934286305,0.55,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,dti_band,0,31,0.62,0.5257390944800496,0.55,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,period,2018,50,1.0,0.6222570069996161,0.62,source relief screen over top candidate columns
+v63_source_repair_strict_source_probe,state_top20,other,40,0.8,0.1811335243214507,0.24,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,grade,A,50,1.0,0.7827962071308303,0.78,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,score_decile,0,47,0.94,0.8046554219714649,0.82,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,income_band,4,34,0.68,0.2188580037219744,0.72,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,dti_band,0,36,0.72,0.5816028121584498,0.72,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,period,2018,50,1.0,0.722565208401028,0.72,source relief screen over top candidate columns
+v63_source_repair_tail_balanced_repair,state_top20,other,39,0.78,0.2040882639647889,0.3,source relief screen over top candidate columns

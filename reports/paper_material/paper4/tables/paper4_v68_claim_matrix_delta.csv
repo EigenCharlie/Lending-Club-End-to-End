@@ -1,0 +1,4 @@
+claim_id,allowed,artifact,boundary
+v68_full_universe_proxy_screen_exists,True,paper4_v68_full_universe_candidate_screen.parquet,proxy screen only
+v68_exact_full_universe_cvar_optimality,False,paper4_v68_screen_vs_book_benchmark.csv,requires exact LP dual pricing or column-generation certificate
+v68_paper1_or_final_promotion,False,paper4_v68_source_relief_summary.csv,no Paper Estrella or final Paper 4 promotion

@@ -4398,6 +4398,78 @@ def test_paper4_v67_external_holdout_scorer_blocks_without_data() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v68_full_universe_pricing_screen_blocks_exact_claims() -> None:
+    status = _read_json("paper4_v68_status.json")
+
+    assert status["phase"] == "v68_full_universe_source_pricing_screen"
+    assert status["screened_policy_rows_v68"] == 4
+    assert status["candidate_screen_rows_v68"] >= 200
+    assert status["benchmark_rows_v68"] == 4
+    assert status["source_relief_rows_v68"] >= 24
+    assert status["policies_with_unpriced_columns_v68"] == 4
+    assert status["exact_dual_pricing_performed_v68"] is False
+    assert status["exact_full_universe_cvar_claim_allowed_v68"] is False
+    assert status["paper1_promotion_allowed_v68"] is False
+    assert status["paper4_working_champion_changed_v68"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    candidates = pd.read_parquet(TABLE_DIR / "paper4_v68_full_universe_candidate_screen.parquet")
+    assert not candidates.empty
+    assert {
+        "policy_id_v68",
+        "loan_id",
+        "pricing_screen_score_v68",
+        "source_relief_share_v68",
+        "screen_scope_v68",
+        "candidate_rank_v68",
+    }.issubset(candidates.columns)
+    assert candidates["policy_id_v68"].nunique() == 4
+    assert candidates.groupby("policy_id_v68")["candidate_rank_v68"].max().eq(50).all()
+    assert candidates["screen_scope_v68"].str.contains("not exact dual pricing").all()
+
+    benchmark = _read_csv("paper4_v68_screen_vs_book_benchmark.csv")
+    assert {
+        "policy_id",
+        "screened_universe_rows_v68",
+        "out_of_book_rows_v68",
+        "screen_detects_unpriced_columns_v68",
+        "exact_full_universe_cvar_claim_allowed_v68",
+        "claim_boundary_v68",
+    }.issubset(benchmark.columns)
+    assert benchmark["screened_universe_rows_v68"].eq(276869).all()
+    assert benchmark["screen_detects_unpriced_columns_v68"].astype(bool).all()
+    assert not benchmark["exact_full_universe_cvar_claim_allowed_v68"].astype(bool).any()
+    assert benchmark["claim_boundary_v68"].str.contains("proxy screen only").all()
+
+    relief = _read_csv("paper4_v68_source_relief_summary.csv")
+    assert {
+        "policy_id",
+        "source_family",
+        "top_candidate_share_not_top_source_v68",
+        "claim_boundary_v68",
+    }.issubset(relief.columns)
+    assert relief["source_family"].nunique() >= 6
+    assert relief["top_candidate_share_not_top_source_v68"].between(0, 1).all()
+
+    claim_delta = _read_csv("paper4_v68_claim_matrix_delta.csv")
+    assert {"claim_id", "allowed", "artifact", "boundary"}.issubset(claim_delta.columns)
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v68_full_universe_proxy_screen_exists"]) is True
+    assert bool(claim_map["v68_exact_full_universe_cvar_optimality"]) is False
+    assert bool(claim_map["v68_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a full-universe source/pricing screen for v63 repair books." in set(
+        current_boundaries["claim"]
+    )
+    assert "v68 proves exact full-universe CVaR optimality." in set(current_boundaries["claim"])
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v68: Full-Universe Source/Pricing Screen" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
