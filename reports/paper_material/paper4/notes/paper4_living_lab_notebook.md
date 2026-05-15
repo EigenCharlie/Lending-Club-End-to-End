@@ -1581,3 +1581,47 @@ Keep v83 in the living notebook. Promote only after post-repair pricing and
 dynamic/promotion gates pass.
 
 <!-- V83_BEST_ONE_SWAP_REPAIR_END -->
+
+<!-- V84_POST_REPAIR_ONE_SWAP_REPRICE_START -->
+
+## Wave v84: Post-Repair One-Swap Repricing
+
+Generated: 2026-05-15T21:04:50.929762+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v83 repair, using all
+non-selected loans from the comparable v55 universe as possible additions. This
+tests whether the repaired candidate is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `2142058`.
+- Exact source-feasible pairs: `8000`.
+- CVaR-feasible improving one-swaps: `8000`.
+- Best post-repair one-swap return delta:
+  `198.2450405042807`.
+- Post-repair local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v84 is the required re-pricing after v83 changed the portfolio. If it finds
+additional feasible improving one-swaps, the lab should iterate repair/reprice;
+if it clears, the next blocker would still be multi-swap/global integer
+evidence.
+
+### Claim Impact
+
+- Allowed: post-repair one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v84 in the living notebook. Promote only after the repair loop terminates
+and stronger integer/dynamic/promotion gates pass.
+
+<!-- V84_POST_REPAIR_ONE_SWAP_REPRICE_END -->
