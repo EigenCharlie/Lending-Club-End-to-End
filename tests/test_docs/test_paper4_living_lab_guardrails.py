@@ -4038,6 +4038,103 @@ def test_paper4_v63_source_governance_repair_is_lab_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v64_online_pseudo_unseen_stress_is_lab_only() -> None:
+    status = _read_json("paper4_v64_status.json")
+
+    assert status["phase"] == "v64_online_pseudo_unseen_stress"
+    assert status["stress_grid_rows_v64"] >= 2_000
+    assert status["method_split_summary_rows_v64"] >= 500
+    assert status["winner_rows_v64"] == 7
+    assert status["cell_summary_rows_v64"] > 0
+    assert status["local_split_gate_pass_rows_v64"] > 0
+    assert status["strict_all_split_pass_rows_v64"] == 0
+    assert status["external_unseen_data_available_v64"] is False
+    assert status["strict_live_deployability_claim_allowed_v64"] is False
+    assert status["paper1_promotion_allowed_v64"] is False
+    assert status["paper4_working_champion_changed_v64"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    expected_csvs = {
+        "paper4_v64_online_input_audit.csv": {
+            "audit_item_v64",
+            "value_v64",
+            "claim_boundary_v64",
+        },
+        "paper4_v64_online_pseudo_unseen_stress_grid.csv": {
+            "source_family",
+            "pseudo_unseen_split_v64",
+            "source_month_defended_min_v64",
+            "policy_month_defended_min_v64",
+            "avg_width_loan_v64",
+            "gate_source80_policy90_width95_v64",
+            "strict_live_deployability_claim_allowed",
+            "claim_boundary_v64",
+        },
+        "paper4_v64_online_method_split_summary.csv": {
+            "source_family",
+            "split_gate_pass_rows_v64",
+            "all_splits_gate_pass_v64",
+            "width_margin_to_0p95_v64",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v64_online_winner_memo.csv": {
+            "source_family",
+            "recommendation_v64",
+            "all_splits_gate_pass_v64",
+            "strict_live_deployability_claim_allowed",
+        },
+        "paper4_v64_claim_matrix_delta.csv": {
+            "claim_id",
+            "allowed",
+            "artifact",
+            "boundary",
+        },
+    }
+    for name, columns in expected_csvs.items():
+        table = _read_csv(name)
+        assert not table.empty, name
+        assert columns.issubset(table.columns), name
+
+    grid = _read_csv("paper4_v64_online_pseudo_unseen_stress_grid.csv")
+    assert grid["gate_source80_policy90_width95_v64"].astype(bool).any()
+    assert not grid["strict_live_deployability_claim_allowed"].astype(bool).any()
+    assert not grid["external_unseen_data_available_v64"].astype(bool).any()
+
+    summary = _read_csv("paper4_v64_online_method_split_summary.csv")
+    assert not summary["all_splits_gate_pass_v64"].astype(bool).any()
+    assert summary["split_gate_pass_rows_v64"].max() < summary["evaluated_splits_v64"].max()
+
+    winners = _read_csv("paper4_v64_online_winner_memo.csv")
+    assert len(winners) == 7
+    assert not winners["all_splits_gate_pass_v64"].astype(bool).any()
+    assert winners["split_gate_pass_rows_v64"].max() == 3
+    assert winners["max_avg_width_loan_v64"].min() > 0.95
+    assert not winners["strict_live_deployability_claim_allowed"].astype(bool).any()
+
+    cells = pd.read_parquet(TABLE_DIR / "paper4_v64_online_stress_cell_summary.parquet")
+    assert not cells.empty
+    assert {
+        "source_family",
+        "pseudo_unseen_split_v64",
+        "coverage_v64",
+        "avg_width_v64",
+        "claim_boundary_v64",
+    }.issubset(cells.columns)
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has pseudo-unseen online conformal stress diagnostics." in set(
+        current_boundaries["claim"]
+    )
+    assert "Online conformal coverage is strictly live-deployable after v64." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v64: Online Pseudo-Unseen Stress" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

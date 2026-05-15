@@ -727,3 +727,45 @@ Keep v63 in the living notebook. Promote only after a candidate survives
 common-path dynamic replay and a separate editorial claim review.
 
 <!-- V63_SOURCE_REPAIR_END -->
+
+<!-- V64_ONLINE_PSEUDO_UNSEEN_START -->
+
+## Wave v64: Online Pseudo-Unseen Stress
+
+Generated: 2026-05-15T18:50:50.460987+00:00
+
+### Objective
+
+Stress the v9/v57 online conformal repair logic on later temporal slices
+without claiming true external deployment evidence. v64 asks whether any
+source-family method passes source-month coverage, policy-month coverage and
+width gates across every pseudo-unseen split.
+
+### Results
+
+- Stress-grid rows: `2520`.
+- Local split gate-pass rows: `354`.
+- All-split strict pass rows: `0`.
+- Best source family: `period`.
+- Best split-pass count: `3`.
+- Best max average width: `0.9518148541758069`.
+
+### Interpretation
+
+v64 is a useful near-miss diagnostic: some local pseudo-unseen splits pass,
+but no method clears every split simultaneously under the width, source and
+policy gates. The live-deployability claim therefore stays blocked, and the
+next useful experiment is a margin repair or genuinely external/future holdout.
+
+### Claim Impact
+
+- Allowed: historical pseudo-unseen stress diagnostics exist.
+- Still prohibited: strict live deployability, external unseen validation,
+  final Paper 4 promotion and Paper Estrella replacement.
+
+### Quarto Promotion Decision
+
+Keep v64 in the living notebook. Do not promote until an external/future
+holdout or a stronger all-split margin repair exists.
+
+<!-- V64_ONLINE_PSEUDO_UNSEEN_END -->

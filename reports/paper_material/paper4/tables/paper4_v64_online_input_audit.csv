@@ -1,0 +1,6 @@
+audit_item_v64,value_v64,claim_boundary_v64
+selected_v9_interval_rows,136204,historical v9 intervals reused; not a live deployment feed
+base_v4_interval_rows_before_dedupe,1107476,base rows deduped by loan_id and issue_month before v64 merge
+base_v4_interval_rows_after_dedupe,276869,dedupe prevents one-to-many policy inflation in v64
+merged_panel_rows_v64,136204,loan-level historical replay panel only
+merged_missing_y_pred_rows_v64,0,rows with missing prediction fields are dropped per family

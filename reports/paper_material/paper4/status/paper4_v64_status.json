@@ -1,0 +1,18 @@
+{
+  "cell_summary_rows_v64": 451,
+  "claim_boundary": "v64 is pseudo-unseen historical stress evidence only; no live deployability claim",
+  "external_unseen_data_available_v64": false,
+  "generated_at_utc": "2026-05-15T18:50:50.460987+00:00",
+  "local_split_gate_pass_rows_v64": 354,
+  "method_split_summary_rows_v64": 630,
+  "paper1_promotion_allowed_v64": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v64": false,
+  "phase": "v64_online_pseudo_unseen_stress",
+  "runtime_seconds": 50.32,
+  "schema_version": "2026-05-15.64",
+  "stress_grid_rows_v64": 2520,
+  "strict_all_split_pass_rows_v64": 0,
+  "strict_live_deployability_claim_allowed_v64": false,
+  "winner_rows_v64": 7
+}
