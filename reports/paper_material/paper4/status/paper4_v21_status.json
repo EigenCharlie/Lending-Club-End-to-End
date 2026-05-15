@@ -1,0 +1,17 @@
+{
+  "schema_version": "2026-05-14.21",
+  "generated_at_utc": "2026-05-14T20:59:49.215381+00:00",
+  "phase": "v21_ifrs9_causal_fairness_gates",
+  "ifrs9_contractual_claim_allowed": false,
+  "ifrs9_readiness_rows_v21": 8,
+  "ifrs9_contractual_ready_requirements_v21": 1,
+  "causal_policy_value_allowed": false,
+  "cate_gate_rows_v21": 6,
+  "fair_lending_legal_claim": false,
+  "source_governance_rows_v21": 388,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "IFRS9 proxy-only, CATE diagnostics-only, fairness proxy-governance only",
+  "runtime_seconds": 21.699
+}

@@ -1,0 +1,15 @@
+policy_id,reference_policy_id,mean_wealth_diff_vs_current_champion,p05_wealth_diff_vs_current_champion,p95_wealth_diff_vs_current_champion,prob_higher_wealth_than_current_champion,mean_loss_diff_vs_current_champion,prob_lower_loss_than_current_champion,n_common_paths,paired_path_scope
+paper1_economic_champion,v13_fvi_return_recovery,1463.6215940682741,-57746.728822249126,55677.14173886843,0.4375,88180.39670749828,0.0,32,common_random_numbers_internal_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,v13_fvi_return_recovery,25454.379837539538,-23805.52130270958,61140.62705632087,0.84375,52237.486645683835,0.0,32,common_random_numbers_internal_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor125000_cap360000,v13_fvi_return_recovery,25454.379837539538,-23805.52130270958,61140.62705632087,0.84375,52237.486645683835,0.0,32,common_random_numbers_internal_paths
+v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,v13_fvi_return_recovery,8692.417827590165,-27794.131103887084,38691.19204610282,0.65625,46881.640724194425,0.0,32,common_random_numbers_internal_paths
+v13_fvi_bellman_rollout,v13_fvi_return_recovery,-4319.680371661889,-10123.304889537103,2762.3359100811763,0.21875,-2348.283908031408,0.75,32,common_random_numbers_internal_paths
+v13_fvi_capital_guarded,v13_fvi_return_recovery,-6102.249908483282,-12984.699269239034,2266.433444632512,0.09375,-2115.536444053801,0.6875,32,common_random_numbers_internal_paths
+v13_fvi_return_recovery,v13_fvi_return_recovery,0.0,0.0,0.0,0.0,0.0,0.0,32,common_random_numbers_internal_paths
+v13_mdcp_empirical_base,v13_fvi_return_recovery,-23169.51895275267,-42303.35008008705,-6886.616030055694,0.03125,33008.24732095393,0.0,32,common_random_numbers_internal_paths
+v13_mdcp_empirical_return_recovery,v13_fvi_return_recovery,-5114.855135991027,-30191.56485751767,15377.076712846634,0.5,38062.56943490034,0.0,32,common_random_numbers_internal_paths
+v13_mdcp_empirical_tight,v13_fvi_return_recovery,-49803.57351042876,-74693.27904724558,-28747.21652391,0.0,20719.917145303407,0.0,32,common_random_numbers_internal_paths
+v13_spo_regret_audit_guarded,v13_fvi_return_recovery,-1617.9601434701071,-38176.512964282774,28133.928767017587,0.46875,36287.74552841839,0.0,32,common_random_numbers_internal_paths
+v13_spo_regret_balanced,v13_fvi_return_recovery,5574.6370674200225,-28819.108784623135,36945.43451415753,0.625,37996.24840156085,0.0,32,common_random_numbers_internal_paths
+v13_spo_regret_return_recovery,v13_fvi_return_recovery,3327.011814687343,-39057.27410485014,34514.869461223,0.53125,43065.47975191351,0.0,32,common_random_numbers_internal_paths
+v13_static_reference,v13_fvi_return_recovery,-233821.8611425147,-315533.1979642125,-130831.96195717166,0.0,314370.32337873254,0.0,32,common_random_numbers_internal_paths

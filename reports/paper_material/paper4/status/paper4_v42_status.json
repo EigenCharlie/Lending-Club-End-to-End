@@ -1,0 +1,16 @@
+{
+  "claim_boundary": "v42 improves oracle-regret training; differentiable SPO+ remains false unless cvxpy/cvxpylayers/torch are validated",
+  "cvxpy_import_clean_v42": false,
+  "cvxpylayers_import_clean_v42": false,
+  "dependency_rows_v42": 10,
+  "formal_differentiable_spo_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T14:29:53.653821+00:00",
+  "paper4_final_promotion_created": false,
+  "phase": "v42_spo_dependency_and_oracle_regret_training",
+  "runtime_seconds": 10.337,
+  "schema_version": "2026-05-15.42",
+  "spo_candidate_allocation_rows_v42": 99,
+  "spo_training_report_rows_v42": 9,
+  "spo_validation_rows_v42": 99,
+  "torch_import_clean_v42": false
+}

@@ -1,0 +1,12 @@
+priority,claim_status,artifact,quarto_page,caveat
+Online source-month resolution,implemented_deployable_support_pooling_search,paper4_v7_online_deployable_weak_cell_search.csv,19ao-v7-online-mdcp-resolution.qmd,passes defended 0.80 gate only with costly width; no promotion
+Online selected intervals,implemented_selected_deployable_methods,paper4_v7_online_deployable_intervals.parquet,19ao-v7-online-mdcp-resolution.qmd,selected reference plus best defended method
+MDCP-aware solver,implemented_soft_penalty_inside_lp,paper4_v7_mdcp_soft_penalty_solver_summary.csv,19ao-v7-online-mdcp-resolution.qmd,"proxy MDCP, not formal multidimensional conformal theorem"
+CVaR adaptive frontier,implemented_expanded_topk_constraint,paper4_v7_cvar_adaptive_frontier.csv,19ao-v7-online-mdcp-resolution.qmd,"top-k expanded, not full 276k decomposition"
+SICR MRM shortlist,implemented_committee_shortlist,paper4_v7_sicr_mrm_shortlist.csv,19ap-v7-ifrs9-dla-causal-governance.qmd,accounting policy still proxy-only
+IFRS9 contractual plan,implemented_gap_action_plan,paper4_v7_ifrs9_contractual_build_plan.csv,19ap-v7-ifrs9-dla-causal-governance.qmd,true servicing panel remains blocker
+DLA endogenous capital state,implemented_dynamic_proxy,paper4_v7_dla_capital_state_summary.csv,19ap-v7-ifrs9-dla-causal-governance.qmd,not Bellman-optimal ADP
+Sample paths calibration,implemented_calibration_registry,paper4_v7_sample_path_calibration_grid.csv,19ap-v7-ifrs9-dla-causal-governance.qmd,"simulation for paired comparison, not forecast"
+CATE and fairness gates,implemented_blocker_matrix,paper4_v7_causal_fairness_blocker_matrix.csv,19ap-v7-ifrs9-dla-causal-governance.qmd,policy value and legal fairness claims remain blocked
+Hybrid candidate registry,implemented_surrogate_registry,paper4_v7_hybrid_solver_candidate_registry.csv,19ao-v7-online-mdcp-resolution.qmd,"surrogate LP/hybrid registry, not neural SPO+/DFL training"
+V7 status,implemented_living_lab_status,paper4_v7_resolution_status.json,19aq-v7-pending-and-results.qmd,no final promotion json

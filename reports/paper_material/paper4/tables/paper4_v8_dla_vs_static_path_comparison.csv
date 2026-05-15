@@ -1,0 +1,2 @@
+comparison_id,dynamic_policy_id,static_policy_id,delta_final_state_value,delta_final_cash,delta_cumulative_realized_loss,delta_cumulative_expected_loss,delta_total_funded_exposure,interpretation
+v8_dla_value_function_vs_static_reference,v8_dla_value_function_proxy,v8_static_monthly_reference,42190.035333185224,11902.862993772957,-20151.875000000015,-22242.71591559908,-18725.0,positive state-value delta supports further ADP work; negative delta means the proxy is not yet useful

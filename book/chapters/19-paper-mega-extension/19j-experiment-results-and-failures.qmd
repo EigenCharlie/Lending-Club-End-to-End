@@ -1,0 +1,210 @@
+---
+title: "Resultados, Fracasos y Bitácora Viva"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+NOTE_DIR = PAPER4_DIR / "notes"
+
+def _read_csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    if not path.exists():
+        return pd.DataFrame()
+    return pd.read_csv(path)
+
+def _read_json(name: str) -> dict:
+    path = STATUS_DIR / name
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text(encoding="utf-8"))
+
+def _note_row(name: str, role: str) -> dict:
+    path = NOTE_DIR / name
+    return {
+        "note": name,
+        "role": role,
+        "exists": path.exists(),
+        "bytes": path.stat().st_size if path.exists() else 0,
+    }
+
+registry = _read_json("paper4_artifact_registry.json")
+mvp_status = _read_json("paper4_mvp_status.json")
+policy_registry = _read_csv("paper4_policy_class_registry.csv")
+readiness = _read_csv("paper4_table7_research_lane_readiness.csv")
+
+artifact_rows = pd.DataFrame(registry.get("artifacts", []))
+memory_notes = pd.DataFrame(
+    [
+        _note_row("paper4_experiment_ledger.qmd", "experiments, decisions and run history"),
+        _note_row("paper4_failure_log.qmd", "negative results and kill/park decisions"),
+        _note_row("paper4_learning_log.qmd", "concepts learned and technical lessons"),
+        _note_row("paper4_direction_changes.qmd", "changes of scope and rationale"),
+        _note_row("paper4_open_questions.qmd", "open research questions"),
+        _note_row("causal_identification_report.md", "causal gate and identification sketch"),
+    ]
+)
+```
+
+## Pregunta {#sec-paper4-results-failures-question}
+
+Paper 4 tiene que funcionar como laboratorio vivo. Eso significa que un
+resultado negativo no es basura: es evidencia de diseño. La pregunta de esta
+página es:
+
+> ¿Qué implementamos, qué aprendimos, qué falló o sigue bloqueado, y qué queda
+> decidido para la siguiente iteración?
+
+El objetivo es evitar que Paper 4 se convierta en una nube de ideas. Cada
+experimento debe terminar en una decisión: `keep`, `promote`, `park` o `kill`.
+
+## Artifacts
+
+La memoria viva se separa en dos capas:
+
+- artefactos reproducibles bajo `reports/paper_material/paper4/`;
+- notas humanas bajo `reports/paper_material/paper4/notes/`.
+
+```{python}
+#| label: tbl-paper4-artifact-registry
+#| tbl-cap: "Registry de artefactos generados para el laboratorio vivo"
+
+if not artifact_rows.empty:
+    artifact_rows.sort_values("artifact").head(40)
+else:
+    artifact_rows
+```
+
+```{python}
+#| label: tbl-paper4-memory-notes
+#| tbl-cap: "Notas vivas conectadas al laboratorio Paper 4"
+
+memory_notes
+```
+
+## Resultado
+
+El MVP actual queda declarado como `foundation_and_mvp_diagnostics`. Eso tiene
+una implicación importante: ya hay infraestructura de memoria y evidencia, pero
+todavía no hay selector nuevo.
+
+```{python}
+#| label: tbl-paper4-current-mvp-contract
+#| tbl-cap: "Contrato del MVP actual"
+
+pd.DataFrame(
+    [
+        {"item": "phase", "value": mvp_status.get("phase", "")},
+        {"item": "mode", "value": mvp_status.get("mode", "")},
+        {"item": "paper1_champion_protected", "value": mvp_status.get("paper1_champion_protected", "")},
+        {"item": "paper4_final_promotion_created", "value": mvp_status.get("paper4_final_promotion_created", "")},
+        {"item": "n_frozen_policies", "value": mvp_status.get("n_frozen_policies", "")},
+        {"item": "caveat", "value": mvp_status.get("caveat", "")},
+    ]
+)
+```
+
+El registry de clases de política mezcla dos cosas deliberadamente: policies
+congeladas ya evaluables y lanes planeadas que todavía no tienen permiso para
+promover.
+
+```{python}
+#| label: tbl-paper4-policy-registry-lanes
+#| tbl-cap: "Lanes implementadas y planeadas en el policy class registry"
+
+if not policy_registry.empty:
+    policy_registry.groupby(["policy_class", "evaluation_mode", "status"], as_index=False).agg(
+        policies=("policy_id", "nunique")
+    ).sort_values(["status", "policy_class"])
+else:
+    policy_registry
+```
+
+Las lanes research-only del libro entran con estados explícitos. Esa separación
+es parte del diseño: no todo lo interesante debe convertirse en decisión.
+
+```{python}
+#| label: tbl-paper4-research-readiness-living-log
+#| tbl-cap: "Readiness de lanes research-only"
+
+readiness if not readiness.empty else readiness
+```
+
+## Interpretación
+
+El laboratorio ya tiene cuatro tipos de memoria:
+
+- **memoria de entrada**: `paper4_table0_source_manifest.csv`;
+- **memoria de modelo**: schemas SDAM y post-decision state;
+- **memoria de evidencia**: tablas `policy`, `loan` y `monthly`;
+- **memoria humana**: ledger, failure log, learning log, direction changes y
+  open questions.
+
+Esa estructura permite trabajar Paper 4 durante meses sin perder el hilo. Una
+idea nueva puede entrar como hypothesis, convertirse en artifact, fallar, quedar
+parked o promoverse a lane formal. La regla es que nada queda flotando.
+
+### Resultados negativos que cuentan
+
+Paper 4 debe preservar, como mínimo, estos negativos o bloqueos:
+
+| Línea | Estado | Cómo se documenta |
+|---|---|---|
+| CATE como objetivo central | bloqueado por identificación | `causal_identification_report.md` y failure/open questions |
+| Online conformal | planeado, no online todavía | `online_conformal_coverage_regret.parquet` como proxy de coverage regret |
+| Multi-period DLA | schema declarado, solver no implementado | `paper4_post_decision_state_schema.json` |
+| IFRS9-aware selector | diagnóstico, no selector | `paper4_table1` y `paper4_table2` |
+| OCE/CVaR objective | diagnóstico, no solver objective | `paper4_table3` |
+| Satisficing selector | screen, no policy selector | `paper4_table4` |
+
+Estos bloqueos no son fallas del proyecto. Son límites que impiden claims
+prematuros.
+
+## Caveats
+
+::: {.callout-warning}
+## No todos los artifacts tienen la misma fuerza
+
+Un CSV diagnóstico, un parquet replay y un JSON de promoción no tienen el mismo
+peso epistemológico. Paper 4 debe decir siempre si un resultado es proxy,
+diagnóstico, replay histórico, método nuevo o promoción formal.
+:::
+
+La bitácora humana no reemplaza tests. Sirve para explicar decisiones, pero los
+claims deben estar respaldados por scripts y artefactos versionables.
+
+El estado `planned` en el policy registry no es permiso de implementación
+ciega. Es una cola ordenada. Cada lane necesita su propio artifact contract,
+test mínimo y caveat antes de entrar al libro como resultado.
+
+## Next Step
+
+La próxima rutina de trabajo debería ser:
+
+1. abrir una hipótesis en `paper4_experiment_ledger.qmd`;
+2. crear o actualizar un script bajo `scripts/papers/`;
+3. escribir artifacts en `reports/paper_material/paper4/`;
+4. agregar una lectura Quarto con pregunta, artifacts, resultado,
+   interpretación, caveats y next step;
+5. cerrar la iteración con `keep`, `promote`, `park` o `kill`;
+6. registrar cualquier resultado negativo en `paper4_failure_log.qmd`.
+
+Con esa rutina, Paper 4 puede seguir siendo hobby serio: grande, experimental y
+sin ansiedad de publicación, pero con memoria científica.

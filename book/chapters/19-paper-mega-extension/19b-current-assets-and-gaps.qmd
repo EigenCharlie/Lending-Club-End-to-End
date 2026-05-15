@@ -1,174 +1,59 @@
 ---
-title: "Activos, Gaps y Viabilidad"
+title: "Current Assets And Gaps"
 page-layout: article
 ---
 
-## Qué tenemos y qué falta para Paper 4 {#sec-paper4-assets-gaps}
+## Activos oficiales
 
-Paper 4 no empieza desde cero. El repo ya tiene muchos módulos que funcionarían
-como ladrillos de la mega extensión. El trabajo importante es clasificarlos:
-qué está listo, qué es viable pronto, qué todavía no dio buenos resultados, y
-qué requiere investigación nueva.
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
+| F02 | Paper Estrella remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
+| F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
+| F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
 
-### Inventario por bloque
+## Boundaries de claims
 
-::: {#tbl-paper4-assets-gaps}
+| claim | allowed | boundary | current_quarto_page |
+| --- | --- | --- | --- |
+| Paper 4 defines a governed sequential decision analytics lab. | True | Architecture and artifact-backed lab claim only. | index.qmd |
+| Paper Estrella official champion remains retained after v38. | True | No new promotion unless future promotion protocol passes. | 19ca-v38-final-synthesis.qmd |
+| Dynamic stress replay compares policies as monthly processes. | True | Internal replay and common sample paths, not forecast validity. | 19t-multi-period-solver.qmd |
+| CVaR/OCE is a serious tail-risk challenger. | True | Tail-governance challenger, not economic champion and not exact full-universe optimum. | 19i-regret-auditability-frontier.qmd |
+| Online conformal coverage is fully deployable under all temporal/source holdouts. | False | Nominal gate passed historically, strict holdouts remain fragile. | 19n-online-mdcp-fairness.qmd |
+| Contractual IFRS9 lifetime ECL is implemented. | False | Only IFRS9-inspired proxy ECL/SICR is allowed. | 19b-current-assets-and-gaps.qmd |
+| Formal differentiable SPO+ is implemented. | False | Oracle-regret/surrogate only until dependencies and validation are resolved. | 19t-multi-period-solver.qmd |
+| CATE policy value is ready for decision selection. | False | Causal diagnostics only; no policy-value claim. | 19b-current-assets-and-gaps.qmd |
+| Fair-lending legal claim is supported. | False | Proxy/source governance only; no protected-attribute legal claim. | 19n-online-mdcp-fairness.qmd |
 
-| Bloque | Qué ya tenemos | Estado actual | Qué falta | Viabilidad inmediata |
-|---|---|---|---|---|
-| PD calibrada | CatBoost monotónico + Venn-Abers, AUC/ECE/Brier canónicos | listo | mantener sync y lineage | alta |
-| Conformal Mondrian | `score_decile_mondrian`, cobertura 90/95, min group coverage | listo para Papers 1--3 | online/MDCP no implementado | alta para offline, media para online |
-| CRPTO | economic champion, robust region `45/45`, bound `alpha/Gamma_CP` | listo para Paper Estrella | no es multi-periodo ni IFRS9-aware | alta como base |
-| IFRS9 | ECL, SICR, escenarios, sensibilidad alpha/ECL | listo para Paper 2 | policy × ECL × escenario | alta |
-| OCE/CVaR | A12 tail-risk diagnóstico | diagnóstico listo | objective/constraint en solver | media |
-| Satisficing | A13 margins diagnóstico | diagnóstico listo | thresholds y selector formal | media-alta |
-| Temporal / TS | AutoARIMA punto; vNext intervalar research-only | mixto | coverage 90 por horizonte y forward coherence | baja-media |
-| Online conformal | literatura y conexión; no capa promotable | no implementado | ACI/UP-OCP, coverage regret, replay mensual | media, con trabajo |
-| Multi-period portfolio | LP one-shot actual | no implementado | estado, transición, budget, rebalanceo | media-baja |
-| CATE | carril causal `insights_only` | exploratorio | identificación, overlap, sensitivity, policy value | media-baja |
-| MDCP | literatura y framing | no implementado | source/regime splits y garantía peor fuente | media |
-| Fairness formal | proxy audit/intersectional fairness | audit listo, constraint no | atributos defendibles o proxy-governance formal | baja-media |
-| Governance | MRM, DVC, MLflow, Quarto, guardrails | fuerte | release manifest Paper 4 | alta |
+## Gaps reales
 
-Estado actual de los bloques de Paper 4.
-:::
+Los gaps no son fracasos editoriales: son limites que hacen al paper mas serio.
+IFRS9 contractual esta bloqueado por datos de servicing; CATE esta bloqueado por
+identificacion y sensibilidad; fairness legal esta bloqueado por ausencia de
+atributos protegidos o protocolo aprobado; SPO diferenciable esta bloqueado por
+dependencias; CVaR exacto full-universe no debe reclamarse sin prueba exacta.
 
-### Lo viable justo ahora
+## Backlog resumido
 
-Lo viable sin reabrir todos los métodos es construir un **MVP evidence package**.
-Ese paquete no elegiría todavía un nuevo champion; evaluaría policies actuales
-bajo lentes nuevos.
-
-::: {#tbl-paper4-viable-now}
-
-| Trabajo viable ahora | Qué produciría | Por qué es seguro |
-|---|---|---|
-| `policy × ECL × scenario` | ECL, provisión, Stage 2 share por policy CRPTO | usa Paper 2 + robust region congelada |
-| `net_return_after_ecl` | retorno robusto menos ECL/provisión | diagnóstico; no reoptimiza |
-| Tail risk por policy | OCE/CVaR/expected shortfall sobre funded sets | extiende A12 |
-| Satisficing screen | pass/fail por thresholds de comité | extiende A13 |
-| Replay temporal descriptivo | metrics por periodo/mes para policies congeladas | no requiere online CP promotable |
-| Fairness/funded-set audit por policy | gaps por segmento/proxy | extiende `14k` y funded-set exports |
-| Release manifest Paper 4 | claim → artifact → script → test | documental |
-
-Primer paquete implementable sin cambiar champions.
-:::
-
-Este MVP ya respondería preguntas muy valiosas:
-
-- ¿El economic champion sigue siendo atractivo después de reconocer ECL?
-- ¿Qué policy minimiza provisión adversa dentro de la región robusta?
-- ¿Qué policy tiene mejor margen satisficing?
-- ¿El funded set robusto concentra tail risk en un segmento?
-- ¿La composición temporal del funded set empeora bajo periodos de estrés?
-- ¿Las métricas de fairness proxy cambian cuando se penaliza ECL/tail risk?
-
-### Lo que todavía no tuvo buenos resultados
-
-Esta parte es crucial. Paper 4 no debe esconder intentos fallidos; al contrario,
-debe usarlos para delimitar qué falta.
-
-::: {#tbl-paper4-not-yet-promotable}
-
-| Línea | Qué pasó | Lección | Condición para volver |
-|---|---|---|---|
-| Intervalos temporales | AutoARIMA intervalar quedó con coverage ~81% vs target 90; vNext mejora gap pero no promueve | forecasting puntual no basta para incertidumbre gobernada | coverage por horizonte, sharpness y forward coherence |
-| TS→ECL intervalar | útil como investigación y sensibilidad | todavía no es baseline mensual | demostrar valor estable downstream en ECL/staging |
-| CATE | artefactos heredados/exploratorios, ATE cercano a 0 y CI incluye 0 según memoria del backlog | no hay contribución causal defendible aún | treatment/outcome/identificación/sensitivity |
-| CQR para Paper Estrella | cobertura alta pero intervalos demasiado anchos y cero elegibles bajo gate actual | no reemplaza al winner conformal | reentrenar con objetivo de decisión o relajar gate con protocolo |
-| OCE/CVaR | reportado como A12 diagnóstico | no controla solver | integrar a search o constraint |
-| Satisficing | margins reportados como A13 | thresholds editoriales, no policy selector | definir thresholds y resolver selector |
-| Fairness formal | proxy/intersectional audit pasa | no hay protected attributes directos | fuente defendible o alcance proxy explícito |
-| Multi-period | no existe policy dinámica | el bound actual es asignación fija | formular garantía por periodo/política |
-
-Líneas valiosas que todavía no son centrales.
-:::
-
-### Qué viene de backlogs anteriores
-
-Los backlogs antiguos pedían alpha sweep, uncertainty baselines, bound
-alpha-Gamma, CQR, SICR, ECL sensitivity, time series, causal y GPU. Hoy esas
-piezas están clasificadas:
-
-- **Alpha sweep / alpha-Gamma**: cerrado para Paper Estrella; en Paper 4 sirve
-  como dial de política que podría propagarse a ECL y capital.
-- **Uncertainty baselines**: cerrado como evidencia de por qué conformal domina
-  bootstrap/paramétrico para decisión; en Paper 4 sirve para defender la base de
-  incertidumbre.
-- **CQR**: comparator, no champion; en Paper 4 podría reabrirse como challenger
-  si se entrena decision-aware.
-- **SICR/ECL sensitivity**: pertenece a Paper 2; en Paper 4 se vuelve candidato
-  para selector IFRS9-aware.
-- **Time series**: research-only; en Paper 4 define la condición de
-  secuencialidad.
-- **Causal/CATE**: insights-only; en Paper 4 define la ambición causal, pero no
-  entra sin identificación.
-- **OCE/CVaR y satisficing**: ya diagnosticados; en Paper 4 son candidatos a
-  objective/constraint.
-
-### Qué sería un nuevo run vs un artefacto derivado
-
-La frontera más importante es esta: **derivar evidencia no promueve un
-champion**. Un artefacto derivado puede decir "bajo esta lente, la policy luce
-mejor/peor". Un nuevo run de promoción puede decir "esta policy debe reemplazar
-a la actual". Paper 4 necesita mantener esa diferencia con disciplina, porque
-mezcla familias de métricas que no son comparables sin pesos/gates explícitos.
-
-::: {#tbl-paper4-run-vs-derived}
-
-| Item | Tipo | Requiere nuevo run pesado | Comentario |
-|---|---|---:|---|
-| policy × ECL × scenario | derivado | No necesariamente | evalúa policies existentes |
-| net return after ECL | derivado | No | composición de métricas |
-| OCE/CVaR por policy congelada | derivado/ligero | No | extensión de A12 |
-| Satisficing screen | derivado | No | extensión de A13 |
-| replay temporal descriptivo | derivado/medio | Quizá | depende de granularidad mensual |
-| online conformal | método nuevo | Sí | cambia garantía |
-| multi-period CRPTO | método nuevo | Sí | cambia optimización |
-| IFRS9-aware reoptimization | search nuevo | Sí | nuevo champion |
-| CATE central | método nuevo | Sí | requiere identificación |
-| MDCP | método nuevo | Sí | nueva capa conformal |
-| fairness constraints | método nuevo | Sí | nueva restricción |
-
-Separación entre artefactos derivados y nuevos runs.
-:::
-
-### Artefactos fuente que conviene reutilizar primero
-
-Antes de abrir un solver nuevo, conviene explotar al máximo los artefactos que
-ya están sincronizados. Esa es la ruta más rápida para saber si Paper 4 tiene
-señal real o si debe quedarse como capítulo de tesis.
-
-::: {#tbl-paper4-reuse-first}
-
-| Fuente | Uso inmediato en Paper 4 | Resultado esperado |
-|---|---|---|
-| `models/final_project_promotion.json` | enumerar champion, comparadores y región robusta | universo de policies congeladas |
-| `models/champion_portfolio_policy.json` | reconstruir funded set del champion | base para ECL/tail/fairness |
-| `data/processed/final_project_summary.parquet` | unir PD, intervals, portfolio y outcomes | tabla maestra por préstamo |
-| `reports/paper_material/paper1/tables/*` regeneradas | seed de tablas paper-grade | no usar tablas legacy contradictorias |
-| artifacts IFRS9/ECL | calcular provisión y stage por policy | `policy × ECL × scenario` |
-| A12/A13 robustness artifacts | extender OCE/CVaR y satisficing | tail/satisficing por policy |
-| funded-set composition exports | periodo, grade, segmento, monto | composición y replay descriptivo |
-| fairness/governance artifacts | proxy gaps y MRM status | gates de gobernanza |
-| TS status artifacts | estado research-only de intervalos | no-promote gate temporal |
-
-Artefactos que Paper 4 debería reutilizar antes de abrir un nuevo search.
-:::
-
-### Readiness por bloque
-
-La lectura compacta es:
-
-- **Listo para usar como base**: PD, conformal offline, CRPTO, IFRS9, governance.
-- **Listo como diagnóstico**: OCE/CVaR, satisficing, stress, bootstrap, funded-set
-  composition.
-- **Viable como siguiente implementación**: policy × ECL × scenario,
-  net-return-after-ECL, satisficing screen, tail-risk screen.
-- **Prometedor pero no listo**: online conformal, multi-period CRPTO, MDCP.
-- **Valioso pero metodológicamente delicado**: CATE central y fairness formal.
-- **No promotable hoy**: intervalos temporales como policy forward y causalidad
-  como contribución central.
-
-Este inventario es la defensa contra el caos. Paper 4 puede ser enorme, pero no
-puede ser confuso: cada bloque debe tener estado, artefacto y gate.
+| horizon | lane | status | executable_item |
+| --- | --- | --- | --- |
+| immediate | Quarto governance | active_rule | Keep chapter 19 curated and move each new wave summary to the living notebook first. |
+| immediate | Dynamic stress | resolved_but_rerunnable | Run focused champion-vs-tail challenger stress only when a new candidate changes paired robustness. |
+| immediate | Online conformal | near_resolved_with_plateau | Target the v35 weak source-family holdouts with min-support pooling and source-family calibration. |
+| immediate | CVaR/OCE | near_resolved_with_plateau | Document strict infeasibility and rerun column generation only for new caps or return floors. |
+| short | SPO/DFL | dependency_blocked | Build an isolated dependency environment for cvxpy/cvxpylayers/torch without breaking the main repo. |
+| short | DLA/ADP | near_resolved_with_plateau | Improve ADP rollout features and compare only against common-path dynamic baselines. |
+| short | Sample paths | near_resolved_with_plateau | Separate external macro context from internal calibration labels and keep forecast claim false. |
+| short | IFRS9/SICR | data_blocked | Improve proxy SICR sensitivity and data blocker register without calling it contractual IFRS9. |
+| medium | CATE | theory_blocked | Only continue causal policy value if a cleaner treatment/outcome and overlap gate are found. |
+| medium | Fairness | data_blocked | Keep proxy governance unless protected attributes or approved external proxy protocol exist. |
+| medium | Academic synthesis | editorial_decision_pending | Decide whether Paper 4 should become a governance paper or remain a mega lab appendix. |
+| long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |

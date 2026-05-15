@@ -1,0 +1,93 @@
+---
+title: "v35 Online and Macro Validation"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name):
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name):
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v35_status.json")
+macro = _csv("paper4_v35_external_macro_source_registry.csv")
+holdout = _csv("paper4_v35_online_temporal_holdout.csv")
+support = _csv("paper4_v35_online_min_support_sensitivity.csv")
+```
+
+## Pregunta
+
+El online conformal ya paso el gate historico, pero v35 pregunta si sobrevive
+holdouts mas duros y si podemos adjuntar contexto macro oficial sin sobreclaim.
+
+## Que intentamos
+
+Se reintenta FRED para series macro oficiales y se reauditan temporal holdout,
+bootstrap, leave-source-family y sensibilidad de soporte.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v35-status
+#| tbl-cap: "Status v35"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v35-macro
+#| tbl-cap: "Registro de fuentes macro"
+macro
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v35-holdout
+#| tbl-cap: "Holdouts online v35"
+holdout
+```
+
+```{python}
+#| label: tbl-paper4-v35-support
+#| tbl-cap: "Sensibilidad min-support v35"
+support
+```
+
+## Interpretacion
+
+El contexto macro puede mejorar la narrativa de stress, pero no convierte los
+paths internos en forecast. Online solo se declara resuelto si las celdas
+defendidas cumplen source-month, policy-month y ancho.
+
+## Que mejoro
+
+El gate online queda auditado fuera del replay de seleccion.
+
+## Que fallo
+
+Si algun holdout falla, online vuelve a `near_resolved_with_plateau` para esa
+dimension.
+
+## Claim permitido
+
+Coverage replay/holdout con limites claros.
+
+## Claim prohibido
+
+No se afirma despliegue online real ni forecast macro.
+
+## Next Step
+
+Si se necesita deployment paper-grade, fijar un protocolo pre-registrado de
+holdout temporal.

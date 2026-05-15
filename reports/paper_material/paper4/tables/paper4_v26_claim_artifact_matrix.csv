@@ -1,0 +1,10 @@
+claim,allowed,artifact,quarto_page,claim_boundary_v26,no_claim_contractual_ifrs9,no_claim_cate_policy_value,no_claim_fair_lending_legal,artifact_exists
+Paper 4 has 128-path dynamic scale-up,True,paper4_v23_dynamic_policy_summary.csv,19bl-v23-dynamic-scale-paths.qmd,internal replay only,False,False,False,True
+Paper 4 has sample paths v3 with calibration diagnostics,True,paper4_v23_path_calibration_diagnostics.csv,19bl-v23-dynamic-scale-paths.qmd,not forecast validation,False,False,False,True
+Paper 4 has ADP rollout approximations,True,paper4_v24_dla_adp_dynamic_summary.csv,19bm-v24-dla-cvar-spo-upgrade.qmd,not exact Bellman optimality,False,False,False,True
+Paper 4 has exact full-universe CVaR optimality,False,paper4_v24_cvar_frontier_non_dominated.csv,19bm-v24-dla-cvar-spo-upgrade.qmd,restricted-master diagnostic only,False,False,False,True
+Paper 4 has formal differentiable SPO+,False,paper4_v24_spo_dependency_blockers.csv,19bm-v24-dla-cvar-spo-upgrade.qmd,dependency blocked; oracle-regret only,False,False,False,True
+Paper 4 has contractual IFRS9 lifetime ECL,False,paper4_v25_ifrs9_proxy_policy_summary.csv,19bn-v25-ifrs9-causal-fairness-upgrade.qmd,proxy only,True,False,False,True
+Paper 4 has CATE policy value,False,paper4_v25_cate_gate_report.csv,19bn-v25-ifrs9-causal-fairness-upgrade.qmd,identification blocked,False,True,False,True
+Paper 4 makes fair-lending legal claims,False,paper4_v25_no_legal_claim_flags.csv,19bn-v25-ifrs9-causal-fairness-upgrade.qmd,no protected attributes/protocol,False,False,True,True
+Paper 4 has artifact and candidate registries,True,paper4_v26_artifact_registry.csv,19bo-v26-registry-and-synthesis.qmd,lab registry only,False,False,False,True

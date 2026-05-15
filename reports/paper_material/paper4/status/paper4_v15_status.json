@@ -1,0 +1,13 @@
+{
+  "schema_version": "2026-05-14.15-18",
+  "generated_at_utc": "2026-05-14T19:47:27.303366+00:00",
+  "phase": "v15_dynamic_stress_engine",
+  "dynamic_policy_count_v15": 14,
+  "dynamic_path_count_v15": 32,
+  "dynamic_trace_rows_v15": 22848,
+  "no_temporal_leakage_min_rate_v15": 1.0,
+  "working_champion_policy_id_v15": "paper1_economic_champion",
+  "paper1_artifacts_modified": false,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "dynamic internal replay only"
+}

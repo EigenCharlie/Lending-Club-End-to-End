@@ -1,0 +1,371 @@
+---
+title: "v12 Resolution Wave"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v12_status.json")
+champion = _json("paper4_v12_working_champion.json")
+refs = _csv("paper4_v12_method_reference_registry.csv")
+cvar = _csv("paper4_v12_cvar_column_generation_frontier.csv")
+cvar_active = _csv("paper4_v12_cvar_active_constraints.csv")
+mdcp_caps = _csv("paper4_v12_mdcp_source_cap_rationale.csv")
+mdcp = _csv("paper4_v12_mdcp_source_cap_solver_summary.csv")
+dla_schema = _csv("paper4_v12_dla_state_schema.csv")
+dla_coef = _csv("paper4_v12_dla_fitted_value_coefficients.csv")
+dla = _csv("paper4_v12_dla_fvi_comparison.csv")
+spo_train = _csv("paper4_v12_spo_plus_surrogate_training.csv")
+spo = _csv("paper4_v12_spo_plus_surrogate_candidates.csv")
+sample_ci = _csv("paper4_v12_sample_path_macro_calibrated_ci.csv")
+pairwise = _csv("paper4_v12_sample_path_pairwise_champion_ci.csv")
+ifrs9 = _csv("paper4_v12_ifrs9_sicr_sensitivity.csv")
+causal = _csv("paper4_v12_causal_cate_dossier.csv")
+fairness = _csv("paper4_v12_fairness_proxy_governance.csv")
+registry = _csv("paper4_v12_working_candidate_registry.csv")
+dashboard = _csv("paper4_v12_blocker_dashboard.csv")
+claims = _csv("paper4_v12_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V12 pregunta si Paper 4 puede pasar de evidencia proxy a una ola de trabajo más
+rigurosa, aceptando que el **working champion de Paper 4** puede cambiar sin
+tocar el Paper Estrella. La respuesta corta es sí: v12 selecciona un working
+champion interno, crea una frontera CVaR/OCE con caps MDCP dentro del LP, sube
+DLA a fitted-value rollout iterativo, entrena un surrogate SPO-style por regret
+temporal, calibra sample paths comunes y mantiene bloqueados los claims que no
+tienen datos suficientes.
+
+::: {.callout-warning}
+V12 no es una promoción final. El champion aquí es solo
+`paper4_working_champion_only`. No modifica `models/final_project_promotion.json`
+y no crea `paper4_final_promotion.json`.
+:::
+
+## Status
+
+```{python}
+#| label: tbl-paper4-v12-status
+#| tbl-cap: "Paper 4 v12 status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "universe_n": status.get("candidate_universe_n_v12"),
+    "cvar_pool_n": status.get("cvar_pool_n_v12"),
+    "cvar_feasible": status.get("cvar_feasible_count_v12"),
+    "cvar_non_dominated": status.get("cvar_non_dominated_count_v12"),
+    "mdcp_optimal": status.get("mdcp_optimal_count_v12"),
+    "dla_best_delta": status.get("dla_best_delta_state_value_v12"),
+    "spo_candidates": status.get("spo_candidate_count_v12"),
+    "sample_path_policies": status.get("sample_path_policy_count_v12"),
+    "working_champion": status.get("working_champion_policy_id_v12"),
+    "final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Method References
+
+```{python}
+#| label: tbl-paper4-v12-method-references
+#| tbl-cap: "V12 method reference registry"
+
+refs
+```
+
+Estas fuentes no se usan para reclamar una prueba formal de SPO+ o capas
+diferenciables. Se usan para fijar el borde metodológico: v12 implementa un
+surrogate temporal de regret y deja como trabajo futuro una capa diferenciable
+tipo cvxpylayer/OptNet si el proyecto decide ir hacia entrenamiento end-to-end.
+
+## CVaR/OCE + MDCP
+
+```{python}
+#| label: tbl-paper4-v12-cvar-frontier
+#| tbl-cap: "V12 CVaR/OCE column-generation frontier with MDCP caps"
+
+_cols(
+    cvar.head(16),
+    [
+        "policy_id",
+        "solver_status",
+        "feasible_v12",
+        "non_dominated_v12",
+        "column_round_v12",
+        "pool_n_v12",
+        "pool_expansion_vs_v11",
+        "objective_return",
+        "scenario_loss_cvar90",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v12",
+        "cap_relaxation_v12",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v12-cvar-active
+#| tbl-cap: "V12 active constraints for feasible CVaR policies"
+
+_cols(
+    cvar_active[cvar_active.get("active_v12", False).astype(bool)].head(24),
+    ["policy_id", "constraint_name", "limit_v12", "actual_v12", "slack_v12", "active_v12"],
+)
+```
+
+El resultado importante no es solo que existan tres puntos factibles. También
+importa que la frontera estricta fue infeasible, y eso queda documentado. Para
+conseguir factibilidad con CVaR + retorno + PD + qhat + MDCP dentro del LP,
+v12 usa una relajación de comité explícita. Eso convierte el resultado en un
+working lane, no en una prueba full-universe definitiva.
+
+## MDCP Source Caps
+
+```{python}
+#| label: tbl-paper4-v12-mdcp-cap-rationale
+#| tbl-cap: "V12 empirical source-cap rationale"
+
+mdcp_caps
+```
+
+```{python}
+#| label: tbl-paper4-v12-mdcp-summary
+#| tbl-cap: "V12 MDCP source-cap solver summary"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "mdcp_family_gate_v8",
+        "auditability_score_v12",
+    ],
+)
+```
+
+La lección técnica de v12 es que no toda fuente debe volverse restricción dura.
+`state_top20` quedó como cap no vinculante porque el pool expandido cae
+completamente dentro de esos estados. Mantenerlo como restricción estricta
+creaba infeasibilidad artificial.
+
+## DLA/SDAM
+
+```{python}
+#| label: tbl-paper4-v12-dla-schema
+#| tbl-cap: "V12 SDAM state and transition schema"
+
+dla_schema
+```
+
+```{python}
+#| label: tbl-paper4-v12-dla-coefficients
+#| tbl-cap: "V12 fitted-value coefficients"
+
+dla_coef
+```
+
+```{python}
+#| label: tbl-paper4-v12-dla-comparison
+#| tbl-cap: "V12 fitted-value rollout comparison"
+
+dla
+```
+
+V12 mejora v11 porque la función de valor ya no es solo un ajuste lineal
+one-shot sobre el trace anterior. Ahora hay iteraciones de fitted value rollout
+con estado, decisión, post-decisión y shock macro. Aun así, el caveat sigue
+siendo necesario: esto aproxima Bellman, pero no demuestra optimalidad Bellman.
+
+## SPO/DFL
+
+```{python}
+#| label: tbl-paper4-v12-spo-training
+#| tbl-cap: "V12 SPO-style temporal regret training"
+
+spo_train
+```
+
+```{python}
+#| label: tbl-paper4-v12-spo-candidates
+#| tbl-cap: "V12 SPO-style candidate policies"
+
+_cols(
+    spo,
+    [
+        "policy_id",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "ecl_proxy_v11",
+        "auditability_score_v11",
+        "decision_regret_proxy_v12",
+        "constraint_pd_pass",
+        "training_scope_v12",
+    ],
+)
+```
+
+V12 ya no entrena solamente una regresión para imitar labels de solver. Entrena
+un surrogate temporal tipo structured-regret: en cada mes compara la decisión
+predicha contra una decisión oracle greedy bajo constraints, calcula regret y
+actualiza el ranking. Sigue sin ser SPO+ diferenciable formal, pero es un paso
+metodológico real frente al ridge proxy v11.
+
+## Sample Paths
+
+```{python}
+#| label: tbl-paper4-v12-sample-ci
+#| tbl-cap: "V12 macro-calibrated sample-path intervals"
+
+sample_ci
+```
+
+```{python}
+#| label: tbl-paper4-v12-pairwise
+#| tbl-cap: "V12 paired common-path comparison against sample-path reference"
+
+pairwise
+```
+
+Los sample paths ahora usan multiplicadores observados por `period` y
+`original_grade`, shocks comunes, dependencia de defaults y LGD cíclico. Siguen
+siendo calibración interna, no forecast macro externo.
+
+## IFRS9, Causal y Fairness
+
+```{python}
+#| label: tbl-paper4-v12-ifrs9
+#| tbl-cap: "V12 SICR proxy sensitivity"
+
+_cols(
+    ifrs9.head(18),
+    [
+        "scenario",
+        "relative_pd_increase",
+        "absolute_pd_threshold",
+        "stage1_share_v12",
+        "stage2_share_v12",
+        "stage3_share_v12",
+        "mean_ecl_proxy_v12",
+        "stage_mix_defensible_proxy",
+        "contractual_ifrs9_claim_allowed",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v12-causal
+#| tbl-cap: "V12 causal/CATE dossier"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v12-fairness
+#| tbl-cap: "V12 fairness proxy governance"
+
+fairness
+```
+
+La posición v12 es deliberadamente estricta: IFRS9 sigue siendo proxy, CATE
+policy value sigue bloqueado, y fairness sigue siendo proxy governance only.
+Esto no debilita Paper 4; lo hace más creíble porque separa evidencia ejecutable
+de claims que requieren datos o identificación más fuerte.
+
+## Working Champion
+
+```{python}
+#| label: tbl-paper4-v12-working-champion
+#| tbl-cap: "V12 Paper 4 working champion"
+
+pd.DataFrame([champion])
+```
+
+```{python}
+#| label: tbl-paper4-v12-registry
+#| tbl-cap: "V12 working candidate registry"
+
+_cols(
+    registry,
+    [
+        "registry_rank_v12",
+        "policy_id",
+        "lane_v12",
+        "return_proxy",
+        "tail_risk_proxy",
+        "auditability_score",
+        "state_value_delta",
+        "p95_loss",
+        "working_candidate_score_v12",
+        "registry_decision_v12",
+        "caveat",
+    ],
+)
+```
+
+El champion de trabajo cambia a
+`v12_cvar_mdcp_colgen_relaxed_k24000_floor125000_cap360000`. La interpretación
+correcta no es "mejor modelo final"; es "mejor candidato interno para seguir
+iterando" porque combina retorno alto, CVaR explícito, caps MDCP, sample paths y
+auditabilidad suficiente. Los DLA siguen siendo valiosos, pero su score ya no
+recibe crédito artificial por métricas no comparables.
+
+## Blockers
+
+```{python}
+#| label: tbl-paper4-v12-dashboard
+#| tbl-cap: "V12 blocker dashboard"
+
+dashboard
+```
+
+```{python}
+#| label: tbl-paper4-v12-claims
+#| tbl-cap: "V12 claim-artifact matrix"
+
+claims
+```
+
+## Next Step
+
+V13 debería concentrarse en tres decisiones: probar si el champion CVaR/MDCP
+relajado sobrevive a pools aún más grandes o descomposición con duales reales;
+meter el DLA-FVI en sample paths comparables contra policies estáticas; y, si
+se quiere atacar SPO+ formal, reemplazar el surrogate de regret por una capa
+diferenciable o por una implementación SPO+ con validación temporal de regret.

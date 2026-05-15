@@ -1,0 +1,25 @@
+{
+  "schema_version": "2026-05-12.2",
+  "generated_at_utc": "2026-05-13T02:24:34.814493+00:00",
+  "policy_id": "paper4_multi_period_dla_toy",
+  "class": "DLA",
+  "horizons_months": [
+    3,
+    6
+  ],
+  "state": [
+    "budget",
+    "funded_exposure",
+    "ECL",
+    "stage_mix",
+    "coverage"
+  ],
+  "transition": "budget_{t+1}=max(0,budget_t+realized_return_t-provision_t)",
+  "scope": "toy_replay_for_learning_not_promotion",
+  "selected_policy_ids": [
+    "paper1_economic_champion",
+    "crpto_rt0p160_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p170_g0p55_u0p10_alpha0p01_incumbent_region_rs42"
+  ],
+  "promotion_eligible": false
+}

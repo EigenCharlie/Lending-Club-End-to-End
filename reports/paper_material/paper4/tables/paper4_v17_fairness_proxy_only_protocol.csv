@@ -1,0 +1,4 @@
+protocol_item,status_v17,allowed_claim,next_action
+protected_attributes,absent,no fair-lending legal claim,obtain valid protected attributes or approved proxy protocol
+BISG_or_external_proxy,external_method_reference_only,proxy governance only,do not infer race/ethnicity without protocol and data
+source_governance,usable,monitor composition/coverage by grade/month/state/income/DTI/score,keep separate from legal fairness

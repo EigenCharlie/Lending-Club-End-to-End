@@ -1,0 +1,17 @@
+{
+  "schema_version": "2026-05-14.24",
+  "generated_at_utc": "2026-05-14T22:26:04.751115+00:00",
+  "phase": "v24_dla_cvar_spo_upgrade",
+  "adp_policy_count_v24": 4,
+  "adp_trace_rows_v24": 35328,
+  "cvar_frontier_rows_v24": 15,
+  "cvar_exact_full_universe_claim_v24": false,
+  "spo_formal_differentiable_claim_allowed": false,
+  "committee_profiles_v24": 6,
+  "working_champion_reference_v24": "paper1_economic_champion",
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "ADP/CVaR/SPO v24 are Paper 4 lab challengers and diagnostics only",
+  "runtime_seconds": 1015.693
+}

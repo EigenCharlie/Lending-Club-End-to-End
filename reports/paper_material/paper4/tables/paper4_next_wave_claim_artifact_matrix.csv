@@ -1,0 +1,11 @@
+priority,claim_status,artifact,quarto_page,caveat
+Full-universe exact top-k,exact_full_universe_diagnostic,paper4_full_universe_topk_allocations.parquet,19w-next-wave-exact-topk.qmd,no promotion JSON
+Exact-funded IFRS9/tail,diagnostic_exact_funded,paper4_full_universe_ifrs9_tail_eval.csv,19w-next-wave-exact-topk.qmd,lifetime ECL still proxy
+Online CP method search,method_search,paper4_online_conformal_method_search.csv,19x-next-wave-method-searches.qmd,not final UP-OCP
+Selector gate sensitivity,gate_search,paper4_selector_gate_sensitivity_grid.csv,19x-next-wave-method-searches.qmd,thresholds exploratory
+Tail penalty LP,candidate_pool_lp_search,paper4_tail_penalty_lp_search.csv,19x-next-wave-method-searches.qmd,20k candidate pool
+MDCP source search,source_family_search,paper4_mdcp_source_family_search.csv,19y-nonpromoted-lanes-and-causal-gates.qmd,sources proxy
+Fairness governance,proxy_governance,paper4_fairness_proxy_governance_grid.csv,19y-nonpromoted-lanes-and-causal-gates.qmd,no protected attributes
+Causal identification,gated_identification_search,paper4_causal_treatment_identification_grid.csv,19y-nonpromoted-lanes-and-causal-gates.qmd,no causal promotion
+Multi-period sample paths,sample_path_search,paper4_multi_period_sample_path_search.csv,19z-next-wave-promotion-dashboard.qmd,toy state transition
+Non-promoted lanes,readiness_dashboard,paper4_nonpromoted_lane_dashboard.csv,19z-next-wave-promotion-dashboard.qmd,dashboard only

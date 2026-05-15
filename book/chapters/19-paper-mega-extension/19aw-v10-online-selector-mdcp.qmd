@@ -1,0 +1,261 @@
+---
+title: "v10 Online, Selector and MDCP"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v10_resolution_status.json")
+online_summary = _csv("paper4_v10_online_robustness_summary.csv")
+online_sensitivity = _csv("paper4_v10_online_min_support_sensitivity.csv")
+leave_month = _csv("paper4_v10_online_leave_one_month.csv")
+leave_policy = _csv("paper4_v10_online_leave_one_policy.csv")
+bootstrap = _csv("paper4_v10_online_month_bootstrap.csv")
+selector = _csv("paper4_v10_selector_rerun_with_v9_online.csv")
+memo = _csv("paper4_v10_selector_committee_memo.csv")
+mdcp = _csv("paper4_v10_mdcp_empirical_cap_solver_summary.csv")
+mdcp_rationale = _csv("paper4_v10_mdcp_empirical_cap_rationale.csv")
+claims = _csv("paper4_v10_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V9 resolvió el gate online puntual. V10 pregunta si ese resultado aguanta como
+pieza de gobernanza: no basta con una fila que pase `source-month >= 0.80`,
+`policy-month >= 0.90` y `avg_width <= 0.95`; también hay que mostrar que el
+gate no depende de un mes, una policy, un umbral de soporte o una variante
+demasiado agresiva.
+
+La segunda pregunta es de selector. Una vez online deja de ser el blocker, el
+selector debe rerunearse y decir qué bloquea ahora. En v10 la respuesta es
+clara: el bloqueo ya no es online, es IFRS9 contractual/data readiness.
+
+## Status v10
+
+```{python}
+#| label: tbl-paper4-v10-online-status
+#| tbl-cap: "Paper 4 v10 online and selector status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "online_goal_achieved": status.get("online_goal_achieved"),
+    "online_robustness_all_pass": status.get("online_robustness_all_pass"),
+    "online_width": status.get("online_best_width"),
+    "source_month_min": status.get("online_best_source_month_defended_min"),
+    "policy_month_min": status.get("online_best_policy_month_defended_min"),
+    "selector_promote_count": status.get("selector_promote_count"),
+    "primary_remaining_blocker": status.get("primary_remaining_blocker"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Robustez online
+
+```{python}
+#| label: tbl-paper4-v10-online-robustness
+#| tbl-cap: "V10 online robustness summary"
+
+online_summary
+```
+
+La lectura es importante. V10 no solo conserva el resultado nominal de v9:
+también pasa leave-one-month, leave-one-policy y bootstrap mensual. El ancho
+promedio bajo bootstrap queda por debajo de `0.95`, y los mínimos defendidos de
+source-month y policy-month se mantienen en el gate.
+
+```{python}
+#| label: tbl-paper4-v10-online-support-sensitivity
+#| tbl-cap: "V10 online minimum-support sensitivity"
+
+_cols(
+    online_sensitivity,
+    [
+        "online_method_v9",
+        "min_support",
+        "policy_month_defended_min",
+        "source_month_defended_min",
+        "avg_width_loan",
+        "defended_policy_month_cells",
+        "defended_source_month_cells",
+        "gate_source80_policy90_width95",
+    ],
+)
+```
+
+La sensibilidad de soporte confirma el aprendizaje de v9: la variante best y
+la conservadora pasan con soporte 5, 8 y 10; la referencia v8 conserva
+cobertura, pero falla eficiencia porque el ancho queda en `0.95438`.
+
+## Stress leave-one
+
+```{python}
+#| label: tbl-paper4-v10-online-leave-month
+#| tbl-cap: "Leave-one-month stress for v10 online best method"
+
+_cols(
+    leave_month.head(16),
+    [
+        "left_out_month",
+        "source_month_defended_min",
+        "policy_month_defended_min",
+        "avg_width_loan",
+        "defended_policy_month_cells",
+        "defended_source_month_cells",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v10-online-leave-policy
+#| tbl-cap: "Leave-one-policy stress for v10 online best method"
+
+_cols(
+    leave_policy.head(16),
+    [
+        "left_out_policy_id",
+        "source_month_defended_min",
+        "policy_month_defended_min",
+        "avg_width_loan",
+        "defended_policy_month_cells",
+        "defended_source_month_cells",
+    ],
+)
+```
+
+## Selector rerun
+
+```{python}
+#| label: tbl-paper4-v10-selector-rerun
+#| tbl-cap: "V10 selector rerun with v9 online results"
+
+_cols(
+    selector.head(35),
+    [
+        "policy_id",
+        "lane",
+        "solver_ok",
+        "lane_gate_pass",
+        "online_source_month_min_v9",
+        "online_policy_month_min_v9",
+        "online_width_v9",
+        "online_gate_pass_v10",
+        "ifrs9_readiness_v10",
+        "auditability_score_v10",
+        "selector_decision_v10",
+        "primary_blocker_v10",
+    ],
+)
+```
+
+El selector cumple su función de comité: al remover el blocker online, no
+promueve automáticamente. Todas las filas siguen en `review` o `kill` porque
+la readiness IFRS9 es `0.5833`, debajo del umbral de `0.75` para cualquier
+claim contractual.
+
+```{python}
+#| label: tbl-paper4-v10-selector-memo
+#| tbl-cap: "V10 selector committee memo"
+
+memo
+```
+
+## MDCP empírico
+
+```{python}
+#| label: tbl-paper4-v10-mdcp-rationale
+#| tbl-cap: "V10 MDCP empirical cap rationale"
+
+mdcp_rationale
+```
+
+```{python}
+#| label: tbl-paper4-v10-mdcp-summary
+#| tbl-cap: "V10 MDCP empirical-coverage-calibrated solver summary"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "risk_tolerance",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "share_grade_dplus",
+        "cap_grade_dplus_limit",
+        "share_dti_q3",
+        "cap_dti_q3_limit",
+        "share_score_low",
+        "cap_score_low_limit",
+        "share_income_q5",
+        "cap_income_q5_limit",
+        "share_period_2018h1",
+        "cap_period_2018h1_limit",
+        "mdcp_family_gate_v8",
+        "auditability_score_v10",
+        "objective_return",
+    ],
+)
+```
+
+V10 calibra los caps MDCP a partir de cobertura empírica v9: si una familia
+tiene cobertura defendida cercana al borde, el cap se aprieta. Las tres
+variantes son óptimas y pasan el gate de familia; aun así no se promueven
+porque el selector no permite que un solver fuerte tape un claim IFRS9 sin
+datos contractuales.
+
+## Interpretación SDAM
+
+- `R_t`: maximizar retorno sujeto a cobertura, composición y auditoría.
+- `I_t`: usar cobertura online v9, source-family stress y composición del pool.
+- `x_t`: financiar un subconjunto con caps MDCP y qhat/PD controlados.
+- `W_{t+1}`: observar cobertura realizada, default y estrés por source.
+- `C_t`: no promover sin pasar online, IFRS9 readiness y guardrails Paper 4.
+
+## Caveats
+
+La robustez online de v10 es replay robust, no validación de futuro. MDCP queda
+mejor calibrado, pero sus caps siguen siendo governance proxies, no una prueba
+legal de fairness. El selector queda deliberadamente conservador: Paper 4 puede
+tener working candidates, pero no crea `paper4_final_promotion.json`.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v10-online-mdcp-claims
+#| tbl-cap: "V10 claim-artifact matrix rows for online, selector and MDCP"
+
+_cols(
+    claims[claims["quarto_page"].eq("19aw-v10-online-selector-mdcp.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```

@@ -1,0 +1,92 @@
+---
+title: "v34 DLA Redesign and Failure Analysis"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name):
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name):
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v34_status.json")
+schema = _csv("paper4_v34_dla_state_transition_schema.csv")
+failure = _csv("paper4_v34_dla_adp_failure_memo.csv")
+redesign = _csv("paper4_v34_dla_redesign_options.csv")
+```
+
+## Pregunta
+
+DLA debe ser una decision secuencial endogena, no solo un replay de libros
+staticos. v34 pregunta que falta para que ese carril sea defendible.
+
+## Que intentamos
+
+Se explicita `S_t`, `x_t`, `S_t^x`, `W_{t+1}` y `S_{t+1}`, y se separa
+redesign implementable de claim Bellman exacto.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v34-status
+#| tbl-cap: "Status v34"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v34-schema
+#| tbl-cap: "Schema SDAM/DLA v34"
+schema
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v34-redesign
+#| tbl-cap: "Opciones de redesign DLA"
+redesign
+```
+
+```{python}
+#| label: tbl-paper4-v34-failure
+#| tbl-cap: "Failure memo ADP/DLA"
+failure.head(30)
+```
+
+## Interpretacion
+
+El DLA actual es conceptualmente mas claro que al inicio, pero todavia debe
+probar valor bajo decisiones endogenas, reinversion, source caps y cola.
+
+## Que mejoro
+
+La falla queda separada por adapter, politica, capital deployment, reinversion
+y tail/source risk.
+
+## Que fallo
+
+No hay prueba de optimalidad Bellman exacta.
+
+## Claim permitido
+
+DLA es un carril SDAM formalizado y evaluable.
+
+## Claim prohibido
+
+No se afirma DLA exacto ni optimalidad dinamica.
+
+## Next Step
+
+Implementar un rollout con constraints de cola/source dentro del selector
+mensual si este carril vuelve a competir por champion.

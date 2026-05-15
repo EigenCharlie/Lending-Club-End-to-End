@@ -1,0 +1,3 @@
+item,current_state,decision,next_step
+protected_attributes,race/ethnicity/sex/gender/age/date_of_birth unavailable,no fair-lending legal claim,external validation only if valid protected attributes/proxies are approved
+proxy_governance,"grade, term, state, zip3, income and dti bands available","use as concentration stress, not protected-class fairness",report max gaps and require caveat in selector

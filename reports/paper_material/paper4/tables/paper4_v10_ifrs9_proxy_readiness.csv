@@ -1,0 +1,2 @@
+readiness_id,available_or_proxy_requirements,total_requirements,readiness_score,contractual_ifrs9_claim_allowed,claim_scope_v10,decision_v10
+ifrs9_proxy_v10,7,12,0.5833333333333334,False,enhanced_proxy_only_not_contractual_ifrs9,data_blocked_for_contractual_claim

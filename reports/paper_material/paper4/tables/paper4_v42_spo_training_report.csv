@@ -1,0 +1,10 @@
+model_v42,split,n_rows,mae_candidate_to_oracle_ratio,mean_predicted_regret_v42,formal_differentiable_spo_claim_allowed,training_scope_v42
+ridge_calendar_oracle_features,test,7,0.25596934253200737,43992.23150025735,False,small temporal oracle-regret table; allocation oracle not differentiable
+ridge_calendar_oracle_features,train,19,0.027732743047233242,133728.4491285561,False,small temporal oracle-regret table; allocation oracle not differentiable
+ridge_calendar_oracle_features,validation,7,0.04416231252127438,119244.38182932783,False,small temporal oracle-regret table; allocation oracle not differentiable
+random_forest_calendar_oracle_features,test,7,0.2578500405045709,43963.153920050325,False,small temporal oracle-regret table; allocation oracle not differentiable
+random_forest_calendar_oracle_features,train,19,0.02153348056209741,133751.67677382374,False,small temporal oracle-regret table; allocation oracle not differentiable
+random_forest_calendar_oracle_features,validation,7,0.046484295160744864,118648.59429029752,False,small temporal oracle-regret table; allocation oracle not differentiable
+catboost_calendar_oracle_features,test,7,0.25782322428734233,43947.16740052948,False,small temporal oracle-regret table; allocation oracle not differentiable
+catboost_calendar_oracle_features,train,19,0.011123864323058464,134909.29900464407,False,small temporal oracle-regret table; allocation oracle not differentiable
+catboost_calendar_oracle_features,validation,7,0.04031791866984636,119420.34532622361,False,small temporal oracle-regret table; allocation oracle not differentiable

@@ -1,0 +1,13 @@
+priority,claim_status,artifact,quarto_page,caveat
+Selector rerun with v9 online,implemented_no_final_promotion,paper4_v10_selector_rerun_with_v9_online.csv,19aw-v10-online-selector-mdcp.qmd,IFRS9 readiness still blocks promotion.
+Online robustness,implemented_stress_tests,paper4_v10_online_robustness_summary.csv,19aw-v10-online-selector-mdcp.qmd,"Replay robustness, not future-period proof."
+MDCP empirical caps,implemented_solver_proxy,paper4_v10_mdcp_empirical_cap_solver_summary.csv,19aw-v10-online-selector-mdcp.qmd,Caps are empirical governance proxies.
+CVaR/OCE expanded frontier,implemented_topk_decomposition,paper4_v10_cvar_expanded_frontier.csv,19ax-v10-solvers-dla-dfl.qmd,"Current pool/decomposition, not full 276k proof."
+DLA rollout,implemented_rollout_proxy,paper4_v10_dla_rollout_summary.csv,19ax-v10-solvers-dla-dfl.qmd,"Rollout/ADP-style proxy, not Bellman optimality."
+DFL/SPO surrogate,implemented_constrained_surrogate,paper4_v10_dfl_decision_loss_training.csv,19ax-v10-solvers-dla-dfl.qmd,Not neural SPO+ training.
+Sample paths v10,implemented_correlated_stress,paper4_v10_sample_path_stress_ci.csv,19ax-v10-solvers-dla-dfl.qmd,"For paired stress comparison, not forecast."
+IFRS9 proxy readiness,implemented_proxy_scope,paper4_v10_ifrs9_proxy_readiness.csv,19ay-v10-ifrs9-causal-fairness-dashboard.qmd,No contractual IFRS9 claim.
+Causal/CATE dossier,implemented_blocker_dossier,paper4_v10_causal_dossier.csv,19ay-v10-ifrs9-causal-fairness-dashboard.qmd,CATE policy value remains blocked.
+Fairness protocol,implemented_proxy_only,paper4_v10_fairness_proxy_protocol.csv,19ay-v10-ifrs9-causal-fairness-dashboard.qmd,No fair-lending legal claim.
+V10 blocker dashboard,implemented_living_lab_status,paper4_v10_blocker_dashboard.csv,19ay-v10-ifrs9-causal-fairness-dashboard.qmd,Paper 4 living-lab status only.
+Paper Estrella freeze,guardrail_verified,paper4_v10_resolution_status.json,19ay-v10-ifrs9-causal-fairness-dashboard.qmd,No Paper Estrella promotion artifact modified.

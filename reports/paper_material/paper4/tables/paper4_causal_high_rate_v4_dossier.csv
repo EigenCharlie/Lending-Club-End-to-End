@@ -1,0 +1,2 @@
+treatment_id,n,n_trimmed_overlap,trimmed_share,prevalence,max_smd_trimmed_ipw,balance_all_pass_0p10,placebo_pass_share,att_default_ipw,dr_default_att_diagnostic,sensitivity_sign_stable_6pp,cate_policy_value_allowed,decision
+high_rate_within_grade,276869,276450,0.9984866489206087,0.4673871036482958,0.08809513453096368,True,1.0,-0.018181028594431686,-0.00416135964059041,False,False,improved_dossier_still_not_policy_value

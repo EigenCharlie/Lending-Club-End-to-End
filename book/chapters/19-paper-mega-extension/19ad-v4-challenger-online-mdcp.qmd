@@ -1,0 +1,184 @@
+---
+title: "v4 Challenger Local Search, Online CP and MDCP"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+from IPython.display import Image
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+FIG_DIR = ROOT / "reports" / "paper_material" / "paper4" / "figures"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+local_search = _csv("paper4_challenger_local_search.csv")
+bootstrap = _csv("paper4_challenger_local_bootstrap.csv")
+online_summary = _csv("paper4_online_conformal_v4_method_summary.csv")
+mdcp = _csv("paper4_mdcp_v4_source_coverage.csv")
+pooling = _csv("paper4_mdcp_v4_pooling_diagnostics.csv")
+```
+
+## Pregunta {#sec-paper4-v4-challenger-question}
+
+Esta página responde el primer bloque de pendientes v4: si el challenger bruto
+exacto era una casualidad local, si online conformal podía arreglar el peor
+policy-month/source-month, y si MDCP podía convertirse en gate defendible.
+
+El Paper Estrella queda congelado. Aquí `paper1_economic_champion` solo es
+referencia. Paper 4 puede mover sus working candidates, pero no escribe ni
+reemplaza `models/final_project_promotion.json`.
+
+## Artefactos
+
+::: {#tbl-paper4-v4-challenger-artifacts}
+
+| Artefacto | Rol |
+|---|---|
+| `paper4_challenger_local_search.csv` | grid exacto local de 100 policies alrededor de `uncertainty_aversion`, `gamma` y `risk_tolerance` |
+| `paper4_challenger_local_allocations.parquet` | funded sets exactos sobre pool local documentado |
+| `paper4_challenger_local_bootstrap.csv` | bootstrap mensual contra el Paper Estrella congelado |
+| `paper4_online_conformal_v4_method_summary.csv` | comparación ACI/local, Mondrian shrinkage, pooling y source-aware guarded |
+| `paper4_online_conformal_v4_policy_month.parquet` | cobertura por policy-month |
+| `paper4_online_conformal_v4_source_month.parquet` | cobertura por source-month |
+| `paper4_mdcp_v4_source_coverage.csv` | worst-source coverage por grade, period, state, income, DTI, score e intersecciones |
+| `paper4_mdcp_v4_pooling_diagnostics.csv` | auditoría de celdas pequeñas y pooling mínimo |
+
+Artefactos del bloque challenger-online-MDCP v4.
+:::
+
+## Resultado: búsqueda local
+
+```{python}
+#| label: fig-paper4-v4-local-search-heatmap
+#| fig-cap: "Búsqueda local v4: mejor retorno bruto por combinación risk_tolerance/gamma."
+
+Image(filename=str(FIG_DIR / "paper4_v4_local_search_return_heatmap.png"))
+```
+
+```{python}
+#| label: tbl-paper4-v4-local-search-top
+#| tbl-cap: "Top local search por retorno bruto proxy"
+
+_cols(
+    local_search.sort_values("realized_return_proxy_lgd45", ascending=False),
+    [
+        "policy_id",
+        "risk_tolerance",
+        "gamma",
+        "uncertainty_aversion",
+        "realized_return_proxy_lgd45",
+        "delta_vs_paper1_frozen_full_exact",
+        "coverage_alpha01",
+        "default_rate_observed",
+        "n_funded",
+    ],
+).head(15)
+```
+
+El mejor bruto es `paper4_v4_local_rt0p1700_g0p425_u0p050`: retorno proxy
+178,048.10 y delta de 4,718.44 frente al champion congelado del Paper Estrella.
+Eso confirma que el challenger exacto anterior no era un punto aislado; hay una
+vecindad local donde bajar o modular la aversión a incertidumbre aumenta retorno
+bruto.
+
+La interpretación correcta no es "promover". Es "abrir carril": el extra bruto
+aparece, pero todavía debe sobrevivir IFRS9, online CP, MDCP, CVaR y sample
+paths comunes.
+
+## Resultado: online conformal
+
+```{python}
+#| label: fig-paper4-v4-online-coverage
+#| fig-cap: "Cobertura peor policy-month y source-month por método online v4."
+
+Image(filename=str(FIG_DIR / "paper4_v4_online_worst_cell_coverage.png"))
+```
+
+```{python}
+#| label: tbl-paper4-v4-online-summary
+#| tbl-cap: "Online conformal v4 method summary"
+
+online_summary
+```
+
+El método `source_aware_guarded` mejora drásticamente el problema original: el
+peor policy-month sube de 0.6667 a 0.8824. Sin embargo, el peor source-month
+queda en 0.7500. Por protocolo v4 eso bloquea promoción: ningún challenger debe
+promoverse mientras el método online global no pase el gate source-month.
+
+Este resultado es útil porque separa dos verdades:
+
+- ya sabemos cómo corregir policy-month con una regla conservadora;
+- todavía no sabemos resolver source-month sin ensanchar demasiado o sin más
+  pooling/jerarquía.
+
+## Resultado: MDCP y pooling
+
+```{python}
+#| label: tbl-paper4-v4-mdcp-policy-worst
+#| tbl-cap: "Worst-source MDCP v4 por policy"
+
+mdcp.groupby("policy_id", as_index=False).agg(
+    worst_source_coverage_v4=("worst_source_coverage_v4", "min"),
+    mean_source_coverage_v4=("mean_source_coverage_v4", "mean"),
+    defended_exposure=("defended_exposure", "sum"),
+    pass_share=("mdcp_gate_pass_80", "mean"),
+).sort_values("worst_source_coverage_v4", ascending=False).head(20)
+```
+
+```{python}
+#| label: tbl-paper4-v4-mdcp-pooling
+#| tbl-cap: "MDCP v4 pooling diagnostics"
+
+pooling.head(30)
+```
+
+MDCP queda mucho mejor que el online source-month crudo porque usa source
+families explícitas y pooling mínimo. Aun así, los top brutos fallan MDCP:
+varios quedan en 0.75 de worst-source coverage. En Paper 4 esto es una señal de
+gobernanza, no un error: el selector debe preferir candidates que ganan menos
+bruto pero mantienen peor source defendible.
+
+## Interpretación
+
+La búsqueda local sí genera candidates más rentables que el Paper Estrella
+congelado. Pero el filtro de cobertura revela por qué no basta con retorno:
+los candidates más agresivos concentran fragilidad en sources pequeñas o
+intersecciones difíciles.
+
+El resultado v4 deja tres carriles vivos:
+
+- explotar el vecindario `gamma` 0.425--0.500, `risk_tolerance` 0.1700--0.1775;
+- seguir mejorando source-aware online CP;
+- usar MDCP como gate oficial de Paper 4, no como métrica decorativa.
+
+## Caveats
+
+La búsqueda es exacta dentro de un pool local de 12,000 préstamos, no sobre todo
+el universo de 276,869. MDCP defiende celdas con pooling mínimo; eso mejora la
+estabilidad, pero cambia la interpretación de "worst source" a "worst defended
+source".
+
+## Next Step
+
+El siguiente paso no es buscar más retorno bruto. Es resolver el peor
+source-month online con un método que mantenga intervalos razonables y luego
+re-ejecutar el selector v4.

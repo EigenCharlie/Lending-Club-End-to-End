@@ -1,0 +1,145 @@
+---
+title: "v27 Dynamic Scale and Champion Stress"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
+
+status = _json("paper4_v27_status.json")
+stress = _csv("paper4_v27_champion_vs_cvar_stress_memo.csv")
+convergence = _csv("paper4_v27_scale_convergence.csv")
+ranking = _csv("paper4_v27_ranking_stability.csv")
+committees = _csv("paper4_v27_committee_profile_memos.csv")
+pairwise = _csv("paper4_v27_policy_pairwise_common_path_ci.csv")
+performance = _csv("paper4_v27_performance_report.csv")
+```
+
+## Pregunta
+
+V27 pregunta si el working champion de Paper 4 debe cambiar cuando el replay
+dinámico sube a 256 paths y se compara directamente contra el challenger CVaR
+más fuerte de v26.
+
+## Qué Intentamos
+
+Se re-ejecutó el motor mensual con 14 policies, 256 paths y horizonte 36 meses,
+manteniendo no-leakage y common random numbers. El foco no fue buscar otra tabla
+promedio, sino comprobar si el CVaR relaxed que lideraba el registry v26 podía
+ganar con robustez pareada suficiente.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v27-status
+#| tbl-cap: "Paper 4 v27 status."
+
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v27-stress
+#| tbl-cap: "Direct champion-vs-CVaR stress memo."
+
+_cols(
+    stress,
+    [
+        "reference_policy_id",
+        "challenger_policy_id",
+        "n_common_paths",
+        "mean_wealth_delta",
+        "ci95_low_wealth_delta",
+        "ci95_high_wealth_delta",
+        "prob_challenger_beats_reference",
+        "mean_loss_delta",
+        "prob_challenger_lower_loss",
+        "decision_v27",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v27-committee-memos
+#| tbl-cap: "V27 committee profile memos."
+
+_cols(
+    committees,
+    [
+        "committee_profile",
+        "winning_policy_id",
+        "committee_score",
+        "prob_higher_wealth_vs_reference",
+        "robustness_gate_pass",
+        "change_recommended",
+        "consolidated_decision",
+    ],
+)
+```
+
+## Resultado
+
+El replay produjo `247,296` filas y mantuvo no-leakage mínimo `1.0`. El
+challenger CVaR redujo pérdidas de cola, pero no mejoró riqueza pareada:
+la probabilidad de superar al champion quedó alrededor de 0.49 y el intervalo
+del delta de riqueza cruzó cero. Por eso v27 retiene
+`paper1_economic_champion` como working champion de Paper 4.
+
+## Qué Mejoró
+
+La decisión ya no depende de 64/128 paths. Ahora el top CVaR tiene una prueba
+pareada explícita contra el champion vigente.
+
+```{python}
+#| label: tbl-paper4-v27-convergence
+#| tbl-cap: "Path convergence by policy."
+
+_cols(
+    convergence[convergence["n_paths"].eq(convergence["n_paths"].max())].head(12),
+    ["policy_id", "n_paths", "wealth_mean", "wealth_p05", "loss_p95", "wealth_ci95_width", "prob_beats_reference"],
+)
+```
+
+## Qué Falló
+
+El fetch macro externo volvió a fallar; los paths siguen siendo calibración
+interna. Además, el CVaR challenger ganó en pérdida, pero no en riqueza pareada.
+
+## Claim Permitido
+
+Paper 4 puede decir que el working champion fue sometido a un stress dinámico
+256-path contra el principal challenger CVaR bajo common random numbers.
+
+## Claim No Permitido
+
+No hay forecast externo, no hay promoción Paper Estrella y no hay prueba final
+de superioridad del champion fuera del laboratorio.
+
+## Qué Queda Pendiente
+
+512 paths solo si se necesita estrechar intervalos para manuscrito. El cuello
+operativo sigue siendo cachear eventos loan/path.

@@ -1,0 +1,4 @@
+threshold_id,threshold_value,current_value,committee_decision_v10,rationale
+online_v9_source_policy_width,source>=0.80; policy>=0.90; width<=0.95,0.800; 0.900; 0.934243,pass,v9 resolved the explicit online efficiency blocker.
+ifrs9_contractual_readiness,>=0.75 for contractual claim,0.583,block_contractual_claim,"available data support proxy ECL only, not contractual IFRS9."
+paper1_freeze,no modification,no modification,pass,Paper 4 remains a separate living lab.

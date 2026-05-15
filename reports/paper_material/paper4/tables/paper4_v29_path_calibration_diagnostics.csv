@@ -1,0 +1,5 @@
+macro_regime_v15,macro_stress_label_v29,n_paths,n_months,dependent_default_mean,dependent_default_p95,cyclic_lgd_mean,prepayment_timing_mean,recovery_lag_mean,calibration_scope_v29
+baseline_internal,internal_only,64,69,1.034753821142122,1.4228969484892557,1.0137386863697766,0.9979707116656228,3.1723278985507246,internal path calibration v4
+macro_stress_internal,internal_only,64,69,1.5638539067159238,2.167132844888507,1.2680757494288748,0.7841646979287502,3.8143115942028984,internal path calibration v4
+mild_stress_internal,internal_only,64,69,1.1930812299483102,1.6928171660450757,1.0957458340936705,0.919731138481535,3.4073822463768115,internal path calibration v4
+vintage_stress_internal,internal_only,64,69,1.3039453930303917,1.8274087321583055,1.1725809628791004,0.8557012492355387,3.6059782608695654,internal path calibration v4

@@ -1,0 +1,13 @@
+{
+  "all_v31_v37_status_paths_exist": true,
+  "blocker_rows_v38": 14,
+  "claim_boundary_rows_v38": 9,
+  "execution_wave_rows_v38": 7,
+  "generated_at_utc": "2026-05-15T02:50:00.197104+00:00",
+  "paper1_official_champion": "bound_aware_276k_economic_champion",
+  "paper1_promotion_happened_v38": false,
+  "paper4_final_promotion_created": false,
+  "phase": "global_v38_project_synthesis",
+  "runtime_seconds": 0.048,
+  "schema_version": "2026-05-15.38"
+}

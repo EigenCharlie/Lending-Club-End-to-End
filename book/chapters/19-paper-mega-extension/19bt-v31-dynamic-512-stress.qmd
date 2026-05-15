@@ -1,0 +1,103 @@
+---
+title: "v31 Dynamic 512 Stress"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+status = _json("paper4_v31_status.json")
+stress = _csv("paper4_v31_champion_vs_cvar_stress_memo.csv")
+convergence = _csv("paper4_v31_scale_convergence.csv")
+guard = _csv("paper4_v31_512_feasibility_guard.csv")
+```
+
+## Pregunta
+
+El objetivo de v31 es verificar si la comparacion dinamica de Paper 4 se
+mantiene al empujar el motor mensual hacia 512 paths comunes, o si el costo
+computacional obliga a documentar un fallback honesto.
+
+## Que intentamos
+
+Se reutiliza el motor v27: mismos adapters, mismos estados mensuales y mismos
+guardrails de no leakage. La diferencia es el tamano de path y la decision
+explicita de registrar `actual_replay` o `performance_guard_reused_v27`.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v31-status
+#| tbl-cap: "Status v31"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v31-guard
+#| tbl-cap: "Guard de factibilidad 512 paths"
+guard
+```
+
+```{python}
+#| label: tbl-paper4-v31-stress
+#| tbl-cap: "Stress champion vs challenger CVaR"
+stress
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v31-convergence
+#| tbl-cap: "Convergencia dinamica v31"
+convergence.tail(20) if not convergence.empty else convergence
+```
+
+## Interpretacion
+
+La evidencia v31 no cambia por si sola el champion. Sirve para medir si el
+resultado de v27 era sensible al numero de paths. Si la corrida queda
+performance-blocked, el resultado valido es el bloqueo reproducible, no una
+pretension de 512 paths.
+
+## Que mejoro
+
+La pagina separa la evaluacion dinamica real de la decision de performance, y
+deja un artifact para auditar por que se ejecuto o no se ejecuto la corrida
+grande.
+
+## Que fallo
+
+Si `performance_blocked_v31=true`, todavia falta una optimizacion de runtime o
+un cluster run para cerrar la pregunta de 512 paths con evidencia directa.
+
+## Claim permitido
+
+Paper 4 puede afirmar que el stress dinamico v31 esta gobernado por artifacts,
+paths comunes y guardrail temporal.
+
+## Claim prohibido
+
+No se afirma forecast externo, optimalidad, ni promocion Paper Estrella.
+
+## Next Step
+
+Usar v31 como base para el memo global v38 y para decidir si vale la pena una
+corrida 512/1024 dedicada fuera del render interactivo.

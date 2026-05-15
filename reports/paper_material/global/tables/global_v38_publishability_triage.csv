@@ -1,0 +1,8 @@
+triage_bucket,lane,current_publishability,decision
+journal_core,dynamic sequential decision governance,viable if scoped,center CRPTO/CVaR/DLA/SPO comparison under governed claims
+main_result_candidate,champion-vs-CVaR paired robustness,needs final narrative,use v27/v30 memo; avoid Paper Estrella promotion
+method_appendix,ADP/SPO,promising but caveated,keep exact Bellman/formal SPO+ out of headline
+negative_result,strict CVaR infeasibility,useful,document as governance feasibility boundary
+proxy_appendix,IFRS9-inspired ECL/SICR,useful but bounded,do not call contractual IFRS9
+blocked,CATE policy value,not publishable as causal policy,requires identification/reject-inference
+prohibited_claim,fair-lending legal claim,not allowed,source governance only

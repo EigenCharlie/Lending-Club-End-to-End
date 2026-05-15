@@ -1,0 +1,28 @@
+---
+title: "Online Conformal MDCP And Source Governance"
+page-layout: article
+---
+
+## Online conformal
+
+El resultado historico importante es doble. Primero, el gate nominal se resolvio
+en la ola online: source-month, policy-month y ancho quedaron en zona operativa.
+Segundo, la validacion v35 mostro que el resultado no sobrevive de forma
+universal a holdouts source-family. Por eso el claim oficial debe ser cuidadoso.
+
+## MDCP y source governance
+
+MDCP/source coverage sirve como gobernanza de cobertura por familias: grade,
+month, period, state, income, DTI, score decile e intersecciones con soporte
+suficiente. Esto es evidencia de robustez operacional, no evidencia legal de
+fair lending.
+
+## Fairness
+
+La fairness del Paper 4 queda como proxy governance only. Sin atributos
+protegidos o protocolo externo aprobado, no hay fair-lending legal claim.
+
+## Claim oficial
+
+Paper 4 puede defender que mide y gobierna fuentes debiles de cobertura. No
+puede afirmar cumplimiento legal de fair lending ni despliegue online real.

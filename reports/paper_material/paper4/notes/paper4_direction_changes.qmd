@@ -1,0 +1,58 @@
+---
+title: "Paper 4 Direction Changes"
+format: html
+---
+
+# Paper 4 Direction Changes
+
+Este archivo registra cambios de dirección del mega side project. Un pivot no
+es un error; es parte normal de un laboratorio de largo plazo.
+
+## Cambios
+
+| ID | Fecha | Antes | Después | Razón | Consecuencia |
+|---|---|---|---|---|---|
+| DIR-2026-05-12-living-lab | 2026-05-12 | pensar Paper 4 como posible extensión publicable enfocada | tratar Paper 4 como mega laboratorio de largo plazo | el Paper Estrella es la prioridad real de publicación/tesis; Paper 4 debe permitir exploración lenta | se agrega operating model, ledger, failure log y memoria de decisiones |
+| DIR-2026-05-12-mvp-first | 2026-05-12 | abrir primero nuevos solvers o claims grandes | construir primero manifests, schemas y evidence pack diagnóstico | reduce riesgo de contaminar el Paper Estrella y permite aprender con artifacts reproducibles | Paper 4 arranca con overlays y replay histórico, no con nuevo champion |
+| DIR-2026-05-12-proxy-then-exact | 2026-05-12 | intentar reconstruir todo como si fuera exacto | separar champion exacto, challengers proxy y futuro rerun exacto top-k | el run original no persistió allocation vectors para todas las policies | los resultados P0/P1/P2 son diagnósticos hasta rerun exacto |
+| DIR-2026-05-12-exact-limited-first | 2026-05-12 | saltar directamente a full-universe exact top-k | resolver primero top-k exact-limited con pools de 3,000 préstamos por policy | permite validar diferencias proxy/exacto, costo del solver y estructura de artifacts antes de un rerun pesado | Paper 4 gana evidencia exacta parcial sin tocar el Paper Estrella |
+| DIR-2026-05-12-claim-matrix-required | 2026-05-12 | documentar páginas nuevas como narrativa libre | exigir artifact, página, guardrail y caveat para cada prioridad | Paper 4 ya tiene demasiados lanes para confiar en memoria informal | se agrega `paper4_claim_artifact_test_matrix.csv` y página 19u |
+| DIR-2026-05-12-full-exact-before-new-champion | 2026-05-12 | discutir promoción desde selector diagnóstico o exact-limited | exigir full-universe exact solve y gates antes de cualquier candidato nuevo | el costo computacional fue manejable y elimina una fuente grande de ambigüedad | Paper 4 puede explorar challengers sin tocar el champion del Paper Estrella |
+| DIR-2026-05-12-causal-pricing-route | 2026-05-12 | tratar CATE como uplift genérico de aprobación/funding | concentrar el primer dossier en `high_rate_within_grade` como treatment de pricing observable | tiene mejor plausibilidad operativa y reduce mezcla entre predicción y causalidad | CATE sigue gated, pero ahora tiene una búsqueda concreta |
+| DIR-2026-05-13-full-45-before-promotion | 2026-05-13 | resolver exacto solo para top-k o candidatos del selector | exigir allocations full-universe persistidas para las 45 policies antes de discutir challengers | el solve completo fue viable y evita que un proxy determine el roadmap | Paper 4 usa exactitud completa como base diagnóstica, pero no crea promotion JSON |
+| DIR-2026-05-13-fairness-proxy-only | 2026-05-13 | hablar de fairness como si los proxies bastaran | declarar explícitamente que los artifacts actuales solo soportan proxy governance, no fair-lending protegido | no existen atributos protegidos directos en los artifacts disponibles | las páginas y tests deben bloquear claims legales fuertes hasta tener datos/protocolo válido |
+| DIR-2026-05-13-loan-level-before-switching-claims | 2026-05-13 | aceptar el toy switching como evidencia secuencial fuerte | exigir replay loan-level con estado financiero antes de cualquier claim DLA | el replay v3 muestra que el champion estático gana cuando se modela cash, outstanding, interest y losses | el carril multi-period queda vivo, pero como solver real loan-level, no como selector mensual retrospectivo |
+| DIR-2026-05-13-paper4-working-champion | 2026-05-13 | tratar cualquier challenger fuerte como amenaza potencial al Paper Estrella | separar champion congelado de tesis/journal y working champion interno de Paper 4 | Paper 4 es side project y puede iterar candidates sin tocar métricas oficiales | se crea `paper4_v4_working_champion.json` con `scope=paper4_working_champion_only` |
+| DIR-2026-05-13-online-global-gate | 2026-05-13 | permitir promoción si una policy pasa gates locales | exigir que el mejor método online pase gate global source-month antes de promover | el peor source-month queda en 0.7500; promover sería esconder la falla más importante | el selector v4 bloquea promoción aunque sample paths e IFRS9 sean buenos |
+| DIR-2026-05-13-coverage-plus-efficiency | 2026-05-13 | tratar source-month coverage como gate binario | exigir cobertura y eficiencia de intervalo como dos gates separados | v5 pasa peor source-month usando intervalos casi completos; eso resuelve cobertura pero no decisión útil | `online_efficiency_blocker=True` en status v5 y no hay promoción final |
+| DIR-2026-05-13-marginal-ecl | 2026-05-13 | sumar lifetime ECL repetido en filas mensuales | usar PD marginal mensual descontada para ECL contractual proxy | evita doble conteo y hace interpretable el net return after ECL | IFRS9 v5 queda como proxy defendible, no como servicing ledger auditado |
+| DIR-2026-05-13-observed-vs-expected-loss | 2026-05-13 | leer pérdidas observadas cero como posible éxito del DLA | separar `cumulative_losses` de `cumulative_expected_loss` | el timing proxy puede no materializar defaults en horizontes cortos aunque el riesgo exista | SDAM v5 conserva riesgo esperado en el estado financiero |
+| DIR-2026-05-13-oracle-as-target | 2026-05-13 | buscar cobertura online solo con reglas deployables actuales | usar rescate audit/oracle como objetivo de aprendizaje pre-decision | v6 muestra que el gate puede pasar con ancho 0.930 si se identifican celdas débiles | el próximo online CP debe predecir weak cells, no inflar todas las filas |
+| DIR-2026-05-13-mdcp-soft-first | 2026-05-13 | imponer MDCP como cap global estricto dentro del solver | empezar con penalties suaves o caps por familia | el cap global volvió infeasible tres de cuatro variants v6 | MDCP inside-solver queda vivo pero necesita formulación gradual |
+| DIR-2026-05-13-hybrid-surrogate-before-training | 2026-05-13 | saltar directo a entrenamiento SPO/DFL completo | construir primero surrogate LP constrained con auditability | permite probar trade-offs sin abrir todavía entrenamiento pesado | los hybrids v6 son arquitectura, no modelo DFL final |
+| DIR-2026-05-13-v7-coverage-not-enough | 2026-05-13 | tratar gate online 0.80 como desbloqueo suficiente | exigir gate online y eficiencia de ancho simultáneamente | v7 pasa source-month 0.80 con método deployable targetizado, pero ancho 0.9564 | el backlog online se reescribe como problema de eficiencia fina, no de cobertura bruta |
+| DIR-2026-05-13-v7-mdcp-penalty-frontier | 2026-05-13 | leer MDCP inside-solver como feasible/infeasible | construir frontera por penalties, caps suaves y auditability score | v7 demuestra que penalties suaves producen soluciones óptimas y comparables | MDCP pasa a ser arquitectura de trade-off, no solo gate posterior |
+| DIR-2026-05-13-v7-dla-capital-state | 2026-05-13 | DLA con cash/outstanding/ECL proxy | DLA con cash, repayments, losses, recoveries, capital y macro state | v6 todavía podía ocultar riesgo realizado; v7 genera pérdidas realizadas no nulas | la siguiente dirección es ADP/value function, no solo mejor replay |
+| DIR-2026-05-13-v7-blockers-as-artifacts | 2026-05-13 | explicar pendientes en conversación o narrativa | convertir cada blocker en artifact, page, test y caveat | CATE/fairness/IFRS9 tienen límites que no se resuelven solo iterando código | el laboratorio puede seguir iterando sin confundir bloqueo con olvido |
+| DIR-2026-05-13-v8-online-fine-frontier | 2026-05-13 | ensanchar reglas deployable hasta pasar source-month | optimizar simultáneamente encogimiento base y ensanchamiento selectivo | v8 baja ancho a 0.9544, pero el mejor width<=0.95 rompe source-month | online queda como problema de frontera fina/predictor weak-cell, no de ancho global |
+| DIR-2026-05-13-v8-cvar-active-caps | 2026-05-13 | probar caps CVaR fijos que a veces no se activan | usar bisección por return floor para acercarse al boundary | v7 repetía allocations bajo caps no activos; v8 produce puntos factibles/no dominados | CVaR pasa a ser curva de frontera, no tabla de sensibilidad |
+| DIR-2026-05-13-v8-mdcp-family-calibrated | 2026-05-13 | imponer caps por family sin mirar composición factible | calibrar caps por familia contra la estructura observada del pool | caps irreales vacían el solver; caps calibrados resuelven 4/4 | MDCP se interpreta como gobernanza gradual y defendible |
+| DIR-2026-05-13-v8-dla-value-function | 2026-05-13 | DLA como replay financiero enriquecido | DLA como policy con proxy explícito de función de valor y referencia estática | el delta positivo de state value justifica iterar hacia ADP | el resultado sigue siendo proxy, no optimalidad Bellman |
+
+## Template
+
+```markdown
+## DIR-YYYY-MM-DD-slug
+
+**Antes**:
+
+**Después**:
+
+**Razón**:
+
+**Qué cambia en arquitectura**:
+
+**Qué queda igual**:
+
+**Artifacts afectados**:
+```

@@ -1,0 +1,5 @@
+comparison_path,exists,artifact_coherence_pass,interpretation_v38,paper1_champion_inconsistency
+reports/run_comparisons/paper1-e2e-all-champions-2026-04-07/comparison.json,True,False,broader comparison mixes research-only run tags,False
+reports/run_comparisons/canonical-audit-rebuild-2026-04-06-r2/comparison.json,True,False,broader comparison mixes research-only run tags,False
+reports/run_comparisons/canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129/comparison.json,True,True,canonical upstream passes,False
+canonical_promotion_policy_registry_metrics_tables,True,True,"promotion, policy, registry, DVC metrics and table0 agree on final champion",False

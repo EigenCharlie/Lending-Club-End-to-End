@@ -1,0 +1,91 @@
+---
+title: "v36 IFRS9 and SICR Upgrade"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name):
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name):
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v36_status.json")
+audit = _csv("paper4_v36_ifrs9_contractual_data_audit.csv")
+sicr = _csv("paper4_v36_ifrs9_sicr_sensitivity_v3.csv")
+readiness = _csv("paper4_v36_ifrs9_readiness_matrix.csv")
+```
+
+## Pregunta
+
+IFRS9 es central para Paper 4, pero el claim contractual solo existe si hay
+datos de servicing y transiciones mensuales defendibles.
+
+## Que intentamos
+
+Se auditan campos locales, se mejora el panel proxy mensual y se expande la
+sensibilidad SICR sin llamar eso staging productivo.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v36-status
+#| tbl-cap: "Status v36"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v36-audit
+#| tbl-cap: "Audit contractual IFRS9"
+audit
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v36-readiness
+#| tbl-cap: "Readiness IFRS9"
+readiness
+```
+
+```{python}
+#| label: tbl-paper4-v36-sicr
+#| tbl-cap: "SICR sensitivity v3"
+sicr.head(40)
+```
+
+## Interpretacion
+
+El carril IFRS9 aporta ECL proxy y sensibilidad prudencial, pero no un lifetime
+ECL contractual.
+
+## Que mejoro
+
+Queda una lista concreta de datos faltantes: DPD mensual, cure, recoveries,
+prepayment timing, EAD paths y macro escenarios coherentes.
+
+## Que fallo
+
+El claim contractual sigue bloqueado por datos.
+
+## Claim permitido
+
+IFRS9-inspired proxy ECL/SICR sensitivity.
+
+## Claim prohibido
+
+No contractual IFRS9.
+
+## Next Step
+
+Solo abrir claim contractual si aparece servicing panel mensual real.

@@ -1,0 +1,12 @@
+blocker_id,status_v13,current_diagnosis,next_action
+online_efficiency,resolved,v9 gate reused and still passes,future-period validation
+cvar_scale,near_resolved,v13 feasible=3 over larger pool,exact full universe or dual-certified column generation
+champion_stress,resolved,v13_fvi_return_recovery,rerun after v14 lanes
+dla_in_sample_paths,near_resolved,representative DLA books included in common paths,true dynamic path comparison without budget-capping proxy
+spo_dfl,near_resolved,SPO-style temporal regret strengthened,differentiable optimization layer remains open
+sample_paths,near_resolved,macro/vintage/common paths expanded,external macro/default calibration
+mdcp_caps,near_resolved,strict/committee/relaxed cap regimes documented,future coverage calibration
+ifrs9_contractual,data_blocked,proxy SICR only,servicing/DPD/recovery/EAD/macro data
+causal_cate,theory_blocked,policy value remains blocked,"identification, overlap, sensitivity"
+fairness,data_blocked,proxy governance only,protected attributes or approved external protocol
+paper1_freeze,resolved,Paper Estrella untouched,continue Paper 4 only

@@ -1,0 +1,5 @@
+design_id,policy_class,design_change,status_v34,bellman_exact_claim_allowed
+rollout_depth_2_tail_source,ADP rollout,add tail/source penalty and two-step lookahead proxy,implemented_as_design_candidate,False
+cash_deployment_guard,DLA heuristic,avoid underdeployment while preserving ECL/source caps,implemented_as_design_candidate,False
+bellman_fvi_exact,exact Bellman,solve full state/action Bellman recursion,implementation_blocked_state_space,False
+risk_constrained_rollout,ADP rollout,include CVaR and source cap penalties in value proxy,implemented_as_design_candidate,False

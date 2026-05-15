@@ -1,0 +1,232 @@
+---
+title: "v7 Online, MDCP, CVaR and Hybrids"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v7_resolution_status.json")
+online = _csv("paper4_v7_online_deployable_weak_cell_search.csv")
+pooling = _csv("paper4_v7_online_min_support_pooling.csv")
+mdcp = _csv("paper4_v7_mdcp_soft_penalty_solver_summary.csv")
+cvar = _csv("paper4_v7_cvar_adaptive_frontier.csv")
+hybrids = _csv("paper4_v7_hybrid_solver_candidate_registry.csv")
+claims = _csv("paper4_v7_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v7-online-mdcp-question}
+
+Esta página documenta la primera resolución fuerte de v7: online conformal ya
+puede pasar el gate defendido de source-month `0.80` sin mirar outcomes del
+mismo mes, pero solo con intervalos demasiado anchos. En paralelo, MDCP deja de
+ser un filtro posterior y entra al solver como penalización/cap suave; CVaR
+queda como frontera top-k expandida; los hybrids quedan como registry de
+candidatos Paper 4, no como promoción.
+
+## Status v7
+
+```{python}
+#| label: tbl-paper4-v7-status-online-mdcp
+#| tbl-cap: "Status v7 para online, MDCP, CVaR e hybrids"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+    "online_best_method": status.get("online_best_method"),
+    "online_best_source_month_defended_min": status.get("online_best_source_month_defended_min"),
+    "online_best_policy_month_defended_min": status.get("online_best_policy_month_defended_min"),
+    "online_best_width": status.get("online_best_width"),
+    "online_gate80_defended_deployable_exists": status.get("online_gate80_defended_deployable_exists"),
+    "online_promotion_eligible": status.get("online_promotion_eligible"),
+    "mdcp_soft_optimal_count": status.get("mdcp_soft_optimal_count"),
+    "mdcp_gate_proxy_count": status.get("mdcp_gate_proxy_count"),
+    "cvar_frontier_feasible_count": status.get("cvar_frontier_feasible_count"),
+    "hybrid_registry_rows": status.get("hybrid_registry_rows"),
+}])
+```
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v7-online-mdcp-artifacts
+#| tbl-cap: "V7 claim-artifact matrix: online/solver side"
+
+_cols(
+    claims[claims["quarto_page"].eq("19ao-v7-online-mdcp-resolution.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```
+
+## Online conformal
+
+```{python}
+#| label: tbl-paper4-v7-online-search-top
+#| tbl-cap: "Top online source-month deployable methods v7"
+
+_cols(
+    online.head(12),
+    [
+        "online_method_v7",
+        "method_family",
+        "deployable_without_current_outcomes",
+        "coverage_policy_month_defended_min",
+        "coverage_source_month_defended_min",
+        "avg_width_loan",
+        "share_rows_widened",
+        "small_policy_month_cells_pooled",
+        "small_source_month_cells_pooled",
+        "gate_pass_80_defended",
+        "efficiency_gate_width_95",
+        "promotion_eligible",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v7-online-pooling
+#| tbl-cap: "Minimum-support pooling rule v7"
+
+pooling
+```
+
+El avance real es conceptual y operativo:
+
+- v6 tenia un rescate que pasaba `0.80`, pero usaba información ex post;
+- v7 logra `policy-month >= 0.90` y `source-month >= 0.80` con una regla
+  deployable targetizada: `(DTI alto AND score bajo) OR grade D`;
+- el costo sigue siendo alto: ancho promedio `0.9564`, por encima del gate operativo
+  de eficiencia `0.95`;
+- la mejora frente a la regla amplia es grande: el share ensanchado baja de
+  cerca de 90% a cerca de 51%;
+- las celdas pequeñas no desaparecen: se documentan como pooled cells y no se
+  tratan como claims standalone.
+
+Esto cambia el bloqueo. Ya no estamos en "no hay cobertura defendible"; ahora
+estamos en "la cobertura defendible existe, pero es demasiado cara".
+
+## MDCP inside solver
+
+```{python}
+#| label: tbl-paper4-v7-mdcp-soft
+#| tbl-cap: "MDCP soft-penalty solver v7"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "risk_tolerance",
+        "weak_penalty",
+        "width_penalty",
+        "max_weak_share",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "mdcp_gate_proxy_v7",
+        "auditability_score_v7",
+    ],
+)
+```
+
+V7 confirma que el cap global estricto de v6 era demasiado duro. Con penalties
+suaves, los seis solvers MDCP son óptimos y cuatro pasan el proxy gate
+auditability/MDCP. El precio es visible: los perfiles más auditables reducen
+funded exposure o retorno objetivo. Esto es exactamente la frontera que Paper 4
+quiere estudiar.
+
+## CVaR frontier
+
+```{python}
+#| label: tbl-paper4-v7-cvar-frontier
+#| tbl-cap: "CVaR adaptive frontier v7"
+
+_cols(
+    cvar,
+    [
+        "policy_id",
+        "solver_status",
+        "cvar_cap",
+        "return_floor",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "scenario_loss_cvar90",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v7",
+        "frontier_feasible_v7",
+    ],
+).head(20)
+```
+
+La frontera CVaR v7 mejora la factibilidad: diez combinaciones son óptimas. Pero
+también muestra un problema técnico: varios caps no son activos porque la
+solución ya cae debajo del cap. Eso no invalida el artifact; lo convierte en
+diagnóstico para diseñar caps adaptativos más cercanos al feasible boundary.
+
+## Hybrids
+
+```{python}
+#| label: tbl-paper4-v7-hybrid-registry
+#| tbl-cap: "Hybrid solver candidate registry v7"
+
+_cols(
+    hybrids.head(20),
+    [
+        "policy_id",
+        "solver_status",
+        "hybrid_family_v7",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v7",
+        "hybrid_candidate_status_v7",
+    ],
+)
+```
+
+Los hybrids siguen siendo surrogate LP, no entrenamiento neural SPO+/DFL. Aun
+así, ya cumplen una función útil: separan candidatos orientados a retorno,
+auditabilidad y cola. El siguiente paso técnico no es promoverlos, sino usarlos
+como targets para entrenar decision-loss con constraints CRPTO/MDCP/IFRS9.
+
+## Caveats
+
+No hay promoción v7. El método online que pasa cobertura falla eficiencia; CVaR
+sigue top-k expandido; MDCP es proxy por weak-source/width; hybrids no son DFL
+real. Estos caveats son parte del resultado, no notas al pie.

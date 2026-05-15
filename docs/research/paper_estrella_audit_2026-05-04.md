@@ -57,6 +57,16 @@ Material paper-facing regenerado: `reports/paper_material/paper1/tables/*` se ac
 
 El run operativo vigente `paper1-e2e-all-champions-2026-04-07` reporta AUC 0.712438, Brier 0.154631 y ECE 0.006380 en `data/processed/pipeline_summary.json`; `reports/dvc/metrics_summary.json` conserva la misma AUC/Brier y ECE 0.006248 por su agregacion plana. En la familia PD pura, el candidato historico `models/search_pd/pd-hpo-local-2026-04-03-1325/pd_training_status.json` tiene AUC 0.713852 y Brier 0.154393, por lo que la metrica PD actual no es el mejor valor historico observado. No se promueve en este dossier porque no es el champion paper/thesis y no debe mezclarse con la familia bound-aware.
 
+### Nota v38 sobre coherencia de artifacts
+
+Los reportes amplios con `artifact_coherence_pass=false` mezclan scopes y run
+tags de carriles research-only, en especial causal/CATE/time-series. No son una
+inconsistencia del champion Paper Estrella. La capa canonical de Paper Estrella
+(`models/final_project_promotion.json`, `models/champion_portfolio_policy.json`,
+`models/champion_registry.json`, `reports/dvc/metrics_summary.json` y
+`paper1_table0_key_metrics.csv`) sigue sincronizada para
+`paper-thesis-final-economic-2026-04-06`.
+
 ### Regla de comparacion historica
 
 | Familia | Comparar con | No comparar con |

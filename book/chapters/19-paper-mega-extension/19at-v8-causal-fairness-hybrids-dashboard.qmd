@@ -1,0 +1,187 @@
+---
+title: "v8 Causal, Fairness and DFL Dashboard"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v8_resolution_status.json")
+causal = _csv("paper4_v8_causal_dossier.csv")
+overlap = _csv("paper4_v8_causal_overlap_bins.csv")
+falsification = _csv("paper4_v8_causal_falsification_sensitivity.csv")
+fairness = _csv("paper4_v8_fairness_permanent_proxy_protocol.csv")
+dfl = _csv("paper4_v8_dfl_surrogate_training.csv")
+claims = _csv("paper4_v8_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v8-causal-fairness-question}
+
+V8 no intenta forzar CATE ni fairness a promoción. Hace lo contrario: fortalece
+el dossier causal y deja fairness como protocolo permanente proxy-only hasta
+que aparezcan atributos protegidos o un protocolo externo aprobado.
+
+Para fairness, la referencia de gobernanza es Regulation B/ECOA: el sistema de
+crédito no puede hacer afirmaciones fuertes sobre bases prohibidas si el
+análisis no tiene atributos/proxies aprobados y controlados
+(<https://www.federalreserve.gov/frrs/regulations/background-and-summary-of-regulation-b.htm>).
+
+Para hybrids, la referencia conceptual es Smart Predict-then-Optimize/SPO+:
+entrenar con pérdida de decisión, no solo con pérdida predictiva
+(<https://arxiv.org/abs/1710.08005>). V8 todavía no entrena una red SPO+; deja
+un surrogate transparente para comparar targets LP.
+
+## Status v8
+
+```{python}
+#| label: tbl-paper4-v8-causal-fairness-status
+#| tbl-cap: "Status v8 para causal, fairness y hybrids"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "causal_policy_value_allowed": status.get("causal_policy_value_allowed"),
+    "fair_lending_legal_claim": status.get("fair_lending_legal_claim"),
+    "dfl_surrogate_rows": status.get("dfl_surrogate_rows"),
+    "selector_promote_count": status.get("selector_promote_count"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Causal dossier
+
+```{python}
+#| label: tbl-paper4-v8-causal-dossier
+#| tbl-cap: "Causal dossier v8"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v8-causal-overlap
+#| tbl-cap: "Overlap bins v8"
+
+_cols(
+    overlap.head(30),
+    [
+        "original_grade",
+        "period",
+        "n",
+        "treatment_share",
+        "propensity_min",
+        "propensity_max",
+        "overlap_bin_pass_v8",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v8-causal-falsification-sensitivity
+#| tbl-cap: "Falsification and sensitivity v8"
+
+falsification
+```
+
+El dossier ya es útil para aprender: balance, overlap y placebos quedan
+registrados. Pero policy value sigue bloqueado porque la sensibilidad a sesgo
+oculto y los intervalos CATE no sostienen una decisión causal robusta. Esto es
+buena gobernanza: el carril causal produce evidencia, no autoridad prematura.
+
+## Fairness protocol
+
+```{python}
+#| label: tbl-paper4-v8-fairness-protocol
+#| tbl-cap: "Permanent proxy-only fairness protocol v8"
+
+fairness
+```
+
+La frase que debe sobrevivir en todo Paper 4 es:
+
+```text
+Paper 4 reports source/proxy governance diagnostics only; it does not make a
+fair-lending legal compliance claim without protected attributes or an approved
+proxy protocol.
+```
+
+Esto no baja el valor del laboratorio. Al contrario: evita confundir source
+coverage o geographic stress con una afirmación legal sobre protected classes.
+
+## DFL surrogate
+
+```{python}
+#| label: tbl-paper4-v8-dfl-surrogate
+#| tbl-cap: "SPO+/DFL-style transparent surrogate v8"
+
+_cols(
+    dfl.head(24),
+    [
+        "policy_id",
+        "width_weight",
+        "source_weight",
+        "ecl_weight",
+        "funded_exposure",
+        "n_funded",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v8",
+        "decision_loss_proxy_v8",
+        "training_status_v8",
+    ],
+)
+```
+
+Este surrogate no reemplaza el LP ni prueba SPO+. Su valor es que define una
+arquitectura de entrenamiento:
+
+```text
+loss = regret_proxy + lambda_width * interval_width
+     + lambda_source * weak_source_share
+     + lambda_ecl * ECL_proxy
+```
+
+Eso deja listo el siguiente paso: entrenar un modelo decision-aware contra
+targets LP, pero sin perder las restricciones CRPTO/MDCP/IFRS9 que hacen
+auditables las decisiones.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v8-causal-fairness-artifacts
+#| tbl-cap: "V8 claim-artifact matrix: causal, fairness and hybrids"
+
+_cols(
+    claims[claims["quarto_page"].eq("19at-v8-causal-fairness-hybrids-dashboard.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```

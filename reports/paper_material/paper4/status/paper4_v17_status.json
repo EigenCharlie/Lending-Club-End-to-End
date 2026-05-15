@@ -1,0 +1,11 @@
+{
+  "schema_version": "2026-05-14.15-18",
+  "generated_at_utc": "2026-05-14T19:47:27.303867+00:00",
+  "phase": "v17_ifrs9_causal_fairness_gates",
+  "ifrs9_contractual_claim_allowed": false,
+  "ifrs9_proxy_requirement_count_v17": 8,
+  "ifrs9_contractual_available_count_v17": 1,
+  "causal_policy_value_allowed": false,
+  "fair_lending_legal_claim": false,
+  "paper4_final_promotion_created": false
+}

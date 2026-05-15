@@ -1,0 +1,4 @@
+breakpoint_id,online_method_v9,coverage_source_month_defended_min,coverage_policy_month_defended_min,avg_width_loan,width_margin_to_0p95,goal_pass,interpretation
+v9_v8_reference,v9_reference_v8_best,0.8,0.9,0.9543797192776867,-0.004379719277686767,False,v8 passed defended coverage but missed the width goal.
+v9_best_goal_passing_width,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,0.8,0.9,0.9342434494753106,0.015756550524689383,True,lowest-width v9 method satisfying the explicit /goal gates.
+v9_conservative_goal_passing_width,v9_tail_guard_dti_q5_only_m0.965_d0.120_t0.060,0.8,0.9,0.9450022305805179,0.0049977694194820454,True,"goal-passing method closer to the original v8 width, kept as a less aggressive reference."

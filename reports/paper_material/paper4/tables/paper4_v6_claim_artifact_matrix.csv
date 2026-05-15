@@ -1,0 +1,11 @@
+priority,claim_status,artifact,quarto_page,caveat
+Online efficient source-month,implemented_with_audit_oracle_and_deployable_screen,paper4_v6_online_source_month_efficiency_search.csv,19ak-v6-online-ifrs9-efficient.qmd,deployable method may still fail; oracle rows are not promotion eligible
+SICR recalibration,implemented_rule_grid,paper4_v6_sicr_calibration_grid.csv,19ak-v6-online-ifrs9-efficient.qmd,"MRM candidate, not audited accounting policy"
+Contractual IFRS9 data,implemented_readiness_audit,paper4_v6_contractual_data_audit.csv,19ak-v6-online-ifrs9-efficient.qmd,current data is proxy-only for full servicing
+MDCP inside solver,implemented_linear_constraint_proxy,paper4_v6_mdcp_solver_summary.csv,19al-v6-solvers-dla-sample-paths.qmd,"source/width proxy inside LP, not theorem-level MDCP guarantee"
+CVaR constraint expanded,implemented_topk_constraint_lp,paper4_v6_cvar_constraint_summary.csv,19al-v6-solvers-dla-sample-paths.qmd,"top-k expanded pool, not 276k full LP"
+Endogenous DLA,implemented_loan_level_monthly_proxy,paper4_v6_dla_loan_level_summary.csv,19al-v6-solvers-dla-sample-paths.qmd,not full Bellman/ADP
+Realistic sample paths,implemented_correlated_cycle_paths,paper4_v6_correlated_sample_path_ci.csv,19al-v6-solvers-dla-sample-paths.qmd,"simulation for paired comparison, not forecast"
+CATE gate,implemented_blocker_screen,paper4_v6_cate_gate.csv,19am-v6-causal-fairness-hybrids.qmd,policy value remains blocked
+Fairness governance,implemented_no_legal_claim_protocol,paper4_v6_fairness_protocol.csv,19am-v6-causal-fairness-hybrids.qmd,proxy governance only
+SPO/DFL hybrids,implemented_constrained_surrogate,paper4_v6_spo_dfl_hybrid_summary.csv,19am-v6-causal-fairness-hybrids.qmd,"surrogate LP, not trained neural DFL"

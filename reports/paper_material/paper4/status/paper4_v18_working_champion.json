@@ -1,0 +1,17 @@
+{
+  "schema_version": "2026-05-14.15-18",
+  "generated_at_utc": "2026-05-14T19:47:27.293385+00:00",
+  "policy_id": "paper1_economic_champion",
+  "previous_working_champion_policy_id_v14": "v13_fvi_return_recovery",
+  "champion_changed_vs_v14": true,
+  "scope": "paper4_working_champion_only",
+  "dynamic_value_score_v15": 0.6571428571428571,
+  "final_wealth_mean": 1070128.3645318479,
+  "cumulative_losses_mean": 138663.94279514728,
+  "paper1_promotion_allowed": false,
+  "paper4_final_promotion_created": false,
+  "contractual_ifrs9_claim_allowed": false,
+  "cate_policy_value_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "caveat": "dynamic replay with internal sample paths; not field deployment or exact Bellman proof"
+}

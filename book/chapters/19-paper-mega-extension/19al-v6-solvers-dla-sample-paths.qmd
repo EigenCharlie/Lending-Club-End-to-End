@@ -1,0 +1,193 @@
+---
+title: "v6 Solvers, DLA and Correlated Paths"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+mdcp = _csv("paper4_v6_mdcp_solver_summary.csv")
+cvar = _csv("paper4_v6_cvar_constraint_summary.csv")
+cvar_loss = _csv("paper4_v6_cvar_constraint_scenario_losses.csv")
+dla_summary = _csv("paper4_v6_dla_loan_level_summary.csv")
+dla_state = _csv("paper4_v6_dla_loan_level_state.csv")
+paths = _csv("paper4_v6_correlated_sample_path_ci.csv")
+```
+
+## Pregunta {#sec-paper4-v6-solvers-dla-question}
+
+Esta página cubre MDCP dentro del solver, CVaR constraint expandido, DLA
+loan-level endógeno y sample paths más realistas. La pregunta ya no es si Paper
+4 puede hacer ranking post-hoc; la pregunta es qué pasa cuando las restricciones
+entran al mecanismo de decisión.
+
+## MDCP/source dentro del solver
+
+```{python}
+#| label: tbl-paper4-v6-mdcp-solver
+#| tbl-cap: "MDCP/source-width proxy inside solver"
+
+_cols(
+    mdcp,
+    [
+        "policy_id",
+        "solver_status",
+        "risk_tolerance",
+        "weak_penalty",
+        "width_penalty",
+        "max_weak_share",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+    ],
+)
+```
+
+El solver base factible alcanza retorno proxy, pero las versiones con caps de
+weak-source/width se vuelven infeasibles. Eso es un resultado útil: meter MDCP
+adentro del solver no es gratis. Las restricciones actuales son demasiado duras
+para el pool local, o el pool local no contiene suficiente diversidad para
+cumplir budget, PD cap y weak-source cap a la vez.
+
+## CVaR constraint expandido
+
+```{python}
+#| label: tbl-paper4-v6-cvar-solver
+#| tbl-cap: "CVaR top-k expanded constraint solver"
+
+_cols(
+    cvar,
+    [
+        "policy_id",
+        "solver_status",
+        "cvar_cap",
+        "return_floor",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "realized_return_proxy_lgd45",
+        "scenario_loss_mean",
+        "scenario_loss_max",
+        "scenario_loss_cvar90",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v6-cvar-loss
+#| tbl-cap: "CVaR scenario losses v6"
+
+cvar_loss.head(30)
+```
+
+CVaR v6 sí logra soluciones factibles para caps/floors moderados. Cuando el
+return floor sube a 140k, el solver se vuelve infeasible. Esto confirma la forma
+de la frontera: controlar cola y exigir retorno alto simultáneamente puede dejar
+vacío el feasible set.
+
+## DLA loan-level endógeno
+
+```{python}
+#| label: tbl-paper4-v6-dla-summary
+#| tbl-cap: "DLA loan-level endogenous summary"
+
+dla_summary
+```
+
+```{python}
+#| label: tbl-paper4-v6-dla-state
+#| tbl-cap: "DLA loan-level state trace"
+
+_cols(
+    dla_state,
+    [
+        "month_idx",
+        "calendar_month",
+        "cash_end",
+        "principal_in",
+        "interest_in",
+        "realized_loss",
+        "expected_loss",
+        "outstanding_items",
+        "outstanding_balance_proxy",
+        "state_value_proxy",
+    ],
+)
+```
+
+V6 deja de escoger retrospectivamente entre policies fijas y decide préstamos
+mes a mes. El estado contiene cash, repayments, interest, expected loss y
+outstanding. Sigue siendo proxy, pero ya vive en el nivel correcto de SDAM:
+
+```text
+S_t = cash, outstanding, expected loss, coverage/risk proxies
+x_t = funded loan set in month t
+W_{t+1} = repayment, interest, default/loss shock proxy
+S^M = state transition with cash and exposure update
+```
+
+## Sample paths correlacionados
+
+```{python}
+#| label: tbl-paper4-v6-correlated-paths
+#| tbl-cap: "Correlated sample paths v6"
+
+_cols(
+    paths.sort_values(["scenario", "prob_beats_reference_v6"], ascending=[True, False]),
+    [
+        "policy_id",
+        "scenario",
+        "mean_diff_vs_reference_v6",
+        "p05_diff_vs_reference_v6",
+        "p50_diff_vs_reference_v6",
+        "p95_diff_vs_reference_v6",
+        "prob_beats_reference_v6",
+        "cvar90_simulated_loss_v6",
+        "n_paths",
+        "reference_policy_v6",
+    ],
+).head(40)
+```
+
+Los paths v6 incluyen macro AR(1), shock por grade, default dependiente y LGD
+cíclico. Esto mejora la comparación pareada, pero no la convierte en forecast.
+El uso correcto sigue siendo ranking robusto y estrés, no promesa de retorno.
+
+## Interpretación
+
+Los solvers v6 empiezan a mover constraints al lugar correcto. El resultado no
+es que todo mejore: MDCP estricto se vuelve infeasible, CVaR revela floors
+imposibles y DLA todavía es proxy. Pero esa es buena ciencia del laboratorio:
+ahora sabemos dónde duele el feasible set.
+
+## Next Step
+
+El siguiente solver debe relajar MDCP con penalties suaves o constraints por
+familia, no un cap global único. CVaR debe compararse contra un pool más diverso
+o full-universe descompuesto. DLA debe incorporar coverage state real y ECL
+mensual como restricciones de capital.

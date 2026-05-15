@@ -1,0 +1,7 @@
+committee_profile,winning_policy_id,reference_policy_id,committee_score,final_wealth_mean,loss_p95,change_recommended,decision_scope,consolidated_decision
+balanced,v13_mdcp_empirical_tight,paper1_economic_champion,0.5777777777777777,1063734.4711272153,67379.08919928402,True,Paper 4 committee memo only; no final promotion,serious_challenger_review
+wealth_first,v13_mdcp_empirical_tight,paper1_economic_champion,0.7041666666666667,1063734.4711272153,67379.08919928402,True,Paper 4 committee memo only; no final promotion,serious_challenger_review
+tail_first,paper1_economic_champion,paper1_economic_champion,0.5222222222222223,1170569.18924002,140410.55435149773,False,Paper 4 committee memo only; no final promotion,retain_working_champion
+auditability_first,v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,paper1_economic_champion,0.5888888888888889,1148018.0921288268,99960.38057079572,True,Paper 4 committee memo only; no final promotion,serious_challenger_review
+ecl_aware,v13_mdcp_empirical_tight,paper1_economic_champion,0.5513888888888889,1063734.4711272153,67379.08919928402,True,Paper 4 committee memo only; no final promotion,serious_challenger_review
+source_governance_aware,v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,paper1_economic_champion,0.5583333333333333,1148018.0921288268,99960.38057079572,True,Paper 4 committee memo only; no final promotion,serious_challenger_review

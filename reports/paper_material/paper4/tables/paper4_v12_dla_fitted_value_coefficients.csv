@@ -1,0 +1,10 @@
+feature,coefficient,iterations_v12,discount_v12,model_scope_v12
+intercept,454653.33948491333,3,0.92,fitted_value_iteration_rollout_proxy
+cash_m,404575.9517689307,3,0.92,fitted_value_iteration_rollout_proxy
+outstanding_m,567618.8135632011,3,0.92,fitted_value_iteration_rollout_proxy
+expected_loss_100k,-139623.45929467995,3,0.92,fitted_value_iteration_rollout_proxy
+capital_100k,-14731.721825240073,3,0.92,fitted_value_iteration_rollout_proxy
+cum_loss_100k,-130452.27316934649,3,0.92,fitted_value_iteration_rollout_proxy
+macro_state,2472.7798616871282,3,0.92,fitted_value_iteration_rollout_proxy
+stage2_share,-12791.095279024183,3,0.92,fitted_value_iteration_rollout_proxy
+coverage_state,-2626.356298876234,3,0.92,fitted_value_iteration_rollout_proxy

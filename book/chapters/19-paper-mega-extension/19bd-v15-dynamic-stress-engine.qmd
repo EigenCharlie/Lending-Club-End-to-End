@@ -1,0 +1,103 @@
+---
+title: "v15 Dynamic Stress Engine"
+page-layout: article
+---
+
+## Pregunta
+
+La pregunta de v15 es si Paper 4 puede dejar de comparar funded books
+estáticos y pasar a evaluar políticas como procesos mensuales. La diferencia es
+grande: en el book estático solo vemos qué préstamos quedaron financiados; en
+el proceso dinámico vemos caja, outstanding, repayments, defaults, recoveries,
+ECL, budget, reinvestment y estado de cobertura mes a mes.
+
+## Qué intentamos
+
+V15 implementa un motor común de replay dinámico para las familias serias de
+Paper 4: CRPTO congelado, CVaR/MDCP, MDCP solver, SPO/DFL surrogate, DLA/FVI y
+referencias estáticas. Todas se evalúan con los mismos sample paths internos,
+los mismos shocks y las mismas reglas de transición. El flujo queda declarado
+como
+
+$$
+S_t \rightarrow x_t \rightarrow S_t^x \rightarrow W_{t+1} \rightarrow S_{t+1}.
+$$
+
+La restricción más importante es de no leakage: una política solo puede financiar
+préstamos que ya están disponibles en el mes de decisión o antes.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v15_dynamic_state_schema.json` | contrato de estado dinámico y transición |
+| `paper4_v15_policy_adapter_registry.csv` | mapea cada policy a su adapter mensual |
+| `paper4_v15_sample_path_design.csv` | diseño de shocks internos: vintage, dependencia, LGD cíclico |
+| `paper4_v15_sample_paths.parquet` | paths comunes por mes y régimen macro interno |
+| `paper4_v15_dynamic_policy_trace.parquet` | traza mensual completa policy/path/month |
+| `paper4_v15_dynamic_policy_summary.csv` | ranking dinámico agregado |
+| `paper4_v15_champion_vs_challenger_dynamic_ci.csv` | intervalos pareados contra el champion v14 |
+
+## Resultado
+
+El motor evaluó 14 políticas sobre 32 caminos comunes internos, generando
+16,320 filas de traza mensual. El guardrail de no leakage quedó en 1.0: ninguna
+política financia préstamos futuros.
+
+El resultado más importante es que el working champion de Paper 4 cambia frente
+a v14: `v13_fvi_return_recovery` deja de ser el mejor cuando se compara contra
+otros candidatos como proceso mensual bajo gates dinámicos. El nuevo working
+champion de laboratorio es `paper1_economic_champion`, con esta frontera de
+claim:
+
+- es champion **solo de Paper 4**;
+- no modifica el Paper Estrella;
+- no crea `paper4_final_promotion.json`;
+- no autoriza claims IFRS9 contractuales, CATE policy value ni fairness legal.
+
+## Interpretación
+
+El hallazgo no significa que el Paper Estrella haya cambiado. Significa algo más
+sutil: cuando el champion congelado se reinterpreta como proceso mensual dentro
+de Paper 4, sigue siendo competitivo bajo wealth, downside, pérdidas realizadas
+y budget usado. Esta es una buena noticia para el proyecto, porque conecta el
+paper publicable serio con el laboratorio dinámico sin contaminarlo.
+
+También apareció un aprendizaje de gobernanza: una primera versión del score
+premiaba demasiado ECL final bajo cuando una política liquidaba rápido, lo que
+podía favorecer referencias con pérdidas realizadas altas. Por eso v15 agregó
+un gate dinámico antes de elegir champion:
+
+- funded exposure promedio al menos 95% del budget;
+- wealth final promedio mayor o igual al budget inicial;
+- pérdida p95 menor o igual a 225,000;
+- no leakage perfecto.
+
+## Qué mejoró
+
+Paper 4 ya no depende solamente de tablas estáticas. Ahora puede comparar cómo
+cada política usa caja, pierde dinero, recupera capital y reinvierte mes a mes.
+Esto abre la puerta a discutir DLA/SDAM de forma más honesta: una política no es
+solo un set financiado, sino una regla que vive dentro de una transición.
+
+## Qué falló
+
+El replay sigue siendo interno. No hay servicing panel contractual, no hay
+macroeconomía externa calibrada y no hay despliegue real. Los paths son útiles
+para comparación pareada y stress académico, no para forecast futuro.
+
+## Claim permitido
+
+Paper 4 puede decir que implementa una evaluación mensual dinámica de políticas
+crediticias bajo paths comunes internos.
+
+## Claim no permitido
+
+Paper 4 no puede decir que esta evaluación sea producción, forecast macro real,
+Bellman optimality exacta ni IFRS9 contractual.
+
+## Qué queda pendiente
+
+La siguiente iteración natural es aumentar paths, hacer stress externo si se
+consigue macro data válida, y permitir que las policies sean verdaderamente
+endógenas mes a mes, no solo adapters sobre books existentes.

@@ -1,0 +1,13 @@
+blocker_id,status_v10,current_diagnosis,next_action,selector_promote_count_v10
+online_efficiency,resolved,v9 passes explicit source/policy/width gate,monitor robustness under future windows,0
+online_robustness,resolved,stress tests added after v9,future-period validation,0
+selector_governance,resolved,selector rerun now blocks on non-online gates,rerun after IFRS9/data changes,0
+ifrs9_contractual,data_blocked,proxy readiness remains below contractual-claim threshold,servicing/DPD/recovery/macro data,0
+mdcp_empirical_caps,near_resolved,caps calibrated from v9 source coverage,validate caps against future coverage,0
+cvar_expanded,near_resolved,expanded/decomposed frontier exists but not full universe,scale beyond current pool if needed,0
+dla_rollout,near_resolved,rollout/ADP-style comparison implemented,formal Bellman/ADP remains future work,0
+dfl_surrogate,near_resolved,constrained decision-loss surrogate implemented,neural SPO+/DFL remains future work,0
+sample_paths,near_resolved,"dependent defaults, cohort shocks and cyclic LGD added",calibrate to external macro/default data,0
+causal_cate,theory_blocked,dossier strengthened but policy value remains disallowed,identification/overlap/sensitivity,0
+fairness,data_blocked,proxy-only protocol remains locked,protected attributes or approved proxy protocol,0
+paper1_freeze,resolved,Paper Estrella artifacts remain untouched,continue Paper 4 only,0

@@ -4,7 +4,7 @@
 # Backlog Unificado: Pipeline + Papers + Quarto
 
 Fecha: 2026-03-23
-Baseline operativo: `champion-2026-03-12-mega-definitive`
+Baseline histórico de marzo: `champion-2026-03-12-mega-definitive`; baseline operativo vigente: `canonical-monotonic-confirmatory-adsfcr-2026-03-30-1129`; cierre Paper Estrella: `paper-thesis-final-economic-2026-04-06`.
 Origen: fusión de `backlog-13-03.md` + estrategia de publicaciones (plan humble-doodling-mountain)
 
 ## Prioridad global (orden recomendado)
@@ -348,7 +348,7 @@ La corrida `paper-grade-2026-03-13-final-heavy-2026-03-13-230650` (ejecutada 202
 - PD: AUC 0.7130, Brier 0.1545, ECE 0.0059, Venn-Abers, conformal 92.52% / 95.93% (**milestone histórico pre-reopen; no usar como estado conformal final vigente**)
 - Survival: RSF c-index=0.6715, Cox c-index=0.6643, dataset_scope=full_data (500K loans)
 - LGD/EAD conformal: promovido, variant=`direct_adaptive_grade_temporal`
-- Portfolio: champion seleccionado risk_tol=0.18, capped_blended_uncertainty, A/B no-regression pass
+- Portfolio: milestone histórico pre-cierre con `risk_tol=0.18` y `capped_blended_uncertainty`; champion vigente post-cierre es `risk_tolerance=0.175`, `policy_mode=blended_uncertainty`, `gamma=0.45`, `uncertainty_aversion=0.10`, dentro de región robusta exacta 45/45.
 - IFRS9: sensitivity grid + Monte Carlo GPU (16K scenarios) ejecutados
 - Fairness: 6/6 PASS, threshold=0.35
 - Governance: overall_pass=true, challenger_promotable=true
@@ -364,7 +364,7 @@ La corrida `paper-grade-2026-03-13-final-heavy-2026-03-13-230650` (ejecutada 202
 | MRM run_tag | `mrm_validation_report.json` tenía `run_tag=None` | DONE — run_tag inyectado |
 | pd_rare_event run_tag | `pd_rare_event_calibration_status.json` decía `run_tag=untracked` | DONE — run_tag fijado |
 | mrm_report_status.json | `models/mrm_report_status.json` no existía | DONE — wrapper JSON creado |
-| Causal run_tag | Artifacts causal con `run_tag=champion-2026-03-12-mega-definitive` | Intencional — causal es `insights_only` |
+| Causal run_tag | Artifacts causal históricos con `run_tag=champion-2026-03-12-mega-definitive` | Intencional — causal es `insights_only`; no usar como baseline operativo vigente |
 | Paper notebooks | NB10-NB12 no ejecutados | DONE — ejecutados con `include_notebooks=True` en configs |
 
 **MRM compliance_summary.overall_pass=false es esperado**: conformal falla Kupiec/Christoffersen en muestra grande (n=276K) pero `methodological_justification_pass=true` y `winkler_compensated_pass=true`. Documentado y defensible.

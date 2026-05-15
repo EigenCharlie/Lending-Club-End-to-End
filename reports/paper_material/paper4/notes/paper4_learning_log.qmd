@@ -1,0 +1,346 @@
+---
+title: "Paper 4 Learning Log"
+format: html
+---
+
+# Paper 4 Learning Log
+
+Notas de aprendizaje del side project. Aquí van conceptos, intuiciones,
+referencias y conexiones que todavía no son resultados, pero sí aumentan la
+capacidad de construir Paper 4.
+
+## Entradas
+
+### 2026-05-12 - Powell/SDAM como gramática de Paper 4
+
+El marco de Powell permite reescribir Paper 4 como sistema de decisión
+secuencial:
+
+```text
+S_t = (R_t, I_t, B_t)
+x_t in X_t(S_t)
+W_{t+1} = W_{t+1}(S_t, x_t)
+S_{t+1} = S^M(S_t, x_t, W_{t+1})
+```
+
+La contribución inicial no es un solver nuevo, sino una gramática para no
+mezclar diagnóstico, selector y política dinámica.
+
+### 2026-05-12 - Paper 4 como laboratorio vivo
+
+Paper 4 queda separado del Paper Estrella. El Paper Estrella es la ruta seria
+de publicación/tesis; Paper 4 es un side project de iteración larga donde los
+experimentos, fracasos y cambios de dirección deben quedar documentados.
+
+### 2026-05-12 - MVP evidence pack antes de nuevos solvers
+
+La primera implementación valiosa no es un optimizer nuevo, sino una capa de
+evidencia reproducible. Las tablas `paper4_table0` a `paper4_table10`, más los
+parquets `loan/policy/month`, permiten mirar IFRS9, ECL, cola, satisficing,
+replay temporal y regret-auditability sin tocar el champion del Paper Estrella.
+Eso reduce el riesgo de convertir una idea exploratoria en claim prematuro.
+
+### 2026-05-12 - La matriz policy-loan es el cuello de botella real
+
+El run bound-aware preservó métricas agregadas de las 45 policies, pero no los
+vectores de asignación exactos para cada una. Eso obliga a separar evidencia
+exacta del champion y evidencia reconstruida proxy para challengers. La lección
+operativa es clara: cualquier run futuro de Paper 4 debe persistir
+`policy_id × loan_id × allocation_fraction` desde el inicio.
+
+### 2026-05-12 - Selector diagnóstico antes de selector formal
+
+Combinar retorno, ECL, cola, satisficing y auditabilidad ya produce candidates,
+pero la decisión correcta no es promoverlos. La decisión correcta es crear una
+cola top-k para rerun exacto. Esta separación mantiene Paper 4 experimental sin
+contaminar la tesis del Paper Estrella.
+
+### 2026-05-12 - Exact-limited top-k confirma que el proxy era solo screening
+
+El rerun HiGHS dentro de pools policy-specific resolvió rápido y mostró
+overlaps Jaccard lejos de 1 para challengers. Eso no invalida el P0; lo ubica
+correctamente. La reconstrucción greedy permite explorar 45 policies y decidir
+qué merece costo computacional. El rerun exact-limited permite estudiar top-k
+con más seriedad. El solve full-universe persistido será necesario antes de
+cualquier claim final.
+
+### 2026-05-12 - Online conformal debe calcularse por grupos, no por préstamo
+
+La primera implementación de intervalos rolling recalculaba cuantiles por fila,
+lo que hacía el proceso innecesariamente caro. La versión buena calcula
+cuantiles por mes y grade, luego los une a los préstamos del mes. Lección para
+Paper 4: los artifacts vivos deben ser research-grade, pero también baratos de
+regenerar para que la iteración no se frene.
+
+### 2026-05-12 - La matriz de claims evita que Paper 4 crezca sin control
+
+Con diez prioridades nuevas, el riesgo no es falta de ideas; es exceso de
+claims parcialmente conectados. La matriz `claim_artifact_test` obliga a que
+cada prioridad tenga artifact, página Quarto, guardrail y caveat. Esa estructura
+permite dejar Paper 4 grande sin volverlo caótico.
+
+### 2026-05-12 - Full-universe exact top-k valida el exact-limited como filtro
+
+El solve HiGHS sobre el universo completo de 276,869 préstamos funcionó para los
+top candidates y permitió comparar contra el exact-limited. La señal importante
+no es promover un challenger; es que el exact-limited queda validado como filtro
+barato si su Jaccard contra full-universe se mantiene alto. El flujo correcto
+queda: proxy amplio, exact-limited top-k, full-universe solo para candidatos que
+merecen costo computacional.
+
+### 2026-05-12 - Online conformal todavía falla por peor mes
+
+La búsqueda rolling/grade/decile alcanzó cobertura media razonable, pero la peor
+celda policy-month sigue demasiado baja. Esto confirma que Paper 4 no debe
+vender online CP por promedio global. La métrica que manda para promoción es la
+cobertura por régimen y mes, con ancho útil y sin mirar el futuro.
+
+### 2026-05-12 - El carril causal tiene una ruta más concreta
+
+El tratamiento `high_rate_within_grade` aparece como el mejor dossier inicial:
+es observable, se puede definir dentro de grade y permite discutir pricing o
+condiciones crediticias sin fingir que tenemos un experimento aleatorizado. Aun
+así, CATE sigue gated: primero identificación, balance, sensibilidad y falsos
+positivos; solo después policy value.
+
+### 2026-05-12 - Los gates de fairness son gobernanza, no verdad legal
+
+Los screens de grade, period, term y subgrade sirven para detectar
+concentraciones raras y para obligar al selector a explicar trade-offs, pero no
+son un claim legal de fair lending. La arquitectura debe distinguir "proxy
+governance stress" de "fairness protegido", porque mezclar esos dos niveles
+sería una mala tesis y una mala práctica.
+
+### 2026-05-13 - Full exact para las 45 cambia el estado del laboratorio
+
+La prioridad 1 deja de ser un pendiente estructural: ahora existen allocations
+exactas persistidas para las 45 policies congeladas. El resultado más delicado
+es que un challenger de la familia `conservative_proxy` supera al champion
+congelado en retorno bruto full-universe por aproximadamente 443 unidades. Esa
+señal no promueve nada por sí sola. Lo que cambia es el estándar de discusión:
+Paper 4 ya no necesita hablar de esos challengers como reconstrucción proxy; los
+puede estudiar como allocations exactas con gates de IFRS9, online CP, MDCP,
+fairness proxy y multi-period.
+
+### 2026-05-13 - IFRS9 cashflow cambia el ranking económico
+
+Cuando ECL se calcula con EAD mensual, prepago, default, cure/recovery y
+escenarios baseline/adverse/severe, el ranking deja de ser equivalente al
+retorno realizado bruto. La mejor policy baseline por retorno neto después de
+ECL cashflow es `crpto_rt0p175_g0p55_u0p10_alpha0p01_conservative_proxy_rs42`,
+no el champion estático. En adverse y severe la lectura también cambia: el
+paper debe hablar de resiliencia de cashflows, no solo de retorno histórico. La
+caveat sigue siendo fuerte: el modelo usa transiciones proxy, no un panel real
+de performance contractual.
+
+### 2026-05-13 - Online CP está bloqueado por cobertura condicional, no global
+
+ACI, Mondrian, score-Mondrian, UP-OCP proxy y rolling global llegan a cobertura
+media policy-month cercana a 0.95, pero todos dejan peor policy-month en 0.6667
+y peor source-month en 0.5714. Esta es una buena noticia metodológica: ya no
+estamos buscando "más cobertura promedio", sino una arquitectura online capaz
+de defender celdas pequeñas sin inflar el ancho a 1.0 en todo el libro.
+
+### 2026-05-13 - CVaR formal sí entra al solver, pero la frontera es cara
+
+El LP formal con variable `eta` y excesos por escenario resuelve de forma
+óptima sobre el pool candidato de 20,000 préstamos. La penalización de CVaR
+reduce pérdida de cola, pero también recorta retorno con fuerza. Eso confirma
+que OCE/CVaR no debe venderse como mejora gratis. La ruta madura es comparar
+dos formulaciones: CVaR como penalización dentro del objetivo y CVaR como
+constraint con piso de retorno.
+
+### 2026-05-13 - El dossier causal avanza, pero no desbloquea policy value
+
+`high_rate_within_grade` queda como treatment inicial razonable: es observable,
+tiene overlap grade-period alto y los placebos pasan. Aun así, el balance IPW
+de `pd_point_alpha01` queda por encima del umbral 0.10 y la sensibilidad cambia
+de signo con sesgos ocultos moderados. La decisión correcta es mantenerlo como
+dossier causal, no como componente de `C_t` ni como claim de uplift.
+
+### 2026-05-13 - El replay multi-period loan-level corrige el toy DLA
+
+El toy de switching mensual sugería que cambiar de policy podía mejorar valor.
+El replay loan-level v3, con cash budget, outstanding exposure, intereses,
+pérdidas y deployment por mes, muestra lo contrario: el champion estático gana
+en net cash result. Esta es una de las lecciones más importantes del Paper 4:
+una política secuencial solo cuenta si sus decisiones viven al nivel del
+préstamo y actualizan estado financiero, no si escoge retrospectivamente entre
+policies agregadas.
+
+### 2026-05-13 - V4 separa retorno bruto, review y promoción
+
+La búsqueda local v4 encuentra policies que superan al Paper Estrella congelado
+en retorno bruto, y algunas sobreviven IFRS9 y sample paths comunes. Pero el
+selector ahora tiene un gate global online: si el mejor método no pasa peor
+source-month, ningún candidate se promueve. Esta separación permite trabajar con
+un `paper4_working_champion` sin contaminar la tesis del Paper Estrella ni
+vender una garantía que todavía no existe.
+
+### 2026-05-13 - Sample paths deben cubrir todo el grid, no solo los top brutos
+
+La primera corrida dejaba `NaN` en `prob_beats_paper1` para policies que no
+estaban entre los top brutos. Eso era metodológicamente incorrecto para un
+selector de gobernanza. V4 recalcula paths comunes para las 100 policies del
+grid local, usando shocks por préstamo único y reusándolos por policy. La
+lección técnica es simple: los paths comunes son parte del contrato del
+selector, no un apéndice opcional.
+
+### 2026-05-13 - El source-month online es el cuello de promoción
+
+`source_aware_guarded` arregla el peor policy-month, pero no el peor
+source-month. Esta es ahora la prioridad metodológica más concreta del Paper 4:
+mantener cobertura condicional defendible sin convertir todos los intervalos en
+anchos inútiles. Hasta resolverlo, el mejor outcome posible es
+`review_candidate`.
+
+### 2026-05-13 - V5 resuelve cobertura online, pero revela el costo de eficiencia
+
+La v5 sube el peor source-month a 1.0 con `adaptive_shrinkage_min16`, pero el
+ancho promedio queda cerca de 0.995. Esta es una victoria a medias muy útil:
+ya sabemos que la cobertura se puede garantizar con pooling/guards, pero el
+precio actual es demasiado alto para una política eficiente. La siguiente
+pregunta no es "¿podemos cubrir?", sino "¿podemos cubrir sin volver el intervalo
+operacionalmente inútil?".
+
+### 2026-05-13 - IFRS9 necesita PD marginal, no lifetime PD repetida
+
+La primera lectura v5 inflaba ECL porque sumaba una probabilidad lifetime en
+cada mes. El ajuste correcto usa PD marginal mensual descontada: Stage 1 dentro
+de ventana de 12 meses, Stage 2 sobre meses remanentes y Stage 3 por evento de
+default proxy. Esto deja el ranking más interpretable y enseña una regla para
+el resto del laboratorio: los overlays contables no pueden repetir riesgo
+acumulado como si fuera riesgo nuevo.
+
+### 2026-05-13 - Cero pérdida observada en SDAM no significa cero riesgo
+
+El DLA v5 conserva `cumulative_losses_v5` y añade
+`cumulative_expected_loss_v5`. La diferencia es crucial. En horizontes 3/6/12,
+el timing proxy puede no observar defaults realizados, pero la cartera sigue
+teniendo pérdida esperada. Para Paper 4 esto mejora la gramática SDAM: el estado
+debe cargar riesgo esperado aunque el shock observado todavía no haya ocurrido.
+
+### 2026-05-13 - Los carriles bloqueados también necesitan artifacts
+
+CATE, fairness, temporal TS/ECL, CQR y SPO/DFL siguen sin promoción, pero ahora
+tienen pantallas, caveats y criterios de salida. Esto cambia la forma de
+trabajar: un carril bloqueado no es una nota mental; es un artifact con decisión
+explícita. Esa memoria permite iterar meses o años sin perder el hilo.
+
+### 2026-05-13 - El rescate eficiente existe, pero todavía no es deployable
+
+V6 muestra que se puede pasar policy/source-month gate 0.80 con ancho promedio
+0.930 si se rescatan solo celdas débiles. Eso es muchísimo mejor que el ancho
+0.995 de v5. Pero el método que pasa usa información ex post. La lección es
+potente: el objetivo del próximo online CP no es inventar ancho, sino predecir
+qué celdas necesitan rescate antes de ver outcomes.
+
+### 2026-05-13 - MDCP dentro del solver cambia el problema
+
+Cuando MDCP/width entra como cap dentro del LP, el feasible set se puede vaciar.
+Eso confirma que MDCP no es solo una métrica bonita de auditoría: es una
+restricción estructural. La siguiente formulación debe empezar con penalties
+suaves o caps por familia, no con un cap global rígido sobre weak-source.
+
+### 2026-05-13 - CVaR constraint da una frontera real
+
+V6 consigue soluciones CVaR factibles con floors de retorno moderados y
+infeasibilidad con floors altos. Este es el comportamiento esperado de una
+frontera seria: cola y retorno compiten. Paper 4 debe preservar esos puntos
+infeasible porque son evidencia de dónde se rompe la ambición.
+
+### 2026-05-13 - El DLA ya vive a nivel loan, pero todavía no aprende
+
+El nuevo DLA financia préstamos mes a mes con estado de cash, principal,
+interest, outstanding y expected loss. Eso supera el switching retrospectivo
+entre policies. Aun así, no aprende una función de valor ni usa servicing real.
+La próxima mejora debe meter coverage state, capital/ECL y shocks calibrados en
+la decisión.
+
+### 2026-05-13 - V7 cambia el online blocker: cobertura sí, eficiencia casi
+
+La regla deployable `v7_targeted_dti_score_or_gradeD_d0.080_m1.000` pasa el
+gate defendido `0.80` para source-month y llega a `0.90` en policy-month sin
+mirar outcomes corrientes. La grilla fina mejoró mucho sobre la primera regla
+amplia: el ancho promedio baja a `0.9564` y el share ensanchado cae a cerca de
+51%. El bloqueo correcto ya no es "no hay cobertura verificable"; es "faltan
+aproximadamente 0.007 puntos de ancho para cruzar el gate operativo 0.95".
+
+### 2026-05-13 - MDCP funciona mejor como disciplina gradual
+
+Los caps globales v6 hicieron infeasible el LP, mientras v7 consigue seis
+soluciones óptimas con penalties suaves y cuatro que pasan el proxy gate MDCP.
+La lección es que source coverage debe entrar progresivamente: primero como
+penalty y score de auditabilidad, luego como caps por familia/source cuando el
+pool tenga suficiente diversidad.
+
+### 2026-05-13 - DLA necesita pérdidas realizadas para no autoengañarse
+
+El DLA v7 introduce defaults simulados/proxy, recoveries, capital used y macro
+state. Esto corrige la lectura peligrosa de `realized_loss=0` en versiones
+previas: si no hay pérdidas realizadas por construcción, el estado financiero
+puede parecer mejor de lo que es. Ahora el DLA ya puede hablar de cash,
+outstanding, ECL, capital y pérdidas en la misma transición.
+
+### 2026-05-13 - Los blockers v7 son más precisos
+
+IFRS9 queda bloqueado por datos contractuales, no por falta de pipeline; CATE
+queda bloqueado por identificación, no por falta de tabla; fairness queda
+bloqueado por ausencia de atributos/protocolo, no por falta de lenguaje. Esto
+es progreso: un blocker preciso se puede atacar o declarar permanentemente como
+scope limitation.
+
+### 2026-05-13 - V8 confirma que online ya está en la frontera fina
+
+La micro-grilla v8 baja el ancho del mejor método deployable de `0.9564` a
+`0.9544` manteniendo `source-month >= 0.80` y `policy-month >= 0.90`. Eso es una
+mejora real, pero no suficiente para promoción: el mejor punto bajo `width <=
+0.95` cae a source-month `0.6667`. La lección es que ya no falta "más
+conformal"; falta predecir mejor qué fuentes/celdas necesitan ancho y cuáles se
+pueden encoger sin romper cobertura.
+
+### 2026-05-13 - CVaR necesita caps activos, no una grilla bonita
+
+La bisección v8 produce 15 puntos factibles y 13 no dominados. Eso mejora v7
+porque los caps ya no son solo valores arbitrarios altos que repiten la misma
+allocation. El siguiente salto no es cambiar la teoría CVaR sino escalar la
+frontera a top-k expandido/full universe y conservar puntos infeasible como
+evidencia del trade-off retorno-cola.
+
+### 2026-05-13 - MDCP por familia es viable si los caps respetan la estructura del pool
+
+El primer intento de caps por source fue demasiado agresivo con `score_low` e
+`income_q5` y vació el feasible set. Al recalibrar los caps con las
+composiciones observadas en v7, las cuatro variantes v8 resolvieron y pasaron
+el gate de familia. La lección práctica es que MDCP no puede ser un cap
+abstracto: debe calibrarse contra la diversidad real del pool candidato.
+
+### 2026-05-13 - DLA con value proxy ya produce una señal útil
+
+El DLA v8 compara una policy mensual con función de valor proxy contra una
+referencia estática y obtiene un delta positivo cercano a `42k` en state value
+proxy, con menores pérdidas realizadas y esperadas. Esto no prueba optimalidad,
+pero sí justifica seguir hacia rollout/ADP: por primera vez el carril dinámico
+no solo "funciona", sino que genera una hipótesis cuantitativa de mejora.
+
+### 2026-05-13 - El selector v8 protege el laboratorio de su propio entusiasmo
+
+Aunque CVaR, MDCP, DLA y DFL muestran avances, el selector deja `promote_count =
+0` porque online aún está por encima de `0.95` e IFRS9 contractual sigue en
+`0.50` de readiness. Esta es la conducta deseada: Paper 4 puede cambiar
+working candidates, pero no debe convertir un resultado parcial en champion
+final.
+
+## Template
+
+```markdown
+### YYYY-MM-DD - tema
+
+**Concepto**:
+
+**Por qué importa para Paper 4**:
+
+**Conexión con artefactos actuales**:
+
+**Pregunta que abre**:
+```

@@ -1,0 +1,8 @@
+package,available_v28,version_v28,import_error_v28,decision_v28,formal_differentiable_spo_claim_allowed,future_install_path
+cvxpy,False,,ImportError: numpy.core.multiarray failed to import,dependency_blocked_or_not_used_for_formal_spo,False,pin NumPy-compatible cvxpy stack plus torch/cvxpylayers in isolated env
+cvxpylayers,False,,ModuleNotFoundError,dependency_blocked_or_not_used_for_formal_spo,False,pin NumPy-compatible cvxpy stack plus torch/cvxpylayers in isolated env
+torch,False,,ModuleNotFoundError,dependency_blocked_or_not_used_for_formal_spo,False,pin NumPy-compatible cvxpy stack plus torch/cvxpylayers in isolated env
+pyomo,True,6.10.0,,usable_now,False,already usable for oracle/surrogate route
+highspy,True,installed,,usable_now,False,already usable for oracle/surrogate route
+catboost,True,1.2.10,,usable_now,False,already usable for oracle/surrogate route
+sklearn,True,1.8.0,,usable_now,False,already usable for oracle/surrogate route

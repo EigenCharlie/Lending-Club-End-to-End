@@ -1,0 +1,258 @@
+---
+title: "v7 IFRS9, DLA, Causal and Fairness Governance"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v7_resolution_status.json")
+sicr = _csv("paper4_v7_sicr_mrm_shortlist.csv")
+ifrs9_plan = _csv("paper4_v7_ifrs9_contractual_build_plan.csv")
+readiness = _csv("paper4_v7_contractual_ifrs9_readiness.csv")
+servicing = _csv("paper4_v7_servicing_gap_register.csv")
+dla_summary = _csv("paper4_v7_dla_capital_state_summary.csv")
+dla_trace = _csv("paper4_v7_dla_capital_state_trace.csv")
+path_calibration = _csv("paper4_v7_sample_path_calibration_grid.csv")
+path_ci = _csv("paper4_v7_common_sample_path_ci.csv")
+causal = _csv("paper4_v7_causal_fairness_blocker_matrix.csv")
+fairness_statement = _csv("paper4_v7_fairness_no_legal_claim_statement.csv")
+outcomes = _csv("paper4_v7_causal_outcome_registry.csv")
+claims = _csv("paper4_v7_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v7-ifrs9-dla-causal-question}
+
+Esta página documenta las capas que convierten Paper 4 en laboratorio SDAM:
+IFRS9/SICR como medición contable proxy, DLA como decisión mensual loan-level,
+sample paths como comparación pareada, y causal/fairness como carriles
+gobernados por gates explícitos.
+
+## Status v7
+
+```{python}
+#| label: tbl-paper4-v7-status-ifrs9-dla
+#| tbl-cap: "Status v7 para IFRS9, DLA, causal y fairness"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "contractual_ifrs9_readiness_score": status.get("contractual_ifrs9_readiness_score"),
+    "sicr_shortlist_rules": ", ".join(status.get("sicr_shortlist_rules", [])),
+    "dla_capital_state_implemented": status.get("dla_capital_state_implemented"),
+    "dla_cumulative_realized_loss": status.get("dla_cumulative_realized_loss"),
+    "causal_policy_value_allowed": status.get("causal_policy_value_allowed"),
+    "fair_lending_legal_claim": status.get("fair_lending_legal_claim"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v7-governance-artifacts
+#| tbl-cap: "V7 claim-artifact matrix: IFRS9/DLA/causal side"
+
+_cols(
+    claims[claims["quarto_page"].eq("19ap-v7-ifrs9-dla-causal-governance.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```
+
+## SICR shortlist
+
+```{python}
+#| label: tbl-paper4-v7-sicr-shortlist
+#| tbl-cap: "SICR MRM shortlist v7"
+
+_cols(
+    sicr,
+    [
+        "scenario",
+        "sicr_rule_v6",
+        "mean_contractual_ecl_v6",
+        "mean_stage1_share_v6",
+        "mean_stage2_share_v6",
+        "mean_stage3_share_v6",
+        "policies_stage2_dominates",
+        "policies_stage2_too_low",
+        "mrm_decision_v7",
+    ],
+)
+```
+
+V7 deja tres reglas como candidatas de comité: `absolute_pd25`,
+`balanced_rel3_abs35_pd20` y `mrm_rel2p5_abs30_pd18`. Las dos reglas relativas
+más conservadoras se rechazan porque Stage 2 domina; `pd12_15` se rechaza por
+laxa. Esta tabla evita que SICR quede como "PD alta" informal: ahora es un
+protocolo de sensibilidad MRM.
+
+## IFRS9 contractual scope
+
+```{python}
+#| label: tbl-paper4-v7-ifrs9-readiness
+#| tbl-cap: "IFRS9 contractual readiness v7"
+
+readiness
+```
+
+```{python}
+#| label: tbl-paper4-v7-ifrs9-build-plan
+#| tbl-cap: "IFRS9 contractual build plan v7"
+
+ifrs9_plan
+```
+
+```{python}
+#| label: tbl-paper4-v7-servicing-gaps
+#| tbl-cap: "Servicing gap register v7"
+
+servicing
+```
+
+La readiness sigue en `0.50`. No es fracaso nuevo: es una frontera de datos. Hay
+suficiente para un proxy de ECL lifetime, pero no para declarar IFRS9 contractual
+completo sin panel mensual de servicing, DPD, forbearance, recovery timing y
+macro paths.
+
+## DLA capital/coverage state
+
+```{python}
+#| label: tbl-paper4-v7-dla-summary
+#| tbl-cap: "DLA capital/coverage state summary v7"
+
+dla_summary
+```
+
+```{python}
+#| label: tbl-paper4-v7-dla-trace
+#| tbl-cap: "DLA capital/coverage state trace v7"
+
+_cols(
+    dla_trace,
+    [
+        "month_idx",
+        "calendar_month",
+        "cash_end",
+        "principal_in",
+        "interest_in",
+        "realized_loss",
+        "recovery_in",
+        "expected_loss",
+        "capital_used",
+        "outstanding_items",
+        "outstanding_balance_proxy",
+        "macro_state_v7",
+        "state_value_proxy",
+    ],
+)
+```
+
+El DLA v7 corrige una alerta de v6: ya no reporta `cumulative_realized_loss=0`.
+Ahora el estado incluye cash, repayments, interest, losses, recoveries, expected
+loss, capital, outstanding y macro state. Sigue siendo proxy, pero se acerca más
+al contrato SDAM:
+
+```text
+S_t = cash, outstanding, ECL, capital, coverage/risk state
+x_t = loan-level funded set in month t
+W_{t+1} = repayment, prepayment, default, recovery, macro shock
+S^M = cash/outstanding/capital transition
+X^pi = capital-and-coverage-aware funding policy
+```
+
+## Sample paths
+
+```{python}
+#| label: tbl-paper4-v7-path-calibration
+#| tbl-cap: "Sample path calibration registry v7"
+
+path_calibration
+```
+
+```{python}
+#| label: tbl-paper4-v7-common-paths
+#| tbl-cap: "Common sample path CI v7"
+
+_cols(
+    path_ci.sort_values(["scenario", "prob_beats_reference_v6"], ascending=[True, False]).head(30),
+    [
+        "policy_id",
+        "scenario",
+        "mean_diff_vs_reference_v6",
+        "p05_diff_vs_reference_v6",
+        "p50_diff_vs_reference_v6",
+        "p95_diff_vs_reference_v6",
+        "prob_beats_reference_v6",
+        "cvar90_simulated_loss_v6",
+        "n_paths",
+        "reference_policy_v6",
+    ],
+)
+```
+
+Los paths v7 siguen siendo comparación pareada, no forecast. La mejora es de
+gobernanza: quedan documentados rho macro, sigma macro, shock por grade y beta
+de LGD cíclico. Eso hace más fácil discutir qué parte del stress es elección
+metodológica y qué parte viene de datos.
+
+## Causal and fairness gates
+
+```{python}
+#| label: tbl-paper4-v7-causal-fairness-blocker
+#| tbl-cap: "Causal/fairness blocker matrix v7"
+
+causal
+```
+
+```{python}
+#| label: tbl-paper4-v7-causal-outcomes
+#| tbl-cap: "Causal outcome registry v7"
+
+outcomes
+```
+
+```{python}
+#| label: tbl-paper4-v7-fairness-no-claim
+#| tbl-cap: "Fairness no-legal-claim statement v7"
+
+fairness_statement
+```
+
+CATE sigue bloqueado para policy value y fairness sigue como proxy governance.
+Ese bloqueo es correcto: sin identificación causal estable ni atributos
+protegidos/protocolo externo, Paper 4 debe hablar de diagnóstico, no de policy
+causal ni de compliance legal.
+
+## Caveats
+
+IFRS9 sigue proxy-only; DLA no es Bellman/ADP óptimo; sample paths no son
+forecast; CATE y fairness no están promovidos. La contribución de v7 es que cada
+uno de esos límites queda materializado en artifacts revisables.

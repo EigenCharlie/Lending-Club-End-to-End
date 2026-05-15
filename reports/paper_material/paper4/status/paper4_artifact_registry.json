@@ -1,0 +1,138 @@
+{
+  "schema_version": "2026-05-12.1",
+  "generated_at_utc": "2026-05-13T00:39:01.146859+00:00",
+  "artifacts": [
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table0_source_manifest.csv",
+      "exists": true,
+      "bytes": 1724,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_universe.csv",
+      "exists": true,
+      "bytes": 18058,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_sequential_decision_schema.json",
+      "exists": true,
+      "bytes": 2940,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_post_decision_state_schema.json",
+      "exists": true,
+      "bytes": 1177,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table9_policy_class_registry.csv",
+      "exists": true,
+      "bytes": 18837,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_class_registry.csv",
+      "exists": true,
+      "bytes": 18837,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table1_policy_ecl_scenario.csv",
+      "exists": true,
+      "bytes": 32275,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table2_net_return_after_ecl.csv",
+      "exists": true,
+      "bytes": 10532,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table3_tail_risk_oce_cvar_by_policy.csv",
+      "exists": true,
+      "bytes": 30701,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table4_satisficing_screen.csv",
+      "exists": true,
+      "bytes": 35614,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table10_policy_pairwise_differences.csv",
+      "exists": true,
+      "bytes": 10035,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_loan_level_policy_evidence.parquet",
+      "exists": true,
+      "bytes": 17923,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_policy_level_evidence.parquet",
+      "exists": true,
+      "bytes": 24804,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_monthly_replay.parquet",
+      "exists": true,
+      "bytes": 11476,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_table5_temporal_replay_summary.csv",
+      "exists": true,
+      "bytes": 6646,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/online_conformal_coverage_regret.parquet",
+      "exists": true,
+      "bytes": 17209,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/mdcp_source_coverage_report.parquet",
+      "exists": true,
+      "bytes": 5795,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/fairness_constrained_policy_eval.parquet",
+      "exists": true,
+      "bytes": 8087,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/tables/paper4_regret_auditability_frontier.csv",
+      "exists": true,
+      "bytes": 1734,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/figures/paper4_fig4_regret_auditability_frontier.png",
+      "exists": true,
+      "bytes": 61403,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/notes/causal_identification_report.md",
+      "exists": true,
+      "bytes": 852,
+      "role": "paper4_living_lab_artifact"
+    },
+    {
+      "artifact": "reports/paper_material/paper4/status/paper4_mvp_status.json",
+      "exists": true,
+      "bytes": 3037,
+      "role": "paper4_living_lab_artifact"
+    }
+  ]
+}

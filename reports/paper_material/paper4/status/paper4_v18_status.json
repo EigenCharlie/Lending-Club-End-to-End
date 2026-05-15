@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-14.15-18",
+  "generated_at_utc": "2026-05-14T19:47:27.303975+00:00",
+  "phase": "v18_academic_synthesis",
+  "working_champion_policy_id_v18": "paper1_economic_champion",
+  "champion_changed_vs_v14": true,
+  "contribution_count_v18": 8,
+  "publishability_rows_v18": 6,
+  "claim_count_v18": 7,
+  "ifrs9_contractual_claim_allowed": false,
+  "causal_policy_value_allowed": false,
+  "fair_lending_legal_claim": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "runtime_seconds": 135.638,
+  "caveat": "v15-v18 is a dynamic lab replay and academic synthesis, not final promotion."
+}

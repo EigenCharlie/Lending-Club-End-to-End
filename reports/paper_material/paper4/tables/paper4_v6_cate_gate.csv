@@ -1,0 +1,2 @@
+lane,n,mean_cate,share_ci_crosses_zero,share_positive_lb,share_negative_ub,policy_value_allowed,blocking_reason
+cate_policy_value,276869,0.009041383807210274,0.965658849491998,0.0315383809671722,0.0028027695408297786,False,intervals mostly cross zero and treatment is observational

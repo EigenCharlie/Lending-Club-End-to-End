@@ -1,0 +1,2 @@
+comparison,n_common_policies,spearman_rank_correlation,v23_top_policy,v27_top_policy,interpretation
+v23_128_vs_v27_scaled_score,14,0.9945000517380604,v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,"larger-path ranking stability diagnostic, not automatic promotion"

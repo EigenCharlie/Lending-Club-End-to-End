@@ -1,0 +1,209 @@
+---
+title: "v7 Results and Remaining Backlog"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _fmt(value, digits: int = 4) -> str:
+    try:
+        if value is None or pd.isna(value):
+            return ""
+        return f"{float(value):.{digits}f}"
+    except (TypeError, ValueError):
+        return str(value)
+
+status = _json("paper4_v7_resolution_status.json")
+online = _csv("paper4_v7_online_deployable_weak_cell_search.csv")
+mdcp = _csv("paper4_v7_mdcp_soft_penalty_solver_summary.csv")
+cvar = _csv("paper4_v7_cvar_adaptive_frontier.csv")
+sicr = _csv("paper4_v7_sicr_mrm_shortlist.csv")
+readiness = _csv("paper4_v7_contractual_ifrs9_readiness.csv")
+dla = _csv("paper4_v7_dla_capital_state_summary.csv")
+paths = _csv("paper4_v7_common_sample_path_ci.csv")
+causal = _csv("paper4_v7_causal_fairness_blocker_matrix.csv")
+hybrids = _csv("paper4_v7_hybrid_solver_candidate_registry.csv")
+claims = _csv("paper4_v7_claim_artifact_matrix.csv")
+
+best_online = online.iloc[0].to_dict() if not online.empty else {}
+```
+
+## Propósito {#sec-paper4-v7-pending-purpose}
+
+V7 no cierra Paper 4. Lo vuelve más honesto y más accionable. Esta página
+resume qué tuvo buen resultado, qué sigue bloqueado y qué queda pendiente
+después de la ola de resolución.
+
+## Estado Consolidado
+
+```{python}
+#| label: tbl-paper4-v7-pending-status
+#| tbl-cap: "Status consolidado v7"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+    "online_gate80_defended_deployable_exists": status.get("online_gate80_defended_deployable_exists"),
+    "online_promotion_eligible": status.get("online_promotion_eligible"),
+    "online_efficiency_blocker": status.get("online_efficiency_blocker"),
+    "contractual_ifrs9_readiness_score": status.get("contractual_ifrs9_readiness_score"),
+    "mdcp_gate_proxy_count": status.get("mdcp_gate_proxy_count"),
+    "cvar_frontier_feasible_count": status.get("cvar_frontier_feasible_count"),
+    "dla_capital_state_implemented": status.get("dla_capital_state_implemented"),
+    "causal_policy_value_allowed": status.get("causal_policy_value_allowed"),
+    "fair_lending_legal_claim": status.get("fair_lending_legal_claim"),
+}])
+```
+
+## Backlog Priorizado v7
+
+```{python}
+#| label: tbl-paper4-v7-pending-backlog
+#| tbl-cap: "Backlog priorizado después de v7"
+
+rows = [
+    {
+        "prioridad": 1,
+        "lane": "online conformal efficient source-month",
+        "resultado_v7": (
+            "gate 0.80 defendido pasa con "
+            + str(best_online.get("online_method_v7", ""))
+            + "; source_min="
+            + _fmt(best_online.get("coverage_source_month_defended_min"), 2)
+            + "; width="
+            + _fmt(best_online.get("avg_width_loan"), 4)
+        ),
+        "estado": "mejoro mucho pero sigue bloqueado por eficiencia",
+        "pendiente": "bajar ancho desde ~0.957 hacia <=0.95 sin perder source-month 0.80",
+        "siguiente_implementable": "weak-cell predictor con historia previa, shrinkage por family y penalizacion de ancho",
+    },
+    {
+        "prioridad": 2,
+        "lane": "MDCP/source coverage inside solver",
+        "resultado_v7": f"optimal={int(mdcp['solver_status'].astype(str).str.contains('optimal', case=False, na=False).sum()) if not mdcp.empty else 0}; gate_proxy={int(mdcp.get('mdcp_gate_proxy_v7', pd.Series(dtype=bool)).astype(bool).sum()) if not mdcp.empty else 0}",
+        "estado": "desbloqueado como penalty suave",
+        "pendiente": "pasar de weak-source proxy a constraints por source family con coverage estimada",
+        "siguiente_implementable": "solver con variables/caps por grade, DTI, score, income y period; frontera return-width-source",
+    },
+    {
+        "prioridad": 3,
+        "lane": "CVaR/OCE formal",
+        "resultado_v7": f"feasible={int(cvar['frontier_feasible_v7'].astype(bool).sum()) if not cvar.empty and 'frontier_feasible_v7' in cvar else 0}/{len(cvar)}",
+        "estado": "factible pero frontera poco activa",
+        "pendiente": "diseñar caps adaptativos cerca del boundary y escalar a full-universe/descomposicion",
+        "siguiente_implementable": "biseccion por cvar_cap y return_floor; guardar puntos no dominados",
+    },
+    {
+        "prioridad": 4,
+        "lane": "SICR governance",
+        "resultado_v7": "shortlist=" + ", ".join(sicr.head(3)["sicr_rule_v6"].tolist()) if not sicr.empty else "",
+        "estado": "desbloqueado para comite/MRM proxy",
+        "pendiente": "elegir default rule y stress rule, con sensibilidad por policy",
+        "siguiente_implementable": "committee memo con decisiones bajo absolute_pd25, balanced y mrm_rel2p5",
+    },
+    {
+        "prioridad": 5,
+        "lane": "IFRS9 contractual",
+        "resultado_v7": "readiness=" + _fmt(readiness["readiness_score"].iloc[0], 2) if not readiness.empty else "",
+        "estado": "bloqueado por datos, no por codigo",
+        "pendiente": "servicing panel mensual, DPD, forbearance, recovery timing, macro scenarios",
+        "siguiente_implementable": "buscar artifacts internos nuevos; si no existen, formalizar proxy-only scope permanente",
+    },
+    {
+        "prioridad": 6,
+        "lane": "DLA loan-level endogenous",
+        "resultado_v7": (
+            f"funded_loans={int(dla['funded_loans'].iloc[0]) if not dla.empty else 0}; "
+            f"realized_loss={_fmt(dla['cumulative_realized_loss'].iloc[0], 2) if not dla.empty else ''}; "
+            f"expected_loss={_fmt(dla['cumulative_expected_loss'].iloc[0], 2) if not dla.empty else ''}"
+        ),
+        "estado": "mejoro; ya tiene perdidas, recoveries, capital y macro state",
+        "pendiente": "ADP/Bellman aproximado y comparison contra static policies bajo paths comunes",
+        "siguiente_implementable": "rollout policy improvement con value function proxy y budget/capital constraints",
+    },
+    {
+        "prioridad": 7,
+        "lane": "sample paths comunes",
+        "resultado_v7": f"policies={paths['policy_id'].nunique() if not paths.empty else 0}; n_paths_min={int(paths['n_paths'].min()) if not paths.empty else 0}",
+        "estado": "util para comparacion pareada",
+        "pendiente": "calibracion externa o bootstrap temporal/cohorte mas realista",
+        "siguiente_implementable": "cohort-block bootstrap con shocks macro/grade y LGD dependiente del ciclo",
+    },
+    {
+        "prioridad": 8,
+        "lane": "CATE / causal",
+        "resultado_v7": "policy_value_allowed=False; blocker matrix creada",
+        "estado": "bloqueado correctamente",
+        "pendiente": "sensitivity formal fuerte, overlap por bins, outcomes limpios y falsification outcomes",
+        "siguiente_implementable": "dossier high_rate_within_grade v8 con Rosenbaum/E-value proxy y placebo outcomes",
+    },
+    {
+        "prioridad": 9,
+        "lane": "fairness",
+        "resultado_v7": "no fair-lending legal claim statement creado",
+        "estado": "proxy governance only",
+        "pendiente": "atributos protegidos o protocolo externo aprobado",
+        "siguiente_implementable": "mantener lenguaje legal bloqueado y expandir source governance no legal",
+    },
+    {
+        "prioridad": 10,
+        "lane": "SPO+/DFL hybrids",
+        "resultado_v7": f"registry_rows={len(hybrids)}; review_candidates={(hybrids['hybrid_candidate_status_v7'].eq('review_candidate_paper4_only')).sum() if not hybrids.empty else 0}",
+        "estado": "surrogate registry util",
+        "pendiente": "entrenamiento decision-loss real con constraints CRPTO/MDCP/IFRS9",
+        "siguiente_implementable": "objective differentiable: return regret + width/source/ECL penalties; compare contra LP targets",
+    },
+]
+
+pd.DataFrame(rows)
+```
+
+## Qué Tuvo Buenos Resultados
+
+La mejora más importante es online conformal: source-month defendido llega a
+`0.80` sin outcome leakage. Eso no era cierto en v6. MDCP también mejora porque
+los caps duros se convirtieron en penalties suaves y el solver ya no colapsa.
+DLA avanza porque aparece una transición financiera con pérdidas realizadas,
+recoveries, capital usado y macro state.
+
+## Qué Quedó Bloqueado
+
+La promoción sigue bloqueada por eficiencia online: cobertura defendible con
+ancho `0.9564` todavía queda por encima del umbral operativo. IFRS9 contractual completo
+sigue bloqueado por datos, no por diseño. CATE y fairness quedan bloqueados por
+identificación/evidencia disponible.
+
+## Qué Necesita Más Iteración
+
+El próximo trabajo valioso es bajar ancho online sin perder source-month,
+activar realmente la frontera CVaR, convertir MDCP proxy en constraints por
+familia, y hacer que DLA aprenda una value function aproximada. Eso mantiene el
+espíritu del mega paper: iterar, documentar, fallar bien, y solo promover cuando
+el artifact sostenga el claim.

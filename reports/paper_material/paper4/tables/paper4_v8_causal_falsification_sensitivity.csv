@@ -1,0 +1,11 @@
+test_id,test_type,pass,interpretation,section_v8,bias_shift_pp,policy_value_allowed,decision
+future_status_as_placebo_not_allowed,leakage_check,True,"Future loan_status is used only for outcome diagnostics, not treatment assignment.",falsification,,,
+pre_treatment_covariate_placebos,balance,True,"Observed pre-treatment balance passes v4 after IPW, but hidden bias sensitivity still fails.",falsification,,,
+overlap_by_grade_period,overlap,True,Overlap is mostly adequate by grade-period for dossier use.,falsification,,,
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,0.0,False,diagnostic_only
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,1.0,False,blocked
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,2.0,False,blocked
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,3.0,False,blocked
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,4.0,False,blocked
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,5.0,False,blocked
+,,,Formal sensitivity remains a blocker until sign and magnitude are stable under plausible hidden bias.,sensitivity,6.0,False,blocked

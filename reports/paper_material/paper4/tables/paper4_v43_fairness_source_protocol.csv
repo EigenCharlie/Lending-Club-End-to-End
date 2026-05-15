@@ -1,0 +1,10 @@
+source_family,rows,policies,high_support_rate,avg_cap,fair_lending_legal_claim_allowed,claim_boundary_v43
+dti_band,43,14,0.6511627906976745,0.10317460317460317,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+income_band,38,14,0.8157894736842105,0.1028673835125448,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+income_band__dti_band,144,14,0.06944444444444445,0.10777777777777778,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+original_grade,78,14,0.5128205128205128,0.1,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+original_grade__state_top20,565,14,0.03008849557522124,0.1,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+period,58,14,0.9137931034482759,0.10000000000000002,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+score_decile,37,14,0.7027027027027027,0.10341880341880343,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+score_decile__original_grade,147,14,0.19047619047619047,0.1,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim
+state_top20,134,14,0.16417910447761194,0.10404040404040403,False,source governance diagnostics only; no protected-attribute or fair-lending legal claim

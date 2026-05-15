@@ -1,0 +1,9 @@
+requirement,available_for_contractual_ifrs9,evidence_note,v17_decision
+servicing_panel_monthly,False,monthly borrower performance panel,data_blocked
+days_past_due_monthly,False,DPD by account/month,data_blocked
+default_timing,True,loan_status/final default proxy only,usable_proxy_component
+cure_or_forbearance,False,hardship/forbearance not reliable as monthly panel,data_blocked
+recoveries_timing,False,LGD/recovery level exists but timing is not contractual,data_blocked
+prepayment_timing,False,competing-risk proxy exists but not servicing timing,data_blocked
+monthly_ead_path,False,EAD dataset exists but not full contractual path,data_blocked
+macro_scenarios_coherent,False,internal macro-regime labels only,data_blocked

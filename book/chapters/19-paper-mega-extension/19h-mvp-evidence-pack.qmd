@@ -1,0 +1,39 @@
+---
+title: "MVP Evidence Pack"
+page-layout: article
+---
+
+## Evidencia tangible
+
+El evidence pack oficial ya no es una lista de todas las olas. Es el conjunto
+minimo que permite defender que Paper 4 existe como laboratorio reproducible.
+
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
+| F02 | Paper Estrella remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
+| F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
+| F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+
+## Artefactos livianos de esta reestructura
+
+| Artifact | Rol |
+|---|---|
+| `paper4_quarto_restructure_status.json` | Estado de la separacion Quarto/notebook |
+| `paper4_current_official_findings.csv` | Hallazgos oficiales actuales |
+| `paper4_current_claim_boundaries.csv` | Claims permitidos y prohibidos |
+| `paper4_living_lab_backlog.csv` | Implementables por horizonte |
+| `paper4_quarto_page_registry.csv` | Paginas oficiales vs archivo historico |
+| `paper4_living_lab_notebook.md` | Bitacora canonica de laboratorio |
+
+## Regla de uso
+
+Cuando una nueva ola produzca resultados, primero se agrega al notebook. Solo si
+se vuelve estable, artifact-backed y claim-safe se promueve a una pagina oficial.

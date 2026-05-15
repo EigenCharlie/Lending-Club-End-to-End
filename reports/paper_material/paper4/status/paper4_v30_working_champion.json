@@ -1,0 +1,16 @@
+{
+  "schema_version": "2026-05-14.30",
+  "generated_at_utc": "2026-05-15T00:59:12.736421+00:00",
+  "policy_id": "paper1_economic_champion",
+  "previous_working_champion_policy_id_v26": "paper1_economic_champion",
+  "highest_score_challenger_policy_id_v30": "v13_spo_regret_balanced",
+  "champion_changed_vs_v26": false,
+  "scope": "paper4_working_champion_only",
+  "selection_status": "retain_v26_pending_paired_challenger_robustness",
+  "paper1_promotion_allowed": false,
+  "paper4_final_promotion_created": false,
+  "contractual_ifrs9_claim_allowed": false,
+  "cate_policy_value_allowed": false,
+  "fair_lending_legal_claim_allowed": false,
+  "caveat": "Paper 4 lab champion only; no Paper Estrella promotion"
+}

@@ -1,0 +1,4 @@
+item,status,decision,condition_to_change
+protected_attributes,not_available,no fair-lending legal claim,approved protected attribute source or externally validated proxy protocol
+proxy_governance,available,continue grade/state/income/dti/source stress only,committee approves thresholds and review workflow
+paper_language,guardrail,"must say proxy governance, not protected fairness compliance",none without protected-attribute evidence

@@ -1,0 +1,287 @@
+---
+title: "v11 Promising Lanes"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v11_promising_lanes_status.json")
+cvar = _csv("paper4_v11_cvar_topk_warm_frontier.csv")
+adp_coef = _csv("paper4_v11_dla_adp_value_coefficients.csv")
+adp = _csv("paper4_v11_dla_adp_comparison.csv")
+spo_train = _csv("paper4_v11_spo_dfl_training_summary.csv")
+spo_coef = _csv("paper4_v11_spo_dfl_model_coefficients.csv")
+spo = _csv("paper4_v11_spo_dfl_candidate_summary.csv")
+calibration = _csv("paper4_v11_sample_path_calibration_table.csv")
+scenarios = _csv("paper4_v11_sample_path_scenario_register.csv")
+sample_ci = _csv("paper4_v11_sample_path_calibrated_ci.csv")
+registry = _csv("paper4_v11_working_candidate_registry.csv")
+dashboard = _csv("paper4_v11_blocker_dashboard.csv")
+claims = _csv("paper4_v11_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V11 toma los carriles más prometedores después de v10 y los empuja una vuelta
+más sin romper los guardrails del laboratorio:
+
+- CVaR/OCE se escala desde top-k 12k a un top-k balanceado de 18k construido
+  desde el universo completo de 276,869 préstamos;
+- DLA pasa de rollout heurístico a un proxy ADP/Bellman con función de valor
+  lineal entrenada en el trace v10;
+- SPO/DFL deja de ser solo grilla manual y entrena un proxy ridge contra
+  targets LP/solver;
+- sample paths incorporan calibración observada de default por `period` y
+  `original_grade`;
+- el working candidate registry ordena candidatos internos sin crear promoción
+  final.
+
+## Status
+
+```{python}
+#| label: tbl-paper4-v11-status
+#| tbl-cap: "Paper 4 v11 promising-lanes status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "candidate_universe_source": status.get("candidate_universe_source_v11"),
+    "cvar_pool_n": status.get("cvar_pool_n_v11"),
+    "cvar_universe_n": status.get("cvar_universe_n_v11"),
+    "cvar_feasible": status.get("cvar_feasible_count_v11"),
+    "cvar_non_dominated": status.get("cvar_non_dominated_count_v11"),
+    "dla_best_delta": status.get("dla_adp_best_delta_state_value"),
+    "spo_dfl_candidates": status.get("spo_dfl_candidate_count_v11"),
+    "sample_path_policies": status.get("sample_path_policy_count_v11"),
+    "working_candidates": status.get("working_candidate_count_v11"),
+    "final_promotion_allowed": status.get("final_promotion_allowed"),
+}])
+```
+
+## CVaR top-k balanceado
+
+```{python}
+#| label: tbl-paper4-v11-cvar-frontier
+#| tbl-cap: "V11 balanced larger top-k CVaR frontier"
+
+_cols(
+    cvar.head(24),
+    [
+        "policy_id",
+        "solver_status",
+        "floor_v11",
+        "tested_cvar_cap_v11",
+        "feasible_v11",
+        "non_dominated_v11",
+        "pool_n_v11",
+        "universe_n_v11",
+        "topk_expansion_vs_v10",
+        "objective_return",
+        "scenario_loss_cvar90",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v11",
+        "pool_design_v11",
+    ],
+)
+```
+
+La primera prueba full-universe top por score fue instructiva: era demasiado
+agresiva y podía quedar infeasible. V11 corrige eso con un pool balanceado:
+retorno/score, low-PD, low-tail y return-per-PD. El resultado es una frontera
+con 11 puntos factibles y 7 no dominados. Sigue sin ser full-universe LP, pero
+ya no depende del pool local de 12k.
+
+## DLA ADP proxy
+
+```{python}
+#| label: tbl-paper4-v11-adp-coefficients
+#| tbl-cap: "V11 linear ADP value proxy coefficients"
+
+adp_coef
+```
+
+```{python}
+#| label: tbl-paper4-v11-adp-comparison
+#| tbl-cap: "V11 ADP rollout comparison"
+
+adp
+```
+
+El proxy ADP aprende una función de valor lineal usando el trace v10 y luego la
+usa como término de continuación en decisiones mensuales. Las tres estrategias
+ADP superan la referencia estática bajo paths comunes, pero el claim permitido
+es prudente: `linear_value_proxy_rollout_not_bellman_optimality`.
+
+## SPO/DFL entrenado
+
+```{python}
+#| label: tbl-paper4-v11-spo-training
+#| tbl-cap: "V11 SPO/DFL training summary"
+
+spo_train
+```
+
+```{python}
+#| label: tbl-paper4-v11-spo-coefficients
+#| tbl-cap: "V11 SPO/DFL ridge coefficients"
+
+spo_coef
+```
+
+```{python}
+#| label: tbl-paper4-v11-spo-candidates
+#| tbl-cap: "V11 trained SPO/DFL candidate summary"
+
+_cols(
+    spo,
+    [
+        "policy_id",
+        "n_funded",
+        "funded_exposure",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "ecl_proxy_v11",
+        "auditability_score_v11",
+        "mean_spo_target_score_v11",
+        "constraint_pd_pass",
+        "constraint_mdcp_proxy_pass",
+        "training_scope_v11",
+    ],
+)
+```
+
+V11 entrena contra préstamos seleccionados por solvers v10: MDCP, CVaR y DFL.
+La señal aprendida no es una prueba SPO+ ni una red decision-aware, pero sí
+representa un paso real frente a la grilla manual: hay targets de solver,
+coeficientes, precisión top-1000 y candidatos financiables bajo constraints.
+
+## Sample paths calibrados
+
+```{python}
+#| label: tbl-paper4-v11-sample-calibration
+#| tbl-cap: "V11 observed default calibration table"
+
+_cols(
+    calibration.head(24),
+    [
+        "period",
+        "original_grade",
+        "n",
+        "observed_default_rate",
+        "mean_pd_high",
+        "default_multiplier_v11",
+        "support_status_v11",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v11-sample-scenarios
+#| tbl-cap: "V11 sample-path scenario register"
+
+scenarios
+```
+
+```{python}
+#| label: tbl-paper4-v11-sample-ci
+#| tbl-cap: "V11 calibrated sample-path confidence intervals"
+
+sample_ci.head(24)
+```
+
+Estos paths siguen siendo comparación y stress, no forecast externo. La mejora
+v11 es que ya no se basan solo en shocks sintéticos: cada policy hereda
+multiplicadores de default observados por `period` y `grade`, con shrinkage en
+celdas de bajo soporte.
+
+## Working registry
+
+```{python}
+#| label: tbl-paper4-v11-working-registry
+#| tbl-cap: "V11 Paper 4 working candidate registry"
+
+_cols(
+    registry.head(24),
+    [
+        "registry_rank_v11",
+        "policy_id",
+        "lane_v11",
+        "return_proxy",
+        "tail_risk_proxy",
+        "auditability_score",
+        "state_value_delta",
+        "mean_loss",
+        "p95_loss",
+        "working_candidate_score_v11",
+        "registry_decision_v11",
+        "final_promotion_allowed",
+        "caveat",
+    ],
+)
+```
+
+El registry no promueve nada. Ordena candidatos internos para v12. Esa
+diferencia importa: Paper 4 puede tener working candidates aunque IFRS9
+contractual, CATE policy value y fairness legal sigan bloqueados.
+
+## Dashboard
+
+```{python}
+#| label: tbl-paper4-v11-dashboard
+#| tbl-cap: "V11 blocker dashboard"
+
+dashboard
+```
+
+## Claims
+
+```{python}
+#| label: tbl-paper4-v11-claims
+#| tbl-cap: "V11 claim-artifact matrix"
+
+claims
+```
+
+## Interpretación
+
+V11 cambia la prioridad siguiente. Ya no estamos preguntando “¿se puede
+implementar?” en estos cinco carriles. La respuesta es sí. La pregunta ahora es
+cuál de estas rutas merece convertirse en v12:
+
+- CVaR: full-universe/descomposición;
+- DLA: ADP más formal y validación de Bellman/rollout;
+- SPO/DFL: entrenamiento end-to-end contra targets LP;
+- sample paths: calibración macro externa;
+- registry: protocolo de working champion interno, sin promoción final.

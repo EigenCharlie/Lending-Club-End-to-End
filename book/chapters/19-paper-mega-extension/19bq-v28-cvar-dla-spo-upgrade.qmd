@@ -1,0 +1,160 @@
+---
+title: "v28 CVaR DLA SPO Upgrade"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
+
+status = _json("paper4_v28_status.json")
+cvar = _csv("paper4_v28_cvar_frontier_non_dominated.csv")
+cert = _csv("paper4_v28_cvar_infeasibility_certificate_formalized.csv")
+adp = _csv("paper4_v28_dla_adp_dynamic_summary.csv")
+underperf = _csv("paper4_v28_dla_fvi_underperformance_diagnosis.csv")
+spo = _csv("paper4_v28_spo_temporal_oracle_regret.csv")
+deps = _csv("paper4_v28_spo_dependency_blockers.csv")
+overlap = _csv("paper4_v28_champion_overlap_matrix.csv")
+cases = _csv("paper4_v28_champion_case_studies.csv")
+```
+
+## Pregunta
+
+V28 pregunta qué tanto se puede empujar CVaR/OCE, DLA/ADP y SPO/DFL sin romper
+los límites de evidencia del laboratorio.
+
+## Qué Intentamos
+
+Se reforzó CVaR como column-generation diagnostic, se añadió ADP rollout v2 con
+features más explícitas, se volvió a intentar la ruta SPO diferenciable y se
+mantuvo una ruta oracle-regret no diferenciable.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v28-status
+#| tbl-cap: "Paper 4 v28 status."
+
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v28-cvar-frontier
+#| tbl-cap: "CVaR/OCE frontier v2."
+
+_cols(
+    cvar.head(12),
+    [
+        "policy_id",
+        "regime_v28",
+        "objective_return",
+        "scenario_loss_cvar90",
+        "return_cvar_audit_score_v28",
+        "non_dominated_v28",
+        "exact_full_universe_claim_v28",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v28-adp
+#| tbl-cap: "ADP rollout v2 dynamic summary."
+
+_cols(
+    adp,
+    [
+        "policy_id",
+        "final_wealth_mean",
+        "final_wealth_p05",
+        "cumulative_losses_p95",
+        "cumulative_funded_exposure_mean",
+        "dynamic_governance_gate_pass_v15",
+    ],
+)
+```
+
+## Resultado
+
+CVaR sigue siendo fuerte como frontera diagnóstica, pero no se convierte en
+optimalidad full-universe. ADP rollout v2 generó más policies, aunque conserva
+la caveat central: no es Bellman exacto. SPO diferenciable sigue bloqueado por
+dependencias; la ruta válida es oracle-regret.
+
+```{python}
+#| label: tbl-paper4-v28-spo-deps
+#| tbl-cap: "SPO/DFL dependency blockers."
+
+_cols(
+    deps,
+    ["package", "available_v28", "version_v28", "import_error_v28", "decision_v28", "formal_differentiable_spo_claim_allowed"],
+)
+```
+
+## Qué Mejoró
+
+Ahora el libro puede separar tres cosas: CVaR relaxed útil, strict infeasible
+como resultado negativo, y SPO oracle-regret como ruta implementable cuando las
+capas diferenciables no son estables.
+
+## Qué Falló
+
+`cvxpy` sigue fallando por incompatibilidad NumPy ABI y `cvxpylayers`/`torch`
+no están disponibles como ruta validada en este entorno.
+
+```{python}
+#| label: tbl-paper4-v28-cvar-cert
+#| tbl-cap: "CVaR strict infeasibility certificate v2."
+
+_cols(
+    cert.head(10),
+    [
+        "policy_id",
+        "regime_v16",
+        "cvar_cap",
+        "return_floor",
+        "required_cvar_slack_v28",
+        "nearest_feasible_committee_or_relaxed_policy_id_v28",
+        "certificate_type_v28",
+        "mathematical_infeasibility_proof_claim",
+    ],
+)
+```
+
+## Claim Permitido
+
+Paper 4 puede reclamar diagnósticos CVaR/ADP/SPO reproducibles bajo límites
+claros.
+
+## Claim No Permitido
+
+No puede reclamar optimalidad full-universe, Bellman exacto ni SPO+
+diferenciable formal.
+
+## Qué Queda Pendiente
+
+Si el paper futuro quiere SPO+ formal, toca aislar ambiente y dependencias. Si
+quiere CVaR exacto, toca resolver full-universe o dual certificate real.

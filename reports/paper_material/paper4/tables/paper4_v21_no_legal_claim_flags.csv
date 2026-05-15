@@ -1,0 +1,5 @@
+claim_or_requirement,allowed_v21,status_v21,evidence
+protected_attributes,False,data_blocked,no protected attributes in Lending Club artifacts
+external_proxy_protocol,False,protocol_blocked,BISG/proxy methods referenced but not implemented as legal claim
+fair_lending_legal_claim,False,prohibited_claim,no legal claim without protected attributes or approved proxy protocol
+source_governance,True,usable_proxy,grade/month/state/income/DTI/score groups remain usable diagnostics

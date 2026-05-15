@@ -1,0 +1,3 @@
+policy_id,horizon_months,final_cash,final_state_value_proxy_v8,cumulative_realized_loss,cumulative_expected_loss,cumulative_capital_used,cumulative_recovery,final_outstanding_balance,funded_loans,total_funded_exposure
+v8_dla_value_function_proxy,18,114359.74578083883,751787.267216149,105318.4375,71702.88787668897,2573102.964997012,10674.206845651426,659197.9166666665,1099,1722925.0
+v8_static_monthly_reference,18,102456.88278706587,709597.2318829638,125470.31250000001,93945.60379228805,2808521.8750030207,12655.294320629928,631812.5,403,1741650.0

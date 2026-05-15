@@ -1,0 +1,5 @@
+series_id,source_url,fetch_success,cache_path,rows,error
+UNRATE,https://fred.stlouisfed.org/graph/fredgraph.csv?id=UNRATE,True,/home/eigenlinux/projects/lending-club-risk-project/reports/paper_material/paper4/tables/paper4_v43_external_macro_unrate.csv,940,
+FEDFUNDS,https://fred.stlouisfed.org/graph/fredgraph.csv?id=FEDFUNDS,True,/home/eigenlinux/projects/lending-club-risk-project/reports/paper_material/paper4/tables/paper4_v43_external_macro_fedfunds.csv,862,
+USREC,https://fred.stlouisfed.org/graph/fredgraph.csv?id=USREC,True,/home/eigenlinux/projects/lending-club-risk-project/reports/paper_material/paper4/tables/paper4_v43_external_macro_usrec.csv,2057,
+DRCCLACBS,https://fred.stlouisfed.org/graph/fredgraph.csv?id=DRCCLACBS,True,/home/eigenlinux/projects/lending-club-risk-project/reports/paper_material/paper4/tables/paper4_v43_external_macro_drcclacbs.csv,140,

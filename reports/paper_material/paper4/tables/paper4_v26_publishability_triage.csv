@@ -1,0 +1,7 @@
+triage_bucket,lane,current_publishability,decision
+journal_core,dynamic sequential governance with 128-path evidence,increasingly viable,tighten scope around CRPTO/CVaR/DLA/SPO governance
+method_appendix,ADP rollout and SPO oracle-regret,promising but caveated,needs theory/dependency stabilization for main claim
+governance_appendix,CVaR strict infeasibility certificates,useful negative result,keep relaxed/committee labels explicit
+proxy_appendix,IFRS9-inspired cashflow/ECL proxy,useful but not contractual,do not headline as IFRS9 paper
+blocked,CATE policy value,not publishable as causal policy,requires identification/reject-inference design
+prohibited_claim,fair-lending legal claim,not allowed,proxy governance only

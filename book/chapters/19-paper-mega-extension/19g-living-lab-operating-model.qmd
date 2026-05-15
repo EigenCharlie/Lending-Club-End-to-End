@@ -1,0 +1,245 @@
+---
+title: "Laboratorio Vivo de Paper 4"
+page-layout: article
+---
+
+## Paper 4 como side project de investigación {#sec-paper4-living-lab}
+
+Paper 4 no debe competir con el Paper Estrella. El Paper Estrella es el frente
+serio de publicación, journal y tesis de maestría. Paper 4 cumple otra función:
+ser un laboratorio vivo donde se puede aprender, experimentar, equivocarse,
+iterar con Codex y construir una arquitectura enorme sin la presión de recortar
+demasiado pronto.
+
+La pregunta operativa cambia de:
+
+> ¿Cuál es el paper publicable más rápido?
+
+a:
+
+> ¿Cómo construimos, documentamos y entendemos un sistema completo de decisión
+> crediticia secuencial, aunque tome meses o años descubrir qué parte realmente
+> merece publicarse?
+
+Ese cambio libera el proyecto. Permite trabajar el mega paper con todo junto,
+probar rutas ambiciosas, registrar fracasos y dejar que los resultados filtren
+la estructura final.
+
+### Principios de trabajo
+
+::: {#tbl-paper4-lab-principles}
+
+| Principio | Implicación práctica |
+|---|---|
+| Paper Estrella primero | no se toca ni contamina el champion principal sin protocolo explícito |
+| Paper 4 no publication-first | no se reduce prematuramente a una contribución pequeña |
+| Todo experimento deja rastro | hipótesis, setup, run, resultado, interpretación y decisión |
+| Los fracasos importan | un resultado malo puede cerrar una ruta o enseñar un gate nuevo |
+| Quarto es memoria | el libro conserva narrativa, decisiones y aprendizaje |
+| Scripts son ejecución | código reproducible para generar tablas, figuras y estados |
+| Artifacts son evidencia | CSV/Parquet/JSON/MLflow/DVC sostienen las frases del libro |
+| Codex es compañero técnico | cada sesión debe convertir conversación en cambios, notas o próximos pasos |
+
+Principios del laboratorio vivo.
+:::
+
+### Sistema de memoria
+
+Paper 4 necesita una memoria propia. Si no, el proyecto se vuelve una colección
+de ideas sueltas. La memoria mínima debería tener:
+
+::: {#tbl-paper4-memory-system}
+
+| Pieza | Ruta sugerida | Qué guarda |
+|---|---|---|
+| Experiment ledger | `reports/paper_material/paper4/notes/paper4_experiment_ledger.qmd` | índice cronológico de experimentos, runs, resultados y próximos pasos |
+| Failure log | `reports/paper_material/paper4/notes/paper4_failure_log.qmd` | fracasos, resultados nulos, bugs metodológicos y rutas cerradas |
+| Learning log | `reports/paper_material/paper4/notes/paper4_learning_log.qmd` | conceptos aprendidos: SDAM, online CP, IFRS9, causal, optimization |
+| Direction changes | `reports/paper_material/paper4/notes/paper4_direction_changes.qmd` | pivotes de arquitectura, scope y prioridades |
+| Decision records | `reports/paper_material/paper4/notes/paper4_decision_records/` | decisiones técnicas con contexto y consecuencias |
+| Artifact registry | `reports/paper_material/paper4/status/paper4_artifact_registry.json` | qué archivos existen, qué claim sostienen y qué tan confiables son |
+| Open questions | `reports/paper_material/paper4/notes/paper4_open_questions.qmd` | dudas que todavía no tienen respuesta experimental |
+
+Sistema de memoria para no perder experimentos ni cambios de dirección.
+:::
+
+La regla es simple: si algo consumió una sesión seria, debe quedar en alguna de
+esas piezas. No todo tiene que quedar elegante; sí tiene que quedar encontrable.
+
+### Ciclo de vida de un experimento
+
+Cada experimento debería pasar por este ciclo:
+
+```text
+idea
+-> hypothesis card
+-> minimal implementation
+-> run / artifact
+-> interpretation
+-> decision: keep / promote / park / kill
+-> Quarto update
+```
+
+La decisión final no es moral. `kill` puede ser excelente si evita perder un mes
+en una ruta mala. `park` también es válido si la idea es buena pero depende de
+datos, teoría o tiempo que todavía no tenemos.
+
+::: {#tbl-paper4-experiment-status}
+
+| Estado | Significado | Qué hacer |
+|---|---|---|
+| `idea` | intuición sin prueba | escribir hipótesis mínima |
+| `probe` | prueba rápida de viabilidad | generar un artifact pequeño |
+| `active` | experimento en desarrollo | mantener ledger y próximos pasos |
+| `keep` | resultado útil pero no central | documentar y conectar a arquitectura |
+| `promote` | resultado suficientemente fuerte | convertir en tabla/figura/reporte |
+| `park` | idea buena pero prematura | registrar bloqueo exacto |
+| `kill` | ruta cerrada | escribir por qué falló |
+
+Estados del ciclo experimental.
+:::
+
+### Template de experimento
+
+Cada entrada del ledger puede seguir este formato:
+
+```markdown
+## EXP-YYYY-MM-DD-slug
+
+**Pregunta**:
+
+**Hipótesis**:
+
+**Módulo/lane**:
+CRPTO / IFRS9 / tail / temporal / online CP / causal / MDCP / fairness / solver
+
+**Estado SDAM**:
+R_t / I_t / B_t / x_t / W_{t+1} / S^M / C_t / X^pi
+
+**Setup**:
+- datos:
+- scripts:
+- artifacts:
+- run tag:
+
+**Resultado**:
+
+**Interpretación**:
+
+**Decisión**:
+keep / promote / park / kill
+
+**Próximo paso**:
+```
+
+Ese template evita que un experimento quede como “corrí algo y medio funcionó”.
+La memoria debe capturar qué se quería aprender.
+
+### Taxonomía de fracasos
+
+El failure log debe ser explícito. Algunas categorías esperables:
+
+::: {#tbl-paper4-failure-taxonomy}
+
+| Tipo de fracaso | Ejemplo | Valor que deja |
+|---|---|---|
+| Resultado nulo | ECL no cambia ranking de policies | delimita contribución |
+| Intervalos inútiles | coverage mejora pero width destruye elegibilidad | enseña tradeoff decisión/cobertura |
+| Gate temporal fallido | coverage por horizonte no llega al target | evita overclaim online |
+| Solver infeasible | constraints IFRS9/tail/fairness no tienen solución | revela tensión real de negocio |
+| Causal no identificado | overlap/sensitivity no pasan | mantiene CATE como futuro honesto |
+| Métrica sin impacto | OCE/CVaR no discrimina policies | bloque diagnóstico no vale selector |
+| Artifact débil | notebook produce figura pero no tabla reproducible | convierte storytelling en tarea técnica |
+| Costo computacional excesivo | búsqueda tarda demasiado o no escala | motiva simplificación o caching |
+| Interpretabilidad baja | cluster/GPU encuentra grupos sin sentido operativo | impide uso en MDCP/fairness |
+
+Tipos de fracaso que deben quedar documentados.
+:::
+
+Un fracaso bien documentado vale más que un resultado bonito pero irreproducible.
+
+### Lanes de investigación
+
+El mega paper puede mantenerse grande si cada lane tiene identidad propia:
+
+::: {#tbl-paper4-living-lab-lanes}
+
+| Lane | Pregunta | Primeros experimentos razonables |
+|---|---|---|
+| Core model quality | ¿la base predictiva puede mejorar sin romper interpretabilidad? | CatBoost monotónico, calibración, feature constraints, stability by vintage |
+| CRPTO robustness | ¿qué tan estable es la región robusta? | alpha/Gamma frontier, bootstrap funded set, sensitivity to LGD/caps |
+| IFRS9 overlay | ¿la provisión cambia decisions? | policy x ECL x scenario, net return after ECL, Stage 2 headroom |
+| Tail/satisficing | ¿qué policy sobrevive comité y cola? | OCE/CVaR by policy, satisficing thresholds, fragility score |
+| Temporal/online | ¿la política aguanta drift? | monthly replay, coverage regret, rolling quantiles |
+| Multi-period SDAM | ¿qué aporta decidir en secuencia? | post-decision state schema, small horizon DLA, budget/capital transition |
+| Causal/CATE | ¿hay valor de intervención defendible? | treatment definition, overlap, sensitivity, policy value toy analysis |
+| MDCP/fairness | ¿la cobertura aguanta fuentes y segmentos? | source registry, worst-source coverage, proxy fairness stress |
+| Insight Factory | ¿qué señales research-only se vuelven decisión? | SDAM mapping registry, join contracts, evidence tables |
+
+Lanes de investigación para el mega side project.
+:::
+
+### Cadencia de trabajo con Codex
+
+Una sesión productiva de Paper 4 debería terminar con al menos una de estas
+salidas:
+
+- una página Quarto nueva o actualizada;
+- un experimento registrado en el ledger;
+- un failure log con interpretación;
+- un script reproducible;
+- una tabla/figura paper-grade;
+- una decisión técnica registrada;
+- una pregunta abierta mejor formulada.
+
+No todas las sesiones deben producir resultados positivos. Pero sí deben dejar
+el proyecto más claro que antes.
+
+### Cómo decidir qué agregar o quitar
+
+Paper 4 puede crecer sin volverse caótico si cada idea pasa por tres filtros:
+
+```text
+1. ¿Qué elemento SDAM toca?
+2. ¿Qué decisión podría cambiar?
+3. ¿Qué artifact demostraría que sirvió?
+```
+
+Si una idea no toca estado, decisión, transición, reward, política o
+validación, probablemente pertenece al learning log o al appendix, no al core.
+Si toca una decisión pero no tiene artifact posible, queda como hipótesis. Si
+tiene artifact y cambia una conclusión, puede promoverse a resultado.
+
+### Publicación futura, no presión actual
+
+Más adelante pueden salir varias formas:
+
+- un journal extension de IFRS9-aware CRPTO;
+- un paper secuencial/OR con SDAM y multi-period;
+- una conferencia sobre online conformal credit decisioning;
+- un paper causal si CATE llega a identificación;
+- un capítulo de tesis largo;
+- un sistema técnico reproducible sin paper inmediato.
+
+Pero hoy el criterio no es “¿esto publica ya?”. El criterio es:
+
+> ¿Esto aumenta la comprensión, la memoria o la capacidad experimental del
+> sistema?
+
+Si la respuesta es sí, Paper 4 puede absorberlo. Luego los resultados se
+encargarán de filtrar qué merece sobrevivir como contribución formal.
+
+### Definition of done de una sesión
+
+Una sesión de Paper 4 está completa cuando responde:
+
+1. ¿Qué intentamos?
+2. ¿Por qué importaba?
+3. ¿Qué artefacto cambió o nació?
+4. ¿Qué aprendimos?
+5. ¿Qué queda bloqueado?
+6. ¿Cuál es el siguiente paso concreto?
+
+Esa disciplina convierte el side project en investigación real. Sin ella, el
+mega paper se vuelve una nube de ideas. Con ella, se vuelve una memoria viva que
+puede madurar durante meses o años.

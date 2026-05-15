@@ -1,0 +1,10 @@
+sdam_symbol,variable,definition,artifact_source,role
+S_t,cash,available cash before monthly funding decision,observed/replayed,state
+S_t,outstanding_principal,principal remaining from previously funded loans,proxy from dynamic trace,state
+S_t,budget_remaining,remaining capital budget,dynamic engine,state
+S_t,stage_mix,Stage 1/2/3 proxy composition,IFRS9 proxy panel,state
+S_t,coverage_state,online conformal gate state,v9/v10 online artifacts,state
+x_t,loan_selection,loans funded this month,policy adapter or endogenous DLA,decision
+S_t^x,funded_exposure,post-decision exposure before outcomes,dynamic engine,post_decision_state
+W_{t+1},default_prepay_recovery_shock,common random path outcomes,sample paths,exogenous
+S_{t+1},wealth,cash plus outstanding net of losses,dynamic trace,next_state

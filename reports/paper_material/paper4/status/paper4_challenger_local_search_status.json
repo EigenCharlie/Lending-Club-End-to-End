@@ -1,0 +1,16 @@
+{
+  "schema_version": "2026-05-13.2",
+  "generated_at_utc": "2026-05-13T17:02:14.009557+00:00",
+  "started_at_utc": "2026-05-13T16:55:08.803420+00:00",
+  "mode": "paper4_v4_local_challenger_search_no_paper1_changes",
+  "paper1_frozen_reference_policy": "paper1_economic_champion",
+  "paper1_artifacts_modified": false,
+  "paper4_final_promotion_created": false,
+  "grid_policy_count": 100,
+  "candidate_pool_n": 12000,
+  "seeded_policy_loan_count": 346,
+  "seeded_unique_loan_count": 346,
+  "pool_source": "v3 exact allocations + max local-grid objective score + low-risk fill",
+  "best_policy_id": "paper4_v4_local_rt0p1700_g0p425_u0p050",
+  "best_local_return": 178048.10260725138
+}

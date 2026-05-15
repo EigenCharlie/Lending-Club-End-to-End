@@ -1,0 +1,2 @@
+lane,status,months,mean_ecl_point,mean_ecl_adverse_90,mean_ecl_range_90,coverage_gate,downstream_value
+temporal_ts_ecl,research_only_downstream_stress,12,107854204.6162805,336028884.6382693,288508410.1625309,False,228174680.02198878

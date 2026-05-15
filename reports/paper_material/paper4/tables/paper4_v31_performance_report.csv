@@ -1,0 +1,3 @@
+run_id,n_paths,trace_rows,runtime_seconds,bottleneck
+v27_256,256,247296,1377.352,policy-path-month loan event replay
+v31_scaled,512,494592,2154.8181958198547,same replay; larger common random number panel

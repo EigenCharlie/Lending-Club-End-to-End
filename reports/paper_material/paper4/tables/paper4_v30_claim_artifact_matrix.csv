@@ -1,0 +1,12 @@
+claim,allowed,artifact,quarto_page,claim_boundary_v30,no_claim_contractual_ifrs9,no_claim_cate_policy_value,no_claim_fair_lending_legal,artifact_exists
+Paper 4 has 256-path dynamic scale-up,True,paper4_v27_dynamic_policy_summary.csv,19bp-v27-dynamic-scale-and-champion-stress.qmd,internal replay only,False,False,False,True
+Paper 4 has direct champion-vs-CVaR stress,True,paper4_v27_champion_vs_cvar_stress_memo.csv,19bp-v27-dynamic-scale-and-champion-stress.qmd,Paper 4 working-only decision support,False,False,False,True
+Paper 4 has CVaR column-generation v2 diagnostics,True,paper4_v28_cvar_frontier_non_dominated.csv,19bq-v28-cvar-dla-spo-upgrade.qmd,restricted-master diagnostic only,False,False,False,True
+Paper 4 has exact full-universe CVaR optimality,False,paper4_v28_cvar_infeasibility_certificate_formalized.csv,19bq-v28-cvar-dla-spo-upgrade.qmd,no exact full-universe proof,False,False,False,True
+Paper 4 has formal differentiable SPO+,False,paper4_v28_spo_dependency_blockers.csv,19bq-v28-cvar-dla-spo-upgrade.qmd,dependency blocked; oracle-regret only,False,False,False,True
+Paper 4 has ADP rollout v2,True,paper4_v28_dla_adp_dynamic_summary.csv,19bq-v28-cvar-dla-spo-upgrade.qmd,not exact Bellman optimality,False,False,False,True
+Paper 4 has IFRS9-inspired proxy ECL/SICR v2,True,paper4_v29_ifrs9_proxy_policy_summary.csv,19br-v29-ifrs9-causal-fairness-source.qmd,proxy only,False,False,False,True
+Paper 4 has contractual IFRS9 lifetime ECL,False,paper4_v29_ifrs9_proxy_policy_summary.csv,19br-v29-ifrs9-causal-fairness-source.qmd,data blocked,True,False,False,True
+Paper 4 has CATE policy value,False,paper4_v29_cate_gate_report.csv,19br-v29-ifrs9-causal-fairness-source.qmd,identification blocked,False,True,False,True
+Paper 4 makes fair-lending legal claims,False,paper4_v29_no_legal_claim_flags.csv,19br-v29-ifrs9-causal-fairness-source.qmd,prohibited claim,False,False,True,True
+Paper 4 has v30 registry and synthesis,True,paper4_v30_artifact_registry.csv,19bs-v30-registry-and-synthesis.qmd,lab registry only,False,False,False,True

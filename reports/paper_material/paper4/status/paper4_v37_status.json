@@ -1,0 +1,14 @@
+{
+  "schema_version": "2026-05-15.37",
+  "generated_at_utc": "2026-05-15T02:13:18.249345+00:00",
+  "phase": "v37_cate_fairness_protocol",
+  "causal_policy_value_allowed": false,
+  "fair_lending_legal_claim": false,
+  "causal_protocol_rows_v37": 8,
+  "source_governance_rows_v37": 1244,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "CATE/fairness remain governed diagnostics; no policy-value or fair-lending legal claim",
+  "runtime_seconds": 0.117
+}

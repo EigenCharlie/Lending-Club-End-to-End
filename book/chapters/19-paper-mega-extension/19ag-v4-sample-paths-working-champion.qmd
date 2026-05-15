@@ -1,0 +1,190 @@
+---
+title: "v4 Common Sample Paths and Working Champion"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+from IPython.display import Image
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+FIG_DIR = PAPER4_DIR / "figures"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+ci = _csv("paper4_common_sample_path_pairwise_ci.csv")
+replay = _csv("paper4_common_sample_path_scenario_replay.csv")
+selector = _csv("paper4_selector_v4_results.csv")
+claims = _csv("paper4_v4_claim_artifact_matrix.csv")
+status = _json("paper4_v4_open_priorities_status.json")
+working = _json("paper4_v4_working_champion.json")
+```
+
+## Pregunta {#sec-paper4-v4-sample-path-question}
+
+Esta página cierra los 11 pendientes v4 con la capa que evita comparar policies
+con ruido distinto: sample paths comunes. Cada policy del grid local usa los
+mismos shocks por préstamo, escenario y path, de modo que la diferencia contra
+`paper1_economic_champion` sea pareada.
+
+## Common sample paths
+
+```{python}
+#| label: fig-paper4-v4-common-sample-path-ci
+#| fig-cap: "Common sample paths v4: intervalo pareado baseline contra Paper Estrella congelado."
+
+Image(filename=str(FIG_DIR / "paper4_v4_common_sample_path_ci.png"))
+```
+
+```{python}
+#| label: tbl-paper4-v4-common-sample-path-ci
+#| tbl-cap: "Common sample path pairwise CI, baseline top by probability"
+
+_cols(
+    ci[(ci["scenario"].eq("baseline")) & (ci["policy_id"].ne("paper1_economic_champion"))]
+    .sort_values("prob_beats_paper1", ascending=False),
+    [
+        "policy_id",
+        "scenario",
+        "mean_diff_vs_paper1",
+        "p05_diff_vs_paper1",
+        "p50_diff_vs_paper1",
+        "p95_diff_vs_paper1",
+        "prob_beats_paper1",
+        "n_paths",
+    ],
+).head(25)
+```
+
+V4 evalúa 102 policies en sample paths: 100 del grid local, el Paper Estrella
+congelado y el challenger bruto previo. Esto corrige una limitación importante:
+ya no hay `NaN` de probabilidad simplemente porque una policy quedó fuera del
+replay.
+
+El resultado cambia la lectura del challenger bruto. Algunas policies que no
+eran top bruto tienen probabilidad muy alta de superar el Paper Estrella bajo
+paths baseline, pero varias fallan MDCP o quedan bloqueadas por online global.
+Por eso sample paths es evidencia necesaria, no suficiente.
+
+```{python}
+#| label: tbl-paper4-v4-scenario-replay
+#| tbl-cap: "Scenario replay under common sample paths"
+
+_cols(
+    replay.sort_values(["scenario", "mean_simulated_return"], ascending=[True, False]),
+    [
+        "policy_id",
+        "scenario",
+        "mean_simulated_return",
+        "p05_simulated_return",
+        "p95_simulated_return",
+    ],
+).head(40)
+```
+
+## Working champion de Paper 4
+
+```{python}
+#| label: tbl-paper4-v4-working-status
+#| tbl-cap: "Paper 4 v4 status and working champion"
+
+pd.DataFrame([{**status, **{f"working_{k}": v for k, v in working.items()}}])
+```
+
+```{python}
+#| label: tbl-paper4-v4-working-row
+#| tbl-cap: "Working champion row inside selector v4"
+
+_cols(
+    selector[selector["policy_id"].eq(working.get("policy_id", ""))],
+    [
+        "policy_id",
+        "paper4_v4_decision",
+        "selector_v4_score",
+        "gate_online_global_method",
+        "gate_online_worst_cell",
+        "gate_mdcp",
+        "gate_fairness_proxy",
+        "gate_sample_path",
+        "delta_vs_paper1_frozen_full_exact",
+        "net_return_after_contractual_ecl_v4",
+        "online_min_v4",
+        "mdcp_worst_v4",
+        "max_proxy_gap_v4",
+        "prob_beats_paper1",
+        "selector_v4_rank",
+    ],
+)
+```
+
+`paper4_v4_local_rt0p1725_g0p475_u0p075` queda como working champion interno
+del laboratorio porque es el mejor `review_candidate`: pasa retorno, IFRS9,
+policy-month online, MDCP, fairness proxy y sample paths. No se promueve porque
+`gate_online_global_method=False`.
+
+Esta distinción protege la arquitectura:
+
+- Paper Estrella queda congelado para tesis/journal;
+- Paper 4 puede iterar con un working champion;
+- ninguna salida de Paper 4 reemplaza el champion oficial sin una decisión
+  explícita futura.
+
+## Claim-artifact matrix
+
+```{python}
+#| label: tbl-paper4-v4-claim-matrix
+#| tbl-cap: "Paper 4 v4 claim-artifact matrix"
+
+claims
+```
+
+## Interpretación
+
+Los 11 pendientes quedan implementados como laboratorio vivo. El avance real no
+es que "ganamos" al Paper Estrella; el avance es que ahora sabemos en qué
+dimensión gana o pierde cada candidate:
+
+- bruto: hay candidates con delta positivo claro;
+- IFRS9: el ranking cambia y favorece policies más prudentes;
+- online: policy-month se arregla, source-month sigue bloqueando;
+- MDCP: separa candidates robustos de candidates solo rentables;
+- sample paths: muchas diferencias son pareadas y medibles;
+- causal/fairness: siguen como dossier/proxy, no como claims fuertes;
+- SDAM: ya hay decisión dinámica loan-level.
+
+## Caveats
+
+Los paths son simulados, no performance futura observada. Los shocks son comunes
+para comparar policies, pero el modelo de default/LGD sigue siendo proxy. El
+working champion es un objeto de investigación, no una recomendación operativa.
+
+## Next Step
+
+La próxima iteración debe priorizar source-month online y servicing panel real.
+Si esos dos mejoran, el selector v4 ya está listo para volver a evaluar si un
+working champion puede pasar de `review_candidate` a promoción interna de Paper
+4.

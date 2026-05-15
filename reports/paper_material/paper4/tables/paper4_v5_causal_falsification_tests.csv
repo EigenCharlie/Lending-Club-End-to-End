@@ -1,0 +1,4 @@
+test_id,test_type,pass,interpretation
+future_status_as_placebo_not_allowed,leakage_check,True,"Future loan_status is used only for outcome diagnostics, not treatment assignment."
+pre_treatment_covariate_placebos,balance,True,"Observed pre-treatment balance passes v4 after IPW, but hidden bias sensitivity still fails."
+overlap_by_grade_period,overlap,True,Overlap is mostly adequate by grade-period for dossier use.

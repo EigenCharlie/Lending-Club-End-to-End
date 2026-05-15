@@ -1,0 +1,16 @@
+attribute,available_in_lending_club_artifacts,protected_attribute_candidate,usable_for_fair_lending_claim,decision
+race,False,False,False,unavailable_direct_attribute
+ethnicity,False,False,False,unavailable_direct_attribute
+sex,False,False,False,unavailable_direct_attribute
+gender,False,False,False,unavailable_direct_attribute
+age,False,False,False,unavailable_direct_attribute
+date_of_birth,False,False,False,unavailable_direct_attribute
+marital_status,False,False,False,unavailable_direct_attribute
+original_grade,True,False,False,proxy_governance_only
+sub_grade,True,False,False,proxy_governance_only
+term,True,False,False,proxy_governance_only
+home_ownership,True,False,False,proxy_governance_only
+annual_inc,True,False,False,proxy_governance_only
+dti,True,False,False,proxy_governance_only
+addr_state,True,False,False,proxy_governance_only
+zip_code,True,False,False,proxy_governance_only

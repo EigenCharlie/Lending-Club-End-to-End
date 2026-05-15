@@ -1,0 +1,95 @@
+---
+title: "v32 SPO Environment and Oracle-Regret"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v32_status.json")
+deps = _csv("paper4_v32_spo_dependency_blockers.csv")
+regret = _csv("paper4_v32_spo_temporal_oracle_regret_v3.csv")
+env_plan = _csv("paper4_v32_spo_isolated_env_plan.csv")
+```
+
+## Pregunta
+
+La pregunta v32 es si Paper 4 puede pasar de proxy SPO/DFL a una ruta formal
+sin romper el ambiente principal del proyecto.
+
+## Que intentamos
+
+Auditamos `cvxpy`, `cvxpylayers`, `torch`, `pyomo`, `highspy`, `catboost` y
+`sklearn`. Cuando la ruta diferenciable no esta lista, se mantiene la ruta
+oracle-regret no diferenciable como evidencia seria pero acotada.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v32-status
+#| tbl-cap: "Status v32"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v32-deps
+#| tbl-cap: "Bloqueadores de dependencia SPO"
+deps
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v32-regret
+#| tbl-cap: "Oracle-regret v3"
+regret.head(20)
+```
+
+## Interpretacion
+
+SPO sigue siendo valioso como carril de regret decision-aware, pero Paper 4 no
+debe llamarlo SPO+ diferenciable mientras `cvxpy/cvxpylayers/torch` no esten
+instalados o importando limpiamente en un ambiente aislado.
+
+## Que mejoro
+
+La dependencia deja de ser un comentario suelto y pasa a artifact auditable con
+versiones, errores e install path.
+
+## Que fallo
+
+La ruta diferenciable sigue bloqueada si `formal_differentiable_spo_claim_allowed=false`.
+
+## Claim permitido
+
+Paper 4 puede hablar de oracle-regret y surrogate decision-loss.
+
+## Claim prohibido
+
+No se afirma formal SPO+ diferenciable.
+
+## Next Step
+
+Crear un ambiente aislado y solo volver a abrir el claim SPO+ si la importacion
+y un PoC minimo pasan.
+
+```{python}
+#| label: tbl-paper4-v32-env
+#| tbl-cap: "Plan de ambiente aislado"
+env_plan
+```

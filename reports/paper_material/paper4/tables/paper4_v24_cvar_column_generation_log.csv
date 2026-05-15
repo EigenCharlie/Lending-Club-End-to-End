@@ -1,0 +1,4 @@
+iteration,candidate_policy_id,pricing_score_proxy,column_added,warm_start_source,claim_scope
+1,v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,60633.495243346464,True,v20_frontier,pricing heuristic; not proof of global optimality
+2,v13_cvar_mdcp_colgen_relaxed_k32000_floor125000_cap360000,58784.62543522578,True,v20_frontier,pricing heuristic; not proof of global optimality
+3,v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,63798.70435513796,True,v20_frontier,pricing heuristic; not proof of global optimality

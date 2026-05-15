@@ -1,0 +1,9 @@
+finding,primary_artifact,publishability_class,contribution_interpretation
+Dynamic sequential evaluation,paper4_v15_dynamic_policy_trace.parquet,defensible lab contribution,turns static books into monthly state transitions
+Common calibrated paths,paper4_v15_sample_paths.parquet,defensible lab contribution,paired comparison under internal vintage/macro/default-dependence shocks
+CVaR strict infeasibility,paper4_v16_cvar_strict_infeasibility_certificate.csv,negative result / governance contribution,strict caps can be documented as too tight rather than hidden
+SPO decision oracle,paper4_v16_spo_temporal_regret.csv,promising but not formal SPO+,decision regret validated without differentiable layer
+Champion decomposition,paper4_v16_champion_decomposition_summary.csv,defensible interpretability contribution,explains selected/avoided risk pockets
+IFRS9 proxy gate,paper4_v17_ifrs9_proxy_panel_readiness.csv,proxy-only appendix,contractual claim blocked by servicing data
+CATE gate,paper4_v17_cate_gate_report.csv,research blocker,identification and reject-inference issues remain
+Fairness proxy protocol,paper4_v17_fairness_proxy_only_protocol.csv,governance boundary,no legal fair-lending claim

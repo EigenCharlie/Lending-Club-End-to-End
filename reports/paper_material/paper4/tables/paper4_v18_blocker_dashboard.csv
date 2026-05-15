@@ -1,0 +1,9 @@
+blocker_id,status_v18,current_diagnosis,next_action
+dynamic_engine,resolved,monthly state replay implemented,validate under more paths/larger books
+sample_paths,near_resolved_with_plateau,internal shocks and common random numbers implemented,external calibration remains future work
+cvar_full_universe,near_resolved_with_plateau,strict infeasibility diagnostic built,exact full-universe LP remains computational/research extension
+spo_dfl,dependency_blocked,oracle regret path implemented,cvxpy/cvxpylayers/torch path blocked
+ifrs9_contractual,data_blocked,proxy panel readiness documented,servicing/DPD/EAD/recovery/prepayment timing needed
+cate_policy_value,theory_blocked,gate report documented,identification/reject-inference unresolved
+fair_lending,prohibited_claim,proxy-only protocol documented,no protected attributes/protocol
+paper1_freeze,resolved,Paper Estrella untouched,continue Paper 4 only

@@ -1,0 +1,159 @@
+---
+title: "v9 Online Goal Resolution"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+status = _json("paper4_v9_online_goal_status.json")
+frontier = _csv("paper4_v9_online_efficiency_frontier.csv")
+breakpoint = _csv("paper4_v9_online_breakpoint_report.csv")
+claims = _csv("paper4_v9_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+La ola v8 dejó el bloqueo online casi resuelto: `source-month` ya llegaba a
+`0.80` y `policy-month` a `0.90`, pero el ancho promedio quedaba en `0.95438`.
+El `/goal` de v9 fue deliberadamente estrecho:
+
+```text
+Improve Paper 4 online conformal efficiency until source-month >= 0.80,
+policy-month >= 0.90, and avg_width <= 0.95 without touching Paper Estrella.
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v9-online-goal-status
+#| tbl-cap: "Paper 4 v9 online goal status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "online_goal_achieved": status.get("online_goal_achieved"),
+    "best_method": status.get("online_best_method_v9"),
+    "source_month_min": status.get("online_best_source_month_defended_min"),
+    "policy_month_min": status.get("online_best_policy_month_defended_min"),
+    "avg_width": status.get("online_best_width"),
+    "width_margin_to_0p95": status.get("online_width_margin_to_0p95"),
+    "goal_passing_count": status.get("online_goal_passing_count"),
+    "paper1_artifacts_modified": status.get("paper1_artifacts_modified"),
+    "paper4_final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+V9 resuelve el gate explícito del goal. El mejor método encontrado es una regla
+estructural pre-decision:
+
+$$
+q_i^{v9}
+= 0.940 q_i^{v4}
++ 0.140 \mathbf{1}\{i \in \text{targeted dti/score/grade-D mask}\}
++ 0.040 \mathbf{1}\{\text{DTI band}=q5\}.
+$$
+
+La intuición es simple: v8 estaba pagando ancho global para sostener unas pocas
+celdas débiles. V9 baja el ancho base y conserva protección donde el replay
+muestra fragilidad estructural: la máscara débil de v8 y la cola de DTI.
+
+## Breakpoint
+
+```{python}
+#| label: tbl-paper4-v9-online-breakpoint
+#| tbl-cap: "V9 online breakpoint report"
+
+breakpoint
+```
+
+La comparación clave es:
+
+- v8 reference: cobertura defendida suficiente, pero ancho `0.95438`.
+- v9 best: cobertura defendida suficiente y ancho `0.93424`.
+- v9 conservative: cobertura defendida suficiente y ancho `0.94500`, útil como
+  referencia menos agresiva.
+
+## Frontera
+
+```{python}
+#| label: tbl-paper4-v9-online-frontier-top
+#| tbl-cap: "Top v9 online efficiency frontier rows"
+
+cols = [
+    "online_method_v9",
+    "method_family",
+    "coverage_source_month_defended_min",
+    "coverage_policy_month_defended_min",
+    "avg_width_loan",
+    "width_margin_to_0p95",
+    "goal_pass",
+    "parameters_json",
+]
+frontier[[col for col in cols if col in frontier.columns]].head(20)
+```
+
+La frontera contiene muchas soluciones que pasan el gate (`goal_passing_count`
+en el status), así que el resultado no depende de una única combinación
+milimétrica. Aun así, los mínimos de cobertura quedan exactamente en el borde:
+`source-month = 0.80` y `policy-month = 0.90`. Eso hace que v9 sea una
+resolución del blocker operativo, no una prueba de robustez final.
+
+## Interpretación SDAM
+
+En términos de Sequential Decision Analytics, v9 cambia el control de ancho
+como una decisión secuencial:
+
+- `R_t`: mantener cobertura mínima defendible por policy-month y source-month.
+- `I_t`: usar información disponible antes de financiar, como `dti_band`,
+  `original_grade`, `score_decile` y la máscara estructural v8.
+- `x_t`: escoger el ancho conformal por préstamo mediante una regla de
+  recalibración.
+- `W_{t+1}`: observar default/no default y cobertura realizada.
+- `C_t`: respetar gates de gobernanza: source-month, policy-month y ancho.
+
+La mejora no viene de tocar el champion del Paper Estrella. Viene de separar
+mejor dónde se necesita protección y dónde el intervalo puede contraerse.
+
+## Caveats
+
+La regla usa solo campos pre-decision, pero la búsqueda del grid fue calibrada
+en replay. Antes de usarla como claim fuerte, hay que revalidarla en una nueva
+ventana temporal o con sample paths comunes.
+
+V9 tampoco convierte Paper 4 en publication-ready. Solo elimina el blocker
+online específico que impedía decir: “tenemos una variante que pasa cobertura
+defendida y eficiencia básica”.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v9-online-claims
+#| tbl-cap: "V9 online claim-artifact matrix"
+
+claims
+```

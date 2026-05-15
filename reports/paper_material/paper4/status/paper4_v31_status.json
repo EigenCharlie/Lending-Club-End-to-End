@@ -1,0 +1,21 @@
+{
+  "schema_version": "2026-05-15.31",
+  "generated_at_utc": "2026-05-15T02:49:02.533764+00:00",
+  "phase": "v31_dynamic_512_stress",
+  "execution_mode_v31": "actual_replay",
+  "requested_path_count_v31": 512,
+  "dynamic_path_count_v31": 512,
+  "horizon_months_v31": 36,
+  "dynamic_trace_rows_v31": 494592,
+  "no_temporal_leakage_min_rate_v31": 1.0,
+  "reference_policy_id_v31": "paper1_economic_champion",
+  "direct_challenger_policy_id_v31": "v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000",
+  "direct_challenger_decision_v31": "retain_working_champion",
+  "external_macro_context_status_v31": "fetch_failed",
+  "performance_blocked_v31": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "512-path internal replay and champion stress; not external forecast or final promotion",
+  "runtime_seconds": 2154.818
+}

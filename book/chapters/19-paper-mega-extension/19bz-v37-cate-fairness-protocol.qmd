@@ -1,0 +1,99 @@
+---
+title: "v37 CATE and Fairness Protocol"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name):
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name):
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v37_status.json")
+causal = _csv("paper4_v37_causal_identification_protocol.csv")
+cate = _csv("paper4_v37_cate_gate_report.csv")
+fairness = _csv("paper4_v37_fairness_proxy_only_protocol.csv")
+flags = _csv("paper4_v37_no_legal_claim_flags.csv")
+```
+
+## Pregunta
+
+CATE y fairness son valiosos, pero tambien son los carriles donde el paper mas
+facilmente podria sobreafirmar.
+
+## Que intentamos
+
+Se fija el protocolo: outcome causal limpio, seleccion aceptada/reject inference,
+overlap, sensibilidad a sesgo oculto, falsification y limites legales/estadisticos.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v37-status
+#| tbl-cap: "Status v37"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v37-causal
+#| tbl-cap: "Protocolo causal"
+causal
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v37-cate
+#| tbl-cap: "Gate CATE"
+cate
+```
+
+```{python}
+#| label: tbl-paper4-v37-fairness
+#| tbl-cap: "Fairness proxy-only"
+fairness
+```
+
+## Interpretacion
+
+El resultado util es el bloqueo gobernado: no hay CATE policy value ni claim
+fair-lending legal sin datos y protocolo.
+
+## Que mejoro
+
+La frontera entre source governance observable y fair-lending legal claim queda
+explicita.
+
+## Que fallo
+
+Faltan atributos protegidos/protocolo externo y una identificacion causal mas
+fuerte.
+
+## Claim permitido
+
+Source governance proxy-only y causal diagnostics.
+
+## Claim prohibido
+
+No CATE policy value ni fair-lending legal claim.
+
+## Next Step
+
+Mantener estos carriles como gates academicos, no como motor de promocion.
+
+```{python}
+#| label: tbl-paper4-v37-flags
+#| tbl-cap: "No-claim flags"
+flags
+```

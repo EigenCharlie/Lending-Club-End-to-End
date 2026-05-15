@@ -1,0 +1,6 @@
+protocol_item,status,notes
+race_ethnicity_proxy,blocked,requires legal/IRB/MRM approval; not inferred silently
+sex_gender_proxy,blocked,not available and should not be guessed
+age_proxy,blocked,birth date unavailable; age cannot be reconstructed safely
+geographic_proxy,diagnostic_only,"state/zip can be source stress, not protected attribute claim"
+adverse_impact_testing,future_protocol,requires protected or approved proxy groups

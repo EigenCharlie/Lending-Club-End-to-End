@@ -1,0 +1,6 @@
+gate,status_v17,evidence,policy_value_allowed
+clean_outcome,partial_proxy,default/loss observed for accepted loans; rejected counterfactuals absent,False
+identification,theory_blocked,accepted-loan sample creates selection/reject-inference problem,False
+overlap,review,prior v13 dossier remains insufficient for deployment claim,False
+hidden_bias_sensitivity,blocked,not stable enough to authorize CATE policy value,False
+falsification/placebo,needs_stronger_tests,keep as research-only diagnostic,False

@@ -1,0 +1,81 @@
+---
+title: "v22 Academic Synthesis"
+page-layout: article
+---
+
+## Pregunta
+
+V22 pregunta qué queda consolidado después de v19-v21: cuál es el working
+champion de laboratorio, qué challengers quedan vivos, qué claims están
+permitidos, y qué lanes ya no deben absorber iteración local sin datos o teoría
+nueva.
+
+## Qué intentamos
+
+La síntesis v22 junta blocker dashboard, claim matrix, contribution map,
+publishability triage y working champion registry. La regla central es
+conservadora: si un challenger gana por score pero no gana robustez pareada, se
+documenta como challenger serio y se retiene el champion anterior.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v22_working_champion.json` | working champion Paper 4 only |
+| `paper4_v22_blocker_dashboard.csv` | estados finales v19-v22 |
+| `paper4_v22_claim_artifact_matrix.csv` | claim -> artifact -> page -> boundary |
+| `paper4_v22_academic_contribution_map.csv` | hallazgos y aporte potencial |
+| `paper4_v22_publishability_triage.csv` | mega paper vs paper enfocado |
+| `paper4_v22_claim_boundaries_final_for_lab.csv` | límites finales del laboratorio |
+| `paper4_v22_status.json` | status final |
+
+## Resultado
+
+El working champion v22 queda retenido como `paper1_economic_champion`, no
+porque no haya challengers interesantes, sino porque la evidencia está dividida.
+`v13_spo_regret_audit_guarded` gana el score de gobernanza v22, pero el memo v20
+no recomienda cambio: su probabilidad de mayor wealth contra `paper1` bajo paths
+comunes es demasiado baja. La decisión correcta es retener champion y documentar
+el challenger.
+
+V22 deja 10 blockers clasificados:
+
+- `resolved`: dynamic engine v2, champion decomposition, Paper Estrella freeze;
+- `near_resolved_with_plateau`: sample paths v2, DLA endógeno, CVaR full-universe;
+- `dependency_blocked`: SPO/DFL formal diferenciable;
+- `data_blocked`: IFRS9 contractual;
+- `theory_blocked`: CATE policy value;
+- `prohibited_claim`: fair-lending legal claim.
+
+## Qué mejoró
+
+El laboratorio ya no funciona como backlog infinito. Ahora cada lane tiene uno
+de tres destinos: contribución defendible, challenger prometedor con caveat, o
+bloqueo explícito. Eso hace que Paper 4 sea más académico, no menos ambicioso.
+
+## Qué falló
+
+No se cerró exactitud full-universe CVaR, Bellman exacto, SPO+ diferenciable,
+IFRS9 contractual, CATE policy value ni fair-lending legal claim. La diferencia
+es que ahora esos fallos son resultados documentados, no huecos confusos.
+
+## Claim permitido
+
+Paper 4 puede reclamar una arquitectura académica de sequential decision
+governance para crédito: policies comparadas como procesos mensuales, bajo
+paths comunes, gates de incertidumbre, cola, ECL proxy, auditabilidad y claims
+explícitos.
+
+## Claim no permitido
+
+No puede reclamar producción, forecast externo, IFRS9 contractual, causal policy
+value, legal fair lending audit, Bellman exacto o full-universe CVaR exacto.
+
+## Qué queda pendiente
+
+Quedan tres direcciones de mayor valor:
+
+1. aumentar paths y certificar CVaR con column generation más fuerte;
+2. formalizar ADP/SPO con teoría y dependencias más estables;
+3. conseguir datos nuevos si se quiere reabrir IFRS9 contractual, causalidad o
+   fairness legal.

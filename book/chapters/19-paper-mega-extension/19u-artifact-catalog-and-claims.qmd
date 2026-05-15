@@ -1,0 +1,122 @@
+---
+title: "Artifact Catalog and Claim Matrix"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+catalog = _csv("paper4_v30_artifact_registry.csv")
+claims = _csv("paper4_v30_claim_artifact_matrix.csv")
+status = _json("paper4_v30_status.json")
+```
+
+## Pregunta {#sec-paper4-catalog-question}
+
+Un laboratorio vivo se vuelve inútil si no sabemos qué artifact soporta qué
+claim. Esta página fija una regla editorial:
+
+> Ninguna afirmación fuerte de Paper 4 debería vivir solo en texto; debe
+> apuntar a artifact, página Quarto y test guardrail.
+
+::: {.callout-note}
+## Página histórica
+
+Esta página nació como catálogo de olas intermedias y ya no es la fuente viva
+de claims. La superficie oficial actual está en
+`paper4_current_official_findings.csv`,
+`paper4_current_claim_boundaries.csv` y
+`paper4_living_lab_notebook.md`. Esta página queda como archivo de
+proveniencia.
+:::
+
+## Estado v30 / Última matriz sincronizada
+
+```{python}
+#| label: tbl-paper4-v2-status
+#| tbl-cap: "Status JSON de prioridades v2"
+
+pd.DataFrame(
+    [
+        {"field": key, "value": str(value)}
+        for key, value in status.items()
+        if key not in {"generated_artifacts", "exact_limited_topk"}
+    ]
+)
+```
+
+## Claim Matrix
+
+```{python}
+#| label: tbl-paper4-claim-artifact-matrix
+#| tbl-cap: "Matriz prioridad-claim-artifact-test"
+
+claims if not claims.empty else claims
+```
+
+## Artifact Catalog
+
+```{python}
+#| label: tbl-paper4-artifact-catalog
+#| tbl-cap: "Catálogo de artifacts Paper 4"
+
+if not catalog.empty:
+    sort_cols = [col for col in ["paper4_layer", "version", "artifact"] if col in catalog.columns]
+    catalog.sort_values(sort_cols).tail(30) if sort_cols else catalog.tail(30)
+else:
+    catalog
+```
+
+## Interpretación
+
+La matriz evita dos fallas típicas de proyectos largos:
+
+1. resultados que se recuerdan verbalmente pero no son reproducibles;
+2. claims que sobreviven después de que cambió el artifact que los sostenía.
+
+Cada prioridad queda con una de estas etiquetas:
+
+| Etiqueta | Significado |
+|---|---|
+| `diagnostic_no_promotion` | útil para comparar, no cambia champion |
+| `exact_limited_diagnostic` | exacto dentro de subset, no full-universe |
+| `forward_only_interval_prototype` | método online operativo pero no final |
+| `toy_dynamic_policy` | flujo SDAM implementado con supuestos simples |
+| `source_registry_and_worst_source_eval` | MDCP monitoreable, no garantía formal completa |
+| `causal_gated_diagnostic` | CATE se documenta, pero no entra al objetivo |
+
+## Caveats
+
+El catálogo registra existencia, tamaño y capa, no calidad científica. La
+calidad se evalúa con tests, render, bitácora y lectura crítica. Un artifact
+puede existir y aun así quedar `parked` o `kill`.
+
+## Next Step
+
+Cada nueva página de Paper 4 debe actualizar esta matriz. Si una frase no puede
+mapearse a artifact, test o caveat, debe permanecer como hipótesis o pregunta
+abierta.

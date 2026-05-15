@@ -1,0 +1,6 @@
+policy_class,paper4_examples,minimum_evidence_artifact,strength,claim_boundary
+PFA,"rules, thresholds, alpha schedules, claim gates",paper4_v14_decision_inventory.csv,transparent and auditable,can be myopic
+CFA,"CRPTO, CVaR/OCE LP, MDCP cap solver",paper4_v13_cvar_stronger_decomposition_frontier.csv,strong one-period optimization,approximation of dynamic uncertainty
+VFA,future value features for capital/stage/cash,paper4_v13_dla_fitted_value_coefficients.csv,captures future value compactly,requires structure and validation
+DLA,rolling/fitted lookahead over months,paper4_v13_dla_fvi_comparison.csv,plans with future states,not exact stochastic optimality
+Hybrid,selector governance combining scores and gates,paper4_v14_working_champion_powell_audit.csv,matches lab governance reality,judgmental thresholds must be documented

@@ -1,0 +1,93 @@
+---
+title: "v33 CVaR Certificate and Full-Universe Guard"
+page-layout: article
+---
+
+```{python}
+#| include: false
+from __future__ import annotations
+import json
+from pathlib import Path
+import pandas as pd
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+def _csv(name):
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+def _json(name):
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+status = _json("paper4_v33_status.json")
+feasibility = _csv("paper4_v33_cvar_full_universe_feasibility_attempt.csv")
+cert = _csv("paper4_v33_cvar_infeasibility_certificate_v3.csv")
+frontier = _csv("paper4_v33_cvar_frontier_v3.csv")
+```
+
+## Pregunta
+
+CVaR es el challenger de cola mas serio, pero necesita una frontera honesta:
+estricto, committee/relaxed y full-universe deben estar separados.
+
+## Que intentamos
+
+v33 reaudita la factibilidad full-universe y formaliza el certificado practico
+de infeasibilidad estricta sin convertir diagnosticos restricted-master en
+pruebas matematicas.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v33-status
+#| tbl-cap: "Status v33"
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v33-feasibility
+#| tbl-cap: "Guard full-universe CVaR"
+feasibility
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-v33-cert
+#| tbl-cap: "Certificado practico de infeasibilidad"
+cert.head(25)
+```
+
+```{python}
+#| label: tbl-paper4-v33-frontier
+#| tbl-cap: "Frontera CVaR v3"
+frontier.head(25)
+```
+
+## Interpretacion
+
+El resultado negativo es util: si el regimen estricto no escala o no es
+factible, eso delimita una frontera de gobernanza, no un fracaso metodologico.
+
+## Que mejoro
+
+Queda claro si el claim es exacto, restricted-master o diagnostico.
+
+## Que fallo
+
+El claim de optimalidad full-universe sigue falso salvo que exista evidencia
+solver exacta.
+
+## Claim permitido
+
+CVaR puede tratarse como challenger serio de cola bajo evidencia diagnostica.
+
+## Claim prohibido
+
+No se afirma optimalidad full-universe exacta.
+
+## Next Step
+
+Si CVaR sera headline futuro, correr un LP exacto o una column generation con
+certificado dual formal fuera del pipeline ligero.

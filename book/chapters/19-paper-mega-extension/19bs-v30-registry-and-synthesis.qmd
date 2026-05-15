@@ -1,0 +1,151 @@
+---
+title: "v30 Registry and Synthesis"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
+
+status = _json("paper4_v30_status.json")
+champion = _json("paper4_v30_working_champion.json")
+registry = _csv("paper4_v30_artifact_registry.csv")
+candidates = _csv("paper4_v30_candidate_registry.csv")
+blockers = _csv("paper4_v30_blocker_dashboard.csv")
+claims = _csv("paper4_v30_claim_artifact_matrix.csv")
+readiness = _csv("paper4_v30_powell_readiness_dashboard.csv")
+triage = _csv("paper4_v30_publishability_triage.csv")
+```
+
+## Pregunta
+
+V30 pregunta cómo queda el laboratorio después de ejecutar las 18 lanes
+implementables: qué se resolvió, qué se retuvo, qué cambió y qué claims siguen
+bloqueados.
+
+::: {.callout-note}
+## Página histórica
+
+Esta página queda como archivo de la ola v30. La lectura oficial actual del
+Paper 4 está curada en las 10 páginas renderizadas del capítulo 19 y en el
+notebook vivo `reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`.
+:::
+
+## Qué Intentamos
+
+Se reconstruyeron artifact registry, candidate registry, blocker dashboard,
+claim matrix, Powell readiness, contribution map, publishability triage y
+working champion JSON.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v30-status
+#| tbl-cap: "Paper 4 v30 status."
+
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v30-champion
+#| tbl-cap: "Paper 4 v30 working champion."
+
+pd.DataFrame([champion])
+```
+
+## Resultado
+
+El registry contiene 491 artifacts y todos los claims v30 tienen artifact. El
+working champion se mantiene como `paper1_economic_champion`. El score global
+puede favorecer challengers en algunas dimensiones, pero ninguno cruzó robustez
+pareada suficiente para cambiar champion.
+
+```{python}
+#| label: tbl-paper4-v30-candidates
+#| tbl-cap: "V30 candidate registry."
+
+_cols(
+    candidates.head(14),
+    [
+        "policy_id",
+        "final_wealth_mean",
+        "cumulative_losses_p95",
+        "mean_wealth_diff",
+        "prob_higher_wealth",
+        "full_candidate_score_v30",
+        "paired_robustness_gate_v30",
+        "decision_v30",
+    ],
+)
+```
+
+## Qué Mejoró
+
+Paper 4 ahora tiene una cadena completa desde experimento hasta claim: dynamic
+stress, CVaR/DLA/SPO diagnostics, IFRS9 proxy, CATE/fairness blockers y registry.
+
+```{python}
+#| label: tbl-paper4-v30-blockers
+#| tbl-cap: "V30 blocker dashboard."
+
+blockers
+```
+
+## Qué Falló
+
+No se desbloquearon los claims fuertes: CVaR exacto full-universe, SPO+
+diferenciable formal, IFRS9 contractual, CATE policy value y fair-lending legal
+claim siguen fuera.
+
+```{python}
+#| label: tbl-paper4-v30-claims
+#| tbl-cap: "V30 claim-artifact matrix."
+
+claims
+```
+
+## Claim Permitido
+
+Paper 4 puede presentarse como laboratorio secuencial reproducible con champion
+gobernado por robustez pareada y claims auditables.
+
+## Claim No Permitido
+
+No hay promoción final, no se toca Paper Estrella y no se hacen claims
+contractuales, legales, causales fuertes ni exact-optimality sin evidencia.
+
+## Qué Queda Pendiente
+
+La siguiente ola solo debe avanzar si ataca una de tres cosas: cache/performance
+para 512 paths, ambiente diferenciado para SPO+, o datos nuevos para IFRS9/CATE/fairness.
+
+```{python}
+#| label: tbl-paper4-v30-publishability
+#| tbl-cap: "V30 publishability triage."
+
+triage
+```

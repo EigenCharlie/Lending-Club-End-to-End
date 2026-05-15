@@ -1,0 +1,30 @@
+---
+title: "Regret Auditability Frontier"
+page-layout: article
+---
+
+## Lectura oficial de la frontera
+
+La frontera regret-auditability organiza una tension central: una policy puede
+ganar en retorno o cola, pero perder en auditabilidad, cobertura o claim safety.
+Por eso Paper 4 no promueve candidates solo por una metrica.
+
+## Resultado consolidado
+
+CVaR/OCE aparece como el challenger de cola mas serio: reduce perdida de cola y
+puede ganar bajo un comite tail-first. Sin embargo, el stress v31 muestra que no
+supera de forma robusta el wealth pareado del champion economico. Esa es una
+contribucion util: Paper 4 puede mostrar como cambia la decision bajo perfiles
+de gobernanza distintos.
+
+## Claims permitidos
+
+- CVaR/OCE es un serious challenger de tail-risk.
+- La decision cambia si el comite prioriza cola sobre retorno medio.
+- La frontera es una herramienta de auditoria, no una promocion final.
+
+## Claims no permitidos
+
+- No hay full-universe exact CVaR optimality.
+- No hay champion economico nuevo por CVaR.
+- No se debe mezclar relaxed/committee caps con strict feasibility.

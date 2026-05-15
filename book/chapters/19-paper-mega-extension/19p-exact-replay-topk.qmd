@@ -1,0 +1,153 @@
+---
+title: "Exact-Limited Replay Top-K"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+exact_eval = _csv("paper4_exact_limited_topk_policy_eval.csv")
+comparison = _csv("paper4_exact_vs_proxy_comparison.csv")
+status = _json("paper4_exact_replay_topk_status.json")
+```
+
+## Pregunta {#sec-paper4-exact-replay-topk-question}
+
+El primer cuello de botella real de Paper 4 era incómodo pero importante:
+teníamos métricas agregadas de 45 policies, pero no los vectores exactos de
+asignación `policy_id × loan_id` para todos los challengers. El P0 resolvió eso
+con una reconstrucción proxy. Esta página implementa el siguiente paso:
+
+> ¿Qué cambia cuando rerresolvemos con HiGHS el champion y los top candidates
+> del selector dentro de un universo limitado pero policy-specific?
+
+El objetivo no es escoger champion. Es medir cuánto se mueve el funded set
+cuando se reemplaza la reconstrucción greedy por una solución LP exacta dentro
+de un pool controlado.
+
+::: {.callout-important}
+## Top-k exact-limited, no full-universe
+
+El artifact usa el champion canónico exacto más los cinco candidatos top del
+selector. Para challengers, cada LP se resuelve dentro de un subconjunto de
+3,000 préstamos construido con el score de la policy y los préstamos del proxy.
+Esto es **exacto dentro del subset**, pero todavía no es un rerun exacto sobre
+los 276,869 préstamos OOT completos.
+:::
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-exact-status
+#| tbl-cap: "Contrato del replay exact-limited top-k"
+
+pd.DataFrame(
+    [
+        {"field": key, "value": str(value)}
+        for key, value in status.items()
+        if key not in {"policy_ids"}
+    ]
+)
+```
+
+```{python}
+#| label: tbl-paper4-exact-policy-eval
+#| tbl-cap: "Evaluación exact-limited por policy"
+
+_cols(
+    exact_eval,
+    [
+        "policy_id",
+        "candidate_pool_n",
+        "solver_status",
+        "n_funded_exact_limited",
+        "total_allocated_exact_limited",
+        "realized_return_exact_limited",
+        "weighted_pd_high_exact_limited",
+        "coverage_alpha01_exact_limited",
+    ],
+)
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-exact-vs-proxy
+#| tbl-cap: "Diferencia funded set exact-limited vs reconstrucción proxy"
+
+_cols(
+    comparison,
+    [
+        "policy_id",
+        "exact_limited_n",
+        "proxy_n",
+        "overlap_n",
+        "jaccard_exact_limited_vs_proxy",
+        "status",
+    ],
+)
+```
+
+La lectura útil es el `jaccard_exact_limited_vs_proxy`. En el champion debe ser
+1 porque se usa su funded set canónico. En challengers, el overlap queda lejos
+de 1. Eso valida la intuición de la bitácora: la matriz proxy sirve para
+screening y para documentación, pero cualquier claim fuerte necesita persistir
+allocation vectors exactos.
+
+## Interpretación SDAM
+
+| Elemento | Implementación en este artifact |
+|---|---|
+| `R_t` | presupuesto fijo de USD 1M y exposición funded |
+| `I_t` | PD, intervalo conformal y atributos de préstamo OOT |
+| `B_t` | score robusto, `pd_high_alpha01`, cobertura y funded proxy previo |
+| `x_t` | solución LP `allocation_fraction` dentro del candidate subset |
+| `W_{t+1}` | default observado y retorno realizado ex post |
+| `S^M` | no aplica todavía; sigue siendo one-shot |
+| `C_t` | retorno realizado y cobertura funded |
+| `X^\pi` | policy exact-limited top-k, no promotion eligible |
+
+## Caveats
+
+Este resultado mejora la evidencia frente al P0, pero no elimina el problema
+central. El subset de 3,000 préstamos reduce costo y permite iterar rápido; a
+la vez, puede excluir préstamos que un solver full-universe elegiría. Por eso
+la decisión correcta es `keep-with-caveat`, no `promote`.
+
+## Next Step
+
+El siguiente experimento exacto debería persistir desde el solver:
+
+```text
+policy_id, loan_id, allocation_fraction, objective_component, constraint_slack
+```
+
+Con eso se elimina la ambigüedad proxy/exacto y el Paper 4 puede comparar IFRS9,
+tail risk, MDCP y regret sobre funded sets completamente reproducibles.

@@ -1,0 +1,242 @@
+---
+title: "v10 Solvers, DLA and DFL"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v10_resolution_status.json")
+cvar = _csv("paper4_v10_cvar_expanded_frontier.csv")
+dla_summary = _csv("paper4_v10_dla_rollout_summary.csv")
+dla_comparison = _csv("paper4_v10_dla_rollout_comparison.csv")
+dfl = _csv("paper4_v10_dfl_decision_loss_training.csv")
+sample_ci = _csv("paper4_v10_sample_path_stress_ci.csv")
+claims = _csv("paper4_v10_claim_artifact_matrix.csv")
+```
+
+## Pregunta
+
+V10 empuja tres carriles que ya no son solo diagnóstico:
+
+- CVaR/OCE se escala a una frontera top-k expandida con búsqueda por caps y
+  floors de retorno;
+- DLA deja de ser solo value-function proxy estático y pasa a rollout mensual
+  bajo paths comunes;
+- DFL/SPO+ deja de ser una idea abstracta y produce 192 candidatos por pérdida
+  de decisión, manteniendo constraints CRPTO/MDCP/IFRS9 proxy como parte del
+  score o de los gates.
+
+Ninguno de estos carriles modifica Paper Estrella. Son laboratorio Paper 4.
+
+## Status v10
+
+```{python}
+#| label: tbl-paper4-v10-solver-status
+#| tbl-cap: "Paper 4 v10 solver, DLA and DFL status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "cvar_feasible_count": status.get("cvar_expanded_feasible_count"),
+    "cvar_non_dominated_count": status.get("cvar_expanded_non_dominated_count"),
+    "dfl_candidate_count": status.get("dfl_candidate_count"),
+    "dla_best_delta_vs_static": status.get("dla_best_delta_state_value_vs_static"),
+    "sample_path_policy_count": status.get("sample_path_policy_count"),
+    "selector_promote_count": status.get("selector_promote_count"),
+}])
+```
+
+## CVaR expanded frontier
+
+```{python}
+#| label: tbl-paper4-v10-cvar-frontier
+#| tbl-cap: "V10 expanded/decomposed CVaR frontier"
+
+_cols(
+    cvar.head(30),
+    [
+        "policy_id",
+        "solver_status",
+        "floor_v10",
+        "range_idx_v10",
+        "iteration_v10",
+        "tested_cvar_cap_v10",
+        "feasible_v10",
+        "non_dominated_v10",
+        "objective_return",
+        "scenario_loss_mean",
+        "scenario_loss_cvar90",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "auditability_score_v10",
+    ],
+)
+```
+
+La frontera v10 ya no es una penalización suelta. El solver recibe un cap CVaR
+y un piso de retorno. De 63 pruebas, 34 son factibles y 28 quedan no dominadas
+en el pool top-k expandido. Esto no prueba full-universe óptimo, pero sí
+convierte la cola en constraint operacional.
+
+La interpretación práctica: los caps bajos sostienen auditoría y cola, pero
+reducen retorno; los caps altos recuperan retorno a costa de mayor pérdida de
+escenario. La frontera permite escoger un punto por comité, no por intuición.
+
+## DLA rollout
+
+```{python}
+#| label: tbl-paper4-v10-dla-summary
+#| tbl-cap: "V10 DLA rollout summary"
+
+dla_summary
+```
+
+```{python}
+#| label: tbl-paper4-v10-dla-comparison
+#| tbl-cap: "V10 DLA rollout comparison against static reference"
+
+dla_comparison
+```
+
+V10 compara cuatro estrategias bajo los mismos paths. La mejor variante en la
+corrida actual es `v10_rollout_capital_guarded`, con un delta promedio de
+estado de aproximadamente `67,251` contra referencia estática y menor pérdida
+realizada media. Esto no es Bellman óptimo, pero ya es DLA en el sentido útil
+para Paper 4: decisión mensual loan-level, cash/outstanding/losses/capital y
+reinvestment dentro del estado.
+
+## DFL / SPO+ surrogate
+
+```{python}
+#| label: tbl-paper4-v10-dfl-training
+#| tbl-cap: "V10 constrained decision-loss surrogate candidates"
+
+_cols(
+    dfl.head(30),
+    [
+        "policy_id",
+        "pd_cap_v10",
+        "width_weight",
+        "source_weight",
+        "ecl_weight",
+        "funded_exposure",
+        "n_funded",
+        "objective_return",
+        "weighted_pd_high",
+        "weighted_qhat",
+        "weighted_weak_source_proxy",
+        "share_grade_dplus",
+        "share_dti_high",
+        "share_score_low_monitored",
+        "constraint_pd_pass",
+        "constraint_mdcp_proxy_pass",
+        "auditability_score_v10",
+        "decision_loss_proxy_v10",
+        "training_status_v10",
+    ],
+)
+```
+
+La corrección clave de v10 fue no tratar `score_decile` 0-2 como hard cap en
+el greedy DFL. En este pool esos deciles dominan los préstamos de menor riesgo,
+mientras que los deciles 3-4 son pocos y muy riesgosos. Por eso DFL mantiene
+hard caps en grade y DTI, monitorea score composition y deja los caps completos
+al solver MDCP. El resultado es un surrogate mucho más útil: 192 candidatos,
+con oficiales y relajados claramente separados.
+
+Este carril sigue sin ser entrenamiento neural SPO+. Lo que sí queda listo es
+la arquitectura de pérdida:
+
+```text
+decision_loss = regret_proxy
+              + lambda_width * qhat
+              + lambda_source * weak_source_proxy
+              + lambda_ecl * ECL_proxy
+```
+
+## Sample paths correlacionados
+
+```{python}
+#| label: tbl-paper4-v10-sample-path-ci
+#| tbl-cap: "V10 correlated sample-path stress intervals"
+
+_cols(
+    sample_ci.head(30),
+    [
+        "policy_id",
+        "n_paths",
+        "mean_loss",
+        "p05_loss",
+        "p50_loss",
+        "p95_loss",
+        "mean_default_count",
+        "funded_exposure",
+    ],
+)
+```
+
+Los sample paths v10 añaden shocks por cohorte, defaults dependientes, LGD
+cíclico y estrés macro correlacionado. Sirven para comparación pareada y para
+ver fragilidad relativa entre policies. Todavía no deben leerse como forecast
+de performance futura porque no están calibrados contra macro externo.
+
+## Interpretación SDAM
+
+- `S_t`: cash, outstanding, expected loss, capital used, macro state y coverage
+  state.
+- `x_t`: financiar préstamos concretos cada mes, no solo escoger una policy
+  retrospectiva.
+- `S_t^x`: exposición funded, ECL, qhat y composición luego de la decisión.
+- `W_{t+1}`: defaults dependientes, prepago proxy, recuperaciones proxy y
+  shocks macro/cohorte.
+- `X^\pi`: comparar estrategias rollout contra referencia estática por paths
+  comunes.
+
+## Caveats
+
+CVaR sigue en top-k expandido, no full universe. DLA es rollout/ADP-style, no
+Bellman formal. DFL es surrogate transparente, no SPO+ entrenado end-to-end.
+Los sample paths son stress comparativo, no pronóstico. La ganancia real de v10
+es que todos esos límites quedan medidos y documentados, en vez de quedar como
+ideas sueltas.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v10-solvers-claims
+#| tbl-cap: "V10 claim-artifact matrix rows for solvers, DLA, DFL and sample paths"
+
+_cols(
+    claims[claims["quarto_page"].eq("19ax-v10-solvers-dla-dfl.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```

@@ -1,0 +1,11 @@
+blocker_id,status_v8,current_diagnosis,next_action,selector_promote_count_v8
+online_efficiency,near_resolved,coverage gate passes but width must reach <=0.95,micro-iterate weak-cell predictor,0
+cvar_bisection,resolved,active-cap frontier exists but not full-universe,scale/decompose,0
+mdcp_family_caps,resolved,family caps inside LP now solve for at least one spec,link caps to empirical coverage,0
+selector_governance,resolved,committee memo exists and blocks final promotion,rerun after online/IFRS9 changes,0
+dla_value_function,near_resolved,"value-function proxy exists, not Bellman/ADP optimal",rollout/ADP and common paths,0
+causal_cate,theory_blocked,dossier improved but CATE policy value remains disallowed,formal identification and sensitivity,0
+fairness,data_blocked,proxy-only protocol locked,protected attributes or approved proxy,0
+dfl_surrogate,near_resolved,"transparent surrogate exists, not full SPO+ training",train real decision-loss model,0
+ifrs9_contractual,data_blocked,readiness remains below contractual-claim threshold,servicing/DPD/recovery/macro data,0
+paper1_freeze,resolved,Paper Estrella artifacts remain untouched,continue Paper 4 only,0

@@ -1,0 +1,21 @@
+{
+  "schema_version": "2026-05-12.2",
+  "generated_at_utc": "2026-05-13T02:24:23.070191+00:00",
+  "selector_id": "paper4_ifrs9_tail_satisficing_diagnostic_selector",
+  "mode": "diagnostic_no_promotion",
+  "weights": {
+    "score_return": 0.25,
+    "score_net_ecl": 0.3,
+    "score_ecl": 0.1,
+    "score_tail": 0.15,
+    "score_satisficing": 0.1,
+    "score_auditability": 0.1
+  },
+  "hard_gates": [
+    "all_bounds_hold",
+    "ab_pass_all"
+  ],
+  "paper1_champion_protected": true,
+  "promotion_json_created": false,
+  "caveat": "Ranks reconstructed diagnostic policies; does not replace Paper Estrella champion."
+}

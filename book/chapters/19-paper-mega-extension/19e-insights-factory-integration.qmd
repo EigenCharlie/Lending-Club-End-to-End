@@ -1,0 +1,308 @@
+---
+title: "Insights Factory y Carril Research-Only"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_PATH = ROOT / "reports" / "paper_material" / "paper4" / "status" / "paper4_insights_factory_status.json"
+
+def _read_csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    if not path.exists():
+        return pd.DataFrame()
+    return pd.read_csv(path)
+
+signal_registry = _read_csv("paper4_table6_insights_factory_signal_registry.csv")
+readiness = _read_csv("paper4_table7_research_lane_readiness.csv")
+join_contract = _read_csv("paper4_table8_insight_to_policy_join_contract.csv")
+status = json.loads(STATUS_PATH.read_text(encoding="utf-8")) if STATUS_PATH.exists() else {}
+```
+
+## De fábrica de insights a sistema end-to-end {#sec-paper4-insights-factory}
+
+El `Insights Factory` y el pipeline `research_labs` no deben entrar a Paper 4
+como una colección de resultados interesantes. Eso ya lo hace la Parte III del
+libro. Para que sirvan en la mega extensión tienen que cumplir una regla más
+exigente:
+
+> Un insight solo entra a Paper 4 si se convierte en una variable de estado, un
+> gate, una restricción, un objetivo, un selector o una validación downstream.
+
+Esa regla es la diferencia entre un laboratorio exploratorio y un sistema
+end-to-end. El Paper 4 no necesita "más análisis"; necesita una capa que conecte
+cada análisis con una decisión robusta, contable, temporal, causal o de
+gobernanza.
+
+En términos SDAM, esa conexión debe ser más precisa: cada insight debe mapear a
+`R_t`, `I_t`, `B_t`, `x_t`, `W_{t+1}`, `S^M`, `C_t` o `X^\pi`. Si no cabe en
+alguno de esos elementos, puede ser contexto narrativo, pero no parte del
+sistema de decisión.
+
+El script `scripts/papers/build_paper4_insight_registry.py` materializa esa
+lectura en tres tablas: registry de señales, readiness del carril research-only
+y contrato de joins hacia política. No reabre búsquedas ni cambia champions; se
+limita a convertir lo ya existente en un mapa accionable.
+
+::: {.callout-important}
+## Regla de integración
+
+`research_labs` sigue siendo `insight_only`. Paper 4 puede consumirlo, pero no
+puede promover directamente sus outputs. Para que una señal cambie una política
+tiene que pasar por un artefacto intermedio paper-grade: por ejemplo
+`policy_ifrs9_ecl_grid.parquet`, `monthly_policy_replay.parquet`,
+`paper4_segment_source_registry.parquet` o `paper4_final_promotion.json`.
+:::
+
+### Contrato SDAM para cada insight
+
+La pregunta operativa no es "¿este insight es interesante?", sino "¿qué cambia
+en el modelo secuencial?". La tabla siguiente convierte las señales de
+`research_labs` en piezas del Universal Modeling Framework de Powell
+[-@powell2026sdam].
+
+::: {#tbl-paper4-insight-sdam-contract}
+
+| Tipo de señal | Elemento SDAM | Ejemplo Paper 4 | Gate antes de decisión |
+|---|---|---|---|
+| Budget, capital, EAD, stage balances | `R_t` | headroom de capital, Stage 2 share, funded exposure | trazabilidad a policy y periodo |
+| PD, intervalo conformal, grade, macro actual | `I_t` | loan-level evidence table | cobertura/calibración vigente |
+| Forecast, drift, CATE, ECL/LGD belief | `B_t` | rolling quantile, macro forecast, uplift posterior | forward-only o identificación causal |
+| Approval, funded set, threshold, intervention | `x_t` | CRPTO decision, alpha schedule, term/pricing action | feasible set y constraints declarados |
+| Defaults, recoveries, repayments, residuals | `W_{t+1}` | observed outcomes, miscoverage, new applications | sin leakage y con censura documentada |
+| Recalibration, stage migration, budget update | `S^M` | update mensual de cartera y creencias | transición reproducible |
+| Return, ECL, CVaR, fairness penalty | `C_t` | reward/penalty por periodo | pesos/gates explícitos |
+| PFA/CFA/VFA/DLA | `X^\pi` | selector IFRS9-aware, rolling horizon policy | registry de clase y objetivo offline/online |
+
+Contrato SDAM para que los insights entren como partes del sistema.
+:::
+
+### Qué señales existen y cómo entran
+
+```{python}
+#| label: tbl-paper4-insights-signal-registry
+#| tbl-cap: "Registry de señales de Insights Factory y research-only para Paper 4"
+
+cols = [
+    "signal",
+    "source_lane",
+    "artifact",
+    "current_result",
+    "paper4_role",
+    "promotion_gate",
+    "immediate_action",
+]
+signal_registry[cols] if not signal_registry.empty else signal_registry
+```
+
+La tabla muestra una separación que conviene conservar. Algunas señales ya son
+utilizables en el MVP: baselines de incertidumbre, alpha/Gamma, SICR/ECL,
+competing risks, TS→ECL como estrés, y SPO+ como comparador de regret. Otras
+son valiosas pero siguen bloqueadas o diagnósticas: CATE, CATE-portfolio, GPU
+clustering/grafos y notebooks exploratorios.
+
+Eso no las descarta. Las ubica.
+
+### Lectura por bloque
+
+**Incertidumbre**. Los baselines CP/BMA/bootstrap no son una línea suelta del
+libro: justifican que la mega extensión use intervalos conformales como estado
+$U_t(\alpha)$, no intervalos bayesianos o bootstrap genéricos. En Paper 4 eso
+alimenta IFRS9, CRPTO, SICR y futuras garantías MDCP.
+
+**Alpha/Gamma**. El alpha sweep y la validación `alpha/Gamma_CP` se vuelven una
+palanca de política. Paper 4 debería propagar:
+
+```text
+alpha -> Gamma_CP -> width -> funded set -> SICR -> ECL -> capital
+```
+
+La versión MVP puede calcular esa propagación como diagnóstico. La versión
+completa la usaría como selector.
+
+**IFRS9 avanzado**. SICR, stage misclassification, competing risks y TS→ECL ya
+forman un brazo prudencial completo. Para Paper 4, el siguiente paso no es
+describirlos otra vez: es calcularlos por policy CRPTO y por escenario.
+
+**SPO+/DFL**. El resultado SPO+ no debe leerse como "SPO+ reemplaza CRPTO". Su
+valor para Paper 4 es crear una frontera `regret` vs `auditabilidad`. Online DFL
+solo sería central si se evalúa con decisiones repetidas, cobertura temporal y
+retorno neto de ECL.
+
+**Causal/CATE**. La señal causal tiene valor económico y segmental, pero el
+portafolio CATE está bloqueado por gate. Por eso Paper 4 debe conservarlo como
+capa de intervención futura: útil para diseñar el contrato causal, no para
+sumarlo hoy al objetivo.
+
+**RAPIDS / GPU Insight Factory**. UMAP, HDBSCAN y cuGraph no deciden políticas.
+Pero sí pueden proponer etiquetas de régimen, comunidades o segmentos
+candidatos. Su rol natural en Paper 4 es alimentar MDCP, fairness/stress,
+monitoreo de drift y escalabilidad de replay, siempre con gates de estabilidad e
+interpretabilidad.
+
+**Notebooks/storytelling**. Los notebooks no deben ser fuente de métricas
+oficiales. Sí sirven como atlas de evidencia: figuras, ejemplos, sanity checks y
+material de appendix conectado a artefactos reproducibles.
+
+### Readiness del carril research-only
+
+```{python}
+#| label: tbl-paper4-research-lane-readiness
+#| tbl-cap: "Readiness del carril research-only para entrar a Paper 4"
+
+readiness
+```
+
+La lectura práctica es:
+
+- **Entraría ya al MVP**: incertidumbre, IFRS9 avanzado, alpha/Gamma, TS→ECL
+  como estrés, SPO+ como comparador.
+- **Entraría como diagnóstico con warning**: RAPIDS clusters/grafos y notebooks.
+- **No entra como objetivo todavía**: CATE y online/multi-period, porque cambian
+  la dirección metodológica y requieren gates nuevos.
+
+### Contrato de joins para que Paper 4 sea realmente end-to-end
+
+La pieza que falta para que Paper 4 deje de ser una lista de módulos es una
+tabla maestra. Esa tabla debe unir préstamo, política, periodo, segmento y
+escenario.
+
+```{python}
+#| label: tbl-paper4-insight-policy-join-contract
+#| tbl-cap: "Contrato de joins entre insights y política integrada"
+
+join_contract
+```
+
+El contrato dice qué debe existir antes de hablar de sistema integrado:
+
+1. **Loan-level evidence**: por cada préstamo, PD calibrada, intervalo
+   conformal, ECL, stage, funded flag, fairness slice, CATE si aplica y outcome.
+2. **Policy-level evidence**: por cada policy, retorno, `V`, `Gamma_CP`, ECL,
+   tail risk, satisficing, fairness y composición.
+3. **Monthly replay**: por periodo, cobertura, funded set, ECL, drift y valor
+   causal si el gate lo permite.
+4. **Segment/source registry**: grupos Mondrian, grades, fairness proxies,
+   RAPIDS communities y regímenes temporales como etiquetas candidatas.
+5. **Scenario grid**: baseline/adverse/severe/temporal como estados prudenciales.
+
+Sin esos joins, Paper 4 sería una colección de capítulos. Con esos joins, se
+vuelve una arquitectura de decisión.
+
+### Arquitectura de integración con Insights Factory
+
+```{mermaid}
+flowchart LR
+  A[Core canonical artifacts] --> B[Paper 4 source manifest]
+  B --> S[SDAM mapping registry]
+  S --> C[Insight signal registry]
+  C --> D[Loan-level evidence table]
+  C --> E[Policy-level evidence table]
+  C --> F[Monthly replay table]
+  C --> G[Segment/source registry]
+  D --> H[Paper 4 MVP decision pack]
+  E --> H
+  F --> H
+  G --> H
+  H --> I{Selector gate?}
+  I -- no --> J[Diagnostic report only]
+  I -- yes --> K[IFRS9/tail/satisficing selector]
+  K --> L{New champion?}
+  L -- no --> M[Keep Paper 1 champion]
+  L -- yes --> N[paper4_final_promotion.json]
+```
+
+Esta arquitectura permite que el carril research-only aporte sin contaminar. El
+MVP de Paper 4 sería un **decision pack diagnóstico**. Solo después de ese pack
+tendría sentido abrir un selector o solver nuevo.
+
+### Qué implementaría primero
+
+La ruta más limpia para conectar todo es esta:
+
+1. `paper4_source_manifest`: congela champions, artifacts y estado de cada
+   carril.
+2. `paper4_sdam_mapping_registry`: asigna cada señal a `R_t`, `I_t`, `B_t`,
+   `x_t`, `W_{t+1}`, `S^M`, `C_t` o `X^\pi`.
+3. `paper4_insight_signal_registry`: ya creado por
+   `scripts/papers/build_paper4_insight_registry.py`.
+4. `paper4_loan_level_policy_evidence.parquet`: une préstamo, PD, intervalo,
+   ECL, stage, funded flag, fairness slice y CATE si existe.
+5. `paper4_policy_level_evidence.parquet`: agrega por policy retorno,
+   `Gamma_CP`, `V`, ECL, CIF-adjusted ECL, CVaR/OCE, satisficing y composición.
+6. `paper4_monthly_replay.parquet`: evalúa esas policies por periodo y sample
+   path común.
+7. `paper4_segment_source_registry.parquet`: registra grades, score deciles,
+   fairness proxies y RAPIDS communities como labels candidatos, no definitivos.
+8. `paper4_mvp_report.qmd`: integra todo sin nuevo champion.
+
+Después de eso, si aparece señal material, recién ahí se abre:
+
+```text
+paper4_ifrs9_aware_selector
+paper4_tail_satisficing_selector
+paper4_online_conformal_proto
+paper4_multi_period_solver
+paper4_causal_policy_value
+```
+
+El primer corte de esa ruta ya quedó implementado por
+`scripts/papers/build_paper4_living_lab_artifacts.py`: existen el source
+manifest, schema SDAM, registry de policies, tablas `policy × ECL × scenario`,
+net return, tail, satisficing, pairwise differences y evidencia
+`loan/policy/month`. Lo que todavía no existe, por diseño, es un selector que
+pueda cambiar el champion.
+
+### Qué queda explícitamente fuera por ahora
+
+- CATE no entra al objetivo porque `sensitivity_pass=false` y el CATE portfolio
+  está `research_blocked_by_policy_gate`.
+- TS intervalar no entra como política forward porque el interval champion no es
+  promotable.
+- GPU clusters y Louvain communities no entran como grupos MDCP hasta probar
+  estabilidad, interpretabilidad y efecto downstream.
+- Notebooks no entran como métricas oficiales si no tienen artefacto generado.
+- SPO+ no reemplaza CRPTO si no conserva cobertura, trazabilidad y lectura
+  IFRS9.
+
+### Conclusión
+
+Sí hay bastante del Insights Factory que vale para Paper 4, pero no como
+resultados sueltos. Su valor es convertirse en una **capa de ruteo de evidencia**
+que decide qué señales pasan a estado, cuáles pasan a gate, cuáles pasan a
+diagnóstico y cuáles quedan bloqueadas.
+
+La mega extensión realmente end-to-end no es:
+
+```text
+CRPTO + IFRS9 + CATE + GPU + notebooks
+```
+
+Es:
+
+```text
+artefactos canonicos
+-> SDAM mapping registry
+-> registry de señales
+-> joins loan/policy/month/segment/scenario
+-> decision pack
+-> selector explícito
+-> promotion JSON propio solo si todos los gates pasan
+```
+
+Ese es el puente correcto entre Insights Factory y Paper 4.

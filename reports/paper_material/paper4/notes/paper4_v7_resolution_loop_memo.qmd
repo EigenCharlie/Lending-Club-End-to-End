@@ -1,0 +1,16 @@
+---
+title: "Paper 4 v7 Resolution Loop Memo"
+format: html
+---
+
+# Paper 4 v7 Resolution Loop Memo
+
+V7 moves the main online blocker from "unresolved coverage" to "coverage can
+be defended at 0.80, but only with expensive intervals."  The method is
+deployable because it uses pre-decision source structure and minimum-support
+pooling rather than current-month outcomes.
+
+The remaining blockers are therefore mostly efficiency, true contractual IFRS9
+data, full-universe CVaR decomposition, formal DLA/ADP, and causal/fairness
+identification.  No Paper Estrella artifact is changed and no final Paper 4
+promotion JSON is created.

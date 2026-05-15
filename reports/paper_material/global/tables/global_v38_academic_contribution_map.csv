@@ -1,0 +1,8 @@
+finding,primary_artifact,publishability_class,contribution_interpretation
+dynamic champion stress,paper4_v27_champion_vs_cvar_stress_memo.csv,core_defensible,working champion decisions now require paired robustness
+CVaR strict infeasibility,paper4_v28_cvar_infeasibility_certificate_formalized.csv,negative_governance_result,strict constraints can be academically useful even when infeasible
+ADP rollout v2,paper4_v28_dla_fvi_underperformance_diagnosis.csv,promising_method,DLA lane is stronger but still not Bellman exact
+SPO oracle-regret v2,paper4_v28_spo_temporal_oracle_regret.csv,promising_but_dependency_blocked,decision-loss route survives without differentiable layers
+IFRS9 proxy/SICR v2,paper4_v29_ifrs9_sicr_sensitivity.csv,proxy_appendix,ECL/SICR sensitivity improved without contractual claim
+CATE/fairness boundaries,paper4_v29_cate_gate_report.csv,blocked_with_evidence,blocked claims are cleanly documented
+registry synthesis,paper4_v30_candidate_registry.csv,lab_infrastructure,future waves can keep memory and claim governance synchronized

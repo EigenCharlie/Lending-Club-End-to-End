@@ -1,140 +1,69 @@
 ---
-title: "Paper 4: Mega Extensión Secuencial IFRS9 + CATE + CRPTO"
+title: "Paper 4: Sequential Credit Decision Analytics Living Lab"
 page-layout: article
 ---
 
 {{< include ../../includes/_paper-autocontenido.qmd >}}
 
-## Paper 4 como propuesta integrada {#sec-paper4-mega-extension}
+## Papel actual del Paper 4 {#sec-paper4-mega-extension}
 
-Esta sección convierte la mega extensión en una propuesta completa de Paper 4.
-La palabra "paper" aquí se usa en sentido amplio: no estamos intentando forzar
-una contribución de 30 páginas. Estamos definiendo una agenda implementable para
-un sistema completo de decisión crediticia robusta, prudencial, causal y
-secuencial.
+Paper 4 queda reestructurado como un **laboratorio vivo** con una superficie
+oficial compacta. El libro Quarto ya no intenta renderizar cada ola de
+implementacion; conserva solo los resultados que son tangibles, auditables y
+defendibles para un futuro paper o tesis.
 
-El nombre de trabajo es:
+La bitacora canonica del laboratorio es
+`reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`. Ahi viven
+los goals, fracasos, bloqueos, prompts largos, decisiones intermedias y nuevas
+iteraciones. Quarto queda para lo que ya puede sostener una lectura academica.
 
-> **Sequential IFRS9-Aware Causal CRPTO**: dynamic conformal robust credit
-> decisioning under accounting, causal and distributional uncertainty.
+::: {.callout-note}
+## Regla editorial
 
-La idea central es extender los tres papers principales del proyecto:
-
-- **Paper Estrella** aporta CRPTO: incertidumbre conformal que entra a un
-  optimizador robusto y deja un bound auditable.
-- **Paper 2** aporta IFRS9: ECL, SICR, staging, escenarios macro y gobernanza
-  prudencial bajo incertidumbre.
-- **Paper 3** aporta la capa conformal Mondrian: cobertura útil, segmentada y
-  defendible para riesgo crediticio.
-- **El carril causal/CATE** aporta una posibilidad posterior: que las decisiones
-  no dependan solo de correlaciones predictivas, sino de efectos heterogéneos de
-  intervenir, financiar, aprobar o modificar términos.
-
-Paper 4 une esas piezas con una capa que todavía no es central en los papers
-actuales: **tiempo**. La versión completa no seleccionaría un funded set una sola
-vez. Re-evaluaría políticas a través de ciclos de originación, drift, escenarios
-macro, provisión, capital y efectos causales potenciales.
-
-::: {.callout-warning}
-## No es una extensión menor
-
-Paper 4 cambiaría la clase del problema. El Paper Estrella actual es
-post-hoc, one-shot y auditable. Paper 4 sería dinámico, multiobjetivo y
-multigarantía. Por eso debe tener su propio protocolo, sus propios artefactos,
-sus propios run tags y sus propios guardrails. No debe contaminar la promoción
-del champion actual.
+Si un resultado no tiene artifact, claim boundary y estabilidad suficiente,
+primero va al notebook vivo. Solo se promueve al capitulo cuando aporta a la
+tesis oficial de Paper 4.
 :::
 
-### Pregunta central
+## Superficie oficial renderizada
 
-La pregunta de Paper 4 sería:
+| page | role | target_surface |
+| --- | --- | --- |
+| 19a-proposal-and-scope.qmd | official_curated | quarto_official_chapter |
+| 19b-current-assets-and-gaps.qmd | official_curated | quarto_official_chapter |
+| 19c-integrated-architecture.qmd | official_curated | quarto_official_chapter |
+| 19ca-v38-final-synthesis.qmd | official_curated | quarto_official_chapter |
+| 19f-sequential-decision-framework.qmd | official_curated | quarto_official_chapter |
+| 19h-mvp-evidence-pack.qmd | official_curated | quarto_official_chapter |
+| 19i-regret-auditability-frontier.qmd | official_curated | quarto_official_chapter |
+| 19n-online-mdcp-fairness.qmd | official_curated | quarto_official_chapter |
+| 19t-multi-period-solver.qmd | official_curated | quarto_official_chapter |
+| index.qmd | official_curated | quarto_official_chapter |
 
-> ¿Podemos construir una política crediticia dinámica que mantenga cobertura
-> conformal, retorno robusto, prudencia IFRS9, control de cola, restricciones de
-> comité y, eventualmente, valor causal bajo drift y decisiones repetidas?
+## Hallazgos oficiales actuales
 
-La respuesta no puede ser solo un mejor AUC ni un mejor forecast. Tiene que
-demostrar que el sistema toma mejores decisiones bajo incertidumbre gobernada.
+| finding_id | finding | status | quarto_page |
+| --- | --- | --- | --- |
+| F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
+| F02 | Paper Estrella remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
+| F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
+| F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
 
-### Mini-abstract
+## Como leer ahora el capitulo
 
-**Problema**: Los sistemas de riesgo crediticio suelen separar predicción,
-provisión, optimización, causalidad y monitoreo. Esa separación vuelve difícil
-defender decisiones bajo incertidumbre real: una PD calibrada no garantiza una
-política robusta; una provisión IFRS9 no elige portafolios; un CATE sin
-optimización no gobierna capital; y un forecast temporal sin cobertura no basta
-para decisiones prudenciales.
-
-**Propuesta**: Paper 4 define una arquitectura integrada donde PD calibrada,
-conformal prediction, IFRS9, CRPTO, online conformal, multi-period portfolio,
-OCE/CVaR, robust satisficing, MDCP, fairness constraints y CATE se organizan en
-familias de evidencia separadas y luego se conectan mediante un selector
-explícito de política.
-
-**Resultado esperado**: Un protocolo implementable para elegir o evaluar
-políticas crediticias dinámicas que maximizan retorno robusto neto de ECL,
-controlan cola de pérdida/provisión, mantienen cobertura por segmento y periodo,
-y solo incorporan causalidad cuando existe identificación defendible.
-
-### Verdad canónica de partida
-
-Paper 4 no reemplaza la verdad actual del proyecto. Parte de ella. La tabla
-siguiente fija qué artefactos ya son canónicos, qué aportan y qué límite no se
-debe cruzar sin un run nuevo.
-
-::: {#tbl-paper4-canonical-starting-point}
-
-| Bloque | Artefacto/ubicación | Estado útil para Paper 4 | Límite actual |
-|---|---|---|---|
-| Champion CRPTO | `models/final_project_promotion.json`, `models/champion_portfolio_policy.json` | economic champion con retorno robusto, `alpha01_exact_pass=true` y región `45/45` | no es IFRS9-aware ni multi-periodo |
-| Bound `alpha/Gamma_CP` | capítulo 14b + scripts de validación bound-aware | garantía one-shot auditable para funded set robusto | no controla online drift ni múltiples decisiones |
-| PD calibrada | `data/processed/pipeline_summary.json`, `reports/dvc/metrics_summary.json` | score base calibrado para todos los papers | no basta como decisión |
-| Conformal Mondrian | `conformal_upstream.winner_metrics` y artifacts de intervalos | cobertura operativa por grupos/deciles | no es online ni MDCP |
-| IFRS9 | capítulos 15a--15d + artifacts ECL/SICR | brazo prudencial natural de Paper 4 | todavía no selecciona policies |
-| OCE/CVaR y satisficing | apéndices/diagnósticos A12--A13 del Paper Estrella | candidatos inmediatos para ranking diagnóstico | todavía no entran al solver |
-| Time series | TS vNext y documentación `research_only` | justifica dimensión secuencial futura | intervalos temporales no son promotables hoy |
-| CATE | carril causal `insights_only` | hipótesis de decisión causal futura | no hay identificación suficiente para claim central |
-| DVC/MLflow/Quarto | pipeline y documentación de auditoría | superficie de reproducibilidad | Paper 4 necesitaría manifest propio |
-
-Punto de partida canónico para Paper 4.
-:::
-
-### Contribución propuesta
-
-::: {#tbl-paper4-contributions}
-
-| Contribución | Qué toma del proyecto | Qué agrega Paper 4 |
-|---|---|---|
-| CRPTO dinámico | Paper Estrella, robust region `45/45` | decisiones repetidas y estado temporal |
-| IFRS9-aware optimization | Paper 2, ECL/SICR/scenarios | ECL/provisión como objetivo, constraint o selector |
-| Online uncertainty governance | Paper 3, TS vNext research | coverage regret y recalibración mensual |
-| Tail-risk-aware credit policy | A12 OCE/CVaR diagnóstico | OCE/CVaR como objetivo o restricción |
-| Robust satisficing | A13 satisficing margins | gates de comité como reglas de decisión |
-| Multi-distribution coverage | literatura MDCP | cobertura peor fuente/regimen/segmento |
-| Causal decision layer | CATE lane `insights_only` | policy value causal con identificación |
-| Governance formal | MRM, fairness, DVC/MLflow | release manifest de política integrada |
-
-Contribuciones que Paper 4 podría articular como sistema integrado.
-:::
-
-### Cómo leer esta sección
-
-- **Propuesta y alcance** define el paper, las preguntas, los claims y los
-  límites editoriales.
-- **Activos y gaps** separa lo que ya existe, lo que es viable ahora, lo que no
-  funcionó todavía y lo que requiere investigación nueva.
-- **Arquitectura integrada** formaliza el sistema, las métricas, los objetivos y
-  las restricciones.
-- **Roadmap de implementación** traduce la visión en fases, artefactos, runs y
-  criterios de promoción.
-
-### Navegación curada
-
-```{=html}
-<div class="chapter-landing-grid">
-  <div class="chapter-card"><h4><a href="19a-proposal-and-scope.html">Propuesta y Alcance</a></h4><p>Paper 4 como agenda integrada: pregunta, tesis, claims y límites.</p></div>
-  <div class="chapter-card"><h4><a href="19b-current-assets-and-gaps.html">Activos y Gaps</a></h4><p>Qué tenemos, qué falta, qué es viable ahora y qué todavía no funcionó.</p></div>
-  <div class="chapter-card"><h4><a href="19c-integrated-architecture.html">Arquitectura Integrada</a></h4><p>IFRS9 + CATE + CRPTO secuencial con OCE/CVaR, satisficing, MDCP y fairness.</p></div>
-  <div class="chapter-card"><h4><a href="19d-implementation-roadmap.html">Roadmap Técnico</a></h4><p>Fases, artefactos futuros, runs, guardrails y criterios de promoción.</p></div>
-</div>
-```
+1. **Propuesta y alcance** define la tesis academica.
+2. **Activos y gaps** separa resultados oficiales de lanes bloqueadas.
+3. **Arquitectura integrada** explica CRPTO, IFRS9 proxy, SDAM y governance.
+4. **Marco SDAM** declara estado, decision, informacion exogena y politica.
+5. **Evidence pack** lista la evidencia tangible.
+6. **Regret-auditability** muestra la tension retorno, cola, cobertura y auditabilidad.
+7. **Online/MDCP/fairness** fija cobertura y source governance con limites claros.
+8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
+9. **Sintesis v38** deja la verdad actual y los claims permitidos.

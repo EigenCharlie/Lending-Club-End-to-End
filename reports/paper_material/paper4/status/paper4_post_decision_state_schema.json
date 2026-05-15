@@ -1,0 +1,49 @@
+{
+  "schema_version": "2026-05-12.1",
+  "generated_at_utc": "2026-05-13T00:39:00.605284+00:00",
+  "state_name": "S_t^x",
+  "description": "State immediately after funding/selection and before defaults, repayments, drift, and new applications.",
+  "fields": [
+    {
+      "name": "policy_id",
+      "type": "string",
+      "source": "policy_class_registry"
+    },
+    {
+      "name": "funded_exposure",
+      "type": "float",
+      "source": "funded_set_or_policy_eval"
+    },
+    {
+      "name": "capital_used",
+      "type": "float",
+      "source": "policy_level_evidence"
+    },
+    {
+      "name": "budget_remaining",
+      "type": "float",
+      "source": "policy_level_evidence"
+    },
+    {
+      "name": "stage_mix_proxy",
+      "type": "object",
+      "source": "ifrs9_policy_eval"
+    },
+    {
+      "name": "conformal_status",
+      "type": "object",
+      "source": "V/Gamma_CP/violation"
+    },
+    {
+      "name": "tail_status",
+      "type": "object",
+      "source": "OCE/CVaR overlay"
+    },
+    {
+      "name": "fairness_proxy_status",
+      "type": "object",
+      "source": "fairness audit"
+    }
+  ],
+  "current_status": "schema_declared_for_living_lab"
+}

@@ -1,0 +1,29 @@
+---
+title: "Multi Period Solver And Dynamic Stress"
+page-layout: article
+---
+
+## Dynamic stress engine
+
+La contribucion tangible mas importante del laboratorio es que las policies
+dejaron de compararse solo como funded books estaticos. El stress engine v31
+evalua candidates como procesos mensuales bajo common random numbers, con cash,
+outstanding, defaults, prepayments, recoveries, ECL, coverage state y wealth.
+
+## DLA/ADP
+
+DLA/ADP ya tiene lenguaje SDAM: estado, decision, post-decision state,
+transicion y reward. Pero la evidencia actual sigue siendo representativa. No se
+reclama Bellman optimality.
+
+## SPO/DFL
+
+SPO/DFL queda como oracle-regret/surrogate. Es util para comparar decision loss
+contra oracles restringidos, pero no debe llamarse differentiable SPO+ hasta que
+el stack de dependencias se resuelva y exista validacion.
+
+## Sample paths
+
+Los sample paths son internos y sirven para comparacion pareada, sensibilidad y
+stress. No son forecast externo. Cuando se usa macro externo, debe quedar
+etiquetado como contexto o calibracion parcial.

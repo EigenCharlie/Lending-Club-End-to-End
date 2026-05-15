@@ -1,0 +1,2 @@
+statement_id,statement,must_appear_in_quarto
+paper4_fairness_no_legal_claim_v7,Paper 4 reports source/proxy governance diagnostics only; it does not make a fair-lending legal compliance claim without protected attributes or an approved proxy protocol.,True

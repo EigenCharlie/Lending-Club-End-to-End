@@ -1,0 +1,139 @@
+---
+title: "Multi-Period SDAM and Causal Toy"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _pq(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_parquet(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+state = _pq("paper4_dla_toy_state_replay.parquet")
+transition = _pq("paper4_state_transition_toy.parquet")
+horizon = _csv("paper4_dla_toy_horizon_summary.csv")
+toy_policy = _json("paper4_multi_period_toy_policy.json")
+cate_value = _csv("paper4_cate_policy_value_toy.csv")
+```
+
+## Pregunta {#sec-paper4-sdam-causal-toy-question}
+
+El Paper 4 quiere volverse secuencial, pero no conviene empezar con un solver
+dinámico enorme. Esta página implementa el primer juguete SDAM:
+
+> ¿Cómo se vería un estado post-decisión `S_t^x` con budget, funded exposure,
+> ECL, stage mix y cobertura, evaluado en horizontes 3/6 meses?
+
+También deja CATE como toy value, no como objetivo.
+
+## DLA toy policy
+
+```{python}
+#| label: tbl-paper4-dla-toy-policy
+#| tbl-cap: "Contrato JSON de la policy DLA toy"
+
+pd.DataFrame(
+    [
+        {"field": "policy_id", "value": toy_policy.get("policy_id", "")},
+        {"field": "class", "value": toy_policy.get("class", "")},
+        {"field": "horizons_months", "value": str(toy_policy.get("horizons_months", ""))},
+        {"field": "transition", "value": toy_policy.get("transition", "")},
+        {"field": "scope", "value": toy_policy.get("scope", "")},
+        {"field": "promotion_eligible", "value": toy_policy.get("promotion_eligible", "")},
+    ]
+)
+```
+
+## State replay
+
+```{python}
+#| label: tbl-paper4-dla-state-replay
+#| tbl-cap: "State replay mensual para DLA toy"
+
+state.head(18) if not state.empty else state
+```
+
+```{python}
+#| label: tbl-paper4-dla-horizon-summary
+#| tbl-cap: "Resumen rolling 3/6 meses"
+
+horizon.head(18) if not horizon.empty else horizon
+```
+
+## Interpretación SDAM
+
+El toy ya mapea a Powell:
+
+| Elemento | En este artifact |
+|---|---|
+| `R_t` | budget, funded exposure, capital used |
+| `I_t` | monthly replay, period, coverage |
+| `B_t` | ECL/stage proxy, conformal coverage status |
+| `x_t` | policy_id/funded set reconstructivo |
+| `W_{t+1}` | defaults/realized return observed in replay |
+| `S^M` | budget transition |
+| `C_t` | net return after ECL |
+| `X^\pi` | `paper4_multi_period_dla_toy` |
+
+::: {.callout-warning}
+## Toy, no DLA final
+
+La transición `budget_{t+1}=max(0,budget_t+return_t-provision_t)` es deliberadamente
+simple. Sirve para aprender el flujo secuencial. No es un modelo de servicing,
+prepago, recuperación, capital regulatorio ni rebalanceo real.
+:::
+
+## Causal toy
+
+La capa CATE se mantiene bloqueada para promoción, pero ya puede leerse como
+valor toy sobre funded sets.
+
+```{python}
+#| label: tbl-paper4-cate-policy-value-toy
+#| tbl-cap: "CATE policy value toy"
+
+cate_value.head(12) if not cate_value.empty else cate_value
+```
+
+La nota extendida vive en
+`reports/paper_material/paper4/notes/paper4_causal_identification_dossier.md`.
+Su decisión sigue siendo conservadora: CATE puede informar `B_t` o hipótesis de
+intervención futura, pero no entra todavía a `C_t` ni a `X^\pi`.
+
+## Next Step
+
+La próxima versión multi-period debería:
+
+1. separar originations nuevas de cartera ya fondeada;
+2. modelar repayments/prepayment/recovery;
+3. actualizar ECL por stage transition;
+4. permitir una policy de rebalanceo;
+5. comparar horizon value bajo sample paths comunes.
+
+Para causalidad, el siguiente avance no es más CATE por sí solo. Es definir
+treatment/outcome y pasar overlap/sensitivity antes de usar policy value.

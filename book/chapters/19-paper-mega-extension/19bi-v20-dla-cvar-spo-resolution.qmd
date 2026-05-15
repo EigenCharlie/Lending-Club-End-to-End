@@ -1,0 +1,80 @@
+---
+title: "v20 DLA, CVaR and SPO Resolution"
+page-layout: article
+---
+
+## Pregunta
+
+V20 pregunta si Paper 4 puede pasar de adapters sobre funded books a candidatos
+más endógenos: DLA mensual aproximado, CVaR/OCE con fronteras e infeasibilidad
+explícita, y SPO/DFL como regret oracle defendible aunque las capas
+diferenciables sigan bloqueadas.
+
+## Qué intentamos
+
+Se implementaron tres carriles:
+
+- DLA endógeno mensual aproximado, que selecciona préstamos por mes usando
+  retorno, PD, ancho conformal, fuente débil y caja proxy.
+- CVaR/OCE v2, manteniendo separados los regímenes strict, committee y relaxed,
+  sin reclamar optimalidad full-universe.
+- SPO/DFL v20, con auditoría de dependencias y una ruta no diferenciable
+  CatBoost/sklearn + oracle-regret.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v20_endogenous_dla_decisions.parquet` | decisiones loan-level DLA endógeno |
+| `paper4_v20_endogenous_dla_state_policy_registry.csv` | registry de policies DLA |
+| `paper4_v20_dynamic_policy_summary.csv` | comparación dinámica DLA/CVaR/SPO |
+| `paper4_v20_cvar_oce_frontier_v2.csv` | frontera CVaR/OCE etiquetada |
+| `paper4_v20_cvar_strict_infeasibility_v2.csv` | certificado práctico de infeasibilidad strict |
+| `paper4_v20_spo_dependency_blockers.csv` | bloqueo cvxpy/cvxpylayers/torch |
+| `paper4_v20_spo_training_report.csv` | entrenamiento surrogate regret |
+| `paper4_v20_spo_oracle_regret.csv` | regret temporal aproximado |
+| `paper4_v20_champion_decomposition_summary.csv` | selección/evitación contra challengers |
+| `paper4_v20_champion_decision_memo.csv` | decisión de committee champion |
+| `paper4_v20_status.json` | status de la ola |
+
+## Resultado
+
+V20 evaluó 18 policies: las 14 base más DLA/SPO nuevos. El mejor score puro fue
+`v13_spo_regret_audit_guarded`, pero el memo no recomienda cambiar el working
+champion porque su probabilidad de mayor wealth frente a
+`paper1_economic_champion` bajo paths comunes fue solo 0.015625. En otras
+palabras: gana en score de gobernanza/tail, pero no gana robustez económica
+pareada.
+
+El bloqueo SPO quedó claro: `cvxpy` falla por ABI NumPy, `cvxpylayers` y `torch`
+no están disponibles, así que no existe claim formal de differentiable SPO+.
+La ruta válida por ahora es decision-oracle regret surrogate.
+
+## Qué mejoró
+
+Paper 4 ahora tiene DLA endógeno aproximado, no solo books heredados. También
+tiene una decisión de champion más madura: si score y robustez pareada discrepan,
+se documenta evidencia dividida en vez de promover por ansiedad metodológica.
+
+## Qué falló
+
+No hay Bellman exacto. No hay full-universe CVaR exacto. No hay SPO+
+diferenciable. Además, algunos DLA endógenos son aproximaciones greedy: útiles
+para aprender y comparar, no para reclamar optimalidad dinámica.
+
+## Claim permitido
+
+Paper 4 puede decir que compara DLA, CVaR y SPO-like challengers bajo un mismo
+engine dinámico y que registra cuándo un challenger es fuerte pero no
+promovible.
+
+## Claim no permitido
+
+No puede decir que resolvió Bellman optimality, full-universe CVaR exacto o SPO+
+diferenciable formal.
+
+## Qué queda pendiente
+
+Los próximos pasos reales son: ADP/FVI más formal, column generation con
+pricing/duals más defendible y resolver dependencias si se quiere una capa
+diferenciable.

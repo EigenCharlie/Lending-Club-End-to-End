@@ -1,0 +1,66 @@
+---
+title: "v26 Registry and Synthesis"
+page-layout: article
+---
+
+## Pregunta
+
+V26 pregunta cómo queda el laboratorio después de v23-v25: qué artifacts existen,
+qué candidates siguen vivos, qué claims están respaldados y qué bloqueos ya no
+deben confundirse con pendientes implementables.
+
+## Qué intentamos
+
+Se construyó un artifact registry completo para v19-v26, un candidate registry
+refinado, blocker dashboard, claim matrix, contribution map, publishability
+triage y working champion JSON. El criterio de champion es conservador:
+`paper1_economic_champion` se retiene mientras los challengers no tengan robustez
+pareada y claim safety suficientes.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v26_artifact_registry.csv` | manifest con path, filas, columnas y hash |
+| `paper4_v26_candidate_registry.csv` | ranking multi-métrica de candidates |
+| `paper4_v26_blocker_dashboard.csv` | blockers clasificados |
+| `paper4_v26_claim_artifact_matrix.csv` | claim -> artifact -> page |
+| `paper4_v26_academic_contribution_map.csv` | hallazgos/contribuciones |
+| `paper4_v26_publishability_triage.csv` | triage de paper futuro |
+| `paper4_v26_working_champion.json` | champion Paper 4 only |
+| `paper4_v26_status.json` | status final |
+
+## Resultado
+
+El registry tiene 429 artifacts y todos los claims de la matriz v26 tienen
+artifact existente. El working champion se mantiene como
+`paper1_economic_champion`. El mayor challenger por score v26 es un CVaR relaxed,
+pero no se promueve porque todavía requiere evidencia pareada completa,
+frontera full-universe o una justificación committee explícita.
+
+## Qué mejoró
+
+Paper 4 ahora tiene memoria técnica de verdad: artifacts, claims, candidates,
+blockers y publishability triage quedan sincronizados.
+
+## Qué falló
+
+Los bloqueos de fondo siguen: full-universe CVaR exacto, Bellman exacto,
+SPO+ diferenciable, IFRS9 contractual, CATE policy value y fairness legal.
+
+## Claim permitido
+
+Paper 4 puede presentarse como laboratorio académico reproducible de sequential
+credit decision governance bajo uncertainty, ECL proxy, source governance y
+sample-path evaluation.
+
+## Claim no permitido
+
+No hay promoción final, no hay claims legales/contractuales/causales fuertes y
+no hay optimalidad exacta para los carriles aún bloqueados.
+
+## Qué queda pendiente
+
+Lo siguiente implementable sería 256/512 paths con cache de eventos, ADP con
+risk constraints más duros y CVaR column generation más cercano a dual/pricing
+real.

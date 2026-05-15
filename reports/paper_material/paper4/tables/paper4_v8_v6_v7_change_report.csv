@@ -1,0 +1,7 @@
+metric,v6_value,v7_value,v8_value,interpretation
+online_best_deployable_width,0.9285203485163063,0.9563949351857884,0.9543797192776867,v8 tests whether the v7 source gate can be kept while reducing width toward 0.95
+online_source_month_gate,0.5,0.8,0.8,source-month coverage is the non-negotiable promotion gate
+mdcp_solver_success_count,1,6,4,hard global caps failed; soft penalties and family caps are the viable path
+cvar_frontier_feasible_count,8,10,15,v8 moves from arbitrary caps to bisection around active feasibility boundaries
+contractual_ifrs9_readiness_score,0.5,0.5,0.5,the readiness blocker is stable and data-bound
+fair_lending_legal_claim,False,False,False,fairness remains proxy governance only

@@ -1,0 +1,19 @@
+{
+  "claim_boundary": "v41 improves runnable diagnostics and candidate screens; no live deployment, final promotion, or exact CVaR claim",
+  "cvar_certificate_rows_v41": 12,
+  "cvar_column_log_rows_v41": 12,
+  "cvar_frontier_rows_v41": 15,
+  "dynamic_rerun_candidates_v41": 2,
+  "exact_full_universe_cvar_claim_allowed": false,
+  "generated_at_utc": "2026-05-15T14:29:43.315533+00:00",
+  "online_best_rows_v41": 7,
+  "online_method_rows_v41": 45,
+  "online_source_family_pass_rate_v41": 1.0,
+  "paper4_final_promotion_created": false,
+  "phase": "v41_online_cvar_source_dynamic_gate",
+  "runtime_seconds": 0.255,
+  "schema_version": "2026-05-15.41",
+  "source_cap_rows_v41": 126,
+  "source_feasibility_rows_v41": 126,
+  "strict_live_deployability_claim_allowed": false
+}

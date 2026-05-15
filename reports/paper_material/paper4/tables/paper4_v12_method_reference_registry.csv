@@ -1,0 +1,5 @@
+method_lane,reference,url,implementation_use_v12,claim_boundary_v12
+SPO/SPO+,"Elmachtoub and Grigas, Smart ""Predict, then Optimize""",https://pubsonline.informs.org/doi/10.1287/mnsc.2020.3922,structured regret objective and temporal regret validation,v12 implements SPO-style regret training; not a formal SPO+ theorem proof
+Differentiable optimization layers,"Agrawal et al., Differentiable Convex Optimization Layers",https://arxiv.org/abs/1910.12430,documents future path for differentiating through convex programs,not used as a cvxpylayer in v12 because current LP contains large fractional portfolio constraints
+OptNet,"Amos and Kolter, OptNet",https://proceedings.mlr.press/v70/amos17a.html,design reference for optimization-as-layer training,not implemented as a QP layer in v12
+Online SPO,"Liu and Grigas, Online Contextual Decision-Making with SPO",https://arxiv.org/abs/2206.07316,motivates temporal train/validation/test decision regret reporting,"v12 remains offline historical replay, not online deployment"

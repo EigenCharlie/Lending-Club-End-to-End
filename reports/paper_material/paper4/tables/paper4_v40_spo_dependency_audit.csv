@@ -1,0 +1,11 @@
+package,available_v40,version_v40,version_lookup_error_v40,import_error_v40,formal_differentiable_spo_claim_allowed,decision_v40,future_install_path
+numpy,True,2.4.3,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+cvxpy,False,1.4.4,,ImportError: numpy.core.multiarray failed to import,False,dependency_blocked_for_formal_spo,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+cvxpylayers,False,,PackageNotFoundError: No package metadata was found for cvxpylayers,ModuleNotFoundError: No module named 'cvxpylayers',False,dependency_blocked_for_formal_spo,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+torch,False,,PackageNotFoundError: No package metadata was found for torch,ModuleNotFoundError: No module named 'torch',False,dependency_blocked_for_formal_spo,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+pyomo,True,6.10.0,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+highspy,True,1.13.1,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+catboost,True,1.2.10,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+sklearn,True,1.8.0,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+pandas,True,2.3.3,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env
+scipy,True,1.15.3,,,False,usable_context,isolated env with compatible NumPy/cvxpy/cvxpylayers/torch pins; do not mutate main env

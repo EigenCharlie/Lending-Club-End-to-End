@@ -1,0 +1,6 @@
+threshold_id,value,rationale,claim_level
+online_mean_coverage,0.9,Target marginal coverage for online conformal replay.,promotion gate
+online_min_policy_month,0.8,Worst policy-month tolerance used to avoid mean-only claims.,promotion gate
+mdcp_defended_sources,0.8,Minimum worst-source coverage over defended non-protected sources.,promotion gate
+fairness_proxy_gap,0.3,"Proxy-governance yellow flag, not a protected-attribute fairness claim.",screening gate
+cvar_candidate_pool,20000.0,Formal CVaR LP currently uses a documented candidate pool.,scope caveat

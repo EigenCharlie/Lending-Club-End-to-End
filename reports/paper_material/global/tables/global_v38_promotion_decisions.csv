@@ -1,0 +1,3 @@
+decision_scope,current_champion,best_new_challenger,promotion_decision_v38,reason,artifact_to_update
+Paper Estrella,bound_aware_276k_economic_champion,v13_spo_regret_balanced,not_promoted_with_reason,no named challenger passes all Paper Estrella promotion gates and artifact sync; Paper 4 challengers fail paired robustness or are lab-only,none
+Paper 4 working champion,paper1_economic_champion,v13_spo_regret_balanced,retain_working_champion_after_v31_v37_review,v31 512-path stress retained the working champion; v32-v37 claims remain bounded by dependency/data/theory gates,reports/paper_material/paper4/status/paper4_v30_working_champion.json remains current; v38 records no replacement

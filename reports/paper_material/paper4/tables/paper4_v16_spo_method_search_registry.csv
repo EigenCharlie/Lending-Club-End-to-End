@@ -1,0 +1,6 @@
+method_lane,primary_source,url,v16_decision
+SPO/SPO+,"Elmachtoub and Grigas (2021), Smart Predict, then Optimize",https://pubsonline.informs.org/doi/10.1287/mnsc.2020.3922,use decision regret/oracle validation; no formal SPO+ theorem claim
+Differentiable convex optimization layers,"Agrawal et al. (2019), Differentiable Convex Optimization Layers",https://papers.neurips.cc/paper/9152-differentiable-convex-optimization-layers,blocked until cvxpy/cvxpylayers/torch dependency path is reliable
+CVaR optimization,"Rockafellar and Uryasev (2000), Optimization of Conditional Value-at-Risk",https://doi.org/10.21314/JOR.2000.038,retain linear CVaR formulation and strict infeasibility diagnostics
+Conformal risk control,"Angelopoulos et al. (2022), Conformal Risk Control",https://arxiv.org/abs/2208.02814,future path for decision-level risk control; current gate remains coverage/width replay
+Fair-lending proxy methodology,CFPB proxy-methodology repository,https://github.com/cfpb/proxy-methodology,external protocol reference only; no fair-lending legal claim without protected attributes/protocol

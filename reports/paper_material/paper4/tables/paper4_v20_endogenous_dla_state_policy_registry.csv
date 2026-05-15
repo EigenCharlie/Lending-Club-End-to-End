@@ -1,0 +1,4 @@
+policy_id,policy_class,strategy,adapter_type_v20,selected_loans,book_exposure,state_variables_used,bellman_exact_claim,claim_boundary
+v20_dla_endogenous_return,DLA/ADP-approx,return,endogenous_monthly_greedy_approximation,75,2299600.0,"cash_proxy, issue_month, PD, conformal width, source pressure, expected return",False,"monthly endogenous approximation, not exact Bellman optimality"
+v20_dla_endogenous_tail_guarded,DLA/ADP-approx,tail_guarded,endogenous_monthly_greedy_approximation,1129,2299750.0,"cash_proxy, issue_month, PD, conformal width, source pressure, expected return",False,"monthly endogenous approximation, not exact Bellman optimality"
+v20_dla_endogenous_reinvestment,DLA/ADP-approx,reinvestment,endogenous_monthly_greedy_approximation,161,2299775.0,"cash_proxy, issue_month, PD, conformal width, source pressure, expected return",False,"monthly endogenous approximation, not exact Bellman optimality"

@@ -1,0 +1,5 @@
+robustness_item,online_method_v9,source_month_defended_min,policy_month_defended_min,avg_width_loan,pass_v10,interpretation
+v9_best_nominal,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,0.8,0.9,0.9342434494753106,True,v9 best passes the explicit online goal.
+leave_one_month_min,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,0.8,0.9,0.940724896340597,True,leave-one-month stress tests whether one calendar month drives the gate.
+leave_one_policy_min,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,0.8,0.9,0.9342953805246911,True,leave-one-policy stress tests whether one local policy drives the gate.
+month_bootstrap_p05,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,0.8,0.9,0.9438386590809392,True,bootstrap p05/p95 summarizes month-resampling fragility.

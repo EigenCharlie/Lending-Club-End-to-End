@@ -1,0 +1,3 @@
+source_path,rows,loan_status,issue_date,installment,last_payment_date,next_payment_date,total_payment,principal_received,interest_received,recoveries,outstanding_principal,days_past_due,forbearance_or_hardship,deferral_term,macro_path
+data/processed/ead_dataset.parquet,249380,True,True,True,False,True,False,False,False,False,False,True,False,True,False
+data/processed/loan_master.parquet,1346311,True,True,True,False,False,False,False,False,False,False,False,False,False,False

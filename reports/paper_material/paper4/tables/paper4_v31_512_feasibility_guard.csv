@@ -1,0 +1,2 @@
+requested_paths_v31,actual_paths_v31,estimated_runtime_seconds,runtime_guard_seconds,execution_mode_v31,performance_blocked,alternative_used,claim_boundary
+512,512,,,actual_replay,False,,actual internal replay; no external forecast claim

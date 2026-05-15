@@ -1,0 +1,20 @@
+---
+title: "Paper 4 v8 Resolution Wave Memo"
+format: html
+---
+
+# Paper 4 v8 Resolution Wave Memo
+
+V8 turns the current blocker list into reproducible artifacts.  The main result
+is not a final promotion; it is a sharper laboratory map:
+
+- online conformal is micro-iterated at the source-month/width boundary;
+- CVaR is searched by bisection rather than arbitrary caps;
+- MDCP moves from soft penalty to family caps inside the LP;
+- DLA receives a value-function proxy and a static reference comparison;
+- CATE and fairness remain explicitly blocked for policy/legal claims;
+- SPO+/DFL is represented as a transparent decision-loss surrogate, not a
+  neural training claim.
+
+No Paper Estrella artifact is changed and no final Paper 4 promotion JSON is
+created.

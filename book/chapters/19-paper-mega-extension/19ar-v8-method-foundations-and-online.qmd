@@ -1,0 +1,166 @@
+---
+title: "v8 Method Foundations and Online Efficiency"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v8_resolution_status.json")
+literature = _csv("paper4_v8_literature_to_method_registry.csv")
+online = _csv("paper4_v8_online_efficiency_frontier.csv")
+breakpoints = _csv("paper4_v8_online_breakpoint_report.csv")
+claims = _csv("paper4_v8_claim_artifact_matrix.csv")
+```
+
+## Pregunta {#sec-paper4-v8-method-online-question}
+
+V8 parte de una pregunta muy concreta: si v7 ya consiguió cobertura defendida
+`source-month >= 0.80`, ¿podemos bajar el ancho promedio de `0.9564` hacia el
+gate operativo `0.95` sin usar outcomes del mes corriente?
+
+La búsqueda online se inspira en Adaptive Conformal Inference de Gibbs y
+Candès, que formula la cobertura online bajo cambio de distribución como una
+adaptación secuencial del parámetro de calibración
+(<https://arxiv.org/abs/2106.00170>). También conserva la idea de Conformal
+Risk Control: la cobertura no es el único riesgo; ancho, fuente débil y costo
+de decisión también deben quedar auditables
+(<https://arxiv.org/abs/2208.02814>).
+
+## Fuentes y traducción a método
+
+```{python}
+#| label: tbl-paper4-v8-literature-registry
+#| tbl-cap: "V8 literature-to-method registry"
+
+_cols(
+    literature,
+    [
+        "source_id",
+        "concept",
+        "v8_use",
+        "implemented_artifact",
+        "caveat",
+    ],
+)
+```
+
+La tabla no pretende convertir estas fuentes en claims teóricos nuevos. Su
+función es mantener trazabilidad: cada idea que entra al laboratorio debe tener
+un artifact y un caveat. Eso evita que Paper 4 diga "ACI", "CRC" o "SPO+" como
+etiquetas sueltas sin experimento asociado.
+
+## Status online v8
+
+```{python}
+#| label: tbl-paper4-v8-online-status
+#| tbl-cap: "Status online v8"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "online_best_method": status.get("online_best_method"),
+    "online_best_source_month_defended_min": status.get("online_best_source_month_defended_min"),
+    "online_best_policy_month_defended_min": status.get("online_best_policy_month_defended_min"),
+    "online_best_width": status.get("online_best_width"),
+    "online_gate80_defended_deployable_exists": status.get("online_gate80_defended_deployable_exists"),
+    "online_gate80_width95_exists": status.get("online_gate80_width95_exists"),
+    "online_efficiency_blocker": status.get("online_efficiency_blocker"),
+    "online_promotion_eligible": status.get("online_promotion_eligible"),
+}])
+```
+
+## Frontier micro-iterada
+
+```{python}
+#| label: tbl-paper4-v8-online-frontier-top
+#| tbl-cap: "Top online conformal v8 micro-grid"
+
+_cols(
+    online.head(20),
+    [
+        "online_method_v8",
+        "method_family",
+        "coverage_policy_month_defended_min",
+        "coverage_source_month_defended_min",
+        "avg_width_loan",
+        "width_gap_to_0p95",
+        "share_rows_widened",
+        "share_rows_shrunk",
+        "gate_pass_80_defended",
+        "efficiency_gate_width_95",
+        "promotion_eligible",
+        "parameters_json",
+    ],
+)
+```
+
+La micro-iteración v8 prueba máscaras estructurales pre-decision sobre grade,
+DTI, score decile, income band, period y borrowing de historia previa. El punto
+clave es que la búsqueda permite multiplicadores menores a `1.0`: v7 solo
+ensanchaba; v8 también pregunta si se puede encoger una parte del intervalo
+base y compensar selectivamente en las fuentes débiles.
+
+## Breakpoints
+
+```{python}
+#| label: tbl-paper4-v8-online-breakpoints
+#| tbl-cap: "Online efficiency breakpoint report"
+
+breakpoints
+```
+
+La lectura práctica es sencilla:
+
+- si existe `online_gate80_width95_exists=True`, Paper 4 tiene un candidato
+  online deployable que cruza el gate operativo;
+- si sigue en `False`, el bloqueo no es conceptual sino de eficiencia fina;
+- el mejor punto bajo `width <= 0.95` se conserva aunque falle source-month,
+  porque enseña qué celda se rompe cuando intentamos ahorrar ancho.
+
+## Interpretación
+
+Esta página decide si el bloqueo online pasó de "near-resolved" a "resolved" o
+si todavía falta una iteración. En ambos casos, el resultado es útil: si v8
+cruza `0.95`, el siguiente gate real es validarlo contra MDCP, IFRS9 y paths
+comunes; si no cruza, el próximo trabajo debe ser un predictor pre-decision de
+weak cells más inteligente, no más ancho global.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v8-method-online-artifacts
+#| tbl-cap: "V8 claim-artifact matrix: methods and online"
+
+_cols(
+    claims[claims["quarto_page"].eq("19ar-v8-method-foundations-and-online.qmd")],
+    ["priority", "claim_status", "artifact", "caveat"],
+)
+```

@@ -8,6 +8,24 @@ Last Updated: 2026-05-04
 Project is operational and artifact-consistent across the thesis pipeline.
 Current truth is **`models/final_project_promotion.json` + `models/champion_portfolio_policy.json`**.
 
+### Paper 4 living-lab state (post Quarto restructure, v41-v44)
+
+Paper 4 now uses a two-layer documentation contract:
+
+- Official Quarto surface: compact 10-page chapter under `book/chapters/19-paper-mega-extension`.
+- Living-lab notebook: `reports/paper_material/paper4/notes/paper4_living_lab_notebook.md`.
+- Current official findings: `reports/paper_material/paper4/tables/paper4_current_official_findings.csv`.
+- Current claim boundaries: `reports/paper_material/paper4/tables/paper4_current_claim_boundaries.csv`.
+- v41-v44 lab outputs: `reports/paper_material/paper4/status/paper4_v41_status.json` through `reports/paper_material/paper4/status/paper4_v44_status.json`.
+- v44 working/lab champion state: `reports/paper_material/paper4/status/paper4_v44_working_champion.json`.
+
+v41-v44 remains lab-only: no Paper 4 final promotion JSON, no contractual IFRS9
+claim, no CATE policy-value claim, no fair-lending legal claim, no formal
+differentiable SPO+ claim, no exact full-universe CVaR claim, and no
+Bellman-exact DLA claim. Paper Estrella remains the near-term INFORMS Journal
+on Data Science target; Paper 4 remains a future Management Science candidate
+only if later dynamic sequential-decision results become strong enough.
+
 ### Current closure (Paper Estrella, 2026-05-04)
 
 The Paper Estrella closure is now anchored on the **bound-aware 276K economic champion**:
@@ -287,5 +305,5 @@ Operational note:
 | `models/conformal_policy_status.json` | Conformal policy gate snapshot |
 | `models/causal_policy_rule.json` | Causal policy rule and selected metrics |
 | `data/processed/pipeline_summary.json` | Cross-module pipeline KPI snapshot |
-| `models/champion_portfolio_policy.json` | Promoted portfolio champion policy (risk_tolerance=0.18) |
+| `models/champion_portfolio_policy.json` | Promoted portfolio champion policy (`risk_tolerance=0.175`, `policy_mode=blended_uncertainty`, `gamma=0.45`, `uncertainty_aversion=0.10`) |
 | `models/champion_registry.json` | Full champion registry across all modules |

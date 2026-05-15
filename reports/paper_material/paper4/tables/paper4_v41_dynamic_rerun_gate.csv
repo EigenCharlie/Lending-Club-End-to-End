@@ -1,0 +1,22 @@
+policy_id,prob_higher_wealth_dynamic_v39,prob_lower_loss,online_source_family_pass_rate_v41,new_candidate_screen_v41,expensive_512_1024_rerun_action_v41,dynamic_rerun_claim_boundary_v41
+v13_cvar_mdcp_colgen_relaxed_k32000_floor125000_cap360000,0.4765625,0.99609375,1.0,True,existing_512_paths_sufficient_now__rerun_only_after_new_allocation,rerun gating only; no new forecast or production claim
+v13_cvar_mdcp_colgen_relaxed_k32000_floor105000_cap300000,0.4765625,0.99609375,1.0,True,existing_512_paths_sufficient_now__rerun_only_after_new_allocation,rerun gating only; no new forecast or production claim
+v13_fvi_capital_guarded,0.0078125,1.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_spo_regret_balanced,0.064453125,0.998046875,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_fvi_bellman_rollout,0.0078125,1.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_fvi_return_recovery,0.0078125,1.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_spo_regret_audit_guarded,0.033203125,0.998046875,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_spo_regret_return_recovery,0.056640625,0.998046875,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_mdcp_empirical_tight,0.0,1.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_mdcp_empirical_base,0.013671875,0.9921875,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_cvar_mdcp_colgen_relaxed_k32000_floor80000_cap250000,0.142578125,0.990234375,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_mdcp_empirical_return_recovery,0.029296875,0.998046875,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v24_adp_rollout_tail_value,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v24_adp_rollout_reinvestment_value,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v24_adp_rollout_return_value,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v28_adp_depth2_reinvestment_guarded,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v28_adp_depth2_tail_source,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v28_adp_depth3_balanced,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v24_adp_rollout_source_ecl_value,,,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+v13_static_reference,0.03515625,0.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim
+paper1_economic_champion,0.0,0.0,1.0,False,no_expensive_rerun_justified,rerun gating only; no new forecast or production claim

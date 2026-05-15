@@ -1,0 +1,11 @@
+blocker_id,status_v26,current_diagnosis,next_action
+dynamic_engine_scale,resolved,v23 128-path replay and convergence artifacts implemented,scale to 256/512 only if manuscript needs tighter intervals
+sample_paths_v3,near_resolved_with_plateau,internal path v3 plus macro event/context registry implemented,external forecast validation remains out of scope
+dla_adp_rollout,near_resolved_with_plateau,v24 ADP rollout approximations implemented,exact Bellman proof remains future work
+cvar_column_generation,near_resolved_with_plateau,v24 pricing log/frontier/certificate diagnostics implemented,no exact full-universe optimality claim
+spo_dfl,dependency_blocked,v24 oracle-regret surrogate implemented,cvxpy/cvxpylayers/torch path blocked
+ifrs9_contractual,data_blocked,v25 cashflow proxy/SICR improved,contractual IFRS9 still blocked by servicing/DPD/cure/timing/macros
+cate_policy_value,theory_blocked,v25 trimming/IPW/sensitivity diagnostics implemented,reject-inference/identification unresolved
+fair_lending,prohibited_claim,v25 source governance and no-claim flags implemented,no protected attributes/protocol
+artifact_registry,resolved,v26 artifact manifest implemented,keep updated on future waves
+candidate_registry,resolved,v26 candidate registry implemented,review serious challengers only under full evidence

@@ -1,0 +1,7 @@
+priority,claim_status,artifact,quarto_page,caveat
+CVaR top-k larger,implemented_larger_topk_warm_grid,paper4_v11_cvar_topk_warm_frontier.csv,19az-v11-promising-lanes.qmd,"balanced larger top-k, not full-universe proof"
+DLA ADP/Bellman proxy,implemented_linear_adp_rollout,paper4_v11_dla_adp_comparison.csv,19az-v11-promising-lanes.qmd,"ADP proxy, not Bellman optimality"
+SPO/DFL trained proxy,implemented_solver_target_training,paper4_v11_spo_dfl_candidate_summary.csv,19az-v11-promising-lanes.qmd,"trained ridge proxy, not neural SPO+ theorem"
+Sample paths calibrated,implemented_observed_default_calibration,paper4_v11_sample_path_calibrated_ci.csv,19az-v11-promising-lanes.qmd,"calibrated to available default proxies, not external macro forecast"
+Working candidate registry,implemented_internal_registry_no_promotion,paper4_v11_working_candidate_registry.csv,19az-v11-promising-lanes.qmd,Paper 4 working review only
+Paper Estrella freeze,guardrail_verified,paper4_v11_promising_lanes_status.json,19az-v11-promising-lanes.qmd,No Paper Estrella artifact modified

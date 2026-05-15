@@ -1,0 +1,18 @@
+{
+  "schema_version": "2026-05-12.4",
+  "generated_at_utc": "2026-05-13T04:51:44.921386+00:00",
+  "mode": "full_universe_exact_topk_no_promotion",
+  "candidate_pool_n": 276869,
+  "policy_ids": [
+    "paper1_economic_champion",
+    "crpto_rt0p160_g0p55_u0p05_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p170_g0p55_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p165_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p155_g0p50_u0p10_alpha0p01_incumbent_region_rs42",
+    "crpto_rt0p175_g0p55_u0p10_alpha0p01_conservative_proxy_rs42"
+  ],
+  "paper1_champion_protected": true,
+  "paper4_final_promotion_created": false,
+  "promotion_json_created": false,
+  "time_limit_seconds_per_solve": 300
+}

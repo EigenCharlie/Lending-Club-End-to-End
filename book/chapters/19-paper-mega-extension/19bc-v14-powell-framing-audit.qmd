@@ -1,0 +1,371 @@
+---
+title: "v14 Powell Framing Audit"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+PAPER4_DIR = ROOT / "reports" / "paper_material" / "paper4"
+TABLE_DIR = PAPER4_DIR / "tables"
+STATUS_DIR = PAPER4_DIR / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v14_status.json")
+framing = _csv("paper4_v14_powell_framing_audit.csv")
+metrics = _csv("paper4_v14_metric_pyramid.csv")
+objectives = _csv("paper4_v14_objective_target_limit_registry.csv")
+decisions = _csv("paper4_v14_decision_inventory.csv")
+uncertainties = _csv("paper4_v14_uncertainty_taxonomy.csv")
+forms = _csv("paper4_v14_uncertainty_forms_sample_path_design.csv")
+decision_metric = _csv("paper4_v14_decision_metric_interaction_matrix.csv")
+uncertainty_metric = _csv("paper4_v14_uncertainty_metric_interaction_matrix.csv")
+decision_uncertainty = _csv("paper4_v14_decision_uncertainty_interaction_matrix.csv")
+policy_evidence = _csv("paper4_v14_policy_class_evidence_matrix.csv")
+model_registry = _csv("paper4_v14_base_vs_lookahead_model_registry.csv")
+champion_audit = _csv("paper4_v14_working_champion_powell_audit.csv")
+dashboard = _csv("paper4_v14_stage_readiness_dashboard.csv")
+claims = _csv("paper4_v14_claim_artifact_matrix.csv")
+artifact_audit = _csv("paper4_v14_v1_v13_artifact_audit.csv")
+```
+
+## Pregunta
+
+V14 no intenta ganar otro punto de retorno. La pregunta es anterior: si Paper 4
+es un laboratorio vivo de decisión secuencial, ¿están declaradas las métricas,
+decisiones, incertidumbres, clases de política, artefactos y límites de claim
+antes de seguir promoviendo challengers?
+
+Powell llama a este paso framing: primero declarar el problema; luego resolver.
+En Paper 4 esto evita que CVaR, DLA/FVI, SPO/DFL, MDCP, IFRS9, CATE o fairness
+aparezcan como técnicas sueltas. Cada lane debe decir qué decisión controla,
+qué métrica afecta, qué incertidumbre enfrenta y qué claim puede sostener.
+
+::: {.callout-warning}
+V14 mantiene el champion de trabajo `v13_fvi_return_recovery`, pero lo deja con
+calificadores más estrictos. No toca el Paper Estrella, no crea promoción final,
+no autoriza IFRS9 contractual, no autoriza CATE policy value y no autoriza
+fair-lending legal claims.
+:::
+
+## Status
+
+```{python}
+#| label: tbl-paper4-v14-status
+#| tbl-cap: "Paper 4 v14 Powell framing status"
+
+pd.DataFrame([{
+    "phase": status.get("phase"),
+    "mode": status.get("mode"),
+    "working_champion_v14": status.get("working_champion_policy_id_v14"),
+    "champion_replaced": status.get("champion_replaced_v14"),
+    "lanes": status.get("framing_lane_count_v14"),
+    "metrics": status.get("metric_count_v14"),
+    "decisions": status.get("decision_count_v14"),
+    "uncertainty_classes": status.get("uncertainty_class_count_v14"),
+    "claims": status.get("claim_count_v14"),
+    "final_promotion_created": status.get("paper4_final_promotion_created"),
+}])
+```
+
+## Powell Framing Audit
+
+```{python}
+#| label: tbl-paper4-v14-framing-audit
+#| tbl-cap: "V14 Powell framing audit by Paper 4 lane"
+
+_cols(
+    framing,
+    [
+        "lane_id",
+        "lane_name",
+        "powell_stage",
+        "metric_ids",
+        "controlled_decision",
+        "uncertainty_classes",
+        "policy_class",
+        "current_status",
+        "allowed_claim",
+        "caveat",
+    ],
+)
+```
+
+El valor de esta tabla es que convierte cada carril en una unidad auditable. Por
+ejemplo, DLA/FVI deja de ser "el nuevo modelo sofisticado" y pasa a ser una
+política híbrida DLA/VFA que controla un libro dinámico aproximado bajo
+incertidumbre transicional/model uncertainty. Eso autoriza un claim de working
+champion, pero no un claim de optimalidad dinámica exacta.
+
+## Metric Pyramid
+
+```{python}
+#| label: tbl-paper4-v14-metric-pyramid
+#| tbl-cap: "V14 Paper 4 metric pyramid"
+
+_cols(
+    metrics,
+    [
+        "metric_id",
+        "pyramid_level",
+        "metric_family",
+        "metric_name",
+        "powell_role",
+        "direction",
+        "champion_decision_role",
+        "deployability_gate",
+        "caveat",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v14-objectives-targets-limits
+#| tbl-cap: "V14 objectives, targets and limits"
+
+_cols(
+    objectives,
+    [
+        "metric_id",
+        "metric_name",
+        "metric_family",
+        "powell_role",
+        "target_or_limit",
+        "strictness",
+        "v14_governance_decision",
+    ],
+)
+```
+
+La pirámide separa la base objective de los risk metrics. Este es el cambio
+conceptual central: `v13_fvi_return_recovery` puede quedar como champion de
+trabajo por state value y stress representativo, pero retorno/state value no
+son suficientes para un claim deployable si CVaR, IFRS9 contractual, fairness o
+CATE siguen bloqueados.
+
+## Decision Inventory
+
+```{python}
+#| label: tbl-paper4-v14-decision-inventory
+#| tbl-cap: "V14 Paper 4 decision inventory"
+
+_cols(
+    decisions,
+    [
+        "decision_id",
+        "decision_name",
+        "decision_type",
+        "decision_maker",
+        "frequency",
+        "lag",
+        "affected_state_variables",
+        "policy_class",
+        "current_status",
+        "caveat",
+    ],
+)
+```
+
+Powell insiste en que una decisión es algo que controlamos. V14 hace explícito
+que Paper 4 no solo decide qué préstamo fondear. También decide thresholds,
+caps, reglas SICR, features de value function, targets SPO/DFL, claims
+permitidos y si un experimento se mantiene, se estaciona o se mata.
+
+## Uncertainty Taxonomy
+
+```{python}
+#| label: tbl-paper4-v14-uncertainty-taxonomy
+#| tbl-cap: "V14 Powell 12-class uncertainty taxonomy for Paper 4"
+
+_cols(
+    uncertainties,
+    [
+        "uncertainty_id",
+        "powell_uncertainty_class",
+        "paper4_example",
+        "affected_metrics",
+        "affected_decisions",
+        "current_artifact_coverage",
+        "unresolved_blocker",
+        "stage_readiness",
+    ],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v14-uncertainty-forms
+#| tbl-cap: "V14 uncertainty forms and sample-path design implications"
+
+_cols(
+    forms,
+    [
+        "form_id",
+        "uncertainty_form",
+        "lending_club_manifestation",
+        "current_v13_representation",
+        "v14_sample_path_design_spec",
+        "overclaim_guardrail",
+    ],
+)
+```
+
+Esta lectura explica por qué los sample paths actuales son buenos para
+comparación pareada, pero no para forecast futuro. Powell obliga a distinguir
+fine-grained variability, shifts, bursts, spikes, vintage effects, state shocks,
+attribute correlations, systemic macro events y contingencies.
+
+## Interaction Matrices
+
+```{python}
+#| label: tbl-paper4-v14-decision-metric-interactions
+#| tbl-cap: "V14 high-impact decision-metric interactions"
+
+_cols(
+    decision_metric[decision_metric.get("impact_code", "").eq("H")].head(40),
+    ["decision_id", "decision_name", "metric_id", "impact_code", "impact_score", "rationale"],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v14-uncertainty-metric-interactions
+#| tbl-cap: "V14 high-impact uncertainty-metric interactions"
+
+_cols(
+    uncertainty_metric[uncertainty_metric.get("impact_code", "").eq("H")].head(40),
+    ["uncertainty_id", "powell_uncertainty_class", "metric_id", "impact_code", "impact_score", "rationale"],
+)
+```
+
+```{python}
+#| label: tbl-paper4-v14-decision-uncertainty-interactions
+#| tbl-cap: "V14 decision-uncertainty interaction sample"
+
+_cols(
+    decision_uncertainty[decision_uncertainty.get("impact_code", "").eq("H")].head(40),
+    [
+        "decision_id",
+        "decision_name",
+        "uncertainty_id",
+        "powell_uncertainty_class",
+        "impact_code",
+        "impact_score",
+    ],
+)
+```
+
+Estas matrices son inputs de framing, no estimaciones causales. Su función es
+hacer visible qué se está priorizando. Antes, una técnica podía crecer porque
+era interesante; ahora debe aparecer conectada a una decisión y una métrica.
+
+## Policy Classes And Model Roles
+
+```{python}
+#| label: tbl-paper4-v14-policy-class-evidence
+#| tbl-cap: "V14 policy-class evidence matrix"
+
+policy_evidence
+```
+
+```{python}
+#| label: tbl-paper4-v14-base-vs-lookahead
+#| tbl-cap: "V14 base/evaluation model vs lookahead/policy model registry"
+
+model_registry
+```
+
+La distinción base model vs lookahead model limpia varias ambigüedades. Los
+sample paths, bootstrap y stress tests evalúan políticas. CVaR, MDCP, DLA/FVI y
+SPO/DFL son modelos o políticas que toman decisiones. Mezclarlos produce claims
+demasiado fuertes.
+
+## Champion Powell Audit
+
+```{python}
+#| label: tbl-paper4-v14-champion-audit
+#| tbl-cap: "V14 Powell audit of v13_fvi_return_recovery"
+
+_cols(
+    champion_audit,
+    [
+        "policy_id",
+        "criterion_id",
+        "powell_metric_family",
+        "metric_id",
+        "criterion_name",
+        "v13_evidence_value",
+        "gate_status_v14",
+        "decision_impact",
+        "interpretation",
+    ],
+)
+```
+
+El audit conserva `v13_fvi_return_recovery` como working champion. La razón es
+estrecha y honesta: tiene la mejor evidencia de state value/FVI dentro de los
+artefactos actuales. Pero queda cualificado porque no tiene retorno directo
+comparable, no tiene IFRS9 contractual, no tiene fair-lending legal claim, no
+tiene CATE policy value y su evaluación DLA sigue representativa.
+
+## Stage Readiness
+
+```{python}
+#| label: tbl-paper4-v14-stage-readiness
+#| tbl-cap: "V14 blocker dashboard by Powell stage"
+
+dashboard
+```
+
+V14 cambia el dashboard de "pendientes técnicos" a "readiness por etapa":
+framing, modeling e implementation. Esto permite separar carriles bloqueados
+por datos de carriles bloqueados por teoría o por implementación real.
+
+## Claims
+
+```{python}
+#| label: tbl-paper4-v14-claims
+#| tbl-cap: "V14 claim-artifact matrix"
+
+claims
+```
+
+```{python}
+#| label: tbl-paper4-v14-artifact-audit
+#| tbl-cap: "V14 v1-v13 artifact audit summary"
+
+artifact_audit.groupby(["artifact_kind", "version_guess"], as_index=False).agg(
+    artifacts=("artifact", "count"),
+    total_bytes=("bytes", "sum"),
+)
+```
+
+## Next Step
+
+V15 debería usar esta capa Powell para decidir qué se puede optimizar otra vez.
+El orden natural es: primero construir un motor de stress dinámico que trate
+CVaR/MDCP/SPO/DLA como procesos mensuales comparables; luego usar la pirámide
+de métricas para decidir si el champion de trabajo sigue siendo DLA/FVI o si un
+challenger CFA/CVaR/MDCP merece reemplazarlo por mejor combinación de base
+objective, risk metrics, auditability e implementation readiness.

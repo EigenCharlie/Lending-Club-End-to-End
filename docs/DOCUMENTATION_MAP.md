@@ -20,6 +20,16 @@ Quick reference for the current documentation stack after the pipeline-first ref
 | **Paper references** | `docs/PAPER_REFERENCES_STATE_OF_ART.md` | Curated literature map for papers and thesis chapters |
 | **Backlog** | `docs/backlog-papers-unified.md` | Unified backlog for papers, experiments, and documentation follow-ups |
 | **Conformal note** | `docs/conformal_prediction_README.md` | Compact operational/research entrypoint for conformal material |
+| **Paper Estrella audit** | `docs/research/paper_estrella_audit_2026-05-04.md` | Current Paper Estrella coherence, literature and publication audit |
+| **Paper Estrella backlog** | `docs/research/paper_estrella_backlog_2026-05-04.md` | Current executable backlog for keeping Paper Estrella publishable |
+| **Paper 4 official chapter** | `book/chapters/19-paper-mega-extension/index.qmd` | Curated 10-page Paper 4 Quarto surface after the living-lab restructure |
+| **Paper 4 living notebook** | `reports/paper_material/paper4/notes/paper4_living_lab_notebook.md` | Canonical notebook for Paper 4 waves, blockers, goals, failures, and next implementables |
+| **Paper 4 official findings** | `reports/paper_material/paper4/tables/paper4_current_official_findings.csv` | Current artifact-backed findings allowed in the official Paper 4 chapter |
+| **Paper 4 claim boundaries** | `reports/paper_material/paper4/tables/paper4_current_claim_boundaries.csv` | Current claim boundary matrix; supersedes historical page-level catalogs such as `19u` |
+| **Paper 4 page registry** | `reports/paper_material/paper4/tables/paper4_quarto_page_registry.csv` | Registry of rendered official pages vs historical archive pages |
+| **Paper 4 v41-v44 lab wave** | `reports/paper_material/paper4/status/paper4_v41_status.json` through `reports/paper_material/paper4/status/paper4_v44_status.json` | Latest living-lab execution wave; lab-only outputs documented in the notebook, not promoted to Quarto |
+| **Paper 4 publishability memo** | `reports/paper_material/paper4/notes/paper4_publishability_focus_memo.md` | Strategy split: Paper Estrella toward INFORMS JDS, Paper 4 as future Management Science candidate only after stronger sequential evidence |
+| **Global v38 synthesis** | `reports/paper_material/global/status/global_v38_status.json` | New source of truth after the v31-v38 full-project synthesis wave |
 
 ## Runtime Sources Of Truth
 

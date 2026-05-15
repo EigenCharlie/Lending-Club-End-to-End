@@ -1,0 +1,5 @@
+claim_or_requirement,allowed_v25,status_v25,evidence,version_v29,no_fair_lending_legal_claim
+protected_attributes,False,data_blocked,not available,proxy_governance_only_v2,True
+approved_external_proxy_protocol,False,protocol_blocked,not approved or implemented,proxy_governance_only_v2,True
+fair_lending_legal_claim,False,prohibited_claim,explicitly not made,proxy_governance_only_v2,True
+source_governance_diagnostic,True,usable_proxy,observable source/cell monitoring only,proxy_governance_only_v2,True

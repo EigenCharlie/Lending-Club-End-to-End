@@ -1,0 +1,10 @@
+artifact,lane,model_role,powell_element,decision_use,evaluation_use,current_limit,next_upgrade
+paper4_v13_sample_path_macro_calibrated_paths.parquet,sample_paths,base_evaluation_model,W_t_plus_1 / transition evidence,none; evaluates policies,common random numbers and paired paths,internal calibration only,external macro/default calibration
+paper4_v13_champion_stress_test.csv,champion_stress,base_evaluation_model,C_t / performance evaluation,none; governance comparison,champion-vs-challenger stress,representative DLA books,dynamic process stress
+paper4_monthly_policy_replay.parquet,monthly_replay,base_evaluation_model,sequential replay,none; historical evaluator,monthly policy evidence,not full servicing panel,contractual servicing replay
+paper4_v13_cvar_stronger_decomposition_frontier.csv,CVaR/OCE,lookahead_policy_model,x_t / C_t,tail-constrained funded set,frontier and active caps,"larger pool, not certified full universe",dual/full-universe proof
+paper4_v13_mdcp_cap_regime_solver_summary.csv,MDCP,lookahead_policy_model,x_t / C_t,source-capped funded set,cap feasibility and composition,governance proxy,coverage-calibrated caps
+paper4_v13_dla_fvi_comparison.csv,DLA/FVI,lookahead_policy_model,S_t^x / X_pi,dynamic fitted-value score,state value proxy comparison,not exact Bellman,true dynamic path evaluator
+paper4_v13_spo_decision_loss_report.csv,SPO/DFL,lookahead_policy_model,B_t / X_pi,decision-loss score,temporal regret,not differentiable SPO+,optimization layer
+paper4_v13_ifrs9_sicr_sensitivity.csv,IFRS9/SICR,implementation_claim_model,C_t / claim gate,stage/ECL proxy selection,sensitivity table,no contractual data,servicing/DPD/EAD paths
+paper4_v14_claim_artifact_matrix.csv,claim governance,implementation_claim_model,C_t,allow/block claims,claim-artifact trace,human committee proxy,MRM signoff process

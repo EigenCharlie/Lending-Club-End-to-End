@@ -1,0 +1,19 @@
+{
+  "candidate_registry_rows_v39": 21,
+  "causal_policy_value_allowed": false,
+  "claim_boundary": "v39 artifacts are lab/notebook-first; no new official Quarto page or final promotion",
+  "contractual_ifrs9_claim_allowed": false,
+  "cvar_certificate_rows_v39": 12,
+  "dynamic_candidate_rows_v39": 14,
+  "fair_lending_legal_claim": false,
+  "generated_at_utc": "2026-05-15T04:34:58.675762+00:00",
+  "ifrs9_sicr_rows_v39": 70,
+  "official_quarto_page_count": 10,
+  "online_rows_v39": 18,
+  "paper1_artifacts_modified": false,
+  "paper4_final_promotion_created": false,
+  "phase": "v39_living_lab_execution_after_quarto_restructure",
+  "quarto_compact_guardrail_pass": true,
+  "schema_version": "2026-05-15.39",
+  "source_governance_rows_v39": 126
+}

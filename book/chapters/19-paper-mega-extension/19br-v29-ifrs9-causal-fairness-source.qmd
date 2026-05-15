@@ -1,0 +1,140 @@
+---
+title: "v29 IFRS9 Causal Fairness Source"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+    return df[[c for c in cols if c in df.columns]] if not df.empty else df
+
+status = _json("paper4_v29_status.json")
+macro = _csv("paper4_v29_external_macro_source_registry.csv")
+paths = _csv("paper4_v29_path_calibration_diagnostics.csv")
+ifrs9 = _csv("paper4_v29_ifrs9_proxy_policy_summary.csv")
+sicr = _csv("paper4_v29_ifrs9_sicr_sensitivity.csv")
+cate = _csv("paper4_v29_cate_gate_report.csv")
+source = _csv("paper4_v29_source_cap_sensitivity.csv")
+flags = _csv("paper4_v29_no_legal_claim_flags.csv")
+```
+
+## Pregunta
+
+V29 pregunta cuánto se puede mejorar IFRS9 proxy, sample paths, CATE y
+fairness/source governance sin cruzar claims que el dataset no soporta.
+
+## Qué Intentamos
+
+Se reintentó macro externo, se generó sample path v4, se amplió IFRS9 proxy a
+escenarios, se reforzó SICR sensitivity, se mantuvo CATE como diagnóstico y se
+fortaleció source governance con pooling/support.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-v29-status
+#| tbl-cap: "Paper 4 v29 status."
+
+pd.DataFrame([status])
+```
+
+```{python}
+#| label: tbl-paper4-v29-macro
+#| tbl-cap: "External macro/cache registry."
+
+macro
+```
+
+## Resultado
+
+El fetch macro externo volvió a fallar, así que no hay forecast externo. La
+mejora real está en la calibración interna y en IFRS9-inspired scenario ECL:
+el panel proxy subió a 582,660 filas porque ahora se evalúan escenarios.
+
+```{python}
+#| label: tbl-paper4-v29-ifrs9
+#| tbl-cap: "IFRS9-inspired proxy policy summary."
+
+_cols(
+    ifrs9.head(12),
+    [
+        "policy_id",
+        "scenario_v29",
+        "ecl_proxy_total_v29",
+        "loss_cash_proxy_total",
+        "recovery_cash_proxy_total",
+        "stage2_share_proxy_v29",
+        "contractual_ifrs9_claim_allowed",
+    ],
+)
+```
+
+## Qué Mejoró
+
+SICR ya no depende de una sola regla. Source governance tiene soporte mínimo,
+pooling y caps diagnósticos.
+
+```{python}
+#| label: tbl-paper4-v29-source
+#| tbl-cap: "Source governance cap sensitivity."
+
+_cols(source.head(16), ["policy_id", "source_family", "worst_avg_pd", "worst_avg_width", "support_pass_share", "diagnostic_cells"])
+```
+
+## Qué Falló
+
+IFRS9 contractual sigue bloqueado por falta de servicing panel real. CATE sigue
+bloqueado por identificación/reject inference. Fair-lending legal claims siguen
+prohibidos por falta de atributos protegidos o protocolo externo aprobado.
+
+```{python}
+#| label: tbl-paper4-v29-cate
+#| tbl-cap: "CATE gate report."
+
+cate
+```
+
+## Claim Permitido
+
+Paper 4 puede decir “IFRS9-inspired proxy”, “CATE diagnostic” y “source
+governance proxy”.
+
+## Claim No Permitido
+
+No hay IFRS9 contractual, no hay CATE policy value y no hay fair-lending legal
+claim.
+
+```{python}
+#| label: tbl-paper4-v29-no-claims
+#| tbl-cap: "No-claim flags."
+
+flags
+```
+
+## Qué Queda Pendiente
+
+Solo datos nuevos o protocolo externo desbloquean estas tres lanes. Con el
+dataset actual, el resultado correcto es bloquear claims fuertes.

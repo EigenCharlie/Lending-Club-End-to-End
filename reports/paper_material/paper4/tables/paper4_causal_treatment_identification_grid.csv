@@ -1,0 +1,5 @@
+treatment_id,interpretation,n_treat,n_control,prevalence,naive_default_delta,max_abs_smd,support_ok_share_grade_period,identification_gate,promotion_allowed
+term_60m,term length intervention proxy,72635,204234,0.26234428556465333,0.12944007177779995,1.4878552666289522,0.8888888888888888,gated_research_only,False
+high_rate_within_grade,pricing/tightness proxy,129405,147464,0.4673871036482958,0.014516171014478357,0.26543159210401196,1.0,pass_for_dossier,False
+large_loan_within_income,exposure sizing proxy,135162,141707,0.4881803307701476,0.09822733918360507,2.0797004623406847,1.0,gated_research_only,False
+selected_by_full_topk,"policy selection proxy, not causal",373,276496,0.0013472075241359632,-0.16101471606452128,1.6096936991722304,0.0,gated_research_only,False

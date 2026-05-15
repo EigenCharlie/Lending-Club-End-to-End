@@ -1,0 +1,10 @@
+blocker_id,status_v11,current_diagnosis,next_action
+cvar_scale,near_resolved,larger top-k frontier feasible=11,full universe or decomposition remains next
+dla_adp,near_resolved,linear ADP rollout implemented,formal Bellman/ADP validation remains next
+spo_dfl,near_resolved,trained solver-target proxy implemented,neural/end-to-end SPO+ remains next
+sample_paths,near_resolved,observed-default calibration added,external macro/default calibration remains next
+working_registry,resolved,internal candidate registry created,no final promotion until IFRS9/fairness/causal gates pass
+ifrs9_contractual,data_blocked,readiness still below contractual claim,servicing/DPD/recoveries/macro data
+fairness,data_blocked,proxy-only; no legal claim,protected attributes or approved proxy protocol
+causal_cate,theory_blocked,policy value remains disallowed,identification/overlap/sensitivity
+paper1_freeze,resolved,Paper Estrella untouched,continue Paper 4 only

@@ -1,0 +1,103 @@
+---
+title: "v18 Academic Synthesis"
+page-layout: article
+---
+
+## Pregunta
+
+V18 pregunta qué tenemos realmente después de convertir Paper 4 en laboratorio
+secuencial: qué ya es contribución defendible, qué queda prometedor, qué está
+bloqueado y qué puede convertirse más adelante en paper.
+
+## Qué intentamos
+
+La ola v18 consolida findings, blocker dashboard, claim boundaries y working
+champion. La clave es que el Paper 4 ya no sea una colección de ideas. Ahora es
+un sistema con:
+
+- motor dinámico;
+- sample paths internos;
+- CVaR/OCE con infeasibilidad strict documentada;
+- SPO oracle/regret no diferenciable;
+- decomposición del champion;
+- gates IFRS9/CATE/fairness;
+- matriz de claims permitidos y prohibidos.
+
+## Artifacts
+
+| Artifact | Rol |
+|---|---|
+| `paper4_v18_working_champion.json` | working champion de laboratorio |
+| `paper4_v18_academic_contribution_map.csv` | hallazgo -> artifact -> contribución |
+| `paper4_v18_publishability_triage.csv` | qué podría publicarse y qué no |
+| `paper4_v18_claim_boundaries_final_for_lab.csv` | claims permitidos/prohibidos |
+| `paper4_v18_blocker_dashboard.csv` | blockers vivos y decisión |
+| `paper4_v18_claim_artifact_matrix.csv` | claim-artifact-page boundary |
+| `paper4_v18_status.json` | status final de la ola |
+
+## Resultado
+
+El working champion de Paper 4 queda como `paper1_economic_champion`, con una
+lectura precisa: es el champion del laboratorio dinámico v18, no una nueva
+promoción y no una modificación del Paper Estrella. De hecho, el JSON de
+promoción final sigue protegido y `paper4_final_promotion.json` no existe.
+
+La ola deja 8 contribuciones clasificadas:
+
+1. dynamic sequential evaluation;
+2. common calibrated paths;
+3. CVaR strict infeasibility;
+4. SPO decision oracle;
+5. champion decomposition;
+6. IFRS9 proxy gate;
+7. CATE gate;
+8. fairness proxy protocol.
+
+## Interpretación
+
+Paper 4 ya tiene una tesis académica mucho más clara: no es "agregar todo" al
+Paper Estrella, sino estudiar qué políticas crediticias sobreviven cuando se les
+exige retorno, incertidumbre conformal, control de cola, evidencia dinámica,
+auditabilidad y límites de claim.
+
+El framework de Powell sigue siendo útil porque evita el error más común en este
+tipo de mega paper: confundir una métrica ganadora con una decisión defendible.
+V15 incluso mostró eso en vivo: un score que premiaba ECL final bajo podía
+favorecer políticas con pérdidas realizadas altas. La solución fue separar
+objetivos, targets y límites con un gate dinámico explícito.
+
+## Qué mejoró
+
+- Paper 4 ya tiene evaluación mensual reproducible.
+- El champion se decide con gates, no solo con score.
+- Los resultados negativos de CVaR strict son artifacts.
+- SPO queda como camino formalizable, no como claim inflado.
+- IFRS9/CATE/fairness quedan protegidos por no-claim flags.
+
+## Qué falló
+
+- No hay full-universe CVaR exacto certificado.
+- No hay differentiable SPO+.
+- No hay IFRS9 contractual.
+- No hay CATE policy value.
+- No hay fair-lending legal claim.
+- No hay macro forecast externo.
+
+## Claim permitido
+
+Paper 4 puede presentarse como laboratorio académico de sequential credit
+decision governance bajo incertidumbre conformal, cola, ECL proxy y sample-path
+evaluation.
+
+## Claim no permitido
+
+No puede presentarse como sistema productivo, IFRS9 contractual, causal policy
+engine, fair-lending legal audit ni proof de optimalidad dinámica exacta.
+
+## Qué queda pendiente
+
+La próxima frontera no es otra tabla aislada. Es profundizar tres cosas:
+
+- full-universe o column-generation CVaR más certificable;
+- SPO/DFL con dependencia diferenciable resuelta o regret oracle más fuerte;
+- DLA endógeno que aprenda decisiones mes a mes, no solo adapters sobre books.

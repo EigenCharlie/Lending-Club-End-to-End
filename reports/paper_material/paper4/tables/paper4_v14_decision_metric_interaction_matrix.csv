@@ -1,0 +1,144 @@
+decision_id,decision_name,metric_id,impact_code,impact_score,rationale
+D01,fund or reject a loan,M01,H,3,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M02,H,3,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M03,M,2,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M04,M,2,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M05,M,2,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M06,H,3,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M07,L,1,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D01,fund or reject a loan,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M01,H,3,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M02,H,3,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M03,H,3,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M05,M,2,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M06,H,3,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D02,choose funded set / allocation vector,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M01,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M02,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M03,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M04,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M05,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M06,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M10,H,3,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M11,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M12,M,2,judgmental Powell framing input; not an empirical causal estimate
+D03,select Paper 4 working champion,M13,M,2,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M02,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M05,M,2,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M07,H,3,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M08,H,3,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M10,L,1,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D04,set conformal alpha / recalibration rule,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M02,L,1,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M05,H,3,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M12,M,2,judgmental Powell framing input; not an empirical causal estimate
+D05,set MDCP source caps,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M02,M,2,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M03,H,3,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M06,H,3,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D06,set CVaR/OCE cap and return floor,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M02,L,1,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M04,H,3,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M11,H,3,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D07,choose SICR / Stage 2 rule,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M01,H,3,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M02,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M06,M,2,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D08,choose value-function features,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M02,M,2,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M09,H,3,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M10,M,2,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M11,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M12,N,0,judgmental Powell framing input; not an empirical causal estimate
+D09,choose SPO/DFL training target,M13,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M02,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M10,H,3,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M11,H,3,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M12,H,3,judgmental Powell framing input; not an empirical causal estimate
+D10,"approve, block, or qualify a claim",M13,H,3,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M01,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M02,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M03,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M04,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M05,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M06,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M07,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M08,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M09,N,0,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M10,H,3,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M11,M,2,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M12,M,2,judgmental Powell framing input; not an empirical causal estimate
+D11,"continue, park, or kill an experiment lane",M13,M,2,judgmental Powell framing input; not an empirical causal estimate

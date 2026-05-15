@@ -1,0 +1,5 @@
+threshold_id,threshold_value,committee_rationale,current_value,decision_effect
+online_source_month_min,0.8,Minimum defended source-month coverage required before any Paper 4 working candidate can be considered.,0.8,blocks promotion if below 0.80
+online_width_efficiency,0.95,Coverage must not be bought with materially wider intervals than the current operational gate.,0.9543797192776867,review if source gate passes but width remains above 0.95
+ifrs9_contractual_readiness,0.75,A contractual IFRS9 claim needs most core servicing/macro components present.,0.5,review/data-blocked below 0.75
+fair_lending_claim,0.0,No protected attributes or approved proxy protocol means legal claim remains disallowed.,0.0,proxy governance only

@@ -1,0 +1,4 @@
+protocol_item,current_status,decision_v8,allowed_claim,blocked_claim,required_to_change
+protected_attributes,not_available,no_fair_lending_legal_claim,source/proxy governance diagnostic only,race/ethnicity/sex/age protected-class compliance or disparate-impact conclusion,"approved protected-attribute data, BISG/proxy protocol, or external legal/MRM review"
+geography_income_dti_grade_sources,available_as_business_sources,use_for_governance_stress_only,worst-source and composition stress by observable business segments,legal fair-lending conclusion,mapping to protected attributes with documented governance approval
+paper4_language,locked,permanent_proxy_only_until_data_changes,Paper 4 can report proxy gaps and source coverage gates,Paper 4 cannot claim fair-lending compliance,new data/protocol artifact plus explicit committee approval

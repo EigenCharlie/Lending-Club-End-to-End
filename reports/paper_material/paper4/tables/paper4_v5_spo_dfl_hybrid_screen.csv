@@ -1,0 +1,3 @@
+hybrid_id,status,mean_regret,auditability_retained,next_step,detail_columns
+spo_plus_existing_comparator,diagnostic_existing_artifact,,False,train DFL hybrid with CRPTO coverage/auditability gates,period
+crpto_constrained_dfl_candidate,planned_training,,True,"optimize decision-loss with coverage, MDCP and IFRS9 penalties",period

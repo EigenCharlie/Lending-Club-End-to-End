@@ -1,0 +1,5 @@
+scenario,macro_ar1_rho,macro_sigma,grade_shock_sigma,lgd_cycle_beta,claim_scope_v7
+baseline,0.7,0.22,0.16,0.22,paired comparison only
+adverse,0.7,0.35,0.16,0.28,stress comparison with cycle-sensitive LGD
+cycle_stress,0.75,0.42,0.2,0.35,"upper-tail stress, not forecast"
+macro_clustered,0.82,0.3,0.25,0.4,future extension for cohort/default dependence

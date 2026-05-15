@@ -1,0 +1,7 @@
+gate,status_v21,evidence,policy_value_allowed,cate_policy_value_allowed,claim_boundary_v21
+clean_outcome,partial_proxy,default/loss exists for accepted loans; reject counterfactuals absent,False,False,causal diagnostics only; no CATE policy-value claim
+identification,theory_blocked,accepted-loan selection and pricing endogeneity remain unresolved,False,False,causal diagnostics only; no CATE policy-value claim
+overlap,review,overlap cells passing support/rate gate: 36/57,False,False,causal diagnostics only; no CATE policy-value claim
+balance,review,max |SMD| = 0.435,False,False,causal diagnostics only; no CATE policy-value claim
+hidden_bias_sensitivity,blocked,hidden-bias proxy to flip naive default contrast = 1.28pp,False,False,causal diagnostics only; no CATE policy-value claim
+falsification/placebo,review,placebo outcomes are reported but do not solve identification,False,False,causal diagnostics only; no CATE policy-value claim

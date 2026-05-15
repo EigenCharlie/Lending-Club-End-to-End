@@ -1,0 +1,14 @@
+{
+  "schema_version": "2026-05-15.34",
+  "generated_at_utc": "2026-05-15T02:13:17.617822+00:00",
+  "phase": "v34_dla_redesign_failure_analysis",
+  "state_variables_v34": 9,
+  "redesign_options_v34": 4,
+  "failure_rows_v34": 20,
+  "bellman_exact_claim_allowed": false,
+  "paper1_artifacts_modified": false,
+  "paper1_promotion_file_exists": true,
+  "paper4_final_promotion_created": false,
+  "claim_boundary": "DLA redesigned as formal SDAM lane, but exact Bellman optimality remains false",
+  "runtime_seconds": 0.052
+}

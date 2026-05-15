@@ -1,0 +1,141 @@
+---
+title: "Online Conformal Forward Replay"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _pq(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_parquet(path) if path.exists() else pd.DataFrame()
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+intervals = _pq("paper4_online_conformal_intervals.parquet")
+replay = _pq("paper4_online_conformal_policy_replay.parquet")
+regret = _csv("paper4_online_conformal_coverage_regret_v2.csv")
+```
+
+## Pregunta {#sec-paper4-online-conformal-real-question}
+
+El P1 anterior solo producía una recomendación ACI proxy. Esta versión ya
+calcula intervalos forward-only:
+
+> Si cada mes usa solamente errores observados en meses anteriores, ¿qué
+> cobertura obtiene cada funded set por policy?
+
+No es el método online definitivo, pero sí abandona el modo puramente agregado.
+
+## Artifacts
+
+```{python}
+#| label: tbl-paper4-online-intervals-sample
+#| tbl-cap: "Muestra de intervalos online forward-only"
+
+_cols(
+    intervals,
+    [
+        "loan_id",
+        "issue_month",
+        "original_grade",
+        "y_true",
+        "y_pred",
+        "qhat_90",
+        "qhat_95",
+        "online_source",
+        "covered_online_90",
+        "covered_online_95",
+    ],
+).head(12)
+```
+
+```{python}
+#| label: tbl-paper4-online-policy-replay
+#| tbl-cap: "Replay mensual de cobertura online por policy"
+
+_cols(
+    replay,
+    [
+        "policy_id",
+        "month",
+        "period",
+        "n_funded",
+        "coverage_online_90",
+        "coverage_online_95",
+        "funded_exposure",
+        "online_sources",
+    ],
+).head(18)
+```
+
+## Resultado
+
+```{python}
+#| label: tbl-paper4-online-coverage-regret
+#| tbl-cap: "Coverage regret acumulado por policy"
+
+if not regret.empty:
+    (
+        regret.sort_values(["policy_id", "month"])
+        .groupby("policy_id", as_index=False)
+        .tail(1)
+        .sort_values("coverage_regret_90_cum")
+        .head(15)
+    )
+else:
+    regret
+```
+
+La señal más importante es metodológica: ahora la cobertura no se mira como una
+constante del modelo, sino como un proceso temporal. Eso abre la puerta a
+coverage regret, alarmas por source y policy switching.
+
+## Interpretación SDAM
+
+| Elemento | Implementación |
+|---|---|
+| `I_t` | errores conformal disponibles hasta `t-1` |
+| `B_t` | cuantiles rolling globales o por grade |
+| `x_t` | funded set de cada policy en el mes |
+| `W_{t+1}` | default observado del mes actual |
+| `C_t` | cobertura 90/95 y regret de cobertura |
+
+El primer mes usa fallback amplio porque no hay historia. Luego, si un grade
+tiene al menos 100 observaciones previas, usa cuantiles propios; si no, usa el
+cuantil global rolling.
+
+## Caveats
+
+Los intervalos se construyen con score absoluto sobre PD observada binaria. Eso
+es útil para monitoreo, pero no reemplaza una teoría completa de online CP para
+clasificación/calibración crediticia. El método tampoco optimiza longitud del
+intervalo ni tradeoff de retorno.
+
+## Next Step
+
+La próxima versión debe comparar:
+
+1. rolling global;
+2. rolling Mondrian por grade;
+3. ACI con actualización de alpha;
+4. selector que penaliza coverage regret y longitud de intervalo.

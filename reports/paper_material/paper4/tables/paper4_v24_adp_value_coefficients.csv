@@ -1,0 +1,5 @@
+policy_id,return_weight,pd_lgd_penalty_weight,width_penalty_weight,source_penalty_weight,reinvestment_weight,stage2_penalty_weight,policy_class,bellman_exact_claim,claim_boundary
+v24_adp_rollout_return_value,1.0,0.4,0.08,0.1,0.05,0.04,DLA/ADP-rollout-approx,False,approximate value-function rollout; not exact Bellman optimality
+v24_adp_rollout_tail_value,0.75,0.9,0.15,0.1,0.02,0.08,DLA/ADP-rollout-approx,False,approximate value-function rollout; not exact Bellman optimality
+v24_adp_rollout_source_ecl_value,0.8,0.55,0.12,0.35,0.03,0.12,DLA/ADP-rollout-approx,False,approximate value-function rollout; not exact Bellman optimality
+v24_adp_rollout_reinvestment_value,0.85,0.45,0.07,0.12,0.2,0.05,DLA/ADP-rollout-approx,False,approximate value-function rollout; not exact Bellman optimality

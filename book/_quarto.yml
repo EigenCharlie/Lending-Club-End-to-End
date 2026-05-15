@@ -143,7 +143,15 @@ book:
         - chapters/19-paper-mega-extension/19a-proposal-and-scope.qmd
         - chapters/19-paper-mega-extension/19b-current-assets-and-gaps.qmd
         - chapters/19-paper-mega-extension/19c-integrated-architecture.qmd
-        - chapters/19-paper-mega-extension/19d-implementation-roadmap.qmd
+        - chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd
+        - chapters/19-paper-mega-extension/19h-mvp-evidence-pack.qmd
+        - chapters/19-paper-mega-extension/19i-regret-auditability-frontier.qmd
+        - chapters/19-paper-mega-extension/19n-online-mdcp-fairness.qmd
+        - chapters/19-paper-mega-extension/19t-multi-period-solver.qmd
+        - chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd
+        # Paper 4 historical archive: these files remain on disk and are
+        # summarized in reports/paper_material/paper4/notes/paper4_living_lab_notebook.md,
+        # but they are intentionally not rendered in the official book chapter.
         - chapters/17-paper-gpu/index.qmd
         - chapters/17-paper-gpu/17a-positioning.qmd
         - chapters/17-paper-gpu/17b-theoretical-framework.qmd

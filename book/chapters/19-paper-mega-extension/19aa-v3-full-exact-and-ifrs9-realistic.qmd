@@ -1,0 +1,321 @@
+---
+title: "v3 Full Exact 45 and IFRS9 Cashflow"
+page-layout: article
+---
+
+```{python}
+#| include: false
+
+from __future__ import annotations
+
+import json
+import sys
+from pathlib import Path
+
+import pandas as pd
+
+ROOT = Path.cwd().resolve()
+while ROOT != ROOT.parent and not (ROOT / "reports").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+TABLE_DIR = ROOT / "reports" / "paper_material" / "paper4" / "tables"
+STATUS_DIR = ROOT / "reports" / "paper_material" / "paper4" / "status"
+
+def _csv(name: str) -> pd.DataFrame:
+    path = TABLE_DIR / name
+    return pd.read_csv(path) if path.exists() else pd.DataFrame()
+
+def _json(name: str) -> dict:
+    path = STATUS_DIR / name
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {}
+
+def _cols(df: pd.DataFrame, columns: list[str]) -> pd.DataFrame:
+    return df[[col for col in columns if col in df.columns]] if not df.empty else df
+
+status = _json("paper4_v3_deepening_status.json")
+full = _csv("paper4_v3_full_universe_all_policy_eval.csv")
+ifrs9 = _csv("paper4_v3_ifrs9_cashflow_policy_summary.csv")
+stage = _csv("paper4_v3_ifrs9_stage_transition_matrix.csv")
+alloc_path = TABLE_DIR / "paper4_v3_full_universe_all_policy_allocations.parquet"
+alloc = pd.read_parquet(alloc_path) if alloc_path.exists() else pd.DataFrame()
+CHAMPION_ID = "paper1_economic_champion"
+GROSS_CHALLENGER_ID = "crpto_rt0p175_g0p45_u0p00_alpha0p01_conservative_proxy_rs42"
+```
+
+## Pregunta {#sec-paper4-v3-full-exact-question}
+
+La pregunta v3 es más ambiciosa que el top-k:
+
+> ¿Podemos resolver las 45 policies congeladas sobre el universo completo y
+> evaluar ECL lifetime con una estructura de cashflows, EAD, prepayment,
+> recoveries implícitas y escenarios coherentes?
+
+La respuesta operacional es sí. El laboratorio ya tiene allocations exactas
+para las 45 policies congeladas, con `276,869` préstamos candidatos por solve.
+Esto cambia el estado de Paper 4: la comparación entre policies ya no depende
+de reconstrucciones greedy para el conjunto principal.
+
+::: {.callout-important}
+## No cambia el Paper Estrella
+
+V3 descubre candidates interesantes, incluso uno con retorno bruto ligeramente
+mayor que el champion congelado. Eso no crea promoción ni reemplaza el champion
+del Paper Estrella. Paper 4 sigue siendo laboratorio de investigación con gates
+propios.
+:::
+
+## Status
+
+```{python}
+#| label: tbl-paper4-v3-status
+#| tbl-cap: "Status v3 deepening"
+
+pd.DataFrame(
+    [
+        {"field": key, "value": str(value)}
+        for key, value in status.items()
+        if key not in {"generated_artifacts"}
+    ]
+)
+```
+
+## Full Exact 45
+
+```{python}
+#| label: tbl-paper4-v3-full-exact-top-return
+#| tbl-cap: "Top policies por retorno full-universe exact"
+
+_cols(
+    full.sort_values("full_realized_return", ascending=False),
+    [
+        "policy_id",
+        "solver_status",
+        "full_n_funded",
+        "full_realized_return",
+        "return_delta_vs_champion",
+        "full_weighted_pd_high",
+        "full_coverage_alpha01",
+    ],
+).head(15)
+```
+
+El resultado bruto más llamativo es que
+`crpto_rt0p175_g0p45_u0p00_alpha0p01_conservative_proxy_rs42` supera al
+champion congelado por aproximadamente `443` unidades de retorno realizado
+proxy, con cobertura alpha01 también ligeramente mayor. La diferencia es
+pequeña, pero suficiente para marcar este candidate como prioridad de auditoría
+posterior.
+
+La lectura correcta no es "nuevo champion". La lectura correcta es:
+
+- el universo exacto ya puede abrir challengers reales;
+- el Paper Estrella no cambia sin su propio protocolo de promoción;
+- el selector Paper 4 debe decidir si el retorno bruto sobrevive IFRS9,
+  online, MDCP, fairness proxy y cola.
+
+## Challenger Exacto Bruto
+
+El challenger bruto queda documentado como una señal de búsqueda, no como una
+promoción:
+
+```{python}
+#| label: tbl-paper4-v3-gross-challenger
+#| tbl-cap: "Champion congelado versus challenger bruto exacto"
+
+_cols(
+    full[full["policy_id"].isin([CHAMPION_ID, GROSS_CHALLENGER_ID])]
+    .sort_values("full_realized_return", ascending=False),
+    [
+        "policy_id",
+        "risk_tolerance",
+        "gamma",
+        "policy_mode",
+        "uncertainty_aversion",
+        "full_n_funded",
+        "full_funded_exposure",
+        "full_realized_return",
+        "return_delta_vs_champion",
+        "full_weighted_pd_high",
+        "full_coverage_alpha01",
+    ],
+)
+```
+
+La diferencia paramétrica relevante es mínima y por eso es tan interesante:
+ambos usan `risk_tolerance = 0.175`, `gamma = 0.45` y
+`blended_uncertainty`. El challenger cambia solo
+`uncertainty_aversion = 0.10` a `0.00`. En otras palabras, mantiene el
+constraint robusto de PD efectiva, pero elimina la penalización lineal a la
+anchura del intervalo dentro del objetivo económico.
+
+```{python}
+#| label: tbl-paper4-v3-gross-challenger-marginal-set
+#| tbl-cap: "Diferencia marginal de funded set entre champion y challenger"
+
+def _exclusive_summary(alloc: pd.DataFrame) -> pd.DataFrame:
+    if alloc.empty:
+        return pd.DataFrame()
+    champion = alloc[alloc["policy_id"].eq(CHAMPION_ID)]
+    challenger = alloc[alloc["policy_id"].eq(GROSS_CHALLENGER_ID)]
+    champion_ids = set(champion["loan_id"])
+    challenger_ids = set(challenger["loan_id"])
+    groups = {
+        "common": (champion_ids & challenger_ids, champion),
+        "only_challenger": (challenger_ids - champion_ids, challenger),
+        "only_champion": (champion_ids - challenger_ids, champion),
+    }
+    rows = []
+    for label, (loan_ids, source) in groups.items():
+        frame = source[source["loan_id"].isin(loan_ids)].copy()
+        if frame.empty:
+            continue
+        exposure = frame["funded_exposure"].sum()
+        rows.append(
+            {
+                "segment": label,
+                "n_loans": len(frame),
+                "funded_exposure": exposure,
+                "realized_return_proxy_lgd45": frame["realized_return_proxy_lgd45"].sum(),
+                "ecl_baseline_lgd45": frame["ecl_baseline_lgd45"].sum(),
+                "defaults": frame["y_true"].sum(),
+                "coverage_alpha01": 1.0 - frame["miscovered_alpha01"].mean(),
+                "weighted_int_rate": (
+                    frame["int_rate_decimal"] * frame["funded_exposure"]
+                ).sum()
+                / exposure,
+                "weighted_pd_point": (
+                    frame["pd_point"] * frame["funded_exposure"]
+                ).sum()
+                / exposure,
+                "weighted_pd_high": (
+                    frame["pd_high_alpha01"] * frame["funded_exposure"]
+                ).sum()
+                / exposure,
+            }
+        )
+    return pd.DataFrame(rows)
+
+_exclusive_summary(alloc)
+```
+
+La interpretación técnica es que el challenger gana por una frontera muy local:
+comparte la mayoría del funded set con el champion y cambia un bloque pequeño
+de préstamos. Los préstamos exclusivos del challenger tienen menor PD point
+ponderado, pero mayor incertidumbre conformal; como en el OOT observado no
+defaultaron, elevan el retorno bruto. Eso es exactamente lo que una aversión a
+incertidumbre positiva intenta moderar.
+
+::: {.callout-warning}
+## Decisión de laboratorio
+
+El candidate queda como `gross-return exact challenger`. No se promueve porque
+el margen es pequeño, la señal depende de pocos préstamos marginales, el gate de
+online CP sigue fallando por peor policy-month/source-month y el Paper Estrella
+tiene champion congelado por protocolo. Sí abre una búsqueda local sobre
+`uncertainty_aversion` alrededor de `0.00` a `0.10`.
+:::
+
+## IFRS9 Cashflow
+
+La capa IFRS9 v3 reemplaza el ECL escalado simple por una aproximación de
+cashflows: EAD mensual por amortización lineal, default hazard mensual derivado
+de PD conformal alta, prepayment hazard por escenario, descuento por tasa del
+préstamo y Stage 1/2/3 con horizonte 12m/lifetime/default observado.
+
+No es un motor IFRS9 contractual completo, porque no tenemos performance mensual
+real de cada préstamo. Pero sí es un avance sobre el proxy agregado: ECL ahora
+depende de term, EAD, survival, prepayment, escenario y stage.
+
+```{python}
+#| label: tbl-paper4-v3-ifrs9-baseline
+#| tbl-cap: "IFRS9 cashflow v3 - baseline"
+
+_cols(
+    ifrs9[ifrs9["scenario"].eq("baseline")]
+    .sort_values("net_return_after_cashflow_ecl_v3", ascending=False),
+    [
+        "policy_id",
+        "n_funded",
+        "cashflow_ecl_v3",
+        "realized_return_proxy_lgd45",
+        "stage2_share",
+        "stage3_share",
+        "expected_default_prob_mean",
+        "expected_prepay_prob_mean",
+        "expected_life_months",
+        "net_return_after_cashflow_ecl_v3",
+    ],
+).head(12)
+```
+
+```{python}
+#| label: tbl-paper4-v3-ifrs9-adverse
+#| tbl-cap: "IFRS9 cashflow v3 - adverse"
+
+_cols(
+    ifrs9[ifrs9["scenario"].eq("adverse")]
+    .sort_values("net_return_after_cashflow_ecl_v3", ascending=False),
+    [
+        "policy_id",
+        "cashflow_ecl_v3",
+        "realized_return_proxy_lgd45",
+        "stage2_share",
+        "stage3_share",
+        "expected_default_prob_mean",
+        "expected_life_months",
+        "net_return_after_cashflow_ecl_v3",
+    ],
+).head(12)
+```
+
+```{python}
+#| label: tbl-paper4-v3-ifrs9-severe
+#| tbl-cap: "IFRS9 cashflow v3 - severe"
+
+_cols(
+    ifrs9[ifrs9["scenario"].eq("severe")]
+    .sort_values("net_return_after_cashflow_ecl_v3", ascending=False),
+    [
+        "policy_id",
+        "cashflow_ecl_v3",
+        "realized_return_proxy_lgd45",
+        "stage2_share",
+        "stage3_share",
+        "expected_default_prob_mean",
+        "expected_life_months",
+        "net_return_after_cashflow_ecl_v3",
+    ],
+).head(12)
+```
+
+## Stage Transition Proxy
+
+```{python}
+#| label: tbl-paper4-v3-ifrs9-stage-matrix
+#| tbl-cap: "Stage/cashflow transition proxy"
+
+stage
+```
+
+## Interpretación
+
+El resultado IFRS9 confirma una tesis central del Paper 4: el ranking por
+retorno bruto y el ranking prudencial no son iguales. El candidate con mejor
+retorno bruto no necesariamente domina el net return after cashflow ECL. Bajo
+baseline, el mejor policy-level net queda alrededor de `46.9k`; bajo adverse,
+los mejores candidates ya caen a terreno negativo; bajo severe, todos quedan
+fuertemente negativos.
+
+La evidencia útil no es "IFRS9 mata todo". La evidencia útil es que el selector
+necesita distinguir tres objetivos: retorno realizado, pérdida esperada
+prudencial y resiliencia bajo stress. Paper 4 ya tiene artifacts para esa
+distinción.
+
+## Caveats
+
+- EAD mensual es aproximado por amortización lineal.
+- Prepayment y default hazard son proxies de escenario, no observaciones
+  contractuales.
+- Stage 2 depende de PD conformal alta y reglas SICR simples.
+- No hay promoción: estos resultados solo alimentan selector y roadmap.

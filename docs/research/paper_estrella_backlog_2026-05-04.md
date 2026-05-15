@@ -148,6 +148,10 @@ cleanup" for the current Paper Estrella.
 - P3 items belong to broader thesis/product work.
 - If any diagnostic table contradicts `models/final_project_promotion.json`,
   the promotion artifact wins.
+- v38 clarification: broad comparison reports with `artifact_coherence_pass=false`
+  are treated as mixed run-tag/scope diagnostics, not as Paper Estrella champion
+  inconsistency. Paper 4 v30+ challengers remain review-only until paired
+  robustness and Paper Estrella promotion gates pass.
 
 ## P0 - Keep Current Paper Publishable
 

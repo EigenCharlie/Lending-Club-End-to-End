@@ -1,0 +1,2 @@
+attempt_id,estimated_rows,estimated_binary_variables,estimated_auxiliary_variables,estimated_constraint_rows,max_rows_without_force,force_requested,attempt_executed,attempt_result,exact_full_universe_claim,recommended_path,claim_boundary
+v33_full_universe_cvar_lp_feasibility_guard,0,0,9,38,120000,False,False,not_executed_resource_guard,False,column_generation_or_dual_certificate_after solver model is profiled,"resource feasibility audit, not exact optimization proof"

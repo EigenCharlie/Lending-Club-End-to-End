@@ -1,0 +1,8 @@
+threshold_id,value,rationale
+gross_return_positive,0.0,Sanity gate; not enough for promotion.
+ifrs9_baseline_net_positive,0.0,Avoid promoting pure gross-return artifacts.
+online_min_policy_month,0.8,Worst policy-month floor after v4 guarded online CP.
+online_global_method_gate,1.0,No Paper 4 promotion while best online method still fails source-month gate.
+mdcp_worst_source,0.8,Worst defended source coverage floor with minimum-cell pooling.
+fairness_proxy_gap,0.35,Proxy governance only; not protected attribute fairness.
+sample_path_prob_beats_paper1,0.5,Paper 4 reference only; Paper Estrella remains frozen.

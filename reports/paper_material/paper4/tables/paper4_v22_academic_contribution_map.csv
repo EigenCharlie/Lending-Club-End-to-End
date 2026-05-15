@@ -1,0 +1,10 @@
+finding,primary_artifact,publishability_class,contribution_interpretation
+Dynamic sequential governance,paper4_v19_dynamic_policy_trace.parquet,core_defensible,turns funded books into comparable monthly processes
+Internal path calibration and paired CIs,paper4_v19_policy_pairwise_common_path_ci.csv,core_defensible,supports champion-vs-challenger uncertainty statements
+Endogenous DLA approximations,paper4_v20_endogenous_dla_decisions.parquet,promising_method,"moves from adapters to monthly loan selection, still approximate"
+CVaR strict infeasibility/committee frontier,paper4_v20_cvar_strict_infeasibility_v2.csv,negative_result_appendix,documents why strict governance can be too tight
+SPO oracle-regret surrogate,paper4_v20_spo_oracle_regret.csv,promising_but_not_formal,decision-loss evidence without differentiable optimizer
+Champion economic decomposition,paper4_v20_champion_decomposition_summary.csv,interpretability_contribution,explains selected/avoided risk pockets
+IFRS9 readiness boundary,paper4_v21_ifrs9_readiness_matrix.csv,data_blocked_boundary,prevents overclaiming contractual IFRS9
+CATE blocker with diagnostics,paper4_v21_cate_gate_report.csv,theory_blocked_boundary,keeps causal claims honest
+Fairness proxy-only protocol,paper4_v21_fairness_proxy_only_protocol.csv,governance_boundary,separates source governance from legal fairness

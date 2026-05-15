@@ -1,0 +1,12 @@
+priority,claim_status,artifact,quarto_page,caveat
+Artifact audit,implemented,paper4_v12_artifact_audit.csv,19ba-v12-resolution-wave.qmd,inventory only
+Method references,implemented_primary_sources,paper4_v12_method_reference_registry.csv,19ba-v12-resolution-wave.qmd,references guide implementation boundaries
+CVaR/OCE with MDCP caps,implemented_column_generation_lp,paper4_v12_cvar_column_generation_frontier.csv,19ba-v12-resolution-wave.qmd,not exact full-universe proof
+MDCP/source coverage,implemented_inside_solver,paper4_v12_mdcp_source_cap_solver_summary.csv,19ba-v12-resolution-wave.qmd,"empirical caps, not legal fairness"
+DLA/SDAM FVI,implemented_iterative_fitted_value_rollout,paper4_v12_dla_fvi_comparison.csv,19ba-v12-resolution-wave.qmd,not exact Bellman optimality
+SPO/DFL,implemented_temporal_regret_surrogate,paper4_v12_spo_plus_surrogate_candidates.csv,19ba-v12-resolution-wave.qmd,not differentiable SPO+ theorem
+Sample paths,implemented_macro_calibrated_common_paths,paper4_v12_sample_path_macro_calibrated_ci.csv,19ba-v12-resolution-wave.qmd,"internal calibration, not future forecast"
+Working champion,implemented_paper4_only,paper4_v12_working_candidate_registry.csv,19ba-v12-resolution-wave.qmd,does not modify Paper Estrella
+IFRS9/SICR,implemented_proxy_sensitivity,paper4_v12_ifrs9_sicr_sensitivity.csv,19ba-v12-resolution-wave.qmd,no contractual IFRS9 claim
+Causal/fairness,implemented_blocker_dossier,paper4_v12_causal_cate_dossier.csv,19ba-v12-resolution-wave.qmd,CATE policy value and fair-lending legal claims remain blocked
+Paper Estrella freeze,guardrail_verified,paper4_v12_status.json,19ba-v12-resolution-wave.qmd,models/final_project_promotion.json not modified

@@ -1,0 +1,9 @@
+requirement,available_in_current_artifacts,decision,paper4_action
+monthly_payment_panel,False,missing_or_proxy_only,keep explicit blocker until external/servicing data exists
+monthly_ead_observed,False,missing_or_proxy_only,keep explicit blocker until external/servicing data exists
+prepayment_timing,True,usable_now,use in proxy panel
+default_timing,True,usable_now,use in proxy panel
+recovery_timing,False,missing_or_proxy_only,keep explicit blocker until external/servicing data exists
+cure_or_forbearance,True,usable_now,use in proxy panel
+days_past_due_sicr,True,usable_now,use in proxy panel
+macro_scenario_path,False,missing_or_proxy_only,keep explicit blocker until external/servicing data exists

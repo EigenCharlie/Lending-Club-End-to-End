@@ -1,0 +1,11 @@
+{
+  "schema_version": "2026-05-14.15-18",
+  "generated_at_utc": "2026-05-14T19:47:27.303650+00:00",
+  "phase": "v16_cvar_spo_champion_decomposition",
+  "cvar_frontier_rows_v16": 15,
+  "cvar_infeasibility_rows_v16": 12,
+  "spo_differentiable_layer_implemented_v16": false,
+  "spo_dependency_blocker_count_v16": 3,
+  "champion_decomposition_rows_v16": 18,
+  "paper4_final_promotion_created": false
+}

@@ -1,0 +1,7 @@
+package,available_v16,version,intended_use,decision_v16,blocker_detail
+cvxpy,False,installed_or_partially_installed,differentiable/convex modeling path for SPO+ layers,dependency_blocked_documented,dependency intentionally blocked for v16 formal SPO path; cvxpy import is known to hit a NumPy ABI issue in this environment
+cvxpylayers,False,,differentiate through disciplined convex programs,dependency_blocked_documented,ModuleNotFoundError: package not installed in current environment
+torch,False,,train differentiable decision layers,dependency_blocked_documented,ModuleNotFoundError: package not installed in current environment
+pyomo,True,6.10.0,LP/HiGHS decision oracle and CVaR programs,usable_now,
+highspy,True,installed,HiGHS solver backend,usable_now,
+catboost,True,1.2.10,monotonic challenger/regret-score learner,usable_now,

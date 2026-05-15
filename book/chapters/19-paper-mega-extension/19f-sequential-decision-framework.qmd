@@ -1,0 +1,29 @@
+---
+title: "Sequential Decision Framework"
+page-layout: article
+---
+
+## Por que Powell/SDAM si el dataset es estatico
+
+Powell/SDAM no se usa aqui para fingir produccion. Se usa como contrato de
+framing academico: declara que incluso con dataset historico, las comparaciones
+de policies deben diferenciar estado, decision, informacion exogena,
+post-decision state, transicion y politica.
+
+## Elementos SDAM
+
+| Elemento | Interpretacion en Paper 4 |
+|---|---|
+| `S_t` | cash, outstanding, ECL proxy, stage mix, coverage state, source exposure |
+| `x_t` | financiar, no financiar, seleccionar policy, ajustar caps o thresholds |
+| `S_t^x` | exposicion financiada, capital usado, budget restante, composicion |
+| `W_{t+1}` | defaults, prepayments, recoveries, macro/internal shocks, drift |
+| `S_{t+1}` | estado actualizado despues de pagos, perdidas, recuperaciones y ECL |
+| `X^pi` | clase de politica: CRPTO, CVaR, DLA, SPO surrogate, static reference |
+
+## Contribucion del framework
+
+El framework vale porque fuerza a separar lo que antes se mezclaba: metricas
+base, metricas de riesgo, decisiones, incertidumbre, evidencia y claims. En un
+paper academico futuro, esto puede ser una contribucion de gobernanza
+secuencial incluso si el dataset no es productivo.

@@ -1,0 +1,10 @@
+finding,primary_artifact,publishability_class,contribution_interpretation
+128-path dynamic scale,paper4_v23_scale_convergence.csv,core_defensible,ranking stability and interval convergence under larger paths
+Sample paths v3,paper4_v23_path_calibration_diagnostics.csv,core_defensible_with_caveat,better internal calibration without forecast claim
+ADP rollout approximations,paper4_v24_dla_adp_dynamic_summary.csv,promising_method,moves DLA further toward endogenous monthly decision
+CVaR column-generation diagnostics,paper4_v24_cvar_column_generation_log.csv,negative_or_governance_result,strict infeasibility and relaxations are explainable
+SPO oracle-regret upgrade,paper4_v24_spo_temporal_oracle_regret.csv,promising_but_not_formal_spo_plus,decision-loss path survives dependency blockers
+IFRS9 proxy cashflow panel,paper4_v25_ifrs9_proxy_cashflow_panel.parquet,proxy_appendix,better ECL/SICR evidence without contractual claim
+Causal diagnostics upgrade,paper4_v25_causal_balance_trim_ipw.csv,blocked_with_evidence,trimming/IPW improves diagnostics but not identification
+Fairness source governance,paper4_v25_source_governance_diagnostics.csv,governance_boundary,observable-source monitoring only
+Artifact/candidate registry,paper4_v26_candidate_registry.csv,lab_infrastructure,keeps serious challengers visible
