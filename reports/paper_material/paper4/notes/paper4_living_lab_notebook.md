@@ -12942,3 +12942,56 @@ contractual and champion claims.
 Keep v323 in the living notebook. Promotion remains blocked.
 
 <!-- V323_V320_CASHFLOW_ONLINE_IFRS9_GATE_END -->
+
+<!-- V324_V320_PROXY_GAP_REPAIR_START -->
+
+## Wave v324: v320 Proxy-Gap Repair / Branch-Price Protocol
+
+Generated: 2026-05-16T22:06:54.950594+00:00
+
+### Objective
+
+v323 showed that v320 needs 79 imputed proxy loans, 6 more than v316. v324 tests
+whether observed candidates can repair that coverage gap while preserving the
+v320 matched-period, budget, source and CVaR structure.
+
+### Results
+
+- Candidate pool rows: `1361`.
+- Strict v320-preserving repair feasible:
+  `False`.
+- Relaxed repair feasible:
+  `True`.
+- Relaxed observed proxy rows:
+  `100`.
+- Relaxed missing proxy rows:
+  `71`.
+- Relaxed return delta vs v320:
+  `-10.127369358319811`.
+- Relaxed CVaR delta vs v320:
+  `-235.37285766325658`.
+- Post-v324 repricing required:
+  `True`.
+
+### Interpretation
+
+v324 exposes a useful frontier. The strict repair that preserves v320 return and
+v320 CVaR is infeasible in the bounded observed-candidate pool. A relaxed repair
+does improve proxy coverage from 92 to 100 observed loans and lowers CVaR, but
+it gives back return relative to v320. This is evidence of a real
+coverage-return tradeoff, not a champion or deployment claim.
+
+### Claim Impact
+
+- Allowed: bounded proxy-gap repair feasibility test and relaxed repair
+  diagnostic.
+- Still prohibited: strict v320-preserving coverage repair, full-universe global
+  optimality, contractual IFRS9, live deployment, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v324 in the living notebook. The next wave should reprice the relaxed
+repair or pursue a dual-bound/global certificate without promotion.
+
+<!-- V324_V320_PROXY_GAP_REPAIR_END -->

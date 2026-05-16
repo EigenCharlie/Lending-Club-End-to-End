@@ -1,0 +1,7 @@
+blocker_id_v324,blocking_v324,evidence_count_v324,required_next_artifact_v324,claim_boundary_v324
+strict_v320_preserving_proxy_repair_infeasible,True,1.0,future_expanded_pool_or_dual_bound,strict v320-return/v320-CVaR repair infeasible
+relaxed_repair_requires_return_concession,True,10.127369358319811,paper4_v325_v324_relaxed_reprice_or_dual_bound_gate.csv,coverage improves only by giving back v320 return
+post_v324_reprice_missing,True,1.0,paper4_v325_v324_relaxed_reprice_or_dual_bound_gate.csv,relaxed repair has not been one-swap repriced
+bounded_pool_not_full_universe,True,1190.0,future_full_universe_branch_price_bound,v324 prices a bounded observed-candidate pool
+contractual_ifrs9_and_live_holdout_missing,True,1.0,future_contractual_or_live_holdout_gate,proxy repair is not contractual IFRS9 or live replay
+paper4_final_promotion_forbidden,True,1.0,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

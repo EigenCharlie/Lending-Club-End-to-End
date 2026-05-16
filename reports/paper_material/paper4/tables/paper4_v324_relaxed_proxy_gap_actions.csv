@@ -1,0 +1,17 @@
+action_v324,loan_id,loan_amnt,grade,score_decile,income_band,dti_band,period,state_top20,mean_return_v324,observed_v47_proxy_v324,claim_boundary_v324
+add_observed_candidate,158810156,3175.0,A,0,3,0,2019,CO,72.86147838454163,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,145977956,3000.0,A,0,3,0,2019,other,68.37566207938511,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,147190807,2500.0,A,0,1,0,2019,IL,55.06806314688965,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,151566947,2500.0,A,0,3,3,2019,other,51.85008676533891,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,144622469,1500.0,A,0,2,3,2018,other,27.006608529691615,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,136360475,1000.0,A,0,2,2,2018,NC,14.024583409971672,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,161455148,1000.0,D,3,4,0,2019,NJ,-153.1140109342037,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+add_observed_candidate,162228701,1000.0,C,1,1,0,2019,PA,-153.227374178099,True,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,158700271,8000.0,A,0,4,0,2019,other,198.2323499409941,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,148128009,2500.0,A,0,4,0,2019,CA,54.46218936898403,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,129082051,1500.0,A,0,2,1,2018,other,27.50472791272188,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,148017643,1000.0,A,0,4,0,2019,other,16.62722525875585,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,127648167,1000.0,A,0,4,0,2018,NC,15.897397129938305,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,151083962,1000.0,A,0,4,1,2019,CA,15.210760883521466,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,145955296,1000.0,A,0,3,2,2019,TX,14.863146116677438,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
+drop_v320_selected,158701181,2400.0,D,2,4,2,2019,NJ,-349.8253300497582,False,v324 relaxed proxy-gap repair action list; post-repair repricing still required
