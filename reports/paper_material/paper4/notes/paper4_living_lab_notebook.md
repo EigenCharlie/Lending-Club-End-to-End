@@ -11309,3 +11309,55 @@ therefore needs cardinality-aware multi-swap or MILP repair, not simple adds.
 Keep v291 in the living notebook. Promotion remains blocked.
 
 <!-- V291_CARDINALITY_RESTORATION_PROTOCOL_END -->
+
+<!-- V292_CARDINALITY_AWARE_MULTI_SWAP_MILP_START -->
+
+## Wave v292: Cardinality-Aware Multi-Swap MILP
+
+Generated: 2026-05-16T14:39:10.278885+00:00
+
+### Objective
+
+v291 showed that restoring the v289 repair from 168 to 171 rows is impossible
+with add-only moves. v292 escalates to a bounded multi-swap MILP over the v289
+selected loans plus the top-15000 omitted loans by expected return, with exact
+171-row cardinality, source caps, budget and the v289 CVaR cap.
+
+### Results
+
+- Pool rows: `15168`.
+- Candidate pool limit: `15000`.
+- MILP success: `True`.
+- MILP gap: `0.0`.
+- Selected rows: `171`.
+- Added rows vs v289: `4`.
+- Dropped rows vs v289: `1`.
+- Portfolio exposure: `843625.0`.
+- Objective return: `3100.214040676401`.
+- Delta return vs v289: `-3.0311351258519608`.
+- Delta return vs v279: `-2.3283745094249753`.
+- CVaR90: `98116.55123778542`.
+- Delta CVaR90 vs v289: `-222.59949783305638`.
+- Source cap violations: `0`.
+- Cardinality restored: `True`.
+
+### Interpretation
+
+v292 resolves one blocker and preserves another. The bounded MILP can restore
+171 rows while remaining budget/source/CVaR feasible, but the best bounded
+solution trails v289 by 3.031 return units and trails v279 by 2.328. That means
+cardinality restoration is feasible, but not yet economically dominant.
+
+### Claim Impact
+
+- Allowed: bounded top-15000 cardinality-aware MILP executed; 171-row
+  cardinality restored inside that bounded pool.
+- Still prohibited: new working champion, full-universe optimality, Paper
+  Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v292 in the living notebook. The next live-lab step is decomposing the
+return gap or expanding the pool/design, not promotion.
+
+<!-- V292_CARDINALITY_AWARE_MULTI_SWAP_MILP_END -->

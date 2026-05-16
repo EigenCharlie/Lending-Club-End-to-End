@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v292_cardinality_aware_milp_protocol_executed,True,paper4_v292_cardinality_aware_multi_swap_milp_protocol.csv,bounded top-15000 pool
+v292_cardinality_restored_in_bounded_pool,True,paper4_v292_cardinality_milp_action.csv,bounded top-15000 pool feasibility only
+v292_bounded_pool_milp_optimality,True,paper4_v292_cardinality_aware_multi_swap_milp_protocol.csv,"bounded-pool solver optimality, not full universe"
+v292_return_improves_vs_v289,False,paper4_v292_claim_blockers.csv,false because v292 trails v289 return
+v292_working_champion,False,paper4_v292_claim_blockers.csv,return and global evidence missing
+v292_global_full_universe_integer_optimality,False,paper4_v292_claim_blockers.csv,global certificate missing
+v292_paper1_or_final_promotion,False,paper4_v292_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
