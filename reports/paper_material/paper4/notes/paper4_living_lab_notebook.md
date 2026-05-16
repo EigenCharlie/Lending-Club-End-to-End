@@ -11515,3 +11515,47 @@ future gates.
 Keep v295 in the living notebook. Promotion remains blocked.
 
 <!-- V295_BROADER_MULTI_SWAP_GLOBAL_GAP_PROBE_END -->
+
+<!-- V296_POST_V295_ONE_SWAP_REPRICE_START -->
+
+## Wave v296: Post-v295 One-Swap Repricing
+
+Generated: 2026-05-16T18:09:53.963466+00:00
+
+### Objective
+
+v295 found a stronger bounded broader-pool challenger. v296 tests whether that challenger
+has local one-drop/one-add stability against the full comparable universe under
+the same budget, exact source caps and v295 CVaR cap.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1605020`.
+- Budget+return feasible pairs: `964431`.
+- Source prefilter pairs: `882`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v295 one-swap return delta: `not applicable; no feasible improving one-swaps`.
+- Post-v295 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v296 either clears the immediate one-swap repricing gate or identifies the next
+repair action. In both cases it remains bounded/local evidence, not a global
+optimality or deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v295 one-swap repricing screen completed.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v296 in the living notebook. Promotion remains blocked.
+
+<!-- V296_POST_V295_ONE_SWAP_REPRICE_END -->

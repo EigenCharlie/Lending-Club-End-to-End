@@ -29937,6 +29937,118 @@ def test_paper4_v295_broader_multi_swap_probe_finds_bounded_challenger_only() ->
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v296_post_v295_reprice_clears_one_swap_scope_without_promotion() -> None:
+    status = _read_json("paper4_v296_status.json")
+
+    assert status["phase"] == "v296_post_v295_broader_pool_one_swap_reprice"
+    assert status["schema_version"] == "2026-05-15.296"
+    assert status["previous_challenger_version_v296"] == 295
+    assert status["base_repair_version_v296"] == 279
+    assert status["summary_rows_v296"] == 1
+    assert status["stage_summary_rows_v296"] == 6
+    assert status["candidate_pair_rows_v296"] == 0
+    assert status["top_candidate_rows_v296"] == 0
+    assert status["claim_blocker_rows_v296"] == 5
+    assert status["claim_matrix_rows_v296"] == 5
+    assert status["selected_rows_v296"] == 171
+    assert status["base_selected_rows_v296"] == 171
+    assert status["cardinality_restored_v296"] is True
+    assert status["candidate_add_rows_v296"] == 276698
+    assert status["total_pair_rows_screened_v296"] == 47315358
+    assert status["return_improving_pair_rows_v296"] == 1605020
+    assert status["budget_return_feasible_pair_rows_v296"] == 964431
+    assert status["source_prefilter_pair_rows_v296"] == 882
+    assert status["source_exact_pair_rows_v296"] == 0
+    assert status["cvar_feasible_pair_rows_v296"] == 0
+    assert status["one_swap_improving_rows_v296"] == 0
+    assert status["best_one_swap_return_delta_v296"] is None
+    assert status["best_one_swap_cvar90_after_v296"] is None
+    assert status["current_exposure_v296"] == pytest.approx(842775.0)
+    assert status["current_objective_return_v296"] == pytest.approx(3249.9586479471764)
+    assert status["cvar_cap_v296"] == pytest.approx(97226.40959615848)
+    assert status["post_v295_one_swap_local_optimality_cleared_v296"] is True
+    assert status["working_champion_claim_allowed_v296"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v296"] is False
+    assert status["paper1_promotion_allowed_v296"] is False
+    assert status["paper4_working_champion_changed_v296"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v296"]
+        == "paper4_v297_full_universe_branch_price_bound_or_dynamic_replay.csv"
+    )
+
+    summary = _read_csv("paper4_v296_post_v295_one_swap_summary.csv")
+    row = summary.iloc[0]
+    assert row["policy_id"] == "v295_broader_post_v293_multi_swap_milp"
+    assert row["regime_v296"] == "post_v295_broader_pool_challenger"
+    assert bool(row["post_v295_one_swap_local_optimality_cleared_v296"]) is True
+    assert bool(row["working_champion_claim_allowed_v296"]) is False
+    assert "one-swap screen cleared" in str(row["claim_boundary_v296"])
+
+    stages = _read_csv("paper4_v296_post_v295_one_swap_stage_summary.csv")
+    stage_map = dict(zip(stages["stage_v296"], stages["pair_rows_v296"], strict=False))
+    assert int(stage_map["all_pairs"]) == 47315358
+    assert int(stage_map["return_improving"]) == 1605020
+    assert int(stage_map["budget_return_feasible"]) == 964431
+    assert int(stage_map["source_prefilter_feasible"]) == 882
+    assert int(stage_map["source_exact_feasible"]) == 0
+    assert int(stage_map["cvar_feasible_improving"]) == 0
+
+    reprice = _read_csv("paper4_v296_post_v295_one_swap_reprice.csv")
+    top = _read_csv("paper4_v296_post_v295_one_swap_top_candidates.csv")
+    assert reprice.empty
+    assert top.empty
+    assert "added_loan_id_v296" in set(reprice.columns)
+    assert "dropped_loan_id_v296" in set(top.columns)
+
+    blockers = _read_csv("paper4_v296_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v296"], blockers["blocking_v296"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v296"], blockers["evidence_count_v296"], strict=False)
+    )
+    assert bool(blocker_map["post_v295_one_swap_improvement_found"]) is False
+    assert int(evidence_map["post_v295_one_swap_improvement_found"]) == 0
+    assert bool(blocker_map["bounded_challenger_not_working_champion"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["dynamic_replay_and_deployment_gates_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v296_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v296_post_v295_one_swap_reprice_executed"]) is True
+    assert bool(claim_map["v296_post_v295_one_swap_local_optimality"]) is True
+    assert bool(claim_map["v296_working_champion"]) is False
+    assert bool(claim_map["v296_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v296_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v296 post-v295 one-swap repricing screen."])
+    assert bool(boundary_map["v296 clears post-v295 one-swap local optimality."])
+    assert bool(boundary_map["v296 authorizes a new Paper 4 working champion."]) is False
+    assert bool(boundary_map["v296 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v296_rows = backlog.loc[backlog["last_wave"].eq("v296")]
+    assert len(v296_rows) == 1
+    backlog_row = v296_rows.iloc[0]
+    assert backlog_row["status"] == "post_v295_one_swap_local_optimality_cleared"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v297_full_universe_branch_price_bound_or_dynamic_replay.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v296: Post-v295 One-Swap Repricing" in notebook
+    assert "Pair rows screened: `47315358`" in notebook
+    assert "Source prefilter pairs: `882`" in notebook
+    assert "Post-v295 one-swap local optimality cleared:\n  `True`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
