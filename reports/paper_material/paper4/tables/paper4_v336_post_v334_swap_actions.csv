@@ -1,0 +1,3 @@
+action_v336,loan_id,loan_amnt,mean_return_v336,observed_v47_proxy_v336,claim_boundary_v336
+add_v335_best_feasible,148128009,2500.0,54.46218936898403,False,applied v335 best feasible add leg
+drop_v335_best_feasible,151566947,2500.0,51.85008676533891,True,applied v335 best feasible drop leg
