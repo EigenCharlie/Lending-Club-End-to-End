@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v308_best_v307_swap_applied,True,paper4_v308_apply_next_post_v306_swap_summary.csv,single feasible v307 repair applied and audited
+v308_return_improves_and_cvar_lowers_vs_v306,True,paper4_v308_apply_next_post_v306_swap_summary.csv,static scenario proxy metrics only; requires repricing
+v308_post_repair_local_optimality,False,paper4_v308_claim_blockers.csv,post-v308 repricing has not been executed
+v308_working_champion,False,paper4_v308_claim_blockers.csv,"global, dynamic, online and deployment evidence missing"
+v308_paper1_or_final_promotion,False,paper4_v308_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
