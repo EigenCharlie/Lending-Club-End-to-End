@@ -28633,6 +28633,125 @@ def test_paper4_v285_source_tight_pricing_screen_blocks_one_drop_entry() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v286_joint_source_relief_protocol_finds_no_top200_entry() -> None:
+    status = _read_json("paper4_v286_status.json")
+
+    assert status["phase"] == "v286_exact_joint_source_relief_pricing_protocol"
+    assert status["schema_version"] == "2026-05-15.286"
+    assert status["source_tight_screen_version_v286"] == 285
+    assert status["incumbent_repair_version_v286"] == 279
+    assert status["v285_candidate_rows_available_v286"] == 4415
+    assert status["candidate_screen_limit_v286"] == 200
+    assert status["candidate_rows_screened_v286"] == 200
+    assert status["unique_relief_milp_signatures_v286"] == 156
+    assert status["relief_milp_success_rows_v286"] == 200
+    assert status["source_violation_rows_v286"] == 0
+    assert status["cvar_feasible_rows_v286"] == 200
+    assert status["return_positive_exact_relief_rows_v286"] == 0
+    assert status["exact_relief_entering_column_rows_v286"] == 0
+    assert status["best_exact_relief_added_loan_id_v286"] == "161116709"
+    assert status["best_exact_relief_return_delta_v286"] == pytest.approx(-4.890156830405999)
+    assert status["best_exact_relief_drop_count_v286"] == 1
+    assert status["exact_relief_entering_columns_found_v286"] is False
+    assert status["valid_branch_price_bound_v286"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v286"] is False
+    assert status["paper1_promotion_allowed_v286"] is False
+    assert status["paper4_working_champion_changed_v286"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["drop_bundle_rows_v286"] == 724
+    assert status["claim_blocker_rows_v286"] == 4
+    assert status["claim_matrix_rows_v286"] == 5
+    assert status["next_artifact_v286"] == (
+        "paper4_v287_expand_exact_relief_or_multi_add_probe.csv"
+    )
+
+    protocol = _read_csv("paper4_v286_joint_source_relief_pricing_protocol.csv")
+    row = protocol.iloc[0]
+    assert row["protocol_id_v286"] == "top200_exact_joint_source_relief_pricing_protocol"
+    assert int(row["candidate_rows_screened_v286"]) == status["candidate_rows_screened_v286"]
+    assert int(row["return_positive_exact_relief_rows_v286"]) == 0
+    assert bool(row["exact_relief_entering_columns_found_v286"]) is False
+    assert "broader pricing and global bound evidence remain missing" in str(
+        row["claim_boundary_v286"]
+    )
+
+    screen = _read_csv("paper4_v286_joint_source_relief_candidate_screen.csv")
+    assert len(screen) == status["candidate_rows_screened_v286"]
+    assert int(screen["relief_milp_success_v286"].sum()) == 200
+    assert int(screen["source_cap_violations_after_exact_relief_v286"].sum()) == 0
+    assert int(screen["budget_source_cvar_feasible_exact_relief_v286"].sum()) == 200
+    assert int(screen["return_positive_exact_relief_v286"].sum()) == 0
+    assert int(screen["exact_relief_entering_column_v286"].sum()) == 0
+    top = screen.iloc[0]
+    assert str(top["added_loan_id_v286"]) == "161116709"
+    assert int(top["candidate_rank_v286"]) == 2
+    assert int(top["drop_count_v286"]) == 1
+    assert float(top["drop_exposure_v286"]) == pytest.approx(35000.0)
+    assert float(top["drop_mean_return_v286"]) == pytest.approx(858.3018037609215)
+    assert float(top["return_delta_after_exact_relief_v286"]) == pytest.approx(-4.890156830405999)
+    assert float(top["cvar90_after_exact_relief_v286"]) == pytest.approx(99175.908784)
+    assert bool(top["budget_source_cvar_feasible_exact_relief_v286"]) is True
+    assert bool(top["return_positive_exact_relief_v286"]) is False
+    assert bool(top["exact_relief_entering_column_v286"]) is False
+    assert bool(top["cardinality_preserved_v286"]) is True
+
+    drop_bundle = _read_csv("paper4_v286_joint_source_relief_drop_bundles.csv")
+    assert len(drop_bundle) == status["drop_bundle_rows_v286"]
+    best_drop = drop_bundle.loc[drop_bundle["candidate_rank_v286"].eq(2)].iloc[0]
+    assert str(best_drop["added_loan_id_v286"]) == "161116709"
+    assert str(best_drop["dropped_loan_id_v286"]) == "138240169"
+    assert float(best_drop["dropped_loan_amount_v286"]) == pytest.approx(35000.0)
+
+    blockers = _read_csv("paper4_v286_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v286"], blockers["blocking_v286"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v286"], blockers["evidence_count_v286"], strict=False)
+    )
+    assert bool(blocker_map["top200_exact_relief_no_return_positive_column"]) is True
+    assert int(evidence_map["top200_exact_relief_no_return_positive_column"]) == 200
+    assert bool(blocker_map["full_ranked_exact_relief_screen_missing"]) is True
+    assert int(evidence_map["full_ranked_exact_relief_screen_missing"]) == 4215
+    assert bool(blocker_map["branch_price_dual_bound_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v286_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v286_exact_joint_source_relief_protocol_executed"]) is True
+    assert bool(claim_map["v286_no_top200_return_positive_exact_relief_column"]) is True
+    assert bool(claim_map["v286_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v286_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v286_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v286 exact joint source-relief pricing protocol."])
+    assert bool(
+        boundary_map[
+            "v286 finds no return-positive exact joint source-relief column "
+            "inside the top-200 source-tight screen."
+        ]
+    )
+    assert bool(boundary_map["v286 proves full-universe branch-price termination."]) is False
+    assert bool(boundary_map["v286 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v286_rows = backlog.loc[backlog["last_wave"].eq("v286")]
+    assert len(v286_rows) == 1
+    backlog_row = v286_rows.iloc[0]
+    assert backlog_row["status"] == "top200_exact_source_relief_screen_no_entering_column"
+    assert backlog_row["next_artifact"] == "paper4_v287_expand_exact_relief_or_multi_add_probe.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v286: Exact Joint Source-Relief Pricing Protocol" in notebook
+    assert "Candidate rows screened: `200`" in notebook
+    assert "Return-positive exact relief rows: `0`" in notebook
+    assert "best top-200 delta is negative" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

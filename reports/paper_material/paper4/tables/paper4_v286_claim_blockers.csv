@@ -1,0 +1,5 @@
+blocker_id_v286,blocking_v286,evidence_count_v286,required_next_artifact_v286,claim_boundary_v286
+top200_exact_relief_no_return_positive_column,True,200,paper4_v287_expand_exact_relief_or_multi_add_probe.csv,top-200 exact relief bundles are source/CVaR feasible but return-negative
+full_ranked_exact_relief_screen_missing,True,4215,paper4_v287_expand_exact_relief_or_multi_add_probe.csv,"v286 screens top-200, not every v285 candidate"
+branch_price_dual_bound_missing,True,1,future_branch_price_dual_bound_loop,no dual-bound loop or termination certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

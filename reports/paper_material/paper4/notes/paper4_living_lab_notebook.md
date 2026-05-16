@@ -11019,3 +11019,54 @@ Keep v285 in the living notebook. Promote only after multi-source relief,
 global-bound and dynamic-validation gates pass.
 
 <!-- V285_SOURCE_TIGHT_PRICING_SCREEN_END -->
+
+<!-- V286_JOINT_SOURCE_RELIEF_PRICING_START -->
+
+## Wave v286: Exact Joint Source-Relief Pricing Protocol
+
+Generated: 2026-05-16T13:35:40.568291+00:00
+
+### Objective
+
+Respond to v285 by solving the correct exact source-cap relief problem for the
+top-ranked source-tight candidates. Unlike the first relief heuristic, v286
+keeps the exposure denominator inside the MILP source constraints, so grade A,
+score decile 0 and every other active source cap are checked jointly.
+
+### Results
+
+- Candidate rows available from v285: `4415`.
+- Candidate rows screened: `200`.
+- Unique exact relief MILPs solved: `156`.
+- Successful relief MILP rows: `200`.
+- Source-violating relief rows: `0`.
+- CVaR-feasible relief rows: `200`.
+- Return-positive exact relief rows: `0`.
+- Best exact relief return delta:
+  `-4.890156830405999`.
+- Exact relief entering columns found:
+  `False`.
+- Valid branch-price bound produced:
+  `False`.
+
+### Interpretation
+
+v286 tightens the lesson from v285. Exact source-feasible relief bundles do
+exist for the top-200 source-tight candidates, and they pass budget/source/CVaR
+checks, but the cheapest exact relief bundle still gives up more expected
+return than the entering candidate adds. The best top-200 delta is negative, so
+there is no entering source-relief column in this screened set.
+
+### Claim Impact
+
+- Allowed: exact top-200 source-relief protocol completed; no return-positive
+  exact relief column found in that screened set.
+- Still prohibited: full ranked pricing termination, global integer optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v286 in the living notebook. The next live-lab step is expanding exact
+relief coverage or testing multi-add reinvestment, not promotion.
+
+<!-- V286_JOINT_SOURCE_RELIEF_PRICING_END -->
