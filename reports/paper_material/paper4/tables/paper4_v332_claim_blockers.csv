@@ -1,0 +1,7 @@
+blocker_id_v332,blocking_v332,evidence_count_v332,required_next_artifact_v332,claim_boundary_v332
+valid_global_gap_certificate_missing,True,1,future_branch_price_dual_bound_loop,no full-v55 branch-price or dual-bound certificate
+target_period_distribution_matched_but_live_replay_missing,True,1,future_matched_period_dynamic_replay,"v330 matches v295 period counts, but dynamic/live replay is still absent"
+proxy_coverage_gap_persists,True,74,paper4_v333_v330_cashflow_online_ifrs9_gate.csv,v330 still has missing v47 proxy rows
+v330_cashflow_online_holdout_missing,True,1,paper4_v333_v330_cashflow_online_ifrs9_gate.csv,v330-specific cashflow/live holdout not built
+dynamic_proxy_not_live_deployment_replay,True,1152,future_live_deployment_replay_gate,periodized static-book proxy only
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

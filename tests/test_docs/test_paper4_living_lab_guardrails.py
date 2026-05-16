@@ -34892,6 +34892,193 @@ def test_paper4_v331_post_v330_reprice_clears_local_one_swap_scope() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v332_dynamic_proxy_after_v330_keeps_claims_bounded() -> None:
+    status = _read_json("paper4_v332_status.json")
+
+    assert status["phase"] == "v332_dynamic_proxy_or_global_bound_after_v330"
+    assert status["schema_version"] == "2026-05-16.332"
+    assert status["incumbent_version_v332"] == 295
+    assert status["base_comparison_version_v332"] == 316
+    assert status["candidate_version_v332"] == 330
+    assert status["local_reprice_version_v332"] == 331
+    assert status["previous_global_dynamic_gate_version_v332"] == 322
+    assert status["full_binary_variables_v332"] == 276869
+    assert status["direct_mip_binary_guard_v332"] == 50000
+    assert status["direct_full_mip_attempted_v332"] is False
+    assert status["valid_full_universe_gap_certificate_v332"] is False
+    assert status["post_v330_one_swap_local_optimality_cleared_v332"] is True
+    assert status["dynamic_proxy_replay_executed_v332"] is True
+    assert status["dynamic_proxy_trace_rows_v332"] == 1152
+    assert status["dynamic_proxy_policy_count_v332"] == 3
+    assert status["dynamic_proxy_period_count_v332"] == 3
+    assert status["period_set_match_v332"] is True
+    assert status["period_distribution_match_vs_v295_v332"] is True
+    assert status["period_distribution_match_vs_v316_v332"] is False
+    assert status["delta_return_v330_vs_v295_v332"] == pytest.approx(1178.1722671579473)
+    assert status["delta_cvar90_v330_vs_v295_v332"] == pytest.approx(-674.8167360656371)
+    assert status["v330_dynamic_proxy_beats_v295_v332"] is True
+    assert status["delta_return_v330_vs_v316_v332"] == pytest.approx(8.372923520345466)
+    assert status["delta_cvar90_v330_vs_v316_v332"] == pytest.approx(-432.45789979648544)
+    assert status["v330_dynamic_proxy_beats_v316_v332"] is True
+    assert status["v295_observed_v47_proxy_rows_v332"] == 95
+    assert status["v316_observed_v47_proxy_rows_v332"] == 98
+    assert status["v330_observed_v47_proxy_rows_v332"] == 97
+    assert status["v295_missing_v47_proxy_rows_v332"] == 76
+    assert status["v316_missing_v47_proxy_rows_v332"] == 73
+    assert status["v330_missing_v47_proxy_rows_v332"] == 74
+    assert status["v330_observed_proxy_delta_vs_v295_v332"] == 2
+    assert status["v330_missing_proxy_delta_vs_v295_v332"] == -2
+    assert status["v330_observed_proxy_delta_vs_v316_v332"] == -1
+    assert status["v330_missing_proxy_delta_vs_v316_v332"] == 1
+    assert status["matched_period_dynamic_claim_allowed_v332"] is False
+    assert status["cashflow_online_holdout_v330_claim_allowed_v332"] is False
+    assert status["contractual_ifrs9_claim_allowed_v332"] is False
+    assert status["strict_live_deployability_claim_allowed_v332"] is False
+    assert status["working_champion_claim_allowed_v332"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v332"] is False
+    assert status["paper1_promotion_allowed_v332"] is False
+    assert status["paper4_working_champion_changed_v332"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["dynamic_proxy_summary_rows_v332"] == 3
+    assert status["proxy_coverage_rows_v332"] == 3
+    assert status["gate_requirement_rows_v332"] == 6
+    assert status["claim_blocker_rows_v332"] == 6
+    assert status["claim_matrix_rows_v332"] == 8
+    assert status["next_artifact_v332"] == "paper4_v333_v330_cashflow_online_ifrs9_gate.csv"
+
+    gate = _read_csv("paper4_v332_dynamic_proxy_or_global_bound_after_v330.csv")
+    row = gate.iloc[0]
+    assert row["gate_id_v332"] == "v332_dynamic_proxy_or_global_bound_after_v330"
+    assert bool(row["post_v330_one_swap_local_optimality_cleared_v332"]) is True
+    assert bool(row["dynamic_proxy_replay_executed_v332"]) is True
+    assert int(row["dynamic_proxy_trace_rows_v332"]) == 1152
+    assert bool(row["period_distribution_match_vs_v295_v332"]) is True
+    assert bool(row["period_distribution_match_vs_v316_v332"]) is False
+    assert json.loads(row["v295_period_distribution_v332"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert json.loads(row["v316_period_distribution_v332"]) == {
+        "2018": 98,
+        "2019": 66,
+        "2020": 7,
+    }
+    assert json.loads(row["v330_period_distribution_v332"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert float(row["v330_objective_return_v332"]) == pytest.approx(4428.130915105124)
+    assert float(row["v330_cvar90_v332"]) == pytest.approx(96551.59286009285)
+    assert bool(row["working_champion_claim_allowed_v332"]) is False
+    assert "not a live or global proof" in str(row["claim_boundary_v332"])
+
+    proxy = _read_csv("paper4_v332_dynamic_proxy_summary.csv")
+    proxy_map = {str(policy_id): group.iloc[0] for policy_id, group in proxy.groupby("policy_id")}
+    assert set(proxy_map) == {
+        "v295_broader_pool_after_v296_gate",
+        "v316_terminal_repair_after_v317_gate",
+        "v330_post_v328_after_v331_gate",
+    }
+    v330_proxy = proxy_map["v330_post_v328_after_v331_gate"]
+    assert int(v330_proxy["trace_rows_v332"]) == 384
+    assert float(v330_proxy["final_objective_return_v332"]) == pytest.approx(4428.130915105124)
+    assert float(v330_proxy["final_loss_cvar90_v332"]) == pytest.approx(96551.59286009285)
+    assert float(v330_proxy["final_loss_mean_v332"]) == pytest.approx(60249.51352836411)
+
+    trace = pd.read_parquet(TABLE_DIR / "paper4_v332_dynamic_proxy_trace.parquet")
+    assert len(trace) == 1152
+    assert trace["policy_id"].nunique() == 3
+    assert trace.groupby("policy_id")["period_v332"].nunique().eq(3).all()
+    assert trace.groupby(["policy_id", "period_v332"])["scenario_id_v332"].nunique().eq(128).all()
+
+    coverage = _read_csv("paper4_v332_proxy_coverage_comparison.csv")
+    coverage_map = {
+        str(policy_id): group.iloc[0] for policy_id, group in coverage.groupby("policy_id")
+    }
+    assert (
+        int(coverage_map["v295_broader_pool_after_v296_gate"]["observed_v47_proxy_rows_v332"]) == 95
+    )
+    assert (
+        int(coverage_map["v316_terminal_repair_after_v317_gate"]["observed_v47_proxy_rows_v332"])
+        == 98
+    )
+    assert int(coverage_map["v330_post_v328_after_v331_gate"]["observed_v47_proxy_rows_v332"]) == 97
+    assert int(coverage_map["v330_post_v328_after_v331_gate"]["missing_v47_proxy_rows_v332"]) == 74
+    assert (
+        bool(coverage_map["v330_post_v328_after_v331_gate"]["contractual_ifrs9_claim_allowed_v332"])
+        is False
+    )
+
+    requirements = _read_csv("paper4_v332_gate_requirements.csv")
+    req_map = dict(zip(requirements["requirement_id_v332"], requirements["met_v332"], strict=False))
+    assert bool(req_map["post_v330_one_swap_gate_cleared"]) is True
+    assert bool(req_map["dynamic_proxy_replay_executed"]) is True
+    assert bool(req_map["common_period_set_available"]) is True
+    assert bool(req_map["matched_period_distribution"]) is True
+    assert bool(req_map["observed_or_contractual_ifrs9_complete"]) is False
+    assert bool(req_map["valid_full_universe_gap_certificate"]) is False
+
+    blockers = _read_csv("paper4_v332_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v332"], blockers["blocking_v332"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v332"], blockers["evidence_count_v332"], strict=False)
+    )
+    assert bool(blocker_map["valid_global_gap_certificate_missing"]) is True
+    assert bool(blocker_map["target_period_distribution_matched_but_live_replay_missing"]) is True
+    assert bool(blocker_map["proxy_coverage_gap_persists"]) is True
+    assert int(evidence_map["proxy_coverage_gap_persists"]) == 74
+    assert bool(blocker_map["v330_cashflow_online_holdout_missing"]) is True
+    assert bool(blocker_map["dynamic_proxy_not_live_deployment_replay"]) is True
+    assert int(evidence_map["dynamic_proxy_not_live_deployment_replay"]) == 1152
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v332_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v332_dynamic_global_gate_executed"]) is True
+    assert bool(claim_map["v332_v330_final_static_proxy_beats_v295"]) is True
+    assert bool(claim_map["v332_v330_final_static_proxy_beats_v316"]) is True
+    assert bool(claim_map["v332_v330_matches_v295_period_distribution"]) is True
+    assert bool(claim_map["v332_matched_period_dynamic_superiority"]) is False
+    assert bool(claim_map["v332_contractual_ifrs9_or_full_proxy_coverage"]) is False
+    assert bool(claim_map["v332_full_universe_gap_certificate"]) is False
+    assert bool(claim_map["v332_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v332 dynamic proxy/global-bound audit after v330."])
+    assert bool(boundary_map["v332 final-period static-book proxy favors v330 over v295."])
+    assert bool(boundary_map["v332 final-period static-book proxy favors v330 over v316."])
+    assert bool(boundary_map["v332 proves matched-period dynamic or live deployability."]) is False
+    assert (
+        bool(boundary_map["v332 resolves contractual IFRS9 or full cashflow coverage for v330."])
+        is False
+    )
+    assert bool(boundary_map["v332 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v332 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v332_rows = backlog.loc[backlog["last_wave"].eq("v332")]
+    assert len(v332_rows) == 1
+    backlog_row = v332_rows.iloc[0]
+    assert backlog_row["status"] == "v330_dynamic_proxy_executed_global_live_proxy_gates_blocked"
+    assert backlog_row["next_artifact"] == "paper4_v333_v330_cashflow_online_ifrs9_gate.csv"
+    assert backlog_row["execution_result"] == (
+        "v330_static_proxy_beats_v316_and_v295_but_proxy_gap_remains"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v332: Dynamic Proxy / Global Bound After v330" in notebook
+    assert "Delta return v330 vs v295:\n  `1178.1722671579473`" in notebook
+    assert "v330 observed v47 proxy rows:\n  `97`" in notebook
+    assert "Working champion claim allowed:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
