@@ -1,0 +1,2 @@
+policy_id,regime_v195,added_loan_id_v195,dropped_loan_id_v195,added_loan_amount_v195,dropped_loan_amount_v195,added_mean_return_v195,dropped_mean_return_v195,return_delta_v195,cvar90_after_repair_v195,exposure_after_repair_v195,source_cap_violations_after_repair_v195,claim_boundary_v195
+v63_source_repair_return_guarded_repair,incumbent_cvar_relaxed_source_lp,140230494,158509118,1125.0,1500.0,-165.35979237983094,-257.7773965173176,92.41760413748663,96204.95119771129,842450.0,0,best v194 swap applied; not post-repair optimality
