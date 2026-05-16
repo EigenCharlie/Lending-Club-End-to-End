@@ -10322,3 +10322,48 @@ Keep v270 in the living notebook. Promote only after post-repair pricing,
 full-universe/global, dynamic validation and promotion gates pass.
 
 <!-- V270_RESTRICTED_POOL_MILP_REPAIR_END -->
+
+<!-- V271_POST_V270_RESTRICTED_POOL_MILP_ONE_SWAP_REPRICE_START -->
+
+## Wave v271: Post-v270 Restricted-Pool MILP One-Swap Repricing
+
+Generated: 2026-05-16T12:09:41.326530+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v270 restricted-pool MILP repair,
+using all non-selected loans from the comparable v55 universe as possible
+additions. This tests whether the v270 repaired candidate is one-swap locally
+optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1643340`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v270 one-swap return delta:
+  `not applicable; no feasible improving one-swaps`.
+- Post-v270 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v271 is the required re-pricing after v270 changed the portfolio with a
+restricted-pool MILP repair. If feasible improving one-swaps remain, the lab
+should continue a repair/reprice loop; if it clears, the remaining blocker is broader
+multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v270 restricted-pool MILP one-swap pricing screen completed.
+- Still prohibited: broader multi-swap/global integer optimality, Paper
+  Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v271 in the living notebook. Promote only after broader integer/dynamic
+and promotion gates pass.
+
+<!-- V271_POST_V270_RESTRICTED_POOL_MILP_ONE_SWAP_REPRICE_END -->
