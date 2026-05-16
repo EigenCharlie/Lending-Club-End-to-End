@@ -1,0 +1,2 @@
+action_id_v295,added_loan_ids_v295,dropped_loan_ids_v295,kept_current_rows_v295,added_rows_vs_v293_v295,dropped_rows_vs_v293_v295,selected_rows_v295,cardinality_restored_v295,broader_pool_challenger_found_v295,claim_boundary_v295
+broader_post_v293_multi_swap_milp_action,127640797|130791260|138767991|141085456|141674389|145660957|150078681|152791402|156899870|161613129,137151950|137721854|139317603|140352540|143278940|146047525|148029832|153939446|156707196|158316010,161,10,10,171,True,True,bounded multi-swap action only; repricing/global gates still required

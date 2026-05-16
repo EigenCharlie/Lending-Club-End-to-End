@@ -1,0 +1,5 @@
+pool_component_v295,candidate_rows_v295,claim_boundary_v295
+current_v293_selected,171,incumbent rows carried into v295 pool
+top20000_post_v293_omitted_by_mean_return,20000,post-v293 high-return omitted candidate component
+micro_source_relief_outside_top20000,15000,outside-top20000 non-tight-source micro-loan relief component
+outside_v295_pool_not_solved,241698,full-universe rows still outside the bounded v295 MILP pool

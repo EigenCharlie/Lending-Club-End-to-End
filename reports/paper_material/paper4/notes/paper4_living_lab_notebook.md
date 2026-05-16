@@ -11460,3 +11460,58 @@ optimality or deployment claim.
 Keep v294 in the living notebook. Promotion remains blocked.
 
 <!-- V294_POST_V293_ONE_SWAP_REPRICE_END -->
+
+<!-- V295_BROADER_MULTI_SWAP_GLOBAL_GAP_PROBE_START -->
+
+## Wave v295: Broader Multi-Swap / Global-Gap Probe
+
+Generated: 2026-05-16T18:02:03.996801+00:00
+
+### Objective
+
+After v294 cleared the post-v293 one-swap gate, v295 tests a broader bounded
+multi-swap route. It expands the post-v293 MILP pool to 20,000 high-return
+omitted loans plus 15,000 micro source-relief candidates, while keeping
+cardinality 171, budget, exact source caps and CVaR no worse than v293.
+
+### Results
+
+- Pool rows: `35171`.
+- Top-return candidate limit: `20000`.
+- Micro-relief candidate limit: `15000`.
+- Outside-pool rows: `241698`.
+- MILP success: `True`.
+- MILP gap: `0.0`.
+- Selected rows: `171`.
+- Added rows vs v293: `10`.
+- Dropped rows vs v293: `10`.
+- Objective return: `3249.9586479471764`.
+- Delta return vs v293: `68.91906077367094`.
+- CVaR90: `97226.40959615848`.
+- Delta CVaR90 vs v293: `-169.5818372888316`.
+- Source cap violations: `0`.
+- Broader bounded-pool improvement found:
+  `True`.
+- Valid full-universe gap certificate:
+  `False`.
+
+### Interpretation
+
+v295 is a broader multi-swap experiment, not a promotion gate. A successful
+bounded MILP can expand what we know about v293, but any improvement still
+needs repricing and any non-improvement still leaves rows outside the solved
+pool. Full-universe branch-price bounds and dynamic validation remain separate
+future gates.
+
+### Claim Impact
+
+- Allowed: broader bounded post-v293 multi-swap probe and residual gap
+  diagnostics.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v295 in the living notebook. Promotion remains blocked.
+
+<!-- V295_BROADER_MULTI_SWAP_GLOBAL_GAP_PROBE_END -->

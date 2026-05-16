@@ -1,0 +1,21 @@
+action_v295,loan_id_v295,loan_amount_v295,mean_return_v295,signed_return_contribution_v295,pool_role_v295,grade,score_decile,income_band,dti_band,period,state_top20,claim_boundary_v295
+added,127640797,3025.0,-428.2397634899199,-428.2397634899199,micro_source_relief_outside_top20000,B,0,4,1,2018,GA,v295 action contribution; not a promotion claim
+added,130791260,2900.0,69.4776485933445,69.4776485933445,top20000_post_v293_omitted_by_mean_return,A,0,3,0,2018,NY,v295 action contribution; not a promotion claim
+added,138767991,1100.0,22.966588154485684,22.966588154485684,top20000_post_v293_omitted_by_mean_return,A,0,1,1,2018,other,v295 action contribution; not a promotion claim
+added,141085456,1000.0,21.652576026072797,21.652576026072797,top20000_post_v293_omitted_by_mean_return,A,0,3,2,2018,AZ,v295 action contribution; not a promotion claim
+added,141674389,1000.0,21.652576026072797,21.652576026072797,top20000_post_v293_omitted_by_mean_return,A,0,1,0,2018,FL,v295 action contribution; not a promotion claim
+added,145660957,3500.0,-493.7653873554998,-493.7653873554998,micro_source_relief_outside_top20000,B,0,3,1,2019,GA,v295 action contribution; not a promotion claim
+added,150078681,3000.0,-415.83711947859643,-415.83711947859643,micro_source_relief_outside_top20000,C,0,4,0,2019,CO,v295 action contribution; not a promotion claim
+added,152791402,1100.0,24.766249859780725,24.766249859780725,top20000_post_v293_omitted_by_mean_return,A,0,0,0,2019,VA,v295 action contribution; not a promotion claim
+added,156899870,2750.0,65.74189635588623,65.74189635588623,top20000_post_v293_omitted_by_mean_return,A,0,3,2,2019,NC,v295 action contribution; not a promotion claim
+added,161613129,3000.0,-459.34203280261136,-459.34203280261136,micro_source_relief_outside_top20000,D,3,2,1,2019,TX,v295 action contribution; not a promotion claim
+dropped,137151950,1250.0,-183.48123809685012,183.48123809685012,current_v293_selected,B,0,3,3,2018,other,v295 action contribution; not a promotion claim
+dropped,137721854,1800.0,-258.7728660374641,258.7728660374641,current_v293_selected,B,0,2,1,2018,WA,v295 action contribution; not a promotion claim
+dropped,139317603,2000.0,-300.47023857254743,300.47023857254743,current_v293_selected,B,0,0,0,2018,other,v295 action contribution; not a promotion claim
+dropped,140352540,1500.0,-225.35267892941064,225.35267892941064,current_v293_selected,B,0,0,1,2018,NY,v295 action contribution; not a promotion claim
+dropped,143278940,1500.0,-223.96024592785653,223.96024592785653,current_v293_selected,B,0,4,0,2018,MD,v295 action contribution; not a promotion claim
+dropped,146047525,1000.0,-158.0343653049946,158.0343653049946,current_v293_selected,E,2,4,0,2019,MD,v295 action contribution; not a promotion claim
+dropped,148029832,10000.0,247.80404423386764,-247.80404423386764,current_v293_selected,A,0,4,0,2019,other,v295 action contribution; not a promotion claim
+dropped,153939446,1000.0,-158.5530158334477,158.5530158334477,current_v293_selected,D,3,0,4,2019,other,v295 action contribution; not a promotion claim
+dropped,156707196,1000.0,-158.460227701337,158.460227701337,current_v293_selected,D,2,2,0,2019,other,v295 action contribution; not a promotion claim
+dropped,158316010,1500.0,-220.5649967146192,220.5649967146192,current_v293_selected,B,0,3,1,2019,MD,v295 action contribution; not a promotion claim

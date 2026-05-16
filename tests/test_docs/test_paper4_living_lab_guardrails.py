@@ -29753,6 +29753,190 @@ def test_paper4_v294_post_v293_reprice_clears_one_swap_scope_without_promotion()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v295_broader_multi_swap_probe_finds_bounded_challenger_only() -> None:
+    status = _read_json("paper4_v295_status.json")
+
+    assert status["phase"] == "v295_broader_multi_swap_or_global_gap_probe"
+    assert status["schema_version"] == "2026-05-15.295"
+    assert status["incumbent_version_v295"] == 293
+    assert status["reprice_version_v295"] == 294
+    assert status["base_repair_version_v295"] == 279
+    assert status["top_return_limit_v295"] == 20000
+    assert status["micro_relief_limit_v295"] == 15000
+    assert status["pool_rows_v295"] == 35171
+    assert status["outside_pool_rows_v295"] == 241698
+    assert status["selected_rows_v295"] == 171
+    assert status["target_selected_rows_v295"] == 171
+    assert status["cardinality_restored_v295"] is True
+    assert status["kept_current_rows_v295"] == 161
+    assert status["added_rows_vs_v293_v295"] == 10
+    assert status["dropped_rows_vs_v293_v295"] == 10
+    assert status["portfolio_exposure_v295"] == pytest.approx(842775.0)
+    assert status["objective_return_v295"] == pytest.approx(3249.9586479471764)
+    assert status["incumbent_objective_return_v295"] == pytest.approx(3181.0395871735054)
+    assert status["delta_return_vs_v293_v295"] == pytest.approx(68.91906077367094)
+    assert status["scenario_loss_cvar90_v295"] == pytest.approx(97226.40959615848)
+    assert status["incumbent_cvar90_v295"] == pytest.approx(97395.99143344731)
+    assert status["delta_cvar90_vs_v293_v295"] == pytest.approx(-169.5818372888316)
+    assert status["source_cap_violations_v295"] == 0
+    assert status["budget_feasible_v295"] is True
+    assert status["cvar_feasible_v295"] is True
+    assert status["source_feasible_v295"] is True
+    assert status["broader_pool_challenger_found_v295"] is True
+    assert status["bounded_pool_optimality_claim_allowed_v295"] is True
+    assert status["valid_full_universe_gap_certificate_v295"] is False
+    assert status["milp_success_v295"] is True
+    assert status["milp_incumbent_available_v295"] is True
+    assert status["milp_fallback_to_v293_used_v295"] is False
+    assert status["milp_status_v295"] == 0
+    assert status["milp_gap_v295"] == pytest.approx(0.0)
+    assert status["milp_node_count_v295"] == 1297
+    assert status["milp_variable_count_v295"] == 35300
+    assert status["milp_binary_variable_count_v295"] == 35171
+    assert status["milp_constraint_rows_v295"] == 182
+    assert status["strategy_comparison_rows_v295"] == 2
+    assert status["candidate_registry_rows_v295"] == 4
+    assert status["pool_summary_rows_v295"] == 3
+    assert status["constraint_summary_rows_v295"] == 5
+    assert status["source_summary_rows_v295"] == 51
+    assert status["return_contribution_rows_v295"] == 20
+    assert status["gap_diagnostic_rows_v295"] == 4
+    assert status["outside_pool_top_candidate_rows_v295"] == 200
+    assert status["claim_blocker_rows_v295"] == 5
+    assert status["claim_matrix_rows_v295"] == 6
+    assert status["working_champion_claim_allowed_v295"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v295"] is False
+    assert status["paper1_promotion_allowed_v295"] is False
+    assert status["paper4_working_champion_changed_v295"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v295"] == "paper4_v296_post_v295_broader_pool_reprice.csv"
+
+    protocol = _read_csv("paper4_v295_broader_multi_swap_or_global_gap_probe.csv")
+    row = protocol.iloc[0]
+    assert row["protocol_id_v295"] == "broader_post_v293_multi_swap_or_global_gap_probe"
+    assert bool(row["broader_pool_challenger_found_v295"]) is True
+    assert bool(row["bounded_pool_optimality_claim_allowed_v295"]) is True
+    assert bool(row["valid_full_universe_gap_certificate_v295"]) is False
+    assert bool(row["working_champion_claim_allowed_v295"]) is False
+    assert "no global or promotion claim" in str(row["claim_boundary_v295"])
+
+    action = _read_csv("paper4_v295_broader_multi_swap_action.csv")
+    action_row = action.iloc[0]
+    expected_added = (
+        "127640797|130791260|138767991|141085456|141674389|145660957|"
+        "150078681|152791402|156899870|161613129"
+    )
+    expected_dropped = (
+        "137151950|137721854|139317603|140352540|143278940|146047525|"
+        "148029832|153939446|156707196|158316010"
+    )
+    assert action_row["added_loan_ids_v295"] == expected_added
+    assert action_row["dropped_loan_ids_v295"] == expected_dropped
+    assert int(action_row["kept_current_rows_v295"]) == 161
+    assert bool(action_row["cardinality_restored_v295"]) is True
+    assert bool(action_row["broader_pool_challenger_found_v295"]) is True
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v295_broader_multi_swap_allocations.parquet")
+    assert len(allocations) == status["selected_rows_v295"]
+    allocation_ids = set(allocations["loan_id"].astype(str))
+    assert set(expected_added.split("|")).issubset(allocation_ids)
+    assert not set(expected_dropped.split("|")).intersection(allocation_ids)
+    assert allocations["selected_v295"].astype(bool).all()
+
+    registry = _read_csv("paper4_v295_broader_candidate_registry.csv")
+    registry_map = dict(
+        zip(registry["pool_component_v295"], registry["candidate_rows_v295"], strict=False)
+    )
+    assert int(registry_map["current_v293_selected"]) == 171
+    assert int(registry_map["top20000_post_v293_omitted_by_mean_return"]) == 20000
+    assert int(registry_map["micro_source_relief_outside_top20000"]) == 15000
+    assert int(registry_map["outside_v295_pool_not_solved"]) == 241698
+
+    pool = _read_csv("paper4_v295_broader_pool_summary.csv")
+    pool_map = dict(zip(pool["pool_role_v295"], pool["selected_rows_v295"], strict=False))
+    assert int(pool_map["current_v293_selected"]) == 161
+    assert int(pool_map["top20000_post_v293_omitted_by_mean_return"]) == 6
+    assert int(pool_map["micro_source_relief_outside_top20000"]) == 4
+
+    constraints = _read_csv("paper4_v295_broader_constraint_summary.csv")
+    constraint_map = dict(
+        zip(constraints["constraint_type_v295"], constraints["constraint_rows_v295"], strict=False)
+    )
+    assert int(constraint_map["budget_range"]) == 1
+    assert int(constraint_map["selected_row_cardinality"]) == 1
+    assert int(constraint_map["source_share"]) == 51
+    assert int(constraint_map["cvar_cap"]) == 1
+    assert int(constraint_map["cvar_path_excess"]) == 128
+
+    source_summary = _read_csv("paper4_v295_broader_source_summary.csv")
+    assert len(source_summary) == status["source_summary_rows_v295"]
+    assert int(source_summary["source_cap_violated_v295"].sum()) == 0
+
+    contributions = _read_csv("paper4_v295_return_delta_contributions.csv")
+    assert len(contributions) == status["return_contribution_rows_v295"]
+    assert contributions["signed_return_contribution_v295"].sum() == pytest.approx(
+        status["delta_return_vs_v293_v295"]
+    )
+
+    gap = _read_csv("paper4_v295_global_gap_diagnostics.csv")
+    gap_map = {row.diagnostic_id_v295: row for row in gap.itertuples(index=False)}
+    assert int(gap_map["outside_v295_pool_rows"].value_v295) == 241698
+    assert int(gap_map["outside_v295_pool_positive_return_rows"].value_v295) == 0
+    assert int(gap_map["outside_v295_pool_source_tight_positive_rows"].value_v295) == 0
+    assert float(
+        gap_map["loose_top171_return_upper_bound_no_constraints"].delta_vs_incumbent_v295
+    ) == pytest.approx(80621.37241261483)
+
+    blockers = _read_csv("paper4_v295_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v295"], blockers["blocking_v295"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v295"], blockers["evidence_count_v295"], strict=False)
+    )
+    assert bool(blocker_map["broader_pool_improvement_found"]) is True
+    assert float(evidence_map["broader_pool_improvement_found"]) == pytest.approx(68.91906077367094)
+    assert bool(blocker_map["bounded_pool_not_full_universe"]) is True
+    assert int(evidence_map["bounded_pool_not_full_universe"]) == 241698
+    assert bool(blocker_map["valid_global_gap_certificate_missing"]) is True
+    assert bool(blocker_map["dynamic_replay_and_deployment_gates_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v295_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v295_broader_multi_swap_probe_executed"]) is True
+    assert bool(claim_map["v295_bounded_pool_optimality"]) is True
+    assert bool(claim_map["v295_broader_pool_improvement_over_v293"]) is True
+    assert bool(claim_map["v295_full_universe_gap_certificate"]) is False
+    assert bool(claim_map["v295_working_champion"]) is False
+    assert bool(claim_map["v295_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v295 broader bounded multi-swap/global-gap probe."])
+    assert bool(
+        boundary_map["v295 proves bounded-pool optimality for the expanded post-v293 pool."]
+    )
+    assert bool(boundary_map["v295 finds a bounded-pool improvement over v293."])
+    assert bool(boundary_map["v295 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v295 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v295 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v295_rows = backlog.loc[backlog["last_wave"].eq("v295")]
+    assert len(v295_rows) == 1
+    backlog_row = v295_rows.iloc[0]
+    assert backlog_row["status"] == "broader_pool_improvement_found_requires_repricing"
+    assert backlog_row["next_artifact"] == "paper4_v296_post_v295_broader_pool_reprice.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v295: Broader Multi-Swap / Global-Gap Probe" in notebook
+    assert "Delta return vs v293: `68.91906077367094`" in notebook
+    assert "Valid full-universe gap certificate:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

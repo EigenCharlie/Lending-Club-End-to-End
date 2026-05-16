@@ -1,0 +1,3 @@
+strategy_id_v295,pool_rows_v295,selected_rows_v295,objective_return_v295,delta_return_vs_v293_v295,scenario_loss_cvar90_v295,delta_cvar90_vs_v293_v295,source_cap_violations_v295,broader_pool_challenger_found_v295,claim_boundary_v295
+v293_incumbent_after_v294_reprice_gate,25168,171,3181.0395871735054,0.0,97395.99143344731,0.0,0,False,v293 incumbent baseline after v294 local repricing
+v295_top20000_plus_micro_source_relief,35171,171,3249.9586479471764,68.91906077367094,97226.40959615848,-169.5818372888316,0,True,bounded broader pool signal requiring repricing/global gates

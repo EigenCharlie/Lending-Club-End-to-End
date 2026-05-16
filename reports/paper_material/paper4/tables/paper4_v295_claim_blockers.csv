@@ -1,0 +1,6 @@
+blocker_id_v295,blocking_v295,evidence_count_v295,required_next_artifact_v295,claim_boundary_v295
+broader_pool_improvement_found,True,68.91906077367094,paper4_v296_post_v295_broader_pool_reprice.csv,"if positive, bounded improvement must be repriced before any claim expansion"
+bounded_pool_not_full_universe,True,241698.0,future_full_universe_branch_price_bound,v295 still leaves omitted loans outside the bounded solved pool
+valid_global_gap_certificate_missing,True,1.0,future_branch_price_dual_bound_loop,no full-universe dual-bound certificate
+dynamic_replay_and_deployment_gates_missing,True,1.0,future_dynamic_replay_validation,no online or deployment validation created
+paper4_final_promotion_forbidden,True,1.0,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

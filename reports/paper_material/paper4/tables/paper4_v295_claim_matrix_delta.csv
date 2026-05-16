@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v295_broader_multi_swap_probe_executed,True,paper4_v295_broader_multi_swap_or_global_gap_probe.csv,bounded broader post-v293 MILP probe
+v295_bounded_pool_optimality,True,paper4_v295_broader_multi_swap_or_global_gap_probe.csv,bounded v295 pool only
+v295_broader_pool_improvement_over_v293,True,paper4_v295_broader_multi_swap_or_global_gap_probe.csv,requires repricing and global/dynamic gates
+v295_full_universe_gap_certificate,False,paper4_v295_claim_blockers.csv,global certificate missing
+v295_working_champion,False,paper4_v295_claim_blockers.csv,global/dynamic evidence missing
+v295_paper1_or_final_promotion,False,paper4_v295_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
