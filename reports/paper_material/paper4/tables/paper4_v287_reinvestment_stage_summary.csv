@@ -1,0 +1,5 @@
+stage_v287,row_count_v287,claim_boundary_v287
+budget_eligible_second_add,1475633,fits remaining exposure headroom
+return_recovering_second_add,13348,would make exact-relief net return positive
+source_feasible_second_add,0,exact source caps after second add
+cvar_feasible_second_add,0,source-feasible and within CVaR cap

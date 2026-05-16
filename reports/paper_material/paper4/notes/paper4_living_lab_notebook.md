@@ -11070,3 +11070,54 @@ Keep v286 in the living notebook. The next live-lab step is expanding exact
 relief coverage or testing multi-add reinvestment, not promotion.
 
 <!-- V286_JOINT_SOURCE_RELIEF_PRICING_END -->
+
+<!-- V287_MULTI_ADD_REINVESTMENT_PROBE_START -->
+
+## Wave v287: Multi-Add Reinvestment Probe
+
+Generated: 2026-05-16T13:46:37.934506+00:00
+
+### Objective
+
+Follow the v286 near-miss screen by asking whether a second small add can
+recover the return lost by exact source relief. v287 takes the best 25 v286
+relief states, screens all omitted loans that fit remaining budget and would
+make net return positive, then applies exact source caps before any CVaR claim.
+
+### Results
+
+- v286 states available: `200`.
+- Reinvestment states screened: `25`.
+- Budget-eligible second-add rows:
+  `1475633`.
+- Return-recovering second-add rows:
+  `13348`.
+- Source-feasible second-add rows:
+  `0`.
+- CVaR-feasible second-add rows:
+  `0`.
+- Reinvestment entering columns found:
+  `False`.
+- Valid branch-price bound produced:
+  `False`.
+
+### Interpretation
+
+v287 closes a tempting loophole from v286. There are many small loans that fit
+the remaining budget and would recover the exact-relief return loss, but none
+survive the exact source-cap screen. The blocker is therefore source capacity,
+not CVaR, for these top relief states.
+
+### Claim Impact
+
+- Allowed: top-25 second-add reinvestment probe completed; no source-feasible
+  reinvestment column found in that screened set.
+- Still prohibited: full ranked pricing termination, global integer optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v287 in the living notebook. The next live-lab step is a resource-aware
+full-rank exact relief protocol or a richer multi-add source-relief master.
+
+<!-- V287_MULTI_ADD_REINVESTMENT_PROBE_END -->

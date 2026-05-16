@@ -28752,6 +28752,127 @@ def test_paper4_v286_joint_source_relief_protocol_finds_no_top200_entry() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v287_multi_add_reinvestment_probe_blocks_second_adds() -> None:
+    status = _read_json("paper4_v287_status.json")
+
+    assert status["phase"] == "v287_multi_add_reinvestment_probe"
+    assert status["schema_version"] == "2026-05-15.287"
+    assert status["exact_relief_version_v287"] == 286
+    assert status["incumbent_repair_version_v287"] == 279
+    assert status["v286_relief_states_available_v287"] == 200
+    assert status["reinvestment_state_limit_v287"] == 25
+    assert status["reinvestment_states_screened_v287"] == 25
+    assert status["budget_eligible_second_add_rows_v287"] == 1475633
+    assert status["return_recovering_second_add_rows_v287"] == 13348
+    assert status["source_feasible_second_add_rows_v287"] == 0
+    assert status["cvar_feasible_second_add_rows_v287"] == 0
+    assert status["reinvestment_entering_column_rows_v287"] == 0
+    assert status["reinvestment_entering_columns_found_v287"] is False
+    assert status["valid_branch_price_bound_v287"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v287"] is False
+    assert status["paper1_promotion_allowed_v287"] is False
+    assert status["paper4_working_champion_changed_v287"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["source_feasible_candidate_rows_v287"] == 0
+    assert status["stage_summary_rows_v287"] == 4
+    assert status["claim_blocker_rows_v287"] == 4
+    assert status["claim_matrix_rows_v287"] == 5
+    assert status["next_artifact_v287"] == (
+        "paper4_v288_full_rank_exact_relief_resource_protocol.csv"
+    )
+
+    summary = _read_csv("paper4_v287_multi_add_reinvestment_probe.csv")
+    row = summary.iloc[0]
+    assert row["probe_id_v287"] == "top25_exact_relief_second_add_reinvestment_probe"
+    assert int(row["budget_eligible_second_add_rows_v287"]) == 1475633
+    assert int(row["return_recovering_second_add_rows_v287"]) == 13348
+    assert int(row["source_feasible_second_add_rows_v287"]) == 0
+    assert bool(row["reinvestment_entering_columns_found_v287"]) is False
+    assert "broader exact relief and branch-price bounds remain missing" in str(
+        row["claim_boundary_v287"]
+    )
+
+    states = _read_csv("paper4_v287_reinvestment_state_screen.csv")
+    assert len(states) == status["reinvestment_states_screened_v287"]
+    assert int(states["budget_eligible_second_add_rows_v287"].sum()) == 1475633
+    assert int(states["return_recovering_second_add_rows_v287"].sum()) == 13348
+    assert int(states["source_feasible_second_add_rows_v287"].sum()) == 0
+    assert int(states["cvar_feasible_second_add_rows_v287"].sum()) == 0
+    first = states.iloc[0]
+    assert int(first["v286_candidate_rank_v287"]) == 2
+    assert str(first["first_added_loan_id_v287"]) == "161116709"
+    assert float(first["base_return_delta_v287"]) == pytest.approx(-4.890156830405999)
+    assert float(first["budget_headroom_v287"]) == pytest.approx(6375.0)
+    assert int(first["budget_eligible_second_add_rows_v287"]) == 58354
+    assert int(first["return_recovering_second_add_rows_v287"]) == 1454
+    assert str(first["first_source_blocker_v287"]) == "grade=A"
+    assert bool(first["reinvestment_entering_column_found_v287"]) is False
+
+    stage_summary = _read_csv("paper4_v287_reinvestment_stage_summary.csv")
+    stage_map = dict(
+        zip(stage_summary["stage_v287"], stage_summary["row_count_v287"], strict=False)
+    )
+    assert int(stage_map["budget_eligible_second_add"]) == 1475633
+    assert int(stage_map["return_recovering_second_add"]) == 13348
+    assert int(stage_map["source_feasible_second_add"]) == 0
+    assert int(stage_map["cvar_feasible_second_add"]) == 0
+
+    source_candidates = _read_csv("paper4_v287_source_feasible_second_add_candidates.csv")
+    assert source_candidates.empty
+    assert "second_added_loan_id_v287" in set(source_candidates.columns)
+
+    blockers = _read_csv("paper4_v287_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v287"], blockers["blocking_v287"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v287"], blockers["evidence_count_v287"], strict=False)
+    )
+    assert bool(blocker_map["top25_second_add_blocked_by_source_caps"]) is True
+    assert int(evidence_map["top25_second_add_blocked_by_source_caps"]) == 13348
+    assert bool(blocker_map["full_rank_exact_relief_screen_missing"]) is True
+    assert int(evidence_map["full_rank_exact_relief_screen_missing"]) == 175
+    assert bool(blocker_map["branch_price_dual_bound_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v287_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v287_multi_add_reinvestment_probe_executed"]) is True
+    assert bool(claim_map["v287_no_source_feasible_second_add_reinvestment"]) is True
+    assert bool(claim_map["v287_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v287_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v287_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v287 multi-add reinvestment probe."])
+    assert bool(
+        boundary_map[
+            "v287 finds no source-feasible second-add reinvestment column in "
+            "the top-25 exact relief states."
+        ]
+    )
+    assert bool(boundary_map["v287 proves full-universe branch-price termination."]) is False
+    assert bool(boundary_map["v287 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v287_rows = backlog.loc[backlog["last_wave"].eq("v287")]
+    assert len(v287_rows) == 1
+    backlog_row = v287_rows.iloc[0]
+    assert backlog_row["status"] == "top25_reinvestment_second_add_blocked_by_source_caps"
+    assert (
+        backlog_row["next_artifact"] == "paper4_v288_full_rank_exact_relief_resource_protocol.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v287: Multi-Add Reinvestment Probe" in notebook
+    assert "Return-recovering second-add rows:\n  `13348`" in notebook
+    assert "Source-feasible second-add rows:\n  `0`" in notebook
+    assert "The blocker is therefore source capacity" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,26 @@
+state_rank_v287,v286_candidate_rank_v287,first_added_loan_id_v287,base_return_delta_v287,portfolio_exposure_before_second_add_v287,budget_headroom_v287,budget_eligible_second_add_rows_v287,return_recovering_second_add_rows_v287,source_feasible_second_add_rows_v287,cvar_feasible_second_add_rows_v287,best_second_add_loan_id_v287,best_second_add_mean_return_v287,best_net_return_delta_after_second_add_v287,first_source_blocker_v287,reinvestment_entering_column_found_v287,claim_boundary_v287
+1,2,161116709,-4.890156830405999,843625.0,6375.0,58354,1454,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+2,159,159812601,-8.002139524829943,843625.0,6375.0,58354,1358,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+3,52,161623470,-9.734841361974816,843575.0,6425.0,59135,1316,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+4,14,143514276,-14.08283815119455,843575.0,6425.0,59135,1177,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+5,60,144406546,-18.381889446072307,843575.0,6425.0,59135,1062,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+6,38,144885292,-22.367004375546003,843575.0,6425.0,59135,941,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+7,177,143313870,-25.70465468061076,843625.0,6375.0,58354,844,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+8,182,156732024,-26.740807708695684,843575.0,6425.0,59135,822,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+9,176,161941509,-32.37287732219505,843475.0,6525.0,60817,714,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+10,94,155064502,-37.953999487947954,843625.0,6375.0,58354,584,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+11,11,162344939,-40.04498875429295,843575.0,6425.0,59135,546,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+12,118,143521432,-47.42136845689322,843625.0,6375.0,58354,429,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+13,76,152594691,-53.49487449435964,843575.0,6425.0,59135,336,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+14,78,141804011,-56.42819830681316,843575.0,6425.0,59135,303,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+15,141,139646464,-66.79611893581631,843625.0,6375.0,58354,179,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+16,114,148571417,-67.36294595062856,843625.0,6375.0,58354,175,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+17,146,141744618,-71.21234206330746,843625.0,6375.0,58354,150,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+18,46,144908663,-73.29855740393685,843450.0,6550.0,60839,157,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+19,98,127802286,-73.93564088727294,843575.0,6425.0,59135,142,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+20,99,151315049,-74.67902470555742,843575.0,6425.0,59135,139,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+21,100,148497641,-77.38958484621037,843575.0,6425.0,59135,129,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+22,200,127557558,-79.71766953836692,843625.0,6375.0,58354,109,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+23,113,148384485,-83.34909949276033,843475.0,6525.0,60817,106,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+24,106,133331218,-83.95140124191448,843575.0,6425.0,59135,96,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
+25,161,126497231,-88.14435221007471,843625.0,6375.0,58354,80,0,0,,,,grade=A,False,top-v286-state second-add reinvestment diagnostic only
