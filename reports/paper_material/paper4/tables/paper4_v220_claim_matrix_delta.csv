@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v220_post_repair_one_swap_reprice_executed,True,paper4_v220_post_repair_one_swap_summary.csv,post-v219 one-swap screen only
+v220_post_repair_one_swap_local_optimality,False,paper4_v220_claim_blockers.csv,false if feasible improving swaps remain
+v220_full_universe_integer_optimality,False,paper4_v220_claim_blockers.csv,multi-swap/global gap certificate missing
+v220_paper1_or_final_promotion,False,paper4_v220_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
