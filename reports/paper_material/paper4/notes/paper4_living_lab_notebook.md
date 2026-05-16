@@ -13196,3 +13196,55 @@ Keep v328 in the living notebook. The next wave should reprice the v328
 candidate without promotion.
 
 <!-- V328_APPLY_NEXT_POST_V326_SWAP_END -->
+
+<!-- V329_POST_V328_ONE_SWAP_REPRICE_START -->
+
+## Wave v329: Post-v328 One-Swap Repricing Gate
+
+Generated: 2026-05-16T22:40:14.178713+00:00
+
+### Objective
+
+v328 applied the best v327 feasible swap. v329 tests whether that candidate has
+one-drop/one-add stability against the full comparable universe under the v328
+CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1452082`.
+- Budget+return feasible pairs: `736108`.
+- Source prefilter pairs: `12353`.
+- Exact source-feasible pairs: `9`.
+- CVaR-feasible improving one-swaps: `1`.
+- Best source-exact return delta: `1.4233158764891733`.
+- Best CVaR-feasible return delta: `0.4981193830302644`.
+- Current missing v47 proxy rows:
+  `73`.
+- Best feasible delta missing proxy rows:
+  `1`.
+- Post-v328 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v329 either clears the post-v328 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v328 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v329 in the living notebook. Promotion remains blocked.
+
+<!-- V329_POST_V328_ONE_SWAP_REPRICE_END -->
