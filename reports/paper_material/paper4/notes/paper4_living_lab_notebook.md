@@ -13248,3 +13248,52 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v329 in the living notebook. Promotion remains blocked.
 
 <!-- V329_POST_V328_ONE_SWAP_REPRICE_END -->
+
+<!-- V330_APPLY_NEXT_POST_V328_SWAP_START -->
+
+## Wave v330: Apply Next Post-v328 Swap
+
+Generated: 2026-05-16T22:44:56.168729+00:00
+
+### Objective
+
+v329 found one CVaR-feasible return-improving one-swap for the v328
+candidate. v330 applies the best feasible swap and recalculates the candidate
+book.
+
+### Results
+
+- Applied added loan: `129082051`.
+- Applied dropped loan: `144622469`.
+- Return delta vs v328:
+  `0.4981193830308257`.
+- CVaR90 delta vs v328:
+  `-27.90705364054884`.
+- Observed proxy rows: `97`.
+- Missing proxy rows: `74`.
+- Missing proxy delta vs v328:
+  `1`.
+- Post-v330 repricing required:
+  `True`.
+
+### Interpretation
+
+v330 pushes the v328 candidate further on return and CVaR, but it does so by
+sacrificing one observed proxy loan. The resulting book is a new candidate that
+must be repriced; it is not locally optimal, live deployable, or a working
+champion.
+
+### Claim Impact
+
+- Allowed: applied one-swap candidate, static return/CVaR improvement versus
+  the v328 candidate.
+- Still prohibited: local optimality after v330, full-universe optimality,
+  contractual IFRS9, live deployment, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v330 in the living notebook. The next wave should reprice the v330
+candidate without promotion.
+
+<!-- V330_APPLY_NEXT_POST_V328_SWAP_END -->
