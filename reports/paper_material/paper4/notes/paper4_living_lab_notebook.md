@@ -12210,3 +12210,51 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v309 in the living notebook. Promotion remains blocked.
 
 <!-- V309_POST_V308_ONE_SWAP_REPRICE_END -->
+
+<!-- V310_APPLY_POST_V308_SWAP_START -->
+
+## Wave v310: Apply Best Post-v308 One-Swap Repair
+
+Generated: 2026-05-16T20:22:14.173048+00:00
+
+### Objective
+
+v309 found feasible improving one-swaps after the v308 repair. v310 applies
+the best CVaR-feasible signal and audits the repaired static portfolio before
+any dynamic/global gate is attempted.
+
+### Results
+
+- Added loan: `157878957`.
+- Dropped loan: `148145784`.
+- Return delta vs v308: `1.2999666203704692`.
+- CVaR90 delta vs v308: `-10.841984159284038`.
+- Objective return: `4416.165915410278`.
+- CVaR90 after repair: `97032.42765604627`.
+- Source cap violations: `0`.
+- Missing v47 proxy rows: `71`.
+- Delta missing proxy rows vs v308:
+  `1`.
+- Repair candidate feasible: `True`.
+- Post-repair repricing required:
+  `True`.
+
+### Interpretation
+
+v310 improves static return and lowers CVaR relative to v308, while preserving
+budget, source caps and cardinality. The evidence-quality cost compounds: the
+applied swap adds another loan without observed v47/v299 cashflow proxy
+coverage and drops one with observed coverage.
+
+### Claim Impact
+
+- Allowed: applied one-swap repair candidate and static metric audit.
+- Still prohibited: post-repair local optimality, full-universe/global
+  optimality, Paper 4 working champion, Paper Estrella replacement, final
+  Paper 4 promotion, contractual IFRS9 and live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v310 in the living notebook. The next wave must reprice v310.
+
+<!-- V310_APPLY_POST_V308_SWAP_END -->

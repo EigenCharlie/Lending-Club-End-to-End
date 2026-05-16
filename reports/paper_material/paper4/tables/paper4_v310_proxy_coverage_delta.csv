@@ -1,0 +1,2 @@
+coverage_id_v310,before_observed_rows_v310,after_observed_rows_v310,before_missing_rows_v310,after_missing_rows_v310,delta_missing_rows_v310,added_loan_id_v310,added_has_observed_proxy_v310,dropped_loan_id_v310,dropped_had_observed_proxy_v310,claim_boundary_v310
+v47_observed_cashflow_proxy_coverage,101,100,70,71,1,157878957,False,148145784,True,proxy coverage audit only; not contractual IFRS9 coverage

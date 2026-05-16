@@ -1,0 +1,6 @@
+blocker_id_v310,blocking_v310,evidence_count_v310,required_next_artifact_v310,claim_boundary_v310
+best_v309_swap_repair_candidate_created,False,1,paper4_v310_apply_next_post_v308_swap_summary.csv,candidate exists only if budget/source/CVaR remain feasible
+post_repair_one_swap_repricing_missing,True,1,paper4_v311_post_v310_reprice.csv,repair must be re-priced after changing portfolio
+proxy_coverage_regression_or_gap,True,71,future_cashflow_proxy_or_ifrs9_coverage_gate,applied return-improving swap increases missing observed proxy rows
+global_dynamic_online_gates_missing,True,1,future_global_dynamic_online_validation,"no global, dynamic, online or deployment gate created"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
