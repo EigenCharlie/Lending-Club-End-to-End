@@ -11803,3 +11803,51 @@ Keep v301 in the living notebook. The next wave should apply the bounded repair
 or expand to a multi-swap imputation frontier while preserving claim guards.
 
 <!-- V301_SOURCE_TIGHT_IMPUTATION_REPAIR_END -->
+
+<!-- V302_GREEDY_IMPUTATION_FRONTIER_START -->
+
+## Wave v302: Greedy Multi-Swap Imputation Frontier
+
+Generated: 2026-05-16T19:09:30.272542+00:00
+
+### Objective
+
+v301 found exact-source one-swap repairs that reduce imputed proxy dependence,
+but only with return cost. v302 applies that repair rule greedily for up to 15
+steps to trace a bounded return-cost versus imputation-reduction frontier.
+
+### Results
+
+- Greedy steps executed: `15`.
+- Initial imputed proxy rows: `76`.
+- Final imputed proxy rows: `61`.
+- Imputed rows reduced: `15`.
+- Cumulative return delta: `-129.5286141380224`.
+- Final objective return: `3120.4300338091534`.
+- Final CVaR90: `97093.78314579456`.
+- Tight-relief steps: `2`.
+- Return-improving steps: `0`.
+- Valid global/multi-swap optimality proof:
+  `False`.
+
+### Interpretation
+
+v302 shows that the v295 data-quality blocker can be reduced in a controlled
+way: 15 feasible greedy repairs lower imputed rows from 76 to 61 while staying
+inside budget, exact source caps and the v295 CVaR cap. The trade-off is real:
+the frontier pays return to buy observed-proxy coverage.
+
+### Claim Impact
+
+- Allowed: bounded greedy multi-swap imputation frontier and 15-step repair
+  trace.
+- Still prohibited: optimal frontier, contractual IFRS9, live deployability,
+  full branch-price/global optimality, Paper Estrella replacement, final Paper
+  4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v302 in the living notebook. The next wave should compare this return-cost
+frontier against global-bound or multi-objective alternatives.
+
+<!-- V302_GREEDY_IMPUTATION_FRONTIER_END -->

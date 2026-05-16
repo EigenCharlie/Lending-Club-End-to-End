@@ -30764,6 +30764,149 @@ def test_paper4_v301_source_tight_imputation_repair_keeps_promotion_blocked() ->
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v302_greedy_imputation_frontier_keeps_optimality_claims_blocked() -> None:
+    status = _read_json("paper4_v302_status.json")
+
+    assert status["phase"] == "v302_apply_v301_repair_or_multi_swap_imputation_frontier"
+    assert status["schema_version"] == "2026-05-15.302"
+    assert status["source_candidate_version_v302"] == 295
+    assert status["repair_screen_version_v302"] == 301
+    assert status["max_greedy_steps_v302"] == 15
+    assert status["greedy_steps_v302"] == 15
+    assert status["initial_imputed_proxy_loan_rows_v302"] == 76
+    assert status["final_imputed_proxy_loan_rows_v302"] == 61
+    assert status["imputed_proxy_rows_reduced_v302"] == 15
+    assert status["cumulative_return_delta_v302"] == pytest.approx(-129.5286141380224)
+    assert status["final_objective_return_v302"] == pytest.approx(3120.4300338091534)
+    assert status["v295_objective_return_v302"] == pytest.approx(3249.9586479471764)
+    assert status["final_cvar90_v302"] == pytest.approx(97093.78314579456)
+    assert status["v295_cvar90_cap_v302"] == pytest.approx(97226.40959615848)
+    assert status["tight_relief_steps_v302"] == 2
+    assert status["return_improving_steps_v302"] == 0
+    assert status["frontier_rows_v302"] == 15
+    assert status["final_allocation_rows_v302"] == 171
+    assert status["final_source_summary_rows_v302"] == 51
+    assert status["final_source_cap_violations_v302"] == 0
+    assert status["valid_multi_swap_optimality_claim_v302"] is False
+    assert status["strict_live_deployability_claim_allowed_v302"] is False
+    assert status["contractual_ifrs9_claim_allowed_v302"] is False
+    assert status["working_champion_claim_allowed_v302"] is False
+    assert status["paper1_promotion_allowed_v302"] is False
+    assert status["paper4_working_champion_changed_v302"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v302"] == 6
+    assert status["claim_matrix_rows_v302"] == 5
+    assert (
+        status["next_artifact_v302"]
+        == "paper4_v303_global_or_multiobjective_frontier_after_v302.csv"
+    )
+
+    summary = _read_csv("paper4_v302_apply_v301_repair_or_multi_swap_imputation_frontier.csv")
+    row = summary.iloc[0]
+    assert row["frontier_id_v302"] == "v302_greedy_multi_swap_imputation_frontier"
+    assert int(row["greedy_steps_v302"]) == 15
+    assert int(row["final_imputed_proxy_loan_rows_v302"]) == 61
+    assert float(row["cumulative_return_delta_v302"]) == pytest.approx(-129.5286141380224)
+    assert bool(row["valid_multi_swap_optimality_claim_v302"]) is False
+    assert bool(row["contractual_ifrs9_claim_allowed_v302"]) is False
+    assert "greedy bounded imputation frontier only" in str(row["claim_boundary_v302"])
+
+    frontier = _read_csv("paper4_v302_greedy_imputation_frontier.csv")
+    assert len(frontier) == status["frontier_rows_v302"]
+    first = frontier.iloc[0]
+    last = frontier.iloc[-1]
+    assert int(first["frontier_step_v302"]) == 1
+    assert str(first["added_loan_id_v302"]) == "156707196"
+    assert str(first["dropped_loan_id_v302"]) == "143080063"
+    assert float(first["return_delta_v302"]) == pytest.approx(-2.334552360582819)
+    assert int(first["imputed_proxy_loan_rows_after_step_v302"]) == 75
+    assert int(last["frontier_step_v302"]) == 15
+    assert str(last["added_loan_id_v302"]) == "145636554"
+    assert str(last["dropped_loan_id_v302"]) == "158700271"
+    assert float(last["cumulative_return_delta_v302"]) == pytest.approx(-129.5286141380224)
+    assert float(last["objective_return_after_step_v302"]) == pytest.approx(3120.4300338091534)
+    assert float(last["cvar90_after_step_v302"]) == pytest.approx(97093.78314579456)
+    assert int(last["imputed_proxy_loan_rows_after_step_v302"]) == 61
+    assert not frontier["return_delta_v302"].gt(0).any()
+    assert (
+        int(
+            frontier["repair_profile_v302"]
+            .isin(["relieves_grade_A_and_score0", "relieves_grade_A_only", "relieves_score0_only"])
+            .sum()
+        )
+        == 2
+    )
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v302_greedy_frontier_final_allocations.parquet"
+    )
+    assert len(allocations) == status["final_allocation_rows_v302"]
+    assert allocations["loan_id"].astype(str).nunique() == 171
+    assert allocations["selected_v302"].astype(bool).all()
+    assert allocations["claim_boundary_v302"].str.contains("not a promoted champion").all()
+
+    source = _read_csv("paper4_v302_greedy_frontier_final_source_summary.csv")
+    assert len(source) == status["final_source_summary_rows_v302"]
+    assert not source["source_cap_violated_v302"].astype(bool).any()
+    grade_a = source.loc[source["source_family"].eq("grade") & source["source_id"].eq("A")].iloc[0]
+    assert float(grade_a["source_slack_v302"]) == pytest.approx(3.138572976535414e-05)
+
+    blockers = _read_csv("paper4_v302_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v302"], blockers["blocking_v302"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v302"], blockers["evidence_count_v302"], strict=False)
+    )
+    assert bool(blocker_map["global_multi_swap_optimality_missing"]) is True
+    assert int(evidence_map["global_multi_swap_optimality_missing"]) == 15
+    assert bool(blocker_map["residual_cashflow_imputation_after_frontier"]) is True
+    assert int(evidence_map["residual_cashflow_imputation_after_frontier"]) == 61
+    assert bool(blocker_map["return_cost_frontier_not_champion_upgrade"]) is True
+    assert int(evidence_map["return_cost_frontier_not_champion_upgrade"]) == 130
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v302_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v302_greedy_multi_swap_imputation_frontier_executed"]) is True
+    assert bool(claim_map["v302_reduces_imputed_rows_under_constraints"]) is True
+    assert bool(claim_map["v302_optimal_imputation_frontier"]) is False
+    assert bool(claim_map["v302_contractual_ifrs9_or_live_deployability"]) is False
+    assert bool(claim_map["v302_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v302 greedy multi-swap imputation frontier."])
+    assert bool(
+        boundary_map["v302 reduces v295 imputed proxy rows through 15 feasible greedy swaps."]
+    )
+    assert bool(boundary_map["v302 proves the optimal imputation-repair frontier."]) is False
+    assert (
+        bool(boundary_map["v302 resolves contractual IFRS9 or live deployability for v295."])
+        is False
+    )
+    assert bool(boundary_map["v302 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v302_rows = backlog.loc[backlog["last_wave"].eq("v302")]
+    assert len(v302_rows) == 1
+    backlog_row = v302_rows.iloc[0]
+    assert backlog_row["status"] == "greedy_multi_swap_imputation_frontier_executed"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v303_global_or_multiobjective_frontier_after_v302.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v302: Greedy Multi-Swap Imputation Frontier" in notebook
+    assert "Final imputed proxy rows: `61`" in notebook
+    assert "Cumulative return delta: `-129.5286141380224`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
