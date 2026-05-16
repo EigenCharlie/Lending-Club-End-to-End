@@ -8966,3 +8966,48 @@ Keep v241 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V241_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V242_POST_V241_ONE_SWAP_REPRICE_START -->
+
+## Wave v242: Post-v241 One-Swap Repricing
+
+Generated: 2026-05-16T08:31:44.436397+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v241
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v241 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1670269`.
+- Exact source-feasible pairs: `14`.
+- CVaR-feasible improving one-swaps: `14`.
+- Best post-v241 one-swap return delta:
+  `7.096478885443332`.
+- Post-v241 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v242 is the required re-pricing after v241 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v241 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v242 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V242_POST_V241_ONE_SWAP_REPRICE_END -->
