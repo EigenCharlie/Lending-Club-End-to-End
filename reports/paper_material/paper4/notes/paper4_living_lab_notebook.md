@@ -9246,3 +9246,49 @@ Keep v247 in the living notebook. Promote only after multi-swap/global and
 dynamic validation gates pass.
 
 <!-- V247_ONE_SWAP_LOOP_SYNTHESIS_END -->
+
+<!-- V248_BOUNDED_TWO_SWAP_PROBE_START -->
+
+## Wave v248: Bounded Two-Swap Source-Relief Probe
+
+Generated: 2026-05-16T09:20:58.920506+00:00
+
+### Objective
+
+Test whether the v245 candidate, although cleared by the v246 one-swap screen,
+still admits bounded two-drop/two-add source-relief improvements. The probe
+starts from the five v246 source-prefilter primary swaps and searches relief
+swaps that can restore exact source feasibility and satisfy CVaR.
+
+### Results
+
+- Primary frontier rows: `5`.
+- Base two-swap pair rows screened: `5411407`.
+- Source-prefilter two-swap rows: `4833`.
+- Exact source-feasible two-swap rows: `625`.
+- CVaR-feasible improving two-swap rows: `625`.
+- Best bounded two-swap return delta:
+  `76.49772378746906`.
+- Best bounded two-swap objective:
+  `2837.16739088136`.
+
+### Interpretation
+
+v248 finds bounded two-swap improvements after v246 cleared one-swap local
+pricing. This is valuable negative pressure on broad claims: one-swap local
+clearance is real, but it is not multi-swap or global integer optimality.
+
+### Claim Impact
+
+- Allowed: bounded source-relief two-swap probe executed; bounded two-swap
+  improvement exists.
+- Still prohibited: exhaustive multi-swap optimality, global full-universe
+  integer optimality, Paper Estrella replacement, final Paper 4 promotion and
+  live deployment.
+
+### Quarto Promotion Decision
+
+Keep v248 in the living notebook. The next executable step is a v249 bounded
+two-swap repair candidate or a broader multi-swap/global gap probe.
+
+<!-- V248_BOUNDED_TWO_SWAP_PROBE_END -->
