@@ -28096,6 +28096,129 @@ def test_paper4_v280_post_restricted_pool_milp_reprice_clears_local_screen() -> 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v281_larger_restricted_pool_milp_records_no_improvement() -> None:
+    status = _read_json("paper4_v281_status.json")
+
+    assert status["phase"] == "v281_restricted_pool_milp_gap_probe_after_v280"
+    assert status["schema_version"] == "2026-05-15.281"
+    assert status["base_repair_version_v281"] == 279
+    assert status["terminal_reprice_version_v281"] == 280
+    assert status["bounded_two_swap_version_v281"] == 268
+    assert status["previous_restricted_pool_milp_version_v281"] == 278
+    assert status["candidate_pool_limit_v281"] == 5000
+    assert status["pool_rows_v281"] == 5183
+    assert status["current_selected_rows_v281"] == 171
+    assert status["omitted_candidate_rows_v281"] == 5012
+    assert status["selected_rows_v281"] == 171
+    assert status["added_rows_v281"] == 0
+    assert status["dropped_rows_v281"] == 0
+    assert status["objective_return_v281"] == pytest.approx(3102.5424151858256)
+    assert status["objective_delta_vs_v279_v281"] == pytest.approx(-4.547473508864641e-13)
+    assert status["portfolio_exposure_v281"] == pytest.approx(843625.0)
+    assert status["scenario_loss_cvar90_v281"] == pytest.approx(98435.12427343646)
+    assert status["cvar90_delta_vs_v279_v281"] == pytest.approx(0.0)
+    assert status["source_cap_violations_v281"] == 0
+    assert status["budget_feasible_v281"] is True
+    assert status["cvar_feasible_v281"] is True
+    assert status["source_feasible_v281"] is True
+    assert status["restricted_pool_improvement_found_v281"] is False
+    assert status["milp_success_v281"] is True
+    assert status["milp_incumbent_available_v281"] is True
+    assert status["milp_status_v281"] == 0
+    assert status["milp_gap_v281"] == pytest.approx(0.0)
+    assert status["milp_dual_bound_v281"] == pytest.approx(-3102.5424151854977)
+    assert status["constraint_rows_v281"] == 176
+    assert status["restricted_pool_global_optimality_claim_allowed_v281"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v281"] is False
+    assert status["paper1_promotion_allowed_v281"] is False
+    assert status["paper4_working_champion_changed_v281"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v281"] == 4
+    assert status["claim_matrix_rows_v281"] == 4
+
+    summary = _read_csv("paper4_v281_restricted_pool_milp_summary.csv")
+    row = summary.iloc[0]
+    assert row["probe_label_v281"] == "restricted_pool_milp_after_v280_no_two_swap_improvement"
+    assert bool(row["restricted_pool_improvement_found_v281"]) is False
+    assert bool(row["restricted_pool_global_optimality_claim_allowed_v281"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v281"]) is False
+    assert bool(row["paper1_promotion_allowed_v281"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+    assert "not full-universe global proof" in str(row["claim_boundary_v281"])
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v281_restricted_pool_milp_allocations.parquet"
+    )
+    assert len(allocations) == status["pool_rows_v281"]
+    assert int(allocations["selected_v281"].sum()) == status["selected_rows_v281"]
+    assert int(allocations["current_selected_v281"].sum()) == status["current_selected_rows_v281"]
+    action_counts = allocations["milp_action_v281"].value_counts().to_dict()
+    assert action_counts["kept_from_v279"] == 171
+    assert action_counts["not_selected_candidate"] == 5012
+    assert "added_by_restricted_pool_milp" not in action_counts
+    assert "dropped_by_restricted_pool_milp" not in action_counts
+
+    source_summary = _read_csv("paper4_v281_restricted_pool_milp_source_summary.csv")
+    assert len(source_summary) == 51
+    assert not source_summary["source_cap_violated_v281"].astype(bool).any()
+    assert float(source_summary["source_slack_v281"].min()) == pytest.approx(1.0773302159261533e-06)
+    assert float(source_summary["source_share_v281"].max()) == pytest.approx(0.8999851829900726)
+
+    constraints = _read_csv("paper4_v281_restricted_pool_milp_constraints.csv")
+    assert len(constraints) == status["constraint_rows_v281"]
+    constraint_counts = constraints["constraint_type_v281"].value_counts().to_dict()
+    assert constraint_counts["cvar_path_excess"] == 128
+    assert constraint_counts["source_share"] == 45
+    assert constraint_counts["budget_range"] == 1
+    assert constraint_counts["selected_row_cardinality"] == 1
+    assert constraint_counts["cvar_cap"] == 1
+
+    blockers = _read_csv("paper4_v281_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v281"], blockers["blocking_v281"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v281"], blockers["evidence_count_v281"], strict=False)
+    )
+    assert bool(blocker_map["restricted_pool_improvement_found"]) is False
+    assert int(evidence_map["restricted_pool_improvement_found"]) == 0
+    assert bool(blocker_map["restricted_pool_not_full_universe"]) is True
+    assert int(evidence_map["restricted_pool_not_full_universe"]) == status["pool_rows_v281"]
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v281_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v281_restricted_pool_milp_probe_executed"]) is True
+    assert bool(claim_map["v281_restricted_pool_improvement_found"]) is False
+    assert bool(claim_map["v281_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v281_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v281 restricted-pool MILP/gap probe after v280."])
+    assert (
+        bool(boundary_map["v281 finds a better restricted-pool MILP incumbent than v279."]) is False
+    )
+    assert bool(boundary_map["v281 proves global full-universe integer optimality."]) is False
+    assert bool(boundary_map["v281 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v281_rows = backlog.loc[backlog["last_wave"].eq("v281")]
+    assert len(v281_rows) == 1
+    backlog_row = v281_rows.iloc[0]
+    assert backlog_row["status"] == "restricted_pool_milp_gap_or_no_improvement_recorded"
+    assert backlog_row["next_artifact"] == "paper4_v282_full_universe_gap_certificate_protocol.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v281: Restricted-Pool MILP/Gap Probe After v280" in notebook
+    assert "Objective delta vs v279:\n  `-4.547473508864641e-13`" in notebook
+    assert "Better restricted-pool incumbent found:\n  `False`" in notebook
+    assert "does not prove full-universe optimality" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -10778,3 +10778,50 @@ Keep v280 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V280_POST_V279_RESTRICTED_POOL_MILP_ONE_SWAP_REPRICE_END -->
+
+<!-- V281_RESTRICTED_POOL_MILP_GAP_PROBE_START -->
+
+## Wave v281: Restricted-Pool MILP/Gap Probe After v280
+
+Generated: 2026-05-16T12:52:44.397883+00:00
+
+### Objective
+
+After v280 cleared one-swap for the v279 candidate, solve an expanded
+restricted binary MILP over the v279 selected loans plus the top omitted
+candidate pool. This is broader than bounded two-swap evidence but remains a
+restricted-pool probe, not a full-universe certificate.
+
+### Results
+
+- Pool rows: `5183`.
+- Current selected rows: `171`.
+- Omitted candidate rows: `5012`.
+- MILP incumbent available: `True`.
+- MILP success flag: `True`.
+- MILP gap: `0.0`.
+- Objective delta vs v279:
+  `-4.547473508864641e-13`.
+- CVaR90 delta vs v279:
+  `0.0`.
+- Better restricted-pool incumbent found:
+  `False`.
+
+### Interpretation
+
+v281 expands the evidence frontier from local swaps to a larger restricted
+binary MILP. Any positive result is still restricted to the constructed pool;
+any negative or gap result still does not prove full-universe optimality.
+
+### Claim Impact
+
+- Allowed: restricted-pool MILP/gap probe executed.
+- Still prohibited: full-universe global integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v281 in the living notebook. Promote only after full-universe/global,
+dynamic validation and promotion gates pass.
+
+<!-- V281_RESTRICTED_POOL_MILP_GAP_PROBE_END -->
