@@ -23761,6 +23761,120 @@ def test_paper4_v246_post_v245_reprice_clears_one_swap_local_screen() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v247_one_swap_loop_synthesis_preserves_boundaries() -> None:
+    status = _read_json("paper4_v247_status.json")
+
+    assert status["phase"] == "v247_one_swap_loop_synthesis"
+    assert status["schema_version"] == "2026-05-15.247"
+    assert status["trajectory_rows_v247"] == 165
+    assert status["repair_wave_rows_v247"] == 82
+    assert status["pricing_wave_rows_v247"] == 83
+    assert status["first_pricing_version_v247"] == 82
+    assert status["first_repair_version_v247"] == 83
+    assert status["final_repair_version_v247"] == 245
+    assert status["terminal_reprice_version_v247"] == 246
+    assert status["final_objective_return_v247"] == pytest.approx(2760.669667093891)
+    assert status["final_scenario_loss_cvar90_v247"] == pytest.approx(97585.69476728079)
+    assert status["return_gain_vs_v80_v247"] == pytest.approx(6816.565198406637)
+    assert status["cvar_delta_vs_v80_v247"] == pytest.approx(6191.6784202539275)
+    assert status["terminal_one_swap_improving_rows_v247"] == 0
+    assert status["one_swap_local_optimality_claim_allowed_v247"] is True
+    assert status["multi_swap_integer_optimality_claim_allowed_v247"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v247"] is False
+    assert status["paper1_promotion_allowed_v247"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v247"] == 4
+    assert status["claim_matrix_rows_v247"] == 4
+
+    synthesis = _read_csv("paper4_v247_one_swap_loop_synthesis.csv")
+    assert len(synthesis) == 1
+    row = synthesis.iloc[0]
+    assert row["synthesis_label_v247"] == "one_swap_loop_v82_v246"
+    assert int(row["trajectory_rows_v247"]) == status["trajectory_rows_v247"]
+    assert bool(row["one_swap_local_optimality_claim_allowed_v247"]) is True
+    assert bool(row["multi_swap_integer_optimality_claim_allowed_v247"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v247"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+    assert "multi-swap/global/dynamic promotion claims remain blocked" in str(
+        row["claim_boundary_v247"]
+    )
+
+    trajectory = _read_csv("paper4_v247_one_swap_loop_trajectory.csv")
+    assert len(trajectory) == status["trajectory_rows_v247"]
+    assert set(trajectory["wave_type_v247"]) == {"pricing", "repair"}
+    assert int(trajectory["wave_version_v247"].min()) == 82
+    assert int(trajectory["wave_version_v247"].max()) == 246
+    assert int(trajectory["wave_type_v247"].eq("repair").sum()) == 82
+    assert int(trajectory["wave_type_v247"].eq("pricing").sum()) == 83
+
+    first = trajectory.loc[trajectory["wave_version_v247"].eq(82)].iloc[0]
+    assert first["phase_v247"] == "v82_one_swap_integer_pricing_probe"
+    assert int(first["one_swap_improving_rows_v247"]) == 8126
+    assert float(first["best_one_swap_return_delta_v247"]) == pytest.approx(201.74349922313803)
+
+    final_repair = trajectory.loc[trajectory["wave_version_v247"].eq(245)].iloc[0]
+    assert final_repair["phase_v247"] == "v245_next_one_swap_repair"
+    assert float(final_repair["objective_return_v247"]) == pytest.approx(
+        status["final_objective_return_v247"]
+    )
+    assert str(final_repair["added_loan_id_v247"]) == "152762134"
+    assert str(final_repair["dropped_loan_id_v247"]) == "168841753"
+
+    terminal = trajectory.loc[trajectory["wave_version_v247"].eq(246)].iloc[0]
+    assert terminal["phase_v247"] == "v246_post_v245_one_swap_reprice"
+    assert int(terminal["candidate_pair_rows_v247"]) == 0
+    assert int(terminal["one_swap_improving_rows_v247"]) == 0
+    assert bool(terminal["one_swap_local_optimality_cleared_v247"]) is True
+
+    blockers = _read_csv("paper4_v247_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v247"], blockers["blocking_v247"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v247"], blockers["evidence_count_v247"], strict=False)
+    )
+    assert bool(blocker_map["one_swap_local_screen_open"]) is False
+    assert int(evidence_map["one_swap_local_screen_open"]) == 0
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v247_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v247_one_swap_loop_synthesis_executed"]) is True
+    assert bool(claim_map["v247_v245_one_swap_local_optimality"]) is True
+    assert bool(claim_map["v247_multi_swap_or_global_integer_optimality"]) is False
+    assert bool(claim_map["v247_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v247 one-swap loop synthesis from v82-v246."]) is True
+    assert (
+        bool(boundary_map["v247 permits a one-swap local optimality claim for the v245 candidate."])
+        is True
+    )
+    assert (
+        bool(boundary_map["v247 proves multi-swap or global full-universe integer optimality."])
+        is False
+    )
+    assert bool(boundary_map["v247 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v247_rows = backlog.loc[backlog["last_wave"].eq("v247")]
+    assert len(v247_rows) == 1
+    backlog_row = v247_rows.iloc[0]
+    assert backlog_row["status"] == "multi_swap_global_gap_pending"
+    assert backlog_row["next_artifact"] == "paper4_v248_multi_swap_or_global_gap_probe.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v247: One-Swap Loop Synthesis" in notebook
+    assert "Trajectory rows: `165`" in notebook
+    assert "Terminal one-swap improving rows:\n  `0`" in notebook
+    assert "One-swap local optimality claim allowed:\n  `True`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

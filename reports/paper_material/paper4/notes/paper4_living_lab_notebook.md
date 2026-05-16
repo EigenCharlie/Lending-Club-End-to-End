@@ -9199,3 +9199,50 @@ Keep v246 in the living notebook. Promote only after the repair loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V246_POST_V245_ONE_SWAP_REPRICE_END -->
+
+<!-- V247_ONE_SWAP_LOOP_SYNTHESIS_START -->
+
+## Wave v247: One-Swap Loop Synthesis
+
+Generated: 2026-05-16T08:58:33.161389+00:00
+
+### Objective
+
+Synthesize the v82-v246 one-swap pricing/repair loop after v246 cleared the
+post-v245 one-swap screen. This creates a compact evidence bridge from the
+living-lab iterations to the next required multi-swap/global gap work.
+
+### Results
+
+- Trajectory rows: `165`.
+- Repair waves synthesized: `82`.
+- Pricing waves synthesized: `83`.
+- Final repair candidate: `v245`.
+- Terminal repricing wave: `v246`.
+- Final objective return: `2760.669667093891`.
+- Return gain vs v80 focused MILP incumbent:
+  `6816.565198406637`.
+- Terminal one-swap improving rows:
+  `0`.
+- One-swap local optimality claim allowed:
+  `True`.
+
+### Interpretation
+
+v247 does not add a new portfolio. It packages the repair loop evidence:
+the v245 candidate is locally clear under the implemented one-drop/one-add
+screen, while multi-swap/global integer evidence and all promotion claims remain
+blocked.
+
+### Claim Impact
+
+- Allowed: one-swap loop synthesis and v245 one-swap local screen clearance.
+- Still prohibited: multi-swap/global optimality, Paper Estrella replacement,
+  final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v247 in the living notebook. Promote only after multi-swap/global and
+dynamic validation gates pass.
+
+<!-- V247_ONE_SWAP_LOOP_SYNTHESIS_END -->
