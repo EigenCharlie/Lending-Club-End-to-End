@@ -10088,3 +10088,50 @@ Keep v265 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V265_BOUNDED_TWO_SWAP_PROBE_END -->
+
+<!-- V266_BOUNDED_TWO_SWAP_REPAIR_START -->
+
+## Wave v266: Bounded Two-Swap Repair Candidate
+
+Generated: 2026-05-16T11:35:39.069232+00:00
+
+### Objective
+
+Apply the best v265 bounded two-drop/two-add source-relief candidate and
+recompute return, exposure, source and CVaR metrics. This tests whether the
+bounded multi-swap signal can become a feasible repaired portfolio candidate.
+
+### Results
+
+- Added loans: `143384974`,
+  `145079878`.
+- Dropped loans: `154756272`,
+  `137378784`.
+- Selected rows after repair: `171`.
+- Return delta vs v263:
+  `21.911980076230975`.
+- CVaR90 delta vs v263:
+  `-123.306309615582`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+
+### Interpretation
+
+v266 converts the v265 bounded two-swap finding into a feasible repair
+candidate. The next required step is post-repair repricing; no local/global
+optimality or promotion claim is enabled.
+
+### Claim Impact
+
+- Allowed: bounded two-swap repair candidate created.
+- Still prohibited: post-repair local optimality, exhaustive multi-swap/global
+  integer optimality, Paper Estrella replacement, final Paper 4 promotion and
+  live deployment.
+
+### Quarto Promotion Decision
+
+Keep v266 in the living notebook. Promote only after post-repair pricing,
+broader multi-swap/global and dynamic validation gates pass.
+
+<!-- V266_BOUNDED_TWO_SWAP_REPAIR_END -->
