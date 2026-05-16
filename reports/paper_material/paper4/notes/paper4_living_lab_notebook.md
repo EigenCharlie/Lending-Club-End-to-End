@@ -12888,3 +12888,57 @@ Keep v322 in the living notebook. The next wave should build v320-specific
 cashflow, online and IFRS9 proxy gates without promoting.
 
 <!-- V322_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V320_END -->
+
+<!-- V323_V320_CASHFLOW_ONLINE_IFRS9_GATE_START -->
+
+## Wave v323: v320 Cashflow / Online / IFRS9 Gate
+
+Generated: 2026-05-16T21:53:28.035170+00:00
+
+### Objective
+
+v322 showed that v320 beats both v295 and v316 in the final-period static-book
+proxy but still lacks v320-specific cashflow/online/IFRS9 evidence. v323 builds
+that candidate-specific proxy panel and temporal online replay.
+
+### Results
+
+- Cashflow proxy panel rows: `6156`.
+- Observed proxy loan rows: `92`.
+- Imputed proxy loan rows: `79`.
+- Observed proxy delta vs v316:
+  `-6`.
+- Missing proxy delta vs v316:
+  `6`.
+- Post-imputation coverage share:
+  `1.0`.
+- Online temporal cell rows: `6`.
+- Online internal all-gate family rows:
+  `2`.
+- Strict live deployability claim allowed:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v323 fills a real evidence gap by making the v320 cashflow/online evidence
+candidate-specific. It also documents the price of the v320 matched-period
+repair: 79 loans require imputation, 6 more than v316. Missing external holdout
+data, imputed proxy rows and the global certificate gap continue to block live,
+contractual and champion claims.
+
+### Claim Impact
+
+- Allowed: v320-specific cashflow proxy panel and temporal online replay.
+- Still prohibited: contractual IFRS9, live online deployability, matched-period
+  dynamic superiority, full-universe global optimality, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v323 in the living notebook. Promotion remains blocked.
+
+<!-- V323_V320_CASHFLOW_ONLINE_IFRS9_GATE_END -->

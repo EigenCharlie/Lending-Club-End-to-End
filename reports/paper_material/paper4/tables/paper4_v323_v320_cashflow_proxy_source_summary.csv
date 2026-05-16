@@ -1,0 +1,4 @@
+proxy_source_v323,loan_rows_v323,panel_rows_v323,ecl_proxy_total_v323,net_cash_proxy_total_v323,claim_boundary_v323
+imputed_grade_score,1,36,13722.766148386541,22838.50683857013,v323 proxy source mix only; imputed rows are not contractual IFRS9 evidence
+imputed_grade_score_period,78,2808,247872.44601409129,882995.1367602523,v323 proxy source mix only; imputed rows are not contractual IFRS9 evidence
+observed_v47_proxy,92,3312,204228.2883001741,359663.2754513889,v323 proxy source mix only; imputed rows are not contractual IFRS9 evidence
