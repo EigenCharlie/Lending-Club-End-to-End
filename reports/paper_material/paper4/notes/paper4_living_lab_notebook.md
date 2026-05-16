@@ -9384,3 +9384,49 @@ Keep v250 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V250_POST_V249_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_END -->
+
+<!-- V251_NEXT_ONE_SWAP_AFTER_TWO_SWAP_REPAIR_START -->
+
+## Wave v251: One-Swap Repair After the Bounded Two-Swap
+
+Generated: 2026-05-16T09:42:44.629158+00:00
+
+### Objective
+
+Apply the best v250 post-v249 one-drop/one-add swap and recompute portfolio
+return, exposure, source and CVaR metrics. This keeps the living lab moving
+after v250 showed that the v249 bounded two-swap repair was not one-swap
+locally optimal.
+
+### Results
+
+- Added loan: `161626478`.
+- Dropped loan: `129934914`.
+- Selected rows after repair: `171`.
+- Return delta vs v249:
+  `15.229636341464357`.
+- CVaR90 delta vs v249:
+  `103.03412939301052`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+
+### Interpretation
+
+v251 converts the best v250 signal into a feasible repaired portfolio
+candidate. The next required experiment is v252 post-repair repricing; no
+local/global optimality or promotion claim is enabled.
+
+### Claim Impact
+
+- Allowed: one-swap repair after the v249 bounded two-swap created.
+- Still prohibited: post-repair local optimality, broader multi-swap/global
+  integer optimality, Paper Estrella replacement, final Paper 4 promotion and
+  live deployment.
+
+### Quarto Promotion Decision
+
+Keep v251 in the living notebook. Promote only after post-repair pricing and
+broader integer/dynamic/promotion gates pass.
+
+<!-- V251_NEXT_ONE_SWAP_AFTER_TWO_SWAP_REPAIR_END -->
