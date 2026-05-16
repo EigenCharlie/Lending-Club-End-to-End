@@ -25982,6 +25982,165 @@ def test_paper4_v264_post_bounded_two_swap_reprice_clears_local_screen() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v265_bounded_two_swap_probe_finds_post_v263_improvements() -> None:
+    status = _read_json("paper4_v265_status.json")
+
+    assert status["phase"] == "v265_bounded_two_swap_after_v264_local_clearance"
+    assert status["schema_version"] == "2026-05-15.265"
+    assert status["previous_repair_version_v265"] == 263
+    assert status["terminal_reprice_version_v265"] == 264
+    assert status["primary_frontier_limit_v265"] == 25
+    assert status["primary_frontier_rows_v265"] == 25
+    assert status["one_swap_return_improving_pair_rows_v265"] == 1655166
+    assert status["one_swap_budget_return_feasible_pair_rows_v265"] == 998571
+    assert status["one_swap_source_prefilter_pair_rows_v265"] == 4373
+    assert status["base_two_swap_pair_rows_v265"] == 35904290
+    assert status["source_prefilter_two_swap_pair_rows_v265"] == 465580
+    assert status["source_exact_two_swap_pair_rows_v265"] == 46
+    assert status["cvar_feasible_two_swap_pair_rows_v265"] == 46
+    assert status["top_candidate_rows_v265"] == 46
+    assert status["best_two_swap_return_delta_v265"] == pytest.approx(21.911980076230094)
+    assert status["best_two_swap_cvar90_after_v265"] == pytest.approx(97867.324781459)
+    assert status["best_two_swap_objective_after_v265"] == pytest.approx(2988.3095525816234)
+    assert status["bounded_two_swap_improvement_found_v265"] is True
+    assert status["multi_swap_integer_optimality_claim_allowed_v265"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v265"] is False
+    assert status["paper1_promotion_allowed_v265"] is False
+    assert status["paper4_working_champion_changed_v265"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v265"] == 4
+    assert status["claim_matrix_rows_v265"] == 4
+
+    primary = _read_csv("paper4_v265_bounded_two_swap_primary_frontier.csv")
+    assert len(primary) == status["primary_frontier_rows_v265"]
+    best_primary = primary.iloc[0]
+    assert str(best_primary["primary_added_loan_id_v265"]) == "162604995"
+    assert str(best_primary["primary_dropped_loan_id_v265"]) == "158940609"
+    assert float(best_primary["primary_return_delta_v265"]) == pytest.approx(114.1309605916256)
+    assert int(best_primary["primary_source_cap_violations_v265"]) == 1
+    assert best_primary["primary_first_source_block_family_v265"] == "grade"
+    assert best_primary["primary_first_source_block_id_v265"] == "A"
+    assert float(best_primary["primary_source_min_slack_v265"]) == pytest.approx(
+        -0.0007813688002913
+    )
+    assert best_primary["claim_boundary_v265"].startswith("bounded primary one-swap")
+
+    stage = _read_csv("paper4_v265_bounded_two_swap_stage_summary.csv")
+    assert len(stage) == status["primary_frontier_rows_v265"]
+    assert (
+        int(stage["base_two_swap_pair_rows_v265"].sum()) == status["base_two_swap_pair_rows_v265"]
+    )
+    assert (
+        int(stage["source_prefilter_two_swap_pair_rows_v265"].sum())
+        == status["source_prefilter_two_swap_pair_rows_v265"]
+    )
+    assert (
+        int(stage["source_exact_two_swap_pair_rows_v265"].sum())
+        == status["source_exact_two_swap_pair_rows_v265"]
+    )
+    assert (
+        int(stage["cvar_feasible_two_swap_pair_rows_v265"].sum())
+        == status["cvar_feasible_two_swap_pair_rows_v265"]
+    )
+    stage_map = {int(row["primary_rank_v265"]): row for _, row in stage.iterrows()}
+    assert int(stage_map[0]["source_exact_two_swap_pair_rows_v265"]) == 3
+    assert int(stage_map[11]["source_exact_two_swap_pair_rows_v265"]) == 6
+
+    candidates = _read_csv("paper4_v265_bounded_two_swap_candidates.csv")
+    assert len(candidates) == status["source_exact_two_swap_pair_rows_v265"]
+    assert candidates["source_swap_feasible_v265"].astype(bool).all()
+    assert candidates["cvar_swap_feasible_v265"].astype(bool).all()
+    assert candidates["two_swap_improves_return_v265"].astype(bool).all()
+    assert int(candidates["source_cap_violations_after_two_swap_v265"].sum()) == 0
+    assert candidates["total_return_delta_v265"].max() == pytest.approx(
+        status["best_two_swap_return_delta_v265"]
+    )
+
+    top = _read_csv("paper4_v265_bounded_two_swap_top_candidates.csv")
+    assert len(top) == status["top_candidate_rows_v265"]
+    best = top.iloc[0]
+    assert str(best["primary_added_loan_id_v265"]) == "143384974"
+    assert str(best["primary_dropped_loan_id_v265"]) == "154756272"
+    assert str(best["relief_added_loan_id_v265"]) == "145079878"
+    assert str(best["relief_dropped_loan_id_v265"]) == "137378784"
+    assert float(best["primary_return_delta_v265"]) == pytest.approx(91.09848276973648)
+    assert float(best["relief_return_delta_v265"]) == pytest.approx(-69.18650269350638)
+    assert float(best["total_return_delta_v265"]) == pytest.approx(
+        status["best_two_swap_return_delta_v265"]
+    )
+    assert float(best["objective_return_after_two_swap_v265"]) == pytest.approx(
+        status["best_two_swap_objective_after_v265"]
+    )
+    assert float(best["exposure_after_two_swap_v265"]) == pytest.approx(843125.0)
+    assert float(best["cvar90_after_two_swap_v265"]) == pytest.approx(
+        status["best_two_swap_cvar90_after_v265"]
+    )
+    assert float(best["source_min_slack_after_two_swap_v265"]) == pytest.approx(
+        2.887048212119048e-05
+    )
+    assert float(best["max_source_share_after_two_swap_v265"]) == pytest.approx(0.8997479614529281)
+    assert bool(best["source_swap_feasible_v265"]) is True
+    assert bool(best["cvar_swap_feasible_v265"]) is True
+
+    summary = _read_csv("paper4_v265_bounded_two_swap_summary.csv")
+    row = summary.iloc[0]
+    assert row["probe_label_v265"] == "bounded_two_swap_after_v264_local_clearance"
+    assert bool(row["bounded_two_swap_improvement_found_v265"]) is True
+    assert bool(row["multi_swap_integer_optimality_claim_allowed_v265"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v265"]) is False
+    assert bool(row["paper1_promotion_allowed_v265"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+    assert "no exhaustive multi-swap/global proof" in str(row["claim_boundary_v265"])
+
+    blockers = _read_csv("paper4_v265_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v265"], blockers["blocking_v265"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v265"], blockers["evidence_count_v265"], strict=False)
+    )
+    assert bool(blocker_map["bounded_two_swap_improvement_found"]) is True
+    assert int(evidence_map["bounded_two_swap_improvement_found"]) == 46
+    assert bool(blocker_map["multi_swap_search_not_exhaustive"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v265_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v265_bounded_two_swap_probe_executed"]) is True
+    assert bool(claim_map["v265_bounded_two_swap_improvement_found"]) is True
+    assert bool(claim_map["v265_multi_swap_or_global_integer_optimality"]) is False
+    assert bool(claim_map["v265_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert (
+        bool(boundary_map["Paper 4 has a v265 bounded two-swap source-relief probe after v264."])
+        is True
+    )
+    assert bool(boundary_map["v265 finds bounded two-swap improvements over the v263 candidate."])
+    assert (
+        bool(boundary_map["v265 proves multi-swap or global full-universe integer optimality."])
+        is False
+    )
+    assert bool(boundary_map["v265 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v265_rows = backlog.loc[backlog["last_wave"].eq("v265")]
+    assert len(v265_rows) == 1
+    backlog_row = v265_rows.iloc[0]
+    assert backlog_row["status"] == "bounded_two_swap_improvement_found"
+    assert backlog_row["next_artifact"] == "paper4_v266_apply_bounded_two_swap_repair.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v265: Bounded Two-Swap Probe After v264 Local Clearance" in notebook
+    assert "CVaR-feasible improving two-swap rows:\n  `46`" in notebook
+    assert "Best bounded two-swap return delta:\n  `21.911980076230094`" in notebook
+    assert "not prove global optimality" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

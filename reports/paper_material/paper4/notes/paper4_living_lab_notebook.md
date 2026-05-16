@@ -10038,3 +10038,53 @@ Keep v264 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V264_POST_V263_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_END -->
+
+<!-- V265_BOUNDED_TWO_SWAP_PROBE_START -->
+
+## Wave v265: Bounded Two-Swap Probe After v264 Local Clearance
+
+Generated: 2026-05-16T11:27:31.861329+00:00
+
+### Objective
+
+Probe whether the v263 portfolio, which v264 cleared for one-drop/one-add
+swaps, still admits a bounded two-drop/two-add source-relief improvement. The
+frontier is explicitly limited to the top `25`
+post-v263 source-prefilter primary swaps.
+
+### Results
+
+- One-swap source-prefilter primary rows:
+  `4373`.
+- Primary frontier rows searched:
+  `25`.
+- Base two-swap rows in bounded frontier:
+  `35904290`.
+- Source-prefilter two-swap rows:
+  `465580`.
+- Exact source-feasible two-swap rows:
+  `46`.
+- CVaR-feasible improving two-swap rows:
+  `46`.
+- Best bounded two-swap return delta:
+  `21.911980076230094`.
+
+### Interpretation
+
+v265 is bounded multi-swap evidence after the one-swap loop terminates. A
+positive result would block any multi-swap optimality claim and require a v266
+repair; a negative result would still not prove global optimality because the
+frontier is intentionally limited.
+
+### Claim Impact
+
+- Allowed: bounded post-v263 two-swap probe executed.
+- Still prohibited: exhaustive multi-swap optimality, full-universe global gap,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v265 in the living notebook. Promote only after broader integer/dynamic
+and promotion gates pass.
+
+<!-- V265_BOUNDED_TWO_SWAP_PROBE_END -->
