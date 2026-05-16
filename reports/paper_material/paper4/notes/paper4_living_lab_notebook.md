@@ -10230,3 +10230,50 @@ Keep v268 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V268_BOUNDED_TWO_SWAP_PROBE_END -->
+
+<!-- V269_RESTRICTED_POOL_MILP_GAP_PROBE_START -->
+
+## Wave v269: Restricted-Pool MILP/Gap Probe After v268
+
+Generated: 2026-05-16T12:00:21.097422+00:00
+
+### Objective
+
+After v267 cleared one-swap and v268 found no bounded top-25 two-swap
+improvement, solve a restricted binary MILP over the v266 selected loans plus
+the top omitted candidate pool. This is broader than bounded two-swap evidence
+but remains a restricted-pool probe, not a full-universe certificate.
+
+### Results
+
+- Pool rows: `685`.
+- Current selected rows: `171`.
+- Omitted candidate rows: `514`.
+- MILP incumbent available: `True`.
+- MILP success flag: `True`.
+- MILP gap: `0.0`.
+- Objective delta vs v266:
+  `66.43635846730558`.
+- CVaR90 delta vs v266:
+  `824.8480050888757`.
+- Better restricted-pool incumbent found:
+  `True`.
+
+### Interpretation
+
+v269 expands the evidence frontier from local swaps to a restricted binary MILP.
+Any positive result is still restricted to the constructed pool; any negative
+or gap result still does not prove full-universe optimality.
+
+### Claim Impact
+
+- Allowed: restricted-pool MILP/gap probe executed.
+- Still prohibited: full-universe global integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v269 in the living notebook. Promote only after full-universe/global,
+dynamic validation and promotion gates pass.
+
+<!-- V269_RESTRICTED_POOL_MILP_GAP_PROBE_END -->
