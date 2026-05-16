@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v300_source_governance_branch_price_protocol_executed,True,paper4_v300_v295_source_governance_or_branch_price_protocol.csv,protocol and requirement register only
+v300_source_tight_hotspots_identified,True,paper4_v300_v295_source_slack_hotspots.csv,"hotspot map, not branch-price termination"
+v300_valid_branch_price_bound,False,paper4_v300_claim_blockers.csv,dual-bound loop missing
+v300_contractual_ifrs9_or_live_deployability,False,paper4_v300_claim_blockers.csv,imputation and external holdout blockers remain
+v300_paper1_or_final_promotion,False,paper4_v300_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

@@ -11699,3 +11699,51 @@ yet it is still internal selected-book evidence, not external live validation.
 Keep v299 in the living notebook. Promotion remains blocked.
 
 <!-- V299_V295_CASHFLOW_ONLINE_RERUN_END -->
+
+<!-- V300_SOURCE_GOVERNANCE_BRANCH_PRICE_PROTOCOL_START -->
+
+## Wave v300: Source Governance / Branch-Price Protocol
+
+Generated: 2026-05-16T18:43:37.493575+00:00
+
+### Objective
+
+v299 made v295 cashflow/online evidence candidate-specific, but left two hard
+blockers: source-tight global evidence and imputed IFRS9 proxy rows. v300 turns
+those blockers into an executable protocol for branch-price/source-governance
+work without promoting the candidate.
+
+### Results
+
+- Source summary rows: `51`.
+- Tight source rows: `2`.
+- Tightest source: `grade=A`.
+- Tightest source slack: `8.830577710172705e-07`.
+- Second tight source: `score_decile=0`.
+- Second tight source slack: `2.6697517130913617e-05`.
+- v295 imputed proxy loan rows: `76`.
+- v295 observed proxy loan rows: `95`.
+- Full-v55 binary variables: `276869`.
+- Direct MIP guard: `50000`.
+- Valid branch-price bound: `False`.
+
+### Interpretation
+
+The source picture is extremely localized: grade A and score decile 0 are the
+binding governance hotspots. The cashflow picture is also concentrated: v295 is
+fully covered only after explicit proxy imputation. v300 is therefore useful as
+a handoff map, not as a claim upgrade.
+
+### Claim Impact
+
+- Allowed: v300 source-governance/branch-price protocol and hotspot register.
+- Still prohibited: full-universe global optimality, contractual IFRS9, live
+  deployability, Paper Estrella replacement, final Paper 4 promotion and
+  working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v300 in the living notebook. The next wave should execute a source-tight
+branch-price/pricing repair or record a stronger blocker.
+
+<!-- V300_SOURCE_GOVERNANCE_BRANCH_PRICE_PROTOCOL_END -->

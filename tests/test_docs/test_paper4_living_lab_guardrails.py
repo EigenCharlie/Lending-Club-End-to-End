@@ -30419,6 +30419,162 @@ def test_paper4_v299_v295_cashflow_online_rerun_keeps_live_claims_blocked() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v300_source_governance_branch_price_protocol_keeps_claims_blocked() -> None:
+    status = _read_json("paper4_v300_status.json")
+
+    assert status["phase"] == "v300_v295_source_governance_or_branch_price_protocol"
+    assert status["schema_version"] == "2026-05-15.300"
+    assert status["source_candidate_version_v300"] == 295
+    assert status["global_gate_version_v300"] == 297
+    assert status["cashflow_proxy_version_v300"] == 299
+    assert status["selected_rows_v300"] == 171
+    assert status["source_summary_rows_v300"] == 51
+    assert status["source_tight_rows_v300"] == 2
+    assert status["source_cap_violations_v300"] == 0
+    assert status["tightest_source_family_v300"] == "grade"
+    assert status["tightest_source_id_v300"] == "A"
+    assert status["tightest_source_slack_v300"] == pytest.approx(8.830577710172705e-07)
+    assert status["second_tight_source_family_v300"] == "score_decile"
+    assert status["second_tight_source_id_v300"] == "0"
+    assert status["second_tight_source_slack_v300"] == pytest.approx(2.6697517130913617e-05)
+    assert status["proxy_imputation_source_rows_v300"] == 27
+    assert status["proxy_imputed_loan_rows_v300"] == 76
+    assert status["proxy_observed_loan_rows_v300"] == 95
+    assert status["proxy_imputed_loan_share_v300"] == pytest.approx(0.4444444444444444)
+    assert status["full_binary_variables_v300"] == 276869
+    assert status["direct_mip_binary_guard_v300"] == 50000
+    assert status["direct_full_mip_guard_exceeded_v300"] is True
+    assert status["requirement_rows_v300"] == 7
+    assert status["unmet_requirement_rows_v300"] == 6
+    assert status["valid_branch_price_bound_v300"] is False
+    assert status["source_governance_protocol_executed_v300"] is True
+    assert status["strict_live_deployability_claim_allowed_v300"] is False
+    assert status["contractual_ifrs9_claim_allowed_v300"] is False
+    assert status["working_champion_claim_allowed_v300"] is False
+    assert status["paper1_promotion_allowed_v300"] is False
+    assert status["paper4_working_champion_changed_v300"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v300"] == 6
+    assert status["claim_matrix_rows_v300"] == 5
+    assert (
+        status["next_artifact_v300"]
+        == "paper4_v301_source_tight_branch_price_pricing_or_imputation_repair.csv"
+    )
+
+    protocol = _read_csv("paper4_v300_v295_source_governance_or_branch_price_protocol.csv")
+    row = protocol.iloc[0]
+    assert row["protocol_id_v300"] == "v295_source_governance_branch_price_protocol"
+    assert int(row["source_tight_rows_v300"]) == 2
+    assert bool(row["direct_full_mip_guard_exceeded_v300"]) is True
+    assert bool(row["valid_branch_price_bound_v300"]) is False
+    assert bool(row["source_governance_protocol_executed_v300"]) is True
+    assert "requirements remain open" in str(row["claim_boundary_v300"])
+
+    hotspots = _read_csv("paper4_v300_v295_source_slack_hotspots.csv")
+    assert len(hotspots) == status["source_summary_rows_v300"]
+    assert int(hotspots["source_tight_flag_v300"].sum()) == 2
+    assert int(hotspots["source_cap_violated_v295"].sum()) == 0
+    first = hotspots.iloc[0]
+    second = hotspots.iloc[1]
+    assert first["source_family"] == "grade"
+    assert str(first["source_id"]) == "A"
+    assert float(first["source_slack_v295"]) == pytest.approx(8.830577710172705e-07)
+    assert first["source_governance_severity_v300"] == "critical_tight"
+    assert int(first["branch_price_priority_v300"]) == 1
+    assert second["source_family"] == "score_decile"
+    assert str(second["source_id"]) == "0"
+    assert float(second["source_slack_v295"]) == pytest.approx(2.6697517130913617e-05)
+    assert int(second["branch_price_priority_v300"]) == 2
+    assert set(
+        hotspots.loc[hotspots["source_governance_severity_v300"].eq("critical_tight")][
+            "source_family"
+        ]
+    ) == {"grade", "score_decile"}
+
+    proxy = _read_csv("paper4_v300_v295_proxy_imputation_by_source.csv")
+    assert len(proxy) == status["proxy_imputation_source_rows_v300"]
+    assert not proxy["contractual_ifrs9_claim_allowed_v300"].astype(bool).any()
+    proxy_key = (
+        proxy["source_family_v300"].astype(str)
+        + "="
+        + proxy["source_id_v300"].astype(str)
+        + "|"
+        + proxy["proxy_source_v299"].astype(str)
+    )
+    loan_map = dict(zip(proxy_key, proxy["loan_rows_v300"], strict=False))
+    assert int(loan_map["grade=A|imputed_grade_score_period"]) == 67
+    assert int(loan_map["grade=A|observed_v47_proxy"]) == 28
+    assert int(loan_map["score_decile=0|imputed_grade_score_period"]) == 70
+    assert int(loan_map["score_decile=0|observed_v47_proxy"]) == 53
+    assert int(loan_map["period=2020|imputed_grade_score"]) == 1
+
+    requirements = _read_csv("paper4_v300_branch_price_requirement_register.csv")
+    assert len(requirements) == status["requirement_rows_v300"]
+    requirement_map = dict(
+        zip(requirements["requirement_id_v300"], requirements["met_v300"], strict=False)
+    )
+    assert bool(requirement_map["valid_full_universe_gap_certificate"]) is False
+    assert bool(requirement_map["direct_full_mip_resource_guard"]) is False
+    assert bool(requirement_map["observed_cashflow_for_imputed_v295_loans"]) is False
+    assert bool(requirement_map["external_online_holdout_for_v295"]) is False
+    assert bool(requirement_map["final_promotion_absence_guardrail"]) is True
+    assert bool(requirement_map["source_tight_branch_price_grade_A"]) is False
+    assert bool(requirement_map["source_tight_branch_price_score_decile_0"]) is False
+
+    blockers = _read_csv("paper4_v300_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v300"], blockers["blocking_v300"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v300"], blockers["evidence_count_v300"], strict=False)
+    )
+    assert bool(blocker_map["source_tight_branch_prices_missing"]) is True
+    assert int(evidence_map["source_tight_branch_prices_missing"]) == 2
+    assert bool(blocker_map["full_universe_gap_certificate_missing"]) is True
+    assert int(evidence_map["full_universe_gap_certificate_missing"]) == 276869
+    assert bool(blocker_map["cashflow_proxy_imputation_required"]) is True
+    assert int(evidence_map["cashflow_proxy_imputation_required"]) == 76
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v300_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v300_source_governance_branch_price_protocol_executed"]) is True
+    assert bool(claim_map["v300_source_tight_hotspots_identified"]) is True
+    assert bool(claim_map["v300_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v300_contractual_ifrs9_or_live_deployability"]) is False
+    assert bool(claim_map["v300_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v300 v295 source-governance branch-price protocol."])
+    assert bool(boundary_map["v300 identifies v295 source-tight branch-price hotspots."])
+    assert bool(boundary_map["v300 proves a valid full-universe branch-price bound."]) is False
+    assert (
+        bool(boundary_map["v300 resolves contractual IFRS9 or live deployability for v295."])
+        is False
+    )
+    assert bool(boundary_map["v300 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v300_rows = backlog.loc[backlog["last_wave"].eq("v300")]
+    assert len(v300_rows) == 1
+    backlog_row = v300_rows.iloc[0]
+    assert backlog_row["status"] == "source_governance_branch_price_protocol_created"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v301_source_tight_branch_price_pricing_or_imputation_repair.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v300: Source Governance / Branch-Price Protocol" in notebook
+    assert "Tight source rows: `2`" in notebook
+    assert "Valid branch-price bound: `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
