@@ -11959,3 +11959,53 @@ Keep v304 in the living notebook. The next wave should reprice/post-solve
 validate the strongest bounded solution and preserve global blockers.
 
 <!-- V304_BOUNDED_MULTIOBJECTIVE_MILP_END -->
+
+<!-- V305_POST_V304_ONE_SWAP_REPRICE_START -->
+
+## Wave v305: Post-v304 One-Swap Repricing Gate
+
+Generated: 2026-05-16T19:44:07.280207+00:00
+
+### Objective
+
+v304 found strong bounded-pool MILP solutions. v305 tests the best-return v304
+solution against every non-selected comparable loan with a one-drop/one-add
+screen under the same budget band, exact source caps and the v304 CVaR cap.
+
+### Results
+
+- Selected v304 reward: `0.0`.
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1457384`.
+- Budget+return feasible pairs: `590017`.
+- Source prefilter pairs: `53163`.
+- Exact source-feasible pairs: `33`.
+- CVaR-feasible improving one-swaps: `11`.
+- Best source-exact return delta: `5.4342866423982645`.
+- Best CVaR-feasible return delta: `4.683130517167989`.
+- Post-v304 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v305 either clears the immediate post-solve local repricing gate for the v304
+best-return allocation or records the next repair signal. Even when local
+one-swap stability clears, the result is still not a full-universe integer
+certificate or a live dynamic validation.
+
+### Claim Impact
+
+- Allowed: post-v304 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v305 in the living notebook. Promotion remains blocked.
+
+<!-- V305_POST_V304_ONE_SWAP_REPRICE_END -->
