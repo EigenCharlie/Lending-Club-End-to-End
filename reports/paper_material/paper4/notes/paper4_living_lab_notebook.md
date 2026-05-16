@@ -13849,3 +13849,62 @@ Keep v340 in the living notebook. The next wave should build v338-specific
 cashflow, online and IFRS9 proxy gates without promoting.
 
 <!-- V340_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V338_END -->
+
+<!-- V341_V338_CASHFLOW_ONLINE_IFRS9_GATE_START -->
+
+## Wave v341: v338 Cashflow / Online / IFRS9 Gate
+
+Generated: 2026-05-16T23:55:21.303879+00:00
+
+### Objective
+
+v340 showed that v338 beats both v295 and v316 in the final-period static-book
+proxy but still lacks v338-specific cashflow/online/IFRS9 evidence. v341 builds
+that candidate-specific proxy panel and temporal online replay.
+
+### Results
+
+- Cashflow proxy panel rows: `6156`.
+- Observed proxy loan rows: `97`.
+- Imputed proxy loan rows: `74`.
+- Observed proxy delta vs v316:
+  `-1`.
+- Missing proxy delta vs v316:
+  `1`.
+- Observed proxy delta vs v330:
+  `0`.
+- Missing proxy delta vs v330:
+  `0`.
+- Post-imputation coverage share:
+  `1.0`.
+- Online temporal cell rows: `6`.
+- Online internal all-gate family rows:
+  `2`.
+- Strict live deployability claim allowed:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v341 fills a real evidence gap by making the v338 cashflow/online evidence
+candidate-specific. It also documents the price of the v338 matched-period
+path: 74 loans require imputation, 1 more than v316. Missing external holdout
+data, imputed proxy rows and the global certificate gap continue to block live,
+contractual and champion claims. Relative to v330, v338 keeps the same observed
+proxy coverage profile while shifting to lower CVaR.
+
+### Claim Impact
+
+- Allowed: v338-specific cashflow proxy panel and temporal online replay.
+- Still prohibited: contractual IFRS9, live online deployability, matched-period
+  dynamic superiority, full-universe global optimality, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v341 in the living notebook. Promotion remains blocked.
+
+<!-- V341_V338_CASHFLOW_ONLINE_IFRS9_GATE_END -->
