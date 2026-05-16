@@ -32852,6 +32852,179 @@ def test_paper4_v317_post_v316_reprice_clears_one_swap_local_optimality() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v318_dynamic_proxy_after_v316_blocks_promotion() -> None:
+    status = _read_json("paper4_v318_status.json")
+
+    assert status["phase"] == "v318_dynamic_proxy_or_global_bound_after_v316"
+    assert status["schema_version"] == "2026-05-16.318"
+    assert status["incumbent_version_v318"] == 295
+    assert status["candidate_version_v318"] == 316
+    assert status["local_reprice_version_v318"] == 317
+    assert status["previous_global_dynamic_gate_version_v318"] == 297
+    assert status["full_binary_variables_v318"] == 276869
+    assert status["direct_mip_binary_guard_v318"] == 50000
+    assert status["direct_full_mip_attempted_v318"] is False
+    assert status["valid_full_universe_gap_certificate_v318"] is False
+    assert status["post_v316_one_swap_local_optimality_cleared_v318"] is True
+    assert status["dynamic_proxy_replay_executed_v318"] is True
+    assert status["dynamic_proxy_trace_rows_v318"] == 768
+    assert status["dynamic_proxy_policy_count_v318"] == 2
+    assert status["dynamic_proxy_period_count_v318"] == 3
+    assert status["period_set_match_v318"] is True
+    assert status["period_distribution_match_v318"] is False
+    assert status["delta_return_v316_vs_v295_v318"] == pytest.approx(1169.7993436376019)
+    assert status["delta_cvar90_v316_vs_v295_v318"] == pytest.approx(-242.35883626915165)
+    assert status["v316_dynamic_proxy_beats_v295_v318"] is True
+    assert status["v295_observed_v47_proxy_rows_v318"] == 95
+    assert status["v316_observed_v47_proxy_rows_v318"] == 98
+    assert status["v295_missing_v47_proxy_rows_v318"] == 76
+    assert status["v316_missing_v47_proxy_rows_v318"] == 73
+    assert status["v316_observed_proxy_delta_vs_v295_v318"] == 3
+    assert status["v316_missing_proxy_delta_vs_v295_v318"] == -3
+    assert status["matched_period_dynamic_claim_allowed_v318"] is False
+    assert status["cashflow_online_holdout_v316_claim_allowed_v318"] is False
+    assert status["contractual_ifrs9_claim_allowed_v318"] is False
+    assert status["strict_live_deployability_claim_allowed_v318"] is False
+    assert status["working_champion_claim_allowed_v318"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v318"] is False
+    assert status["paper1_promotion_allowed_v318"] is False
+    assert status["paper4_working_champion_changed_v318"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v318"] == "paper4_v319_v316_cashflow_online_ifrs9_gate.csv"
+
+    gate = _read_csv("paper4_v318_dynamic_proxy_or_global_bound_after_v316.csv")
+    row = gate.iloc[0]
+    assert row["gate_id_v318"] == "v318_dynamic_proxy_or_global_bound_after_v316"
+    assert bool(row["post_v316_one_swap_local_optimality_cleared_v318"]) is True
+    assert bool(row["dynamic_proxy_replay_executed_v318"]) is True
+    assert int(row["dynamic_proxy_trace_rows_v318"]) == 768
+    assert bool(row["period_set_match_v318"]) is True
+    assert bool(row["period_distribution_match_v318"]) is False
+    assert json.loads(row["v295_period_distribution_v318"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert json.loads(row["v316_period_distribution_v318"]) == {
+        "2018": 98,
+        "2019": 66,
+        "2020": 7,
+    }
+    assert float(row["v295_objective_return_v318"]) == pytest.approx(3249.9586479471764)
+    assert float(row["v316_objective_return_v318"]) == pytest.approx(4419.757991584778)
+    assert float(row["v295_cvar90_v318"]) == pytest.approx(97226.40959615848)
+    assert float(row["v316_cvar90_v318"]) == pytest.approx(96984.05075988933)
+    assert bool(row["v316_dynamic_proxy_beats_v295_v318"]) is True
+    assert bool(row["matched_period_dynamic_claim_allowed_v318"]) is False
+    assert bool(row["working_champion_claim_allowed_v318"]) is False
+    assert "not a live or global proof" in str(row["claim_boundary_v318"])
+
+    proxy = _read_csv("paper4_v318_dynamic_proxy_summary.csv")
+    proxy_map = {str(row["policy_id"]): row for _, row in proxy.iterrows()}
+    v295_proxy = proxy_map["v295_broader_pool_after_v296_gate"]
+    v316_proxy = proxy_map["v316_terminal_repair_after_v317_gate"]
+    assert int(v295_proxy["trace_rows_v318"]) == 384
+    assert int(v316_proxy["trace_rows_v318"]) == 384
+    assert float(v295_proxy["final_objective_return_v318"]) == pytest.approx(3249.9586479471764)
+    assert float(v316_proxy["final_objective_return_v318"]) == pytest.approx(4419.757991584778)
+    assert float(v295_proxy["final_loss_cvar90_v318"]) == pytest.approx(97226.40959615848)
+    assert float(v316_proxy["final_loss_cvar90_v318"]) == pytest.approx(96984.05075988933)
+    assert float(v316_proxy["final_wealth_proxy_mean_v318"]) > float(
+        v295_proxy["final_wealth_proxy_mean_v318"]
+    )
+
+    trace = pd.read_parquet(TABLE_DIR / "paper4_v318_dynamic_proxy_trace.parquet")
+    assert len(trace) == 768
+    assert trace["policy_id"].nunique() == 2
+    assert trace.groupby("policy_id")[f"period_v318"].nunique().eq(3).all()
+    assert trace.groupby(["policy_id", "period_v318"])["scenario_id_v318"].nunique().eq(128).all()
+
+    coverage = _read_csv("paper4_v318_proxy_coverage_comparison.csv")
+    coverage_map = {str(row["policy_id"]): row for _, row in coverage.iterrows()}
+    v295_coverage = coverage_map["v295_broader_pool_after_v296_gate"]
+    v316_coverage = coverage_map["v316_terminal_repair_after_v317_gate"]
+    assert int(v295_coverage["observed_v47_proxy_rows_v318"]) == 95
+    assert int(v295_coverage["missing_v47_proxy_rows_v318"]) == 76
+    assert float(v295_coverage["observed_v47_proxy_share_v318"]) == pytest.approx(
+        0.5555555555555556
+    )
+    assert int(v295_coverage["ifrs9_proxy_panel_rows_v318"]) == 3420
+    assert int(v316_coverage["observed_v47_proxy_rows_v318"]) == 98
+    assert int(v316_coverage["missing_v47_proxy_rows_v318"]) == 73
+    assert float(v316_coverage["observed_v47_proxy_share_v318"]) == pytest.approx(
+        0.5730994152046783
+    )
+    assert int(v316_coverage["ifrs9_proxy_panel_rows_v318"]) == 3528
+    assert not coverage["contractual_ifrs9_claim_allowed_v318"].astype(bool).any()
+
+    requirements = _read_csv("paper4_v318_gate_requirements.csv")
+    requirement_map = dict(
+        zip(requirements["requirement_id_v318"], requirements["met_v318"], strict=False)
+    )
+    assert bool(requirement_map["post_v316_one_swap_gate_cleared"]) is True
+    assert bool(requirement_map["dynamic_proxy_replay_executed"]) is True
+    assert bool(requirement_map["common_period_set_available"]) is True
+    assert bool(requirement_map["matched_period_distribution"]) is False
+    assert bool(requirement_map["observed_or_contractual_ifrs9_complete"]) is False
+    assert bool(requirement_map["valid_full_universe_gap_certificate"]) is False
+
+    blockers = _read_csv("paper4_v318_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v318"], blockers["blocking_v318"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v318"], blockers["evidence_count_v318"], strict=False)
+    )
+    assert bool(blocker_map["valid_global_gap_certificate_missing"]) is True
+    assert bool(blocker_map["matched_period_distribution_missing"]) is True
+    assert int(evidence_map["matched_period_distribution_missing"]) == 1
+    assert bool(blocker_map["proxy_coverage_gap_persists"]) is True
+    assert int(evidence_map["proxy_coverage_gap_persists"]) == 73
+    assert bool(blocker_map["v316_cashflow_online_holdout_missing"]) is True
+    assert bool(blocker_map["dynamic_proxy_not_live_deployment_replay"]) is True
+    assert int(evidence_map["dynamic_proxy_not_live_deployment_replay"]) == 768
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v318_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v318_dynamic_global_gate_executed"]) is True
+    assert bool(claim_map["v318_v316_final_static_proxy_beats_v295"]) is True
+    assert bool(claim_map["v318_matched_period_dynamic_superiority"]) is False
+    assert bool(claim_map["v318_contractual_ifrs9_or_full_proxy_coverage"]) is False
+    assert bool(claim_map["v318_full_universe_gap_certificate"]) is False
+    assert bool(claim_map["v318_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v318 dynamic proxy/global-bound audit after v316."])
+    assert bool(boundary_map["v318 final-period static-book proxy favors v316 over v295."])
+    assert bool(boundary_map["v318 proves matched-period dynamic or live deployability."]) is False
+    assert (
+        bool(boundary_map["v318 resolves contractual IFRS9 or full cashflow coverage for v316."])
+        is False
+    )
+    assert bool(boundary_map["v318 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v318 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v318_rows = backlog.loc[backlog["last_wave"].eq("v318")]
+    assert len(v318_rows) == 1
+    backlog_row = v318_rows.iloc[0]
+    assert backlog_row["status"] == "v316_dynamic_proxy_executed_global_proxy_gates_blocked"
+    assert backlog_row["next_artifact"] == "paper4_v319_v316_cashflow_online_ifrs9_gate.csv"
+    assert backlog_row["execution_result"] == (
+        "v316_static_proxy_beats_v295_but_claims_remain_blocked"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v318: Dynamic Proxy / Global Bound After v316" in notebook
+    assert "Delta return v316 vs v295:\n  `1169.7993436376019`" in notebook
+    assert "Delta CVaR90 v316 vs v295:\n  `-242.35883626915165`" in notebook
+    assert "Working champion claim allowed:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

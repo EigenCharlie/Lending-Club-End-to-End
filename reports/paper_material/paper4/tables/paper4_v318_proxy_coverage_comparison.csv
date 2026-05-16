@@ -1,0 +1,3 @@
+policy_id,selected_rows_v318,observed_v47_proxy_rows_v318,missing_v47_proxy_rows_v318,observed_v47_proxy_share_v318,ifrs9_proxy_panel_rows_v318,ifrs9_proxy_scenarios_v318,ifrs9_proxy_months_v318,contractual_ifrs9_claim_allowed_v318,claim_boundary_v318
+v295_broader_pool_after_v296_gate,171,95,76,0.5555555555555556,3420,1,36,False,loan-id proxy coverage audit only; contractual IFRS9 remains blocked
+v316_terminal_repair_after_v317_gate,171,98,73,0.5730994152046783,3528,1,36,False,loan-id proxy coverage audit only; contractual IFRS9 remains blocked

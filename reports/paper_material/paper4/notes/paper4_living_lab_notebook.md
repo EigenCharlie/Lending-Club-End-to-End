@@ -12610,3 +12610,61 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v317 in the living notebook. Promotion remains blocked.
 
 <!-- V317_POST_V316_ONE_SWAP_REPRICE_END -->
+
+<!-- V318_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V316_START -->
+
+## Wave v318: Dynamic Proxy / Global Bound After v316
+
+Generated: 2026-05-16T21:12:04.431451+00:00
+
+### Objective
+
+v317 cleared post-v316 one-swap local optimality. v318 moves to the next
+blocker: compare v316 against the v295 dynamic-proxy incumbent, audit v47 proxy
+coverage, and keep the full-universe/global proof boundary explicit.
+
+### Results
+
+- Dynamic proxy trace rows: `768`.
+- Dynamic proxy policies: `2`.
+- Common period set match:
+  `True`.
+- Matched period distribution:
+  `False`.
+- Delta return v316 vs v295:
+  `1169.7993436376019`.
+- Delta CVaR90 v316 vs v295:
+  `-242.35883626915165`.
+- v316 static-book proxy beats v295:
+  `True`.
+- v316 observed v47 proxy rows:
+  `98`.
+- v316 missing v47 proxy rows:
+  `73`.
+- Full-universe gap certificate:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v318 strengthens the v316 story: the final-period static-book proxy comparison
+shows higher return and lower CVaR than v295, and v316 has slightly better v47
+loan-id proxy coverage than v295. The claim remains bounded because the issue
+period distribution differs, v316 still has missing proxy rows, and no
+branch-price/global certificate or live deployment replay exists.
+
+### Claim Impact
+
+- Allowed: v318 dynamic/global audit and final-period static-book proxy
+  comparison.
+- Still prohibited: matched-period dynamic superiority, contractual IFRS9,
+  full-universe global optimality, live deployment, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v318 in the living notebook. The next wave should build v316-specific
+cashflow, online and IFRS9 proxy gates without promoting.
+
+<!-- V318_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V316_END -->

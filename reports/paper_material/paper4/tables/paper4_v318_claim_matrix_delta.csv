@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v318_dynamic_global_gate_executed,True,paper4_v318_dynamic_proxy_or_global_bound_after_v316.csv,gate audit plus dynamic proxy replay
+v318_v316_final_static_proxy_beats_v295,True,paper4_v318_dynamic_proxy_summary.csv,final-period static-book proxy only
+v318_matched_period_dynamic_superiority,False,paper4_v318_claim_blockers.csv,period distribution mismatch and no live replay
+v318_contractual_ifrs9_or_full_proxy_coverage,False,paper4_v318_proxy_coverage_comparison.csv,v316 still has missing v47 proxy rows
+v318_full_universe_gap_certificate,False,paper4_v318_claim_blockers.csv,global certificate missing
+v318_working_champion_or_final_promotion,False,paper4_v318_claim_blockers.csv,working champion and final promotion remain blocked
