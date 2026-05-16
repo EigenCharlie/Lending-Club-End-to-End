@@ -34142,6 +34142,128 @@ def test_paper4_v325_post_v324_reprice_finds_next_repair_signal() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v326_applies_best_post_v324_swap_without_promotion() -> None:
+    status = _read_json("paper4_v326_status.json")
+
+    assert status["phase"] == "v326_apply_next_post_v324_swap"
+    assert status["schema_version"] == "2026-05-16.326"
+    assert status["base_version_v326"] == 324
+    assert status["reprice_version_v326"] == 325
+    assert status["applied_added_loan_id_v326"] == "148128009"
+    assert status["applied_dropped_loan_id_v326"] == "151566947"
+    assert status["selected_rows_v326"] == 171
+    assert status["cardinality_restored_v326"] is True
+    assert status["portfolio_exposure_v326"] == pytest.approx(843775.0)
+    assert status["objective_return_v326"] == pytest.approx(4425.759982002126)
+    assert status["delta_return_vs_v324_v326"] == pytest.approx(2.612102603645326)
+    assert status["delta_return_vs_v320_v326"] == pytest.approx(-7.515266754674485)
+    assert status["delta_return_vs_v316_v326"] == pytest.approx(6.00199041734777)
+    assert status["scenario_loss_mean_v326"] == pytest.approx(60266.01786850243)
+    assert status["scenario_loss_cvar90_v326"] == pytest.approx(96589.8525904196)
+    assert status["delta_cvar90_vs_v324_v326"] == pytest.approx(-2.6879246074386174)
+    assert status["delta_cvar90_vs_v320_v326"] == pytest.approx(-238.0607822706952)
+    assert status["delta_cvar90_vs_v316_v326"] == pytest.approx(-394.19816946971696)
+    assert status["observed_proxy_rows_v326"] == 99
+    assert status["missing_proxy_rows_v326"] == 72
+    assert status["observed_proxy_delta_vs_v324_v326"] == -1
+    assert status["missing_proxy_delta_vs_v324_v326"] == 1
+    assert status["source_cap_violations_v326"] == 0
+    assert status["min_source_slack_v326"] == pytest.approx(4.597308456477656e-06)
+    assert status["post_v326_repricing_required_v326"] is True
+    assert status["working_champion_claim_allowed_v326"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v326"] is False
+    assert status["paper1_promotion_allowed_v326"] is False
+    assert status["paper4_working_champion_changed_v326"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v326"] == "paper4_v327_post_v326_reprice.csv"
+
+    summary = _read_csv("paper4_v326_apply_next_post_v324_swap.csv")
+    row = summary.iloc[0]
+    assert row["gate_id_v326"] == "v326_apply_next_post_v324_swap"
+    assert str(row["applied_added_loan_id_v326"]) == "148128009"
+    assert str(row["applied_dropped_loan_id_v326"]) == "151566947"
+    assert bool(row["cardinality_restored_v326"]) is True
+    assert json.loads(row["period_distribution_v326"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert int(row["observed_proxy_rows_v326"]) == 99
+    assert int(row["missing_proxy_rows_v326"]) == 72
+    assert bool(row["post_v326_repricing_required_v326"]) is True
+    assert bool(row["working_champion_claim_allowed_v326"]) is False
+    assert "post-v326 repricing" in str(row["claim_boundary_v326"])
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v326_post_v324_swap_allocations.parquet")
+    assert len(allocations) == 171
+    assert allocations["loan_id"].nunique() == 171
+    assert int(allocations["observed_v47_proxy_v326"].sum()) == 99
+    assert int((~allocations["observed_v47_proxy_v326"]).sum()) == 72
+    assert allocations["portfolio_label_v326"].eq("post_v324_best_feasible_swap_candidate").all()
+    assert "148128009" in set(allocations["loan_id"].astype(str))
+    assert "151566947" not in set(allocations["loan_id"].astype(str))
+
+    actions = _read_csv("paper4_v326_post_v324_swap_actions.csv")
+    action_map = {str(row["action_v326"]): row for _, row in actions.iterrows()}
+    assert str(action_map["add_v325_best_feasible"]["loan_id"]) == "148128009"
+    assert bool(action_map["add_v325_best_feasible"]["observed_v47_proxy_v326"]) is False
+    assert str(action_map["drop_v325_best_feasible"]["loan_id"]) == "151566947"
+    assert bool(action_map["drop_v325_best_feasible"]["observed_v47_proxy_v326"]) is True
+
+    source = _read_csv("paper4_v326_post_v324_swap_source_summary.csv")
+    assert not source["source_cap_violated_v326"].astype(bool).any()
+    grade_a = source.loc[
+        source["source_family"].eq("grade") & source["source_id"].astype(str).eq("A")
+    ].iloc[0]
+    assert float(grade_a["source_exposure_v326"]) == pytest.approx(719850.0)
+    assert float(grade_a["source_share_v326"]) == pytest.approx(0.8531302776214038)
+    assert float(grade_a["source_slack_v326"]) == pytest.approx(4.597308456477656e-06)
+
+    blockers = _read_csv("paper4_v326_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v326"], blockers["blocking_v326"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v326"], blockers["evidence_count_v326"], strict=False)
+    )
+    assert bool(blocker_map["post_v326_reprice_missing"]) is True
+    assert bool(blocker_map["proxy_coverage_worsens_vs_v324"]) is True
+    assert int(evidence_map["proxy_coverage_worsens_vs_v324"]) == 1
+    assert bool(blocker_map["global_dynamic_online_gates_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v326_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v326_best_v325_swap_applied"]) is True
+    assert bool(claim_map["v326_improves_return_and_cvar_vs_v324"]) is True
+    assert bool(claim_map["v326_preserves_v324_proxy_coverage"]) is False
+    assert bool(claim_map["v326_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v326 applies the best v325 post-v324 feasible one-swap."])
+    assert bool(boundary_map["v326 improves return and CVaR versus the v324 relaxed repair."])
+    assert bool(boundary_map["v326 preserves v324 relaxed proxy coverage exactly."]) is False
+    assert bool(boundary_map["v326 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v326 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v326_rows = backlog.loc[backlog["last_wave"].eq("v326")]
+    assert len(v326_rows) == 1
+    backlog_row = v326_rows.iloc[0]
+    assert backlog_row["status"] == "post_v324_best_feasible_swap_applied_requires_reprice"
+    assert backlog_row["next_artifact"] == "paper4_v327_post_v326_reprice.csv"
+    assert backlog_row["execution_result"] == "return_and_cvar_improve_proxy_missing_worsens_by_one"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v326: Apply Next Post-v324 Swap" in notebook
+    assert "Applied added loan: `148128009`" in notebook
+    assert "Missing proxy delta vs v324:\n  `1`" in notebook
+    assert "Post-v326 repricing required:\n  `True`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
