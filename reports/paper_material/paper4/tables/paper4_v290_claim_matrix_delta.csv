@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v290_post_v289_one_swap_reprice_executed,True,paper4_v290_post_exact_relief_one_swap_summary.csv,post-v289 one-drop/one-add screen completed
+v290_post_v289_one_swap_local_optimality,True,paper4_v290_claim_blockers.csv,allowed only within 168-row one-swap scope
+v290_working_champion,False,paper4_v290_claim_blockers.csv,cardinality and global evidence missing
+v290_global_full_universe_integer_optimality,False,paper4_v290_claim_blockers.csv,global certificate missing
+v290_paper1_or_final_promotion,False,paper4_v290_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

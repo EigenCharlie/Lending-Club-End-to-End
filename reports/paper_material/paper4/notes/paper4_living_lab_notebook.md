@@ -11217,3 +11217,47 @@ champion.
 Keep v289 in the living notebook. The next step is post-repair repricing.
 
 <!-- V289_APPLY_EXACT_RELIEF_REPAIR_END -->
+
+<!-- V290_POST_V289_EXACT_RELIEF_ONE_SWAP_REPRICE_START -->
+
+## Wave v290: Post-v289 Exact-Relief One-Swap Repricing
+
+Generated: 2026-05-16T14:10:35.320893+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after v289 applied the exact-relief repair
+candidate. This checks local one-swap stability for the 168-row repaired
+portfolio, while keeping cardinality and global-claim blockers explicit.
+
+### Results
+
+- Selected rows: `168`.
+- Candidate add rows: `276701`.
+- Pair rows screened: `46485768`.
+- Return-improving pairs: `1635277`.
+- Budget+return feasible pairs: `1025144`.
+- Source prefilter pairs: `39316`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v289 one-swap return delta: `not applicable; no feasible improving one-swaps`.
+- Post-v289 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v290 is the required repricing pass after v289 changed the portfolio. It can
+clear or continue the local one-swap loop, but it cannot resolve the larger
+cardinality, multi-swap, full-universe gap or dynamic replay gates on its own.
+
+### Claim Impact
+
+- Allowed: post-v289 one-swap repricing screen completed.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v290 in the living notebook. Promotion remains blocked.
+
+<!-- V290_POST_V289_EXACT_RELIEF_ONE_SWAP_REPRICE_END -->

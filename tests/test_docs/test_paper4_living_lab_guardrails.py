@@ -29101,6 +29101,112 @@ def test_paper4_v289_applies_exact_relief_repair_candidate_without_promotion() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v290_post_exact_relief_reprice_clears_one_swap_scope() -> None:
+    status = _read_json("paper4_v290_status.json")
+
+    assert status["phase"] == "v290_post_v289_exact_relief_one_swap_reprice"
+    assert status["schema_version"] == "2026-05-15.290"
+    assert status["summary_rows_v290"] == 1
+    assert status["stage_summary_rows_v290"] == 6
+    assert status["candidate_pair_rows_v290"] == 0
+    assert status["top_candidate_rows_v290"] == 0
+    assert status["claim_blocker_rows_v290"] == 4
+    assert status["claim_matrix_rows_v290"] == 5
+    assert status["selected_rows_v290"] == 168
+    assert status["base_selected_rows_v290"] == 171
+    assert status["cardinality_changed_v290"] is True
+    assert status["candidate_add_rows_v290"] == 276701
+    assert status["total_pair_rows_screened_v290"] == 46485768
+    assert status["return_improving_pair_rows_v290"] == 1635277
+    assert status["budget_return_feasible_pair_rows_v290"] == 1025144
+    assert status["source_prefilter_pair_rows_v290"] == 39316
+    assert status["source_exact_pair_rows_v290"] == 0
+    assert status["cvar_feasible_pair_rows_v290"] == 0
+    assert status["one_swap_improving_rows_v290"] == 0
+    assert status["best_one_swap_return_delta_v290"] is None
+    assert status["best_one_swap_cvar90_after_v290"] is None
+    assert status["current_exposure_v290"] == pytest.approx(843475.0)
+    assert status["current_objective_return_v290"] == pytest.approx(3103.245175802253)
+    assert status["post_exact_relief_one_swap_local_optimality_cleared_v290"] is True
+    assert status["working_champion_claim_allowed_v290"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v290"] is False
+    assert status["paper1_promotion_allowed_v290"] is False
+    assert status["paper4_working_champion_changed_v290"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    summary = _read_csv("paper4_v290_post_exact_relief_one_swap_summary.csv")
+    row = summary.iloc[0]
+    assert row["policy_id"] == "v289_exact_relief_repair_candidate"
+    assert row["regime_v290"] == "post_v289_exact_relief_repair"
+    assert bool(row["post_exact_relief_one_swap_local_optimality_cleared_v290"]) is True
+    assert bool(row["working_champion_claim_allowed_v290"]) is False
+    assert "cardinality/global evidence still missing" in str(row["claim_boundary_v290"])
+
+    stages = _read_csv("paper4_v290_post_exact_relief_one_swap_stage_summary.csv")
+    stage_map = dict(zip(stages["stage_v290"], stages["pair_rows_v290"], strict=False))
+    assert int(stage_map["all_pairs"]) == 46485768
+    assert int(stage_map["return_improving"]) == 1635277
+    assert int(stage_map["budget_return_feasible"]) == 1025144
+    assert int(stage_map["source_prefilter_feasible"]) == 39316
+    assert int(stage_map["source_exact_feasible"]) == 0
+    assert int(stage_map["cvar_feasible_improving"]) == 0
+
+    reprice = _read_csv("paper4_v290_post_exact_relief_one_swap_reprice.csv")
+    top = _read_csv("paper4_v290_post_exact_relief_one_swap_top_candidates.csv")
+    assert reprice.empty
+    assert top.empty
+    assert "added_loan_id_v290" in set(reprice.columns)
+    assert "dropped_loan_id_v290" in set(top.columns)
+
+    blockers = _read_csv("paper4_v290_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v290"], blockers["blocking_v290"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v290"], blockers["evidence_count_v290"], strict=False)
+    )
+    assert bool(blocker_map["post_v289_one_swap_improvement_found"]) is False
+    assert int(evidence_map["post_v289_one_swap_improvement_found"]) == 0
+    assert bool(blocker_map["cardinality_policy_changed"]) is True
+    assert int(evidence_map["cardinality_policy_changed"]) == 3
+    assert bool(blocker_map["broader_multi_swap_or_global_gap_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v290_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v290_post_v289_one_swap_reprice_executed"]) is True
+    assert bool(claim_map["v290_post_v289_one_swap_local_optimality"]) is True
+    assert bool(claim_map["v290_working_champion"]) is False
+    assert bool(claim_map["v290_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v290_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["Paper 4 has a v290 post-v289 exact-relief one-swap repricing screen."]
+    )
+    assert bool(
+        boundary_map["v290 clears post-v289 one-swap local optimality in the 168-row repair scope."]
+    )
+    assert bool(boundary_map["v290 authorizes a new Paper 4 working champion."]) is False
+    assert bool(boundary_map["v290 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v290_rows = backlog.loc[backlog["last_wave"].eq("v290")]
+    assert len(v290_rows) == 1
+    backlog_row = v290_rows.iloc[0]
+    assert backlog_row["status"] == "post_v289_one_swap_local_optimality_cleared"
+    assert backlog_row["next_artifact"] == "paper4_v291_cardinality_or_multi_swap_protocol.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v290: Post-v289 Exact-Relief One-Swap Repricing" in notebook
+    assert "Selected rows: `168`" in notebook
+    assert "Exact source-feasible pairs: `0`" in notebook
+    assert "Promotion remains blocked" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
