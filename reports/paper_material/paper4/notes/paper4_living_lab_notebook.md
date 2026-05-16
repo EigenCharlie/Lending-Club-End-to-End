@@ -5394,3 +5394,48 @@ Keep v165 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V165_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V166_POST_V165_ONE_SWAP_REPRICE_START -->
+
+## Wave v166: Post-v165 One-Swap Repricing
+
+Generated: 2026-05-16T03:20:01.770767+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v165
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v165 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1787214`.
+- Exact source-feasible pairs: `1695`.
+- CVaR-feasible improving one-swaps: `1695`.
+- Best post-v165 one-swap return delta:
+  `70.20781030153404`.
+- Post-v165 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v166 is the required re-pricing after v165 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v165 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v166 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V166_POST_V165_ONE_SWAP_REPRICE_END -->
