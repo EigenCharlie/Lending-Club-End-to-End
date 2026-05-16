@@ -3796,3 +3796,48 @@ Keep v131 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V131_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V132_POST_V131_ONE_SWAP_REPRICE_START -->
+
+## Wave v132: Post-v131 One-Swap Repricing
+
+Generated: 2026-05-16T00:45:51.085099+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v131
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v131 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1900428`.
+- Exact source-feasible pairs: `4261`.
+- CVaR-feasible improving one-swaps: `4261`.
+- Best post-v131 one-swap return delta:
+  `93.11511711504707`.
+- Post-v131 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v132 is the required re-pricing after v131 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v131 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v132 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V132_POST_V131_ONE_SWAP_REPRICE_END -->
