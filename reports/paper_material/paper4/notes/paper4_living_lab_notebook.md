@@ -10504,3 +10504,50 @@ Keep v274 in the living notebook. Promote only after broader integer/dynamic
 and promotion gates pass.
 
 <!-- V274_POST_V273_RESTRICTED_POOL_MILP_ONE_SWAP_REPRICE_END -->
+
+<!-- V275_RESTRICTED_POOL_MILP_GAP_PROBE_START -->
+
+## Wave v275: Restricted-Pool MILP/Gap Probe After v274
+
+Generated: 2026-05-16T12:28:35.482949+00:00
+
+### Objective
+
+After v274 cleared one-swap for the v273 candidate, solve an expanded
+restricted binary MILP over the v273 selected loans plus the top omitted
+candidate pool. This is broader than bounded two-swap evidence but remains a
+restricted-pool probe, not a full-universe certificate.
+
+### Results
+
+- Pool rows: `2683`.
+- Current selected rows: `171`.
+- Omitted candidate rows: `2512`.
+- MILP incumbent available: `True`.
+- MILP success flag: `True`.
+- MILP gap: `0.0`.
+- Objective delta vs v273:
+  `17.201053015596244`.
+- CVaR90 delta vs v273:
+  `230.53918769265874`.
+- Better restricted-pool incumbent found:
+  `True`.
+
+### Interpretation
+
+v275 expands the evidence frontier from local swaps to a larger restricted
+binary MILP. Any positive result is still restricted to the constructed pool;
+any negative or gap result still does not prove full-universe optimality.
+
+### Claim Impact
+
+- Allowed: restricted-pool MILP/gap probe executed.
+- Still prohibited: full-universe global integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v275 in the living notebook. Promote only after full-universe/global,
+dynamic validation and promotion gates pass.
+
+<!-- V275_RESTRICTED_POOL_MILP_GAP_PROBE_END -->
