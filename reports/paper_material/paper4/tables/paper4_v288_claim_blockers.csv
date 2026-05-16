@@ -1,0 +1,5 @@
+blocker_id_v288,blocking_v288,evidence_count_v288,required_next_artifact_v288,claim_boundary_v288
+rank201_400_exact_relief_entering_column_requires_repair,True,1,paper4_v289_apply_exact_relief_candidate_or_reprice.csv,positive rank-slice relief column must be applied and repriced
+remaining_ranked_exact_relief_screen_missing,True,4015,paper4_v289_apply_exact_relief_candidate_or_reprice.csv,v288 screens ranks 201-400 only
+branch_price_dual_bound_missing,True,1,future_branch_price_dual_bound_loop,no dual-bound loop or termination certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

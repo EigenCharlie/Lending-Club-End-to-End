@@ -28873,6 +28873,121 @@ def test_paper4_v287_multi_add_reinvestment_probe_blocks_second_adds() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v288_exact_relief_rank_expansion_finds_repair_signal() -> None:
+    status = _read_json("paper4_v288_status.json")
+
+    assert status["phase"] == "v288_exact_relief_rank_expansion"
+    assert status["schema_version"] == "2026-05-15.288"
+    assert status["source_tight_screen_version_v288"] == 285
+    assert status["previous_exact_relief_version_v288"] == 286
+    assert status["incumbent_repair_version_v288"] == 279
+    assert status["v285_candidate_rows_available_v288"] == 4415
+    assert status["rank_start_v288"] == 201
+    assert status["candidate_screen_limit_v288"] == 200
+    assert status["candidate_rows_screened_v288"] == 200
+    assert status["unique_relief_milp_signatures_v288"] == 190
+    assert status["relief_milp_success_rows_v288"] == 200
+    assert status["source_violation_rows_v288"] == 0
+    assert status["cvar_feasible_rows_v288"] == 200
+    assert status["return_positive_exact_relief_rows_v288"] == 1
+    assert status["exact_relief_entering_column_rows_v288"] == 1
+    assert status["best_exact_relief_added_loan_id_v288"] == "160508188"
+    assert status["best_exact_relief_return_delta_v288"] == pytest.approx(0.7027606164280655)
+    assert status["best_exact_relief_drop_count_v288"] == 4
+    assert status["exact_relief_entering_columns_found_v288"] is True
+    assert status["valid_branch_price_bound_v288"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v288"] is False
+    assert status["paper1_promotion_allowed_v288"] is False
+    assert status["paper4_working_champion_changed_v288"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["drop_bundle_rows_v288"] == 844
+    assert status["claim_blocker_rows_v288"] == 4
+    assert status["claim_matrix_rows_v288"] == 5
+    assert status["next_artifact_v288"] == "paper4_v289_apply_exact_relief_candidate_or_reprice.csv"
+
+    summary = _read_csv("paper4_v288_full_rank_exact_relief_resource_protocol.csv")
+    row = summary.iloc[0]
+    assert row["protocol_id_v288"] == "rank201_400_exact_source_relief_expansion"
+    assert int(row["return_positive_exact_relief_rows_v288"]) == 1
+    assert bool(row["exact_relief_entering_columns_found_v288"]) is True
+    assert "lab-only repair signal" in str(row["claim_boundary_v288"])
+
+    screen = _read_csv("paper4_v288_exact_relief_candidate_screen.csv")
+    assert len(screen) == status["candidate_rows_screened_v288"]
+    assert int(screen["relief_milp_success_v288"].sum()) == 200
+    assert int(screen["source_cap_violations_after_exact_relief_v288"].sum()) == 0
+    assert int(screen["budget_source_cvar_feasible_exact_relief_v288"].sum()) == 200
+    assert int(screen["return_positive_exact_relief_v288"].sum()) == 1
+    assert int(screen["exact_relief_entering_column_v288"].sum()) == 1
+    top = screen.iloc[0]
+    assert int(top["candidate_rank_v288"]) == 299
+    assert str(top["added_loan_id_v288"]) == "160508188"
+    assert int(top["drop_count_v288"]) == 4
+    assert float(top["drop_exposure_v288"]) == pytest.approx(11350.0)
+    assert float(top["drop_mean_return_v288"]) == pytest.approx(277.3334797251526)
+    assert float(top["return_delta_after_exact_relief_v288"]) == pytest.approx(0.7027606164280655)
+    assert float(top["cvar90_after_exact_relief_v288"]) == pytest.approx(98339.150736)
+    assert bool(top["exact_relief_entering_column_v288"]) is True
+    assert bool(top["cardinality_preserved_v288"]) is False
+
+    drop_bundle = _read_csv("paper4_v288_exact_relief_drop_bundles.csv")
+    assert len(drop_bundle) == status["drop_bundle_rows_v288"]
+    best_drops = drop_bundle.loc[drop_bundle["candidate_rank_v288"].eq(299)]
+    assert len(best_drops) == 4
+    assert set(best_drops["dropped_loan_id_v288"].astype(str)) == {
+        "159357211",
+        "137182894",
+        "170387634",
+        "145033022",
+    }
+
+    blockers = _read_csv("paper4_v288_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v288"], blockers["blocking_v288"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v288"], blockers["evidence_count_v288"], strict=False)
+    )
+    assert bool(blocker_map["rank201_400_exact_relief_entering_column_requires_repair"]) is True
+    assert int(evidence_map["rank201_400_exact_relief_entering_column_requires_repair"]) == 1
+    assert bool(blocker_map["remaining_ranked_exact_relief_screen_missing"]) is True
+    assert int(evidence_map["remaining_ranked_exact_relief_screen_missing"]) == 4015
+    assert bool(blocker_map["branch_price_dual_bound_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v288_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v288_exact_relief_rank_expansion_executed"]) is True
+    assert bool(claim_map["v288_rank201_400_return_positive_exact_relief_column_found"]) is True
+    assert bool(claim_map["v288_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v288_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v288_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v288 exact-relief rank-expansion screen."])
+    assert bool(
+        boundary_map["v288 finds a return-positive exact relief column in v285 ranks 201-400."]
+    )
+    assert bool(boundary_map["v288 proves full-universe branch-price termination."]) is False
+    assert bool(boundary_map["v288 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v288_rows = backlog.loc[backlog["last_wave"].eq("v288")]
+    assert len(v288_rows) == 1
+    backlog_row = v288_rows.iloc[0]
+    assert backlog_row["status"] == "rank201_400_exact_relief_entering_column_found"
+    assert backlog_row["next_artifact"] == "paper4_v289_apply_exact_relief_candidate_or_reprice.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v288: Exact-Relief Rank Expansion" in notebook
+    assert "Return-positive exact relief rows:\n  `1`" in notebook
+    assert "repair signal found in v285 ranks 201-400" in notebook
+    assert "The next step is applying and repricing" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

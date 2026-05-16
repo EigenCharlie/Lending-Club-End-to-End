@@ -11121,3 +11121,53 @@ Keep v287 in the living notebook. The next live-lab step is a resource-aware
 full-rank exact relief protocol or a richer multi-add source-relief master.
 
 <!-- V287_MULTI_ADD_REINVESTMENT_PROBE_END -->
+
+<!-- V288_EXACT_RELIEF_RANK_EXPANSION_START -->
+
+## Wave v288: Exact-Relief Rank Expansion
+
+Generated: 2026-05-16T13:56:00.378570+00:00
+
+### Objective
+
+Expand the exact source-relief screen beyond v286. v288 applies the same exact
+source-cap MILP to v285 candidate ranks 201-400, preserving the exposure
+denominator inside all source constraints and checking budget, source and CVaR.
+
+### Results
+
+- v285 candidates available: `4415`.
+- Rank start: `201`.
+- Candidate rows screened: `200`.
+- Unique exact relief MILPs solved:
+  `190`.
+- Successful relief MILP rows: `200`.
+- Source-violating relief rows: `0`.
+- CVaR-feasible relief rows: `200`.
+- Return-positive exact relief rows:
+  `1`.
+- Best exact relief return delta:
+  `0.7027606164280655`.
+- Exact relief entering columns found:
+  `True`.
+
+### Interpretation
+
+v288 changes the live-lab state: the next rank slice produces one small
+return-positive exact relief column. This is useful as a repair signal, not a
+promotion signal. It must be applied, audited and repriced before it can alter
+any working-paper claim.
+
+### Claim Impact
+
+- Allowed: exact relief rank-slice screen completed; one small entering-column
+  repair signal found in v285 ranks 201-400.
+- Still prohibited: full ranked pricing termination, global integer optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v288 in the living notebook. The next step is applying and repricing the
+candidate, not promotion.
+
+<!-- V288_EXACT_RELIEF_RANK_EXPANSION_END -->
