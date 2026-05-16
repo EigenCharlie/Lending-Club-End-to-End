@@ -11851,3 +11851,59 @@ Keep v302 in the living notebook. The next wave should compare this return-cost
 frontier against global-bound or multi-objective alternatives.
 
 <!-- V302_GREEDY_IMPUTATION_FRONTIER_END -->
+
+<!-- V303_GLOBAL_MULTI_FRONTIER_AUDIT_START -->
+
+## Wave v303: Global / Multiobjective Frontier Audit
+
+Generated: 2026-05-16T19:18:24.887652+00:00
+
+### Objective
+
+v302 produced a bounded greedy frontier that trades return for fewer imputed
+proxy rows. v303 asks a sharper decision question: how much reward per reduced
+imputation would justify choosing each prefix, and where does the greedy
+frontier become attractive versus staying at v295?
+
+### Results
+
+- Prefix frontier rows: `16`.
+- Reward-grid rows: `17`.
+- Reward envelope rows: `13`.
+- Minimum reward for any repair:
+  `1.9854510187119558`.
+- Reward needed for full 15-step frontier:
+  `19.288593262530867`.
+- Grid-selected unique steps: `10`.
+- Best average-cost prefix step:
+  `2`.
+- Best average cost per imputation:
+  `1.985451018711956`.
+- Full frontier average cost per imputation:
+  `8.635240942534827`.
+- Valid global/multiobjective optimality claim:
+  `False`.
+
+### Interpretation
+
+v303 turns the v302 frontier into an explicit trade-off curve. The first useful
+repair is not the first greedy step but the two-step prefix: it becomes
+preferable to v295 only if one reduced imputed proxy row is worth about 1.99
+return units. The full 15-step frontier requires a much larger reward, about
+19.29 units at the margin, and is still a greedy-prefix audit rather than an
+optimal multiobjective solution.
+
+### Claim Impact
+
+- Allowed: multiobjective audit over v302 prefixes; reward thresholds for
+  choosing imputation repair.
+- Still prohibited: global or optimal multiobjective frontier, contractual
+  IFRS9, live deployability, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v303 in the living notebook. The next wave should attempt a bounded
+multiobjective MILP/global-bound probe.
+
+<!-- V303_GLOBAL_MULTI_FRONTIER_AUDIT_END -->

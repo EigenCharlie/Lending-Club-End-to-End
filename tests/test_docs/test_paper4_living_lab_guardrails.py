@@ -8,6 +8,7 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 import pytest
 
@@ -30903,6 +30904,160 @@ def test_paper4_v302_greedy_imputation_frontier_keeps_optimality_claims_blocked(
     assert "Wave v302: Greedy Multi-Swap Imputation Frontier" in notebook
     assert "Final imputed proxy rows: `61`" in notebook
     assert "Cumulative return delta: `-129.5286141380224`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
+def test_paper4_v303_multiobjective_frontier_audit_blocks_global_claims() -> None:
+    status = _read_json("paper4_v303_status.json")
+
+    assert status["phase"] == "v303_global_or_multiobjective_frontier_after_v302"
+    assert status["schema_version"] == "2026-05-15.303"
+    assert status["source_candidate_version_v303"] == 295
+    assert status["frontier_version_v303"] == 302
+    assert status["prefix_frontier_rows_v303"] == 16
+    assert status["reward_grid_rows_v303"] == 17
+    assert status["reward_envelope_rows_v303"] == 13
+    assert status["reward_grid_unique_selected_steps_v303"] == 10
+    assert status["minimum_reward_for_any_repair_v303"] == pytest.approx(1.9854510187119558)
+    assert status["minimum_reward_for_full_frontier_v303"] == pytest.approx(19.288593262530867)
+    assert status["best_average_cost_prefix_step_v303"] == 2
+    assert status["best_average_return_cost_per_imputation_v303"] == pytest.approx(
+        1.985451018711956
+    )
+    assert status["full_frontier_average_return_cost_per_imputation_v303"] == pytest.approx(
+        8.635240942534827
+    )
+    assert status["full_frontier_final_imputed_rows_v303"] == 61
+    assert status["full_frontier_cumulative_return_delta_v303"] == pytest.approx(-129.5286141380224)
+    assert status["full_binary_variables_v303"] == 276869
+    assert status["direct_mip_binary_guard_v303"] == 50000
+    assert status["direct_full_mip_guard_exceeded_v303"] is True
+    assert status["valid_global_multiobjective_claim_v303"] is False
+    assert status["strict_live_deployability_claim_allowed_v303"] is False
+    assert status["contractual_ifrs9_claim_allowed_v303"] is False
+    assert status["working_champion_claim_allowed_v303"] is False
+    assert status["paper1_promotion_allowed_v303"] is False
+    assert status["paper4_working_champion_changed_v303"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v303"] == 6
+    assert status["claim_matrix_rows_v303"] == 5
+    assert (
+        status["next_artifact_v303"]
+        == "paper4_v304_bounded_multiobjective_milp_or_global_bound_probe.csv"
+    )
+
+    summary = _read_csv("paper4_v303_global_or_multiobjective_frontier_after_v302.csv")
+    row = summary.iloc[0]
+    assert row["audit_id_v303"] == "v303_global_or_multiobjective_frontier_after_v302"
+    assert int(row["prefix_frontier_rows_v303"]) == 16
+    assert int(row["reward_envelope_rows_v303"]) == 13
+    assert float(row["minimum_reward_for_any_repair_v303"]) == pytest.approx(1.9854510187119558)
+    assert bool(row["valid_global_multiobjective_claim_v303"]) is False
+    assert bool(row["contractual_ifrs9_claim_allowed_v303"]) is False
+    assert "multiobjective audit over greedy prefixes only" in str(row["claim_boundary_v303"])
+
+    prefixes = _read_csv("paper4_v303_prefix_tradeoff_frontier.csv")
+    assert len(prefixes) == status["prefix_frontier_rows_v303"]
+    baseline = prefixes.loc[prefixes["frontier_step_v303"].eq(0)].iloc[0]
+    step2 = prefixes.loc[prefixes["frontier_step_v303"].eq(2)].iloc[0]
+    step15 = prefixes.loc[prefixes["frontier_step_v303"].eq(15)].iloc[0]
+    assert int(baseline["imputed_proxy_loan_rows_v303"]) == 76
+    assert float(baseline["objective_return_v303"]) == pytest.approx(3249.9586479471764)
+    assert int(step2["imputed_proxy_loan_rows_v303"]) == 74
+    assert float(step2["average_return_cost_per_imputation_v303"]) == pytest.approx(
+        1.985451018711956
+    )
+    assert int(step15["imputed_proxy_loan_rows_v303"]) == 61
+    assert float(step15["average_return_cost_per_imputation_v303"]) == pytest.approx(
+        8.635240942534827
+    )
+    assert prefixes["pareto_nondominated_return_vs_imputation_v303"].astype(bool).all()
+    assert prefixes["source_cap_feasible_v303"].astype(bool).all()
+    assert prefixes["cvar_feasible_v303"].astype(bool).all()
+
+    envelope = _read_csv("paper4_v303_reward_selection_envelope.csv")
+    assert len(envelope) == status["reward_envelope_rows_v303"]
+    envelope_steps = set(envelope["selected_frontier_step_v303"].astype(int))
+    assert envelope_steps == {0, 2, 3, 4, 5, 6, 7, 10, 11, 12, 13, 14, 15}
+    baseline_interval = envelope.loc[envelope["selected_frontier_step_v303"].eq(0)].iloc[0]
+    full_interval = envelope.loc[envelope["selected_frontier_step_v303"].eq(15)].iloc[0]
+    assert float(baseline_interval["reward_upper_bound_v303"]) == pytest.approx(1.9854510187119558)
+    assert float(full_interval["reward_lower_bound_v303"]) == pytest.approx(19.288593262530867)
+    assert np.isinf(float(full_interval["reward_upper_bound_v303"]))
+
+    reward_grid = _read_csv("paper4_v303_multiobjective_reward_grid.csv")
+    assert len(reward_grid) == status["reward_grid_rows_v303"]
+    reward_map = dict(
+        zip(
+            reward_grid["reward_per_imputation_reduced_v303"],
+            reward_grid["selected_frontier_step_v303"],
+            strict=False,
+        )
+    )
+    assert int(reward_map[0.0]) == 0
+    assert int(reward_map[1.5]) == 0
+    assert int(reward_map[2.0]) == 2
+    assert int(reward_map[9.0]) == 10
+    assert int(reward_map[20.0]) == 15
+    reward_20 = reward_grid.loc[reward_grid["reward_per_imputation_reduced_v303"].eq(20.0)].iloc[0]
+    assert int(reward_20["selected_imputed_rows_v303"]) == 61
+    assert float(reward_20["selected_utility_v303"]) == pytest.approx(3420.430033809153)
+
+    blockers = _read_csv("paper4_v303_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v303"], blockers["blocking_v303"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v303"], blockers["evidence_count_v303"], strict=False)
+    )
+    assert bool(blocker_map["full_universe_multiobjective_certificate_missing"]) is True
+    assert int(evidence_map["full_universe_multiobjective_certificate_missing"]) == 276869
+    assert bool(blocker_map["greedy_prefix_scope_only"]) is True
+    assert int(evidence_map["greedy_prefix_scope_only"]) == 16
+    assert bool(blocker_map["residual_cashflow_imputation_after_full_frontier"]) is True
+    assert int(evidence_map["residual_cashflow_imputation_after_full_frontier"]) == 61
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v303_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v303_multiobjective_frontier_audit_executed"]) is True
+    assert bool(claim_map["v303_reward_thresholds_quantified"]) is True
+    assert bool(claim_map["v303_global_or_optimal_multiobjective_frontier"]) is False
+    assert bool(claim_map["v303_contractual_ifrs9_or_live_deployability"]) is False
+    assert bool(claim_map["v303_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["Paper 4 has a v303 multiobjective audit of the v302 imputation frontier."]
+    )
+    assert bool(
+        boundary_map["v303 quantifies the reward threshold for choosing imputation repair."]
+    )
+    assert bool(boundary_map["v303 proves a global or optimal multiobjective frontier."]) is False
+    assert (
+        bool(boundary_map["v303 resolves contractual IFRS9 or live deployability for v295."])
+        is False
+    )
+    assert bool(boundary_map["v303 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v303_rows = backlog.loc[backlog["last_wave"].eq("v303")]
+    assert len(v303_rows) == 1
+    backlog_row = v303_rows.iloc[0]
+    assert backlog_row["status"] == "multiobjective_frontier_audit_executed_global_claims_blocked"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v304_bounded_multiobjective_milp_or_global_bound_probe.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v303: Global / Multiobjective Frontier Audit" in notebook
+    assert "Minimum reward for any repair:\n  `1.9854510187119558`" in notebook
+    assert "Reward needed for full 15-step frontier:\n  `19.288593262530867`" in notebook
     assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
