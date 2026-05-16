@@ -28988,6 +28988,119 @@ def test_paper4_v288_exact_relief_rank_expansion_finds_repair_signal() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v289_applies_exact_relief_repair_candidate_without_promotion() -> None:
+    status = _read_json("paper4_v289_status.json")
+
+    assert status["phase"] == "v289_apply_exact_relief_repair_candidate"
+    assert status["schema_version"] == "2026-05-15.289"
+    assert status["signal_version_v289"] == 288
+    assert status["base_repair_version_v289"] == 279
+    assert status["candidate_rank_v289"] == 299
+    assert status["added_loan_id_v289"] == "160508188"
+    assert status["dropped_rows_v289"] == 4
+    assert status["selected_rows_v289"] == 168
+    assert status["base_selected_rows_v289"] == 171
+    assert status["cardinality_delta_vs_v279_v289"] == -3
+    assert status["portfolio_exposure_v289"] == pytest.approx(843475.0)
+    assert status["objective_return_v289"] == pytest.approx(3103.2451758022526)
+    assert status["scenario_loss_cvar90_v289"] == pytest.approx(98339.15073561847)
+    assert status["source_cap_violations_v289"] == 0
+    assert status["delta_return_vs_v279_v289"] == pytest.approx(0.7027606164265308)
+    assert status["delta_cvar90_vs_v279_v289"] == pytest.approx(-95.97353781799029)
+    assert status["budget_feasible_v289"] is True
+    assert status["cvar_feasible_v289"] is True
+    assert status["source_feasible_v289"] is True
+    assert status["repair_candidate_feasible_v289"] is True
+    assert status["cardinality_changed_v289"] is True
+    assert status["post_repair_pricing_required_v289"] is True
+    assert status["working_champion_claim_allowed_v289"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v289"] is False
+    assert status["paper1_promotion_allowed_v289"] is False
+    assert status["paper4_working_champion_changed_v289"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v289"] == 4
+    assert status["claim_matrix_rows_v289"] == 5
+    assert status["next_artifact_v289"] == "paper4_v290_post_exact_relief_reprice.csv"
+
+    summary = _read_csv("paper4_v289_exact_relief_repair_summary.csv")
+    row = summary.iloc[0]
+    assert row["portfolio_label_v289"] == "exact_relief_repair_candidate"
+    assert int(row["selected_rows_v289"]) == 168
+    assert int(row["dropped_rows_v289"]) == 4
+    assert bool(row["repair_candidate_feasible_v289"]) is True
+    assert bool(row["working_champion_claim_allowed_v289"]) is False
+    assert "repricing required" in str(row["claim_boundary_v289"])
+
+    action = _read_csv("paper4_v289_exact_relief_repair_action.csv")
+    action_row = action.iloc[0]
+    assert str(action_row["added_loan_id_v289"]) == "160508188"
+    assert str(action_row["dropped_loan_ids_v289"]) == ("137182894|145033022|159357211|170387634")
+    assert float(action_row["return_delta_v289"]) == pytest.approx(0.7027606164280655)
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v289_exact_relief_repair_allocations.parquet")
+    assert len(allocations) == status["selected_rows_v289"]
+    assert "160508188" in set(allocations["loan_id"].astype(str))
+    assert not {
+        "137182894",
+        "145033022",
+        "159357211",
+        "170387634",
+    }.intersection(set(allocations["loan_id"].astype(str)))
+
+    source_summary = _read_csv("paper4_v289_exact_relief_repair_source_summary.csv")
+    assert int(source_summary["source_cap_violated_v289"].sum()) == 0
+    source_map = {
+        (row.source_family, str(row.source_id)): row
+        for row in source_summary.itertuples(index=False)
+    }
+    assert source_map[("grade", "A")].source_slack_v289 == pytest.approx(2.719538986206693e-05)
+    assert source_map[("score_decile", "0")].source_slack_v289 == pytest.approx(
+        3.2603218826920966e-05
+    )
+
+    blockers = _read_csv("paper4_v289_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v289"], blockers["blocking_v289"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v289"], blockers["evidence_count_v289"], strict=False)
+    )
+    assert bool(blocker_map["post_repair_pricing_missing"]) is True
+    assert bool(blocker_map["cardinality_policy_changed"]) is True
+    assert int(evidence_map["cardinality_policy_changed"]) == 3
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v289_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v289_exact_relief_repair_applied"]) is True
+    assert bool(claim_map["v289_small_return_gain_confirmed"]) is True
+    assert bool(claim_map["v289_working_champion"]) is False
+    assert bool(claim_map["v289_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v289_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v289 applied exact-relief repair candidate."])
+    assert bool(boundary_map["v289 is a new Paper 4 working champion."]) is False
+    assert bool(boundary_map["v289 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v289_rows = backlog.loc[backlog["last_wave"].eq("v289")]
+    assert len(v289_rows) == 1
+    backlog_row = v289_rows.iloc[0]
+    assert backlog_row["status"] == "exact_relief_repair_candidate_applied_requires_repricing"
+    assert backlog_row["next_artifact"] == "paper4_v290_post_exact_relief_reprice.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v289: Apply Exact-Relief Repair Candidate" in notebook
+    assert "Delta return vs v279: `0.7027606164265308`" in notebook
+    assert "Cardinality changed: `True`" in notebook
+    assert "post-repair repricing" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

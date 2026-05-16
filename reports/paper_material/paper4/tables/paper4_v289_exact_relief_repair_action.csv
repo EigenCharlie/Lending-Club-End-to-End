@@ -1,0 +1,2 @@
+candidate_rank_v289,added_loan_id_v289,added_loan_amount_v289,added_mean_return_v289,dropped_loan_ids_v289,dropped_rows_v289,drop_exposure_v289,drop_mean_return_v289,return_delta_v289,claim_boundary_v289
+299,160508188,11200.0,278.0362403815413,137182894|145033022|159357211|170387634,4,11350.0,277.3334797651132,0.7027606164280655,v288 exact relief signal applied; post-repair pricing still required

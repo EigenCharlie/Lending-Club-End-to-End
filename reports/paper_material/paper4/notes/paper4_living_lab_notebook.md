@@ -11171,3 +11171,49 @@ Keep v288 in the living notebook. The next step is applying and repricing the
 candidate, not promotion.
 
 <!-- V288_EXACT_RELIEF_RANK_EXPANSION_END -->
+
+<!-- V289_APPLY_EXACT_RELIEF_REPAIR_START -->
+
+## Wave v289: Apply Exact-Relief Repair Candidate
+
+Generated: 2026-05-16T14:02:13.170326+00:00
+
+### Objective
+
+Apply the v288 exact-relief signal to the v279 repaired portfolio and audit the
+resulting candidate. This is an application step, not a promotion step: the
+repair drops four selected loans, adds one source-tight candidate, and therefore
+changes cardinality.
+
+### Results
+
+- Added loan: `160508188`.
+- Dropped rows: `4`.
+- Selected rows after repair: `168`.
+- Objective return: `3103.2451758022526`.
+- Delta return vs v279: `0.7027606164265308`.
+- CVaR90 after repair: `98339.15073561847`.
+- Delta CVaR90 vs v279: `-95.97353781799029`.
+- Source cap violations: `0`.
+- Cardinality changed: `True`.
+- Post-repair pricing required: `True`.
+
+### Interpretation
+
+v289 confirms that the v288 signal is mechanically feasible and slightly
+improves return while lowering CVaR. The tradeoff is structural: the repair
+uses a 4-drop/1-add move, reducing selected rows from 171 to 168. That makes it
+a living-lab repair candidate requiring repricing and policy review, not a new
+champion.
+
+### Claim Impact
+
+- Allowed: applied exact-relief repair candidate with audited metrics.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v289 in the living notebook. The next step is post-repair repricing.
+
+<!-- V289_APPLY_EXACT_RELIEF_REPAIR_END -->
