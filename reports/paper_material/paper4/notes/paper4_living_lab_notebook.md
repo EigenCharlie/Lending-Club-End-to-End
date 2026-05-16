@@ -6240,3 +6240,48 @@ Keep v183 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V183_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V184_POST_V183_ONE_SWAP_REPRICE_START -->
+
+## Wave v184: Post-v183 One-Swap Repricing
+
+Generated: 2026-05-16T04:36:33.591427+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v183
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v183 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1738343`.
+- Exact source-feasible pairs: `840`.
+- CVaR-feasible improving one-swaps: `840`.
+- Best post-v183 one-swap return delta:
+  `50.16637163365709`.
+- Post-v183 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v184 is the required re-pricing after v183 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v183 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v184 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V184_POST_V183_ONE_SWAP_REPRICE_END -->
