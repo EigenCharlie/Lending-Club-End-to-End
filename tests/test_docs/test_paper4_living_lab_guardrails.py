@@ -28219,6 +28219,114 @@ def test_paper4_v281_larger_restricted_pool_milp_records_no_improvement() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v282_full_universe_gap_certificate_protocol_blocks_global_claim() -> None:
+    status = _read_json("paper4_v282_status.json")
+
+    assert status["phase"] == "v282_full_universe_gap_certificate_protocol"
+    assert status["schema_version"] == "2026-05-15.282"
+    assert status["prior_restricted_pool_version_v282"] == 281
+    assert status["incumbent_repair_version_v282"] == 279
+    assert status["terminal_reprice_version_v282"] == 280
+    assert status["universe_rows_v282"] == 276869
+    assert status["selected_rows_v282"] == 171
+    assert status["full_omitted_candidate_rows_v282"] == 276698
+    assert status["restricted_pool_rows_v282"] == 5183
+    assert status["restricted_omitted_candidate_rows_v282"] == 5012
+    assert status["restricted_pool_coverage_share_v282"] == pytest.approx(0.018720044497578275)
+    assert status["restricted_omitted_coverage_share_v282"] == pytest.approx(0.01811361122957159)
+    assert status["prior_restricted_pool_gap_v282"] == pytest.approx(0.0)
+    assert status["prior_restricted_pool_improvement_found_v282"] is False
+    assert status["estimated_full_binary_variables_v282"] == 276869
+    assert status["estimated_full_continuous_variables_v282"] == 129
+    assert status["estimated_full_constraint_rows_v282"] == 176
+    assert status["requirement_rows_v282"] == 6
+    assert status["requirements_satisfied_v282"] == 2
+    assert status["claim_blocker_rows_v282"] == 4
+    assert status["claim_matrix_rows_v282"] == 5
+    assert status["full_universe_model_built_v282"] is False
+    assert status["full_universe_bound_probe_executed_v282"] is False
+    assert status["full_universe_gap_certificate_available_v282"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v282"] is False
+    assert status["paper1_promotion_allowed_v282"] is False
+    assert status["paper4_working_champion_changed_v282"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v282"] == "paper4_v283_full_universe_integer_bound_probe.csv"
+
+    protocol = _read_csv("paper4_v282_full_universe_gap_certificate_protocol.csv")
+    row = protocol.iloc[0]
+    assert row["protocol_id_v282"] == "full_v55_integer_gap_certificate_protocol"
+    assert bool(row["terminal_one_swap_cleared_v282"]) is True
+    assert bool(row["full_universe_model_built_v282"]) is False
+    assert bool(row["full_universe_bound_probe_executed_v282"]) is False
+    assert bool(row["full_universe_gap_certificate_available_v282"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v282"]) is False
+    assert "not a full-v55 gap certificate" in str(row["claim_boundary_v282"])
+
+    requirements = _read_csv("paper4_v282_gap_certificate_requirements.csv")
+    assert len(requirements) == status["requirement_rows_v282"]
+    requirement_map = dict(
+        zip(
+            requirements["requirement_id_v282"],
+            requirements["satisfied_by_current_artifacts_v282"],
+            strict=False,
+        )
+    )
+    assert bool(requirement_map["incumbent_feasibility_audited"]) is True
+    assert bool(requirement_map["restricted_pool_gap_zero"]) is True
+    assert bool(requirement_map["complete_v55_candidate_coverage"]) is False
+    assert bool(requirement_map["full_integer_model_or_branch_price_built"]) is False
+    assert bool(requirement_map["valid_global_dual_bound_or_gap"]) is False
+    assert bool(requirement_map["promotion_gate_and_dynamic_replay"]) is False
+    missing = set(requirements["missing_artifact_v282"].dropna().astype(str))
+    assert "paper4_v283_full_universe_integer_bound_probe.csv" in missing
+    assert "future_dynamic_replay_and_promotion_gate" in missing
+
+    blockers = _read_csv("paper4_v282_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v282"], blockers["blocking_v282"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v282"], blockers["evidence_count_v282"], strict=False)
+    )
+    assert bool(blocker_map["restricted_pool_not_full_universe"]) is True
+    assert int(evidence_map["restricted_pool_not_full_universe"]) == 271686
+    assert bool(blocker_map["full_universe_gap_certificate_missing"]) is True
+    assert bool(blocker_map["global_integer_optimality_claim_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v282_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v282_full_universe_gap_protocol_executed"]) is True
+    assert bool(claim_map["v282_v281_restricted_pool_no_improvement"]) is True
+    assert bool(claim_map["v282_full_universe_gap_certificate"]) is False
+    assert bool(claim_map["v282_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v282_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v282 full-universe gap-certificate protocol."])
+    assert bool(
+        boundary_map["v281/v282 prove no improvement inside the expanded top-5000 restricted pool."]
+    )
+    assert bool(boundary_map["v282 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v282 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v282_rows = backlog.loc[backlog["last_wave"].eq("v282")]
+    assert len(v282_rows) == 1
+    backlog_row = v282_rows.iloc[0]
+    assert backlog_row["status"] == "full_universe_gap_certificate_protocol_created"
+    assert backlog_row["next_artifact"] == "paper4_v283_full_universe_integer_bound_probe.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v282: Full-Universe Gap-Certificate Protocol" in notebook
+    assert "Full-universe certificate available:\n  `False`" in notebook
+    assert "Exact full-universe claim allowed:\n  `False`" in notebook
+    assert "does not cover most v55 candidates" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,5 @@
+blocker_id_v282,blocking_v282,evidence_count_v282,required_next_artifact_v282,claim_boundary_v282
+restricted_pool_not_full_universe,True,271686,paper4_v283_full_universe_integer_bound_probe.csv,v281 omits most v55 candidate loans
+full_universe_gap_certificate_missing,True,1,paper4_v283_full_universe_integer_bound_probe.csv,no valid full-v55 integer dual bound or gap
+global_integer_optimality_claim_blocked,True,1,paper4_v283_full_universe_integer_bound_probe.csv,protocol does not prove global optimality
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

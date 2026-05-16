@@ -10825,3 +10825,50 @@ Keep v281 in the living notebook. Promote only after full-universe/global,
 dynamic validation and promotion gates pass.
 
 <!-- V281_RESTRICTED_POOL_MILP_GAP_PROBE_END -->
+
+<!-- V282_FULL_UNIVERSE_GAP_CERTIFICATE_PROTOCOL_START -->
+
+## Wave v282: Full-Universe Gap-Certificate Protocol
+
+Generated: 2026-05-16T12:58:09.372404+00:00
+
+### Objective
+
+Translate the v281 top-5000 restricted-pool no-improvement result into an
+explicit protocol for a future full-v55 integer optimality/gap certificate.
+This records what is already proven, what remains missing, and the next
+executable artifact required before any global claim is allowed.
+
+### Results
+
+- v55 universe rows: `276869`.
+- v281 restricted pool rows: `5183`.
+- Full omitted candidate rows: `276698`.
+- v281 omitted-pool coverage share:
+  `0.01811361122957159`.
+- v281 MILP gap:
+  `0.0`.
+- Full-universe certificate available:
+  `False`.
+- Exact full-universe claim allowed:
+  `False`.
+
+### Interpretation
+
+v281 is meaningful negative evidence inside an expanded restricted pool, but it
+does not cover most v55 candidates and does not provide a full-v55 integer dual
+bound. v282 therefore promotes no model; it only specifies the certificate
+requirements for the next bound-probe wave.
+
+### Claim Impact
+
+- Allowed: protocol and requirement checklist for a full-universe certificate.
+- Still prohibited: full-universe global integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v282 in the living notebook. Promote only after a full-v55 gap certificate,
+dynamic validation and promotion gates pass.
+
+<!-- V282_FULL_UNIVERSE_GAP_CERTIFICATE_PROTOCOL_END -->
