@@ -9618,3 +9618,48 @@ Keep v255 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V255_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V256_POST_V255_ONE_SWAP_REPRICE_START -->
+
+## Wave v256: Post-v255 One-Swap Repricing
+
+Generated: 2026-05-16T10:02:41.210708+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v255
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v255 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1662798`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v255 one-swap return delta:
+  `not applicable; no feasible improving one-swaps`.
+- Post-v255 local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v256 is the required re-pricing after v255 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v255 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v256 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V256_POST_V255_ONE_SWAP_REPRICE_END -->
