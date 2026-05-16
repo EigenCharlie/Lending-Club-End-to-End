@@ -7368,3 +7368,48 @@ Keep v207 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V207_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V208_POST_V207_ONE_SWAP_REPRICE_START -->
+
+## Wave v208: Post-v207 One-Swap Repricing
+
+Generated: 2026-05-16T06:13:28.208324+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v207
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v207 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1691811`.
+- Exact source-feasible pairs: `279`.
+- CVaR-feasible improving one-swaps: `279`.
+- Best post-v207 one-swap return delta:
+  `29.883111271598693`.
+- Post-v207 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v208 is the required re-pricing after v207 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v207 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v208 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V208_POST_V207_ONE_SWAP_REPRICE_END -->
