@@ -1,0 +1,5 @@
+blocker_id_v268,blocking_v268,evidence_count_v268,required_next_artifact_v268,claim_boundary_v268
+bounded_two_swap_improvement_found,False,0,paper4_v269_broader_three_swap_or_global_gap_probe.csv,no feasible improvement found inside this bounded two-swap frontier
+multi_swap_search_not_exhaustive,True,1,paper4_v269_broader_three_swap_or_global_gap_probe.csv,"v268 searches a bounded two-swap frontier, not all multi-loan exchanges"
+global_integer_gap_certificate_missing,True,1,paper4_v269_global_gap_certificate_protocol.csv,no global full-universe integer gap certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
