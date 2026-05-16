@@ -33184,6 +33184,183 @@ def test_paper4_v319_v316_cashflow_online_ifrs9_gate_remains_bounded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v320_matched_period_bounded_milp_requires_reprice() -> None:
+    status = _read_json("paper4_v320_status.json")
+
+    assert status["phase"] == "v320_v316_matched_period_or_branch_price_protocol"
+    assert status["schema_version"] == "2026-05-16.320"
+    assert status["base_version_v320"] == 316
+    assert status["match_target_version_v320"] == 295
+    assert status["gate_version_v320"] == 319
+    assert status["candidate_pool_limit_v320"] == 1500
+    assert status["pool_rows_v320"] == 1671
+    assert status["omitted_2019_rows_outside_pool_v320"] == 73839
+    assert status["constraint_rows_v320"] == 177
+    assert status["variable_count_v320"] == 1800
+    assert status["milp_success_v320"] is True
+    assert status["milp_gap_v320"] == pytest.approx(0.0)
+    assert status["selected_rows_v320"] == 171
+    assert status["added_rows_v320"] == 8
+    assert status["dropped_rows_v320"] == 8
+    assert status["portfolio_exposure_v320"] == pytest.approx(846500.0)
+    assert status["objective_return_v320"] == pytest.approx(4433.2752487568005)
+    assert status["delta_return_vs_v316_v320"] == pytest.approx(13.517257172022255)
+    assert status["delta_return_vs_v295_v320"] == pytest.approx(1183.316600809624)
+    assert status["scenario_loss_cvar90_v320"] == pytest.approx(96827.9133726903)
+    assert status["delta_cvar90_vs_v316_v320"] == pytest.approx(-156.13738719902176)
+    assert status["delta_cvar90_vs_v295_v320"] == pytest.approx(-398.49622346818796)
+    assert status["period_distribution_match_v320"] is True
+    assert status["period_matched_candidate_found_v320"] is True
+    assert status["observed_v47_proxy_rows_v320"] == 92
+    assert status["missing_v47_proxy_rows_v320"] == 79
+    assert status["source_cap_violations_v320"] == 0
+    assert status["min_source_slack_v320"] == pytest.approx(4.337422476963226e-06)
+    assert status["budget_feasible_v320"] is True
+    assert status["cvar_feasible_v320"] is True
+    assert status["source_feasible_v320"] is True
+    assert status["post_v320_repricing_required_v320"] is True
+    assert status["full_universe_integer_optimality_claim_allowed_v320"] is False
+    assert status["working_champion_claim_allowed_v320"] is False
+    assert status["paper1_promotion_allowed_v320"] is False
+    assert status["paper4_working_champion_changed_v320"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v320"] == "paper4_v321_post_v320_matched_period_reprice.csv"
+
+    summary = _read_csv("paper4_v320_v316_matched_period_or_branch_price_protocol.csv")
+    row = summary.iloc[0]
+    assert row["probe_id_v320"] == "v316_matched_period_or_branch_price_protocol"
+    assert int(row["pool_rows_v320"]) == 1671
+    assert bool(row["milp_success_v320"]) is True
+    assert bool(row["period_distribution_match_v320"]) is True
+    assert bool(row["period_matched_candidate_found_v320"]) is True
+    assert bool(row["post_v320_repricing_required_v320"]) is True
+    assert bool(row["working_champion_claim_allowed_v320"]) is False
+    assert "post-repair repricing/global gates still missing" in str(row["claim_boundary_v320"])
+
+    milp_summary = _read_csv("paper4_v320_matched_period_milp_summary.csv")
+    milp_row = milp_summary.iloc[0]
+    assert bool(milp_row["solver_success_v320"]) is True
+    assert int(milp_row["milp_status_v320"]) == 0
+    assert float(milp_row["milp_fun_v320"]) == pytest.approx(-4433.2752487568)
+    assert float(milp_row["milp_dual_bound_v320"]) == pytest.approx(-4433.2752487568)
+    assert int(milp_row["milp_node_count_v320"]) == 427
+    assert json.loads(milp_row["target_period_distribution_v320"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert json.loads(milp_row["solution_period_distribution_v320"]) == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert bool(milp_row["budget_feasible_v320"]) is True
+    assert bool(milp_row["cvar_feasible_v320"]) is True
+    assert bool(milp_row["source_feasible_v320"]) is True
+    assert bool(milp_row["post_v320_repricing_required_v320"]) is True
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v320_matched_period_allocations.parquet")
+    assert len(allocations) == 171
+    assert allocations["loan_id"].astype(str).nunique() == 171
+    assert float(allocations["loan_amnt"].sum()) == pytest.approx(846500.0)
+    assert allocations["period"].astype(str).value_counts().sort_index().to_dict() == {
+        "2018": 94,
+        "2019": 70,
+        "2020": 7,
+    }
+    assert allocations["pool_role_v320"].value_counts().to_dict() == {
+        "v316_selected_base": 163,
+        "top_omitted_2019_candidate": 8,
+    }
+    assert int(allocations["observed_v47_proxy_v320"].sum()) == 92
+    assert int((~allocations["observed_v47_proxy_v320"]).sum()) == 79
+
+    actions = _read_csv("paper4_v320_matched_period_actions.csv")
+    assert len(actions) == 16
+    assert actions["action_v320"].value_counts().to_dict() == {
+        "add_2019_candidate": 8,
+        "drop_v316_selected": 8,
+    }
+    assert "157784068" in set(
+        actions.loc[actions["action_v320"].eq("add_2019_candidate"), "loan_id"].astype(str)
+    )
+    assert "131848660" in set(
+        actions.loc[actions["action_v320"].eq("drop_v316_selected"), "loan_id"].astype(str)
+    )
+    assert (
+        not actions.loc[actions["action_v320"].eq("add_2019_candidate"), "observed_v47_proxy_v320"]
+        .astype(bool)
+        .all()
+    )
+
+    source = _read_csv("paper4_v320_matched_period_source_summary.csv")
+    assert not source["source_cap_violated_v320"].astype(bool).any()
+    grade_a = source.loc[source["source_family"].eq("grade") & source["source_id"].eq("A")].iloc[0]
+    assert float(grade_a["source_exposure_v320"]) == pytest.approx(722175.0)
+    assert float(grade_a["source_share_v320"]) == pytest.approx(0.8531305375073833)
+    assert float(grade_a["source_slack_v320"]) == pytest.approx(4.337422476963226e-06)
+
+    protocol = _read_csv("paper4_v320_protocol_steps.csv")
+    protocol_map = dict(zip(protocol["step_id_v320"], protocol["executed_v320"], strict=False))
+    assert bool(protocol_map["bounded_matched_period_milp"]) is True
+    assert bool(protocol_map["post_v320_one_swap_reprice"]) is False
+    assert bool(protocol_map["full_universe_branch_price_certificate"]) is False
+    assert bool(protocol_map["cashflow_online_gate_after_repair"]) is False
+
+    blockers = _read_csv("paper4_v320_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v320"], blockers["blocking_v320"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v320"], blockers["evidence_count_v320"], strict=False)
+    )
+    assert bool(blocker_map["bounded_pool_not_full_universe"]) is True
+    assert int(evidence_map["bounded_pool_not_full_universe"]) == 73839
+    assert bool(blocker_map["post_v320_reprice_missing"]) is True
+    assert bool(blocker_map["branch_price_certificate_missing"]) is True
+    assert bool(blocker_map["cashflow_online_gate_after_repair_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v320_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v320_bounded_matched_period_milp_executed"]) is True
+    assert bool(claim_map["v320_period_matched_candidate_found"]) is True
+    assert bool(claim_map["v320_improves_return_and_lowers_cvar_vs_v316"]) is True
+    assert bool(claim_map["v320_post_repair_local_optimality"]) is False
+    assert bool(claim_map["v320_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v320_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v320 bounded matched-period MILP after v316."])
+    assert bool(
+        boundary_map[
+            "v320 finds a period-matched bounded repair improving return and CVaR vs v316."
+        ]
+    )
+    assert bool(boundary_map["v320 repaired portfolio is post-repair locally optimal."]) is False
+    assert bool(boundary_map["v320 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v320 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v320_rows = backlog.loc[backlog["last_wave"].eq("v320")]
+    assert len(v320_rows) == 1
+    backlog_row = v320_rows.iloc[0]
+    assert backlog_row["status"] == "bounded_matched_period_repair_found_requires_repricing"
+    assert backlog_row["next_artifact"] == "paper4_v321_post_v320_matched_period_reprice.csv"
+    assert backlog_row["execution_result"] == (
+        "period_matched_candidate_improves_return_and_cvar_bounded_pool"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v320: Matched-Period Bounded MILP" in notebook
+    assert "Period distribution matched:\n  `True`" in notebook
+    assert "Delta return vs v316:\n  `13.517257172022255`" in notebook
+    assert "Delta CVaR90 vs v316:\n  `-156.13738719902176`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

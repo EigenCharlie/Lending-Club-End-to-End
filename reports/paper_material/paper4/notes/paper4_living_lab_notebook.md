@@ -12717,3 +12717,56 @@ certificate gap continue to block live, contractual and champion claims.
 Keep v319 in the living notebook. Promotion remains blocked.
 
 <!-- V319_V316_CASHFLOW_ONLINE_IFRS9_GATE_END -->
+
+<!-- V320_MATCHED_PERIOD_BOUNDED_MILP_START -->
+
+## Wave v320: Matched-Period Bounded MILP
+
+Generated: 2026-05-16T21:31:43.489906+00:00
+
+### Objective
+
+v318 showed that v316 beats v295 in final-period proxy metrics but has a period
+distribution mismatch. v320 tests whether a bounded repair can match the v295
+94/70/7 period distribution while preserving budget, source caps and CVaR.
+
+### Results
+
+- Candidate pool rows: `1671`.
+- Omitted 2019 candidates used: `1500`.
+- MILP success:
+  `True`.
+- Selected rows: `171`.
+- Added rows: `8`.
+- Dropped rows: `8`.
+- Period distribution matched:
+  `True`.
+- Objective return: `4433.2752487568005`.
+- Delta return vs v316:
+  `13.517257172022255`.
+- Scenario CVaR90: `96827.9133726903`.
+- Delta CVaR90 vs v316:
+  `-156.13738719902176`.
+- Post-v320 repricing required:
+  `True`.
+
+### Interpretation
+
+v320 is a high-value bounded repair: it closes the period-distribution mismatch
+while improving return and lowering CVaR versus v316. This still cannot promote
+Paper 4 because the solution is bounded to a candidate pool, needs post-repair
+repricing, and lacks a full-universe branch-price certificate.
+
+### Claim Impact
+
+- Allowed: bounded matched-period MILP repair candidate after v316.
+- Still prohibited: post-repair local optimality, full-universe global
+  optimality, live deployment, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v320 in the living notebook. The next wave should reprice the v320 repaired
+candidate against the comparable universe.
+
+<!-- V320_MATCHED_PERIOD_BOUNDED_MILP_END -->

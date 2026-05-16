@@ -1,0 +1,17 @@
+action_v320,loan_id,loan_amnt,grade,score_decile,income_band,dti_band,period,state_top20,mean_return_v320,observed_v47_proxy_v320,claim_boundary_v320
+add_2019_candidate,157784068,3500.0,A,0,4,2,2019,VA,83.46580640270655,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,157962180,3500.0,A,0,3,0,2019,CA,83.3235960467994,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,157156774,2800.0,A,0,4,0,2019,MA,64.94258185424991,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,148128009,2500.0,A,0,4,0,2019,CA,54.46218936898403,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,148145784,1000.0,A,0,2,0,2019,MA,17.206177509043172,True,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,148017643,1000.0,A,0,4,0,2019,other,16.62722525875585,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,151083962,1000.0,A,0,4,1,2019,CA,15.210760883521466,False,matched-period bounded MILP action list; not a full-universe certificate
+add_2019_candidate,145955296,1000.0,A,0,3,2,2019,TX,14.863146116677438,False,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,158810156,3175.0,A,0,3,0,2019,CO,72.86147838454163,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,145977956,3000.0,A,0,3,0,2019,other,68.37566207938511,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,147190807,2500.0,A,0,1,0,2019,IL,55.06806314688965,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,143261301,2200.0,A,0,2,0,2018,CA,45.41923329018861,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,131848660,2000.0,A,0,3,0,2018,TX,36.599201666225746,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,151825245,1200.0,A,0,4,0,2019,OH,24.73291306022574,False,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,142919800,1200.0,A,0,3,1,2018,other,19.50309123128734,True,matched-period bounded MILP action list; not a full-universe certificate
+drop_v316_selected,136360475,1000.0,A,0,2,2,2018,NC,14.024583409971672,True,matched-period bounded MILP action list; not a full-universe certificate
