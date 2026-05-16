@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v264_post_v263_bounded_two_swap_one_swap_reprice_executed,True,paper4_v264_post_bounded_two_swap_one_swap_summary.csv,post-v263 one-drop/one-add screen completed
+v264_post_v263_one_swap_local_optimality,True,paper4_v264_claim_blockers.csv,allowed only when no feasible improving post-v263 one-swaps remain
+v264_multi_swap_or_global_integer_optimality,False,paper4_v264_claim_blockers.csv,broader multi-swap/global gap evidence missing
+v264_paper1_or_final_promotion,False,paper4_v264_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

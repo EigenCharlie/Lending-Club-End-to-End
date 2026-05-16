@@ -9993,3 +9993,48 @@ Keep v263 in the living notebook. Promote only after post-repair pricing,
 broader multi-swap/global and dynamic validation gates pass.
 
 <!-- V263_BOUNDED_TWO_SWAP_REPAIR_END -->
+
+<!-- V264_POST_V263_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_START -->
+
+## Wave v264: Post-v263 Bounded Two-Swap One-Swap Repricing
+
+Generated: 2026-05-16T11:12:19.842860+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v263 bounded two-swap repair,
+using all non-selected loans from the comparable v55 universe as possible
+additions. This tests whether the v263 repaired candidate is one-swap locally
+optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1655166`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v263 one-swap return delta:
+  `not applicable; no feasible improving one-swaps`.
+- Post-v263 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v264 is the required re-pricing after v263 changed the portfolio with a bounded
+two-swap. If feasible improving one-swaps remain, the lab should continue a
+repair/reprice loop; if it clears, the remaining blocker is broader
+multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v263 bounded two-swap one-swap pricing screen completed.
+- Still prohibited: broader multi-swap/global integer optimality, Paper
+  Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v264 in the living notebook. Promote only after broader integer/dynamic
+and promotion gates pass.
+
+<!-- V264_POST_V263_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_END -->
