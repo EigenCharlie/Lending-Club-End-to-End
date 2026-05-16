@@ -12258,3 +12258,55 @@ coverage and drops one with observed coverage.
 Keep v310 in the living notebook. The next wave must reprice v310.
 
 <!-- V310_APPLY_POST_V308_SWAP_END -->
+
+<!-- V311_POST_V310_ONE_SWAP_REPRICE_START -->
+
+## Wave v311: Post-v310 One-Swap Repricing Gate
+
+Generated: 2026-05-16T20:30:15.209544+00:00
+
+### Objective
+
+v310 applied the best feasible v309 repair. v311 tests whether that repaired
+candidate has one-drop/one-add stability against the full comparable universe
+under the v310 CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1457015`.
+- Budget+return feasible pairs: `602329`.
+- Source prefilter pairs: `53127`.
+- Exact source-feasible pairs: `20`.
+- CVaR-feasible improving one-swaps: `2`.
+- Best source-exact return delta: `5.376772278224863`.
+- Best CVaR-feasible return delta: `0.5559907472346772`.
+- Current missing v47 proxy rows:
+  `71`.
+- Best feasible delta missing proxy rows:
+  `1`.
+- Post-v310 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v311 either clears the post-v310 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v310 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v311 in the living notebook. Promotion remains blocked.
+
+<!-- V311_POST_V310_ONE_SWAP_REPRICE_END -->
