@@ -27853,6 +27853,130 @@ def test_paper4_v278_larger_restricted_pool_milp_finds_bounded_improvement() -> 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v279_restricted_pool_milp_repair_requires_repricing() -> None:
+    status = _read_json("paper4_v279_status.json")
+
+    assert status["phase"] == "v279_restricted_pool_milp_repair"
+    assert status["schema_version"] == "2026-05-15.279"
+    assert status["source_probe_version_v279"] == 278
+    assert status["allocation_rows_v279"] == 171
+    assert status["summary_rows_v279"] == 1
+    assert status["action_rows_v279"] == 10
+    assert status["source_summary_rows_v279"] == 51
+    assert status["claim_blocker_rows_v279"] == 4
+    assert status["claim_matrix_rows_v279"] == 5
+    assert status["selected_rows_v279"] == 171
+    assert status["added_rows_v279"] == 5
+    assert status["dropped_rows_v279"] == 5
+    assert status["portfolio_exposure_v279"] == pytest.approx(843625.0)
+    assert status["objective_return_v279"] == pytest.approx(3102.542415185826)
+    assert status["scenario_loss_cvar90_v279"] == pytest.approx(98435.12427343646)
+    assert status["source_cap_violations_v279"] == 0
+    assert status["delta_return_vs_v276_v279"] == pytest.approx(8.757896765837359)
+    assert status["delta_cvar90_vs_v276_v279"] == pytest.approx(-275.91294424973603)
+    assert status["delta_exposure_vs_v276_v279"] == pytest.approx(100.0)
+    assert status["budget_feasible_v279"] is True
+    assert status["source_feasible_v279"] is True
+    assert status["cvar_feasible_v279"] is True
+    assert status["repair_candidate_feasible_v279"] is True
+    assert status["post_repair_local_optimality_claim_allowed_v279"] is False
+    assert status["restricted_pool_global_optimality_claim_allowed_v279"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v279"] is False
+    assert status["paper1_promotion_allowed_v279"] is False
+    assert status["paper4_working_champion_changed_v279"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v279_restricted_pool_milp_repair_allocations.parquet"
+    )
+    assert len(allocations) == status["allocation_rows_v279"]
+    assert int(allocations["selected_v279"].sum()) == status["selected_rows_v279"]
+    action_counts = allocations["repair_action_v279"].value_counts().to_dict()
+    assert action_counts["added_by_restricted_pool_milp"] == status["added_rows_v279"]
+    assert action_counts["kept_from_v276"] == 166
+    assert allocations["claim_boundary_v279"].str.contains("requires post-repair repricing").all()
+
+    summary = _read_csv("paper4_v279_restricted_pool_milp_repair_summary.csv")
+    row = summary.iloc[0]
+    assert row["portfolio_label_v279"] == "restricted_pool_milp_repair_candidate"
+    assert int(row["source_probe_version_v279"]) == 278
+    assert bool(row["repair_candidate_feasible_v279"]) is True
+    assert bool(row["post_repair_pricing_required_v279"]) is True
+    assert bool(row["restricted_pool_global_optimality_claim_allowed_v279"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v279"]) is False
+    assert float(row["max_source_share_v279"]) == pytest.approx(0.8999851829900726)
+    assert float(row["min_source_slack_v279"]) == pytest.approx(1.0773302159261533e-06)
+    assert "must rerun post-repair pricing" in str(row["claim_boundary_v279"])
+
+    action = _read_csv("paper4_v279_restricted_pool_milp_repair_action.csv")
+    assert len(action) == status["action_rows_v279"]
+    added_ids = set(
+        action.loc[action["action_v279"].eq("added_by_restricted_pool_milp"), "loan_id"].astype(str)
+    )
+    dropped_ids = set(
+        action.loc[action["action_v279"].eq("dropped_by_restricted_pool_milp"), "loan_id"].astype(
+            str
+        )
+    )
+    assert added_ids == {
+        "137182894",
+        "138240169",
+        "152268188",
+        "159357211",
+        "170387634",
+    }
+    assert dropped_ids == {
+        "138138354",
+        "143359641",
+        "145359336",
+        "156899870",
+        "160508188",
+    }
+
+    source_summary = _read_csv("paper4_v279_restricted_pool_milp_repair_source_summary.csv")
+    assert len(source_summary) == status["source_summary_rows_v279"]
+    assert not source_summary["source_cap_violated_v279"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v279_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v279"], blockers["blocking_v279"], strict=False))
+    assert bool(blocker_map["restricted_pool_milp_repair_candidate_created"]) is False
+    assert bool(blocker_map["post_repair_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v279_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v279_restricted_pool_milp_repair_executed"]) is True
+    assert bool(claim_map["v279_repair_candidate_feasible"]) is True
+    assert bool(claim_map["v279_post_repair_local_optimality"]) is False
+    assert bool(claim_map["v279_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v279_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v279 restricted-pool MILP repair candidate."])
+    assert bool(boundary_map["v279 repaired portfolio is post-repair locally optimal."]) is False
+    assert bool(boundary_map["v279 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v279 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v279_rows = backlog.loc[backlog["last_wave"].eq("v279")]
+    assert len(v279_rows) == 1
+    backlog_row = v279_rows.iloc[0]
+    assert backlog_row["status"] == "post_restricted_pool_milp_repair_pricing_required"
+    assert backlog_row["next_artifact"] == "paper4_v280_post_restricted_pool_milp_reprice.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v279: Restricted-Pool MILP Repair Candidate" in notebook
+    assert "Return delta vs v276:\n  `8.757896765837359`" in notebook
+    assert "CVaR90 delta vs v276:\n  `-275.91294424973603`" in notebook
+    assert "does not make\nthe portfolio locally or globally optimal" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

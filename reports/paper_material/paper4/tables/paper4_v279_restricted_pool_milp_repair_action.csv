@@ -1,0 +1,11 @@
+action_v279,loan_id,loan_amnt,mean_return_v279,grade,score_decile,income_band,dti_band,period,state_top20,claim_boundary_v279
+added_by_restricted_pool_milp,138240169,35000.0,858.3018037609215,A,0,4,0,2018,GA,restricted-pool MILP repair action list; not full-universe proof
+added_by_restricted_pool_milp,137182894,1800.0,44.22659987973943,A,0,2,1,2018,TX,restricted-pool MILP repair action list; not full-universe proof
+added_by_restricted_pool_milp,152268188,1500.0,39.51005205920334,A,0,2,1,2019,other,restricted-pool MILP repair action list; not full-universe proof
+added_by_restricted_pool_milp,159357211,1500.0,37.236996479670715,A,0,1,0,2019,NV,restricted-pool MILP repair action list; not full-universe proof
+added_by_restricted_pool_milp,170387634,3000.0,72.71865378192913,A,0,1,0,2020,NY,restricted-pool MILP repair action list; not full-universe proof
+dropped_by_restricted_pool_milp,160508188,11200.0,278.0362403815413,A,0,4,0,2019,PA,restricted-pool MILP repair action list; not full-universe proof
+dropped_by_restricted_pool_milp,138138354,8000.0,196.18326943106774,A,0,4,1,2018,MD,restricted-pool MILP repair action list; not full-universe proof
+dropped_by_restricted_pool_milp,145359336,8000.0,195.09105682974084,A,0,2,1,2018,other,restricted-pool MILP repair action list; not full-universe proof
+dropped_by_restricted_pool_milp,143359641,12750.0,308.18374619738734,A,0,3,1,2018,CO,restricted-pool MILP repair action list; not full-universe proof
+dropped_by_restricted_pool_milp,156899870,2750.0,65.74189635588623,A,0,3,2,2019,NC,restricted-pool MILP repair action list; not full-universe proof
