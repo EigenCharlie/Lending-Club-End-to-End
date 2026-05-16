@@ -1,0 +1,6 @@
+blocker_id_v337,blocking_v337,evidence_count_v337,required_next_artifact_v337,claim_boundary_v337
+post_v336_one_swap_improvement_found,True,2,paper4_v338_apply_next_post_v336_swap.csv,feasible improving post-v336 one-swaps block local optimality
+post_v336_repair_not_working_champion,True,1,paper4_v338_apply_next_post_v336_swap.csv,local repricing evidence only
+proxy_coverage_gap_persists,True,73,future_cashflow_proxy_or_ifrs9_coverage_gate,v336 candidate still has missing v47 proxy rows
+global_dynamic_online_gates_missing,True,1,future_global_dynamic_online_validation,"no global, dynamic, online or deployment gate created"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

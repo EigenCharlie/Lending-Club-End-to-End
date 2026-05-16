@@ -13623,3 +13623,55 @@ Keep v336 in the living notebook. The next wave should reprice the v336
 candidate without promotion.
 
 <!-- V336_APPLY_NEXT_POST_V334_SWAP_END -->
+
+<!-- V337_POST_V336_ONE_SWAP_REPRICE_START -->
+
+## Wave v337: Post-v336 One-Swap Repricing Gate
+
+Generated: 2026-05-16T23:28:15.353386+00:00
+
+### Objective
+
+v336 applied the best v335 feasible swap. v337 tests whether that candidate has
+one-drop/one-add stability against the full comparable universe under the v336
+CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1452268`.
+- Budget+return feasible pairs: `736228`.
+- Source prefilter pairs: `12361`.
+- Exact source-feasible pairs: `17`.
+- CVaR-feasible improving one-swaps: `2`.
+- Best source-exact return delta: `2.6026418487841774`.
+- Best CVaR-feasible return delta: `1.8728137199666328`.
+- Current missing v47 proxy rows:
+  `73`.
+- Best feasible delta missing proxy rows:
+  `1`.
+- Post-v336 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v337 either clears the post-v336 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v336 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v337 in the living notebook. Promotion remains blocked.
+
+<!-- V337_POST_V336_ONE_SWAP_REPRICE_END -->
