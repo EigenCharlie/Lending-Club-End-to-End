@@ -12822,3 +12822,69 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v321 in the living notebook. Promotion remains blocked.
 
 <!-- V321_POST_V320_ONE_SWAP_REPRICE_END -->
+
+<!-- V322_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V320_START -->
+
+## Wave v322: Dynamic Proxy / Global Bound After v320
+
+Generated: 2026-05-16T21:46:42.873499+00:00
+
+### Objective
+
+v321 cleared post-v320 one-swap local optimality. v322 moves to the next
+blocker: compare v320 against the v295 target-distribution reference and the
+v316 immediate base, audit v47 proxy coverage, and keep the full-universe/global
+proof boundary explicit.
+
+### Results
+
+- Dynamic proxy trace rows: `1152`.
+- Dynamic proxy policies: `3`.
+- Common period set match:
+  `True`.
+- Matched period distribution:
+  `True`.
+- Delta return v320 vs v295:
+  `1183.316600809624`.
+- Delta CVaR90 v320 vs v295:
+  `-398.49622346818796`.
+- v320 static-book proxy beats v295:
+  `True`.
+- Delta return v320 vs v316:
+  `13.517257172022255`.
+- Delta CVaR90 v320 vs v316:
+  `-156.1373871990363`.
+- v320 static-book proxy beats v316:
+  `True`.
+- v320 observed v47 proxy rows:
+  `92`.
+- v320 missing v47 proxy rows:
+  `79`.
+- Full-universe gap certificate:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v322 strengthens the v320 story: the final-period static-book proxy comparison
+shows higher return and lower CVaR than both v295 and v316, while matching the
+v295 target period distribution. The claim remains bounded because v320 worsens
+observed v47 proxy coverage to 92 observed / 79 missing rows, v316 has a
+different period distribution, and no branch-price/global certificate or live
+deployment replay exists.
+
+### Claim Impact
+
+- Allowed: v322 dynamic/global audit and final-period static-book proxy
+  comparison.
+- Still prohibited: matched-period dynamic superiority, contractual IFRS9,
+  full-universe global optimality, live deployment, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v322 in the living notebook. The next wave should build v320-specific
+cashflow, online and IFRS9 proxy gates without promoting.
+
+<!-- V322_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V320_END -->

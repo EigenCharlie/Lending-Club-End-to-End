@@ -1,0 +1,9 @@
+claim_id,allowed,artifact,boundary
+v322_dynamic_global_gate_executed,True,paper4_v322_dynamic_proxy_or_global_bound_after_v320.csv,gate audit plus dynamic proxy replay
+v322_v320_final_static_proxy_beats_v295,True,paper4_v322_dynamic_proxy_summary.csv,final-period static-book proxy only
+v322_v320_final_static_proxy_beats_v316,True,paper4_v322_dynamic_proxy_summary.csv,final-period static-book proxy only
+v322_v320_matches_v295_period_distribution,True,paper4_v322_dynamic_proxy_or_global_bound_after_v320.csv,static-book issue-period composition only
+v322_matched_period_dynamic_superiority,False,paper4_v322_claim_blockers.csv,"target period distribution matched, but no live deployment replay"
+v322_contractual_ifrs9_or_full_proxy_coverage,False,paper4_v322_proxy_coverage_comparison.csv,v320 still has missing v47 proxy rows
+v322_full_universe_gap_certificate,False,paper4_v322_claim_blockers.csv,global certificate missing
+v322_working_champion_or_final_promotion,False,paper4_v322_claim_blockers.csv,working champion and final promotion remain blocked
