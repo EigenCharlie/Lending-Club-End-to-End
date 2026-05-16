@@ -11416,3 +11416,47 @@ Keep v293 in the living notebook. The next live-lab step is applying/repricing
 the v293 challenger, not promotion.
 
 <!-- V293_DIVERSE_POOL_RETURN_GAP_PROBE_END -->
+
+<!-- V294_POST_V293_ONE_SWAP_REPRICE_START -->
+
+## Wave v294: Post-v293 One-Swap Repricing
+
+Generated: 2026-05-16T15:10:23.734545+00:00
+
+### Objective
+
+v293 found a bounded diverse-pool challenger. v294 tests whether that challenger
+has local one-drop/one-add stability against the full comparable universe under
+the same budget, exact source caps and v293 CVaR cap.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1615662`.
+- Budget+return feasible pairs: `998656`.
+- Source prefilter pairs: `3634`.
+- Exact source-feasible pairs: `0`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best post-v293 one-swap return delta: `not applicable; no feasible improving one-swaps`.
+- Post-v293 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v294 either clears the immediate one-swap repricing gate or identifies the next
+repair action. In both cases it remains bounded/local evidence, not a global
+optimality or deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v293 one-swap repricing screen completed.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v294 in the living notebook. Promotion remains blocked.
+
+<!-- V294_POST_V293_ONE_SWAP_REPRICE_END -->
