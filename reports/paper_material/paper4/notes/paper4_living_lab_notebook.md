@@ -13776,3 +13776,76 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v339 in the living notebook. Promotion remains blocked.
 
 <!-- V339_POST_V338_ONE_SWAP_REPRICE_END -->
+
+<!-- V340_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V338_START -->
+
+## Wave v340: Dynamic Proxy / Global Bound After v338
+
+Generated: 2026-05-16T23:49:19.855414+00:00
+
+### Objective
+
+v339 cleared post-v338 one-swap local optimality. v340 moves to the next
+blocker: compare v338 against the v295 target-distribution reference and the
+v316 immediate base, position it against the prior v330 frontier candidate,
+audit v47 proxy coverage, and keep the full-universe/global proof boundary explicit.
+
+### Results
+
+- Dynamic proxy trace rows: `1536`.
+- Dynamic proxy policies: `4`.
+- Common period set match:
+  `True`.
+- Matched period distribution:
+  `True`.
+- Delta return v338 vs v295:
+  `1175.951915832211`.
+- Delta CVaR90 v338 vs v295:
+  `-840.4330705963512`.
+- v338 static-book proxy beats v295:
+  `True`.
+- Delta return v338 vs v316:
+  `6.1525721946090925`.
+- Delta CVaR90 v338 vs v316:
+  `-598.0742343271995`.
+- v338 static-book proxy beats v316:
+  `True`.
+- Delta return v338 vs v330:
+  `-2.220351325736374`.
+- Delta CVaR90 v338 vs v330:
+  `-165.61633453071408`.
+- v338 lower-CVaR frontier tradeoff vs v330:
+  `True`.
+- v338 observed v47 proxy rows:
+  `97`.
+- v338 missing v47 proxy rows:
+  `74`.
+- Full-universe gap certificate:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v340 strengthens the v338 story: the final-period static-book proxy comparison
+shows higher return and lower CVaR than both v295 and v316, while matching the
+v295 target period distribution. Against v330, v338 is not a dominance result:
+it gives up return but lowers CVaR. The claim remains bounded because v338 keeps
+97 observed / 74 missing v47 proxy rows, v316 has a different period
+distribution, and no branch-price/global certificate or live deployment replay
+exists.
+
+### Claim Impact
+
+- Allowed: v340 dynamic/global audit and final-period static-book proxy
+  comparison.
+- Still prohibited: matched-period dynamic superiority, contractual IFRS9,
+  full-universe global optimality, live deployment, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v340 in the living notebook. The next wave should build v338-specific
+cashflow, online and IFRS9 proxy gates without promoting.
+
+<!-- V340_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V338_END -->
