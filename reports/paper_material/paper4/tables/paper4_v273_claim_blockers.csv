@@ -1,0 +1,5 @@
+blocker_id_v273,blocking_v273,evidence_count_v273,required_next_artifact_v273,claim_boundary_v273
+restricted_pool_milp_repair_candidate_created,False,1,paper4_v273_restricted_pool_milp_repair_summary.csv,candidate exists only if budget/source/CVaR remain feasible
+post_repair_pricing_missing,True,1,paper4_v274_post_restricted_pool_milp_reprice.csv,repair must be re-priced after v273
+global_integer_gap_certificate_missing,True,1,paper4_v274_full_universe_gap_certificate_protocol.csv,restricted-pool repair is not a full-universe gap certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

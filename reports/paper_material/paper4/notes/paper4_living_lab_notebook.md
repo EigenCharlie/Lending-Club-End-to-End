@@ -10414,3 +10414,48 @@ Keep v272 in the living notebook. Promote only after full-universe/global,
 dynamic validation and promotion gates pass.
 
 <!-- V272_RESTRICTED_POOL_MILP_GAP_PROBE_END -->
+
+<!-- V273_RESTRICTED_POOL_MILP_REPAIR_START -->
+
+## Wave v273: Restricted-Pool MILP Repair Candidate
+
+Generated: 2026-05-16T12:21:04.710582+00:00
+
+### Objective
+
+Apply the v272 restricted-pool MILP incumbent as a candidate portfolio and
+recompute exposure, return, source and CVaR metrics. This converts a restricted
+search signal into a concrete repair candidate for the next repricing loop.
+
+### Results
+
+- Added loans: `7`.
+- Dropped loans: `7`.
+- Selected rows after repair: `171`.
+- Return delta vs v270:
+  `21.83755435545754`.
+- CVaR90 delta vs v270:
+  `-211.67475655430462`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+
+### Interpretation
+
+v273 creates a feasible restricted-pool MILP repair candidate. It does not make
+the portfolio locally or globally optimal; the next required step is post-v273
+repricing and then broader/global validation.
+
+### Claim Impact
+
+- Allowed: restricted-pool MILP repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe global integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v273 in the living notebook. Promote only after post-repair pricing,
+full-universe/global, dynamic validation and promotion gates pass.
+
+<!-- V273_RESTRICTED_POOL_MILP_REPAIR_END -->
