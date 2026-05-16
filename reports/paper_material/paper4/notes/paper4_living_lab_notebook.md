@@ -13675,3 +13675,52 @@ local move cannot quietly become an IFRS9 or live-deployment claim.
 Keep v337 in the living notebook. Promotion remains blocked.
 
 <!-- V337_POST_V336_ONE_SWAP_REPRICE_END -->
+
+<!-- V338_APPLY_NEXT_POST_V336_SWAP_START -->
+
+## Wave v338: Apply Next Post-v336 Swap
+
+Generated: 2026-05-16T23:33:24.836910+00:00
+
+### Objective
+
+v337 found two CVaR-feasible return-improving one-swaps for the v336
+candidate. v338 applies the best feasible swap and recalculates the candidate
+book.
+
+### Results
+
+- Applied added loan: `127648167`.
+- Applied dropped loan: `136360475`.
+- Return delta vs v336:
+  `1.8728137199668708`.
+- CVaR90 delta vs v336:
+  `-10.352676686205086`.
+- Observed proxy rows: `97`.
+- Missing proxy rows: `74`.
+- Missing proxy delta vs v336:
+  `1`.
+- Post-v338 repricing required:
+  `True`.
+
+### Interpretation
+
+v338 pushes the v336 candidate further on return and CVaR, but it does so by
+sacrificing one observed proxy loan. The resulting book is a new candidate that
+must be repriced; it is not locally optimal, live deployable, or a working
+champion.
+
+### Claim Impact
+
+- Allowed: applied one-swap candidate, static return/CVaR improvement versus
+  the v336 candidate.
+- Still prohibited: local optimality after v338, full-universe optimality,
+  contractual IFRS9, live deployment, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v338 in the living notebook. The next wave should reprice the v338
+candidate without promotion.
+
+<!-- V338_APPLY_NEXT_POST_V336_SWAP_END -->

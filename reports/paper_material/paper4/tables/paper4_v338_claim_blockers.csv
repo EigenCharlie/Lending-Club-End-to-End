@@ -1,0 +1,5 @@
+blocker_id_v338,blocking_v338,evidence_count_v338,required_next_artifact_v338,claim_boundary_v338
+post_v338_reprice_missing,True,1,paper4_v339_post_v338_reprice.csv,applied swap must be repriced before local claim
+proxy_coverage_worsens_vs_v336,True,1,future_proxy_coverage_repair_gate,best return/CVaR swap adds one missing proxy row
+global_dynamic_online_gates_missing,True,1,future_global_dynamic_online_validation,"no global, dynamic, online or deployment gate created"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
