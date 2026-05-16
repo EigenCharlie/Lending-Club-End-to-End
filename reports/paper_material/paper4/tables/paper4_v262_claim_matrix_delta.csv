@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v262_bounded_two_swap_probe_executed,True,paper4_v262_bounded_two_swap_summary.csv,bounded source-relief two-swap probe after v261 local clearance
+v262_bounded_two_swap_improvement_found,True,paper4_v262_bounded_two_swap_top_candidates.csv,existence claim only within bounded post-v260 two-swap frontier
+v262_multi_swap_or_global_integer_optimality,False,paper4_v262_claim_blockers.csv,bounded two-swap probe is not exhaustive/global
+v262_paper1_or_final_promotion,False,paper4_v262_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
