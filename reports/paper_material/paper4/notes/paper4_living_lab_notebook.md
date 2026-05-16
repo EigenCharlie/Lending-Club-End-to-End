@@ -9339,3 +9339,48 @@ Keep v249 in the living notebook. Promote only after post-repair pricing,
 broader multi-swap/global and dynamic validation gates pass.
 
 <!-- V249_BOUNDED_TWO_SWAP_REPAIR_END -->
+
+<!-- V250_POST_V249_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_START -->
+
+## Wave v250: Post-v249 Bounded Two-Swap One-Swap Repricing
+
+Generated: 2026-05-16T09:36:33.386462+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v249 bounded two-swap
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v249 candidate is one-swap locally
+optimal after the two-loan exchange.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1664059`.
+- Exact source-feasible pairs: `77`.
+- CVaR-feasible improving one-swaps: `77`.
+- Best post-v249 one-swap return delta:
+  `15.229636341461529`.
+- Post-v249 one-swap local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v250 is the required re-pricing after v249 changed the portfolio with a
+bounded two-swap. If additional feasible improving one-swaps remain, the lab
+should continue a repair/reprice loop from the v249 portfolio; if it clears,
+the remaining blocker is broader multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v249 bounded two-swap one-swap pricing screen completed.
+- Still prohibited: broader multi-swap/global integer optimality, Paper
+  Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v250 in the living notebook. Promote only after broader integer/dynamic
+and promotion gates pass.
+
+<!-- V250_POST_V249_BOUNDED_TWO_SWAP_ONE_SWAP_REPRICE_END -->

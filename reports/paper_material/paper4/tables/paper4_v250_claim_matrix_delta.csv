@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v250_post_v249_bounded_two_swap_one_swap_reprice_executed,True,paper4_v250_post_bounded_two_swap_one_swap_summary.csv,post-v249 one-drop/one-add screen completed
+v250_post_v249_one_swap_local_optimality,False,paper4_v250_claim_blockers.csv,allowed only when no feasible improving post-v249 one-swaps remain
+v250_multi_swap_or_global_integer_optimality,False,paper4_v250_claim_blockers.csv,broader multi-swap/global gap evidence missing
+v250_paper1_or_final_promotion,False,paper4_v250_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

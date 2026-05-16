@@ -1,0 +1,7 @@
+stage_v250,pair_rows_v250,claim_boundary_v250
+all_pairs,47315358,post-v249 bounded two-swap one-swap screen stage count only
+return_improving,1664059,post-v249 bounded two-swap one-swap screen stage count only
+budget_return_feasible,1020538,post-v249 bounded two-swap one-swap screen stage count only
+source_prefilter_feasible,163,post-v249 bounded two-swap one-swap screen stage count only
+source_exact_feasible,77,post-v249 bounded two-swap one-swap screen stage count only
+cvar_feasible_improving,77,post-v249 bounded two-swap one-swap screen stage count only
