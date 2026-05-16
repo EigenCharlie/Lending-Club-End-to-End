@@ -12770,3 +12770,55 @@ Keep v320 in the living notebook. The next wave should reprice the v320 repaired
 candidate against the comparable universe.
 
 <!-- V320_MATCHED_PERIOD_BOUNDED_MILP_END -->
+
+<!-- V321_POST_V320_ONE_SWAP_REPRICE_START -->
+
+## Wave v321: Post-v320 One-Swap Repricing Gate
+
+Generated: 2026-05-16T21:38:12.636755+00:00
+
+### Objective
+
+v320 created a bounded matched-period repair candidate. v321 tests whether that
+candidate has one-drop/one-add stability against the full comparable universe
+under the v320 CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1457197`.
+- Budget+return feasible pairs: `602756`.
+- Source prefilter pairs: `53131`.
+- Exact source-feasible pairs: `7`.
+- CVaR-feasible improving one-swaps: `0`.
+- Best source-exact return delta: `1.4233158764891733`.
+- Best CVaR-feasible return delta: `not applicable; no CVaR-feasible improving swaps`.
+- Current missing v47 proxy rows:
+  `79`.
+- Best feasible delta missing proxy rows:
+  `0`.
+- Post-v320 one-swap local optimality cleared:
+  `True`.
+- Dynamic/global gate ready:
+  `True`.
+
+### Interpretation
+
+v321 either clears the post-v320 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v320 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v321 in the living notebook. Promotion remains blocked.
+
+<!-- V321_POST_V320_ONE_SWAP_REPRICE_END -->
