@@ -18920,6 +18920,102 @@ def test_paper4_v196_post_v195_reprice_contracts_reopened_front() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v197_next_one_swap_repair_requires_repricing() -> None:
+    status = _read_json("paper4_v197_status.json")
+
+    assert status["phase"] == "v197_next_one_swap_repair"
+    assert status["schema_version"] == "2026-05-15.197"
+    assert status["allocation_rows_v197"] == 171
+    assert status["summary_rows_v197"] == 1
+    assert status["action_rows_v197"] == 1
+    assert status["source_summary_rows_v197"] == 51
+    assert status["claim_blocker_rows_v197"] == 4
+    assert status["added_loan_id_v197"] == "136288831"
+    assert status["dropped_loan_id_v197"] == "126820122"
+    assert status["selected_rows_v197"] == 171
+    assert status["portfolio_exposure_v197"] == pytest.approx(842450.0)
+    assert status["objective_return_v197"] == pytest.approx(2166.1415359753464)
+    assert status["scenario_loss_cvar90_v197"] == pytest.approx(96285.39668408083)
+    assert status["source_cap_violations_v197"] == 0
+    assert status["delta_return_vs_v195_v197"] == pytest.approx(41.98245890639646)
+    assert status["delta_cvar90_vs_v195_v197"] == pytest.approx(80.44548636954278)
+    assert status["delta_exposure_vs_v195_v197"] == pytest.approx(0.0)
+    assert status["budget_feasible_v197"] is True
+    assert status["source_feasible_v197"] is True
+    assert status["cvar_feasible_v197"] is True
+    assert status["repair_candidate_feasible_v197"] is True
+    assert status["post_repair_one_swap_optimality_claim_allowed_v197"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v197"] is False
+    assert status["paper1_promotion_allowed_v197"] is False
+    assert status["paper4_final_promotion_created"] is False
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v197_next_one_swap_repair_allocations.parquet"
+    )
+    assert len(allocations) == status["allocation_rows_v197"]
+    assert int(allocations["selected_v197"].sum()) == status["selected_rows_v197"]
+    assert allocations["loan_amnt"].sum() == pytest.approx(status["portfolio_exposure_v197"])
+    assert "136288831" in set(allocations["loan_id"].astype(str))
+    assert "126820122" not in set(allocations["loan_id"].astype(str))
+    assert set(allocations["repair_action_v197"]) == {
+        "added_from_v196_best_swap",
+        "kept_from_v195",
+    }
+    assert allocations["claim_boundary_v197"].str.contains("requires post-repair repricing").all()
+
+    summary = _read_csv("paper4_v197_next_one_swap_repair_summary.csv")
+    row = summary.iloc[0]
+    assert bool(row["repair_candidate_feasible_v197"]) is True
+    assert float(row["delta_cvar90_vs_v195_v197"]) > 0
+    assert float(row["scenario_loss_cvar90_v197"]) <= float(row["cvar_cap_v197"])
+    assert float(row["max_source_share_v197"]) == pytest.approx(0.8995489346548756)
+    assert float(row["min_source_slack_v197"]) == pytest.approx(5.754096345278459e-05)
+    assert "must rerun omitted-universe pricing" in str(row["claim_boundary_v197"])
+
+    action = _read_csv("paper4_v197_next_one_swap_repair_action.csv").iloc[0]
+    assert str(action["added_loan_id_v197"]) == status["added_loan_id_v197"]
+    assert str(action["dropped_loan_id_v197"]) == status["dropped_loan_id_v197"]
+    assert float(action["return_delta_v197"]) == pytest.approx(41.98245890639751)
+    assert float(action["exposure_after_repair_v197"]) == pytest.approx(842450.0)
+    assert int(action["source_cap_violations_after_repair_v197"]) == 0
+
+    source_summary = _read_csv("paper4_v197_next_one_swap_repair_source_summary.csv")
+    assert len(source_summary) == status["source_summary_rows_v197"]
+    assert not source_summary["source_cap_violated_v197"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v197_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v197"], blockers["blocking_v197"], strict=False))
+    assert bool(blocker_map["next_one_swap_repair_candidate_created"]) is False
+    assert bool(blocker_map["post_repair_one_swap_repricing_missing"]) is True
+    assert bool(blocker_map["multi_swap_integer_pricing_missing"]) is True
+    assert bool(blocker_map["global_integer_gap_certificate_missing"]) is True
+
+    claim_delta = _read_csv("paper4_v197_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v197_next_one_swap_repair_executed"]) is True
+    assert bool(claim_map["v197_repair_candidate_feasible"]) is True
+    assert bool(claim_map["v197_post_repair_one_swap_optimality"]) is False
+    assert bool(claim_map["v197_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v197_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    assert "Paper 4 has a v197 fifty-eighth one-swap repair candidate." in set(
+        current_boundaries["claim"]
+    )
+    assert "v197 repaired portfolio is post-repair locally optimal." in set(
+        current_boundaries["claim"]
+    )
+    assert "v197 replaces Paper Estrella or proves full-universe integer optimality." in set(
+        current_boundaries["claim"]
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v197: Fifty-Eighth One-Swap Repair Candidate" in notebook
+    assert "v198 post-repair one-swap pricing" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
