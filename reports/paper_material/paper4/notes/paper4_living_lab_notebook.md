@@ -11261,3 +11261,51 @@ cardinality, multi-swap, full-universe gap or dynamic replay gates on its own.
 Keep v290 in the living notebook. Promotion remains blocked.
 
 <!-- V290_POST_V289_EXACT_RELIEF_ONE_SWAP_REPRICE_END -->
+
+<!-- V291_CARDINALITY_RESTORATION_PROTOCOL_START -->
+
+## Wave v291: Cardinality Restoration Protocol
+
+Generated: 2026-05-16T14:26:13.638750+00:00
+
+### Objective
+
+v289 improved return and CVaR but reduced selected rows from 171 to 168. v291
+tests the simplest restoration path: add one omitted loan without dropping
+anything, while respecting remaining budget, exact source caps and CVaR.
+
+### Results
+
+- Current selected rows: `168`.
+- Target selected rows: `171`.
+- Cardinality deficit: `3`.
+- Budget headroom: `6525.0`.
+- Candidate rows: `276701`.
+- Budget-eligible add rows: `60821`.
+- Return-positive budget rows: `1678`.
+- Source-feasible budget rows: `42918`.
+- Return-positive source-feasible rows:
+  `0`.
+- CVaR-feasible source rows: `0`.
+- Add-only restoration step feasible:
+  `False`.
+
+### Interpretation
+
+The add-only route is blocked. There are many loans that fit remaining budget,
+and 1,678 would recover positive return, but every positive budget-eligible add
+violates the tight grade A source cap. Source-feasible adds exist, but they are
+return-negative and none preserve the current CVaR cap. The next experiment
+therefore needs cardinality-aware multi-swap or MILP repair, not simple adds.
+
+### Claim Impact
+
+- Allowed: cardinality restoration protocol and add-only blocker documented.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v291 in the living notebook. Promotion remains blocked.
+
+<!-- V291_CARDINALITY_RESTORATION_PROTOCOL_END -->

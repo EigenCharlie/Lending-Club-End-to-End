@@ -1,0 +1,7 @@
+stage_v291,row_count_v291,claim_boundary_v291
+all_omitted_candidates,276701,add-only cardinality restoration stage count
+budget_eligible_add,60821,add-only cardinality restoration stage count
+return_positive_budget_eligible_add,1678,add-only cardinality restoration stage count
+source_feasible_budget_eligible_add,42918,add-only cardinality restoration stage count
+return_positive_source_feasible_add,0,add-only cardinality restoration stage count
+cvar_feasible_source_add,0,add-only cardinality restoration stage count
