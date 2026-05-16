@@ -12995,3 +12995,55 @@ Keep v324 in the living notebook. The next wave should reprice the relaxed
 repair or pursue a dual-bound/global certificate without promotion.
 
 <!-- V324_V320_PROXY_GAP_REPAIR_END -->
+
+<!-- V325_POST_V324_ONE_SWAP_REPRICE_START -->
+
+## Wave v325: Post-v324 One-Swap Repricing Gate
+
+Generated: 2026-05-16T22:14:36.819596+00:00
+
+### Objective
+
+v324 created a relaxed proxy-gap repair candidate. v325 tests whether that
+candidate has one-drop/one-add stability against the full comparable universe
+under the relaxed v324 CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1452243`.
+- Budget+return feasible pairs: `736211`.
+- Source prefilter pairs: `12361`.
+- Exact source-feasible pairs: `17`.
+- CVaR-feasible improving one-swaps: `4`.
+- Best source-exact return delta: `3.749478320776632`.
+- Best CVaR-feasible return delta: `2.61210260364512`.
+- Current missing v47 proxy rows:
+  `71`.
+- Best feasible delta missing proxy rows:
+  `1`.
+- Post-v324 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v325 either clears the post-v324 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v324 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v325 in the living notebook. Promotion remains blocked.
+
+<!-- V325_POST_V324_ONE_SWAP_REPRICE_END -->
