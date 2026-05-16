@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v260_post_bounded_two_swap_one_swap_repair_executed,True,paper4_v260_next_one_swap_repair_summary.csv,best v259 post-v258 one-swap applied
+v260_repair_candidate_feasible,True,paper4_v260_next_one_swap_repair_summary.csv,budget/source/CVaR feasibility only
+v260_post_repair_local_optimality,False,paper4_v260_claim_blockers.csv,post-repair pricing not rerun after v260
+v260_multi_swap_or_global_integer_optimality,False,paper4_v260_claim_blockers.csv,broader multi-swap/global gap evidence missing
+v260_paper1_or_final_promotion,False,paper4_v260_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

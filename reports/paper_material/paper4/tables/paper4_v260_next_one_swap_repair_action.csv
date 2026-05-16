@@ -1,0 +1,2 @@
+policy_id,regime_v260,added_loan_id_v260,dropped_loan_id_v260,added_loan_amount_v260,dropped_loan_amount_v260,added_mean_return_v260,dropped_mean_return_v260,return_delta_v260,cvar90_after_repair_v260,exposure_after_repair_v260,source_cap_violations_after_repair_v260,claim_boundary_v260
+v63_source_repair_return_guarded_repair,post_v258_bounded_two_swap_one_swap_repair,157560196,140352540,1300.0,1500.0,-181.11178871668363,-225.35267892941064,44.24089021272701,97875.45699152809,843125.0,0,best v259 one-swap applied; not post-repair optimality
