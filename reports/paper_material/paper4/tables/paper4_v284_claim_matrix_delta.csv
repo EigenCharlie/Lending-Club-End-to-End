@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v284_decomposition_branch_price_prototype_executed,True,paper4_v284_decomposition_or_branch_price_prototype.csv,prototype only
+v284_source_tight_pricing_blocks_identified,True,paper4_v284_source_tight_pricing_blocks.csv,diagnostic pricing blocks only
+v284_valid_branch_price_bound,False,paper4_v284_claim_blockers.csv,pricing and dual-bound loop missing
+v284_global_full_universe_integer_optimality,False,paper4_v284_claim_blockers.csv,global bound missing
+v284_paper1_or_final_promotion,False,paper4_v284_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

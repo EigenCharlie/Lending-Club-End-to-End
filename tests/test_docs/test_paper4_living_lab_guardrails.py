@@ -28423,6 +28423,98 @@ def test_paper4_v283_full_universe_bound_probe_records_resource_guard() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v284_decomposition_branch_price_prototype_identifies_tight_blocks() -> None:
+    status = _read_json("paper4_v284_status.json")
+
+    assert status["phase"] == "v284_decomposition_branch_price_prototype"
+    assert status["schema_version"] == "2026-05-15.284"
+    assert status["bound_probe_version_v284"] == 283
+    assert status["incumbent_repair_version_v284"] == 279
+    assert status["restricted_pool_version_v284"] == 281
+    assert status["full_omitted_candidate_rows_v284"] == 276698
+    assert status["tight_source_threshold_v284"] == pytest.approx(0.0001)
+    assert status["tight_source_rows_v284"] == 2
+    assert status["tight_source_candidate_rows_v284"] == 99878
+    assert status["positive_return_tight_candidate_rows_v284"] == 8827
+    assert status["direct_full_mip_attempted_v284"] is False
+    assert status["decomposition_prototype_executed_v284"] is True
+    assert status["pricing_screen_executed_v284"] is False
+    assert status["valid_branch_price_bound_v284"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v284"] is False
+    assert status["paper1_promotion_allowed_v284"] is False
+    assert status["paper4_working_champion_changed_v284"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v284"] == 4
+    assert status["claim_matrix_rows_v284"] == 5
+    assert status["next_artifact_v284"] == "paper4_v285_source_tight_pricing_screen.csv"
+
+    prototype = _read_csv("paper4_v284_decomposition_or_branch_price_prototype.csv")
+    row = prototype.iloc[0]
+    assert row["prototype_id_v284"] == "source_tight_decomposition_branch_price_prototype"
+    assert bool(row["decomposition_prototype_executed_v284"]) is True
+    assert bool(row["pricing_screen_executed_v284"]) is False
+    assert bool(row["valid_branch_price_bound_v284"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v284"]) is False
+    assert "no source-tight pricing or global bound yet" in str(row["claim_boundary_v284"])
+
+    blocks = _read_csv("paper4_v284_source_tight_pricing_blocks.csv")
+    assert len(blocks) == status["tight_source_rows_v284"]
+    block_map = dict(zip(blocks["pricing_block_id_v284"], blocks.index, strict=False))
+    assert set(block_map) == {"grade=A", "score_decile=0"}
+    grade_row = blocks.loc[block_map["grade=A"]]
+    score_row = blocks.loc[block_map["score_decile=0"]]
+    assert int(grade_row["candidate_rows_v284"]) == 72300
+    assert int(grade_row["positive_return_candidate_rows_v284"]) == 4415
+    assert int(score_row["candidate_rows_v284"]) == 27578
+    assert int(score_row["positive_return_candidate_rows_v284"]) == 4412
+    assert str(grade_row["top_candidate_loan_id_v284"]) == "165382274"
+    assert str(score_row["top_candidate_loan_id_v284"]) == "165382274"
+    assert float(grade_row["incumbent_source_slack_v284"]) == pytest.approx(1.0773302159261533e-06)
+    assert float(score_row["incumbent_source_slack_v284"]) == pytest.approx(1.4817009927374687e-05)
+
+    blockers = _read_csv("paper4_v284_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v284"], blockers["blocking_v284"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v284"], blockers["evidence_count_v284"], strict=False)
+    )
+    assert bool(blocker_map["source_tight_pricing_screen_missing"]) is True
+    assert int(evidence_map["source_tight_pricing_screen_missing"]) == 2
+    assert bool(blocker_map["branch_price_dual_bound_missing"]) is True
+    assert bool(blocker_map["global_integer_optimality_claim_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v284_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v284_decomposition_branch_price_prototype_executed"]) is True
+    assert bool(claim_map["v284_source_tight_pricing_blocks_identified"]) is True
+    assert bool(claim_map["v284_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v284_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v284_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v284 decomposition/branch-price prototype."])
+    assert bool(boundary_map["v284 proves a valid full-universe branch-price bound."]) is False
+    assert bool(boundary_map["v284 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v284_rows = backlog.loc[backlog["last_wave"].eq("v284")]
+    assert len(v284_rows) == 1
+    backlog_row = v284_rows.iloc[0]
+    assert backlog_row["status"] == "decomposition_branch_price_prototype_created"
+    assert backlog_row["next_artifact"] == "paper4_v285_source_tight_pricing_screen.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v284: Decomposition/Branch-Price Prototype" in notebook
+    assert "Tight source rows: `2`" in notebook
+    assert "Valid branch-price bound produced:\n  `False`" in notebook
+    assert "grade A and score decile 0" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

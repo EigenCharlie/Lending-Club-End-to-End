@@ -10919,3 +10919,48 @@ Keep v283 in the living notebook. Promote only after a valid global bound,
 dynamic validation and promotion gates pass.
 
 <!-- V283_FULL_UNIVERSE_INTEGER_BOUND_PROBE_END -->
+
+<!-- V284_DECOMPOSITION_BRANCH_PRICE_PROTOTYPE_START -->
+
+## Wave v284: Decomposition/Branch-Price Prototype
+
+Generated: 2026-05-16T13:07:41.282137+00:00
+
+### Objective
+
+Respond to the v283 direct-MIP resource guard by defining a decomposed
+full-universe pricing route. The prototype identifies source constraints that
+are effectively binding under the v279 incumbent and maps full-v55 omitted
+candidates into source-tight pricing blocks.
+
+### Results
+
+- Full omitted candidate rows: `276698`.
+- Tight source rows: `2`.
+- Tight source candidate rows: `99878`.
+- Positive-return tight source candidate rows:
+  `8827`.
+- Decomposition prototype executed:
+  `True`.
+- Valid branch-price bound produced:
+  `False`.
+
+### Interpretation
+
+v284 is a useful bridge from resource blocker to executable decomposition work:
+it shows that the binding source constraints are grade A and score decile 0,
+and it scopes the next pricing screen. It still does not run a dual-bound
+branch-price loop or certify global optimality.
+
+### Claim Impact
+
+- Allowed: decomposition/branch-price prototype and source-tight pricing map.
+- Still prohibited: valid full-universe branch-price bound, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v284 in the living notebook. Promote only after a valid global bound,
+dynamic validation and promotion gates pass.
+
+<!-- V284_DECOMPOSITION_BRANCH_PRICE_PROTOTYPE_END -->

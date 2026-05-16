@@ -1,0 +1,5 @@
+blocker_id_v284,blocking_v284,evidence_count_v284,required_next_artifact_v284,claim_boundary_v284
+source_tight_pricing_screen_missing,True,2,paper4_v285_source_tight_pricing_screen.csv,pricing blocks exist but no pricing screen ran
+branch_price_dual_bound_missing,True,1,paper4_v285_source_tight_pricing_screen.csv,no dual-bound loop or termination certificate
+global_integer_optimality_claim_blocked,True,1,paper4_v285_source_tight_pricing_screen.csv,prototype does not prove full-universe optimality
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
