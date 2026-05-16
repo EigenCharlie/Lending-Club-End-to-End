@@ -32721,6 +32721,137 @@ def test_paper4_v316_apply_post_v314_swap_lowers_cvar_with_proxy_cost() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v317_post_v316_reprice_clears_one_swap_local_optimality() -> None:
+    status = _read_json("paper4_v317_status.json")
+
+    assert status["phase"] == "v317_post_v316_reprice"
+    assert status["schema_version"] == "2026-05-16.317"
+    assert status["base_repair_version_v317"] == 316
+    assert status["previous_reprice_version_v317"] == 315
+    assert status["selected_rows_v317"] == 171
+    assert status["base_selected_rows_v317"] == 171
+    assert status["cardinality_restored_v317"] is True
+    assert status["candidate_add_rows_v317"] == 276698
+    assert status["total_pair_rows_screened_v317"] == 47315358
+    assert status["return_improving_pair_rows_v317"] == 1456904
+    assert status["budget_return_feasible_pair_rows_v317"] == 602283
+    assert status["source_prefilter_pair_rows_v317"] == 53128
+    assert status["source_exact_pair_rows_v317"] == 21
+    assert status["cvar_feasible_pair_rows_v317"] == 0
+    assert status["one_swap_improving_rows_v317"] == 0
+    assert status["best_one_swap_return_delta_v317"] == pytest.approx(5.376772278224863)
+    assert status["best_one_swap_cvar90_after_v317"] == pytest.approx(97069.5824985227)
+    assert status["best_feasible_one_swap_return_delta_v317"] is None
+    assert status["best_feasible_one_swap_cvar90_after_v317"] is None
+    assert status["current_missing_v47_proxy_rows_v317"] == 73
+    assert status["best_feasible_delta_missing_v47_proxy_rows_v317"] == 0
+    assert status["current_exposure_v317"] == pytest.approx(846475.0)
+    assert status["current_objective_return_v317"] == pytest.approx(4419.757991584778)
+    assert status["current_loss_mean_v317"] == pytest.approx(60467.41219714489)
+    assert status["current_cvar90_v317"] == pytest.approx(96984.05075988932)
+    assert status["post_v316_one_swap_local_optimality_cleared_v317"] is True
+    assert status["dynamic_gate_ready_v317"] is True
+    assert status["working_champion_claim_allowed_v317"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v317"] is False
+    assert status["paper1_promotion_allowed_v317"] is False
+    assert status["paper4_working_champion_changed_v317"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v317"] == (
+        "paper4_v318_dynamic_proxy_or_global_bound_after_v316.csv"
+    )
+
+    summary = _read_csv("paper4_v317_post_v316_one_swap_summary.csv")
+    row = summary.iloc[0]
+    assert row["policy_id"] == "v316_post_v314_best_one_swap_repair_candidate"
+    assert int(row["source_exact_pair_rows_v317"]) == 21
+    assert int(row["cvar_feasible_pair_rows_v317"]) == 0
+    assert int(row["one_swap_improving_rows_v317"]) == 0
+    assert pd.isna(row["best_feasible_one_swap_return_delta_v317"])
+    assert pd.isna(row["best_feasible_one_swap_cvar90_after_v317"])
+    assert bool(row["post_v316_one_swap_local_optimality_cleared_v317"]) is True
+    assert bool(row["dynamic_gate_ready_v317"]) is True
+    assert bool(row["working_champion_claim_allowed_v317"]) is False
+    assert "post-v316 one-swap screen cleared" in str(row["claim_boundary_v317"])
+
+    stage = _read_csv("paper4_v317_post_v316_one_swap_stage_summary.csv")
+    stage_map = dict(zip(stage["stage_v317"], stage["pair_rows_v317"], strict=False))
+    assert stage_map == {
+        "all_pairs": 47315358,
+        "return_improving": 1456904,
+        "budget_return_feasible": 602283,
+        "source_prefilter_feasible": 53128,
+        "source_exact_feasible": 21,
+        "cvar_feasible_improving": 0,
+    }
+
+    top = _read_csv("paper4_v317_post_v316_one_swap_top_candidates.csv")
+    assert len(top) == 21
+    assert not top["one_swap_improves_return_v317"].astype(bool).any()
+    assert not top["cvar_swap_feasible_v317"].astype(bool).any()
+    best_source_exact = top.loc[top["return_delta_v317"].idxmax()]
+    assert str(best_source_exact["added_loan_id_v317"]) == "145033022"
+    assert str(best_source_exact["dropped_loan_id_v317"]) == "144603743"
+    assert float(best_source_exact["return_delta_v317"]) == pytest.approx(5.376772278224863)
+    assert float(best_source_exact["cvar90_after_swap_v317"]) == pytest.approx(97069.5824985227)
+    assert bool(best_source_exact["cvar_swap_feasible_v317"]) is False
+    assert bool(best_source_exact["one_swap_improves_return_v317"]) is False
+    assert bool(best_source_exact["added_observed_v47_proxy_v317"]) is False
+    assert bool(best_source_exact["dropped_observed_v47_proxy_v317"]) is True
+    assert int(best_source_exact["delta_missing_v47_proxy_rows_v317"]) == 1
+
+    blockers = _read_csv("paper4_v317_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v317"], blockers["blocking_v317"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v317"], blockers["evidence_count_v317"], strict=False)
+    )
+    assert bool(blocker_map["post_v316_one_swap_improvement_found"]) is False
+    assert int(evidence_map["post_v316_one_swap_improvement_found"]) == 0
+    assert bool(blocker_map["post_v316_repair_not_working_champion"]) is True
+    assert bool(blocker_map["proxy_coverage_gap_persists"]) is True
+    assert int(evidence_map["proxy_coverage_gap_persists"]) == 73
+    assert bool(blocker_map["global_dynamic_online_gates_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v317_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v317_post_v316_one_swap_reprice_executed"]) is True
+    assert bool(claim_map["v317_post_v316_one_swap_local_optimality"]) is True
+    assert bool(claim_map["v317_dynamic_gate_ready"]) is True
+    assert bool(claim_map["v317_working_champion"]) is False
+    assert bool(claim_map["v317_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v317 post-v316 one-swap repricing gate."])
+    assert bool(boundary_map["v317 clears post-v316 one-swap local optimality."])
+    assert bool(boundary_map["v317 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v317 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v317 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v317_rows = backlog.loc[backlog["last_wave"].eq("v317")]
+    assert len(v317_rows) == 1
+    backlog_row = v317_rows.iloc[0]
+    assert backlog_row["status"] == "post_v316_one_swap_local_optimality_cleared"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v318_dynamic_proxy_or_global_bound_after_v316.csv"
+    )
+    assert backlog_row["execution_result"] == "post_v316_one_swap_reprice_cleared"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v317: Post-v316 One-Swap Repricing Gate" in notebook
+    assert "CVaR-feasible improving one-swaps: `0`" in notebook
+    assert (
+        "Best CVaR-feasible return delta: `not applicable; no CVaR-feasible improving swaps`"
+        in notebook
+    )
+    assert "Dynamic/global gate ready:\n  `True`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
