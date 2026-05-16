@@ -13469,3 +13469,57 @@ contractual and champion claims.
 Keep v333 in the living notebook. Promotion remains blocked.
 
 <!-- V333_V330_CASHFLOW_ONLINE_IFRS9_GATE_END -->
+
+<!-- V334_V330_PROXY_GAP_REPAIR_START -->
+
+## Wave v334: v330 Proxy-Gap Repair / Branch-Price Protocol
+
+Generated: 2026-05-16T23:09:42.980927+00:00
+
+### Objective
+
+v333 showed that v330 needs 74 imputed proxy loans, 1 more than v316. v334 tests
+whether observed candidates can repair that coverage gap while preserving the
+v330 post-v328-swap budget, period, source and CVaR structure.
+
+### Results
+
+- Candidate pool rows: `1356`.
+- Strict v330-preserving repair feasible:
+  `False`.
+- Relaxed repair feasible:
+  `True`.
+- Relaxed observed proxy rows:
+  `99`.
+- Relaxed missing proxy rows:
+  `72`.
+- Relaxed return delta vs v330:
+  `-6.705267649348571`.
+- Relaxed CVaR delta vs v330:
+  `-152.57573323708493`.
+- Post-v334 repricing required:
+  `True`.
+
+### Interpretation
+
+v334 exposes a useful frontier. The strict repair that preserves v330 return and
+v330 CVaR is infeasible in the bounded observed-candidate pool. A relaxed repair
+improves proxy coverage from 97 to `99`
+observed loans under the v330 CVaR cap, but it gives back
+`-6.705267649348571` return relative to v330. This is evidence of a real
+coverage-return tradeoff, not a champion or deployment claim.
+
+### Claim Impact
+
+- Allowed: bounded proxy-gap repair feasibility test and relaxed repair
+  diagnostic.
+- Still prohibited: strict v330-preserving coverage repair, full-universe global
+  optimality, contractual IFRS9, live deployment, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v334 in the living notebook. The next wave should reprice the relaxed
+repair or pursue a dual-bound/global certificate without promotion.
+
+<!-- V334_V330_PROXY_GAP_REPAIR_END -->
