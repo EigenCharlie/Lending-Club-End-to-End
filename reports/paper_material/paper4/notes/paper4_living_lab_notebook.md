@@ -4830,3 +4830,48 @@ Keep v153 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V153_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V154_POST_V153_ONE_SWAP_REPRICE_START -->
+
+## Wave v154: Post-v153 One-Swap Repricing
+
+Generated: 2026-05-16T02:25:24.937911+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v153
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v153 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1828018`.
+- Exact source-feasible pairs: `5703`.
+- CVaR-feasible improving one-swaps: `5703`.
+- Best post-v153 one-swap return delta:
+  `161.87871667935158`.
+- Post-v153 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v154 is the required re-pricing after v153 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v153 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v154 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V154_POST_V153_ONE_SWAP_REPRICE_END -->
