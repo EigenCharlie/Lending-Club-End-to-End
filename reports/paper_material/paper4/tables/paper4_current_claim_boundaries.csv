@@ -895,3 +895,8 @@ v326 improves return and CVaR versus the v324 relaxed repair.,True,reports/paper
 v326 preserves v324 relaxed proxy coverage exactly.,False,reports/paper_material/paper4/tables/paper4_v326_claim_blockers.csv,The applied swap increases missing proxy rows by one.,True,living_notebook_only
 v326 authorizes a Paper 4 working champion.,False,reports/paper_material/paper4/tables/paper4_v326_claim_blockers.csv,"Post-v326 repricing, global and live gates remain missing.",True,living_notebook_only
 v326 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v326_claim_blockers.csv,No final promotion or deployment gate is created.,True,living_notebook_only
+Paper 4 has a v327 post-v326 one-swap repricing gate.,True,reports/paper_material/paper4/tables/paper4_v327_post_v326_one_swap_summary.csv,One-drop/one-add screen after the v326 candidate.,False,living_notebook_only
+v327 clears post-v326 one-swap local optimality.,False,reports/paper_material/paper4/tables/paper4_v327_claim_blockers.csv,Scope-limited to one-drop/one-add swaps after v326.,True,living_notebook_only
+v327 authorizes a Paper 4 working champion.,False,reports/paper_material/paper4/tables/paper4_v327_claim_blockers.csv,"Global, dynamic, online and deployment gates remain missing.",True,living_notebook_only
+v327 proves full-universe global integer optimality.,False,reports/paper_material/paper4/tables/paper4_v327_claim_blockers.csv,A one-swap repricing screen is not a full branch-price certificate.,True,living_notebook_only
+v327 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v327_claim_blockers.csv,"No final promotion, dynamic validation or deployment gate is created.",True,living_notebook_only
