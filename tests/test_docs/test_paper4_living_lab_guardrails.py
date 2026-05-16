@@ -30575,6 +30575,195 @@ def test_paper4_v300_source_governance_branch_price_protocol_keeps_claims_blocke
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v301_source_tight_imputation_repair_keeps_promotion_blocked() -> None:
+    status = _read_json("paper4_v301_status.json")
+
+    assert status["phase"] == "v301_source_tight_branch_price_pricing_or_imputation_repair"
+    assert status["schema_version"] == "2026-05-15.301"
+    assert status["source_candidate_version_v301"] == 295
+    assert status["protocol_version_v301"] == 300
+    assert status["observed_proxy_candidate_rows_v301"] == 1553
+    assert status["imputed_selected_drop_rows_v301"] == 76
+    assert status["total_pair_rows_v301"] == 118028
+    assert status["budget_feasible_pair_rows_v301"] == 21916
+    assert status["source_exact_pair_rows_v301"] == 12915
+    assert status["cvar_feasible_repair_pair_rows_v301"] == 745
+    assert status["return_improving_repair_pair_rows_v301"] == 0
+    assert status["tight_relief_feasible_pair_rows_v301"] == 104
+    assert status["return_improving_tight_relief_pair_rows_v301"] == 0
+    assert status["top_candidate_rows_v301"] == 200
+    assert status["repair_candidate_summary_rows_v301"] == 2
+    assert status["repair_candidate_allocation_rows_v301"] == 342
+    assert status["repair_source_summary_rows_v301"] == 102
+    assert status["best_repair_added_loan_id_v301"] == "156707196"
+    assert status["best_repair_dropped_loan_id_v301"] == "143080063"
+    assert status["best_repair_return_delta_v301"] == pytest.approx(-2.334552360582819)
+    assert status["best_repair_objective_return_after_v301"] == pytest.approx(3247.6240955865937)
+    assert status["best_repair_cvar90_after_v301"] == pytest.approx(97216.88567393793)
+    assert status["best_repair_imputed_proxy_loan_rows_after_v301"] == 75
+    assert status["best_tight_relief_added_loan_id_v301"] == "139555921"
+    assert status["best_tight_relief_dropped_loan_id_v301"] == "152791402"
+    assert status["best_tight_relief_return_delta_v301"] == pytest.approx(-4.704560485038531)
+    assert status["best_tight_relief_cvar90_after_v301"] == pytest.approx(97197.29074860565)
+    assert status["best_tight_relief_grade_A_exposure_delta_v301"] == pytest.approx(-100.0)
+    assert status["best_tight_relief_score0_exposure_delta_v301"] == pytest.approx(-100.0)
+    assert status["feasible_imputation_repair_found_v301"] is True
+    assert status["return_improving_imputation_repair_found_v301"] is False
+    assert status["source_tight_relief_repair_found_v301"] is True
+    assert status["valid_branch_price_bound_v301"] is False
+    assert status["strict_live_deployability_claim_allowed_v301"] is False
+    assert status["contractual_ifrs9_claim_allowed_v301"] is False
+    assert status["working_champion_claim_allowed_v301"] is False
+    assert status["paper1_promotion_allowed_v301"] is False
+    assert status["paper4_working_champion_changed_v301"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v301"] == 8
+    assert status["claim_matrix_rows_v301"] == 7
+    assert (
+        status["next_artifact_v301"]
+        == "paper4_v302_apply_v301_repair_or_multi_swap_imputation_frontier.csv"
+    )
+
+    summary = _read_csv("paper4_v301_source_tight_branch_price_pricing_or_imputation_repair.csv")
+    row = summary.iloc[0]
+    assert row["screen_id_v301"] == "source_tight_branch_price_pricing_or_imputation_repair"
+    assert int(row["cvar_feasible_repair_pair_rows_v301"]) == 745
+    assert int(row["return_improving_repair_pair_rows_v301"]) == 0
+    assert bool(row["valid_branch_price_bound_v301"]) is False
+    assert bool(row["contractual_ifrs9_claim_allowed_v301"]) is False
+    assert "bounded one-swap repair screen only" in str(row["claim_boundary_v301"])
+
+    stages = _read_csv("paper4_v301_imputation_repair_stage_summary.csv")
+    stage_map = dict(zip(stages["stage_v301"], stages["pair_rows_v301"], strict=False))
+    assert int(stage_map["observed_proxy_candidate_rows"]) == 1553
+    assert int(stage_map["imputed_selected_drop_rows"]) == 76
+    assert int(stage_map["all_observed_drop_imputed_pair_rows"]) == 118028
+    assert int(stage_map["budget_feasible_pair_rows"]) == 21916
+    assert int(stage_map["source_exact_pair_rows"]) == 12915
+    assert int(stage_map["cvar_feasible_repair_pair_rows"]) == 745
+    assert int(stage_map["return_improving_repair_pair_rows"]) == 0
+    assert int(stage_map["tight_relief_feasible_pair_rows"]) == 104
+    assert int(stage_map["grade_source_feasible_pair_rows"]) == 14839
+    assert int(stage_map["score_decile_source_feasible_pair_rows"]) == 13793
+
+    profile = _read_csv("paper4_v301_tight_source_relief_profile.csv")
+    profile_map = {row.repair_profile_v301: row for row in profile.itertuples(index=False)}
+    assert int(profile_map["no_tight_relief"].pair_rows_v301) == 641
+    assert int(profile_map["no_tight_relief"].return_improving_pair_rows_v301) == 0
+    assert float(profile_map["no_tight_relief"].best_return_delta_v301) == pytest.approx(
+        -2.334552360582819
+    )
+    assert int(profile_map["relieves_grade_A_and_score0"].pair_rows_v301) == 104
+    assert int(profile_map["relieves_grade_A_and_score0"].return_improving_pair_rows_v301) == 0
+    assert float(
+        profile_map["relieves_grade_A_and_score0"].best_return_delta_v301
+    ) == pytest.approx(-4.704560485038531)
+    assert "relieves_score0_only" not in profile_map
+
+    top = _read_csv("paper4_v301_observed_proxy_imputation_repair_top_candidates.csv")
+    assert len(top) == status["top_candidate_rows_v301"]
+    best = top.sort_values("return_delta_v301", ascending=False).iloc[0]
+    assert str(best["added_loan_id_v301"]) == "156707196"
+    assert str(best["dropped_loan_id_v301"]) == "143080063"
+    assert float(best["return_delta_v301"]) == pytest.approx(-2.334552360582819)
+    assert bool(best["return_improving_repair_v301"]) is False
+    assert str(best["repair_profile_v301"]) == "no_tight_relief"
+    tight = top.loc[top["repair_profile_v301"].eq("relieves_grade_A_and_score0")].iloc[0]
+    assert str(tight["added_loan_id_v301"]) == "139555921"
+    assert str(tight["dropped_loan_id_v301"]) == "152791402"
+    assert float(tight["return_delta_v301"]) == pytest.approx(-4.704560485038531)
+
+    candidates = _read_csv("paper4_v301_repair_candidate_summary.csv")
+    assert set(candidates["repair_candidate_id_v301"]) == {
+        "best_return_imputation_repair",
+        "best_tight_source_relief_repair",
+    }
+    candidate_map = {
+        row.repair_candidate_id_v301: row for row in candidates.itertuples(index=False)
+    }
+    assert candidate_map["best_return_imputation_repair"].added_loan_id_v301 == 156707196
+    assert candidate_map["best_tight_source_relief_repair"].added_loan_id_v301 == 139555921
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v301_repair_candidate_allocations.parquet")
+    assert len(allocations) == status["repair_candidate_allocation_rows_v301"]
+    assert set(allocations["repair_candidate_id_v301"]) == {
+        "best_return_imputation_repair",
+        "best_tight_source_relief_repair",
+    }
+    assert allocations.groupby("repair_candidate_id_v301")["loan_id"].nunique().to_dict() == {
+        "best_return_imputation_repair": 171,
+        "best_tight_source_relief_repair": 171,
+    }
+    assert allocations["claim_boundary_v301"].str.contains("not a promoted portfolio").all()
+
+    source = _read_csv("paper4_v301_repair_source_summary.csv")
+    assert len(source) == status["repair_source_summary_rows_v301"]
+    assert not source["source_cap_violated_v301"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v301_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v301"], blockers["blocking_v301"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v301"], blockers["evidence_count_v301"], strict=False)
+    )
+    assert bool(blocker_map["full_universe_gap_certificate_missing"]) is True
+    assert int(evidence_map["full_universe_gap_certificate_missing"]) == 276869
+    assert bool(blocker_map["branch_price_termination_missing"]) is True
+    assert bool(blocker_map["residual_cashflow_imputation_after_best_repair"]) is True
+    assert int(evidence_map["residual_cashflow_imputation_after_best_repair"]) == 75
+    assert bool(blocker_map["return_improving_imputation_repair_missing"]) is True
+    assert int(evidence_map["return_improving_imputation_repair_missing"]) == 0
+    assert bool(blocker_map["return_improving_tight_relief_missing"]) is True
+    assert int(evidence_map["return_improving_tight_relief_missing"]) == 0
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v301_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v301_observed_proxy_imputation_repair_screen_executed"]) is True
+    assert bool(claim_map["v301_feasible_imputation_repair_found"]) is True
+    assert bool(claim_map["v301_return_improving_imputation_repair_found"]) is False
+    assert bool(claim_map["v301_feasible_tight_source_relief_found"]) is True
+    assert bool(claim_map["v301_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v301_contractual_ifrs9_or_live_deployability"]) is False
+    assert bool(claim_map["v301_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v301 observed-proxy imputation repair screen."])
+    assert bool(boundary_map["v301 finds feasible one-swap imputation repair candidates."])
+    assert (
+        bool(boundary_map["v301 finds a return-improving one-swap imputation repair candidate."])
+        is False
+    )
+    assert bool(boundary_map["v301 finds feasible tight-source relief candidates."])
+    assert bool(boundary_map["v301 proves a valid full-universe branch-price bound."]) is False
+    assert (
+        bool(boundary_map["v301 resolves contractual IFRS9 or live deployability for v295."])
+        is False
+    )
+    assert bool(boundary_map["v301 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v301_rows = backlog.loc[backlog["last_wave"].eq("v301")]
+    assert len(v301_rows) == 1
+    backlog_row = v301_rows.iloc[0]
+    assert backlog_row["status"] == "observed_proxy_imputation_repair_screen_executed"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v302_apply_v301_repair_or_multi_swap_imputation_frontier.csv"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v301: Source-Tight / Imputation Repair Pricing" in notebook
+    assert "Return-improving repair rows: `0`" in notebook
+    assert "Best repair return delta: `-2.334552360582819`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

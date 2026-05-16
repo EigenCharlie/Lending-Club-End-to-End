@@ -11747,3 +11747,59 @@ Keep v300 in the living notebook. The next wave should execute a source-tight
 branch-price/pricing repair or record a stronger blocker.
 
 <!-- V300_SOURCE_GOVERNANCE_BRANCH_PRICE_PROTOCOL_END -->
+
+<!-- V301_SOURCE_TIGHT_IMPUTATION_REPAIR_START -->
+
+## Wave v301: Source-Tight / Imputation Repair Pricing
+
+Generated: 2026-05-16T19:01:17.383320+00:00
+
+### Objective
+
+v300 localized two blockers: v295 still needs source-tight branch-price evidence
+and has 76 selected loans with imputed IFRS9-inspired cashflow proxies. v301
+executes a bounded one-drop/one-add repair screen: drop one imputed selected
+loan, add one observed-v47-proxy loan, and require budget, source and CVaR
+feasibility.
+
+### Results
+
+- Observed proxy add candidates: `1553`.
+- Imputed selected drop rows: `76`.
+- Pair rows screened: `118028`.
+- Budget-feasible pair rows: `21916`.
+- Source-exact pair rows: `12915`.
+- CVaR-feasible repair rows: `745`.
+- Return-improving repair rows: `0`.
+- Tight-relief feasible rows: `104`.
+- Best repair return delta: `-2.334552360582819`.
+- Best repair imputed rows after one swap:
+  `75`.
+- Best tight-relief return delta: `-4.704560485038531`.
+- Valid branch-price bound: `False`.
+
+### Interpretation
+
+v301 is the first candidate-specific data-quality repair signal after v299:
+there are feasible swaps that reduce imputed cashflow dependence while
+respecting budget, all exact source caps and the v295 CVaR cap. Once the exact
+source caps are enforced, no one-swap repair improves return; the best repair
+has only a small return cost. Tight-source relief is also feasible, but still
+not return-improving, so this is evidence for a future frontier, not a promotion.
+
+### Claim Impact
+
+- Allowed: observed-proxy imputation repair screen; bounded one-swap feasible
+  repair candidates; feasible tight-source relief profile.
+- Still prohibited: return-improving one-swap repair claim under exact source
+  caps.
+- Still prohibited: full-universe branch-price bound, contractual IFRS9, live
+  deployability, Paper Estrella replacement, final Paper 4 promotion and
+  working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v301 in the living notebook. The next wave should apply the bounded repair
+or expand to a multi-swap imputation frontier while preserving claim guards.
+
+<!-- V301_SOURCE_TIGHT_IMPUTATION_REPAIR_END -->
