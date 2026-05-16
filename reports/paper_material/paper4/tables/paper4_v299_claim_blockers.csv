@@ -1,0 +1,6 @@
+blocker_id_v299,blocking_v299,evidence_count_v299,required_next_artifact_v299,claim_boundary_v299
+cashflow_proxy_imputation_required,True,76,future_observed_v295_cashflow_panel,imputed rows block contractual IFRS9
+external_online_holdout_missing,True,0,future_external_holdout_or_temporal_rerun,v299 online replay is internal selected-book only
+strict_live_claim_forbidden,True,1,future_live_deployment_validation,no live deployment validation is created
+paper4_working_champion_gate_missing,True,1,future_global_dynamic_promotion_gate,working champion replacement remains blocked
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

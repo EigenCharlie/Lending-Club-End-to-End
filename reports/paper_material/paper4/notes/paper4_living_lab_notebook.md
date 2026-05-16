@@ -11654,3 +11654,48 @@ formal claims remain blocked.
 Keep v298 in the living notebook. Promotion remains blocked.
 
 <!-- V298_ONLINE_IFRS9_SPO_DLA_GATE_EXPANSION_END -->
+
+<!-- V299_V295_CASHFLOW_ONLINE_RERUN_START -->
+
+## Wave v299: v295 Cashflow Proxy / Online Temporal Rerun
+
+Generated: 2026-05-16T18:33:39.955310+00:00
+
+### Objective
+
+v298 showed that v295 needed actual candidate-specific cashflow/online reruns.
+v299 builds a complete v295 IFRS9-inspired proxy cashflow panel and replays the
+v65 online margin logic on v295 selected loans by temporal/source cells.
+
+### Results
+
+- Cashflow proxy panel rows: `6156`.
+- Observed proxy loan rows: `95`.
+- Imputed proxy loan rows: `76`.
+- Post-imputation coverage share:
+  `1.0`.
+- Online temporal cell rows: `6`.
+- Online internal all-gate family rows:
+  `0`.
+- Strict live deployability claim allowed:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+
+### Interpretation
+
+v299 improves coverage materially by creating a full v295 proxy panel, but 76
+loans require imputation. The online replay is candidate-specific and temporal,
+yet it is still internal selected-book evidence, not external live validation.
+
+### Claim Impact
+
+- Allowed: v295-specific cashflow proxy panel and temporal online replay.
+- Still prohibited: contractual IFRS9, live online deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v299 in the living notebook. Promotion remains blocked.
+
+<!-- V299_V295_CASHFLOW_ONLINE_RERUN_END -->
