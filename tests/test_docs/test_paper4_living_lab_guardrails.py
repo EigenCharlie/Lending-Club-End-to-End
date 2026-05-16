@@ -28327,6 +28327,102 @@ def test_paper4_v282_full_universe_gap_certificate_protocol_blocks_global_claim(
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v283_full_universe_bound_probe_records_resource_guard() -> None:
+    status = _read_json("paper4_v283_status.json")
+
+    assert status["phase"] == "v283_full_universe_integer_bound_probe"
+    assert status["schema_version"] == "2026-05-15.283"
+    assert status["protocol_version_v283"] == 282
+    assert status["incumbent_repair_version_v283"] == 279
+    assert status["terminal_reprice_version_v283"] == 280
+    assert status["restricted_pool_version_v283"] == 281
+    assert status["full_binary_variables_v283"] == 276869
+    assert status["full_continuous_variables_v283"] == 129
+    assert status["full_constraint_rows_v283"] == 176
+    assert status["full_omitted_candidate_rows_v283"] == 276698
+    assert status["max_binary_vars_for_direct_mip_v283"] == 50000
+    assert status["direct_full_mip_attempted_v283"] is False
+    assert status["resource_guard_reason_v283"] == "binary_variable_count_exceeds_direct_mip_guard"
+    assert (
+        status["manifest_sha256_v283"]
+        == "bb80bdd4f7cee9fbd00947361b13f263d90484a2ab9efd4dcca54ca945c794c3"
+    )
+    assert status["valid_full_universe_gap_certificate_v283"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v283"] is False
+    assert status["paper1_promotion_allowed_v283"] is False
+    assert status["paper4_working_champion_changed_v283"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v283"] == 4
+    assert status["claim_matrix_rows_v283"] == 5
+    assert status["next_artifact_v283"] == "paper4_v284_decomposition_or_branch_price_prototype.csv"
+
+    probe = _read_csv("paper4_v283_full_universe_integer_bound_probe.csv")
+    row = probe.iloc[0]
+    assert row["probe_id_v283"] == "direct_full_v55_integer_mip_bound_probe"
+    assert bool(row["direct_full_mip_attempted_v283"]) is False
+    assert row["direct_full_mip_attempt_result_v283"] == "not_executed_resource_guard"
+    assert row["resource_guard_reason_v283"] == status["resource_guard_reason_v283"]
+    assert bool(row["valid_full_universe_gap_certificate_v283"]) is False
+    assert bool(row["full_universe_integer_optimality_claim_allowed_v283"]) is False
+    assert "decomposition or branch-price required" in str(row["claim_boundary_v283"])
+
+    manifest = _read_csv("paper4_v283_full_universe_model_manifest.csv")
+    manifest_row = manifest.iloc[0]
+    assert manifest_row["manifest_id_v283"] == "full_v55_integer_model_manifest"
+    assert manifest_row["manifest_sha256_v283"] == status["manifest_sha256_v283"]
+    assert int(manifest_row["binary_variables_v283"]) == status["full_binary_variables_v283"]
+    assert (
+        int(manifest_row["continuous_variables_v283"]) == status["full_continuous_variables_v283"]
+    )
+    assert int(manifest_row["constraint_rows_v283"]) == status["full_constraint_rows_v283"]
+    assert "no solve or global bound certificate" in str(manifest_row["claim_boundary_v283"])
+
+    blockers = _read_csv("paper4_v283_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v283"], blockers["blocking_v283"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v283"], blockers["evidence_count_v283"], strict=False)
+    )
+    assert bool(blocker_map["direct_full_v55_mip_resource_guarded"]) is True
+    assert int(evidence_map["direct_full_v55_mip_resource_guarded"]) == 276869
+    assert bool(blocker_map["global_integer_bound_missing"]) is True
+    assert bool(blocker_map["decomposition_or_branch_price_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v283_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v283_full_universe_bound_probe_executed"]) is True
+    assert bool(claim_map["v283_full_universe_model_manifest_created"]) is True
+    assert bool(claim_map["v283_valid_full_universe_gap_certificate"]) is False
+    assert bool(claim_map["v283_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v283_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v283 full-universe integer bound/resource probe."])
+    assert bool(boundary_map["v283 proves full-universe global integer optimality."]) is False
+    assert (
+        bool(boundary_map["v283 authorizes Paper Estrella replacement or final Paper 4 promotion."])
+        is False
+    )
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v283_rows = backlog.loc[backlog["last_wave"].eq("v283")]
+    assert len(v283_rows) == 1
+    backlog_row = v283_rows.iloc[0]
+    assert backlog_row["status"] == "full_universe_bound_probe_resource_guarded"
+    assert backlog_row["next_artifact"] == "paper4_v284_decomposition_or_branch_price_prototype.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v283: Full-Universe Integer Bound/Resource Probe" in notebook
+    assert "Direct full-v55 MIP attempted:\n  `False`" in notebook
+    assert "Resource guard reason:\n  `binary_variable_count_exceeds_direct_mip_guard`" in notebook
+    assert "Valid full-universe gap certificate available:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

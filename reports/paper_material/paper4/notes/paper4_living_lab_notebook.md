@@ -10872,3 +10872,50 @@ Keep v282 in the living notebook. Promote only after a full-v55 gap certificate,
 dynamic validation and promotion gates pass.
 
 <!-- V282_FULL_UNIVERSE_GAP_CERTIFICATE_PROTOCOL_END -->
+
+<!-- V283_FULL_UNIVERSE_INTEGER_BOUND_PROBE_START -->
+
+## Wave v283: Full-Universe Integer Bound/Resource Probe
+
+Generated: 2026-05-16T13:02:33.224231+00:00
+
+### Objective
+
+Turn the v282 protocol into an executable feasibility gate for a direct full-v55
+integer bound solve. The probe estimates the exact full-universe formulation
+size, compares it with the direct-MIP resource guard, and records whether a
+valid global bound was produced.
+
+### Results
+
+- Full-v55 binary variables: `276869`.
+- Estimated continuous variables: `129`.
+- Estimated constraint rows: `176`.
+- Direct-MIP binary variable guard:
+  `50000`.
+- Direct full-v55 MIP attempted:
+  `False`.
+- Resource guard reason:
+  `binary_variable_count_exceeds_direct_mip_guard`.
+- Valid full-universe gap certificate available:
+  `False`.
+
+### Interpretation
+
+v283 makes the full-v55 blocker operational. The direct MIP path is too large
+for the configured direct-solve guard, so the next executable route is a
+decomposition, branch-and-price, or equivalent bound prototype rather than a
+promotion claim.
+
+### Claim Impact
+
+- Allowed: resource-gated full-v55 bound probe executed.
+- Still prohibited: full-universe global integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v283 in the living notebook. Promote only after a valid global bound,
+dynamic validation and promotion gates pass.
+
+<!-- V283_FULL_UNIVERSE_INTEGER_BOUND_PROBE_END -->
