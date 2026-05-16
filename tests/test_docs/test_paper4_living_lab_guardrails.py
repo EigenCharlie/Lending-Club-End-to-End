@@ -31062,6 +31062,170 @@ def test_paper4_v303_multiobjective_frontier_audit_blocks_global_claims() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v304_bounded_multiobjective_milp_keeps_global_claims_blocked() -> None:
+    status = _read_json("paper4_v304_status.json")
+
+    assert status["phase"] == "v304_bounded_multiobjective_milp_or_global_bound_probe"
+    assert status["schema_version"] == "2026-05-15.304"
+    assert status["source_candidate_version_v304"] == 295
+    assert status["multiobjective_audit_version_v304"] == 303
+    assert status["bounded_pool_rows_v304"] == 1724
+    assert status["observed_outside_candidate_rows_v304"] == 1553
+    assert status["outside_bounded_pool_rows_v304"] == 275145
+    assert status["reward_solution_rows_v304"] == 5
+    assert status["milp_success_rows_v304"] == 5
+    assert status["best_return_reward_v304"] == pytest.approx(0.0)
+    assert status["best_objective_return_v304"] == pytest.approx(4407.357278629816)
+    assert status["best_delta_return_vs_v295_v304"] == pytest.approx(1157.39863068264)
+    assert status["best_imputed_rows_v304"] == 68
+    assert status["best_cvar90_v304"] == pytest.approx(97068.38549161276)
+    assert status["lowest_imputed_reward_v304"] == pytest.approx(20.0)
+    assert status["lowest_imputed_rows_v304"] == 51
+    assert status["lowest_imputed_delta_return_vs_v295_v304"] == pytest.approx(964.3636621291053)
+    assert status["lowest_imputed_cvar90_v304"] == pytest.approx(97070.87798038824)
+    assert status["bounded_pool_optimality_claim_allowed_v304"] is True
+    assert status["full_universe_global_claim_allowed_v304"] is False
+    assert status["working_champion_claim_allowed_v304"] is False
+    assert status["paper1_promotion_allowed_v304"] is False
+    assert status["paper4_working_champion_changed_v304"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v304"] == 6
+    assert status["claim_matrix_rows_v304"] == 5
+    assert status["next_artifact_v304"] == "paper4_v305_post_v304_reprice_or_dynamic_gate.csv"
+
+    summary = _read_csv("paper4_v304_bounded_multiobjective_milp_or_global_bound_probe.csv")
+    row = summary.iloc[0]
+    assert (
+        row["probe_id_v304"] == "bounded_observed_proxy_multiobjective_milp_or_global_bound_probe"
+    )
+    assert int(row["bounded_pool_rows_v304"]) == 1724
+    assert int(row["reward_solution_rows_v304"]) == 5
+    assert bool(row["bounded_pool_optimality_claim_allowed_v304"]) is True
+    assert bool(row["full_universe_global_claim_allowed_v304"]) is False
+    assert bool(row["working_champion_claim_allowed_v304"]) is False
+    assert "bounded observed-proxy MILP result only" in str(row["claim_boundary_v304"])
+
+    pool = _read_csv("paper4_v304_bounded_pool_audit.csv")
+    pool_row = pool.iloc[0]
+    assert int(pool_row["full_universe_rows_v304"]) == 276869
+    assert int(pool_row["bounded_pool_rows_v304"]) == 1724
+    assert float(pool_row["bounded_pool_share_of_full_universe_v304"]) == pytest.approx(
+        0.00622677150565791
+    )
+    assert int(pool_row["v295_selected_rows_v304"]) == 171
+    assert int(pool_row["imputed_selected_rows_in_pool_v304"]) == 76
+    assert int(pool_row["binary_variables_v304"]) == 1724
+    assert int(pool_row["total_variables_v304"]) == 1853
+    assert int(pool_row["constraint_rows_v304"]) == 182
+
+    solutions = _read_csv("paper4_v304_bounded_reward_solutions.csv")
+    assert len(solutions) == status["reward_solution_rows_v304"]
+    assert solutions["milp_success_v304"].astype(bool).all()
+    assert solutions["milp_gap_v304"].abs().max() == pytest.approx(0.0)
+    assert not solutions["full_universe_global_claim_allowed_v304"].astype(bool).any()
+    sol_map = {
+        row.reward_per_imputation_penalty_v304: row for row in solutions.itertuples(index=False)
+    }
+    assert float(sol_map[0.0].objective_return_v304) == pytest.approx(4407.357278629816)
+    assert int(sol_map[0.0].imputed_proxy_loan_rows_v304) == 68
+    assert float(sol_map[0.0].delta_return_vs_v295_v304) == pytest.approx(1157.39863068264)
+    assert float(sol_map[2.0].objective_return_v304) == pytest.approx(4405.684069517044)
+    assert int(sol_map[2.0].imputed_proxy_loan_rows_v304) == 67
+    assert float(sol_map[5.0].objective_return_v304) == pytest.approx(4405.684069517044)
+    assert int(sol_map[10.0].imputed_proxy_loan_rows_v304) == 59
+    assert float(sol_map[10.0].delta_return_vs_v295_v304) == pytest.approx(1091.8170193137648)
+    assert int(sol_map[20.0].imputed_proxy_loan_rows_v304) == 51
+    assert float(sol_map[20.0].delta_return_vs_v295_v304) == pytest.approx(964.3636621291053)
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v304_bounded_reward_allocations.parquet")
+    assert len(allocations) == 855
+    assert allocations.groupby("reward_per_imputation_penalty_v304")[
+        "loan_id"
+    ].nunique().to_dict() == {
+        0.0: 171,
+        2.0: 171,
+        5.0: 171,
+        10.0: 171,
+        20.0: 171,
+    }
+    role_counts = allocations.groupby("reward_per_imputation_penalty_v304")[
+        "pool_role_v304"
+    ].value_counts()
+    assert int(role_counts.loc[(0.0, "outside_observed_proxy")]) == 32
+    assert int(role_counts.loc[(20.0, "outside_observed_proxy")]) == 43
+    assert allocations["claim_boundary_v304"].str.contains("not full-universe promotion").all()
+
+    source = _read_csv("paper4_v304_bounded_reward_source_summary.csv")
+    assert len(source) == 255
+    assert not source["source_cap_violated_v304"].astype(bool).any()
+    grade_a_reward0 = source.loc[
+        source["reward_per_imputation_penalty_v304"].eq(0.0)
+        & source["source_family"].eq("grade")
+        & source["source_id"].eq("A")
+    ].iloc[0]
+    assert float(grade_a_reward0["source_share_v304"]) == pytest.approx(0.8531348749298603)
+
+    blockers = _read_csv("paper4_v304_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v304"], blockers["blocking_v304"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v304"], blockers["evidence_count_v304"], strict=False)
+    )
+    assert bool(blocker_map["full_universe_coverage_missing"]) is True
+    assert int(evidence_map["full_universe_coverage_missing"]) == 275145
+    assert bool(blocker_map["post_v304_reprice_missing"]) is True
+    assert int(evidence_map["post_v304_reprice_missing"]) == 5
+    assert bool(blocker_map["global_dynamic_gate_missing"]) is True
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v304_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v304_bounded_multiobjective_milp_executed"]) is True
+    assert bool(claim_map["v304_bounded_pool_return_and_imputation_challengers"]) is True
+    assert bool(claim_map["v304_full_universe_global_optimality"]) is False
+    assert bool(claim_map["v304_working_champion_or_promotion"]) is False
+    assert bool(claim_map["v304_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["Paper 4 has a v304 bounded observed-proxy multiobjective MILP probe."]
+    )
+    assert bool(
+        boundary_map["v304 finds bounded-pool solutions that improve return and reduce imputation."]
+    )
+    assert (
+        bool(boundary_map["v304 proves full-universe global or multiobjective optimality."])
+        is False
+    )
+    assert (
+        bool(
+            boundary_map[
+                "v304 authorizes a Paper 4 working champion or Paper Estrella replacement."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v304 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v304_rows = backlog.loc[backlog["last_wave"].eq("v304")]
+    assert len(v304_rows) == 1
+    backlog_row = v304_rows.iloc[0]
+    assert backlog_row["status"] == "bounded_observed_proxy_multiobjective_milp_executed"
+    assert backlog_row["next_artifact"] == "paper4_v305_post_v304_reprice_or_dynamic_gate.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v304: Bounded Multiobjective MILP / Global-Bound Probe" in notebook
+    assert "Best objective return: `4407.357278629816`" in notebook
+    assert "Lowest imputed rows: `51`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -11907,3 +11907,55 @@ Keep v303 in the living notebook. The next wave should attempt a bounded
 multiobjective MILP/global-bound probe.
 
 <!-- V303_GLOBAL_MULTI_FRONTIER_AUDIT_END -->
+
+<!-- V304_BOUNDED_MULTIOBJECTIVE_MILP_START -->
+
+## Wave v304: Bounded Multiobjective MILP / Global-Bound Probe
+
+Generated: 2026-05-16T19:30:25.449751+00:00
+
+### Objective
+
+v303 quantified reward thresholds over the v302 greedy prefixes. v304 moves
+from prefix audit to optimization by solving bounded MILPs over the v295
+selected rows plus all observed-v47-proxy candidates outside v295.
+
+### Results
+
+- Bounded pool rows: `1724`.
+- Observed outside candidate rows: `1553`.
+- Reward solutions solved: `5`.
+- Solver success rows: `5`.
+- Best return reward: `0.0`.
+- Best objective return: `4407.357278629816`.
+- Best delta return vs v295: `1157.39863068264`.
+- Lowest imputed reward: `20.0`.
+- Lowest imputed rows: `51`.
+- Lowest-imputed delta return vs v295:
+  `964.3636621291053`.
+- Full-universe global claim allowed:
+  `False`.
+
+### Interpretation
+
+v304 is a strong bounded-pool result: within the observed-proxy pool, the MILP
+finds portfolios that both improve return versus v295 and reduce imputed proxy
+dependence. The best-return solution improves return materially while reducing
+imputed rows, and the highest reward solution reduces imputed rows further while
+still beating v295. This is not a full-universe proof because most v55 rows are
+outside the solved pool.
+
+### Claim Impact
+
+- Allowed: bounded observed-proxy multiobjective MILP probe and bounded-pool
+  reward solutions.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v304 in the living notebook. The next wave should reprice/post-solve
+validate the strongest bounded solution and preserve global blockers.
+
+<!-- V304_BOUNDED_MULTIOBJECTIVE_MILP_END -->

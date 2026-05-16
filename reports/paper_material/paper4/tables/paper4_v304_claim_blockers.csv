@@ -1,0 +1,7 @@
+blocker_id_v304,blocking_v304,evidence_count_v304,required_next_artifact_v304,claim_boundary_v304
+full_universe_coverage_missing,True,275145,future_full_universe_or_branch_price_bound,bounded pool omits most v55 rows
+post_v304_reprice_missing,True,5,paper4_v305_post_v304_reprice_or_dynamic_gate.csv,bounded MILP solutions require post-solve repricing
+global_dynamic_gate_missing,True,1,paper4_v305_post_v304_reprice_or_dynamic_gate.csv,no dynamic/live promotion gate is created
+external_online_holdout_missing,True,0,future_external_online_holdout,v304 does not create external online evidence
+paper4_working_champion_gate_missing,True,1,future_global_dynamic_promotion_gate,working champion replacement remains blocked
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
