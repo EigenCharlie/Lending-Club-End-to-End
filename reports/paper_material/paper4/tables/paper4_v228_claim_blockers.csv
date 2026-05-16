@@ -1,0 +1,4 @@
+blocker_id_v228,blocking_v228,evidence_count_v228,required_next_artifact_v228,claim_boundary_v228
+post_v227_one_swap_improvement_found,True,86,paper4_v229_apply_next_swap_or_iterate.csv,feasible improving post-v227 one-swaps block local optimality
+multi_swap_integer_pricing_missing,True,1,paper4_v229_iterated_swap_or_milp_repair.csv,one-swap screen does not cover multi-loan exchanges
+global_integer_gap_certificate_missing,True,1,paper4_v229_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate
