@@ -10964,3 +10964,58 @@ Keep v284 in the living notebook. Promote only after a valid global bound,
 dynamic validation and promotion gates pass.
 
 <!-- V284_DECOMPOSITION_BRANCH_PRICE_PROTOTYPE_END -->
+
+<!-- V285_SOURCE_TIGHT_PRICING_SCREEN_START -->
+
+## Wave v285: Source-Tight Pricing Screen
+
+Generated: 2026-05-16T13:19:45.900842+00:00
+
+### Objective
+
+Convert the v284 decomposition prototype into an executable source-tight
+pricing screen. The screen focuses on positive-return omitted candidates inside
+the tight grade A and score decile 0 blocks, then tests whether any one-drop /
+one-add pricing column survives return, budget and source-cap filters.
+
+### Results
+
+- Tight candidate rows: `73048`.
+- Positive-return tight candidate rows: `4415`.
+- Positive candidates in both grade A and score decile 0:
+  `4412`.
+- Return-improving pair rows: `456968`.
+- Budget+return feasible pair rows: `176697`.
+- Grade-only source feasible pair rows:
+  `105`.
+- Score-decile-only source feasible pair rows:
+  `5476`.
+- All-source prefilter pair rows: `0`.
+- One-drop/one-add entering columns found:
+  `False`.
+- Valid branch-price bound produced:
+  `False`.
+
+### Interpretation
+
+v285 is valuable because it narrows the v284 decomposition route: many
+positive-return columns exist, but the local one-drop/one-add screen collapses
+at the joint tight source caps. Grade A alone leaves a tiny set of possible
+pairs, score decile 0 alone leaves more, and the intersection leaves none.
+That points the next experiment toward explicit multi-source relief rather
+than another broad one-swap scan.
+
+### Claim Impact
+
+- Allowed: source-tight pricing screen completed; no one-drop/one-add entering
+  column found inside the positive source-tight screen.
+- Still prohibited: valid full-universe branch-price bound, global integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v285 in the living notebook. Promote only after multi-source relief,
+global-bound and dynamic-validation gates pass.
+
+<!-- V285_SOURCE_TIGHT_PRICING_SCREEN_END -->

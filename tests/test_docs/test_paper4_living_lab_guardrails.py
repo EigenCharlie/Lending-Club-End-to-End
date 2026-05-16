@@ -28515,6 +28515,124 @@ def test_paper4_v284_decomposition_branch_price_prototype_identifies_tight_block
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v285_source_tight_pricing_screen_blocks_one_drop_entry() -> None:
+    status = _read_json("paper4_v285_status.json")
+
+    assert status["phase"] == "v285_source_tight_pricing_screen"
+    assert status["schema_version"] == "2026-05-15.285"
+    assert status["decomposition_version_v285"] == 284
+    assert status["incumbent_repair_version_v285"] == 279
+    assert status["terminal_reprice_version_v285"] == 280
+    assert status["tight_candidate_rows_v285"] == 73048
+    assert status["positive_tight_candidate_rows_v285"] == 4415
+    assert status["positive_joint_grade_a_score0_candidate_rows_v285"] == 4412
+    assert status["selected_rows_v285"] == 171
+    assert status["total_pair_rows_screened_v285"] == 754965
+    assert status["return_improving_pair_rows_v285"] == 456968
+    assert status["budget_return_feasible_pair_rows_v285"] == 176697
+    assert status["grade_source_feasible_pair_rows_v285"] == 105
+    assert status["score_decile_source_feasible_pair_rows_v285"] == 5476
+    assert status["joint_grade_score_source_feasible_pair_rows_v285"] == 0
+    assert status["source_prefilter_pair_rows_v285"] == 0
+    assert status["source_exact_pair_rows_v285"] == 0
+    assert status["cvar_feasible_pair_rows_v285"] == 0
+    assert status["one_drop_one_add_entering_columns_found_v285"] is False
+    assert status["source_tight_pricing_screen_executed_v285"] is True
+    assert status["valid_branch_price_bound_v285"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v285"] is False
+    assert status["paper1_promotion_allowed_v285"] is False
+    assert status["paper4_working_champion_changed_v285"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["candidate_diagnostic_rows_v285"] == 4415
+    assert status["stage_summary_rows_v285"] == 17
+    assert status["claim_blocker_rows_v285"] == 5
+    assert status["claim_matrix_rows_v285"] == 5
+    assert status["next_artifact_v285"] == "paper4_v286_joint_source_relief_pricing_protocol.csv"
+
+    screen = _read_csv("paper4_v285_source_tight_pricing_screen.csv")
+    row = screen.iloc[0]
+    assert row["screen_id_v285"] == "source_tight_positive_candidate_one_drop_one_add_screen"
+    assert bool(row["source_tight_pricing_screen_executed_v285"]) is True
+    assert bool(row["one_drop_one_add_entering_columns_found_v285"]) is False
+    assert bool(row["valid_branch_price_bound_v285"]) is False
+    assert "no multi-source relief" in str(row["claim_boundary_v285"])
+
+    stages = _read_csv("paper4_v285_source_tight_pair_stage_summary.csv")
+    stage_map = dict(zip(stages["stage_v285"], stages["pair_rows_v285"], strict=False))
+    assert int(stage_map["all_positive_tight_pairs"]) == 754965
+    assert int(stage_map["return_improving"]) == 456968
+    assert int(stage_map["budget_return_feasible"]) == 176697
+    assert int(stage_map["grade_source_feasible_alone"]) == 105
+    assert int(stage_map["score_decile_source_feasible_alone"]) == 5476
+    assert int(stage_map["cumulative_source_prefilter_after_grade"]) == 105
+    assert int(stage_map["cumulative_source_prefilter_after_score_decile"]) == 0
+    assert int(stage_map["source_exact_feasible"]) == 0
+    assert int(stage_map["cvar_feasible_entering_column"]) == 0
+
+    diagnostics = _read_csv("paper4_v285_source_tight_candidate_diagnostics.csv")
+    assert len(diagnostics) == status["candidate_diagnostic_rows_v285"]
+    top = diagnostics.iloc[0]
+    assert str(top["loan_id"]) == "165382274"
+    assert top["mean_return_v285"] == pytest.approx(883.9433199290119)
+    assert str(top["pricing_block_ids_v285"]) == "grade=A|score_decile=0"
+    assert int(top["tight_block_count_v285"]) == 2
+    assert int(top["return_improving_drop_rows_v285"]) == 169
+    assert int(top["budget_return_drop_rows_v285"]) == 1
+    assert int(top["joint_tight_source_feasible_drop_rows_v285"]) == 0
+    assert int(top["all_source_prefilter_drop_rows_v285"]) == 0
+
+    pricing_pairs = _read_csv("paper4_v285_source_tight_pricing_pairs.csv")
+    assert pricing_pairs.empty
+
+    blockers = _read_csv("paper4_v285_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v285"], blockers["blocking_v285"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v285"], blockers["evidence_count_v285"], strict=False)
+    )
+    assert bool(blocker_map["joint_tight_source_caps_block_one_drop_pricing"]) is True
+    assert int(evidence_map["joint_tight_source_caps_block_one_drop_pricing"]) == 176697
+    assert bool(blocker_map["source_exact_pricing_pairs_missing"]) is True
+    assert bool(blocker_map["branch_price_dual_bound_missing"]) is True
+    assert bool(blocker_map["global_integer_optimality_claim_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v285_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v285_source_tight_pricing_screen_executed"]) is True
+    assert bool(claim_map["v285_no_one_drop_one_add_entering_column_in_tight_screen"]) is True
+    assert bool(claim_map["v285_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v285_global_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v285_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v285 source-tight pricing screen."])
+    assert bool(
+        boundary_map[
+            "v285 shows no one-drop/one-add entering column inside positive source-tight blocks."
+        ]
+    )
+    assert bool(boundary_map["v285 proves a valid full-universe branch-price bound."]) is False
+    assert bool(boundary_map["v285 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v285_rows = backlog.loc[backlog["last_wave"].eq("v285")]
+    assert len(v285_rows) == 1
+    backlog_row = v285_rows.iloc[0]
+    assert backlog_row["status"] == "source_tight_pricing_screen_blocked_by_joint_caps"
+    assert backlog_row["next_artifact"] == "paper4_v286_joint_source_relief_pricing_protocol.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v285: Source-Tight Pricing Screen" in notebook
+    assert "Positive-return tight candidate rows: `4415`" in notebook
+    assert "All-source prefilter pair rows: `0`" in notebook
+    assert "joint tight source caps" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

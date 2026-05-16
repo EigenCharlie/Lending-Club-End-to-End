@@ -1,0 +1,6 @@
+blocker_id_v285,blocking_v285,evidence_count_v285,required_next_artifact_v285,claim_boundary_v285
+joint_tight_source_caps_block_one_drop_pricing,True,176697,paper4_v286_joint_source_relief_pricing_protocol.csv,budget+return pairs collapse to zero after combined source caps
+source_exact_pricing_pairs_missing,True,0,paper4_v286_joint_source_relief_pricing_protocol.csv,no source-exact one-drop/one-add pair remains in the tight screen
+branch_price_dual_bound_missing,True,1,future_branch_price_dual_bound_loop,no dual-bound loop or termination certificate
+global_integer_optimality_claim_blocked,True,1,future_global_gap_or_branch_price_certificate,v285 screen does not prove full-universe optimality
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
