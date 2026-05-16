@@ -8259,3 +8259,52 @@ Keep v226 in the living notebook. Promote only after the repair loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V226_POST_V225_ONE_SWAP_REPRICE_END -->
+
+<!-- V227_NEXT_ONE_SWAP_REPAIR_START -->
+
+## Wave v227: Seventy-Third One-Swap Repair Candidate
+
+Generated: 2026-05-16T07:35:27.080991+00:00
+
+### Objective
+
+Apply the best feasible post-v225 one-drop/one-add swap
+found by v226 and recompute portfolio return, budget, source and
+CVaR metrics. This continues the local integer repair loop; it is not a final
+champion or optimality certificate.
+
+### Results
+
+- Added loan: `146058451`.
+- Dropped loan: `169358871`.
+- Selected rows after repair: `171`.
+- Return delta vs v225:
+  `15.270031838797877`.
+- CVaR90 delta vs v225:
+  `202.1895327479724`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v227 improves the v225 repaired candidate while
+preserving budget, source and CVaR feasibility. The next required experiment is
+v228 post-repair one-swap pricing because every repair
+changes the set of possible improving exchanges.
+
+### Claim Impact
+
+- Allowed: seventy-third one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v227 in the living notebook. Promote only after the repair/reprice
+loop terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V227_NEXT_ONE_SWAP_REPAIR_END -->
