@@ -59,6 +59,38 @@ def _top_swap(pricing_version: int) -> pd.Series:
     return top.sort_values(f"return_delta_v{pricing_version}", ascending=False).iloc[0]
 
 
+def _reprice_pair_columns(version: int) -> list[str]:
+    columns = [
+        "policy_id",
+        f"regime_v{version}",
+        f"added_loan_id_v{version}",
+        f"dropped_loan_id_v{version}",
+        f"added_loan_amount_v{version}",
+        f"dropped_loan_amount_v{version}",
+        f"added_mean_return_v{version}",
+        f"dropped_mean_return_v{version}",
+        f"return_delta_v{version}",
+        f"objective_return_after_swap_v{version}",
+        f"exposure_after_swap_v{version}",
+        f"budget_swap_feasible_v{version}",
+        f"source_swap_feasible_v{version}",
+        f"source_min_slack_after_swap_v{version}",
+        f"max_source_share_after_swap_v{version}",
+        f"source_cap_violations_after_swap_v{version}",
+        f"first_source_block_family_v{version}",
+        f"first_source_block_id_v{version}",
+        f"loss_mean_after_swap_v{version}",
+        f"cvar90_after_swap_v{version}",
+        f"cvar_swap_feasible_v{version}",
+        f"one_swap_improves_return_v{version}",
+        f"integer_screen_scope_v{version}",
+        f"claim_boundary_v{version}",
+    ]
+    for family in FAMILIES:
+        columns.extend([f"added_{family}_v{version}", f"dropped_{family}_v{version}"])
+    return columns
+
+
 def _source_summary(
     *,
     universe: pd.DataFrame,
@@ -604,6 +636,9 @@ def build_reprice_wave(
         stage_summary,
     )
     write_csv(TABLE_DIR / f"paper4_v{version}_claim_blockers.csv", blockers)
+    local_optimality_cleared = bool(
+        summary[f"post_repair_one_swap_local_optimality_cleared_v{version}"].iloc[0]
+    )
     claim_matrix = pd.DataFrame(
         [
             {
@@ -614,9 +649,7 @@ def build_reprice_wave(
             },
             {
                 "claim_id": f"v{version}_post_repair_one_swap_local_optimality",
-                "allowed": bool(
-                    summary[f"post_repair_one_swap_local_optimality_cleared_v{version}"].iloc[0]
-                ),
+                "allowed": local_optimality_cleared,
                 "artifact": f"paper4_v{version}_claim_blockers.csv",
                 "boundary": "false if feasible improving swaps remain",
             },
@@ -635,10 +668,21 @@ def build_reprice_wave(
         ]
     )
     write_csv(TABLE_DIR / f"paper4_v{version}_claim_matrix_delta.csv", claim_matrix)
-    _update_reprice_claim_boundaries(version, previous_repair_version)
-    _update_reprice_backlog(version, previous_repair_version, next_repair_version)
+    _update_reprice_claim_boundaries(
+        version,
+        previous_repair_version,
+        local_optimality_cleared=local_optimality_cleared,
+    )
+    _update_reprice_backlog(
+        version,
+        previous_repair_version,
+        next_repair_version,
+        local_optimality_cleared=local_optimality_cleared,
+    )
 
     row = summary.iloc[0]
+    best_return_delta = row[f"best_one_swap_return_delta_v{version}"]
+    best_cvar90_after = row[f"best_one_swap_cvar90_after_v{version}"]
     status = {
         "phase": f"v{version}_post_v{previous_repair_version}_one_swap_reprice",
         "schema_version": f"2026-05-15.{version}",
@@ -664,11 +708,11 @@ def build_reprice_wave(
         f"source_exact_pair_rows_v{version}": int(row[f"source_exact_pair_rows_v{version}"]),
         f"cvar_feasible_pair_rows_v{version}": int(row[f"cvar_feasible_pair_rows_v{version}"]),
         f"one_swap_improving_rows_v{version}": int(row[f"one_swap_improving_rows_v{version}"]),
-        f"best_one_swap_return_delta_v{version}": float(
-            row[f"best_one_swap_return_delta_v{version}"]
+        f"best_one_swap_return_delta_v{version}": (
+            None if pd.isna(best_return_delta) else float(best_return_delta)
         ),
-        f"best_one_swap_cvar90_after_v{version}": float(
-            row[f"best_one_swap_cvar90_after_v{version}"]
+        f"best_one_swap_cvar90_after_v{version}": (
+            None if pd.isna(best_cvar90_after) else float(best_cvar90_after)
         ),
         f"post_repair_one_swap_local_optimality_cleared_v{version}": bool(
             row[f"post_repair_one_swap_local_optimality_cleared_v{version}"]
@@ -821,7 +865,7 @@ def _candidate_pairs_for_reprice(
             row[f"dropped_{family}_v{version}"] = str(drop_row[family])
         rows.append(row)
 
-    pairs = pd.DataFrame(rows)
+    pairs = pd.DataFrame(rows, columns=_reprice_pair_columns(version))
     cvar_feasible_pairs = (
         int(pairs[f"cvar_swap_feasible_v{version}"].sum()) if not pairs.empty else 0
     )
@@ -829,6 +873,15 @@ def _candidate_pairs_for_reprice(
         int(pairs[f"one_swap_improves_return_v{version}"].sum()) if not pairs.empty else 0
     )
     best = pairs.sort_values(f"return_delta_v{version}", ascending=False).head(1)
+    local_claim_boundary = (
+        f"post-v{previous_repair_version} one-swap screen cleared; "
+        "multi-swap/global proof still missing"
+        if improving_pairs == 0
+        else (
+            f"post-v{previous_repair_version} one-swap screen only; "
+            "repeat repair/repricing if improvements remain"
+        )
+    )
     summary = pd.DataFrame(
         [
             {
@@ -860,10 +913,7 @@ def _candidate_pairs_for_reprice(
                 f"current_objective_return_v{version}": current_objective_return,
                 f"post_repair_one_swap_local_optimality_cleared_v{version}": (improving_pairs == 0),
                 f"full_universe_integer_optimality_claim_allowed_v{version}": False,
-                f"claim_boundary_v{version}": (
-                    f"post-v{previous_repair_version} one-swap screen only; "
-                    "repeat repair/repricing if improvements remain"
-                ),
+                f"claim_boundary_v{version}": local_claim_boundary,
             }
         ]
     )
@@ -903,19 +953,24 @@ def _reprice_claim_blockers(
     next_repair_version: int,
 ) -> pd.DataFrame:
     improving = int(summary[f"one_swap_improving_rows_v{version}"].iloc[0])
+    improvement_next_artifact = (
+        f"paper4_v{next_repair_version}_apply_next_swap_or_iterate.csv"
+        if improving > 0
+        else f"paper4_v{version}_one_swap_local_optimality_evidence.csv"
+    )
+    improvement_boundary = (
+        f"feasible improving post-v{previous_repair_version} one-swaps block local optimality"
+        if improving > 0
+        else f"no feasible improving post-v{previous_repair_version} one-swaps remain"
+    )
     return pd.DataFrame(
         [
             {
                 f"blocker_id_v{version}": f"post_v{previous_repair_version}_one_swap_improvement_found",
                 f"blocking_v{version}": improving > 0,
                 f"evidence_count_v{version}": improving,
-                f"required_next_artifact_v{version}": (
-                    f"paper4_v{next_repair_version}_apply_next_swap_or_iterate.csv"
-                ),
-                f"claim_boundary_v{version}": (
-                    f"feasible improving post-v{previous_repair_version} one-swaps "
-                    "block local optimality"
-                ),
+                f"required_next_artifact_v{version}": improvement_next_artifact,
+                f"claim_boundary_v{version}": improvement_boundary,
             },
             {
                 f"blocker_id_v{version}": "multi_swap_integer_pricing_missing",
@@ -941,7 +996,12 @@ def _reprice_claim_blockers(
     )
 
 
-def _update_reprice_claim_boundaries(version: int, previous_repair_version: int) -> None:
+def _update_reprice_claim_boundaries(
+    version: int,
+    previous_repair_version: int,
+    *,
+    local_optimality_cleared: bool,
+) -> None:
     path = TABLE_DIR / "paper4_current_claim_boundaries.csv"
     current = read_csv("paper4_current_claim_boundaries.csv")
     additions = pd.DataFrame(
@@ -968,7 +1028,7 @@ def _update_reprice_claim_boundaries(version: int, previous_repair_version: int)
                     f"v{version} proves the v{previous_repair_version} repaired "
                     "portfolio is locally optimal."
                 ),
-                "allowed": False,
+                "allowed": local_optimality_cleared,
                 "evidence_artifact": (
                     f"reports/paper_material/paper4/tables/paper4_v{version}_claim_blockers.csv"
                 ),
@@ -976,7 +1036,7 @@ def _update_reprice_claim_boundaries(version: int, previous_repair_version: int)
                     f"Allowed only if no feasible improving post-v{previous_repair_version} "
                     "one-swaps remain."
                 ),
-                "prohibited_claim_flag": True,
+                "prohibited_claim_flag": not local_optimality_cleared,
                 "current_quarto_page": "living_notebook_only",
             },
             {
@@ -1005,9 +1065,26 @@ def _update_reprice_backlog(
     version: int,
     previous_repair_version: int,
     next_repair_version: int,
+    *,
+    local_optimality_cleared: bool,
 ) -> None:
     path = TABLE_DIR / "paper4_living_lab_backlog.csv"
     current = read_csv("paper4_living_lab_backlog.csv")
+    next_artifact = (
+        f"paper4_v{version}_multi_swap_or_global_gap_protocol.csv"
+        if local_optimality_cleared
+        else f"paper4_v{next_repair_version}_apply_next_swap_or_iterated_repair.csv"
+    )
+    status = (
+        "one_swap_local_optimality_cleared"
+        if local_optimality_cleared
+        else "iterate_if_improving_swaps_remain"
+    )
+    execution_result = (
+        f"post_v{previous_repair_version}_one_swap_reprice_cleared"
+        if local_optimality_cleared
+        else f"post_v{previous_repair_version}_one_swap_reprice_completed"
+    )
     additions = pd.DataFrame(
         [
             {
@@ -1017,13 +1094,13 @@ def _update_reprice_backlog(
                     f"v{version} reruns one-swap pricing after the v{previous_repair_version} "
                     "repair over all non-selected comparable loans."
                 ),
-                "status": "iterate_if_improving_swaps_remain",
-                "next_artifact": f"paper4_v{next_repair_version}_apply_next_swap_or_iterated_repair.csv",
+                "status": status,
+                "next_artifact": next_artifact,
                 "success_condition": (
                     f"no feasible improving post-v{previous_repair_version} one-swaps remain"
                 ),
                 "last_wave": f"v{version}",
-                "execution_result": f"post_v{previous_repair_version}_one_swap_reprice_completed",
+                "execution_result": execution_result,
                 "quarto_promotion_decision": "living_notebook_only",
             },
         ]
@@ -1044,6 +1121,10 @@ def _update_reprice_notebook(
 ) -> None:
     start = f"<!-- V{version}_POST_V{previous_repair_version}_ONE_SWAP_REPRICE_START -->"
     end = f"<!-- V{version}_POST_V{previous_repair_version}_ONE_SWAP_REPRICE_END -->"
+    best_delta = status[f"best_one_swap_return_delta_v{version}"]
+    best_delta_text = (
+        "not applicable; no feasible improving one-swaps" if best_delta is None else str(best_delta)
+    )
     block = f"""
 {start}
 
@@ -1066,7 +1147,7 @@ is one-swap locally optimal.
 - Exact source-feasible pairs: `{status[f"source_exact_pair_rows_v{version}"]}`.
 - CVaR-feasible improving one-swaps: `{status[f"one_swap_improving_rows_v{version}"]}`.
 - Best post-v{previous_repair_version} one-swap return delta:
-  `{status[f"best_one_swap_return_delta_v{version}"]}`.
+  `{best_delta_text}`.
 - Post-v{previous_repair_version} local optimality cleared:
   `{status[f"post_repair_one_swap_local_optimality_cleared_v{version}"]}`.
 
