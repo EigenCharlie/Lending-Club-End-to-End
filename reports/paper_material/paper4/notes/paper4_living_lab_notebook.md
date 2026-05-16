@@ -12158,3 +12158,55 @@ coverage and drops one with observed coverage.
 Keep v308 in the living notebook. The next wave must reprice v308.
 
 <!-- V308_APPLY_POST_V306_SWAP_END -->
+
+<!-- V309_POST_V308_ONE_SWAP_REPRICE_START -->
+
+## Wave v309: Post-v308 One-Swap Repricing Gate
+
+Generated: 2026-05-16T20:16:18.880406+00:00
+
+### Objective
+
+v308 applied the best feasible v307 repair. v309 tests whether that repaired
+candidate has one-drop/one-add stability against the full comparable universe
+under the v308 CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1457070`.
+- Budget+return feasible pairs: `602358`.
+- Source prefilter pairs: `53129`.
+- Exact source-feasible pairs: `22`.
+- CVaR-feasible improving one-swaps: `4`.
+- Best source-exact return delta: `5.376772278224863`.
+- Best CVaR-feasible return delta: `1.2999666203700144`.
+- Current missing v47 proxy rows:
+  `70`.
+- Best feasible delta missing proxy rows:
+  `1`.
+- Post-v308 one-swap local optimality cleared:
+  `False`.
+- Dynamic/global gate ready:
+  `False`.
+
+### Interpretation
+
+v309 either clears the post-v308 local repricing gate or records another repair
+signal. The proxy coverage gap is carried explicitly so a return-improving
+local move cannot quietly become an IFRS9 or live-deployment claim.
+
+### Claim Impact
+
+- Allowed: post-v308 one-swap repricing gate completed.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v309 in the living notebook. Promotion remains blocked.
+
+<!-- V309_POST_V308_ONE_SWAP_REPRICE_END -->

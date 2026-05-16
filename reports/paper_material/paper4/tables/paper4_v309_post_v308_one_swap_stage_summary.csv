@@ -1,0 +1,7 @@
+stage_v309,pair_rows_v309,claim_boundary_v309
+all_pairs,47315358,post-v308 repair one-swap screen stage count only
+return_improving,1457070,post-v308 repair one-swap screen stage count only
+budget_return_feasible,602358,post-v308 repair one-swap screen stage count only
+source_prefilter_feasible,53129,post-v308 repair one-swap screen stage count only
+source_exact_feasible,22,post-v308 repair one-swap screen stage count only
+cvar_feasible_improving,4,post-v308 repair one-swap screen stage count only
