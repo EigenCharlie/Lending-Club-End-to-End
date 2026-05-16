@@ -11559,3 +11559,52 @@ optimality or deployment claim.
 Keep v296 in the living notebook. Promotion remains blocked.
 
 <!-- V296_POST_V295_ONE_SWAP_REPRICE_END -->
+
+<!-- V297_GLOBAL_DYNAMIC_GATE_START -->
+
+## Wave v297: Global-Bound / Dynamic Proxy Gate
+
+Generated: 2026-05-16T18:17:30.538721+00:00
+
+### Objective
+
+v296 cleared the post-v295 one-swap screen, so v297 moves to the next blocker:
+full-universe branch-price/global evidence and dynamic validation. This wave
+does not solve the full-v55 integer bound; it records that resource/global
+blocker and runs a periodized common-path proxy replay for v293 versus v295.
+
+### Results
+
+- Full-v55 binary variables: `276869`.
+- Direct MIP guard: `50000`.
+- Valid full-universe gap certificate:
+  `False`.
+- Dynamic proxy trace rows: `768`.
+- Dynamic proxy policies: `2`.
+- Common replay periods: `3`.
+- Delta return v295 vs v293: `68.91906077367094`.
+- Delta CVaR90 v295 vs v293: `-169.5818372888316`.
+- v295 proxy replay beats v293:
+  `True`.
+- Live deployment claim allowed:
+  `False`.
+
+### Interpretation
+
+v297 strengthens the candidate story without crossing the claim boundary:
+v295 beats v293 on return and CVaR in the same periodized static-book proxy
+trace, but this is still not a full branch-price certificate, cashflow replay,
+online holdout rerun or deployment validation.
+
+### Claim Impact
+
+- Allowed: v297 global/dynamic gate audit and common-path proxy replay.
+- Still prohibited: full-universe global optimality, live deployment, Paper
+  Estrella replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v297 in the living notebook. Promotion remains blocked; the next live-lab
+wave should rerun online/source, IFRS9 proxy and SPO-DLA gates for v295.
+
+<!-- V297_GLOBAL_DYNAMIC_GATE_END -->

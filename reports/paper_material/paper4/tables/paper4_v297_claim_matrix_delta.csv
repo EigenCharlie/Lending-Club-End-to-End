@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v297_global_dynamic_gate_executed,True,paper4_v297_global_dynamic_gate_summary.csv,gate audit plus dynamic proxy replay
+v297_v295_dynamic_proxy_beats_v293,True,paper4_v297_dynamic_proxy_summary.csv,periodized static-book proxy only
+v297_full_universe_gap_certificate,False,paper4_v297_claim_blockers.csv,global certificate missing
+v297_live_deployment_or_working_champion,False,paper4_v297_claim_blockers.csv,live deployment and dynamic validation missing
+v297_paper1_or_final_promotion,False,paper4_v297_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
