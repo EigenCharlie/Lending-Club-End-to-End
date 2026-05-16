@@ -12668,3 +12668,52 @@ Keep v318 in the living notebook. The next wave should build v316-specific
 cashflow, online and IFRS9 proxy gates without promoting.
 
 <!-- V318_DYNAMIC_PROXY_GLOBAL_BOUND_AFTER_V316_END -->
+
+<!-- V319_V316_CASHFLOW_ONLINE_IFRS9_GATE_START -->
+
+## Wave v319: v316 Cashflow / Online / IFRS9 Gate
+
+Generated: 2026-05-16T21:20:16.456813+00:00
+
+### Objective
+
+v318 showed that v316 beats v295 in the final-period static-book proxy but
+still lacks v316-specific cashflow/online/IFRS9 evidence. v319 builds that
+candidate-specific proxy panel and temporal online replay.
+
+### Results
+
+- Cashflow proxy panel rows: `6156`.
+- Observed proxy loan rows: `98`.
+- Imputed proxy loan rows: `73`.
+- Post-imputation coverage share:
+  `1.0`.
+- Online temporal cell rows: `6`.
+- Online internal all-gate family rows:
+  `2`.
+- Strict live deployability claim allowed:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+
+### Interpretation
+
+v319 fills a real evidence gap by making the v316 cashflow/online evidence
+candidate-specific. It also keeps the claim boundary honest: imputed proxy rows,
+missing external holdout data, matched-period uncertainty and the global
+certificate gap continue to block live, contractual and champion claims.
+
+### Claim Impact
+
+- Allowed: v316-specific cashflow proxy panel and temporal online replay.
+- Still prohibited: contractual IFRS9, live online deployability, matched-period
+  dynamic superiority, full-universe global optimality, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v319 in the living notebook. Promotion remains blocked.
+
+<!-- V319_V316_CASHFLOW_ONLINE_IFRS9_GATE_END -->

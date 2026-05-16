@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v319_v316_cashflow_proxy_panel_executed,True,paper4_v319_v316_cashflow_proxy_summary.csv,proxy panel with imputation
+v319_v316_online_temporal_rerun_executed,True,paper4_v319_v316_online_temporal_summary.csv,internal selected-book replay
+v319_v316_internal_online_all_gates,True,paper4_v319_v316_online_temporal_summary.csv,"internal historical replay only, not live deployability"
+v319_contractual_ifrs9,False,paper4_v319_claim_blockers.csv,imputed proxy rows and missing servicing panel
+v319_strict_live_online_deployability,False,paper4_v319_claim_blockers.csv,external holdout missing
+v319_working_champion_or_final_promotion,False,paper4_v319_claim_blockers.csv,working champion and final promotion remain blocked

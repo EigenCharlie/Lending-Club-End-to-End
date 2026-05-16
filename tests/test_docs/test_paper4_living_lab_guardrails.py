@@ -33025,6 +33025,165 @@ def test_paper4_v318_dynamic_proxy_after_v316_blocks_promotion() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v319_v316_cashflow_online_ifrs9_gate_remains_bounded() -> None:
+    status = _read_json("paper4_v319_status.json")
+
+    assert status["phase"] == "v319_v316_cashflow_online_ifrs9_gate"
+    assert status["schema_version"] == "2026-05-16.319"
+    assert status["source_candidate_version_v319"] == 316
+    assert status["gate_audit_version_v319"] == 318
+    assert status["selected_rows_v319"] == 171
+    assert status["cashflow_proxy_panel_rows_v319"] == 6156
+    assert status["observed_proxy_loan_rows_v319"] == 98
+    assert status["imputed_proxy_loan_rows_v319"] == 73
+    assert status["post_imputation_coverage_share_v319"] == pytest.approx(1.0)
+    assert status["observed_coverage_share_v319"] == pytest.approx(0.5730994152046783)
+    assert status["cashflow_proxy_months_v319"] == 36
+    assert status["cashflow_proxy_scenarios_v319"] == 1
+    assert status["cashflow_proxy_source_rows_v319"] == 3
+    assert status["online_temporal_cell_rows_v319"] == 6
+    assert status["online_temporal_summary_rows_v319"] == 2
+    assert status["online_internal_all_gate_family_rows_v319"] == 2
+    assert status["strict_live_deployability_claim_allowed_v319"] is False
+    assert status["contractual_ifrs9_claim_allowed_v319"] is False
+    assert status["working_champion_claim_allowed_v319"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v319"] is False
+    assert status["paper1_promotion_allowed_v319"] is False
+    assert status["paper4_working_champion_changed_v319"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v319"] == 6
+    assert status["claim_matrix_rows_v319"] == 6
+    assert status["next_artifact_v319"] == (
+        "paper4_v320_v316_matched_period_or_branch_price_protocol.csv"
+    )
+
+    gate = _read_csv("paper4_v319_v316_cashflow_online_ifrs9_gate.csv")
+    gate_row = gate.iloc[0]
+    assert gate_row["gate_id_v319"] == "v319_v316_cashflow_online_ifrs9_gate"
+    assert int(gate_row["candidate_version_v319"]) == 316
+    assert int(gate_row["gate_audit_version_v319"]) == 318
+    assert int(gate_row["observed_proxy_loan_rows_v319"]) == 98
+    assert int(gate_row["imputed_proxy_loan_rows_v319"]) == 73
+    assert int(gate_row["online_internal_all_gate_family_rows_v319"]) == 2
+    assert bool(gate_row["contractual_ifrs9_claim_allowed_v319"]) is False
+    assert bool(gate_row["strict_live_deployability_claim_allowed_v319"]) is False
+    assert bool(gate_row["working_champion_claim_allowed_v319"]) is False
+    assert "not live or contractual" in str(gate_row["claim_boundary_v319"])
+
+    cashflow = _read_csv("paper4_v319_v316_cashflow_proxy_summary.csv")
+    cashflow_row = cashflow.iloc[0]
+    assert int(cashflow_row["candidate_version_v319"]) == 316
+    assert int(cashflow_row["observed_proxy_loan_rows_v319"]) == 98
+    assert int(cashflow_row["imputed_proxy_loan_rows_v319"]) == 73
+    assert int(cashflow_row["cashflow_proxy_panel_rows_v319"]) == 6156
+    assert float(cashflow_row["post_imputation_coverage_share_v319"]) == pytest.approx(1.0)
+    assert float(cashflow_row["observed_coverage_share_v319"]) == pytest.approx(0.5730994152046783)
+    assert float(cashflow_row["ecl_proxy_total_v319"]) == pytest.approx(467155.3223102825)
+    assert float(cashflow_row["net_cash_proxy_total_v319"]) == pytest.approx(1270711.6366337065)
+    assert bool(cashflow_row["contractual_ifrs9_claim_allowed_v319"]) is False
+
+    panel = pd.read_parquet(TABLE_DIR / "paper4_v319_v316_cashflow_proxy_panel.parquet")
+    assert len(panel) == 6156
+    assert panel["loan_id"].astype(str).nunique() == 171
+    assert panel["month_index"].nunique() == 36
+    assert panel["scenario"].nunique() == 1
+    assert panel["proxy_source_v319"].value_counts().sort_index().to_dict() == {
+        "imputed_grade_score": 36,
+        "imputed_grade_score_period": 2592,
+        "observed_v47_proxy": 3528,
+    }
+
+    source = _read_csv("paper4_v319_v316_cashflow_proxy_source_summary.csv")
+    source_map = {str(row["proxy_source_v319"]): row for _, row in source.iterrows()}
+    assert int(source_map["imputed_grade_score"]["loan_rows_v319"]) == 1
+    assert int(source_map["imputed_grade_score"]["panel_rows_v319"]) == 36
+    assert int(source_map["imputed_grade_score_period"]["loan_rows_v319"]) == 72
+    assert int(source_map["imputed_grade_score_period"]["panel_rows_v319"]) == 2592
+    assert int(source_map["observed_v47_proxy"]["loan_rows_v319"]) == 98
+    assert int(source_map["observed_v47_proxy"]["panel_rows_v319"]) == 3528
+    assert float(source_map["observed_v47_proxy"]["net_cash_proxy_total_v319"]) == pytest.approx(
+        383807.00743055553
+    )
+
+    online = _read_csv("paper4_v319_v316_online_temporal_summary.csv")
+    assert set(online["source_family"]) == {"period", "term"}
+    assert online["holdout_periods_v319"].eq(3).all()
+    assert online["source_cell_rows_v319"].eq(3).all()
+    assert np.allclose(online["worst_source_coverage_v319"], 0.9242424242424242)
+    assert np.allclose(online["worst_policy_period_coverage_v319"], 0.9242424242424242)
+    assert np.allclose(online["max_policy_period_width_v319"], 0.3183280895629744)
+    assert online["source_gate_pass_rows_v319"].eq(3).all()
+    assert online["policy_gate_pass_rows_v319"].eq(3).all()
+    assert online["width_gate_pass_rows_v319"].eq(3).all()
+    assert online["all_internal_gates_pass_v319"].astype(bool).all()
+    assert not online["external_holdout_available_v319"].astype(bool).any()
+    assert not online["strict_live_claim_allowed_v319"].astype(bool).any()
+
+    cells = _read_csv("paper4_v319_v316_online_temporal_cells.csv")
+    assert len(cells) == 6
+    assert cells.groupby("source_family")["holdout_period_v319"].nunique().eq(3).all()
+    assert cells["source_gate80_v319"].astype(bool).all()
+    assert cells["policy_gate90_v319"].astype(bool).all()
+    assert cells["width_gate95_v319"].astype(bool).all()
+
+    blockers = _read_csv("paper4_v319_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v319"], blockers["blocking_v319"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v319"], blockers["evidence_count_v319"], strict=False)
+    )
+    assert bool(blocker_map["cashflow_proxy_imputation_required"]) is True
+    assert int(evidence_map["cashflow_proxy_imputation_required"]) == 73
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert int(evidence_map["external_online_holdout_missing"]) == 0
+    assert bool(blocker_map["matched_period_dynamic_gap_from_v318"]) is True
+    assert int(evidence_map["matched_period_dynamic_gap_from_v318"]) == 1
+    assert bool(blocker_map["global_branch_price_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v319_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v319_v316_cashflow_proxy_panel_executed"]) is True
+    assert bool(claim_map["v319_v316_online_temporal_rerun_executed"]) is True
+    assert bool(claim_map["v319_v316_internal_online_all_gates"]) is True
+    assert bool(claim_map["v319_contractual_ifrs9"]) is False
+    assert bool(claim_map["v319_strict_live_online_deployability"]) is False
+    assert bool(claim_map["v319_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v319 v316-specific cashflow proxy panel."])
+    assert bool(boundary_map["Paper 4 has a v319 v316 temporal online rerun."])
+    assert bool(boundary_map["v319 implements contractual IFRS9 for v316."]) is False
+    assert bool(boundary_map["v319 authorizes live online deployability for v316."]) is False
+    assert (
+        bool(boundary_map["v319 resolves v316 global or matched-period dynamic blockers."]) is False
+    )
+    assert bool(boundary_map["v319 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v319_rows = backlog.loc[backlog["last_wave"].eq("v319")]
+    assert len(v319_rows) == 1
+    backlog_row = v319_rows.iloc[0]
+    assert backlog_row["status"] == "v316_cashflow_proxy_and_temporal_online_rerun_executed"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v320_v316_matched_period_or_branch_price_protocol.csv"
+    )
+    assert backlog_row["execution_result"] == (
+        "cashflow_proxy_complete_with_imputation_online_temporal_not_live"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v319: v316 Cashflow / Online / IFRS9 Gate" in notebook
+    assert "Imputed proxy loan rows: `73`" in notebook
+    assert "Online internal all-gate family rows:\n  `2`" in notebook
+    assert "Working champion claim allowed:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

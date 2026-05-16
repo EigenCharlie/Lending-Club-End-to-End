@@ -1,0 +1,2 @@
+candidate_version_v319,selected_rows_v319,observed_proxy_loan_rows_v319,imputed_proxy_loan_rows_v319,cashflow_proxy_panel_rows_v319,cashflow_proxy_months_v319,cashflow_proxy_scenarios_v319,post_imputation_coverage_share_v319,observed_coverage_share_v319,ecl_proxy_total_v319,net_cash_proxy_total_v319,contractual_ifrs9_claim_allowed_v319,claim_boundary_v319
+316,171,98,73,6156,36,1,1.0,0.5730994152046783,467155.3223102825,1270711.6366337065,False,v316-specific proxy panel with explicit imputation; no contractual IFRS9 claim
