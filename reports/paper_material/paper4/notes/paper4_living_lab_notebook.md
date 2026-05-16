@@ -9292,3 +9292,50 @@ Keep v248 in the living notebook. The next executable step is a v249 bounded
 two-swap repair candidate or a broader multi-swap/global gap probe.
 
 <!-- V248_BOUNDED_TWO_SWAP_PROBE_END -->
+
+<!-- V249_BOUNDED_TWO_SWAP_REPAIR_START -->
+
+## Wave v249: Bounded Two-Swap Repair Candidate
+
+Generated: 2026-05-16T09:27:15.117345+00:00
+
+### Objective
+
+Apply the best v248 bounded two-drop/two-add source-relief candidate and
+recompute return, exposure, source and CVaR metrics. This tests whether the
+bounded two-swap signal can become a feasible repaired portfolio candidate.
+
+### Results
+
+- Added loans: `158701181`,
+  `127281432`.
+- Dropped loans: `127392982`,
+  `160560314`.
+- Selected rows after repair: `171`.
+- Return delta vs v245:
+  `76.49772378746457`.
+- CVaR90 delta vs v245:
+  `286.62420016748365`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+
+### Interpretation
+
+v249 converts the v248 bounded two-swap finding into a feasible repair
+candidate. The next required step is post-repair repricing; no local/global
+optimality or promotion claim is enabled.
+
+### Claim Impact
+
+- Allowed: bounded two-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v249 in the living notebook. Promote only after post-repair pricing,
+broader multi-swap/global and dynamic validation gates pass.
+
+<!-- V249_BOUNDED_TWO_SWAP_REPAIR_END -->

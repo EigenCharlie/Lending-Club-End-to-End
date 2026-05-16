@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v249_bounded_two_swap_repair_executed,True,paper4_v249_bounded_two_swap_repair_summary.csv,best v248 bounded two-swap applied
+v249_repair_candidate_feasible,True,paper4_v249_bounded_two_swap_repair_summary.csv,budget/source/CVaR feasibility only
+v249_post_repair_local_optimality,False,paper4_v249_claim_blockers.csv,post-repair pricing not rerun after v249
+v249_full_universe_integer_optimality,False,paper4_v249_claim_blockers.csv,global gap certificate missing
+v249_paper1_or_final_promotion,False,paper4_v249_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
