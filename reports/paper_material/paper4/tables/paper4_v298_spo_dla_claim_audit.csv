@@ -1,0 +1,3 @@
+gate_lane_v298,source_artifact_v298,evidence_rows_v298,gate_pass_v298,formal_claim_allowed_v298,claim_boundary_v298
+spo_dependency_audit,paper4_v46_status.json,8,True,False,SPO dependencies audited historically; no formal differentiable SPO claim
+dla_common_path_audit,paper4_v46_status.json,14,True,False,DLA common-path replay exists historically; no exact Bellman claim

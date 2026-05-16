@@ -1,0 +1,5 @@
+gate_lane_v298,source_family,source_artifact_v298,gate_available_v298,gate_pass_v298,external_holdout_available_v298,strict_live_claim_allowed_v298,claim_boundary_v298
+online_internal_margin_repair,period,paper4_v65_online_margin_repair_winners.csv,True,True,False,False,internal historical pseudo-unseen pass only; not transferred to live v295
+online_internal_margin_repair,term,paper4_v65_online_margin_repair_winners.csv,True,True,False,False,internal historical pseudo-unseen pass only; not transferred to live v295
+online_external_holdout,period,paper4_v67_external_holdout_scorecard.csv,False,False,False,False,external holdout gate remains blocked by missing future data
+online_external_holdout,term,paper4_v67_external_holdout_scorecard.csv,False,False,False,False,external holdout gate remains blocked by missing future data

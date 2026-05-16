@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v298_gate_expansion_executed,True,paper4_v298_online_ifrs9_spo_dla_gate_expansion.csv,audit only
+v298_strict_live_online_deployability,False,paper4_v298_claim_blockers.csv,external holdout missing
+v298_contractual_ifrs9,False,paper4_v298_claim_blockers.csv,partial proxy coverage only
+v298_formal_spo_dla,False,paper4_v298_claim_blockers.csv,formal SPO/DLA claims missing
+v298_paper1_or_final_promotion,False,paper4_v298_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

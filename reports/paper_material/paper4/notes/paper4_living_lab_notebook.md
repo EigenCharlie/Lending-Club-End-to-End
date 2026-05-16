@@ -11608,3 +11608,49 @@ Keep v297 in the living notebook. Promotion remains blocked; the next live-lab
 wave should rerun online/source, IFRS9 proxy and SPO-DLA gates for v295.
 
 <!-- V297_GLOBAL_DYNAMIC_GATE_END -->
+
+<!-- V298_ONLINE_IFRS9_SPO_DLA_GATE_EXPANSION_START -->
+
+## Wave v298: Online / IFRS9 / SPO-DLA Gate Expansion
+
+Generated: 2026-05-16T18:24:39.942041+00:00
+
+### Objective
+
+v297 showed that v295 has a favorable dynamic proxy replay but still lacks
+online/source, IFRS9 proxy and SPO-DLA gate transfer. v298 audits those lanes
+explicitly for the v295/v296 candidate.
+
+### Results
+
+- Online transfer rows: `4`.
+- Internal online pass rows: `2`.
+- External online live pass rows: `0`.
+- IFRS9 proxy covered loans: `95`.
+- IFRS9 proxy coverage share: `0.5555555555555556`.
+- SPO/DLA audit rows: `2`.
+- Strict live deployability claim allowed:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+- Formal SPO/DLA claim allowed:
+  `False`.
+
+### Interpretation
+
+v298 prevents an easy but invalid shortcut: historical gates are useful context,
+but they do not automatically transfer to the v295 candidate. Online external
+holdout is still missing, IFRS9 coverage is partial and proxy-only, and SPO/DLA
+formal claims remain blocked.
+
+### Claim Impact
+
+- Allowed: gate expansion audit and partial IFRS9 proxy coverage diagnostic.
+- Still prohibited: live deployability, contractual IFRS9, formal SPO/DLA,
+  working champion replacement, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v298 in the living notebook. Promotion remains blocked.
+
+<!-- V298_ONLINE_IFRS9_SPO_DLA_GATE_EXPANSION_END -->

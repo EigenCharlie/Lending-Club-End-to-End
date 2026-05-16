@@ -30175,6 +30175,120 @@ def test_paper4_v297_global_dynamic_proxy_gate_keeps_promotion_blocked() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v298_online_ifrs9_spo_dla_gate_expansion_blocks_transfer_claims() -> None:
+    status = _read_json("paper4_v298_status.json")
+
+    assert status["phase"] == "v298_online_ifrs9_spo_dla_gate_expansion"
+    assert status["schema_version"] == "2026-05-15.298"
+    assert status["source_candidate_version_v298"] == 295
+    assert status["global_dynamic_gate_version_v298"] == 297
+    assert status["online_transfer_rows_v298"] == 4
+    assert status["online_internal_pass_rows_v298"] == 2
+    assert status["online_external_live_pass_rows_v298"] == 0
+    assert status["ifrs9_proxy_covered_loan_rows_v298"] == 95
+    assert status["ifrs9_proxy_uncovered_loan_rows_v298"] == 76
+    assert status["ifrs9_proxy_coverage_share_v298"] == pytest.approx(0.5555555555555556)
+    assert status["spo_dla_audit_rows_v298"] == 2
+    assert status["strict_live_deployability_claim_allowed_v298"] is False
+    assert status["contractual_ifrs9_claim_allowed_v298"] is False
+    assert status["formal_spo_dla_claim_allowed_v298"] is False
+    assert status["working_champion_claim_allowed_v298"] is False
+    assert status["paper1_promotion_allowed_v298"] is False
+    assert status["paper4_working_champion_changed_v298"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v298"] == 5
+    assert status["claim_matrix_rows_v298"] == 5
+    assert status["next_artifact_v298"] == "paper4_v299_v295_cashflow_or_online_holdout_rerun.csv"
+
+    summary = _read_csv("paper4_v298_online_ifrs9_spo_dla_gate_expansion.csv")
+    row = summary.iloc[0]
+    assert row["gate_id_v298"] == "v298_online_ifrs9_spo_dla_gate_expansion"
+    assert int(row["online_internal_pass_rows_v298"]) == 2
+    assert int(row["online_external_live_pass_rows_v298"]) == 0
+    assert bool(row["strict_live_deployability_claim_allowed_v298"]) is False
+    assert bool(row["contractual_ifrs9_claim_allowed_v298"]) is False
+    assert bool(row["formal_spo_dla_claim_allowed_v298"]) is False
+    assert "historical gates do not transfer" in str(row["claim_boundary_v298"])
+
+    online = _read_csv("paper4_v298_online_gate_transfer_audit.csv")
+    assert len(online) == status["online_transfer_rows_v298"]
+    lane_map = online.groupby("gate_lane_v298")["gate_pass_v298"].sum().to_dict()
+    live_map = online.groupby("gate_lane_v298")["strict_live_claim_allowed_v298"].sum().to_dict()
+    assert int(lane_map["online_internal_margin_repair"]) == 2
+    assert int(lane_map["online_external_holdout"]) == 0
+    assert int(live_map["online_internal_margin_repair"]) == 0
+    assert int(live_map["online_external_holdout"]) == 0
+
+    ifrs9 = _read_csv("paper4_v298_ifrs9_v295_proxy_coverage.csv")
+    ifrs9_row = ifrs9.iloc[0]
+    assert int(ifrs9_row["selected_rows_v298"]) == 171
+    assert int(ifrs9_row["ifrs9_proxy_covered_loan_rows_v298"]) == 95
+    assert int(ifrs9_row["ifrs9_proxy_uncovered_loan_rows_v298"]) == 76
+    assert float(ifrs9_row["ifrs9_proxy_coverage_share_v298"]) == pytest.approx(0.5555555555555556)
+    assert int(ifrs9_row["ifrs9_proxy_panel_rows_v298"]) == 3420
+    assert int(ifrs9_row["ifrs9_proxy_scenarios_v298"]) == 1
+    assert int(ifrs9_row["ifrs9_proxy_months_v298"]) == 36
+    assert bool(ifrs9_row["contractual_ifrs9_claim_allowed_v298"]) is False
+
+    spo = _read_csv("paper4_v298_spo_dla_claim_audit.csv")
+    spo_map = {row.gate_lane_v298: row for row in spo.itertuples(index=False)}
+    assert int(spo_map["spo_dependency_audit"].evidence_rows_v298) == 8
+    assert int(spo_map["dla_common_path_audit"].evidence_rows_v298) == 14
+    assert bool(spo_map["spo_dependency_audit"].formal_claim_allowed_v298) is False
+    assert bool(spo_map["dla_common_path_audit"].formal_claim_allowed_v298) is False
+
+    blockers = _read_csv("paper4_v298_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v298"], blockers["blocking_v298"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v298"], blockers["evidence_count_v298"], strict=False)
+    )
+    assert bool(blocker_map["external_online_holdout_missing"]) is True
+    assert int(evidence_map["external_online_holdout_missing"]) == 0
+    assert bool(blocker_map["ifrs9_proxy_partial_coverage_only"]) is True
+    assert int(evidence_map["ifrs9_proxy_partial_coverage_only"]) == 76
+    assert bool(blocker_map["formal_spo_dla_claims_missing"]) is True
+    assert int(evidence_map["formal_spo_dla_claims_missing"]) == 2
+    assert bool(blocker_map["paper4_working_champion_gate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v298_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v298_gate_expansion_executed"]) is True
+    assert bool(claim_map["v298_strict_live_online_deployability"]) is False
+    assert bool(claim_map["v298_contractual_ifrs9"]) is False
+    assert bool(claim_map["v298_formal_spo_dla"]) is False
+    assert bool(claim_map["v298_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v298 online/IFRS9/SPO-DLA gate expansion for v295."])
+    assert (
+        bool(boundary_map["v298 transfers historical online gates into live deployability."])
+        is False
+    )
+    assert bool(boundary_map["v298 implements contractual IFRS9 for v295."]) is False
+    assert (
+        bool(boundary_map["v298 proves formal differentiable SPO or exact Bellman DLA."]) is False
+    )
+    assert bool(boundary_map["v298 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v298_rows = backlog.loc[backlog["last_wave"].eq("v298")]
+    assert len(v298_rows) == 1
+    backlog_row = v298_rows.iloc[0]
+    assert backlog_row["status"] == "gate_expansion_executed_claims_remain_blocked"
+    assert backlog_row["next_artifact"] == "paper4_v299_v295_cashflow_or_online_holdout_rerun.csv"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v298: Online / IFRS9 / SPO-DLA Gate Expansion" in notebook
+    assert "IFRS9 proxy covered loans: `95`" in notebook
+    assert "External online live pass rows: `0`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
