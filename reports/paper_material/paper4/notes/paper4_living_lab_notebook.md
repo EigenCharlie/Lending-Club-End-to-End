@@ -5909,3 +5909,52 @@ Keep v176 in the living notebook. Promote only after the repair loop
 terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V176_POST_V175_ONE_SWAP_REPRICE_END -->
+
+<!-- V177_NEXT_ONE_SWAP_REPAIR_START -->
+
+## Wave v177: Forty-Eighth One-Swap Repair Candidate
+
+Generated: 2026-05-16T04:10:36.398378+00:00
+
+### Objective
+
+Apply the best feasible post-v175 one-drop/one-add swap
+found by v176 and recompute portfolio return, budget, source and
+CVaR metrics. This continues the local integer repair loop; it is not a final
+champion or optimality certificate.
+
+### Results
+
+- Added loan: `128448205`.
+- Dropped loan: `127676286`.
+- Selected rows after repair: `171`.
+- Return delta vs v175:
+  `63.857039581877416`.
+- CVaR90 delta vs v175:
+  `-27.071442713058786`.
+- Budget feasible: `True`.
+- Source feasible: `True`.
+- CVaR feasible: `True`.
+- Post-repair local optimality claim allowed:
+  `False`.
+
+### Interpretation
+
+v177 improves the v175 repaired candidate while
+preserving budget, source and CVaR feasibility. The next required experiment is
+v178 post-repair one-swap pricing because every repair
+changes the set of possible improving exchanges.
+
+### Claim Impact
+
+- Allowed: forty-eighth one-swap repair candidate created.
+- Still prohibited: post-repair local optimality, full-universe integer
+  optimality, Paper Estrella replacement, final Paper 4 promotion and live
+  deployment.
+
+### Quarto Promotion Decision
+
+Keep v177 in the living notebook. Promote only after the repair/reprice
+loop terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V177_NEXT_ONE_SWAP_REPAIR_END -->
