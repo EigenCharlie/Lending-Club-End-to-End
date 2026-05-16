@@ -1,0 +1,3 @@
+strategy_id_v293,pool_rows_v293,selected_rows_v293,added_rows_v293,dropped_rows_v293,objective_return_v293,delta_return_vs_v289_v293,delta_return_vs_v292_v293,scenario_loss_cvar90_v293,delta_cvar90_vs_v289_v293,source_cap_violations_v293,bounded_pool_challenger_found_v293,claim_boundary_v293
+v292_top15000_baseline,15168,171,4,1,3100.214040676401,-3.0311351258519608,0.0,98116.55123778542,-222.59949783305638,0,False,v292 baseline for v293 gap decomposition
+v293_top15000_plus_micro_source_relief,25168,171,17,14,3181.0395871735054,77.79441137125241,80.82554649710437,97395.99143344731,-943.1593021711597,0,True,bounded diverse-pool challenger signal requiring v294 repricing

@@ -11361,3 +11361,58 @@ Keep v292 in the living notebook. The next live-lab step is decomposing the
 return gap or expanding the pool/design, not promotion.
 
 <!-- V292_CARDINALITY_AWARE_MULTI_SWAP_MILP_END -->
+
+<!-- V293_DIVERSE_POOL_RETURN_GAP_PROBE_START -->
+
+## Wave v293: Diverse Pool Return-Gap Probe
+
+Generated: 2026-05-16T15:01:24.673654+00:00
+
+### Objective
+
+v292 restored cardinality but trailed v289 by 3.031 return units. v293 tests
+whether that gap is a top-return-pool artifact by adding 10,000 outside-top15000
+micro source-relief candidates that do not load both active tight sources
+(`grade=A` and `score_decile=0`).
+
+### Results
+
+- Pool rows: `25168`.
+- Top-return candidate limit: `15000`.
+- Micro-relief candidate limit: `10000`.
+- MILP success: `True`.
+- MILP gap: `0.0`.
+- Selected rows: `171`.
+- Added rows vs v289: `17`.
+- Dropped rows vs v289: `14`.
+- Objective return: `3181.0395871735054`.
+- Delta return vs v289: `77.79441137125241`.
+- Delta return vs v292: `80.82554649710437`.
+- CVaR90: `97395.99143344731`.
+- Delta CVaR90 vs v289: `-943.1593021711597`.
+- Source cap violations: `0`.
+- Cardinality restored: `True`.
+- Bounded-pool challenger found:
+  `True`.
+
+### Interpretation
+
+v293 is a major live-lab signal. The return gap in v292 is not intrinsic to
+cardinality restoration; it is partly a pool-design artifact. Adding micro
+source-relief candidates creates a bounded-pool challenger that restores 171
+rows, improves return by 77.794 over v289, and lowers CVaR90 by 943.159. This
+is still not a working champion because the candidate must be applied and
+repriced against broader pricing/global/dynamic gates.
+
+### Claim Impact
+
+- Allowed: bounded diverse-pool challenger signal documented.
+- Still prohibited: working champion replacement, full-universe optimality,
+  Paper Estrella replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v293 in the living notebook. The next live-lab step is applying/repricing
+the v293 challenger, not promotion.
+
+<!-- V293_DIVERSE_POOL_RETURN_GAP_PROBE_END -->

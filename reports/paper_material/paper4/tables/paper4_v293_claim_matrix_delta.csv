@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v293_diverse_pool_gap_probe_executed,True,paper4_v293_diverse_pool_return_gap_probe.csv,bounded diverse-pool MILP
+v293_bounded_pool_challenger_found,True,paper4_v293_diverse_pool_return_gap_probe.csv,requires v294 repricing before champion claim
+v293_cardinality_restored,True,paper4_v293_diverse_pool_action.csv,bounded-pool feasibility only
+v293_bounded_pool_milp_optimality,True,paper4_v293_diverse_pool_return_gap_probe.csv,bounded pool only
+v293_working_champion,False,paper4_v293_claim_blockers.csv,post-repair pricing and global evidence missing
+v293_global_full_universe_integer_optimality,False,paper4_v293_claim_blockers.csv,global certificate missing
+v293_paper1_or_final_promotion,False,paper4_v293_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
