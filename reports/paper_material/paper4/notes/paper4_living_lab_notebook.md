@@ -7274,3 +7274,48 @@ Keep v205 in the living notebook. Promote only after the repair/reprice
 loop terminates and stronger integer/dynamic/promotion gates pass.
 
 <!-- V205_NEXT_ONE_SWAP_REPAIR_END -->
+
+<!-- V206_POST_V205_ONE_SWAP_REPRICE_START -->
+
+## Wave v206: Post-v205 One-Swap Repricing
+
+Generated: 2026-05-16T06:03:14.518786+00:00
+
+### Objective
+
+Rerun one-drop/one-add integer pricing after the v205
+repair, using all non-selected loans from the comparable v55 universe as
+possible additions. This tests whether the v205 candidate
+is one-swap locally optimal.
+
+### Results
+
+- Pair rows screened: `47315358`.
+- Candidate add rows: `276698`.
+- Return-improving pairs: `1694213`.
+- Exact source-feasible pairs: `344`.
+- CVaR-feasible improving one-swaps: `344`.
+- Best post-v205 one-swap return delta:
+  `35.385628875693044`.
+- Post-v205 local optimality cleared:
+  `False`.
+
+### Interpretation
+
+v206 is the required re-pricing after v205 changed
+the portfolio. If additional feasible improving one-swaps remain, the lab
+should continue the repair/reprice loop; if it clears, the next blocker would
+still be multi-swap/global integer evidence.
+
+### Claim Impact
+
+- Allowed: post-v205 one-swap pricing screen completed.
+- Still prohibited: full-universe integer optimality, Paper Estrella
+  replacement, final Paper 4 promotion and live deployment.
+
+### Quarto Promotion Decision
+
+Keep v206 in the living notebook. Promote only after the repair loop
+terminates and stronger integer/dynamic/promotion gates pass.
+
+<!-- V206_POST_V205_ONE_SWAP_REPRICE_END -->
