@@ -14402,3 +14402,56 @@ Keep v350 in the living notebook. The next wave should execute a branch-price
 or dual-bound loop without promotion.
 
 <!-- V350_V347_DUAL_BOUND_AFTER_PROXY_GATE_END -->
+
+<!-- V351_V347_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_START -->
+
+## Wave v351: v347 Bounded Branch-Price Loop
+
+Generated: 2026-05-17T01:53:43.225556+00:00
+
+### Objective
+
+v350 identified the post-v347 source-tight frontier and the missing dual-bound
+certificate. v351 executes the next bounded pricing loop: seed from the 12
+v348 source-exact one-swap rows, then search a second source-tight add/drop
+over the 4,385 positive source-tight candidates.
+
+### Results
+
+- Seed pair rows: `12`.
+- Positive source-tight second-add candidates:
+  `4385`.
+- Ordered second-order rows screened:
+  `8944040`.
+- Budget+return feasible rows:
+  `1718479`.
+- Source-exact second-order rows:
+  `146`.
+- Unique source-exact action signatures:
+  `119`.
+- CVaR-feasible entering rows:
+  `0`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v351 advances beyond readiness by running a bounded second-order pricing loop.
+It finds source-exact return-improving rows, but none satisfy the v347 CVaR cap.
+This strengthens the local evidence around the v347 candidate while remaining
+far short of a terminating branch-price or dual-bound certificate.
+
+### Claim Impact
+
+- Allowed: bounded v348-seeded second-order branch-price loop executed.
+- Allowed: no CVaR-feasible entering column in that bounded scope.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v351 in the living notebook. The next wave should expand branch-price
+depth or build a valid dual-bound termination proof without promotion.
+
+<!-- V351_V347_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->

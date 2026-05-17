@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v351_bounded_branch_price_loop_executed,True,paper4_v351_v347_branch_price_or_dual_bound_loop.csv,bounded seeded second-order scope
+v351_no_bounded_second_order_entering_column,True,paper4_v351_second_order_branch_price_stage_summary.csv,not a global branch-price termination
+v351_valid_full_universe_branch_price_bound,False,paper4_v351_claim_blockers.csv,dual-bound loop missing
+v351_working_champion_or_final_promotion,False,paper4_v351_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
