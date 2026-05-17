@@ -1,0 +1,7 @@
+requirement_id_v481,satisfied_v481,blocks_patch_v481,evidence_v481
+explicit_user_patch_approval,False,True,no explicit patch approval in v481
+caption_finalization_review,False,True,captions remain draft
+asset_path_review,False,True,visual assets need manual placement review
+post_patch_quarto_render_plan,True,False,v480 gate requires render after future patch
+rollback_plan_available,True,False,paper4_v480_rollback_plan.csv
+final_promotion_absent,True,False,paper4_final_promotion.json absent

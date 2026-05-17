@@ -21265,3 +21265,54 @@ Keep v480 in the living notebook. v481 should decide whether a manual patch is
 allowed, still without treating Paper 4 as final.
 
 <!-- V480_CONTROLLED_QUARTO_INSERTION_PLAN_END -->
+
+<!-- V481_MANUAL_QUARTO_PATCH_DECISION_START -->
+
+## Wave v481: Manual Quarto Patch Decision
+
+Generated: 2026-05-17T17:27:03.889354+00:00
+
+### Objective
+
+v481 records whether the v480 controlled insertion plan is allowed to become a
+book-source patch.
+
+### Results
+
+- Patch decision rows:
+  `5`.
+- Manual review requirement rows:
+  `6`.
+- Next-action rows:
+  `5`.
+- Patch allowed:
+  `False`.
+- Patch applied:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v482_post_plan_synthesis_packet.md`.
+
+### Interpretation
+
+The safe decision is to keep the patch blocked until explicit approval and
+manual review exist. The living-lab artifacts are ready for review, not for
+automatic insertion.
+
+### Claim Impact
+
+- Allowed: decision register, manual review requirements and next-action queue.
+- Still prohibited: Quarto patch authorization/application, book-source mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v481 in the living notebook. v482 should synthesize the post-plan manuscript
+state and preserve the patch-blocked boundary.
+
+<!-- V481_MANUAL_QUARTO_PATCH_DECISION_END -->

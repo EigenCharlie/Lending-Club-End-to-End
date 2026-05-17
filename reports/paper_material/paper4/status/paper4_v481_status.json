@@ -1,0 +1,23 @@
+{
+  "blocking_requirement_rows_v481": 3,
+  "book_references_modified_v481": false,
+  "book_sources_modified_v481": false,
+  "claim_boundary": "v481 records patch denial only; actual patching, final prose, submission and final promotion remain blocked",
+  "generated_at_utc": "2026-05-17T17:27:03.889354+00:00",
+  "manual_quarto_patch_decision_created_v481": true,
+  "manual_review_requirement_rows_v481": 6,
+  "next_action_rows_v481": 5,
+  "next_artifact_v481": "paper4_v482_post_plan_synthesis_packet.md",
+  "paper1_promotion_allowed_v481": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v481": false,
+  "patch_allowed_v481": false,
+  "patch_applied_v481": false,
+  "patch_decision_rows_v481": 5,
+  "phase": "v481_manual_quarto_patch_decision",
+  "prior_insertion_plan_version_v481": 480,
+  "runtime_seconds": 0.064,
+  "schema_version": "2026-05-17.481",
+  "submission_ready_claim_allowed_v481": false,
+  "working_champion_claim_allowed_v481": false
+}

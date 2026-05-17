@@ -1634,3 +1634,8 @@ v480 creates pre-patch gates and rollback instructions.,True,reports/paper_mater
 v480 applies a Quarto patch or edits book sources.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,No book source mutation in v480.,True,living_notebook_only
 v480 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,"Manual review, patch, render and venue gates remain open.",True,living_notebook_only
 v480 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v481 records a manual Quarto patch decision.,True,reports/paper_material/paper4/tables/paper4_v481_patch_decision_register.csv,Decision only; patch not authorized.,False,living_notebook_only
+v481 records review requirements and next actions.,True,reports/paper_material/paper4/tables/paper4_v481_manual_review_requirements.csv,Planning only.,False,living_notebook_only
+v481 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v481_patch_decision_register.csv,Explicit user approval is missing.,True,living_notebook_only
+v481 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v481_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v481 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v481_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

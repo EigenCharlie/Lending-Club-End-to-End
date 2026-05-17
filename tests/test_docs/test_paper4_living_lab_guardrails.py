@@ -54832,6 +54832,110 @@ def test_paper4_v480_controlled_quarto_insertion_plan_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v481_manual_quarto_patch_decision_is_guarded() -> None:
+    status = _read_json("paper4_v481_status.json")
+    assert status["phase"] == "v481_manual_quarto_patch_decision"
+    assert status["schema_version"] == "2026-05-17.481"
+    assert status["prior_insertion_plan_version_v481"] == 480
+    assert status["manual_quarto_patch_decision_created_v481"] is True
+    assert status["patch_decision_rows_v481"] == 5
+    assert status["manual_review_requirement_rows_v481"] == 6
+    assert status["blocking_requirement_rows_v481"] == 3
+    assert status["next_action_rows_v481"] == 5
+    assert status["patch_allowed_v481"] is False
+    assert status["patch_applied_v481"] is False
+    assert status["book_sources_modified_v481"] is False
+    assert status["book_references_modified_v481"] is False
+    assert status["submission_ready_claim_allowed_v481"] is False
+    assert status["working_champion_claim_allowed_v481"] is False
+    assert status["paper1_promotion_allowed_v481"] is False
+    assert status["paper4_working_champion_changed_v481"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v481"] == "paper4_v482_post_plan_synthesis_packet.md"
+
+    decision = _read_csv("paper4_v481_patch_decision_register.csv")
+    assert len(decision) == 5
+    assert not decision["patch_allowed_v481"].astype(bool).any()
+    assert not decision["patch_applied_v481"].astype(bool).any()
+    assert decision["decision_reason_v481"].str.contains("explicit human approval").all()
+    assert "manual patch approval" in set(decision["required_next_review_v481"])
+
+    requirements = _read_csv("paper4_v481_manual_review_requirements.csv")
+    assert len(requirements) == 6
+    req_map = dict(
+        zip(requirements["requirement_id_v481"], requirements["satisfied_v481"], strict=False)
+    )
+    block_map = dict(
+        zip(requirements["requirement_id_v481"], requirements["blocks_patch_v481"], strict=False)
+    )
+    assert bool(req_map["explicit_user_patch_approval"]) is False
+    assert bool(block_map["explicit_user_patch_approval"]) is True
+    assert bool(req_map["rollback_plan_available"]) is True
+    assert bool(req_map["final_promotion_absent"]) is True
+
+    actions = _read_csv("paper4_v481_next_action_queue.csv")
+    assert len(actions) == 5
+    assert list(actions["priority_v481"]) == [1, 2, 3, 4, 5]
+    assert actions.iloc[0]["action_id_v481"] == "request_explicit_patch_approval"
+    assert not actions.loc[actions["priority_v481"].gt(2), "action_ready_v481"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v481_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v481"], readiness["ready_v481"], strict=False)
+    )
+    assert bool(readiness_map["manual_patch_decision_created"]) is True
+    assert bool(readiness_map["manual_review_requirements_created"]) is True
+    assert bool(readiness_map["next_action_queue_created"]) is True
+    assert bool(readiness_map["patch_allowed"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v481_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v481_manual_patch_decision_created"]) is True
+    assert bool(claim_map["v481_manual_review_requirements_created"]) is True
+    assert bool(claim_map["v481_next_action_queue_created"]) is True
+    assert bool(claim_map["v481_quarto_patch_allowed_or_applied"]) is False
+    assert bool(claim_map["v481_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v481 records a manual Quarto patch decision."])
+    assert bool(boundary_map["v481 records review requirements and next actions."])
+    assert bool(boundary_map["v481 authorizes or applies a Quarto patch."]) is False
+    assert bool(boundary_map["v481 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v481 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v481_rows = backlog.loc[backlog["last_wave"].eq("v481")]
+    assert len(v481_rows) == 1
+    backlog_row = v481_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v482_post_plan_synthesis_packet.md"
+    assert backlog_row["execution_result"] == "manual_patch_blocked_without_explicit_approval"
+
+    decision_md = (
+        PAPER4_ROOT / "notes" / "paper4_v481_manual_quarto_patch_decision.md"
+    ).read_text(encoding="utf-8")
+    assert "Manual Quarto Patch Decision v481" in decision_md
+    assert "patch is not authorized" in decision_md
+    assert "does not authorize a patch" in decision_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v481: Manual Quarto Patch Decision" in living_notebook
+    assert "Patch decision rows:\n  `5`." in living_notebook
+    assert "Manual review requirement rows:\n  `6`." in living_notebook
+    assert "Next-action rows:\n  `5`." in living_notebook
+    assert "Patch allowed:\n  `False`." in living_notebook
+    assert "Patch applied:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
