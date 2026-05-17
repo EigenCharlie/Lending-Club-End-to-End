@@ -570,7 +570,7 @@ def build_cvar_topk_expanded_v5(
     rows = []
     for policy_id, group in allocations.groupby("policy_id"):
         expected_losses = []
-        for scenario, mult, lgd in scenarios:
+        for _scenario, mult, lgd in scenarios:
             loss = float(
                 (
                     group["funded_exposure"].astype(float)

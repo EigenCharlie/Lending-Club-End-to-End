@@ -663,7 +663,7 @@ def build_bootstrap_ci(monthly_replay: pd.DataFrame, n_boot: int = 200) -> pd.Da
     rows = []
     for policy_id in pivot.columns:
         diffs = []
-        for sample_id in range(n_boot):
+        for _sample_id in range(n_boot):
             sampled = rng.choice(months, size=len(months), replace=True)
             policy_value = float(pivot.loc[sampled, policy_id].sum())
             champion_value = float(pivot.loc[sampled, champion].sum()) if champion in pivot else 0.0

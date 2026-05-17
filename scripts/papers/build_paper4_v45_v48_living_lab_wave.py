@@ -541,7 +541,7 @@ def build_v46_spo() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     )
     selected_frames: list[pd.DataFrame] = []
     monthly_budget = 1_000_000.0 / max(pool["issue_month"].nunique(), 1)
-    for month, group in pool.groupby("issue_month", dropna=False):
+    for _month, group in pool.groupby("issue_month", dropna=False):
         g = group.sort_values("oracle_score_v46", ascending=False).copy()
         cumulative = g["loan_amnt"].cumsum()
         selected = cumulative <= monthly_budget
@@ -608,7 +608,7 @@ def build_v46_spo() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
             scored["model_v46"] = model_name
             scored["predicted_score_v46"] = model.predict(scored[feature_cols])
             model_allocs: list[pd.DataFrame] = []
-            for month, group in scored.groupby("issue_month", dropna=False):
+            for _month, group in scored.groupby("issue_month", dropna=False):
                 g = group.sort_values("predicted_score_v46", ascending=False).copy()
                 selected = g["loan_amnt"].cumsum() <= monthly_budget
                 if not selected.any() and not g.empty:

@@ -112,7 +112,7 @@ def _month_greedy_book(
     cumulative = 0.0
     source_exposure: dict[tuple[str, str], float] = {}
     monthly_cap = v15.BUDGET * 0.30
-    for month, local in df.sort_values("issue_month").groupby("issue_month", sort=True):
+    for _month, local in df.sort_values("issue_month").groupby("issue_month", sort=True):
         month_total = 0.0
         ranked = local.sort_values("dla_score_v20", ascending=False)
         for _, row in ranked.iterrows():

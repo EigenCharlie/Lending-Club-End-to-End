@@ -1,0 +1,2 @@
+compile_id_v430,command_v430,exit_code_v430,passed_v430,compiled_files_v430,stdout_tail_v430,stderr_tail_v430,claim_boundary_v430
+changed_scripts_py_compile,uv run python -m py_compile scripts/papers/build_paper4_extended_experiments.py scripts/papers/build_paper4_v15_dynamic_stress_engine.py scripts/papers/build_paper4_v20_dla_cvar_spo_resolution.py scripts/papers/build_paper4_v24_dla_cvar_spo_upgrade.py scripts/papers/build_paper4_v45_v48_living_lab_wave.py scripts/papers/build_paper4_v5_blocker_resolution.py,0,True,6,,,syntax/bytecode check only; full pytest deferred

@@ -18521,3 +18521,58 @@ Keep v429 in the living notebook. v430 should apply the targeted scripts B007
 loop-variable repair batch.
 
 <!-- V429_POST_STREAMLIT_B905_C408_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V430_SCRIPTS_B007_LOOP_VARIABLE_REPAIR_BATCH_START -->
+
+## Wave v430: Scripts B007 Loop-Variable Repair Batch
+
+Generated: 2026-05-17T11:25:37.709017+00:00
+
+### Objective
+
+v430 applies targeted unused loop-variable repairs across scripts/papers B007
+diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `38` ->
+  `30`.
+- Repository B007 before/after:
+  `8` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `36` ->
+  `28`.
+- Changed script files:
+  `6`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v431_post_scripts_b007_repair_pytest_probe.md`.
+
+### Interpretation
+
+The scripts B007 frontier is cleared, including the one non-autofixable grouped
+loop key in v15. Remaining repository ruff diagnostics are non-B007 scripts/book
+items.
+
+### Claim Impact
+
+- Allowed: targeted scripts B007 repair applied, repository ruff count reduced,
+  and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v430 in the living notebook. v431 should run the post-scripts-B007-repair
+full pytest probe.
+
+<!-- V430_SCRIPTS_B007_LOOP_VARIABLE_REPAIR_BATCH_END -->

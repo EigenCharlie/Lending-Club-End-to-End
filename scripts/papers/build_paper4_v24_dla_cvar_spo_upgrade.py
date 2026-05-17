@@ -110,7 +110,7 @@ def _build_adp_books(
         budget_limit = 2.4 * v15.BUDGET
         month_cap = 0.28 * v15.BUDGET
         cumulative = 0.0
-        for month, month_df in local.sort_values("issue_month").groupby("issue_month", sort=True):
+        for _month, month_df in local.sort_values("issue_month").groupby("issue_month", sort=True):
             used_month = 0.0
             concentration: dict[str, float] = {}
             for _, row in month_df.sort_values("adp_score_v24", ascending=False).iterrows():

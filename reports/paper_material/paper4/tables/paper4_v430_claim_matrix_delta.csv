@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v430_scripts_b007_repair_applied,True,paper4_v430_scripts_b007_actions.csv,targeted B007 loop-variable repair batch
+v430_scripts_b007_cleared,True,paper4_v430_repository_ruff_delta.csv,true only for scripts/papers B007 diagnostics
+v430_repository_ruff_reduced,True,paper4_v430_repository_ruff_delta.csv,repository ruff diagnostic count decreases
+v430_changed_scripts_pycompile_passed,True,paper4_v430_pycompile_summary.csv,syntax/bytecode check for changed scripts
+v430_repository_ruff_clean,False,paper4_v430_claim_blockers.csv,true only if repository ruff emits zero diagnostics
+v430_full_repository_pytest_passed_after_repair,False,paper4_v430_claim_blockers.csv,full pytest deferred to v431
+v430_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

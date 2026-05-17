@@ -708,8 +708,8 @@ def build_dynamic_engine_v15(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     selected_paths = paths[paths["path_id"].lt(n_paths)].copy()
     trace_frames = []
-    for policy_id, policy_book in books.groupby("policy_id", sort=False):
-        for path_id, path_rows in selected_paths.groupby("path_id", sort=False):
+    for _policy_id, policy_book in books.groupby("policy_id", sort=False):
+        for _path_id, path_rows in selected_paths.groupby("path_id", sort=False):
             trace_frames.append(_simulate_policy_path(policy_book, path_rows, initial_cash=BUDGET))
     trace = pd.concat(trace_frames, ignore_index=True) if trace_frames else pd.DataFrame()
     if trace.empty:
