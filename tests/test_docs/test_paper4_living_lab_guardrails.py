@@ -53732,6 +53732,108 @@ def test_paper4_v470_online_conformal_monitoring_proxy_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v471_spo_dla_boundary_probe_is_guarded() -> None:
+    status = _read_json("paper4_v471_status.json")
+    assert status["phase"] == "v471_spo_dla_boundary_probe"
+    assert status["schema_version"] == "2026-05-17.471"
+    assert status["prior_online_monitoring_version_v471"] == 470
+    assert status["spo_dla_boundary_probe_created_v471"] is True
+    assert status["review_packet_rows_v471"] == 7
+    assert status["formal_claim_rows_v471"] == 6
+    assert status["allowed_formal_claim_rows_v471"] == 2
+    assert status["blocked_formal_claim_rows_v471"] == 4
+    assert status["historical_audit_gate_pass_rows_v471"] == 2
+    assert status["historical_audit_formal_claim_allowed_rows_v471"] == 0
+    assert status["differentiable_dependency_rows_v471"] == 7
+    assert status["differentiable_dependency_available_rows_v471"] == 0
+    assert status["cvxpylayers_available_v471"] is False
+    assert status["torch_available_v471"] is False
+    assert status["formal_spo_plus_claim_allowed_v471"] is False
+    assert status["formal_dla_theorem_claim_allowed_v471"] is False
+    assert status["crc_or_decision_risk_guarantee_allowed_v471"] is False
+    assert status["working_champion_claim_allowed_v471"] is False
+    assert status["paper1_promotion_allowed_v471"] is False
+    assert status["paper4_working_champion_changed_v471"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v471"] == "paper4_v472_ifrs9_proxy_boundary_probe.md"
+
+    summary = _read_csv("paper4_v471_spo_dla_boundary_summary.csv")
+    assert len(summary) == 1
+    summary_row = summary.iloc[0]
+    assert int(summary_row["allowed_formal_claim_rows_v471"]) == 2
+    assert int(summary_row["blocked_formal_claim_rows_v471"]) == 4
+    assert bool(summary_row["formal_spo_plus_claim_allowed_v471"]) is False
+    assert bool(summary_row["formal_dla_theorem_claim_allowed_v471"]) is False
+
+    matrix = _read_csv("paper4_v471_formal_claim_boundary_matrix.csv")
+    matrix_map = dict(zip(matrix["formal_claim_id_v471"], matrix["allowed_v471"], strict=False))
+    assert bool(matrix_map["bounded_historical_spo_dla_audit_language"]) is True
+    assert bool(matrix_map["bounded_cvar_solver_formal_context"]) is True
+    assert bool(matrix_map["formal_differentiable_spo_plus_claim"]) is False
+    assert bool(matrix_map["formal_dla_optimality_or_policy_theorem"]) is False
+    assert bool(matrix_map["formal_crc_or_decision_risk_guarantee"]) is False
+    assert bool(matrix_map["live_legal_global_or_final_claim"]) is False
+
+    deps = _read_csv("paper4_v471_spo_dependency_readiness.csv")
+    dep_map = dict(zip(deps["package"], deps["available_v471"], strict=False))
+    assert bool(dep_map["cvxpylayers"]) is False
+    assert bool(dep_map["torch"]) is False
+    assert not deps["formal_differentiable_spo_claim_allowed_v471"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v471_spo_dla_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v471"], blockers["blocking_v471"], strict=False))
+    assert bool(blocker_map["formal_review_not_approved"]) is True
+    assert bool(blocker_map["differentiable_spo_dependencies_blocked"]) is True
+    assert bool(blocker_map["formal_theorem_or_proof_missing"]) is True
+    assert bool(blocker_map["external_live_legal_global_gates_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+    assert bool(blocker_map["ifrs9_proxy_boundary_not_refreshed"]) is True
+
+    claim_delta = _read_csv("paper4_v471_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v471_bounded_historical_spo_dla_language"]) is True
+    assert bool(claim_map["v471_bounded_cvar_solver_context"]) is True
+    assert bool(claim_map["v471_formal_spo_plus_or_dla_theorem"]) is False
+    assert bool(claim_map["v471_crc_or_decision_risk_guarantee"]) is False
+    assert bool(claim_map["v471_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v471 permits bounded historical SPO-DLA audit language."])
+    assert bool(boundary_map["v471 permits bounded CVaR solver formal context."])
+    assert bool(boundary_map["v471 proves formal SPO+ or DLA optimality theorem."]) is False
+    assert bool(boundary_map["v471 proves formal CRC or decision-risk guarantee."]) is False
+    assert bool(boundary_map["v471 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v471_rows = backlog.loc[backlog["last_wave"].eq("v471")]
+    assert len(v471_rows) == 1
+    backlog_row = v471_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v472_ifrs9_proxy_boundary_probe.md"
+    assert (
+        backlog_row["execution_result"]
+        == "bounded_spo_dla_language_allowed_formal_theorems_blocked"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v471_spo_dla_boundary_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "SPO-DLA Boundary Probe v471" in probe_md
+    assert "historical audit/oracle-surrogate language" in probe_md
+    assert "does not prove a formal theorem" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v471: SPO-DLA Boundary Probe" in living_notebook
+    assert "Allowed formal claim rows:\n  `2`." in living_notebook
+    assert "Blocked formal claim rows:\n  `4`." in living_notebook
+    assert "Formal SPO+ claim allowed:\n  `False`." in living_notebook
+    assert "Formal DLA theorem claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

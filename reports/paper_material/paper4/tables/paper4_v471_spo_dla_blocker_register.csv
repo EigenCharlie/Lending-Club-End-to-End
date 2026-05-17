@@ -1,0 +1,7 @@
+blocker_id_v471,blocking_v471,evidence_count_v471,required_next_artifact_v471,claim_boundary_v471
+formal_review_not_approved,True,2,approved_formal_spo_dla_review,"v375 records historical audit rows, not approval"
+differentiable_spo_dependencies_blocked,True,3,approved_dependency_and_theorem_route,cvxpy/cvxpylayers/torch route is blocked
+formal_theorem_or_proof_missing,True,1,formal_theorem_or_review_packet_approval,review packet is not a theorem
+external_live_legal_global_gates_blocked,True,4,external_gate_approval_and_full_v55_certificate,live/legal/IFRS9/global gates remain unmet
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
+ifrs9_proxy_boundary_not_refreshed,True,1,paper4_v472_ifrs9_proxy_boundary_probe.md,IFRS9 proxy lane remains pending

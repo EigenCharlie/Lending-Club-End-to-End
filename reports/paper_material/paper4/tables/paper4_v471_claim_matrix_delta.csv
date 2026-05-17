@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v471_bounded_historical_spo_dla_language,True,paper4_v471_formal_claim_boundary_matrix.csv,historical/oracle-surrogate audit only
+v471_bounded_cvar_solver_context,True,paper4_v471_formal_claim_boundary_matrix.csv,bounded/gap CVaR context only
+v471_formal_spo_plus_or_dla_theorem,False,paper4_v471_spo_dla_blocker_register.csv,"dependencies, proof and review approval missing"
+v471_crc_or_decision_risk_guarantee,False,paper4_v471_spo_dla_blocker_register.csv,implemented and reviewed formal guarantee missing
+v471_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,no champion or final promotion claim

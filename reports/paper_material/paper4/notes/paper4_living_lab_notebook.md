@@ -20736,3 +20736,54 @@ Keep v470 in the living notebook. v471 should refresh SPO-DLA formal boundary
 language.
 
 <!-- V470_ONLINE_CONFORMAL_MONITORING_PROXY_END -->
+
+<!-- V471_SPO_DLA_BOUNDARY_PROBE_START -->
+
+## Wave v471: SPO-DLA Boundary Probe
+
+Generated: 2026-05-17T16:30:10.929708+00:00
+
+### Objective
+
+v471 refreshes formal SPO-DLA boundaries after the online monitoring proxy lane.
+
+### Results
+
+- Review packet rows:
+  `7`.
+- Formal claim rows:
+  `6`.
+- Allowed formal claim rows:
+  `2`.
+- Blocked formal claim rows:
+  `4`.
+- Historical audit gate pass rows:
+  `2`.
+- Formal SPO+ claim allowed:
+  `False`.
+- Formal DLA theorem claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v472_ifrs9_proxy_boundary_probe.md`.
+
+### Interpretation
+
+The SPO-DLA lane is useful for bounded positioning, not formal theorem claims.
+It strengthens the paper by making the method boundary auditable instead of
+overstating differentiable SPO+ or DLA optimality.
+
+### Claim Impact
+
+- Allowed: bounded historical SPO-DLA audit language and bounded CVaR solver
+  context.
+- Still prohibited: formal SPO+/DLA theorem claims, CRC/decision-risk
+  guarantees, live/legal/global claims, Paper Estrella replacement and final
+  Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v471 in the living notebook. v472 should refresh IFRS9 proxy boundaries.
+
+<!-- V471_SPO_DLA_BOUNDARY_PROBE_END -->

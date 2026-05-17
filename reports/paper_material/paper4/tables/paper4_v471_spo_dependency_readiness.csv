@@ -1,0 +1,8 @@
+package,available_v471,version,version_lookup_error,import_error,formal_differentiable_spo_claim_allowed_v471,claim_boundary_v57
+cvxpy,False,1.4.4,,ImportError: numpy.core.multiarray failed to import,False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+cvxpylayers,False,,PackageNotFoundError: No package metadata was found for cvxpylayers,ModuleNotFoundError: No module named 'cvxpylayers',False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+torch,False,,PackageNotFoundError: No package metadata was found for torch,ModuleNotFoundError: No module named 'torch',False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+highspy,True,1.13.1,,,False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+pyomo,True,6.10.0,,,False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+catboost,True,1.2.10,,,False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
+sklearn,True,1.8.0,,,False,dependency probe only; differentiable SPO remains blocked unless cvxpylayers/torch validate
