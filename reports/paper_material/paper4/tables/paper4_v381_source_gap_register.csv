@@ -1,0 +1,5 @@
+gap_id_v381,blocking_v381,evidence_count_v381,required_next_step_v381,claim_boundary_v381
+venue_target_bibliography_style_not_selected,True,0,select venue target and reference style,source log is not formatted final bibliography
+recent_credit_portfolio_literature_not_systematically_reviewed,True,0,run a separate recent related-work search if venue scope requires it,anchor-source log only
+ifrs9_contractual_application_not_verified,True,1,obtain contractual coverage and accounting review,IFRS9 proxy diagnostics only
+legal_fairness_review_not_approved,True,1,obtain approved legal/protected-attribute review,fairness proxy governance only

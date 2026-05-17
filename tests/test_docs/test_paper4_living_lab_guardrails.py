@@ -41966,6 +41966,164 @@ def test_paper4_v380_manuscript_section_scaffold_preserves_claim_controls() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v381_verified_literature_source_log_keeps_claims_bounded() -> None:
+    status = _read_json("paper4_v381_status.json")
+
+    assert status["phase"] == "v381_verified_literature_source_log"
+    assert status["schema_version"] == "2026-05-17.381"
+    assert status["prior_scaffold_version_v381"] == 380
+    assert status["prior_v380_section_scaffold_rows_v381"] == 7
+    assert status["prior_v380_open_todo_rows_v381"] == 11
+    assert status["source_log_rows_v381"] == 9
+    assert status["verified_source_rows_v381"] == 9
+    assert status["source_type_counts_v381"] == {
+        "book": 1,
+        "conference_paper": 3,
+        "journal_article": 3,
+        "official_accounting_standard": 1,
+        "official_regulatory_standard": 1,
+    }
+    assert status["citation_use_rows_v381"] == 9
+    assert status["source_gap_rows_v381"] == 4
+    assert status["open_source_gap_rows_v381"] == 4
+    assert status["claim_blocker_rows_v381"] == 5
+    assert status["claim_matrix_rows_v381"] == 7
+    assert status["external_literature_source_log_missing_v381"] is False
+    assert status["submission_gaps_closed_v381"] is False
+    assert status["bounded_related_work_language_allowed_v381"] is True
+    assert status["verified_citation_language_allowed_v381"] is True
+    assert status["submission_ready_claim_allowed_v381"] is False
+    assert status["quarto_promotion_allowed_v381"] is False
+    assert status["strict_live_deployment_language_allowed_v381"] is False
+    assert status["contractual_or_legal_language_allowed_v381"] is False
+    assert status["ifrs9_contractual_claim_allowed_v381"] is False
+    assert status["global_optimality_language_allowed_v381"] is False
+    assert status["working_champion_claim_allowed_v381"] is False
+    assert status["paper1_promotion_allowed_v381"] is False
+    assert status["paper4_working_champion_changed_v381"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v381"] == "paper4_v382_global_solver_scope_decision.md"
+
+    source_log = _read_csv("paper4_v381_verified_literature_source_log.csv")
+    assert len(source_log) == 9
+    assert source_log["verified_v381"].astype(bool).all()
+    assert source_log["citation_key_v381"].is_unique
+    assert source_log["canonical_url_v381"].str.startswith(("https://", "http://")).all()
+    assert source_log["title_v381"].notna().all()
+    assert source_log["authors_v381"].notna().all()
+    assert set(source_log["source_id_v381"]) == {
+        "rockafellar_uryasev_cvar_2000",
+        "rockafellar_uryasev_cvar_2002",
+        "vovk_gammerman_shafer_2005",
+        "romano_patterson_candes_cqr_2019",
+        "gibbs_candes_aci_2021",
+        "angelopoulos_bates_fisch_lei_schuster_crc_2024",
+        "elmachtoub_grigas_spo_2021",
+        "ifrs_foundation_ifrs9_2026",
+        "cfpb_regulation_b_1002_current",
+    }
+    doi_rows = source_log.loc[source_log["doi_v381"].fillna("").ne("")]
+    assert set(doi_rows["doi_v381"]) == {
+        "10.21314/JOR.2000.038",
+        "10.1016/S0378-4266(02)00271-6",
+        "10.1007/b106715",
+        "10.1287/mnsc.2020.3922",
+    }
+    source_map = {row["source_id_v381"]: row for _, row in source_log.iterrows()}
+    assert source_map["ifrs_foundation_ifrs9_2026"]["claim_boundary_v381"] == (
+        "official standard context only"
+    )
+    assert source_map["cfpb_regulation_b_1002_current"]["claim_boundary_v381"] == (
+        "regulatory context only"
+    )
+    assert "Does not certify" in source_map[
+        "cfpb_regulation_b_1002_current"
+    ]["prohibited_overclaim_v381"]
+
+    citation_use = _read_csv("paper4_v381_citation_use_matrix.csv")
+    assert len(citation_use) == 9
+    assert citation_use["allowed_v381"].astype(bool).all()
+    assert set(citation_use["source_id_v381"]) == set(source_log["source_id_v381"])
+    assert {"Methods: Solver Frontier", "Limitations: IFRS9 Boundary"}.issubset(
+        set(citation_use["paper_section_v381"])
+    )
+    assert citation_use["prohibited_use_v381"].str.contains("live/legal/global/final").all()
+
+    source_gaps = _read_csv("paper4_v381_source_gap_register.csv")
+    assert len(source_gaps) == 4
+    assert source_gaps["blocking_v381"].astype(bool).all()
+    assert {
+        "ifrs9_contractual_application_not_verified",
+        "legal_fairness_review_not_approved",
+    }.issubset(set(source_gaps["gap_id_v381"]))
+
+    blockers = _read_csv("paper4_v381_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v381"], blockers["blocking_v381"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v381"], blockers["evidence_count_v381"], strict=False)
+    )
+    assert bool(blocker_map["source_log_is_not_full_literature_review"]) is True
+    assert int(blocker_evidence["source_log_is_not_full_literature_review"]) == 9
+    assert bool(blocker_map["source_gap_register_has_open_rows"]) is True
+    assert int(blocker_evidence["source_gap_register_has_open_rows"]) == 4
+    assert bool(blocker_map["submission_ready_claim_still_blocked"]) is True
+    assert bool(blocker_map["legal_ifrs_live_claims_still_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v381_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v381_verified_external_source_log_created"]) is True
+    assert bool(claim_map["v381_citation_use_matrix_created"]) is True
+    assert bool(claim_map["v381_bounded_related_work_citation_language_allowed"]) is True
+    assert bool(claim_map["v381_submission_ready_or_quarto_promotion"]) is False
+    assert bool(claim_map["v381_live_legal_ifrs9_compliance_claim"]) is False
+    assert bool(claim_map["v381_global_optimality_or_champion_claim"]) is False
+    assert bool(claim_map["v381_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map[
+            "v381 verifies external literature/source facts for bounded related-work use."
+        ]
+    )
+    assert bool(boundary_map["v381 maps verified citations to Paper 4 manuscript sections."])
+    assert bool(boundary_map["v381 makes Paper 4 submission-ready or bibliography-complete."]) is False
+    assert bool(
+        boundary_map[
+            "v381 authorizes live, legal, IFRS9, global or final-promotion claims."
+        ]
+    ) is False
+    assert bool(boundary_map["v381 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v381_rows = backlog.loc[backlog["last_wave"].eq("v381")]
+    assert len(v381_rows) == 1
+    backlog_row = v381_rows.iloc[0]
+    assert backlog_row["status"] == "verified_source_log_created"
+    assert backlog_row["next_artifact"] == "paper4_v382_global_solver_scope_decision.md"
+    assert backlog_row["execution_result"] == "source_log_verified_with_open_claim_blockers"
+
+    source_note = (
+        PAPER4_ROOT / "notes" / "paper4_v381_verified_literature_source_log.md"
+    ).read_text(encoding="utf-8")
+    assert "not a full literature review" in source_note
+    assert "must not be used to claim submission readiness" in source_note
+    assert "paper4_v382_global_solver_scope_decision.md" in source_note
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v381: Verified Literature Source Log" in notebook
+    assert "Source log rows:\n  `9`" in notebook
+    assert "Open source gap rows:\n  `4`" in notebook
+    assert "Submission-ready claim allowed:\n  `False`" in notebook
+    assert "Quarto promotion allowed:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -16028,3 +16028,57 @@ Keep v380 in the living notebook. v381 should create a verified literature
 source log before related-work language is expanded.
 
 <!-- V380_MANUSCRIPT_SECTION_SCAFFOLD_END -->
+
+<!-- V381_VERIFIED_LITERATURE_SOURCE_LOG_START -->
+
+## Wave v381: Verified Literature Source Log
+
+Generated: 2026-05-17T05:57:47.753469+00:00
+
+### Objective
+
+v381 executes the citation work order from v379/v380: verify external anchor
+sources before expanding related-work language, while preserving all live,
+legal, IFRS9, global, submission and final-promotion blockers.
+
+### Results
+
+- Source log rows:
+  `9`.
+- Verified source rows:
+  `9`.
+- Citation-use rows:
+  `9`.
+- Open source gap rows:
+  `4`.
+- Bounded related-work language allowed:
+  `True`.
+- Submission-ready claim allowed:
+  `False`.
+- Quarto promotion allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v382_global_solver_scope_decision.md`.
+
+### Interpretation
+
+Paper 4 now has a small, verified anchor-source set for methods and limitations:
+CVaR, conformal prediction, ACI/CRC, SPO, IFRS9 and ECOA/Reg B. The useful
+claim is narrower than a full literature review: these sources can support
+bounded citation placement, not stronger paper, legal, live or solver claims.
+
+### Claim Impact
+
+- Allowed: verified source metadata, citation-use mapping and bounded
+  related-work placement.
+- Still prohibited: submission-ready, Quarto promotion, live/legal/IFRS9,
+  global optimality, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v381 in the living notebook. v382 should decide the global-solver claim
+scope without enabling global-optimality language.
+
+<!-- V381_VERIFIED_LITERATURE_SOURCE_LOG_END -->
