@@ -1,0 +1,3 @@
+batch_id_v399,execution_order_v399,cell_count_v399,e402_diagnostic_count_v399,risk_class_v399,mutation_allowed_v399,next_action_v399,claim_boundary_v399
+batch_1_local_import_hoist,1,6,7,lowest_available,False,paper4_v400_notebook_e402_local_import_hoist_batch.md,batch plan only; no notebook mutation in v399
+batch_2_setup_warning_filter_refactor,2,9,112,requires_warning_semantics_review,False,paper4_v401_notebook_e402_setup_warning_refactor_plan.md,batch plan only; no notebook mutation in v399

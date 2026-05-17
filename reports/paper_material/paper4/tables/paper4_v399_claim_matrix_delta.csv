@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v399_e402_cell_refactor_plan_created,True,paper4_v399_notebook_e402_cell_refactor_plan.csv,15 cells planned
+v399_first_e402_batch_selected,True,paper4_v399_notebook_e402_batch_plan.csv,6 local delayed-import cells selected for v400
+v399_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v399
+v399_e402_or_global_lint_clean,False,paper4_v399_claim_blockers.csv,119 E402 and 139 notebook diagnostics remain
+v399_setup_warning_refactor_applied,False,paper4_v399_claim_blockers.csv,setup warning-filter cells only planned
+v399_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

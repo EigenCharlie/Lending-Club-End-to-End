@@ -44222,6 +44222,118 @@ def test_paper4_v398_notebook_historical_e402_policy_is_non_mutating() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v399_notebook_e402_cell_refactor_plan_is_non_mutating() -> None:
+    status = _read_json("paper4_v399_status.json")
+
+    assert status["phase"] == "v399_notebook_e402_cell_refactor_plan"
+    assert status["schema_version"] == "2026-05-17.399"
+    assert status["prior_e402_policy_version_v399"] == 398
+    assert status["cell_plan_rows_v399"] == 15
+    assert status["batch_plan_rows_v399"] == 2
+    assert status["claim_blocker_rows_v399"] == 4
+    assert status["claim_matrix_rows_v399"] == 6
+    assert status["e402_diagnostics_planned_v399"] == 119
+    assert status["current_e402_diagnostics_v399"] == 119
+    assert status["first_batch_cells_v399"] == 6
+    assert status["first_batch_e402_diagnostics_v399"] == 7
+    assert status["setup_warning_filter_cells_v399"] == 9
+    assert status["setup_warning_filter_e402_diagnostics_v399"] == 112
+    assert status["selected_first_batch_v399"] == "batch_1_local_import_hoist"
+    assert status["setup_warning_filter_batch_deferred_v399"] is True
+    assert status["notebooks_mutated_v399"] is False
+    assert status["notebook_diff_clean_before_v399"] is True
+    assert status["notebook_diff_clean_after_v399"] is True
+    assert status["global_notebook_diagnostics_v399"] == 139
+    assert status["global_ruff_clean_v399"] is False
+    assert status["full_repository_pytest_run_v399"] is False
+    assert status["full_quarto_render_run_v399"] is False
+    assert status["working_champion_claim_allowed_v399"] is False
+    assert status["paper1_promotion_allowed_v399"] is False
+    assert status["paper4_working_champion_changed_v399"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v399"] == "paper4_v400_notebook_e402_local_import_hoist_batch.md"
+
+    plan = _read_csv("paper4_v399_notebook_e402_cell_refactor_plan.csv")
+    assert len(plan) == 15
+    assert int(plan["e402_diagnostic_count_v399"].sum()) == 119
+    assert not plan["mutation_allowed_v399"].astype(bool).any()
+    batch_counts = plan["planned_batch_v399"].value_counts().to_dict()
+    assert int(batch_counts["batch_1_local_import_hoist"]) == 6
+    assert int(batch_counts["batch_2_setup_warning_filter_refactor"]) == 9
+    first_batch = plan.loc[plan["planned_batch_v399"].eq("batch_1_local_import_hoist")]
+    assert int(first_batch["e402_diagnostic_count_v399"].sum()) == 7
+    assert set(first_batch["cell_class_v399"]) == {"local_delayed_import_cell"}
+
+    batch_plan = _read_csv("paper4_v399_notebook_e402_batch_plan.csv")
+    assert len(batch_plan) == 2
+    batch_map = {row["batch_id_v399"]: row for _, row in batch_plan.iterrows()}
+    assert int(batch_map["batch_1_local_import_hoist"]["cell_count_v399"]) == 6
+    assert int(batch_map["batch_1_local_import_hoist"]["e402_diagnostic_count_v399"]) == 7
+    assert (
+        batch_map["batch_1_local_import_hoist"]["next_action_v399"]
+        == "paper4_v400_notebook_e402_local_import_hoist_batch.md"
+    )
+    assert int(batch_map["batch_2_setup_warning_filter_refactor"]["cell_count_v399"]) == 9
+    assert int(batch_map["batch_2_setup_warning_filter_refactor"]["e402_diagnostic_count_v399"]) == 112
+    assert not batch_plan["mutation_allowed_v399"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v399_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v399"], blockers["blocking_v399"], strict=False))
+    assert bool(blocker_map["local_import_hoist_not_applied_yet"]) is True
+    assert bool(blocker_map["setup_warning_filter_cells_require_review"]) is True
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v399_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v399_e402_cell_refactor_plan_created"]) is True
+    assert bool(claim_map["v399_first_e402_batch_selected"]) is True
+    assert bool(claim_map["v399_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v399_e402_or_global_lint_clean"]) is False
+    assert bool(claim_map["v399_setup_warning_refactor_applied"]) is False
+    assert bool(claim_map["v399_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v399 plans all 15 historical E402 notebook cells."])
+    assert bool(boundary_map["v399 selects a 6-cell local import hoist batch for v400."])
+    assert bool(boundary_map["v399 repairs E402 or clears notebook lint."]) is False
+    assert bool(boundary_map["v399 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v399_rows = backlog.loc[backlog["last_wave"].eq("v399")]
+    assert len(v399_rows) == 1
+    backlog_row = v399_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_e402_cell_refactor_plan_created"
+    assert backlog_row["next_artifact"] == "paper4_v400_notebook_e402_local_import_hoist_batch.md"
+    assert backlog_row["execution_result"] == "e402_15_cells_planned_first_batch_6_cells_no_mutation"
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v399_notebook_e402_cell_refactor_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "First batch cells: `6`" in plan_md
+    assert "does not repair E402" in plan_md
+    assert "paper4_v400_notebook_e402_local_import_hoist_batch.md" in plan_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v399: Notebook E402 Cell Refactor Plan" in notebook
+    assert "Cell plan rows:\n  `15`" in notebook
+    assert "First batch cells:\n  `6`" in notebook
+    assert "Notebooks mutated:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

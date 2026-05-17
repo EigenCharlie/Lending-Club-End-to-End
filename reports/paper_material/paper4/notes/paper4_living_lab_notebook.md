@@ -16965,3 +16965,56 @@ Keep v398 in the living notebook. v399 should build the 15-cell E402 refactor
 plan.
 
 <!-- V398_NOTEBOOK_HISTORICAL_E402_POLICY_END -->
+
+<!-- V399_NOTEBOOK_E402_CELL_REFACTOR_PLAN_START -->
+
+## Wave v399: Notebook E402 Cell Refactor Plan
+
+Generated: 2026-05-17T08:06:28.636069+00:00
+
+### Objective
+
+v399 converts the historical E402 frontier into an executable plan by separating
+lower-risk local delayed imports from setup cells with warning-filter semantics.
+
+### Results
+
+- Cell plan rows:
+  `15`.
+- E402 diagnostics planned:
+  `119`.
+- First batch cells:
+  `6`.
+- First batch diagnostics:
+  `7`.
+- Setup warning-filter cells:
+  `9`.
+- Setup warning-filter diagnostics:
+  `112`.
+- Notebooks mutated:
+  `False`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v400_notebook_e402_local_import_hoist_batch.md`.
+
+### Interpretation
+
+The next safe mutation should target only the 6 local delayed-import cells. The
+9 setup cells need a separate warning-filter semantics review before any import
+movement.
+
+### Claim Impact
+
+- Allowed: 15-cell E402 refactor plan and first-batch selection.
+- Still prohibited: E402 repaired, notebook lint clean, repository ruff clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v399 in the living notebook. v400 should apply the local delayed-import
+hoist batch with roundtrip checks.
+
+<!-- V399_NOTEBOOK_E402_CELL_REFACTOR_PLAN_END -->
