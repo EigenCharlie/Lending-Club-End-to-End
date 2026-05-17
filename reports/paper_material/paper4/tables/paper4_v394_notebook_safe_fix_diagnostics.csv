@@ -1,0 +1,26 @@
+stage_v394,diagnostic_id_v394,notebook_path_v394,cell_v394,row_v394,rule_code_v394,message_v394,has_ruff_fix_v394,fix_applicability_v394,claim_boundary_v394
+before,before_001,notebooks/01_eda_lending_club.ipynb,14,22,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only
+before,before_002,notebooks/02_feature_engineering.ipynb,30,22,F541,f-string without any placeholders,True,safe,selected notebook lint subset only
+before,before_003,notebooks/02_feature_engineering.ipynb,31,40,F541,f-string without any placeholders,True,safe,selected notebook lint subset only
+before,before_004,notebooks/06_survival_analysis.ipynb,33,21,F541,f-string without any placeholders,True,safe,selected notebook lint subset only
+before,before_005,notebooks/08_portfolio_optimization.ipynb,4,48,SIM115,Use a context manager for opening files,False,none,selected notebook lint subset only
+before,before_006,notebooks/09_end_to_end_pipeline.ipynb,26,19,F541,f-string without any placeholders,True,safe,selected notebook lint subset only
+before,before_007,notebooks/13_model_explainability.ipynb,8,14,I001,Import block is un-sorted or un-formatted,True,safe,selected notebook lint subset only
+before,before_008,notebooks/13_model_explainability.ipynb,10,3,F401,`sklearn.metrics.roc_auc_score` imported but unused,True,safe,selected notebook lint subset only
+before,before_009,notebooks/13_model_explainability.ipynb,16,16,W293,Blank line contains whitespace,True,safe,selected notebook lint subset only
+before,before_010,notebooks/13_model_explainability.ipynb,16,20,W293,Blank line contains whitespace,True,safe,selected notebook lint subset only
+before,before_011,notebooks/13_model_explainability.ipynb,24,18,W293,Blank line contains whitespace,True,safe,selected notebook lint subset only
+before,before_012,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,7,F401,`textwrap` imported but unused,True,safe,selected notebook lint subset only
+before,before_013,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,119,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,selected notebook lint subset only
+before,before_014,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,192,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,selected notebook lint subset only
+before,before_015,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,9,138,I001,Import block is un-sorted or un-formatted,True,safe,selected notebook lint subset only
+before,before_016,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,6,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only
+before,before_017,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,100,I001,Import block is un-sorted or un-formatted,True,safe,selected notebook lint subset only
+before,before_018,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,13,114,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only
+before,before_019,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,23,6,UP017,Use `datetime.UTC` alias,True,safe,selected notebook lint subset only
+after,after_001,notebooks/01_eda_lending_club.ipynb,14,22,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only
+after,after_002,notebooks/08_portfolio_optimization.ipynb,4,48,SIM115,Use a context manager for opening files,False,none,selected notebook lint subset only
+after,after_003,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,118,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,selected notebook lint subset only
+after,after_004,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,191,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,selected notebook lint subset only
+after,after_005,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,6,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only
+after,after_006,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,13,114,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,selected notebook lint subset only

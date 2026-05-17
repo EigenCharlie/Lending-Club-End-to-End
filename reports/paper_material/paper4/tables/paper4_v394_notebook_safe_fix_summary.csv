@@ -1,0 +1,9 @@
+rule_code_v394,fix_applicability_v394,diagnostic_count_before_v394,diagnostic_count_after_v394,diagnostics_reduced_v394,action_v394,claim_boundary_v394
+B905,unsafe,2,2,0,deferred_or_unfixed,safe applicability only; unsafe fixes deferred
+F401,safe,2,0,2,applied_by_safe_fix_batch,safe applicability only; unsafe fixes deferred
+F541,safe,4,0,4,applied_by_safe_fix_batch,safe applicability only; unsafe fixes deferred
+I001,safe,3,0,3,applied_by_safe_fix_batch,safe applicability only; unsafe fixes deferred
+SIM105,unsafe,3,3,0,deferred_or_unfixed,safe applicability only; unsafe fixes deferred
+SIM115,none,1,1,0,deferred_or_unfixed,safe applicability only; unsafe fixes deferred
+UP017,safe,1,0,1,applied_by_safe_fix_batch,safe applicability only; unsafe fixes deferred
+W293,safe,3,0,3,applied_by_safe_fix_batch,safe applicability only; unsafe fixes deferred

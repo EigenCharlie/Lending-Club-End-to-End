@@ -16701,3 +16701,57 @@ Keep v393 in the living notebook. v394 should attempt only safe-after-roundtrip
 fixes.
 
 <!-- V393_NOTEBOOK_LINT_DRY_RUN_MANIFEST_END -->
+
+<!-- V394_NOTEBOOK_SAFE_FIX_ROUNDTRIP_BATCH_START -->
+
+## Wave v394: Notebook Safe-Fix Roundtrip Batch
+
+Generated: 2026-05-17T07:30:50.886446+00:00
+
+### Objective
+
+v394 applies only Ruff-safe notebook fixes from the v393 dry-run manifest and
+tests whether notebook structure, markdown, metadata and outputs remain stable.
+
+### Results
+
+- Selected notebook diagnostics before:
+  `19`.
+- Selected notebook diagnostics after:
+  `6`.
+- Safe-applicability fixes applied:
+  `13`.
+- Ruff-unsafe fixes deferred:
+  `5`.
+- Global notebook diagnostics before:
+  `158`.
+- Global notebook diagnostics after:
+  `145`.
+- Changed notebook files:
+  `5`.
+- Roundtrip integrity passed:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v395_notebook_unsafe_fix_review.md`.
+
+### Interpretation
+
+This is the first controlled notebook mutation in the lint frontier. It reduces
+notebook diagnostics without touching outputs or markdown, while separating the
+5 Ruff-unsafe fixes into a dedicated review wave.
+
+### Claim Impact
+
+- Allowed: 13 Ruff-safe notebook fixes and roundtrip preservation evidence.
+- Still prohibited: unsafe fixes applied, notebook lint clean, repository ruff
+  clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v394 in the living notebook. v395 should review Ruff-unsafe notebook fixes.
+
+<!-- V394_NOTEBOOK_SAFE_FIX_ROUNDTRIP_BATCH_END -->
