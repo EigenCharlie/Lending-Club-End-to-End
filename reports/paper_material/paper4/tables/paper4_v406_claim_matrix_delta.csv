@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v406_full_repository_pytest_run,True,paper4_v406_pytest_probe_summary.csv,pytest command executed after v405 sys.path refactor
+v406_full_repository_pytest_passed,True,paper4_v406_pytest_probe_summary.csv,true only when pytest exits 0
+v406_notebook_e402_remains_clear,True,paper4_v406_notebook_lint_snapshot.csv,E402 count remains 0
+v406_notebook_or_repo_ruff_clean,False,paper4_v406_claim_blockers.csv,20 non-E402 notebook diagnostics remain
+v406_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,0 +1,8 @@
+lint_code_v406,diagnostic_count_v406,claim_boundary_v406
+B007,3,notebook lint remains visible after sys.path refactor
+B018,10,notebook lint remains visible after sys.path refactor
+E712,2,notebook lint remains visible after sys.path refactor
+E741,1,notebook lint remains visible after sys.path refactor
+F821,1,notebook lint remains visible after sys.path refactor
+SIM102,1,notebook lint remains visible after sys.path refactor
+SIM108,2,notebook lint remains visible after sys.path refactor

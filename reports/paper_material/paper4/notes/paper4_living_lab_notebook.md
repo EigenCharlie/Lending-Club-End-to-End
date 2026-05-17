@@ -17329,3 +17329,52 @@ Keep v405 in the living notebook. v406 should run a post-sys.path-refactor pytes
 probe before further lint cleanup.
 
 <!-- V405_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_BATCH_END -->
+
+<!-- V406_POST_SYS_PATH_REFACTOR_PYTEST_PROBE_START -->
+
+## Wave v406: Post-Sys.path-Refactor Pytest Probe
+
+Generated: 2026-05-17T08:55:16.030805+00:00
+
+### Objective
+
+v406 runs full repository pytest after v405 clears notebook E402.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1144`.
+- Pytest summary:
+  `=========== 1144 passed, 2 skipped, 13 warnings in 183.43s (0:03:03) ===========`.
+- Notebook diagnostics:
+  `20`.
+- Notebook E402 diagnostics:
+  `0`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v407_notebook_non_e402_lint_triage.md`.
+
+### Interpretation
+
+Notebook E402 is closed and post-refactor pytest decides whether the next lane
+can focus on the remaining non-E402 notebook diagnostics.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after notebook E402 clearance.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: all notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v406 in the living notebook. Route v407 according to the pytest result.
+
+<!-- V406_POST_SYS_PATH_REFACTOR_PYTEST_PROBE_END -->

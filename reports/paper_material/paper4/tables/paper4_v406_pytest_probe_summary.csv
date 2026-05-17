@@ -1,0 +1,2 @@
+probe_id_v406,command_v406,exit_code_v406,passed_v406,runtime_seconds_v406,collected_items_v406,summary_line_v406,claim_boundary_v406
+full_repository_pytest,uv run pytest -q --tb=short,0,True,191.953,1144,"=========== 1144 passed, 2 skipped, 13 warnings in 183.43s (0:03:03) ===========",post-sys.path-refactor pytest probe

@@ -45116,6 +45116,108 @@ def test_paper4_v405_notebook_sys_path_project_import_refactor_batch_is_guarded(
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v406_post_sys_path_refactor_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v406_status.json")
+
+    assert status["phase"] == "v406_post_sys_path_refactor_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.406"
+    assert status["prior_sys_path_refactor_version_v406"] == 405
+    assert status["pytest_command_v406"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v406"] == 0
+    assert status["pytest_passed_v406"] is True
+    assert status["pytest_collected_items_v406"] == 1144
+    assert "1144 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v406"]
+    assert status["global_notebook_diagnostics_v406"] == 20
+    assert status["global_notebook_e402_v406"] == 0
+    assert status["global_notebook_i001_v406"] == 0
+    assert status["global_notebook_f401_v406"] == 0
+    assert status["global_notebook_f821_v406"] == 1
+    assert status["global_ruff_clean_v406"] is False
+    assert status["full_repository_pytest_run_v406"] is True
+    assert status["full_repository_pytest_passed_v406"] is True
+    assert status["full_quarto_render_run_v406"] is False
+    assert status["working_champion_claim_allowed_v406"] is False
+    assert status["paper1_promotion_allowed_v406"] is False
+    assert status["paper4_working_champion_changed_v406"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v406"] == "paper4_v407_notebook_non_e402_lint_triage.md"
+
+    pytest_summary = _read_csv("paper4_v406_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v406"] == "full_repository_pytest"
+    assert pytest_row["command_v406"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v406"]) == 0
+    assert bool(pytest_row["passed_v406"]) is True
+    assert int(pytest_row["collected_items_v406"]) == 1144
+    assert "1144 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v406"]
+
+    lint_snapshot = _read_csv("paper4_v406_notebook_lint_snapshot.csv")
+    lint_map = dict(
+        zip(lint_snapshot["lint_code_v406"], lint_snapshot["diagnostic_count_v406"], strict=False)
+    )
+    assert "E402" not in lint_map
+    assert "I001" not in lint_map
+    assert "F401" not in lint_map
+    assert int(lint_map["B018"]) == 10
+    assert int(lint_map["B007"]) == 3
+    assert int(lint_map["F821"]) == 1
+    assert int(sum(lint_map.values())) == 20
+
+    blockers = _read_csv("paper4_v406_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v406"], blockers["blocking_v406"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v406"], blockers["evidence_count_v406"], strict=False)
+    )
+    assert "full_repository_pytest_failed" not in blocker_map
+    assert bool(blocker_map["non_e402_notebook_lint_remaining"]) is True
+    assert int(blocker_evidence["non_e402_notebook_lint_remaining"]) == 20
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v406_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v406_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v406_full_repository_pytest_passed"]) is True
+    assert bool(claim_map["v406_notebook_e402_remains_clear"]) is True
+    assert bool(claim_map["v406_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v406_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v406 runs full repository pytest after notebook E402 is cleared."])
+    assert bool(boundary_map["v406 full repository pytest passes after notebook E402 is cleared."])
+    assert bool(boundary_map["v406 clears global notebook lint or repository ruff."]) is False
+    assert bool(boundary_map["v406 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v406_rows = backlog.loc[backlog["last_wave"].eq("v406")]
+    assert len(v406_rows) == 1
+    backlog_row = v406_rows.iloc[0]
+    assert backlog_row["status"] == "post_sys_path_refactor_pytest_probe_passed"
+    assert backlog_row["next_artifact"] == "paper4_v407_notebook_non_e402_lint_triage.md"
+    assert (
+        backlog_row["execution_result"]
+        == "full_repository_pytest_passed_after_notebook_e402_clearance"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v406_post_sys_path_refactor_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1144 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Notebook E402 diagnostics: `0`" in probe_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v406: Post-Sys.path-Refactor Pytest Probe" in notebook
+    assert "Pytest passed:\n  `True`" in notebook
+    assert "Notebook E402 diagnostics:\n  `0`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

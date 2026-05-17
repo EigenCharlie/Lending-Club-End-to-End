@@ -1266,3 +1266,7 @@ v405 clears notebook E402 diagnostics.,True,reports/paper_material/paper4/tables
 v405 reduces notebook lint diagnostics from 62 to 20.,True,reports/paper_material/paper4/tables/paper4_v405_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
 v405 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v405_claim_blockers.csv,20 non-E402 notebook diagnostics remain.,True,living_notebook_only
 v405 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v405_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v406 runs full repository pytest after notebook E402 is cleared.,True,reports/paper_material/paper4/tables/paper4_v406_pytest_probe_summary.csv,Execution evidence only.,False,living_notebook_only
+v406 full repository pytest passes after notebook E402 is cleared.,True,reports/paper_material/paper4/tables/paper4_v406_pytest_probe_summary.csv,Allowed only if pytest exit code is 0.,False,living_notebook_only
+v406 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v406_claim_blockers.csv,20 non-E402 notebook diagnostics remain.,True,living_notebook_only
+v406 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v406_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
