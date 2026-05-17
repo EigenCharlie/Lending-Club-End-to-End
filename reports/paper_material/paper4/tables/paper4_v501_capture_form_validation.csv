@@ -1,0 +1,9 @@
+capture_field_v501,required_v501,field_present_in_template_v501,dry_run_value_written_v501,manual_capture_ready_v501,claim_boundary_v501
+reviewer_id,True,True,False,True,form validation only
+review_timestamp_utc,True,True,False,True,form validation only
+outcome_decision,True,True,False,True,form validation only
+revision_required,True,True,False,True,form validation only
+claim_boundary_ok,True,True,False,True,form validation only
+caption_final_allowed,True,True,False,True,form validation only
+patch_scope_ok,True,True,False,True,form validation only
+reviewer_notes,True,True,False,True,form validation only

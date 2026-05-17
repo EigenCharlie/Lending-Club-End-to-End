@@ -1,0 +1,7 @@
+safety_gate_id_v501,control_active_v501,blocks_patch_v501,dry_run_passed_v501,claim_boundary_v501
+no_outcomes_captured,True,True,True,dry-run safety gate only
+no_caption_finalized,True,True,True,dry-run safety gate only
+no_patch_approval,True,True,True,dry-run safety gate only
+no_book_mutation,True,True,True,dry-run safety gate only
+no_render_submission,True,True,True,dry-run safety gate only
+no_final_promotion,True,True,True,dry-run safety gate only

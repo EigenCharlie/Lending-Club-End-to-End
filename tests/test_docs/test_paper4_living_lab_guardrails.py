@@ -57385,6 +57385,146 @@ def test_paper4_v500_review_outcome_template_consistency_audit_is_guarded() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v501_review_outcome_capture_dry_run_is_guarded() -> None:
+    status = _read_json("paper4_v501_status.json")
+    assert status["phase"] == "v501_review_outcome_capture_dry_run"
+    assert status["schema_version"] == "2026-05-17.501"
+    assert status["prior_template_audit_version_v501"] == 500
+    assert status["review_outcome_capture_dry_run_created_v501"] is True
+    assert status["dry_run_rows_v501"] == 14
+    assert status["dry_run_executed_rows_v501"] == 14
+    assert status["capture_form_field_rows_v501"] == 8
+    assert status["form_validation_passed_rows_v501"] == 8
+    assert status["safety_gate_rows_v501"] == 6
+    assert status["passed_safety_gate_rows_v501"] == 6
+    assert status["manual_capture_queue_rows_v501"] == 14
+    assert status["manual_capture_ready_rows_v501"] == 14
+    assert status["real_outcome_captured_rows_v501"] == 0
+    assert status["synthetic_outcome_written_rows_v501"] == 0
+    assert status["review_completed_rows_v501"] == 0
+    assert status["caption_final_rows_v501"] == 0
+    assert status["patch_allowed_rows_v501"] == 0
+    assert status["readiness_delta_rows_v501"] == 8
+    assert status["manual_capture_packet_ready_v501"] is True
+    assert status["ready_for_quarto_patch_v501"] is False
+    assert status["quarto_patch_applied_v501"] is False
+    assert status["book_sources_modified_v501"] is False
+    assert status["book_references_modified_v501"] is False
+    assert status["submission_ready_claim_allowed_v501"] is False
+    assert status["working_champion_claim_allowed_v501"] is False
+    assert status["paper1_promotion_allowed_v501"] is False
+    assert status["paper4_working_champion_changed_v501"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v501"] == "paper4_v502_review_outcome_manual_capture_packet.md"
+
+    dry_run = _read_csv("paper4_v501_review_outcome_capture_dry_run.csv")
+    assert len(dry_run) == 14
+    assert dry_run["dry_run_executed_v501"].astype(bool).all()
+    assert dry_run["capture_form_valid_v501"].astype(bool).all()
+    assert not dry_run["real_outcome_captured_v501"].astype(bool).any()
+    assert not dry_run["synthetic_outcome_written_v501"].astype(bool).any()
+    assert not dry_run["review_completed_v501"].astype(bool).any()
+    assert not dry_run["caption_final_v501"].astype(bool).any()
+    assert not dry_run["patch_allowed_v501"].astype(bool).any()
+    assert dry_run["manual_capture_required_v501"].astype(bool).all()
+
+    form_validation = _read_csv("paper4_v501_capture_form_validation.csv")
+    assert len(form_validation) == 8
+    assert form_validation["required_v501"].astype(bool).all()
+    assert form_validation["field_present_in_template_v501"].astype(bool).all()
+    assert not form_validation["dry_run_value_written_v501"].astype(bool).any()
+    assert form_validation["manual_capture_ready_v501"].astype(bool).all()
+
+    safety = _read_csv("paper4_v501_dry_run_safety_gate.csv")
+    assert len(safety) == 6
+    assert safety["control_active_v501"].astype(bool).all()
+    assert safety["blocks_patch_v501"].astype(bool).all()
+    assert safety["dry_run_passed_v501"].astype(bool).all()
+
+    queue = _read_csv("paper4_v501_manual_capture_queue.csv")
+    assert len(queue) == 14
+    assert list(queue["priority_v501"]) == list(range(1, 15))
+    assert queue["manual_capture_ready_v501"].astype(bool).all()
+    assert queue["awaiting_human_review_v501"].astype(bool).all()
+    assert not queue["outcome_recorded_v501"].astype(bool).any()
+    assert not queue["patch_allowed_v501"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v501_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v501"], readiness["ready_v501"], strict=False)
+    )
+    assert bool(readiness_map["review_outcome_capture_dry_run_created"])
+    assert bool(readiness_map["capture_form_validation_passed"])
+    assert bool(readiness_map["dry_run_safety_gates_passed"])
+    assert bool(readiness_map["manual_capture_queue_ready"])
+    assert bool(readiness_map["real_review_outcomes_captured"]) is False
+    assert bool(readiness_map["captions_finalized"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v501_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v501_review_outcome_capture_dry_run_created"])
+    assert bool(claim_map["v501_capture_form_and_safety_gates_validated"])
+    assert bool(claim_map["v501_manual_capture_queue_ready"])
+    assert bool(claim_map["v501_real_reviews_completed_or_captions_final"]) is False
+    assert bool(claim_map["v501_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v501_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v501 executes a Paper 4 review outcome capture dry run."])
+    assert bool(boundary_map["v501 validates capture form and safety gates for future use."])
+    assert bool(boundary_map["v501 stages a manual review outcome capture queue."])
+    assert (
+        bool(
+            boundary_map[
+                "v501 captures real completed review outcomes or finalizes captions."
+            ]
+        )
+        is False
+    )
+    assert (
+        bool(boundary_map["v501 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v501 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v501_rows = backlog.loc[backlog["last_wave"].eq("v501")]
+    assert len(v501_rows) == 1
+    backlog_row = v501_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v502_review_outcome_manual_capture_packet.md"
+    assert backlog_row["execution_result"] == "review_outcome_capture_dry_run_without_outcomes"
+
+    dry_run_md = (
+        PAPER4_ROOT / "notes" / "paper4_v501_review_outcome_capture_dry_run.md"
+    ).read_text(encoding="utf-8")
+    assert "Review Outcome Capture Dry Run v501" in dry_run_md
+    assert "zero real review outcomes" in dry_run_md
+    assert "v501 is a dry run only" in dry_run_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v501: Review Outcome Capture Dry Run" in living_notebook
+    assert "Dry-run rows:\n  `14`." in living_notebook
+    assert "Dry-run executed rows:\n  `14`." in living_notebook
+    assert "Capture form field rows:\n  `8`." in living_notebook
+    assert "Form validation passed rows:\n  `8`." in living_notebook
+    assert "Safety gate rows:\n  `6`." in living_notebook
+    assert "Passed safety gate rows:\n  `6`." in living_notebook
+    assert "Manual capture queue rows:\n  `14`." in living_notebook
+    assert "Manual capture ready rows:\n  `14`." in living_notebook
+    assert "Real outcome captured rows:\n  `0`." in living_notebook
+    assert "Synthetic outcome written rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

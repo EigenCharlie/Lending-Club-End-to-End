@@ -22391,3 +22391,69 @@ Keep v500 in the living notebook. v501 should run a controlled capture dry run
 without recording real review outcomes or modifying book sources.
 
 <!-- V500_REVIEW_OUTCOME_TEMPLATE_CONSISTENCY_AUDIT_END -->
+
+<!-- V501_REVIEW_OUTCOME_CAPTURE_DRY_RUN_START -->
+
+## Wave v501: Review Outcome Capture Dry Run
+
+Generated: 2026-05-17T19:32:38.897591+00:00
+
+### Objective
+
+v501 runs a controlled dry run over the v499 template after the v500 consistency
+audit. It validates the capture path without recording real outcomes or
+authorizing patch scope.
+
+### Results
+
+- Dry-run rows:
+  `14`.
+- Dry-run executed rows:
+  `14`.
+- Capture form field rows:
+  `8`.
+- Form validation passed rows:
+  `8`.
+- Safety gate rows:
+  `6`.
+- Passed safety gate rows:
+  `6`.
+- Manual capture queue rows:
+  `14`.
+- Manual capture ready rows:
+  `14`.
+- Real outcome captured rows:
+  `0`.
+- Synthetic outcome written rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v502_review_outcome_manual_capture_packet.md`.
+
+### Interpretation
+
+The future review-outcome capture path is operationally staged, but the paper
+still lacks actual human review outcomes, caption finalization and patch
+approval.
+
+### Claim Impact
+
+- Allowed: dry-run execution, capture form validation, safety-gate validation
+  and manual capture queue staging.
+- Still prohibited: completed review/signoff claims, final captions, Quarto
+  patch readiness/application, Quarto/book-reference mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v501 in the living notebook. v502 should create a manual capture packet
+without fabricating or pre-filling review outcomes.
+
+<!-- V501_REVIEW_OUTCOME_CAPTURE_DRY_RUN_END -->

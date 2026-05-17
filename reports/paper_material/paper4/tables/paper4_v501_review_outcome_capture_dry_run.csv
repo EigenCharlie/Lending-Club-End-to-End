@@ -1,0 +1,15 @@
+dry_run_id_v501,outcome_template_id_v501,review_domain_v501,asset_id_v501,target_block_v501,dry_run_executed_v501,capture_form_valid_v501,real_outcome_captured_v501,synthetic_outcome_written_v501,review_completed_v501,caption_final_v501,patch_allowed_v501,manual_capture_required_v501,claim_boundary_v501
+dry_run_01,layout_outcome_review_01,layout_surface,T1;F1,results_evidence_cvar,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_02,layout_outcome_review_02,layout_surface,T2;F2;T4;F3,results_evidence_governance_online,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_03,layout_outcome_review_03,layout_surface,T3;T6,discussion_limitations,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_04,layout_outcome_review_04,layout_surface,T5;F4,methods_protocol,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_05,caption_outcome_caption_review_01,caption_claim_safety,T5,methods_protocol,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_06,caption_outcome_caption_review_02,caption_claim_safety,F4,methods_protocol,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_07,caption_outcome_caption_review_03,caption_claim_safety,T1,results_evidence_cvar,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_08,caption_outcome_caption_review_04,caption_claim_safety,F1,results_evidence_cvar,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_09,caption_outcome_caption_review_05,caption_claim_safety,T2,results_evidence_governance_online,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_10,caption_outcome_caption_review_06,caption_claim_safety,F2,results_evidence_governance_online,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_11,caption_outcome_caption_review_07,caption_claim_safety,T4,results_evidence_governance_online,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_12,caption_outcome_caption_review_08,caption_claim_safety,F3,results_evidence_governance_online,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_13,caption_outcome_caption_review_09,caption_claim_safety,T3,discussion_limitations,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
+dry_run_14,caption_outcome_caption_review_10,caption_claim_safety,T6,discussion_limitations,True,True,False,False,False,False,False,True,dry run only; no outcome evidence recorded
