@@ -1,0 +1,4 @@
+blocker_id_v405,blocking_v405,evidence_count_v405,required_next_artifact_v405,claim_boundary_v405
+non_e402_notebook_lint_remaining,True,20,paper4_v407_notebook_non_e402_lint_triage.md,non-E402 notebook lint remains
+post_refactor_pytest_not_run,True,1,paper4_v406_post_sys_path_refactor_pytest_probe.md,post-refactor validation deferred until v406
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -44993,6 +44993,129 @@ def test_paper4_v404_notebook_sys_path_project_import_refactor_plan_is_non_mutat
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v405_notebook_sys_path_project_import_refactor_batch_is_guarded() -> None:
+    status = _read_json("paper4_v405_status.json")
+
+    assert status["phase"] == "v405_notebook_sys_path_project_import_refactor_batch"
+    assert status["schema_version"] == "2026-05-17.405"
+    assert status["prior_sys_path_plan_version_v405"] == 404
+    assert status["sys_path_project_import_cells_v405"] == 3
+    assert status["sys_path_project_import_e402_diagnostics_v405"] == 42
+    assert status["action_rows_v405"] == 3
+    assert status["i001_fix_command_output_v405"] == "Found 3 errors (3 fixed, 0 remaining)."
+    assert status["global_notebook_diagnostics_before_v405"] == 62
+    assert status["global_notebook_diagnostics_after_v405"] == 20
+    assert status["global_notebook_diagnostics_reduced_v405"] == 42
+    assert status["global_notebook_e402_before_v405"] == 42
+    assert status["global_notebook_e402_after_v405"] == 0
+    assert status["global_notebook_e402_reduced_v405"] == 42
+    assert status["global_notebook_i001_after_v405"] == 0
+    assert status["global_notebook_f401_after_v405"] == 0
+    assert status["global_notebook_f821_after_v405"] == 1
+    assert status["changed_notebook_files_v405"] == 3
+    assert status["roundtrip_integrity_rows_v405"] == 3
+    assert status["roundtrip_integrity_all_passed_v405"] is True
+    assert status["global_ruff_clean_v405"] is False
+    assert status["full_repository_pytest_run_v405"] is False
+    assert status["full_quarto_render_run_v405"] is False
+    assert status["working_champion_claim_allowed_v405"] is False
+    assert status["paper1_promotion_allowed_v405"] is False
+    assert status["paper4_working_champion_changed_v405"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v405"] == "paper4_v406_post_sys_path_refactor_pytest_probe.md"
+
+    expected_changed = {
+        "notebooks/06_survival_analysis.ipynb",
+        "notebooks/08_portfolio_optimization.ipynb",
+        "notebooks/09_end_to_end_pipeline.ipynb",
+    }
+    assert set(status["changed_notebook_file_list_v405"]) == expected_changed
+
+    actions = _read_csv("paper4_v405_notebook_sys_path_refactor_actions.csv")
+    assert len(actions) == 3
+    assert set(actions["notebook_path_v405"]) == expected_changed
+    assert int(actions["warning_filter_lines_moved_v405"].sum()) == 4
+    assert int(actions["sys_path_insert_lines_removed_v405"].sum()) == 3
+    assert int(actions["import_sys_lines_removed_v405"].sum()) == 3
+    assert actions["import_sort_normalization_applied_v405"].astype(bool).all()
+    assert actions["mutation_applied_v405"].astype(bool).all()
+
+    lint_delta = _read_csv("paper4_v405_notebook_lint_delta.csv")
+    lint_map = {row["metric_v405"]: row for _, row in lint_delta.iterrows()}
+    assert int(lint_map["global_notebook_total"]["before_v405"]) == 62
+    assert int(lint_map["global_notebook_total"]["after_v405"]) == 20
+    assert int(lint_map["global_notebook_total"]["delta_v405"]) == -42
+    assert int(lint_map["global_notebook_e402"]["before_v405"]) == 42
+    assert int(lint_map["global_notebook_e402"]["after_v405"]) == 0
+    assert int(lint_map["global_notebook_i001"]["after_v405"]) == 0
+    assert int(lint_map["global_notebook_f401"]["after_v405"]) == 0
+
+    integrity = _read_csv("paper4_v405_notebook_roundtrip_integrity.csv")
+    assert len(integrity) == 3
+    assert set(integrity["notebook_path_v405"]) == expected_changed
+    for column in [
+        "file_changed_v405",
+        "cell_count_preserved_v405",
+        "code_cell_count_preserved_v405",
+        "cell_type_sequence_preserved_v405",
+        "non_code_source_preserved_v405",
+        "outputs_preserved_v405",
+        "metadata_preserved_v405",
+    ]:
+        assert integrity[column].astype(bool).all()
+
+    blockers = _read_csv("paper4_v405_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v405"], blockers["blocking_v405"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v405"], blockers["evidence_count_v405"], strict=False)
+    )
+    assert bool(blocker_map["non_e402_notebook_lint_remaining"]) is True
+    assert int(blocker_evidence["non_e402_notebook_lint_remaining"]) == 20
+    assert bool(blocker_map["post_refactor_pytest_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v405_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v405_sys_path_project_import_refactor_applied"]) is True
+    assert bool(claim_map["v405_e402_cleared_from_notebooks"]) is True
+    assert bool(claim_map["v405_roundtrip_integrity_preserved"]) is True
+    assert bool(claim_map["v405_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v405_post_refactor_pytest_passed"]) is False
+    assert bool(claim_map["v405_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v405 clears notebook E402 diagnostics."])
+    assert bool(boundary_map["v405 reduces notebook lint diagnostics from 62 to 20."])
+    assert bool(boundary_map["v405 clears global notebook lint or repository ruff."]) is False
+    assert bool(boundary_map["v405 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v405_rows = backlog.loc[backlog["last_wave"].eq("v405")]
+    assert len(v405_rows) == 1
+    backlog_row = v405_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_sys_path_project_import_refactor_batch_created"
+    assert backlog_row["next_artifact"] == "paper4_v406_post_sys_path_refactor_pytest_probe.md"
+    assert backlog_row["execution_result"] == "notebook_e402_cleared_lint_reduced_62_to_20"
+
+    refactor_md = (
+        PAPER4_ROOT / "notes" / "paper4_v405_notebook_sys_path_project_import_refactor_batch.md"
+    ).read_text(encoding="utf-8")
+    assert "E402 diagnostics: `42` ->" in refactor_md
+    assert "`0`." in refactor_md
+    assert "F401 diagnostics after refactor: `0`" in refactor_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v405: Notebook Sys.path/Project-Import Refactor Batch" in notebook
+    assert "E402 before/after:\n  `42` ->\n  `0`" in notebook
+    assert "Global notebook diagnostics before/after:\n  `62` ->\n  `20`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

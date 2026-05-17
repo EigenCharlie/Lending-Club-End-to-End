@@ -1,0 +1,6 @@
+metric_v405,before_v405,after_v405,delta_v405,claim_boundary_v405
+global_notebook_total,62,20,-42,lint reduction only; global lint not clean
+global_notebook_e402,42,0,-42,lint reduction only; global lint not clean
+global_notebook_i001,0,0,0,lint reduction only; global lint not clean
+global_notebook_f401,0,0,0,lint reduction only; global lint not clean
+global_notebook_f821,1,1,0,lint reduction only; global lint not clean

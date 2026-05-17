@@ -1262,3 +1262,7 @@ v404 plans the 3 remaining sys.path/project-import E402 cells.,True,reports/pape
 v404 import viability probes pass without notebook sys.path injection.,True,reports/paper_material/paper4/tables/paper4_v404_import_viability_probe.csv,Root and notebooks cwd probe only.,False,living_notebook_only
 v404 repairs E402 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v404_claim_blockers.csv,No notebook mutation; 42 E402 diagnostics remain.,True,living_notebook_only
 v404 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v404_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v405 clears notebook E402 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v405_notebook_lint_delta.csv,Notebook E402 only; non-E402 lint remains.,False,living_notebook_only
+v405 reduces notebook lint diagnostics from 62 to 20.,True,reports/paper_material/paper4/tables/paper4_v405_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v405 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v405_claim_blockers.csv,20 non-E402 notebook diagnostics remain.,True,living_notebook_only
+v405 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v405_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

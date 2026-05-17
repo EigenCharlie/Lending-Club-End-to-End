@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v405_sys_path_project_import_refactor_applied,True,paper4_v405_notebook_sys_path_refactor_actions.csv,3 sys.path/project-import setup cells
+v405_e402_cleared_from_notebooks,True,paper4_v405_notebook_lint_delta.csv,notebook E402 only
+v405_roundtrip_integrity_preserved,True,paper4_v405_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v405_notebook_or_repo_ruff_clean,False,paper4_v405_claim_blockers.csv,20 non-E402 notebook diagnostics remain
+v405_post_refactor_pytest_passed,False,paper4_v405_claim_blockers.csv,post-refactor pytest deferred to v406
+v405_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

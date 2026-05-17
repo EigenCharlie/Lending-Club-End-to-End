@@ -17277,3 +17277,55 @@ Keep v404 in the living notebook. v405 should apply the planned sys.path
 refactor batch with roundtrip checks.
 
 <!-- V404_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_PLAN_END -->
+
+<!-- V405_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_BATCH_START -->
+
+## Wave v405: Notebook Sys.path/Project-Import Refactor Batch
+
+Generated: 2026-05-17T08:47:40.897112+00:00
+
+### Objective
+
+v405 applies the v404 sys.path/project-import refactor batch and tests whether
+the remaining notebook E402 frontier can be cleared without F401 or I001 side
+effects.
+
+### Results
+
+- E402 before/after:
+  `42` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `62` ->
+  `20`.
+- F401 after refactor:
+  `0`.
+- I001 after normalization:
+  `0`.
+- Changed notebook files:
+  `3`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v406_post_sys_path_refactor_pytest_probe.md`.
+
+### Interpretation
+
+The notebook E402 frontier is now closed. The remaining notebook lint is
+non-E402 semantic/style debt and needs a separate triage lane after post-refactor
+pytest.
+
+### Claim Impact
+
+- Allowed: notebook E402 cleared and lint reduced to 20 diagnostics.
+- Still prohibited: all notebook lint clean, repository ruff clean, post-refactor
+  pytest passed, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v405 in the living notebook. v406 should run a post-sys.path-refactor pytest
+probe before further lint cleanup.
+
+<!-- V405_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_BATCH_END -->
