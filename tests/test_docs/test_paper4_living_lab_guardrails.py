@@ -42395,6 +42395,143 @@ def test_paper4_v383_source_governance_audit_plan_is_diagnostic_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v384_formal_spo_dla_review_packet_keeps_formal_claims_blocked() -> None:
+    status = _read_json("paper4_v384_status.json")
+
+    assert status["phase"] == "v384_formal_spo_dla_review_packet"
+    assert status["schema_version"] == "2026-05-17.384"
+    assert status["prior_audit_version_v384"] == 383
+    assert status["prior_contract_version_v384"] == 375
+    assert status["prior_source_log_version_v384"] == 381
+    assert status["dependency_version_v384"] == 32
+    assert status["review_packet_rows_v384"] == 7
+    assert status["formal_claim_readiness_rows_v384"] == 6
+    assert status["dependency_review_rows_v384"] == 10
+    assert status["differentiable_dependency_blocked_rows_v384"] == 3
+    assert status["oracle_surrogate_usable_rows_v384"] == 4
+    assert status["claim_blocker_rows_v384"] == 5
+    assert status["claim_matrix_rows_v384"] == 6
+    assert status["formal_review_packet_created_v384"] is True
+    assert status["historical_audit_language_allowed_v384"] is True
+    assert status["bounded_solver_formal_context_allowed_v384"] is True
+    assert status["formal_spo_plus_claim_allowed_v384"] is False
+    assert status["formal_dla_optimality_claim_allowed_v384"] is False
+    assert status["formal_crc_decision_risk_claim_allowed_v384"] is False
+    assert status["formal_spo_dla_theorem_claim_allowed_v384"] is False
+    assert status["strict_live_deployment_language_allowed_v384"] is False
+    assert status["contractual_or_legal_language_allowed_v384"] is False
+    assert status["global_optimality_language_allowed_v384"] is False
+    assert status["working_champion_claim_allowed_v384"] is False
+    assert status["paper1_promotion_allowed_v384"] is False
+    assert status["paper4_working_champion_changed_v384"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v384"] == "paper4_v385_validation_gap_triage.md"
+
+    packet = _read_csv("paper4_v384_formal_spo_dla_review_packet.csv")
+    assert len(packet) == 7
+    assert set(packet["packet_item_id_v384"]) == {
+        "spo_anchor_source_verified",
+        "oracle_surrogate_route_documented",
+        "differentiable_dependency_path_blocked",
+        "dla_state_action_review_missing",
+        "cvar_solver_scope_bounded",
+        "live_legal_ifrs_gates_unmet",
+        "final_promotion_absent",
+    }
+    packet_map = {row["packet_item_id_v384"]: row for _, row in packet.iterrows()}
+    assert packet_map["oracle_surrogate_route_documented"]["readiness_v384"] == (
+        "historical_audit_ready"
+    )
+    assert packet_map["differentiable_dependency_path_blocked"]["readiness_v384"] == "blocked"
+    assert packet_map["dla_state_action_review_missing"]["claim_boundary_v384"] == (
+        "formal review not approved"
+    )
+    assert "formal differentiable SPO+ theorem claim" in packet_map[
+        "oracle_surrogate_route_documented"
+    ]["blocked_language_v384"]
+
+    dependencies = _read_csv("paper4_v384_dependency_review_matrix.csv")
+    assert len(dependencies) == 10
+    assert int(
+        dependencies["decision_v384"].eq("dependency_blocked_for_differentiable_spo").sum()
+    ) == 3
+    assert int(dependencies["decision_v384"].eq("usable_for_oracle_or_surrogate_route").sum()) == 4
+    dependency_map = {
+        row["package_v384"]: row["decision_v384"]
+        for _, row in dependencies.iterrows()
+    }
+    for package in ["cvxpy", "cvxpylayers", "torch"]:
+        assert dependency_map[package] == "dependency_blocked_for_differentiable_spo"
+    for package in ["pyomo", "highspy", "catboost", "sklearn"]:
+        assert dependency_map[package] == "usable_for_oracle_or_surrogate_route"
+    assert not dependencies["formal_differentiable_spo_claim_allowed_v384"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v384_formal_claim_readiness_matrix.csv")
+    assert len(readiness) == 6
+    readiness_map = dict(zip(readiness["formal_claim_id_v384"], readiness["allowed_v384"], strict=False))
+    assert bool(readiness_map["bounded_historical_spo_dla_audit_language"]) is True
+    assert bool(readiness_map["bounded_cvar_solver_formal_context"]) is True
+    assert bool(readiness_map["formal_differentiable_spo_plus_claim"]) is False
+    assert bool(readiness_map["formal_dla_optimality_or_policy_theorem"]) is False
+    assert bool(readiness_map["formal_crc_or_decision_risk_guarantee"]) is False
+    assert bool(readiness_map["live_legal_global_or_final_claim"]) is False
+
+    blockers = _read_csv("paper4_v384_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v384"], blockers["blocking_v384"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v384"], blockers["evidence_count_v384"], strict=False)
+    )
+    assert bool(blocker_map["formal_review_not_approved"]) is True
+    assert int(blocker_evidence["formal_review_not_approved"]) == 2
+    assert bool(blocker_map["differentiable_spo_dependencies_blocked"]) is True
+    assert int(blocker_evidence["differentiable_spo_dependencies_blocked"]) == 3
+    assert bool(blocker_map["formal_theorem_or_proof_missing"]) is True
+    assert bool(blocker_map["external_live_legal_global_gates_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v384_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v384_formal_review_packet_created"]) is True
+    assert bool(claim_map["v384_historical_spo_dla_audit_language_allowed"]) is True
+    assert bool(claim_map["v384_formal_spo_plus_or_dla_theorem_claim"]) is False
+    assert bool(claim_map["v384_formal_crc_decision_risk_guarantee"]) is False
+    assert bool(claim_map["v384_live_legal_global_claim"]) is False
+    assert bool(claim_map["v384_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v384 assembles a formal SPO/DLA review packet."])
+    assert bool(boundary_map["v384 permits bounded historical SPO/DLA audit language."])
+    assert bool(boundary_map["v384 approves formal SPO+, DLA or CRC theorem claims."]) is False
+    assert bool(boundary_map["v384 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v384_rows = backlog.loc[backlog["last_wave"].eq("v384")]
+    assert len(v384_rows) == 1
+    backlog_row = v384_rows.iloc[0]
+    assert backlog_row["status"] == "formal_spo_dla_review_packet_created"
+    assert backlog_row["next_artifact"] == "paper4_v385_validation_gap_triage.md"
+    assert backlog_row["execution_result"] == "formal_review_packet_created_formal_claims_blocked"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v384_formal_spo_dla_review_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "not a formal approval" in packet_md
+    assert "must not be used" in packet_md
+    assert "paper4_v385_validation_gap_triage.md" in packet_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v384: Formal SPO/DLA Review Packet" in notebook
+    assert "Review packet rows:\n  `7`" in notebook
+    assert "Blocked differentiable dependencies:\n  `3`" in notebook
+    assert "Formal SPO+/DLA theorem claim allowed:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

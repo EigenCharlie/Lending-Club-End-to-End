@@ -16187,3 +16187,52 @@ Keep v383 in the living notebook. v384 should assemble the formal SPO/DLA review
 packet while keeping formal claims blocked.
 
 <!-- V383_SOURCE_GOVERNANCE_AUDIT_PLAN_END -->
+
+<!-- V384_FORMAL_SPO_DLA_REVIEW_PACKET_START -->
+
+## Wave v384: Formal SPO/DLA Review Packet
+
+Generated: 2026-05-17T06:14:32.466981+00:00
+
+### Objective
+
+v384 executes the formal-method work order by assembling the SPO/DLA review
+packet while keeping formal method claims blocked. The packet separates verified
+method context and historical audit language from theorem/approval claims.
+
+### Results
+
+- Review packet rows:
+  `7`.
+- Formal claim readiness rows:
+  `6`.
+- Dependency review rows:
+  `10`.
+- Blocked differentiable dependencies:
+  `3`.
+- Historical audit language allowed:
+  `True`.
+- Formal SPO+/DLA theorem claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v385_validation_gap_triage.md`.
+
+### Interpretation
+
+Paper 4 can describe an historical SPO/DLA audit and bounded solver/formal
+context, but not a formal SPO+, DLA optimality, or CRC decision-risk theorem.
+
+### Claim Impact
+
+- Allowed: review packet and bounded historical audit language.
+- Still prohibited: formal theorem claims, live/legal/global claims, champion
+  replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v384 in the living notebook. v385 should triage the known old full-suite
+Quarto registration failure separately from current guardrail health.
+
+<!-- V384_FORMAL_SPO_DLA_REVIEW_PACKET_END -->

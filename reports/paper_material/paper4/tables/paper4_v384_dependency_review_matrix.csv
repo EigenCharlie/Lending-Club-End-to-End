@@ -1,0 +1,11 @@
+package_v384,available_v384,version_v384,import_error_v384,formal_differentiable_spo_claim_allowed_v384,decision_v384,review_use_v384,future_install_path_v384,claim_boundary_v384
+numpy,True,2.4.3,,False,environment_context_only,environment context only,no action for v32,dependency review only
+cvxpy,False,,ImportError: numpy.core.multiarray failed to import,False,dependency_blocked_for_differentiable_spo,blocks formal differentiable SPO+ route,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested,dependency review only
+cvxpylayers,False,,ModuleNotFoundError,False,dependency_blocked_for_differentiable_spo,blocks formal differentiable SPO+ route,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested,dependency review only
+torch,False,,ModuleNotFoundError,False,dependency_blocked_for_differentiable_spo,blocks formal differentiable SPO+ route,create isolated env with NumPy<2 or NumPy-compatible cvxpy/cvxpylayers/torch pins; do not mutate main .venv until tested,dependency review only
+pyomo,True,6.10.0,,False,usable_for_oracle_or_surrogate_route,usable for historical oracle/surrogate audit,no action for v32,dependency review only
+highspy,True,installed,,False,usable_for_oracle_or_surrogate_route,usable for historical oracle/surrogate audit,no action for v32,dependency review only
+catboost,True,1.2.10,,False,usable_for_oracle_or_surrogate_route,usable for historical oracle/surrogate audit,no action for v32,dependency review only
+sklearn,True,1.8.0,,False,usable_for_oracle_or_surrogate_route,usable for historical oracle/surrogate audit,no action for v32,dependency review only
+pandas,True,2.3.3,,False,environment_context_only,environment context only,no action for v32,dependency review only
+scipy,True,1.15.3,,False,environment_context_only,environment context only,no action for v32,dependency review only
