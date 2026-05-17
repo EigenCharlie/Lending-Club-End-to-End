@@ -17748,3 +17748,48 @@ Keep v414 in the living notebook. v415 should triage the remaining style-only
 notebook lint.
 
 <!-- V414_NOTEBOOK_F821_POST_PATCH_PYTEST_PROBE_END -->
+
+<!-- V415_NOTEBOOK_REMAINING_STYLE_LINT_TRIAGE_START -->
+
+## Wave v415: Remaining Style-Only Notebook Lint Triage
+
+Generated: 2026-05-17T09:43:27.179493+00:00
+
+### Objective
+
+v415 inventories the 6 remaining style-only notebook diagnostics and selects the
+lowest-risk next mutation batch.
+
+### Results
+
+- Notebook diagnostics:
+  `6`.
+- E741/SIM108/E712/SIM102:
+  `1` /
+  `2` /
+  `2` /
+  `1`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v416_notebook_e741_comprehension_var_patch.md`.
+
+### Interpretation
+
+The semantic lint blockers are closed; the next safe batch is the single E741
+list-comprehension variable rename in notebook 03.
+
+### Claim Impact
+
+- Allowed: remaining style-lint inventory and E741 batch selection.
+- Still prohibited: style lint repaired, notebook lint clean, repository ruff
+  clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v415 in the living notebook. v416 should apply the E741 patch with
+roundtrip checks.
+
+<!-- V415_NOTEBOOK_REMAINING_STYLE_LINT_TRIAGE_END -->

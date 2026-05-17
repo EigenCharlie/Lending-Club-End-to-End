@@ -45998,6 +45998,105 @@ def test_paper4_v414_notebook_f821_post_patch_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v415_notebook_remaining_style_lint_triage_is_non_mutating() -> None:
+    status = _read_json("paper4_v415_status.json")
+
+    assert status["phase"] == "v415_notebook_remaining_style_lint_triage"
+    assert status["schema_version"] == "2026-05-17.415"
+    assert status["prior_pytest_probe_version_v415"] == 414
+    assert status["global_notebook_diagnostics_v415"] == 6
+    assert status["e741_diagnostics_v415"] == 1
+    assert status["sim108_diagnostics_v415"] == 2
+    assert status["e712_diagnostics_v415"] == 2
+    assert status["sim102_diagnostics_v415"] == 1
+    assert status["selected_for_v416_rows_v415"] == 1
+    assert status["patch_plan_rows_v415"] == 1
+    assert status["notebooks_mutated_v415"] is False
+    assert status["notebook_diff_clean_before_v415"] is True
+    assert status["notebook_diff_clean_after_v415"] is True
+    assert status["global_ruff_clean_v415"] is False
+    assert status["full_repository_pytest_run_v415"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v415"] == "paper4_v416_notebook_e741_comprehension_var_patch.md"
+
+    manifest = _read_csv("paper4_v415_notebook_remaining_style_lint_manifest.csv")
+    assert len(manifest) == 6
+    assert set(manifest["lint_code_v415"]) == {"E741", "SIM108", "E712", "SIM102"}
+    assert manifest["mutation_allowed_v415"].astype(bool).eq(False).all()
+    selected = manifest.loc[manifest["selected_for_v416_v415"].astype(bool)]
+    assert len(selected) == 1
+    selected_row = selected.iloc[0]
+    assert selected_row["lint_code_v415"] == "E741"
+    assert selected_row["notebook_path_v415"] == "notebooks/03_pd_modeling.ipynb"
+    assert int(selected_row["cell_v415"]) == 37
+    assert "labels = [l.get_label() for l in lines]" in selected_row["source_line_v415"]
+    assert selected_row["triage_category_v415"] == "safe_single_symbol_rename"
+
+    batch_plan = _read_csv("paper4_v415_notebook_style_lint_batch_plan.csv")
+    assert len(batch_plan) == 1
+    plan_row = batch_plan.iloc[0]
+    assert plan_row["patch_batch_id_v415"] == "batch_1_e741_comprehension_variable"
+    assert int(plan_row["diagnostic_count_v415"]) == 1
+    assert int(plan_row["notebook_count_v415"]) == 1
+    assert plan_row["recommended_next_artifact_v415"] == (
+        "paper4_v416_notebook_e741_comprehension_var_patch.md"
+    )
+    assert bool(plan_row["mutation_allowed_v415"]) is False
+
+    blockers = _read_csv("paper4_v415_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v415"], blockers["blocking_v415"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v415"], blockers["evidence_count_v415"], strict=False)
+    )
+    assert bool(blocker_map["e741_comprehension_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["e741_comprehension_patch_not_applied_yet"]) == 1
+    assert bool(blocker_map["style_notebook_lint_remaining"]) is True
+    assert int(blocker_evidence["style_notebook_lint_remaining"]) == 6
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v415_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v415_remaining_style_lint_triage_created"]) is True
+    assert bool(claim_map["v415_e741_batch_selected"]) is True
+    assert bool(claim_map["v415_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v415_style_lint_repaired"]) is False
+    assert bool(claim_map["v415_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v415_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v415 inventories the remaining 6 style-only notebook diagnostics."])
+    assert bool(boundary_map["v415 selects the E741 comprehension-variable patch for v416."])
+    assert bool(boundary_map["v415 repairs style lint or clears notebook lint."]) is False
+    assert bool(boundary_map["v415 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v415_rows = backlog.loc[backlog["last_wave"].eq("v415")]
+    assert len(v415_rows) == 1
+    assert v415_rows.iloc[0]["next_artifact"] == (
+        "paper4_v416_notebook_e741_comprehension_var_patch.md"
+    )
+    assert (
+        v415_rows.iloc[0]["execution_result"]
+        == "six_style_diagnostics_triaged_e741_first_no_mutation"
+    )
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v415: Remaining Style-Only Notebook Lint Triage" in living_notebook
+    assert "single E741" in living_notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
