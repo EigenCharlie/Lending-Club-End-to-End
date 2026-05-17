@@ -14014,3 +14014,61 @@ Keep v343 in the living notebook. The next wave should pursue a dual-bound or
 global certificate without promotion.
 
 <!-- V343_V338_EXPANDED_POOL_DUAL_BOUND_END -->
+
+<!-- V344_V338_DUAL_BOUND_AFTER_EXPANDED_POOL_START -->
+
+## Wave v344: v338 Dual-Bound Readiness After Expanded Pool
+
+Generated: 2026-05-17T00:33:40.711927+00:00
+
+### Objective
+
+v343 showed that all observed omitted candidates still cannot repair v338's
+proxy gap under the static v338 CVaR cap. v344 asks the next harder question:
+does that failure amount to a full-universe/global certificate? It does not.
+This wave partitions the full v55 omitted universe, checks the direct-MIP guard,
+and maps source-tight branch-price work for the next executable screen.
+
+### Results
+
+- Full-v55 binary variables: `276869`.
+- Full omitted candidate rows: `276698`.
+- Observed omitted candidate rows: `1551`.
+- Unobserved omitted candidate rows: `275147`.
+- Expanded pool share of full omitted:
+  `0.005605389269167107`.
+- Direct full-v55 MIP guard exceeded:
+  `True`.
+- Source-tight rows:
+  `2`.
+- Source-tight candidate rows:
+  `99824`.
+- Unique source-tight candidate rows:
+  `73023`.
+- Valid full-universe gap certificate:
+  `False`.
+- Unmet dual-bound requirement rows:
+  `4`.
+
+### Interpretation
+
+v344 closes one misleading exit: expanded-pool infeasibility is not a global
+proof because the full-v55 omitted universe still contains
+`275147` unobserved loans outside
+that repair pool. The next useful route is a source-tight branch-price screen
+focused on the tight v338 governance blocks.
+
+### Claim Impact
+
+- Allowed: dual-bound readiness gate, full-v55 omitted partition, and
+  source-tight next-step map.
+- Still prohibited: valid full-universe branch-price/dual-bound certificate,
+  contractual IFRS9, live deployability, Paper Estrella replacement, final
+  Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v344 in the living notebook. The next wave should execute the v338
+source-tight branch-price screen without promotion.
+
+<!-- V344_V338_DUAL_BOUND_AFTER_EXPANDED_POOL_END -->
