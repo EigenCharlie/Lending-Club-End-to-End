@@ -21864,3 +21864,60 @@ Keep v491 in the living notebook. v492 should package the manual layout review
 without modifying book sources.
 
 <!-- V491_PATCH_READINESS_PREFLIGHT_END -->
+
+<!-- V492_MANUAL_LAYOUT_REVIEW_PACKET_START -->
+
+## Wave v492: Manual Layout Review Packet
+
+Generated: 2026-05-17T18:32:42.699597+00:00
+
+### Objective
+
+v492 packages the four target surfaces and ten draft assets for manual layout
+review without editing book sources.
+
+### Results
+
+- Review surface rows:
+  `4`.
+- Asset review detail rows:
+  `10`.
+- Acceptance criteria rows:
+  `6`.
+- Criteria ready rows:
+  `4`.
+- Review decision option rows:
+  `4`.
+- Review pending rows:
+  `4`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v493_caption_signoff_gap_packet.md`.
+
+### Interpretation
+
+The review packet is now concrete, but patching remains blocked by pending
+manual review, missing final caption signoff and missing explicit patch
+approval.
+
+### Claim Impact
+
+- Allowed: manual layout review packet, asset-surface mapping and acceptance
+  criteria register.
+- Still prohibited: Quarto patch readiness/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v492 in the living notebook. v493 should audit caption signoff gaps without
+modifying book sources.
+
+<!-- V492_MANUAL_LAYOUT_REVIEW_PACKET_END -->

@@ -1,0 +1,5 @@
+decision_option_id_v492,recommended_v492,patch_allowed_v492,decision_boundary_v492
+keep_manual_review_pending,True,False,manual review not completed
+prepare_caption_signoff_gap_packet,True,False,caption signoff still missing
+request_explicit_patch_approval,True,False,approval still missing
+apply_quarto_patch_now,False,False,v492 is review packaging only

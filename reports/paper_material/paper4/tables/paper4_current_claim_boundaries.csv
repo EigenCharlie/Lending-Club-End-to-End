@@ -1695,3 +1695,9 @@ v491 records unresolved patch blockers.,True,reports/paper_material/paper4/table
 v491 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v491_readiness_scorecard.csv,"Manual review, approval, captions and render gates are open.",True,living_notebook_only
 v491 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v491_manuscript_readiness_delta.csv,Patch is not authorized in v491.,True,living_notebook_only
 v491 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v491_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v492 packages manual layout review for Paper 4.,True,reports/paper_material/paper4/tables/paper4_v492_manual_layout_review_packet.csv,Manual review packet only.,False,living_notebook_only
+v492 maps assets to manual layout review surfaces.,True,reports/paper_material/paper4/tables/paper4_v492_asset_surface_review_detail.csv,Asset-surface review mapping only.,False,living_notebook_only
+v492 records manual layout review acceptance criteria.,True,reports/paper_material/paper4/tables/paper4_v492_manual_review_acceptance_criteria.csv,Criteria register only.,False,living_notebook_only
+v492 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v492_manuscript_readiness_delta.csv,"Manual review, approval and final captions are missing.",True,living_notebook_only
+v492 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v492_review_decision_options.csv,Patch is not authorized in v492.,True,living_notebook_only
+v492 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v492_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

@@ -1,0 +1,9 @@
+readiness_gate_v492,ready_v492,evidence_artifact_v492,claim_boundary_v492
+manual_layout_review_packet_created,True,paper4_v492_manual_layout_review_packet.csv,review packet only
+asset_surface_review_detail_created,True,paper4_v492_asset_surface_review_detail.csv,asset review detail only
+acceptance_criteria_created,True,paper4_v492_manual_review_acceptance_criteria.csv,acceptance criteria only
+review_decision_options_created,True,paper4_v492_review_decision_options.csv,decision options only
+ready_for_quarto_patch,False,"manual review, approval and final captions missing",patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v492
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

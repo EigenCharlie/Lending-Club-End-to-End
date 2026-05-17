@@ -56125,6 +56125,132 @@ def test_paper4_v491_patch_readiness_preflight_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v492_manual_layout_review_packet_is_guarded() -> None:
+    status = _read_json("paper4_v492_status.json")
+    assert status["phase"] == "v492_manual_layout_review_packet"
+    assert status["schema_version"] == "2026-05-17.492"
+    assert status["prior_patch_preflight_version_v492"] == 491
+    assert status["manual_layout_review_packet_created_v492"] is True
+    assert status["review_surface_rows_v492"] == 4
+    assert status["asset_review_detail_rows_v492"] == 10
+    assert status["acceptance_criteria_rows_v492"] == 6
+    assert status["criteria_ready_rows_v492"] == 4
+    assert status["review_decision_option_rows_v492"] == 4
+    assert status["review_pending_rows_v492"] == 4
+    assert status["patch_allowed_rows_v492"] == 0
+    assert status["readiness_delta_rows_v492"] == 8
+    assert status["ready_for_quarto_patch_v492"] is False
+    assert status["quarto_patch_applied_v492"] is False
+    assert status["book_sources_modified_v492"] is False
+    assert status["book_references_modified_v492"] is False
+    assert status["submission_ready_claim_allowed_v492"] is False
+    assert status["working_champion_claim_allowed_v492"] is False
+    assert status["paper1_promotion_allowed_v492"] is False
+    assert status["paper4_working_champion_changed_v492"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v492"] == "paper4_v493_caption_signoff_gap_packet.md"
+
+    review_packet = _read_csv("paper4_v492_manual_layout_review_packet.csv")
+    assert len(review_packet) == 4
+    assert int(review_packet["layout_item_count_v492"].sum()) == 10
+    assert set(review_packet["decision_status_v492"]) == {"pending_manual_review"}
+    assert review_packet["manual_review_required_v492"].astype(bool).all()
+    assert not review_packet["patch_allowed_v492"].astype(bool).any()
+    assert "methods_protocol" in set(review_packet["target_block_v492"])
+    assert "results_evidence_cvar" in set(review_packet["target_block_v492"])
+
+    asset_detail = _read_csv("paper4_v492_asset_surface_review_detail.csv")
+    assert len(asset_detail) == 10
+    assert list(asset_detail["layout_order_v492"]) == list(range(1, 11))
+    assert set(asset_detail["asset_type_v492"]) == {"table", "figure"}
+    assert asset_detail["review_required_v492"].astype(bool).all()
+    assert not asset_detail["caption_final_v492"].astype(bool).any()
+    assert not asset_detail["inserted_into_quarto_v492"].astype(bool).any()
+    assert not asset_detail["patch_allowed_v492"].astype(bool).any()
+
+    criteria = _read_csv("paper4_v492_manual_review_acceptance_criteria.csv")
+    assert len(criteria) == 6
+    assert int(criteria["criteria_ready_v492"].astype(bool).sum()) == 4
+    criteria_map = dict(
+        zip(criteria["criterion_id_v492"], criteria["criteria_ready_v492"], strict=False)
+    )
+    assert bool(criteria_map["target_surfaces_identified"]) is True
+    assert bool(criteria_map["assets_mapped_to_surfaces"]) is True
+    assert bool(criteria_map["claim_boundaries_preserved"]) is True
+    assert bool(criteria_map["final_promotion_absent"]) is True
+    assert bool(criteria_map["final_caption_signoff_present"]) is False
+    assert bool(criteria_map["explicit_patch_approval_present"]) is False
+
+    options = _read_csv("paper4_v492_review_decision_options.csv")
+    assert len(options) == 4
+    assert not options["patch_allowed_v492"].astype(bool).any()
+    option_map = dict(zip(options["decision_option_id_v492"], options["recommended_v492"], strict=False))
+    assert bool(option_map["keep_manual_review_pending"]) is True
+    assert bool(option_map["prepare_caption_signoff_gap_packet"]) is True
+    assert bool(option_map["request_explicit_patch_approval"]) is True
+    assert bool(option_map["apply_quarto_patch_now"]) is False
+
+    readiness = _read_csv("paper4_v492_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v492"], readiness["ready_v492"], strict=False)
+    )
+    assert bool(readiness_map["manual_layout_review_packet_created"]) is True
+    assert bool(readiness_map["asset_surface_review_detail_created"]) is True
+    assert bool(readiness_map["acceptance_criteria_created"]) is True
+    assert bool(readiness_map["review_decision_options_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v492_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v492_manual_layout_review_packet_created"]) is True
+    assert bool(claim_map["v492_asset_surface_review_detail_created"]) is True
+    assert bool(claim_map["v492_acceptance_criteria_created"]) is True
+    assert bool(claim_map["v492_quarto_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v492_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v492 packages manual layout review for Paper 4."])
+    assert bool(boundary_map["v492 maps assets to manual layout review surfaces."])
+    assert bool(boundary_map["v492 records manual layout review acceptance criteria."])
+    assert bool(boundary_map["v492 makes Paper 4 ready for Quarto patching."]) is False
+    assert bool(boundary_map["v492 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v492 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v492_rows = backlog.loc[backlog["last_wave"].eq("v492")]
+    assert len(v492_rows) == 1
+    backlog_row = v492_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v493_caption_signoff_gap_packet.md"
+    assert backlog_row["execution_result"] == "manual_layout_review_packet_created_without_book_edit"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v492_manual_layout_review_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Manual Layout Review Packet v492" in packet_md
+    assert "ten draft assets" in packet_md
+    assert "v492 is a manual review packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v492: Manual Layout Review Packet" in living_notebook
+    assert "Review surface rows:\n  `4`." in living_notebook
+    assert "Asset review detail rows:\n  `10`." in living_notebook
+    assert "Acceptance criteria rows:\n  `6`." in living_notebook
+    assert "Criteria ready rows:\n  `4`." in living_notebook
+    assert "Review decision option rows:\n  `4`." in living_notebook
+    assert "Review pending rows:\n  `4`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
