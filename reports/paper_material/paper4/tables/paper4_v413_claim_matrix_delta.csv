@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v413_f821_validation_target_patch_applied,True,paper4_v413_notebook_f821_validation_target_actions.csv,one explicit validation-target patch
+v413_f821_cleared_from_notebooks,True,paper4_v413_notebook_lint_delta.csv,F821 only
+v413_roundtrip_integrity_preserved,True,paper4_v413_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v413_notebook_or_repo_ruff_clean,False,paper4_v413_claim_blockers.csv,6 notebook diagnostics remain
+v413_post_f821_pytest_passed,False,paper4_v413_claim_blockers.csv,post-patch pytest deferred to v414
+v413_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -17653,3 +17653,48 @@ Keep v412 in the living notebook. v413 should apply the validation-target patch
 with roundtrip checks.
 
 <!-- V412_NOTEBOOK_F821_EXECUTION_CONTEXT_AUDIT_END -->
+
+<!-- V413_NOTEBOOK_F821_VALIDATION_TARGET_PATCH_START -->
+
+## Wave v413: Notebook F821 Validation-Target Patch
+
+Generated: 2026-05-17T09:32:36.015050+00:00
+
+### Objective
+
+v413 replaces the undefined `train_fe` validation reference with an explicit
+`validation_target`.
+
+### Results
+
+- F821 before/after:
+  `1` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `7` ->
+  `6`.
+- Changed notebook files:
+  `1`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v414_notebook_f821_post_patch_pytest_probe.md`.
+
+### Interpretation
+
+The semantic F821 blocker is now closed. The remaining notebook lint frontier is
+style-only and still requires post-patch pytest before further cleanup.
+
+### Claim Impact
+
+- Allowed: F821 cleared and notebook lint reduced to 6 diagnostics.
+- Still prohibited: notebook lint clean, repository ruff clean, post-patch pytest
+  passed, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v413 in the living notebook. v414 should run post-F821 full pytest.
+
+<!-- V413_NOTEBOOK_F821_VALIDATION_TARGET_PATCH_END -->

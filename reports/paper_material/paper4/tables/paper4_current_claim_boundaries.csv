@@ -1295,3 +1295,7 @@ v412 audits the remaining F821 notebook execution-context diagnostic.,True,repor
 v412 selects a validation-target patch for the train_fe F821.,True,reports/paper_material/paper4/tables/paper4_v412_notebook_f821_patch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v412 repairs F821 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v412_claim_blockers.csv,No notebook mutation; 7 diagnostics remain.,True,living_notebook_only
 v412 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v412_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v413 clears notebook F821 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v413_notebook_lint_delta.csv,F821 only; style notebook lint remains.,False,living_notebook_only
+v413 reduces notebook lint diagnostics from 7 to 6.,True,reports/paper_material/paper4/tables/paper4_v413_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v413 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v413_claim_blockers.csv,6 notebook diagnostics remain.,True,living_notebook_only
+v413 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v413_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
