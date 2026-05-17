@@ -17173,3 +17173,54 @@ Keep v402 in the living notebook. v403 should run a post-notebook-mutation pytes
 probe before deeper sys.path refactors.
 
 <!-- V402_NOTEBOOK_WARNING_FILTER_ONLY_REORDER_BATCH_END -->
+
+<!-- V403_POST_NOTEBOOK_MUTATION_PYTEST_PROBE_START -->
+
+## Wave v403: Post-Notebook-Mutation Pytest Probe
+
+Generated: 2026-05-17T08:36:09.906294+00:00
+
+### Objective
+
+v403 runs full repository pytest after the v400/v402 notebook mutations and
+records whether validation can proceed toward sys.path E402 planning.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1141`.
+- Pytest summary:
+  `=========== 1141 passed, 2 skipped, 13 warnings in 178.81s (0:02:58) ===========`.
+- Notebook diagnostics:
+  `62`.
+- Notebook E402 diagnostics:
+  `42`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v404_notebook_sys_path_project_import_refactor_plan.md`.
+
+### Interpretation
+
+Pytest status now gates whether the next executable wave can continue directly
+to sys.path/project-import E402 planning or must first triage test failures.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after notebook mutation.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: notebook lint clean, sys.path E402 repaired, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v403 in the living notebook. Route the next wave according to the pytest
+result.
+
+<!-- V403_POST_NOTEBOOK_MUTATION_PYTEST_PROBE_END -->

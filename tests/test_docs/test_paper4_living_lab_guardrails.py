@@ -44758,6 +44758,113 @@ def test_paper4_v402_notebook_warning_filter_only_reorder_batch_is_guarded() -> 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v403_post_notebook_mutation_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v403_status.json")
+
+    assert status["phase"] == "v403_post_notebook_mutation_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.403"
+    assert status["prior_notebook_mutation_version_v403"] == 402
+    assert status["pytest_command_v403"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v403"] == 0
+    assert status["pytest_passed_v403"] is True
+    assert status["pytest_collected_items_v403"] == 1141
+    assert "1141 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v403"]
+    assert status["global_notebook_diagnostics_v403"] == 62
+    assert status["global_notebook_e402_v403"] == 42
+    assert status["global_notebook_i001_v403"] == 0
+    assert status["global_notebook_f821_v403"] == 1
+    assert status["global_ruff_clean_v403"] is False
+    assert status["full_repository_pytest_run_v403"] is True
+    assert status["full_repository_pytest_passed_v403"] is True
+    assert status["full_quarto_render_run_v403"] is False
+    assert status["working_champion_claim_allowed_v403"] is False
+    assert status["paper1_promotion_allowed_v403"] is False
+    assert status["paper4_working_champion_changed_v403"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v403"]
+        == "paper4_v404_notebook_sys_path_project_import_refactor_plan.md"
+    )
+
+    pytest_summary = _read_csv("paper4_v403_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v403"] == "full_repository_pytest"
+    assert pytest_row["command_v403"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v403"]) == 0
+    assert bool(pytest_row["passed_v403"]) is True
+    assert int(pytest_row["collected_items_v403"]) == 1141
+    assert "1141 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v403"]
+
+    lint_snapshot = _read_csv("paper4_v403_notebook_lint_snapshot.csv")
+    lint_map = dict(
+        zip(lint_snapshot["lint_code_v403"], lint_snapshot["diagnostic_count_v403"], strict=False)
+    )
+    assert int(lint_map["E402"]) == 42
+    assert int(lint_map["B018"]) == 10
+    assert int(lint_map["F821"]) == 1
+    assert "I001" not in lint_map
+    assert int(sum(lint_map.values())) == 62
+
+    blockers = _read_csv("paper4_v403_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v403"], blockers["blocking_v403"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v403"], blockers["evidence_count_v403"], strict=False)
+    )
+    assert "full_repository_pytest_failed" not in blocker_map
+    assert bool(blocker_map["sys_path_project_import_e402_remaining"]) is True
+    assert int(blocker_evidence["sys_path_project_import_e402_remaining"]) == 42
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 62
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v403_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v403_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v403_full_repository_pytest_passed"]) is True
+    assert bool(claim_map["v403_notebook_lint_snapshot_created"]) is True
+    assert bool(claim_map["v403_sys_path_project_import_e402_repaired"]) is False
+    assert bool(claim_map["v403_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v403_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v403 runs full repository pytest after v402 notebook mutation."])
+    assert bool(
+        boundary_map["v403 full repository pytest passes after v402 notebook mutation."]
+    )
+    assert bool(boundary_map["v403 clears E402 or global notebook lint."]) is False
+    assert bool(boundary_map["v403 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v403_rows = backlog.loc[backlog["last_wave"].eq("v403")]
+    assert len(v403_rows) == 1
+    backlog_row = v403_rows.iloc[0]
+    assert backlog_row["status"] == "post_notebook_mutation_pytest_probe_passed"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v404_notebook_sys_path_project_import_refactor_plan.md"
+    )
+    assert backlog_row["execution_result"] == "full_repository_pytest_passed_after_v402"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v403_post_notebook_mutation_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1141 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Build `paper4_v404_notebook_sys_path_project_import_refactor_plan.md`" in probe_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v403: Post-Notebook-Mutation Pytest Probe" in notebook
+    assert "Pytest passed:\n  `True`" in notebook
+    assert "Notebook E402 diagnostics:\n  `42`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

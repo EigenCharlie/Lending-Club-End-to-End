@@ -1,0 +1,2 @@
+probe_id_v403,command_v403,exit_code_v403,passed_v403,runtime_seconds_v403,collected_items_v403,summary_line_v403,claim_boundary_v403
+full_repository_pytest,uv run pytest -q --tb=short,0,True,188.379,1141,"=========== 1141 passed, 2 skipped, 13 warnings in 178.81s (0:02:58) ===========",post-notebook-mutation pytest probe
