@@ -1,0 +1,7 @@
+source_family_v383,budget_return_feasible_rows_v383,family_source_feasible_rows_v383,family_retention_share_v383,binding_rank_v383,blocker_class_v383,audit_priority_v383,audit_action_v383,claim_boundary_v383
+grade,25223,0,0.0,1,binding,1,"audit cap slack, add/drop direction and grade-A pressure first",family priority diagnostic only
+score_decile,25223,6023,0.2387899932601197,2,binding,2,audit secondary tightness after grade is explained,family priority diagnostic only
+dti_band,25223,25223,1.0,3,nonbinding,3,retain as nonbinding control,family priority diagnostic only
+income_band,25223,25223,1.0,4,nonbinding,4,retain as nonbinding control,family priority diagnostic only
+period,25223,25223,1.0,5,nonbinding,5,retain as nonbinding control,family priority diagnostic only
+state_top20,25223,25223,1.0,6,nonbinding,6,retain as nonbinding control,family priority diagnostic only

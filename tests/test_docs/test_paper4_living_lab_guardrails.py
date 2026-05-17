@@ -42258,6 +42258,143 @@ def test_paper4_v382_global_solver_scope_decision_blocks_global_claims() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v383_source_governance_audit_plan_is_diagnostic_only() -> None:
+    status = _read_json("paper4_v383_status.json")
+
+    assert status["phase"] == "v383_source_governance_audit_plan"
+    assert status["schema_version"] == "2026-05-17.383"
+    assert status["prior_scope_version_v383"] == 382
+    assert status["prior_source_diagnostic_version_v383"] == 371
+    assert status["prior_prefilter_version_v383"] == 372
+    assert status["prior_stop_rule_version_v383"] == 373
+    assert status["audit_plan_rows_v383"] == 7
+    assert status["family_priority_rows_v383"] == 6
+    assert status["blocker_evidence_rows_v383"] == 6
+    assert status["claim_blocker_rows_v383"] == 4
+    assert status["claim_matrix_rows_v383"] == 6
+    assert status["primary_blocker_family_v383"] == "grade"
+    assert status["secondary_blocker_family_v383"] == "score_decile"
+    assert status["grade_family_retention_share_v383"] == pytest.approx(0.0)
+    assert status["score_decile_family_retention_share_v383"] == pytest.approx(
+        0.23878999326011974
+    )
+    assert status["grade_a_pressure_share_v383"] == pytest.approx(0.955278912104032)
+    assert status["grade_a_relief_return_improving_rows_v383"] == 0
+    assert status["sampled_chunk_count_v383"] == 8
+    assert status["sampled_total_source_exact_rows_v383"] == 0
+    assert status["audit_plan_created_v383"] is True
+    assert status["source_cap_relaxation_authorized_v383"] is False
+    assert status["source_governance_repaired_v383"] is False
+    assert status["blind_chunking_restarted_v383"] is False
+    assert status["global_optimality_language_allowed_v383"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v383"] is False
+    assert status["working_champion_claim_allowed_v383"] is False
+    assert status["paper1_promotion_allowed_v383"] is False
+    assert status["paper4_working_champion_changed_v383"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v383"] == "paper4_v384_formal_spo_dla_review_packet.md"
+
+    audit_plan = _read_csv("paper4_v383_source_governance_audit_plan.csv")
+    assert len(audit_plan) == 7
+    assert audit_plan["priority_v383"].astype(int).tolist() == [1, 1, 1, 2, 2, 3, 3]
+    assert audit_plan["claim_boundary_v383"].str.contains(
+        "audit|counterfactual|documentation|planning"
+    ).all()
+    assert set(audit_plan["audit_task_id_v383"]) == {
+        "audit_grade_a_cap_slack_boundary",
+        "audit_grade_a_flow_direction",
+        "audit_grade_a_relief_counterfactual",
+        "audit_score_decile_secondary_tightness",
+        "audit_sampled_chunk_representativeness",
+        "audit_source_cap_contract",
+        "audit_global_solver_implication",
+    }
+    grade_tasks = audit_plan.loc[audit_plan["source_family_v383"].eq("grade")]
+    assert len(grade_tasks) == 3
+    assert grade_tasks["source_id_v383"].eq("A").all()
+    assert audit_plan["primary_blocker_family_v383"].eq("grade").all()
+    assert audit_plan["grade_a_relief_return_improving_rows_v383"].astype(int).eq(0).all()
+
+    family_priority = _read_csv("paper4_v383_family_audit_priority_matrix.csv")
+    assert len(family_priority) == 6
+    family_map = {
+        row["source_family_v383"]: row
+        for _, row in family_priority.iterrows()
+    }
+    assert float(family_map["grade"]["family_retention_share_v383"]) == pytest.approx(0.0)
+    assert int(family_map["grade"]["audit_priority_v383"]) == 1
+    assert family_map["grade"]["blocker_class_v383"] == "binding"
+    assert float(family_map["score_decile"]["family_retention_share_v383"]) == pytest.approx(
+        0.23878999326011974
+    )
+    assert int(family_map["score_decile"]["audit_priority_v383"]) == 2
+    for family in ["dti_band", "income_band", "period", "state_top20"]:
+        assert family_map[family]["blocker_class_v383"] == "nonbinding"
+        assert float(family_map[family]["family_retention_share_v383"]) == pytest.approx(1.0)
+
+    evidence = _read_csv("paper4_v383_blocker_evidence_map.csv")
+    assert len(evidence) == 6
+    evidence_map = dict(zip(evidence["evidence_id_v383"], evidence["value_v383"], strict=False))
+    assert float(evidence_map["grade_family_retention_zero"]) == pytest.approx(0.0)
+    assert float(evidence_map["score_decile_secondary_retention"]) == pytest.approx(
+        0.23878999326011974
+    )
+    assert float(evidence_map["grade_a_pressure_share"]) == pytest.approx(0.955278912104032)
+    assert float(evidence_map["grade_a_relief_return_improving_rows"]) == pytest.approx(0.0)
+    assert float(evidence_map["sampled_total_source_exact_rows"]) == pytest.approx(0.0)
+    assert float(evidence_map["sampled_chunk_count"]) == pytest.approx(8.0)
+
+    blockers = _read_csv("paper4_v383_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v383"], blockers["blocking_v383"], strict=False))
+    assert bool(blocker_map["audit_plan_is_diagnostic"]) is True
+    assert bool(blocker_map["source_cap_relaxation_not_authorized"]) is True
+    assert bool(blocker_map["global_solver_claims_still_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v383_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v383_source_governance_audit_plan_created"]) is True
+    assert bool(claim_map["v383_family_priority_matrix_created"]) is True
+    assert bool(claim_map["v383_zero_source_exact_evidence_can_be_reported"]) is True
+    assert bool(claim_map["v383_source_governance_repaired_or_relaxed"]) is False
+    assert bool(claim_map["v383_global_or_integer_optimality"]) is False
+    assert bool(claim_map["v383_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v383 creates a targeted source-governance audit plan."])
+    assert bool(boundary_map["v383 prioritizes grade=A and score_decile=0 source blockers."])
+    assert bool(boundary_map["v383 repairs source governance or relaxes source caps."]) is False
+    assert bool(boundary_map["v383 proves full-v55 global or integer optimality."]) is False
+    assert bool(boundary_map["v383 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v383_rows = backlog.loc[backlog["last_wave"].eq("v383")]
+    assert len(v383_rows) == 1
+    backlog_row = v383_rows.iloc[0]
+    assert backlog_row["status"] == "source_governance_audit_plan_created"
+    assert backlog_row["next_artifact"] == "paper4_v384_formal_spo_dla_review_packet.md"
+    assert backlog_row["execution_result"] == "targeted_source_audit_plan_created_no_relaxation"
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v383_source_governance_audit_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "not a repair" in audit_md
+    assert "must not be used" in audit_md
+    assert "paper4_v384_formal_spo_dla_review_packet.md" in audit_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v383: Source Governance Audit Plan" in notebook
+    assert "Audit task rows:\n  `7`" in notebook
+    assert "Primary blocker family:\n  `grade`" in notebook
+    assert "Source governance repaired:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

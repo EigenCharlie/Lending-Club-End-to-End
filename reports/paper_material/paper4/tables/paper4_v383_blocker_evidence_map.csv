@@ -1,0 +1,7 @@
+evidence_id_v383,value_v383,evidence_artifact_v383,interpretation_v383,claim_boundary_v383
+grade_family_retention_zero,0.0,paper4_v371_source_family_retention.csv,grade is the primary family collapse,diagnostic value only
+score_decile_secondary_retention,0.2387899932601197,paper4_v371_source_family_retention.csv,score_decile is secondary and partially passes,diagnostic value only
+grade_a_pressure_share,0.955278912104032,paper4_v371_source_pair_flow_diagnostics.csv,budget+return moves mostly add pressure to grade=A,flow diagnostic only
+grade_a_relief_return_improving_rows,0.0,paper4_v372_grade_a_source_relief_prefilter.csv,no return-improving grade-A relief rows were found,counterfactual diagnostic only
+sampled_total_source_exact_rows,0.0,paper4_v373_sampled_chunk_source_screen.csv,sampled chunks all collapse to zero source-exact rows,sample diagnostic only
+sampled_chunk_count,8.0,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,sample includes representative chunk IDs before audit planning,sample diagnostic only

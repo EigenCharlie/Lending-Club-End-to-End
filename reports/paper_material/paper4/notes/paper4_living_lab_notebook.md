@@ -16134,3 +16134,56 @@ Keep v382 in the living notebook. v383 should turn the zero source-exact sampled
 chunk evidence into a targeted source-governance audit plan.
 
 <!-- V382_GLOBAL_SOLVER_SCOPE_DECISION_END -->
+
+<!-- V383_SOURCE_GOVERNANCE_AUDIT_PLAN_START -->
+
+## Wave v383: Source Governance Audit Plan
+
+Generated: 2026-05-17T06:09:14.584644+00:00
+
+### Objective
+
+v383 executes the source-governance work order from v379/v382 by turning sampled
+zero source-exact evidence into a targeted audit plan. It does not relax caps,
+apply a candidate, restart blind chunking or change global solver claims.
+
+### Results
+
+- Audit task rows:
+  `7`.
+- Family priority rows:
+  `6`.
+- Primary blocker family:
+  `grade`.
+- Secondary blocker family:
+  `score_decile`.
+- Grade family retention share:
+  `0.0`.
+- Grade-A pressure share:
+  `0.955278912104032`.
+- Source governance repaired:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v384_formal_spo_dla_review_packet.md`.
+
+### Interpretation
+
+The next useful work is not more blind chunking. It is a targeted source audit:
+grade=A first, score_decile=0 second, then cap-contract documentation and
+future certificate-route implications.
+
+### Claim Impact
+
+- Allowed: targeted audit plan, family priority matrix and zero source-exact
+  blocker evidence.
+- Still prohibited: source cap relaxation, source governance repair, global or
+  integer optimality, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v383 in the living notebook. v384 should assemble the formal SPO/DLA review
+packet while keeping formal claims blocked.
+
+<!-- V383_SOURCE_GOVERNANCE_AUDIT_PLAN_END -->
