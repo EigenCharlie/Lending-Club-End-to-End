@@ -1,0 +1,9 @@
+readiness_gate_v497,ready_v497,evidence_artifact_v497,claim_boundary_v497
+review_gate_execution_packet_created,True,paper4_v497_review_gate_execution_packet.csv,execution packet only
+layout_surface_review_inputs_created,True,paper4_v497_layout_surface_review_inputs.csv,layout review inputs only
+caption_claim_safety_review_inputs_created,True,paper4_v497_caption_claim_safety_review_inputs.csv,caption safety inputs only
+execution_control_register_created,True,paper4_v497_execution_control_register.csv,control register only
+ready_for_quarto_patch,False,reviews remain pending,patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v497
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

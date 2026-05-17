@@ -1725,3 +1725,9 @@ v496 preserves no-patch constraints while prioritizing review.,True,reports/pape
 v496 completes manual reviews or finalizes captions.,False,reports/paper_material/paper4/tables/paper4_v496_execution_priority_queue.csv,"Reviews are prioritized, not completed.",True,living_notebook_only
 v496 makes Paper 4 ready for Quarto patching or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v496_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
 v496 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v496_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v497 packages executable Paper 4 review gates.,True,reports/paper_material/paper4/tables/paper4_v497_review_gate_execution_packet.csv,Review-gate execution packet only.,False,living_notebook_only
+v497 creates layout and caption review input packets.,True,reports/paper_material/paper4/tables/paper4_v497_layout_surface_review_inputs.csv,Review inputs only.,False,living_notebook_only
+v497 preserves no-mutation execution controls.,True,reports/paper_material/paper4/tables/paper4_v497_execution_control_register.csv,Execution control register only.,False,living_notebook_only
+v497 completes manual reviews or finalizes captions.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,Reviews remain pending.,True,living_notebook_only
+v497 makes Paper 4 ready for Quarto patching or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
+v497 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

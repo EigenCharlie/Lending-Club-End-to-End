@@ -1,0 +1,5 @@
+layout_review_input_id_v497,target_file_v497,target_block_v497,asset_sequence_v497,layout_item_count_v497,review_focus_v497,review_status_v497,accepted_for_patch_v497,patch_allowed_v497
+review_01,book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd,results_evidence_cvar,T1;F1,2,verify CVaR evidence placement and caveat fit,pending_review,False,False
+review_02,book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd,results_evidence_governance_online,T2;F2;T4;F3,4,verify governance/online evidence grouping,pending_review,False,False
+review_03,book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd,discussion_limitations,T3;T6,2,verify limitations placement and no overclaiming,pending_review,False,False
+review_04,book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd,methods_protocol,T5;F4,2,verify methods placement before any patch,pending_review,False,False

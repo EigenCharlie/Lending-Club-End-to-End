@@ -1,0 +1,7 @@
+control_id_v497,control_active_v497,mutation_allowed_v497,control_boundary_v497
+no_book_source_mutation,True,False,review packet only
+no_quarto_patch,True,False,patch remains blocked
+no_caption_finalization,True,False,caption finalization deferred
+no_patch_approval_claim,True,False,approval remains missing
+no_render_or_submission_claim,True,False,render/submission gates remain open
+no_final_promotion,True,False,Paper Estrella boundary remains active

@@ -22148,3 +22148,60 @@ Keep v496 in the living notebook. v497 should package the executable review
 gates without modifying book sources.
 
 <!-- V496_REVIEW_GATE_PRIORITIZATION_END -->
+
+<!-- V497_REVIEW_GATE_EXECUTION_PACKET_START -->
+
+## Wave v497: Review Gate Execution Packet
+
+Generated: 2026-05-17T19:01:12.190284+00:00
+
+### Objective
+
+v497 packages the two immediately executable review gates from v496 without
+starting review completion, finalizing captions, approving patching, or editing
+book sources.
+
+### Results
+
+- Execution gate rows:
+  `2`.
+- Layout surface input rows:
+  `4`.
+- Caption claim-safety input rows:
+  `10`.
+- Execution control rows:
+  `6`.
+- Active control rows:
+  `6`.
+- Execution completed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v498_review_gate_completion_gap_audit.md`.
+
+### Interpretation
+
+The packet is now ready for review execution, but no review outcome has been
+recorded. The next useful step is a completion-gap audit.
+
+### Claim Impact
+
+- Allowed: executable review-gate packet, review input packets and no-mutation
+  execution controls.
+- Still prohibited: completed review/signoff claims, Quarto patch
+  readiness/application, Quarto/book-reference mutation, submission readiness,
+  Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v497 in the living notebook. v498 should audit review gate completion gaps
+without modifying book sources.
+
+<!-- V497_REVIEW_GATE_EXECUTION_PACKET_END -->

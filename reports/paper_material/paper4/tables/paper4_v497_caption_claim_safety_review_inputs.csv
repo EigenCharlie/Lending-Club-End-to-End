@@ -1,0 +1,11 @@
+caption_review_input_id_v497,asset_id_v497,target_block_v497,draft_caption_exists_v497,caption_final_v497,claim_boundary_v497,overclaim_review_required_v497,review_status_v497,accepted_for_final_caption_v497,patch_allowed_v497
+caption_review_01,T5,methods_protocol,True,False,no formal theorem or CRC guarantee,True,pending_review,False,False
+caption_review_02,F4,methods_protocol,True,False,no formal SPO-DLA theorem claim,True,pending_review,False,False
+caption_review_03,T1,results_evidence_cvar,True,False,no full-v55 optimality or champion claim,True,pending_review,False,False
+caption_review_04,F1,results_evidence_cvar,True,False,visual context only; v467 table carries current claim,True,pending_review,False,False
+caption_review_05,T2,results_evidence_governance_online,True,False,no source cap approval or mutation,True,pending_review,False,False
+caption_review_06,F2,results_evidence_governance_online,True,False,no cap relaxation or legal fairness certification,True,pending_review,False,False
+caption_review_07,T4,results_evidence_governance_online,True,False,no production monitoring claim,True,pending_review,False,False
+caption_review_08,F3,results_evidence_governance_online,True,False,no external holdout or production monitoring claim,True,pending_review,False,False
+caption_review_09,T3,discussion_limitations,True,False,no live dynamic deployment language,True,pending_review,False,False
+caption_review_10,T6,discussion_limitations,True,False,no contractual accounting compliance claim,True,pending_review,False,False

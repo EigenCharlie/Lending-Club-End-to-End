@@ -56785,6 +56785,142 @@ def test_paper4_v496_review_gate_prioritization_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v497_review_gate_execution_packet_is_guarded() -> None:
+    status = _read_json("paper4_v497_status.json")
+    assert status["phase"] == "v497_review_gate_execution_packet"
+    assert status["schema_version"] == "2026-05-17.497"
+    assert status["prior_review_gate_version_v497"] == 496
+    assert status["review_gate_execution_packet_created_v497"] is True
+    assert status["execution_gate_rows_v497"] == 2
+    assert status["layout_surface_input_rows_v497"] == 4
+    assert status["caption_claim_safety_input_rows_v497"] == 10
+    assert status["execution_control_rows_v497"] == 6
+    assert status["active_control_rows_v497"] == 6
+    assert status["execution_started_rows_v497"] == 0
+    assert status["execution_completed_rows_v497"] == 0
+    assert status["layout_inputs_accepted_rows_v497"] == 0
+    assert status["caption_inputs_accepted_rows_v497"] == 0
+    assert status["patch_allowed_rows_v497"] == 0
+    assert status["readiness_delta_rows_v497"] == 8
+    assert status["ready_for_quarto_patch_v497"] is False
+    assert status["quarto_patch_applied_v497"] is False
+    assert status["book_sources_modified_v497"] is False
+    assert status["book_references_modified_v497"] is False
+    assert status["submission_ready_claim_allowed_v497"] is False
+    assert status["working_champion_claim_allowed_v497"] is False
+    assert status["paper1_promotion_allowed_v497"] is False
+    assert status["paper4_working_champion_changed_v497"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v497"] == "paper4_v498_review_gate_completion_gap_audit.md"
+
+    packet = _read_csv("paper4_v497_review_gate_execution_packet.csv")
+    assert len(packet) == 2
+    assert list(packet["priority_v497"]) == [1, 2]
+    assert set(packet["execution_gate_id_v497"]) == {
+        "manual_layout_surface_review",
+        "caption_claim_safety_review",
+    }
+    assert set(packet["execution_status_v497"]) == {"packet_ready_review_pending"}
+    assert not packet["execution_started_v497"].astype(bool).any()
+    assert not packet["execution_completed_v497"].astype(bool).any()
+    assert not packet["patch_allowed_v497"].astype(bool).any()
+
+    layout_inputs = _read_csv("paper4_v497_layout_surface_review_inputs.csv")
+    assert len(layout_inputs) == 4
+    assert int(layout_inputs["layout_item_count_v497"].sum()) == 10
+    assert set(layout_inputs["review_status_v497"]) == {"pending_review"}
+    assert not layout_inputs["accepted_for_patch_v497"].astype(bool).any()
+    assert not layout_inputs["patch_allowed_v497"].astype(bool).any()
+    assert "methods_protocol" in set(layout_inputs["target_block_v497"])
+    assert "discussion_limitations" in set(layout_inputs["target_block_v497"])
+
+    caption_inputs = _read_csv("paper4_v497_caption_claim_safety_review_inputs.csv")
+    assert len(caption_inputs) == 10
+    assert caption_inputs["draft_caption_exists_v497"].astype(bool).all()
+    assert not caption_inputs["caption_final_v497"].astype(bool).any()
+    assert caption_inputs["overclaim_review_required_v497"].astype(bool).all()
+    assert set(caption_inputs["review_status_v497"]) == {"pending_review"}
+    assert not caption_inputs["accepted_for_final_caption_v497"].astype(bool).any()
+    assert not caption_inputs["patch_allowed_v497"].astype(bool).any()
+
+    controls = _read_csv("paper4_v497_execution_control_register.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v497"].astype(bool).all()
+    assert not controls["mutation_allowed_v497"].astype(bool).any()
+    assert set(controls["control_id_v497"]) == {
+        "no_book_source_mutation",
+        "no_quarto_patch",
+        "no_caption_finalization",
+        "no_patch_approval_claim",
+        "no_render_or_submission_claim",
+        "no_final_promotion",
+    }
+
+    readiness = _read_csv("paper4_v497_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v497"], readiness["ready_v497"], strict=False)
+    )
+    assert bool(readiness_map["review_gate_execution_packet_created"]) is True
+    assert bool(readiness_map["layout_surface_review_inputs_created"]) is True
+    assert bool(readiness_map["caption_claim_safety_review_inputs_created"]) is True
+    assert bool(readiness_map["execution_control_register_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v497_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v497_review_gate_execution_packet_created"]) is True
+    assert bool(claim_map["v497_review_inputs_created"]) is True
+    assert bool(claim_map["v497_execution_controls_preserved"]) is True
+    assert bool(claim_map["v497_reviews_completed_or_captions_final"]) is False
+    assert bool(claim_map["v497_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v497_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v497 packages executable Paper 4 review gates."])
+    assert bool(boundary_map["v497 creates layout and caption review input packets."])
+    assert bool(boundary_map["v497 preserves no-mutation execution controls."])
+    assert bool(boundary_map["v497 completes manual reviews or finalizes captions."]) is False
+    assert (
+        bool(boundary_map["v497 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v497 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v497_rows = backlog.loc[backlog["last_wave"].eq("v497")]
+    assert len(v497_rows) == 1
+    backlog_row = v497_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v498_review_gate_completion_gap_audit.md"
+    assert backlog_row["execution_result"] == "review_gate_execution_packet_created_without_mutation"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v497_review_gate_execution_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Review Gate Execution Packet v497" in packet_md
+    assert "two immediately executable review gates" in packet_md
+    assert "v497 is an execution packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v497: Review Gate Execution Packet" in living_notebook
+    assert "Execution gate rows:\n  `2`." in living_notebook
+    assert "Layout surface input rows:\n  `4`." in living_notebook
+    assert "Caption claim-safety input rows:\n  `10`." in living_notebook
+    assert "Execution control rows:\n  `6`." in living_notebook
+    assert "Active control rows:\n  `6`." in living_notebook
+    assert "Execution completed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
