@@ -1,0 +1,9 @@
+readiness_gate_v486,ready_v486,evidence_artifact_v486,claim_boundary_v486
+caption_review_decision_matrix_created,True,paper4_v486_caption_review_decision_matrix.csv,decision matrix only
+caption_decision_summary_created,True,paper4_v486_caption_decision_summary.csv,summary only
+caption_revision_actions_created,True,paper4_v486_caption_revision_action_register.csv,revision actions only
+captions_accepted_for_draft,True,paper4_v486_caption_review_decision_matrix.csv,draft acceptance only
+captions_final,False,editorial signoff missing,captions remain non-final
+captions_inserted_into_quarto,False,book sources unchanged,no Quarto/book mutation in v486
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

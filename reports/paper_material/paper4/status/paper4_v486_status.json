@@ -1,0 +1,23 @@
+{
+  "book_references_modified_v486": false,
+  "book_sources_modified_v486": false,
+  "caption_decision_rows_v486": 10,
+  "caption_review_decision_matrix_created_v486": true,
+  "captions_final_v486": false,
+  "captions_inserted_into_quarto_v486": false,
+  "claim_boundary": "v486 accepts captions for draft only; final captions, insertion, submission and final promotion remain blocked",
+  "draft_accepted_rows_v486": 10,
+  "generated_at_utc": "2026-05-17T17:56:44.699035+00:00",
+  "next_artifact_v486": "paper4_v487_caption_asset_pairing_packet.md",
+  "paper1_promotion_allowed_v486": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v486": false,
+  "phase": "v486_caption_review_decision_matrix",
+  "prior_caption_audit_version_v486": 485,
+  "readiness_delta_rows_v486": 8,
+  "revision_action_rows_v486": 10,
+  "runtime_seconds": 0.096,
+  "schema_version": "2026-05-17.486",
+  "submission_ready_claim_allowed_v486": false,
+  "working_champion_claim_allowed_v486": false
+}

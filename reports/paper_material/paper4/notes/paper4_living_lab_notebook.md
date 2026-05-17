@@ -21540,3 +21540,53 @@ Keep v485 in the living notebook. v486 should record caption review decisions
 without modifying book sources.
 
 <!-- V485_CAPTION_CONSISTENCY_AUDIT_END -->
+
+<!-- V486_CAPTION_REVIEW_DECISION_MATRIX_START -->
+
+## Wave v486: Caption Review Decision Matrix
+
+Generated: 2026-05-17T17:56:44.699035+00:00
+
+### Objective
+
+v486 records review decisions for v485-audited captions, accepting them only for
+draft use under caveats.
+
+### Results
+
+- Caption decision rows:
+  `10`.
+- Draft accepted rows:
+  `10`.
+- Revision action rows:
+  `10`.
+- Captions final:
+  `False`.
+- Captions inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v487_caption_asset_pairing_packet.md`.
+
+### Interpretation
+
+The captions have crossed from audited dry-run text into draft-accepted material,
+but still require editor signoff before final use.
+
+### Claim Impact
+
+- Allowed: draft caption acceptance and revision action register.
+- Still prohibited: final captions, Quarto insertion, book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v486 in the living notebook. v487 should pair draft-accepted captions with
+their assets without modifying book sources.
+
+<!-- V486_CAPTION_REVIEW_DECISION_MATRIX_END -->
