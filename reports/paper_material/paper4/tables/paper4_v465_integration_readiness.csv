@@ -1,0 +1,6 @@
+readiness_gate_v465,ready_v465,evidence_artifact_v465,claim_boundary_v465
+citation_integration_map_created,True,paper4_v465_citation_integration_map.csv,dry-run citation placement only
+subset_bib_available,True,paper4_v464_references_subset.bib,reports-side subset only
+book_references_modified,False,book/references.bib,global bibliography intentionally unchanged
+quarto_sources_modified,False,book/chapters/19-paper-mega-extension,no Quarto promotion in v465
+domain_execution_refocus,False,paper4_v466_domain_execution_backlog_refocus.md,domain backlog refocus deferred to v466

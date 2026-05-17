@@ -1,0 +1,6 @@
+blocker_id_v465,blocking_v465,evidence_count_v465,required_next_artifact_v465,claim_boundary_v465
+domain_execution_backlog_not_refocused,True,1,paper4_v466_domain_execution_backlog_refocus.md,return next to executable experimental lanes
+book_references_not_modified,True,1,future_book_references_patch,global bibliography intentionally unchanged
+quarto_not_promoted,True,1,future_post_promotion_quarto_render_probe,rerender only after book source changes
+target_venue_not_selected,True,0,future_target_venue_decision,do not claim venue compliance
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

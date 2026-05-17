@@ -1551,3 +1551,8 @@ v464 preserves verified v381 bibliography metadata.,True,reports/paper_material/
 v464 modifies book references or completes final bibliography.,False,reports/paper_material/paper4/tables/paper4_v464_remaining_blockers.csv,book/references.bib remains unchanged.,True,living_notebook_only
 v464 makes Paper 4 venue-style compliant or submitted.,False,reports/paper_material/paper4/tables/paper4_v464_remaining_blockers.csv,Venue/style remains future work.,True,living_notebook_only
 v464 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v464_remaining_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v465 maps Paper 4 citation integration as a dry-run.,True,reports/paper_material/paper4/notes/paper4_v465_citation_integration_dry_run.md,Dry-run placement only.,False,living_notebook_only
+v465 verifies related-work citation keys exist in the subset bib.,True,reports/paper_material/paper4/tables/paper4_v465_subset_key_consistency.csv,Subset consistency only.,False,living_notebook_only
+v465 modifies book references or promotes Quarto content.,False,reports/paper_material/paper4/tables/paper4_v465_remaining_blockers.csv,No global references or book source mutation.,True,living_notebook_only
+v465 makes Paper 4 bibliography final or submission-ready.,False,reports/paper_material/paper4/tables/paper4_v465_remaining_blockers.csv,Venue and final bibliography remain open.,True,living_notebook_only
+v465 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v465_remaining_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

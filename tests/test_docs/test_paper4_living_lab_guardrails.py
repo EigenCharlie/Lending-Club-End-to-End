@@ -53098,6 +53098,110 @@ def test_paper4_v464_bibliography_subset_dry_run_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v465_citation_integration_dry_run_is_guarded() -> None:
+    status = _read_json("paper4_v465_status.json")
+
+    assert status["phase"] == "v465_citation_integration_dry_run"
+    assert status["schema_version"] == "2026-05-17.465"
+    assert status["prior_bibliography_subset_version_v465"] == 464
+    assert status["citation_integration_row_count_v465"] == 6
+    assert status["subset_bib_key_count_v465"] == 9
+    assert status["trace_key_count_v465"] == 9
+    assert status["all_trace_keys_in_subset_v465"] is True
+    assert status["citation_integration_dry_run_created_v465"] is True
+    assert status["subset_key_consistency_created_v465"] is True
+    assert status["book_references_modified_v465"] is False
+    assert status["quarto_sources_modified_v465"] is False
+    assert status["final_bibliography_complete_v465"] is False
+    assert status["target_venue_selected_v465"] is False
+    assert status["domain_backlog_refocus_created_v465"] is False
+    assert status["working_champion_claim_allowed_v465"] is False
+    assert status["paper1_promotion_allowed_v465"] is False
+    assert status["paper4_working_champion_changed_v465"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v465"] == "paper4_v466_domain_execution_backlog_refocus.md"
+
+    integration = _read_csv("paper4_v465_citation_integration_map.csv")
+    assert len(integration) == 6
+    integration_map = dict(
+        zip(integration["integration_id_v465"], integration["integration_allowed_v465"], strict=False)
+    )
+    assert bool(integration_map["related_work_conformal_foundations"]) is True
+    assert bool(integration_map["methods_risk_optimization"]) is True
+    assert bool(integration_map["related_work_predict_then_optimize_boundary"]) is True
+    assert bool(integration_map["limitations_regulatory_context"]) is True
+    assert bool(integration_map["references_subset_dry_run"]) is True
+    assert bool(integration_map["prohibited_final_bibliography"]) is False
+    assert integration["all_keys_in_subset_v465"].astype(bool).all()
+
+    consistency = _read_csv("paper4_v465_subset_key_consistency.csv")
+    assert len(consistency) == 9
+    assert consistency["in_subset_bib_v465"].astype(bool).all()
+    assert consistency["used_in_related_work_trace_v465"].astype(bool).all()
+    assert consistency["integration_ready_v465"].astype(bool).all()
+
+    readiness = _read_csv("paper4_v465_integration_readiness.csv")
+    readiness_map = dict(zip(readiness["readiness_gate_v465"], readiness["ready_v465"], strict=False))
+    assert bool(readiness_map["citation_integration_map_created"]) is True
+    assert bool(readiness_map["subset_bib_available"]) is True
+    assert bool(readiness_map["book_references_modified"]) is False
+    assert bool(readiness_map["quarto_sources_modified"]) is False
+    assert bool(readiness_map["domain_execution_refocus"]) is False
+
+    blockers = _read_csv("paper4_v465_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v465"], blockers["blocking_v465"], strict=False))
+    assert bool(blocker_map["domain_execution_backlog_not_refocused"]) is True
+    assert bool(blocker_map["book_references_not_modified"]) is True
+    assert bool(blocker_map["quarto_not_promoted"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v465_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v465_citation_integration_dry_run_created"]) is True
+    assert bool(claim_map["v465_all_trace_keys_present_in_subset"]) is True
+    assert bool(claim_map["v465_book_references_or_quarto_modified"]) is False
+    assert bool(claim_map["v465_final_bibliography_or_submission_ready"]) is False
+    assert bool(claim_map["v465_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v465 maps Paper 4 citation integration as a dry-run."])
+    assert bool(boundary_map["v465 verifies related-work citation keys exist in the subset bib."])
+    assert bool(boundary_map["v465 modifies book references or promotes Quarto content."]) is False
+    assert bool(boundary_map["v465 makes Paper 4 bibliography final or submission-ready."]) is False
+    assert bool(boundary_map["v465 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v465_rows = backlog.loc[backlog["last_wave"].eq("v465")]
+    assert len(v465_rows) == 1
+    backlog_row = v465_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v466_domain_execution_backlog_refocus.md"
+    assert (
+        backlog_row["execution_result"]
+        == "citation_integration_dry_run_without_quarto_promotion"
+    )
+
+    dry_run_md = (
+        PAPER4_ROOT / "notes" / "paper4_v465_citation_integration_dry_run.md"
+    ).read_text(encoding="utf-8")
+    assert "Citation Integration Dry-Run v465" in dry_run_md
+    assert "does not edit `book/references.bib`" in dry_run_md
+    assert "paper4_v466_domain_execution_backlog_refocus.md" in dry_run_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v465: Citation Integration Dry-Run" in living_notebook
+    assert "Citation integration rows:\n  `6`." in living_notebook
+    assert "Subset bibliography keys:\n  `9`." in living_notebook
+    assert "All trace keys in subset:\n  `True`." in living_notebook
+    assert "Book references modified:\n  `False`." in living_notebook
+    assert "Quarto sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

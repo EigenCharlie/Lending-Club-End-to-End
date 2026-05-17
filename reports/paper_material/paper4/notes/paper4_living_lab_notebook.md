@@ -20420,3 +20420,53 @@ Keep v464 in the living notebook. v465 should map citation integration without
 promoting Quarto or editing global book references.
 
 <!-- V464_BIBLIOGRAPHY_SUBSET_DRY_RUN_END -->
+
+<!-- V465_CITATION_INTEGRATION_DRY_RUN_START -->
+
+## Wave v465: Citation Integration Dry-Run
+
+Generated: 2026-05-17T15:58:38.151535+00:00
+
+### Objective
+
+v465 maps citation integration from the reports-side bibliography subset without
+editing book references or promoting Quarto content.
+
+### Results
+
+- Citation integration rows:
+  `6`.
+- Subset bibliography keys:
+  `9`.
+- Related-work trace keys:
+  `9`.
+- All trace keys in subset:
+  `True`.
+- Book references modified:
+  `False`.
+- Quarto sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v466_domain_execution_backlog_refocus.md`.
+
+### Interpretation
+
+The citation placement path is now mapped, so the next highest-value local task
+is to refocus the executable experimental backlog toward the domain lanes named
+by the Paper 4 goal.
+
+### Claim Impact
+
+- Allowed: citation placement dry-run and subset key consistency.
+- Still prohibited: global bibliography mutation, Quarto promotion, final
+  bibliography, submission readiness, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v465 in the living notebook. v466 should refocus the executable domain
+backlog toward CVaR, source governance, dynamic replay, online, SPO-DLA and
+IFRS9 proxy experiments.
+
+<!-- V465_CITATION_INTEGRATION_DRY_RUN_END -->

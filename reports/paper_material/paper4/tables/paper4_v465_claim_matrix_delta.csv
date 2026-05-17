@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v465_citation_integration_dry_run_created,True,paper4_v465_citation_integration_dry_run.md,dry-run placement only
+v465_all_trace_keys_present_in_subset,True,paper4_v465_subset_key_consistency.csv,key consistency with reports-side subset
+v465_book_references_or_quarto_modified,False,paper4_v465_remaining_blockers.csv,no global references or Quarto mutation
+v465_final_bibliography_or_submission_ready,False,paper4_v465_remaining_blockers.csv,"not final, venue compliant, or submitted"
+v465_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
