@@ -16497,3 +16497,55 @@ leaving lint and full-render frontiers as separate, unclaimed checks.
 Keep v389 in the living notebook. v390 should probe repository lint.
 
 <!-- V389_FULL_REPOSITORY_PYTEST_PROBE_END -->
+
+<!-- V390_REPOSITORY_LINT_FRONTIER_START -->
+
+## Wave v390: Repository Lint Frontier
+
+Generated: 2026-05-17T07:04:05.037020+00:00
+
+### Objective
+
+v390 probes `uv run ruff check .` after the v389 full pytest success and
+classifies the remaining lint frontier.
+
+### Results
+
+- Ruff status:
+  `fail`.
+- Ruff total diagnostics:
+  `282`.
+- Ruff fixable diagnostics:
+  `88`.
+- Top rule:
+  `E402`.
+- Top rule count:
+  `169`.
+- Top file:
+  `streamlit_app/pages/model_interpretability.py`.
+- Full pytest clean inherited from v389:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v391_targeted_lint_repair_batch.md`.
+
+### Interpretation
+
+The repo is pytest-clean but not lint-clean. The lint surface is broad and
+historical: notebooks dominate import-order diagnostics, while Streamlit pages
+and the long Paper 4 guardrail file contain smaller targeted cleanup batches.
+
+### Claim Impact
+
+- Allowed: lint frontier classified and full pytest cleanliness preserved.
+- Still prohibited: global ruff clean, full Quarto render, champion replacement
+  and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v390 in the living notebook. v391 should begin a targeted lint repair batch.
+
+<!-- V390_REPOSITORY_LINT_FRONTIER_END -->

@@ -43142,6 +43142,112 @@ def test_paper4_v389_full_repository_pytest_probe_records_repair() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v390_repository_lint_frontier_classifies_ruff_blockers() -> None:
+    status = _read_json("paper4_v390_status.json")
+
+    assert status["phase"] == "v390_repository_lint_frontier"
+    assert status["schema_version"] == "2026-05-17.390"
+    assert status["prior_full_pytest_version_v390"] == 389
+    assert status["ruff_command_v390"] == "uv run ruff check ."
+    assert status["ruff_status_v390"] == "fail"
+    assert status["ruff_total_errors_v390"] == 282
+    assert status["ruff_fixable_errors_v390"] == 88
+    assert status["rule_frontier_rows_v390"] == 10
+    assert status["hotspot_file_rows_v390"] == 12
+    assert status["repair_plan_rows_v390"] == 4
+    assert status["claim_blocker_rows_v390"] == 4
+    assert status["claim_matrix_rows_v390"] == 6
+    assert status["top_rule_v390"] == "E402"
+    assert status["top_rule_count_v390"] == 169
+    assert status["top_file_v390"] == "streamlit_app/pages/model_interpretability.py"
+    assert status["top_file_error_count_v390"] == 22
+    assert status["notebook_surface_dominates_v390"] is True
+    assert status["streamlit_surface_open_v390"] is True
+    assert status["paper4_guardrail_surface_open_v390"] is True
+    assert status["global_ruff_clean_v390"] is False
+    assert status["full_repository_pytest_clean_v390"] is True
+    assert status["full_quarto_render_run_v390"] is False
+    assert status["full_quarto_render_clean_v390"] is False
+    assert status["working_champion_claim_allowed_v390"] is False
+    assert status["paper1_promotion_allowed_v390"] is False
+    assert status["paper4_working_champion_changed_v390"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v390"] == "paper4_v391_targeted_lint_repair_batch.md"
+
+    rules = _read_csv("paper4_v390_repository_lint_frontier.csv")
+    assert len(rules) == 10
+    rule_map = dict(zip(rules["rule_code_v390"], rules["error_count_v390"], strict=False))
+    assert int(rule_map["E402"]) == 169
+    assert int(rule_map["F841"]) == 26
+    assert int(rule_map["B905"]) == 16
+
+    hotspots = _read_csv("paper4_v390_lint_hotspot_files.csv")
+    assert len(hotspots) == 12
+    top_hotspot = hotspots.sort_values("error_count_v390", ascending=False).iloc[0]
+    assert top_hotspot["file_path_v390"] == "streamlit_app/pages/model_interpretability.py"
+    assert int(top_hotspot["error_count_v390"]) == 22
+
+    repair_plan = _read_csv("paper4_v390_lint_repair_plan.csv")
+    assert len(repair_plan) == 4
+    plan_map = {
+        row["repair_lane_v390"]: row["next_artifact_v390"] for _, row in repair_plan.iterrows()
+    }
+    assert plan_map["notebook_import_order_and_cell_hygiene"] == (
+        "paper4_v391_targeted_lint_repair_batch.md"
+    )
+    assert plan_map["paper4_guardrail_unused_config_reads"] == (
+        "paper4_v391_targeted_lint_repair_batch.md"
+    )
+
+    blockers = _read_csv("paper4_v390_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v390"], blockers["blocking_v390"], strict=False))
+    assert bool(blocker_map["global_ruff_not_clean"]) is True
+    assert bool(blocker_map["notebook_lint_surface_unrepaired"]) is True
+    assert bool(blocker_map["streamlit_page_lint_surface_unrepaired"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v390_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v390_repository_lint_frontier_created"]) is True
+    assert bool(claim_map["v390_full_repository_pytest_remains_clean"]) is True
+    assert bool(claim_map["v390_lint_repair_plan_created"]) is True
+    assert bool(claim_map["v390_global_ruff_clean"]) is False
+    assert bool(claim_map["v390_full_quarto_render_success"]) is False
+    assert bool(claim_map["v390_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v390 classifies the repository-wide ruff frontier."])
+    assert bool(boundary_map["v390 preserves the v389 full pytest clean result."])
+    assert bool(boundary_map["v390 proves global ruff or full Quarto render is clean."]) is False
+    assert bool(boundary_map["v390 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v390_rows = backlog.loc[backlog["last_wave"].eq("v390")]
+    assert len(v390_rows) == 1
+    backlog_row = v390_rows.iloc[0]
+    assert backlog_row["status"] == "repository_lint_frontier_classified"
+    assert backlog_row["next_artifact"] == "paper4_v391_targeted_lint_repair_batch.md"
+    assert backlog_row["execution_result"] == "ruff_global_failed_282_diagnostics_classified"
+
+    lint_md = (
+        PAPER4_ROOT / "notes" / "paper4_v390_repository_lint_frontier.md"
+    ).read_text(encoding="utf-8")
+    assert "Total diagnostics: `282`" in lint_md
+    assert "does not repair the 282 diagnostics" in lint_md
+    assert "paper4_v391_targeted_lint_repair_batch.md" in lint_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v390: Repository Lint Frontier" in notebook
+    assert "Ruff total diagnostics:\n  `282`" in notebook
+    assert "Global ruff clean:\n  `False`" in notebook
+    assert "Full pytest clean inherited from v389:\n  `True`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
