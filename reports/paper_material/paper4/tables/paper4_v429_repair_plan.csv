@@ -1,0 +1,2 @@
+repair_lane_v429,target_surface_v429,target_rule_v429,diagnostic_count_v429,fixable_count_v429,mutation_allowed_in_v429,v430_candidate_v429,next_artifact_v429,claim_boundary_v429
+targeted_scripts_b007_loop_variable_repair,scripts,B007,8,7,False,True,paper4_v430_scripts_b007_loop_variable_repair_batch.md,v429 plans the next repair but does not mutate scripts

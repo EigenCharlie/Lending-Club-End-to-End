@@ -18461,3 +18461,63 @@ Keep v428 in the living notebook. v429 should run the post-Streamlit-repair full
 pytest probe.
 
 <!-- V428_STREAMLIT_B905_C408_REPAIR_BATCH_END -->
+
+<!-- V429_POST_STREAMLIT_B905_C408_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v429: Post-Streamlit-B905/C408-Repair Pytest Probe
+
+Generated: 2026-05-17T11:18:53.553414+00:00
+
+### Objective
+
+v429 runs full repository pytest after v428's targeted Streamlit B905/C408
+repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1167`.
+- Pytest summary:
+  `=========== 1167 passed, 2 skipped, 13 warnings in 151.52s (0:02:31) ===========`.
+- Repository ruff diagnostics:
+  `38`.
+- Streamlit diagnostics:
+  `0`.
+- Repository B905/C408 diagnostics:
+  `0` /
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Top remaining rule:
+  `B007` (`8`).
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v430_scripts_b007_loop_variable_repair_batch.md`.
+
+### Interpretation
+
+The Streamlit B905/C408 repair survives full repository pytest. The remaining
+frontier is now scripts/book only, with B007 as the top executable scripts rule.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after Streamlit repair; Streamlit
+  diagnostics, B905/C408 and notebook lint remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v429 in the living notebook. v430 should apply the targeted scripts B007
+loop-variable repair batch.
+
+<!-- V429_POST_STREAMLIT_B905_C408_REPAIR_PYTEST_PROBE_END -->

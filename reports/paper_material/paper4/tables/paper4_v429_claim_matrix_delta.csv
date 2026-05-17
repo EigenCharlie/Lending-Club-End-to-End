@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v429_full_repository_pytest_run,True,paper4_v429_pytest_probe_summary.csv,pytest command executed after v428 Streamlit B905/C408 repair
+v429_full_repository_pytest_passed,True,paper4_v429_pytest_probe_summary.csv,true only when pytest exits 0
+v429_streamlit_ruff_remains_clear,True,paper4_v429_repository_ruff_snapshot.csv,Streamlit and repository B905/C408 remain zero after full pytest
+v429_notebook_lint_remains_clean,True,paper4_v429_repository_ruff_snapshot.csv,notebook diagnostics remain zero
+v429_repository_ruff_clean,False,paper4_v429_claim_blockers.csv,true only when repository ruff emits zero diagnostics
+v429_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
