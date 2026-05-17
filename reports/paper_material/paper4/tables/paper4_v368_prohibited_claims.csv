@@ -1,0 +1,5 @@
+claim_id_v368,allowed_v368,reason_v368,blocking_evidence_count_v368
+full_v55_global_optimality,False,v363 is a gap certificate and v366 priced only one chunk.,27
+paper4_working_champion,False,"no valid full solver certificate, proxy/live bridge or promotion gate",1
+paper_estrella_replacement,False,Paper Estrella champion remains protected,1
+live_deployment_readiness,False,offline proxy evidence has not been separated from live gates,1

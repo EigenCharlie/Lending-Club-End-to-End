@@ -15345,3 +15345,63 @@ Keep v367 in the living notebook. v368 should write the strongest true
 publishable claim after v361-v367.
 
 <!-- V367_ROUTE_DECISION_AFTER_CHUNK_PROBE_END -->
+
+<!-- V368_PUBLISHABLE_CLAIM_SCOPE_UPDATE_START -->
+
+## Wave v368: Publishable Claim Scope Update
+
+Generated: 2026-05-17T04:24:30.824882+00:00
+
+### Objective
+
+v367 selected a bounded claim-scope update after the v366 chunk probe found no
+source-exact rows. v368 writes the strongest Paper 4 claim that remains true
+after v361-v367 without pretending that a final solver, champion or deployment
+gate exists.
+
+### Results
+
+- Recommended framing:
+  `bounded_living_lab_claim_scope`.
+- Strongest true claim:
+  Paper 4 can be framed as a reproducible living-lab and governance protocol that audits bounded candidate-improvement evidence around the protected Paper Estrella economic champion; v361-v367 support bounded no-entry/source-blocker claims, but not a new working champion, final promotion or full-v55 global optimality certificate.
+- V361 ordered fourth-order rows:
+  `371100576`.
+- V361 source-exact rows:
+  `4631`.
+- V361 CVaR-feasible entering rows:
+  `0`.
+- v71 improving omitted columns:
+  `5738`.
+- V366 ordered one-swap rows:
+  `1710000`.
+- V366 source-exact rows:
+  `0`.
+- Allowed publishable claims:
+  `4`.
+- Prohibited claim rows:
+  `4`.
+- Next artifact:
+  `paper4_v369_proxy_live_gate_separation.csv`.
+
+### Interpretation
+
+v368 is the paper-facing consolidation point. The useful result is not a new
+champion; it is a disciplined claim boundary: Paper 4 can be written as a
+governed living-lab method with bounded evidence and explicit global-proof
+blockers.
+
+### Claim Impact
+
+- Allowed: publishable bounded living-lab framing, bounded v361 no-entry
+  evidence, v366 source-blocker evidence, and transparent global-proof gap.
+- Still prohibited: full-v55 termination, valid global integer optimality,
+  working champion, Paper Estrella replacement, live deployment and final
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v368 in the living notebook. v369 should separate offline proxy evidence
+from live readiness and deployment/final-promotion gates.
+
+<!-- V368_PUBLISHABLE_CLAIM_SCOPE_UPDATE_END -->

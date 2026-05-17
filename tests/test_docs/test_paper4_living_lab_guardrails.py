@@ -40179,6 +40179,154 @@ def test_paper4_v367_route_decision_after_chunk_probe_preserves_claim_limits() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v368_publishable_claim_scope_update_blocks_overclaiming() -> None:
+    status = _read_json("paper4_v368_status.json")
+
+    assert status["phase"] == "v368_publishable_claim_scope_update"
+    assert status["schema_version"] == "2026-05-17.368"
+    assert status["base_version_v368"] == 353
+    assert status["prior_route_version_v368"] == 367
+    assert status["prior_chunk_version_v368"] == 366
+    assert status["prior_plan_version_v368"] == 365
+    assert status["prior_gap_version_v368"] == 363
+    assert status["prior_bound_version_v368"] == 361
+    assert status["recommended_framing_v368"] == "bounded_living_lab_claim_scope"
+    assert "bounded no-entry/source-blocker claims" in status["strongest_true_claim_v368"]
+    assert "not a new working champion" in status["strongest_true_claim_v368"]
+    assert status["v361_ordered_fourth_order_rows_v368"] == 371100576
+    assert status["v361_source_exact_fourth_order_rows_v368"] == 4631
+    assert status["v361_cvar_feasible_entering_rows_v368"] == 0
+    assert status["v363_bounded_candidate_pool_share_v368"] == pytest.approx(
+        0.01584760280161042
+    )
+    assert status["v71_improving_omitted_columns_v368"] == 5738
+    assert status["planned_chunk_count_v368"] == 28
+    assert status["remaining_unpriced_chunks_v368"] == 27
+    assert status["v366_ordered_one_swap_rows_v368"] == 1710000
+    assert status["v366_source_exact_rows_v368"] == 0
+    assert status["v366_cvar_feasible_entering_rows_v368"] == 0
+    assert status["allowed_publishable_claim_rows_v368"] == 4
+    assert status["prohibited_claim_rows_v368"] == 4
+    assert status["evidence_trace_rows_v368"] == 5
+    assert status["claim_blocker_rows_v368"] == 4
+    assert status["claim_matrix_rows_v368"] == 4
+    assert status["valid_full_v55_dual_bound_certificate_v368"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v368"] is False
+    assert status["working_champion_claim_allowed_v368"] is False
+    assert status["paper1_promotion_allowed_v368"] is False
+    assert status["paper4_working_champion_changed_v368"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["scope_memo_artifact_v368"]
+        == "reports/paper_material/paper4/notes/paper4_v368_publishable_claim_scope_update.md"
+    )
+    assert status["next_artifact_v368"] == "paper4_v369_proxy_live_gate_separation.csv"
+
+    scope = _read_csv("paper4_v368_publishable_claim_scope_update.csv")
+    row = scope.iloc[0]
+    assert row["scope_update_id_v368"] == "v368_publishable_claim_scope_update"
+    assert row["recommended_framing_v368"] == "bounded_living_lab_claim_scope"
+    assert int(row["v361_ordered_fourth_order_rows_v368"]) == 371100576
+    assert int(row["v361_source_exact_fourth_order_rows_v368"]) == 4631
+    assert int(row["v361_cvar_feasible_entering_rows_v368"]) == 0
+    assert int(row["v71_improving_omitted_columns_v368"]) == 5738
+    assert int(row["planned_chunk_count_v368"]) == 28
+    assert int(row["remaining_unpriced_chunks_v368"]) == 27
+    assert int(row["v366_ordered_one_swap_rows_v368"]) == 1710000
+    assert int(row["v366_source_exact_rows_v368"]) == 0
+    assert bool(row["valid_full_v55_dual_bound_certificate_v368"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    evidence = _read_csv("paper4_v368_evidence_trace.csv")
+    evidence_map = {row["evidence_id_v368"]: row for _, row in evidence.iterrows()}
+    assert set(evidence_map) == {
+        "bounded_fourth_order_no_entry",
+        "full_dual_bound_gap",
+        "full_v55_chunk_plan",
+        "chunk_0001_source_blocker",
+        "route_scope_decision",
+    }
+    assert int(evidence_map["bounded_fourth_order_no_entry"]["wave_v368"]) == 361
+    assert int(evidence_map["full_dual_bound_gap"]["wave_v368"]) == 363
+    assert int(evidence_map["chunk_0001_source_blocker"]["wave_v368"]) == 366
+    assert evidence["publishable_v368"].astype(bool).all()
+
+    publishable = _read_csv("paper4_v368_publishable_claims.csv")
+    publishable_map = dict(zip(publishable["claim_id_v368"], publishable["allowed_v368"], strict=False))
+    assert bool(publishable_map["bounded_living_lab_protocol"]) is True
+    assert bool(publishable_map["bounded_fourth_order_no_entry"]) is True
+    assert bool(publishable_map["chunk_source_governance_blocker"]) is True
+    assert bool(publishable_map["global_proof_gap_transparency"]) is True
+
+    prohibited = _read_csv("paper4_v368_prohibited_claims.csv")
+    prohibited_map = dict(zip(prohibited["claim_id_v368"], prohibited["allowed_v368"], strict=False))
+    prohibited_evidence = dict(
+        zip(prohibited["claim_id_v368"], prohibited["blocking_evidence_count_v368"], strict=False)
+    )
+    assert bool(prohibited_map["full_v55_global_optimality"]) is False
+    assert int(prohibited_evidence["full_v55_global_optimality"]) == 27
+    assert bool(prohibited_map["paper4_working_champion"]) is False
+    assert bool(prohibited_map["paper_estrella_replacement"]) is False
+    assert bool(prohibited_map["live_deployment_readiness"]) is False
+
+    blockers = _read_csv("paper4_v368_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v368"], blockers["blocking_v368"], strict=False))
+    evidence_count = dict(
+        zip(blockers["blocker_id_v368"], blockers["evidence_count_v368"], strict=False)
+    )
+    assert bool(blocker_map["full_v55_certificate_missing"]) is True
+    assert int(evidence_count["full_v55_certificate_missing"]) == 27
+    assert bool(blocker_map["source_exact_chunk_rows_zero"]) is True
+    assert int(evidence_count["source_exact_chunk_rows_zero"]) == 0
+    assert bool(blocker_map["proxy_live_gate_not_separated"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v368_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v368_publishable_scope_update_created"]) is True
+    assert bool(claim_map["v368_bounded_living_lab_claim_allowed"]) is True
+    assert bool(claim_map["v368_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v368_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v368 defines the strongest publishable Paper 4 claim after v361-v367."]
+    )
+    assert bool(
+        boundary_map["v368 allows bounded no-entry and source-blocker result statements."]
+    )
+    assert bool(boundary_map["v368 proves a full-v55 global optimality certificate."]) is False
+    assert bool(boundary_map["v368 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v368 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v368_rows = backlog.loc[backlog["last_wave"].eq("v368")]
+    assert len(v368_rows) == 1
+    backlog_row = v368_rows.iloc[0]
+    assert backlog_row["status"] == "publishable_bounded_claim_scope_update_created"
+    assert backlog_row["next_artifact"] == "paper4_v369_proxy_live_gate_separation.csv"
+    assert backlog_row["execution_result"] == "strongest_true_claim_after_v361_v367_recorded"
+
+    memo = (PAPER4_ROOT / "notes" / "paper4_v368_publishable_claim_scope_update.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Strongest True Claim" in memo
+    assert "bounded no-entry/source-blocker claims" in memo
+    assert "Do not claim a Paper 4 working champion." in memo
+    assert "paper4_v369_proxy_live_gate_separation.csv" in memo
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v368: Publishable Claim Scope Update" in notebook
+    assert "Recommended framing:\n  `bounded_living_lab_claim_scope`" in notebook
+    assert "V366 source-exact rows:\n  `0`" in notebook
+    assert "Next artifact:\n  `paper4_v369_proxy_live_gate_separation.csv`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

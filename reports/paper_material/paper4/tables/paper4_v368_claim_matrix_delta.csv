@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v368_publishable_scope_update_created,True,paper4_v368_publishable_claim_scope_update.md,scope update only
+v368_bounded_living_lab_claim_allowed,True,paper4_v368_publishable_claims.csv,method/governance framing
+v368_valid_full_v55_dual_bound_certificate,False,paper4_v368_claim_blockers.csv,global proof remains blocked
+v368_working_champion_or_final_promotion,False,paper4_v368_claim_blockers.csv,Paper Estrella remains protected
