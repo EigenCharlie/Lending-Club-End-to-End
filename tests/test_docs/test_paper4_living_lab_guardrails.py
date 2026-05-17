@@ -46388,6 +46388,105 @@ def test_paper4_v418_notebook_sim108_conditional_expr_patch_is_guarded() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v419_notebook_sim108_post_patch_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v419_status.json")
+
+    assert status["phase"] == "v419_notebook_sim108_post_patch_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.419"
+    assert status["prior_sim108_patch_version_v419"] == 418
+    assert status["pytest_command_v419"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v419"] == 0
+    assert status["pytest_passed_v419"] is True
+    assert status["pytest_collected_items_v419"] == 1157
+    assert "1157 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v419"]
+    assert status["global_notebook_diagnostics_v419"] == 3
+    assert status["global_notebook_sim108_v419"] == 0
+    assert status["global_notebook_e712_v419"] == 2
+    assert status["global_notebook_sim102_v419"] == 1
+    assert status["global_ruff_clean_v419"] is False
+    assert status["full_repository_pytest_run_v419"] is True
+    assert status["full_repository_pytest_passed_v419"] is True
+    assert status["full_quarto_render_run_v419"] is False
+    assert status["working_champion_claim_allowed_v419"] is False
+    assert status["paper1_promotion_allowed_v419"] is False
+    assert status["paper4_working_champion_changed_v419"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v419"] == "paper4_v420_notebook_gpu_style_lint_triage.md"
+
+    pytest_summary = _read_csv("paper4_v419_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v419"] == "full_repository_pytest"
+    assert pytest_row["command_v419"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v419"]) == 0
+    assert bool(pytest_row["passed_v419"]) is True
+    assert int(pytest_row["collected_items_v419"]) == 1157
+    assert "1157 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v419"]
+
+    lint_snapshot = _read_csv("paper4_v419_notebook_lint_snapshot.csv")
+    lint_map = dict(
+        zip(lint_snapshot["lint_code_v419"], lint_snapshot["diagnostic_count_v419"], strict=False)
+    )
+    assert "SIM108" not in lint_map
+    assert int(lint_map["E712"]) == 2
+    assert int(lint_map["SIM102"]) == 1
+    assert int(sum(lint_map.values())) == 3
+
+    blockers = _read_csv("paper4_v419_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v419"], blockers["blocking_v419"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v419"], blockers["evidence_count_v419"], strict=False)
+    )
+    assert "full_repository_pytest_failed" not in blocker_map
+    assert bool(blocker_map["gpu_side_project_style_lint_remaining"]) is True
+    assert int(blocker_evidence["gpu_side_project_style_lint_remaining"]) == 3
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v419_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v419_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v419_full_repository_pytest_passed"]) is True
+    assert bool(claim_map["v419_notebook_sim108_remains_clear"]) is True
+    assert bool(claim_map["v419_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v419_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v419 runs full repository pytest after notebook SIM108 patch."])
+    assert bool(boundary_map["v419 full repository pytest passes after notebook SIM108 patch."])
+    assert bool(boundary_map["v419 keeps notebook SIM108 cleared after pytest probe."])
+    assert bool(boundary_map["v419 clears global notebook lint or repository ruff."]) is False
+    assert bool(boundary_map["v419 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v419_rows = backlog.loc[backlog["last_wave"].eq("v419")]
+    assert len(v419_rows) == 1
+    backlog_row = v419_rows.iloc[0]
+    assert backlog_row["status"] == "post_sim108_conditional_expr_pytest_probe_passed"
+    assert backlog_row["next_artifact"] == "paper4_v420_notebook_gpu_style_lint_triage.md"
+    assert (
+        backlog_row["execution_result"]
+        == "full_repository_pytest_passed_after_sim108_conditional_expr_patch"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v419_notebook_sim108_post_patch_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1157 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Notebook SIM108 diagnostics: `0`" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v419: Post-SIM108 Pytest Probe" in living_notebook
+    assert "Pytest passed:\n  `True`" in living_notebook
+    assert "Notebook SIM108 diagnostics:\n  `0`" in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

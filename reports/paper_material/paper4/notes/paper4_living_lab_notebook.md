@@ -17924,3 +17924,53 @@ GPU side-project notebook.
 Keep v418 in the living notebook. v419 should run post-SIM108 full pytest.
 
 <!-- V418_NOTEBOOK_SIM108_CONDITIONAL_EXPR_PATCH_END -->
+
+<!-- V419_NOTEBOOK_SIM108_POST_PATCH_PYTEST_PROBE_START -->
+
+## Wave v419: Post-SIM108 Pytest Probe
+
+Generated: 2026-05-17T10:05:41.128868+00:00
+
+### Objective
+
+v419 runs full repository pytest after v418 clears notebook SIM108.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1157`.
+- Pytest summary:
+  `=========== 1157 passed, 2 skipped, 13 warnings in 181.76s (0:03:01) ===========`.
+- Notebook diagnostics:
+  `3`.
+- Notebook SIM108 diagnostics:
+  `0`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v420_notebook_gpu_style_lint_triage.md`.
+
+### Interpretation
+
+The SIM108 patch passed repository validation. The remaining notebook lint
+frontier is isolated to GPU side-project style refactors.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after SIM108 clearance.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: global notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v419 in the living notebook. v420 should triage the remaining GPU
+side-project style lint.
+
+<!-- V419_NOTEBOOK_SIM108_POST_PATCH_PYTEST_PROBE_END -->

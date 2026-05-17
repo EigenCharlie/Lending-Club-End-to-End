@@ -1,0 +1,2 @@
+probe_id_v419,command_v419,exit_code_v419,passed_v419,runtime_seconds_v419,collected_items_v419,summary_line_v419,claim_boundary_v419
+full_repository_pytest,uv run pytest -q --tb=short,0,True,194.632,1157,"=========== 1157 passed, 2 skipped, 13 warnings in 181.76s (0:03:01) ===========",post-SIM108 pytest probe
