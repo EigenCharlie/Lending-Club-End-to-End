@@ -1,0 +1,5 @@
+decision_option_id_v483,recommended_v483,patch_allowed_v483,requires_explicit_approval_v483,next_artifact_if_selected_v483,claim_boundary_v483
+keep_patch_blocked,True,False,False,paper4_v484_caption_hardening_dry_run.md,continue dry-run editing only
+caption_hardening_dry_run,True,False,False,paper4_v484_caption_hardening_dry_run.md,harden captions without Quarto mutation
+manual_patch_after_approval,False,False,True,future_manual_patch_plan,not authorized in v483
+declare_submission_ready,False,False,True,blocked_submission_gate,submission and final promotion remain blocked

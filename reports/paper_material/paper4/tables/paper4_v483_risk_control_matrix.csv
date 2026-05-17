@@ -1,0 +1,7 @@
+blocker_id_v483,control_v483,control_active_v483,blocker_resolved_v483,patch_allowed_after_control_v483
+explicit_patch_approval_missing,keep patch_authorized false,True,False,False
+caption_finalization_review_missing,run caption hardening dry run,True,False,False
+asset_path_review_missing,keep target-file review item open,True,False,False
+post_patch_render_missing,defer render until patch exists,True,False,False
+venue_and_external_validation_missing,keep submission-ready false,True,False,False
+paper4_final_promotion_forbidden,keep final promotion artifact absent,True,False,False

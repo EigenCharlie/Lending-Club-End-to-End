@@ -1,0 +1,6 @@
+review_item_id_v483,priority_v483,review_owner_v483,source_artifact_v483,review_question_v483,ready_for_review_v483,decision_recorded_v483,patch_authorized_by_item_v483,claim_boundary_v483
+approve_or_reject_book_source_patch,1,paper_owner,paper4_v481_patch_decision_register.csv,Is a manual book-source patch approved?,True,False,False,manual review packet only
+review_caption_language,2,paper_editor,paper4_v476_caption_plan.csv,Which captions can become final under caveats?,True,False,False,manual review packet only
+review_target_file_anchors,3,quarto_editor,paper4_v480_quarto_insertion_plan.csv,Are target files and anchors appropriate?,True,False,False,manual review packet only
+confirm_post_patch_render_gate,4,validation_owner,paper4_v480_pre_patch_gate_checklist.csv,Which render gate must pass after a patch?,False,False,False,manual review packet only
+confirm_post_patch_guardrail_scope,5,validation_owner,tests/test_docs/test_paper4_living_lab_guardrails.py,Which guardrails must rerun after patching?,False,False,False,manual review packet only

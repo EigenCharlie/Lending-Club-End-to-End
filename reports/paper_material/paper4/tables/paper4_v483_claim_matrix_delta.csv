@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v483_manual_review_packet_created,True,paper4_v483_review_packet_items.csv,review packet only
+v483_evidence_bundle_created,True,paper4_v483_evidence_bundle.csv,evidence bundle only
+v483_decision_options_created,True,paper4_v483_decision_option_matrix.csv,decision options only
+v483_risk_controls_created,True,paper4_v483_risk_control_matrix.csv,controls only; blockers remain open
+v483_patch_authorized_or_applied,False,paper4_v483_manuscript_readiness_delta.csv,patch remains blocked
+v483_submission_ready_or_final_promotion,False,paper4_v483_manuscript_readiness_delta.csv,no submission or final promotion claim

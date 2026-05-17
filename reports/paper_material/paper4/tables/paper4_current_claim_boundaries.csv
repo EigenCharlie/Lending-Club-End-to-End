@@ -1645,3 +1645,9 @@ v482 seeds a manual review packet for future decisions.,True,reports/paper_mater
 v482 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,Patch remains blocked by v481 decision.,True,living_notebook_only
 v482 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v482 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v483 creates a manual review packet for Paper 4 manuscript work.,True,reports/paper_material/paper4/tables/paper4_v483_review_packet_items.csv,Review packet only.,False,living_notebook_only
+v483 bundles evidence for manual review.,True,reports/paper_material/paper4/tables/paper4_v483_evidence_bundle.csv,Evidence bundle only.,False,living_notebook_only
+v483 recommends caption hardening as the next dry-run.,True,reports/paper_material/paper4/tables/paper4_v483_decision_option_matrix.csv,Dry-run recommendation only.,False,living_notebook_only
+v483 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
+v483 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v483 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

@@ -1,0 +1,9 @@
+evidence_id_v483,artifact_v483,review_use_v483,included_v483
+captions,paper4_v476_caption_plan.csv,caption language and caveat review,True
+visual_section_delta,paper4_v477_visual_section_delta.csv,asset-to-section review,True
+section_stubs,paper4_v478_section_text_stubs.csv,draft prose review,True
+stub_claim_audit,paper4_v479_stub_consistency_checks.csv,claim consistency review,True
+insertion_plan,paper4_v480_quarto_insertion_plan.csv,target file and anchor review,True
+rollback_plan,paper4_v480_rollback_plan.csv,rollback feasibility review,True
+patch_decision,paper4_v481_patch_decision_register.csv,approval state review,True
+post_plan_state,paper4_v482_manuscript_state_matrix.csv,overall manuscript state review,True

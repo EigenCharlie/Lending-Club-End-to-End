@@ -55054,6 +55054,121 @@ def test_paper4_v482_post_plan_synthesis_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v483_manual_review_packet_is_guarded() -> None:
+    status = _read_json("paper4_v483_status.json")
+    assert status["phase"] == "v483_manual_review_packet"
+    assert status["schema_version"] == "2026-05-17.483"
+    assert status["prior_synthesis_version_v483"] == 482
+    assert status["manual_review_packet_created_v483"] is True
+    assert status["review_item_rows_v483"] == 5
+    assert status["evidence_bundle_rows_v483"] == 8
+    assert status["decision_option_rows_v483"] == 4
+    assert status["risk_control_rows_v483"] == 6
+    assert status["readiness_delta_rows_v483"] == 8
+    assert status["patch_authorized_v483"] is False
+    assert status["patch_applied_v483"] is False
+    assert status["book_sources_modified_v483"] is False
+    assert status["book_references_modified_v483"] is False
+    assert status["submission_ready_claim_allowed_v483"] is False
+    assert status["working_champion_claim_allowed_v483"] is False
+    assert status["paper1_promotion_allowed_v483"] is False
+    assert status["paper4_working_champion_changed_v483"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v483"] == "paper4_v484_caption_hardening_dry_run.md"
+
+    review_items = _read_csv("paper4_v483_review_packet_items.csv")
+    assert len(review_items) == 5
+    assert list(review_items["priority_v483"]) == [1, 2, 3, 4, 5]
+    assert review_items.iloc[0]["review_owner_v483"] == "paper_owner"
+    assert not review_items["decision_recorded_v483"].astype(bool).any()
+    assert not review_items["patch_authorized_by_item_v483"].astype(bool).any()
+
+    evidence = _read_csv("paper4_v483_evidence_bundle.csv")
+    assert len(evidence) == 8
+    assert evidence["included_v483"].astype(bool).all()
+    assert "paper4_v476_caption_plan.csv" in set(evidence["artifact_v483"])
+    assert "paper4_v482_manuscript_state_matrix.csv" in set(evidence["artifact_v483"])
+
+    options = _read_csv("paper4_v483_decision_option_matrix.csv")
+    assert len(options) == 4
+    option_map = dict(zip(options["decision_option_id_v483"], options["recommended_v483"], strict=False))
+    patch_map = dict(zip(options["decision_option_id_v483"], options["patch_allowed_v483"], strict=False))
+    assert bool(option_map["keep_patch_blocked"]) is True
+    assert bool(option_map["caption_hardening_dry_run"]) is True
+    assert bool(option_map["manual_patch_after_approval"]) is False
+    assert not any(bool(value) for value in patch_map.values())
+    assert "paper4_v484_caption_hardening_dry_run.md" in set(
+        options["next_artifact_if_selected_v483"]
+    )
+
+    controls = _read_csv("paper4_v483_risk_control_matrix.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v483"].astype(bool).all()
+    assert not controls["blocker_resolved_v483"].astype(bool).any()
+    assert not controls["patch_allowed_after_control_v483"].astype(bool).any()
+    assert "paper4_final_promotion_forbidden" in set(controls["blocker_id_v483"])
+
+    readiness = _read_csv("paper4_v483_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v483"], readiness["ready_v483"], strict=False)
+    )
+    assert bool(readiness_map["manual_review_packet_created"]) is True
+    assert bool(readiness_map["evidence_bundle_created"]) is True
+    assert bool(readiness_map["decision_options_created"]) is True
+    assert bool(readiness_map["risk_controls_created"]) is True
+    assert bool(readiness_map["patch_authorized"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v483_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v483_manual_review_packet_created"]) is True
+    assert bool(claim_map["v483_evidence_bundle_created"]) is True
+    assert bool(claim_map["v483_decision_options_created"]) is True
+    assert bool(claim_map["v483_risk_controls_created"]) is True
+    assert bool(claim_map["v483_patch_authorized_or_applied"]) is False
+    assert bool(claim_map["v483_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v483 creates a manual review packet for Paper 4 manuscript work."])
+    assert bool(boundary_map["v483 bundles evidence for manual review."])
+    assert bool(boundary_map["v483 recommends caption hardening as the next dry-run."])
+    assert bool(boundary_map["v483 authorizes or applies a Quarto patch."]) is False
+    assert bool(boundary_map["v483 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v483 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v483_rows = backlog.loc[backlog["last_wave"].eq("v483")]
+    assert len(v483_rows) == 1
+    backlog_row = v483_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v484_caption_hardening_dry_run.md"
+    assert backlog_row["execution_result"] == "manual_review_packet_created_without_patch"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v483_manual_review_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Manual Review Packet v483" in packet_md
+    assert "does not authorize any Quarto patch" in packet_md
+    assert "v483 is a review packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v483: Manual Review Packet" in living_notebook
+    assert "Review item rows:\n  `5`." in living_notebook
+    assert "Evidence bundle rows:\n  `8`." in living_notebook
+    assert "Decision option rows:\n  `4`." in living_notebook
+    assert "Risk control rows:\n  `6`." in living_notebook
+    assert "Patch authorized:\n  `False`." in living_notebook
+    assert "Patch applied:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

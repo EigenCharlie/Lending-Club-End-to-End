@@ -21371,3 +21371,58 @@ Keep v482 in the living notebook. v483 should build the manual review packet
 without modifying book sources.
 
 <!-- V482_POST_PLAN_SYNTHESIS_PACKET_END -->
+
+<!-- V483_MANUAL_REVIEW_PACKET_START -->
+
+## Wave v483: Manual Review Packet
+
+Generated: 2026-05-17T17:40:44.556101+00:00
+
+### Objective
+
+v483 converts the v482 review seed into a manual review packet with evidence,
+decision options and risk controls, without authorizing a patch.
+
+### Results
+
+- Review item rows:
+  `5`.
+- Evidence bundle rows:
+  `8`.
+- Decision option rows:
+  `4`.
+- Risk control rows:
+  `6`.
+- Patch authorized:
+  `False`.
+- Patch applied:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v484_caption_hardening_dry_run.md`.
+
+### Interpretation
+
+The review surface is now concrete: reviewers can inspect captions, stubs, target
+files, rollback and guardrails. The safe executable next step is caption
+hardening, still as a dry-run.
+
+### Claim Impact
+
+- Allowed: manual review packet, evidence bundle, decision options and risk
+  controls.
+- Still prohibited: patch authorization/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v483 in the living notebook. v484 should harden captions without modifying
+book sources.
+
+<!-- V483_MANUAL_REVIEW_PACKET_END -->
