@@ -21479,3 +21479,64 @@ Keep v484 in the living notebook. v485 should audit hardened caption consistency
 without modifying book sources.
 
 <!-- V484_CAPTION_HARDENING_DRY_RUN_END -->
+
+<!-- V485_CAPTION_CONSISTENCY_AUDIT_START -->
+
+## Wave v485: Caption Consistency Audit
+
+Generated: 2026-05-17T17:52:11.187011+00:00
+
+### Objective
+
+v485 audits hardened captions for coverage, quality, caveat preservation and
+prohibited assertion language without finalizing or inserting captions.
+
+### Results
+
+- Consistency check rows:
+  `8`.
+- Passed consistency checks:
+  `8`.
+- Caption quality rows:
+  `10`.
+- Caption quality pass rows:
+  `10`.
+- Prohibited scan rows:
+  `7`.
+- Prohibited hits:
+  `0`.
+- Caption decision rows:
+  `10`.
+- Caption audit passed:
+  `True`.
+- Captions final:
+  `False`.
+- Captions inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v486_caption_review_decision_matrix.md`.
+
+### Interpretation
+
+The hardened captions pass internal consistency checks and are ready for manual
+caption-review decisions, not final insertion.
+
+### Claim Impact
+
+- Allowed: caption consistency audit, quality matrix, prohibited-language scan
+  and manual decision queue.
+- Still prohibited: final captions, Quarto insertion, book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v485 in the living notebook. v486 should record caption review decisions
+without modifying book sources.
+
+<!-- V485_CAPTION_CONSISTENCY_AUDIT_END -->

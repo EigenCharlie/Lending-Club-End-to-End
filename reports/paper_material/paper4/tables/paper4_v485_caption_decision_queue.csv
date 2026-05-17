@@ -1,0 +1,11 @@
+asset_id_v485,decision_needed_v485,audit_passed_v485,recommended_next_state_v485,caption_final_v485,caption_inserted_into_quarto_v485,claim_boundary_v485
+T1,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no full-v55 optimality or champion claim
+T2,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no source cap approval or mutation
+T3,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no live dynamic deployment language
+T4,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no production monitoring claim
+T5,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no formal theorem or CRC guarantee
+T6,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no contractual accounting compliance claim
+F1,manual_accept_revise_or_reject_caption,True,manual_review,False,False,visual context only; v467 table carries current claim
+F2,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no cap relaxation or legal fairness certification
+F3,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no external holdout or production monitoring claim
+F4,manual_accept_revise_or_reject_caption,True,manual_review,False,False,no formal SPO-DLA theorem claim

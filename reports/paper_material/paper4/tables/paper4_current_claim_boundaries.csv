@@ -1656,3 +1656,9 @@ v484 verifies caveats remain present in hardened captions.,True,reports/paper_ma
 v484 finalizes captions or inserts them into Quarto.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,Captions remain non-final and uninserted.,True,living_notebook_only
 v484 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v484 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v485 audits consistency of hardened Paper 4 captions.,True,reports/paper_material/paper4/tables/paper4_v485_caption_consistency_checks.csv,Caption audit only.,False,living_notebook_only
+v485 finds no positive prohibited caption assertions.,True,reports/paper_material/paper4/tables/paper4_v485_prohibited_caption_language_scan.csv,Caption scan only.,False,living_notebook_only
+v485 creates a manual caption decision queue.,True,reports/paper_material/paper4/tables/paper4_v485_caption_decision_queue.csv,Decision queue only.,False,living_notebook_only
+v485 finalizes captions or inserts them into Quarto.,False,reports/paper_material/paper4/tables/paper4_v485_manuscript_readiness_delta.csv,Captions remain non-final and uninserted.,True,living_notebook_only
+v485 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v485_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v485 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v485_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

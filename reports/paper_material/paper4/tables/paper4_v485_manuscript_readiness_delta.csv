@@ -1,0 +1,9 @@
+readiness_gate_v485,ready_v485,evidence_artifact_v485,claim_boundary_v485
+caption_consistency_audit_created,True,paper4_v485_caption_consistency_checks.csv,audit only
+caption_quality_matrix_created,True,paper4_v485_caption_quality_matrix.csv,quality matrix only
+prohibited_caption_language_scan_created,True,paper4_v485_prohibited_caption_language_scan.csv,caption scan only
+caption_decision_queue_created,True,paper4_v485_caption_decision_queue.csv,manual decision queue only
+captions_final,False,manual review required,captions remain non-final
+captions_inserted_into_quarto,False,book sources unchanged,no Quarto/book mutation in v485
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

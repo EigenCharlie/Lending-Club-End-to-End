@@ -55276,6 +55276,126 @@ def test_paper4_v484_caption_hardening_dry_run_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v485_caption_consistency_audit_is_guarded() -> None:
+    status = _read_json("paper4_v485_status.json")
+    assert status["phase"] == "v485_caption_consistency_audit"
+    assert status["schema_version"] == "2026-05-17.485"
+    assert status["prior_caption_hardening_version_v485"] == 484
+    assert status["caption_consistency_audit_created_v485"] is True
+    assert status["caption_consistency_audit_passed_v485"] is True
+    assert status["consistency_check_rows_v485"] == 8
+    assert status["passed_consistency_checks_v485"] == 8
+    assert status["caption_quality_rows_v485"] == 10
+    assert status["caption_quality_pass_rows_v485"] == 10
+    assert status["prohibited_scan_rows_v485"] == 7
+    assert status["prohibited_hits_v485"] == 0
+    assert status["caption_decision_rows_v485"] == 10
+    assert status["readiness_delta_rows_v485"] == 8
+    assert status["captions_final_v485"] is False
+    assert status["captions_inserted_into_quarto_v485"] is False
+    assert status["book_sources_modified_v485"] is False
+    assert status["book_references_modified_v485"] is False
+    assert status["submission_ready_claim_allowed_v485"] is False
+    assert status["working_champion_claim_allowed_v485"] is False
+    assert status["paper1_promotion_allowed_v485"] is False
+    assert status["paper4_working_champion_changed_v485"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v485"] == "paper4_v486_caption_review_decision_matrix.md"
+
+    checks = _read_csv("paper4_v485_caption_consistency_checks.csv")
+    assert len(checks) == 8
+    assert checks["passed_v485"].astype(bool).all()
+    assert "no_final_promotion_artifact" in set(checks["check_id_v485"])
+
+    quality = _read_csv("paper4_v485_caption_quality_matrix.csv")
+    assert len(quality) == 10
+    assert quality["caption_minimum_length_pass_v485"].astype(bool).all()
+    assert quality["caption_boundary_language_pass_v485"].astype(bool).all()
+    assert quality["caption_manual_review_required_v485"].astype(bool).all()
+    assert not quality["caption_ready_for_final_review_v485"].astype(bool).any()
+    assert quality["caption_quality_pass_v485"].astype(bool).all()
+
+    scan = _read_csv("paper4_v485_prohibited_caption_language_scan.csv")
+    assert len(scan) == 7
+    assert not scan["present_v485"].astype(bool).any()
+    assert scan["allowed_v485"].astype(bool).all()
+    assert "replaces paper estrella" in set(scan["prohibited_caption_assertion_v485"])
+
+    decision_queue = _read_csv("paper4_v485_caption_decision_queue.csv")
+    assert len(decision_queue) == 10
+    assert decision_queue["audit_passed_v485"].astype(bool).all()
+    assert set(decision_queue["recommended_next_state_v485"]) == {"manual_review"}
+    assert not decision_queue["caption_final_v485"].astype(bool).any()
+    assert not decision_queue["caption_inserted_into_quarto_v485"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v485_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v485"], readiness["ready_v485"], strict=False)
+    )
+    assert bool(readiness_map["caption_consistency_audit_created"]) is True
+    assert bool(readiness_map["caption_quality_matrix_created"]) is True
+    assert bool(readiness_map["prohibited_caption_language_scan_created"]) is True
+    assert bool(readiness_map["caption_decision_queue_created"]) is True
+    assert bool(readiness_map["captions_final"]) is False
+    assert bool(readiness_map["captions_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v485_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v485_caption_consistency_audit_created"]) is True
+    assert bool(claim_map["v485_caption_quality_matrix_created"]) is True
+    assert bool(claim_map["v485_no_prohibited_caption_assertions_found"]) is True
+    assert bool(claim_map["v485_caption_decision_queue_created"]) is True
+    assert bool(claim_map["v485_captions_final_or_inserted"]) is False
+    assert bool(claim_map["v485_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v485 audits consistency of hardened Paper 4 captions."])
+    assert bool(boundary_map["v485 finds no positive prohibited caption assertions."])
+    assert bool(boundary_map["v485 creates a manual caption decision queue."])
+    assert bool(boundary_map["v485 finalizes captions or inserts them into Quarto."]) is False
+    assert bool(boundary_map["v485 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v485 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v485_rows = backlog.loc[backlog["last_wave"].eq("v485")]
+    assert len(v485_rows) == 1
+    backlog_row = v485_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v486_caption_review_decision_matrix.md"
+    assert (
+        backlog_row["execution_result"]
+        == "caption_consistency_audit_passed_without_insertion"
+    )
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v485_caption_consistency_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Caption Consistency Audit v485" in audit_md
+    assert "captions remain non-final and uninserted" in audit_md
+    assert "v485 is an audit only" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v485: Caption Consistency Audit" in living_notebook
+    assert "Consistency check rows:\n  `8`." in living_notebook
+    assert "Passed consistency checks:\n  `8`." in living_notebook
+    assert "Caption quality rows:\n  `10`." in living_notebook
+    assert "Caption quality pass rows:\n  `10`." in living_notebook
+    assert "Prohibited scan rows:\n  `7`." in living_notebook
+    assert "Prohibited hits:\n  `0`." in living_notebook
+    assert "Caption decision rows:\n  `10`." in living_notebook
+    assert "Caption audit passed:\n  `True`." in living_notebook
+    assert "Captions final:\n  `False`." in living_notebook
+    assert "Captions inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
