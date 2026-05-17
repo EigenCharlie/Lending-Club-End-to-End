@@ -43023,6 +43023,125 @@ def test_paper4_v388_full_regression_probe_plan_records_docs_cleanliness() -> No
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v389_full_repository_pytest_probe_records_repair() -> None:
+    status = _read_json("paper4_v389_status.json")
+
+    assert status["phase"] == "v389_full_repository_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.389"
+    assert status["prior_regression_probe_version_v389"] == 388
+    assert status["probe_rows_v389"] == 4
+    assert status["failure_frontier_rows_v389"] == 1
+    assert status["claim_blocker_rows_v389"] == 4
+    assert status["claim_matrix_rows_v389"] == 6
+    assert status["initial_full_pytest_failed_v389"] == 1
+    assert status["initial_full_pytest_passed_v389"] == 1126
+    assert status["initial_full_pytest_skipped_v389"] == 2
+    assert status["initial_full_pytest_warnings_v389"] == 13
+    assert status["initial_full_pytest_runtime_seconds_v389"] == pytest.approx(167.63)
+    assert status["repaired_test_path_v389"] == (
+        "tests/test_streamlit/test_app_shell_navigation.py::"
+        "test_app_shell_renders_without_exceptions"
+    )
+    assert status["repair_file_v389"] == "tests/test_streamlit/test_app_shell_navigation.py"
+    assert status["streamlit_timeout_before_seconds_v389"] == 20
+    assert status["streamlit_timeout_after_seconds_v389"] == 45
+    assert status["streamlit_measured_runtime_seconds_v389"] == pytest.approx(23.91)
+    assert status["post_repair_full_pytest_run_v389"] is True
+    assert status["post_repair_full_pytest_clean_v389"] is True
+    assert status["post_repair_full_pytest_passed_v389"] == 1128
+    assert status["post_repair_full_pytest_failed_v389"] == 0
+    assert status["post_repair_full_pytest_skipped_v389"] == 2
+    assert status["post_repair_full_pytest_warnings_v389"] == 13
+    assert status["post_repair_full_pytest_runtime_seconds_v389"] == pytest.approx(205.61)
+    assert status["full_repository_ruff_run_v389"] is False
+    assert status["full_repository_ruff_clean_v389"] is False
+    assert status["full_quarto_render_run_v389"] is False
+    assert status["full_quarto_render_clean_v389"] is False
+    assert status["working_champion_claim_allowed_v389"] is False
+    assert status["paper1_promotion_allowed_v389"] is False
+    assert status["paper4_working_champion_changed_v389"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v389"] == "paper4_v390_repository_lint_frontier.md"
+
+    probes = _read_csv("paper4_v389_full_repository_pytest_probe.csv")
+    assert len(probes) == 4
+    probe_map = {row["probe_id_v389"]: row for _, row in probes.iterrows()}
+    assert probe_map["initial_full_repository_pytest"]["observed_status_v389"] == "fail"
+    assert int(probe_map["initial_full_repository_pytest"]["tests_failed_v389"]) == 1
+    assert probe_map["streamlit_shell_timeout_repair"]["observed_status_v389"] == "pass"
+    assert float(probe_map["streamlit_shell_timeout_repair"]["runtime_seconds_v389"]) == (
+        pytest.approx(23.91)
+    )
+    assert probe_map["post_repair_full_repository_pytest"]["observed_status_v389"] == "pass"
+    assert int(probe_map["post_repair_full_repository_pytest"]["tests_passed_v389"]) == 1128
+    assert bool(probe_map["post_repair_full_repository_pytest"]["claim_allowed_v389"]) is True
+    assert probe_map["paper4_final_promotion_absence"]["observed_status_v389"] == "pass"
+
+    frontier = _read_csv("paper4_v389_failure_frontier.csv")
+    assert len(frontier) == 1
+    row = frontier.iloc[0]
+    assert row["failure_id_v389"] == "streamlit_app_shell_apptest_timeout"
+    assert row["failure_type_v389"] == "RuntimeError"
+    assert int(row["initial_timeout_seconds_v389"]) == 20
+    assert int(row["repaired_timeout_seconds_v389"]) == 45
+    assert row["repair_file_v389"] == "tests/test_streamlit/test_app_shell_navigation.py"
+
+    blockers = _read_csv("paper4_v389_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v389"], blockers["blocking_v389"], strict=False))
+    assert bool(blocker_map["full_repository_ruff_not_run"]) is True
+    assert bool(blocker_map["full_quarto_render_not_run"]) is True
+    assert bool(blocker_map["streamlit_performance_budget_not_formalized"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v389_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v389_initial_full_pytest_failure_isolated"]) is True
+    assert bool(claim_map["v389_streamlit_shell_timeout_repaired"]) is True
+    assert bool(claim_map["v389_full_repository_pytest_clean"]) is True
+    assert bool(claim_map["v389_full_repository_ruff_clean"]) is False
+    assert bool(claim_map["v389_full_quarto_render_success"]) is False
+    assert bool(claim_map["v389_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v389 isolates and repairs the single full-pytest Streamlit timeout."]
+    )
+    assert bool(boundary_map["v389 shows full repository pytest is clean after repair."])
+    assert bool(boundary_map["v389 proves global ruff or full Quarto render is clean."]) is False
+    assert bool(boundary_map["v389 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v389_rows = backlog.loc[backlog["last_wave"].eq("v389")]
+    assert len(v389_rows) == 1
+    backlog_row = v389_rows.iloc[0]
+    assert (
+        backlog_row["status"]
+        == "full_repository_pytest_clean_after_streamlit_timeout_repair"
+    )
+    assert backlog_row["next_artifact"] == "paper4_v390_repository_lint_frontier.md"
+    assert backlog_row["execution_result"] == (
+        "full_pytest_1128_passed_streamlit_timeout_repaired"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v389_full_repository_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Initial full pytest: `1` Streamlit AppTest timeout failure." in probe_md
+    assert "Post-repair full pytest: `1128`" in probe_md
+    assert "paper4_v390_repository_lint_frontier.md" in probe_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v389: Full Repository Pytest Probe" in notebook
+    assert "Initial full pytest failed tests:\n  `1`" in notebook
+    assert "Post-repair full pytest clean:\n  `True`" in notebook
+    assert "Full repository ruff clean:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

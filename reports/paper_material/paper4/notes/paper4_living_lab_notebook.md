@@ -16442,3 +16442,58 @@ Keep v388 in the living notebook. v389 should run the full repository pytest
 frontier.
 
 <!-- V388_FULL_REGRESSION_PROBE_PLAN_END -->
+
+<!-- V389_FULL_REPOSITORY_PYTEST_PROBE_START -->
+
+## Wave v389: Full Repository Pytest Probe
+
+Generated: 2026-05-17T06:58:21.350980+00:00
+
+### Objective
+
+v389 executes the full repository pytest frontier, repairs the lone Streamlit
+AppTest timeout, and records the post-repair result.
+
+### Results
+
+- Initial full pytest failed tests:
+  `1`.
+- Initial full pytest passed tests:
+  `1126`.
+- Repaired test:
+  `tests/test_streamlit/test_app_shell_navigation.py::test_app_shell_renders_without_exceptions`.
+- Streamlit timeout before:
+  `20`.
+- Streamlit timeout after:
+  `45`.
+- Post-repair full pytest passed:
+  `1128`.
+- Post-repair full pytest clean:
+  `True`.
+- Full repository ruff clean:
+  `False`.
+- Full Quarto render clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v390_repository_lint_frontier.md`.
+
+### Interpretation
+
+The full pytest frontier is now clean after a narrow Streamlit AppTest timeout
+budget repair. This materially strengthens Paper 4 reproducibility, while still
+leaving lint and full-render frontiers as separate, unclaimed checks.
+
+### Claim Impact
+
+- Allowed: initial full-pytest failure isolated, Streamlit timeout repaired, full
+  repository pytest clean after repair.
+- Still prohibited: global ruff clean, full Quarto render, champion replacement
+  and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v389 in the living notebook. v390 should probe repository lint.
+
+<!-- V389_FULL_REPOSITORY_PYTEST_PROBE_END -->

@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v389_initial_full_pytest_failure_isolated,True,paper4_v389_failure_frontier.csv,single Streamlit timeout failure
+v389_streamlit_shell_timeout_repaired,True,tests/test_streamlit/test_app_shell_navigation.py,AppTest timeout raised to observed runtime budget
+v389_full_repository_pytest_clean,True,paper4_v389_full_repository_pytest_probe.csv,pytest suite only; 1128 passed after repair
+v389_full_repository_ruff_clean,False,paper4_v389_claim_blockers.csv,global lint not run in v389
+v389_full_quarto_render_success,False,paper4_v389_claim_blockers.csv,full Quarto render not run
+v389_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
