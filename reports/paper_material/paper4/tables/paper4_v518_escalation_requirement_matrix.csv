@@ -1,0 +1,7 @@
+escalation_requirement_id_v518,requirement_open_v518,manual_owner_escalation_required_v518,blocks_candidate_input_completion_v518,requirement_satisfied_v518,required_resolution_v518,claim_boundary_v518
+no_candidate_identifier_after_second_reminder,True,True,True,False,receive candidate identifier before closing input collection,escalation requirement matrix only
+no_nomination_field_after_second_reminder,True,True,True,False,receive nomination fields before closing input collection,escalation requirement matrix only
+no_nomination_signoff_after_second_reminder,True,True,True,False,receive nomination signoff before closing input collection,escalation requirement matrix only
+no_evidence_after_second_reminder,True,True,True,False,receive evidence before closing input collection,escalation requirement matrix only
+eligibility_review_blocked,True,False,False,False,start eligibility only after complete candidate inputs,escalation requirement matrix only
+no_final_promotion,True,False,False,False,keep Paper Estrella protection active,escalation requirement matrix only

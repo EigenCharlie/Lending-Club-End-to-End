@@ -60176,6 +60176,211 @@ def test_paper4_v517_second_reminder_followup_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v518_candidate_input_escalation_decision_packet_is_guarded() -> None:
+    status = _read_json("paper4_v518_status.json")
+    assert status["phase"] == "v518_candidate_input_escalation_decision_packet"
+    assert status["schema_version"] == "2026-05-17.518"
+    assert status["prior_second_reminder_followup_audit_version_v518"] == 517
+    assert status["candidate_input_escalation_decision_packet_created_v518"] is True
+    assert status["escalation_decision_packet_rows_v518"] == 14
+    assert status["escalation_decision_recorded_rows_v518"] == 14
+    assert status["manual_owner_escalation_required_rows_v518"] == 14
+    assert status["manual_owner_request_queue_rows_v518"] == 14
+    assert status["manual_owner_request_ready_rows_v518"] == 14
+    assert status["manual_owner_request_dispatched_rows_v518"] == 0
+    assert status["human_response_received_rows_v518"] == 0
+    assert status["candidate_identifier_received_rows_v518"] == 0
+    assert status["nomination_fields_received_rows_v518"] == 0
+    assert status["nomination_signoff_received_rows_v518"] == 0
+    assert status["evidence_received_rows_v518"] == 0
+    assert status["candidate_input_collection_closed_rows_v518"] == 0
+    assert status["candidate_nomination_recorded_rows_v518"] == 0
+    assert status["field_evidence_escalation_decision_rows_v518"] == 84
+    assert status["field_evidence_escalation_required_rows_v518"] == 84
+    assert status["field_value_received_rows_v518"] == 0
+    assert status["field_evidence_received_rows_v518"] == 0
+    assert status["open_field_evidence_escalation_gap_rows_v518"] == 84
+    assert status["escalation_requirement_rows_v518"] == 6
+    assert status["open_escalation_requirement_rows_v518"] == 6
+    assert status["candidate_input_completion_blocker_rows_v518"] == 4
+    assert status["eligibility_review_allowed_rows_v518"] == 0
+    assert status["reviewer_assignment_allowed_rows_v518"] == 0
+    assert status["outcome_capture_allowed_rows_v518"] == 0
+    assert status["patch_allowed_rows_v518"] == 0
+    assert status["readiness_delta_rows_v518"] == 8
+    assert status["manual_owner_escalation_request_packet_ready_v518"] is True
+    assert status["ready_for_quarto_patch_v518"] is False
+    assert status["quarto_patch_applied_v518"] is False
+    assert status["book_sources_modified_v518"] is False
+    assert status["book_references_modified_v518"] is False
+    assert status["submission_ready_claim_allowed_v518"] is False
+    assert status["working_champion_claim_allowed_v518"] is False
+    assert status["paper1_promotion_allowed_v518"] is False
+    assert status["paper4_working_champion_changed_v518"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v518"]
+        == "paper4_v519_manual_owner_escalation_request_packet.md"
+    )
+
+    packet = _read_csv("paper4_v518_candidate_input_escalation_decision_packet.csv")
+    assert len(packet) == 14
+    assert packet["second_reminder_followup_gap_open_v518"].astype(bool).all()
+    assert packet["escalation_decision_recorded_v518"].astype(bool).all()
+    assert packet["manual_owner_escalation_required_v518"].astype(bool).all()
+    assert set(packet["escalation_decision_v518"]) == {
+        "escalate_to_manual_owner_review"
+    }
+    assert not packet["human_response_received_v518"].astype(bool).any()
+    assert not packet["candidate_identifier_received_v518"].astype(bool).any()
+    assert not packet["nomination_fields_received_v518"].astype(bool).any()
+    assert not packet["nomination_signoff_received_v518"].astype(bool).any()
+    assert not packet["evidence_received_v518"].astype(bool).any()
+    assert not packet["candidate_input_collection_closed_v518"].astype(bool).any()
+    assert not packet["candidate_nomination_recorded_v518"].astype(bool).any()
+    assert not packet["eligibility_review_allowed_v518"].astype(bool).any()
+    assert not packet["reviewer_assignment_allowed_v518"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v518"].astype(bool).any()
+    assert not packet["patch_allowed_v518"].astype(bool).any()
+    assert set(packet["required_next_step_v518"]) == {
+        "issue_manual_owner_escalation_request"
+    }
+
+    field_matrix = _read_csv(
+        "paper4_v518_field_evidence_escalation_decision_matrix.csv"
+    )
+    assert len(field_matrix) == 84
+    assert field_matrix["field_second_reminder_followup_gap_open_v518"].astype(bool).all()
+    assert field_matrix["field_evidence_escalation_required_v518"].astype(bool).all()
+    assert field_matrix["manual_owner_request_ready_v518"].astype(bool).all()
+    assert not field_matrix["field_value_received_v518"].astype(bool).any()
+    assert not field_matrix["field_evidence_received_v518"].astype(bool).any()
+    assert field_matrix.groupby("escalation_decision_id_v518").size().eq(6).all()
+
+    requirements = _read_csv("paper4_v518_escalation_requirement_matrix.csv")
+    assert len(requirements) == 6
+    assert requirements["requirement_open_v518"].astype(bool).all()
+    assert not requirements["requirement_satisfied_v518"].astype(bool).any()
+    requirement_map = dict(
+        zip(
+            requirements["escalation_requirement_id_v518"],
+            requirements["blocks_candidate_input_completion_v518"],
+            strict=False,
+        )
+    )
+    assert bool(requirement_map["no_candidate_identifier_after_second_reminder"])
+    assert bool(requirement_map["no_nomination_field_after_second_reminder"])
+    assert bool(requirement_map["no_nomination_signoff_after_second_reminder"])
+    assert bool(requirement_map["no_evidence_after_second_reminder"])
+    assert bool(requirement_map["eligibility_review_blocked"]) is False
+    assert bool(requirement_map["no_final_promotion"]) is False
+
+    queue = _read_csv("paper4_v518_manual_owner_escalation_request_queue.csv")
+    assert len(queue) == 14
+    assert queue["manual_owner_request_ready_v518"].astype(bool).all()
+    assert not queue["manual_owner_request_dispatched_v518"].astype(bool).any()
+    assert not queue["human_response_received_v518"].astype(bool).any()
+    assert set(queue["expected_next_artifact_v518"]) == {
+        "paper4_v519_manual_owner_escalation_request_packet.md"
+    }
+
+    readiness = _read_csv("paper4_v518_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v518"], readiness["ready_v518"], strict=False)
+    )
+    assert bool(readiness_map["candidate_input_escalation_decision_packet_created"])
+    assert bool(readiness_map["field_evidence_escalation_decision_matrix_created"])
+    assert bool(readiness_map["escalation_requirement_matrix_created"])
+    assert bool(readiness_map["manual_owner_escalation_request_packet_ready"])
+    assert bool(readiness_map["candidate_identifiers_received"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v518_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v518_candidate_input_escalation_decision_packet_created"])
+    assert bool(claim_map["v518_field_evidence_escalation_decision_matrix_created"])
+    assert bool(claim_map["v518_manual_owner_escalation_request_packet_ready"])
+    assert bool(claim_map["v518_candidate_inputs_received_or_nominated"]) is False
+    assert bool(claim_map["v518_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v518_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v518 records a candidate input escalation decision packet."]
+    )
+    assert bool(boundary_map["v518 records field and evidence escalation decisions."])
+    assert bool(
+        boundary_map["v518 makes manual owner escalation request executable next."]
+    )
+    assert (
+        bool(boundary_map["v518 receives candidate inputs or nominates candidates."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v518 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v518 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v518_rows = backlog.loc[backlog["last_wave"].eq("v518")]
+    assert len(v518_rows) == 1
+    backlog_row = v518_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v519_manual_owner_escalation_request_packet.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "candidate_input_escalation_decision_recorded_without_inputs"
+    )
+
+    decision_md = (
+        PAPER4_ROOT
+        / "notes"
+        / "paper4_v518_candidate_input_escalation_decision_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Candidate Input Escalation Decision Packet v518" in decision_md
+    assert "v518 is a candidate-input escalation decision packet only" in decision_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v518: Candidate Input Escalation Decision Packet" in living_notebook
+    assert "Escalation decision packet rows:\n  `14`." in living_notebook
+    assert "Escalation decision recorded rows:\n  `14`." in living_notebook
+    assert "Manual owner escalation required rows:\n  `14`." in living_notebook
+    assert "Manual owner request queue rows:\n  `14`." in living_notebook
+    assert "Manual owner request ready rows:\n  `14`." in living_notebook
+    assert "Manual owner request dispatched rows:\n  `0`." in living_notebook
+    assert "Human response received rows:\n  `0`." in living_notebook
+    assert "Candidate identifier received rows:\n  `0`." in living_notebook
+    assert "Nomination fields received rows:\n  `0`." in living_notebook
+    assert "Nomination signoff received rows:\n  `0`." in living_notebook
+    assert "Evidence received rows:\n  `0`." in living_notebook
+    assert "Candidate input collection closed rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert "Field/evidence escalation decision rows:\n  `84`." in living_notebook
+    assert "Field/evidence escalation required rows:\n  `84`." in living_notebook
+    assert "Field value received rows:\n  `0`." in living_notebook
+    assert "Field evidence received rows:\n  `0`." in living_notebook
+    assert "Open field/evidence escalation gap rows:\n  `84`." in living_notebook
+    assert "Escalation requirement rows:\n  `6`." in living_notebook
+    assert "Open escalation requirement rows:\n  `6`." in living_notebook
+    assert "Candidate input completion blocker rows:\n  `4`." in living_notebook
+    assert "Eligibility review allowed rows:\n  `0`." in living_notebook
+    assert "Reviewer assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -23665,3 +23665,101 @@ Keep v517 in the living notebook. v518 should record the candidate-input
 escalation decision while preserving the no-fabricated-candidate boundary.
 
 <!-- V517_SECOND_REMINDER_FOLLOWUP_AUDIT_END -->
+
+<!-- V518_CANDIDATE_INPUT_ESCALATION_DECISION_PACKET_START -->
+
+## Wave v518: Candidate Input Escalation Decision Packet
+
+Generated: 2026-05-17T23:09:00.960473+00:00
+
+### Objective
+
+v518 records the bounded decision implied by the v517 second-reminder follow-up
+audit: unresolved candidate inputs should move to a manual owner escalation
+request packet. It records the route only; it does not dispatch requests or
+fabricate candidate inputs.
+
+### Results
+
+- Escalation decision packet rows:
+  `14`.
+- Escalation decision recorded rows:
+  `14`.
+- Manual owner escalation required rows:
+  `14`.
+- Manual owner request queue rows:
+  `14`.
+- Manual owner request ready rows:
+  `14`.
+- Manual owner request dispatched rows:
+  `0`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate input collection closed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence escalation decision rows:
+  `84`.
+- Field/evidence escalation required rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open field/evidence escalation gap rows:
+  `84`.
+- Escalation requirement rows:
+  `6`.
+- Open escalation requirement rows:
+  `6`.
+- Candidate input completion blocker rows:
+  `4`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v519_manual_owner_escalation_request_packet.md`.
+
+### Interpretation
+
+The escalation decision is procedural. Because no candidate identifiers,
+nomination fields, signoff or evidence exist, v518 keeps collection open and
+routes the next executable work to a manual owner request packet rather than
+eligibility review, candidate nomination or manuscript patching.
+
+### Claim Impact
+
+- Allowed: candidate-input escalation decision packet, field/evidence
+  escalation decision matrix and future manual owner escalation request packet
+  readiness.
+- Still prohibited: candidate input receipt, candidate resolution/nomination,
+  reviewer assignment, completed review claims, final captions, Quarto patch
+  readiness/application, Quarto/book mutation, submission readiness, Paper
+  Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v518 in the living notebook. v519 should package the manual owner
+escalation request while preserving the no-fabricated-candidate boundary.
+
+<!-- V518_CANDIDATE_INPUT_ESCALATION_DECISION_PACKET_END -->
