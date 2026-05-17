@@ -16082,3 +16082,55 @@ Keep v381 in the living notebook. v382 should decide the global-solver claim
 scope without enabling global-optimality language.
 
 <!-- V381_VERIFIED_LITERATURE_SOURCE_LOG_END -->
+
+<!-- V382_GLOBAL_SOLVER_SCOPE_DECISION_START -->
+
+## Wave v382: Global Solver Scope Decision
+
+Generated: 2026-05-17T06:03:37.940547+00:00
+
+### Objective
+
+v382 executes the global-solver work order from v379: either authorize a
+separate certificate route or keep global optimality prohibited. The decision is
+to publish only bounded/gap solver language now and require a separate full-v55
+certificate route for any future global claim.
+
+### Results
+
+- Selected scope:
+  `bounded_solver_frontier_with_gap_certificate_only`.
+- Certificate requirements open:
+  `5`.
+- v71 improving omitted columns:
+  `5738`.
+- Sampled chunks with source-exact rows:
+  `0`.
+- Bounded solver-frontier language allowed:
+  `True`.
+- Global optimality language allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v383_source_governance_audit_plan.csv`.
+
+### Interpretation
+
+The valuable Paper 4 result is now cleaner: bounded no-entry evidence and
+solver-gap transparency are publishable as audit evidence, while full-v55 global
+or integer optimality remains explicitly false.
+
+### Claim Impact
+
+- Allowed: bounded solver-frontier language, negative/gap evidence and a future
+  certificate route.
+- Still prohibited: full-v55 global optimality, full-universe integer
+  optimality, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v382 in the living notebook. v383 should turn the zero source-exact sampled
+chunk evidence into a targeted source-governance audit plan.
+
+<!-- V382_GLOBAL_SOLVER_SCOPE_DECISION_END -->

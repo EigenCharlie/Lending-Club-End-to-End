@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v382_bounded_solver_scope_selected,True,paper4_v382_global_solver_scope_decision.md,bounded/gap solver language only
+v382_separate_certificate_route_defined,True,paper4_v382_certificate_route_requirements.csv,"future route, not current proof"
+v382_negative_gap_evidence_can_be_reported,True,paper4_v382_solver_claim_scope_register.csv,report blockers and gaps explicitly
+v382_full_v55_global_optimality,False,paper4_v382_claim_blockers.csv,open requirements and negative reduced costs remain
+v382_full_universe_integer_optimality,False,paper4_v382_claim_blockers.csv,integer certificate missing
+v382_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

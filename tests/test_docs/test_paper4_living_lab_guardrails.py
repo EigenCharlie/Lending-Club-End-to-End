@@ -42124,6 +42124,140 @@ def test_paper4_v381_verified_literature_source_log_keeps_claims_bounded() -> No
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v382_global_solver_scope_decision_blocks_global_claims() -> None:
+    status = _read_json("paper4_v382_status.json")
+
+    assert status["phase"] == "v382_global_solver_scope_decision"
+    assert status["schema_version"] == "2026-05-17.382"
+    assert status["prior_source_log_version_v382"] == 381
+    assert status["prior_gap_version_v382"] == 363
+    assert status["prior_stop_rule_version_v382"] == 373
+    assert status["scope_decision_rows_v382"] == 1
+    assert status["solver_scope_register_rows_v382"] == 6
+    assert status["certificate_route_requirement_rows_v382"] == 7
+    assert status["certificate_requirements_met_v382"] == 2
+    assert status["certificate_requirements_open_v382"] == 5
+    assert status["claim_blocker_rows_v382"] == 5
+    assert status["claim_matrix_rows_v382"] == 6
+    assert status["selected_scope_v382"] == "bounded_solver_frontier_with_gap_certificate_only"
+    assert status["separate_certificate_route_required_v382"] is True
+    assert status["bounded_solver_frontier_language_allowed_v382"] is True
+    assert status["negative_gap_language_allowed_v382"] is True
+    assert status["full_v55_global_certificate_missing_v382"] is True
+    assert status["valid_full_v55_dual_bound_certificate_v382"] is False
+    assert status["global_optimality_language_allowed_v382"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v382"] is False
+    assert status["working_champion_claim_allowed_v382"] is False
+    assert status["paper1_promotion_allowed_v382"] is False
+    assert status["paper4_working_champion_changed_v382"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["v71_improving_omitted_columns_v382"] == 5738
+    assert status["sampled_chunk_count_v382"] == 8
+    assert status["sampled_chunks_with_source_exact_rows_v382"] == 0
+    assert status["sampled_total_source_exact_rows_v382"] == 0
+    assert status["next_artifact_v382"] == "paper4_v383_source_governance_audit_plan.csv"
+
+    decision = _read_csv("paper4_v382_global_solver_scope_decision.csv")
+    assert len(decision) == 1
+    row = decision.iloc[0]
+    assert row["selected_scope_v382"] == "bounded_solver_frontier_with_gap_certificate_only"
+    assert bool(row["separate_certificate_route_required_v382"]) is True
+    assert bool(row["global_optimality_language_allowed_v382"]) is False
+    assert int(row["v71_improving_omitted_columns_v382"]) == 5738
+    assert int(row["sampled_chunks_with_source_exact_rows_v382"]) == 0
+
+    scope = _read_csv("paper4_v382_solver_claim_scope_register.csv")
+    assert len(scope) == 6
+    scope_map = dict(zip(scope["scope_id_v382"], scope["allowed_v382"], strict=False))
+    assert bool(scope_map["bounded_fourth_order_no_entry"]) is True
+    assert bool(scope_map["v363_negative_gap_certificate"]) is True
+    assert bool(scope_map["v373_sampled_source_stop_rule"]) is True
+    assert bool(scope_map["full_v55_global_optimality"]) is False
+    assert bool(scope_map["full_universe_integer_optimality"]) is False
+    assert bool(scope_map["champion_replacement_or_final_promotion"]) is False
+    evidence_map = dict(zip(scope["scope_id_v382"], scope["evidence_count_v382"], strict=False))
+    assert int(evidence_map["bounded_fourth_order_no_entry"]) == 371100576
+    assert int(evidence_map["v363_negative_gap_certificate"]) == 5738
+    assert int(evidence_map["v373_sampled_source_stop_rule"]) == 8
+
+    requirements = _read_csv("paper4_v382_certificate_route_requirements.csv")
+    assert len(requirements) == 7
+    assert requirements["global_claim_requires_all_rows_met_v382"].astype(bool).all()
+    assert int(requirements["met_now_v382"].astype(bool).sum()) == 2
+    assert int((~requirements["met_now_v382"].astype(bool)).sum()) == 5
+    requirement_map = {
+        row["requirement_id_v382"]: bool(row["met_now_v382"])
+        for _, row in requirements.iterrows()
+    }
+    assert requirement_map["bounded_fourth_order_no_entry_recorded"] is True
+    assert requirement_map["paper4_final_promotion_absent"] is True
+    for requirement_id in [
+        "full_omitted_universe_priced_or_excluded",
+        "direct_full_mip_guard_met",
+        "restricted_dual_screen_terminated_without_negative_rc",
+        "all_column_pricing_terminated",
+        "integer_optimality_certificate_available",
+    ]:
+        assert requirement_map[requirement_id] is False
+
+    blockers = _read_csv("paper4_v382_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v382"], blockers["blocking_v382"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v382"], blockers["evidence_count_v382"], strict=False)
+    )
+    assert bool(blocker_map["full_v55_requirements_open"]) is True
+    assert int(blocker_evidence["full_v55_requirements_open"]) == 5
+    assert bool(blocker_map["v71_negative_reduced_cost_persists"]) is True
+    assert int(blocker_evidence["v71_negative_reduced_cost_persists"]) == 5738
+    assert bool(blocker_map["integer_certificate_missing"]) is True
+    assert bool(blocker_map["source_governance_audit_needed"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v382_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v382_bounded_solver_scope_selected"]) is True
+    assert bool(claim_map["v382_separate_certificate_route_defined"]) is True
+    assert bool(claim_map["v382_negative_gap_evidence_can_be_reported"]) is True
+    assert bool(claim_map["v382_full_v55_global_optimality"]) is False
+    assert bool(claim_map["v382_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v382_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v382 selects bounded solver-frontier and gap-only language."])
+    assert bool(boundary_map["v382 defines a separate full-v55 certificate route."])
+    assert bool(boundary_map["v382 authorizes full-v55 global or integer optimality."]) is False
+    assert bool(boundary_map["v382 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v382_rows = backlog.loc[backlog["last_wave"].eq("v382")]
+    assert len(v382_rows) == 1
+    backlog_row = v382_rows.iloc[0]
+    assert backlog_row["status"] == "global_solver_scope_decision_created"
+    assert backlog_row["next_artifact"] == "paper4_v383_source_governance_audit_plan.csv"
+    assert backlog_row["execution_result"] == (
+        "bounded_solver_scope_selected_global_optimality_blocked"
+    )
+
+    decision_md = (
+        PAPER4_ROOT / "notes" / "paper4_v382_global_solver_scope_decision.md"
+    ).read_text(encoding="utf-8")
+    assert "bounded frontier plus negative/gap" in decision_md
+    assert "must not be used" in decision_md
+    assert "paper4_v383_source_governance_audit_plan.csv" in decision_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v382: Global Solver Scope Decision" in notebook
+    assert "Certificate requirements open:\n  `5`" in notebook
+    assert "v71 improving omitted columns:\n  `5738`" in notebook
+    assert "Global optimality language allowed:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

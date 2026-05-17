@@ -1,0 +1,6 @@
+blocker_id_v382,blocking_v382,evidence_count_v382,required_next_artifact_v382,claim_boundary_v382
+full_v55_requirements_open,True,5,future_full_v55_certificate_pack,all v363 requirements must be met before global language
+v71_negative_reduced_cost_persists,True,5738,future_all_column_pricing_termination,negative reduced-cost rows block termination
+integer_certificate_missing,True,1,future_integer_gap_certificate,continuous/bounded evidence is not integer proof
+source_governance_audit_needed,True,1,paper4_v383_source_governance_audit_plan.csv,v383 must turn sampled zero source-exact evidence into an audit plan
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

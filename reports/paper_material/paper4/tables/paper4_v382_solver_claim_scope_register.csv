@@ -1,0 +1,7 @@
+scope_id_v382,allowed_v382,evidence_artifact_v382,evidence_count_v382,allowed_language_v382,prohibited_language_v382,claim_boundary_v382
+bounded_fourth_order_no_entry,True,paper4_v361_v353_fourth_order_or_full_dual_bound.csv,371100576,bounded fourth-order no-entry screen,all-column or global termination,bounded subset only
+v363_negative_gap_certificate,True,paper4_v363_v353_full_dual_bound_or_gap_certificate.csv,5738,full-v55 global certificate remains blocked by gap evidence,valid full-v55 dual-bound certificate,negative/gap certificate only
+v373_sampled_source_stop_rule,True,paper4_v373_sampled_chunk_source_screen.csv,8,blind chunking stopped after sampled zero source-exact evidence,sampled chunks prove all chunks,sampled diagnostic only
+full_v55_global_optimality,False,paper4_v363_dual_bound_requirement_register.csv,2,none,full-v55 global optimality or solver termination,five v363 requirements remain open
+full_universe_integer_optimality,False,paper4_v363_claim_blockers.csv,0,none,whole-loan full-universe integer optimality,integer certificate missing
+champion_replacement_or_final_promotion,False,paper4_final_promotion_gate_not_created,0,none,Paper Estrella replacement or final Paper 4 promotion,promotion forbidden
