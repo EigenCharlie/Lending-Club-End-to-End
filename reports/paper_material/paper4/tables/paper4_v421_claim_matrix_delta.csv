@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v421_gpu_style_lint_patch_applied,True,paper4_v421_notebook_gpu_style_lint_actions.csv,three GPU side-project style patches
+v421_notebook_lint_cleared,True,paper4_v421_notebook_lint_delta.csv,ruff check notebooks reports zero diagnostics after patch
+v421_roundtrip_integrity_preserved,True,paper4_v421_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v421_post_gpu_style_pytest_passed,False,paper4_v421_claim_blockers.csv,post-patch pytest deferred to v422
+v421_repository_ruff_clean,False,paper4_v421_claim_blockers.csv,repository ruff was not run and is not claimed
+v421_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

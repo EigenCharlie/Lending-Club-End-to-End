@@ -18018,3 +18018,55 @@ Keep v420 in the living notebook. v421 should apply the GPU style-lint patch
 with roundtrip checks.
 
 <!-- V420_NOTEBOOK_GPU_STYLE_LINT_TRIAGE_END -->
+
+<!-- V421_NOTEBOOK_GPU_STYLE_LINT_PATCH_START -->
+
+## Wave v421: GPU Side-Project Style-Lint Patch
+
+Generated: 2026-05-17T10:19:27.714362+00:00
+
+### Objective
+
+v421 applies the three GPU side-project style-lint patches selected by v420.
+
+### Results
+
+- Notebook diagnostics before/after:
+  `3` ->
+  `0`.
+- E712 before/after:
+  `2` ->
+  `0`.
+- SIM102 before/after:
+  `1` ->
+  `0`.
+- Changed notebook files:
+  `1`.
+- Roundtrip integrity passed:
+  `True`.
+- Notebook ruff clean:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md`.
+
+### Interpretation
+
+The notebook-lint frontier is cleared for `ruff check notebooks`. The next
+step is a post-mutation repository pytest probe before using the notebook
+cleanup as broader regression evidence.
+
+### Claim Impact
+
+- Allowed: GPU side-project style lint patched, notebook lint reduced from 3 to
+  0, and roundtrip integrity preserved.
+- Still prohibited: post-patch pytest passed, repository ruff clean, Quarto
+  render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v421 in the living notebook. v422 should run the post-GPU-style full
+pytest probe.
+
+<!-- V421_NOTEBOOK_GPU_STYLE_LINT_PATCH_END -->

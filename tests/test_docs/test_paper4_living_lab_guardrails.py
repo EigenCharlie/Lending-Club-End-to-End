@@ -46596,6 +46596,152 @@ def test_paper4_v420_notebook_gpu_style_lint_triage_is_non_mutating() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v421_notebook_gpu_style_lint_patch_is_guarded() -> None:
+    status = _read_json("paper4_v421_status.json")
+
+    assert status["phase"] == "v421_notebook_gpu_style_lint_patch"
+    assert status["schema_version"] == "2026-05-17.421"
+    assert status["prior_gpu_style_triage_version_v421"] == 420
+    assert status["action_rows_v421"] == 3
+    assert status["global_notebook_diagnostics_before_v421"] == 3
+    assert status["global_notebook_diagnostics_after_v421"] == 0
+    assert status["global_notebook_diagnostics_reduced_v421"] == 3
+    assert status["global_notebook_e712_before_v421"] == 2
+    assert status["global_notebook_e712_after_v421"] == 0
+    assert status["global_notebook_sim102_before_v421"] == 1
+    assert status["global_notebook_sim102_after_v421"] == 0
+    assert status["changed_notebook_files_v421"] == 1
+    assert status["changed_notebook_file_list_v421"] == [
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
+    ]
+    assert status["roundtrip_integrity_rows_v421"] == 1
+    assert status["roundtrip_integrity_all_passed_v421"] is True
+    assert status["notebook_ruff_clean_v421"] is True
+    assert status["repository_ruff_clean_v421"] is False
+    assert status["full_repository_pytest_run_v421"] is False
+    assert status["full_quarto_render_run_v421"] is False
+    assert status["working_champion_claim_allowed_v421"] is False
+    assert status["paper1_promotion_allowed_v421"] is False
+    assert status["paper4_working_champion_changed_v421"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v421"]
+        == "paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md"
+    )
+
+    actions = _read_csv("paper4_v421_notebook_gpu_style_lint_actions.csv")
+    assert len(actions) == 3
+    assert set(actions["action_id_v421"]) == {
+        "gpu_style_lint_01_rows_match_cpu_boolean_mask",
+        "gpu_style_lint_02_quality_pass_guard",
+        "gpu_style_lint_03_quality_pass_eq_false",
+    }
+    assert set(actions["notebook_path_v421"]) == {
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
+    }
+    assert set(actions["cell_v421"].astype(int)) == {7, 17}
+    assert set(actions["lint_code_v421"]) == {"E712", "SIM102"}
+    assert actions["mutation_applied_v421"].astype(bool).all()
+    assert actions["new_source_v421"].str.contains("fillna(False).astype(bool)", regex=False).any()
+    assert actions["new_source_v421"].str.contains("globals().get(name)", regex=False).any()
+    assert actions["new_source_v421"].str.contains(".eq(False)", regex=False).any()
+
+    lint_delta = _read_csv("paper4_v421_notebook_lint_delta.csv")
+    lint_map = {row["metric_v421"]: row for _, row in lint_delta.iterrows()}
+    assert int(lint_map["global_notebook_total"]["before_v421"]) == 3
+    assert int(lint_map["global_notebook_total"]["after_v421"]) == 0
+    assert int(lint_map["global_notebook_e712"]["before_v421"]) == 2
+    assert int(lint_map["global_notebook_e712"]["after_v421"]) == 0
+    assert int(lint_map["global_notebook_sim102"]["before_v421"]) == 1
+    assert int(lint_map["global_notebook_sim102"]["after_v421"]) == 0
+    assert int(lint_map["global_notebook_sim108"]["after_v421"]) == 0
+
+    integrity = _read_csv("paper4_v421_notebook_roundtrip_integrity.csv")
+    assert len(integrity) == 1
+    assert integrity.iloc[0]["notebook_path_v421"] == (
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
+    )
+    for column in [
+        "file_changed_v421",
+        "cell_count_preserved_v421",
+        "code_cell_count_preserved_v421",
+        "cell_type_sequence_preserved_v421",
+        "non_code_source_preserved_v421",
+        "outputs_preserved_v421",
+        "metadata_preserved_v421",
+    ]:
+        assert integrity[column].astype(bool).all()
+
+    blockers = _read_csv("paper4_v421_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v421"], blockers["blocking_v421"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v421"], blockers["evidence_count_v421"], strict=False)
+    )
+    assert bool(blocker_map["post_gpu_style_patch_pytest_not_run"]) is True
+    assert int(blocker_evidence["post_gpu_style_patch_pytest_not_run"]) == 1
+    assert bool(blocker_map["repository_ruff_clean_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v421_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v421_gpu_style_lint_patch_applied"]) is True
+    assert bool(claim_map["v421_notebook_lint_cleared"]) is True
+    assert bool(claim_map["v421_roundtrip_integrity_preserved"]) is True
+    assert bool(claim_map["v421_post_gpu_style_pytest_passed"]) is False
+    assert bool(claim_map["v421_repository_ruff_clean"]) is False
+    assert bool(claim_map["v421_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v421 clears the remaining GPU side-project notebook style diagnostics."]
+    )
+    assert bool(boundary_map["v421 clears notebook lint diagnostics from 3 to 0."])
+    assert bool(
+        boundary_map[
+            "v421 preserves notebook roundtrip integrity for the GPU side-project patch."
+        ]
+    )
+    assert (
+        bool(boundary_map["v421 proves post-patch pytest, repository ruff, or Quarto render cleanliness."])
+        is False
+    )
+    assert bool(boundary_map["v421 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v421_rows = backlog.loc[backlog["last_wave"].eq("v421")]
+    assert len(v421_rows) == 1
+    backlog_row = v421_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md"
+    )
+    assert backlog_row["execution_result"] == "notebook_gpu_style_lint_cleared_3_to_0"
+
+    patch_md = (
+        PAPER4_ROOT / "notes" / "paper4_v421_notebook_gpu_style_lint_patch.md"
+    ).read_text(encoding="utf-8")
+    assert "Notebook diagnostics: `3` ->" in patch_md
+    assert "Notebook ruff clean: `True`" in patch_md
+    assert "does not run post-patch pytest" in patch_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v421: GPU Side-Project Style-Lint Patch" in living_notebook
+    assert "The notebook-lint frontier is cleared" in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    ruff_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "notebooks", "--output-format", "json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(ruff_probe.stdout or "[]") == []
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

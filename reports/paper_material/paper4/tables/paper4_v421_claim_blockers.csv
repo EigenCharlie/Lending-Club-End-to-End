@@ -1,0 +1,4 @@
+blocker_id_v421,blocking_v421,evidence_count_v421,required_next_artifact_v421,claim_boundary_v421
+post_gpu_style_patch_pytest_not_run,True,1,paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md,post-GPU-style patch full pytest deferred to v422
+repository_ruff_clean_not_run,True,1,paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md,"notebook lint is clean, but repository ruff is not claimed"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,0 +1,5 @@
+metric_v421,before_v421,after_v421,delta_v421,claim_boundary_v421
+global_notebook_total,3,0,-3,notebook-lint delta only; repository ruff not claimed
+global_notebook_e712,2,0,-2,notebook-lint delta only; repository ruff not claimed
+global_notebook_sim102,1,0,-1,notebook-lint delta only; repository ruff not claimed
+global_notebook_sim108,0,0,0,notebook-lint delta only; repository ruff not claimed

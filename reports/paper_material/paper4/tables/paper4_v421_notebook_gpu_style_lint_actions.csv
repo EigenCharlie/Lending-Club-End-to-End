@@ -1,0 +1,19 @@
+action_id_v421,notebook_path_v421,cell_v421,old_source_v421,new_source_v421,lint_code_v421,mutation_applied_v421,claim_boundary_v421
+gpu_style_lint_01_rows_match_cpu_boolean_mask,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,7,"(cudf_df[""rows_match_cpu""] == True) & (cudf_df[""checksum_rel_err_cpu""] <= CONFIG[""consistency_rel_tol""]),","cudf_df[""rows_match_cpu""].fillna(False).astype(bool)
+        & (cudf_df[""checksum_rel_err_cpu""] <= CONFIG[""consistency_rel_tol""]),",E712,True,cuDF consistency mask style patch only
+gpu_style_lint_02_quality_pass_guard,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,17,"for name in [""cuml_quality_df"", ""cupy_df""]:
+    if name in globals() and isinstance(globals()[name], pd.DataFrame) and len(globals()[name]):
+        if ""quality_pass"" in globals()[name].columns:
+            tmp = globals()[name].copy()
+            tmp[""section""] = name.replace(""_quality_df"", """").replace(""_df"", """")
+            checks.append(tmp)","for name in [""cuml_quality_df"", ""cupy_df""]:
+    candidate = globals().get(name)
+    if (
+        isinstance(candidate, pd.DataFrame)
+        and len(candidate)
+        and ""quality_pass"" in candidate.columns
+    ):
+        tmp = candidate.copy()
+        tmp[""section""] = name.replace(""_quality_df"", """").replace(""_df"", """")
+        checks.append(tmp)",SIM102,True,quality_pass guard consolidation only
+gpu_style_lint_03_quality_pass_eq_false,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,17,"failed = quality[quality[""quality_pass""] == False]","failed = quality[quality[""quality_pass""].eq(False)]",E712,True,quality_pass comparison style patch only
