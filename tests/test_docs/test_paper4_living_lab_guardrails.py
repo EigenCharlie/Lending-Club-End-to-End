@@ -45218,6 +45218,105 @@ def test_paper4_v406_post_sys_path_refactor_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v407_notebook_non_e402_lint_triage_is_non_mutating() -> None:
+    status = _read_json("paper4_v407_status.json")
+
+    assert status["phase"] == "v407_notebook_non_e402_lint_triage"
+    assert status["schema_version"] == "2026-05-17.407"
+    assert status["prior_post_e402_pytest_version_v407"] == 406
+    assert status["global_notebook_diagnostics_v407"] == 20
+    assert status["global_notebook_e402_v407"] == 0
+    assert status["b007_diagnostics_v407"] == 3
+    assert status["b018_diagnostics_v407"] == 10
+    assert status["f821_diagnostics_v407"] == 1
+    assert status["batch_plan_rows_v407"] == 5
+    assert status["claim_blocker_rows_v407"] == 4
+    assert status["claim_matrix_rows_v407"] == 6
+    assert status["selected_first_batch_v407"] == "batch_1_b007_loop_var_rename"
+    assert status["notebooks_mutated_v407"] is False
+    assert status["notebook_diff_clean_before_v407"] is True
+    assert status["notebook_diff_clean_after_v407"] is True
+    assert status["global_ruff_clean_v407"] is False
+    assert status["full_repository_pytest_run_v407"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v407"] == "paper4_v408_notebook_b007_loop_var_patch.md"
+
+    manifest = _read_csv("paper4_v407_notebook_non_e402_lint_manifest.csv")
+    assert len(manifest) == 20
+    assert manifest["rule_code_v407"].value_counts().to_dict() == {
+        "B018": 10,
+        "B007": 3,
+        "SIM108": 2,
+        "E712": 2,
+        "F821": 1,
+        "E741": 1,
+        "SIM102": 1,
+    }
+    assert not manifest["mutation_allowed_v407"].astype(bool).any()
+
+    batch_plan = _read_csv("paper4_v407_notebook_non_e402_lint_batch_plan.csv")
+    assert len(batch_plan) == 5
+    batch_map = {row["batch_id_v407"]: row for _, row in batch_plan.iterrows()}
+    assert int(batch_map["batch_1_b007_loop_var_rename"]["diagnostic_count_v407"]) == 3
+    assert (
+        batch_map["batch_1_b007_loop_var_rename"]["next_action_v407"]
+        == "paper4_v408_notebook_b007_loop_var_patch.md"
+    )
+    assert int(batch_map["batch_2_b018_notebook_display_review"]["diagnostic_count_v407"]) == 10
+    assert int(batch_map["batch_3_f821_execution_context_audit"]["diagnostic_count_v407"]) == 1
+    assert not batch_plan["mutation_allowed_v407"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v407_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v407"], blockers["blocking_v407"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v407"], blockers["evidence_count_v407"], strict=False)
+    )
+    assert bool(blocker_map["b007_loop_var_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["b007_loop_var_patch_not_applied_yet"]) == 3
+    assert bool(blocker_map["b018_display_review_deferred"]) is True
+    assert int(blocker_evidence["b018_display_review_deferred"]) == 10
+    assert bool(blocker_map["f821_execution_context_deferred"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v407_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v407_non_e402_lint_triage_created"]) is True
+    assert bool(claim_map["v407_b007_first_batch_selected"]) is True
+    assert bool(claim_map["v407_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v407_non_e402_lint_repaired"]) is False
+    assert bool(claim_map["v407_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v407_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v407 inventories the 20 remaining non-E402 notebook diagnostics."])
+    assert bool(boundary_map["v407 selects a 3-diagnostic B007 loop-variable batch for v408."])
+    assert bool(boundary_map["v407 repairs non-E402 lint or clears notebook lint."]) is False
+    assert bool(boundary_map["v407 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v407_rows = backlog.loc[backlog["last_wave"].eq("v407")]
+    assert len(v407_rows) == 1
+    backlog_row = v407_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_non_e402_lint_triage_created"
+    assert backlog_row["next_artifact"] == "paper4_v408_notebook_b007_loop_var_patch.md"
+    assert (
+        backlog_row["execution_result"]
+        == "non_e402_lint_20_diagnostics_triaged_b007_first_batch"
+    )
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

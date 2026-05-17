@@ -17378,3 +17378,52 @@ can focus on the remaining non-E402 notebook diagnostics.
 Keep v406 in the living notebook. Route v407 according to the pytest result.
 
 <!-- V406_POST_SYS_PATH_REFACTOR_PYTEST_PROBE_END -->
+
+<!-- V407_NOTEBOOK_NON_E402_LINT_TRIAGE_START -->
+
+## Wave v407: Notebook Non-E402 Lint Triage
+
+Generated: 2026-05-17T08:59:32.904031+00:00
+
+### Objective
+
+v407 inventories the 20 remaining non-E402 notebook diagnostics after E402
+clearance and selects the first low-risk cleanup batch.
+
+### Results
+
+- Remaining notebook diagnostics:
+  `20`.
+- E402 diagnostics:
+  `0`.
+- B007 diagnostics selected for v408:
+  `3`.
+- B018 display-review diagnostics deferred:
+  `10`.
+- F821 execution-context diagnostics deferred:
+  `1`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v408_notebook_b007_loop_var_patch.md`.
+
+### Interpretation
+
+The safest next mutation is the small B007 loop-variable rename batch. B018
+diagnostics may be intentional display expressions, and F821 needs execution
+context review before mutation.
+
+### Claim Impact
+
+- Allowed: non-E402 lint triage and B007 first-batch selection.
+- Still prohibited: non-E402 lint repaired, notebook lint clean, repository ruff
+  clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v407 in the living notebook. v408 should apply only the B007 loop-variable
+patch with roundtrip checks.
+
+<!-- V407_NOTEBOOK_NON_E402_LINT_TRIAGE_END -->

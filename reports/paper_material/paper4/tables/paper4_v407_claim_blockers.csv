@@ -1,0 +1,5 @@
+blocker_id_v407,blocking_v407,evidence_count_v407,required_next_artifact_v407,claim_boundary_v407
+b007_loop_var_patch_not_applied_yet,True,3,paper4_v408_notebook_b007_loop_var_patch.md,v407 selects but does not mutate B007 loop variables
+b018_display_review_deferred,True,10,paper4_v409_notebook_b018_display_review.md,display semantics require review
+f821_execution_context_deferred,True,1,paper4_v410_notebook_f821_execution_context_audit.md,undefined execution context requires audit
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

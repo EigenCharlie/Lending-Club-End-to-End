@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v407_non_e402_lint_triage_created,True,paper4_v407_notebook_non_e402_lint_manifest.csv,20 non-E402 notebook diagnostics inventoried
+v407_b007_first_batch_selected,True,paper4_v407_notebook_non_e402_lint_batch_plan.csv,3 B007 diagnostics selected for v408
+v407_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v407
+v407_non_e402_lint_repaired,False,paper4_v407_claim_blockers.csv,triage only
+v407_notebook_or_repo_ruff_clean,False,paper4_v407_claim_blockers.csv,20 notebook diagnostics remain
+v407_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

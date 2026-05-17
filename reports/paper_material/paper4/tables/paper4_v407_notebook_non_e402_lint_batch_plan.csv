@@ -1,0 +1,6 @@
+batch_id_v407,execution_order_v407,diagnostic_count_v407,rule_codes_v407,risk_class_v407,mutation_allowed_v407,next_action_v407,claim_boundary_v407
+batch_1_b007_loop_var_rename,1,3,B007,low_safe_loop_variable_cleanup,False,paper4_v408_notebook_b007_loop_var_patch.md,batch plan only; no notebook mutation in v407
+batch_2_b018_notebook_display_review,2,10,B018,medium_display_semantics,False,deferred_after_b007_patch,batch plan only; no notebook mutation in v407
+batch_3_f821_execution_context_audit,3,1,F821,high_execution_context,False,deferred_after_b007_patch,batch plan only; no notebook mutation in v407
+batch_4_side_project_style_cleanup,4,3,"E712,SIM102",medium_side_project_semantics,False,deferred_after_b007_patch,batch plan only; no notebook mutation in v407
+batch_5_manual_style_cleanup,5,3,"E741,SIM108",medium_manual_style,False,deferred_after_b007_patch,batch plan only; no notebook mutation in v407
