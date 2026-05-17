@@ -22649,3 +22649,70 @@ Keep v504 in the living notebook. v505 should create a reviewer eligibility
 checklist without assigning reviewers or pre-recording outcomes.
 
 <!-- V504_REVIEWER_ASSIGNMENT_PACKET_END -->
+
+<!-- V505_REVIEWER_ELIGIBILITY_CHECKLIST_START -->
+
+## Wave v505: Reviewer Eligibility Checklist
+
+Generated: 2026-05-17T19:54:44.518973+00:00
+
+### Objective
+
+v505 adds eligibility checks to the v504 reviewer assignment slots without
+providing candidates or assigning reviewers.
+
+### Results
+
+- Eligibility checklist rows:
+  `56`.
+- Eligibility criteria rows:
+  `4`.
+- Candidate provided rows:
+  `0`.
+- Criterion satisfied rows:
+  `0`.
+- Eligible reviewer rows:
+  `0`.
+- Domain summary rows:
+  `2`.
+- Domains with eligibility gaps:
+  `2`.
+- Eligibility blocker rows:
+  `5`.
+- Open eligibility blocker rows:
+  `5`.
+- Assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v506_reviewer_candidate_nomination_packet.md`.
+
+### Interpretation
+
+The assignment workflow now has explicit eligibility gates, but every candidate,
+criterion satisfaction, eligibility result and assignment remains open.
+
+### Claim Impact
+
+- Allowed: eligibility checklist creation, eligibility gap summary, blocker
+  register and candidate nomination packet readiness.
+- Still prohibited: candidate provision, reviewer assignment, completed review
+  claims, final captions, Quarto patch readiness/application, Quarto/book
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v505 in the living notebook. v506 should create a candidate nomination
+packet without nominating actual reviewers or pre-recording outcomes.
+
+<!-- V505_REVIEWER_ELIGIBILITY_CHECKLIST_END -->

@@ -57946,6 +57946,175 @@ def test_paper4_v504_reviewer_assignment_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v505_reviewer_eligibility_checklist_is_guarded() -> None:
+    status = _read_json("paper4_v505_status.json")
+    assert status["phase"] == "v505_reviewer_eligibility_checklist"
+    assert status["schema_version"] == "2026-05-17.505"
+    assert status["prior_reviewer_packet_version_v505"] == 504
+    assert status["reviewer_eligibility_checklist_created_v505"] is True
+    assert status["eligibility_checklist_rows_v505"] == 56
+    assert status["eligibility_criteria_rows_v505"] == 4
+    assert status["candidate_provided_rows_v505"] == 0
+    assert status["criterion_satisfied_rows_v505"] == 0
+    assert status["eligible_reviewer_rows_v505"] == 0
+    assert status["domain_summary_rows_v505"] == 2
+    assert status["domains_with_eligibility_gap_rows_v505"] == 2
+    assert status["eligibility_blocker_rows_v505"] == 5
+    assert status["open_eligibility_blocker_rows_v505"] == 5
+    assert status["assignment_allowed_rows_v505"] == 0
+    assert status["outcome_capture_allowed_rows_v505"] == 0
+    assert status["patch_allowed_rows_v505"] == 0
+    assert status["readiness_delta_rows_v505"] == 8
+    assert status["candidate_nomination_packet_ready_v505"] is True
+    assert status["ready_for_quarto_patch_v505"] is False
+    assert status["quarto_patch_applied_v505"] is False
+    assert status["book_sources_modified_v505"] is False
+    assert status["book_references_modified_v505"] is False
+    assert status["submission_ready_claim_allowed_v505"] is False
+    assert status["working_champion_claim_allowed_v505"] is False
+    assert status["paper1_promotion_allowed_v505"] is False
+    assert status["paper4_working_champion_changed_v505"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v505"]
+        == "paper4_v506_reviewer_candidate_nomination_packet.md"
+    )
+
+    checklist = _read_csv("paper4_v505_reviewer_eligibility_checklist.csv")
+    assert len(checklist) == 56
+    assert checklist["criterion_declared_v505"].astype(bool).all()
+    assert not checklist["candidate_provided_v505"].astype(bool).any()
+    assert not checklist["criterion_satisfied_v505"].astype(bool).any()
+    assert not checklist["reviewer_eligible_v505"].astype(bool).any()
+    assert not checklist["assignment_allowed_v505"].astype(bool).any()
+    assert not checklist["outcome_capture_allowed_v505"].astype(bool).any()
+    assert not checklist["patch_allowed_v505"].astype(bool).any()
+    assert checklist.groupby("assignment_packet_id_v505").size().eq(4).all()
+    assert set(checklist["eligibility_criterion_v505"]) == {
+        "domain_expertise_confirmed",
+        "conflict_check_completed",
+        "claim_boundary_training_confirmed",
+        "availability_confirmed",
+    }
+
+    domain_summary = _read_csv("paper4_v505_domain_eligibility_summary.csv")
+    assert len(domain_summary) == 2
+    summary_map = {row["review_domain_v505"]: row for _, row in domain_summary.iterrows()}
+    assert int(summary_map["layout_surface"]["assignment_packet_rows_v505"]) == 4
+    assert int(summary_map["layout_surface"]["eligibility_check_rows_v505"]) == 16
+    assert int(summary_map["caption_claim_safety"]["assignment_packet_rows_v505"]) == 10
+    assert int(summary_map["caption_claim_safety"]["eligibility_check_rows_v505"]) == 40
+    assert domain_summary["domain_eligibility_gap_open_v505"].astype(bool).all()
+    assert not domain_summary["candidate_provided_rows_v505"].astype(bool).any()
+    assert not domain_summary["eligible_reviewer_rows_v505"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v505_eligibility_blocker_register.csv")
+    assert len(blockers) == 5
+    assert blockers["blocker_open_v505"].astype(bool).all()
+    assert blockers["blocks_assignment_v505"].astype(bool).all()
+    assert set(blockers["eligibility_blocker_id_v505"]) == {
+        "candidate_nomination_missing",
+        "domain_expertise_unverified",
+        "conflict_check_missing",
+        "availability_unconfirmed",
+        "assignment_signoff_missing",
+    }
+
+    next_queue = _read_csv("paper4_v505_candidate_nomination_next_queue.csv")
+    assert len(next_queue) == 4
+    assert list(next_queue["priority_v505"]) == [1, 2, 3, 4]
+    assert int(next_queue["recommended_next_v505"].astype(bool).sum()) == 3
+    next_map = dict(
+        zip(
+            next_queue["next_action_id_v505"],
+            next_queue["recommended_next_v505"],
+            strict=False,
+        )
+    )
+    assert bool(next_map["nominate_reviewer_candidates"])
+    assert bool(next_map["verify_candidate_eligibility"])
+    assert bool(next_map["record_candidate_conflict_check"])
+    assert bool(next_map["assign_reviewers_after_eligibility"]) is False
+
+    readiness = _read_csv("paper4_v505_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v505"], readiness["ready_v505"], strict=False)
+    )
+    assert bool(readiness_map["reviewer_eligibility_checklist_created"])
+    assert bool(readiness_map["domain_eligibility_summary_created"])
+    assert bool(readiness_map["eligibility_blocker_register_created"])
+    assert bool(readiness_map["candidate_nomination_packet_ready"])
+    assert bool(readiness_map["reviewer_candidates_provided"]) is False
+    assert bool(readiness_map["reviewers_eligible_or_assigned"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v505_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v505_reviewer_eligibility_checklist_created"])
+    assert bool(claim_map["v505_eligibility_gaps_summarized"])
+    assert bool(claim_map["v505_candidate_nomination_packet_ready"])
+    assert bool(claim_map["v505_candidates_or_reviewers_assigned"]) is False
+    assert bool(claim_map["v505_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v505_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v505 creates reviewer eligibility checks for Paper 4."])
+    assert bool(boundary_map["v505 summarizes reviewer eligibility gaps by review domain."])
+    assert bool(boundary_map["v505 makes reviewer candidate nomination executable next."])
+    assert (
+        bool(boundary_map["v505 provides candidates, assigns reviewers, or captures outcomes."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v505 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v505 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v505_rows = backlog.loc[backlog["last_wave"].eq("v505")]
+    assert len(v505_rows) == 1
+    backlog_row = v505_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v506_reviewer_candidate_nomination_packet.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "reviewer_eligibility_checklist_created_without_candidates"
+    )
+
+    checklist_md = (
+        PAPER4_ROOT / "notes" / "paper4_v505_reviewer_eligibility_checklist.md"
+    ).read_text(encoding="utf-8")
+    assert "Reviewer Eligibility Checklist v505" in checklist_md
+    assert "does not provide candidates" in checklist_md
+    assert "v505 is an eligibility checklist only" in checklist_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v505: Reviewer Eligibility Checklist" in living_notebook
+    assert "Eligibility checklist rows:\n  `56`." in living_notebook
+    assert "Eligibility criteria rows:\n  `4`." in living_notebook
+    assert "Candidate provided rows:\n  `0`." in living_notebook
+    assert "Criterion satisfied rows:\n  `0`." in living_notebook
+    assert "Eligible reviewer rows:\n  `0`." in living_notebook
+    assert "Domain summary rows:\n  `2`." in living_notebook
+    assert "Domains with eligibility gaps:\n  `2`." in living_notebook
+    assert "Eligibility blocker rows:\n  `5`." in living_notebook
+    assert "Open eligibility blocker rows:\n  `5`." in living_notebook
+    assert "Assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

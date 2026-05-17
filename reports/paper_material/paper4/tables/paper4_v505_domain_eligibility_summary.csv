@@ -1,0 +1,3 @@
+review_domain_v505,assignment_packet_rows_v505,eligibility_check_rows_v505,candidate_provided_rows_v505,criterion_satisfied_rows_v505,eligible_reviewer_rows_v505,domain_eligibility_gap_open_v505,claim_boundary_v505
+caption_claim_safety,10,40,0,0,0,True,domain eligibility gap summary only
+layout_surface,4,16,0,0,0,True,domain eligibility gap summary only

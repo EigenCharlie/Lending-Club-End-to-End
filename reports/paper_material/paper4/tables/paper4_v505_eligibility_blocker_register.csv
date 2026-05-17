@@ -1,0 +1,6 @@
+eligibility_blocker_id_v505,blocker_open_v505,blocks_assignment_v505,required_resolution_v505
+candidate_nomination_missing,True,True,nominate reviewer candidates for all slots
+domain_expertise_unverified,True,True,confirm reviewer domain expertise
+conflict_check_missing,True,True,complete conflict of interest checks
+availability_unconfirmed,True,True,confirm reviewer availability
+assignment_signoff_missing,True,True,record assignment signoff after eligibility
