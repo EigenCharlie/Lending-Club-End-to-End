@@ -22091,3 +22091,60 @@ Keep v495 in the living notebook. v496 should prioritize review gates for
 execution without modifying book sources.
 
 <!-- V495_NO_PATCH_RELEASE_SYNTHESIS_END -->
+
+<!-- V496_REVIEW_GATE_PRIORITIZATION_START -->
+
+## Wave v496: Review Gate Prioritization
+
+Generated: 2026-05-17T18:55:38.303586+00:00
+
+### Objective
+
+v496 prioritizes the review gates that emerged from the v495 no-patch release
+synthesis without executing a patch or editing book sources.
+
+### Results
+
+- Review gate rows:
+  `6`.
+- Recommended gate rows:
+  `6`.
+- Blocking gate rows:
+  `5`.
+- Dependency rows:
+  `6`.
+- Dependency satisfied rows:
+  `3`.
+- Execution queue rows:
+  `5`.
+- Executable now rows:
+  `2`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v497_review_gate_execution_packet.md`.
+
+### Interpretation
+
+The next executable work is manual layout review and caption claim-safety
+review. Final caption signoff, explicit patch approval and rollback/render
+acceptance remain downstream blockers.
+
+### Claim Impact
+
+- Allowed: review-gate prioritization, executable review-gate queue and
+  no-patch dependency matrix.
+- Still prohibited: completed review/signoff claims, Quarto patch
+  readiness/application, Quarto/book-reference mutation, submission readiness,
+  Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v496 in the living notebook. v497 should package the executable review
+gates without modifying book sources.
+
+<!-- V496_REVIEW_GATE_PRIORITIZATION_END -->

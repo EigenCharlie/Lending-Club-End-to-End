@@ -56640,6 +56640,151 @@ def test_paper4_v495_no_patch_release_synthesis_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v496_review_gate_prioritization_is_guarded() -> None:
+    status = _read_json("paper4_v496_status.json")
+    assert status["phase"] == "v496_review_gate_prioritization"
+    assert status["schema_version"] == "2026-05-17.496"
+    assert status["prior_no_patch_release_version_v496"] == 495
+    assert status["review_gate_prioritization_created_v496"] is True
+    assert status["review_gate_rows_v496"] == 6
+    assert status["recommended_gate_rows_v496"] == 6
+    assert status["blocking_gate_rows_v496"] == 5
+    assert status["dependency_rows_v496"] == 6
+    assert status["dependency_satisfied_rows_v496"] == 3
+    assert status["dependency_executable_next_rows_v496"] == 3
+    assert status["execution_queue_rows_v496"] == 5
+    assert status["executable_now_rows_v496"] == 2
+    assert status["blocked_execution_rows_v496"] == 3
+    assert status["claim_boundary_rows_v496"] == 6
+    assert status["allowed_claim_rows_v496"] == 3
+    assert status["readiness_delta_rows_v496"] == 8
+    assert status["ready_for_quarto_patch_v496"] is False
+    assert status["quarto_patch_applied_v496"] is False
+    assert status["book_sources_modified_v496"] is False
+    assert status["book_references_modified_v496"] is False
+    assert status["submission_ready_claim_allowed_v496"] is False
+    assert status["working_champion_claim_allowed_v496"] is False
+    assert status["paper1_promotion_allowed_v496"] is False
+    assert status["paper4_working_champion_changed_v496"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v496"] == "paper4_v497_review_gate_execution_packet.md"
+
+    gates = _read_csv("paper4_v496_review_gate_prioritization.csv")
+    assert len(gates) == 6
+    assert list(gates["priority_v496"]) == [1, 2, 3, 4, 5, 6]
+    assert gates["recommended_now_v496"].astype(bool).all()
+    assert int(gates["blocks_patch_v496"].astype(bool).sum()) == 5
+    assert gates.iloc[0]["review_gate_id_v496"] == "manual_layout_surface_review"
+    assert gates.iloc[1]["review_gate_id_v496"] == "caption_claim_safety_review"
+    assert gates.iloc[-1]["review_gate_id_v496"] == "paper_estrella_boundary_guard"
+    assert not bool(gates.iloc[-1]["blocks_patch_v496"])
+
+    dependencies = _read_csv("paper4_v496_gate_dependency_matrix.csv")
+    assert len(dependencies) == 6
+    assert int(dependencies["dependency_satisfied_v496"].astype(bool).sum()) == 3
+    assert int(dependencies["executable_next_v496"].astype(bool).sum()) == 3
+    dep_map = dict(
+        zip(
+            dependencies["review_gate_id_v496"],
+            dependencies["dependency_satisfied_v496"],
+            strict=False,
+        )
+    )
+    assert bool(dep_map["manual_layout_surface_review"]) is True
+    assert bool(dep_map["caption_claim_safety_review"]) is True
+    assert bool(dep_map["final_caption_signoff"]) is False
+    assert bool(dep_map["explicit_patch_approval_request"]) is False
+    assert bool(dep_map["rollback_render_acceptance"]) is False
+    assert bool(dep_map["paper_estrella_boundary_guard"]) is True
+
+    queue = _read_csv("paper4_v496_execution_priority_queue.csv")
+    assert len(queue) == 5
+    assert list(queue["priority_v496"]) == [1, 2, 3, 4, 5]
+    assert int(queue["execution_ready_v496"].astype(bool).sum()) == 2
+    assert not queue["patch_allowed_v496"].astype(bool).any()
+    assert set(queue.loc[queue["execution_ready_v496"].astype(bool), "review_gate_id_v496"]) == {
+        "manual_layout_surface_review",
+        "caption_claim_safety_review",
+    }
+
+    boundary_matrix = _read_csv("paper4_v496_claim_boundary_matrix.csv")
+    assert len(boundary_matrix) == 6
+    assert int(boundary_matrix["allowed_v496"].astype(bool).sum()) == 3
+    claim_map = dict(
+        zip(boundary_matrix["claim_id_v496"], boundary_matrix["allowed_v496"], strict=False)
+    )
+    assert bool(claim_map["v496_review_gate_prioritization_created"]) is True
+    assert bool(claim_map["v496_executable_review_gates_identified"]) is True
+    assert bool(claim_map["v496_no_patch_constraints_preserved"]) is True
+    assert bool(claim_map["v496_reviews_or_captions_completed"]) is False
+    assert bool(claim_map["v496_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v496_final_promotion"]) is False
+
+    readiness = _read_csv("paper4_v496_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v496"], readiness["ready_v496"], strict=False)
+    )
+    assert bool(readiness_map["review_gate_prioritization_created"]) is True
+    assert bool(readiness_map["gate_dependency_matrix_created"]) is True
+    assert bool(readiness_map["execution_priority_queue_created"]) is True
+    assert bool(readiness_map["claim_boundary_matrix_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v496_claim_matrix_delta.csv")
+    delta_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(delta_map["v496_review_gate_prioritization_created"]) is True
+    assert bool(delta_map["v496_executable_review_gates_identified"]) is True
+    assert bool(delta_map["v496_no_patch_constraints_preserved"]) is True
+    assert bool(delta_map["v496_reviews_or_captions_completed"]) is False
+    assert bool(delta_map["v496_patch_ready_or_applied"]) is False
+    assert bool(delta_map["v496_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v496 prioritizes Paper 4 review gates for execution."])
+    assert bool(boundary_map["v496 identifies immediately executable review gates."])
+    assert bool(boundary_map["v496 preserves no-patch constraints while prioritizing review."])
+    assert bool(boundary_map["v496 completes manual reviews or finalizes captions."]) is False
+    assert (
+        bool(boundary_map["v496 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v496 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v496_rows = backlog.loc[backlog["last_wave"].eq("v496")]
+    assert len(v496_rows) == 1
+    backlog_row = v496_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v497_review_gate_execution_packet.md"
+    assert backlog_row["execution_result"] == "review_gate_prioritization_created_without_mutation"
+
+    prioritization_md = (
+        PAPER4_ROOT / "notes" / "paper4_v496_review_gate_prioritization.md"
+    ).read_text(encoding="utf-8")
+    assert "Review Gate Prioritization v496" in prioritization_md
+    assert "two immediately executable review gates" in prioritization_md
+    assert "v496 is a prioritization packet only" in prioritization_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v496: Review Gate Prioritization" in living_notebook
+    assert "Review gate rows:\n  `6`." in living_notebook
+    assert "Recommended gate rows:\n  `6`." in living_notebook
+    assert "Blocking gate rows:\n  `5`." in living_notebook
+    assert "Dependency rows:\n  `6`." in living_notebook
+    assert "Dependency satisfied rows:\n  `3`." in living_notebook
+    assert "Execution queue rows:\n  `5`." in living_notebook
+    assert "Executable now rows:\n  `2`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

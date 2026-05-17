@@ -1719,3 +1719,9 @@ v495 creates the next executable review-gate queue.,True,reports/paper_material/
 v495 makes Paper 4 ready for Quarto patching or submission.,False,reports/paper_material/paper4/tables/paper4_v495_manuscript_readiness_delta.csv,Patch and submission gates remain open.,True,living_notebook_only
 v495 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v495_release_decision_matrix.csv,Patch is not authorized in v495.,True,living_notebook_only
 v495 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v495_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v496 prioritizes Paper 4 review gates for execution.,True,reports/paper_material/paper4/tables/paper4_v496_review_gate_prioritization.csv,Review-gate prioritization only.,False,living_notebook_only
+v496 identifies immediately executable review gates.,True,reports/paper_material/paper4/tables/paper4_v496_execution_priority_queue.csv,Execution queue only.,False,living_notebook_only
+v496 preserves no-patch constraints while prioritizing review.,True,reports/paper_material/paper4/tables/paper4_v496_gate_dependency_matrix.csv,No-patch dependency matrix only.,False,living_notebook_only
+v496 completes manual reviews or finalizes captions.,False,reports/paper_material/paper4/tables/paper4_v496_execution_priority_queue.csv,"Reviews are prioritized, not completed.",True,living_notebook_only
+v496 makes Paper 4 ready for Quarto patching or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v496_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
+v496 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v496_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

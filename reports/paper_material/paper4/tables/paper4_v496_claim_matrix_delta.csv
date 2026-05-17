@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v496_review_gate_prioritization_created,True,paper4_v496_review_gate_prioritization.csv,prioritization only
+v496_executable_review_gates_identified,True,paper4_v496_execution_priority_queue.csv,review execution queue only
+v496_no_patch_constraints_preserved,True,paper4_v496_gate_dependency_matrix.csv,no-patch guardrail only
+v496_reviews_or_captions_completed,False,paper4_v496_execution_priority_queue.csv,"reviews are prioritized, not completed"
+v496_patch_ready_or_applied,False,paper4_v496_manuscript_readiness_delta.csv,patch remains blocked
+v496_final_promotion,False,paper4_v496_manuscript_readiness_delta.csv,no final promotion claim

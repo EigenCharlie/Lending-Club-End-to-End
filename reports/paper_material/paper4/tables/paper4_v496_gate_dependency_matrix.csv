@@ -1,0 +1,7 @@
+review_gate_id_v496,depends_on_v496,dependency_satisfied_v496,executable_next_v496,dependency_boundary_v496
+manual_layout_surface_review,v492_manual_layout_review_packet_created,True,True,packet exists; manual review pending
+caption_claim_safety_review,v493_draft_captions_and_boundaries_exist,True,True,draft captions exist; safety review pending
+final_caption_signoff,caption_claim_safety_review_completed,False,False,cannot sign off before claim-safety review
+explicit_patch_approval_request,final_caption_signoff_completed,False,False,approval request remains bounded until signoff
+rollback_render_acceptance,explicit_patch_approval_documented,False,False,rollback/render acceptance follows approval
+paper_estrella_boundary_guard,paper4_final_promotion_absent,True,True,guard remains active
