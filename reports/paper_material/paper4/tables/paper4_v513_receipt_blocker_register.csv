@@ -1,0 +1,7 @@
+receipt_blocker_id_v513,blocker_open_v513,blocks_nomination_v513,required_resolution_v513
+no_candidate_identifiers_received,True,True,receive candidate identifiers
+no_nomination_fields_received,True,True,receive nomination fields
+no_nomination_signoff_received,True,True,receive nomination signoff
+no_evidence_received,True,True,receive evidence for requested inputs
+eligibility_review_blocked,True,False,start eligibility only after nomination
+reviewer_assignment_blocked,True,False,assign reviewers only after eligibility

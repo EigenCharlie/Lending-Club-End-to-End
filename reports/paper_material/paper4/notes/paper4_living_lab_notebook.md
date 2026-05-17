@@ -23247,3 +23247,87 @@ inputs were actually received, and must keep all candidate claims blocked if no
 evidence is present.
 
 <!-- V512_CANDIDATE_INPUT_REQUEST_PACKET_END -->
+
+<!-- V513_CANDIDATE_INPUT_RECEIPT_AUDIT_START -->
+
+## Wave v513: Candidate Input Receipt Audit
+
+Generated: 2026-05-17T20:46:03.055542+00:00
+
+### Objective
+
+v513 audits whether the v512 candidate input requests produced received inputs
+or evidence. None are present, so the candidate path remains blocked.
+
+### Results
+
+- Input receipt audit rows:
+  `14`.
+- Open input receipt gap rows:
+  `14`.
+- Candidate input complete rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field and evidence receipt audit rows:
+  `84`.
+- Open field/evidence receipt gap rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Evidence receipt summary rows:
+  `6`.
+- Open evidence gap rows:
+  `6`.
+- Receipt blocker rows:
+  `6`.
+- Open receipt blocker rows:
+  `6`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v514_candidate_input_collection_reminder_packet.md`.
+
+### Interpretation
+
+The candidate input request exists, but no requested input or evidence has been
+received. The next executable artifact should remind or collect inputs, not
+start eligibility review.
+
+### Claim Impact
+
+- Allowed: input receipt audit, field/evidence receipt audit, evidence receipt
+  summary and future input collection reminder readiness.
+- Still prohibited: candidate input receipt, candidate resolution/nomination,
+  reviewer assignment, completed review claims, final captions, Quarto patch
+  readiness/application, Quarto/book mutation, submission readiness, Paper
+  Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v513 in the living notebook. v514 should create an input collection
+reminder packet while preserving the no-fabricated-candidate boundary.
+
+<!-- V513_CANDIDATE_INPUT_RECEIPT_AUDIT_END -->
