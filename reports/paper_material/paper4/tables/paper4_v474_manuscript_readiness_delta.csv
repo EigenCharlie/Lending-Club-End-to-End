@@ -1,0 +1,8 @@
+readiness_gate_v474,ready_v474,evidence_artifact_v474,claim_boundary_v474
+post_domain_manuscript_delta_created,True,paper4_v474_post_domain_manuscript_delta.md,delta only; not final manuscript
+main_text_claims_selected,True,paper4_v474_claim_placement_plan.csv,bounded claim placement only
+limitations_backed_by_blockers,True,paper4_v474_blocker_to_limitations_map.csv,limitations must preserve blockers
+primary_tables_figures_selected,False,paper4_v475_primary_table_figure_selection.md,selection deferred to v475
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book promotion in v474
+submission_ready,False,future venue decision and external validation,venue/external gates remain missing
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -20892,3 +20892,56 @@ Keep v473 in the living notebook. v474 should map this domain execution into a
 post-domain manuscript delta.
 
 <!-- V473_DOMAIN_EXECUTION_SYNTHESIS_END -->
+
+<!-- V474_POST_DOMAIN_MANUSCRIPT_DELTA_START -->
+
+## Wave v474: Post-Domain Manuscript Delta
+
+Generated: 2026-05-17T16:47:38.616680+00:00
+
+### Objective
+
+v474 maps the v467-v473 domain evidence into manuscript sections while
+preserving all open blockers.
+
+### Results
+
+- Manuscript section deltas:
+  `6`.
+- Claim placement rows:
+  `13`.
+- Main-text claim rows:
+  `6`.
+- Appendix claim rows:
+  `7`.
+- Limitation blocker rows:
+  `9`.
+- Primary tables/figures selected:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v475_primary_table_figure_selection.md`.
+
+### Interpretation
+
+The domain evidence is now usable for manuscript editing: a small set of bounded
+claims belongs in the main text, the rest belongs in an appendix, and the main
+limitations are backed by explicit blocker rows.
+
+### Claim Impact
+
+- Allowed: manuscript-section delta, bounded claim placement, blocker-backed
+  limitations.
+- Still prohibited: primary table/figure finalization, submission readiness,
+  Quarto/book-reference promotion, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v474 in the living notebook. v475 should select primary tables and figures
+without editing book sources.
+
+<!-- V474_POST_DOMAIN_MANUSCRIPT_DELTA_END -->

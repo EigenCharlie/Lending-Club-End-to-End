@@ -54034,6 +54034,128 @@ def test_paper4_v473_domain_execution_synthesis_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v474_post_domain_manuscript_delta_is_guarded() -> None:
+    status = _read_json("paper4_v474_status.json")
+    assert status["phase"] == "v474_post_domain_manuscript_delta"
+    assert status["schema_version"] == "2026-05-17.474"
+    assert status["prior_domain_synthesis_version_v474"] == 473
+    assert status["post_domain_manuscript_delta_created_v474"] is True
+    assert status["manuscript_section_delta_rows_v474"] == 6
+    assert status["claim_placement_rows_v474"] == 13
+    assert status["main_text_claim_rows_v474"] == 6
+    assert status["appendix_claim_rows_v474"] == 7
+    assert status["limitation_blocker_rows_v474"] == 9
+    assert status["readiness_delta_rows_v474"] == 7
+    assert status["primary_tables_figures_selected_v474"] is False
+    assert status["book_sources_modified_v474"] is False
+    assert status["book_references_modified_v474"] is False
+    assert status["submission_ready_claim_allowed_v474"] is False
+    assert status["working_champion_claim_allowed_v474"] is False
+    assert status["paper1_promotion_allowed_v474"] is False
+    assert status["paper4_working_champion_changed_v474"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v474"] == "paper4_v475_primary_table_figure_selection.md"
+
+    sections = _read_csv("paper4_v474_manuscript_section_delta.csv")
+    assert len(sections) == 6
+    assert set(sections["manuscript_section_v474"]) == {
+        "abstract",
+        "methods_protocol",
+        "results_evidence",
+        "discussion_limitations",
+        "appendix_reproducibility",
+        "references",
+    }
+    section_map = dict(
+        zip(sections["manuscript_section_v474"], sections["main_text_claim_allowed_v474"], strict=False)
+    )
+    assert bool(section_map["abstract"]) is True
+    assert bool(section_map["methods_protocol"]) is True
+    assert bool(section_map["results_evidence"]) is True
+    assert bool(section_map["discussion_limitations"]) is True
+    assert bool(section_map["appendix_reproducibility"]) is False
+    assert bool(section_map["references"]) is False
+
+    placement = _read_csv("paper4_v474_claim_placement_plan.csv")
+    assert len(placement) == 13
+    assert placement["recommended_placement_v474"].eq("main_text").sum() == 6
+    assert placement["recommended_placement_v474"].eq("appendix").sum() == 7
+    main_claims = set(
+        placement.loc[
+            placement["recommended_placement_v474"].eq("main_text"),
+            "claim_id_v474",
+        ]
+    )
+    assert "v467_v353_local_return_cvar_frontier" in main_claims
+    assert "v468_grade_a_primary_blocker_documented" in main_claims
+    assert "v472_contractual_requirement_gap_documented" in main_claims
+
+    limitations = _read_csv("paper4_v474_blocker_to_limitations_map.csv")
+    assert len(limitations) == 9
+    assert limitations["limitation_language_required_v474"].astype(bool).all()
+    assert "proxy_gap_persists_on_local_frontier" in set(limitations["blocker_id_v473"])
+    assert "v353_dynamic_proxy_trace_missing" in set(limitations["blocker_id_v473"])
+    assert "v353_ifrs9_proxy_gate_missing" in set(limitations["blocker_id_v473"])
+    assert "paper4_final_promotion_forbidden" in set(limitations["blocker_id_v473"])
+
+    readiness = _read_csv("paper4_v474_manuscript_readiness_delta.csv")
+    readiness_map = dict(zip(readiness["readiness_gate_v474"], readiness["ready_v474"], strict=False))
+    assert bool(readiness_map["post_domain_manuscript_delta_created"]) is True
+    assert bool(readiness_map["main_text_claims_selected"]) is True
+    assert bool(readiness_map["limitations_backed_by_blockers"]) is True
+    assert bool(readiness_map["primary_tables_figures_selected"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v474_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v474_post_domain_manuscript_delta_created"]) is True
+    assert bool(claim_map["v474_main_text_and_appendix_claims_mapped"]) is True
+    assert bool(claim_map["v474_limitations_backed_by_open_blockers"]) is True
+    assert bool(claim_map["v474_primary_tables_figures_finalized"]) is False
+    assert bool(claim_map["v474_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v474 maps post-domain evidence into manuscript sections."])
+    assert bool(boundary_map["v474 maps bounded claims to main text and appendix placement."])
+    assert bool(boundary_map["v474 finalizes Paper 4 primary tables and figures."]) is False
+    assert bool(boundary_map["v474 makes Paper 4 submission-ready."]) is False
+    assert bool(boundary_map["v474 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v474_rows = backlog.loc[backlog["last_wave"].eq("v474")]
+    assert len(v474_rows) == 1
+    backlog_row = v474_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v475_primary_table_figure_selection.md"
+    assert (
+        backlog_row["execution_result"]
+        == "domain_evidence_mapped_to_manuscript_without_promotion"
+    )
+
+    delta_md = (
+        PAPER4_ROOT / "notes" / "paper4_v474_post_domain_manuscript_delta.md"
+    ).read_text(encoding="utf-8")
+    assert "Post-Domain Manuscript Delta v474" in delta_md
+    assert "maps the six-lane domain execution synthesis" in delta_md
+    assert "does not select final tables/figures" in delta_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v474: Post-Domain Manuscript Delta" in living_notebook
+    assert "Manuscript section deltas:\n  `6`." in living_notebook
+    assert "Claim placement rows:\n  `13`." in living_notebook
+    assert "Main-text claim rows:\n  `6`." in living_notebook
+    assert "Appendix claim rows:\n  `7`." in living_notebook
+    assert "Limitation blocker rows:\n  `9`." in living_notebook
+    assert "Primary tables/figures selected:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

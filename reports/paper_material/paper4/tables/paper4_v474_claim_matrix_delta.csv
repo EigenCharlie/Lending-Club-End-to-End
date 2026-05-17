@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v474_post_domain_manuscript_delta_created,True,paper4_v474_post_domain_manuscript_delta.md,manuscript delta only
+v474_main_text_and_appendix_claims_mapped,True,paper4_v474_claim_placement_plan.csv,bounded placement plan only
+v474_limitations_backed_by_open_blockers,True,paper4_v474_blocker_to_limitations_map.csv,limitation mapping only
+v474_primary_tables_figures_finalized,False,paper4_v474_manuscript_readiness_delta.csv,selection deferred to v475
+v474_submission_ready_or_final_promotion,False,paper4_v474_manuscript_readiness_delta.csv,"venue, external validation and final promotion remain blocked"
