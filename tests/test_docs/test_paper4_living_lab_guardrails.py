@@ -42653,6 +42653,128 @@ def test_paper4_v385_validation_gap_triage_isolates_quarto_failure() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v386_quarto_registration_gap_decision_selects_archive_policy() -> None:
+    status = _read_json("paper4_v386_status.json")
+
+    assert status["phase"] == "v386_quarto_registration_gap_decision"
+    assert status["schema_version"] == "2026-05-17.386"
+    assert status["prior_validation_version_v386"] == 385
+    assert status["missing_page_rows_v386"] == 70
+    assert status["archive_manifest_rows_v386"] == 70
+    assert status["policy_option_rows_v386"] == 5
+    assert status["decision_rows_v386"] == 5
+    assert status["claim_blocker_rows_v386"] == 4
+    assert status["claim_matrix_rows_v386"] == 6
+    assert status["selected_policy_rows_v386"] == 1
+    assert status["selected_policy_v386"] == (
+        "archive_in_place_with_manifested_guardrail_exemption"
+    )
+    assert status["archive_in_place_policy_selected_v386"] is True
+    assert status["register_all_historical_pages_v386"] is False
+    assert status["delete_historical_pages_v386"] is False
+    assert status["move_historical_pages_v386"] is False
+    assert status["preserve_historical_pages_v386"] is True
+    assert status["guardrail_patch_applied_v386"] is False
+    assert status["book_quarto_mutated_v386"] is False
+    assert status["quarto_registration_guardrail_clean_v386"] is False
+    assert status["full_regression_suite_clean_v386"] is False
+    assert status["working_champion_claim_allowed_v386"] is False
+    assert status["paper1_promotion_allowed_v386"] is False
+    assert status["paper4_working_champion_changed_v386"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v386"] == "paper4_v387_quarto_archive_guardrail_patch.csv"
+
+    manifest = _read_csv("paper4_v386_quarto_archive_manifest.csv")
+    assert len(manifest) == 70
+    assert manifest["selected_policy_v386"].eq(status["selected_policy_v386"]).all()
+    assert not manifest["register_in_book_v386"].astype(bool).any()
+    assert not manifest["move_file_v386"].astype(bool).any()
+    assert not manifest["delete_file_v386"].astype(bool).any()
+    assert manifest["guardrail_exception_needed_v386"].astype(bool).all()
+    assert manifest["archive_manifest_needed_v386"].astype(bool).all()
+    assert not manifest["curated_page_v386"].astype(bool).any()
+    assert manifest["archived_page_v386"].iloc[0] == (
+        "chapters/19-paper-mega-extension/19aa-v3-full-exact-and-ifrs9-realistic.qmd"
+    )
+    assert manifest["archived_page_v386"].iloc[-1] == (
+        "chapters/19-paper-mega-extension/19z-next-wave-promotion-dashboard.qmd"
+    )
+
+    policy = _read_csv("paper4_v386_quarto_registration_policy_matrix.csv")
+    selected = policy.loc[policy["selected_v386"].astype(bool)]
+    assert len(selected) == 1
+    assert selected.iloc[0]["policy_option_v386"] == status["selected_policy_v386"]
+    rejected = set(policy.loc[policy["decision_v386"].eq("rejected"), "policy_option_v386"])
+    assert {"register_all_historical_pages_in_book", "delete_historical_pages"}.issubset(
+        rejected
+    )
+
+    decisions = _read_csv("paper4_v386_quarto_registration_gap_decision.csv")
+    decision_map = dict(zip(decisions["decision_id_v386"], decisions["allowed_v386"], strict=False))
+    assert bool(decision_map["selected_archive_policy"]) is True
+    assert bool(decision_map["register_historical_pages_in_book"]) is False
+    assert bool(decision_map["preserve_historical_pages_on_disk"]) is True
+    assert bool(decision_map["apply_guardrail_patch"]) is False
+    assert bool(decision_map["paper4_final_promotion"]) is False
+
+    blockers = _read_csv("paper4_v386_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v386"], blockers["blocking_v386"], strict=False))
+    assert bool(blocker_map["guardrail_patch_not_applied"]) is True
+    assert bool(blocker_map["quarto_registration_guardrail_still_not_clean"]) is True
+    assert bool(blocker_map["full_regression_suite_clean_not_claimed"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v386_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v386_quarto_registration_gap_decision_created"]) is True
+    assert bool(claim_map["v386_archive_manifest_draft_created"]) is True
+    assert bool(claim_map["v386_archive_in_place_policy_selected"]) is True
+    assert bool(claim_map["v386_book_config_or_guardrail_patched"]) is False
+    assert bool(claim_map["v386_full_regression_suite_clean"]) is False
+    assert bool(claim_map["v386_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v386 selects an explicit archive policy for historical Quarto pages."]
+    )
+    assert bool(
+        boundary_map["v386 preserves historical Paper 4 pages without rendering them."]
+    )
+    assert (
+        bool(boundary_map["v386 fixes the Quarto registration guardrail or full regression suite."])
+        is False
+    )
+    assert bool(boundary_map["v386 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v386_rows = backlog.loc[backlog["last_wave"].eq("v386")]
+    assert len(v386_rows) == 1
+    backlog_row = v386_rows.iloc[0]
+    assert backlog_row["status"] == "quarto_registration_gap_decision_created"
+    assert backlog_row["next_artifact"] == "paper4_v387_quarto_archive_guardrail_patch.csv"
+    assert backlog_row["execution_result"] == (
+        "archive_in_place_policy_selected_guardrail_patch_deferred"
+    )
+
+    decision_md = (
+        PAPER4_ROOT / "notes" / "paper4_v386_quarto_registration_gap_decision.md"
+    ).read_text(encoding="utf-8")
+    assert status["selected_policy_v386"] in decision_md
+    assert "does not mutate `book/_quarto.yml`" in decision_md
+    assert "paper4_v387_quarto_archive_guardrail_patch.csv" in decision_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v386: Quarto Registration Gap Decision" in notebook
+    assert "Missing page rows reviewed:\n  `70`" in notebook
+    assert "Guardrail patch applied:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

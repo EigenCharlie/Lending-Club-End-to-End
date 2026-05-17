@@ -16285,3 +16285,55 @@ Keep v385 in the living notebook. v386 should decide what to do with the
 historical standalone Quarto pages without promoting Paper 4.
 
 <!-- V385_VALIDATION_GAP_TRIAGE_END -->
+
+<!-- V386_QUARTO_REGISTRATION_GAP_DECISION_START -->
+
+## Wave v386: Quarto Registration Gap Decision
+
+Generated: 2026-05-17T06:26:41.809328+00:00
+
+### Objective
+
+v386 decides what to do with the 70 historical standalone Quarto pages isolated
+by v385.
+
+### Results
+
+- Missing page rows reviewed:
+  `70`.
+- Archive manifest draft rows:
+  `70`.
+- Selected policy:
+  `archive_in_place_with_manifested_guardrail_exemption`.
+- Register all historical pages in book:
+  `False`.
+- Guardrail patch applied:
+  `False`.
+- Book config mutated:
+  `False`.
+- Full regression suite clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v387_quarto_archive_guardrail_patch.csv`.
+
+### Interpretation
+
+The right immediate path is not to render every historical wave page. The archive
+policy preserves the living-lab trace while keeping the official Paper 4 chapter
+curated and bounded.
+
+### Claim Impact
+
+- Allowed: v386 selected an archive-in-place policy and produced a draft archive
+  manifest.
+- Still prohibited: Quarto guardrail fixed, full-regression-clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v386 in the living notebook. v387 should convert the decision into a narrow
+guardrail patch and stable archive manifest.
+
+<!-- V386_QUARTO_REGISTRATION_GAP_DECISION_END -->
