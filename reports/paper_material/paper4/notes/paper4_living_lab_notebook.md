@@ -23163,3 +23163,87 @@ Keep v511 in the living notebook. v512 should create a candidate input request
 packet with explicit evidence requirements and still no fabricated candidates.
 
 <!-- V511_POST_ENTRY_CANDIDATE_RESOLUTION_AUDIT_END -->
+
+<!-- V512_CANDIDATE_INPUT_REQUEST_PACKET_START -->
+
+## Wave v512: Candidate Input Request Packet
+
+Generated: 2026-05-17T20:39:50.957710+00:00
+
+### Objective
+
+v512 creates the request surface for candidate inputs and evidence. It asks for
+candidate identifiers and nomination fields, but it does not receive or record
+them.
+
+### Results
+
+- Input request rows:
+  `14`.
+- Candidate identifier request rows:
+  `14`.
+- Nomination field request rows:
+  `14`.
+- Nomination signoff request rows:
+  `14`.
+- Evidence request rows:
+  `14`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Input field request rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Evidence requirement rows:
+  `6`.
+- Active evidence requirement rows:
+  `6`.
+- Input request control rows:
+  `6`.
+- Active input request control rows:
+  `6`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v513_candidate_input_receipt_audit.md`.
+
+### Interpretation
+
+The candidate-resolution track now has an explicit input request and evidence
+contract. The request itself is not evidence of receipt, nomination or reviewer
+assignment.
+
+### Claim Impact
+
+- Allowed: candidate input request creation, field request matrix, evidence
+  requirement register and future input receipt audit readiness.
+- Still prohibited: candidate input receipt, candidate resolution/nomination,
+  reviewer assignment, completed review claims, final captions, Quarto patch
+  readiness/application, Quarto/book mutation, submission readiness, Paper
+  Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v512 in the living notebook. v513 should audit whether requested candidate
+inputs were actually received, and must keep all candidate claims blocked if no
+evidence is present.
+
+<!-- V512_CANDIDATE_INPUT_REQUEST_PACKET_END -->
