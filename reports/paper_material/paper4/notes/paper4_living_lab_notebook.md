@@ -16602,3 +16602,50 @@ Keep v391 in the living notebook. v392 should decide notebook lint policy before
 bulk notebook mutation.
 
 <!-- V391_TARGETED_LINT_REPAIR_BATCH_END -->
+
+<!-- V392_NOTEBOOK_LINT_POLICY_START -->
+
+## Wave v392: Notebook Lint Policy
+
+Generated: 2026-05-17T07:17:50.642771+00:00
+
+### Objective
+
+v392 defines how to approach notebook lint after v391 reduced the Paper 4
+guardrail lint subset.
+
+### Results
+
+- Notebook diagnostics:
+  `158`.
+- Notebook fixable diagnostics:
+  `22`.
+- Selected policy:
+  `dry_run_first_no_bulk_notebook_mutation`.
+- Notebook bulk mutation applied:
+  `False`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v393_notebook_lint_dry_run_manifest.csv`.
+
+### Interpretation
+
+The notebook lint surface is too large and provenance-sensitive for blind bulk
+rewrite. The next wave should produce a dry-run manifest that classifies each
+notebook diagnostic before any notebook files are changed.
+
+### Claim Impact
+
+- Allowed: notebook lint policy and frontier classification.
+- Still prohibited: notebook repaired, global ruff clean, champion replacement
+  and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v392 in the living notebook. v393 should build the no-mutation dry-run
+manifest.
+
+<!-- V392_NOTEBOOK_LINT_POLICY_END -->

@@ -1,0 +1,5 @@
+blocker_id_v392,blocking_v392,evidence_count_v392,required_next_artifact_v392,claim_boundary_v392
+notebook_bulk_mutation_not_allowed_yet,True,158,paper4_v393_notebook_lint_dry_run_manifest.csv,dry-run manifest required before notebook mutation
+global_ruff_not_clean,True,262,paper4_v393_notebook_lint_dry_run_manifest.csv,global ruff remains blocked
+notebook_f821_requires_execution_context,True,1,paper4_v393_notebook_lint_dry_run_manifest.csv,undefined-name notebook issue cannot be auto-fixed blindly
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

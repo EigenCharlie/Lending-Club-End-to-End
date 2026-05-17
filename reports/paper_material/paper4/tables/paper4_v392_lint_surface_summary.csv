@@ -1,0 +1,5 @@
+surface_v392,diagnostic_count_v392,fixable_count_v392,dominant_rule_v392,dominant_rule_count_v392,mutation_policy_v392,claim_boundary_v392
+notebooks,158,22,E402,119,dry_run_first_no_bulk_notebook_mutation,notebooks are not mutated in v392
+streamlit_app,58,0,E402,50,separate_page_by_page_repair,streamlit lint remains a later batch
+scripts,44,44,B023,7,small_script_batches_with_tests,legacy scripts need scoped validation
+book,2,2,I001,1,safe_helper_cleanup_later,book helper cleanup not applied in v392
