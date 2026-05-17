@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v451_bounded_release_readiness_synthesis_written,True,paper4_v451_release_readiness_synthesis.md,synthesis artifact only
+v451_validation_gates_clean,True,paper4_v451_release_readiness_gate_summary.csv,"pytest, Ruff and Quarto gates only"
+v451_manuscript_extraction_complete,False,paper4_v451_remaining_blockers.csv,manuscript extraction deferred to v452
+v451_external_validation_complete,False,paper4_v451_remaining_blockers.csv,no external dataset validation is run
+v451_release_ready_or_final_promotion,False,paper4_v451_remaining_blockers.csv,bounded readiness is not final promotion
+v451_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

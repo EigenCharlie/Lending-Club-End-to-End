@@ -19719,3 +19719,53 @@ Keep v450 in the living notebook. v451 should write the bounded readiness
 synthesis without creating final promotion.
 
 <!-- V450_POST_FULL_BOOK_RENDER_PYTEST_PROBE_END -->
+
+<!-- V451_RELEASE_READINESS_SYNTHESIS_START -->
+
+## Wave v451: Bounded Release-Readiness Synthesis
+
+Generated: 2026-05-17T14:42:56.047527+00:00
+
+### Objective
+
+v451 consolidates v447-v450 clean validation gates into bounded release-readiness
+language without creating a final Paper 4 promotion.
+
+### Results
+
+- Clean validation gates:
+  `6` /
+  `6`.
+- Bounded release-readiness language allowed:
+  `True`.
+- Manuscript extraction complete:
+  `False`.
+- External validation complete:
+  `False`.
+- Final promotion absent:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v452_manuscript_extraction_scaffold.md`.
+
+### Interpretation
+
+Paper 4 now has a clean bounded-readiness validation stack: full pytest, global
+Ruff, official Paper 4 Quarto render, full-book render, archive governance and
+no-promotion gate. This supports extraction into manuscript language, but still
+does not make the paper final or externally validated.
+
+### Claim Impact
+
+- Allowed: bounded release-readiness synthesis and clean validation-gate
+  language.
+- Still prohibited: manuscript-complete, external-validation, champion
+  replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v451 in the living notebook. v452 should extract a manuscript scaffold
+without final promotion.
+
+<!-- V451_RELEASE_READINESS_SYNTHESIS_END -->

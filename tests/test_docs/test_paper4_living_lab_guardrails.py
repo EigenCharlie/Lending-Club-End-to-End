@@ -51625,6 +51625,103 @@ def test_paper4_v450_post_full_book_render_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v451_release_readiness_synthesis_is_guarded() -> None:
+    status = _read_json("paper4_v451_status.json")
+
+    assert status["phase"] == "v451_release_readiness_synthesis"
+    assert status["schema_version"] == "2026-05-17.451"
+    assert status["prior_post_render_pytest_version_v451"] == 450
+    assert status["validation_gate_count_v451"] == 6
+    assert status["clean_validation_gate_count_v451"] == 6
+    assert status["all_validation_gates_clean_v451"] is True
+    assert status["post_render_full_repository_pytest_clean_v451"] is True
+    assert status["repository_ruff_clean_v451"] is True
+    assert status["paper4_official_quarto_render_clean_v451"] is True
+    assert status["full_book_render_clean_v451"] is True
+    assert status["paper4_archive_policy_preserved_v451"] is True
+    assert status["paper4_final_promotion_absent_v451"] is True
+    assert status["bounded_release_readiness_language_allowed_v451"] is True
+    assert status["release_readiness_synthesis_written_v451"] is True
+    assert status["manuscript_extraction_complete_v451"] is False
+    assert status["external_validation_complete_v451"] is False
+    assert status["working_champion_claim_allowed_v451"] is False
+    assert status["paper1_promotion_allowed_v451"] is False
+    assert status["paper4_working_champion_changed_v451"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v451"] == "paper4_v452_manuscript_extraction_scaffold.md"
+
+    gates = _read_csv("paper4_v451_release_readiness_gate_summary.csv")
+    assert len(gates) == 6
+    assert gates["passed_v451"].astype(bool).all()
+    gate_map = {
+        row["gate_id_v451"]: row
+        for _, row in gates.iterrows()
+    }
+    assert int(gate_map["post_render_full_repository_pytest"]["evidence_count_v451"]) == 1188
+    assert int(gate_map["repository_ruff_clean"]["evidence_count_v451"]) == 0
+    assert int(gate_map["paper4_official_quarto_render"]["evidence_count_v451"]) == 10
+    assert int(gate_map["full_book_quarto_render"]["evidence_count_v451"]) == 122
+    assert int(gate_map["paper4_archive_policy_preserved"]["evidence_count_v451"]) == 0
+    assert int(gate_map["paper4_final_promotion_absent"]["evidence_count_v451"]) == 1
+
+    language = _read_csv("paper4_v451_publishable_language_bank.csv")
+    language_map = dict(zip(language["language_id_v451"], language["allowed_v451"], strict=False))
+    assert bool(language_map["bounded_readiness_allowed"]) is True
+    assert bool(language_map["paper4_inside_full_book_allowed"]) is True
+    assert bool(language_map["release_ready_prohibited"]) is False
+    assert bool(language_map["champion_replacement_prohibited"]) is False
+
+    blockers = _read_csv("paper4_v451_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v451"], blockers["blocking_v451"], strict=False))
+    assert bool(blocker_map["manuscript_extraction_not_written"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v451_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v451_bounded_release_readiness_synthesis_written"]) is True
+    assert bool(claim_map["v451_validation_gates_clean"]) is True
+    assert bool(claim_map["v451_manuscript_extraction_complete"]) is False
+    assert bool(claim_map["v451_external_validation_complete"]) is False
+    assert bool(claim_map["v451_release_ready_or_final_promotion"]) is False
+    assert bool(claim_map["v451_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v451 synthesizes bounded release-readiness gates for Paper 4."])
+    assert bool(boundary_map["v451 validation gates are clean for bounded release readiness."])
+    assert bool(boundary_map["v451 completes manuscript extraction or external validation."]) is False
+    assert bool(boundary_map["v451 makes Paper 4 final, submitted, or release-promoted."]) is False
+    assert bool(boundary_map["v451 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v451_rows = backlog.loc[backlog["last_wave"].eq("v451")]
+    assert len(v451_rows) == 1
+    backlog_row = v451_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v452_manuscript_extraction_scaffold.md"
+    assert backlog_row["execution_result"] == "clean_validation_gates_synthesized_without_promotion"
+
+    synthesis_md = (
+        PAPER4_ROOT / "notes" / "paper4_v451_release_readiness_synthesis.md"
+    ).read_text(encoding="utf-8")
+    assert "v451 consolidates the clean validation gates" in synthesis_md
+    assert "Full repository pytest after full-book render:\n  `True`." in synthesis_md
+    assert "Repository Ruff:\n  `True`." in synthesis_md
+    assert "Full official Quarto book render:\n  `True`." in synthesis_md
+    assert "Do not claim that Paper 4 is final" in synthesis_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v451: Bounded Release-Readiness Synthesis" in living_notebook
+    assert "Clean validation gates:\n  `6` /\n  `6`." in living_notebook
+    assert "Bounded release-readiness language allowed:\n  `True`." in living_notebook
+    assert "Manuscript extraction complete:\n  `False`." in living_notebook
+    assert "External validation complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
