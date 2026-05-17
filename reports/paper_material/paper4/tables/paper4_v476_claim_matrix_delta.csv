@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v476_draft_captions_created,True,paper4_v476_caption_plan.csv,draft captions only
+v476_insertion_plan_created,True,paper4_v476_insertion_plan.csv,plan only; no Quarto edit
+v476_asset_caveats_mapped,True,paper4_v476_asset_caveat_matrix.csv,caveat map only
+v476_assets_inserted_or_captions_final,False,paper4_v476_manuscript_readiness_delta.csv,no insertion or final captions
+v476_submission_ready_or_final_promotion,False,paper4_v476_manuscript_readiness_delta.csv,no submission or final promotion claim

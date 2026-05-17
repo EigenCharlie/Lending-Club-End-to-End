@@ -1606,3 +1606,8 @@ v475 selects primary Paper 4 figures for a manuscript draft.,True,reports/paper_
 v475 finalizes or inserts Paper 4 tables and figures.,False,reports/paper_material/paper4/tables/paper4_v475_manuscript_readiness_delta.csv,Captions and insertion plan are deferred to v476.,True,living_notebook_only
 v475 makes Paper 4 submission-ready.,False,reports/paper_material/paper4/tables/paper4_v475_manuscript_readiness_delta.csv,"Venue, external validation and manuscript insertion remain open.",True,living_notebook_only
 v475 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v475_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v476 creates draft captions for selected Paper 4 assets.,True,reports/paper_material/paper4/tables/paper4_v476_caption_plan.csv,Draft captions only.,False,living_notebook_only
+v476 creates an insertion plan for selected Paper 4 assets.,True,reports/paper_material/paper4/tables/paper4_v476_insertion_plan.csv,Plan only; no Quarto edit.,False,living_notebook_only
+v476 inserts assets or finalizes captions in Quarto.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,No book source mutation in v476.,True,living_notebook_only
+v476 makes Paper 4 submission-ready.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,Venue and manuscript edit gates remain open.,True,living_notebook_only
+v476 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

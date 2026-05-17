@@ -20996,3 +20996,54 @@ Keep v475 in the living notebook. v476 should write captions and an insertion
 plan without editing book sources.
 
 <!-- V475_PRIMARY_TABLE_FIGURE_SELECTION_END -->
+
+<!-- V476_CAPTION_AND_INSERTION_PLAN_START -->
+
+## Wave v476: Caption and Insertion Plan
+
+Generated: 2026-05-17T17:00:14.826209+00:00
+
+### Objective
+
+v476 drafts captions and an insertion plan for the v475 table/figure package
+without editing Quarto sources.
+
+### Results
+
+- Caption rows:
+  `10`.
+- Insertion rows:
+  `10`.
+- Caveat rows:
+  `10`.
+- Captions final:
+  `False`.
+- Assets inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v477_post_visual_package_manuscript_delta.md`.
+
+### Interpretation
+
+The visual package is now editorially usable: every selected asset has a draft
+caption, insertion order and caveat. It is still not inserted or final.
+
+### Claim Impact
+
+- Allowed: draft captions, insertion order and caveat map.
+- Still prohibited: asset insertion, final captions, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v476 in the living notebook. v477 should map the visual package back into
+the manuscript delta without editing book sources.
+
+<!-- V476_CAPTION_AND_INSERTION_PLAN_END -->

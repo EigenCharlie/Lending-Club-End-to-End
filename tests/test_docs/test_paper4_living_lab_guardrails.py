@@ -54266,6 +54266,99 @@ def test_paper4_v475_primary_table_figure_selection_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v476_caption_and_insertion_plan_is_guarded() -> None:
+    status = _read_json("paper4_v476_status.json")
+    assert status["phase"] == "v476_caption_and_insertion_plan"
+    assert status["schema_version"] == "2026-05-17.476"
+    assert status["prior_table_figure_selection_version_v476"] == 475
+    assert status["caption_and_insertion_plan_created_v476"] is True
+    assert status["caption_rows_v476"] == 10
+    assert status["insertion_rows_v476"] == 10
+    assert status["asset_caveat_rows_v476"] == 10
+    assert status["captions_final_v476"] is False
+    assert status["assets_inserted_into_quarto_v476"] is False
+    assert status["book_sources_modified_v476"] is False
+    assert status["book_references_modified_v476"] is False
+    assert status["submission_ready_claim_allowed_v476"] is False
+    assert status["working_champion_claim_allowed_v476"] is False
+    assert status["paper1_promotion_allowed_v476"] is False
+    assert status["paper4_working_champion_changed_v476"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v476"] == "paper4_v477_post_visual_package_manuscript_delta.md"
+
+    captions = _read_csv("paper4_v476_caption_plan.csv")
+    assert len(captions) == 10
+    assert set(captions["asset_type_v476"]) == {"table", "figure"}
+    assert not captions["caption_final_v476"].astype(bool).any()
+    assert captions["draft_caption_v476"].str.len().min() > 40
+    assert "T1" in set(captions["asset_id_v476"])
+    assert "F4" in set(captions["asset_id_v476"])
+
+    insertion = _read_csv("paper4_v476_insertion_plan.csv")
+    assert len(insertion) == 10
+    assert list(insertion["insertion_order_v476"]) == list(range(1, 11))
+    assert not insertion["inserted_into_quarto_v476"].astype(bool).any()
+    assert insertion.iloc[0]["asset_id_v476"] == "T5"
+    assert insertion.iloc[-1]["asset_id_v476"] == "T6"
+
+    caveats = _read_csv("paper4_v476_asset_caveat_matrix.csv")
+    assert len(caveats) == 10
+    assert caveats["caveat_required_v476"].astype(bool).all()
+    assert not caveats["final_caption_or_insertion_allowed_v476"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v476_manuscript_readiness_delta.csv")
+    readiness_map = dict(zip(readiness["readiness_gate_v476"], readiness["ready_v476"], strict=False))
+    assert bool(readiness_map["draft_captions_created"]) is True
+    assert bool(readiness_map["insertion_plan_created"]) is True
+    assert bool(readiness_map["asset_caveats_mapped"]) is True
+    assert bool(readiness_map["captions_final"]) is False
+    assert bool(readiness_map["assets_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+
+    claim_delta = _read_csv("paper4_v476_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v476_draft_captions_created"]) is True
+    assert bool(claim_map["v476_insertion_plan_created"]) is True
+    assert bool(claim_map["v476_asset_caveats_mapped"]) is True
+    assert bool(claim_map["v476_assets_inserted_or_captions_final"]) is False
+    assert bool(claim_map["v476_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v476 creates draft captions for selected Paper 4 assets."])
+    assert bool(boundary_map["v476 creates an insertion plan for selected Paper 4 assets."])
+    assert bool(boundary_map["v476 inserts assets or finalizes captions in Quarto."]) is False
+    assert bool(boundary_map["v476 makes Paper 4 submission-ready."]) is False
+    assert bool(boundary_map["v476 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v476_rows = backlog.loc[backlog["last_wave"].eq("v476")]
+    assert len(v476_rows) == 1
+    backlog_row = v476_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v477_post_visual_package_manuscript_delta.md"
+    assert backlog_row["execution_result"] == "draft_captions_insertion_plan_without_quarto_edit"
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v476_caption_and_insertion_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Caption and Insertion Plan v476" in plan_md
+    assert "no asset" in plan_md
+    assert "does not edit Quarto" in plan_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v476: Caption and Insertion Plan" in living_notebook
+    assert "Caption rows:\n  `10`." in living_notebook
+    assert "Insertion rows:\n  `10`." in living_notebook
+    assert "Captions final:\n  `False`." in living_notebook
+    assert "Assets inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

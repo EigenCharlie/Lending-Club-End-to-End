@@ -1,0 +1,7 @@
+readiness_gate_v476,ready_v476,evidence_artifact_v476,claim_boundary_v476
+draft_captions_created,True,paper4_v476_caption_plan.csv,draft captions only
+insertion_plan_created,True,paper4_v476_insertion_plan.csv,plan only; no Quarto edit
+asset_caveats_mapped,True,paper4_v476_asset_caveat_matrix.csv,caveat mapping only
+captions_final,False,future_caption_editing,draft captions not final
+assets_inserted_into_quarto,False,book sources unchanged,no Quarto/book promotion in v476
+submission_ready,False,future venue and manuscript edit,selection and captions are not submission package
