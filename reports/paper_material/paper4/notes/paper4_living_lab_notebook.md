@@ -18070,3 +18070,55 @@ Keep v421 in the living notebook. v422 should run the post-GPU-style full
 pytest probe.
 
 <!-- V421_NOTEBOOK_GPU_STYLE_LINT_PATCH_END -->
+
+<!-- V422_NOTEBOOK_GPU_STYLE_POST_PATCH_PYTEST_PROBE_START -->
+
+## Wave v422: Post-GPU-Style Pytest Probe
+
+Generated: 2026-05-17T10:26:52.614508+00:00
+
+### Objective
+
+v422 runs full repository pytest after v421 clears the GPU side-project
+notebook style-lint frontier.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1160`.
+- Pytest summary:
+  `=========== 1160 passed, 2 skipped, 13 warnings in 135.84s (0:02:15) ===========`.
+- Notebook diagnostics:
+  `0`.
+- Notebook ruff clean:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v423_repository_ruff_frontier_after_notebook_clean.md`.
+
+### Interpretation
+
+The GPU notebook patch passed the repository pytest probe and notebook lint
+remained clean. The next frontier is repository-wide ruff classification, not a
+Paper Estrella or final Paper 4 promotion.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after notebook lint clearance.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v422 in the living notebook. v423 should classify the repository ruff
+frontier after notebook lint is clean.
+
+<!-- V422_NOTEBOOK_GPU_STYLE_POST_PATCH_PYTEST_PROBE_END -->

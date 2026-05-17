@@ -1,0 +1,2 @@
+probe_id_v422,command_v422,exit_code_v422,passed_v422,runtime_seconds_v422,collected_items_v422,summary_line_v422,claim_boundary_v422
+full_repository_pytest,uv run pytest -q --tb=short,0,True,147.236,1160,"=========== 1160 passed, 2 skipped, 13 warnings in 135.84s (0:02:15) ===========",post-GPU-style notebook patch pytest probe

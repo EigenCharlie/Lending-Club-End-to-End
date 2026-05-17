@@ -46742,6 +46742,125 @@ def test_paper4_v421_notebook_gpu_style_lint_patch_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v422_notebook_gpu_style_post_patch_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v422_status.json")
+
+    assert status["phase"] == "v422_notebook_gpu_style_post_patch_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.422"
+    assert status["prior_gpu_style_patch_version_v422"] == 421
+    assert status["pytest_command_v422"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v422"] == 0
+    assert status["pytest_passed_v422"] is True
+    assert status["pytest_collected_items_v422"] == 1160
+    assert "1160 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v422"]
+    assert status["global_notebook_diagnostics_v422"] == 0
+    assert status["global_notebook_e712_v422"] == 0
+    assert status["global_notebook_sim102_v422"] == 0
+    assert status["global_notebook_sim108_v422"] == 0
+    assert status["notebook_ruff_clean_v422"] is True
+    assert status["repository_ruff_clean_v422"] is False
+    assert status["full_repository_pytest_run_v422"] is True
+    assert status["full_repository_pytest_passed_v422"] is True
+    assert status["full_quarto_render_run_v422"] is False
+    assert status["working_champion_claim_allowed_v422"] is False
+    assert status["paper1_promotion_allowed_v422"] is False
+    assert status["paper4_working_champion_changed_v422"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v422"]
+        == "paper4_v423_repository_ruff_frontier_after_notebook_clean.md"
+    )
+
+    pytest_summary = _read_csv("paper4_v422_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v422"] == "full_repository_pytest"
+    assert pytest_row["command_v422"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v422"]) == 0
+    assert bool(pytest_row["passed_v422"]) is True
+    assert int(pytest_row["collected_items_v422"]) == 1160
+    assert "1160 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v422"]
+
+    lint_snapshot = _read_csv("paper4_v422_notebook_lint_snapshot.csv")
+    assert len(lint_snapshot) == 1
+    lint_row = lint_snapshot.iloc[0]
+    assert lint_row["lint_code_v422"] == "__none__"
+    assert int(lint_row["diagnostic_count_v422"]) == 0
+
+    blockers = _read_csv("paper4_v422_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v422"], blockers["blocking_v422"], strict=False))
+    assert "full_repository_pytest_failed" not in blocker_map
+    assert bool(blocker_map["repository_ruff_frontier_not_reprobed"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v422_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v422_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v422_full_repository_pytest_passed"]) is True
+    assert bool(claim_map["v422_notebook_lint_remains_clean"]) is True
+    assert bool(claim_map["v422_repository_ruff_clean"]) is False
+    assert bool(claim_map["v422_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v422 runs full repository pytest after GPU side-project notebook lint patch."]
+    )
+    assert bool(
+        boundary_map[
+            "v422 full repository pytest passes after GPU side-project notebook lint patch."
+        ]
+    )
+    assert bool(boundary_map["v422 keeps notebook lint clean after pytest probe."])
+    assert bool(boundary_map["v422 proves repository ruff or Quarto render cleanliness."]) is False
+    assert bool(boundary_map["v422 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v422_rows = backlog.loc[backlog["last_wave"].eq("v422")]
+    assert len(v422_rows) == 1
+    backlog_row = v422_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v423_repository_ruff_frontier_after_notebook_clean.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "full_repository_pytest_passed_after_gpu_style_lint_patch"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v422_notebook_gpu_style_post_patch_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1160 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Notebook diagnostics: `0`" in probe_md
+    assert "Notebook ruff clean: `True`" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v422: Post-GPU-Style Pytest Probe" in living_notebook
+    assert "1160 passed, 2 skipped, 13 warnings" in living_notebook
+    assert "repository-wide ruff classification" in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    ruff_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "notebooks", "--output-format", "json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(ruff_probe.stdout or "[]") == []
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

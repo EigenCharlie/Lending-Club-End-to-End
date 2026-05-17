@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v422_full_repository_pytest_run,True,paper4_v422_pytest_probe_summary.csv,pytest command executed after v421 GPU style patch
+v422_full_repository_pytest_passed,True,paper4_v422_pytest_probe_summary.csv,true only when pytest exits 0
+v422_notebook_lint_remains_clean,True,paper4_v422_notebook_lint_snapshot.csv,true only when ruff check notebooks reports zero diagnostics
+v422_repository_ruff_clean,False,paper4_v422_claim_blockers.csv,repository ruff is deferred to v423
+v422_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
