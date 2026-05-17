@@ -21642,3 +21642,54 @@ Keep v487 in the living notebook. v488 should create a layout dry-run packet
 without modifying book sources.
 
 <!-- V487_CAPTION_ASSET_PAIRING_PACKET_END -->
+
+<!-- V488_LAYOUT_DRY_RUN_PACKET_START -->
+
+## Wave v488: Layout Dry-Run Packet
+
+Generated: 2026-05-17T18:07:37.955206+00:00
+
+### Objective
+
+v488 converts the v487 caption-asset pairs into a dry-run layout packet without
+editing Quarto sources.
+
+### Results
+
+- Layout rows:
+  `10`.
+- Target surface rows:
+  `4`.
+- Render gate rows:
+  `6`.
+- No-patch rows:
+  `5`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v489_layout_consistency_audit.md`.
+
+### Interpretation
+
+The paper now has a concrete layout dry-run surface, but the patch is still
+blocked by manual approval and final-caption gates.
+
+### Claim Impact
+
+- Allowed: layout dry-run packet, target-surface summary, render gate plan and
+  no-patch register.
+- Still prohibited: patch readiness/application, Quarto/book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v488 in the living notebook. v489 should audit layout consistency without
+modifying book sources.
+
+<!-- V488_LAYOUT_DRY_RUN_PACKET_END -->

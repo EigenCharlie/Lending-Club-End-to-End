@@ -1672,3 +1672,8 @@ v487 creates a layout dry-run seed.,True,reports/paper_material/paper4/tables/pa
 v487 inserts assets or finalizes captions in Quarto.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,Assets remain uninserted and captions non-final.,True,living_notebook_only
 v487 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v487 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v488 creates a Paper 4 layout dry-run packet.,True,reports/paper_material/paper4/tables/paper4_v488_layout_dry_run_packet.csv,Layout dry-run only.,False,living_notebook_only
+v488 identifies target surfaces and render gates for future review.,True,reports/paper_material/paper4/tables/paper4_v488_target_surface_summary.csv,Future review plan only.,False,living_notebook_only
+v488 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v488_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
+v488 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v488_no_patch_register.csv,No book mutation in v488.,True,living_notebook_only
+v488 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v488_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

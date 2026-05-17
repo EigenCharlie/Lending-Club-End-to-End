@@ -1,0 +1,7 @@
+render_gate_id_v488,gate_ready_v488,required_before_patch_v488,claim_boundary_v488
+layout_packet_exists,True,True,dry-run packet exists only
+target_surfaces_identified,True,True,target identification only
+manual_patch_approval_present,False,True,approval missing
+captions_final,False,True,captions non-final
+quarto_patch_applied,False,False,no patch in v488
+post_patch_render_passed,False,False,render deferred until patch exists

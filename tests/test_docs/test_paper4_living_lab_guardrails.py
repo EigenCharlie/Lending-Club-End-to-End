@@ -55608,6 +55608,123 @@ def test_paper4_v487_caption_asset_pairing_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v488_layout_dry_run_packet_is_guarded() -> None:
+    status = _read_json("paper4_v488_status.json")
+    assert status["phase"] == "v488_layout_dry_run_packet"
+    assert status["schema_version"] == "2026-05-17.488"
+    assert status["prior_pairing_version_v488"] == 487
+    assert status["layout_dry_run_packet_created_v488"] is True
+    assert status["layout_rows_v488"] == 10
+    assert status["target_surface_rows_v488"] == 4
+    assert status["render_gate_rows_v488"] == 6
+    assert status["no_patch_rows_v488"] == 5
+    assert status["readiness_delta_rows_v488"] == 8
+    assert status["layout_rows_ready_v488"] == 10
+    assert status["ready_for_quarto_patch_v488"] is False
+    assert status["quarto_patch_applied_v488"] is False
+    assert status["book_sources_modified_v488"] is False
+    assert status["book_references_modified_v488"] is False
+    assert status["submission_ready_claim_allowed_v488"] is False
+    assert status["working_champion_claim_allowed_v488"] is False
+    assert status["paper1_promotion_allowed_v488"] is False
+    assert status["paper4_working_champion_changed_v488"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v488"] == "paper4_v489_layout_consistency_audit.md"
+
+    layout = _read_csv("paper4_v488_layout_dry_run_packet.csv")
+    assert len(layout) == 10
+    assert list(layout["layout_order_v488"]) == list(range(1, 11))
+    assert set(layout["layout_mode_v488"]) == {"dry_run_only"}
+    assert layout["ready_for_layout_dry_run_v488"].astype(bool).all()
+    assert not layout["ready_for_quarto_patch_v488"].astype(bool).any()
+    assert not layout["caption_final_v488"].astype(bool).any()
+    assert not layout["inserted_into_quarto_v488"].astype(bool).any()
+
+    targets = _read_csv("paper4_v488_target_surface_summary.csv")
+    assert len(targets) == 4
+    assert int(targets["layout_item_count_v488"].sum()) == 10
+    assert not targets["target_ready_for_patch_v488"].astype(bool).any()
+    assert not targets["book_mutation_allowed_v488"].astype(bool).any()
+    assert "results_evidence_cvar" in set(targets["target_block_v488"])
+    assert "discussion_limitations" in set(targets["target_block_v488"])
+
+    render_gates = _read_csv("paper4_v488_render_gate_plan.csv")
+    assert len(render_gates) == 6
+    gate_map = dict(zip(render_gates["render_gate_id_v488"], render_gates["gate_ready_v488"], strict=False))
+    assert bool(gate_map["layout_packet_exists"]) is True
+    assert bool(gate_map["target_surfaces_identified"]) is True
+    assert bool(gate_map["manual_patch_approval_present"]) is False
+    assert bool(gate_map["captions_final"]) is False
+    assert bool(gate_map["quarto_patch_applied"]) is False
+    assert bool(gate_map["post_patch_render_passed"]) is False
+
+    no_patch = _read_csv("paper4_v488_no_patch_register.csv")
+    assert len(no_patch) == 5
+    assert not no_patch["mutation_allowed_v488"].astype(bool).any()
+    assert not no_patch["mutation_performed_v488"].astype(bool).any()
+    assert "book_sources" in set(no_patch["no_patch_item_v488"])
+    assert "final_promotion" in set(no_patch["no_patch_item_v488"])
+
+    readiness = _read_csv("paper4_v488_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v488"], readiness["ready_v488"], strict=False)
+    )
+    assert bool(readiness_map["layout_dry_run_packet_created"]) is True
+    assert bool(readiness_map["target_surface_summary_created"]) is True
+    assert bool(readiness_map["render_gate_plan_created"]) is True
+    assert bool(readiness_map["no_patch_register_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v488_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v488_layout_dry_run_packet_created"]) is True
+    assert bool(claim_map["v488_target_surface_summary_created"]) is True
+    assert bool(claim_map["v488_render_gate_plan_created"]) is True
+    assert bool(claim_map["v488_quarto_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v488_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v488 creates a Paper 4 layout dry-run packet."])
+    assert bool(
+        boundary_map["v488 identifies target surfaces and render gates for future review."]
+    )
+    assert bool(boundary_map["v488 makes Paper 4 ready for Quarto patching."]) is False
+    assert bool(boundary_map["v488 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v488 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v488_rows = backlog.loc[backlog["last_wave"].eq("v488")]
+    assert len(v488_rows) == 1
+    backlog_row = v488_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v489_layout_consistency_audit.md"
+    assert backlog_row["execution_result"] == "layout_dry_run_created_without_book_edit"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v488_layout_dry_run_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Layout Dry-Run Packet v488" in packet_md
+    assert "does not edit book sources" in packet_md
+    assert "v488 is a layout dry-run only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v488: Layout Dry-Run Packet" in living_notebook
+    assert "Layout rows:\n  `10`." in living_notebook
+    assert "Target surface rows:\n  `4`." in living_notebook
+    assert "Render gate rows:\n  `6`." in living_notebook
+    assert "No-patch rows:\n  `5`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
