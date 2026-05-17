@@ -1,0 +1,9 @@
+check_id_v479,passed_v479,evidence_v479,blocking_status_v479
+section_stub_count,True,5 section stubs,passed
+asset_callout_count,True,10 asset callouts,passed
+claim_to_stub_count,True,6 claim-to-stub rows,passed
+all_stubs_non_final,True,no stub marked final,passed
+no_stubs_inserted,True,book sources unchanged,passed
+all_claims_caveated,True,every mapped claim requires a caveat,passed
+no_final_claims,True,no claim promoted to final,passed
+no_final_promotion_artifact,True,paper4_final_promotion.json absent,passed

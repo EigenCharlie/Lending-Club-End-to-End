@@ -21154,3 +21154,60 @@ Keep v478 in the living notebook. v479 should audit stub claim consistency
 before any future insertion plan.
 
 <!-- V478_SECTION_TEXT_STUB_BUNDLE_END -->
+
+<!-- V479_STUB_CLAIM_CONSISTENCY_AUDIT_START -->
+
+## Wave v479: Stub-Claim Consistency Audit
+
+Generated: 2026-05-17T17:17:21.289656+00:00
+
+### Objective
+
+v479 audits the v478 section stubs against bounded claims, required caveats and
+positive prohibited-assertion language before any future insertion plan.
+
+### Results
+
+- Consistency check rows:
+  `8`.
+- Passed consistency checks:
+  `8`.
+- Caveat audit rows:
+  `5`.
+- Prohibited assertion scan rows:
+  `6`.
+- Prohibited assertions found:
+  `0`.
+- Claim consistency rows:
+  `6`.
+- Stub-claim audit passed:
+  `True`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v480_controlled_quarto_insertion_plan.md`.
+
+### Interpretation
+
+The v478 draft material is internally consistent enough to plan a controlled
+insertion later. The audit still preserves all blockers and does not edit the
+book.
+
+### Claim Impact
+
+- Allowed: stub-claim consistency audit, caveat-term audit and positive
+  prohibited-assertion scan.
+- Still prohibited: controlled insertion plan, final prose, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v479 in the living notebook. v480 should create a controlled insertion plan
+without modifying book sources.
+
+<!-- V479_STUB_CLAIM_CONSISTENCY_AUDIT_END -->

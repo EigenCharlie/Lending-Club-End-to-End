@@ -54602,6 +54602,121 @@ def test_paper4_v478_section_text_stub_bundle_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v479_stub_claim_consistency_audit_is_guarded() -> None:
+    status = _read_json("paper4_v479_status.json")
+    assert status["phase"] == "v479_stub_claim_consistency_audit"
+    assert status["schema_version"] == "2026-05-17.479"
+    assert status["prior_stub_bundle_version_v479"] == 478
+    assert status["stub_claim_consistency_audit_created_v479"] is True
+    assert status["stub_claim_consistency_audit_passed_v479"] is True
+    assert status["consistency_check_rows_v479"] == 8
+    assert status["passed_consistency_checks_v479"] == 8
+    assert status["caveat_audit_rows_v479"] == 5
+    assert status["caveat_audit_passed_rows_v479"] == 5
+    assert status["prohibited_scan_rows_v479"] == 6
+    assert status["prohibited_assertions_found_v479"] == 0
+    assert status["claim_consistency_rows_v479"] == 6
+    assert status["consistent_claim_rows_v479"] == 6
+    assert status["controlled_quarto_insertion_plan_created_v479"] is False
+    assert status["book_sources_modified_v479"] is False
+    assert status["book_references_modified_v479"] is False
+    assert status["submission_ready_claim_allowed_v479"] is False
+    assert status["working_champion_claim_allowed_v479"] is False
+    assert status["paper1_promotion_allowed_v479"] is False
+    assert status["paper4_working_champion_changed_v479"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v479"] == "paper4_v480_controlled_quarto_insertion_plan.md"
+
+    checks = _read_csv("paper4_v479_stub_consistency_checks.csv")
+    assert len(checks) == 8
+    assert checks["passed_v479"].astype(bool).all()
+    assert "no_final_promotion_artifact" in set(checks["check_id_v479"])
+
+    caveats = _read_csv("paper4_v479_stub_caveat_term_audit.csv")
+    assert len(caveats) == 5
+    assert caveats["required_terms_present_v479"].astype(bool).all()
+    assert caveats["stub_consistent_v479"].astype(bool).all()
+    assert "results_evidence_cvar" in set(caveats["manuscript_section_v479"])
+
+    scan = _read_csv("paper4_v479_prohibited_language_scan.csv")
+    assert len(scan) == 6
+    assert not scan["present_v479"].astype(bool).any()
+    assert scan["allowed_v479"].astype(bool).all()
+    assert "replaces paper estrella" in set(scan["prohibited_assertion_v479"])
+
+    consistency = _read_csv("paper4_v479_claim_consistency_matrix.csv")
+    assert len(consistency) == 6
+    assert consistency["stub_exists_v479"].astype(bool).all()
+    assert consistency["supporting_assets_mapped_v479"].astype(bool).all()
+    assert consistency["caveat_required_v479"].astype(bool).all()
+    assert not consistency["final_claim_v479"].astype(bool).any()
+    assert consistency["claim_consistent_v479"].astype(bool).all()
+
+    readiness = _read_csv("paper4_v479_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v479"], readiness["ready_v479"], strict=False)
+    )
+    assert bool(readiness_map["stub_claim_consistency_audit_created"]) is True
+    assert bool(readiness_map["all_consistency_checks_passed"]) is True
+    assert bool(readiness_map["all_caveat_terms_present"]) is True
+    assert bool(readiness_map["no_prohibited_assertions_found"]) is True
+    assert bool(readiness_map["controlled_quarto_insertion_plan_created"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v479_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v479_stub_claim_consistency_audit_created"]) is True
+    assert bool(claim_map["v479_claim_consistency_matrix_created"]) is True
+    assert bool(claim_map["v479_no_positive_prohibited_assertions_found"]) is True
+    assert bool(claim_map["v479_controlled_quarto_insertion_plan_created"]) is False
+    assert bool(claim_map["v479_stubs_inserted_or_final"]) is False
+    assert bool(claim_map["v479_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v479 audits stub-claim consistency for Paper 4 draft material."])
+    assert bool(boundary_map["v479 confirms bounded claim-to-stub consistency."])
+    assert bool(boundary_map["v479 finds no positive prohibited assertions in draft stubs."])
+    assert bool(boundary_map["v479 creates a controlled Quarto insertion plan."]) is False
+    assert bool(boundary_map["v479 inserts stubs into Quarto or finalizes manuscript prose."]) is False
+    assert bool(boundary_map["v479 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v479_rows = backlog.loc[backlog["last_wave"].eq("v479")]
+    assert len(v479_rows) == 1
+    backlog_row = v479_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v480_controlled_quarto_insertion_plan.md"
+    assert (
+        backlog_row["execution_result"]
+        == "stub_claim_consistency_audit_passed_without_quarto_edit"
+    )
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v479_stub_claim_consistency_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Stub-Claim Consistency Audit v479" in audit_md
+    assert "no positive prohibited assertions were found" in audit_md
+    assert "does not create the controlled Quarto insertion plan" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v479: Stub-Claim Consistency Audit" in living_notebook
+    assert "Consistency check rows:\n  `8`." in living_notebook
+    assert "Passed consistency checks:\n  `8`." in living_notebook
+    assert "Caveat audit rows:\n  `5`." in living_notebook
+    assert "Prohibited assertion scan rows:\n  `6`." in living_notebook
+    assert "Prohibited assertions found:\n  `0`." in living_notebook
+    assert "Claim consistency rows:\n  `6`." in living_notebook
+    assert "Stub-claim audit passed:\n  `True`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
