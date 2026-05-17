@@ -60596,6 +60596,209 @@ def test_paper4_v519_manual_owner_escalation_request_packet_is_guarded() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v520_manual_owner_escalation_followup_audit_is_guarded() -> None:
+    status = _read_json("paper4_v520_status.json")
+    assert status["phase"] == "v520_manual_owner_escalation_followup_audit"
+    assert status["schema_version"] == "2026-05-17.520"
+    assert status["prior_manual_owner_escalation_request_version_v520"] == 519
+    assert status["manual_owner_escalation_followup_audit_created_v520"] is True
+    assert status["manual_owner_followup_audit_rows_v520"] == 14
+    assert status["manual_owner_request_created_rows_v520"] == 14
+    assert status["manual_owner_request_dispatched_rows_v520"] == 0
+    assert status["human_response_received_rows_v520"] == 0
+    assert status["candidate_identifier_received_rows_v520"] == 0
+    assert status["nomination_fields_received_rows_v520"] == 0
+    assert status["nomination_signoff_received_rows_v520"] == 0
+    assert status["evidence_received_rows_v520"] == 0
+    assert status["manual_owner_followup_complete_rows_v520"] == 0
+    assert status["open_manual_owner_followup_gap_rows_v520"] == 14
+    assert status["candidate_input_collection_closed_rows_v520"] == 0
+    assert status["candidate_nomination_recorded_rows_v520"] == 0
+    assert status["field_evidence_manual_owner_followup_audit_rows_v520"] == 84
+    assert status["field_request_created_rows_v520"] == 84
+    assert status["evidence_request_created_rows_v520"] == 84
+    assert status["field_value_received_rows_v520"] == 0
+    assert status["field_evidence_received_rows_v520"] == 0
+    assert status["open_field_evidence_manual_owner_followup_gap_rows_v520"] == 84
+    assert status["manual_owner_followup_blocker_rows_v520"] == 6
+    assert status["open_manual_owner_followup_blocker_rows_v520"] == 6
+    assert status["blocking_manual_owner_followup_rows_v520"] == 5
+    assert status["eligibility_review_allowed_rows_v520"] == 0
+    assert status["reviewer_assignment_allowed_rows_v520"] == 0
+    assert status["outcome_capture_allowed_rows_v520"] == 0
+    assert status["patch_allowed_rows_v520"] == 0
+    assert status["readiness_delta_rows_v520"] == 8
+    assert status["manual_owner_request_dispatch_packet_ready_v520"] is True
+    assert status["ready_for_quarto_patch_v520"] is False
+    assert status["quarto_patch_applied_v520"] is False
+    assert status["book_sources_modified_v520"] is False
+    assert status["book_references_modified_v520"] is False
+    assert status["submission_ready_claim_allowed_v520"] is False
+    assert status["working_champion_claim_allowed_v520"] is False
+    assert status["paper1_promotion_allowed_v520"] is False
+    assert status["paper4_working_champion_changed_v520"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v520"]
+        == "paper4_v521_manual_owner_request_dispatch_packet.md"
+    )
+
+    followup = _read_csv("paper4_v520_manual_owner_escalation_followup_audit.csv")
+    assert len(followup) == 14
+    assert followup["manual_owner_request_created_v520"].astype(bool).all()
+    assert followup["manual_owner_followup_gap_open_v520"].astype(bool).all()
+    assert not followup["manual_owner_request_dispatched_v520"].astype(bool).any()
+    assert not followup["human_response_received_v520"].astype(bool).any()
+    assert not followup["candidate_identifier_received_v520"].astype(bool).any()
+    assert not followup["nomination_fields_received_v520"].astype(bool).any()
+    assert not followup["nomination_signoff_received_v520"].astype(bool).any()
+    assert not followup["evidence_received_v520"].astype(bool).any()
+    assert not followup["manual_owner_followup_complete_v520"].astype(bool).any()
+    assert not followup["candidate_input_collection_closed_v520"].astype(bool).any()
+    assert not followup["candidate_nomination_recorded_v520"].astype(bool).any()
+    assert not followup["eligibility_review_allowed_v520"].astype(bool).any()
+    assert not followup["reviewer_assignment_allowed_v520"].astype(bool).any()
+    assert not followup["outcome_capture_allowed_v520"].astype(bool).any()
+    assert not followup["patch_allowed_v520"].astype(bool).any()
+    assert set(followup["required_next_step_v520"]) == {
+        "prepare_manual_owner_request_dispatch_packet"
+    }
+
+    field_followup = _read_csv(
+        "paper4_v520_field_evidence_manual_owner_followup_audit.csv"
+    )
+    assert len(field_followup) == 84
+    assert field_followup["manual_owner_field_request_created_v520"].astype(bool).all()
+    assert field_followup["manual_owner_evidence_request_created_v520"].astype(bool).all()
+    assert (
+        field_followup["manual_owner_field_evidence_followup_gap_open_v520"]
+        .astype(bool)
+        .all()
+    )
+    assert not field_followup["field_value_received_v520"].astype(bool).any()
+    assert not field_followup["field_evidence_received_v520"].astype(bool).any()
+    assert field_followup.groupby("manual_owner_followup_audit_id_v520").size().eq(6).all()
+
+    blockers = _read_csv("paper4_v520_manual_owner_followup_blocker_register.csv")
+    assert len(blockers) == 6
+    assert blockers["blocker_open_v520"].astype(bool).all()
+    blocker_map = dict(
+        zip(
+            blockers["manual_owner_followup_blocker_id_v520"],
+            blockers["blocks_manual_owner_followup_completion_v520"],
+            strict=False,
+        )
+    )
+    assert bool(blocker_map["no_manual_owner_request_dispatch"])
+    assert bool(blocker_map["no_manual_owner_response"])
+    assert bool(blocker_map["no_candidate_identifier_after_manual_owner_request"])
+    assert bool(blocker_map["no_nomination_payload_after_manual_owner_request"])
+    assert bool(blocker_map["no_evidence_after_manual_owner_request"])
+    assert bool(blocker_map["no_final_promotion"]) is False
+
+    readiness = _read_csv("paper4_v520_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v520"], readiness["ready_v520"], strict=False)
+    )
+    assert bool(readiness_map["manual_owner_escalation_followup_audit_created"])
+    assert bool(readiness_map["field_evidence_manual_owner_followup_audit_created"])
+    assert bool(readiness_map["manual_owner_followup_blocker_register_created"])
+    assert bool(readiness_map["manual_owner_request_dispatch_packet_ready"])
+    assert bool(readiness_map["candidate_identifiers_received"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v520_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v520_manual_owner_followup_audit_created"])
+    assert bool(claim_map["v520_field_evidence_manual_owner_followup_audit_created"])
+    assert bool(claim_map["v520_manual_owner_request_dispatch_packet_ready"])
+    assert bool(claim_map["v520_candidate_inputs_received_or_nominated"]) is False
+    assert bool(claim_map["v520_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v520_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v520 audits manual owner escalation follow-up."])
+    assert bool(boundary_map["v520 audits manual owner field and evidence follow-up."])
+    assert bool(
+        boundary_map[
+            "v520 makes manual owner request dispatch packet executable next."
+        ]
+    )
+    assert (
+        bool(boundary_map["v520 receives candidate inputs or nominates candidates."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v520 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v520 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v520_rows = backlog.loc[backlog["last_wave"].eq("v520")]
+    assert len(v520_rows) == 1
+    backlog_row = v520_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v521_manual_owner_request_dispatch_packet.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "manual_owner_escalation_followup_audit_confirmed_no_dispatch_or_inputs"
+    )
+
+    followup_md = (
+        PAPER4_ROOT
+        / "notes"
+        / "paper4_v520_manual_owner_escalation_followup_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Manual Owner Escalation Follow-up Audit v520" in followup_md
+    assert "v520 is a manual owner escalation follow-up audit only" in followup_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v520: Manual Owner Escalation Follow-up Audit" in living_notebook
+    assert "Manual owner follow-up audit rows:\n  `14`." in living_notebook
+    assert "Manual owner request created rows:\n  `14`." in living_notebook
+    assert "Manual owner request dispatched rows:\n  `0`." in living_notebook
+    assert "Human response received rows:\n  `0`." in living_notebook
+    assert "Candidate identifier received rows:\n  `0`." in living_notebook
+    assert "Nomination fields received rows:\n  `0`." in living_notebook
+    assert "Nomination signoff received rows:\n  `0`." in living_notebook
+    assert "Evidence received rows:\n  `0`." in living_notebook
+    assert "Manual owner follow-up complete rows:\n  `0`." in living_notebook
+    assert "Open manual owner follow-up gap rows:\n  `14`." in living_notebook
+    assert "Candidate input collection closed rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert (
+        "Field/evidence manual owner follow-up audit rows:\n  `84`."
+        in living_notebook
+    )
+    assert "Field request created rows:\n  `84`." in living_notebook
+    assert "Evidence request created rows:\n  `84`." in living_notebook
+    assert "Field value received rows:\n  `0`." in living_notebook
+    assert "Field evidence received rows:\n  `0`." in living_notebook
+    assert (
+        "Open field/evidence manual owner follow-up gap rows:\n  `84`."
+        in living_notebook
+    )
+    assert "Manual owner follow-up blocker rows:\n  `6`." in living_notebook
+    assert "Open manual owner follow-up blocker rows:\n  `6`." in living_notebook
+    assert "Blocking manual owner follow-up rows:\n  `5`." in living_notebook
+    assert "Eligibility review allowed rows:\n  `0`." in living_notebook
+    assert "Reviewer assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

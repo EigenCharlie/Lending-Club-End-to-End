@@ -23859,3 +23859,98 @@ Keep v519 in the living notebook. v520 should audit manual owner escalation
 follow-up while preserving the no-fabricated-candidate boundary.
 
 <!-- V519_MANUAL_OWNER_ESCALATION_REQUEST_PACKET_END -->
+
+<!-- V520_MANUAL_OWNER_ESCALATION_FOLLOWUP_AUDIT_START -->
+
+## Wave v520: Manual Owner Escalation Follow-up Audit
+
+Generated: 2026-05-17T23:24:45.412940+00:00
+
+### Objective
+
+v520 audits whether the v519 manual owner escalation request packet has been
+dispatched or answered. It confirms that request rows exist but no dispatch,
+response or candidate input has been recorded.
+
+### Results
+
+- Manual owner follow-up audit rows:
+  `14`.
+- Manual owner request created rows:
+  `14`.
+- Manual owner request dispatched rows:
+  `0`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Manual owner follow-up complete rows:
+  `0`.
+- Open manual owner follow-up gap rows:
+  `14`.
+- Candidate input collection closed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence manual owner follow-up audit rows:
+  `84`.
+- Field request created rows:
+  `84`.
+- Evidence request created rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open field/evidence manual owner follow-up gap rows:
+  `84`.
+- Manual owner follow-up blocker rows:
+  `6`.
+- Open manual owner follow-up blocker rows:
+  `6`.
+- Blocking manual owner follow-up rows:
+  `5`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v521_manual_owner_request_dispatch_packet.md`.
+
+### Interpretation
+
+The follow-up audit confirms that manual owner escalation has not moved beyond
+request packet creation. The next executable step is a dispatch packet, not
+candidate nomination, eligibility review or manuscript patching.
+
+### Claim Impact
+
+- Allowed: manual owner escalation follow-up audit, field/evidence follow-up
+  audit and future manual owner request dispatch packet readiness.
+- Still prohibited: request dispatch claims, candidate input receipt, candidate
+  resolution/nomination, reviewer assignment, completed review claims, final
+  captions, Quarto patch readiness/application, Quarto/book mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v520 in the living notebook. v521 should create a bounded manual owner
+request dispatch packet while preserving the no-fabricated-candidate boundary.
+
+<!-- V520_MANUAL_OWNER_ESCALATION_FOLLOWUP_AUDIT_END -->
