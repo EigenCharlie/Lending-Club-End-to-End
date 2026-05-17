@@ -1,0 +1,2 @@
+repair_lane_v435,target_surface_v435,target_rule_v435,diagnostic_count_v435,fixable_count_v435,mutation_allowed_in_v435,v436_candidate_v435,next_artifact_v435,claim_boundary_v435
+targeted_scripts_book_f401_unused_import_repair,scripts_and_book,F401,4,4,False,True,paper4_v436_scripts_book_f401_unused_import_repair_batch.md,v435 plans the next repair but does not mutate imports

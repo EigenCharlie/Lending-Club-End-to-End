@@ -1,0 +1,2 @@
+probe_id_v435,command_v435,exit_code_v435,passed_v435,runtime_seconds_v435,collected_items_v435,summary_line_v435,claim_boundary_v435
+full_repository_pytest,uv run pytest -q --tb=short,0,True,168.838,1173,"=========== 1173 passed, 2 skipped, 13 warnings in 156.56s (0:02:36) ===========",post-v434 scripts/book I001 repair full pytest probe

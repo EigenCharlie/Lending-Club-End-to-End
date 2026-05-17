@@ -18806,3 +18806,63 @@ Keep v434 in the living notebook. v435 should run the post-I001-repair full
 pytest probe.
 
 <!-- V434_SCRIPTS_I001_IMPORT_SORT_REPAIR_BATCH_END -->
+
+<!-- V435_POST_SCRIPTS_I001_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v435: Post-Scripts-I001-Repair Pytest Probe
+
+Generated: 2026-05-17T12:05:22.631536+00:00
+
+### Objective
+
+v435 runs full repository pytest after v434's targeted scripts/book I001 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1173`.
+- Pytest summary:
+  `=========== 1173 passed, 2 skipped, 13 warnings in 156.56s (0:02:36) ===========`.
+- Repository ruff diagnostics:
+  `18`.
+- Repository I001 diagnostics:
+  `0`.
+- Streamlit diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Top rule / top executable rule:
+  `B023` /
+  `F401`.
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v436_scripts_book_f401_unused_import_repair_batch.md`.
+
+### Interpretation
+
+The scripts/book I001 repair survives full repository pytest. B023 remains the
+top rule by count but has no automatic fixes, so F401 is the next executable
+repair frontier.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after scripts/book I001 repair; I001,
+  Streamlit and notebook lint remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v435 in the living notebook. v436 should apply the targeted F401
+unused-import repair batch.
+
+<!-- V435_POST_SCRIPTS_I001_REPAIR_PYTEST_PROBE_END -->
