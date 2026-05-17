@@ -19329,3 +19329,53 @@ Keep v443 in the living notebook. v444 should apply the targeted SIM223
 expr-and-false repair batch.
 
 <!-- V443_POST_SCRIPTS_C405_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V444_SCRIPTS_SIM223_EXPR_AND_FALSE_REPAIR_BATCH_START -->
+
+## Wave v444: Scripts SIM223 Expr-And-False Repair Batch
+
+Generated: 2026-05-17T13:16:25.388825+00:00
+
+### Objective
+
+v444 applies the targeted SIM223 expr-and-false repair in `build_paper4_v41_v44_living_lab_wave.py`.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `8` ->
+  `7`.
+- Repository SIM223 before/after:
+  `1` ->
+  `0`.
+- Changed files:
+  `1`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v445_post_scripts_sim223_repair_pytest_probe.md`.
+
+### Interpretation
+
+The SIM223 frontier is cleared by replacing the unreachable `... and False`
+expression with `False`. Remaining repository ruff diagnostics are now B023.
+
+### Claim Impact
+
+- Allowed: targeted scripts SIM223 repair applied, repository ruff count reduced,
+  and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v444 in the living notebook. v445 should run the post-SIM223-repair full
+pytest probe.
+
+<!-- V444_SCRIPTS_SIM223_EXPR_AND_FALSE_REPAIR_BATCH_END -->

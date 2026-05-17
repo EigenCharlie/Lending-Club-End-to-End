@@ -704,9 +704,7 @@ def build_v42() -> dict[str, Any]:
         "cvxpy_import_clean_v42": cvx_clean,
         "torch_import_clean_v42": torch_clean,
         "cvxpylayers_import_clean_v42": layers_clean,
-        "formal_differentiable_spo_claim_allowed": bool(
-            cvx_clean and torch_clean and layers_clean and False
-        ),
+        "formal_differentiable_spo_claim_allowed": False,
         "spo_training_report_rows_v42": int(len(report)),
         "spo_validation_rows_v42": int(len(validation)),
         "spo_candidate_allocation_rows_v42": int(len(allocations)),
