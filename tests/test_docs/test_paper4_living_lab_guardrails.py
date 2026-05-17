@@ -53307,6 +53307,111 @@ def test_paper4_v466_domain_execution_backlog_refocus_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v467_cvar_tail_risk_frontier_probe_is_guarded() -> None:
+    status = _read_json("paper4_v467_status.json")
+    assert status["phase"] == "v467_cvar_tail_risk_frontier_probe"
+    assert status["schema_version"] == "2026-05-17.467"
+    assert status["prior_domain_refocus_version_v467"] == 466
+    assert status["candidate_frontier_rows_v467"] == 3
+    assert status["evidence_stack_rows_v467"] == 6
+    assert status["blocker_register_rows_v467"] == 5
+    assert status["local_frontier_candidate_v467"] == "v353"
+    assert float(status["best_local_objective_return_v467"]) > 4427.0
+    assert float(status["best_local_cvar90_v467"]) < 96360.0
+    assert status["missing_proxy_rows_on_frontier_v467"] == 77
+    assert status["v353_return_cvar_improves_vs_v347_v467"] is True
+    assert status["post_v353_one_swap_local_optimality_cleared_v467"] is True
+    assert status["bounded_no_entry_evidence_summarized_v467"] is True
+    assert status["remaining_unpriced_chunks_v467"] == 27
+    assert status["full_v55_global_proof_created_v467"] is False
+    assert status["working_champion_claim_allowed_v467"] is False
+    assert status["paper1_promotion_allowed_v467"] is False
+    assert status["paper4_working_champion_changed_v467"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v467"] == "paper4_v468_source_governance_refresh.md"
+
+    frontier = _read_csv("paper4_v467_cvar_frontier_probe.csv")
+    assert len(frontier) == 3
+    assert set(frontier["candidate_version_v467"]) == {"v338", "v347", "v353"}
+    local = frontier.loc[frontier["local_frontier_candidate_v467"].astype(bool)]
+    assert len(local) == 1
+    local_row = local.iloc[0]
+    assert local_row["candidate_version_v467"] == "v353"
+    assert bool(local_row["strict_return_cvar_improvement_vs_predecessor_v467"]) is True
+    assert int(local_row["missing_proxy_rows_v467"]) == 77
+    assert int(local_row["return_rank_v467"]) == 1
+    assert int(local_row["cvar_rank_v467"]) == 1
+
+    evidence = _read_csv("paper4_v467_cvar_evidence_stack.csv")
+    assert len(evidence) == 6
+    evidence_map = dict(zip(evidence["evidence_id_v467"], evidence["value_v467"], strict=False))
+    assert evidence_map["frontier_chain_v338_v347_v353"] == "1"
+    assert evidence_map["post_v353_one_swap_cleared"] == "0"
+    assert evidence_map["bounded_second_order_no_entry"] == "0"
+    assert evidence_map["bounded_fourth_order_claim_scope"] == "True"
+    assert evidence_map["chunk_route_stops_blind_chunking"] == "bounded_claim_scope_update"
+
+    blockers = _read_csv("paper4_v467_cvar_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v467"], blockers["blocking_v467"], strict=False))
+    assert bool(blocker_map["proxy_gap_persists_on_local_frontier"]) is True
+    assert bool(blocker_map["full_v55_global_proof_missing"]) is True
+    assert bool(blocker_map["v71_improving_omitted_columns_persist"]) is True
+    assert bool(blocker_map["external_dynamic_online_validation_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+    blocker_counts = dict(
+        zip(blockers["blocker_id_v467"], blockers["evidence_count_v467"], strict=False)
+    )
+    assert int(blocker_counts["proxy_gap_persists_on_local_frontier"]) == 77
+    assert int(blocker_counts["full_v55_global_proof_missing"]) == 27
+
+    claim_delta = _read_csv("paper4_v467_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v467_v353_local_return_cvar_frontier"]) is True
+    assert bool(claim_map["v467_bounded_no_entry_evidence_summarized"]) is True
+    assert bool(claim_map["v467_full_v55_global_optimality"]) is False
+    assert bool(claim_map["v467_working_champion_or_live_deployment"]) is False
+    assert bool(claim_map["v467_paper_estrella_replacement_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v467 identifies v353 as the current local return/CVaR frontier."])
+    assert bool(boundary_map["v467 summarizes bounded no-entry evidence for CVaR claims."])
+    assert bool(boundary_map["v467 proves full-v55 global CVaR optimality."]) is False
+    assert (
+        bool(boundary_map["v467 authorizes a Paper 4 working champion or live deployment."])
+        is False
+    )
+    assert bool(boundary_map["v467 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v467_rows = backlog.loc[backlog["last_wave"].eq("v467")]
+    assert len(v467_rows) == 1
+    backlog_row = v467_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v468_source_governance_refresh.md"
+    assert (
+        backlog_row["execution_result"]
+        == "v353_local_frontier_reconfirmed_proxy_global_blockers_active"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v467_cvar_tail_risk_frontier_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "CVaR Tail-Risk Frontier Probe v467" in probe_md
+    assert "v353 is the current local return/CVaR frontier point" in probe_md
+    assert "does not prove full-v55 global" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v467: CVaR Tail-Risk Frontier Probe" in living_notebook
+    assert "Candidate frontier rows:\n  `3`." in living_notebook
+    assert "Local frontier candidate:\n  `v353`." in living_notebook
+    assert "Missing proxy rows on frontier:\n  `77`." in living_notebook
+    assert "Full-v55 global proof created:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

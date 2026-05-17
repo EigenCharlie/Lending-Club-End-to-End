@@ -20520,3 +20520,57 @@ Keep v466 in the living notebook. v467 should generate the CVaR tail-risk
 frontier probe without changing book references or Quarto sources.
 
 <!-- V466_DOMAIN_EXECUTION_BACKLOG_REFOCUS_END -->
+
+<!-- V467_CVAR_TAIL_RISK_FRONTIER_PROBE_START -->
+
+## Wave v467: CVaR Tail-Risk Frontier Probe
+
+Generated: 2026-05-17T16:11:46.175098+00:00
+
+### Objective
+
+v467 probes the CVaR tail-risk lane selected by v466 and separates the strongest
+local frontier claim from the blockers that still prevent global or champion
+language.
+
+### Results
+
+- Candidate frontier rows:
+  `3`.
+- Local frontier candidate:
+  `v353`.
+- Best local objective return:
+  `4427.138112521639`.
+- Best local CVaR90:
+  `96358.07639350664`.
+- Missing proxy rows on frontier:
+  `77`.
+- Remaining unpriced chunks:
+  `27`.
+- Full-v55 global proof created:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v468_source_governance_refresh.md`.
+
+### Interpretation
+
+v353 is valuable future Paper 4 evidence because it improves the local return
+and CVaR frontier simultaneously relative to v347. Its usefulness is strongest
+as bounded frontier evidence, not as a champion claim, because proxy coverage
+and full-v55/global validation remain open.
+
+### Claim Impact
+
+- Allowed: local v353 return/CVaR frontier language and bounded no-entry
+  evidence.
+- Still prohibited: full-v55 global optimality, working-champion language, live
+  deployment readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v467 in the living notebook. v468 should refresh source-governance evidence
+around the same blocker surface before any broader claim is attempted.
+
+<!-- V467_CVAR_TAIL_RISK_FRONTIER_PROBE_END -->

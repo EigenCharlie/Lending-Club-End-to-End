@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v467_v353_local_return_cvar_frontier,True,paper4_v467_cvar_frontier_probe.csv,local v338-v347-v353 chain only
+v467_bounded_no_entry_evidence_summarized,True,paper4_v467_cvar_evidence_stack.csv,bounded branch-price and chunk evidence only
+v467_full_v55_global_optimality,False,paper4_v467_cvar_blocker_register.csv,global dual-bound certificate missing
+v467_working_champion_or_live_deployment,False,paper4_v467_cvar_blocker_register.csv,"proxy, dynamic, online and deployment gates remain open"
+v467_paper_estrella_replacement_or_final_promotion,False,paper4_final_promotion_gate_not_created,no final promotion artifact is created
