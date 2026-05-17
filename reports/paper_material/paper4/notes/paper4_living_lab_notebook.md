@@ -14072,3 +14072,57 @@ Keep v344 in the living notebook. The next wave should execute the v338
 source-tight branch-price screen without promotion.
 
 <!-- V344_V338_DUAL_BOUND_AFTER_EXPANDED_POOL_END -->
+
+<!-- V345_V338_SOURCE_TIGHT_BRANCH_PRICE_SCREEN_START -->
+
+## Wave v345: v338 Source-Tight Branch-Price Screen
+
+Generated: 2026-05-17T00:44:05.354404+00:00
+
+### Objective
+
+v344 identified grade A and score decile 0 as the tight v338 governance blocks.
+v345 executes the next local pricing screen: positive-return source-tight
+candidates against all v338 drops, with budget, source and CVaR filters.
+
+### Results
+
+- Unique source-tight candidate rows: `73023`.
+- Positive source-tight candidate rows:
+  `4385`.
+- Total pair rows screened:
+  `749835`.
+- Return-improving pair rows:
+  `413385`.
+- Budget+return feasible pair rows:
+  `143481`.
+- Source prefilter pair rows:
+  `8`.
+- Source-exact pair rows:
+  `8`.
+- CVaR-feasible entering columns:
+  `0`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v345 sharpens the v344 blocker. There are many positive source-tight candidates,
+but the one-drop/one-add branch-price screen still finds no CVaR-feasible
+entering column. This is stronger than a readiness checklist, but it remains a
+local pricing result, not a branch-price termination certificate.
+
+### Claim Impact
+
+- Allowed: v338 source-tight one-drop/one-add screen completed and no
+  CVaR-feasible entering column found in that local scope.
+- Still prohibited: full-universe branch-price termination, contractual IFRS9,
+  live deployability, Paper Estrella replacement, final Paper 4 promotion and
+  working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v345 in the living notebook. The next wave should test multi-source relief
+or a formal dual-bound loop without promotion.
+
+<!-- V345_V338_SOURCE_TIGHT_BRANCH_PRICE_SCREEN_END -->

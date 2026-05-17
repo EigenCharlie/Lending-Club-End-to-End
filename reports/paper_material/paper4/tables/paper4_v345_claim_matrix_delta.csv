@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v345_source_tight_branch_price_screen_executed,True,paper4_v345_v338_source_tight_branch_price_screen.csv,local one-drop/one-add source-tight screen only
+v345_no_cvar_feasible_source_tight_entering_column,True,paper4_v345_source_tight_pair_stage_summary.csv,scope-limited local pricing result only
+v345_valid_full_universe_branch_price_bound,False,paper4_v345_claim_blockers.csv,formal dual loop missing
+v345_working_champion_or_final_promotion,False,paper4_v345_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

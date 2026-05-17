@@ -1,0 +1,18 @@
+stage_v345,pair_rows_v345,claim_boundary_v345,blocked_pair_rows_v345
+all_positive_tight_pairs,749835,candidate/drop pair count before filters,
+return_improving,413385,return delta only,
+budget_return_feasible,143481,budget plus return only,
+grade_source_feasible_alone,56,grade cap applied alone after budget+return,
+score_decile_source_feasible_alone,9342,score_decile cap applied alone after budget+return,
+income_band_source_feasible_alone,143481,income_band cap applied alone after budget+return,
+dti_band_source_feasible_alone,143481,dti_band cap applied alone after budget+return,
+period_source_feasible_alone,143481,period cap applied alone after budget+return,
+state_top20_source_feasible_alone,143481,state_top20 cap applied alone after budget+return,
+cumulative_source_prefilter_after_grade,56,cumulative v338 source prefilter through grade; diagnostic only,143425.0
+cumulative_source_prefilter_after_score_decile,8,cumulative v338 source prefilter through score_decile; diagnostic only,48.0
+cumulative_source_prefilter_after_income_band,8,cumulative v338 source prefilter through income_band; diagnostic only,0.0
+cumulative_source_prefilter_after_dti_band,8,cumulative v338 source prefilter through dti_band; diagnostic only,0.0
+cumulative_source_prefilter_after_period,8,cumulative v338 source prefilter through period; diagnostic only,0.0
+cumulative_source_prefilter_after_state_top20,8,cumulative v338 source prefilter through state_top20; diagnostic only,0.0
+source_exact_feasible,8,exact all-family source caps after prefilter,
+cvar_feasible_entering_column,0,source-exact plus CVaR feasible entering columns,
