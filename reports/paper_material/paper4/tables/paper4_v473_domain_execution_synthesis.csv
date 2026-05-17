@@ -1,0 +1,7 @@
+domain_lane_v473,wave_v473,primary_allowed_result_v473,primary_open_blocker_v473,next_needed_v473,claim_boundary_v473,allowed_claim_rows_v473,blocked_claim_rows_v473
+cvar_tail_risk,v467,v353 is the local return/CVaR frontier,"proxy gap, full-v55 global proof, dynamic and online validation",post-domain manuscript delta or future v353 validation gates,local frontier only; no champion or global proof,2,3
+source_governance,v468,grade=A is primary blocker,source cap relaxation and global solver claims,source-aware counterfactual or cap-governance approval,diagnostic only; no cap mutation,3,2
+dynamic_replay,v469,v338 remains dynamic proxy anchor,v353 lacks dynamic replay trace,future v353 dynamic replay build,proxy replay inventory only; no live claim,2,3
+online_monitoring,v470,v9/v10 internal online gates summarized,v353 online temporal gate and external holdout missing,future v353 online temporal gate,internal monitoring proxy only,2,3
+spo_dla,v471,2 bounded formal claims allowed,formal SPO+/DLA theorem and CRC guarantee missing,formal review/dependency route before stronger method claims,historical/oracle-surrogate boundary only,2,3
+ifrs9_proxy,v472,5 contractual gaps documented,contractual IFRS9 and v353 cashflow gate missing,future contractual servicing/accounting validation,IFRS9-inspired proxy only,2,3

@@ -1,0 +1,20 @@
+{
+  "allowed_domain_claim_rows_v473": 13,
+  "claim_boundary": "v473 synthesizes domain evidence only; open blockers, champion, submission and final promotion claims remain blocked",
+  "domain_blockers_resolved_v473": false,
+  "domain_execution_synthesis_created_v473": true,
+  "domain_lanes_synthesized_v473": 6,
+  "domain_lanes_with_open_blockers_v473": 6,
+  "generated_at_utc": "2026-05-17T16:40:32.888608+00:00",
+  "next_artifact_v473": "paper4_v474_post_domain_manuscript_delta.md",
+  "open_domain_blocker_rows_v473": 31,
+  "paper1_promotion_allowed_v473": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v473": false,
+  "phase": "v473_domain_execution_synthesis",
+  "prior_ifrs9_proxy_version_v473": 472,
+  "runtime_seconds": 0.152,
+  "schema_version": "2026-05-17.473",
+  "submission_ready_claim_allowed_v473": false,
+  "working_champion_claim_allowed_v473": false
+}

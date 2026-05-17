@@ -53939,6 +53939,101 @@ def test_paper4_v472_ifrs9_proxy_boundary_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v473_domain_execution_synthesis_is_guarded() -> None:
+    status = _read_json("paper4_v473_status.json")
+    assert status["phase"] == "v473_domain_execution_synthesis"
+    assert status["schema_version"] == "2026-05-17.473"
+    assert status["prior_ifrs9_proxy_version_v473"] == 472
+    assert status["domain_execution_synthesis_created_v473"] is True
+    assert status["domain_lanes_synthesized_v473"] == 6
+    assert status["allowed_domain_claim_rows_v473"] == 13
+    assert status["open_domain_blocker_rows_v473"] >= 30
+    assert status["domain_lanes_with_open_blockers_v473"] == 6
+    assert status["domain_blockers_resolved_v473"] is False
+    assert status["working_champion_claim_allowed_v473"] is False
+    assert status["submission_ready_claim_allowed_v473"] is False
+    assert status["paper1_promotion_allowed_v473"] is False
+    assert status["paper4_working_champion_changed_v473"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v473"] == "paper4_v474_post_domain_manuscript_delta.md"
+
+    synthesis = _read_csv("paper4_v473_domain_execution_synthesis.csv")
+    assert len(synthesis) == 6
+    assert set(synthesis["domain_lane_v473"]) == {
+        "cvar_tail_risk",
+        "source_governance",
+        "dynamic_replay",
+        "online_monitoring",
+        "spo_dla",
+        "ifrs9_proxy",
+    }
+    assert synthesis["allowed_claim_rows_v473"].sum() == 13
+    assert synthesis["blocked_claim_rows_v473"].sum() == 17
+    cvar = synthesis.loc[synthesis["domain_lane_v473"].eq("cvar_tail_risk")].iloc[0]
+    assert "v353" in cvar["primary_allowed_result_v473"]
+    assert "no champion" in cvar["claim_boundary_v473"]
+
+    allowed = _read_csv("paper4_v473_allowed_domain_claims.csv")
+    assert len(allowed) == 13
+    assert set(allowed["wave_v473"]) == {"v467", "v468", "v469", "v470", "v471", "v472"}
+    assert "v467_v353_local_return_cvar_frontier" in set(allowed["claim_id_v473"])
+    assert "v472_contractual_requirement_gap_documented" in set(allowed["claim_id_v473"])
+
+    blockers = _read_csv("paper4_v473_open_domain_blockers.csv")
+    assert len(blockers) >= 30
+    assert blockers["wave_v473"].nunique() == 6
+    assert "paper4_final_promotion_forbidden" in set(blockers["blocker_id_v473"])
+    assert "v353_ifrs9_proxy_gate_missing" in set(blockers["blocker_id_v473"])
+
+    claim_delta = _read_csv("paper4_v473_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v473_domain_execution_sequence_synthesized"]) is True
+    assert bool(claim_map["v473_allowed_claims_and_blockers_indexed"]) is True
+    assert bool(claim_map["v473_domain_lanes_resolved_all_blockers"]) is False
+    assert bool(claim_map["v473_paper4_working_champion_or_submission_ready"]) is False
+    assert bool(claim_map["v473_paper_estrella_replacement_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v473 synthesizes six Paper 4 domain execution lanes."])
+    assert bool(boundary_map["v473 indexes allowed bounded domain claims and open blockers."])
+    assert bool(boundary_map["v473 resolves all Paper 4 domain blockers."]) is False
+    assert (
+        bool(boundary_map["v473 authorizes Paper 4 as working champion or submission-ready."])
+        is False
+    )
+    assert bool(boundary_map["v473 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v473_rows = backlog.loc[backlog["last_wave"].eq("v473")]
+    assert len(v473_rows) == 1
+    backlog_row = v473_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v474_post_domain_manuscript_delta.md"
+    assert (
+        backlog_row["execution_result"]
+        == "six_domain_lanes_synthesized_with_open_blockers_preserved"
+    )
+
+    synthesis_md = (
+        PAPER4_ROOT / "notes" / "paper4_v473_domain_execution_synthesis.md"
+    ).read_text(encoding="utf-8")
+    assert "Domain Execution Synthesis v473" in synthesis_md
+    assert "six domain lanes" in synthesis_md
+    assert "does not resolve domain blockers" in synthesis_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v473: Domain Execution Synthesis" in living_notebook
+    assert "Domain lanes synthesized:\n  `6`." in living_notebook
+    assert "Allowed bounded claim rows:\n  `13`." in living_notebook
+    assert "Domain lanes with open blockers:\n  `6`." in living_notebook
+    assert "Domain blockers resolved:\n  `False`." in living_notebook
+    assert "Working champion claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

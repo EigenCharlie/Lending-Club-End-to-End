@@ -20840,3 +20840,55 @@ Keep v472 in the living notebook. v473 should synthesize the six domain lanes
 executed from v466 through v472.
 
 <!-- V472_IFRS9_PROXY_BOUNDARY_PROBE_END -->
+
+<!-- V473_DOMAIN_EXECUTION_SYNTHESIS_START -->
+
+## Wave v473: Domain Execution Synthesis
+
+Generated: 2026-05-17T16:40:32.888608+00:00
+
+### Objective
+
+v473 synthesizes the six domain execution lanes completed from v467 through
+v472 after the v466 refocus.
+
+### Results
+
+- Domain lanes synthesized:
+  `6`.
+- Allowed bounded claim rows:
+  `13`.
+- Open blocker rows:
+  `31`.
+- Domain lanes with open blockers:
+  `6`.
+- Domain blockers resolved:
+  `False`.
+- Working champion claim allowed:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v474_post_domain_manuscript_delta.md`.
+
+### Interpretation
+
+The living lab now has a coherent future-paper evidence bundle: strong bounded
+claims exist, and the blocker surface is clear enough to guide manuscript
+language without drifting into champion, deployment, legal, accounting or final
+promotion claims.
+
+### Claim Impact
+
+- Allowed: six-lane domain synthesis and index of bounded claims.
+- Still prohibited: all-blocker resolution, working-champion language,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v473 in the living notebook. v474 should map this domain execution into a
+post-domain manuscript delta.
+
+<!-- V473_DOMAIN_EXECUTION_SYNTHESIS_END -->
