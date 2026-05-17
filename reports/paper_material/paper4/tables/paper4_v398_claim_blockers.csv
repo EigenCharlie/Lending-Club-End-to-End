@@ -1,0 +1,5 @@
+blocker_id_v398,blocking_v398,evidence_count_v398,required_next_artifact_v398,claim_boundary_v398
+historical_e402_notebook_frontier_remaining,True,119,paper4_v399_notebook_e402_cell_refactor_plan.csv,E402 requires cell-local refactor planning
+bulk_notebook_import_reorder_rejected,True,15,paper4_v399_notebook_e402_cell_refactor_plan.csv,no blind notebook import movement
+global_notebook_lint_not_clean,True,139,paper4_v399_notebook_e402_cell_refactor_plan.csv,E402 and semantic/manual notebook lint remain
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

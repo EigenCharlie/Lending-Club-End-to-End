@@ -44102,6 +44102,126 @@ def test_paper4_v397_notebook_import_side_effect_and_sim115_patch_is_bounded() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v398_notebook_historical_e402_policy_is_non_mutating() -> None:
+    status = _read_json("paper4_v398_status.json")
+
+    assert status["phase"] == "v398_notebook_historical_e402_policy"
+    assert status["schema_version"] == "2026-05-17.398"
+    assert status["prior_side_effect_patch_version_v398"] == 397
+    assert status["ruff_e402_command_v398"] == (
+        "uv run ruff check notebooks --select E402 --output-format json"
+    )
+    assert status["e402_diagnostics_v398"] == 119
+    assert status["e402_file_rows_v398"] == 9
+    assert status["e402_cell_rows_v398"] == 15
+    assert status["decision_rows_v398"] == 4
+    assert status["claim_blocker_rows_v398"] == 4
+    assert status["claim_matrix_rows_v398"] == 6
+    assert status["top_e402_notebook_v398"] == "notebooks/03_pd_modeling.ipynb"
+    assert status["top_e402_count_v398"] == 19
+    assert status["selected_policy_v398"] == "cell_local_refactor_plan"
+    assert status["bulk_import_reorder_allowed_v398"] is False
+    assert status["notebook_exclusion_allowed_v398"] is False
+    assert status["notebooks_mutated_v398"] is False
+    assert status["notebook_diff_clean_before_v398"] is True
+    assert status["notebook_diff_clean_after_v398"] is True
+    assert status["global_notebook_diagnostics_v398"] == 139
+    assert status["global_ruff_clean_v398"] is False
+    assert status["full_repository_pytest_run_v398"] is False
+    assert status["full_quarto_render_run_v398"] is False
+    assert status["working_champion_claim_allowed_v398"] is False
+    assert status["paper1_promotion_allowed_v398"] is False
+    assert status["paper4_working_champion_changed_v398"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v398"] == "paper4_v399_notebook_e402_cell_refactor_plan.csv"
+
+    manifest = _read_csv("paper4_v398_notebook_historical_e402_manifest.csv")
+    assert len(manifest) == 119
+    assert not manifest["has_ruff_fix_v398"].astype(bool).any()
+    assert not manifest["mutation_allowed_v398"].astype(bool).any()
+    assert manifest["notebook_path_v398"].nunique() == 9
+    assert manifest[["notebook_path_v398", "cell_v398"]].drop_duplicates().shape[0] == 15
+
+    file_summary = _read_csv("paper4_v398_notebook_historical_e402_file_summary.csv")
+    assert len(file_summary) == 9
+    top_file = file_summary.iloc[0]
+    assert top_file["notebook_path_v398"] == "notebooks/03_pd_modeling.ipynb"
+    assert int(top_file["e402_diagnostic_count_v398"]) == 19
+    assert file_summary["requires_cell_refactor_plan_v398"].astype(bool).all()
+
+    cell_summary = _read_csv("paper4_v398_notebook_historical_e402_cell_summary.csv")
+    assert len(cell_summary) == 15
+    assert int(cell_summary["e402_diagnostic_count_v398"].sum()) == 119
+
+    decisions = _read_csv("paper4_v398_notebook_historical_e402_decision.csv")
+    assert len(decisions) == 4
+    selected = decisions.loc[decisions["selected_v398"].astype(bool)]
+    assert len(selected) == 1
+    assert selected.iloc[0]["decision_id_v398"] == "cell_local_refactor_plan"
+    decision_map = dict(zip(decisions["decision_id_v398"], decisions["decision_v398"], strict=False))
+    assert decision_map["bulk_notebook_import_reorder"] == "rejected"
+    assert decision_map["ignore_or_exclude_notebook_e402"] == "rejected"
+
+    blockers = _read_csv("paper4_v398_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v398"], blockers["blocking_v398"], strict=False))
+    assert bool(blocker_map["historical_e402_notebook_frontier_remaining"]) is True
+    assert bool(blocker_map["bulk_notebook_import_reorder_rejected"]) is True
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v398_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v398_historical_e402_manifest_created"]) is True
+    assert bool(claim_map["v398_cell_local_refactor_policy_selected"]) is True
+    assert bool(claim_map["v398_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v398_e402_or_global_lint_clean"]) is False
+    assert bool(claim_map["v398_bulk_notebook_reorder_approved"]) is False
+    assert bool(claim_map["v398_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v398 inventories 119 historical E402 notebook diagnostics."])
+    assert bool(
+        boundary_map[
+            "v398 selects cell-local E402 refactor planning instead of bulk reorder."
+        ]
+    )
+    assert bool(boundary_map["v398 clears E402 or global notebook lint."]) is False
+    assert bool(boundary_map["v398 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v398_rows = backlog.loc[backlog["last_wave"].eq("v398")]
+    assert len(v398_rows) == 1
+    backlog_row = v398_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_historical_e402_policy_created"
+    assert backlog_row["next_artifact"] == "paper4_v399_notebook_e402_cell_refactor_plan.csv"
+    assert backlog_row["execution_result"] == "e402_119_diagnostics_15_cells_policy_no_mutation"
+
+    policy_md = (
+        PAPER4_ROOT / "notes" / "paper4_v398_notebook_historical_e402_policy.md"
+    ).read_text(encoding="utf-8")
+    assert "E402 diagnostics: `119`" in policy_md
+    assert "does not repair E402" in policy_md
+    assert "paper4_v399_notebook_e402_cell_refactor_plan.csv" in policy_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v398: Historical Notebook E402 Policy" in notebook
+    assert "E402 diagnostics:\n  `119`" in notebook
+    assert "Notebooks mutated:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

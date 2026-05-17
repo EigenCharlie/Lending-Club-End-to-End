@@ -1,0 +1,16 @@
+notebook_path_v398,cell_v398,e402_diagnostic_count_v398,first_e402_row_v398,last_e402_row_v398,planned_v399_action_v398,claim_boundary_v398
+notebooks/03_pd_modeling.ipynb,2,17,6,30,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/05_time_series_forecasting.ipynb,2,15,6,32,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/06_survival_analysis.ipynb,2,15,7,26,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/04_conformal_prediction.ipynb,2,14,6,21,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/08_portfolio_optimization.ipynb,2,14,5,27,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/09_end_to_end_pipeline.ipynb,2,13,5,21,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/13_model_explainability.ipynb,2,10,6,17,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/02_feature_engineering.ipynb,2,8,5,14,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/01_eda_lending_club.ipynb,2,6,6,12,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/03_pd_modeling.ipynb,24,2,5,12,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/05_time_series_forecasting.ipynb,7,1,23,23,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/06_survival_analysis.ipynb,12,1,30,30,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/06_survival_analysis.ipynb,18,1,29,29,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/09_end_to_end_pipeline.ipynb,8,1,43,43,inspect_cell_setup_before_reorder,cell needs local execution-order review
+notebooks/13_model_explainability.ipynb,8,1,14,14,inspect_cell_setup_before_reorder,cell needs local execution-order review

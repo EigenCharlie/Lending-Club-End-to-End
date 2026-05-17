@@ -16916,3 +16916,52 @@ Keep v397 in the living notebook. v398 should decide how to handle the
 historical E402 notebook frontier without blind bulk mutation.
 
 <!-- V397_NOTEBOOK_IMPORT_SIDE_EFFECT_AND_SIM115_PATCH_END -->
+
+<!-- V398_NOTEBOOK_HISTORICAL_E402_POLICY_START -->
+
+## Wave v398: Historical Notebook E402 Policy
+
+Generated: 2026-05-17T07:59:45.331172+00:00
+
+### Objective
+
+v398 inventories the post-v397 historical notebook E402 frontier and decides how
+to proceed without blind bulk mutation.
+
+### Results
+
+- E402 diagnostics:
+  `119`.
+- Notebook files:
+  `9`.
+- Affected cells:
+  `15`.
+- Selected policy:
+  `cell_local_refactor_plan`.
+- Notebooks mutated:
+  `False`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v399_notebook_e402_cell_refactor_plan.csv`.
+
+### Interpretation
+
+The remaining E402 debt is historical and concentrated in 15 notebook cells.
+Bulk import movement is rejected; the next wave should produce a cell-local
+refactor plan before any notebook mutation.
+
+### Claim Impact
+
+- Allowed: E402 manifest, file/cell summaries and cell-local policy decision.
+- Still prohibited: E402 repaired, notebook lint clean, repository ruff clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v398 in the living notebook. v399 should build the 15-cell E402 refactor
+plan.
+
+<!-- V398_NOTEBOOK_HISTORICAL_E402_POLICY_END -->
