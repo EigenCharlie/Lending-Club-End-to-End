@@ -14188,3 +14188,55 @@ Keep v346 in the living notebook. The next wave should apply the local
 two-swap candidate and reprice it as a candidate portfolio, without promotion.
 
 <!-- V346_V338_MULTI_SOURCE_RELIEF_OR_BOUND_PROTOCOL_END -->
+
+<!-- V347_V338_APPLY_MULTI_SOURCE_RELIEF_CANDIDATE_START -->
+
+## Wave v347: Apply v346 Multi-Source Relief Candidate
+
+Generated: 2026-05-17T01:08:05.073195+00:00
+
+### Objective
+
+v346 found one local two-add/two-drop source/CVaR feasible entering candidate.
+v347 applies that action to the v338 book and recalculates the candidate
+portfolio diagnostics before any repricing or champion language.
+
+### Results
+
+- Applied added loans: `148017643|151825245`.
+- Applied dropped loans: `148145784|160128011`.
+- Return delta vs v338:
+  `0.8443636262018117`.
+- CVaR90 delta vs v338:
+  `-3.382813621632522`.
+- Observed proxy rows: `96`.
+- Missing proxy rows: `75`.
+- Missing proxy delta vs v338:
+  `1`.
+- Source cap violations:
+  `0`.
+- Post-v347 repricing required:
+  `True`.
+
+### Interpretation
+
+v347 turns the v346 local pricing signal into a concrete candidate portfolio.
+It improves static return and CVaR relative to v338 while preserving exposure,
+cardinality and source caps. The tradeoff is proxy coverage: missing proxy rows
+increase from 74 to 75. The candidate therefore remains a living-lab object, not
+a working champion.
+
+### Claim Impact
+
+- Allowed: applied v346 two-swap candidate; static return/CVaR improvement
+  versus v338.
+- Still prohibited: post-v347 local optimality, full-universe optimality,
+  contractual IFRS9, live deployment, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v347 in the living notebook. The next wave should reprice the v347
+candidate without promotion.
+
+<!-- V347_V338_APPLY_MULTI_SOURCE_RELIEF_CANDIDATE_END -->

@@ -37217,6 +37217,146 @@ def test_paper4_v346_v338_multi_source_relief_finds_local_candidate_only() -> No
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v347_v338_apply_multi_source_relief_candidate_requires_reprice() -> None:
+    status = _read_json("paper4_v347_status.json")
+
+    assert status["phase"] == "v347_v338_apply_multi_source_relief_candidate"
+    assert status["schema_version"] == "2026-05-16.347"
+    assert status["base_version_v347"] == 338
+    assert status["relief_protocol_version_v347"] == 346
+    assert status["applied_added_loan_ids_v347"] == "148017643|151825245"
+    assert status["applied_dropped_loan_ids_v347"] == "148145784|160128011"
+    assert status["selected_rows_v347"] == 171
+    assert status["cardinality_preserved_v347"] is True
+    assert status["portfolio_exposure_v347"] == pytest.approx(843775.0)
+    assert status["exposure_preserved_vs_v338_v347"] is True
+    assert status["objective_return_v347"] == pytest.approx(4426.754927405589)
+    assert status["delta_return_vs_v338_v347"] == pytest.approx(0.8443636262018117)
+    assert status["scenario_loss_mean_v347"] == pytest.approx(60093.316941825564)
+    assert status["delta_loss_mean_vs_v338_v347"] == pytest.approx(0.2696788108514738)
+    assert status["scenario_loss_cvar90_v347"] == pytest.approx(96382.59371194048)
+    assert status["delta_cvar90_vs_v338_v347"] == pytest.approx(-3.382813621632522)
+    assert status["observed_proxy_rows_v347"] == 96
+    assert status["missing_proxy_rows_v347"] == 75
+    assert status["observed_proxy_delta_vs_v338_v347"] == -1
+    assert status["missing_proxy_delta_vs_v338_v347"] == 1
+    assert status["period_distribution_v347"] == {"2018": 94, "2019": 70, "2020": 7}
+    assert status["source_cap_violations_v347"] == 0
+    assert status["min_source_slack_v347"] == pytest.approx(4.597308456477656e-06)
+    assert status["max_source_share_v347"] == pytest.approx(0.8998844478682113)
+    assert status["return_improves_vs_v338_v347"] is True
+    assert status["cvar_improves_vs_v338_v347"] is True
+    assert status["post_v347_repricing_required_v347"] is True
+    assert status["valid_branch_price_bound_v347"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v347"] is False
+    assert status["working_champion_claim_allowed_v347"] is False
+    assert status["paper1_promotion_allowed_v347"] is False
+    assert status["paper4_working_champion_changed_v347"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v347"] == 5
+    assert status["claim_matrix_rows_v347"] == 4
+    assert status["next_artifact_v347"] == "paper4_v348_post_v347_reprice.csv"
+    assert "repricing" in status["claim_boundary"]
+
+    summary = _read_csv("paper4_v347_v338_apply_multi_source_relief_candidate.csv")
+    row = summary.iloc[0]
+    assert row["gate_id_v347"] == "v347_v338_apply_multi_source_relief_candidate"
+    assert str(row["applied_added_loan_ids_v347"]) == "148017643|151825245"
+    assert str(row["applied_dropped_loan_ids_v347"]) == "148145784|160128011"
+    assert bool(row["cardinality_preserved_v347"]) is True
+    assert bool(row["exposure_preserved_vs_v338_v347"]) is True
+    assert float(row["delta_return_vs_v338_v347"]) == pytest.approx(0.8443636262018117)
+    assert float(row["delta_cvar90_vs_v338_v347"]) == pytest.approx(-3.382813621632522)
+    assert int(row["missing_proxy_rows_v347"]) == 75
+    assert int(row["missing_proxy_delta_vs_v338_v347"]) == 1
+    assert int(row["source_cap_violations_v347"]) == 0
+    assert bool(row["post_v347_repricing_required_v347"]) is True
+    assert bool(row["working_champion_claim_allowed_v347"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    actions = _read_csv("paper4_v347_v338_multi_source_relief_actions.csv")
+    assert len(actions) == 2
+    action_map = dict(zip(actions["action_label_v347"], actions["return_delta_v347"], strict=False))
+    assert float(action_map["seed_action_from_v346"]) == pytest.approx(1.4233158764891733)
+    assert float(action_map["second_relief_action_from_v346"]) == pytest.approx(-0.5789522502873226)
+    missing_map = dict(
+        zip(
+            actions["action_label_v347"],
+            actions["delta_missing_v47_proxy_rows_v347"],
+            strict=False,
+        )
+    )
+    assert int(missing_map["seed_action_from_v346"]) == 0
+    assert int(missing_map["second_relief_action_from_v346"]) == 1
+
+    allocations = pd.read_parquet(
+        TABLE_DIR / "paper4_v347_v338_multi_source_relief_allocations.parquet"
+    )
+    assert len(allocations) == 171
+    assert allocations["selected_v347"].eq(1).all()
+    assert int(allocations["relief_action_v347"].eq("added_from_v346_local_two_swap").sum()) == 2
+    added_ids = "|".join(
+        sorted(
+            allocations.loc[
+                allocations["relief_action_v347"].eq("added_from_v346_local_two_swap"),
+                "loan_id",
+            ].astype(str)
+        )
+    )
+    assert added_ids == "148017643|151825245"
+
+    source_summary = _read_csv("paper4_v347_v338_multi_source_relief_source_summary.csv")
+    assert len(source_summary) == 51
+    assert not source_summary["source_cap_violated_v347"].astype(bool).any()
+    assert source_summary["source_slack_v347"].min() == pytest.approx(4.597308456477656e-06)
+
+    blockers = _read_csv("paper4_v347_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v347"], blockers["blocking_v347"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v347"], blockers["evidence_count_v347"], strict=False)
+    )
+    assert bool(blocker_map["post_v347_repricing_required"]) is True
+    assert bool(blocker_map["proxy_coverage_worsens_vs_v338"]) is True
+    assert int(evidence_map["proxy_coverage_worsens_vs_v338"]) == 1
+    assert bool(blocker_map["valid_branch_price_bound_missing"]) is True
+    assert bool(blocker_map["contractual_ifrs9_and_live_holdout_missing"]) is True
+    assert int(evidence_map["contractual_ifrs9_and_live_holdout_missing"]) == 75
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v347_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v347_multi_source_relief_candidate_applied"]) is True
+    assert bool(claim_map["v347_static_return_and_cvar_improve_vs_v338"]) is True
+    assert bool(claim_map["v347_proxy_coverage_preserved_vs_v338"]) is False
+    assert bool(claim_map["v347_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v347 applies the v346 local two-add/two-drop relief candidate."])
+    assert bool(boundary_map["v347 improves static return and CVaR versus v338."])
+    assert bool(boundary_map["v347 preserves v338 proxy coverage exactly."]) is False
+    assert bool(boundary_map["v347 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v347 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v347_rows = backlog.loc[backlog["last_wave"].eq("v347")]
+    assert len(v347_rows) == 1
+    backlog_row = v347_rows.iloc[0]
+    assert backlog_row["status"] == "multi_source_relief_candidate_applied_requires_reprice"
+    assert backlog_row["next_artifact"] == "paper4_v348_post_v347_reprice.csv"
+    assert backlog_row["execution_result"] == "return_and_cvar_improve_proxy_missing_worsens_by_one"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v347: Apply v346 Multi-Source Relief Candidate" in notebook
+    assert "Return delta vs v338:\n  `0.8443636262018117`" in notebook
+    assert "Missing proxy delta vs v338:\n  `1`" in notebook
+    assert "not a working champion" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v347_multi_source_relief_candidate_applied,True,paper4_v347_v338_apply_multi_source_relief_candidate.csv,local applied candidate only; post-v347 repricing required
+v347_static_return_and_cvar_improve_vs_v338,True,paper4_v347_v338_apply_multi_source_relief_candidate.csv,common-scenario static proxy only
+v347_proxy_coverage_preserved_vs_v338,False,paper4_v347_claim_blockers.csv,missing proxy rows increase by one
+v347_working_champion_or_final_promotion,False,paper4_v347_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

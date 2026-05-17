@@ -1,0 +1,3 @@
+action_rank_v347,action_label_v347,added_loan_id_v347,dropped_loan_id_v347,added_loan_amount_v347,dropped_loan_amount_v347,added_mean_return_v347,dropped_mean_return_v347,return_delta_v347,added_observed_v47_proxy_v347,dropped_observed_v47_proxy_v347,delta_missing_v47_proxy_rows_v347,claim_boundary_v347
+1,seed_action_from_v346,151825245,160128011,1200.0,1200.0,24.73291306022574,23.309597183736567,1.4233158764891733,False,False,0,component action inside the applied v346 local two-swap candidate
+2,second_relief_action_from_v346,148017643,148145784,1000.0,1000.0,16.62722525875585,17.206177509043172,-0.5789522502873226,False,True,1,component action inside the applied v346 local two-swap candidate
