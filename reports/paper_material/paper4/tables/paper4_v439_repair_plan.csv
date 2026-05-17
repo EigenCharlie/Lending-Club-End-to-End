@@ -1,0 +1,2 @@
+repair_lane_v439,target_surface_v439,target_rule_v439,diagnostic_count_v439,fixable_count_v439,mutation_allowed_in_v439,v440_candidate_v439,next_artifact_v439,claim_boundary_v439
+targeted_scripts_sim108_conditional_expr_repair,scripts,SIM108,2,2,False,True,paper4_v440_scripts_sim108_conditional_expr_repair_batch.md,v439 plans the next repair but does not mutate conditional expressions
