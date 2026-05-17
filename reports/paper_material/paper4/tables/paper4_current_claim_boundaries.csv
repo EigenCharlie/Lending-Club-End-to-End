@@ -1629,3 +1629,8 @@ v479 finds no positive prohibited assertions in draft stubs.,True,reports/paper_
 v479 creates a controlled Quarto insertion plan.,False,reports/paper_material/paper4/tables/paper4_v479_manuscript_readiness_delta.csv,Insertion plan is deferred to v480.,True,living_notebook_only
 v479 inserts stubs into Quarto or finalizes manuscript prose.,False,reports/paper_material/paper4/tables/paper4_v479_manuscript_readiness_delta.csv,No book source mutation in v479.,True,living_notebook_only
 v479 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v479_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v480 creates a controlled Quarto insertion plan.,True,reports/paper_material/paper4/tables/paper4_v480_quarto_insertion_plan.csv,Plan only; no patch applied.,False,living_notebook_only
+v480 creates pre-patch gates and rollback instructions.,True,reports/paper_material/paper4/tables/paper4_v480_pre_patch_gate_checklist.csv,Gate and rollback planning only.,False,living_notebook_only
+v480 applies a Quarto patch or edits book sources.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,No book source mutation in v480.,True,living_notebook_only
+v480 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,"Manual review, patch, render and venue gates remain open.",True,living_notebook_only
+v480 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v480_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

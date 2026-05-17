@@ -54717,6 +54717,121 @@ def test_paper4_v479_stub_claim_consistency_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v480_controlled_quarto_insertion_plan_is_guarded() -> None:
+    status = _read_json("paper4_v480_status.json")
+    assert status["phase"] == "v480_controlled_quarto_insertion_plan"
+    assert status["schema_version"] == "2026-05-17.480"
+    assert status["prior_stub_audit_version_v480"] == 479
+    assert status["controlled_quarto_insertion_plan_created_v480"] is True
+    assert status["insertion_plan_rows_v480"] == 5
+    assert status["pre_patch_gate_rows_v480"] == 6
+    assert status["rollback_rows_v480"] == 5
+    assert status["risk_rows_v480"] == 6
+    assert status["readiness_delta_rows_v480"] == 8
+    assert status["target_files_exist_v480"] is True
+    assert status["manual_review_required_v480"] is True
+    assert status["ready_for_quarto_patch_v480"] is False
+    assert status["quarto_patch_applied_v480"] is False
+    assert status["book_sources_modified_v480"] is False
+    assert status["book_references_modified_v480"] is False
+    assert status["submission_ready_claim_allowed_v480"] is False
+    assert status["working_champion_claim_allowed_v480"] is False
+    assert status["paper1_promotion_allowed_v480"] is False
+    assert status["paper4_working_champion_changed_v480"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v480"] == "paper4_v481_manual_quarto_patch_decision.md"
+
+    plan = _read_csv("paper4_v480_quarto_insertion_plan.csv")
+    assert len(plan) == 5
+    assert plan["target_file_exists_v480"].astype(bool).all()
+    assert plan["requires_manual_review_v480"].astype(bool).all()
+    assert not plan["ready_for_patch_v480"].astype(bool).any()
+    assert not plan["book_mutation_allowed_v480"].astype(bool).any()
+    assert "stub_methods_protocol" in set(plan["stub_id_v480"])
+    assert "book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd" in set(
+        plan["target_file_v480"]
+    )
+
+    gates = _read_csv("paper4_v480_pre_patch_gate_checklist.csv")
+    assert len(gates) == 6
+    gate_map = dict(zip(gates["gate_id_v480"], gates["passed_v480"], strict=False))
+    assert bool(gate_map["v479_audit_passed"]) is True
+    assert bool(gate_map["target_files_identified"]) is True
+    assert bool(gate_map["rollback_plan_created"]) is True
+    assert bool(gate_map["book_mutation_allowed"]) is False
+    assert bool(gate_map["paper4_final_promotion_absent"]) is True
+
+    rollback = _read_csv("paper4_v480_rollback_plan.csv")
+    assert len(rollback) == 5
+    assert not rollback["mutation_performed_v480"].astype(bool).any()
+    assert rollback["rollback_required_if_patched_v480"].astype(bool).all()
+    assert rollback["rollback_check_v480"].str.startswith("git diff -- book/").all()
+
+    risks = _read_csv("paper4_v480_insertion_risk_register.csv")
+    assert len(risks) == 6
+    assert risks["risk_open_v480"].astype(bool).all()
+    assert "paper_estrella_boundary_violation" in set(risks["risk_id_v480"])
+
+    readiness = _read_csv("paper4_v480_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v480"], readiness["ready_v480"], strict=False)
+    )
+    assert bool(readiness_map["controlled_quarto_insertion_plan_created"]) is True
+    assert bool(readiness_map["target_files_identified"]) is True
+    assert bool(readiness_map["pre_patch_gates_created"]) is True
+    assert bool(readiness_map["rollback_plan_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v480_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v480_controlled_quarto_insertion_plan_created"]) is True
+    assert bool(claim_map["v480_pre_patch_gate_checklist_created"]) is True
+    assert bool(claim_map["v480_rollback_plan_created"]) is True
+    assert bool(claim_map["v480_quarto_patch_applied"]) is False
+    assert bool(claim_map["v480_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v480 creates a controlled Quarto insertion plan."])
+    assert bool(boundary_map["v480 creates pre-patch gates and rollback instructions."])
+    assert bool(boundary_map["v480 applies a Quarto patch or edits book sources."]) is False
+    assert bool(boundary_map["v480 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v480 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v480_rows = backlog.loc[backlog["last_wave"].eq("v480")]
+    assert len(v480_rows) == 1
+    backlog_row = v480_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v481_manual_quarto_patch_decision.md"
+    assert backlog_row["execution_result"] == "controlled_insertion_plan_created_without_book_edit"
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v480_controlled_quarto_insertion_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Controlled Quarto Insertion Plan v480" in plan_md
+    assert "does not edit book sources" in plan_md
+    assert "v480 is planning only" in plan_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v480: Controlled Quarto Insertion Plan" in living_notebook
+    assert "Insertion plan rows:\n  `5`." in living_notebook
+    assert "Pre-patch gate rows:\n  `6`." in living_notebook
+    assert "Rollback rows:\n  `5`." in living_notebook
+    assert "Risk rows:\n  `6`." in living_notebook
+    assert "Target files exist:\n  `True`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Quarto patch applied:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -21211,3 +21211,57 @@ Keep v479 in the living notebook. v480 should create a controlled insertion plan
 without modifying book sources.
 
 <!-- V479_STUB_CLAIM_CONSISTENCY_AUDIT_END -->
+
+<!-- V480_CONTROLLED_QUARTO_INSERTION_PLAN_START -->
+
+## Wave v480: Controlled Quarto Insertion Plan
+
+Generated: 2026-05-17T17:22:14.570641+00:00
+
+### Objective
+
+v480 creates a controlled plan for where a future manual patch could insert the
+v478-v479 draft material, without editing any book source.
+
+### Results
+
+- Insertion plan rows:
+  `5`.
+- Pre-patch gate rows:
+  `6`.
+- Rollback rows:
+  `5`.
+- Risk rows:
+  `6`.
+- Target files exist:
+  `True`.
+- Ready for Quarto patch:
+  `False`.
+- Quarto patch applied:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v481_manual_quarto_patch_decision.md`.
+
+### Interpretation
+
+The manuscript work is close enough to have a controlled insertion plan, but not
+close enough to patch automatically. Manual review remains mandatory.
+
+### Claim Impact
+
+- Allowed: controlled insertion plan, pre-patch gate checklist and rollback plan.
+- Still prohibited: actual Quarto patch, book-reference mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v480 in the living notebook. v481 should decide whether a manual patch is
+allowed, still without treating Paper 4 as final.
+
+<!-- V480_CONTROLLED_QUARTO_INSERTION_PLAN_END -->

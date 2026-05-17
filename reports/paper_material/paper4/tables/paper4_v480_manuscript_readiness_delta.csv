@@ -1,0 +1,9 @@
+readiness_gate_v480,ready_v480,evidence_artifact_v480,claim_boundary_v480
+controlled_quarto_insertion_plan_created,True,paper4_v480_quarto_insertion_plan.csv,plan only
+target_files_identified,True,paper4_v480_quarto_insertion_plan.csv,path identification only
+pre_patch_gates_created,True,paper4_v480_pre_patch_gate_checklist.csv,gate checklist only
+rollback_plan_created,True,paper4_v480_rollback_plan.csv,rollback plan only
+ready_for_quarto_patch,False,manual review required,patch deferred to v481 decision
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v480
+submission_ready,False,future venue and render validation,not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
