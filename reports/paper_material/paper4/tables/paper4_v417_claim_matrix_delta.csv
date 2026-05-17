@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v417_sim108_conditional_expr_review_created,True,paper4_v417_notebook_sim108_conditional_expr_review.csv,2 SIM108 diagnostics reviewed
+v417_sim108_patch_selected,True,paper4_v417_notebook_sim108_patch_plan.csv,2 conditional-expression patches selected for v418
+v417_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v417
+v417_sim108_repaired,False,paper4_v417_claim_blockers.csv,review only
+v417_notebook_or_repo_ruff_clean,False,paper4_v417_claim_blockers.csv,5 notebook diagnostics remain
+v417_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -17837,3 +17837,46 @@ Keep v416 in the living notebook. v417 should review SIM108 refactors before
 mutation.
 
 <!-- V416_NOTEBOOK_E741_COMPREHENSION_VAR_PATCH_END -->
+
+<!-- V417_NOTEBOOK_SIM108_CONDITIONAL_EXPR_REVIEW_START -->
+
+## Wave v417: Notebook SIM108 Conditional-Expression Review
+
+Generated: 2026-05-17T09:53:13.273147+00:00
+
+### Objective
+
+v417 reviews the two remaining SIM108 notebook diagnostics before mutation.
+
+### Results
+
+- SIM108 diagnostics reviewed:
+  `2`.
+- Selected for v418:
+  `2`.
+- Notebook diagnostics:
+  `5`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v418_notebook_sim108_conditional_expr_patch.md`.
+
+### Interpretation
+
+Both SIM108 rows are single-assignment if/else blocks in notebook 04 and are
+eligible for an explicit conditional-expression patch.
+
+### Claim Impact
+
+- Allowed: SIM108 review and v418 patch selection.
+- Still prohibited: SIM108 repaired, notebook lint clean, repository ruff clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v417 in the living notebook. v418 should apply the SIM108 patch with
+roundtrip checks.
+
+<!-- V417_NOTEBOOK_SIM108_CONDITIONAL_EXPR_REVIEW_END -->

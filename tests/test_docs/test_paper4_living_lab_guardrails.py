@@ -46196,6 +46196,99 @@ def test_paper4_v416_notebook_e741_comprehension_var_patch_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v417_notebook_sim108_conditional_expr_review_is_non_mutating() -> None:
+    status = _read_json("paper4_v417_status.json")
+
+    assert status["phase"] == "v417_notebook_sim108_conditional_expr_review"
+    assert status["schema_version"] == "2026-05-17.417"
+    assert status["prior_e741_patch_version_v417"] == 416
+    assert status["global_notebook_diagnostics_v417"] == 5
+    assert status["sim108_diagnostics_v417"] == 2
+    assert status["e712_diagnostics_v417"] == 2
+    assert status["sim102_diagnostics_v417"] == 1
+    assert status["selected_for_v418_rows_v417"] == 2
+    assert status["patch_plan_rows_v417"] == 1
+    assert status["notebooks_mutated_v417"] is False
+    assert status["notebook_diff_clean_before_v417"] is True
+    assert status["notebook_diff_clean_after_v417"] is True
+    assert status["global_ruff_clean_v417"] is False
+    assert status["full_repository_pytest_run_v417"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v417"] == "paper4_v418_notebook_sim108_conditional_expr_patch.md"
+
+    review = _read_csv("paper4_v417_notebook_sim108_conditional_expr_review.csv")
+    assert len(review) == 2
+    assert set(review["notebook_path_v417"]) == {"notebooks/04_conformal_prediction.ipynb"}
+    assert set(review["semantics_review_v417"]) == {
+        "single_assignment_ifelse_no_branch_side_effects"
+    }
+    assert review["selected_for_v418_v417"].astype(bool).all()
+    assert not review["mutation_allowed_v417"].astype(bool).any()
+    assert review["recommended_patch_v417"].str.contains(" if ").all()
+    assert review["recommended_patch_v417"].str.contains(" else ").all()
+
+    patch_plan = _read_csv("paper4_v417_notebook_sim108_patch_plan.csv")
+    assert len(patch_plan) == 1
+    row = patch_plan.iloc[0]
+    assert row["patch_batch_id_v417"] == "batch_1_sim108_conditional_expr"
+    assert int(row["diagnostic_count_v417"]) == 2
+    assert int(row["notebook_count_v417"]) == 1
+    assert row["recommended_next_artifact_v417"] == (
+        "paper4_v418_notebook_sim108_conditional_expr_patch.md"
+    )
+    assert bool(row["mutation_allowed_v417"]) is False
+
+    blockers = _read_csv("paper4_v417_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v417"], blockers["blocking_v417"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v417"], blockers["evidence_count_v417"], strict=False)
+    )
+    assert bool(blocker_map["sim108_conditional_expr_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["sim108_conditional_expr_patch_not_applied_yet"]) == 2
+    assert bool(blocker_map["style_notebook_lint_remaining"]) is True
+    assert int(blocker_evidence["style_notebook_lint_remaining"]) == 5
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v417_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v417_sim108_conditional_expr_review_created"]) is True
+    assert bool(claim_map["v417_sim108_patch_selected"]) is True
+    assert bool(claim_map["v417_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v417_sim108_repaired"]) is False
+    assert bool(claim_map["v417_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v417_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v417 reviews the remaining 2 SIM108 notebook diagnostics."])
+    assert bool(boundary_map["v417 selects SIM108 conditional-expression patches for v418."])
+    assert bool(boundary_map["v417 repairs SIM108 or clears notebook lint."]) is False
+    assert bool(boundary_map["v417 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v417_rows = backlog.loc[backlog["last_wave"].eq("v417")]
+    assert len(v417_rows) == 1
+    assert v417_rows.iloc[0]["next_artifact"] == (
+        "paper4_v418_notebook_sim108_conditional_expr_patch.md"
+    )
+    assert v417_rows.iloc[0]["execution_result"] == "two_sim108_refactors_reviewed_no_mutation"
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v417: Notebook SIM108 Conditional-Expression Review" in living_notebook
+    assert "Both SIM108 rows are single-assignment" in living_notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
