@@ -1,0 +1,2 @@
+probe_id_v437,command_v437,exit_code_v437,passed_v437,runtime_seconds_v437,collected_items_v437,summary_line_v437,claim_boundary_v437
+full_repository_pytest,uv run pytest -q --tb=short,0,True,176.412,1175,"=========== 1175 passed, 2 skipped, 13 warnings in 162.22s (0:02:42) ===========",post-v436 scripts/book F401 repair full pytest probe

@@ -1,0 +1,2 @@
+repair_lane_v437,target_surface_v437,target_rule_v437,diagnostic_count_v437,fixable_count_v437,mutation_allowed_in_v437,v438_candidate_v437,next_artifact_v437,claim_boundary_v437
+targeted_scripts_up022_capture_output_repair,scripts,UP022,3,3,False,True,paper4_v438_scripts_up022_capture_output_repair_batch.md,v437 plans the next repair but does not mutate subprocess calls
