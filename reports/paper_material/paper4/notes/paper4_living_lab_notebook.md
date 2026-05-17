@@ -19553,3 +19553,59 @@ remains clean. The next gate is an explicit Quarto render probe.
 Keep v447 in the living notebook. v448 should run the Quarto render probe.
 
 <!-- V447_POST_SCRIPTS_B023_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V448_QUARTO_RENDER_PROBE_START -->
+
+## Wave v448: Quarto Render Probe
+
+Generated: 2026-05-17T14:06:42.128406+00:00
+
+### Objective
+
+v448 renders the official registered Paper 4 Quarto chapter after v447 made the
+repository clean under full pytest and Ruff.
+
+### Results
+
+- Quarto command:
+  `bash scripts/render_quarto.sh render book/chapters/19-paper-mega-extension --to html --execute-daemon-restart`.
+- Quarto exit code:
+  `0`.
+- Paper 4 official render clean:
+  `True`.
+- Registered Paper 4 pages:
+  `10`.
+- Observed rendered pages:
+  `10`.
+- Historical Paper 4 QMD files on disk:
+  `80`.
+- Intentionally archived Paper 4 pages:
+  `70`.
+- Unregistered non-archived Paper 4 pages:
+  `0`.
+- Output index exists:
+  `True`.
+- Full book render run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v449_full_book_render_probe.md`.
+
+### Interpretation
+
+The official Paper 4 Quarto chapter renders cleanly with the compact registered
+surface. This closes the v447 Quarto-render blocker at the Paper 4 chapter level
+while keeping the historical archive out of the official rendered surface.
+
+### Claim Impact
+
+- Allowed: official Paper 4 registered Quarto chapter render passed.
+- Still prohibited: full-book render clean, champion replacement and final
+  promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v448 in the living notebook. v449 should probe the full book render.
+
+<!-- V448_QUARTO_RENDER_PROBE_END -->

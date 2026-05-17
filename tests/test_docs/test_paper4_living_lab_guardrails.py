@@ -51299,6 +51299,118 @@ def test_paper4_v447_post_scripts_b023_repair_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v448_quarto_render_probe_is_guarded() -> None:
+    status = _read_json("paper4_v448_status.json")
+    expected_command = (
+        "bash scripts/render_quarto.sh render book/chapters/19-paper-mega-extension "
+        "--to html --execute-daemon-restart"
+    )
+
+    assert status["phase"] == "v448_quarto_render_probe"
+    assert status["schema_version"] == "2026-05-17.448"
+    assert status["prior_pytest_probe_version_v448"] == 447
+    assert status["quarto_render_command_v448"] == expected_command
+    assert status["quarto_render_exit_code_v448"] == 0
+    assert status["paper4_official_quarto_render_run_v448"] is True
+    assert status["paper4_official_quarto_render_clean_v448"] is True
+    assert status["full_quarto_render_run_v448"] is True
+    assert status["full_quarto_render_clean_v448"] is True
+    assert status["full_book_render_run_v448"] is False
+    assert status["full_book_render_clean_v448"] is False
+    assert status["registered_paper4_page_count_v448"] == 10
+    assert status["rendered_page_count_v448"] == 10
+    assert status["registered_page_count_matches_render_v448"] is True
+    assert status["paper4_qmd_files_on_disk_v448"] == 80
+    assert status["archived_paper4_page_count_v448"] == 70
+    assert status["unregistered_nonarchived_page_count_v448"] == 0
+    assert status["archive_policy_preserved_v448"] is True
+    assert status["output_index_v448"] == (
+        "book/_output/chapters/19-paper-mega-extension/index.html"
+    )
+    assert (Path(status["output_index_v448"])).exists()
+    assert status["working_champion_claim_allowed_v448"] is False
+    assert status["paper1_promotion_allowed_v448"] is False
+    assert status["paper4_working_champion_changed_v448"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v448"] == "paper4_v449_full_book_render_probe.md"
+
+    summary = _read_csv("paper4_v448_quarto_render_probe_summary.csv")
+    assert len(summary) == 1
+    summary_row = summary.iloc[0]
+    assert summary_row["probe_id_v448"] == "paper4_official_quarto_chapter_render"
+    assert int(summary_row["exit_code_v448"]) == 0
+    assert bool(summary_row["passed_v448"]) is True
+    assert int(summary_row["rendered_page_count_v448"]) == 10
+    assert summary_row["output_index_v448"] == (
+        "book/_output/chapters/19-paper-mega-extension/index.html"
+    )
+
+    registered = _read_csv("paper4_v448_quarto_registered_pages.csv")
+    assert len(registered) == 10
+    assert registered["registered_in_book_v448"].astype(bool).all()
+    assert registered["rendered_in_v448"].astype(bool).all()
+    assert registered["page_v448"].str.startswith("chapters/19-paper-mega-extension/").all()
+    assert set(registered["render_policy_v448"]) == {"official_paper4_chapter_page"}
+
+    archive_surface = _read_csv("paper4_v448_quarto_archive_surface.csv")
+    archive_map = dict(
+        zip(archive_surface["surface_metric_v448"], archive_surface["count_v448"], strict=False)
+    )
+    assert int(archive_map["registered_official_paper4_pages"]) == 10
+    assert int(archive_map["paper4_qmd_files_on_disk"]) == 80
+    assert int(archive_map["intentionally_archived_paper4_pages"]) == 70
+    assert int(archive_map["unregistered_nonarchived_paper4_pages"]) == 0
+
+    blockers = _read_csv("paper4_v448_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v448"], blockers["blocking_v448"], strict=False))
+    assert bool(blocker_map["full_book_render_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v448_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v448_paper4_official_quarto_render_run"]) is True
+    assert bool(claim_map["v448_paper4_official_quarto_render_clean"]) is True
+    assert bool(claim_map["v448_registered_page_count_matches_render"]) is True
+    assert bool(claim_map["v448_archive_policy_preserved"]) is True
+    assert bool(claim_map["v448_full_book_render_clean"]) is False
+    assert bool(claim_map["v448_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v448 renders the official registered Paper 4 Quarto chapter."])
+    assert bool(boundary_map["v448 rendered pages match the official Paper 4 registry."])
+    assert bool(boundary_map["v448 preserves the historical Paper 4 archive policy."])
+    assert bool(boundary_map["v448 proves full book render cleanliness."]) is False
+    assert bool(boundary_map["v448 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v448_rows = backlog.loc[backlog["last_wave"].eq("v448")]
+    assert len(v448_rows) == 1
+    backlog_row = v448_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v449_full_book_render_probe.md"
+    assert backlog_row["execution_result"] == "official_paper4_quarto_chapter_render_passed"
+
+    probe_md = (PAPER4_ROOT / "notes" / "paper4_v448_quarto_render_probe.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Render passed: `True`" in probe_md
+    assert "Registered Paper 4 pages: `10`" in probe_md
+    assert "Observed rendered pages: `10`" in probe_md
+    assert "Full book render run: `False`" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v448: Quarto Render Probe" in living_notebook
+    assert "Paper 4 official render clean:\n  `True`." in living_notebook
+    assert "Registered Paper 4 pages:\n  `10`." in living_notebook
+    assert "Historical Paper 4 QMD files on disk:\n  `80`." in living_notebook
+    assert "Intentionally archived Paper 4 pages:\n  `70`." in living_notebook
+    assert "Full book render run:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

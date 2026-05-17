@@ -1,0 +1,2 @@
+probe_id_v448,command_v448,exit_code_v448,passed_v448,runtime_seconds_v448,rendered_page_count_v448,output_index_v448,reported_output_v448,claim_boundary_v448
+paper4_official_quarto_chapter_render,bash scripts/render_quarto.sh render book/chapters/19-paper-mega-extension --to html --execute-daemon-restart,0,True,35.245,10,book/_output/chapters/19-paper-mega-extension/index.html,../../_output/chapters/19-paper-mega-extension/index.html,official Paper 4 registered Quarto chapter only
