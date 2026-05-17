@@ -22929,3 +22929,75 @@ Keep v508 in the living notebook. v509 should audit candidate resolution gaps
 before any real nomination or eligibility-review claim.
 
 <!-- V508_CANDIDATE_NOMINATION_RESOLUTION_PACKET_END -->
+
+<!-- V509_CANDIDATE_RESOLUTION_GAP_AUDIT_START -->
+
+## Wave v509: Candidate Resolution Gap Audit
+
+Generated: 2026-05-17T20:20:58.595923+00:00
+
+### Objective
+
+v509 audits whether the v508 resolution packet closed any candidate or field
+completion gaps. It does not resolve candidates or nominate reviewers.
+
+### Results
+
+- Candidate resolution gap rows:
+  `14`.
+- Open candidate resolution gap rows:
+  `14`.
+- Candidate identifier resolved rows:
+  `0`.
+- Nomination fields completed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Resolution field gap rows:
+  `84`.
+- Open resolution field gap rows:
+  `84`.
+- Field completed rows:
+  `0`.
+- Resolution blocker rows:
+  `5`.
+- Open resolution blocker rows:
+  `5`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v510_candidate_resolution_manual_entry_packet.md`.
+
+### Interpretation
+
+The resolution packet is prepared, but none of the candidate identifier or
+nomination-field gaps have been closed. The next executable artifact should
+prepare manual entry, not eligibility review or reviewer assignment.
+
+### Claim Impact
+
+- Allowed: resolution-gap audit, field-gap matrix, blocker register and future
+  manual-entry packet readiness.
+- Still prohibited: candidate resolution/nomination, reviewer assignment,
+  completed review claims, final captions, Quarto patch readiness/application,
+  Quarto/book mutation, submission readiness, Paper Estrella replacement and
+  final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v509 in the living notebook. v510 should create a candidate resolution
+manual-entry packet without fabricating candidate identifiers.
+
+<!-- V509_CANDIDATE_RESOLUTION_GAP_AUDIT_END -->

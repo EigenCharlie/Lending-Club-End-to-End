@@ -1,0 +1,6 @@
+resolution_blocker_id_v509,blocker_open_v509,blocks_nomination_v509,required_resolution_v509
+candidate_identifier_unresolved,True,True,enter candidate identifiers
+nomination_fields_incomplete,True,True,complete all nomination fields
+nomination_signoff_missing,True,True,record candidate nominations after field entry
+eligibility_review_blocked,True,False,start eligibility only after nomination
+reviewer_assignment_blocked,True,False,assign reviewers only after eligibility
