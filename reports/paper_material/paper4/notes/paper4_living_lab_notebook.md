@@ -17515,3 +17515,48 @@ Keep v409 in the living notebook. v410 should apply the fig.show patch with
 roundtrip checks.
 
 <!-- V409_NOTEBOOK_B018_DISPLAY_REVIEW_END -->
+
+<!-- V410_NOTEBOOK_B018_FIG_SHOW_PATCH_START -->
+
+## Wave v410: Notebook B018 Fig.show Patch
+
+Generated: 2026-05-17T09:16:51.062782+00:00
+
+### Objective
+
+v410 replaces the 10 reviewed bare plotly figure display expressions with
+explicit `fig.show()` calls.
+
+### Results
+
+- B018 before/after:
+  `10` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `17` ->
+  `7`.
+- Changed notebook files:
+  `3`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v411_notebook_b018_post_patch_pytest_probe.md`.
+
+### Interpretation
+
+B018 is now closed while preserving explicit notebook display intent. The
+remaining lint frontier is small and still not clean.
+
+### Claim Impact
+
+- Allowed: B018 cleared and notebook lint reduced to 7 diagnostics.
+- Still prohibited: notebook lint clean, repository ruff clean, post-patch pytest
+  passed, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v410 in the living notebook. v411 should run post-B018 full pytest.
+
+<!-- V410_NOTEBOOK_B018_FIG_SHOW_PATCH_END -->

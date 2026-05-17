@@ -1,0 +1,5 @@
+blocker_id_v410,blocking_v410,evidence_count_v410,required_next_artifact_v410,claim_boundary_v410
+f821_execution_context_deferred,True,1,paper4_v412_notebook_f821_execution_context_audit.md,undefined execution context requires audit
+global_notebook_lint_not_clean,True,7,paper4_v411_notebook_b018_post_patch_pytest_probe.md,non-B018 notebook lint remains
+post_b018_pytest_not_run,True,1,paper4_v411_notebook_b018_post_patch_pytest_probe.md,post-display-patch pytest deferred to v411
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

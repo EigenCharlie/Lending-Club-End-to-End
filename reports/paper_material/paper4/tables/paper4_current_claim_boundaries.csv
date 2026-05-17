@@ -1282,3 +1282,7 @@ v409 reviews the 10 B018 notebook display expressions.,True,reports/paper_materi
 v409 selects a fig.show patch for B018 display expressions.,True,reports/paper_material/paper4/tables/paper4_v409_notebook_b018_patch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v409 repairs B018 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v409_claim_blockers.csv,No notebook mutation; 17 diagnostics remain.,True,living_notebook_only
 v409 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v409_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v410 clears notebook B018 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v410_notebook_lint_delta.csv,B018 only; other lint remains.,False,living_notebook_only
+v410 reduces notebook lint diagnostics from 17 to 7.,True,reports/paper_material/paper4/tables/paper4_v410_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v410 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v410_claim_blockers.csv,7 notebook diagnostics remain.,True,living_notebook_only
+v410 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v410_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
