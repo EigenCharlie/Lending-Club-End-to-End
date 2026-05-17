@@ -1,0 +1,11 @@
+asset_id_v477,caption_revision_action_v477,caption_caveat_reviewed_v477,caption_ready_for_quarto_v477,caption_final_v477,required_evidence_v477,claim_boundary_v477
+T5,tighten caption into venue style while preserving caveat,True,False,False,paper4_v471_formal_claim_boundary_matrix.csv,no formal theorem or CRC guarantee
+F4,tighten caption into venue style while preserving caveat,True,False,False,paper4_fig4_regret_auditability_frontier.png,no formal SPO-DLA theorem claim
+T1,tighten caption into venue style while preserving caveat,True,False,False,paper4_v467_cvar_frontier_probe.csv,no full-v55 optimality or champion claim
+F1,tighten caption into venue style while preserving caveat,True,False,False,paper4_fig5_return_ecl_tail_frontier.png,visual context only; v467 table carries current claim
+T2,tighten caption into venue style while preserving caveat,True,False,False,paper4_v468_tight_source_rankings.csv,no source cap approval or mutation
+F2,tighten caption into venue style while preserving caveat,True,False,False,paper4_fig10_mdcp_worst_source_v2.png,no cap relaxation or legal fairness certification
+T4,tighten caption into venue style while preserving caveat,True,False,False,paper4_v470_online_monitoring_proxy_summary.csv,no production monitoring claim
+F3,tighten caption into venue style while preserving caveat,True,False,False,paper4_fig12_online_method_search.png,no external holdout or production monitoring claim
+T3,tighten caption into venue style while preserving caveat,True,False,False,paper4_v469_current_frontier_dynamic_gap.csv,no live dynamic deployment language
+T6,tighten caption into venue style while preserving caveat,True,False,False,paper4_v472_ifrs9_requirement_audit.csv,no contractual accounting compliance claim

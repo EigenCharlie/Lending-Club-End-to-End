@@ -54359,6 +54359,134 @@ def test_paper4_v476_caption_and_insertion_plan_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v477_post_visual_package_manuscript_delta_is_guarded() -> None:
+    status = _read_json("paper4_v477_status.json")
+    assert status["phase"] == "v477_post_visual_package_manuscript_delta"
+    assert status["schema_version"] == "2026-05-17.477"
+    assert status["prior_caption_plan_version_v477"] == 476
+    assert status["post_visual_package_manuscript_delta_created_v477"] is True
+    assert status["visual_package_mapped_to_manuscript_v477"] is True
+    assert status["visual_section_delta_rows_v477"] == 5
+    assert status["visual_asset_map_rows_v477"] == 10
+    assert status["blocker_visual_caveat_rows_v477"] == 6
+    assert status["caption_revision_rows_v477"] == 10
+    assert status["readiness_delta_rows_v477"] == 8
+    assert status["captions_final_v477"] is False
+    assert status["assets_inserted_into_quarto_v477"] is False
+    assert status["book_sources_modified_v477"] is False
+    assert status["book_references_modified_v477"] is False
+    assert status["submission_ready_claim_allowed_v477"] is False
+    assert status["working_champion_claim_allowed_v477"] is False
+    assert status["paper1_promotion_allowed_v477"] is False
+    assert status["paper4_working_champion_changed_v477"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v477"] == "paper4_v478_section_text_stub_bundle.md"
+
+    asset_map = _read_csv("paper4_v477_visual_asset_manuscript_map.csv")
+    assert len(asset_map) == 10
+    assert list(asset_map["insertion_order_v477"]) == list(range(1, 11))
+    assert asset_map.iloc[0]["asset_id_v477"] == "T5"
+    assert asset_map.iloc[-1]["asset_id_v477"] == "T6"
+    assert asset_map["must_preserve_caveat_v477"].astype(bool).all()
+    assert not asset_map["caption_final_v477"].astype(bool).any()
+    assert not asset_map["inserted_into_quarto_v477"].astype(bool).any()
+    assert {"methods_boundary_table", "online_context_figure"}.issubset(
+        set(asset_map["callout_role_v477"])
+    )
+
+    sections = _read_csv("paper4_v477_visual_section_delta.csv")
+    assert len(sections) == 5
+    assert set(sections["manuscript_section_v477"]) == {
+        "methods_protocol",
+        "results_evidence_cvar",
+        "results_evidence_governance_online",
+        "discussion_limitations",
+        "appendix_reproducibility",
+    }
+    assert sections["asset_bundle_v477"].str.contains("T1").any()
+    assert sections["asset_bundle_v477"].str.contains("F4").any()
+
+    blockers = _read_csv("paper4_v477_blocker_visual_caveat_map.csv")
+    assert len(blockers) == 6
+    assert blockers["blocker_preserved_v477"].astype(bool).all()
+    assert not blockers["resolved_by_visual_package_v477"].astype(bool).any()
+    assert "formal_theorem_or_proof_missing" in set(blockers["blocker_id_v477"])
+    assert "contractual_ifrs9_requirements_missing" in set(blockers["blocker_id_v477"])
+
+    caption_queue = _read_csv("paper4_v477_caption_revision_queue.csv")
+    assert len(caption_queue) == 10
+    assert caption_queue["caption_caveat_reviewed_v477"].astype(bool).all()
+    assert not caption_queue["caption_ready_for_quarto_v477"].astype(bool).any()
+    assert not caption_queue["caption_final_v477"].astype(bool).any()
+    assert caption_queue["caption_revision_action_v477"].str.contains("preserving caveat").all()
+
+    readiness = _read_csv("paper4_v477_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v477"], readiness["ready_v477"], strict=False)
+    )
+    assert bool(readiness_map["visual_package_mapped_to_sections"]) is True
+    assert bool(readiness_map["asset_callout_roles_assigned"]) is True
+    assert bool(readiness_map["blocker_caveats_preserved"]) is True
+    assert bool(readiness_map["caption_revision_queue_created"]) is True
+    assert bool(readiness_map["captions_final"]) is False
+    assert bool(readiness_map["assets_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v477_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v477_visual_package_mapped_to_sections"]) is True
+    assert bool(claim_map["v477_asset_callout_roles_assigned"]) is True
+    assert bool(claim_map["v477_blocker_caveats_preserved"]) is True
+    assert bool(claim_map["v477_caption_revision_queue_created"]) is True
+    assert bool(claim_map["v477_assets_inserted_or_captions_final"]) is False
+    assert bool(claim_map["v477_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v477 maps the selected visual package into manuscript sections."])
+    assert bool(boundary_map["v477 assigns asset callout roles for future manuscript editing."])
+    assert bool(boundary_map["v477 preserves blocker caveats for visual assets."])
+    assert (
+        bool(boundary_map["v477 inserts the visual package or finalizes captions in Quarto."])
+        is False
+    )
+    assert bool(boundary_map["v477 makes Paper 4 submission-ready."]) is False
+    assert bool(boundary_map["v477 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v477_rows = backlog.loc[backlog["last_wave"].eq("v477")]
+    assert len(v477_rows) == 1
+    backlog_row = v477_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v478_section_text_stub_bundle.md"
+    assert (
+        backlog_row["execution_result"]
+        == "visual_package_mapped_to_manuscript_without_quarto_edit"
+    )
+
+    delta_md = (
+        PAPER4_ROOT / "notes" / "paper4_v477_post_visual_package_manuscript_delta.md"
+    ).read_text(encoding="utf-8")
+    assert "Post-Visual Package Manuscript Delta v477" in delta_md
+    assert "callout role" in delta_md
+    assert "does not insert assets into" in delta_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v477: Post-Visual Package Manuscript Delta" in living_notebook
+    assert "Visual section deltas:\n  `5`." in living_notebook
+    assert "Visual asset map rows:\n  `10`." in living_notebook
+    assert "Blocker visual caveat rows:\n  `6`." in living_notebook
+    assert "Caption revision rows:\n  `10`." in living_notebook
+    assert "Captions final:\n  `False`." in living_notebook
+    assert "Assets inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

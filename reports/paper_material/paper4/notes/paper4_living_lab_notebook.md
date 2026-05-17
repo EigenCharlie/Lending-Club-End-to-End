@@ -21047,3 +21047,58 @@ Keep v476 in the living notebook. v477 should map the visual package back into
 the manuscript delta without editing book sources.
 
 <!-- V476_CAPTION_AND_INSERTION_PLAN_END -->
+
+<!-- V477_POST_VISUAL_PACKAGE_MANUSCRIPT_DELTA_START -->
+
+## Wave v477: Post-Visual Package Manuscript Delta
+
+Generated: 2026-05-17T17:07:10.806455+00:00
+
+### Objective
+
+v477 maps the selected visual package back into manuscript sections, callout
+roles, blocker caveats and a caption revision queue without editing Quarto.
+
+### Results
+
+- Visual section deltas:
+  `5`.
+- Visual asset map rows:
+  `10`.
+- Blocker visual caveat rows:
+  `6`.
+- Caption revision rows:
+  `10`.
+- Captions final:
+  `False`.
+- Assets inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v478_section_text_stub_bundle.md`.
+
+### Interpretation
+
+The visual package has moved from selection into manuscript editing control: each
+asset has a section, role and caveat, and each caption has a future revision
+action. The package is still not inserted or final.
+
+### Claim Impact
+
+- Allowed: visual section mapping, asset callout roles, blocker caveat
+  preservation and caption revision queue.
+- Still prohibited: asset insertion, final captions, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v477 in the living notebook. v478 should draft section text stubs from this
+visual manuscript delta without editing book sources.
+
+<!-- V477_POST_VISUAL_PACKAGE_MANUSCRIPT_DELTA_END -->

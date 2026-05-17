@@ -1611,3 +1611,9 @@ v476 creates an insertion plan for selected Paper 4 assets.,True,reports/paper_m
 v476 inserts assets or finalizes captions in Quarto.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,No book source mutation in v476.,True,living_notebook_only
 v476 makes Paper 4 submission-ready.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,Venue and manuscript edit gates remain open.,True,living_notebook_only
 v476 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v476_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v477 maps the selected visual package into manuscript sections.,True,reports/paper_material/paper4/tables/paper4_v477_visual_section_delta.csv,Manuscript delta only.,False,living_notebook_only
+v477 assigns asset callout roles for future manuscript editing.,True,reports/paper_material/paper4/tables/paper4_v477_visual_asset_manuscript_map.csv,Callout map only.,False,living_notebook_only
+v477 preserves blocker caveats for visual assets.,True,reports/paper_material/paper4/tables/paper4_v477_blocker_visual_caveat_map.csv,Blockers remain open.,False,living_notebook_only
+v477 inserts the visual package or finalizes captions in Quarto.,False,reports/paper_material/paper4/tables/paper4_v477_manuscript_readiness_delta.csv,No book source mutation in v477.,True,living_notebook_only
+v477 makes Paper 4 submission-ready.,False,reports/paper_material/paper4/tables/paper4_v477_manuscript_readiness_delta.csv,"Venue, caption-finalization and insertion gates remain open.",True,living_notebook_only
+v477 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v477_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
