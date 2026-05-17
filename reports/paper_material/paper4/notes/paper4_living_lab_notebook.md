@@ -21590,3 +21590,55 @@ Keep v486 in the living notebook. v487 should pair draft-accepted captions with
 their assets without modifying book sources.
 
 <!-- V486_CAPTION_REVIEW_DECISION_MATRIX_END -->
+
+<!-- V487_CAPTION_ASSET_PAIRING_PACKET_START -->
+
+## Wave v487: Caption-Asset Pairing Packet
+
+Generated: 2026-05-17T18:01:37.099059+00:00
+
+### Objective
+
+v487 pairs draft-accepted captions with selected assets and prepares a layout
+dry-run seed without editing Quarto.
+
+### Results
+
+- Caption-asset pair rows:
+  `10`.
+- Section summary rows:
+  `3`.
+- Layout seed rows:
+  `10`.
+- Pairs ready for dry-run:
+  `10`.
+- Captions final:
+  `False`.
+- Assets inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v488_layout_dry_run_packet.md`.
+
+### Interpretation
+
+Captions and assets are now paired for a layout dry-run, not for Quarto mutation.
+
+### Claim Impact
+
+- Allowed: caption-asset pairing, section pairing summary and layout dry-run seed.
+- Still prohibited: final captions, asset insertion, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v487 in the living notebook. v488 should create a layout dry-run packet
+without modifying book sources.
+
+<!-- V487_CAPTION_ASSET_PAIRING_PACKET_END -->

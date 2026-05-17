@@ -55499,6 +55499,115 @@ def test_paper4_v486_caption_review_decision_matrix_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v487_caption_asset_pairing_packet_is_guarded() -> None:
+    status = _read_json("paper4_v487_status.json")
+    assert status["phase"] == "v487_caption_asset_pairing_packet"
+    assert status["schema_version"] == "2026-05-17.487"
+    assert status["prior_caption_decision_version_v487"] == 486
+    assert status["caption_asset_pairing_packet_created_v487"] is True
+    assert status["caption_asset_pair_rows_v487"] == 10
+    assert status["section_summary_rows_v487"] == 3
+    assert status["layout_seed_rows_v487"] == 10
+    assert status["readiness_delta_rows_v487"] == 8
+    assert status["pairs_ready_for_dry_run_v487"] == 10
+    assert status["captions_final_v487"] is False
+    assert status["assets_inserted_into_quarto_v487"] is False
+    assert status["book_sources_modified_v487"] is False
+    assert status["book_references_modified_v487"] is False
+    assert status["submission_ready_claim_allowed_v487"] is False
+    assert status["working_champion_claim_allowed_v487"] is False
+    assert status["paper1_promotion_allowed_v487"] is False
+    assert status["paper4_working_champion_changed_v487"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v487"] == "paper4_v488_layout_dry_run_packet.md"
+
+    pairings = _read_csv("paper4_v487_caption_asset_pairing_matrix.csv")
+    assert len(pairings) == 10
+    assert list(pairings["insertion_order_v487"]) == list(range(1, 11))
+    assert pairings["caption_accepted_for_draft_v487"].astype(bool).all()
+    assert pairings["asset_caption_pair_ready_v487"].astype(bool).all()
+    assert pairings["layout_ready_dry_run_v487"].astype(bool).all()
+    assert not pairings["caption_final_v487"].astype(bool).any()
+    assert not pairings["inserted_into_quarto_v487"].astype(bool).any()
+    assert pairings.iloc[0]["asset_id_v487"] == "T5"
+    assert pairings.iloc[-1]["asset_id_v487"] == "T6"
+
+    sections = _read_csv("paper4_v487_section_pairing_summary.csv")
+    assert len(sections) == 3
+    assert sections["all_pairs_ready_v487"].astype(bool).all()
+    assert not sections["all_inserted_into_quarto_v487"].astype(bool).any()
+    assert int(sections["asset_count_v487"].sum()) == 10
+    assert set(sections["manuscript_section_v487"]) == {
+        "discussion_limitations",
+        "methods_protocol",
+        "results_evidence",
+    }
+
+    layout_seed = _read_csv("paper4_v487_layout_dry_run_seed.csv")
+    assert len(layout_seed) == 10
+    assert list(layout_seed["layout_order_v487"]) == list(range(1, 11))
+    assert layout_seed["ready_for_layout_dry_run_v487"].astype(bool).all()
+    assert not layout_seed["ready_for_quarto_patch_v487"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v487_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v487"], readiness["ready_v487"], strict=False)
+    )
+    assert bool(readiness_map["caption_asset_pairing_packet_created"]) is True
+    assert bool(readiness_map["section_pairing_summary_created"]) is True
+    assert bool(readiness_map["layout_dry_run_seed_created"]) is True
+    assert bool(readiness_map["caption_asset_pairs_ready_for_dry_run"]) is True
+    assert bool(readiness_map["captions_final"]) is False
+    assert bool(readiness_map["assets_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v487_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v487_caption_asset_pairing_packet_created"]) is True
+    assert bool(claim_map["v487_layout_dry_run_seed_created"]) is True
+    assert bool(claim_map["v487_pairs_ready_for_layout_dry_run"]) is True
+    assert bool(claim_map["v487_assets_inserted_or_captions_final"]) is False
+    assert bool(claim_map["v487_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v487 pairs accepted captions with selected Paper 4 assets."])
+    assert bool(boundary_map["v487 creates a layout dry-run seed."])
+    assert bool(boundary_map["v487 inserts assets or finalizes captions in Quarto."]) is False
+    assert bool(boundary_map["v487 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v487 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v487_rows = backlog.loc[backlog["last_wave"].eq("v487")]
+    assert len(v487_rows) == 1
+    backlog_row = v487_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v488_layout_dry_run_packet.md"
+    assert backlog_row["execution_result"] == "caption_asset_pairs_ready_for_layout_dry_run"
+
+    pairing_md = (
+        PAPER4_ROOT / "notes" / "paper4_v487_caption_asset_pairing_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Caption-Asset Pairing Packet v487" in pairing_md
+    assert "does not finalize" in pairing_md
+    assert "v487 is a pairing packet only" in pairing_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v487: Caption-Asset Pairing Packet" in living_notebook
+    assert "Caption-asset pair rows:\n  `10`." in living_notebook
+    assert "Section summary rows:\n  `3`." in living_notebook
+    assert "Layout seed rows:\n  `10`." in living_notebook
+    assert "Pairs ready for dry-run:\n  `10`." in living_notebook
+    assert "Captions final:\n  `False`." in living_notebook
+    assert "Assets inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

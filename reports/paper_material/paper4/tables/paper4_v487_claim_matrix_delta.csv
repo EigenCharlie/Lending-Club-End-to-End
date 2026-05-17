@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v487_caption_asset_pairing_packet_created,True,paper4_v487_caption_asset_pairing_matrix.csv,pairing packet only
+v487_layout_dry_run_seed_created,True,paper4_v487_layout_dry_run_seed.csv,dry-run seed only
+v487_pairs_ready_for_layout_dry_run,True,paper4_v487_caption_asset_pairing_matrix.csv,dry-run readiness only
+v487_assets_inserted_or_captions_final,False,paper4_v487_manuscript_readiness_delta.csv,no insertion or final captions
+v487_submission_ready_or_final_promotion,False,paper4_v487_manuscript_readiness_delta.csv,no submission or final promotion claim

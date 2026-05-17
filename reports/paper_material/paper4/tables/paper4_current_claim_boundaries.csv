@@ -1667,3 +1667,8 @@ v486 creates revision actions before final caption signoff.,True,reports/paper_m
 v486 finalizes captions or inserts them into Quarto.,False,reports/paper_material/paper4/tables/paper4_v486_manuscript_readiness_delta.csv,Captions remain non-final and uninserted.,True,living_notebook_only
 v486 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v486_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v486 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v486_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v487 pairs accepted captions with selected Paper 4 assets.,True,reports/paper_material/paper4/tables/paper4_v487_caption_asset_pairing_matrix.csv,Pairing packet only.,False,living_notebook_only
+v487 creates a layout dry-run seed.,True,reports/paper_material/paper4/tables/paper4_v487_layout_dry_run_seed.csv,Dry-run seed only.,False,living_notebook_only
+v487 inserts assets or finalizes captions in Quarto.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,Assets remain uninserted and captions non-final.,True,living_notebook_only
+v487 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v487 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v487_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

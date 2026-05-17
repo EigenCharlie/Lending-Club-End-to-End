@@ -1,0 +1,9 @@
+readiness_gate_v487,ready_v487,evidence_artifact_v487,claim_boundary_v487
+caption_asset_pairing_packet_created,True,paper4_v487_caption_asset_pairing_matrix.csv,pairing packet only
+section_pairing_summary_created,True,paper4_v487_section_pairing_summary.csv,section summary only
+layout_dry_run_seed_created,True,paper4_v487_layout_dry_run_seed.csv,dry-run seed only
+caption_asset_pairs_ready_for_dry_run,True,paper4_v487_caption_asset_pairing_matrix.csv,dry-run readiness only
+captions_final,False,editorial signoff missing,captions remain non-final
+assets_inserted_into_quarto,False,book sources unchanged,no Quarto/book mutation in v487
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
