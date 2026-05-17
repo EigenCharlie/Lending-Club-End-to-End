@@ -47157,6 +47157,131 @@ def test_paper4_v424_targeted_repo_ruff_repair_batch_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v425_post_streamlit_ruff_repair_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v425_status.json")
+
+    assert status["phase"] == "v425_post_streamlit_ruff_repair_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.425"
+    assert status["prior_streamlit_ruff_repair_version_v425"] == 424
+    assert status["pytest_command_v425"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v425"] == 0
+    assert status["pytest_passed_v425"] is True
+    assert status["pytest_collected_items_v425"] == 1163
+    assert "1163 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v425"]
+    assert status["repo_ruff_exit_code_v425"] == 1
+    assert status["repo_ruff_total_v425"] == 57
+    assert status["repo_ruff_e402_v425"] == 0
+    assert status["repo_ruff_b905_v425"] == 14
+    assert status["repo_ruff_c408_v425"] == 5
+    assert status["notebook_diagnostics_v425"] == 0
+    assert status["streamlit_diagnostics_v425"] == 8
+    assert status["scripts_diagnostics_v425"] == 47
+    assert status["book_diagnostics_v425"] == 2
+    assert status["repository_ruff_clean_v425"] is False
+    assert status["full_repository_pytest_run_v425"] is True
+    assert status["full_repository_pytest_passed_v425"] is True
+    assert status["full_quarto_render_run_v425"] is False
+    assert status["working_champion_claim_allowed_v425"] is False
+    assert status["paper1_promotion_allowed_v425"] is False
+    assert status["paper4_working_champion_changed_v425"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v425"] == "paper4_v426_targeted_scripts_ruff_repair_batch.md"
+
+    pytest_summary = _read_csv("paper4_v425_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v425"] == "full_repository_pytest"
+    assert pytest_row["command_v425"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v425"]) == 0
+    assert bool(pytest_row["passed_v425"]) is True
+    assert int(pytest_row["collected_items_v425"]) == 1163
+    assert "1163 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v425"]
+
+    snapshot = _read_csv("paper4_v425_repository_ruff_snapshot.csv")
+    snapshot_map = dict(
+        zip(snapshot["metric_v425"], snapshot["diagnostic_count_v425"], strict=False)
+    )
+    assert int(snapshot_map["repository_total"]) == 57
+    assert int(snapshot_map["repository_e402"]) == 0
+    assert int(snapshot_map["repository_b905"]) == 14
+    assert int(snapshot_map["repository_c408"]) == 5
+    assert int(snapshot_map["notebook_total"]) == 0
+    assert int(snapshot_map["streamlit_app_total"]) == 8
+    assert int(snapshot_map["scripts_total"]) == 47
+    assert int(snapshot_map["book_total"]) == 2
+
+    blockers = _read_csv("paper4_v425_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v425"], blockers["blocking_v425"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v425"], blockers["evidence_count_v425"], strict=False)
+    )
+    assert "full_repository_pytest_failed" not in blocker_map
+    assert bool(blocker_map["repository_ruff_frontier_still_open"]) is True
+    assert int(blocker_evidence["repository_ruff_frontier_still_open"]) == 57
+    assert bool(blocker_map["quarto_render_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v425_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v425_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v425_full_repository_pytest_passed"]) is True
+    assert bool(claim_map["v425_streamlit_e402_remains_clear"]) is True
+    assert bool(claim_map["v425_notebook_lint_remains_clean"]) is True
+    assert bool(claim_map["v425_repository_ruff_clean"]) is False
+    assert bool(claim_map["v425_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v425 runs full repository pytest after Streamlit ruff repair."])
+    assert bool(boundary_map["v425 full repository pytest passes after Streamlit ruff repair."])
+    assert bool(
+        boundary_map["v425 keeps Streamlit E402 and notebook lint clean after pytest probe."]
+    )
+    assert bool(boundary_map["v425 proves repository ruff or Quarto render cleanliness."]) is False
+    assert bool(boundary_map["v425 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v425_rows = backlog.loc[backlog["last_wave"].eq("v425")]
+    assert len(v425_rows) == 1
+    backlog_row = v425_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v426_targeted_scripts_ruff_repair_batch.md"
+    assert backlog_row["execution_result"] == "full_repository_pytest_passed_after_streamlit_e402_repair"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v425_post_streamlit_ruff_repair_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1163 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Repository ruff diagnostics: `57`" in probe_md
+    assert "E402 diagnostics: `0`" in probe_md
+    assert "Notebook diagnostics: `0`" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v425: Post-Streamlit-Ruff-Repair Pytest Probe" in living_notebook
+    assert "The Streamlit E402 repair passed the full repository pytest probe" in living_notebook
+    assert "Repository ruff diagnostics:\n  `57`" in living_notebook
+    assert "Repository E402 diagnostics:\n  `0`" in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    e402_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "streamlit_app/pages", "--select", "E402"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "All checks passed" in e402_probe.stdout
+    ruff_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "notebooks", "--output-format", "json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(ruff_probe.stdout or "[]") == []
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

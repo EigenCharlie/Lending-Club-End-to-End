@@ -1,0 +1,2 @@
+probe_id_v425,command_v425,exit_code_v425,passed_v425,runtime_seconds_v425,collected_items_v425,summary_line_v425,claim_boundary_v425
+full_repository_pytest,uv run pytest -q --tb=short,0,True,141.058,1163,"=========== 1163 passed, 2 skipped, 13 warnings in 131.00s (0:02:11) ===========",post-v424 full pytest probe

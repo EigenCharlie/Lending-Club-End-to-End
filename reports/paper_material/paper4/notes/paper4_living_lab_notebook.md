@@ -18234,3 +18234,58 @@ Keep v424 in the living notebook. v425 should run the post-repair full pytest
 probe before further lint repair.
 
 <!-- V424_TARGETED_REPO_RUFF_REPAIR_BATCH_END -->
+
+<!-- V425_POST_STREAMLIT_RUFF_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v425: Post-Streamlit-Ruff-Repair Pytest Probe
+
+Generated: 2026-05-17T10:46:23.278866+00:00
+
+### Objective
+
+v425 runs full repository pytest after v424's targeted Streamlit E402 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1163`.
+- Pytest summary:
+  `=========== 1163 passed, 2 skipped, 13 warnings in 131.00s (0:02:11) ===========`.
+- Repository ruff diagnostics:
+  `57`.
+- Repository E402 diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v426_targeted_scripts_ruff_repair_batch.md`.
+
+### Interpretation
+
+The Streamlit E402 repair passed the full repository pytest probe. The remaining
+repository ruff frontier is scripts-first, with a small non-E402 Streamlit
+hotspot and two book-helper diagnostics.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after the Streamlit repair; E402 and
+  notebook lint remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v425 in the living notebook. v426 should start a targeted scripts ruff
+repair batch.
+
+<!-- V425_POST_STREAMLIT_RUFF_REPAIR_PYTEST_PROBE_END -->
