@@ -15026,3 +15026,59 @@ fourth-order entering candidate if one exists; otherwise it should convert the
 deeper no-entry evidence into a stronger gap/dual-bound memo without promotion.
 
 <!-- V361_V353_FOURTH_ORDER_OR_FULL_DUAL_BOUND_END -->
+
+<!-- V362_V353_FOURTH_ORDER_CANDIDATE_DISPOSITION_MEMO_START -->
+
+## Wave v362: v353 Fourth-Order Disposition Memo
+
+Generated: 2026-05-17T03:44:24.574713+00:00
+
+### Objective
+
+v361 expanded the post-v353 branch-price evidence to a bounded fourth-order
+loop and found no CVaR-feasible entering row. v362 records the disposition: no
+fourth-order candidate is applied, and the result becomes a deeper partial
+no-entry blocker rather than a global certificate.
+
+### Results
+
+- Prior branch version: `361`.
+- V361 three-swap seed rows: `504`.
+- V361 ordered rows screened:
+  `371100576`.
+- V361 source-exact rows:
+  `4631`.
+- V361 CVaR-feasible entering rows:
+  `0`.
+- No-apply disposition allowed:
+  `True`.
+- Best source-exact return delta:
+  `7.907899636432177`.
+- Best source-exact CVaR gap versus v353 cap:
+  `75.83614162181038`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v362 turns the 371.10M-row fourth-order screen into a clean paper artifact. The
+bounded fourth-order path does not justify applying a new candidate, and it
+still does not close the global proof obligation. The important negative result
+is explicit: even the best tail-risk row in the v361 source-exact frontier
+remains above the v353 CVaR cap.
+
+### Claim Impact
+
+- Allowed: no-apply disposition after v361 no-entry evidence.
+- Allowed: bounded fourth-order no-entry blocker for the v353 candidate.
+- Still prohibited: full-v55 branch-price termination, valid global integer
+  optimality, contractual IFRS9, live deployability, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v362 in the living notebook. The next wave should target a full-v55
+dual-bound/gap certificate or document the remaining proof infeasibility,
+without promotion.
+
+<!-- V362_V353_FOURTH_ORDER_CANDIDATE_DISPOSITION_MEMO_END -->

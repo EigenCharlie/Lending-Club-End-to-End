@@ -39430,6 +39430,136 @@ def test_paper4_v361_v353_fourth_order_branch_price_records_no_entry() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v362_v353_fourth_order_disposition_memo_preserves_bound_limits() -> None:
+    status = _read_json("paper4_v362_status.json")
+
+    assert status["phase"] == "v362_v353_apply_fourth_order_candidate_or_bound_memo"
+    assert status["schema_version"] == "2026-05-17.362"
+    assert status["base_version_v362"] == 353
+    assert status["prior_branch_version_v362"] == 361
+    assert status["readiness_version_v362"] == 356
+    assert status["disposition_version_v362"] == 360
+    assert status["v361_three_swap_seed_rows_v362"] == 504
+    assert status["v361_ordered_fourth_order_rows_screened_v362"] == 371100576
+    assert status["v361_source_exact_fourth_order_rows_v362"] == 4631
+    assert status["v361_cvar_feasible_entering_rows_v362"] == 0
+    assert status["no_apply_disposition_allowed_v362"] is True
+    assert status["candidate_applied_v362"] is False
+    assert status["best_source_exact_return_delta_v362"] == pytest.approx(7.907899636432177)
+    assert status["best_source_exact_cvar90_v362"] == pytest.approx(96433.91253512845)
+    assert status["v353_cvar_cap_v362"] == pytest.approx(96358.07639350664)
+    assert status["best_source_exact_cvar_gap_vs_cap_v362"] == pytest.approx(75.83614162181038)
+    assert status["fourth_order_scope_covered_v362"] is True
+    assert status["full_v55_dual_bound_covered_v362"] is False
+    assert status["valid_branch_price_bound_v362"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v362"] is False
+    assert status["working_champion_claim_allowed_v362"] is False
+    assert status["paper1_promotion_allowed_v362"] is False
+    assert status["paper4_working_champion_changed_v362"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v362"] == 5
+    assert status["claim_matrix_rows_v362"] == 4
+    assert status["scope_register_rows_v362"] == 5
+    assert (
+        status["next_artifact_v362"]
+        == "paper4_v363_v353_full_dual_bound_or_gap_certificate.csv"
+    )
+    stage_snapshot = status["stage_map_snapshot_v362"]
+    assert stage_snapshot["ordered_fourth_order_rows"] == 371100576
+    assert stage_snapshot["source_exact_feasible"] == 4631
+    assert stage_snapshot["cvar_feasible_entering_column"] == 0
+
+    memo = _read_csv("paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv")
+    row = memo.iloc[0]
+    assert row["memo_id_v362"] == "v353_post_v361_no_entry_partial_bound_memo"
+    assert int(row["v361_three_swap_seed_rows_v362"]) == 504
+    assert int(row["v361_ordered_fourth_order_rows_screened_v362"]) == 371100576
+    assert int(row["v361_source_exact_fourth_order_rows_v362"]) == 4631
+    assert int(row["v361_cvar_feasible_entering_rows_v362"]) == 0
+    assert bool(row["no_apply_disposition_allowed_v362"]) is True
+    assert float(row["best_source_exact_return_delta_v362"]) == pytest.approx(
+        7.907899636432177
+    )
+    assert float(row["best_source_exact_cvar_gap_vs_cap_v362"]) == pytest.approx(
+        75.83614162181038
+    )
+    assert bool(row["fourth_order_scope_covered_v362"]) is True
+    assert bool(row["full_v55_dual_bound_covered_v362"]) is False
+    assert bool(row["valid_branch_price_bound_v362"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    disposition = _read_csv("paper4_v362_candidate_disposition.csv")
+    disp = disposition.iloc[0]
+    assert disp["disposition_id_v362"] == "v361_no_entry_no_apply"
+    assert int(disp["entering_candidate_rows_v362"]) == 0
+    assert bool(disp["no_apply_disposition_allowed_v362"]) is True
+    assert bool(disp["candidate_applied_v362"]) is False
+
+    scope = _read_csv("paper4_v362_no_entry_scope_register.csv")
+    scope_map = {row["scope_id_v362"]: row for _, row in scope.iterrows()}
+    assert bool(scope_map["v361_fourth_order_scope_covered"]["covered_v362"]) is True
+    assert int(scope_map["v361_fourth_order_scope_covered"]["evidence_count_v362"]) == 371100576
+    assert bool(scope_map["v361_source_exact_frontier_covered"]["covered_v362"]) is True
+    assert int(scope_map["v361_source_exact_frontier_covered"]["evidence_count_v362"]) == 4631
+    assert bool(scope_map["full_v55_dual_bound_covered"]["covered_v362"]) is False
+    assert bool(scope_map["full_integer_or_fifth_order_scope_covered"]["covered_v362"]) is False
+    assert bool(scope_map["proxy_dynamic_online_gates_covered"]["covered_v362"]) is False
+    assert int(scope_map["proxy_dynamic_online_gates_covered"]["evidence_count_v362"]) == 77
+
+    blockers = _read_csv("paper4_v362_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v362"], blockers["blocking_v362"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v362"], blockers["evidence_count_v362"], strict=False)
+    )
+    assert bool(blocker_map["no_apply_fourth_order_candidate_available"]) is True
+    assert int(evidence_map["no_apply_fourth_order_candidate_available"]) == 0
+    assert bool(blocker_map["best_source_exact_cvar_above_cap"]) is True
+    assert int(evidence_map["best_source_exact_cvar_above_cap"]) == 76
+    assert bool(blocker_map["full_v55_dual_bound_or_gap_certificate_missing"]) is True
+    assert bool(blocker_map["proxy_gap_persists"]) is True
+    assert int(evidence_map["proxy_gap_persists"]) == 77
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v362_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v362_fourth_order_disposition_memo_created"]) is True
+    assert bool(claim_map["v362_no_apply_after_v361_no_entry"]) is True
+    assert bool(claim_map["v362_valid_full_universe_branch_price_bound"]) is False
+    assert bool(claim_map["v362_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v362 records the v361 fourth-order candidate disposition memo."])
+    assert bool(boundary_map["v362 allows no-apply disposition after v361 no-entry evidence."])
+    assert bool(boundary_map["v362 proves a valid full-universe branch-price bound."]) is False
+    assert bool(boundary_map["v362 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v362 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v362_rows = backlog.loc[backlog["last_wave"].eq("v362")]
+    assert len(v362_rows) == 1
+    backlog_row = v362_rows.iloc[0]
+    assert backlog_row["status"] == "fourth_order_no_entry_disposition_memo_created"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v363_v353_full_dual_bound_or_gap_certificate.csv"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "no_apply_after_fourth_order_no_entry_partial_bound_blocker_recorded"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v362: v353 Fourth-Order Disposition Memo" in notebook
+    assert "No-apply disposition allowed:\n  `True`" in notebook
+    assert "Best source-exact CVaR gap versus v353 cap:\n  `75.83614162181038`" in notebook
+    assert "Valid branch-price bound:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
