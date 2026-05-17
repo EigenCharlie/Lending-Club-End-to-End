@@ -1,0 +1,5 @@
+decision_id_v469,recommended_v469,evidence_v469,next_artifact_v469,claim_boundary_v469
+do_not_extend_v338_dynamic_claim_to_v353,True,v353 has no dynamic proxy trace artifact,future_v353_dynamic_replay_build,claim transfer is blocked
+keep_v338_dynamic_proxy_as_historical_anchor,True,v340 has 1536 trace rows across four policies and three periods,paper4_v470_online_conformal_monitoring_proxy.md,historical proxy anchor only
+route_to_online_monitoring_proxy,True,dynamic live claims remain blocked and online lane is next,paper4_v470_online_conformal_monitoring_proxy.md,routing decision only
+do_not_claim_live_dynamic_deployment,True,v297 and v340 both mark live deployment claims as false,future_live_deployment_replay_gate,no live deployment language

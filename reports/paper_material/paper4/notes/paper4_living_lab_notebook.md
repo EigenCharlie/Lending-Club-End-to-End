@@ -20628,3 +20628,57 @@ Keep v468 in the living notebook. v469 should move to dynamic replay
 reproducibility while preserving the source-governance caveat.
 
 <!-- V468_SOURCE_GOVERNANCE_REFRESH_END -->
+
+<!-- V469_DYNAMIC_REPLAY_REPRODUCIBILITY_PROBE_START -->
+
+## Wave v469: Dynamic Replay Reproducibility Probe
+
+Generated: 2026-05-17T16:21:00.679556+00:00
+
+### Objective
+
+v469 audits existing dynamic proxy replay evidence and checks whether the v467
+local frontier can support dynamic or live claims.
+
+### Results
+
+- Dynamic inventory rows:
+  `2`.
+- Latest dynamic proxy candidate:
+  `v338`.
+- Latest dynamic proxy trace rows:
+  `1536`.
+- Current local frontier:
+  `v353`.
+- Current frontier dynamic replayed:
+  `False`.
+- v353 static return delta vs v338:
+  `1.227548742252111`.
+- v353 static CVaR delta vs v338:
+  `-27.900132055481663`.
+- Live dynamic deployment allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v470_online_conformal_monitoring_proxy.md`.
+
+### Interpretation
+
+v338 remains the dynamic proxy anchor. v353 is stronger on the local static
+return/CVaR frontier, but it has no dynamic replay trace, so it cannot carry
+dynamic validation language yet.
+
+### Claim Impact
+
+- Allowed: dynamic replay inventory and v353 dynamic-gap statement.
+- Still prohibited: v353 dynamic validation, live deployment readiness,
+  working-champion language, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v469 in the living notebook. v470 should refresh online conformal
+monitoring as proxy-only evidence.
+
+<!-- V469_DYNAMIC_REPLAY_REPRODUCIBILITY_PROBE_END -->

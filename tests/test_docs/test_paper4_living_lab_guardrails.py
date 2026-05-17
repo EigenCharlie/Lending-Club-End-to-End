@@ -53522,6 +53522,108 @@ def test_paper4_v468_source_governance_refresh_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v469_dynamic_replay_reproducibility_probe_is_guarded() -> None:
+    status = _read_json("paper4_v469_status.json")
+    assert status["phase"] == "v469_dynamic_replay_reproducibility_probe"
+    assert status["schema_version"] == "2026-05-17.469"
+    assert status["prior_source_governance_version_v469"] == 468
+    assert status["dynamic_replay_reproducibility_probe_created_v469"] is True
+    assert status["dynamic_inventory_rows_v469"] == 2
+    assert status["current_local_frontier_v469"] == "v353"
+    assert status["latest_dynamic_proxy_candidate_v469"] == "v338"
+    assert status["latest_dynamic_proxy_trace_rows_v469"] == 1536
+    assert status["current_frontier_dynamic_replayed_v469"] is False
+    assert float(status["delta_return_v353_vs_v338_static_v469"]) > 1.0
+    assert float(status["delta_cvar90_v353_vs_v338_static_v469"]) < 0
+    assert status["v338_lower_cvar_frontier_tradeoff_vs_v330_v469"] is True
+    assert status["v338_dominates_v330_v469"] is False
+    assert status["v353_dynamic_validation_claim_allowed_v469"] is False
+    assert status["live_dynamic_deployment_claim_allowed_v469"] is False
+    assert status["working_champion_claim_allowed_v469"] is False
+    assert status["paper1_promotion_allowed_v469"] is False
+    assert status["paper4_working_champion_changed_v469"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v469"] == "paper4_v470_online_conformal_monitoring_proxy.md"
+
+    inventory = _read_csv("paper4_v469_dynamic_replay_inventory.csv")
+    assert len(inventory) == 2
+    assert set(inventory["candidate_version_v469"]) == {"v295", "v338"}
+    v338 = inventory.loc[inventory["candidate_version_v469"].eq("v338")].iloc[0]
+    assert bool(v338["dynamic_proxy_replay_executed_v469"]) is True
+    assert int(v338["dynamic_proxy_trace_rows_v469"]) == 1536
+    assert int(v338["dynamic_proxy_policy_count_v469"]) == 4
+    assert int(v338["dynamic_proxy_period_count_v469"]) == 3
+    assert bool(v338["live_deployment_claim_allowed_v469"]) is False
+
+    gap = _read_csv("paper4_v469_current_frontier_dynamic_gap.csv")
+    assert len(gap) == 1
+    gap_row = gap.iloc[0]
+    assert gap_row["local_frontier_version_v469"] == "v353"
+    assert gap_row["latest_dynamic_proxy_candidate_v469"] == "v338"
+    assert bool(gap_row["current_frontier_dynamic_replayed_v469"]) is False
+    assert float(gap_row["delta_return_v353_vs_v338_static_v469"]) > 1.0
+    assert float(gap_row["delta_cvar90_v353_vs_v338_static_v469"]) < 0
+
+    decision = _read_csv("paper4_v469_dynamic_replay_decision.csv")
+    decision_map = dict(zip(decision["decision_id_v469"], decision["recommended_v469"], strict=False))
+    assert bool(decision_map["do_not_extend_v338_dynamic_claim_to_v353"]) is True
+    assert bool(decision_map["keep_v338_dynamic_proxy_as_historical_anchor"]) is True
+    assert bool(decision_map["route_to_online_monitoring_proxy"]) is True
+    assert bool(decision_map["do_not_claim_live_dynamic_deployment"]) is True
+
+    blockers = _read_csv("paper4_v469_dynamic_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v469"], blockers["blocking_v469"], strict=False))
+    assert bool(blocker_map["v353_dynamic_proxy_trace_missing"]) is True
+    assert bool(blocker_map["dynamic_proxy_not_live_deployment_replay"]) is True
+    assert bool(blocker_map["valid_global_gap_certificate_missing"]) is True
+    assert bool(blocker_map["online_monitoring_proxy_not_refreshed"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v469_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v469_dynamic_replay_inventory_created"]) is True
+    assert bool(claim_map["v469_v353_dynamic_gap_documented"]) is True
+    assert bool(claim_map["v469_v353_has_dynamic_replay_validation"]) is False
+    assert bool(claim_map["v469_live_dynamic_deployment_ready"]) is False
+    assert bool(claim_map["v469_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v469 inventories existing dynamic proxy replay evidence."])
+    assert bool(boundary_map["v469 documents that v353 lacks dynamic replay validation."])
+    assert bool(boundary_map["v469 validates v353 as a dynamic replay champion."]) is False
+    assert bool(boundary_map["v469 proves live dynamic deployment readiness."]) is False
+    assert bool(boundary_map["v469 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v469_rows = backlog.loc[backlog["last_wave"].eq("v469")]
+    assert len(v469_rows) == 1
+    backlog_row = v469_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v470_online_conformal_monitoring_proxy.md"
+    assert (
+        backlog_row["execution_result"]
+        == "v338_dynamic_anchor_retained_v353_dynamic_gap_documented"
+    )
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v469_dynamic_replay_reproducibility_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Dynamic Replay Reproducibility Probe v469" in probe_md
+    assert "v353 cannot inherit dynamic replay" in probe_md
+    assert "does not build a v353 dynamic" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v469: Dynamic Replay Reproducibility Probe" in living_notebook
+    assert "Latest dynamic proxy candidate:\n  `v338`." in living_notebook
+    assert "Current local frontier:\n  `v353`." in living_notebook
+    assert "Current frontier dynamic replayed:\n  `False`." in living_notebook
+    assert "Live dynamic deployment allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

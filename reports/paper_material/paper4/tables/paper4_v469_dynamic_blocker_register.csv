@@ -1,0 +1,6 @@
+blocker_id_v469,blocking_v469,evidence_count_v469,required_next_artifact_v469,claim_boundary_v469
+v353_dynamic_proxy_trace_missing,True,1,future_v353_dynamic_replay_build,current local frontier lacks dynamic replay
+dynamic_proxy_not_live_deployment_replay,True,1536,future_live_deployment_replay_gate,periodized static-book proxy only
+valid_global_gap_certificate_missing,True,1,future_branch_price_dual_bound_loop,dynamic proxy does not replace solver proof
+online_monitoring_proxy_not_refreshed,True,1,paper4_v470_online_conformal_monitoring_proxy.md,online lane still pending
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
