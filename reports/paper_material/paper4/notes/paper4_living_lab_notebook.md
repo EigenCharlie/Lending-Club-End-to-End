@@ -19155,3 +19155,65 @@ Keep v440 in the living notebook. v441 should run the post-SIM108-repair full
 pytest probe.
 
 <!-- V440_SCRIPTS_SIM108_CONDITIONAL_EXPR_REPAIR_BATCH_END -->
+
+<!-- V441_POST_SCRIPTS_SIM108_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v441: Post-Scripts-SIM108-Repair Pytest Probe
+
+Generated: 2026-05-17T12:51:05.596342+00:00
+
+### Objective
+
+v441 runs full repository pytest after v440's targeted scripts SIM108 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1179`.
+- Pytest summary:
+  `=========== 1179 passed, 2 skipped, 13 warnings in 179.10s (0:02:59) ===========`.
+- Repository ruff diagnostics:
+  `9`.
+- Repository SIM108 diagnostics:
+  `0`.
+- Streamlit diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Book diagnostics:
+  `0`.
+- Top rule / top executable rule:
+  `B023` /
+  `C405`.
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v442_scripts_c405_set_literal_repair_batch.md`.
+
+### Interpretation
+
+The scripts SIM108 repair survives full repository pytest. B023 remains the top
+rule by count but has no automatic fixes, so C405 is the next executable repair
+frontier.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after scripts SIM108 repair; SIM108
+  and earlier cleared lint channels remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v441 in the living notebook. v442 should apply the targeted C405
+set-literal repair batch.
+
+<!-- V441_POST_SCRIPTS_SIM108_REPAIR_PYTEST_PROBE_END -->
