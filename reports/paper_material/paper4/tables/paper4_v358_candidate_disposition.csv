@@ -1,0 +1,2 @@
+disposition_id_v358,prior_branch_version_v358,base_version_v358,entering_candidate_rows_v358,no_apply_disposition_allowed_v358,candidate_applied_v358,required_next_artifact_v358,claim_boundary_v358
+v357_no_entry_no_apply,357,353,0,True,False,paper4_v359_v353_expand_branch_price_or_full_dual_bound.csv,no branch-price candidate applied because v357 has zero bounded entering rows

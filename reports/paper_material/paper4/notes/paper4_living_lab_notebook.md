@@ -14790,3 +14790,58 @@ no-entry evidence into a stronger dual-bound or gap-blocker memo without
 promotion.
 
 <!-- V357_V353_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->
+
+<!-- V358_V353_APPLY_BRANCH_PRICE_CANDIDATE_OR_BOUND_MEMO_START -->
+
+## Wave v358: v353 Branch-Price Candidate Disposition Memo
+
+Generated: 2026-05-17T03:04:05.237892+00:00
+
+### Objective
+
+v357 executed a bounded post-v353 second-order branch-price loop and found no
+CVaR-feasible entering row. v358 records the candidate disposition: no branch
+price candidate is applied, and the result becomes a partial no-entry blocker
+rather than a global certificate.
+
+### Results
+
+- Prior branch version: `357`.
+- V357 seed pair rows: `7`.
+- V357 ordered rows screened:
+  `5217640`.
+- V357 source-exact rows:
+  `88`.
+- V357 CVaR-feasible entering rows:
+  `0`.
+- No-apply disposition allowed:
+  `True`.
+- Best source-exact return delta:
+  `4.096129153877186`.
+- Best source-exact CVaR gap versus v353 cap:
+  `38.46190265782934`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v358 turns the v357 no-entry evidence into a cleaner paper artifact. The bounded
+second-order branch-price path does not justify applying a new candidate, and it
+does not close the global proof obligation. It does, however, document a useful
+frontier: even the best source-exact return signal violates the v353 CVaR cap.
+
+### Claim Impact
+
+- Allowed: no-apply disposition after v357 no-entry evidence.
+- Allowed: bounded second-order no-entry blocker for the v353 candidate.
+- Still prohibited: full-v55 branch-price termination, valid global integer
+  optimality, contractual IFRS9, live deployability, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v358 in the living notebook. The next wave should either expand branch-
+price depth or produce a valid full-v55 dual-bound certificate, without
+promotion.
+
+<!-- V358_V353_APPLY_BRANCH_PRICE_CANDIDATE_OR_BOUND_MEMO_END -->

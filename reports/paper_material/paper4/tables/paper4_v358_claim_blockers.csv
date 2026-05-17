@@ -1,0 +1,6 @@
+blocker_id_v358,blocking_v358,evidence_count_v358,required_next_artifact_v358,claim_boundary_v358
+no_apply_candidate_available,True,0,paper4_v359_v353_expand_branch_price_or_full_dual_bound.csv,zero bounded v357 entering rows
+best_source_exact_cvar_above_cap,True,38,paper4_v359_v353_expand_branch_price_or_full_dual_bound.csv,best source-exact row still violates the v353 CVaR cap
+third_order_or_full_dual_bound_missing,True,1,paper4_v359_v353_expand_branch_price_or_full_dual_bound.csv,second-order no-entry is not full branch-price termination
+proxy_gap_persists,True,77,future_proxy_or_ifrs9_gate,v353 candidate still contains missing proxy rows
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
