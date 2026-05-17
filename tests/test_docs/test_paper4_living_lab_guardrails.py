@@ -54156,6 +54156,116 @@ def test_paper4_v474_post_domain_manuscript_delta_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v475_primary_table_figure_selection_is_guarded() -> None:
+    status = _read_json("paper4_v475_status.json")
+    assert status["phase"] == "v475_primary_table_figure_selection"
+    assert status["schema_version"] == "2026-05-17.475"
+    assert status["prior_manuscript_delta_version_v475"] == 474
+    assert status["primary_table_figure_selection_created_v475"] is True
+    assert status["primary_table_count_v475"] == 6
+    assert status["primary_figure_count_v475"] == 4
+    assert status["appendix_table_count_v475"] == 4
+    assert status["selected_table_artifacts_exist_v475"] is True
+    assert status["selected_figure_artifacts_exist_v475"] is True
+    assert status["captions_insertion_plan_created_v475"] is False
+    assert status["book_sources_modified_v475"] is False
+    assert status["book_references_modified_v475"] is False
+    assert status["final_tables_figures_v475"] is False
+    assert status["submission_ready_claim_allowed_v475"] is False
+    assert status["working_champion_claim_allowed_v475"] is False
+    assert status["paper1_promotion_allowed_v475"] is False
+    assert status["paper4_working_champion_changed_v475"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v475"] == "paper4_v476_caption_and_insertion_plan.md"
+
+    tables = _read_csv("paper4_v475_primary_table_selection.csv")
+    assert len(tables) == 6
+    assert set(tables["table_slot_v475"]) == {"T1", "T2", "T3", "T4", "T5", "T6"}
+    assert tables["selected_for_manuscript_draft_v475"].astype(bool).all()
+    assert not tables["final_table_v475"].astype(bool).any()
+    assert set(tables["supports_claim_id_v475"]) == {
+        "v467_v353_local_return_cvar_frontier",
+        "v468_grade_a_primary_blocker_documented",
+        "v469_v353_dynamic_gap_documented",
+        "v470_online_monitoring_proxy_created",
+        "v471_bounded_historical_spo_dla_language",
+        "v472_contractual_requirement_gap_documented",
+    }
+    for artifact in tables["source_artifact_v475"]:
+        assert (TABLE_DIR / artifact).exists()
+
+    figures = _read_csv("paper4_v475_primary_figure_selection.csv")
+    assert len(figures) == 4
+    assert set(figures["figure_slot_v475"]) == {"F1", "F2", "F3", "F4"}
+    assert figures["selected_for_manuscript_draft_v475"].astype(bool).all()
+    assert not figures["final_figure_v475"].astype(bool).any()
+    assert set(figures["supports_domain_lane_v475"]) == {
+        "cvar_tail_risk",
+        "source_governance",
+        "online_monitoring",
+        "spo_dla",
+    }
+    for figure in figures["source_figure_v475"]:
+        assert (PAPER4_ROOT / "figures" / figure).exists()
+
+    appendix = _read_csv("paper4_v475_appendix_table_selection.csv")
+    assert len(appendix) == 4
+    assert appendix["selected_for_appendix_v475"].astype(bool).all()
+    assert "paper4_v473_open_domain_blockers.csv" in set(appendix["source_artifact_v475"])
+
+    readiness = _read_csv("paper4_v475_manuscript_readiness_delta.csv")
+    readiness_map = dict(zip(readiness["readiness_gate_v475"], readiness["ready_v475"], strict=False))
+    assert bool(readiness_map["primary_tables_selected"]) is True
+    assert bool(readiness_map["primary_figures_selected"]) is True
+    assert bool(readiness_map["selected_table_artifacts_exist"]) is True
+    assert bool(readiness_map["selected_figure_artifacts_exist"]) is True
+    assert bool(readiness_map["captions_and_insertion_plan_created"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["final_tables_figures"]) is False
+
+    claim_delta = _read_csv("paper4_v475_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v475_primary_tables_selected_for_draft"]) is True
+    assert bool(claim_map["v475_primary_figures_selected_for_draft"]) is True
+    assert bool(claim_map["v475_appendix_tables_selected_for_draft"]) is True
+    assert bool(claim_map["v475_tables_figures_final_or_inserted"]) is False
+    assert bool(claim_map["v475_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v475 selects primary Paper 4 tables for a manuscript draft."])
+    assert bool(boundary_map["v475 selects primary Paper 4 figures for a manuscript draft."])
+    assert bool(boundary_map["v475 finalizes or inserts Paper 4 tables and figures."]) is False
+    assert bool(boundary_map["v475 makes Paper 4 submission-ready."]) is False
+    assert bool(boundary_map["v475 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v475_rows = backlog.loc[backlog["last_wave"].eq("v475")]
+    assert len(v475_rows) == 1
+    backlog_row = v475_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v476_caption_and_insertion_plan.md"
+    assert backlog_row["execution_result"] == "draft_tables_figures_selected_without_insertion"
+
+    selection_md = (
+        PAPER4_ROOT / "notes" / "paper4_v475_primary_table_figure_selection.md"
+    ).read_text(encoding="utf-8")
+    assert "Primary Table/Figure Selection v475" in selection_md
+    assert "does not insert" in selection_md
+    assert "selection only" in selection_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v475: Primary Table/Figure Selection" in living_notebook
+    assert "Primary tables selected:\n  `6`." in living_notebook
+    assert "Primary figures selected:\n  `4`." in living_notebook
+    assert "Appendix tables selected:\n  `4`." in living_notebook
+    assert "Captions/insertion plan created:\n  `False`." in living_notebook
+    assert "Final tables/figures:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,5 @@
+appendix_table_id_v475,source_artifact_v475,appendix_role_v475,selected_for_appendix_v475,claim_boundary_v475
+A1,paper4_v473_allowed_domain_claims.csv,bounded claim inventory,True,index only
+A2,paper4_v473_open_domain_blockers.csv,open blocker inventory,True,blockers remain open
+A3,paper4_v474_claim_placement_plan.csv,claim placement provenance,True,placement plan only
+A4,paper4_v474_blocker_to_limitations_map.csv,limitations provenance,True,limitations mapping only

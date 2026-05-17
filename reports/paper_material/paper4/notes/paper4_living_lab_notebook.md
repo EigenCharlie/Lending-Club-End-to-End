@@ -20945,3 +20945,54 @@ Keep v474 in the living notebook. v475 should select primary tables and figures
 without editing book sources.
 
 <!-- V474_POST_DOMAIN_MANUSCRIPT_DELTA_END -->
+
+<!-- V475_PRIMARY_TABLE_FIGURE_SELECTION_START -->
+
+## Wave v475: Primary Table/Figure Selection
+
+Generated: 2026-05-17T16:53:32.254830+00:00
+
+### Objective
+
+v475 selects draft primary tables and figures from the post-domain manuscript
+delta without inserting them into Quarto.
+
+### Results
+
+- Primary tables selected:
+  `6`.
+- Primary figures selected:
+  `4`.
+- Appendix tables selected:
+  `4`.
+- Selected table artifacts exist:
+  `True`.
+- Selected figure artifacts exist:
+  `True`.
+- Captions/insertion plan created:
+  `False`.
+- Final tables/figures:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v476_caption_and_insertion_plan.md`.
+
+### Interpretation
+
+Paper 4 now has a compact draft visual/table package that follows the bounded
+main-text claims from v474. The package still needs captions and an insertion
+plan before any Quarto manuscript edit.
+
+### Claim Impact
+
+- Allowed: draft selection of primary tables, figures and appendix tables.
+- Still prohibited: final insertion, final tables/figures, submission readiness,
+  Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v475 in the living notebook. v476 should write captions and an insertion
+plan without editing book sources.
+
+<!-- V475_PRIMARY_TABLE_FIGURE_SELECTION_END -->

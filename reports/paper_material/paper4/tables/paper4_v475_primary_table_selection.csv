@@ -1,0 +1,7 @@
+table_slot_v475,manuscript_section_v475,source_artifact_v475,supports_claim_id_v475,recommended_table_title_v475,main_text_priority_v475,selected_for_manuscript_draft_v475,final_table_v475,required_caveat_v475,claim_boundary_v475
+T1,results_evidence,paper4_v467_cvar_frontier_probe.csv,v467_v353_local_return_cvar_frontier,Local Return and CVaR Frontier Chain,1,True,False,local v338-v347-v353 chain only,no full-v55 optimality or champion claim
+T2,results_evidence,paper4_v468_tight_source_rankings.csv,v468_grade_a_primary_blocker_documented,Tight Source Governance Ranking,2,True,False,diagnostic source blocker statement only,no source cap approval or mutation
+T3,discussion_limitations,paper4_v469_current_frontier_dynamic_gap.csv,v469_v353_dynamic_gap_documented,Current Frontier Dynamic Replay Gap,3,True,False,v353 lacks dynamic replay trace,no live dynamic deployment language
+T4,results_evidence,paper4_v470_online_monitoring_proxy_summary.csv,v470_online_monitoring_proxy_created,Internal Online Monitoring Proxy Gates,4,True,False,internal proxy only; no external holdout,no production monitoring claim
+T5,methods_protocol,paper4_v471_formal_claim_boundary_matrix.csv,v471_bounded_historical_spo_dla_language,SPO-DLA Formal Claim Boundary Matrix,5,True,False,historical/oracle-surrogate audit only,no formal theorem or CRC guarantee
+T6,discussion_limitations,paper4_v472_ifrs9_requirement_audit.csv,v472_contractual_requirement_gap_documented,Contractual IFRS9 Requirement Gap Audit,6,True,False,requirement audit only,no contractual accounting compliance claim
