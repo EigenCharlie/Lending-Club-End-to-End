@@ -1,0 +1,2 @@
+probe_id_v414,command_v414,exit_code_v414,passed_v414,runtime_seconds_v414,collected_items_v414,summary_line_v414,claim_boundary_v414
+full_repository_pytest,uv run pytest -q --tb=short,0,True,167.978,1152,"=========== 1152 passed, 2 skipped, 13 warnings in 155.93s (0:02:35) ===========",post-F821 validation-target pytest probe

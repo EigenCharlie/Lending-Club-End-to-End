@@ -1,0 +1,5 @@
+lint_code_v414,diagnostic_count_v414,claim_boundary_v414
+E712,2,style notebook lint remains visible after F821 patch
+E741,1,style notebook lint remains visible after F821 patch
+SIM102,1,style notebook lint remains visible after F821 patch
+SIM108,2,style notebook lint remains visible after F821 patch

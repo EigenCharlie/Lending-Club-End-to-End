@@ -17698,3 +17698,53 @@ style-only and still requires post-patch pytest before further cleanup.
 Keep v413 in the living notebook. v414 should run post-F821 full pytest.
 
 <!-- V413_NOTEBOOK_F821_VALIDATION_TARGET_PATCH_END -->
+
+<!-- V414_NOTEBOOK_F821_POST_PATCH_PYTEST_PROBE_START -->
+
+## Wave v414: Post-F821 Validation-Target Pytest Probe
+
+Generated: 2026-05-17T09:39:14.232806+00:00
+
+### Objective
+
+v414 runs full repository pytest after v413 clears notebook F821.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1152`.
+- Pytest summary:
+  `=========== 1152 passed, 2 skipped, 13 warnings in 155.93s (0:02:35) ===========`.
+- Notebook diagnostics:
+  `6`.
+- Notebook F821 diagnostics:
+  `0`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v415_notebook_remaining_style_lint_triage.md`.
+
+### Interpretation
+
+The F821 semantic patch passed repository validation. The remaining notebook
+lint frontier is now style-only.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after F821 clearance.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: global notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v414 in the living notebook. v415 should triage the remaining style-only
+notebook lint.
+
+<!-- V414_NOTEBOOK_F821_POST_PATCH_PYTEST_PROBE_END -->
