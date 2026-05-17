@@ -46487,6 +46487,115 @@ def test_paper4_v419_notebook_sim108_post_patch_pytest_probe_is_guarded() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v420_notebook_gpu_style_lint_triage_is_non_mutating() -> None:
+    status = _read_json("paper4_v420_status.json")
+
+    assert status["phase"] == "v420_notebook_gpu_style_lint_triage"
+    assert status["schema_version"] == "2026-05-17.420"
+    assert status["prior_pytest_probe_version_v420"] == 419
+    assert status["global_notebook_diagnostics_v420"] == 3
+    assert status["e712_diagnostics_v420"] == 2
+    assert status["sim102_diagnostics_v420"] == 1
+    assert status["selected_for_v421_rows_v420"] == 3
+    assert status["patch_plan_rows_v420"] == 1
+    assert status["notebooks_mutated_v420"] is False
+    assert status["notebook_diff_clean_before_v420"] is True
+    assert status["notebook_diff_clean_after_v420"] is True
+    assert status["global_ruff_clean_v420"] is False
+    assert status["full_repository_pytest_run_v420"] is False
+    assert status["full_quarto_render_run_v420"] is False
+    assert status["working_champion_claim_allowed_v420"] is False
+    assert status["paper1_promotion_allowed_v420"] is False
+    assert status["paper4_working_champion_changed_v420"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v420"] == "paper4_v421_notebook_gpu_style_lint_patch.md"
+
+    manifest = _read_csv("paper4_v420_notebook_gpu_style_lint_manifest.csv")
+    assert len(manifest) == 3
+    assert set(manifest["notebook_path_v420"]) == {
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb"
+    }
+    assert set(manifest["lint_code_v420"]) == {"E712", "SIM102"}
+    assert manifest["selected_for_v421_v420"].astype(bool).all()
+    assert not manifest["mutation_allowed_v420"].astype(bool).any()
+    assert {
+        "rows_match_cpu_fillna_boolean_mask",
+        "quality_pass_guard_hoist",
+        "quality_pass_eq_false_mask",
+    }.issubset(set(manifest["triage_category_v420"]))
+    assert manifest["recommended_action_v420"].str.contains(
+        "fillna(False).astype(bool)", regex=False
+    ).any()
+    assert manifest["recommended_action_v420"].str.contains(".eq(False)", regex=False).any()
+
+    patch_plan = _read_csv("paper4_v420_notebook_gpu_style_lint_patch_plan.csv")
+    assert len(patch_plan) == 1
+    patch_row = patch_plan.iloc[0]
+    assert patch_row["patch_batch_id_v420"] == "batch_1_gpu_side_project_style_lint"
+    assert int(patch_row["diagnostic_count_v420"]) == 3
+    assert int(patch_row["notebook_count_v420"]) == 1
+    assert (
+        patch_row["recommended_next_artifact_v420"]
+        == "paper4_v421_notebook_gpu_style_lint_patch.md"
+    )
+    assert bool(patch_row["mutation_allowed_v420"]) is False
+
+    blockers = _read_csv("paper4_v420_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v420"], blockers["blocking_v420"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v420"], blockers["evidence_count_v420"], strict=False)
+    )
+    assert bool(blocker_map["gpu_style_lint_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["gpu_style_lint_patch_not_applied_yet"]) == 3
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v420_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v420_gpu_style_lint_triage_created"]) is True
+    assert bool(claim_map["v420_gpu_style_lint_patch_selected"]) is True
+    assert bool(claim_map["v420_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v420_gpu_style_lint_repaired"]) is False
+    assert bool(claim_map["v420_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v420_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v420 inventories the remaining 3 GPU side-project notebook style diagnostics."]
+    )
+    assert bool(boundary_map["v420 selects GPU side-project style-lint patches for v421."])
+    assert bool(boundary_map["v420 repairs GPU style lint or clears notebook lint."]) is False
+    assert bool(boundary_map["v420 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v420_rows = backlog.loc[backlog["last_wave"].eq("v420")]
+    assert len(v420_rows) == 1
+    backlog_row = v420_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v421_notebook_gpu_style_lint_patch.md"
+    assert backlog_row["execution_result"] == "three_gpu_style_diagnostics_triaged_no_mutation"
+
+    triage_md = (
+        PAPER4_ROOT / "notes" / "paper4_v420_notebook_gpu_style_lint_triage.md"
+    ).read_text(encoding="utf-8")
+    assert "Selected for v421: `3`" in triage_md
+    assert "v420 is non-mutating" in triage_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v420: GPU Side-Project Style-Lint Triage" in living_notebook
+    assert "remaining notebook-lint frontier" in living_notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

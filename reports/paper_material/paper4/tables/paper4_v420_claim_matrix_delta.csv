@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v420_gpu_style_lint_triage_created,True,paper4_v420_notebook_gpu_style_lint_manifest.csv,3 GPU side-project style diagnostics inventoried
+v420_gpu_style_lint_patch_selected,True,paper4_v420_notebook_gpu_style_lint_patch_plan.csv,3 diagnostics selected for v421 patch
+v420_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v420
+v420_gpu_style_lint_repaired,False,paper4_v420_claim_blockers.csv,triage only
+v420_notebook_or_repo_ruff_clean,False,paper4_v420_claim_blockers.csv,3 notebook diagnostics remain
+v420_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

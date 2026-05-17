@@ -17974,3 +17974,47 @@ Keep v419 in the living notebook. v420 should triage the remaining GPU
 side-project style lint.
 
 <!-- V419_NOTEBOOK_SIM108_POST_PATCH_PYTEST_PROBE_END -->
+
+<!-- V420_NOTEBOOK_GPU_STYLE_LINT_TRIAGE_START -->
+
+## Wave v420: GPU Side-Project Style-Lint Triage
+
+Generated: 2026-05-17T10:10:15.984771+00:00
+
+### Objective
+
+v420 reviews the final 3 notebook diagnostics in the GPU side-project notebook.
+
+### Results
+
+- Notebook diagnostics:
+  `3`.
+- E712/SIM102:
+  `2` /
+  `1`.
+- Selected for v421:
+  `3`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v421_notebook_gpu_style_lint_patch.md`.
+
+### Interpretation
+
+The remaining notebook-lint frontier is isolated to GPU side-project boolean
+style and a small quality-pass guard refactor.
+
+### Claim Impact
+
+- Allowed: GPU style-lint inventory and v421 patch selection.
+- Still prohibited: GPU style lint repaired, notebook lint clean, repository
+  ruff clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v420 in the living notebook. v421 should apply the GPU style-lint patch
+with roundtrip checks.
+
+<!-- V420_NOTEBOOK_GPU_STYLE_LINT_TRIAGE_END -->
