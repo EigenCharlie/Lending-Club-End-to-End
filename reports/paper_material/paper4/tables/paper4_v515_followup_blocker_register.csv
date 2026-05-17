@@ -1,0 +1,7 @@
+followup_blocker_id_v515,blocker_open_v515,blocks_collection_completion_v515,required_resolution_v515
+no_candidate_identifier_response,True,True,receive candidate identifier response
+no_nomination_field_response,True,True,receive nomination field response
+no_nomination_signoff_response,True,True,receive nomination signoff response
+no_evidence_response,True,True,receive requested evidence response
+eligibility_review_blocked,True,False,start eligibility only after complete candidate inputs
+no_final_promotion,True,False,keep Paper Estrella protection active
