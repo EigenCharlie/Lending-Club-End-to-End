@@ -1,0 +1,14 @@
+stage_v359,row_count_v359,claim_boundary_v359
+v357_unique_source_exact_two_swap_seeds,85,unique v357 source-exact two-swap actions
+positive_source_tight_third_add_candidates,4385,positive omitted candidates touching v356 tight blocks
+ordered_third_order_rows,62970583,ordered two-swap seed/add/drop combinations
+return_improving,34739245,positive total three-swap return delta only
+budget_return_feasible,12089061,budget plus positive return only
+grade_source_feasible_alone,4993,grade cap only after budget+return
+score_decile_source_feasible_alone,802455,score_decile cap only after budget+return
+income_band_source_feasible_alone,12089061,income_band cap only after budget+return
+dti_band_source_feasible_alone,12089061,dti_band cap only after budget+return
+period_source_feasible_alone,12089061,period cap only after budget+return
+state_top20_source_feasible_alone,12089061,state_top20 cap only after budget+return
+source_exact_feasible,843,all-family source caps after third-order screen
+cvar_feasible_entering_column,0,source-exact plus CVaR-feasible return-improving rows

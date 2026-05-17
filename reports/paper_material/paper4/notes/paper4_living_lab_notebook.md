@@ -14845,3 +14845,66 @@ price depth or produce a valid full-v55 dual-bound certificate, without
 promotion.
 
 <!-- V358_V353_APPLY_BRANCH_PRICE_CANDIDATE_OR_BOUND_MEMO_END -->
+
+<!-- V359_V353_EXPAND_BRANCH_PRICE_OR_FULL_DUAL_BOUND_START -->
+
+## Wave v359: v353 Expanded Branch-Price Loop
+
+Generated: 2026-05-17T03:14:16.435181+00:00
+
+### Objective
+
+v357 found no CVaR-feasible entering row in a bounded second-order loop, and
+v358 recorded the no-apply disposition. v359 expands the evidence by using the
+unique v357 source-exact two-swap rows as seeds, then testing a third
+source-tight add/drop over the positive v356 source-tight candidate pool.
+
+### Results
+
+- Unique v357 two-swap seed rows:
+  `85`.
+- Positive source-tight third-add candidates:
+  `4385`.
+- Ordered third-order rows screened:
+  `62970583`.
+- Budget+return feasible rows:
+  `12089061`.
+- Source-exact third-order rows:
+  `843`.
+- Unique source-exact action signatures:
+  `504`.
+- CVaR-feasible entering rows:
+  `0`.
+- Best entering return delta:
+  `not applicable; no bounded entering rows`.
+- Best entering CVaR90:
+  `None`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v359 deepens the post-v353 branch-price evidence from two-swap to three-swap
+bounded pricing. A positive entering count would be actionable for an apply and
+reprice wave; a zero entering count would strengthen the local no-entry blocker.
+Either way, this remains bounded source-tight evidence, not a full-v55
+dual-bound termination certificate.
+
+### Claim Impact
+
+- Allowed: expanded bounded third-order branch-price loop executed.
+- Allowed only within this bounded scope: bounded third-order entering
+  candidates when the count is positive, or no-entry evidence when the count is
+  zero.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v359 in the living notebook. The next wave should apply any bounded
+entering candidate if one exists; otherwise it should convert the deeper
+no-entry evidence into a stronger dual-bound or gap-blocker memo without
+promotion.
+
+<!-- V359_V353_EXPAND_BRANCH_PRICE_OR_FULL_DUAL_BOUND_END -->
