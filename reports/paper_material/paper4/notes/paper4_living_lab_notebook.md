@@ -14569,3 +14569,56 @@ Keep v353 in the living notebook. The next wave should reprice the v353
 candidate without promotion.
 
 <!-- V353_V347_APPLY_EXPANDED_BRANCH_PRICE_CANDIDATE_END -->
+
+<!-- V354_POST_V353_ONE_SWAP_REPRICE_START -->
+
+## Wave v354: Post-v353 One-Swap Repricing Gate
+
+Generated: 2026-05-17T02:24:34.205405+00:00
+
+### Objective
+
+v353 applied the bounded v352 three-swap candidate. v354 tests whether that
+candidate still has any one-drop/one-add return-improving move under the v353
+CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1452118`.
+- Budget+return feasible pairs:
+  `736127`.
+- Source prefilter pairs: `12351`.
+- Exact source-feasible pairs: `7`.
+- CVaR-feasible improving one-swaps:
+  `0`.
+- Best source-exact return delta: `2.2203513257361465`.
+- Best CVaR-feasible return delta: `not applicable; no CVaR-feasible improving swaps`.
+- Current missing v47 proxy rows:
+  `77`.
+- Post-v353 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v354 checks the immediate local optimality of the v353 applied candidate. The
+result is scoped to one-drop/one-add moves only; even a cleared screen would not
+prove a full branch-price bound, and proxy/live/global blockers remain open.
+
+### Claim Impact
+
+- Allowed: post-v353 one-swap repricing gate completed.
+- Allowed only if the count is zero: one-swap local optimality within this
+  narrow scope.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v354 in the living notebook. The next wave should either apply the next
+feasible swap if one exists or run the proxy/global/dual gate without promotion.
+
+<!-- V354_POST_V353_ONE_SWAP_REPRICE_END -->

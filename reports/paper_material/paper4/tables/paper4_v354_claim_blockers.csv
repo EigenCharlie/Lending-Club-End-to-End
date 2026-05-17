@@ -1,0 +1,6 @@
+blocker_id_v354,blocking_v354,evidence_count_v354,required_next_artifact_v354,claim_boundary_v354
+post_v353_one_swap_improvement_found,False,0,paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv,no feasible improving post-v353 one-swaps remain
+proxy_coverage_gap_persists,True,77,paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv,v353 candidate still has missing v47 proxy rows
+valid_branch_price_bound_missing,True,1,paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv,one-swap clearing is not a branch-price certificate
+global_dynamic_online_gates_missing,True,1,paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv,"no global, dynamic, online or deployment gate created"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -38238,6 +38238,139 @@ def test_paper4_v353_v347_applies_expanded_branch_price_candidate() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v354_post_v353_reprice_clears_one_swap_scope() -> None:
+    status = _read_json("paper4_v354_status.json")
+
+    assert status["phase"] == "v354_post_v353_reprice"
+    assert status["schema_version"] == "2026-05-17.354"
+    assert status["base_repair_version_v354"] == 353
+    assert status["previous_reprice_version_v354"] == 353
+    assert status["summary_rows_v354"] == 1
+    assert status["stage_summary_rows_v354"] == 6
+    assert status["candidate_pair_rows_v354"] == 7
+    assert status["top_candidate_rows_v354"] == 7
+    assert status["claim_blocker_rows_v354"] == 5
+    assert status["claim_matrix_rows_v354"] == 4
+    assert status["selected_rows_v354"] == 171
+    assert status["base_selected_rows_v354"] == 171
+    assert status["cardinality_restored_v354"] is True
+    assert status["candidate_add_rows_v354"] == 276698
+    assert status["total_pair_rows_screened_v354"] == 47315358
+    assert status["return_improving_pair_rows_v354"] == 1452118
+    assert status["budget_return_feasible_pair_rows_v354"] == 736127
+    assert status["source_prefilter_pair_rows_v354"] == 12351
+    assert status["source_exact_pair_rows_v354"] == 7
+    assert status["cvar_feasible_pair_rows_v354"] == 0
+    assert status["one_swap_improving_rows_v354"] == 0
+    assert status["best_one_swap_return_delta_v354"] == pytest.approx(2.2203513257361465)
+    assert status["best_one_swap_cvar90_after_v354"] == pytest.approx(96523.69272803735)
+    assert status["best_feasible_one_swap_return_delta_v354"] is None
+    assert status["best_feasible_one_swap_cvar90_after_v354"] is None
+    assert status["current_missing_v47_proxy_rows_v354"] == 77
+    assert status["best_feasible_delta_missing_v47_proxy_rows_v354"] == 0
+    assert status["current_exposure_v354"] == pytest.approx(843775.0)
+    assert status["current_objective_return_v354"] == pytest.approx(4427.138112521639)
+    assert status["current_loss_mean_v354"] == pytest.approx(60091.53575768358)
+    assert status["current_cvar90_v354"] == pytest.approx(96358.07639350664)
+    assert status["post_v353_one_swap_local_optimality_cleared_v354"] is True
+    assert status["next_global_gate_ready_v354"] is True
+    assert status["valid_branch_price_bound_v354"] is False
+    assert status["working_champion_claim_allowed_v354"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v354"] is False
+    assert status["paper1_promotion_allowed_v354"] is False
+    assert status["paper4_working_champion_changed_v354"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v354"] == (
+        "paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv"
+    )
+
+    summary = _read_csv("paper4_v354_post_v353_one_swap_summary.csv")
+    row = summary.iloc[0]
+    assert row["policy_id"] == "v353_v347_expanded_branch_price_candidate"
+    assert row["regime_v354"] == "post_v353_expanded_branch_price_candidate"
+    assert int(row["total_pair_rows_screened_v354"]) == 47315358
+    assert int(row["source_exact_pair_rows_v354"]) == 7
+    assert int(row["one_swap_improving_rows_v354"]) == 0
+    assert bool(row["post_v353_one_swap_local_optimality_cleared_v354"]) is True
+    assert bool(row["paper4_final_promotion_created_v354"]) is False
+
+    stages = _read_csv("paper4_v354_post_v353_one_swap_stage_summary.csv")
+    stage_map = dict(zip(stages["stage_v354"], stages["pair_rows_v354"], strict=False))
+    assert int(stage_map["all_pairs"]) == 47315358
+    assert int(stage_map["return_improving"]) == 1452118
+    assert int(stage_map["budget_return_feasible"]) == 736127
+    assert int(stage_map["source_prefilter_feasible"]) == 12351
+    assert int(stage_map["source_exact_feasible"]) == 7
+    assert int(stage_map["cvar_feasible_improving"]) == 0
+
+    pairs = _read_csv("paper4_v354_post_v353_one_swap_reprice.csv")
+    assert len(pairs) == 7
+    assert not pairs["cvar_swap_feasible_v354"].astype(bool).any()
+    assert not pairs["one_swap_improves_return_v354"].astype(bool).any()
+    best = pairs.sort_values("return_delta_v354", ascending=False).iloc[0]
+    assert str(best["added_loan_id_v354"]) == "161455148"
+    assert str(best["dropped_loan_id_v354"]) == "159706782"
+    assert float(best["return_delta_v354"]) == pytest.approx(2.2203513257361465)
+    assert float(best["cvar90_after_swap_v354"]) == pytest.approx(96523.69272803735)
+    assert bool(best["cvar_swap_feasible_v354"]) is False
+    assert bool(best["one_swap_improves_return_v354"]) is False
+
+    top = _read_csv("paper4_v354_post_v353_one_swap_top_candidates.csv")
+    assert len(top) == 7
+    assert str(top.iloc[0]["added_loan_id_v354"]) == "161455148"
+    assert str(top.iloc[0]["dropped_loan_id_v354"]) == "159706782"
+
+    blockers = _read_csv("paper4_v354_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v354"], blockers["blocking_v354"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v354"], blockers["evidence_count_v354"], strict=False)
+    )
+    assert bool(blocker_map["post_v353_one_swap_improvement_found"]) is False
+    assert int(evidence_map["post_v353_one_swap_improvement_found"]) == 0
+    assert bool(blocker_map["proxy_coverage_gap_persists"]) is True
+    assert int(evidence_map["proxy_coverage_gap_persists"]) == 77
+    assert bool(blocker_map["valid_branch_price_bound_missing"]) is True
+    assert bool(blocker_map["global_dynamic_online_gates_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v354_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v354_post_v353_one_swap_reprice_executed"]) is True
+    assert bool(claim_map["v354_post_v353_one_swap_local_optimality"]) is True
+    assert bool(claim_map["v354_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v354_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["Paper 4 has a v354 post-v353 one-swap repricing gate."])
+    assert bool(boundary_map["v354 clears post-v353 one-swap local optimality."])
+    assert bool(boundary_map["v354 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v354 proves full-universe global integer optimality."]) is False
+    assert bool(boundary_map["v354 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v354_rows = backlog.loc[backlog["last_wave"].eq("v354")]
+    assert len(v354_rows) == 1
+    backlog_row = v354_rows.iloc[0]
+    assert backlog_row["status"] == "post_v353_one_swap_local_optimality_cleared_proxy_gap_persists"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v355_apply_next_post_v353_swap_or_proxy_gate.csv"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "post_v353_one_swap_reprice_cleared_no_cvar_feasible_improvement"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v354: Post-v353 One-Swap Repricing Gate" in notebook
+    assert "Pair rows screened: `47315358`" in notebook
+    assert "CVaR-feasible improving one-swaps:\n  `0`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
