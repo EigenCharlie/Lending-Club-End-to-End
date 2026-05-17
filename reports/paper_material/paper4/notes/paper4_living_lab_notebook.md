@@ -15142,3 +15142,48 @@ full-v55 pricing/dual-bound attempt, or a paper-scope decision that removes
 global optimality from the publishable claim.
 
 <!-- V363_V353_FULL_DUAL_BOUND_GAP_CERTIFICATE_END -->
+
+<!-- V364_V353_DUAL_BOUND_RESOURCE_PLAN_START -->
+
+## Wave v364: v353 Dual-Bound Resource Plan
+
+Generated: 2026-05-17T03:56:44.858154+00:00
+
+### Objective
+
+v363 established a negative full-dual-bound gap certificate. v364 turns that
+gap into an executable queue and a reusable goal prompt so future iterations can
+continue from the real frontier rather than restarting the analysis.
+
+### Results
+
+- Pending register rows: `5`.
+- Recommended next wave:
+  `v365_full_v55_pricing_chunk_plan`.
+- Goal prompt artifact:
+  `reports/paper_material/paper4/notes/paper4_v364_goal_prompt.md`.
+- Bounded candidate-pool share from v363:
+  `0.01584760280161042`.
+- v71 improving omitted columns from v363:
+  `5738`.
+- Valid full-v55 dual-bound certificate:
+  `False`.
+
+### Interpretation
+
+v364 is a practical bridge from evidence to execution. The next useful move is
+not another promotion memo; it is a resource plan for full-v55 pricing chunks,
+or an explicit paper-scope decision if that route remains too expensive.
+
+### Claim Impact
+
+- Allowed: executable pending register and goal prompt for continued work.
+- Still prohibited: full-v55 branch-price termination, valid global integer
+  optimality, working champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v364 in the living notebook. Use the goal prompt artifact to continue
+iterating from v365.
+
+<!-- V364_V353_DUAL_BOUND_RESOURCE_PLAN_END -->

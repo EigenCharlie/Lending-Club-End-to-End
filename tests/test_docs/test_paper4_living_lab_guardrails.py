@@ -39676,6 +39676,115 @@ def test_paper4_v363_v353_full_dual_bound_gap_certificate_blocks_global_claims()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v364_v353_dual_bound_resource_plan_records_goal_prompt() -> None:
+    status = _read_json("paper4_v364_status.json")
+
+    assert status["phase"] == "v364_v353_dual_bound_resource_plan"
+    assert status["schema_version"] == "2026-05-17.364"
+    assert status["base_version_v364"] == 353
+    assert status["prior_gap_version_v364"] == 363
+    assert status["pending_register_rows_v364"] == 5
+    assert status["recommended_next_wave_v364"] == "v365_full_v55_pricing_chunk_plan"
+    assert (
+        status["goal_prompt_artifact_v364"]
+        == "reports/paper_material/paper4/notes/paper4_v364_goal_prompt.md"
+    )
+    assert status["bounded_candidate_pool_share_v364"] == pytest.approx(0.01584760280161042)
+    assert status["v71_improving_omitted_columns_v364"] == 5738
+    assert status["best_source_exact_cvar_gap_vs_cap_v364"] == pytest.approx(75.83614162181038)
+    assert status["valid_full_v55_dual_bound_certificate_v364"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v364"] is False
+    assert status["working_champion_claim_allowed_v364"] is False
+    assert status["paper1_promotion_allowed_v364"] is False
+    assert status["paper4_working_champion_changed_v364"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v364"] == 3
+    assert status["claim_matrix_rows_v364"] == 4
+    assert status["next_artifact_v364"] == "paper4_v365_v353_full_v55_pricing_chunk_plan.csv"
+
+    plan = _read_csv("paper4_v364_v353_dual_bound_resource_plan.csv")
+    row = plan.iloc[0]
+    assert row["plan_id_v364"] == "v353_dual_bound_resource_plan"
+    assert int(row["pending_register_rows_v364"]) == 5
+    assert row["recommended_next_wave_v364"] == "v365_full_v55_pricing_chunk_plan"
+    assert row["goal_prompt_artifact_v364"] == status["goal_prompt_artifact_v364"]
+    assert float(row["bounded_candidate_pool_share_v364"]) == pytest.approx(
+        0.01584760280161042
+    )
+    assert int(row["v71_improving_omitted_columns_v364"]) == 5738
+    assert float(row["best_source_exact_cvar_gap_vs_cap_v364"]) == pytest.approx(
+        75.83614162181038
+    )
+    assert bool(row["valid_full_v55_dual_bound_certificate_v364"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    pending = _read_csv("paper4_v364_executable_pending_register.csv")
+    assert len(pending) == 5
+    assert pending["pending_id_v364"].tolist() == [
+        "v365_full_v55_pricing_chunk_plan",
+        "v366_full_v55_pricing_chunk_prototype",
+        "v367_route_decision_after_chunk_probe",
+        "v368_publishable_claim_scope_update",
+        "v369_proxy_live_gate_separation",
+    ]
+    assert pending["executable_now_v364"].astype(bool).all()
+    assert pending["priority_v364"].astype(int).tolist() == [1, 2, 3, 4, 5]
+
+    blockers = _read_csv("paper4_v364_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v364"], blockers["blocking_v364"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v364"], blockers["evidence_count_v364"], strict=False)
+    )
+    assert bool(blocker_map["resource_plan_not_solver_certificate"]) is True
+    assert bool(blocker_map["v363_gap_certificate_still_active"]) is True
+    assert int(evidence_map["v363_gap_certificate_still_active"]) == 5738
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v364_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v364_dual_bound_resource_plan_created"]) is True
+    assert bool(claim_map["v364_goal_prompt_created"]) is True
+    assert bool(claim_map["v364_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v364_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v364 records executable Paper 4 dual-bound next steps."])
+    assert bool(
+        boundary_map["v364 provides a reusable goal prompt for continued Paper 4 iteration."]
+    )
+    assert bool(boundary_map["v364 proves a valid full-v55 dual-bound termination."]) is False
+    assert bool(boundary_map["v364 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v364_rows = backlog.loc[backlog["last_wave"].eq("v364")]
+    assert len(v364_rows) == 1
+    backlog_row = v364_rows.iloc[0]
+    assert backlog_row["status"] == "dual_bound_resource_plan_and_goal_prompt_created"
+    assert backlog_row["next_artifact"] == "paper4_v365_v353_full_v55_pricing_chunk_plan.csv"
+    assert (
+        backlog_row["execution_result"]
+        == "pending_register_goal_prompt_and_resource_plan_recorded"
+    )
+
+    prompt_path = PAPER4_ROOT / "notes" / "paper4_v364_goal_prompt.md"
+    prompt = prompt_path.read_text(encoding="utf-8")
+    assert "Goal: continue Paper 4 living-lab execution from v364 without time limit" in prompt
+    assert "v365: build paper4_v365_v353_full_v55_pricing_chunk_plan.csv" in prompt
+    assert "verify reports/paper_material/paper4/status/paper4_final_promotion.json does not exist" in prompt
+    assert "Valid full-v55 dual-bound certificate remains false." in prompt
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v364: v353 Dual-Bound Resource Plan" in notebook
+    assert "Pending register rows: `5`" in notebook
+    assert "Recommended next wave:\n  `v365_full_v55_pricing_chunk_plan`" in notebook
+    assert "Valid full-v55 dual-bound certificate:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
