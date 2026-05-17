@@ -21102,3 +21102,55 @@ Keep v477 in the living notebook. v478 should draft section text stubs from this
 visual manuscript delta without editing book sources.
 
 <!-- V477_POST_VISUAL_PACKAGE_MANUSCRIPT_DELTA_END -->
+
+<!-- V478_SECTION_TEXT_STUB_BUNDLE_START -->
+
+## Wave v478: Section Text Stub Bundle
+
+Generated: 2026-05-17T17:12:14.860069+00:00
+
+### Objective
+
+v478 drafts section text stubs and asset callout sentences from the v477 visual
+manuscript delta without editing Quarto.
+
+### Results
+
+- Section text stub rows:
+  `5`.
+- Asset callout rows:
+  `10`.
+- Claim-to-stub rows:
+  `6`.
+- Stubs final:
+  `False`.
+- Stubs inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v479_stub_claim_consistency_audit.md`.
+
+### Interpretation
+
+The manuscript now has bounded draft text stubs tied to the selected visual
+package. These stubs are useful drafting material, but they are not final prose
+and have not been inserted into the book.
+
+### Claim Impact
+
+- Allowed: section text stubs, asset callout sentences and bounded
+  claim-to-stub mapping.
+- Still prohibited: final prose, Quarto/book-reference mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v478 in the living notebook. v479 should audit stub claim consistency
+before any future insertion plan.
+
+<!-- V478_SECTION_TEXT_STUB_BUNDLE_END -->

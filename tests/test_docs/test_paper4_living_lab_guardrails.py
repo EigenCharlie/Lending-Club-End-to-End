@@ -54487,6 +54487,121 @@ def test_paper4_v477_post_visual_package_manuscript_delta_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v478_section_text_stub_bundle_is_guarded() -> None:
+    status = _read_json("paper4_v478_status.json")
+    assert status["phase"] == "v478_section_text_stub_bundle"
+    assert status["schema_version"] == "2026-05-17.478"
+    assert status["prior_visual_delta_version_v478"] == 477
+    assert status["section_text_stub_bundle_created_v478"] is True
+    assert status["section_text_stub_rows_v478"] == 5
+    assert status["asset_callout_rows_v478"] == 10
+    assert status["claim_to_stub_rows_v478"] == 6
+    assert status["readiness_delta_rows_v478"] == 8
+    assert status["stubs_final_v478"] is False
+    assert status["stubs_inserted_into_quarto_v478"] is False
+    assert status["book_sources_modified_v478"] is False
+    assert status["book_references_modified_v478"] is False
+    assert status["submission_ready_claim_allowed_v478"] is False
+    assert status["working_champion_claim_allowed_v478"] is False
+    assert status["paper1_promotion_allowed_v478"] is False
+    assert status["paper4_working_champion_changed_v478"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v478"] == "paper4_v479_stub_claim_consistency_audit.md"
+
+    stubs = _read_csv("paper4_v478_section_text_stubs.csv")
+    assert len(stubs) == 5
+    assert set(stubs["manuscript_section_v478"]) == {
+        "methods_protocol",
+        "results_evidence_cvar",
+        "results_evidence_governance_online",
+        "discussion_limitations",
+        "appendix_reproducibility",
+    }
+    assert stubs["word_count_v478"].astype(int).min() >= 24
+    assert not stubs["stub_final_v478"].astype(bool).any()
+    assert not stubs["inserted_into_quarto_v478"].astype(bool).any()
+    assert stubs["draft_text_stub_v478"].str.contains("blocked").any()
+    assert stubs["source_asset_bundle_v478"].str.contains("T5").any()
+    assert stubs["source_asset_bundle_v478"].str.contains("T6").any()
+
+    callouts = _read_csv("paper4_v478_asset_callout_sentence_queue.csv")
+    assert len(callouts) == 10
+    assert list(callouts["callout_order_v478"]) == list(range(1, 11))
+    assert callouts.iloc[0]["asset_id_v478"] == "T5"
+    assert callouts.iloc[-1]["asset_id_v478"] == "T6"
+    assert callouts["must_preserve_caveat_v478"].astype(bool).all()
+    assert not callouts["callout_sentence_final_v478"].astype(bool).any()
+    assert not callouts["inserted_into_quarto_v478"].astype(bool).any()
+
+    claim_to_stub = _read_csv("paper4_v478_claim_to_stub_map.csv")
+    assert len(claim_to_stub) == 6
+    assert claim_to_stub["allowed_in_stub_v478"].astype(bool).all()
+    assert claim_to_stub["requires_caveat_v478"].astype(bool).all()
+    assert not claim_to_stub["final_claim_v478"].astype(bool).any()
+    assert "v467_v353_local_return_cvar_frontier" in set(claim_to_stub["claim_id_v478"])
+    assert "v472_contractual_requirement_gap_documented" in set(
+        claim_to_stub["claim_id_v478"]
+    )
+
+    readiness = _read_csv("paper4_v478_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v478"], readiness["ready_v478"], strict=False)
+    )
+    assert bool(readiness_map["section_text_stubs_created"]) is True
+    assert bool(readiness_map["asset_callout_sentences_created"]) is True
+    assert bool(readiness_map["claim_to_stub_map_created"]) is True
+    assert bool(readiness_map["stub_caveats_preserved"]) is True
+    assert bool(readiness_map["stubs_final"]) is False
+    assert bool(readiness_map["stubs_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v478_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v478_section_text_stubs_created"]) is True
+    assert bool(claim_map["v478_asset_callout_sentences_created"]) is True
+    assert bool(claim_map["v478_claim_to_stub_map_created"]) is True
+    assert bool(claim_map["v478_stubs_inserted_or_final"]) is False
+    assert bool(claim_map["v478_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v478 drafts section text stubs from the visual manuscript delta."])
+    assert bool(boundary_map["v478 drafts asset callout sentences for future editing."])
+    assert bool(boundary_map["v478 maps bounded claims to draft section stubs."])
+    assert bool(boundary_map["v478 inserts stubs into Quarto or finalizes manuscript prose."]) is False
+    assert bool(boundary_map["v478 makes Paper 4 submission-ready."]) is False
+    assert bool(boundary_map["v478 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v478_rows = backlog.loc[backlog["last_wave"].eq("v478")]
+    assert len(v478_rows) == 1
+    backlog_row = v478_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v479_stub_claim_consistency_audit.md"
+    assert backlog_row["execution_result"] == "section_text_stubs_created_without_quarto_edit"
+
+    stub_md = (PAPER4_ROOT / "notes" / "paper4_v478_section_text_stub_bundle.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Section Text Stub Bundle v478" in stub_md
+    assert "does not insert text into Quarto" in stub_md
+    assert "draft text-stub bundle only" in stub_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v478: Section Text Stub Bundle" in living_notebook
+    assert "Section text stub rows:\n  `5`." in living_notebook
+    assert "Asset callout rows:\n  `10`." in living_notebook
+    assert "Claim-to-stub rows:\n  `6`." in living_notebook
+    assert "Stubs final:\n  `False`." in living_notebook
+    assert "Stubs inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

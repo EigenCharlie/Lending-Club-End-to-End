@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v478_section_text_stubs_created,True,paper4_v478_section_text_stubs.csv,draft section stubs only
+v478_asset_callout_sentences_created,True,paper4_v478_asset_callout_sentence_queue.csv,draft callouts only
+v478_claim_to_stub_map_created,True,paper4_v478_claim_to_stub_map.csv,bounded claim map only
+v478_stubs_inserted_or_final,False,paper4_v478_manuscript_readiness_delta.csv,no insertion or final prose
+v478_submission_ready_or_final_promotion,False,paper4_v478_manuscript_readiness_delta.csv,no submission or final promotion claim
