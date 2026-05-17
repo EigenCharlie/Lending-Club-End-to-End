@@ -1,0 +1,13 @@
+readiness_domain_v378,gap_rows_v378,open_gap_rows_v378,satisfied_rows_v378,blocker_rows_v378,highest_priority_open_rows_v378,claim_boundary_v378
+citations,1,1,0,1,1,domain summary only
+formal_methods,1,1,0,1,0,domain summary only
+governance,1,0,1,0,0,domain summary only
+legal_fairness,1,1,0,1,1,domain summary only
+live_validation,2,2,0,2,1,domain summary only
+manuscript,1,1,0,1,1,domain summary only
+publication_infrastructure,1,1,0,1,1,domain summary only
+regulatory_ifrs9,1,1,0,1,1,domain summary only
+reproducibility,1,0,1,0,0,domain summary only
+solver_global,1,1,0,1,1,domain summary only
+source_governance,1,1,0,1,1,domain summary only
+validation,2,1,1,1,1,domain summary only

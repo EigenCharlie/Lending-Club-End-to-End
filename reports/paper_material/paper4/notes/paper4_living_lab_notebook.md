@@ -15871,3 +15871,57 @@ Keep v377 in the living notebook. v378 should enumerate submission-readiness
 gaps explicitly.
 
 <!-- V377_REPRODUCIBILITY_BUNDLE_MANIFEST_END -->
+
+<!-- V378_SUBMISSION_READINESS_GAP_REGISTER_START -->
+
+## Wave v378: Submission-Readiness Gap Register
+
+Generated: 2026-05-17T05:34:46.301233+00:00
+
+### Objective
+
+v378 converts the v377 reproducibility bundle into a submission-readiness gap
+register. The goal is to make remaining manuscript, evidence, validation and
+review blockers explicit without promoting Paper 4.
+
+### Results
+
+- Gap register rows:
+  `14`.
+- Open gap rows:
+  `11`.
+- Satisfied readiness rows:
+  `3`.
+- Domain summary rows:
+  `12`.
+- Submission blocker rows:
+  `11`.
+- Highest priority open gaps:
+  `9`.
+- Submission-ready claim allowed:
+  `False`.
+- Strict live deployment language allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v379_evidence_gap_closure_work_order.csv`.
+
+### Interpretation
+
+The lab is now packaged enough to audit, but not ready to submit. The remaining
+work is concentrated in manuscript integration, external/literature review,
+solver/source-governance limits, live/legal/regulatory gates and full validation.
+
+### Claim Impact
+
+- Allowed: submission-readiness gap statements and prioritized next actions.
+- Still prohibited: submission-ready, Quarto promotion, live/legal/global
+  claims, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v378 in the living notebook. v379 should convert the highest-priority open
+gaps into an executable evidence-closure work order.
+
+<!-- V378_SUBMISSION_READINESS_GAP_REGISTER_END -->
