@@ -15818,3 +15818,56 @@ Keep v376 in the living notebook. v377 should package a reproducibility bundle
 manifest for the citable appendix.
 
 <!-- V376_PUBLICATION_INTEGRATION_PATCH_END -->
+
+<!-- V377_REPRODUCIBILITY_BUNDLE_MANIFEST_START -->
+
+## Wave v377: Reproducibility Bundle Manifest
+
+Generated: 2026-05-17T05:28:05.803720+00:00
+
+### Objective
+
+v377 turns the Paper 4 living-lab evidence into a reproducibility bundle
+manifest: citable artifacts, status files, guardrails, hashes and package checks.
+
+### Results
+
+- Bundle manifest rows:
+  `30`.
+- Status manifest rows:
+  `10`.
+- Guardrail manifest rows:
+  `7`.
+- Bundle check rows:
+  `5`.
+- Required artifacts missing:
+  `0`.
+- Required status files missing:
+  `0`.
+- All required artifacts exist:
+  `True`.
+- All bundle checks passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v378_submission_readiness_gap_register.csv`.
+
+### Interpretation
+
+Paper 4 now has a citable evidence bundle for future appendix work. This does
+not make the paper submission-ready; it makes the evidence traceable enough to
+audit what can and cannot be claimed.
+
+### Claim Impact
+
+- Allowed: reproducibility and appendix packaging statements.
+- Still prohibited: submission readiness, Quarto promotion, live/legal/global
+  claims, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v377 in the living notebook. v378 should enumerate submission-readiness
+gaps explicitly.
+
+<!-- V377_REPRODUCIBILITY_BUNDLE_MANIFEST_END -->

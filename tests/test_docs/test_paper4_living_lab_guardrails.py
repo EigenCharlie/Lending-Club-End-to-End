@@ -41433,6 +41433,144 @@ def test_paper4_v376_publication_integration_patch_stays_living_notebook_only() 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v377_reproducibility_bundle_manifest_is_complete() -> None:
+    status = _read_json("paper4_v377_status.json")
+
+    assert status["phase"] == "v377_reproducibility_bundle_manifest"
+    assert status["schema_version"] == "2026-05-17.377"
+    assert status["prior_publication_patch_version_v377"] == 376
+    assert status["prior_v376_section_integration_rows_v377"] == 7
+    assert status["bundle_manifest_rows_v377"] == 30
+    assert status["status_manifest_rows_v377"] == 10
+    assert status["guardrail_manifest_rows_v377"] == 7
+    assert status["bundle_check_rows_v377"] == 5
+    assert status["claim_blocker_rows_v377"] == 4
+    assert status["claim_matrix_rows_v377"] == 5
+    assert status["missing_required_artifact_rows_v377"] == 0
+    assert status["missing_required_status_rows_v377"] == 0
+    assert status["all_required_artifacts_exist_v377"] is True
+    assert status["all_required_status_files_exist_v377"] is True
+    assert status["all_bundle_checks_passed_v377"] is True
+    assert status["quarto_pages_modified_v377"] is False
+    assert status["bounded_living_lab_language_allowed_v377"] is True
+    assert status["reproducibility_appendix_language_allowed_v377"] is True
+    assert status["submission_ready_claim_allowed_v377"] is False
+    assert status["strict_live_deployment_language_allowed_v377"] is False
+    assert status["contractual_or_legal_language_allowed_v377"] is False
+    assert status["global_optimality_language_allowed_v377"] is False
+    assert status["working_champion_claim_allowed_v377"] is False
+    assert status["paper1_promotion_allowed_v377"] is False
+    assert status["paper4_working_champion_changed_v377"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v377"] == "paper4_v378_submission_readiness_gap_register.csv"
+
+    manifest = _read_csv("paper4_v377_reproducibility_bundle_manifest.csv")
+    assert len(manifest) == 30
+    assert manifest["required_v377"].astype(bool).all()
+    assert manifest["path_exists_v377"].astype(bool).all()
+    assert manifest["sha256_v377"].astype(str).str.len().eq(64).all()
+    assert set(manifest["artifact_role_v377"]) == {"note", "status", "table", "test"}
+    bundle_ids = set(manifest["bundle_id_v377"])
+    assert {
+        "v361_fourth_order_screen",
+        "v369_gate_requirements",
+        "v373_sampled_chunks",
+        "v374_citation_map",
+        "v375_data_contract",
+        "v376_publication_patch",
+        "living_lab_notebook",
+        "living_lab_guardrails",
+    }.issubset(bundle_ids)
+
+    status_manifest = _read_csv("paper4_v377_status_manifest.csv")
+    assert len(status_manifest) == 10
+    assert status_manifest["artifact_role_v377"].eq("status").all()
+    assert status_manifest["source_wave_v377"].tolist() == [
+        "v361",
+        "v363",
+        "v368",
+        "v369",
+        "v371",
+        "v372",
+        "v373",
+        "v374",
+        "v375",
+        "v376",
+    ]
+
+    checks = _read_csv("paper4_v377_bundle_checks.csv")
+    assert checks["check_id_v377"].tolist() == [
+        "required_artifacts_exist",
+        "status_files_exist",
+        "required_hashes_created",
+        "final_promotion_absent",
+        "publication_patch_is_living_notebook_only",
+    ]
+    assert checks["passed_v377"].astype(bool).all()
+
+    guardrails = _read_csv("paper4_v377_guardrail_manifest.csv")
+    assert guardrails["guardrail_id_v377"].tolist() == [
+        "v371_source_governance",
+        "v372_grade_a_relief",
+        "v373_chunk_stop_rule",
+        "v374_claim_language",
+        "v375_live_gate_contract",
+        "v376_publication_patch",
+        "v377_reproducibility_bundle",
+    ]
+    test_names = set(guardrails["test_name_v377"])
+    assert "test_paper4_v377_reproducibility_bundle_manifest_is_complete" in test_names
+
+    blockers = _read_csv("paper4_v377_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v377"], blockers["blocking_v377"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v377"], blockers["evidence_count_v377"], strict=False)
+    )
+    assert bool(blocker_map["manifest_is_not_submission_package"]) is True
+    assert int(blocker_evidence["manifest_is_not_submission_package"]) == 30
+    assert bool(blocker_map["live_legal_global_claims_still_blocked"]) is True
+    assert int(blocker_evidence["live_legal_global_claims_still_blocked"]) == 0
+    assert bool(blocker_map["quarto_pages_not_promoted"]) is True
+    assert int(blocker_evidence["quarto_pages_not_promoted"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v377_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v377_reproducibility_manifest_created"]) is True
+    assert bool(claim_map["v377_status_and_guardrail_manifest_created"]) is True
+    assert bool(claim_map["v377_submission_ready_package"]) is False
+    assert bool(claim_map["v377_live_legal_or_global_claim_authorized"]) is False
+    assert bool(claim_map["v377_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v377 inventories citable Paper 4 living-lab artifacts and hashes."])
+    assert bool(boundary_map["v377 provides a reproducibility bundle for a future appendix."])
+    assert bool(
+        boundary_map["v377 makes Paper 4 submission-ready or changes claim permissions."]
+    ) is False
+    assert bool(boundary_map["v377 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v377_rows = backlog.loc[backlog["last_wave"].eq("v377")]
+    assert len(v377_rows) == 1
+    backlog_row = v377_rows.iloc[0]
+    assert backlog_row["status"] == "reproducibility_bundle_manifest_created"
+    assert backlog_row["next_artifact"] == "paper4_v378_submission_readiness_gap_register.csv"
+    assert backlog_row["execution_result"] == "citable_artifacts_hashed_and_packaged_without_promotion"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v377: Reproducibility Bundle Manifest" in notebook
+    assert "Bundle manifest rows:\n  `30`" in notebook
+    assert "Required artifacts missing:\n  `0`" in notebook
+    assert "All bundle checks passed:\n  `True`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
