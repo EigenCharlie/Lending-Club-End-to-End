@@ -1683,3 +1683,9 @@ v489 records a patch safety decision that keeps patching blocked.,True,reports/p
 v489 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v489_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
 v489 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v489_patch_safety_decision.csv,Patch is not authorized in v489.,True,living_notebook_only
 v489 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v489_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v490 records a layout review decision for Paper 4.,True,reports/paper_material/paper4/tables/paper4_v490_layout_review_decision_matrix.csv,Layout review decision only.,False,living_notebook_only
+v490 creates a manual review queue for layout surfaces.,True,reports/paper_material/paper4/tables/paper4_v490_manual_review_queue.csv,Pending manual review only.,False,living_notebook_only
+v490 seeds a future patch-readiness preflight.,True,reports/paper_material/paper4/tables/paper4_v490_patch_readiness_preflight_seed.csv,Preflight seed only.,False,living_notebook_only
+v490 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v490_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
+v490 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v490_patch_gate_register.csv,Patch is not authorized in v490.,True,living_notebook_only
+v490 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v490_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

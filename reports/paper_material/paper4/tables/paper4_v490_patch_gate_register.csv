@@ -1,0 +1,7 @@
+patch_gate_id_v490,gate_ready_v490,required_before_patch_v490,blocks_patch_v490,resolved_by_v490,claim_boundary_v490
+layout_packet_exists,True,True,False,False,dry-run packet exists only
+target_surfaces_identified,True,True,False,False,target identification only
+manual_patch_approval_present,False,True,True,False,approval missing
+captions_final,False,True,True,False,captions non-final
+quarto_patch_applied,False,False,True,False,no patch in v488
+post_patch_render_passed,False,False,True,False,render deferred until patch exists

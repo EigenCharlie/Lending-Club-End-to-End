@@ -1,0 +1,7 @@
+preflight_item_v490,seed_status_v490,ready_for_v491_v490,required_next_action_v490
+layout_audit_status,passed,True,carry v489 status into patch preflight
+manual_review_queue,created_pending_review,True,review target surfaces before any patch
+manual_patch_approval,missing,False,obtain explicit approval before mutation
+final_caption_signoff,missing,False,finalize captions before mutation
+post_patch_render_gate,deferred,False,run render only after patch exists
+final_promotion_gate,forbidden,False,keep Paper Estrella boundary active

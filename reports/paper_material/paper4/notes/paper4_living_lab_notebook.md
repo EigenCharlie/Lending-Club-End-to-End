@@ -21749,3 +21749,59 @@ Keep v489 in the living notebook. v490 should record a layout review decision
 without modifying book sources.
 
 <!-- V489_LAYOUT_CONSISTENCY_AUDIT_END -->
+
+<!-- V490_LAYOUT_REVIEW_DECISION_START -->
+
+## Wave v490: Layout Review Decision
+
+Generated: 2026-05-17T18:22:30.016364+00:00
+
+### Objective
+
+v490 converts the passed v489 layout consistency audit into an explicit manual
+review decision without editing book sources.
+
+### Results
+
+- Decision rows:
+  `5`.
+- Manual review queue rows:
+  `4`.
+- Patch gate rows:
+  `6`.
+- Open patch gate rows:
+  `4`.
+- Preflight seed rows:
+  `6`.
+- Layout accepted for manual review:
+  `True`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v491_patch_readiness_preflight.md`.
+
+### Interpretation
+
+The layout can move into manual review, but the patch itself remains blocked.
+This preserves the dry-run evidence while creating a concrete v491 preflight.
+
+### Claim Impact
+
+- Allowed: layout review decision, manual review queue and patch-readiness
+  preflight seed.
+- Still prohibited: Quarto patch readiness/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v490 in the living notebook. v491 should preflight patch readiness without
+modifying book sources.
+
+<!-- V490_LAYOUT_REVIEW_DECISION_END -->
