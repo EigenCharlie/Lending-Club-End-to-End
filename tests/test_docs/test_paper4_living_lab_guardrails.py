@@ -39922,6 +39922,142 @@ def test_paper4_v365_v353_full_v55_pricing_chunk_plan_preserves_claim_limits() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v366_v353_full_v55_chunk_prototype_records_source_blocker() -> None:
+    status = _read_json("paper4_v366_status.json")
+
+    assert status["phase"] == "v366_v353_full_v55_pricing_chunk_prototype"
+    assert status["schema_version"] == "2026-05-17.366"
+    assert status["base_version_v366"] == 353
+    assert status["prior_plan_version_v366"] == 365
+    assert status["chunk_id_v366"] == 1
+    assert status["chunk_start_offset_v366"] == 0
+    assert status["chunk_end_offset_exclusive_v366"] == 10000
+    assert status["chunk_rows_v366"] == 10000
+    assert status["path_count_v366"] == 128
+    assert status["selected_drop_rows_v366"] == 171
+    assert status["ordered_one_swap_rows_v366"] == 1710000
+    assert status["return_improving_rows_v366"] == 48320
+    assert status["budget_return_feasible_rows_v366"] == 25223
+    assert status["source_exact_rows_v366"] == 0
+    assert status["cvar_feasible_entering_rows_v366"] == 0
+    assert status["best_source_exact_return_delta_v366"] is None
+    assert status["best_source_exact_cvar90_v366"] is None
+    assert status["best_entering_return_delta_v366"] is None
+    assert status["best_entering_cvar90_v366"] is None
+    assert status["chunk_prototype_executed_v366"] is True
+    assert status["full_v55_pricing_executed_v366"] is False
+    assert status["valid_full_v55_dual_bound_certificate_v366"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v366"] is False
+    assert status["working_champion_claim_allowed_v366"] is False
+    assert status["paper1_promotion_allowed_v366"] is False
+    assert status["paper4_working_champion_changed_v366"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["stage_summary_rows_v366"] == 15
+    assert status["candidate_screen_rows_v366"] == 0
+    assert status["entering_candidate_summary_rows_v366"] == 0
+    assert status["limitation_rows_v366"] == 3
+    assert status["claim_blocker_rows_v366"] == 3
+    assert status["claim_matrix_rows_v366"] == 4
+    assert status["next_artifact_v366"] == "paper4_v367_route_decision_after_chunk_probe.csv"
+
+    protocol = _read_csv("paper4_v366_v353_full_v55_pricing_chunk_prototype.csv")
+    row = protocol.iloc[0]
+    assert row["prototype_id_v366"] == "v353_full_v55_chunk_0001_one_swap_prototype"
+    assert int(row["ordered_one_swap_rows_v366"]) == 1710000
+    assert int(row["return_improving_rows_v366"]) == 48320
+    assert int(row["budget_return_feasible_rows_v366"]) == 25223
+    assert int(row["source_exact_rows_v366"]) == 0
+    assert int(row["cvar_feasible_entering_rows_v366"]) == 0
+    assert bool(row["chunk_prototype_executed_v366"]) is True
+    assert bool(row["full_v55_pricing_executed_v366"]) is False
+    assert bool(row["valid_full_v55_dual_bound_certificate_v366"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    stage = _read_csv("paper4_v366_chunk_stage_summary.csv")
+    stage_map = dict(zip(stage["stage_v366"], stage["row_count_v366"], strict=False))
+    assert int(stage_map["chunk_omitted_add_candidates"]) == 10000
+    assert int(stage_map["selected_drop_candidates"]) == 171
+    assert int(stage_map["ordered_one_swap_rows"]) == 1710000
+    assert int(stage_map["return_improving"]) == 48320
+    assert int(stage_map["budget_return_feasible"]) == 25223
+    assert int(stage_map["grade_source_feasible_alone"]) == 0
+    assert int(stage_map["score_decile_source_feasible_alone"]) == 6023
+    assert int(stage_map["income_band_source_feasible_alone"]) == 25223
+    assert int(stage_map["dti_band_source_feasible_alone"]) == 25223
+    assert int(stage_map["period_source_feasible_alone"]) == 25223
+    assert int(stage_map["state_top20_source_feasible_alone"]) == 25223
+    assert int(stage_map["source_exact_feasible"]) == 0
+    assert int(stage_map["cvar_feasible_entering_column"]) == 0
+
+    candidates = _read_csv("paper4_v366_chunk_candidate_screen.csv")
+    entering = _read_csv("paper4_v366_entering_candidate_summary.csv")
+    assert candidates.empty
+    assert entering.empty
+    expected_candidate_columns = {
+        "policy_id",
+        "regime_v366",
+        "chunk_id_v366",
+        "added_loan_id_v366",
+        "dropped_loan_id_v366",
+        "return_delta_v366",
+        "cvar90_after_swap_v366",
+        "chunk_entering_column_v366",
+    }
+    assert expected_candidate_columns.issubset(candidates.columns)
+    assert expected_candidate_columns.issubset(entering.columns)
+
+    limitations = _read_csv("paper4_v366_limitations.csv")
+    limitation_map = dict(
+        zip(limitations["limitation_id_v366"], limitations["evidence_count_v366"], strict=False)
+    )
+    assert int(limitation_map["remaining_chunks_unpriced"]) == 27
+    assert int(limitation_map["one_swap_not_full_column_generation"]) == 1
+    assert int(limitation_map["integer_optimality_certificate_missing"]) == 1
+
+    blockers = _read_csv("paper4_v366_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v366"], blockers["blocking_v366"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v366"], blockers["evidence_count_v366"], strict=False)
+    )
+    assert bool(blocker_map["full_v55_termination_missing"]) is True
+    assert int(evidence_map["full_v55_termination_missing"]) == 27
+    assert bool(blocker_map["chunk_candidate_requires_route_decision"]) is False
+    assert int(evidence_map["chunk_candidate_requires_route_decision"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v366_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v366_chunk_prototype_executed"]) is True
+    assert bool(claim_map["v366_chunk_entering_candidate_found"]) is False
+    assert bool(claim_map["v366_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v366_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v366 executes a deterministic full-v55 chunk prototype."])
+    assert bool(boundary_map["v366 finds a bounded chunk entering candidate."]) is False
+    assert bool(boundary_map["v366 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v366 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v366_rows = backlog.loc[backlog["last_wave"].eq("v366")]
+    assert len(v366_rows) == 1
+    backlog_row = v366_rows.iloc[0]
+    assert backlog_row["status"] == "chunk_prototype_no_cvar_entering_column"
+    assert backlog_row["next_artifact"] == "paper4_v367_route_decision_after_chunk_probe.csv"
+    assert backlog_row["execution_result"] == "no_chunk_0001_cvar_feasible_entering_column"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v366: v353 Full-v55 Pricing Chunk Prototype" in notebook
+    assert "Ordered one-swap rows:\n  `1710000`" in notebook
+    assert "Source-exact rows:\n  `0`" in notebook
+    assert "Full-v55 termination claim:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

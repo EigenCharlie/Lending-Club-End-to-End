@@ -1,0 +1,4 @@
+limitation_id_v366,blocking_v366,evidence_count_v366,required_next_artifact_v366,claim_boundary_v366
+remaining_chunks_unpriced,True,27,paper4_v367_route_decision_after_chunk_probe.csv,only chunk 1 was prototyped
+one_swap_not_full_column_generation,True,1,paper4_v367_route_decision_after_chunk_probe.csv,one-add/one-drop prototype is not dual pricing termination
+integer_optimality_certificate_missing,True,1,paper4_v367_route_decision_after_chunk_probe.csv,chunk prototype does not provide integer proof

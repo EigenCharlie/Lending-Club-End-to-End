@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v366_chunk_prototype_executed,True,paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,chunk 1 only
+v366_chunk_entering_candidate_found,False,paper4_v366_entering_candidate_summary.csv,chunk-local candidate only
+v366_valid_full_v55_dual_bound_certificate,False,paper4_v366_claim_blockers.csv,remaining chunks unpriced
+v366_paper1_or_final_promotion,False,paper4_v366_claim_blockers.csv,Paper Estrella remains protected
