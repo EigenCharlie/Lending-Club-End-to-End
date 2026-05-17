@@ -1,0 +1,7 @@
+source_family_v371,budget_return_feasible_rows_v371,family_source_feasible_rows_v371,family_retention_share_v371,binding_rank_v371,blocker_class_v371,claim_boundary_v371
+grade,25223,0,0.0,1,binding,chunk-0001 family-level source diagnostic only
+score_decile,25223,6023,0.23878999326011974,2,binding,chunk-0001 family-level source diagnostic only
+dti_band,25223,25223,1.0,3,nonbinding,chunk-0001 family-level source diagnostic only
+income_band,25223,25223,1.0,4,nonbinding,chunk-0001 family-level source diagnostic only
+period,25223,25223,1.0,5,nonbinding,chunk-0001 family-level source diagnostic only
+state_top20,25223,25223,1.0,6,nonbinding,chunk-0001 family-level source diagnostic only

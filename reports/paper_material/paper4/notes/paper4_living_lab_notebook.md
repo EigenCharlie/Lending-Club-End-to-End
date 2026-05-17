@@ -15509,3 +15509,57 @@ diagnostic than blindly continuing all remaining chunks.
 Keep v370 in the living notebook. Execute v371 from the refreshed prompt.
 
 <!-- V370_FUTURE_EXECUTION_BACKLOG_REFRESH_END -->
+
+<!-- V371_SOURCE_GOVERNANCE_BLOCKER_DIAGNOSTIC_START -->
+
+## Wave v371: Source-Governance Blocker Diagnostic
+
+Generated: 2026-05-17T04:44:10.196070+00:00
+
+### Objective
+
+v366 screened the first full-v55 chunk and found zero source-exact rows after
+25,223 budget+return-feasible one-swaps. v371 diagnoses the source-governance
+bottleneck before spending more compute on chunk continuation.
+
+### Results
+
+- Budget+return feasible rows:
+  `25223`.
+- Source-exact rows:
+  `0`.
+- Primary blocker family:
+  `grade`.
+- Primary blocker source id:
+  `A`.
+- Primary blocker pass rows:
+  `0`.
+- Secondary blocker family:
+  `score_decile`.
+- Secondary blocker pass rows:
+  `6023`.
+- Fully nonbinding families:
+  `4`.
+- Recommended next artifact:
+  `paper4_v372_grade_a_source_relief_prefilter.csv`.
+
+### Interpretation
+
+The first chunk did not fail at CVaR; it failed before CVaR because source
+governance collapsed the budget+return set. Grade is the binding source family,
+with grade=A identified as the tight source. Score decile remains secondary.
+That makes a targeted grade-A/source-relief prefilter more informative than
+blindly running chunk 002.
+
+### Claim Impact
+
+- Allowed: chunk-0001 source-governance diagnostic.
+- Still prohibited: full-v55 termination, valid global integer optimality,
+  working champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v371 in the living notebook. v372 should test a grade-A/source-relief
+prefilter or formally justify returning to the original v370 order.
+
+<!-- V371_SOURCE_GOVERNANCE_BLOCKER_DIAGNOSTIC_END -->

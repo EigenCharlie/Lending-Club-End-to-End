@@ -1,0 +1,4 @@
+recommendation_id_v371,priority_v371,recommended_v371,expected_artifact_v371,rationale_v371,claim_boundary_v371
+grade_a_source_relief_prefilter,1,True,paper4_v372_grade_a_source_relief_prefilter.csv,grade=A has zero family-feasible rows after budget+return in chunk 0001,next experiment only
+score_decile_secondary_gate,2,True,paper4_v372_grade_a_source_relief_prefilter.csv,score_decile=0 remains tight but passes 6023 budget+return rows alone,secondary diagnostic only
+blind_chunk_002,3,False,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,blind chunking is less informative until the grade=A blocker is addressed,defer until blocker prefilter is tested

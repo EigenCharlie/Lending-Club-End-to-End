@@ -40603,6 +40603,143 @@ def test_paper4_v370_future_execution_backlog_refresh_records_goal_prompt() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v371_source_governance_blocker_diagnostic_identifies_grade_a() -> None:
+    status = _read_json("paper4_v371_status.json")
+
+    assert status["phase"] == "v371_source_governance_blocker_diagnostic"
+    assert status["schema_version"] == "2026-05-17.371"
+    assert status["prior_backlog_version_v371"] == 370
+    assert status["prior_chunk_version_v371"] == 366
+    assert status["ordered_one_swap_rows_v371"] == 1710000
+    assert status["return_improving_rows_v371"] == 48320
+    assert status["budget_return_feasible_rows_v371"] == 25223
+    assert status["source_exact_rows_v371"] == 0
+    assert status["primary_blocker_family_v371"] == "grade"
+    assert status["primary_blocker_source_id_v371"] == "A"
+    assert status["primary_blocker_pass_rows_v371"] == 0
+    assert status["secondary_blocker_family_v371"] == "score_decile"
+    assert status["secondary_blocker_pass_rows_v371"] == 6023
+    assert status["fully_nonbinding_family_count_v371"] == 4
+    assert status["family_retention_rows_v371"] == 6
+    assert status["tight_source_blocker_rows_v371"] == 2
+    assert status["pair_flow_rows_v371"] == 8
+    assert status["recommendation_rows_v371"] == 3
+    assert status["claim_blocker_rows_v371"] == 3
+    assert status["claim_matrix_rows_v371"] == 4
+    assert status["valid_full_v55_dual_bound_certificate_v371"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v371"] is False
+    assert status["working_champion_claim_allowed_v371"] is False
+    assert status["paper1_promotion_allowed_v371"] is False
+    assert status["paper4_working_champion_changed_v371"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v371"] == "paper4_v372_grade_a_source_relief_prefilter.csv"
+
+    diagnostic = _read_csv("paper4_v371_source_governance_blocker_diagnostic.csv")
+    row = diagnostic.iloc[0]
+    assert row["diagnostic_id_v371"] == "v371_v366_chunk_0001_source_governance_blocker"
+    assert int(row["budget_return_feasible_rows_v371"]) == 25223
+    assert int(row["source_exact_rows_v371"]) == 0
+    assert row["primary_blocker_family_v371"] == "grade"
+    assert row["primary_blocker_source_id_v371"] == "A"
+    assert int(row["primary_blocker_pass_rows_v371"]) == 0
+    assert row["secondary_blocker_family_v371"] == "score_decile"
+    assert int(row["secondary_blocker_pass_rows_v371"]) == 6023
+    assert int(row["fully_nonbinding_family_count_v371"]) == 4
+    assert bool(row["valid_full_v55_dual_bound_certificate_v371"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    retention = _read_csv("paper4_v371_source_family_retention.csv")
+    retention_map = {row["source_family_v371"]: row for _, row in retention.iterrows()}
+    assert int(retention_map["grade"]["family_source_feasible_rows_v371"]) == 0
+    assert float(retention_map["grade"]["family_retention_share_v371"]) == pytest.approx(0.0)
+    assert int(retention_map["score_decile"]["family_source_feasible_rows_v371"]) == 6023
+    assert float(retention_map["score_decile"]["family_retention_share_v371"]) == pytest.approx(
+        0.23878999326011974
+    )
+    for family in ["income_band", "dti_band", "period", "state_top20"]:
+        assert int(retention_map[family]["family_source_feasible_rows_v371"]) == 25223
+        assert float(retention_map[family]["family_retention_share_v371"]) == pytest.approx(1.0)
+
+    tight = _read_csv("paper4_v371_tight_source_blockers.csv")
+    tight_map = {row["pricing_block_id_v371"]: row for _, row in tight.iterrows()}
+    grade = tight_map["grade=A"]
+    score = tight_map["score_decile=0"]
+    assert int(grade["v356_candidate_rows_v371"]) == 72271
+    assert int(grade["v356_positive_return_candidate_rows_v371"]) == 4385
+    assert int(grade["v366_family_feasible_rows_v371"]) == 0
+    assert int(grade["tight_source_pass_rows_v371"]) == 0
+    assert float(grade["tight_source_best_slack_v371"]) == pytest.approx(
+        -8.238248034375673e-05
+    )
+    assert bool(grade["primary_blocker_v371"]) is True
+    assert int(score["v366_family_feasible_rows_v371"]) == 6023
+    assert int(score["tight_source_pass_rows_v371"]) == 6023
+    assert bool(score["primary_blocker_v371"]) is False
+
+    flow = _read_csv("paper4_v371_source_pair_flow_diagnostics.csv")
+    flow_map = {
+        (row["source_family_v371"], row["flow_category_v371"]): row for _, row in flow.iterrows()
+    }
+    assert int(flow_map[("grade", "source_relief_drop_tight_add_other")]["budget_return_rows_v371"]) == 0
+    assert int(flow_map[("grade", "source_pressure_drop_other_add_tight")]["budget_return_rows_v371"]) == 24095
+    assert int(flow_map[("score_decile", "source_relief_drop_tight_add_other")]["budget_return_rows_v371"]) == 2078
+    assert int(flow_map[("score_decile", "source_pressure_drop_other_add_tight")]["budget_return_rows_v371"]) == 12475
+
+    recommendations = _read_csv("paper4_v371_next_experiment_recommendations.csv")
+    rec_map = dict(
+        zip(recommendations["recommendation_id_v371"], recommendations["recommended_v371"], strict=False)
+    )
+    assert bool(rec_map["grade_a_source_relief_prefilter"]) is True
+    assert bool(rec_map["score_decile_secondary_gate"]) is True
+    assert bool(rec_map["blind_chunk_002"]) is False
+
+    blockers = _read_csv("paper4_v371_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v371"], blockers["blocking_v371"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v371"], blockers["evidence_count_v371"], strict=False)
+    )
+    assert bool(blocker_map["grade_a_primary_source_blocker"]) is True
+    assert int(evidence_map["grade_a_primary_source_blocker"]) == 0
+    assert bool(blocker_map["remaining_chunks_unpriced"]) is True
+    assert int(evidence_map["remaining_chunks_unpriced"]) == 27
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v371_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v371_source_governance_blocker_diagnostic_created"]) is True
+    assert bool(claim_map["v371_grade_a_primary_blocker_identified"]) is True
+    assert bool(claim_map["v371_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v371_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v371 diagnoses source-governance blockers for v366 chunk 0001."])
+    assert bool(
+        boundary_map["v371 identifies grade=A as the primary chunk-0001 source bottleneck."]
+    )
+    assert bool(boundary_map["v371 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v371 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v371_rows = backlog.loc[backlog["last_wave"].eq("v371")]
+    assert len(v371_rows) == 1
+    backlog_row = v371_rows.iloc[0]
+    assert backlog_row["status"] == "source_governance_primary_blocker_identified"
+    assert backlog_row["next_artifact"] == "paper4_v372_grade_a_source_relief_prefilter.csv"
+    assert backlog_row["execution_result"] == "grade_a_primary_blocker_score_decile_secondary"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v371: Source-Governance Blocker Diagnostic" in notebook
+    assert "Primary blocker family:\n  `grade`" in notebook
+    assert "Primary blocker source id:\n  `A`" in notebook
+    assert "Secondary blocker pass rows:\n  `6023`" in notebook
+    assert "Recommended next artifact:\n  `paper4_v372_grade_a_source_relief_prefilter.csv`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

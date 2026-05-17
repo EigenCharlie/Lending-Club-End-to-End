@@ -1,0 +1,9 @@
+source_family_v371,source_id_v371,flow_category_v371,budget_return_rows_v371,share_of_budget_return_rows_v371,claim_boundary_v371
+grade,A,source_relief_drop_tight_add_other,0,0.0,budget+return source-flow diagnostic only; no full-v55 proof
+grade,A,source_neutral_drop_tight_add_tight,935,0.03706934147405146,budget+return source-flow diagnostic only; no full-v55 proof
+grade,A,source_pressure_drop_other_add_tight,24095,0.955278912104032,budget+return source-flow diagnostic only; no full-v55 proof
+grade,A,other_to_other,193,0.007651746421916504,budget+return source-flow diagnostic only; no full-v55 proof
+score_decile,0,source_relief_drop_tight_add_other,2078,0.08238512468778496,budget+return source-flow diagnostic only; no full-v55 proof
+score_decile,0,source_neutral_drop_tight_add_tight,7770,0.3080521746025453,budget+return source-flow diagnostic only; no full-v55 proof
+score_decile,0,source_pressure_drop_other_add_tight,12475,0.49458827260833366,budget+return source-flow diagnostic only; no full-v55 proof
+score_decile,0,other_to_other,2900,0.11497442810133608,budget+return source-flow diagnostic only; no full-v55 proof
