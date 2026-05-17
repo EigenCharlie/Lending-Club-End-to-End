@@ -56251,6 +56251,137 @@ def test_paper4_v492_manual_layout_review_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v493_caption_signoff_gap_packet_is_guarded() -> None:
+    status = _read_json("paper4_v493_status.json")
+    assert status["phase"] == "v493_caption_signoff_gap_packet"
+    assert status["schema_version"] == "2026-05-17.493"
+    assert status["prior_manual_layout_review_version_v493"] == 492
+    assert status["caption_signoff_gap_packet_created_v493"] is True
+    assert status["caption_gap_rows_v493"] == 10
+    assert status["draft_caption_rows_v493"] == 10
+    assert status["caption_final_rows_v493"] == 0
+    assert status["caption_pending_rows_v493"] == 10
+    assert status["target_block_summary_rows_v493"] == 4
+    assert status["target_blocks_all_caption_final_v493"] == 0
+    assert status["claim_safety_rows_v493"] == 10
+    assert status["overclaim_review_required_rows_v493"] == 10
+    assert status["signoff_action_rows_v493"] == 5
+    assert status["open_signoff_action_rows_v493"] == 5
+    assert status["readiness_delta_rows_v493"] == 8
+    assert status["ready_for_quarto_patch_v493"] is False
+    assert status["quarto_patch_applied_v493"] is False
+    assert status["book_sources_modified_v493"] is False
+    assert status["book_references_modified_v493"] is False
+    assert status["submission_ready_claim_allowed_v493"] is False
+    assert status["working_champion_claim_allowed_v493"] is False
+    assert status["paper1_promotion_allowed_v493"] is False
+    assert status["paper4_working_champion_changed_v493"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v493"] == "paper4_v494_patch_approval_gap_packet.md"
+
+    gaps = _read_csv("paper4_v493_caption_signoff_gap_packet.csv")
+    assert len(gaps) == 10
+    assert list(gaps["layout_order_v493"]) == list(range(1, 11))
+    assert gaps["draft_caption_exists_v493"].astype(bool).all()
+    assert not gaps["caption_final_v493"].astype(bool).any()
+    assert gaps["blocks_patch_v493"].astype(bool).all()
+    assert set(gaps["signoff_status_v493"]) == {"missing_final_caption_signoff"}
+
+    summary = _read_csv("paper4_v493_caption_gate_summary.csv")
+    assert len(summary) == 4
+    assert int(summary["caption_asset_count_v493"].sum()) == 10
+    assert int(summary["draft_caption_count_v493"].sum()) == 10
+    assert int(summary["final_caption_count_v493"].sum()) == 0
+    assert int(summary["pending_caption_count_v493"].sum()) == 10
+    assert not summary["all_captions_final_v493"].astype(bool).any()
+    assert summary["blocks_patch_v493"].astype(bool).all()
+
+    safety = _read_csv("paper4_v493_caption_claim_safety_matrix.csv")
+    assert len(safety) == 10
+    assert safety["draft_caption_exists_v493"].astype(bool).all()
+    assert not safety["caption_final_v493"].astype(bool).any()
+    assert safety["overclaim_review_required_v493"].astype(bool).all()
+    assert safety["draft_use_allowed_v493"].astype(bool).all()
+    assert not safety["final_caption_claim_allowed_v493"].astype(bool).any()
+
+    actions = _read_csv("paper4_v493_signoff_action_register.csv")
+    assert len(actions) == 5
+    assert int(actions["action_required_v493"].astype(bool).sum()) == 4
+    assert not actions["action_complete_v493"].astype(bool).any()
+    assert actions["blocks_patch_v493"].astype(bool).all()
+    action_map = dict(
+        zip(actions["signoff_action_id_v493"], actions["action_required_v493"], strict=False)
+    )
+    assert bool(action_map["review_all_draft_captions"]) is True
+    assert bool(action_map["verify_claim_boundaries_per_caption"]) is True
+    assert bool(action_map["capture_final_caption_signoff"]) is True
+    assert bool(action_map["sync_signoff_with_patch_approval"]) is True
+    assert bool(action_map["apply_quarto_patch_now"]) is False
+
+    readiness = _read_csv("paper4_v493_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v493"], readiness["ready_v493"], strict=False)
+    )
+    assert bool(readiness_map["caption_signoff_gap_packet_created"]) is True
+    assert bool(readiness_map["caption_gate_summary_created"]) is True
+    assert bool(readiness_map["caption_claim_safety_matrix_created"]) is True
+    assert bool(readiness_map["signoff_action_register_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v493_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v493_caption_signoff_gap_packet_created"]) is True
+    assert bool(claim_map["v493_caption_claim_safety_matrix_created"]) is True
+    assert bool(claim_map["v493_open_caption_signoff_actions_identified"]) is True
+    assert bool(claim_map["v493_final_captions_or_patch_ready"]) is False
+    assert bool(claim_map["v493_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v493 audits caption signoff gaps for Paper 4."])
+    assert bool(boundary_map["v493 maps caption claim-safety review needs."])
+    assert bool(boundary_map["v493 records open caption signoff actions."])
+    assert (
+        bool(boundary_map["v493 finalizes captions or makes Paper 4 ready for patching."])
+        is False
+    )
+    assert bool(boundary_map["v493 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v493 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v493_rows = backlog.loc[backlog["last_wave"].eq("v493")]
+    assert len(v493_rows) == 1
+    backlog_row = v493_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v494_patch_approval_gap_packet.md"
+    assert backlog_row["execution_result"] == "caption_signoff_gap_packet_created_without_finalization"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v493_caption_signoff_gap_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Caption Signoff Gap Packet v493" in packet_md
+    assert "none are final" in packet_md
+    assert "v493 is a caption signoff gap audit only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v493: Caption Signoff Gap Packet" in living_notebook
+    assert "Caption gap rows:\n  `10`." in living_notebook
+    assert "Draft caption rows:\n  `10`." in living_notebook
+    assert "Caption final rows:\n  `0`." in living_notebook
+    assert "Caption pending rows:\n  `10`." in living_notebook
+    assert "Target block summary rows:\n  `4`." in living_notebook
+    assert "Claim safety rows:\n  `10`." in living_notebook
+    assert "Open signoff action rows:\n  `5`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

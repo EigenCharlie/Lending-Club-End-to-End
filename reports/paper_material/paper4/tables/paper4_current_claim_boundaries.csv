@@ -1701,3 +1701,9 @@ v492 records manual layout review acceptance criteria.,True,reports/paper_materi
 v492 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v492_manuscript_readiness_delta.csv,"Manual review, approval and final captions are missing.",True,living_notebook_only
 v492 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v492_review_decision_options.csv,Patch is not authorized in v492.,True,living_notebook_only
 v492 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v492_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v493 audits caption signoff gaps for Paper 4.,True,reports/paper_material/paper4/tables/paper4_v493_caption_signoff_gap_packet.csv,Caption signoff gap packet only.,False,living_notebook_only
+v493 maps caption claim-safety review needs.,True,reports/paper_material/paper4/tables/paper4_v493_caption_claim_safety_matrix.csv,Caption claim-safety matrix only.,False,living_notebook_only
+v493 records open caption signoff actions.,True,reports/paper_material/paper4/tables/paper4_v493_signoff_action_register.csv,Open signoff action register only.,False,living_notebook_only
+v493 finalizes captions or makes Paper 4 ready for patching.,False,reports/paper_material/paper4/tables/paper4_v493_manuscript_readiness_delta.csv,Captions remain non-final and patch approval is missing.,True,living_notebook_only
+v493 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v493_signoff_action_register.csv,Patch is not authorized in v493.,True,living_notebook_only
+v493 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v493_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

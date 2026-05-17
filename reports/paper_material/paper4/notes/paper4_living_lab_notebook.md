@@ -21921,3 +21921,59 @@ Keep v492 in the living notebook. v493 should audit caption signoff gaps without
 modifying book sources.
 
 <!-- V492_MANUAL_LAYOUT_REVIEW_PACKET_END -->
+
+<!-- V493_CAPTION_SIGNOFF_GAP_PACKET_START -->
+
+## Wave v493: Caption Signoff Gap Packet
+
+Generated: 2026-05-17T18:37:54.005488+00:00
+
+### Objective
+
+v493 audits caption signoff gaps for the ten draft assets without finalizing
+captions or editing book sources.
+
+### Results
+
+- Caption gap rows:
+  `10`.
+- Draft caption rows:
+  `10`.
+- Caption final rows:
+  `0`.
+- Caption pending rows:
+  `10`.
+- Target block summary rows:
+  `4`.
+- Claim safety rows:
+  `10`.
+- Open signoff action rows:
+  `5`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v494_patch_approval_gap_packet.md`.
+
+### Interpretation
+
+All ten draft captions exist, but none are final. Caption signoff is therefore a
+real blocker, not a bookkeeping detail.
+
+### Claim Impact
+
+- Allowed: caption signoff gap audit, caption claim-safety matrix and open
+  signoff action register.
+- Still prohibited: final caption claim, Quarto patch readiness/application,
+  Quarto/book-reference mutation, submission readiness, Paper Estrella
+  replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v493 in the living notebook. v494 should audit the explicit patch approval
+gap without modifying book sources.
+
+<!-- V493_CAPTION_SIGNOFF_GAP_PACKET_END -->

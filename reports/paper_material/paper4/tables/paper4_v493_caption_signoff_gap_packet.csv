@@ -1,0 +1,11 @@
+caption_gap_id_v493,asset_id_v493,asset_type_v493,target_block_v493,layout_order_v493,draft_caption_exists_v493,caption_word_count_v493,caption_final_v493,signoff_status_v493,required_signoff_action_v493,blocks_patch_v493,claim_boundary_v493
+caption_T5,T5,table,methods_protocol,1,True,20,False,missing_final_caption_signoff,manual editorial caption approval,True,no formal theorem or CRC guarantee
+caption_F4,F4,figure,methods_protocol,2,True,18,False,missing_final_caption_signoff,manual editorial caption approval,True,no formal SPO-DLA theorem claim
+caption_T1,T1,table,results_evidence_cvar,3,True,24,False,missing_final_caption_signoff,manual editorial caption approval,True,no full-v55 optimality or champion claim
+caption_F1,F1,figure,results_evidence_cvar,4,True,25,False,missing_final_caption_signoff,manual editorial caption approval,True,visual context only; v467 table carries current claim
+caption_T2,T2,table,results_evidence_governance_online,5,True,25,False,missing_final_caption_signoff,manual editorial caption approval,True,no source cap approval or mutation
+caption_F2,F2,figure,results_evidence_governance_online,6,True,18,False,missing_final_caption_signoff,manual editorial caption approval,True,no cap relaxation or legal fairness certification
+caption_T4,T4,table,results_evidence_governance_online,7,True,20,False,missing_final_caption_signoff,manual editorial caption approval,True,no production monitoring claim
+caption_F3,F3,figure,results_evidence_governance_online,8,True,15,False,missing_final_caption_signoff,manual editorial caption approval,True,no external holdout or production monitoring claim
+caption_T3,T3,table,discussion_limitations,9,True,22,False,missing_final_caption_signoff,manual editorial caption approval,True,no live dynamic deployment language
+caption_T6,T6,table,discussion_limitations,10,True,20,False,missing_final_caption_signoff,manual editorial caption approval,True,no contractual accounting compliance claim

@@ -1,0 +1,11 @@
+asset_id_v493,target_block_v493,draft_caption_exists_v493,caption_final_v493,claim_boundary_v493,overclaim_review_required_v493,draft_use_allowed_v493,final_caption_claim_allowed_v493
+T5,methods_protocol,True,False,no formal theorem or CRC guarantee,True,True,False
+F4,methods_protocol,True,False,no formal SPO-DLA theorem claim,True,True,False
+T1,results_evidence_cvar,True,False,no full-v55 optimality or champion claim,True,True,False
+F1,results_evidence_cvar,True,False,visual context only; v467 table carries current claim,True,True,False
+T2,results_evidence_governance_online,True,False,no source cap approval or mutation,True,True,False
+F2,results_evidence_governance_online,True,False,no cap relaxation or legal fairness certification,True,True,False
+T4,results_evidence_governance_online,True,False,no production monitoring claim,True,True,False
+F3,results_evidence_governance_online,True,False,no external holdout or production monitoring claim,True,True,False
+T3,discussion_limitations,True,False,no live dynamic deployment language,True,True,False
+T6,discussion_limitations,True,False,no contractual accounting compliance claim,True,True,False

@@ -1,0 +1,6 @@
+signoff_action_id_v493,action_required_v493,action_complete_v493,blocks_patch_v493,action_boundary_v493
+review_all_draft_captions,True,False,True,manual caption review required
+verify_claim_boundaries_per_caption,True,False,True,avoid overclaiming in final captions
+capture_final_caption_signoff,True,False,True,final signoff missing
+sync_signoff_with_patch_approval,True,False,True,patch approval still missing
+apply_quarto_patch_now,False,False,True,not authorized in v493
