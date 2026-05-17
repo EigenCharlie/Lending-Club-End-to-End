@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v355_proxy_repair_gate_executed,True,paper4_v355_v353_proxy_or_global_gate.csv,all observed omitted proxy candidates; not full-v55 pricing
+v355_strict_and_relaxed_proxy_repair_infeasible,True,paper4_v355_proxy_repair_tier_summary.csv,scope-limited all-observed-omitted MILP tiers
+v355_proxy_repair_candidate_found,False,paper4_v355_claim_blockers.csv,"requires economic repair feasibility, not coverage-only incumbent"
+v355_valid_branch_price_bound,False,paper4_v355_claim_blockers.csv,formal dual-bound loop missing
+v355_working_champion_or_final_promotion,False,paper4_v355_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

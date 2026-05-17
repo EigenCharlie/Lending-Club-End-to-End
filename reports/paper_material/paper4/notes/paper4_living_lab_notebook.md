@@ -14622,3 +14622,60 @@ Keep v354 in the living notebook. The next wave should either apply the next
 feasible swap if one exists or run the proxy/global/dual gate without promotion.
 
 <!-- V354_POST_V353_ONE_SWAP_REPRICE_END -->
+
+<!-- V355_V353_PROXY_OR_GLOBAL_GATE_START -->
+
+## Wave v355: v353 Proxy Repair / Global Gate
+
+Generated: 2026-05-17T02:35:45.999453+00:00
+
+### Objective
+
+v354 cleared the immediate one-swap repricing gate for the v353 candidate, but
+v353 has 77 missing proxy rows. v355 tests whether all observed omitted proxy
+candidates can repair that gap while preserving the v353 CVaR cap and
+economically relevant return floors.
+
+### Results
+
+- Pool rows: `1725`.
+- Observed omitted candidate rows:
+  `1554`.
+- Strict v353-return/v353-CVaR repair feasible:
+  `False`.
+- Relaxed v347-return/v353-CVaR repair feasible:
+  `False`.
+- Coverage-only incumbent found:
+  `True`.
+- Coverage-only missing proxy rows:
+  `0`.
+- Coverage-only return delta vs v353:
+  `-15468.092605755633`.
+- Coverage-only CVaR delta vs v353:
+  `-93.27735271770507`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v355 sharpens the v353 tradeoff after one-swap clearing. It tests whether proxy
+coverage can be repaired under v353's improved tail-risk cap without destroying
+the economic story. This is still a proxy/global gate, not a champion or a
+full-universe branch-price certificate.
+
+### Claim Impact
+
+- Allowed: all-observed-omitted proxy repair gate executed.
+- Allowed if both economic tiers fail: strict and relaxed proxy-repair
+  infeasibility in that bounded scope.
+- Still prohibited: proxy-repaired v353 candidate, full-universe/global
+  optimality, branch-price certificate, contractual IFRS9, live deployment,
+  Paper Estrella replacement, final Paper 4 promotion and working champion
+  claims.
+
+### Quarto Promotion Decision
+
+Keep v355 in the living notebook. The next wave should attempt a dual-bound or
+explicit proxy-value tradeoff protocol without promotion.
+
+<!-- V355_V353_PROXY_OR_GLOBAL_GATE_END -->

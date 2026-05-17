@@ -38371,6 +38371,167 @@ def test_paper4_v354_post_v353_reprice_clears_one_swap_scope() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v355_v353_proxy_or_global_gate_blocks_economic_repair() -> None:
+    status = _read_json("paper4_v355_status.json")
+
+    assert status["phase"] == "v355_v353_proxy_or_global_gate"
+    assert status["schema_version"] == "2026-05-17.355"
+    assert status["base_version_v355"] == 353
+    assert status["reference_version_v355"] == 347
+    assert status["reprice_version_v355"] == 354
+    assert status["pool_rows_v355"] == 1725
+    assert status["observed_omitted_candidate_rows_v355"] == 1554
+    assert status["selected_observed_proxy_rows_v355"] == 94
+    assert status["selected_missing_proxy_rows_v355"] == 77
+    assert status["v347_missing_proxy_rows_v355"] == 75
+    assert status["strict_v353_repair_feasible_v355"] is False
+    assert status["relaxed_v347_return_repair_feasible_v355"] is False
+    assert status["coverage_only_solver_success_v355"] is False
+    assert status["coverage_only_incumbent_found_v355"] is True
+    assert status["coverage_only_observed_proxy_rows_v355"] == 171
+    assert status["coverage_only_missing_proxy_rows_v355"] == 0
+    assert status["coverage_only_delta_return_vs_v353_v355"] == pytest.approx(-15468.092605755633)
+    assert status["coverage_only_delta_cvar90_vs_v353_v355"] == pytest.approx(-93.27735271770507)
+    assert status["coverage_only_return_collapse_flag_v355"] is True
+    assert status["coverage_only_action_rows_v355"] == 256
+    assert status["valid_branch_price_bound_v355"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v355"] is False
+    assert status["working_champion_claim_allowed_v355"] is False
+    assert status["paper1_promotion_allowed_v355"] is False
+    assert status["paper4_working_champion_changed_v355"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v355"] == 5
+    assert status["claim_matrix_rows_v355"] == 5
+    assert status["next_artifact_v355"] == "paper4_v356_v353_dual_bound_after_proxy_gate.csv"
+
+    gate = _read_csv("paper4_v355_v353_proxy_or_global_gate.csv")
+    row = gate.iloc[0]
+    assert row["gate_id_v355"] == "v355_v353_proxy_or_global_gate"
+    assert int(row["pool_rows_v355"]) == 1725
+    assert int(row["observed_omitted_candidate_rows_v355"]) == 1554
+    assert bool(row["strict_v353_repair_feasible_v355"]) is False
+    assert bool(row["relaxed_v347_return_repair_feasible_v355"]) is False
+    assert bool(row["coverage_only_solver_success_v355"]) is False
+    assert bool(row["coverage_only_incumbent_found_v355"]) is True
+    assert int(row["coverage_only_missing_proxy_rows_v355"]) == 0
+    assert float(row["coverage_only_delta_return_vs_v353_v355"]) == pytest.approx(
+        -15468.092605755633
+    )
+    assert float(row["coverage_only_delta_cvar90_vs_v353_v355"]) == pytest.approx(
+        -93.27735271770507
+    )
+    assert bool(row["coverage_only_return_collapse_flag_v355"]) is True
+    assert bool(row["valid_branch_price_bound_v355"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    pool = _read_csv("paper4_v355_proxy_repair_pool_summary.csv")
+    pool_row = pool.iloc[0]
+    assert pool_row["pool_id_v355"] == "v353_plus_all_observed_omitted_candidates"
+    assert int(pool_row["pool_rows_v355"]) == 1725
+    assert int(pool_row["selected_base_rows_v355"]) == 171
+    assert int(pool_row["selected_observed_proxy_rows_v355"]) == 94
+    assert int(pool_row["selected_missing_proxy_rows_v355"]) == 77
+    assert int(pool_row["observed_omitted_candidate_rows_v355"]) == 1554
+    assert bool(pool_row["expanded_pool_includes_all_observed_omitted_v355"]) is True
+
+    tiers = _read_csv("paper4_v355_proxy_repair_tier_summary.csv")
+    tier_map = {row["tier_id_v355"]: row for _, row in tiers.iterrows()}
+    strict = tier_map["strict_v353_return_v353_cvar"]
+    relaxed = tier_map["relaxed_v347_return_v353_cvar"]
+    coverage = tier_map["coverage_only_v353_cvar"]
+    assert bool(strict["solver_success_v355"]) is False
+    assert int(strict["milp_status_v355"]) == 2
+    assert "Infeasible" in strict["milp_message_v355"]
+    assert bool(strict["incumbent_found_v355"]) is False
+    assert bool(relaxed["solver_success_v355"]) is False
+    assert int(relaxed["milp_status_v355"]) == 2
+    assert "Infeasible" in relaxed["milp_message_v355"]
+    assert bool(relaxed["incumbent_found_v355"]) is False
+    assert bool(coverage["solver_success_v355"]) is False
+    assert int(coverage["milp_status_v355"]) == 1
+    assert "Time limit reached" in coverage["milp_message_v355"]
+    assert bool(coverage["incumbent_found_v355"]) is True
+    assert int(coverage["selected_rows_v355"]) == 171
+    assert float(coverage["portfolio_exposure_v355"]) == pytest.approx(842400.0)
+    assert float(coverage["objective_return_v355"]) == pytest.approx(-11040.954493233994)
+    assert float(coverage["delta_return_vs_v353_v355"]) == pytest.approx(-15468.092605755633)
+    assert float(coverage["scenario_loss_cvar90_v355"]) == pytest.approx(96264.79904078893)
+    assert float(coverage["delta_cvar90_vs_v353_v355"]) == pytest.approx(-93.27735271770507)
+    assert int(coverage["observed_proxy_rows_v355"]) == 171
+    assert int(coverage["missing_proxy_rows_v355"]) == 0
+    assert int(coverage["missing_proxy_delta_vs_v353_v355"]) == -77
+    assert bool(coverage["coverage_restores_or_improves_v347_v355"]) is True
+
+    actions = _read_csv("paper4_v355_coverage_only_incumbent_actions.csv")
+    assert len(actions) == 256
+    assert actions["action_v355"].value_counts().to_dict() == {
+        "add_observed_candidate": 128,
+        "drop_v353_selected": 128,
+    }
+    assert (
+        actions.loc[actions["action_v355"].eq("add_observed_candidate"), "observed_v47_proxy_v355"]
+        .astype(bool)
+        .all()
+    )
+
+    blockers = _read_csv("paper4_v355_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v355"], blockers["blocking_v355"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v355"], blockers["evidence_count_v355"], strict=False)
+    )
+    assert bool(blocker_map["strict_v353_proxy_repair_infeasible"]) is True
+    assert int(evidence_map["strict_v353_proxy_repair_infeasible"]) == 2
+    assert bool(blocker_map["relaxed_v347_return_proxy_repair_infeasible"]) is True
+    assert int(evidence_map["relaxed_v347_return_proxy_repair_infeasible"]) == 2
+    assert bool(blocker_map["coverage_only_return_collapse"]) is True
+    assert int(evidence_map["coverage_only_return_collapse"]) == 15468
+    assert bool(blocker_map["valid_branch_price_bound_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v355_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v355_proxy_repair_gate_executed"]) is True
+    assert bool(claim_map["v355_strict_and_relaxed_proxy_repair_infeasible"]) is True
+    assert bool(claim_map["v355_proxy_repair_candidate_found"]) is False
+    assert bool(claim_map["v355_valid_branch_price_bound"]) is False
+    assert bool(claim_map["v355_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v355 tests v353 proxy repair over all observed omitted candidates."])
+    assert bool(boundary_map["v355 documents strict and relaxed v353 proxy-repair infeasibility."])
+    assert (
+        bool(
+            boundary_map[
+                "v355 repairs v353 proxy coverage while preserving v347 return and v353 CVaR."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v355 proves a valid branch-price or global integer bound."]) is False
+    assert bool(boundary_map["v355 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v355_rows = backlog.loc[backlog["last_wave"].eq("v355")]
+    assert len(v355_rows) == 1
+    backlog_row = v355_rows.iloc[0]
+    assert backlog_row["status"] == "strict_and_relaxed_v353_proxy_repair_infeasible"
+    assert backlog_row["next_artifact"] == "paper4_v356_v353_dual_bound_after_proxy_gate.csv"
+    assert (
+        backlog_row["execution_result"]
+        == "strict_and_relaxed_v353_proxy_repair_infeasible_coverage_only_return_collapse"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v355: v353 Proxy Repair / Global Gate" in notebook
+    assert "Coverage-only missing proxy rows:\n  `0`" in notebook
+    assert "Coverage-only return delta vs v353:\n  `-15468.092605755633`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
