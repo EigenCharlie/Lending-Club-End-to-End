@@ -39249,6 +39249,187 @@ def test_paper4_v360_v353_expanded_disposition_memo_preserves_bound_limits() -> 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v361_v353_fourth_order_branch_price_records_no_entry() -> None:
+    status = _read_json("paper4_v361_status.json")
+
+    assert status["phase"] == "v361_v353_fourth_order_or_full_dual_bound"
+    assert status["schema_version"] == "2026-05-17.361"
+    assert status["base_version_v361"] == 353
+    assert status["prior_branch_version_v361"] == 359
+    assert status["readiness_version_v361"] == 356
+    assert status["disposition_version_v361"] == 360
+    assert status["selected_rows_v361"] == 171
+    assert status["three_swap_seed_rows_v361"] == 504
+    assert status["positive_source_tight_candidate_rows_v361"] == 4385
+    assert status["ordered_fourth_order_rows_screened_v361"] == 371100576
+    assert status["return_improving_rows_v361"] == 204558146
+    assert status["budget_return_feasible_rows_v361"] == 71227253
+    assert status["grade_source_feasible_rows_v361"] == 29189
+    assert status["score_decile_source_feasible_rows_v361"] == 4755163
+    assert status["source_exact_fourth_order_rows_v361"] == 4631
+    assert status["unique_source_exact_action_signatures_v361"] == 2072
+    assert status["cvar_feasible_entering_rows_v361"] == 0
+    assert status["entering_candidate_summary_rows_v361"] == 0
+    assert status["best_source_exact_return_delta_v361"] == pytest.approx(7.907899636432177)
+    assert status["best_source_exact_cvar90_v361"] == pytest.approx(96433.91253512845)
+    assert status["best_entering_return_delta_v361"] is None
+    assert status["best_entering_cvar90_v361"] is None
+    assert status["branch_price_loop_executed_v361"] is True
+    assert status["valid_branch_price_bound_v361"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v361"] is False
+    assert status["working_champion_claim_allowed_v361"] is False
+    assert status["paper1_promotion_allowed_v361"] is False
+    assert status["paper4_working_champion_changed_v361"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v361"] == 5
+    assert status["claim_matrix_rows_v361"] == 5
+    assert (
+        status["next_artifact_v361"]
+        == "paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv"
+    )
+
+    protocol = _read_csv("paper4_v361_v353_fourth_order_or_full_dual_bound.csv")
+    row = protocol.iloc[0]
+    assert row["protocol_id_v361"] == "v353_fourth_order_branch_price_loop"
+    assert int(row["three_swap_seed_rows_v361"]) == 504
+    assert int(row["ordered_fourth_order_rows_screened_v361"]) == 371100576
+    assert int(row["source_exact_fourth_order_rows_v361"]) == 4631
+    assert int(row["unique_source_exact_action_signatures_v361"]) == 2072
+    assert int(row["cvar_feasible_entering_rows_v361"]) == 0
+    assert float(row["best_source_exact_return_delta_v361"]) == pytest.approx(
+        7.907899636432177
+    )
+    assert float(row["best_source_exact_cvar90_v361"]) == pytest.approx(96433.91253512845)
+    assert bool(row["branch_price_loop_executed_v361"]) is True
+    assert bool(row["valid_branch_price_bound_v361"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    seed_stage = _read_csv("paper4_v361_fourth_order_seed_summary.csv")
+    assert len(seed_stage) == 504
+    assert int(seed_stage["source_exact_rows_v361"].sum()) == 4631
+    assert seed_stage["source_exact_rows_v361"].astype(int).head(10).tolist() == [
+        1,
+        2,
+        1,
+        2,
+        1,
+        1,
+        3,
+        1,
+        2,
+        2,
+    ]
+    max_return_seed = seed_stage.sort_values(
+        "best_source_exact_return_delta_v361", ascending=False
+    ).iloc[0]
+    assert int(max_return_seed["three_swap_seed_rank_v361"]) == 440
+    assert str(max_return_seed["seed_action_signature_v361"]) == (
+        "add=145977956|153611978|161455148;drop=148128009|159706782|164875488"
+    )
+    assert float(max_return_seed["best_source_exact_return_delta_v361"]) == pytest.approx(
+        7.907899636432177
+    )
+    min_cvar_seed = seed_stage.sort_values("best_source_exact_cvar90_v361").iloc[0]
+    assert int(min_cvar_seed["three_swap_seed_rank_v361"]) == 2
+    assert float(min_cvar_seed["best_source_exact_cvar90_v361"]) == pytest.approx(
+        96433.91253512845
+    )
+
+    stage = _read_csv("paper4_v361_fourth_order_branch_price_stage_summary.csv")
+    stage_map = dict(zip(stage["stage_v361"], stage["row_count_v361"], strict=False))
+    assert int(stage_map["v359_unique_source_exact_three_swap_seeds"]) == 504
+    assert int(stage_map["positive_source_tight_fourth_add_candidates"]) == 4385
+    assert int(stage_map["ordered_fourth_order_rows"]) == 371100576
+    assert int(stage_map["return_improving"]) == 204558146
+    assert int(stage_map["budget_return_feasible"]) == 71227253
+    assert int(stage_map["grade_source_feasible_alone"]) == 29189
+    assert int(stage_map["score_decile_source_feasible_alone"]) == 4755163
+    assert int(stage_map["source_exact_feasible"]) == 4631
+    assert int(stage_map["cvar_feasible_entering_column"]) == 0
+
+    candidates = _read_csv("paper4_v361_branch_price_candidate_screen.csv")
+    assert len(candidates) == 4631
+    assert not candidates["four_add_four_drop_entering_column_v361"].astype(bool).any()
+    assert candidates["action_signature_v361"].nunique() == 2072
+    best_return = candidates.sort_values("return_delta_v361", ascending=False).iloc[0]
+    assert str(best_return["action_signature_v361"]) == (
+        "add=145033022|145977956|153611978|161455148;"
+        "drop=144603743|148128009|159706782|164875488"
+    )
+    assert float(best_return["return_delta_v361"]) == pytest.approx(7.907899636432177)
+    assert float(best_return["cvar90_after_four_swap_v361"]) == pytest.approx(
+        96708.66326199328
+    )
+    best_cvar = candidates.sort_values("cvar90_after_four_swap_v361").iloc[0]
+    assert str(best_cvar["action_signature_v361"]) == (
+        "add=140423185|144622469|145977956|147190807;"
+        "drop=127648167|129082051|139234645|164875488"
+    )
+    assert float(best_cvar["return_delta_v361"]) == pytest.approx(0.4274759379288118)
+    assert float(best_cvar["cvar90_after_four_swap_v361"]) == pytest.approx(96433.91253512845)
+
+    entering = _read_csv("paper4_v361_entering_candidate_summary.csv")
+    assert entering.empty
+
+    blockers = _read_csv("paper4_v361_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v361"], blockers["blocking_v361"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v361"], blockers["evidence_count_v361"], strict=False)
+    )
+    assert bool(blocker_map["fourth_order_entering_column_missing"]) is True
+    assert int(evidence_map["fourth_order_entering_column_missing"]) == 0
+    assert bool(blocker_map["valid_branch_price_bound_missing"]) is True
+    assert bool(blocker_map["proxy_gap_persists"]) is True
+    assert int(evidence_map["proxy_gap_persists"]) == 77
+    assert bool(blocker_map["full_v55_dual_bound_loop_missing"]) is True
+    assert int(evidence_map["full_v55_dual_bound_loop_missing"]) == 276869
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v361_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v361_fourth_order_branch_price_loop_executed"]) is True
+    assert bool(claim_map["v361_bounded_entering_candidate_found"]) is False
+    assert bool(claim_map["v361_no_fourth_order_entering_column"]) is True
+    assert bool(claim_map["v361_valid_full_universe_branch_price_bound"]) is False
+    assert bool(claim_map["v361_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v361 executes a bounded post-v353 fourth-order branch-price loop."])
+    assert (
+        bool(boundary_map["v361 finds bounded post-v353 CVaR-feasible entering candidates."])
+        is False
+    )
+    assert bool(boundary_map["v361 finds no bounded fourth-order CVaR-feasible entering column."])
+    assert bool(boundary_map["v361 proves a valid full-universe branch-price bound."]) is False
+    assert bool(boundary_map["v361 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v361 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v361_rows = backlog.loc[backlog["last_wave"].eq("v361")]
+    assert len(v361_rows) == 1
+    backlog_row = v361_rows.iloc[0]
+    assert backlog_row["status"] == "fourth_order_post_v353_branch_price_loop_no_cvar_entering_column"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "no_bounded_post_v353_fourth_order_cvar_feasible_entering_column"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v361: v353 Fourth-Order Branch-Price Loop" in notebook
+    assert "Ordered fourth-order rows screened:\n  `371100576`" in notebook
+    assert "CVaR-feasible entering rows:\n  `0`" in notebook
+    assert "Valid branch-price bound:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

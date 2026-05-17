@@ -14964,3 +14964,65 @@ price depth again or produce a valid full-v55 dual-bound certificate, without
 promotion.
 
 <!-- V360_V353_EXPANDED_CANDIDATE_DISPOSITION_MEMO_END -->
+
+<!-- V361_V353_FOURTH_ORDER_OR_FULL_DUAL_BOUND_START -->
+
+## Wave v361: v353 Fourth-Order Branch-Price Loop
+
+Generated: 2026-05-17T03:34:36.527851+00:00
+
+### Objective
+
+v360 recorded the no-apply disposition after v359 found no CVaR-feasible
+third-order entering row. v361 expands the bounded evidence one level deeper:
+unique v359 source-exact three-swap rows become seeds, then one additional
+source-tight add/drop is tested.
+
+### Results
+
+- Unique v359 three-swap seed rows:
+  `504`.
+- Positive source-tight fourth-add candidates:
+  `4385`.
+- Ordered fourth-order rows screened:
+  `371100576`.
+- Budget+return feasible rows:
+  `71227253`.
+- Source-exact fourth-order rows:
+  `4631`.
+- Unique source-exact action signatures:
+  `2072`.
+- CVaR-feasible entering rows:
+  `0`.
+- Best entering return delta:
+  `not applicable; no bounded entering rows`.
+- Best entering CVaR90:
+  `None`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v361 tests the practical fourth-order frontier after the v359/v360 no-entry
+evidence. A positive entering count is actionable only for an apply-and-reprice
+wave; a zero entering count strengthens the local blocker. Either result remains
+bounded branch-price evidence, not a full-v55 dual-bound termination
+certificate.
+
+### Claim Impact
+
+- Allowed: bounded fourth-order branch-price loop executed.
+- Allowed only within this bounded scope: bounded fourth-order entering
+  candidates when the count is positive, or no-entry evidence when the count is
+  zero.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v361 in the living notebook. The next wave should apply any bounded
+fourth-order entering candidate if one exists; otherwise it should convert the
+deeper no-entry evidence into a stronger gap/dual-bound memo without promotion.
+
+<!-- V361_V353_FOURTH_ORDER_OR_FULL_DUAL_BOUND_END -->
