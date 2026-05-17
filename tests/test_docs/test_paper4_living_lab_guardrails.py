@@ -39560,6 +39560,122 @@ def test_paper4_v362_v353_fourth_order_disposition_memo_preserves_bound_limits()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v363_v353_full_dual_bound_gap_certificate_blocks_global_claims() -> None:
+    status = _read_json("paper4_v363_status.json")
+
+    assert status["phase"] == "v363_v353_full_dual_bound_or_gap_certificate"
+    assert status["schema_version"] == "2026-05-17.363"
+    assert status["base_version_v363"] == 353
+    assert status["prior_disposition_version_v363"] == 362
+    assert status["readiness_version_v363"] == 356
+    assert status["restricted_dual_version_v363"] == 71
+    assert status["full_universe_rows_v363"] == 276869
+    assert status["selected_rows_v363"] == 171
+    assert status["full_omitted_candidate_rows_v363"] == 276698
+    assert status["positive_source_tight_candidate_rows_v363"] == 4385
+    assert status["bounded_candidate_pool_share_v363"] == pytest.approx(0.01584760280161042)
+    assert status["v361_ordered_fourth_order_rows_v363"] == 371100576
+    assert status["v361_source_exact_fourth_order_rows_v363"] == 4631
+    assert status["v361_cvar_feasible_entering_rows_v363"] == 0
+    assert status["best_source_exact_cvar_gap_vs_cap_v363"] == pytest.approx(75.83614162181038)
+    assert status["direct_full_mip_guard_met_v363"] is False
+    assert status["v71_negative_reduced_cost_detected_v363"] is True
+    assert status["v71_improving_omitted_columns_v363"] == 5738
+    assert status["all_column_pricing_terminated_v363"] is False
+    assert status["integer_certificate_available_v363"] is False
+    assert status["valid_full_v55_dual_bound_certificate_v363"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v363"] is False
+    assert status["working_champion_claim_allowed_v363"] is False
+    assert status["paper1_promotion_allowed_v363"] is False
+    assert status["paper4_working_champion_changed_v363"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["requirement_rows_v363"] == 7
+    assert status["requirements_met_v363"] == 2
+    assert status["claim_blocker_rows_v363"] == 5
+    assert status["claim_matrix_rows_v363"] == 4
+    assert status["next_artifact_v363"] == "paper4_v364_v353_dual_bound_resource_plan.csv"
+
+    certificate = _read_csv("paper4_v363_v353_full_dual_bound_or_gap_certificate.csv")
+    row = certificate.iloc[0]
+    assert row["certificate_id_v363"] == "v353_full_dual_bound_gap_certificate"
+    assert int(row["full_universe_rows_v363"]) == 276869
+    assert int(row["full_omitted_candidate_rows_v363"]) == 276698
+    assert int(row["positive_source_tight_candidate_rows_v363"]) == 4385
+    assert float(row["bounded_candidate_pool_share_v363"]) == pytest.approx(0.01584760280161042)
+    assert int(row["v361_ordered_fourth_order_rows_v363"]) == 371100576
+    assert int(row["v361_source_exact_fourth_order_rows_v363"]) == 4631
+    assert int(row["v361_cvar_feasible_entering_rows_v363"]) == 0
+    assert float(row["best_source_exact_cvar_gap_vs_cap_v363"]) == pytest.approx(
+        75.83614162181038
+    )
+    assert bool(row["direct_full_mip_guard_met_v363"]) is False
+    assert bool(row["v71_negative_reduced_cost_detected_v363"]) is True
+    assert int(row["v71_improving_omitted_columns_v363"]) == 5738
+    assert bool(row["all_column_pricing_terminated_v363"]) is False
+    assert bool(row["integer_certificate_available_v363"]) is False
+    assert bool(row["valid_full_v55_dual_bound_certificate_v363"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    requirements = _read_csv("paper4_v363_dual_bound_requirement_register.csv")
+    req_map = dict(zip(requirements["requirement_id_v363"], requirements["met_v363"], strict=False))
+    assert bool(req_map["bounded_fourth_order_no_entry_recorded"]) is True
+    assert bool(req_map["full_omitted_universe_priced_or_excluded"]) is False
+    assert bool(req_map["direct_full_mip_guard_met"]) is False
+    assert bool(req_map["restricted_dual_screen_terminated_without_negative_rc"]) is False
+    assert bool(req_map["all_column_pricing_terminated"]) is False
+    assert bool(req_map["integer_optimality_certificate_available"]) is False
+    assert bool(req_map["paper4_final_promotion_absent"]) is True
+
+    blockers = _read_csv("paper4_v363_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v363"], blockers["blocking_v363"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v363"], blockers["evidence_count_v363"], strict=False)
+    )
+    assert bool(blocker_map["bounded_pool_not_full_omitted_universe"]) is True
+    assert int(evidence_map["bounded_pool_not_full_omitted_universe"]) == 272313
+    assert bool(blocker_map["v71_negative_reduced_cost_persists"]) is True
+    assert int(evidence_map["v71_negative_reduced_cost_persists"]) == 5738
+    assert bool(blocker_map["best_fourth_order_cvar_above_cap"]) is True
+    assert int(evidence_map["best_fourth_order_cvar_above_cap"]) == 76
+    assert bool(blocker_map["integer_optimality_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v363_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v363_full_dual_bound_gap_certificate_created"]) is True
+    assert bool(claim_map["v363_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v363_global_integer_optimality_or_working_champion"]) is False
+    assert bool(claim_map["v363_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v363 records a full-dual-bound gap certificate for v353."])
+    assert bool(boundary_map["v363 proves a valid full-v55 dual-bound termination."]) is False
+    assert bool(boundary_map["v363 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v363 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v363_rows = backlog.loc[backlog["last_wave"].eq("v363")]
+    assert len(v363_rows) == 1
+    backlog_row = v363_rows.iloc[0]
+    assert backlog_row["status"] == "full_dual_bound_gap_certificate_created_no_global_proof"
+    assert backlog_row["next_artifact"] == "paper4_v364_v353_dual_bound_resource_plan.csv"
+    assert (
+        backlog_row["execution_result"]
+        == "valid_full_v55_dual_bound_still_blocked_with_requirements_recorded"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v363: v353 Full-Dual-Bound Gap Certificate" in notebook
+    assert "Bounded candidate-pool share of full omitted universe:\n  `0.01584760280161042`" in notebook
+    assert "v71 restricted-master improving omitted columns:\n  `5738`" in notebook
+    assert "Valid full-v55 dual-bound certificate:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

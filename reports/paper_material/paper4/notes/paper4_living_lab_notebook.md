@@ -15082,3 +15082,63 @@ dual-bound/gap certificate or document the remaining proof infeasibility,
 without promotion.
 
 <!-- V362_V353_FOURTH_ORDER_CANDIDATE_DISPOSITION_MEMO_END -->
+
+<!-- V363_V353_FULL_DUAL_BOUND_GAP_CERTIFICATE_START -->
+
+## Wave v363: v353 Full-Dual-Bound Gap Certificate
+
+Generated: 2026-05-17T03:50:00.618948+00:00
+
+### Objective
+
+v362 recorded the no-apply disposition after the v361 fourth-order branch-price
+screen found no CVaR-feasible entering row. v363 asks the harder question:
+whether the current evidence is enough to claim a valid full-v55 dual-bound or
+integer optimality certificate. It is not.
+
+### Results
+
+- Full v55 rows: `276869`.
+- Full omitted candidates:
+  `276698`.
+- Positive source-tight candidate pool used by v361:
+  `4385`.
+- Bounded candidate-pool share of full omitted universe:
+  `0.01584760280161042`.
+- V361 ordered fourth-order rows:
+  `371100576`.
+- V361 source-exact rows:
+  `4631`.
+- V361 CVaR-feasible entering rows:
+  `0`.
+- Best source-exact CVaR gap versus v353 cap:
+  `75.83614162181038`.
+- v71 restricted-master improving omitted columns:
+  `5738`.
+- Valid full-v55 dual-bound certificate:
+  `False`.
+
+### Interpretation
+
+v363 is a negative certificate. The living lab now has strong bounded evidence:
+fourth-order source-tight pricing screened 371.10M ordered rows and found no
+CVaR-feasible entering row. But the bounded pool is still a small subset of the
+full omitted universe, and earlier restricted-master dual pricing even detected
+negative reduced-cost omitted columns. That combination blocks any global
+termination or integer optimality claim.
+
+### Claim Impact
+
+- Allowed: gap certificate explaining why full-v55 dual-bound is not available.
+- Allowed: bounded fourth-order no-entry remains valid only within its scope.
+- Still prohibited: full-v55 branch-price termination, valid global integer
+  optimality, contractual IFRS9, live deployability, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v363 in the living notebook. The next wave should be a resource plan for a
+full-v55 pricing/dual-bound attempt, or a paper-scope decision that removes
+global optimality from the publishable claim.
+
+<!-- V363_V353_FULL_DUAL_BOUND_GAP_CERTIFICATE_END -->
