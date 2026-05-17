@@ -1507,7 +1507,7 @@ def build_sample_paths_v12(
                 local.get("issue_month", "unknown")
                 .astype(str)
                 .map(
-                    lambda m: (
+                    lambda m, path_id=path_id, policy_id=policy_id: (
                         1
                         + 0.16
                         * math.sin(

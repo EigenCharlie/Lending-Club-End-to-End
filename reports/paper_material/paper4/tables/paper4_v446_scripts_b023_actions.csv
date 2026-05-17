@@ -1,0 +1,5 @@
+action_id_v446,file_path_v446,surface_v446,row_v446,rule_code_v446,captured_variables_v446,diagnostics_cleared_v446,mutation_applied_v446,claim_boundary_v446
+scripts_b023_v10_path_id_lambda_bind_01,scripts/papers/build_paper4_v10_resolution_wave.py,scripts,1138,B023,path_id,1,True,manual lambda default binding for loop variables
+scripts_b023_v11_path_policy_lambda_bind_01,scripts/papers/build_paper4_v11_promising_lanes.py,scripts,936,B023,"path_id,policy_id",2,True,manual lambda default binding for loop variables
+scripts_b023_v12_path_policy_lambda_bind_01,scripts/papers/build_paper4_v12_resolution_wave.py,scripts,1514,B023,"path_id,policy_id",2,True,manual lambda default binding for loop variables
+scripts_b023_v41_total_exposure_lambda_bind_01,scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,319,B023,total_exposure,2,True,manual lambda default binding for loop variables

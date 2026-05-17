@@ -1135,7 +1135,10 @@ def build_sample_paths_v10(
         cohort_shock = (
             alloc["issue_month"]
             .astype(str)
-            .map(lambda m: 1 + 0.12 * math.sin(2 * math.pi * _stable_uniform(path_id, m, "cohort")))
+            .map(
+                lambda m, path_id=path_id: 1
+                + 0.12 * math.sin(2 * math.pi * _stable_uniform(path_id, m, "cohort"))
+            )
         )
         for policy_id in policies:
             local = alloc[alloc["policy_id"].eq(policy_id)].copy()

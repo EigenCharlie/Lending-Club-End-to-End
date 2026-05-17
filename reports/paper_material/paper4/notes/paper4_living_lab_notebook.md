@@ -19441,3 +19441,56 @@ Keep v445 in the living notebook. v446 should apply the manual B023
 loop-binding repair batch.
 
 <!-- V445_POST_SCRIPTS_SIM223_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V446_SCRIPTS_B023_LOOP_BINDING_MANUAL_REPAIR_BATCH_START -->
+
+## Wave v446: Scripts B023 Loop-Binding Manual Repair Batch
+
+Generated: 2026-05-17T13:37:38.977220+00:00
+
+### Objective
+
+v446 applies manual lambda default-binding repairs across four scripts.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `7` ->
+  `0`.
+- Repository B023 diagnostics before/after:
+  `7` ->
+  `0`.
+- Replacement actions:
+  `4`.
+- Diagnostics cleared by action table:
+  `7`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `True`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v447_post_scripts_b023_repair_pytest_probe.md`.
+
+### Interpretation
+
+The manual B023 frontier is cleared without introducing new lint diagnostics.
+This is the first living-lab state where repository ruff is clean, but full
+pytest and Quarto render are still explicit future gates.
+
+### Claim Impact
+
+- Allowed: manual B023 repair applied, repository ruff clean, changed scripts
+  compile.
+- Still prohibited: full pytest clean after B023 repair, Quarto render clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v446 in the living notebook. v447 should run the post-B023-repair full
+pytest probe.
+
+<!-- V446_SCRIPTS_B023_LOOP_BINDING_MANUAL_REPAIR_BATCH_END -->

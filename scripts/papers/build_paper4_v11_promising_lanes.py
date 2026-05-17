@@ -929,7 +929,7 @@ def build_sample_path_calibrated_v11(
                 local.get("issue_month", "unknown")
                 .astype(str)
                 .map(
-                    lambda m: (
+                    lambda m, path_id=path_id, policy_id=policy_id: (
                         1
                         + 0.10
                         * math.sin(

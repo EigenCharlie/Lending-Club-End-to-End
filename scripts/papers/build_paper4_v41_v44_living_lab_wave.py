@@ -316,7 +316,9 @@ def build_v41_source_governance() -> tuple[pd.DataFrame, pd.DataFrame]:
     for (policy_id, family), group in source.groupby(["policy_id", "source_family"], dropna=False):
         total_exposure = group["exposure"].sum()
         group = group.assign(
-            exposure_share=lambda d: d["exposure"] / total_exposure if total_exposure else 0.0
+            exposure_share=lambda d, total_exposure=total_exposure: (
+                d["exposure"] / total_exposure if total_exposure else 0.0
+            )
         )
         high = group[group["support_gate_pass_v29"].astype(bool)]
         cap = safe_num(
