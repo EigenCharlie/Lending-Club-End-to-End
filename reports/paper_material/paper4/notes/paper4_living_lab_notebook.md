@@ -18866,3 +18866,60 @@ Keep v435 in the living notebook. v436 should apply the targeted F401
 unused-import repair batch.
 
 <!-- V435_POST_SCRIPTS_I001_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V436_SCRIPTS_BOOK_F401_UNUSED_IMPORT_REPAIR_BATCH_START -->
+
+## Wave v436: Scripts/Book F401 Unused-Import Repair Batch
+
+Generated: 2026-05-17T12:11:29.920785+00:00
+
+### Objective
+
+v436 applies targeted unused-import repairs across scripts/book F401 diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `18` ->
+  `14`.
+- Repository F401 before/after:
+  `4` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `17` ->
+  `14`.
+- Book diagnostics before/after:
+  `1` ->
+  `0`.
+- Changed files:
+  `4`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v437_post_scripts_f401_repair_pytest_probe.md`.
+
+### Interpretation
+
+The F401 frontier is cleared by removing unused imports from the book helper
+and three Paper 4 script builders. Remaining repository ruff diagnostics are
+now B023, UP022, SIM108, C405 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts/book F401 repair applied, repository ruff count
+  reduced, and changed files compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v436 in the living notebook. v437 should run the post-F401-repair full
+pytest probe.
+
+<!-- V436_SCRIPTS_BOOK_F401_UNUSED_IMPORT_REPAIR_BATCH_END -->

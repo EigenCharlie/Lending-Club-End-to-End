@@ -18,7 +18,6 @@ from scripts.papers.build_paper4_v403_post_notebook_mutation_pytest_probe import
 from scripts.papers.paper4_one_swap_living_lab import (
     FORBIDDEN_FINAL_PROMOTION,
     NOTEBOOK,
-    ROOT,
     STATUS_DIR,
     TABLE_DIR,
     _append_or_replace_block,

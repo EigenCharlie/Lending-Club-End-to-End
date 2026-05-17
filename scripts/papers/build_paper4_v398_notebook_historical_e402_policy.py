@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import json
 import subprocess
-from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any

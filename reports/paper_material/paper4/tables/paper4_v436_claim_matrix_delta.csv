@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v436_f401_unused_import_repair_applied,True,paper4_v436_scripts_book_f401_actions.csv,targeted scripts/book F401 unused-import repair batch
+v436_f401_cleared,True,paper4_v436_repository_ruff_delta.csv,true only for F401 diagnostics
+v436_repository_ruff_reduced,True,paper4_v436_repository_ruff_delta.csv,repository ruff diagnostic count decreases
+v436_changed_files_pycompile_passed,True,paper4_v436_pycompile_summary.csv,syntax/bytecode check for changed scripts/book files
+v436_repository_ruff_clean,False,paper4_v436_claim_blockers.csv,true only if repository ruff emits zero diagnostics
+v436_full_repository_pytest_passed_after_repair,False,paper4_v436_claim_blockers.csv,full pytest deferred to v437
+v436_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
