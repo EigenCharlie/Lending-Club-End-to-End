@@ -14293,3 +14293,59 @@ Keep v348 in the living notebook. The next wave should run a proxy/global/dual
 gate without promotion.
 
 <!-- V348_POST_V347_ONE_SWAP_REPRICE_END -->
+
+<!-- V349_V347_PROXY_OR_DUAL_BOUND_GATE_START -->
+
+## Wave v349: v347 Proxy Repair / Dual-Bound Gate
+
+Generated: 2026-05-17T01:34:59.536806+00:00
+
+### Objective
+
+v348 cleared the immediate one-swap repricing gate for the v347 candidate, but
+v347 still has 75 missing proxy rows. v349 tests whether all observed omitted
+proxy candidates can repair that gap while preserving the v347 CVaR cap and
+economically relevant return floors.
+
+### Results
+
+- Pool rows: `1723`.
+- Observed omitted candidate rows:
+  `1552`.
+- Strict v347-return/v347-CVaR repair feasible:
+  `False`.
+- Relaxed v338-return/v347-CVaR repair feasible:
+  `False`.
+- Coverage-only incumbent found:
+  `True`.
+- Coverage-only missing proxy rows:
+  `0`.
+- Coverage-only return delta vs v347:
+  `-15474.707025895923`.
+- Coverage-only CVaR delta vs v347:
+  `-92.30146983946906`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v349 sharpens the tradeoff. Proxy coverage can be maximized under the v347 CVaR
+cap only by accepting a catastrophic return collapse; the strict and relaxed
+economic repair tiers are infeasible. The evidence supports a proxy/global
+blocker, not a champion.
+
+### Claim Impact
+
+- Allowed: all-observed-omitted proxy repair gate executed; strict and relaxed
+  economic repair tiers are infeasible in that scope.
+- Still prohibited: proxy-repaired v347 candidate, full-universe/global
+  optimality, branch-price certificate, contractual IFRS9, live deployment,
+  Paper Estrella replacement, final Paper 4 promotion and working champion
+  claims.
+
+### Quarto Promotion Decision
+
+Keep v349 in the living notebook. The next wave should attempt a dual-bound or
+explicit proxy-value tradeoff protocol without promotion.
+
+<!-- V349_V347_PROXY_OR_DUAL_BOUND_GATE_END -->

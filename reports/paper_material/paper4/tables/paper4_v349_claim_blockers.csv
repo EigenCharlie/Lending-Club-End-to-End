@@ -1,0 +1,6 @@
+blocker_id_v349,blocking_v349,evidence_count_v349,required_next_artifact_v349,claim_boundary_v349
+strict_v347_proxy_repair_infeasible,True,2,paper4_v350_v347_dual_bound_after_proxy_gate.csv,strict v347-return/v347-CVaR repair is infeasible
+relaxed_v338_return_proxy_repair_infeasible,True,2,paper4_v350_v347_dual_bound_after_proxy_gate.csv,relaxed v338-return/v347-CVaR repair is infeasible
+coverage_only_return_collapse,True,15474,paper4_v350_v347_dual_bound_after_proxy_gate.csv,coverage-only incumbent restores proxy rows only by destroying return
+valid_branch_price_bound_missing,True,1,paper4_v350_v347_dual_bound_after_proxy_gate.csv,no full-v55 dual-bound loop or termination certificate
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
