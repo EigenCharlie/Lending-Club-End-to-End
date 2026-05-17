@@ -54936,6 +54936,124 @@ def test_paper4_v481_manual_quarto_patch_decision_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v482_post_plan_synthesis_packet_is_guarded() -> None:
+    status = _read_json("paper4_v482_status.json")
+    assert status["phase"] == "v482_post_plan_synthesis_packet"
+    assert status["schema_version"] == "2026-05-17.482"
+    assert status["prior_patch_decision_version_v482"] == 481
+    assert status["post_plan_synthesis_packet_created_v482"] is True
+    assert status["post_plan_wave_summary_rows_v482"] == 6
+    assert status["manuscript_state_rows_v482"] == 8
+    assert status["open_blocker_rows_v482"] == 6
+    assert status["manual_review_seed_rows_v482"] == 5
+    assert status["readiness_delta_rows_v482"] == 8
+    assert status["patch_authorized_v482"] is False
+    assert status["patch_applied_v482"] is False
+    assert status["book_sources_modified_v482"] is False
+    assert status["book_references_modified_v482"] is False
+    assert status["submission_ready_claim_allowed_v482"] is False
+    assert status["working_champion_claim_allowed_v482"] is False
+    assert status["paper1_promotion_allowed_v482"] is False
+    assert status["paper4_working_champion_changed_v482"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v482"] == "paper4_v483_manual_review_packet.md"
+
+    wave_summary = _read_csv("paper4_v482_post_plan_wave_summary.csv")
+    assert len(wave_summary) == 6
+    assert set(wave_summary["wave_v482"]) == {"v476", "v477", "v478", "v479", "v480", "v481"}
+    assert not wave_summary["book_sources_modified_v482"].astype(bool).any()
+    assert not wave_summary["final_promotion_created_v482"].astype(bool).any()
+    assert wave_summary["preserved_blocker_v482"].str.contains("blocked|missing|mandatory").any()
+
+    state = _read_csv("paper4_v482_manuscript_state_matrix.csv")
+    assert len(state) == 8
+    state_map = dict(zip(state["state_gate_v482"], state["state_ready_v482"], strict=False))
+    assert bool(state_map["visual_package_selected_and_captioned"]) is True
+    assert bool(state_map["section_text_stubs_available"]) is True
+    assert bool(state_map["controlled_insertion_plan_available"]) is True
+    assert bool(state_map["manual_patch_authorized"]) is False
+    assert bool(state_map["book_sources_or_references_modified"]) is False
+    assert bool(state_map["submission_ready_or_final_promotion"]) is False
+
+    blockers = _read_csv("paper4_v482_open_blocker_register.csv")
+    assert len(blockers) == 6
+    assert not blockers["resolved_v482"].astype(bool).any()
+    assert "explicit_patch_approval_missing" in set(blockers["blocker_id_v482"])
+    assert "paper4_final_promotion_forbidden" in set(blockers["blocker_id_v482"])
+
+    review_seed = _read_csv("paper4_v482_manual_review_packet_seed.csv")
+    assert len(review_seed) == 5
+    assert list(review_seed["priority_v482"]) == [1, 2, 3, 4, 5]
+    assert review_seed.iloc[0]["review_item_id_v482"] == "approve_or_reject_book_source_patch"
+    assert review_seed.loc[review_seed["priority_v482"].le(3), "ready_for_review_v482"].astype(bool).all()
+    assert not review_seed.loc[
+        review_seed["priority_v482"].gt(3),
+        "ready_for_review_v482",
+    ].astype(bool).any()
+
+    readiness = _read_csv("paper4_v482_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v482"], readiness["ready_v482"], strict=False)
+    )
+    assert bool(readiness_map["post_plan_synthesis_packet_created"]) is True
+    assert bool(readiness_map["manuscript_state_matrix_created"]) is True
+    assert bool(readiness_map["open_blockers_preserved"]) is True
+    assert bool(readiness_map["manual_review_packet_seed_created"]) is True
+    assert bool(readiness_map["manual_patch_authorized"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v482_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v482_post_plan_synthesis_packet_created"]) is True
+    assert bool(claim_map["v482_manuscript_state_matrix_created"]) is True
+    assert bool(claim_map["v482_open_blockers_preserved"]) is True
+    assert bool(claim_map["v482_manual_review_packet_seed_created"]) is True
+    assert bool(claim_map["v482_patch_authorized_or_applied"]) is False
+    assert bool(claim_map["v482_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v482 synthesizes the post-plan Paper 4 manuscript state."])
+    assert bool(
+        boundary_map["v482 preserves open blockers after the controlled insertion plan."]
+    )
+    assert bool(boundary_map["v482 seeds a manual review packet for future decisions."])
+    assert bool(boundary_map["v482 authorizes or applies a Quarto patch."]) is False
+    assert bool(boundary_map["v482 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v482 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v482_rows = backlog.loc[backlog["last_wave"].eq("v482")]
+    assert len(v482_rows) == 1
+    backlog_row = v482_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v483_manual_review_packet.md"
+    assert backlog_row["execution_result"] == "post_plan_state_synthesized_without_book_edit"
+
+    synthesis_md = (
+        PAPER4_ROOT / "notes" / "paper4_v482_post_plan_synthesis_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Post-Plan Synthesis Packet v482" in synthesis_md
+    assert "does not authorize a Quarto" in synthesis_md
+    assert "v482 is synthesis and review preparation only" in synthesis_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v482: Post-Plan Synthesis Packet" in living_notebook
+    assert "Wave summary rows:\n  `6`." in living_notebook
+    assert "Manuscript state rows:\n  `8`." in living_notebook
+    assert "Open blocker rows:\n  `6`." in living_notebook
+    assert "Manual review seed rows:\n  `5`." in living_notebook
+    assert "Patch authorized:\n  `False`." in living_notebook
+    assert "Patch applied:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

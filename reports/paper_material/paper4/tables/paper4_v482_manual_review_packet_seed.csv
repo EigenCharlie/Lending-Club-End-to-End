@@ -1,0 +1,6 @@
+review_item_id_v482,priority_v482,ready_for_review_v482,source_artifact_v482,review_question_v482
+approve_or_reject_book_source_patch,1,True,paper4_v481_patch_decision_register.csv,Is a manual book-source patch approved?
+review_caption_language,2,True,paper4_v476_caption_plan.csv,Which captions can become final under caveats?
+review_target_file_anchors,3,True,paper4_v480_quarto_insertion_plan.csv,Are target files and anchors appropriate?
+confirm_post_patch_render_gate,4,False,paper4_v480_pre_patch_gate_checklist.csv,Which render gate must pass after a patch?
+confirm_post_patch_guardrail_scope,5,False,tests/test_docs/test_paper4_living_lab_guardrails.py,Which guardrails must rerun after patching?

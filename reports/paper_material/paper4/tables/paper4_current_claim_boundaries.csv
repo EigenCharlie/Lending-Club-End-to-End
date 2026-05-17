@@ -1639,3 +1639,9 @@ v481 records review requirements and next actions.,True,reports/paper_material/p
 v481 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v481_patch_decision_register.csv,Explicit user approval is missing.,True,living_notebook_only
 v481 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v481_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v481 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v481_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v482 synthesizes the post-plan Paper 4 manuscript state.,True,reports/paper_material/paper4/tables/paper4_v482_manuscript_state_matrix.csv,Synthesis only.,False,living_notebook_only
+v482 preserves open blockers after the controlled insertion plan.,True,reports/paper_material/paper4/tables/paper4_v482_open_blocker_register.csv,Blockers remain open.,False,living_notebook_only
+v482 seeds a manual review packet for future decisions.,True,reports/paper_material/paper4/tables/paper4_v482_manual_review_packet_seed.csv,Review seed only.,False,living_notebook_only
+v482 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,Patch remains blocked by v481 decision.,True,living_notebook_only
+v482 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v482 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v482_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
