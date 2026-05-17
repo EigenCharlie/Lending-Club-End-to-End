@@ -1,0 +1,5 @@
+patch_id_v387,patch_status_v387,evidence_count_v387,artifact_v387,claim_boundary_v387
+stable_archive_manifest_written,applied,70,book/_archived_chapter_pages.yml,manifested archive only; no book render promotion
+book_guardrail_allows_manifested_archive,applied,70,tests/test_docs/test_quarto_book_guardrails.py,guardrail remains strict for unmanifested pages
+book_quarto_config_unchanged,preserved,0,book/_quarto.yml,historical pages are not added to rendered chapter list
+paper4_final_promotion_absent,preserved,0,reports/paper_material/paper4/status/paper4_final_promotion.json,forbidden artifact remains absent

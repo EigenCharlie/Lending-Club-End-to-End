@@ -11,6 +11,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import pytest
+import yaml
 
 PAPER4_ROOT = Path("reports/paper_material/paper4")
 TABLE_DIR = PAPER4_ROOT / "tables"
@@ -42772,6 +42773,138 @@ def test_paper4_v386_quarto_registration_gap_decision_selects_archive_policy() -
     assert "Guardrail patch applied:\n  `False`" in notebook
     assert "Final promotion created:\n  `False`" in notebook
     assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
+def test_paper4_v387_quarto_archive_guardrail_patch_allows_manifested_archive() -> None:
+    status = _read_json("paper4_v387_status.json")
+
+    assert status["phase"] == "v387_quarto_archive_guardrail_patch"
+    assert status["schema_version"] == "2026-05-17.387"
+    assert status["prior_decision_version_v387"] == 386
+    assert status["stable_archive_manifest_rows_v387"] == 70
+    assert status["patch_rows_v387"] == 4
+    assert status["validation_rows_v387"] == 4
+    assert status["claim_blocker_rows_v387"] == 4
+    assert status["claim_matrix_rows_v387"] == 6
+    assert status["stable_archive_manifest_created_v387"] is True
+    assert status["stable_archive_manifest_path_v387"] == "book/_archived_chapter_pages.yml"
+    assert status["archived_pages_allowed_by_manifest_v387"] == 70
+    assert status["registered_historical_pages_v387"] == 0
+    assert status["book_guardrail_test_patched_v387"] is True
+    assert status["book_quarto_mutated_v387"] is False
+    assert status["quarto_registration_guardrail_clean_v387"] is True
+    assert status["full_quarto_render_clean_v387"] is False
+    assert status["full_regression_suite_clean_v387"] is False
+    assert status["working_champion_claim_allowed_v387"] is False
+    assert status["paper1_promotion_allowed_v387"] is False
+    assert status["paper4_working_champion_changed_v387"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v387"] == "paper4_v388_full_regression_probe_plan.md"
+
+    archive_yaml = yaml.safe_load((BOOK_DIR / "_archived_chapter_pages.yml").read_text())
+    archive_rows = archive_yaml["archived_chapter_pages"]
+    assert archive_yaml["schema_version"] == "2026-05-17.387"
+    assert archive_yaml["archive_policy"] == (
+        "archive_in_place_with_manifested_guardrail_exemption"
+    )
+    assert len(archive_rows) == 70
+    assert {row["render_policy"] for row in archive_rows} == {"intentionally_not_rendered"}
+    assert {row["archive_reason"] for row in archive_rows} == {
+        "historical_paper4_living_lab_page"
+    }
+
+    stable_manifest = _read_csv("paper4_v387_archived_chapter_manifest.csv")
+    source_manifest = _read_csv("paper4_v386_quarto_archive_manifest.csv")
+    assert len(stable_manifest) == 70
+    assert set(stable_manifest["path"]) == set(source_manifest["archived_page_v386"])
+    for archive_path in stable_manifest["path"]:
+        assert (BOOK_DIR / archive_path).exists()
+
+    registered = set(_registered_paper4_pages())
+    assert registered == CURATED_PAPER4_PAGES
+    archived = set(stable_manifest["path"])
+    actual = {path.relative_to(BOOK_DIR).as_posix() for path in BOOK_DIR.glob("chapters/**/*.qmd")}
+    registered_paths = {
+        f"chapters/19-paper-mega-extension/{page}" for page in CURATED_PAPER4_PAGES
+    }
+    paper4_actual = {
+        path for path in actual if path.startswith("chapters/19-paper-mega-extension/")
+    }
+    assert paper4_actual - registered_paths - archived == set()
+    assert archived.isdisjoint(registered_paths)
+
+    patch = _read_csv("paper4_v387_quarto_archive_guardrail_patch.csv")
+    patch_map = dict(zip(patch["patch_id_v387"], patch["patch_status_v387"], strict=False))
+    assert patch_map["stable_archive_manifest_written"] == "applied"
+    assert patch_map["book_guardrail_allows_manifested_archive"] == "applied"
+    assert patch_map["book_quarto_config_unchanged"] == "preserved"
+    assert patch_map["paper4_final_promotion_absent"] == "preserved"
+
+    validation = _read_csv("paper4_v387_guardrail_validation_matrix.csv")
+    validation_map = dict(
+        zip(validation["validation_id_v387"], validation["observed_status_v387"], strict=False)
+    )
+    assert validation_map["archive_manifest_row_count"] == "pass"
+    assert validation_map["registered_historical_page_count"] == "pass"
+    assert validation_map["quarto_registration_guardrail"] == "expected_pass_after_patch"
+    assert validation_map["full_regression_suite"] == "not_claimed"
+
+    blockers = _read_csv("paper4_v387_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v387"], blockers["blocking_v387"], strict=False))
+    assert bool(blocker_map["full_regression_suite_clean_not_claimed"]) is True
+    assert bool(blocker_map["quarto_render_success_not_claimed"]) is True
+    assert bool(blocker_map["official_book_scope_not_expanded"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v387_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v387_stable_archive_manifest_created"]) is True
+    assert bool(claim_map["v387_quarto_registration_guardrail_patch_applied"]) is True
+    assert bool(claim_map["v387_historical_pages_preserved_not_rendered"]) is True
+    assert bool(claim_map["v387_full_regression_suite_clean"]) is False
+    assert bool(claim_map["v387_full_quarto_render_success"]) is False
+    assert bool(claim_map["v387_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v387 creates a stable archive manifest for historical Quarto pages."]
+    )
+    assert bool(
+        boundary_map[
+            "v387 patches the book guardrail to allow only manifested archived pages."
+        ]
+    )
+    assert (
+        bool(boundary_map["v387 proves the full regression suite or full Quarto render is clean."])
+        is False
+    )
+    assert bool(boundary_map["v387 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v387_rows = backlog.loc[backlog["last_wave"].eq("v387")]
+    assert len(v387_rows) == 1
+    backlog_row = v387_rows.iloc[0]
+    assert backlog_row["status"] == "quarto_archive_guardrail_patch_created"
+    assert backlog_row["next_artifact"] == "paper4_v388_full_regression_probe_plan.md"
+    assert backlog_row["execution_result"] == "manifest_aware_book_guardrail_patch_created"
+
+    patch_md = (
+        PAPER4_ROOT / "notes" / "paper4_v387_quarto_archive_guardrail_patch.md"
+    ).read_text(encoding="utf-8")
+    assert "book/_archived_chapter_pages.yml" in patch_md
+    assert "full regression-suite cleanliness" in patch_md
+    assert "paper4_v388_full_regression_probe_plan.md" in patch_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v387: Quarto Archive Guardrail Patch" in notebook
+    assert "Stable archive manifest rows:\n  `70`" in notebook
+    assert "Quarto registration guardrail clean:\n  `True`" in notebook
+    assert "Full regression suite clean:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 

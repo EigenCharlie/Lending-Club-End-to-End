@@ -16337,3 +16337,55 @@ Keep v386 in the living notebook. v387 should convert the decision into a narrow
 guardrail patch and stable archive manifest.
 
 <!-- V386_QUARTO_REGISTRATION_GAP_DECISION_END -->
+
+<!-- V387_QUARTO_ARCHIVE_GUARDRAIL_PATCH_START -->
+
+## Wave v387: Quarto Archive Guardrail Patch
+
+Generated: 2026-05-17T06:31:25.362589+00:00
+
+### Objective
+
+v387 converts the v386 archive decision into a stable manifest and a narrow
+manifest-aware Quarto book guardrail.
+
+### Results
+
+- Stable archive manifest rows:
+  `70`.
+- Historical pages allowed by manifest:
+  `70`.
+- Historical pages registered in book:
+  `0`.
+- Book config mutated:
+  `False`.
+- Guardrail patch applied:
+  `True`.
+- Quarto registration guardrail clean:
+  `True`.
+- Full regression suite clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v388_full_regression_probe_plan.md`.
+
+### Interpretation
+
+The old Quarto registration failure is now converted from an ambiguous missing
+chapter problem into an explicit archive policy. The official rendered Paper 4
+surface remains curated while historical wave pages stay auditable on disk.
+
+### Claim Impact
+
+- Allowed: stable archive manifest and manifest-aware registration guardrail
+  patch.
+- Still prohibited: full-regression-clean, full Quarto render, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v387 in the living notebook. v388 should probe wider regression readiness
+before any broader cleanliness claim.
+
+<!-- V387_QUARTO_ARCHIVE_GUARDRAIL_PATCH_END -->

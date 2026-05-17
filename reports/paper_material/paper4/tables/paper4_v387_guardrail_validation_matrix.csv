@@ -1,0 +1,5 @@
+validation_id_v387,observed_status_v387,evidence_count_v387,observed_command_v387,claim_boundary_v387
+archive_manifest_row_count,pass,70,yaml parse + row count check,stable manifest mirrors v386 archive manifest
+registered_historical_page_count,pass,0,book/_quarto.yml scan,no historical archive pages rendered
+quarto_registration_guardrail,expected_pass_after_patch,70,uv run pytest -q tests/test_docs/test_quarto_book_guardrails.py::test_all_quarto_chapter_pages_are_referenced_in_book_config,specific book guardrail only
+full_regression_suite,not_claimed,0,not run in v387,full-suite clean claim remains pending
