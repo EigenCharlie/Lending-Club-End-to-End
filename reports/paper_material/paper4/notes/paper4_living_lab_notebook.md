@@ -14517,3 +14517,55 @@ no-entry evidence into a stronger dual-bound or gap-blocker memo without
 promotion.
 
 <!-- V352_V347_EXPANDED_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->
+
+<!-- V353_V347_APPLY_EXPANDED_BRANCH_PRICE_CANDIDATE_START -->
+
+## Wave v353: Apply v352 Expanded Branch-Price Candidate
+
+Generated: 2026-05-17T02:17:22.624639+00:00
+
+### Objective
+
+v352 found bounded third-order CVaR-feasible entering candidates. v353 applies
+the best-return entering action to the v347 candidate and recalculates static
+portfolio, source, proxy and claim diagnostics before any repricing.
+
+### Results
+
+- Applied added loans: `139234645|148145784|164875488`.
+- Applied dropped loans: `140423185|145977956|147190807`.
+- Return delta vs v347:
+  `0.38318511605029926`.
+- CVaR90 delta vs v347:
+  `-24.51731843384914`.
+- Observed proxy rows: `94`.
+- Missing proxy rows: `77`.
+- Missing proxy delta vs v347:
+  `2`.
+- Source cap violations:
+  `0`.
+- Post-v353 repricing required:
+  `True`.
+
+### Interpretation
+
+v353 converts the v352 local pricing signal into a concrete portfolio. It
+improves static expected return and CVaR versus v347 while preserving exposure,
+cardinality and source caps. The cost is proxy coverage: missing proxy rows
+increase from 75 to 77. The result is useful for the lab but still not a
+working champion.
+
+### Claim Impact
+
+- Allowed: applied bounded v352 entering candidate; static return/CVaR
+  improvement versus v347.
+- Still prohibited: post-v353 local optimality, full-universe optimality,
+  contractual IFRS9, live deployment, Paper Estrella replacement, final Paper 4
+  promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v353 in the living notebook. The next wave should reprice the v353
+candidate without promotion.
+
+<!-- V353_V347_APPLY_EXPANDED_BRANCH_PRICE_CANDIDATE_END -->

@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v353_expanded_branch_price_candidate_applied,True,paper4_v353_v347_apply_expanded_branch_price_candidate.csv,bounded applied candidate only; post-v353 repricing required
+v353_static_return_and_cvar_improve_vs_v347,True,paper4_v353_v347_apply_expanded_branch_price_candidate.csv,common-scenario static proxy only
+v353_proxy_coverage_preserved_vs_v347,False,paper4_v353_claim_blockers.csv,missing proxy rows increase by two
+v353_working_champion_or_final_promotion,False,paper4_v353_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion
