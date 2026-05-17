@@ -22855,3 +22855,77 @@ Keep v507 in the living notebook. v508 should create a nomination resolution
 packet without fabricating candidates or assigning reviewers.
 
 <!-- V507_CANDIDATE_NOMINATION_GAP_AUDIT_END -->
+
+<!-- V508_CANDIDATE_NOMINATION_RESOLUTION_PACKET_START -->
+
+## Wave v508: Candidate Nomination Resolution Packet
+
+Generated: 2026-05-17T20:12:38.649299+00:00
+
+### Objective
+
+v508 prepares the manual resolution process for the v507 candidate nomination
+gaps without resolving candidates or starting eligibility review.
+
+### Results
+
+- Resolution packet rows:
+  `14`.
+- Resolution packet ready rows:
+  `14`.
+- Candidate identifier resolved rows:
+  `0`.
+- Nomination fields completed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Resolution field rows:
+  `84`.
+- Field completed rows:
+  `0`.
+- Field prefilled rows:
+  `0`.
+- Resolution control rows:
+  `6`.
+- Active resolution control rows:
+  `6`.
+- Recommended next action rows:
+  `3`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v509_candidate_resolution_gap_audit.md`.
+
+### Interpretation
+
+The nomination process now has a resolution packet and field completion matrix,
+but every candidate identifier, field completion, nomination, eligibility
+review, assignment and outcome-capture permission remains absent.
+
+### Claim Impact
+
+- Allowed: resolution packet creation, field completion matrix, active controls
+  and future resolution gap audit readiness.
+- Still prohibited: candidate resolution/nomination, reviewer assignment,
+  completed review claims, final captions, Quarto patch readiness/application,
+  Quarto/book mutation, submission readiness, Paper Estrella replacement and
+  final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v508 in the living notebook. v509 should audit candidate resolution gaps
+before any real nomination or eligibility-review claim.
+
+<!-- V508_CANDIDATE_NOMINATION_RESOLUTION_PACKET_END -->

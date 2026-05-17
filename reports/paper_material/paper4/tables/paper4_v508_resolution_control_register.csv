@@ -1,0 +1,7 @@
+resolution_control_id_v508,control_active_v508,blocks_nomination_v508,control_result_v508
+no_candidate_identifier_resolution,True,True,candidate identifiers remain unresolved
+no_nomination_field_completion,True,True,nomination fields remain incomplete
+no_candidate_nomination_recorded,True,True,candidate nominations remain absent
+no_eligibility_review_started,True,False,eligibility review remains blocked
+no_reviewer_assignment,True,False,reviewer assignment remains absent
+no_final_promotion,True,False,final promotion artifact remains absent
