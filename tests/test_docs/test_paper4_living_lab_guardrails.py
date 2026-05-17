@@ -44865,6 +44865,134 @@ def test_paper4_v403_post_notebook_mutation_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v404_notebook_sys_path_project_import_refactor_plan_is_non_mutating() -> None:
+    status = _read_json("paper4_v404_status.json")
+
+    assert status["phase"] == "v404_notebook_sys_path_project_import_refactor_plan"
+    assert status["schema_version"] == "2026-05-17.404"
+    assert status["prior_pytest_probe_version_v404"] == 403
+    assert status["sys_path_project_import_cells_v404"] == 3
+    assert status["sys_path_project_import_e402_diagnostics_v404"] == 42
+    assert status["import_viability_probe_rows_v404"] == 2
+    assert status["import_viability_all_passed_v404"] is True
+    assert status["notebooks_mutated_v404"] is False
+    assert status["notebook_diff_clean_before_v404"] is True
+    assert status["notebook_diff_clean_after_v404"] is True
+    assert status["global_notebook_diagnostics_v404"] == 62
+    assert status["global_notebook_e402_v404"] == 42
+    assert status["global_notebook_i001_v404"] == 0
+    assert status["expected_global_notebook_diagnostics_after_v405"] == 20
+    assert status["expected_global_notebook_e402_after_v405"] == 0
+    assert status["global_ruff_clean_v404"] is False
+    assert status["full_repository_pytest_run_v404"] is False
+    assert status["full_quarto_render_run_v404"] is False
+    assert status["working_champion_claim_allowed_v404"] is False
+    assert status["paper1_promotion_allowed_v404"] is False
+    assert status["paper4_working_champion_changed_v404"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v404"]
+        == "paper4_v405_notebook_sys_path_project_import_refactor_batch.md"
+    )
+
+    plan = _read_csv("paper4_v404_notebook_sys_path_refactor_plan.csv")
+    assert len(plan) == 3
+    assert int(plan["current_e402_diagnostic_count_v404"].sum()) == 42
+    assert set(plan["notebook_path_v404"]) == {
+        "notebooks/06_survival_analysis.ipynb",
+        "notebooks/08_portfolio_optimization.ipynb",
+        "notebooks/09_end_to_end_pipeline.ipynb",
+    }
+    assert int(plan["sys_path_insert_line_count_v404"].sum()) == 3
+    assert int(plan["import_sys_line_count_v404"].sum()) == 3
+    assert int(plan["project_import_line_count_v404"].sum()) == 6
+    assert not plan["mutation_allowed_v404"].astype(bool).any()
+
+    import_probe = _read_csv("paper4_v404_import_viability_probe.csv")
+    assert len(import_probe) == 2
+    assert set(import_probe["probe_id_v404"]) == {"repo_root_cwd", "notebooks_cwd"}
+    assert import_probe["passed_v404"].astype(bool).all()
+    assert set(import_probe["stdout_v404"]) == {"imports_ok"}
+
+    expected_delta = _read_csv("paper4_v404_expected_lint_delta.csv")
+    expected_map = {row["metric_v404"]: row for _, row in expected_delta.iterrows()}
+    assert int(expected_map["global_notebook_total"]["current_v404"]) == 62
+    assert int(expected_map["global_notebook_total"]["expected_after_v405"]) == 20
+    assert int(expected_map["global_notebook_total"]["expected_delta_v405"]) == -42
+    assert int(expected_map["global_notebook_e402"]["current_v404"]) == 42
+    assert int(expected_map["global_notebook_e402"]["expected_after_v405"]) == 0
+    assert int(expected_map["global_notebook_i001"]["expected_after_v405"]) == 0
+    assert int(expected_map["global_notebook_f401"]["expected_after_v405"]) == 0
+
+    blockers = _read_csv("paper4_v404_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v404"], blockers["blocking_v404"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v404"], blockers["evidence_count_v404"], strict=False)
+    )
+    assert bool(blocker_map["sys_path_project_import_refactor_not_applied_yet"]) is True
+    assert int(blocker_evidence["sys_path_project_import_refactor_not_applied_yet"]) == 42
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 62
+    assert bool(blocker_map["post_refactor_pytest_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v404_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v404_sys_path_refactor_plan_created"]) is True
+    assert bool(claim_map["v404_import_viability_probe_passed"]) is True
+    assert bool(claim_map["v404_expected_e402_clearance_modeled"]) is True
+    assert bool(claim_map["v404_sys_path_project_import_refactor_applied"]) is False
+    assert bool(claim_map["v404_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v404_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v404 plans the 3 remaining sys.path/project-import E402 cells."])
+    assert bool(
+        boundary_map["v404 import viability probes pass without notebook sys.path injection."]
+    )
+    assert bool(boundary_map["v404 repairs E402 or clears notebook lint."]) is False
+    assert bool(boundary_map["v404 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v404_rows = backlog.loc[backlog["last_wave"].eq("v404")]
+    assert len(v404_rows) == 1
+    backlog_row = v404_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_sys_path_project_import_refactor_plan_created"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v405_notebook_sys_path_project_import_refactor_batch.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "sys_path_e402_3_cells_42_diagnostics_planned_no_mutation"
+    )
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v404_notebook_sys_path_project_import_refactor_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Sys.path/project-import cells planned: `3`" in plan_md
+    assert "Expected diagnostics after v405: `20`" in plan_md
+    assert "does not repair E402" in plan_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v404: Notebook Sys.path/Project-Import Refactor Plan" in notebook
+    assert "Sys.path/project-import E402 diagnostics:\n  `42`" in notebook
+    assert "Expected notebook diagnostics after v405:\n  `20`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

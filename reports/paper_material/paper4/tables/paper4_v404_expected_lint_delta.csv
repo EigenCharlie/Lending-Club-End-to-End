@@ -1,0 +1,6 @@
+metric_v404,current_v404,expected_after_v405,expected_delta_v405,claim_boundary_v404
+global_notebook_total,62,20,-42,expected lint delta only; no mutation in v404
+global_notebook_e402,42,0,-42,expected lint delta only; no mutation in v404
+global_notebook_i001,0,0,0,expected lint delta only; no mutation in v404
+global_notebook_f401,0,0,0,expected lint delta only; no mutation in v404
+global_notebook_f821,1,1,0,expected lint delta only; no mutation in v404

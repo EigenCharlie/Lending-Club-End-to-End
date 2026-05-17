@@ -1258,3 +1258,7 @@ v403 runs full repository pytest after v402 notebook mutation.,True,reports/pape
 v403 full repository pytest passes after v402 notebook mutation.,True,reports/paper_material/paper4/tables/paper4_v403_pytest_probe_summary.csv,Allowed only if pytest exit code is 0.,False,living_notebook_only
 v403 clears E402 or global notebook lint.,False,reports/paper_material/paper4/tables/paper4_v403_claim_blockers.csv,42 E402 and 62 notebook diagnostics remain.,True,living_notebook_only
 v403 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v403_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v404 plans the 3 remaining sys.path/project-import E402 cells.,True,reports/paper_material/paper4/tables/paper4_v404_notebook_sys_path_refactor_plan.csv,Plan only; no notebook mutation.,False,living_notebook_only
+v404 import viability probes pass without notebook sys.path injection.,True,reports/paper_material/paper4/tables/paper4_v404_import_viability_probe.csv,Root and notebooks cwd probe only.,False,living_notebook_only
+v404 repairs E402 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v404_claim_blockers.csv,No notebook mutation; 42 E402 diagnostics remain.,True,living_notebook_only
+v404 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v404_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

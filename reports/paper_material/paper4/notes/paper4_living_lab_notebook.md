@@ -17224,3 +17224,56 @@ Keep v403 in the living notebook. Route the next wave according to the pytest
 result.
 
 <!-- V403_POST_NOTEBOOK_MUTATION_PYTEST_PROBE_END -->
+
+<!-- V404_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_PLAN_START -->
+
+## Wave v404: Notebook Sys.path/Project-Import Refactor Plan
+
+Generated: 2026-05-17T08:42:57.647836+00:00
+
+### Objective
+
+v404 plans the 3 remaining E402 setup cells where `sys.path.insert(...)` precedes
+project imports and validates whether `src` imports work without notebook-local
+path injection.
+
+### Results
+
+- Sys.path/project-import cells:
+  `3`.
+- Sys.path/project-import E402 diagnostics:
+  `42`.
+- Import viability probes passed:
+  `True`.
+- Current notebook diagnostics:
+  `62`.
+- Expected notebook diagnostics after v405:
+  `20`.
+- Expected E402 after v405:
+  `0`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v405_notebook_sys_path_project_import_refactor_batch.md`.
+
+### Interpretation
+
+The import probes indicate that project imports resolve from both repository root
+and `notebooks/` cwd without notebook-local `sys.path.insert(...)`. v405 can
+therefore test the narrow mutation: remove path injection and unused `import
+sys`, move warning filters below imports, and normalize import ordering.
+
+### Claim Impact
+
+- Allowed: sys.path/project-import refactor plan and import viability probe.
+- Still prohibited: E402 repaired, notebook lint clean, repository ruff clean,
+  post-refactor pytest passed, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v404 in the living notebook. v405 should apply the planned sys.path
+refactor batch with roundtrip checks.
+
+<!-- V404_NOTEBOOK_SYS_PATH_PROJECT_IMPORT_REFACTOR_PLAN_END -->
