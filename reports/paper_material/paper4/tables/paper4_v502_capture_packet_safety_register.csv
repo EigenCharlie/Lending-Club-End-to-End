@@ -1,0 +1,7 @@
+packet_safety_id_v502,inherited_control_active_v502,inherited_blocks_patch_v502,packet_safety_passed_v502,claim_boundary_v502
+no_outcomes_captured,True,True,True,manual packet safety inheritance only
+no_caption_finalized,True,True,True,manual packet safety inheritance only
+no_patch_approval,True,True,True,manual packet safety inheritance only
+no_book_mutation,True,True,True,manual packet safety inheritance only
+no_render_submission,True,True,True,manual packet safety inheritance only
+no_final_promotion,True,True,True,manual packet safety inheritance only

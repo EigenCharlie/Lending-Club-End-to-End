@@ -1,0 +1,9 @@
+readiness_gate_v502,ready_v502,evidence_artifact_v502,claim_boundary_v502
+manual_capture_packet_created,True,paper4_v502_manual_capture_packet.csv,manual capture packet only
+manual_capture_field_checklist_created,True,paper4_v502_manual_capture_field_checklist.csv,field checklist only
+review_assignment_stubs_created,True,paper4_v502_review_assignment_stub.csv,assignment stubs only
+packet_safety_register_created,True,paper4_v502_capture_packet_safety_register.csv,safety register only
+reviewers_assigned,False,reviewer_assigned_v502 remains false,awaiting reviewer assignment
+real_review_outcomes_captured,False,no real outcome rows recorded,no review evidence captured
+ready_for_quarto_patch,False,"outcomes, signoff and approval remain absent",patch remains blocked
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

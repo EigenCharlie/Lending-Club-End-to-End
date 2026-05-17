@@ -22457,3 +22457,67 @@ Keep v501 in the living notebook. v502 should create a manual capture packet
 without fabricating or pre-filling review outcomes.
 
 <!-- V501_REVIEW_OUTCOME_CAPTURE_DRY_RUN_END -->
+
+<!-- V502_REVIEW_OUTCOME_MANUAL_CAPTURE_PACKET_START -->
+
+## Wave v502: Review Outcome Manual Capture Packet
+
+Generated: 2026-05-17T19:37:19.664705+00:00
+
+### Objective
+
+v502 turns the v501 dry-run queue into a manual capture packet with field
+checklists, assignment stubs and inherited safety controls.
+
+### Results
+
+- Capture packet rows:
+  `14`.
+- Packet ready rows:
+  `14`.
+- Field checklist rows:
+  `112`.
+- Field prefilled rows:
+  `0`.
+- Reviewer assignment rows:
+  `14`.
+- Reviewer assigned rows:
+  `0`.
+- Safety register rows:
+  `6`.
+- Passed safety register rows:
+  `6`.
+- Real outcome captured rows:
+  `0`.
+- Review completed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v503_manual_capture_assignment_gap_audit.md`.
+
+### Interpretation
+
+The capture packet is ready for a human assignment step. It still has no actual
+review decisions, no final captions and no patch permission.
+
+### Claim Impact
+
+- Allowed: manual packet creation, field checklist preparation, assignment
+  stubs and inherited safety controls.
+- Still prohibited: reviewer assignment, completed review/signoff claims, final
+  captions, Quarto patch readiness/application, Quarto/book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v502 in the living notebook. v503 should audit assignment gaps before any
+manual capture claims are allowed.
+
+<!-- V502_REVIEW_OUTCOME_MANUAL_CAPTURE_PACKET_END -->
