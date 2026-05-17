@@ -1286,3 +1286,8 @@ v410 clears notebook B018 diagnostics.,True,reports/paper_material/paper4/tables
 v410 reduces notebook lint diagnostics from 17 to 7.,True,reports/paper_material/paper4/tables/paper4_v410_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
 v410 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v410_claim_blockers.csv,7 notebook diagnostics remain.,True,living_notebook_only
 v410 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v410_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v411 runs full repository pytest after notebook B018 fig.show patch.,True,reports/paper_material/paper4/tables/paper4_v411_pytest_probe_summary.csv,Execution evidence only.,False,living_notebook_only
+v411 full repository pytest passes after notebook B018 fig.show patch.,True,reports/paper_material/paper4/tables/paper4_v411_pytest_probe_summary.csv,Allowed only if pytest exit code is 0.,False,living_notebook_only
+v411 keeps notebook B018 cleared after pytest probe.,True,reports/paper_material/paper4/tables/paper4_v411_notebook_lint_snapshot.csv,B018 remains at zero; other notebook lint remains.,False,living_notebook_only
+v411 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v411_claim_blockers.csv,7 notebook diagnostics remain.,True,living_notebook_only
+v411 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v411_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

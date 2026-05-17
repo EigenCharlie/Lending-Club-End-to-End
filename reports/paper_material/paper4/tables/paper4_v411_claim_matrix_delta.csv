@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v411_full_repository_pytest_run,True,paper4_v411_pytest_probe_summary.csv,pytest command executed after v410 B018 patch
+v411_full_repository_pytest_passed,True,paper4_v411_pytest_probe_summary.csv,true only when pytest exits 0
+v411_notebook_b018_remains_clear,True,paper4_v411_notebook_lint_snapshot.csv,B018 count remains 0
+v411_notebook_or_repo_ruff_clean,False,paper4_v411_claim_blockers.csv,7 notebook diagnostics remain
+v411_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

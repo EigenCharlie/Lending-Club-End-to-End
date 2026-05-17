@@ -17560,3 +17560,52 @@ remaining lint frontier is small and still not clean.
 Keep v410 in the living notebook. v411 should run post-B018 full pytest.
 
 <!-- V410_NOTEBOOK_B018_FIG_SHOW_PATCH_END -->
+
+<!-- V411_NOTEBOOK_B018_POST_PATCH_PYTEST_PROBE_START -->
+
+## Wave v411: Post-B018 Fig.show Pytest Probe
+
+Generated: 2026-05-17T09:23:16.223167+00:00
+
+### Objective
+
+v411 runs full repository pytest after v410 clears notebook B018.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1149`.
+- Pytest summary:
+  `=========== 1149 passed, 2 skipped, 13 warnings in 141.50s (0:02:21) ===========`.
+- Notebook diagnostics:
+  `7`.
+- Notebook B018 diagnostics:
+  `0`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v412_notebook_f821_execution_context_audit.md`.
+
+### Interpretation
+
+The post-B018 validation gate decides whether the next wave can audit the
+remaining F821 execution-context diagnostic before style-only notebook lint.
+
+### Claim Impact
+
+- Allowed: full repository pytest was executed after B018 clearance.
+- Conditional: pytest pass claim follows the captured exit code.
+- Still prohibited: global notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v411 in the living notebook. Route v412 according to the pytest result.
+
+<!-- V411_NOTEBOOK_B018_POST_PATCH_PYTEST_PROBE_END -->

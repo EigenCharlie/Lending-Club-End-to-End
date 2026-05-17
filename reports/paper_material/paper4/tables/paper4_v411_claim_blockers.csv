@@ -1,0 +1,4 @@
+blocker_id_v411,blocking_v411,evidence_count_v411,required_next_artifact_v411,claim_boundary_v411
+f821_execution_context_deferred,True,1,paper4_v412_notebook_f821_execution_context_audit.md,undefined notebook execution context requires audit
+global_notebook_lint_not_clean,True,7,paper4_v412_notebook_f821_execution_context_audit.md,F821 and style notebook lint remain
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
