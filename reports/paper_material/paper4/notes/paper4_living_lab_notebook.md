@@ -17880,3 +17880,47 @@ Keep v417 in the living notebook. v418 should apply the SIM108 patch with
 roundtrip checks.
 
 <!-- V417_NOTEBOOK_SIM108_CONDITIONAL_EXPR_REVIEW_END -->
+
+<!-- V418_NOTEBOOK_SIM108_CONDITIONAL_EXPR_PATCH_START -->
+
+## Wave v418: Notebook SIM108 Conditional-Expression Patch
+
+Generated: 2026-05-17T09:58:39.281267+00:00
+
+### Objective
+
+v418 applies both SIM108 conditional-expression patches selected by v417.
+
+### Results
+
+- SIM108 before/after:
+  `2` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `5` ->
+  `3`.
+- Changed notebook files:
+  `1`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v419_notebook_sim108_post_patch_pytest_probe.md`.
+
+### Interpretation
+
+SIM108 is now closed. The remaining notebook lint frontier is isolated to the
+GPU side-project notebook.
+
+### Claim Impact
+
+- Allowed: SIM108 cleared and notebook lint reduced to 3 diagnostics.
+- Still prohibited: notebook lint clean, repository ruff clean, post-patch pytest
+  passed, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v418 in the living notebook. v419 should run post-SIM108 full pytest.
+
+<!-- V418_NOTEBOOK_SIM108_CONDITIONAL_EXPR_PATCH_END -->

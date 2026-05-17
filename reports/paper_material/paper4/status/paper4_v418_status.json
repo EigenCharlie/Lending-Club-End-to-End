@@ -1,0 +1,29 @@
+{
+  "action_rows_v418": 2,
+  "changed_notebook_file_list_v418": [
+    "notebooks/04_conformal_prediction.ipynb"
+  ],
+  "changed_notebook_files_v418": 1,
+  "claim_boundary": "v418 clears SIM108 with conditional expressions; remaining lint and final promotion claims remain blocked",
+  "full_quarto_render_run_v418": false,
+  "full_repository_pytest_run_v418": false,
+  "generated_at_utc": "2026-05-17T09:58:39.281267+00:00",
+  "global_notebook_diagnostics_after_v418": 3,
+  "global_notebook_diagnostics_before_v418": 5,
+  "global_notebook_diagnostics_reduced_v418": 2,
+  "global_notebook_sim108_after_v418": 0,
+  "global_notebook_sim108_before_v418": 2,
+  "global_notebook_sim108_reduced_v418": 2,
+  "global_ruff_clean_v418": false,
+  "next_artifact_v418": "paper4_v419_notebook_sim108_post_patch_pytest_probe.md",
+  "paper1_promotion_allowed_v418": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v418": false,
+  "phase": "v418_notebook_sim108_conditional_expr_patch",
+  "prior_sim108_review_version_v418": 417,
+  "roundtrip_integrity_all_passed_v418": true,
+  "roundtrip_integrity_rows_v418": 1,
+  "runtime_seconds": 0.554,
+  "schema_version": "2026-05-17.418",
+  "working_champion_claim_allowed_v418": false
+}

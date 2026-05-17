@@ -1316,3 +1316,7 @@ v417 reviews the remaining 2 SIM108 notebook diagnostics.,True,reports/paper_mat
 v417 selects SIM108 conditional-expression patches for v418.,True,reports/paper_material/paper4/tables/paper4_v417_notebook_sim108_patch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v417 repairs SIM108 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v417_claim_blockers.csv,No notebook mutation; 5 diagnostics remain.,True,living_notebook_only
 v417 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v417_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v418 clears notebook SIM108 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v418_notebook_lint_delta.csv,SIM108 only; side-project style notebook lint remains.,False,living_notebook_only
+v418 reduces notebook lint diagnostics from 5 to 3.,True,reports/paper_material/paper4/tables/paper4_v418_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v418 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v418_claim_blockers.csv,3 notebook diagnostics remain.,True,living_notebook_only
+v418 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v418_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
