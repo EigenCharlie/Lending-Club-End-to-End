@@ -41701,6 +41701,143 @@ def test_paper4_v378_submission_readiness_gap_register_blocks_submission_claim()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v379_evidence_gap_closure_work_order_keeps_gaps_open() -> None:
+    status = _read_json("paper4_v379_status.json")
+
+    assert status["phase"] == "v379_evidence_gap_closure_work_order"
+    assert status["schema_version"] == "2026-05-17.379"
+    assert status["prior_gap_register_version_v379"] == 378
+    assert status["prior_v378_gap_register_rows_v379"] == 14
+    assert status["prior_v378_open_gap_rows_v379"] == 11
+    assert status["work_order_rows_v379"] == 11
+    assert status["executable_now_rows_v379"] == 7
+    assert status["external_blocked_rows_v379"] == 4
+    assert status["execution_queue_rows_v379"] == 7
+    assert status["blocked_dependency_rows_v379"] == 5
+    assert status["highest_priority_executable_rows_v379"] == 6
+    assert status["claim_blocker_rows_v379"] == 4
+    assert status["claim_matrix_rows_v379"] == 5
+    assert status["submission_gaps_closed_v379"] is False
+    assert status["submission_ready_claim_allowed_v379"] is False
+    assert status["bounded_living_lab_language_allowed_v379"] is True
+    assert status["reproducibility_appendix_language_allowed_v379"] is True
+    assert status["strict_live_deployment_language_allowed_v379"] is False
+    assert status["contractual_or_legal_language_allowed_v379"] is False
+    assert status["global_optimality_language_allowed_v379"] is False
+    assert status["working_champion_claim_allowed_v379"] is False
+    assert status["paper1_promotion_allowed_v379"] is False
+    assert status["paper4_working_champion_changed_v379"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v379"] == "paper4_v380_manuscript_section_scaffold.md"
+
+    work_order = _read_csv("paper4_v379_evidence_gap_closure_work_order.csv")
+    assert work_order["work_order_id_v379"].tolist() == [
+        "draft_manuscript_sections_from_patch",
+        "plan_quarto_integration_without_promotion",
+        "create_verified_literature_source_log",
+        "decide_global_solver_scope_language",
+        "design_targeted_source_governance_audit",
+        "acquire_external_live_holdout_panel",
+        "obtain_online_shadow_monitoring_log",
+        "obtain_ifrs9_contractual_coverage",
+        "obtain_legal_fairness_review",
+        "assemble_formal_spo_dla_review_packet",
+        "triage_full_regression_quarto_failure",
+    ]
+    assert int(work_order["can_execute_now_v379"].astype(bool).sum()) == 7
+    assert int((~work_order["can_execute_now_v379"].astype(bool)).sum()) == 4
+    assert int(work_order["requires_external_dependency_v379"].astype(bool).sum()) == 5
+    work_map = {row["work_order_id_v379"]: row for _, row in work_order.iterrows()}
+    assert bool(work_map["draft_manuscript_sections_from_patch"]["can_execute_now_v379"]) is True
+    assert work_map["draft_manuscript_sections_from_patch"]["output_artifact_v379"] == (
+        "paper4_v380_manuscript_section_scaffold.md"
+    )
+    assert bool(work_map["create_verified_literature_source_log"]["can_execute_now_v379"]) is True
+    assert bool(
+        work_map["create_verified_literature_source_log"]["requires_external_dependency_v379"]
+    ) is True
+    assert work_map["create_verified_literature_source_log"]["claim_boundary_v379"] == (
+        "no fabricated citations"
+    )
+    assert bool(work_map["acquire_external_live_holdout_panel"]["can_execute_now_v379"]) is False
+    assert bool(work_map["obtain_ifrs9_contractual_coverage"]["can_execute_now_v379"]) is False
+    assert bool(work_map["obtain_legal_fairness_review"]["can_execute_now_v379"]) is False
+
+    queue = _read_csv("paper4_v379_execution_queue.csv")
+    assert len(queue) == 7
+    assert queue["queue_rank_v379"].astype(int).tolist() == list(range(1, 8))
+    assert queue["work_order_id_v379"].tolist()[:3] == [
+        "create_verified_literature_source_log",
+        "decide_global_solver_scope_language",
+        "design_targeted_source_governance_audit",
+    ]
+    assert queue["can_execute_now_v379"].astype(bool).all()
+
+    blocked = _read_csv("paper4_v379_blocked_external_dependencies.csv")
+    assert len(blocked) == 5
+    assert set(blocked["work_order_id_v379"]) == {
+        "create_verified_literature_source_log",
+        "acquire_external_live_holdout_panel",
+        "obtain_online_shadow_monitoring_log",
+        "obtain_ifrs9_contractual_coverage",
+        "obtain_legal_fairness_review",
+    }
+
+    blockers = _read_csv("paper4_v379_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v379"], blockers["blocking_v379"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v379"], blockers["evidence_count_v379"], strict=False)
+    )
+    assert bool(blocker_map["work_order_does_not_close_gaps"]) is True
+    assert int(blocker_evidence["work_order_does_not_close_gaps"]) == 11
+    assert bool(blocker_map["external_dependencies_remain"]) is True
+    assert int(blocker_evidence["external_dependencies_remain"]) == 5
+    assert bool(blocker_map["submission_ready_claim_still_blocked"]) is True
+    assert int(blocker_evidence["submission_ready_claim_still_blocked"]) == 11
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v379_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v379_evidence_gap_work_order_created"]) is True
+    assert bool(claim_map["v379_execution_queue_created"]) is True
+    assert bool(claim_map["v379_submission_gaps_closed"]) is False
+    assert bool(claim_map["v379_live_legal_or_global_claim_authorized"]) is False
+    assert bool(claim_map["v379_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v379 converts v378 open gaps into an evidence-closure work order."])
+    assert bool(
+        boundary_map["v379 identifies which open gaps can be executed from current artifacts."]
+    )
+    assert bool(
+        boundary_map["v379 closes submission-readiness gaps or authorizes stronger claims."]
+    ) is False
+    assert bool(boundary_map["v379 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v379_rows = backlog.loc[backlog["last_wave"].eq("v379")]
+    assert len(v379_rows) == 1
+    backlog_row = v379_rows.iloc[0]
+    assert backlog_row["status"] == "evidence_gap_closure_work_order_created"
+    assert backlog_row["next_artifact"] == "paper4_v380_manuscript_section_scaffold.md"
+    assert backlog_row["execution_result"] == (
+        "open_gaps_partitioned_into_executable_and_external_tasks"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v379: Evidence-Gap Closure Work Order" in notebook
+    assert "Work-order rows:\n  `11`" in notebook
+    assert "Executable-now rows:\n  `7`" in notebook
+    assert "External-blocked rows:\n  `4`" in notebook
+    assert "Submission-ready claim allowed:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

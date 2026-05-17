@@ -1,0 +1,5 @@
+blocker_id_v379,blocking_v379,evidence_count_v379,required_next_artifact_v379,claim_boundary_v379
+work_order_does_not_close_gaps,True,11,paper4_v380_manuscript_section_scaffold.md,future artifacts must close gaps
+external_dependencies_remain,True,5,paper4_v380_manuscript_section_scaffold.md,external data/review still unavailable
+submission_ready_claim_still_blocked,True,11,paper4_v380_manuscript_section_scaffold.md,submission-ready claim remains blocked
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -15925,3 +15925,56 @@ Keep v378 in the living notebook. v379 should convert the highest-priority open
 gaps into an executable evidence-closure work order.
 
 <!-- V378_SUBMISSION_READINESS_GAP_REGISTER_END -->
+
+<!-- V379_EVIDENCE_GAP_CLOSURE_WORK_ORDER_START -->
+
+## Wave v379: Evidence-Gap Closure Work Order
+
+Generated: 2026-05-17T05:40:26.737923+00:00
+
+### Objective
+
+v379 takes the v378 submission-readiness gap register and converts each open
+gap into a concrete work order, separating work executable from current
+artifacts from work blocked by external data, legal review or approval.
+
+### Results
+
+- Work-order rows:
+  `11`.
+- Executable-now rows:
+  `7`.
+- External-blocked rows:
+  `4`.
+- Execution queue rows:
+  `7`.
+- Blocked dependency rows:
+  `5`.
+- Highest-priority executable rows:
+  `6`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v380_manuscript_section_scaffold.md`.
+
+### Interpretation
+
+The next useful path is no longer vague. The lab should first draft manuscript
+sections from the existing bounded evidence, preserve Quarto as not promoted,
+create a verified literature/source log, and keep global/live/legal claims
+blocked unless future evidence changes the gate state.
+
+### Claim Impact
+
+- Allowed: executable work-order and queue statements.
+- Still prohibited: declaring gaps closed, submission-ready, live/legal/global
+  claims, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v379 in the living notebook. v380 should scaffold the manuscript sections
+from v374-v379 while preserving all claim boundaries.
+
+<!-- V379_EVIDENCE_GAP_CLOSURE_WORK_ORDER_END -->
