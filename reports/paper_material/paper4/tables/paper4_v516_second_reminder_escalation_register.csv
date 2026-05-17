@@ -1,0 +1,7 @@
+second_reminder_escalation_id_v516,escalation_active_v516,blocks_second_reminder_completion_v516,required_resolution_v516
+no_candidate_identifier_after_first_followup,True,True,receive candidate identifier after second reminder
+no_nomination_field_after_first_followup,True,True,receive nomination fields after second reminder
+no_nomination_signoff_after_first_followup,True,True,receive nomination signoff after second reminder
+no_evidence_after_first_followup,True,True,receive evidence after second reminder
+eligibility_review_blocked,True,False,start eligibility only after complete candidate inputs
+no_final_promotion,True,False,keep Paper Estrella protection active

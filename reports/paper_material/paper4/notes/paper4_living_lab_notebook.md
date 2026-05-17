@@ -23497,3 +23497,88 @@ Keep v515 in the living notebook. v516 should create a second reminder packet
 while preserving the no-fabricated-candidate boundary.
 
 <!-- V515_COLLECTION_REMINDER_FOLLOWUP_AUDIT_END -->
+
+<!-- V516_CANDIDATE_INPUT_SECOND_REMINDER_PACKET_START -->
+
+## Wave v516: Candidate Input Second Reminder Packet
+
+Generated: 2026-05-17T22:51:06.673943+00:00
+
+### Objective
+
+v516 turns the still-open v515 follow-up gaps into a second reminder packet and
+field/evidence checklist. It creates follow-up pressure only; it does not mark
+any candidate input, response or evidence as received.
+
+### Results
+
+- Second reminder packet rows:
+  `14`.
+- Second reminder created rows:
+  `14`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence second reminder checklist rows:
+  `84`.
+- Field second reminder created rows:
+  `84`.
+- Evidence second reminder created rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open second reminder gap rows:
+  `84`.
+- Second reminder escalation rows:
+  `6`.
+- Active second reminder escalation rows:
+  `6`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v517_second_reminder_followup_audit.md`.
+
+### Interpretation
+
+The second reminder packet is procedural evidence only. Because the response and
+evidence counters remain zero, the next executable step is a second-reminder
+follow-up audit, not eligibility review or manuscript patching.
+
+### Claim Impact
+
+- Allowed: second reminder packet, second reminder field/evidence checklist and
+  future second-reminder follow-up audit readiness.
+- Still prohibited: candidate input receipt, candidate resolution/nomination,
+  reviewer assignment, completed review claims, final captions, Quarto patch
+  readiness/application, Quarto/book mutation, submission readiness, Paper
+  Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v516 in the living notebook. v517 should audit the second reminder
+follow-up while preserving the no-fabricated-candidate boundary.
+
+<!-- V516_CANDIDATE_INPUT_SECOND_REMINDER_PACKET_END -->
