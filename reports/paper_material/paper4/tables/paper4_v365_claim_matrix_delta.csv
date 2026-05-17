@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v365_full_v55_pricing_chunk_plan_created,True,paper4_v365_v353_full_v55_pricing_chunk_plan.csv,planning only
+v365_full_v55_pricing_executed,False,paper4_v365_claim_blockers.csv,scheduled but not run
+v365_valid_full_v55_dual_bound_certificate,False,paper4_v365_claim_blockers.csv,termination proof missing
+v365_paper1_or_final_promotion,False,paper4_v365_claim_blockers.csv,Paper Estrella remains protected

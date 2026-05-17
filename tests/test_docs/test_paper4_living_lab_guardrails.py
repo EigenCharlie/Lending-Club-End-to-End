@@ -39785,6 +39785,143 @@ def test_paper4_v364_v353_dual_bound_resource_plan_records_goal_prompt() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v365_v353_full_v55_pricing_chunk_plan_preserves_claim_limits() -> None:
+    status = _read_json("paper4_v365_status.json")
+
+    assert status["phase"] == "v365_v353_full_v55_pricing_chunk_plan"
+    assert status["schema_version"] == "2026-05-17.365"
+    assert status["base_version_v365"] == 353
+    assert status["prior_resource_version_v365"] == 364
+    assert status["prior_gap_version_v365"] == 363
+    assert status["full_universe_rows_v365"] == 276869
+    assert status["selected_rows_v365"] == 171
+    assert status["full_omitted_candidate_rows_v365"] == 276698
+    assert status["path_count_v365"] == 128
+    assert status["recommended_chunk_rows_v365"] == 10000
+    assert status["planned_chunk_count_v365"] == 28
+    assert status["last_chunk_rows_v365"] == 6698
+    assert status["full_scenario_cells_v365"] == 35417344
+    assert status["full_raw_loss_matrix_mb_v365"] == pytest.approx(270.212890625)
+    assert status["full_working_memory_estimate_mb_v365"] == pytest.approx(1080.8515625)
+    assert status["max_chunk_working_memory_estimate_mb_v365"] == pytest.approx(39.0625)
+    assert status["v71_improving_omitted_columns_v365"] == 5738
+    assert status["bounded_candidate_pool_share_v365"] == pytest.approx(0.01584760280161042)
+    assert status["full_v55_pricing_executed_v365"] is False
+    assert status["valid_full_v55_dual_bound_certificate_v365"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v365"] is False
+    assert status["working_champion_claim_allowed_v365"] is False
+    assert status["paper1_promotion_allowed_v365"] is False
+    assert status["paper4_working_champion_changed_v365"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["input_manifest_rows_v365"] == 7
+    assert status["resource_estimate_rows_v365"] == 3
+    assert status["claim_blocker_rows_v365"] == 4
+    assert status["claim_matrix_rows_v365"] == 4
+    assert status["next_artifact_v365"] == (
+        "paper4_v366_v353_full_v55_pricing_chunk_prototype.csv"
+    )
+
+    plan = _read_csv("paper4_v365_v353_full_v55_pricing_chunk_plan.csv")
+    row = plan.iloc[0]
+    assert row["plan_id_v365"] == "v353_full_v55_pricing_chunk_plan"
+    assert int(row["full_omitted_candidate_rows_v365"]) == 276698
+    assert int(row["path_count_v365"]) == 128
+    assert int(row["recommended_chunk_rows_v365"]) == 10000
+    assert int(row["planned_chunk_count_v365"]) == 28
+    assert int(row["last_chunk_rows_v365"]) == 6698
+    assert float(row["full_raw_loss_matrix_mb_v365"]) == pytest.approx(270.212890625)
+    assert float(row["full_working_memory_estimate_mb_v365"]) == pytest.approx(1080.8515625)
+    assert float(row["max_chunk_working_memory_estimate_mb_v365"]) == pytest.approx(39.0625)
+    assert bool(row["full_v55_pricing_executed_v365"]) is False
+    assert bool(row["valid_full_v55_dual_bound_certificate_v365"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    schedule = _read_csv("paper4_v365_pricing_chunk_schedule.csv")
+    assert len(schedule) == 28
+    assert schedule["chunk_rows_v365"].astype(int).sum() == 276698
+    first = schedule.iloc[0]
+    last = schedule.iloc[-1]
+    assert int(first["chunk_id_v365"]) == 1
+    assert int(first["start_offset_in_full_omitted_v365"]) == 0
+    assert int(first["end_offset_exclusive_v365"]) == 10000
+    assert float(first["working_memory_estimate_mb_v365"]) == pytest.approx(39.0625)
+    assert int(last["chunk_id_v365"]) == 28
+    assert int(last["start_offset_in_full_omitted_v365"]) == 270000
+    assert int(last["end_offset_exclusive_v365"]) == 276698
+    assert int(last["chunk_rows_v365"]) == 6698
+    assert float(last["working_memory_estimate_mb_v365"]) == pytest.approx(26.1640625)
+    assert schedule["resumable_state_key_v365"].is_unique
+
+    manifest = _read_csv("paper4_v365_input_manifest.csv")
+    assert len(manifest) == 7
+    assert manifest["exists_v365"].astype(bool).all()
+    manifest_map = {row["artifact_v365"]: row for _, row in manifest.iterrows()}
+    assert int(manifest_map["paper4_v55_maximal_comparable_universe.parquet"]["rows_v365"]) == 276869
+    assert int(manifest_map["paper4_v71_full_universe_reduced_costs.parquet"]["rows_v365"]) == 2211304
+    assert int(manifest_map["paper4_v71_reduced_cost_summary.csv"]["rows_v365"]) == 8
+
+    estimates = _read_csv("paper4_v365_resource_estimates.csv")
+    estimate_map = {row["estimate_id_v365"]: row for _, row in estimates.iterrows()}
+    assert float(estimate_map["full_raw_loss_matrix"]["memory_mb_v365"]) == pytest.approx(
+        270.212890625
+    )
+    assert float(estimate_map["full_working_arrays"]["memory_mb_v365"]) == pytest.approx(
+        1080.8515625
+    )
+    assert float(estimate_map["max_chunk_working_arrays"]["memory_mb_v365"]) == pytest.approx(
+        39.0625
+    )
+
+    blockers = _read_csv("paper4_v365_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v365"], blockers["blocking_v365"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v365"], blockers["evidence_count_v365"], strict=False)
+    )
+    assert bool(blocker_map["full_v55_pricing_not_executed"]) is True
+    assert int(evidence_map["full_v55_pricing_not_executed"]) == 276698
+    assert bool(blocker_map["v71_negative_reduced_cost_persists"]) is True
+    assert int(evidence_map["v71_negative_reduced_cost_persists"]) == 5738
+    assert bool(blocker_map["integer_optimality_certificate_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v365_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v365_full_v55_pricing_chunk_plan_created"]) is True
+    assert bool(claim_map["v365_full_v55_pricing_executed"]) is False
+    assert bool(claim_map["v365_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v365_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v365 records a full-v55 pricing chunk plan for v353."])
+    assert bool(boundary_map["v365 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v365 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v365 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v365_rows = backlog.loc[backlog["last_wave"].eq("v365")]
+    assert len(v365_rows) == 1
+    backlog_row = v365_rows.iloc[0]
+    assert backlog_row["status"] == "full_v55_pricing_chunk_plan_created"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v366_v353_full_v55_pricing_chunk_prototype.csv"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "chunk_schedule_input_manifest_and_memory_estimates_recorded"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v365: v353 Full-v55 Pricing Chunk Plan" in notebook
+    assert "Planned chunks:\n  `28`" in notebook
+    assert "Full-v55 pricing executed:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

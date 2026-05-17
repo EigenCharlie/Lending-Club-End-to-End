@@ -15187,3 +15187,54 @@ Keep v364 in the living notebook. Use the goal prompt artifact to continue
 iterating from v365.
 
 <!-- V364_V353_DUAL_BOUND_RESOURCE_PLAN_END -->
+
+<!-- V365_V353_FULL_V55_PRICING_CHUNK_PLAN_START -->
+
+## Wave v365: v353 Full-v55 Pricing Chunk Plan
+
+Generated: 2026-05-17T04:02:59.440633+00:00
+
+### Objective
+
+v364 identified the next executable step as a full-v55 pricing chunk plan. v365
+does not price or solve the full universe. It creates the resource plan,
+manifest and resumable schedule needed for a bounded v366 prototype.
+
+### Results
+
+- Full omitted candidate rows:
+  `276698`.
+- Scenario path count:
+  `128`.
+- Recommended chunk rows:
+  `10000`.
+- Planned chunks:
+  `28`.
+- Last chunk rows:
+  `6698`.
+- Full raw loss matrix estimate MB:
+  `270.212890625`.
+- Max chunk working memory estimate MB:
+  `39.0625`.
+- Full-v55 pricing executed:
+  `False`.
+
+### Interpretation
+
+v365 makes the full-pricing route executable without overstating it. The plan
+turns a large full-v55 obligation into 28 resumable chunks. The next wave can
+price a single deterministic chunk and measure whether the route is practical.
+
+### Claim Impact
+
+- Allowed: full-v55 pricing chunk schedule and input manifest.
+- Still prohibited: full reduced-cost termination, full-v55 dual-bound,
+  integer optimality, working champion, Paper Estrella replacement and final
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v365 in the living notebook. Run v366 as a deterministic chunk prototype
+before making any route decision.
+
+<!-- V365_V353_FULL_V55_PRICING_CHUNK_PLAN_END -->

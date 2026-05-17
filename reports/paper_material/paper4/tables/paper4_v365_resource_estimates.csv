@@ -1,0 +1,4 @@
+estimate_id_v365,rows_v365,path_count_v365,scenario_cells_v365,memory_mb_v365,claim_boundary_v365
+full_raw_loss_matrix,276698,128,35417344,270.212890625,loss matrix estimate only
+full_working_arrays,276698,128,35417344,1080.8515625,four-array working estimate only
+max_chunk_working_arrays,10000,128,1280000,39.0625,maximum planned chunk working estimate only
