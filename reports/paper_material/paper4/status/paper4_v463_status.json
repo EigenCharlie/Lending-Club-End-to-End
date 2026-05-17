@@ -1,0 +1,23 @@
+{
+  "bibliography_action_count_v463": 5,
+  "book_references_modified_v463": false,
+  "claim_boundary": "v463 plans a Paper 4 bibliography subset; global bibliography edits, venue style, systematic review, submission and final promotion remain blocked",
+  "exact_key_matches_in_book_bib_v463": 0,
+  "generated_at_utc": "2026-05-17T15:46:49.762677+00:00",
+  "missing_exact_key_count_v463": 9,
+  "next_artifact_v463": "paper4_v464_bibliography_subset_dry_run.md",
+  "paper1_promotion_allowed_v463": false,
+  "paper4_final_promotion_created": false,
+  "paper4_subset_bib_created_v463": false,
+  "paper4_working_champion_changed_v463": false,
+  "paper_specific_bibliography_plan_created_v463": true,
+  "phase": "v463_paper_specific_bibliography_plan",
+  "prior_readiness_delta_version_v463": 462,
+  "runtime_seconds": 0.052,
+  "schema_version": "2026-05-17.463",
+  "selected_bibliography_action_count_v463": 3,
+  "systematic_literature_review_complete_v463": false,
+  "target_venue_selected_v463": false,
+  "verified_anchor_count_v463": 9,
+  "working_champion_claim_allowed_v463": false
+}

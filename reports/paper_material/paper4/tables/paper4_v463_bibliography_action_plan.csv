@@ -1,0 +1,6 @@
+action_id_v463,selected_v463,required_next_artifact_v463,success_condition_v463,claim_boundary_v463
+create_paper4_subset_bib_dry_run,True,paper4_v464_bibliography_subset_dry_run.md,draft a Paper 4 subset bibliography without editing book refs,dry run only
+preserve_verified_v381_metadata,True,paper4_v464_bibliography_subset_dry_run.md,carry DOI/URL/title/author metadata from v381,reuse verified metadata only
+do_not_edit_book_references_yet,True,future_book_references_patch,wait until venue/style decision before global bib edits,no global bibliography mutation
+target_venue_style_decision,False,future_target_venue_decision,choose IEEE/ACM/journal style later,venue not selected
+systematic_literature_search,False,future_recent_literature_search_log,search and verify new sources separately,no new source discovery in v463

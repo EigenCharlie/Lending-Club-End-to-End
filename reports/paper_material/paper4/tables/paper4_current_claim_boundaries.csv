@@ -1541,3 +1541,8 @@ v462 shows major manuscript components now exist.,True,reports/paper_material/pa
 v462 makes Paper 4 submission-ready or venue-compliant.,False,reports/paper_material/paper4/tables/paper4_v462_remaining_blockers.csv,Venue and bibliography blockers remain.,True,living_notebook_only
 v462 completes external validation or systematic literature review.,False,reports/paper_material/paper4/tables/paper4_v462_remaining_blockers.csv,Both remain future work.,True,living_notebook_only
 v462 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v462_remaining_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v463 plans a Paper 4 specific bibliography subset.,True,reports/paper_material/paper4/notes/paper4_v463_paper_specific_bibliography_plan.md,Plan only; no bibliography edit.,False,living_notebook_only
+v463 checks verified v381 keys against book references.,True,reports/paper_material/paper4/tables/paper4_v463_reference_subset_plan.csv,Exact-key inventory only.,False,living_notebook_only
+v463 modifies book references or completes final bibliography.,False,reports/paper_material/paper4/tables/paper4_v463_remaining_blockers.csv,No bibliography file is modified in v463.,True,living_notebook_only
+v463 makes Paper 4 venue-style compliant or submitted.,False,reports/paper_material/paper4/tables/paper4_v463_remaining_blockers.csv,Venue and style remain future decisions.,True,living_notebook_only
+v463 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v463_remaining_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

@@ -20327,3 +20327,49 @@ Keep v462 in the living notebook. v463 should plan the Paper 4 specific
 bibliography without editing the global bibliography or claiming finality.
 
 <!-- V462_MANUSCRIPT_READINESS_DELTA_END -->
+
+<!-- V463_PAPER_SPECIFIC_BIBLIOGRAPHY_PLAN_START -->
+
+## Wave v463: Paper-Specific Bibliography Plan
+
+Generated: 2026-05-17T15:46:49.762677+00:00
+
+### Objective
+
+v463 plans a Paper 4 specific bibliography subset without editing the global
+book bibliography.
+
+### Results
+
+- Verified anchors checked:
+  `9`.
+- Exact key matches in book references:
+  `0`.
+- Missing exact keys:
+  `9`.
+- Bibliography actions planned:
+  `5`.
+- Book references modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v464_bibliography_subset_dry_run.md`.
+
+### Interpretation
+
+The verified source log is usable, but Paper 4 needs a bibliography subset
+dry-run before any global references edit.
+
+### Claim Impact
+
+- Allowed: bibliography plan and exact-key inventory.
+- Still prohibited: bibliography mutation, final bibliography, venue compliance,
+  systematic review, champion replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v463 in the living notebook. v464 should write a bibliography subset
+dry-run without changing `book/references.bib`.
+
+<!-- V463_PAPER_SPECIFIC_BIBLIOGRAPHY_PLAN_END -->

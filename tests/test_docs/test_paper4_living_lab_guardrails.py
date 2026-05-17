@@ -52899,6 +52899,108 @@ def test_paper4_v462_manuscript_readiness_delta_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v463_paper_specific_bibliography_plan_is_guarded() -> None:
+    status = _read_json("paper4_v463_status.json")
+
+    assert status["phase"] == "v463_paper_specific_bibliography_plan"
+    assert status["schema_version"] == "2026-05-17.463"
+    assert status["prior_readiness_delta_version_v463"] == 462
+    assert status["verified_anchor_count_v463"] == 9
+    assert status["exact_key_matches_in_book_bib_v463"] == 0
+    assert status["missing_exact_key_count_v463"] == 9
+    assert status["bibliography_action_count_v463"] == 5
+    assert status["selected_bibliography_action_count_v463"] == 3
+    assert status["paper_specific_bibliography_plan_created_v463"] is True
+    assert status["book_references_modified_v463"] is False
+    assert status["paper4_subset_bib_created_v463"] is False
+    assert status["target_venue_selected_v463"] is False
+    assert status["systematic_literature_review_complete_v463"] is False
+    assert status["working_champion_claim_allowed_v463"] is False
+    assert status["paper1_promotion_allowed_v463"] is False
+    assert status["paper4_working_champion_changed_v463"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v463"] == "paper4_v464_bibliography_subset_dry_run.md"
+
+    subset = _read_csv("paper4_v463_reference_subset_plan.csv")
+    assert len(subset) == 9
+    assert subset["verified_v463"].astype(bool).all()
+    assert not subset["exact_key_in_book_bib_v463"].astype(bool).any()
+    assert set(subset["planned_action_v463"]) == {"add_to_paper4_subset_bib_dry_run"}
+    assert {
+        "rockafellar2000optimization",
+        "rockafellar2002conditional",
+        "vovk2005algorithmic",
+        "romano2019conformalized",
+        "gibbs2021adaptive",
+        "angelopoulos2024conformal",
+        "elmachtoub2021smart",
+        "ifrs2026ifrs9",
+        "cfpb2026regulationb",
+    } == set(subset["citation_key_v463"])
+
+    actions = _read_csv("paper4_v463_bibliography_action_plan.csv")
+    selected_actions = set(
+        actions.loc[actions["selected_v463"].astype(bool), "action_id_v463"]
+    )
+    assert selected_actions == {
+        "create_paper4_subset_bib_dry_run",
+        "preserve_verified_v381_metadata",
+        "do_not_edit_book_references_yet",
+    }
+
+    blockers = _read_csv("paper4_v463_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v463"], blockers["blocking_v463"], strict=False))
+    assert bool(blocker_map["paper4_subset_bib_dry_run_not_written"]) is True
+    assert bool(blocker_map["book_references_not_modified"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["systematic_literature_search_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v463_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v463_paper_specific_bibliography_plan_created"]) is True
+    assert bool(claim_map["v463_v381_keys_checked_against_book_bib"]) is True
+    assert bool(claim_map["v463_bibliography_or_book_references_modified"]) is False
+    assert bool(claim_map["v463_final_bibliography_or_venue_style_complete"]) is False
+    assert bool(claim_map["v463_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v463 plans a Paper 4 specific bibliography subset."])
+    assert bool(boundary_map["v463 checks verified v381 keys against book references."])
+    assert bool(boundary_map["v463 modifies book references or completes final bibliography."]) is False
+    assert bool(boundary_map["v463 makes Paper 4 venue-style compliant or submitted."]) is False
+    assert bool(boundary_map["v463 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v463_rows = backlog.loc[backlog["last_wave"].eq("v463")]
+    assert len(v463_rows) == 1
+    backlog_row = v463_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v464_bibliography_subset_dry_run.md"
+    assert (
+        backlog_row["execution_result"]
+        == "bibliography_plan_created_without_reference_mutation"
+    )
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v463_paper_specific_bibliography_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Specific Bibliography Plan v463" in plan_md
+    assert "not present as exact keys" in plan_md
+    assert "does not edit `book/references.bib`" in plan_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v463: Paper-Specific Bibliography Plan" in living_notebook
+    assert "Verified anchors checked:\n  `9`." in living_notebook
+    assert "Exact key matches in book references:\n  `0`." in living_notebook
+    assert "Missing exact keys:\n  `9`." in living_notebook
+    assert "Book references modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
