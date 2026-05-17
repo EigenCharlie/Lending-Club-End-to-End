@@ -17067,3 +17067,57 @@ Keep v400 in the living notebook. v401 should plan the setup warning-filter
 cells before mutation.
 
 <!-- V400_NOTEBOOK_E402_LOCAL_IMPORT_HOIST_BATCH_END -->
+
+<!-- V401_NOTEBOOK_E402_SETUP_WARNING_REFACTOR_PLAN_START -->
+
+## Wave v401: Notebook E402 Setup Warning-Filter Refactor Plan
+
+Generated: 2026-05-17T08:21:30.649174+00:00
+
+### Objective
+
+v401 plans the 9 remaining setup warning-filter E402 cells and separates the
+lowest remaining mutation batch from cells that depend on project import path
+semantics.
+
+### Results
+
+- Setup warning-filter cells:
+  `9`.
+- Setup warning-filter E402 diagnostics:
+  `112`.
+- Warning-filter-only first batch cells:
+  `6`.
+- Warning-filter-only first batch diagnostics:
+  `70`.
+- Sys.path/project-import cells deferred:
+  `3`.
+- Sys.path/project-import diagnostics deferred:
+  `42`.
+- Notebooks mutated:
+  `False`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v402_notebook_warning_filter_only_reorder_batch.md`.
+
+### Interpretation
+
+The next safe mutation should target only the 6 warning-filter-only setup cells.
+The 3 sys.path/project-import cells remain separate because moving imports across
+path injection can change notebook execution semantics.
+
+### Claim Impact
+
+- Allowed: 9-cell setup warning-filter refactor plan and first-batch selection.
+- Still prohibited: E402 repaired, notebook lint clean, repository ruff clean,
+  sys.path refactor applied, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v401 in the living notebook. v402 should apply only the warning-filter-only
+reorder batch with roundtrip checks.
+
+<!-- V401_NOTEBOOK_E402_SETUP_WARNING_REFACTOR_PLAN_END -->

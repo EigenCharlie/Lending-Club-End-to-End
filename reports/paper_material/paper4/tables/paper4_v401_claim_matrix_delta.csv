@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v401_setup_warning_refactor_plan_created,True,paper4_v401_notebook_warning_filter_refactor_plan.csv,9 remaining setup warning-filter cells planned
+v401_warning_filter_only_batch_selected,True,paper4_v401_notebook_warning_filter_batch_plan.csv,6 cells selected for v402
+v401_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v401
+v401_e402_or_global_lint_clean,False,paper4_v401_claim_blockers.csv,112 E402 and 132 notebook diagnostics remain
+v401_sys_path_refactor_applied,False,paper4_v401_claim_blockers.csv,sys.path cells deferred
+v401_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

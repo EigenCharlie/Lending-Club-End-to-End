@@ -44472,6 +44472,163 @@ def test_paper4_v400_notebook_e402_local_import_hoist_batch_is_guarded() -> None
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v401_notebook_e402_setup_warning_refactor_plan_is_non_mutating() -> None:
+    status = _read_json("paper4_v401_status.json")
+
+    assert status["phase"] == "v401_notebook_e402_setup_warning_refactor_plan"
+    assert status["schema_version"] == "2026-05-17.401"
+    assert status["prior_e402_plan_version_v401"] == 399
+    assert status["prior_local_hoist_version_v401"] == 400
+    assert status["setup_warning_filter_cells_v401"] == 9
+    assert status["setup_warning_filter_e402_diagnostics_v401"] == 112
+    assert status["batch_plan_rows_v401"] == 2
+    assert status["claim_blocker_rows_v401"] == 5
+    assert status["claim_matrix_rows_v401"] == 6
+    assert status["warning_filter_only_cells_v401"] == 6
+    assert status["warning_filter_only_e402_diagnostics_v401"] == 70
+    assert status["sys_path_project_import_cells_v401"] == 3
+    assert status["sys_path_project_import_e402_diagnostics_v401"] == 42
+    assert status["selected_first_batch_v401"] == "batch_1_warning_filter_only_reorder"
+    assert status["sys_path_project_import_batch_deferred_v401"] is True
+    assert status["notebooks_mutated_v401"] is False
+    assert status["notebook_diff_clean_before_v401"] is True
+    assert status["notebook_diff_clean_after_v401"] is True
+    assert status["global_notebook_diagnostics_v401"] == 132
+    assert status["global_notebook_e402_v401"] == 112
+    assert status["global_notebook_f821_v401"] == 1
+    assert status["global_ruff_clean_v401"] is False
+    assert status["full_repository_pytest_run_v401"] is False
+    assert status["full_quarto_render_run_v401"] is False
+    assert status["working_champion_claim_allowed_v401"] is False
+    assert status["paper1_promotion_allowed_v401"] is False
+    assert status["paper4_working_champion_changed_v401"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v401"]
+        == "paper4_v402_notebook_warning_filter_only_reorder_batch.md"
+    )
+
+    plan = _read_csv("paper4_v401_notebook_warning_filter_refactor_plan.csv")
+    assert len(plan) == 9
+    assert int(plan["current_e402_diagnostic_count_v401"].sum()) == 112
+    assert not plan["mutation_allowed_v401"].astype(bool).any()
+    assert int(plan["warning_filter_line_count_v401"].sum()) == 14
+
+    warning_only = plan.loc[
+        plan["planned_batch_v401"].eq("batch_1_warning_filter_only_reorder")
+    ]
+    assert len(warning_only) == 6
+    assert int(warning_only["current_e402_diagnostic_count_v401"].sum()) == 70
+    assert set(warning_only["notebook_path_v401"]) == {
+        "notebooks/01_eda_lending_club.ipynb",
+        "notebooks/02_feature_engineering.ipynb",
+        "notebooks/03_pd_modeling.ipynb",
+        "notebooks/04_conformal_prediction.ipynb",
+        "notebooks/05_time_series_forecasting.ipynb",
+        "notebooks/13_model_explainability.ipynb",
+    }
+    assert not warning_only["sys_path_insert_line_count_v401"].astype(bool).any()
+
+    sys_path = plan.loc[
+        plan["planned_batch_v401"].eq("batch_2_sys_path_project_import_refactor")
+    ]
+    assert len(sys_path) == 3
+    assert int(sys_path["current_e402_diagnostic_count_v401"].sum()) == 42
+    assert set(sys_path["notebook_path_v401"]) == {
+        "notebooks/06_survival_analysis.ipynb",
+        "notebooks/08_portfolio_optimization.ipynb",
+        "notebooks/09_end_to_end_pipeline.ipynb",
+    }
+    assert sys_path["sys_path_insert_line_count_v401"].astype(bool).all()
+    assert int(sys_path["project_import_line_count_v401"].sum()) == 6
+
+    batch_plan = _read_csv("paper4_v401_notebook_warning_filter_batch_plan.csv")
+    assert len(batch_plan) == 2
+    batch_map = {row["batch_id_v401"]: row for _, row in batch_plan.iterrows()}
+    assert int(batch_map["batch_1_warning_filter_only_reorder"]["cell_count_v401"]) == 6
+    assert int(batch_map["batch_1_warning_filter_only_reorder"]["e402_diagnostic_count_v401"]) == 70
+    assert (
+        batch_map["batch_1_warning_filter_only_reorder"]["next_action_v401"]
+        == "paper4_v402_notebook_warning_filter_only_reorder_batch.md"
+    )
+    assert int(batch_map["batch_2_sys_path_project_import_refactor"]["cell_count_v401"]) == 3
+    assert int(
+        batch_map["batch_2_sys_path_project_import_refactor"]["e402_diagnostic_count_v401"]
+    ) == 42
+    assert not batch_plan["mutation_allowed_v401"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v401_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v401"], blockers["blocking_v401"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v401"], blockers["evidence_count_v401"], strict=False)
+    )
+    assert bool(blocker_map["warning_filter_only_batch_not_applied_yet"]) is True
+    assert int(blocker_evidence["warning_filter_only_batch_not_applied_yet"]) == 70
+    assert bool(blocker_map["sys_path_project_import_cells_deferred"]) is True
+    assert int(blocker_evidence["sys_path_project_import_cells_deferred"]) == 42
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 132
+    assert bool(blocker_map["full_repository_pytest_not_rerun"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v401_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v401_setup_warning_refactor_plan_created"]) is True
+    assert bool(claim_map["v401_warning_filter_only_batch_selected"]) is True
+    assert bool(claim_map["v401_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v401_e402_or_global_lint_clean"]) is False
+    assert bool(claim_map["v401_sys_path_refactor_applied"]) is False
+    assert bool(claim_map["v401_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v401 plans all 9 remaining setup warning-filter E402 cells."])
+    assert bool(
+        boundary_map["v401 selects a 6-cell warning-filter-only reorder batch for v402."]
+    )
+    assert bool(boundary_map["v401 repairs E402 or clears notebook lint."]) is False
+    assert bool(boundary_map["v401 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v401_rows = backlog.loc[backlog["last_wave"].eq("v401")]
+    assert len(v401_rows) == 1
+    backlog_row = v401_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_setup_warning_refactor_plan_created"
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v402_notebook_warning_filter_only_reorder_batch.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "setup_warning_e402_9_cells_planned_first_batch_6_cells_no_mutation"
+    )
+
+    plan_md = (
+        PAPER4_ROOT / "notes" / "paper4_v401_notebook_e402_setup_warning_refactor_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Setup warning-filter cells planned: `9`" in plan_md
+    assert "Warning-filter-only first batch diagnostics: `70`" in plan_md
+    assert "does not repair E402" in plan_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v401: Notebook E402 Setup Warning-Filter Refactor Plan" in notebook
+    assert "Setup warning-filter diagnostics:\n  `112`" in notebook
+    assert "Warning-filter-only first batch diagnostics:\n  `70`" in notebook
+    assert "Sys.path/project-import diagnostics deferred:\n  `42`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
