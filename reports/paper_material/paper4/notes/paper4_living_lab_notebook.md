@@ -23954,3 +23954,97 @@ Keep v520 in the living notebook. v521 should create a bounded manual owner
 request dispatch packet while preserving the no-fabricated-candidate boundary.
 
 <!-- V520_MANUAL_OWNER_ESCALATION_FOLLOWUP_AUDIT_END -->
+
+<!-- V521_MANUAL_OWNER_REQUEST_DISPATCH_PACKET_START -->
+
+## Wave v521: Manual Owner Request Dispatch Packet
+
+Generated: 2026-05-17T23:31:33.986393+00:00
+
+### Objective
+
+v521 prepares a bounded manual owner request dispatch packet after v520 found no
+recorded dispatch. It creates reproducible dispatch artifacts only; it does not
+record external delivery, human response or candidate input receipt.
+
+### Results
+
+- Manual owner dispatch packet rows:
+  `14`.
+- Dispatch packet created rows:
+  `14`.
+- Dispatch ready rows:
+  `14`.
+- Manual owner request dispatched rows:
+  `0`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate input collection closed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence dispatch checklist rows:
+  `84`.
+- Field dispatch checklist created rows:
+  `84`.
+- Evidence dispatch checklist created rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open field/evidence dispatch gap rows:
+  `84`.
+- Dispatch control rows:
+  `6`.
+- Active dispatch control rows:
+  `6`.
+- Blocking dispatch control rows:
+  `5`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v522_manual_owner_dispatch_followup_audit.md`.
+
+### Interpretation
+
+The dispatch packet is a reproducible preparation artifact. Because external
+dispatch and response counters remain zero, the next executable step is a
+dispatch follow-up audit, not candidate nomination, eligibility review or
+manuscript patching.
+
+### Claim Impact
+
+- Allowed: manual owner request dispatch packet, field/evidence dispatch
+  checklist and future manual owner dispatch follow-up audit readiness.
+- Still prohibited: external dispatch completion, candidate input receipt,
+  candidate resolution/nomination, reviewer assignment, completed review claims,
+  final captions, Quarto patch readiness/application, Quarto/book mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v521 in the living notebook. v522 should audit manual owner dispatch
+follow-up while preserving the no-fabricated-candidate boundary.
+
+<!-- V521_MANUAL_OWNER_REQUEST_DISPATCH_PACKET_END -->
