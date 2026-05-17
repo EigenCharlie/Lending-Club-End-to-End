@@ -1,0 +1,6 @@
+decision_id_v489,recommended_v489,patch_allowed_v489,decision_boundary_v489
+keep_layout_as_dry_run,True,False,layout consistency passed but patch gates open
+require_manual_approval_before_patch,True,False,manual approval missing
+require_final_caption_signoff_before_patch,True,False,captions remain non-final
+apply_quarto_patch_now,False,False,not authorized in v489
+declare_submission_ready,False,False,venue/render/external gates missing

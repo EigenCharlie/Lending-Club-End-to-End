@@ -21693,3 +21693,59 @@ Keep v488 in the living notebook. v489 should audit layout consistency without
 modifying book sources.
 
 <!-- V488_LAYOUT_DRY_RUN_PACKET_END -->
+
+<!-- V489_LAYOUT_CONSISTENCY_AUDIT_START -->
+
+## Wave v489: Layout Consistency Audit
+
+Generated: 2026-05-17T18:16:39.579789+00:00
+
+### Objective
+
+v489 audits the v488 layout dry-run for coverage, target consistency, render
+blockers and patch safety without editing book sources.
+
+### Results
+
+- Consistency check rows:
+  `8`.
+- Passed consistency checks:
+  `8`.
+- Target consistency rows:
+  `4`.
+- Render blocker rows:
+  `4`.
+- Patch safety rows:
+  `5`.
+- Layout audit passed:
+  `True`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v490_layout_review_decision.md`.
+
+### Interpretation
+
+The layout dry-run is internally consistent, but the safest next move is a
+layout review decision rather than any book-source mutation.
+
+### Claim Impact
+
+- Allowed: layout consistency audit, target consistency matrix, render blocker
+  matrix and patch safety decision.
+- Still prohibited: Quarto patch readiness/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v489 in the living notebook. v490 should record a layout review decision
+without modifying book sources.
+
+<!-- V489_LAYOUT_CONSISTENCY_AUDIT_END -->

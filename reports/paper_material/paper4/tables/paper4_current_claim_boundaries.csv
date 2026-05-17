@@ -1677,3 +1677,9 @@ v488 identifies target surfaces and render gates for future review.,True,reports
 v488 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v488_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
 v488 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v488_no_patch_register.csv,No book mutation in v488.,True,living_notebook_only
 v488 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v488_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v489 audits Paper 4 layout dry-run consistency.,True,reports/paper_material/paper4/tables/paper4_v489_layout_consistency_checks.csv,Layout audit only.,False,living_notebook_only
+v489 preserves render blockers before any Quarto patch.,True,reports/paper_material/paper4/tables/paper4_v489_render_blocker_matrix.csv,Render blocker preservation only.,False,living_notebook_only
+v489 records a patch safety decision that keeps patching blocked.,True,reports/paper_material/paper4/tables/paper4_v489_patch_safety_decision.csv,Patch safety decision only.,False,living_notebook_only
+v489 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v489_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
+v489 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v489_patch_safety_decision.csv,Patch is not authorized in v489.,True,living_notebook_only
+v489 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v489_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

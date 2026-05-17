@@ -55725,6 +55725,132 @@ def test_paper4_v488_layout_dry_run_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v489_layout_consistency_audit_is_guarded() -> None:
+    status = _read_json("paper4_v489_status.json")
+    assert status["phase"] == "v489_layout_consistency_audit"
+    assert status["schema_version"] == "2026-05-17.489"
+    assert status["prior_layout_dry_run_version_v489"] == 488
+    assert status["layout_consistency_audit_created_v489"] is True
+    assert status["layout_consistency_audit_passed_v489"] is True
+    assert status["consistency_check_rows_v489"] == 8
+    assert status["passed_consistency_checks_v489"] == 8
+    assert status["target_consistency_rows_v489"] == 4
+    assert status["target_consistency_pass_rows_v489"] == 4
+    assert status["target_surface_consistent_rows_v489"] == 4
+    assert status["render_blocker_rows_v489"] == 4
+    assert status["render_blockers_preserved_rows_v489"] == 4
+    assert status["patch_safety_rows_v489"] == 5
+    assert status["safe_to_patch_rows_v489"] == 0
+    assert status["readiness_delta_rows_v489"] == 8
+    assert status["ready_for_quarto_patch_v489"] is False
+    assert status["quarto_patch_applied_v489"] is False
+    assert status["book_sources_modified_v489"] is False
+    assert status["book_references_modified_v489"] is False
+    assert status["submission_ready_claim_allowed_v489"] is False
+    assert status["working_champion_claim_allowed_v489"] is False
+    assert status["paper1_promotion_allowed_v489"] is False
+    assert status["paper4_working_champion_changed_v489"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v489"] == "paper4_v490_layout_review_decision.md"
+
+    checks = _read_csv("paper4_v489_layout_consistency_checks.csv")
+    assert len(checks) == 8
+    assert checks["passed_v489"].astype(bool).all()
+    assert "layout_row_count" in set(checks["check_id_v489"])
+    assert "final_promotion_absent" in set(checks["check_id_v489"])
+
+    targets = _read_csv("paper4_v489_target_consistency_matrix.csv")
+    assert len(targets) == 4
+    assert int(targets["layout_item_count_v489"].sum()) == 10
+    assert targets["target_consistent_v489"].astype(bool).all()
+    assert not targets["target_ready_for_patch_v489"].astype(bool).any()
+    assert not targets["book_mutation_allowed_v489"].astype(bool).any()
+    assert "results_evidence_cvar" in set(targets["target_block_v489"])
+    assert "discussion_limitations" in set(targets["target_block_v489"])
+
+    blockers = _read_csv("paper4_v489_render_blocker_matrix.csv")
+    assert len(blockers) == 4
+    assert blockers["blocker_open_v489"].astype(bool).all()
+    assert not blockers["resolved_by_v489"].astype(bool).any()
+    assert set(blockers["render_blocker_id_v489"]) == {
+        "manual_patch_approval_present",
+        "captions_final",
+        "quarto_patch_applied",
+        "post_patch_render_passed",
+    }
+
+    safety = _read_csv("paper4_v489_patch_safety_decision.csv")
+    assert len(safety) == 5
+    assert not safety["patch_allowed_v489"].astype(bool).any()
+    assert "keep_layout_as_dry_run" in set(safety["decision_id_v489"])
+    assert "apply_quarto_patch_now" in set(safety["decision_id_v489"])
+    recommended = dict(zip(safety["decision_id_v489"], safety["recommended_v489"], strict=False))
+    assert bool(recommended["keep_layout_as_dry_run"]) is True
+    assert bool(recommended["apply_quarto_patch_now"]) is False
+
+    readiness = _read_csv("paper4_v489_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v489"], readiness["ready_v489"], strict=False)
+    )
+    assert bool(readiness_map["layout_consistency_audit_created"]) is True
+    assert bool(readiness_map["target_consistency_matrix_created"]) is True
+    assert bool(readiness_map["render_blocker_matrix_created"]) is True
+    assert bool(readiness_map["patch_safety_decision_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v489_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v489_layout_consistency_audit_created"]) is True
+    assert bool(claim_map["v489_target_and_render_blockers_mapped"]) is True
+    assert bool(claim_map["v489_patch_safety_decision_created"]) is True
+    assert bool(claim_map["v489_quarto_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v489_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v489 audits Paper 4 layout dry-run consistency."])
+    assert bool(boundary_map["v489 preserves render blockers before any Quarto patch."])
+    assert bool(
+        boundary_map["v489 records a patch safety decision that keeps patching blocked."]
+    )
+    assert bool(boundary_map["v489 makes Paper 4 ready for Quarto patching."]) is False
+    assert bool(boundary_map["v489 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v489 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v489_rows = backlog.loc[backlog["last_wave"].eq("v489")]
+    assert len(v489_rows) == 1
+    backlog_row = v489_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v490_layout_review_decision.md"
+    assert backlog_row["execution_result"] == "layout_consistency_audit_passed_without_book_edit"
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v489_layout_consistency_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Layout Consistency Audit v489" in audit_md
+    assert "does not edit Quarto" in audit_md
+    assert "v489 is an audit only" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v489: Layout Consistency Audit" in living_notebook
+    assert "Consistency check rows:\n  `8`." in living_notebook
+    assert "Passed consistency checks:\n  `8`." in living_notebook
+    assert "Target consistency rows:\n  `4`." in living_notebook
+    assert "Render blocker rows:\n  `4`." in living_notebook
+    assert "Patch safety rows:\n  `5`." in living_notebook
+    assert "Layout audit passed:\n  `True`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
