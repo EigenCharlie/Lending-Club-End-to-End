@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v433_full_repository_pytest_run,True,paper4_v433_pytest_probe_summary.csv,pytest command executed after v432 scripts F841 repair
+v433_full_repository_pytest_passed,True,paper4_v433_pytest_probe_summary.csv,true only when pytest exits 0
+v433_scripts_f841_remains_clear,True,paper4_v433_repository_ruff_snapshot.csv,scripts/repository F841 remains zero after full pytest
+v433_streamlit_and_notebooks_remain_clean,True,paper4_v433_repository_ruff_snapshot.csv,Streamlit and notebook diagnostics remain zero
+v433_repository_ruff_clean,False,paper4_v433_claim_blockers.csv,true only when repository ruff emits zero diagnostics
+v433_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
