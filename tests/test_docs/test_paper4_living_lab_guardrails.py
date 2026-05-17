@@ -51832,6 +51832,106 @@ def test_paper4_v452_manuscript_extraction_scaffold_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v453_methods_results_draft_is_guarded() -> None:
+    status = _read_json("paper4_v453_status.json")
+
+    assert status["phase"] == "v453_methods_results_draft"
+    assert status["schema_version"] == "2026-05-17.453"
+    assert status["prior_manuscript_scaffold_version_v453"] == 452
+    assert status["draft_section_count_v453"] == 5
+    assert status["claim_sentence_count_v453"] == 5
+    assert status["allowed_sentence_count_v453"] == 4
+    assert status["prohibited_sentence_count_v453"] == 1
+    assert status["methods_results_draft_created_v453"] is True
+    assert status["claim_sentence_trace_created_v453"] is True
+    assert status["discussion_limitations_complete_v453"] is False
+    assert status["abstract_conclusion_complete_v453"] is False
+    assert status["complete_manuscript_v453"] is False
+    assert status["external_validation_complete_v453"] is False
+    assert status["working_champion_claim_allowed_v453"] is False
+    assert status["paper1_promotion_allowed_v453"] is False
+    assert status["paper4_working_champion_changed_v453"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v453"] == "paper4_v454_discussion_limitations_draft.md"
+
+    sections = _read_csv("paper4_v453_draft_section_inventory.csv")
+    assert len(sections) == 5
+    assert sections["draft_created_v453"].astype(bool).all()
+    assert {
+        "methods_living_lab_protocol",
+        "methods_validation_gates",
+        "results_post_render_validation",
+        "results_quarto_readiness",
+        "results_claim_boundaries",
+    } == set(sections["section_id_v453"])
+
+    trace = _read_csv("paper4_v453_claim_sentence_trace.csv")
+    assert len(trace) == 5
+    trace_map = dict(zip(trace["sentence_id_v453"], trace["allowed_v453"], strict=False))
+    assert bool(trace_map["methods_wave_protocol"]) is True
+    assert bool(trace_map["results_pytest_ruff"]) is True
+    assert bool(trace_map["results_quarto"]) is True
+    assert bool(trace_map["results_archive"]) is True
+    assert bool(trace_map["prohibited_final"]) is False
+
+    blockers = _read_csv("paper4_v453_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v453"], blockers["blocking_v453"], strict=False))
+    assert bool(blocker_map["discussion_limitations_not_drafted"]) is True
+    assert bool(blocker_map["abstract_conclusion_not_drafted"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v453_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v453_methods_results_draft_created"]) is True
+    assert bool(claim_map["v453_claim_sentence_trace_created"]) is True
+    assert bool(claim_map["v453_discussion_limitations_complete"]) is False
+    assert bool(claim_map["v453_complete_manuscript_or_submission"]) is False
+    assert bool(claim_map["v453_external_validation_complete"]) is False
+    assert bool(claim_map["v453_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v453 drafts Methods/Results prose from validated Paper 4 gates."])
+    assert bool(boundary_map["v453 traces draft sentences to Paper 4 artifacts."])
+    assert (
+        bool(
+            boundary_map[
+                "v453 completes discussion, limitations, abstract, conclusion or submission."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v453 makes Paper 4 final or externally validated."]) is False
+    assert bool(boundary_map["v453 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v453_rows = backlog.loc[backlog["last_wave"].eq("v453")]
+    assert len(v453_rows) == 1
+    backlog_row = v453_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v454_discussion_limitations_draft.md"
+    assert backlog_row["execution_result"] == "methods_results_draft_created_without_finalization"
+
+    draft_md = (PAPER4_ROOT / "notes" / "paper4_v453_methods_results_draft.md").read_text(
+        encoding="utf-8"
+    )
+    assert "## Methods Draft" in draft_md
+    assert "## Results Draft" in draft_md
+    assert "passed 1188 tests" in draft_md
+    assert "They do not support final-paper" in draft_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v453: Methods/Results Draft" in living_notebook
+    assert "Draft sections created:\n  `5`." in living_notebook
+    assert "Traceable claim sentences:\n  `5`." in living_notebook
+    assert "Allowed claim sentences:\n  `4`." in living_notebook
+    assert "Discussion/limitations complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

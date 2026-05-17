@@ -1,0 +1,5 @@
+blocker_id_v453,blocking_v453,evidence_count_v453,required_next_artifact_v453,claim_boundary_v453
+discussion_limitations_not_drafted,True,1,paper4_v454_discussion_limitations_draft.md,Methods/Results draft needs discussion and limitations
+abstract_conclusion_not_drafted,True,1,paper4_v455_abstract_conclusion_draft.md,front/back matter remains pending
+external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

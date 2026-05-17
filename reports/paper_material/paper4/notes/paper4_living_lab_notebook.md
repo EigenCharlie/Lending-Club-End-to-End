@@ -19819,3 +19819,52 @@ Keep v452 in the living notebook. v453 should draft Methods/Results prose
 without final promotion.
 
 <!-- V452_MANUSCRIPT_EXTRACTION_SCAFFOLD_END -->
+
+<!-- V453_METHODS_RESULTS_DRAFT_START -->
+
+## Wave v453: Methods/Results Draft
+
+Generated: 2026-05-17T14:51:55.385385+00:00
+
+### Objective
+
+v453 drafts Methods/Results prose from validated Paper 4 gates and records a
+sentence-to-artifact trace.
+
+### Results
+
+- Draft sections created:
+  `5`.
+- Traceable claim sentences:
+  `5`.
+- Allowed claim sentences:
+  `4`.
+- Methods/Results draft created:
+  `True`.
+- Discussion/limitations complete:
+  `False`.
+- Complete manuscript:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v454_discussion_limitations_draft.md`.
+
+### Interpretation
+
+Methods/Results prose now exists as a traceable draft, but the manuscript is not
+complete. The next needed section is discussion/limitations, especially the
+negative claims around external validation, legal fairness and final promotion.
+
+### Claim Impact
+
+- Allowed: partial Methods/Results draft and sentence-to-artifact trace.
+- Still prohibited: complete manuscript, submission, external validation,
+  champion replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v453 in the living notebook. v454 should draft discussion/limitations
+without final promotion.
+
+<!-- V453_METHODS_RESULTS_DRAFT_END -->
