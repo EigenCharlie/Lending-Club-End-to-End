@@ -1,0 +1,2 @@
+patch_batch_id_v409,diagnostic_count_v409,notebook_count_v409,recommended_next_artifact_v409,mutation_allowed_v409,claim_boundary_v409
+batch_1_b018_fig_show_patch,10,3,paper4_v410_notebook_b018_fig_show_patch.md,False,selection only; fig.show patch deferred to v410

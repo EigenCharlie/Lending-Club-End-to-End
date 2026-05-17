@@ -45400,6 +45400,78 @@ def test_paper4_v408_notebook_b007_loop_var_patch_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v409_notebook_b018_display_review_is_non_mutating() -> None:
+    status = _read_json("paper4_v409_status.json")
+
+    assert status["phase"] == "v409_notebook_b018_display_review"
+    assert status["schema_version"] == "2026-05-17.409"
+    assert status["prior_b007_patch_version_v409"] == 408
+    assert status["global_notebook_diagnostics_v409"] == 17
+    assert status["b018_diagnostics_v409"] == 10
+    assert status["intentional_display_rows_v409"] == 10
+    assert status["patch_plan_rows_v409"] == 1
+    assert status["notebooks_mutated_v409"] is False
+    assert status["notebook_diff_clean_before_v409"] is True
+    assert status["notebook_diff_clean_after_v409"] is True
+    assert status["global_ruff_clean_v409"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v409"] == "paper4_v410_notebook_b018_fig_show_patch.md"
+
+    review = _read_csv("paper4_v409_notebook_b018_display_review.csv")
+    assert len(review) == 10
+    assert set(review["display_semantics_v409"]) == {"intentional_plotly_display_then_export"}
+    assert review["following_statement_v409"].str.startswith("export_figure(").all()
+    assert review["recommended_patch_v409"].str.endswith(".show()").all()
+    assert not review["mutation_allowed_v409"].astype(bool).any()
+
+    patch_plan = _read_csv("paper4_v409_notebook_b018_patch_plan.csv")
+    assert len(patch_plan) == 1
+    row = patch_plan.iloc[0]
+    assert row["patch_batch_id_v409"] == "batch_1_b018_fig_show_patch"
+    assert int(row["diagnostic_count_v409"]) == 10
+    assert int(row["notebook_count_v409"]) == 3
+    assert row["recommended_next_artifact_v409"] == "paper4_v410_notebook_b018_fig_show_patch.md"
+    assert bool(row["mutation_allowed_v409"]) is False
+
+    blockers = _read_csv("paper4_v409_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v409"], blockers["blocking_v409"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v409"], blockers["evidence_count_v409"], strict=False)
+    )
+    assert bool(blocker_map["b018_fig_show_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["b018_fig_show_patch_not_applied_yet"]) == 10
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 17
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v409_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v409_b018_display_review_created"]) is True
+    assert bool(claim_map["v409_fig_show_patch_selected"]) is True
+    assert bool(claim_map["v409_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v409_b018_repaired"]) is False
+    assert bool(claim_map["v409_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v409_working_champion_or_final_promotion"]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v409_rows = backlog.loc[backlog["last_wave"].eq("v409")]
+    assert len(v409_rows) == 1
+    assert v409_rows.iloc[0]["next_artifact"] == "paper4_v410_notebook_b018_fig_show_patch.md"
+    assert (
+        v409_rows.iloc[0]["execution_result"]
+        == "b018_10_display_expressions_reviewed_no_mutation"
+    )
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

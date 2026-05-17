@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v409_b018_display_review_created,True,paper4_v409_notebook_b018_display_review.csv,10 B018 display expressions reviewed
+v409_fig_show_patch_selected,True,paper4_v409_notebook_b018_patch_plan.csv,fig.show patch selected for v410
+v409_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v409
+v409_b018_repaired,False,paper4_v409_claim_blockers.csv,review only
+v409_notebook_or_repo_ruff_clean,False,paper4_v409_claim_blockers.csv,17 notebook diagnostics remain
+v409_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

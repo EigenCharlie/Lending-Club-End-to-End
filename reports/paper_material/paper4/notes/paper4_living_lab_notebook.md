@@ -17473,3 +17473,45 @@ Keep v408 in the living notebook. v409 should review B018 display expressions
 before mutation.
 
 <!-- V408_NOTEBOOK_B007_LOOP_VAR_PATCH_END -->
+
+<!-- V409_NOTEBOOK_B018_DISPLAY_REVIEW_START -->
+
+## Wave v409: Notebook B018 Display Review
+
+Generated: 2026-05-17T09:10:35.786443+00:00
+
+### Objective
+
+v409 reviews the 10 remaining B018 notebook expressions before mutation.
+
+### Results
+
+- B018 diagnostics reviewed:
+  `10`.
+- Intentional display-then-export rows:
+  `10`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v410_notebook_b018_fig_show_patch.md`.
+
+### Interpretation
+
+All B018 rows are plotly figure display expressions immediately followed by
+`export_figure(...)`. v410 can replace the bare figure expressions with explicit
+`fig.show()` calls while preserving display intent.
+
+### Claim Impact
+
+- Allowed: B018 display review and fig.show patch selection.
+- Still prohibited: B018 repaired, notebook lint clean, repository ruff clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v409 in the living notebook. v410 should apply the fig.show patch with
+roundtrip checks.
+
+<!-- V409_NOTEBOOK_B018_DISPLAY_REVIEW_END -->
