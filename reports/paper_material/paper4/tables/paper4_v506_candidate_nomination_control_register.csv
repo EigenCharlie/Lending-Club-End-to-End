@@ -1,0 +1,7 @@
+nomination_control_id_v506,control_active_v506,blocks_assignment_v506,control_result_v506
+no_candidate_identifier_prefill,True,True,candidate identifiers remain blank
+no_candidate_nomination_recorded,True,True,candidate nomination remains absent
+no_eligibility_review_started,True,True,eligibility review remains not started
+no_reviewer_assignment,True,True,reviewer assignment remains absent
+no_outcome_capture,True,False,outcome capture remains blocked
+no_final_promotion,True,False,final promotion artifact remains absent

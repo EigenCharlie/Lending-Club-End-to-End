@@ -58115,6 +58115,168 @@ def test_paper4_v505_reviewer_eligibility_checklist_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v506_reviewer_candidate_nomination_packet_is_guarded() -> None:
+    status = _read_json("paper4_v506_status.json")
+    assert status["phase"] == "v506_reviewer_candidate_nomination_packet"
+    assert status["schema_version"] == "2026-05-17.506"
+    assert status["prior_eligibility_checklist_version_v506"] == 505
+    assert status["reviewer_candidate_nomination_packet_created_v506"] is True
+    assert status["nomination_packet_rows_v506"] == 14
+    assert status["candidate_slot_rows_v506"] == 14
+    assert status["candidate_identifier_prefilled_rows_v506"] == 0
+    assert status["candidate_nomination_recorded_rows_v506"] == 0
+    assert status["nomination_field_rows_v506"] == 84
+    assert status["nomination_field_prefilled_rows_v506"] == 0
+    assert status["domain_summary_rows_v506"] == 2
+    assert status["domains_with_nomination_gap_rows_v506"] == 2
+    assert status["nomination_control_rows_v506"] == 6
+    assert status["active_nomination_control_rows_v506"] == 6
+    assert status["eligibility_review_started_rows_v506"] == 0
+    assert status["reviewer_assigned_rows_v506"] == 0
+    assert status["outcome_capture_allowed_rows_v506"] == 0
+    assert status["patch_allowed_rows_v506"] == 0
+    assert status["readiness_delta_rows_v506"] == 8
+    assert status["candidate_nomination_gap_audit_ready_v506"] is True
+    assert status["ready_for_quarto_patch_v506"] is False
+    assert status["quarto_patch_applied_v506"] is False
+    assert status["book_sources_modified_v506"] is False
+    assert status["book_references_modified_v506"] is False
+    assert status["submission_ready_claim_allowed_v506"] is False
+    assert status["working_champion_claim_allowed_v506"] is False
+    assert status["paper1_promotion_allowed_v506"] is False
+    assert status["paper4_working_champion_changed_v506"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v506"] == "paper4_v507_candidate_nomination_gap_audit.md"
+
+    packet = _read_csv("paper4_v506_reviewer_candidate_nomination_packet.csv")
+    assert len(packet) == 14
+    assert packet["candidate_slot_created_v506"].astype(bool).all()
+    assert not packet["candidate_identifier_prefilled_v506"].astype(bool).any()
+    assert not packet["candidate_nomination_recorded_v506"].astype(bool).any()
+    assert not packet["eligibility_review_started_v506"].astype(bool).any()
+    assert not packet["reviewer_assigned_v506"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v506"].astype(bool).any()
+    assert not packet["patch_allowed_v506"].astype(bool).any()
+
+    fields = _read_csv("paper4_v506_candidate_nomination_field_requirements.csv")
+    assert len(fields) == 84
+    assert fields["field_required_v506"].astype(bool).all()
+    assert not fields["field_prefilled_v506"].astype(bool).any()
+    assert fields["human_entry_required_v506"].astype(bool).all()
+    assert fields.groupby("candidate_nomination_packet_id_v506").size().eq(6).all()
+    assert set(fields["nomination_field_v506"]) == {
+        "candidate_identifier",
+        "candidate_affiliation",
+        "domain_expertise_evidence",
+        "conflict_statement",
+        "availability_window",
+        "claim_boundary_attestation",
+    }
+
+    domain_summary = _read_csv("paper4_v506_domain_candidate_nomination_summary.csv")
+    assert len(domain_summary) == 2
+    summary_map = {row["review_domain_v506"]: row for _, row in domain_summary.iterrows()}
+    assert int(summary_map["layout_surface"]["candidate_slot_rows_v506"]) == 4
+    assert int(summary_map["caption_claim_safety"]["candidate_slot_rows_v506"]) == 10
+    assert domain_summary["domain_nomination_gap_open_v506"].astype(bool).all()
+    assert not domain_summary["candidate_identifier_prefilled_rows_v506"].astype(bool).any()
+    assert not domain_summary["candidate_nomination_recorded_rows_v506"].astype(bool).any()
+    assert not domain_summary["eligibility_review_started_rows_v506"].astype(bool).any()
+
+    controls = _read_csv("paper4_v506_candidate_nomination_control_register.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v506"].astype(bool).all()
+    control_map = dict(
+        zip(
+            controls["nomination_control_id_v506"],
+            controls["blocks_assignment_v506"],
+            strict=False,
+        )
+    )
+    assert bool(control_map["no_candidate_identifier_prefill"])
+    assert bool(control_map["no_candidate_nomination_recorded"])
+    assert bool(control_map["no_eligibility_review_started"])
+    assert bool(control_map["no_reviewer_assignment"])
+    assert bool(control_map["no_outcome_capture"]) is False
+    assert bool(control_map["no_final_promotion"]) is False
+
+    readiness = _read_csv("paper4_v506_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v506"], readiness["ready_v506"], strict=False)
+    )
+    assert bool(readiness_map["reviewer_candidate_nomination_packet_created"])
+    assert bool(readiness_map["nomination_field_requirements_created"])
+    assert bool(readiness_map["domain_nomination_summary_created"])
+    assert bool(readiness_map["candidate_nomination_gap_audit_ready"])
+    assert bool(readiness_map["candidate_identifiers_prefilled"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v506_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v506_candidate_nomination_packet_created"])
+    assert bool(claim_map["v506_nomination_fields_declared"])
+    assert bool(claim_map["v506_candidate_nomination_gap_audit_ready"])
+    assert bool(claim_map["v506_candidates_nominated_or_reviewers_assigned"]) is False
+    assert bool(claim_map["v506_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v506_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v506 creates reviewer candidate nomination slots for Paper 4."]
+    )
+    assert bool(boundary_map["v506 declares required candidate nomination fields."])
+    assert bool(boundary_map["v506 makes candidate nomination gap audit executable next."])
+    assert (
+        bool(boundary_map["v506 nominates candidates, assigns reviewers, or captures outcomes."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v506 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v506 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v506_rows = backlog.loc[backlog["last_wave"].eq("v506")]
+    assert len(v506_rows) == 1
+    backlog_row = v506_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v507_candidate_nomination_gap_audit.md"
+    assert backlog_row["execution_result"] == "candidate_nomination_packet_created_without_candidates"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v506_reviewer_candidate_nomination_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Reviewer Candidate Nomination Packet v506" in packet_md
+    assert "does not prefill\ncandidate identifiers" in packet_md
+    assert "v506 is a candidate nomination packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v506: Reviewer Candidate Nomination Packet" in living_notebook
+    assert "Nomination packet rows:\n  `14`." in living_notebook
+    assert "Candidate slot rows:\n  `14`." in living_notebook
+    assert "Candidate identifier prefilled rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert "Nomination field rows:\n  `84`." in living_notebook
+    assert "Nomination field prefilled rows:\n  `0`." in living_notebook
+    assert "Domain summary rows:\n  `2`." in living_notebook
+    assert "Domains with nomination gaps:\n  `2`." in living_notebook
+    assert "Nomination control rows:\n  `6`." in living_notebook
+    assert "Active nomination control rows:\n  `6`." in living_notebook
+    assert "Eligibility review started rows:\n  `0`." in living_notebook
+    assert "Reviewer assigned rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

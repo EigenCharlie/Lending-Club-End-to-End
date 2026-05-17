@@ -1,0 +1,15 @@
+candidate_nomination_packet_id_v506,priority_v506,review_domain_v506,reviewer_role_required_v506,candidate_slot_created_v506,candidate_identifier_prefilled_v506,candidate_nomination_recorded_v506,eligibility_review_started_v506,reviewer_assigned_v506,outcome_capture_allowed_v506,patch_allowed_v506,claim_boundary_v506
+manual_capture_01,1,layout_surface,layout_surface_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_02,2,layout_surface,layout_surface_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_03,3,layout_surface,layout_surface_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_04,4,layout_surface,layout_surface_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_05,5,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_06,6,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_07,7,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_08,8,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_09,9,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_10,10,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_11,11,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_12,12,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_13,13,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only
+manual_capture_14,14,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,False,False,False,False,candidate nomination packet only

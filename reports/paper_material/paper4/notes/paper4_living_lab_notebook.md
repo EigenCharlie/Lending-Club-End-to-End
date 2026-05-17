@@ -22716,3 +22716,75 @@ Keep v505 in the living notebook. v506 should create a candidate nomination
 packet without nominating actual reviewers or pre-recording outcomes.
 
 <!-- V505_REVIEWER_ELIGIBILITY_CHECKLIST_END -->
+
+<!-- V506_REVIEWER_CANDIDATE_NOMINATION_PACKET_START -->
+
+## Wave v506: Reviewer Candidate Nomination Packet
+
+Generated: 2026-05-17T20:01:13.289670+00:00
+
+### Objective
+
+v506 creates candidate nomination slots and required nomination fields without
+providing actual reviewer candidates or assignments.
+
+### Results
+
+- Nomination packet rows:
+  `14`.
+- Candidate slot rows:
+  `14`.
+- Candidate identifier prefilled rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Nomination field rows:
+  `84`.
+- Nomination field prefilled rows:
+  `0`.
+- Domain summary rows:
+  `2`.
+- Domains with nomination gaps:
+  `2`.
+- Nomination control rows:
+  `6`.
+- Active nomination control rows:
+  `6`.
+- Eligibility review started rows:
+  `0`.
+- Reviewer assigned rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v507_candidate_nomination_gap_audit.md`.
+
+### Interpretation
+
+The reviewer workflow now has nomination slots and required fields. Every
+candidate identifier, nomination, eligibility review, reviewer assignment and
+outcome-capture permission remains absent.
+
+### Claim Impact
+
+- Allowed: candidate nomination packet creation, required field declaration,
+  domain nomination gap summary and future gap audit readiness.
+- Still prohibited: candidate nomination, reviewer assignment, completed review
+  claims, final captions, Quarto patch readiness/application, Quarto/book
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v506 in the living notebook. v507 should audit candidate nomination gaps
+before any real candidate nomination is recorded.
+
+<!-- V506_REVIEWER_CANDIDATE_NOMINATION_PACKET_END -->
