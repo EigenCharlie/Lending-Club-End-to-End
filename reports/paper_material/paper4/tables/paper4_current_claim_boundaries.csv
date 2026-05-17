@@ -1242,3 +1242,7 @@ v399 plans all 15 historical E402 notebook cells.,True,reports/paper_material/pa
 v399 selects a 6-cell local import hoist batch for v400.,True,reports/paper_material/paper4/tables/paper4_v399_notebook_e402_batch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v399 repairs E402 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v399_claim_blockers.csv,No notebook mutation; 119 E402 diagnostics remain.,True,living_notebook_only
 v399 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v399_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v400 applies the 6-cell local E402 import-hoist batch.,True,reports/paper_material/paper4/tables/paper4_v400_notebook_e402_local_import_hoist_actions.csv,Local delayed-import cells only.,False,living_notebook_only
+v400 reduces notebook lint diagnostics from 139 to 132.,True,reports/paper_material/paper4/tables/paper4_v400_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v400 clears E402 or global notebook lint.,False,reports/paper_material/paper4/tables/paper4_v400_claim_blockers.csv,112 E402 and 132 notebook diagnostics remain.,True,living_notebook_only
+v400 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v400_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

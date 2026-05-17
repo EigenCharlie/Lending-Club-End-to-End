@@ -17018,3 +17018,52 @@ Keep v399 in the living notebook. v400 should apply the local delayed-import
 hoist batch with roundtrip checks.
 
 <!-- V399_NOTEBOOK_E402_CELL_REFACTOR_PLAN_END -->
+
+<!-- V400_NOTEBOOK_E402_LOCAL_IMPORT_HOIST_BATCH_START -->
+
+## Wave v400: Notebook E402 Local Import Hoist Batch
+
+Generated: 2026-05-17T08:15:15.317421+00:00
+
+### Objective
+
+v400 applies the v399 first batch: 6 local delayed-import cells, leaving setup
+warning-filter cells untouched.
+
+### Results
+
+- E402 before/after:
+  `119` ->
+  `112`.
+- Global notebook diagnostics before/after:
+  `139` ->
+  `132`.
+- Changed notebook files:
+  `5`.
+- Roundtrip integrity passed:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v401_notebook_e402_setup_warning_refactor_plan.md`.
+
+### Interpretation
+
+The low-risk local delayed-import E402 batch is now closed. The remaining E402
+frontier is concentrated in setup cells where warning-filter order can affect
+import-time warning behavior.
+
+### Claim Impact
+
+- Allowed: local delayed-import E402 hoist batch and roundtrip preservation.
+- Still prohibited: setup warning-filter E402 repaired, notebook lint clean,
+  repository ruff clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v400 in the living notebook. v401 should plan the setup warning-filter
+cells before mutation.
+
+<!-- V400_NOTEBOOK_E402_LOCAL_IMPORT_HOIST_BATCH_END -->
