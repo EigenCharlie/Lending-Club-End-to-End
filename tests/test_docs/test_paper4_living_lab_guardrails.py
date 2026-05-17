@@ -53001,6 +53001,103 @@ def test_paper4_v463_paper_specific_bibliography_plan_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v464_bibliography_subset_dry_run_is_guarded() -> None:
+    status = _read_json("paper4_v464_status.json")
+
+    assert status["phase"] == "v464_bibliography_subset_dry_run"
+    assert status["schema_version"] == "2026-05-17.464"
+    assert status["prior_bibliography_plan_version_v464"] == 463
+    assert status["subset_bib_entry_count_v464"] == 9
+    assert status["entries_with_doi_v464"] == 4
+    assert status["entries_with_url_v464"] == 9
+    assert status["bibliography_subset_dry_run_created_v464"] is True
+    assert status["subset_bib_artifact_v464"] == "paper4_v464_references_subset.bib"
+    assert status["book_references_modified_v464"] is False
+    assert status["final_bibliography_complete_v464"] is False
+    assert status["target_venue_selected_v464"] is False
+    assert status["systematic_literature_review_complete_v464"] is False
+    assert status["working_champion_claim_allowed_v464"] is False
+    assert status["paper1_promotion_allowed_v464"] is False
+    assert status["paper4_working_champion_changed_v464"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v464"] == "paper4_v465_citation_integration_dry_run.md"
+
+    subset_bib = (
+        PAPER4_ROOT / "references" / "paper4_v464_references_subset.bib"
+    ).read_text(encoding="utf-8")
+    assert "This file is not book/references.bib" in subset_bib
+    assert "doi = {nan}" not in subset_bib
+    assert subset_bib.count("@") == 9
+    assert "@article{rockafellar2000optimization" in subset_bib
+    assert "@misc{cfpb2026regulationb" in subset_bib
+
+    inventory = _read_csv("paper4_v464_bib_entry_inventory.csv")
+    assert len(inventory) == 9
+    assert inventory["verified_v464"].astype(bool).all()
+    assert inventory["has_url_v464"].astype(bool).all()
+    assert int(inventory["has_doi_v464"].astype(bool).sum()) == 4
+
+    summary = _read_csv("paper4_v464_bibliography_dry_run_summary.csv")
+    summary_map = dict(zip(summary["summary_metric_v464"], summary["metric_value_v464"], strict=False))
+    assert int(summary_map["subset_bib_entries"]) == 9
+    assert int(summary_map["entries_with_doi"]) == 4
+    assert int(summary_map["entries_with_url"]) == 9
+    assert int(summary_map["book_references_modified"]) == 0
+    assert int(summary_map["final_bibliography_complete"]) == 0
+
+    blockers = _read_csv("paper4_v464_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v464"], blockers["blocking_v464"], strict=False))
+    assert bool(blocker_map["citation_integration_not_dry_run"]) is True
+    assert bool(blocker_map["book_references_not_modified"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["systematic_literature_search_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v464_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v464_bibliography_subset_dry_run_created"]) is True
+    assert bool(claim_map["v464_verified_metadata_preserved"]) is True
+    assert bool(claim_map["v464_book_references_modified_or_final_bib"]) is False
+    assert bool(claim_map["v464_submission_ready_or_venue_style_complete"]) is False
+    assert bool(claim_map["v464_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v464 creates a reports-side Paper 4 bibliography subset dry-run."]
+    )
+    assert bool(boundary_map["v464 preserves verified v381 bibliography metadata."])
+    assert bool(boundary_map["v464 modifies book references or completes final bibliography."]) is False
+    assert bool(boundary_map["v464 makes Paper 4 venue-style compliant or submitted."]) is False
+    assert bool(boundary_map["v464 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v464_rows = backlog.loc[backlog["last_wave"].eq("v464")]
+    assert len(v464_rows) == 1
+    backlog_row = v464_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v465_citation_integration_dry_run.md"
+    assert (
+        backlog_row["execution_result"]
+        == "bibliography_subset_dry_run_created_without_global_edit"
+    )
+
+    dry_run_md = (
+        PAPER4_ROOT / "notes" / "paper4_v464_bibliography_subset_dry_run.md"
+    ).read_text(encoding="utf-8")
+    assert "Bibliography Subset Dry-Run v464" in dry_run_md
+    assert "It does not edit `book/references.bib`" in dry_run_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v464: Bibliography Subset Dry-Run" in living_notebook
+    assert "Subset entries:\n  `9`." in living_notebook
+    assert "Entries with DOI:\n  `4`." in living_notebook
+    assert "Book references modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

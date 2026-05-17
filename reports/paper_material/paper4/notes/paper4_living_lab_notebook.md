@@ -20373,3 +20373,50 @@ Keep v463 in the living notebook. v464 should write a bibliography subset
 dry-run without changing `book/references.bib`.
 
 <!-- V463_PAPER_SPECIFIC_BIBLIOGRAPHY_PLAN_END -->
+
+<!-- V464_BIBLIOGRAPHY_SUBSET_DRY_RUN_START -->
+
+## Wave v464: Bibliography Subset Dry-Run
+
+Generated: 2026-05-17T15:52:17.341989+00:00
+
+### Objective
+
+v464 writes a reports-side Paper 4 bibliography subset from verified v381
+metadata without editing `book/references.bib`.
+
+### Results
+
+- Subset entries:
+  `9`.
+- Entries with DOI:
+  `4`.
+- Entries with URL:
+  `9`.
+- Book references modified:
+  `False`.
+- Final bibliography complete:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v465_citation_integration_dry_run.md`.
+
+### Interpretation
+
+Paper 4 now has a local bibliography subset dry-run, but no global bibliography
+or Quarto source was changed.
+
+### Claim Impact
+
+- Allowed: reports-side subset bibliography dry-run and metadata inventory.
+- Still prohibited: global bibliography mutation, final bibliography, venue
+  style compliance, submission readiness, champion replacement and final
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v464 in the living notebook. v465 should map citation integration without
+promoting Quarto or editing global book references.
+
+<!-- V464_BIBLIOGRAPHY_SUBSET_DRY_RUN_END -->
