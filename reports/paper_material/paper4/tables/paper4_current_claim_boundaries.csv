@@ -1011,3 +1011,8 @@ v347 improves static return and CVaR versus v338.,True,reports/paper_material/pa
 v347 preserves v338 proxy coverage exactly.,False,reports/paper_material/paper4/tables/paper4_v347_claim_blockers.csv,The applied two-swap increases missing proxy rows by one.,True,living_notebook_only
 v347 authorizes a Paper 4 working champion.,False,reports/paper_material/paper4/tables/paper4_v347_claim_blockers.csv,"Post-v347 repricing, global and live gates remain missing.",True,living_notebook_only
 v347 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v347_claim_blockers.csv,No final promotion or deployment gate is created.,True,living_notebook_only
+Paper 4 has a v348 post-v347 one-swap repricing gate.,True,reports/paper_material/paper4/tables/paper4_v348_post_v347_one_swap_summary.csv,One-drop/one-add screen after the v347 candidate.,False,living_notebook_only
+v348 clears post-v347 one-swap local optimality.,True,reports/paper_material/paper4/tables/paper4_v348_claim_blockers.csv,Scope-limited to one-drop/one-add swaps after v347.,False,living_notebook_only
+v348 authorizes a Paper 4 working champion.,False,reports/paper_material/paper4/tables/paper4_v348_claim_blockers.csv,"Proxy, global, dynamic, online and deployment gates remain missing.",True,living_notebook_only
+v348 proves full-universe global integer optimality.,False,reports/paper_material/paper4/tables/paper4_v348_claim_blockers.csv,A one-swap repricing screen is not a full branch-price certificate.,True,living_notebook_only
+v348 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v348_claim_blockers.csv,"No final promotion, dynamic validation or deployment gate is created.",True,living_notebook_only

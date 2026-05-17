@@ -14240,3 +14240,56 @@ Keep v347 in the living notebook. The next wave should reprice the v347
 candidate without promotion.
 
 <!-- V347_V338_APPLY_MULTI_SOURCE_RELIEF_CANDIDATE_END -->
+
+<!-- V348_POST_V347_ONE_SWAP_REPRICE_START -->
+
+## Wave v348: Post-v347 One-Swap Repricing Gate
+
+Generated: 2026-05-17T01:19:34.246468+00:00
+
+### Objective
+
+v347 applied the local two-add/two-drop relief candidate. v348 tests whether
+that candidate still has any one-drop/one-add return-improving move under the
+v347 CVaR cap, exact source caps and the original budget band.
+
+### Results
+
+- Selected rows: `171`.
+- Candidate add rows: `276698`.
+- Pair rows screened: `47315358`.
+- Return-improving pairs: `1452163`.
+- Budget+return feasible pairs:
+  `736165`.
+- Source prefilter pairs: `12356`.
+- Exact source-feasible pairs: `12`.
+- CVaR-feasible improving one-swaps:
+  `0`.
+- Best source-exact return delta: `2.2203513257361465`.
+- Best CVaR-feasible return delta: `not applicable; no CVaR-feasible improving swaps`.
+- Current missing v47 proxy rows:
+  `75`.
+- Post-v347 one-swap local optimality cleared:
+  `True`.
+
+### Interpretation
+
+v348 clears the immediate one-swap repricing gate for the v347 candidate:
+return-improving source-exact swaps still exist, but none preserve the v347 CVaR
+threshold. The evidence is useful, but narrow. The proxy gap, dual-bound and
+live-validation blockers remain open.
+
+### Claim Impact
+
+- Allowed: post-v347 one-swap repricing gate completed and one-swap local
+  optimality cleared within that scope.
+- Still prohibited: full-universe/global optimality, Paper 4 working champion,
+  Paper Estrella replacement, final Paper 4 promotion, contractual IFRS9 and
+  live deployability claims.
+
+### Quarto Promotion Decision
+
+Keep v348 in the living notebook. The next wave should run a proxy/global/dual
+gate without promotion.
+
+<!-- V348_POST_V347_ONE_SWAP_REPRICE_END -->
