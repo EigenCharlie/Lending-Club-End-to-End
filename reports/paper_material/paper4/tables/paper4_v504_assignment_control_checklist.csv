@@ -1,0 +1,7 @@
+assignment_control_id_v504,control_active_v504,blocks_outcome_capture_v504,control_result_v504
+no_reviewer_candidate_prefill,True,True,reviewer candidates remain blank
+no_assignment_signoff,True,True,assignment signoff remains absent
+no_outcome_capture,True,True,outcome capture remains blocked
+no_caption_finalization,True,True,caption finalization remains blocked
+no_patch_approval,True,False,patch approval remains absent
+no_final_promotion,True,False,final promotion artifact remains absent

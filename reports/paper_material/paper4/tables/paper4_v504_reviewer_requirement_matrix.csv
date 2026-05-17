@@ -1,0 +1,5 @@
+requirement_id_v504,review_domain_v504,requirement_declared_v504,requirement_satisfied_v504,required_resolution_v504
+layout_surface_reviewer,layout_surface,True,False,select reviewer for layout surface packet rows
+caption_claim_safety_reviewer,caption_claim_safety,True,False,select reviewer for caption claim-safety rows
+claim_boundary_reviewer,all,True,False,confirm no outcome creates prohibited claims
+conflict_of_interest_check,all,True,False,record conflict check before assignment signoff

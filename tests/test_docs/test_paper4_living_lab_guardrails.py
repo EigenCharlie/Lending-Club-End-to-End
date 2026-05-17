@@ -57787,6 +57787,165 @@ def test_paper4_v503_manual_capture_assignment_gap_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v504_reviewer_assignment_packet_is_guarded() -> None:
+    status = _read_json("paper4_v504_status.json")
+    assert status["phase"] == "v504_reviewer_assignment_packet"
+    assert status["schema_version"] == "2026-05-17.504"
+    assert status["prior_assignment_gap_version_v504"] == 503
+    assert status["reviewer_assignment_packet_created_v504"] is True
+    assert status["assignment_packet_rows_v504"] == 14
+    assert status["reviewer_slot_rows_v504"] == 14
+    assert status["reviewer_candidate_prefilled_rows_v504"] == 0
+    assert status["reviewer_assigned_rows_v504"] == 0
+    assert status["assignment_signoff_recorded_rows_v504"] == 0
+    assert status["requirement_rows_v504"] == 4
+    assert status["requirement_declared_rows_v504"] == 4
+    assert status["requirement_satisfied_rows_v504"] == 0
+    assert status["assignment_control_rows_v504"] == 6
+    assert status["active_assignment_control_rows_v504"] == 6
+    assert status["recommended_next_action_rows_v504"] == 3
+    assert status["outcome_capture_allowed_rows_v504"] == 0
+    assert status["patch_allowed_rows_v504"] == 0
+    assert status["readiness_delta_rows_v504"] == 8
+    assert status["reviewer_eligibility_checklist_ready_v504"] is True
+    assert status["ready_for_quarto_patch_v504"] is False
+    assert status["quarto_patch_applied_v504"] is False
+    assert status["book_sources_modified_v504"] is False
+    assert status["book_references_modified_v504"] is False
+    assert status["submission_ready_claim_allowed_v504"] is False
+    assert status["working_champion_claim_allowed_v504"] is False
+    assert status["paper1_promotion_allowed_v504"] is False
+    assert status["paper4_working_champion_changed_v504"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v504"] == "paper4_v505_reviewer_eligibility_checklist.md"
+
+    packet = _read_csv("paper4_v504_reviewer_assignment_packet.csv")
+    assert len(packet) == 14
+    assert packet["reviewer_slot_created_v504"].astype(bool).all()
+    assert not packet["reviewer_candidate_prefilled_v504"].astype(bool).any()
+    assert not packet["reviewer_assigned_v504"].astype(bool).any()
+    assert not packet["assignment_signoff_recorded_v504"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v504"].astype(bool).any()
+    assert not packet["patch_allowed_v504"].astype(bool).any()
+    assert set(packet["reviewer_role_required_v504"]) == {
+        "layout_surface_reviewer",
+        "caption_claim_safety_reviewer",
+    }
+
+    requirements = _read_csv("paper4_v504_reviewer_requirement_matrix.csv")
+    assert len(requirements) == 4
+    assert requirements["requirement_declared_v504"].astype(bool).all()
+    assert not requirements["requirement_satisfied_v504"].astype(bool).any()
+    assert set(requirements["requirement_id_v504"]) == {
+        "layout_surface_reviewer",
+        "caption_claim_safety_reviewer",
+        "claim_boundary_reviewer",
+        "conflict_of_interest_check",
+    }
+
+    controls = _read_csv("paper4_v504_assignment_control_checklist.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v504"].astype(bool).all()
+    control_map = dict(
+        zip(
+            controls["assignment_control_id_v504"],
+            controls["blocks_outcome_capture_v504"],
+            strict=False,
+        )
+    )
+    assert bool(control_map["no_reviewer_candidate_prefill"])
+    assert bool(control_map["no_assignment_signoff"])
+    assert bool(control_map["no_outcome_capture"])
+    assert bool(control_map["no_caption_finalization"])
+    assert bool(control_map["no_patch_approval"]) is False
+    assert bool(control_map["no_final_promotion"]) is False
+
+    next_actions = _read_csv("paper4_v504_assignment_next_action_queue.csv")
+    assert len(next_actions) == 4
+    assert list(next_actions["priority_v504"]) == [1, 2, 3, 4]
+    assert int(next_actions["recommended_next_v504"].astype(bool).sum()) == 3
+    action_map = dict(
+        zip(
+            next_actions["next_action_id_v504"],
+            next_actions["recommended_next_v504"],
+            strict=False,
+        )
+    )
+    assert bool(action_map["select_reviewer_candidates"])
+    assert bool(action_map["perform_conflict_check"])
+    assert bool(action_map["record_assignment_signoff"])
+    assert bool(action_map["start_outcome_capture_after_assignment"]) is False
+
+    readiness = _read_csv("paper4_v504_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v504"], readiness["ready_v504"], strict=False)
+    )
+    assert bool(readiness_map["reviewer_assignment_packet_created"])
+    assert bool(readiness_map["reviewer_requirement_matrix_created"])
+    assert bool(readiness_map["assignment_control_checklist_created"])
+    assert bool(readiness_map["reviewer_eligibility_checklist_ready"])
+    assert bool(readiness_map["reviewer_candidates_prefilled"]) is False
+    assert bool(readiness_map["reviewers_assigned"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v504_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v504_reviewer_assignment_packet_created"])
+    assert bool(claim_map["v504_reviewer_requirements_declared"])
+    assert bool(claim_map["v504_reviewer_eligibility_checklist_ready"])
+    assert bool(claim_map["v504_reviewers_assigned_or_outcomes_captured"]) is False
+    assert bool(claim_map["v504_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v504_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v504 creates reviewer assignment slots for Paper 4."])
+    assert bool(boundary_map["v504 declares reviewer requirements and assignment controls."])
+    assert bool(boundary_map["v504 makes reviewer eligibility checklist executable next."])
+    assert bool(boundary_map["v504 assigns reviewers or captures review outcomes."]) is False
+    assert (
+        bool(boundary_map["v504 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v504 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v504_rows = backlog.loc[backlog["last_wave"].eq("v504")]
+    assert len(v504_rows) == 1
+    backlog_row = v504_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v505_reviewer_eligibility_checklist.md"
+    assert backlog_row["execution_result"] == "reviewer_assignment_packet_created_without_assignments"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v504_reviewer_assignment_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Reviewer Assignment Packet v504" in packet_md
+    assert "does\nnot prefill reviewer candidates" in packet_md
+    assert "v504 is a reviewer assignment packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v504: Reviewer Assignment Packet" in living_notebook
+    assert "Assignment packet rows:\n  `14`." in living_notebook
+    assert "Reviewer slot rows:\n  `14`." in living_notebook
+    assert "Reviewer candidate prefilled rows:\n  `0`." in living_notebook
+    assert "Reviewer assigned rows:\n  `0`." in living_notebook
+    assert "Assignment signoff rows:\n  `0`." in living_notebook
+    assert "Requirement rows:\n  `4`." in living_notebook
+    assert "Requirement satisfied rows:\n  `0`." in living_notebook
+    assert "Assignment control rows:\n  `6`." in living_notebook
+    assert "Active assignment control rows:\n  `6`." in living_notebook
+    assert "Recommended next action rows:\n  `3`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

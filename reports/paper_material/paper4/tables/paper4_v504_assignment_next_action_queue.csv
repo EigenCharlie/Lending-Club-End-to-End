@@ -1,0 +1,5 @@
+next_action_id_v504,priority_v504,recommended_next_v504,blocks_outcome_capture_v504,claim_boundary_v504
+select_reviewer_candidates,1,True,True,candidate selection next only
+perform_conflict_check,2,True,True,conflict check next only
+record_assignment_signoff,3,True,True,assignment signoff next only
+start_outcome_capture_after_assignment,4,False,False,future outcome capture only after assignment

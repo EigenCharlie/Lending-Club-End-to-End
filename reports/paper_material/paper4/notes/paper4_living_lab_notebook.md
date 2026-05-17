@@ -22582,3 +22582,70 @@ Keep v503 in the living notebook. v504 should create a reviewer assignment
 packet without assigning reviewers or pre-recording outcomes.
 
 <!-- V503_MANUAL_CAPTURE_ASSIGNMENT_GAP_AUDIT_END -->
+
+<!-- V504_REVIEWER_ASSIGNMENT_PACKET_START -->
+
+## Wave v504: Reviewer Assignment Packet
+
+Generated: 2026-05-17T19:48:49.156087+00:00
+
+### Objective
+
+v504 turns the v503 open assignment gaps into reviewer assignment slots and
+declares reviewer requirements without assigning reviewers.
+
+### Results
+
+- Assignment packet rows:
+  `14`.
+- Reviewer slot rows:
+  `14`.
+- Reviewer candidate prefilled rows:
+  `0`.
+- Reviewer assigned rows:
+  `0`.
+- Assignment signoff rows:
+  `0`.
+- Requirement rows:
+  `4`.
+- Requirement satisfied rows:
+  `0`.
+- Assignment control rows:
+  `6`.
+- Active assignment control rows:
+  `6`.
+- Recommended next action rows:
+  `3`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v505_reviewer_eligibility_checklist.md`.
+
+### Interpretation
+
+The reviewer assignment surface is now explicit, but every reviewer candidate,
+assignment and signoff field remains empty. The next executable artifact should
+check eligibility before any assignment is recorded.
+
+### Claim Impact
+
+- Allowed: reviewer assignment packet, requirements declaration, assignment
+  controls and reviewer eligibility checklist readiness.
+- Still prohibited: reviewer assignment, completed review/signoff claims, final
+  captions, Quarto patch readiness/application, Quarto/book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v504 in the living notebook. v505 should create a reviewer eligibility
+checklist without assigning reviewers or pre-recording outcomes.
+
+<!-- V504_REVIEWER_ASSIGNMENT_PACKET_END -->
