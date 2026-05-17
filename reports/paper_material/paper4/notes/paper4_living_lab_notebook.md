@@ -18177,3 +18177,60 @@ Keep v423 in the living notebook. v424 should execute the first targeted
 repository ruff repair batch if diagnostics remain.
 
 <!-- V423_REPOSITORY_RUFF_FRONTIER_AFTER_NOTEBOOK_CLEAN_END -->
+
+<!-- V424_TARGETED_REPO_RUFF_REPAIR_BATCH_START -->
+
+## Wave v424: Targeted Repo Ruff Repair Batch
+
+Generated: 2026-05-17T10:39:04.495343+00:00
+
+### Objective
+
+v424 applies a targeted Streamlit E402 bootstrap exception batch selected by
+v423.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `107` ->
+  `57`.
+- Repository E402 before/after:
+  `50` ->
+  `0`.
+- Streamlit diagnostics before/after:
+  `58` ->
+  `8`.
+- Notebook diagnostics after:
+  `0`.
+- Changed Streamlit files:
+  `4`.
+- Targeted Streamlit page-import tests passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v425_post_streamlit_ruff_repair_pytest_probe.md`.
+
+### Interpretation
+
+The justified Streamlit bootstrap E402 frontier is closed. Repository ruff now
+contracts to scripts/book plus the remaining non-E402 Streamlit hotspot in
+`model_interpretability.py`.
+
+### Claim Impact
+
+- Allowed: targeted Streamlit E402 repair applied, repo ruff count reduced, and
+  targeted page-import tests passed.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v424 in the living notebook. v425 should run the post-repair full pytest
+probe before further lint repair.
+
+<!-- V424_TARGETED_REPO_RUFF_REPAIR_BATCH_END -->

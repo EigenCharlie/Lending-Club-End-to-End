@@ -1,0 +1,2 @@
+test_id_v424,command_v424,exit_code_v424,passed_v424,runtime_seconds_v424,collected_items_v424,summary_line_v424,claim_boundary_v424
+streamlit_page_imports,uv run pytest -q tests/test_streamlit/test_page_imports.py,0,True,4.151,13,============================== 13 passed in 1.01s ==============================,targeted import smoke test only; full pytest deferred

@@ -1,0 +1,5 @@
+action_id_v424,file_path_v424,rule_code_v424,justification_v424,mutation_applied_v424,claim_boundary_v424
+streamlit_e402_bootstrap_noqa_01,streamlit_app/pages/model_interpretability.py,E402,Streamlit page bootstraps repository root before app-local imports,True,file-level E402 exception only; no UI behavior changed
+streamlit_e402_bootstrap_noqa_02,streamlit_app/pages/data_story.py,E402,Streamlit page bootstraps repository root before app-local imports,True,file-level E402 exception only; no UI behavior changed
+streamlit_e402_bootstrap_noqa_03,streamlit_app/pages/portfolio_optimizer.py,E402,Streamlit page bootstraps repository root before app-local imports,True,file-level E402 exception only; no UI behavior changed
+streamlit_e402_bootstrap_noqa_04,streamlit_app/pages/causal_intelligence.py,E402,Streamlit page bootstraps repository root before app-local imports,True,file-level E402 exception only; no UI behavior changed

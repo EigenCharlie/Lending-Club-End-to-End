@@ -46989,6 +46989,174 @@ def test_paper4_v423_repository_ruff_frontier_after_notebook_clean_is_non_mutati
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v424_targeted_repo_ruff_repair_batch_is_guarded() -> None:
+    status = _read_json("paper4_v424_status.json")
+
+    assert status["phase"] == "v424_targeted_repo_ruff_repair_batch"
+    assert status["schema_version"] == "2026-05-17.424"
+    assert status["prior_repository_ruff_frontier_version_v424"] == 423
+    assert status["actions_v424"] == 4
+    assert status["repo_ruff_exit_code_before_v424"] == 1
+    assert status["repo_ruff_exit_code_after_v424"] == 1
+    assert status["repo_ruff_total_before_v424"] == 107
+    assert status["repo_ruff_total_after_v424"] == 57
+    assert status["repo_ruff_total_reduced_v424"] == 50
+    assert status["repo_ruff_e402_before_v424"] == 50
+    assert status["repo_ruff_e402_after_v424"] == 0
+    assert status["repo_ruff_e402_reduced_v424"] == 50
+    assert status["streamlit_diagnostics_before_v424"] == 58
+    assert status["streamlit_diagnostics_after_v424"] == 8
+    assert status["notebook_diagnostics_after_v424"] == 0
+    assert status["changed_streamlit_files_v424"] == 4
+    assert set(status["changed_streamlit_file_list_v424"]) == {
+        "streamlit_app/pages/model_interpretability.py",
+        "streamlit_app/pages/data_story.py",
+        "streamlit_app/pages/portfolio_optimizer.py",
+        "streamlit_app/pages/causal_intelligence.py",
+    }
+    assert (
+        status["targeted_streamlit_page_import_test_command_v424"]
+        == "uv run pytest -q tests/test_streamlit/test_page_imports.py"
+    )
+    assert status["targeted_streamlit_page_import_tests_exit_code_v424"] == 0
+    assert status["targeted_streamlit_page_import_tests_passed_v424"] is True
+    assert "13 passed" in status["targeted_streamlit_page_import_tests_summary_v424"]
+    assert status["repository_ruff_clean_v424"] is False
+    assert status["notebook_ruff_clean_v424"] is True
+    assert status["full_repository_pytest_run_v424"] is False
+    assert status["full_quarto_render_run_v424"] is False
+    assert status["working_champion_claim_allowed_v424"] is False
+    assert status["paper1_promotion_allowed_v424"] is False
+    assert status["paper4_working_champion_changed_v424"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v424"] == "paper4_v425_post_streamlit_ruff_repair_pytest_probe.md"
+
+    actions = _read_csv("paper4_v424_streamlit_e402_actions.csv")
+    assert len(actions) == 4
+    assert set(actions["file_path_v424"]) == set(status["changed_streamlit_file_list_v424"])
+    assert set(actions["rule_code_v424"]) == {"E402"}
+    assert actions["mutation_applied_v424"].astype(bool).all()
+    assert actions["justification_v424"].str.contains("bootstraps repository root").all()
+
+    for relative_path in status["changed_streamlit_file_list_v424"]:
+        text = Path(relative_path).read_text(encoding="utf-8")
+        assert any("# ruff: noqa: E402" in line for line in text.splitlines()[:5])
+
+    delta = _read_csv("paper4_v424_repository_ruff_delta.csv")
+    delta_map = {row["metric_v424"]: row for _, row in delta.iterrows()}
+    assert int(delta_map["repository_total"]["before_v424"]) == 107
+    assert int(delta_map["repository_total"]["after_v424"]) == 57
+    assert int(delta_map["repository_e402"]["before_v424"]) == 50
+    assert int(delta_map["repository_e402"]["after_v424"]) == 0
+    assert int(delta_map["streamlit_app_total"]["after_v424"]) == 8
+    assert int(delta_map["notebook_total"]["after_v424"]) == 0
+    assert int(delta_map["scripts_total"]["after_v424"]) == 47
+    assert int(delta_map["book_total"]["after_v424"]) == 2
+
+    after_diagnostics = _read_csv("paper4_v424_repository_ruff_after_diagnostics.csv")
+    assert len(after_diagnostics) == 57
+    assert "E402" not in set(after_diagnostics["rule_code_v424"])
+    assert "notebook" not in set(after_diagnostics["surface_v424"])
+
+    rules = _read_csv("paper4_v424_repository_ruff_after_rule_frontier.csv")
+    rule_map = {row["rule_code_v424"]: row for _, row in rules.iterrows()}
+    assert int(rule_map["B905"]["diagnostic_count_v424"]) == 14
+    assert int(rule_map["B905"]["fixable_count_v424"]) == 14
+    assert int(rule_map["C408"]["diagnostic_count_v424"]) == 5
+    assert "E402" not in rule_map
+
+    surfaces = _read_csv("paper4_v424_repository_ruff_after_surface_summary.csv")
+    surface_map = {row["surface_v424"]: row for _, row in surfaces.iterrows()}
+    assert int(surface_map["scripts"]["diagnostic_count_v424"]) == 47
+    assert int(surface_map["streamlit_app"]["diagnostic_count_v424"]) == 8
+    assert int(surface_map["book"]["diagnostic_count_v424"]) == 2
+    assert "notebook" not in surface_map
+    assert not surfaces["mutation_allowed_v424"].astype(bool).any()
+
+    test_summary = _read_csv("paper4_v424_streamlit_page_import_test_summary.csv")
+    assert len(test_summary) == 1
+    test_row = test_summary.iloc[0]
+    assert test_row["test_id_v424"] == "streamlit_page_imports"
+    assert int(test_row["exit_code_v424"]) == 0
+    assert bool(test_row["passed_v424"]) is True
+    assert int(test_row["collected_items_v424"]) == 13
+    assert "13 passed" in test_row["summary_line_v424"]
+
+    blockers = _read_csv("paper4_v424_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v424"], blockers["blocking_v424"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v424"], blockers["evidence_count_v424"], strict=False)
+    )
+    assert bool(blocker_map["repository_ruff_frontier_still_open"]) is True
+    assert int(blocker_evidence["repository_ruff_frontier_still_open"]) == 57
+    assert bool(blocker_map["full_repository_pytest_deferred_after_repair"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v424_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v424_streamlit_e402_bootstrap_exception_applied"]) is True
+    assert bool(claim_map["v424_repository_ruff_reduced"]) is True
+    assert bool(claim_map["v424_notebook_lint_remains_clean"]) is True
+    assert bool(claim_map["v424_targeted_streamlit_page_import_tests_passed"]) is True
+    assert bool(claim_map["v424_repository_ruff_clean"]) is False
+    assert bool(claim_map["v424_full_repository_pytest_passed_after_repair"]) is False
+    assert bool(claim_map["v424_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map[
+            "v424 reduces repository ruff diagnostics with a targeted Streamlit E402 batch."
+        ]
+    )
+    assert bool(boundary_map["v424 keeps notebook lint clean after Streamlit repair."])
+    assert bool(boundary_map["v424 passes targeted Streamlit page-import tests after repair."])
+    assert (
+        bool(boundary_map["v424 proves repository ruff clean or full pytest clean after repair."])
+        is False
+    )
+    assert bool(boundary_map["v424 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v424_rows = backlog.loc[backlog["last_wave"].eq("v424")]
+    assert len(v424_rows) == 1
+    backlog_row = v424_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v425_post_streamlit_ruff_repair_pytest_probe.md"
+    assert backlog_row["execution_result"] == "repo_ruff_reduced_107_to_57_streamlit_e402_cleared"
+
+    repair_md = (
+        PAPER4_ROOT / "notes" / "paper4_v424_targeted_repo_ruff_repair_batch.md"
+    ).read_text(encoding="utf-8")
+    assert "Repository diagnostics: `107` ->" in repair_md
+    assert "Repository E402 diagnostics: `50` ->" in repair_md
+    assert "Targeted page-import tests passed: `True`" in repair_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v424: Targeted Repo Ruff Repair Batch" in living_notebook
+    assert "The justified Streamlit bootstrap E402 frontier is closed" in living_notebook
+    assert "Repository ruff clean:\n  `False`" in living_notebook
+    assert "Full repository pytest run:\n  `False`" in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    e402_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "streamlit_app/pages", "--select", "E402"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "All checks passed" in e402_probe.stdout
+    ruff_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "notebooks", "--output-format", "json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(ruff_probe.stdout or "[]") == []
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

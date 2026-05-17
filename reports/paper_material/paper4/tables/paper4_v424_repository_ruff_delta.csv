@@ -1,0 +1,7 @@
+metric_v424,before_v424,after_v424,delta_v424,claim_boundary_v424
+repository_total,107,57,-50,ruff-count delta only; repository ruff still open unless after=0
+repository_e402,50,0,-50,ruff-count delta only; repository ruff still open unless after=0
+streamlit_app_total,58,8,-50,ruff-count delta only; repository ruff still open unless after=0
+notebook_total,0,0,0,ruff-count delta only; repository ruff still open unless after=0
+scripts_total,47,47,0,ruff-count delta only; repository ruff still open unless after=0
+book_total,2,2,0,ruff-count delta only; repository ruff still open unless after=0

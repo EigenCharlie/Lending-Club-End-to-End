@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+# ruff: noqa: E402 - Streamlit pages bootstrap repo root before app-local imports.
 import json
 import sys
 from pathlib import Path
