@@ -16549,3 +16549,56 @@ and the long Paper 4 guardrail file contain smaller targeted cleanup batches.
 Keep v390 in the living notebook. v391 should begin a targeted lint repair batch.
 
 <!-- V390_REPOSITORY_LINT_FRONTIER_END -->
+
+<!-- V391_TARGETED_LINT_REPAIR_BATCH_START -->
+
+## Wave v391: Targeted Lint Repair Batch
+
+Generated: 2026-05-17T07:11:47.033197+00:00
+
+### Objective
+
+v391 repairs the safest lint subset from v390: F841/F541 diagnostics in the
+Paper 4 living-lab guardrail file.
+
+### Results
+
+- Target file:
+  `tests/test_docs/test_paper4_living_lab_guardrails.py`.
+- Target selected lint errors before:
+  `20`.
+- Target selected lint errors after:
+  `0`.
+- Global ruff errors before:
+  `282`.
+- Global ruff errors after:
+  `262`.
+- Global ruff clean:
+  `False`.
+- Full pytest rerun after repair:
+  `False`.
+- Paper 4 guardrail file tests passed:
+  `406`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v392_notebook_lint_policy.md`.
+
+### Interpretation
+
+The long Paper 4 guardrail file is no longer part of the F841/F541 lint blocker.
+The remaining lint frontier is now more clearly a notebook and Streamlit-page
+cleanup problem.
+
+### Claim Impact
+
+- Allowed: targeted lint repair and global diagnostic reduction.
+- Still prohibited: global ruff clean, post-repair full pytest clean, full Quarto
+  render, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v391 in the living notebook. v392 should decide notebook lint policy before
+bulk notebook mutation.
+
+<!-- V391_TARGETED_LINT_REPAIR_BATCH_END -->

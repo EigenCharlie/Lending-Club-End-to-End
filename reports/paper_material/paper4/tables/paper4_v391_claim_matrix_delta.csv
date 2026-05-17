@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v391_targeted_lint_repair_created,True,paper4_v391_targeted_lint_repair_batch.csv,Paper 4 guardrail lint subset only
+v391_paper4_guardrail_f841_f541_clean,True,tests/test_docs/test_paper4_living_lab_guardrails.py,F841/F541 selected rules only
+v391_global_ruff_errors_reduced,True,paper4_v391_lint_delta.csv,282 to 262 diagnostics; still failing
+v391_global_ruff_clean,False,paper4_v391_claim_blockers.csv,262 diagnostics remain
+v391_full_repository_pytest_clean_after_repair,False,paper4_v391_claim_blockers.csv,full pytest not rerun after lint repair
+v391_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

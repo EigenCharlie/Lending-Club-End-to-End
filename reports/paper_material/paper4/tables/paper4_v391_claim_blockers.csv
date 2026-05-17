@@ -1,0 +1,5 @@
+blocker_id_v391,blocking_v391,evidence_count_v391,required_next_artifact_v391,claim_boundary_v391
+global_ruff_not_clean,True,262,paper4_v392_notebook_lint_policy.md,targeted repair reduced errors but global ruff still fails
+notebook_lint_surface_unrepaired,True,180,paper4_v392_notebook_lint_policy.md,notebook import/cell hygiene remains dominant
+full_repository_pytest_not_rerun_after_lint_repair,True,1,paper4_v393_post_lint_pytest_refresh.md,"v391 validates target tests, not full pytest"
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

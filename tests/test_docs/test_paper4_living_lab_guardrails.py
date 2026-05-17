@@ -352,7 +352,7 @@ def test_paper4_v2_does_not_promote_and_declares_exact_scope() -> None:
 
 
 def test_paper4_v2_quarto_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_claim_artifact_test_matrix.csv")
 
     expected_pages = {
@@ -502,7 +502,7 @@ def test_paper4_next_wave_no_promotion_and_full_exact_scope() -> None:
 
 
 def test_paper4_next_wave_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_next_wave_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -657,7 +657,7 @@ def test_paper4_v3_no_promotion_and_scope() -> None:
 
 
 def test_paper4_v3_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v3_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -822,7 +822,7 @@ def test_paper4_v4_keeps_paper1_frozen_and_uses_working_champion_scope() -> None
 
 
 def test_paper4_v4_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v4_claim_artifact_matrix.csv")
     manifest = _read_csv("paper4_table0_source_manifest.csv")
 
@@ -981,7 +981,7 @@ def test_paper4_v5_keeps_paper1_frozen_and_documents_blockers() -> None:
 
 
 def test_paper4_v5_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v5_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -1123,7 +1123,7 @@ def test_paper4_v6_no_promotion_and_documents_oracle_boundary() -> None:
 
 
 def test_paper4_v6_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v6_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -1308,7 +1308,7 @@ def test_paper4_v7_no_promotion_and_documents_efficiency_blocker() -> None:
 
 
 def test_paper4_v7_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v7_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -1503,7 +1503,7 @@ def test_paper4_v8_no_promotion_and_blockers_are_explicit() -> None:
 
 
 def test_paper4_v8_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v8_claim_artifact_matrix.csv")
 
     expected_pages = {
@@ -1554,7 +1554,7 @@ def test_paper4_v9_online_goal_resolution() -> None:
 
 
 def test_paper4_v9_page_is_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     page = "19av-v9-online-goal-resolution.qmd"
     assert (BOOK_DIR / "chapters/19-paper-mega-extension" / page).exists()
     assert page in CURATED_PAPER4_PAGES or page not in set(_registered_paper4_pages())
@@ -1704,7 +1704,7 @@ def test_paper4_v10_resolution_wave_artifacts_and_guardrails() -> None:
 
 
 def test_paper4_v10_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v10_claim_artifact_matrix.csv")
     expected_pages = {
         "19aw-v10-online-selector-mdcp.qmd",
@@ -1835,7 +1835,7 @@ def test_paper4_v11_promising_lanes_artifacts_and_guardrails() -> None:
 
 
 def test_paper4_v11_page_is_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v11_claim_artifact_matrix.csv")
     page = "19az-v11-promising-lanes.qmd"
     assert (BOOK_DIR / "chapters/19-paper-mega-extension" / page).exists()
@@ -2015,7 +2015,7 @@ def test_paper4_v12_resolution_wave_artifacts_and_guardrails() -> None:
 
 
 def test_paper4_v12_page_is_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v12_claim_artifact_matrix.csv")
     page = "19ba-v12-resolution-wave.qmd"
     assert (BOOK_DIR / "chapters/19-paper-mega-extension" / page).exists()
@@ -2238,7 +2238,7 @@ def test_paper4_v13_resolution_wave_artifacts_and_guardrails() -> None:
 
 
 def test_paper4_v13_page_is_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v13_claim_artifact_matrix.csv")
     page = "19bb-v13-resolution-wave.qmd"
     assert (BOOK_DIR / "chapters/19-paper-mega-extension" / page).exists()
@@ -2449,7 +2449,7 @@ def test_paper4_v14_powell_framing_artifacts_and_guardrails() -> None:
 
 
 def test_paper4_v14_page_is_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     claims = _read_csv("paper4_v14_claim_artifact_matrix.csv")
     page = "19bc-v14-powell-framing-audit.qmd"
     assert (BOOK_DIR / "chapters/19-paper-mega-extension" / page).exists()
@@ -2616,7 +2616,7 @@ def test_paper4_v18_academic_synthesis_and_working_champion_only() -> None:
 
 
 def test_paper4_v15_v18_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     for page in [
         "19bd-v15-dynamic-stress-engine.qmd",
         "19be-v16-cvar-spo-champion-decomposition.qmd",
@@ -2804,7 +2804,7 @@ def test_paper4_v22_synthesis_and_working_champion_only() -> None:
 
 
 def test_paper4_v19_v22_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     for page in [
         "19bh-v19-dynamic-engine-v2.qmd",
         "19bi-v20-dla-cvar-spo-resolution.qmd",
@@ -2958,7 +2958,7 @@ def test_paper4_v26_registry_docs_synthesis_and_working_champion_only() -> None:
 
 
 def test_paper4_v23_v26_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     for page in [
         "19bl-v23-dynamic-scale-paths.qmd",
         "19bm-v24-dla-cvar-spo-upgrade.qmd",
@@ -3087,7 +3087,7 @@ def test_paper4_v30_registry_docs_synthesis_and_working_champion_only() -> None:
 
 
 def test_paper4_v27_v30_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     for page in [
         "19bp-v27-dynamic-scale-and-champion-stress.qmd",
         "19bq-v28-cvar-dla-spo-upgrade.qmd",
@@ -3151,7 +3151,7 @@ def test_paper4_v31_v38_full_project_wave_artifacts_exist() -> None:
 
 
 def test_paper4_v31_v38_pages_are_registered() -> None:
-    config = (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
+    (BOOK_DIR / "_quarto.yml").read_text(encoding="utf-8")
     for page in [
         "19bt-v31-dynamic-512-stress.qmd",
         "19bu-v32-spo-environment-oracle.qmd",
@@ -32937,7 +32937,7 @@ def test_paper4_v318_dynamic_proxy_after_v316_blocks_promotion() -> None:
     trace = pd.read_parquet(TABLE_DIR / "paper4_v318_dynamic_proxy_trace.parquet")
     assert len(trace) == 768
     assert trace["policy_id"].nunique() == 2
-    assert trace.groupby("policy_id")[f"period_v318"].nunique().eq(3).all()
+    assert trace.groupby("policy_id")["period_v318"].nunique().eq(3).all()
     assert trace.groupby(["policy_id", "period_v318"])["scenario_id_v318"].nunique().eq(128).all()
 
     coverage = _read_csv("paper4_v318_proxy_coverage_comparison.csv")
@@ -43244,6 +43244,110 @@ def test_paper4_v390_repository_lint_frontier_classifies_ruff_blockers() -> None
     assert "Ruff total diagnostics:\n  `282`" in notebook
     assert "Global ruff clean:\n  `False`" in notebook
     assert "Full pytest clean inherited from v389:\n  `True`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
+def test_paper4_v391_targeted_lint_repair_batch_reduces_guardrail_lint() -> None:
+    status = _read_json("paper4_v391_status.json")
+
+    assert status["phase"] == "v391_targeted_lint_repair_batch"
+    assert status["schema_version"] == "2026-05-17.391"
+    assert status["prior_lint_frontier_version_v391"] == 390
+    assert status["repair_action_rows_v391"] == 3
+    assert status["lint_delta_rows_v391"] == 5
+    assert status["claim_blocker_rows_v391"] == 4
+    assert status["claim_matrix_rows_v391"] == 6
+    assert status["target_file_v391"] == "tests/test_docs/test_paper4_living_lab_guardrails.py"
+    assert status["target_file_selected_lint_errors_before_v391"] == 20
+    assert status["target_file_selected_lint_errors_after_v391"] == 0
+    assert status["target_file_errors_reduced_v391"] == 20
+    assert status["global_ruff_errors_before_v391"] == 282
+    assert status["global_ruff_errors_after_v391"] == 262
+    assert status["global_ruff_errors_reduced_v391"] == 20
+    assert status["global_ruff_fixable_before_v391"] == 88
+    assert status["global_ruff_fixable_after_v391"] == 68
+    assert status["global_ruff_clean_v391"] is False
+    assert status["paper4_guardrail_file_lint_clean_for_selected_rules_v391"] is True
+    assert status["paper4_guardrail_file_test_command_v391"] == (
+        "uv run pytest -q tests/test_docs/test_paper4_living_lab_guardrails.py"
+    )
+    assert status["paper4_guardrail_file_tests_passed_v391"] == 406
+    assert status["paper4_guardrail_file_test_runtime_seconds_v391"] == pytest.approx(101.22)
+    assert status["full_repository_pytest_rerun_after_repair_v391"] is False
+    assert status["full_repository_pytest_clean_after_repair_v391"] is False
+    assert status["full_quarto_render_run_v391"] is False
+    assert status["full_quarto_render_clean_v391"] is False
+    assert status["working_champion_claim_allowed_v391"] is False
+    assert status["paper1_promotion_allowed_v391"] is False
+    assert status["paper4_working_champion_changed_v391"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v391"] == "paper4_v392_notebook_lint_policy.md"
+
+    repairs = _read_csv("paper4_v391_targeted_lint_repair_batch.csv")
+    assert len(repairs) == 3
+    repair_map = dict(zip(repairs["repair_id_v391"], repairs["errors_reduced_v391"], strict=False))
+    assert int(repair_map["paper4_guardrail_f541_fix"]) == 1
+    assert int(repair_map["paper4_guardrail_f841_config_reads"]) == 19
+    assert int(repair_map["paper4_guardrail_targeted_lint_check"]) == 20
+
+    delta = _read_csv("paper4_v391_lint_delta.csv")
+    delta_map = {row["metric_v391"]: row for _, row in delta.iterrows()}
+    assert int(delta_map["global_ruff_total_errors"]["before_v391"]) == 282
+    assert int(delta_map["global_ruff_total_errors"]["after_v391"]) == 262
+    assert int(delta_map["paper4_guardrail_file_errors"]["after_v391"]) == 0
+    assert int(delta_map["f841_unused_local_errors"]["delta_v391"]) == -19
+    assert int(delta_map["f541_fstring_without_placeholder_errors"]["delta_v391"]) == -1
+
+    blockers = _read_csv("paper4_v391_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v391"], blockers["blocking_v391"], strict=False))
+    assert bool(blocker_map["global_ruff_not_clean"]) is True
+    assert bool(blocker_map["notebook_lint_surface_unrepaired"]) is True
+    assert bool(blocker_map["full_repository_pytest_not_rerun_after_lint_repair"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v391_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v391_targeted_lint_repair_created"]) is True
+    assert bool(claim_map["v391_paper4_guardrail_f841_f541_clean"]) is True
+    assert bool(claim_map["v391_global_ruff_errors_reduced"]) is True
+    assert bool(claim_map["v391_global_ruff_clean"]) is False
+    assert bool(claim_map["v391_full_repository_pytest_clean_after_repair"]) is False
+    assert bool(claim_map["v391_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v391 cleans the Paper 4 guardrail file for F841/F541 lint."])
+    assert bool(boundary_map["v391 reduces global ruff diagnostics from 282 to 262."])
+    assert (
+        bool(boundary_map["v391 proves global ruff or post-repair full pytest is clean."])
+        is False
+    )
+    assert bool(boundary_map["v391 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v391_rows = backlog.loc[backlog["last_wave"].eq("v391")]
+    assert len(v391_rows) == 1
+    backlog_row = v391_rows.iloc[0]
+    assert backlog_row["status"] == "targeted_paper4_guardrail_lint_repair_created"
+    assert backlog_row["next_artifact"] == "paper4_v392_notebook_lint_policy.md"
+    assert backlog_row["execution_result"] == "ruff_global_reduced_282_to_262_target_file_clean"
+
+    repair_md = (
+        PAPER4_ROOT / "notes" / "paper4_v391_targeted_lint_repair_batch.md"
+    ).read_text(encoding="utf-8")
+    assert "282` ->\n  `262" in repair_md
+    assert "does not claim global ruff cleanliness" in repair_md
+    assert "paper4_v392_notebook_lint_policy.md" in repair_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v391: Targeted Lint Repair Batch" in notebook
+    assert "Global ruff errors after:\n  `262`" in notebook
+    assert "Global ruff clean:\n  `False`" in notebook
+    assert "Paper 4 guardrail file tests passed:\n  `406`" in notebook
+    assert "Full pytest rerun after repair:\n  `False`" in notebook
     assert "Final promotion created:\n  `False`" in notebook
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
