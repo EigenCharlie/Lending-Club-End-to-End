@@ -18576,3 +18576,62 @@ Keep v430 in the living notebook. v431 should run the post-scripts-B007-repair
 full pytest probe.
 
 <!-- V430_SCRIPTS_B007_LOOP_VARIABLE_REPAIR_BATCH_END -->
+
+<!-- V431_POST_SCRIPTS_B007_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v431: Post-Scripts-B007-Repair Pytest Probe
+
+Generated: 2026-05-17T11:32:50.063223+00:00
+
+### Objective
+
+v431 runs full repository pytest after v430's targeted scripts B007 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1169`.
+- Pytest summary:
+  `=========== 1169 passed, 2 skipped, 13 warnings in 99.63s (0:01:39) ============`.
+- Repository ruff diagnostics:
+  `30`.
+- Repository B007 diagnostics:
+  `0`.
+- Streamlit diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Top remaining rule:
+  `F841` (`7`).
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v432_scripts_f841_unused_variable_repair_batch.md`.
+
+### Interpretation
+
+The scripts B007 repair survives full repository pytest. F841 is now tied with
+B023 by count, but F841 is fully fixable and therefore the next executable
+batch.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after scripts B007 repair; B007,
+  Streamlit and notebook lint remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v431 in the living notebook. v432 should apply the targeted scripts F841
+unused-variable repair batch.
+
+<!-- V431_POST_SCRIPTS_B007_REPAIR_PYTEST_PROBE_END -->

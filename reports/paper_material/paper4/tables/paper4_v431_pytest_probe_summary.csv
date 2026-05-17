@@ -1,0 +1,2 @@
+probe_id_v431,command_v431,exit_code_v431,passed_v431,runtime_seconds_v431,collected_items_v431,summary_line_v431,claim_boundary_v431
+full_repository_pytest,uv run pytest -q --tb=short,0,True,110.208,1169,"=========== 1169 passed, 2 skipped, 13 warnings in 99.63s (0:01:39) ============",post-v430 scripts B007 repair full pytest probe
