@@ -1460,3 +1460,8 @@ v446 makes repository ruff clean after B023 repair.,True,reports/paper_material/
 v446 changed scripts compile after B023 repair.,True,reports/paper_material/paper4/tables/paper4_v446_pycompile_summary.csv,py_compile only; full pytest deferred.,False,living_notebook_only
 v446 proves full pytest or Quarto render cleanliness.,False,reports/paper_material/paper4/tables/paper4_v446_claim_blockers.csv,Full pytest and Quarto render are deferred to later waves.,True,living_notebook_only
 v446 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v446_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v447 runs full repository pytest after scripts B023 repair.,True,reports/paper_material/paper4/tables/paper4_v447_pytest_probe_summary.csv,Execution evidence only.,False,living_notebook_only
+v447 full repository pytest passes after scripts B023 repair.,True,reports/paper_material/paper4/tables/paper4_v447_pytest_probe_summary.csv,Allowed only if pytest exit code is 0.,False,living_notebook_only
+v447 keeps B023 and prior automated lint channels clean after pytest.,True,reports/paper_material/paper4/tables/paper4_v447_repository_ruff_snapshot.csv,Repository ruff is clean; Quarto render remains separate.,False,living_notebook_only
+v447 proves Quarto render cleanliness.,False,reports/paper_material/paper4/tables/paper4_v447_claim_blockers.csv,Quarto render is deferred to v448.,True,living_notebook_only
+v447 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v447_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

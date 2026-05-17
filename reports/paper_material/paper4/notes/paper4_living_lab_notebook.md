@@ -19494,3 +19494,62 @@ Keep v446 in the living notebook. v447 should run the post-B023-repair full
 pytest probe.
 
 <!-- V446_SCRIPTS_B023_LOOP_BINDING_MANUAL_REPAIR_BATCH_END -->
+
+<!-- V447_POST_SCRIPTS_B023_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v447: Post-Scripts-B023-Repair Pytest Probe
+
+Generated: 2026-05-17T13:55:59.188153+00:00
+
+### Objective
+
+v447 runs full repository pytest after v446's manual scripts B023 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1185`.
+- Pytest summary:
+  `=========== 1185 passed, 2 skipped, 13 warnings in 206.74s (0:03:26) ===========`.
+- Repository ruff diagnostics:
+  `0`.
+- Repository B023 diagnostics:
+  `0`.
+- Streamlit diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Book diagnostics:
+  `0`.
+- Remaining Ruff frontier:
+  `NONE`.
+- Repository ruff clean:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v448_quarto_render_probe.md`.
+
+### Interpretation
+
+The manual B023 repair survives full repository pytest, and repository Ruff
+remains clean. The next gate is an explicit Quarto render probe.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after manual B023 repair; repository
+  ruff remains clean.
+- Still prohibited: Quarto render clean, champion replacement and final
+  promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v447 in the living notebook. v448 should run the Quarto render probe.
+
+<!-- V447_POST_SCRIPTS_B023_REPAIR_PYTEST_PROBE_END -->

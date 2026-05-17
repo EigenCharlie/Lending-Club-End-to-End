@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v447_full_repository_pytest_run,True,paper4_v447_pytest_probe_summary.csv,pytest command executed after v446 manual B023 repair
+v447_full_repository_pytest_passed,True,paper4_v447_pytest_probe_summary.csv,true only when pytest exits 0
+v447_b023_remains_clear,True,paper4_v447_repository_ruff_snapshot.csv,repository B023 remains zero after full pytest
+v447_prior_lint_channels_remain_clean,True,paper4_v447_repository_ruff_snapshot.csv,previously cleared lint channels remain zero
+v447_repository_ruff_clean,True,paper4_v447_repository_ruff_snapshot.csv,true only when repository ruff emits zero diagnostics
+v447_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
