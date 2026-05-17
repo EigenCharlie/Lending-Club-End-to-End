@@ -1,0 +1,7 @@
+sentence_id_v461,allowed_v461,citation_keys_v461,sentence_v461,claim_boundary_v461
+conformal_context,True,vovk2005algorithmic;romano2019conformalized;gibbs2021adaptive;angelopoulos2024conformal,"Paper 4 should position conformal prediction as the uncertainty language around the living-lab protocol, while separating static interval use from online or risk-control extensions.",bounded related-work context
+risk_optimization_context,True,rockafellar2000optimization;rockafellar2002conditional,CVaR and general loss-distribution references can support the tail-risk and scenario-loss vocabulary without proving global optimality for Paper 4.,risk-measure context only
+pto_boundary,True,elmachtoub2021smart,"Predict-then-optimize work should be cited as a boundary: Paper 4 is auditable pipeline evidence, not differentiable SPO training.",method boundary only
+regulatory_caveat,True,ifrs2026ifrs9;cfpb2026regulationb,"IFRS 9 and Regulation B can frame accounting and fairness limits, but cannot be used to claim contractual compliance or legal certification.",regulatory context only
+gap_disclosure,True,paper4_v460_citation_gap_register.csv,"The related-work section must state that recent credit-portfolio literature, venue style, and paper-specific bibliography work remain open.",gap disclosure only
+prohibited_complete_review,False,NONE,Paper 4 has completed a systematic literature review and final bibliography.,systematic-review and final-bibliography claims blocked

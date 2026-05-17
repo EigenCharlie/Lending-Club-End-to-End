@@ -52690,6 +52690,112 @@ def test_paper4_v460_related_work_citation_gap_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v461_bounded_related_work_draft_is_guarded() -> None:
+    status = _read_json("paper4_v461_status.json")
+
+    assert status["phase"] == "v461_bounded_related_work_draft"
+    assert status["schema_version"] == "2026-05-17.461"
+    assert status["prior_citation_gap_audit_version_v461"] == 460
+    assert status["paragraph_plan_rows_v461"] == 5
+    assert status["citation_sentence_trace_rows_v461"] == 6
+    assert status["allowed_citation_sentence_count_v461"] == 5
+    assert status["prohibited_citation_sentence_count_v461"] == 1
+    assert status["verified_anchor_count_from_v460"] == 9
+    assert status["bounded_related_work_draft_created_v461"] is True
+    assert status["citation_sentence_trace_created_v461"] is True
+    assert status["new_external_sources_added_v461"] is False
+    assert status["references_bib_modified_v461"] is False
+    assert status["systematic_literature_review_complete_v461"] is False
+    assert status["bibliography_complete_v461"] is False
+    assert status["target_venue_selected_v461"] is False
+    assert status["external_validation_complete_v461"] is False
+    assert status["working_champion_claim_allowed_v461"] is False
+    assert status["paper1_promotion_allowed_v461"] is False
+    assert status["paper4_working_champion_changed_v461"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v461"] == "paper4_v462_manuscript_readiness_delta.md"
+
+    paragraphs = _read_csv("paper4_v461_related_work_paragraph_plan.csv")
+    assert len(paragraphs) == 5
+    assert paragraphs["allowed_v461"].astype(bool).all()
+    assert {
+        "conformal_foundations",
+        "risk_optimization_foundations",
+        "predict_then_optimize_boundary",
+        "regulatory_context_boundaries",
+        "open_gap_caveat",
+    } == set(paragraphs["paragraph_id_v461"])
+
+    trace = _read_csv("paper4_v461_citation_sentence_trace.csv")
+    assert len(trace) == 6
+    trace_map = dict(zip(trace["sentence_id_v461"], trace["allowed_v461"], strict=False))
+    assert bool(trace_map["conformal_context"]) is True
+    assert bool(trace_map["risk_optimization_context"]) is True
+    assert bool(trace_map["pto_boundary"]) is True
+    assert bool(trace_map["regulatory_caveat"]) is True
+    assert bool(trace_map["gap_disclosure"]) is True
+    assert bool(trace_map["prohibited_complete_review"]) is False
+
+    blockers = _read_csv("paper4_v461_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v461"], blockers["blocking_v461"], strict=False))
+    assert bool(blocker_map["systematic_literature_search_not_run"]) is True
+    assert bool(blocker_map["paper_specific_bibliography_not_curated"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["manuscript_readiness_delta_not_synthesized"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v461_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v461_bounded_related_work_draft_created"]) is True
+    assert bool(claim_map["v461_citation_sentence_trace_created"]) is True
+    assert bool(claim_map["v461_verified_anchor_only_policy_preserved"]) is True
+    assert bool(claim_map["v461_systematic_review_or_final_bibliography"]) is False
+    assert bool(claim_map["v461_submission_ready_or_externally_validated"]) is False
+    assert bool(claim_map["v461_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v461 drafts bounded related-work prose from verified anchors."])
+    assert bool(boundary_map["v461 traces related-work sentences to citation anchors."])
+    assert (
+        bool(boundary_map["v461 completes systematic literature review or final bibliography."])
+        is False
+    )
+    assert bool(boundary_map["v461 makes Paper 4 submitted, externally validated, or final."]) is False
+    assert bool(boundary_map["v461 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v461_rows = backlog.loc[backlog["last_wave"].eq("v461")]
+    assert len(v461_rows) == 1
+    backlog_row = v461_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v462_manuscript_readiness_delta.md"
+    assert (
+        backlog_row["execution_result"]
+        == "bounded_related_work_draft_created_without_finalization"
+    )
+
+    draft_md = (
+        PAPER4_ROOT / "notes" / "paper4_v461_bounded_related_work_draft.md"
+    ).read_text(encoding="utf-8")
+    assert "Bounded Related-Work Draft v461" in draft_md
+    assert "Paper 4 is not a\ndifferentiable SPO training result" in draft_md
+    assert "does not create new citations" in draft_md
+    assert "promote\nPaper 4 as final" in draft_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v461: Bounded Related-Work Draft" in living_notebook
+    assert "Paragraph plan rows:\n  `5`." in living_notebook
+    assert "Citation sentence trace rows:\n  `6`." in living_notebook
+    assert "Allowed citation sentences:\n  `5`." in living_notebook
+    assert "Prohibited citation sentences:\n  `1`." in living_notebook
+    assert "Verified anchors reused:\n  `9`." in living_notebook
+    assert "Systematic literature review complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

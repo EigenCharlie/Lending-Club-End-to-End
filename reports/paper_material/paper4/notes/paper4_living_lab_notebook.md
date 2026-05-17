@@ -20225,3 +20225,54 @@ Keep v460 in the living notebook. v461 should draft bounded related work from
 verified anchors while naming the open gaps.
 
 <!-- V460_RELATED_WORK_CITATION_GAP_AUDIT_END -->
+
+<!-- V461_BOUNDED_RELATED_WORK_DRAFT_START -->
+
+## Wave v461: Bounded Related-Work Draft
+
+Generated: 2026-05-17T15:37:51.038414+00:00
+
+### Objective
+
+v461 drafts bounded related-work prose from verified v381 anchors and the v460
+citation gap audit.
+
+### Results
+
+- Paragraph plan rows:
+  `5`.
+- Citation sentence trace rows:
+  `6`.
+- Allowed citation sentences:
+  `5`.
+- Prohibited citation sentences:
+  `1`.
+- Verified anchors reused:
+  `9`.
+- New external sources added:
+  `False`.
+- Systematic literature review complete:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v462_manuscript_readiness_delta.md`.
+
+### Interpretation
+
+The related-work prose can now be drafted in a bounded way, but it remains
+explicitly short of a systematic review or final bibliography.
+
+### Claim Impact
+
+- Allowed: bounded related-work draft and citation sentence trace.
+- Still prohibited: systematic review, final bibliography, venue compliance,
+  submission readiness, external validation, champion replacement and final
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v461 in the living notebook. v462 should synthesize the manuscript
+readiness delta after adding related-work prose.
+
+<!-- V461_BOUNDED_RELATED_WORK_DRAFT_END -->
