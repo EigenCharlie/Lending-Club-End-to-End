@@ -1,0 +1,7 @@
+dispatch_evidence_requirement_id_v523,requirement_active_v523,dispatch_evidence_required_v523,dispatch_evidence_received_v523,required_evidence_v523
+dispatch_delivery_trace,True,True,False,externally verifiable dispatch delivery trace
+dispatch_timestamp,True,True,False,timestamp for manual owner request delivery
+dispatch_recipient_owner,True,True,False,manual owner recipient or ownership evidence
+request_payload_snapshot,True,True,False,snapshot or checksum of the dispatched request payload
+manual_owner_acknowledgement,True,True,False,manual owner acknowledgement or response trace
+chain_of_custody_note,True,True,False,chain-of-custody note for dispatch evidence

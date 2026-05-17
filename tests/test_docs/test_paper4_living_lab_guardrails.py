@@ -61201,6 +61201,262 @@ def test_paper4_v522_manual_owner_dispatch_followup_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v523_dispatch_evidence_request_packet_is_guarded() -> None:
+    status = _read_json("paper4_v523_status.json")
+    assert status["phase"] == "v523_dispatch_evidence_request_packet"
+    assert status["schema_version"] == "2026-05-17.523"
+    assert status["prior_dispatch_followup_audit_version_v523"] == 522
+    assert status["dispatch_evidence_request_packet_created_v523"] is True
+    assert status["dispatch_evidence_request_rows_v523"] == 14
+    assert status["dispatch_delivery_trace_request_rows_v523"] == 14
+    assert status["dispatch_timestamp_request_rows_v523"] == 14
+    assert status["dispatch_recipient_ack_request_rows_v523"] == 14
+    assert status["external_dispatch_recorded_rows_v523"] == 0
+    assert status["dispatch_evidence_received_rows_v523"] == 0
+    assert status["human_response_received_rows_v523"] == 0
+    assert status["candidate_identifier_received_rows_v523"] == 0
+    assert status["nomination_fields_received_rows_v523"] == 0
+    assert status["nomination_signoff_received_rows_v523"] == 0
+    assert status["evidence_received_rows_v523"] == 0
+    assert status["candidate_input_collection_closed_rows_v523"] == 0
+    assert status["candidate_nomination_recorded_rows_v523"] == 0
+    assert status["field_evidence_dispatch_request_rows_v523"] == 84
+    assert status["field_dispatch_evidence_request_created_rows_v523"] == 84
+    assert status["field_value_received_rows_v523"] == 0
+    assert status["field_evidence_received_rows_v523"] == 0
+    assert status["open_field_evidence_dispatch_request_gap_rows_v523"] == 84
+    assert status["dispatch_evidence_requirement_rows_v523"] == 6
+    assert status["active_dispatch_evidence_requirement_rows_v523"] == 6
+    assert status["dispatch_evidence_requirement_received_rows_v523"] == 0
+    assert status["dispatch_evidence_request_control_rows_v523"] == 6
+    assert status["active_dispatch_evidence_request_control_rows_v523"] == 6
+    assert status["blocking_dispatch_evidence_request_control_rows_v523"] == 5
+    assert status["dispatch_evidence_followup_queue_rows_v523"] == 14
+    assert status["dispatch_evidence_followup_audit_ready_rows_v523"] == 14
+    assert status["eligibility_review_allowed_rows_v523"] == 0
+    assert status["reviewer_assignment_allowed_rows_v523"] == 0
+    assert status["outcome_capture_allowed_rows_v523"] == 0
+    assert status["patch_allowed_rows_v523"] == 0
+    assert status["readiness_delta_rows_v523"] == 8
+    assert status["dispatch_evidence_followup_audit_ready_v523"] is True
+    assert status["ready_for_quarto_patch_v523"] is False
+    assert status["quarto_patch_applied_v523"] is False
+    assert status["book_sources_modified_v523"] is False
+    assert status["book_references_modified_v523"] is False
+    assert status["submission_ready_claim_allowed_v523"] is False
+    assert status["working_champion_claim_allowed_v523"] is False
+    assert status["paper1_promotion_allowed_v523"] is False
+    assert status["paper4_working_champion_changed_v523"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v523"]
+        == "paper4_v524_dispatch_evidence_followup_audit.md"
+    )
+
+    packet = _read_csv("paper4_v523_dispatch_evidence_request_packet.csv")
+    assert len(packet) == 14
+    assert packet["dispatch_packet_created_v523"].astype(bool).all()
+    assert packet["dispatch_ready_v523"].astype(bool).all()
+    assert packet["dispatch_evidence_request_created_v523"].astype(bool).all()
+    assert (
+        packet["dispatch_delivery_trace_request_created_v523"].astype(bool).all()
+    )
+    assert packet["dispatch_timestamp_request_created_v523"].astype(bool).all()
+    assert packet["dispatch_recipient_ack_request_created_v523"].astype(bool).all()
+    assert not packet["external_dispatch_recorded_v523"].astype(bool).any()
+    assert not packet["dispatch_evidence_received_v523"].astype(bool).any()
+    assert not packet["human_response_received_v523"].astype(bool).any()
+    assert not packet["candidate_identifier_received_v523"].astype(bool).any()
+    assert not packet["nomination_fields_received_v523"].astype(bool).any()
+    assert not packet["nomination_signoff_received_v523"].astype(bool).any()
+    assert not packet["evidence_received_v523"].astype(bool).any()
+    assert not packet["candidate_input_collection_closed_v523"].astype(bool).any()
+    assert not packet["candidate_nomination_recorded_v523"].astype(bool).any()
+    assert not packet["eligibility_review_allowed_v523"].astype(bool).any()
+    assert not packet["reviewer_assignment_allowed_v523"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v523"].astype(bool).any()
+    assert not packet["patch_allowed_v523"].astype(bool).any()
+    assert set(packet["dispatch_evidence_request_status_v523"]) == {
+        "pending_dispatch_evidence"
+    }
+    assert set(packet["required_next_step_v523"]) == {
+        "audit_dispatch_evidence_request_followup"
+    }
+
+    field_requests = _read_csv(
+        "paper4_v523_field_evidence_dispatch_request_matrix.csv"
+    )
+    assert len(field_requests) == 84
+    assert field_requests["field_dispatch_checklist_created_v523"].astype(bool).all()
+    assert (
+        field_requests["evidence_dispatch_checklist_created_v523"]
+        .astype(bool)
+        .all()
+    )
+    assert (
+        field_requests["field_dispatch_evidence_request_created_v523"]
+        .astype(bool)
+        .all()
+    )
+    assert (
+        field_requests["field_evidence_dispatch_request_gap_open_v523"]
+        .astype(bool)
+        .all()
+    )
+    assert not field_requests["field_value_received_v523"].astype(bool).any()
+    assert not field_requests["field_evidence_received_v523"].astype(bool).any()
+    assert field_requests.groupby("dispatch_evidence_request_id_v523").size().eq(6).all()
+
+    requirements = _read_csv(
+        "paper4_v523_dispatch_evidence_requirement_register.csv"
+    )
+    assert len(requirements) == 6
+    assert requirements["requirement_active_v523"].astype(bool).all()
+    assert requirements["dispatch_evidence_required_v523"].astype(bool).all()
+    assert not requirements["dispatch_evidence_received_v523"].astype(bool).any()
+    assert set(requirements["dispatch_evidence_requirement_id_v523"]) == {
+        "dispatch_delivery_trace",
+        "dispatch_timestamp",
+        "dispatch_recipient_owner",
+        "request_payload_snapshot",
+        "manual_owner_acknowledgement",
+        "chain_of_custody_note",
+    }
+
+    controls = _read_csv("paper4_v523_dispatch_evidence_request_control_register.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v523"].astype(bool).all()
+    control_map = dict(
+        zip(
+            controls["dispatch_evidence_request_control_id_v523"],
+            controls["blocks_dispatch_evidence_followup_v523"],
+            strict=False,
+        )
+    )
+    assert bool(control_map["dispatch_evidence_absent"])
+    assert bool(control_map["delivery_trace_absent"])
+    assert bool(control_map["timestamp_absent"])
+    assert bool(control_map["manual_owner_ack_absent"])
+    assert bool(control_map["human_response_absent_after_evidence_request"])
+    assert bool(control_map["no_final_promotion"]) is False
+
+    followup_queue = _read_csv("paper4_v523_dispatch_evidence_followup_queue.csv")
+    assert len(followup_queue) == 14
+    assert followup_queue["dispatch_evidence_request_created_v523"].astype(bool).all()
+    assert not followup_queue["dispatch_evidence_received_v523"].astype(bool).any()
+    assert not followup_queue["external_dispatch_recorded_v523"].astype(bool).any()
+    assert followup_queue["followup_audit_ready_v523"].astype(bool).all()
+    assert set(followup_queue["expected_next_artifact_v523"]) == {
+        "paper4_v524_dispatch_evidence_followup_audit.md"
+    }
+
+    readiness = _read_csv("paper4_v523_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v523"], readiness["ready_v523"], strict=False)
+    )
+    assert bool(readiness_map["dispatch_evidence_request_packet_created"])
+    assert bool(readiness_map["field_evidence_dispatch_request_matrix_created"])
+    assert bool(readiness_map["dispatch_evidence_requirement_register_created"])
+    assert bool(readiness_map["dispatch_evidence_followup_audit_ready"])
+    assert bool(readiness_map["candidate_identifiers_received"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v523_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v523_dispatch_evidence_request_packet_created"])
+    assert bool(claim_map["v523_field_evidence_dispatch_request_matrix_created"])
+    assert bool(claim_map["v523_dispatch_evidence_requirements_declared"])
+    assert bool(claim_map["v523_dispatch_evidence_followup_audit_ready"])
+    assert bool(claim_map["v523_candidate_inputs_received_or_nominated"]) is False
+    assert bool(claim_map["v523_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v523_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v523 creates a dispatch evidence request packet."])
+    assert bool(boundary_map["v523 creates a field evidence dispatch request matrix."])
+    assert bool(boundary_map["v523 declares dispatch evidence requirements."])
+    assert bool(
+        boundary_map[
+            "v523 makes dispatch evidence follow-up audit executable next."
+        ]
+    )
+    assert (
+        bool(boundary_map["v523 receives candidate inputs or nominates candidates."])
+        is False
+    )
+    assert bool(boundary_map["v523 records external dispatch evidence."]) is False
+    assert (
+        bool(boundary_map["v523 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v523 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v523_rows = backlog.loc[backlog["last_wave"].eq("v523")]
+    assert len(v523_rows) == 1
+    backlog_row = v523_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v524_dispatch_evidence_followup_audit.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "dispatch_evidence_request_packet_created_without_external_dispatch_or_inputs"
+    )
+
+    request_md = (
+        PAPER4_ROOT / "notes" / "paper4_v523_dispatch_evidence_request_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Dispatch Evidence Request Packet v523" in request_md
+    assert "It does not record\nexternal dispatch or receive any evidence" in request_md
+    assert "v523 is a dispatch evidence request packet only" in request_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v523: Dispatch Evidence Request Packet" in living_notebook
+    assert "Dispatch evidence request rows:\n  `14`." in living_notebook
+    assert "Dispatch delivery trace request rows:\n  `14`." in living_notebook
+    assert "Dispatch timestamp request rows:\n  `14`." in living_notebook
+    assert (
+        "Dispatch recipient acknowledgement request rows:\n  `14`."
+        in living_notebook
+    )
+    assert "External dispatch recorded rows:\n  `0`." in living_notebook
+    assert "Dispatch evidence received rows:\n  `0`." in living_notebook
+    assert "Human response received rows:\n  `0`." in living_notebook
+    assert "Candidate identifier received rows:\n  `0`." in living_notebook
+    assert "Nomination fields received rows:\n  `0`." in living_notebook
+    assert "Nomination signoff received rows:\n  `0`." in living_notebook
+    assert "Evidence received rows:\n  `0`." in living_notebook
+    assert "Candidate input collection closed rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert "Field/evidence dispatch request rows:\n  `84`." in living_notebook
+    assert "Field dispatch evidence request created rows:\n  `84`." in living_notebook
+    assert "Field value received rows:\n  `0`." in living_notebook
+    assert "Field evidence received rows:\n  `0`." in living_notebook
+    assert "Open field/evidence dispatch request gap rows:\n  `84`." in living_notebook
+    assert "Dispatch evidence requirement rows:\n  `6`." in living_notebook
+    assert "Active dispatch evidence requirement rows:\n  `6`." in living_notebook
+    assert "Dispatch evidence requirement received rows:\n  `0`." in living_notebook
+    assert "Dispatch evidence request control rows:\n  `6`." in living_notebook
+    assert "Active dispatch evidence request control rows:\n  `6`." in living_notebook
+    assert "Blocking dispatch evidence request control rows:\n  `5`." in living_notebook
+    assert "Dispatch evidence follow-up queue rows:\n  `14`." in living_notebook
+    assert "Dispatch evidence follow-up audit ready rows:\n  `14`." in living_notebook
+    assert "Eligibility review allowed rows:\n  `0`." in living_notebook
+    assert "Reviewer assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

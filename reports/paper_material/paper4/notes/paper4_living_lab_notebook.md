@@ -24148,3 +24148,111 @@ Keep v522 in the living notebook. v523 should prepare a dispatch evidence
 request packet while preserving the no-fabricated-candidate boundary.
 
 <!-- V522_MANUAL_OWNER_DISPATCH_FOLLOWUP_AUDIT_END -->
+
+<!-- V523_DISPATCH_EVIDENCE_REQUEST_PACKET_START -->
+
+## Wave v523: Dispatch Evidence Request Packet
+
+Generated: 2026-05-17T23:49:46.260567+00:00
+
+### Objective
+
+v523 creates the request surface for externally verifiable dispatch evidence.
+It asks for traces and provenance needed to prove manual owner request delivery,
+but does not convert those requests into received evidence or candidate inputs.
+
+### Results
+
+- Dispatch evidence request rows:
+  `14`.
+- Dispatch delivery trace request rows:
+  `14`.
+- Dispatch timestamp request rows:
+  `14`.
+- Dispatch recipient acknowledgement request rows:
+  `14`.
+- External dispatch recorded rows:
+  `0`.
+- Dispatch evidence received rows:
+  `0`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate input collection closed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence dispatch request rows:
+  `84`.
+- Field dispatch evidence request created rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open field/evidence dispatch request gap rows:
+  `84`.
+- Dispatch evidence requirement rows:
+  `6`.
+- Active dispatch evidence requirement rows:
+  `6`.
+- Dispatch evidence requirement received rows:
+  `0`.
+- Dispatch evidence request control rows:
+  `6`.
+- Active dispatch evidence request control rows:
+  `6`.
+- Blocking dispatch evidence request control rows:
+  `5`.
+- Dispatch evidence follow-up queue rows:
+  `14`.
+- Dispatch evidence follow-up audit ready rows:
+  `14`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v524_dispatch_evidence_followup_audit.md`.
+
+### Interpretation
+
+The dispatch evidence request packet is procedural evidence only. Because
+external dispatch evidence, human responses and candidate inputs remain zero,
+the next executable step is a dispatch evidence follow-up audit, not candidate
+nomination, eligibility review or manuscript patching.
+
+### Claim Impact
+
+- Allowed: dispatch evidence request packet, field evidence dispatch request
+  matrix, dispatch evidence requirements and future dispatch evidence follow-up
+  audit readiness.
+- Still prohibited: external dispatch completion, dispatch evidence receipt,
+  candidate input receipt, candidate resolution/nomination, reviewer assignment,
+  completed review claims, final captions, Quarto patch readiness/application,
+  Quarto/book mutation, submission readiness, Paper Estrella replacement and
+  final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v523 in the living notebook. v524 should audit dispatch evidence request
+follow-up while preserving the no-fabricated-candidate boundary.
+
+<!-- V523_DISPATCH_EVIDENCE_REQUEST_PACKET_END -->
