@@ -14126,3 +14126,65 @@ Keep v345 in the living notebook. The next wave should test multi-source relief
 or a formal dual-bound loop without promotion.
 
 <!-- V345_V338_SOURCE_TIGHT_BRANCH_PRICE_SCREEN_END -->
+
+<!-- V346_V338_MULTI_SOURCE_RELIEF_OR_BOUND_PROTOCOL_START -->
+
+## Wave v346: v338 Multi-Source Relief Protocol
+
+Generated: 2026-05-17T00:59:29.743023+00:00
+
+### Objective
+
+v345 showed that one-drop/one-add source-tight pricing found no CVaR-feasible
+entering column. v346 asks the next executable question: if each v345
+source-exact pair is used as a seed, can a second source-tight add and a second
+selected drop jointly relieve the tight governance sources while preserving
+budget, CVaR and positive return?
+
+### Results
+
+- Positive source-tight second-add candidates:
+  `4385`.
+- Ordered second-order rows screened:
+  `5962240`.
+- Budget+return feasible rows:
+  `1147706`.
+- Source-exact second-order rows:
+  `79`.
+- CVaR-feasible entering rows:
+  `1`.
+- Unique entering action signatures:
+  `1`.
+- Best entering action signature:
+  `add=148017643|151825245;drop=148145784|160128011`.
+- Best entering return delta:
+  `0.8443636262018508`.
+- Best entering CVaR90:
+  `96382.59371194048`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v346 produces a genuinely useful local result: the source-tight blocker is not
+fully terminal under second-order relief. Among the ordered two-add/two-drop
+rows, one local candidate improves return while staying inside v338 exposure,
+source caps and the current CVaR threshold. This is not yet a working champion
+and not a global branch-price certificate; it is the next concrete candidate for
+apply-and-reprice validation.
+
+### Claim Impact
+
+- Allowed: v346 executed a bounded second-order multi-source relief protocol.
+- Allowed: one local source/CVaR feasible return-improving two-swap candidate
+  exists in that protocol scope.
+- Still prohibited: full-universe branch-price termination, contractual IFRS9,
+  live deployability, Paper Estrella replacement, final Paper 4 promotion and
+  working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v346 in the living notebook. The next wave should apply the local
+two-swap candidate and reprice it as a candidate portfolio, without promotion.
+
+<!-- V346_V338_MULTI_SOURCE_RELIEF_OR_BOUND_PROTOCOL_END -->

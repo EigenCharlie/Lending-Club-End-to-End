@@ -1,0 +1,6 @@
+blocker_id_v346,blocking_v346,evidence_count_v346,required_next_artifact_v346,claim_boundary_v346
+local_two_swap_candidate_requires_apply_reprice,True,1,paper4_v347_v338_apply_multi_source_relief_candidate.csv,local entering candidate is not a working champion until applied and repriced
+valid_branch_price_bound_missing,True,1,paper4_v347_v338_expand_multi_source_relief_or_dual_bound_loop.csv,no dual-bound loop or termination certificate
+global_integer_optimality_missing,True,4385,paper4_v347_v338_expand_multi_source_relief_or_dual_bound_loop.csv,second-order local screen is not a full-v55 integer proof
+contractual_ifrs9_and_live_holdout_missing,True,74,future_contractual_or_live_holdout_gate,v338 imputed proxy and internal online blockers remain
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
