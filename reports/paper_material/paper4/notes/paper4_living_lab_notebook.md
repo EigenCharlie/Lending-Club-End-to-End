@@ -19964,3 +19964,57 @@ Keep v455 in the living notebook. v456 should assemble a manuscript packet
 without final promotion.
 
 <!-- V455_ABSTRACT_CONCLUSION_DRAFT_END -->
+
+<!-- V456_MANUSCRIPT_ASSEMBLY_PACKET_START -->
+
+## Wave v456: Manuscript Assembly Packet
+
+Generated: 2026-05-17T15:09:53.430269+00:00
+
+### Objective
+
+v456 assembles the current Paper 4 prose components into a manuscript packet and
+records a reusable continuation goal prompt.
+
+### Results
+
+- Source components used:
+  `5`.
+- Assembled sections:
+  `6`.
+- Readiness gates recorded:
+  `7`.
+- Ready gates:
+  `3`.
+- Blocking gaps:
+  `4`.
+- Assembly packet created:
+  `True`.
+- Goal prompt created:
+  `True`.
+- Post-assembly full pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v457_post_assembly_pytest_probe.md`.
+
+### Interpretation
+
+The major manuscript components are now assembled into one packet, but this is
+not yet a submission-ready manuscript. The next evidence-producing wave is a
+post-assembly full pytest probe.
+
+### Claim Impact
+
+- Allowed: manuscript assembly packet, source-section traceability, reusable
+  continuation goal prompt.
+- Still prohibited: post-assembly regression completion, external validation,
+  submission readiness, champion replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v456 in the living notebook. v457 should run post-assembly regression
+checks before any stronger manuscript-readiness language.
+
+<!-- V456_MANUSCRIPT_ASSEMBLY_PACKET_END -->

@@ -1,0 +1,7 @@
+section_id_v456,assembled_order_v456,section_title_v456,source_artifact_v456,source_version_v456,included_in_packet_v456,claim_boundary_v456
+abstract,1,Abstract,paper4_v455_abstract_conclusion_draft.md,455,True,front matter draft only
+introduction_scope,2,Introduction and Scope,paper4_v452_manuscript_extraction_scaffold.md,452,True,problem framing without deployment claim
+methods,3,Methods,paper4_v453_methods_results_draft.md,453,True,execution protocol only
+results,4,Results,paper4_v453_methods_results_draft.md,453,True,internal validation gates only
+discussion_limitations,5,Discussion and Limitations,paper4_v454_discussion_limitations_draft.md,454,True,bounded interpretation and caveats
+conclusion,6,Conclusion,paper4_v455_abstract_conclusion_draft.md,455,True,next-step conclusion only

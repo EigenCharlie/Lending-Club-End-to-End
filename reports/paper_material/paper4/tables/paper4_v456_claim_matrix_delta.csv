@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v456_manuscript_assembly_packet_created,True,paper4_v456_manuscript_assembly_packet.md,assembled draft packet only
+v456_source_sections_mapped,True,paper4_v456_assembly_section_map.csv,source-to-section map only
+v456_reusable_goal_prompt_created,True,paper4_v456_goal_prompt.md,continued-work prompt only
+v456_post_assembly_regression_complete,False,paper4_v456_manuscript_readiness_matrix.csv,full pytest rerun deferred to v457
+v456_submission_ready_or_external_validation,False,paper4_v456_remaining_blockers.csv,not submitted or externally validated
+v456_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

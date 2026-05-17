@@ -1,0 +1,6 @@
+blocker_id_v456,blocking_v456,evidence_count_v456,required_next_artifact_v456,claim_boundary_v456
+post_assembly_full_pytest_not_run,True,1,paper4_v457_post_assembly_pytest_probe.md,run regression after assembly before stronger claim
+post_assembly_render_not_refreshed,True,0,future_post_assembly_quarto_probe,Quarto refresh remains conditional future work
+external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
+target_venue_not_selected,True,0,future_target_venue_packet,do not claim submission readiness
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -52132,6 +52132,132 @@ def test_paper4_v455_abstract_conclusion_draft_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v456_manuscript_assembly_packet_is_guarded() -> None:
+    status = _read_json("paper4_v456_status.json")
+
+    assert status["phase"] == "v456_manuscript_assembly_packet"
+    assert status["schema_version"] == "2026-05-17.456"
+    assert status["prior_abstract_conclusion_version_v456"] == 455
+    assert status["source_component_count_v456"] == 5
+    assert status["assembled_section_count_v456"] == 6
+    assert status["readiness_gate_count_v456"] == 7
+    assert status["ready_gate_count_v456"] == 3
+    assert status["blocking_gap_count_v456"] == 4
+    assert status["manuscript_assembly_packet_created_v456"] is True
+    assert status["source_sections_mapped_v456"] is True
+    assert status["goal_prompt_created_v456"] is True
+    assert status["complete_manuscript_ready_v456"] is False
+    assert status["post_assembly_full_pytest_run_v456"] is False
+    assert status["submission_package_ready_v456"] is False
+    assert status["external_validation_complete_v456"] is False
+    assert status["working_champion_claim_allowed_v456"] is False
+    assert status["paper1_promotion_allowed_v456"] is False
+    assert status["paper4_working_champion_changed_v456"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["goal_prompt_artifact_v456"] == "paper4_v456_goal_prompt.md"
+    assert status["next_artifact_v456"] == "paper4_v457_post_assembly_pytest_probe.md"
+
+    components = _read_csv("paper4_v456_source_component_inventory.csv")
+    assert len(components) == 5
+    assert components["used_in_packet_v456"].astype(bool).all()
+    assert {
+        "bounded_readiness_synthesis",
+        "manuscript_scaffold",
+        "methods_results_draft",
+        "discussion_limitations_draft",
+        "abstract_conclusion_draft",
+    } == set(components["component_id_v456"])
+
+    sections = _read_csv("paper4_v456_assembly_section_map.csv")
+    assert len(sections) == 6
+    assert sections["included_in_packet_v456"].astype(bool).all()
+    assert {
+        "abstract",
+        "introduction_scope",
+        "methods",
+        "results",
+        "discussion_limitations",
+        "conclusion",
+    } == set(sections["section_id_v456"])
+
+    readiness = _read_csv("paper4_v456_manuscript_readiness_matrix.csv")
+    readiness_map = dict(zip(readiness["gate_id_v456"], readiness["ready_v456"], strict=False))
+    assert bool(readiness_map["major_prose_components_assembled"]) is True
+    assert bool(readiness_map["claim_boundaries_attached"]) is True
+    assert bool(readiness_map["final_promotion_absent"]) is True
+    assert bool(readiness_map["post_assembly_full_pytest"]) is False
+    assert bool(readiness_map["paper4_quarto_render_after_assembly"]) is False
+    assert bool(readiness_map["external_dataset_validation"]) is False
+    assert bool(readiness_map["submission_package_ready"]) is False
+
+    blockers = _read_csv("paper4_v456_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v456"], blockers["blocking_v456"], strict=False))
+    assert bool(blocker_map["post_assembly_full_pytest_not_run"]) is True
+    assert bool(blocker_map["post_assembly_render_not_refreshed"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v456_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v456_manuscript_assembly_packet_created"]) is True
+    assert bool(claim_map["v456_source_sections_mapped"]) is True
+    assert bool(claim_map["v456_reusable_goal_prompt_created"]) is True
+    assert bool(claim_map["v456_post_assembly_regression_complete"]) is False
+    assert bool(claim_map["v456_submission_ready_or_external_validation"]) is False
+    assert bool(claim_map["v456_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v456 assembles a Paper 4 manuscript packet."])
+    assert bool(
+        boundary_map["v456 maps assembled manuscript sections to source artifacts."]
+    )
+    assert bool(
+        boundary_map["v456 provides a reusable goal prompt for continued Paper 4 work."]
+    )
+    assert bool(
+        boundary_map["v456 completes post-assembly full pytest and render validation."]
+    ) is False
+    assert bool(boundary_map["v456 makes Paper 4 final, submitted, or externally validated."]) is False
+    assert bool(boundary_map["v456 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v456_rows = backlog.loc[backlog["last_wave"].eq("v456")]
+    assert len(v456_rows) == 1
+    backlog_row = v456_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v457_post_assembly_pytest_probe.md"
+    assert backlog_row["execution_result"] == "manuscript_packet_created_without_finalization"
+
+    assembly_md = (
+        PAPER4_ROOT / "notes" / "paper4_v456_manuscript_assembly_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "## Working Title" in assembly_md
+    assert "## Abstract" in assembly_md
+    assert "## Discussion and Limitations" in assembly_md
+    assert "not external validation" in assembly_md
+    assert "does not\ncomplete post-assembly full pytest" in assembly_md
+
+    goal_prompt = (PAPER4_ROOT / "notes" / "paper4_v456_goal_prompt.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Paper 4 Executable Goal Prompt v456" in goal_prompt
+    assert "paper4_final_promotion.json" in goal_prompt
+    assert "paper4_v457_post_assembly_pytest_probe.md" in goal_prompt
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v456: Manuscript Assembly Packet" in living_notebook
+    assert "Source components used:\n  `5`." in living_notebook
+    assert "Assembled sections:\n  `6`." in living_notebook
+    assert "Ready gates:\n  `3`." in living_notebook
+    assert "Blocking gaps:\n  `4`." in living_notebook
+    assert "Post-assembly full pytest run:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
