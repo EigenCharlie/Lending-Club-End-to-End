@@ -398,7 +398,7 @@ def build_ifrs9_servicing_v5(
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     work = _prepare_performance(allocations, performance)
     scenarios = _scenario_multiplier_table()
-    scenario_map = dict(zip(scenarios["scenario"], scenarios["pd_multiplier"]))
+    scenario_map = dict(zip(scenarios["scenario"], scenarios["pd_multiplier"], strict=False))
     months = np.arange(1, max_months + 1)
     panel_frames: list[pd.DataFrame] = []
     rules = ["relative_2x", "absolute_pd_25", "pd12_15pct", "hybrid_sicr_v5"]

@@ -1337,7 +1337,7 @@ def build_spo_regret_surrogate_v12(
                 "feature_std": float(sig),
                 "model_scope_v12": "spo_style_structured_regret_perceptron",
             }
-            for feature, coef_value, mu, sig in zip(feature_cols, theta, mean, std)
+            for feature, coef_value, mu, sig in zip(feature_cols, theta, mean, std, strict=False)
         ]
     )
     variants = [
@@ -1532,7 +1532,7 @@ def build_sample_paths_v12(
                 [
                     0.58 * _stable_uniform(path_id, loan_id, "v12_common_default") + 0.42 * cluster
                     < p
-                    for loan_id, p in zip(local["loan_id"].astype(str), prob)
+                    for loan_id, p in zip(local["loan_id"].astype(str), prob, strict=False)
                 ],
                 dtype=float,
             )

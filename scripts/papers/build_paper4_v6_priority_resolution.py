@@ -320,7 +320,7 @@ def build_online_source_month_v6(
     )
     weak_row = pd.Series(False, index=merged.index)
     weak_row = weak_row | pd.Series(
-        list(zip(merged["policy_id"].astype(str), merged["issue_month"].dt.date.astype(str))),
+        list(zip(merged["policy_id"].astype(str), merged["issue_month"].dt.date.astype(str), strict=False)),
         index=merged.index,
     ).isin(weak_policy_cells)
     for source in SOURCE_FAMILIES:
@@ -329,7 +329,7 @@ def build_online_source_month_v6(
                 merged["policy_id"].astype(str),
                 merged["issue_month"].dt.date.astype(str),
                 [source] * len(merged),
-                merged[source].astype(str),
+                merged[source].astype(str), strict=False,
             )
         )
         weak_row = weak_row | pd.Series([key in weak_cells for key in keys], index=merged.index)

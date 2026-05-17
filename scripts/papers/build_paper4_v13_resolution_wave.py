@@ -167,7 +167,7 @@ def _scenario_cvar_from_allocations(alloc: pd.DataFrame) -> pd.DataFrame:
         ).to_numpy()
         values = loss @ frac
         cvar90 = float(values.max()) if len(values) else np.nan
-        for (scenario, mult, lgd), value in zip(scenarios, values):
+        for (scenario, mult, lgd), value in zip(scenarios, values, strict=False):
             rows.append(
                 {
                     "policy_id": policy_id,

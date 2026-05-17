@@ -1151,7 +1151,7 @@ def build_sample_paths_v10(
             )
             dependent_shock = _stable_uniform(path_id, policy_id, "portfolio_default_cluster")
             default_flags = []
-            for loan_id, prob in zip(local["loan_id"].astype(str), loss_prob):
+            for loan_id, prob in zip(local["loan_id"].astype(str), loss_prob, strict=False):
                 u = 0.72 * _stable_uniform(path_id, loan_id, "default") + 0.28 * dependent_shock
                 default_flags.append(u < prob)
             default_flags = np.array(default_flags, dtype=float)

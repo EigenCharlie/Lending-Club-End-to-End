@@ -311,7 +311,7 @@ def fit_adp_value_proxy_v11() -> pd.DataFrame:
     pred = x @ beta
     rmse = float(np.sqrt(np.mean((pred - y) ** 2)))
     rows = []
-    for name, value in zip(features.columns, beta):
+    for name, value in zip(features.columns, beta, strict=False):
         rows.append(
             {
                 "feature": name,
@@ -337,7 +337,7 @@ def _adp_beta_map(coefficients: pd.DataFrame) -> dict[str, float]:
             "cum_loss_100k": -1_000.0,
             "month_frac": 0.0,
         }
-    return dict(zip(coefficients["feature"], coefficients["coefficient"].astype(float)))
+    return dict(zip(coefficients["feature"], coefficients["coefficient"].astype(float), strict=False))
 
 
 def build_dla_adp_v11(
@@ -712,7 +712,7 @@ def build_spo_dfl_trained_v11(
             "model_scope_v11": "ridge_trained_against_v10_solver_targets",
         }
     ]
-    for name, coef, mu, sigma in zip(feature_frame.columns, beta[1:], mean, std):
+    for name, coef, mu, sigma in zip(feature_frame.columns, beta[1:], mean, std, strict=False):
         coef_rows.append(
             {
                 "feature": name,
@@ -948,7 +948,7 @@ def build_sample_path_calibrated_v11(
             )
             cluster = _stable_uniform(path_id, policy_id, scenario["scenario_id"], "v11_cluster")
             defaults = []
-            for loan_id, p in zip(local["loan_id"].astype(str), prob):
+            for loan_id, p in zip(local["loan_id"].astype(str), prob, strict=False):
                 u = 0.62 * _stable_uniform(path_id, loan_id, "v11_default") + 0.38 * cluster
                 defaults.append(u < p)
             default_arr = np.array(defaults, dtype=float)

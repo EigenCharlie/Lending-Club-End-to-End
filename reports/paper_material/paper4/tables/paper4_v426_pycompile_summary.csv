@@ -1,0 +1,2 @@
+compile_id_v426,command_v426,exit_code_v426,passed_v426,compiled_files_v426,stdout_tail_v426,stderr_tail_v426,claim_boundary_v426
+changed_scripts_py_compile,uv run python -m py_compile scripts/papers/build_paper4_v10_resolution_wave.py scripts/papers/build_paper4_v11_promising_lanes.py scripts/papers/build_paper4_v12_resolution_wave.py scripts/papers/build_paper4_v13_resolution_wave.py scripts/papers/build_paper4_v5_blocker_resolution.py scripts/papers/build_paper4_v6_priority_resolution.py,0,True,6,,,syntax/bytecode check only; full pytest deferred

@@ -18289,3 +18289,59 @@ Keep v425 in the living notebook. v426 should start a targeted scripts ruff
 repair batch.
 
 <!-- V425_POST_STREAMLIT_RUFF_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V426_TARGETED_SCRIPTS_RUFF_REPAIR_BATCH_START -->
+
+## Wave v426: Targeted Scripts Ruff Repair Batch
+
+Generated: 2026-05-17T10:52:34.715645+00:00
+
+### Objective
+
+v426 applies explicit `strict=False` to scripts/papers B905 `zip()` calls.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `57` ->
+  `46`.
+- Repository B905 before/after:
+  `14` ->
+  `3`.
+- Scripts diagnostics before/after:
+  `47` ->
+  `36`.
+- Scripts B905 after:
+  `0`.
+- Changed script files:
+  `6`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v427_post_scripts_ruff_repair_pytest_probe.md`.
+
+### Interpretation
+
+The scripts/papers B905 frontier is closed by making default `zip()` behavior
+explicit. Remaining ruff diagnostics are Streamlit B905/C408, scripts B007/F841
+B023/I001/F401/UP022/SIM108/C405/SIM223, and two book-helper diagnostics.
+
+### Claim Impact
+
+- Allowed: scripts B905 repair applied, repository ruff count reduced, changed
+  scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v426 in the living notebook. v427 should run the post-scripts-repair full
+pytest probe.
+
+<!-- V426_TARGETED_SCRIPTS_RUFF_REPAIR_BATCH_END -->
