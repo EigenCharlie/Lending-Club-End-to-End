@@ -20574,3 +20574,57 @@ Keep v467 in the living notebook. v468 should refresh source-governance evidence
 around the same blocker surface before any broader claim is attempted.
 
 <!-- V467_CVAR_TAIL_RISK_FRONTIER_PROBE_END -->
+
+<!-- V468_SOURCE_GOVERNANCE_REFRESH_START -->
+
+## Wave v468: Source-Governance Refresh
+
+Generated: 2026-05-17T16:16:35.629924+00:00
+
+### Objective
+
+v468 refreshes the source-governance blocker surface after the v467 CVaR
+frontier probe.
+
+### Results
+
+- Primary blocker:
+  `grade=A`.
+- Primary blocker pass rows:
+  `0`.
+- Secondary blocker pass rows:
+  `6023`.
+- Fully nonbinding source families:
+  `4`.
+- Grade-A pressure rows:
+  `24095`.
+- Grade-A relief return-improving rows:
+  `0`.
+- Sampled source-exact rows:
+  `0`.
+- Source cap relaxation authorized:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v469_dynamic_replay_reproducibility_probe.md`.
+
+### Interpretation
+
+The source-governance blocker is concentrated enough to be a clear claim
+caveat: grade=A is the primary bottleneck, score_decile=0 is secondary, and
+blind chunking is not a high-value next move without a source-aware route.
+
+### Claim Impact
+
+- Allowed: grade-A blocker language and blind-chunking stop-rule language.
+- Still prohibited: source-cap relaxation, global solver optimality,
+  working-champion language, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v468 in the living notebook. v469 should move to dynamic replay
+reproducibility while preserving the source-governance caveat.
+
+<!-- V468_SOURCE_GOVERNANCE_REFRESH_END -->

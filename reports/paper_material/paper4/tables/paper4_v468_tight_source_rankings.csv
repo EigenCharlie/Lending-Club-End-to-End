@@ -1,0 +1,3 @@
+source_family_v468,source_id_v468,source_slack_v468,source_slack_rank_v468,v356_positive_return_candidate_rows_v468,tight_source_pass_rows_v468,primary_blocker_v468,family_retention_share_v468,source_pressure_budget_return_rows_v468,source_pressure_share_v468,source_relief_budget_return_rows_v468,claim_boundary_v468
+grade,A,4.597308456477656e-06,1,4385,0,True,0.0,24095,0.955278912104032,0,source-governance diagnostic only
+score_decile,0,0.0001155521317887,2,4383,6023,False,0.2387899932601197,12475,0.4945882726083336,2078,source-governance diagnostic only

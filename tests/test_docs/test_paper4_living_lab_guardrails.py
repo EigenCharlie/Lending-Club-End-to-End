@@ -53412,6 +53412,116 @@ def test_paper4_v467_cvar_tail_risk_frontier_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v468_source_governance_refresh_is_guarded() -> None:
+    status = _read_json("paper4_v468_status.json")
+    assert status["phase"] == "v468_source_governance_refresh"
+    assert status["schema_version"] == "2026-05-17.468"
+    assert status["prior_cvar_frontier_version_v468"] == 467
+    assert status["source_governance_refresh_created_v468"] is True
+    assert status["tight_source_ranking_rows_v468"] == 2
+    assert status["primary_blocker_family_v468"] == "grade"
+    assert status["primary_blocker_source_id_v468"] == "A"
+    assert status["primary_blocker_pass_rows_v468"] == 0
+    assert status["secondary_blocker_family_v468"] == "score_decile"
+    assert status["secondary_blocker_pass_rows_v468"] == 6023
+    assert status["fully_nonbinding_family_count_v468"] == 4
+    assert status["grade_a_pressure_budget_return_rows_v468"] == 24095
+    assert float(status["grade_a_pressure_share_v468"]) > 0.95
+    assert status["grade_a_relief_return_improving_rows_v468"] == 0
+    assert status["sampled_chunk_count_v468"] == 8
+    assert status["sampled_total_source_exact_rows_v468"] == 0
+    assert status["audit_plan_rows_v468"] == 7
+    assert status["source_cap_relaxation_authorized_v468"] is False
+    assert status["blind_chunking_restarted_v468"] is False
+    assert status["global_solver_claim_allowed_v468"] is False
+    assert status["working_champion_claim_allowed_v468"] is False
+    assert status["paper1_promotion_allowed_v468"] is False
+    assert status["paper4_working_champion_changed_v468"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v468"] == "paper4_v469_dynamic_replay_reproducibility_probe.md"
+
+    rankings = _read_csv("paper4_v468_tight_source_rankings.csv")
+    assert len(rankings) == 2
+    primary = rankings.loc[rankings["primary_blocker_v468"].astype(bool)]
+    assert len(primary) == 1
+    primary_row = primary.iloc[0]
+    assert primary_row["source_family_v468"] == "grade"
+    assert primary_row["source_id_v468"] == "A"
+    assert int(primary_row["tight_source_pass_rows_v468"]) == 0
+    assert int(primary_row["source_pressure_budget_return_rows_v468"]) == 24095
+    assert float(primary_row["source_pressure_share_v468"]) > 0.95
+
+    refresh = _read_csv("paper4_v468_source_governance_refresh.csv")
+    assert len(refresh) == 1
+    refresh_row = refresh.iloc[0]
+    assert refresh_row["primary_blocker_family_v468"] == "grade"
+    assert refresh_row["primary_blocker_source_id_v468"] == "A"
+    assert int(refresh_row["grade_a_relief_return_improving_rows_v468"]) == 0
+    assert int(refresh_row["sampled_total_source_exact_rows_v468"]) == 0
+    assert bool(refresh_row["source_cap_relaxation_authorized_v468"]) is False
+    assert bool(refresh_row["blind_chunking_restarted_v468"]) is False
+
+    decision = _read_csv("paper4_v468_source_execution_decision.csv")
+    decision_map = dict(zip(decision["decision_id_v468"], decision["recommended_v468"], strict=False))
+    assert bool(decision_map["keep_grade_a_as_primary_blocker"]) is True
+    assert bool(decision_map["do_not_restart_blind_chunking"]) is True
+    assert bool(decision_map["do_not_relax_source_caps"]) is True
+    assert bool(decision_map["route_to_dynamic_replay_lane"]) is True
+
+    blockers = _read_csv("paper4_v468_source_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v468"], blockers["blocking_v468"], strict=False))
+    assert bool(blocker_map["grade_a_primary_source_blocker"]) is True
+    assert bool(blocker_map["source_cap_relaxation_not_authorized"]) is True
+    assert bool(blocker_map["blind_chunking_stop_rule_active"]) is True
+    assert bool(blocker_map["global_solver_claims_still_blocked"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v468_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v468_source_governance_refresh_created"]) is True
+    assert bool(claim_map["v468_grade_a_primary_blocker_documented"]) is True
+    assert bool(claim_map["v468_blind_chunking_stop_rule_reaffirmed"]) is True
+    assert bool(claim_map["v468_source_caps_relaxed_or_approved"]) is False
+    assert bool(claim_map["v468_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v468 documents grade=A as the primary source-governance blocker."])
+    assert bool(boundary_map["v468 reaffirms the stop rule against blind full-v55 chunking."])
+    assert bool(boundary_map["v468 relaxes or approves source caps."]) is False
+    assert bool(boundary_map["v468 proves global solver optimality."]) is False
+    assert bool(boundary_map["v468 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v468_rows = backlog.loc[backlog["last_wave"].eq("v468")]
+    assert len(v468_rows) == 1
+    backlog_row = v468_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v469_dynamic_replay_reproducibility_probe.md"
+    assert (
+        backlog_row["execution_result"]
+        == "grade_a_primary_blocker_and_blind_chunk_stop_rule_reaffirmed"
+    )
+
+    refresh_md = (
+        PAPER4_ROOT / "notes" / "paper4_v468_source_governance_refresh.md"
+    ).read_text(encoding="utf-8")
+    assert "Source-Governance Refresh v468" in refresh_md
+    assert "primary bottleneck remains grade=A" in refresh_md
+    assert "does not relax source caps" in refresh_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v468: Source-Governance Refresh" in living_notebook
+    assert "Primary blocker:\n  `grade=A`." in living_notebook
+    assert "Primary blocker pass rows:\n  `0`." in living_notebook
+    assert "Grade-A relief return-improving rows:\n  `0`." in living_notebook
+    assert "Sampled source-exact rows:\n  `0`." in living_notebook
+    assert "Source cap relaxation authorized:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

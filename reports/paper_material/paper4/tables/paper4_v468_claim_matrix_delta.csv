@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v468_source_governance_refresh_created,True,paper4_v468_source_governance_refresh.csv,diagnostic refresh only
+v468_grade_a_primary_blocker_documented,True,paper4_v468_tight_source_rankings.csv,source blocker statement only
+v468_blind_chunking_stop_rule_reaffirmed,True,paper4_v468_source_execution_decision.csv,execution routing only
+v468_source_caps_relaxed_or_approved,False,paper4_v468_source_blocker_register.csv,no approval or cap mutation
+v468_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,"no champion, global proof or final promotion"
