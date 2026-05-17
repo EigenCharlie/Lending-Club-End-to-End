@@ -40327,6 +40327,163 @@ def test_paper4_v368_publishable_claim_scope_update_blocks_overclaiming() -> Non
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v369_proxy_live_gate_separation_keeps_live_claims_blocked() -> None:
+    status = _read_json("paper4_v369_status.json")
+
+    assert status["phase"] == "v369_proxy_live_gate_separation"
+    assert status["schema_version"] == "2026-05-17.369"
+    assert status["prior_scope_version_v369"] == 368
+    assert status["prior_route_version_v369"] == 367
+    assert status["prior_chunk_version_v369"] == 366
+    assert status["prior_dynamic_proxy_version_v369"] == 297
+    assert status["prior_online_gate_version_v369"] == 298
+    assert status["prior_holdout_version_v369"] == 67
+    assert status["separation_rows_v369"] == 6
+    assert status["offline_evidence_inventory_rows_v369"] == 7
+    assert status["gate_requirement_rows_v369"] == 10
+    assert status["gate_requirements_met_v369"] == 2
+    assert status["offline_publishable_allowed_rows_v369"] == 4
+    assert status["proxy_only_allowed_rows_v369"] == 2
+    assert status["dynamic_proxy_trace_rows_v369"] == 768
+    assert status["external_live_pass_rows_v369"] == 0
+    assert status["online_internal_pass_rows_v369"] == 2
+    assert status["holdout_data_available_v369"] is False
+    assert status["ifrs9_proxy_covered_loan_rows_v369"] == 95
+    assert status["ifrs9_proxy_uncovered_loan_rows_v369"] == 76
+    assert status["v366_source_exact_rows_v369"] == 0
+    assert status["remaining_unpriced_chunks_v369"] == 27
+    assert status["claim_blocker_rows_v369"] == 5
+    assert status["claim_matrix_rows_v369"] == 5
+    assert status["strict_live_deployability_claim_allowed_v369"] is False
+    assert status["contractual_or_legal_production_claim_allowed_v369"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v369"] is False
+    assert status["working_champion_claim_allowed_v369"] is False
+    assert status["paper1_promotion_allowed_v369"] is False
+    assert status["paper4_working_champion_changed_v369"] is False
+    assert status["final_promotion_allowed_v369"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v369"] == "paper4_v370_future_execution_backlog_refresh.csv"
+
+    separation = _read_csv("paper4_v369_proxy_live_gate_separation.csv")
+    lane_map = {row["lane_id_v369"]: row for _, row in separation.iterrows()}
+    assert set(lane_map) == {
+        "publishable_bounded_living_lab",
+        "bounded_solver_gap",
+        "dynamic_proxy_replay",
+        "online_external_holdout",
+        "ifrs9_proxy_contractual",
+        "deployment_final_promotion",
+    }
+    assert bool(lane_map["publishable_bounded_living_lab"]["offline_publishable_claim_allowed_v369"])
+    assert bool(lane_map["bounded_solver_gap"]["offline_publishable_claim_allowed_v369"])
+    assert int(lane_map["bounded_solver_gap"]["evidence_count_v369"]) == 371100576
+    assert bool(lane_map["dynamic_proxy_replay"]["proxy_only_claim_allowed_v369"])
+    assert int(lane_map["dynamic_proxy_replay"]["evidence_count_v369"]) == 768
+    assert bool(lane_map["online_external_holdout"]["strict_live_deployability_claim_allowed_v369"]) is False
+    assert int(lane_map["online_external_holdout"]["evidence_count_v369"]) == 0
+    assert bool(lane_map["ifrs9_proxy_contractual"]["proxy_only_claim_allowed_v369"])
+    assert int(lane_map["ifrs9_proxy_contractual"]["evidence_count_v369"]) == 95
+    assert bool(lane_map["deployment_final_promotion"]["final_promotion_allowed_v369"]) is False
+    assert not separation["strict_live_deployability_claim_allowed_v369"].astype(bool).any()
+    assert not separation["final_promotion_allowed_v369"].astype(bool).any()
+
+    requirements = _read_csv("paper4_v369_gate_requirement_matrix.csv")
+    req_map = dict(zip(requirements["requirement_id_v369"], requirements["met_v369"], strict=False))
+    evidence_map = dict(
+        zip(requirements["requirement_id_v369"], requirements["evidence_count_v369"], strict=False)
+    )
+    assert bool(req_map["bounded_claim_scope_update_exists"]) is True
+    assert int(evidence_map["bounded_claim_scope_update_exists"]) == 4
+    assert bool(req_map["dynamic_proxy_replay_executed"]) is True
+    assert int(evidence_map["dynamic_proxy_replay_executed"]) == 768
+    assert bool(req_map["external_online_holdout_available"]) is False
+    assert int(evidence_map["external_online_holdout_available"]) == 2
+    assert bool(req_map["external_online_holdout_passes"]) is False
+    assert int(evidence_map["external_online_holdout_passes"]) == 0
+    assert bool(req_map["ifrs9_contractual_coverage_complete"]) is False
+    assert int(evidence_map["ifrs9_contractual_coverage_complete"]) == 76
+    assert bool(req_map["formal_spo_dla_claim_review_passed"]) is False
+    assert bool(req_map["full_v55_certificate_available"]) is False
+    assert int(evidence_map["full_v55_certificate_available"]) == 27
+    assert bool(req_map["source_exact_full_v55_chunk_evidence_available"]) is False
+    assert int(evidence_map["source_exact_full_v55_chunk_evidence_available"]) == 0
+    assert bool(req_map["deployment_monitoring_runbook_exists"]) is False
+    assert bool(req_map["final_promotion_gate_created"]) is False
+
+    inventory = _read_csv("paper4_v369_offline_evidence_inventory.csv")
+    inventory_map = {row["inventory_id_v369"]: row for _, row in inventory.iterrows()}
+    assert int(inventory_map["v67_external_holdout_scorer"]["evidence_count_v369"]) == 2
+    assert int(inventory_map["v297_dynamic_proxy_replay"]["evidence_count_v369"]) == 768
+    assert int(inventory_map["v298_online_ifrs9_gate_expansion"]["evidence_count_v369"]) == 2
+    assert int(inventory_map["v361_bounded_solver_no_entry"]["evidence_count_v369"]) == 371100576
+    assert int(inventory_map["v363_full_dual_bound_gap"]["evidence_count_v369"]) == 5738
+    assert int(inventory_map["v366_full_v55_chunk_source_blocker"]["evidence_count_v369"]) == 1710000
+    assert int(inventory_map["v368_claim_scope_update"]["evidence_count_v369"]) == 4
+    assert not inventory["live_claim_allowed_v369"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v369_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v369"], blockers["blocking_v369"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v369"], blockers["evidence_count_v369"], strict=False)
+    )
+    assert bool(blocker_map["external_holdout_missing"]) is True
+    assert int(blocker_evidence["external_holdout_missing"]) == 2
+    assert bool(blocker_map["ifrs9_proxy_uncovered_rows"]) is True
+    assert int(blocker_evidence["ifrs9_proxy_uncovered_rows"]) == 76
+    assert bool(blocker_map["full_solver_certificate_missing"]) is True
+    assert int(blocker_evidence["full_solver_certificate_missing"]) == 27
+    assert bool(blocker_map["source_exact_chunk_rows_zero"]) is True
+    assert int(blocker_evidence["source_exact_chunk_rows_zero"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v369_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v369_proxy_live_gate_separation_created"]) is True
+    assert bool(claim_map["v369_offline_proxy_labels_allowed"]) is True
+    assert bool(claim_map["v369_strict_live_deployability"]) is False
+    assert bool(claim_map["v369_contractual_or_legal_production_controls"]) is False
+    assert bool(claim_map["v369_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v369 separates offline proxy evidence from live deployment gates."])
+    assert bool(
+        boundary_map["v369 allows proxy-only and offline evidence statements with explicit labels."]
+    )
+    assert bool(boundary_map["v369 authorizes strict live deployability."]) is False
+    assert (
+        bool(
+            boundary_map[
+                "v369 turns IFRS9, fairness or online monitoring proxies into production controls."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v369 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v369_rows = backlog.loc[backlog["last_wave"].eq("v369")]
+    assert len(v369_rows) == 1
+    backlog_row = v369_rows.iloc[0]
+    assert backlog_row["status"] == "proxy_live_gate_separation_created"
+    assert backlog_row["next_artifact"] == "paper4_v370_future_execution_backlog_refresh.csv"
+    assert (
+        backlog_row["execution_result"]
+        == "offline_proxy_live_deployment_and_promotion_gates_separated"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v369: Proxy/Live Gate Separation" in notebook
+    assert "Separation rows:\n  `6`" in notebook
+    assert "External live pass rows from v298:\n  `0`" in notebook
+    assert "Strict live deployability claim allowed:\n  `False`" in notebook
+    assert "Next artifact:\n  `paper4_v370_future_execution_backlog_refresh.csv`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

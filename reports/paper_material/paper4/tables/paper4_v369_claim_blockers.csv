@@ -1,0 +1,6 @@
+blocker_id_v369,blocking_v369,evidence_count_v369,required_next_artifact_v369,claim_boundary_v369
+external_holdout_missing,True,2,paper4_v370_future_execution_backlog_refresh.csv,live deployment requires external/future holdout
+ifrs9_proxy_uncovered_rows,True,76,paper4_v370_future_execution_backlog_refresh.csv,contractual IFRS9 remains blocked
+full_solver_certificate_missing,True,27,paper4_v370_future_execution_backlog_refresh.csv,global optimality remains blocked
+source_exact_chunk_rows_zero,True,0,paper4_v370_future_execution_backlog_refresh.csv,source governance blocks full-v55 chunk evidence
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

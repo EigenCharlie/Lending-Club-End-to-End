@@ -15405,3 +15405,57 @@ Keep v368 in the living notebook. v369 should separate offline proxy evidence
 from live readiness and deployment/final-promotion gates.
 
 <!-- V368_PUBLISHABLE_CLAIM_SCOPE_UPDATE_END -->
+
+<!-- V369_PROXY_LIVE_GATE_SEPARATION_START -->
+
+## Wave v369: Proxy/Live Gate Separation
+
+Generated: 2026-05-17T04:30:56.812357+00:00
+
+### Objective
+
+v368 defined the strongest bounded publishable claim. v369 separates evidence
+that is safe for offline/publication language from evidence that remains
+proxy-only, live-gated, contractual/legal-gated or final-promotion-gated.
+
+### Results
+
+- Separation rows:
+  `6`.
+- Offline evidence inventory rows:
+  `7`.
+- Gate requirement rows:
+  `10`.
+- Gate requirements met:
+  `2`.
+- Dynamic proxy trace rows from v297:
+  `768`.
+- External live pass rows from v298:
+  `0`.
+- IFRS9 proxy uncovered loan rows from v298:
+  `76`.
+- Strict live deployability claim allowed:
+  `False`.
+- Final promotion allowed:
+  `False`.
+- Next artifact:
+  `paper4_v370_future_execution_backlog_refresh.csv`.
+
+### Interpretation
+
+v369 is a governance cleanup wave. It lets the paper use offline and proxy
+evidence honestly while keeping live deployment, contractual IFRS9, legal
+fairness, global solver and final-promotion claims blocked.
+
+### Claim Impact
+
+- Allowed: offline/proxy evidence statements with explicit labels.
+- Still prohibited: strict live deployability, contractual/legal production
+  controls, final champion replacement and Paper 4 final promotion.
+
+### Quarto Promotion Decision
+
+Keep v369 in the living notebook. v370 should refresh the executable backlog
+after v365-v369 and choose the next useful experimental lane.
+
+<!-- V369_PROXY_LIVE_GATE_SEPARATION_END -->
