@@ -15769,3 +15769,52 @@ Keep v375 in the living notebook. v376 should map the v374/v375 language into a
 publication integration patch without changing claim permissions.
 
 <!-- V375_LIVE_GATE_DATA_CONTRACT_END -->
+
+<!-- V376_PUBLICATION_INTEGRATION_PATCH_START -->
+
+## Wave v376: Publication Integration Patch
+
+Generated: 2026-05-17T05:18:50.348975+00:00
+
+### Objective
+
+v376 converts the v374 claim language and v375 data contract into a future
+manuscript integration patch while keeping the work in the living notebook.
+
+### Results
+
+- Section integration rows:
+  `7`.
+- Allowed sentence rows:
+  `8`.
+- Prohibited sentence rows:
+  `7`.
+- Figure/table plan rows:
+  `6`.
+- Quarto pages modified:
+  `False`.
+- Strict live deployment language allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v377_reproducibility_bundle_manifest.csv`.
+
+### Interpretation
+
+The living lab now has paper-facing integration instructions, not just raw
+execution logs. This preserves the strongest true claim: bounded, reproducible
+offline/proxy evidence with explicit live/legal/global/final blockers.
+
+### Claim Impact
+
+- Allowed: future manuscript placement of bounded results, limitations and
+  data-gate language.
+- Still prohibited: Quarto promotion, live/legal/global/champion/final claims.
+
+### Quarto Promotion Decision
+
+Keep v376 in the living notebook. v377 should package a reproducibility bundle
+manifest for the citable appendix.
+
+<!-- V376_PUBLICATION_INTEGRATION_PATCH_END -->

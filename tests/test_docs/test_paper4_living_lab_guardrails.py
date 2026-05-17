@@ -41282,6 +41282,157 @@ def test_paper4_v375_live_gate_data_contract_blocks_live_legal_global_claims() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v376_publication_integration_patch_stays_living_notebook_only() -> None:
+    status = _read_json("paper4_v376_status.json")
+
+    assert status["phase"] == "v376_publication_integration_patch"
+    assert status["schema_version"] == "2026-05-17.376"
+    assert status["prior_claim_language_version_v376"] == 374
+    assert status["prior_data_contract_version_v376"] == 375
+    assert status["prior_v374_draft_section_rows_v376"] == 5
+    assert status["prior_v375_contract_rows_v376"] == 11
+    assert status["section_integration_rows_v376"] == 7
+    assert status["allowed_sentence_rows_v376"] == 8
+    assert status["prohibited_sentence_rows_v376"] == 7
+    assert status["figure_table_plan_rows_v376"] == 6
+    assert status["claim_blocker_rows_v376"] == 5
+    assert status["claim_matrix_rows_v376"] == 5
+    assert status["quarto_pages_modified_v376"] is False
+    assert status["bounded_living_lab_language_allowed_v376"] is True
+    assert status["offline_proxy_language_allowed_v376"] is True
+    assert status["strict_live_deployment_language_allowed_v376"] is False
+    assert status["contractual_or_legal_language_allowed_v376"] is False
+    assert status["global_optimality_language_allowed_v376"] is False
+    assert status["working_champion_claim_allowed_v376"] is False
+    assert status["paper1_promotion_allowed_v376"] is False
+    assert status["paper4_working_champion_changed_v376"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["patch_artifact_v376"] == (
+        "reports/paper_material/paper4/notes/"
+        "paper4_v376_publication_integration_patch.md"
+    )
+    assert status["next_artifact_v376"] == "paper4_v377_reproducibility_bundle_manifest.csv"
+
+    section_map = _read_csv("paper4_v376_section_integration_map.csv")
+    assert section_map["paper_section_v376"].tolist() == [
+        "Abstract",
+        "Introduction",
+        "Methods: Claim Governance",
+        "Results: Solver Frontier",
+        "Results: Source Governance",
+        "Limitations",
+        "Discussion And Appendix",
+    ]
+    assert not section_map["quarto_edit_allowed_v376"].astype(bool).any()
+    assert "paper4_v375_live_gate_data_contract.csv" in set(section_map["source_artifact_v376"])
+    limitation_row = section_map.loc[section_map["paper_section_v376"].eq("Limitations")].iloc[0]
+    assert limitation_row["claim_permission_v376"] == "strict_live_deployment_language:blocked"
+
+    allowed = _read_csv("paper4_v376_allowed_sentence_bank.csv")
+    assert allowed["sentence_id_v376"].tolist() == [
+        "bounded_living_lab_protocol",
+        "fourth_order_no_entry",
+        "source_governance_blocker",
+        "offline_proxy_available",
+        "live_gate_zero",
+        "ifrs9_contractual_blocked",
+        "global_solver_blocked",
+        "final_promotion_absent",
+    ]
+    allowed_text = "\n".join(allowed["allowed_sentence_v376"].astype(str))
+    assert "bounded offline/proxy evidence" in allowed_text
+    assert "not live deployment evidence" in allowed_text
+    assert "zero live-deployment gates met" in allowed_text
+    assert "No Paper 4 final-promotion artifact is created" in allowed_text
+
+    prohibited = _read_csv("paper4_v376_prohibited_sentence_bank.csv")
+    assert prohibited["prohibited_phrase_v376"].tolist() == [
+        "new working champion",
+        "Paper Estrella replacement",
+        "full-v55 global optimality",
+        "strict live deployment",
+        "contractual IFRS9",
+        "legal fairness compliance",
+        "final Paper 4 promotion",
+    ]
+    assert not prohibited["allowed_v376"].astype(bool).any()
+
+    display_plan = _read_csv("paper4_v376_figure_table_plan.csv")
+    assert display_plan["display_id_v376"].tolist() == [
+        "Table 1",
+        "Table 2",
+        "Table 3",
+        "Table 4",
+        "Figure 1",
+        "Appendix A",
+    ]
+    assert display_plan.iloc[-1]["source_artifact_v376"] == (
+        "paper4_v377_reproducibility_bundle_manifest.csv"
+    )
+
+    blockers = _read_csv("paper4_v376_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v376"], blockers["blocking_v376"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v376"], blockers["evidence_count_v376"], strict=False)
+    )
+    assert bool(blocker_map["quarto_promotion_not_performed"]) is True
+    assert int(blocker_evidence["quarto_promotion_not_performed"]) == 0
+    assert bool(blocker_map["strict_live_language_blocked_by_v375"]) is True
+    assert int(blocker_evidence["strict_live_language_blocked_by_v375"]) == 0
+    assert bool(blocker_map["global_solver_language_blocked_by_v375"]) is True
+    assert int(blocker_evidence["global_solver_language_blocked_by_v375"]) == 0
+    assert bool(blocker_map["contractual_legal_language_blocked_by_v375"]) is True
+    assert int(blocker_evidence["contractual_legal_language_blocked_by_v375"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+    assert int(blocker_evidence["paper4_final_promotion_forbidden"]) == 1
+
+    claim_delta = _read_csv("paper4_v376_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v376_publication_integration_patch_created"]) is True
+    assert bool(claim_map["v376_section_and_display_plan_created"]) is True
+    assert bool(claim_map["v376_quarto_pages_modified_or_promoted"]) is False
+    assert bool(claim_map["v376_live_legal_or_global_claim_authorized"]) is False
+    assert bool(claim_map["v376_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v376 maps bounded Paper 4 evidence into a publication integration patch."]
+    )
+    assert bool(boundary_map["v376 creates section and table plans for future Paper 4 writing."])
+    assert bool(boundary_map["v376 promotes Paper 4 Quarto pages or finalizes the paper."]) is False
+    assert bool(
+        boundary_map["v376 authorizes live, contractual/legal, global or champion claims."]
+    ) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v376_rows = backlog.loc[backlog["last_wave"].eq("v376")]
+    assert len(v376_rows) == 1
+    backlog_row = v376_rows.iloc[0]
+    assert backlog_row["status"] == "publication_integration_patch_created"
+    assert backlog_row["next_artifact"] == "paper4_v377_reproducibility_bundle_manifest.csv"
+    assert backlog_row["execution_result"] == "bounded_publication_patch_without_quarto_or_promotion"
+
+    patch = (
+        PAPER4_ROOT / "notes" / "paper4_v376_publication_integration_patch.md"
+    ).read_text(encoding="utf-8")
+    assert "It is not a Quarto promotion" in patch
+    assert "must not claim strict live deployment" in patch
+    assert "paper4_v377_reproducibility_bundle_manifest.csv" in patch
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v376: Publication Integration Patch" in notebook
+    assert "Section integration rows:\n  `7`" in notebook
+    assert "Allowed sentence rows:\n  `8`" in notebook
+    assert "Prohibited sentence rows:\n  `7`" in notebook
+    assert "Quarto pages modified:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

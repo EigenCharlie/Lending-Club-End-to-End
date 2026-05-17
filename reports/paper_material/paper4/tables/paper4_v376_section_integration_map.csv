@@ -1,0 +1,8 @@
+paper_section_v376,integration_action_v376,source_artifact_v376,citation_keys_v376,claim_permission_v376,quarto_edit_allowed_v376,claim_boundary_v376
+Abstract,Use the bounded living-lab framing from v374 without champion language.,paper4_v374_claim_language_section_draft.csv,v368;v369;v373,bounded_living_lab_manuscript_language,False,abstract framing only
+Introduction,State the contribution as a reproducible audit protocol around Paper Estrella.,paper4_v374_paper4_claim_language_section_draft.md,v368;v374,bounded_living_lab_manuscript_language,False,motivation and scope only
+Methods: Claim Governance,Insert the v375 data contract as the governance method for stronger claims.,paper4_v375_live_gate_data_contract.csv,v369;v375,bounded_living_lab_manuscript_language,False,governance method only
+Results: Solver Frontier,Report v361/v363 bounded no-entry and gap evidence as non-global results.,paper4_v374_claim_language_section_draft.csv,v361;v363,bounded_living_lab_manuscript_language,False,bounded solver evidence only
+Results: Source Governance,Report v371-v373 source-governance blockers and blind-chunk stop rule.,paper4_v373_sampled_chunk_source_screen.csv,v371;v372;v373,bounded_living_lab_manuscript_language,False,diagnostic result only
+Limitations,Use the v375 gate readiness summary to state live/legal/global blockers.,paper4_v375_gate_readiness_summary.csv,v369;v375,strict_live_deployment_language:blocked,False,limitations only
+Discussion And Appendix,Route reproducibility artifacts to a future appendix manifest.,paper4_living_lab_backlog.csv,v376,publication_planning_only,False,future-work plan only

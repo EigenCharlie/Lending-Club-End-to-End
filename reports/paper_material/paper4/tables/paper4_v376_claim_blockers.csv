@@ -1,0 +1,6 @@
+blocker_id_v376,blocking_v376,evidence_count_v376,required_next_artifact_v376,claim_boundary_v376
+quarto_promotion_not_performed,True,0,paper4_v377_reproducibility_bundle_manifest.csv,v376 is a living-notebook patch only
+strict_live_language_blocked_by_v375,True,0,paper4_v377_reproducibility_bundle_manifest.csv,live deployment gates remain zero
+global_solver_language_blocked_by_v375,True,0,paper4_v377_reproducibility_bundle_manifest.csv,global solver gates remain zero
+contractual_legal_language_blocked_by_v375,True,0,paper4_v377_reproducibility_bundle_manifest.csv,contractual/legal gates remain zero
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

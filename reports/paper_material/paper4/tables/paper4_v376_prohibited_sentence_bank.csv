@@ -1,0 +1,8 @@
+prohibited_phrase_v376,replacement_language_v376,blocking_artifact_v376,allowed_v376
+new working champion,protected Paper Estrella champion,paper4_v374_prohibited_language_register.csv,False
+Paper Estrella replacement,living-lab audit around Paper Estrella,paper4_v374_prohibited_language_register.csv,False
+full-v55 global optimality,bounded/gap evidence only,paper4_v375_claim_permission_register.csv,False
+strict live deployment,offline/proxy evidence with live gates blocked,paper4_v375_live_gate_data_contract.csv,False
+contractual IFRS9,IFRS9-inspired proxy diagnostics,paper4_v375_claim_permission_register.csv,False
+legal fairness compliance,fairness proxy diagnostics,paper4_v375_claim_permission_register.csv,False
+final Paper 4 promotion,living notebook evidence only,paper4_v375_claim_blockers.csv,False

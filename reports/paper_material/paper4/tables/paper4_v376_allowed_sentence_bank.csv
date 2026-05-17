@@ -1,0 +1,9 @@
+sentence_id_v376,allowed_sentence_v376,source_artifact_v376,claim_boundary_v376
+bounded_living_lab_protocol,Paper 4 is a reproducible living-lab protocol for auditing bounded offline/proxy evidence around the protected Paper Estrella champion.,paper4_v374_paper4_claim_language_section_draft.md,framing claim only
+fourth_order_no_entry,"The v361 fourth-order screen supports a bounded no-entry statement, not a full-v55 termination proof.",paper4_v374_claim_language_section_draft.md,bounded solver result only
+source_governance_blocker,The v371-v373 diagnostics identify source governance as the active blocker before additional CVaR-heavy probes.,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,diagnostic result only
+offline_proxy_available,"Offline proxy replay evidence is available, but it is not live deployment evidence.",paper4_v375_live_gate_data_contract.csv,proxy-only statement
+live_gate_zero,The v375 data contract records zero live-deployment gates met.,paper4_v375_status.json,limitation statement
+ifrs9_contractual_blocked,IFRS9 language remains proxy-inspired and not contractual because the contractual coverage gate is unmet.,paper4_v375_claim_permission_register.csv,contractual limitation
+global_solver_blocked,Full-v55 global optimality remains blocked by the missing dual-bound certificate.,paper4_v375_claim_blockers.csv,global limitation
+final_promotion_absent,No Paper 4 final-promotion artifact is created; Paper Estrella remains protected.,paper4_v375_claim_blockers.csv,promotion limitation
