@@ -21977,3 +21977,60 @@ Keep v493 in the living notebook. v494 should audit the explicit patch approval
 gap without modifying book sources.
 
 <!-- V493_CAPTION_SIGNOFF_GAP_PACKET_END -->
+
+<!-- V494_PATCH_APPROVAL_GAP_PACKET_START -->
+
+## Wave v494: Patch Approval Gap Packet
+
+Generated: 2026-05-17T18:43:29.936206+00:00
+
+### Objective
+
+v494 audits explicit patch approval gaps without obtaining approval or editing
+book sources.
+
+### Results
+
+- Approval gap rows:
+  `6`.
+- Approval ready rows:
+  `1`.
+- Approval blocking rows:
+  `5`.
+- Approval request rows:
+  `5`.
+- Approval scope rows:
+  `4`.
+- Scope approved rows:
+  `0`.
+- Decision option rows:
+  `4`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v495_no_patch_release_synthesis.md`.
+
+### Interpretation
+
+Explicit patch approval is still absent. The useful next move is a no-patch
+release synthesis that captures what the living lab can claim without mutating
+the manuscript.
+
+### Claim Impact
+
+- Allowed: approval gap packet, bounded approval request packet and patch scope
+  mapping.
+- Still prohibited: explicit patch approval claim, Quarto patch
+  readiness/application, Quarto/book-reference mutation, submission readiness,
+  Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v494 in the living notebook. v495 should synthesize no-patch release
+evidence without modifying book sources.
+
+<!-- V494_PATCH_APPROVAL_GAP_PACKET_END -->

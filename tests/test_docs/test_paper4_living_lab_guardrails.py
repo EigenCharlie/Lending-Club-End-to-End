@@ -56382,6 +56382,133 @@ def test_paper4_v493_caption_signoff_gap_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v494_patch_approval_gap_packet_is_guarded() -> None:
+    status = _read_json("paper4_v494_status.json")
+    assert status["phase"] == "v494_patch_approval_gap_packet"
+    assert status["schema_version"] == "2026-05-17.494"
+    assert status["prior_caption_signoff_version_v494"] == 493
+    assert status["patch_approval_gap_packet_created_v494"] is True
+    assert status["approval_gap_rows_v494"] == 6
+    assert status["approval_ready_rows_v494"] == 1
+    assert status["approval_blocking_rows_v494"] == 5
+    assert status["approval_request_rows_v494"] == 5
+    assert status["approval_request_pending_rows_v494"] == 4
+    assert status["approval_scope_rows_v494"] == 4
+    assert status["scope_approved_rows_v494"] == 0
+    assert status["approval_decision_option_rows_v494"] == 4
+    assert status["patch_allowed_option_rows_v494"] == 0
+    assert status["readiness_delta_rows_v494"] == 8
+    assert status["ready_for_quarto_patch_v494"] is False
+    assert status["quarto_patch_applied_v494"] is False
+    assert status["book_sources_modified_v494"] is False
+    assert status["book_references_modified_v494"] is False
+    assert status["submission_ready_claim_allowed_v494"] is False
+    assert status["working_champion_claim_allowed_v494"] is False
+    assert status["paper1_promotion_allowed_v494"] is False
+    assert status["paper4_working_champion_changed_v494"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v494"] == "paper4_v495_no_patch_release_synthesis.md"
+
+    gaps = _read_csv("paper4_v494_patch_approval_gap_packet.csv")
+    assert len(gaps) == 6
+    assert int(gaps["approval_ready_v494"].astype(bool).sum()) == 1
+    assert int(gaps["blocks_patch_v494"].astype(bool).sum()) == 5
+    gap_map = dict(zip(gaps["approval_gap_id_v494"], gaps["approval_ready_v494"], strict=False))
+    assert bool(gap_map["explicit_patch_approval_documented"]) is False
+    assert bool(gap_map["approver_identity_recorded"]) is False
+    assert bool(gap_map["mutation_scope_approved"]) is False
+    assert bool(gap_map["rollback_plan_accepted"]) is False
+    assert bool(gap_map["caption_signoff_synced"]) is False
+    assert bool(gap_map["paper_estrella_boundary_reconfirmed"]) is True
+
+    requests = _read_csv("paper4_v494_approval_request_packet.csv")
+    assert len(requests) == 5
+    assert int(requests["request_status_v494"].eq("pending").sum()) == 4
+    assert not requests["patch_allowed_v494"].astype(bool).any()
+    assert "approve_or_reject_patch_attempt" in set(requests["request_item_id_v494"])
+    assert "confirm_no_final_promotion" in set(requests["request_item_id_v494"])
+
+    scope = _read_csv("paper4_v494_approval_scope_matrix.csv")
+    assert len(scope) == 4
+    assert scope["scope_reviewed_v494"].astype(bool).all()
+    assert not scope["scope_approved_for_patch_v494"].astype(bool).any()
+    assert scope["blocks_patch_v494"].astype(bool).all()
+    assert "results_evidence_governance_online" in set(scope["target_block_v494"])
+    assert "discussion_limitations" in set(scope["target_block_v494"])
+
+    options = _read_csv("paper4_v494_approval_decision_options.csv")
+    assert len(options) == 4
+    assert not options["patch_allowed_v494"].astype(bool).any()
+    option_map = dict(zip(options["decision_option_id_v494"], options["recommended_v494"], strict=False))
+    assert bool(option_map["keep_patch_blocked"]) is True
+    assert bool(option_map["prepare_no_patch_release_synthesis"]) is True
+    assert bool(option_map["request_explicit_patch_approval"]) is True
+    assert bool(option_map["apply_quarto_patch_now"]) is False
+
+    readiness = _read_csv("paper4_v494_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v494"], readiness["ready_v494"], strict=False)
+    )
+    assert bool(readiness_map["patch_approval_gap_packet_created"]) is True
+    assert bool(readiness_map["approval_request_packet_created"]) is True
+    assert bool(readiness_map["approval_scope_matrix_created"]) is True
+    assert bool(readiness_map["approval_decision_options_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v494_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v494_patch_approval_gap_packet_created"]) is True
+    assert bool(claim_map["v494_approval_request_packet_created"]) is True
+    assert bool(claim_map["v494_approval_scope_matrix_created"]) is True
+    assert bool(claim_map["v494_explicit_patch_approval_or_patch_ready"]) is False
+    assert bool(claim_map["v494_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v494 audits explicit patch approval gaps for Paper 4."])
+    assert bool(boundary_map["v494 creates a bounded patch approval request packet."])
+    assert bool(boundary_map["v494 maps patch scope without approving mutation."])
+    assert (
+        bool(boundary_map["v494 obtains explicit patch approval or makes Paper 4 patch-ready."])
+        is False
+    )
+    assert bool(boundary_map["v494 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v494 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v494_rows = backlog.loc[backlog["last_wave"].eq("v494")]
+    assert len(v494_rows) == 1
+    backlog_row = v494_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v495_no_patch_release_synthesis.md"
+    assert backlog_row["execution_result"] == "patch_approval_gap_packet_created_without_approval"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v494_patch_approval_gap_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Patch Approval Gap Packet v494" in packet_md
+    assert "does not obtain approval" in packet_md
+    assert "v494 is an approval gap audit only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v494: Patch Approval Gap Packet" in living_notebook
+    assert "Approval gap rows:\n  `6`." in living_notebook
+    assert "Approval ready rows:\n  `1`." in living_notebook
+    assert "Approval blocking rows:\n  `5`." in living_notebook
+    assert "Approval request rows:\n  `5`." in living_notebook
+    assert "Approval scope rows:\n  `4`." in living_notebook
+    assert "Scope approved rows:\n  `0`." in living_notebook
+    assert "Decision option rows:\n  `4`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

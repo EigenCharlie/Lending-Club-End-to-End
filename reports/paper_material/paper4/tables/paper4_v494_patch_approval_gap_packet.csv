@@ -1,0 +1,7 @@
+approval_gap_id_v494,approval_ready_v494,required_before_patch_v494,blocks_patch_v494,gap_boundary_v494
+explicit_patch_approval_documented,False,True,True,no explicit patch approval exists
+approver_identity_recorded,False,True,True,no accountable approver recorded
+mutation_scope_approved,False,True,True,book mutation scope not approved
+rollback_plan_accepted,False,True,True,rollback acceptance missing
+caption_signoff_synced,False,True,True,v493 caption signoff remains open
+paper_estrella_boundary_reconfirmed,True,True,False,final promotion remains absent

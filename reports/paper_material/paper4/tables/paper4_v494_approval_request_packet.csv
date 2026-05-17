@@ -1,0 +1,6 @@
+request_item_id_v494,request_status_v494,required_response_v494,patch_allowed_v494
+approve_or_reject_patch_attempt,pending,"approve, reject, or keep blocked",False
+confirm_target_files,pending,confirm four target source files,False
+confirm_caption_signoff_dependency,pending,confirm captions must be final before patch,False
+confirm_rollback_expectation,pending,confirm rollback and render checks,False
+confirm_no_final_promotion,reconfirmed,keep Paper Estrella boundary active,False

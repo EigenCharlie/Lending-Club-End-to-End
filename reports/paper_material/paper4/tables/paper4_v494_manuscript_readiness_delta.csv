@@ -1,0 +1,9 @@
+readiness_gate_v494,ready_v494,evidence_artifact_v494,claim_boundary_v494
+patch_approval_gap_packet_created,True,paper4_v494_patch_approval_gap_packet.csv,approval gap packet only
+approval_request_packet_created,True,paper4_v494_approval_request_packet.csv,request packet only
+approval_scope_matrix_created,True,paper4_v494_approval_scope_matrix.csv,scope matrix only
+approval_decision_options_created,True,paper4_v494_approval_decision_options.csv,decision options only
+ready_for_quarto_patch,False,explicit patch approval missing,patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v494
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

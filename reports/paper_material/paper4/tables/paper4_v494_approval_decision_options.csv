@@ -1,0 +1,5 @@
+decision_option_id_v494,recommended_v494,patch_allowed_v494,decision_boundary_v494
+keep_patch_blocked,True,False,approval and caption signoff missing
+prepare_no_patch_release_synthesis,True,False,summarize useful no-patch evidence
+request_explicit_patch_approval,True,False,"request only, no mutation"
+apply_quarto_patch_now,False,False,not authorized in v494
