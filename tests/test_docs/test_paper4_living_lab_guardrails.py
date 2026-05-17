@@ -40484,6 +40484,125 @@ def test_paper4_v369_proxy_live_gate_separation_keeps_live_claims_blocked() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v370_future_execution_backlog_refresh_records_goal_prompt() -> None:
+    status = _read_json("paper4_v370_status.json")
+
+    assert status["phase"] == "v370_future_execution_backlog_refresh"
+    assert status["schema_version"] == "2026-05-17.370"
+    assert status["prior_plan_version_v370"] == 365
+    assert status["prior_chunk_version_v370"] == 366
+    assert status["prior_route_version_v370"] == 367
+    assert status["prior_scope_version_v370"] == 368
+    assert status["prior_gate_version_v370"] == 369
+    assert status["recommended_next_wave_v370"] == "v371_source_governance_blocker_diagnostic"
+    assert status["next_artifact_v370"] == "paper4_v371_source_governance_blocker_diagnostic.csv"
+    assert status["next_wave_option_rows_v370"] == 6
+    assert status["executable_now_options_v370"] == 6
+    assert status["v365_planned_chunk_count_v370"] == 28
+    assert status["v366_ordered_one_swap_rows_v370"] == 1710000
+    assert status["v366_source_exact_rows_v370"] == 0
+    assert status["v367_recommended_route_v370"] == "bounded_claim_scope_update"
+    assert status["allowed_publishable_claim_rows_v370"] == 4
+    assert status["gate_requirements_met_v370"] == 2
+    assert status["gate_requirement_rows_v370"] == 10
+    assert status["strict_live_deployability_claim_allowed_v370"] is False
+    assert status["working_champion_claim_allowed_v370"] is False
+    assert status["paper1_promotion_allowed_v370"] is False
+    assert status["paper4_working_champion_changed_v370"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v370"] == 4
+    assert status["claim_matrix_rows_v370"] == 4
+    assert (
+        status["goal_prompt_artifact_v370"]
+        == "reports/paper_material/paper4/notes/paper4_v370_goal_prompt.md"
+    )
+
+    refresh = _read_csv("paper4_v370_future_execution_backlog_refresh.csv")
+    row = refresh.iloc[0]
+    assert row["refresh_id_v370"] == "v370_future_execution_backlog_refresh"
+    assert row["recommended_next_wave_v370"] == "v371_source_governance_blocker_diagnostic"
+    assert row["next_artifact_v370"] == "paper4_v371_source_governance_blocker_diagnostic.csv"
+    assert int(row["v365_planned_chunk_count_v370"]) == 28
+    assert int(row["v366_ordered_one_swap_rows_v370"]) == 1710000
+    assert int(row["v366_source_exact_rows_v370"]) == 0
+    assert row["v367_recommended_route_v370"] == "bounded_claim_scope_update"
+    assert int(row["allowed_publishable_claim_rows_v370"]) == 4
+    assert int(row["gate_requirements_met_v370"]) == 2
+    assert int(row["gate_requirement_rows_v370"]) == 10
+    assert bool(row["strict_live_deployability_claim_allowed_v370"]) is False
+    assert bool(row["working_champion_claim_allowed_v370"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    options = _read_csv("paper4_v370_next_wave_options.csv")
+    assert options["option_id_v370"].tolist() == [
+        "v371_source_governance_blocker_diagnostic",
+        "v372_paper4_claim_language_section_draft",
+        "v373_full_v55_chunk_002_or_stop_rule",
+        "v374_live_gate_data_contract",
+        "v375_quarto_integration_decision",
+        "v376_guardrail_debt_register",
+    ]
+    assert options["priority_v370"].astype(int).tolist() == [1, 2, 3, 4, 5, 6]
+    assert options["executable_now_v370"].astype(bool).all()
+    assert options["expected_artifact_v370"].tolist()[0] == (
+        "paper4_v371_source_governance_blocker_diagnostic.csv"
+    )
+
+    blockers = _read_csv("paper4_v370_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v370"], blockers["blocking_v370"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v370"], blockers["evidence_count_v370"], strict=False)
+    )
+    assert bool(blocker_map["source_governance_blocker_unexplained"]) is True
+    assert int(evidence_map["source_governance_blocker_unexplained"]) == 0
+    assert bool(blocker_map["remaining_chunks_unpriced"]) is True
+    assert int(evidence_map["remaining_chunks_unpriced"]) == 27
+    assert bool(blocker_map["live_gate_requirements_unmet"]) is True
+    assert int(evidence_map["live_gate_requirements_unmet"]) == 8
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v370_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v370_future_execution_backlog_refresh_created"]) is True
+    assert bool(claim_map["v370_goal_prompt_created"]) is True
+    assert bool(claim_map["v370_selects_v371_source_governance_diagnostic"]) is True
+    assert bool(claim_map["v370_new_solver_live_or_final_claim"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v370 refreshes the executable Paper 4 backlog after v365-v369."])
+    assert bool(
+        boundary_map["v370 selects v371 source-governance blocker diagnostics as next wave."]
+    )
+    assert bool(boundary_map["v370 proves a new Paper 4 solver, live or deployment claim."]) is False
+    assert bool(boundary_map["v370 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v370_rows = backlog.loc[backlog["last_wave"].eq("v370")]
+    assert len(v370_rows) == 1
+    backlog_row = v370_rows.iloc[0]
+    assert backlog_row["status"] == "future_execution_backlog_refreshed"
+    assert backlog_row["next_artifact"] == "paper4_v371_source_governance_blocker_diagnostic.csv"
+    assert backlog_row["execution_result"] == "post_v369_goal_prompt_and_backlog_refresh_created"
+
+    prompt = (PAPER4_ROOT / "notes" / "paper4_v370_goal_prompt.md").read_text(encoding="utf-8")
+    assert "Goal: continue Paper 4 living-lab execution after v365-v369" in prompt
+    assert "v371_source_governance_blocker_diagnostic" in prompt
+    assert "v376_guardrail_debt_register" in prompt
+    assert "Before every run, commit or push" in prompt
+    assert "Final promotion remains `False`." in prompt
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v370: Future Execution Backlog Refresh" in notebook
+    assert "Recommended next wave:\n  `v371_source_governance_blocker_diagnostic`" in notebook
+    assert "V366 source-exact rows:\n  `0`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

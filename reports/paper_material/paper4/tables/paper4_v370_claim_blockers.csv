@@ -1,0 +1,5 @@
+blocker_id_v370,blocking_v370,evidence_count_v370,required_next_artifact_v370,claim_boundary_v370
+source_governance_blocker_unexplained,True,0,paper4_v371_source_governance_blocker_diagnostic.csv,v371 must explain zero source-exact rows
+remaining_chunks_unpriced,True,27,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,full-v55 proof remains open
+live_gate_requirements_unmet,True,8,paper4_v374_live_gate_data_contract.csv,live deployment remains blocked
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -15459,3 +15459,53 @@ Keep v369 in the living notebook. v370 should refresh the executable backlog
 after v365-v369 and choose the next useful experimental lane.
 
 <!-- V369_PROXY_LIVE_GATE_SEPARATION_END -->
+
+<!-- V370_FUTURE_EXECUTION_BACKLOG_REFRESH_START -->
+
+## Wave v370: Future Execution Backlog Refresh
+
+Generated: 2026-05-17T04:36:02.312727+00:00
+
+### Objective
+
+v365-v369 completed the first post-v364 execution cycle: chunk planning,
+chunk probe, route decision, publishable claim scope and proxy/live gate
+separation. v370 turns those results into the next executable backlog and a
+fresh reusable goal prompt.
+
+### Results
+
+- Recommended next wave:
+  `v371_source_governance_blocker_diagnostic`.
+- Next artifact:
+  `paper4_v371_source_governance_blocker_diagnostic.csv`.
+- Option rows:
+  `6`.
+- Executable-now options:
+  `6`.
+- V366 source-exact rows:
+  `0`.
+- v369 gate requirements met:
+  `2` of `10`.
+- Goal prompt artifact:
+  `reports/paper_material/paper4/notes/paper4_v370_goal_prompt.md`.
+- Final promotion created:
+  `False`.
+
+### Interpretation
+
+The next highest-value action is not to promote anything. It is to explain the
+source-governance blocker exposed by v366, because that is cheaper and more
+diagnostic than blindly continuing all remaining chunks.
+
+### Claim Impact
+
+- Allowed: refreshed backlog and reusable goal prompt.
+- Still prohibited: new solver proof, strict live deployability, working
+  champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v370 in the living notebook. Execute v371 from the refreshed prompt.
+
+<!-- V370_FUTURE_EXECUTION_BACKLOG_REFRESH_END -->
