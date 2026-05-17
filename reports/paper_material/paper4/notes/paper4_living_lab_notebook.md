@@ -22788,3 +22788,70 @@ Keep v506 in the living notebook. v507 should audit candidate nomination gaps
 before any real candidate nomination is recorded.
 
 <!-- V506_REVIEWER_CANDIDATE_NOMINATION_PACKET_END -->
+
+<!-- V507_CANDIDATE_NOMINATION_GAP_AUDIT_START -->
+
+## Wave v507: Candidate Nomination Gap Audit
+
+Generated: 2026-05-17T20:06:34.481076+00:00
+
+### Objective
+
+v507 audits whether the v506 candidate nomination packet contains actual
+candidate nominations. It does not nominate candidates or start eligibility
+review.
+
+### Results
+
+- Candidate nomination gap rows:
+  `14`.
+- Open candidate nomination gap rows:
+  `14`.
+- Candidate nomination recorded rows:
+  `0`.
+- Domain summary rows:
+  `2`.
+- Domains with nomination gaps:
+  `2`.
+- Nomination blocker rows:
+  `5`.
+- Open nomination blocker rows:
+  `5`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v508_candidate_nomination_resolution_packet.md`.
+
+### Interpretation
+
+The candidate nomination packet is structurally ready, but every candidate
+nomination gap remains open. The next executable artifact should resolve the
+nomination process before eligibility review or reviewer assignment.
+
+### Claim Impact
+
+- Allowed: nomination-gap audit, domain gap summary, blocker register and future
+  nomination resolution packet readiness.
+- Still prohibited: candidate nomination, reviewer assignment, completed review
+  claims, final captions, Quarto patch readiness/application, Quarto/book
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v507 in the living notebook. v508 should create a nomination resolution
+packet without fabricating candidates or assigning reviewers.
+
+<!-- V507_CANDIDATE_NOMINATION_GAP_AUDIT_END -->

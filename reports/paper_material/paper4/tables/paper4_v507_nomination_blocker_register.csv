@@ -1,0 +1,6 @@
+nomination_blocker_id_v507,blocker_open_v507,blocks_eligibility_review_v507,required_resolution_v507
+candidate_identifier_missing,True,True,record candidate identifiers for all slots
+candidate_nomination_missing,True,True,record candidate nominations
+nomination_field_values_missing,True,True,complete all six nomination fields
+eligibility_review_not_started,True,False,start eligibility only after nomination
+reviewer_assignment_blocked,True,False,assign reviewers only after eligibility

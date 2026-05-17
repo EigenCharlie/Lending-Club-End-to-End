@@ -1,0 +1,15 @@
+candidate_nomination_gap_id_v507,priority_v507,review_domain_v507,reviewer_role_required_v507,candidate_slot_created_v507,candidate_identifier_prefilled_v507,candidate_nomination_recorded_v507,candidate_nomination_gap_open_v507,eligibility_review_allowed_v507,reviewer_assignment_allowed_v507,outcome_capture_allowed_v507,patch_allowed_v507,claim_boundary_v507
+manual_capture_01,1,layout_surface,layout_surface_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_02,2,layout_surface,layout_surface_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_03,3,layout_surface,layout_surface_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_04,4,layout_surface,layout_surface_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_05,5,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_06,6,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_07,7,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_08,8,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_09,9,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_10,10,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_11,11,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_12,12,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_13,13,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
+manual_capture_14,14,caption_claim_safety,caption_claim_safety_reviewer,True,False,False,True,False,False,False,False,candidate nomination gap audit only
