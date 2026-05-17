@@ -1,0 +1,11 @@
+metric_v397,before_v397,after_v397,delta_v397,claim_boundary_v397
+global_notebook_total,144,139,-5,lint reduction only; global lint not clean
+global_notebook_e402,120,119,-1,lint reduction only; global lint not clean
+global_notebook_i001,3,0,-3,lint reduction only; global lint not clean
+global_notebook_sim115,1,0,-1,lint reduction only; global lint not clean
+global_notebook_b905,0,0,0,lint reduction only; global lint not clean
+global_notebook_sim105,0,0,0,lint reduction only; global lint not clean
+target_subset_total,124,119,-5,lint reduction only; global lint not clean
+target_subset_e402,120,119,-1,lint reduction only; global lint not clean
+target_subset_i001,3,0,-3,lint reduction only; global lint not clean
+target_subset_sim115,1,0,-1,lint reduction only; global lint not clean

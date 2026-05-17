@@ -16860,3 +16860,59 @@ Keep v396 in the living notebook. v397 should clean the contextlib import side
 effects and handle the remaining SIM115 manual context-manager refactor.
 
 <!-- V396_NOTEBOOK_UNSAFE_FIX_ROUNDTRIP_APPLICATION_END -->
+
+<!-- V397_NOTEBOOK_IMPORT_SIDE_EFFECT_AND_SIM115_PATCH_START -->
+
+## Wave v397: Notebook Import Side-Effect and SIM115 Patch
+
+Generated: 2026-05-17T07:54:47.758832+00:00
+
+### Objective
+
+v397 cleans the contextlib import-order side effects introduced by v396 and
+patches the remaining SIM115 context-manager finding.
+
+### Results
+
+- Global notebook diagnostics before:
+  `144`.
+- Global notebook diagnostics after:
+  `139`.
+- E402 before/after:
+  `120` ->
+  `119`.
+- I001 before/after:
+  `3` ->
+  `0`.
+- SIM115 before/after:
+  `1` ->
+  `0`.
+- Changed notebook files:
+  `3`.
+- Roundtrip integrity passed:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v398_notebook_historical_e402_policy.md`.
+
+### Interpretation
+
+The v396 side effects are closed and the selected B905/SIM105/SIM115 subset is
+now clean. The next lint frontier is the historical E402 notebook policy rather
+than a side effect from the recent repair waves.
+
+### Claim Impact
+
+- Allowed: targeted cleanup and roundtrip preservation.
+- Still prohibited: notebook lint clean, repository ruff clean, full pytest clean
+  after notebook mutation, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v397 in the living notebook. v398 should decide how to handle the
+historical E402 notebook frontier without blind bulk mutation.
+
+<!-- V397_NOTEBOOK_IMPORT_SIDE_EFFECT_AND_SIM115_PATCH_END -->

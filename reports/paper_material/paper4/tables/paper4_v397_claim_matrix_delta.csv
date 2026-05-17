@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v397_import_side_effects_cleaned,True,paper4_v397_notebook_lint_delta.csv,v396 contextlib side effects only
+v397_sim115_manual_refactor_applied,True,paper4_v397_notebook_patch_actions.csv,single feature_config open call only
+v397_notebook_roundtrip_integrity_preserved,True,paper4_v397_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v397_notebook_or_repo_ruff_clean,False,paper4_v397_claim_blockers.csv,139 notebook diagnostics remain
+v397_full_repository_pytest_clean_after_notebook_mutation,False,paper4_v397_claim_blockers.csv,full pytest not rerun in v397
+v397_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,0 +1,5 @@
+action_id_v397,notebook_path_v397,cell_index_v397,rule_target_v397,action_v397,claim_boundary_v397
+eda_contextlib_before_warning_filter,notebooks/01_eda_lending_club.ipynb,2,E402/I001,move contextlib import before warning filter side effect,contextlib side effect only
+gpu_cugraph_contextlib_sort,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,I001,sort contextlib before networkx import,contextlib side effect only
+gpu_cuopt_contextlib_sort,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,13,I001,sort contextlib before scipy imports,contextlib side effect only
+portfolio_feature_config_context_manager,notebooks/08_portfolio_optimization.ipynb,4,SIM115,replace pickle.load(open(...)) with context manager,manual SIM115 refactor only
