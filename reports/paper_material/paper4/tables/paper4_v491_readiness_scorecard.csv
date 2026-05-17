@@ -1,0 +1,7 @@
+scorecard_gate_v491,pass_v491,evidence_artifact_v491,claim_boundary_v491
+layout_audit_passed,True,paper4_v489_layout_consistency_checks.csv,layout audit evidence only
+manual_review_queue_exists,True,paper4_v490_manual_review_queue.csv,queue exists but review remains pending
+manual_review_completed,False,paper4_v491_manual_review_surface_checklist.csv,manual review still pending
+manual_patch_approval_present,False,paper4_v491_preflight_gap_matrix.csv,approval missing
+final_caption_signoff_present,False,paper4_v491_preflight_gap_matrix.csv,caption signoff missing
+post_patch_render_gate_passed,False,paper4_v491_preflight_gap_matrix.csv,render deferred until patch exists

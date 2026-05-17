@@ -1,0 +1,5 @@
+surface_check_id_v491,target_file_v491,target_block_v491,asset_sequence_v491,layout_item_count_v491,manual_review_pending_v491,blocks_patch_v491,review_required_before_patch_v491
+review_01,book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd,results_evidence_cvar,T1;F1,2,True,True,True
+review_02,book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd,results_evidence_governance_online,T2;F2;T4;F3,4,True,True,True
+review_03,book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd,discussion_limitations,T3;T6,2,True,True,True
+review_04,book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd,methods_protocol,T5;F4,2,True,True,True

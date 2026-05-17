@@ -1,0 +1,9 @@
+readiness_gate_v491,ready_v491,evidence_artifact_v491,claim_boundary_v491
+patch_readiness_preflight_created,True,paper4_v491_preflight_gap_matrix.csv,preflight only
+manual_review_surface_checklist_created,True,paper4_v491_manual_review_surface_checklist.csv,manual review checklist only
+blocker_resolution_plan_created,True,paper4_v491_blocker_resolution_plan.csv,blocker plan only
+readiness_scorecard_created,True,paper4_v491_readiness_scorecard.csv,scorecard only
+ready_for_quarto_patch,False,open blockers remain,patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v491
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

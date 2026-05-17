@@ -1689,3 +1689,9 @@ v490 seeds a future patch-readiness preflight.,True,reports/paper_material/paper
 v490 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v490_manuscript_readiness_delta.csv,Manual approval and final captions are missing.,True,living_notebook_only
 v490 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v490_patch_gate_register.csv,Patch is not authorized in v490.,True,living_notebook_only
 v490 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v490_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v491 preflights Paper 4 patch readiness.,True,reports/paper_material/paper4/tables/paper4_v491_preflight_gap_matrix.csv,Patch-readiness preflight only.,False,living_notebook_only
+v491 identifies manual layout review surfaces.,True,reports/paper_material/paper4/tables/paper4_v491_manual_review_surface_checklist.csv,Manual review checklist only.,False,living_notebook_only
+v491 records unresolved patch blockers.,True,reports/paper_material/paper4/tables/paper4_v491_blocker_resolution_plan.csv,Open blocker register only.,False,living_notebook_only
+v491 makes Paper 4 ready for Quarto patching.,False,reports/paper_material/paper4/tables/paper4_v491_readiness_scorecard.csv,"Manual review, approval, captions and render gates are open.",True,living_notebook_only
+v491 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v491_manuscript_readiness_delta.csv,Patch is not authorized in v491.,True,living_notebook_only
+v491 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v491_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

@@ -21805,3 +21805,62 @@ Keep v490 in the living notebook. v491 should preflight patch readiness without
 modifying book sources.
 
 <!-- V490_LAYOUT_REVIEW_DECISION_END -->
+
+<!-- V491_PATCH_READINESS_PREFLIGHT_START -->
+
+## Wave v491: Patch Readiness Preflight
+
+Generated: 2026-05-17T18:27:39.240092+00:00
+
+### Objective
+
+v491 preflights whether the v490 layout review decision is enough to authorize
+any Quarto patch. It is not enough; this wave documents the open blockers.
+
+### Results
+
+- Preflight gap rows:
+  `6`.
+- Preflight pass rows:
+  `2`.
+- Manual review surface rows:
+  `4`.
+- Manual review pending rows:
+  `4`.
+- Unresolved blocker rows:
+  `4`.
+- Scorecard rows:
+  `6`.
+- Scorecard pass rows:
+  `2`.
+- Patch readiness passed:
+  `False`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v492_manual_layout_review_packet.md`.
+
+### Interpretation
+
+Patch readiness still fails. The next useful executable step is to package the
+manual layout review so the four target surfaces can be reviewed without source
+mutation.
+
+### Claim Impact
+
+- Allowed: patch-readiness preflight, manual layout review surface checklist and
+  unresolved blocker register.
+- Still prohibited: Quarto patch readiness/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v491 in the living notebook. v492 should package the manual layout review
+without modifying book sources.
+
+<!-- V491_PATCH_READINESS_PREFLIGHT_END -->
