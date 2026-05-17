@@ -1,0 +1,5 @@
+file_path_v445,surface_v445,diagnostic_count_v445,rule_codes_v445,claim_boundary_v445
+scripts/papers/build_paper4_v11_promising_lanes.py,scripts,2,B023,hotspot ranking only; no mutation in v445
+scripts/papers/build_paper4_v12_resolution_wave.py,scripts,2,B023,hotspot ranking only; no mutation in v445
+scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,2,B023,hotspot ranking only; no mutation in v445
+scripts/papers/build_paper4_v10_resolution_wave.py,scripts,1,B023,hotspot ranking only; no mutation in v445

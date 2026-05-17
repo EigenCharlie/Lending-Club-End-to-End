@@ -1,0 +1,2 @@
+probe_id_v445,command_v445,exit_code_v445,passed_v445,runtime_seconds_v445,collected_items_v445,summary_line_v445,claim_boundary_v445
+full_repository_pytest,uv run pytest -q --tb=short,0,True,216.738,1183,"=========== 1183 passed, 2 skipped, 13 warnings in 200.94s (0:03:20) ===========",post-v444 scripts SIM223 repair full pytest probe

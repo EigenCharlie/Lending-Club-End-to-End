@@ -19379,3 +19379,65 @@ Keep v444 in the living notebook. v445 should run the post-SIM223-repair full
 pytest probe.
 
 <!-- V444_SCRIPTS_SIM223_EXPR_AND_FALSE_REPAIR_BATCH_END -->
+
+<!-- V445_POST_SCRIPTS_SIM223_REPAIR_PYTEST_PROBE_START -->
+
+## Wave v445: Post-Scripts-SIM223-Repair Pytest Probe
+
+Generated: 2026-05-17T13:30:24.403839+00:00
+
+### Objective
+
+v445 runs full repository pytest after v444's targeted scripts SIM223 repair.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1183`.
+- Pytest summary:
+  `=========== 1183 passed, 2 skipped, 13 warnings in 200.94s (0:03:20) ===========`.
+- Repository ruff diagnostics:
+  `7`.
+- Repository SIM223 diagnostics:
+  `0`.
+- Streamlit diagnostics:
+  `0`.
+- Notebook diagnostics:
+  `0`.
+- Book diagnostics:
+  `0`.
+- Top rule / top executable rule:
+  `B023` /
+  `B023`.
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v446_scripts_b023_loop_binding_manual_repair_batch.md`.
+
+### Interpretation
+
+The scripts SIM223 repair survives full repository pytest. B023 remains the only
+repository Ruff frontier and has no automatic fixes, so the next wave is a
+manual loop-binding repair.
+
+### Claim Impact
+
+- Allowed: full repository pytest passed after scripts SIM223 repair; SIM223
+  and earlier cleared lint channels remain clear.
+- Still prohibited: repository ruff clean, Quarto render clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v445 in the living notebook. v446 should apply the manual B023
+loop-binding repair batch.
+
+<!-- V445_POST_SCRIPTS_SIM223_REPAIR_PYTEST_PROBE_END -->

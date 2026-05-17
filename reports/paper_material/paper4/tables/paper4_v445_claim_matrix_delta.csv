@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v445_full_repository_pytest_run,True,paper4_v445_pytest_probe_summary.csv,pytest command executed after v444 scripts SIM223 repair
+v445_full_repository_pytest_passed,True,paper4_v445_pytest_probe_summary.csv,true only when pytest exits 0
+v445_sim223_remains_clear,True,paper4_v445_repository_ruff_snapshot.csv,repository SIM223 remains zero after full pytest
+v445_prior_lint_channels_remain_clean,True,paper4_v445_repository_ruff_snapshot.csv,previously cleared lint channels remain zero
+v445_repository_ruff_clean,False,paper4_v445_claim_blockers.csv,true only when repository ruff emits zero diagnostics
+v445_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
