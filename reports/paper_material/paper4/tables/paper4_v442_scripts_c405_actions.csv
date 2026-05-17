@@ -1,0 +1,2 @@
+action_id_v442,file_path_v442,surface_v442,row_v442,rule_code_v442,message_v442,fix_message_v442,fix_edit_count_v442,unsafe_fix_applied_v442,mutation_applied_v442,claim_boundary_v442
+scripts_c405_set_literal_01,scripts/papers/build_paper4_v11_promising_lanes.py,scripts,195,C405,Unnecessary list literal (rewrite as a set literal),Rewrite as a set literal,2,True,True,targeted scripts C405 set-literal repair

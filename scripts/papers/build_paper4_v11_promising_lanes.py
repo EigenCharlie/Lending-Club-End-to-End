@@ -192,7 +192,7 @@ def build_cvar_topk_warm_v11(
             .quantile([0.10, 0.25, 0.50, 0.75])
         }
     )
-    caps = sorted(set([95_000, 115_000, 135_000, 165_000, 210_000, *warm_caps]))
+    caps = sorted({95_000, 115_000, 135_000, 165_000, 210_000, *warm_caps})
     floors = [80_000.0, 105_000.0, 125_000.0, 145_000.0, 160_000.0]
     rows: list[dict[str, Any]] = []
     allocs: list[pd.DataFrame] = []

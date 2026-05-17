@@ -19217,3 +19217,53 @@ Keep v441 in the living notebook. v442 should apply the targeted C405
 set-literal repair batch.
 
 <!-- V441_POST_SCRIPTS_SIM108_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V442_SCRIPTS_C405_SET_LITERAL_REPAIR_BATCH_START -->
+
+## Wave v442: Scripts C405 Set-Literal Repair Batch
+
+Generated: 2026-05-17T12:58:24.270452+00:00
+
+### Objective
+
+v442 applies the targeted C405 set-literal repair in `build_paper4_v11_promising_lanes.py`.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `9` ->
+  `8`.
+- Repository C405 before/after:
+  `1` ->
+  `0`.
+- Changed files:
+  `1`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v443_post_scripts_c405_repair_pytest_probe.md`.
+
+### Interpretation
+
+The C405 frontier is cleared by rewriting a `set([...])` call as a set literal.
+Remaining repository ruff diagnostics are now B023 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts C405 repair applied, repository ruff count reduced,
+  and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v442 in the living notebook. v443 should run the post-C405-repair full
+pytest probe.
+
+<!-- V442_SCRIPTS_C405_SET_LITERAL_REPAIR_BATCH_END -->

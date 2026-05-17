@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v442_c405_set_literal_repair_applied,True,paper4_v442_scripts_c405_actions.csv,targeted scripts C405 set-literal repair batch
+v442_c405_cleared,True,paper4_v442_repository_ruff_delta.csv,true only for C405 diagnostics
+v442_repository_ruff_reduced,True,paper4_v442_repository_ruff_delta.csv,repository ruff diagnostic count decreases
+v442_changed_scripts_pycompile_passed,True,paper4_v442_pycompile_summary.csv,syntax/bytecode check for changed scripts
+v442_repository_ruff_clean,False,paper4_v442_claim_blockers.csv,true only if repository ruff emits zero diagnostics
+v442_full_repository_pytest_passed_after_repair,False,paper4_v442_claim_blockers.csv,full pytest deferred to v443
+v442_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
