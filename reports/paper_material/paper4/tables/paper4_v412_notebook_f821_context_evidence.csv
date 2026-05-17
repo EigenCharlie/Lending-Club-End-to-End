@@ -1,0 +1,26 @@
+context_id_v412,notebook_path_v412,evidence_v412,interpretation_v412,claim_boundary_v412
+train_fe_assignment_scan,notebooks/02_feature_engineering.ipynb,False,no train_fe assignment found in code cells,static notebook source scan only
+script_train_assignment_scan,notebooks/02_feature_engineering.ipynb,True,script_train is assigned when train_fe.parquet exists,static notebook source scan only
+train_assignment_scan,notebooks/02_feature_engineering.ipynb,True,train is the in-memory engineered dataframe used earlier,static notebook source scan only
+target_cell_source,notebooks/02_feature_engineering.ipynb,"# Validate with Pandera schema
+
+try:
+    loan_master_schema.validate(train_fe, lazy=True)
+    print(""Pandera validation PASSED for train_fe"")
+except Exception as e:
+    print(f""Pandera validation issues (non-blocking):\n{e}"")
+
+# Final summary
+model_feature_count = len(CATBOOST_FEATURES) if ""CATBOOST_FEATURES"" in globals() else len(NUMERIC_FEATURES) + len(FLAG_FEATURES) + len(CATEGORICAL_FEATURES)
+print(f""\n{'=' * 60}"")
+print(""FEATURE ENGINEERING COMPLETE"")
+print(f""{'=' * 60}"")
+print(f""Total model-ready features: {model_feature_count}"")
+print(f""  Numeric:      {len(NUMERIC_FEATURES)}"")
+print(f""  Flags:        {len(FLAG_FEATURES)}"")
+print(f""  Categorical:  {len(CATEGORICAL_FEATURES)}"")
+print(f""WOE features: {len(woe_feat)} (IV > 0.02)"")
+print(f""IV range: [{min(iv_scores.values()):.4f}, {max(iv_scores.values()):.4f}]"")
+print(""Top 5 features by IV:"")
+for col in sorted(iv_scores, key=iv_scores.get, reverse=True)[:5]:
+    print(f""  {col:30s} IV={iv_scores[col]:.4f}"")",target cell validates train_fe directly,cell source captured for patch planning

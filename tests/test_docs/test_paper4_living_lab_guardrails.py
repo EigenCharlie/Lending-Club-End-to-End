@@ -45687,6 +45687,106 @@ def test_paper4_v411_notebook_b018_post_patch_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v412_notebook_f821_execution_context_audit_is_non_mutating() -> None:
+    status = _read_json("paper4_v412_status.json")
+
+    assert status["phase"] == "v412_notebook_f821_execution_context_audit"
+    assert status["schema_version"] == "2026-05-17.412"
+    assert status["prior_pytest_probe_version_v412"] == 411
+    assert status["global_notebook_diagnostics_v412"] == 7
+    assert status["f821_diagnostics_v412"] == 1
+    assert status["f821_target_notebook_v412"] == "notebooks/02_feature_engineering.ipynb"
+    assert status["f821_target_cell_v412"] == 32
+    assert status["notebooks_mutated_v412"] is False
+    assert status["notebook_diff_clean_before_v412"] is True
+    assert status["notebook_diff_clean_after_v412"] is True
+    assert status["patch_plan_rows_v412"] == 1
+    assert status["global_ruff_clean_v412"] is False
+    assert status["full_repository_pytest_run_v412"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v412"] == "paper4_v413_notebook_f821_validation_target_patch.md"
+
+    audit = _read_csv("paper4_v412_notebook_f821_execution_context_audit.csv")
+    assert len(audit) == 1
+    row = audit.iloc[0]
+    assert row["audit_id_v412"] == "f821_execution_context_01"
+    assert row["notebook_path_v412"] == "notebooks/02_feature_engineering.ipynb"
+    assert int(row["cell_v412"]) == 32
+    assert row["undefined_name_v412"] == "train_fe"
+    assert "loan_master_schema.validate(train_fe" in row["code_line_v412"]
+    assert "not assigned anywhere" in row["diagnosis_v412"]
+    assert "validation_target" in row["recommended_patch_v412"]
+    assert bool(row["mutation_allowed_v412"]) is False
+
+    context = _read_csv("paper4_v412_notebook_f821_context_evidence.csv")
+    context_map = dict(zip(context["context_id_v412"], context["evidence_v412"], strict=False))
+    assert context_map["train_fe_assignment_scan"] == "False"
+    assert context_map["script_train_assignment_scan"] == "True"
+    assert context_map["train_assignment_scan"] == "True"
+    assert "loan_master_schema.validate(train_fe" in context_map["target_cell_source"]
+
+    patch_plan = _read_csv("paper4_v412_notebook_f821_patch_plan.csv")
+    assert len(patch_plan) == 1
+    plan_row = patch_plan.iloc[0]
+    assert plan_row["patch_batch_id_v412"] == "batch_1_f821_validation_target"
+    assert int(plan_row["diagnostic_count_v412"]) == 1
+    assert int(plan_row["notebook_count_v412"]) == 1
+    assert plan_row["recommended_next_artifact_v412"] == (
+        "paper4_v413_notebook_f821_validation_target_patch.md"
+    )
+    assert bool(plan_row["mutation_allowed_v412"]) is False
+
+    blockers = _read_csv("paper4_v412_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v412"], blockers["blocking_v412"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v412"], blockers["evidence_count_v412"], strict=False)
+    )
+    assert bool(blocker_map["f821_validation_target_patch_not_applied_yet"]) is True
+    assert int(blocker_evidence["f821_validation_target_patch_not_applied_yet"]) == 1
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 7
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v412_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v412_f821_execution_context_audit_created"]) is True
+    assert bool(claim_map["v412_f821_validation_target_patch_selected"]) is True
+    assert bool(claim_map["v412_notebooks_preserved_unmodified"]) is True
+    assert bool(claim_map["v412_f821_repaired"]) is False
+    assert bool(claim_map["v412_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v412_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(
+        boundary_map["v412 audits the remaining F821 notebook execution-context diagnostic."]
+    )
+    assert bool(boundary_map["v412 selects a validation-target patch for the train_fe F821."])
+    assert bool(boundary_map["v412 repairs F821 or clears notebook lint."]) is False
+    assert bool(boundary_map["v412 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v412_rows = backlog.loc[backlog["last_wave"].eq("v412")]
+    assert len(v412_rows) == 1
+    assert v412_rows.iloc[0]["next_artifact"] == "paper4_v413_notebook_f821_validation_target_patch.md"
+    assert v412_rows.iloc[0]["execution_result"] == "f821_train_fe_context_audited_no_mutation"
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v412: Notebook F821 Execution-Context Audit" in living_notebook
+    assert "`train_fe` is referenced" in living_notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

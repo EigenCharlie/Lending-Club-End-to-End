@@ -17609,3 +17609,47 @@ remaining F821 execution-context diagnostic before style-only notebook lint.
 Keep v411 in the living notebook. Route v412 according to the pytest result.
 
 <!-- V411_NOTEBOOK_B018_POST_PATCH_PYTEST_PROBE_END -->
+
+<!-- V412_NOTEBOOK_F821_EXECUTION_CONTEXT_AUDIT_START -->
+
+## Wave v412: Notebook F821 Execution-Context Audit
+
+Generated: 2026-05-17T09:27:53.655785+00:00
+
+### Objective
+
+v412 audits the one remaining F821 notebook diagnostic before mutation.
+
+### Results
+
+- F821 diagnostics reviewed:
+  `1`.
+- Notebook diagnostics:
+  `7`.
+- Notebooks mutated:
+  `False`.
+- Notebook diff clean after audit:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v413_notebook_f821_validation_target_patch.md`.
+
+### Interpretation
+
+`train_fe` is referenced in the Pandera validation cell but is not assigned in
+the notebook. v413 should introduce an explicit validation target using
+`script_train` when available, otherwise the in-memory `train` dataframe.
+
+### Claim Impact
+
+- Allowed: F821 execution-context audit and v413 patch selection.
+- Still prohibited: F821 repaired, notebook lint clean, repository ruff clean,
+  champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v412 in the living notebook. v413 should apply the validation-target patch
+with roundtrip checks.
+
+<!-- V412_NOTEBOOK_F821_EXECUTION_CONTEXT_AUDIT_END -->

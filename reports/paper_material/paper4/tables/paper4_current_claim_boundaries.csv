@@ -1291,3 +1291,7 @@ v411 full repository pytest passes after notebook B018 fig.show patch.,True,repo
 v411 keeps notebook B018 cleared after pytest probe.,True,reports/paper_material/paper4/tables/paper4_v411_notebook_lint_snapshot.csv,B018 remains at zero; other notebook lint remains.,False,living_notebook_only
 v411 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v411_claim_blockers.csv,7 notebook diagnostics remain.,True,living_notebook_only
 v411 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v411_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v412 audits the remaining F821 notebook execution-context diagnostic.,True,reports/paper_material/paper4/tables/paper4_v412_notebook_f821_execution_context_audit.csv,Audit only; no notebook mutation.,False,living_notebook_only
+v412 selects a validation-target patch for the train_fe F821.,True,reports/paper_material/paper4/tables/paper4_v412_notebook_f821_patch_plan.csv,Selection only; application deferred.,False,living_notebook_only
+v412 repairs F821 or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v412_claim_blockers.csv,No notebook mutation; 7 diagnostics remain.,True,living_notebook_only
+v412 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v412_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
