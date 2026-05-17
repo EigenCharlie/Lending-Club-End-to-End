@@ -1,0 +1,13 @@
+rule_code_v423,diagnostic_count_v423,fixable_count_v423,file_count_v423,top_surface_v423,sample_message_v423,repair_priority_v423,claim_boundary_v423
+E402,50,0,4,streamlit_app,Module level import not at top of file,1,classification only; no repair applied in v423
+B905,14,14,7,scripts,`zip()` without an explicit `strict=` parameter,2,classification only; no repair applied in v423
+B007,8,7,6,scripts,Loop control variable `sample_id` not used within loop body,3,classification only; no repair applied in v423
+F841,7,7,6,scripts,Local variable `state` is assigned to but never used,4,classification only; no repair applied in v423
+B023,7,0,4,scripts,Function definition does not bind loop variable `path_id`,5,classification only; no repair applied in v423
+C408,5,5,1,streamlit_app,Unnecessary `dict()` call (rewrite as a literal),6,classification only; no repair applied in v423
+I001,5,5,5,scripts,Import block is un-sorted or un-formatted,7,classification only; no repair applied in v423
+F401,4,4,4,scripts,`numpy` imported but unused,8,classification only; no repair applied in v423
+UP022,3,3,3,scripts,Prefer `capture_output` over sending `stdout` and `stderr` to `PIPE`,9,classification only; no repair applied in v423
+SIM108,2,2,2,scripts,Use ternary operator `stage2 = pdl.ge(abs_pd) if math.isinf(rel) else pdl.ge(abs_pd) | pdl.ge(pd0 * rel)` instead of `if`-`else`-block,10,classification only; no repair applied in v423
+C405,1,1,1,scripts,Unnecessary list literal (rewrite as a set literal),11,classification only; no repair applied in v423
+SIM223,1,1,1,scripts,Use `False` instead of `... and False`,12,classification only; no repair applied in v423

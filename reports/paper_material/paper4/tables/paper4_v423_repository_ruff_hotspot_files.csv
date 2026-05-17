@@ -1,0 +1,26 @@
+file_path_v423,surface_v423,diagnostic_count_v423,fixable_count_v423,rule_codes_v423,repair_priority_v423,claim_boundary_v423
+streamlit_app/pages/model_interpretability.py,streamlit_app,22,8,"B905,C408,E402",1,hotspot classification only
+streamlit_app/pages/data_story.py,streamlit_app,13,0,E402,2,hotspot classification only
+streamlit_app/pages/portfolio_optimizer.py,streamlit_app,13,0,E402,3,hotspot classification only
+streamlit_app/pages/causal_intelligence.py,streamlit_app,10,0,E402,4,hotspot classification only
+scripts/papers/build_paper4_v11_promising_lanes.py,scripts,7,5,"B023,B905,C405",5,hotspot classification only
+scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,6,4,"B023,F841,SIM108,SIM223,UP022",6,hotspot classification only
+scripts/papers/build_paper4_v45_v48_living_lab_wave.py,scripts,5,5,"B007,F841,UP022",7,hotspot classification only
+scripts/papers/build_paper4_v12_resolution_wave.py,scripts,4,2,"B023,B905",8,hotspot classification only
+scripts/papers/build_paper4_v10_resolution_wave.py,scripts,3,2,"B023,B905,SIM108",9,hotspot classification only
+book/_helpers/plot_helpers.py,book,2,2,"F401,I001",10,hotspot classification only
+scripts/papers/build_paper4_v5_blocker_resolution.py,scripts,2,2,"B007,B905",11,hotspot classification only
+scripts/papers/build_paper4_v6_priority_resolution.py,scripts,2,2,B905,12,hotspot classification only
+scripts/papers/build_paper4_v15_dynamic_stress_engine.py,scripts,2,1,B007,13,hotspot classification only
+scripts/papers/build_global_v38_project_synthesis.py,scripts,1,1,F841,14,hotspot classification only
+scripts/papers/build_paper4_extended_experiments.py,scripts,1,1,B007,15,hotspot classification only
+scripts/papers/build_paper4_quarto_restructure.py,scripts,1,1,F841,16,hotspot classification only
+scripts/papers/build_paper4_v13_resolution_wave.py,scripts,1,1,B905,17,hotspot classification only
+scripts/papers/build_paper4_v20_dla_cvar_spo_resolution.py,scripts,1,1,B007,18,hotspot classification only
+scripts/papers/build_paper4_v24_dla_cvar_spo_upgrade.py,scripts,1,1,B007,19,hotspot classification only
+scripts/papers/build_paper4_v398_notebook_historical_e402_policy.py,scripts,1,1,F401,20,hotspot classification only
+scripts/papers/build_paper4_v399_notebook_e402_cell_refactor_plan.py,scripts,1,1,F401,21,hotspot classification only
+scripts/papers/build_paper4_v39_v40_living_lab_execution.py,scripts,1,1,UP022,22,hotspot classification only
+scripts/papers/build_paper4_v406_post_sys_path_refactor_pytest_probe.py,scripts,1,1,F401,23,hotspot classification only
+scripts/papers/build_paper4_v45_online_cvar_source_solver.py,scripts,1,1,I001,24,hotspot classification only
+scripts/papers/build_paper4_v46_spo_dla_dynamic.py,scripts,1,1,I001,25,hotspot classification only

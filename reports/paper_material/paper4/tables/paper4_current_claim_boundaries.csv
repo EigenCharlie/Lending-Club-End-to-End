@@ -1339,3 +1339,8 @@ v422 full repository pytest passes after GPU side-project notebook lint patch.,T
 v422 keeps notebook lint clean after pytest probe.,True,reports/paper_material/paper4/tables/paper4_v422_notebook_lint_snapshot.csv,Applies only to ruff check notebooks.,False,living_notebook_only
 v422 proves repository ruff or Quarto render cleanliness.,False,reports/paper_material/paper4/tables/paper4_v422_claim_blockers.csv,Repository ruff and Quarto render are deferred.,True,living_notebook_only
 v422 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v422_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v423 runs repository-wide ruff after notebook lint is clean.,True,reports/paper_material/paper4/tables/paper4_v423_repository_ruff_rule_frontier.csv,Execution and classification only.,False,living_notebook_only
+v423 keeps notebook lint clean in the repository ruff frontier.,True,reports/paper_material/paper4/tables/paper4_v423_repository_ruff_surface_summary.csv,Notebook diagnostics remain zero.,False,living_notebook_only
+v423 proves repository ruff is clean.,False,reports/paper_material/paper4/tables/paper4_v423_claim_blockers.csv,Allowed only if total diagnostics are zero.,True,living_notebook_only
+v423 repairs repository ruff diagnostics.,False,reports/paper_material/paper4/tables/paper4_v423_repository_ruff_repair_plan.csv,No files are mutated by v423.,True,living_notebook_only
+v423 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v423_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

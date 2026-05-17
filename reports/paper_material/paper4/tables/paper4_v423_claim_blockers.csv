@@ -1,0 +1,4 @@
+blocker_id_v423,blocking_v423,evidence_count_v423,required_next_artifact_v423,claim_boundary_v423
+repository_ruff_frontier_open,True,107,paper4_v424_targeted_repo_ruff_repair_batch.md,repository ruff clean claim blocked while diagnostics remain
+quarto_render_not_run,True,1,paper4_v424_targeted_repo_ruff_repair_batch.md,Quarto render is not implied by ruff or pytest probes
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

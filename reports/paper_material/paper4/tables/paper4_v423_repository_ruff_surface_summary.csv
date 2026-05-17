@@ -1,0 +1,4 @@
+surface_v423,diagnostic_count_v423,fixable_count_v423,file_count_v423,rule_count_v423,recommended_next_action_v423,mutation_allowed_v423,claim_boundary_v423
+streamlit_app,58,8,4,3,targeted repair batch if selected for v424,False,surface summary only; no repair applied
+scripts,47,39,24,10,targeted repair batch if selected for v424,False,surface summary only; no repair applied
+book,2,2,1,2,targeted repair batch if selected for v424,False,surface summary only; no repair applied

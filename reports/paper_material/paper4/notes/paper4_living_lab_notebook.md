@@ -18122,3 +18122,58 @@ Keep v422 in the living notebook. v423 should classify the repository ruff
 frontier after notebook lint is clean.
 
 <!-- V422_NOTEBOOK_GPU_STYLE_POST_PATCH_PYTEST_PROBE_END -->
+
+<!-- V423_REPOSITORY_RUFF_FRONTIER_AFTER_NOTEBOOK_CLEAN_START -->
+
+## Wave v423: Repository Ruff Frontier After Notebook Clean
+
+Generated: 2026-05-17T10:33:02.710848+00:00
+
+### Objective
+
+v423 runs `uv run ruff check . --output-format json` after notebook lint is
+clean and full repository pytest has passed.
+
+### Results
+
+- Ruff exit code:
+  `1`.
+- Total diagnostics:
+  `107`.
+- Fixable diagnostics:
+  `49`.
+- Notebook diagnostics:
+  `0`.
+- Top rule:
+  `E402`.
+- Top file:
+  `streamlit_app/pages/model_interpretability.py`.
+- Top surface:
+  `streamlit_app`.
+- Full pytest clean inherited from v422:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v424_targeted_repo_ruff_repair_batch.md`.
+
+### Interpretation
+
+The notebook-lint frontier remains closed, but repository-wide ruff is still an
+open validation frontier. v424 should repair a small targeted batch from the
+current rule/file frontier rather than re-opening notebook bulk rewrites.
+
+### Claim Impact
+
+- Allowed: repository ruff frontier classified and notebook lint remains clean.
+- Still prohibited: repository ruff clean if diagnostics remain, Quarto render
+  clean, lint repair, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v423 in the living notebook. v424 should execute the first targeted
+repository ruff repair batch if diagnostics remain.
+
+<!-- V423_REPOSITORY_RUFF_FRONTIER_AFTER_NOTEBOOK_CLEAN_END -->

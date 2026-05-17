@@ -1,0 +1,3 @@
+repair_lane_v423,priority_v423,target_surface_v423,target_rules_v423,target_files_v423,estimated_diagnostic_count_v423,recommended_next_artifact_v423,mutation_allowed_v423,claim_boundary_v423
+top_rule_targeted_repair,1,streamlit_app,E402,top hotspots only,50,paper4_v424_targeted_repo_ruff_repair_batch.md,False,"selected for v424, but no mutation in v423"
+top_hotspot_file_repair,2,streamlit_app,"B905,C408,E402",streamlit_app/pages/model_interpretability.py,22,paper4_v424_targeted_repo_ruff_repair_batch.md,False,candidate v424 batch; no mutation in v423
