@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v388_docs_regression_tests_clean,True,paper4_v388_regression_probe_results.csv,tests/test_docs only
+v388_paper4_focal_guardrails_clean,True,paper4_v388_regression_probe_results.csv,v378-v387 selected guardrails
+v388_quarto_book_guardrails_clean,True,paper4_v388_regression_probe_results.csv,book guardrail tests only
+v388_full_repository_pytest_clean,False,paper4_v388_claim_blockers.csv,full repository pytest not run in v388
+v388_full_repository_ruff_clean,False,paper4_v388_claim_blockers.csv,global lint not run in v388
+v388_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

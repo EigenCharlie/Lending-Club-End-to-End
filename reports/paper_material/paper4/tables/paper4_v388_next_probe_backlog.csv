@@ -1,0 +1,4 @@
+next_probe_id_v388,priority_v388,command_v388,expected_output_v388,success_condition_v388,next_artifact_v388
+full_repository_pytest_probe,1,uv run pytest -q --maxfail=10,first full-repository pass/failure frontier,either full repository tests pass or blockers are classified,paper4_v389_full_repository_pytest_probe.md
+full_repository_ruff_probe,2,uv run ruff check .,repository lint frontier,global lint pass or historical lint blockers classified,paper4_v390_repository_lint_frontier.md
+quarto_render_probe,3,quarto render chapters/19-paper-mega-extension --to html,Paper 4 chapter render status,render pass or render blockers classified,paper4_v391_quarto_render_probe.md

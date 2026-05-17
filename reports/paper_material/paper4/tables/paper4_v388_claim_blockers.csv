@@ -1,0 +1,5 @@
+blocker_id_v388,blocking_v388,evidence_count_v388,required_next_artifact_v388,claim_boundary_v388
+full_repository_pytest_not_run,True,1,paper4_v389_full_repository_pytest_probe.md,"documentation tests pass, full repository pytest not claimed"
+full_repository_ruff_not_run,True,1,paper4_v390_repository_lint_frontier.md,global lint clean claim not made
+full_quarto_render_not_run,True,1,paper4_v391_quarto_render_probe.md,book guardrails pass but full render not claimed
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

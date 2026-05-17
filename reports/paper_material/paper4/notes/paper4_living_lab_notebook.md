@@ -16389,3 +16389,56 @@ Keep v387 in the living notebook. v388 should probe wider regression readiness
 before any broader cleanliness claim.
 
 <!-- V387_QUARTO_ARCHIVE_GUARDRAIL_PATCH_END -->
+
+<!-- V388_FULL_REGRESSION_PROBE_PLAN_START -->
+
+## Wave v388: Full Regression Probe Plan
+
+Generated: 2026-05-17T06:40:07.183199+00:00
+
+### Objective
+
+v388 records the broader documentation regression evidence after the v387 Quarto
+archive guardrail patch and schedules the full repository pytest frontier.
+
+### Results
+
+- Documentation tests collected:
+  `440`.
+- Documentation tests passed:
+  `440`.
+- Documentation regression clean:
+  `True`.
+- Paper 4 focal guardrails clean:
+  `True`.
+- Quarto book guardrails clean:
+  `True`.
+- Full repository pytest clean:
+  `False`.
+- Full repository ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v389_full_repository_pytest_probe.md`.
+
+### Interpretation
+
+The historical Quarto registration blocker is no longer blocking the
+documentation test suite. The project now has a clean docs-level regression
+surface, but broader repository probes still need to be executed before any
+full-suite claim.
+
+### Claim Impact
+
+- Allowed: docs regression clean, Paper 4 focal guardrails clean, Quarto book
+  guardrails clean.
+- Still prohibited: full repository pytest clean, global ruff clean, full Quarto
+  render, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v388 in the living notebook. v389 should run the full repository pytest
+frontier.
+
+<!-- V388_FULL_REGRESSION_PROBE_PLAN_END -->

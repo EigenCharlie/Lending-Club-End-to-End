@@ -42908,6 +42908,121 @@ def test_paper4_v387_quarto_archive_guardrail_patch_allows_manifested_archive() 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v388_full_regression_probe_plan_records_docs_cleanliness() -> None:
+    status = _read_json("paper4_v388_status.json")
+
+    assert status["phase"] == "v388_full_regression_probe_plan"
+    assert status["schema_version"] == "2026-05-17.388"
+    assert status["prior_archive_guardrail_version_v388"] == 387
+    assert status["probe_rows_v388"] == 6
+    assert status["next_probe_rows_v388"] == 3
+    assert status["claim_blocker_rows_v388"] == 4
+    assert status["claim_matrix_rows_v388"] == 6
+    assert status["docs_regression_command_v388"] == "uv run pytest -q tests/test_docs --maxfail=10"
+    assert status["docs_regression_collected_v388"] == 440
+    assert status["docs_regression_passed_v388"] == 440
+    assert status["docs_regression_runtime_seconds_v388"] == pytest.approx(76.00)
+    assert status["docs_regression_clean_v388"] is True
+    assert status["paper4_focal_selected_tests_v388"] == 10
+    assert status["paper4_focal_guardrails_clean_v388"] is True
+    assert status["quarto_book_guardrails_passed_v388"] == 3
+    assert status["quarto_book_guardrails_clean_v388"] is True
+    assert status["full_repository_pytest_run_v388"] is False
+    assert status["full_repository_pytest_clean_v388"] is False
+    assert status["full_repository_ruff_run_v388"] is False
+    assert status["full_repository_ruff_clean_v388"] is False
+    assert status["full_quarto_render_run_v388"] is False
+    assert status["full_quarto_render_clean_v388"] is False
+    assert status["working_champion_claim_allowed_v388"] is False
+    assert status["paper1_promotion_allowed_v388"] is False
+    assert status["paper4_working_champion_changed_v388"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v388"] == "paper4_v389_full_repository_pytest_probe.md"
+
+    probes = _read_csv("paper4_v388_regression_probe_results.csv")
+    assert len(probes) == 6
+    probe_map = {row["probe_id_v388"]: row for _, row in probes.iterrows()}
+    docs = probe_map["docs_regression_tests"]
+    assert docs["observed_status_v388"] == "pass"
+    assert int(docs["tests_collected_v388"]) == 440
+    assert int(docs["tests_passed_v388"]) == 440
+    assert bool(docs["claim_allowed_v388"]) is True
+    assert probe_map["full_repository_pytest"]["observed_status_v388"] == "not_run"
+    assert bool(probe_map["full_repository_pytest"]["claim_allowed_v388"]) is False
+    assert probe_map["full_repository_ruff"]["observed_status_v388"] == "not_run"
+    assert probe_map["paper4_final_promotion_absence"]["observed_status_v388"] == "pass"
+
+    next_probes = _read_csv("paper4_v388_next_probe_backlog.csv")
+    assert len(next_probes) == 3
+    next_map = {
+        row["next_probe_id_v388"]: row["next_artifact_v388"] for _, row in next_probes.iterrows()
+    }
+    assert next_map["full_repository_pytest_probe"] == (
+        "paper4_v389_full_repository_pytest_probe.md"
+    )
+    assert next_map["full_repository_ruff_probe"] == "paper4_v390_repository_lint_frontier.md"
+    assert next_map["quarto_render_probe"] == "paper4_v391_quarto_render_probe.md"
+
+    blockers = _read_csv("paper4_v388_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v388"], blockers["blocking_v388"], strict=False))
+    assert bool(blocker_map["full_repository_pytest_not_run"]) is True
+    assert bool(blocker_map["full_repository_ruff_not_run"]) is True
+    assert bool(blocker_map["full_quarto_render_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v388_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v388_docs_regression_tests_clean"]) is True
+    assert bool(claim_map["v388_paper4_focal_guardrails_clean"]) is True
+    assert bool(claim_map["v388_quarto_book_guardrails_clean"]) is True
+    assert bool(claim_map["v388_full_repository_pytest_clean"]) is False
+    assert bool(claim_map["v388_full_repository_ruff_clean"]) is False
+    assert bool(claim_map["v388_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v388 shows the documentation regression suite is clean."])
+    assert bool(
+        boundary_map[
+            "v388 shows Paper 4 focal guardrails and Quarto book guardrails are clean."
+        ]
+    )
+    assert (
+        bool(
+            boundary_map[
+                "v388 proves full repository pytest, global ruff or full Quarto render is clean."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v388 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v388_rows = backlog.loc[backlog["last_wave"].eq("v388")]
+    assert len(v388_rows) == 1
+    backlog_row = v388_rows.iloc[0]
+    assert backlog_row["status"] == "docs_regression_probe_clean"
+    assert backlog_row["next_artifact"] == "paper4_v389_full_repository_pytest_probe.md"
+    assert backlog_row["execution_result"] == "tests_test_docs_440_passed_full_repo_probe_pending"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v388_full_regression_probe_plan.md"
+    ).read_text(encoding="utf-8")
+    assert "Documentation tests: `440`" in probe_md
+    assert "does not claim full repository pytest" in probe_md
+    assert "paper4_v389_full_repository_pytest_probe.md" in probe_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v388: Full Regression Probe Plan" in notebook
+    assert "Documentation tests collected:\n  `440`" in notebook
+    assert "Documentation regression clean:\n  `True`" in notebook
+    assert "Full repository pytest clean:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

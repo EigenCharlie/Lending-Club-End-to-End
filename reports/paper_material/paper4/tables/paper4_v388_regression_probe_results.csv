@@ -1,0 +1,7 @@
+probe_id_v388,command_v388,observed_status_v388,tests_collected_v388,tests_passed_v388,runtime_seconds_v388,claim_allowed_v388,claim_boundary_v388
+docs_regression_tests,uv run pytest -q tests/test_docs --maxfail=10,pass,440,440,76.0,True,documentation test suite only
+paper4_focal_guardrail_chain_v378_v387,uv run pytest -q tests/test_docs/test_paper4_living_lab_guardrails.py -k v378..v387 focal guardrails,pass,10,10,30.21,True,targeted Paper 4 guardrail chain only
+quarto_book_guardrails,uv run pytest -q tests/test_docs/test_quarto_book_guardrails.py,pass,3,3,0.25,True,book guardrail tests only; not a full Quarto render
+full_repository_pytest,uv run pytest -q,not_run,0,0,0.0,False,full repository pytest clean claim deferred to v389
+full_repository_ruff,uv run ruff check .,not_run,0,0,0.0,False,global lint clean claim not made in v388
+paper4_final_promotion_absence,test ! -e reports/paper_material/paper4/status/paper4_final_promotion.json,pass,1,1,0.0,True,final promotion remains forbidden and absent
