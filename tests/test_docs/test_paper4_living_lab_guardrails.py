@@ -51932,6 +51932,106 @@ def test_paper4_v453_methods_results_draft_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v454_discussion_limitations_draft_is_guarded() -> None:
+    status = _read_json("paper4_v454_status.json")
+
+    assert status["phase"] == "v454_discussion_limitations_draft"
+    assert status["schema_version"] == "2026-05-17.454"
+    assert status["prior_methods_results_draft_version_v454"] == 453
+    assert status["limitation_count_v454"] == 5
+    assert status["discussion_sentence_count_v454"] == 5
+    assert status["allowed_discussion_sentence_count_v454"] == 4
+    assert status["prohibited_discussion_sentence_count_v454"] == 1
+    assert status["discussion_limitations_draft_created_v454"] is True
+    assert status["limitation_register_created_v454"] is True
+    assert status["abstract_conclusion_complete_v454"] is False
+    assert status["complete_manuscript_v454"] is False
+    assert status["external_validation_complete_v454"] is False
+    assert status["working_champion_claim_allowed_v454"] is False
+    assert status["paper1_promotion_allowed_v454"] is False
+    assert status["paper4_working_champion_changed_v454"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v454"] == "paper4_v455_abstract_conclusion_draft.md"
+
+    limitations = _read_csv("paper4_v454_limitation_register.csv")
+    assert len(limitations) == 5
+    assert limitations["must_state_v454"].astype(bool).all()
+    assert {
+        "internal_living_lab_not_external_validation",
+        "proxy_fairness_not_legal_certification",
+        "bounded_readiness_not_final_submission",
+        "archive_governance_not_full_history_render",
+        "no_champion_replacement",
+    } == set(limitations["limitation_id_v454"])
+
+    trace = _read_csv("paper4_v454_discussion_claim_trace.csv")
+    assert len(trace) == 5
+    trace_map = dict(zip(trace["sentence_id_v454"], trace["allowed_v454"], strict=False))
+    assert bool(trace_map["discussion_value"]) is True
+    assert bool(trace_map["discussion_reproducibility"]) is True
+    assert bool(trace_map["limitation_external"]) is True
+    assert bool(trace_map["limitation_fairness"]) is True
+    assert bool(trace_map["prohibited_final"]) is False
+
+    blockers = _read_csv("paper4_v454_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v454"], blockers["blocking_v454"], strict=False))
+    assert bool(blocker_map["abstract_conclusion_not_drafted"]) is True
+    assert bool(blocker_map["complete_manuscript_not_assembled"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v454_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v454_discussion_limitations_draft_created"]) is True
+    assert bool(claim_map["v454_limitation_register_created"]) is True
+    assert bool(claim_map["v454_abstract_conclusion_complete"]) is False
+    assert bool(claim_map["v454_complete_manuscript_or_submission"]) is False
+    assert bool(claim_map["v454_external_validation_complete"]) is False
+    assert bool(claim_map["v454_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v454 drafts Paper 4 discussion and limitations prose."])
+    assert bool(
+        boundary_map["v454 registers required limitations for Paper 4 manuscript extraction."]
+    )
+    assert bool(boundary_map["v454 completes abstract, conclusion or manuscript assembly."]) is False
+    assert (
+        bool(boundary_map["v454 makes Paper 4 final, submitted, or externally validated."])
+        is False
+    )
+    assert bool(boundary_map["v454 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v454_rows = backlog.loc[backlog["last_wave"].eq("v454")]
+    assert len(v454_rows) == 1
+    backlog_row = v454_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v455_abstract_conclusion_draft.md"
+    assert (
+        backlog_row["execution_result"]
+        == "discussion_limitations_draft_created_without_finalization"
+    )
+
+    draft_md = (
+        PAPER4_ROOT / "notes" / "paper4_v454_discussion_limitations_draft.md"
+    ).read_text(encoding="utf-8")
+    assert "## Discussion Draft" in draft_md
+    assert "## Limitations Draft" in draft_md
+    assert "does not establish external generalization" in draft_md
+    assert "does not replace Paper" in draft_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v454: Discussion/Limitations Draft" in living_notebook
+    assert "Limitation rows:\n  `5`." in living_notebook
+    assert "Discussion trace sentences:\n  `5`." in living_notebook
+    assert "Allowed discussion sentences:\n  `4`." in living_notebook
+    assert "Abstract/conclusion complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

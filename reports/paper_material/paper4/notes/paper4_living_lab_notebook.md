@@ -19868,3 +19868,52 @@ Keep v453 in the living notebook. v454 should draft discussion/limitations
 without final promotion.
 
 <!-- V453_METHODS_RESULTS_DRAFT_END -->
+
+<!-- V454_DISCUSSION_LIMITATIONS_DRAFT_START -->
+
+## Wave v454: Discussion/Limitations Draft
+
+Generated: 2026-05-17T14:56:33.685762+00:00
+
+### Objective
+
+v454 drafts discussion/limitations prose and registers the required caveats that
+prevent bounded readiness from becoming a final-paper claim.
+
+### Results
+
+- Limitation rows:
+  `5`.
+- Discussion trace sentences:
+  `5`.
+- Allowed discussion sentences:
+  `4`.
+- Discussion/limitations draft created:
+  `True`.
+- Abstract/conclusion complete:
+  `False`.
+- Complete manuscript:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v455_abstract_conclusion_draft.md`.
+
+### Interpretation
+
+Discussion/limitations prose now exists and explicitly separates internal
+readiness from external validation, legal certification, submission readiness and
+final promotion.
+
+### Claim Impact
+
+- Allowed: discussion/limitations draft and limitation register.
+- Still prohibited: abstract/conclusion complete, full manuscript, external
+  validation, champion replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v454 in the living notebook. v455 should draft abstract/conclusion without
+final promotion.
+
+<!-- V454_DISCUSSION_LIMITATIONS_DRAFT_END -->

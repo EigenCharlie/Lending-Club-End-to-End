@@ -1,0 +1,6 @@
+limitation_id_v454,must_state_v454,evidence_artifact_v454,discussion_role_v454,claim_boundary_v454
+internal_living_lab_not_external_validation,True,paper4_v451_remaining_blockers.csv,separate reproducibility from external generalization,no external dataset validation was run
+proxy_fairness_not_legal_certification,True,paper4_current_claim_boundaries.csv,avoid legal/global fair-lending claim,proxy/intersectional audit only
+bounded_readiness_not_final_submission,True,paper4_v451_publishable_language_bank.csv,prevent release-ready overclaim,"not final, submitted, or accepted"
+archive_governance_not_full_history_render,True,paper4_v449_paper4_surface_in_full_book.csv,explain compact official chapter surface,historical archive remains intentionally not rendered
+no_champion_replacement,True,paper4_final_promotion_gate_not_created,protect Paper Estrella champion/promotion boundary,no deployment or champion update

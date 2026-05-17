@@ -1,0 +1,6 @@
+sentence_id_v454,allowed_v454,sentence_v454,source_artifact_v454,claim_boundary_v454
+discussion_value,True,The contribution of the current Paper 4 package is an auditable execution protocol that turns experimental waves into reproducible validation gates.,paper4_v451_release_readiness_gate_summary.csv,protocol/readiness contribution
+discussion_reproducibility,True,"Its strongest current evidence is internal reproducibility: full pytest, Ruff, Paper 4 render, full-book render and no-promotion gates are clean.",paper4_v451_release_readiness_gate_summary.csv,internal validation gates
+limitation_external,True,"The package does not yet establish external generalization, because no external dataset validation has been run.",paper4_v454_limitation_register.csv,explicit limitation
+limitation_fairness,True,Fairness language remains proxy/intersectional and should not be framed as legal certification.,paper4_current_claim_boundaries.csv,proxy fairness only
+prohibited_final,False,The discussion can state that Paper 4 is final and externally validated.,paper4_v454_remaining_blockers.csv,final/external claims remain blocked

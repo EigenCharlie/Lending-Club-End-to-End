@@ -1,0 +1,22 @@
+{
+  "abstract_conclusion_complete_v454": false,
+  "allowed_discussion_sentence_count_v454": 4,
+  "claim_boundary": "v454 is discussion/limitations draft only; abstract, conclusion, external validation and final promotion remain blocked",
+  "complete_manuscript_v454": false,
+  "discussion_limitations_draft_created_v454": true,
+  "discussion_sentence_count_v454": 5,
+  "external_validation_complete_v454": false,
+  "generated_at_utc": "2026-05-17T14:56:33.685762+00:00",
+  "limitation_count_v454": 5,
+  "limitation_register_created_v454": true,
+  "next_artifact_v454": "paper4_v455_abstract_conclusion_draft.md",
+  "paper1_promotion_allowed_v454": false,
+  "paper4_final_promotion_created": false,
+  "paper4_working_champion_changed_v454": false,
+  "phase": "v454_discussion_limitations_draft",
+  "prior_methods_results_draft_version_v454": 453,
+  "prohibited_discussion_sentence_count_v454": 1,
+  "runtime_seconds": 0.057,
+  "schema_version": "2026-05-17.454",
+  "working_champion_claim_allowed_v454": false
+}
