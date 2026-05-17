@@ -59475,6 +59475,173 @@ def test_paper4_v513_candidate_input_receipt_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v514_candidate_input_collection_reminder_packet_is_guarded() -> None:
+    status = _read_json("paper4_v514_status.json")
+    assert status["phase"] == "v514_candidate_input_collection_reminder_packet"
+    assert status["schema_version"] == "2026-05-17.514"
+    assert status["prior_input_receipt_audit_version_v514"] == 513
+    assert status["candidate_input_collection_reminder_packet_created_v514"] is True
+    assert status["reminder_packet_rows_v514"] == 14
+    assert status["reminder_created_rows_v514"] == 14
+    assert status["candidate_identifier_received_rows_v514"] == 0
+    assert status["nomination_fields_received_rows_v514"] == 0
+    assert status["nomination_signoff_received_rows_v514"] == 0
+    assert status["evidence_received_rows_v514"] == 0
+    assert status["candidate_nomination_recorded_rows_v514"] == 0
+    assert status["field_evidence_checklist_rows_v514"] == 84
+    assert status["field_reminder_created_rows_v514"] == 84
+    assert status["evidence_reminder_created_rows_v514"] == 84
+    assert status["field_value_received_rows_v514"] == 0
+    assert status["field_evidence_received_rows_v514"] == 0
+    assert status["open_collection_gap_rows_v514"] == 84
+    assert status["collection_reminder_control_rows_v514"] == 6
+    assert status["active_collection_reminder_control_rows_v514"] == 6
+    assert status["eligibility_review_allowed_rows_v514"] == 0
+    assert status["reviewer_assignment_allowed_rows_v514"] == 0
+    assert status["outcome_capture_allowed_rows_v514"] == 0
+    assert status["patch_allowed_rows_v514"] == 0
+    assert status["readiness_delta_rows_v514"] == 8
+    assert status["reminder_followup_audit_ready_v514"] is True
+    assert status["ready_for_quarto_patch_v514"] is False
+    assert status["quarto_patch_applied_v514"] is False
+    assert status["book_sources_modified_v514"] is False
+    assert status["book_references_modified_v514"] is False
+    assert status["submission_ready_claim_allowed_v514"] is False
+    assert status["working_champion_claim_allowed_v514"] is False
+    assert status["paper1_promotion_allowed_v514"] is False
+    assert status["paper4_working_champion_changed_v514"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v514"] == "paper4_v515_collection_reminder_followup_audit.md"
+
+    packet = _read_csv("paper4_v514_candidate_input_collection_reminder_packet.csv")
+    assert len(packet) == 14
+    assert packet["reminder_created_v514"].astype(bool).all()
+    assert not packet["candidate_identifier_received_v514"].astype(bool).any()
+    assert not packet["nomination_fields_received_v514"].astype(bool).any()
+    assert not packet["nomination_signoff_received_v514"].astype(bool).any()
+    assert not packet["evidence_received_v514"].astype(bool).any()
+    assert not packet["candidate_nomination_recorded_v514"].astype(bool).any()
+    assert not packet["eligibility_review_allowed_v514"].astype(bool).any()
+    assert not packet["reviewer_assignment_allowed_v514"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v514"].astype(bool).any()
+    assert not packet["patch_allowed_v514"].astype(bool).any()
+    assert set(packet["reminder_status_v514"]) == {"pending_human_response"}
+    assert set(packet["required_next_step_v514"]) == {
+        "follow_up_on_candidate_input_collection"
+    }
+
+    checklist = _read_csv("paper4_v514_field_evidence_collection_checklist.csv")
+    assert len(checklist) == 84
+    assert checklist["field_request_created_v514"].astype(bool).all()
+    assert checklist["field_reminder_created_v514"].astype(bool).all()
+    assert checklist["evidence_required_v514"].astype(bool).all()
+    assert checklist["evidence_reminder_created_v514"].astype(bool).all()
+    assert checklist["completion_gap_open_v514"].astype(bool).all()
+    assert not checklist["field_value_received_v514"].astype(bool).any()
+    assert not checklist["field_evidence_received_v514"].astype(bool).any()
+    assert checklist.groupby("collection_reminder_id_v514").size().eq(6).all()
+
+    controls = _read_csv("paper4_v514_collection_reminder_control_register.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v514"].astype(bool).all()
+    control_map = dict(
+        zip(
+            controls["collection_reminder_control_id_v514"],
+            controls["blocks_collection_completion_v514"],
+            strict=False,
+        )
+    )
+    assert bool(control_map["no_candidate_identifier_received"])
+    assert bool(control_map["no_nomination_fields_received"])
+    assert bool(control_map["no_nomination_signoff_received"])
+    assert bool(control_map["no_evidence_received"])
+    assert bool(control_map["eligibility_review_blocked"]) is False
+    assert bool(control_map["no_final_promotion"]) is False
+
+    readiness = _read_csv("paper4_v514_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v514"], readiness["ready_v514"], strict=False)
+    )
+    assert bool(readiness_map["collection_reminder_packet_created"])
+    assert bool(readiness_map["field_evidence_collection_checklist_created"])
+    assert bool(readiness_map["collection_reminder_controls_created"])
+    assert bool(readiness_map["reminder_followup_audit_ready"])
+    assert bool(readiness_map["candidate_identifiers_received"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v514_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v514_collection_reminder_packet_created"])
+    assert bool(claim_map["v514_field_evidence_checklist_created"])
+    assert bool(claim_map["v514_reminder_followup_audit_ready"])
+    assert bool(claim_map["v514_candidate_inputs_received_or_nominated"]) is False
+    assert bool(claim_map["v514_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v514_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v514 creates a candidate input collection reminder packet."])
+    assert bool(boundary_map["v514 creates a field and evidence collection checklist."])
+    assert bool(boundary_map["v514 makes reminder followup audit executable next."])
+    assert (
+        bool(boundary_map["v514 receives candidate inputs or nominates candidates."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v514 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v514 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v514_rows = backlog.loc[backlog["last_wave"].eq("v514")]
+    assert len(v514_rows) == 1
+    backlog_row = v514_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v515_collection_reminder_followup_audit.md"
+    assert (
+        backlog_row["execution_result"]
+        == "candidate_input_collection_reminder_packet_created_without_inputs"
+    )
+
+    reminder_md = (
+        PAPER4_ROOT
+        / "notes"
+        / "paper4_v514_candidate_input_collection_reminder_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Candidate Input Collection Reminder Packet v514" in reminder_md
+    assert "v514 is a collection-reminder packet only" in reminder_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v514: Candidate Input Collection Reminder Packet" in living_notebook
+    assert "Collection reminder packet rows:\n  `14`." in living_notebook
+    assert "Reminder created rows:\n  `14`." in living_notebook
+    assert "Candidate identifier received rows:\n  `0`." in living_notebook
+    assert "Nomination fields received rows:\n  `0`." in living_notebook
+    assert "Nomination signoff received rows:\n  `0`." in living_notebook
+    assert "Evidence received rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert "Field/evidence checklist rows:\n  `84`." in living_notebook
+    assert "Field reminder created rows:\n  `84`." in living_notebook
+    assert "Evidence reminder created rows:\n  `84`." in living_notebook
+    assert "Field value received rows:\n  `0`." in living_notebook
+    assert "Field evidence received rows:\n  `0`." in living_notebook
+    assert "Open collection gap rows:\n  `84`." in living_notebook
+    assert "Collection reminder control rows:\n  `6`." in living_notebook
+    assert "Active collection reminder control rows:\n  `6`." in living_notebook
+    assert "Eligibility review allowed rows:\n  `0`." in living_notebook
+    assert "Reviewer assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
