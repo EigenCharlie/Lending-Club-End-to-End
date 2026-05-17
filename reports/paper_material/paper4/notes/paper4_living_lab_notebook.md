@@ -22521,3 +22521,64 @@ Keep v502 in the living notebook. v503 should audit assignment gaps before any
 manual capture claims are allowed.
 
 <!-- V502_REVIEW_OUTCOME_MANUAL_CAPTURE_PACKET_END -->
+
+<!-- V503_MANUAL_CAPTURE_ASSIGNMENT_GAP_AUDIT_START -->
+
+## Wave v503: Manual Capture Assignment Gap Audit
+
+Generated: 2026-05-17T19:42:21.642677+00:00
+
+### Objective
+
+v503 audits whether the v502 manual capture packet has reviewer assignments.
+It does not assign reviewers or capture outcomes.
+
+### Results
+
+- Assignment gap rows:
+  `14`.
+- Open assignment gap rows:
+  `14`.
+- Reviewer assigned rows:
+  `0`.
+- Domain summary rows:
+  `2`.
+- Domains with open gaps:
+  `2`.
+- Assignment blocker rows:
+  `4`.
+- Open assignment blocker rows:
+  `4`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v504_reviewer_assignment_packet.md`.
+
+### Interpretation
+
+The manual capture packet is prepared, but reviewer assignment remains a hard
+blocking gap. The next executable artifact should target assignment, not outcome
+capture or Quarto mutation.
+
+### Claim Impact
+
+- Allowed: assignment-gap audit, domain gap summary, blocker register and next
+  assignment packet readiness.
+- Still prohibited: reviewer assignment, completed review/signoff claims, final
+  captions, Quarto patch readiness/application, Quarto/book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v503 in the living notebook. v504 should create a reviewer assignment
+packet without assigning reviewers or pre-recording outcomes.
+
+<!-- V503_MANUAL_CAPTURE_ASSIGNMENT_GAP_AUDIT_END -->

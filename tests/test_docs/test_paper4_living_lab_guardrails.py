@@ -57660,6 +57660,133 @@ def test_paper4_v502_review_outcome_manual_capture_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v503_manual_capture_assignment_gap_audit_is_guarded() -> None:
+    status = _read_json("paper4_v503_status.json")
+    assert status["phase"] == "v503_manual_capture_assignment_gap_audit"
+    assert status["schema_version"] == "2026-05-17.503"
+    assert status["prior_manual_packet_version_v503"] == 502
+    assert status["manual_capture_assignment_gap_audit_created_v503"] is True
+    assert status["assignment_gap_rows_v503"] == 14
+    assert status["open_assignment_gap_rows_v503"] == 14
+    assert status["reviewer_assigned_rows_v503"] == 0
+    assert status["domain_summary_rows_v503"] == 2
+    assert status["domains_with_open_gap_rows_v503"] == 2
+    assert status["assignment_blocker_rows_v503"] == 4
+    assert status["open_assignment_blocker_rows_v503"] == 4
+    assert status["outcome_capture_allowed_rows_v503"] == 0
+    assert status["patch_allowed_rows_v503"] == 0
+    assert status["readiness_delta_rows_v503"] == 8
+    assert status["reviewer_assignment_packet_ready_v503"] is True
+    assert status["ready_for_quarto_patch_v503"] is False
+    assert status["quarto_patch_applied_v503"] is False
+    assert status["book_sources_modified_v503"] is False
+    assert status["book_references_modified_v503"] is False
+    assert status["submission_ready_claim_allowed_v503"] is False
+    assert status["working_champion_claim_allowed_v503"] is False
+    assert status["paper1_promotion_allowed_v503"] is False
+    assert status["paper4_working_champion_changed_v503"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v503"] == "paper4_v504_reviewer_assignment_packet.md"
+
+    gaps = _read_csv("paper4_v503_assignment_gap_audit.csv")
+    assert len(gaps) == 14
+    assert gaps["assignment_required_v503"].astype(bool).all()
+    assert not gaps["reviewer_assigned_v503"].astype(bool).any()
+    assert gaps["assignment_gap_open_v503"].astype(bool).all()
+    assert not gaps["outcome_capture_allowed_v503"].astype(bool).any()
+    assert not gaps["patch_allowed_v503"].astype(bool).any()
+
+    domain_summary = _read_csv("paper4_v503_domain_assignment_gap_summary.csv")
+    assert len(domain_summary) == 2
+    summary_map = {row["review_domain_v503"]: row for _, row in domain_summary.iterrows()}
+    assert int(summary_map["layout_surface"]["assignment_rows_v503"]) == 4
+    assert int(summary_map["layout_surface"]["open_assignment_gap_rows_v503"]) == 4
+    assert int(summary_map["caption_claim_safety"]["assignment_rows_v503"]) == 10
+    assert int(summary_map["caption_claim_safety"]["open_assignment_gap_rows_v503"]) == 10
+    assert domain_summary["domain_assignment_gap_open_v503"].astype(bool).all()
+
+    blockers = _read_csv("paper4_v503_assignment_blocker_register.csv")
+    assert len(blockers) == 4
+    assert blockers["blocker_open_v503"].astype(bool).all()
+    blocker_map = dict(
+        zip(
+            blockers["assignment_blocker_id_v503"],
+            blockers["blocks_outcome_capture_v503"],
+            strict=False,
+        )
+    )
+    assert bool(blocker_map["reviewer_assignment_missing"])
+    assert bool(blocker_map["assignment_signoff_missing"])
+    assert bool(blocker_map["outcome_capture_not_started"])
+    assert bool(blocker_map["patch_approval_blocked"]) is False
+
+    readiness = _read_csv("paper4_v503_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v503"], readiness["ready_v503"], strict=False)
+    )
+    assert bool(readiness_map["assignment_gap_audit_created"])
+    assert bool(readiness_map["domain_assignment_gap_summary_created"])
+    assert bool(readiness_map["assignment_blocker_register_created"])
+    assert bool(readiness_map["reviewer_assignment_packet_ready"])
+    assert bool(readiness_map["reviewers_assigned"]) is False
+    assert bool(readiness_map["real_review_outcomes_captured"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v503_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v503_assignment_gap_audit_created"])
+    assert bool(claim_map["v503_domain_assignment_gap_summary_created"])
+    assert bool(claim_map["v503_reviewer_assignment_packet_ready"])
+    assert bool(claim_map["v503_reviewers_assigned_or_outcomes_captured"]) is False
+    assert bool(claim_map["v503_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v503_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v503 audits open reviewer assignment gaps for Paper 4."])
+    assert bool(boundary_map["v503 summarizes assignment gaps by review domain."])
+    assert bool(boundary_map["v503 makes a reviewer assignment packet executable next."])
+    assert bool(boundary_map["v503 assigns reviewers or captures review outcomes."]) is False
+    assert (
+        bool(boundary_map["v503 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v503 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v503_rows = backlog.loc[backlog["last_wave"].eq("v503")]
+    assert len(v503_rows) == 1
+    backlog_row = v503_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v504_reviewer_assignment_packet.md"
+    assert backlog_row["execution_result"] == "assignment_gaps_audited_without_assignments"
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v503_manual_capture_assignment_gap_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Manual Capture Assignment Gap Audit v503" in audit_md
+    assert "All 14 reviewer assignment gaps remain\nopen" in audit_md
+    assert "v503 is an assignment-gap audit only" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v503: Manual Capture Assignment Gap Audit" in living_notebook
+    assert "Assignment gap rows:\n  `14`." in living_notebook
+    assert "Open assignment gap rows:\n  `14`." in living_notebook
+    assert "Reviewer assigned rows:\n  `0`." in living_notebook
+    assert "Domain summary rows:\n  `2`." in living_notebook
+    assert "Domains with open gaps:\n  `2`." in living_notebook
+    assert "Assignment blocker rows:\n  `4`." in living_notebook
+    assert "Open assignment blocker rows:\n  `4`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
