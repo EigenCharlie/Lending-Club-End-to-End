@@ -36542,6 +36542,178 @@ def test_paper4_v342_v338_proxy_gap_repair_records_strict_and_relaxed_infeasibil
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v343_v338_expanded_pool_blocks_pool_limited_repair_explanation() -> None:
+    status = _read_json("paper4_v343_status.json")
+
+    assert status["phase"] == "v343_v338_expanded_pool_or_dual_bound_gate"
+    assert status["schema_version"] == "2026-05-16.343"
+    assert status["base_version_v343"] == 338
+    assert status["reference_version_v343"] == 316
+    assert status["gate_version_v343"] == 342
+    assert status["source_cashflow_gate_version_v343"] == 341
+    assert status["pool_rows_v343"] == 1722
+    assert status["observed_omitted_candidate_rows_v343"] == 1551
+    assert status["total_observed_omitted_rows_v343"] == 1551
+    assert status["pool_limit_binding_v343"] is False
+    assert status["expanded_pool_includes_all_observed_omitted_v343"] is True
+    assert status["candidate_pool_limit_per_period_v343"] == 10000
+    assert status["strict_v338_preserving_repair_feasible_v343"] is False
+    assert status["strict_milp_status_v343"] == 2
+    assert status["relaxed_repair_feasible_v343"] is False
+    assert status["relaxed_milp_status_v343"] == 2
+    assert status["relaxed_selected_rows_v343"] == 0
+    assert status["relaxed_added_rows_v343"] == 0
+    assert status["relaxed_dropped_rows_v343"] == 0
+    assert status["relaxed_observed_proxy_rows_v343"] == 0
+    assert status["relaxed_missing_proxy_rows_v343"] == 0
+    assert status["relaxed_objective_return_v343"] is None
+    assert status["relaxed_delta_return_vs_v338_v343"] is None
+    assert status["relaxed_cvar90_v343"] is None
+    assert status["source_cap_violations_v343"] == 0
+    assert status["min_source_slack_v343"] is None
+    assert status["post_v343_repricing_required_v343"] is False
+    assert status["strict_repair_or_champion_claim_allowed_v343"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v343"] is False
+    assert status["working_champion_claim_allowed_v343"] is False
+    assert status["paper1_promotion_allowed_v343"] is False
+    assert status["paper4_working_champion_changed_v343"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v343"] == 6
+    assert status["claim_matrix_rows_v343"] == 6
+    assert status["next_artifact_v343"] == (
+        "paper4_v344_v338_dual_bound_after_expanded_pool_gate.csv"
+    )
+    assert "expanded-pool proxy-coverage frontier" in status["claim_boundary"]
+
+    summary = _read_csv("paper4_v343_v338_expanded_pool_or_dual_bound_gate.csv")
+    row = summary.iloc[0]
+    assert row["gate_id_v343"] == "v343_v338_expanded_pool_or_dual_bound_gate"
+    assert int(row["pool_rows_v343"]) == 1722
+    assert int(row["observed_omitted_candidate_rows_v343"]) == 1551
+    assert int(row["total_observed_omitted_rows_v343"]) == 1551
+    assert bool(row["pool_limit_binding_v343"]) is False
+    assert bool(row["expanded_pool_includes_all_observed_omitted_v343"]) is True
+    assert int(row["candidate_pool_limit_per_period_v343"]) == 10000
+    assert bool(row["strict_v338_preserving_repair_feasible_v343"]) is False
+    assert bool(row["relaxed_repair_feasible_v343"]) is False
+    assert int(row["relaxed_selected_rows_v343"]) == 0
+    assert bool(row["post_v343_repricing_required_v343"]) is False
+    assert bool(row["working_champion_claim_allowed_v343"]) is False
+    assert "strict and relaxed v338 repair tiers are infeasible" in str(row["claim_boundary_v343"])
+
+    pool = _read_csv("paper4_v343_proxy_gap_pool_summary.csv")
+    pool_row = pool.iloc[0]
+    assert pool_row["pool_id_v343"] == "v338_plus_all_observed_omitted_candidates"
+    assert int(pool_row["pool_rows_v343"]) == 1722
+    assert int(pool_row["selected_base_rows_v343"]) == 171
+    assert int(pool_row["observed_omitted_candidate_rows_v343"]) == 1551
+    assert int(pool_row["total_observed_omitted_rows_v343"]) == 1551
+    assert bool(pool_row["pool_limit_binding_v343"]) is False
+    assert bool(pool_row["expanded_pool_includes_all_observed_omitted_v343"]) is True
+
+    tiers = _read_csv("paper4_v343_proxy_gap_tier_summary.csv")
+    tier_map = {str(tier_id): group.iloc[0] for tier_id, group in tiers.groupby("tier_id_v343")}
+    strict = tier_map["strict_v338_return_v338_cvar"]
+    relaxed = tier_map["relaxed_v316_return_v338_cvar"]
+    for tier in [strict, relaxed]:
+        assert bool(tier["solver_success_v343"]) is False
+        assert int(tier["milp_status_v343"]) == 2
+        assert "Infeasible" in str(tier["milp_message_v343"])
+        assert int(tier["constraint_rows_v343"]) == 186
+        assert int(tier["variable_count_v343"]) == 1851
+        assert int(tier["milp_node_count_v343"]) == -1
+        assert "expanded-pool proxy-gap repair tier" in str(tier["claim_boundary_v343"])
+    assert float(strict["return_floor_v343"]) == pytest.approx(4425.910563779387)
+    assert float(strict["cvar_cap_v343"]) == pytest.approx(96385.97652556212)
+    assert float(relaxed["return_floor_v343"]) == pytest.approx(4419.757991584778)
+    assert float(relaxed["cvar_cap_v343"]) == pytest.approx(96385.97652556212)
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v343_relaxed_proxy_gap_allocations.parquet")
+    assert len(allocations) == 0
+    actions = _read_csv("paper4_v343_relaxed_proxy_gap_actions.csv")
+    assert len(actions) == 0
+    source = _read_csv("paper4_v343_relaxed_proxy_gap_source_summary.csv")
+    assert len(source) == 0
+
+    blockers = _read_csv("paper4_v343_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v343"], blockers["blocking_v343"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v343"], blockers["evidence_count_v343"], strict=False)
+    )
+    next_map = dict(
+        zip(blockers["blocker_id_v343"], blockers["required_next_artifact_v343"], strict=False)
+    )
+    assert bool(blocker_map["strict_v338_preserving_proxy_repair_infeasible"]) is True
+    assert next_map["strict_v338_preserving_proxy_repair_infeasible"] == (
+        "paper4_v344_v338_dual_bound_after_expanded_pool_gate.csv"
+    )
+    assert bool(blocker_map["relaxed_v316_return_v338_cvar_repair_infeasible"]) is True
+    assert int(evidence_map["relaxed_v316_return_v338_cvar_repair_infeasible"]) == 1
+    assert bool(blocker_map["post_v343_reprice_missing"]) is False
+    assert int(evidence_map["post_v343_reprice_missing"]) == 0
+    assert bool(blocker_map["expanded_observed_pool_not_full_universe"]) is True
+    assert int(evidence_map["expanded_observed_pool_not_full_universe"]) == 1551
+    assert bool(blocker_map["contractual_ifrs9_and_live_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v343_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v343_strict_v338_proxy_gap_repair_found"]) is False
+    assert bool(claim_map["v343_relaxed_proxy_gap_repair_found"]) is False
+    assert bool(claim_map["v343_relaxed_observed_proxy_rows_reach_100"]) is False
+    assert bool(claim_map["v343_preserves_full_v338_return"]) is False
+    assert bool(claim_map["v343_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v343_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    boundary_text_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["boundary"], strict=False)
+    )
+    assert bool(boundary_map["v343 tests expanded-pool strict v338-preserving proxy-gap repair."])
+    assert bool(
+        boundary_map["v343 documents expanded-pool relaxed v338 proxy-gap repair infeasibility."]
+    )
+    assert (
+        bool(boundary_map["v343 finds an expanded-pool relaxed v338 proxy-gap repair allocation."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v343 preserves the full v338 return while repairing proxy coverage."])
+        is False
+    )
+    assert (
+        "expanded pool"
+        in boundary_text_map["v343 preserves the full v338 return while repairing proxy coverage."]
+    )
+    assert bool(boundary_map["v343 proves full-universe branch-price optimality."]) is False
+    assert bool(boundary_map["v343 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v343_rows = backlog.loc[backlog["last_wave"].eq("v343")]
+    assert len(v343_rows) == 1
+    backlog_row = v343_rows.iloc[0]
+    assert backlog_row["status"] == "expanded_pool_v338_proxy_repair_tested"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v344_v338_dual_bound_after_expanded_pool_gate.csv"
+    )
+    assert backlog_row["execution_result"] == (
+        "expanded_pool_strict_and_relaxed_v338_repair_infeasible"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v343: v338 Expanded Pool / Dual-Bound Gate" in notebook
+    assert "Candidate pool rows: `1722`" in notebook
+    assert "Strict v338-preserving repair feasible:\n  `False`" in notebook
+    assert "Relaxed repair feasible:\n  `False`" in notebook
+    assert "v343 tests whether v342 was merely pool-limited" in notebook
+    assert "The next wave should pursue a dual-bound or" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

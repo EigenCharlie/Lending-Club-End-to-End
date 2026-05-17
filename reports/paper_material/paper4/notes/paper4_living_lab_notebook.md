@@ -13962,3 +13962,55 @@ Keep v342 in the living notebook. The next wave should expand the pool or pursue
 a dual-bound/global certificate without promotion.
 
 <!-- V342_V338_PROXY_GAP_REPAIR_END -->
+
+<!-- V343_V338_EXPANDED_POOL_DUAL_BOUND_START -->
+
+## Wave v343: v338 Expanded Pool / Dual-Bound Gate
+
+Generated: 2026-05-17T00:22:07.746008+00:00
+
+### Objective
+
+v342 showed that the bounded observed-candidate pool cannot repair v338's proxy
+gap under the v338 CVaR cap. v343 expands that repair pool to include all
+observed omitted candidates, then retests strict and relaxed repair feasibility.
+
+### Results
+
+- Candidate pool rows: `1722`.
+- Strict v338-preserving repair feasible:
+  `False`.
+- Relaxed repair feasible:
+  `False`.
+- Relaxed observed proxy rows:
+  `0`.
+- Relaxed missing proxy rows:
+  `0`.
+- Relaxed return delta vs v338:
+  `None`.
+- Relaxed CVaR delta vs v338:
+  `None`.
+- Post-v343 repricing required:
+  `False`.
+
+### Interpretation
+
+v343 tests whether v342 was merely pool-limited. If the expanded observed pool
+is still infeasible, the next executable route is a dual-bound/global
+certificate attempt, not repricing a relaxed repair.
+
+### Claim Impact
+
+- Allowed: expanded-pool proxy-gap repair feasibility test and relaxed infeasibility
+  diagnostic.
+- Still prohibited: strict v338-preserving coverage repair, relaxed repair
+  allocation, full-universe global optimality, contractual IFRS9, live
+  deployment, Paper Estrella replacement, final Paper 4 promotion and working
+  champion claims.
+
+### Quarto Promotion Decision
+
+Keep v343 in the living notebook. The next wave should pursue a dual-bound or
+global certificate without promotion.
+
+<!-- V343_V338_EXPANDED_POOL_DUAL_BOUND_END -->
