@@ -1,0 +1,7 @@
+post_entry_blocker_id_v511,blocker_open_v511,blocks_eligibility_review_v511,required_resolution_v511
+no_manual_candidate_identifier_entries,True,True,enter candidate identifiers
+no_manual_field_value_entries,True,True,enter required nomination field values
+no_nomination_signoff,True,True,record nomination signoff
+no_candidate_nomination_recorded,True,True,record candidate nominations
+eligibility_review_blocked,True,False,start eligibility only after nomination
+reviewer_assignment_blocked,True,False,assign reviewers only after eligibility

@@ -23083,3 +23083,83 @@ manual entry, and must still report zero resolved candidates unless real human
 entries are present.
 
 <!-- V510_CANDIDATE_RESOLUTION_MANUAL_ENTRY_PACKET_END -->
+
+<!-- V511_POST_ENTRY_CANDIDATE_RESOLUTION_AUDIT_START -->
+
+## Wave v511: Post-entry Candidate Resolution Audit
+
+Generated: 2026-05-17T20:33:41.379679+00:00
+
+### Objective
+
+v511 audits the v510 manual-entry packet after creation. Since no human entries
+are present, it verifies that candidate resolution remains incomplete.
+
+### Results
+
+- Post-entry audit rows:
+  `14`.
+- Open candidate resolution gap rows:
+  `14`.
+- Candidate resolution complete rows:
+  `0`.
+- Candidate identifier entered rows:
+  `0`.
+- Nomination fields entered rows:
+  `0`.
+- Nomination signoff recorded rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field completion audit rows:
+  `84`.
+- Open field completion gap rows:
+  `84`.
+- Field value entered rows:
+  `0`.
+- Domain summary rows:
+  `2`.
+- Domains with open resolution gaps:
+  `2`.
+- Post-entry blocker rows:
+  `6`.
+- Open post-entry blocker rows:
+  `6`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v512_candidate_input_request_packet.md`.
+
+### Interpretation
+
+The living lab now has a post-entry audit proving the manual-entry surface is
+still blank. The next executable artifact should request candidate inputs,
+rather than opening eligibility review or reviewer assignment.
+
+### Claim Impact
+
+- Allowed: post-entry audit, field-completion audit, domain readiness summary
+  and future candidate input request readiness.
+- Still prohibited: candidate resolution/nomination, reviewer assignment,
+  completed review claims, final captions, Quarto patch readiness/application,
+  Quarto/book mutation, submission readiness, Paper Estrella replacement and
+  final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v511 in the living notebook. v512 should create a candidate input request
+packet with explicit evidence requirements and still no fabricated candidates.
+
+<!-- V511_POST_ENTRY_CANDIDATE_RESOLUTION_AUDIT_END -->
