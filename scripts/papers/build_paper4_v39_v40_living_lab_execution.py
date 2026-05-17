@@ -455,8 +455,7 @@ def audit_spo_dependencies() -> pd.DataFrame:
         probe = subprocess.run(
             [sys.executable, "-c", f"import {package}"],
             text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             check=False,
         )
         available = probe.returncode == 0

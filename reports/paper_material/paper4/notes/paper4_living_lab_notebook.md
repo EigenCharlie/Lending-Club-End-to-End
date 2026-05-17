@@ -18985,3 +18985,57 @@ Keep v437 in the living notebook. v438 should apply the targeted UP022
 capture-output repair batch.
 
 <!-- V437_POST_SCRIPTS_F401_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V438_SCRIPTS_UP022_CAPTURE_OUTPUT_REPAIR_BATCH_START -->
+
+## Wave v438: Scripts UP022 Capture-Output Repair Batch
+
+Generated: 2026-05-17T12:26:36.887735+00:00
+
+### Objective
+
+v438 applies targeted `capture_output=True` repairs across scripts UP022 diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `14` ->
+  `11`.
+- Repository UP022 before/after:
+  `3` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `14` ->
+  `11`.
+- Changed files:
+  `3`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v439_post_scripts_up022_repair_pytest_probe.md`.
+
+### Interpretation
+
+The UP022 frontier is cleared by replacing explicit stdout/stderr PIPE capture
+with `capture_output=True` in three Paper 4 script builders. Remaining
+repository ruff diagnostics are now B023, SIM108, C405 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts UP022 repair applied, repository ruff count
+  reduced, and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v438 in the living notebook. v439 should run the post-UP022-repair full
+pytest probe.
+
+<!-- V438_SCRIPTS_UP022_CAPTURE_OUTPUT_REPAIR_BATCH_END -->

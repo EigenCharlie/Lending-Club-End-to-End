@@ -121,8 +121,7 @@ def package_probe(package: str) -> dict[str, Any]:
     probe = subprocess.run(
         [sys.executable, "-c", f"import {package}"],
         text=True,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
+        capture_output=True,
         check=False,
     )
     available = probe.returncode == 0

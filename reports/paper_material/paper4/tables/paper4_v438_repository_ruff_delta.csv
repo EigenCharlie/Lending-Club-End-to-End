@@ -1,0 +1,17 @@
+metric_v438,before_v438,after_v438,delta_v438,claim_boundary_v438
+repository_total,14,11,-3,ruff-count delta only; repository ruff remains open unless after=0
+repository_b023,7,7,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_up022,3,0,-3,ruff-count delta only; repository ruff remains open unless after=0
+repository_sim108,2,2,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_c405,1,1,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_sim223,1,1,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_f401,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_i001,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_f841,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_b007,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_b905,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+repository_c408,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+scripts_total,14,11,-3,ruff-count delta only; repository ruff remains open unless after=0
+book_total,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+streamlit_app_total,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
+notebook_total,0,0,0,ruff-count delta only; repository ruff remains open unless after=0
