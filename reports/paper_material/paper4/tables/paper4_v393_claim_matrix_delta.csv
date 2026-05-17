@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v393_notebook_lint_dry_run_manifest_created,True,paper4_v393_notebook_lint_dry_run_manifest.csv,dry-run only
+v393_notebook_lint_classified_by_file_and_fix_class,True,paper4_v393_notebook_fix_class_summary.csv,classification only
+v393_notebooks_remained_unmodified,True,git diff -- notebooks,no notebook mutation in v393
+v393_notebooks_repaired,False,paper4_v393_claim_blockers.csv,no fixes applied
+v393_global_ruff_clean,False,paper4_v393_claim_blockers.csv,notebook diagnostics still exist
+v393_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -43463,6 +43463,129 @@ def test_paper4_v392_notebook_lint_policy_blocks_blind_bulk_rewrite() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v393_notebook_lint_dry_run_manifest_preserves_notebooks() -> None:
+    status = _read_json("paper4_v393_status.json")
+
+    assert status["phase"] == "v393_notebook_lint_dry_run_manifest"
+    assert status["schema_version"] == "2026-05-17.393"
+    assert status["prior_notebook_policy_version_v393"] == 392
+    assert status["ruff_notebook_command_v393"] == (
+        "uv run ruff check notebooks --output-format json"
+    )
+    assert status["dry_run_manifest_rows_v393"] == 158
+    assert status["notebook_file_rows_v393"] == 13
+    assert status["fix_class_rows_v393"] == 5
+    assert status["claim_blocker_rows_v393"] == 4
+    assert status["claim_matrix_rows_v393"] == 6
+    assert status["safe_after_roundtrip_rows_v393"] == 18
+    assert status["blocked_import_reorder_rows_v393"] == 119
+    assert status["manual_review_rows_v393"] == 16
+    assert status["style_review_before_fix_rows_v393"] == 4
+    assert status["blocked_execution_context_rows_v393"] == 1
+    assert status["notebook_files_mutated_v393"] is False
+    assert status["notebook_mutation_applied_v393"] is False
+    assert status["git_notebook_diff_clean_before_v393"] is True
+    assert status["git_notebook_diff_clean_after_v393"] is True
+    assert status["global_ruff_clean_v393"] is False
+    assert status["full_repository_pytest_run_v393"] is False
+    assert status["full_quarto_render_run_v393"] is False
+    assert status["working_champion_claim_allowed_v393"] is False
+    assert status["paper1_promotion_allowed_v393"] is False
+    assert status["paper4_working_champion_changed_v393"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v393"] == "paper4_v394_notebook_safe_fix_roundtrip_batch.md"
+
+    manifest = _read_csv("paper4_v393_notebook_lint_dry_run_manifest.csv")
+    assert len(manifest) == 158
+    assert manifest["dry_run_only_v393"].astype(bool).all()
+    assert not manifest["notebook_mutated_v393"].astype(bool).any()
+    assert int(manifest["has_ruff_fix_v393"].astype(bool).sum()) == 22
+    assert set(manifest["fix_class_v393"]) == {
+        "blocked_execution_context",
+        "blocked_import_reorder",
+        "manual_review",
+        "safe_after_roundtrip",
+        "style_review_before_fix",
+    }
+
+    file_summary = _read_csv("paper4_v393_notebook_file_summary.csv")
+    assert len(file_summary) == 13
+    file_map = {row["notebook_path_v393"]: row for _, row in file_summary.iterrows()}
+    assert int(file_map["notebooks/03_pd_modeling.ipynb"]["diagnostic_count_v393"]) == 20
+    assert int(file_map["notebooks/06_survival_analysis.ipynb"]["diagnostic_count_v393"]) == 18
+    assert int(
+        file_map["notebooks/13_model_explainability.ipynb"]["diagnostic_count_v393"]
+    ) == 18
+
+    class_summary = _read_csv("paper4_v393_notebook_fix_class_summary.csv")
+    class_map = {
+        row["fix_class_v393"]: row["diagnostic_count_v393"]
+        for _, row in class_summary.iterrows()
+    }
+    assert int(class_map["blocked_import_reorder"]) == 119
+    assert int(class_map["safe_after_roundtrip"]) == 18
+    assert int(class_map["manual_review"]) == 16
+    assert int(class_map["style_review_before_fix"]) == 4
+    assert int(class_map["blocked_execution_context"]) == 1
+    assert not class_summary["mutation_allowed_v393"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v393_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v393"], blockers["blocking_v393"], strict=False))
+    assert bool(blocker_map["notebooks_not_mutated"]) is True
+    assert bool(blocker_map["blocked_import_reorder_diagnostics"]) is True
+    assert bool(blocker_map["blocked_execution_context_diagnostic"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v393_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v393_notebook_lint_dry_run_manifest_created"]) is True
+    assert bool(claim_map["v393_notebook_lint_classified_by_file_and_fix_class"]) is True
+    assert bool(claim_map["v393_notebooks_remained_unmodified"]) is True
+    assert bool(claim_map["v393_notebooks_repaired"]) is False
+    assert bool(claim_map["v393_global_ruff_clean"]) is False
+    assert bool(claim_map["v393_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v393 creates a no-mutation dry-run manifest for notebook lint."])
+    assert bool(boundary_map["v393 classifies notebook lint diagnostics by fix class."])
+    assert bool(boundary_map["v393 repairs notebooks or makes global ruff clean."]) is False
+    assert bool(boundary_map["v393 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v393_rows = backlog.loc[backlog["last_wave"].eq("v393")]
+    assert len(v393_rows) == 1
+    backlog_row = v393_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_lint_dry_run_manifest_created"
+    assert backlog_row["next_artifact"] == "paper4_v394_notebook_safe_fix_roundtrip_batch.md"
+    assert backlog_row["execution_result"] == "notebook_lint_158_diagnostics_classified_no_mutation"
+
+    dry_run_md = (
+        PAPER4_ROOT / "notes" / "paper4_v393_notebook_lint_dry_run_manifest.md"
+    ).read_text(encoding="utf-8")
+    assert "Dry-run diagnostics: `158`" in dry_run_md
+    assert "does not repair notebooks" in dry_run_md
+    assert "paper4_v394_notebook_safe_fix_roundtrip_batch.md" in dry_run_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v393: Notebook Lint Dry-Run Manifest" in notebook
+    assert "Dry-run manifest rows:\n  `158`" in notebook
+    assert "Notebook files mutated:\n  `False`" in notebook
+    assert "Global ruff clean:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

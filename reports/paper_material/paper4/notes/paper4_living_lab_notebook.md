@@ -16649,3 +16649,55 @@ Keep v392 in the living notebook. v393 should build the no-mutation dry-run
 manifest.
 
 <!-- V392_NOTEBOOK_LINT_POLICY_END -->
+
+<!-- V393_NOTEBOOK_LINT_DRY_RUN_MANIFEST_START -->
+
+## Wave v393: Notebook Lint Dry-Run Manifest
+
+Generated: 2026-05-17T07:24:58.561412+00:00
+
+### Objective
+
+v393 executes the v392 dry-run-first policy by capturing notebook lint
+diagnostics without mutating notebooks.
+
+### Results
+
+- Dry-run manifest rows:
+  `158`.
+- Notebook file rows:
+  `13`.
+- Safe-after-roundtrip rows:
+  `18`.
+- Blocked import-reorder rows:
+  `119`.
+- Blocked execution-context rows:
+  `1`.
+- Notebook files mutated:
+  `False`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v394_notebook_safe_fix_roundtrip_batch.md`.
+
+### Interpretation
+
+The notebook lint surface is now actionable without guesswork. Only 18
+diagnostics are safe candidates after roundtrip checks; the 119 E402 import-order
+diagnostics and 1 F821 execution-context diagnostic remain blocked from blind
+repair.
+
+### Claim Impact
+
+- Allowed: dry-run manifest, file-level summary and fix-class classification.
+- Still prohibited: notebook repaired, global ruff clean, champion replacement
+  and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v393 in the living notebook. v394 should attempt only safe-after-roundtrip
+fixes.
+
+<!-- V393_NOTEBOOK_LINT_DRY_RUN_MANIFEST_END -->

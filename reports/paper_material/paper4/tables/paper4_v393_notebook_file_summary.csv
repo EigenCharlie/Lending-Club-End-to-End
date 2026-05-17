@@ -1,0 +1,14 @@
+notebook_path_v393,diagnostic_count_v393,fixable_count_v393,safe_after_roundtrip_count_v393,blocked_count_v393,top_rule_v393,claim_boundary_v393
+notebooks/01_eda_lending_club.ipynb,8,2,1,6,E402,file-level dry-run summary only
+notebooks/02_feature_engineering.ipynb,11,2,2,9,E402,file-level dry-run summary only
+notebooks/03_pd_modeling.ipynb,20,0,0,19,E402,file-level dry-run summary only
+notebooks/04_conformal_prediction.ipynb,16,1,0,14,E402,file-level dry-run summary only
+notebooks/05_time_series_forecasting.ipynb,16,0,0,16,E402,file-level dry-run summary only
+notebooks/06_survival_analysis.ipynb,18,1,1,17,E402,file-level dry-run summary only
+notebooks/08_portfolio_optimization.ipynb,15,0,0,14,E402,file-level dry-run summary only
+notebooks/09_end_to_end_pipeline.ipynb,15,1,1,14,E402,file-level dry-run summary only
+notebooks/10_paper1_cp_robust_opt.ipynb,3,0,0,0,B018,file-level dry-run summary only
+notebooks/11_paper2_ifrs9_e2e.ipynb,3,0,0,0,B018,file-level dry-run summary only
+notebooks/12_paper3_mondrian.ipynb,4,0,0,0,B018,file-level dry-run summary only
+notebooks/13_model_explainability.ipynb,18,5,5,11,E402,file-level dry-run summary only
+notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,10,8,0,B905,file-level dry-run summary only
