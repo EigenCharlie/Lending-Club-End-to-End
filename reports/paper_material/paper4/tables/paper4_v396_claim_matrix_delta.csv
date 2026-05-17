@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v396_approved_unsafe_notebook_fixes_applied,True,paper4_v396_notebook_unsafe_fix_summary.csv,5 B905/SIM105 fixes only
+v396_notebook_roundtrip_integrity_preserved,True,paper4_v396_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v396_selected_notebook_lint_reduced_to_sim115,True,paper4_v396_notebook_unsafe_fix_summary.csv,selected subset still has SIM115
+v396_import_lint_side_effects_detected,True,paper4_v396_claim_blockers.csv,4 import-order side effects routed to v397
+v396_notebook_or_repo_ruff_clean,False,paper4_v396_claim_blockers.csv,144 notebook diagnostics remain
+v396_full_repository_pytest_clean_after_notebook_mutation,False,paper4_v396_claim_blockers.csv,full pytest not rerun in v396
+v396_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

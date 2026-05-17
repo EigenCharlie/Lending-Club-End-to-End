@@ -43842,6 +43842,141 @@ def test_paper4_v395_notebook_unsafe_fix_review_is_non_mutating() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v396_notebook_unsafe_fix_roundtrip_application_records_side_effects() -> None:
+    status = _read_json("paper4_v396_status.json")
+
+    assert status["phase"] == "v396_notebook_unsafe_fix_roundtrip_application"
+    assert status["schema_version"] == "2026-05-17.396"
+    assert status["prior_unsafe_review_version_v396"] == 395
+    assert status["unsafe_fix_command_v396"] == (
+        "uv run ruff check notebooks --select B905,SIM105 --fix --unsafe-fixes"
+    )
+    assert status["selected_diagnostics_before_v396"] == 6
+    assert status["selected_diagnostics_after_v396"] == 1
+    assert status["selected_diagnostics_reduced_v396"] == 5
+    assert status["approved_unsafe_fixes_approved_by_v395"] == 5
+    assert status["approved_unsafe_fixes_applied_v396"] == 5
+    assert status["sim115_remaining_v396"] == 1
+    assert status["global_notebook_diagnostics_before_v396"] == 145
+    assert status["global_notebook_diagnostics_after_v396"] == 144
+    assert status["global_notebook_diagnostics_reduced_v396"] == 1
+    assert status["global_notebook_e402_before_v396"] == 119
+    assert status["global_notebook_e402_after_v396"] == 120
+    assert status["global_notebook_e402_delta_v396"] == 1
+    assert status["global_notebook_i001_after_v396"] == 3
+    assert status["global_notebook_import_lint_side_effect_rows_v396"] == 4
+    assert status["global_notebook_f821_after_v396"] == 1
+    assert status["global_notebook_b905_after_v396"] == 0
+    assert status["global_notebook_sim105_after_v396"] == 0
+    assert status["changed_notebook_files_v396"] == 2
+    assert status["changed_notebook_file_list_v396"] == [
+        "notebooks/01_eda_lending_club.ipynb",
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb",
+    ]
+    assert status["roundtrip_integrity_rows_v396"] == 2
+    assert status["roundtrip_integrity_all_passed_v396"] is True
+    assert status["global_ruff_clean_v396"] is False
+    assert status["full_repository_pytest_run_v396"] is False
+    assert status["full_quarto_render_run_v396"] is False
+    assert status["working_champion_claim_allowed_v396"] is False
+    assert status["paper1_promotion_allowed_v396"] is False
+    assert status["paper4_working_champion_changed_v396"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v396"] == (
+        "paper4_v397_notebook_import_side_effect_and_sim115_patch.md"
+    )
+
+    diagnostics = _read_csv("paper4_v396_notebook_unsafe_fix_diagnostics.csv")
+    assert len(diagnostics) == 7
+    assert len(diagnostics.loc[diagnostics["stage_v396"].eq("before")]) == 6
+    assert len(diagnostics.loc[diagnostics["stage_v396"].eq("after")]) == 1
+    assert set(diagnostics.loc[diagnostics["stage_v396"].eq("after"), "rule_code_v396"]) == {
+        "SIM115"
+    }
+
+    summary = _read_csv("paper4_v396_notebook_unsafe_fix_summary.csv")
+    assert len(summary) == 3
+    summary_map = {
+        (row["rule_code_v396"], row["fix_applicability_v396"]): row
+        for _, row in summary.iterrows()
+    }
+    assert int(summary_map[("B905", "unsafe")]["diagnostics_reduced_v396"]) == 2
+    assert int(summary_map[("SIM105", "unsafe")]["diagnostics_reduced_v396"]) == 3
+    assert int(summary_map[("SIM115", "none")]["diagnostics_reduced_v396"]) == 0
+
+    integrity = _read_csv("paper4_v396_notebook_roundtrip_integrity.csv")
+    assert len(integrity) == 2
+    assert integrity["file_changed_v396"].astype(bool).all()
+    for column in [
+        "cell_count_preserved_v396",
+        "code_cell_count_preserved_v396",
+        "cell_type_sequence_preserved_v396",
+        "non_code_source_preserved_v396",
+        "outputs_preserved_v396",
+        "metadata_preserved_v396",
+    ]:
+        assert integrity[column].astype(bool).all()
+
+    blockers = _read_csv("paper4_v396_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v396"], blockers["blocking_v396"], strict=False))
+    assert bool(blocker_map["sim115_manual_refactor_remaining"]) is True
+    assert bool(blocker_map["unsafe_fix_import_side_effects_remaining"]) is True
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert bool(blocker_map["full_repository_ruff_not_clean"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v396_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v396_approved_unsafe_notebook_fixes_applied"]) is True
+    assert bool(claim_map["v396_notebook_roundtrip_integrity_preserved"]) is True
+    assert bool(claim_map["v396_selected_notebook_lint_reduced_to_sim115"]) is True
+    assert bool(claim_map["v396_import_lint_side_effects_detected"]) is True
+    assert bool(claim_map["v396_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v396_full_repository_pytest_clean_after_notebook_mutation"]) is False
+    assert bool(claim_map["v396_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map[
+            "v396 applies 5 approved Ruff-unsafe notebook fixes with roundtrip preservation."
+        ]
+    )
+    assert bool(boundary_map["v396 reduces notebook lint diagnostics from 145 to 144."])
+    assert (
+        bool(boundary_map["v396 clears notebook lint or proves full repository ruff clean."])
+        is False
+    )
+    assert bool(boundary_map["v396 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v396_rows = backlog.loc[backlog["last_wave"].eq("v396")]
+    assert len(v396_rows) == 1
+    backlog_row = v396_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_unsafe_fix_roundtrip_application_created"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v397_notebook_import_side_effect_and_sim115_patch.md"
+    )
+    assert backlog_row["execution_result"] == "selected_lint_reduced_6_to_1_global_lint_145_to_144"
+
+    application_md = (
+        PAPER4_ROOT / "notes" / "paper4_v396_notebook_unsafe_fix_roundtrip_application.md"
+    ).read_text(encoding="utf-8")
+    assert "Approved unsafe fixes applied: `5`" in application_md
+    assert "Import-lint side effects detected: `4`" in application_md
+    assert "does not clear notebook lint" in application_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v396: Notebook Ruff-Unsafe Fix Roundtrip Application" in notebook
+    assert "Approved unsafe fixes applied:\n  `5`" in notebook
+    assert "Import-lint side effects detected:\n  `4`" in notebook
+    assert "Roundtrip integrity passed:\n  `True`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

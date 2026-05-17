@@ -16804,3 +16804,59 @@ Keep v395 in the living notebook. v396 should apply the approved unsafe fixes
 under the same roundtrip integrity checks used in v394.
 
 <!-- V395_NOTEBOOK_UNSAFE_FIX_REVIEW_END -->
+
+<!-- V396_NOTEBOOK_UNSAFE_FIX_ROUNDTRIP_APPLICATION_START -->
+
+## Wave v396: Notebook Ruff-Unsafe Fix Roundtrip Application
+
+Generated: 2026-05-17T07:44:29.336998+00:00
+
+### Objective
+
+v396 applies the 5 B905/SIM105 fixes approved by v395 and repeats v394's
+roundtrip integrity checks.
+
+### Results
+
+- Selected diagnostics before:
+  `6`.
+- Selected diagnostics after:
+  `1`.
+- Approved unsafe fixes applied:
+  `5`.
+- Global notebook diagnostics before:
+  `145`.
+- Global notebook diagnostics after:
+  `144`.
+- Import-lint side effects detected:
+  `4`.
+- Changed notebook files:
+  `2`.
+- Roundtrip integrity passed:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v397_notebook_import_side_effect_and_sim115_patch.md`.
+
+### Interpretation
+
+The B905/SIM105 residual lint is closed without changing outputs, markdown,
+metadata or notebook structure. The selected lint frontier is now reduced to the
+single SIM115 manual-refactor diagnostic, but the inserted `contextlib` imports
+create 4 import-lint side effects that must be cleaned separately.
+
+### Claim Impact
+
+- Allowed: 5 reviewed unsafe fixes applied with roundtrip preservation.
+- Still prohibited: notebook lint clean, repository ruff clean, full pytest clean
+  after notebook mutation, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v396 in the living notebook. v397 should clean the contextlib import side
+effects and handle the remaining SIM115 manual context-manager refactor.
+
+<!-- V396_NOTEBOOK_UNSAFE_FIX_ROUNDTRIP_APPLICATION_END -->
