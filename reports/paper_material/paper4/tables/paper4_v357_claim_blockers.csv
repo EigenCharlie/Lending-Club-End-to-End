@@ -1,0 +1,6 @@
+blocker_id_v357,blocking_v357,evidence_count_v357,required_next_artifact_v357,claim_boundary_v357
+bounded_second_order_entering_column_missing,True,0,paper4_v358_v353_apply_branch_price_candidate_or_bound_memo.csv,no CVaR-feasible entering row in bounded second-order scope
+valid_branch_price_bound_missing,True,1,paper4_v358_v353_apply_branch_price_candidate_or_bound_memo.csv,bounded pricing loop is not a termination proof
+proxy_gap_persists,True,77,future_proxy_or_ifrs9_gate,v353 candidate still contains missing proxy rows
+full_v55_dual_bound_loop_missing,True,276869,paper4_v358_v353_apply_branch_price_candidate_or_bound_memo.csv,full-v55 dual-bound loop remains missing
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

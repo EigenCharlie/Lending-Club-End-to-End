@@ -1,0 +1,15 @@
+stage_v357,row_count_v357,claim_boundary_v357
+v354_source_exact_seed_pairs,7,v354 source-exact one-add/one-drop rows
+positive_source_tight_second_add_candidates,4385,positive omitted candidates touching v356 tight blocks
+second_drop_candidates,171,"all selected v353 loans, excluding the seed drop per seed"
+ordered_second_order_rows,5217640,ordered seed/add/drop combinations before filters
+return_improving,2883033,positive total two-swap return delta only
+budget_return_feasible,1003128,budget plus positive return only
+grade_source_feasible_alone,432,grade cap only after budget+return
+score_decile_source_feasible_alone,66156,score_decile cap only after budget+return
+income_band_source_feasible_alone,1003128,income_band cap only after budget+return
+dti_band_source_feasible_alone,1003128,dti_band cap only after budget+return
+period_source_feasible_alone,1003128,period cap only after budget+return
+state_top20_source_feasible_alone,1003128,state_top20 cap only after budget+return
+source_exact_feasible,88,all-family source caps after second-order screen
+cvar_feasible_entering_column,0,source-exact plus CVaR-feasible return-improving rows

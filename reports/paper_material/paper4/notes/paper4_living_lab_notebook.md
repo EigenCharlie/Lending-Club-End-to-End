@@ -14732,3 +14732,61 @@ Keep v356 in the living notebook. The next wave should execute a branch-price
 or dual-bound loop without promotion.
 
 <!-- V356_V353_DUAL_BOUND_AFTER_PROXY_GATE_END -->
+
+<!-- V357_V353_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_START -->
+
+## Wave v357: v353 Bounded Branch-Price Loop
+
+Generated: 2026-05-17T02:56:25.769579+00:00
+
+### Objective
+
+v356 converted the v354/v355 evidence into a v353 dual-bound readiness register.
+v357 executes the next bounded pricing loop: seed from the v354 source-exact
+one-swap rows, then search a second source-tight add/drop over the 4,385
+positive v356 source-tight candidates.
+
+### Results
+
+- Seed pair rows: `7`.
+- Positive source-tight second-add candidates:
+  `4385`.
+- Ordered second-order rows screened:
+  `5217640`.
+- Budget+return feasible rows:
+  `1003128`.
+- Source-exact second-order rows:
+  `88`.
+- Unique source-exact action signatures:
+  `85`.
+- CVaR-feasible entering rows:
+  `0`.
+- Best entering return delta:
+  `not applicable; no bounded entering rows`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v357 advances beyond readiness by running a bounded second-order pricing loop
+for the v353 candidate. It can identify actionable bounded entering columns, or
+it can sharpen the no-entry blocker, but it still does not produce a terminating
+full-v55 branch-price or dual-bound certificate.
+
+### Claim Impact
+
+- Allowed: bounded v354-seeded second-order branch-price loop executed.
+- Allowed only within this bounded scope: bounded entering candidates when the
+  count is positive, or no-entry evidence when the count is zero.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v357 in the living notebook. The next wave should apply any bounded
+entering candidate if one exists; otherwise it should convert the deeper
+no-entry evidence into a stronger dual-bound or gap-blocker memo without
+promotion.
+
+<!-- V357_V353_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->
