@@ -52032,6 +52032,106 @@ def test_paper4_v454_discussion_limitations_draft_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v455_abstract_conclusion_draft_is_guarded() -> None:
+    status = _read_json("paper4_v455_status.json")
+
+    assert status["phase"] == "v455_abstract_conclusion_draft"
+    assert status["schema_version"] == "2026-05-17.455"
+    assert status["prior_discussion_limitations_version_v455"] == 454
+    assert status["abstract_conclusion_sentence_count_v455"] == 6
+    assert status["allowed_abstract_conclusion_sentence_count_v455"] == 5
+    assert status["prohibited_abstract_conclusion_sentence_count_v455"] == 1
+    assert status["major_prose_component_count_v455"] == 3
+    assert status["abstract_conclusion_draft_created_v455"] is True
+    assert status["major_prose_components_created_v455"] is True
+    assert status["assembled_manuscript_complete_v455"] is False
+    assert status["post_assembly_full_pytest_run_v455"] is False
+    assert status["external_validation_complete_v455"] is False
+    assert status["working_champion_claim_allowed_v455"] is False
+    assert status["paper1_promotion_allowed_v455"] is False
+    assert status["paper4_working_champion_changed_v455"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v455"] == "paper4_v456_manuscript_assembly_packet.md"
+
+    sentences = _read_csv("paper4_v455_abstract_conclusion_sentences.csv")
+    assert len(sentences) == 6
+    sentence_map = dict(
+        zip(sentences["sentence_id_v455"], sentences["allowed_v455"], strict=False)
+    )
+    assert bool(sentence_map["abstract_problem"]) is True
+    assert bool(sentence_map["abstract_evidence"]) is True
+    assert bool(sentence_map["abstract_caveat"]) is True
+    assert bool(sentence_map["conclusion_value"]) is True
+    assert bool(sentence_map["conclusion_next"]) is True
+    assert bool(sentence_map["prohibited_final"]) is False
+
+    completion = _read_csv("paper4_v455_draft_completion_inventory.csv")
+    completion_map = dict(
+        zip(completion["draft_component_v455"], completion["created_v455"], strict=False)
+    )
+    assert bool(completion_map["methods_results"]) is True
+    assert bool(completion_map["discussion_limitations"]) is True
+    assert bool(completion_map["abstract_conclusion"]) is True
+    assert bool(completion_map["assembled_manuscript"]) is False
+    assert bool(completion_map["external_validation_protocol"]) is False
+
+    blockers = _read_csv("paper4_v455_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v455"], blockers["blocking_v455"], strict=False))
+    assert bool(blocker_map["manuscript_not_assembled"]) is True
+    assert bool(blocker_map["post_assembly_full_pytest_not_run"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v455_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v455_abstract_conclusion_draft_created"]) is True
+    assert bool(claim_map["v455_major_prose_components_created"]) is True
+    assert bool(claim_map["v455_assembled_manuscript_complete"]) is False
+    assert bool(claim_map["v455_submission_ready_or_external_validation"]) is False
+    assert bool(claim_map["v455_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v455 drafts Paper 4 abstract and conclusion prose."])
+    assert bool(
+        boundary_map["v455 creates the major prose components for manuscript assembly."]
+    )
+    assert bool(
+        boundary_map["v455 completes assembled manuscript, submission package, or validation."]
+    ) is False
+    assert bool(boundary_map["v455 makes Paper 4 final, submitted, or externally validated."]) is False
+    assert bool(boundary_map["v455 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v455_rows = backlog.loc[backlog["last_wave"].eq("v455")]
+    assert len(v455_rows) == 1
+    backlog_row = v455_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v456_manuscript_assembly_packet.md"
+    assert (
+        backlog_row["execution_result"]
+        == "abstract_conclusion_draft_created_without_finalization"
+    )
+
+    draft_md = (
+        PAPER4_ROOT / "notes" / "paper4_v455_abstract_conclusion_draft.md"
+    ).read_text(encoding="utf-8")
+    assert "## Abstract Draft" in draft_md
+    assert "## Conclusion Draft" in draft_md
+    assert "not external validation" in draft_md
+    assert "does not assemble the manuscript" in draft_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v455: Abstract/Conclusion Draft" in living_notebook
+    assert "Abstract/conclusion sentences:\n  `6`." in living_notebook
+    assert "Allowed abstract/conclusion sentences:\n  `5`." in living_notebook
+    assert "Major prose components created:\n  `3`." in living_notebook
+    assert "Assembled manuscript complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
