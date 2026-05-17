@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v449_full_book_quarto_render_run,True,paper4_v449_full_book_render_probe_summary.csv,full official Quarto book render command executed
+v449_full_book_quarto_render_clean,True,paper4_v449_full_book_render_probe_summary.csv,true only when Quarto exits 0
+v449_registered_page_count_matches_render,True,paper4_v449_full_book_registered_pages.csv,rendered pages must match registered book pages
+v449_paper4_surface_renders_inside_full_book,True,paper4_v449_paper4_surface_in_full_book.csv,registered Paper 4 pages render as part of full book
+v449_post_render_full_repository_pytest_clean,False,paper4_v449_claim_blockers.csv,post-render full pytest deferred to v450
+v449_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -19609,3 +19609,57 @@ while keeping the historical archive out of the official rendered surface.
 Keep v448 in the living notebook. v449 should probe the full book render.
 
 <!-- V448_QUARTO_RENDER_PROBE_END -->
+
+<!-- V449_FULL_BOOK_RENDER_PROBE_START -->
+
+## Wave v449: Full-Book Render Probe
+
+Generated: 2026-05-17T14:30:49.967975+00:00
+
+### Objective
+
+v449 renders the full official Quarto book after v448 proved the registered
+Paper 4 chapter render.
+
+### Results
+
+- Full book render command:
+  `bash scripts/render_quarto.sh render book/ --to html --execute-daemon-restart`.
+- Full book render exit code:
+  `0`.
+- Full book render clean:
+  `True`.
+- Registered book pages:
+  `122`.
+- Observed rendered pages:
+  `122`.
+- Paper 4 rendered pages inside full book:
+  `10`.
+- Paper 4 archive policy preserved:
+  `True`.
+- Output index exists:
+  `True`.
+- Post-render full pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v450_post_full_book_render_pytest_probe.md`.
+
+### Interpretation
+
+The full book render is clean and includes the compact Paper 4 registered
+surface. The remaining publication validation gap is a post-render full pytest
+refresh after adding the v448-v449 guardrails and documentation artifacts.
+
+### Claim Impact
+
+- Allowed: full official Quarto book render passed; Paper 4 renders inside it.
+- Still prohibited: post-render full pytest clean, champion replacement and
+  final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v449 in the living notebook. v450 should rerun full repository pytest.
+
+<!-- V449_FULL_BOOK_RENDER_PROBE_END -->

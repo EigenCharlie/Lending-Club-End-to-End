@@ -1,0 +1,2 @@
+probe_id_v449,command_v449,exit_code_v449,passed_v449,runtime_seconds_v449,registered_page_count_v449,rendered_page_count_v449,output_index_v449,reported_output_v449,claim_boundary_v449
+full_book_quarto_render,bash scripts/render_quarto.sh render book/ --to html --execute-daemon-restart,0,True,454.026,122,122,book/_output/index.html,_output/index.html,full official Quarto book render only
