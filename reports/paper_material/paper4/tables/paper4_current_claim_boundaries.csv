@@ -1308,3 +1308,7 @@ v415 inventories the remaining 6 style-only notebook diagnostics.,True,reports/p
 v415 selects the E741 comprehension-variable patch for v416.,True,reports/paper_material/paper4/tables/paper4_v415_notebook_style_lint_batch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v415 repairs style lint or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v415_claim_blockers.csv,No notebook mutation; 6 diagnostics remain.,True,living_notebook_only
 v415 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v415_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v416 clears notebook E741 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v416_notebook_lint_delta.csv,E741 only; other style notebook lint remains.,False,living_notebook_only
+v416 reduces notebook lint diagnostics from 6 to 5.,True,reports/paper_material/paper4/tables/paper4_v416_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v416 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v416_claim_blockers.csv,5 notebook diagnostics remain.,True,living_notebook_only
+v416 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v416_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

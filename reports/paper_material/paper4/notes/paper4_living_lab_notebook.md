@@ -17793,3 +17793,47 @@ Keep v415 in the living notebook. v416 should apply the E741 patch with
 roundtrip checks.
 
 <!-- V415_NOTEBOOK_REMAINING_STYLE_LINT_TRIAGE_END -->
+
+<!-- V416_NOTEBOOK_E741_COMPREHENSION_VAR_PATCH_START -->
+
+## Wave v416: Notebook E741 Comprehension-Variable Patch
+
+Generated: 2026-05-17T09:47:24.105045+00:00
+
+### Objective
+
+v416 renames the ambiguous list-comprehension variable `l` to `line`.
+
+### Results
+
+- E741 before/after:
+  `1` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `6` ->
+  `5`.
+- Changed notebook files:
+  `1`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v417_notebook_sim108_conditional_expr_review.md`.
+
+### Interpretation
+
+E741 is now closed. The remaining style frontier is SIM108, E712 and SIM102.
+
+### Claim Impact
+
+- Allowed: E741 cleared and notebook lint reduced to 5 diagnostics.
+- Still prohibited: notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v416 in the living notebook. v417 should review SIM108 refactors before
+mutation.
+
+<!-- V416_NOTEBOOK_E741_COMPREHENSION_VAR_PATCH_END -->

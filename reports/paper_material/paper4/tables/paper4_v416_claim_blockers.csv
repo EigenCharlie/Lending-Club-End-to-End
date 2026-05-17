@@ -1,0 +1,4 @@
+blocker_id_v416,blocking_v416,evidence_count_v416,required_next_artifact_v416,claim_boundary_v416
+sim108_conditional_expr_review_deferred,True,2,paper4_v417_notebook_sim108_conditional_expr_review.md,SIM108 refactors need review before mutation
+style_notebook_lint_remaining,True,5,paper4_v417_notebook_sim108_conditional_expr_review.md,style notebook lint remains
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -46097,6 +46097,105 @@ def test_paper4_v415_notebook_remaining_style_lint_triage_is_non_mutating() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v416_notebook_e741_comprehension_var_patch_is_guarded() -> None:
+    status = _read_json("paper4_v416_status.json")
+
+    assert status["phase"] == "v416_notebook_e741_comprehension_var_patch"
+    assert status["schema_version"] == "2026-05-17.416"
+    assert status["prior_style_triage_version_v416"] == 415
+    assert status["action_rows_v416"] == 1
+    assert status["global_notebook_diagnostics_before_v416"] == 6
+    assert status["global_notebook_diagnostics_after_v416"] == 5
+    assert status["global_notebook_diagnostics_reduced_v416"] == 1
+    assert status["global_notebook_e741_before_v416"] == 1
+    assert status["global_notebook_e741_after_v416"] == 0
+    assert status["global_notebook_e741_reduced_v416"] == 1
+    assert status["changed_notebook_files_v416"] == 1
+    assert status["changed_notebook_file_list_v416"] == ["notebooks/03_pd_modeling.ipynb"]
+    assert status["roundtrip_integrity_rows_v416"] == 1
+    assert status["roundtrip_integrity_all_passed_v416"] is True
+    assert status["global_ruff_clean_v416"] is False
+    assert status["full_repository_pytest_run_v416"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v416"] == "paper4_v417_notebook_sim108_conditional_expr_review.md"
+
+    actions = _read_csv("paper4_v416_notebook_e741_comprehension_var_actions.csv")
+    assert len(actions) == 1
+    action = actions.iloc[0]
+    assert action["action_id_v416"] == "e741_comprehension_var_patch_01"
+    assert action["notebook_path_v416"] == "notebooks/03_pd_modeling.ipynb"
+    assert int(action["cell_v416"]) == 37
+    assert action["old_expression_v416"] == "labels = [l.get_label() for l in lines]"
+    assert action["new_expression_v416"] == "labels = [line.get_label() for line in lines]"
+    assert bool(action["mutation_applied_v416"]) is True
+
+    lint_delta = _read_csv("paper4_v416_notebook_lint_delta.csv")
+    lint_map = {row["metric_v416"]: row for _, row in lint_delta.iterrows()}
+    assert int(lint_map["global_notebook_total"]["before_v416"]) == 6
+    assert int(lint_map["global_notebook_total"]["after_v416"]) == 5
+    assert int(lint_map["global_notebook_e741"]["before_v416"]) == 1
+    assert int(lint_map["global_notebook_e741"]["after_v416"]) == 0
+    assert int(lint_map["global_notebook_sim108"]["after_v416"]) == 2
+    assert int(lint_map["global_notebook_e712"]["after_v416"]) == 2
+    assert int(lint_map["global_notebook_sim102"]["after_v416"]) == 1
+
+    integrity = _read_csv("paper4_v416_notebook_roundtrip_integrity.csv")
+    assert len(integrity) == 1
+    assert integrity.iloc[0]["notebook_path_v416"] == "notebooks/03_pd_modeling.ipynb"
+    for column in [
+        "file_changed_v416",
+        "cell_count_preserved_v416",
+        "code_cell_count_preserved_v416",
+        "cell_type_sequence_preserved_v416",
+        "non_code_source_preserved_v416",
+        "outputs_preserved_v416",
+        "metadata_preserved_v416",
+    ]:
+        assert integrity[column].astype(bool).all()
+
+    blockers = _read_csv("paper4_v416_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v416"], blockers["blocking_v416"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v416"], blockers["evidence_count_v416"], strict=False)
+    )
+    assert bool(blocker_map["sim108_conditional_expr_review_deferred"]) is True
+    assert int(blocker_evidence["sim108_conditional_expr_review_deferred"]) == 2
+    assert bool(blocker_map["style_notebook_lint_remaining"]) is True
+    assert int(blocker_evidence["style_notebook_lint_remaining"]) == 5
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v416_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v416_e741_comprehension_var_patch_applied"]) is True
+    assert bool(claim_map["v416_e741_cleared_from_notebooks"]) is True
+    assert bool(claim_map["v416_roundtrip_integrity_preserved"]) is True
+    assert bool(claim_map["v416_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v416_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v416 clears notebook E741 diagnostics."]) is True
+    assert bool(boundary_map["v416 reduces notebook lint diagnostics from 6 to 5."]) is True
+    assert bool(boundary_map["v416 clears global notebook lint or repository ruff."]) is False
+    assert bool(boundary_map["v416 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v416_rows = backlog.loc[backlog["last_wave"].eq("v416")]
+    assert len(v416_rows) == 1
+    assert v416_rows.iloc[0]["next_artifact"] == (
+        "paper4_v417_notebook_sim108_conditional_expr_review.md"
+    )
+    assert v416_rows.iloc[0]["execution_result"] == "notebook_e741_cleared_lint_reduced_6_to_5"
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v416: Notebook E741 Comprehension-Variable Patch" in living_notebook
+    assert "E741 is now closed" in living_notebook
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

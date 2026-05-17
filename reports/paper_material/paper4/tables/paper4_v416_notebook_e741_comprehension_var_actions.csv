@@ -1,0 +1,2 @@
+action_id_v416,notebook_path_v416,cell_v416,old_expression_v416,new_expression_v416,mutation_applied_v416,claim_boundary_v416
+e741_comprehension_var_patch_01,notebooks/03_pd_modeling.ipynb,37,labels = [l.get_label() for l in lines],labels = [line.get_label() for line in lines],True,E741 comprehension-variable rename only
