@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v466_domain_backlog_refocus_created,True,paper4_v466_domain_execution_backlog_refocus.md,execution-plan artifact only
+v466_six_domain_lanes_mapped,True,paper4_v466_domain_lane_backlog.csv,lane mapping with existing anchors
+v466_cvar_next_lane_selected,True,paper4_v466_domain_dependency_matrix.csv,next local wave selection only
+v466_domain_lanes_executed_or_resolved,False,paper4_v466_remaining_blockers.csv,v466 schedules execution; v467+ must run it
+v466_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,"no champion, deployment or final promotion claim"

@@ -20470,3 +20470,53 @@ backlog toward CVaR, source governance, dynamic replay, online, SPO-DLA and
 IFRS9 proxy experiments.
 
 <!-- V465_CITATION_INTEGRATION_DRY_RUN_END -->
+
+<!-- V466_DOMAIN_EXECUTION_BACKLOG_REFOCUS_START -->
+
+## Wave v466: Domain Execution Backlog Refocus
+
+Generated: 2026-05-17T16:05:58.872678+00:00
+
+### Objective
+
+v466 turns the post-citation backlog into executable domain lanes for CVaR,
+source governance, dynamic replay, online monitoring, SPO-DLA and IFRS9 proxy
+work.
+
+### Results
+
+- Domain lanes:
+  `6`.
+- Executable-now lanes:
+  `6`.
+- Lanes with all anchors present:
+  `6`.
+- Selected next lane:
+  `cvar_tail_risk`.
+- CVaR lane selected:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v467_cvar_tail_risk_frontier_probe.md`.
+
+### Interpretation
+
+The living lab is back in execution mode. The highest-value next move is the
+bounded CVaR tail-risk frontier probe, because it touches the strongest
+performance claim pressure while preserving the open global, proxy, dynamic and
+online blockers.
+
+### Claim Impact
+
+- Allowed: six-lane executable backlog refocus and CVaR-next selection.
+- Still prohibited: claims that the lanes are resolved, working-champion
+  authorization, deployment readiness, Paper Estrella replacement and final
+  Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v466 in the living notebook. v467 should generate the CVaR tail-risk
+frontier probe without changing book references or Quarto sources.
+
+<!-- V466_DOMAIN_EXECUTION_BACKLOG_REFOCUS_END -->

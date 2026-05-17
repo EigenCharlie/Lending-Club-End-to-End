@@ -53202,6 +53202,111 @@ def test_paper4_v465_citation_integration_dry_run_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v466_domain_execution_backlog_refocus_is_guarded() -> None:
+    status = _read_json("paper4_v466_status.json")
+    assert status["phase"] == "v466_domain_execution_backlog_refocus"
+    assert status["schema_version"] == "2026-05-17.466"
+    assert status["prior_citation_integration_version_v466"] == 465
+    assert status["domain_lane_count_v466"] == 6
+    assert status["executable_now_count_v466"] == 6
+    assert status["lanes_with_all_anchors_present_v466"] == 6
+    assert status["required_domain_lanes_present_v466"] is True
+    assert status["domain_backlog_refocus_created_v466"] is True
+    assert status["cvar_lane_selected_v466"] is True
+    assert status["source_governance_lane_present_v466"] is True
+    assert status["dynamic_replay_lane_present_v466"] is True
+    assert status["online_monitoring_lane_present_v466"] is True
+    assert status["spo_dla_lane_present_v466"] is True
+    assert status["ifrs9_proxy_lane_present_v466"] is True
+    assert status["selected_next_lane_v466"] == "cvar_tail_risk"
+    assert status["domain_lanes_executed_v466"] is False
+    assert status["working_champion_claim_allowed_v466"] is False
+    assert status["paper1_promotion_allowed_v466"] is False
+    assert status["paper4_working_champion_changed_v466"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v466"] == "paper4_v467_cvar_tail_risk_frontier_probe.md"
+
+    lanes = _read_csv("paper4_v466_domain_lane_backlog.csv")
+    assert len(lanes) == 6
+    expected_lanes = {
+        "cvar_tail_risk",
+        "source_governance",
+        "dynamic_replay",
+        "online_monitoring",
+        "spo_dla",
+        "ifrs9_proxy",
+    }
+    assert set(lanes["domain_lane_v466"]) == expected_lanes
+    assert lanes["executable_now_v466"].astype(bool).all()
+    assert lanes["all_anchor_artifacts_present_v466"].astype(bool).all()
+    lane_map = dict(zip(lanes["domain_lane_v466"], lanes["next_artifact_v466"], strict=False))
+    assert lane_map["cvar_tail_risk"] == "paper4_v467_cvar_tail_risk_frontier_probe.md"
+    assert lane_map["source_governance"] == "paper4_v468_source_governance_refresh.md"
+    assert lane_map["dynamic_replay"] == "paper4_v469_dynamic_replay_reproducibility_probe.md"
+    assert lane_map["online_monitoring"] == "paper4_v470_online_conformal_monitoring_proxy.md"
+    assert lane_map["spo_dla"] == "paper4_v471_spo_dla_boundary_probe.md"
+    assert lane_map["ifrs9_proxy"] == "paper4_v472_ifrs9_proxy_boundary_probe.md"
+
+    dependencies = _read_csv("paper4_v466_domain_dependency_matrix.csv")
+    assert len(dependencies) == 6
+    assert set(dependencies["source_lane_v466"]) == expected_lanes
+    assert (
+        dependencies.loc[
+            dependencies["source_lane_v466"].eq("cvar_tail_risk"),
+            "next_artifact_v466",
+        ].iloc[0]
+        == "paper4_v467_cvar_tail_risk_frontier_probe.md"
+    )
+
+    blockers = _read_csv("paper4_v466_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v466"], blockers["blocking_v466"], strict=False))
+    assert bool(blocker_map["cvar_frontier_probe_pending"]) is True
+    assert bool(blocker_map["domain_lanes_not_yet_executed"]) is True
+    assert bool(blocker_map["external_holdout_and_live_validation_missing"]) is True
+    assert bool(blocker_map["contractual_ifrs9_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v466_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v466_domain_backlog_refocus_created"]) is True
+    assert bool(claim_map["v466_six_domain_lanes_mapped"]) is True
+    assert bool(claim_map["v466_cvar_next_lane_selected"]) is True
+    assert bool(claim_map["v466_domain_lanes_executed_or_resolved"]) is False
+    assert bool(claim_map["v466_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v466 refocuses Paper 4 around six executable domain lanes."])
+    assert bool(boundary_map["v466 selects CVaR tail-risk as the next executable wave."])
+    assert bool(boundary_map["v466 executes and resolves all domain lanes."]) is False
+    assert bool(boundary_map["v466 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v466 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v466_rows = backlog.loc[backlog["last_wave"].eq("v466")]
+    assert len(v466_rows) == 1
+    backlog_row = v466_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v467_cvar_tail_risk_frontier_probe.md"
+    assert backlog_row["execution_result"] == "six_domain_lanes_mapped_cvar_selected_next"
+
+    refocus_md = (
+        PAPER4_ROOT / "notes" / "paper4_v466_domain_execution_backlog_refocus.md"
+    ).read_text(encoding="utf-8")
+    assert "Domain Execution Backlog Refocus v466" in refocus_md
+    assert "CVaR tail risk" in refocus_md
+    assert "does not execute the domain probes" in refocus_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v466: Domain Execution Backlog Refocus" in living_notebook
+    assert "Domain lanes:\n  `6`." in living_notebook
+    assert "Executable-now lanes:\n  `6`." in living_notebook
+    assert "Selected next lane:\n  `cvar_tail_risk`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
