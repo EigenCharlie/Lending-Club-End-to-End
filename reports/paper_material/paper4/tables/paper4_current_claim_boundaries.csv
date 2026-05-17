@@ -1274,3 +1274,7 @@ v407 inventories the 20 remaining non-E402 notebook diagnostics.,True,reports/pa
 v407 selects a 3-diagnostic B007 loop-variable batch for v408.,True,reports/paper_material/paper4/tables/paper4_v407_notebook_non_e402_lint_batch_plan.csv,Selection only; application deferred.,False,living_notebook_only
 v407 repairs non-E402 lint or clears notebook lint.,False,reports/paper_material/paper4/tables/paper4_v407_claim_blockers.csv,No notebook mutation; 20 diagnostics remain.,True,living_notebook_only
 v407 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v407_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v408 clears notebook B007 diagnostics.,True,reports/paper_material/paper4/tables/paper4_v408_notebook_lint_delta.csv,B007 only; other lint remains.,False,living_notebook_only
+v408 reduces notebook lint diagnostics from 20 to 17.,True,reports/paper_material/paper4/tables/paper4_v408_notebook_lint_delta.csv,Reduction only; notebook lint is not clean.,False,living_notebook_only
+v408 clears global notebook lint or repository ruff.,False,reports/paper_material/paper4/tables/paper4_v408_claim_blockers.csv,17 notebook diagnostics remain.,True,living_notebook_only
+v408 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v408_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

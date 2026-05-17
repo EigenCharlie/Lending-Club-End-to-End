@@ -17427,3 +17427,49 @@ Keep v407 in the living notebook. v408 should apply only the B007 loop-variable
 patch with roundtrip checks.
 
 <!-- V407_NOTEBOOK_NON_E402_LINT_TRIAGE_END -->
+
+<!-- V408_NOTEBOOK_B007_LOOP_VAR_PATCH_START -->
+
+## Wave v408: Notebook B007 Loop-Variable Patch
+
+Generated: 2026-05-17T09:04:25.506007+00:00
+
+### Objective
+
+v408 applies the 3-diagnostic B007 loop-variable rename batch selected by v407.
+
+### Results
+
+- B007 before/after:
+  `3` ->
+  `0`.
+- Global notebook diagnostics before/after:
+  `20` ->
+  `17`.
+- Changed notebook files:
+  `2`.
+- Roundtrip integrity passed:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v409_notebook_b018_display_review.md`.
+
+### Interpretation
+
+B007 is now closed. The remaining largest block is B018 display-expression
+semantics, which needs review before mutation because notebook expressions can be
+intentional outputs.
+
+### Claim Impact
+
+- Allowed: B007 cleared and notebook lint reduced to 17 diagnostics.
+- Still prohibited: notebook lint clean, repository ruff clean, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v408 in the living notebook. v409 should review B018 display expressions
+before mutation.
+
+<!-- V408_NOTEBOOK_B007_LOOP_VAR_PATCH_END -->

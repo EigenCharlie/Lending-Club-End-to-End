@@ -45317,6 +45317,89 @@ def test_paper4_v407_notebook_non_e402_lint_triage_is_non_mutating() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v408_notebook_b007_loop_var_patch_is_guarded() -> None:
+    status = _read_json("paper4_v408_status.json")
+
+    assert status["phase"] == "v408_notebook_b007_loop_var_patch"
+    assert status["schema_version"] == "2026-05-17.408"
+    assert status["prior_non_e402_triage_version_v408"] == 407
+    assert status["action_rows_v408"] == 3
+    assert status["global_notebook_diagnostics_before_v408"] == 20
+    assert status["global_notebook_diagnostics_after_v408"] == 17
+    assert status["global_notebook_diagnostics_reduced_v408"] == 3
+    assert status["global_notebook_b007_before_v408"] == 3
+    assert status["global_notebook_b007_after_v408"] == 0
+    assert status["global_notebook_b007_reduced_v408"] == 3
+    assert status["changed_notebook_files_v408"] == 2
+    assert status["roundtrip_integrity_rows_v408"] == 2
+    assert status["roundtrip_integrity_all_passed_v408"] is True
+    assert status["global_ruff_clean_v408"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v408"] == "paper4_v409_notebook_b018_display_review.md"
+
+    actions = _read_csv("paper4_v408_notebook_b007_loop_var_actions.csv")
+    assert len(actions) == 3
+    assert set(actions["action_id_v408"]) == {
+        "eda_status_breakdown_unused_name",
+        "explainability_perm_unused_i",
+        "explainability_family_unused_idx",
+    }
+    assert actions["mutation_applied_v408"].astype(bool).all()
+
+    lint_delta = _read_csv("paper4_v408_notebook_lint_delta.csv")
+    lint_map = {row["metric_v408"]: row for _, row in lint_delta.iterrows()}
+    assert int(lint_map["global_notebook_total"]["before_v408"]) == 20
+    assert int(lint_map["global_notebook_total"]["after_v408"]) == 17
+    assert int(lint_map["global_notebook_b007"]["before_v408"]) == 3
+    assert int(lint_map["global_notebook_b007"]["after_v408"]) == 0
+    assert int(lint_map["global_notebook_b018"]["after_v408"]) == 10
+    assert int(lint_map["global_notebook_f821"]["after_v408"]) == 1
+
+    integrity = _read_csv("paper4_v408_notebook_roundtrip_integrity.csv")
+    assert len(integrity) == 2
+    assert set(integrity["notebook_path_v408"]) == {
+        "notebooks/01_eda_lending_club.ipynb",
+        "notebooks/13_model_explainability.ipynb",
+    }
+    for column in [
+        "file_changed_v408",
+        "cell_count_preserved_v408",
+        "code_cell_count_preserved_v408",
+        "cell_type_sequence_preserved_v408",
+        "non_code_source_preserved_v408",
+        "outputs_preserved_v408",
+        "metadata_preserved_v408",
+    ]:
+        assert integrity[column].astype(bool).all()
+
+    blockers = _read_csv("paper4_v408_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v408"], blockers["blocking_v408"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v408"], blockers["evidence_count_v408"], strict=False)
+    )
+    assert bool(blocker_map["b018_display_review_deferred"]) is True
+    assert int(blocker_evidence["b018_display_review_deferred"]) == 10
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert int(blocker_evidence["global_notebook_lint_not_clean"]) == 17
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v408_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v408_b007_loop_var_patch_applied"]) is True
+    assert bool(claim_map["v408_b007_cleared_from_notebooks"]) is True
+    assert bool(claim_map["v408_roundtrip_integrity_preserved"]) is True
+    assert bool(claim_map["v408_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v408_working_champion_or_final_promotion"]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v408_rows = backlog.loc[backlog["last_wave"].eq("v408")]
+    assert len(v408_rows) == 1
+    assert v408_rows.iloc[0]["next_artifact"] == "paper4_v409_notebook_b018_display_review.md"
+    assert v408_rows.iloc[0]["execution_result"] == "notebook_b007_cleared_lint_reduced_20_to_17"
+
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

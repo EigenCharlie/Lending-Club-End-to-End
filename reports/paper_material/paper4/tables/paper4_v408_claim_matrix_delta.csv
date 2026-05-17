@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v408_b007_loop_var_patch_applied,True,paper4_v408_notebook_b007_loop_var_actions.csv,3 B007 unused loop variable renames
+v408_b007_cleared_from_notebooks,True,paper4_v408_notebook_lint_delta.csv,B007 only
+v408_roundtrip_integrity_preserved,True,paper4_v408_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
+v408_notebook_or_repo_ruff_clean,False,paper4_v408_claim_blockers.csv,17 notebook diagnostics remain
+v408_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

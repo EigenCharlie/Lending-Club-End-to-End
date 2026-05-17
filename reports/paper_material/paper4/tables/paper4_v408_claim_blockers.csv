@@ -1,0 +1,4 @@
+blocker_id_v408,blocking_v408,evidence_count_v408,required_next_artifact_v408,claim_boundary_v408
+b018_display_review_deferred,True,10,paper4_v409_notebook_b018_display_review.md,display semantics require review
+global_notebook_lint_not_clean,True,17,paper4_v409_notebook_b018_display_review.md,non-B007 notebook lint remains
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
