@@ -1,0 +1,14 @@
+readiness_gate_v462,ready_v462,evidence_artifact_v462,delta_since_v452_v462,claim_boundary_v462
+abstract_conclusion_draft,True,paper4_v455_abstract_conclusion_draft.md,created after scaffold,draft prose only
+methods_results_draft,True,paper4_v453_methods_results_draft.md,created after scaffold,draft prose only
+discussion_limitations_draft,True,paper4_v454_discussion_limitations_draft.md,created after methods/results,draft prose only
+bounded_related_work_draft,True,paper4_v461_bounded_related_work_draft.md,newly created in v461,bounded draft only
+manuscript_assembly_packet,True,paper4_v456_manuscript_assembly_packet.md,major prose assembled,assembly packet only
+post_assembly_pytest_clean,True,paper4_v457_pytest_probe_summary.csv,1195-test regression refresh passed,internal regression only
+post_assembly_render_decision,True,paper4_v458_post_assembly_render_decision.md,render not required while book sources unchanged,decision only
+venue_agnostic_structure_packet,True,paper4_v459_target_venue_structure_packet.md,target structure mapped without venue selection,venue-agnostic structure only
+verified_anchor_gap_audit,True,paper4_v460_related_work_citation_gap_audit.md,citation gaps audited without new sources,audit only
+paper_specific_bibliography,False,paper4_v463_paper_specific_bibliography_plan.md,still missing,do not claim final bibliography
+target_venue_selected,False,future_target_venue_decision,still missing,do not claim venue compliance
+external_validation_complete,False,future_external_validation_protocol,still missing,do not claim external generalization
+final_promotion_absent,True,paper4_final_promotion_gate_not_created,invariant preserved,Paper Estrella remains protected

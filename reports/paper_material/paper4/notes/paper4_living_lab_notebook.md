@@ -20276,3 +20276,54 @@ Keep v461 in the living notebook. v462 should synthesize the manuscript
 readiness delta after adding related-work prose.
 
 <!-- V461_BOUNDED_RELATED_WORK_DRAFT_END -->
+
+<!-- V462_MANUSCRIPT_READINESS_DELTA_START -->
+
+## Wave v462: Manuscript Readiness Delta
+
+Generated: 2026-05-17T15:42:13.287530+00:00
+
+### Objective
+
+v462 synthesizes what became ready after v456-v461 and selects the next local
+executable manuscript task.
+
+### Results
+
+- Readiness gates recorded:
+  `13`.
+- Ready gates:
+  `10`.
+- Not-ready gates:
+  `3`.
+- Blocking rows:
+  `5`.
+- Selected next wave:
+  `paper_specific_bibliography_plan`.
+- Submission ready:
+  `False`.
+- External validation complete:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v463_paper_specific_bibliography_plan.md`.
+
+### Interpretation
+
+The manuscript has become substantially more usable for Paper 4 drafting, but
+the remaining blockers are still manuscript-critical: bibliography planning,
+venue selection, systematic literature search and external validation.
+
+### Claim Impact
+
+- Allowed: manuscript readiness delta and next local task selection.
+- Still prohibited: submission readiness, venue compliance, external validation,
+  systematic review, champion replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v462 in the living notebook. v463 should plan the Paper 4 specific
+bibliography without editing the global bibliography or claiming finality.
+
+<!-- V462_MANUSCRIPT_READINESS_DELTA_END -->

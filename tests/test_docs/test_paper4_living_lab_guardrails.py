@@ -52796,6 +52796,109 @@ def test_paper4_v461_bounded_related_work_draft_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v462_manuscript_readiness_delta_is_guarded() -> None:
+    status = _read_json("paper4_v462_status.json")
+
+    assert status["phase"] == "v462_manuscript_readiness_delta"
+    assert status["schema_version"] == "2026-05-17.462"
+    assert status["prior_bounded_related_work_version_v462"] == 461
+    assert status["readiness_gate_count_v462"] == 13
+    assert status["ready_gate_count_v462"] == 10
+    assert status["not_ready_gate_count_v462"] == 3
+    assert status["blocking_row_count_v462"] == 5
+    assert status["selected_next_wave_v462"] == "paper_specific_bibliography_plan"
+    assert status["manuscript_readiness_delta_created_v462"] is True
+    assert status["major_manuscript_components_exist_v462"] is True
+    assert status["paper_specific_bibliography_complete_v462"] is False
+    assert status["target_venue_selected_v462"] is False
+    assert status["submission_ready_v462"] is False
+    assert status["external_validation_complete_v462"] is False
+    assert status["systematic_literature_review_complete_v462"] is False
+    assert status["working_champion_claim_allowed_v462"] is False
+    assert status["paper1_promotion_allowed_v462"] is False
+    assert status["paper4_working_champion_changed_v462"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v462"] == "paper4_v463_paper_specific_bibliography_plan.md"
+
+    readiness = _read_csv("paper4_v462_readiness_delta_matrix.csv")
+    assert len(readiness) == 13
+    ready_map = dict(zip(readiness["readiness_gate_v462"], readiness["ready_v462"], strict=False))
+    assert bool(ready_map["abstract_conclusion_draft"]) is True
+    assert bool(ready_map["methods_results_draft"]) is True
+    assert bool(ready_map["discussion_limitations_draft"]) is True
+    assert bool(ready_map["bounded_related_work_draft"]) is True
+    assert bool(ready_map["manuscript_assembly_packet"]) is True
+    assert bool(ready_map["post_assembly_pytest_clean"]) is True
+    assert bool(ready_map["post_assembly_render_decision"]) is True
+    assert bool(ready_map["venue_agnostic_structure_packet"]) is True
+    assert bool(ready_map["verified_anchor_gap_audit"]) is True
+    assert bool(ready_map["final_promotion_absent"]) is True
+    assert bool(ready_map["paper_specific_bibliography"]) is False
+    assert bool(ready_map["target_venue_selected"]) is False
+    assert bool(ready_map["external_validation_complete"]) is False
+
+    blockers = _read_csv("paper4_v462_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v462"], blockers["blocking_v462"], strict=False))
+    assert bool(blocker_map["paper_specific_bibliography_not_planned"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["systematic_literature_search_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    next_wave = _read_csv("paper4_v462_next_wave_decision.csv")
+    selected = next_wave.loc[next_wave["selected_v462"].astype(bool)]
+    assert len(selected) == 1
+    selected_row = selected.iloc[0]
+    assert selected_row["candidate_next_wave_v462"] == "paper_specific_bibliography_plan"
+    assert selected_row["next_artifact_v462"] == "paper4_v463_paper_specific_bibliography_plan.md"
+
+    claim_delta = _read_csv("paper4_v462_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v462_manuscript_readiness_delta_created"]) is True
+    assert bool(claim_map["v462_major_manuscript_components_exist"]) is True
+    assert bool(claim_map["v462_next_wave_selected_for_bibliography_plan"]) is True
+    assert bool(claim_map["v462_submission_ready_or_venue_compliant"]) is False
+    assert bool(claim_map["v462_external_validation_or_systematic_review_complete"]) is False
+    assert bool(claim_map["v462_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v462 synthesizes Paper 4 manuscript readiness delta."])
+    assert bool(boundary_map["v462 shows major manuscript components now exist."])
+    assert bool(boundary_map["v462 makes Paper 4 submission-ready or venue-compliant."]) is False
+    assert (
+        bool(boundary_map["v462 completes external validation or systematic literature review."])
+        is False
+    )
+    assert bool(boundary_map["v462 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v462_rows = backlog.loc[backlog["last_wave"].eq("v462")]
+    assert len(v462_rows) == 1
+    backlog_row = v462_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v463_paper_specific_bibliography_plan.md"
+    assert backlog_row["execution_result"] == "readiness_delta_created_without_finalization"
+
+    delta_md = (
+        PAPER4_ROOT / "notes" / "paper4_v462_manuscript_readiness_delta.md"
+    ).read_text(encoding="utf-8")
+    assert "Manuscript Readiness Delta v462" in delta_md
+    assert "The Paper 4 manuscript package has moved from scaffold" in delta_md
+    assert "does not select a target venue" in delta_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v462: Manuscript Readiness Delta" in living_notebook
+    assert "Readiness gates recorded:\n  `13`." in living_notebook
+    assert "Ready gates:\n  `10`." in living_notebook
+    assert "Not-ready gates:\n  `3`." in living_notebook
+    assert "Selected next wave:\n  `paper_specific_bibliography_plan`." in living_notebook
+    assert "Submission ready:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

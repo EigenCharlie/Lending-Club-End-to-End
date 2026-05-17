@@ -1,0 +1,4 @@
+candidate_next_wave_v462,selected_v462,reason_v462,next_artifact_v462,claim_boundary_v462
+paper_specific_bibliography_plan,True,"local, executable, unblocks references without new source claims",paper4_v463_paper_specific_bibliography_plan.md,planning only
+target_venue_selection,False,requires user/venue preference,future_target_venue_decision,not selected automatically
+external_validation_protocol,False,requires dataset/scope decision,future_external_validation_protocol,not executed in v462
