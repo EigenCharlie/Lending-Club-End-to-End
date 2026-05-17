@@ -15563,3 +15563,54 @@ Keep v371 in the living notebook. v372 should test a grade-A/source-relief
 prefilter or formally justify returning to the original v370 order.
 
 <!-- V371_SOURCE_GOVERNANCE_BLOCKER_DIAGNOSTIC_END -->
+
+<!-- V372_GRADE_A_SOURCE_RELIEF_PREFILTER_START -->
+
+## Wave v372: Grade-A Source-Relief Prefilter
+
+Generated: 2026-05-17T04:51:50.109503+00:00
+
+### Objective
+
+v371 identified grade=A as the primary source-governance blocker for v366 chunk
+0001. v372 tests whether a simple `drop A / add non-A` prefilter can recover
+return-improving rows inside that same chunk.
+
+### Results
+
+- Grade-A relief rows:
+  `891189`.
+- Grade-A relief budget-feasible rows:
+  `243924`.
+- Grade-A relief return-improving rows:
+  `0`.
+- Grade-A relief budget+return rows:
+  `0`.
+- Best budget-feasible grade-A relief return delta:
+  `-176.82970150903287`.
+- Grade-A pressure budget+return rows:
+  `24095`.
+- Recommended route:
+  `chunk_002_or_stop_rule`.
+- Next artifact:
+  `paper4_v373_full_v55_chunk_002_or_stop_rule.csv`.
+
+### Interpretation
+
+The grade-A relief prefilter does not recover a candidate in chunk 0001. It
+finds many budget-feasible relief swaps, but none improve return; the best
+budget-feasible relief row is still negative. That means the immediate issue is
+not only source pressure, but a return/source trade-off inside this chunk.
+
+### Claim Impact
+
+- Allowed: grade-A relief prefilter diagnostic for chunk 0001.
+- Still prohibited: full-v55 termination, valid global integer optimality,
+  working champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v372 in the living notebook. v373 should decide between chunk 002,
+targeted chunk sampling, or a documented stop rule.
+
+<!-- V372_GRADE_A_SOURCE_RELIEF_PREFILTER_END -->

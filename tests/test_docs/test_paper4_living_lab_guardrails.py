@@ -40740,6 +40740,137 @@ def test_paper4_v371_source_governance_blocker_diagnostic_identifies_grade_a() -
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v372_grade_a_source_relief_prefilter_finds_no_return_candidate() -> None:
+    status = _read_json("paper4_v372_status.json")
+
+    assert status["phase"] == "v372_grade_a_source_relief_prefilter"
+    assert status["schema_version"] == "2026-05-17.372"
+    assert status["prior_diagnostic_version_v372"] == 371
+    assert status["prior_chunk_version_v372"] == 366
+    assert status["selected_grade_a_rows_v372"] == 117
+    assert status["chunk_grade_a_add_rows_v372"] == 2383
+    assert status["chunk_non_grade_a_add_rows_v372"] == 7617
+    assert status["ordered_one_swap_rows_v372"] == 1710000
+    assert status["budget_return_feasible_rows_v372"] == 25223
+    assert status["grade_a_relief_rows_v372"] == 891189
+    assert status["grade_a_relief_budget_rows_v372"] == 243924
+    assert status["grade_a_relief_return_improving_rows_v372"] == 0
+    assert status["grade_a_relief_budget_return_rows_v372"] == 0
+    assert status["best_grade_a_relief_budget_return_delta_v372"] == pytest.approx(
+        -176.82970150903287
+    )
+    assert status["grade_a_pressure_budget_return_rows_v372"] == 24095
+    assert status["route_option_rows_v372"] == 3
+    assert status["top_relief_budget_candidate_rows_v372"] == 10
+    assert status["claim_blocker_rows_v372"] == 3
+    assert status["claim_matrix_rows_v372"] == 4
+    assert status["recommended_route_v372"] == "chunk_002_or_stop_rule"
+    assert status["valid_full_v55_dual_bound_certificate_v372"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v372"] is False
+    assert status["working_champion_claim_allowed_v372"] is False
+    assert status["paper1_promotion_allowed_v372"] is False
+    assert status["paper4_working_champion_changed_v372"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v372"] == "paper4_v373_full_v55_chunk_002_or_stop_rule.csv"
+
+    prefilter = _read_csv("paper4_v372_grade_a_source_relief_prefilter.csv")
+    row = prefilter.iloc[0]
+    assert row["prefilter_id_v372"] == "v372_grade_a_source_relief_prefilter"
+    assert int(row["grade_a_relief_budget_rows_v372"]) == 243924
+    assert int(row["grade_a_relief_return_improving_rows_v372"]) == 0
+    assert int(row["grade_a_relief_budget_return_rows_v372"]) == 0
+    assert float(row["best_grade_a_relief_budget_return_delta_v372"]) == pytest.approx(
+        -176.82970150903287
+    )
+    assert int(row["grade_a_pressure_budget_return_rows_v372"]) == 24095
+    assert row["recommended_route_v372"] == "chunk_002_or_stop_rule"
+    assert bool(row["valid_full_v55_dual_bound_certificate_v372"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    flow = _read_csv("paper4_v372_grade_a_flow_return_budget.csv")
+    flow_map = {row["flow_id_v372"]: row for _, row in flow.iterrows()}
+    relief = flow_map["grade_a_relief_drop_a_add_non_a"]
+    neutral = flow_map["grade_a_neutral_drop_a_add_a"]
+    pressure = flow_map["grade_a_pressure_drop_non_a_add_a"]
+    other = flow_map["non_a_to_non_a"]
+    assert int(relief["all_rows_v372"]) == 891189
+    assert int(relief["budget_feasible_rows_v372"]) == 243924
+    assert int(relief["return_improving_rows_v372"]) == 0
+    assert int(relief["budget_return_feasible_rows_v372"]) == 0
+    assert float(relief["best_budget_feasible_return_delta_v372"]) == pytest.approx(
+        -176.82970150903287
+    )
+    assert int(neutral["budget_return_feasible_rows_v372"]) == 935
+    assert int(pressure["budget_return_feasible_rows_v372"]) == 24095
+    assert float(pressure["share_of_budget_return_rows_v372"]) == pytest.approx(
+        0.955278912104032
+    )
+    assert int(other["budget_return_feasible_rows_v372"]) == 193
+
+    top = _read_csv("paper4_v372_top_grade_a_relief_budget_candidates.csv")
+    assert len(top) == 10
+    best = top.iloc[0]
+    assert int(best["rank_v372"]) == 1
+    assert best["added_grade_v372"] == "B"
+    assert best["dropped_grade_v372"] == "A"
+    assert float(best["return_delta_v372"]) == pytest.approx(-176.82970150903287)
+    assert float(best["exposure_after_swap_v372"]) == pytest.approx(843775.0)
+
+    options = _read_csv("paper4_v372_route_options.csv")
+    option_map = dict(zip(options["route_option_v372"], options["recommended_v372"], strict=False))
+    evidence_map = dict(zip(options["route_option_v372"], options["evidence_count_v372"], strict=False))
+    assert bool(option_map["run_grade_a_relief_prefilter_candidate"]) is False
+    assert int(evidence_map["run_grade_a_relief_prefilter_candidate"]) == 0
+    assert bool(option_map["chunk_002_or_stop_rule"]) is True
+    assert int(evidence_map["chunk_002_or_stop_rule"]) == 243924
+    assert bool(option_map["manuscript_limitations_language"]) is True
+
+    blockers = _read_csv("paper4_v372_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v372"], blockers["blocking_v372"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v372"], blockers["evidence_count_v372"], strict=False)
+    )
+    assert bool(blocker_map["grade_a_relief_has_zero_return_improving_rows"]) is True
+    assert int(blocker_evidence["grade_a_relief_has_zero_return_improving_rows"]) == 0
+    assert bool(blocker_map["remaining_chunks_unpriced"]) is True
+    assert int(blocker_evidence["remaining_chunks_unpriced"]) == 27
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v372_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v372_grade_a_source_relief_prefilter_created"]) is True
+    assert bool(claim_map["v372_no_return_improving_grade_a_relief_in_chunk_0001"]) is True
+    assert bool(claim_map["v372_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v372_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v372 tests a grade=A source-relief prefilter for v366 chunk 0001."])
+    assert bool(
+        boundary_map["v372 finds no return-improving grade=A relief swap in chunk 0001."]
+    )
+    assert bool(boundary_map["v372 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v372 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v372_rows = backlog.loc[backlog["last_wave"].eq("v372")]
+    assert len(v372_rows) == 1
+    backlog_row = v372_rows.iloc[0]
+    assert backlog_row["status"] == "grade_a_relief_prefilter_no_return_improving_rows"
+    assert backlog_row["next_artifact"] == "paper4_v373_full_v55_chunk_002_or_stop_rule.csv"
+    assert backlog_row["execution_result"] == "grade_a_relief_is_return_negative_in_chunk_0001"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v372: Grade-A Source-Relief Prefilter" in notebook
+    assert "Grade-A relief return-improving rows:\n  `0`" in notebook
+    assert "Best budget-feasible grade-A relief return delta:\n  `-176.82970150903287`" in notebook
+    assert "Recommended route:\n  `chunk_002_or_stop_rule`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

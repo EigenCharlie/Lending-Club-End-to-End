@@ -1,0 +1,4 @@
+route_option_v372,recommended_v372,evidence_count_v372,next_artifact_if_chosen_v372,claim_boundary_v372
+run_grade_a_relief_prefilter_candidate,False,0,none_for_chunk_0001,no return-improving relief rows exist in chunk 0001
+chunk_002_or_stop_rule,True,243924,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,decide whether new chunks are informative
+manuscript_limitations_language,True,243924,paper4_v372_claim_language_note.md,scope language only
