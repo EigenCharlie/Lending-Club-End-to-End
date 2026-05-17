@@ -1,0 +1,5 @@
+validation_gate_v450,observed_status_v450,evidence_count_v450,claim_allowed_v450,claim_boundary_v450
+full_repository_pytest,pass,1188,True,post-render full test suite
+repository_ruff,pass,0,True,global repository Ruff snapshot
+full_book_quarto_render,pass,122,True,inherited from v449 full-book render
+paper4_final_promotion_absence,pass,1,True,final promotion remains forbidden and absent

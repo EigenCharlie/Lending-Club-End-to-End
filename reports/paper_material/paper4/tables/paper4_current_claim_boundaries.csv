@@ -1475,3 +1475,8 @@ v449 rendered pages match the official Quarto book registry.,True,reports/paper_
 v449 renders Paper 4 inside the full book.,True,reports/paper_material/paper4/tables/paper4_v449_paper4_surface_in_full_book.csv,Registered Paper 4 pages only.,False,living_notebook_only
 v449 proves post-render full repository pytest is clean.,False,reports/paper_material/paper4/tables/paper4_v449_claim_blockers.csv,Full pytest refresh is deferred to v450.,True,living_notebook_only
 v449 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v449_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v450 full repository pytest passes after full-book render.,True,reports/paper_material/paper4/tables/paper4_v450_pytest_probe_summary.csv,Post-render full pytest only.,False,living_notebook_only
+v450 repository Ruff remains clean after full-book render.,True,reports/paper_material/paper4/tables/paper4_v450_validation_gate_summary.csv,Global Ruff only.,False,living_notebook_only
+v450 inherits the v449 full-book render clean gate.,True,reports/paper_material/paper4/tables/paper4_v449_full_book_render_probe_summary.csv,Full-book render evidence was generated in v449.,False,living_notebook_only
+v450 makes Paper 4 release-ready or final.,False,reports/paper_material/paper4/tables/paper4_v450_claim_blockers.csv,Readiness synthesis and promotion remain deferred.,True,living_notebook_only
+v450 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v450_claim_blockers.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

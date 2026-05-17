@@ -51524,6 +51524,107 @@ def test_paper4_v449_full_book_render_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v450_post_full_book_render_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v450_status.json")
+
+    assert status["phase"] == "v450_post_full_book_render_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.450"
+    assert status["prior_full_book_render_version_v450"] == 449
+    assert status["pytest_command_v450"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v450"] == 0
+    assert status["pytest_passed_v450"] is True
+    assert status["pytest_collected_items_v450"] == 1188
+    assert "1188 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v450"]
+    assert status["repo_ruff_exit_code_v450"] == 0
+    assert status["repo_ruff_total_v450"] == 0
+    assert status["repository_ruff_clean_v450"] is True
+    assert status["full_book_render_clean_from_v449"] is True
+    assert status["full_book_render_page_count_from_v449"] == 122
+    assert status["post_render_full_repository_pytest_run_v450"] is True
+    assert status["post_render_full_repository_pytest_clean_v450"] is True
+    assert status["release_readiness_synthesis_written_v450"] is False
+    assert status["working_champion_claim_allowed_v450"] is False
+    assert status["paper1_promotion_allowed_v450"] is False
+    assert status["paper4_working_champion_changed_v450"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v450"] == "paper4_v451_release_readiness_synthesis.md"
+
+    pytest_summary = _read_csv("paper4_v450_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v450"] == "post_full_book_render_full_repository_pytest"
+    assert pytest_row["command_v450"] == "uv run pytest -q --tb=short"
+    assert int(pytest_row["exit_code_v450"]) == 0
+    assert bool(pytest_row["passed_v450"]) is True
+    assert int(pytest_row["collected_items_v450"]) == 1188
+    assert "1188 passed, 2 skipped, 13 warnings" in pytest_row["summary_line_v450"]
+
+    gates = _read_csv("paper4_v450_validation_gate_summary.csv")
+    gate_map = {
+        row["validation_gate_v450"]: row
+        for _, row in gates.iterrows()
+    }
+    assert gate_map["full_repository_pytest"]["observed_status_v450"] == "pass"
+    assert int(gate_map["full_repository_pytest"]["evidence_count_v450"]) == 1188
+    assert bool(gate_map["full_repository_pytest"]["claim_allowed_v450"]) is True
+    assert gate_map["repository_ruff"]["observed_status_v450"] == "pass"
+    assert int(gate_map["repository_ruff"]["evidence_count_v450"]) == 0
+    assert bool(gate_map["repository_ruff"]["claim_allowed_v450"]) is True
+    assert gate_map["full_book_quarto_render"]["observed_status_v450"] == "pass"
+    assert int(gate_map["full_book_quarto_render"]["evidence_count_v450"]) == 122
+    assert bool(gate_map["full_book_quarto_render"]["claim_allowed_v450"]) is True
+    assert gate_map["paper4_final_promotion_absence"]["observed_status_v450"] == "pass"
+
+    blockers = _read_csv("paper4_v450_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v450"], blockers["blocking_v450"], strict=False))
+    assert bool(blocker_map["release_readiness_synthesis_not_written"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v450_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v450_post_render_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v450_post_render_full_repository_pytest_clean"]) is True
+    assert bool(claim_map["v450_repository_ruff_clean"]) is True
+    assert bool(claim_map["v450_full_book_render_clean_inherited"]) is True
+    assert bool(claim_map["v450_release_ready_or_final_promotion"]) is False
+    assert bool(claim_map["v450_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v450 full repository pytest passes after full-book render."])
+    assert bool(boundary_map["v450 repository Ruff remains clean after full-book render."])
+    assert bool(boundary_map["v450 inherits the v449 full-book render clean gate."])
+    assert bool(boundary_map["v450 makes Paper 4 release-ready or final."]) is False
+    assert bool(boundary_map["v450 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v450_rows = backlog.loc[backlog["last_wave"].eq("v450")]
+    assert len(v450_rows) == 1
+    backlog_row = v450_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v451_release_readiness_synthesis.md"
+    assert backlog_row["execution_result"] == "post_full_book_render_full_pytest_passed"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v450_post_full_book_render_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Pytest passed: `True`" in probe_md
+    assert "1188 passed, 2 skipped, 13 warnings" in probe_md
+    assert "Repository Ruff diagnostics: `0`" in probe_md
+    assert "Full-book render clean from v449: `True`" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v450: Post-Full-Book-Render Pytest Probe" in living_notebook
+    assert "Pytest passed:\n  `True`." in living_notebook
+    assert "Pytest collected items:\n  `1188`." in living_notebook
+    assert "Repository Ruff diagnostics:\n  `0`." in living_notebook
+    assert "Full-book render clean from v449:\n  `True`." in living_notebook
+    assert "Release readiness synthesis written:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v450_post_render_full_repository_pytest_run,True,paper4_v450_pytest_probe_summary.csv,full pytest executed after v449 full-book render
+v450_post_render_full_repository_pytest_clean,True,paper4_v450_pytest_probe_summary.csv,true only when pytest exits 0
+v450_repository_ruff_clean,True,paper4_v450_validation_gate_summary.csv,repository Ruff emits zero diagnostics
+v450_full_book_render_clean_inherited,True,paper4_v449_full_book_render_probe_summary.csv,"inherited from v449, not rerun in v450"
+v450_release_ready_or_final_promotion,False,paper4_v450_claim_blockers.csv,readiness synthesis and final promotion remain separate gates
+v450_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

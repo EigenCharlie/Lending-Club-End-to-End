@@ -19663,3 +19663,59 @@ refresh after adding the v448-v449 guardrails and documentation artifacts.
 Keep v449 in the living notebook. v450 should rerun full repository pytest.
 
 <!-- V449_FULL_BOOK_RENDER_PROBE_END -->
+
+<!-- V450_POST_FULL_BOOK_RENDER_PYTEST_PROBE_START -->
+
+## Wave v450: Post-Full-Book-Render Pytest Probe
+
+Generated: 2026-05-17T14:38:20.929356+00:00
+
+### Objective
+
+v450 reruns full repository pytest after v449's clean full-book Quarto render.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1188`.
+- Pytest summary:
+  `=========== 1188 passed, 2 skipped, 13 warnings in 163.16s (0:02:43) ===========`.
+- Repository Ruff diagnostics:
+  `0`.
+- Repository Ruff clean:
+  `True`.
+- Full-book render clean from v449:
+  `True`.
+- Release readiness synthesis written:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v451_release_readiness_synthesis.md`.
+
+### Interpretation
+
+The v448-v449 Quarto guardrails and documentation survive a full pytest refresh,
+and repository Ruff remains clean. The next useful artifact is a bounded
+release-readiness synthesis that distinguishes validated gates from prohibited
+promotion claims.
+
+### Claim Impact
+
+- Allowed: post-render full pytest passed; repository Ruff remains clean; v449
+  full-book render remains valid.
+- Still prohibited: release-ready/final Paper 4, champion replacement and final
+  promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v450 in the living notebook. v451 should write the bounded readiness
+synthesis without creating final promotion.
+
+<!-- V450_POST_FULL_BOOK_RENDER_PYTEST_PROBE_END -->
