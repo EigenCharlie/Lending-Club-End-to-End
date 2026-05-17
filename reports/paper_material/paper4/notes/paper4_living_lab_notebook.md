@@ -13908,3 +13908,57 @@ proxy coverage profile while shifting to lower CVaR.
 Keep v341 in the living notebook. Promotion remains blocked.
 
 <!-- V341_V338_CASHFLOW_ONLINE_IFRS9_GATE_END -->
+
+<!-- V342_V338_PROXY_GAP_REPAIR_START -->
+
+## Wave v342: v338 Proxy-Gap Repair / Branch-Price Protocol
+
+Generated: 2026-05-17T00:06:30.321618+00:00
+
+### Objective
+
+v341 showed that v338 needs 74 imputed proxy loans, 1 more than v316. v342 tests
+whether observed candidates can repair that coverage gap while preserving the
+v338 post-v336-swap budget, period, source and CVaR structure.
+
+### Results
+
+- Candidate pool rows: `1356`.
+- Strict v338-preserving repair feasible:
+  `False`.
+- Relaxed repair feasible:
+  `False`.
+- Relaxed observed proxy rows:
+  `0`.
+- Relaxed missing proxy rows:
+  `0`.
+- Relaxed return delta vs v338:
+  `None`.
+- Relaxed CVaR delta vs v338:
+  `None`.
+- Post-v342 repricing required:
+  `False`.
+
+### Interpretation
+
+v342 exposes a stricter blocker than v334 did for v330. The strict repair that
+preserves v338 return and v338 CVaR is infeasible in the bounded
+observed-candidate pool, and the relaxed v316-return/v338-CVaR tier is also
+infeasible. The next executable route is therefore an expanded observed pool or
+dual-bound/global certificate attempt, not repricing a relaxed repair.
+
+### Claim Impact
+
+- Allowed: bounded proxy-gap repair feasibility test and relaxed infeasibility
+  diagnostic.
+- Still prohibited: strict v338-preserving coverage repair, relaxed repair
+  allocation, full-universe global optimality, contractual IFRS9, live
+  deployment, Paper Estrella replacement, final Paper 4 promotion and working
+  champion claims.
+
+### Quarto Promotion Decision
+
+Keep v342 in the living notebook. The next wave should expand the pool or pursue
+a dual-bound/global certificate without promotion.
+
+<!-- V342_V338_PROXY_GAP_REPAIR_END -->

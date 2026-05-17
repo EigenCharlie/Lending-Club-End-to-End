@@ -36405,6 +36405,143 @@ def test_paper4_v341_v338_cashflow_online_ifrs9_gate_stays_proxy_only() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v342_v338_proxy_gap_repair_records_strict_and_relaxed_infeasibility() -> None:
+    status = _read_json("paper4_v342_status.json")
+
+    assert status["phase"] == "v342_v338_proxy_gap_repair_or_branch_price_protocol"
+    assert status["schema_version"] == "2026-05-16.342"
+    assert status["base_version_v342"] == 338
+    assert status["reference_version_v342"] == 316
+    assert status["gate_version_v342"] == 341
+    assert status["pool_rows_v342"] == 1356
+    assert status["observed_omitted_candidate_rows_v342"] == 1185
+    assert status["candidate_pool_limit_per_period_v342"] == 750
+    assert status["strict_v338_preserving_repair_feasible_v342"] is False
+    assert status["strict_milp_status_v342"] == 2
+    assert status["relaxed_repair_feasible_v342"] is False
+    assert status["relaxed_selected_rows_v342"] == 0
+    assert status["relaxed_added_rows_v342"] == 0
+    assert status["relaxed_dropped_rows_v342"] == 0
+    assert status["relaxed_observed_proxy_rows_v342"] == 0
+    assert status["relaxed_missing_proxy_rows_v342"] == 0
+    assert status["relaxed_observed_delta_vs_v338_v342"] == 0
+    assert status["relaxed_missing_delta_vs_v338_v342"] == 0
+    assert status["relaxed_objective_return_v342"] is None
+    assert status["relaxed_delta_return_vs_v338_v342"] is None
+    assert status["relaxed_delta_return_vs_v316_v342"] is None
+    assert status["relaxed_cvar90_v342"] is None
+    assert status["relaxed_delta_cvar90_vs_v338_v342"] is None
+    assert status["relaxed_delta_cvar90_vs_v316_v342"] is None
+    assert status["source_cap_violations_v342"] == 0
+    assert status["min_source_slack_v342"] is None
+    assert status["post_v342_repricing_required_v342"] is False
+    assert status["strict_repair_or_champion_claim_allowed_v342"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v342"] is False
+    assert status["working_champion_claim_allowed_v342"] is False
+    assert status["paper1_promotion_allowed_v342"] is False
+    assert status["paper4_working_champion_changed_v342"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v342"] == 6
+    assert status["claim_matrix_rows_v342"] == 6
+    assert status["next_artifact_v342"] == "paper4_v343_v338_expanded_pool_or_dual_bound_gate.csv"
+
+    summary = _read_csv("paper4_v342_v338_proxy_gap_repair_or_branch_price_protocol.csv")
+    row = summary.iloc[0]
+    assert row["gate_id_v342"] == "v342_v338_proxy_gap_repair_or_branch_price_protocol"
+    assert int(row["pool_rows_v342"]) == 1356
+    assert bool(row["strict_v338_preserving_repair_feasible_v342"]) is False
+    assert bool(row["relaxed_repair_feasible_v342"]) is False
+    assert int(row["relaxed_selected_rows_v342"]) == 0
+    assert bool(row["post_v342_repricing_required_v342"]) is False
+    assert bool(row["working_champion_claim_allowed_v342"]) is False
+    assert "strict and relaxed v338 repair tiers are infeasible" in str(row["claim_boundary_v342"])
+
+    pool = _read_csv("paper4_v342_proxy_gap_pool_summary.csv")
+    pool_row = pool.iloc[0]
+    assert int(pool_row["pool_rows_v342"]) == 1356
+    assert int(pool_row["selected_base_rows_v342"]) == 171
+    assert int(pool_row["observed_omitted_candidate_rows_v342"]) == 1185
+    assert int(pool_row["total_observed_omitted_rows_v342"]) == 1551
+    assert bool(pool_row["pool_limit_binding_v342"]) is True
+
+    tiers = _read_csv("paper4_v342_proxy_gap_tier_summary.csv")
+    tier_map = {str(tier_id): group.iloc[0] for tier_id, group in tiers.groupby("tier_id_v342")}
+    strict = tier_map["strict_v338_return_v338_cvar"]
+    relaxed = tier_map["relaxed_v316_return_v338_cvar"]
+    for tier in [strict, relaxed]:
+        assert bool(tier["solver_success_v342"]) is False
+        assert int(tier["milp_status_v342"]) == 2
+        assert "Infeasible" in str(tier["milp_message_v342"])
+        assert int(tier["constraint_rows_v342"]) == 183
+        assert int(tier["variable_count_v342"]) == 1485
+        assert int(tier["milp_node_count_v342"]) == -1
+    assert float(strict["return_floor_v342"]) == pytest.approx(4425.910563779387)
+    assert float(strict["cvar_cap_v342"]) == pytest.approx(96385.97652556212)
+    assert float(relaxed["return_floor_v342"]) == pytest.approx(4419.757991584778)
+    assert float(relaxed["cvar_cap_v342"]) == pytest.approx(96385.97652556212)
+
+    allocations = pd.read_parquet(TABLE_DIR / "paper4_v342_relaxed_proxy_gap_allocations.parquet")
+    assert len(allocations) == 0
+    actions = _read_csv("paper4_v342_relaxed_proxy_gap_actions.csv")
+    assert len(actions) == 0
+    source = _read_csv("paper4_v342_relaxed_proxy_gap_source_summary.csv")
+    assert len(source) == 0
+
+    blockers = _read_csv("paper4_v342_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v342"], blockers["blocking_v342"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v342"], blockers["evidence_count_v342"], strict=False)
+    )
+    assert bool(blocker_map["strict_v338_preserving_proxy_repair_infeasible"]) is True
+    assert bool(blocker_map["relaxed_v316_return_v338_cvar_repair_infeasible"]) is True
+    assert int(evidence_map["relaxed_v316_return_v338_cvar_repair_infeasible"]) == 1
+    assert bool(blocker_map["post_v342_reprice_missing"]) is False
+    assert int(evidence_map["post_v342_reprice_missing"]) == 0
+    assert bool(blocker_map["bounded_pool_not_full_universe"]) is True
+    assert int(evidence_map["bounded_pool_not_full_universe"]) == 1185
+    assert bool(blocker_map["contractual_ifrs9_and_live_holdout_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v342_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v342_strict_v338_proxy_gap_repair_found"]) is False
+    assert bool(claim_map["v342_relaxed_proxy_gap_repair_found"]) is False
+    assert bool(claim_map["v342_relaxed_observed_proxy_rows_reach_100"]) is False
+    assert bool(claim_map["v342_preserves_full_v338_return"]) is False
+    assert bool(claim_map["v342_full_universe_integer_optimality"]) is False
+    assert bool(claim_map["v342_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v342 tests strict v338-preserving proxy-gap repair."])
+    assert bool(boundary_map["v342 documents relaxed v338 proxy-gap repair infeasibility."])
+    assert bool(boundary_map["v342 finds a relaxed v338 proxy-gap repair allocation."]) is False
+    assert (
+        bool(boundary_map["v342 preserves the full v338 return while repairing proxy coverage."])
+        is False
+    )
+    assert bool(boundary_map["v342 proves full-universe branch-price optimality."]) is False
+    assert bool(boundary_map["v342 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v342_rows = backlog.loc[backlog["last_wave"].eq("v342")]
+    assert len(v342_rows) == 1
+    backlog_row = v342_rows.iloc[0]
+    assert backlog_row["status"] == "strict_and_relaxed_v338_proxy_repair_infeasible"
+    assert backlog_row["next_artifact"] == "paper4_v343_v338_expanded_pool_or_dual_bound_gate.csv"
+    assert backlog_row["execution_result"] == "strict_and_relaxed_v338_proxy_repair_infeasible"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v342: v338 Proxy-Gap Repair / Branch-Price Protocol" in notebook
+    assert "Relaxed repair feasible:\n  `False`" in notebook
+    assert "Post-v342 repricing required:\n  `False`" in notebook
+    assert "The next executable route is therefore an expanded observed pool or" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
