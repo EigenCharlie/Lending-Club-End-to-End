@@ -53624,6 +53624,114 @@ def test_paper4_v469_dynamic_replay_reproducibility_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v470_online_conformal_monitoring_proxy_is_guarded() -> None:
+    status = _read_json("paper4_v470_status.json")
+    assert status["phase"] == "v470_online_conformal_monitoring_proxy"
+    assert status["schema_version"] == "2026-05-17.470"
+    assert status["prior_dynamic_replay_version_v470"] == 469
+    assert status["online_monitoring_proxy_created_v470"] is True
+    assert status["online_internal_gate_inventory_rows_v470"] == 4
+    assert status["v9_online_goal_achieved_v470"] is True
+    assert status["v9_best_method_v470"] == "v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040"
+    assert float(status["v9_best_source_month_defended_min_v470"]) >= 0.8
+    assert float(status["v9_best_policy_month_defended_min_v470"]) >= 0.9
+    assert float(status["v9_best_avg_width_loan_v470"]) < 0.95
+    assert status["v10_robustness_all_pass_v470"] is True
+    assert status["v10_min_support_pass_rows_v470"] == 6
+    assert status["v10_min_support_rows_v470"] == 9
+    assert status["v341_online_internal_gate_family_rows_v470"] == 2
+    assert status["current_local_frontier_v470"] == "v353"
+    assert status["latest_online_temporal_candidate_v470"] == "v338"
+    assert status["current_frontier_online_refreshed_v470"] is False
+    assert status["external_holdout_available_v470"] is False
+    assert status["live_monitoring_claim_allowed_v470"] is False
+    assert status["production_monitoring_controls_authorized_v470"] is False
+    assert status["working_champion_claim_allowed_v470"] is False
+    assert status["paper1_promotion_allowed_v470"] is False
+    assert status["paper4_working_champion_changed_v470"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v470"] == "paper4_v471_spo_dla_boundary_probe.md"
+
+    summary = _read_csv("paper4_v470_online_monitoring_proxy_summary.csv")
+    assert len(summary) == 1
+    summary_row = summary.iloc[0]
+    assert bool(summary_row["v9_online_goal_achieved_v470"]) is True
+    assert bool(summary_row["v10_robustness_all_pass_v470"]) is True
+    assert bool(summary_row["v341_external_holdout_available_v470"]) is False
+    assert bool(summary_row["v341_strict_live_claim_allowed_v470"]) is False
+
+    inventory = _read_csv("paper4_v470_online_internal_gate_inventory.csv")
+    assert len(inventory) == 4
+    gate_map = dict(zip(inventory["gate_id_v470"], inventory["internal_gate_pass_v470"], strict=False))
+    assert bool(gate_map["v9_online_goal"]) is True
+    assert bool(gate_map["v10_robustness"]) is True
+    assert bool(gate_map["v323_v320_temporal_online"]) is True
+    assert bool(gate_map["v341_v338_temporal_online"]) is True
+    assert not inventory["external_holdout_available_v470"].astype(bool).any()
+    assert not inventory["strict_live_claim_allowed_v470"].astype(bool).any()
+
+    gap = _read_csv("paper4_v470_current_frontier_online_gap.csv")
+    assert len(gap) == 1
+    gap_row = gap.iloc[0]
+    assert gap_row["current_local_frontier_v470"] == "v353"
+    assert gap_row["latest_online_temporal_candidate_v470"] == "v338"
+    assert bool(gap_row["current_frontier_online_refreshed_v470"]) is False
+    assert bool(gap_row["strict_live_monitoring_claim_allowed_v470"]) is False
+
+    blockers = _read_csv("paper4_v470_online_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v470"], blockers["blocking_v470"], strict=False))
+    assert bool(blocker_map["v353_online_temporal_gate_missing"]) is True
+    assert bool(blocker_map["external_holdout_missing"]) is True
+    assert bool(blocker_map["production_monitoring_not_authorized"]) is True
+    assert bool(blocker_map["spo_dla_boundary_not_refreshed"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v470_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v470_online_monitoring_proxy_created"]) is True
+    assert bool(claim_map["v470_internal_online_gates_inventory_created"]) is True
+    assert bool(claim_map["v470_v353_online_live_validated"]) is False
+    assert bool(claim_map["v470_external_or_production_monitoring_ready"]) is False
+    assert bool(claim_map["v470_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v470 summarizes internal online conformal monitoring proxy evidence."])
+    assert bool(boundary_map["v470 documents that v353 lacks an online temporal gate."])
+    assert bool(boundary_map["v470 validates v353 for live online monitoring."]) is False
+    assert bool(boundary_map["v470 authorizes production monitoring controls."]) is False
+    assert bool(boundary_map["v470 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v470_rows = backlog.loc[backlog["last_wave"].eq("v470")]
+    assert len(v470_rows) == 1
+    backlog_row = v470_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v471_spo_dla_boundary_probe.md"
+    assert (
+        backlog_row["execution_result"]
+        == "internal_online_gates_summarized_v353_online_gap_documented"
+    )
+
+    proxy_md = (
+        PAPER4_ROOT / "notes" / "paper4_v470_online_conformal_monitoring_proxy.md"
+    ).read_text(encoding="utf-8")
+    assert "Online Conformal Monitoring Proxy v470" in proxy_md
+    assert "v9 achieved the online" in proxy_md
+    assert "does not validate v353 for" in proxy_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v470: Online Conformal Monitoring Proxy" in living_notebook
+    assert "v9 online goal achieved:\n  `True`." in living_notebook
+    assert "Current local frontier:\n  `v353`." in living_notebook
+    assert "Current frontier online refreshed:\n  `False`." in living_notebook
+    assert "External holdout available:\n  `False`." in living_notebook
+    assert "Live monitoring claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

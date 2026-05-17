@@ -20682,3 +20682,57 @@ Keep v469 in the living notebook. v470 should refresh online conformal
 monitoring as proxy-only evidence.
 
 <!-- V469_DYNAMIC_REPLAY_REPRODUCIBILITY_PROBE_END -->
+
+<!-- V470_ONLINE_CONFORMAL_MONITORING_PROXY_START -->
+
+## Wave v470: Online Conformal Monitoring Proxy
+
+Generated: 2026-05-17T16:25:51.779430+00:00
+
+### Objective
+
+v470 refreshes online conformal monitoring evidence and separates internal proxy
+gates from live production claims.
+
+### Results
+
+- v9 online goal achieved:
+  `True`.
+- v9 best method:
+  `v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040`.
+- v9 best average width:
+  `0.9342434494753106`.
+- v10 robustness all pass:
+  `True`.
+- Current local frontier:
+  `v353`.
+- Current frontier online refreshed:
+  `False`.
+- External holdout available:
+  `False`.
+- Live monitoring claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v471_spo_dla_boundary_probe.md`.
+
+### Interpretation
+
+The online lane contributes defended internal monitoring evidence, but not live
+monitoring validation. The strongest current local frontier, v353, still needs a
+candidate-specific online temporal gate before stronger language is allowed.
+
+### Claim Impact
+
+- Allowed: internal online proxy summary and v353 online-gap statement.
+- Still prohibited: v353 live online validation, production monitoring controls,
+  working-champion language, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v470 in the living notebook. v471 should refresh SPO-DLA formal boundary
+language.
+
+<!-- V470_ONLINE_CONFORMAL_MONITORING_PROXY_END -->
