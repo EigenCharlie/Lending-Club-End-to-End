@@ -90,7 +90,7 @@ def bool_text(value: object) -> str:
 def build_findings() -> list[dict[str, object]]:
     v31 = read_json(STATUS_DIR / "paper4_v31_status.json")
     v35 = read_json(STATUS_DIR / "paper4_v35_status.json")
-    v38 = read_json(GLOBAL_DIR / "status" / "global_v38_status.json")
+    read_json(GLOBAL_DIR / "status" / "global_v38_status.json")
     cvar = first_row(TABLE_DIR / "paper4_v31_champion_vs_cvar_stress_memo.csv")
 
     return [

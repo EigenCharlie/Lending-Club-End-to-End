@@ -48321,6 +48321,181 @@ def test_paper4_v431_post_scripts_b007_repair_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v432_scripts_f841_unused_variable_repair_batch_is_guarded() -> None:
+    status = _read_json("paper4_v432_status.json")
+
+    assert status["phase"] == "v432_scripts_f841_unused_variable_repair_batch"
+    assert status["schema_version"] == "2026-05-17.432"
+    assert status["prior_post_b007_repair_pytest_version_v432"] == 431
+    assert status["actions_v432"] == 7
+    assert status["repo_ruff_exit_code_before_v432"] == 1
+    assert status["repo_ruff_exit_code_after_v432"] == 1
+    assert status["repo_ruff_total_before_v432"] == 30
+    assert status["repo_ruff_total_after_v432"] == 23
+    assert status["repo_ruff_total_reduced_v432"] == 7
+    assert status["repo_ruff_f841_before_v432"] == 7
+    assert status["repo_ruff_f841_after_v432"] == 0
+    assert status["repo_ruff_f841_reduced_v432"] == 7
+    assert status["repo_ruff_b023_after_v432"] == 7
+    assert status["repo_ruff_i001_after_v432"] == 5
+    assert status["repo_ruff_f401_after_v432"] == 4
+    assert status["repo_ruff_b007_after_v432"] == 0
+    assert status["scripts_diagnostics_before_v432"] == 28
+    assert status["scripts_diagnostics_after_v432"] == 21
+    assert status["book_diagnostics_after_v432"] == 2
+    assert status["streamlit_diagnostics_after_v432"] == 0
+    assert status["notebook_diagnostics_after_v432"] == 0
+    assert status["changed_script_files_v432"] == 6
+    assert set(status["changed_script_file_list_v432"]) == {
+        "scripts/papers/build_global_v38_project_synthesis.py",
+        "scripts/papers/build_paper4_quarto_restructure.py",
+        "scripts/papers/build_paper4_v41_v44_living_lab_wave.py",
+        "scripts/papers/build_paper4_v45_v48_living_lab_wave.py",
+        "scripts/papers/build_paper4_v55_unlock_loop.py",
+        "scripts/papers/build_paper4_v7_resolution_loop.py",
+    }
+    assert status["changed_scripts_pycompile_run_v432"] is True
+    assert status["changed_scripts_pycompile_passed_v432"] is True
+    assert status["changed_scripts_pycompile_files_v432"] == 6
+    assert status["repository_ruff_clean_v432"] is False
+    assert status["full_repository_pytest_run_v432"] is False
+    assert status["full_quarto_render_run_v432"] is False
+    assert status["working_champion_claim_allowed_v432"] is False
+    assert status["paper1_promotion_allowed_v432"] is False
+    assert status["paper4_working_champion_changed_v432"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v432"] == "paper4_v433_post_scripts_f841_repair_pytest_probe.md"
+
+    actions = _read_csv("paper4_v432_scripts_f841_actions.csv")
+    assert len(actions) == 7
+    assert set(actions["rule_code_v432"]) == {"F841"}
+    assert actions["mutation_applied_v432"].astype(bool).all()
+    assert actions["fix_edit_count_v432"].eq(1).all()
+    assert set(actions["unused_variable_v432"]) == {
+        "state",
+        "v38",
+        "spo",
+        "dla",
+        "allocations",
+        "all_alloc",
+    }
+
+    delta = _read_csv("paper4_v432_repository_ruff_delta.csv")
+    delta_map = {row["metric_v432"]: row for _, row in delta.iterrows()}
+    assert int(delta_map["repository_total"]["before_v432"]) == 30
+    assert int(delta_map["repository_total"]["after_v432"]) == 23
+    assert int(delta_map["repository_f841"]["before_v432"]) == 7
+    assert int(delta_map["repository_f841"]["after_v432"]) == 0
+    assert int(delta_map["repository_b023"]["after_v432"]) == 7
+    assert int(delta_map["repository_i001"]["after_v432"]) == 5
+    assert int(delta_map["repository_f401"]["after_v432"]) == 4
+    assert int(delta_map["repository_b007"]["after_v432"]) == 0
+    assert int(delta_map["scripts_total"]["before_v432"]) == 28
+    assert int(delta_map["scripts_total"]["after_v432"]) == 21
+    assert int(delta_map["book_total"]["after_v432"]) == 2
+    assert int(delta_map["streamlit_app_total"]["after_v432"]) == 0
+    assert int(delta_map["notebook_total"]["after_v432"]) == 0
+
+    snapshot = _read_csv("paper4_v432_repository_ruff_after_snapshot.csv")
+    snapshot_map = dict(
+        zip(snapshot["metric_v432"], snapshot["diagnostic_count_v432"], strict=False)
+    )
+    assert int(snapshot_map["repository_total"]) == 23
+    assert int(snapshot_map["repository_f841"]) == 0
+    assert int(snapshot_map["repository_b023"]) == 7
+    assert int(snapshot_map["repository_i001"]) == 5
+    assert int(snapshot_map["repository_f401"]) == 4
+    assert int(snapshot_map["repository_b007"]) == 0
+    assert int(snapshot_map["scripts_total"]) == 21
+    assert int(snapshot_map["book_total"]) == 2
+    assert int(snapshot_map["streamlit_app_total"]) == 0
+    assert int(snapshot_map["notebook_total"]) == 0
+
+    pycompile_summary = _read_csv("paper4_v432_pycompile_summary.csv")
+    assert len(pycompile_summary) == 1
+    pycompile_row = pycompile_summary.iloc[0]
+    assert pycompile_row["compile_id_v432"] == "changed_scripts_py_compile"
+    assert int(pycompile_row["exit_code_v432"]) == 0
+    assert bool(pycompile_row["passed_v432"]) is True
+    assert int(pycompile_row["compiled_files_v432"]) == 6
+
+    blockers = _read_csv("paper4_v432_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v432"], blockers["blocking_v432"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v432"], blockers["evidence_count_v432"], strict=False)
+    )
+    assert bool(blocker_map["repository_ruff_frontier_still_open"]) is True
+    assert int(blocker_evidence["repository_ruff_frontier_still_open"]) == 23
+    assert bool(blocker_map["full_repository_pytest_deferred_after_scripts_repair"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v432_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v432_scripts_f841_repair_applied"]) is True
+    assert bool(claim_map["v432_scripts_f841_cleared"]) is True
+    assert bool(claim_map["v432_repository_ruff_reduced"]) is True
+    assert bool(claim_map["v432_changed_scripts_pycompile_passed"]) is True
+    assert bool(claim_map["v432_repository_ruff_clean"]) is False
+    assert bool(claim_map["v432_full_repository_pytest_passed_after_repair"]) is False
+    assert bool(claim_map["v432_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v432 clears scripts F841 unused-variable diagnostics."])
+    assert bool(boundary_map["v432 reduces repository ruff diagnostics after scripts F841 repair."])
+    assert bool(boundary_map["v432 changed scripts compile after F841 repair."])
+    assert (
+        bool(
+            boundary_map[
+                "v432 proves repository ruff clean or full pytest clean after scripts repair."
+            ]
+        )
+        is False
+    )
+    assert bool(boundary_map["v432 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v432_rows = backlog.loc[backlog["last_wave"].eq("v432")]
+    assert len(v432_rows) == 1
+    backlog_row = v432_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v433_post_scripts_f841_repair_pytest_probe.md"
+    assert backlog_row["execution_result"] == "repo_ruff_reduced_30_to_23_scripts_f841_cleared"
+
+    repair_md = (
+        PAPER4_ROOT / "notes" / "paper4_v432_scripts_f841_unused_variable_repair_batch.md"
+    ).read_text(encoding="utf-8")
+    assert "Repository diagnostics: `30` ->" in repair_md
+    assert "`23`." in repair_md
+    assert "Repository F841 diagnostics: `7` ->" in repair_md
+    assert "`0`." in repair_md
+    assert "py_compile passed: `True`" in repair_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v432: Scripts F841 Unused-Variable Repair Batch" in living_notebook
+    assert "The scripts F841 frontier is cleared" in living_notebook
+    assert "Repository ruff diagnostics before/after:\n  `30` ->\n  `23`." in living_notebook
+    assert "Repository F841 before/after:\n  `7` ->\n  `0`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+
+    f841_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "scripts/papers", "--select", "F841"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert "All checks passed" in f841_probe.stdout
+    notebook_probe = subprocess.run(
+        ["uv", "run", "ruff", "check", "notebooks", "--output-format", "json"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert json.loads(notebook_probe.stdout or "[]") == []
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

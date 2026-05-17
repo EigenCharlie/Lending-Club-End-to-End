@@ -71,7 +71,7 @@ def _paper1_champion_state() -> pd.DataFrame:
 
 
 def _paper1_coherence_report() -> pd.DataFrame:
-    state = _paper1_champion_state().iloc[0].to_dict()
+    _paper1_champion_state().iloc[0].to_dict()
     comparisons = [
         Path("reports/run_comparisons/paper1-e2e-all-champions-2026-04-07/comparison.json"),
         Path("reports/run_comparisons/canonical-audit-rebuild-2026-04-06-r2/comparison.json"),

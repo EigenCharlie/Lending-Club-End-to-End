@@ -672,7 +672,7 @@ def build_solver_v7(
         ["not_used_promotion_disabled", "review_candidate_paper4_only"],
         default="park_or_infeasible",
     )
-    all_alloc = pd.concat(
+    pd.concat(
         [df for df in [mdcp_alloc, cvar_alloc] if not df.empty], ignore_index=True
     )
     return mdcp_alloc, mdcp_summary, cvar_alloc, cvar_summary, cvar_loss, hybrid

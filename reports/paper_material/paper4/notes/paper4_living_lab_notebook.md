@@ -18635,3 +18635,57 @@ Keep v431 in the living notebook. v432 should apply the targeted scripts F841
 unused-variable repair batch.
 
 <!-- V431_POST_SCRIPTS_B007_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V432_SCRIPTS_F841_UNUSED_VARIABLE_REPAIR_BATCH_START -->
+
+## Wave v432: Scripts F841 Unused-Variable Repair Batch
+
+Generated: 2026-05-17T11:38:22.128932+00:00
+
+### Objective
+
+v432 applies targeted unused-variable repairs across scripts F841 diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `30` ->
+  `23`.
+- Repository F841 before/after:
+  `7` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `28` ->
+  `21`.
+- Changed script files:
+  `6`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v433_post_scripts_f841_repair_pytest_probe.md`.
+
+### Interpretation
+
+The scripts F841 frontier is cleared by removing local assignments that Ruff
+identified as unused. Remaining repository ruff diagnostics are now B023, I001,
+F401, UP022, SIM108, C405 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts F841 repair applied, repository ruff count reduced,
+  and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v432 in the living notebook. v433 should run the post-scripts-F841-repair
+full pytest probe.
+
+<!-- V432_SCRIPTS_F841_UNUSED_VARIABLE_REPAIR_BATCH_END -->

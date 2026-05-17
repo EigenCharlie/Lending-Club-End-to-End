@@ -1020,7 +1020,7 @@ def build_v57_online_spo_dla_ifrs9() -> tuple[
     write_csv(TABLE_DIR / "paper4_v57_spo_dependency_probe.csv", probes)
 
     frontier = read_csv("paper4_v56_cvar_full_comparable_frontier.csv")
-    allocations = read_parquet("paper4_v56_cvar_allocations.parquet")
+    read_parquet("paper4_v56_cvar_allocations.parquet")
     spo_rows: list[dict[str, Any]] = []
     if not frontier.empty:
         for _, row in frontier.iterrows():

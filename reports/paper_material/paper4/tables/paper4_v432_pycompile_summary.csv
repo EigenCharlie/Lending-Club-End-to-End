@@ -1,0 +1,2 @@
+compile_id_v432,command_v432,exit_code_v432,passed_v432,compiled_files_v432,stdout_tail_v432,stderr_tail_v432,claim_boundary_v432
+changed_scripts_py_compile,uv run python -m py_compile scripts/papers/build_global_v38_project_synthesis.py scripts/papers/build_paper4_quarto_restructure.py scripts/papers/build_paper4_v41_v44_living_lab_wave.py scripts/papers/build_paper4_v45_v48_living_lab_wave.py scripts/papers/build_paper4_v55_unlock_loop.py scripts/papers/build_paper4_v7_resolution_loop.py,0,True,6,,,syntax/bytecode check only; full pytest deferred

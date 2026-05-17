@@ -1031,7 +1031,7 @@ def build_v43() -> dict[str, Any]:
 def build_v44_registry() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     base = read_csv("paper4_v39_candidate_registry.csv")
     dla = read_csv("paper4_v43_dla_adp_rollout_grid.csv")
-    spo = read_csv("paper4_v42_spo_training_report.csv")
+    read_csv("paper4_v42_spo_training_report.csv")
     cvar = read_csv("paper4_v41_cvar_frontier_non_dominated.csv")
     rows: list[dict[str, Any]] = []
     if not base.empty:

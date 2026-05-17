@@ -1158,8 +1158,8 @@ def build_v48_registry() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     prior = read_csv("paper4_v44_candidate_registry.csv")
     dynamic_ci = read_csv("paper4_v46_focused_dynamic_1024_ci.csv")
     cvar = read_csv("paper4_v45_cvar_solver_frontier.csv")
-    spo = read_csv("paper4_v46_spo_training_report.csv")
-    dla = read_csv("paper4_v46_dla_common_path_replay.csv")
+    read_csv("paper4_v46_spo_training_report.csv")
+    read_csv("paper4_v46_dla_common_path_replay.csv")
     rows: list[dict[str, Any]] = []
     if not prior.empty:
         for _, row in prior.iterrows():
