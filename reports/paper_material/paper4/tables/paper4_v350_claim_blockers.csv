@@ -1,0 +1,6 @@
+blocker_id_v350,blocking_v350,evidence_count_v350,required_next_artifact_v350,claim_boundary_v350
+direct_full_mip_guard_exceeded,True,276869,paper4_v351_v347_branch_price_or_dual_bound_loop.csv,full-v55 binary variable count exceeds direct guard
+branch_price_dual_bound_loop_missing,True,1,paper4_v351_v347_branch_price_or_dual_bound_loop.csv,no dual-bound loop has been executed
+source_tight_branch_price_frontier,True,2,paper4_v351_v347_branch_price_or_dual_bound_loop.csv,tight source rows require branch-price handling
+proxy_gap_persists,True,75,paper4_v351_v347_branch_price_or_dual_bound_loop.csv,v347 still contains missing proxy rows
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

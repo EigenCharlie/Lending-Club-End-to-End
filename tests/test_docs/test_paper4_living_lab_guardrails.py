@@ -37644,6 +37644,158 @@ def test_paper4_v349_v347_proxy_gate_blocks_economic_repair() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v350_v347_dual_bound_readiness_register_blocks_global_claim() -> None:
+    status = _read_json("paper4_v350_status.json")
+
+    assert status["phase"] == "v350_v347_dual_bound_after_proxy_gate"
+    assert status["schema_version"] == "2026-05-17.350"
+    assert status["base_version_v350"] == 347
+    assert status["reprice_version_v350"] == 348
+    assert status["proxy_gate_version_v350"] == 349
+    assert status["full_binary_variables_v350"] == 276869
+    assert status["direct_full_mip_binary_guard_v350"] == 50000
+    assert status["direct_full_mip_guard_met_v350"] is False
+    assert status["selected_rows_v350"] == 171
+    assert status["observed_proxy_rows_v350"] == 96
+    assert status["missing_proxy_rows_v350"] == 75
+    assert status["full_omitted_candidate_rows_v350"] == 276698
+    assert status["observed_omitted_candidate_rows_v350"] == 1552
+    assert status["unobserved_omitted_candidate_rows_v350"] == 275146
+    assert status["tight_source_rows_v350"] == 2
+    assert status["unique_source_tight_candidate_rows_v350"] == 73023
+    assert status["positive_source_tight_candidate_rows_v350"] == 4385
+    assert status["requirement_rows_v350"] == 6
+    assert status["requirements_met_v350"] == 4
+    assert status["branch_price_dual_bound_loop_executed_v350"] is False
+    assert status["valid_branch_price_bound_v350"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v350"] is False
+    assert status["working_champion_claim_allowed_v350"] is False
+    assert status["paper1_promotion_allowed_v350"] is False
+    assert status["paper4_working_champion_changed_v350"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v350"] == 5
+    assert status["claim_matrix_rows_v350"] == 4
+    assert status["next_artifact_v350"] == ("paper4_v351_v347_branch_price_or_dual_bound_loop.csv")
+    assert "readiness register only" in status["claim_boundary"]
+
+    gate = _read_csv("paper4_v350_v347_dual_bound_after_proxy_gate.csv")
+    row = gate.iloc[0]
+    assert row["gate_id_v350"] == "v350_v347_dual_bound_after_proxy_gate"
+    assert int(row["full_binary_variables_v350"]) == 276869
+    assert bool(row["direct_full_mip_guard_met_v350"]) is False
+    assert int(row["full_omitted_candidate_rows_v350"]) == 276698
+    assert int(row["observed_omitted_candidate_rows_v350"]) == 1552
+    assert int(row["unobserved_omitted_candidate_rows_v350"]) == 275146
+    assert int(row["tight_source_rows_v350"]) == 2
+    assert int(row["unique_source_tight_candidate_rows_v350"]) == 73023
+    assert int(row["positive_source_tight_candidate_rows_v350"]) == 4385
+    assert bool(row["branch_price_dual_bound_loop_executed_v350"]) is False
+    assert bool(row["valid_branch_price_bound_v350"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    partition = _read_csv("paper4_v350_full_universe_candidate_partition.csv")
+    partition_row = partition.iloc[0]
+    assert partition_row["partition_id_v350"] == "v347_full_v55_omitted_partition_after_v349"
+    assert int(partition_row["full_universe_rows_v350"]) == 276869
+    assert int(partition_row["selected_rows_v350"]) == 171
+    assert int(partition_row["full_omitted_candidate_rows_v350"]) == 276698
+    assert int(partition_row["observed_omitted_candidate_rows_v350"]) == 1552
+    assert int(partition_row["unobserved_omitted_candidate_rows_v350"]) == 275146
+    assert int(partition_row["v349_pool_rows_v350"]) == 1723
+    assert int(partition_row["v349_observed_candidate_rows_v350"]) == 1552
+    assert bool(partition_row["v349_pool_includes_all_observed_omitted_v350"]) is True
+    assert float(partition_row["v349_pool_share_of_full_omitted_v350"]) == pytest.approx(
+        0.00560900331769655
+    )
+    assert float(partition_row["unobserved_share_of_full_omitted_v350"]) == pytest.approx(
+        0.9943909966823035
+    )
+
+    hotspots = _read_csv("paper4_v350_v347_source_slack_hotspots.csv")
+    tight = hotspots.loc[hotspots["source_tight_flag_v350"].astype(bool)]
+    assert len(tight) == 2
+    first = tight.sort_values("source_slack_rank_v350").iloc[0]
+    second = tight.sort_values("source_slack_rank_v350").iloc[1]
+    assert first["source_family"] == "grade"
+    assert str(first["source_id"]) == "A"
+    assert float(first["source_slack_v350"]) == pytest.approx(4.597308456477656e-06)
+    assert second["source_family"] == "score_decile"
+    assert str(second["source_id"]) == "0"
+    assert float(second["source_slack_v350"]) == pytest.approx(0.0001155521317887)
+
+    source_map = _read_csv("paper4_v350_v347_source_tight_candidate_map.csv")
+    map_rows = {row["pricing_block_id_v350"]: row for _, row in source_map.iterrows()}
+    grade = map_rows["grade=A"]
+    score = map_rows["score_decile=0"]
+    assert int(grade["candidate_rows_v350"]) == 72271
+    assert int(grade["observed_candidate_rows_v350"]) == 534
+    assert int(grade["unobserved_candidate_rows_v350"]) == 71737
+    assert int(grade["positive_return_candidate_rows_v350"]) == 4385
+    assert str(grade["top_candidate_loan_id_v350"]) == "165382274"
+    assert float(grade["top_candidate_mean_return_v350"]) == pytest.approx(883.9433199290119)
+    assert bool(grade["top_candidate_observed_v47_proxy_v350"]) is False
+    assert int(score["candidate_rows_v350"]) == 27553
+    assert int(score["observed_candidate_rows_v350"]) == 713
+    assert int(score["unobserved_candidate_rows_v350"]) == 26840
+    assert int(score["positive_return_candidate_rows_v350"]) == 4383
+
+    register = _read_csv("paper4_v350_dual_bound_requirement_register.csv")
+    req_map = dict(zip(register["requirement_id_v350"], register["met_v350"], strict=False))
+    assert bool(req_map["post_v347_one_swap_local_optimality_cleared"]) is True
+    assert bool(req_map["economic_proxy_repair_missing"]) is True
+    assert bool(req_map["proxy_gap_persists"]) is True
+    assert bool(req_map["direct_full_mip_guard_met"]) is False
+    assert bool(req_map["branch_price_dual_bound_loop_executed"]) is False
+    assert bool(req_map["paper4_final_promotion_absent"]) is True
+
+    blockers = _read_csv("paper4_v350_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v350"], blockers["blocking_v350"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v350"], blockers["evidence_count_v350"], strict=False)
+    )
+    assert bool(blocker_map["direct_full_mip_guard_exceeded"]) is True
+    assert int(evidence_map["direct_full_mip_guard_exceeded"]) == 276869
+    assert bool(blocker_map["branch_price_dual_bound_loop_missing"]) is True
+    assert bool(blocker_map["source_tight_branch_price_frontier"]) is True
+    assert int(evidence_map["source_tight_branch_price_frontier"]) == 2
+    assert bool(blocker_map["proxy_gap_persists"]) is True
+    assert int(evidence_map["proxy_gap_persists"]) == 75
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v350_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v350_dual_bound_readiness_register_executed"]) is True
+    assert bool(claim_map["v350_source_tight_frontier_identified"]) is True
+    assert bool(claim_map["v350_valid_full_universe_branch_price_bound"]) is False
+    assert bool(claim_map["v350_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v350 creates a post-v349 v347 dual-bound readiness register."])
+    assert bool(boundary_map["v350 identifies source-tight v347 branch-price blockers."])
+    assert bool(boundary_map["v350 proves a valid full-universe dual-bound certificate."]) is False
+    assert bool(boundary_map["v350 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v350 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v350_rows = backlog.loc[backlog["last_wave"].eq("v350")]
+    assert len(v350_rows) == 1
+    backlog_row = v350_rows.iloc[0]
+    assert backlog_row["status"] == "dual_bound_readiness_register_created_no_certificate"
+    assert backlog_row["next_artifact"] == ("paper4_v351_v347_branch_price_or_dual_bound_loop.csv")
+    assert backlog_row["execution_result"] == "source_tight_and_direct_mip_guard_block_global_claim"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v350: v347 Dual-Bound Readiness After Proxy Gate" in notebook
+    assert "Full-v55 binary variables: `276869`" in notebook
+    assert "Branch-price dual-bound loop executed:\n  `False`" in notebook
+    assert "does not prove a global certificate" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

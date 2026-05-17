@@ -14349,3 +14349,56 @@ Keep v349 in the living notebook. The next wave should attempt a dual-bound or
 explicit proxy-value tradeoff protocol without promotion.
 
 <!-- V349_V347_PROXY_OR_DUAL_BOUND_GATE_END -->
+
+<!-- V350_V347_DUAL_BOUND_AFTER_PROXY_GATE_START -->
+
+## Wave v350: v347 Dual-Bound Readiness After Proxy Gate
+
+Generated: 2026-05-17T01:43:16.950321+00:00
+
+### Objective
+
+v348 cleared one-swap local optimality for the v347 candidate and v349 showed
+that economic proxy repair is infeasible in the all-observed-omitted pool. v350
+turns that evidence into a dual-bound readiness register and branch-price
+hotspot map.
+
+### Results
+
+- Full-v55 binary variables: `276869`.
+- Direct full-MIP guard met:
+  `False`.
+- Observed omitted candidates:
+  `1552`.
+- Unobserved omitted candidates:
+  `275146`.
+- Tight source rows: `2`.
+- Unique source-tight candidate rows:
+  `73023`.
+- Positive source-tight candidate rows:
+  `4385`.
+- Branch-price dual-bound loop executed:
+  `False`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v350 does not prove a global certificate; it makes the missing certificate
+explicit. The direct full-v55 MIP remains beyond the guard, the proxy gap
+persists, and the tight source frontier is still grade A / score decile 0. The
+next executable wave should run an actual branch-price or dual-bound loop.
+
+### Claim Impact
+
+- Allowed: v347 dual-bound readiness register and source-tight blocker map.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v350 in the living notebook. The next wave should execute a branch-price
+or dual-bound loop without promotion.
+
+<!-- V350_V347_DUAL_BOUND_AFTER_PROXY_GATE_END -->
