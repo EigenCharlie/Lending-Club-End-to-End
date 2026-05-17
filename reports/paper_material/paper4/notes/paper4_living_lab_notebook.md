@@ -20018,3 +20018,59 @@ Keep v456 in the living notebook. v457 should run post-assembly regression
 checks before any stronger manuscript-readiness language.
 
 <!-- V456_MANUSCRIPT_ASSEMBLY_PACKET_END -->
+
+<!-- V457_POST_ASSEMBLY_PYTEST_PROBE_START -->
+
+## Wave v457: Post-Assembly Pytest Probe
+
+Generated: 2026-05-17T15:17:30.619491+00:00
+
+### Objective
+
+v457 reruns full repository pytest after the v456 manuscript assembly packet.
+
+### Results
+
+- Pytest command:
+  `uv run pytest -q --tb=short`.
+- Pytest exit code:
+  `0`.
+- Pytest passed:
+  `True`.
+- Pytest collected items:
+  `1195`.
+- Pytest summary:
+  `=========== 1195 passed, 2 skipped, 13 warnings in 148.08s (0:02:28) ===========`.
+- Repository Ruff diagnostics:
+  `0`.
+- Repository Ruff clean:
+  `True`.
+- Assembly packet from v456:
+  `True`.
+- Post-assembly regression refresh complete:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v458_post_assembly_render_decision.md`.
+
+### Interpretation
+
+The v456 manuscript assembly packet survives a full repository pytest refresh
+and repository Ruff remains clean. This supports bounded post-assembly
+regression language, but not submission, external validation, champion
+replacement or final promotion.
+
+### Claim Impact
+
+- Allowed: post-assembly full pytest run and clean regression refresh when both
+  pytest and Ruff are clean.
+- Still prohibited: submission readiness, external validation, champion
+  replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v457 in the living notebook. v458 should decide whether a Quarto render
+refresh is needed after the assembly-only notes.
+
+<!-- V457_POST_ASSEMBLY_PYTEST_PROBE_END -->

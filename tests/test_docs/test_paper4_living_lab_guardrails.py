@@ -52258,6 +52258,104 @@ def test_paper4_v456_manuscript_assembly_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v457_post_assembly_pytest_probe_is_guarded() -> None:
+    status = _read_json("paper4_v457_status.json")
+
+    assert status["phase"] == "v457_post_assembly_pytest_probe"
+    assert status["schema_version"] == "2026-05-17.457"
+    assert status["prior_manuscript_assembly_version_v457"] == 456
+    assert status["pytest_command_v457"] == "uv run pytest -q --tb=short"
+    assert status["pytest_exit_code_v457"] == 0
+    assert status["pytest_passed_v457"] is True
+    assert status["pytest_collected_items_v457"] == 1195
+    assert "1195 passed, 2 skipped, 13 warnings" in status["pytest_summary_line_v457"]
+    assert status["repo_ruff_exit_code_v457"] == 0
+    assert status["repo_ruff_total_v457"] == 0
+    assert status["repository_ruff_clean_v457"] is True
+    assert status["manuscript_assembly_packet_created_from_v456"] is True
+    assert status["assembled_section_count_from_v456"] == 6
+    assert status["post_assembly_full_repository_pytest_run_v457"] is True
+    assert status["post_assembly_full_repository_pytest_clean_v457"] is True
+    assert status["post_assembly_regression_refresh_complete_v457"] is True
+    assert status["post_assembly_quarto_render_run_v457"] is False
+    assert status["external_validation_complete_v457"] is False
+    assert status["submission_package_ready_v457"] is False
+    assert status["working_champion_claim_allowed_v457"] is False
+    assert status["paper1_promotion_allowed_v457"] is False
+    assert status["paper4_working_champion_changed_v457"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v457"] == "paper4_v458_post_assembly_render_decision.md"
+
+    pytest_summary = _read_csv("paper4_v457_pytest_probe_summary.csv")
+    assert len(pytest_summary) == 1
+    pytest_row = pytest_summary.iloc[0]
+    assert pytest_row["probe_id_v457"] == "post_assembly_full_repository_pytest"
+    assert bool(pytest_row["passed_v457"]) is True
+    assert int(pytest_row["exit_code_v457"]) == 0
+    assert int(pytest_row["collected_items_v457"]) == 1195
+
+    validation = _read_csv("paper4_v457_validation_gate_summary.csv")
+    validation_map = dict(
+        zip(validation["validation_gate_v457"], validation["claim_allowed_v457"], strict=False)
+    )
+    assert bool(validation_map["post_assembly_full_repository_pytest"]) is True
+    assert bool(validation_map["repository_ruff"]) is True
+    assert bool(validation_map["manuscript_assembly_packet_exists"]) is True
+    assert bool(validation_map["paper4_final_promotion_absence"]) is True
+
+    blockers = _read_csv("paper4_v457_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v457"], blockers["blocking_v457"], strict=False))
+    assert bool(blocker_map["post_assembly_render_decision_not_made"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v457_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v457_post_assembly_full_repository_pytest_run"]) is True
+    assert bool(claim_map["v457_post_assembly_full_repository_pytest_clean"]) is True
+    assert bool(claim_map["v457_repository_ruff_clean"]) is True
+    assert bool(claim_map["v457_post_assembly_regression_refresh_complete"]) is True
+    assert bool(claim_map["v457_submission_ready_or_external_validation"]) is False
+    assert bool(claim_map["v457_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v457 full repository pytest passes after manuscript assembly."])
+    assert bool(boundary_map["v457 repository Ruff remains clean after manuscript assembly."])
+    assert bool(
+        boundary_map["v457 completes post-assembly regression refresh for the packet."]
+    )
+    assert bool(boundary_map["v457 makes Paper 4 final, submitted, or externally validated."]) is False
+    assert bool(boundary_map["v457 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v457_rows = backlog.loc[backlog["last_wave"].eq("v457")]
+    assert len(v457_rows) == 1
+    backlog_row = v457_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v458_post_assembly_render_decision.md"
+    assert backlog_row["execution_result"] == "post_assembly_full_pytest_passed"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v457_post_assembly_pytest_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "Post-Assembly Pytest Probe v457" in probe_md
+    assert "1195 passed" in probe_md
+    assert "Repository Ruff diagnostics: `0`" in probe_md
+    assert "does not create\nexternal validation" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v457: Post-Assembly Pytest Probe" in living_notebook
+    assert "Pytest passed:\n  `True`." in living_notebook
+    assert "Pytest collected items:\n  `1195`." in living_notebook
+    assert "Repository Ruff diagnostics:\n  `0`." in living_notebook
+    assert "Post-assembly regression refresh complete:\n  `True`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

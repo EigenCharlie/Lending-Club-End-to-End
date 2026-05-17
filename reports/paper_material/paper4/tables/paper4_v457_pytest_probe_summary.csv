@@ -1,0 +1,2 @@
+probe_id_v457,command_v457,exit_code_v457,passed_v457,runtime_seconds_v457,collected_items_v457,summary_line_v457,claim_boundary_v457
+post_assembly_full_repository_pytest,uv run pytest -q --tb=short,0,True,163.483,1195,"=========== 1195 passed, 2 skipped, 13 warnings in 148.08s (0:02:28) ===========",full pytest after v456 manuscript assembly packet
