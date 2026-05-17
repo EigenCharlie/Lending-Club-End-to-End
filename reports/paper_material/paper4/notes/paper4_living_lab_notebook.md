@@ -20787,3 +20787,56 @@ overstating differentiable SPO+ or DLA optimality.
 Keep v471 in the living notebook. v472 should refresh IFRS9 proxy boundaries.
 
 <!-- V471_SPO_DLA_BOUNDARY_PROBE_END -->
+
+<!-- V472_IFRS9_PROXY_BOUNDARY_PROBE_START -->
+
+## Wave v472: IFRS9 Proxy Boundary Probe
+
+Generated: 2026-05-17T16:35:59.508117+00:00
+
+### Objective
+
+v472 refreshes IFRS9 proxy boundaries after the SPO-DLA formal boundary probe.
+
+### Results
+
+- Latest proxy candidate:
+  `338`.
+- v341 observed proxy loan rows:
+  `97`.
+- v341 imputed proxy loan rows:
+  `74`.
+- Missing contractual requirements:
+  `5`.
+- Contractual audit claim-allowed rows:
+  `0`.
+- Current local frontier:
+  `v353`.
+- Current frontier proxy panel available:
+  `False`.
+- Contractual IFRS9 claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v473_domain_execution_synthesis.md`.
+
+### Interpretation
+
+The IFRS9 lane supports transparent proxy language and requirement-gap
+language. It does not support contractual accounting claims, and v353 cannot
+inherit the v338 cashflow proxy gate.
+
+### Claim Impact
+
+- Allowed: IFRS9-inspired proxy evidence and contractual requirement-gap audit.
+- Still prohibited: v353 IFRS9 validation, contractual/accounting compliance,
+  working-champion language, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v472 in the living notebook. v473 should synthesize the six domain lanes
+executed from v466 through v472.
+
+<!-- V472_IFRS9_PROXY_BOUNDARY_PROBE_END -->

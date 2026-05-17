@@ -53834,6 +53834,111 @@ def test_paper4_v471_spo_dla_boundary_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v472_ifrs9_proxy_boundary_probe_is_guarded() -> None:
+    status = _read_json("paper4_v472_status.json")
+    assert status["phase"] == "v472_ifrs9_proxy_boundary_probe"
+    assert status["schema_version"] == "2026-05-17.472"
+    assert status["prior_spo_dla_version_v472"] == 471
+    assert status["ifrs9_proxy_boundary_probe_created_v472"] is True
+    assert status["latest_proxy_candidate_v472"] == "338"
+    assert status["v341_selected_rows_v472"] == 171
+    assert status["v341_observed_proxy_loan_rows_v472"] == 97
+    assert status["v341_imputed_proxy_loan_rows_v472"] == 74
+    assert float(status["v341_post_imputation_coverage_share_v472"]) == 1.0
+    assert float(status["v341_observed_coverage_share_v472"]) < 0.57
+    assert status["readiness_available_or_proxy_requirements_v472"] == 3
+    assert status["readiness_missing_requirements_v472"] == 5
+    assert status["contractual_audit_requirement_rows_v472"] == 8
+    assert status["contractual_audit_claim_allowed_rows_v472"] == 0
+    assert status["current_local_frontier_v472"] == "v353"
+    assert status["current_frontier_proxy_panel_available_v472"] is False
+    assert status["current_frontier_contractual_ifrs9_claim_allowed_v472"] is False
+    assert status["contractual_ifrs9_claim_allowed_v472"] is False
+    assert status["accounting_compliance_claim_allowed_v472"] is False
+    assert status["working_champion_claim_allowed_v472"] is False
+    assert status["paper1_promotion_allowed_v472"] is False
+    assert status["paper4_working_champion_changed_v472"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v472"] == "paper4_v473_domain_execution_synthesis.md"
+
+    summary = _read_csv("paper4_v472_ifrs9_proxy_boundary_summary.csv")
+    assert len(summary) == 1
+    summary_row = summary.iloc[0]
+    assert summary_row["latest_proxy_candidate_v472"] == 338
+    assert int(summary_row["v341_imputed_proxy_loan_rows_v472"]) == 74
+    assert bool(summary_row["v341_contractual_ifrs9_claim_allowed_v472"]) is False
+    assert int(summary_row["readiness_missing_requirements_v472"]) == 5
+    assert int(summary_row["contractual_audit_claim_allowed_rows_v472"]) == 0
+
+    requirement = _read_csv("paper4_v472_ifrs9_requirement_audit.csv")
+    assert len(requirement) == 8
+    availability_counts = requirement["availability_v472"].value_counts().to_dict()
+    assert availability_counts["missing"] == 5
+    assert availability_counts["available_or_proxy"] == 3
+    assert not requirement["contractual_claim_allowed_v472"].astype(bool).any()
+
+    gap = _read_csv("paper4_v472_current_frontier_ifrs9_gap.csv")
+    assert len(gap) == 1
+    gap_row = gap.iloc[0]
+    assert gap_row["current_local_frontier_v472"] == "v353"
+    assert int(gap_row["latest_ifrs9_proxy_candidate_v472"]) == 338
+    assert bool(gap_row["current_frontier_proxy_panel_available_v472"]) is False
+    assert bool(gap_row["current_frontier_contractual_ifrs9_claim_allowed_v472"]) is False
+
+    blockers = _read_csv("paper4_v472_ifrs9_blocker_register.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v472"], blockers["blocking_v472"], strict=False))
+    assert bool(blocker_map["contractual_ifrs9_requirements_missing"]) is True
+    assert bool(blocker_map["v338_proxy_uses_imputation"]) is True
+    assert bool(blocker_map["v353_ifrs9_proxy_gate_missing"]) is True
+    assert bool(blocker_map["production_accounting_validation_missing"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v472_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v472_ifrs9_proxy_boundary_created"]) is True
+    assert bool(claim_map["v472_contractual_requirement_gap_documented"]) is True
+    assert bool(claim_map["v472_v353_has_ifrs9_proxy_or_contractual_validation"]) is False
+    assert bool(claim_map["v472_contractual_ifrs9_or_accounting_compliance"]) is False
+    assert bool(claim_map["v472_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v472 summarizes IFRS9-inspired proxy evidence."])
+    assert bool(boundary_map["v472 documents contractual IFRS9 requirement gaps."])
+    assert (
+        bool(boundary_map["v472 validates v353 with IFRS9 proxy or contractual cashflows."])
+        is False
+    )
+    assert bool(boundary_map["v472 proves contractual IFRS9 or accounting compliance."]) is False
+    assert bool(boundary_map["v472 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v472_rows = backlog.loc[backlog["last_wave"].eq("v472")]
+    assert len(v472_rows) == 1
+    backlog_row = v472_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v473_domain_execution_synthesis.md"
+    assert backlog_row["execution_result"] == "proxy_evidence_allowed_contractual_ifrs9_blocked"
+
+    probe_md = (
+        PAPER4_ROOT / "notes" / "paper4_v472_ifrs9_proxy_boundary_probe.md"
+    ).read_text(encoding="utf-8")
+    assert "IFRS9 Proxy Boundary Probe v472" in probe_md
+    assert "IFRS9-inspired proxy evidence" in probe_md
+    assert "does not provide" in probe_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v472: IFRS9 Proxy Boundary Probe" in living_notebook
+    assert "Latest proxy candidate:\n  `338`." in living_notebook
+    assert "v341 imputed proxy loan rows:\n  `74`." in living_notebook
+    assert "Missing contractual requirements:\n  `5`." in living_notebook
+    assert "Current local frontier:\n  `v353`." in living_notebook
+    assert "Contractual IFRS9 claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

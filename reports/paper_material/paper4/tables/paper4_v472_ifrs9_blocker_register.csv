@@ -1,0 +1,6 @@
+blocker_id_v472,blocking_v472,evidence_count_v472,required_next_artifact_v472,claim_boundary_v472
+contractual_ifrs9_requirements_missing,True,5,future_contractual_servicing_panel,five contractual requirements remain missing
+v338_proxy_uses_imputation,True,74,future_observed_proxy_coverage_repair,v338 proxy panel includes explicit imputed rows
+v353_ifrs9_proxy_gate_missing,True,1,future_v353_cashflow_proxy_gate,current local frontier lacks cashflow proxy gate
+production_accounting_validation_missing,True,1,future_accounting_review_and_validation,no accounting review or contractual validation
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
