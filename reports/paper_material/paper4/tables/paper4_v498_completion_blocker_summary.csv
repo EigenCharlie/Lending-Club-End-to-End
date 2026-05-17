@@ -1,0 +1,6 @@
+blocker_id_v498,blocker_open_v498,blocks_patch_v498,required_resolution_v498
+manual_layout_surface_review_completion,True,True,complete four layout surface reviews
+caption_claim_safety_review_completion,True,True,complete ten caption safety reviews
+final_caption_signoff,True,True,finalize captions after review
+explicit_patch_approval,True,True,obtain explicit approval after signoff
+post_patch_render,True,True,render only after a future patch exists

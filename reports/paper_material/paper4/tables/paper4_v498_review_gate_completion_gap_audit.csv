@@ -1,0 +1,3 @@
+completion_gap_id_v498,priority_v498,review_item_count_v498,packet_ready_v498,execution_started_v498,execution_completed_v498,completion_gap_open_v498,required_completion_action_v498,patch_allowed_v498
+manual_layout_surface_review,1,4,True,False,False,True,capture layout surface review outcomes,False
+caption_claim_safety_review,2,10,True,False,False,True,capture caption claim-safety review outcomes,False

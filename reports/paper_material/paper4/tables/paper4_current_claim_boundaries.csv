@@ -1731,3 +1731,9 @@ v497 preserves no-mutation execution controls.,True,reports/paper_material/paper
 v497 completes manual reviews or finalizes captions.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,Reviews remain pending.,True,living_notebook_only
 v497 makes Paper 4 ready for Quarto patching or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
 v497 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v497_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v498 audits Paper 4 review gate completion gaps.,True,reports/paper_material/paper4/tables/paper4_v498_review_gate_completion_gap_audit.csv,Completion gap audit only.,False,living_notebook_only
+v498 maps layout and caption review completion gaps.,True,reports/paper_material/paper4/tables/paper4_v498_layout_completion_gap_matrix.csv,Completion gap mapping only.,False,living_notebook_only
+v498 identifies open completion blockers before patching.,True,reports/paper_material/paper4/tables/paper4_v498_completion_blocker_summary.csv,Open blocker summary only.,False,living_notebook_only
+v498 completes manual reviews or finalizes captions.,False,reports/paper_material/paper4/tables/paper4_v498_manuscript_readiness_delta.csv,Completion gaps remain open.,True,living_notebook_only
+v498 makes Paper 4 ready for Quarto patching or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v498_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
+v498 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v498_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

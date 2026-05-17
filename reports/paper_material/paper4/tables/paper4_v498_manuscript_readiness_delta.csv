@@ -1,0 +1,9 @@
+readiness_gate_v498,ready_v498,evidence_artifact_v498,claim_boundary_v498
+review_gate_completion_gap_audit_created,True,paper4_v498_review_gate_completion_gap_audit.csv,completion gap audit only
+layout_completion_gap_matrix_created,True,paper4_v498_layout_completion_gap_matrix.csv,layout completion gaps only
+caption_completion_gap_matrix_created,True,paper4_v498_caption_completion_gap_matrix.csv,caption completion gaps only
+completion_blocker_summary_created,True,paper4_v498_completion_blocker_summary.csv,blocker summary only
+ready_for_quarto_patch,False,review completion gaps remain,patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v498
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
