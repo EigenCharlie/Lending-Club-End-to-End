@@ -52468,6 +52468,112 @@ def test_paper4_v458_post_assembly_render_decision_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v459_target_venue_structure_packet_is_guarded() -> None:
+    status = _read_json("paper4_v459_status.json")
+
+    assert status["phase"] == "v459_target_venue_structure_packet"
+    assert status["schema_version"] == "2026-05-17.459"
+    assert status["prior_render_decision_version_v459"] == 458
+    assert status["candidate_structure_count_v459"] == 3
+    assert status["mapped_section_count_v459"] == 9
+    assert status["ready_section_count_v459"] == 7
+    assert status["missing_section_count_v459"] == 2
+    assert status["blocking_gap_count_v459"] == 5
+    assert status["target_venue_structure_packet_created_v459"] is True
+    assert status["target_venue_selected_v459"] is False
+    assert status["target_venue_compliance_complete_v459"] is False
+    assert status["related_work_audit_complete_v459"] is False
+    assert status["external_validation_complete_v459"] is False
+    assert status["working_champion_claim_allowed_v459"] is False
+    assert status["paper1_promotion_allowed_v459"] is False
+    assert status["paper4_working_champion_changed_v459"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v459"] == "paper4_v460_related_work_citation_gap_audit.md"
+
+    families = _read_csv("paper4_v459_candidate_structure_families.csv")
+    assert len(families) == 3
+    assert not families["selected_v459"].astype(bool).any()
+    assert {
+        "reproducibility_artifact_paper",
+        "credit_risk_decision_science_paper",
+        "ml_systems_methods_paper",
+    } == set(families["structure_family_v459"])
+
+    section_map = _read_csv("paper4_v459_target_venue_structure_map.csv")
+    assert len(section_map) == 9
+    ready_map = dict(
+        zip(section_map["section_id_v459"], section_map["section_ready_v459"], strict=False)
+    )
+    assert bool(ready_map["abstract"]) is True
+    assert bool(ready_map["introduction_scope"]) is True
+    assert bool(ready_map["methods_protocol"]) is True
+    assert bool(ready_map["results_evidence"]) is True
+    assert bool(ready_map["discussion_limitations"]) is True
+    assert bool(ready_map["reproducibility_artifacts"]) is True
+    assert bool(ready_map["conclusion"]) is True
+    assert bool(ready_map["related_work_positioning"]) is False
+    assert bool(ready_map["references"]) is False
+
+    gaps = _read_csv("paper4_v459_section_gap_register.csv")
+    gap_map = dict(zip(gaps["gap_id_v459"], gaps["blocking_v459"], strict=False))
+    assert bool(gap_map["related_work_not_audited"]) is True
+    assert bool(gap_map["verified_citation_log_missing"]) is True
+    assert bool(gap_map["target_venue_not_selected"]) is True
+    assert bool(gap_map["external_dataset_validation_not_run"]) is True
+    assert bool(gap_map["conditional_quarto_render_if_promoted"]) is True
+
+    blockers = _read_csv("paper4_v459_remaining_blockers.csv")
+    assert set(blockers["blocker_id_v459"]) == set(gaps["gap_id_v459"])
+    assert blockers["blocking_v459"].astype(bool).all()
+
+    claim_delta = _read_csv("paper4_v459_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v459_target_venue_structure_packet_created"]) is True
+    assert bool(claim_map["v459_section_readiness_map_created"]) is True
+    assert bool(claim_map["v459_related_work_gap_identified"]) is True
+    assert bool(claim_map["v459_target_venue_selected_or_compliant"]) is False
+    assert bool(claim_map["v459_submission_ready_or_externally_validated"]) is False
+    assert bool(claim_map["v459_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v459 maps Paper 4 into a venue-agnostic target structure."])
+    assert bool(boundary_map["v459 identifies related-work and citation gaps."])
+    assert bool(boundary_map["v459 selects a target venue or proves venue compliance."]) is False
+    assert (
+        bool(boundary_map["v459 makes Paper 4 submitted, externally validated, or final."])
+        is False
+    )
+    assert bool(boundary_map["v459 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v459_rows = backlog.loc[backlog["last_wave"].eq("v459")]
+    assert len(v459_rows) == 1
+    backlog_row = v459_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v460_related_work_citation_gap_audit.md"
+    assert backlog_row["execution_result"] == "target_structure_created_without_venue_selection"
+
+    packet_md = (
+        PAPER4_ROOT / "notes" / "paper4_v459_target_venue_structure_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Target-Venue Structure Packet v459" in packet_md
+    assert "does not select a venue" in packet_md
+    assert "Related Work and Positioning" in packet_md
+    assert "related-work and citation gap audit" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v459: Target-Venue Structure Packet" in living_notebook
+    assert "Candidate structure families:\n  `3`." in living_notebook
+    assert "Mapped sections:\n  `9`." in living_notebook
+    assert "Ready sections:\n  `7`." in living_notebook
+    assert "Missing sections:\n  `2`." in living_notebook
+    assert "Target venue selected:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
