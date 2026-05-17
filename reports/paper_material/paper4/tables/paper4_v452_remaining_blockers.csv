@@ -1,0 +1,4 @@
+blocker_id_v452,blocking_v452,evidence_count_v452,required_next_artifact_v452,claim_boundary_v452
+section_drafts_not_written,True,7,paper4_v453_methods_results_draft.md,scaffold is not prose draft
+external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

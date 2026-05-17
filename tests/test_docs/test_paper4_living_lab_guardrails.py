@@ -51722,6 +51722,116 @@ def test_paper4_v451_release_readiness_synthesis_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v452_manuscript_extraction_scaffold_is_guarded() -> None:
+    status = _read_json("paper4_v452_status.json")
+
+    assert status["phase"] == "v452_manuscript_extraction_scaffold"
+    assert status["schema_version"] == "2026-05-17.452"
+    assert status["prior_readiness_synthesis_version_v452"] == 451
+    assert status["section_count_v452"] == 7
+    assert status["figure_table_shortlist_count_v452"] == 5
+    assert status["claim_language_row_count_v452"] == 5
+    assert status["allowed_language_row_count_v452"] == 3
+    assert status["prohibited_language_row_count_v452"] == 2
+    assert status["manuscript_extraction_scaffold_created_v452"] is True
+    assert status["section_map_created_v452"] is True
+    assert status["figure_table_shortlist_created_v452"] is True
+    assert status["claim_language_scaffold_created_v452"] is True
+    assert status["methods_results_draft_complete_v452"] is False
+    assert status["manuscript_extraction_complete_v452"] is False
+    assert status["external_validation_complete_v452"] is False
+    assert status["working_champion_claim_allowed_v452"] is False
+    assert status["paper1_promotion_allowed_v452"] is False
+    assert status["paper4_working_champion_changed_v452"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v452"] == "paper4_v453_methods_results_draft.md"
+
+    sections = _read_csv("paper4_v452_manuscript_section_scaffold.csv")
+    assert len(sections) == 7
+    assert sections["draft_allowed_v452"].astype(bool).all()
+    assert {
+        "abstract",
+        "introduction",
+        "methods",
+        "results",
+        "quarto_reproducibility",
+        "limitations",
+        "conclusion",
+    } == set(sections["section_id_v452"])
+
+    shortlist = _read_csv("paper4_v452_figure_table_shortlist.csv")
+    assert len(shortlist) == 5
+    assert set(shortlist["item_type_v452"]) == {"table", "figure"}
+    assert shortlist["include_priority_v452"].astype(int).min() == 1
+    assert shortlist["include_priority_v452"].astype(int).max() == 5
+
+    language = _read_csv("paper4_v452_claim_language_scaffold.csv")
+    assert len(language) == 5
+    language_map = dict(zip(language["language_id_v452"], language["allowed_v452"], strict=False))
+    assert bool(language_map["abstract_gate_sentence"]) is True
+    assert bool(language_map["results_gate_sentence"]) is True
+    assert bool(language_map["quarto_sentence"]) is True
+    assert bool(language_map["final_paper_sentence"]) is False
+    assert bool(language_map["champion_replacement_sentence"]) is False
+
+    blockers = _read_csv("paper4_v452_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v452"], blockers["blocking_v452"], strict=False))
+    assert bool(blocker_map["section_drafts_not_written"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v452_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v452_manuscript_extraction_scaffold_created"]) is True
+    assert bool(claim_map["v452_section_map_created"]) is True
+    assert bool(claim_map["v452_claim_language_scaffold_created"]) is True
+    assert bool(claim_map["v452_methods_results_draft_complete"]) is False
+    assert bool(claim_map["v452_release_ready_or_final_promotion"]) is False
+    assert bool(claim_map["v452_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v452 creates a manuscript extraction scaffold for Paper 4."])
+    assert bool(boundary_map["v452 maps manuscript sections to validated artifacts."])
+    assert (
+        bool(boundary_map["v452 completes Methods/Results prose or final manuscript extraction."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v452 makes Paper 4 final, submitted, or externally validated."])
+        is False
+    )
+    assert bool(boundary_map["v452 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v452_rows = backlog.loc[backlog["last_wave"].eq("v452")]
+    assert len(v452_rows) == 1
+    backlog_row = v452_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v453_methods_results_draft.md"
+    assert backlog_row["execution_result"] == "manuscript_scaffold_created_without_finalization"
+
+    scaffold_md = (
+        PAPER4_ROOT / "notes" / "paper4_v452_manuscript_extraction_scaffold.md"
+    ).read_text(encoding="utf-8")
+    assert "v452 turns the bounded readiness synthesis into a manuscript extraction scaffold" in (
+        scaffold_md
+    )
+    assert "Sections mapped: `7`" in scaffold_md
+    assert "Claim-language rows: `5`" in scaffold_md
+    assert "Methods/Results draft complete: `False`" in scaffold_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v452: Manuscript Extraction Scaffold" in living_notebook
+    assert "Sections mapped:\n  `7`." in living_notebook
+    assert "Figure/table candidates:\n  `5`." in living_notebook
+    assert "Claim-language rows:\n  `5`." in living_notebook
+    assert "Methods/Results draft complete:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

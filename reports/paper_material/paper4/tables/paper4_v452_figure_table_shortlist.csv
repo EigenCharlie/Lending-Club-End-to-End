@@ -1,0 +1,6 @@
+item_id_v452,item_type_v452,source_artifact_v452,manuscript_section_v452,include_priority_v452,claim_boundary_v452
+tbl_validation_gates,table,paper4_v451_release_readiness_gate_summary.csv,results,1,validation gates only
+tbl_claim_boundaries,table,paper4_current_claim_boundaries.csv,methods,2,allowed/prohibited claims
+tbl_quarto_render,table,paper4_v449_full_book_render_probe_summary.csv,quarto_reproducibility,3,full-book render readiness
+tbl_language_bank,table,paper4_v451_publishable_language_bank.csv,limitations,4,publication language controls
+fig_regret_auditability_frontier,figure,paper4_fig9_regret_auditability_v2.png,results,5,historical Paper 4 figure; verify caption before use

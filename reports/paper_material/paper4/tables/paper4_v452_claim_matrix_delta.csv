@@ -1,0 +1,7 @@
+claim_id,allowed,artifact,boundary
+v452_manuscript_extraction_scaffold_created,True,paper4_v452_manuscript_extraction_scaffold.md,scaffold only
+v452_section_map_created,True,paper4_v452_manuscript_section_scaffold.csv,"section map, not prose draft"
+v452_claim_language_scaffold_created,True,paper4_v452_claim_language_scaffold.csv,language controls only
+v452_methods_results_draft_complete,False,paper4_v452_remaining_blockers.csv,draft deferred to v453
+v452_release_ready_or_final_promotion,False,paper4_v452_remaining_blockers.csv,scaffold is not final promotion
+v452_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

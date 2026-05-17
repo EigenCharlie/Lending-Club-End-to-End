@@ -19769,3 +19769,53 @@ Keep v451 in the living notebook. v452 should extract a manuscript scaffold
 without final promotion.
 
 <!-- V451_RELEASE_READINESS_SYNTHESIS_END -->
+
+<!-- V452_MANUSCRIPT_EXTRACTION_SCAFFOLD_START -->
+
+## Wave v452: Manuscript Extraction Scaffold
+
+Generated: 2026-05-17T14:47:36.091275+00:00
+
+### Objective
+
+v452 maps the bounded readiness package into a manuscript extraction scaffold:
+sections, source artifacts, figure/table candidates and controlled claim
+language.
+
+### Results
+
+- Sections mapped:
+  `7`.
+- Figure/table candidates:
+  `5`.
+- Claim-language rows:
+  `5`.
+- Manuscript scaffold created:
+  `True`.
+- Methods/Results draft complete:
+  `False`.
+- External validation complete:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v453_methods_results_draft.md`.
+
+### Interpretation
+
+The project now has a concrete extraction map for transforming validated
+living-lab evidence into manuscript prose. The next step is drafting Methods and
+Results while preserving the boundaries from v451.
+
+### Claim Impact
+
+- Allowed: manuscript extraction scaffold and section-to-artifact map.
+- Still prohibited: completed manuscript, external validation, champion
+  replacement and final-promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v452 in the living notebook. v453 should draft Methods/Results prose
+without final promotion.
+
+<!-- V452_MANUSCRIPT_EXTRACTION_SCAFFOLD_END -->
