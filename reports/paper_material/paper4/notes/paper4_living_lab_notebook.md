@@ -15665,3 +15665,49 @@ Keep v373 in the living notebook. v374 should draft the Paper 4 claim language
 from the evidence frontier.
 
 <!-- V373_CHUNK_002_OR_STOP_RULE_END -->
+
+<!-- V374_PAPER_CLAIM_LANGUAGE_DRAFT_START -->
+
+## Wave v374: Paper Claim Language Section Draft
+
+Generated: 2026-05-17T05:05:12.745836+00:00
+
+### Objective
+
+v373 stopped blind chunking as the next action. v374 turns the evidence frontier
+from v361-v373 into bounded manuscript language: results, limitations and
+claim boundaries that can be reused without promoting Paper 4.
+
+### Results
+
+- Draft section rows:
+  `5`.
+- Evidence citation rows:
+  `7`.
+- Prohibited language rows:
+  `6`.
+- Draft artifact:
+  `reports/paper_material/paper4/notes/paper4_v374_paper4_claim_language_section_draft.md`.
+- Next artifact:
+  `paper4_v375_live_gate_data_contract.csv`.
+- Final promotion created:
+  `False`.
+
+### Interpretation
+
+The paper-facing result is now text, not another solver claim. The language says
+Paper 4 is a reproducible living lab with bounded evidence and transparent
+blockers: source governance, global dual-bound gaps and live/proxy separation.
+
+### Claim Impact
+
+- Allowed: manuscript language for bounded evidence and limitations.
+- Still prohibited: global optimality, working champion, Paper Estrella
+  replacement, strict live deployment, contractual/legal claims and final
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v374 in the living notebook. v375 should define the live-gate data contract.
+
+<!-- V374_PAPER_CLAIM_LANGUAGE_DRAFT_END -->

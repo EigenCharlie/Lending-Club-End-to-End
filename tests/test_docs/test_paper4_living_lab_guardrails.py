@@ -40979,6 +40979,149 @@ def test_paper4_v373_chunk_002_or_stop_rule_stops_blind_chunking() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v374_claim_language_draft_blocks_prohibited_phrases() -> None:
+    status = _read_json("paper4_v374_status.json")
+
+    assert status["phase"] == "v374_paper4_claim_language_section_draft"
+    assert status["schema_version"] == "2026-05-17.374"
+    assert status["prior_scope_version_v374"] == 368
+    assert status["prior_gate_version_v374"] == 369
+    assert status["prior_stop_rule_version_v374"] == 373
+    assert status["draft_section_rows_v374"] == 5
+    assert status["evidence_citation_rows_v374"] == 7
+    assert status["prohibited_language_rows_v374"] == 6
+    assert status["claim_blocker_rows_v374"] == 3
+    assert status["claim_matrix_rows_v374"] == 4
+    assert status["bounded_living_lab_language_allowed_v374"] is True
+    assert status["global_optimality_language_allowed_v374"] is False
+    assert status["strict_live_deployment_language_allowed_v374"] is False
+    assert status["contractual_or_legal_language_allowed_v374"] is False
+    assert status["working_champion_claim_allowed_v374"] is False
+    assert status["paper1_promotion_allowed_v374"] is False
+    assert status["paper4_working_champion_changed_v374"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["draft_artifact_v374"] == (
+        "reports/paper_material/paper4/notes/"
+        "paper4_v374_paper4_claim_language_section_draft.md"
+    )
+    assert status["next_artifact_v374"] == "paper4_v375_live_gate_data_contract.csv"
+
+    sections = _read_csv("paper4_v374_claim_language_section_draft.csv")
+    assert sections["section_id_v374"].tolist() == [
+        "abstract_claim",
+        "results_solver_frontier",
+        "results_source_governance",
+        "limitations_global_live",
+        "discussion_next_steps",
+    ]
+    assert sections["allowed_v374"].astype(bool).all()
+    draft_text = "\n".join(sections["draft_text_v374"].astype(str))
+    for expected_text in [
+        "protected Paper Estrella economic champion",
+        "bounded no-entry",
+        "grade=A",
+        "zero source-exact",
+        "does not authorize",
+    ]:
+        assert expected_text in draft_text
+
+    citations = _read_csv("paper4_v374_evidence_citation_map.csv")
+    expected_evidence = {
+        "v361": 371100576,
+        "v363": 5738,
+        "v368": 4,
+        "v369": 10,
+        "v371": 0,
+        "v372": 0,
+        "v373": 0,
+    }
+    citation_keys = set(citations["citation_key_v374"])
+    assert citation_keys == set(expected_evidence)
+    evidence_map = {
+        row["citation_key_v374"]: int(row["evidence_count_v374"])
+        for _, row in citations.iterrows()
+    }
+    assert evidence_map == expected_evidence
+    section_citation_keys = {
+        key
+        for raw_keys in sections["citation_keys_v374"]
+        for key in str(raw_keys).split(";")
+        if key
+    }
+    assert section_citation_keys.issubset(citation_keys)
+
+    prohibited = _read_csv("paper4_v374_prohibited_language_register.csv")
+    assert prohibited["phrase_id_v374"].tolist() == [
+        "new_working_champion",
+        "paper_estrella_replacement",
+        "full_v55_global_optimality",
+        "strict_live_deployment",
+        "contractual_ifrs9_or_legal_fairness",
+        "final_paper4_promotion",
+    ]
+    assert not prohibited["allowed_v374"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v374_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v374"], blockers["blocking_v374"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v374"], blockers["evidence_count_v374"], strict=False)
+    )
+    assert bool(blocker_map["language_is_draft_not_promotion"]) is True
+    assert int(blocker_evidence["language_is_draft_not_promotion"]) == 5
+    assert bool(blocker_map["prohibited_language_register_active"]) is True
+    assert int(blocker_evidence["prohibited_language_register_active"]) == 6
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+    assert int(blocker_evidence["paper4_final_promotion_forbidden"]) == 1
+
+    claim_delta = _read_csv("paper4_v374_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v374_manuscript_language_draft_created"]) is True
+    assert bool(claim_map["v374_evidence_citation_map_created"]) is True
+    assert bool(claim_map["v374_global_live_or_contractual_claim"]) is False
+    assert bool(claim_map["v374_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v374 drafts bounded Paper 4 manuscript language from v361-v373 evidence."]
+    )
+    assert bool(
+        boundary_map["v374 provides citable results and limitations wording for the living lab."]
+    )
+    assert bool(
+        boundary_map[
+            "v374 authorizes global optimality, live deployment or contractual/legal claims."
+        ]
+    ) is False
+    assert bool(boundary_map["v374 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v374_rows = backlog.loc[backlog["last_wave"].eq("v374")]
+    assert len(v374_rows) == 1
+    backlog_row = v374_rows.iloc[0]
+    assert backlog_row["status"] == "bounded_manuscript_language_draft_created"
+    assert backlog_row["next_artifact"] == "paper4_v375_live_gate_data_contract.csv"
+    assert backlog_row["execution_result"] == "results_limitations_language_drafted_without_promotion"
+
+    draft = (
+        PAPER4_ROOT / "notes" / "paper4_v374_paper4_claim_language_section_draft.md"
+    ).read_text(encoding="utf-8")
+    assert "This language is living-lab manuscript text." in draft
+    assert "does not promote Paper 4" in draft
+    assert "paper4_v375_live_gate_data_contract.csv" in draft
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v374: Paper Claim Language Section Draft" in notebook
+    assert "Draft section rows:\n  `5`" in notebook
+    assert "Evidence citation rows:\n  `7`" in notebook
+    assert "Prohibited language rows:\n  `6`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
