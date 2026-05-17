@@ -42532,6 +42532,127 @@ def test_paper4_v384_formal_spo_dla_review_packet_keeps_formal_claims_blocked() 
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v385_validation_gap_triage_isolates_quarto_failure() -> None:
+    status = _read_json("paper4_v385_status.json")
+
+    assert status["phase"] == "v385_validation_gap_triage"
+    assert status["schema_version"] == "2026-05-17.385"
+    assert status["prior_formal_review_version_v385"] == 384
+    assert status["validation_triage_rows_v385"] == 4
+    assert status["validation_decision_rows_v385"] == 5
+    assert status["quarto_missing_page_rows_v385"] == 70
+    assert status["curated_missing_page_rows_v385"] == 0
+    assert status["claim_blocker_rows_v385"] == 4
+    assert status["claim_matrix_rows_v385"] == 6
+    assert status["known_quarto_registration_failure_isolated_v385"] is True
+    assert status["current_paper4_guardrail_chain_clean_v385"] is True
+    assert status["targeted_guardrail_selected_tests_v385"] == 7
+    assert status["full_regression_suite_clean_v385"] is False
+    assert status["quarto_registration_guardrail_clean_v385"] is False
+    assert status["quarto_registration_fix_applied_v385"] is False
+    assert status["curated_paper4_pages_missing_v385"] is False
+    assert status["working_champion_claim_allowed_v385"] is False
+    assert status["paper1_promotion_allowed_v385"] is False
+    assert status["paper4_working_champion_changed_v385"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v385"] == "paper4_v386_quarto_registration_gap_decision.md"
+
+    missing = _read_csv("paper4_v385_quarto_missing_pages_register.csv")
+    assert len(missing) == 70
+    assert not missing["is_curated_paper4_page_v385"].astype(bool).any()
+    assert missing["fix_applied_v385"].astype(bool).eq(False).all()
+    assert missing["gap_class_v385"].eq("historical_unregistered_quarto_page").all()
+    assert missing["missing_page_v385"].iloc[0] == (
+        "chapters/19-paper-mega-extension/19aa-v3-full-exact-and-ifrs9-realistic.qmd"
+    )
+    assert missing["missing_page_v385"].iloc[-1] == (
+        "chapters/19-paper-mega-extension/19z-next-wave-promotion-dashboard.qmd"
+    )
+
+    triage = _read_csv("paper4_v385_validation_gap_triage.csv")
+    assert len(triage) == 4
+    triage_map = {row["triage_id_v385"]: row for _, row in triage.iterrows()}
+    assert triage_map["paper4_focal_guardrail_chain_v378_v384"]["observed_status_v385"] == (
+        "pass"
+    )
+    assert int(triage_map["paper4_focal_guardrail_chain_v378_v384"]["evidence_count_v385"]) == 7
+    assert triage_map["quarto_chapter_registration_guardrail"]["observed_status_v385"] == "fail"
+    assert int(triage_map["quarto_chapter_registration_guardrail"]["evidence_count_v385"]) == 70
+    assert triage_map["full_regression_suite_status"]["observed_status_v385"] == (
+        "blocked_by_quarto_registration_gap"
+    )
+    assert triage_map["paper4_final_promotion_absence"]["observed_status_v385"] == "pass"
+
+    decisions = _read_csv("paper4_v385_validation_decision_matrix.csv")
+    assert len(decisions) == 5
+    decision_map = dict(zip(decisions["decision_id_v385"], decisions["allowed_v385"], strict=False))
+    assert bool(decision_map["current_wave_guardrails_usable"]) is True
+    assert bool(decision_map["full_regression_suite_clean"]) is False
+    assert bool(decision_map["curated_paper4_pages_missing"]) is True
+    assert bool(decision_map["quarto_registration_fix_applied"]) is False
+    assert bool(decision_map["paper4_final_promotion"]) is False
+
+    blockers = _read_csv("paper4_v385_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v385"], blockers["blocking_v385"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v385"], blockers["evidence_count_v385"], strict=False)
+    )
+    assert bool(blocker_map["full_regression_suite_not_clean"]) is True
+    assert int(blocker_evidence["full_regression_suite_not_clean"]) == 70
+    assert bool(blocker_map["quarto_registration_gap_open"]) is True
+    assert int(blocker_evidence["quarto_registration_gap_open"]) == 70
+    assert bool(blocker_map["v385_does_not_fix_quarto_registration"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v385_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v385_validation_gap_triage_created"]) is True
+    assert bool(claim_map["v385_current_paper4_guardrails_pass"]) is True
+    assert bool(claim_map["v385_known_quarto_registration_failure_isolated"]) is True
+    assert bool(claim_map["v385_full_regression_suite_clean"]) is False
+    assert bool(claim_map["v385_quarto_registration_fixed"]) is False
+    assert bool(claim_map["v385_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v385 isolates the known Quarto registration failure."])
+    assert bool(boundary_map["v385 confirms the current Paper 4 focal guardrail chain passes."])
+    assert bool(
+        boundary_map[
+            "v385 makes the full regression suite clean or fixes Quarto registration."
+        ]
+    ) is False
+    assert bool(boundary_map["v385 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v385_rows = backlog.loc[backlog["last_wave"].eq("v385")]
+    assert len(v385_rows) == 1
+    backlog_row = v385_rows.iloc[0]
+    assert backlog_row["status"] == "validation_gap_triage_created"
+    assert backlog_row["next_artifact"] == "paper4_v386_quarto_registration_gap_decision.md"
+    assert backlog_row["execution_result"] == (
+        "quarto_registration_gap_isolated_current_guardrails_pass"
+    )
+
+    triage_md = (
+        PAPER4_ROOT / "notes" / "paper4_v385_validation_gap_triage.md"
+    ).read_text(encoding="utf-8")
+    assert "70" in triage_md
+    assert "does not mutate `book/_quarto.yml`" in triage_md
+    assert "paper4_v386_quarto_registration_gap_decision.md" in triage_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v385: Validation Gap Triage" in notebook
+    assert "Missing Quarto page rows:\n  `70`" in notebook
+    assert "Current Paper 4 guardrail chain clean:\n  `True`" in notebook
+    assert "Full regression suite clean:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

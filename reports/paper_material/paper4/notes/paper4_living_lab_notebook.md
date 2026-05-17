@@ -16236,3 +16236,52 @@ Keep v384 in the living notebook. v385 should triage the known old full-suite
 Quarto registration failure separately from current guardrail health.
 
 <!-- V384_FORMAL_SPO_DLA_REVIEW_PACKET_END -->
+
+<!-- V385_VALIDATION_GAP_TRIAGE_START -->
+
+## Wave v385: Validation Gap Triage
+
+Generated: 2026-05-17T06:20:54.276095+00:00
+
+### Objective
+
+v385 triages the known old Quarto registration failure separately from current
+Paper 4 living-lab guardrails.
+
+### Results
+
+- Triage rows:
+  `4`.
+- Missing Quarto page rows:
+  `70`.
+- Missing curated Paper 4 pages:
+  `0`.
+- Current Paper 4 guardrail chain clean:
+  `True`.
+- Full regression suite clean:
+  `False`.
+- Quarto registration fix applied:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v386_quarto_registration_gap_decision.md`.
+
+### Interpretation
+
+The current Paper 4 waves are healthy under targeted guardrails. The full-suite
+claim remains blocked by a separate historical Quarto registration gap: 70
+standalone chapter files are absent from `book/_quarto.yml`.
+
+### Claim Impact
+
+- Allowed: validation-gap triage and targeted guardrail pass statement.
+- Still prohibited: full-regression-clean, Quarto-registration-fixed, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v385 in the living notebook. v386 should decide what to do with the
+historical standalone Quarto pages without promoting Paper 4.
+
+<!-- V385_VALIDATION_GAP_TRIAGE_END -->

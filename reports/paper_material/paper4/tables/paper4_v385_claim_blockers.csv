@@ -1,0 +1,5 @@
+blocker_id_v385,blocking_v385,evidence_count_v385,required_next_artifact_v385,claim_boundary_v385
+full_regression_suite_not_clean,True,70,paper4_v386_quarto_registration_gap_decision.md,full pytest clean claim blocked by Quarto registration
+quarto_registration_gap_open,True,70,paper4_v386_quarto_registration_gap_decision.md,70 historical standalone pages need decision
+v385_does_not_fix_quarto_registration,True,1,paper4_v386_quarto_registration_gap_decision.md,triage only; no _quarto.yml mutation
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

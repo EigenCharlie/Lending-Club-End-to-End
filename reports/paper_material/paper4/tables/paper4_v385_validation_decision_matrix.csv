@@ -1,0 +1,6 @@
+decision_id_v385,decision_v385,allowed_v385,evidence_count_v385,next_action_v385,claim_boundary_v385
+current_wave_guardrails_usable,usable,True,7,continue targeted Paper 4 waves,targeted guardrails only
+full_regression_suite_clean,blocked,False,70,paper4_v386_quarto_registration_gap_decision.md,Quarto registration gap remains open
+curated_paper4_pages_missing,not_detected,True,0,keep curated Paper 4 registration unchanged,curated set remains protected
+quarto_registration_fix_applied,not_applied,False,0,paper4_v386_quarto_registration_gap_decision.md,v385 triages only
+paper4_final_promotion,forbidden,False,0,paper4_final_promotion_gate_not_created,final promotion absent
