@@ -21426,3 +21426,56 @@ Keep v483 in the living notebook. v484 should harden captions without modifying
 book sources.
 
 <!-- V483_MANUAL_REVIEW_PACKET_END -->
+
+<!-- V484_CAPTION_HARDENING_DRY_RUN_START -->
+
+## Wave v484: Caption Hardening Dry Run
+
+Generated: 2026-05-17T17:45:41.848336+00:00
+
+### Objective
+
+v484 hardens the v476 draft captions while preserving caveats, without marking
+captions final or inserting them into Quarto.
+
+### Results
+
+- Hardened caption rows:
+  `10`.
+- Caveat audit rows:
+  `10`.
+- Caveats preserved rows:
+  `10`.
+- Caption review rows:
+  `10`.
+- Captions final:
+  `False`.
+- Captions inserted into Quarto:
+  `False`.
+- Book sources modified:
+  `False`.
+- Submission-ready claim allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v485_caption_consistency_audit.md`.
+
+### Interpretation
+
+The captions are now more manuscript-like, but still deliberately dry-run
+material. The next useful move is a consistency audit, not insertion.
+
+### Claim Impact
+
+- Allowed: hardened draft captions, caveat preservation audit and caption review
+  delta.
+- Still prohibited: final captions, Quarto insertion, book-reference mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v484 in the living notebook. v485 should audit hardened caption consistency
+without modifying book sources.
+
+<!-- V484_CAPTION_HARDENING_DRY_RUN_END -->

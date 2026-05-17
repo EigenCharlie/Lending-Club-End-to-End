@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v484_caption_hardening_dry_run_created,True,paper4_v484_hardened_caption_dry_run.csv,dry-run captions only
+v484_caveat_preservation_audit_created,True,paper4_v484_caption_caveat_preservation_audit.csv,caveat audit only
+v484_caption_review_delta_created,True,paper4_v484_caption_review_delta.csv,review delta only
+v484_captions_final_or_inserted,False,paper4_v484_manuscript_readiness_delta.csv,manual review and patch authorization missing
+v484_submission_ready_or_final_promotion,False,paper4_v484_manuscript_readiness_delta.csv,no submission or final promotion claim

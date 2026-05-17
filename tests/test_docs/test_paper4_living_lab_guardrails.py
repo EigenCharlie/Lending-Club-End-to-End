@@ -55169,6 +55169,113 @@ def test_paper4_v483_manual_review_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v484_caption_hardening_dry_run_is_guarded() -> None:
+    status = _read_json("paper4_v484_status.json")
+    assert status["phase"] == "v484_caption_hardening_dry_run"
+    assert status["schema_version"] == "2026-05-17.484"
+    assert status["prior_review_packet_version_v484"] == 483
+    assert status["caption_hardening_dry_run_created_v484"] is True
+    assert status["hardened_caption_rows_v484"] == 10
+    assert status["caveat_audit_rows_v484"] == 10
+    assert status["caveats_preserved_rows_v484"] == 10
+    assert status["caption_review_rows_v484"] == 10
+    assert status["readiness_delta_rows_v484"] == 7
+    assert status["captions_final_v484"] is False
+    assert status["captions_inserted_into_quarto_v484"] is False
+    assert status["book_sources_modified_v484"] is False
+    assert status["book_references_modified_v484"] is False
+    assert status["submission_ready_claim_allowed_v484"] is False
+    assert status["working_champion_claim_allowed_v484"] is False
+    assert status["paper1_promotion_allowed_v484"] is False
+    assert status["paper4_working_champion_changed_v484"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v484"] == "paper4_v485_caption_consistency_audit.md"
+
+    hardened = _read_csv("paper4_v484_hardened_caption_dry_run.csv")
+    assert len(hardened) == 10
+    assert set(hardened["asset_type_v484"]) == {"table", "figure"}
+    assert hardened["caption_hardened_v484"].astype(bool).all()
+    assert not hardened["caption_final_v484"].astype(bool).any()
+    assert not hardened["inserted_into_quarto_v484"].astype(bool).any()
+    assert hardened["manual_review_required_v484"].astype(bool).all()
+    assert hardened["hardened_caption_v484"].str.len().min() > 80
+    assert "T1" in set(hardened["asset_id_v484"])
+    assert "F4" in set(hardened["asset_id_v484"])
+
+    caveats = _read_csv("paper4_v484_caption_caveat_preservation_audit.csv")
+    assert len(caveats) == 10
+    assert caveats["required_terms_present_v484"].astype(bool).all()
+    assert caveats["caveat_preserved_v484"].astype(bool).all()
+    assert not caveats["caption_final_v484"].astype(bool).any()
+
+    review_delta = _read_csv("paper4_v484_caption_review_delta.csv")
+    assert len(review_delta) == 10
+    assert review_delta["ready_for_manual_review_v484"].astype(bool).all()
+    assert not review_delta["ready_for_quarto_insertion_v484"].astype(bool).any()
+    assert not review_delta["caption_final_v484"].astype(bool).any()
+    assert not review_delta["inserted_into_quarto_v484"].astype(bool).any()
+
+    readiness = _read_csv("paper4_v484_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v484"], readiness["ready_v484"], strict=False)
+    )
+    assert bool(readiness_map["caption_hardening_dry_run_created"]) is True
+    assert bool(readiness_map["caveat_preservation_audit_created"]) is True
+    assert bool(readiness_map["caption_review_delta_created"]) is True
+    assert bool(readiness_map["captions_final"]) is False
+    assert bool(readiness_map["captions_inserted_into_quarto"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v484_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v484_caption_hardening_dry_run_created"]) is True
+    assert bool(claim_map["v484_caveat_preservation_audit_created"]) is True
+    assert bool(claim_map["v484_caption_review_delta_created"]) is True
+    assert bool(claim_map["v484_captions_final_or_inserted"]) is False
+    assert bool(claim_map["v484_submission_ready_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v484 hardens Paper 4 captions as a dry-run."])
+    assert bool(boundary_map["v484 verifies caveats remain present in hardened captions."])
+    assert bool(boundary_map["v484 finalizes captions or inserts them into Quarto."]) is False
+    assert bool(boundary_map["v484 makes Paper 4 ready for submission."]) is False
+    assert bool(boundary_map["v484 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v484_rows = backlog.loc[backlog["last_wave"].eq("v484")]
+    assert len(v484_rows) == 1
+    backlog_row = v484_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v485_caption_consistency_audit.md"
+    assert (
+        backlog_row["execution_result"]
+        == "captions_hardened_without_finalization_or_insertion"
+    )
+
+    dry_run_md = (
+        PAPER4_ROOT / "notes" / "paper4_v484_caption_hardening_dry_run.md"
+    ).read_text(encoding="utf-8")
+    assert "Caption Hardening Dry Run v484" in dry_run_md
+    assert "not final and are not inserted into Quarto" in dry_run_md
+    assert "v484 is a caption hardening dry-run only" in dry_run_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v484: Caption Hardening Dry Run" in living_notebook
+    assert "Hardened caption rows:\n  `10`." in living_notebook
+    assert "Caveat audit rows:\n  `10`." in living_notebook
+    assert "Caveats preserved rows:\n  `10`." in living_notebook
+    assert "Caption review rows:\n  `10`." in living_notebook
+    assert "Captions final:\n  `False`." in living_notebook
+    assert "Captions inserted into Quarto:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Submission-ready claim allowed:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

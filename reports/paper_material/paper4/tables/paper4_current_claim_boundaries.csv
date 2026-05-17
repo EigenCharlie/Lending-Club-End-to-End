@@ -1651,3 +1651,8 @@ v483 recommends caption hardening as the next dry-run.,True,reports/paper_materi
 v483 authorizes or applies a Quarto patch.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,Patch remains blocked.,True,living_notebook_only
 v483 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
 v483 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v483_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v484 hardens Paper 4 captions as a dry-run.,True,reports/paper_material/paper4/tables/paper4_v484_hardened_caption_dry_run.csv,Dry-run captions only.,False,living_notebook_only
+v484 verifies caveats remain present in hardened captions.,True,reports/paper_material/paper4/tables/paper4_v484_caption_caveat_preservation_audit.csv,Caveat audit only.,False,living_notebook_only
+v484 finalizes captions or inserts them into Quarto.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,Captions remain non-final and uninserted.,True,living_notebook_only
+v484 makes Paper 4 ready for submission.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,"Approval, patch, render and venue gates remain open.",True,living_notebook_only
+v484 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v484_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

@@ -1,0 +1,11 @@
+asset_id_v484,review_action_v484,ready_for_manual_review_v484,ready_for_quarto_insertion_v484,caption_final_v484,inserted_into_quarto_v484,claim_boundary_v484
+T1,manual editor review of hardened caption,True,False,False,False,no full-v55 optimality or champion claim
+T2,manual editor review of hardened caption,True,False,False,False,no source cap approval or mutation
+T3,manual editor review of hardened caption,True,False,False,False,no live dynamic deployment language
+T4,manual editor review of hardened caption,True,False,False,False,no production monitoring claim
+T5,manual editor review of hardened caption,True,False,False,False,no formal theorem or CRC guarantee
+T6,manual editor review of hardened caption,True,False,False,False,no contractual accounting compliance claim
+F1,manual editor review of hardened caption,True,False,False,False,visual context only; v467 table carries current claim
+F2,manual editor review of hardened caption,True,False,False,False,no cap relaxation or legal fairness certification
+F3,manual editor review of hardened caption,True,False,False,False,no external holdout or production monitoring claim
+F4,manual editor review of hardened caption,True,False,False,False,no formal SPO-DLA theorem claim
