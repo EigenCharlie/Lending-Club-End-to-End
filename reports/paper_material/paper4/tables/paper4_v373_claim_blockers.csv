@@ -1,0 +1,4 @@
+blocker_id_v373,blocking_v373,evidence_count_v373,required_next_artifact_v373,claim_boundary_v373
+sampled_chunks_zero_source_exact,True,0,paper4_v374_paper4_claim_language_section_draft.md,sampled stop rule blocks blind chunk continuation
+remaining_chunks_unpriced,True,27,future_targeted_pricing_or_certificate,full-v55 proof remains open
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

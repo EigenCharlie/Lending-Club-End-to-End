@@ -40871,6 +40871,114 @@ def test_paper4_v372_grade_a_source_relief_prefilter_finds_no_return_candidate()
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v373_chunk_002_or_stop_rule_stops_blind_chunking() -> None:
+    status = _read_json("paper4_v373_status.json")
+
+    assert status["phase"] == "v373_full_v55_chunk_002_or_stop_rule"
+    assert status["schema_version"] == "2026-05-17.373"
+    assert status["prior_prefilter_version_v373"] == 372
+    assert status["prior_chunk_version_v373"] == 366
+    assert status["sampled_chunk_ids_v373"] == "1,2,3,4,5,10,20,28"
+    assert status["sampled_chunk_count_v373"] == 8
+    assert status["chunk_002_budget_return_rows_v373"] == 24997
+    assert status["chunk_002_grade_feasible_rows_v373"] == 0
+    assert status["chunk_002_source_exact_rows_v373"] == 0
+    assert status["sampled_chunks_with_source_exact_rows_v373"] == 0
+    assert status["sampled_total_budget_return_rows_v373"] == 207476
+    assert status["sampled_total_source_exact_rows_v373"] == 0
+    assert status["sampled_total_grade_a_relief_budget_return_rows_v373"] == 0
+    assert status["recommended_decision_v373"] == "stop_blind_chunking_after_sampled_source_blocker"
+    assert status["stop_rule_rows_v373"] == 3
+    assert status["claim_blocker_rows_v373"] == 3
+    assert status["claim_matrix_rows_v373"] == 4
+    assert status["valid_full_v55_dual_bound_certificate_v373"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v373"] is False
+    assert status["working_champion_claim_allowed_v373"] is False
+    assert status["paper1_promotion_allowed_v373"] is False
+    assert status["paper4_working_champion_changed_v373"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v373"] == "paper4_v374_paper4_claim_language_section_draft.md"
+
+    decision = _read_csv("paper4_v373_full_v55_chunk_002_or_stop_rule.csv")
+    row = decision.iloc[0]
+    assert row["decision_id_v373"] == "v373_full_v55_chunk_002_or_stop_rule"
+    assert row["sampled_chunk_ids_v373"] == "1,2,3,4,5,10,20,28"
+    assert int(row["chunk_002_source_exact_rows_v373"]) == 0
+    assert int(row["sampled_total_budget_return_rows_v373"]) == 207476
+    assert int(row["sampled_total_source_exact_rows_v373"]) == 0
+    assert int(row["sampled_total_grade_a_relief_budget_return_rows_v373"]) == 0
+    assert row["recommended_decision_v373"] == "stop_blind_chunking_after_sampled_source_blocker"
+    assert bool(row["valid_full_v55_dual_bound_certificate_v373"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    sampled = _read_csv("paper4_v373_sampled_chunk_source_screen.csv")
+    assert sampled["chunk_id_v373"].astype(int).tolist() == [1, 2, 3, 4, 5, 10, 20, 28]
+    assert int(sampled["budget_return_feasible_rows_v373"].sum()) == 207476
+    assert int(sampled["source_exact_rows_v373"].sum()) == 0
+    assert int(sampled["grade_a_relief_budget_return_rows_v373"].sum()) == 0
+    assert int(sampled.loc[sampled["chunk_id_v373"].eq(2), "budget_return_feasible_rows_v373"].iloc[0]) == 24997
+    assert int(sampled.loc[sampled["chunk_id_v373"].eq(2), "grade_source_feasible_rows_v373"].iloc[0]) == 0
+    assert int(sampled.loc[sampled["chunk_id_v373"].eq(2), "source_exact_rows_v373"].iloc[0]) == 0
+    assert not sampled["source_exact_rows_v373"].astype(int).gt(0).any()
+
+    stop_rule = _read_csv("paper4_v373_stop_rule_register.csv")
+    stop_map = dict(zip(stop_rule["rule_id_v373"], stop_rule["recommended_v373"], strict=False))
+    evidence_map = dict(zip(stop_rule["rule_id_v373"], stop_rule["evidence_count_v373"], strict=False))
+    assert bool(stop_map["stop_blind_chunking_after_sampled_source_blocker"]) is True
+    assert int(evidence_map["stop_blind_chunking_after_sampled_source_blocker"]) == 0
+    assert bool(stop_map["run_full_chunk_002_cvar"]) is False
+    assert int(evidence_map["run_full_chunk_002_cvar"]) == 0
+    assert bool(stop_map["continue_blind_chunking"]) is False
+    assert int(evidence_map["continue_blind_chunking"]) == 8
+
+    blockers = _read_csv("paper4_v373_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v373"], blockers["blocking_v373"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v373"], blockers["evidence_count_v373"], strict=False)
+    )
+    assert bool(blocker_map["sampled_chunks_zero_source_exact"]) is True
+    assert int(blocker_evidence["sampled_chunks_zero_source_exact"]) == 0
+    assert bool(blocker_map["remaining_chunks_unpriced"]) is True
+    assert int(blocker_evidence["remaining_chunks_unpriced"]) == 27
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v373_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v373_sampled_chunk_source_screen_created"]) is True
+    assert bool(claim_map["v373_blind_chunking_stop_rule_selected"]) is True
+    assert bool(claim_map["v373_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v373_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v373 samples full-v55 chunks to decide blind chunking versus stop rule."]
+    )
+    assert bool(
+        boundary_map["v373 recommends stopping blind chunking before more CVaR-heavy probes."]
+    )
+    assert bool(boundary_map["v373 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v373 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v373_rows = backlog.loc[backlog["last_wave"].eq("v373")]
+    assert len(v373_rows) == 1
+    backlog_row = v373_rows.iloc[0]
+    assert backlog_row["status"] == "blind_chunking_stop_rule_selected"
+    assert backlog_row["next_artifact"] == "paper4_v374_paper4_claim_language_section_draft.md"
+    assert backlog_row["execution_result"] == "sampled_chunks_zero_source_exact_stop_blind_chunking"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v373: Chunk 002 or Stop Rule" in notebook
+    assert "Chunk 002 source-exact rows:\n  `0`" in notebook
+    assert "Sampled total source-exact rows:\n  `0`" in notebook
+    assert "Recommended decision:\n  `stop_blind_chunking_after_sampled_source_blocker`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

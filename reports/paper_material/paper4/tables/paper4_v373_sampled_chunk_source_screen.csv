@@ -1,0 +1,9 @@
+chunk_id_v373,chunk_rows_v373,chunk_grade_a_add_rows_v373,ordered_one_swap_rows_v373,return_improving_rows_v373,budget_return_feasible_rows_v373,grade_source_feasible_rows_v373,score_decile_source_feasible_rows_v373,source_exact_rows_v373,grade_a_relief_return_improving_rows_v373,grade_a_relief_budget_return_rows_v373,grade_a_pressure_budget_return_rows_v373,claim_boundary_v373
+1,10000,2383,1710000,48320,25223,0,6023,0,0,0,24095,sampled chunk source-screen only; no CVaR pricing or termination proof
+2,10000,2447,1710000,51010,24997,0,5966,0,0,0,23797,sampled chunk source-screen only; no CVaR pricing or termination proof
+3,10000,2350,1710000,48332,24489,1,5993,0,0,0,22689,sampled chunk source-screen only; no CVaR pricing or termination proof
+4,10000,2389,1710000,55996,25334,1,6784,0,0,0,23705,sampled chunk source-screen only; no CVaR pricing or termination proof
+5,10000,2405,1710000,60471,27300,11,7402,0,0,0,25488,sampled chunk source-screen only; no CVaR pricing or termination proof
+10,10000,2229,1710000,44819,22398,1,5806,0,0,0,21087,sampled chunk source-screen only; no CVaR pricing or termination proof
+20,10000,2828,1710000,59291,28664,2,10867,0,0,0,25954,sampled chunk source-screen only; no CVaR pricing or termination proof
+28,6698,2149,1145358,51633,29071,2,13047,0,0,0,26175,sampled chunk source-screen only; no CVaR pricing or termination proof

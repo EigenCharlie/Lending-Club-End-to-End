@@ -15614,3 +15614,54 @@ Keep v372 in the living notebook. v373 should decide between chunk 002,
 targeted chunk sampling, or a documented stop rule.
 
 <!-- V372_GRADE_A_SOURCE_RELIEF_PREFILTER_END -->
+
+<!-- V373_CHUNK_002_OR_STOP_RULE_START -->
+
+## Wave v373: Chunk 002 or Stop Rule
+
+Generated: 2026-05-17T04:57:58.287059+00:00
+
+### Objective
+
+v372 showed that grade-A relief in chunk 0001 is return-negative. v373 asks
+whether to spend more compute on blind full-v55 chunks or stop blind chunking
+and move to manuscript/gated claim language.
+
+### Results
+
+- Sampled chunks:
+  `8`.
+- Chunk 002 source-exact rows:
+  `0`.
+- Sampled chunks with source-exact rows:
+  `0`.
+- Sampled total budget+return rows:
+  `207476`.
+- Sampled total source-exact rows:
+  `0`.
+- Sampled total grade-A relief budget+return rows:
+  `0`.
+- Recommended decision:
+  `stop_blind_chunking_after_sampled_source_blocker`.
+- Next artifact:
+  `paper4_v374_paper4_claim_language_section_draft.md`.
+
+### Interpretation
+
+Chunk 002 does not break the pattern: it has zero source-exact rows. The sampled
+chunks also produce zero source-exact rows in aggregate. That is enough to stop
+blind chunk continuation as the next action and move the result into paper
+language with clear limitations.
+
+### Claim Impact
+
+- Allowed: sampled stop-rule decision.
+- Still prohibited: full-v55 termination, valid global integer optimality,
+  working champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v373 in the living notebook. v374 should draft the Paper 4 claim language
+from the evidence frontier.
+
+<!-- V373_CHUNK_002_OR_STOP_RULE_END -->
