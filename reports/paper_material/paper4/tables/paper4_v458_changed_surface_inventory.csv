@@ -1,0 +1,7 @@
+surface_id_v458,changed_since_v455_v458,quarto_source_v458,render_required_now_v458,example_path_v458,claim_boundary_v458
+paper4_notes,True,False,False,reports/paper_material/paper4/notes,living-lab notes are not official Quarto chapter source
+paper4_tables_status,True,False,False,reports/paper_material/paper4/tables,evidence tables and status files only
+paper_builder_scripts,True,False,False,scripts/papers,artifact builders are not rendered pages
+guardrail_tests,True,False,False,tests/test_docs/test_paper4_living_lab_guardrails.py,test updates are not rendered pages
+paper4_quarto_chapter_source,False,True,False,book/chapters/19-paper-mega-extension,no official Paper 4 Quarto source change in v456-v457
+full_book_registry,False,True,False,book/_quarto.yml,book registration unchanged

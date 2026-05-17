@@ -52356,6 +52356,118 @@ def test_paper4_v457_post_assembly_pytest_probe_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v458_post_assembly_render_decision_is_guarded() -> None:
+    status = _read_json("paper4_v458_status.json")
+
+    assert status["phase"] == "v458_post_assembly_render_decision"
+    assert status["schema_version"] == "2026-05-17.458"
+    assert status["prior_post_assembly_pytest_version_v458"] == 457
+    assert status["changed_surface_count_v458"] == 4
+    assert status["quarto_source_change_count_v458"] == 0
+    assert status["render_required_now_v458"] is False
+    assert status["full_book_render_required_now_v458"] is False
+    assert status["post_assembly_pytest_clean_from_v457"] is True
+    assert status["render_decision_recorded_v458"] is True
+    assert status["target_venue_structure_created_v458"] is False
+    assert status["external_validation_complete_v458"] is False
+    assert status["working_champion_claim_allowed_v458"] is False
+    assert status["paper1_promotion_allowed_v458"] is False
+    assert status["paper4_working_champion_changed_v458"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v458"] == "paper4_v459_target_venue_structure_packet.md"
+
+    surfaces = _read_csv("paper4_v458_changed_surface_inventory.csv")
+    assert len(surfaces) == 6
+    changed_surfaces = set(
+        surfaces.loc[
+            surfaces["changed_since_v455_v458"].astype(bool),
+            "surface_id_v458",
+        ]
+    )
+    assert changed_surfaces == {
+        "paper4_notes",
+        "paper4_tables_status",
+        "paper_builder_scripts",
+        "guardrail_tests",
+    }
+    quarto_changed = surfaces.loc[
+        surfaces["changed_since_v455_v458"].astype(bool)
+        & surfaces["quarto_source_v458"].astype(bool)
+    ]
+    assert quarto_changed.empty
+
+    decision = _read_csv("paper4_v458_render_decision_matrix.csv")
+    decision_observed = dict(
+        zip(decision["decision_gate_v458"], decision["observed_v458"], strict=False)
+    )
+    decision_render = dict(
+        zip(
+            decision["decision_gate_v458"],
+            decision["render_required_now_v458"],
+            strict=False,
+        )
+    )
+    assert bool(decision_observed["official_paper4_quarto_source_changed"]) is False
+    assert bool(decision_observed["full_book_registry_changed"]) is False
+    assert bool(decision_observed["assembly_artifacts_created"]) is True
+    assert bool(decision_observed["post_assembly_pytest_clean"]) is True
+    assert bool(decision_observed["final_promotion_absent"]) is True
+    assert not any(bool(value) for value in decision_render.values())
+
+    blockers = _read_csv("paper4_v458_remaining_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v458"], blockers["blocking_v458"], strict=False))
+    assert bool(blocker_map["target_venue_not_selected"]) is True
+    assert bool(blocker_map["conditional_quarto_render_if_promoted"]) is True
+    assert bool(blocker_map["external_dataset_validation_not_run"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v458_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v458_post_assembly_render_decision_recorded"]) is True
+    assert bool(claim_map["v458_no_current_quarto_source_change_detected"]) is True
+    assert bool(claim_map["v458_render_never_needed"]) is False
+    assert bool(claim_map["v458_target_venue_or_submission_ready"]) is False
+    assert bool(claim_map["v458_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v458 records a post-assembly Quarto render decision."])
+    assert bool(
+        boundary_map["v458 finds no current Paper 4 Quarto source change from v456-v457."]
+    )
+    assert bool(boundary_map["v458 proves future Quarto renders are never needed."]) is False
+    assert (
+        bool(boundary_map["v458 makes Paper 4 target-venue ready, submitted, or external."])
+        is False
+    )
+    assert bool(boundary_map["v458 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v458_rows = backlog.loc[backlog["last_wave"].eq("v458")]
+    assert len(v458_rows) == 1
+    backlog_row = v458_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v459_target_venue_structure_packet.md"
+    assert backlog_row["execution_result"] == "render_decision_recorded_without_quarto_rerun"
+
+    decision_md = (
+        PAPER4_ROOT / "notes" / "paper4_v458_post_assembly_render_decision.md"
+    ).read_text(encoding="utf-8")
+    assert "Do not rerun Quarto immediately in v458." in decision_md
+    assert "did not modify the official Paper 4" in decision_md
+    assert "a full-book render become executable validation work again" in decision_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v458: Post-Assembly Render Decision" in living_notebook
+    assert "Changed surfaces recorded:\n  `4`." in living_notebook
+    assert "Quarto source changes detected:\n  `0`." in living_notebook
+    assert "Render required now:\n  `False`." in living_notebook
+    assert "v457 post-assembly pytest clean:\n  `True`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

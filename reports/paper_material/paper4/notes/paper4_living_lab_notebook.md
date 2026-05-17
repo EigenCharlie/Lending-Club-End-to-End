@@ -20074,3 +20074,52 @@ Keep v457 in the living notebook. v458 should decide whether a Quarto render
 refresh is needed after the assembly-only notes.
 
 <!-- V457_POST_ASSEMBLY_PYTEST_PROBE_END -->
+
+<!-- V458_POST_ASSEMBLY_RENDER_DECISION_START -->
+
+## Wave v458: Post-Assembly Render Decision
+
+Generated: 2026-05-17T15:22:37.634288+00:00
+
+### Objective
+
+v458 decides whether v456-v457 require an immediate Quarto render refresh.
+
+### Results
+
+- Changed surfaces recorded:
+  `4`.
+- Quarto source changes detected:
+  `0`.
+- Render required now:
+  `False`.
+- Full-book render required now:
+  `False`.
+- v457 post-assembly pytest clean:
+  `True`.
+- Render decision recorded:
+  `True`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v459_target_venue_structure_packet.md`.
+
+### Interpretation
+
+Because v456-v457 touched reports-side evidence, scripts and tests rather than
+official Quarto book sources, v458 records that no immediate render rerun is
+required. A render becomes required again if future content enters `book/`.
+
+### Claim Impact
+
+- Allowed: post-assembly render decision and current no-book-source-change
+  statement.
+- Still prohibited: claiming renders are never needed, target-venue readiness,
+  external validation, champion replacement or final promotion.
+
+### Quarto Promotion Decision
+
+Keep v458 in the living notebook. v459 should map the assembled packet to a
+target-venue structure without submission language.
+
+<!-- V458_POST_ASSEMBLY_RENDER_DECISION_END -->
