@@ -22261,3 +22261,67 @@ Keep v498 in the living notebook. v499 should create a review-outcome capture
 template without modifying book sources.
 
 <!-- V498_REVIEW_GATE_COMPLETION_GAP_AUDIT_END -->
+
+<!-- V499_REVIEW_OUTCOME_CAPTURE_TEMPLATE_START -->
+
+## Wave v499: Review Outcome Capture Template
+
+Generated: 2026-05-17T19:19:46.766564+00:00
+
+### Objective
+
+v499 turns the v498 open completion gaps into a structured template for future
+review outcomes while preserving the no-outcome, no-caption-final and no-patch
+state.
+
+### Results
+
+- Outcome template rows:
+  `14`.
+- Layout outcome template rows:
+  `4`.
+- Caption outcome template rows:
+  `10`.
+- Outcome captured rows:
+  `0`.
+- Review completed rows:
+  `0`.
+- Accepted for patch rows:
+  `0`.
+- Accepted for final caption rows:
+  `0`.
+- Required field rows:
+  `8`.
+- Captured required field rows:
+  `0`.
+- Active capture control rows:
+  `6`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v500_review_outcome_template_consistency_audit.md`.
+
+### Interpretation
+
+Paper 4 now has review packets, a completion-gap audit and a review-outcome
+capture template. The next useful step is to audit template consistency before
+any human outcome capture or Quarto patching.
+
+### Claim Impact
+
+- Allowed: capture-template creation, required field declaration and active
+  no-outcome/no-patch controls.
+- Still prohibited: completed review/signoff claims, final captions, Quarto
+  patch readiness/application, Quarto/book-reference mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v499 in the living notebook. v500 should audit template consistency before
+capturing outcomes or modifying book sources.
+
+<!-- V499_REVIEW_OUTCOME_CAPTURE_TEMPLATE_END -->

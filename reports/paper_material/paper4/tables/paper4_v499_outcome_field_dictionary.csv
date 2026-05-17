@@ -1,0 +1,9 @@
+capture_field_v499,required_capture_field_v499,field_captured_v499,allowed_values_v499,claim_boundary_v499
+reviewer_id,True,False,stable reviewer identifier,template field only
+review_timestamp_utc,True,False,ISO-8601 UTC timestamp,template field only
+outcome_decision,True,False,accept|revise|reject|defer,template field only
+revision_required,True,False,true|false,template field only
+claim_boundary_ok,True,False,true|false,template field only
+caption_final_allowed,True,False,true|false,template field only
+patch_scope_ok,True,False,true|false,template field only
+reviewer_notes,True,False,free text with evidence references,template field only

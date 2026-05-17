@@ -57057,6 +57057,181 @@ def test_paper4_v498_review_gate_completion_gap_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v499_review_outcome_capture_template_is_guarded() -> None:
+    status = _read_json("paper4_v499_status.json")
+    assert status["phase"] == "v499_review_outcome_capture_template"
+    assert status["schema_version"] == "2026-05-17.499"
+    assert status["prior_completion_gap_version_v499"] == 498
+    assert status["review_outcome_capture_template_created_v499"] is True
+    assert status["outcome_template_rows_v499"] == 14
+    assert status["layout_outcome_template_rows_v499"] == 4
+    assert status["caption_outcome_template_rows_v499"] == 10
+    assert status["outcome_captured_rows_v499"] == 0
+    assert status["review_completed_rows_v499"] == 0
+    assert status["accepted_for_patch_rows_v499"] == 0
+    assert status["accepted_for_final_caption_rows_v499"] == 0
+    assert status["field_dictionary_rows_v499"] == 8
+    assert status["required_field_rows_v499"] == 8
+    assert status["captured_required_field_rows_v499"] == 0
+    assert status["capture_control_rows_v499"] == 6
+    assert status["active_capture_control_rows_v499"] == 6
+    assert status["template_readiness_rows_v499"] == 5
+    assert status["readiness_delta_rows_v499"] == 8
+    assert status["ready_for_quarto_patch_v499"] is False
+    assert status["quarto_patch_applied_v499"] is False
+    assert status["book_sources_modified_v499"] is False
+    assert status["book_references_modified_v499"] is False
+    assert status["submission_ready_claim_allowed_v499"] is False
+    assert status["working_champion_claim_allowed_v499"] is False
+    assert status["paper1_promotion_allowed_v499"] is False
+    assert status["paper4_working_champion_changed_v499"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v499"]
+        == "paper4_v500_review_outcome_template_consistency_audit.md"
+    )
+
+    template = _read_csv("paper4_v499_review_outcome_capture_template.csv")
+    assert len(template) == 14
+    assert set(template["review_domain_v499"]) == {
+        "layout_surface",
+        "caption_claim_safety",
+    }
+    assert (
+        template.loc[
+            template["review_domain_v499"].eq("layout_surface"),
+            "review_item_count_v499",
+        ].sum()
+        == 10
+    )
+    assert template["outcome_status_v499"].eq("not_captured").all()
+    assert not template["review_completed_v499"].astype(bool).any()
+    assert not template["accepted_for_patch_v499"].astype(bool).any()
+    assert not template["accepted_for_final_caption_v499"].astype(bool).any()
+    assert not template["patch_allowed_v499"].astype(bool).any()
+    assert set(template["required_outcome_decision_v499"]) == {
+        "accept_revise_reject_or_defer"
+    }
+
+    field_dictionary = _read_csv("paper4_v499_outcome_field_dictionary.csv")
+    assert len(field_dictionary) == 8
+    assert field_dictionary["required_capture_field_v499"].astype(bool).all()
+    assert not field_dictionary["field_captured_v499"].astype(bool).any()
+    assert set(field_dictionary["capture_field_v499"]) == {
+        "reviewer_id",
+        "review_timestamp_utc",
+        "outcome_decision",
+        "revision_required",
+        "claim_boundary_ok",
+        "caption_final_allowed",
+        "patch_scope_ok",
+        "reviewer_notes",
+    }
+
+    controls = _read_csv("paper4_v499_capture_control_register.csv")
+    assert len(controls) == 6
+    assert controls["control_active_v499"].astype(bool).all()
+    assert controls["blocks_patch_v499"].astype(bool).all()
+    assert set(controls["control_id_v499"]) == {
+        "no_outcomes_captured",
+        "no_caption_finalized",
+        "no_patch_approval",
+        "no_book_mutation",
+        "no_render_submission",
+        "no_final_promotion",
+    }
+
+    readiness_summary = _read_csv("paper4_v499_template_readiness_summary.csv")
+    assert len(readiness_summary) == 5
+    summary_map = dict(
+        zip(
+            readiness_summary["template_readiness_item_v499"],
+            readiness_summary["ready_v499"],
+            strict=False,
+        )
+    )
+    assert bool(summary_map["layout_outcome_rows_ready"]) is True
+    assert bool(summary_map["caption_outcome_rows_ready"]) is True
+    assert bool(summary_map["required_fields_declared"]) is True
+    assert bool(summary_map["capture_controls_active"]) is True
+    assert bool(summary_map["review_outcomes_captured"]) is False
+
+    readiness = _read_csv("paper4_v499_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v499"], readiness["ready_v499"], strict=False)
+    )
+    assert bool(readiness_map["review_outcome_capture_template_created"]) is True
+    assert bool(readiness_map["outcome_field_dictionary_created"]) is True
+    assert bool(readiness_map["capture_control_register_created"]) is True
+    assert bool(readiness_map["review_outcomes_captured"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v499_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v499_review_outcome_capture_template_created"]) is True
+    assert bool(claim_map["v499_required_review_outcome_fields_declared"]) is True
+    assert bool(claim_map["v499_capture_controls_preserved"]) is True
+    assert bool(claim_map["v499_reviews_completed_or_captions_final"]) is False
+    assert bool(claim_map["v499_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v499_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v499 creates a Paper 4 review outcome capture template."])
+    assert bool(boundary_map["v499 defines required review outcome fields."])
+    assert bool(
+        boundary_map["v499 preserves capture controls without recording outcomes."]
+    )
+    assert (
+        bool(boundary_map["v499 captures completed review outcomes or finalizes captions."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v499 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v499 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v499_rows = backlog.loc[backlog["last_wave"].eq("v499")]
+    assert len(v499_rows) == 1
+    backlog_row = v499_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v500_review_outcome_template_consistency_audit.md"
+    )
+    assert backlog_row["execution_result"] == "review_outcome_template_created_without_mutation"
+
+    template_md = (
+        PAPER4_ROOT / "notes" / "paper4_v499_review_outcome_capture_template.md"
+    ).read_text(encoding="utf-8")
+    assert "Review Outcome Capture Template v499" in template_md
+    assert "No review outcome is\nrecorded" in template_md
+    assert "v499 is a capture-template artifact only" in template_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v499: Review Outcome Capture Template" in living_notebook
+    assert "Outcome template rows:\n  `14`." in living_notebook
+    assert "Layout outcome template rows:\n  `4`." in living_notebook
+    assert "Caption outcome template rows:\n  `10`." in living_notebook
+    assert "Outcome captured rows:\n  `0`." in living_notebook
+    assert "Review completed rows:\n  `0`." in living_notebook
+    assert "Accepted for patch rows:\n  `0`." in living_notebook
+    assert "Accepted for final caption rows:\n  `0`." in living_notebook
+    assert "Required field rows:\n  `8`." in living_notebook
+    assert "Captured required field rows:\n  `0`." in living_notebook
+    assert "Active capture control rows:\n  `6`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
