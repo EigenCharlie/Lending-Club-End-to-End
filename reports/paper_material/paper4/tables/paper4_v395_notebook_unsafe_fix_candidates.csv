@@ -1,0 +1,6 @@
+candidate_id_v395,notebook_path_v395,cell_v395,row_v395,rule_code_v395,message_v395,fix_applicability_v395,previewed_by_diff_v395,approved_for_roundtrip_application_v395,claim_boundary_v395
+unsafe_candidate_001,notebooks/01_eda_lending_club.ipynb,14,22,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,unsafe,True,True,review approval only; v395 does not mutate notebooks
+unsafe_candidate_002,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,118,B905,`zip()` without an explicit `strict=` parameter,unsafe,True,True,review approval only; v395 does not mutate notebooks
+unsafe_candidate_003,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,191,B905,`zip()` without an explicit `strict=` parameter,unsafe,True,True,review approval only; v395 does not mutate notebooks
+unsafe_candidate_004,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,6,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,unsafe,True,True,review approval only; v395 does not mutate notebooks
+unsafe_candidate_005,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,13,114,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,unsafe,True,True,review approval only; v395 does not mutate notebooks

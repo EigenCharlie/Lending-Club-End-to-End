@@ -1,0 +1,4 @@
+decision_id_v395,rule_code_v395,residual_count_v395,decision_v395,rationale_v395,mutation_in_v395,next_artifact_v395,claim_boundary_v395
+b905_zip_strict_false,B905,2,approved_for_v396_roundtrip_application,Adding strict=False makes the existing zip truncation policy explicit.,False,paper4_v396_notebook_unsafe_fix_roundtrip_application.md,approval only
+sim105_contextlib_suppress,SIM105,3,approved_for_v396_roundtrip_application,contextlib.suppress(Exception) preserves the broad Exception pass behavior.,False,paper4_v396_notebook_unsafe_fix_roundtrip_application.md,approval only
+sim115_open_context_manager,SIM115,1,manual_refactor_deferred,Ruff exposes no automatic fix; keep it out of unsafe application batch.,False,paper4_v397_notebook_manual_context_manager_patch.md,manual rewrite required

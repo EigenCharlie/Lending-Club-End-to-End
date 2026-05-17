@@ -16755,3 +16755,52 @@ notebook diagnostics without touching outputs or markdown, while separating the
 Keep v394 in the living notebook. v395 should review Ruff-unsafe notebook fixes.
 
 <!-- V394_NOTEBOOK_SAFE_FIX_ROUNDTRIP_BATCH_END -->
+
+<!-- V395_NOTEBOOK_UNSAFE_FIX_REVIEW_START -->
+
+## Wave v395: Notebook Ruff-Unsafe Fix Review
+
+Generated: 2026-05-17T07:37:49.793763+00:00
+
+### Objective
+
+v395 reviews the 5 B905/SIM105 fixes that Ruff labels unsafe after v394's
+safe-only notebook repair batch.
+
+### Results
+
+- Residual selected diagnostics:
+  `6`.
+- Ruff-unsafe candidates reviewed:
+  `5`.
+- Approved for guarded application:
+  `5`.
+- Nonfixable SIM115 rows:
+  `1`.
+- Global notebook diagnostics:
+  `145`.
+- Notebooks mutated:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v396_notebook_unsafe_fix_roundtrip_application.md`.
+
+### Interpretation
+
+The remaining selected lint frontier is now split cleanly: 5 reviewed B905/SIM105
+fixes can move to a guarded application wave, while the SIM115 finding stays a
+manual refactor item.
+
+### Claim Impact
+
+- Allowed: unsafe-fix review, preview and approval for guarded v396 application.
+- Still prohibited: notebook mutation in v395, lint cleanliness, champion
+  replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v395 in the living notebook. v396 should apply the approved unsafe fixes
+under the same roundtrip integrity checks used in v394.
+
+<!-- V395_NOTEBOOK_UNSAFE_FIX_REVIEW_END -->

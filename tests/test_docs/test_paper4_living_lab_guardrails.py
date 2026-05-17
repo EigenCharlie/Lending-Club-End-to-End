@@ -43714,6 +43714,134 @@ def test_paper4_v394_notebook_safe_fix_roundtrip_batch_preserves_provenance() ->
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v395_notebook_unsafe_fix_review_is_non_mutating() -> None:
+    status = _read_json("paper4_v395_status.json")
+
+    assert status["phase"] == "v395_notebook_unsafe_fix_review"
+    assert status["schema_version"] == "2026-05-17.395"
+    assert status["prior_safe_fix_version_v395"] == 394
+    assert status["unsafe_diff_command_v395"] == (
+        "uv run ruff check notebooks --select B905,SIM105 --fix --unsafe-fixes --diff"
+    )
+    assert status["residual_selected_diagnostics_v395"] == 6
+    assert status["unsafe_fix_candidates_v395"] == 5
+    assert status["approved_for_roundtrip_application_v395"] == 5
+    assert status["nonfixable_selected_rows_v395"] == 1
+    assert status["b905_candidates_v395"] == 2
+    assert status["sim105_candidates_v395"] == 3
+    assert status["global_notebook_diagnostics_v395"] == 145
+    assert status["global_notebook_e402_v395"] == 119
+    assert status["global_notebook_f821_v395"] == 1
+    assert status["notebooks_mutated_v395"] is False
+    assert status["diff_preview_lines_v395"] == 151
+    assert status["global_ruff_clean_v395"] is False
+    assert status["full_repository_pytest_run_v395"] is False
+    assert status["full_quarto_render_run_v395"] is False
+    assert status["working_champion_claim_allowed_v395"] is False
+    assert status["paper1_promotion_allowed_v395"] is False
+    assert status["paper4_working_champion_changed_v395"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v395"] == (
+        "paper4_v396_notebook_unsafe_fix_roundtrip_application.md"
+    )
+
+    candidates = _read_csv("paper4_v395_notebook_unsafe_fix_candidates.csv")
+    assert len(candidates) == 5
+    candidate_counts = candidates["rule_code_v395"].value_counts().to_dict()
+    assert int(candidate_counts["B905"]) == 2
+    assert int(candidate_counts["SIM105"]) == 3
+    assert candidates["fix_applicability_v395"].eq("unsafe").all()
+    assert candidates["previewed_by_diff_v395"].astype(bool).all()
+    assert candidates["approved_for_roundtrip_application_v395"].astype(bool).all()
+    assert set(candidates["notebook_path_v395"]) == {
+        "notebooks/01_eda_lending_club.ipynb",
+        "notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb",
+    }
+
+    decisions = _read_csv("paper4_v395_notebook_unsafe_fix_decision.csv")
+    assert len(decisions) == 3
+    decision_map = {
+        row["decision_id_v395"]: row["decision_v395"]
+        for _, row in decisions.iterrows()
+    }
+    assert decision_map["b905_zip_strict_false"] == "approved_for_v396_roundtrip_application"
+    assert (
+        decision_map["sim105_contextlib_suppress"]
+        == "approved_for_v396_roundtrip_application"
+    )
+    assert decision_map["sim115_open_context_manager"] == "manual_refactor_deferred"
+    assert not decisions["mutation_in_v395"].astype(bool).any()
+
+    blockers = _read_csv("paper4_v395_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v395"], blockers["blocking_v395"], strict=False))
+    assert bool(blocker_map["unsafe_fixes_reviewed_not_applied"]) is True
+    assert bool(blocker_map["sim115_manual_refactor_remaining"]) is True
+    assert bool(blocker_map["selected_notebook_lint_still_present"]) is True
+    assert bool(blocker_map["global_notebook_lint_not_clean"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v395_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v395_unsafe_fix_review_created"]) is True
+    assert bool(claim_map["v395_unsafe_fix_preview_captured"]) is True
+    assert (
+        bool(claim_map["v395_five_unsafe_candidates_approved_for_guarded_application"])
+        is True
+    )
+    assert bool(claim_map["v395_notebooks_mutated"]) is False
+    assert bool(claim_map["v395_notebook_or_repo_ruff_clean"]) is False
+    assert bool(claim_map["v395_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v395 reviews 5 Ruff-unsafe notebook fixes without mutation."])
+    assert bool(
+        boundary_map["v395 approves B905/SIM105 fixes for guarded v396 application."]
+    )
+    assert bool(boundary_map["v395 mutates notebooks or reduces notebook lint."]) is False
+    assert bool(boundary_map["v395 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v395_rows = backlog.loc[backlog["last_wave"].eq("v395")]
+    assert len(v395_rows) == 1
+    backlog_row = v395_rows.iloc[0]
+    assert backlog_row["status"] == "notebook_unsafe_fix_review_created"
+    assert backlog_row["next_artifact"] == (
+        "paper4_v396_notebook_unsafe_fix_roundtrip_application.md"
+    )
+    assert backlog_row["execution_result"] == "five_unsafe_candidates_reviewed_no_mutation"
+
+    review_md = (
+        PAPER4_ROOT / "notes" / "paper4_v395_notebook_unsafe_fix_review.md"
+    ).read_text(encoding="utf-8")
+    assert "Ruff-unsafe candidates reviewed: `5`" in review_md
+    assert "does not mutate notebooks" in review_md
+    assert "paper4_v396_notebook_unsafe_fix_roundtrip_application.md" in review_md
+
+    diff_preview = (
+        PAPER4_ROOT / "notes" / "paper4_v395_notebook_unsafe_fix_preview.patch"
+    ).read_text(encoding="utf-8")
+    assert "strict=False" in diff_preview
+    assert "contextlib.suppress(Exception)" in diff_preview
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v395: Notebook Ruff-Unsafe Fix Review" in notebook
+    assert "Ruff-unsafe candidates reviewed:\n  `5`" in notebook
+    assert "Notebooks mutated:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+
+    notebook_diff = subprocess.run(
+        ["git", "diff", "--name-only", "--", "notebooks"],
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    assert notebook_diff.stdout.strip() == ""
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
