@@ -18404,3 +18404,60 @@ Keep v427 in the living notebook. v428 should apply the targeted Streamlit
 B905/C408 repair batch.
 
 <!-- V427_POST_SCRIPTS_RUFF_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V428_STREAMLIT_B905_C408_REPAIR_BATCH_START -->
+
+## Wave v428: Streamlit B905/C408 Repair Batch
+
+Generated: 2026-05-17T11:10:18.978737+00:00
+
+### Objective
+
+v428 applies ruff's targeted B905/C408 fixes to
+`streamlit_app/pages/model_interpretability.py`.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `46` ->
+  `38`.
+- Streamlit diagnostics before/after:
+  `8` ->
+  `0`.
+- Repository B905/C408 after:
+  `0` /
+  `0`.
+- Notebook diagnostics after:
+  `0`.
+- Changed Streamlit files:
+  `1`.
+- Targeted Streamlit page-import tests passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v429_post_streamlit_b905_c408_repair_pytest_probe.md`.
+
+### Interpretation
+
+The Streamlit non-E402 hotspot is cleared. The remaining repository ruff
+frontier is now scripts/book only, so v429 should run full pytest before
+touching the next scripts frontier.
+
+### Claim Impact
+
+- Allowed: targeted Streamlit B905/C408 repair applied, repository ruff count
+  reduced, notebook lint remained clean, and targeted page-import tests passed.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v428 in the living notebook. v429 should run the post-Streamlit-repair full
+pytest probe.
+
+<!-- V428_STREAMLIT_B905_C408_REPAIR_BATCH_END -->
