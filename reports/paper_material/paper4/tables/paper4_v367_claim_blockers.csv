@@ -1,0 +1,4 @@
+blocker_id_v367,blocking_v367,evidence_count_v367,required_next_artifact_v367,claim_boundary_v367
+full_v55_termination_still_missing,True,27,paper4_v368_publishable_claim_scope_update.md,remaining chunks are unpriced
+chunk_0001_source_exact_rows_zero,True,0,paper4_v368_publishable_claim_scope_update.md,source governance blocked the first chunk
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

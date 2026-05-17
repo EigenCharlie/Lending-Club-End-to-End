@@ -1,0 +1,5 @@
+claim_id,allowed,artifact,boundary
+v367_route_decision_created,True,paper4_v367_route_decision_after_chunk_probe.csv,route decision only
+v367_bounded_claim_scope_route_recommended,True,paper4_v367_route_option_scorecard.csv,recommendation only
+v367_valid_full_v55_dual_bound_certificate,False,paper4_v367_claim_blockers.csv,termination proof missing
+v367_paper1_or_final_promotion,False,paper4_v367_claim_blockers.csv,Paper Estrella remains protected

@@ -15292,3 +15292,56 @@ Keep v366 in the living notebook. v367 must decide the route using this chunk
 evidence and the v363/v365 blockers.
 
 <!-- V366_V353_FULL_V55_PRICING_CHUNK_PROTOTYPE_END -->
+
+<!-- V367_ROUTE_DECISION_AFTER_CHUNK_PROBE_START -->
+
+## Wave v367: Route Decision After Chunk Probe
+
+Generated: 2026-05-17T04:16:45.116856+00:00
+
+### Objective
+
+v366 executed the first full-v55 pricing chunk prototype and found zero
+source-exact one-swap rows. v367 decides whether the lab should keep spending
+the next wave on full-v55 chunks, switch to bounded fifth-order search, or
+narrow the publishable claim.
+
+### Results
+
+- Recommended route:
+  `bounded_claim_scope_update`.
+- V366 ordered one-swap rows:
+  `1710000`.
+- V366 source-exact rows:
+  `0`.
+- V366 CVaR-feasible entering rows:
+  `0`.
+- Remaining v365 chunks:
+  `27`.
+- Continue full-v55 chunks immediately:
+  `False`.
+- Switch immediately to fifth-order bounded search:
+  `False`.
+- Next artifact:
+  `paper4_v368_publishable_claim_scope_update.md`.
+
+### Interpretation
+
+v367 selects a conservative but useful route: update the publishable claim scope
+before spending more compute. The first full-v55 chunk was not merely CVaR-
+blocked; it was source-governance blocked before any source-exact row survived.
+That makes immediate full-v55 chunk continuation less informative than a clear
+paper-scope update.
+
+### Claim Impact
+
+- Allowed: route decision after measured chunk evidence.
+- Still prohibited: full-v55 termination, valid global integer optimality,
+  working champion, Paper Estrella replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v367 in the living notebook. v368 should write the strongest true
+publishable claim after v361-v367.
+
+<!-- V367_ROUTE_DECISION_AFTER_CHUNK_PROBE_END -->

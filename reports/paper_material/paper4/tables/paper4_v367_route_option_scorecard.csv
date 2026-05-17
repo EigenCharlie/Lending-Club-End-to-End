@@ -1,0 +1,5 @@
+route_option_v367,recommended_v367,evidence_for_v367,evidence_against_v367,next_artifact_if_chosen_v367,claim_boundary_v367
+continue_full_v55_chunking,False,v365 plan is executable and resumable,v366 chunk 1 produced zero source-exact rows after 1.71M one-swaps,paper4_v368_full_v55_chunk_002_probe.csv,would remain prototype evidence only
+switch_to_fifth_order_bounded_search,False,bounded fourth-order no-entry is already documented,fifth-order expansion is likely expensive and still not full-v55 termination,paper4_v368_fifth_order_resource_gate.csv,bounded-depth evidence only
+bounded_claim_scope_update,True,v361-v366 give strong bounded no-entry/source-blocker evidence but no global proof,does not produce a new solver certificate,paper4_v368_publishable_claim_scope_update.md,publishable claim scope only; no promotion
+proxy_live_gate_separation,False,proxy/live blockers remain active,should follow the publishable scope update,paper4_v369_proxy_live_gate_separation.csv,governance separation only

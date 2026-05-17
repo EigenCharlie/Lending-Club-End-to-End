@@ -40058,6 +40058,127 @@ def test_paper4_v366_v353_full_v55_chunk_prototype_records_source_blocker() -> N
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v367_route_decision_after_chunk_probe_preserves_claim_limits() -> None:
+    status = _read_json("paper4_v367_status.json")
+
+    assert status["phase"] == "v367_route_decision_after_chunk_probe"
+    assert status["schema_version"] == "2026-05-17.367"
+    assert status["base_version_v367"] == 353
+    assert status["prior_chunk_version_v367"] == 366
+    assert status["prior_plan_version_v367"] == 365
+    assert status["prior_gap_version_v367"] == 363
+    assert status["recommended_route_v367"] == "bounded_claim_scope_update"
+    assert status["v366_ordered_one_swap_rows_v367"] == 1710000
+    assert status["v366_return_improving_rows_v367"] == 48320
+    assert status["v366_budget_return_feasible_rows_v367"] == 25223
+    assert status["v366_source_exact_rows_v367"] == 0
+    assert status["v366_cvar_feasible_entering_rows_v367"] == 0
+    assert status["remaining_unpriced_chunks_v367"] == 27
+    assert status["v71_improving_omitted_columns_v367"] == 5738
+    assert status["continue_full_v55_chunks_immediately_v367"] is False
+    assert status["switch_to_fifth_order_bounded_search_v367"] is False
+    assert status["update_publishable_claim_scope_v367"] is True
+    assert status["valid_full_v55_dual_bound_certificate_v367"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v367"] is False
+    assert status["working_champion_claim_allowed_v367"] is False
+    assert status["paper1_promotion_allowed_v367"] is False
+    assert status["paper4_working_champion_changed_v367"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["route_option_rows_v367"] == 4
+    assert status["claim_blocker_rows_v367"] == 3
+    assert status["claim_matrix_rows_v367"] == 4
+    assert status["next_artifact_v367"] == "paper4_v368_publishable_claim_scope_update.md"
+
+    decision = _read_csv("paper4_v367_route_decision_after_chunk_probe.csv")
+    row = decision.iloc[0]
+    assert row["decision_id_v367"] == "v367_route_decision_after_chunk_probe"
+    assert row["recommended_route_v367"] == "bounded_claim_scope_update"
+    assert int(row["v366_ordered_one_swap_rows_v367"]) == 1710000
+    assert int(row["v366_return_improving_rows_v367"]) == 48320
+    assert int(row["v366_budget_return_feasible_rows_v367"]) == 25223
+    assert int(row["v366_source_exact_rows_v367"]) == 0
+    assert int(row["v366_cvar_feasible_entering_rows_v367"]) == 0
+    assert int(row["remaining_unpriced_chunks_v367"]) == 27
+    assert int(row["v71_improving_omitted_columns_v367"]) == 5738
+    assert bool(row["continue_full_v55_chunks_immediately_v367"]) is False
+    assert bool(row["switch_to_fifth_order_bounded_search_v367"]) is False
+    assert bool(row["update_publishable_claim_scope_v367"]) is True
+    assert bool(row["valid_full_v55_dual_bound_certificate_v367"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    scorecard = _read_csv("paper4_v367_route_option_scorecard.csv")
+    scorecard_map = {row["route_option_v367"]: row for _, row in scorecard.iterrows()}
+    assert set(scorecard_map) == {
+        "continue_full_v55_chunking",
+        "switch_to_fifth_order_bounded_search",
+        "bounded_claim_scope_update",
+        "proxy_live_gate_separation",
+    }
+    assert bool(scorecard_map["continue_full_v55_chunking"]["recommended_v367"]) is False
+    assert (
+        bool(scorecard_map["switch_to_fifth_order_bounded_search"]["recommended_v367"])
+        is False
+    )
+    assert bool(scorecard_map["bounded_claim_scope_update"]["recommended_v367"]) is True
+    assert bool(scorecard_map["proxy_live_gate_separation"]["recommended_v367"]) is False
+    assert (
+        scorecard_map["bounded_claim_scope_update"]["next_artifact_if_chosen_v367"]
+        == "paper4_v368_publishable_claim_scope_update.md"
+    )
+
+    blockers = _read_csv("paper4_v367_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v367"], blockers["blocking_v367"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v367"], blockers["evidence_count_v367"], strict=False)
+    )
+    assert bool(blocker_map["full_v55_termination_still_missing"]) is True
+    assert int(evidence_map["full_v55_termination_still_missing"]) == 27
+    assert bool(blocker_map["chunk_0001_source_exact_rows_zero"]) is True
+    assert int(evidence_map["chunk_0001_source_exact_rows_zero"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v367_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v367_route_decision_created"]) is True
+    assert bool(claim_map["v367_bounded_claim_scope_route_recommended"]) is True
+    assert bool(claim_map["v367_valid_full_v55_dual_bound_certificate"]) is False
+    assert bool(claim_map["v367_paper1_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map["v367 records a Paper 4 route decision after the v366 chunk probe."]
+    )
+    assert bool(
+        boundary_map[
+            "v367 recommends bounded publishable scope over immediate full-v55 proof."
+        ]
+    )
+    assert bool(boundary_map["v367 proves full-v55 reduced-cost termination."]) is False
+    assert bool(boundary_map["v367 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v367_rows = backlog.loc[backlog["last_wave"].eq("v367")]
+    assert len(v367_rows) == 1
+    backlog_row = v367_rows.iloc[0]
+    assert backlog_row["status"] == "route_decision_recommends_bounded_claim_scope_update"
+    assert backlog_row["next_artifact"] == "paper4_v368_publishable_claim_scope_update.md"
+    assert (
+        backlog_row["execution_result"]
+        == "bounded_claim_scope_route_selected_after_chunk_source_blocker"
+    )
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v367: Route Decision After Chunk Probe" in notebook
+    assert "Recommended route:\n  `bounded_claim_scope_update`" in notebook
+    assert "V366 source-exact rows:\n  `0`" in notebook
+    assert "Continue full-v55 chunks immediately:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
