@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v427_full_repository_pytest_run,True,paper4_v427_pytest_probe_summary.csv,pytest command executed after v426 scripts B905 repair
+v427_full_repository_pytest_passed,True,paper4_v427_pytest_probe_summary.csv,true only when pytest exits 0
+v427_scripts_b905_remains_clear,True,paper4_v427_repository_ruff_snapshot.csv,scripts/papers B905 remains zero after full pytest
+v427_streamlit_e402_remains_clear,True,paper4_v427_repository_ruff_snapshot.csv,E402 remains zero after full pytest probe
+v427_notebook_lint_remains_clean,True,paper4_v427_repository_ruff_snapshot.csv,notebook diagnostics remain zero
+v427_repository_ruff_clean,False,paper4_v427_claim_blockers.csv,true only when repository ruff emits zero diagnostics
+v427_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
