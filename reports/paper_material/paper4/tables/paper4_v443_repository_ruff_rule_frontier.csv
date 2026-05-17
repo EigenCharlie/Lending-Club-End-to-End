@@ -1,0 +1,3 @@
+rule_code_v443,diagnostic_count_v443,fixable_count_v443,file_count_v443,top_surface_v443,repair_priority_v443,claim_boundary_v443
+B023,7,0,4,scripts,1,post-v443 frontier only
+SIM223,1,1,1,scripts,2,post-v443 frontier only
