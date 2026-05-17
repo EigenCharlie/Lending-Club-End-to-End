@@ -14679,3 +14679,56 @@ Keep v355 in the living notebook. The next wave should attempt a dual-bound or
 explicit proxy-value tradeoff protocol without promotion.
 
 <!-- V355_V353_PROXY_OR_GLOBAL_GATE_END -->
+
+<!-- V356_V353_DUAL_BOUND_AFTER_PROXY_GATE_START -->
+
+## Wave v356: v353 Dual-Bound Readiness After Proxy Gate
+
+Generated: 2026-05-17T02:47:04.706801+00:00
+
+### Objective
+
+v354 cleared one-swap local optimality for the v353 candidate and v355 showed
+that economic proxy repair is infeasible in the all-observed-omitted pool. v356
+turns that evidence into a dual-bound readiness register and branch-price
+hotspot map.
+
+### Results
+
+- Full-v55 binary variables: `276869`.
+- Direct full-MIP guard met:
+  `False`.
+- Observed omitted candidates:
+  `1554`.
+- Unobserved omitted candidates:
+  `275144`.
+- Tight source rows: `2`.
+- Unique source-tight candidate rows:
+  `73023`.
+- Positive source-tight candidate rows:
+  `4385`.
+- Branch-price dual-bound loop executed:
+  `False`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v356 does not prove a global certificate; it makes the missing certificate
+explicit for the v353 candidate. The direct full-v55 MIP remains beyond the
+guard, the proxy gap persists, and the tight source frontier still requires a
+real branch-price or dual-bound loop.
+
+### Claim Impact
+
+- Allowed: v353 dual-bound readiness register and source-tight blocker map.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v356 in the living notebook. The next wave should execute a branch-price
+or dual-bound loop without promotion.
+
+<!-- V356_V353_DUAL_BOUND_AFTER_PROXY_GATE_END -->

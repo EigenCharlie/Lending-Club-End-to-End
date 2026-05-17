@@ -38532,6 +38532,152 @@ def test_paper4_v355_v353_proxy_or_global_gate_blocks_economic_repair() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v356_v353_dual_bound_readiness_after_proxy_gate() -> None:
+    status = _read_json("paper4_v356_status.json")
+
+    assert status["phase"] == "v356_v353_dual_bound_after_proxy_gate"
+    assert status["schema_version"] == "2026-05-17.356"
+    assert status["base_version_v356"] == 353
+    assert status["reprice_version_v356"] == 354
+    assert status["proxy_gate_version_v356"] == 355
+    assert status["full_binary_variables_v356"] == 276869
+    assert status["direct_full_mip_binary_guard_v356"] == 50000
+    assert status["direct_full_mip_guard_met_v356"] is False
+    assert status["selected_rows_v356"] == 171
+    assert status["observed_proxy_rows_v356"] == 94
+    assert status["missing_proxy_rows_v356"] == 77
+    assert status["full_omitted_candidate_rows_v356"] == 276698
+    assert status["observed_omitted_candidate_rows_v356"] == 1554
+    assert status["unobserved_omitted_candidate_rows_v356"] == 275144
+    assert status["tight_source_rows_v356"] == 2
+    assert status["unique_source_tight_candidate_rows_v356"] == 73023
+    assert status["positive_source_tight_candidate_rows_v356"] == 4385
+    assert status["requirement_rows_v356"] == 6
+    assert status["requirements_met_v356"] == 4
+    assert status["branch_price_dual_bound_loop_executed_v356"] is False
+    assert status["valid_branch_price_bound_v356"] is False
+    assert status["full_universe_integer_optimality_claim_allowed_v356"] is False
+    assert status["working_champion_claim_allowed_v356"] is False
+    assert status["paper1_promotion_allowed_v356"] is False
+    assert status["paper4_working_champion_changed_v356"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["claim_blocker_rows_v356"] == 5
+    assert status["claim_matrix_rows_v356"] == 4
+    assert status["next_artifact_v356"] == "paper4_v357_v353_branch_price_or_dual_bound_loop.csv"
+
+    gate = _read_csv("paper4_v356_v353_dual_bound_after_proxy_gate.csv")
+    row = gate.iloc[0]
+    assert row["gate_id_v356"] == "v356_v353_dual_bound_after_proxy_gate"
+    assert int(row["full_binary_variables_v356"]) == 276869
+    assert bool(row["direct_full_mip_guard_met_v356"]) is False
+    assert int(row["missing_proxy_rows_v356"]) == 77
+    assert int(row["tight_source_rows_v356"]) == 2
+    assert int(row["unique_source_tight_candidate_rows_v356"]) == 73023
+    assert int(row["positive_source_tight_candidate_rows_v356"]) == 4385
+    assert int(row["requirements_met_v356"]) == 4
+    assert bool(row["branch_price_dual_bound_loop_executed_v356"]) is False
+    assert bool(row["valid_branch_price_bound_v356"]) is False
+    assert bool(row["paper4_final_promotion_created"]) is False
+
+    partition = _read_csv("paper4_v356_full_universe_candidate_partition.csv")
+    partition_row = partition.iloc[0]
+    assert partition_row["partition_id_v356"] == "v353_full_v55_omitted_partition_after_v355"
+    assert int(partition_row["full_universe_rows_v356"]) == 276869
+    assert int(partition_row["selected_rows_v356"]) == 171
+    assert int(partition_row["full_omitted_candidate_rows_v356"]) == 276698
+    assert int(partition_row["observed_omitted_candidate_rows_v356"]) == 1554
+    assert int(partition_row["unobserved_omitted_candidate_rows_v356"]) == 275144
+    assert int(partition_row["v355_pool_rows_v356"]) == 1725
+    assert int(partition_row["v355_observed_candidate_rows_v356"]) == 1554
+    assert bool(partition_row["v355_pool_includes_all_observed_omitted_v356"]) is True
+    assert float(partition_row["v355_pool_share_of_full_omitted_v356"]) == pytest.approx(
+        0.005616231415650637
+    )
+    assert float(partition_row["unobserved_share_of_full_omitted_v356"]) == pytest.approx(
+        0.9943837685843493
+    )
+
+    hotspots = _read_csv("paper4_v356_v353_source_slack_hotspots.csv")
+    assert len(hotspots) == 51
+    tight = hotspots.loc[hotspots["source_tight_flag_v356"].astype(bool)]
+    assert list(tight["source_family"]) == ["grade", "score_decile"]
+    assert list(tight["source_id"].astype(str)) == ["A", "0"]
+    assert list(tight["source_slack_rank_v356"].astype(int)) == [1, 2]
+    assert float(tight.iloc[0]["source_slack_v356"]) == pytest.approx(0.0000045973084565)
+    assert float(tight.iloc[1]["source_slack_v356"]) == pytest.approx(0.0001155521317887)
+
+    source_tight = _read_csv("paper4_v356_v353_source_tight_candidate_map.csv")
+    source_tight_map = {row["pricing_block_id_v356"]: row for _, row in source_tight.iterrows()}
+    grade = source_tight_map["grade=A"]
+    score = source_tight_map["score_decile=0"]
+    assert int(grade["candidate_rows_v356"]) == 72271
+    assert int(grade["observed_candidate_rows_v356"]) == 536
+    assert int(grade["positive_return_candidate_rows_v356"]) == 4385
+    assert int(score["candidate_rows_v356"]) == 27553
+    assert int(score["observed_candidate_rows_v356"]) == 715
+    assert int(score["positive_return_candidate_rows_v356"]) == 4383
+    assert str(grade["top_candidate_loan_id_v356"]) == "165382274"
+    assert str(score["top_candidate_loan_id_v356"]) == "165382274"
+    assert bool(grade["top_candidate_observed_v47_proxy_v356"]) is False
+    assert bool(score["top_candidate_observed_v47_proxy_v356"]) is False
+
+    register = _read_csv("paper4_v356_dual_bound_requirement_register.csv")
+    requirement_map = dict(zip(register["requirement_id_v356"], register["met_v356"], strict=False))
+    assert bool(requirement_map["post_v353_one_swap_local_optimality_cleared"]) is True
+    assert bool(requirement_map["economic_proxy_repair_missing"]) is True
+    assert bool(requirement_map["proxy_gap_persists"]) is True
+    assert bool(requirement_map["direct_full_mip_guard_met"]) is False
+    assert bool(requirement_map["branch_price_dual_bound_loop_executed"]) is False
+    assert bool(requirement_map["paper4_final_promotion_absent"]) is True
+
+    blockers = _read_csv("paper4_v356_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v356"], blockers["blocking_v356"], strict=False))
+    evidence_map = dict(
+        zip(blockers["blocker_id_v356"], blockers["evidence_count_v356"], strict=False)
+    )
+    assert bool(blocker_map["direct_full_mip_guard_exceeded"]) is True
+    assert int(evidence_map["direct_full_mip_guard_exceeded"]) == 276869
+    assert bool(blocker_map["branch_price_dual_bound_loop_missing"]) is True
+    assert bool(blocker_map["source_tight_branch_price_frontier"]) is True
+    assert int(evidence_map["source_tight_branch_price_frontier"]) == 2
+    assert bool(blocker_map["proxy_gap_persists"]) is True
+    assert int(evidence_map["proxy_gap_persists"]) == 77
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v356_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v356_dual_bound_readiness_register_executed"]) is True
+    assert bool(claim_map["v356_source_tight_frontier_identified"]) is True
+    assert bool(claim_map["v356_valid_full_universe_branch_price_bound"]) is False
+    assert bool(claim_map["v356_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v356 creates a post-v355 v353 dual-bound readiness register."])
+    assert bool(boundary_map["v356 identifies source-tight v353 branch-price blockers."])
+    assert bool(boundary_map["v356 proves a valid full-universe dual-bound certificate."]) is False
+    assert bool(boundary_map["v356 authorizes a Paper 4 working champion."]) is False
+    assert bool(boundary_map["v356 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v356_rows = backlog.loc[backlog["last_wave"].eq("v356")]
+    assert len(v356_rows) == 1
+    backlog_row = v356_rows.iloc[0]
+    assert backlog_row["status"] == "dual_bound_readiness_register_created_no_certificate"
+    assert backlog_row["next_artifact"] == "paper4_v357_v353_branch_price_or_dual_bound_loop.csv"
+    assert backlog_row["execution_result"] == "source_tight_and_direct_mip_guard_block_global_claim"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v356: v353 Dual-Bound Readiness After Proxy Gate" in notebook
+    assert "Full-v55 binary variables: `276869`" in notebook
+    assert "Unique source-tight candidate rows:\n  `73023`" in notebook
+    assert "Valid branch-price bound:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
