@@ -1,0 +1,10 @@
+gate_tier_v375,contract_rows_v375,data_asset_available_rows_v375,claim_gate_met_rows_v375,blocked_rows_v375,current_evidence_count_v375,claim_boundary_v375,tier_claim_ready_v375
+contractual_ifrs9,1,0,0,1,76,tier ready only if every required contract row is claim-gate met,False
+final_promotion,1,0,0,1,0,tier ready only if every required contract row is claim-gate met,False
+formal_method,1,1,0,1,2,tier ready only if every required contract row is claim-gate met,False
+global_solver,1,0,0,1,5738,tier ready only if every required contract row is claim-gate met,False
+legal_fairness,1,0,0,1,0,tier ready only if every required contract row is claim-gate met,False
+live_deployment,3,0,0,3,0,tier ready only if every required contract row is claim-gate met,False
+offline_proxy,1,1,1,0,768,tier ready only if every required contract row is claim-gate met,True
+offline_publishable,1,1,1,0,5,tier ready only if every required contract row is claim-gate met,True
+source_governance,1,0,0,1,0,tier ready only if every required contract row is claim-gate met,False

@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v375_live_gate_data_contract_created,True,paper4_v375_live_gate_data_contract.csv,requirements matrix only
+v375_offline_proxy_available_data_labeled,True,paper4_v375_claim_permission_register.csv,offline/proxy labels only
+v375_strict_live_deployment_or_contractual_claim,False,paper4_v375_claim_blockers.csv,live and contractual/legal gates unmet
+v375_full_v55_global_optimality_claim,False,paper4_v375_claim_blockers.csv,global certificate absent
+v375_working_champion_or_final_promotion,False,paper4_v375_claim_blockers.csv,Paper Estrella remains protected

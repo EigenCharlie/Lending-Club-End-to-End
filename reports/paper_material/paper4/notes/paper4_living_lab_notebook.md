@@ -15711,3 +15711,61 @@ blockers: source governance, global dual-bound gaps and live/proxy separation.
 Keep v374 in the living notebook. v375 should define the live-gate data contract.
 
 <!-- V374_PAPER_CLAIM_LANGUAGE_DRAFT_END -->
+
+<!-- V375_LIVE_GATE_DATA_CONTRACT_START -->
+
+## Wave v375: Live-Gate Data Contract
+
+Generated: 2026-05-17T05:13:00.059519+00:00
+
+### Objective
+
+v374 produced bounded paper language. v375 turns the remaining live,
+contractual/legal, global-solver and final-promotion blockers into a concrete
+data contract that future waves can satisfy or cite as missing.
+
+### Results
+
+- Contract rows:
+  `11`.
+- Gate readiness rows:
+  `9`.
+- Claim permission rows:
+  `7`.
+- Data assets currently available:
+  `3`.
+- Claim gates currently met:
+  `2`.
+- Live deployment gates met:
+  `0`.
+- Contractual/legal gates met:
+  `0`.
+- Global solver gates met:
+  `0`.
+- Final promotion gates met:
+  `0`.
+- Strict live deployment language allowed:
+  `False`.
+- Next artifact:
+  `paper4_v376_publication_integration_patch.md`.
+- Final promotion created:
+  `False`.
+
+### Interpretation
+
+The lab now has a reusable contract for what would have to exist before Paper 4
+could say anything stronger than bounded offline/proxy evidence. The contract
+keeps the paper useful while making overclaiming mechanically visible.
+
+### Claim Impact
+
+- Allowed: bounded manuscript language and labeled offline/proxy replay.
+- Still prohibited: strict live deployment, contractual/legal IFRS9 or fairness
+  claims, global optimality, working-champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v375 in the living notebook. v376 should map the v374/v375 language into a
+publication integration patch without changing claim permissions.
+
+<!-- V375_LIVE_GATE_DATA_CONTRACT_END -->

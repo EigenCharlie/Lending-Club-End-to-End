@@ -41122,6 +41122,166 @@ def test_paper4_v374_claim_language_draft_blocks_prohibited_phrases() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v375_live_gate_data_contract_blocks_live_legal_global_claims() -> None:
+    status = _read_json("paper4_v375_status.json")
+
+    assert status["phase"] == "v375_live_gate_data_contract"
+    assert status["schema_version"] == "2026-05-17.375"
+    assert status["prior_gate_version_v375"] == 369
+    assert status["prior_stop_rule_version_v375"] == 373
+    assert status["prior_claim_language_version_v375"] == 374
+    assert status["prior_gate_requirement_rows_v375"] == 10
+    assert status["prior_gate_requirements_met_v375"] == 2
+    assert status["prior_v374_draft_section_rows_v375"] == 5
+    assert status["contract_rows_v375"] == 11
+    assert status["gate_readiness_rows_v375"] == 9
+    assert status["claim_permission_rows_v375"] == 7
+    assert status["claim_blocker_rows_v375"] == 7
+    assert status["claim_matrix_rows_v375"] == 5
+    assert status["data_asset_available_rows_v375"] == 3
+    assert status["claim_gate_met_rows_v375"] == 2
+    assert status["live_deployment_gate_met_rows_v375"] == 0
+    assert status["contractual_or_legal_gate_met_rows_v375"] == 0
+    assert status["global_solver_gate_met_rows_v375"] == 0
+    assert status["final_promotion_gate_met_rows_v375"] == 0
+    assert status["bounded_living_lab_language_allowed_v375"] is True
+    assert status["offline_proxy_language_allowed_v375"] is True
+    assert status["strict_live_deployment_language_allowed_v375"] is False
+    assert status["contractual_or_legal_language_allowed_v375"] is False
+    assert status["global_optimality_language_allowed_v375"] is False
+    assert status["working_champion_claim_allowed_v375"] is False
+    assert status["paper1_promotion_allowed_v375"] is False
+    assert status["paper4_working_champion_changed_v375"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v375"] == "paper4_v376_publication_integration_patch.md"
+
+    contract = _read_csv("paper4_v375_live_gate_data_contract.csv")
+    expected_contract_ids = [
+        "bounded_publication_language_pack",
+        "dynamic_proxy_trace_dataset",
+        "external_future_holdout_panel",
+        "online_shadow_monitoring_log",
+        "deployment_monitoring_runbook",
+        "ifrs9_contractual_coverage_dataset",
+        "legal_fairness_attribute_review_file",
+        "formal_spo_dla_review_packet",
+        "full_v55_dual_bound_certificate",
+        "source_governance_full_v55_chunk_screen",
+        "final_promotion_approval_gate",
+    ]
+    assert contract["contract_id_v375"].tolist() == expected_contract_ids
+    assert int(contract["data_asset_available_v375"].astype(bool).sum()) == 3
+    assert int(contract["claim_gate_met_v375"].astype(bool).sum()) == 2
+    contract_map = {row["contract_id_v375"]: row for _, row in contract.iterrows()}
+    assert int(contract_map["dynamic_proxy_trace_dataset"]["current_evidence_count_v375"]) == 768
+    assert bool(contract_map["dynamic_proxy_trace_dataset"]["claim_gate_met_v375"]) is True
+    assert int(contract_map["external_future_holdout_panel"]["current_evidence_count_v375"]) == 0
+    assert bool(contract_map["external_future_holdout_panel"]["claim_gate_met_v375"]) is False
+    assert int(
+        contract_map["ifrs9_contractual_coverage_dataset"]["current_evidence_count_v375"]
+    ) == 76
+    assert bool(contract_map["ifrs9_contractual_coverage_dataset"]["claim_gate_met_v375"]) is False
+    assert int(contract_map["full_v55_dual_bound_certificate"]["current_evidence_count_v375"]) == 5738
+    assert bool(contract_map["full_v55_dual_bound_certificate"]["claim_gate_met_v375"]) is False
+    assert int(
+        contract_map["source_governance_full_v55_chunk_screen"]["current_evidence_count_v375"]
+    ) == 0
+    assert bool(
+        contract_map["source_governance_full_v55_chunk_screen"]["claim_gate_met_v375"]
+    ) is False
+    assert bool(contract_map["final_promotion_approval_gate"]["claim_gate_met_v375"]) is False
+
+    readiness = _read_csv("paper4_v375_gate_readiness_summary.csv")
+    ready_map = dict(zip(readiness["gate_tier_v375"], readiness["tier_claim_ready_v375"], strict=False))
+    assert bool(ready_map["offline_publishable"]) is True
+    assert bool(ready_map["offline_proxy"]) is True
+    for tier in [
+        "contractual_ifrs9",
+        "final_promotion",
+        "formal_method",
+        "global_solver",
+        "legal_fairness",
+        "live_deployment",
+        "source_governance",
+    ]:
+        assert bool(ready_map[tier]) is False
+    live_row = readiness.loc[readiness["gate_tier_v375"].eq("live_deployment")].iloc[0]
+    assert int(live_row["contract_rows_v375"]) == 3
+    assert int(live_row["blocked_rows_v375"]) == 3
+
+    permissions = _read_csv("paper4_v375_claim_permission_register.csv")
+    permission_map = dict(zip(permissions["claim_id_v375"], permissions["allowed_v375"], strict=False))
+    assert bool(permission_map["bounded_living_lab_manuscript_language"]) is True
+    assert bool(permission_map["offline_proxy_replay_language"]) is True
+    assert bool(permission_map["strict_live_deployment_language"]) is False
+    assert bool(permission_map["contractual_ifrs9_or_legal_language"]) is False
+    assert bool(permission_map["full_v55_global_optimality_language"]) is False
+    assert bool(permission_map["working_champion_or_paper_estrella_replacement"]) is False
+    assert bool(permission_map["final_paper4_promotion"]) is False
+
+    blockers = _read_csv("paper4_v375_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v375"], blockers["blocking_v375"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v375"], blockers["evidence_count_v375"], strict=False)
+    )
+    assert bool(blocker_map["external_holdout_contract_missing"]) is True
+    assert int(blocker_evidence["external_holdout_contract_missing"]) == 0
+    assert bool(blocker_map["ifrs9_contractual_uncovered_rows"]) is True
+    assert int(blocker_evidence["ifrs9_contractual_uncovered_rows"]) == 76
+    assert bool(blocker_map["full_v55_dual_bound_certificate_missing"]) is True
+    assert int(blocker_evidence["full_v55_dual_bound_certificate_missing"]) == 5738
+    assert bool(blocker_map["source_governance_source_exact_zero"]) is True
+    assert int(blocker_evidence["source_governance_source_exact_zero"]) == 0
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v375_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v375_live_gate_data_contract_created"]) is True
+    assert bool(claim_map["v375_offline_proxy_available_data_labeled"]) is True
+    assert bool(claim_map["v375_strict_live_deployment_or_contractual_claim"]) is False
+    assert bool(claim_map["v375_full_v55_global_optimality_claim"]) is False
+    assert bool(claim_map["v375_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(
+        boundary_map[
+            "v375 specifies data-contract requirements for live, contractual/legal "
+            "and final-promotion claims."
+        ]
+    )
+    assert bool(
+        boundary_map["v375 separates available offline/proxy data from missing live-gate data."]
+    )
+    assert bool(
+        boundary_map[
+            "v375 authorizes strict live deployment, contractual/legal claims or "
+            "production monitoring."
+        ]
+    ) is False
+    assert bool(boundary_map["v375 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v375_rows = backlog.loc[backlog["last_wave"].eq("v375")]
+    assert len(v375_rows) == 1
+    backlog_row = v375_rows.iloc[0]
+    assert backlog_row["status"] == "live_gate_data_contract_created"
+    assert backlog_row["next_artifact"] == "paper4_v376_publication_integration_patch.md"
+    assert backlog_row["execution_result"] == "live_contract_blocks_live_legal_global_and_final_claims"
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v375: Live-Gate Data Contract" in notebook
+    assert "Contract rows:\n  `11`" in notebook
+    assert "Claim gates currently met:\n  `2`" in notebook
+    assert "Live deployment gates met:\n  `0`" in notebook
+    assert "Final promotion gates met:\n  `0`" in notebook
+    assert "Strict live deployment language allowed:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")
