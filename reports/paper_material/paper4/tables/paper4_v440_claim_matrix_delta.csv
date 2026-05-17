@@ -1,0 +1,8 @@
+claim_id,allowed,artifact,boundary
+v440_sim108_conditional_expr_repair_applied,True,paper4_v440_scripts_sim108_actions.csv,targeted scripts SIM108 conditional-expression repair batch
+v440_sim108_cleared,True,paper4_v440_repository_ruff_delta.csv,true only for SIM108 diagnostics
+v440_repository_ruff_reduced,True,paper4_v440_repository_ruff_delta.csv,repository ruff diagnostic count decreases
+v440_changed_scripts_pycompile_passed,True,paper4_v440_pycompile_summary.csv,syntax/bytecode check for changed scripts
+v440_repository_ruff_clean,False,paper4_v440_claim_blockers.csv,true only if repository ruff emits zero diagnostics
+v440_full_repository_pytest_passed_after_repair,False,paper4_v440_claim_blockers.csv,full pytest deferred to v441
+v440_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

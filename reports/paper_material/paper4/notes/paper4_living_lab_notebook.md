@@ -19101,3 +19101,57 @@ Keep v439 in the living notebook. v440 should apply the targeted SIM108
 conditional-expression repair batch.
 
 <!-- V439_POST_SCRIPTS_UP022_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V440_SCRIPTS_SIM108_CONDITIONAL_EXPR_REPAIR_BATCH_START -->
+
+## Wave v440: Scripts SIM108 Conditional-Expression Repair Batch
+
+Generated: 2026-05-17T12:40:53.307176+00:00
+
+### Objective
+
+v440 applies targeted conditional-expression repairs across scripts SIM108 diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `11` ->
+  `9`.
+- Repository SIM108 before/after:
+  `2` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `11` ->
+  `9`.
+- Changed files:
+  `2`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v441_post_scripts_sim108_repair_pytest_probe.md`.
+
+### Interpretation
+
+The SIM108 frontier is cleared by replacing two simple if/else assignment
+blocks with conditional expressions. Remaining repository ruff diagnostics are
+now B023, C405 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts SIM108 repair applied, repository ruff count
+  reduced, and changed scripts compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v440 in the living notebook. v441 should run the post-SIM108-repair full
+pytest probe.
+
+<!-- V440_SCRIPTS_SIM108_CONDITIONAL_EXPR_REPAIR_BATCH_END -->

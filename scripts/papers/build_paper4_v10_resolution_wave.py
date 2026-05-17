@@ -359,10 +359,7 @@ def build_ifrs9_proxy_v10(
         ]:
             pd0 = candidate_pool["pd_point_alpha01"].astype(float).clip(0, 1)
             pdl = (candidate_pool["pd_high_alpha01"].astype(float) * macro_mult).clip(0, 1)
-            if math.isinf(rel):
-                stage2 = pdl.ge(abs_pd)
-            else:
-                stage2 = pdl.ge(abs_pd) | pdl.ge(pd0 * rel)
+            stage2 = pdl.ge(abs_pd) if math.isinf(rel) else pdl.ge(abs_pd) | pdl.ge(pd0 * rel)
             stage3 = (
                 candidate_pool["default_flag"].astype(float).ge(0.5)
                 if "default_flag" in candidate_pool

@@ -199,10 +199,7 @@ def build_v41_online() -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
         directly_measured_policy = not pd.isna(obs_policy)
         for method in methods:
             candidates = support.loc[support["min_support"].eq(method["min_support"])]
-            if candidates.empty:
-                prior = support_choices.iloc[0]
-            else:
-                prior = candidates.iloc[0]
+            prior = support_choices.iloc[0] if candidates.empty else candidates.iloc[0]
             prior_source = safe_num(prior.get("source_month_defended_min"), 0.0)
             prior_policy = safe_num(prior.get("policy_month_defended_min"), 0.0)
             prior_width = safe_num(prior.get("avg_width_loan"), obs_width)
