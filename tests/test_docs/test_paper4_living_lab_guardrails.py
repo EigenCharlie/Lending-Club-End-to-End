@@ -58754,6 +58754,198 @@ def test_paper4_v509_candidate_resolution_gap_audit_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v510_candidate_resolution_manual_entry_packet_is_guarded() -> None:
+    status = _read_json("paper4_v510_status.json")
+    assert status["phase"] == "v510_candidate_resolution_manual_entry_packet"
+    assert status["schema_version"] == "2026-05-17.510"
+    assert status["prior_resolution_gap_audit_version_v510"] == 509
+    assert status["candidate_resolution_manual_entry_packet_created_v510"] is True
+    assert status["manual_entry_packet_rows_v510"] == 14
+    assert status["manual_entry_packet_ready_rows_v510"] == 14
+    assert status["candidate_identifier_required_rows_v510"] == 14
+    assert status["candidate_identifier_entered_rows_v510"] == 0
+    assert status["candidate_identifier_prefilled_rows_v510"] == 0
+    assert status["nomination_fields_entered_rows_v510"] == 0
+    assert status["nomination_signoff_recorded_rows_v510"] == 0
+    assert status["candidate_nomination_recorded_rows_v510"] == 0
+    assert status["manual_entry_field_rows_v510"] == 84
+    assert status["field_value_entered_rows_v510"] == 0
+    assert status["field_value_prefilled_rows_v510"] == 0
+    assert status["manual_entry_quality_gate_rows_v510"] == 7
+    assert status["active_manual_entry_quality_gate_rows_v510"] == 7
+    assert status["recommended_next_action_rows_v510"] == 3
+    assert status["eligibility_review_allowed_rows_v510"] == 0
+    assert status["reviewer_assignment_allowed_rows_v510"] == 0
+    assert status["outcome_capture_allowed_rows_v510"] == 0
+    assert status["patch_allowed_rows_v510"] == 0
+    assert status["readiness_delta_rows_v510"] == 8
+    assert status["post_entry_candidate_resolution_audit_ready_v510"] is True
+    assert status["ready_for_quarto_patch_v510"] is False
+    assert status["quarto_patch_applied_v510"] is False
+    assert status["book_sources_modified_v510"] is False
+    assert status["book_references_modified_v510"] is False
+    assert status["submission_ready_claim_allowed_v510"] is False
+    assert status["working_champion_claim_allowed_v510"] is False
+    assert status["paper1_promotion_allowed_v510"] is False
+    assert status["paper4_working_champion_changed_v510"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert (
+        status["next_artifact_v510"]
+        == "paper4_v511_post_entry_candidate_resolution_audit.md"
+    )
+
+    packet = _read_csv("paper4_v510_candidate_resolution_manual_entry_packet.csv")
+    assert len(packet) == 14
+    assert packet["manual_entry_packet_ready_v510"].astype(bool).all()
+    assert packet["candidate_identifier_required_v510"].astype(bool).all()
+    assert packet["nomination_fields_required_v510"].astype(bool).all()
+    assert not packet["candidate_identifier_prefilled_v510"].astype(bool).any()
+    assert not packet["candidate_identifier_entered_v510"].astype(bool).any()
+    assert not packet["nomination_fields_entered_v510"].astype(bool).any()
+    assert not packet["nomination_signoff_recorded_v510"].astype(bool).any()
+    assert not packet["candidate_nomination_recorded_v510"].astype(bool).any()
+    assert not packet["eligibility_review_allowed_v510"].astype(bool).any()
+    assert not packet["reviewer_assignment_allowed_v510"].astype(bool).any()
+    assert not packet["outcome_capture_allowed_v510"].astype(bool).any()
+    assert not packet["patch_allowed_v510"].astype(bool).any()
+    assert set(packet["required_human_action_v510"]) == {
+        "enter_candidate_identifier_nomination_fields_and_signoff"
+    }
+
+    fields = _read_csv("paper4_v510_manual_entry_field_template.csv")
+    assert len(fields) == 84
+    assert fields["field_required_v510"].astype(bool).all()
+    assert not fields["field_value_prefilled_v510"].astype(bool).any()
+    assert not fields["field_value_entered_v510"].astype(bool).any()
+    assert fields["human_entry_required_v510"].astype(bool).all()
+    assert fields["completion_blocker_v510"].astype(bool).all()
+    assert fields.groupby("manual_entry_packet_id_v510").size().eq(6).all()
+
+    quality_gates = _read_csv("paper4_v510_manual_entry_quality_gate_register.csv")
+    assert len(quality_gates) == 7
+    assert quality_gates["quality_gate_active_v510"].astype(bool).all()
+    gate_map = dict(
+        zip(
+            quality_gates["manual_entry_quality_gate_id_v510"],
+            quality_gates["blocks_resolution_v510"],
+            strict=False,
+        )
+    )
+    assert bool(gate_map["no_candidate_identifier_entered"])
+    assert bool(gate_map["no_nomination_field_values_entered"])
+    assert bool(gate_map["no_nomination_signoff"])
+    assert bool(gate_map["no_candidate_nomination_recorded"])
+    assert bool(gate_map["eligibility_review_blocked"]) is False
+    assert bool(gate_map["reviewer_assignment_blocked"]) is False
+    assert bool(gate_map["no_final_promotion"]) is False
+
+    next_actions = _read_csv("paper4_v510_manual_entry_next_action_queue.csv")
+    assert len(next_actions) == 4
+    assert list(next_actions["priority_v510"]) == [1, 2, 3, 4]
+    assert int(next_actions["recommended_next_v510"].astype(bool).sum()) == 3
+    next_map = dict(
+        zip(
+            next_actions["next_action_id_v510"],
+            next_actions["recommended_next_v510"],
+            strict=False,
+        )
+    )
+    assert bool(next_map["enter_candidate_identifiers"])
+    assert bool(next_map["enter_nomination_field_values"])
+    assert bool(next_map["record_nomination_signoff"])
+    assert bool(next_map["run_post_entry_candidate_resolution_audit"]) is False
+
+    readiness = _read_csv("paper4_v510_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v510"], readiness["ready_v510"], strict=False)
+    )
+    assert bool(readiness_map["candidate_resolution_manual_entry_packet_created"])
+    assert bool(readiness_map["manual_entry_field_template_created"])
+    assert bool(readiness_map["manual_entry_quality_gates_created"])
+    assert bool(readiness_map["post_entry_candidate_resolution_audit_ready"])
+    assert bool(readiness_map["candidate_identifiers_entered"]) is False
+    assert bool(readiness_map["candidate_nominations_recorded"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v510_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v510_manual_entry_packet_created"])
+    assert bool(claim_map["v510_manual_entry_field_template_created"])
+    assert bool(claim_map["v510_post_entry_audit_ready"])
+    assert bool(claim_map["v510_candidates_entered_or_nominated"]) is False
+    assert bool(claim_map["v510_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v510_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v510 creates a candidate resolution manual-entry packet."])
+    assert bool(boundary_map["v510 creates manual-entry field templates."])
+    assert bool(
+        boundary_map[
+            "v510 makes post-entry candidate resolution audit executable next."
+        ]
+    )
+    assert (
+        bool(boundary_map["v510 enters candidate identifiers or nominates candidates."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v510 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v510 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v510_rows = backlog.loc[backlog["last_wave"].eq("v510")]
+    assert len(v510_rows) == 1
+    backlog_row = v510_rows.iloc[0]
+    assert (
+        backlog_row["next_artifact"]
+        == "paper4_v511_post_entry_candidate_resolution_audit.md"
+    )
+    assert (
+        backlog_row["execution_result"]
+        == "manual_entry_packet_created_without_candidates"
+    )
+
+    packet_md = (
+        PAPER4_ROOT
+        / "notes"
+        / "paper4_v510_candidate_resolution_manual_entry_packet.md"
+    ).read_text(encoding="utf-8")
+    assert "Candidate Resolution Manual Entry Packet v510" in packet_md
+    assert "does not enter candidate identifiers" in packet_md
+    assert "v510 is a manual-entry packet only" in packet_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v510: Candidate Resolution Manual Entry Packet" in living_notebook
+    assert "Manual entry packet rows:\n  `14`." in living_notebook
+    assert "Manual entry packet ready rows:\n  `14`." in living_notebook
+    assert "Candidate identifier required rows:\n  `14`." in living_notebook
+    assert "Candidate identifier entered rows:\n  `0`." in living_notebook
+    assert "Candidate identifier prefilled rows:\n  `0`." in living_notebook
+    assert "Nomination fields entered rows:\n  `0`." in living_notebook
+    assert "Nomination signoff recorded rows:\n  `0`." in living_notebook
+    assert "Candidate nomination recorded rows:\n  `0`." in living_notebook
+    assert "Manual entry field rows:\n  `84`." in living_notebook
+    assert "Field value entered rows:\n  `0`." in living_notebook
+    assert "Field value prefilled rows:\n  `0`." in living_notebook
+    assert "Manual entry quality gate rows:\n  `7`." in living_notebook
+    assert "Active manual entry quality gate rows:\n  `7`." in living_notebook
+    assert "Recommended next action rows:\n  `3`." in living_notebook
+    assert "Eligibility review allowed rows:\n  `0`." in living_notebook
+    assert "Reviewer assignment allowed rows:\n  `0`." in living_notebook
+    assert "Outcome capture allowed rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

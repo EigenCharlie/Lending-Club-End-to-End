@@ -23001,3 +23001,85 @@ Keep v509 in the living notebook. v510 should create a candidate resolution
 manual-entry packet without fabricating candidate identifiers.
 
 <!-- V509_CANDIDATE_RESOLUTION_GAP_AUDIT_END -->
+
+<!-- V510_CANDIDATE_RESOLUTION_MANUAL_ENTRY_PACKET_START -->
+
+## Wave v510: Candidate Resolution Manual Entry Packet
+
+Generated: 2026-05-17T20:27:34.073133+00:00
+
+### Objective
+
+v510 transforms the v509 resolution gaps into a manual-entry packet and field
+template that a human can complete later. It does not enter or invent candidate
+identifiers.
+
+### Results
+
+- Manual entry packet rows:
+  `14`.
+- Manual entry packet ready rows:
+  `14`.
+- Candidate identifier required rows:
+  `14`.
+- Candidate identifier entered rows:
+  `0`.
+- Candidate identifier prefilled rows:
+  `0`.
+- Nomination fields entered rows:
+  `0`.
+- Nomination signoff recorded rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Manual entry field rows:
+  `84`.
+- Field value entered rows:
+  `0`.
+- Field value prefilled rows:
+  `0`.
+- Manual entry quality gate rows:
+  `7`.
+- Active manual entry quality gate rows:
+  `7`.
+- Recommended next action rows:
+  `3`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v511_post_entry_candidate_resolution_audit.md`.
+
+### Interpretation
+
+Paper 4 now has an auditable manual-entry surface for candidate resolution, but
+every candidate identifier, nomination field value, signoff, nomination,
+eligibility review, assignment and outcome-capture permission remains absent.
+
+### Claim Impact
+
+- Allowed: manual-entry packet, field template, quality gates and future
+  post-entry resolution audit readiness.
+- Still prohibited: candidate identifier entry, candidate nomination, reviewer
+  assignment, completed review claims, final captions, Quarto patch
+  readiness/application, Quarto/book mutation, submission readiness, Paper
+  Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v510 in the living notebook. v511 should audit candidate resolution after
+manual entry, and must still report zero resolved candidates unless real human
+entries are present.
+
+<!-- V510_CANDIDATE_RESOLUTION_MANUAL_ENTRY_PACKET_END -->

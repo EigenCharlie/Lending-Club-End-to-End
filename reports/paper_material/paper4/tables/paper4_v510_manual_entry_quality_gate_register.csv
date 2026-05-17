@@ -1,0 +1,8 @@
+manual_entry_quality_gate_id_v510,quality_gate_active_v510,blocks_resolution_v510,quality_gate_result_v510
+no_candidate_identifier_entered,True,True,candidate identifiers remain blank
+no_nomination_field_values_entered,True,True,nomination fields remain blank
+no_nomination_signoff,True,True,nomination signoff remains absent
+no_candidate_nomination_recorded,True,True,candidate nominations remain absent
+eligibility_review_blocked,True,False,eligibility review remains blocked
+reviewer_assignment_blocked,True,False,reviewer assignment remains blocked
+no_final_promotion,True,False,final promotion artifact remains absent
