@@ -1,0 +1,2 @@
+compile_id_v434,command_v434,exit_code_v434,passed_v434,compiled_files_v434,stdout_tail_v434,stderr_tail_v434,claim_boundary_v434
+changed_scripts_and_book_py_compile,uv run python -m py_compile book/_helpers/plot_helpers.py scripts/papers/build_paper4_v45_online_cvar_source_solver.py scripts/papers/build_paper4_v46_spo_dla_dynamic.py scripts/papers/build_paper4_v47_ifrs9_cate_fairness_paths.py scripts/papers/build_paper4_v48_registry_docs_guardrails.py,0,True,5,,,syntax/bytecode check only; full pytest deferred

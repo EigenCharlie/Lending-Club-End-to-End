@@ -18749,3 +18749,60 @@ Keep v433 in the living notebook. v434 should apply the targeted I001
 import-sort repair batch.
 
 <!-- V433_POST_SCRIPTS_F841_REPAIR_PYTEST_PROBE_END -->
+
+<!-- V434_SCRIPTS_I001_IMPORT_SORT_REPAIR_BATCH_START -->
+
+## Wave v434: Scripts/Book I001 Import-Sort Repair Batch
+
+Generated: 2026-05-17T11:56:15.365179+00:00
+
+### Objective
+
+v434 applies targeted import-sort repairs across scripts/book I001 diagnostics.
+
+### Results
+
+- Repository ruff diagnostics before/after:
+  `23` ->
+  `18`.
+- Repository I001 before/after:
+  `5` ->
+  `0`.
+- Scripts diagnostics before/after:
+  `21` ->
+  `17`.
+- Book diagnostics before/after:
+  `2` ->
+  `1`.
+- Changed files:
+  `5`.
+- py_compile passed:
+  `True`.
+- Repository ruff clean:
+  `False`.
+- Full repository pytest run:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v435_post_scripts_i001_repair_pytest_probe.md`.
+
+### Interpretation
+
+The I001 frontier is cleared by normalizing import ordering/spacing in the
+book helper and four Paper 4 script entrypoints. Remaining repository ruff
+diagnostics are now B023, F401, UP022, SIM108, C405 and SIM223.
+
+### Claim Impact
+
+- Allowed: targeted scripts/book I001 repair applied, repository ruff count
+  reduced, and changed files compile.
+- Still prohibited: repository ruff clean, full pytest clean after repair,
+  Quarto render clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v434 in the living notebook. v435 should run the post-I001-repair full
+pytest probe.
+
+<!-- V434_SCRIPTS_I001_IMPORT_SORT_REPAIR_BATCH_END -->

@@ -1,0 +1,6 @@
+action_id_v434,file_path_v434,surface_v434,row_v434,rule_code_v434,message_v434,fix_message_v434,fix_edit_count_v434,mutation_applied_v434,claim_boundary_v434
+scripts_book_i001_import_sort_01,book/_helpers/plot_helpers.py,book,8,I001,Import block is un-sorted or un-formatted,Organize imports,1,True,targeted scripts/book I001 import-sort repair
+scripts_book_i001_import_sort_02,scripts/papers/build_paper4_v45_online_cvar_source_solver.py,scripts,4,I001,Import block is un-sorted or un-formatted,Organize imports,1,True,targeted scripts/book I001 import-sort repair
+scripts_book_i001_import_sort_03,scripts/papers/build_paper4_v46_spo_dla_dynamic.py,scripts,4,I001,Import block is un-sorted or un-formatted,Organize imports,1,True,targeted scripts/book I001 import-sort repair
+scripts_book_i001_import_sort_04,scripts/papers/build_paper4_v47_ifrs9_cate_fairness_paths.py,scripts,4,I001,Import block is un-sorted or un-formatted,Organize imports,1,True,targeted scripts/book I001 import-sort repair
+scripts_book_i001_import_sort_05,scripts/papers/build_paper4_v48_registry_docs_guardrails.py,scripts,4,I001,Import block is un-sorted or un-formatted,Organize imports,1,True,targeted scripts/book I001 import-sort repair
