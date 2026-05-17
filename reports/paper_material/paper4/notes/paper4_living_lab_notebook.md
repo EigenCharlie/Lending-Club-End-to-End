@@ -17121,3 +17121,55 @@ Keep v401 in the living notebook. v402 should apply only the warning-filter-only
 reorder batch with roundtrip checks.
 
 <!-- V401_NOTEBOOK_E402_SETUP_WARNING_REFACTOR_PLAN_END -->
+
+<!-- V402_NOTEBOOK_WARNING_FILTER_ONLY_REORDER_BATCH_START -->
+
+## Wave v402: Notebook Warning-Filter-Only Reorder Batch
+
+Generated: 2026-05-17T08:28:24.883871+00:00
+
+### Objective
+
+v402 applies the v401 first setup-cell batch: 6 warning-filter-only cells, with
+import-sort normalization limited to the changed notebooks.
+
+### Results
+
+- E402 before/after:
+  `112` ->
+  `42`.
+- Global notebook diagnostics before/after:
+  `132` ->
+  `62`.
+- I001 after normalization:
+  `0`.
+- Changed notebook files:
+  `6`.
+- Roundtrip integrity passed:
+  `True`.
+- Global ruff clean:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v403_post_notebook_mutation_pytest_probe.md`.
+
+### Interpretation
+
+The warning-filter-only setup batch is now closed. The remaining E402 frontier is
+the smaller sys.path/project-import group where notebook execution path semantics
+must be reviewed separately.
+
+### Claim Impact
+
+- Allowed: warning-filter-only reorder batch, import-sort normalization and
+  roundtrip preservation.
+- Still prohibited: sys.path/project-import E402 repaired, notebook lint clean,
+  repository ruff clean, champion replacement and final promotion claims.
+
+### Quarto Promotion Decision
+
+Keep v402 in the living notebook. v403 should run a post-notebook-mutation pytest
+probe before deeper sys.path refactors.
+
+<!-- V402_NOTEBOOK_WARNING_FILTER_ONLY_REORDER_BATCH_END -->

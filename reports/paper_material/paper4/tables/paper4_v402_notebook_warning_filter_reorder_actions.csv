@@ -1,0 +1,7 @@
+action_id_v402,notebook_path_v402,cell_v402,warning_filter_lines_moved_v402,import_sort_normalization_applied_v402,mutation_applied_v402,claim_boundary_v402
+warning_filter_reorder_01,notebooks/03_pd_modeling.ipynb,2,2,True,True,warning-filter-only setup cell reorder
+warning_filter_reorder_02,notebooks/05_time_series_forecasting.ipynb,2,2,True,True,warning-filter-only setup cell reorder
+warning_filter_reorder_03,notebooks/04_conformal_prediction.ipynb,2,2,True,True,warning-filter-only setup cell reorder
+warning_filter_reorder_04,notebooks/13_model_explainability.ipynb,2,2,True,True,warning-filter-only setup cell reorder
+warning_filter_reorder_05,notebooks/02_feature_engineering.ipynb,2,1,True,True,warning-filter-only setup cell reorder
+warning_filter_reorder_06,notebooks/01_eda_lending_club.ipynb,2,1,True,True,warning-filter-only setup cell reorder
