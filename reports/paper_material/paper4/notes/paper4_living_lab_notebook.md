@@ -14908,3 +14908,59 @@ no-entry evidence into a stronger dual-bound or gap-blocker memo without
 promotion.
 
 <!-- V359_V353_EXPAND_BRANCH_PRICE_OR_FULL_DUAL_BOUND_END -->
+
+<!-- V360_V353_EXPANDED_CANDIDATE_DISPOSITION_MEMO_START -->
+
+## Wave v360: v353 Expanded Branch-Price Disposition Memo
+
+Generated: 2026-05-17T03:21:47.447285+00:00
+
+### Objective
+
+v359 expanded the post-v353 branch-price evidence to a bounded third-order loop
+and still found no CVaR-feasible entering row. v360 records the candidate
+disposition: no expanded branch-price candidate is applied, and the result
+becomes a stronger partial no-entry blocker rather than a global certificate.
+
+### Results
+
+- Prior branch version: `359`.
+- V359 two-swap seed rows: `85`.
+- V359 ordered rows screened:
+  `62970583`.
+- V359 source-exact rows:
+  `843`.
+- V359 CVaR-feasible entering rows:
+  `0`.
+- No-apply disposition allowed:
+  `True`.
+- Best source-exact return delta:
+  `6.032121808291137`.
+- Best source-exact CVaR gap versus v353 cap:
+  `32.71388239042426`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v360 turns the v359 no-entry evidence into a clean paper artifact. The bounded
+third-order branch-price path does not justify applying a new candidate, and it
+still does not close the global proof obligation. The useful frontier is now
+sharper: even after 62.97M ordered third-order rows and 843 source-exact rows,
+the best tail-risk row remains above the v353 CVaR cap.
+
+### Claim Impact
+
+- Allowed: no-apply disposition after v359 no-entry evidence.
+- Allowed: bounded third-order no-entry blocker for the v353 candidate.
+- Still prohibited: full-v55 branch-price termination, valid global integer
+  optimality, contractual IFRS9, live deployability, Paper Estrella replacement,
+  final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v360 in the living notebook. The next wave should either expand branch-
+price depth again or produce a valid full-v55 dual-bound certificate, without
+promotion.
+
+<!-- V360_V353_EXPANDED_CANDIDATE_DISPOSITION_MEMO_END -->
