@@ -14455,3 +14455,65 @@ Keep v351 in the living notebook. The next wave should expand branch-price
 depth or build a valid dual-bound termination proof without promotion.
 
 <!-- V351_V347_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->
+
+<!-- V352_V347_EXPANDED_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_START -->
+
+## Wave v352: v347 Expanded Branch-Price Loop
+
+Generated: 2026-05-17T02:09:27.479180+00:00
+
+### Objective
+
+v351 found no CVaR-feasible entering column in a bounded second-order loop.
+v352 expands that loop by using the 119 unique v351 source-exact two-swap rows
+as seeds, then testing a third source-tight add/drop over the positive v350
+source-tight candidate pool.
+
+### Results
+
+- Unique v351 two-swap seed rows:
+  `119`.
+- Positive source-tight third-add candidates:
+  `4385`.
+- Ordered third-order rows screened:
+  `88158005`.
+- Budget+return feasible rows:
+  `16922735`.
+- Source-exact third-order rows:
+  `1568`.
+- Unique source-exact action signatures:
+  `801`.
+- CVaR-feasible entering rows:
+  `2`.
+- Best entering return delta:
+  `0.38318511605014294`.
+- Best entering CVaR90:
+  `96358.07639350664`.
+- Valid branch-price bound:
+  `False`.
+
+### Interpretation
+
+v352 deepens the branch-price evidence by moving from two-swap to three-swap
+bounded pricing. In this run it finds bounded CVaR-feasible entering
+candidates, which is actionable for v353, but still not a full-v55 dual-bound
+certificate: the screen is deliberately bounded, source-tight and local to the
+v347 candidate.
+
+### Claim Impact
+
+- Allowed: expanded bounded branch-price loop executed.
+- Allowed only within this bounded scope: bounded third-order entering
+  candidates when the count is positive.
+- Still prohibited: full-universe branch-price termination, valid global
+  integer optimality, contractual IFRS9, live deployability, Paper Estrella
+  replacement, final Paper 4 promotion and working champion claims.
+
+### Quarto Promotion Decision
+
+Keep v352 in the living notebook. The next wave should apply any bounded
+entering candidate if one exists; otherwise it should convert the deeper
+no-entry evidence into a stronger dual-bound or gap-blocker memo without
+promotion.
+
+<!-- V352_V347_EXPANDED_BRANCH_PRICE_OR_DUAL_BOUND_LOOP_END -->
