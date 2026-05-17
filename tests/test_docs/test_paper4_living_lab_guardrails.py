@@ -41838,6 +41838,134 @@ def test_paper4_v379_evidence_gap_closure_work_order_keeps_gaps_open() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v380_manuscript_section_scaffold_preserves_claim_controls() -> None:
+    status = _read_json("paper4_v380_status.json")
+
+    assert status["phase"] == "v380_manuscript_section_scaffold"
+    assert status["schema_version"] == "2026-05-17.380"
+    assert status["prior_work_order_version_v380"] == 379
+    assert status["prior_v379_work_order_rows_v380"] == 11
+    assert status["prior_v379_executable_now_rows_v380"] == 7
+    assert status["section_scaffold_rows_v380"] == 7
+    assert status["manuscript_todo_rows_v380"] == 11
+    assert status["open_todo_rows_v380"] == 11
+    assert status["claim_control_rows_v380"] == 8
+    assert status["allowed_claim_control_rows_v380"] == 2
+    assert status["blocked_claim_control_rows_v380"] == 6
+    assert status["claim_blocker_rows_v380"] == 5
+    assert status["claim_matrix_rows_v380"] == 5
+    assert status["submission_ready_claim_allowed_v380"] is False
+    assert status["quarto_promotion_allowed_v380"] is False
+    assert status["bounded_living_lab_language_allowed_v380"] is True
+    assert status["offline_proxy_language_allowed_v380"] is True
+    assert status["strict_live_deployment_language_allowed_v380"] is False
+    assert status["contractual_or_legal_language_allowed_v380"] is False
+    assert status["global_optimality_language_allowed_v380"] is False
+    assert status["working_champion_claim_allowed_v380"] is False
+    assert status["paper1_promotion_allowed_v380"] is False
+    assert status["paper4_working_champion_changed_v380"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["scaffold_artifact_v380"] == (
+        "reports/paper_material/paper4/notes/"
+        "paper4_v380_manuscript_section_scaffold.md"
+    )
+    assert status["next_artifact_v380"] == "paper4_v381_verified_literature_source_log.csv"
+
+    scaffold = _read_csv("paper4_v380_section_scaffold.csv")
+    assert scaffold["paper_section_v380"].tolist() == [
+        "Abstract",
+        "Introduction",
+        "Methods: Living-Lab Governance",
+        "Results: Solver Frontier",
+        "Results: Source Governance",
+        "Limitations",
+        "Appendix: Reproducibility",
+    ]
+    section_text = "\n".join(scaffold["bounded_draft_text_v380"].astype(str))
+    assert "protected Paper Estrella champion" in section_text
+    assert "not a replacement champion" in section_text
+    assert "full-v55 global optimality remains blocked" in section_text
+    assert "does not authorize submission-ready" in section_text
+
+    todos = _read_csv("paper4_v380_manuscript_todo_register.csv")
+    assert len(todos) == 11
+    assert todos["todo_status_v380"].eq("open").all()
+    assert "Related Work" in set(todos["target_manuscript_section_v380"])
+    assert "paper4_v381_verified_literature_source_log.csv" in set(todos["output_artifact_v379"])
+
+    controls = _read_csv("paper4_v380_claim_control_checklist.csv")
+    control_map = dict(zip(controls["control_id_v380"], controls["allowed_v380"], strict=False))
+    assert bool(control_map["bounded_living_lab_language"]) is True
+    assert bool(control_map["offline_proxy_language"]) is True
+    for control_id in [
+        "submission_ready_language",
+        "strict_live_deployment_language",
+        "contractual_or_legal_language",
+        "global_optimality_language",
+        "working_champion_language",
+        "final_promotion_language",
+    ]:
+        assert bool(control_map[control_id]) is False
+
+    blockers = _read_csv("paper4_v380_claim_blockers.csv")
+    blocker_map = dict(zip(blockers["blocker_id_v380"], blockers["blocking_v380"], strict=False))
+    blocker_evidence = dict(
+        zip(blockers["blocker_id_v380"], blockers["evidence_count_v380"], strict=False)
+    )
+    assert bool(blocker_map["scaffold_is_not_full_manuscript"]) is True
+    assert int(blocker_evidence["scaffold_is_not_full_manuscript"]) == 7
+    assert bool(blocker_map["open_todos_remain"]) is True
+    assert int(blocker_evidence["open_todos_remain"]) == 11
+    assert bool(blocker_map["verified_literature_log_missing"]) is True
+    assert int(blocker_evidence["verified_literature_log_missing"]) == 0
+    assert bool(blocker_map["quarto_pages_not_promoted"]) is True
+    assert bool(blocker_map["paper4_final_promotion_forbidden"]) is True
+
+    claim_delta = _read_csv("paper4_v380_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v380_manuscript_section_scaffold_created"]) is True
+    assert bool(claim_map["v380_manuscript_todo_register_created"]) is True
+    assert bool(claim_map["v380_submission_ready_manuscript"]) is False
+    assert bool(claim_map["v380_quarto_promotion_or_live_legal_global_claim"]) is False
+    assert bool(claim_map["v380_working_champion_or_final_promotion"]) is False
+
+    current_boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(
+        zip(current_boundaries["claim"], current_boundaries["allowed"], strict=False)
+    )
+    assert bool(boundary_map["v380 scaffolds Paper 4 manuscript sections from bounded evidence."])
+    assert bool(boundary_map["v380 maps open manuscript TODOs to future evidence-closure tasks."])
+    assert bool(boundary_map["v380 creates a submission-ready Paper 4 manuscript."]) is False
+    assert bool(boundary_map["v380 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v380_rows = backlog.loc[backlog["last_wave"].eq("v380")]
+    assert len(v380_rows) == 1
+    backlog_row = v380_rows.iloc[0]
+    assert backlog_row["status"] == "manuscript_section_scaffold_created"
+    assert backlog_row["next_artifact"] == "paper4_v381_verified_literature_source_log.csv"
+    assert backlog_row["execution_result"] == (
+        "manuscript_scaffold_created_with_open_todos_and_claim_controls"
+    )
+
+    scaffold_md = (
+        PAPER4_ROOT / "notes" / "paper4_v380_manuscript_section_scaffold.md"
+    ).read_text(encoding="utf-8")
+    assert "This is a scaffold, not a submission manuscript." in scaffold_md
+    assert "must not claim submission readiness" in scaffold_md
+    assert "paper4_v381_verified_literature_source_log.csv" in scaffold_md
+
+    notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(encoding="utf-8")
+    assert "Wave v380: Manuscript Section Scaffold" in notebook
+    assert "Section scaffold rows:\n  `7`" in notebook
+    assert "Open TODO rows:\n  `11`" in notebook
+    assert "Submission-ready claim allowed:\n  `False`" in notebook
+    assert "Quarto promotion allowed:\n  `False`" in notebook
+    assert "Final promotion created:\n  `False`" in notebook
+    assert set(_registered_paper4_pages()) == CURATED_PAPER4_PAGES
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

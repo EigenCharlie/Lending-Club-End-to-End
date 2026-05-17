@@ -15978,3 +15978,53 @@ Keep v379 in the living notebook. v380 should scaffold the manuscript sections
 from v374-v379 while preserving all claim boundaries.
 
 <!-- V379_EVIDENCE_GAP_CLOSURE_WORK_ORDER_END -->
+
+<!-- V380_MANUSCRIPT_SECTION_SCAFFOLD_START -->
+
+## Wave v380: Manuscript Section Scaffold
+
+Generated: 2026-05-17T05:45:48.276447+00:00
+
+### Objective
+
+v380 executes the first v379 work order by drafting a bounded manuscript
+scaffold from existing evidence, while keeping Quarto promotion and submission
+readiness blocked.
+
+### Results
+
+- Section scaffold rows:
+  `7`.
+- Manuscript TODO rows:
+  `11`.
+- Claim-control rows:
+  `8`.
+- Open TODO rows:
+  `11`.
+- Submission-ready claim allowed:
+  `False`.
+- Quarto promotion allowed:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v381_verified_literature_source_log.csv`.
+
+### Interpretation
+
+Paper 4 now has a manuscript shell that is easier to edit, audit and cite. The
+next weak point is external related-work verification, not solver promotion or
+live deployment.
+
+### Claim Impact
+
+- Allowed: bounded manuscript scaffold and TODO mapping.
+- Still prohibited: submission-ready, Quarto promotion, live/legal/global
+  claims, champion replacement and final promotion.
+
+### Quarto Promotion Decision
+
+Keep v380 in the living notebook. v381 should create a verified literature
+source log before related-work language is expanded.
+
+<!-- V380_MANUSCRIPT_SECTION_SCAFFOLD_END -->

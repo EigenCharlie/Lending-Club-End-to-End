@@ -1,0 +1,6 @@
+blocker_id_v380,blocking_v380,evidence_count_v380,required_next_artifact_v380,claim_boundary_v380
+scaffold_is_not_full_manuscript,True,7,paper4_v381_verified_literature_source_log.csv,section scaffold only
+open_todos_remain,True,11,paper4_v381_verified_literature_source_log.csv,future waves must close TODOs
+verified_literature_log_missing,True,0,paper4_v381_verified_literature_source_log.csv,related-work claims blocked
+quarto_pages_not_promoted,True,0,paper4_v381_verified_literature_source_log.csv,living notebook only
+paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited
