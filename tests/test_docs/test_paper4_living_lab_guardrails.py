@@ -52574,6 +52574,122 @@ def test_paper4_v459_target_venue_structure_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v460_related_work_citation_gap_audit_is_guarded() -> None:
+    status = _read_json("paper4_v460_status.json")
+
+    assert status["phase"] == "v460_related_work_citation_gap_audit"
+    assert status["schema_version"] == "2026-05-17.460"
+    assert status["prior_target_structure_version_v460"] == 459
+    assert status["prior_verified_source_log_version_v460"] == 381
+    assert status["local_bib_entry_count_v460"] == 109
+    assert status["verified_anchor_count_v460"] == 9
+    assert status["section_citation_coverage_rows_v460"] == 9
+    assert status["bounded_related_work_ready_section_count_v460"] == 8
+    assert status["citation_gap_count_v460"] == 6
+    assert status["open_citation_gap_count_v460"] == 6
+    assert status["related_work_citation_gap_audit_created_v460"] is True
+    assert status["verified_source_log_reused_from_v381_v460"] is True
+    assert status["new_external_sources_added_v460"] is False
+    assert status["references_bib_modified_v460"] is False
+    assert status["systematic_literature_review_complete_v460"] is False
+    assert status["bibliography_complete_v460"] is False
+    assert status["target_venue_selected_v460"] is False
+    assert status["external_validation_complete_v460"] is False
+    assert status["working_champion_claim_allowed_v460"] is False
+    assert status["paper1_promotion_allowed_v460"] is False
+    assert status["paper4_working_champion_changed_v460"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v460"] == "paper4_v461_bounded_related_work_draft.md"
+
+    anchors = _read_csv("paper4_v460_related_work_anchor_inventory.csv")
+    assert len(anchors) == 9
+    assert anchors["verified_v460"].astype(bool).all()
+    assert anchors["citation_key_v460"].is_unique
+    assert {
+        "rockafellar2000optimization",
+        "rockafellar2002conditional",
+        "vovk2005algorithmic",
+        "romano2019conformalized",
+        "gibbs2021adaptive",
+        "angelopoulos2024conformal",
+        "elmachtoub2021smart",
+        "ifrs2026ifrs9",
+        "cfpb2026regulationb",
+    } == set(anchors["citation_key_v460"])
+
+    coverage = _read_csv("paper4_v460_section_citation_coverage.csv")
+    assert len(coverage) == 9
+    coverage_map = dict(
+        zip(
+            coverage["section_id_v460"],
+            coverage["ready_for_bounded_draft_v460"],
+            strict=False,
+        )
+    )
+    assert bool(coverage_map["related_work_positioning"]) is True
+    assert bool(coverage_map["methods_protocol"]) is True
+    assert bool(coverage_map["discussion_limitations"]) is True
+    assert bool(coverage_map["reproducibility_artifacts"]) is True
+    assert bool(coverage_map["references"]) is False
+
+    gaps = _read_csv("paper4_v460_citation_gap_register.csv")
+    gap_map = dict(zip(gaps["gap_id_v460"], gaps["blocking_v460"], strict=False))
+    assert bool(gap_map["recent_credit_portfolio_literature_not_systematic"]) is True
+    assert bool(gap_map["venue_specific_reference_style_not_selected"]) is True
+    assert bool(gap_map["references_bib_not_curated_for_paper4"]) is True
+    assert bool(gap_map["external_validation_literature_and_data_missing"]) is True
+    assert bool(gap_map["legal_fairness_sources_not_approval"]) is True
+    assert bool(gap_map["bounded_related_work_draft_not_written"]) is True
+
+    claim_delta = _read_csv("paper4_v460_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v460_related_work_citation_gap_audit_created"]) is True
+    assert bool(claim_map["v460_verified_v381_anchor_log_reused"]) is True
+    assert bool(claim_map["v460_bounded_related_work_draft_can_start"]) is True
+    assert bool(claim_map["v460_bibliography_complete_or_systematic_review"]) is False
+    assert bool(claim_map["v460_submission_ready_or_externally_validated"]) is False
+    assert bool(claim_map["v460_working_champion_or_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v460 audits Paper 4 related-work and citation gaps."])
+    assert bool(
+        boundary_map["v460 reuses verified v381 anchors for bounded related-work drafting."]
+    )
+    assert (
+        bool(boundary_map["v460 completes a systematic literature review or final bibliography."])
+        is False
+    )
+    assert bool(boundary_map["v460 makes Paper 4 submitted, externally validated, or final."]) is False
+    assert bool(boundary_map["v460 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v460_rows = backlog.loc[backlog["last_wave"].eq("v460")]
+    assert len(v460_rows) == 1
+    backlog_row = v460_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v461_bounded_related_work_draft.md"
+    assert backlog_row["execution_result"] == "citation_gap_audit_created_without_new_sources"
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v460_related_work_citation_gap_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Related-Work/Citation Gap Audit v460" in audit_md
+    assert "does not add\nnew external sources" in audit_md
+    assert "They are not enough to claim a systematic literature" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v460: Related-Work/Citation Gap Audit" in living_notebook
+    assert "Local bibliography entries:\n  `109`." in living_notebook
+    assert "Verified v381 anchors reused:\n  `9`." in living_notebook
+    assert "Citation gaps recorded:\n  `6`." in living_notebook
+    assert "New external sources added:\n  `False`." in living_notebook
+    assert "References bibliography modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

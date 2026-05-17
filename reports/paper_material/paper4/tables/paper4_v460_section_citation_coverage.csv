@@ -1,0 +1,10 @@
+section_id_v460,verified_anchor_count_v460,coverage_status_v460,ready_for_bounded_draft_v460,next_action_v460,claim_boundary_v460
+abstract,0,not_needed_in_abstract,True,keep citations out unless target venue requires them,abstract can summarize evidence without citation expansion
+introduction_scope,2,partial,True,use conformal and governance anchors cautiously,motivation only; no full literature review
+related_work_positioning,5,partial_gap,True,draft bounded positioning and mark recent search gaps,bounded related-work draft only
+methods_protocol,4,partial,True,"cite CVaR, conformal and predict-then-optimize anchors",method context only
+results_evidence,0,internal_evidence,True,cite generated tables rather than external papers,internal validation evidence only
+discussion_limitations,4,partial,True,"use IFRS, Regulation B and online conformal caveats",limitations context only
+reproducibility_artifacts,1,partial_gap,True,connect artifact governance to local validation gates,artifact auditability only
+conclusion,0,not_needed_in_conclusion,True,avoid adding unsupported finality language,conclusion can route future work
+references,9,not_bibliography_complete,False,format references only after target venue selection,verified anchor set is not final bibliography

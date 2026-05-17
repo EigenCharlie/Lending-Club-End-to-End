@@ -1,0 +1,10 @@
+source_id_v460,citation_key_v460,title_v460,year_v460,source_type_v460,verified_v460,paper4_use_v460,claim_boundary_v460
+rockafellar_uryasev_cvar_2000,rockafellar2000optimization,Optimization of Conditional Value-at-Risk,2000,journal_article,True,CVaR tail-risk optimization reference for solver methods,method citation only
+rockafellar_uryasev_cvar_2002,rockafellar2002conditional,Conditional value-at-risk for general loss distributions,2002,journal_article,True,general/discrete-loss CVaR caveat for scenario evidence,risk-measure foundation only
+vovk_gammerman_shafer_2005,vovk2005algorithmic,Algorithmic Learning in a Random World,2005,book,True,foundational conformal prediction reference,foundational citation only
+romano_patterson_candes_cqr_2019,romano2019conformalized,Conformalized Quantile Regression,2019,conference_paper,True,heteroscedastic conformal interval reference,related-work citation only
+gibbs_candes_aci_2021,gibbs2021adaptive,Adaptive Conformal Inference Under Distribution Shift,2021,conference_paper,True,online/adaptive conformal context for historical replay,online conformal context only
+angelopoulos_bates_fisch_lei_schuster_crc_2024,angelopoulos2024conformal,Conformal Risk Control,2024,conference_paper,True,future decision-risk-control framing,future-work/method context only
+elmachtoub_grigas_spo_2021,elmachtoub2021smart,"Smart Predict, then Optimize",2021,journal_article,True,predict-then-optimize and SPO/SPO+ boundary reference,method boundary citation only
+ifrs_foundation_ifrs9_2026,ifrs2026ifrs9,IFRS 9 Financial Instruments,2026,official_accounting_standard,True,IFRS9 context and proxy/contractual limitation boundary,official standard context only
+cfpb_regulation_b_1002_current,cfpb2026regulationb,12 CFR Part 1002 - Equal Credit Opportunity Act (Regulation B),2026,official_regulatory_standard,True,fair-lending limitation and legal-review boundary,regulatory context only
