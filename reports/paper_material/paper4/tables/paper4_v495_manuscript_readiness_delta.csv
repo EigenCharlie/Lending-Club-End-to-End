@@ -1,0 +1,9 @@
+readiness_gate_v495,ready_v495,evidence_artifact_v495,claim_boundary_v495
+no_patch_release_synthesis_created,True,paper4_v495_no_patch_release_synthesis.csv,no-patch synthesis only
+bounded_release_claim_register_created,True,paper4_v495_bounded_release_claim_register.csv,bounded claim register only
+next_work_queue_created,True,paper4_v495_next_work_queue.csv,future work queue only
+release_decision_matrix_created,True,paper4_v495_release_decision_matrix.csv,decision matrix only
+ready_for_quarto_patch,False,caption signoff and approval missing,patch remains blocked
+book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v495
+submission_ready,False,"future approval, patch, render and venue gates",not a submission package
+paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

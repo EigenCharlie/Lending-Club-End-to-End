@@ -1,0 +1,6 @@
+claim_id,allowed,artifact,boundary
+v495_no_patch_release_synthesis_created,True,paper4_v495_no_patch_release_synthesis.csv,no-patch synthesis only
+v495_bounded_release_claim_register_created,True,paper4_v495_bounded_release_claim_register.csv,bounded claim register only
+v495_next_work_queue_created,True,paper4_v495_next_work_queue.csv,future work queue only
+v495_patch_or_submission_ready,False,paper4_v495_manuscript_readiness_delta.csv,patch and submission remain blocked
+v495_final_promotion,False,paper4_v495_manuscript_readiness_delta.csv,no final promotion claim

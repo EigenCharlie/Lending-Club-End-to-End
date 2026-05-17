@@ -1,0 +1,7 @@
+synthesis_item_id_v495,source_wave_v495,useful_no_patch_evidence_v495,blocks_patch_v495,release_language_v495
+layout_consistency_audit,v489,True,False,layout dry-run is internally consistent
+manual_review_decision,v490,True,True,layout accepted only for manual review
+patch_readiness_preflight,v491,True,True,patch readiness preflight failed with open blockers
+manual_layout_review_packet,v492,True,True,four surfaces and ten assets are queued for review
+caption_signoff_gap,v493,True,True,ten draft captions exist but zero are final
+patch_approval_gap,v494,True,True,explicit patch approval is absent

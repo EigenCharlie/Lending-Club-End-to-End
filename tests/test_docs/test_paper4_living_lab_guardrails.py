@@ -56509,6 +56509,137 @@ def test_paper4_v494_patch_approval_gap_packet_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v495_no_patch_release_synthesis_is_guarded() -> None:
+    status = _read_json("paper4_v495_status.json")
+    assert status["phase"] == "v495_no_patch_release_synthesis"
+    assert status["schema_version"] == "2026-05-17.495"
+    assert status["prior_patch_approval_version_v495"] == 494
+    assert status["no_patch_release_synthesis_created_v495"] is True
+    assert status["synthesis_rows_v495"] == 6
+    assert status["useful_no_patch_evidence_rows_v495"] == 6
+    assert status["blocking_synthesis_rows_v495"] == 5
+    assert status["release_claim_rows_v495"] == 6
+    assert status["allowed_release_claim_rows_v495"] == 3
+    assert status["next_work_queue_rows_v495"] == 5
+    assert status["recommended_next_work_rows_v495"] == 3
+    assert status["release_decision_rows_v495"] == 4
+    assert status["recommended_release_decision_rows_v495"] == 2
+    assert status["readiness_delta_rows_v495"] == 8
+    assert status["ready_for_quarto_patch_v495"] is False
+    assert status["quarto_patch_applied_v495"] is False
+    assert status["book_sources_modified_v495"] is False
+    assert status["book_references_modified_v495"] is False
+    assert status["submission_ready_claim_allowed_v495"] is False
+    assert status["working_champion_claim_allowed_v495"] is False
+    assert status["paper1_promotion_allowed_v495"] is False
+    assert status["paper4_working_champion_changed_v495"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v495"] == "paper4_v496_review_gate_prioritization.md"
+
+    synthesis = _read_csv("paper4_v495_no_patch_release_synthesis.csv")
+    assert len(synthesis) == 6
+    assert synthesis["useful_no_patch_evidence_v495"].astype(bool).all()
+    assert int(synthesis["blocks_patch_v495"].astype(bool).sum()) == 5
+    assert set(synthesis["source_wave_v495"]) == {"v489", "v490", "v491", "v492", "v493", "v494"}
+    assert "caption_signoff_gap" in set(synthesis["synthesis_item_id_v495"])
+    assert "patch_approval_gap" in set(synthesis["synthesis_item_id_v495"])
+
+    claims = _read_csv("paper4_v495_bounded_release_claim_register.csv")
+    assert len(claims) == 6
+    assert int(claims["allowed_v495"].astype(bool).sum()) == 3
+    claim_map = dict(zip(claims["release_claim_id_v495"], claims["allowed_v495"], strict=False))
+    assert bool(claim_map["layout_evidence_ready_for_review"]) is True
+    assert bool(claim_map["manual_review_queue_defined"]) is True
+    assert bool(claim_map["caption_and_approval_blockers_documented"]) is True
+    assert bool(claim_map["paper4_ready_for_quarto_patch"]) is False
+    assert bool(claim_map["paper4_submission_ready"]) is False
+    assert bool(claim_map["paper4_final_or_champion_replacement"]) is False
+
+    next_work = _read_csv("paper4_v495_next_work_queue.csv")
+    assert len(next_work) == 5
+    assert int(next_work["recommended_next_v495"].astype(bool).sum()) == 3
+    assert next_work["blocks_patch_v495"].astype(bool).all()
+    next_map = dict(zip(next_work["next_work_id_v495"], next_work["recommended_next_v495"], strict=False))
+    assert bool(next_map["prioritize_review_gates"]) is True
+    assert bool(next_map["complete_caption_signoff"]) is True
+    assert bool(next_map["obtain_explicit_patch_approval"]) is True
+    assert bool(next_map["apply_quarto_patch"]) is False
+    assert bool(next_map["declare_paper4_final"]) is False
+
+    decisions = _read_csv("paper4_v495_release_decision_matrix.csv")
+    assert len(decisions) == 4
+    assert int(decisions["recommended_v495"].astype(bool).sum()) == 2
+    assert not decisions["patch_allowed_v495"].astype(bool).any()
+    decision_map = dict(zip(decisions["decision_id_v495"], decisions["recommended_v495"], strict=False))
+    assert bool(decision_map["release_no_patch_synthesis"]) is True
+    assert bool(decision_map["prioritize_review_gates_next"]) is True
+    assert bool(decision_map["request_patch_after_signoff"]) is False
+    assert bool(decision_map["publish_or_finalize_paper4"]) is False
+
+    readiness = _read_csv("paper4_v495_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v495"], readiness["ready_v495"], strict=False)
+    )
+    assert bool(readiness_map["no_patch_release_synthesis_created"]) is True
+    assert bool(readiness_map["bounded_release_claim_register_created"]) is True
+    assert bool(readiness_map["next_work_queue_created"]) is True
+    assert bool(readiness_map["release_decision_matrix_created"]) is True
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["book_sources_or_references_modified"]) is False
+    assert bool(readiness_map["submission_ready"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v495_claim_matrix_delta.csv")
+    delta_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(delta_map["v495_no_patch_release_synthesis_created"]) is True
+    assert bool(delta_map["v495_bounded_release_claim_register_created"]) is True
+    assert bool(delta_map["v495_next_work_queue_created"]) is True
+    assert bool(delta_map["v495_patch_or_submission_ready"]) is False
+    assert bool(delta_map["v495_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v495 synthesizes no-patch Paper 4 release evidence."])
+    assert bool(boundary_map["v495 registers bounded release claims for Paper 4."])
+    assert bool(boundary_map["v495 creates the next executable review-gate queue."])
+    assert (
+        bool(boundary_map["v495 makes Paper 4 ready for Quarto patching or submission."])
+        is False
+    )
+    assert bool(boundary_map["v495 edits book sources or applies a patch."]) is False
+    assert bool(boundary_map["v495 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v495_rows = backlog.loc[backlog["last_wave"].eq("v495")]
+    assert len(v495_rows) == 1
+    backlog_row = v495_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v496_review_gate_prioritization.md"
+    assert backlog_row["execution_result"] == "no_patch_release_synthesis_created_without_mutation"
+
+    synthesis_md = (
+        PAPER4_ROOT / "notes" / "paper4_v495_no_patch_release_synthesis.md"
+    ).read_text(encoding="utf-8")
+    assert "No-Patch Release Synthesis v495" in synthesis_md
+    assert "v489-v494 manuscript-review chain" in synthesis_md
+    assert "v495 is a no-patch synthesis only" in synthesis_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v495: No-Patch Release Synthesis" in living_notebook
+    assert "Synthesis rows:\n  `6`." in living_notebook
+    assert "Useful no-patch evidence rows:\n  `6`." in living_notebook
+    assert "Blocking synthesis rows:\n  `5`." in living_notebook
+    assert "Release claim rows:\n  `6`." in living_notebook
+    assert "Allowed release claim rows:\n  `3`." in living_notebook
+    assert "Next work queue rows:\n  `5`." in living_notebook
+    assert "Release decision rows:\n  `4`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

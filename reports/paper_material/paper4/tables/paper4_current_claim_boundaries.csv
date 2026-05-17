@@ -1713,3 +1713,9 @@ v494 maps patch scope without approving mutation.,True,reports/paper_material/pa
 v494 obtains explicit patch approval or makes Paper 4 patch-ready.,False,reports/paper_material/paper4/tables/paper4_v494_manuscript_readiness_delta.csv,Approval remains missing and patch remains blocked.,True,living_notebook_only
 v494 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v494_approval_decision_options.csv,Patch is not authorized in v494.,True,living_notebook_only
 v494 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v494_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only
+v495 synthesizes no-patch Paper 4 release evidence.,True,reports/paper_material/paper4/tables/paper4_v495_no_patch_release_synthesis.csv,No-patch synthesis only.,False,living_notebook_only
+v495 registers bounded release claims for Paper 4.,True,reports/paper_material/paper4/tables/paper4_v495_bounded_release_claim_register.csv,Bounded claim register only.,False,living_notebook_only
+v495 creates the next executable review-gate queue.,True,reports/paper_material/paper4/tables/paper4_v495_next_work_queue.csv,Next work queue only.,False,living_notebook_only
+v495 makes Paper 4 ready for Quarto patching or submission.,False,reports/paper_material/paper4/tables/paper4_v495_manuscript_readiness_delta.csv,Patch and submission gates remain open.,True,living_notebook_only
+v495 edits book sources or applies a patch.,False,reports/paper_material/paper4/tables/paper4_v495_release_decision_matrix.csv,Patch is not authorized in v495.,True,living_notebook_only
+v495 replaces Paper Estrella or finalizes Paper 4.,False,reports/paper_material/paper4/tables/paper4_v495_manuscript_readiness_delta.csv,"No final promotion artifact, champion replacement or deployment gate is created.",True,living_notebook_only

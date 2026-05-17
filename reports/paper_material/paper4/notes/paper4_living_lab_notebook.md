@@ -22034,3 +22034,60 @@ Keep v494 in the living notebook. v495 should synthesize no-patch release
 evidence without modifying book sources.
 
 <!-- V494_PATCH_APPROVAL_GAP_PACKET_END -->
+
+<!-- V495_NO_PATCH_RELEASE_SYNTHESIS_START -->
+
+## Wave v495: No-Patch Release Synthesis
+
+Generated: 2026-05-17T18:49:10.172177+00:00
+
+### Objective
+
+v495 synthesizes the v489-v494 no-patch manuscript-review chain into bounded
+release evidence and a next-work queue.
+
+### Results
+
+- Synthesis rows:
+  `6`.
+- Useful no-patch evidence rows:
+  `6`.
+- Blocking synthesis rows:
+  `5`.
+- Release claim rows:
+  `6`.
+- Allowed release claim rows:
+  `3`.
+- Next work queue rows:
+  `5`.
+- Release decision rows:
+  `4`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v496_review_gate_prioritization.md`.
+
+### Interpretation
+
+The living lab now has a clean no-patch release packet: useful evidence is
+available for review, but patching, submission and final promotion remain
+blocked.
+
+### Claim Impact
+
+- Allowed: no-patch release synthesis, bounded release claim register and next
+  executable review-gate queue.
+- Still prohibited: Quarto patch readiness/application, Quarto/book-reference
+  mutation, submission readiness, Paper Estrella replacement and final Paper 4
+  promotion.
+
+### Quarto Promotion Decision
+
+Keep v495 in the living notebook. v496 should prioritize review gates for
+execution without modifying book sources.
+
+<!-- V495_NO_PATCH_RELEASE_SYNTHESIS_END -->
