@@ -22325,3 +22325,69 @@ Keep v499 in the living notebook. v500 should audit template consistency before
 capturing outcomes or modifying book sources.
 
 <!-- V499_REVIEW_OUTCOME_CAPTURE_TEMPLATE_END -->
+
+<!-- V500_REVIEW_OUTCOME_TEMPLATE_CONSISTENCY_AUDIT_START -->
+
+## Wave v500: Review Outcome Template Consistency Audit
+
+Generated: 2026-05-17T19:25:46.491014+00:00
+
+### Objective
+
+v500 audits whether the v499 review outcome template is internally consistent
+enough to support a future dry run while preserving the no-outcome and no-patch
+state.
+
+### Results
+
+- Consistency check rows:
+  `8`.
+- Passed consistency check rows:
+  `8`.
+- Failed consistency check rows:
+  `0`.
+- Outcome template rows:
+  `14`.
+- Layout outcome template rows:
+  `4`.
+- Caption outcome template rows:
+  `10`.
+- Required field rows:
+  `8`.
+- Active control rows:
+  `6`.
+- Outcome captured rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Future capture dry run ready:
+  `True`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v501_review_outcome_capture_dry_run.md`.
+
+### Interpretation
+
+The template is internally consistent and ready for a controlled dry run. This
+still is not human signoff, caption finalization, patch approval or manuscript
+promotion.
+
+### Claim Impact
+
+- Allowed: template consistency audit, coverage verification and future dry-run
+  readiness.
+- Still prohibited: completed review/signoff claims, final captions, Quarto
+  patch readiness/application, Quarto/book-reference mutation, submission
+  readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v500 in the living notebook. v501 should run a controlled capture dry run
+without recording real review outcomes or modifying book sources.
+
+<!-- V500_REVIEW_OUTCOME_TEMPLATE_CONSISTENCY_AUDIT_END -->

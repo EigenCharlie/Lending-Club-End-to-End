@@ -57232,6 +57232,159 @@ def test_paper4_v499_review_outcome_capture_template_is_guarded() -> None:
     assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
 
 
+def test_paper4_v500_review_outcome_template_consistency_audit_is_guarded() -> None:
+    status = _read_json("paper4_v500_status.json")
+    assert status["phase"] == "v500_review_outcome_template_consistency_audit"
+    assert status["schema_version"] == "2026-05-17.500"
+    assert status["prior_review_outcome_template_version_v500"] == 499
+    assert status["review_outcome_template_consistency_audit_created_v500"] is True
+    assert status["consistency_check_rows_v500"] == 8
+    assert status["passed_consistency_check_rows_v500"] == 8
+    assert status["failed_consistency_check_rows_v500"] == 0
+    assert status["domain_coverage_rows_v500"] == 3
+    assert status["domain_coverage_passed_rows_v500"] == 3
+    assert status["required_field_coverage_rows_v500"] == 8
+    assert status["required_field_coverage_passed_rows_v500"] == 8
+    assert status["control_integrity_rows_v500"] == 6
+    assert status["control_integrity_passed_rows_v500"] == 6
+    assert status["outcome_template_rows_v500"] == 14
+    assert status["layout_outcome_template_rows_v500"] == 4
+    assert status["caption_outcome_template_rows_v500"] == 10
+    assert status["unique_template_ids_v500"] == 14
+    assert status["required_field_rows_v500"] == 8
+    assert status["captured_required_field_rows_v500"] == 0
+    assert status["active_control_rows_v500"] == 6
+    assert status["outcome_captured_rows_v500"] == 0
+    assert status["review_completed_rows_v500"] == 0
+    assert status["patch_allowed_rows_v500"] == 0
+    assert status["readiness_delta_rows_v500"] == 8
+    assert status["future_capture_dry_run_ready_v500"] is True
+    assert status["ready_for_quarto_patch_v500"] is False
+    assert status["quarto_patch_applied_v500"] is False
+    assert status["book_sources_modified_v500"] is False
+    assert status["book_references_modified_v500"] is False
+    assert status["submission_ready_claim_allowed_v500"] is False
+    assert status["working_champion_claim_allowed_v500"] is False
+    assert status["paper1_promotion_allowed_v500"] is False
+    assert status["paper4_working_champion_changed_v500"] is False
+    assert status["paper4_final_promotion_created"] is False
+    assert status["next_artifact_v500"] == "paper4_v501_review_outcome_capture_dry_run.md"
+
+    consistency = _read_csv("paper4_v500_template_consistency_audit.csv")
+    assert len(consistency) == 8
+    assert consistency["passed_v500"].astype(bool).all()
+    assert set(consistency["consistency_check_id_v500"]) == {
+        "template_row_count",
+        "template_ids_unique",
+        "template_domains_expected",
+        "domain_coverage_passed",
+        "required_fields_passed",
+        "controls_passed",
+        "no_outcomes_captured",
+        "no_patch_permission",
+    }
+
+    domain_coverage = _read_csv("paper4_v500_template_domain_coverage.csv")
+    assert len(domain_coverage) == 3
+    assert domain_coverage["coverage_passed_v500"].astype(bool).all()
+    coverage_map = {
+        row["coverage_domain_v500"]: row for _, row in domain_coverage.iterrows()
+    }
+    assert int(coverage_map["layout_surface"]["observed_rows_v500"]) == 4
+    assert int(coverage_map["layout_surface"]["observed_item_count_v500"]) == 10
+    assert int(coverage_map["caption_claim_safety"]["observed_rows_v500"]) == 10
+    assert int(coverage_map["caption_claim_safety"]["observed_item_count_v500"]) == 10
+    assert int(coverage_map["all_review_items"]["observed_rows_v500"]) == 14
+    assert int(coverage_map["all_review_items"]["observed_item_count_v500"]) == 20
+
+    field_coverage = _read_csv("paper4_v500_required_field_coverage.csv")
+    assert len(field_coverage) == 8
+    assert field_coverage["declared_v500"].astype(bool).all()
+    assert field_coverage["required_v500"].astype(bool).all()
+    assert not field_coverage["captured_v500"].astype(bool).any()
+    assert field_coverage["field_coverage_passed_v500"].astype(bool).all()
+
+    control_audit = _read_csv("paper4_v500_control_integrity_audit.csv")
+    assert len(control_audit) == 6
+    assert control_audit["declared_v500"].astype(bool).all()
+    assert control_audit["active_v500"].astype(bool).all()
+    assert control_audit["blocks_patch_v500"].astype(bool).all()
+    assert control_audit["control_integrity_passed_v500"].astype(bool).all()
+
+    readiness = _read_csv("paper4_v500_manuscript_readiness_delta.csv")
+    readiness_map = dict(
+        zip(readiness["readiness_gate_v500"], readiness["ready_v500"], strict=False)
+    )
+    assert bool(readiness_map["review_outcome_template_consistency_audit_created"])
+    assert bool(readiness_map["domain_coverage_audit_passed"])
+    assert bool(readiness_map["required_field_coverage_audit_passed"])
+    assert bool(readiness_map["control_integrity_audit_passed"])
+    assert bool(readiness_map["future_capture_dry_run_ready"])
+    assert bool(readiness_map["review_outcomes_captured"]) is False
+    assert bool(readiness_map["ready_for_quarto_patch"]) is False
+    assert bool(readiness_map["paper4_final_promotion_created"]) is False
+
+    claim_delta = _read_csv("paper4_v500_claim_matrix_delta.csv")
+    claim_map = dict(zip(claim_delta["claim_id"], claim_delta["allowed"], strict=False))
+    assert bool(claim_map["v500_review_outcome_template_consistency_audited"])
+    assert bool(claim_map["v500_domain_and_field_coverage_passed"])
+    assert bool(claim_map["v500_future_capture_dry_run_ready"])
+    assert bool(claim_map["v500_reviews_completed_or_captions_final"]) is False
+    assert bool(claim_map["v500_patch_ready_or_applied"]) is False
+    assert bool(claim_map["v500_final_promotion"]) is False
+
+    boundaries = _read_csv("paper4_current_claim_boundaries.csv")
+    boundary_map = dict(zip(boundaries["claim"], boundaries["allowed"], strict=False))
+    assert bool(boundary_map["v500 audits Paper 4 review outcome template consistency."])
+    assert bool(
+        boundary_map["v500 verifies domain, field and control coverage for future capture."]
+    )
+    assert bool(boundary_map["v500 makes a future outcome-capture dry run executable."])
+    assert (
+        bool(boundary_map["v500 captures completed review outcomes or finalizes captions."])
+        is False
+    )
+    assert (
+        bool(boundary_map["v500 makes Paper 4 ready for Quarto patching or applies a patch."])
+        is False
+    )
+    assert bool(boundary_map["v500 replaces Paper Estrella or finalizes Paper 4."]) is False
+
+    backlog = _read_csv("paper4_living_lab_backlog.csv")
+    v500_rows = backlog.loc[backlog["last_wave"].eq("v500")]
+    assert len(v500_rows) == 1
+    backlog_row = v500_rows.iloc[0]
+    assert backlog_row["next_artifact"] == "paper4_v501_review_outcome_capture_dry_run.md"
+    assert backlog_row["execution_result"] == "review_outcome_template_audited_without_mutation"
+
+    audit_md = (
+        PAPER4_ROOT / "notes" / "paper4_v500_review_outcome_template_consistency_audit.md"
+    ).read_text(encoding="utf-8")
+    assert "Review Outcome Template Consistency Audit v500" in audit_md
+    assert "All\nconsistency checks pass" in audit_md
+    assert "v500 is a consistency audit only" in audit_md
+
+    living_notebook = (PAPER4_ROOT / "notes" / "paper4_living_lab_notebook.md").read_text(
+        encoding="utf-8"
+    )
+    assert "Wave v500: Review Outcome Template Consistency Audit" in living_notebook
+    assert "Consistency check rows:\n  `8`." in living_notebook
+    assert "Passed consistency check rows:\n  `8`." in living_notebook
+    assert "Failed consistency check rows:\n  `0`." in living_notebook
+    assert "Outcome template rows:\n  `14`." in living_notebook
+    assert "Layout outcome template rows:\n  `4`." in living_notebook
+    assert "Caption outcome template rows:\n  `10`." in living_notebook
+    assert "Required field rows:\n  `8`." in living_notebook
+    assert "Active control rows:\n  `6`." in living_notebook
+    assert "Outcome captured rows:\n  `0`." in living_notebook
+    assert "Patch allowed rows:\n  `0`." in living_notebook
+    assert "Future capture dry run ready:\n  `True`." in living_notebook
+    assert "Ready for Quarto patch:\n  `False`." in living_notebook
+    assert "Book sources modified:\n  `False`." in living_notebook
+    assert "Final promotion created:\n  `False`" in living_notebook
+    assert not (STATUS_DIR / "paper4_final_promotion.json").exists()
+
+
 def test_paper4_quarto_chapter_renders() -> None:
     if shutil.which("quarto") is None:
         pytest.skip("quarto CLI is not installed")

@@ -1,0 +1,4 @@
+coverage_domain_v500,expected_rows_v500,observed_rows_v500,expected_item_count_v500,observed_item_count_v500,coverage_passed_v500,claim_boundary_v500
+layout_surface,4,4,10,10,True,template coverage audit only
+caption_claim_safety,10,10,10,10,True,template coverage audit only
+all_review_items,14,14,20,20,True,template coverage audit only

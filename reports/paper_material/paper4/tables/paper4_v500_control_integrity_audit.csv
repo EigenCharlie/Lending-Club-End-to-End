@@ -1,0 +1,7 @@
+control_id_v500,declared_v500,active_v500,blocks_patch_v500,control_integrity_passed_v500,claim_boundary_v500
+no_book_mutation,True,True,True,True,control integrity audit only
+no_caption_finalized,True,True,True,True,control integrity audit only
+no_final_promotion,True,True,True,True,control integrity audit only
+no_outcomes_captured,True,True,True,True,control integrity audit only
+no_patch_approval,True,True,True,True,control integrity audit only
+no_render_submission,True,True,True,True,control integrity audit only
