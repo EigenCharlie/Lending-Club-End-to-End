@@ -27,3 +27,17 @@ el stack de dependencias se resuelva y exista validacion.
 Los sample paths son internos y sirven para comparacion pareada, sensibilidad y
 stress. No son forecast externo. Cuando se usa macro externo, debe quedar
 etiquetado como contexto o calibracion parcial.
+
+## Auditoria post-cierre
+
+El raw aporta `last_pymnt_d`, `last_credit_pull_d`, `out_prncp`,
+`total_pymnt`, `recoveries` y hardship fields. Eso mejora dos cosas:
+
+1. DLA/ADP puede tener un simulador de rollout con features de cashflow y
+   hardship, pero sigue sin trayectoria mensual completa ni logs de decisiones.
+2. SPO/DFL puede correr como prototipo aislado con PyEPO o cvxpylayers, pero no
+   debe integrarse al pipeline CRPTO principal hasta que dependencias,
+   escalabilidad y validacion esten resueltas.
+
+Por tanto, Paper 4 conserva `rollout_only` para DLA/ADP e
+`isolated_prototype` para SPO/DFL.

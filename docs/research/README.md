@@ -25,3 +25,6 @@ This directory stores research-only notes, comparative writeups, and literature 
 - `paper4_goal_loop_final_audit_2026-05-18.md`: final closure audit describing
   what remains in the book, what serves Paper Estrella, what serves Paper 4, and
   which future lanes are still worth advancing under strict stop rules.
+- `paper4_data_frontier_research_proposal_2026-05-18.md`: cleaned/raw/dictionary
+  audit of the seven parked Paper 4 lanes, with external research triangulation
+  and bounded experiment proposals.

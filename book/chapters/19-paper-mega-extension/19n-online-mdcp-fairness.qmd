@@ -26,3 +26,16 @@ protegidos o protocolo externo aprobado, no hay fair-lending legal claim.
 
 Paper 4 puede defender que mide y gobierna fuentes debiles de cobertura. No
 puede afirmar cumplimiento legal de fair lending ni despliegue online real.
+
+## Auditoria post-cierre
+
+La auditoria cleaned/raw/diccionario del 2026-05-18 mantiene el claim legal de
+fair lending en falso: hay `addr_state`, `zip_code`, income, DTI, grade y
+purpose, pero no race, ethnicity, sex, age, surname, direccion completa ni
+Census tract. Eso permite source/geography governance, no BISG completo ni
+claim legal.
+
+Para online conformal, la misma auditoria autoriza solo un experimento acotado:
+source-family holdout retrospectivo por issue-month, grade, state, income/DTI
+bins y zip3, con una lectura MDCP/defended-source. Si no mejora el peor source
+sin inflar demasiado el ancho, el resultado se archiva como limitacion.

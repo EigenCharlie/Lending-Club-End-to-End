@@ -12,11 +12,11 @@ page-layout: article
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
-| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
-| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
-| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
-| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains isolated-prototype only. | isolated_prototype | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
 
 ## Boundaries de claims
@@ -36,24 +36,29 @@ page-layout: article
 ## Gaps reales
 
 Los gaps no son fracasos editoriales: son limites que hacen al paper mas serio.
-IFRS9 contractual esta bloqueado por datos de servicing; CATE esta bloqueado por
-identificacion y sensibilidad; fairness legal esta bloqueado por ausencia de
-atributos protegidos o protocolo aprobado; SPO diferenciable esta bloqueado por
-dependencias; CVaR exacto full-universe no debe reclamarse sin prueba exacta.
+La auditoria `paper4_data_frontier_research_proposal_2026-05-18.md` reviso
+`lending_club_cleaned.parquet`, el raw y el diccionario oficial. La conclusion
+cambia el tono, no los claims prohibidos: hay datos suficientes para algunos
+experimentos acotados, pero no para claims legales, contractuales o de
+optimalidad exacta.
+
+| lane | decision post-audit | uso permitido |
+| --- | --- | --- |
+| IFRS9/SICR | bounded_experiment | ECL/SICR lifetime diagnostic con raw cashflows, no IFRS9 contractual |
+| online conformal | bounded_experiment | source-family holdout retrospectivo, no despliegue real |
+| CATE | diagnostic_only | sensibilidad high-rate-within-grade, no policy value |
+| CVaR/OCE | tail_challenger_only | repricing de cola con cashflows raw, no champion replacement |
+| fair lending | proxy_only | source/geography governance, no legal claim |
+| SPO/DFL | isolated_prototype | PyEPO/cvxpylayers fuera del pipeline principal |
+| DLA/ADP | rollout_only | simulador representativo, no Bellman optimality |
 
 ## Backlog resumido
 
 | horizon | lane | status | executable_item |
 | --- | --- | --- | --- |
 | immediate | Quarto governance | active_rule | Keep chapter 19 curated and move each new wave summary to the living notebook first. |
-| immediate | Dynamic stress | resolved_but_rerunnable | Run focused champion-vs-tail challenger stress only when a new candidate changes paired robustness. |
-| immediate | Online conformal | near_resolved_with_plateau | Target the v35 weak source-family holdouts with min-support pooling and source-family calibration. |
-| immediate | CVaR/OCE | near_resolved_with_plateau | Document strict infeasibility and rerun column generation only for new caps or return floors. |
-| short | SPO/DFL | dependency_blocked | Build an isolated dependency environment for cvxpy/cvxpylayers/torch without breaking the main repo. |
-| short | DLA/ADP | near_resolved_with_plateau | Improve ADP rollout features and compare only against common-path dynamic baselines. |
-| short | Sample paths | near_resolved_with_plateau | Separate external macro context from internal calibration labels and keep forecast claim false. |
-| short | IFRS9/SICR | data_blocked | Improve proxy SICR sensitivity and data blocker register without calling it contractual IFRS9. |
-| medium | CATE | theory_blocked | Only continue causal policy value if a cleaner treatment/outcome and overlap gate are found. |
-| medium | Fairness | data_blocked | Keep proxy governance unless protected attributes or approved external proxy protocol exist. |
-| medium | Academic synthesis | editorial_decision_pending | Decide whether Paper 4 should become a governance paper or remain a mega lab appendix. |
+| immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for seven parked lanes. |
+| short | Academic synthesis | active_rule | Treat Paper 4 as a governed sequential decision analytics methodology paper. |
+| short | Raw-enriched diagnostics | parked | Run at most one compact IFRS9, online, CATE or CVaR diagnostic when a target claim is named. |
+| short | Legal/optimality claims | parked | Keep fairness legal, exact Bellman and integrated differentiable SPO+ claims false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |

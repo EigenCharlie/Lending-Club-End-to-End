@@ -32,6 +32,10 @@ minimo que permite defender que Paper 4 existe como laboratorio reproducible.
 | `paper4_living_lab_backlog.csv` | Implementables por horizonte |
 | `paper4_quarto_page_registry.csv` | Paginas oficiales vs archivo historico |
 | `paper4_living_lab_notebook.md` | Bitacora canonica de laboratorio |
+| `paper4_data_frontier_variable_inventory_2026-05-18.csv` | Inventario cleaned/raw/diccionario para los siete carriles parqueados |
+| `paper4_data_frontier_lane_decisions_2026-05-18.csv` | Decision promote/park por carril despues de auditar datos e investigacion |
+| `paper4_data_frontier_raw_servicing_profile_2026-05-18.csv` | Perfil raw de cashflows, hardship, recoveries y servicing fields |
+| `paper4_data_frontier_research_proposal_2026-05-18.md` | Propuesta de experimentos acotados sin reabrir el loop |
 
 ## Regla de uso
 

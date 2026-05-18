@@ -103,6 +103,13 @@ Advance only the lanes below, and only with explicit gates.
 | Fairness/CATE | Protected attributes, validated proxy protocol, or credible causal identification/overlap evidence exists. | One governance/identification memo; no policy-value claim without it. |
 | Paper 4 governance paper | The goal is a separate methodology paper about research-program governance. | One outline plus one claim-evidence map. |
 
+Post-audit update: `paper4_data_frontier_research_proposal_2026-05-18.md`
+audits the cleaned parquet, raw servicing fields, and Lending Club dictionary.
+It moves IFRS9/SICR, online conformal, CATE, and CVaR/OCE into bounded
+experiment menus, while keeping fair-lending legal claims, exact Bellman
+optimality, and integrated differentiable SPO+ parked until missing data or
+dependencies appear.
+
 ## Stop Rules
 
 - Do not create a new `paper4_v###` wave for polish, curiosity, or a failing

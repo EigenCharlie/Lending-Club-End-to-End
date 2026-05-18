@@ -47,11 +47,11 @@ SDAM como robustez, caveat y framing.
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
-| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
-| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
-| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
-| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains isolated-prototype only. | isolated_prototype | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
 
 ## Claims y prohibiciones
@@ -68,21 +68,39 @@ SDAM como robustez, caveat y framing.
 | CATE policy value is ready for decision selection. | False | Causal diagnostics only; no policy-value claim. | 19b-current-assets-and-gaps.qmd |
 | Fair-lending legal claim is supported. | False | Proxy/source governance only; no protected-attribute legal claim. | 19n-online-mdcp-fairness.qmd |
 
+## Auditoria de datos post-cierre
+
+La auditoria del 2026-05-18 reabrio la pregunta de datos sin reabrir el loop de
+waves. El parquet limpio tiene 1,860,764 loans, 113 columnas, 160 issue-months,
+51 estados y 949 prefijos zip3. El raw agrega cashflows y servicing fields como
+`total_pymnt`, `recoveries`, `last_pymnt_d`, `last_credit_pull_d`,
+`hardship_flag`, `hardship_dpd` y `debt_settlement_flag`.
+
+Eso permite cuatro experimentos acotados y mantiene tres claims bloqueados:
+
+| lane | decision | regla de cierre |
+| --- | --- | --- |
+| IFRS9/SICR | bounded_experiment | una tabla raw-enriched; no IFRS9 contractual |
+| online conformal | bounded_experiment | un source-family holdout; no despliegue real |
+| CATE | diagnostic_only | sensibilidad observacional; no policy value |
+| CVaR/OCE | tail_challenger_only | cashflow repricing; no champion replacement |
+| fair lending | proxy_only | source governance; no legal claim |
+| SPO/DFL | isolated_prototype | ambiente separado; no pipeline principal |
+| DLA/ADP | rollout_only | simulador representativo; no Bellman optimality |
+
+El memo completo queda en
+`docs/research/paper4_data_frontier_research_proposal_2026-05-18.md`.
+
 ## Pendientes ejecutables
 
 | horizon | lane | status | executable_item |
 | --- | --- | --- | --- |
 | immediate | Quarto governance | active_rule | Keep chapter 19 curated and move each new wave summary to the living notebook first. |
 | immediate | Dynamic stress | resolved_but_rerunnable | Run focused champion-vs-tail challenger stress only when a new candidate changes paired robustness. |
-| immediate | Online conformal | near_resolved_with_plateau | Target the v35 weak source-family holdouts with min-support pooling and source-family calibration. |
-| immediate | CVaR/OCE | near_resolved_with_plateau | Document strict infeasibility and rerun column generation only for new caps or return floors. |
-| short | SPO/DFL | dependency_blocked | Build an isolated dependency environment for cvxpy/cvxpylayers/torch without breaking the main repo. |
-| short | DLA/ADP | near_resolved_with_plateau | Improve ADP rollout features and compare only against common-path dynamic baselines. |
-| short | Sample paths | near_resolved_with_plateau | Separate external macro context from internal calibration labels and keep forecast claim false. |
-| short | IFRS9/SICR | data_blocked | Improve proxy SICR sensitivity and data blocker register without calling it contractual IFRS9. |
-| medium | CATE | theory_blocked | Only continue causal policy value if a cleaner treatment/outcome and overlap gate are found. |
-| medium | Fairness | data_blocked | Keep proxy governance unless protected attributes or approved external proxy protocol exist. |
-| medium | Academic synthesis | editorial_decision_pending | Decide whether Paper 4 should become a governance paper or remain a mega lab appendix. |
+| immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for the seven parked lanes. |
+| short | Academic synthesis | active_rule | Paper 4 becomes a governed sequential decision analytics methodology paper. |
+| short | Raw-enriched diagnostics | parked | Only one compact IFRS9, online, CATE or CVaR diagnostic may run per named claim. |
+| short | Legal/optimality claims | parked | Fairness legal, exact Bellman and integrated differentiable SPO+ claims stay false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |
 
 ## Decision editorial

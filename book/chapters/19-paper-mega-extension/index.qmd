@@ -67,3 +67,11 @@ tesis oficial de Paper 4.
 7. **Online/MDCP/fairness** fija cobertura y source governance con limites claros.
 8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
 9. **Sintesis v38** deja la verdad actual y los claims permitidos.
+
+## Direccion academica
+
+La decision post-cierre es tratar Paper 4 como un paper de metodologia y
+gobernanza de investigacion: como definir, auditar y frenar un laboratorio de
+sequential credit decision analytics. No compite con Paper Estrella como
+champion empirico. Su aporte es mostrar una superficie reproducible de claims,
+evidencia, bloqueos, source governance, stress dinamico y stop rules.
