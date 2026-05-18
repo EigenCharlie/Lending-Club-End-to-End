@@ -53,6 +53,7 @@ SDAM como robustez, caveat y framing.
 | F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
 | F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
 
 ## Claims y prohibiciones
 
@@ -113,6 +114,36 @@ La conclusion es estable: Paper 4 gana appendix/metodologia, no un nuevo
 champion. Paper Estrella no absorbe ningun claim nuevo de este cierre; conserva
 F03, F04, F05 y SDAM como exportaciones acotadas.
 
+## Sintesis Lab 4 guiada por literatura
+
+La pasada guiada por los papers nuevos y el estado del arte queda cerrada como
+Lab 4 sobre los artefactos retenidos de Paper 4. La regla de absorcion es
+conservadora: entra a Quarto solo lo que cambia la frontera academica del lab;
+lo demas queda parqueado con evidencia y stop rule.
+
+El memo unico es
+`docs/research/paper4_lab4_all_lanes_synthesis_2026-05-18.md`. La tabla de
+decision agregada es `paper4_lab4_all_lane_summary_2026-05-18.csv`, y la tabla
+final del selector CROMS-lite es
+`paper4_lab4_selector_final_table_2026-05-18.csv`.
+
+| lane | decision | sink Paper 4 | uso Paper Estrella |
+| --- | --- | --- | --- |
+| Lane 1 CRC/LTT gates | append | governance appendix | reviewer-defense only |
+| Lane 2 CROMS-lite selector | append | selector tradeoff table | none |
+| Lane 3 E2E conformal | park | future prototype note | none |
+| Lane 4 online/source conformal | park_with_appendix_limitation | source holdout limitation | caveat only if needed |
+| Lane 5 CVaR/OCE | append | strong tail-risk appendix | appendix caveat only |
+| Lane 6 SPO/DFL | park_integrated_dfl_append_oracle_regret | oracle-regret comparator | related work only |
+| Lane 7 IFRS9 proxy | append | SICR/ECL proxy appendix | none |
+| Lane 8 governance/fairness proxy | append | source/proxy governance appendix | model-risk context only |
+| Lane 9 CATE | park | causal boundary note | none |
+
+La lectura oficial es que Lane 1, Lane 2, Lane 5, Lane 7 y Lane 8 aportan como
+appendix/metodologia de Paper 4. Lane 3, Lane 4, Lane 6 y Lane 9 no deben
+volverse nuevos loops: solo se reabren con datos nuevos, un prototipo aislado
+que funcione, una prueba formal o una revision externa que cambie un claim.
+
 ## Pendientes ejecutables
 
 | horizon | lane | status | executable_item |
@@ -122,6 +153,7 @@ F03, F04, F05 y SDAM como exportaciones acotadas.
 | immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for the seven parked lanes. |
 | short | Academic synthesis | active_rule | Paper 4 becomes a governed sequential decision analytics methodology paper. |
 | short | Raw-enriched diagnostics | completed | Seven compact frontier diagnostics concluded as append or park. |
+| short | Literature-driven Lab 4 lanes | completed | Nine lanes closed as append, park or context-only without new versioned waves. |
 | short | Legal/optimality claims | active_rule | Fairness legal, exact Bellman, CATE policy value, online deployment and integrated differentiable SPO+ claims stay false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |
 

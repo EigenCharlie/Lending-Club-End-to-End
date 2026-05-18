@@ -1,0 +1,8 @@
+evidence_block,metric,value,decision,claim_boundary
+raw_enriched_sicr,combined_default_lift,73.6415600307833,append_proxy_diagnostic,Raw servicing fields sharpen SICR proxy but do not create contractual IFRS9.
+raw_enriched_sicr,combined_triggered_share,0.2935627516439484,append_proxy_diagnostic,"Proxy trigger is broad enough for monitoring, not accounting staging."
+v36_readiness,missing_contractual_requirements,5,block_contractual_ifrs9,Contractual IFRS9 claim is not allowed.
+v472_requirement_audit,missing_named_requirements,forbearance_hardship;cure_timing;recovery_timing;prepayment_timing;macro_scenarios,block_contractual_ifrs9,Monthly servicing panel and coherent macro scenario process remain required.
+v4_input_quality,performance_reference_rows,249380,append_proxy_only,contractual_proxy_using_available_status_lgd_installment_cif_macro
+v4_policy_summary,median_severe_net_return_after_proxy_ecl,-154535.6934287476,append_proxy_only,Scenario ECL proxy can stress policies but is not a contractual allowance.
+v36_sensitivity,production_ifrs9_staging_claim_allowed,False,block_contractual_ifrs9,SICR sensitivity only; no production IFRS9 staging claim.

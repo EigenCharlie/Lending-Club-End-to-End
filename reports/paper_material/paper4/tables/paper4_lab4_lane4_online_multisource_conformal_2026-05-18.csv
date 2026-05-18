@@ -1,0 +1,7 @@
+evidence_block,metric,value,method_or_source,decision,claim_boundary
+frontier_source_holdout,best_defended_min_coverage,0.7787656903765691,source_grade_shrinkback,park_nominal_shortfall,Best bounded frontier misses the 0.80 defended-source gate.
+v4_online_method_summary,best_source_month_min_coverage,0.75,source_aware_guarded,append_monitoring_proxy,Strongest method is still not a live online deployment claim.
+v35_strict_holdouts,strict_holdout_pass_rows,2,total=9,park_strict_universal_claim,Strict temporal/source holdouts do not survive universally.
+v470_monitoring_proxy,strict_live_claim_allowed,False,v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040,append_monitoring_proxy_only,online monitoring proxy only; no external holdout or production claim
+mdcp_policy_frontier,policies_passing_all_source_family_80,2,source families over retained policy universe,append_source_governance,Policy-level MDCP evidence is a source-governance diagnostic.
+tight_source_blocker,tightest_source_family,grade,A,append_limitation,source-governance diagnostic only

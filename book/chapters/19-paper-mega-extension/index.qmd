@@ -55,6 +55,7 @@ tesis oficial de Paper 4.
 | F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
 | F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
 
 ## Como leer ahora el capitulo
 
@@ -66,7 +67,7 @@ tesis oficial de Paper 4.
 6. **Regret-auditability** muestra la tension retorno, cola, cobertura y auditabilidad.
 7. **Online/MDCP/fairness** fija cobertura y source governance con limites claros.
 8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
-9. **Sintesis v38** deja la verdad actual y los claims permitidos.
+9. **Sintesis v38 y Lab 4** deja la verdad actual, los claims permitidos y los carriles cerrados como append o park.
 
 ## Direccion academica
 

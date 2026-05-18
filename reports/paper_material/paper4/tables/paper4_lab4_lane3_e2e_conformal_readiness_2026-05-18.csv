@@ -1,0 +1,6 @@
+evidence_block,metric,value,decision,claim_boundary
+dependency_surface,all_e2e_dependencies_available_in_current_env,False,park_e2e_training,Current main environment is not the isolated differentiable optimization environment.
+dependency_surface,available_packages,torch=False;cvxpy=True;cvxpylayers=False;pyepo=False,park_e2e_training,Do not mutate the main environment for cvxpylayers/PyEPO until a prototype proves value.
+posthoc_online_conformal,best_source_month_min_coverage,0.75,proxy_only,"This is post-hoc online/source conformal evidence, not end-to-end learned calibration."
+croms_lite_proxy,balanced_selector_delta_return_vs_official,-1663.2276008410845,proxy_only,"CROMS-lite selector audit is decision-aware selection, not differentiable E2E conformal training."
+lane_decision,promotable_e2e_conformal_calibration,False,park,Reopen only with an isolated reproducible prototype that preserves OOT coverage and improves decision risk.

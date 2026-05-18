@@ -1,0 +1,7 @@
+evidence_block,metric,value,decision,claim_boundary
+frontier_toy_probe,toy_oracle_gap,4329509.727018995,park_toy_only,Toy top-k probe is not formal SPO+ or production DFL training.
+retained_surrogate,best_retained_objective_return,121261.12716248268,append_comparator_only,ridge_trained_against_v10_solver_targets_not_neural_spo_plus
+v32_candidate_registry,serious_spo_comparators,3,append_oracle_regret_comparator,Compare against oracle regret only; no formal differentiable SPO+ claim.
+v32_dependency_blockers,blocked_differentiable_dependencies,3,park_integrated_dfl,Main environment does not support formal differentiable SPO+ integration.
+current_env_dependency_probe,torch_cvxpylayers_pyepo_available,torch=False;cvxpylayers=False;pyepo=False,park_integrated_dfl,Use isolated environments only for PyEPO/cvxpylayers prototypes.
+temporal_oracle_regret,median_monthly_regret_proxy,129408.10506211071,append_regret_diagnostic,Decision-oracle/surrogate regret only; not formal differentiable SPO+.
