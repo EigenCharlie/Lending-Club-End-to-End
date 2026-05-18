@@ -96,6 +96,12 @@ retorno y buen bound, ¿que pasa con la cola de perdida realizada? La respuesta
 se reporta como diagnostico sobre el funded set exacto, no como una nueva
 optimizacion.
 
+La lectura de cola se apoya en dos familias canonicas: CVaR como medida
+optimizable de perdida extrema [@rockafellar2000_cvar] y OCE como clase convexa
+de medidas de riesgo/aversion [@bental_teboulle2007_oce]. En este paper esas
+referencias justifican el diagnostico de sensibilidad, no un cambio de
+champion.
+
 ```{python}
 #| label: tbl-p1-journal-tail-risk
 #| tbl-cap: "A12. Tail risk del funded set exacto bajo LGD alternativos"

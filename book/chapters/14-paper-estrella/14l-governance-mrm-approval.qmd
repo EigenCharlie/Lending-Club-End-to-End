@@ -5,7 +5,7 @@ page-layout: article
 
 ## Aprobación de Model Risk Management {#sec-p1-mrm-approval}
 
-La diferencia editorial clave entre CRPTO y los métodos decision-focused puros (SPO+, end-to-end DFL) es que CRPTO está **construido para pasar una auditoría de Model Risk Management** según el marco SR 11-7 de la Reserva Federal y las expectativas equivalentes del BCE/EBA. Esta página documenta los gates aplicados al champion oficial y muestra los cuatro subsistemas pasando simultáneamente — la firma operativa de un sistema desplegable, no un modelo de paper aislado.
+La diferencia editorial clave entre CRPTO y los métodos decision-focused puros (SPO+, end-to-end DFL) es que CRPTO está **construido para pasar una auditoría de Model Risk Management** según el marco SR 11-7 de la Reserva Federal [@sr117] y la agenda reciente de gobernanza para ML credit underwriting [@finreglab2023_ml_credit]. Esta página documenta los gates aplicados al champion oficial y muestra los cuatro subsistemas pasando simultáneamente — la firma operativa de un sistema desplegable, no un modelo de paper aislado.
 
 ```{python}
 #| label: p1-mrm-setup

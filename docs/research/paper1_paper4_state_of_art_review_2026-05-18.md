@@ -216,3 +216,22 @@ Reopen a parked or append lane only if one of these happens:
 
 Otherwise, the correct next move is not more experiments; it is citation
 integration and manuscript extraction.
+
+## Paper Estrella Integration Patch
+
+The 2026-05-18 integration patch keeps the bibliography small and tied to
+actual manuscript text. It adds only sources that now appear in Paper Estrella:
+
+| source | destination | reason |
+| --- | --- | --- |
+| `barber2021_limits_conditional` | `14a`, `14b` | Bound source/subgroup claims and avoid overstating conditional validity. |
+| `jagtiani2019` | `14a` | Establish Lending Club as a real fintech-lending empirical setting. |
+| `rockafellar2000_cvar` | `14h` | Ground CVaR as a canonical tail-risk diagnostic. |
+| `bental_teboulle2007_oce` | `14h` | Ground OCE as convex risk-measure framing. |
+| `finreglab2023_ml_credit` | `14k`, `14l` | Support ML credit underwriting governance, explainability and fairness context. |
+| `cfpb_bisg_proxy` | `14k` | Document why surname plus fine geography are needed for BISG-style proxy analysis. |
+| `zhang2018_fair_proxy` | `14k` | Support the fair-lending proxy boundary and why current Lending Club fields are insufficient for legal claims. |
+
+No IFRS9, SPO/DFL prototype or Paper 4-only sources were integrated into Paper
+Estrella in this patch. Those remain Lab 4/Paper 4 material unless a future
+appendix or reviewer request creates a concrete textual need.

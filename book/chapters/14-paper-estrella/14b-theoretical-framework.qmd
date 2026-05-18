@@ -47,6 +47,7 @@ Antes de entrar al detalle, conviene ubicar el resultado frente a la literatura 
 | [@johnstone2021] | Conjuntos de incertidumbre conformales con validez finita | puente CP $\rightarrow$ RO | no aterriza una restricción de PD ponderada ni funded-set exacto en crédito |
 | [@bates2021rcps; @angelopoulos2025ltt] | control distribution-free de una pérdida/riesgo genérico | calibración post-hoc de riesgo | no se especializa a una restricción lineal de portafolio |
 | [@angelopoulos2024risk] | cota en esperanza para pérdidas monotónicas | conformal risk control general | nuestro Teorema 1 es una instanciación portfolio-aware con funded-set ponderado |
+| [@barber2021_limits_conditional] | limites de cobertura condicional distribution-free | frontera de claims por subgrupo/source | Paper Estrella reporta cobertura verificable y Mondrian, no validez condicional exacta individual |
 | [@sun2024ptc] | cobertura del vector de costos vía calibración por cuantiles | box/elipsoidal sets para LP contextual genérico | nuestro bound opera sobre la restricción ponderada del portafolio, no solo sobre membresía en el set; además aporta cobertura Mondrian grupo-condicional |
 | **Este paper (CRPTO)** | factibilidad conformal del portafolio via `V`, `\Gamma_{\text{CP}}` y `violation` | score calibrado $\rightarrow$ intervalo $\rightarrow$ funded set robusto | aporta la instanciación en crédito minorista y el cierre exacto sobre una región robusta completa |
 
