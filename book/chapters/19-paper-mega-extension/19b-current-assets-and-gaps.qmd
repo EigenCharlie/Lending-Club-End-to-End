@@ -52,6 +52,23 @@ optimalidad exacta.
 | SPO/DFL | isolated_prototype | PyEPO/cvxpylayers fuera del pipeline principal |
 | DLA/ADP | rollout_only | simulador representativo, no Bellman optimality |
 
+## Cierre frontier ejecutado
+
+El goal acotado del 2026-05-18 ya ejecuto los siete carriles sin crear nuevas
+olas `paper4_v###`. La evidencia promovida queda en
+`paper4_frontier_goal_summary_2026-05-18.csv` y el memo de cierre queda en
+`paper4_frontier_goal_closure_2026-05-18.md`.
+
+| lane | decision | lectura editorial |
+| --- | --- | --- |
+| IFRS9/SICR | append | raw servicing fortalece el proxy SICR/ECL; no IFRS9 contractual |
+| online conformal | park | mejor metodo llego a defended_min_coverage=0.7788, bajo el gate 0.80 |
+| CVaR/OCE | append | mejora cola cashflow, pero queda 68875.55 debajo del champion oficial |
+| CATE | park | overlap 10-90 de 0.2838 bloquea cualquier policy-value claim |
+| fair lending proxy | append | sirve para source governance; BISG/legal sigue bloqueado |
+| DLA/ADP | append | rollout retenido; exact Bellman sigue falso |
+| SPO/DFL | park | PyEPO/cvxpylayers instalan aislados, pero el oracle gap bloquea integracion |
+
 ## Backlog resumido
 
 | horizon | lane | status | executable_item |
@@ -59,6 +76,6 @@ optimalidad exacta.
 | immediate | Quarto governance | active_rule | Keep chapter 19 curated and move each new wave summary to the living notebook first. |
 | immediate | Data frontier audit | completed | Cleaned/raw/dictionary audit completed for seven parked lanes. |
 | short | Academic synthesis | active_rule | Treat Paper 4 as a governed sequential decision analytics methodology paper. |
-| short | Raw-enriched diagnostics | parked | Run at most one compact IFRS9, online, CATE or CVaR diagnostic when a target claim is named. |
-| short | Legal/optimality claims | parked | Keep fairness legal, exact Bellman and integrated differentiable SPO+ claims false. |
+| short | Raw-enriched diagnostics | completed | Seven bounded frontier lanes concluded as append or park. |
+| short | Legal/optimality claims | active_rule | Keep fairness legal, exact Bellman, CATE policy value, online deployment and integrated differentiable SPO+ claims false. |
 | long | Data expansion | data_blocked | Seek servicing panel, monthly DPD, recovery/cure/prepayment timing and protected attributes only if a real publication route emerges. |

@@ -1,0 +1,14 @@
+key,status,url,takeaway,use_in
+ifrs9_lifetime_ecl_survival_tutorial_2026,peer_reviewed,https://link.springer.com/article/10.1007/s41060-026-01032-w,Recent tutorial frames survival analysis as a convincing approach to IFRS9 lifetime PD term structures.,ifrs9_sicr
+ifrs9_competing_risks_survival_2024,peer_reviewed,https://www.sciencedirect.com/science/article/pii/S095741742400472X,"Competing-risks survival can support lifetime credit loss modelling, but needs event timing structure.",ifrs9_sicr
+adaptive_conformal_neurips_2021,peer_reviewed,https://papers.nips.cc/paper_files/paper/2021/hash/0d441de75945e5acbc865406fc9a2559-Abstract.html,ACI targets online coverage under distribution shift through an adaptive calibration parameter.,online_conformal
+multi_source_conformal_2024,preprint,https://arxiv.org/abs/2405.09331,Multi-source conformal inference motivates weighting or defending source families under shift.,online_conformal
+rockafellar_uryasev_cvar_2000,foundational_paper,https://www.financerisks.com/filedati/WP/paper/CVaR%20Portfolio%20Optimization.pdf,Mean-CVaR portfolio optimization can be represented with linear-programming style scenarios.,cvar_oce
+cvxpy_portfolio_short_course,tutorial,https://www.cvxgrp.org/cvx_short_course/docs/applications/notebooks/portfolio_optimization.html,CVXPY is the practical implementation route for compact convex portfolio diagnostics.,cvar_oce
+dowhy_assumptions_2021,research_software_paper,https://www.microsoft.com/en-us/research/publication/dowhy-addressing-challenges-in-expressing-and-validating-causal-assumptions/,Causal claims require explicit assumptions and refutations; prediction validation is not enough.,cate_policy_value
+econml_dml_docs,official_docs,https://www.pywhy.org/EconML/spec/estimation/dml.html,Double ML assumes observed confounding is sufficient; useful here only as sensitivity.,cate_policy_value
+cfpb_bisg_proxy_methodology,official_methodology,https://github.com/cfpb/proxy-methodology,BISG requires surname plus geography; Lending Club's zip3/state surface is insufficient.,fair_lending_proxy
+zhang_fair_lending_proxy_2018,peer_reviewed,https://pubsonline.informs.org/doi/10.1287/mnsc.2016.2579,"Proxy methods can estimate race/ethnicity risk, but depend on inputs absent here.",fair_lending_proxy
+spo_plus_elmachtoub_grigas,peer_reviewed_preprint,https://arxiv.org/abs/1710.08005,SPO+ directly trains for downstream decision loss but needs optimization-specific infrastructure.,spo_dfl
+pyepo_mpc_2024,peer_reviewed_software,https://link.springer.com/article/10.1007/s12532-024-00255-x,PyEPO implements SPO+ and related end-to-end predict-then-optimize methods for LP/IP models.,spo_dfl
+cvxpylayers_docs,software_docs,https://cvxpylayers.org/quickstart.html,Differentiable convex layers require DPP-compliant CVXPY problems plus Torch/JAX/MLX.,spo_dfl
