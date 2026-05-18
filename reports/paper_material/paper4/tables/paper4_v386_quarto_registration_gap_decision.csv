@@ -1,6 +1,0 @@
-decision_id_v386,decision_v386,allowed_v386,evidence_count_v386,next_action_v386,claim_boundary_v386
-selected_archive_policy,archive_in_place_with_manifested_guardrail_exemption,True,70,paper4_v387_quarto_archive_guardrail_patch.csv,decision artifact only; no guardrail patch yet
-register_historical_pages_in_book,do_not_register,False,70,keep_curated_render_set,curated Paper 4 chapter remains the rendered surface
-preserve_historical_pages_on_disk,preserve,True,70,manifest_as_archived_pages,provenance retained; not promoted to official text
-apply_guardrail_patch,defer_to_v387,False,70,paper4_v387_quarto_archive_guardrail_patch.csv,v386 decides only
-paper4_final_promotion,forbidden,False,0,paper4_final_promotion_gate_not_created,final promotion remains absent

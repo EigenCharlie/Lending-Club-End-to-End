@@ -1,9 +1,0 @@
-check_id_v485,passed_v485,evidence_v485,claim_boundary_v485
-expected_caption_count,True,10 hardened captions,caption consistency audit only
-expected_asset_coverage,True,all T1-T6 and F1-F4 assets covered,caption consistency audit only
-all_captions_hardened,True,every caption marked hardened,caption consistency audit only
-all_caveats_preserved,True,every required caveat term present,caption consistency audit only
-manual_review_required,True,manual review required for every caption,caption consistency audit only
-no_caption_finalization,True,no hardened caption is final,caption consistency audit only
-no_quarto_insertion,True,no caption inserted into Quarto,caption consistency audit only
-no_final_promotion_artifact,True,paper4_final_promotion.json absent,caption consistency audit only

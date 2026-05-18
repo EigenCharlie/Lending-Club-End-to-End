@@ -1,8 +1,0 @@
-stage_v396,diagnostic_id_v396,notebook_path_v396,cell_v396,row_v396,rule_code_v396,message_v396,has_ruff_fix_v396,fix_applicability_v396,claim_boundary_v396
-before,before_001,notebooks/01_eda_lending_club.ipynb,14,22,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,residual selected notebook lint subset only
-before,before_002,notebooks/08_portfolio_optimization.ipynb,4,48,SIM115,Use a context manager for opening files,False,none,residual selected notebook lint subset only
-before,before_003,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,118,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,residual selected notebook lint subset only
-before,before_004,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,3,191,B905,`zip()` without an explicit `strict=` parameter,True,unsafe,residual selected notebook lint subset only
-before,before_005,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,11,6,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,residual selected notebook lint subset only
-before,before_006,notebooks/side_projects/10_rapids_gpu_benchmark_lending_club.ipynb,13,114,SIM105,Use `contextlib.suppress(Exception)` instead of `try`-`except`-`pass`,True,unsafe,residual selected notebook lint subset only
-after,after_001,notebooks/08_portfolio_optimization.ipynb,4,48,SIM115,Use a context manager for opening files,False,none,residual selected notebook lint subset only

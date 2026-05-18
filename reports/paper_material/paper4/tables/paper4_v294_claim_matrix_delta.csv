@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v294_post_v293_one_swap_reprice_executed,True,paper4_v294_post_v293_one_swap_summary.csv,post-v293 one-drop/one-add screen completed
-v294_post_v293_one_swap_local_optimality,True,paper4_v294_claim_blockers.csv,allowed only within one-drop/one-add scope
-v294_working_champion,False,paper4_v294_claim_blockers.csv,global and dynamic evidence missing
-v294_global_full_universe_integer_optimality,False,paper4_v294_claim_blockers.csv,global certificate missing
-v294_paper1_or_final_promotion,False,paper4_v294_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

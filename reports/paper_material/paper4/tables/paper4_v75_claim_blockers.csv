@@ -1,4 +1,0 @@
-blocker_id_v75,blocking_v75,evidence_count_v75,required_next_artifact_v75,claim_boundary_v75
-negative_reduced_cost_columns_after_iteration_2,True,3897,paper4_v76_column_generation_iteration_3.csv,post-v74 re-pricing still finds improving omitted columns
-source_scope_after_iteration_2_incomplete,True,30,paper4_v76_source_scope_expansion_v3.csv,source constraints after v74 still do not cover all full-universe IDs
-continuous_relaxation_not_whole_loan_milp,True,1,paper4_v76_integrality_gap_or_milp_probe.csv,post-iteration-2 pricing remains a continuous LP diagnostic

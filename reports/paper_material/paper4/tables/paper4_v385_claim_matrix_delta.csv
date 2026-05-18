@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v385_validation_gap_triage_created,True,paper4_v385_validation_gap_triage.md,triage only
-v385_current_paper4_guardrails_pass,True,paper4_v385_validation_gap_triage.csv,targeted v378-v384 chain only
-v385_known_quarto_registration_failure_isolated,True,paper4_v385_quarto_missing_pages_register.csv,"registration failure isolated, not fixed"
-v385_full_regression_suite_clean,False,paper4_v385_claim_blockers.csv,Quarto registration gap remains
-v385_quarto_registration_fixed,False,paper4_v385_validation_decision_matrix.csv,v385 applies no registration fix
-v385_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

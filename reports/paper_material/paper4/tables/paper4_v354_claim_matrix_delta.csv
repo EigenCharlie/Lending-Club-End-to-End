@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v354_post_v353_one_swap_reprice_executed,True,paper4_v354_post_v353_one_swap_summary.csv,post-v353 one-drop/one-add screen completed
-v354_post_v353_one_swap_local_optimality,True,paper4_v354_claim_blockers.csv,allowed only within one-drop/one-add scope
-v354_valid_branch_price_bound,False,paper4_v354_claim_blockers.csv,full dual-bound loop missing
-v354_working_champion_or_final_promotion,False,paper4_v354_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

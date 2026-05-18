@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v350_dual_bound_readiness_register_executed,True,paper4_v350_v347_dual_bound_after_proxy_gate.csv,readiness register and source map only
-v350_source_tight_frontier_identified,True,paper4_v350_v347_source_slack_hotspots.csv,hotspot map only; no bound
-v350_valid_full_universe_branch_price_bound,False,paper4_v350_claim_blockers.csv,dual-bound loop missing
-v350_working_champion_or_final_promotion,False,paper4_v350_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

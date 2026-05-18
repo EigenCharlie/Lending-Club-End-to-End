@@ -1,6 +1,0 @@
-fix_class_v393,diagnostic_count_v393,mutation_allowed_v393,next_action_v393,claim_boundary_v393
-blocked_import_reorder,119,False,requires_policy_or_manual_review,classification only; v393 applies no fix
-safe_after_roundtrip,18,False,paper4_v394_notebook_safe_fix_roundtrip_batch.md,classification only; v393 applies no fix
-manual_review,16,False,requires_policy_or_manual_review,classification only; v393 applies no fix
-style_review_before_fix,4,False,requires_policy_or_manual_review,classification only; v393 applies no fix
-blocked_execution_context,1,False,requires_policy_or_manual_review,classification only; v393 applies no fix

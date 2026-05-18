@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v283_full_universe_bound_probe_executed,True,paper4_v283_full_universe_integer_bound_probe.csv,resource-gated bound probe only
-v283_full_universe_model_manifest_created,True,paper4_v283_full_universe_model_manifest.csv,manifest only; no solve
-v283_valid_full_universe_gap_certificate,False,paper4_v283_claim_blockers.csv,direct MIP resource guarded and no decomposed bound yet
-v283_global_full_universe_integer_optimality,False,paper4_v283_claim_blockers.csv,global bound missing
-v283_paper1_or_final_promotion,False,paper4_v283_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

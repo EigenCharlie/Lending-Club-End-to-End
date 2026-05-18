@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v458_post_assembly_render_decision_recorded,True,paper4_v458_post_assembly_render_decision.md,render decision only
-v458_no_current_quarto_source_change_detected,True,paper4_v458_changed_surface_inventory.csv,"v456-v457 touched reports/scripts/tests, not book sources"
-v458_render_never_needed,False,paper4_v458_remaining_blockers.csv,render is required if future content enters book/
-v458_target_venue_or_submission_ready,False,paper4_v458_remaining_blockers.csv,target venue packet remains next work
-v458_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

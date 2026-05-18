@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v390_repository_lint_frontier_created,True,paper4_v390_repository_lint_frontier.csv,diagnostic frontier only
-v390_full_repository_pytest_remains_clean,True,paper4_v389_full_repository_pytest_probe.csv,pytest clean inherited from v389
-v390_lint_repair_plan_created,True,paper4_v390_lint_repair_plan.csv,plan only; no lint repair applied
-v390_global_ruff_clean,False,paper4_v390_claim_blockers.csv,282 ruff diagnostics remain
-v390_full_quarto_render_success,False,paper4_v390_claim_blockers.csv,full Quarto render not run
-v390_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

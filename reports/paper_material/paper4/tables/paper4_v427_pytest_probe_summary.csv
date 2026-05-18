@@ -1,2 +1,0 @@
-probe_id_v427,command_v427,exit_code_v427,passed_v427,runtime_seconds_v427,collected_items_v427,summary_line_v427,claim_boundary_v427
-full_repository_pytest,uv run pytest -q --tb=short,0,True,170.422,1165,"=========== 1165 passed, 2 skipped, 13 warnings in 158.14s (0:02:38) ===========",post-v426 scripts B905 repair full pytest probe

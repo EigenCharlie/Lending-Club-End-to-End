@@ -1,4 +1,0 @@
-rule_code_v396,fix_applicability_v396,diagnostic_count_before_v396,diagnostic_count_after_v396,diagnostics_reduced_v396,action_v396,claim_boundary_v396
-B905,unsafe,2,0,2,applied_by_guarded_unsafe_batch,guarded unsafe application only
-SIM105,unsafe,3,0,3,applied_by_guarded_unsafe_batch,guarded unsafe application only
-SIM115,none,1,1,0,deferred_or_unfixed,guarded unsafe application only

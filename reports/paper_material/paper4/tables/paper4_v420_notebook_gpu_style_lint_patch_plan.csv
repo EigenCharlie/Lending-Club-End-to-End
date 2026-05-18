@@ -1,2 +1,0 @@
-patch_batch_id_v420,diagnostic_count_v420,notebook_count_v420,recommended_next_artifact_v420,mutation_allowed_v420,claim_boundary_v420
-batch_1_gpu_side_project_style_lint,3,1,paper4_v421_notebook_gpu_style_lint_patch.md,False,selection only; GPU style-lint patch deferred to v421

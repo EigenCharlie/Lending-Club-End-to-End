@@ -1,4 +1,0 @@
-policy_id,n_scenarios,n_loans,funded_exposure_v53,budget_capped_v53,mean_scenario_return_v53,p05_scenario_return_v53,p95_scenario_loss_v53,mean_binary_defaults_v53,claim_boundary_v53
-v53_dla_expected_tail_guard_book,128,26,978175.0,True,109531.73919598461,108099.41666379229,10677.955481528608,6.7734375,common-path expected/hybrid replay; no production forecast claim
-v53_dla_source_guard_book,128,26,978175.0,True,109531.73919598461,108099.41666379229,10677.955481528608,6.7734375,common-path expected/hybrid replay; no production forecast claim
-v53_spo_expected_return_book,128,26,978175.0,True,109652.82999346525,108163.95309754998,10959.244961692884,7.046875,common-path expected/hybrid replay; no production forecast claim

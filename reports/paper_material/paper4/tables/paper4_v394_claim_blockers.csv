@@ -1,5 +1,0 @@
-blocker_id_v394,blocking_v394,evidence_count_v394,required_next_artifact_v394,claim_boundary_v394
-unsafe_notebook_fixes_deferred,True,5,paper4_v395_notebook_unsafe_fix_review.md,Ruff-unsafe notebook fixes require a separate review
-selected_notebook_lint_subset_not_clean,True,6,paper4_v395_notebook_unsafe_fix_review.md,SIM105/B905/SIM115 remain after safe-only fix
-global_notebook_lint_not_clean,True,145,paper4_v396_notebook_import_reorder_policy.md,E402 and semantic/manual notebook lint remain
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

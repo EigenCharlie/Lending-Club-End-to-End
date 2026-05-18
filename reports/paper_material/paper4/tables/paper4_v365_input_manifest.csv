@@ -1,8 +1,0 @@
-artifact_v365,role_v365,exists_v365,rows_v365,columns_v365,row_groups_v365,size_bytes_v365,claim_boundary_v365
-paper4_v55_maximal_comparable_universe.parquet,full_v55_pricing_universe,True,276869,31,1,8133901,input manifest only
-paper4_v353_v347_expanded_branch_price_allocations.parquet,selected_v353_book,True,171,13,1,13268,input manifest only
-paper4_v356_full_universe_candidate_partition.csv,full_omitted_partition,True,1,12,0,570,input manifest only
-paper4_v363_v353_full_dual_bound_or_gap_certificate.csv,gap_certificate,True,1,23,0,996,input manifest only
-paper4_v364_executable_pending_register.csv,pending_register,True,5,8,0,1400,input manifest only
-paper4_v71_full_universe_reduced_costs.parquet,prior_restricted_dual_screen,True,2211304,17,3,39744761,input manifest only
-paper4_v71_reduced_cost_summary.csv,prior_restricted_dual_summary,True,8,18,0,3614,input manifest only

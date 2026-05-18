@@ -1,3 +1,0 @@
-blocker_id_v447,blocking_v447,evidence_count_v447,required_next_artifact_v447,claim_boundary_v447
-quarto_render_not_run,True,1,paper4_v448_quarto_render_probe.md,Quarto render is not implied by pytest or ruff snapshots
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

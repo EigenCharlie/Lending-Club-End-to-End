@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v64_pseudo_unseen_online_stress_exists,True,paper4_v64_online_pseudo_unseen_stress_grid.csv,historical pseudo-unseen stress diagnostic only
-v64_strict_live_deployability,False,paper4_v64_online_winner_memo.csv,blocked without all-split pass and external/future holdout
-v64_paper1_or_paper_estrella_promotion,False,paper4_v64_online_method_split_summary.csv,no Paper Estrella or final Paper 4 promotion

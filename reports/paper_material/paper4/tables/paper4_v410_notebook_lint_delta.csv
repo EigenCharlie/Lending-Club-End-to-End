@@ -1,8 +1,0 @@
-metric_v410,before_v410,after_v410,delta_v410,claim_boundary_v410
-global_notebook_total,17,7,-10,lint reduction only; global lint not clean
-global_notebook_b018,10,0,-10,lint reduction only; global lint not clean
-global_notebook_f821,1,1,0,lint reduction only; global lint not clean
-global_notebook_e741,1,1,0,lint reduction only; global lint not clean
-global_notebook_sim108,2,2,0,lint reduction only; global lint not clean
-global_notebook_e712,2,2,0,lint reduction only; global lint not clean
-global_notebook_sim102,1,1,0,lint reduction only; global lint not clean

@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary,diagnostic_rows_v53
-v53_expected_hybrid_loss_matrix,True,paper4_v53_expected_loss_matrix.parquet,restricted candidate pool and internal scenarios only,2
-v53_v50_zero_cvar_artifact_identified,True,paper4_v53_binary_vs_expected_diagnostic.csv,negative diagnostic; v50 binary-zero tail is not a robust CVaR result,2
-v53_restricted_expected_loss_cvar_lp,True,paper4_v53_expected_loss_frontier.csv,exact LP over restricted expected/hybrid loss pool; not full universe,2
-v53_exact_full_universe_cvar,False,paper4_v53_expected_loss_frontier.csv,full universe remains blocked by lack of all-loan scenario matrix with optimization features,2
-v53_bellman_exact_dla,False,paper4_v53_budget_capped_policy_books.parquet,"budget-capped books only, not Bellman exact DLA",2
-v53_contractual_ifrs9,False,paper4_v51_sicr_targeted_recalibration.csv,SICR proxy only,2

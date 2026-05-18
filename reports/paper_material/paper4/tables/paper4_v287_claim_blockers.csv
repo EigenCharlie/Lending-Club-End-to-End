@@ -1,5 +1,0 @@
-blocker_id_v287,blocking_v287,evidence_count_v287,required_next_artifact_v287,claim_boundary_v287
-top25_second_add_blocked_by_source_caps,True,13348,paper4_v288_full_rank_exact_relief_resource_protocol.csv,return-recovering second adds exist but none pass exact source caps
-full_rank_exact_relief_screen_missing,True,175,paper4_v288_full_rank_exact_relief_resource_protocol.csv,"v287 screens top-25 v286 states, not all states"
-branch_price_dual_bound_missing,True,1,future_branch_price_dual_bound_loop,no dual-bound loop or termination certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

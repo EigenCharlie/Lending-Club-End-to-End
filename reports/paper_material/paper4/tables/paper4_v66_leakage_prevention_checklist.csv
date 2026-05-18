@@ -1,8 +1,0 @@
-leakage_check_id_v66,rule_v66,failure_action_v66,claim_boundary_v66
-no_loan_overlap,loan_id not in v9/v65 historical interval panel,hard_fail,checklist for future data only
-future_or_external_months,issue_month outside frozen historical selection window,hard_fail,checklist for future data only
-prediction_before_outcome,prediction_timestamp < outcome_maturity_timestamp,hard_fail,checklist for future data only
-immutable_snapshot,data_snapshot_id is immutable and archived before scoring,hard_fail,checklist for future data only
-no_parameter_edits,manifest hashes match before and after holdout scoring,hard_fail,checklist for future data only
-full_denominator_reported,all eligible holdout rows included or excluded with reason,hard_fail,checklist for future data only
-source_values_present,period and term values available before y_true,hard_fail,checklist for future data only

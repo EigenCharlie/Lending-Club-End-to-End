@@ -1,4 +1,0 @@
-blocker_id_v74,blocking_v74,evidence_count_v74,required_next_artifact_v74,claim_boundary_v74
-post_iteration_2_repricing_missing,True,5,paper4_v75_reprice_after_iteration_2.parquet,"after adding v73 columns, v74 must be re-priced"
-source_constraint_scope_needs_reaudit_after_iteration_2,True,5,paper4_v75_source_scope_after_iteration_2.csv,second-iteration columns change source IDs and active constraints
-continuous_relaxation_not_whole_loan_milp,True,1,paper4_v75_integrality_gap_or_milp_probe.csv,"iteration uses continuous LP, not whole-loan integers"

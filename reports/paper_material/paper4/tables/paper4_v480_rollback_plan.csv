@@ -1,6 +1,0 @@
-target_file_v480,rollback_scope_v480,rollback_check_v480,rollback_action_v480,mutation_performed_v480,rollback_required_if_patched_v480
-book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd,single planned insertion block,git diff -- book/chapters/19-paper-mega-extension/19f-sequential-decision-framework.qmd,do not apply patch before v481 decision,False,True
-book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd,single planned insertion block,git diff -- book/chapters/19-paper-mega-extension/19bv-v33-cvar-certificate.qmd,do not apply patch before v481 decision,False,True
-book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd,single planned insertion block,git diff -- book/chapters/19-paper-mega-extension/19bx-v35-online-macro-validation.qmd,do not apply patch before v481 decision,False,True
-book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd,single planned insertion block,git diff -- book/chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd,do not apply patch before v481 decision,False,True
-book/chapters/19-paper-mega-extension/19u-artifact-catalog-and-claims.qmd,single planned insertion block,git diff -- book/chapters/19-paper-mega-extension/19u-artifact-catalog-and-claims.qmd,do not apply patch before v481 decision,False,True

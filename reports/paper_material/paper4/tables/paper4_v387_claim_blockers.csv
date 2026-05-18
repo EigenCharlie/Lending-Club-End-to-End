@@ -1,5 +1,0 @@
-blocker_id_v387,blocking_v387,evidence_count_v387,required_next_artifact_v387,claim_boundary_v387
-full_regression_suite_clean_not_claimed,True,1,paper4_v388_full_regression_probe_plan.md,"v387 cleans one book guardrail, not the whole suite"
-quarto_render_success_not_claimed,True,1,paper4_v388_full_regression_probe_plan.md,guardrail pass is not a full Quarto render claim
-official_book_scope_not_expanded,True,70,curated_render_surface_only,historical archive pages remain outside rendered book
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

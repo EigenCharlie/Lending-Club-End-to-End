@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v320_bounded_matched_period_milp_executed,True,paper4_v320_matched_period_milp_summary.csv,bounded candidate pool MILP
-v320_period_matched_candidate_found,True,paper4_v320_matched_period_allocations.parquet,matches v295 period counts within bounded pool
-v320_improves_return_and_lowers_cvar_vs_v316,True,paper4_v320_matched_period_milp_summary.csv,static scenario proxy only; repricing still required
-v320_post_repair_local_optimality,False,paper4_v320_claim_blockers.csv,post-v320 one-swap repricing missing
-v320_full_universe_integer_optimality,False,paper4_v320_claim_blockers.csv,global branch-price certificate missing
-v320_working_champion_or_final_promotion,False,paper4_v320_claim_blockers.csv,working champion and final promotion remain blocked

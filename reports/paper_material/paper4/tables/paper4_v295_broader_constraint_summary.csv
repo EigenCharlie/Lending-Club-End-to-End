@@ -1,6 +1,0 @@
-constraint_type_v295,constraint_rows_v295,claim_boundary_v295
-budget_range,1,v295 broader MILP constraint count only
-cvar_cap,1,v295 broader MILP constraint count only
-cvar_path_excess,128,v295 broader MILP constraint count only
-selected_row_cardinality,1,v295 broader MILP constraint count only
-source_share,51,v295 broader MILP constraint count only

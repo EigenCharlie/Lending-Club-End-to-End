@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v326_best_v325_swap_applied,True,paper4_v326_apply_next_post_v324_swap.csv,applied one-swap candidate only
-v326_improves_return_and_cvar_vs_v324,True,paper4_v326_apply_next_post_v324_swap.csv,static common-scenario proxy only
-v326_preserves_v324_proxy_coverage,False,paper4_v326_claim_blockers.csv,missing proxy rows increase by one
-v326_working_champion_or_final_promotion,False,paper4_v326_claim_blockers.csv,repricing and global gates missing

@@ -1,6 +1,0 @@
-blocker_id_v361,blocking_v361,evidence_count_v361,required_next_artifact_v361,claim_boundary_v361
-fourth_order_entering_column_missing,True,0,paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv,no CVaR-feasible entering row in bounded fourth-order scope
-valid_branch_price_bound_missing,True,1,paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv,bounded fourth-order pricing is not a termination proof
-proxy_gap_persists,True,77,future_proxy_or_ifrs9_gate,v353 candidate still contains missing proxy rows
-full_v55_dual_bound_loop_missing,True,276869,paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv,full-v55 dual-bound loop remains missing
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

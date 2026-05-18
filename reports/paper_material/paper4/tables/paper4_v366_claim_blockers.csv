@@ -1,4 +1,0 @@
-blocker_id_v366,blocking_v366,evidence_count_v366,required_next_artifact_v366,claim_boundary_v366
-full_v55_termination_missing,True,27,paper4_v367_route_decision_after_chunk_probe.csv,remaining v365 chunks are unpriced
-chunk_candidate_requires_route_decision,False,0,paper4_v367_route_decision_after_chunk_probe.csv,positive chunk candidate cannot be applied without route decision
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

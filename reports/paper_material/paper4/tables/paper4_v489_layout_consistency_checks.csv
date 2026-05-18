@@ -1,9 +1,0 @@
-check_id_v489,passed_v489,evidence_v489,claim_boundary_v489
-layout_row_count,True,10 layout rows,layout consistency audit only
-layout_order_contiguous,True,layout order 1-10,layout consistency audit only
-all_items_dry_run_ready,True,all layout items ready for dry-run,layout consistency audit only
-no_items_ready_for_patch,True,no layout item ready for patch,layout consistency audit only
-target_surface_count,True,4 target surfaces,layout consistency audit only
-render_gates_preserve_blockers,True,approval/final/patch/render gates remain blocked,layout consistency audit only
-no_patch_register_clean,True,no mutations performed,layout consistency audit only
-final_promotion_absent,True,paper4_final_promotion.json absent,layout consistency audit only

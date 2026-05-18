@@ -1,9 +1,0 @@
-readiness_gate_v488,ready_v488,evidence_artifact_v488,claim_boundary_v488
-layout_dry_run_packet_created,True,paper4_v488_layout_dry_run_packet.csv,layout dry-run only
-target_surface_summary_created,True,paper4_v488_target_surface_summary.csv,target summary only
-render_gate_plan_created,True,paper4_v488_render_gate_plan.csv,render gate plan only
-no_patch_register_created,True,paper4_v488_no_patch_register.csv,no-patch register only
-ready_for_quarto_patch,False,manual approval and final captions missing,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v488
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

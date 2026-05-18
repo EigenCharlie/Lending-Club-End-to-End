@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v334_strict_v330_proxy_gap_repair_found,False,paper4_v334_proxy_gap_tier_summary.csv,strict bounded-pool feasibility only
-v334_relaxed_proxy_gap_repair_found,True,paper4_v334_relaxed_proxy_gap_allocations.parquet,relaxed v316-return/v330-CVaR candidate only
-v334_relaxed_observed_proxy_rows_reach_100,False,paper4_v334_proxy_gap_tier_summary.csv,proxy coverage diagnostic only
-v334_preserves_full_v330_return,False,paper4_v334_claim_blockers.csv,relaxed repair gives back v330 return and strict tier is infeasible
-v334_full_universe_integer_optimality,False,paper4_v334_claim_blockers.csv,bounded observed-candidate pool only
-v334_working_champion_or_final_promotion,False,paper4_v334_claim_blockers.csv,working champion and final promotion remain blocked

@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v400_local_e402_import_hoist_applied,True,paper4_v400_notebook_e402_local_import_hoist_actions.csv,6 local delayed-import cells only
-v400_roundtrip_integrity_preserved,True,paper4_v400_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
-v400_notebook_lint_reduced,True,paper4_v400_notebook_lint_delta.csv,"reduction only, not clean"
-v400_setup_warning_e402_repaired,False,paper4_v400_claim_blockers.csv,setup warning-filter cells deferred
-v400_notebook_or_repo_ruff_clean,False,paper4_v400_claim_blockers.csv,132 notebook diagnostics remain
-v400_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

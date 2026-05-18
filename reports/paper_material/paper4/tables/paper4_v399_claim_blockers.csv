@@ -1,5 +1,0 @@
-blocker_id_v399,blocking_v399,evidence_count_v399,required_next_artifact_v399,claim_boundary_v399
-local_import_hoist_not_applied_yet,True,7,paper4_v400_notebook_e402_local_import_hoist_batch.md,v399 plans local import hoists but does not mutate notebooks
-setup_warning_filter_cells_require_review,True,112,paper4_v401_notebook_e402_setup_warning_refactor_plan.md,warning filter semantics must be preserved
-global_notebook_lint_not_clean,True,139,paper4_v400_notebook_e402_local_import_hoist_batch.md,E402 and semantic/manual notebook lint remain
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

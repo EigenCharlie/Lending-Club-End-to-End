@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v403_full_repository_pytest_run,True,paper4_v403_pytest_probe_summary.csv,pytest command executed after v402 notebook mutation
-v403_full_repository_pytest_passed,True,paper4_v403_pytest_probe_summary.csv,true only when pytest exits 0
-v403_notebook_lint_snapshot_created,True,paper4_v403_notebook_lint_snapshot.csv,lint visibility only
-v403_sys_path_project_import_e402_repaired,False,paper4_v403_claim_blockers.csv,sys.path cells deferred
-v403_notebook_or_repo_ruff_clean,False,paper4_v403_claim_blockers.csv,62 notebook diagnostics remain
-v403_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

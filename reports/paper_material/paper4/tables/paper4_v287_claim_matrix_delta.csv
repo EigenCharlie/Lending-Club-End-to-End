@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v287_multi_add_reinvestment_probe_executed,True,paper4_v287_multi_add_reinvestment_probe.csv,top-25 v286 relief states only
-v287_no_source_feasible_second_add_reinvestment,True,paper4_v287_reinvestment_state_screen.csv,one second-add screen only; not all multi-add sets
-v287_valid_branch_price_bound,False,paper4_v287_claim_blockers.csv,dual-bound loop missing
-v287_global_full_universe_integer_optimality,False,paper4_v287_claim_blockers.csv,global certificate missing
-v287_paper1_or_final_promotion,False,paper4_v287_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

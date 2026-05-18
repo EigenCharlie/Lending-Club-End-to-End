@@ -1,5 +1,0 @@
-probe_id_v389,command_v389,observed_status_v389,tests_passed_v389,tests_failed_v389,tests_skipped_v389,warnings_v389,runtime_seconds_v389,claim_allowed_v389,claim_boundary_v389
-initial_full_repository_pytest,uv run pytest -q --maxfail=10,fail,1126,1,2,13,167.63,False,one Streamlit AppTest timeout blocked full-suite claim
-streamlit_shell_timeout_repair,uv run pytest -q tests/test_streamlit/test_app_shell_navigation.py::test_app_shell_renders_without_exceptions,pass,1,0,0,0,23.91,True,test timeout budget repaired; app rendered without exception
-post_repair_full_repository_pytest,uv run pytest -q --maxfail=10,pass,1128,0,2,13,205.61,True,full repository pytest clean after timeout repair
-paper4_final_promotion_absence,test ! -e reports/paper_material/paper4/status/paper4_final_promotion.json,pass,1,0,0,0,0.0,True,final promotion remains forbidden and absent

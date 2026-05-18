@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v359_expanded_branch_price_loop_executed,True,paper4_v359_v353_expand_branch_price_or_full_dual_bound.csv,expanded bounded third-order scope
-v359_bounded_entering_candidate_found,False,paper4_v359_entering_candidate_summary.csv,bounded candidate only; apply/reprice required
-v359_no_expanded_third_order_entering_column,True,paper4_v359_third_order_branch_price_stage_summary.csv,not a global branch-price termination
-v359_valid_full_universe_branch_price_bound,False,paper4_v359_claim_blockers.csv,dual-bound loop missing
-v359_working_champion_or_final_promotion,False,paper4_v359_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

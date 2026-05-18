@@ -1,8 +1,0 @@
-blocker_id_v341,blocking_v341,evidence_count_v341,required_next_artifact_v341,claim_boundary_v341
-cashflow_proxy_imputation_required,True,74,paper4_v342_v338_proxy_gap_repair_or_branch_price_protocol.csv,imputed rows block contractual IFRS9
-proxy_coverage_regression_vs_v316,True,1,paper4_v342_v338_proxy_gap_repair_or_branch_price_protocol.csv,v338 has fewer observed v47 proxy rows than the v316 base
-external_online_holdout_missing,True,0,future_external_holdout_or_temporal_rerun,v341 online replay is internal selected-book only
-dynamic_live_replay_missing_after_v340,True,1,future_matched_period_dynamic_replay,v340 matches v295 period counts but still lacks live dynamic replay
-global_branch_price_certificate_missing,True,1,future_branch_price_dual_bound_loop,no global full-universe certificate is created
-paper4_working_champion_gate_missing,True,1,future_global_dynamic_promotion_gate,working champion replacement remains blocked
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

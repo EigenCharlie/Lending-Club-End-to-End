@@ -1,5 +1,0 @@
-policy_id_v392,decision_v392,selected_v392,evidence_count_v392,risk_v392,next_action_v392,claim_boundary_v392
-bulk_ruff_fix_notebooks_now,rejected,False,158,could rewrite executed notebooks and obscure provenance,do_not_apply,notebooks stay untouched in v392
-dry_run_first_no_bulk_notebook_mutation,selected,True,158,adds one planning wave before mutation,paper4_v393_notebook_lint_dry_run_manifest.csv,dry-run manifest before any notebook rewrite
-exclude_notebooks_from_global_ruff,rejected,False,158,hides lint debt instead of resolving or documenting it,do_not_apply,global lint frontier remains visible
-repair_py_surfaces_first,deferred,False,104,useful but does not answer notebook mutation policy,paper4_v394_streamlit_page_lint_repair.md,separate workstream

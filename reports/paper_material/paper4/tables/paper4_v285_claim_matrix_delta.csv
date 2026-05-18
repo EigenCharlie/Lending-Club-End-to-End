@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v285_source_tight_pricing_screen_executed,True,paper4_v285_source_tight_pricing_screen.csv,positive-return source-tight one-drop/one-add screen
-v285_no_one_drop_one_add_entering_column_in_tight_screen,True,paper4_v285_source_tight_pair_stage_summary.csv,scope-limited to v284 tight blocks and one-drop/one-add pairs
-v285_valid_branch_price_bound,False,paper4_v285_claim_blockers.csv,dual-bound loop missing
-v285_global_full_universe_integer_optimality,False,paper4_v285_claim_blockers.csv,global certificate missing
-v285_paper1_or_final_promotion,False,paper4_v285_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

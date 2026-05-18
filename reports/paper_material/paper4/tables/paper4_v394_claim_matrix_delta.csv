@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v394_safe_applicability_notebook_fixes_applied,True,paper4_v394_notebook_safe_fix_summary.csv,13 Ruff-safe notebook fixes only
-v394_notebook_roundtrip_integrity_preserved,True,paper4_v394_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
-v394_notebook_lint_reduced,True,paper4_v394_notebook_safe_fix_summary.csv,"selected lint reduced, not clean"
-v394_unsafe_notebook_fixes_applied,False,paper4_v394_claim_blockers.csv,unsafe fixes deferred
-v394_global_notebook_or_repo_ruff_clean,False,paper4_v394_claim_blockers.csv,notebook and repository ruff still fail
-v394_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,5 +1,0 @@
-decision_id_v398,decision_v398,selected_v398,evidence_count_v398,rationale_v398,next_artifact_v398,claim_boundary_v398
-bulk_notebook_import_reorder,rejected,False,119,Could move imports across setup statements in executed notebooks.,do_not_apply,no blind notebook mutation
-ignore_or_exclude_notebook_e402,rejected,False,119,Would hide a real reproducibility and style frontier.,do_not_apply,lint debt remains visible
-cell_local_refactor_plan,selected,True,15,Only 15 cells need local review before any import movement.,paper4_v399_notebook_e402_cell_refactor_plan.csv,planning only; no mutation in v398
-f821_execution_context_first,deferred,False,1,"Important, but v398 is scoped to E402 governance.",paper4_v400_notebook_execution_context_audit.md,separate blocker

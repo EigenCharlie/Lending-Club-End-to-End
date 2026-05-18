@@ -1,7 +1,0 @@
-blocker_id_v342,blocking_v342,evidence_count_v342,required_next_artifact_v342,claim_boundary_v342
-strict_v338_preserving_proxy_repair_infeasible,True,1,future_expanded_pool_or_dual_bound,strict v338-return/v338-CVaR repair infeasible
-relaxed_v316_return_v338_cvar_repair_infeasible,True,1,paper4_v343_v338_expanded_pool_or_dual_bound_gate.csv,no bounded-pool relaxed repair meets the v316 return floor under v338 CVaR
-post_v342_reprice_missing,False,0,paper4_v343_v338_expanded_pool_or_dual_bound_gate.csv,no relaxed repair exists to reprice
-bounded_pool_not_full_universe,True,1185,future_full_universe_branch_price_bound,v342 prices a bounded observed-candidate pool
-contractual_ifrs9_and_live_holdout_missing,True,1,future_contractual_or_live_holdout_gate,proxy repair is not contractual IFRS9 or live replay
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

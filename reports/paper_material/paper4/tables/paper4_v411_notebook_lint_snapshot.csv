@@ -1,6 +1,0 @@
-lint_code_v411,diagnostic_count_v411,claim_boundary_v411
-E712,2,notebook lint remains visible after B018 patch
-E741,1,notebook lint remains visible after B018 patch
-F821,1,notebook lint remains visible after B018 patch
-SIM102,1,notebook lint remains visible after B018 patch
-SIM108,2,notebook lint remains visible after B018 patch

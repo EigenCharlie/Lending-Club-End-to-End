@@ -1,5 +1,0 @@
-blocker_id_v404,blocking_v404,evidence_count_v404,required_next_artifact_v404,claim_boundary_v404
-sys_path_project_import_refactor_not_applied_yet,True,42,paper4_v405_notebook_sys_path_project_import_refactor_batch.md,v404 plans sys.path/project-import refactor but does not mutate notebooks
-global_notebook_lint_not_clean,True,62,paper4_v405_notebook_sys_path_project_import_refactor_batch.md,E402 and semantic/manual notebook lint remain
-post_refactor_pytest_not_run,True,1,paper4_v406_post_sys_path_refactor_pytest_probe.md,post-refactor validation deferred until after v405 mutation
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

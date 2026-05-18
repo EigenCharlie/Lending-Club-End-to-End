@@ -1,2 +1,0 @@
-compile_id_v442,command_v442,exit_code_v442,passed_v442,compiled_files_v442,stdout_tail_v442,stderr_tail_v442,claim_boundary_v442
-changed_scripts_py_compile,uv run python -m py_compile scripts/papers/build_paper4_v11_promising_lanes.py,0,True,1,,,syntax/bytecode check only; full pytest deferred

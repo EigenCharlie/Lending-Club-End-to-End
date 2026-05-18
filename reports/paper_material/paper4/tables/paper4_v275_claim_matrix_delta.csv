@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v275_restricted_pool_milp_probe_executed,True,paper4_v275_restricted_pool_milp_summary.csv,restricted pool only
-v275_restricted_pool_improvement_found,True,paper4_v275_restricted_pool_milp_summary.csv,inside v275 restricted pool and solver result only
-v275_global_full_universe_integer_optimality,False,paper4_v275_claim_blockers.csv,full-universe gap certificate missing
-v275_paper1_or_final_promotion,False,paper4_v275_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

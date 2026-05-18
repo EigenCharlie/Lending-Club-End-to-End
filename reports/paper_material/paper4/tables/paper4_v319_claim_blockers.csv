@@ -1,7 +1,0 @@
-blocker_id_v319,blocking_v319,evidence_count_v319,required_next_artifact_v319,claim_boundary_v319
-cashflow_proxy_imputation_required,True,73,future_observed_v316_cashflow_panel,imputed rows block contractual IFRS9
-external_online_holdout_missing,True,0,future_external_holdout_or_temporal_rerun,v319 online replay is internal selected-book only
-matched_period_dynamic_gap_from_v318,True,1,future_matched_period_dynamic_replay,v319 does not repair the v318 period mismatch
-global_branch_price_certificate_missing,True,1,future_branch_price_dual_bound_loop,no global full-universe certificate is created
-paper4_working_champion_gate_missing,True,1,future_global_dynamic_promotion_gate,working champion replacement remains blocked
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

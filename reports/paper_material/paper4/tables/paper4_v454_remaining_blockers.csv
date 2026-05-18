@@ -1,5 +1,0 @@
-blocker_id_v454,blocking_v454,evidence_count_v454,required_next_artifact_v454,claim_boundary_v454
-abstract_conclusion_not_drafted,True,1,paper4_v455_abstract_conclusion_draft.md,front/back matter remains pending
-complete_manuscript_not_assembled,True,1,paper4_v456_manuscript_assembly_packet.md,draft sections are not assembled manuscript
-external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

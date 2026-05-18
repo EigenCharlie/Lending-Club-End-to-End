@@ -1,4 +1,0 @@
-action_rank_v353,action_label_v353,added_loan_id_v353,dropped_loan_id_v353,added_loan_amount_v353,dropped_loan_amount_v353,added_mean_return_v353,dropped_mean_return_v353,return_delta_v353,added_observed_v47_proxy_v353,dropped_observed_v47_proxy_v353,delta_missing_v47_proxy_rows_v353,claim_boundary_v353
-1,component_action_from_v352_three_swap,139234645,147190807,2500.0,2500.0,55.59956508611554,55.06806314688965,0.5315019392258904,False,True,1,component action inside the applied v352 bounded three-swap candidate
-2,component_action_from_v352_three_swap,148145784,140423185,1000.0,1000.0,17.206177509043172,15.478716504077878,1.7274610049652939,True,True,0,component action inside the applied v352 bounded three-swap candidate
-3,component_action_from_v352_three_swap,164875488,145977956,3000.0,3000.0,66.49988425124407,68.37566207938511,-1.8757778281410395,False,True,1,component action inside the applied v352 bounded three-swap candidate

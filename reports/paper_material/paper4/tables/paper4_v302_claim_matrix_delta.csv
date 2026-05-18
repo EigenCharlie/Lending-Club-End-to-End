@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v302_greedy_multi_swap_imputation_frontier_executed,True,paper4_v302_apply_v301_repair_or_multi_swap_imputation_frontier.csv,bounded greedy frontier only
-v302_reduces_imputed_rows_under_constraints,True,paper4_v302_greedy_imputation_frontier.csv,feasible with return cost
-v302_optimal_imputation_frontier,False,paper4_v302_claim_blockers.csv,no global multi-swap proof
-v302_contractual_ifrs9_or_live_deployability,False,paper4_v302_claim_blockers.csv,residual imputation and no external holdout
-v302_paper1_or_final_promotion,False,paper4_v302_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

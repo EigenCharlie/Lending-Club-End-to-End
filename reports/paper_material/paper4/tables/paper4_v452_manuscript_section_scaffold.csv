@@ -1,8 +1,0 @@
-section_id_v452,target_role_v452,primary_artifact_v452,draft_allowed_v452,claim_boundary_v452
-abstract,compress contribution and validation envelope,paper4_v451_release_readiness_gate_summary.csv,True,"bounded readiness, not final acceptance"
-introduction,motivate dynamic risk lab and decision governance gap,paper4_living_lab_notebook.md,True,motivation from living-lab history
-methods,"describe SDAM, CVaR/source governance, replay and gates",paper4_current_claim_boundaries.csv,True,method description from generated artifacts
-results,summarize validation gates and executable wave outcomes,paper4_v451_release_readiness_gate_summary.csv,True,validation results only
-quarto_reproducibility,report Paper 4 and full-book render readiness,paper4_v449_full_book_render_probe_summary.csv,True,render/reproducibility only
-limitations,"state no external dataset, no legal fairness, no final promotion",paper4_v451_remaining_blockers.csv,True,must include prohibited claims
-conclusion,close with bounded readiness and next validation agenda,paper4_v451_publishable_language_bank.csv,True,no submission-ready or final claim

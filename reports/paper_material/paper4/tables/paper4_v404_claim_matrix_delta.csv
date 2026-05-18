@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v404_sys_path_refactor_plan_created,True,paper4_v404_notebook_sys_path_refactor_plan.csv,3 remaining sys.path/project-import cells planned
-v404_import_viability_probe_passed,True,paper4_v404_import_viability_probe.csv,true only when root and notebooks cwd import probes pass
-v404_expected_e402_clearance_modeled,True,paper4_v404_expected_lint_delta.csv,expected delta only; no notebook mutation
-v404_sys_path_project_import_refactor_applied,False,paper4_v404_claim_blockers.csv,application deferred to v405
-v404_notebook_or_repo_ruff_clean,False,paper4_v404_claim_blockers.csv,62 notebook diagnostics remain
-v404_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

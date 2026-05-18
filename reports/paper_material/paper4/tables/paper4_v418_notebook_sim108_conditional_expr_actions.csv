@@ -1,9 +1,0 @@
-action_id_v418,notebook_path_v418,cell_v418,old_block_v418,new_statement_v418,mutation_applied_v418,claim_boundary_v418
-sim108_conditional_expr_01,notebooks/04_conformal_prediction.ipynb,4,"if calibrator is not None:
-    y_prob_test_cal = calibrator.predict(y_prob_test)
-else:
-    y_prob_test_cal = y_prob_test",y_prob_test_cal = calibrator.predict(y_prob_test) if calibrator is not None else y_prob_test,True,SIM108 calibrator conditional-expression patch only
-sim108_conditional_expr_02,notebooks/04_conformal_prediction.ipynb,25,"if ead_col in test.columns:
-    ead = test[ead_col].values
-else:
-    ead = np.ones(len(test)) * 15000  # default",ead = test[ead_col].values if ead_col in test.columns else np.ones(len(test)) * 15000,True,SIM108 EAD conditional-expression patch only

@@ -1,6 +1,0 @@
-constraint_type_v292,constraint_rows_v292,claim_boundary_v292
-budget_range,1,v292 bounded MILP constraint count only
-cvar_cap,1,v292 bounded MILP constraint count only
-cvar_path_excess,128,v292 bounded MILP constraint count only
-selected_row_cardinality,1,v292 bounded MILP constraint count only
-source_share,46,v292 bounded MILP constraint count only

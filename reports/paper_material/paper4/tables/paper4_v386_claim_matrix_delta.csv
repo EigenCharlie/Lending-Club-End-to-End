@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v386_quarto_registration_gap_decision_created,True,paper4_v386_quarto_registration_gap_decision.md,decision artifact only
-v386_archive_manifest_draft_created,True,paper4_v386_quarto_archive_manifest.csv,"manifest draft, not yet book guardrail input"
-v386_archive_in_place_policy_selected,True,paper4_v386_quarto_registration_policy_matrix.csv,selected for v387 patch
-v386_book_config_or_guardrail_patched,False,paper4_v386_claim_blockers.csv,v386 applies no patch
-v386_full_regression_suite_clean,False,paper4_v386_claim_blockers.csv,suite clean claim remains blocked
-v386_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

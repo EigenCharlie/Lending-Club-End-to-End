@@ -1,3 +1,0 @@
-blocker_id_v449,blocking_v449,evidence_count_v449,required_next_artifact_v449,claim_boundary_v449
-post_render_full_repository_pytest_not_rerun,True,1,paper4_v450_post_full_book_render_pytest_probe.md,new v448-v449 guardrails need a post-render pytest refresh
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,2 +1,0 @@
-attempt_id,universe_n,largest_restricted_pool_n,estimated_binary_or_weight_variables,scenario_loss_matrix_available,pyomo_highs_available,full_universe_lp_executed_v45,exact_full_universe_claim_v45,blocker_v45,next_exact_path_v45
-v45_full_universe_precheck,276869,36000,276869,False,True,False,False,full loan-scenario loss matrix and exact allocation interface are not available in current artifacts,"persist scenario-loss matrix by loan, then solve full LP or column-generation master with pricing certificate"

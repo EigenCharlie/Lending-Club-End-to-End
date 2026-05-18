@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v78_full_source_scope_reprice_executed,True,paper4_v78_source_scope_expanded_reprice.parquet,focused source-scope expanded reduced-cost screen
-v78_pricing_and_source_scope_cleared,True,paper4_v78_claim_blockers.csv,allowed only if pricing and source-scope evidence counts are zero
-v78_exact_full_universe_or_final_promotion,False,paper4_v78_claim_blockers.csv,continuous relaxation/integrality blocker remains

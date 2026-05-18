@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v370_future_execution_backlog_refresh_created,True,paper4_v370_future_execution_backlog_refresh.csv,planning only
-v370_goal_prompt_created,True,paper4_v370_goal_prompt.md,execution guidance only
-v370_selects_v371_source_governance_diagnostic,True,paper4_v370_next_wave_options.csv,route selection only
-v370_new_solver_live_or_final_claim,False,paper4_v370_claim_blockers.csv,no new proof or promotion

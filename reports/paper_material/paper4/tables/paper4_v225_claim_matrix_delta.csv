@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v225_next_one_swap_repair_executed,True,paper4_v225_next_one_swap_repair_summary.csv,best v224 swap applied
-v225_repair_candidate_feasible,True,paper4_v225_next_one_swap_repair_summary.csv,budget/source/CVaR feasibility only
-v225_post_repair_one_swap_optimality,False,paper4_v225_claim_blockers.csv,post-repair pricing not rerun after v225
-v225_full_universe_integer_optimality,False,paper4_v225_claim_blockers.csv,multi-swap/global gap certificate missing
-v225_paper1_or_final_promotion,False,paper4_v225_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

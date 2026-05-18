@@ -1,6 +1,0 @@
-evidence_id_v368,wave_v368,artifact_v368,evidence_statement_v368,publishable_v368,claim_boundary_v368
-bounded_fourth_order_no_entry,361,reports/paper_material/paper4/tables/paper4_v361_v353_fourth_order_or_full_dual_bound.csv,bounded fourth-order source-tight loop found zero CVaR-feasible entering rows,True,bounded v361 search scope only
-full_dual_bound_gap,363,reports/paper_material/paper4/tables/paper4_v363_v353_full_dual_bound_or_gap_certificate.csv,full-v55 dual-bound certificate remains unavailable with v71 improving omitted columns,True,gap disclosure only
-full_v55_chunk_plan,365,reports/paper_material/paper4/tables/paper4_v365_v353_full_v55_pricing_chunk_plan.csv,full omitted pricing was decomposed into 28 reproducible chunks,True,resource plan only
-chunk_0001_source_blocker,366,reports/paper_material/paper4/tables/paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,chunk 1 screened 1.71M one-swaps and found zero source-exact rows,True,single chunk only
-route_scope_decision,367,reports/paper_material/paper4/tables/paper4_v367_route_decision_after_chunk_probe.csv,route decision selects bounded claim-scope update before more solver expansion,True,recommendation only

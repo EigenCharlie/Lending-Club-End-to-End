@@ -1,9 +1,0 @@
-readiness_gate_v482,ready_v482,evidence_artifact_v482,claim_boundary_v482
-post_plan_synthesis_packet_created,True,paper4_v482_post_plan_wave_summary.csv,synthesis packet only
-manuscript_state_matrix_created,True,paper4_v482_manuscript_state_matrix.csv,state matrix only
-open_blockers_preserved,True,paper4_v482_open_blocker_register.csv,blockers remain open
-manual_review_packet_seed_created,True,paper4_v482_manual_review_packet_seed.csv,review seed only
-manual_patch_authorized,False,paper4_v481_patch_decision_register.csv,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v482
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

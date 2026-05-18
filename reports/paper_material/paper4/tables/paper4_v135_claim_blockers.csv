@@ -1,5 +1,0 @@
-blocker_id_v135,blocking_v135,evidence_count_v135,required_next_artifact_v135,claim_boundary_v135
-next_one_swap_repair_candidate_created,False,1,paper4_v135_next_one_swap_repair_summary.csv,candidate exists only if budget/source/CVaR remain feasible
-post_repair_one_swap_repricing_missing,True,1,paper4_v136_post_repair_one_swap_reprice.csv,repair must be re-priced after changing the portfolio again
-multi_swap_integer_pricing_missing,True,1,paper4_v136_iterated_swap_or_milp_repair.csv,twenty-seventh applied swap sequence does not cover multi-loan exchanges
-global_integer_gap_certificate_missing,True,1,paper4_v136_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate

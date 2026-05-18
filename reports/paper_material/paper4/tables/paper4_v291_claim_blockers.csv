@@ -1,5 +1,0 @@
-blocker_id_v291,blocking_v291,evidence_count_v291,required_next_artifact_v291,claim_boundary_v291
-add_only_positive_restoration_blocked_by_source,True,1678,paper4_v292_cardinality_aware_multi_swap_milp_protocol.csv,all positive budget-eligible single adds are blocked by source caps
-add_only_cvar_restoration_blocked,True,42918,paper4_v292_cardinality_aware_multi_swap_milp_protocol.csv,source-feasible single adds do not preserve the v289 CVaR cap
-cardinality_deficit_requires_multi_swap,True,3,paper4_v292_cardinality_aware_multi_swap_milp_protocol.csv,need three-row restoration to match 171 rows
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

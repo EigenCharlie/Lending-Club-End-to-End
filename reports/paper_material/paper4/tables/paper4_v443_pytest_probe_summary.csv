@@ -1,2 +1,0 @@
-probe_id_v443,command_v443,exit_code_v443,passed_v443,runtime_seconds_v443,collected_items_v443,summary_line_v443,claim_boundary_v443
-full_repository_pytest,uv run pytest -q --tb=short,0,True,182.633,1181,"=========== 1181 passed, 2 skipped, 13 warnings in 167.36s (0:02:47) ===========",post-v442 scripts C405 repair full pytest probe

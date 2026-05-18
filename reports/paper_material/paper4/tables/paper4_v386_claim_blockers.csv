@@ -1,5 +1,0 @@
-blocker_id_v386,blocking_v386,evidence_count_v386,required_next_artifact_v386,claim_boundary_v386
-guardrail_patch_not_applied,True,70,paper4_v387_quarto_archive_guardrail_patch.csv,v386 selects policy but does not patch tests or manifests
-quarto_registration_guardrail_still_not_clean,True,70,paper4_v387_quarto_archive_guardrail_patch.csv,book guardrail remains pending until v387
-full_regression_suite_clean_not_claimed,True,70,paper4_v387_quarto_archive_guardrail_patch.csv,full-suite clean claim remains blocked
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v443_full_repository_pytest_run,True,paper4_v443_pytest_probe_summary.csv,pytest command executed after v442 scripts C405 repair
-v443_full_repository_pytest_passed,True,paper4_v443_pytest_probe_summary.csv,true only when pytest exits 0
-v443_c405_remains_clear,True,paper4_v443_repository_ruff_snapshot.csv,repository C405 remains zero after full pytest
-v443_prior_lint_channels_remain_clean,True,paper4_v443_repository_ruff_snapshot.csv,previously cleared lint channels remain zero
-v443_repository_ruff_clean,False,paper4_v443_claim_blockers.csv,true only when repository ruff emits zero diagnostics
-v443_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

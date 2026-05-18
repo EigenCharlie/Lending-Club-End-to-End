@@ -1,5 +1,0 @@
-blocker_id_v292,blocking_v292,evidence_count_v292,required_next_artifact_v292,claim_boundary_v292
-cardinality_restored_but_return_gap_vs_v289,True,3.0311351258519608,paper4_v293_cardinality_return_gap_decomposition_or_diverse_pool_probe.csv,v292 restores rows but does not beat v289 return
-bounded_pool_not_full_universe,True,261701.0,future_full_universe_branch_price_bound,v292 uses top-15000 omitted candidates only
-dynamic_replay_and_deployment_gates_missing,True,1.0,future_dynamic_replay_validation,no online or deployment validation created
-paper4_final_promotion_forbidden,True,1.0,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

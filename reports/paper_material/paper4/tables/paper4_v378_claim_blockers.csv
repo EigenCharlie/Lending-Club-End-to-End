@@ -1,5 +1,0 @@
-blocker_id_v378,blocking_v378,evidence_count_v378,required_next_artifact_v378,claim_boundary_v378
-open_submission_readiness_gaps,True,11,paper4_v379_evidence_gap_closure_work_order.csv,submission-ready claim remains blocked
-highest_priority_open_gaps,True,9,paper4_v379_evidence_gap_closure_work_order.csv,v379 must create executable closure work order
-live_legal_global_claims_still_blocked,True,0,paper4_v379_evidence_gap_closure_work_order.csv,v375 permissions remain unchanged
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

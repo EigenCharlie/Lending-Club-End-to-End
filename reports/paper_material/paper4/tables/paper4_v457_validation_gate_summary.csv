@@ -1,5 +1,0 @@
-validation_gate_v457,observed_status_v457,evidence_count_v457,claim_allowed_v457,claim_boundary_v457
-post_assembly_full_repository_pytest,pass,1195,True,post-assembly full test suite
-repository_ruff,pass,0,True,global repository Ruff snapshot
-manuscript_assembly_packet_exists,pass,6,True,inherited from v456 manuscript assembly packet
-paper4_final_promotion_absence,pass,1,True,final promotion remains forbidden and absent

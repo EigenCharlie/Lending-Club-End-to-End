@@ -1,6 +1,0 @@
-rule_code_v437,diagnostic_count_v437,fixable_count_v437,file_count_v437,top_surface_v437,repair_priority_v437,claim_boundary_v437
-B023,7,0,4,scripts,1,post-v437 frontier only
-UP022,3,3,3,scripts,2,post-v437 frontier only
-SIM108,2,2,2,scripts,3,post-v437 frontier only
-C405,1,1,1,scripts,4,post-v437 frontier only
-SIM223,1,1,1,scripts,5,post-v437 frontier only

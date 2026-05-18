@@ -1,8 +1,0 @@
-gate_id_v456,ready_v456,blocking_if_false_v456,evidence_artifact_v456,next_action_v456,claim_boundary_v456
-major_prose_components_assembled,True,True,paper4_v456_manuscript_assembly_packet.md,run post-assembly regression checks,assembly packet exists
-claim_boundaries_attached,True,True,paper4_current_claim_boundaries.csv,keep claim map synchronized,bounded language only
-post_assembly_full_pytest,False,True,paper4_v457_post_assembly_pytest_probe.md,execute full pytest after manuscript assembly,regression refresh pending
-paper4_quarto_render_after_assembly,False,True,future_post_assembly_quarto_probe,rerender Paper 4 surface if Quarto content changes,render refresh pending if promoted to Quarto
-external_dataset_validation,False,True,future_external_validation_protocol,design external validation protocol if broader claim is needed,no external generalization claim
-submission_package_ready,False,True,future_target_venue_packet,choose target venue and format requirements,not submission ready
-final_promotion_absent,True,True,paper4_final_promotion_gate_not_created,keep forbidden promotion artifact absent,Paper Estrella remains protected

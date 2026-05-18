@@ -1,5 +1,0 @@
-blocker_id_v365,blocking_v365,evidence_count_v365,required_next_artifact_v365,claim_boundary_v365
-full_v55_pricing_not_executed,True,276698,paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,v365 schedules pricing but does not execute it
-v71_negative_reduced_cost_persists,True,5738,paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,prior restricted-dual screen remains non-terminating
-integer_optimality_certificate_missing,True,1,paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,planning does not provide integer proof
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

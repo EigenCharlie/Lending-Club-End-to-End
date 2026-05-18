@@ -1,6 +1,0 @@
-blocker_id_v353,blocking_v353,evidence_count_v353,required_next_artifact_v353,claim_boundary_v353
-post_v353_repricing_required,True,1,paper4_v354_post_v353_reprice.csv,applied candidate has not been repriced yet
-proxy_coverage_worsens_vs_v347,True,2,future_proxy_repair_or_ifrs9_gate,missing proxy rows increase versus v347
-valid_branch_price_bound_missing,True,1,future_branch_price_dual_bound_loop,no dual-bound loop or termination certificate
-contractual_ifrs9_and_live_holdout_missing,True,77,future_contractual_or_live_holdout_gate,proxy rows remain missing and live evidence is absent
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

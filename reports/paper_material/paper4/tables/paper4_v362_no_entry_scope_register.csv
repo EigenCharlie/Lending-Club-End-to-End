@@ -1,6 +1,0 @@
-scope_id_v362,covered_v362,evidence_count_v362,evidence_artifact_v362,claim_boundary_v362
-v361_fourth_order_scope_covered,True,371100576,paper4_v361_fourth_order_branch_price_stage_summary.csv,bounded v359-seeded fourth-order screen only
-v361_source_exact_frontier_covered,True,4631,paper4_v361_branch_price_candidate_screen.csv,"4,631 source-exact rows, zero entering rows"
-full_v55_dual_bound_covered,False,0,missing,no full-v55 branch-price termination certificate exists
-full_integer_or_fifth_order_scope_covered,False,0,missing,fourth-order no-entry is still not a full integer optimality proof
-proxy_dynamic_online_gates_covered,False,77,paper4_v355_proxy_repair_tier_summary.csv,proxy gap and live gates remain open

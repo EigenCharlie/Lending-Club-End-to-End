@@ -1,2 +1,0 @@
-compile_id_v436,command_v436,exit_code_v436,passed_v436,compiled_files_v436,stdout_tail_v436,stderr_tail_v436,claim_boundary_v436
-changed_scripts_and_book_py_compile,uv run python -m py_compile book/_helpers/plot_helpers.py scripts/papers/build_paper4_v398_notebook_historical_e402_policy.py scripts/papers/build_paper4_v399_notebook_e402_cell_refactor_plan.py scripts/papers/build_paper4_v406_post_sys_path_refactor_pytest_probe.py,0,True,4,,,syntax/bytecode check only; full pytest deferred

@@ -1,7 +1,0 @@
-risk_id_v480,risk_open_v480,mitigation_v480
-overclaiming_in_inserted_text,True,preserve v478 caveats and v479 scan before patch
-quarto_render_breakage,True,run targeted Quarto render after any future patch
-asset_caption_mismatch,True,keep captions draft until manual review
-book_reference_mutation,True,no bibliography mutation in v480
-paper_estrella_boundary_violation,True,keep final promotion artifact absent
-submission_readiness_overstatement,True,label plan as insertion planning only

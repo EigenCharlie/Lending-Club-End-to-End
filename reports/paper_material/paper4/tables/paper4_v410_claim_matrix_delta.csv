@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v410_b018_fig_show_patch_applied,True,paper4_v410_notebook_b018_fig_show_actions.csv,10 explicit fig.show replacements
-v410_b018_cleared_from_notebooks,True,paper4_v410_notebook_lint_delta.csv,B018 only
-v410_roundtrip_integrity_preserved,True,paper4_v410_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
-v410_notebook_or_repo_ruff_clean,False,paper4_v410_claim_blockers.csv,7 notebook diagnostics remain
-v410_post_b018_pytest_passed,False,paper4_v410_claim_blockers.csv,post-patch pytest deferred to v411
-v410_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,5 +1,0 @@
-triage_id_v385,observed_status_v385,evidence_count_v385,observed_command_v385,interpretation_v385,claim_boundary_v385
-paper4_focal_guardrail_chain_v378_v384,pass,7,uv run pytest -q tests/test_docs/test_paper4_living_lab_guardrails.py -k v378..v384 focal guardrails,current Paper 4 living-lab guardrails are healthy,targeted guardrail validation only
-quarto_chapter_registration_guardrail,fail,70,uv run pytest -q tests/test_docs/test_quarto_book_guardrails.py::test_all_quarto_chapter_pages_are_referenced_in_book_config,standalone historical Quarto chapter files are not in book/_quarto.yml,known registration gap only
-full_regression_suite_status,blocked_by_quarto_registration_gap,70,uv run pytest -q,full-suite clean claim remains blocked until registration gap is resolved,no full-suite-clean claim
-paper4_final_promotion_absence,pass,0,test ! -e reports/paper_material/paper4/status/paper4_final_promotion.json,final promotion artifact remains absent,Paper Estrella remains protected

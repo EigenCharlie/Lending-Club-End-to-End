@@ -1,2 +1,0 @@
-compile_id_v444,command_v444,exit_code_v444,passed_v444,compiled_files_v444,stdout_tail_v444,stderr_tail_v444,claim_boundary_v444
-changed_scripts_py_compile,uv run python -m py_compile scripts/papers/build_paper4_v41_v44_living_lab_wave.py,0,True,1,,,syntax/bytecode check only; full pytest deferred

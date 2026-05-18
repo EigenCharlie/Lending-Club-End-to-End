@@ -1,6 +1,0 @@
-surface_metric_v449,count_v449,passed_v449,claim_boundary_v449
-paper4_registered_pages_in_full_book,10,True,Paper 4 official compact surface
-paper4_rendered_pages_in_full_book,10,True,Paper 4 pages rendered during full-book render
-paper4_qmd_files_on_disk,80,True,includes historical archive files
-intentionally_archived_paper4_pages,70,True,preserved on disk but excluded from official render
-unregistered_nonarchived_paper4_pages,0,True,should remain zero under archive policy

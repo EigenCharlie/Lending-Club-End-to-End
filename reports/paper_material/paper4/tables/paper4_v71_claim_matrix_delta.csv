@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v71_omitted_column_reduced_cost_screen,True,paper4_v71_full_universe_reduced_costs.parquet,restricted-master dual pricing screen only
-v71_full_universe_column_generation_termination,False,paper4_v71_claim_blockers.csv,blocked until no improving omitted columns and source/integrality blockers clear
-v71_paper1_or_final_promotion,False,paper4_v71_reduced_cost_summary.csv,no Paper Estrella or final Paper 4 promotion

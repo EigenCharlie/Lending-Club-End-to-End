@@ -1,6 +1,0 @@
-action_id_v481,priority_v481,action_ready_v481,result_expected_v481
-request_explicit_patch_approval,1,True,human decision on book-source edit
-finalize_caption_language_under_caveats,2,True,caption text approved for insertion
-prepare_manual_patch_diff,3,False,requires explicit patch approval first
-run_post_patch_quarto_render,4,False,requires patch to exist
-rerun_paper4_guardrails_after_patch,5,False,requires patch and render results

@@ -1,3 +1,0 @@
-lane_v57,diagnostic_status_v57,claim_allowed_v57,required_unlock_v57,claim_boundary_v57
-CATE,theory_blocked,False,"identification, overlap, sensitivity, falsification, intervals and reject-inference treatment",diagnostics only; no CATE policy-value claim
-fairness,data_blocked,False,protected attributes or approved proxy protocol,source governance only; no fair-lending legal claim

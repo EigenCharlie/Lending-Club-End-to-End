@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v398_historical_e402_manifest_created,True,paper4_v398_notebook_historical_e402_manifest.csv,119 E402 diagnostics inventoried
-v398_cell_local_refactor_policy_selected,True,paper4_v398_notebook_historical_e402_decision.csv,planning only
-v398_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v398
-v398_e402_or_global_lint_clean,False,paper4_v398_claim_blockers.csv,119 E402 and 139 notebook diagnostics remain
-v398_bulk_notebook_reorder_approved,False,paper4_v398_notebook_historical_e402_decision.csv,bulk reorder rejected
-v398_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v304_bounded_multiobjective_milp_executed,True,paper4_v304_bounded_multiobjective_milp_or_global_bound_probe.csv,observed-proxy bounded pool only
-v304_bounded_pool_return_and_imputation_challengers,True,paper4_v304_bounded_reward_solutions.csv,requires reprice/global/dynamic gates
-v304_full_universe_global_optimality,False,paper4_v304_claim_blockers.csv,full-v55 proof missing
-v304_working_champion_or_promotion,False,paper4_v304_claim_blockers.csv,promotion gates missing
-v304_paper1_or_final_promotion,False,paper4_v304_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

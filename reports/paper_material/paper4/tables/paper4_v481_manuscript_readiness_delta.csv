@@ -1,8 +1,0 @@
-readiness_gate_v481,ready_v481,evidence_artifact_v481,claim_boundary_v481
-manual_patch_decision_created,True,paper4_v481_patch_decision_register.csv,decision only
-manual_review_requirements_created,True,paper4_v481_manual_review_requirements.csv,requirements only
-next_action_queue_created,True,paper4_v481_next_action_queue.csv,next-action queue only
-patch_allowed,False,explicit approval missing,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v481
-submission_ready,False,"future approval, patch and render validation",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

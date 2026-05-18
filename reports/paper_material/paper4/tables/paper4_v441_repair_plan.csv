@@ -1,2 +1,0 @@
-repair_lane_v441,target_surface_v441,target_rule_v441,diagnostic_count_v441,fixable_count_v441,mutation_allowed_in_v441,v442_candidate_v441,next_artifact_v441,claim_boundary_v441
-targeted_scripts_c405_set_literal_repair,scripts,C405,1,1,False,True,paper4_v442_scripts_c405_set_literal_repair_batch.md,v441 plans the next repair but does not mutate set literals

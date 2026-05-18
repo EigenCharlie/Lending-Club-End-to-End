@@ -1,9 +1,0 @@
-readiness_gate_v489,ready_v489,evidence_artifact_v489,claim_boundary_v489
-layout_consistency_audit_created,True,paper4_v489_layout_consistency_checks.csv,audit only
-target_consistency_matrix_created,True,paper4_v489_target_consistency_matrix.csv,target consistency only
-render_blocker_matrix_created,True,paper4_v489_render_blocker_matrix.csv,blocker matrix only
-patch_safety_decision_created,True,paper4_v489_patch_safety_decision.csv,decision matrix only
-ready_for_quarto_patch,False,manual approval and final captions missing,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v489
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

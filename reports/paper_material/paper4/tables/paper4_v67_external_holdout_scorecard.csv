@@ -1,3 +1,0 @@
-frozen_method_id_v66,source_family,holdout_data_available_v67,holdout_rows_v67,source_month_coverage_min_v67,policy_month_coverage_min_v67,stress_slice_coverage_min_v67,avg_interval_width_v67,all_gates_pass_v67,strict_live_deployability_claim_allowed,score_status_v67,claim_boundary_v67
-v65_period_delta0p012_m3,period,False,0,,,,,False,False,blocked_missing_external_holdout_data,"no holdout data, so no validation claim"
-v65_term_delta0p012_m3,term,False,0,,,,,False,False,blocked_missing_external_holdout_data,"no holdout data, so no validation claim"

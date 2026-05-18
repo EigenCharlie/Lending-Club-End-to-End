@@ -1,5 +1,0 @@
-render_blocker_id_v489,required_before_patch_v489,blocker_open_v489,resolved_by_v489,claim_boundary_v489
-manual_patch_approval_present,True,True,False,approval missing
-captions_final,True,True,False,captions non-final
-quarto_patch_applied,False,True,False,no patch in v488
-post_patch_render_passed,False,True,False,render deferred until patch exists

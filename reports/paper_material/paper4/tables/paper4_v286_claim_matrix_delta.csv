@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v286_exact_joint_source_relief_protocol_executed,True,paper4_v286_joint_source_relief_pricing_protocol.csv,top-200 exact source-relief MILP screen
-v286_no_top200_return_positive_exact_relief_column,True,paper4_v286_joint_source_relief_candidate_screen.csv,top-200 only; not full ranked pricing
-v286_valid_branch_price_bound,False,paper4_v286_claim_blockers.csv,dual-bound loop missing
-v286_global_full_universe_integer_optimality,False,paper4_v286_claim_blockers.csv,global certificate missing
-v286_paper1_or_final_promotion,False,paper4_v286_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

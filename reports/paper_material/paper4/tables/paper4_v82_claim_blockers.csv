@@ -1,4 +1,0 @@
-blocker_id_v82,blocking_v82,evidence_count_v82,required_next_artifact_v82,claim_boundary_v82
-one_swap_integer_improvement_found,True,8126,paper4_v83_apply_best_swap_or_reoptimize.csv,feasible improving one-swaps mean v80 binary portfolio is not locally optimal
-multi_swap_integer_pricing_missing,True,1,paper4_v83_iterated_swap_or_milp_repair.csv,one-swap screen does not cover multi-loan exchanges
-global_integer_gap_certificate_missing,True,1,paper4_v83_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate

@@ -1,6 +1,0 @@
-policy_option_v386,decision_v386,selected_v386,evidence_count_v386,expected_guardrail_effect_v386,risk_v386,next_action_v386,claim_boundary_v386
-register_all_historical_pages_in_book,rejected,False,70,would satisfy registration guardrail,bloats official chapter and reverses curated-paper boundary,do_not_apply,not selected; historical pages stay out of render list
-move_pages_outside_book_chapters,deferred,False,70,would remove files from chapter scan,path churn may break provenance links and historical references,keep_as_later_archive_migration_option,not selected for immediate patch
-delete_historical_pages,rejected,False,70,would remove missing pages,destroys living-lab traceability,do_not_apply,prohibited by provenance requirement
-archive_in_place_with_manifested_guardrail_exemption,selected,True,70,will allow explicit archived pages while keeping curated book pages strict,requires a narrow guardrail patch and archive manifest,paper4_v387_quarto_archive_guardrail_patch.csv,decision only; patch not applied in v386
-ignore_without_manifest,rejected,False,70,would leave current failure ambiguous,hides a book-quality failure without audit trail,do_not_apply,explicitly prohibited

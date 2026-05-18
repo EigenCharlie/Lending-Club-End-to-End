@@ -1,5 +1,0 @@
-blocker_id_v368,blocking_v368,evidence_count_v368,required_next_artifact_v368,claim_boundary_v368
-full_v55_certificate_missing,True,27,paper4_v369_proxy_live_gate_separation.csv,global proof remains open
-source_exact_chunk_rows_zero,True,0,paper4_v369_proxy_live_gate_separation.csv,source governance blocker must be reported
-proxy_live_gate_not_separated,True,1,paper4_v369_proxy_live_gate_separation.csv,next wave must separate offline and live claims
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

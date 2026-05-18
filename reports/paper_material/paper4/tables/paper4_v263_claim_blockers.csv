@@ -1,5 +1,0 @@
-blocker_id_v263,blocking_v263,evidence_count_v263,required_next_artifact_v263,claim_boundary_v263
-bounded_two_swap_repair_candidate_created,False,1,paper4_v263_bounded_two_swap_repair_summary.csv,candidate exists only if budget/source/CVaR remain feasible
-post_repair_pricing_missing,True,1,paper4_v264_post_bounded_two_swap_reprice.csv,repair must be re-priced after changing the portfolio again
-global_integer_gap_certificate_missing,True,1,paper4_v264_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

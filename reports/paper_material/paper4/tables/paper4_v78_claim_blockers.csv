@@ -1,4 +1,0 @@
-blocker_id_v78,blocking_v78,evidence_count_v78,required_next_artifact_v78,claim_boundary_v78
-negative_reduced_cost_columns_after_full_source_scope,False,0,paper4_v79_column_generation_if_needed.csv,full source-scope pricing has no improving columns if zero
-source_constraint_scope_incomplete,False,0,paper4_v79_source_scope_patch.csv,full universe source IDs must have constraint rows
-continuous_relaxation_not_whole_loan_milp,True,1,paper4_v79_integrality_gap_or_milp_probe.csv,expanded-source pricing remains a continuous LP diagnostic

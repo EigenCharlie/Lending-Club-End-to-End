@@ -1,9 +1,0 @@
-lint_code_v403,diagnostic_count_v403,claim_boundary_v403
-B007,3,notebook lint remains visible after pytest probe
-B018,10,notebook lint remains visible after pytest probe
-E402,42,notebook lint remains visible after pytest probe
-E712,2,notebook lint remains visible after pytest probe
-E741,1,notebook lint remains visible after pytest probe
-F821,1,notebook lint remains visible after pytest probe
-SIM102,1,notebook lint remains visible after pytest probe
-SIM108,2,notebook lint remains visible after pytest probe

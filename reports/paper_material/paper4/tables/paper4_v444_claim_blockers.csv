@@ -1,4 +1,0 @@
-blocker_id_v444,blocking_v444,evidence_count_v444,required_next_artifact_v444,claim_boundary_v444
-repository_ruff_frontier_still_open,True,7,paper4_v445_post_scripts_sim223_repair_pytest_probe.md,repository ruff clean claim blocked while diagnostics remain
-full_repository_pytest_deferred_after_sim223_repair,True,1,paper4_v445_post_scripts_sim223_repair_pytest_probe.md,py_compile does not replace full pytest
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

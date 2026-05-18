@@ -1,4 +1,0 @@
-structure_family_v459,fit_level_v459,selected_v459,why_useful_v459,missing_before_selection_v459,claim_boundary_v459
-reproducibility_artifact_paper,high,False,"matches living-lab gates, artifacts and auditability",venue-specific requirements and citations,candidate family only
-credit_risk_decision_science_paper,medium,False,matches domain framing and risk decision context,external validation and domain literature bridge,candidate family only
-ml_systems_methods_paper,medium,False,"matches pipeline, validation and governance emphasis",systems baseline framing and venue format,candidate family only

@@ -1,6 +1,0 @@
-no_patch_item_v488,mutation_allowed_v488,mutation_performed_v488,blocking_reason_v488
-book_sources,False,False,layout dry-run only
-book_references,False,False,no bibliography update in v488
-caption_finalization,False,False,editorial signoff missing
-submission_package,False,False,venue and render gates missing
-final_promotion,False,False,Paper Estrella boundary remains active

@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v364_dual_bound_resource_plan_created,True,paper4_v364_v353_dual_bound_resource_plan.csv,planning only
-v364_goal_prompt_created,True,paper4_v364_goal_prompt.md,continued execution prompt only
-v364_valid_full_v55_dual_bound_certificate,False,paper4_v364_claim_blockers.csv,solver proof still missing
-v364_paper1_or_final_promotion,False,paper4_v364_claim_blockers.csv,Paper Estrella remains protected

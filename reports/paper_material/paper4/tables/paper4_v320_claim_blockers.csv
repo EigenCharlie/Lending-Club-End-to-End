@@ -1,6 +1,0 @@
-blocker_id_v320,blocking_v320,evidence_count_v320,required_next_artifact_v320,claim_boundary_v320
-bounded_pool_not_full_universe,True,73839,future_full_universe_branch_price_bound,v320 prices only a top-2019 bounded pool
-post_v320_reprice_missing,True,1,paper4_v321_post_v320_matched_period_reprice.csv,matched-period repair needs one-swap repricing
-branch_price_certificate_missing,True,1,future_branch_price_dual_bound_loop,no global omitted-column certificate
-cashflow_online_gate_after_repair_missing,True,1,future_v320_cashflow_online_ifrs9_gate,"v319 applies to v316, not the v320 repaired book"
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

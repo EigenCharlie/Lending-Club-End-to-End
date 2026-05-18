@@ -1,7 +1,0 @@
-sentence_id_v455,section_v455,allowed_v455,sentence_v455,source_artifact_v455,claim_boundary_v455
-abstract_problem,abstract,True,We study Paper 4 as a living-lab protocol for auditable credit-risk decision research rather than as a final deployed policy.,paper4_v453_methods_results_draft.md,problem framing only
-abstract_evidence,abstract,True,"The current package passes full pytest, repository Ruff, Paper 4 Quarto render, full-book render, archive-governance, and no-promotion gates.",paper4_v451_release_readiness_gate_summary.csv,bounded readiness gates
-abstract_caveat,abstract,True,"These gates support manuscript extraction but not external validation, legal fairness certification, submission readiness, or final promotion.",paper4_v454_limitation_register.csv,required caveat
-conclusion_value,conclusion,True,"The main value of the current Paper 4 laboratory is the conversion of many exploratory waves into a traceable, guarded evidence package.",paper4_living_lab_notebook.md,laboratory contribution
-conclusion_next,conclusion,True,"The next executable step is manuscript assembly, followed by external validation protocol design if a broader claim is needed.",paper4_v454_remaining_blockers.csv,future work
-prohibited_final,prohibited,False,The abstract may state that Paper 4 is final and submission-ready.,paper4_v455_remaining_blockers.csv,final/submission claims remain blocked

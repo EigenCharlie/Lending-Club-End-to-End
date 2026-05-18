@@ -1,7 +1,0 @@
-gate_id_v451,source_version_v451,passed_v451,evidence_count_v451,evidence_artifact_v451,bounded_readiness_role_v451,claim_boundary_v451
-post_render_full_repository_pytest,450,True,1188,paper4_v450_pytest_probe_summary.csv,regression gate,full pytest clean after v448-v449 guardrails
-repository_ruff_clean,450,True,0,paper4_v450_validation_gate_summary.csv,lint gate,repository Ruff emits zero diagnostics
-paper4_official_quarto_render,448,True,10,paper4_v448_quarto_render_probe_summary.csv,chapter render gate,official registered Paper 4 chapter only
-full_book_quarto_render,449,True,122,paper4_v449_full_book_render_probe_summary.csv,book render gate,full official Quarto book render
-paper4_archive_policy_preserved,449,True,0,paper4_v449_paper4_surface_in_full_book.csv,surface governance gate,historical archive stays out of official render
-paper4_final_promotion_absent,451,True,1,paper4_final_promotion_gate_not_created,negative promotion gate,final promotion remains forbidden and absent

@@ -1,8 +1,0 @@
-claim_id,allowed,artifact,boundary
-v438_up022_capture_output_repair_applied,True,paper4_v438_scripts_up022_actions.csv,targeted scripts UP022 capture_output repair batch
-v438_up022_cleared,True,paper4_v438_repository_ruff_delta.csv,true only for UP022 diagnostics
-v438_repository_ruff_reduced,True,paper4_v438_repository_ruff_delta.csv,repository ruff diagnostic count decreases
-v438_changed_scripts_pycompile_passed,True,paper4_v438_pycompile_summary.csv,syntax/bytecode check for changed scripts
-v438_repository_ruff_clean,False,paper4_v438_claim_blockers.csv,true only if repository ruff emits zero diagnostics
-v438_full_repository_pytest_passed_after_repair,False,paper4_v438_claim_blockers.csv,full pytest deferred to v439
-v438_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

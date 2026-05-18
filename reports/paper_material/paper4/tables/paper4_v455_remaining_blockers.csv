@@ -1,5 +1,0 @@
-blocker_id_v455,blocking_v455,evidence_count_v455,required_next_artifact_v455,claim_boundary_v455
-manuscript_not_assembled,True,1,paper4_v456_manuscript_assembly_packet.md,major prose pieces exist but are not assembled
-post_assembly_full_pytest_not_run,True,1,paper4_v457_post_assembly_pytest_probe.md,assembly changes would need regression refresh
-external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

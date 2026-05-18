@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v247_one_swap_loop_synthesis_executed,True,paper4_v247_one_swap_loop_synthesis.csv,summarizes v82-v246 one-swap loop only
-v247_v245_one_swap_local_optimality,True,paper4_v246_post_repair_one_swap_summary.csv,one-drop/one-add whole-loan screen in v55 comparable universe
-v247_multi_swap_or_global_integer_optimality,False,paper4_v247_claim_blockers.csv,multi-swap/global gap certificate missing
-v247_paper1_or_final_promotion,False,paper4_v247_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

@@ -1,2 +1,0 @@
-probe_id_v411,command_v411,exit_code_v411,passed_v411,runtime_seconds_v411,collected_items_v411,summary_line_v411,claim_boundary_v411
-full_repository_pytest,uv run pytest -q --tb=short,0,True,151.713,1149,"=========== 1149 passed, 2 skipped, 13 warnings in 141.50s (0:02:21) ===========",post-B018 fig.show pytest probe

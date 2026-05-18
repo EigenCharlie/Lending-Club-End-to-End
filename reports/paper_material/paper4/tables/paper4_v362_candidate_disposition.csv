@@ -1,2 +1,0 @@
-disposition_id_v362,prior_branch_version_v362,base_version_v362,entering_candidate_rows_v362,no_apply_disposition_allowed_v362,candidate_applied_v362,required_next_artifact_v362,claim_boundary_v362
-v361_no_entry_no_apply,361,353,0,True,False,paper4_v363_v353_full_dual_bound_or_gap_certificate.csv,no fourth-order branch-price candidate applied because v361 has zero bounded fourth-order entering rows

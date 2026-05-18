@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v291_cardinality_restoration_protocol_executed,True,paper4_v291_cardinality_or_multi_swap_protocol.csv,add-only restoration diagnostic
-v291_add_only_restoration_feasible,False,paper4_v291_claim_blockers.csv,false when source/CVaR blockers remain
-v291_working_champion,False,paper4_v291_claim_blockers.csv,cardinality restoration and global evidence missing
-v291_global_full_universe_integer_optimality,False,paper4_v291_claim_blockers.csv,global certificate missing
-v291_paper1_or_final_promotion,False,paper4_v291_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

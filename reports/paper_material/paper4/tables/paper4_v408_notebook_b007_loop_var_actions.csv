@@ -1,4 +1,0 @@
-action_id_v408,notebook_path_v408,cell_v408,old_loop_var_v408,new_loop_var_v408,mutation_applied_v408,claim_boundary_v408
-eda_status_breakdown_unused_name,notebooks/01_eda_lending_club.ipynb,12,"for i, (val, name) in enumerate(zip(status_counts.values, status_counts.index, strict=False)):","for i, (val, _name) in enumerate(zip(status_counts.values, status_counts.index, strict=False)):",True,B007 unused loop variable rename only
-explainability_perm_unused_i,notebooks/13_model_explainability.ipynb,10,"for i, row in perm_df.head(15).iterrows():","for _i, row in perm_df.head(15).iterrows():",True,B007 unused loop variable rename only
-explainability_family_unused_idx,notebooks/13_model_explainability.ipynb,14,"for i, (idx, row) in enumerate(fa.iterrows()):","for i, (_idx, row) in enumerate(fa.iterrows()):",True,B007 unused loop variable rename only

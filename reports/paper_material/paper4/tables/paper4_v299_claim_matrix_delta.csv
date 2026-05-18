@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v299_v295_cashflow_proxy_panel_executed,True,paper4_v299_v295_cashflow_proxy_summary.csv,proxy panel with imputation
-v299_v295_online_temporal_rerun_executed,True,paper4_v299_v295_online_temporal_summary.csv,internal selected-book replay
-v299_contractual_ifrs9,False,paper4_v299_claim_blockers.csv,imputed proxy rows and missing servicing panel
-v299_strict_live_online_deployability,False,paper4_v299_claim_blockers.csv,external holdout missing
-v299_paper1_or_final_promotion,False,paper4_v299_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

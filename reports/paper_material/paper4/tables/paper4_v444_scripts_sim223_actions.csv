@@ -1,3 +1,0 @@
-action_id_v444,file_path_v444,surface_v444,row_v444,rule_code_v444,message_v444,fix_message_v444,fix_edit_count_v444,unsafe_fix_applied_v444,mutation_applied_v444,claim_boundary_v444
-scripts_sim223_expr_and_false_01,scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,708,SIM223,Use `False` instead of `... and False`,Replace with `False`,1,True,True,targeted scripts SIM223 expr-and-false repair
-scripts_up018_induced_literal_cleanup_01,scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,707,UP018,Unnecessary `bool` call (rewrite as a literal),Replace with boolean literal,1,False,True,induced UP018 cleanup after SIM223 repair

@@ -1,6 +1,0 @@
-blocker_id_v381,blocking_v381,evidence_count_v381,required_next_artifact_v381,claim_boundary_v381
-source_log_is_not_full_literature_review,True,9,venue_targeted_related_work_review,verified anchor sources only
-source_gap_register_has_open_rows,True,4,paper4_v382_global_solver_scope_decision.md,open source and review gaps remain
-submission_ready_claim_still_blocked,True,0,paper4_v382_global_solver_scope_decision.md,v381 verifies sources but does not close all v378 gaps
-legal_ifrs_live_claims_still_blocked,True,2,external_reviews_and_live_holdout_panel,"official sources are context, not approval"
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v380_manuscript_section_scaffold_created,True,paper4_v380_manuscript_section_scaffold.md,scaffold only
-v380_manuscript_todo_register_created,True,paper4_v380_manuscript_todo_register.csv,TODO mapping only
-v380_submission_ready_manuscript,False,paper4_v380_claim_blockers.csv,open TODOs and missing literature log
-v380_quarto_promotion_or_live_legal_global_claim,False,paper4_v380_claim_control_checklist.csv,claim controls block stronger claims
-v380_working_champion_or_final_promotion,False,paper4_v380_claim_blockers.csv,Paper Estrella remains protected

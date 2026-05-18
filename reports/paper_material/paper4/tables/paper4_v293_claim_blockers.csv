@@ -1,6 +1,0 @@
-blocker_id_v293,blocking_v293,evidence_count_v293,required_next_artifact_v293,claim_boundary_v293
-post_v293_repricing_missing,True,77.79441137125241,paper4_v294_post_v293_diverse_pool_reprice.csv,return-positive bounded-pool challenger must be repriced
-bounded_pool_not_full_universe,True,251701.0,future_full_universe_branch_price_bound,v293 still leaves omitted loans outside the bounded diverse pool
-branch_price_dual_bound_missing,True,1.0,future_branch_price_dual_bound_loop,no full-universe dual-bound certificate
-dynamic_replay_and_deployment_gates_missing,True,1.0,future_dynamic_replay_validation,no online or deployment validation created
-paper4_final_promotion_forbidden,True,1.0,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

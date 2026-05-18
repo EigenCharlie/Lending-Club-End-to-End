@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v412_f821_execution_context_audit_created,True,paper4_v412_notebook_f821_execution_context_audit.csv,one F821 execution-context diagnostic audited
-v412_f821_validation_target_patch_selected,True,paper4_v412_notebook_f821_patch_plan.csv,patch selected for v413
-v412_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v412
-v412_f821_repaired,False,paper4_v412_claim_blockers.csv,audit only
-v412_notebook_or_repo_ruff_clean,False,paper4_v412_claim_blockers.csv,7 notebook diagnostics remain
-v412_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,6 +1,0 @@
-blocker_id_v459,blocking_v459,evidence_count_v459,required_next_artifact_v459,claim_boundary_v459
-related_work_not_audited,True,1,paper4_v460_related_work_citation_gap_audit.md,do not claim scholarly positioning is complete
-verified_citation_log_missing,True,0,paper4_v460_related_work_citation_gap_audit.md,do not cite unverified literature
-target_venue_not_selected,True,0,future_target_venue_decision,do not claim target-venue compliance
-external_dataset_validation_not_run,True,0,future_external_validation_protocol,do not claim external generalization
-conditional_quarto_render_if_promoted,True,1,future_post_promotion_quarto_render_probe,rerender if content enters book/

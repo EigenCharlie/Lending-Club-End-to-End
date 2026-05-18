@@ -1,5 +1,0 @@
-flow_id_v372,all_rows_v372,budget_feasible_rows_v372,return_improving_rows_v372,budget_return_feasible_rows_v372,best_budget_feasible_return_delta_v372,best_return_improving_delta_v372,share_of_budget_return_rows_v372,claim_boundary_v372
-grade_a_relief_drop_a_add_non_a,891189,243924,0,0,-176.82970150903287,,0.0,grade-flow prefilter diagnostic only
-grade_a_neutral_drop_a_add_a,278811,88304,4406,935,207.20524693503026,598.6259479621505,0.03706934147405146,grade-flow prefilter diagnostic only
-grade_a_pressure_drop_non_a_add_a,128682,39858,41212,24095,2000.4538871761147,2263.821035072724,0.955278912104032,grade-flow prefilter diagnostic only
-non_a_to_non_a,411318,103593,2702,193,152.63484538853257,1488.3653856015408,0.007651746421916504,grade-flow prefilter diagnostic only

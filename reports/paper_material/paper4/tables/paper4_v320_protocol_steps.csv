@@ -1,5 +1,0 @@
-step_id_v320,executed_v320,evidence_artifact_v320,required_for_claim_v320,claim_boundary_v320
-bounded_matched_period_milp,True,paper4_v320_matched_period_milp_summary.csv,matched-period bounded candidate,bounded to v316 plus top omitted 2019 pool
-post_v320_one_swap_reprice,False,paper4_v321_post_v320_matched_period_reprice.csv,local optimality after matched-period repair,must execute before any local-optimal claim
-full_universe_branch_price_certificate,False,future_branch_price_dual_bound_loop,full-universe global optimality,no full-universe certificate in v320
-cashflow_online_gate_after_repair,False,future_v320_cashflow_online_ifrs9_gate,live/IFRS9 extension after changed book,"v319 applies to v316, not the v320 repaired book"

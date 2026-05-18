@@ -1,4 +1,0 @@
-blocker_id_v372,blocking_v372,evidence_count_v372,required_next_artifact_v372,claim_boundary_v372
-grade_a_relief_has_zero_return_improving_rows,True,0,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,chunk 0001 relief prefilter has no candidate
-remaining_chunks_unpriced,True,27,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,full-v55 proof remains open
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

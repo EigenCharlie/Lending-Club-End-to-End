@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v480_controlled_quarto_insertion_plan_created,True,paper4_v480_quarto_insertion_plan.csv,plan only
-v480_pre_patch_gate_checklist_created,True,paper4_v480_pre_patch_gate_checklist.csv,gate checklist only
-v480_rollback_plan_created,True,paper4_v480_rollback_plan.csv,rollback plan only
-v480_quarto_patch_applied,False,paper4_v480_manuscript_readiness_delta.csv,no book source mutation in v480
-v480_submission_ready_or_final_promotion,False,paper4_v480_manuscript_readiness_delta.csv,no submission or final promotion claim

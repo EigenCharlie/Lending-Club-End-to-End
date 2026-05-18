@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v282_full_universe_gap_protocol_executed,True,paper4_v282_full_universe_gap_certificate_protocol.csv,protocol/checklist only
-v282_v281_restricted_pool_no_improvement,True,paper4_v281_restricted_pool_milp_summary.csv,top-5000 restricted pool only
-v282_full_universe_gap_certificate,False,paper4_v282_claim_blockers.csv,full-v55 bound probe missing
-v282_global_full_universe_integer_optimality,False,paper4_v282_claim_blockers.csv,global gap certificate missing
-v282_paper1_or_final_promotion,False,paper4_v282_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

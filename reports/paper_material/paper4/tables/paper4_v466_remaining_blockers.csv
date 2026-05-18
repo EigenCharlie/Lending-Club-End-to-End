@@ -1,6 +1,0 @@
-blocker_id_v466,blocking_v466,evidence_count_v466,required_next_artifact_v466,claim_boundary_v466
-cvar_frontier_probe_pending,True,0,paper4_v467_cvar_tail_risk_frontier_probe.md,must probe tail-risk frontier before stronger claims
-domain_lanes_not_yet_executed,True,6,v467_to_v472_domain_wave_sequence,v466 schedules lanes but does not execute them
-external_holdout_and_live_validation_missing,True,0,future_external_validation_design,no live or external deployment claim
-contractual_ifrs9_missing,True,0,future_contractual_cashflow_validation,IFRS9 evidence remains proxy only
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

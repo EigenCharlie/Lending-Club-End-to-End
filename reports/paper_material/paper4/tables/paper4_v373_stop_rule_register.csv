@@ -1,4 +1,0 @@
-rule_id_v373,recommended_v373,evidence_count_v373,sampled_chunk_count_v373,required_next_artifact_v373,claim_boundary_v373
-stop_blind_chunking_after_sampled_source_blocker,True,0,8,paper4_v374_paper4_claim_language_section_draft.md,stop blind chunking as next action; not full-v55 termination
-run_full_chunk_002_cvar,False,0,1,none_until_chunk_002_has_source_exact_rows,CVaR screen is uninformative with zero source-exact rows
-continue_blind_chunking,False,8,8,paper4_v374_paper4_claim_language_section_draft.md,sampled chunks show repeated source-exact collapse

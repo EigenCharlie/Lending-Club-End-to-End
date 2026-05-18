@@ -25,8 +25,8 @@ peer review and not a Paper 4 final promotion.
 | Lane | Keep | Why |
 |---|---|---|
 | Source governance | `paper4_v468_tight_source_rankings.csv` and source pressure diagnostics | Useful if Paper Estrella later needs an operational governance paragraph. |
-| Formal claim matrix | Paper 4 claim-boundary tables through v489 and the closure artifacts | Useful as thesis/lab provenance, not as manuscript body. |
-| Full living-lab history before v490 | Dynamic replay, CVaR, online, SPO/DLA and IFRS9 proxy waves | These are scientific diagnostics and are still useful long-term. |
+| Formal claim matrix | Current claim-boundary table, v467-v478 export/provenance packets and the closure artifacts | Useful as thesis/lab provenance, not as manuscript body. |
+| Full living-lab history before v490 | Official v1-v38 Quarto evidence plus curated v467-v478 export evidence | Scientific diagnostics retained only where they support the rendered book or bounded Paper Estrella export. |
 
 ## What Is Deleted
 
@@ -37,6 +37,10 @@ scientific evidence beyond the accepted four-chapter patch scope.
 
 The deletion manifest is:
 `reports/paper_material/paper4/tables/paper4_loop_closure_cleanup_manifest_2026-05-17.csv`.
+
+A second cleanup on 2026-05-18 retired generated v39-v466 and v479-v489 lab
+artifacts plus one-shot v39-v489 builders. Its manifest is
+`reports/paper_material/paper4/tables/paper4_deep_cleanup_manifest_2026-05-18.csv`.
 
 ## Chapter Patch Scope
 
@@ -64,9 +68,11 @@ language.
 
 ## Validation Note
 
-The six patched chapters rendered successfully with targeted Quarto renders.
-The full book render was also attempted from `book/`, but stopped earlier at
-`chapters/06-pd-modeling/06c-calibration-selection.qmd` with an `AssertionError`
-during cleanup, before reaching the Paper Estrella/Paper 4 patch surface. The
-validated evidence for this closure is therefore the targeted chapter renders,
-`ruff`, and the Paper 4 guardrail test suite.
+The six patched chapters rendered successfully with targeted Quarto renders
+during the closure pass. In the 2026-05-18 deep-cleanup pass, the full book
+render still stops before the Paper Estrella/Paper 4 surface at
+`chapters/06-pd-modeling/06c-calibration-selection.qmd` with the known Quarto
+kernel-cleanup `AssertionError`. The validated evidence for this cleanup is
+therefore `ruff`, `git diff --check`, absence of `paper4_final_promotion.json`,
+the compact Paper 4 guardrail test suite, and explicit checks that every
+Paper 4 CSV read by the retained Quarto/Paper Estrella surfaces still exists.

@@ -1,2 +1,0 @@
-repair_lane_v445,target_surface_v445,target_rule_v445,diagnostic_count_v445,fixable_count_v445,mutation_allowed_in_v445,v446_candidate_v445,next_artifact_v445,claim_boundary_v445
-manual_scripts_b023_loop_binding_repair,scripts,B023,7,0,False,True,paper4_v446_scripts_b023_loop_binding_manual_repair_batch.md,v445 plans manual B023 loop-binding repair but does not mutate closures

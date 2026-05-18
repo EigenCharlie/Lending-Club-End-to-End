@@ -1,4 +1,0 @@
-repair_id_v391,target_file_v391,rule_code_v391,pre_error_count_v391,post_error_count_v391,errors_reduced_v391,repair_method_v391,claim_boundary_v391
-paper4_guardrail_f541_fix,tests/test_docs/test_paper4_living_lab_guardrails.py,F541,1,0,1,ruff_safe_fix,test string cleanup only
-paper4_guardrail_f841_config_reads,tests/test_docs/test_paper4_living_lab_guardrails.py,F841,19,0,19,ruff_unsafe_fix_preserving_read_side_effect,unused local assignments removed; read_text side effect retained
-paper4_guardrail_targeted_lint_check,tests/test_docs/test_paper4_living_lab_guardrails.py,"F841,F541",20,0,20,"uv run ruff check target --select F841,F541",targeted lint surface only

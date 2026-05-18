@@ -1,5 +1,0 @@
-blocker_id_v247,blocking_v247,evidence_count_v247,required_next_artifact_v247,claim_boundary_v247
-one_swap_local_screen_open,False,0,paper4_v246_post_repair_one_swap_summary.csv,closed only because v246 finds zero improving one-swaps
-multi_swap_integer_pricing_missing,True,1,paper4_v248_multi_swap_or_global_gap_probe.csv,one-swap local clearance does not price multi-loan exchanges
-global_integer_gap_certificate_missing,True,1,paper4_v248_global_gap_certificate_protocol.csv,no global full-universe integer gap certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

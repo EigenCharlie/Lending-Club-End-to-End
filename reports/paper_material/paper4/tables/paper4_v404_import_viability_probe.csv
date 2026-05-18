@@ -1,3 +1,0 @@
-probe_id_v404,cwd_v404,exit_code_v404,passed_v404,stdout_v404,stderr_tail_v404,claim_boundary_v404
-repo_root_cwd,.,0,True,imports_ok,,import viability probe only; no notebook mutation
-notebooks_cwd,notebooks,0,True,imports_ok,,import viability probe only; no notebook mutation

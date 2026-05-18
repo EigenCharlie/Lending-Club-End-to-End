@@ -1,6 +1,0 @@
-paragraph_id_v461,draft_order_v461,citation_keys_v461,planned_role_v461,allowed_v461,claim_boundary_v461
-conformal_foundations,1,vovk2005algorithmic;romano2019conformalized;gibbs2021adaptive;angelopoulos2024conformal,position uncertainty and conformal context,True,bounded conformal related-work paragraph
-risk_optimization_foundations,2,rockafellar2000optimization;rockafellar2002conditional,position CVaR and tail-risk optimization context,True,risk measure context only
-predict_then_optimize_boundary,3,elmachtoub2021smart,distinguish Paper 4 from end-to-end SPO training,True,method boundary only
-regulatory_context_boundaries,4,ifrs2026ifrs9;cfpb2026regulationb,state accounting and fair-lending caveats,True,"context only, not legal or accounting certification"
-open_gap_caveat,5,paper4_v460_citation_gap_register.csv,name systematic-search and bibliography gaps,True,gap caveat only

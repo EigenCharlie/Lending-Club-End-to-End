@@ -1,6 +1,0 @@
-stub_id_v479,manuscript_section_v479,required_terms_v479,required_terms_present_v479,stub_consistent_v479,claim_boundary_v479
-stub_methods_protocol,methods_protocol,formal;outside,True,True,method visual callouts only
-stub_results_evidence_cvar,results_evidence_cvar,full-v55;working-champion,True,True,no full-v55 optimality or champion claim
-stub_results_evidence_governance_online,results_evidence_governance_online,external holdout;production,True,True,"no cap approval, external holdout or production claim"
-stub_discussion_limitations,discussion_limitations,dynamic;accounting compliance,True,True,gap evidence only
-stub_appendix_reproducibility,appendix_reproducibility,venue-ready;submission package,True,True,provenance index only

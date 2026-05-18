@@ -1,4 +1,0 @@
-blocker_id_v409,blocking_v409,evidence_count_v409,required_next_artifact_v409,claim_boundary_v409
-b018_fig_show_patch_not_applied_yet,True,10,paper4_v410_notebook_b018_fig_show_patch.md,v409 reviews but does not mutate display expressions
-global_notebook_lint_not_clean,True,17,paper4_v410_notebook_b018_fig_show_patch.md,B018 and other notebook lint remain
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

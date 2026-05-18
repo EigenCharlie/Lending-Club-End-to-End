@@ -1,5 +1,0 @@
-blocker_id_v390,blocking_v390,evidence_count_v390,required_next_artifact_v390,claim_boundary_v390
-global_ruff_not_clean,True,282,paper4_v391_targeted_lint_repair_batch.md,ruff global clean claim blocked by 282 diagnostics
-notebook_lint_surface_unrepaired,True,180,paper4_v391_targeted_lint_repair_batch.md,bulk notebook lint requires explicit rewrite policy
-streamlit_page_lint_surface_unrepaired,True,58,paper4_v391_targeted_lint_repair_batch.md,page import/style cleanup not applied in v390
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

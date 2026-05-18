@@ -1,5 +1,0 @@
-sicr_rule_v57,threshold_v57,stage2_share_v57,ecl_proxy_total_v57,stage2_ecl_share_v57,available_servicing_fields_v57,contractual_ifrs9_claim_allowed,claim_boundary_v57
-abs_pd_020,0.2,0.4775326959681293,436134408.19618887,0.8095284138887195,next_pymnt_d_only,False,IFRS9-inspired proxy only; no monthly DPD/cure/recovery/prepayment timing panel
-abs_pd_030,0.3,0.25765975966973553,436134408.19618887,0.5872592352128284,next_pymnt_d_only,False,IFRS9-inspired proxy only; no monthly DPD/cure/recovery/prepayment timing panel
-relative_pd_top30pct,0.2769863563402889,0.3109159927619199,436134408.19618887,0.6529520736617888,next_pymnt_d_only,False,IFRS9-inspired proxy only; no monthly DPD/cure/recovery/prepayment timing panel
-width_top30pct,0.8471154363961928,0.3523363034503682,436134408.19618887,0.1318389968279144,next_pymnt_d_only,False,IFRS9-inspired proxy only; no monthly DPD/cure/recovery/prepayment timing panel

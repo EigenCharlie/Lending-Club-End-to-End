@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v362_fourth_order_disposition_memo_created,True,paper4_v362_v353_apply_fourth_order_candidate_or_bound_memo.csv,memo only
-v362_no_apply_after_v361_no_entry,True,paper4_v362_candidate_disposition.csv,bounded v361 scope only
-v362_valid_full_universe_branch_price_bound,False,paper4_v362_claim_blockers.csv,full-v55 dual-bound/gap certificate missing
-v362_working_champion_or_final_promotion,False,paper4_v362_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

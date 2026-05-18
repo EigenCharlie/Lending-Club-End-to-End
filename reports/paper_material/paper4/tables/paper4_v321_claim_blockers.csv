@@ -1,6 +1,0 @@
-blocker_id_v321,blocking_v321,evidence_count_v321,required_next_artifact_v321,claim_boundary_v321
-post_v320_one_swap_improvement_found,False,0,paper4_v322_dynamic_proxy_or_global_bound_after_v320.csv,no feasible improving post-v320 one-swaps remain
-post_v320_repair_not_working_champion,True,1,paper4_v322_dynamic_proxy_or_global_bound_after_v320.csv,local repricing evidence only
-proxy_coverage_gap_persists,True,79,future_cashflow_proxy_or_ifrs9_coverage_gate,v320 portfolio still has missing v47 proxy rows
-global_dynamic_online_gates_missing,True,1,future_global_dynamic_online_validation,"no global, dynamic, online or deployment gate created"
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

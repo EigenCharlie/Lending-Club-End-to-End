@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v69_restricted_master_expansion_pack_exists,True,paper4_v69_expanded_restricted_master.parquet,input pack and protocol only
-v69_exact_column_generation_certificate,False,paper4_v69_exact_column_generation_protocol.csv,"requires exact solve, duals and reduced-cost termination"
-v69_paper1_or_final_promotion,False,paper4_v69_candidate_swap_audit.csv,no Paper Estrella or final Paper 4 promotion

@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v435_full_repository_pytest_run,True,paper4_v435_pytest_probe_summary.csv,pytest command executed after v434 scripts/book I001 repair
-v435_full_repository_pytest_passed,True,paper4_v435_pytest_probe_summary.csv,true only when pytest exits 0
-v435_i001_remains_clear,True,paper4_v435_repository_ruff_snapshot.csv,repository I001 remains zero after full pytest
-v435_streamlit_and_notebooks_remain_clean,True,paper4_v435_repository_ruff_snapshot.csv,Streamlit and notebook diagnostics remain zero
-v435_repository_ruff_clean,False,paper4_v435_claim_blockers.csv,true only when repository ruff emits zero diagnostics
-v435_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

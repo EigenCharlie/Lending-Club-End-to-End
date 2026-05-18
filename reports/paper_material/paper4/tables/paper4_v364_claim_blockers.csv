@@ -1,4 +1,0 @@
-blocker_id_v364,blocking_v364,evidence_count_v364,required_next_artifact_v364,claim_boundary_v364
-resource_plan_not_solver_certificate,True,1,paper4_v365_v353_full_v55_pricing_chunk_plan.csv,v364 does not solve or price all full-v55 columns
-v363_gap_certificate_still_active,True,5738,paper4_v365_v353_full_v55_pricing_chunk_plan.csv,v71 improving omitted columns remain a blocker
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

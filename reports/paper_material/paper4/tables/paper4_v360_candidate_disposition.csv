@@ -1,2 +1,0 @@
-disposition_id_v360,prior_branch_version_v360,base_version_v360,entering_candidate_rows_v360,no_apply_disposition_allowed_v360,candidate_applied_v360,required_next_artifact_v360,claim_boundary_v360
-v359_no_entry_no_apply,359,353,0,True,False,paper4_v361_v353_fourth_order_or_full_dual_bound.csv,no expanded branch-price candidate applied because v359 has zero bounded third-order entering rows

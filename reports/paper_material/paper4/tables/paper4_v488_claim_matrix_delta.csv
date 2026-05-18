@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v488_layout_dry_run_packet_created,True,paper4_v488_layout_dry_run_packet.csv,layout dry-run only
-v488_target_surface_summary_created,True,paper4_v488_target_surface_summary.csv,target summary only
-v488_render_gate_plan_created,True,paper4_v488_render_gate_plan.csv,render gate plan only
-v488_quarto_patch_ready_or_applied,False,paper4_v488_manuscript_readiness_delta.csv,patch remains blocked
-v488_submission_ready_or_final_promotion,False,paper4_v488_manuscript_readiness_delta.csv,no submission or final promotion claim

@@ -1,3 +1,0 @@
-blocker_id_v420,blocking_v420,evidence_count_v420,required_next_artifact_v420,claim_boundary_v420
-gpu_style_lint_patch_not_applied_yet,True,3,paper4_v421_notebook_gpu_style_lint_patch.md,v420 triages but does not mutate notebooks
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

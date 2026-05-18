@@ -1,8 +1,0 @@
-readiness_gate_v484,ready_v484,evidence_artifact_v484,claim_boundary_v484
-caption_hardening_dry_run_created,True,paper4_v484_hardened_caption_dry_run.csv,dry-run hardened captions only
-caveat_preservation_audit_created,True,paper4_v484_caption_caveat_preservation_audit.csv,caveat audit only
-caption_review_delta_created,True,paper4_v484_caption_review_delta.csv,manual review queue only
-captions_final,False,manual review required,captions remain non-final
-captions_inserted_into_quarto,False,book sources unchanged,no Quarto/book mutation in v484
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

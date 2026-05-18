@@ -1,4 +1,0 @@
-blocker_id_v81,blocking_v81,evidence_count_v81,required_next_artifact_v81,claim_boundary_v81
-single_add_integer_improvement_found,False,0,paper4_v82_add_omitted_integer_column.csv,single-add screen has no improving omitted loans if zero
-multi_swap_integer_pricing_missing,True,1,paper4_v82_multi_swap_integer_pricing_probe.csv,single-add screen does not cover multi-loan swaps
-global_integer_gap_certificate_missing,True,1,paper4_v82_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate

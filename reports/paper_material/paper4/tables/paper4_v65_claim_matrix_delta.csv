@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v65_internal_all_split_margin_repair,True,paper4_v65_online_margin_repair_summary.csv,internal historical pseudo-unseen split pass only
-v65_strict_live_deployability,False,paper4_v65_online_margin_repair_winners.csv,blocked until external/future holdout validates frozen method
-v65_paper1_or_final_promotion,False,paper4_v65_online_margin_repair_winners.csv,no Paper Estrella or final Paper 4 promotion

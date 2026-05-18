@@ -1,5 +1,0 @@
-blocker_id_v289,blocking_v289,evidence_count_v289,required_next_artifact_v289,claim_boundary_v289
-post_repair_pricing_missing,True,1,paper4_v290_post_exact_relief_reprice.csv,must rerun pricing after applying v289
-cardinality_policy_changed,True,3,cardinality_policy_review_or_reprice,4-drop/1-add move changes selected-row count
-global_integer_gap_certificate_missing,True,1,future_global_gap_or_branch_price_certificate,applied repair is not a global certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

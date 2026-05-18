@@ -1,6 +1,0 @@
-blocker_id_v260,blocking_v260,evidence_count_v260,required_next_artifact_v260,claim_boundary_v260
-post_bounded_two_swap_one_swap_repair_created,False,1,paper4_v260_next_one_swap_repair_summary.csv,candidate exists only if budget/source/CVaR remain feasible
-post_repair_pricing_missing,True,1,paper4_v261_post_repair_one_swap_reprice.csv,repair must be re-priced after changing the portfolio again
-broader_multi_swap_search_missing,True,1,paper4_v261_or_v262_broader_multi_swap_search.csv,one-swap after bounded two-swap does not exhaust multi-loan exchanges
-global_integer_gap_certificate_missing,True,1,paper4_v261_global_integer_gap_protocol.csv,no branch-and-price/global full-universe integer certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

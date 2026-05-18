@@ -1,6 +1,0 @@
-blocker_id_v298,blocking_v298,evidence_count_v298,required_next_artifact_v298,claim_boundary_v298
-external_online_holdout_missing,True,0,future_external_holdout_or_temporal_rerun,no external online live validation for v295
-ifrs9_proxy_partial_coverage_only,True,76,future_v295_ifrs9_cashflow_panel,contractual IFRS9 remains data-blocked
-formal_spo_dla_claims_missing,True,2,future_formal_spo_dla_protocol,historical SPO/DLA audits are not formal claims
-paper4_working_champion_gate_missing,True,1,future_global_dynamic_promotion_gate,working champion replacement remains blocked
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

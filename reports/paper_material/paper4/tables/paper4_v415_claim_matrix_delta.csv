@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v415_remaining_style_lint_triage_created,True,paper4_v415_notebook_remaining_style_lint_manifest.csv,6 style-only diagnostics inventoried
-v415_e741_batch_selected,True,paper4_v415_notebook_style_lint_batch_plan.csv,single E741 patch selected for v416
-v415_notebooks_preserved_unmodified,True,git diff --name-only -- notebooks,no notebook mutation in v415
-v415_style_lint_repaired,False,paper4_v415_claim_blockers.csv,triage only
-v415_notebook_or_repo_ruff_clean,False,paper4_v415_claim_blockers.csv,6 notebook diagnostics remain
-v415_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,6 +1,0 @@
-blocker_id_v363,blocking_v363,evidence_count_v363,required_next_artifact_v363,claim_boundary_v363
-bounded_pool_not_full_omitted_universe,True,272313,paper4_v364_v353_dual_bound_resource_plan.csv,positive source-tight pool does not cover full omitted universe
-v71_negative_reduced_cost_persists,True,5738,paper4_v364_v353_dual_bound_resource_plan.csv,restricted-master dual evidence did not terminate
-best_fourth_order_cvar_above_cap,True,76,paper4_v364_v353_dual_bound_resource_plan.csv,best bounded fourth-order row still violates CVaR cap
-integer_optimality_certificate_missing,True,1,paper4_v364_v353_dual_bound_resource_plan.csv,no full integer optimality proof exists
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

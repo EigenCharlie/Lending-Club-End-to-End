@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v80_focused_full_pool_milp_gap_probe_executed,True,paper4_v80_full_pool_milp_gap_summary.csv,focused generated restricted pool only
-v80_whole_loan_full_universe_optimality,False,paper4_v80_claim_blockers.csv,requires omitted-universe integer pricing/global gap evidence
-v80_paper1_or_final_promotion,False,paper4_v80_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

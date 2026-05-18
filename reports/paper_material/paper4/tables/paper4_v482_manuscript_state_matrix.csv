@@ -1,9 +1,0 @@
-state_gate_v482,state_ready_v482,evidence_v482,claim_boundary_v482
-visual_package_selected_and_captioned,True,paper4_v476_caption_plan.csv,draft visual package only
-visual_package_mapped_to_manuscript,True,paper4_v477_visual_section_delta.csv,manuscript delta only
-section_text_stubs_available,True,paper4_v478_section_text_stubs.csv,draft stubs only
-stub_claim_consistency_audited,True,paper4_v479_stub_consistency_checks.csv,audit only
-controlled_insertion_plan_available,True,paper4_v480_quarto_insertion_plan.csv,plan only
-manual_patch_authorized,False,paper4_v481_patch_decision_register.csv,explicit approval missing
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation
-submission_ready_or_final_promotion,False,"future venue, patch, render and external validation",Paper Estrella remains protected

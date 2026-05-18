@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v373_sampled_chunk_source_screen_created,True,paper4_v373_sampled_chunk_source_screen.csv,sampled source-screen only
-v373_blind_chunking_stop_rule_selected,True,paper4_v373_full_v55_chunk_002_or_stop_rule.csv,execution decision only
-v373_valid_full_v55_dual_bound_certificate,False,paper4_v373_claim_blockers.csv,remaining chunks unpriced
-v373_working_champion_or_final_promotion,False,paper4_v373_claim_blockers.csv,Paper Estrella remains protected

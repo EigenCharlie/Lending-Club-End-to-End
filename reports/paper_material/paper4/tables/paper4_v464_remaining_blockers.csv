@@ -1,6 +1,0 @@
-blocker_id_v464,blocking_v464,evidence_count_v464,required_next_artifact_v464,claim_boundary_v464
-citation_integration_not_dry_run,True,1,paper4_v465_citation_integration_dry_run.md,next local citation-placement task
-book_references_not_modified,True,1,future_book_references_patch,global bibliography intentionally unchanged
-target_venue_not_selected,True,0,future_target_venue_decision,do not claim venue style compliance
-systematic_literature_search_not_run,True,1,future_recent_literature_search_log,do not claim systematic review
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

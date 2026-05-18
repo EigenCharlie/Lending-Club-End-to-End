@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v346_multi_source_relief_protocol_executed,True,paper4_v346_v338_multi_source_relief_or_bound_protocol.csv,bounded second-order local source-tight relief screen
-v346_local_two_add_two_drop_entering_candidate_found,True,paper4_v346_second_order_entering_candidates.csv,local candidate only; apply/reprice still required
-v346_valid_full_universe_branch_price_bound,False,paper4_v346_claim_blockers.csv,formal dual-bound loop missing
-v346_working_champion_or_final_promotion,False,paper4_v346_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

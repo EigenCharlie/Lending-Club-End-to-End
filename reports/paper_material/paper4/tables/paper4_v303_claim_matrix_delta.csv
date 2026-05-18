@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v303_multiobjective_frontier_audit_executed,True,paper4_v303_global_or_multiobjective_frontier_after_v302.csv,reward-grid audit over greedy prefixes
-v303_reward_thresholds_quantified,True,paper4_v303_reward_selection_envelope.csv,thresholds over v302 prefixes only
-v303_global_or_optimal_multiobjective_frontier,False,paper4_v303_claim_blockers.csv,no full-v55 multiobjective proof
-v303_contractual_ifrs9_or_live_deployability,False,paper4_v303_claim_blockers.csv,residual imputation and no external holdout
-v303_paper1_or_final_promotion,False,paper4_v303_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

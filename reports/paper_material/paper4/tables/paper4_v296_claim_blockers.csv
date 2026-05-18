@@ -1,6 +1,0 @@
-blocker_id_v296,blocking_v296,evidence_count_v296,required_next_artifact_v296,claim_boundary_v296
-post_v295_one_swap_improvement_found,False,0,paper4_v297_full_universe_branch_price_bound_or_dynamic_replay.csv,no feasible improving post-v295 one-swaps remain
-bounded_challenger_not_working_champion,True,1,paper4_v297_full_universe_branch_price_bound_or_dynamic_replay.csv,v295/v296 remain bounded-pool and one-swap evidence
-global_integer_gap_certificate_missing,True,1,future_full_universe_branch_price_bound,one-swap screen is not a global certificate
-dynamic_replay_and_deployment_gates_missing,True,1,future_dynamic_replay_validation,no online or deployment validation created
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,7 +1,0 @@
-file_path_v437,surface_v437,diagnostic_count_v437,rule_codes_v437,claim_boundary_v437
-scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,5,"B023,SIM108,SIM223,UP022",hotspot ranking only; no mutation in v437
-scripts/papers/build_paper4_v11_promising_lanes.py,scripts,3,"B023,C405",hotspot ranking only; no mutation in v437
-scripts/papers/build_paper4_v10_resolution_wave.py,scripts,2,"B023,SIM108",hotspot ranking only; no mutation in v437
-scripts/papers/build_paper4_v12_resolution_wave.py,scripts,2,B023,hotspot ranking only; no mutation in v437
-scripts/papers/build_paper4_v39_v40_living_lab_execution.py,scripts,1,UP022,hotspot ranking only; no mutation in v437
-scripts/papers/build_paper4_v45_v48_living_lab_wave.py,scripts,1,UP022,hotspot ranking only; no mutation in v437

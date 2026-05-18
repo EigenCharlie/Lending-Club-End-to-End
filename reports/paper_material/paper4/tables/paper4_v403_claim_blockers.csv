@@ -1,4 +1,0 @@
-blocker_id_v403,blocking_v403,evidence_count_v403,required_next_artifact_v403,claim_boundary_v403
-sys_path_project_import_e402_remaining,True,42,paper4_v404_notebook_sys_path_project_import_refactor_plan.md,sys.path/project-import cells remain
-global_notebook_lint_not_clean,True,62,paper4_v404_notebook_sys_path_project_import_refactor_plan.md,E402 and semantic/manual notebook lint remain
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

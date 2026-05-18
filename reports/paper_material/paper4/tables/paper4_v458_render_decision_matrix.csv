@@ -1,6 +1,0 @@
-decision_gate_v458,observed_v458,render_required_now_v458,evidence_artifact_v458,claim_boundary_v458
-official_paper4_quarto_source_changed,False,False,paper4_v458_changed_surface_inventory.csv,official chapter source unchanged
-full_book_registry_changed,False,False,paper4_v458_changed_surface_inventory.csv,book registry unchanged
-assembly_artifacts_created,True,False,paper4_v456_manuscript_assembly_packet.md,assembly packet remains reports-side evidence
-post_assembly_pytest_clean,True,False,paper4_v457_pytest_probe_summary.csv,pytest clean supports deferring render unless book changes
-final_promotion_absent,True,False,paper4_final_promotion_gate_not_created,no final promotion or book promotion was created

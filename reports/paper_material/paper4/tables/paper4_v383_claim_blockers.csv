@@ -1,5 +1,0 @@
-blocker_id_v383,blocking_v383,evidence_count_v383,required_next_artifact_v383,claim_boundary_v383
-audit_plan_is_diagnostic,True,7,paper4_v384_formal_spo_dla_review_packet.md,audit plan does not repair source governance
-source_cap_relaxation_not_authorized,True,1,future_source_cap_approval_or_counterfactual,no cap change or policy relaxation is made
-global_solver_claims_still_blocked,True,1,future_full_v55_certificate_pack,v382 global blockers remain active
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

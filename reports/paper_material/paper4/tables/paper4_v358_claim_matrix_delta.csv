@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v358_candidate_disposition_memo_created,True,paper4_v358_v353_apply_branch_price_candidate_or_bound_memo.csv,memo only
-v358_no_apply_after_v357_no_entry,True,paper4_v358_candidate_disposition.csv,bounded v357 scope only
-v358_valid_full_universe_branch_price_bound,False,paper4_v358_claim_blockers.csv,third-order/full-v55 dual-bound missing
-v358_working_champion_or_final_promotion,False,paper4_v358_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

@@ -1,4 +1,0 @@
-claim_id,allowed,artifact,boundary
-v70_exact_restricted_master_continuous_lp,True,paper4_v70_restricted_master_solver_frontier.csv,restricted-master continuous LP only
-v70_exact_full_universe_cvar_optimality,False,paper4_v70_solver_claim_blockers.csv,requires omitted-column reduced-cost termination
-v70_paper1_or_final_promotion,False,paper4_v70_solver_active_constraints.csv,no Paper Estrella or final Paper 4 promotion

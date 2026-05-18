@@ -1,7 +1,0 @@
-protocol_step_v66,action_v66,locked_instruction_v66,editable_after_v66_freeze,claim_boundary_v66
-1,freeze_methods,Use only frozen_method_id_v66 rows from paper4_v66_frozen_method_manifest.csv.,False,ex ante protocol only; no holdout result exists
-2,load_holdout,Load a future/external holdout satisfying paper4_v66_required_holdout_schema.csv.,False,ex ante protocol only; no holdout result exists
-3,prove_temporal_separation,Reject any row with loan overlap or prediction timestamps after outcome maturity.,False,ex ante protocol only; no holdout result exists
-4,construct_intervals,"Apply qhat = clip(qhat_v9 + global_delta_v65 + small_cell_bonus_v65, 0, 1).",False,ex ante protocol only; no holdout result exists
-5,score_frozen_gates,"Compute source-month, policy-month, width and stress-slice gates exactly as v64/v65.",False,ex ante protocol only; no holdout result exists
-6,claim_decision,Allow live-deployability language only if all gates pass without changing parameters.,False,ex ante protocol only; no holdout result exists

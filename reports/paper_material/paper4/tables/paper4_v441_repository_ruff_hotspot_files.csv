@@ -1,5 +1,0 @@
-file_path_v441,surface_v441,diagnostic_count_v441,rule_codes_v441,claim_boundary_v441
-scripts/papers/build_paper4_v11_promising_lanes.py,scripts,3,"B023,C405",hotspot ranking only; no mutation in v441
-scripts/papers/build_paper4_v41_v44_living_lab_wave.py,scripts,3,"B023,SIM223",hotspot ranking only; no mutation in v441
-scripts/papers/build_paper4_v12_resolution_wave.py,scripts,2,B023,hotspot ranking only; no mutation in v441
-scripts/papers/build_paper4_v10_resolution_wave.py,scripts,1,B023,hotspot ranking only; no mutation in v441

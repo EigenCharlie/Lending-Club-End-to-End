@@ -1,2 +1,0 @@
-policy_id,regime_v253,added_loan_id_v253,dropped_loan_id_v253,added_loan_amount_v253,dropped_loan_amount_v253,added_mean_return_v253,dropped_mean_return_v253,return_delta_v253,cvar90_after_repair_v253,exposure_after_repair_v253,source_cap_violations_after_repair_v253,claim_boundary_v253
-v63_source_repair_return_guarded_repair,post_v249_bounded_two_swap_one_swap_repair,159991596,139684635,1200.0,1500.0,-9.152330203220732,-18.158070116616003,9.00573991339527,97941.4064742405,842975.0,0,best v252 swap applied; not post-repair optimality

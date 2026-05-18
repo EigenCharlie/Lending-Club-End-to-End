@@ -1,9 +1,0 @@
-claim_id,allowed,artifact,boundary
-v52_loss_matrix_exists,True,paper4_v49_loan_scenario_loss_matrix.parquet,restricted candidate pool and internal scenarios only
-v52_restricted_cvar_lp,True,paper4_v50_cvar_source_lp_frontier.csv,exact LP over restricted pool; not full universe
-v52_exact_full_universe_cvar,False,paper4_v50_cvar_source_lp_frontier.csv,full universe remains hard-blocked until all-loan scenario matrix exists
-v52_online_live_deployability,False,paper4_v49_online_qhat_recalibration_search.csv,historical direct recalibration only
-v52_formal_differentiable_spo,False,paper4_v51_spo_solver_oracle_bridge.csv,solver-oracle bridge only
-v52_bellman_exact_dla,False,paper4_v51_policy_books.parquet,"materialized books, not Bellman exact policy"
-v52_contractual_ifrs9,False,paper4_v51_sicr_targeted_recalibration.csv,SICR proxy only
-v52_fair_lending_legal,False,paper4_v47_fairness_source_protocol.csv,source governance only

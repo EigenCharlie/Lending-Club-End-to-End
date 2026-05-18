@@ -1,5 +1,0 @@
-blocker_id_v283,blocking_v283,evidence_count_v283,required_next_artifact_v283,claim_boundary_v283
-direct_full_v55_mip_resource_guarded,True,276869,paper4_v284_decomposition_or_branch_price_prototype.csv,direct full-v55 MIP exceeds configured guard
-global_integer_bound_missing,True,1,paper4_v284_decomposition_or_branch_price_prototype.csv,no global dual bound or gap certificate produced
-decomposition_or_branch_price_missing,True,1,paper4_v284_decomposition_or_branch_price_prototype.csv,next route is a decomposed bound prototype
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

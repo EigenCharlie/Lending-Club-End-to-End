@@ -1,4 +1,0 @@
-blocker_id_v433,blocking_v433,evidence_count_v433,required_next_artifact_v433,claim_boundary_v433
-repository_ruff_frontier_still_open,True,23,paper4_v434_scripts_i001_import_sort_repair_batch.md,repository ruff clean claim blocked while diagnostics remain
-quarto_render_not_run,True,1,paper4_v434_scripts_i001_import_sort_repair_batch.md,Quarto render is not implied by pytest or ruff snapshots
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

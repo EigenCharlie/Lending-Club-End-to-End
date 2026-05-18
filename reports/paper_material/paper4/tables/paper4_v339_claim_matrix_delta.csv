@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v339_post_v338_one_swap_reprice_executed,True,paper4_v339_post_v338_one_swap_summary.csv,post-v338 one-drop/one-add screen completed
-v339_post_v338_one_swap_local_optimality,True,paper4_v339_claim_blockers.csv,allowed only within one-drop/one-add scope
-v339_dynamic_gate_ready,True,paper4_v339_post_v338_one_swap_summary.csv,"ready only to attempt proxy dynamic/global gate, not to promote"
-v339_working_champion,False,paper4_v339_claim_blockers.csv,"global, dynamic, online and deployment evidence missing"
-v339_paper1_or_final_promotion,False,paper4_v339_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v379_evidence_gap_work_order_created,True,paper4_v379_evidence_gap_closure_work_order.csv,work order only
-v379_execution_queue_created,True,paper4_v379_execution_queue.csv,queue only; tasks not yet complete
-v379_submission_gaps_closed,False,paper4_v379_claim_blockers.csv,work order does not close gaps
-v379_live_legal_or_global_claim_authorized,False,paper4_v379_claim_blockers.csv,v375 gates remain blocked
-v379_working_champion_or_final_promotion,False,paper4_v379_claim_blockers.csv,Paper Estrella remains protected

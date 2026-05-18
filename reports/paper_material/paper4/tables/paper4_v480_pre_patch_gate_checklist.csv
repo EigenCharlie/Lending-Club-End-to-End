@@ -1,7 +1,0 @@
-gate_id_v480,passed_v480,evidence_v480,required_before_patch_v480
-v479_audit_passed,True,paper4_v479_status.json,True
-target_files_identified,True,paper4_v480_quarto_insertion_plan.csv,True
-manual_review_required,True,paper4_v480_quarto_insertion_plan.csv,True
-rollback_plan_created,True,paper4_v480_rollback_plan.csv,True
-book_mutation_allowed,False,living notebook only,True
-paper4_final_promotion_absent,True,paper4_final_promotion.json absent,True

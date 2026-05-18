@@ -1,5 +1,0 @@
-blocker_id_v248,blocking_v248,evidence_count_v248,required_next_artifact_v248,claim_boundary_v248
-bounded_two_swap_improvement_found,True,625,paper4_v249_apply_bounded_two_swap_repair.csv,positive bounded two-swap candidates block multi-swap/local optimality
-multi_swap_search_not_exhaustive,True,1,paper4_v249_or_v250_broader_multi_swap_search.csv,"v248 searches a source-relief two-swap frontier, not all multi-loan exchanges"
-global_integer_gap_certificate_missing,True,1,paper4_v250_global_gap_certificate_protocol.csv,no global full-universe integer gap certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

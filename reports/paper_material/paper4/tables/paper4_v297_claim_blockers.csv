@@ -1,6 +1,0 @@
-blocker_id_v297,blocking_v297,evidence_count_v297,required_next_artifact_v297,claim_boundary_v297
-valid_global_gap_certificate_missing,True,1,future_branch_price_dual_bound_loop,no full-v55 branch-price or dual-bound certificate
-dynamic_proxy_not_live_deployment_replay,True,768,future_cashflow_or_live_replay_gate,periodized static-book proxy only
-online_holdout_not_rerun_for_v295,True,1,paper4_v298_online_ifrs9_spo_dla_gate_expansion.csv,online/source holdouts not rerun for v295
-ifrs9_proxy_not_rerun_for_v295,True,1,paper4_v298_online_ifrs9_spo_dla_gate_expansion.csv,IFRS9/SICR remains proxy-only and not rerun
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

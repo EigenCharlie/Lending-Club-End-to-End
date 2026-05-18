@@ -1,4 +1,0 @@
-lineage_item,status_v55,source_left,source_right,match_rows_v55,claim_boundary_v55
-exact_prediction_to_test_join,resolved,data/processed/test_predictions.parquet::loan_id,data/processed/test.parquet::id,276869,"full comparable feature/prediction universe, not exact full-universe CVaR optimality"
-loan_master_id_join,blocked_by_different_id_space,data/processed/loan_master.parquet::id,data/processed/test_predictions.parquet::loan_id,0,loan_master cannot be used as the id bridge without external/raw mapping
-maximal_comparable_universe,implemented,test + predictions + conformal + online intervals,reports/paper_material/paper4/tables/paper4_v55_maximal_comparable_universe.parquet,276869,"276,869 eligible test loans with features and PD/conformal proxies"

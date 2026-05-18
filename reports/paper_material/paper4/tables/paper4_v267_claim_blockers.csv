@@ -1,5 +1,0 @@
-blocker_id_v267,blocking_v267,evidence_count_v267,required_next_artifact_v267,claim_boundary_v267
-post_v266_one_swap_improvement_found,False,0,paper4_v268_broader_multi_swap_or_global_gap_probe.csv,no feasible improving post-v266 one-swaps remain
-broader_multi_swap_search_not_exhaustive,True,1,paper4_v268_broader_multi_swap_or_global_gap_probe.csv,post-v266 one-swap screen is not an exhaustive multi-swap proof
-global_integer_gap_certificate_missing,True,1,paper4_v268_global_integer_gap_protocol.csv,no branch-and-price/global full-universe certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

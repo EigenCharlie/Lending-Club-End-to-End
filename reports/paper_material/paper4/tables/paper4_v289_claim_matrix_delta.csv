@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v289_exact_relief_repair_applied,True,paper4_v289_exact_relief_repair_summary.csv,applied repair candidate only
-v289_small_return_gain_confirmed,True,paper4_v289_exact_relief_repair_summary.csv,"lab metric, not champion claim"
-v289_working_champion,False,paper4_v289_claim_blockers.csv,repricing and cardinality review missing
-v289_global_full_universe_integer_optimality,False,paper4_v289_claim_blockers.csv,global certificate missing
-v289_paper1_or_final_promotion,False,paper4_v289_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

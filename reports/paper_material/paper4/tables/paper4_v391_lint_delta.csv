@@ -1,6 +1,0 @@
-metric_v391,before_v391,after_v391,delta_v391,claim_boundary_v391
-global_ruff_total_errors,282,262,-20,global ruff still fails
-global_ruff_fixable_errors,88,68,-20,fixable count reduced; unresolved lint remains
-paper4_guardrail_file_errors,20,0,-20,target file clean for current ruff scan
-f841_unused_local_errors,26,7,-19,remaining F841 errors are outside target file
-f541_fstring_without_placeholder_errors,5,4,-1,remaining F541 errors are outside target file

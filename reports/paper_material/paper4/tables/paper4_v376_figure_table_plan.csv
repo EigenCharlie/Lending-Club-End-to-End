@@ -1,7 +1,0 @@
-display_id_v376,display_title_v376,source_artifact_v376,target_section_v376,claim_boundary_v376
-Table 1,Bounded Paper 4 Claim Language,paper4_v374_claim_language_section_draft.csv,Results,bounded wording only
-Table 2,Evidence Citation Map,paper4_v374_evidence_citation_map.csv,Results,citation support only
-Table 3,Live-Gate Data Contract,paper4_v375_live_gate_data_contract.csv,Methods/Limitations,gate requirements only
-Table 4,Claim Permission Register,paper4_v375_claim_permission_register.csv,Limitations,permissions and blockers
-Figure 1,Wave Lineage v361-v375,paper4_living_lab_notebook.md,Methods,process diagram plan only
-Appendix A,Reproducibility Bundle Manifest,paper4_v377_reproducibility_bundle_manifest.csv,Appendix,future artifact

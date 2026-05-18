@@ -1,5 +1,0 @@
-blocker_id_v290,blocking_v290,evidence_count_v290,required_next_artifact_v290,claim_boundary_v290
-post_v289_one_swap_improvement_found,False,0,paper4_v291_cardinality_or_multi_swap_protocol.csv,no feasible improving post-v289 one-swaps remain
-cardinality_policy_changed,True,3,paper4_v291_cardinality_or_multi_swap_protocol.csv,"v289/v290 operate on 168 rows, not 171"
-broader_multi_swap_or_global_gap_missing,True,1,paper4_v291_cardinality_or_multi_swap_protocol.csv,one-swap screen is not a global certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

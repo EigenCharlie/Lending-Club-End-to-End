@@ -1,8 +1,0 @@
-gate_id_v66,metric_definition_v66,threshold_v66,operator_v66,gate_required_for_live_claim_v66,claim_boundary_v66
-source_month_coverage_min,"coverage by frozen source family and issue_month, defended cells only",0.8,>=,True,future holdout gate spec; not yet a passed gate
-policy_month_coverage_min,coverage by policy_id and issue_month,0.9,>=,True,future holdout gate spec; not yet a passed gate
-avg_interval_width,mean clipped interval width across holdout loans,0.95,<=,True,future holdout gate spec; not yet a passed gate
-stress_slice_coverage_min,min over all/high-qhat/high-predicted-pd slices,0.8,>=,True,future holdout gate spec; not yet a passed gate
-min_support,minimum rows for defended source/policy/slice cells,3.0,>=,True,future holdout gate spec; not yet a passed gate
-loan_overlap_with_training,loan_id overlap with v9/v65 historical rows,0.0,==,True,future holdout gate spec; not yet a passed gate
-parameter_changes_after_freeze,any method or threshold edit after v66,0.0,==,True,future holdout gate spec; not yet a passed gate

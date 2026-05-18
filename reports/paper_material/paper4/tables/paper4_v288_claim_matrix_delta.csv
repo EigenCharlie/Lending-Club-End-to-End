@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v288_exact_relief_rank_expansion_executed,True,paper4_v288_full_rank_exact_relief_resource_protocol.csv,v285 ranks 201-400 only
-v288_rank201_400_return_positive_exact_relief_column_found,True,paper4_v288_exact_relief_candidate_screen.csv,lab-only repair signal; apply and reprice next
-v288_valid_branch_price_bound,False,paper4_v288_claim_blockers.csv,dual-bound loop missing
-v288_global_full_universe_integer_optimality,False,paper4_v288_claim_blockers.csv,global certificate missing
-v288_paper1_or_final_promotion,False,paper4_v288_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

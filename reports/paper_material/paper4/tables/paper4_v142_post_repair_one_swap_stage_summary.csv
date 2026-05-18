@@ -1,7 +1,0 @@
-stage_v142,pair_rows_v142,claim_boundary_v142
-all_pairs,47315358,post-v141 one-swap screen stage count only
-return_improving,1867449,post-v141 one-swap screen stage count only
-budget_return_feasible,1142750,post-v141 one-swap screen stage count only
-source_prefilter_feasible,3912,post-v141 one-swap screen stage count only
-source_exact_feasible,3177,post-v141 one-swap screen stage count only
-cvar_feasible_improving,3177,post-v141 one-swap screen stage count only

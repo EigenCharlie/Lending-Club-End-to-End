@@ -1,5 +1,0 @@
-blocker_id_v264,blocking_v264,evidence_count_v264,required_next_artifact_v264,claim_boundary_v264
-post_v263_one_swap_improvement_found,False,0,paper4_v265_broader_multi_swap_or_global_gap_probe.csv,no feasible improving post-v263 one-swaps remain
-broader_multi_swap_search_not_exhaustive,True,1,paper4_v265_broader_multi_swap_or_global_gap_probe.csv,post-v263 one-swap screen is not an exhaustive multi-swap proof
-global_integer_gap_certificate_missing,True,1,paper4_v265_global_integer_gap_protocol.csv,no branch-and-price/global full-universe certificate
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

@@ -1,6 +1,0 @@
-primary_rank_v248,primary_added_loan_id_v248,primary_dropped_loan_id_v248,base_two_swap_pair_rows_v248,source_prefilter_two_swap_pair_rows_v248,source_exact_two_swap_pair_rows_v248,cvar_feasible_two_swap_pair_rows_v248,claim_boundary_v248
-0,158701181,127392982,1204022,3711,575,575,bounded relief search from one source-prefilter primary swap
-1,127561240,127392982,1083862,773,10,10,bounded relief search from one source-prefilter primary swap
-2,138217359,127392982,1045018,285,37,37,bounded relief search from one source-prefilter primary swap
-3,158168548,152337011,1048001,48,3,3,bounded relief search from one source-prefilter primary swap
-4,158509118,154756272,1030504,16,0,0,bounded relief search from one source-prefilter primary swap

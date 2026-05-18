@@ -1,6 +1,0 @@
-scope_id_v358,covered_v358,evidence_count_v358,evidence_artifact_v358,claim_boundary_v358
-v357_second_order_scope_covered,True,5217640,paper4_v357_second_order_branch_price_stage_summary.csv,bounded v354-seeded second-order screen only
-v357_source_exact_frontier_covered,True,88,paper4_v357_branch_price_candidate_screen.csv,"88 source-exact rows, zero entering rows"
-third_order_expansion_covered,False,0,missing,third-order or deeper branch-price expansion remains open
-full_v55_dual_bound_covered,False,0,missing,no full-v55 branch-price termination certificate exists
-proxy_dynamic_online_gates_covered,False,77,paper4_v355_proxy_repair_tier_summary.csv,proxy gap and live gates remain open

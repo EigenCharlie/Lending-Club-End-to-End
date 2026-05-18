@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v448_paper4_official_quarto_render_run,True,paper4_v448_quarto_render_probe_summary.csv,official Paper 4 chapter render command executed
-v448_paper4_official_quarto_render_clean,True,paper4_v448_quarto_render_probe_summary.csv,true only when Quarto exits 0
-v448_registered_page_count_matches_render,True,paper4_v448_quarto_registered_pages.csv,rendered pages must match registered Paper 4 pages
-v448_archive_policy_preserved,True,paper4_v448_quarto_archive_surface.csv,"historical files remain archived, not official rendered pages"
-v448_full_book_render_clean,False,paper4_v448_claim_blockers.csv,full book render deferred to v449
-v448_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,6 +1,0 @@
-component_id_v456,source_version_v456,source_artifact_v456,used_in_packet_v456,assembly_role_v456,claim_boundary_v456
-bounded_readiness_synthesis,451,paper4_v451_release_readiness_synthesis.md,True,validation status and bounded readiness language,internal readiness only
-manuscript_scaffold,452,paper4_v452_manuscript_extraction_scaffold.md,True,section order and manuscript extraction map,scaffold only
-methods_results_draft,453,paper4_v453_methods_results_draft.md,True,methods and results prose,draft prose only
-discussion_limitations_draft,454,paper4_v454_discussion_limitations_draft.md,True,"discussion, limitations and caveats",draft prose only
-abstract_conclusion_draft,455,paper4_v455_abstract_conclusion_draft.md,True,abstract and conclusion prose,draft prose only

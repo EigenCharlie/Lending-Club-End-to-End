@@ -1,3 +1,0 @@
-pricing_block_id_v371,source_family_v371,source_id_v371,source_slack_v371,source_slack_rank_v371,v356_candidate_rows_v371,v356_positive_return_candidate_rows_v371,v366_family_feasible_rows_v371,tight_source_pass_rows_v371,tight_source_best_slack_v371,primary_blocker_v371,claim_boundary_v371
-grade=A,grade,A,4.597308456477656e-06,1,72271,4385,0,0,-8.238248034375673e-05,True,tight source blocker diagnostic only
-score_decile=0,score_decile,0,0.0001155521317887,2,27553,4383,6023,6023,0.022915379864113627,False,tight source blocker diagnostic only

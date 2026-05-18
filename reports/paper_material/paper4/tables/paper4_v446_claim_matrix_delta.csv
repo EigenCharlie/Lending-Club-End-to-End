@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v446_b023_loop_binding_repair_applied,True,paper4_v446_scripts_b023_actions.csv,manual lambda default binding only
-v446_b023_cleared,True,paper4_v446_repository_ruff_delta.csv,true only for B023 diagnostics
-v446_repository_ruff_clean,True,paper4_v446_repository_ruff_after_snapshot.csv,ruff clean only; pytest still deferred
-v446_changed_scripts_pycompile_passed,True,paper4_v446_pycompile_summary.csv,syntax/bytecode check for changed scripts
-v446_full_repository_pytest_passed_after_repair,False,paper4_v446_claim_blockers.csv,full pytest deferred to v447
-v446_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

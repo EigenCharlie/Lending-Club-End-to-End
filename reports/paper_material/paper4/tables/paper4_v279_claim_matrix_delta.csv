@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v279_restricted_pool_milp_repair_executed,True,paper4_v279_restricted_pool_milp_repair_summary.csv,v278 restricted-pool incumbent applied
-v279_repair_candidate_feasible,True,paper4_v279_restricted_pool_milp_repair_summary.csv,budget/source/CVaR feasibility only
-v279_post_repair_local_optimality,False,paper4_v279_claim_blockers.csv,post-repair pricing missing
-v279_global_full_universe_integer_optimality,False,paper4_v279_claim_blockers.csv,full-universe gap certificate missing
-v279_paper1_or_final_promotion,False,paper4_v279_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

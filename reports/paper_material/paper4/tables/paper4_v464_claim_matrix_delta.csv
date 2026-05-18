@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v464_bibliography_subset_dry_run_created,True,paper4_v464_references_subset.bib,reports-side dry-run only
-v464_verified_metadata_preserved,True,paper4_v464_bib_entry_inventory.csv,entries derive from v381 verified source log
-v464_book_references_modified_or_final_bib,False,paper4_v464_remaining_blockers.csv,global bibliography unchanged; not final
-v464_submission_ready_or_venue_style_complete,False,paper4_v464_remaining_blockers.csv,venue/style remains open
-v464_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

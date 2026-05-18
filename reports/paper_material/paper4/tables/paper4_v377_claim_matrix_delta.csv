@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v377_reproducibility_manifest_created,True,paper4_v377_reproducibility_bundle_manifest.csv,manifest only
-v377_status_and_guardrail_manifest_created,True,paper4_v377_guardrail_manifest.csv,test provenance only
-v377_submission_ready_package,False,paper4_v377_claim_blockers.csv,submission readiness not claimed
-v377_live_legal_or_global_claim_authorized,False,paper4_v377_claim_blockers.csv,v375 gates remain blocked
-v377_working_champion_or_final_promotion,False,paper4_v377_claim_blockers.csv,Paper Estrella remains protected

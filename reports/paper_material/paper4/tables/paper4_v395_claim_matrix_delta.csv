@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v395_unsafe_fix_review_created,True,paper4_v395_notebook_unsafe_fix_review.md,review and decision only
-v395_unsafe_fix_preview_captured,True,paper4_v395_notebook_unsafe_fix_preview.patch,diff preview only
-v395_five_unsafe_candidates_approved_for_guarded_application,True,paper4_v395_notebook_unsafe_fix_decision.csv,"approval for v396, not application in v395"
-v395_notebooks_mutated,False,paper4_v395_claim_blockers.csv,no notebook mutation in review wave
-v395_notebook_or_repo_ruff_clean,False,paper4_v395_claim_blockers.csv,review does not reduce lint
-v395_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v324_strict_v320_proxy_gap_repair_found,False,paper4_v324_proxy_gap_tier_summary.csv,strict bounded-pool feasibility only
-v324_relaxed_proxy_gap_repair_found,True,paper4_v324_relaxed_proxy_gap_allocations.parquet,relaxed v316-return/v320-CVaR candidate only
-v324_relaxed_observed_proxy_rows_reach_100,True,paper4_v324_proxy_gap_tier_summary.csv,proxy coverage diagnostic only
-v324_preserves_full_v320_return,False,paper4_v324_claim_blockers.csv,relaxed repair gives back v320 return and strict tier is infeasible
-v324_full_universe_integer_optimality,False,paper4_v324_claim_blockers.csv,bounded observed-candidate pool only
-v324_working_champion_or_final_promotion,False,paper4_v324_claim_blockers.csv,working champion and final promotion remain blocked

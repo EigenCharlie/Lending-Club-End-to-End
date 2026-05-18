@@ -1,5 +1,0 @@
-step_id_v392,priority_v392,command_v392,expected_output_v392,success_condition_v392
-capture_current_notebook_ruff_json,1,uv run ruff check notebooks --output-format json,stable notebook diagnostic manifest,diagnostics parsed by notebook file/rule/cell
-classify_safe_vs_semantic_notebook_fixes,2,python scripts/papers/build_paper4_v393_notebook_lint_dry_run_manifest.py,paper4_v393_notebook_lint_dry_run_manifest.csv,"every fix is labeled safe, semantic-review or blocked"
-no_mutation_roundtrip_guard,3,git diff -- notebooks,no notebook diff in dry-run wave,v393 produces manifest without notebook mutation
-post_policy_claim_guardrail,4,uv run pytest -q tests/test_docs/test_paper4_living_lab_guardrails.py -k v393,v393 guardrail passes,dry-run policy is test-covered before repair

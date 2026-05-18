@@ -1,5 +1,0 @@
-claim_id_v368,allowed_v368,publishable_language_v368,required_citation_v368,boundary_v368
-bounded_living_lab_protocol,True,Paper 4 contributes a reproducible living-lab protocol for auditing candidate-improvement evidence around the protected Paper Estrella champion.,v361-v368 evidence trace,method/governance claim only
-bounded_fourth_order_no_entry,True,"Within the bounded v361 fourth-order source-tight scope, no CVaR-feasible entering row was found.",paper4_v361_v353_fourth_order_or_full_dual_bound.csv,bounded search scope only
-chunk_source_governance_blocker,True,The v366 chunk prototype shows source governance can bind before any source-exact full-v55 one-swap row survives.,paper4_v366_v353_full_v55_pricing_chunk_prototype.csv,chunk 1 only
-global_proof_gap_transparency,True,The paper explicitly reports that full-v55 global proof remains open after v363-v367.,paper4_v363_status.json; paper4_v367_status.json,negative/gap statement only

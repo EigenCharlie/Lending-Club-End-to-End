@@ -1,6 +1,0 @@
-check_id_v377,passed_v377,evidence_count_v377,claim_boundary_v377
-required_artifacts_exist,True,30,artifact existence only
-status_files_exist,True,10,status provenance only
-required_hashes_created,True,30,hash manifest only
-final_promotion_absent,True,1,final promotion remains forbidden
-publication_patch_is_living_notebook_only,True,7,no Quarto promotion

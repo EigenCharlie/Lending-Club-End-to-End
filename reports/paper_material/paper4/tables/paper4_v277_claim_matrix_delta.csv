@@ -1,5 +1,0 @@
-claim_id,allowed,artifact,boundary
-v277_post_v276_restricted_pool_milp_one_swap_reprice_executed,True,paper4_v277_post_restricted_pool_milp_one_swap_summary.csv,post-v276 one-drop/one-add screen completed
-v277_post_v276_one_swap_local_optimality,True,paper4_v277_claim_blockers.csv,allowed only when no feasible improving post-v276 one-swaps remain
-v277_multi_swap_or_global_integer_optimality,False,paper4_v277_claim_blockers.csv,broader multi-swap/global gap evidence missing
-v277_paper1_or_final_promotion,False,paper4_v277_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

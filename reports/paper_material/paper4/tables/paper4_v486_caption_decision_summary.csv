@@ -1,7 +1,0 @@
-summary_metric_v486,metric_value_v486,claim_boundary_v486
-caption_review_decisions,10,decision matrix only
-accepted_for_manuscript_draft,10,draft acceptance only
-requires_manual_editor_signoff,10,manual signoff still required
-captions_final,0,no final captions
-captions_inserted_into_quarto,0,no Quarto insertion
-final_promotion_created,0,final promotion remains forbidden

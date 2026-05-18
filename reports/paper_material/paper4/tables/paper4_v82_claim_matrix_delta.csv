@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v82_one_swap_integer_probe_executed,True,paper4_v82_one_swap_integer_pricing_summary.csv,one-drop/one-add whole-loan swaps only
-v82_feasible_improving_one_swaps_found,True,paper4_v82_one_swap_integer_pricing_probe.csv,"lab-only repair signal, not champion replacement"
-v82_v80_one_swap_local_optimality,False,paper4_v82_claim_blockers.csv,false when feasible improving swaps are found
-v82_full_universe_integer_optimality,False,paper4_v82_claim_blockers.csv,multi-swap/global gap certificate missing
-v82_paper1_or_final_promotion,False,paper4_v82_claim_blockers.csv,no Paper Estrella or final Paper 4 promotion

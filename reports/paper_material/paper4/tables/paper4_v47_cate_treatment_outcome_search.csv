@@ -1,7 +1,0 @@
-diagnostic_v47,feature,value,pass_gate_v47,cate_policy_value_allowed,claim_boundary_v47
-balance_smd,pd_point,0.6592772053336753,False,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits
-balance_smd,pd_high_alpha01,0.5282627039774598,False,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits
-balance_smd,loan_amnt,0.034757761761578694,True,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits
-overlap_within_grade,high_rate_within_grade_v47,0.9984025559105432,True,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits
-identification,accepted_loan_selection,0.0,False,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits
-hidden_bias_sensitivity,not_stable_enough_for_policy_value,0.0,False,False,causal diagnostics only; no CATE policy-value claim under accepted-loan/reject-inference limits

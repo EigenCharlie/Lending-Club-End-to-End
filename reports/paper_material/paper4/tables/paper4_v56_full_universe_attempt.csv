@@ -1,2 +1,0 @@
-source_universe_rows_v56,attempted_exact_full_universe_v56,reason_v56,restricted_master_columns_v56,exact_full_universe_claim_v56,future_unlock_v56
-276869,False,"276,869-variable x 128-scenario exact LP estimated as heavy; expanded restricted master used first",48000,False,chunked/highspy column generation with exact pricing or persisted complete loss matrix

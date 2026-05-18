@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v416_e741_comprehension_var_patch_applied,True,paper4_v416_notebook_e741_comprehension_var_actions.csv,one list-comprehension variable rename
-v416_e741_cleared_from_notebooks,True,paper4_v416_notebook_lint_delta.csv,E741 only
-v416_roundtrip_integrity_preserved,True,paper4_v416_notebook_roundtrip_integrity.csv,"outputs, markdown, metadata and cell structure preserved"
-v416_notebook_or_repo_ruff_clean,False,paper4_v416_claim_blockers.csv,5 notebook diagnostics remain
-v416_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

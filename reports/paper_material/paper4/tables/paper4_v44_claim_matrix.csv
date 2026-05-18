@@ -1,6 +1,0 @@
-claim_id,claim,allowed,artifact,boundary
-v44_q_compact,Paper 4 official Quarto remains compact.,True,book/_quarto.yml,chapter 19 registered pages <= 12
-v44_spo_formal,Formal differentiable SPO+ is implemented.,False,paper4_v42_spo_dependency_isolation.csv,blocked until cvxpy/cvxpylayers/torch stack and validation pass
-v44_ifrs9_contractual,Contractual IFRS9 lifetime ECL is implemented.,False,paper4_v43_ifrs9_proxy_policy_summary.csv,proxy only; servicing/DPD/cure/recovery/prepayment paths missing
-v44_cvar_exact,Full-universe exact CVaR optimality is proven.,False,paper4_v41_cvar_strict_infeasibility_v2.csv,restricted-master diagnostic only
-v44_fair_lending,Fair-lending legal claim is supported.,False,paper4_v43_fairness_source_protocol.csv,source governance only; no protected attributes inferred

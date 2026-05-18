@@ -1,5 +1,0 @@
-diagnostic_id_v295,candidate_rows_v295,value_v295,delta_vs_incumbent_v295,claim_boundary_v295
-loose_top171_return_upper_bound_no_constraints,276869,83802.41199978834,80621.37241261483,loose no-budget/no-source/no-CVaR upper bound; not a global gap certificate
-outside_v295_pool_rows,241698,241698.0,,rows outside bounded v295 MILP pool keep full-universe gap open
-outside_v295_pool_positive_return_rows,241698,0.0,,positive omitted rows outside solved pool require future pricing/bounds
-outside_v295_pool_source_tight_positive_rows,241698,0.0,,source-tight positives outside the solved pool remain a branch-price target

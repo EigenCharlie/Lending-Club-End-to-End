@@ -1,5 +1,0 @@
-repair_lane_v390,priority_v390,target_rules_v390,estimated_error_count_v390,recommended_mode_v390,next_artifact_v390,claim_boundary_v390
-notebook_import_order_and_cell_hygiene,1,"E402,B018,B007,SIM108,F541,F821,E741",180,automated_notebook_rewrite_plus_spot_review,paper4_v391_targeted_lint_repair_batch.md,notebooks need explicit rewrite policy before mutation
-paper4_guardrail_unused_config_reads,2,"F841,F541",21,targeted_apply_patch_in_test_file,paper4_v391_targeted_lint_repair_batch.md,"safe local cleanup, but not done in v390"
-streamlit_page_import_and_style_cleanup,3,"E402,C408,B905",58,page_by_page_import_reorder_and_style_patch,paper4_v391_targeted_lint_repair_batch.md,avoid broad UI churn in same wave
-legacy_script_lint_cleanup,4,"I001,F401,B023,UP022,SIM115",23,small_batches_with_targeted_tests,paper4_v392_legacy_script_lint_batch.md,historical scripts require scoped validation

@@ -1,3 +1,0 @@
-claim_id,allowed,artifact,boundary
-v61_source_diversified_cvar_feasible,False,paper4_v61_source_diversified_frontier.csv,source-diversified restricted-master CVaR only; exact full-universe claim false
-v61_tail_solver_requires_grade_concentration,True,paper4_v61_source_diversified_frontier.csv,negative governance finding under current internal loss model

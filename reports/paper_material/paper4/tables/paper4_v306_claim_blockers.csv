@@ -1,6 +1,0 @@
-blocker_id_v306,blocking_v306,evidence_count_v306,required_next_artifact_v306,claim_boundary_v306
-best_v305_swap_repair_candidate_created,False,1,paper4_v306_apply_next_post_v304_swap_summary.csv,candidate exists only if budget/source/CVaR remain feasible
-post_repair_one_swap_repricing_missing,True,1,paper4_v307_post_v306_reprice.csv,repair must be re-priced after changing portfolio
-proxy_coverage_regression_or_gap,True,69,future_cashflow_proxy_or_ifrs9_coverage_gate,added loan lacks observed v47/v299 cashflow proxy coverage
-global_dynamic_online_gates_missing,True,1,future_global_dynamic_online_validation,"no global, dynamic, online or deployment gate created"
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

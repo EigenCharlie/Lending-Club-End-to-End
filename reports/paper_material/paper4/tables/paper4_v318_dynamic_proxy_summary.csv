@@ -1,3 +1,0 @@
-policy_id,period_count_v318,trace_rows_v318,final_period_v318,final_selected_rows_v318,final_exposure_v318,final_objective_return_v318,final_loss_mean_v318,final_loss_cvar90_v318,final_wealth_proxy_mean_v318,final_wealth_proxy_p10_v318,worst_period_scenario_wealth_proxy_v318,claim_boundary_v318
-v295_broader_pool_after_v296_gate,3,384,2020,171,842775.0,3249.9586479471764,61310.02721519963,97226.40959615848,-58060.068567252456,-83932.25135196703,-122020.14235337763,dynamic proxy summary only; not a validated live deployment gate
-v316_terminal_repair_after_v317_gate,3,384,2020,171,846475.0,4419.757991584778,60467.41219714489,96984.05075988933,-56047.65420556012,-82461.56065761189,-121293.87214753074,dynamic proxy summary only; not a validated live deployment gate

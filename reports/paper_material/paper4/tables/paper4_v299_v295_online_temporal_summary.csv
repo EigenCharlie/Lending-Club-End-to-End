@@ -1,3 +1,0 @@
-source_family,online_method_v299,holdout_periods_v299,source_cell_rows_v299,worst_source_coverage_v299,worst_policy_period_coverage_v299,max_policy_period_width_v299,source_gate_pass_rows_v299,policy_gate_pass_rows_v299,width_gate_pass_rows_v299,all_internal_gates_pass_v299,external_holdout_available_v299,strict_live_claim_allowed_v299,claim_boundary_v299
-period,v65_margin_repair_replayed_on_v295,3,3,0.8857142857142857,0.8857142857142857,0.31832808956297437,3,2,3,False,False,False,v295 temporal selected-book replay; external holdout required for live claim
-term,v65_margin_repair_replayed_on_v295,3,3,0.8857142857142857,0.8857142857142857,0.31832808956297437,3,2,3,False,False,False,v295 temporal selected-book replay; external holdout required for live claim

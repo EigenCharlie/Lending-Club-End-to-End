@@ -1,3 +1,0 @@
-blocker_id_v422,blocking_v422,evidence_count_v422,required_next_artifact_v422,claim_boundary_v422
-repository_ruff_frontier_not_reprobed,True,1,paper4_v423_repository_ruff_frontier_after_notebook_clean.md,notebook lint and pytest evidence do not imply repository ruff clean
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

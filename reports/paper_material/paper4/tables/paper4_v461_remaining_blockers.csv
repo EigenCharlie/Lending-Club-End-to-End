@@ -1,6 +1,0 @@
-blocker_id_v461,blocking_v461,evidence_count_v461,required_next_artifact_v461,claim_boundary_v461
-systematic_literature_search_not_run,True,1,future_recent_literature_search_log,do not claim systematic literature coverage
-paper_specific_bibliography_not_curated,True,1,future_paper4_references_bib,do not claim final bibliography
-target_venue_not_selected,True,0,future_target_venue_decision,do not claim venue compliance
-manuscript_readiness_delta_not_synthesized,True,1,paper4_v462_manuscript_readiness_delta.md,synthesize readiness after related-work draft
-paper4_final_promotion_forbidden,True,1,paper4_final_promotion_gate_not_created,Paper Estrella replacement and final Paper 4 remain prohibited

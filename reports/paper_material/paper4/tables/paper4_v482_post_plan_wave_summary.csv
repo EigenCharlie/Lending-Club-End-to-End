@@ -1,7 +1,0 @@
-wave_v482,phase_v482,primary_result_v482,preserved_blocker_v482,book_sources_modified_v482,final_promotion_created_v482,claim_boundary_v482
-v476,caption_and_insertion_plan,draft captions and insertion order created,captions remain draft; no Quarto insertion,False,False,living notebook evidence only
-v477,post_visual_package_manuscript_delta,visual package mapped into manuscript sections,assets remain uninserted and blocker caveats stay active,False,False,living notebook evidence only
-v478,section_text_stub_bundle,section text stubs and callout sentences drafted,stubs are not final prose and are not in book sources,False,False,living notebook evidence only
-v479,stub_claim_consistency_audit,stub-claim audit passed with no prohibited assertions,audit is not insertion authorization,False,False,living notebook evidence only
-v480,controlled_quarto_insertion_plan,"candidate Quarto targets, gates and rollback plan identified",manual review is mandatory before any patch,False,False,living notebook evidence only
-v481,manual_quarto_patch_decision,manual patch decision recorded as blocked,"explicit approval, caption review and asset review are missing",False,False,living notebook evidence only

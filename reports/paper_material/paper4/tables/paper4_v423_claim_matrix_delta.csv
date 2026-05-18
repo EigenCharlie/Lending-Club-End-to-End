@@ -1,7 +1,0 @@
-claim_id,allowed,artifact,boundary
-v423_repository_ruff_probe_run,True,paper4_v423_repository_ruff_rule_frontier.csv,repository ruff command executed and inventoried
-v423_notebook_lint_remains_clean,True,paper4_v423_repository_ruff_surface_summary.csv,true only if notebook diagnostics remain at zero
-v423_full_repository_pytest_clean_inherited,True,paper4_v422_pytest_probe_summary.csv,inherits v422 full pytest success
-v423_repository_ruff_clean,False,paper4_v423_claim_blockers.csv,true only when repository ruff emits zero diagnostics
-v423_lint_repair_applied,False,paper4_v423_repository_ruff_repair_plan.csv,v423 is non-mutating
-v423_working_champion_or_final_promotion,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected
