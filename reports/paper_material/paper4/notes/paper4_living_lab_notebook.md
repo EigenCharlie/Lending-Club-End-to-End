@@ -24371,3 +24371,122 @@ Keep v524 in the living notebook. v525 should prepare a dispatch evidence
 escalation packet while preserving the no-fabricated-candidate boundary.
 
 <!-- V524_DISPATCH_EVIDENCE_FOLLOWUP_AUDIT_END -->
+
+<!-- V525_DISPATCH_EVIDENCE_ESCALATION_PACKET_START -->
+
+## Wave v525: Dispatch Evidence Escalation Packet
+
+Generated: 2026-05-18T00:07:00.398900+00:00
+
+### Objective
+
+v525 creates the escalation surface for missing dispatch evidence after v524
+confirmed that no delivery traces, timestamps, acknowledgements, human responses
+or candidate inputs had been received. The escalation packet is a preparation
+artifact only.
+
+### Results
+
+- Dispatch evidence escalation rows:
+  `14`.
+- Dispatch evidence escalation required rows:
+  `14`.
+- Dispatch evidence escalation packet created rows:
+  `14`.
+- Dispatch evidence escalation ready rows:
+  `14`.
+- Dispatch evidence escalation dispatched rows:
+  `0`.
+- External dispatch recorded rows:
+  `0`.
+- Dispatch evidence received rows:
+  `0`.
+- Dispatch delivery trace received rows:
+  `0`.
+- Dispatch timestamp received rows:
+  `0`.
+- Dispatch recipient acknowledgement received rows:
+  `0`.
+- Human response received rows:
+  `0`.
+- Candidate identifier received rows:
+  `0`.
+- Nomination fields received rows:
+  `0`.
+- Nomination signoff received rows:
+  `0`.
+- Evidence received rows:
+  `0`.
+- Candidate input collection closed rows:
+  `0`.
+- Candidate nomination recorded rows:
+  `0`.
+- Field/evidence dispatch escalation rows:
+  `84`.
+- Field evidence escalation required rows:
+  `84`.
+- Field evidence escalation created rows:
+  `84`.
+- Field value received rows:
+  `0`.
+- Field evidence received rows:
+  `0`.
+- Open field evidence escalation gap rows:
+  `84`.
+- Dispatch requirement escalation rows:
+  `6`.
+- Dispatch requirement escalation created rows:
+  `6`.
+- Open dispatch requirement escalation gap rows:
+  `6`.
+- Dispatch evidence escalation control rows:
+  `6`.
+- Active dispatch evidence escalation control rows:
+  `6`.
+- Blocking dispatch evidence escalation rows:
+  `5`.
+- Dispatch evidence escalation follow-up queue rows:
+  `14`.
+- Dispatch evidence escalation follow-up audit ready rows:
+  `14`.
+- Eligibility review allowed rows:
+  `0`.
+- Reviewer assignment allowed rows:
+  `0`.
+- Outcome capture allowed rows:
+  `0`.
+- Patch allowed rows:
+  `0`.
+- Ready for Quarto patch:
+  `False`.
+- Book sources modified:
+  `False`.
+- Final promotion created:
+  `False`.
+- Next artifact:
+  `paper4_v526_dispatch_evidence_escalation_followup_audit.md`.
+
+### Interpretation
+
+The escalation packet is a procedural preparation artifact. Because escalation
+dispatch, dispatch evidence, responses and candidate inputs remain zero, the
+next executable step is an escalation follow-up audit, not candidate nomination,
+eligibility review or manuscript patching.
+
+### Claim Impact
+
+- Allowed: dispatch evidence escalation packet, field evidence dispatch
+  escalation matrix, dispatch requirement escalation matrix and future
+  dispatch evidence escalation follow-up audit readiness.
+- Still prohibited: escalation dispatch claims, external dispatch completion,
+  dispatch evidence receipt, candidate input receipt, candidate
+  resolution/nomination, reviewer assignment, completed review claims, final
+  captions, Quarto patch readiness/application, Quarto/book mutation,
+  submission readiness, Paper Estrella replacement and final Paper 4 promotion.
+
+### Quarto Promotion Decision
+
+Keep v525 in the living notebook. v526 should audit dispatch evidence escalation
+follow-up while preserving the no-fabricated-candidate boundary.
+
+<!-- V525_DISPATCH_EVIDENCE_ESCALATION_PACKET_END -->
