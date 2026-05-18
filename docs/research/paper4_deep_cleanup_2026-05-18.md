@@ -55,8 +55,7 @@ promotes a new champion, reopens the final promotion protocol, or creates
 ## Validation
 
 The cleanup guardrail test now checks the retained Paper 4/Paper Estrella CSV
-surface directly. A full Quarto render was re-attempted after cleanup, but the
-project still stops before Paper 4 at
-`chapters/06-pd-modeling/06c-calibration-selection.qmd` with the known
-kernel-cleanup `AssertionError`; this is upstream of the deleted Paper 4
-artifacts.
+surface directly. A later full Quarto render completed cleanly with 122/122
+chapters, so the earlier transient
+`chapters/06-pd-modeling/06c-calibration-selection.qmd` kernel-cleanup
+`AssertionError` is no longer considered a Paper 4 cleanup blocker.
