@@ -1,7 +1,0 @@
-dispatch_evidence_request_control_id_v523,control_active_v523,blocks_dispatch_evidence_followup_v523,control_result_v523
-dispatch_evidence_absent,True,True,dispatch evidence remains unreceived
-delivery_trace_absent,True,True,delivery trace remains absent
-timestamp_absent,True,True,dispatch timestamp remains absent
-manual_owner_ack_absent,True,True,manual owner acknowledgement remains absent
-human_response_absent_after_evidence_request,True,True,human response remains unreceived
-no_final_promotion,True,False,final promotion artifact remains absent

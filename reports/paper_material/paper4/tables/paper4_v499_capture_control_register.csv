@@ -1,7 +1,0 @@
-control_id_v499,control_active_v499,control_result_v499,blocks_patch_v499
-no_outcomes_captured,True,outcome rows remain not_captured,True
-no_caption_finalized,True,caption finalization remains false,True
-no_patch_approval,True,patch approval remains absent,True
-no_book_mutation,True,book sources and references remain unchanged,True
-no_render_submission,True,no submission render is authorized,True
-no_final_promotion,True,final promotion artifact remains absent,True

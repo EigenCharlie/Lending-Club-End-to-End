@@ -1,9 +1,0 @@
-readiness_gate_v501,ready_v501,evidence_artifact_v501,claim_boundary_v501
-review_outcome_capture_dry_run_created,True,paper4_v501_review_outcome_capture_dry_run.csv,dry-run artifact only
-capture_form_validation_passed,True,paper4_v501_capture_form_validation.csv,form validation only
-dry_run_safety_gates_passed,True,paper4_v501_dry_run_safety_gate.csv,safety gates remain active
-manual_capture_queue_ready,True,paper4_v501_manual_capture_queue.csv,manual queue readiness only
-real_review_outcomes_captured,False,no real outcome rows recorded,dry run does not count as review evidence
-captions_finalized,False,caption finalization remains false,no final captions
-ready_for_quarto_patch,False,human outcomes and approval remain absent,patch remains blocked
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

@@ -1,9 +1,0 @@
-readiness_gate_v496,ready_v496,evidence_artifact_v496,claim_boundary_v496
-review_gate_prioritization_created,True,paper4_v496_review_gate_prioritization.csv,prioritization only
-gate_dependency_matrix_created,True,paper4_v496_gate_dependency_matrix.csv,dependency matrix only
-execution_priority_queue_created,True,paper4_v496_execution_priority_queue.csv,execution queue only
-claim_boundary_matrix_created,True,paper4_v496_claim_boundary_matrix.csv,claim boundary matrix only
-ready_for_quarto_patch,False,"review, caption signoff and approval gates open",patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v496
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

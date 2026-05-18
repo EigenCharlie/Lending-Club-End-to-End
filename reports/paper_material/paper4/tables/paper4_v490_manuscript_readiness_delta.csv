@@ -1,9 +1,0 @@
-readiness_gate_v490,ready_v490,evidence_artifact_v490,claim_boundary_v490
-layout_review_decision_created,True,paper4_v490_layout_review_decision_matrix.csv,decision matrix only
-manual_review_queue_created,True,paper4_v490_manual_review_queue.csv,pending manual review only
-patch_gate_register_created,True,paper4_v490_patch_gate_register.csv,patch gate register only
-patch_readiness_preflight_seed_created,True,paper4_v490_patch_readiness_preflight_seed.csv,preflight seed only
-ready_for_quarto_patch,False,manual approval and final captions missing,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v490
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

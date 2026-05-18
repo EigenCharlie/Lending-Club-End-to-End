@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v494_patch_approval_gap_packet_created,True,paper4_v494_patch_approval_gap_packet.csv,approval gap packet only
-v494_approval_request_packet_created,True,paper4_v494_approval_request_packet.csv,request packet only
-v494_approval_scope_matrix_created,True,paper4_v494_approval_scope_matrix.csv,scope matrix only
-v494_explicit_patch_approval_or_patch_ready,False,paper4_v494_manuscript_readiness_delta.csv,approval remains missing and patch remains blocked
-v494_submission_ready_or_final_promotion,False,paper4_v494_manuscript_readiness_delta.csv,no submission or final promotion claim

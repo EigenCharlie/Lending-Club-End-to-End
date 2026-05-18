@@ -1,5 +1,0 @@
-next_action_id_v505,priority_v505,recommended_next_v505,blocks_assignment_v505,claim_boundary_v505
-nominate_reviewer_candidates,1,True,True,candidate nomination next only
-verify_candidate_eligibility,2,True,True,eligibility verification next only
-record_candidate_conflict_check,3,True,True,conflict check next only
-assign_reviewers_after_eligibility,4,False,False,future assignment only after eligibility

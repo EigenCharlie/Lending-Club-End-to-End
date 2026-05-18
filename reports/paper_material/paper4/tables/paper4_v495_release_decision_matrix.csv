@@ -1,5 +1,0 @@
-decision_id_v495,recommended_v495,patch_allowed_v495,decision_boundary_v495
-release_no_patch_synthesis,True,False,living notebook synthesis only
-prioritize_review_gates_next,True,False,review gates must be prioritized first
-request_patch_after_signoff,False,False,signoff and approval not complete
-publish_or_finalize_paper4,False,False,submission/final promotion blocked

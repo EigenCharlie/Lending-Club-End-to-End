@@ -1,6 +1,0 @@
-claim_id,allowed,artifact,boundary
-v493_caption_signoff_gap_packet_created,True,paper4_v493_caption_signoff_gap_packet.csv,caption signoff gap packet only
-v493_caption_claim_safety_matrix_created,True,paper4_v493_caption_claim_safety_matrix.csv,claim safety matrix only
-v493_open_caption_signoff_actions_identified,True,paper4_v493_signoff_action_register.csv,open action register only
-v493_final_captions_or_patch_ready,False,paper4_v493_manuscript_readiness_delta.csv,captions remain non-final and patch remains blocked
-v493_submission_ready_or_final_promotion,False,paper4_v493_manuscript_readiness_delta.csv,no submission or final promotion claim

@@ -1,7 +1,0 @@
-dispatch_followup_blocker_id_v522,blocker_open_v522,blocks_dispatch_followup_completion_v522,required_resolution_v522
-external_dispatch_evidence_absent,True,True,record externally verified dispatch evidence
-manual_owner_response_absent_after_dispatch_packet,True,True,receive manual owner response after verified dispatch
-candidate_identifier_absent_after_dispatch_packet,True,True,receive candidate identifier
-nomination_payload_absent_after_dispatch_packet,True,True,receive nomination fields and nomination signoff
-evidence_absent_after_dispatch_packet,True,True,receive supporting evidence
-no_final_promotion,True,False,keep Paper Estrella protection active

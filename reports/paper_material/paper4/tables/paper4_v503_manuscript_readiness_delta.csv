@@ -1,9 +1,0 @@
-readiness_gate_v503,ready_v503,evidence_artifact_v503,claim_boundary_v503
-assignment_gap_audit_created,True,paper4_v503_assignment_gap_audit.csv,assignment gap audit only
-domain_assignment_gap_summary_created,True,paper4_v503_domain_assignment_gap_summary.csv,domain gap summary only
-assignment_blocker_register_created,True,paper4_v503_assignment_blocker_register.csv,blocker register only
-reviewer_assignment_packet_ready,True,paper4_v503_assignment_gap_audit.csv,future assignment packet readiness only
-reviewers_assigned,False,all assignment gaps remain open,reviewers are not assigned
-real_review_outcomes_captured,False,outcome capture remains blocked,no review evidence captured
-ready_for_quarto_patch,False,"assignments, outcomes and approval absent",patch remains blocked
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

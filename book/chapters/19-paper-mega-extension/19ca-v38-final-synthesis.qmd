@@ -14,6 +14,30 @@ La sintesis vigente despues de v38 y de esta reestructura es simple:
 - El capitulo Quarto contiene solo evidencia oficial y claim-safe.
 - El notebook vivo contiene las olas, pendientes, bloqueos e iteraciones.
 
+## Cierre editorial del loop v490--v526
+
+El loop posterior a v489 queda cerrado por decision editorial del 2026-05-17. Se
+aceptan los 14 outcomes pendientes para un patch acotado, pero se elimina la
+cadena procedural v490--v526 porque no agregaba nueva evidencia cientifica:
+solo repetia gates, signoffs, asignaciones, nominaciones, recordatorios y
+dispatch evidence sin respuesta externa.
+
+La decision queda registrada en:
+
+- `paper4_loop_closure_accept_outcomes_2026-05-17.csv`: 14 outcomes con
+  `outcome_decision=accept`;
+- `paper4_loop_closure_cleanup_manifest_2026-05-17.csv`: manifest de los
+  artefactos retirados;
+- `paper4_loop_closure_status_2026-05-17.json`: frontera de cierre sin
+  promocion final;
+- `docs/research/paper4_to_estrella_export_2026-05-17.md`: memo de exportacion
+  hacia Paper Estrella.
+
+El cierre no crea `paper4_final_promotion.json`, no reabre el champion de Paper
+Estrella y no transforma Paper 4 en protocolo de promocion. Paper 4 queda como
+laboratorio vivo largo plazo; Paper Estrella absorbe solamente F03, F04, F05 y
+SDAM como robustez, caveat y framing.
+
 ## Hallazgos oficiales
 
 | finding_id | finding | status | quarto_page |

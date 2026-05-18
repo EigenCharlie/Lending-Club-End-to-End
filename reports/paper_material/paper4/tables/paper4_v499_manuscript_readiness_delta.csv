@@ -1,9 +1,0 @@
-readiness_gate_v499,ready_v499,evidence_artifact_v499,claim_boundary_v499
-review_outcome_capture_template_created,True,paper4_v499_review_outcome_capture_template.csv,capture template only
-outcome_field_dictionary_created,True,paper4_v499_outcome_field_dictionary.csv,required field dictionary only
-capture_control_register_created,True,paper4_v499_capture_control_register.csv,capture control register only
-review_outcomes_captured,False,all outcome statuses are not_captured,no review outcomes captured
-ready_for_quarto_patch,False,review outcomes and approval remain absent,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v499
-submission_ready,False,"future outcome, signoff, patch and render gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

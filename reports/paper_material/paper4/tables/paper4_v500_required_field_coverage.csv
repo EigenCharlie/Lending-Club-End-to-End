@@ -1,9 +1,0 @@
-capture_field_v500,declared_v500,required_v500,captured_v500,field_coverage_passed_v500,claim_boundary_v500
-caption_final_allowed,True,True,False,True,required field coverage audit only
-claim_boundary_ok,True,True,False,True,required field coverage audit only
-outcome_decision,True,True,False,True,required field coverage audit only
-patch_scope_ok,True,True,False,True,required field coverage audit only
-review_timestamp_utc,True,True,False,True,required field coverage audit only
-reviewer_id,True,True,False,True,required field coverage audit only
-reviewer_notes,True,True,False,True,required field coverage audit only
-revision_required,True,True,False,True,required field coverage audit only

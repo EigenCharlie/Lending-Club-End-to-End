@@ -1,7 +1,0 @@
-evidence_requirement_id_v513,requirement_active_v513,evidence_required_v513,evidence_received_v513,evidence_gap_open_v513,required_evidence_v513,claim_boundary_v513
-candidate_identifier_source,True,True,False,True,candidate identifier and source note,evidence receipt summary only
-reviewer_identity_source,True,True,False,True,reviewer identity provenance,evidence receipt summary only
-nomination_field_values,True,True,False,True,complete nomination field values,evidence receipt summary only
-nomination_signoff,True,True,False,True,timestamped nomination signoff,evidence receipt summary only
-conflict_screening_basis,True,True,False,True,conflict screening basis,evidence receipt summary only
-human_approval_trace,True,True,False,True,human approval trace,evidence receipt summary only

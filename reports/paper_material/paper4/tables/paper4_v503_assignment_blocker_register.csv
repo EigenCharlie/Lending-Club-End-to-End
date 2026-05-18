@@ -1,5 +1,0 @@
-assignment_blocker_id_v503,blocker_open_v503,blocks_outcome_capture_v503,required_resolution_v503
-reviewer_assignment_missing,True,True,assign reviewers for all 14 capture packets
-assignment_signoff_missing,True,True,record assignment signoff before outcomes
-outcome_capture_not_started,True,True,start capture only after assignments
-patch_approval_blocked,True,False,keep patch blocked until review signoff

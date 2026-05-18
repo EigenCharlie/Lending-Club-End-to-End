@@ -27,3 +27,22 @@ El framework vale porque fuerza a separar lo que antes se mezclaba: metricas
 base, metricas de riesgo, decisiones, incertidumbre, evidencia y claims. En un
 paper academico futuro, esto puede ser una contribucion de gobernanza
 secuencial incluso si el dataset no es productivo.
+
+## Regla de cierre para SDAM
+
+La pieza que sobrevive al cierre del loop no es otro builder ni otra cola de
+aprobacion: es el contrato conceptual. SDAM/Powell queda como lenguaje para
+ordenar el problema:
+
+- CRPTO/Paper Estrella se lee como una politica CFA parametrica: resuelve un LP
+  simplificado cuyo parametro conformal tiene semantica estadistica.
+- Paper 4 usa el mismo lenguaje para separar `S_t`, `x_t`, `W_{t+1}` y
+  transiciones, pero no afirma Bellman optimality ni DLA productiva.
+- Los replays dinamicos son comparaciones internas de politicas sobre sample
+  paths historicos; no son forecast externo.
+- Todo claim que no pueda mapearse a estado, decision, informacion, transicion,
+  costo o clase de politica queda como future work.
+
+Esta frontera es lo suficientemente fuerte para entrar al Paper Estrella como
+framing teorico y lo suficientemente humilde para no vender Paper 4 como sistema
+secuencial completo.

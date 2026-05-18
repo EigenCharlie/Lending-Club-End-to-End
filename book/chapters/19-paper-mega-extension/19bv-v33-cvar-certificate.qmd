@@ -70,6 +70,16 @@ frontier.head(25)
 El resultado negativo es util: si el regimen estricto no escala o no es
 factible, eso delimita una frontera de gobernanza, no un fracaso metodologico.
 
+### Outcome aceptado en el cierre 2026-05-17
+
+La lectura que sobrevive para Paper Estrella es acotada y útil: CVaR/OCE es un
+challenger serio de cola, pero no desplaza al champion economico oficial. En el
+replay dinamico v31, el challenger redujo perdida de cola
+(`prob_challenger_lower_loss = 99.609375%`), pero no gano riqueza pareada de forma robusta
+(`prob_challenger_beats_reference = 47.65625%`). Por eso F04 fortalece el paper:
+justifica quedarse con el economic champion y reportar CVaR/OCE como robustez y
+caveat, no como promocion.
+
 ## Que mejoro
 
 Queda claro si el claim es exacto, restricted-master o diagnostico.

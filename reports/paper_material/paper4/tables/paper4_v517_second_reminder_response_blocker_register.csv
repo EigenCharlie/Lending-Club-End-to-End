@@ -1,7 +1,0 @@
-second_reminder_response_blocker_id_v517,blocker_open_v517,blocks_escalation_decision_v517,required_resolution_v517
-no_candidate_identifier_after_second_reminder,True,True,receive candidate identifier before closing input collection
-no_nomination_field_after_second_reminder,True,True,receive nomination fields before closing input collection
-no_nomination_signoff_after_second_reminder,True,True,receive nomination signoff before closing input collection
-no_evidence_after_second_reminder,True,True,receive evidence before closing input collection
-eligibility_review_blocked,True,False,start eligibility only after complete candidate inputs
-no_final_promotion,True,False,keep Paper Estrella protection active

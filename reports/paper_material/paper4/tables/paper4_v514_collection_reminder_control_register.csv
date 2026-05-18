@@ -1,7 +1,0 @@
-collection_reminder_control_id_v514,control_active_v514,blocks_collection_completion_v514,control_result_v514
-no_candidate_identifier_received,True,True,candidate identifiers remain unreceived
-no_nomination_fields_received,True,True,nomination fields remain unreceived
-no_nomination_signoff_received,True,True,nomination signoff remains unreceived
-no_evidence_received,True,True,6 evidence requirements remain open
-eligibility_review_blocked,True,False,eligibility review remains blocked until inputs are received
-no_final_promotion,True,False,final promotion artifact remains absent

@@ -1,7 +1,0 @@
-dispatch_evidence_escalation_followup_blocker_id_v526,blocker_open_v526,blocks_dispatch_evidence_escalation_followup_v526,required_resolution_v526
-escalation_dispatch_absent,True,True,record externally verified dispatch of the escalation packet
-dispatch_evidence_absent_after_escalation,True,True,receive externally verifiable dispatch evidence
-delivery_trace_absent_after_escalation,True,True,receive dispatch delivery trace
-manual_owner_ack_absent_after_escalation,True,True,receive manual owner acknowledgement
-candidate_input_absent_after_escalation,True,True,"receive candidate identifiers, nomination fields and evidence"
-no_final_promotion,True,False,keep Paper Estrella protection active

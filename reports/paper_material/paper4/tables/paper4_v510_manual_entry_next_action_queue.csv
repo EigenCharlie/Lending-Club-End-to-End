@@ -1,5 +1,0 @@
-next_action_id_v510,priority_v510,recommended_next_v510,blocks_resolution_v510,claim_boundary_v510
-enter_candidate_identifiers,1,True,True,candidate identifier entry next only
-enter_nomination_field_values,2,True,True,nomination field entry next only
-record_nomination_signoff,3,True,True,nomination signoff next only
-run_post_entry_candidate_resolution_audit,4,False,False,future post-entry audit only

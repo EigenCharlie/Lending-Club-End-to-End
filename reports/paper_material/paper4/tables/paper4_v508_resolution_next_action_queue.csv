@@ -1,5 +1,0 @@
-next_action_id_v508,priority_v508,recommended_next_v508,blocks_nomination_v508,claim_boundary_v508
-collect_candidate_identifiers,1,True,True,candidate identifier collection next only
-complete_nomination_fields,2,True,True,nomination field completion next only
-record_nomination_signoff,3,True,True,nomination signoff next only
-audit_resolution_after_manual_entry,4,False,False,future audit only after manual entry

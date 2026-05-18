@@ -1,7 +1,0 @@
-evidence_requirement_id_v512,requirement_active_v512,evidence_required_v512,evidence_received_v512,required_evidence_v512
-candidate_identifier_source,True,True,False,candidate identifier and source note
-reviewer_identity_source,True,True,False,reviewer identity provenance
-nomination_field_values,True,True,False,complete nomination field values
-nomination_signoff,True,True,False,timestamped nomination signoff
-conflict_screening_basis,True,True,False,conflict screening basis
-human_approval_trace,True,True,False,human approval trace

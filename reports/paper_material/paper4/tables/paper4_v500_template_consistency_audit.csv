@@ -1,9 +1,0 @@
-consistency_check_id_v500,observed_value_v500,expected_value_v500,passed_v500,claim_boundary_v500
-template_row_count,14,14,True,row count consistency only
-template_ids_unique,14,14,True,identifier uniqueness consistency only
-template_domains_expected,"caption_claim_safety,layout_surface","caption_claim_safety,layout_surface",True,domain consistency only
-domain_coverage_passed,3,3,True,coverage consistency only
-required_fields_passed,8,8,True,field consistency only
-controls_passed,6,6,True,control consistency only
-no_outcomes_captured,0,0,True,no outcome capture consistency only
-no_patch_permission,0,0,True,no patch permission consistency only

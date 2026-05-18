@@ -1,7 +1,0 @@
-manual_owner_followup_blocker_id_v520,blocker_open_v520,blocks_manual_owner_followup_completion_v520,required_resolution_v520
-no_manual_owner_request_dispatch,True,True,dispatch manual owner request before follow-up can close
-no_manual_owner_response,True,True,receive manual owner response after dispatch
-no_candidate_identifier_after_manual_owner_request,True,True,receive candidate identifier from manual owner path
-no_nomination_payload_after_manual_owner_request,True,True,receive nomination fields and signoff from manual owner path
-no_evidence_after_manual_owner_request,True,True,receive supporting evidence from manual owner path
-no_final_promotion,True,False,keep Paper Estrella protection active

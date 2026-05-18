@@ -1,5 +1,0 @@
-blocker_id_v491,required_before_patch_v491,resolution_action_v491,resolution_owner_v491,resolved_v491,blocks_patch_v491,claim_boundary_v491
-manual_patch_approval_present,True,capture explicit manual patch approval,manual_editorial_review,False,True,approval missing
-captions_final,True,complete final caption signoff,manual_editorial_review,False,True,captions non-final
-quarto_patch_applied,False,apply a future controlled patch only after approvals,manual_editorial_review,False,True,no patch in v488
-post_patch_render_passed,False,run post-patch render after a patch exists,manual_editorial_review,False,True,render deferred until patch exists

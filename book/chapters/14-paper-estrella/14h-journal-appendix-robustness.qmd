@@ -43,6 +43,28 @@ def read_table(name: str) -> pd.DataFrame:
     return pd.read_csv(tables_dir / name)
 ```
 
+### Export controlado desde Paper 4
+
+El cierre del laboratorio Paper 4 deja cuatro piezas que si agregan valor al
+Paper Estrella. Entran como robustez, limitaciones y framing editorial; no
+reabren el champion oficial ni cambian el metodo central CRPTO.
+
+| ID | Uso en Paper Estrella | Artefacto fuente | Regla de claim |
+|---|---|---|---|
+| F03 dynamic stress | robustez adicional del champion bajo replay mensual | `paper4_v31_champion_vs_cvar_stress_memo.csv` | 512 common paths y 494,592 trace rows son replay interno, no forecast externo |
+| F04 CVaR/OCE | justifica conservar el economic champion frente al challenger de cola | `paper4_v31_champion_vs_cvar_stress_memo.csv`, `paper4_v467_cvar_frontier_probe.csv` | el challenger baja cola, pero `prob_beats = 47.65625%` no vence riqueza pareada |
+| F05 online conformal | fortalece limitaciones y future work | `paper4_v470_online_monitoring_proxy_summary.csv` | proxy interno solamente; sin holdout externo/source-family para despliegue |
+| SDAM/Powell | mejora el lenguaje de decision analytics | `paper4_sequential_decision_schema.json`, `19f-sequential-decision-framework.qmd` | framing CFA/secuencial; no claim DLA ni Bellman optimality |
+
+: Piezas de Paper 4 exportadas al Paper Estrella como evidencia acotada {#tbl-p1-paper4-export}
+
+La lectura editorial es deliberadamente estrecha. F03 sirve como robustness
+extra; F04 defiende la decision de no cambiar del champion economico a CVaR; F05
+vuelve mas honesta la seccion de limitaciones; y SDAM ayuda a explicar que CRPTO
+es una politica CFA parametrica, no una caja negra de decision-focused learning.
+El memo completo queda en
+`docs/research/paper4_to_estrella_export_2026-05-17.md`.
+
 ### Figura conceptual CRPTO
 
 La Figura @fig-p1-crpto-conceptual es la candidata natural para Figura 1 del

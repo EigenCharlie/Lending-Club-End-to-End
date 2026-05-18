@@ -1,9 +1,0 @@
-readiness_gate_v493,ready_v493,evidence_artifact_v493,claim_boundary_v493
-caption_signoff_gap_packet_created,True,paper4_v493_caption_signoff_gap_packet.csv,caption gap packet only
-caption_gate_summary_created,True,paper4_v493_caption_gate_summary.csv,caption gate summary only
-caption_claim_safety_matrix_created,True,paper4_v493_caption_claim_safety_matrix.csv,claim safety matrix only
-signoff_action_register_created,True,paper4_v493_signoff_action_register.csv,action register only
-ready_for_quarto_patch,False,caption signoff and patch approval missing,patch remains blocked
-book_sources_or_references_modified,False,book sources unchanged,no Quarto/book mutation in v493
-submission_ready,False,"future approval, patch, render and venue gates",not a submission package
-paper4_final_promotion_created,False,paper4_final_promotion_gate_not_created,Paper Estrella remains protected

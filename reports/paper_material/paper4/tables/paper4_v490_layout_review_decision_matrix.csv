@@ -1,6 +1,0 @@
-decision_id_v490,decision_v490,recommended_v490,patch_allowed_v490,decision_boundary_v490
-accept_layout_audit_for_manual_review,accept_for_manual_review_only,True,False,layout audit passed but review gates remain open
-preserve_no_patch_boundary,keep_book_sources_unchanged,True,False,no explicit patch approval exists
-require_manual_patch_approval,block_until_approval,True,False,manual approval missing
-require_final_caption_signoff,block_until_caption_signoff,True,False,captions remain non-final
-apply_quarto_patch_now,reject_for_v490,False,False,v490 records decision only

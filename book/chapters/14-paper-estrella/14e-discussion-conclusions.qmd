@@ -65,6 +65,11 @@ La version actual todavia enfrenta limites claros que deben ser reconocidos expl
 
 - **Dataset estatico**: Lending Club es un dataset cerrado (2007--2020) que no permite evaluar el comportamiento del sistema ante datos verdaderamente nuevos. Los resultados OOT (2018--2020) simulan un escenario prospectivo, pero no equivalen a un despliegue en produccion con datos en streaming.
 - **Ausencia de conformal online**: el pipeline actual recalibra los intervalos conformales sobre un set de calibracion fijo. En un entorno productivo, seria deseable usar variantes de conformal prediction adaptativa [@gibbs2021aci] que ajusten la cobertura ante distribution shift.
+- **Paper 4 confirma el valor de online como caveat, no como claim**: el
+  laboratorio posterior produjo un proxy de monitoreo online con gates internos
+  utiles, pero sin holdout externo ni source-family validation suficiente para
+  despliegue. Esa evidencia mejora la honestidad del Paper Estrella: online
+  conformal debe quedar como future work y no como resultado operativo actual.
 - **Clase de activo unica**: todos los resultados se obtienen sobre prestamos personales no garantizados. La generalizacion a hipotecas, tarjetas de credito o creditos corporativos requiere validacion especifica, ya que las distribuciones de PD y LGD difieren sustancialmente.
 - **Holgura de la cota teórica**: el @thm-conformal-feasibility establece la correspondencia formal entre $\alpha$ y la garantía de factibilidad del portafolio, pero la cota es Markov-tight (la mejor posible sin supuestos distribucionales adicionales). El cierre bound-aware la vuelve mucho más útil empíricamente, pero no elimina su conservadurismo teórico. El @lem-conditional-tightening agrega el tightening Hoeffding/Bernstein bajo independencia condicional; aun así, debe leerse como resultado **condicional** y no como reemplazo del teorema principal.
 - **Seleccion conformal aun no entrenada decision-aware**: la variante conformal promovida se eligio por cobertura, ancho, cobertura minima de grupo y Winkler, y la politica bound-aware se selecciono despues sobre la frontera robusta. La auditoria P1 ya agrega un selector tipo CROMS sobre finalists existentes (@tbl-p1-p1-decision-aware-selector) y evaluacion exacta para ranks 1--3 (@tbl-p1-p1-finalist-exact-eval), pero una extension mas ambiciosa sigue siendo entrenar o calibrar el score conformal usando directamente riesgo decisional, retorno robusto, `V`, `gamma_cp` y violacion.
@@ -96,6 +101,24 @@ La hoja de ruta queda entonces ordenada por dependencia, no por entusiasmo bibli
 | P2 | conformal online y DFL online | UP-OCP [@liu2026portfolio], Online DFL [@capitaine2026online] | recalibracion secuencial bajo drift y originacion continua |
 
 : Roadmap journal priorizado para CRPTO {#tbl-p1-journal-roadmap}
+
+### Cierre del loop Paper 4 hacia Paper Estrella {#sec-p1-paper4-export-closure}
+
+El laboratorio Paper 4 produjo mucho mas material del que conviene llevar al
+paper oficial. El cierre editorial del 2026-05-17 conserva solo cuatro piezas:
+
+- el replay dinamico F03 como robustez adicional del champion;
+- el resultado F04 de CVaR/OCE como razon para no reemplazar el economic
+  champion por un challenger de cola;
+- el caveat F05 de online conformal como limitacion y future work;
+- el framing Powell/SDAM como lenguaje teorico para explicar CRPTO como una
+  politica CFA parametrica.
+
+El resto del loop v490--v526 se retira porque era procedural: outcomes, signoff,
+asignaciones, recordatorios y dispatch evidence sin nueva evidencia cientifica.
+Ese material no debe entrar al Paper Estrella. La frontera queda asi: Paper
+Estrella absorbe robustez/framing; Paper 4 conserva la historia del lab; ningun
+hallazgo de Paper 4 reemplaza el champion oficial ni crea un claim de despliegue.
 
 ### Reproducibility appendix
 

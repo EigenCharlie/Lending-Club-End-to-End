@@ -1,7 +1,0 @@
-dispatch_requirement_followup_id_v524,requirement_active_v524,dispatch_evidence_required_v524,dispatch_evidence_received_v524,dispatch_requirement_gap_open_v524,required_evidence_v524,claim_boundary_v524
-dispatch_delivery_trace,True,True,False,True,externally verifiable dispatch delivery trace,dispatch evidence requirement follow-up audit only
-dispatch_timestamp,True,True,False,True,timestamp for manual owner request delivery,dispatch evidence requirement follow-up audit only
-dispatch_recipient_owner,True,True,False,True,manual owner recipient or ownership evidence,dispatch evidence requirement follow-up audit only
-request_payload_snapshot,True,True,False,True,snapshot or checksum of the dispatched request payload,dispatch evidence requirement follow-up audit only
-manual_owner_acknowledgement,True,True,False,True,manual owner acknowledgement or response trace,dispatch evidence requirement follow-up audit only
-chain_of_custody_note,True,True,False,True,chain-of-custody note for dispatch evidence,dispatch evidence requirement follow-up audit only

@@ -1,7 +1,0 @@
-preflight_item_v491,source_status_v491,preflight_pass_v491,blocks_patch_v491,required_next_action_v491
-layout_audit_status,passed,True,False,carry v489 status into patch preflight
-manual_review_queue,created_pending_review,True,False,review target surfaces before any patch
-manual_patch_approval,missing,False,True,obtain explicit approval before mutation
-final_caption_signoff,missing,False,True,finalize captions before mutation
-post_patch_render_gate,deferred,False,True,run render only after patch exists
-final_promotion_gate,forbidden,False,True,keep Paper Estrella boundary active

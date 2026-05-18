@@ -1,7 +1,0 @@
-input_request_control_id_v512,control_active_v512,blocks_input_receipt_v512,control_result_v512
-no_candidate_identifier_received,True,True,candidate identifiers remain unreceived
-no_nomination_fields_received,True,True,nomination fields remain unreceived
-no_nomination_signoff_received,True,True,nomination signoff remains unreceived
-no_evidence_received,True,True,supporting evidence remains unreceived
-eligibility_review_blocked,True,False,eligibility review remains blocked
-no_final_promotion,True,False,final promotion artifact remains absent

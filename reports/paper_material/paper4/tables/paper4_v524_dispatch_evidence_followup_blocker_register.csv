@@ -1,7 +1,0 @@
-dispatch_evidence_followup_blocker_id_v524,blocker_open_v524,blocks_dispatch_evidence_followup_completion_v524,required_resolution_v524
-dispatch_evidence_absent_after_request,True,True,receive externally verifiable dispatch evidence
-delivery_trace_absent_after_request,True,True,receive dispatch delivery trace
-timestamp_absent_after_request,True,True,receive dispatch timestamp
-manual_owner_ack_absent_after_request,True,True,receive manual owner acknowledgement
-human_response_absent_after_dispatch_evidence_request,True,True,receive manual owner or human response
-no_final_promotion,True,False,keep Paper Estrella protection active
