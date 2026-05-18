@@ -5,7 +5,14 @@ page-layout: article
 
 ## Aprobación de Model Risk Management {#sec-p1-mrm-approval}
 
-La diferencia editorial clave entre CRPTO y los métodos decision-focused puros (SPO+, end-to-end DFL) es que CRPTO está **construido para pasar una auditoría de Model Risk Management** según el marco SR 11-7 de la Reserva Federal [@sr117] y la agenda reciente de gobernanza para ML credit underwriting [@finreglab2023_ml_credit]. Esta página documenta los gates aplicados al champion oficial y muestra los cuatro subsistemas pasando simultáneamente — la firma operativa de un sistema desplegable, no un modelo de paper aislado.
+La diferencia editorial clave entre CRPTO y los métodos decision-focused puros
+(SPO+, end-to-end DFL) es que CRPTO está **construido para producir evidencia
+compatible con Model Risk Management** según el marco SR 11-7 de la Reserva
+Federal [@sr117] y la agenda reciente de gobernanza para ML credit underwriting
+[@finreglab2023_ml_credit]. Esta página documenta los gates aplicados al
+champion oficial y muestra los cuatro subsistemas pasando simultáneamente:
+controles *deployment-oriented*, un pipeline *audit-ready* y evidencia
+MRM-compatible, no una afirmación de producción real.
 
 ```{python}
 #| label: p1-mrm-setup
@@ -70,7 +77,13 @@ pd.DataFrame(
 ::: {.callout-note}
 ## Cómo se conectan estos triggers con el cierre del proyecto
 
-El bound conformal que vive en el LP robusto (cobertura 90% nominal) no es estático: si en producción la cobertura realizada cayera más de 2 puntos porcentuales (`coverage_degradation_threshold = 0.02`), el sistema activa retraining. Eso convierte la garantía conformal teórica en un **mecanismo operativo de mantenimiento** y conecta directamente con el future work de online conformal (UP-OCP, ACI) que se discute en @sec-estrella-future.
+El bound conformal que vive en el LP robusto (cobertura 90% nominal) no es
+estático: si este pipeline se llevara a operación y la cobertura realizada
+cayera más de 2 puntos porcentuales (`coverage_degradation_threshold = 0.02`),
+la política de gobernanza dispararía retraining. Eso convierte la garantía
+conformal teórica en un **control operativo de mantenimiento** y conecta
+directamente con el future work de online conformal (UP-OCP, ACI) que se discute
+en @sec-estrella-future.
 :::
 
 ### Criterios de challenger: cuándo se permite reemplazar al champion
@@ -151,13 +164,23 @@ pd.DataFrame(
 
 ### Por qué la auditoría MRM importa para el argumento del paper
 
-Un revisor que viene del lado de operations research tiende a leer "auditabilidad" como un soft claim. La diferencia operativa, sin embargo, es muy concreta. SPO+ entrenado end-to-end produce una red neuronal cuya decisión es un input no-lineal de los costos predichos: para auditar la decisión, hay que auditar la red. Esa auditoría es difícil porque:
+Un revisor que viene del lado de operations research tiende a leer
+"auditabilidad" como un soft claim. La diferencia metodológica, sin embargo, es
+concreta. SPO+ entrenado end-to-end produce una red neuronal cuya decisión es un
+input no-lineal de los costos predichos: para auditar la decisión, hay que
+auditar la red. Esa auditoría es difícil porque:
 
 - **No hay garantía de que un cambio pequeño en el costo verdadero produzca un cambio pequeño en la decisión** (la red puede tener regiones de decisión irregulares).
 - **No hay forma de separar "el modelo aprendió la distribución de costos" de "el modelo aprendió un atajo correlacional"** sin tests adversariales costosos.
 - **Las restricciones monotónicas, fairness y triggers de retraining tienen que reaplicarse manualmente**, porque la red no las preserva por construcción.
 
-CRPTO, en cambio, expone cada pieza al auditor por separado: la PD calibrada se auditea con los tests de calibración (KS/Kuiper/ECE), la cobertura conformal se verifica empíricamente, el LP robusto es un programa lineal cuya factibilidad se puede inspeccionar fila por fila, y el funded set se audita por fairness directamente. Cada subsistema es individualmente vetable y individualmente reproducible. Eso es lo que `compliance_summary.n_passing = 4` significa operativamente.
+CRPTO, en cambio, expone cada pieza al auditor por separado: la PD calibrada se
+auditea con los tests de calibración (KS/Kuiper/ECE), la cobertura conformal se
+verifica empíricamente, el LP robusto es un programa lineal cuya factibilidad se
+puede inspeccionar fila por fila, y el funded set se audita por fairness
+directamente. Cada subsistema es individualmente vetable y reproducible. Eso es
+lo que `compliance_summary.n_passing = 4` significa como evidencia
+MRM-compatible.
 
 ### Reproducibilidad
 

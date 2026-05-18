@@ -438,7 +438,7 @@ El test set OOT (2018--2020) contiene un cambio de régimen natural: la tasa de 
 : Estabilidad CRPTO vs SPO+ bajo distributional shift (5 seeds, $n_{items}=50$, $budget=15$) {#tbl-p1-stability}
 
 ::: {.column-page}
-![Estabilidad bajo distributional shift: Panel A muestra el regret de decisión por periodo para tres métodos (two-stage, SPO+, CRPTO); Panel B muestra la cobertura conformal 90% y el ancho medio del intervalo. La cobertura se mantiene por encima del target 90% en todos los periodos, incluyendo el quiebre de régimen COVID (2020).](../../assets/figures/publication/estrella_fig11_crpto_stability.png){#fig-p1-shift-stability fig-alt=”Estabilidad CRPTO vs SPO+ bajo distributional shift: regret por periodo y cobertura conformal.”}
+![Estabilidad bajo distributional shift: Panel A muestra el regret de decisión por periodo para tres métodos (two-stage, SPO+, CRPTO); Panel B muestra la cobertura conformal 90% y el ancho medio del intervalo. La cobertura se mantiene por encima del target 90% en todos los periodos, incluyendo el quiebre de régimen COVID (2020).](../../assets/figures/publication/estrella_fig11_crpto_stability.png){#fig-p1-shift-stability fig-alt="Estabilidad CRPTO vs SPO+ bajo distributional shift: regret por periodo y cobertura conformal."}
 :::
 
 ::: {.callout-note}

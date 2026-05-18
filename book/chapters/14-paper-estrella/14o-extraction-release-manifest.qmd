@@ -24,7 +24,7 @@ La contribución central sigue siendo la misma: **CRPTO post-hoc auditable con e
 | Banco de respuestas por venue | No | Implementado aquí | Ayuda a escribir y responder reviewers sin tocar artefactos. |
 | Release checklist con DVC/DagsHub/Quarto/tests | No | Implementado aquí | Formaliza reproducibilidad ya existente. |
 | Decisión de companion URL | No | Implementado aquí | Declara que Quarto es la superficie primaria y Streamlit queda opcional. |
-| Scaffold standalone del paper | No, pero es prematuro | Diferido | Conviene crearlo cuando elijamos venue y formato. |
+| Scaffold standalone del paper | No | Implementado | `papers/paper1_estrella/paper_estrella_manuscript.qmd` extrae estructura sin reabrir evidencia. |
 | Protocolo prospectivo pre-declarado | No para la tesis, sí para evidencia journal | Backlog | Requiere nuevo run o una regla declarada antes de buscar. |
 | Dataset externo | No cambia CRPTO, pero agrega evidencia nueva | Backlog | Necesita fuente externa comparable. |
 | Bound dependence-aware | Fortalece teoría, puede cambiar énfasis OR | Backlog | Requiere prueba nueva; Markov sigue como claim principal. |
@@ -155,6 +155,38 @@ Superficies de companion y regla de uso.
 ## Decisión actual
 
 Mientras el capítulo 14 siga funcionando como repositorio editorial amplio, el companion oficial es **Quarto + DVC/DagsHub/MLflow**. Streamlit puede volver como producto o visualización para comité, pero no debe arrastrar claims, métricas ni números que no estén sincronizados con `models/final_project_promotion.json`.
+:::
+
+### Source pack hygiene
+
+El paquete bibliográfico queda separado por rol editorial para evitar que la
+frontera de future work contamine el claim central del Paper Estrella.
+
+::: {#tbl-p1-source-pack-hygiene}
+
+| Paquete | Carpeta | Rol | Regla de uso |
+|---|---|---|---|
+| Core Paper Estrella | `C:/Users/carlos/Documents/Paper_CRPTO/Papers_tesis/` | Referencias principales para CRPTO, CP/RO, SPO+, fairness y fintech credit. | Pueden aparecer en cuerpo, related work o appendix según el manifest. |
+| Shared future work | `C:/Users/carlos/Documents/Paper_CRPTO/Papers_tesis/shared_future_work/` | Online CP, online DFL, conformal risk training y calibración end-to-end. | Citar solo como frontera futura; no cambiar champion ni método actual. |
+| Paper 4 / lab largo plazo | `C:/Users/carlos/Documents/Claude Code/lending-club-risk-project/Paper 4/` | Causalidad, IFRS9, multi-source conformal, differentiable optimization y libros Powell/SDAM. | Usar para Paper 4, appendices o framing; Paper Estrella absorbe solo lo que fortalece CRPTO sin reabrir búsqueda. |
+| Fuentes faltantes o reemplazables | `zhang2018_fair_proxy` pendiente de PDF legible | Fair-lending proxy boundary. | Mantener caveat proxy; conseguir PDF o apoyar la sección en CFPB/FinRegLab si no aparece. |
+
+Source pack hygiene para mantener separadas referencias centrales, future work y laboratorio Paper 4.
+:::
+
+Los dos libros de Powell quedaron correctamente en el paquete Paper 4 porque su
+uso principal es de framing SDAM/sequential analytics. Paper Estrella los usa
+solo para clasificar CRPTO como una política CFA uniperiodo y para nombrar la
+extensión secuencial; no los convierte en un claim DLA ni en evidencia de
+despliegue online.
+
+::: {.callout-warning}
+## What CRPTO Does Not Claim
+
+CRPTO no reclama dominar SPO+ en regret, no implementa conformal online, no es
+un modelo IFRS9 contractual, no certifica fair lending legal sobre atributos
+protegidos directos y no prueba cobertura condicional perfecta. Estas fronteras
+deben mantenerse visibles en cualquier extracción del manuscrito.
 :::
 
 ### Release checklist para congelar una versión paper-facing

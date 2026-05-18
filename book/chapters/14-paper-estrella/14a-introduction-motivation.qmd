@@ -12,6 +12,25 @@ Segundo, la optimizacion robusta clasica de [@bertsimas2004] introduce conjuntos
 
 Tercero, la prediccion conformal, establecida formalmente por [@vovk2005] y popularizada por la introduccion pedagogica de [@angelopoulos2023], ofrece intervalos de prediccion con garantias de cobertura finita y distribution-free, bajo la unica condicion de intercambiabilidad. La literatura mas cercana al tipo de garantia que usa este paper ya no se limita a cobertura clasica: [@bates2021rcps] y [@angelopoulos2025ltt] introducen marcos de *risk control* distribution-free; [@angelopoulos2024risk] extiende esa idea a riesgos monotónicos con una garantía en esperanza; [@barber2021_limits_conditional] fija la frontera que impide vender cobertura condicional exacta sin supuestos adicionales; y [@johnstone2021] junto con [@patel2024] comienzan a conectar conjuntos conformales con optimizacion robusta. Trabajos recientes como CROMS [@bao2025croms], conformal robust optimization and satisficing [@zhao2025robust], calibración conformal end-to-end [@yeh2026] y conformal prediction robusta multi-distribución [@yang2026multidistribution] refuerzan que la pregunta ya es decision-aware, no solo predictiva. El trabajo mas directamente comparable es *Predict-then-Calibrate* [@sun2024ptc], que propone separar explicitamente la prediccion de la calibracion de incertidumbre para LP contextuales robustos; su garantia de cobertura sandwiched ($\alpha \leq \mathbb{P}(c \in \mathcal{U}) \leq \alpha + 1/(T+1)$) aplica al vector de costos, pero no se instancia en una restriccion de portafolio ponderada ni incorpora cobertura grupo-condicional. No obstante, estas contribuciones operan en dominios genericos, en tareas de vision/NLP, shortest path o portafolios de equity, sin conexion directa con credito minorista real.
 
+### Vecinos metodologicos mas cercanos {#sec-estrella-nearest-neighbors}
+
+La tabla siguiente resume la frontera inmediata del paper. Su función no es
+inventariar toda la literatura, sino ubicar el espacio exacto donde CRPTO aporta:
+entre optimizacion robusta clasica, conjuntos conformales para decision y
+decision-focused learning.
+
+| Vecino | Qué aporta | Límite frente al claim CRPTO | Uso en el paper |
+|---|---|---|---|
+| Bertsimas-Sim / price of robustness [@bertsimas2004] | Presupuesto de robustez y costo de protección. | El tamaño del conjunto se fija por diseño; no nace de cobertura conformal. | Lenguaje para interpretar `Gamma_CP` y costo de robustez. |
+| Johnstone-Cox [@johnstone2021] | Conjuntos conformales para robust optimization. | Puente general CP -> RO, sin funded set ponderado ni aplicación a crédito. | Antecedente técnico directo. |
+| Patel et al. [@patel2024] | Conformal contextual robust optimization. | Optimización contextual genérica; no resuelve governance, fair lending ni región robusta crediticia. | Vecino reciente más cercano en CP + RO. |
+| Predict-then-Calibrate [@sun2024ptc] | Calibración post-hoc para LP contextuales robustos. | Cubre el vector de costos; no instancia una restricción de PD ponderada del portafolio. | Comparador conceptual principal. |
+| SPO+ / DFL [@elmachtoub2022; @mandi2024] | Entrena para reducir regret de decisión. | No entrega cobertura auditable ni protección conformal de cola. | Comparador de regret, no sustituto del claim. |
+| CROMS [@bao2025croms] | Selección de modelos conformalizados con criterio decision-aware. | Sirve como extensión; el paper actual solo hace screen sobre finalists existentes. | Motiva future work y selector P1. |
+| CRPTO | PD calibrada -> intervalo conformal -> LP robusto -> funded set auditable. | Post-hoc y uniperiodo; no es todavía online ni end-to-end. | Contribución central. |
+
+: Vecinos metodologicos que delimitan la contribución CRPTO {#tbl-p1-nearest-neighbors}
+
 ### Brecha en la literatura {#sec-estrella-gap}
 
 La curaduria de `docs/PAPER_REFERENCES_STATE_OF_ART.md` muestra un panorama sugerente:
@@ -51,6 +70,16 @@ El paper *no* cubre: una demostracion distribution-free mas fuerte que Markov pa
 ## Alcance honesto del claim
 
 El paper actual es fuerte como **CRPTO post-hoc auditable**: toma una PD calibrada, construye intervalos conformales, los usa como conjunto de incertidumbre y promueve una policy económica dentro de una región exacta. No afirma todavía que toda la selección conformal sea end-to-end decision-aware ni que el bound post-selección sea más fuerte que el resultado distribution-free documentado en @sec-alpha-gamma-bound.
+:::
+
+::: {.callout-warning}
+## What CRPTO Does Not Claim
+
+CRPTO no reclama dominar a SPO+ en regret, no es un sistema online, no es un
+modelo IFRS9 contractual, no certifica fair lending legal sobre atributos
+protegidos directos y no prueba cobertura condicional perfecta. Su claim es más
+estrecho y más defendible: convertir incertidumbre conformal en una restricción
+robusta auditable para una decisión de portafolio uniperiodo.
 :::
 
 ### Contribuciones del paper

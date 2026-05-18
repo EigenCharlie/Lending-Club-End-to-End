@@ -1,0 +1,161 @@
+---
+title: "Conformal Robust Predict-then-Optimize for Auditable Credit Portfolio Decisions"
+subtitle: "Paper Estrella Manuscript Extraction Scaffold"
+date: "2026-05-18"
+bibliography: ../../book/references.bib
+format:
+  html:
+    toc: true
+    number-sections: true
+execute:
+  eval: false
+  echo: false
+---
+
+::: {.callout-note}
+## Purpose
+
+This file is a manuscript extraction scaffold, not a new experimental surface.
+It compresses the chapter-14 dossier into a paper-ready structure while keeping
+all official numbers anchored to `models/final_project_promotion.json` and the
+canonical Paper Estrella tables under `reports/paper_material/paper1/tables/`.
+:::
+
+## Abstract
+
+We study credit portfolio selection when default probabilities are calibrated
+but decision uncertainty remains material. We propose Conformal Robust
+Predict-then-Optimize (CRPTO), a post-hoc auditable framework that maps Mondrian
+conformal prediction intervals into robust portfolio constraints. On the
+out-of-time Lending Club evaluation, the promoted economic policy earns
+`$170.5K` while passing the exact `alpha=0.01` funded-set bound
+(`V=0.03645`, `Gamma_CP=0.18591`, zero violation). The contribution is not a
+higher AUC leaderboard result, but a reproducible bridge from calibrated
+probabilistic learning to auditable robust credit decisions.
+
+## 1. Introduction
+
+**Source in book:** `book/chapters/14-paper-estrella/14a-introduction-motivation.qmd`.
+
+Core claim: predictive uncertainty should not remain a diagnostic appendix; it
+can become an explicit robust optimization input. The introduction should keep
+three contributions visible:
+
+1. CRPTO maps calibrated PD, Mondrian conformal intervals and robust portfolio
+   optimization into one auditable pipeline.
+2. The final policy is an economic champion inside an exact robust region, not a
+   theorem-tight point selected for aesthetics.
+3. The paper trades regret optimality for coverage, traceability and governance.
+
+## 2. Related Work
+
+Use a compact nearest-neighbor structure rather than a broad survey.
+
+| Neighbor | Paper role |
+|---|---|
+| Robust optimization and price of robustness [@bertsimas2004] | Budget-of-robustness language. |
+| Conformal uncertainty sets [@johnstone2021; @patel2024] | Closest CP-to-RO lineage. |
+| Risk control / LTT / CRC [@bates2021rcps; @angelopoulos2025ltt; @angelopoulos2024risk] | Distribution-free risk-control language. |
+| Predict-then-Calibrate [@sun2024ptc] | Closest post-hoc calibration comparator. |
+| SPO+ / DFL [@elmachtoub2022; @mandi2024] | Regret comparator, not an auditability substitute. |
+| CROMS / end-to-end conformal / online CP [@bao2025croms; @yeh2026; @liu2026portfolio] | Future work boundary. |
+
+## 3. Method
+
+**Source in book:** `14b-theoretical-framework.qmd` and
+`14c-methodology.qmd`.
+
+Minimal method sequence:
+
+1. Calibrated PD model: CatBoost + Venn-Abers.
+2. Mondrian conformal interval: `score_decile_mondrian` winner.
+3. Conformal upper bound: `u_i(alpha)`.
+4. Robust LP: maximize realized/economic return under budget and weighted risk
+   constraints.
+5. Policy promotion: economic champion selected inside exact robust region.
+
+## 4. Theory
+
+Keep Markov as the distribution-free claim. Present Hoeffding/Bernstein only as
+conditional tightening under additional independence assumptions.
+
+Key objects:
+
+- `Gamma_CP`: funded-set weighted conformal premium.
+- `V`: funded-set weighted miscoverage.
+- `violation`: excess over the robust portfolio constraint.
+
+Do not claim that post-selection exact evaluation is a stronger conformal
+guarantee. It is empirical confirmation of the promoted policy.
+
+## 5. Experimental Design
+
+**Source in book:** `14c-methodology.qmd`, `14n-artifact-traceability.qmd`.
+
+Use these canonical artifacts:
+
+- `models/final_project_promotion.json`
+- `models/champion_portfolio_policy.json`
+- `reports/paper_material/paper1/tables/paper1_table0_key_metrics.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA3_nested_holdout.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA9_strict_temporal_holdout.csv`
+- `reports/paper_material/paper1/tables/paper1_tableA18_robust_region_policy_family.csv`
+
+## 6. Results
+
+**Core tables/figures for the paper body:**
+
+| Element | Artifact | Role |
+|---|---|---|
+| Table 1 | `paper1_table0_key_metrics.csv` | PD, CP and portfolio metrics. |
+| Table 2 | `paper1_table1_robustness_summary.csv` | Champion and comparators. |
+| Figure 1 | `estrella_fig12_crpto_conceptual_pipeline.png` | Method in one view. |
+| Figure 2 | `estrella_fig13_alpha_gamma_funded_set.png` | Alpha, `Gamma_CP`, `V` and funded-set size. |
+| Figure 3 | `estrella_fig14_robust_region_heatmap.png` | Robust region, not single-point luck. |
+
+Body result message: the promoted economic policy is not the tightest possible
+policy, but it is the best-return policy inside an exact robust region.
+
+## 7. Robustness and Governance
+
+Appendix/supplement candidates:
+
+- P1 nested holdout and strict temporal holdout.
+- Mondrian ablation.
+- SPO+ protocol and regret comparator.
+- Fair-lending proxy/intersectional checkpoint.
+- MRM-compatible evidence.
+- Funded-set composition.
+- A12--A18 journal robustness package.
+
+## 8. Discussion
+
+Preserve the paper boundary:
+
+- IFRS9/SICR is an operational connection, not a central contribution.
+- CATE/pricing is a separate future paper.
+- Online conformal and online DFL are future work, not current deployment.
+- OCE/CVaR is currently a diagnostic/tail-risk appendix, not a new objective.
+
+::: {.callout-warning}
+## What CRPTO Does Not Claim
+
+CRPTO does not dominate SPO+ in regret, does not implement online conformal
+learning, is not an IFRS9 contractual model, does not certify legal fair lending
+on protected attributes, and does not prove perfect conditional coverage.
+:::
+
+## Reproducibility Checklist
+
+Before converting this scaffold into a submission manuscript:
+
+```bash
+uv run pytest tests/test_docs/test_paper_estrella_final_sync.py
+uv run pytest tests/test_docs/test_quarto_book_guardrails.py
+uv run python scripts/export_paper1_canonical_tables.py
+uv run python scripts/build_paper1_journal_package.py
+```
+
+Then render the relevant Quarto chapter or standalone manuscript. If any table
+or figure conflicts with `models/final_project_promotion.json`, the promotion
+file wins.
