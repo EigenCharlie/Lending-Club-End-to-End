@@ -21,13 +21,15 @@ import duckdb
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier, HistGradientBoostingRegressor
+from sklearn.isotonic import IsotonicRegression
 from sklearn.linear_model import Ridge
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import brier_score_loss, mean_absolute_error, roc_auc_score
 from sklearn.model_selection import train_test_split
 
 REPO = Path(__file__).resolve().parents[2]
 CLEANED = REPO / "data" / "interim" / "lending_club_cleaned.parquet"
 RAW = REPO / "data" / "raw" / "Loan_status_2007-2020Q3.csv"
+TEST_PREDICTIONS = REPO / "data" / "processed" / "test_predictions.parquet"
 TABLE_DIR = REPO / "reports" / "paper_material" / "paper4" / "tables"
 NOTE_DIR = REPO / "reports" / "paper_material" / "paper4" / "notes"
 DOC_DIR = REPO / "docs" / "research"
@@ -43,6 +45,8 @@ LANES = (
     "dla_adp",
     "spo_dfl",
 )
+OPTIONAL_LANES = ("metric_governance",)
+KNOWN_LANES = LANES + OPTIONAL_LANES
 
 
 @dataclass(frozen=True)
@@ -107,6 +111,31 @@ def _sample(df: pd.DataFrame, n: int, seed: int = 20260518) -> pd.DataFrame:
     if len(df) <= n:
         return df.copy()
     return df.sample(n=n, random_state=seed).copy()
+
+
+def _ece(y_true: pd.Series, y_prob: pd.Series, bins: int = 10) -> float:
+    frame = pd.DataFrame({"y": y_true, "p": y_prob}).dropna()
+    frame = frame[(frame["p"] >= 0) & (frame["p"] <= 1)]
+    if frame.empty:
+        return math.nan
+    frame["bin"] = pd.cut(frame["p"], np.linspace(0, 1, bins + 1), include_lowest=True)
+    agg = frame.groupby("bin", observed=True).agg(
+        n=("y", "size"), y_rate=("y", "mean"), p_mean=("p", "mean")
+    )
+    return float(((agg["n"] / agg["n"].sum()) * (agg["y_rate"] - agg["p_mean"]).abs()).sum())
+
+
+def _band_mae(y_true: pd.Series, score: pd.Series, bins: int = 10) -> float:
+    frame = pd.DataFrame({"y": y_true, "score": score}).dropna()
+    if frame["score"].nunique() < 2:
+        return math.nan
+    frame["band"] = pd.qcut(
+        frame["score"].rank(method="first"), q=bins, labels=False, duplicates="drop"
+    )
+    agg = frame.groupby("band", observed=True).agg(
+        y_rate=("y", "mean"), score_mean=("score", "mean")
+    )
+    return float((agg["y_rate"] - agg["score_mean"]).abs().mean())
 
 
 def build_base(scratch: Path, refresh: bool = False) -> Path:
@@ -937,6 +966,165 @@ def run_spo_dfl(base_path: Path, env_python: Path | None = None) -> LaneResult:
     )
 
 
+def run_metric_governance(_: Path | None = None) -> LaneResult:
+    """Compare the calibrated champion PD against an origin-time FICO proxy."""
+
+    clean_cols = [
+        "id",
+        "issue_d",
+        "fico_range_low",
+        "fico_range_high",
+        "grade",
+        "annual_inc",
+        "dti",
+        "home_ownership",
+        "mort_acc",
+        "total_acc",
+        "addr_state",
+        "zip_code",
+    ]
+    clean = pd.read_parquet(CLEANED, columns=clean_cols)
+    pred = pd.read_parquet(TEST_PREDICTIONS, columns=["loan_id", "y_true", "pd_calibrated"])
+    clean["loan_id"] = clean["id"].astype(str)
+    pred["loan_id"] = pred["loan_id"].astype(str)
+    df = pred.merge(clean.drop(columns=["id"]), on="loan_id", how="left")
+    df["issue_date"] = pd.to_datetime(df["issue_d"], format="%b-%Y", errors="coerce")
+    df["fico_mid"] = (_safe_num(df["fico_range_low"]) + _safe_num(df["fico_range_high"])) / 2
+    df["fico_risk_score"] = -df["fico_mid"]
+    df["annual_inc"] = _safe_num(df["annual_inc"])
+    df["dti"] = _safe_num(df["dti"])
+    df["mort_acc"] = _safe_num(df["mort_acc"])
+    df["total_acc"] = _safe_num(df["total_acc"])
+    df = df.dropna(subset=["y_true", "pd_calibrated", "fico_mid", "issue_date"]).copy()
+    df["y_true"] = df["y_true"].astype(int)
+
+    cutoff = df["issue_date"].quantile(0.60)
+    cal = df[df["issue_date"] <= cutoff].copy()
+    eval_df = df[df["issue_date"] > cutoff].copy()
+    iso = IsotonicRegression(increasing=True, out_of_bounds="clip")
+    iso.fit(cal["fico_risk_score"], cal["y_true"])
+    eval_df["fico_pd_iso"] = iso.predict(eval_df["fico_risk_score"])
+
+    auc_champion = roc_auc_score(eval_df["y_true"], eval_df["pd_calibrated"])
+    auc_fico = roc_auc_score(eval_df["y_true"], eval_df["fico_risk_score"])
+    brier_champion = brier_score_loss(eval_df["y_true"], eval_df["pd_calibrated"])
+    brier_fico = brier_score_loss(eval_df["y_true"], eval_df["fico_pd_iso"])
+    ece_champion = _ece(eval_df["y_true"], eval_df["pd_calibrated"])
+    ece_fico = _ece(eval_df["y_true"], eval_df["fico_pd_iso"])
+    band_mae_champion = _band_mae(eval_df["y_true"], eval_df["pd_calibrated"])
+    band_mae_fico = _band_mae(eval_df["y_true"], eval_df["fico_pd_iso"])
+
+    eval_df["champion_percentile"] = eval_df["pd_calibrated"].rank(pct=True)
+    eval_df["fico_percentile"] = eval_df["fico_risk_score"].rank(pct=True)
+    eval_df["rank_difference"] = eval_df["champion_percentile"] - eval_df["fico_percentile"]
+    rank_shift_share = float((eval_df["rank_difference"].abs() >= 0.20).mean())
+
+    rows: list[dict[str, Any]] = []
+
+    def add_metric(metric: str, champion: float, fico: float, interpretation: str) -> None:
+        rows.append(
+            {
+                "section": "global_eval_split",
+                "subgroup": "all_oot_latest_40pct",
+                "n": int(len(eval_df)),
+                "metric": metric,
+                "champion_value": round(float(champion), 6),
+                "fico_value": round(float(fico), 6),
+                "delta_champion_minus_fico": round(float(champion - fico), 6),
+                "interpretation": interpretation,
+            }
+        )
+
+    add_metric("auc", auc_champion, auc_fico, "higher is better")
+    add_metric("gini_somers_d", 2 * auc_champion - 1, 2 * auc_fico - 1, "higher is better")
+    add_metric("brier", brier_champion, brier_fico, "lower is better")
+    add_metric("ece_10bin", ece_champion, ece_fico, "lower is better")
+    add_metric("decile_band_mae", band_mae_champion, band_mae_fico, "lower is better")
+    rows.append(
+        {
+            "section": "rank_difference",
+            "subgroup": "all_oot_latest_40pct",
+            "n": int(len(eval_df)),
+            "metric": "share_abs_rank_shift_ge_20pp",
+            "champion_value": round(rank_shift_share, 6),
+            "fico_value": math.nan,
+            "delta_champion_minus_fico": math.nan,
+            "interpretation": "share of loans materially reordered by champion versus FICO proxy",
+        }
+    )
+
+    slice_specs: list[tuple[str, pd.Series]] = [
+        ("income_q1", eval_df["annual_inc"] <= eval_df["annual_inc"].quantile(0.20)),
+        ("income_q5", eval_df["annual_inc"] >= eval_df["annual_inc"].quantile(0.80)),
+        ("dti_q5", eval_df["dti"] >= eval_df["dti"].quantile(0.80)),
+        ("no_mortgage", eval_df["mort_acc"].fillna(0) <= 0),
+        ("thin_file_total_acc_le_10", eval_df["total_acc"].fillna(999) <= 10),
+    ]
+    for grade in sorted(eval_df["grade"].dropna().astype(str).unique()):
+        slice_specs.append((f"grade_{grade}", eval_df["grade"].astype(str).eq(grade)))
+
+    for subgroup, mask in slice_specs:
+        part = eval_df[mask].copy()
+        if len(part) < 500 or part["y_true"].nunique() < 2:
+            continue
+        auc_c = roc_auc_score(part["y_true"], part["pd_calibrated"])
+        auc_f = roc_auc_score(part["y_true"], part["fico_risk_score"])
+        brier_c = brier_score_loss(part["y_true"], part["pd_calibrated"])
+        brier_f = brier_score_loss(part["y_true"], part["fico_pd_iso"])
+        rows.append(
+            {
+                "section": "slice_eval",
+                "subgroup": subgroup,
+                "n": int(len(part)),
+                "metric": "auc",
+                "champion_value": round(float(auc_c), 6),
+                "fico_value": round(float(auc_f), 6),
+                "delta_champion_minus_fico": round(float(auc_c - auc_f), 6),
+                "interpretation": "higher is better; subgroup diagnostic only",
+            }
+        )
+        rows.append(
+            {
+                "section": "slice_eval",
+                "subgroup": subgroup,
+                "n": int(len(part)),
+                "metric": "brier",
+                "champion_value": round(float(brier_c), 6),
+                "fico_value": round(float(brier_f), 6),
+                "delta_champion_minus_fico": round(float(brier_c - brier_f), 6),
+                "interpretation": "lower is better; subgroup diagnostic only",
+            }
+        )
+
+    table = pd.DataFrame(rows)
+    decision = (
+        "append"
+        if (auc_champion > auc_fico and brier_champion <= brier_fico)
+        else "bounded_experiment"
+    )
+    return LaneResult(
+        lane="metric_governance",
+        decision=decision,
+        paper4_destination="metrics_fico_vs_champion_appendix",
+        paper_estrella_destination="context_only_if_needed",
+        claim=(
+            "Champion PD can be compared against an origin-time FICO proxy only after "
+            "calibration-gated metrics; the result is governance evidence, not a fair-lending claim."
+        ),
+        evidence_gate="AUC/Gini/SomersD plus Brier/ECE and subgroup diagnostics on latest OOT split",
+        stop_rule="Stop after one table; reopen only if a reviewer asks for score-governance evidence.",
+        key_metrics={
+            "eval_n": int(len(eval_df)),
+            "auc_delta": round(float(auc_champion - auc_fico), 6),
+            "brier_delta": round(float(brier_champion - brier_fico), 6),
+            "ece_delta": round(float(ece_champion - ece_fico), 6),
+            "rank_shift_ge_20pp_share": round(rank_shift_share, 6),
+        },
+        caveat="FICO is an origin-time proxy; this is not protected-attribute inference or legal fair-lending evidence.",
+        table=table,
+    )
+
+
 def write_result(result: LaneResult, date_tag: str) -> Path:
     path = TABLE_DIR / f"paper4_frontier_{result.lane}_decision_{date_tag}.csv"
     result.table.to_csv(path, index=False)
@@ -1037,6 +1225,20 @@ def source_log() -> pd.DataFrame:
                 "takeaway": "Differentiable convex layers require DPP-compliant CVXPY problems plus Torch/JAX/MLX.",
                 "use_in": "spo_dfl",
             },
+            {
+                "key": "wuthrich_gini_autocalibration_2023",
+                "status": "peer_reviewed",
+                "url": "https://doi.org/10.1007/s13385-022-00339-9",
+                "takeaway": "Gini/AUC rankings should be interpreted after calibration or auto-calibration checks.",
+                "use_in": "metric_governance",
+            },
+            {
+                "key": "albanesi_vamossy_credit_scores_equity_2024",
+                "status": "working_paper",
+                "url": "https://doi.org/10.3386/w32917",
+                "takeaway": "Credit score comparisons can reveal misclassification and standing changes without becoming legal fair-lending evidence.",
+                "use_in": "metric_governance",
+            },
         ]
     )
 
@@ -1058,6 +1260,13 @@ def write_summary(results: list[LaneResult], date_tag: str) -> tuple[Path, Path]
         rows.append(
             f"| {result.lane} | {result.decision} | {result.paper4_destination} | {metrics} | {result.caveat} |"
         )
+    has_metric = any(result.lane == "metric_governance" for result in results)
+    metric_forward = (
+        "\n- Metric governance can cite the FICO-vs-champion comparison as a "
+        "calibration-gated appendix result; it is not legal fair-lending evidence."
+        if has_metric
+        else ""
+    )
     memo = f"""# Paper 4 Frontier Goal Closure - {date_tag}
 
 ## Decision
@@ -1085,7 +1294,7 @@ and no new `paper4_v###` wave is introduced.
   and tract-level geocoding are absent.
 - DLA/ADP is rollout-only, not exact Bellman optimality.
 - SPO/DFL remains isolated-prototype/oracle-regret evidence and is not integrated
-  into the main CRPTO pipeline.
+  into the main CRPTO pipeline.{metric_forward}
 
 ## Future Work Gate
 
@@ -1102,15 +1311,18 @@ inputs, a reviewer request, or a venue-driven revision that changes the claim.
 def run_lanes(
     lanes: list[str], scratch: Path, date_tag: str, refresh_base: bool
 ) -> list[LaneResult]:
-    base_path = build_base(scratch, refresh=refresh_base)
+    base_path = (
+        build_base(scratch, refresh=refresh_base) if any(lane in LANES for lane in lanes) else None
+    )
     lane_funcs = {
-        "ifrs9_sicr": lambda: run_ifrs9_sicr(base_path),
-        "online_conformal": lambda: run_online_conformal(base_path),
-        "cvar_oce": lambda: run_cvar_oce(base_path),
-        "cate_policy_value": lambda: run_cate_policy_value(base_path),
-        "fair_lending_proxy": lambda: run_fair_lending_proxy(base_path),
-        "dla_adp": lambda: run_dla_adp(base_path),
-        "spo_dfl": lambda: run_spo_dfl(base_path),
+        "ifrs9_sicr": lambda: run_ifrs9_sicr(base_path),  # type: ignore[arg-type]
+        "online_conformal": lambda: run_online_conformal(base_path),  # type: ignore[arg-type]
+        "cvar_oce": lambda: run_cvar_oce(base_path),  # type: ignore[arg-type]
+        "cate_policy_value": lambda: run_cate_policy_value(base_path),  # type: ignore[arg-type]
+        "fair_lending_proxy": lambda: run_fair_lending_proxy(base_path),  # type: ignore[arg-type]
+        "dla_adp": lambda: run_dla_adp(base_path),  # type: ignore[arg-type]
+        "spo_dfl": lambda: run_spo_dfl(base_path),  # type: ignore[arg-type]
+        "metric_governance": lambda: run_metric_governance(None),
     }
     results: list[LaneResult] = []
     for lane in lanes:
@@ -1151,7 +1363,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     lanes = list(LANES) if args.lanes == ["all"] else args.lanes
-    unknown = sorted(set(lanes) - set(LANES))
+    unknown = sorted(set(lanes) - set(KNOWN_LANES))
     if unknown:
         raise SystemExit(f"Unknown lanes: {', '.join(unknown)}")
     TABLE_DIR.mkdir(parents=True, exist_ok=True)

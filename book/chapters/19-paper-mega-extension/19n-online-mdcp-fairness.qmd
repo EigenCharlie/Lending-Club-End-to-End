@@ -39,3 +39,18 @@ Para online conformal, la misma auditoria autoriza solo un experimento acotado:
 source-family holdout retrospectivo por issue-month, grade, state, income/DTI
 bins y zip3, con una lectura MDCP/defended-source. Si no mejora el peor source
 sin inflar demasiado el ancho, el resultado se archiva como limitacion.
+
+## Intake Angelopoulos para online/source
+
+Los repos de Angelopoulos no cambian el claim actual, pero sí ordenan la
+siguiente iteracion acotada:
+
+| Fuente | Uso permitido en Paper 4 | Stop rule |
+|---|---|---|
+| `conformal-risk` | implementar un gate CRC/LTT sobre una perdida monotónica como `V` o violacion | si no cambia append/park de una policy, no se promueve |
+| `conformal-time-series` | prototipar ACI, quantile tracking o PID conformal por `issue_month` | retrospectivo solamente; sin claim de deployment |
+| `Label Noise Robustness` [@einbinder2024_label_noise] | auditar si `default_flag`, charge-off y recovery timing son etiquetas ruidosas de perdida economica | se documenta como data-governance caveat |
+| `Gradient Equilibrium` [@angelopoulos2025_gradient_equilibrium] | futuro de actualizacion post-hoc bajo drift | park hasta tener split prospectivo |
+
+La frontera oficial se mantiene: online/source conformal es una limitacion
+productiva y una ruta experimental, no un resultado desplegado.

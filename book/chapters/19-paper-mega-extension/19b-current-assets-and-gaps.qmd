@@ -18,6 +18,9 @@ page-layout: article
 | F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
 | F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Paper 4 absorbs the useful prudential value of Paper 2: ECL scenarios, conformal SICR, CIF/prepayment, stage-cost governance and TS->ECL context. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
+| F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
 
 ## Boundaries de claims
 
@@ -29,6 +32,8 @@ page-layout: article
 | CVaR/OCE is a serious tail-risk challenger. | True | Tail-governance challenger, not economic champion and not exact full-universe optimum. | 19i-regret-auditability-frontier.qmd |
 | Online conformal coverage is fully deployable under all temporal/source holdouts. | False | Nominal gate passed historically, strict holdouts remain fragile. | 19n-online-mdcp-fairness.qmd |
 | Contractual IFRS9 lifetime ECL is implemented. | False | Only IFRS9-inspired proxy ECL/SICR is allowed. | 19b-current-assets-and-gaps.qmd |
+| Paper 2 remains a required near-term standalone publication. | False | Paper 4 now absorbs the useful Paper 2 prudential evidence; standalone Paper 2 is parked unless better contractual data appears. | 19ca-v38-final-synthesis.qmd |
+| Metric governance shows the champion improves over an origin-time FICO proxy. | True | Calibration-gated score diagnostics only; no legal fair-lending, protected-attribute inference or champion replacement claim. | 19cb-v38-appendix-registers.qmd |
 | Formal differentiable SPO+ is implemented. | False | Oracle-regret/surrogate only until dependencies and validation are resolved. | 19t-multi-period-solver.qmd |
 | CATE policy value is ready for decision selection. | False | Causal diagnostics only; no policy-value claim. | 19b-current-assets-and-gaps.qmd |
 | Fair-lending legal claim is supported. | False | Proxy/source governance only; no protected-attribute legal claim. | 19n-online-mdcp-fairness.qmd |
@@ -68,6 +73,23 @@ olas `paper4_v###`. La evidencia promovida queda en
 | fair lending proxy | append | sirve para source governance; BISG/legal sigue bloqueado |
 | DLA/ADP | append | rollout retenido; exact Bellman sigue falso |
 | SPO/DFL | park | PyEPO/cvxpylayers instalan aislados, pero el oracle gap bloquea integracion |
+
+## Absorcion de Paper 2
+
+Paper 4 ya no usa Paper 2 como dependencia externa. Lo absorbe como modulo
+prudencial `IFRS9-inspired`: ECL por escenarios, bandas conformales, SICR por
+ancho, correccion CIF por prepago, costo de misclasificacion de stages y
+stress temporal a ECL. La tabla de anchors queda en
+`paper4_paper2_absorption_anchors_2026-05-18.csv`.
+
+| componente absorbido | uso permitido en Paper 4 | frontera |
+| --- | --- | --- |
+| ECL y rangos conformales | appendix de propagacion de incertidumbre | no allowance productivo |
+| SICR conformal | trigger complementario de gobernanza | no reemplazo de staging contractual |
+| CIF/prepayment | caveat de lifetime PD | no modelo contractual validado |
+| Stage cost | umbral como decision economica | no regla contable oficial |
+| TS->ECL | stress temporal | no forecast mensual desplegado |
+| Paper 2 separado | parqueado | solo reabrir con datos contractuales mejores o venue explicito |
 
 ## Backlog resumido
 

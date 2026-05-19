@@ -137,7 +137,7 @@ def test_paper4_deep_cleanup_manifest_and_absence() -> None:
 
 def test_paper4_current_boundaries_are_artifact_backed_after_cleanup() -> None:
     boundaries = _read_csv(TABLE_DIR / "paper4_current_claim_boundaries.csv")
-    assert len(boundaries) == 89
+    assert len(boundaries) == 92
 
     cleanup_claims = boundaries[boundaries["claim"].str.contains("deep cleanup", case=False)]
     assert len(cleanup_claims) == 2
@@ -157,6 +157,28 @@ def test_paper4_current_boundaries_are_artifact_backed_after_cleanup() -> None:
     assert {"append", "park"}.issubset(
         set(_read_csv(TABLE_DIR / "paper4_lab4_all_lane_summary_2026-05-18.csv")["decision"])
     )
+
+    paper2_absorption = boundaries[
+        boundaries["evidence_artifact"].eq(
+            "reports/paper_material/paper4/tables/paper4_paper2_absorption_anchors_2026-05-18.csv"
+        )
+    ]
+    assert len(paper2_absorption) == 2
+    assert set(paper2_absorption["allowed"]) == {True, False}
+    anchors = _read_csv(TABLE_DIR / "paper4_paper2_absorption_anchors_2026-05-18.csv")
+    assert len(anchors) == 7
+    assert {"append", "append_strong", "context", "supersede_near_term"}.issubset(
+        set(anchors["decision"])
+    )
+
+    metric_governance = boundaries[
+        boundaries["evidence_artifact"].eq(
+            "reports/paper_material/paper4/tables/paper4_frontier_metric_governance_decision_2026-05-19.csv"
+        )
+    ]
+    assert len(metric_governance) == 1
+    assert set(metric_governance["allowed"]) == {True}
+    assert set(metric_governance["prohibited_claim_flag"]) == {False}
 
     prohibited = boundaries[boundaries["prohibited_claim_flag"].eq(True)]
     assert not prohibited.empty

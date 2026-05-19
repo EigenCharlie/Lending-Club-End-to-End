@@ -15,12 +15,15 @@ minimo que permite defender que Paper 4 existe como laboratorio reproducible.
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains dependency-blocked. | dependency_blocked | 19t-multi-period-solver.qmd |
-| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | near_resolved_with_plateau | 19t-multi-period-solver.qmd |
-| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane, not as contractual IFRS9. | data_blocked | 19b-current-assets-and-gaps.qmd |
-| F09 | CATE policy value remains blocked by identification, overlap, hidden-bias and reject-inference limits. | theory_blocked | 19b-current-assets-and-gaps.qmd |
-| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | data_blocked | 19n-online-mdcp-fairness.qmd |
+| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains isolated-prototype only. | isolated_prototype | 19t-multi-period-solver.qmd |
+| F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
+| F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
+| F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
+| F10 | Fairness remains proxy/source governance only because protected attributes or approved proxy protocol are absent. | proxy_only | 19n-online-mdcp-fairness.qmd |
 | F11 | Powell/SDAM is useful as a governance and framing contract, not as an automatic optimizer. | official | 19f-sequential-decision-framework.qmd |
+| F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
+| F13 | Paper 4 absorbs the useful prudential value of Paper 2: ECL scenarios, conformal SICR, CIF/prepayment, stage-cost governance and TS->ECL context. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
+| F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
 
 ## Artefactos livianos de esta reestructura
 
@@ -36,6 +39,16 @@ minimo que permite defender que Paper 4 existe como laboratorio reproducible.
 | `paper4_data_frontier_lane_decisions_2026-05-18.csv` | Decision promote/park por carril despues de auditar datos e investigacion |
 | `paper4_data_frontier_raw_servicing_profile_2026-05-18.csv` | Perfil raw de cashflows, hardship, recoveries y servicing fields |
 | `paper4_data_frontier_research_proposal_2026-05-18.md` | Propuesta de experimentos acotados sin reabrir el loop |
+| `paper4_one_page_architecture_2026-05-18.csv` | Arquitectura paper-facing: CRPTO core -> IFRS9 proxy -> tail challenger -> source governance -> dynamic stress -> parked lanes |
+| `paper4_paper2_absorption_anchors_2026-05-18.csv` | Anchors cuantitativos de Paper 2 absorbidos por Paper 4 |
+| `paper4_future_paper_body_appendix_split_2026-05-18.csv` | Separacion body/appendix para una extraccion futura de Paper 4 |
+| `paper4_status_taxonomy_2026-05-18.csv` | Taxonomia canonica de estados para evitar drift entre paginas |
+| `paper4_lab4_all_lane_summary_2026-05-18.csv` | Sintesis de lanes Lab 4 como append, park o context-only |
+| `angelopoulos_conformal_intake_2026-05-19.csv` | Intake Angelopoulos/Bates/Barber para foundation, CRC gates, label-noise y online/drift future work |
+| `angelopoulos_conformal_bound_intake_2026-05-19.md` | Memo de frontera: que fortalece Paper Estrella y que queda como ruta Paper 4 |
+| `paper4_frontier_metric_governance_decision_2026-05-19.csv` | FICO proxy vs champion calibrado: AUC/Gini/Somers' D, Brier, ECE, rank shift y slices observables |
+| `paper4_strong_appendix_register_2026-05-19.csv` | Registro del appendix fuerte recomendado para Paper 4 |
+| `paper4_future_experiment_gate_register_2026-05-19.csv` | Gate register para FICO, CRC/LTT directo, non-monotonic CRC y online/drift sin reabrir loops |
 
 ## Regla de uso
 
