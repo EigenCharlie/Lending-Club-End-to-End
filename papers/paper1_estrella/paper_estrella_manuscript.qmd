@@ -53,12 +53,16 @@ Use a compact nearest-neighbor structure rather than a broad survey.
 
 | Neighbor | Paper role |
 |---|---|
+| Modern conformal foundations [@angelopoulos2023; @angelopoulos2026_foundations] | Exchangeability, split conformal and quantile proof language. |
 | Robust optimization and price of robustness [@bertsimas2004] | Budget-of-robustness language. |
 | Conformal uncertainty sets [@johnstone2021; @patel2024] | Closest CP-to-RO lineage. |
 | Risk control / LTT / CRC [@bates2021rcps; @angelopoulos2025ltt; @angelopoulos2024risk] | Distribution-free risk-control language. |
 | Predict-then-Calibrate [@sun2024ptc] | Closest post-hoc calibration comparator. |
+| Gini under auto-calibration [@wuthrich2023_gini_autocalibration] | Why AUC/Gini are diagnostics, not sufficient selection criteria without calibration. |
+| Credit scores and equity [@albanesi2024_credit_scores_equity] | Motivation for score performance, misclassification and standing; not a legal fair-lending claim. |
 | SPO+ / DFL [@elmachtoub2022; @mandi2024] | Regret comparator, not an auditability substitute. |
 | CROMS / end-to-end conformal / online CP [@bao2025croms; @yeh2026; @liu2026portfolio] | Future work boundary. |
+| Label noise and online post-hoc updating [@einbinder2024_label_noise; @angelopoulos2025_gradient_equilibrium] | Threats-to-validity and future-work boundary. |
 
 ## 3. Method
 
@@ -67,7 +71,9 @@ Use a compact nearest-neighbor structure rather than a broad survey.
 
 Minimal method sequence:
 
-1. Calibrated PD model: CatBoost + Venn-Abers.
+1. Calibrated PD model: CatBoost + Venn-Abers. AUC/Gini are reported as
+   separation diagnostics, but the score enters CRPTO only after the calibration
+   gate.
 2. Mondrian conformal interval: `score_decile_mondrian` winner.
 3. Conformal upper bound: `u_i(alpha)`.
 4. Robust LP: maximize realized/economic return under budget and weighted risk
@@ -87,6 +93,11 @@ Key objects:
 
 Do not claim that post-selection exact evaluation is a stronger conformal
 guarantee. It is empirical confirmation of the promoted policy.
+
+Frame the proof as a portfolio-aware instantiation of CRC/RCPS/LTT:
+`V = sum_i w_i 1{Y_i > u_i(alpha)}` is the decision-relevant bounded risk.
+The current manuscript validates this risk ex post on a frozen policy; a future
+journal hardening could calibrate a direct CRC/LTT gate on a prospective split.
 
 ## 5. Experimental Design
 
@@ -128,7 +139,31 @@ Appendix/supplement candidates:
 - Funded-set composition.
 - A12--A18 journal robustness package.
 
-## 8. Discussion
+## 8. Intake from Paper 4 and the Quarto Book
+
+The Quarto book and Paper 4 lab are not separate empirical claims inside this
+manuscript. They are an intake layer for selecting which mature evidence should
+support CRPTO in a journal submission or a master's thesis. The governing table
+is `reports/paper_material/paper1/tables/paper1_quarto_paper4_intake_2026-05-18.csv`.
+
+| Intake item | Paper 1 use | Boundary |
+|---|---|---|
+| Paper 4 architecture | Position CRPTO as the core of a broader governed decision-analytics program. | Positioning only, not a second contribution. |
+| CVaR/OCE tail challenger | Defend why the economic champion was not replaced by a tail objective. | Appendix/reviewer evidence, not a new objective. |
+| Online/source conformal caveat | State deployment and source-family limitations honestly. | Future work, not online deployment. |
+| SDAM/Powell framing | Classify CRPTO as a one-period CFA policy with auditable parameters. | Framing, not DLA/Bellman optimality. |
+| Paper 2 absorption | Show that conformal quantities can feed ECL/SICR proxy diagnostics. | IFRS9-inspired proxy only. |
+| Source governance/fairness proxy | Support MRM and ethical implications with observable groups. | Proxy governance, not legal fair lending. |
+| CROMS-lite selector | Show a path toward decision-aware conformal selection. | Finalist screen only, not end-to-end training. |
+| Claim-artifact-test map | Strengthen reproducibility and reviewer confidence. | Traceability only; promotion JSON remains canonical. |
+
+For IJDS, the most likely imports are the nearest-neighbor positioning, the
+tail-risk challenger, the online/source caveat, the SDAM framing and the
+claim-artifact-test map. For the thesis, the broader Quarto apparatus can also
+support artifact governance, Paper 2 absorption, and the anti-scope-control
+story behind the living lab.
+
+## 9. Discussion
 
 Preserve the paper boundary:
 
@@ -136,6 +171,8 @@ Preserve the paper boundary:
 - CATE/pricing is a separate future paper.
 - Online conformal and online DFL are future work, not current deployment.
 - OCE/CVaR is currently a diagnostic/tail-risk appendix, not a new objective.
+- Label-noise robustness is a threat-to-validity lens for default/charge-off
+  labels, not evidence that the current target is corrupted.
 
 ::: {.callout-warning}
 ## What CRPTO Does Not Claim

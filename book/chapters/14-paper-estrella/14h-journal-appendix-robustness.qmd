@@ -65,6 +65,22 @@ es una politica CFA parametrica, no una caja negra de decision-focused learning.
 El memo completo queda en
 `docs/research/paper4_to_estrella_export_2026-05-17.md`.
 
+### Tabla corta de defensa ante reviewers
+
+La siguiente tabla convierte los hallazgos del laboratorio Paper 4 en respuestas
+controladas. Su funcion no es ampliar la contribucion central del Paper
+Estrella, sino evitar que una pregunta natural de reviewer parezca no atendida.
+
+| Pregunta de reviewer | Respuesta corta | Evidencia | Frontera |
+|---|---|---|---|
+| Por que no promover CVaR/OCE? | mejora la cola, pero no gana riqueza pareada de forma robusta | F04; `paper4_v31_champion_vs_cvar_stress_memo.csv`; `paper4_v467_cvar_frontier_probe.csv` | challenger de cola, no champion |
+| Que pasa con source/online conformal? | el proxy historico ayuda a identificar fragilidad, pero v35 no sobrevive universalmente | F05; `paper4_v35_online_temporal_holdout.csv`; `paper4_v470_online_monitoring_proxy_summary.csv` | caveat/future work, no deployment |
+| Hay claim de fairness legal? | no; solo hay source/proxy governance con atributos observables | `paper4_v37_fairness_proxy_only_protocol.csv`; `paper4_lab4_lane8_governance_fairness_proxy_2026-05-18.csv` | sin protected attributes ni protocolo BISG aprobado |
+| Que paso con Paper 2/IFRS9? | su valor prudencial queda absorbido por Paper 4 como proxy ECL/SICR | `paper4_paper2_absorption_anchors_2026-05-18.csv` | implicacion aplicada, no IFRS9 contractual |
+| Hay seleccion conformal decision-aware? | existe una auditoria CROMS-lite sobre finalists, pero no entrenamiento end-to-end | `paper1_tableA5_decision_aware_selector.csv`; `paper4_lab4_selector_final_table_2026-05-18.csv` | appendix/reviewer-defense, no metodo central |
+
+: Respuestas acotadas para defensa del Paper Estrella ante reviewers {#tbl-p1-reviewer-defense}
+
 ### Figura conceptual CRPTO
 
 La Figura @fig-p1-crpto-conceptual es la candidata natural para Figura 1 del

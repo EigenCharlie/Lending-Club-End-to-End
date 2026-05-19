@@ -74,6 +74,8 @@ El proyecto evalúa cuatro candidatos de calibración (Platt, Isotonic, Venn-Abe
    Venn-Abers tiene la menor `mean_log_loss` de los tres factibles (`0.4887`) y la varianza de Brier más baja, lo que lo hace el candidato más estable bajo refit incremental.
 3. **Drop de AUC negligible**. Venn-Abers introduce un `mean_auc_drop` de `0.000164` (∼0.02%), muy por debajo del `auc_drop_limit` de `0.0015`. Esto significa que la calibración no sacrifica discriminación útil para ganar fidelidad probabilística. Platt no introduce drop (es transformación monotónica), pero su Brier mean (0.15959) es muy similar al de Venn-Abers (0.15957) — la diferencia decisiva es la garantía finita.
 
+Esta politica tambien evita un error metodologico frecuente en credit scoring: tratar Gini/AUC como criterio suficiente de seleccion. Wuthrich [-@wuthrich2023_gini_autocalibration] muestra que el Gini no es una regla de scoring estrictamente consistente en general porque es rank-based y no sensible a calibracion; solo recupera una lectura de seleccion defendible al restringirse a predictores auto-calibrados. Por eso el Paper Estrella reporta AUC/Gini como diagnosticos de separacion, pero selecciona y usa el score solo despues del gate de calibracion.
+
 ::: {.callout-tip}
 ## Lectura editorial
 

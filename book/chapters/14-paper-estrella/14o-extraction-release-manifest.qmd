@@ -62,6 +62,35 @@ Criba de mejoras según si preservan o cambian la dirección del paper.
 Manifest de uso por sección del capítulo 14.
 :::
 
+### Intake desde Paper 4 y el libro Quarto
+
+La criba anterior separa secciones del capítulo 14. La siguiente criba separa
+qué piezas externas al cuerpo principal de Paper Estrella pueden alimentar una
+versión IJDS, una tesis de maestría o ambas. La regla es deliberadamente
+conservadora: se absorbe evidencia que refuerza CRPTO; no se absorben loops,
+promociones nuevas ni claims que pertenezcan a Paper 4.
+
+La versión tabular canónica queda en
+`reports/paper_material/paper1/tables/paper1_quarto_paper4_intake_2026-05-18.csv`.
+
+::: {#tbl-p1-quarto-paper4-intake}
+
+| Fuente | Uso en Paper 1 | IJDS | Tesis | Frontera |
+|---|---|---:|---:|---|
+| Paper 4 architecture | Posicionar CRPTO dentro de un programa de decision analytics gobernado. | quizá | sí | No convertir Paper 4 en segunda contribución. |
+| F04 CVaR/OCE | Defender que el champion económico no fue reemplazado por cola. | sí | sí | Challenger de cola, no objetivo oficial. |
+| F05 online/source caveat | Declarar límites de despliegue online y source-family holdouts. | sí | sí | No claim de online deployment. |
+| Powell/SDAM | Nombrar CRPTO como política CFA uniperiodo auditable. | sí | sí | Framing, no Bellman/DLA exacto. |
+| Paper 2 absorption | Mostrar lectura ECL/SICR proxy de las bandas conformales. | quizá | sí | IFRS9-inspired, no IFRS9 contractual. |
+| Source governance / fairness proxy | Fortalecer MRM e implicaciones éticas por grupos observables. | sí | sí | Proxy governance, no fair lending legal. |
+| CROMS-lite selector | Mostrar camino a selección conformal decision-aware. | quizá | sí | Screen de finalists, no entrenamiento end-to-end. |
+| Claim-artifact-test map | Preparar reproducibilidad y defensa de reviewers. | sí | sí | Trazabilidad; `final_project_promotion.json` manda. |
+| Quarto + DVC + MLflow | Companion reproducible y defensa de tesis. | quizá | sí | Superficie de artefactos, no resultado empírico. |
+| Loop closure / anti-scope governance | Explicar cómo se frenó la expansión improductiva. | no | sí | No entra al paper IJDS. |
+
+Intake estratégico desde Paper 4 y el libro Quarto hacia Paper 1.
+:::
+
 ### Manifest de tablas A0--A18
 
 ::: {#tbl-p1-table-extraction-manifest}
@@ -127,6 +156,9 @@ Manifest de figuras para extraer paper y appendix.
 | ¿Qué pasa con regulación/MRM? | CRPTO es auditable por subsistema: PD, conformal, LP, fairness y governance. | `14l`, MRM report | MS/EJOR |
 | ¿Los stress tests reemplazan validación externa? | No; fortalecen robustez interna. Dataset externo queda como journal/future work. | A6, A11, `14e` | Todos |
 | ¿Por qué no OCE/CVaR como objetivo? | Hoy A12 es diagnóstico; convertirlo en objective cambia el search y sería paper siguiente. | A12, backlog | OR/MS |
+| ¿Qué pasó con Paper 2/IFRS9? | Paper 4 absorbió su valor prudencial como ECL/SICR proxy; Paper Estrella solo lo usa como implicación aplicada. | `19ca`, `paper4_paper2_absorption_anchors_2026-05-18.csv` | MS/EJOR |
+| ¿Hay evidencia de source/fairness governance? | Sí como proxy governance y MRM; no como fair-lending legal por ausencia de atributos protegidos directos. | `14k`, `19n`, `paper4_lab4_lane8_governance_fairness_proxy_2026-05-18.csv` | MS/EJOR |
+| ¿El selector ya es decision-aware end-to-end? | No; CROMS-lite/A5 funciona como screen de finalists y evidencia de appendix, no como entrenamiento nuevo. | A5, A10, `paper4_lab4_selector_final_table_2026-05-18.csv` | OR/MS |
 
 Banco de respuestas para preparar manuscrito y rebuttal.
 :::
@@ -186,7 +218,10 @@ despliegue online.
 CRPTO no reclama dominar SPO+ en regret, no implementa conformal online, no es
 un modelo IFRS9 contractual, no certifica fair lending legal sobre atributos
 protegidos directos y no prueba cobertura condicional perfecta. Estas fronteras
-deben mantenerse visibles en cualquier extracción del manuscrito.
+deben mantenerse visibles en cualquier extracción del manuscrito. Paper 4 puede
+absorber el modulo IFRS9/SICR como evidencia proxy y puede documentar source
+governance, pero esas piezas no cambian el claim central ni el champion del
+Paper Estrella.
 :::
 
 ### Release checklist para congelar una versión paper-facing

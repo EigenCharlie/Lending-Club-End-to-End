@@ -39,24 +39,61 @@ La restricción de pérdida esperada usa la frontera superior inducida por el in
 
 La intuición del pipeline es directa: a menor $\alpha$ (mayor confianza), los intervalos se ensanchan, $u_i$ sube y la restricción robusta se endurece. Pero una intuición no es un teorema. Esta sección formaliza esa correspondencia y establece garantías probabilísticas sobre la no cobertura ponderada del funded set. Cuando el texto habla de PD verdadera debe leerse como una interpretación latente adicional, no como una magnitud observada directamente en los artefactos.
 
-Antes de entrar al detalle, conviene ubicar el resultado frente a la literatura más cercana. [@bates2021rcps] y [@angelopoulos2025ltt] muestran cómo calibrar predictores para controlar riesgo distribution-free; [@angelopoulos2024risk] demuestra que la predicción conformal puede controlar la esperanza de cualquier pérdida monotónica acotada. Nuestro Teorema 1 hereda ese espíritu, pero lo instancia en una dirección distinta: la pérdida no es un error genérico de predicción, sino la **no cobertura ponderada por funded set** que aparece al mapear intervalos conformales a una restricción lineal de PD de portafolio.
+Antes de entrar al detalle, conviene ubicar el resultado frente a la literatura más cercana. La prueba usa el lenguaje moderno de exchangeability, cuantiles conformales y split conformal sintetizado por [@angelopoulos2026_foundations]. [@bates2021rcps] y [@angelopoulos2025ltt] muestran cómo calibrar predictores para controlar riesgo distribution-free; [@angelopoulos2024risk] demuestra que la predicción conformal puede controlar la esperanza de cualquier pérdida monotónica acotada. Nuestro Teorema 1 hereda ese espíritu, pero lo instancia en una dirección distinta: la pérdida no es un error genérico de predicción, sino la **no cobertura ponderada por funded set** que aparece al mapear intervalos conformales a una restricción lineal de PD de portafolio.
 
 | Trabajo | Objeto garantizado | Vinculo con decisión | Diferencia con este paper |
 |---|---|---|---|
+| [@angelopoulos2026_foundations] | fundamentos de exchangeability, cuantiles conformales y split conformal | base formal de la capa de incertidumbre | no conecta por si solo intervalos con una decision de portafolio |
 | [@bertsimas2004] | Factibilidad robusta dado un presupuesto $\Gamma$ elegido | robust optimization clásica | aquí $\Gamma_{\text{CP}}$ no se elige: se hereda de la capa conformal |
 | [@johnstone2021] | Conjuntos de incertidumbre conformales con validez finita | puente CP $\rightarrow$ RO | no aterriza una restricción de PD ponderada ni funded-set exacto en crédito |
 | [@bates2021rcps; @angelopoulos2025ltt] | control distribution-free de una pérdida/riesgo genérico | calibración post-hoc de riesgo | no se especializa a una restricción lineal de portafolio |
 | [@angelopoulos2024risk] | cota en esperanza para pérdidas monotónicas | conformal risk control general | nuestro Teorema 1 es una instanciación portfolio-aware con funded-set ponderado |
 | [@barber2021_limits_conditional] | limites de cobertura condicional distribution-free | frontera de claims por subgrupo/source | Paper Estrella reporta cobertura verificable y Mondrian, no validez condicional exacta individual |
 | [@sun2024ptc] | cobertura del vector de costos vía calibración por cuantiles | box/elipsoidal sets para LP contextual genérico | nuestro bound opera sobre la restricción ponderada del portafolio, no solo sobre membresía en el set; además aporta cobertura Mondrian grupo-condicional |
+| [@bao2025croms] | seleccion de modelos conformales por riesgo decisional | selector decision-aware sobre candidatos conformales | en este paper aparece solo como auditoria tipo CROMS sobre finalists; no como entrenamiento end-to-end |
 | **Este paper (CRPTO)** | factibilidad conformal del portafolio via `V`, `\Gamma_{\text{CP}}` y `violation` | score calibrado $\rightarrow$ intervalo $\rightarrow$ funded set robusto | aporta la instanciación en crédito minorista y el cierre exacto sobre una región robusta completa |
 
 : Ubicación del bound del proyecto frente a trabajos cercanos {#tbl-bound-positioning}
+
+#### Lectura como conformal risk control
+
+El bound puede leerse como una instancia de *conformal risk control* con una
+perdida monotónica acotada. En CRC, se escoge un parametro de conservadurismo
+para que la perdida esperada de un nuevo punto quede bajo un nivel $\alpha$
+[@angelopoulos2024risk]. En CRPTO, el parametro operativo es el nivel conformal
+que ensancha $u_i(\alpha)$; la perdida relevante no es miscoverage marginal
+cruda, sino la no cobertura ponderada por el funded set:
+
+$$
+L_{\alpha}(x_i,y_i;w_i)=w_i\,\mathbf{1}\{Y_i>u_i(\alpha)\}.
+$$
+
+Esta lectura es util para reviewers porque explica por que el teorema no es una
+pieza aislada: el paper especializa la familia CRC/RCPS/LTT a una perdida
+decisional que aparece dentro de una restriccion lineal de portafolio. Aun asi,
+la version actual no recalibra $\alpha$ con un algoritmo CRC directo sobre la
+perdida de decision; usa la garantia conformal y luego valida `V`,
+`Gamma_CP` y `violation` sobre la policy congelada. Una extension natural seria
+calibrar directamente un gate CRC/LTT sobre `V` o sobre
+`max(0, sum_i w_iY_i - tau)` en un split prospectivo.
 
 ::: {.callout-important}
 ## Alcance exacto del bound
 El artefacto `scripts/validate_alpha_gamma_bound.py` evalúa no cobertura ponderada usando el target observado `y_true`/`default_flag` contra la cota superior conformal. Por tanto, la garantía distribution-free del teorema controla un target acotado $Y_i \in [0,1]$ y una asignación fijada antes de observar $Y_i$. Interpretar $Y_i$ como PD latente requiere el supuesto adicional de que $u_i$ es una cota válida de esa PD latente. El cierre exacto `276k` valida empíricamente la policy promovida tras la búsqueda; no convierte esa validación post-selección en una garantía conformal más fuerte.
 :::
+
+#### Checklist de lectura para el bound
+
+Para evitar sobrelecturas, el bound se defiende con cuatro reglas:
+
+| Pieza | Claim permitido | Lo que no autoriza |
+|---|---|---|
+| Exchangeability / split conformal | cobertura marginal del target observado bajo el split declarado | cobertura condicional exacta o garantía individual |
+| Teorema 1 / Markov | control distribution-free de la violación ponderada vía $\mathbb{E}[V] \leq \alpha$ y $\mathbb{P}(V>t)\leq\alpha/t$ | una cota apretada para todo $t$ o una garantía post-selección más fuerte |
+| Lemma 1 / Hoeffding-Bernstein | tightening condicional bajo independencia adicional de los indicadores $Z_i$ | reemplazar el resultado principal sin verificar dependencia |
+| Cierre `276k` | validación exacta de la policy congelada y de la región robusta observada | prueba prospectiva de que cualquier policy futura pasará el mismo gate |
+
+: Checklist reviewer-facing para leer el bound sin overclaim {#tbl-bound-claim-checklist}
 
 #### Presupuesto conformal de robustez
 
@@ -217,6 +254,14 @@ El Lemma 1 **no reemplaza** el @thm-conformal-feasibility. Markov sigue siendo l
 :::
 
 El apéndice de dependencia `docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md` fija la regla editorial para no sobreprometer este resultado: Markov es el claim principal, mientras Hoeffding/Bernstein quedan como tightening condicional bajo independencia adicional o bajo una futura prueba de concentración con dependencia controlada.
+
+La literatura reciente abre un frente adicional, pero todavia no cambia el
+claim. [@angelopoulos2026_nonmonotonic_crc] extiende el control de riesgo hacia
+perdidas no monotónicas y parámetros multidimensionales bajo condiciones de
+estabilidad. Eso sería relevante si una version futura quisiera controlar de
+forma conjunta retorno, `V`, CVaR, source governance y fairness proxy. Hoy
+CRPTO conserva el claim monotónico simple: mayor conservadurismo ensancha
+intervalos, aumenta `Gamma_CP` y reduce la exposicion a no cobertura.
 
 #### Corolario 1: Precio de la robustez {#sec-cor-por}
 
