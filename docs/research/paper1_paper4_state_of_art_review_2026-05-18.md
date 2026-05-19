@@ -34,6 +34,13 @@ near-term publication claim; it is a documented boundary map for seven ambitious
 extensions. Four lanes are append-worthy as evidence appendices, while three
 remain parked:
 
+For a future full-paper route, Paper 4 also absorbs the useful prudential core
+of Paper 2. The standalone Paper 2 route is parked unless stronger contractual
+servicing and macro scenario data appear. The retained material enters Paper 4
+as IFRS9-inspired proxy evidence: ECL scenarios, conformal ECL ranges, SICR
+width signal, CIF/prepayment correction, stage-cost governance and TS-to-ECL
+stress context.
+
 | lane | decision | literature role | claim boundary |
 | --- | --- | --- | --- |
 | IFRS9/SICR | append | IFRS 9, ECL, survival and competing-risk sources justify a proxy diagnostic | not contractual IFRS 9 without monthly DPD, contractual terms and macro scenarios |
@@ -235,3 +242,22 @@ actual manuscript text. It adds only sources that now appear in Paper Estrella:
 No IFRS9, SPO/DFL prototype or Paper 4-only sources were integrated into Paper
 Estrella in this patch. Those remain Lab 4/Paper 4 material unless a future
 appendix or reviewer request creates a concrete textual need.
+
+## Metrics Binder Addendum
+
+The local binder `Metrics for Credit and ML Models.pdf` was triaged on
+2026-05-18 and logged in
+`docs/research/metrics_credit_ml_models_triage_2026-05-18.md`.
+
+The only source that should enter Paper Estrella as a methodological support is
+Wuthrich's Gini/autocalibration result: it reinforces the current claim that
+CRPTO is not an AUC leaderboard, and that rank metrics are meaningful only after
+the PD layer is calibration-gated. Albanesi and Vamossy can support the credit
+scoring/equity motivation, but only as context; it does not authorize a legal
+fair-lending claim for Lending Club.
+
+For Paper 4, the binder opens one bounded future appendix: FICO/score proxy vs
+champion ML, with misclassification, ranking difference and observable-group
+diagnostics. Dinga et al. is taxonomy-only, Somers' D is optional metric
+sensitivity, and ReScorer stays parked unless the project later audits
+LLM-generated research reasons.
