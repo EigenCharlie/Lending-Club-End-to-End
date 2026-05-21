@@ -1,0 +1,138 @@
+{
+  "schema_version": "2026-04-05.2",
+  "generated_at_utc": "2026-05-21T19:25:00.930179+00:00",
+  "run_label": "regret_auditability_parent_smoke_2026_05_21",
+  "conformal_intervals_path": "/mnt/d/crpto_experiments/regret_auditability/regret_auditability_20260513_v3_resource_tuned/conformal/regret_auditability_20260513_v3_resource_tuned/data/conformal_intervals_mondrian.parquet",
+  "search_space": {
+    "risk_grid": [
+      0.165,
+      0.175
+    ],
+    "aversion_grid": [
+      0.1
+    ],
+    "gamma_grid": [
+      0.425,
+      0.45
+    ],
+    "delta_cap_grid": [
+      1.0
+    ],
+    "tail_focus_grid": [
+      1.0
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      }
+    ],
+    "alpha_grid": [
+      0.01,
+      0.03
+    ],
+    "max_candidates": 5000,
+    "random_states": [
+      42
+    ],
+    "policy_modes": [
+      "blended_uncertainty",
+      "capped_blended_uncertainty"
+    ],
+    "bucket_return_k": 2,
+    "bucket_proxy_k": 2,
+    "bucket_family_k": 1,
+    "bucket_region_k": 4,
+    "incumbent_policy_path": "models/champion_portfolio_policy.json",
+    "incumbent_risk_neighbors": [
+      0.165,
+      0.175
+    ],
+    "incumbent_gamma_neighbors": [
+      0.425,
+      0.45
+    ],
+    "incumbent_policy_modes": [
+      "blended_uncertainty",
+      "capped_blended_uncertainty"
+    ]
+  },
+  "selection_policy": {
+    "shortlist_strategy": "stratified_bound_first",
+    "rank_order": [
+      "alpha01_exact_pass(desc)",
+      "alpha03_exact_pass(desc)",
+      "ab_pass_all(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(desc)",
+      "alpha01_weighted_miscoverage_V(asc)",
+      "alpha01_gamma_cp(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.175,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.425,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "highs"
+  },
+  "selected_metrics": {
+    "risk_tolerance": 0.175,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.425,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "highs",
+    "seed_count": 1,
+    "sample_random_states": "42",
+    "ab_pass_all": true,
+    "ab_pass_rate": 1.0,
+    "realized_total_return": 59767.35736960121,
+    "realized_total_return_max": 59767.35736960121,
+    "price_of_robustness": -19674.585748656347,
+    "price_of_robustness_pct": -25.79416314338177,
+    "ab_diff_total_return": -2510.342360554372,
+    "objective_value": 84976.07116389567,
+    "n_funded": 128.0,
+    "total_allocated": 1000000.0,
+    "expected_return_net_point": 95949.92617754902,
+    "worst_case_pd": 0.31522148072987427,
+    "point_pd": 0.07135803598226689,
+    "pd_cap_slack": 0.0,
+    "semantic_policy_key": "{\"delta_cap_quantile\":1.0,\"gamma\":0.425,\"min_budget_utilization\":0.0,\"pd_cap_slack_penalty\":0.0,\"policy_mode\":\"blended_uncertainty\",\"risk_tolerance\":0.175,\"solver_backend\":\"highs\",\"tail_focus_quantile\":1.0,\"uncertainty_aversion\":0.1}",
+    "return_first_rank": 1,
+    "bound_proxy_rank": 1,
+    "shortlist_bucket": "forced_incumbent_neighbors",
+    "candidate_rank": 1,
+    "alpha01_exact_pass": true,
+    "alpha01_pass_rate": 1.0,
+    "alpha01_gamma_cp": 0.216429,
+    "alpha01_weighted_miscoverage_V": 0.092925,
+    "alpha01_violation": 0.0,
+    "alpha01_weighted_pd_true": 0.092925,
+    "alpha01_weighted_pd_constraint_used": 0.175,
+    "alpha01_empirical_coverage_funded": 0.8978,
+    "alpha03_exact_pass": true,
+    "alpha03_weighted_miscoverage_V": 0.092925,
+    "alpha10_exact_pass": false,
+    "alpha10_weighted_miscoverage_V": NaN
+  },
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "frontier_raw_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_frontier_raw.parquet",
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_frontier.parquet",
+  "shortlist_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_shortlist.parquet",
+  "bound_eval_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_bound_eval.parquet",
+  "runtime_status_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_runtime_status.json",
+  "runtime_checkpoint_dir": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/portfolio_bound_aware_runtime_checkpoints",
+  "resource_snapshot_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21/resource_snapshot.json",
+  "frontier_solver_backend": "highs",
+  "exact_solver_backend": "highs"
+}
