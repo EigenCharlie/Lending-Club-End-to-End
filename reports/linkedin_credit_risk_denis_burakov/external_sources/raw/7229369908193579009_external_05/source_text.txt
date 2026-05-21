@@ -1,0 +1,184 @@
+Matplotlib | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Matplotlib
+Software Development
+Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python.
+Follow
+View all 9 employees
+Report this company
+About us
+Matplotlib is a comprehensive library for creating static, animated, and interactive visualizations in Python. Matplotlib makes easy things easy and hard things possible.
+- Create publication quality plots.
+- Make interactive figures that can zoom, pan, update.
+- Customize visual style and layout.
+- Export to many file formats.
+- Embed in JupyterLab and Graphical User Interfaces.
+- Use a rich array of third-party packages built on Matplotlib.
+Website
+https://matplotlib.org
+External link for Matplotlib
+Industry
+Software Development
+Company size
+2-10 employees
+Headquarters
+Worldwide
+Type
+Nonprofit
+Founded
+2003
+Specialties
+matplotlib, plotting, python, and opensource
+Locations
+Primary
+Worldwide, US
+Get directions
+Employees at Matplotlib
+Oscar Gustafsson
+Thomas A Caswell
+Tim Hoffmann
+Benjamin Root
+See all employees
+Similar pages
+NumPy
+Software Development
+Pandas
+Software Development
+scikit-learn
+Software Development
+Pandas
+Technology, Information and Internet
+London, England
+Python
+Technology, Information and Internet
+Los Gatos, California
+Scipy
+Software Development
+PyTorch
+Research Services
+San Francisco, California
+Project Jupyter
+Software Development
+Pandas
+Internet Marketplace Platforms
+FFmpeg
+Online Audio and Video Media
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Epidemiologist jobs
+18,986 open jobs
+Coder jobs
+7,670 open jobs
+Associate Analyst jobs
+82,581 open jobs
+Biostatistician jobs
+21,103 open jobs
+Data Science Specialist jobs
+2,441 open jobs
+System Analyst jobs
+292,633 open jobs
+Data Analyst jobs
+329,009 open jobs
+Scientist jobs
+48,969 open jobs
+Intern jobs
+71,196 open jobs
+Analyst jobs
+694,057 open jobs
+Engineer Intern jobs
+5,859 open jobs
+Software Intern jobs
+3,845 open jobs
+Consultant jobs
+760,907 open jobs
+Engineer jobs
+555,845 open jobs
+Software Engineer jobs
+300,699 open jobs
+Web Development Specialist jobs
+227,596 open jobs
+Community Manager jobs
+115,952 open jobs
+Developer jobs
+258,935 open jobs
+Show more jobs like this
+Show fewer jobs like this
+More searches
+More searches
+Economic Researcher jobs
+Analyst jobs
+Data Scientist jobs
+Engineer jobs
+Quality Assurance Manager jobs
+Data Analyst jobs
+Scientist jobs
+Manager jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at Matplotlib
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

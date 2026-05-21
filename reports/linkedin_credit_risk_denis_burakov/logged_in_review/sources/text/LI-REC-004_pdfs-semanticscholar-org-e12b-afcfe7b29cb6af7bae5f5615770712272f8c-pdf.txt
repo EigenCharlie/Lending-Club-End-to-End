@@ -1,0 +1,792 @@
+Hindawi Publishing Corporation
+Journal of Mathematics
+Volume 2013, Article ID 848271, 10 pages
+http://dx.doi.org/10.1155/2013/848271
+
+
+
+
+Research Article
+Metric Divergence Measures and Information
+Value in Credit Scoring
+
+           Guoping Zeng
+           Think Finance, 4150 International Plaza, Fort Worth, TX 76109, USA
+
+           Correspondence should be addressed to Guoping Zeng; guopingtx@yahoo.com
+
+           Received 13 August 2013; Accepted 4 September 2013
+
+           Academic Editor: Baoding Liu
+
+           Copyright © 2013 Guoping Zeng. This is an open access article distributed under the Creative Commons Attribution License, which
+           permits unrestricted use, distribution, and reproduction in any medium, provided the original work is properly cited.
+
+           Recently, a series of divergence measures have emerged from information theory and statistics and numerous inequalities have been
+           established among them. However, none of them are a metric in topology. In this paper, we propose a class of metric divergence
+           measures, namely, 𝐿 𝑝 (𝑃 ‖ 𝑄), 𝑃 ≥ 1, and study their mathematical properties. We then study an important divergence measure
+           widely used in credit scoring, called information value. In particular, we explore the mathematical reasoning of weight of evidence
+           and suggest a better alternative to weight of evidence. Finally, we propose using 𝐿 𝑝 (𝑃 ‖ 𝑄) as alternatives to information value to
+           overcome its disadvantages.
+
+
+
+1. Introduction
+The information measure is an important concept in Infor-                 Shannon’s Entropy [3].
+mation theory and statistics. It is related to the system of
+                                                                                                            𝑛
+measurement of information or the amount of informa-
+                                                                                               𝐻 (𝑃) = −∑𝑝𝑖 log2 (𝑝𝑖 ) ,                    (3)
+tion based on the probabilities of the events that convey
+                                                                                                           𝑖=1
+information. Divergence measures are an important type
+of information measures. They are commonly used to find                   which is sometimes referred to as measure of uncertainty.
+appropriate distance or difference between two probability                The entropy 𝐻(𝑃) of a discrete random variable is defined in
+distributions.                                                            terms of its probability distribution 𝑃 and is a good measure
+    Let                                                                   of randomness or uncertainty.
+                                                                              Note that in the original definition of Shannon’s Entropy
+                                             𝑛                            the log is to the base 2 and entropy is expressed in bits in
+  Δ 𝑛 = {𝑃 = (𝑝1 , 𝑝2 , . . . , 𝑝𝑛 ) | 𝑝𝑖 ≥ 0, ∑𝑝𝑖 = 1} ,   𝑛 ≥ 2,        information theory. The log can be any other bases and the
+                                            𝑖=1
+                                                                          entropy will be a constant factor of the one in base 2 by
+                                                                  (1)
+                                                                          the change-base formula of the logarithm function. Hence,
+                                                                          without loss of generality, we will assume all the logs are
+be the set of finite discrete probability distributions as in [1].        natural logarithms.
+For all 𝑃, 𝑄 ∈ Δ 𝑛 , the following divergence measures are well
+known in the literature of information theory and statistics.             Kullback and Leibler’s Relative Information [4].
+
+Hellinger Discrimination [2].                                                                              𝑛
+                                                                                                                  𝑝
+                                                                                              𝐷 (𝑃 ‖ 𝑄) = ∑𝑝𝑖 ln ( 𝑖 ) .                    (4)
+                                                                                                          𝑖=1     𝑞𝑖
+                                    𝑛
+                             1             2
+                  ℎ (𝑃 ‖ 𝑄) = ∑(√𝑝𝑖 − √𝑞𝑖 ) .                     (2)
+                             2 𝑖=1                                        Its symmetric form is the well-known 𝐽-divergence.
+2                                                                                                                        Journal of Mathematics
+
+J-Divergence (Jeffreys [5], Kullback, and Leibler [4]).                        It also has some special cases:
+                                         𝑛
+                                                         𝑝                         (i) lim𝑠 → 0 𝐷𝑠 (𝑃 ‖ 𝑄) = 𝐷(𝑄 ‖ 𝑃),
+    𝐽 (𝑃 ‖ 𝑄) = 𝐷 (𝑃 ‖ 𝑄) + 𝐷 (𝑄 ‖ 𝑃) = ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 ) .
+                                        𝑖=1              𝑞𝑖                       (ii) lim𝑠 → 1 𝐷𝑠 (𝑃 ‖ 𝑄) = 𝐷(𝑃 ‖ 𝑄),
+                                                            (5)                   (iii) 𝐷−1 (𝑃 ‖ 𝑄) = (1/2)𝜓2 (𝑄 ‖ 𝑃),
+Triangular Discrimination [6].                                                    (iv) 𝐷1/2 (𝑃 ‖ 𝑄) = 4ℎ(𝑃 ‖ 𝑄),
+                                      𝑛
+                                    (𝑝 − 𝑞𝑖 )
+                                                   2                               (v) 𝐷2 (𝑃 ‖ 𝑄) = (1/2)𝜓2 (𝑃 ‖ 𝑄),
+                     Δ (𝑃 ‖ 𝑄) = ∑ 𝑖          .                         (6)       (vi) 𝐷2 (𝑃 ‖ 𝑄) = 𝐷−1 (𝑄 ‖ 𝑃),
+                                 𝑖=1 𝑝𝑖 + 𝑞𝑖
+                                                                                 (vii) 𝐷1 (𝑃 ‖ 𝑄) = 𝐷0 (𝑄 ‖ 𝑃).
+
+Symmetric Chi-Square Divergence (Dragomir et al. [7]). One                     It is shown that 𝐷𝑠 (𝑃 ‖ 𝑄) is nonnegative and convex in 𝑃
+has                                                                            and 𝑄 in [1].
+
+              𝜓 (𝑃 ‖ 𝑄) = 𝜒2 (𝑃 ‖ 𝑄) + 𝜒2 (𝑄 ‖ 𝑃)                              J-Divergence of Type s [14].
+                               𝑛            2                           (7)
+                                   (𝑝𝑖 − 𝑞𝑖 ) (𝑝𝑖 + 𝑞𝑖 )                          𝑉𝑠 (𝑃 ‖ 𝑄) = 𝐷𝑠 (𝑃 ‖ 𝑄) + 𝐷𝑠 (𝑄 ‖ 𝑃)
+                          =∑                             ,
+                               𝑖=1         𝑝𝑖 𝑞𝑖                                                                 𝑛
+                                                                                             = [𝑠 (𝑠 − 1)]−1 [∑ (𝑝𝑖𝑠 𝑞𝑖1−𝑠 + 𝑞𝑖𝑠 𝑝𝑖1−𝑠 ) − 2] ,
+where 𝜒2 (𝑃 ‖ 𝑄) = ∑𝑛𝑖=1 ((𝑝𝑖 − 𝑞𝑖 )2 /𝑝𝑖 ) is the well-known 𝜒2 -                                               𝑖=1
+divergence (Pearson [8]).
+                                                                                                                                       𝑠 ≠ 0, 1.
+Jensen-Shannon Divergence (Sibson [9], Burbea, and Rao [10,                                                                                     (13)
+11]).
+                                                                                  It admits the following particular cases:
+                   1 𝑛         2𝑝𝑖         𝑛
+                                                     2𝑞𝑖
+     𝐼 (𝑃 ‖ 𝑄) =    [∑𝑝𝑖 ln (         ) + ∑𝑞𝑖 ln (         )] .                    (i) lim𝑠 → 0 𝑉𝑠 (𝑃 ‖ 𝑄) = lim𝑠 → 1 𝑉𝑠 (𝑃 ‖ 𝑄) = 𝐽(𝑃 ‖ 𝑄),
+                   2 𝑖=1      𝑝𝑖 + 𝑞𝑖     𝑖=1      𝑝𝑖 + 𝑞𝑖
+                                                              (8)                 (ii) lim𝑠 → 1 𝑉𝑠 (𝑃 ‖ 𝑄) = 𝐽(𝑃 ‖ 𝑄),
+                                                                                  (iii) 𝑉−1 (𝑃 ‖ 𝑄) = 𝑉2 (𝑃 ‖ 𝑄) = (1/2)Ψ(𝑃 ‖ 𝑄),
+Arithmetic-Geometric Divergence (Taneja [12]). Moreover                           (iv) 𝑉0 (𝑃 ‖ 𝑄) = 𝑉1 (𝑃 ‖ 𝑄) = 𝐽(𝑃 ‖ 𝑄),
+                               𝑛                                                   (v) 𝑉1/2 (𝑃 ‖ 𝑄) = 8ℎ(𝑃 ‖ 𝑄).
+                              𝑝 + 𝑞𝑖     𝑝 + 𝑞𝑖
+              𝑇 (𝑃 ‖ 𝑄) = ∑ 𝑖        ln ( 𝑖      ).                     (9)
+                          𝑖=1   2        2√𝑝𝑖 𝑞𝑖
+                                                                               Unified Generalization of Jensen-Shannon Divergence and
+                                                                               Arithmetic-Geometry Mean Divergence [14].
+Taneja’s Divergence (Taneja [12]). One has
+                                                                                                 1       𝑃+𝑄             𝑃+𝑄
+                          𝑛                                                       𝑊𝑠 (𝑃 ‖ 𝑄) =     [𝐷𝑠 (     ‖ 𝑃) + 𝐷𝑠 (     ‖ 𝑄)] .
+                                √𝑝𝑖 + √𝑞𝑖     𝑝 + 𝑞𝑖                                             2        2               2
+       𝑑 (𝑃 ‖ 𝑄) = 1 − ∑ (                ) (√ 𝑖     ).                (10)                                                       (14)
+                         𝑖=1        2            2
+
+The information measures 𝐽(𝑃 ‖ 𝑄), 𝐼(𝑃 ‖ 𝑄) and 𝑇(𝑃 ‖ 𝑄)                          It admits the following particular cases:
+can be written as                                                                  (i) 𝑊−1 (𝑃 ‖ 𝑄) = (1/4)Δ(𝑃 ‖ 𝑄),
+            𝐽 (𝑃 ‖ 𝑄) = 4 [𝐼 (𝑃 ‖ 𝑄) + 𝑇 (𝑃 ‖ 𝑄)] ,                               (ii) 𝑊0 (𝑃 ‖ 𝑄) = 𝐼(𝑃 ‖ 𝑄),
+                   1         𝑃+𝑄            𝑃+𝑄                                   (iii) 𝑊1/2 (𝑃 ‖ 𝑄) = 4𝑑(𝑃 ‖ 𝑄),
+     𝐼 (𝑃 ‖ 𝑄) =     [𝐷 (𝑃 ‖     ) + 𝐷 (𝑄 ‖     )] , (11)
+                   2          2              2                                    (iv) 𝑊1 (𝑃 ‖ 𝑄) = 𝑇(𝑃 ‖ 𝑄),
+                1     𝑃+𝑄            𝑃+𝑄                                           (v) 𝑊2 (𝑃 ‖ 𝑄) = (1/16)Ψ(𝑃 ‖ 𝑄).
+     𝑇 (𝑃 ‖ 𝑄) = [𝐷 (     ‖ 𝑃) + 𝐷 (     ‖ 𝑄)] .
+                2      2              2
+                                                                               Taneja proved [14] that all the 3 𝑠-type information measures
+                                                                               𝐷𝑠 (𝑃 ‖ 𝑄), 𝑉𝑠 (𝑃 ‖ 𝑄), and 𝑊𝑠 (𝑃 ‖ 𝑄) are nonnegative
+Relative Information of Type s. Cressie and Read [13] con-                     and convex in the pair (𝑃, 𝑄). He also obtained inequalities
+sidered the one-parametric generalization of information                       regarding the various divergence measures:
+measure 𝐷(𝑃 ‖ 𝑄), called the relative information of type
+𝑠 given by                                                                      1
+                                                                                  Δ (𝑃 ‖ 𝑄) ≤ 𝐼 (𝑃 ‖ 𝑄) ≤ ℎ (𝑃 ‖ 𝑄) ≤ 4𝑑 (𝑃 ‖ 𝑄)
+                                                                                4
+                                     𝑛                                                                                                         (15)
+    𝐷𝑠 (𝑃 ‖ 𝑄) = [𝑠 (𝑠 − 1)]−1 [∑𝑝𝑖𝑠 𝑞𝑖1−𝑠 − 1] ,            𝑠 ≠ 0, 1. (12)                  1                       1
+                                                                                             ≤ 𝐽 (𝑃 ‖ 𝑄) ≤ 𝑇 (𝑃 ‖ 𝑄) ≤ 𝜓 (𝑃 ‖ 𝑄) .
+                                    𝑖=1                                                       8                       16
+Journal of Mathematics                                                                                                             3
+
+Here, we observe that Δ(𝑃 ‖ 𝑄) > 0. Hence, from the above            Definition 3. Two metrics 𝑑1 and 𝑑2 are equivalent if there
+inequalities we see that 𝐼(𝑃 ‖ 𝑄), ℎ(𝑃 ‖ 𝑄), 𝑑(𝑃 ‖ 𝑄), 𝐽(𝑃 ‖         exist 2 positive constants 𝛼 and 𝛽 such that 𝛼 × 𝑑2 (𝑥, 𝑦) ≤
+𝑄), 𝑇(𝑃 ‖ 𝑄), and 𝜓(𝑃 ‖ 𝑄) are all positive.                         𝑑1 (𝑥, 𝑦) ≤ 𝛽 × 𝑑2 (𝑥, 𝑦).
+     We also note that all 𝑝𝑖 in the original definition of Δ 𝑛 in       If two metrics 𝑑1 and 𝑑2 are equivalent, they will have the
+[1] are required to be positive. Yet, in realty some 𝑝𝑖 may be       same convergence.
+0. In this case 𝐼(𝑃 ‖ 𝑄), 𝑇(𝑃 ‖ 𝑄), 𝜓(𝑃 ‖ 𝑄), and Δ(𝑃 ‖ 𝑄)
+will be undefined. We have extended the definition of Δ 𝑛 to
+                                                                     2.2. Nonmetric Divergence Measures
+include the cases when 𝑝𝑖 = 0. We assume that 0 ln(0) = 0,
+which is easily justified by continuity since 𝑥 ln(𝑥) → 0 as         Proposition 4. None of the divergence measures Δ(𝑃 ‖ 𝑄),
+𝑥 → 0. For convenience, we also assume 0 ln(0/0) = 0 and             𝐼(𝑃 ‖ 𝑄), ℎ(𝑃 ‖ 𝑄), 𝑑(𝑃 ‖ 𝑄), 𝐽(𝑃 ‖ 𝑄), 𝑇(𝑃 ‖ 𝑄), and
+𝑡 ln(𝑡/0) = 0 for 𝑡 > 0.                                             𝜓(𝑃 ‖ 𝑄) are a metric in topology. Indeed, none of them satisfy
+     A problem with the above divergence measures is that            the triangle inequality.
+none of them are a real distance, that is, a metric, in topology.
+In this paper, we will study a class of metric divergence mea-       Proof. We disprove them either numerically or analytically by
+sures 𝐿 𝑝 (𝑃 ‖ 𝑄). We then study the underlying mathematics          constructing counter examples in Δ 2 .
+of a special divergence measure called information value,
+which is widely used in credit scoring. We propose using
+                                                                         (a) Let 𝑝 = (0, 1), 𝑞 = (1, 0), and 𝑟 = (0.5, 0.5).
+𝐿 𝑝 (𝑃 ‖ 𝑄) as alternatives to IV in order to overcome the
+                                                                             Then Δ(𝑃 ‖ 𝑄) = 2, Δ(𝑃 ‖ 𝑅) = Δ(𝑅 ‖ 𝑄) = 2/3,
+disadvantages of information value.
+                                                                             and Δ(𝑃 ‖ 𝑅) + Δ(𝑅 ‖ 𝑄) = 4/3 < 2 = Δ(𝑃 ‖ 𝑄).
+     The rest of this paper is organized as follows. In Section 2,
+after reviewing the metric space, we disprove that the above
+divergence measures are metrics. We then study a class                  (b) Let 𝑝 = (0.5, 0.5), 𝑞 = (0.2, 0.8), and 𝑟 = (0.3, 0.7).
+of metric divergence measures 𝐿 𝑝 (𝑃 ‖ 𝑄). Section 3 is                     Then 𝐼(𝑃 ‖ 𝑄) = 0.02357767, 𝐼(𝑅 ‖ 𝑄) = 0.00350105,
+concerned with information value. We examine a rule of                      𝐼(𝑃 ‖ 𝑅) = 0.01020550, and 𝐼(𝑃 ‖ 𝑅) + 𝐼(𝑅 ‖ 𝑄) <
+thumb and weight of evidence and suggest a better alternative               𝐼(𝑃 ‖ 𝑄).
+to weight of evidence. We then propose using 𝐿 𝑝 (𝑃 ‖
+𝑄) as alternatives of IV to overcome the disadvantages of                (c) Let 𝑝 = (0, 1), 𝑞 = (1, 0), and 𝑟 = (0.5, 0.5).
+information value. Section 4 presents some numerical results.                Then ℎ(𝑃, 𝑄) = 1, ℎ(𝑃 ‖ 𝑅) = ℎ(𝑅 ‖ 𝑄) = (1/2)(2 −
+                                                                             √2), and ℎ(𝑃 ‖ 𝑅) + ℎ(𝑅 ‖ 𝑄) = 2 − √2 < 1 = ℎ(𝑃 ‖
+Finally, the paper is concluded in Section 5.
+                                                                             𝑄).
+
+2. Metric Divergence Measures                                           (d) Let 𝑝 = (0.2, 0.8), 𝑞 = (0.4, 0.6), and 𝑟 = (0.3, 0.7).
+                                                                            Then
+2.1. Review of Metric Space
+Definition 1. Suppose a real valued function 𝑑 : 𝑀 × 𝑀 → 𝑅            𝐷 (𝑃 ‖ 𝑅) + 𝐷 (𝑅 ‖ 𝑄) − 𝐷 (𝑃 ‖ 𝑄)
+and that for all 𝑥, 𝑦, 𝑧 of set 𝑀
+                                                                                       2           8          3
+    (1) 𝑑(𝑥, 𝑦) ≥ 0 (nonnegative),                                        = 0.2 × ln     + 0.8 × ln + 0.3 × ln + 0.7
+                                                                                       3           7          4
+    (2) 𝑑(𝑥, 𝑥) = 0 if and only if 𝑥 = 𝑦 (identity),                               7           1           4
+                                                                            × ln     − 0.2 × ln − 0.8 × ln
+    (3) 𝑑(𝑥, 𝑦) = 𝑑(𝑦, 𝑥) (symmetry),                                              6           2           3
+    (4) 𝑑(𝑥, 𝑧) ≤ 𝑑(𝑥, 𝑦) + 𝑑(𝑦, 𝑧) (triangle inequality).                            2     1           8    4
+                                                                          = 0.2 (ln     − ln ) + 0.8 (ln − ln )
+Such a “distance function” 𝑑 is called a metric on 𝑀, and the                         3     2           7    3
+pair (𝐷, 𝑀) is called a metric space. If 𝑑 satisfies (1)–(3) but                         3            7
+not necessarily (4), it is called a semimetric.                             + 0.3 × ln     + 0.7 × ln                            (16)
+                                                                                         4            6
+    A metric space is a topological space in a natural manner,
+and therefore all definitions and theorems about general                               4           6          3           7
+                                                                          = 0.2 × ln     + 0.8 × ln + 0.3 × ln + 0.7 × ln
+topological spaces also apply to a metric space. For instance,                         3           7          4           6
+in a metric space one can define open and closed sets,                                 4           6          4           6
+convergence of sequences of points, compact space, and                    = 0.2 × ln     + 0.8 × ln − 0.3 × ln − 0.7 × ln
+                                                                                       3           7          3           7
+connected space.
+                                                                                        4            6
+                                                                          = −0.1 × ln     + 0.1 × ln
+Definition 2. A metric 𝑑1 is said to be upper bounded by                                3            7
+another metric 𝑑2 if there exists a positive constant 𝑐 such
+                                                                                      6     4              9
+that 𝑑1 (𝑥, 𝑦) ≤ 𝑐 × 𝑑2 (𝑥, 𝑦) for all 𝑥, 𝑦 ∈ 𝑀. In this case,            = 0.1 (ln     − ln ) = 0.1 × ln    < 0.1 × ln 1 = 0.
+𝑑2 is said to be lower bounded by 𝑑1 .                                                7     3             14
+    If 𝑑1 is upper bounded by 𝑑2 , then the convergence in the
+metric space (𝑀, 𝑑2 ) implies the convergence in the metric                 Hence, 𝐷(𝑃 ‖ 𝑅) + 𝐷(𝑅 ‖ 𝑄) < 𝐷(𝑃 ‖ 𝑄). Indeed,
+space (𝑀, 𝑑1 ).                                                             𝐷(𝑃 ‖ 𝑄) is not symmetric either (see [15]).
+4                                                                                                                               Journal of Mathematics
+
+    (e) Let 𝑝 = (0.2, 0.8), 𝑞 = (0.4, 0.6), 𝑟 = (0.3, 0.7). Then           When 𝑝 = 2, we obtain the Euclidean Distance:
+                                                 3           8                                                            𝑛
+    𝐽 (𝑃 ‖ 𝑅) + 𝐽 (𝑅 ‖ 𝑄) = (0.1 × ln              + 0.1 × ln )                                                                        2
+                                                 2           7                                   𝐿 2 (𝑃 ‖ 𝑄) = √ ∑(𝑝𝑖 − 𝑞𝑖 ) .                    (22)
+                                                                                                                          𝑖=1
+                                                  4           7
+                                 + (0.1 × ln        + 0.1 × ln )
+                                                  3           6            When 𝑝 → ∞, we have
+                                                                    (17)
+                                       8                                                                             󵄨          󵄨
+                             = 0.1 × ln ,                                                        𝐿 ∞ (𝑃 ‖ 𝑄) = max 󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨 .               (23)
+                                       3                                                                              1≤𝑖≤𝑛
+
+                                                 4           8             It is known that 𝑙𝑝 -norms are decreasing in 𝑝. Moreover,
+     𝐽 (𝑃 ‖ 𝑄) = 0.2 × ln 2 + 0.2 × ln             = 0.2 × ln .
+                                                 3           3             all 𝑙𝑝 metrics are equivalent.
+        Hence, 𝐽(𝑃 ‖ 𝑅) + 𝐽(𝑅 ‖ 𝑄) < 𝐽(𝑃 ‖ 𝑄).
+                                                                           Lemma 6. If 𝑟 > 𝑝 ≥ 1, then the 𝑙𝑝 -norms in R𝑛 satisfy
+    (f) Let 𝑝 = (0.5, 0.5), 𝑞 = (0.2, 0.8), and 𝑟 = (0.3, 0.7).
+        Then 𝑇(𝑃 ‖ 𝑄) = 0.05330024, 𝑇(𝑃 ‖ 𝑅) =                                                ‖𝑥‖𝑟 ≤ ‖𝑥‖𝑝 ≤ 𝑛(1/𝑝−1/𝑟) ‖𝑥‖𝑟 .                     (24)
+        0.02135897, 𝑇(𝑅 ‖ 𝑄) = 0.00677313, and 𝑇(𝑃 ‖
+        𝑅) + 𝑇(𝑅 ‖ 𝑄) < 𝑇(𝑃 ‖ 𝑄).                                          Corollary 7. If 𝑟 > 𝑝 ≥ 1, then the 𝐿 𝑝 -divergences satisfy
+    (g) Let 𝑝 = (0.5, 0.5), 𝑞 = (0.2, 0.8), 𝑟 = (0.3, 0.7). Then,
+        𝜓(𝑃 ‖ 𝑄) = 369/400, 𝜓(𝑄 ‖ 𝑅) = 185/1680, 𝜓(𝑃 ‖                          𝐿 𝑟 (𝑃 ‖ 𝑄) ≤ 𝐿 𝑝 (𝑃 ‖ 𝑄) ≤ 𝑛(1/𝑝−1/𝑟) 𝐿 𝑟 (𝑃 ‖ 𝑄) .              (25)
+        𝑅) = 368/1050, and 𝜓(𝑃 ‖ 𝑅) + 𝜓(𝑅 ‖ 𝑄) < 𝜓(𝑃 ‖ 𝑄).
+                                                                           Theorem 8. 𝐿 𝑝 -divergences are all bounded by constant 2
+                                                                           for 𝑝 ≥ 1; that is, 𝐿 𝑝 (𝑃 ‖ 𝑄) ≤ 2. In particular, 𝐿 ∞ (𝑃 ‖
+                                                                           𝑄) ≤ 1 and 𝐿 2 (𝑃 ‖ 𝑄) ≤ √2.
+2.3. A Natural Metric Divergence Measure. If we pick up the
+common part of 𝐷(𝑃 ‖ 𝑄) and 𝐽(𝑃 ‖ 𝑄), we will obtain a                     Proof. We first prove the general case. From Corollary 7, it
+metric divergence measure                                                  is sufficient to prove that the 𝐿 1 -divergence is bounded by
+                                                𝑛 󵄨󵄨
+                                                                           2. Let 𝑃 = (𝑝1 , 𝑝2 , . . . , 𝑝𝑛 ) and 𝑄 = (𝑞1 , 𝑞2 , . . . , 𝑞𝑛 ) be two
+                  𝑛
+                     󵄨                     󵄨       󵄨    𝑝 󵄨󵄨󵄨
+     𝑍 (𝑃 ‖ 𝑄) = ∑ 󵄨󵄨󵄨ln (𝑝𝑖 ) − ln (𝑞𝑖 )󵄨󵄨󵄨 = ∑ 󵄨󵄨󵄨ln ( 𝑖 )󵄨󵄨󵄨 .   (18)   probability distributions. Without loss of generality, let us
+                 𝑖=1
+                                                   󵄨
+                                               𝑖=1 󵄨    𝑞𝑖 󵄨󵄨              assume that 𝑝1 ≥ 𝑞1 , 𝑝2 ≥ 𝑞2 , . . . , 𝑝𝑘 ≥ 𝑞𝑘 , and 𝑝𝑘+1 <
+                                                                           𝑞𝐾+1 , . . . , 𝑝𝑛 < 𝑞𝑛 . Then, we have
+Since 𝑝𝑖 ≤ 1 and |𝑝𝑖 − 𝑞𝑖 | ≤ 1 for all 1 ≤ 𝑖 ≤ 𝑛, both 𝐷(𝑃 ‖
+                                                                                             𝑛
+𝑄) and 𝐽(𝑃 ‖ 𝑄) are upper bounded by 𝑍(𝑃 ‖ 𝑄); that is,                                       󵄨          󵄨
+𝐷(𝑃 ‖ 𝑄) ≤ 𝑍(𝑃 ‖ 𝑄), 𝐽(𝑃 ‖ 𝑄) ≤ 𝑍(𝑃 ‖ 𝑄).                                   𝐿 1 (𝑃 ‖ 𝑄) = ∑ 󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨
+                                                                                            𝑖=1
+
+2.4. 𝐿 𝑝 -Divergence. Recall that for a real number 𝑝 ≥ 1,                                   𝑘                       𝑛
+
+the 𝑙𝑝 -norm of vector 𝑥 = (𝑥1 , 𝑥2 , . . . , 𝑥𝑛 ) ∈ R𝑛 is defined                        = ∑ (𝑝𝑖 − 𝑞𝑖 ) + ∑ (𝑞𝑖 − 𝑝𝑖 )                           (26)
+                                                                                            𝑖=1                    𝑖=𝑘+1
+by
+                                                                                             𝑘             𝑛              𝑛      𝑛
+                                                 1/𝑝
+                                    𝑛
+                                  󵄨 󵄨𝑝                                                    ≤ ∑𝑝𝑖 + ∑ 𝑞𝑖 ≤ ∑𝑝𝑖 + ∑𝑞𝑖 = 1 + 1 = 2.
+                       ‖𝑥‖𝑝 = (∑󵄨󵄨󵄨𝑥𝑖 󵄨󵄨󵄨 )            .            (19)                    𝑖=1           𝑖=𝑘+1       𝑖=1        𝑖=1
+                                   𝑖=1
+                                                                           Noting that |𝑝𝑖 − 𝑞𝑖 | ≤ 1 for 1 ≤ 𝑖 ≤ 𝑛, we have (𝑝𝑖 − 𝑞𝑖 )2 ≤
+We will apply the 𝑙𝑝 -metric from the 𝑙𝑝 -norm to divergence               |𝑝𝑖 − 𝑞𝑖 | ≤ 1. Hence,
+measures to obtain 𝑙𝑝 -divergence. For convenience, we will
+                                                                                                              󵄨          󵄨
+use the upper case notation.                                                              𝐿 ∞ (𝑃 ‖ 𝑄) = max 󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨 ≤ 1,
+                                                                                                                  1≤𝑖≤𝑛
+Definition 5. For two probability distributions 𝑃 and 𝑄, one
+                                                                                                      𝑛
+defines their 𝐿 𝑝 -divergence as                                                                                      2
+                                                                                𝐿 2 (𝑃 ‖ 𝑄) = √ ∑(𝑝𝑖 − 𝑞𝑖 )
+                                                                                                     𝑖=1                                          (27)
+                                             𝑛
+                                      󵄨          󵄨𝑝
+                   𝐿 𝑝 (𝑃 ‖ 𝑄) = √ ∑󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨 .
+                                     𝑝
+                                                                    (20)
+                                                                                                      𝑛
+                                         𝑖=1                                                          󵄨          󵄨
+                                                                                              ≤ √ ∑ 󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨 = √𝐿 1 (𝑃 ‖ 𝑄) ≤ √2.
+                                                                                                     𝑖=1
+Here, 𝑝 ≥ 1 is used for superscript, subscript, and radial root.
+It should not be confused with the vector 𝑃.
+                                                                           Therefore, we have proved the 2 particular cases.
+     In particular, when 𝑝 = 1, we have the 𝐿 1 distance:
+                                         𝑛
+                                                                              The following result shows that the relative entropy 𝐷(𝑃 ‖
+                                       󵄨          󵄨                        𝑄) is lower bounded by the square of the 𝐿 1 (𝑃 ‖ 𝑄). Its proof
+                     𝐿 1 (𝑃 ‖ 𝑄) = ∑ 󵄨󵄨󵄨𝑝𝑖 − 𝑞𝑖 󵄨󵄨󵄨 .               (21)
+                                        𝑖=1                                can be found at [15].
+Journal of Mathematics                                                                                                                          5
+
+                                                                                                                    1/𝑝
+Lemma 9.                                                                                     𝑛
+                                                                                             󵄨                󵄨𝑝
+                                                                                       ≤ (∑󵄨󵄨󵄨𝜆 (𝑝1𝑖 − 𝑞1𝑖 )󵄨󵄨󵄨 )
+                                                                                            𝑖=1
+                                     1            2
+                     𝐷 (𝑃 ‖ 𝑄) ≥       (𝐿 (𝑃 ‖ 𝑄)) .                   (28)                                                  1/𝑝
+                                     2 1                                                        󵄨
+                                                                                                 𝑛
+                                                                                                                       󵄨𝑝
+                                                                                          + (∑󵄨󵄨󵄨(1 − 𝜆) (𝑝2𝑖 − 𝑞2𝑖 )󵄨󵄨󵄨 )
+                                                                                              𝑖=1
+Theorem 10. The square root of 𝐽(𝑃 ‖ 𝑄) is lower bounded
+                                                                                                                 1/𝑝
+by 𝐿 1 (𝑃 ‖ 𝑄); that is,                                                                      𝑛
+                                                                                              󵄨              󵄨𝑝
+                                                                                       = (𝜆∑󵄨󵄨󵄨(𝑝1𝑖 − 𝑞1𝑖 )󵄨󵄨󵄨 )
+                                                                                             𝑖=1
+                      √𝐽 (𝑃 ‖ 𝑄) ≥ 𝐿 1 (𝑃 ‖ 𝑄) .                       (29)                                                  1/𝑝
+                                                                                                         𝑛
+                                                                                                        󵄨              󵄨𝑝
+                                                                                          + (1 − 𝜆) (∑󵄨󵄨󵄨(𝑝2𝑖 − 𝑞2𝑖 )󵄨󵄨󵄨 )
+Proof. Applying lemma to 𝐷(𝑃 ‖ 𝑄) and 𝐷(𝑄 ‖ 𝑃), we                                                      𝑖=1
+
+obtain                                                                                 = 𝜆𝐿 𝑝 (𝑃1 ‖ 𝑄1 ) + (1 − 𝜆) 𝐿 𝑝 (𝑃2 ‖ 𝑄2 ) .
+                                                                                                                                            (32)
+                       1             2
+𝐷 (𝑃 ‖ 𝑄) + 𝐷 (𝑄 ‖ 𝑃) ≥ (𝐿 1 (𝑃 ‖ 𝑄))
+                       2                                                       Here, the first inequality is from the well-known Minkowski’s
+                                 1             2               2               Inequality.
+                                + (𝐿 1 (𝑄 ‖ 𝑃)) = (𝐿 1 (𝑃 ‖ 𝑄)) .
+                                 2
+                                                             (30)                  It follows from the following results that we can generate
+                                                                               infinitely many metric divergence measures using the existing
+                                                                               ones.
+Note that the left hand side is nothing but 𝐽(𝑃 ‖ 𝑄). The
+proof is completed by taking the square root on both                           Proposition 13. If 𝑑1 (𝑃 ‖ 𝑄) and 𝑑2 (𝑃 ‖ 𝑄) are two metric
+sides.                                                                         divergence measures, so are the following 3 measures:
+
+Remark 11. 𝐽(𝑃 ‖ 𝑄) and hence √𝐽(𝑃 ‖ 𝑄) are unbounded                              (1) 𝛼 × 𝑑1 (𝑃 ‖ 𝑄) + 𝛽 × 𝑑2 (𝑃 ‖ 𝑄) for all 𝛼 ≥ 0, 𝛽 ≥ 0 and
+by any constants. This can be seen by taking 𝑃 = (𝑠, 1 −                               𝛼 + 𝛽 > 0,
+𝑠) and 𝑄 = (1 − 𝑠, 𝑠), 0 < 𝑠 < 1, and taking limit 𝑠 →                             (2) max(𝑑1 (𝑃 ‖ 𝑄), 𝑑2 (𝑃 ‖ 𝑄)),
+0. Since 𝐿 𝑝 -divergences are all bounded by constant 2
+for 𝑝 ≥ 1, 𝐽(𝑃 ‖ 𝑄) and hence √𝐽(𝑃 ‖ 𝑄) are not equivalent                         (3) √(𝑑1 (𝑃 ‖ 𝑄))2 + (𝑑2 (𝑃 ‖ 𝑄))2 .
+to 𝐿 𝑝 -divergences.
+    We now establish the convexity property for 𝐿 𝑝 -                          Proof. The proof of (1) and (2) is trivial and hence will
+divergence, which is useful in optimization.                                   be omitted. As for (3), it is sufficient to verify the triangle
+                                                                               inequality since nonnegative, identity, and symmetry are all
+Theorem 12. 𝐿 𝑝 (𝑃 ‖ 𝑄) is convex in the pair (𝑝, 𝑞), that is,                 easy to verify.
+if (𝑃1 , 𝑄1 ), and (𝑃2 , 𝑄2 ) are two pairs of probability distribu-               To begin with, let us first prove an inequality: for any
+tions, then                                                                    nonnegative 𝑎, 𝑏, 𝑐, 𝑑,
+
+          𝐿 𝑝 (𝜆𝑃1 + (1 − 𝜆) 𝑃2 ‖ 𝜆𝑄1 + (1 − 𝜆) 𝑄2 )                                             √𝑎2 + 𝑏2 + 𝑐2 + 𝑑2 + 2𝑎𝑐 + 2𝑏𝑑
+                                                                       (31)                                                                 (33)
+                 ≤ 𝜆𝐿 𝑝 (𝑃1 ‖ 𝑄1 ) + (1 − 𝜆) 𝐿 𝑝 (𝑃2 ‖ 𝑄2 )                                           ≤ √𝑎2 + 𝑏2 + √𝑐2 + 𝑑2 .
+
+                                                                               It is easy to see that inequality (33) is equivalent to the
+for all 0 ≤ 𝜆 ≤ 1.                                                             following inequality:
+Proof. Let 𝑃1 = (𝑝11 , 𝑝12 , . . . , 𝑝1𝑛 ), 𝑃2 = (𝑝21 , 𝑝22 , . . . , 𝑝2𝑛 ),
+𝑄1 = (𝑞11 , 𝑞12 , . . . , 𝑞1𝑛 ), and 𝑄2 = (𝑞21 , 𝑞22 , . . . , 𝑞2𝑛 ). Then                       𝑎𝑐 + 𝑏𝑑 ≤ √(𝑎2 + 𝑏2 ) (𝑐2 + 𝑑2 ).          (34)
+
+                                                                               Inequality (34) is equivalent to the following inequality:
+   𝐿 𝑝 (𝜆𝑃1 + (1 − 𝜆) 𝑃2 ‖ 𝜆𝑄1 + (1 − 𝜆) 𝑄2 )
+                                                                                                      2𝑎𝑏𝑐𝑑 ≤ 𝑎2 𝑑2 + 𝑏2 𝑐2 .               (35)
+                𝑛                                                     1/𝑝
+                󵄨                                          󵄨𝑝
+          = (∑󵄨󵄨󵄨𝜆𝑝1𝑖 + (1 − 𝜆) 𝑝2𝑖 − 𝜆𝑞1𝑖 − (1 − 𝜆) 𝑞2𝑖 󵄨󵄨󵄨 )                 Inequality (35) is equivalent to the following inequality:
+               𝑖=1
+
+                𝑛                                               1/𝑝                                      (𝑎𝑑 − 𝑏𝑐)2 ≥ 0.                    (36)
+                󵄨                                       󵄨𝑝
+          = (∑󵄨󵄨󵄨𝜆 (𝑝1𝑖 − 𝑞1𝑖 ) + (1 − 𝜆) (𝑝2𝑖 − 𝑞2𝑖 )󵄨󵄨󵄨 )
+               𝑖=1                                                             Since inequality (36) is always true, inequality (34) is true.
+6                                                                                                              Journal of Mathematics
+
+    Now, let us assume 𝑃, 𝑄, 𝑅 are 3 arbitrary probability         Usually, “good” means 𝑦 = 0 and “bad” means 𝑦 = 1. It could
+distributions. Since 𝑑1 (𝑃 ‖ 𝑄) and 𝑑2 (𝑃 ‖ 𝑄) satisfy the         be the other way, since IV is symmetric about good and bad.
+triangle inequality, we have                                       If 𝑔𝑖 /𝑔 = 𝑏𝑖 /𝑏 for all 𝑖 = 1, . . . , 𝑛, then IV = 0; that is, 𝑥 has no
+                                                                   information on 𝑦.
+    √(𝑑1 (𝑃 ‖ 𝑄))2 + (𝑑2 (𝑃 ‖ 𝑄))2                                      IV is mainly used to reduce the number of variables as
+                                                                   the initial step in the logistic regression, especially in big
+                                           2
+          ≤ ([𝑑1 (𝑃 ‖ 𝑅) + 𝑑1 (𝑅 ‖ 𝑄)]                             data with many variables. IV is based on an analysis of each
+                                                                   individual predictor in turn without taking into account the
+                                               2 1/2               other predictors.
+              +[𝑑2 (𝑃 ‖ 𝑅) + 𝑑2 (𝑅 ‖ 𝑄)] )
+                                                                   3.1. IV and WOE. One advantage of IV is its close tie
+          = (𝑑12 (𝑃 ‖ 𝑅) + 2𝑑1 (𝑃 ‖ 𝑅) 𝑑1 (𝑅 ‖ 𝑄)                  with weight of evidence (WOE), defined by ln((𝑔𝑖 /𝑔)/(𝑏𝑖 /𝑏)).
+                                                                   WOE measures the strength of each grouped attribute in
+              + 𝑑12 (𝑅 ‖ 𝑄) + 𝑑22 (𝑃 ‖ 𝑅) + 2𝑑2 (𝑃 ‖ 𝑅)            separating good and bad accounts. According to [17], WOE
+                                               1/2                 is the log of odds ratio, which measures odds of being good.
+              ×𝑑2 (𝑅 ‖ 𝑄) + 𝑑22 (𝑅 ‖ 𝑄))                           Moreover, WOE is monotonic and linear.
+                                                           (37)         Yet, WOE is not an accurate measure in that it is not the
+          = ([𝑑12 (𝑃 ‖ 𝑅) + 𝑑22 (𝑃 ‖ 𝑅)]                           log of odds ratio and hence its linearity is not guaranteed.
+                                                                   Indeed, 𝑔𝑖 /𝑔 and 𝑏𝑖 /𝑏 are from two different probability
+              + [𝑑12 (𝑅 ‖ 𝑄) + 𝑑22 (𝑅 ‖ 𝑄)]                        distributions. They represent the number of good accounts
+                                                                   in bin 𝑖 divided by the total number of good accounts in the
+              + 2𝑑1 (𝑃 ‖ 𝑅) 𝑑1 (𝑅 ‖ 𝑄)                             population and the number of bad accounts in bin 𝑖 divided
+                                               1/2                 by the total number of bad accounts in the population,
+              + 2𝑑2 (𝑃 ‖ 𝑅) 𝑑2 (𝑅 ‖ 𝑄))                            respectively. In general, 𝑔𝑖 /𝑔 + 𝑏𝑖 /𝑏 ≠ 1 as can be seen from
+                                                                   Exhibit 6.2 in [17].
+          ≤ √𝑑12 (𝑃 ‖ 𝑅) + 𝑑22 (𝑃 ‖ 𝑅)                                  To make WOE a log of odds, let us change its definition
+                                                                   to
+            + √𝑑12 (𝑅 ‖ 𝑄) + 𝑑22 (𝑅 ‖ 𝑄).                                            𝑔 /𝑛         𝑔            𝑏
+                                                                          WOE1 = ln ( 𝑖 𝑖 ) = ln ( 𝑖 ) = − ln ( 𝑖 )                   (40)
+                                                                                     𝑏𝑖 /𝑛𝑖       𝑏𝑖           𝑔𝑖
+The last inequality results from inequality (33).
+                                                                   and denote it by WOE1. The cancelled 𝑛𝑖 = 𝑔𝑖 + 𝑏𝑖 is the
+Remark 14. da Costa and Taneja [16] show that √𝑊𝑠 (𝑃 ‖ 𝑄)          number of accounts in bin 𝑖, and so 𝑔𝑖 /𝑛𝑖 + 𝑏𝑖 /𝑛𝑖 = 1.
+and √𝑉𝑠 (𝑃 ‖ 𝑄) are metrics divergence measures for all 𝑠.             As is well known, the logistic regression models the
+Since Δ(𝑃 ‖ 𝑄), 𝐼(𝑃 ‖ 𝑄), ℎ(𝑃 ‖ 𝑄), 𝑑(𝑃 ‖ 𝑄), 𝐽(𝑃 ‖                log odds, expressed in conditional probabilities, as a linear
+𝑄), 𝑇(𝑃 ‖ 𝑄), and 𝜓(𝑃 ‖ 𝑄) are all constant factors of             function of the independent variable; that is,
+special cases of √𝑊𝑠 (𝑃 ‖ 𝑄) or √𝑉𝑠 (𝑃 ‖ 𝑄), they are all metric
+divergence measures by Proposition 13. Yet, da Costa and                                   𝑃 (𝑌 = 1 | 𝑥)
+                                                                                    ln (                 ) = 𝛽0 + 𝛽1 𝑥.                (41)
+Taneja did not disprove or discuss any applications of these                               𝑃 (𝑌 = 0 | 𝑥)
+divergence measures.
+                                                                   When 𝑥 falls into bin 𝑖, ln(𝑃(𝑌 = 1 | 𝑥)/𝑃(𝑌 = 0 | 𝑥))
+                                                                   becomes ln(𝑏𝑖 /𝑔𝑖 ) = − ln(𝑔𝑖 /𝑏𝑖 ). Hence, the WOE1 values are
+3. Information Value in Credit Scoring                             either continuously increasing or continuously decreasing in
+                                                                   a linear fashion.
+Information value, or IV in short, is a widely used measure             IV and WOE1 can be used together to select independent
+in credit scoring in the financial industry. It is a numerical     variables for logistic regression. When a continuous variable
+value to quantify the predictive power of an independent           𝑥 has a large IV, we make it a candidate variable for logistic
+continuous variable 𝑥 in capturing the binary dependent            regression if WOE1 values are linear. It is common to plot the
+variable 𝑦. Mathematically, it is defined as [17]                  WOE1 values versus the mean values of 𝑥 at bin 𝑖.
+                    𝑛
+                       𝑔 𝑏           𝑔 /𝑔
+              IV = ∑ ( 𝑖 − 𝑖 ) × ln ( 𝑖 ) ,                (38)    3.2. A Rule of Thumb of IV. Intuitively, the larger the IV,
+                   𝑖=1 𝑔   𝑏         𝑏𝑖 /𝑏                         the more predictive the independent variable. However, if
+                                                                   IV is too large, it should be checked for over predicting. For
+where 𝑛 is the number of bins or groups of vari- able 𝑥, 𝑔𝑖 and    instance, 𝑥 may be a postknowledge variable.
+𝑏𝑖 are the numbers of good and bad accounts with bin 𝑖, and 𝑔          To quantify IV, a rule of thumb is proposed in [17, 18]:
+and 𝑏 are the total number of good accounts and bad accounts
+in the population. Hence, 𝑔𝑖 /𝑔 and 𝑏𝑖 /𝑏 are distributions of          (i) less than 0.02: unpredictive,
+good accounts and bad accounts. Therefore,                             (ii) 0.02 to 0.1: weak,
+                       𝑛        𝑛
+                           𝑔     𝑏                                    (iii) 0.1 to 0.3: medium,
+                       ∑ 𝑖 = ∑ 𝑖 = 1.                      (39)
+                       𝑖=1 𝑔 𝑖=1 𝑏                                    (iv) 0.3+: strong.
+Journal of Mathematics                                                                                                                7
+
+In addition, mathematical reasoning of the rule of thumb             binning is to sort the data first and then divide them into 𝑛
+is given in [18]. In more detail, IV can be expressed as the         bins with an equal number of observations (the last bin may
+average of 2 likelihood ratio test statistics 𝐺(𝑃, 𝑄) and 𝐺(𝑄, 𝑃)    have less number of observations). This works well if 𝑥 has
+of Chi-square distributions with (𝑛 − 1) degrees of freedom:         no repeating values at all. In reality, 𝑥 often has repeating
+                                                                     values (called the tied values in statistics), which may cause
+                     𝑛               𝑛
+                            𝑝               𝑞                        problems when the tied values of 𝑥 fall into different bins.
+          2 × IV = 2∑𝑝𝑖 ln ( 𝑖 ) + 2∑𝑞𝑖 ln ( 𝑖 )
+                    𝑖=1     𝑞𝑖      𝑖=1     𝑝 𝑖              (42)
+                                                                         Proc Rank in SAS serves, a good candidate for binning (as
+                                                                     opposed to function cut in 𝑅). When there are no tied values
+                  = 𝐺 (𝑃, 𝑄) + 𝐺 (𝑄, 𝑃) .                            in 𝑥, it simply divides the values of 𝑥 into 𝑛 bins. When there
+                                                                     are tied values in 𝑥, it treats the tied values by its option TIES.
+The close relationship between IV and the likelihood ratio               Proc Rank begins with sorting the values of 𝑥 within a
+test allows using the Chi-square distribution to assign a            BY group. It then assigns each nonmissing value an ordinal
+significance level.                                                  number that indicates its rank or position in the sequence. In
+     However, this is doubtful. On the one hand, 𝐺(𝑃, 𝑄) and         case of ties, option TIES will be used. Depending on whether
+𝐺(𝑄, 𝑃) are not necessarily independent. On the other hand,          TIES = LOW, HIGH, or MEAN (default one), the lowest rank,
+even if they are independent, it is not enough. Let us assume        highest rank, or the average rank will be assigned to all the
+that 2 × IV follows a Chi-square distribution with 2(𝑛 − 1)          tied values. Next, the following formula is used to calculate
+degrees of freedom. Yet, the critical values of the Chi-square       the binning value of each nonmissing value of 𝑥:
+distribution are too large compared with the values in the rule
+of thumb, as can be seen from the Chi-square table in many                                         rank × 𝑛
+                                                                                               ⌊            ⌋,                     (44)
+books about Probability, say [19].                                                                  𝑚+1
+     We only list the first several rows of Table 1. When
+Table 1 grows as DF increases, the values in each column will        where ⌊⌋ is the floor function, rank the value’s rank, 𝑛 the
+increase. One may use the Excel function CHIINV(𝑝, 𝑑𝑓) or            number of bins, and 𝑚 the number of nonmissing observa-
+its newer and more accurate version CHISQ.INV.RT(𝑝, 𝑑𝑓)              tions. Note that the range of the binning values is from 0
+to build Table 1, which returns the inverse of the right-tailed      to 𝑛 − 1. Finally, all the values of 𝑥 are binned according to
+probability 1 − 𝑝 of the Chi-square distribution with 𝑑𝑓             their binning values. In case one bin has less than 5% of the
+degrees of freedom.                                                  population, we may combine this bin with its neighboring
+     The critical values are as small as the values in the rule of   bin.
+thumb only when the degrees of freedom are as small as 6.                 To illustrate the use of Proc Rank with 𝑛 = 10 and
+For instance, there is a probability of 1 − 0.005 = 0.995 that       TIES = MEAN, let us look at an imaginary dataset with one
+a Chi-square distribution with 6 degrees of freedom will be          variable age and 100 observations. Assume this dataset has
+larger than or equal to 0.68, that is,                               been sorted and has fifty observations with a value of 10,
+                                                                     thirty observations with a value of 20, ten observations with
+                  CHIINV (0.995, 6) = 0.68.                  (43)    a value of 30, nine observations with a value of 40, and one
+                                                                     observation with a value of 50.
+Yet, there is a probability of 0.995 that a Chi-square random             The first 50 observations have a tied value of 10. Each
+variable with 10 degrees of freedom will be larger than or           of them will be assigned an average rank of 𝑘 = 25.5 and
+equal to 2.16. There is a probability of 0.995 that a Chi-square     hence a binning value of ⌊(25.5 × 10)/101⌋ = 2. The next
+random variable with 18 degrees of freedom will be larger            30 observations have a tied value of 20. Each of them will be
+than or equal to 6.26. On the basis of the above, the rule of        assigned an average rank of (51 + 52 + ⋅ ⋅ ⋅ + 80)/30 = 65.5
+thumb is more or less empirical.                                     and hence a binning value of ⌊(65.5 × 10)/101⌋ = 6. The next
+                                                                     10 observations have a tied value of 30. Each of them will be
+3.3. Calculation of IV. The calculation of IV is simple once         assigned an average rank of (81 + 82 + ⋅ ⋅ ⋅ + 90)/10 = 85.5
+binning is done. In this sense, IV is a subjective measure. It       and hence a binning value of ⌊(85.5 × 10)/101⌋ = 8. The
+depends on how the binning is done and how many bins are             next 9 observations have a tied value of 40. Each of them will
+used. Different binning methods may result in different IV           be assigned an average rank of (91 + 92 + ⋅ ⋅ ⋅ + 99)/9 = 95
+values, whereas the logistic regression in the later stages will     and hence a binning value of ⌊(95 × 10)/101⌋ = 9. The last
+not use the information of these bins.                               observation has a rank of 100 and hence will be assigned a
+    In practice, 10 or 20 bins are used. The more the bins,          binning value of ⌊(100 × 10)/101⌋ = 9. In summary, the 100
+the better the chance the good accounts will be separated            observations are divided into 4 bins: the first 50 observations,
+from the bad accounts. Yet, we cannot divide the values of           the next 30 observations, the next 10 observations, and the
+𝑥 indefinitely since we may not avoid 0 good account or 0            last 10 observations.
+bad account in some bins. To overcome the limitation of the          Remark 15. Missing values are not ranked and are left missing
+logarithm function in the 𝐽-divergence, the binning should           in Proc Rank. Yet, they may be kept in a separate bin by means
+avoid 0 good account or 0 bad account in any bins.                   of Proc Summary or Proc Means in the calculation of IV.
+    The idea of binning is to assign values of 𝑥 with similar
+behaviors to the same group or bin. In particular, the same          Remark 16. If 𝑥 has less than 𝑘 different values, the number
+values of 𝑥 must fall into the same bin. A natural way of            of bins by Proc Rank will be less that 𝑘.
+8                                                                                                                      Journal of Mathematics
+
+                                                           Table 1: Chi-square table.
+
+DF       𝑃 = 0.005          0.01      0.025         0.05          0.25         0.5          0.75          0.9       0.95      0.975       0.99
+1            0               0        0.001        0.004           0.1        0.45          1.32          2.71      3.84      5.02        6.64
+2            0.01           0.02      0.051         0.1           0.58        1.39          2.77       4.61         5.99      7.38        9.21
+3           0.072           0.11      0.22         0.35           1.21        2.37          4.11       6.25         7.81      9.35        11.3
+4           0.21            0.3       0.48         0.71           1.92        3.36          5.39          7.78      9.49      11.1        13.3
+5           0.41            0.55      0.83         1.15           2.67        4.35          6.63          9.24      11.1      12.8        15.1
+6           0.68            0.87      1.24         1.64           3.45        5.35          7.84          10.6      12.6      14.4        16.8
+..            ..              ..        ..           ..             ..          ..            ..            ..        ..        ..          ..
+ .             .               .         .            .              .           .             .             .         .         .           .
+ 10         2.16            2.56      3.25         3.94           6.74        9.34          12.5          16.0      18.3      20.5        23.2
+ ..            ..              ..        ..           ..             ..          ..            ..            ..        ..        ..          ..
+  .             .               .         .            .              .           .             .             .         .         .           .
+18          6.26            7.01         8.23      9.39           13.7        17.3          21.6       26.0         28.9      31.5        34.8
+
+
+
+    After binning is done for 𝑥, a simple SAS program can                 generality that 𝑝1 ≥ 𝑞1 , 𝑝2 ≥ 𝑞2 , . . . , 𝑝𝑘 ≥ 𝑞𝑘 , and 𝑝𝑘+1 <
+be written to calculate IV. Meanwhile, WOE1 are calculated                𝑞𝐾+1 , . . . , 𝑝𝑛 < 𝑞𝑛 .
+per bin as for WOE in [17]. If IV is less than 0.02, we
+will throw this independent variable. If IV is large than 0.3,            Proof. Using the identity 𝑝𝑖 /𝑞𝑖 = 1 + ((𝑝𝑖 − 𝑞𝑖 )/𝑞1 ) and
+over predicting will be checked. If IV is between 0.02 and                making Taylor’s expansion of function ln(𝑝𝑖 /𝑞𝑖 ) around 1 for
+0.3 and WOE1 are linear, we will include this independent                 𝑖 = 1, 2, . . . , 𝑘, we obtain
+variable as a candidate variable in logistic regression. If IV is                   𝑝               1 𝑝𝑖 − 𝑞𝑖
+between 0.02 and 0.3 but WOE1 are not linear, we may make                       ln ( 𝑖 ) = ln (1) +
+transformations of the independent variable to make WOE1                            𝑞𝑖              2 𝑞𝑖
+                                                                                                                                          (47)
+more linear. If a transformation can preserve the rank of                                             1       𝑝𝑖 − 𝑞𝑖 2 1 𝑝𝑖 − 𝑞𝑖
+the original independent variable, the binning by Proc Rank                                     −           (        ) ≤          .
+                                                                                                  2(1 + 𝜉)2      𝑞𝑖      2 𝑞𝑖
+will be preserved. Therefore, we have obtained the following
+result.                                                                   Multiplying 𝑝𝑖 − 𝑞𝑖 ≥ 0 and summing up from 1 to 𝑘, we
+                                                                          obtain
+Proposition 17. IV, when binning by Proc Rank, is invariant                                                                     2
+                                                                                           𝑘
+under any strictly monotonic transformations.                                                              𝑝     1 𝑘 (𝑝 − 𝑞𝑖 )
+                                                                                          ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 ) ≤ ∑ 𝑖
+                                                                                          𝑖=1              𝑞𝑖    2 𝑖=1  𝑞𝑖
+3.4. Mathematical Properties of IV. IV is the information                                                                       2
+                                                                                                                                          (48)
+                                                                                                                   1 𝑛 (𝑝 − 𝑞𝑖 )
+statistic for the difference between the information in the                                                       ≤ ∑ 𝑖          .
+good accounts and the information in the bad accounts.                                                             2 𝑖=1  𝑞𝑖
+Indeed, IV is the 𝐽-divergence with distributions of good
+accounts and bad accounts. Thus, IV is lower bounded by the               Similarly, ln(𝑞𝑖 /𝑝𝑖 ) ≤ (1/2)((𝑞𝑖 −𝑝𝑖 )/𝑝𝑖 ). Multiplying 𝑞𝑖 −𝑝𝑖 ≥
+square of 𝐿 1 (𝑃 ‖ 𝑄) by Theorem 10.                                      0 and summing up from 𝑘 to 𝑛, we obtain
+                                                                                          𝑛                                           2
+Property 1. IV ≥ (𝐿 1 (𝑃 ‖ 𝑄))2 .                                                                         𝑞     1 𝑛 (𝑞 − 𝑝𝑖 )
+                                                                                         ∑ (𝑞𝑖 − 𝑝𝑖 ) ln ( 𝑖 ) ≤ ∑ 𝑖
+                                                                                        𝑖=𝑘+1
+                                                                                                          𝑝𝑖    2 𝑖=𝑘+1 𝑝𝑖
+Property 2. IV satisfies the inequalities (15); that is,                                                                         2
+                                                                                                                                          (49)
+                                                                                                                   1 𝑛 (𝑝 − 𝑞𝑖 )
+       1                                                                                                          ≤ ∑ 𝑖          .
+         Δ (𝑃 ‖ 𝑄) ≤ 𝐼 (𝑃 ‖ 𝑄) ≤ ℎ (𝑃 ‖ 𝑄)                                                                         2 𝑖=1  𝑝𝑖
+       4
+                                   IV                                     The proof is completed by noting that
+                   ≤ 4𝑑 (𝑃 ‖ 𝑄) ≤      ≤ 𝑇 (𝑃 ‖ 𝑄)              (45)
+                                    8
+                                                                             𝑛
+                      1                                                                      𝑝
+                   ≤ 𝜓 (𝑃 ‖ 𝑄) .                                            ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 )
+                     16                                                     𝑖=1              𝑞𝑖
+                                                                                         𝑘                       𝑛
+In particular, IV is upper bounded by 𝜓(𝑃 ‖ 𝑄):                                                          𝑝                       𝑝
+                                                                                      = ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 ) + ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 )     (50)
+                           𝑛         2                                                                   𝑞𝑖                      𝑞𝑖
+                        1 (𝑝 − 𝑞𝑖 ) (𝑝𝑖 + 𝑞𝑖 )                                          𝑖=1                    𝑖=𝑘+1
+                    IV ≤ ∑ 𝑖                   .                (46)                     𝑘                       𝑛
+                        2 𝑖=1    𝑝𝑖 𝑞𝑖                                                                   𝑝                       𝑞
+                                                                                      = ∑ (𝑝𝑖 − 𝑞𝑖 ) ln ( 𝑖 ) + ∑ (𝑞𝑖 − 𝑝𝑖 ) ln ( 𝑖 ) .
+                                                                                        𝑖=1              𝑞𝑖    𝑖=𝑘+1
+                                                                                                                                 𝑝 𝑖
+Note that there is a direct proof of the above inequality, which
+is much easier than that in [14]. Let us assume without loss of
+Journal of Mathematics                                                                                                                               9
+
+               Table 2: Outlier domination to IV.                                         4.5
+                                                                                            4
+Bin Count Goods Distr. good Bads Distr. bad IV contr.
+
+
+
+
+                                                                     Weight of evidence
+                                                                                          3.5
+1      9580 7600  99.74%    1980  83.19%     0.03001                                        3
+2      420   20   0.26%     400   16.81%     0.68814                                      2.5
+                                                                                            2
+Total 10000 7620 100.00%    2380 100.00%     0.71815                                      1.5
+                                                                                            1
+                                                                                          0.5
+Theorem 18. IV is convex in the pair (𝑝, 𝑞).                                                0
+                                                                                                18–22    23–26   27–29         30–35   35–44   44+
+Proof. Applying Theorem 2.7.2 from [15] to both 𝐷(𝑃 ‖ 𝑄)                                                                 Age
+and 𝐷(𝑄 ‖ 𝑃), we obtain
+                                                                                             Figure 1: Logical Trend of WOE1 for Variable Age.
+   𝐽 (𝜆𝑃1 + (1 − 𝜆) 𝑃2 ‖ 𝜆𝑄1 + (1 − 𝜆) 𝑄2 )
+
+         = 𝐷 (𝜆𝑃1 + (1 − 𝜆) 𝑃2 ‖ 𝜆𝑄1 + (1 − 𝜆) 𝑄2 )
+                                                                   can be alternatives to IV. In particular, 𝐿 𝑝 (𝑃 ‖ 𝑄) (𝑝 ≥ 1) are
+            + 𝐷 (𝜆𝑄1 + (1 − 𝜆) 𝑄2 ‖ 𝜆𝑃1 + (1 − 𝜆) 𝑃2 )             good alternatives to IV. They overcome all the 3 shortcomings
+                                                                   of IV: (1) 𝐿 𝑝 (𝑃 ‖ 𝑄) are all metrics; (2) they allow bins to have
+         ≤ 𝜆𝐷 (𝑃1 ‖ 𝑄1 ) + (1 − 𝜆) 𝐷 (𝑃2 ‖ 𝑄2 )                    0 bad accounts or 0 good accounts; and (3) They all have a
+                                                            (51)   much narrow range, from 0 to 2.
+            + 𝜆𝐷 (𝑄1 ‖ 𝑃1 ) + (1 − 𝜆) 𝐷 (𝑄2 ‖ 𝑃2 )                     While 𝐿 𝑃 (𝑃 ‖ 𝑄) do not seem to have a tie with weight
+                                                                   of evidence, they can be as quantifiable as IV. For instance, we
+         = 𝜆 (𝐷 (𝑃1 ‖ 𝑄1 ) + 𝐷 (𝑄1 ‖ 𝑃1 ))                         may adopt a rule of thumb for 𝐿 𝑃 (𝑃 ‖ 𝑄):
+            + (1 − 𝜆) (𝐷 (𝑃2 ‖ 𝑄2 ) + 𝐷 (𝑄2 ‖ 𝑃2 ))                                       (i) weak: 6% of its upper bound,
+         = 𝜆𝐽 (𝑃1 ‖ 𝑄1 ) + (1 − 𝜆) 𝐽 (𝑃2 ‖ 𝑄2 ) .                                (ii) medium: 6% to 30% of its upper bound,
+                                                                           (iii) strong: Larger than 30% of its upper bound.
+                                                                                  In particular,
+Remark 19. √𝐽(𝑃 ‖ 𝑄) is not convex albeit a metric.
+                                                                                          (i) weak: 0.12 for 𝐿 1 (𝑃 ‖ 𝑄), 0.085 for 𝐿 2 (𝑃 ‖ 𝑄), and
+Property 3. If more than 95% of population of 𝑥 have the                                      0.06 for 𝐿 ∞ (𝑃 ‖ 𝑄),
+same value, then IV = 0. In particular, if 𝑥 has just one value,                 (ii) medium: 0.12 to 0.60 for 𝐿 1 (𝑃 ‖ 𝑄), 0.085 to 0.424 for
+then IV = 0.                                                                          𝐿 2 (𝑃 ‖ 𝑄), and 0.06 to 0.30 for 𝐿 ∞ (𝑃 ‖ 𝑄),
+Proof. Assume more than 95% of population of 𝑥 have the                    (iii) strong: 0.60+ for 𝐿 1 (𝑃 ‖ 𝑄), 0.424+ for 𝐿 2 (𝑃 ‖ 𝑄),
+same value 𝑥0 . Then, all the population with value 𝑥0 will                      0.3+ for 𝐿 ∞ (𝑃 ‖ 𝑄).
+fall into the same bin, called the majority bin. The rest
+of population whose values are different from 𝑥0 will be           Remark 21. If 𝐿 1 (𝑃 ‖ 𝑄) > 0.12, then IV > 0.0144.
+combined into the majority bin. Thus, there will be only one
+                                                                       The lower bound 0.12 of 𝐿 1 (𝑃 ‖ 𝑄) can be adjusted
+bin for all the values of 𝑥. Therefore 𝑔1 = 𝑔, 𝑏1 = 𝑏, and hence
+                                                                   as needed. It can also be combined with IV to enhance
+IV = 0.
+                                                                   the accuracy. For instance, for the number of independent
+Remark 20. If the population whose values are not 𝑥0 are not       variables is large enough, we may select only those which
+combined into the majority bin, then IV could be larger than       satisfy both lower bounds of 𝐿 1 (𝑃 ‖ 𝑄) and IV.
+0.02. As shown in Table 2, 𝑥 has 10000 observations, where
+95.8% or 9580 observations have the same value, say 2, and         4. Numerical Results
+the rest of 420 observations have another value, say 4. Both
+bins contribute a value larger than 0.02 to IV. Statistically,     To illustrate our results, we use Exhibit 6.2 in [17] but add one
+4.2% of the population are outliers and can be neglected.          column for WOE1. We use the real WOE, not its “more user-
+Hence, it is more meaningful to say 𝑥 has no information           friendly” form—100 times WOE.
+to 𝑦.                                                                   From Table 3, we see that 𝐿 ∞ < 𝐿 2 < 𝐿 1 < √IV. From
+                                                                   Figure 1, we also see that the WOE1 for nonmissing values has
+                                                                   a linear trend for variable age.
+3.5. Alternatives to IV. As we have seen above, IV has 3
+shortcomings: (1) it is not a metric; (2) no groups are allowed    5. Conclusions
+to have 0 bad accounts or 0 good accounts; and (3) its range
+is too broad, from 0 to ∞.                                         In this paper, we have proposed a class of metric divergence
+     Theoretically, any divergence measures of the difference      measures, namely, 𝐿 𝑝 (𝑃 ‖ 𝑄), 𝑝 ≥ 1, and studied their
+or distance between good distributions and bad distributions       mathematical properties. We studied information value, an
+10                                                                                                                     Journal of Mathematics
+
+                                                     Table 3: Calculation of IV and WOE.
+ Age             Count           Tot. distr.     Goods          Distr. good        Bads           Distr. bad            WOE                WOE1
+ Missing          1000             2.5%           860             2.38%             140             3.65%             −0.42719            4.117875
+ 18–22           4000               10%          3040             8.41%            960               25%              −0.10898             1.15268
+ 23–26            6000              15%          4920             13.61%           1080             28.13             −0.72613            1.516347
+ 27–29            9000            22.5%           8100            22.4%            900             23.44%             −0.04526            2.197225
+ 30–35           10000              25%          9500            26.27%             500            13.02%              0.70196            2.944439
+ 35–44            7000             17.5%         6800             18.81%            200             5.21%              1.28388            3.526361
+ 44+              3000             7.5%          2940              8.13%            60              1.56%              1.64934             3.89182
+ Total           40000             100%          36160             100%            3840             100%
+IV = 0.6681, and √IV = 0.8174.
+L1 = 0.6684, L2 = 0.2987, and L∞ = 0.1659.
+
+
+important divergence measure widely used in credit scoring.              [12] I. J. Taneja, “New developments in generalized information
+After exploring the mathematical reasoning of a rule of                       measures,” in Advances in Imaging and Electron Physics, P. W.
+thumb and weight of evidence, we suggested an alternative                     Hawkes, Ed., vol. 91, pp. 37–136, 1995.
+to weight of evidence. Finally, we proposed using 𝐿 𝑝 (𝑃 ‖               [13] N. Cressie and T. R. C. Read, “Multinomial goodness-of-fit
+𝑄) as alternatives to information value to overcome its                       tests,” Journal of the Royal Statistical Society B, vol. 46, no. 3, pp.
+disadvantages.                                                                440–464, 1984.
+                                                                         [14] I. J. Taneja, “Generalized Symmetric Divergence Measures and
+                                                                              Inequalities,” RGMIA Research Report Collection, vol. 7, no. 4,
+References                                                                    2004.
+ [1] I. J. Taneja, “Generalized relative information and information     [15] T. M. Cover and J. A. Thomas, Elements of InformationTheory,
+     inequalities,” Journal of Inequalities in Pure and Applied Mathe-        John Wiley & Sons, New York, NY, USA, 1991.
+     matics, vol. 5, no. 1, pp. 1–19, 2004.                              [16] G. A. T. F. da Costa and I. J. Taneja, Generalized Symmetric
+                                                                              Divergence Measures and Metric Spaces, Computing Research
+ [2] E. Hellinger, “Neue begründung der theorie der quadratischen
+                                                                              Repository, 2011.
+     formen von unendlichen vielen veränderlichen,” Journal Für
+     Die Reine und Angewandte Mathematik, vol. 136, pp. 210–271,         [17] N. Siddiqi, Credit Risk Scorecards—Developing and Implement-
+     1909.                                                                    ing Intelligent Credit Scoring, John Wiley & Sons, 2006.
+ [3] C. E. Shannon, “A mathematical theory of communication,” The        [18] N. Siddiqi, Credit Risk Scorecards—Development and Implemen-
+     Bell System Technical Journal, vol. 27, pp. 379–423, 1948.               tation Using SAS, LULU, 2011.
+                                                                         [19] D. Downing and J. Clark, Barron’s E-Z Statistics, Barron’s
+ [4] S. Kullback and R. A. Leibler, “On information and sufficiency,”
+                                                                              Educational Series, 2009.
+     Annals of Mathematical Statistics, vol. 22, pp. 79–86, 1951.
+ [5] H. Jeffreys, “An invariant form for the prior probability in
+     estimation problems,” Proceedings of the Royal Society, vol. 186,
+     pp. 453–461, 1946.
+ [6] F. Topsøe, “Some inequalities for information divergence and
+     related measures of discrimination,” Institute of Electrical and
+     Electronics Engineers, vol. 46, no. 4, pp. 1602–1609, 2000.
+ [7] S. S. Dragomir, J. Šunde, and C. Buşe, “New inequalities
+     for Jeffreys divergence measure,” Tamsui Oxford Journal of
+     Mathematical Sciences, vol. 16, no. 2, pp. 295–309, 2000.
+ [8] K. Pearson, “On the criterion that a given system of deviations
+     from the probable in the case of correlated system of variables
+     is such that it can be reasonable supposed to have arisen from
+     random sampling,” Philosophical Magazine, vol. 50, pp. 157–172,
+     1992.
+ [9] R. Sibson, “Information radius,” Zeitschrift für Wahrschein-
+     lichkeitstheorie und Verwandte Gebiete, vol. 14, no. 2, pp. 149–
+     160, 1969.
+[10] J. Burbea and C. R. Rao, “Entropy differential metric, dis-
+     tance and divergence measures in probability spaces: a unified
+     approach,” Journal of Multivariate Analysis, vol. 12, no. 4, pp.
+     575–596, 1982.
+[11] J. Burbea and C. R. Rao, “On the convexity of some divergence
+     measures based on entropy functions,” Institute of Electrical and
+     Electronics Engineers, vol. 28, no. 3, pp. 489–495, 1982.
+Advances in                                                                        Advances in                                    Journal of                                                                                    Journal of
+Operations Research
+Hindawi Publishing Corporation
+                                                                                   Decision Sciences
+                                                                                   Hindawi Publishing Corporation
+                                                                                                                                  Applied Mathematics
+                                                                                                                                  Hindawi Publishing Corporation
+                                                                                                                                                                                 Algebra
+                                                                                                                                                                                 Hindawi Publishing Corporation
+                                                                                                                                                                                                                                Probability and Statistics
+                                                                                                                                                                                                                                Hindawi Publishing Corporation
+http://www.hindawi.com                                            Volume 2014      http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014
+
+
+
+
+The Scientific                                                                                                                                                                                                                  International Journal of
+World Journal
+Hindawi Publishing Corporation
+                                                                                                                                                                                                                                Differential Equations
+                                                                                                                                                                                                                                Hindawi Publishing Corporation
+http://www.hindawi.com                                            Volume 2014                                                                                                                                                   http://www.hindawi.com           Volume 2014
+
+
+
+
+                                                                                                                     Submit your manuscripts at
+                                                                                                                      http://www.hindawi.com
+
+International Journal of                                                                                                                                                                                                        Advances in
+Combinatorics
+Hindawi Publishing Corporation
+                                                                                                                                                                                                                                Mathematical Physics
+                                                                                                                                                                                                                                Hindawi Publishing Corporation
+http://www.hindawi.com                                            Volume 2014                                                                                                                                                   http://www.hindawi.com           Volume 2014
+
+
+
+
+Journal of                                                                         Journal of                                     Mathematical Problems                          Abstract and                                   Discrete Dynamics in
+Complex Analysis
+Hindawi Publishing Corporation
+                                                                                   Mathematics
+                                                                                   Hindawi Publishing Corporation
+                                                                                                                                  in Engineering
+                                                                                                                                  Hindawi Publishing Corporation
+                                                                                                                                                                                 Applied Analysis
+                                                                                                                                                                                 Hindawi Publishing Corporation
+                                                                                                                                                                                                                                Nature and Society
+                                                                                                                                                                                                                                Hindawi Publishing Corporation
+http://www.hindawi.com                                            Volume 2014      http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014
+
+
+
+
+                                 International
+                                 Journal of                                        Journal of
+                                 Mathematics and
+                                 Mathematical
+                                                                                   Discrete Mathematics
+                                 Sciences
+
+
+
+                                                                                                                                  Journal of                                     International Journal of                       Journal of
+
+                                 Hindawi Publishing Corporation                    Hindawi Publishing Corporation   Volume 2014
+                                                                                                                                  Function Spaces
+                                                                                                                                  Hindawi Publishing Corporation
+                                                                                                                                                                                 Stochastic Analysis
+                                                                                                                                                                                 Hindawi Publishing Corporation
+                                                                                                                                                                                                                                Optimization
+                                                                                                                                                                                                                                Hindawi Publishing Corporation
+                                 http://www.hindawi.com              Volume 2014   http://www.hindawi.com                         http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014   http://www.hindawi.com           Volume 2014

@@ -1,0 +1,43 @@
+project:
+  type: book
+  output-dir: _output
+
+book:
+  title: "Paper CRPTO"
+  subtitle: "Extracción IJDS y tesis desde el libro Quarto principal"
+  author: "Carlos Alfredo Vergara Rojas"
+  date: today
+  chapters:
+    - index.qmd
+    - chapters/01-ijds-target-and-claim.qmd
+    - chapters/02-book-to-crpto-intake.qmd
+    - chapters/03-manuscript-body.qmd
+    - chapters/04-online-supplement.qmd
+    - chapters/05-thesis-chapter.qmd
+    - chapters/06-open-boundaries.qmd
+    - chapters/07-project-expansion-map.qmd
+    - chapters/08-roadmap-and-gates.qmd
+    - references.qmd
+
+bibliography: ../../book/references.bib
+csl: ../../book/apa.csl
+lang: es
+
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-depth: 3
+    number-sections: true
+    code-fold: true
+  pdf:
+    documentclass: scrreprt
+    papersize: letter
+    geometry:
+      - margin=1in
+
+execute:
+  freeze: auto
+  echo: false
+  warning: false
+  error: false

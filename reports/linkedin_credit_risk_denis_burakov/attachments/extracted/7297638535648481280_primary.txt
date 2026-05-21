@@ -1,0 +1,53 @@
+Conformalized approach for classification intervals
+How to get intervals for binary classification tasks?
+
+While there are many approaches to quantifying uncertainty          For regression problems, in his paper Ryan Tibshirani offered
+with conformal prediction, for binary classification tasks          a studentized residual as a residual conformity score where
+(e.g., credit scoring, fraud detection) practitioners are           the standard deviation is estimated separately
+typically left with a confidence set of [True, False]
+                                                                    A classification alternative to this can be the Pearson residual:
+In real life this leads to some comical situations such as the
+one depicted below, an example I borrow from a leading
+expert on the subject, Valery Manokhin
+
+
+
+                                                     …?             where 𝑦! is the observed outcome and 𝑝! is the predicted
+                                                                    probability from a classifier
+
+                                                                    A chosen confidence (e.g. 95%) quantile of absolute Pearson
+                                                                    residuals on the calibration set is then used to construct the
+                                                                    conformalized classification intervals:
+
+
+
+
+We don’t typically care about prediction sets, we care about some
+downstream decision (quote by Anastasios Angelopoulos)
+Conformalized approach for classification intervals
+Application of the approach to real-world data
+
+In this example, we use a real-world dataset
+(breast cancer) to visualize the 95%
+confidence intervals for four well-established
+algorithms for binary classification:
+
+•   Logistic Regression
+•   Naïve Bayes
+•   SVM
+•   Random Forest
+
+The plots illustrate how the intervals reflect
+the actual coverage of points above or below
+the predicted probabilities, allowing us to
+evaluate and compare models that produce
+probability-like scores
+
+While this experimental approach is not a
+classical case of conformal prediction (CP), it
+shares a similar objective of quantifying
+uncertainty using established methodologies
+from both machine learning (CP) and
+traditional statistics (discrepancy measures)
+
+Notebook

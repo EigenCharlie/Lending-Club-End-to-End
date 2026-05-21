@@ -11,6 +11,10 @@ es el repositorio editorial donde se conserva todo lo útil para escoger más
 adelante qué entra al paper corto, qué queda como appendix journal y qué debe
 vivir en la tesis/libro.
 
+Desde este cierre, `Paper Estrella` se conserva como alias interno histórico y
+**Paper CRPTO** es el nombre recomendado para la extracción pública: manuscrito
+IJDS, suplemento reproducible y capítulo central de tesis.
+
 La contribución central sigue siendo la misma: **CRPTO post-hoc auditable con economic champion congelado**. Nada en esta página reabre la búsqueda, cambia el champion ni convierte diagnósticos en nuevas métricas oficiales.
 
 ### Criba: qué se implementa ahora y qué queda fuera
@@ -49,7 +53,7 @@ Criba de mejoras según si preservan o cambian la dirección del paper.
 | `14d` | Resultados y evidencia P1 | cuerpo resultados | cuerpo + appendix | sí | Champion y región robusta al cuerpo; A3--A11 al appendix. |
 | `14e` | Discusión, limitaciones y roadmap | cuerpo discusión | cuerpo + future work | sí | IFRS9/CATE como conexiones, no contribución central. |
 | `14f` | Guía editorial y referencias numeradas | insumo | insumo | sí | Convertir a related work formal al escribir. |
-| `14g` | Blueprint del manuscrito | insumo | insumo | sí | Usar como skeleton; no citar como resultado. |
+| `14g` | Blueprint del manuscrito IJDS | insumo | insumo | sí | Usar como skeleton; no citar como resultado. |
 | `14h` | Appendix A12--A18 | appendix selectivo | appendix fuerte | sí | Diagnóstico journal, no nueva promoción del champion. |
 | `14i` | Ablación Mondrian | appendix corto | appendix | sí | Defender `score_decile_mondrian` vs `grade`. |
 | `14j` | Protocolo SPO+ | appendix corto | appendix | sí | Separar regret 49.1% de cobertura/auditabilidad. |
@@ -146,18 +150,18 @@ Manifest de figuras para extraer paper y appendix.
 
 | Reviewer pregunta | Respuesta corta | Mejor evidencia | Venue donde más importa |
 |---|---|---|---|
-| ¿No es solo otro modelo de PD? | No: la contribución es mapear incertidumbre conformal a una restricción robusta auditable. | `14b`, `14c`, Fig 12 | Todos |
-| ¿Por qué no optimizan solo SPO+? | SPO+ gana regret; CRPTO compra cobertura verificable y auditabilidad. | `14j`, Fig 9, `14e` | MS/EJOR |
-| ¿La garantía post-selección es demasiado optimista? | El teorema es distribution-free para asignación fija; P1 agrega evidencia temporal y exact eval, no sobrepromete garantía prospectiva. | A3, A9, A10, `14b` | OR/MS |
+| ¿No es solo otro modelo de PD? | No: la contribución es mapear incertidumbre conformal a una restricción robusta auditable. | `14b`, `14c`, Fig 12 | IJDS/todos |
+| ¿Por qué no optimizan solo SPO+? | SPO+ gana regret; CRPTO compra cobertura verificable y auditabilidad. | `14j`, Fig 9, `14e` | IJDS/OR |
+| ¿La garantía post-selección es demasiado optimista? | El teorema es distribution-free para asignación fija; P1 agrega evidencia temporal y exact eval, no sobrepromete garantía prospectiva. | A3, A9, A10, `14b` | IJDS/OR |
 | ¿Por qué `score_decile_mondrian` y no `grade`? | `grade` es baseline interpretable; `score_decile_mondrian` gana por cobertura mínima y selector objetivo. | `14i`, A10 | Todos |
 | ¿Markov no es muy flojo? | Sí, y por eso se declara como cota principal conservadora; Hoeffding/Bernstein quedan condicionales. | `14b`, A14 | OR |
-| ¿La región `45/45` es un artifact de tuning? | La región completa reduce el riesgo de single-point champion, y A18 reporta familia compatible. | Fig 14, A18 | MS/EJOR |
-| ¿Qué pasa con fairness? | Pasa proxy base + proxy-intersectional; atributos protegidos directos quedan fuera por limitación del dataset. | `14k`, `fairness_audit_status.json` | MS/EJOR |
-| ¿Qué pasa con regulación/MRM? | CRPTO es auditable por subsistema: PD, conformal, LP, fairness y governance. | `14l`, MRM report | MS/EJOR |
+| ¿La región `45/45` es un artifact de tuning? | La región completa reduce el riesgo de single-point champion, y A18 reporta familia compatible. | Fig 14, A18 | IJDS/OR |
+| ¿Qué pasa con fairness? | Pasa proxy base + proxy-intersectional; atributos protegidos directos quedan fuera por limitación del dataset. | `14k`, `fairness_audit_status.json` | IJDS |
+| ¿Qué pasa con regulación/MRM? | CRPTO es auditable por subsistema: PD, conformal, LP, fairness y governance. | `14l`, MRM report | IJDS |
 | ¿Los stress tests reemplazan validación externa? | No; fortalecen robustez interna. Dataset externo queda como journal/future work. | A6, A11, `14e` | Todos |
 | ¿Por qué no OCE/CVaR como objetivo? | Hoy A12 es diagnóstico; convertirlo en objective cambia el search y sería paper siguiente. | A12, backlog | OR/MS |
-| ¿Qué pasó con Paper 2/IFRS9? | Paper 4 absorbió su valor prudencial como ECL/SICR proxy; Paper Estrella solo lo usa como implicación aplicada. | `19ca`, `paper4_paper2_absorption_anchors_2026-05-18.csv` | MS/EJOR |
-| ¿Hay evidencia de source/fairness governance? | Sí como proxy governance y MRM; no como fair-lending legal por ausencia de atributos protegidos directos. | `14k`, `19n`, `paper4_lab4_lane8_governance_fairness_proxy_2026-05-18.csv` | MS/EJOR |
+| ¿Qué pasó con Paper 2/IFRS9? | Paper 4 absorbió su valor prudencial como ECL/SICR proxy; Paper CRPTO solo lo usa como implicación aplicada. | `19ca`, `paper4_paper2_absorption_anchors_2026-05-18.csv` | IJDS/tesis |
+| ¿Hay evidencia de source/fairness governance? | Sí como proxy governance y MRM; no como fair-lending legal por ausencia de atributos protegidos directos. | `14k`, `19n`, `paper4_lab4_lane8_governance_fairness_proxy_2026-05-18.csv` | IJDS/tesis |
 | ¿El selector ya es decision-aware end-to-end? | No; CROMS-lite/A5 funciona como screen de finalists y evidencia de appendix, no como entrenamiento nuevo. | A5, A10, `paper4_lab4_selector_final_table_2026-05-18.csv` | OR/MS |
 
 Banco de respuestas para preparar manuscrito y rebuttal.
@@ -186,7 +190,7 @@ Superficies de companion y regla de uso.
 ::: {.callout-note}
 ## Decisión actual
 
-Mientras el capítulo 14 siga funcionando como repositorio editorial amplio, el companion oficial es **Quarto + DVC/DagsHub/MLflow**. Streamlit puede volver como producto o visualización para comité, pero no debe arrastrar claims, métricas ni números que no estén sincronizados con `models/final_project_promotion.json`.
+Mientras el capítulo 14 siga funcionando como repositorio editorial amplio, el companion oficial es **Quarto + DVC/DagsHub/MLflow**. La extracción Paper CRPTO debe producir además un suplemento IJDS anonimizado y un paquete data/code disclosure. Streamlit puede volver como producto o visualización para comité, pero no debe arrastrar claims, métricas ni números que no estén sincronizados con `models/final_project_promotion.json`.
 :::
 
 ### Source pack hygiene

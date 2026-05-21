@@ -1,0 +1,326 @@
+GitHub - xRiskLab/woeboost: Weight of Evidence (WOE) Gradient Boosting · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub CopilotWrite better code with AI
+GitHub SparkBuild and deploy intelligent apps
+GitHub ModelsManage and compare prompts
+MCP RegistryNewIntegrate external tools
+DEVELOPER WORKFLOWS
+ActionsAutomate any workflow
+CodespacesInstant dev environments
+IssuesPlan and track work
+Code ReviewManage code changes
+APPLICATION SECURITY
+GitHub Advanced SecurityFind and fix vulnerabilities
+Code securitySecure your code as you build
+Secret protectionStop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub SponsorsFund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platformAI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced SecurityEnterprise-grade security features
+Copilot for BusinessEnterprise-grade AI features
+Premium SupportEnterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation.
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session.
+You signed out in another tab or window. Reload to refresh your session.
+You switched accounts on another tab or window. Reload to refresh your session.
+Dismiss alert
+{{ message }}
+xRiskLab
+/
+woeboost
+Public
+Notifications
+You must be signed in to change notification settings
+Fork
+0
+Star
+9
+Code
+Issues
+0
+Pull requests
+0
+Actions
+Projects
+Security and quality
+0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+xRiskLab/woeboost
+main
+BranchesTags
+Go to file
+Code
+Open more actions menu
+Folders and files
+NameName
+Last commit message
+Last commit date
+Latest commit
+History
+16 Commits
+16 Commits
+.github/workflows
+.github/workflows
+docs
+docs
+tests
+tests
+woeboost
+woeboost
+.gitignore
+.gitignore
+.pre-commit-config.yaml
+.pre-commit-config.yaml
+CHANGELOG.md
+CHANGELOG.md
+LICENSE.md
+LICENSE.md
+README.md
+README.md
+pyproject.toml
+pyproject.toml
+requirements.txt
+requirements.txt
+uv.lock
+uv.lock
+View all files
+Repository files navigation
+README
+MIT license
+WoeBoost
+Author: xRiskLab
+License: MIT License (2025)
+WoeBoost is a Python 🐍 package designed to bridge the gap between the predictive power of gradient boosting and the interpretability required in high-stakes domains such as finance, healthcare, and law. It introduces an interpretable, evidence-driven framework for scoring tasks, inspired by the principles of Weight of Evidence (WOE) and the ideas of Alan M. Turing.
+🔑 Key Features
+🌟 Gradient Boosting with Explainability: Combines the strength of gradient boosting with the interpretability of WOE-based scoring systems.
+📊 Calibrated Scores: Produces well-calibrated scores essential for decision-making in regulated environments.
+🤖 AutoML-like Enhancements:
+Infers monotonic relationships automatically (infer_monotonicity).
+Supports early stopping for efficient training (enable_early_stopping).
+🔧 Support for Missing Values & Categorical Inputs: Handles various data types seamlessly while maintaining interpretability.
+🛠️ Diagnostic Toolkit:
+Partial dependence plots.
+Feature importance analysis.
+Decision boundary visualization.
+📈 WOE Inference Maker: Provides classical WOE calculations and bin-level insights.
+⚙️ How It Works
+🔍 Initialization: Starts with prior log odds, representing baseline probabilities.
+📈 Iterative Updates: Each boosting iteration calculates residual per each binned feature and sums residuals into total evidence (WOE), updating predictions.
+🔗 Evidence Accumulation: Combines evidence from all iterations, producing a cumulative and interpretable scoring model.
+🧐 Why WoeBoost?
+💡 Interpretability: Every model step adheres to principles familiar to risk managers and data scientists, ensuring transparency and trust.
+✅ Alignment with Regulatory Requirements: Calibrated and interpretable results meet the demands of high-stakes applications.
+⚡ Flexibility: Works seamlessly with diverse data types and supports concurrency for feature binning with Python's concurrent.futures.
+Installation ⤵
+Standard Installation
+Install the package using pip:
+pip install woeboost
+Free-Threaded Python Support (Experimental)
+For significant performance improvements with free-threaded Python builds:
+# Install with free-threaded dependencies
+pip install woeboost[freethreaded]
+# Or install free-threaded Python first, then WoeBoost
+uv python install 3.14.0a5+freethreaded
+pip install woeboost[freethreaded]
+Benefits of free-threaded Python:
+3.67× faster training - real measured performance improvement
+Automatic thread optimization (8 threads vs 4 with GIL)
+No code changes required - WoeBoost auto-detects free-threading
+Same results, faster computation - identical convergence, 3.67× speedup
+from woeboost import WoeLearner
+# Automatically detects free-threading and optimizes thread count
+learner = WoeLearner(n_tasks=8) # Uses more tasks with free-threading
+print(f"Free-threading detected: {learner.is_freethreaded}")
+🧪 Free-Threaded Python Support
+WoeBoost includes experimental support for free-threaded Python builds, providing significant performance improvements for CPU-bound operations:
+3.67× speedup for WoeBoost training with Python 3.14+freethreaded
+Optimal performance at 8 threads (vs 4 with GIL)
+Tested on Python 3.14.0a5+freethreaded (experimental builds)
+Running Free-Threaded Tests
+# Install free-threaded Python
+uv python install 3.14.0a5+freethreaded
+# Run free-threaded tests
+./tests/run_freethreaded_tests.sh
+See tests/README_FREETHREADED.md for detailed information.
+💻 Example Usage
+Below we provide two examples of using WoeBoost.
+Training and Inference with WoeBoost classifier
+from woeboost import WoeBoostClassifier
+# Initialize the classifier
+woe_model = WoeBoostClassifier(infer_monotonicity=True)
+# Fit the model
+woe_model.fit(X_train, y_train)
+# Predict probabilities and scores
+probas = woe_model.predict_proba(X_test)[:, 1]
+preds = woe_model.predict(X_test)
+scores = woe_model.predict_score(X_test)
+Preparation of WOE inputs for logistic regression
+from woeboost import WoeBoostClassifier
+# Initialize the classifier
+woe_model = WoeBoostClassifier(infer_monotonicity=True)
+# Fit the model
+woe_model.fit(X_train, y_train)
+X_woe_train = woe_model.transform(X_train)
+X_woe_test = woe_model.transform(X_test)
+📚 Documentation
+Technical Note: Overview of the WoeBoost modules.
+learner.py: Core module implementing a base learner.
+Development Guide: Setup, testing, and contributing guidelines.
+classifier.py: Module for building a boosted classification model.
+explainer.py: Module for explaining the model predictions.
+📝 Changelog
+For a changelog, see CHANGELOG.
+📄 License
+This project is licensed under the MIT License - see the LICENSE file for details.
+About
+Weight of Evidence (WOE) Gradient Boosting
+Topics
+machine-learning
+statistical-learning
+weight-of-evidence
+gradient-boosting
+Resources
+Readme
+License
+MIT license
+Uh oh!
+There was an error while loading. Please reload this page.
+Activity
+Stars
+9
+stars
+Watchers
+2
+watching
+Forks
+0
+forks
+Report repository
+Releases
+4
+v1.1.0
+Latest
+Sep 16, 2025
++ 3 releases
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page.
+Uh oh!
+There was an error while loading. Please reload this page.
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page.
+Languages
+Python
+98.8%
+Shell
+1.2%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

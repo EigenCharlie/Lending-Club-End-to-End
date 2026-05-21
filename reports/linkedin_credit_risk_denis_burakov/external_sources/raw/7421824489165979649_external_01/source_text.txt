@@ -1,0 +1,408 @@
+MLflow | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+MLflow
+Software Development
+San Francisco, CA 77,527 followers
+The open source AI engineering platform for building production-grade agents, LLM applications, and ML models.
+Follow
+View all 43 employees
+Report this company
+About us
+MLflow is an open-source platform for managing the complete machine learning lifecycle, including experimentation, reproducibility, deployment, and a central model registry. MLflow supports both traditional ML and generative AI workflows:
+- MLflow Tracking: Record and query experiments, including code, data, config, and results. Now with integrated tracing for GenAI workflows across multiple frameworks.
+- MLflow Models: Deploy machine learning models in diverse serving environments, with GenAI support for ChatModels and streaming interfaces.
+- Model Registry: Store, annotate, discover, and manage models in a central repository.
+- MLflow Evaluation: Evaluate model performance using customizable metrics, including LLM-as-judge frameworks and GenAI-specific benchmarks.
+- MLflow Deployments: Simplify model deployment and serving across various platforms, with expanded capabilities for hosting large language models.
+Subscribe to our luma calendar for updates about meetups, office hours, and other events: https://lu.ma/mlflow
+View code on GitHub here: https://github.com/mlflow/mlflow/
+To discuss or get help, please join our mailing list mlflow-users@googlegroups.com
+Website
+https://mlflow.org/
+External link for MLflow
+Industry
+Software Development
+Company size
+2-10 employees
+Headquarters
+San Francisco, CA
+Type
+Nonprofit
+Founded
+2018
+Locations
+Primary
+San Francisco, CA, US
+Get directions
+Employees at MLflow
+Stavros N.
+Hamza Usman Ghani
+Joel Robin P
+Aman Kumar
+See all employees
+Updates
+MLflow reposted this
+Awadelrahman Ahmed
+19h
+Report this post
+Tried out #MLflow 3.12.0. A few notes for anyone using it!
+1. The multimodal tracing change is the one that actually matters to many. Storing images/audio/PDFs as artifact attachments instead of inline binary means trace payloads stop bloating...
+anyone who's traced an agent handling screenshots knows inline base64 makes traces slow to load and inspect.
+The new mlflow-attachment:// URI with UI rendering is a sensible fix, and they shipped attachment size limits and rendering guards alongside it :) .
+2. Codex, Gemini, and Qwen coding-agent tracing got added next to the existing Claude Code integration. Useful if you're on those agents.
+3. Two things technical users should not miss, because they're not in the headline bullets:
+* enable_mlserver is deprecated in the pyfunc serving backend. If you serve via MLServer, plan around this.
+* Async trace logging is now on by default for OSS MLflow.
+Overall: a focused observability release. Worth upgrading if you do agent/LLM work ; but read the breaking change before you do .
+68
+4 Comments
+Like
+Comment
+Share
+MLflow
+77,527 followers
+11h
+Report this post
+OpenHands agents run on their own—they edit files, run terminal commands, and browse the web—but there is no structured record of what happened or whether the result was good.
+MLflow connects through OpenTelemetry: you set three environment variables so OpenHands traces go to your MLflow server (where to send traces, which experiment to use, and the trace transport format).
+You get every large language model call and tool step in MLflow, can evaluate runs with built-in judges like RelevanceToQuery and Correctness, and can route model traffic through AI Gateway for budget control and usage tracking.
+Setup steps and code snippets ➡️ https://lnkd.in/eKNQWtYm
+#MLflow #OpenHands #LLMOps #GenAI #Observability
+9
+Like
+Comment
+Share
+MLflow
+77,527 followers
+1d
+Report this post
+Evaluating RAG agents often means stitching together multiple frameworks and disconnected workflows.
+In Part 1 of this two-part MLflow series, Joana Mesquita (MLflow Ambassador) walks through building and evaluating a production-style school-assistant RAG agent end to end — from prompt and agent registration through traces, ground truth, and multi-framework scoring in one interface.
+📌 Prompt Registry — Version prompts and use aliases like production so you can iterate without redeploying code
+🤖 Agent registration — Define agents with MLflow's standardized base class for logging, versioning, and deployment patterns
+🔍 Traces + ground truth — Capture retrieved context and outputs, with SME expectations logged alongside traces for evaluation reference
+⚖️ Multi-framework evaluation — Run a custom MLflow LLM judge, Ragas, Arize Phoenix, and a deterministic retriever scorer via mlflow.genai.evaluate()
+Track aggregated metrics, per-trace judge rationales, and moving averages over time as you iterate.
+🎥 Watch now: https://lnkd.in/eEJzccNE
+📝 Read the companion blog post for a deep-dive tutorial and code breakdowns: https://lnkd.in/eWJFmzcv
+#MLflow #LLMOps #RAG #GenAI #MLOps
+36
+Like
+Comment
+Share
+MLflow
+77,527 followers
+2d
+Edited
+Report this post
+Manual prompt iteration doesn’t scale. In Episode 8 of Mastering MLflow for GenAI (~15 min), Jules Damji shows how to use GEPA in MLflow to evolve a baseline prompt automatically—versioned in the Prompt Registry, with a clear before/after comparison (baseline 0.1 → optimized 1.0 on the short-answer setup).
+🔹 Results first — The walkthrough shows a weak baseline score vs. a perfect post-optimization score on a HotpotQA-style exact-match task
+🔹 GEPA optimization — mlflow.genai.optimize_prompts with training examples (input + expected output), a predict function (load from registry → fill template → call LLM), and scorers
+🔹 Fast exact-match scoring — A @scorer exact-match judge on short-answer QA (one- to two-word answers), pure Python—no LLM calls in the scorer for this demo
+🔹 How GEPA runs — Evaluate → Reflect → Improve → Select → Repeat until budget (metric calls / iterations) or early stop via max_iterations_without_improvement
+🎥 Watch the walkthrough: https://lnkd.in/e3hSaq_n
+📓 Try Notebook 1.8: https://lnkd.in/eRmAPp_S
+#MLflow #GenAI #LLMOps
+31
+1 Comment
+Like
+Comment
+Share
+MLflow
+77,527 followers
+4d
+Report this post
+Staging hides the latency distribution and token patterns users actually hit. This cookbook instruments a production chatbot with MLflow Tracing and walks operational views: latency dashboards, error monitors, and token usage reporting.
+🔹 Production instrumentation — what to log first for LLM chatbots
+🔹 Trace-backed monitoring — on-call reasons about spans, not screenshots
+🔹 Token reporting — catch invoice drift from usage, not after the bill closes
+Use it as a checklist in your next production hardening sprint.
+📕 Read the cookbook: https://lnkd.in/eF86A8FG
+#MLflow #Observability #Production #SRE #GenAI
+33
+Like
+Comment
+Share
+MLflow reposted this
+Stavros N.
+5d
+Report this post
+Since 2021 of using #MLflow across two different teams, I’ve realized that the best tools don't just log data—𝐭𝐡𝐞𝐲 𝐛𝐮𝐢𝐥𝐝 𝐜𝐮𝐥𝐭𝐮𝐫𝐞.
+When MLflow 3 dropped, it wasn't just another incremental update. It marked a massive shift in how we manage the transition from traditional machine learning to modern GenAI workflows.
+In my latest article, I break down the 5+1 things you should know about MLflow to help your team move past the chaos of untracked experiments and black-box LLMs.
+👉 Check out the full breakdown here: https://lnkd.in/dsjTVVws
+#MLOps #MachineLearning #GenAI #MLflow #DataScience #AI #Engineering
+5+1 things you should know about MLflow
+sniafas.substack.com
+16
+Like
+Comment
+Share
+MLflow
+77,527 followers
+6d
+Report this post
+Function calling connects models to real systems, so tool mistakes are expensive incidents, not bad copy. The cookbook builds an e-commerce-oriented agent with OpenAI function calling, traces it with MLflow, and evaluates tool selection accuracy.
+🔹 OpenAI function calling — multi-step tool flows wired end to end
+🔹 MLflow tracing — record each tool invocation on the path to the answer
+🔹 Tool-selection metrics — treat tool choice as a first-class reliability signal
+Add tracing and tool-selection eval before you widen the tool surface.
+📕 Read the cookbook: https://lnkd.in/eSQWtXXG
+#MLflow #OpenAI #Agents #GenAI #Observability
+24
+Like
+Comment
+Share
+MLflow
+77,527 followers
+1w
+Report this post
+Now you get a visual developer experience of MLflow’s AI platform features by walking through the demo—tracking, models, evals, and tracing included. No need to pip install. 🙌
+Explore MLflow’s core features with pre-populated sample data, including traces, evaluations, and prompts.
+Try it out ➡️ https://demo.mlflow.org/
+#MLflow #LLMOps #GenAI #Agents
+15
+Like
+Comment
+Share
+MLflow
+77,527 followers
+1w
+Report this post
+In Episode 7 of Mastering MLflow for GenAI (Notebook 1.7: Judges, Scorers & Multi-Turn Sessions), the focus is evaluation: judges, scorers, datasets, and multi-turn sessions in MLflow.
+Topics covered include:
+🔹 LLM-as-a-judge — criteria → score + rationale, mapped into MLflow evaluation runs
+🔹 Built-in scorers — large catalog (60+) for common checks like relevance, correctness, guidelines, safety
+🔹 Evaluation datasets + predict — systematic inputs/expectations when you need the agent to generate outputs during eval
+🔹 Deterministic vs LLM scorers — format/keyword/length checks vs subjective quality (and why judge count × dataset size affects LLM call volume)
+🔹 Custom judges — make_judge with rubrics on full traces
+🔹 Multi-turn sessions — session metadata + DeepEval-style session judges (completeness, retention, adherence, toxicity)
+Worth a watch if you are wiring repeatable evals into your agent workflow, not only ad hoc trace review! 👇
+🎥 Dive in: https://lnkd.in/eDxG7n2J
+#MLflow #GenAI #LLMOps #AgentEvaluation #Observability
+118
+2 Comments
+Like
+Comment
+Share
+MLflow
+77,527 followers
+1w
+Report this post
+We're excited to announce the inspect-mlflow integration, which brings MLflow tracking and tracing to Inspect AI evaluations!
+Skip the JSON archaeology: install the package, point Inspect AI at your MLflow tracking server, and turn on Inspect tracing when you want span-level execution detail—runs, metrics, artifacts, and traces show up in MLflow with no code changes to your evals. 📊🔍
+Get started 👉 pip install 'inspect-mlflow' 'mlflow>=3.0'
+🔗 Learn more: https://lnkd.in/e6f-r4Xp
+#MLflow #InspectAI #ModelEvaluation #Tracing #GenAI
+50
+4 Comments
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at MLflow
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Similar pages
+Databricks
+Software Development
+San Francisco, CA
+Kubeflow
+Software Development
+Sunnyvale, CA
+Delta Lake
+Software Development
+LangChain
+Technology, Information and Internet
+San Francisco, CA
+FastAPI
+Technology, Information and Internet
+Ollama
+Technology, Information and Internet
+Palo Alto, California
+Pydantic
+Software Development
+Amazon SageMaker
+Information Services
+LlamaIndex
+Technology, Information and Internet
+San Francisco, California
+PyTorch
+Research Services
+San Francisco, California
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Engineer jobs
+555,845 open jobs
+Software Engineer jobs
+300,699 open jobs
+Vice President jobs
+235,270 open jobs
+Firmware Engineer jobs
+120,605 open jobs
+Project Manager jobs
+253,048 open jobs
+Digital Marketing Director jobs
+22,182 open jobs
+Content Strategist jobs
+7,140 open jobs
+Intelligence Specialist jobs
+7,156 open jobs
+Scientist jobs
+48,969 open jobs
+Intern jobs
+71,196 open jobs
+Human Resources Business Partner jobs
+19,788 open jobs
+Head jobs
+1,018,536 open jobs
+Associate jobs
+1,091,945 open jobs
+Manager jobs
+1,880,925 open jobs
+Senior Analyst jobs
+91,204 open jobs
+User Interface Designer jobs
+13,154 open jobs
+Analyst jobs
+694,057 open jobs
+Data Scientist jobs
+264,158 open jobs
+Insights Manager jobs
+38,219 open jobs
+Junior Software Engineer jobs
+233,545 open jobs
+Show more jobs like this
+Show fewer jobs like this
+More searches
+More searches
+Engineer jobs
+Site Reliability Engineer jobs
+Scientist jobs
+Analyst jobs
+Computer Vision Engineer jobs
+Machine Learning Engineer jobs
+Research Intern jobs
+System Engineer jobs
+Software Engineer jobs
+Campaign Manager jobs
+Intern jobs
+Digital Marketing Manager jobs
+Marketing Director jobs
+Marketing Specialist jobs
+Recruiter jobs
+Product Designer jobs
+User Experience Designer jobs
+System Architect jobs
+Research Scientist jobs
+Founder jobs
+Business Development Manager jobs
+Sourcing Specialist jobs
+Researcher jobs
+Architect jobs
+Director jobs
+Science Manager jobs
+Investment Banker jobs
+Technical Producer jobs
+Investment Associate jobs
+Investor jobs
+Developer jobs
+Java Software Engineer jobs
+Investment Analyst jobs
+Associate jobs
+Intelligence Specialist jobs
+Data Engineer jobs
+Lead Software Engineer jobs
+Software Architect jobs
+Technical Lead jobs
+Team Lead jobs
+iOS Developer jobs
+Android Developer jobs
+Senior Product Manager jobs
+Frontend Developer jobs
+Product Manager jobs
+Member of Technical Staff jobs
+Senior Technical Recruiter jobs
+Technical Recruiter jobs
+Research And Development Engineer jobs
+Full Stack Engineer jobs
+Lead Data Analyst jobs
+Senior Scientist jobs
+Senior Software Engineer jobs
+Mobile Engineer jobs
+Social Media Manager jobs
+Vice President jobs
+Writer jobs
+Business Development Specialist jobs
+Marketing Manager jobs
+Manager jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at MLflow
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

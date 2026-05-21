@@ -337,7 +337,9 @@ def _adp_beta_map(coefficients: pd.DataFrame) -> dict[str, float]:
             "cum_loss_100k": -1_000.0,
             "month_frac": 0.0,
         }
-    return dict(zip(coefficients["feature"], coefficients["coefficient"].astype(float), strict=False))
+    return dict(
+        zip(coefficients["feature"], coefficients["coefficient"].astype(float), strict=False)
+    )
 
 
 def build_dla_adp_v11(

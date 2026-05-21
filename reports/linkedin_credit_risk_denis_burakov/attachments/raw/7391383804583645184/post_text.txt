@@ -1,0 +1,9 @@
+🧩 Multiclass Weight of Evidence (WOE)
+In many risk modeling problems, we deal with two outcomes (Default vs No Default, Fraud vs No Fraud), which makes log-odds modeling and and the use of Weight of Evidence (WOE) straightforward.
+But what happens when there are more than two outcomes?
+I’ve been exploring how to extend the WOE framework to multiclass settings, where "yes vs no" comparisons no longer apply cleanly.
+In this new deck, I look at two complementary approaches for multiclass inference using likelihood ratios and WOE — one based on simple hypotheses and another on simple vs composite ones (after I.J. Good).
+This will appear in my upcoming chapter:
+📘𝘓𝘰𝘨𝘪𝘴𝘵𝘪𝘤 𝘙𝘦𝘨𝘳𝘦𝘴𝘴𝘪𝘰𝘯: 𝘍𝘳𝘰𝘮 𝘔𝘢𝘹𝘪𝘮𝘶𝘮 𝘓𝘪𝘬𝘦𝘭𝘪𝘩𝘰𝘰𝘥 𝘵𝘰 𝘔𝘢𝘤𝘩𝘪𝘯𝘦 𝘓𝘦𝘢𝘳𝘯𝘪𝘯𝘨
+Update: Thanks to Rahul Shaw for spotting an error in Table on page 7. The correct totals for non-defaults are 100 and 500, consistent with slides 5 and 8.
+#CreditRiskModeling #DataScience #LogisticRegression

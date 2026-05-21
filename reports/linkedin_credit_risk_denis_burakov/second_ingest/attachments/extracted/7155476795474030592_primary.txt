@@ -1,0 +1,111 @@
+                                                                                                                                                                                                 NOTEBOOK
+
+
+
+           Credit Risk Modeling with Naive Bayes
+                             Introduction to Naive Bayes                                                                Weight-of-Evidence (WOE) primer
+
+                                           Naive Bayes is a set of supervised learning algorithms                                               We can consider this 2x2 contingency table
+                                           used for classification based on applying Bayes'                                                     showing the relationship between a past
+                                           theorem with the “naive” assumption of conditional                                                   delinquency event and the default flag
+                                           independence between features
+                                                                                                                                                If we represent the table as conditional
+                                           Naive Bayes classifiers differ mainly by the                                                         probabilities, we can see that 93% of customers
+                                           assumptions they make regarding the distribution                                                     who had a delinquency eventually defaulted
+                                           of P(X | y)
+                                                                                                                                                           We can easily calculate a Weight-of-
+                                           Objective:
+                                                                                                                                                           Evidence (WOE) score from this table
+                                                to estimate Y given the values of Xi’s or
+                                                to estimate P(Y|x1,x2,…xm) using Naive Bayes                                                               WOE is a natural log of the ratio between
+                                           Main assumption (a very bold one!):                                                                             % goods (number of default- in rows to
+                                                All Xi's are independent given the label!                                                                  total default+) and % bads (number of
+                                                                                                                                                           default+ in a rows to total default+)
+With Naive Bayes, we are building a model
+of what data in each class looks like (i.e.,
+                                                                                                    The WOE value -1.61 in row Totals is the log odds of the defaulters to non-defaulters for
+the distribution of the data)
+                                                                                                    this problem (200 / 1000 = 0.2, log-odds = ln(0.2) = -1.61
+
+We model p(X|y) for each of value of y and
+                                                                                                    So if we want to calculate the probability of default given a past delinquency+, it’s very
+p(y) and then use Bayes’ rule to find p(y|X)
+                                                                                                    simple by summing the intercept (-1.61) and the WOE score (-1.53) and then converting
+                                                                                                    into probability using a sigmoid function:
+The reason why it belongs to the group of
+                                                                                                           • Logit score = -1.61 + (-1.53 * -1) = -0.078
+generative models (vs discriminative like
+                                                                                                           • PD = 1 / (1 + exp(-(-0.078)) = 48.5%
+Logistic Regression, Boosting etc.)
+
+“All models are wrong, but some are useful”                                                                                                               We can confirm this calculation by
+–George P. Box: Naive Bayes is very useful in                                                                                                             looking at the row with past
+credit scoring problems                                                                                                                                   delinquency+:
+
+                                                                                                                                                          185 / (185+200) = 48.5% in the first
+                                                                                                                                                          row of the table
+
+
+                                                                                                     The Naive Bayes formula can we rewritten into the log-odds format using WOE:
+
+
+
+
+Depending on the distributions of input features, different assumptions are made
+about estimating the parameters of Naive Bayes:
+
+• For continuous features, the likelihood of the features is assumed to be Gaussian
+  (shown above)
+• For categorical features, Naive Bayes estimates a categorical distribution for each                 The expression above says that the probability of default equals the sum of the WOE
+  feature i of vector X conditional on the class y (how WOE works)                                    vectors and sample log-odds converted to probability with the sigmoid function
+                                                                                                                                                                                 NOTEBOOK
+
+
+
+
+           Credit Risk Modeling with Naive Bayes
+                               Naive Bayes models                                                                              Calibration
+    To illustrate some examples of Naive Bayes modeling, we can visualize decision boundary   We can further assess the calibration of different models shown previously to get an
+    plots of different Naive Bayes models for the two features, past delinquency and credit   intuition of how our predictions fare against the observed outcomes also reporting Brier
+    card utilization                                                                          scores for each model
+
+
+          Gaussian Naive Bayes                  Boosted Gaussian Naive Bayes
+
+
+
+
+We can observe a noticeable difference in the Gini scores, where boosting of Naive Bayes                                                            2 features
+allows to increase the Gini score by +7%
+
+To improve the performance further can employ a “pseudo-
+WOE” approach, which is based on the following:
+                                                                                               The best calibrated score is WOE Naive Bayes, which also has the highest Gini score. We
+• Binning of features (e.g., 30 bins)                                                          repeat this experiment with adding several more features, the results are very similar
+• Target-encoding of features
+• Converting the encoded probabilities to log-odds (logits)
+• Subtracting sample log-odds from logits to get “pseudo-
+  WOE” scores (derived backwards)
+• Fitting a classifier (using a sigmoid function or AdaBoost)
+
+
+            WOE Naive Bayes                         Boosted WOE Naive Bayes
+
+
+
+
+                                                                                                                                                     6 features
+                                                                      NOTEBOOK
+
+
+
+
+Credit Risk Modeling with Naive Bayes
+
+
+               Pseudo-WOE Naive Bayes Pipeline
+
+
+
+
+                                                 Sigmoid Classifier

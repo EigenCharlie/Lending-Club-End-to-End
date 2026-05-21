@@ -1,0 +1,3 @@
+Logistic regression is a battle-tested tool for tackling high-stakes problems in data science projects where interpretability is key. Beyond its standard functionality, one often overlooked feature is its ability to quantify the uncertainty of predictions through statistical inference.
+This deck features examples of constructing logistic regression confidence intervals in Python 🐍, recreated from two classic books. Confidence intervals for predictions provide a clearer understanding of model reliability and limitations for decision-making in critical applications.
+Check out these examples, and let me know your thoughts—more content like this coming in 2025! 💡✨

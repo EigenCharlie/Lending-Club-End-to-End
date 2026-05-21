@@ -1,0 +1,6 @@
+Milk or tea first?
+Extreme-value probabilities, known as p-values, have a notorious reputation. But the way they originally emerged tells a different story.
+In their original version, p-values have a clear and intuitive meaning, with Fisher’s exact test being probably the cleanest p-value story out there. It is a non-parametric test for association between categorical variables, for example an A/B test comparing loan take-up rates.
+The test comes from a famous experiment designed by Ronald Fisher to evaluate a claim by Muriel Bristol, who said she could tell 𝘸𝘩𝘦𝘵𝘩𝘦𝘳 𝘮𝘪𝘭𝘬 𝘰𝘳 𝘵𝘦𝘢 𝘸𝘢𝘴 𝘱𝘰𝘶𝘳𝘦𝘥 𝘧𝘪𝘳𝘴𝘵 𝘪𝘯𝘵𝘰 𝘢 𝘤𝘶𝘱. In this experiment, assuming she was guessing at random, only 1 out of 70 possible arrangements (a one-sided p-value of about 1.4%) would result in her getting all cups right (which she did!).
+The figures show how this tea-tasting experiment looks visually, and how Fisher’s exact test extends naturally to small-sample A/B tests, such as tracking loan take-up rates over time. The second visual is adapted from Machine Learning Engineering in Action by Ben Wilson (note: the pooled analysis shown is a simplification; stratified analyses are generally recommended).
+#Statistics #DataScience #CreditRisk #ABTesting

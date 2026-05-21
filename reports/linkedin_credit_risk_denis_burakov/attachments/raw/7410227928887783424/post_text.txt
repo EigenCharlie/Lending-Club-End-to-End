@@ -1,0 +1,6 @@
+📘 𝘛𝘩𝘦 𝘊𝘳𝘦𝘥𝘪𝘵 𝘎𝘢𝘮𝘦: 𝘔𝘢𝘤𝘩𝘪𝘯𝘦 𝘓𝘦𝘢𝘳𝘯𝘪𝘯𝘨 𝘢𝘯𝘥 𝘌𝘹𝘱𝘭𝘢𝘪𝘯𝘢𝘣𝘪𝘭𝘪𝘵𝘺
+In earlier chapters, we explored foundational figures like Alan Turing, Jack Good, and Ronald Fisher, whose work shaped modern data science.
+This chapter focuses on a less celebrated but equally transformative figure: Leo Breiman, whose "statistics in the style of punk" revolutionized machine learning for tabular data.
+We trace the evolution from decision trees to ensemble methods (Random Forests and Gradient Boosting), moving to SHAP values and their application to credit risk through TreeSHAP, SHAP scorecards, and distillation.
+This is the most technical chapter, but conceptual explanations take priority over code. I hope you enjoy this final chapter's pre-print during the break. The full book arrives in 2026!
+#Statistics #CreditRisk #FraudDetection #DataScience #MachineLearning

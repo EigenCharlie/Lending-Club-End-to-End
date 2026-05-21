@@ -1,0 +1,77 @@
+# Mapa De Expansión Desde El Proyecto {#sec-crpto-project-expansion}
+
+El análisis del libro Quarto completo y del proyecto deja una conclusión
+editorial clara: el mini-libro CRPTO debe crecer como **mapa de extracción**,
+no como segundo repositorio paralelo. Su valor es decir qué material del sistema
+completo entra al paper IJDS, qué material entra a tesis, qué se manda al
+supplement y qué queda estacionado con una condición de reapertura.
+
+## Lectura del proyecto
+
+| Superficie | Lectura editorial | Uso CRPTO |
+|---|---|---|
+| Libro Quarto principal, 123 capítulos | Archivo intelectual y técnico completo. | Fuente madre, no texto publicable directo. |
+| Capítulo 14 | Dossier CRPTO largo y canónico. | Base inmediata del paper y del capítulo de tesis. |
+| Paper 1 tables A0--A18 | Evidencia oficial del champion, robustez y trazabilidad. | Body compacto + supplement. |
+| Papers 2 y 3 | IFRS9/SICR y Mondrian como evidencia lateral. | Implicaciones, ablation, límites y tesis. |
+| Paper 4 living lab | Laboratorio de frontera con blockers explícitos. | Reviewer-defense, tesis y agenda; no promoción automática. |
+| LinkedIn intake | Material de exploración y activación bibliográfica. | Lenguaje y caveats; no bibliografía pública por sí solo. |
+| Tests, DVC, MLflow y JSON canónicos | Contrato de reproducibilidad. | Backbone del supplement y defensa de tesis. |
+
+## Qué más agregar al mini-libro
+
+| Pieza nueva | Por qué importa | Destino |
+|---|---|---|
+| Evidence spine claim -> artifact -> test | Evita que el paper dependa de memoria narrativa. | IJDS supplement y defensa. |
+| Page-budget ledger | Mantiene el body IJDS dentro de 25 páginas. | IJDS body. |
+| Reviewer-defense bank | Prepara respuestas a críticas sobre CP, RO, SPO, fairness, IFRS9 y datos. | IJDS rebuttal y tesis. |
+| Thesis expansion ledger | Evita inflar el paper y muestra qué se desarrolla a 12 meses. | Tesis. |
+| Release/anonymization checklist | IJDS usa revisión doble anónima y exige disclosure de data/code. | Submission package. |
+| Negative-results registry | Convierte blockers de Paper 4 en límites defendibles. | Supplement y tesis. |
+| Figure/table decision log | Fija las 3 figuras y 2--3 tablas del body antes de escribir prosa larga. | IJDS body. |
+| Concept-to-chapter map | Trae fundamentos del libro sin duplicar todo el libro. | Tesis. |
+
+## Spine de evidencia recomendado
+
+| Claim CRPTO | Evidencia primaria | Prueba o guardrail | Superficie |
+|---|---|---|---|
+| PD calibrada apta para decisión | `paper1_table0_key_metrics.csv`; capítulos 06c--06d | sync de métricas y render del libro | Body + supplement |
+| Variante Mondrian promovida | `paper1_table2_conformal_variant_benchmark.csv`; 14i | finalist exact eval; benchmark por grupo | Body + supplement |
+| Bound alpha01 sin violación | `final_project_promotion.json`; `paper1_table1_robustness_summary.csv` | `test_paper_estrella_champion_artifacts_agree` | Body |
+| Región robusta, no punto aislado | `paper1_tableA18_robust_region_policy_family.csv`; Fig. 14 | pass rate 45/45 | Body o supplement |
+| Comparadores no reemplazan champion | 14j; Paper 4 v30/v38 memos | promotion decision false | Discussion + supplement |
+| Gobernanza audit-able | 14k--14n; `models/governance_status.json`; MRM report | doc tests + artifact traceability | Supplement + tesis |
+| Límites de claims | global claim boundaries; Paper 4 blockers | no final Paper 4 promotion | Discussion + tesis |
+
+## Imports con mayor retorno editorial
+
+1. **Brier/Gini/ECE como gobernanza de métricas**. En el paper debe ocupar
+   poco espacio, pero en tesis conviene explicar por qué ranking, calibración y
+   valor económico no son sustituibles.
+2. **WOE/IV como lenguaje auditable**. No es el claim central, pero ayuda a
+   que el lector de crédito entienda por qué el pipeline no es una caja negra
+   sin contrato de features.
+3. **Mondrian ablation como defensa técnica**. Es uno de los mejores puentes
+   entre metodología y evidencia porque justifica `score_decile_mondrian` con
+   resultados y no con preferencia estética.
+4. **SPO/DFL como contraste, no amenaza**. El paper debe decir con precisión
+   que CRPTO compra cobertura, restricciones trazables y auditabilidad; no
+   promete regret mínimo.
+5. **Paper 4 como registro de límites**. Sus blockers no son fracaso editorial:
+   son una forma de demostrar madurez metodológica y evitar claims inflados.
+
+## Material que debe quedarse fuera del body IJDS
+
+GPU, quantum, IFRS9 contractual, CATE policy value, online conformal, MDCP,
+DLA/Bellman exacto y CVaR como objetivo oficial deben permanecer fuera del
+body IJDS. Pueden aparecer como tesis, agenda o supplement acotado solo cuando
+ayuden a explicar por qué el claim CRPTO actual está bien cerrado.
+
+## Regla de reapertura
+
+Una línea estacionada se reabre solo si cumple las tres condiciones:
+
+1. cambia un claim, una tabla de appendix, una figura del body o una respuesta
+   probable de reviewer;
+2. tiene artefacto trazable y test o chequeo reproducible;
+3. no contradice `models/final_project_promotion.json`.

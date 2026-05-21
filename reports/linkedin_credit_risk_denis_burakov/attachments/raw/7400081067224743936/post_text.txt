@@ -1,0 +1,6 @@
+📚 𝘾𝙧𝙚𝙙𝙞𝙩 𝙍𝙞𝙨𝙠 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙤𝙣 𝘼𝙒𝙎 ☁️
+I want to thank everyone who commented on the draft of the book, I'm getting closer to finalizing it, and I want to make sure readers get to see the finished version soon.
+In parallel, I've been working on a small toy project called 𝘊𝘳𝘦𝘥𝘪𝘵 𝘙𝘪𝘴𝘬 𝘔𝘰𝘥𝘦𝘭𝘪𝘯𝘨 𝘰𝘯 𝘈𝘞𝘚. Here's the first example of what it will look like – I hope you like it!
+In this project, all the code runs locally using Docker and LocalStack, so you can experiment with AWS services freely without cloud costs. One of the examples covers real-time application scoring using Lambda, Kinesis, DynamoDB, and SageMaker.
+Let me know which use cases on AWS are most interesting to you! Would you actually try this if the code was available?
+#CreditRiskModeling #FraudDetection #DataScience #AWS

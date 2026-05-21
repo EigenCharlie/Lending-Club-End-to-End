@@ -1,0 +1,10 @@
+Logistic Regression with Fisher Scoring ⤵
+Fisher scoring is a well-known method for estimating logistic regression, developed by the innovator behind Maximum Likelihood Estimation (MLE). It's a widely utilized optimization framework in commercial software for fitting logistic regression models 👨💻. Its unique feature? Fisher scoring doesn't require a learning rate, taking care of the training steps automatically 🧪
+Swipe to explore hands-on experiments where this classic algorithm is coded from scratch for binary prediction problems using #Python 🐍. You will find a detailed comparison with the scikit-learn implementation, insights on how focal loss can boost model ranking power, and ways to visualize model confidence with entropy-like measures 💥
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the gradient descent and IRLS approaches to #LogisticRegression: https://lnkd.in/ebHdg-fB 💡
+▷ Discover a related post on the log loss function of #LogisticRegression: https://lnkd.in/dGSxaKAS 💡
+▷ Discover a related post on the loss functions for #LogisticRegression models: https://lnkd.in/dzg3g6Z9 💡
+▷ Discover a related post on the discussion between regression vs classification in the context of #LogisticRegression: https://lnkd.in/dJfthBa7 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬

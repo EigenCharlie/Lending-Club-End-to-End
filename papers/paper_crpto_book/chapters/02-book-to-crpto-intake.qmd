@@ -1,0 +1,36 @@
+# Intake Desde El Libro Completo {#sec-crpto-book-intake}
+
+El libro principal sigue siendo el repositorio intelectual completo. Paper CRPTO
+debe importar solo lo que fortalece el argumento central.
+
+| Fuente del libro | Entra al paper IJDS | Entra a tesis | Regla |
+|---|---:|---:|---|
+| Fundamentos de credit risk, PD/LGD/EAD, calibración y Gini | Sí, comprimido | Sí, ampliado | Definir lenguaje, no convertir en curso. |
+| Predicción conformal y límites de cobertura condicional | Sí | Sí | Citar CP/CRC/RCPS y usar límites para no sobreprometer. |
+| Robust optimization y price of robustness | Sí | Sí | Conectar `Gamma_CP` con decisión, no con tuning arbitrario. |
+| Feature engineering, WOE/IV y scorecards | Solo contexto mínimo | Sí | Útil para explicar inputs auditables, no claim principal. |
+| PD model champion y calibración Venn-Abers | Sí | Sí | Gate antes de optimización. |
+| Mondrian conformal y ablation | Sí, body + supplement | Sí | Defender `score_decile_mondrian` frente a `grade`. |
+| Portfolio LP y robust region | Sí, central | Sí | Núcleo empírico. |
+| IFRS9/SICR | Implicación/limitación | Sí | No hacerlo segunda contribución IJDS. |
+| Explainability, fairness proxy y MRM | Discusión/supplement | Sí | Responde implicaciones prácticas/éticas de IJDS. |
+| Paper 4 living lab | Solo imports gobernados | Sí | Tail-risk, source/online caveats y SDAM como framing. |
+| GPU, quantum y agenda futura | No | Opcional | Mantener fuera del paper CRPTO. |
+
+## Material LinkedIn ya incorporado
+
+La ingesta de Denis Burakov no entra como bibliografía pública por sí sola. Su
+valor fue activar o recuperar fuentes independientes que ya fueron absorbidas en
+el libro: cautelas Brier/Yates, Gini/Somers, rare-events logit, PSI, RuleFit,
+GBDT leaf encoding, WOE/IV y Naive Bayes reforzado. Para Paper CRPTO, esas piezas
+sirven como reviewer-defense o tesis, no como nuevos resultados.
+
+## Imports con prioridad alta
+
+1. **Brier/reliability caveat**: explicar que la PD entra al LP después de un
+   gate de calibración, no porque una métrica única sea soberana.
+2. **Gini/Somers y rare events**: defender que ranking y calibración se reportan
+   por separado.
+3. **WOE/IV governance**: justificar inputs auditables y evitar fetichizar IV.
+4. **PSI caution**: no vender drift como pass/fail universal.
+5. **RuleFit/leaf-scorecards**: futuro explicable, no reemplazo del champion.

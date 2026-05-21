@@ -1,0 +1,9 @@
+Training a model in a notebook is no big deal. Managing it after that is where things start to get messy. Sounds familiar?
+In this new article, I show how to build an end-to-end CatBoost pipeline with SageMaker MLflow 3.0, the new managed MLflow backend on AWS.
+It covers:
+• Setting up SageMaker MLflow 3.0 tracking servers
+• Training and tuning CatBoost models with MLflow in SageMaker
+• Scaling batch inference and explainability with SHAP
+If you've ever looked for a fully reproducible workflow on AWS that tracks data, models, and explainability in one place, this guide is for you.
+👉 Read here: https://lnkd.in/dYS5y8AR
+#MLflow #SageMaker #MLOps #CatBoost #AWS #ExplainableAI

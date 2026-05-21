@@ -62,7 +62,7 @@ Frente al bootstrap y otros métodos clásicos, la banda conformal entrega un me
 
 : Comparación de conjuntos de incertidumbre para optimización robusta {#tbl-p1-baseline}
 
-La ventaja competitiva del enfoque conformal no es solo cobertura --- es la combinación de **cobertura verificable**, **anchura controlable vía $\alpha$** y **garantía distribution-free sin supuestos sobre el DGP**. El bootstrap requiere re-entrenamiento múltiple sin garantías finitas; BMA requiere especificación correcta del espacio de modelos; Bertsimas-Sim deja abierta la calibración de $\Gamma$. CRPTO hereda el $\Gamma$ directamente de la capa conformal (@def-gamma-cp).
+La ventaja competitiva del enfoque conformal no es solo cobertura --- es la combinación de **cobertura verificable**, **anchura controlable vía $\alpha$** y **garantía distribution-free sin supuestos sobre el DGP**. El bootstrap requiere re-entrenamiento múltiple sin garantías finitas; BMA requiere especificación correcta del espacio de modelos; Bertsimas-Sim deja abierta la calibración de $\Gamma$. CRPTO hereda el $\Gamma$ directamente de la capa conformal (@eq-gamma-cp).
 
 La tabla anterior resume la lectura paper-facing. La siguiente tabla baja un nivel y muestra el comparador regenerado desde artefactos, donde todos los métodos se evalúan bajo el mismo protocolo de baseline de incertidumbre. La cifra conformal de esta tabla no reemplaza las métricas oficiales del champion (`92.97%`, `0.7842`, `91.90%`), sino que documenta el ejercicio comparativo que explica por qué el conjunto conformal es el único candidato que combina cobertura, anchura y préstamos operativamente fundables.
 
@@ -318,7 +318,7 @@ El comparador theorem-tight sigue siendo metodológicamente valioso porque muest
 
 #### Instanciación empírica del Corolario 1 (Price of Robustness)
 
-El @cor-por establece que $\text{PoR}(\alpha) \lesssim \Gamma_{\text{CP}}(\alpha) \cdot \overline{LGD} / \bar{r}$. Con los números del champion economic instanciamos:
+El @sec-cor-por establece que $\text{PoR}(\alpha) \lesssim \Gamma_{\text{CP}}(\alpha) \cdot \overline{LGD} / \bar{r}$. Con los números del champion economic instanciamos:
 
 $$
 \text{PoR}_{\text{teórico}}(\alpha = 0.01) \;\lesssim\; \frac{\Gamma_{\text{CP}} \cdot \overline{LGD}}{\bar{r}} \;=\; \frac{0.18591 \cdot 0.45}{\bar{r}_{\text{funded}}}

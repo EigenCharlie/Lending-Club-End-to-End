@@ -1,0 +1,6 @@
+What if we treated pixels like words❓
+That’s the idea behind autoregressive visual generation: building an image patch by patch, just like a language model generates text word by word (or token by token).
+Some time ago I built a small prototype called PatchGPT, a simple transformer trained to predict the next image patch. It generates images autoregressively, using only previously generated patches at each step, like an LLM for pictures.
+This year's paper, "Next Patch Prediction for AutoRegressive Visual Generation," implements this idea using a true GPT-style decoder architecture: https://lnkd.in/ergBHqKp
+Git repo: https://lnkd.in/epurVvP8
+#AutoregressiveModels #ComputerVision #GenerativeAI #Transformers

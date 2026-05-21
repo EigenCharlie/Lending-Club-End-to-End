@@ -1,0 +1,33 @@
+{
+  "asset": "urn:li:digitalmediaAsset:D4D1FAQHqMvnUnmAq0g",
+  "transcriptManifestUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-transcript/feedshare-document-transcript/0/1705050300491?e=1780531200&v=beta&t=w2x1Lsi_y_aCeDOihCHxNOLBX-JCNHTCZXAvUjWSMhM",
+  "transcribedDocumentUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-pdf-analyzed/feedshare-document-pdf-analyzed/0/1705050300491?e=1780531200&v=beta&t=RnXH_QbQ7JjqR2Q5vXWAGaQ48V51aJUXSGxtKhR1WiA",
+  "scanRequiredForDownload": true,
+  "perResolutions": [
+    {
+      "width": 160,
+      "height": 135,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-images_160/feedshare-document-images_160/0/1705050300491?e=1780531200&v=beta&t=vMCZxqUFVUaI7zDGO3MoTuJOgS_cHOFuiC1jTJLMAqc"
+    },
+    {
+      "width": 480,
+      "height": 405,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-images_480/feedshare-document-images_480/0/1705050300491?e=1780531200&v=beta&t=kGVej_fIH_dodj8Rp3E2HmSNNIDC5BiKCZ5d8IH29QM"
+    },
+    {
+      "width": 1280,
+      "height": 1080,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-images_1280/feedshare-document-images_1280/0/1705050300491?e=1780531200&v=beta&t=nwZStAxSY0JItlEAgkfUCmQsVyPVxkaUXrKLW4GsbcA"
+    },
+    {
+      "width": 800,
+      "height": 675,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-images_800/feedshare-document-images_800/0/1705050300491?e=1780531200&v=beta&t=c0jikV5N2TmYnwW3YKCHdKyCOKefmzFrVW2VlgU4NqE"
+    },
+    {
+      "width": 1920,
+      "height": 1620,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHqMvnUnmAq0g/feedshare-document-images_1920/feedshare-document-images_1920/0/1705050300491?e=1780531200&v=beta&t=BT9yBx535I9LY36VSjXz_65NK1n0wQxWog15UbTN9BY"
+    }
+  ]
+}

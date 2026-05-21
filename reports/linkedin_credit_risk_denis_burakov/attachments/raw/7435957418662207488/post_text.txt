@@ -1,0 +1,6 @@
+Officially AWS Certified Generative AI Developer - Professional (and an Early Adopter too)! 🎉
+If you still hold the ML Specialty certification, this one feels like a completely different beast. Earlier AI/ML certifications focused heavily on algorithm tuning, feature engineering, and model internals.
+The newer AWS data certifications (Data Engineer, ML Engineer, and now GenAI Developer) shift the focus toward systems thinking and the scalable, secure deployment of AI/ML solutions.
+Embeddings, vector stores, RAG, and foundation models are no longer optional vocabulary for data scientists. The craft is moving away from knowing every hyperparameter and toward orchestrating intelligent systems at scale.
+Perhaps the most interesting open question: does GenAI sit within the analytics domain, or is it already an adjacent area for data scientists? The new certification requirements suggest the boundary is blurring fast, and that Python and SQL alone are no longer enough.
+#AWS #GenerativeAI #MachineLearning #DataScience #CloudCertification #AWSCertified

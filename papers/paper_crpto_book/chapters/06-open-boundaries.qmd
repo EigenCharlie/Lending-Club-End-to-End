@@ -1,0 +1,40 @@
+# Fronteras y Stop Rules {#sec-crpto-boundaries}
+
+Este mini-libro congela las reglas de alcance para que Paper CRPTO no vuelva a
+entrar en loops de expansión.
+
+## Promover
+
+- Material que fortalece el claim CRPTO central.
+- Evidencia que ya tiene artefacto, tabla y test.
+- Fuentes independientes que aclaran métricas, gobernanza o límites.
+
+## Apéndice
+
+- Robustez A3--A18.
+- Fairness proxy y MRM.
+- Tail-risk diagnostics OCE/CVaR.
+- CROMS-lite como selector de finalists, no entrenamiento end-to-end.
+
+## Park
+
+- Online conformal.
+- MDCP/multi-source conformal.
+- OCE/CVaR como nuevo objetivo.
+- DFL/SPO+ como reemplazo del champion.
+- Dataset externo si no está disponible y versionado.
+
+## Archivar
+
+- Comentarios de LinkedIn como evidencia pública.
+- Capturas privadas o materiales no redistribuibles.
+- Rutas con nombres personales en paquetes anonimizados.
+
+## Stop rule general
+
+El paper está listo para escritura cuando se cumplan cuatro condiciones:
+
+1. `tests/test_docs/test_paper_estrella_final_sync.py` pasa.
+2. El body IJDS cabe en 25 páginas con solo 3 figuras y 2--3 tablas.
+3. El supplement contiene A3--A18, claim-artifact-test y disclosure data/code.
+4. Todo nombre interno `Paper Estrella` queda fuera del manuscrito público.

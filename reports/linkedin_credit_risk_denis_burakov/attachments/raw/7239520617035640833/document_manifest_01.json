@@ -1,0 +1,33 @@
+{
+  "asset": "urn:li:digitalmediaAsset:D4D1FAQHTDj05ndMRqg",
+  "transcriptManifestUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-transcript/feedshare-document-transcript/0/1725829916769?e=1780531200&v=beta&t=22KvYcHLoP0lNMPd_fsUcHLFVkY0SucXp9fq3St-Unw",
+  "transcribedDocumentUrl": "https://media.licdn.com/dms/document/media/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-pdf-analyzed/feedshare-document-pdf-analyzed/0/1725829916769?e=1780531200&v=beta&t=V3QG7xCk0za_ipPFvb3e7kktKfe_hJqQ5AIZhyIyBnE",
+  "scanRequiredForDownload": true,
+  "perResolutions": [
+    {
+      "width": 132,
+      "height": 166,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-images_160/feedshare-document-images_160/0/1725829916769?e=1780531200&v=beta&t=xnb-QZoT2cPzkEpkhRmt3S5wULxxZzAv2MxDiXlQCko"
+    },
+    {
+      "width": 388,
+      "height": 489,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-images_480/feedshare-document-images_480/0/1725829916769?e=1780531200&v=beta&t=ICbQDEiOYHm5S_TwCt7K_RLDEC8zaqbOgGy877foeBg"
+    },
+    {
+      "width": 1015,
+      "height": 1282,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-images_1280/feedshare-document-images_1280/0/1725829916769?e=1780531200&v=beta&t=rQF4e5c5fd3kSE-29KP0AwlV4iO8tS-aKiw0dQgg6WY"
+    },
+    {
+      "width": 635,
+      "height": 802,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-images_800/feedshare-document-images_800/0/1725829916769?e=1780531200&v=beta&t=WaiRQbz_6S1p4dukYNFUBIAxbzEucA6q7MjqBTmydmI"
+    },
+    {
+      "width": 1527,
+      "height": 1928,
+      "imageManifestUrl": "https://media.licdn.com/dms/document/pl/v2/D4D1FAQHTDj05ndMRqg/feedshare-document-images_1920/feedshare-document-images_1920/0/1725829916769?e=1780531200&v=beta&t=wmXT52cJ237X1blJIqJhkUTjGpyQXKA8WZfwiK-enFk"
+    }
+  ]
+}

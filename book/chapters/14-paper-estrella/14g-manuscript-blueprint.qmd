@@ -7,31 +7,37 @@ page-layout: article
 
 Esta pagina traduce el dossier largo del libro en una arquitectura de paper.
 No reemplaza las secciones metodologicas previas: las comprime en una forma que
-pueda convertirse despues en manuscrito para *Management Science*, *Operations
-Research* o *European Journal of Operational Research*. La regla editorial es
-mantener una tesis clara: **CRPTO no compite por ganar AUC; compite por convertir
-incertidumbre conformal en una decision de portafolio auditable**.
+pueda convertirse despues en manuscrito para *INFORMS Journal on Data Science*
+(IJDS) y, desde la misma base, en capitulo central de tesis. La regla editorial
+es mantener una tesis clara: **CRPTO no compite por ganar AUC; compite por
+convertir incertidumbre conformal en una decision de portafolio auditable**.
 
 ### Venue objetivo
 
-El proyecto ya tiene suficiente evidencia para apuntar a un journal de
-operations/management, pero el enfasis cambia segun el venue:
+El venue objetivo actualizado es *INFORMS Journal on Data Science*. Sus
+guidelines vigentes piden que el paper combine datos, metodologia de ciencia de
+datos, relevancia para decision-making e implicaciones practicas/eticas; ademas,
+la version inicial no debe exceder 25 paginas en el estilo del journal,
+excluyendo referencias y appendices. Esa restriccion confirma que este capitulo
+debe operar como dossier, mientras el manuscrito CRPTO debe ser una extraccion
+compacta.
 
 ::: {#tbl-p1-target-venue}
 
-| Venue | Enfasis requerido | Que ya tenemos | Que conviene reforzar |
+| Producto | Enfasis requerido | Que ya tenemos | Que conviene reforzar |
 |---|---|---|---|
-| *Management Science* | decision bajo incertidumbre, auditabilidad y valor economico | champion economico, region robusta `45/45`, funded set exacto | narrativa de managerial insight, governance y respuesta a post-seleccion |
-| *Operations Research* | formulacion, garantia y relacion CP -> RO | bound `V`, `Gamma_CP`, Markov distribution-free, tightening condicional | prueba mas compacta y appendix teorico de dependencia |
-| *EJOR* | experimento aplicado robusto y reproducible | pipeline end-to-end, comparadores, stress tests, DVC/MLflow | tablas de sensibilidad y reproducibilidad operacional |
+| IJDS Research Article | metodologia data-science para decision-making con datos reales, impacto practico y reproducibilidad | champion economico, region robusta `45/45`, funded set exacto, DVC/MLflow/tests | abstract IJDS de 300 palabras, doble anonimato, disclosure data/code, paper <=25 paginas |
+| Online supplement IJDS | pruebas, appendices, tablas largas, robustez y reproducibilidad | A3--A18, Figuras 12--14, claim-artifact-test map | separar appendix de cuerpo y eliminar identificadores de autor |
+| Tesis de maestria | profundidad conceptual, trazabilidad completa y defensa metodologica | libro Quarto, paper CRPTO, Paper 4 living lab, gobernanza MRM | capitulo CRPTO autocontenido con fundamentos importados del libro |
 
 Venue target recomendado para la primera version.
 :::
 
-Mi recomendacion actual es escribir el primer borrador con tono
-*Management Science / Operations Research*. Si en revision interna sentimos que
-la teoria queda demasiado conservadora para OR, la misma evidencia se puede
-reorientar a EJOR sin cambiar champion ni artefactos.
+Mi recomendacion actual es escribir el primer borrador directamente como IJDS:
+un paper de ciencia de datos para decision-making, no un paper de scoring puro
+ni un paper regulatorio. Si despues se decide cambiar de venue, la misma
+estructura puede reorientarse a un journal OR/management sin cambiar champion ni
+artefactos, pero el primer corte debe obedecer el empaque IJDS.
 
 ### Abstract operativo
 
@@ -52,6 +58,11 @@ Un abstract posible, todavia largo para paper, seria:
 Este abstract ya contiene la diferencia central: el valor esta en la decision
 robusta verificable, no en otro leaderboard predictivo.
 
+Para IJDS debe quedar en un solo parrafo de maximo 300 palabras y responder en
+orden: problema de investigacion, metodo/resultados, insight e implicaciones.
+La version final debe evitar lenguaje de tesis, nombres internos como "Paper
+Estrella" y cualquier identificador de autor por la revision doble anonima.
+
 ### Claims numerados del paper
 
 ::: {#tbl-p1-numbered-claims}
@@ -61,7 +72,7 @@ robusta verificable, no en otro leaderboard predictivo.
 | C1 | La base PD calibrada es suficientemente estable para alimentar incertidumbre conformal. | Empirico | AUC `0.7124`, Brier `0.1546`, ECE `0.0064`, tests de calibracion |
 | C2 | La capa conformal Mondrian produce cobertura util y trazable para decision. | Empirico-conformal | coverage 90 `92.97%`, min group coverage `91.90%`, Winkler `1.111` |
 | C3 | El intervalo conformal se puede mapear a un conjunto de incertidumbre usado por un LP robusto. | Metodologico | definiciones `u_i(alpha)`, `Gamma_CP`, policy modes |
-| C4 | El bound controla no-cobertura ponderada del funded set bajo supuestos distribution-free. | Teorico | @thm-conformal-feasibility, Markov, `V <= sqrt(alpha)` |
+| C4 | El bound controla no-cobertura ponderada del funded set bajo supuestos distribution-free. | Teorico | @sec-thm-feasibility, Markov, `V <= sqrt(alpha)` |
 | C5 | La policy oficial es economic champion, no theorem-tight. | Empirico-editorial | `final_project_promotion.json`, retorno `$170.5K`, `alpha01_exact_pass=true` |
 | C6 | La region robusta final es completa, no un punto aislado. | Empirico | `45/45` policies pass en el OOT completo `276k` |
 | C7 | La evidencia P1 y journal-package muestra robustez adicional sin cambiar la direccion del paper. | Robustez | A3--A18, Figuras 12--14 |
@@ -86,9 +97,8 @@ incertidumbre, hacia composicion del funded set.
 | 4. Theory | `Gamma_CP`, `V`, Markov, tightening condicional como appendix | 14b, appendix condicional |
 | 5. Experimental design | Lending Club OOT, artifacts, compatible leaderboards | 14c, docs de sincronizacion |
 | 6. Results | champion, region robusta, comparadores, SPO+ y alpha frontier | 14d |
-| 7. Robustness | nested/temporal holdout, funded set, shift, tail risk | 14d, 14h, A3--A18 |
-| 8. Discussion | limitaciones, governance, future work sin overclaim | 14e |
-| Appendix | pruebas, tablas A3--A18, reproducibility checklist | 14b, 14h |
+| 7. Discussion and implications | governance, limitaciones, future work sin overclaim | 14e, 14k, 14l |
+| Online supplement | pruebas, tablas A3--A18, funded set, fairness proxy, reproducibility checklist | 14b, 14h, 14k--14n |
 
 Skeleton recomendado del paper.
 :::
@@ -107,8 +117,8 @@ seleccion sugerida es:
 | Figura 3: region robusta `45/45` | resultados | muestra que el champion no es aislado | `estrella_fig14_robust_region_heatmap.png` |
 | Tabla 1: metricas core | resultados | fija PD, CP y portfolio sin mezclar familias | `paper1_table0_key_metrics.csv` |
 | Tabla 2: champion y comparadores | resultados | economic vs theorem-tight vs balanced | `paper1_table1_champion_policy.csv` y A13 |
-| Tabla 3: robustez P1 | appendix corto | post-seleccion, temporal, selector, shift | A3--A11 |
-| Tabla 4: robustness journal | appendix largo | tail risk, bootstrap, dependencia, LGD/caps | A12--A18 |
+| Tabla 3: robustez P1 | online supplement | post-seleccion, temporal, selector, shift | A3--A11 |
+| Tabla 4: robustness journal | online supplement | tail risk, bootstrap, dependencia, LGD/caps | A12--A18 |
 
 Seleccion de figuras y tablas para el manuscrito.
 :::

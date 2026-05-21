@@ -1,0 +1,5 @@
+Most credit scorecards use main effects only: one feature, one bin, one WOE value.
+But what if you could capture feature interactions and still keep a linear, interpretable scorecard?
+The idea is simple: train a gradient-boosted decision tree (GBDT) model like XGBoost, extract leaf indices from the best trees, treat each leaf as a joint bin, and encode it with WOE. The result feeds into a standard logistic regression alongside your main effects.
+On the HELOC dataset: XGBoost achieves 88.97% Gini on test. The WOE logistic regression augmented with 12 GBDT trees (as WOE-encoded leaf features) matches it at 88.67%, with 6x less overfitting.
+#CreditRiskModeling #Scorecards #DataScience #MachineLearning

@@ -1,0 +1,10 @@
+Weight-of-Evidence (WOE) = Naive Bayes? 🅿(🅰️|🅱️)
+After reading through the comments to my previous post about WOE and follow-up thread in Andrija Djurovic's post, I came to a conclusion that it's a common belief that WOE's main utility is encoding 🧩. While it's one of the most well-known applications, WOE goes far beyond data preprocessing 🧪
+In fact, WOE is the simplest form of a Naive Bayes model rooted in the independence assumption between risk drivers (hence "naive") 🎲. The WOE score, calculated as the logarithm of the good-to-bad ratio for a given risk group, aligns with the concept of a log-likelihood ratio in Naive Bayes models 🔮
+This post aims to illustrate how Naive Bayes models can be utilized in the context of credit risk estimation 🪄, for example, through an application of Naive Bayes boosting and a technique I call "Pseudo-WOE" Naive Bayes, which allows us to build strong classification models using a powerful combination of binning and a WOE Naive Bayes to fit the observed data 🧫
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the use of Weight-of-Evidence (WOE) estimators for PD models here: https://lnkd.in/dsbbHi-M 💡
+▷ Check out a follow-up summary post by Andrija Djurovic about Weight of Evidence in Probability of Default Modeling here: https://lnkd.in/dcTST2NY 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+Scroll down to the comments section to learn more about interesting applications of Naive Bayes to predictive modeling problems ⬇️

@@ -1,0 +1,7 @@
+𝘖𝘯 𝘊𝘳𝘦𝘥𝘪𝘵: 𝘚𝘤𝘰𝘳𝘪𝘯𝘨 𝘍𝘰𝘶𝘯𝘥𝘢𝘵𝘪𝘰𝘯𝘴 𝘪𝘯 𝘵𝘩𝘦 𝘈𝘨𝘦 𝘰𝘧 𝘈𝘐 is now available digitally!
+The paperback has been available since last week. For readers who prefer a digital format and where paperback is unavailable, the Kindle edition and PDF/EPUB versions are now live (including a preview).
+The book covers historical foundations of credit scoring from Alan Turing's wartime work at Bletchley Park to modern decision systems: decision trees, neural networks, and explainability frameworks used in financial institutions today.
+It is written for data scientists and risk professionals who want to understand where the methods come from, not just how to apply them.
+✓ Amazon Kindle version: https://lnkd.in/dRWU88UA
+✓ PDF/EPUB version: https://lnkd.in/dEamxnFj
+#CreditRisk #DataScience #MachineLearning #Fintech #Kindle #Ebook

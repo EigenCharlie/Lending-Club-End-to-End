@@ -1,0 +1,6 @@
+Yesterday, I got officially certified for AWS Data Engineer - Associate exam by Amazon Web Services (AWS) 🚀
+This achievement marks the completion of my certification journey through AWS’s newest training programs for AI Practitioner, Machine Learning Engineer, and Data Engineer offered by AWS Training & Certification.
+Cloud skills are becoming increasingly essential in Financial Services. If you’re interested in building those skills, these AWS certifications help bridge the gap between theory and real-world applications in #Data, #ML, and #AI.
+These certifications helped me better understand the art of the feasible on modern cloud platforms and how to design and build modern scoring systems at scale using platforms like Amazon SageMaker.
+If you're starting your own journey into cloud skills or want to learn more about these certifications, feel free to reach out!
+#AWSCertified #CloudComputing #DataEngineering #MachineLearning #FinTech

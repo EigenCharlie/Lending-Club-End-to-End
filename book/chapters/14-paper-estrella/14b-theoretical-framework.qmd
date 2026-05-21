@@ -177,9 +177,9 @@ $$
 
 #### Validación empírica del vínculo $\alpha \leftrightarrow \Gamma$
 
-La @fig-alpha-gamma-bound muestra la validación empírica del vínculo teórico en 8 niveles de $\alpha$. A medida que $\alpha$ decrece (mayor confianza), $\Gamma_{\text{CP}}$ crece monótonamente --- confirmando la @prp-monotonicity --- y la cobertura empírica se mantiene por encima del target nominal en todos los niveles. Sin embargo, la lección final del proyecto es que esa validación, por sí sola, todavía no basta para la afirmación más exigente del paper: hace falta además que el portfolio promovido convierta ese presupuesto conformal en un funded set exacto y defendible.
+La @fig-alpha-gamma-bound muestra la validación empírica del vínculo teórico en 8 niveles de $\alpha$. A medida que $\alpha$ decrece (mayor confianza), $\Gamma_{\text{CP}}$ crece monótonamente --- confirmando la @sec-prop-monotonicity --- y la cobertura empírica se mantiene por encima del target nominal en todos los niveles. Sin embargo, la lección final del proyecto es que esa validación, por sí sola, todavía no basta para la afirmación más exigente del paper: hace falta además que el portfolio promovido convierta ese presupuesto conformal en un funded set exacto y defendible.
 
-![Validación del vínculo $\alpha \leftrightarrow \Gamma_{\text{CP}}$ sobre el champion económico evaluado en 276K préstamos OOT ($\tau = 0.175$, $\gamma = 0.45$). **Panel A**: presupuesto conformal $\Gamma_{\text{CP}}(\alpha)$ — monótonamente decreciente en $\alpha$, confirmando la @prp-monotonicity. **Panel B**: tasa de violación empírica del constraint de PD ponderado vs. cota teórica $\alpha/\sqrt{\alpha}$ — la violación es cero en todos los niveles. **Panel C**: miscoverage ponderada $V$ vs. cota $\sqrt{\alpha}$ del @thm-conformal-feasibility(c) — todos los niveles satisfacen $V \leq \sqrt{\alpha}$.](../../assets/figures/publication/estrella_fig_alpha_gamma_bound.png){#fig-alpha-gamma-bound}
+![Validación del vínculo $\alpha \leftrightarrow \Gamma_{\text{CP}}$ sobre el champion económico evaluado en 276K préstamos OOT ($\tau = 0.175$, $\gamma = 0.45$). **Panel A**: presupuesto conformal $\Gamma_{\text{CP}}(\alpha)$ — monótonamente decreciente en $\alpha$, confirmando la @sec-prop-monotonicity. **Panel B**: tasa de violación empírica del constraint de PD ponderado vs. cota teórica $\alpha/\sqrt{\alpha}$ — la violación es cero en todos los niveles. **Panel C**: miscoverage ponderada $V$ vs. cota $\sqrt{\alpha}$ del @sec-thm-feasibility(c) — todos los niveles satisfacen $V \leq \sqrt{\alpha}$.](../../assets/figures/publication/estrella_fig_alpha_gamma_bound.png){#fig-alpha-gamma-bound}
 
 #### Qué valida el refresh exacto y qué valida el cierre 276k
 
@@ -192,7 +192,7 @@ En otras palabras: el refresh exacto diagnosticó el cuello de botella; la mini-
 
 ::: {.callout-important}
 ## Qué parte del bound importa de verdad en este proyecto
-La cota $\alpha/t$ del @thm-conformal-feasibility es teóricamente correcta, pero para varios valores de $t$ resulta demasiado floja para ser la señal operativa principal. En la práctica, el cierre final del proyecto se ordena mejor con:
+La cota $\alpha/t$ del @sec-thm-feasibility es teóricamente correcta, pero para varios valores de $t$ resulta demasiado floja para ser la señal operativa principal. En la práctica, el cierre final del proyecto se ordena mejor con:
 
 - `weighted_miscoverage_V`,
 - `gamma_cp`,
@@ -205,7 +205,7 @@ La contribución empírica fuerte del proyecto no es “la tabla Markov luce apr
 
 #### Interpretación práctica
 
-El @thm-conformal-feasibility traduce la garantía estadística del intervalo conformal en una garantía operativa sobre el portafolio. La tabla siguiente recuerda la escala teórica general:
+El @sec-thm-feasibility traduce la garantía estadística del intervalo conformal en una garantía operativa sobre el portafolio. La tabla siguiente recuerda la escala teórica general:
 
 | Nivel conformal $\alpha$ | Violación esperada | $\mathbb{P}(\text{PD pond.} > \tau + 0.05)$ | $\mathbb{P}(\text{PD pond.} > \tau + \sqrt{\alpha})$ |
 |---:|---:|---:|---:|
@@ -224,7 +224,7 @@ La novedad empírica del cierre final es esta: el canónico monotónico y el con
 
 ::: {#lem-conditional-tightening}
 ## Tightening condicional del bound de factibilidad
-Manteniendo los supuestos del @thm-conformal-feasibility, sea $Z_i=\mathbf{1}\{Y_i>u_i\}$ y $V=\sum_i w_i Z_i$. Condicional en el conjunto de calibración y en una asignación $x^*$ fijada antes de observar los labels evaluados, suponga además que los $Z_i$ son independientes y que $\mathbb{E}[Z_i\mid\mathcal{F}_{cal}]\leq \alpha_i$. Defina $\mu_w=\sum_i w_i\alpha_i$, $\sigma_w^2=\sum_i w_i^2\alpha_i(1-\alpha_i)$ y $w_{\max}=\max_i w_i$. Entonces, para cualquier $s>0$:
+Manteniendo los supuestos del @sec-thm-feasibility, sea $Z_i=\mathbf{1}\{Y_i>u_i\}$ y $V=\sum_i w_i Z_i$. Condicional en el conjunto de calibración y en una asignación $x^*$ fijada antes de observar los labels evaluados, suponga además que los $Z_i$ son independientes y que $\mathbb{E}[Z_i\mid\mathcal{F}_{cal}]\leq \alpha_i$. Defina $\mu_w=\sum_i w_i\alpha_i$, $\sigma_w^2=\sum_i w_i^2\alpha_i(1-\alpha_i)$ y $w_{\max}=\max_i w_i$. Entonces, para cualquier $s>0$:
 
 $$
 \mathbb{P}\!\left(V \geq \mu_w+s \mid \mathcal{F}_{cal}\right)
@@ -242,7 +242,7 @@ $$
 \right).
 $$ {#eq-bernstein-tightening}
 
-Por la descomposición del @thm-conformal-feasibility, esto implica una cota condicional análoga para $\mathbb{P}(\sum_i w_iY_i>\tau+\mu_w+s\mid\mathcal{F}_{cal})$.
+Por la descomposición del @sec-thm-feasibility, esto implica una cota condicional análoga para $\mathbb{P}(\sum_i w_iY_i>\tau+\mu_w+s\mid\mathcal{F}_{cal})$.
 :::
 
 *Demostración.* Condicional en $\mathcal{F}_{cal}$ y en $x^*$, las variables $w_iZ_i$ son independientes y están acotadas en $[0,w_i]$. La primera desigualdad aplica Hoeffding a la suma ponderada $V$ y usa $\mathbb{E}[V\mid\mathcal{F}_{cal}]\leq\mu_w$. La segunda aplica Bernstein con varianza condicional acotada por $\sigma_w^2$ y rango máximo $w_{\max}$. La transferencia a la violación del portafolio sigue de $\sum_i w_iY_i\leq\tau+V$ cuando $\sum_i w_iu_i\leq\tau$. $\square$
@@ -250,7 +250,7 @@ Por la descomposición del @thm-conformal-feasibility, esto implica una cota con
 ::: {.callout-warning}
 ## Lectura correcta del tightening
 
-El Lemma 1 **no reemplaza** el @thm-conformal-feasibility. Markov sigue siendo la garantía distribution-free principal porque solo requiere control de $\mathbb{E}[V]$. Hoeffding/Bernstein son útiles para una versión journal más fuerte, pero dependen de independencia condicional de los indicadores de no cobertura, supuesto que split conformal no garantiza estrictamente porque todos los préstamos comparten la misma muestra de calibración.
+El Lemma 1 **no reemplaza** el @sec-thm-feasibility. Markov sigue siendo la garantía distribution-free principal porque solo requiere control de $\mathbb{E}[V]$. Hoeffding/Bernstein son útiles para una versión journal más fuerte, pero dependen de independencia condicional de los indicadores de no cobertura, supuesto que split conformal no garantiza estrictamente porque todos los préstamos comparten la misma muestra de calibración.
 :::
 
 El apéndice de dependencia `docs/research/paper_estrella_conditional_tightening_appendix_2026-05-04.md` fija la regla editorial para no sobreprometer este resultado: Markov es el claim principal, mientras Hoeffding/Bernstein quedan como tightening condicional bajo independencia adicional o bajo una futura prueba de concentración con dependencia controlada.
@@ -280,7 +280,7 @@ Este corolario formaliza la observación empírica del proyecto: el *price of ro
 #### Corolario 2: Refinamiento Mondrian {#sec-cor-mondrian}
 
 ::: {#cor-mondrian}
-Bajo predicción conformal Mondrian con grupos $\{g_1, \dots, g_G\}$, la cota del @thm-conformal-feasibility se refina a:
+Bajo predicción conformal Mondrian con grupos $\{g_1, \dots, g_G\}$, la cota del @sec-thm-feasibility se refina a:
 
 $$
 \mathbb{E}[V] \leq \sum_{g=1}^{G} \left(\sum_{i \in g} w_i\right) \cdot \alpha_g
@@ -338,7 +338,7 @@ La clasificación CFA es deliberada y distingue nuestro enfoque de las alternati
 - **No es VFA** (función de valor aproximada): no estimamos el valor futuro de un estado de portafolio para guiar la decisión actual, como haría un enfoque de *approximate dynamic programming*.
 - **No es DLA** (programación estocástica): no optimizamos sobre escenarios simulados del futuro mediante Monte Carlo o programación multi-etapa. En particular, la distinción con DLA es operativamente crucial: una DLA requeriría generar miles de escenarios de default, resolver un programa estocástico masivo y actualizar iterativamente --- un costo computacional que además dificulta la auditabilidad del proceso decisional.
 
-La ventaja de la CFA es triple: es **determinista** (un LP resuelto una vez con HiGHS en milisegundos), **auditable** (el regulador puede inspeccionar la restricción $\sum w_i u_i(\alpha) \leq \tau$ directamente) y **matemáticamente fundamentada** (la garantía de cobertura conformal del @thm-conformal-feasibility se hereda a la restricción de forma verificable).
+La ventaja de la CFA es triple: es **determinista** (un LP resuelto una vez con HiGHS en milisegundos), **auditable** (el regulador puede inspeccionar la restricción $\sum w_i u_i(\alpha) \leq \tau$ directamente) y **matemáticamente fundamentada** (la garantía de cobertura conformal del @sec-thm-feasibility se hereda a la restricción de forma verificable).
 
 ::: {.callout-important}
 ## Sobre la naturaleza uniperiodo
@@ -348,7 +348,7 @@ La formulación actual es estrictamente uniperiodo ($T = 1$): se toma una decisi
 
 #### Interpretación de $\alpha$ como parámetro de sintonización de política
 
-A diferencia de los parámetros de penalización en optimización robusta clásica --- que se calibran por convención o juicio experto --- el nivel conformal $\alpha$ tiene una semántica estadística directa: controla la probabilidad de no cobertura del intervalo predictivo. Esto significa que el parameter tuning de la CFA no es heurístico sino que está anclado a una garantía distribution-free sobre la información exógena $W_{t+1}$. En el lenguaje de Powell, $\alpha$ es un tunable parameter cuyo efecto sobre la contribución $C(S_t, x_t)$ puede cuantificarse formalmente a través del @thm-conformal-feasibility y el @cor-por.
+A diferencia de los parámetros de penalización en optimización robusta clásica --- que se calibran por convención o juicio experto --- el nivel conformal $\alpha$ tiene una semántica estadística directa: controla la probabilidad de no cobertura del intervalo predictivo. Esto significa que el parameter tuning de la CFA no es heurístico sino que está anclado a una garantía distribution-free sobre la información exógena $W_{t+1}$. En el lenguaje de Powell, $\alpha$ es un tunable parameter cuyo efecto sobre la contribución $C(S_t, x_t)$ puede cuantificarse formalmente a través del @sec-thm-feasibility y el @sec-cor-por.
 
 ### Hipótesis defendible
 

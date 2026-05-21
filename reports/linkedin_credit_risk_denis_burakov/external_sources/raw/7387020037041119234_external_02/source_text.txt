@@ -1,0 +1,623 @@
+End-to-End CatBoost Model Lifecycle with SageMaker and MLflow | by Denis Burakov | Artificial Intelligence in Plain English
+Sitemap
+Open in app
+Sign up
+Sign in
+Medium Logo
+Get app
+Write
+Search
+Sign up
+Sign in
+Artificial Intelligence in Plain English
+·
+New AI, ML and Data Science articles every day. Follow to join our 3.5M+ monthly readers.
+End-to-End CatBoost Model Lifecycle with SageMaker and MLflow
+Train, tune, and scale CatBoost on SageMaker with MLflow 3.0
+Denis Burakov
+12 min read
+·
+Oct 22, 2025
+--
+Listen
+Share
+Press enter or click to view image in full size
+SageMaker MLflow.
+In the previous article, we focused on production-ready SHAP explainers with MLflow. In this one, we’ll go a step further, diving into managing the entire CatBoost model lifecycle with SageMaker MLflow 3.0.
+Why SHAP Breaks in Production (and How MLflow Fixes It)
+A hands-on guide to packaging SHAP explainers with CatBoost + SageMaker MLflow
+ai.plainenglish.io
+SageMaker MLflow 3.0 brings a fully managed MLflow tracking backend directly into the Studio environment, eliminating the need for manual setup or external servers. It seamlessly connects your training, tuning, and inference workloads to a single source of truth.
+This walkthrough covers everything from training and hyperparameter tuning to deployment and batch inference with CatBoost. We’ll also cover how MLflow’s data tracking API (mlflow.data) brings reproducibility all the way down to your datasets.
+Creating an MLflow 3.0 Tracking Server
+This section is optional if your organization already runs a managed MLflow backend.
+Before we can train or track anything, we need an MLflow 3.0 tracking server running inside SageMaker. This server acts as the central hub for all experiment metadata — parameters, metrics, models, and datasets.
+To create it, open the SageMaker Studio “MLflow” tab and click on Create in MLflow Tracking Servers.
+Press enter or click to view image in full size
+Provide:
+A name for your server
+An S3 URI for artifact storage
+An IAM execution role, for example:
+arn:aws:iam::497487485332:role/MLflowTrackingServerRole
+Once created, SageMaker automatically provisions a managed MLflow 3.0 server with full integration into the Studio environment — ready to track runs, log models, and store artifacts. For setting up IAM permissions, please see this guide.
+Starting and Stopping the MLflow Tracking Server
+Instead of launching the server manually each time, we can start and stop it programmatically using a boto3 client.
+Here’s a helper function that ensures the server is up and running before your pipeline starts:
+# start_mlflow_server.py
+import time
+import boto3
+from botocore.exceptions import ClientError
+def start_mlflow_server(tracking_server_name: str) -> str:
+"""Start the SageMaker MLflow Tracking Server."""
+sm = boto3.client("sagemaker")
+def get_status():
+"""Get current server status, creating server if it doesn't exist."""
+try:
+desc = sm.describe_mlflow_tracking_server(
+TrackingServerName=tracking_server_name
+)
+print(f"Found tracking server ({desc['TrackingServerStatus']}).")
+return desc
+except ClientError as e:
+if e.response["Error"]["Code"] != "ResourceNotFound":
+raise
+print("Tracking server not found - creating one...")
+sm.create_mlflow_tracking_server(TrackingServerName=tracking_server_name)
+return {"TrackingServerStatus": "Creating"}
+# Get or create the server
+desc = get_status()
+status = desc["TrackingServerStatus"]
+# Start if needed
+if status in ("Stopped", "Failed"):
+print(f"Starting tracking server from state: {status}")
+sm.start_mlflow_tracking_server(TrackingServerName=tracking_server_name)
+# Wait for ready state
+while status not in ("InService", "Started"):
+if status in ("Failed", "Deleting"):
+raise RuntimeError(f"Server entered invalid state: {status}")
+time.sleep(15)
+desc = sm.describe_mlflow_tracking_server(
+TrackingServerName=tracking_server_name
+)
+status = desc["TrackingServerStatus"]
+print(f"[{time.strftime('%X')}] Status: {status}")
+print(f"✅ MLflow Tracking Server is ready (status: {status}).")
+return desc["TrackingServerArn"]
+if __name__ == "__main__":
+arn = start_mlflow_server('sagemaker-mlflow-3')
+print(f"ARN: {arn}")
+We can stop the MLflow tracking server similarly:
+# stop_mlflow_server.py
+import time
+import boto3
+from botocore.exceptions import ClientError
+def stop_mlflow_server(tracking_server_name: str):
+"""Stop the SageMaker MLflow Tracking Server."""
+sm = boto3.client("sagemaker")
+# Check if server exists
+try:
+desc = sm.describe_mlflow_tracking_server(
+TrackingServerName=tracking_server_name
+)
+status = desc["TrackingServerStatus"]
+print(f"Found server ({status}).")
+except ClientError as e:
+if e.response["Error"]["Code"] == "ResourceNotFound":
+print("No server found - nothing to stop.")
+return
+raise
+# Already stopped?
+if status == "Stopped":
+print("✅ Already stopped.")
+return
+# Stop the server
+print("⏹️ Stopping server...")
+try:
+sm.stop_mlflow_tracking_server(TrackingServerName=tracking_server_name)
+except ClientError as e:
+if e.response["Error"]["Code"] != "ValidationException":
+raise
+# Wait for stopped state
+while status not in ("Stopped", "Deleted"):
+time.sleep(10)
+status = sm.describe_mlflow_tracking_server(
+TrackingServerName=tracking_server_name
+)["TrackingServerStatus"]
+print(f"[{time.strftime('%X')}] Status: {status}")
+print("✅ Stopped.")
+if __name__ == "__main__":
+stop_mlflow_server("sagemaker-mlflow-3")
+Dependencies
+First, we will define a list of dependencies in requirements.txt. These ensure compatibility between SageMaker, MLflow 3.0, and CatBoost, while also including utilities like awswrangler for data access. The inference step also relies on awswrangler for efficient S3 I/O streaming.
+awscli==1.34.23
+boto3==1.35.23
+botocore==1.35.23
+catboost==1.2.5
+pandas==2.2.2
+scikit-learn==1.4.2
+sagemaker==2.227.0
+mlflow==3.0.0
+sagemaker-mlflow==0.1.0
+awswrangler==3.13.0
+The same requirements.txt is used both for the training image and for local testing.
+Building the Training Image
+To run MLflow experiments on SageMaker, we’ll build a custom Docker image that includes all required dependencies for CatBoost, MLflow 3.0, and SageMaker.
+We’ll use uv, a fast Python package manager by Astral, to handle dependencies efficiently. Note the --system flag — it installs packages globally in the container rather than creating a virtual environment.
+FROM public.ecr.aws/docker/library/python:3.11
+RUN apt-get update && apt-get install -y --no-install-recommends \
+build-essential libgomp1 curl ca-certificates && \
+rm -rf /var/lib/apt/lists/*
+# Install uv
+ADD https://astral.sh/uv/install.sh /uv-installer.sh
+RUN sh /uv-installer.sh && rm /uv-installer.sh
+ENV PATH="/root/.local/bin/:$PATH"
+WORKDIR /app
+COPY requirements.txt /app/
+# Install deps from requirements
+RUN uv pip install --system -r requirements.txt
+# Force compatible training libs
+RUN uv pip install --system "sagemaker-training<5.0" "smdebug==1.0.34" "protobuf<5.0"
+# SageMaker env
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8
+Once pushed to ECR, this container becomes reusable for training, tuning, and inference.
+Training and Tuning with SageMaker MLflow
+Once our Docker image is ready, we can move to model training and tuning.
+In this setup, the goal is to train a CatBoost classifier, log everything to MLflow, and make the entire run reproducible on SageMaker — including data, metrics, SHAP values, and artifacts.
+Data Preparation
+Before training, we prepare stratified train/test datasets directly in SageMaker using a Processing Job.
+This step optionally triggers an AWS Glue ETL job to generate the features, then splits, balances, and writes processed datasets to S3 — ready for MLflow-tracked training.
+from sagemaker.processing import ScriptProcessor
+script_processor = ScriptProcessor(
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest",
+command=["python3"],
+role="arn:aws:iam::497487485332:role/service-role/AmazonSageMaker-ExecutionRole",
+instance_type="ml.m6i.4xlarge",
+instance_count=1,
+)
+script_processor.run(
+code="data_preparation.py",
+arguments=[
+"--bucket", "my-s3-bucket",
+"--out-prefix", "data/ml-dataset",
+"--run-glue-job",
+"--test-size", "0.3",
+],
+wait=True,
+logs=True,
+)
+This script:
+Runs a Glue job to prepare training data
+Applies stratified train/test split
+Saves feature metadata and datasets to S3 for use by the training step
+Once the data prep job finishes, the SageMaker training job can point directly to the generated dataset:
+S3_TRAIN_PATH = "s3://my-s3-bucket/data/ml-dataset/train/"
+S3_TEST_PATH = "s3://my-s3-bucket/data/ml-dataset/test/"
+Training
+The training pipeline handles:
+Loading pre-split data from SageMaker input channels
+Training and logging a CatBoostClassifier model
+Logging metrics, SHAP values, and datasets with mlflow.data
+#!/usr/bin/env python3
+"""
+train.py
+Trains a CatBoostClassifier using pre-split train/test data from S3,
+logs metrics, datasets, and SHAP values to MLflow.
+"""
+import argparse, os, logging
+import mlflow, mlflow.catboost, mlflow.data
+from mlflow.models import infer_signature
+import pandas as pd
+from catboost import CatBoostClassifier, Pool
+from sklearn.metrics import (
+accuracy_score, f1_score, roc_auc_score, precision_score, recall_score
+)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+def main():
+parser = argparse.ArgumentParser()
+parser.add_argument("--train-dir", type=str, default="/opt/ml/input/data/train")
+parser.add_argument("--test-dir", type=str, default="/opt/ml/input/data/test")
+parser.add_argument("--model-dir", type=str, default="/opt/ml/model")
+parser.add_argument("--iterations", type=int, default=300)
+parser.add_argument("--learning_rate", type=float, default=0.1)
+parser.add_argument("--depth", type=int, default=6)
+parser.add_argument("--l2_leaf_reg", type=float, default=3.0)
+parser.add_argument("--early_stopping_rounds", type=int, default=50)
+parser.add_argument("--model_version", type=str, default="v1.0")
+args = parser.parse_args()
+os.makedirs(args.model_dir, exist_ok=True)
+# Load pre-split data
+train_df = pd.read_parquet(args.train_dir)
+test_df = pd.read_parquet(args.test_dir)
+label_col = "label"
+X_train, y_train = train_df.drop(columns=[label_col]), train_df[label_col]
+X_test, y_test = test_df.drop(columns=[label_col]), test_df[label_col]
+# Train CatBoost with tunable hyperparameters
+model = CatBoostClassifier(
+iterations=args.iterations,
+depth=args.depth,
+learning_rate=args.learning_rate,
+l2_leaf_reg=args.l2_leaf_reg,
+verbose=100
+)
+model.fit(
+X_train, y_train,
+eval_set=(X_test, y_test),
+early_stopping_rounds=args.early_stopping_rounds
+)
+# Evaluate
+y_pred = model.predict(X_test)
+y_proba = model.predict_proba(X_test)[:, 1]
+metrics = {
+"accuracy": accuracy_score(y_test, y_pred),
+"f1": f1_score(y_test, y_pred),
+"roc_auc": roc_auc_score(y_test, y_proba),
+"precision": precision_score(y_test, y_pred),
+"recall": recall_score(y_test, y_pred),
+}
+# Print metrics in format expected by SageMaker tuner
+print(f"ROC AUC: {metrics['roc_auc']}")
+print(f"Test accuracy: {metrics['accuracy']}")
+print(f"F1 Score: {metrics['f1']}")
+print(f"Precision: {metrics['precision']}")
+print(f"Recall: {metrics['recall']}")
+logger.info(f"Metrics: {metrics}")
+# Log to MLflow
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+mlflow.set_experiment("catboost-classifier")
+with mlflow.start_run(run_name=f"catboost_{args.model_version}"):
+# Log all hyperparameters
+mlflow.log_params({
+"iterations": args.iterations,
+"depth": args.depth,
+"learning_rate": args.learning_rate,
+"l2_leaf_reg": args.l2_leaf_reg,
+"early_stopping_rounds": args.early_stopping_rounds,
+"model_version": args.model_version,
+})
+mlflow.log_metrics(metrics)
+# Log datasets with mlflow.data
+train_ds = mlflow.data.from_pandas(train_df, name="train_dataset", targets=label_col)
+test_ds = mlflow.data.from_pandas(test_df, name="test_dataset", targets=label_col)
+mlflow.log_input(train_ds, context="training")
+mlflow.log_input(test_ds, context="testing")
+# Log CatBoost model
+signature = infer_signature(X_test, model.predict_proba(X_test))
+mlflow.catboost.log_model(model, "model", signature=signature)
+# Log SHAP explanations
+sample = X_test.sample(min(50, len(X_test)), random_state=42)
+shap_vals = model.get_feature_importance(
+data=Pool(sample),
+type='ShapValues'
+)
+shap_df = pd.DataFrame(shap_vals, columns=X_test.columns)
+shap_path = os.path.join(args.model_dir, "shap_values.csv")
+shap_df.to_csv(shap_path, index=False)
+mlflow.log_artifact(shap_path)
+if __name__ == "__main__":
+main()
+This script:
+leverages mlflow.data API to log both training and validation datasets;
+Trains a CatBoost model and logs the model artifact;
+Computes SHAP values using CatBoost’s built-in get_feature_importance(type="ShapValues") method, avoiding the need to serialize external explainers.
+We can invoke this training job as follows:
+#!/usr/bin/env python3
+"""
+run_mlflow_training.py
+A wrapper to start a training job with MLflow.
+"""
+import os
+import pathlib
+import boto3
+from sagemaker import Session
+from sagemaker.estimator import Estimator
+# Configuration
+REGION = "us-east-1"
+S3_TRAIN_PATH = "s3://my-s3-bucket/data/ml-dataset/train/"
+S3_TEST_PATH = "s3://my-s3-bucket/data/ml-dataset/test/"
+def create_source_dir():
+"""Create a source directory with the training script."""
+source_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source")
+os.makedirs(source_dir, exist_ok=True)
+train_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "train.py")
+source_train_script = os.path.join(source_dir, "train.py")
+train_content = pathlib.Path(train_script).read_text(encoding="utf-8")
+with open(source_train_script, "w", encoding="utf-8") as f:
+f.write(train_content)
+print(f"Created source directory: {source_dir}")
+return source_dir
+boto_session = boto3.Session(region_name=REGION)
+sagemaker_session = Session(boto_session=boto_session)
+source_dir = create_source_dir()
+estimator = Estimator(
+image_uri="497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest",
+role="arn:aws:iam::497487485332:role/service-role/AmazonSageMaker-ExecutionRole",
+instance_type="ml.m5.xlarge",
+instance_count=1,
+entry_point="train.py", # Specify the entry point
+source_dir=source_dir, # Specify the source directory
+environment={
+"MLFLOW_TRACKING_URI": "arn:aws:sagemaker:us-east-1:497487485332:mlflow-tracking-server/sagemaker-mlflow-3"
+},
+input_mode="FastFile",
+)
+input_data_channel = {
+"train": S3_TRAIN_PATH,
+"test": S3_TEST_PATH,
+}
+estimator.fit(inputs=input_data_channel)
+Once the base training pipeline is solid, we can layer in automatic hyperparameter tuning for full experiment management.
+Hyperparameter Tuning
+Once the base training pipeline is running, we can extend it with SageMaker Automatic Model Tuning (AMT) to optimize hyperparameters such as learning rate, depth, and L2 regularization.
+Get Denis Burakov’s stories in your inbox
+Join Medium for free to get updates from this writer.
+Subscribe
+Subscribe
+Remember me for faster sign in
+The tuning script wraps the training job inside a SageMaker HyperparameterTuner, defines search ranges, and automatically logs the best model configuration through MLflow.
+#!/usr/bin/env python3
+"""
+run_mlflow_tuning.py
+SageMaker Automatic Model Tuning (AMT) with MLflow 3.0.
+"""
+import argparse
+import os
+import pathlib
+import uuid
+from datetime import datetime
+import boto3
+from sagemaker.estimator import Estimator
+from sagemaker.session import Session
+from sagemaker.tuner import (
+ContinuousParameter, IntegerParameter, HyperparameterTuner
+)
+# SageMaker setup
+REGION = "us-east-1"
+ROLE = "arn:aws:iam::497487485332:role/service-role/AmazonSageMaker-ExecutionRole"
+TRACKING_SERVER_ARN = "arn:aws:sagemaker:us-east-1:497487485332:mlflow-tracking-server/sagemaker-mlflow-3"
+CONTAINER_URI = "497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest"
+INSTANCE_TYPE = "ml.m6i.8xlarge"
+S3_TRAIN_PATH = "s3://my-s3-bucket/data/ml-dataset/train/"
+S3_TEST_PATH = "s3://my-s3-bucket/data/ml-dataset/test/"
+JOB_ID = f"{datetime.now().strftime('%m%d%H%M')}-{str(uuid.uuid4())[:8]}"
+def create_source_dir():
+"""Create a source directory with the training script."""
+source_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "source")
+os.makedirs(source_dir, exist_ok=True)
+train_script = os.path.join(os.path.dirname(os.path.abspath(__file__)), "train.py")
+source_train_script = os.path.join(source_dir, "train.py")
+train_content = pathlib.Path(train_script).read_text(encoding="utf-8")
+with open(source_train_script, "w", encoding="utf-8") as f:
+f.write(train_content)
+print(f"Created source directory: {source_dir}")
+return source_dir
+def run_tuning(model_version="v1.1", max_jobs=6, max_parallel=2, wait=True):
+"""Run hyperparameter tuning."""
+print(f"\n🔍 Starting tuning for {model_version}")
+session = Session(boto_session=boto3.Session(region_name=REGION))
+source_dir = create_source_dir()
+estimator = Estimator(
+image_uri=CONTAINER_URI,
+role=ROLE,
+instance_count=1,
+instance_type=INSTANCE_TYPE,
+max_run=24 * 60 * 60,
+sagemaker_session=session,
+entry_point="train.py",
+source_dir=source_dir,
+hyperparameters={"model_version": model_version},
+environment={"MLFLOW_TRACKING_URI": TRACKING_SERVER_ARN},
+)
+# Hyperparameter ranges
+hyperparameter_ranges = {
+"iterations": IntegerParameter(50, 500),
+"learning_rate": ContinuousParameter(0.01, 0.3, scaling_type="Logarithmic"),
+"depth": IntegerParameter(4, 10),
+"l2_leaf_reg": ContinuousParameter(0.1, 10.0, scaling_type="Logarithmic"),
+"early_stopping_rounds": IntegerParameter(10, 50),
+}
+# Metric parsing for SageMaker
+metric_definitions = [
+{"Name": "roc_auc", "Regex": "ROC AUC: ([0-9\\.]+)"},
+{"Name": "accuracy", "Regex": "Test accuracy: ([0-9\\.]+)"},
+{"Name": "f1", "Regex": "F1 Score: ([0-9\\.]+)"},
+{"Name": "precision", "Regex": "Precision: ([0-9\\.]+)"},
+{"Name": "recall", "Regex": "Recall: ([0-9\\.]+)"},
+]
+tuner = HyperparameterTuner(
+estimator=estimator,
+objective_metric_name="roc_auc",
+objective_type="Maximize",
+hyperparameter_ranges=hyperparameter_ranges,
+metric_definitions=metric_definitions,
+max_jobs=max_jobs,
+max_parallel_jobs=max_parallel,
+base_tuning_job_name=f"clf-tune-{model_version.replace('.', '-')}",
+)
+tuner.fit(
+{"train": S3_TRAIN_PATH, "test": S3_TEST_PATH},
+job_name=f"clf-tune-{model_version.replace('.', '-')}-{JOB_ID}",
+wait=wait,
+logs="All" if wait else None,
+)
+print(f"✅ Submitted tuning job: clf-tune-{model_version}-{JOB_ID}")
+if __name__ == "__main__":
+parser = argparse.ArgumentParser(description="Run CatBoost tuning on SageMaker")
+parser.add_argument("--model-version", type=str, default="v1.1")
+parser.add_argument("--max-jobs", type=int, default=6)
+parser.add_argument("--max-parallel", type=int, default=2)
+parser.add_argument("--no-wait", action="store_true")
+args = parser.parse_args()
+run_tuning(args.model_version, args.max_jobs, args.max_parallel, wait=not args.no_wait)
+Each tuning job launches multiple parallel training runs on SageMaker, using the same Docker container and MLflow tracking server. When the job completes, we can select the best model configuration based on the chosen objective metric (here, roc_auc), and each training run remains visible as a tracked MLflow experiment.
+This setup provides a complete, reproducible ML pipeline where every experiment — from data preparation through hyperparameter tuning — is tracked in MLflow, making it easy to compare runs, reproduce results, and deploy the best model to production.
+With tuned models stored in MLflow, the next step is making them portable — loading directly from S3 or via the MLflow Registry.
+Working with Model Artifacts in MLflow
+Loading a Model from S3 Path
+To use the trained CatBoost model, the simplest option is to use the direct S3 path. We can find the S3 path to the model.cb file in Models/Artifacts within SageMaker MLflow UI.
+In my experiment the path is this one:
+s3_path = "s3://sagemaker-us-east-1-497487485332/mlflow-experiments-3/1/models/m-e89469ebe2a84fee8fc562fa2e9811cc/artifacts/model.cb"
+This approach works directly with the model ID and bypasses MLflow’s model registry entirely. The S3 path follows SageMaker MLflow’s storage pattern: s3://sagemaker-{region}-{account}/{mlflow-directory}/{experiment}/models/{model-id}/artifacts/. This is often the most straightforward method when you have a specific model ID and want immediate access to the artifacts without additional registration steps.
+We can use this path to load the model using a local copy:
+import os
+import boto3
+from catboost import CatBoostClassifier
+# Parse bucket/key
+parts = s3_path.replace("s3://", "").split("/", 1) # parsing S3 path
+bucket, key = parts[0], parts[1]
+# Download to tmp
+local_path = f"/tmp/{os.path.basename(key)}"
+boto3.client("s3").download_file(bucket, key, local_path)
+# Load model
+model = CatBoostClassifier()
+model.load_model(local_path, format="cbm")
+print("Model loaded successfully!")
+Loading a Registered Model from MLflow
+Alternatively, we can first register a model in MLflow and then provide a path to it. For example, I registered my model as clf-catboost-model.
+This method requires a two-step process: first registering the model in MLflow’s model registry, then accessing it by name. Model registration transforms the cryptic model ID into a human-readable name and enables versioning and lifecycle management. Note that this approach requires an extra registration step using mlflow.register_model() or using MLflow UI.
+We can load the registered model from MLflow as follows (the server needs to be in started state):
+import mlflow
+import mlflow.catboost
+from mlflow.tracking import MlflowClient
+TRACKING_SERVER_ARN = (
+"arn:aws:sagemaker:us-east-1:497487485332:mlflow-tracking-server/sagemaker-mlflow-3"
+)
+mlflow.set_tracking_uri(TRACKING_SERVER_ARN)
+client = MlflowClient()
+for m in client.search_registered_models():
+print(m.name)
+model = mlflow.catboost.load_model("models:/clf-catboost-model/1")
+print("✅ Model loaded successfully!")
+Inference and Explainability at Scale
+After we have access to our model, we can use it for large-scale inference directly in SageMaker, which involves creating a model score for each observation and generating SHAP values in batch mode.
+Unlike the training phase, inference often runs on millions of samples, so computing SHAP values all at once isn’t practical. Instead, we process data in batches, logging predictions and feature attributions incrementally.
+Batch Inference with SHAP Values
+#!/usr/bin/env python3
+"""
+inference.py - Batch inference with CatBoost + SHAP + MLflow.
+"""
+import os, argparse, logging, boto3, mlflow, pandas as pd
+from datetime import datetime
+from catboost import CatBoostClassifier, Pool
+# Example feature definitions
+NUM_FEATURES = ["age", "income", "balance", "tenure"]
+CAT_FEATURES = ["region", "account_type"]
+TEXT_FEATURES = ["customer_note"]
+logger = logging.getLogger(__name__)
+logging.basicConfig(level=logging.INFO)
+def load_model_from_mlflow_artifact(bucket, experiment_path, model_id):
+"""Load a CatBoost model from MLflow model ID artifacts in S3."""
+s3_key = f"{experiment_path}/models/{model_id}/artifacts/model.cb"
+s3_uri = f"s3://{bucket}/{s3_key}"
+logger.info(f"Attempting to load model from {s3_uri}")
+# Download to /tmp
+local_path = f"/tmp/{os.path.basename(s3_key)}"
+s3 = boto3.client("s3")
+s3.download_file(bucket, s3_key, local_path)
+logger.info(f"Model downloaded to {local_path}")
+# Load model
+model = CatBoostClassifier()
+model.load_model(local_path, format="cbm")
+logger.info("Model loaded successfully from MLflow artifacts")
+return model
+def batch_predict_with_shap(model, data_path, batch_size=10000, output_path=None):
+"""Run inference + SHAP in mini-batches to handle large datasets."""
+import awswrangler as wr
+start = datetime.now()
+batches = 0
+total = 0
+for df in wr.s3.read_parquet(data_path, chunked=True, chunksize=batch_size):
+pool = Pool(df, cat_features=CAT_FEATURES, text_features=TEXT_FEATURES)
+df["score"] = model.predict_proba(pool)[:, 1]
+# Compute SHAP values per batch
+shap_vals = model.get_feature_importance(pool, type="ShapValues")
+shap_df = pd.DataFrame(
+shap_vals[:, :-1], columns=[f"{c}_shap" for c in df.columns]
+)
+df = pd.concat([df, shap_df], axis=1)
+if output_path:
+wr.s3.to_parquet(df, f"{output_path}/batch_{batches}.parquet")
+batches += 1
+total += len(df)
+mlflow.log_metrics({
+"total_rows": total,
+"batches": batches,
+"duration_sec": (datetime.now() - start).total_seconds(),
+})
+print(f"✅ Processed {total:,} rows across {batches} batches")
+💡 SHAP values are computed incrementally per batch, keeping memory usage low while maintaining full explainability coverage.
+We can invoke the batch scoring job as follows:
+import os, boto3
+from sagemaker import Session
+from sagemaker.processing import (
+ScriptProcessor, ProcessingInput, ProcessingOutput
+)
+# Parameters
+REGION = "us-east-1"
+IAM_ROLE = "arn:aws:iam::497487485332:role/service-role/AmazonSageMaker-ExecutionRole"
+IMAGE_URI = "497487485332.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-3-container:latest"
+boto_session = boto3.Session(region_name=REGION)
+sagemaker_session = Session(boto_session=boto_session)
+# Model artifact location
+MODEL_BUCKET = "sagemaker-us-east-1-497487485332"
+EXPERIMENT_PATH = "mlflow-experiments-3/1/models/m-e89469ebe2a84fee8fc562fa2e9811cc"
+MODEL_ID = "artifacts/model.cb"
+# I/O configuration
+inputs = [ProcessingInput(source="s3://my-s3-bucket/data/ml-dataset/", destination="/opt/ml/processing/input")]
+outputs = [ProcessingOutput(source="/opt/ml/processing/output", destination="s3://my-s3-bucket/outputs/inference")]
+# Script arguments
+args = ["--bucket", MODEL_BUCKET, "--experiment-path", EXPERIMENT_PATH, "--model-id", MODEL_ID, "--batch-size", "10000"]
+# Run inference job
+ScriptProcessor(
+image_uri=IMAGE_URI,
+role=IAM_ROLE,
+command=["python3"],
+instance_type="ml.m6i.8xlarge",
+).run(
+code="inference.py",
+inputs=inputs,
+outputs=outputs,
+arguments=args,
+job_name="clf-inference-v1-1",
+wait=False,
+)
+print("✅ Batch inference job submitted.")
+Each processing job launches an isolated container that:
+Loads the latest trained CatBoost model from S3 or MLflow.
+Streams input data in batches, computing both predictions and SHAP explanations.
+Writes incremental Parquet outputs back to S3, ready for analysis or downstream dashboards.
+Final Takeaway
+Over this series, we’ve gone from making SHAP explainability production-ready, to managing full model lifecycles with MLflow 3.0, and finally to scaling explainable inference on SageMaker.
+By streaming SHAP computations in batches — and optionally distributing them with Ray — we can now explain every prediction at any scale, while keeping full lineage in MLflow.
+It’s a unified design that blends scalability, transparency, and operational reliability — the foundations of modern, trustworthy machine learning in production.
+If this walkthrough helped you, follow for the next part of the MLflow + SageMaker series.
+A message from our Founder
+Hey, Sunil here. I wanted to take a moment to thank you for reading until the end and for being a part of this community.
+Did you know that our team run these publications as a volunteer effort to over 3.5m monthly readers? We don’t receive any funding, we do this to support the community. ❤️
+If you want to show some love, please take a moment to follow me on LinkedIn, TikTok, Instagram. You can also subscribe to our weekly newsletter.
+And before you go, don’t forget to clap and follow the writer️!
+AWS
+Python
+Data Science
+Mlops
+Machine Learning
+--
+--
+Published in Artificial Intelligence in Plain English
+44K followers
+·Last published 8 hours ago
+New AI, ML and Data Science articles every day. Follow to join our 3.5M+ monthly readers.
+Written by Denis Burakov
+153 followers
+·25 following
+I write about Python, Data Science, and AI
+Help
+Status
+About
+Careers
+Press
+Blog
+Privacy
+Rules
+Terms
+Text to speech

@@ -1,0 +1,45 @@
+# Propósito {#sec-crpto-book-purpose}
+
+Este mini-libro separa la extracción **Paper CRPTO** del libro Quarto completo.
+No crea un experimento nuevo y no reemplaza el dossier largo del capítulo 14.
+Su función es editorial: convertir el repositorio intelectual del proyecto en
+tres superficies coherentes y sincronizadas:
+
+1. un manuscrito IJDS de máximo 25 páginas en estilo journal, sin referencias ni
+   apéndices en el conteo;
+2. un online supplement con pruebas, tablas largas, trazabilidad y
+   reproducibilidad;
+3. un capítulo de tesis de maestría con toda la profundidad conceptual necesaria
+   para defensa y evaluación laureada.
+
+La regla de sincronización es estricta: si cualquier número de este mini-libro
+contradice `models/final_project_promotion.json`, gana el artefacto canónico. El
+champion oficial sigue siendo `bound_aware_276k_economic_champion`.
+
+## Horizonte de trabajo
+
+El mini-libro queda diseñado para dos relojes a la vez: envío IJDS en 6 meses y
+tesis de maestría en 12 meses. Los capítulos finales convierten el libro
+principal, los artefactos Paper 1, el living lab Paper 4 y la ingesta LinkedIn en
+un backlog editorial gobernado. La idea es avanzar sin reabrir el champion:
+primero cerrar claim, figuras, tablas y supplement; luego ampliar la tesis con
+fundamentos, gobernanza y límites.
+
+## Nombre público
+
+`Paper Estrella` queda como alias interno histórico. El nombre público recomendado
+es **Paper CRPTO: Conformal Robust Predict-then-Optimize for Auditable Credit
+Portfolio Decisions**.
+
+## Pregunta central
+
+¿Puede una banda conformal dejar de ser un diagnóstico estadístico y convertirse
+en un insumo robusto, auditable y económicamente útil para seleccionar portafolios
+de crédito?
+
+## Resultado canónico
+
+La policy económica promovida obtiene `USD 170.5K` de retorno realizado en el
+OOT completo, pasa la evaluación exacta `alpha=0.01` con `V=0.03645`,
+`Gamma_CP=0.18591` y violación cero, y vive dentro de una región robusta completa
+de `45/45` políticas compatibles.

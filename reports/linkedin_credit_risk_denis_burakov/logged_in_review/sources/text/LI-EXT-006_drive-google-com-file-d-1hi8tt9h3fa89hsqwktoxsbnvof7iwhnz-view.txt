@@ -1,0 +1,153 @@
+                                              Origination Models
+
+
+
+                                              GINI Effect on Bad Rate/ Losses
+
+
+
+
+©2014 Experian Public. All rights reserved.                                     1
+                           EDA Research on Relationship between Gini and
+                           Losses for Origination Models
+
+  ▪ The Business Case:
+               ►        The Gini Coefficient is negatively correlated with the bad rate of the accepts in a given
+                        population – the higher the Gini the lower the bad rate of accepts
+               ►        Bad Rate of Accepts can indeed be used as a proxy for losses (assuming that Losses
+                        are 100% of Exposure for Bad Accounts) so a decrease in the Bad Rate can be
+                        regarded as a decrease in losses
+               ►        Additionally it is expected that this effect is positively correlated to the quality of the
+                        target population and the conservatism of the bank strategy – the higher the quality of
+                        the target population* (lower bad rate of the population) and/or the more conservative
+                        the bank (lower acceptance rate), the higher the effect of the Gini increase
+  ▪ Research Assumptions:
+               ►        The cumulative distribution of the goods and bads in the population follows a distribution which is a
+                        variant of the normal distribution and thus can be described by its Gini-coefficient and the
+                        population bad rate (a distribution function was assumed**)
+               ►        The analysis is implemented for different levels of population credit quality (measured as a target
+                        population bad rate) and different accept rates – the graphs in the presentation include only two
+                        examples of the carried out analysis.
+                                              *Target Population is the whole population scored with the model (this is the population of
+                                              applicants not hitting the policy reject rules)
+                                              ** The Lorenz   curve parameterization gives the following links:
+©2014 Experian Public. All rights reserved.
+                                                %G = ( −1 (%B ) +  ) and     σ = 2  Φ −1 ((Gini + 1) 2)                           2
+                           Bad Rate of Accepts decrease with increasing Gini
+                           at the same Acceptance Rate (Volume of Business)
+
+                                                         ▪ Graph – The calculated bad
+                                                           rates of Accepts (y-axis) in
+                                                           relation to Gini (x-axis) for
+                                                           three different acceptance
+                                                           rates (0.4, 0.6 and 0.8 of the
+                                                           entire population) and a
+                                                           population bad rate of 5%
+                                                         ▪ The higher the Gini, the
+                                                           better the quality of the
+                                                           accepted portfolio (lower bad
+                                                           rate of accepts) and
+                                                           therefore the lower the
+                                                           losses
+                                                         ▪ The more conservative the
+                                                           strategy (lower accept rate),
+                                                           the stronger the increase of
+                                                           portfolio quality with
+                                                           increasing Gini as suggested
+                                                           by the curves’ shape
+©2014 Experian Public. All rights reserved.                                            3
+                           Relationship between GINI and Bad Rate of Accepts
+                           for Different Acceptance Rate Targets
+
+                                                              ▪ Graph – The decrease of
+                                                                the accepts’ bad rate (as
+                                                                compared to a Gini of 0%),
+                                                                as a function of the Gini (x-
+                                                                axis)
+                                                              ▪ The Graph is for Population
+                                                                Bad Rate of 10%
+                                                              ▪ The blue curve shows the
+                                                                decrease in the bad rate
+                                                                with an almost linear trend
+                                                                – an increase in Gini of
+                                                                10% would lead to a
+                                                                decrease in the bad rate of
+                                                                accepts of appr. 11%
+
+
+
+▪ The lower the general accept rate and the lower the population bad rate – the steeper the
+  curve – for Accept Rate of 40% a GINI increase of 10% would yield a Bad Rate decrease of
+  13%, for Accept Rate of 80% a GINI increase of 10% would yield a Bad Rate decrease of 8%
+
+
+©2014 Experian Public. All rights reserved.                                                4
+                           Conclusions
+
+
+  ▪ For an Acceptance Rate of 60% it is expected that an Increase in GINI of 10%
+    would yield a similar decrease in Accepts Bad Rate (10-11%) and therefore a
+    similar decrease in losses as compared to a random model (GINI=0%)
+  ▪ For a higher Acceptance Rate (80%) it is expected that a GINI increase of 10%
+    would yield a lower decrease in Accepts Bad Rate and losses (about 8% for a
+    Target Population* with 10% Bad Rate) as compared to a random model
+    (GINI=0%)
+  ▪ For a lower Acceptance Rate (40%) it is expected that a GINI increase of 10%
+    would yield a higher decrease in Accepts Bad Rate and losses (about 13% for a
+    Target Population* with 10% Bad Rate) as compared to a random model
+    (GINI=0%)
+
+
+
+
+  *Target Population is the whole population scored with the model (this is the population of applicants not hitting the policy
+  reject rules)
+©2014 Experian Public. All rights reserved.                                                                                       5
+                           Acceptance Rate effect on the Relationship between
+                           Gini and %Loss Decrease
+
+  ▪ To measure the relationship between an institution’s Acceptance Rate and the
+    effect of Gini on %Losses additional research was done
+  ▪ The slope of the function that expresses %Loss Decrease for a given Gini (as
+    depicted on slide 3) was calculated for different Population Bad Rates
+  ▪ The slope was depicted against the Acceptance Rate to illustrate the effect the
+    Acceptance Rate has on %Loss Decrease as a function of the Gini
+  ▪ The slope was expressed in % value which could be interpreted as how much
+    would be the Loss% Decrease as a proportion of the absolute Gini increase for a
+    given population bad rate and a given acceptance rate
+
+
+
+
+©2014 Experian Public. All rights reserved.                                           6
+                           Acceptance Rate effect on the Relationship between
+                           Gini and %Loss Decrease
+                                              % Loss Decrease as %of Gini Increase
+  ▪ Obviously the higher                      160%
+    the Accept Rate the
+    lower the effect of                       140%
+    increasing the Gini
+    Coefficient on Losses                     120%
+                                                                                                                               Bad Rate
+  ▪ The Higher the Bad                                                                                                              0.05
+    Rate of the total      100%
+                                                                                                                                    0.1
+
+    Population the smaller                                                                                                          0.15
+                                                                                                                                    0.2
+    the effect (this        80%
+
+    difference is more
+    pronounced at higher 60%
+    Accept Rates)
+                                              40%
+                                                            0.1       0.2            0.3   0.4   0.5   0.6   0.7   0.8   0.9
+                                              Accept Rate
+
+
+  ▪ The value of the function is 100% for Accept Rate of 60% and Bad Rate of 20%
+    meaning that in this case if the Gini increases by 10% then Loss would decrease
+    by the same %
+  ▪ At an Accept Rate of 10% regardless of Portfolio Bad Rate a Gini increase of 10%
+    would yield a Loss Decrease of 14% since the value of the function is 140%
+©2014 Experian Public. All rights reserved.                                                                                                7

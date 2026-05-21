@@ -1,0 +1,603 @@
+                                                Journal of Risk Model Validation 14(4), 89–100
+                                                                DOI: 10.21314/JRMV.2020.227
+
+                                    Copyright Infopro Digital Limited 2021. All rights reserved. You may share
+                                    using our article tools. This article may be printed for the sole use of the
+                                    Authorised User (named subscriber), as outlined in our terms and condi-
+                                    tions. https://www.infopro-insight.com/termsconditions/insight-subscriptions
+
+
+
+
+Research Paper
+
+Statistical properties of the population
+stability index
+Bilal Yurdakul1 and Joshua Naranjo2
+1 Enterprise Risk Management & Analytics, USAA, 10750 McDermott Freeway, San Antonio,
+
+TX 78288, USA; email: bilalyurdakul@gmail.com
+2 Department of Statistics, Western Michigan University, 1903 W Michigan Avenue,
+
+Kalamazoo, MI 49008, USA; email: joshua.naranjo@wmich.edu
+
+
+(Received August 14, 2019; revised May 13, 2020; accepted May 13, 2020)
+
+
+ABSTRACT
+The population stability index (PSI) is a widely used statistic that measures how
+much a variable has shifted over time. A high PSI may alert the business to a change
+in the characteristics of a population. This shift may require investigation and pos-
+sibly a model update. PSI is commonly used among banks to measure the shift
+between model development data and current data. Banks may face additional risks
+if models are used without proper validation. The incorrect use of PSI may bring
+unexpected risks for these institutions. However, there are not many studies about
+the statistical properties of PSI. In practice, the following “rule of thumb” is used:
+PSI < 0:10 means a “little change”, 0:10 6 PSI < 0:25 means a “moderate change”
+and 0:25 6 PSI means a “significant change, action required”. These benchmarks are
+used without reference to statistical type I or type II error rates. This paper aims to
+fill the gap by providing statistical properties of the PSI and some recommendations
+on its use.
+
+Keywords: population stability; divergence; model validation; model monitoring; model risk;
+credit risk.
+
+
+
+Corresponding author: B. Yurdakul                      Print ISSN 1753-9579 j Online ISSN 1753-9587
+                                                               c 2021 Infopro Digital Risk (IP) Limited
+
+
+                                                  89
+90   B. Yurdakul and J. Naranjo
+
+     1 INTRODUCTION
+     The population stability index (PSI) is a measure of the population stability between
+     two population samples. Suppose we are interested in comparing the distribution of
+     credit scores for a base year, say 2017, and a target year, say 2019. Did the distri-
+     bution of credit scores remain the same or did it change? The PSI is calculated by
+     classifying the credit scores into B bins and comparing the multinomial frequen-
+     cies over the two years. For example, credit scores are classified into seven bins in
+     Table 1, with the highest scores in grade A and the lowest scores in grade G. The
+     table is based on data freely available from LendingClub (2018). The bin boundaries
+     were determined by LendingClub.
+        Let n be the sample size for the base population and m be the sample size for the
+     target population. Let pOi D xi =n be the relative frequency of the ith grade for the
+     base year and qO i D yi =m be the relative frequency of the ith grade for the target
+     year. The PSI is computed as
+
+                                          B
+                                          X
+                                  PSI D     .pOi   qO i /.ln pOi   ln qO i /:                  (1.1)
+                                          i D1
+
+     In general, base year data refers to the development data for model validation, and
+     PSI gives a measure of the change in distribution between current and development
+     data. A high PSI indicates a large shift, which then makes the model questionable
+     for use. Even though the PSI is a widely used tool to measure population stability, its
+     distributional properties are not well known. In this paper, we discuss the statistical
+     properties of the PSI. Knowing these properties allows the derivation of, among other
+     things, benchmarks with known rates of false significance.
+
+
+     2 LITERATURE REVIEW
+     The PSI is discussed in several books on credit scoring or risk analysis (see, for exam-
+     ple, Anderson 2007; Baesens 2016; Lewis 1994; Siddiqi 2017). Recommendations
+     for industry best practice are made by Pruitt (2010), along with the implementation
+     of the PSI in SAS E NTERPRISE M INER. There is a patent issued for a machine
+     that calculates the PSI by Liu et al (2009). There are also papers and manuals by
+     governmental regulatory bodies that do not discuss the PSI directly (BGFRS–OCC
+     2011; Federal Deposit Insurance Corporation 2007; Office of the Comptroller of the
+     Currency 2016), but discuss the stability of population as an ongoing monitoring
+     requirement. Most of the literature talks about practical use, including rule-of-thumb
+     recommendations. Anderson (2007) points out that the rule of thumb is used as a
+     traffic light approach in the industry.
+
+     Journal of Risk Model Validation                                           www.risk.net/journals
+                                        Statistical properties of the population stability index          91
+
+TABLE 1 PSI calculation for distribution of credit scores.
+
+                        Base      Target
+           Grade (i )   .pO i /    .qO i /   pO i   qO i   ln.pO i /    ln.qO i /   Product
+
+               A        0.253     0.177         0.077             0.357              0.027
+               B        0.302     0.262         0.040             0.142              0.006
+               C        0.204     0.285         0.081             0.334              0.027
+               D        0.134     0.158         0.024             0.165              0.004
+               E        0.072     0.088         0.016             0.201              0.003
+               F        0.026     0.025         0.001             0.039              0.000
+               G        0.008     0.006         0.002             0.288              0.001
+
+              Total     1.000     1.000                                       PSI D 0.068
+
+
+
+   The PSI can be written as some form of Kullback–Leibler (KL) divergence (Kull-
+back 1978; Kullback and Leibler 1951). KL divergence is well studied and can be
+found in Wu and Olson (2010), Lin (2017), Gottschalk (2016) and Thomas (2009).
+Some of the books mentioned above make the connection between the PSI and KL
+divergence. In particular, Anderson (2007) and Thomas et al (2017) acknowledge
+that the PSI is a 2 -based statistic and discuss the connection between the PSI and
+KL divergence. However, the rule of thumb is still lacking discussion in the literature.
+   Let p.x/ and q.x/ be two distributions of a discrete random variable X. The x
+divergence of q.x/ from p.x/ is
+                                                  X   B
+                                            p.X/                    p.xi /
+            DKL .q.x/ j p.x// D Ep ln               D     p.xi / ln        :       (2.1)
+                                            q.X/                    q.xi /
+                                                                i D1
+
+We might think of p.x/ as the true distribution and of q.x/ as the model distri-
+bution so that DKL represents some sort of loss due to using the wrong distribu-
+tion. Even though DKL measures the divergence of q.x/ from p.x/, it is techni-
+cally not a distance measure because the definition is not symmetric, ie, DKL .q.x/ j
+p.x// ¤ DKL .p.x/ j q.x//. However, we can easily obtain a symmetric measure of
+divergence by defining
+                 D  .p; q/ D DKL .q j p/ C DKL .p j q/
+                              X            p.xi / X              q.xi /
+                            D    p.xi / ln        C    q.xi / ln
+                                           q.xi /                p.xi /
+                              X            p.xi / X              p.xi /
+                            D    p.xi / ln            q.xi / ln
+                                           q.xi /                q.xi /
+                              X
+                            D   .p.xi / q.xi //.ln p.xi / ln q.xi //;
+which brings us to the formula for the PSI.
+
+www.risk.net/journals                                                  Journal of Risk Model Validation
+92   B. Yurdakul and J. Naranjo
+
+        Although KL divergence is not symmetric, the PSI is symmetric under the assump-
+     tion that cutoff values are predetermined. However, in practice that is not true, since
+     the cutoff points correspond to the percentiles of the base population that ultimately
+     determine the PSI. If the base and target populations switch roles, then this changes
+     the cutoff points and consequently the PSI. This is an additional layer of complexity
+     in the use of the PSI in practice.
+        Kullback (1978, Chapter 6) tackles the problem for multinomial distributions by
+     comparing cell percentages between two populations. Kullback defined J D .1=n C
+     1=m/ 1 PSI. His definition uses the notation J.1; 2/, defined as the sum of so-called
+     information:
+
+                                        J.1; 2/ D I.1; 2/ C I.2; 1/:                                                    (2.2)
+
+     Kullback called J the divergence between H1 and H2 , two simple statistical hypothe-
+     ses. H1 and H2 basically assume different population percentages. Since Kullback
+     considered only multinomial distribution, he did not have to consider cutoff values
+     for binning. However, per the current use of the PSI, the cell counts or percentages
+     are created from binning the underlying distribution in the development data. The
+     bins are basically dependent on the base population’s distribution.
+
+
+     3 STATISTICAL PROPERTIES OF THE POPULATION STABILITY
+       INDEX
+     Let X D .X1 ; X2 ; : : : ; XB / be a multinomial random variable with parameters n
+     and p, where p D .p1 ; p2 ; : : : ; pB / and pi > 0 for i D 1; : : : ; B. In our motivating
+     example, n is the total number of base-year credit scores, and Xi is the number that
+     falls in the ith grade. Similarly, let Y D .Y1 ; Y2 ; : : : ; YB / be a multinomial random
+     variable with parameters m and q D .q1 ; q2 ; : : : ; qB / with qi > 0 for i D 1; : : : ; B.
+     The following theorem provides a polynomial approximation of the PSI.
+
+     T HEOREM 3.1         Let pOi D Xi =n, where .X1 ; : : : ; XB / is multinomial with param-
+     eters n and .p1 ; : : : ; pB /. Let qO i D Yi =m, where .Y1 ; : : : ; YB / is multinomial with
+     parameters m and .q1 ; : : : ; qB /. Then,
+
+                              PSI D PSI C Op .n 3=2 / C Op .m 3=2 /;                                                   (3.1)
+
+     where
+              B
+                                                                                             pi /2                  qi /2
+                                                                                                                           
+              X                                    pOi        pi   qO i        qi   .pOi                 .qO i
+     PSI D     .pOi     qO i / ln pi    ln qi C                                                     C                       :
+              i D1
+                                                         pi               qi               2pi2                  2qi2
+
+     Journal of Risk Model Validation                                                             www.risk.net/journals
+                                                         Statistical properties of the population stability index                               93
+
+P ROOF         By Taylor’s expansion,
+                                                               pOi          pi        .pOi              pi /2
+                            ln.pOi / D ln.pi / C                                                                C Rn ;
+                                                                     pi                      2pi2
+                                                   p
+where Rn consists of higher-order terms. Now n.pOi pi / is asymptotically nor-
+mal, so .pOi pi / is Op .n 1=2 /. Thus, .pOi pi /3 and the higher-order terms are
+Op .n 3=2 /. By similarly expanding ln.qO i / and substituting it into .ln pOi ln qO i /, the
+result follows.                                                                            
+   The polynomial approximation simplifies considerably when the two multinomi-
+als have equal probability vectors.
+T HEOREM 3.2                  If pi D qi , i D 1; : : : ; B, and the assumptions of Theorem 3.1
+hold, then
+                                         B
+                                         X .pOi               qO i /2
+                              PSI D                                     C op .n 1 / C op .m 1 /:                                        (3.2)
+                                                         pi
+                                         i D1
+
+P ROOF         First, note that ln pi               ln qi D 0. Second,
+                                         pOi        pi          qO i        qi         pOi          qO i
+                                                                                 D                         :
+                                               pi                      qi                    pi
+Finally,
+                           .pOi     pi /2                                                           .pOi        pi /2
+        .pOi      qO i /                    D Œ.pOi             pi /         .qO i        qi /                          D op .n 1 /;
+                                  2pi2                                                                     2pi2
+since .pOi       pi / and .qO i          qi / are op .1/ and .pOi                          pi /2 is Op .n 1 /.                            
+  Let
+                                                                  B
+                                                                  X .pOi                  qO i /2
+                                                PSI D                                             :
+                                                                                     pi
+                                                                  i D1
+We will derive the properties of this quadratic approximation. First, we write it in
+matrix form, ie,
+                                   B
+                            
+                                  X   .pOi qO i /2
+                       PSI D                       D V 0 AV;                  (3.3)
+                                          pi
+                                                         i D1
+where                                                                            2 1                                         3
+                                                                                                    0                 0
+                              2   3                              6 p1
+                         pO1 qO 1
+                                                                                                                            7
+                                                                 6                              1                           7
+                                                                 6 0                                                  0 7
+                                                                 6                                                          7
+                      6 pO2 qO 2 7
+                      6           7
+                                                                                                p2
+                   V D6                                  and A D 6 :                                                          :
+                                                                 6                                                          7
+                            ::    7
+                                                                 6 :                             ::            ::        :: 7
+                             :
+                      6           7
+                      4           5                              6 :                              :                 :     : 7
+                                                                                                                            7
+                        pOB qOB                                  6                                                          7
+                                                                 4                                                       1 5
+                                                                   0                                0          
+                                                                                                                        pB
+
+www.risk.net/journals                                                                                      Journal of Risk Model Validation
+94   B. Yurdakul and J. Naranjo
+
+     T HEOREM 3.3     Under the assumptions of Theorem 3.2, .1=n C 1=m/ 1 PSI has
+                     2
+     an approximate  distribution with B 1 degrees of freedom.
+
+     P ROOF      Note that
+                                                             1
+                                                  1   1
+                                                    C                PSI D V 0 A V;
+                                                  n   m
+     where
+                                                                             1
+                                                                     1   1
+                                                      A D             C           A:
+                                                                     n   m
+
+     It is known from multinomial theory that .pO1 ; : : : ; pOB / is asymptotically multivariate
+     normal, and hence V is approximately normal for large n and m (see, for example,
+     Agresti 2007). To show that V 0 A V has a chi-square distribution, a sufficient con-
+     dition is that A ˙ is idempotent, where ˙ is the variance–covariance matrix of V
+     (see, for example, Stapleton 1995). By the independence of pOi and qO i , we have
+
+                                                                 pi .1      qi .1 qi /
+                                                                           pi /
+                                    var.pOi           qO i / D           C
+                                                                  n              m
+                                                                                 
+                                                                          1     1
+                                                           D pi .1 pi /     C      ;
+                                                                          n     m
+
+     since pi D qi . Also,
+
+       cov.pOi    qO i ; pOj       qOj / D cov.pOi ; pOj /             cov.pOi ; qOj /    cov.qO i ; pOj / C cov.qO i ; qOj /;
+
+     which equals
+                                                                                                   
+                                   pi pj                             qi qj                    1   1
+                                              0C0C                         D      pi pj         C    :
+                                    n                                m                        n   m
+
+     (For details on the covariance between multinomial frequencies, see, for example,
+     Cochran (1977).) Then,
+                 2 1                                  3
+                               0               0
+                                                    2                                                                          3
+          6 p1                                    7 p1 .1 p1 /     p1 p2                                     p1 pn
+          6                1                      76                                                                           7
+          6 0                               0 76     p2 p1  p2 .1 p2 /                                    p2 pB
+          6                                       76                                                                           7
+                           p2
+                                                                                                                               7
+      
+     A ˙ D6 :                                                                                                                  7;
+          6                                       76                                                                           7
+          6 :               ::       ::        :: 7 6
+                                                  7 6    ::         ::    ::                                       ::
+          6 :                :            :     : 76      :          :        :                                     :
+                                                                                                                               7
+                                                                                                                               7
+          6                                       74                                                                           5
+          4                                    1 5      pn p1      pn p2                                pB .1        pB /
+            0                  0
+                                              pB
+
+     Journal of Risk Model Validation                                                                  www.risk.net/journals
+                                           Statistical properties of the population stability index     95
+
+FIGURE 1 Histogram of 10 000 simulated PSI values and overlay of chi-square density.
+
+
+
+                        2000
+
+
+                        1500
+            Frequency
+
+
+
+
+                        1000
+
+
+                         500
+
+
+                          0
+                               0   0.05      0.10        0.15    0.20     0.25      0.30
+                                                         PSI
+
+
+
+
+which can be shown to be idempotent (Yurdakul 2018). Finally, the degrees of
+freedom are given by
+                          2                         3
+                            1 p1   p2        pB
+                          6 p1 1 p2          pb 7
+                          6                         7
+            tr.A ˙/ D tr 6
+                          6 ::     ::    ::     :: 77 D B 1:
+                          4 :       :       :    : 5
+                                      p1            p2        1   pB
+                                                                                                  
+
+   Theorems 3.1–3.3 (from Yurdakul (2018)) suggest that PSI has a distribution
+that is approximated by .1=n C 1=m/ times a 2 random variable with B             1
+degrees of freedom. We ran simulations to confirm this. For example, we used the
+rmultinom() function in R to generate multinomial counts of n D 400 obser-
+vations falling into B D 10 categories with equal probabilities pi D 0:10 for
+i D 1; : : : ; 10. The second sample was generated with m D 400 and similar prob-
+abilities qi D 0:10 for all i. The PSI value (1.1) for comparing the two samples
+was calculated. Figure 1 shows the histogram of 10 000 simulated values of PSI. The
+density of .1=n C 1=m/29 is overlaid for comparison.
+
+4 BENCHMARKS FOR THE POPULATION STABILITY INDEX
+The PSI is used to measure how much a distribution has shifted between two popula-
+tions or over time. A typical rule of thumb (Lewis 1994) for the extent to which
+a distribution has shifted is the following: PSI < 0:10 means a “little change”,
+
+www.risk.net/journals                                                Journal of Risk Model Validation
+96   B. Yurdakul and J. Naranjo
+
+     TABLE 2 PSI benchmarks for B D 10 and ˛ D 0.05.
+
+                                                        m
+                                ‚                       …„                     ƒ
+                        n       100     200     400          600     800     1000
+
+                       100     0.338    0.254   0.211        0.197   0.190   0.186
+                       200     0.254    0.169   0.127        0.113   0.106   0.102
+                       400     0.211    0.127   0.085        0.070   0.063   0.059
+                       600     0.197    0.113   0.070        0.056   0.049   0.045
+                       800     0.190    0.106   0.063        0.049   0.042   0.038
+                      1000     0.186    0.102   0.059        0.045   0.038   0.034
+
+
+
+     0:10 6 PSI < 0:25 means a “moderate change”, and 0:25 6 PSI means a “signifi-
+     cant change”. However, the statistical properties of these benchmarks are unknown.
+     For example, how frequently will the PSI exceed 0.10 when in truth there has been no
+     population shift? The asymptotic distribution of the PSI allows us to use benchmarks
+     that control the type I error rate. Consider formally testing
+
+                               H0 W      pi  D qi    i D 1; : : : ; B
+
+     versus
+
+                               H1 W       pi ¤ qi     for at least one i:
+
+     A test with type I error rate ˛ would reject H0 and declare a change if
+                                                   
+                                            1     1
+                                    PSI >      C     2     ;                                 (4.1)
+                                            n     m ˛;B 1
+
+     where 2˛;B 1 is the upper ˛ percentile of the 2 distribution with B 1 degrees of
+     freedom. Table 2 provides values of the benchmark (4.1) for B D 10 and ˛ D 0:05.
+     The benchmarks change considerably with n and m.
+        When B D 10, the rule-of-thumb PSI > 0:25 seems reasonable for sample sizes
+     n and m between 100 and 200, but it is too conservative for larger sample sizes. The
+     benchmark also changes with the number of bins B. Table 3 provides the benchmark
+     values (4.1) for B D 20 and ˛ D 0:05. Additional tables can be found in Yurdakul
+     (2018).
+        Exactly how liberal or conservative are the 0.10 and 0.25 rules of thumb? We
+     conducted a simulation study to assess rates of rejection under both the null and
+     alternative hypotheses. We generated n observations from the N.1 D 0;  2 D 64/
+     and let .pO1 ; : : : ; pO10 / be the observed proportions that fall into the B D 10 popula-
+     tion deciles. A second sample of m observations was generated from N.2 ;  2 D
+
+     Journal of Risk Model Validation                                          www.risk.net/journals
+                                        Statistical properties of the population stability index       97
+
+TABLE 3 PSI benchmarks for B D 20 and ˛ D 0.05.
+
+                                                     m
+                           ‚                         …„                       ƒ
+                   n       100       200     400          600      800      1000
+
+                 100       0.603     0.452   0.377        0.352   0.339     0.332
+                 200       0.452     0.301   0.226        0.201   0.188     0.181
+                 400       0.377     0.226   0.151        0.126   0.113     0.106
+                 600       0.352     0.201   0.126        0.100   0.088     0.080
+                 800       0.339     0.188   0.113        0.088   0.075     0.068
+                 1000      0.332     0.181   0.106        0.080   0.068     0.060
+
+
+
+TABLE 4 Power comparison of PSI > 0.10; 0.25 and .1=n C 1=m/20.05 when B D 10
+and the mean of target population has shifted by 0, 14 and 21 standard deviations.
+
+  Benchmark                2 D 1             2 D 1 C .=4/               2 D 1 C .=2/
+   ‚ …„ ƒ            ‚       …„        ƒ       ‚     …„      ƒ               ‚     …„     ƒ
+   m    n          0.10     0.25       2    0.10   0.25    2             0.10   0.25    2
+
+  100     100      0.849    0.233    0.076   0.943    0.459       0.218   0.997     0.883   0.711
+  100     200      0.691    0.074    0.069   0.890    0.270       0.258   0.996     0.835   0.826
+  100     400      0.560    0.029    0.066   0.834    0.176       0.295   0.997     0.787   0.887
+  200     200      0.369    0.004    0.057   0.775    0.085       0.360   0.997     0.769   0.954
+  200     400      0.160    0.000    0.060   0.673    0.028       0.473   0.997     0.720   0.990
+  400     400      0.020    0.000    0.051   0.513    0.004       0.671   0.999     0.669   0.999
+
+
+
+64/ and we let .qO 1 ; : : : ; qO 10 / be the observed proportions falling into the deciles of
+N.0;  2 D 64/. We used three values – 2 D 0; 2; 4 – representing mean shifts of
+0, 41 and 12 standard deviations, respectively. The percentage of times that PSI was
+rejected (out of 10 000 runs) is presented in Table 4.
+   Under the null case where 2 D 1 , the type I error rate for PSI > 0:10 is too
+large, except when both sample sizes exceed 400. In contrast, the type I error rate
+for PSI > 0:25 is too small when both sample sizes exceed 200, so the test is too
+conservative. The chi-square benchmark maintains a reasonable type I error, close to
+˛ D 0:05.
+   Under the alternative cases where the two population means are not the same, the
+power of the PSI test based on the chi-square benchmark increases with the sample
+size. However, the tests PSI > 0:10 and PSI > 0:25 have powers that actually
+decrease with sample size (or type II error rates that increase with sample size). This
+counterintuitive behavior can be explained by Theorem 3.3, which states that PSI has
+expected value .1=nC1=m/.B 1/ and variance 2.1=nC1=m/2 .B 1/. Both mean
+
+www.risk.net/journals                                               Journal of Risk Model Validation
+98   B. Yurdakul and J. Naranjo
+
+
+     TABLE 5 2 - and normal-based benchmarks for m D n D 100 and ˛ D 0.05.
+
+                                                          B
+                                             ‚            …„        ƒ
+                                             5     10          15   20
+
+                                2 -based   0.19   0.34    0.47     0.60
+                                 z-based    0.17   0.32    0.450    0.58
+
+
+
+     and variance reduce to zero as n and m increase, which means that PSI converges to
+     a point mass at zero.
+        Since the chi-square distribution is approximately normal for moderately large
+             of freedom, the percentile 2˛;B 1 in (4.1) may be approximated by .B
+     degrees p
+     1/ C z˛ 2.B 1/. This results in
+                                         
+                                  1     1              p
+                         PSI >      C      .B 1 C z˛ 2.B 1//:                     (4.2)
+                                  n     m
+     Table 5 shows the values of chi-square and normal-based PSI benchmarks in (4.1)
+     and (4.2).
+
+     5 CONCLUSION
+     The PSI is used to measure the divergence of frequency distributions between two
+     samples or in time. In practice, it is used to measure the divergence between a devel-
+     opment data set of a particular model and the current population the model is used
+     on. It is used as a validation tool to show the applicability of the model to the current
+     population. In its current use in industry, the PSI is compared with the rule-of-thumb
+     benchmarks that have no known properties. In this paper, we provide guidance by
+     deriving the asymptotic distribution of the PSI. Users may calculate benchmarks
+     depending on the desired level of significance ˛. Besides ˛, the benchmarks depend
+     on the number of bins B, and the base and target sample sizes n and m, respec-
+     tively. Instead of the fixed rules of thumb 0.10 and 0.25, we suggest the following
+     benchmarks for PSI, after deciding on a desired significance level ˛:
+                                                      
+                                    2           1    1
+                           PSI > ˛;B 1          C     ;                                (5.1)
+                                                n    m
+                                            
+                                     1     1                p
+                           PSI >       C       .B 1 C z˛ 2.B 1//:                        (5.2)
+                                     n     m
+     The practitioner may choose ˛ D 0:10, 0.05, 0.01 or 0.005, depending on the
+     acceptable level of risk the institution or practitioner assumes.
+
+     Journal of Risk Model Validation                                      www.risk.net/journals
+                                      Statistical properties of the population stability index    99
+
+DECLARATION OF INTEREST
+The authors report no conflicts of interest. The authors alone are responsible for the
+content and writing of the paper.
+
+REFERENCES
+Agresti, A. (2007). An Introduction to Categorical Data Analysis. Wiley-Interscience.
+Anderson, R. (2007). The Credit Scoring Toolkit: Theory and Practice for Retail Credit
+  Risk Management and Decision Automation. Oxford University Press.
+Baesens, S. H., and Rosch, D. (2016). Credit Risk Analytics. SAS Institute/Wiley (https://
+  doi.org/10.1002/9781119449560).
+BGFRS–OCC (2011). Supervisory guidance on model risk management contents. SR
+  Letter 11-7, Board of Governors of the Federal Reserve System and Office of the
+  Comptroller of the Currency, Washington, DC. URL: https://www.federalreserve.gov/su
+  pervisionreg/srletters/sr1107a1.pdf.
+Cochran, W. (1977). Sampling Techniques. Wiley.
+Federal Deposit Insurance Corporation (2007). Scoring and modeling. In Credit Card
+  Activities Manual. Federal Deposit Insurance Corporation, Arlington, VA. URL: https://
+  www.fdic.gov/regulations/examinations/credit card/pdf version/ch8.pdf.
+Gottschalk, S. (2016). Entropy and credit risk in highly correlated markets. Preprint
+  (arXiv:1604.07042 [q-fin.RM]).
+Kullback, S. (1978). Information Theory and Statistics. Peter Smith, Gloucester, MA.
+Kullback, S., and Leibler, R. (1951). On information and sufficiency. Annals of Mathemati-
+  cal Statistics 22(1), 79–86 (https://doi.org/10.1214/aoms/1177729694).
+LendingClub (2018). LendingClub historical loan issuance data. URL: https://www.lending
+  club.com/.
+Lewis, E. M. (1994). An Introduction to Credit Scoring. Athena Press, London.
+Lin, A. Z. (2017). Examining distributional shifts by using population stability index (PSI)
+  for model validation and diagnosis. Working Paper. URL: https://www.lexjansen.com/
+  wuss/2017/47 Final Paper PDF.pdf.
+Liu, H., Parise, G. F., and Ware, L. R. (2009). Machine-based population stability. United
+  States Patent 8326575, US Patent Office, Washington, DC.
+Office of the Comptroller of the Currency (2016). Sensitivity to market risk installment
+  lending. Comptroller’s Handbook Collection, Office of the Comptroller of the Currency,
+  Washington, DC. URL: https://bit.ly/389js6J.
+Pruitt, R. (2010). The applied use of population stability index (PSI) in SAS Enterprise
+  Miner. Poster, SAS Global Forum 2010. URL: http://support.sas.com/resources/papers/
+  proceedings10/288-2010.pdf.
+Siddiqi, N. (2017). Intelligent Credit Scoring. Wiley (https://doi.org/10.1002/9781119282
+  396).
+Stapleton, J. H. (ed) (1995). Linear Statistical Models. Wiley (https://doi.org/10.1002/9780
+  470316924).
+Thomas, L. C. (2009). Consumer Credit Models: Pricing, Profit, and Portfolios. Oxford
+  University Press.
+
+
+www.risk.net/journals                                          Journal of Risk Model Validation
+100   B. Yurdakul and J. Naranjo
+
+      Thomas, L. C., Crook, J. N., and Edelman, D. B. (2017). Credit Scoring and Its Applica-
+        tions, 2nd edn. Society for Industrial and Applied Mathematics, Philadelphia, PA (https://
+        doi.org/10.1137/1.9781611974560).
+      Wu, D., and Olson, D. (2010). Enterprise risk management: coping with model risk in a
+        large bank. Journal of the Operational Research Society 61(2), 179–190 (https://doi.org/
+        10.1057/jors.2008.144).
+      Yurdakul, B. (2018). Statistical properties of population stability index. Graduate Disserta-
+        tion, University of Michigan. URL: https://scholarworks.wmich.edu/dissertations/3208.
+
+
+
+
+      Journal of Risk Model Validation                                         www.risk.net/journals

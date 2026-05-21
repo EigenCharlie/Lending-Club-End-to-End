@@ -1,0 +1,35 @@
+# Capítulo De Tesis {#sec-crpto-thesis-chapter}
+
+Para tesis de maestría, Paper CRPTO debe expandirse, no inflarse. La tesis puede
+usar el libro completo para construir contexto, pero el capítulo central debe
+seguir una ruta clara:
+
+1. problema aplicado de originación y selección de portafolio;
+2. fundamentos mínimos de PD calibrada, conformal prediction y robust
+   optimization;
+3. metodología CRPTO;
+4. resultados canónicos y región robusta;
+5. governance, fairness proxy, MRM y reproducibilidad;
+6. límites y agenda doctoral/paper 4.
+
+## Qué vale la pena traer del libro
+
+| Capítulo del libro | Uso en tesis |
+|---|---|
+| 02a--02d | Fundamentos formales para lectores no especialistas. |
+| 04a--04b | Linaje, anti-leakage y split temporal. |
+| 05a--05c | WOE/IV, feature contract y gobernanza de inputs. |
+| 06c--06d | Calibración, Brier/Gini/ECE y selección multi-criterio. |
+| 07a--07d | CP, Mondrian y backtesting. |
+| 09a--09c | Optimización determinística/robusta y política. |
+| 10e--10f | MRM, drift, PSI y controles de modelo. |
+| 11c | Explanation drift y reason-code governance. |
+| 14a--14o | Núcleo CRPTO completo. |
+| 19ca--19cb | Cierre de living lab y límites de Paper 4. |
+
+## Qué no conviene traer
+
+GPU, quantum, CATE profundo, IFRS9 contractual, online conformal y DLA deben
+quedar como agenda o apéndice de investigación, no como parte del claim central
+de tesis. El riesgo de una tesis laureada no es quedarse corta: es parecer que
+tiene cinco tesis distintas peleando por el centro.

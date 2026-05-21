@@ -1,0 +1,6 @@
+LLM and AI Notes
+This is a living notebook of LLM and AI concepts, code snippets, and references collected while learning and prototyping both in the cloud and locally.
+The notes move broadly from how models work, to how they are used in systems (RAG, agents, MLOps), to fine-tuning and prompt management. Sections are intentionally uneven in depth and mix theory and practice.
+Whether you’re exploring LLM and AI for credit decisioning, document processing, or just curious about open-source tooling, these are my field notes from the journey.
+👉 Web version here: https://lnkd.in/dwfNbdnZ
+#DataScience #MachineLearning #FinTech #AI #LanguageModels

@@ -1,0 +1,10 @@
+Model evaluation with Somers’ D ⋱
+Did you know that the Gini score can be generalized to modeling problems with continuous outcomes❓
+This general version is called Somers' D, most commonly known to risk modelers as Dxy. It is equivalent to the Gini score and Accuracy Ratio for binary problems like default risk prediction. But the real beauty of Somers' D lies in its ability to extend to more classes and interval values 🪄
+The accompanying deck covers parts of the original paper and provides examples for risk management models, including PD and LGD. It also includes a Python implementation of Somers’ D from scratch to perform model evaluation of regression algorithms with Somers’ D ✨🚀
+Whether you're working in credit risk, predictive modeling, or simply interested in rank-ordering model performance metrics, this deck will give you insights and tools to broaden your model evaluation toolkit ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Check out the visualizations for Cumulative Accuracy Profile (CAP) Curves: https://lnkd.in/dWMnqkzc
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

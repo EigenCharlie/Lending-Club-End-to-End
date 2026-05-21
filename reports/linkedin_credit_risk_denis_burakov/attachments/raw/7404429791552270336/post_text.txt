@@ -1,0 +1,6 @@
+🚀 𝗕𝗼𝗼𝘀𝘁𝗲𝗱 𝗦𝗰𝗼𝗿𝗲𝗰𝗮𝗿𝗱𝘀 𝗶𝗻 𝗣𝘆𝘁𝗵𝗼𝗻 🐍
+The boosted scorecard family is now joined by LightGBM thanks to the contribution by SangJun Moon!
+Now you can convert LightGBM models into credit scorecards.
+The current scorecard method makes stumps easy to interpret, but explaining deeper tree interactions is still challenging. The method developed by Paul Edwards will soon be expanded to use SHAP values for deeper trees in the next release.
+🔗 GitHub repo: https://lnkd.in/dag5Kqwf
+#CreditRiskModeling #DataScience #FinTech #ExplainableAI

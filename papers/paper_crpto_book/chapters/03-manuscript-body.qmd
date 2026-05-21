@@ -1,0 +1,64 @@
+# Arquitectura Del Manuscrito IJDS {#sec-crpto-manuscript-body}
+
+El cuerpo IJDS debe ser quirúrgico. La tesis del paper cabe en siete secciones:
+
+| Sección | Objetivo | Fuente primaria |
+|---|---|---|
+| 1. Introduction | Problema de decisión, gap y contribuciones. | `14a`, `14f`, `14g`. |
+| 2. Related Work | CP/CRC, RO, PtC, DFL/SPO+, credit governance. | `14a`, `14f`, `papers_tesis_folder_audit`. |
+| 3. Method | PD calibrada, Mondrian CP, `u_i(alpha)`, LP robusto. | `14b`, `14c`. |
+| 4. Theory | `Gamma_CP`, `V`, Markov; tightening condicional al supplement. | `14b`. |
+| 5. Experimental Design | Lending Club OOT, splits, artifacts, no leakage. | `04`, `05`, `06`, `14c`. |
+| 6. Results | Champion, región robusta, comparadores, SPO+ boundary. | `14d`, `14i`, `14j`. |
+| 7. Discussion | Implicaciones, MRM/fairness proxy, límites y futuro. | `14e`, `14k`, `14l`. |
+
+## Figuras del cuerpo
+
+| Figura | Rol |
+|---|---|
+| Fig. 1 CRPTO pipeline | Hacer visible el puente CP -> RO -> decisión. |
+| Fig. 2 Alpha/Gamma/funded set | Unir parámetro conformal, incertidumbre y composición. |
+| Fig. 3 Robust region heatmap | Demostrar región, no punto aislado. |
+
+## Tablas del cuerpo
+
+| Tabla | Rol |
+|---|---|
+| Table 1 Core metrics | PD, CP y portfolio sin mezclar familias. |
+| Table 2 Champion/comparators | Economic champion vs theorem-tight vs balanced. |
+| Table 3 compact robustness | Solo si cabe; si no, pasa al supplement. |
+
+## Page budget inicial
+
+| Sección | Páginas objetivo | Regla de compresión |
+|---|---:|---|
+| Introduction | 2.0 | Gap, pregunta, contribuciones y preview del resultado. |
+| Related Work | 3.0 | Solo vecinos necesarios: CP/CRC, RO, PtO/DFL, credit governance. |
+| Method | 5.0 | Definiciones, pipeline, LP robusto y notación reutilizable. |
+| Theory | 3.0 | `Gamma_CP`, `V`, bound principal; pruebas largas al supplement. |
+| Experimental Design | 3.0 | Dataset, split OOT, leakage controls y artifacts. |
+| Results | 5.0 | Champion, región robusta, ablation y comparadores. |
+| Discussion | 3.0 | Implicaciones, límites, MRM/fairness proxy y futuro. |
+| Buffer editorial | 1.0 | Títulos, figuras, transiciones y ajustes finales. |
+
+La suma objetivo es 25 páginas. Cualquier subsection que no sobreviva esta tabla
+debe moverse al online supplement o a la tesis.
+
+## Abstract IJDS candidato
+
+We study credit portfolio selection when calibrated default probabilities remain
+too uncertain to support point-estimate optimization alone. We propose Conformal
+Robust Predict-then-Optimize (CRPTO), a post-hoc and auditable framework that
+maps Mondrian conformal prediction intervals into robust portfolio constraints.
+On a 276,869-loan out-of-time Lending Club evaluation, the promoted economic
+policy earns USD 170.5K on a USD 1M budget while passing the exact alpha=0.01
+funded-set bound, with weighted miscoverage V=0.03645, conformal premium
+Gamma_CP=0.18591, and zero robust-constraint violation. The full promoted robust
+region contains 45/45 alpha01-safe policies, which reduces the risk that the
+result is a single-point artifact. The contribution is not a higher AUC
+leaderboard result, but a reproducible bridge from calibrated probabilistic
+learning to auditable robust credit decisions. The framework clarifies the trade
+off between return, conformal coverage, and governance: decision-focused
+learning can reduce regret, while CRPTO provides coverage-aware constraints,
+traceable funded-set composition, and model-risk-management evidence suitable
+for regulated credit settings.

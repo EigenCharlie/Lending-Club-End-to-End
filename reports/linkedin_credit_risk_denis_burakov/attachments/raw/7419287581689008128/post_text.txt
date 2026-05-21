@@ -1,0 +1,8 @@
+📚 𝘾𝙧𝙚𝙙𝙞𝙩 𝙍𝙞𝙨𝙠 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙤𝙣 𝘼𝙒𝙎 ☁️
+New chapter on batch scoring and credit limit management, a core workflow for anyone managing revolving credit products.
+Banks and FinTechs need to periodically re-score existing customers and adjust credit limits based on behavioral patterns. This normally happens at scale (thousands of customers), on schedule (daily/monthly), and typically requires separating data science work from credit policy decisions.
+The chapter covers AWS services that help orchestrate this process: EventBridge, SageMaker, Lambda, and Redshift.
+As always, everything runs locally with Docker (now using 𝘥𝘰𝘤𝘬𝘦𝘳-𝘱𝘺 so it's all in Python) and LocalStack for hands-on learning.
+More AWS chapters coming before the credit scoring book release 📕. Next up: SageMaker MLflow experiments.
+🔗 GitHub repo: https://lnkd.in/d3itQCBi
+#CreditRisk #AWS #DataScience #MLOps #FinTech

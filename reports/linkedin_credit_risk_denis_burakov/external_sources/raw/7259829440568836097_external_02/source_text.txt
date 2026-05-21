@@ -1,0 +1,142 @@
+Weighted Logistic Regression | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Weighted Logistic Regression ⇅
+Weighted logistic regression is a method for addressing data imbalances in scenarios such as credit scoring for new financial products 💳 and can be used for adjusting the balance between the costs of incorrect predictions 🔍. By modifying the cost weight of each class (e.g., non-default or default), it directly impacts the consequences of misclassification by the model ⚖️
+This approach can be useful for extremely imbalanced datasets (< 5% positive event rate), which are common in areas like secured lending 🏦 and fraud monitoring 🕵️♂️. Through practical examples in credit approval, we demonstrate how models can be refined for improved risk assessment using logistic regression 🧬 and gradient boosted trees 🌳
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the imbalanced learning for PD models with #GBDT here: https://lnkd.in/dRnzMSnc 💡
+▷ Explore #LogisticRegression grokking with Fisher scoring: https://lnkd.in/e-746FQW 💡
+▷ Explore #LogisticRegression essentials with #Python: https://lnkd.in/ebHdg-fB 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+181
+5 Comments
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+Pararawendy Indarjo
+Head of AI/ML
+2y
+Report this comment
+Thanks for the post!
+I'm keen to learn about data science use cases (not only ML modeling) on credit scoring. Do you have some resources to recommend?
+Perhaps something like Data Science for Credit Scoring 101 type of articles.
+Like
+Reply
+1 Reaction
+2 Reactions
+Alexey Pichugin
+2y
+Report this comment
+It is often discussed that introducing class weights in this manner harms the calibration quality of the resulting model. What is your opinion on this matter? Would you rather improve your Gini and then recalibrate later?
+Like
+Reply
+1 Reaction
+2 Reactions
+See more comments
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

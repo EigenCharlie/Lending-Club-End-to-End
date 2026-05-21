@@ -38,6 +38,20 @@ El drift explicativo funciona entonces como una alarma temprana entre el monitor
 Un `rank_overlap_top10 = 1.00` no significa “inmutabilidad total”; significa que la narrativa económica principal del modelo sobrevivió al cambio de periodo. Eso aumenta la defendibilidad del sistema frente a revisores humanos.
 :::
 
+::: {.callout-note}
+## SHAP-scorecards y estabilidad
+
+Convertir contribuciones SHAP en puntos tipo scorecard puede ser útil para reason codes y comunicación con negocio, porque preserva la aditividad en escala log-odds. Pero no convierte SHAP en una explicación causal ni garantiza estabilidad fuera de la distribución de referencia. Si la población cambia, los valores SHAP y sus rankings pueden moverse aunque el modelo conserve AUC aceptable. Por eso cualquier scorecard derivado de SHAP debe vivir junto a esta capa de drift explicativo: su valor es de gobernanza y comunicación, no de causalidad estructural.
+
+La misma cautela aplica a scorecards extraídos desde árboles boosted o CatBoost. Pueden ser una forma elegante de comprimir reglas y generar SQL auditable, y tienen parientes metodológicos claros: RuleFit combina reglas extraídas con un modelo lineal sparse [@friedman2008_rulefit], mientras que codificar hojas de GBDT como dummies permite llevar un ensemble a un marco lineal regularizado [@cui2023_gbdt_ohe_regularization]. Pero el artefacto resultante debe compararse contra el modelo original en discriminación, calibración, monotonicidad y estabilidad de reason codes. En este proyecto queda como prototipo de backlog, no como reemplazo silencioso del champion.
+:::
+
+::: {.callout-note}
+## WOE como explicación contrastiva
+
+WOE también puede leerse como una explicación local en escala de evidencia: cada bin, token o regla empuja el log-odds a favor o en contra de una hipótesis frente a una alternativa. En este proyecto esa lectura ayuda a mantener separados dos usos: WOE como transformación estable para modelos de riesgo y WOE como lenguaje de reason codes. El segundo uso es comunicativo; no reemplaza las pruebas de drift, calibración o causalidad.
+:::
+
 ### Relación con drift de datos
 
 El capítulo de monitoreo de datos ya mostró que varias variables experimentan desplazamientos detectables por KS o CvM. El punto interesante es que esos movimientos no se tradujeron, por ahora, en una ruptura del mapa explicativo central. La lectura útil es simple: **puede haber drift de datos sin que todavía haya drift explicativo severo**.

@@ -1,0 +1,438 @@
+                                                                                                                                                                                   Portfolio Risk Management
+                                                                                                                                                                                   Using the Lorenz Curve
+                                                                                                                                                                                   HAIM SHALIT
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                                                   T
+                                                                                                                                                     H AIM SHALIT                               he Lorenz curve was developed in      difference in finance theory, and derive the
+                                                                                                                                                     is a professor of economics                1905 for the purpose of measuring     mean-Gini CAPM.
+                                                                                                                                                     at Ben-Gurion University
+                                                                                                                                                                                                relative inequality in income dis-          The Lorenz is also very useful for
+                                                                                                                                                     of the Negev in Beer-Sheva,
+                                                                                                                                                     Israel.                                    tribution. Since then, the curve      expressing safety-first risk quantile measures,
+                                                                                                                                                     shalit@bgu.ac.il              has been widely used in welfare economics to       such as value at risk (VaR) and conditional
+                                                                                                                                                                                   calculate the share of national income earned      value at risk (CVaR), that have become very
+                                                                                                                                                                                   by proportions of the population, as ranked by     popular in the banking industry. This fea-
+                                                                                                                                                                                   their relative incomes. The application of the     ture is particularly advantageous when the
+                                                                                                                                                                                   Lorenz curve to portfolio risk management          analyst does not need to specify a particular
+                                                                                                                                                                                   is rooted in its ability to measure the distri-    distribution function. Otherwise, VaR and
+                                                                                                                                                                                   bution and variation of asset returns. In this     CVaR measures are quite cumbersome to
+                                                                                                                                                                                   article, I show how some recent quantitative       compute.
+                                                                                                                                                                                   risk measures can be derived from the Lorenz             In this article, I obtain risk measures
+                                                                                                                                                                                   curve, in order to manage risk and construct       from the Lorenz by using discrete probabili-
+                                                                                                                                                                                   efficient portfolios.                              ties, which are commonly available in finan-
+                                                                                                                                                                                          In risk studies, the analysis is based on   cial data. The next article section presents the
+                                                                                                                                                                                   the absolute Lorenz curve (hereafter referred      Lorenz and its relation to SSD. The following
+                                                                                                                                                                                   to as the Lorenz), which ranks conditional         section discusses the Lorenz and its relation to
+                                                                                                                                                                                   expected returns with respect to the cumu-         GMD. Then, I show the link between VaR,
+                                                                                                                                                                                   lative probabilities of getting these returns.     CVaR, and the Lorenz. Finally, I present
+                                                                                                                                                                                   In risk analysis, the Lorenz originated from       an investment example that shows how to
+                                                                                                                                                                                   Shorrocks [1983], who used absolute curves         manage portfolio risk with the Lorenz.
+                                                                                                                                                                                   to derive second-degree stochastic dominance
+                                                                                                                                                                                   (SSD) conditions. Most portfolio theory and        STOCHASTIC DOMINANCE
+                                                                                                                                                                                   risk management results derived from the           AND THE LORENZ
+                                                                                                                                                                                   Lorenz have appeared in the finance literature
+                                                                                                                                                                                   with respect to Gini’s mean difference (GMD)             The main advantage of the Lorenz in
+                                                                                                                                                                                   and the Gini index. Fisher and Lorie [1970]        financial analysis lies in its simplicity as a tool
+                                                                                                                                                                                   were the first to apply Gini statistics using      to rank and evaluate risky assets according
+                                                                                                                                                                                   the standard Lorenz curve to study the vari-       to stochastic dominance (SD). Hanoch and
+                                                                                                                                                                                   ability of single stocks and portfolios. Later,    Levy [1969], Hadar and Russell [1969],
+                                                                                                                                                                                   Shalit and Yitzhaki [1984] used the curve to       and Rothschild and Stiglitz [1970] inde-
+                                                                                                                                                                                   characterize risky assets, apply Gini’s mean       pendently developed SD rules that provide
+
+
+                                                                                                                                                         152     PORTFOLIO R ISK M ANAGEMENT USING THE L ORENZ CURVE                                                          SPRING 2014
+                                                                                                                                                     portfolio efficiency under expected utility maximiza-                                    k( p )
+
+                                                                                                                                                     tion, but without resorting to specific utility functions.                       L ( p ) = ∑ xi q( xi ) for
+                                                                                                                                                                                                                                                             f allll p ffrom 0 to 1    (3)
+                                                                                                                                                                                                                                               i =1
+                                                                                                                                                     They obtain SD rules by comparing the cumulative
+                                                                                                                                                     probability distributions of asset returns. First-degree                where the counter k(p) is obtained implicitly by:
+                                                                                                                                                     stochastic dominance (FSD) is designed for investors
+                                                                                                                                                     with increasing utilities who are either risk-averters or                                         k( p )
+
+                                                                                                                                                     risk-lovers. Second-degree stochastic dominance (SSD)                                      p = ∑ q( i ) for
+                                                                                                                                                                                                                                                             f allll xi                (4)
+                                                                                                                                                                                                                                                       i =1
+                                                                                                                                                     as mainly for risk-averse investors is the most common
+                                                                                                                                                     model used in portfolio selection. Using cumulative
+                                                                                                                                                                                                                                    Equation (4) expresses the cumulative probability p
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+
+
+
+
+                                                                                                                                                     probabilities, SSD rules provide the necessary and suf-
+                                                                                                                                                                                                                             that returns are less than a given value specified by k(p).
+                                                                                                                                                     ficient conditions under which all risk-averse expected-
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                                                                                                    I shall now explain the Lorenz delineated in
+                                                                                                                                                     utility maximizers prefer risky assets. Nonetheless, the
+                                                                                                                                                                                                                             Exhibit 1. Cumulative probabilities are exhibited on
+                                                                                                                                                     optimal asset choice is more evident with the Lorenz
+                                                                                                                                                                                                                             the horizontal axis, indicating that returns are ranked in
+                                                                                                                                                     than with the traditional SSD rules.
+                                                                                                                                                                                                                             increasing value. On the vertical axis, we see cumulative
+                                                                                                                                                             Consider two risky assets, A and B, whose returns
+                                                                                                                                                                                                                             rates of returns weighted by probabilities, as expressed by
+                                                                                                                                                        A
+                                                                                                                                                           f i = 1,..., N and xiB for
+                                                                                                                                                      xi for                          f i = 1,..., N are sorted from
+                                                                                                                                                                                                                             Equation (3). The Lorenz starts at the origin of axes (0,0)
+                                                                                                                                                     their lowest yields to their highest. Returns are distrib-
+                                                                                                                                                                                                                             and accumulates the sorted returns multiplied by their
+                                                                                                                                                     uted with probabilities qA(xA) and qB(xB), respectively,
+                                                                                                                                                                                                                             probabilities, until all the returns are used up. Because the
+                                                                                                                                                     such that q( xiA ) ≥ 0 and ∑ i =1 q( xiA ) = 1,, q(
+                                                                                                                                                                                         N
+                                                                                                                                                                                                       q( xiB ) ≥ 0 and      lowest returns can be losses, the Lorenz may result in neg-
+                                                                                                                                                      ∑ i =1 q( xiB ) = 1 . The cumulative probabilities are computed
+                                                                                                                                                          N
+                                                                                                                                                                                                                             ative values. The curve ends at the mean return E(x) on
+                                                                                                                                                     as ∑ i =1 q( xiA ) = pkA and ∑ i =1 q( xiB ) = pkB for k = 1,..., N .
+                                                                                                                                                            k                           k
+                                                                                                                                                                                                                             the parallel vertical axis, because at that point, all returns
+                                                                                                                                                     Following Levy [2006], we can state the SSD rules by                    are used up and multiplied by their probabilities.
+                                                                                                                                                     comparing the areas under the cumulative probabilities,                        From its definition in Equation (3), the Lorenz
+                                                                                                                                                     namely:                                                                 captures the conditional expected return E(x|p)
+                                                                                                                                                          All risk averters prefer asset A to asset B if and only if         given the probability p since L(p) = E(x|p) ⋅ p where
+                                                                                                                                                                                                                             E(( p)) ∑ i =1 xi p i is the mean of returns when ranked
+                                                                                                                                                                                                                                            k( p ) q( x )
+
+                                                                                                                                                                    k         k                                              returns add up to k(p). When all returns are accounted
+                                                                                                                                                                   ∑         ∑p     B
+                                                                                                                                                                                    i   for all k = 1,...,
+                                                                                                                                                                                                     , ,N             (1)    for, i.e., k(p) = N, the Lorenz at p = 1 is the unconditional
+                                                                                                                                                                   i =1      i =1
+                                                                                                                                                                                                                             mean return of asset E(x).
+                                                                                                                                                     Computing the areas under the cumulative probabili-                            Now we can look at what can be gained by using
+                                                                                                                                                     ties is not straightforward, as it must be done for all the             the Lorenz in finance. The rationale for using the Lorenz
+                                                                                                                                                     probabilities and followed by a comparison between the                  in SSD is rooted in the manner by which the Lorenz
+                                                                                                                                                     cumulative areas. Following Shorrocks [1983], using                     characterizes risk and mean return of investments for
+                                                                                                                                                     the Lorenz to establish SSD involves comparing only                     risk-averse investors. Such investors have concave utility
+                                                                                                                                                     between curves. For all risk-averse investors to prefer                 functions that express declining marginal utility. The hor-
+                                                                                                                                                     portfolio A over portfolio B, the Lorenz of A must lie                  izontal axis in Exhibit 1 shows the probabilities of asset
+                                                                                                                                                     above the Lorenz of B. In other words, asset A dominates                returns, ranked from those generating the lowest returns
+                                                                                                                                                     asset B if and only if:                                                 with the highest marginal utility to those generating the
+                                                                                                                                                                                                                             highest returns with the lowest marginal utility. The
+                                                                                                                                                           L A ( p ) ≥ L B ( p ) for all probabilities
+                                                                                                                                                                                         p obabil t es 0 ≤ p ≤ 1,     (2)    ranking of asset returns is the only information needed to
+                                                                                                                                                                                                                             sort an asset according to decreasing marginal utility. This
+                                                                                                                                                     where L A (p) and LB (p) are the Lorenz curves for asset                ordering is specified by the cumulative returns, multiplied
+                                                                                                                                                     A and B, respectively, formulated using Equations (3)                   by the probabilities of getting these returns. This is basi-
+                                                                                                                                                     and (4) as follows:1                                                    cally the Lorenz. The principle of distributing resources
+                                                                                                                                                          In Equation (3), the Lorenz is obtained by summing                 according to decreasing marginal utility or decreasing
+                                                                                                                                                     up the returns xi times their probabilities q(xi) up to the             marginal product ensures that financial resources are allo-
+                                                                                                                                                     counter k(p):                                                           cated optimally. Using the Lorenz to manage portfolio
+
+
+                                                                                                                                                     SPRING 2014                                                                              THE JOURNAL OF PORTFOLIO M ANAGEMENT    153
+                                                                                                                                                     EXHIBIT 1
+                                                                                                                                                     The Lorenz
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     risk guarantees that objective. Because the curve expresses        referred to as the Gini Γ. As shown in Equation (6), its
+                                                                                                                                                     asset behavior not as a function of returns over time, but         formulation uses the covariance between the returns and
+                                                                                                                                                     as the occurrence of having lower and higher returns, it           the cumulative probabilities of getting these returns:
+                                                                                                                                                     provides much more relevant information about risk and
+                                                                                                                                                     return than periodical charts do.                                                  GMD/2      Γ    2cov[ x, p ]             (6)
+
+                                                                                                                                                                                                                               Being a statistic, the Gini has some advantages,
+                                                                                                                                                     RISK AND GINI’S MEAN DIFFERENCE
+                                                                                                                                                                                                                        because it lets us express risk with a single number and
+                                                                                                                                                            Originally, Gini [1912] defined the mean differ-            construct optimal portfolios that are SSD. As I will show,
+                                                                                                                                                     ence as the expected distance between observation pairs            an asset’s Gini can be obtained directly from its Lorenz.
+                                                                                                                                                     as follows:                                                               Indeed, when investors analyze the features of risky
+                                                                                                                                                                                                                        assets, they would like to decompose the returns into two
+                                                                                                                                                                             D      |xx1 − x 2 |
+                                                                                                                                                                                    |                             (5)   components: one that embraces only the risk of the asset,
+                                                                                                                                                                                                                        and the other only the safe return. With the Lorenz, this
+                                                                                                                                                     where x1 and x2 are independent replicates of the random           task is easily accomplished. To show this, I construct a
+                                                                                                                                                     variable x. When GMD is divided by the mean, it                    virtual asset that has the same mean return as asset x, but
+                                                                                                                                                     becomes the well-known Gini coefficient, which is                  has no risk whatsoever. For each probability the virtual
+                                                                                                                                                     known to evaluate income inequality. GMD is also an                safe asset always yields the same mean return E(x). This
+                                                                                                                                                     attractive measure of risk, because it depends on the              riskless asset is depicted in Exhibit 1 by its Lorenz as a
+                                                                                                                                                     spread of the returns among themselves, and not on                 straight line that originates at (0, 0) and ends at the mean
+                                                                                                                                                     their deviations from a central value as the mean. The             (1,E(x)). This line is called the line of safe asset (LSA),
+                                                                                                                                                     measure has many different representations and formula-            because it expresses the expected return E(x) multiplied
+                                                                                                                                                     tions, most of which can be found in Yitzhaki [1998].              by the probability p.
+                                                                                                                                                     In finance and portfolio risk management, it is more                      We can now enunciate the risk of asset x as the
+                                                                                                                                                     convenient to use one-half of GMD, which is usually                difference between its LSA, which yields the expected
+
+
+                                                                                                                                                     154    PORTFOLIO R ISK M ANAGEMENT USING THE L ORENZ CURVE                                                          SPRING 2014
+                                                                                                                                                     return E(x), and the Lorenz of asset x. It is obvious that,         necessary conditions for SSD, using the mean and the
+                                                                                                                                                     for every probability p, investing in the risky asset earns         Gini. As established by Yitzhaki [1982], these necessary
+                                                                                                                                                     the cumulative expected return along the Lorenz, while              conditions are expressed as
+                                                                                                                                                     investing in the riskless asset earns a higher cumulative
+                                                                                                                                                     expected return along the LSA. The risk of the asset is                                   E(( A ) ≥ E(( B )
+                                                                                                                                                                                                                                                                                  (8)
+                                                                                                                                                     quantified by the vertical differences between the LSA                              E(( A ) − Γ A ≥ E(( B ) − Γ B
+                                                                                                                                                     and the Lorenz. This area is calculated as the difference
+                                                                                                                                                     between the area below the LSA and the area below                   implying that, if portfolio A is SSD preferred to portfolio
+                                                                                                                                                     the Lorenz. Therefore, the farther the LSA is from the              B, then the mean and the risk-adjusted mean return of
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+
+
+
+
+                                                                                                                                                     Lorenz, the greater the risk assumed by the asset. Because          A cannot be less than the mean and the risk-adjusted
+                                                                                                                                                     E(x)p is the LSA equation and L(p) is the Lorenz equa-              mean return of B, when risk is measured by the port-
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     tion, the area between the two lines is one half the Gini,          folio’s Gini.2
+                                                                                                                                                     as shown here:
+                                                                                                                                                       N           N         N
+                                                                                                                                                                                                                         THE LORENZ AND CVAR
+                                                                                                                                                      ∑            ∑        ∑[ E( x)) − i ] pi = cov[[ x, p ] = 1 2 Γ           As a popular measure of risk, VaR quantifies expo-
+                                                                                                                                                      i =1         i =1      i =1
+                                                                                                                                                                                                                   (7)   sure to risk as the amount of cash to be held in a safe
+                                                                                                                                                                                                                         asset to overcome a portfolio’s potential total loss. It is a
+                                                                                                                                                     From Equation (7), the Gini can be understood as the                safety-first risk measure defined as the quantile of a given
+                                                                                                                                                     pure risk inherent in an asset and therefore can be used            probability p, formulated implicitly as the return VaR(p),
+                                                                                                                                                     together with the mean to characterize investments. Since           such that
+                                                                                                                                                     the mean and the Gini are statistics derived from the
+                                                                                                                                                     Lorenz, they can facilitate the ranking of risky assets.                                k ( p )               
+                                                                                                                                                     Indeed, using the Lorenz for SSD defines only a par-                                p   ∑ q( i ) xi ≤ VaR( p )             (9)
+                                                                                                                                                     tial ordering of investment opportunities. When Lorenz                                   i =1                 
+                                                                                                                                                     curves intersect, we cannot determine a clear dominance
+                                                                                                                                                                                                                         As seen from Equations (3) and (4), VaR(p) is only
+                                                                                                                                                     between risky assets, and therefore the relation between
+                                                                                                                                                                                                                         one single element of the Lorenz that can be obtained
+                                                                                                                                                     all the investments cannot be established. Sometimes a
+                                                                                                                                                                                                                         directly from the cumulative probabilities p. It is sur-
+                                                                                                                                                     complete ordering is required, although these results can
+                                                                                                                                                                                                                         prising that VaR is so prevalent in finance, as it lacks the
+                                                                                                                                                     only provide the necessary conditions for SSD. This is
+                                                                                                                                                                                                                         following basic properties of a risk measure ρ(X) for it
+                                                                                                                                                     the case when the mean and the Gini are used to establish
+                                                                                                                                                                                                                         to be coherent (see Artzner et al [1999]):
+                                                                                                                                                     necessary conditions for SSD. To clarify this argument,
+                                                                                                                                                     consider non-intersected Lorenz curves and their relation
+                                                                                                                                                                                                                            (1) Translation invariance, ρ(X + R F ) = ρ(X) – R F,
+                                                                                                                                                     to SSD. If we choose a linear utility function to determine
+                                                                                                                                                                                                                                where R F is a safe return
+                                                                                                                                                     the optimal portfolio, a necessary condition for the risky
+                                                                                                                                                                                                                            (2) Subadditivity, ρ(A + B) ≤ ρ(A) + ρ(B)
+                                                                                                                                                     portfolio to be preferred by all expected utility maxi-
+                                                                                                                                                                                                                            (3) Positively homogeneity, ρ(λX) = λρ(X)
+                                                                                                                                                     mizers is that it is preferred by the risk-neutral investor
+                                                                                                                                                                                                                            (4) Monotonicity X ≤ Y ⇒ ρ(Y ) ≤ ρ(X)
+                                                                                                                                                     whose marginal utility is a constant. As such, only the
+                                                                                                                                                     last data point on the Lorenz, which is the mean, is the
+                                                                                                                                                                                                                                Indeed, unless the returns distribution is normal,
+                                                                                                                                                     relevant gauge for choosing among assets. This explains
+                                                                                                                                                                                                                         VaR lacks coherence because it fails to satisfy the sub-
+                                                                                                                                                     the first necessary condition for SSD: stating that the
+                                                                                                                                                                                                                         additivity axiom that would prevent risk reduction in
+                                                                                                                                                     mean of the preferred asset is greater than the mean of
+                                                                                                                                                                                                                         portfolio diversification.
+                                                                                                                                                     the dominated asset.
+                                                                                                                                                                                                                                To circumvent VaR’s lack of coherence, finance
+                                                                                                                                                            The other necessary condition for SSD is that the
+                                                                                                                                                                                                                         researchers developed conditional value at risk (Rockafellar
+                                                                                                                                                     area below the Lorenz of the preferred asset be greater
+                                                                                                                                                                                                                         and Uryasev [2000], Acerbi and Tasche [2002]). The basic
+                                                                                                                                                     than the area below the Lorenz of the dominated asset.
+                                                                                                                                                                                                                         idea of this measure is to calculate CVaR(p) as the mean
+                                                                                                                                                     This area is one-half the mean return, subtracted by
+                                                                                                                                                      1 Γ = cov[ x , p ]. These two requirements explain the
+                                                                                                                                                                                                                         of all the quantiles below the original VaR in the lower
+                                                                                                                                                       2
+
+
+
+
+                                                                                                                                                     SPRING 2014                                                                         THE JOURNAL OF PORTFOLIO M ANAGEMENT    155
+                                                                                                                                                     EXHIBIT 2
+                                                                                                                                                     Lorenz Curves of 10 Select DJIA Stocks Using Daily Returns for 2012
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     tail of the cumulative probability distribution from 0 to            given asset, because the technique is not restricted to
+                                                                                                                                                     p. In formal terms:                                                  specific probability distributions. Under these provi-
+                                                                                                                                                                                                                          sions, CVaR is obtained from a specific value of the
+                                                                                                                                                                    1 k( p )                                              Lorenz, which is estimated by sorting and summing up
+                                                                                                                                                        V ( p) =
+                                                                                                                                                       CVaR           ∑VaR(
+                                                                                                                                                                    p i =0
+                                                                                                                                                                            VaR(qi ) q(      f allll q( xi ) ≤ p
+                                                                                                                                                                                     q( xi ) for                   (10)
+                                                                                                                                                                                                                          the returns for a given dataset.
+
+                                                                                                                                                     By comparing Equation (3) and Equation (10), we see                  MANAGING RISKY ASSETS:
+                                                                                                                                                     that CVaR is easily obtained from the Lorenz:                        AN INVESTMENT EXAMPLE
+                                                                                                                                                                                          L( p)                                  To show how the various risk measures are obtained,
+                                                                                                                                                                         V ( p) = −
+                                                                                                                                                                        CVaR                                       (11)
+                                                                                                                                                                                           p                              I calculate the Lorenz for various traded stocks. This is an
+                                                                                                                                                                                                                          easy task for a sample of discrete observations, because it
+                                                                                                                                                     Consider a specific probability α between 0 and 1.                   involves only ranking returns in ascending order and then
+                                                                                                                                                     Exhibit 1 shows how CVaR(α) for the probability α                    summing all the lower returns up to that observation for
+                                                                                                                                                     is expressed by the slope of the straight line connecting            each given return.
+                                                                                                                                                     the origin (0,0) to the point (α, L(α)). This slope can                     To illustrate the relevance of the Lorenz in ranking
+                                                                                                                                                     also be measured on the vertical axis at p = 1 by the seg-           securities with respect to risk and return, we use the 250
+                                                                                                                                                     ment from the horizontal axis, up to the point labeled               daily returns of the 30 stocks of the Dow Jones Indus-
+                                                                                                                                                     CVaR(α). As such, it is easier to calculate CVaR for a               trials Average from January 3, 2012, to December 31,
+
+
+
+                                                                                                                                                     156   PORTFOLIO R ISK M ANAGEMENT USING THE L ORENZ CURVE                                                             SPRING 2014
+                                                                                                                                                     2012. We calculate the Lorenz curves for these 30 stocks      mean return for each stock is shown as the mean minus
+                                                                                                                                                     as described in Equation (3), where the probability of        the Gini. Two CVaRs are also exhibited: one for 5%
+                                                                                                                                                     occurrence is 1/250 for each return. For the sake of          and the other for 10%. We calculate CVaRs by using
+                                                                                                                                                     clarity, Exhibit 2 plots only 10 Lorenz curves. Now we        Equation (10) or extrapolate them from the Lorenz using
+                                                                                                                                                     can isolate the set of SSD-dominated stocks, which are        Equation (11). Note that the CVaR at 5% is greater than
+                                                                                                                                                     the ones with the Lorenz curves lying on top of the chart.    the CVaR at 10%. We can also apply the mean-Gini con-
+                                                                                                                                                     The set of efficient stocks include JNJ, KO, IBM, and         ditions for SSD, as expressed by the conditions of Equa-
+                                                                                                                                                     PFE, whose Lorenz curves form the non-dominated set.          tion (8). This is done on Exhibit 4, where the stocks are
+                                                                                                                                                     The worst stocks, according to SSD, are the ones lying        ranked first according to the mean and then according to
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+
+
+
+
+                                                                                                                                                     on the bottom of the chart. These include AA, HPQ,            the mean, less the Gini. The list shows the most desirable
+                                                                                                                                                     CAT, and CSCO. Not only the position of the Lorenz            stocks, ranked according to the necessary conditions for
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     curves is relevant, but also whether or not the curves        SSD. Hence, the top stocks on the list have higher means
+                                                                                                                                                     intersect.                                                    and higher risk-adjusted means. As such, the list provides
+                                                                                                                                                           The goal now is to calculate the stocks’ statistics     a complete ordering of stock choices, by weighing risk
+                                                                                                                                                     from the Lorenz. The last value on the curve is the stock’s   and mean return for all risk-averse investors.
+                                                                                                                                                     mean return. We obtain the Gini as the area under a vir-            Furthermore, we compare these results with the
+                                                                                                                                                     tual LSA and the Lorenz for each stock. Alternatively for     outcomes shown in Exhibit 4, by ranking CVaR from
+                                                                                                                                                     the Gini, we can use Equation (7) and substitute the value    lower (safest stocks) to higher (riskier stocks). As the table
+                                                                                                                                                     i/N for the cumulative probability p. Exhibit 3 reports       shows, there is some correspondence between the Lorenz
+                                                                                                                                                     the statistics for the 30 DJIA stocks. The risk-adjusted      and the mean-Gini conditions. However, the comparison
+
+
+                                                                                                                                                     EXHIBIT 3
+                                                                                                                                                     Statistics of Daily Returns for the 30 DJIA Stocks (2012)
+
+
+
+
+                                                                                                                                                     SPRING 2014                                                                    THE JOURNAL OF PORTFOLIO M ANAGEMENT    157
+                                                                                                                                                     EXHIBIT 4
+                                                                                                                                                     Stocks Ranked w.r.t. Mean-Gini and w.r.t. CVaR
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     is not complete, because CVaR considers only low-return      ENDNOTES
+                                                                                                                                                     risks at a given probability, whereas Lorenz statistics            1
+                                                                                                                                                     consider risk for the entire distribution of returns and            By using a continuous cumulative distribution function
+                                                                                                                                                                                                                  F(x) and its inverse, Gastwirth [1971] expressed the Lorenz
+                                                                                                                                                     therefore provide much more information about risk and
+                                                                                                                                                                                                                  with a single equation:
+                                                                                                                                                     mean return.                                                                           p
+
+                                                                                                                                                                                                                                   L ( p ) = ∫ F 1( ) dt   for 0 ≤ p ≤ 1
+                                                                                                                                                                                                                                            0
+                                                                                                                                                     CONCLUSION
+                                                                                                                                                                                                                        2
+                                                                                                                                                                                                                         Yitzhaki [1982] also showed that the mean-Gini condi-
+                                                                                                                                                           This article has shown how the Lorenz can serve as     tions for SSD are sufficient whenever cumulative probability
+                                                                                                                                                     a basic tool to measure the risk and return of individual    distributions functions intersect once at most.
+                                                                                                                                                     assets and portfolios. Not only does the Lorenz comply
+                                                                                                                                                     with SSD, it also facilitates computation of the mean-Gini   REFERENCES
+                                                                                                                                                     conditions for SSD when Lorenz curves intersect. Fur-
+                                                                                                                                                     thermore, the Lorenz allows for calculating the CVaRs        Acerbi, C., and D. Tasche. “On the Coherence of Expected
+                                                                                                                                                     for all probabilities of occurrence. Hence, stocks and       Shortfall.” Journal of Banking & Finance, 26 (2002), pp 1487-
+                                                                                                                                                                                                                  1503.
+                                                                                                                                                     portfolios can be ranked in terms of risk and return by
+                                                                                                                                                     using only the Lorenz curves, without estimating prob-
+                                                                                                                                                                                                                  Artzner, P., F. Delbaen, J. Eber, and D. Heath. “Coherent Mea-
+                                                                                                                                                     ability functions.                                           sures of Risk.” Mathematical Finance, 9 (1999), pp. 203-228.
+
+
+
+
+                                                                                                                                                     158   PORTFOLIO R ISK M ANAGEMENT USING THE L ORENZ CURVE                                                             SPRING 2014
+                                                                                                                                                     Fisher, L., and J. Lorie. “Some Studies of Variability of Returns
+                                                                                                                                                     on Investments in Common Stocks.” Journal of Business, 43
+                                                                                                                                                     (1970), pp. 99-135.
+
+                                                                                                                                                     Gastwirth, J. “A General Definition of the Lorenz Curve.”
+                                                                                                                                                     Econometrica, 39 (1971), pp. 1037-1039.
+
+                                                                                                                                                     Gini, C. “Variabilità e Mutabilità.” Studi Economico-Giu-
+                                                                                                                                                     ridici, Università di Cagliari, tipografia di P. Cuppini, Bologna
+                                                                                                                                                     (1912).
+It is illegal to make unauthorized copies of this article, forward to an unauthorized user or to post electronically without Publisher permission.
+
+
+
+
+                                                                                                                                                     Hadar, J., and W. Russell. “Rules for Ordering Uncertain
+          The Journal of Portfolio Management 2014.40.3:152-159. Downloaded from www.iijournals.com by Haim Shalit on 07/12/15.
+
+
+
+
+                                                                                                                                                     Prospects.” American Economic Review, 59 (1969), pp. 25-34.
+
+                                                                                                                                                     Hanoch, G., and H. Levy. “The Efficiency Analysis of Choice
+                                                                                                                                                     Involving Risk.” Review of Economic Studies, 36 (1969), pp.
+                                                                                                                                                     335-346.
+
+                                                                                                                                                     Levy, H. Stochastic Dominance: Investment Decision Making under
+                                                                                                                                                     Uncertainty, 2nd edition. New York: Springer Verlag, 2006.
+
+                                                                                                                                                     Lorenz, M. “Methods of Measuring the Concentration of
+                                                                                                                                                     Wealth.” Publications of the American Statistical Association, 9
+                                                                                                                                                     (1905), pp. 209-219.
+
+                                                                                                                                                     Rockafellar, R., and S. Uryasev. “Optimization of Conditional
+                                                                                                                                                     Value-at-Risk.” Journal of Risk, 2 (2000), pp. 21-41.
+
+                                                                                                                                                     Rothschild, M., and J. Stiglitz. “Increasing Risk I: A Defini-
+                                                                                                                                                     tion.” Journal of Economic Theory, 2 (1970), pp. 66-84.
+
+                                                                                                                                                     Shalit, H., and S. Yitzhaki. “Mean-Gini, Portfolio Theory,
+                                                                                                                                                     and the Pricing of Risky Assets.” Journal of Finance, 39 (1984),
+                                                                                                                                                     pp. 1449-1468.
+
+                                                                                                                                                     Shorrocks, A. “Ranking Income Distributions.” Economica, 50
+                                                                                                                                                     (1983), pp. 3-17.
+
+                                                                                                                                                     Yitzhaki, S. “Stochastic Dominance, Mean-Variance, and
+                                                                                                                                                     Gini’s Mean Difference.” American Economic Review, 72 (1982),
+                                                                                                                                                     pp. 178-185.
+
+                                                                                                                                                     ——. “More Than a Dozen Alternative Ways of Spelling
+                                                                                                                                                     Gini.” Research on Economic Inequality, 8 (1998), pp. 13-30.
+
+
+                                                                                                                                                     To order reprints of this article, please contact Dewey Palmieri
+                                                                                                                                                     at dpalmieri@ iijournals.com or 212-224-3675.
+
+
+
+
+                                                                                                                                                     SPRING 2014                                                         THE JOURNAL OF PORTFOLIO M ANAGEMENT   159

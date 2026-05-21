@@ -42,7 +42,7 @@ empíricos, otros son de ingeniería reproducible.
 | 1 | La PD base es suficientemente calibrada para alimentar incertidumbre | AUC `0.7124`, Brier `0.1546`, ECE `0.0064`, Venn-Abers | no afirmar que AUC es el aporte principal |
 | 2 | Los intervalos conformales tienen cobertura útil para decisión | coverage 90 `92.97%`, min group coverage `91.90%` | no afirmar cobertura condicional perfecta |
 | 3 | El intervalo puede convertirse en conjunto de incertidumbre | definición de `u_i(alpha)` y `Gamma_CP` | no tratar `Gamma_CP` como presupuesto ad hoc |
-| 4 | El bound controla no-cobertura ponderada del funded set | @thm-conformal-feasibility y `V` | no decir que controla directamente una PD latente sin supuesto adicional |
+| 4 | El bound controla no-cobertura ponderada del funded set | @sec-thm-feasibility y `V` | no decir que controla directamente una PD latente sin supuesto adicional |
 | 5 | Existe una región robusta completa en OOT | `45/45` policies pass alpha01 en `276k` | no decir que eso elimina toda incertidumbre post-selección |
 | 6 | El champion oficial es económico, no theorem-tight | retorno `$170.5K`, `V=0.03645`, `gamma_cp=0.18591` | no mezclarlo con el comparador theorem-tight |
 | 7 | La evidencia P1 fortalece el paper sin cambiar dirección | A7--A11, apéndice condicional | no venderlo como validación externa final |
@@ -61,7 +61,7 @@ El mismo resultado se lee distinto según quién revise el manuscrito.
 | Audiencia | Qué le importa | Qué debe ver rápido | Artefacto o sección |
 |---|---|---|---|
 | OR / Management Science | decisión bajo incertidumbre y trade-off robustez-retorno | CRPTO como puente CP -> RO -> portfolio | @sec-alpha-gamma-bound, @sec-estrella-results |
-| ML / conformal prediction | garantía distribution-free y límites post-selección | Markov como claim principal, tightening condicional separado | @thm-conformal-feasibility, @lem-conditional-tightening |
+| ML / conformal prediction | garantía distribution-free y límites post-selección | Markov como claim principal, tightening condicional separado | @sec-thm-feasibility, @sec-lem-conditional-tightening |
 | Crédito / riesgo | auditabilidad, funded set, governance | policy congelada, composición del funded set, segment checks | @sec-estrella-p1-evidence |
 | Reviewer escéptico de DFL | por qué no basta SPO+ | SPO+ reduce regret, CRPTO compra cobertura auditable | @fig-p1-spo-regret, @sec-estrella-comparison |
 | Reproducibilidad | trazabilidad y no cherry-picking | mapa claim -> artifact -> test | @tbl-p1-claim-artifact-test |

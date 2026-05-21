@@ -1,0 +1,201 @@
+WOE Estimators for PD Models | Denis Burakov | 50 comments
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Weight-of-Evidence (WOE) in Credit Scoring 🎲
+WOE is a beloved technique of Credit Risk Modellers. It’s simple, reliable, and very effective on structured underwriting datasets. Contrary to what many people believe is a simple logistic regression, WOE can be used in more complex ensemble models like Bagging or Boosting showing performance similar to out-of-the-box XGBoost while remaining similar to a regulatory white-box 🎐
+Explore similar posts on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+Scroll down to comments to find links to helpful resources about WOE ⬇️
+233
+50 Comments
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+Denis Burakov
+2y
+Report this comment
+Link to papers about WOE 📖:
+Fernando Torres, L. Logistic Regression in Credit Risk: The Role of Weight of Evidence and Information Value. https://medium.com/latinxinai/logistic-regression-in-credit-risk-the-role-of-weight-of-evidence-and-information-value-9e26dd690b16
+Larsen, K. Data Exploration with Weight of Evidence and Information Value in R. https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/
+Oettinghaus, B. WOE, IV and Scorecards in Credit Risk Modelling. https://rpubs.com/erblast/creditrisk
+SAS Data Science Blog. Building credit scorecards using SAS and Python. https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/
+Navas-Palencia, G. Optimal Binning: Mathematical Programming Formulation. https://doi.org/10.48550/arXiv.2001.08025
+Zeng, G. Metric Divergence Measures and Information Value in Credit Scoring. https://doi.org/10.1155/2013/848271
+Sharma, D. Evidence in Favor of Weight of Evidence and Binning Transformations for Predictive Modeling. http://dx.doi.org/10.2139/ssrn.1925510
+Viaene S. A Case Study of Applying Boosting Naive Bayes to Claim Fraud Diagnosis. https://ieeexplore.ieee.org/document/1277822
+Like
+Reply
+5 Reactions
+6 Reactions
+Andrija Djurovic
+2y
+Report this comment
+Thanks for sharing the post and papers. WoE encoding, along with the binning of numeric risk factors, is probably the most common approach in standard credit risk modeling today. I've noticed also a common belief among practitioners regarding WoE's superiority over other encoding methods. I find this questionable as generalization in practice depends on various factors, such as characteristics of the modeling datasets, alternative encodings, performance metrics, and the binning process.
+A main weakness practitioners point out with WoE (and other target-based encoders) is the potential for model overfitting, given the use of target values to transform variables.
+In my opinion, when developing the model, especially within the traditional modeling framework, it's worth testing different encoding methods and making the final decision based on a combination of model performance, business inputs, and operational ease.
+By the way, a type of encoding not that common in practice but which I find very convenient is nested dummy encoding (aka partitions). It effectively addresses the multivariate binning process combined with the business requirement of different risk profiles between adjacent bins.
+Like
+Reply
+5 Reactions
+6 Reactions
+Nikola Perović, FRM
+2y
+Report this comment
+Denis Burakov Thanks for sharing, interesting read. Performance of other model candidates in this example is very close to WoE baseline - what is the added benefit of XGBoost usage here ? Results displayed add weight to the evidence (pun intended) that WoE + Logistic regression is a relatively simple yet powerful combination, which has stood the test of time, atleast in the area of Credit Risk model development. XGBoost and RandomForest can be used for feature building and selection, and for uncovering more complex relationships in the data. Also, as Jakob Lavröd commented performing WoE discretization leads to a loss of information as the modeller imposes a particular relationship between the bin values and bad/default rates. Constraining the information set before using ensemble approaches like RandomForest and XGBoost can be thought of as handicap, as there could be other, useful relationships in the data, apart from those imposed during WoE analysis. Cheers.
+Like
+Reply
+2 Reactions
+3 Reactions
+Jakob Lavröd
+2y
+Report this comment
+Great summary. WoE is very nice in that one builds a 1-variable model for each variable, and then in the next step aggregrate these models. However, what is your view on variables that are correlated and the risk of Simpsons paradox. If I have two variables that a somewhat correlated, the WoE for each will show the domninant relationship, but not be able to pick up the internal variation, which means that the WoE transformed variable lose information.
+Like
+Reply
+4 Reactions
+5 Reactions
+Anton Treialt
+2y
+Report this comment
+In your experience, how often is WoE used in the retail IRB modelling as opposed to other binning options?
+Like
+Reply
+1 Reaction
+Dai ZJ
+2y
+Report this comment
+WOE is a form of target encoding. Dummies work better in general
+Like
+Reply
+1 Reaction
+George Bliatsios
+2y
+Report this comment
+Nice one Denis, thanks a lot for putting this together and for sharing the papers. Quite informative!
+Very well said, Weight of Evidence works well on a variety of cases.
+Although it could be a bit “annoying” in terms of maintenance/recalibration as fine tuning of the bins most likely will need to be repeated. Especially when for some attribute, new info comes up that was not available during development.
+But overall, imho is very useful technique!
+Like
+Reply
+1 Reaction
+2 Reactions
+Bayanda Dumezweni
+2y
+Report this comment
+Thanks for sharing. Denis Burakov Andrija Djurovic, In my experience, WoE encoding works well for both categorical and continuous variables for a credit scorecard model. What is your experience in using WoE encoding outside a credit scoring model? Some practitioners prefer dummy variables encoding in this area.
+Like
+Reply
+1 Reaction
+Dejan J.
+2y
+Report this comment
+Jakob Lavröd income as a variable even though I have used it in the Nordics and is a good variable in developed countires with low inflation, in developing countries or countires with higher inflation raw income is not the best variable to be used. When you have to have at least 5 years of data in your developing sample + 1 year observation period + potential OOT sample to test the model, having in mind that in Serbia the minimum salary in 2024 is almost equal to average from 2016, your PSI will skyrocket if you do not do some sort of transformation (e.g. income/average income, real income or similar) and the more time passes the raw income variable skews to the best bucket. Not to mention the part of income that is in our developing countires being paid under the table…
+Like
+Reply
+2 Reactions
+3 Reactions
+See more comments
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

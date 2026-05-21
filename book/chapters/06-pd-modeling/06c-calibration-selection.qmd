@@ -47,6 +47,8 @@ donde $S_b$ es el conjunto de observaciones en el bin $b$, $\text{acc}(S_b)$ es 
 ## Limitaciones del ECE como métrica de calibración
 
 El ECE depende del número y tipo de bins elegidos, lo que introduce artefactos [@vaicenavicius2019; @kumar2019]. Vaicenavicius et al. [-@vaicenavicius2019] demostraron que los estimadores de ECE basados en binning son **sesgados e inconsistentes**, y Kumar et al. [-@kumar2019] mostraron que el ECE puede hacerse arbitrariamente pequeño mediante binning adversarial. Por esta razón, en nuestra política de selección el ECE es únicamente un criterio **secundario**: el Brier Score (proper scoring rule con descomposición interpretable) y el Z-statistic de Spiegelhalter (test formal de calibración) son las métricas primarias de decisión.
+
+La misma cautela aplica a los reliability diagrams: una curva por bins es una visualización útil, no una prueba definitiva. Para comparar modelos cercanos conviene acompañarla con intervalos o suavizados y con una lectura separada de calibración, resolución y dispersión de scores. Incluso el Brier puede empatar modelos por rutas distintas; por eso su descomposición se usa como diagnóstico y no como selector único del champion [@murphy1973; @heblingvieira2026_brier_yates].
 :::
 
 ### Cuatro Métodos de Calibración {#sec-calibration-methods}
@@ -294,6 +296,8 @@ El rerun V2 dejó además dos mejoras de gobernanza que antes estaban solo parci
 - el **Murphy diagram** dejó de ser una idea disponible solo en utilidades internas y pasó a producirse como evidencia editorial real del calibrador ganador.
 
 Esa mejora importa porque permite explicar la calibración no solo con un score agregado, sino con una lectura más rica de reliability versus resolution.
+
+Una advertencia adicional evita una mala lectura frecuente: minimizar Brier no equivale automáticamente a escoger el mejor modelo de crédito. Si un modelo concentra predicciones cerca de la tasa base puede verse competitivo en error cuadrático y aun así carecer de rango útil para segmentar riesgo o construir escalas. Por eso este libro mantiene la selección multi-criterio: Brier y log-loss para calidad probabilística, Gini/ROC para ranking, ECE y pruebas acumuladas para calibración, y métricas económicas para decisiones.
 
 ::: {.callout-tip}
 ## Interpretación práctica del ECE

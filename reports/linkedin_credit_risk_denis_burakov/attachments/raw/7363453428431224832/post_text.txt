@@ -1,0 +1,6 @@
+Credit risk and fraud are naturally imbalanced problems: far fewer people default or commit fraud compared to those who repay or use banking wisely. Datasets are dominated by "good" cases, so practitioners often turn to resampling techniques: for example, creating a 50/50 split of goods and bads to use accuracy and related metrics.
+The challenge is that a model trained on such a balanced sample won't reflect the observed risk levels. Model predictions will be miscalibrated and, without post-hoc correction, they can't be trusted as probabilities of default.
+The deck shows what happens when you train on a 50/50 dataset and then move back to the real-world distribution. I compare several techniques across different models to highlight when they succeed (and when they don't) at recovering calibrated default/fraud probabilities.
+Check out my earlier post on calibration toolkit 🪛: https://lnkd.in/dYcqYrAr
+Python 🐍 script: https://lnkd.in/dpCr2Ded
+#DataScience #CreditRiskModeling #FraudDetection #Calibration

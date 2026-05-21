@@ -1,0 +1,12 @@
+There are plenty of Python data science tools, but very few are built specifically for credit risk modeling.
+𝗙𝗮𝘀𝘁𝗪𝗼𝗲 focuses on what teams actually need in their daily work:
+• Weight of Evidence encoding with uncertainty
+• Somers' D / Gini as first-class metrics
+• Interpretable feature screening aligned with regulatory models
+What’s new in v0.1.6 ⤵
+✓ 𝗠𝗮𝗿𝗴𝗶𝗻𝗮𝗹 𝗦𝗼𝗺𝗲𝗿𝘀' 𝗗 (𝗠𝗦𝗗), an incremental feature selection based on residual rank correlation
+✓ 𝗖𝗔𝗣 & 𝘄𝗲𝗶𝗴𝗵𝘁𝗲𝗱 𝗖𝗔𝗣 𝗰𝘂𝗿𝘃𝗲𝘀, a credit risk data science gem available for visualizing model ranking performance
+✓ 𝗦𝘁𝘆𝗹𝗶𝗻𝗴 𝗱𝗲𝗰𝗼𝗿𝗮𝘁𝗼𝗿𝘀 𝗳𝗼𝗿 𝗜𝗩 / 𝗚𝗶𝗻𝗶 𝘁𝗮𝗯𝗹𝗲𝘀 ready for notebooks and stakeholder communication
+✓ 𝗨𝗹𝘁𝗿𝗮-𝗹𝗶𝗴𝗵𝘁𝘄𝗲𝗶𝗴𝗵𝘁 𝗶𝗻𝘀𝘁𝗮𝗹𝗹 (<70 KB), 🐍Python 3.9+
+🔗 GitHub repo: https://lnkd.in/dFgQAEWG
+#CreditRiskModeling #DataScience #Python #Scorecards

@@ -1,0 +1,55 @@
+Another look at Precision, Recall, and F1 score
+COVID Test Classification Results
+                                                                                                       Confusion Matrix
+                     Actually Has Covid         Doesn't Have Covid               Total
+                                                                                                              900 (TP)              9,990 (FP)
+
+  Test Positive               900                       9,990                   10,890
+                                                                                                              100 (FN)             989,010 (TN)
+  Test Negative               100                     989,010                  989,110
+
+      Total                 1,000                     999,000                 1,000,000
+                                                                                               A confusion matrix helps make this more concrete:
+Source: Tom Chivers. Everything is Predictable, 2024.
+                                                                                               • Precision = P(YCOVID+ | XTEST+)
+           “About 0.1% of people had Covid at the time [between the 1st and 2nd waves]. If     • Recall = P(XTEST+ | YCOVID+)
+           you tested people at random, and your test correctly identified people who didn’t
+           have Covid 99% of the time, and people who did have Covid 90% of the time,          Precision is the probability of having COVID given
+           more than 90% of your positives would be false.”                                    a positive test, P(YCOVID+ | XTEST+) = 900 / 10,890 = 0.083
+                                                                                               (8.3%).
+     The test correctly identifies 90% of the actual positive cases → Recall
+     Out of all positive test results, only 8.3% are true → Precision                          Recall is the class-conditional probability
+                                                                                               P(XTEST+ | YCOVID+) = 900 / 1,000 = 0.9 (90%).
+Is this a bad test? The F1 score is ~15%, which could indicate that it is. But
+in low-prevalence settings (aka class imbalance), high precision is almost                     F1 Score = 2 * (Precision * Recall) / (Precision + Recall)
+impossible unless the test is nearly perfect.                                                  = 2 × (0.083 × 0.9) / (0.083 + 0.9) ≈ 15%.
+Another look at Precision, Recall, and F1 score
+Precision acts as a function of prevalence. When prevalence is very low, the denominator becomes dominated by False Positives, and
+Precision drops sharply.
+
+
+
+
+     The model’s sensitivity (recall) and specificity (TNR = 1 − FPR) are fixed,   The model’s ROC AUC score is fixed, while prevalence varies. We use
+     while prevalence varies.                                                      two types of thresholds to binarize predictions for precision scoring.
+Another look at Precision, Recall, and F1 score
+We can show that prevalence is related to precision via the following formula:
+
+
+
+
+Where TPR is True Positive Rate (Recall) and TNR is True Negative Rate. The denominator is the total positive rate, P(Test Positive).
+
+
+Precision is also the probability that the outcome (or hypothesis) is true given evidence:
+
+
+
+
+X = 1 is the positive test result, and Y = 1 is the presence of COVID. P(X = 1) is the total positive rate as shown below:
+Another look at Precision, Recall, and F1 score
+
+
+
+
+                     Some great books with more examples

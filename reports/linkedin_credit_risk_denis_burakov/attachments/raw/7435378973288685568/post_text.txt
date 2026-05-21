@@ -1,0 +1,7 @@
+Had an amazing day today at Data Demystified Summit in Berlin! 🇩🇪
+A few things that stuck with me:
+Marie from Piano gave an interesting number that $12.9B is lost annually to bad data quality, and 60% of dashboards nobody uses.
+Visible wins in analytics accelerate adoption faster than training in data literacy.
+Cloud data sovereignty is heating up in the EU. With hyperscalers holding sensitive data, the regulatory and trust questions around EU cloud are becoming impossible to ignore.
+And some really clever methodology I noted down about churn analytics: combining quantitative data with open qualitative exit responses of users gives LLMs some decent ground to come up with experiment hypotheses.
+#Data #DataAnalytics #DataScience #CreditRisk #AIinFinance

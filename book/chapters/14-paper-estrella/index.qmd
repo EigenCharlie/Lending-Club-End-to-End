@@ -1,5 +1,5 @@
 ---
-title: "Paper Estrella: Conformal Robust Predict-then-Optimize"
+title: "Paper CRPTO: Conformal Robust Predict-then-Optimize"
 page-layout: article
 ---
 
@@ -8,7 +8,7 @@ page-layout: article
 ::: {.whole-game-intro}
 <span class="whole-game-question">Pregunta central</span>
 
-¿Qué ganamos cuando la incertidumbre predictiva deja de ser un diagnóstico y se vuelve una entrada explícita del optimizador? Esta landing abre el paper principal del proyecto alrededor de esa tesis.
+¿Qué ganamos cuando la incertidumbre predictiva deja de ser un diagnóstico y se vuelve una entrada explícita del optimizador? Esta landing abre el paper principal del proyecto alrededor de esa tesis. `Paper Estrella` queda como nombre interno histórico; el nombre público y de tesis debe ser **Paper CRPTO**.
 
 Ejemplo concreto: en vez de optimizar con una sola PD de un préstamo, el paper usa una banda conformal `[PD_low, PD_high]` para construir un conjunto de incertidumbre y preguntarse cuánto retorno se preserva cuando la decisión se protege contra realizaciones plausibles del riesgo.
 :::
@@ -24,7 +24,7 @@ Este paper existe para sostener un claim económico y metodológico al mismo tie
 
 ## Qué propone exactamente este paper
 
-El `Paper Estrella` es la pieza metodológica principal del proyecto. Su propuesta no es solamente mejorar predicción, sino **convertir incertidumbre predictiva en una señal accionable para decidir mejor**. En vez de tratar la banda conformal como un apéndice diagnóstico, el paper la promueve a objeto central del optimizador. El enfoque se denomina **Conformal Robust Predict-then-Optimize** (CRPTO): la industria suele colapsar predicciones en valores esperados para la optimización; nosotros resolvemos esto inyectando los intervalos de Conformal Prediction directamente como conjuntos de incertidumbre.
+El **Paper CRPTO** es la pieza metodológica principal del proyecto. Su propuesta no es solamente mejorar predicción, sino **convertir incertidumbre predictiva en una señal accionable para decidir mejor**. En vez de tratar la banda conformal como un apéndice diagnóstico, el paper la promueve a objeto central del optimizador. El enfoque se denomina **Conformal Robust Predict-then-Optimize** (CRPTO): la industria suele colapsar predicciones en valores esperados para la optimización; nosotros resolvemos esto inyectando los intervalos de Conformal Prediction directamente como conjuntos de incertidumbre.
 
 En términos concretos, el paper propone:
 
@@ -39,7 +39,7 @@ El claim editorial que organiza el paper es este:
 
 ## Diagrama del paper
 
-La figura siguiente resume el flujo metodológico del `Paper Estrella`, desde datos y modelado hasta escenarios, optimización y decisiones financieras.
+La figura siguiente resume el flujo metodológico del Paper CRPTO, desde datos y modelado hasta escenarios, optimización y decisiones financieras.
 
 ![Diagrama maestro del Paper Estrella: fuente de datos, modelado, incertidumbre conformal, escenarios IFRS9, optimización y decisiones financieras.](../../assets/figures/editorial/diagrama-paper-estrella.png){#fig-paper-estrella-overview fig-alt="Diagrama horizontal del Paper Estrella con datos, calibración, incertidumbre conformal, escenarios IFRS9, optimización robusta y decisiones financieras."}
 
@@ -90,9 +90,10 @@ La lectura recomendada es:
 ::: {.callout-tip}
 ## Regla de lectura
 
-Si una explicación es demasiado larga para un paper de 30--40 páginas, puede
-seguir siendo valiosa en este libro. El paper final heredará los claims y las
-tablas; el libro preserva el razonamiento, las cautelas y la trazabilidad.
+Si una explicación es demasiado larga para el manuscrito IJDS de 25 páginas
+excluyendo referencias y apéndices, puede seguir siendo valiosa en este libro.
+El paper final heredará los claims y las tablas; el libro preserva el
+razonamiento, las cautelas y la trazabilidad.
 :::
 
 ## Navegación curada

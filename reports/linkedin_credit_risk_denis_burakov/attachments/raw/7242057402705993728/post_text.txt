@@ -1,0 +1,11 @@
+Binary and Multiclass Modeling 🔢
+It's widely known that many real-world predictive modeling problems are of binary nature, such as determining who gets a loan or who is likely to churn. But why do we favor binary models? 💭 For one, it conveniently simplifies the real world 🗺️. It's much easier to frame decisions as yes/no or likely/unlikely because this is how our minds naturally handle complexity 💡
+Take credit default as an example: a customer can default due to various reasons, such as fraudulent behavior or a loss of income. Yet, as far as automated decision-making is concerned, these distinctions blur. Multiclass models, on the other hand, may capture these patterns by accounting for each default reason, offering a more accurate picture of real-world outcomes 🌌
+This deck has several aims. First, it demonstrates that multinomial logistic regression is equivalent to logistic regression when only two outcomes are considered. Second, it transforms the binary credit default problem into a multiclass one, showing how linear models struggle to adapt in multi-outcome settings. Lastly, we explore a trick of distilling gradient boosted multiclass models into binary ones to boost credit scoring accuracy ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore softmax (multinomial) #LogisticRegression: https://lnkd.in/eRviDu_i 💡
+▷ Discover gradient boosted scorecards with 🐍 #Python: https://lnkd.in/dWX_RXzs 💡
+▷ Dive into the visual explanation of #GradientBoosting: https://lnkd.in/eHgqXZPJ 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

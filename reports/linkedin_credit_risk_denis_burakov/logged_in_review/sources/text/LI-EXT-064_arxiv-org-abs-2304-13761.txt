@@ -1,0 +1,936 @@
+                                           Enhancing Robustness of Gradient-Boosted Decision
+                                           Trees through One-Hot Encoding and Regularization∗
+arXiv:2304.13761v3 [stat.ML] 11 May 2023
+
+
+
+
+                                                        Shijie Cuia , Agus Sudjiantoa , Aijun Zhanga and Runze Lib
+                                                   a
+                                                       Corporate Model Risk, Wells Fargo, Charlotte, NC 28202, USA
+                                                          {shijie.cui, agus.sudjianto, aijun.zhang}@wellsfargo.com
+                                                         b
+                                                             Department of Statistics, Pennsylvania State University
+                                                                         University Park, PA 16802, USA
+                                                                                       rzli@psu.edu
+
+
+
+                                                                                           Abstract
+
+                                                       Gradient-boosted decision trees (GBDT) are widely used and highly effective ma-
+                                                 chine learning approach for tabular data modeling. However, their complex structure
+                                                 may lead to low robustness against small covariate perturbation in unseen data. In
+                                                 this study, we apply one-hot encoding to convert a GBDT model into a linear frame-
+                                                 work, through encoding of each tree leaf to one dummy variable. This allows for the
+                                                 use of linear regression techniques, plus a novel risk decomposition for assessing the
+                                                 robustness of a GBDT model against covariate perturbations. We propose to enhance
+                                                 the robustness of GBDT models by refitting their linear regression forms with L1 or L2
+                                                 regularization. Theoretical results are obtained about the effect of regularization on
+                                                 the model performance and robustness. It is demonstrated through numerical exper-
+                                                 iments that the proposed regularization approach can enhance the robustness of the
+                                                 one-hot-encoded GBDT models.
+                                           ∗
+                                               The views expressed in the paper are those of the authors and do not represent the views of Wells Fargo.
+
+
+
+
+                                                                                                1
+1     Introduction
+Gradient-boosted decision trees (GBDT) models have gained increasing popularity in a vari-
+ety of business applications due to its better predictive performance compared to traditional
+statistical models. One reason for this is the flexibility of GBDT in capturing non-linear
+relationships between dependent and independent variables, as well as interactions among
+different independent variables. GBDT is a special case of ensemble models, which involve
+training multiple models and combining their predictions to obtain a final prediction. The
+ability to model complex relationships and interactions makes GBDT a powerful tool for a
+wide range of predictive modeling tasks.
+    The final model produced by GBDT is often considered a “black box” model because the
+combination of decision trees leads to a complex model structure that is difficult for humans
+to understand. In general, the capacity of the model to fit the training data increases as its
+model complexity increases. Traditional statistical models encounter overfitting problems
+when models are too complex. However, in modern machine learning, evidence suggests
+that some models can still predict well even with a perfect fit to training data, leading to
+the construction of increasingly complex models. This phenomenon has been referred to as
+“benign overfitting” and has been discussed in the literature (Bartlett et al., 2020; Tsigler
+and Bartlett, 2020; Shamir, 2022).
+    Is benign overfitting really benign? In machine learning, models are typically evaluated
+based on their accuracy, such as test mean squared error for regression tasks or AUC for
+classification tasks. However, another crucial property of machine learning models is their
+robustness against small perturbations in the input data. Unfortunately, some existing
+works have shown that many popular machine learning models are susceptible to adversarial
+attacks if not designed carefully, highlighting the importance of robustness. Researchers find
+evidence that with increased capacity comes the risk of overfitting, the model becomes highly
+sensitive to noise or random variations in the data. For instance, studies by Globerson and
+Roweis (2006), Szegedy et al. (2013), Goodfellow et al. (2014), Andriushchenko and Hein
+(2019), Carlini and Wagner (2017) and Javanmard et al. (2020) have demonstrated that
+deep learning models can be vulnerable to adversarial examples, where small changes to
+the data can lead to incorrect predictions. In this paper, we focus on the robustness of
+machine learning models (in terms of prediction rather than parameter estimation), defined
+as their ability to persist noise, and differentiate this concept from the robustness analysis
+
+
+                                              2
+of estimators in traditional statistics.
+   For some commonly used interpretable models such as linear or generalized linear models,
+it is often easy to evaluate the robustness because we can trace the impact of features to
+the response due to interpreatbility of these models. However, the simplicity of such models
+can limit their capability in modeling complex relationship between the response and the
+predictors in real-world applications. Complex machine learning models like tree ensembles
+are often used to gain better predictive performance. There are existing works for evalu-
+ating the robustness of machine learning models (Nicolae et al., 2018; Carlini et al., 2019;
+Chen et al., 2019). However, most of them only focus on empirical analyses and intuitive
+observations. There lacks a systematic approach for evaluating robustness of complex ma-
+chine learning models. This paper aims to bridge the gap in robustness analysis between
+interpretable models and machine learning models, specifically the GBDT models and help
+develop robustness testing tools for machine learning models. The robustness testing tools
+have been implemented in the open-access PiML toolbox by Sudjianto et al. (2023).
+   We focus on the importance of model robustness evaluation and highlight the potential
+of one-hot encoding with regularization in developing more reliable and accurate machine
+learning models. This paper makes the following contributions to the machine learning
+literature.
+
+   • We demonstrate that the so-called benign overfitting GBDT models may not be ro-
+      bust to data perturbations, through numerical examples and traditional bias-variance
+      decomposition.
+
+   • We develop a novel risk decomposition method to analyze the robustness of GBDT
+      models by applying the one-hot encoding technique.
+
+   • We propose to enhance the robustness of GBDT models by refitting their linear re-
+      gression forms with L1 or L2 regularization, and provide theoretical analysis of the
+      regularization effectiveness on model robustness and performance.
+
+   • We show through numerical studies that the proposed approach can improve the ro-
+      bustness of GBDT models against covariate perturbations in testing data.
+
+   The rest of this paper is organized as follows. In Section 2, we evaluate the robustness
+of the GBDT model and demonstrate that a complex GBDT model may not be robust
+
+                                             3
+with respect to data perturbation. In Section 3, we propose GBDT OHE (One-hot-encoded
+GBDT) and show how a GBDT model can be expressed as a linear model using GBDT
+OHE, and propose a novel risk decomposition method when the model has perturbations
+to analyze robustness of a GBDT model. In Section 4, we integrate regularization and
+the GBDT OHE techniques, and study its impact on model robustness and performance
+theoretically. In Section 5, we present real data analyses to showcase the performance of
+our proposed approach. In Section 6 we conclude our results and give potential future work.
+Appendix I presents an introduction of data sets we used for real data analysis. Appendix
+II consists of the final tuning parameter results of different models fitted in Section 5.
+
+
+2     GBDT Model Robustness
+We begin with an illustration of the robustness weakness of traditional GBDT models, using
+bias and variance decomposition and some numerical examples. Bias and variance are two
+important sources of model performance in machine learning. Here and hereafter bias refers
+to the systematic error that arises when a model is unable to capture the true relationship
+between input variables and the output variable, and variance refers to the variance of error
+that arises due to model sensitivity to variations in the training data.
+    Consider a regression model
+                                           y = f (x) + ε,
+
+where ε ∼ Pε is a noise term with zero mean and variance σε2 . Suppose ED is the expectation
+on training data and EX is the expectation of new observations or testing data (i.e. data not
+used for training model). To evaluate the performance of a fitted model fb, we decompose
+the risk as
+
+                      EX ED (y − fb(x))2
+                  = EX [f (x) − ED (fb(x))]2 + EX ED [ED (fb(x)) − fb(x)]2 + σε2             (1)
+                 =: Bias2 + Variance + Irreducible error,                                    (2)
+
+where EX [f (x) − ED (fb(x))]2 is the square of model bias measuring how the fitted model
+deviates from the true model, EX ED [ED (fb(x)) − fb(x)]2 is the model variance measuring the
+sensitivity of the fitted model when the training data changes, and the irreducible error σε2
+represents the minimum achievable error that cannot be reduced by any model. This error
+
+                                                 4
+          0.28                          Bias Squared       0.28                         Bias Squared
+                                        Variance                                        Variance
+          0.26                          Risk               0.26                         Risk
+          0.24                                             0.24
+
+          0.22                                             0.22
+
+          0.20                                             0.20
+
+          0.18                                             0.18
+
+          0.16                                             0.16
+
+          0.06                                             0.06
+
+          0.04                                             0.04
+
+          0.02                                             0.02
+
+          0.00                                             0.00
+                 0   50   100   150   200        250              0   200   400   600   800      1000
+
+
+
+
+Figure 1: Left panel depicts the risk function along with bias2 and variance for large learning
+rate (i.e. learning rate equals 1), and the risk function is U-shaped. Right panel is for small
+learning rate (learning rate is 0.1). The risk function does not have U-shape.
+
+
+arises from the noise in the data and cannot be eliminated by any modeling technique. The
+bias-variance trade-off describes the balance between bias and variance that machine learning
+models traditionally strike to perform well. Models that are too simple may underfit the
+data, resulting in large bias and large errors on both training and testing data. Conversely,
+models that are too complex may overfit the data, leading to low bias and low errors on
+the training data but high errors on the testing data. Traditionally, in statistical learning
+theory, it has been observed that the risk function tends to be U-shaped, with a minimum
+point that corresponds to the best trade-off between bias and variance. Finding a model
+that strikes a balance between bias and variance can be achieved through techniques such
+as regularization, cross-validation, and model selection. Regularization, for example, can
+be used to control model complexity to reduce variance, while cross-validation can be used
+to assess the generalization performance of models under different regularization sizes and
+help select the proper amount of regularization. In deep learning, it is not always the case
+that the risk function is a typical U-shaped as model complexity changes. In some cases, the
+variance curve may become flat or increase very slowly as the model becomes more and more
+complex, leading to “benign overfitting”. To understand this phenomenon, we fit XGBoost
+(eXtreme Gradient Boosting, proposed by Chen and Guestrin (2016)) models with different
+
+
+                                                       5
+                                                      Bias Squared
+                           0.6                        Variance
+                                                      Risk without Perturbation
+                                                      Risk with Perturbation
+                           0.5
+
+
+                           0.4
+
+
+                           0.3
+
+
+                           0.2
+
+
+
+
+                           0.0
+                                 0   50   100   150        200      250     300
+
+
+
+
+         Figure 2: U-shape when the learning rate is small but with perturbation.
+
+
+learning rates on the California House Pricing (CHP) dataset. The curves of risk function,
+squared bias and variance are depicted in Figure 1 with learning rate 1.0 and 0.1. Figure 1
+shows that the XGBoost model with a large learning rate 1.0 has a U-shaped risk function,
+while the model with a small learning rate 0.1 does not. Note that in Figure 1, we mix
+irreducible error with the squared bias term since it is not possible to separate them for
+real-world applications.
+   With models becoming more and more complex, it is of great interest to understand
+how the robustness of the models changes. To illustrate the impact of model complexity
+on robustness, we conduct a simple experiment where we add small perturbations to the
+testing data to evaluate the model robustness. Specifically, we perturb each predictor in the
+data by adding a normally distributed perturbation with a standard deviation be 5% of the
+standard deviation of original predictor. Figure 2 depicts the new risk function of XGBoost
+model with small learning rate 0.1. When we add perturbations to the data, the U-shaped
+trend re-emerged, indicating that complex models are less robust to perturbation.
+   It is natural to ask: 1) how to analyze the robustness of a GBDT model, and 2) how to
+enhance the robustness of a GBDT model? These two questions define our scope of study,
+and they will be addressed in subsequent sections of this paper.
+
+
+                                                6
+3     GBDT OHE and Risk Decomposition
+To analyze and enhance the robustness of a GBDT model, we propose to apply one-hot
+encoding to GBDT models, and name this technique as GBDT OHE. It involves representing
+gradient-boosted decision trees as a linear model by encoding each tree leaf to one dummy
+variable. We propose a novel risk decomposition approach that includes a new perturbation
+term, which enable us to analyze the robustness of a GBDT model.
+
+
+3.1      One-hot Encoding
+A GBDT model has a complicated structure as a whole, but the individual decision trees
+that make up the model are generally easy because each leaf rule is clear and understandable.
+It is remarkable that if we one-hot encode the leaves of a GBDT into dummy variables, the
+prediction of each GBDT model can be viewed as a linear combination of the leaf nodes. We
+refer to it as the GBDT OHE method. To see this, for a given data set with n observations
+and q predictors D = {(xi , yi ), |D| = n, xi ∈ X ⊆ Rq , yi ∈ Y ⊆ R}. Suppose that xi ’s are
+identically independently generated from a random distribution Px . Regression function of
+yi on xi is assumed to be
+
+                                       yi = f (xi ) + εi ,                                 (3)
+
+where εi ∼ Pε is a noise term with zero mean and variance σε2 . εi is assumed to be independent
+of xi . Suppose that yi is a scalar response for problem with continuous response and suppose
+(xi , yi ) ∼ Px,y . Further suppose (x, y) ∼ Px,y is a new sample representing a testing data
+point.
+    A GBDT model assumes that the regression function is an ensemble of M additive trees.
+GBDT model takes the form like below:
+                                                M
+                                                X
+                            FM (xi ) = γ0 + γ         fm (xi ), fm ∈ F,                    (4)
+                                                m=1
+
+where M is the size of the ensemble and F is a collection of decision trees. We assume each
+base learner fm is a function from F. γ is a learning rate. Number of trees and learning
+rate are both hyperparameters need to be tuned. To learn the set of trees fm used in the
+model, a loss criterion L(FM (xi ), yi ) should be specified. For data with continues response,
+
+
+                                                  7
+L is specified to be squared error that L(FM (xi ), yi ) = {yi − FM (xi )}2 . To estimate model
+parameters, we minimize the average loss:
+                                                   n
+                                           1X
+                            Etrain (FM ) =       L(FM (xi , yi )).                           (5)
+                                           n i=1
+
+   GBDT begins with initializing the model with a particular constant γ0 , which can be
+either treated as a hyperparameter or determined by minimizing loss function. Next, a
+tree f1 is constructed to minimize the loss function from the training sample. To reduce
+overfitting, the tree is modified by multiplying a parameter γ ∈ [0, 1] (usually called learning
+rate). Model is updated by adding the new tree (γf1 ) to the initial model (γ0 ). The next
+iteration of the algorithm begins by constructing a new tree (f2 ) from the training set
+({xi }ni=1 ) and the residual from the previous iteration ({yi − γ0 − γf1 (xi )}ni=1 ). This new
+regression tree (after updating by the learning rate) plus the model from previous iteration
+make up the updated model, based on the second iteration. This process is repeated for
+each subsequent iteration until M trees are constructed.
+   A GBDT model can be expressed as a linear model when we one hot encode each leaf in
+the trees to one dummy variable. To see this, we firstly give a review of how decision tree
+works. A decision tree partitions the feature space into a set of disjoint rectangles and fits a
+constant at each region. Let 1A be the indicator function on region A that 1A (xi ) = 1 when
+xi ∈ A and 0 otherwise. A decision tree can be expressed as
+                                             Jm
+                                             X
+                                fm (xi ) =         bjm 1Rjm (xi ).                           (6)
+                                             j=1
+
+
+The m-th tree partitions the input space into Jm disjoint regions R1 , R2 , · · · , Rjm and pre-
+dicts a constant value (bjm ) in each region. We can further rewrite Equation (4) as
+                                              M X
+                                              X Jm
+                          FM (xi ) = γ0 + γ                bjm 1Rjm (xi ).                   (7)
+                                              m=1 j=1
+
+
+Equation (7) indicates that the final model FM (xi ) can be viewed as a linear model, with
+each 1Rjm (xi ) as a feature (dummy variable). The coefficient of each feature is the leaf (bjm )
+value multiplied by the learning rate (γ). Prediction value of the final model for each sample
+xi is sum of each dummy variable (1Rjm (xi )) multiplied by its coefficient (γbjm ), plus the
+intercept (γ0 ). We show an illustration of GBDT OHE in Figure 3.
+
+                                                       8
+Figure 3: One-hot encoding leaves of a specific GBDT model. Each leaf in each tree is
+one-hot encoded into a dummy variable.
+
+
+   This representation is similar with RuleFit proposed by Friedman and Popescu (2008)
+but not the same. In RuleFit, each node in a decision tree (including both leaf nodes and
+non-leaf nodes) is one-hot encoded as a dummy variable. Our method is distinguished from
+RuleFit in that we only one-hot encode the leaves of the gradient boosting trees into dummy
+variables, rather than all nodes. This modification is reasonable because the prediction of
+each gradient-boosted tree can be viewed as a linear combination of only the leaf nodes.
+   There are different ways to implement GBDT models, such as XGBoost proposed by
+Chen and Guestrin (2016), LightGBM proposed by Ke et al. (2017), and CatBoost proposed
+by Prokhorenkova et al. (2018). All of them can be one-hot encoded using the method
+described in Equation (7). In our study, we used XGBoost to implement GBDT models,
+specifically the xgboost module in Python, but this approach can be easily generalized to
+other implementation methods.
+
+
+3.2    Risk Decomposition
+We further rewrite Equation (7) as
+                                       p
+                                       X
+                          FM (xi ) =         bk φk (xi ) = Φ> (xi )β.                      (8)
+                                       k=0
+
+
+
+
+                                                  9
+                                     0.6                               Bias Squared
+                                                                       Variance
+                                                                       Risk without Perturbation
+                                                                       Perturbation
+                                                                       Risk with Perturbation
+                                     0.5                               Sum up
+
+
+
+                                     0.4
+
+
+
+                                Size 0.3
+
+
+
+                                     0.2
+
+
+
+                                     0.1
+
+
+
+                                     0.0
+                                           0   50    100   150   200          250          300
+                                                    Number of Boosting
+
+
+                     Figure 4: Decomposition of risk function with perturbation.
+
+
+Each φk , k > 0 is an indicator function of one unique leaf in the GBDT model and φ0 is
+a vector of all ones representing the constant term. Φ> (xi ) = (φ0 (xi ), φ1 (xi ), · · · , φp (xi ))>
+and β = (b0 , b1 , · · · , bp )> .
+   Now we treat GBDT as a feature engineering process and Φ(x) is the vector of features
+generated. Suppose βb is the estimator of β. βb can be contributions of leaves in an XGBoost
+model or linear regression refitting coefficients with regularization. To see the robustness
+of the model, we suppose ∆Φ is a random perturbation term that has zero mean and is
+independent of Φ. We can decompose the risk function as the following:
+
+          EX ED (y − (ΦT (x) + ∆Φ> )β))
+                                    b 2
+
+    = EX ED (f (x) − (ΦT (x)β))
+                            b 2 + EX ED (∆ΦT β)
+                                             b 2 + σ2
+                                                    ε
+
+    = EX [f (x) − Φ> (x)ED (β)]
+                            b 2 + EX ED [Φ> (x)ED (β)
+                                                   b − Φ> (x)β]
+                                                             b 2 + EX ED (∆ΦT β)
+                                                                              b 2 + σ2
+                                                                                     ε
+
+    =: (i) + (ii) + (iii) + (iv),                                                                  (9)
+
+where (i) is model bias2 , (ii) is model variance, (iii) is perturbation term, and (iv) corre-
+sponds to irreducible error term.
+    Figure 4 provides an illustration of our proposed method for decomposing the risk func-
+tion. The curve labeled “Sum up” is the sum of curves (i) − (iv), while the curve labeled
+
+                                                           10
+“Risk with Perturbation” corresponds to the risk calculated directly from the sample. As
+shown in Figure 4, there is a small gap between the two curves, which is due to the violation
+of the independent assumptions made on the perturbation term. However, the difference
+between the two curves is negligible, and thus we can conclude that by decomposing the
+perturbation term, we are able to split the perturbation term out and effectively evaluate
+the robustness of a GBDT model.
+
+
+4     Ehnaching Robustness through Regularization
+
+4.1    GBDT OHE upon Regularization
+In one-hot encoded GBDT, the number of leaves (p in Equation (8)) can be similar to or
+much larger than the number of samples (N ). Due to the number of leaves in GBDT, We
+are dealing with a very high dimensional model fitting problem, where a large number of
+features are created to reduce possible modeling bias. However, when the feature space is
+high-dimensional, a naive least squares estimator is prone to high variance, making regular-
+ization essential. The most well-known regularized estimators are based on the regularized
+M -estimation including the Ridge (Hoerl and Kennard, 1970) and the Lasso (Tibshirani,
+1996). These methods have attracted a large amount of theoretical and algorithmic studies.
+These methods can improve the accuracy of parameter estimates and prediction performance
+when feature space is large. Meanwhile, in this section, we show that regularization can im-
+prove not only the performance but also the robustness of the original GBDT model. We
+demonstrate how we refit a GBDT model with one-hot encoding and regularization and
+discuss its theoretical benefits on both robustness and performance.
+    Suppose there are p leaves and the coefficient of the i-th leaf is bi . For each leaf, we
+one-hot encode it into a feature 1Rk and 1Rk (xi ) = 1 when the i-th sample is on this leaf
+and 0 otherwise. We apply regularization methods including the Ridge and Lasso. The
+followings are the formulas of these methods.
+Ridge regression estimator is defined as
+                                                 p                  p
+                               ( n                             !         )
+               p
+                                  X              X                  X
+          {bk }k=0 = arg minp
+                                     L yi , b0 +   bk 1Rk (Xi ) + λ   b2k .             (10)
+                         {bk }k=0
+                                    i=1           k=1                  k=1
+
+Ridge regularization is a form of L2 regularization that adds a penalty term to the objective
+function that is proportional to the sum of the squares of the weights.
+
+                                             11
+Lasso estimator is defined to be
+                                               p                  p
+                               ( n                           !           )
+                                 X             X                  X
+          {bk }pk=0 = arg min
+                            p
+                                   L yi , b0 +   bk 1Rk (Xi ) + λ   |bk | .               (11)
+                          {bk }k=0
+                                      i=1              k=1                       k=1
+
+Lasso regularization is a form of L1 regularization that adds a penalty term to the objective
+function that is proportional to the sum of the absolute values of the weights.
+   Here {bk }pk=1 represents the new refitted values of leaves, while b0 denotes the common
+constant.
+   We outline our methodology and workflow for fitting a GBDT one-hot encoding model
+in Algorithm 1.
+
+Algorithm 1
+Step 1. Find a well-tuned GBDT model (E.g. XGBoost model) to generate leaves.
+Step 2. One-hot encode the GBDT model and delete the same leaves.
+Step 3. Using the regularization method in linear regression to refit the coefficients. Apply
+  regularization methods: Ridge (L2 ), Lasso (L1 ).
+
+
+   Remark: Step 1 involves selecting a well-tuned GBDT model. For example, it can be
+done through randomized grid search with cross-validation.
+
+
+4.2    Regularization Effect on Robustness and Performance
+Risk decomposition in Section 3.2 motivates us to apply regularization to control the per-
+turbation term. Specifically, we may use L2 regularization to control the perturbation term
+(iii). Additionally, Xu et al. (2008) gave evidence of using L1 regularization for perturbation
+to gain robustness. Instead of treating the perturbation term as a random term as we did in
+Section 3, we can also consider a robust optimization problem under a fixed design scenario.
+                                                         
+                            minp max ky − (Φ + ∆Φ)βk2 ,                                (12)
+                              β∈R      ∆Φ∈U
+
+with
+
+                  U , {(∆Φ1 , · · · , ∆Φp ) | k∆Φi k2 ≤ ci ,      i = 1, · · · , p} .     (13)
+
+Xu et al. (2008) showed that the robust regression problem (12) with uncertainty set of the
+form (13) is equivalent to the L1 regularized regression problem (14).
+
+                                     min {ky − Φβk2 + ci |β|} .                           (14)
+                                     β∈Rp
+
+
+                                                  12
+It is worth noting that if we modify the uncertainty set (13) to
+
+                              U1 , {∆Φ | k∆Φk2 ≤ ckβk2 } ,                             (15)
+
+or
+
+               U2 , {(∆Φ1 , · · · , ∆Φp ) | k∆Φi k2 ≤ c|βi |,   i = 1, · · · , p} ,    (16)
+
+we can show the robust regression problem is equivalent to a L2 regularized regression prob-
+lem. Here kAk2 is the largest singular of a matrix A. kAk2 boils down to l2 norm of A if A
+is a vector. (15) and (16) depicts a case when perturbation size is always controlled by the
+signal level. The result is shown in Theorem 1.
+
+Theorem 1. The robust regression problem (12) with uncertainty set of the form (15) or
+(16) is equivalent to the following L2 regularized regression problem:
+
+                                minp ky − Φβk2 + ckβk22 .
+                                    
+                                                                                       (17)
+                                β∈R
+
+
+Proof. We show the proof when the uncertainty set is (15). The proof when uncertainty set
+is (16) is similar to proof of Theorem 1 in Xu et al. (2008).
+
+                                      max ky − (Φ + ∆Φ)βk2
+                                      ∆Φ∈U
+                               ≤ ky − Φβk2 + max k∆Φβk2
+                                                  ∆Φ∈U
+                               ≤ ky − Φβk2 + max k∆Φk2 kβk2
+                                                  ∆Φ∈U
+                               = ky − Φβk2 + ckβk22
+
+                   y − Φβ
+     Now, let u =          , and let ∆Φ∗i , −cβi sgn (βi ) u, we have k∆Φ∗ k2 = ckβk2 ,
+                 ky − Φβk2
+therefore ∆Φ∗ ∈ U. Meanwhile,
+
+                                        max ky − (Φ + ∆Φ)βk2
+                                        ∆Φ∈U
+                                  ≥ max ky − (Φ + ∆Φ∗ )βk2
+                                        ∆Φ∈U
+                                  =      y − Φβ + ckβk22 u 2
+                                  = ky − Φβk2 + ckβk22 .
+
+This completes the proof of the theorem.
+
+
+                                                13
+     Here we do not make a definitive conclusion on which regularization method is better.
+The theoretical results are based on different assumptions that are usually hard to verify in
+practice. Instead, we emphasize that applying any form of regularization can improve the
+model robustness. In the later of this section and in Section 5, we present numerical results
+for both L1 and L2 regularization, which demonstrate that both regularization methods can
+effectively improve model robustness.
+     In practice, our goal is often to improve the robustness of the model without sacrificing
+too much performance. In addition, we also aim to evaluate the impact of refitting and
+regularization using GBDT OHE on model performance, as represented by the risk before
+perturbation. To guide our theoretical analysis, we propose several assumptions.
+     Assumption 1 : f (x) − EX (y|Φ(x)) is uncorrelated with Φ(x).
+     Remark: We trivially have that f (x) − EX (y|Φ(x)) is uncorrelated with EX (y|Φ(x)),
+which is a function of Φ(x). Assumption 1 is a stronger assumption.
+     Assumption 2 : E(y|Φ(x)) = Φ> (x)β0 .
+     Noticing that under Assumption 1, the model bias term (i) can be further decomposed
+to
+
+                     EX [f (x) − Φ> (x)ED (β)]
+                                           b 2
+
+                 = EX [f (x) − EX (y|Φ(x)]2 + EX [EX (y|Φ(x)) − Φ> (x)ED (β)]
+                                                                          b 2
+
+                =: (v) + (vi),                                                           (18)
+
+where (v) is the model misspecification bias and (vi) is the model in-class bias.
+     Under Assumption 2, we can further have
+
+                            f (x) − EX (y|Φ(x)) = f (x) − Φ> (x)β0
+
+and
+                      EX (y|Φ(x)) − Φ> (x)ED (β)
+                                              b = Φ> (x)(ED (β)
+                                                             b − β0 ).
+
+     In a GBDT model, the model misspecification bias decreases with increasing boosting
+number, but the in-class bias is uncertain due to the unknown best coefficient β0 . Figure
+5 illustrates the decomposition of the GBDT model fitting on a simple regression model
+y = x2 + ε, x and ε ∼ N (0, 1), under some small boosting numbers, where a Ridge regression
+refitting of the coefficients is treated as the true coefficients. One-hot encoding a GBDT
+model does not change Φ(x), so the model misspecification bias remains unchanged when
+
+                                              14
+                            1.0
+                                                 Bias Squared
+                                                 Misspecification Bias
+                                                 In-Class Bias
+                                                 Misspecification Bias + In-Class Bias
+                            0.8
+
+
+
+
+                            0.6
+                         Size
+
+                            0.4
+
+
+
+
+                            0.2
+
+
+
+
+                                  0   10    20       30        40        50        60
+                                           Number of Boosting
+
+
+                 Figure 5: Bias term decomposition on the simulation data.
+
+
+doing refitting. The regularization size affects the in-class bias and variance term of the
+GBDT one-hot encoding model. We need to point out that when the boosting numbers
+and the number of leaves are large, the Ridge estimator is no longer the best solution. In
+Section 5, we show that with the numerical study regularized GBDT one-hot encoding can
+decrease the in-class bias and variance terms of the original GBDT model with a relatively
+small regularization size. Additionally, the perturbation term can be decreased with a slight
+sacrifice of the in-class bias and variance terms.
+   To conclude this section, we present the risk decomposition results for Lasso (L1 ) and
+Ridge (L2 ) regularization using different regularization sizes. Specifically, we fit an XGBoost
+model to CHP data, apply one-hot encoding, and then apply L1 and L2 regularization,
+respectively. To evaluate the model’s robustness, we add a 5% perturbation to the testing
+data. Figure 6 shows the results. In the Figure, curve labelled ”Sum up” shows the sum
+of the bias squared term, variance term, and perturbation term. Theoretically, it should
+be the same as the risk. The small gap between the risk curve and the sum up curve is
+due to the violation of the independence assumption between perturbation and data. As
+shown in Figure 6, the risk function has a U-shape, with the perturbation term decreasing
+as the regularization parameter size increases. It indicates that larger perturbation helps
+
+
+                                                    15
+Figure 6: Left: GBDT one-hot encoding with Lasso regularization. Right: GBDT one-hot
+encoding with Ridge regularization.
+
+
+improve the model’s robustness. However, the bias of the model will increase when the
+regularization parameter is large. In practice, we need to find a trade-off point to minimize
+the risk function.
+
+
+5    Numerical Study
+In this section, we show the performance and robustness of different methods using several
+real data sets. We use XGBoost for training gradient boosting models. Proper selection
+of hyperparameters is crucial for developing a robust XGBoost model. In this paper, we
+focus on several key hyperparameters that are known to have a significant impact on the
+final results on XGBoost models. These include n estimators (number of trees in the XGB
+model), max depth (maximum depth of each tree), learning rate (step size at which the
+algorithm makes updates to the XGBoost parameters), gamma (minimum loss reduction
+required for a further partition on a leaf node of a tree), reg alpha (hyperparameter for L1
+regularization) and reg lambda (hyperparameter for L2 regularization). In XGBoost, these
+hyperparameters can be classified into two types. The parameters n estimators, max depth,
+learning rate are related to the overall structure and behavior of an XGBoost model, while
+gamma, reg lambda, reg alpha are more related to regularization and model complexity.
+
+
+                                             16
+                               (a) Test MSEs for Airfoil Data
+
+
+
+
+                                (b) Test MSE for CHP Data
+
+
+
+
+Figure 7: Test MSE under different perturbation sizes. (a) is for Airfoil data, and (b) is for
+CHP data.
+
+
+
+                                             17
+   To create a well-tuned XGBoost model, we randomly split the raw data into training
+(80%) and testing (20%) sets, and used 5-fold cross-validation and randomized search to
+optimize the hyperparameters. To explore the effect of regularization parameters on the
+robustness of XGBoost, we trained two XGBoost models: one with n estimators, max depth,
+learning rate tuned and with all regularization parameters set to 0 (XGB), and another with
+gamma, reg lambda, and reg alpha also optimized (XGB reg). We further fit GBDT OHE
+models by applying Ridge and Lasso regularization with different sizes (small, medium,
+and large) to the well-tuned XGBoost models. These models are denoted as OHE Ridge s,
+OHE Ridge m, OHE Ridge l, OHE Lasso s, OHE Lasso m, and OHE Lasso l. Final tuned
+parameters and model settings can be found in Appendix I.
+   To evaluate the robustness of different models, we consider different perturbation sizes
+on the testing data and compare their performance. Specifically, we perturb each predictor
+Xj by adding a normal distributed perturbation δj of size σ, resulting in a new predictor
+X̃j = Xj +δj . We then measure the test mean squared error (Test MSE) and the decomposed
+Perturbation term of each model under different perturbation sizes. Perturbation term is
+computed as a sample version of (iii) in Equation (9). To account for randomness, we repeat
+the perturbation process five times for each size. We show the variability of the results
+on Airfoil and CHP data in Figures 7. We show detailed Test MSE/Perturbation term of
+different models under different sizes of perturbation in Table 1. A detailed introduction of
+the data sets we used can be found in Appendix II.
+   We have several observations based on our numerical study:
+
+   • XGB reg can slightly improve the robustness of XGB when there is a perturbation.
+     It can perform better than XGB on Airfoil (5%), CHP(5%), and BS(10%), suggesting
+     that models with no regularization are more sensitive to data changes.
+
+   • GBDT OHE models with relatively small regularization sizes can keep or improve the
+     performance of the tuned XGBoost models XGB or XGB reg. Specifically, the Test
+     MSE of OHE Ridge s and OHE Lasso s on data set with no perturbation (0%) can
+     generally keep or decrease the Test MSE compared with XGB and XGB reg when there
+     is no perturbation. It is due to that refitting and regularization can decrease the model
+     bias, especially the in-class bias term.
+
+   • GBDT OHE models with larger regularization tend to have worse performance than
+
+
+                                                18
+Table 1: Test MSE/Perturbation term of different methodologies
+
+                   Airfoil(0%)      Airfoil(2%)   Airfoil(5%)
+       XGB           0.032/0        0.074/0.046   0.156/0.134
+     XGB reg         0.033/0        0.071/0.039   0.153/0.124
+   OHE Ridge s       0.020/0        0.053/0.032   0.120/0.099
+   OHE Ridge m       0.021/0        0.052/0.029   0.119/0.092
+   OHE Ridge l       0.029/0        0.054/0.025   0.117/0.083
+   OHE Lasso s       0.022/0        0.058/0.036   0.125/0.100
+   OHE Lasso m       0.025/0        0.055/0.033   0.121/0.098
+    OHE Lasso l      0.026/0        0.056/0.031   0.120/0.096
+                   CHP(0%)          CHP(2%)       CHP(5%)
+       XGB           0.154/0        0.202/0.058   0.324/0.180
+     XGB reg         0.155/0        0.201/0.053   0.316/0.168
+   OHE Ridge s       0.151/0        0.199/0.057   0.318/0.173
+   OHE Ridge m       0.155/0        0.194/0.039   0.295/0.131
+   OHE Ridge l       0.170/0        0.201/0.028   0.287/0.102
+   OHE Lasso s       0.151/0        0.205/0.062   0.331/0.186
+   OHE Lasso m       0.153/0        0.201/0.053   0.317/0.164
+    OHE Lasso l      0.179/0        0.211/0.039   0.305/0.125
+                    BS(0%)           BS(5%)        BS(10%)
+       XGB           0.159/0        0.215/0.059   0.349/0.198
+     XGB reg         0.160/0        0.212/0.057   0.343/0.196
+   OHE Ridge s       0.158/0        0.212/0.057   0.345/0.197
+   OHE Ridge m       0.159/0        0.212/0.053   0.343/0.187
+   OHE Ridge l       0.161/0        0.213/0.051   0.342/0.181
+   OHE Lasso s       0.159/0        0.213/0.059   0.349/0.200
+   OHE Lasso m       0.158/0        0.212/0.056   0.346/0.196
+    OHE Lasso l      0.159/0        0.213/0.055   0.346/0.193
+
+
+
+
+                               19
+      those with smaller regularization, mainly due to the increasing model bias. However,
+      GBDT one-hot encoding models with relatively larger regularization sizes can provide
+      more robust predictions. As the regularization size increases, the perturbation term
+      decreases, which suggests that models with large regularization sizes are more robust
+      for scenarios with larger perturbation sizes on unseen data.
+
+    • GBDT OHE with larger regularization sizes, the Test MSE grows slower compared
+      with that with smaller regularization sizes. It can be seen in Figure 7.
+
+    • Compared to the regularized XGBoosting model XGB reg, GBDT OHE models with
+      regularization typically exhibit better robustness in the presence of data perturbation.
+      It can be found by that GBDT OHE models with larger regularization sizes always
+      have better performance than XGB reg when there is a perturbation.
+
+
+6     Concluding Remarks and Future Work
+In this study, we first demonstrate that traditional GBDT models are becoming less robust
+against perturbations on unseen data with number of boosting increasing. To address this
+issue, we propose a GBDT OHE representation that transforms a GBDT model into a linear
+framework, allowing for the use of a novel risk decomposition to analyze model robustness.
+We further introduce GBDT OHE with regularization to refit and regularize a GBDT model,
+and provide both theoretical and numerical results of its impact on model robustness and
+performance. Our study puts emphasis on the importance of evaluating model robustness
+and demonstrates the effectiveness of one-hot encoding with regularization in enhancing
+model robustness, which can have practical implications for developing more reliable and
+accurate machine learning models in various domains.
+    There are several directions for future work that can further enhance the applicability
+and performance of the method. In this paper, we only give theoretical evidence of regular-
+ization for regression data set with continuous response. One promising area is to investigate
+the theory of the method of classification data set. Additionally, exploring alternative reg-
+ularization techniques that might further improve the robustness and performance of the
+one-hot encoded GBDT models is also a potential topic.
+    Another important direction for future work is to investigate the robustness of machine
+learning models beyond GBDT. While GBDT can be one-hot encoded into a linear model
+
+                                             20
+due to its property of splitting the data space into non-overlapping regions with constant
+predictions, not all machine learning models possess such a property. However, some models
+do have a simple local model, such as the ReLu neural network which has a local linear
+model (Sudjianto et al., 2020). An open problem is whether we can generalize our one-hot
+encoding method to machine learning methods with simple local models, to analyze and
+enhance their robustness.
+
+
+Appendix
+
+Appendix I: Data Sets
+The following introduces the data sets we used for real data analysis.
+
+  1. Airfoil. Airfoil dataset is a collection of data obtained from NASA’s aerodynamic and
+     acoustic tests of two and three-dimensional airfoil blade sections. It includes measure-
+     ments from various NACA 0012 airfoils at different wind tunnel speeds and angles
+     of attack. The dataset contains 1503 observations and 6 variables, with the response
+     variable being the scaled sound pressure level in decibels. The five independent vari-
+     ables include frequency in Hertz, angle of attack in degrees, chord length in meters,
+     free-stream velocity in meters per second, and suction side displacement thickness in
+     meters.
+
+  2. California Housing (CHP). CHP dataset is derived from the 1990 U.S. census and
+     includes information on median house values for California districts. It is based on
+     data from block groups, which are the smallest geographical units for which the U.S.
+     Census Bureau publishes sample data. The dataset includes 20640 observations and
+     the independent variables include longitude, latitude, housing median age, medium
+     income, population, total rooms, total bedrooms and households.
+
+  3. Bike Sharing (BS). This dataset is collected from Capital bike share system. It contains
+     information on the hourly and daily count of rental bikes between years 2011 and
+     2012. It has 17379 data points and originally had 16 predictors. We removed 2 non-
+     relevant and 2 response-related variables, leaving us with 12 variables including hour,
+     temperature, feel temperature, humidity, wind speed, season, working day, weekday,
+     weather situation, year and month.
+
+                                             21
+Appendix II: Model Tuning Results
+Here are the final tuning parameter results of different models fitted in Section 5.
+
+                            Airfoil                CHP                  BS
+                      max depth: 7         max depth: 6         max depth=6
+            XGB       n estimators: 500    n estimators: 600 n estimators:500
+                      learning rate: 0.15 learning rate: 0.1    learning rate: 0.07
+                       reg alpha: 0.3        reg alpha: 1.75     reg alpha: 1.55
+          XGB reg      reg lambda: 0.2       reg lambda: 1       reg lambda: 0.5
+                       gamma: 0              gamma: 0            gamma: 0.07
+           Ridge s         λ2 = 0.1               λ2 = 100           λ2 = 200
+           Ridge m          λ2 = 1                λ2 = 400           λ2 = 400
+           Ridge l          λ2 = 10            λ2 = 1000             λ2 = 600
+           Lasso s        λ1 = 6e−5            λ1 = 4e−4            λ1 = 2e−4
+           Lasso m        λ1 = 8e−5            λ1 = 7e−4            λ1 = 3e−4
+           Lasso l        λ1 = 10e−5           λ1 = 2e−3            λ1 = 4e−4
+
+
+
+
+References
+Andriushchenko, M. and Hein, M. (2019). Provably robust boosted decision stumps and
+  trees against adversarial attacks. Advances in Neural Information Processing Systems, 32.
+
+Bartlett, P. L., Long, P. M., Lugosi, G., and Tsigler, A. (2020). Benign overfitting in linear
+  regression. Proceedings of the National Academy of Sciences, 117(48):30063–30070.
+
+Carlini, N., Athalye, A., Papernot, N., Brendel, W., Rauber, J., Tsipras, D., Goodfellow, I.,
+  Madry, A., and Kurakin, A. (2019). On evaluating adversarial robustness. arXiv preprint
+  arXiv:1902.06705.
+
+Carlini, N. and Wagner, D. (2017). Towards evaluating the robustness of neural networks.
+  In 2017 ieee symposium on security and privacy (sp), pages 39–57. Ieee.
+
+Chen, H., Zhang, H., Si, S., Li, Y., Boning, D., and Hsieh, C.-J. (2019). Robustness verifi-
+  cation of tree-based models. Advances in Neural Information Processing Systems, 32.
+
+                                             22
+Chen, T. and Guestrin, C. (2016). Xgboost: A scalable tree boosting system. In Proceedings
+  of the 22nd acm sigkdd international conference on knowledge discovery and data mining,
+  pages 785–794.
+
+Friedman, J. H. and Popescu, B. E. (2008). Predictive learning via rule ensembles. The
+  annals of applied statistics, pages 916–954.
+
+Globerson, A. and Roweis, S. (2006). Nightmare at test time: robust learning by feature
+  deletion. In Proceedings of the 23rd international conference on Machine learning, pages
+  353–360.
+
+Goodfellow, I. J., Shlens, J., and Szegedy, C. (2014). Explaining and harnessing adversarial
+  examples. arXiv preprint arXiv:1412.6572.
+
+Hoerl, A. E. and Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthog-
+  onal problems. Technometrics, 12(1):55–67.
+
+Javanmard, A., Soltanolkotabi, M., and Hassani, H. (2020). Precise tradeoffs in adversarial
+  training for linear regression. In Conference on Learning Theory, pages 2034–2078. PMLR.
+
+Ke, G., Meng, Q., Finley, T., Wang, T., Chen, W., Ma, W., Ye, Q., and Liu, T.-Y. (2017).
+  Lightgbm: A highly efficient gradient boosting decision tree. Advances in neural informa-
+  tion processing systems, 30.
+
+Nicolae, M.-I., Sinn, M., Tran, M. N., Buesser, B., Rawat, A., Wistuba, M., Zantedeschi,
+  V., Baracaldo, N., Chen, B., Ludwig, H., et al. (2018). Adversarial robustness toolbox v1.
+  0.0. arXiv preprint arXiv:1807.01069.
+
+Prokhorenkova, L., Gusev, G., Vorobev, A., Dorogush, A. V., and Gulin, A. (2018). Cat-
+  boost: unbiased boosting with categorical features. Advances in neural information pro-
+  cessing systems, 31.
+
+Shamir, O. (2022). The implicit bias of benign overfitting. In Conference on Learning Theory,
+  pages 448–478. PMLR.
+
+Sudjianto, A., Knauth, W., Singh, R., Yang, Z., and Zhang, A. (2020). Unwrapping the
+  black box of deep relu networks: interpretability, diagnostics, and simplification. arXiv
+  preprint arXiv:2011.04041.
+
+                                             23
+Sudjianto, A., Zhang, A., Yang, Z., Su, Y., and Zeng, N. (2023).               Piml toolbox
+  for interpretable machine learning model development and validation. arXiv preprint
+  arXiv:2305.04214.
+
+Szegedy, C., Zaremba, W., Sutskever, I., Bruna, J., Erhan, D., Goodfellow, I., and Fergus,
+  R. (2013). Intriguing properties of neural networks. arXiv preprint arXiv:1312.6199.
+
+Tibshirani, R. (1996). Regression shrinkage and selection via the lasso. Journal of the Royal
+  Statistical Society: Series B (Methodological), 58(1):267–288.
+
+Tsigler, A. and Bartlett, P. L. (2020). Benign overfitting in ridge regression. arXiv preprint
+  arXiv:2009.14286.
+
+Xu, H., Caramanis, C., and Mannor, S. (2008). Robust regression and lasso. Advances in
+  neural information processing systems, 21.
+
+
+
+
+                                               24

@@ -61,7 +61,7 @@ Las estimaciones puntuales de probabilidad de default (PD) producen decisiones f
 | Calibración | 237,584 | 22.20% | 2017-03 a 2017-12 |
 | Test (OOT) | 276,869 | 21.98% | 2018-01 a 2020-09 |
 
-: Splits temporales out-of-time para evaluación estricta {#tbl-splits}
+: Splits temporales out-of-time para evaluación estricta {#tbl-splits-core}
 
 ## Rutas de lectura
 
@@ -72,7 +72,7 @@ Las estimaciones puntuales de probabilidad de default (PD) producen decisiones f
 | ¿qué significa esto para provisión y regulación? | `10 IFRS9 y Gobernanza` | `15 Paper IFRS9`, `17 Puente Académico` |
 | ¿qué piezas son publicables? | `14`, `15`, `16` | `18 Agenda de Investigación` |
 
-: Rutas sugeridas para no leer el libro como si todo tuviera el mismo peso {#tbl-reading-routes}
+: Rutas sugeridas para no leer el libro como si todo tuviera el mismo peso {#tbl-reading-routes-core}
 
 ## Sobre el autor
 

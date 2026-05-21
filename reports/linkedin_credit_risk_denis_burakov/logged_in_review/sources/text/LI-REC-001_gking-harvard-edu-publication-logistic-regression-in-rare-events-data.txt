@@ -1,0 +1,973 @@
+Logistic Regression in Rare Events Data | Gary King Skip to main content
+Harvard University HARVARD.EDU
+GARY KING
+Bio & C.V.
+Writings
+Research Areas
+Software
+Startups
+Dataverse
+People
+Teaching
+GaryAI
+Contact
+ESC
+All Results
+Searching...
+No results found
+Clear search
+↑↓
+Navigate
+↵
+Select
+Powered by Hugo Blox
+Writings
+Who's to Blame for Survey Instability: Respondents with Nonexistent Preferences or Researchers with Flawed Measures?
+Inducing Sustained Creativity and Diversity in Large Language Models
+Assessing Differences in Country-Level Estimates of Maternal Mortality: A Comparison of GMatH, UN, and GBD Model Results for 2020
+Correcting Measurement Error Bias in Conjoint Survey Experiments
+Evaluating the Impacts of Swapping on the US Decennial Census
+Experimental Evidence on the (Limited) Influence of Reputable Media Outlets
+How American Politics Ensures Electoral Accountability in Congress
+If a Statistical Model Predicts That Common Events Should Occur Only Once in 10,000 Elections, Maybe It's the Wrong Model
+Statistical Intuition Without Coding (or Teachers)
+Statistically Valid Inferences from Differentially Private Data Releases, II: Extensions to Nonlinear Transformations
+Survey Estimates of Wartime Mortality
+Automated Cognitive Debriefing
+Differentially Private Survey Research
+Global Maternal Health Country Typologies: A Framework to Guide Policy
+Global Maternal Mortality Projections by Urban Rural Locationand Education Level: A Simulation-Based Analysis
+A Simulation-Based Comparative Effectiveness Analysis of Policies to Improve Global Maternal Health Outcomes
+Simulation-Based Estimates and Projections of Global, Regional and Country-Level Maternal Mortality by Cause, 1990–2050
+Statistically Valid Inferences from Differentially Private Data Releases, With Application to the Facebook URLs Dataset
+Statistically Valid Inferences from Privacy Protected Data
+The Essential Role of Statistical Inference in Evaluating Electoral Systems: A Response to DeFord et Al.
+An Improved Method of Automated Nonparametric Content Analysis for Social Science
+Brief of Empirical Scholars As Amici Curiae in Support of Respondents
+Rejoinder: Concluding Remarks on Scholarly Communications
+A Theory of Statistical Inference for Ensuring the Robustness of Scientific Results
+Cluster Analysis of Participant Responses for Test Generation or Teaching (2nd)
+Designing Social Inquiry: Scientific Inference in Qualitative Research, New Edition
+Education and Scholarship by Video
+How to Measure Legislative District Compactness If You Only Know It When You See It
+Letter to US Census Bureau: 'Request for Release of 'noisy Measurements File' by September 30 Along With Redistricting Data Products'
+Participant Grouping for Enhanced Interactive Experience (4th)
+Precision Mapping Child Undernutrition for Nearly 600,000 Inhabited Census Villages in India
+Survey Data and Human Computation for Improved Flu Tracking
+There's a Simple Solution to the Latest Census Fight
+UnbiasedPrivacy
+Building an International Consortium for Tracking Coronavirus Health Status
+Computational Social Science: Obstacles and Opportunities
+Do Nonpartisan Programmatic Policies Have Partisan Electoral Effects? Evidence from Two Large Scale Experiments
+Evaluating COVID-19 Public Health Messaging in Italy: Self-Reported Compliance and Growing Mental Health Concerns
+Expert Report of Gary King, in Bowyer et Al. V. Ducey (Governor) et Al., US District Court, District of Arizona
+Instructional Support Platform for Interactive Learning Platforms (2nd)
+OpenDP: Developing Open Source Tools for Differential Privacy
+Population-Scale Longitudinal Mapping of COVID-19 Symptoms, Behaviour and Testing
+PrivacyUnbiased
+QuickCode
+So You're a Grad Student Now? Maybe You Should Do This
+The 'Math Prefresher' and The Collective Future of Political Science Graduate Training
+The SilverLining Project: Finding Social Good in Clouds on the Dark Web
+Theoretical Foundations and Empirical Evaluations of Partisan Fairness in District-Based Democracies
+A New Model for Industry-Academic Partnerships
+A Theory of Statistical Inference for Matching Methods in Causal Research
+Cluster Analysis of Participant Responses for Test Generation or Teaching
+Ecological Regression With Partial Identification
+Instructional Support Platform for Interactive Learning Platforms
+Participant Grouping for Enhanced Interactive Experience (3rd)
+Stimulating Online Discussion in Interactive Learning Environments
+Systems and Methods for Keyword Determination and Document Classification from Unstructured Text
+Why Propensity Scores Should Not Be Used for Matching
+Compactness: An R Package for Measuring Legislative District Compactness If You Only Know It When You See It
+Edited Transcript of a Talk on Partisan Symmetry at the 'Redistricting and Representation Forum'
+Management of Off-Task Time in a Participatory Environment
+PSI (Ψ): A Private Data Sharing Interface
+Readme2: An R Package for Improved Automated Nonparametric Content Analysis for Social Science
+Use of a Social Annotation Platform for Pre-Class Reading Assignments in a Flipped Introductory Physics Class
+A Unified Approach to Measurement Error and Missing Data: Details and Extensions
+A Unified Approach to Measurement Error and Missing Data: Overview and Applications
+Booc.Io: An Education System With Hierarchical Concept Maps
+Brief of Heather K. Gerken, Jonathan N. Katz, Gary King, Larry J. Sabato, and Samuel S.-H. Wang As Amici Curiae in Support of Appellees
+Computer-Assisted Keyword and Document Set Discovery from Unstructured Text
+How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, Not Engaged Argument
+How the News Media Activate Public Expression and Influence National Agendas
+How to Conquer Partisan Gerrymandering
+OpenScholar
+The Balance-Sample Size Frontier in Matching Methods for Causal Inference
+Comment on 'Estimating the Reproducibility of Psychological Science'
+Cross-Classroom and Cross-Institution Item Validation
+Effectiveness of the WHO Safe Childbirth Checklist Program in Reducing Severe Maternal, Fetal, and Newborn Harm: Study Protocol for a Matched-Pair, Cluster Randomized Controlled Trial in Uttar Pradesh, India
+How Human Subjects Research Rules Mislead You and Your University, and What to Do About It
+Method and Apparatus for Selecting Clusterings to Classify a Data Set
+Preface: Big Data Is Not About the Data!
+Scoring Social Security Proposals: Response from Kashin, King, and Soneji
+Systems and Methods for Calculating Category Proportions
+The C-SPAN Archives As The Policymaking Record of American Representative Democracy: A Foreword
+Automating Open Science for Big Data
+Explaining Systematic Bias and Nontransparency in US Social Security Administration Forecasts
+How Robust Standard Errors Expose Methodological Problems They Do Not Fix, and What to Do About It
+Participant Grouping for Enhanced Interactive Experience (2nd)
+Perusall
+Replication Data For: Explaining Systematic Bias and Nontransparency in U.S. Social Security Administration Forecasts.
+Replication Data For: Systematic Bias and Nontransparency in U.S. Social Security Administration Forecasts.
+RobustSE
+System for Estimating a Distribution of Message Content Categories in Source Data (2nd)
+Systematic Bias and Nontransparency in US Social Security Administration Forecasts
+Urban Observatories: City Data Can Inform Decision Theory
+An Update on Dataverse
+Google Flu Trends Still Appears Sick: An Evaluation of the 2013‐2014 Flu Season
+MatchingFrontier: R Package for Calculating the Balance-Sample Size Frontier
+Methods for Extremely Large Scale Media Experiments and Observational Studies (Poster)
+Participant Grouping for Enhanced Interactive Experience
+Restructuring the Social Sciences: Reflections from Harvard's Institute for Quantitative Social Science
+Reverse-Engineering Censorship in China: Randomized Experimentation and Participant Observation
+The Parable of Google Flu: Traps in Big Data Analysis
+Twitter: Big Data Opportunities—Response
+You Lie! Patterns of Partisan Taunting in the U.S. Senate (Poster)
+How Censorship in China Allows Government Criticism But Silences Collective Expression
+How Social Science Research Can Improve Teaching
+Method and Apparatus for Selecting Clusterings to Classify A Predetermined Data Set
+The Troubled Future of Colleges and Universities (with Comments from Five Scholar-Administrators)
+Brief of Empirical Scholars As Amici Curiae
+Causal Inference Without Balance Checking: Coarsened Exact Matching
+Data, Analyses, and Reports for the Arizona Independent Redistricting Commission, Filed With the U.S. Department of Justice
+Estimating Partisan Bias of the Electoral College Under Proposed Changes in Elector Apportionment
+Letter to the Editor on the 'Medicare Health Support Pilot Program' (by McCall and Cromwell)
+Statistical Security for Social Security
+System for Estimating a Distribution of Message Content Categories in Source Data
+Amelia II: A Program for Missing Data
+Anchors: Software for Anchoring Vignettes Data
+AutoCast: Automated Bayesian Forecasting With YourCast
+Avoiding Randomization Failure in Program Evaluation
+Comparative Effectiveness of Matching Methods for Causal Inference
+Ensuring the Data Rich Future of the Social Sciences
+Estimating Incidence Curves of Several Infections Using Symptom Surveillance Data
+General Purpose Computer-Assisted Clustering and Conceptualization
+MatchIt: Nonparametric Preprocessing for Parametric Causal Inference
+Multivariate Matching Methods That Are Monotonic Imbalance Bounding
+The Future of Death in America
+A Method of Automated Nonparametric Content Analysis for Social Science
+Deaths From Heart Failure: Using Coarsened Exact Matching to Correct Cause of Death Statistics
+Designing Verbal Autopsy Studies
+Improving Anchoring Vignettes: Designing Surveys to Correct Interpersonal Incomparability
+Inference in Case Control Studies
+JudgeIt II: A Program for Evaluating Electoral Systems and Redistricting Plans
+ReadMe: Software for Automated Content Analysis
+What to Do About Missing Values in Time Series Cross-Section Data
+AMELIA II: A Program for Missing Data
+CEM: Coarsened Exact Matching in Stata
+CEM: Coarsened Exact Matching Software
+CEM: Software for Coarsened Exact Matching
+Computational Social Science
+Empirical versus Theoretical Claims about Extreme Counterfactuals: A Response
+From Preserving the Past to Preserving the Future: The Data-PASS Project and the Challenges of Preserving Digital Social Science Data
+Matched Pairs and the Future of Cluster-Randomized Experiments: A Rejoinder
+Preserving Quantitative Research-Elicited Data for Longitudinal Analysis. New Developments in Archiving Survey Data in the U.S.
+Public Policy for the Poor? A Randomised Assessment of the Mexican Universal Health Insurance Programme
+Replication Data For: Public Policy for the Poor? A Randomised Assessment of the Mexican Universal Health Insurance Programme
+The Changing Evidence Base of Social Science Research
+The Essential Role of Pair Matching in Cluster-Randomized Experiments, With Application to the Mexican Universal Health Insurance Evaluation
+The Future of Political Science: 100 Perspectives
+Demographic Forecasting
+How Not to Lie Without Statistics
+Misunderstandings Among Experimentalists and Observationalists about Causal Inference
+Ordinary Economic Voting Behavior in the Extraordinary Election of Adolf Hitler
+The Effects of International Monetary Fund Loans on Health Outcomes
+The Future of Partisan Symmetry As a Judicial Test for Partisan Gerrymandering After LULAC V. Perry
+Toward A Common Framework for Statistical Analysis and Development
+VA: Verbal Autopsies
+Verbal Autopsy Methods With Multiple Causes of Death
+A 'Politically Robust' Experimental Design for Public Policy Evaluation, With Application to the Mexican Universal Health Insurance Program
+A Proposed Standard for the Scholarly Citation of Quantitative Data
+An Introduction to the Dataverse Network As an Infrastructure for Data Sharing
+Anchors: Software for Anchoring Vignettes Data
+Comparing Incomparable Survey Responses: New Tools for Anchoring Vignettes
+Dataverse: Open Source Research Data Repository Software
+Detecting Model Dependence in Statistical Inference: A Response
+Matching As Nonparametric Preprocessing for Reducing Model Dependence in Parametric Causal Inference
+MatchIt: Nonparametric Preprocessing for Parametric Causal Inference
+Understanding the Lee-Carter Mortality Forecasting Method
+When Can History Be Our Guide? The Pitfalls of Counterfactual Inference
+Death by Survey: Estimating Adult Mortality Without Selection Bias from Sibling Survival Data
+Ecological Inference
+Publication, Publication
+The Dangers of Extreme Counterfactuals
+The Effect of War on the Supreme Court
+Zelig: Everyone's Statistical Software
+Brief of Amici Curiae Professors Gary King, Bernard Grofman, Andrew Gelman, and Jonathan Katz in Support of Neither Party
+The Supreme Court During Crisis: How War Affects only Non-War Cases
+WhatIf: Software for Evaluating Counterfactuals
+Did Illegal Overseas Absentee Ballots Decide the 2000 U.S. Presidential Election?
+Ecological Inference: New Methodological Strategies
+EI: A Program for Ecological Inference
+Empirically Evaluating the Electoral College
+Enhancing the Validity and Cross-Cultural Comparability of Measurement in Survey Research
+Finding New Information for Ecological Inference Models: A Comment on Jon Wakefield, 'Ecological Inference in 2X2 Tables'
+Gill/Murray/Cholesky/Factorization
+Information in Ecological Inference: An Introduction
+Schnabel/Eskow/Cholesky/Factorization
+Theory and Evidence in International Conflict: A Response to de Marchi, Gelpi, and Grynaviski
+What to Do When Your Hessian Is Not Invertible: Alternatives to Model Respecification in Nonlinear Estimation
+YourCast
+10 Million International Dyadic Events
+A Consensus on Second Stage Analyses in Ecological Inference Models
+An Automated Information Extraction Tool For International Conflict Data With Performance As Good As Human Coders: A Rare Events Evaluation Design
+Analyzing Second Stage Ecological Regressions
+Building An Infrastructure for Empirical Research in the Law
+CLARIFY: Software for Interpreting and Presenting Statistical Results
+Determinants of Inequality in Child Survival: Results from 39 Countries
+EI: A Program for Ecological Inference
+EzI: A(n Easy) Program for Ecological Inference
+Numerical Issues Involved in Inverting Hessian Matrices
+ReLogit: Rare Events Logistic Regression
+Some Statistical Methods for Evaluating Information Extraction Systems
+The Future of Replication
+A Fast, Easy, and Efficient Estimator for Multiparty Electoral Data
+Archive of the Controversy Involving Wendy K. Tam Cho, Brian J. Gaines, and the American Political Science Review
+Armed Conflict As a Public Health Problem
+COUNT: A Program for Estimating Event Count and Duration Regressions
+Empirical Research and The Goals of Legal Scholarship: A Response
+Estimating Risk and Rate Levels, Ratios, and Differences in Case-Control Studies
+Isolating Spatial Autocorrelation, Aggregation Bias, and Distributional Violations in Ecological Inference
+Measuring Total Health Inequality: Adding Individual Variation to Group-Level Differences
+Rethinking Human Security
+The Rules of Inference
+A Digital Library for the Dissemination and Replication of Quantitative Social Science Research
+Aggregation Among Binary, Count, and Duration Models: Estimating the Same Quantities from Different Levels of Data
+An Introduction to the Virtual Data Center Project and Software
+An Overview of the Virtual Data Center Project and Software
+Analyzing Incomplete Political Science Data: An Alternative Algorithm for Multiple Imputation
+Bayesian and Frequentist Inference for Ecological Inference: The RxC Case
+Explaining Rare Events in International Relations
+Improving Forecasts of State Failure
+Logistic Regression in Rare Events Data
+Proper Nouns and Methodological Propriety: Pooling Dyads in International Relations Data
+Geography, Statistics, and Ecological Inference
+Improving Quantitative Studies of International Conflict: A Conjecture
+Making the Most of Statistical Analyses: Improving Interpretation and Presentation
+A Statistical Model for Multiparty Electoral Data
+Binomial-Beta Hierarchical Models for Ecological Inference
+Many Publications, But Still No Evidence
+No Evidence on Directional Vs. Proximity Voting
+Not Asked and Not Answered: Multiple Imputation for Multiple Surveys
+The Future of Ecological Inference Research: A Reply to Freedman et Al.
+AMELIA: A Program for Missing Data
+Estimating the Probability of Events That Have Never Occurred: When Is Your Vote Decisive?
+MAXLIK
+The Record of American Democracy, 1984-1990
+Unifying Political Methodology: The Likelihood Theory of Statistical Inference
+A Solution to the Ecological Inference Problem: Reconstructing Individual Behavior from Aggregate Data
+A Preview of EI and EzI: Programs for Ecological Inference
+Advantages of Conflictual Redistricting
+Racial Fairness in Legislative Redistricting
+The Generalization in the Generalized Event Count Model, With Comments on Achen, Amato, and Londregan
+Why Context Should Not Count
+A Correction for an Underdispersed Event Count Probability Distribution
+A Revised Proposal, Proposal
+Pre-Election Survey Methodology: Details From Nine Polling Organizations, 1988 and 1992
+Replication, Replication
+The Importance of Research Design in Political Science
+A Unified Method of Evaluating Electoral Systems and Redistricting Plans
+Designing Social Inquiry: Scientific Inference in Qualitative Research
+Elections to the United States House of Representatives, 1898-1992
+Enhancing Democracy Through Legislative Redistricting
+Party Competition and Media Messages in U.S. Presidential Election Campaigns
+Transfers of Governmental Power: The Meaning of Time Dependence
+Good Research and Bad Research: Extending Zimile's Criticism
+On Party Platforms, Mandates, and Government Spending
+The Methodology of Presidential Research
+The Science of Political Science Graduate Admissions
+Why Are American Presidential Election Campaign Polls so Variable When Votes Are so Predictable?
+JudgeIt I: A Program for Evaluating Electoral Systems and Redistricting Plans
+'Truth' Is Stranger Than Prediction, More Questionable Than Causal Inference
+Calculating Standard Errors of Predicted Values Based on Nonlinear Functional Forms
+Constituency Service and Incumbency Advantage
+On Political Methodology
+Stochastic Variation: A Comment on Lewis-Beck and Skalaban's 'The R-Square'
+Systemic Consequences of Incumbency Advantage in the U.S. House
+A Unified Model of Cabinet Dissolution in Parliamentary Democracies
+Electoral Responsiveness and Partisan Bias in Multiparty Democracies
+Estimating Incumbency Advantage Without Bias
+Estimating the Electoral Consequences of Legislative Redistricting
+Measuring the Consequences of Delegate Selection Rules in Presidential Nominations
+A Seemingly Unrelated Poisson Regression Model
+Electoral Responsiveness in U.S. Congressional Elections, 1946-1986
+Event Count Models for International Relations: Generalizations and Applications
+Representation Through Legislative Redistricting: A Stochastic Model
+The Presidency in American Politics
+Variance Specification in Event Count Models: From Restrictive Assumptions to a Generalized Estimator
+Statistical Models for Political Science Event Counts: Bias in Conventional Procedures and Evidence for The Exponential Poisson Regression Model
+The Elusive Executive: Discovering Statistical Patterns in the Presidency
+Democratic Representation and Partisan Bias in Congressional Elections
+Presidential Appointments to the Supreme Court: Adding Systematic Explanation to Probabilistic Description
+Seats, Votes, and Gerrymandering: Measuring Bias and Representation in Legislative Redistricting
+How Not to Lie With Statistics: Avoiding Common Mistakes in Quantitative Political Science
+Political Parties and Foreign Policy: A Structuralist Approach
+The Development of Political Activists: A Model of Early Learning
+The Significance of Roll Calls in Voting Bodies: A Model and Statistical Estimation
+Book Review of `Forecasting Presidential Elections'
+The Stability of Party Identification Among U.S. Representatives: Political Loyalty, 1789-1984
+PC$: Checkbook Manager
+The City's Losing Clout
+Presentations
+Who's to Blame for Survey Instability: Respondents with Nonexistent Preferences or Researchers with Flawed Measures? (talk at University of Chicago, 4 14 2026)
+Who's to Blame for Survey Instability: Respondents With Nonexistent Preferences or Researchers With Flawed Measures? (talk at Bocconi University, 3 24 2026)
+Who's to Blame for Survey Instability: Respondents With Random Preferences or Researchers With Flawed Measures? (talk at Johns Hopkins University, 2 12 2026)
+Correcting Measurement Error Bias in Conjoint Survey Experiments (University of Central Florida)
+Statistically Valid Inferences from Privacy Protected Data (Pew Research Center)
+Correcting Measurement Error Bias in Conjoint Survey Experiments (Harvard Experiments Working Group)
+How American Politics Ensures Electoral Accountability in Congress (UCLA)
+How to Measure Legislative District Compactness If You Only Know It When You See It (Harvard Law School)
+Is Survey Instability Due to Respondents Who Don't Understand Politics or Researchers Who Don't Understand Respondents? (Caltech)
+Reverse Engineering Chinese Government Information Controls (Harvard University)
+Reverse Engineering Chinese Government Information Controls (SUNY New Paltz)
+Statistically Valid Inferences from Privacy Protected Data (Stat188, Harvard University)
+Correcting Measurement Error Bias in Conjoint Survey Experiments (Stanford University)
+How American Politics Ensures Electoral Accountability in Congress (Center for American Political Studies, Harvard University)
+How American Politics Ensures Electoral Accountability in Congress (Nuffield College, Oxford University)
+How American Politics Ensures Electoral Accountability in Congress (Washington University in St. Louis)
+How Science Works, and Some Advice (for You and for Me) (Department of Politics and International Relations, Oxford University)
+Matching Methods for Observational and Experimental Causal Inference (Facultad Latinoamericana de Ciencias Sociales)
+Solving Data Sharing Challenges Technologically through Differential Privacy (Wesleyan University)
+Statistically Valid Inferences from Privacy Protected Data (Washington University in St. Louis)
+Noisy Data from the Noisy Census (Center for Discrete Mathematics and Theoretical Computer Science, Rutgers University)
+Public Policy for the Poor? A Randomized Evaluation of the Mexican Universal Health Insurance Program (Harvard School of Public Health)
+Simplifying Matching Methods for Causal Inference (University of Wisconsin at Madison)
+Statistically Valid Inferences from Privacy Protected Data (Deloitte)
+Statistically Valid Inferences from Privacy Protected Data (Institute for Analytical Sociology, Norrköping, Sweden)
+Statistically Valid Inferences from Privacy Protected Data (MIT Analytics Lab)
+Statistically Valid Inferences from Privacy Protected Data (Princeton University)
+Statistically Valid Inferences from Privacy Protected Data (SICSS, University of Rochester)
+Statistically Valid Inferences from Privacy Protected Data (University of Wisconsin)
+Video Presentations
+Empowering Social Science Research With Industry Partnerships (Dean's Symposium on Social Science Innovations, Harvard)
+How to 'help Solve Society's Most Pressing Challenges' (quote from ALI Homepage) -- at the Harvard Advanced Leadership Initiative
+How to Measure Legislative District Compactness If You Only Know It When You See It (Department of Biomedical Informatics, Harvard Medical School)
+How to Measure Legislative District Compactness If You Only Know It When You See It (IPSA World Congress)
+Scientific Inferences From Privatized Census Data (Federal Reserve Board, Panel)
+Scientific Measurement in Redistricting Research (Princeton University)
+Empowering Social Science to Understand and Ameliorate Major Challenges of Human Society (Federal Interagency Conference on Social Science and Big Data)
+Reverse Engineering Chinese Government Information Controls (Hebrew University of Jerusalem)
+Simplifying Matching Methods for Causal Inference (Hebrew University of Jerusalem)
+Statistically Valid Inferences from Privacy Protected Data (Google, Inc)
+Statistically Valid Inferences from Privacy Protected Data (Google)
+Statistically Valid Inferences from Privacy Protected Data (Harvard University, Applied Statistics Workshop)
+Statistically Valid Inferences from Privacy Protected Data (Harvard, Privacy Tools Project)
+Statistically Valid Inferences from Privacy Protected Data (Interagency Arctic Research Policy Committee)
+Statistically Valid Inferences from Privacy Protected Data (Webcast, Project TIER)
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas (University of Minho)
+How to Measure Legislative District Compactness If You Only Know It When You See It (University of Chicago)
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference (University of Minho)
+Statistically Valid Inferences from Privacy Protected Data (Microsoft)
+Statistically Valid Inferences from Privacy Protected Data (University of Chicago)
+Big Data Is Not About the Data!
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas
+How the News Media Activate Public Expression and Influence National Agendas
+Matching Methods for Causal Inference
+Reverse Engineering Chinese Government Information Controls
+Reverse Engineering Chinese Government Information Controls
+Sequential Experiments and News Media Effects
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Analyzing Social Media Data in China
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Reveals Made Up Data: How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, Not Engaged Argument
+Detecting and Reducing Model Dependence in Causal Inference
+Fabricating News In Chinese Social Media
+How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, Not Engaged Argument
+How to Measure Legislative District Compactness If You Only Know It When You See It
+Matching Methods for Causal Inference and 21 Other Topics
+Reverse Engineering Chinese Government Information Controls
+Reverse Engineering Chinese Government Information Controls
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+An Improved Method of Automated Nonparametric Content Analysis for Social Science
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data! The Power of Modern Analytics
+Discovering and Explaining Systematic Bias and Nontransparency in US Social Security Administration Forecasts
+Explaining Systematic Bias and Nontransparency in US Social Security Administration Forecasts
+Introduction to Perusall
+Reverse-Engineering Censorship in China
+Simplifying Matching Methods for Causal Inference
+The Next Big [Social Science] Thing
+Big Data Is Not About the Data, With Applications
+Big Data Is Not About the Data!
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Simplifying Matching Methods for Causal Inference
+Talks on Matching Methods for Causal Inference
+Why Propensity Scores Should Not Be Used For Matching
+Big Data Is Not About the Data!
+Dataverse: Sharing Research Data; Building Social Science
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Reverse-Engineering Censorship in China
+Simplifying Causal Inference
+The Balance-Sample Size Frontier in Matching Methods for Causal Inference
+A Few IQSS Quasi-Research Projects
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About the Data!
+Big Data Is Not About The Data!
+Big Data Is Not About The Data!
+How Censorship in China Allows Government Criticism But Silences Collective Expression
+Optimizing Balance and Sample Size in Matching Methods for Causal Inference
+Optimizing Balance and Sample Size in Matching Methods for Causal Inference
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Reverse Engineering Chinese Censorship
+Simplifying Causal Inference
+What to Do About Biases in Survey Research
+A Method for Computer Assisted Conceptualization
+Computer-Assisted Reading'' and Other Discoveries from Quantitative Social Science
+Matching Methods for Causal Inference
+Remaking the Social Sciences
+Simplifying Causal Inference
+Teaching Innovations Based on Social Science Research
+An Overview of the Institute for Quantitative Social Science
+Computer-Assisted Clustering and Conceptualization
+Computer-Assisted Clustering and Conceptualization from Unstructured Text
+Computer-Assisted Clustering and Conceptualization from Unstructured Text
+Computer-Assisted Clustering and Conceptualization from Unstructured Text
+Computer-Assisted Conceptualization
+Computer-Assisted Conceptualization
+Matching Methods for Causal Inference
+Matching Methods for Causal Inference
+Matching Methods for Causal Inference
+Partisan Gerrymandering: A Talk and Participatory Simulation
+Partisan Taunting: A New Conceptualization of How Members of Congress Act
+The Social Science Data Revolution
+The Social Science Data Revolution
+Topics in Measurement for the Social and Health Sciences
+A General Purpose Computer-Assisted Document Clustering Methodology
+A Hard Unsolved Problem? Post-Treatment Bias in Big Social Science Questions
+Coarsened Exact Matching
+Comparative Effectiveness of Matching Methods for Causal Inference
+Detecting Model Dependence
+Matching to Reduce Model Dependence
+Quantitative Discovery of Qualitative Information
+Quantitative Discovery of Qualitative Information: A General Purpose Document Clustering Methodology
+A General Purpose Computer-Assisted Document Clustering Methodology
+Anchoring Vignettes for Interpersonal and Cross-Cultural Incomparability in Survey Research
+Discovery
+Extracting Systematic Social Science Meaning from Text
+Matching for Causal Inference Without Balance Checking
+Matching for Causal Inference Without Balance Checking
+Public Policy for the Poor? A Randomized Evaluation of the Mexican Universal Health Insurance Program
+The Changing Evidence Base of Social Science Research
+Demographic Forecasting
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+Introduction to Matching for Causal Inference
+Matching for Causal Inference Without Balance Checking
+Matching for Causal Inference Without Balance Checking
+Mexican Seguro Popular Evaluation
+The Dataverse Network: An Infrastructure for Data Sharing
+The Dataverse Network: An Infrastructure for Data Sharing
+The Dataverse Network: An Infrastructure for Data Sharing
+The Future of Death in America
+A 'Politically Robust' Experimental Design for Public Policy Evaluation, With Application to the Mexican Universal Health Insurance Program
+An Introduction to the Dataverse Network As an Infrastructure for Data Sharing
+An Introduction to the Dataverse Network As an Infrastructure for Data Sharing
+An Introduction to the Dataverse Network As an Infrastructure for Data Sharing
+Anchoring Vignettes for Interpersonally Incomparable Survey Responses
+Extracting Systematic Social Science Meaning from Text (& Cause-Specific Mortality Rates from Symptom Data)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+How to Read 100 Million Blogs (& Classify Deaths Without Physicians)
+What to Do about Biases in Survey Research
+Demographic Forecasting
+Demographic Forecasting
+Detecting and Reducing Model Dependence in Causal Inference
+Detecting and Reducing Model Dependence in Causal Inference
+Evaluation of Seguro Popular: Baseline Analysis
+Finding, Citing, Analyzing, Disseminating, and Preserving Quantitative Data
+Statistical Analysis With Missing Data
+Death by Survey: Estimating Adult Mortality Without Selection Bias from Sibling Survival Data
+Demographic Forecasting
+Demographic Forecasting
+Demographic Forecasting
+Demographic Forecasting: : Incorporating Qualitative Insight into Quantitative Modeling
+Evaluation of Seguro Popular: Design Framework
+Finding, Citing, Analyzing, Disseminating, and Preserving Numeric Data
+Model Dependence in Counterfactual Inference
+Software
+PrivacyUnbiased
+OpenDP: Developing Open Source Tools for Differential Privacy
+QuickCode
+Compactness: An R Package for Measuring Legislative District Compactness If You Only Know It When You See It
+PSI (Ψ): A Private Data Sharing Interface
+Readme2: An R Package for Improved Automated Nonparametric Content Analysis for Social Science
+Booc.Io: Software for an Education System With Hierarchical Concept Maps
+Perusall
+RobustSE
+MatchingFrontier: R Package for Calculating the Balance-Sample Size Frontier
+JudgeIt II: A Program for Evaluating Electoral Systems and Redistricting Plans
+ReadMe: Software for Automated Content Analysis
+AMELIA II: A Program for Missing Data
+CEM: Coarsened Exact Matching Software
+OpenScholar
+VA: Verbal Autopsies
+Anchors: Software for Anchoring Vignettes Data
+Dataverse: Open Source Research Data Repository Software
+MatchIt: Nonparametric Preprocessing for Parametric Causal Inference
+Zelig: Everyone's Statistical Software
+WhatIf: Software for Evaluating Counterfactuals
+Gill/Murray/Cholesky/Factorization
+Schnabel/Eskow/Cholesky/Factorization
+YourCast
+CLARIFY: Software for Interpreting and Presenting Statistical Results
+EI: A Program for Ecological Inference
+EzI: A(n Easy) Program for Ecological Inference
+ReLogit: Rare Events Logistic Regression
+An Overview of the Virtual Data Center Project and Software
+MAXLIK
+Startups
+Crimson Hexagon
+Thresher
+Learning Catalytics
+OpenScholar
+Perusall
+QuickCode
+Blog
+Suggestions for Changes in Journal Publication Rules
+are you making causal inferences?
+The Value of Control Groups in Causal Inference (and Breakfast Cereal)
+A Social Science of Architecture
+Accessibility Statement
+Are you applying to a Ph.D., MA, or Post-Doc program at Harvard?
+Ask Gary
+Bio & CV
+Contact
+Dataverse
+Do You Have a Paper to Submit to PNAS?
+Electronic Collection Development in the Harvard College Library
+Evaluating Social Security Forecasts
+How to Write a Publishable Paper
+Learning from College, after College: A Commencement Speech at SUNY New Paltz
+Letters of Recommendation
+Miscellanea
+People
+Aaron Kaufman
+Abhradeep Guha Thakurta
+Ajay Tandon
+Akshay Swaminathan
+Alan Lopez
+Albert Pereta
+Albert-László Barabási
+Aleksandra Conevska
+Alessandro Vespignani
+Alex Pentland
+Alexander Schuessler
+Alexander Wagner
+Alexis Diamond
+Allen Schmaltz
+Alok Kumar
+Alondra Nelson
+Amac Herdagdelen
+Amher Tarar
+Amine Kamel
+Anders Corr
+Andrew B. Hall
+Andrew C Thomas
+Andrew C. Eggers
+Andrew Gelman
+Andrew Reeves
+Andy Shi
+Ann Joseph
+Anton Strezhnev
+Antonio Câmara
+Ardys Kozbial
+Ariel R. White
+Aristides A. N. Patrinos
+Aslaug Asgeirsdottir
+Atul Gawande
+Avleen S. Bijral
+Aykut Firat
+Beau Coker
+Ben Bishin
+Ben Silbermann
+Ben W. Hunt
+Benjamin Schneer
+Bernard Grofman
+Bernard Tamas
+Bhalachandra S. Kodkany
+Bharath Kumar
+Bradley Palmquist
+Brady Baybeck
+Brandon M. Stewart
+Brenda Sequeira D'Mello
+Brent A. Coull
+Brian Lukoff
+Carlos Velasco Rivera
+Casey Petroff
+Casey S. Greene
+Chengyu Fu
+Chiara Superti
+Chris Danford
+Christina Lee
+Christine Harrington
+Christopher Adolph
+Christopher Bingham
+Christopher Lucas
+Christopher Murray
+Christopher T. Kenny
+Chuanhai Liu
+Claudia Pedroza
+Claudia Wagner
+Claudine Gay
+Clayton Nall
+Colin Fredericks
+Connor D. Huff
+Connor T. Jerzak
+Cory McCartan
+Curtis Signorino
+Cynthia Dwork
+Cynthia Rudin
+D. Stephen Voss
+Dan Ho
+Dan Ward
+Dana Higgins
+Daniel Gilbert
+Daniel Hopkins
+Daniel J. Walsh
+Daniel K. Baissa
+Daniel L Kiskis
+Danielle E. Tuller
+Danny Ebanks
+David (Wendong) Zhang
+David Kane
+David Lazer
+David Leal
+David Lublin
+David R. Cheng
+Dawn Brancati
+Deb Roy
+Debra Javeline
+Deen Freelon
+Delia Bailey
+Dennis M. Feehan
+Devon Brewer
+Dominic Skinnion
+Donald B. Rubin
+Duncan J. Watts
+Eleanor Powell
+Elizabeth Desombre
+Elizabeth Kolster
+Elizabeth Rosenblatt
+Elizabeth Stuart
+Emmanuela Gakidou
+Eric Mazur
+Eric Reinhardt
+Ethan Katz
+Etienne Krug
+Evan Chen
+Evann Smith
+Evrhet Milam
+Federico Girosi
+Feng Zhang
+Frederick M. Hess
+George Yean
+Georgina 'Georgie' Evans
+Gi-Heon Kwon
+Giuseppe Porro
+Glen McGee
+Grace Kim
+Greg Adams
+Gregory Wawro
+Han Altae-Tran
+Hannah Bayer
+Hanspeter Pfister
+Heather K. Gerken
+Heather Stoll
+Héctor Hernández Llama
+Helen Bentley
+Helen Margetts
+Hendrik Strobelt
+Hung-Der Fu
+Ian Ayres
+Jack Deschler
+James Alt
+James Briggs
+James Fowler
+James Honaker
+James McCann
+James Tompkin
+Jasjeet Sekhon
+Jason Lakin
+Jason Wittenberg
+Jason Wittenburg
+Jean Aurambault
+Jeff Gill
+Jeff Lewis
+Jeffrey C. Blossom
+Jeffrey Segal
+Jennifer Hill
+Jennifer Pan
+Joel Newberger
+John Boscardin
+John M. Bruce
+John Openshaw
+Jonathan Bischof
+Jonathan M. Spector
+Jonathan N. Katz
+Jonathan Ullman
+Jonathan Wand
+Josephine T. Andrews
+Josh Inkenbrandt
+Joshua Salomon
+Joshua Tucker
+Juan Eugenio Hernández Ávila
+Juan M. Lavista Ferres
+Justin Grimmer
+Karen Ferree
+Katherine Clayton
+Katherine Irajpanah
+Katherine Semrau
+Katie Colton
+Kay Schlozman
+Kelly Miller
+Kenesia Washington
+Kenji Shibuya
+Kenneth Benoit
+Kenneth Scheve
+Kenneth Shotts
+Kevin Quinn
+Kobbi Nissim
+Konstantin Kashin
+Kosuke Imai
+Kristian Gleditsch
+Lada Adamic
+Langche Zeng
+Larry J. Sabato
+Latanya Sweeney
+Lee Epstein
+Leonid Andreev
+Libby Jenke
+Lisa Martin
+Lisa R. Hirschhorn
+Lyn Ragsdale
+Manett Vargas
+Marco Gaboardi
+Margaret E. 'Molly' Roberts
+Margaret Trevor
+Mark A. Travassos
+Mark Diggory
+Markus Strohmaier
+Marshall Van Alstyne
+Martha María Téllez-Rojo
+Martin Tanner
+Matthew Blackwell
+Matthew J. Salganik
+Matthew Knowles
+Matthew Lebo
+Mauricio Hernández Ávila
+Max Goplerud
+Maxwell Palmer
+Maya Sen
+Mayya Komisarchik
+Meg Schwenzfeier
+Melissa Sands
+Mercè Crosas
+Meredith Dost
+Micah Altman
+Michael Croatto
+Michael Gill
+Michael Gilligan
+Michael Herron
+Michael Krot
+Michael Laver
+Michael Macy
+Michael McDonald
+Michael New
+Michael Ting
+Michael Tomz
+Michail Schwab
+Miguel Solano
+Mireille Kamariza
+Mitchell Brooks
+Mitsuru Mukaigawara
+Miya Woolfalk
+Miyoung Chun
+Mohan (Penubarti) Rao
+Myron Gutmann
+Nancy Billica
+Nancy Burns
+Narender Sharma
+Natalie Ayers
+Nathaniel Beck
+Nathaniel Persily
+Naunihal Singh
+Neelam Dhingra-Kumar
+Nicholas Christakis
+Nicole Nova
+Niels Tomijima
+Nirmala Ravishankar
+Norman Nie
+Noshir Contractor
+Olivia Lau
+Ophir Shalem
+Ori Rosen
+Pamela Ban
+Patrick Brandt
+Patrick Lam
+Patrick Wolf
+Patrik Gothe
+Paul Brace
+Paul W. Glimcher
+Peter Dyrud
+Philip Paolino
+Prateek Goorha
+Rainer Winkelmann
+Rakesh Sarwal
+Rebecca Firestone
+Richard A. Berk
+Richard A. Nielsen
+Richard Johnston
+Richard Merelman
+Richard R.W. Brooks
+Richard Tucker
+Rifat Atun
+Robert Murray
+Robert O. Keohane
+Robert Walker
+Robert X Browning
+Rockli Kim
+Rumya Raghavan
+Russ Mayer
+Ruth Greenwood
+Ryan Kennedy
+Ryan Moore
+Ryan Probasco
+S. V. Subramanian
+Salil Vadhan
+Samir Soneji
+Samuel S.-H. Wang
+Sandra González-Bailón
+Sascha Riaz
+Scott Desposato
+Scott Yockel
+Sean Carey
+Sebastian Bauhoff
+Shannon L. Parker
+Sherod Thaxton
+Shiro Kuriwaki
+Shusei Eshima
+Sidney Verba
+Sinan Aral
+Skyler Cranmer
+Soledad Prillaman
+Sophie E. Hill
+Soubhik Barari
+Stefan Wojcik
+Stefano Iacus
+Stephen Ansolabehere
+Stephen Pettigrew
+Steven D. Voss
+Steven Koonin
+Stu Snydman
+Stuart R. Lipsitz
+Sue J. Goldie
+Sundeep Iyer
+Susan Athey
+Suzanna De Boef
+Tami Kim
+Thorben Primke
+Tim King
+Timothy D. Wilson
+Timothy Prinz
+Tony Jebara
+Tuan Huynh
+Vinay Pratap Singh
+Viridiana Rios
+Vishwajeet Kumar
+Weijie Li
+Wendy Lu
+Wenxin Jiang
+Will Lowe
+William E. Allen
+William K. Barnett
+Xihong Lin
+Xin Jin
+Xiuyuan Zhang
+Yi William Wei
+Yichen Guan
+Ying Lu
+Yon Soo Park
+Yun Xu
+Yusaku Horiuchi
+Zachary J. Ward
+Zagreb Mukerjee
+Zheng Ma
+People
+Research Areas
+Room Setup Preferences for Talks
+Should You Use AI to Write for You?
+Teaching
+Designing Political Inquiry, Government 1003 (for undergrads)
+Gov 2020: The Hidden Curriculum
+Introduction to Quantitative Political Methodology, G1000
+Math Prefresher for Political Scientists (Faculty advisor)
+Quantitative Social Science Methods, I: Government 2001, and E-200
+Strategies of Political Inquiry, Government 2010
+Workshop in Applied Statistics
+Logistic Regression in Rare Events Data
+Gary King, Langche Zeng. 2001.
+"Logistic Regression in Rare Events Data".
+Journal of Statistical Software, 8 .
+Article Cite
+Abstract
+We study rare events data, binary dependent variables with dozens to thousands of times fewer ones (events, such as wars, vetoes, cases of political activism, or epidemiological infections) than zeros (“nonevents”). In many literatures, these variables have proven difficult to explain and predict, a problem that seems to have at least two sources. First, popular statistical procedures, such as logistic regression, can sharply underestimate the probability of rare events. We recommend corrections that outperform existing methods and change the estimates of absolute and relative risks by as much as some estimated effects reported in the literature. Second, commonly used data collection strategies are grossly inefficient for rare events data. The fear of collecting data with too few events has led to data collections with huge numbers of observations but relatively few, and poorly measured, explanatory variables, such as in international conflict data with more than a quarter-million dyads, only a few of which are at war. As it turns out, more efficient sampling designs exist for making valid inferences, such as sampling all variable events (e.g., wars) and a tiny fraction of nonevents (peace). This enables scholars to save as much as 99% of their (nonfixed) data collection costs or to collect much more meaningful explanatory variables. We provide methods that link these two results, enabling both types of corrections to work simultaneously, and software that implements the methods developed.
+See Also
+[Dataset] Replication data (Harvard Dataverse)
+[Paper] Explaining Rare Events in International Relations (2001)
+[Software] ReLogit: Rare Events Logistic Regression (2003)
+[Paper] An Automated Information Extraction Tool For International Conflict Data With Performance As Good As Human Coders: A Rare Events Evaluation Design (2003)
+[Presentation] Big Data Is Not About the Data! (2018)
+[Presentation] Big Data Reveals Made Up Data: How the Chinese Government Fabricates Social Media Posts for Strategic Distraction, Not Engaged Argument (2017)
+[Presentation] Big Data Is Not About the Data! The Power of Modern Analytics (2016)
+[Book] Preface: Big Data Is Not About the Data! (2016)
+Last updated on
+Jan 1, 2001
+Advice and Suggestions Miscellanea IQSS (opens in new tab) @KingGary on Twitter (opens in new tab)
+© 2026 Gary King. All rights reserved.

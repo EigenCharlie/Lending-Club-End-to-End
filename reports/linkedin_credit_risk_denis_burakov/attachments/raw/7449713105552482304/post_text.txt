@@ -1,0 +1,7 @@
+𝗪𝗢𝗘 𝗥𝗲𝗰𝗮𝗹𝗶𝗯𝗿𝗮𝘁𝗶𝗼𝗻: 𝗧𝗵𝗲 𝗙𝗶𝗻𝗲-𝗧𝘂𝗻𝗶𝗻𝗴 𝗧𝗿𝗶𝗰𝗸 𝗖𝗿𝗲𝗱𝗶𝘁 𝗥𝗶𝘀𝗸 𝗛𝗮𝘀𝗻'𝘁 𝗡𝗮𝗺𝗲𝗱 𝗬𝗲𝘁
+There are two standard options to update credit risk models: full redevelopment (rebuild everything with new data) and simple recalibration (adjust the intercept or scaling). WOE recalibration is a middle ground: you touch one feature's likelihood ratios but leave the overall model intact.
+With this approach, the bin structure stays fixed, but the likelihood ratios inside them shift. Only the selected risk drivers absorb new evidence, and their WOE values are recalculated and merged back in.
+This matters in practice because full redevelopment is expensive and slow: new variable selection, new binning, new validation, and new approvals. Simple recalibration is fast: it adjusts the intercept without touching the features. WOE recalibration sits in between: it lets you respond to a shift in one risk driver without destabilizing the rest of the model.
+In the latest release of 𝖿𝖺𝗌𝗍𝗐𝗈𝖾, this is a single call: 𝖿𝗂𝗇𝖾𝗍𝗎𝗇𝖾(𝖷_𝗇𝖾𝗐, 𝗒_𝗇𝖾𝗐) updates the WOE values for one or more features using new data while preserving the original bin edges, categories, and all other model components. In the example shown, this took the scorecard from failing Spiegelhalter's calibration test (𝖹 = 𝟦.𝟨𝟦) to passing it (𝖹 = 𝟢.𝟩𝟩).
+🐍 Python script: https://lnkd.in/dFqRfdE8
+#DataScience #CreditScoring #Python #CreditRiskModeling #Calibration

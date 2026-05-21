@@ -1,0 +1,10 @@
+Log Loss 📉
+Log loss, also known as logistic loss or cross-entropy loss, is a common metric used in model training and evaluation of #MachineLearning models working with binary outcomes (e.g., credit default vs. no credit default). Log Loss measures how fit a model is for a dataset and penalizes the model's confidence in incorrect predictions 🎯
+This deck traces the metric's origins back to the concept of likelihood from #Statistics, shares examples of binomial and bernoulli logistic regression in #Python 🐍, and visually explains this metric based on examples with gradient-boosted decision trees 🌳
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post about logistic regression's origins: https://lnkd.in/dJfthBa7 💡
+▷ Discover a related post on the loss functions for PD scoring models: https://lnkd.in/dzg3g6Z9 💡
+▷ Discover a related post on benchmarking PD models with Log Loss: https://lnkd.in/dQp7Fbfi 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+⚠ 𝐃𝐢𝐬𝐜𝐥𝐚𝐢𝐦𝐞𝐫: The work of eugenicists, which Ronald A. Fisher was a known member of, was often pervaded by prejudice against racial, ethnic and disabled groups. The online publication of this material for scholarly research purposes is not an endorsement of those views nor a promotion of eugenics in any way.
+▬▬▬▬▬▬▬▬▬▬▬▬▬

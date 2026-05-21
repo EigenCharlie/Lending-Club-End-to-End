@@ -1,0 +1,909 @@
+Next Patch Prediction for AutoRegressive Visual Generation
+1 Introduction
+2 Next Patch Prediction
+3 Experiments
+3.1 Setup
+3.2 Main results
+3.3 Effect of Patch Size
+3.4 Effect of Segment Scheduling Factor λ𝜆\lambdaitalic_λ
+3.5 Effect of Multi-scale Grouping Strategy
+3.6 Training Cost Study
+3.7 Generation Results
+4 Related Works
+4.1 Visual Generation
+4.2 Multimodal Foundation Models
+5 Limitation and Future Works
+6 Conclusion
+Next Patch Prediction for
+AutoRegressive Visual Generation
+Yatian Pang1,3††{\dagger}† &Peng Jin1 &Shuo Yang1 &Bin Lin1,7 &Bin Zhu1,7 &Zhenyu Tang1 &Liuhan Chen1,7&Francis E. H. Tay3 &Ser-Nam Lim5,6 &Harry Yang4,6 &Li Yuan1,2
+1Peking University
+2PengCheng Laboratory
+3NUS
+4HKUST
+5UCF
+6Everlyn
+7Rabbitpre AI
+https://github.com/PKU-YuanGroup/Next-Patch-Prediction
+Corresponding author, yuanli-ece@pku.edu.cn ††{\dagger}† yatian_pang@u.nus.edu
+Abstract
+Autoregressive models, built based on the Next Token Prediction (NTP) paradigm, show great potential in developing a unified framework that integrates both language and vision tasks. In this work, we rethink the NTP for autoregressive image generation and propose a novel Next Patch Prediction (NPP) paradigm. Our key idea is to group and aggregate image tokens into patch tokens containing high information density. With patch tokens as a shorter input sequence, the autoregressive model is trained to predict the next patch, thereby significantly reducing the computational cost. We further propose a multi-scale coarse-to-fine patch grouping strategy that exploits the natural hierarchical property of image data. Experiments on a diverse range of models (100M-1.4B parameters) demonstrate that the next patch prediction paradigm could reduce the training cost to ∼0.6×\sim 0.6\times∼ 0.6 × while improving image generation quality by up to 1.0 FID score on the ImageNet benchmark. We highlight that our method retains the original autoregressive model architecture without introducing additional trainable parameters or specifically designing a custom image tokenizer, thus ensuring flexibility and seamless adaptation to various autoregressive models for visual generation.
+Figure 1: Comparison of our method and baseline methods. Our method achieves higher FID scores with less training cost on the ImageNet benchmark.
+1 Introduction
+Autoregressive models, foundational to large language models (LLMs) (Vaswani et al., 2017; Devlin et al., 2018; Radford et al., 2018; Raffel et al., 2020; Radford et al., 2019; Brown et al., 2020; Zhang et al., 2022), generate content through the prediction of subsequent tokens in a sequence. This Next Token Prediction paradigm enables LLMs to excel in a variety of natural language processing tasks, exhibiting human-like conversational abilities (Ouyang et al., 2022; OpenAI, 2022; 2023; Google, 2023; Anthropic, 2023; Workshop et al., 2022; Touvron et al., 2023a; b; Bai et al., 2023a; Yang et al., 2023; Team, 2023; Bi et al., 2024) and demonstrating remarkable scalability (Kaplan et al., 2020; Henighan et al., 2020; Hoffmann et al., 2022; Wei et al., 2022; Alabdulmohsin et al., 2022; Chowdhery et al., 2023; Anil et al., 2023). Such advancements illustrate the potential for achieving general-purpose artificial intelligence systems.
+Inspired by the success of autoregressive models in the language domain, their applications for image generation are significantly explored. Notable approaches, including VQVAE (Van Den Oord et al., 2017; Razavi et al., 2019), VQGAN (Esser et al., 2021; Lee et al., 2022), DALL-E (Ramesh et al., 2021), and Parti (Yu et al., 2021; 2022), introduce image tokenizers that convert continuous images into discrete tokens, employing autoregressive models to sequentially generate these tokens, thereby achieving image generation. In parallel, diffusion models (Song & Ermon, 2019; Ho et al., 2020; Song et al., 2020; Dhariwal & Nichol, 2021; Lu et al., 2022a; Ho et al., 2022a; Ho & Salimans, 2022; Rombach et al., 2022; Ramesh et al., 2022; Saharia et al., 2022; Rombach et al., 2022; Peebles & Xie, 2023; Podell et al., 2023; Xue et al., 2023; Chen et al., 2023a; b; Betker et al., 2023; Li et al., 2024a; Esser et al., 2024) emerge as a distinct and rapidly evolving paradigm in image generation. With wide open-source community support, diffusion models dominate the visual generation tasks. However, the fundamental differences in the underlying methodologies of autoregressive and diffusion models pose significant challenges for developing a unified framework that integrates both language and vision tasks. More recently, a pioneering work LlamaGen (Sun et al., 2024) achieves the next token prediction paradigm for image generation with a vanilla autoregressive model, Llama, bringing the field one step closer to building a unified model between language and vision.
+In this work, we follow LlamaGen (Sun et al., 2024) for autoregressive image generation and rethink the modeling of the NTP paradigm in the following aspects.
+a). The NTP paradigm, widely successful in large language models, leverages the high information density of text tokens. However, this property does not directly transfer to image data, where information density is naturally low compared to language data. Our key insight is to process image tokens into high information density units (i.e., patches), potentially leading to better performance in autoregressive image generation.
+b). Transformer-based autoregressive models incur significant computational costs during training, with the total cost approximately scaling as C≈6⁢W⁢N𝐶6𝑊𝑁C\approx 6WNitalic_C ≈ 6 italic_W italic_N, where
+W𝑊Witalic_W represents the number of model parameters and
+N𝑁Nitalic_N denotes the input sequence length. While maintaining the model architecture, we could manage to reduce the input length of image tokens, improving training efficiency.
+c). Unlike language data, the image modality inherently exhibits a hierarchical property in understanding and generation. This suggests that the training process for autoregressive image generation could be modeled in a multi-scale, coarse-to-fine manner, potentially enhancing generation quality.
+Building on these insights, we introduce Next Patch Prediction (NPP), a simple yet effective method for autoregressive visual generation. Specifically, the input image tokens are grouped and aggregated into patch tokens of higher information density through an intra-patch average operation. With the resulting patch tokens as a shorter input sequence, the autoregressive model is trained to predict the next patch, thus significantly reducing the computational cost. We further propose a multi-scale patch grouping strategy, modeling patches in a coarse-to-fine manner, which enhances training efficiency and generation quality. As shown in Figure 1, experiments on a diverse range of models from 100M to 1.4B parameters demonstrate that the next patch prediction paradigm could reduce the training cost to ∼0.6×\sim 0.6\times∼ 0.6 × while improving image generation quality by up to 1.0 FID score on the ImageNet benchmark.
+We highlight that our method retains the original autoregressive model architecture without introducing additional trainable parameters or specifically designing a custom image tokenizer, ensuring flexibility for seamless adaptation to various autoregressive models addressing visual generation tasks.
+Figure 2: Next Patch Prediction. The input image token embeddings are grouped and aggregated into patch embeddings through a path average operation. The autoregressive model is trained to predict the next patch by employing the patch Cross Entropy loss.
+2 Next Patch Prediction
+We introduce the Next Patch Prediction paradigm in Figure 2. The input image is initially encoded into image token indexes, which are then mapped to token embeddings of sequence length N𝑁Nitalic_N. Considering the naturally low information density of image data, our key idea is to aggregate multiple tokens into groups of units containing higher information density. Specifically, we group tokens into non-overlapping patches and generate a sequence of patch embeddings with length NK𝑁𝐾\frac{N}{K}divide start_ARG italic_N end_ARG start_ARG italic_K end_ARG, where K𝐾Kitalic_K is the number of tokens associated with each patch. To avoid introducing extra parameters during this compression process, we simply adopt an intra-patch average operation to compute the patch embeddings. Formally, given the embedding function E𝐸Eitalic_E, for the i𝑖iitalic_i-th patch pisubscript𝑝𝑖p_{i}italic_p start_POSTSUBSCRIPT italic_i end_POSTSUBSCRIPT associated with K𝐾Kitalic_K image tokens xkisuperscriptsubscript𝑥𝑘𝑖x_{k}^{i}italic_x start_POSTSUBSCRIPT italic_k end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_i end_POSTSUPERSCRIPT in the input sequence, the patch embedding is formulated as,
+E⁢(pi)=1K⁢∑k=1KE⁢(xki),𝐸subscript𝑝𝑖1𝐾superscriptsubscript𝑘1𝐾𝐸superscriptsubscript𝑥𝑘𝑖E(p_{i})=\frac{1}{K}\sum_{k=1}^{K}E(x_{k}^{i}),italic_E ( italic_p start_POSTSUBSCRIPT italic_i end_POSTSUBSCRIPT ) = divide start_ARG 1 end_ARG start_ARG italic_K end_ARG ∑ start_POSTSUBSCRIPT italic_k = 1 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_K end_POSTSUPERSCRIPT italic_E ( italic_x start_POSTSUBSCRIPT italic_k end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_i end_POSTSUPERSCRIPT ) ,
+(1)
+With the resulting patch tokens forming a shorter input sequence, the autoregressive model is trained to predict the next patch. However, due to the absence of an explicit ground truth (GT) index for a patch token, Cross-Entropy (CE) Loss cannot be directly applied. To maintain the model architecture without introducing additional parameters, we propose a patch CE loss that supervises the model using the associated K𝐾Kitalic_K image token GT indexes I⁢n⁢d⁢e⁢xki𝐼𝑛𝑑𝑒superscriptsubscript𝑥𝑘𝑖Index_{k}^{i}italic_I italic_n italic_d italic_e italic_x start_POSTSUBSCRIPT italic_k end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_i end_POSTSUPERSCRIPT in the next patch pisubscript𝑝𝑖p_{i}italic_p start_POSTSUBSCRIPT italic_i end_POSTSUBSCRIPT. Specifically, given the next patch predictions as P⁢r⁢e⁢di𝑃𝑟𝑒subscript𝑑𝑖Pred_{i}italic_P italic_r italic_e italic_d start_POSTSUBSCRIPT italic_i end_POSTSUBSCRIPT, and recalling the path sequence length NK𝑁𝐾\frac{N}{K}divide start_ARG italic_N end_ARG start_ARG italic_K end_ARG, the loss function is formulated as:
+L=1N⁢∑i=1NK∑k=1KC⁢E⁢(P⁢r⁢e⁢di,I⁢n⁢d⁢e⁢xki),𝐿1𝑁superscriptsubscript𝑖1𝑁𝐾superscriptsubscript𝑘1𝐾𝐶𝐸𝑃𝑟𝑒subscript𝑑𝑖𝐼𝑛𝑑𝑒superscriptsubscript𝑥𝑘𝑖L=\frac{1}{N}\sum_{i=1}^{\frac{N}{K}}\sum_{k=1}^{K}CE(Pred_{i},Index_{k}^{i}),italic_L = divide start_ARG 1 end_ARG start_ARG italic_N end_ARG ∑ start_POSTSUBSCRIPT italic_i = 1 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT divide start_ARG italic_N end_ARG start_ARG italic_K end_ARG end_POSTSUPERSCRIPT ∑ start_POSTSUBSCRIPT italic_k = 1 end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_K end_POSTSUPERSCRIPT italic_C italic_E ( italic_P italic_r italic_e italic_d start_POSTSUBSCRIPT italic_i end_POSTSUBSCRIPT , italic_I italic_n italic_d italic_e italic_x start_POSTSUBSCRIPT italic_k end_POSTSUBSCRIPT start_POSTSUPERSCRIPT italic_i end_POSTSUPERSCRIPT ) ,
+(2)
+Figure 3: Multi-scale Next Patch Prediction. PS stands for patch size. The grouping function begins with a large kernel size, resulting in large patches. As training progresses, the patch size is gradually reduced to 1×1111\times 11 × 1.
+Moreover, we propose a multi-scale, coarse-to-fine patch grouping strategy that leverages the natural hierarchical structure of image data. Specifically, the grouping function begins with a large kernel size, resulting in large patches and a short patch sequence length, allowing the autoregressive model to capture coarse representations. As training progresses, the patch size is gradually reduced to 1×1111\times 11 × 1, enabling the model to learn finer details, making the next token prediction a special case of the next patch prediction paradigm. To balance training efficiency and model performance, we introduce a segment scheduling factor λ𝜆\lambdaitalic_λ and set the number of patch levels. As illustrated in Figure 3, during the total training steps T𝑇Titalic_T, each segment is represented as λL⁢T−λ(L−1)⁢Tsuperscript𝜆𝐿𝑇superscript𝜆𝐿1𝑇\lambda^{L}T-\lambda^{(L-1)}Titalic_λ start_POSTSUPERSCRIPT italic_L end_POSTSUPERSCRIPT italic_T - italic_λ start_POSTSUPERSCRIPT ( italic_L - 1 ) end_POSTSUPERSCRIPT italic_T with a patch size (PS) of 2L×2Lsuperscript2𝐿superscript2𝐿2^{L}\times 2^{L}2 start_POSTSUPERSCRIPT italic_L end_POSTSUPERSCRIPT × 2 start_POSTSUPERSCRIPT italic_L end_POSTSUPERSCRIPT, where L𝐿Litalic_L denotes the current patch level. The computational cost is reduced by a factor of 1P⁢S1𝑃𝑆\frac{1}{PS}divide start_ARG 1 end_ARG start_ARG italic_P italic_S end_ARG due to the shorter sequence length at each level.
+3 Experiments
+3.1 Setup
+Benchmark. We build the Next Patch Prediction based on LlamaGen (Sun et al., 2024) and evaluate it on the class-conditional image generation task using the standard ImageNet1K benchmark (Deng et al., 2009).
+Model Architecture. For the image encoder, we adopt the same VQGAN tokenizer trained by LlamaGen on ImageNet1K. The tokenizer has a vocabulary size of 16,384 and downsamples the input image at a fixed ratio of 16×16161616\times 1616 × 16. For the autoregressive model, we adopt the same setting as LlamaGen. Note that our method does NOT introduce any extra trainable parameters and thereby can be easily extended to other autoregressive models or scaling up to similar tasks.
+Training & Inference Settings.
+All the model are trained for 300 epochs following the same setting of LlamaGen (Sun et al., 2024): base learning rate of 1×10−41superscript1041\times 10^{-4}1 × 10 start_POSTSUPERSCRIPT - 4 end_POSTSUPERSCRIPT per 256 batchsize, AdamW optimizer with β1=0.9,β2=0.95formulae-sequencesubscript𝛽10.9subscript𝛽20.95\beta_{1}=0.9,\beta_{2}=0.95italic_β start_POSTSUBSCRIPT 1 end_POSTSUBSCRIPT = 0.9 , italic_β start_POSTSUBSCRIPT 2 end_POSTSUBSCRIPT = 0.95, weight decay =0.05absent0.05=0.05= 0.05, gradient clipping set to 1.0. To enable smooth transfer between different patch size segments, we set learning rate warmup for the first 1 epoch and linearly decay to 1×10−51superscript1051\times 10^{-5}1 × 10 start_POSTSUPERSCRIPT - 5 end_POSTSUPERSCRIPT for the last 1/5151/51 / 5 number of epochs in each segment. The dropout ratio in the autoregressive model backbone is set to 0.1. We also set the class token embedding dropout ratio to 0.1 for classifier-free guidance. For inference, we strictly adopt the same inference setting as LlamaGen (Sun et al., 2024).
+Baseline Methods.
+We choose baseline methods from popular image generation models, including GAN (Brock et al., 2018; Kang et al., 2023; Sauer et al., 2022), Diffusion models (Dhariwal & Nichol, 2021; Ho et al., 2022b; Rombach et al., 2022; Peebles & Xie, 2023), masked-prediction models (Chang et al., 2022) and autoregressive models (Esser et al., 2021; Yu et al., 2021; Lee et al., 2022; Tian et al., 2024). As our method is built upon LlamaGen (Sun et al., 2024), we take it as a strong baseline and mainly compare our method with it.
+3.2 Main results
+We compare our method with various baseline works on class-conditional ImageNet 256×256 benchmark and show the results in Table 1. Our method achieves state-of-the-art performance on a diverse model size from 100M to 3B parameters compared to baseline methods. For LlamaGen-B and LlamaGen-L, our method improves the FID score up to 1.0 with a higher inception score. For LlamaGen-XL and LlamaGen-XXL, our methods trained on 256×\times×256 resolution even outperform the baseline work trained on 384×\times×384 resolution. In general, the proposed method outperforms the baseline work LlamaGen by improving the image generation quality up to 1.0 FID scores with a lower training cost. We also provide the training cost study in Section 3.6.
+Type
+Model
+#Para.
+FID↓↓\downarrow↓
+IS↑↑\uparrow↑
+Pr.↑↑\uparrow↑
+Re.↑↑\uparrow↑
+GAN
+BigGAN (Brock et al., 2018)
+112M
+6.95
+224.5
+0.89
+0.38
+GigaGAN (Kang et al., 2023)
+569M
+3.45
+225.5
+0.84
+0.61
+StyleGan-XL (Sauer et al., 2022)
+166M
+2.30
+265.1
+0.78
+0.53
+Diff.
+ADM (Dhariwal & Nichol, 2021)
+554M
+10.94
+101.0
+0.69
+0.63
+CDM (Ho et al., 2022b)
+−--
+4.88
+158.7
+−--
+−--
+LDM-4 (Rombach et al., 2022)
+400M
+3.60
+247.7
+−--
+−--
+DiT-XL/2 (Peebles & Xie, 2023)
+675M
+2.27
+278.2
+0.83
+0.57
+Mask.
+MaskGIT (Chang et al., 2022)
+227M
+6.18
+182.1
+0.80
+0.51
+MaskGIT-re (Chang et al., 2022)
+227M
+4.02
+355.6
+−--
+−--
+VAR
+VAR-d⁢16𝑑16d16italic_d 16 (Tian et al., 2024)
+310M
+3.30
+274.40
+0.84
+0.51
+VAR-d⁢20𝑑20d20italic_d 20 (Tian et al., 2024)
+600M
+2.57
+302.60
+0.83
+0.56
+VAR-d⁢24𝑑24d24italic_d 24-350⁢e⁢p⁢o⁢c⁢h⁢s350𝑒𝑝𝑜𝑐ℎ𝑠350epochs350 italic_e italic_p italic_o italic_c italic_h italic_s (Tian et al., 2024)
+1.0B
+2.09
+312.90
+0.82
+0.59
+AR
+VQGAN (Esser et al., 2021)
+227M
+18.65
+80.4
+0.78
+0.26
+VQGAN (Esser et al., 2021)
+1.4B
+15.78
+74.3
+−--
+−--
+VQGAN-re (Esser et al., 2021)
+1.4B
+5.20
+280.3
+−--
+−--
+ViT-VQGAN (Yu et al., 2021)
+1.7B
+4.17
+175.1
+−--
+−--
+ViT-VQGAN-re (Yu et al., 2021)
+1.7B
+3.04
+227.4
+−--
+−--
+RQTran. (Lee et al., 2022)
+3.8B
+7.55
+134.0
+−--
+−--
+RQTran.-re (Lee et al., 2022)
+3.8B
+3.80
+323.7
+−--
+−--
+AR
+LlamaGen-B (Sun et al., 2024)
+111M
+5.46
+193.61
+0.83
+0.45
+LlamaGen-L (Sun et al., 2024)
+343M
+3.80
+248.28
+0.83
+0.52
+LlamaGen-L† (Sun et al., 2024)
+343M
+3.07
+256.06
+0.83
+0.52
+LlamaGen-XL (Sun et al., 2024)
+775M
+3.39
+227.08
+0.81
+0.54
+LlamaGen-XL† (Sun et al., 2024)
+775M
+2.62
+244.08
+0.80
+0.57
+LlamaGen-XXL (Sun et al., 2024)
+1.4B
+3.10
+253.61
+0.83
+0.53
+LlamaGen-XXL† (Sun et al., 2024)
+1.4B
+2.34
+253.90
+0.80
+0.59
+Ours
+LlamaGen-B + NPP (λ𝜆\lambdaitalic_λ=1/2121/21 / 2,#⁢L#𝐿\#L# italic_L=2222)
+111M
+4.47
+229.25
+0.86
+0.46
+LlamaGen-L + NPP (λ𝜆\lambdaitalic_λ=1/2121/21 / 2,#⁢L#𝐿\#L# italic_L=2222)
+343M
+2.76
+266.34
+0.83
+0.56
+LlamaGen-XL + NPP (λ𝜆\lambdaitalic_λ=1/2121/21 / 2, #⁢L#𝐿\#L# italic_L=2222)
+775M
+2.65
+281.03
+0.83
+0.57
+LlamaGen-XXL + NPP (λ𝜆\lambdaitalic_λ=1/2121/21 / 2, #⁢L#𝐿\#L# italic_L=2222)
+1.4B
+2.55
+282.01
+0.84
+0.56
+Table 1: Model comparisons on class-conditional ImageNet 256×\times×256 benchmark. Metrics include Fréchet inception distance (FID) (Heusel et al., 2017), inception score (IS) (Salimans et al., 2016), precision and recall.
+“↓↓\downarrow↓” or “↑↑\uparrow↑” indicate lower or higher values are better.
+“-re” means using rejection sampling. “†” means the model is trained on 384×384384384384\times 384384 × 384 resolution and resized to 256×256256256256\times 256256 × 256 for evaluation.
+Model
+FID↓↓\downarrow↓
+IS↑↑\uparrow↑
+Precision↑↑\uparrow↑
+Recall↑↑\uparrow↑
+Training Cost↓↓\downarrow↓
+LlamaGen-B (Sun et al., 2024)
+5.46
+193.61
+0.83
+0.45
+1.0×1.0\times1.0 ×
+LlamaGen-B + NPP (P⁢S=2×2𝑃𝑆22PS=2\times 2italic_P italic_S = 2 × 2)
+4.47
+229.25
+0.86
+0.46
+0.625×0.625\times0.625 ×
+LlamaGen-B + NPP (P⁢S=4×4𝑃𝑆44PS=4\times 4italic_P italic_S = 4 × 4)
+4.92
+222.81
+0.86
+0.45
+0.531×0.531\times0.531 ×
+LlamaGen-L (Sun et al., 2024)
+3.80
+248.28
+0.83
+0.52
+1.0×1.0\times1.0 ×
+LlamaGen-L + NPP (P⁢S=2×2𝑃𝑆22PS=2\times 2italic_P italic_S = 2 × 2)
+2.76
+266.34
+0.83
+0.56
+0.625×0.625\times0.625 ×
+LlamaGen-L + NPP (P⁢S=4×4𝑃𝑆44PS=4\times 4italic_P italic_S = 4 × 4)
+2.89
+262.80
+0.83
+0.55
+0.531×0.531\times0.531 ×
+Table 2: Comparisons of models trained with different patch sizes on class-conditional ImageNet 256×\times×256 benchmark. We also compare the training computational cost.
+3.3 Effect of Patch Size
+We study the effect of different patch sizes and present the results in Table 2. In this experiment, we disable the multi-scale grouping strategy and set the segment scheduling factor λ=1/2𝜆12\lambda=1/2italic_λ = 1 / 2 with the patch size adopted in the first 1/2121/21 / 2 number of training epochs ablated. We find that with a larger patch size (PS), the learned knowledge cannot be smoothly transferred to the case with P⁢S=1×1𝑃𝑆11PS=1\times 1italic_P italic_S = 1 × 1, leading to a performance drop.
+3.4 Effect of Segment Scheduling Factor λ𝜆\lambdaitalic_λ
+We provide a study on the effect of different segment scheduling factors as shown in Table 3. In this study, we disable the multi-scale grouping strategy and set P⁢S=2×2𝑃𝑆22PS=2\times 2italic_P italic_S = 2 × 2. We show that larger λ𝜆\lambdaitalic_λ results in lower training computational cost but with slight performance degradation.
+Model
+FID↓↓\downarrow↓
+IS↑↑\uparrow↑
+Precision↑↑\uparrow↑
+Recall↑↑\uparrow↑
+Training Cost↓↓\downarrow↓
+LlamaGen-L (Sun et al., 2024)
+3.80
+248.28
+0.83
+0.52
+1.0×1.0\times1.0 ×
+LlamaGen-L + NPP (λ=1/2𝜆12\lambda=1/2italic_λ = 1 / 2)
+2.76
+266.34
+0.83
+0.56
+0.625×0.625\times0.625 ×
+LlamaGen-L + NPP (λ=2/3𝜆23\lambda=2/3italic_λ = 2 / 3)
+2.79
+263.75
+0.83
+0.55
+0.5×0.5\times0.5 ×
+LlamaGen-L + NPP (λ=3/4𝜆34\lambda=3/4italic_λ = 3 / 4)
+2.81
+262.22
+0.83
+0.55
+0.43×0.43\times0.43 ×
+LlamaGen-L + NPP (λ=4/5𝜆45\lambda=4/5italic_λ = 4 / 5)
+2.92
+260.68
+0.83
+0.55
+0.4×0.4\times0.4 ×
+Table 3: Comparisons of models trained with different segment factor λ𝜆\lambdaitalic_λ on class-conditional ImageNet 256×\times×256 benchmark. We also compare the training computational cost.
+3.5 Effect of Multi-scale Grouping Strategy
+We provide a study on the effect of the multi-scale grouping strategy as shown in Table 4. In this study, we set λ=1/2𝜆12\lambda=1/2italic_λ = 1 / 2 and compare different numbers of patch levels #⁢L#𝐿\#L# italic_L. Experiments show this strategy makes a trade-off between training computational cost and image generation quality.
+Model
+FID↓↓\downarrow↓
+IS↑↑\uparrow↑
+Precision↑↑\uparrow↑
+Recall↑↑\uparrow↑
+Training Cost↓↓\downarrow↓
+LlamaGen-B (Sun et al., 2024)
+5.46
+193.61
+0.83
+0.45
+1.0×1.0\times1.0 ×
+LlamaGen-B + NPP (#⁢L=2#𝐿2\#L=2# italic_L = 2)
+4.47
+229.25
+0.86
+0.46
+0.625×0.625\times0.625 ×
+LlamaGen-B + NPP (#⁢L=3#𝐿3\#L=3# italic_L = 3)
+4.62
+231.57
+0.86
+0.46
+0.578×0.578\times0.578 ×
+LlamaGen-B + NPP (#⁢L=4#𝐿4\#L=4# italic_L = 4)
+4.68
+228.31
+0.86
+0.46
+0.572×0.572\times0.572 ×
+LlamaGen-L (Sun et al., 2024)
+3.80
+248.28
+0.83
+0.52
+1.0×1.0\times1.0 ×
+LlamaGen-L + NPP (#⁢L=2#𝐿2\#L=2# italic_L = 2)
+2.76
+266.34
+0.83
+0.56
+0.625×0.625\times0.625 ×
+LlamaGen-L + NPP (#⁢L=3#𝐿3\#L=3# italic_L = 3)
+2.79
+264.30
+0.83
+0.56
+0.578×0.578\times0.578 ×
+LlamaGen-L + NPP (#⁢L=4#𝐿4\#L=4# italic_L = 4)
+2.84
+258.60
+0.83
+0.56
+0.572×0.572\times0.572 ×
+Table 4: Comparisons of models trained with different numbers of patch level on class-conditional ImageNet 256×\times×256 benchmark. We also compare the training computational cost.
+3.6 Training Cost Study
+We provide a study on the training cost as shown in Table 4. We compare baseline methods with different settings of our method, reporting the average computation cost (GFLOPs). Our method achieves the best balance of model performance and training efficiency.
+Model
+#para.
+FID↓↓\downarrow↓
+Cost(GFLOPs)↓↓\downarrow↓
+LlamaGen-B (Sun et al., 2024)
+111M
+5.46
+25.06
+LlamaGen-B + NPP (#⁢L=2,λ=1/2formulae-sequence#𝐿2𝜆12\#L=2,\lambda=1/2# italic_L = 2 , italic_λ = 1 / 2)
+111M
+4.47
+15.70
+VAR-d⁢16𝑑16d16italic_d 16 (Tian et al., 2024)
+310M
+3.30
+105.70
+LlamaGen-L (Sun et al., 2024)
+343M
+3.80
+83.54
+LlamaGen-L + NPP (#⁢L=2,λ=1/2formulae-sequence#𝐿2𝜆12\#L=2,\lambda=1/2# italic_L = 2 , italic_λ = 1 / 2)
+343M
+2.76
+47.95
+VAR-d⁢20𝑑20d20italic_d 20 (Tian et al., 2024)
+600M
+2.57
+204.40
+LlamaGen-XL (Sun et al., 2024)
+775M
+3.39
+193.35
+LlamaGen-XL† (Sun et al., 2024)
+775M
+2.62
+434.11
+LlamaGen-XL + NPP (#⁢L=2,λ=1/2formulae-sequence#𝐿2𝜆12\#L=2,\lambda=1/2# italic_L = 2 , italic_λ = 1 / 2)
+775M
+2.65
+102.78
+LlamaGen-XXL (Sun et al., 2024)
+1.4B
+3.10
+355.72
+LlamaGen-XXL† (Sun et al., 2024)
+1.4B
+2.34
+798.64
+LlamaGen-XXL + NPP (#⁢L=2,λ=1/2formulae-sequence#𝐿2𝜆12\#L=2,\lambda=1/2# italic_L = 2 , italic_λ = 1 / 2)
+1.4B
+2.55
+189.11
+Table 5: Comparisons training cost on class-conditional ImageNet 256×\times×256 benchmark.“†” means the model is trained on 384×384384384384\times 384384 × 384 resolution and resized to 256×256256256256\times 256256 × 256 for evaluation.
+Figure 4: Generation results on ImageNet 256×\times×256 benchmark.
+3.7 Generation Results
+In Figure 4, we present some of the generations results on ImageNet 256×\times×256 benchmark.
+4 Related Works
+4.1 Visual Generation
+Generative adversarial networks (GANs) (Goodfellow et al., 2014; Brock et al., 2018; Karras et al., 2019; Kang et al., 2023) are the pioneering method for visual generation in the deep learning era, focusing on learning to generate realistic images through adversarial training. Inspired by language model architectures, BERT-style models (Chang et al., 2022; 2023; Yu et al., 2023a; b) emerge, using masked-prediction techniques to learn to predict missing parts of images, much like how BERT predicts masked words in text. Autoregressive models (Esser et al., 2021; Ramesh et al., 2021; Yu et al., 2022), inspired by GPT, predict the next token in a sequence. These methods often involve an image tokenization step (Kingma & Welling, 2013; Van Den Oord et al., 2017), converting pixel space into a more semantically meaningful representation. Diffusion models (Ho et al., 2020; Song & Ermon, 2019; Song et al., 2020; Dhariwal & Nichol, 2021; Rombach et al., 2022; Lin et al., 2024a) introduce a novel approach, treating visual generation as a reverse diffusion process, where images are gradually denoised from Gaussian noise through a series of steps.
+4.2 Multimodal Foundation Models
+Recent advancements in vision-and-language models (Liu et al., 2024; Zhu et al., 2023; Dai et al., 2024; Peng et al., 2023; Zhang et al., 2023; Pagnoni et al., 2024; Ma et al., 2024a; Lin et al., 2023; 2024b; Jin et al., 2024) have demonstrated impressive capabilities in visual understanding through visual instruction tuning. However, unifying the understanding and generation tasks in multimodal models is still being explored. Most existing approaches (Sun et al., 2023b; a; Dong et al., 2024; Ge et al., 2023; Zhou et al., 2024; Xiao et al., 2024; Xie et al., 2024; Li et al., 2024b; Gu et al., 2024; Tang et al., 2024; Ma et al., 2024b; Tong et al., 2024; Li et al., 2024c; Deng et al., 2024) focus on integrating diffusion models with other existing pre-trained models, rather than adopting a unified next-token prediction paradigm. These methods often require complex designs to link two distinct training paradigms, which makes scaling up more challenging. Some works (Yu et al., 2024b; Qu et al., 2024; Zhu et al., 2024; Han et al., 2024; Shi et al., 2024; Luo et al., 2024; Chen et al., 2024) focus on image tokenizer for better compression and reconstruction of image data, which is crucial for the image generation quality. Some pioneering efforts (Lu et al., 2022b; 2023; Bai et al., 2023b; Team et al., 2023; Team, 2024; Wu et al., 2024; Wang et al., 2024; Sun et al., 2024; Tian et al., 2024; Pang et al., 2024; Yu et al., 2024a; He et al., 2024) explore incorporating image generation into large language models using an autoregressive approach, achieving promising results. However, most of them do not focus on the autoregressive image generation method or directly adopt the next token prediction paradigm. More recently, some efforts Shao et al. (2024); Pagnoni et al. (2024); The et al. (2024) for LLM study novel sequence modeling methods, proposing to aggregate text tokens into units (i.e., patch or concept) with higher information density. In this work, we draw inspiration from them and propose a novel next patch prediction paradigm for autoregressive visual generation without introducing additional trainable parameters or specifically designing a custom image tokenizer, ensuring flexibility for seamless adaptation to various autoregressive image generation tasks.
+5 Limitation and Future Works
+Currently, due to limited computational resources, we are unable to provide experimental results on text-to-image tasks or develop a unified vision-language model. However, our method retains the original autoregressive model architecture without introducing additional trainable parameters or specifically designing a custom image tokenizer. We believe it can be seamlessly adapted to various autoregressive models addressing similar tasks, offering a baseline framework for future exploration. For future works, exploring the Next Patch Prediction paradigm for autoregressive video generation is an interesting direction, where the input sequence length is significantly longer, resulting in higher computational costs. By leveraging our method, we anticipate improved efficiency and scalability in handling the extended sequences inherent in video data.
+Another potential research direction is to explore more effective methods for obtaining patch embeddings. In this work, we adopt a simple intra-patch averaging operation, which is straightforward but may be limited in its capacity to capture fine-grained details. Designing more powerful and expressive patch extraction methods could further improve training efficiency and enhance generation quality.
+6 Conclusion
+In this work, we introduce a novel Next Patch Prediction paradigm that improves autoregressive image generation by grouping and aggregating image tokens into high-density patch tokens. This approach reduces the computational cost to ∼0.6×\sim 0.6\times∼ 0.6 × while improving image generation quality by up to 1.0 FID score on the ImageNet benchmark. Our method retains the original autoregressive model architecture without introducing additional trainable parameters or custom image tokenizers, thereby making the next patch prediction paradigm seamlessly adapted to various autoregressive models addressing image generation tasks.
+References
+Alabdulmohsin et al. (2022)
+Ibrahim M Alabdulmohsin, Behnam Neyshabur, and Xiaohua Zhai.
+Revisiting neural scaling laws in language and vision.
+Advances in Neural Information Processing Systems, 35:22300–22312, 2022.
+Anil et al. (2023)
+Rohan Anil, Andrew M Dai, Orhan Firat, Melvin Johnson, Dmitry Lepikhin, Alexandre Passos, Siamak Shakeri, Emanuel Taropa, Paige Bailey, Zhifeng Chen, et al.
+Palm 2 technical report.
+arXiv preprint arXiv:2305.10403, 2023.
+Anthropic (2023)
+Anthropic.
+Claude.
+https://www.anthropic.com/index/introducing-claude, 2023.
+Bai et al. (2023a)
+Jinze Bai, Shuai Bai, Yunfei Chu, Zeyu Cui, Kai Dang, Xiaodong Deng, Yang Fan, Wenbin Ge, Yu Han, Fei Huang, et al.
+Qwen technical report.
+arXiv preprint arXiv:2309.16609, 2023a.
+Bai et al. (2023b)
+Yutong Bai, Xinyang Geng, Karttikeya Mangalam, Amir Bar, Alan Yuille, Trevor Darrell, Jitendra Malik, and Alexei A Efros.
+Sequential modeling enables scalable learning for large vision models.
+arXiv preprint arXiv:2312.00785, 2023b.
+Betker et al. (2023)
+James Betker, Gabriel Goh, Li Jing, Tim Brooks, Jianfeng Wang, Linjie Li, Long Ouyang, Juntang Zhuang, Joyce Lee, Yufei Guo, et al.
+Improving image generation with better captions.
+Computer Science. https://cdn. openai. com/papers/dall-e-3. pdf, 2(3):8, 2023.
+Bi et al. (2024)
+Xiao Bi, Deli Chen, Guanting Chen, Shanhuang Chen, Damai Dai, Chengqi Deng, Honghui Ding, Kai Dong, Qiushi Du, Zhe Fu, et al.
+Deepseek llm: Scaling open-source language models with longtermism.
+arXiv preprint arXiv:2401.02954, 2024.
+Brock et al. (2018)
+Andrew Brock, Jeff Donahue, and Karen Simonyan.
+Large scale gan training for high fidelity natural image synthesis.
+arXiv preprint arXiv:1809.11096, 2018.
+Brown et al. (2020)
+Tom Brown, Benjamin Mann, Nick Ryder, Melanie Subbiah, Jared D Kaplan, Prafulla Dhariwal, Arvind Neelakantan, Pranav Shyam, Girish Sastry, Amanda Askell, et al.
+Language models are few-shot learners.
+Advances in neural information processing systems, 33:1877–1901, 2020.
+Chang et al. (2022)
+Huiwen Chang, Han Zhang, Lu Jiang, Ce Liu, and William T Freeman.
+Maskgit: Masked generative image transformer.
+In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 11315–11325, 2022.
+Chang et al. (2023)
+Huiwen Chang, Han Zhang, Jarred Barber, AJ Maschinot, Jose Lezama, Lu Jiang, Ming-Hsuan Yang, Kevin Murphy, William T Freeman, Michael Rubinstein, et al.
+Muse: Text-to-image generation via masked generative transformers.
+arXiv preprint arXiv:2301.00704, 2023.
+Chen et al. (2024)
+Hao Chen, Ze Wang, Xiang Li, Ximeng Sun, Fangyi Chen, Jiang Liu, Jindong Wang, Bhiksha Raj, Zicheng Liu, and Emad Barsoum.
+Softvq-vae: Efficient 1-dimensional continuous tokenizer, 2024.
+URL https://arxiv.org/abs/2412.10958.
+Chen et al. (2023a)
+Junsong Chen, Jincheng Yu, Chongjian Ge, Lewei Yao, Enze Xie, Yue Wu, Zhongdao Wang, James Kwok, Ping Luo, Huchuan Lu, et al.
+Pixart: Fast training of diffusion transformer for photorealistic text-to-image synthesis.
+arXiv preprint arXiv:2310.00426, 2023a.
+Chen et al. (2023b)
+Shoufa Chen, Mengmeng Xu, Jiawei Ren, Yuren Cong, Sen He, Yanping Xie, Animesh Sinha, Ping Luo, Tao Xiang, and Juan-Manuel Perez-Rua.
+Gentron: Delving deep into diffusion transformers for image and video generation.
+arXiv preprint arXiv:2312.04557, 2023b.
+Chowdhery et al. (2023)
+Aakanksha Chowdhery, Sharan Narang, Jacob Devlin, Maarten Bosma, Gaurav Mishra, Adam Roberts, Paul Barham, Hyung Won Chung, Charles Sutton, Sebastian Gehrmann, et al.
+Palm: Scaling language modeling with pathways.
+Journal of Machine Learning Research, 24(240):1–113, 2023.
+Dai et al. (2024)
+Wenliang Dai, Junnan Li, Dongxu Li, Anthony Meng Huat Tiong, Junqi Zhao, Weisheng Wang, Boyang Li, Pascale N Fung, and Steven Hoi.
+Instructblip: Towards general-purpose vision-language models with instruction tuning.
+Advances in Neural Information Processing Systems, 36, 2024.
+Deng et al. (2024)
+Haoge Deng, Ting Pan, Haiwen Diao, Zhengxiong Luo, Yufeng Cui, Huchuan Lu, Shiguang Shan, Yonggang Qi, and Xinlong Wang.
+Autoregressive video generation without vector quantization, 2024.
+URL https://arxiv.org/abs/2412.14169.
+Deng et al. (2009)
+Jia Deng, Wei Dong, Richard Socher, Li-Jia Li, Kai Li, and Li Fei-Fei.
+Imagenet: A large-scale hierarchical image database.
+In 2009 IEEE conference on computer vision and pattern recognition, pp. 248–255. Ieee, 2009.
+Devlin et al. (2018)
+Jacob Devlin, Ming-Wei Chang, Kenton Lee, and Kristina Toutanova.
+Bert: Pre-training of deep bidirectional transformers for language understanding.
+arXiv preprint arXiv:1810.04805, 2018.
+Dhariwal & Nichol (2021)
+Prafulla Dhariwal and Alexander Nichol.
+Diffusion models beat gans on image synthesis.
+Advances in neural information processing systems, 34:8780–8794, 2021.
+Dong et al. (2024)
+Runpei Dong, Chunrui Han, Yuang Peng, Zekun Qi, Zheng Ge, Jinrong Yang, Liang Zhao, Jianjian Sun, Hongyu Zhou, Haoran Wei, Xiangwen Kong, Xiangyu Zhang, Kaisheng Ma, and Li Yi.
+DreamLLM: Synergistic multimodal comprehension and creation.
+In The Twelfth International Conference on Learning Representations, 2024.
+Esser et al. (2021)
+Patrick Esser, Robin Rombach, and Bjorn Ommer.
+Taming transformers for high-resolution image synthesis.
+In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, pp. 12873–12883, 2021.
+Esser et al. (2024)
+Patrick Esser, Sumith Kulal, Andreas Blattmann, Rahim Entezari, Jonas Müller, Harry Saini, Yam Levi, Dominik Lorenz, Axel Sauer, Frederic Boesel, Dustin Podell, Tim Dockhorn, Zion English, Kyle Lacey, Alex Goodwin, Yannik Marek, and Robin Rombach.
+Scaling rectified flow transformers for high-resolution image synthesis, 2024.
+Ge et al. (2023)
+Yuying Ge, Sijie Zhao, Ziyun Zeng, Yixiao Ge, Chen Li, Xintao Wang, and Ying Shan.
+Making llama see and draw with seed tokenizer.
+arXiv preprint arXiv:2310.01218, 2023.
+Goodfellow et al. (2014)
+Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil Ozair, Aaron Courville, and Yoshua Bengio.
+Generative adversarial nets.
+Advances in neural information processing systems, 27, 2014.
+Google (2023)
+Google.
+Bard.
+https://bard.google.com/, 2023.
+Gu et al. (2024)
+Jiatao Gu, Yuyang Wang, Yizhe Zhang, Qihang Zhang, Dinghuai Zhang, Navdeep Jaitly, Josh Susskind, and Shuangfei Zhai.
+Dart: Denoising autoregressive transformer for scalable text-to-image generation.
+arXiv preprint arXiv:2410.08159, 2024.
+Han et al. (2024)
+Jian Han, Jinlai Liu, Yi Jiang, Bin Yan, Yuqi Zhang, Zehuan Yuan, Bingyue Peng, and Xiaobing Liu.
+Infinity: Scaling bitwise autoregressive modeling for high-resolution image synthesis, 2024.
+URL https://arxiv.org/abs/2412.04431.
+He et al. (2024)
+Yefei He, Feng Chen, Yuanyu He, Shaoxuan He, Hong Zhou, Kaipeng Zhang, and Bohan Zhuang.
+Zipar: Accelerating autoregressive image generation through spatial locality.
+arXiv preprint arXiv:2412.04062, 2024.
+Henighan et al. (2020)
+Tom Henighan, Jared Kaplan, Mor Katz, Mark Chen, Christopher Hesse, Jacob Jackson, Heewoo Jun, Tom B Brown, Prafulla Dhariwal, Scott Gray, et al.
+Scaling laws for autoregressive generative modeling.
+arXiv preprint arXiv:2010.14701, 2020.
+Heusel et al. (2017)
+Martin Heusel, Hubert Ramsauer, Thomas Unterthiner, Bernhard Nessler, and Sepp Hochreiter.
+Gans trained by a two time-scale update rule converge to a local nash equilibrium.
+Advances in neural information processing systems, 30, 2017.
+Ho & Salimans (2022)
+Jonathan Ho and Tim Salimans.
+Classifier-free diffusion guidance.
+arXiv preprint arXiv:2207.12598, 2022.
+Ho et al. (2020)
+Jonathan Ho, Ajay Jain, and Pieter Abbeel.
+Denoising diffusion probabilistic models.
+Advances in neural information processing systems, 33:6840–6851, 2020.
+Ho et al. (2022a)
+Jonathan Ho, Chitwan Saharia, William Chan, David J Fleet, Mohammad Norouzi, and Tim Salimans.
+Cascaded diffusion models for high fidelity image generation.
+The Journal of Machine Learning Research, 23(1):2249–2281, 2022a.
+Ho et al. (2022b)
+Jonathan Ho, Chitwan Saharia, William Chan, David J Fleet, Mohammad Norouzi, and Tim Salimans.
+Cascaded diffusion models for high fidelity image generation.
+The Journal of Machine Learning Research, 23(1):2249–2281, 2022b.
+Hoffmann et al. (2022)
+Jordan Hoffmann, Sebastian Borgeaud, Arthur Mensch, Elena Buchatskaya, Trevor Cai, Eliza Rutherford, Diego de Las Casas, Lisa Anne Hendricks, Johannes Welbl, Aidan Clark, et al.
+Training compute-optimal large language models.
+arXiv preprint arXiv:2203.15556, 2022.
+Jin et al. (2024)
+Peng Jin, Ryuichi Takanobu, Wancai Zhang, Xiaochun Cao, and Li Yuan.
+Chat-univi: Unified visual representation empowers large language models with image and video understanding.
+In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 13700–13710, 2024.
+Kang et al. (2023)
+Minguk Kang, Jun-Yan Zhu, Richard Zhang, Jaesik Park, Eli Shechtman, Sylvain Paris, and Taesung Park.
+Scaling up gans for text-to-image synthesis.
+In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 10124–10134, 2023.
+Kaplan et al. (2020)
+Jared Kaplan, Sam McCandlish, Tom Henighan, Tom B Brown, Benjamin Chess, Rewon Child, Scott Gray, Alec Radford, Jeffrey Wu, and Dario Amodei.
+Scaling laws for neural language models.
+arXiv preprint arXiv:2001.08361, 2020.
+Karras et al. (2019)
+Tero Karras, Samuli Laine, and Timo Aila.
+A style-based generator architecture for generative adversarial networks.
+In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, pp. 4401–4410, 2019.
+Kingma & Welling (2013)
+Diederik P Kingma and Max Welling.
+Auto-encoding variational bayes.
+arXiv preprint arXiv:1312.6114, 2013.
+Lee et al. (2022)
+Doyup Lee, Chiheon Kim, Saehoon Kim, Minsu Cho, and Wook-Shin Han.
+Autoregressive image generation using residual quantization.
+In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 11523–11532, 2022.
+Li et al. (2024a)
+Daiqing Li, Aleks Kamko, Ehsan Akhgari, Ali Sabet, Linmiao Xu, and Suhail Doshi.
+Playground v2. 5: Three insights towards enhancing aesthetic quality in text-to-image generation.
+arXiv preprint arXiv:2402.17245, 2024a.
+Li et al. (2024b)
+Tianhong Li, Yonglong Tian, He Li, Mingyang Deng, and Kaiming He.
+Autoregressive image generation without vector quantization.
+arXiv preprint arXiv:2406.11838, 2024b.
+Li et al. (2024c)
+Tianhong Li, Yonglong Tian, He Li, Mingyang Deng, and Kaiming He.
+Autoregressive image generation without vector quantization.
+arXiv preprint arXiv:2406.11838, 2024c.
+Lin et al. (2023)
+Bin Lin, Yang Ye, Bin Zhu, Jiaxi Cui, Munan Ning, Peng Jin, and Li Yuan.
+Video-llava: Learning united visual representation by alignment before projection.
+arXiv preprint arXiv:2311.10122, 2023.
+Lin et al. (2024a)
+Bin Lin, Yunyang Ge, Xinhua Cheng, Zongjian Li, Bin Zhu, Shaodong Wang, Xianyi He, Yang Ye, Shenghai Yuan, Liuhan Chen, et al.
+Open-sora plan: Open-source large video generation model.
+arXiv preprint arXiv:2412.00131, 2024a.
+Lin et al. (2024b)
+Bin Lin, Zhenyu Tang, Yang Ye, Jiaxi Cui, Bin Zhu, Peng Jin, Junwu Zhang, Munan Ning, and Li Yuan.
+Moe-llava: Mixture of experts for large vision-language models.
+arXiv preprint arXiv:2401.15947, 2024b.
+Liu et al. (2024)
+Haotian Liu, Chunyuan Li, Qingyang Wu, and Yong Jae Lee.
+Visual instruction tuning.
+Advances in neural information processing systems, 36, 2024.
+Lu et al. (2022a)
+Cheng Lu, Yuhao Zhou, Fan Bao, Jianfei Chen, Chongxuan Li, and Jun Zhu.
+Dpm-solver: A fast ode solver for diffusion probabilistic model sampling in around 10 steps.
+Advances in Neural Information Processing Systems, 35:5775–5787, 2022a.
+Lu et al. (2022b)
+Jiasen Lu, Christopher Clark, Rowan Zellers, Roozbeh Mottaghi, and Aniruddha Kembhavi.
+Unified-io: A unified model for vision, language, and multi-modal tasks.
+arXiv preprint arXiv:2206.08916, 2022b.
+Lu et al. (2023)
+Jiasen Lu, Christopher Clark, Sangho Lee, Zichen Zhang, Savya Khosla, Ryan Marten, Derek Hoiem, and Aniruddha Kembhavi.
+Unified-io 2: Scaling autoregressive multimodal models with vision, language, audio, and action.
+arXiv preprint arXiv:2312.17172, 2023.
+Luo et al. (2024)
+Zhuoyan Luo, Fengyuan Shi, Yixiao Ge, Yujiu Yang, Limin Wang, and Ying Shan.
+Open-magvit2: An open-source project toward democratizing auto-regressive visual generation.
+arXiv preprint arXiv:2409.04410, 2024.
+Ma et al. (2024a)
+Chuofan Ma, Yi Jiang, Jiannan Wu, Zehuan Yuan, and Xiaojuan Qi.
+Groma: Localized visual tokenization for grounding multimodal large language models.
+arXiv preprint arXiv:2404.13013, 2024a.
+Ma et al. (2024b)
+Yiyang Ma, Xingchao Liu, Xiaokang Chen, Wen Liu, Chengyue Wu, Zhiyu Wu, Zizheng Pan, Zhenda Xie, Haowei Zhang, Xingkai yu, Liang Zhao, Yisong Wang, Jiaying Liu, and Chong Ruan.
+Janusflow: Harmonizing autoregression and rectified flow for unified multimodal understanding and generation, 2024b.
+OpenAI (2022)
+OpenAI.
+Chatgpt.
+https://openai.com/blog/chatgpt, 2022.
+OpenAI (2023)
+OpenAI.
+Gpt-4 technical report.
+arXiv preprint arXiv:2303.08774, 2023.
+Ouyang et al. (2022)
+Long Ouyang, Jeffrey Wu, Xu Jiang, Diogo Almeida, Carroll Wainwright, Pamela Mishkin, Chong Zhang, Sandhini Agarwal, Katarina Slama, Alex Ray, et al.
+Training language models to follow instructions with human feedback.
+Advances in Neural Information Processing Systems, 35:27730–27744, 2022.
+Pagnoni et al. (2024)
+Artidoro Pagnoni, Ram Pasunuru, Pedro Rodriguez, John Nguyen, Benjamin Muller, Margaret Li, Chunting Zhou, Lili Yu, Jason Weston, Luke Zettlemoyer, Gargi Ghosh, Mike Lewis, Ari Holtzman, and Srinivasan Iyer.
+Byte latent transformer: Patches scale better than tokens, 2024.
+URL https://arxiv.org/abs/2412.09871.
+Pang et al. (2024)
+Ziqi Pang, Tianyuan Zhang, Fujun Luan, Yunze Man, Hao Tan, Kai Zhang, William T. Freeman, and Yu-Xiong Wang.
+Randar: Decoder-only autoregressive visual generation in random orders.
+arXiv preprint arXiv:2412.01827, 2024.
+Peebles & Xie (2023)
+William Peebles and Saining Xie.
+Scalable diffusion models with transformers.
+In Proceedings of the IEEE/CVF International Conference on Computer Vision, pp. 4195–4205, 2023.
+Peng et al. (2023)
+Zhiliang Peng, Wenhui Wang, Li Dong, Yaru Hao, Shaohan Huang, Shuming Ma, and Furu Wei.
+Kosmos-2: Grounding multimodal large language models to the world.
+arXiv preprint arXiv:2306.14824, 2023.
+Podell et al. (2023)
+Dustin Podell, Zion English, Kyle Lacey, Andreas Blattmann, Tim Dockhorn, Jonas Müller, Joe Penna, and Robin Rombach.
+Sdxl: Improving latent diffusion models for high-resolution image synthesis.
+arXiv preprint arXiv:2307.01952, 2023.
+Qu et al. (2024)
+Liao Qu, Huichao Zhang, Yiheng Liu, Xu Wang, Yi Jiang, Yiming Gao, Hu Ye, Daniel K Du, Zehuan Yuan, and Xinglong Wu.
+Tokenflow: Unified image tokenizer for multimodal understanding and generation.
+arXiv preprint arXiv:2412.03069, 2024.
+Radford et al. (2018)
+Alec Radford, Karthik Narasimhan, Tim Salimans, Ilya Sutskever, et al.
+Improving language understanding by generative pre-training.
+article, 2018.
+Radford et al. (2019)
+Alec Radford, Jeffrey Wu, Rewon Child, David Luan, Dario Amodei, Ilya Sutskever, et al.
+Language models are unsupervised multitask learners.
+OpenAI blog, 1(8):9, 2019.
+Raffel et al. (2020)
+Colin Raffel, Noam Shazeer, Adam Roberts, Katherine Lee, Sharan Narang, Michael Matena, Yanqi Zhou, Wei Li, and Peter J Liu.
+Exploring the limits of transfer learning with a unified text-to-text transformer.
+The Journal of Machine Learning Research, 21(1):5485–5551, 2020.
+Ramesh et al. (2021)
+Aditya Ramesh, Mikhail Pavlov, Gabriel Goh, Scott Gray, Chelsea Voss, Alec Radford, Mark Chen, and Ilya Sutskever.
+Zero-shot text-to-image generation.
+In International Conference on Machine Learning, pp. 8821–8831. PMLR, 2021.
+Ramesh et al. (2022)
+Aditya Ramesh, Prafulla Dhariwal, Alex Nichol, Casey Chu, and Mark Chen.
+Hierarchical text-conditional image generation with clip latents.
+arXiv preprint arXiv:2204.06125, 1(2):3, 2022.
+Razavi et al. (2019)
+Ali Razavi, Aaron Van den Oord, and Oriol Vinyals.
+Generating diverse high-fidelity images with vq-vae-2.
+Advances in neural information processing systems, 32, 2019.
+Rombach et al. (2022)
+Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser, and Björn Ommer.
+High-resolution image synthesis with latent diffusion models.
+In Proceedings of the IEEE/CVF conference on computer vision and pattern recognition, pp. 10684–10695, 2022.
+Saharia et al. (2022)
+Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, et al.
+Photorealistic text-to-image diffusion models with deep language understanding.
+Advances in Neural Information Processing Systems, 35:36479–36494, 2022.
+Salimans et al. (2016)
+Tim Salimans, Ian Goodfellow, Wojciech Zaremba, Vicki Cheung, Alec Radford, and Xi Chen.
+Improved techniques for training gans.
+Advances in neural information processing systems, 29, 2016.
+Sauer et al. (2022)
+Axel Sauer, Katja Schwarz, and Andreas Geiger.
+Stylegan-xl: Scaling stylegan to large diverse datasets.
+In ACM SIGGRAPH 2022 conference proceedings, pp. 1–10, 2022.
+Shao et al. (2024)
+Chenze Shao, Fandong Meng, and Jie Zhou.
+Patch-level training for large language models.
+arXiv preprint arXiv:2407.12665, 2024.
+Shi et al. (2024)
+Fengyuan Shi, Zhuoyan Luo, Yixiao Ge, Yujiu Yang, Ying Shan, and Limin Wang.
+Taming scalable visual tokenizer for autoregressive image generation.
+arXiv preprint arXiv:2412.02692, 2024.
+Song et al. (2020)
+Jiaming Song, Chenlin Meng, and Stefano Ermon.
+Denoising diffusion implicit models.
+arXiv preprint arXiv:2010.02502, 2020.
+Song & Ermon (2019)
+Yang Song and Stefano Ermon.
+Generative modeling by estimating gradients of the data distribution.
+Advances in neural information processing systems, 32, 2019.
+Sun et al. (2024)
+Peize Sun, Yi Jiang, Shoufa Chen, Shilong Zhang, Bingyue Peng, Ping Luo, and Zehuan Yuan.
+Autoregressive model beats diffusion: Llama for scalable image generation.
+arXiv preprint arXiv:2406.06525, 2024.
+Sun et al. (2023a)
+Quan Sun, Qiying Yu, Yufeng Cui, Fan Zhang, Xiaosong Zhang, Yueze Wang, Hongcheng Gao, Jingjing Liu, Tiejun Huang, and Xinlong Wang.
+Generative pretraining in multimodality.
+arXiv preprint arXiv:2307.05222, 2023a.
+Sun et al. (2023b)
+Quan Sun, Qiying Yu, Yufeng Cui, Fan Zhang, Xiaosong Zhang, Yueze Wang, Hongcheng Gao, Jingjing Liu, Tiejun Huang, and Xinlong Wang.
+Generative pretraining in multimodality.
+arXiv preprint arXiv:2307.05222, 2023b.
+Tang et al. (2024)
+Haotian Tang, Yecheng Wu, Shang Yang, Enze Xie, Junsong Chen, Junyu Chen, Zhuoyang Zhang, Han Cai, Yao Lu, and Song Han.
+Hart: Efficient visual generation with hybrid autoregressive transformer.
+arXiv preprint arXiv:2410.10812, 2024.
+Team (2024)
+Chameleon Team.
+Chameleon: Mixed-modal early-fusion foundation models.
+arXiv preprint arXiv:2405.09818, 2024.
+Team et al. (2023)
+Gemini Team, Rohan Anil, Sebastian Borgeaud, Yonghui Wu, Jean-Baptiste Alayrac, Jiahui Yu, Radu Soricut, Johan Schalkwyk, Andrew M Dai, Anja Hauth, et al.
+Gemini: a family of highly capable multimodal models.
+arXiv preprint arXiv:2312.11805, 2023.
+Team (2023)
+InternLM Team.
+Internlm: A multilingual language model with progressively enhanced capabilities, 2023.
+The et al. (2024)
+LCM The, Loïc Barrault, Paul-Ambroise Duquenne, Maha Elbayad, Artyom Kozhevnikov, Belen Alastruey, Pierre Andrews, Mariano Coria, Guillaume Couairon, Marta R Costa-jussà, et al.
+Large concept models: Language modeling in a sentence representation space.
+arXiv preprint arXiv:2412.08821, 2024.
+Tian et al. (2024)
+Keyu Tian, Yi Jiang, Zehuan Yuan, Bingyue Peng, and Liwei Wang.
+Visual autoregressive modeling: Scalable image generation via next-scale prediction.
+arXiv preprint arXiv:2404.02905, 2024.
+Tong et al. (2024)
+Shengbang Tong, David Fan, Jiachen Zhu, Yunyang Xiong, Xinlei Chen, Koustuv Sinha, Michael Rabbat, Yann LeCun, Saining Xie, and Zhuang Liu.
+Metamorph: Multimodal understanding and generation via instruction tuning, 2024.
+URL https://arxiv.org/abs/2412.14164.
+Touvron et al. (2023a)
+Hugo Touvron, Thibaut Lavril, Gautier Izacard, Xavier Martinet, Marie-Anne Lachaux, Timothée Lacroix, Baptiste Rozière, Naman Goyal, Eric Hambro, Faisal Azhar, et al.
+Llama: Open and efficient foundation language models.
+arXiv preprint arXiv:2302.13971, 2023a.
+Touvron et al. (2023b)
+Hugo Touvron, Louis Martin, Kevin Stone, Peter Albert, Amjad Almahairi, Yasmine Babaei, Nikolay Bashlykov, Soumya Batra, Prajjwal Bhargava, Shruti Bhosale, et al.
+Llama 2: Open foundation and fine-tuned chat models.
+arXiv preprint arXiv:2307.09288, 2023b.
+Van Den Oord et al. (2017)
+Aaron Van Den Oord, Oriol Vinyals, et al.
+Neural discrete representation learning.
+Advances in neural information processing systems, 30, 2017.
+Vaswani et al. (2017)
+Ashish Vaswani, Noam Shazeer, Niki Parmar, Jakob Uszkoreit, Llion Jones, Aidan N Gomez, Łukasz Kaiser, and Illia Polosukhin.
+Attention is all you need.
+Advances in neural information processing systems, 30, 2017.
+Wang et al. (2024)
+Xinlong Wang, Xiaosong Zhang, Zhengxiong Luo, Quan Sun, Yufeng Cui, Jinsheng Wang, Fan Zhang, Yueze Wang, Zhen Li, Qiying Yu, et al.
+Emu3: Next-token prediction is all you need.
+arXiv preprint arXiv:2409.18869, 2024.
+Wei et al. (2022)
+Jason Wei, Yi Tay, Rishi Bommasani, Colin Raffel, Barret Zoph, Sebastian Borgeaud, Dani Yogatama, Maarten Bosma, Denny Zhou, Donald Metzler, et al.
+Emergent abilities of large language models.
+arXiv preprint arXiv:2206.07682, 2022.
+Workshop et al. (2022)
+BigScience Workshop, Teven Le Scao, Angela Fan, Christopher Akiki, Ellie Pavlick, Suzana Ilić, Daniel Hesslow, Roman Castagné, Alexandra Sasha Luccioni, François Yvon, et al.
+Bloom: A 176b-parameter open-access multilingual language model.
+arXiv preprint arXiv:2211.05100, 2022.
+Wu et al. (2024)
+Chengyue Wu, Xiaokang Chen, Zhiyu Wu, Yiyang Ma, Xingchao Liu, Zizheng Pan, Wen Liu, Zhenda Xie, Xingkai Yu, Chong Ruan, et al.
+Janus: Decoupling visual encoding for unified multimodal understanding and generation.
+arXiv preprint arXiv:2410.13848, 2024.
+Xiao et al. (2024)
+Shitao Xiao, Yueze Wang, Junjie Zhou, Huaying Yuan, Xingrun Xing, Ruiran Yan, Shuting Wang, Tiejun Huang, and Zheng Liu.
+Omnigen: Unified image generation.
+arXiv preprint arXiv:2409.11340, 2024.
+Xie et al. (2024)
+Jinheng Xie, Weijia Mao, Zechen Bai, David Junhao Zhang, Weihao Wang, Kevin Qinghong Lin, Yuchao Gu, Zhijie Chen, Zhenheng Yang, and Mike Zheng Shou.
+Show-o: One single transformer to unify multimodal understanding and generation.
+arXiv preprint arXiv:2408.12528, 2024.
+Xue et al. (2023)
+Zeyue Xue, Guanglu Song, Qiushan Guo, Boxiao Liu, Zhuofan Zong, Yu Liu, and Ping Luo.
+Raphael: Text-to-image generation via large mixture of diffusion paths.
+arXiv preprint arXiv:2305.18295, 2023.
+Yang et al. (2023)
+Aiyuan Yang, Bin Xiao, Bingning Wang, Borong Zhang, Ce Bian, Chao Yin, Chenxu Lv, Da Pan, Dian Wang, Dong Yan, et al.
+Baichuan 2: Open large-scale language models.
+arXiv preprint arXiv:2309.10305, 2023.
+Yu et al. (2021)
+Jiahui Yu, Xin Li, Jing Yu Koh, Han Zhang, Ruoming Pang, James Qin, Alexander Ku, Yuanzhong Xu, Jason Baldridge, and Yonghui Wu.
+Vector-quantized image modeling with improved vqgan.
+arXiv preprint arXiv:2110.04627, 2021.
+Yu et al. (2022)
+Jiahui Yu, Yuanzhong Xu, Jing Yu Koh, Thang Luong, Gunjan Baid, Zirui Wang, Vijay Vasudevan, Alexander Ku, Yinfei Yang, Burcu Karagol Ayan, et al.
+Scaling autoregressive models for content-rich text-to-image generation.
+arXiv preprint arXiv:2206.10789, 2(3):5, 2022.
+Yu et al. (2023a)
+Lijun Yu, Yong Cheng, Kihyuk Sohn, José Lezama, Han Zhang, Huiwen Chang, Alexander G Hauptmann, Ming-Hsuan Yang, Yuan Hao, Irfan Essa, et al.
+Magvit: Masked generative video transformer.
+In Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition, pp. 10459–10469, 2023a.
+Yu et al. (2023b)
+Lijun Yu, José Lezama, Nitesh B Gundavarapu, Luca Versari, Kihyuk Sohn, David Minnen, Yong Cheng, Agrim Gupta, Xiuye Gu, Alexander G Hauptmann, et al.
+Language model beats diffusion–tokenizer is key to visual generation.
+arXiv preprint arXiv:2310.05737, 2023b.
+Yu et al. (2024a)
+Qihang Yu, Ju He, Xueqing Deng, Xiaohui Shen, and Liang-Chieh Chen.
+Randomized autoregressive visual generation.
+2024a.
+Yu et al. (2024b)
+Qihang Yu, Mark Weber, Xueqing Deng, Xiaohui Shen, Daniel Cremers, and Liang-Chieh Chen.
+An image is worth 32 tokens for reconstruction and generation.
+NeurIPS, 2024b.
+Zhang et al. (2023)
+Shilong Zhang, Peize Sun, Shoufa Chen, Min Xiao, Wenqi Shao, Wenwei Zhang, Kai Chen, and Ping Luo.
+Gpt4roi: Instruction tuning large language model on region-of-interest.
+arXiv preprint arXiv:2307.03601, 2023.
+Zhang et al. (2022)
+Susan Zhang, Stephen Roller, Naman Goyal, Mikel Artetxe, Moya Chen, Shuohui Chen, Christopher Dewan, Mona Diab, Xian Li, Xi Victoria Lin, et al.
+Opt: Open pre-trained transformer language models.
+arXiv preprint arXiv:2205.01068, 2022.
+Zhou et al. (2024)
+Chunting Zhou, Lili Yu, Arun Babu, Kushal Tirumala, Michihiro Yasunaga, Leonid Shamis, Jacob Kahn, Xuezhe Ma, Luke Zettlemoyer, and Omer Levy.
+Transfusion: Predict the next token and diffuse images with one multi-modal model.
+arXiv preprint arXiv:2408.11039, 2024.
+Zhu et al. (2023)
+Deyao Zhu, Jun Chen, Xiaoqian Shen, Xiang Li, and Mohamed Elhoseiny.
+Minigpt-4: Enhancing vision-language understanding with advanced large language models, 2023.
+Zhu et al. (2024)
+Yongxin Zhu, Bocheng Li, Hang Zhang, Xin Li, Linli Xu, and Lidong Bing.
+Stabilize the latent space for image autoregressive modeling: A unified perspective, 2024.
+Generated on Thu Jan 2 12:14:14 2025 by LaTeXML

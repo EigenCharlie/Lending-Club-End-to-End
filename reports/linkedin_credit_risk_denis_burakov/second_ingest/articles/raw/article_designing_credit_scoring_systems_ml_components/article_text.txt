@@ -1,0 +1,151 @@
+Designing Credit Scoring Systems with ML Components
+Report this article
+Denis Burakov
+Denis Burakov
+Published Oct 8, 2022
++ Follow
+The concept of a modular design of credit risk models has become a common industry practice (BIS 1999). With the advent of machine learning (ML) techniques in the discriminatory phase of credit risk models (Wosnitza 2022), modular model design is gaining an even larger importance (McKinsey 2021), and many financial institutions are investigating how to reap the benefits of new ML models in order to reduce the costs of doing credit business yet remain compliant with new regulatory trends in this area (European Banking Authority 2021).
+Let’s list several most important advantages of a modular design for a credit rating system:
+Submodels can be estimated using different scoring functions (e.g., decision trees for one data type or logistic regressions for another) and based on different target variables (what we normally call “bad” flags) when the desired length of default observation window may not be available to model developers
+Submodel scores can be "turned off" in case of dataset shifts or macroeconomic changes (e.g., this can be solved by passing a neutral logit score representing a portfolio average default rate for a submodel in question)
+Internal and external (credit bureaus, alternative scoring) scores can be included as separate submodules to ensure data quality of inputs into the scoring system
+Ability to include short-term prediction models for early warning signals (e.g., forecasts estimated on weekly and even daily level using XGBoost or neural networks as opposed to longer-term predictions produced by other submodels)
+Use expert scorecards as additional inputs into the rating model until a submodel can be fully trained based on a new data source
+Among the limitations of modular design are potential correlations between submodels and increased complexity in terms of aggregation logic leading in turn to more sophisticated model infrastructure and monitoring frameworks. However, an alternative of a monolithic design of credit risk models has proven to cost banks lots of money and refactoring efforts. As such, a modular model design can be seen as requiring more efforts in the short term but more efficient and flexible and less costly in the long run.
+In this post, I would like to introduce you to a model design of a behavioral scoring system based on two submodels estimated with different scoring functions and further integrated into one credit score that can be used in the decision-making process.
+Data and model design
+For this example, I am using a Kaggle dataset Give me some credit. Most of the risk drivers in this dataset are “behavioral” features in the sense that they are observed after a customer started using a credit product (credit limit utilization, past due events etc). Beyond that, data resembles typical retail banking portfolios with revolving credit products such as credit cards or current accounts.
+Based on the available data, we will create two submodels with the following model features that were short-listed based on expert judgment:
+𝐔𝐬𝐞𝐫 𝐩𝐫𝐨𝐟𝐢𝐥𝐞 𝐦𝐨𝐝𝐮𝐥𝐞
+Credit card utilization (%)
+Age (years)
+Debt ratio (%)
+𝐀𝐫𝐫𝐞𝐚𝐫𝐬 𝐦𝐨𝐝𝐮𝐥𝐞
+30-60 days past due events (count)
+60-90 days past due events (count)
+90 days past due events (count)
+We expect positive economic relationships with the default rate for all factors but 'Age' (higher the age, lower the default rate).
+To make our example more practical, we can assume that the 𝐀𝐫𝐫𝐞𝐚𝐫𝐬 𝐦𝐨𝐝𝐮𝐥𝐞 can be estimated on a different set of target variables, i.e. in a multi-class model where days past due buckets can be modeled as class probabilities. Based on recent advances in credit risk early warning systems in banks, for this submodule we would normally opt for a more advanced approach than logistic regression (e.g., RandomForest and XGBoost show decent performance for this use-case in general).
+For our dataset, we will use good old Weight-of-evidence Logistic regression (WOE LR) for the 𝐔𝐬𝐞𝐫 𝐩𝐫𝐨𝐟𝐢𝐥𝐞 𝐦𝐨𝐝𝐮𝐥𝐞 and XGBoost with WOE bins for the 𝐀𝐫𝐫𝐞𝐚𝐫𝐬 𝐦𝐨𝐝𝐮𝐥𝐞 as scoring functions. Unfortunately, Python does not yet have a dedicated library similar to R’s discretize_xgb hence we will use OptBinning library for pre-processing for both submodules to ensure that the behavior of the XGBoost submodel in our example is identical to WOE LR to keep things simple (one can, of course, think of any other algorithm that is sufficiently explainable for the purpose of risk differentiation other than this XGBoost setup).
+In the Cumulative Accuracy Profile (CAP) diagram above we can see that both submodules have a fair discriminatory power measured in terms of the Gini coefficient. One can notice that the CAP curvatures are slightly different which indicates that these sets of model features may describe different aspects of default risk.
+Integration of submodels
+Let’s now integrate our submodel scores using a monotonic XGBoost. Monotonic constraints in XGBoost are a powerful tool to ensure monotonicity of the logit credit score for rank-order preservation. Monotonicity and other constraints are essential to both interpretability and legal requirements for lending models (Chen et al. 2021). It is advised to use a logistic regression model for integration as a starting point.
+In the following diagram we can see the CAP curve of submodels and the final model we can also call a metascore:
+We can see the improved performance of our credit score when we use a combination of submodels. A Gini of 71% can be viewed as a very good discrimination ability in the context of retail lending.
+Recommended by LinkedIn
+Revolutionizing Credit Risk Modeling with AI and…
+Dr. Marcus Tan
+1 year ago
+The Five C’s of Credit… Now With AI
+💎 Shane Stroud
+2 months ago
+How AI and Data Analytics Are Transforming Private…
+VCengine
+6 months ago
+Let’s now look at the calibration diagram showing calibration fit for submodels and the final model:
+We can see that the final model’s PD has a relatively good calibration accuracy. This is confirmed by the Expected Calibration Error (ECE):
+Module 1 (WOE LR) ECE: 0.13%
+Module 2 (XGB) ECE: 0.25%
+Final Model (XGB + LR) ECE: 0.21%
+Since our credit score is well calibrated we can perform the following back-test. Let’s assume that we have a rating scale and want to map direct PDs onto it. Let’s assume that we can cut off customers based on the rating class midpoint PD and then evaluate which proportion of defaults we would be able to avoid if we decided not to continue lending to these customers.
+Based on the diagram above, we observe that if we use a PD of 5% as a cut-off we would be able to avoid 80% of default events based on our data. This would mean that we can lend to a larger group of customers and not limit lending solely to the best rating grades (e.g., PD < 3%).
+Concluding remarks
+Incorporation of machine learning components into credit scoring systems with a modular architecture allows credit risk model developers to get the best out of increasingly growing data and foster experimentation in designing the next generation of state-of-the-art credit risk models.
+One of the limitations of making progress in this area, however, resides with the validation of (sub)models based on new ML methods. One can argue, however, that validating a submodel is far easier than evaluating a ML-based monolithic algorithm with many features, a plethora of hyperparameters, and lots of SHAP plots to look at.
+We will talk about validation of new-gen risk models in the next post.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in my GitHub.
+All views expressed are my own.
+References
+Basel Committee on Banking Supervision (BIS). Credit Risk Modelling: Current Practices and Applications. 21 Apr 1999. Available at: https://www.bis.org/press/p990421.htm
+Chaofan Chen, Kangcheng Lin, Cynthia Rudin, Yaron Shaposhnik, Sijia Wang, Tong Wang. A holistic approach to interpretability in financial lending: Models, visualizations, and summary-explanations. Decision Support Systems, Volume 152, Issue C. Jan 2022. Available at: https://doi.org/10.1016/j.dss.2021.113647
+European Banking Authority (EBA). Discussion paper on machine learning for IRB models, EBA/DP/2021/04. 11 Nov 2021. Available at: https://www.eba.europa.eu/eba-consults-machine-learning-internal-ratings-based-models
+Jan Henrik Wosnitza. Calibration Alternatives to Logistic Regression and Their Potential for Transferring the Dispersion of Discriminatory Power into Uncertainties of Probabilities of Default. Deutsche Bundesbank Discussion Paper No. 04/2022. 1 Apr 2022. Available at: https://www.bundesbank.de/en/publications/research/discussion-papers/calibration-alternatives-to-logistic-regression-and-their-potential-for-transferring-the-dispersion-of-discriminatory-power-into-uncertainties-of-probabilities-of-default-885880
+Raj Dash, Andreas Kremer, and Aleksander Petrov. Designing next-generation credit-decisioning models. McKinsey. December 2, 2021. Available at: https://www.mckinsey.com/capabilities/risk-and-resilience/our-insights/designing-next-generation-credit-decisioning-models
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+32
+2 Comments
+René Naarmann
+3y
+Report this comment
+Interesting read Denis!
+Like
+Reply
+1 Reaction
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Show more
+See all articles

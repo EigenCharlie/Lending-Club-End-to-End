@@ -1,0 +1,122 @@
+Log Loss | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Log Loss 📉
+Log loss, also known as logistic loss or cross-entropy loss, is a common metric used in model training and evaluation of #MachineLearning models working with binary outcomes (e.g., credit default vs. no credit default). Log Loss measures how fit a model is for a dataset and penalizes the model's confidence in incorrect predictions 🎯
+This deck traces the metric's origins back to the concept of likelihood from #Statistics, shares examples of binomial and bernoulli logistic regression in #Python 🐍, and visually explains this metric based on examples with gradient-boosted decision trees 🌳
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post about logistic regression's origins: https://lnkd.in/dJfthBa7 💡
+▷ Discover a related post on the loss functions for PD scoring models: https://lnkd.in/dzg3g6Z9 💡
+▷ Discover a related post on benchmarking PD models with Log Loss: https://lnkd.in/dQp7Fbfi 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+⚠ 𝐃𝐢𝐬𝐜𝐥𝐚𝐢𝐦𝐞𝐫: The work of eugenicists, which Ronald A. Fisher was a known member of, was often pervaded by prejudice against racial, ethnic and disabled groups. The online publication of this material for scholarly research purposes is not an endorsement of those views nor a promotion of eugenics in any way.
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+117
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

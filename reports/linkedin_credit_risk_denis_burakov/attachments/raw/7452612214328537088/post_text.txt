@@ -1,0 +1,18 @@
+Not all useful credit research makes it to top headlines.
+Recently I saw a paper claiming a 130% PR-AUC "breakthrough" in credit scoring from a foundation model, against an unnamed baseline. Meanwhile, more fundamental applied work stays under the radar in internal decks and unpublished notes. An Experian deck on "GINI Effect on Bad Rate/ Losses" is one I finally was able to work through cleanly.
+The idea is to model the score distribution as bi-normal: goods and bads each follow a normal distribution on the score scale, with unit variance and a separation σ between their means. Gini then maps to σ through the standard normal CDF:
+σ = √𝟤 × Φ⁻¹(𝖠𝖴𝖢), where 𝖠𝖴𝖢 = (𝖦𝗂𝗇𝗂 + 𝟣) / 𝟤
+The conversion to AUC is needed because Φ⁻¹ expects a probability between 0 and 1.
+From Bayes, the acceptance rate of portfolio decomposes as:
+𝖠𝖱 = 𝖯(𝖺𝖼𝖼𝖾𝗉𝗍 | 𝗀𝗈𝗈𝖽) × (𝟣 − 𝗉) + 𝖯(𝖺𝖼𝖼𝖾𝗉𝗍 | 𝖻𝖺𝖽) × 𝗉
+where 𝗉 is the population bad rate. The bi-normal model gives you the two group-specific acceptance rates at any cutoff 𝖼: the fraction of each bell sitting to the right of 𝖼. That's all you need to reason about portfolio behavior.
+𝗚𝗶𝗻𝗶 = 𝟬 → σ = 𝟬 → 𝗻𝗼 𝘀𝗲𝗽𝗮𝗿𝗮𝘁𝗶𝗼𝗻
+The two distributions sit on top of each other. At any cutoff, AR_good = AR_bad, so the approved population is a random sample of applicants and its bad rate equals 𝗉. A zero-Gini model gives you no selection.
+𝗚𝗶𝗻𝗶 = 𝟬.𝟯𝟬 → σ ≈ 𝟬.𝟱𝟰 → 𝗺𝗶𝗹𝗱 𝘀𝗲𝗽𝗮𝗿𝗮𝘁𝗶𝗼𝗻
+The goods shift right by about half a standard deviation. Substantial overlap remains, but the right tail is richer in goods. You start catching some bads; many still slip through.
+𝗚𝗶𝗻𝗶 = 𝟬.𝟱𝟬 → σ ≈ 𝟬.𝟵𝟱 → 𝗺𝗼𝗱𝗲𝗿𝗮𝘁𝗲 𝘀𝗲𝗽𝗮𝗿𝗮𝘁𝗶𝗼𝗻
+Nearly one standard deviation apart. Overlap visibly reduced. At a typical cutoff, you approve a much larger share of goods than bads. Roughly where many production scorecards sit.
+The plot in the second image shows the loss reduction per unit of Gini improvement across acceptance rates and bad rates. Tighter acceptance gives more leverage: at 10%, all curves converge near 140% regardless of bad rate. As acceptance loosens, the curves fall and spread apart, with cleaner portfolios (lower bad rate) consistently benefiting more per Gini point than riskier ones.
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+The appeal of this kind of work is that it sits at the right level of abstraction. It's agnostic to the method (logistic regression, GBDT, or transformers) and gives you a way to reason about what a Gini number is actually worth in a portfolio.
+#DataScience #CreditScoring #ModelRisk #CreditRiskModeling

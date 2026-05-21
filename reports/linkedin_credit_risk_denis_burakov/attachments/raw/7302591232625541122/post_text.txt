@@ -1,0 +1,6 @@
+Explainability and Scorecards 🎲
+SHAP (SHapley Additive exPlanations) values have become the go-to tool for explainability in predictive modeling, and their popularity seems to be ever-growing, in part due to the lack of strong alternatives. Why?
+SHAP’s true hallmark lies in its ability to break down any model’s predictions into additive contributions from each input into the model. Much like Weight of Evidence (WOE) scores we know from credit scoring, SHAP values are additive and allow us to present something complex in a simpler form.
+But there’s a catch 🐘: SHAP values explain predictions, but not how the model actually works. Some researchers argue that because of this, SHAP scores can produce misleading information regarding feature importance and can induce bias in human decision-making, as discussed in this ACM paper: https://lnkd.in/dxHKBP5C
+Yet, SHAP’s additivity is a powerful tool for building scorecards that help monitor feature drift, distill complex models, and perform error analysis 🪛
+Have you ever seen SHAP explanations misaligned with reality? How did you debug or validate them? Would love to hear your experiences! ⤵

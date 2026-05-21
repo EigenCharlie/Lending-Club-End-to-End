@@ -1,0 +1,3 @@
+visual_item_id,source_id,visual_count,visual_read_status,project_signal
+S2-VIS-POST-003,7211748798618824704,3,manual_visual_read_completed,"Trended data slides: sequence features, RNN/LSTM/Transformer comparison, and calibration chart."
+S2-VIS-ARTICLES,12_public_linkedin_articles,99_high_or_medium_priority_images,manual_visual_read_completed_from_contact_sheets,All high/medium article figures reviewed; archive-only related covers excluded from analysis.

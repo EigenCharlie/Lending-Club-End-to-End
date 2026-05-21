@@ -68,7 +68,7 @@ La calibración es donde la diferencia entre modelos raw y calibrados es más dr
 | ECE | N/A (no medido) | 0.0064 | Excelente |
 | D² Brier | -0.222 | +0.099 | De peor a mejor que naive |
 
-: Impacto de la calibración sobre métricas de Brier {#tbl-calibration-impact}
+: Impacto de la calibración sobre métricas de Brier {#tbl-brier-calibration-impact}
 
 Un ECE de 0.0064 significa que las probabilidades predichas están, en promedio, muy cerca de las frecuencias de default observadas. Para IFRS9, fairness, staging y policy de portafolio, esta calidad probabilística importa más que una mejora marginal de ranking aislada.
 
@@ -128,11 +128,37 @@ metrics = {
 pd.DataFrame(list(metrics.items()), columns=["Métrica", "Valor"])
 ```
 
+La tabla omite deliberadamente una tentación frecuente: convertir una métrica adicional en selector automático. El **log loss** es una regla de scoring probabilística útil porque penaliza con fuerza predicciones confiadas y equivocadas; por eso complementa a Brier y ECE cuando nos importa la calidad de las PD, no solo el ranking. Pero su lectura también depende del caso de uso. Un modelo puede tener Gini similar y log loss distinto porque distribuye la confianza de manera diferente en los defaults y no-defaults. La decisión de champion sigue siendo multi-criterio: ranking, calibración, estabilidad, monotonicidad y valor de decisión se leen juntos.
+
 ::: {.column-page}
 ![Curva Precision-Recall del champion y sus comparadores, relevante por el desbalance de clases del problema.](../../assets/figures/editorial/pd_pr_curve.png){#fig-pd-pr fig-alt="Curvas Precision-Recall comparando el champion calibrado con modelos PD alternativos."}
 :::
 
 La figura @fig-pd-pr complementa el AUC-ROC con una lectura más exigente para clases desbalanceadas. El champion no solo separa mejor que el baseline; también conserva una frontera precision-recall competitiva cuando la tasa de default observada es baja.
+
+::: {.callout-warning}
+## Precision, F1 y prevalencia
+
+Las métricas de threshold no son propiedades aisladas del modelo. Precision y F1 cambian con la prevalencia de default, aun cuando sensibilidad, especificidad y AUC se mantengan constantes. Por eso el pipeline no usa F1 como selector principal del modelo PD: primero exige discriminación, calibración y estabilidad temporal; después interpreta precision-recall dentro de una política de decisión concreta. En portafolios con default raro, un F1 bajo puede indicar una base-rate difícil, no necesariamente un modelo inútil.
+
+La misma cautela aplica a AUPRC. En problemas desbalanceados, la curva precision-recall es una vista necesaria de la zona operacional de interés, pero no reemplaza automáticamente a AUROC/Gini como medida de ranking. Su lectura depende de prevalencia, costos y región de decisión; si el objetivo real es recall mínimo, aprobación rentable o cobertura por segmento, esa restricción debe medirse explícitamente.
+:::
+
+::: {.callout-note}
+## Gini y desbalance
+
+El desbalance de clases tampoco invalida por sí solo a Gini/CAP. En crédito, el default raro es la condición normal del negocio; por eso Gini se interpreta como una métrica de ranking relativa al máximo separable dado el default rate observado. La advertencia correcta es otra: Gini dice si el modelo ordena bien, no si sus PD son numéricamente correctas ni si un threshold específico produce una política rentable. Esa es la razón de reportarlo junto con Brier, ECE, KS, precision-recall y métricas de decisión.
+
+En la literatura de validación de ratings, CAP/Accuracy Ratio y ROC/AUC no son métricas rivales sino vistas conectadas de discriminación: bajo la convención habitual, `AR = 2 AUC - 1` [@engelmann2003_discriminative_power]. El problema operativo no es que el default sea raro, sino que haya pocos eventos absolutos, costos mal especificados o probabilidades sesgadas por muestreo. En escenarios verdaderamente rare-event, la regresión logística puede subestimar probabilidades y requerir correcciones de prior o diseño muestral [@king2001_rare_events]. Esa es una razón más para no mezclar ranking, calibración y política de decisión en una sola métrica.
+
+Una extensión diagnóstica útil es descomponer Gini por observación o por bandas de score. Las cuentas con score claramente bajo y no-default, o score claramente alto y default, suelen aportar positivamente al ranking; las observaciones en la zona de solapamiento explican dónde se pierde separación. En este libro queda como diagnóstico de backlog, no como métrica champion: sirve para investigar casos difíciles, no para reemplazar la validación agregada.
+:::
+
+::: {.callout-note}
+## Probabilidad antes que etiqueta
+
+La regresión logística, CatBoost calibrado y Venn-Abers producen probabilidades que después se convierten en decisiones. Llamarlos "clasificadores" puede ser práctico en software, pero en crédito la diferencia importa: la etiqueta aprobar/rechazar vive en una política, mientras que la PD debe permanecer como estimación probabilística auditable. Por eso las métricas de threshold (`F1`, recall, approval rate) son downstream de la política y no sustituyen las reglas de scoring probabilístico como Brier, ECE o log loss.
+:::
 
 ### Diagnóstico fino del champion
 

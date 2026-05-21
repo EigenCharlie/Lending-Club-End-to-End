@@ -1,0 +1,7 @@
+From WOE to Logistic Regression 📏
+Did you know that when performing univariate analysis of categorical data, Weight of Evidence (WOE) and logistic regression are, in fact, equivalent models? 🤔
+Both approaches produce the same linear model, but they reference different baselines:
+〉Logistic regression sets one category as the intercept (reference).
+〉WOE centers the factor values around the average event rate.
+In the case of one categorical feature, logistic regression coefficients are simply the differences in log odds between the feature's categories. But here's the cool part: you can obtain the coefficients directly from WOE or target encoding 💡
+📌 It's important to note that in multivariate models, logistic regression jointly optimizes all coefficients, which alters this relationship. Curious to see how it works for single feature analysis? I’ve broken it down step-by-step in these materials ⤵

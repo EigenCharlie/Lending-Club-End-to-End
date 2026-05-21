@@ -1,0 +1,637 @@
+1st World Conference on
+eXplainable Artificial Intelligence
+Lisbon, 26 July 2023
+
+Cost of Explainability in AI:
+an Example with Credit Scoring Models
+Authors: Jean Dessain, Nora Bentaleb & Fabien Vinas
+
+
+
+
+Jean Dessain
+Partner at Reacfin
+Professor of Finance & Machine Learning at IÉSEG, School of Management
+
+
+
+                                                                         1
+ABSTRACT
+
+This paper examines the cost of explainability in machine learning models for credit scoring.
+The analysis is conducted under the constraint of meeting the regulatory requirements of the European Central
+Bank (ECB), using a real-life dataset of over 50,000 one-year credit exposures.
+We compare the statistical and financial performances of black-box models, such as XGBoost and neural
+networks, with inherently explainable models like logistic regression and GAMs. Notably, statistical performance
+does not necessarily correlate with financial performance.
+
+
+Our results reveal a difference of 15 to 20 basis points in annual return on investment between the best
+performing black-box model and the best performing inherently explainable model, as cost of explainability. We
+also find that the cost of explainability increases together with the risk appetite.
+
+
+To enhance the interpretability of explainable models, we apply isotonic smoothing of features’ shape functions
+based on expert judgment. Our findings suggest that incorporating expert judgment in the form of isotonic
+smoothing improves the explainability without compromising the performance.
+These results have significant implications for the use of explainable models in credit risk assessment and for
+regulatory compliance.
+
+
+NB. In this presentation, when we cite some authors, we refer to the References available in the original article to
+be published in the Proceedings of the Conference (open access)
+
+                                                                                                                       2
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       3
+IS THERE A TRADE-OFF BETWEEN PERFORMANCE AND EXPLAINABILITY ?
+
+
+
+                                                                       Popular wisdom expects a trade-off between
+                                                                        performance and explainability
+
+
+                                                                   Is it true ?
+                                                                   How to measure explainability and performance ?
+
+
+
+
+   Difference between :
+     o White box: “inherently explainable”* statistical inference models (linear and logistic
+       regressions, Naïve Bayes and more generally GLM** and GAM)
+
+     o Black box “ex-post interpretable” algorithms can benefit from ex-post local explanatory
+       techniques (neural networks, complex decision trees, SVM, etc)
+         * For this presentation, we consider “inherently explainable” and “intrinsically explainable” as synonyms)
+         ** Abbreviations and model names are further briefly described in Appendix 1 - Glossary
+
+                                                                                                                      4
+IF THERE IS A TRADE-OFF, CAN EXPLAINABLE AI DISRUPT IT ?
+
+
+   Recent “eXplainable AI” algorithms (“XAI”):
+     o Rely on black-box algorithms (XGB, MLP, …)
+     o Produce a GAM
+
+
+
+
+ Inherently explainable GAM
+ As powerful as black-box algorithm ?
+
+
+
+
+                                                           5
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       6
+WE USE REAL-LIFE 1-YEAR CORPORATE CREDIT DATA
+
+     Anonymized real-life 1-year corporate credit                                    Period   # Obs      # Defaults
+                                                                                                                       Default
+      exposures, with 55 explanatory variables                                                                          rate
+                                                              Training set             2019      76,089          608    0.80%
+      (confidential and proprietary dataset)                  Enhanced training set   2019++     77,435        1,954    2.52%
+                                                              Test set 1               2020      44,151          582    1.32%
+                                                              Test set 2               2021      61,406          335    0.55%
+                                                              Test set 3               2022      59,074          275    0.47%
+
+
+
+
+                                           Data management process*                                                16 BS
+                                                                                                                 (t & t-1)
+                   Missing Data:            Imbalance                 Outliers               Feature
+                   Multivariate           management                management             selection**             5 ICS
+                    imputation            (2017 & 2018             (winsorization           20 correl.           (t & t-1)
+     55 raw           (Knn 4)                defaults)             0.5% - 99.5%)            excluded)
+    variables
+                                                                                                                  5 fin.
+                                                                                                                  ratios
+
+                                                                                                                 9 other
+                                                                                                                  (legal,
+                               * Details in Appendix 2 – Data Management                                         descrp.)
+                               ** BS = balance sheet – ICS = income statement
+
+
+
+                                                                                                                                 7
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       8
+14 MODELS, FROM WHITE-BOX TO BLACK-BOX, ARE TESTED
+                                                                                                                                 Expert
+Models                                                                  Model                            Abbrev.      Type
+                                                                                                                              judgment(*)
+   14 models* in total (among the most common):         Logistic regression                                LR          IE         No
+     o 4 inherently explainable models                   ElasticNet                                         EL          IE         No
+                                                         Naïve Bayes                                        NB          IE         No
+
+
+
+
+                                                                                                                                            Explainable
+     o 2 explainable AI models                           Linear Discriminant
+     o Isotonic versions of the 2 explainable AI models, Analysis                                          LDA          IE          No
+        based on expert judgment to “force” the shape Explainable Boosting
+        of the GAMs                                      Machine                                          EBM          XAI          Yes
+                                                         GamiNet                                          GAMI         XAI          Yes
+     o 6 black-box models whose interpretation can be Support Vector Machine                              SVM          BB           No
+        done locally and ex-post                         Random Forest                                     RF          BB           No
+
+
+
+
+                                                                                                                                            Black-box
+   Hyper-parameters tuning with a 2-step grid search Gradient Boosting                                    GB          BB           No
+                                                         eXtreme Gradient
+                                                         Boosting                                          XGB         BB           No
+   Reproducibility and replicability guaranteed with    Light GBM                                        LGBM         BB           No
+                                                         Multi-Layer Perceptron                            MLP         BB           No
+    several measures** (seed, deterministic CUDNN, …)
+                                                                       IE = inherently explainable
+                                                                       XAI = explainable AI, classified as inherently explainable
+                                                                       BB = Black-box, interpretable locally and ex-post
+                                                                       (*) Isotonicity of the GAM forced according to financial expert
+                                                                       judgment
+             * The format of the data does not allow to apply more complex neural networks as CNN, LSTM or ResNet. While
+             these models tend to overperform MLPs, they would require longer historical data for a reliable analysis
+             ** Details in Appendix 3 – Hardware & Software                                                                                 9
+METHODOLOGY
+
+Model calibration and regulatory testing
+   Model Calibration:
+     o Each model generates a PD between 0% and 100% for each data
+     o PDs converted into grades with a masterscale of 10 grades normaly distributed (following BIS IFC
+       paper)
+
+
+   Regulatory requirements: exclusion of models not matching the ECB regulatory requirements* :
+     o Grades: minimum 8 grades, of which 7 non-defaulted, with differences between thresholds >
+       0.001%
+     o Predictive ability: Jeffrey’s test to assess the prudence of PD estimates
+     o Discriminatory power: tested with AUROC with Mann-Whitney U statistic
+     o Stability:
+         • Grade dispersion with Herfindal Index (HI)
+         • Borrower migrations with matrix weighted bandwidth (MWB) analysis
+         • Monotonicity off-diagonal transition frequencies with pairwise z-tests
+     o Explainability: No explicit test from ECB but general requirement and topic of the analysis
+
+        * ECB “Instructions for reporting the validation results of internal models - IRB Pillar I models for credit risk”, 2019
+
+                                                                                                                                   10
+FINANCIAL RESULTS ARE USED TO ASSESS MODELS’ PERFORMANCE
+
+Financial Performance analysis
+    Financial data: Financial                    Abbrev.             Value          Comment
+                         parameter
+                         Risk-free rate               rfr              3.25%         1-year government bond yield
+                         Fund-transfer pricing        ftp              0.75%         for funding & liquidity costs, set by ALM
+                         Credit spread                csi           model-based capped per grade at reference masterscale’s PD* LGD
+                         Commercial margin            cm               0.50%         to remunerate commercial and BO departments and capital
+                         Loss-given default           LGD             45.00%         IRB value for senior unsecured credit to corporates in
+                                                                                     foundation IRB (CRE 32.5)
+
+
+    Actual financial result per accepted loan for each model is equal to:
+       o Paid-back:          csi + cm                                        = credit spread + commercial margin
+       o Defaulted:          - (1 + rfr + ftp + csi + cm ) * LGD             = total exposure at risk * the LGD
+
+
+    Risk appetite threshold: based on the grades provided by the algorithms with:
+       o low threshold : below grade 6 => lot of loans rejected as too risky
+       o Base case: threshold for acceptance set at grade 6
+       o High threshold : grades 7 or 8 => most loans accepted, only limited rejections
+* 10 grades reference masterscale: Masterscale    0          1         2         3           4         5         6         7        8           9
+                                   PD            0.00%      0.01%    0.02%     0.03%       0.18%     1.15%     4.33%    13.73%   32.95%       100.00%
+
+                                                                                                                                                        11
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       12
+NOT ALL MODELS ARE ROBUST ENOUGH TO MATCH ECB REQUIREMENTS
+
+   11 out of 14 models                    Model                              # grades
+                                                                                           Predictive    Discriminat.
+                                                                                                                         Stability*   Explainability
+                                                                                             ability        power
+    succeed with ECB
+                                           Logistic regression                  Yes            Yes            Yes            Yes           Yes
+    requirements                           ElasticNet                           Yes            Yes            Yes            Yes           Yes
+                                           Naïve Bayes                          No             NR             NR             NR            Yes
+   Naïve Bayes, SVM and                   Linear Discriminant Analysis         Yes           Weak            Yes            Yes           Yes
+    Random Forest fail to                  Explainable Boosting Machine         Yes            Yes            Yes            Yes           Yes
+                                           GamiNet                              Yes            Yes            Yes            Yes           Yes
+    provide at least 7 non-                Isotonic EBM                         Yes            Yes            Yes            Yes          Yes +
+    defaulted grades and are               Isotonic GAMI                        Yes            Yes            Yes            Yes          Yes +
+                                           Support Vector Machine               No              NR            NR             NR            NR
+    excluded from the analysis             Random Forest                        No              NR            NR             NR            NR
+                                           Gradient Boosting                    Yes             Yes           Yes            Yes           NR
+                                           eXtreme Gradient Boosting            Yes             Yes           Yes            Yes           NR
+   LDA delivers weak results              Light GBM                            Yes             Yes           Yes            Yes           NR
+                                           Multi-Layer Perceptron               Yes             Yes           Yes            Yes           NR
+    for the predictive ability but
+    is kept                        * Stability has been tested on a small sample (2 transitions) during an unusual period marked by covid-19
+                                           All algorithms succeed with HI test and MWB, but most face minor issues with z-tests
+
+
+   All other models succeed with the ECB tests
+   General requirement but no specific ECB test for the explainability
+
+
+
+
+                                                                                                                                                       13
+EXPLAINABLE MODELS CAN BE IMPROVED WITH EXPERT JUDGMENT
+
+   Expert judgment improves the explainability of EBM and GAMI, making the GAM-shapes easier to
+    understand. Example with bs_012 feature (normalized amount of retained earnings) for which a
+    monotonic negative correlation with the PD is expected:
+
+                       Native EBM                                        EBM Isotonic
+
+
+
+
+   Monotonizing the shape of the GAMs:
+      Increased explainability with a GAM shape that follows market expectation
+      Reduced risk of overfitting
+      Possible outliers’ impact eliminated with isotonic model
+
+                                                                                                   14
+ALL MODELS ADD VALUE, SOME MUCH MORE THAN OTHERS…
+
+Financial results 2020                                              Threshold Grade 6        Threshold Grade 7
+                                                     Model          Accepted        Return   Accepted        Return
+   All models significantly improve the credit      LR             88.53%          1.34%    97.76%          1.52%
+                                                                    88.67%           1.31%   97.60%         1.49%
+    portfolio management compared to a “no-          ELN
+
+
+
+
+                                                                                                                       Explainable
+                                                     LDA            88.30%           1.20%   97.98%         1.38%
+    model” situation                                 EBM            89.09%           1.46%   97.56%         1.64%
+                                                     EBM Isotonic   89.11%           1.46%   97.46%         1.65%
+                                                     GAMI           88.45%           1.47%   96.84%         1.66%
+   GAMI is closely followed by EBM as best        GAMI Isotonic    88.28%           1.45%   96.88%         1.64%
+    performer for inherently explainable model, farXGB              88.78%           1.43%   97.55%         1.60%
+
+
+
+
+                                                                                                                       Black-box
+    ahead of the 3 other “standard” models         LGBM             87.44%           1.08%   97.43%         1.31%
+                                                     GB             88.16%           1.38%   96.61%         1.57%
+   MLP significantly over-performs the other        MLP            88.33%           1.61%   96.95%         1.83%
+    black-box models                                 No model       100.00%          0.55%   100.00%        0.55%
+
+   Isotonic XAI models that integrate expert judgment come at virtually no cost, compared to native XAI
+    models
+   Risk appetite impacts the rejection rate. Therefore, low risk appetite might create commercial issues
+    Threshold         Grade 4     Grade 5      Grade 6       Grade 7         Grade 8
+    Rejection         65.3%        30.9%          9.1%          1.8%          0.2%
+
+   2021 and 2022 results are very similar. Please refer to corresponding author for further details
+
+                                                                                                                      15
+TRADE-OFF BETWEEN EXPLAINABILITY AND PERFORMANCE EXISTS..
+BUT EXPLAINABLE AI REDUCES THE COST OF EXPLAINABILITY
+
+   From the analysis for a risk appetite threshold at grade 6 and 7 respectively, we can deduct a cost of
+    explainability :
+                                                               2020       2021      2022
+                                             Best XAI model   1.47%      1.66%      1.57%
+                              Low risk       Best model       1.61%      1.82%      1.77%
+                             (threshold 6)     Cost of XAI    0.14%      0.16%      0.20%
+                                             Best XAI model   1.66%      1.88%      1.73%
+                             High risk       Best model       1.83%      2.06%      1.94%
+                             (threshold 7)
+                                               Cost of XAI    0.17%      0.18%      0.21%
+   The cost of explainability:
+     o Fluctuates in a range of 15 to 20bp return on investment (RoI)
+     o Increases towards 25 to 30 bp at least with traditional white box models
+
+
+   The purpose of the model (commercial for pricing and underwriting, risk management, capital
+    consumption, …) might influence the importance of the cost of explainability and should drive the
+    preference for the best model or for the best explainable model, rather than for traditional
+    explainable algorithms
+
+                                                                                                             16
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       17
+EXPLAINABILITY COMES AT A COST, BUT NEW ALGORITHMS REDUCE THIS COST
+
+Conclusion
+   This paper examines the cost of explainability in machine learning models for credit scoring from a
+    financial perspective, using real-life corporate credit exposures
+   We compare two types of models: traditional models inherently explainable and new XAI models
+    generating a GAM versus ex-post interpretable black-box models. Based on our dataset, we find that:
+     o Several standard models do not match ECB requirements and are excluded from the comparison
+     o Best black-box (neural network) outperforms the best explainable model by a 0.15% to 0.20%
+       return on investment (RoI)
+     o The cost of explainability increases to 0.30% when only traditional inherently explainable models
+       like logistic regression are considered (XAI models excluded)
+     o Best XAI models allow for expert judgment that increases explainability at virtually no cost in
+       terms of RoI
+
+
+   If confirmed with other datasets, this can have and should have significant impact in terms of:
+     o Model acceptability from a regulatory perspective for calculating regulatory capital
+       requirements
+     o Model choice by financial institutions for the various tasks (underwriting and pricing, credit risk
+       management, regulatory capital, etc)
+
+                                                                                                             18
+THIS PROMISING RESULT SHOULD BE CONFIRMED AND EXTENDED
+
+Perspectives
+   The proposed approach shows promising results in terms of cost of explainability
+   These results should be confirmed with:
+     o More granular grading and more granular risk appetite thresholds
+     o Different datasets:
+         • Longer periods that would allow the use of more complex neural networks with 3D input
+            tensors that capture the time-series dimension (LSTM, CNN, ResNet, …)
+         • Longer exposure at risk than the 1-year credit risk, with the increased complexity of 1-year
+            PD not equal to lifetime PD
+         • Different types of exposures (mortgages, consumer loans, P2P, specialized finance, micro-
+            finance, …)
+
+
+   Discussions with regulators regarding the acceptability of XAI models like EBM or GAMI is a
+    prerequisite for a larger diffusion of these powerful explainable models
+   Furthermore, the use of XAI models like EBM or GAMI could improve:
+     o Data management and outliers handling through expert judgment
+     o The feature selection process, relying on the assessment of the importance and the impact of
+       each feature in the GAM
+                                                                                                          19
+AGENDA
+
+
+
+        Introduction
+
+        Data
+
+        Methodology
+
+        Empirical Results
+
+        Conclusion and Perspectives
+
+        Appendices
+
+
+
+
+                                       20
+ APPENDIX 1 - GLOSSARY
+Term         Type           Explanation
+AUC          Metric         Area Under the Curve (AUC) is a performance metric that represents the aggregate model performance.
+AUROC        Metric         Area Under the Receiver Operating Characteristic (AUROC) is a measure of classification accuracy.
+BIS          Organization   Bank for International Settlements (BIS) is an international financial institution that serves as a bank for central banks and promotes
+                            monetary and financial stability worldwide.
+CNN          Model          Convolutional Neural Network (CNN) is a deep learning architecture commonly used for image analysis.
+CPU          Hardware       Central Processing Unit (CPU) is the primary component responsible for executing computer programs.
+CUDNN        Software       CUDA Deep Neural Network Library (CUDNN) is a GPU-accelerated library for deep neural networks.
+EBM          Model          Explainable Boosting Machine (EBM) is a model that provides interpretable explanations for predictions.
+ECB          Organization   European Central Bank (ECB) is the central bank for the euro and administers monetary policy.
+ElasticNet   Model          ElasticNet is a linear regression model that combines L1 and L2 regularization techniques.
+GAM          Model          Generalized Additive Model (GAM) is a flexible regression model that incorporates non-linearities.
+GAMI         Model          GamiNet is a model that provides interpretable explanations for predictions.
+GB           Model          Gradient Boosting (GB) is an ensemble learning technique that builds models in a sequential manner.
+GLM          Model          Generalized Linear Model (GLM) is a flexible regression model that can handle various distributions.
+GPU          Hardware       Graphics Processing Unit (GPU) is a specialized hardware that accelerates graphics and computations.
+HI           Metric         Herfindahl Index (HI) is a measure of market concentration used to assess the concentration of grades
+ICE          Plot           Individual Conditional Expectation (ICE) plot visualizes the relationship between a feature and target variable at an individual level.
+IFC          Model          Independent Factor Contribution (IFC) measures the contribution of a predictor in a model.
+IRB          Regulation     Internal Ratings-Based (IRB) approach is a method for calculating credit risk under Basel II framework.
+JS           Metric         Jensen-Shannon Divergence (JS) measures the similarity between two probability distributions.
+KL           Metric         Kullback-Leibler Divergence (KL) measures the difference between two probability distributions.
+KNN          Model          k-Nearest Neighbors (KNN) is a non-parametric algorithm that classifies data based on proximity.
+KS           Metric         Kolmogorov-Smirnov (KS) statistic measures the maximum difference between two cumulative distribution functions.
+Lasso        Model          Lasso (Least Absolute Shrinkage and Selection Operator) is a linear regression model with L1 regularization.
+LDA          Model          Linear Discriminant Analysis (LDA) is a classification technique that finds linear combinations of features.
+LGBM         Model          Light Gradient Boosting Machine (LGBM) is a gradient boosting framework known for its speed and efficiency.
+LGD          Metric         Loss Given Default (LGD) measures the amount of loss incurred by a lender in the event of a default.
+
+
+
+
+                                                                                                                                                                      21
+ APPENDIX 1 - GLOSSARY
+Term            Type             Explanation
+LIME            Model            Local Interpretable Model-agnostic Explanations (LIME) provides interpretability for black-box models.
+                Interpretation
+LR              Model            Logistic Regression (LR) is a statistical model used to predict the probability of a binary or categorical outcome based on input
+                                 variables. It models the relationship between the predictors and the log-odds of the target variable using a logistic function.
+
+LSTM            Model            Long Short-Term Memory (LSTM) is a type of recurrent neural network (RNN) architecture.
+Masterscale     Metric           Masterscale is the table that associates a PD to various ratings of grades in a monotonic increasing order.
+MLP             Model            Multilayer Perceptron (MLP) is a type of artificial neural network with multiple hidden layers.
+MWB             Method           Matrix Weighted Bandwidth (MWB) is a technique used in kernel density estimation to determine the optimal bandwidth for
+                                 smoothing data based on a weighted matrix.
+PD              Metric           Probability of Default (PD) is the likelihood of a borrower defaulting on a loan or credit obligation.
+PDP             Plot             Partial Dependence Plot (PDP) shows the relationship between a feature and the predicted outcome, while holding other features
+                                 constant.
+PSI             Metric           Population Stability Index (PSI) measures the distributional changes in a variable over time.
+ResNet          Model            Residual Network (ResNet) is a deep learning architecture that introduces skip connections to overcome vanishing gradient
+                                 problems.
+RF              Model            Random Forest (RF) is an ensemble learning method that combines multiple decision trees for classification or regression.
+ROC             Metric           Receiver Operating Characteristic (ROC) curve visualizes the trade-off between true positive rate and false positive rate.
+
+RoE             Metric           Return on Equity (RoE) measures the profitability relative to shareholders' equity.
+RoI             Metric           Return on Investment (RoI) measures the profitability of an investment relative to its cost.
+SHAP            Model            Method using Shapley Values, which provide an explanation for individual predictions in machine learning models.
+                Interpretation
+SVM             Model            Support Vector Machine (SVM) is a supervised learning algorithm used for classification and regression tasks.
+Winsorization   Data             Winsorization is a technique that replaces extreme values in a dataset with less extreme values.
+                Transformation
+XGB             Model            XGBoost (eXtreme Gradient Boosting) is an optimized gradient boosting framework.
+
+
+
+
+                                                                                                                                                                     22
+APPENDIX 2 – DATA MANAGEMENT
+
+Additional information related to data management
+   Missing data:
+     o   Some algorithms can cope with missing data, most don’t. Therefore, we used imputation techniques
+     o   We tested several imputation methods:
+           • Zero value
+           • Median (univariate)
+           • Bayesian-ridge with round-robin iterative process (multivariate)
+           • K-nearest Neighbors KNN (multivariate) with various values for k.
+            KNN with k=4 is best performing method following PSI, Kolmogorov-Smirnov (KS), Kullback-Leibler (KL)
+              divergence and Jensen-Shannon (JS) divergence tests
+
+
+   Standardization or min-max normalization: Following most common practice in data science, we apply:
+     o Standardization: Logisitic Regression, ElasticNet, LDA, Naïve Bayes, Random Forest and SVM
+     o Normalization: GB, XGB, LGBM, EBM, GAMI and MLP
+     We also tested the normalization with the models that used standardization for sanity check
+
+
+
+
+                                                                                                                    23
+APPENDIX 3 – HARDWARE & SOFTWARE
+Hardware :
+In order to assess the reproducibility of the models, two different PCs were used to perform the computations
+HARDWARE                            PC1 (main)                               PC2 (check)
+Processor                           AMD Ryzen 9 3950 X                       Intel i7-8700
+CPU                                 DDR4                                     DDR3
+GPU                                 Nvidia RTX 3090 24GB                     Nvidia GTX 1060i 6GB
+RAM                                 64 GB                                    16 GB
+
+Software :
+The two computers run similar software with, sometimes, marginal differences in releases
+SOFTWARE                            PC1 (main)                               PC2 (check)
+OS                                  Windows 10 Pro                           Windows 10 Pro
+Anaconda                            2.4.2                                    2.4.2
+Spyder                              5.4.3                                    5.3.3
+Python                              3.10.8                                   3.9
+Cuda                                11.7.1                                   11.3.1
+CUDNN                               8.2.1                                    7.6.5
+
+Pytorch                             1.13.1                                   1.12.1
+scikit-learn                        1.0.2                                    1.0.1
+XGBoost                             1.5.0                                    1.5.0
+Lightgbm                            3.2.1                                    3.2.1
+Interpret                           0.3.0                                    0.3.0
+Gaminet                             1.0.0                                    1.0.0
+
+Numpy                               1.21.5                                   1.21.5
+Pandas                              1.4.4                                    1.4.2
+Matplotlib                          3.6.2                                    3.6.2
+
+In order to secure reproducibility to the larger extent possible, we applied several strategies :
+      -    Seed defined for Python, Numpy and Pytorch (both CPU and GPU)
+      -    Deterministic backend forced for CUDNN
+      -    debug environment variable CUBLAS_WORKSPACE_CONFIG defined to ":4096:8"
+
+                                                                                                                24
+CONTACT
+
+
+          Jean Dessain
+          Professor of Finance & Machine Learning   |   Partner
+          IÉSEG, School of Management                   |   Reacfin
+          j.dessain@ieseg.fr                            |   jean.dessain@reacfin.com
+
+
+
+          Nora Bentaleb
+          Analyst
+          Reacfin
+
+
+
+
+          Fabien Vinas
+          Global Head of Data Analytics & AI
+          Allianz Trade
+
+
+
+
+                                    Consult our Credit risk practice section
+
+
+
+
+                                                                                       25

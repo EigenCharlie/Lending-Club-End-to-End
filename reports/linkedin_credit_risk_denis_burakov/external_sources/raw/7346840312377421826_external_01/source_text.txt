@@ -1,0 +1,587 @@
+Amazon Web Services (AWS) | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Amazon Web Services (AWS)
+IT Services and IT Consulting
+Seattle, WA 10,762,133 followers
+Official Global LinkedIn page for Amazon Web Services (AWS).
+See jobs
+Follow
+Discover all 146,300 employees
+Report this company
+Overview
+Jobs
+Life
+About us
+Launched in 2006, Amazon Web Services (AWS) began exposing key infrastructure services to businesses in the form of web services -- now widely known as cloud computing. The ultimate benefit of cloud computing, and AWS, is the ability to leverage a new business model and turn capital infrastructure expenses into variable costs. Businesses no longer need to plan and procure servers and other IT resources weeks or months in advance. Using AWS, businesses can take advantage of Amazon's expertise and economies of scale to access resources when their business needs them, delivering results faster and at a lower cost.
+Today, Amazon Web Services provides a highly reliable, scalable, low-cost infrastructure platform in the cloud that powers hundreds of thousands of businesses in 190 countries around the world. With data center locations in the U.S., Europe, Singapore, and Japan, customers across all industries are taking advantage of our low cost, elastic, open and flexible, secure platform.
+Website
+http://aws.amazon.com
+External link for Amazon Web Services (AWS)
+Industry
+IT Services and IT Consulting
+Company size
+10,001+ employees
+Headquarters
+Seattle, WA
+Type
+Public Company
+Founded
+2006
+Products
+No more previous content
+Amazon Aurora, Relational Database Management Systems
+Amazon Aurora
+Relational Database Management Systems
+Amazon DynamoDB, NoSQL Database Software
+Amazon DynamoDB
+NoSQL Database Software
+Amazon EC2, Infrastructure as a Service (IaaS)
+Amazon EC2
+Infrastructure as a Service (IaaS)
+Amazon Lightsail, Platform as a Service (PaaS) Software
+Amazon Lightsail
+Platform as a Service (PaaS) Software
+Amazon RDS, Relational Database Management Systems
+Amazon RDS
+Relational Database Management Systems
+Amazon SageMaker, Data Science & Machine Learning Platforms
+Amazon SageMaker
+Data Science & Machine Learning Platforms
+Amazon Simple Storage Service (S3), Object Storage Software
+Amazon Simple Storage Service (S3)
+Object Storage Software
+Amazon Virtual Private Cloud, Virtual Private Cloud (VPC) Software
+Amazon Virtual Private Cloud
+Virtual Private Cloud (VPC) Software
+AWS Lambda, Platform as a Service (PaaS) Software
+AWS Lambda
+Platform as a Service (PaaS) Software
+No more next content
+Locations
+Primary
+410 Terry Ave N
+Seattle, WA 98019, US
+Get directions
+2100 University Ave
+East Palo Alto, CA 94303, US
+Get directions
+Kungsgatan 49
+Stockholm, Stockholm County 111 22, SE
+Get directions
+101 Main St
+Cambridge, MA 02142, US
+Get directions
+31 Rives de Clausen
+Luxembourg, Luxembourg 2165, LU
+Get directions
+120 Bremner Blvd
+Toronto, ON M5J 0A8, CA
+Get directions
+227 W Monroe St
+Chicago, IL 60606, US
+Get directions
+Avenida Chedid Jafet, 200
+Sao Paulo, SP 04551-065, BR
+Get directions
+Via Soperga, 9
+Milan, Lomb. 20124, IT
+Get directions
+40 Pacifica
+Irvine, CA 92618, US
+Get directions
+510 W Georgia St
+Vancouver, BC V6B 0M3, CA
+Get directions
+1900 University Ave
+East Palo Alto, CA 94303, US
+Get directions
+60 Holborn Viaduct
+London, England EC1A 2FD, GB
+Get directions
+2 Park St
+Sydney, NSW 2000, AU
+Get directions
+Sapir
+Herzliya, Tel Aviv 46000, IL
+Get directions
+上大崎３丁目１−１ 目黒セントラルスクエア
+品川区, 東京都 141-0021, JP
+Get directions
+Show more locations
+Show fewer locations
+Employees at Amazon Web Services (AWS)
+Frank Boosman
+Don Drake
+Ted Collins
+Roy Osherove
+See all employees
+Updates
+Amazon Web Services (AWS)
+10,762,133 followers
+1d
+Report this post
+The app works on our laptops — now it's time to ship. Morgan and Raf take the agent built locally in Episode 2 and move it to the cloud using AWS Bedrock AgentCore. That means swapping local memory for managed sessions, packaging tools into Lambda functions, standing up a gateway, and wiring up authentication. It's a live coding session where things will break, get fixed, and eventually run end-to-end in the cloud. By the end, you'll see the full journey: from concept to local prototype to deployed agent.
+What You'll Learn:
+• Learn how to deploy AI agents to the cloud using AWS Bedrock AgentCore, including runtime, gateway, memory, and identity components
+• Understand how to migrate local agent resources to cloud-managed services by switching session memory to AgentCore Memory and packaging tools as Lambda-backed gateway resources
+Catch up on previous episodes:
+Episode 1
+https://lnkd.in/eVumBJdm
+Episode 2
+https://lnkd.in/eaZXbrV2
+Build & Deploy Agents with Strands | S1E3 | Ship It: AWS Agentic Apps
+www.linkedin.com
+520
+46 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+12h
+Report this post
+We accidentally created AWS band lore and somehow ended up debating AI recipes too.
+Comment below: what band would AWS be?
+…more
+What band would AWS be?
+68
+2 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+14h
+Report this post
+AWS Local Zones bring AWS infrastructure closer to end users—and the Istanbul Local Zone is now live.
+This is the first AWS Local Zone in EMEA to support Amazon S3 and Amazon EBS Local Snapshots.
+For customers operating in Türkiye:
+- Store, access, and back up data within Turkish borders
+- Run latency-sensitive workloads with single-digit millisecond latency closer to your end users
+- Support compliance needs in financial services, government, telecoms, and healthcare
+- Build with familiar AWS APIs, tools, and services—no new learning curve
+Enable Istanbul Local Zone from your AWS console today.
+Get started: https://go.aws/4vkIVDd
+…more
+AWS Local Zones in Istanbul, Türkiye
+122
+7 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+16h
+Report this post
+What happens when a 140-year-old innovator decides legacy IT won't set the pace?
+Mercedes-Benz Group AG went all-in on what their CIO calls "radical standardization," migrating to AWS for RISE with SAP & using AWS Transform, the world's first agentic AI service for enterprise modernization, to refactor mainframe code at speed.
++ OneERP migrated in just 9 months (17 systems, 40K+ users)
++ Up to 60% application reduction planned
++ Developers now powered by AI-assisted code generation
+This is what it looks like when transformation matches ambition.
+See how Mercedes-Benz is driving innovation at scale with AWS. https://go.aws/4tQzwlA
+…more
+AWS Transform & Mercedes-Benz
+121
+5 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+1d
+Report this post
+Still measuring modernization in years? These teams measure it in weeks. See how & what's next.
+One year. 4.5 billion lines of code. 1.6 million hours saved. Here’s what we learned.
+Amazon Web Services (AWS) on LinkedIn
+83
+6 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+1d
+Report this post
+Picture this: your marketing team no longer has to spend hours manually hunting down data, waiting on approvals, and moving through molasses-like bottlenecks.
+Amazon Quick is the customizable AI assistant for work that makes senior-level marketing insights available on demand to the whole team.
+Experience the Quick difference at https://go.aws/4nLv9H6
+With Quick, build tools that scale deep research, messaging guidance, and competitive context, so you can work ahead of your pipeline.
+…more
+Amazon Quick: Personal Productivity Tool for Marketers
+64
+8 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+1d
+Report this post
+AWS Local Zones are now available in the AWS Management Console Region selector.
+Quickly navigate to your Local Zone resources from the top navigation.
+Select a Local Zone in the Region selector & navigate to its parent Region's Console page to view & manage your Local Zone resources.
+Learn more. https://go.aws/3RuRpZx
+…more
+Now Available: AWS Local Zones in the AWS Management Console Region Selector
+169
+3 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+1d
+Report this post
+In 2008, Marc Brooker joined AWS after a chance conversation in a Cape Town bar. He'd just finished his PhD—his advisor thought he was throwing it all away for "a company that just sells books on the internet."
+But Marc saw something others couldn't yet. EC2 turned months of procurement into minutes. Customers went from launching 30 instances to 3,000, and it just kept compounding. Nearly two decades later, he's a VP and Distinguished Engineer at AWS—still convinced the biggest stuff is yet to come.
+…more
+AWS Stories - Marc Brooke
+323
+4 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+2d
+Report this post
+Should you migrate first & modernize later...or do both at once? Listen. https://go.aws/42DLQub
+AWS Executives-in-Residence Matthias Patzak & Jake Burns share why the fastest, safest path to the cloud is to decouple migration from modernization:
++ Why going fast is less risky than going slow
++ The power of "don't start when you're ready, become ready by starting"
++ How minimal viable refactoring gets you to modernization faster
++ Why migration should be a non-event (modernization is where the real value is)
+…more
+AWS Migration & Modernization Podcast: The Power of Decoupling Migration & Modernization (Episode 3)
+203
+18 Comments
+Like
+Comment
+Share
+Amazon Web Services (AWS)
+10,762,133 followers
+5d
+Report this post
+Discover how F1's relentless pursuit of innovation is setting the pace for every industry. https://go.aws/3PkLqWr
+AWS and Formula 1 have partnered to push the boundaries of what technology can do in the most demanding environment in sport.
+Hear from AWS Motorsports Ambassador and F1 Race Strategist Ruth Buscombe on what the rest of the world can learn from F1's approach to new tools, data analysis, and chasing marginal gains every single race.
+…more
+AWS x F1
+223
+6 Comments
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at Amazon Web Services (AWS)
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Affiliated pages
+Amazon
+Software Development
+Seattle, WA
+AWS Training & Certification
+IT Services and IT Consulting
+Seattle, Washington
+AWS AI
+IT Services and IT Consulting
+Seattle, Washington
+AWS Careers
+IT Services and IT Consulting
+Seattle, Washington
+AWS Databases & Analytics
+IT Services and IT Consulting
+Seattle, Washington
+AWS Startups
+IT Services and IT Consulting
+AWS Executive Insights
+Information Technology & Services
+Seattle, Washington
+AWS Developers
+Technology, Information and Internet
+AWS Events
+IT Services and IT Consulting
+AWS Partners
+IT Services and IT Consulting
+Seattle, Washington
+Kiro
+Technology, Information and Internet
+AWS Newsroom
+Technology, Information and Internet
+Machine Learning
+IT Services and IT Consulting
+AWS for Telecom
+IT Services and IT Consulting
+Seattle, WA
+AWS for Healthcare & Life Sciences
+IT Services and IT Consulting
+AWS for M&E
+Software Development
+Seattle, Washington
+AWS for Financial Services
+IT Services and IT Consulting
+AWS for Energy & Utilities
+IT Services and IT Consulting
+Seattle, WA
+AWS for Retail and Consumer Goods
+IT Services and IT Consulting
+Seattle, WA
+AWS for Automotive
+IT Services and IT Consulting
+Seattle, WA
+AWS for Manufacturing
+IT Services and IT Consulting
+Seattle, WA
+Amazon Quick
+Technology, Information and Internet
+AWS On Air
+Technology, Information and Internet
+Amazon re:MARS
+Information Technology & Services
+AWS Products
+Technology, Information and Internet
+Artificial Intelligence Machine Learning
+IT Services and IT Consulting
+AWS for Aerospace & Satellite
+IT Services and IT Consulting
+AWS Support
+Technology, Information and Internet
+Machine Learning
+IT Services and IT Consulting
+For Industries
+Entertainment Providers
+T V
+IT Services and IT Consulting
+AWS News
+IT Services and IT Consulting
+AWS Japan
+IT Services and IT Consulting
+For TV
+IT Services and IT Consulting
+AWS Builders
+Technology, Information and Internet
+AWS Builder
+Technology, Information and Internet
+KiroCodes
+Technology, Information and Internet
+Amazon Quick Suite
+Technology, Information and Internet
+Show more affiliated pages
+Show fewer affiliated pages
+Similar pages
+Amazon
+Software Development
+Seattle, WA
+Google
+Software Development
+Mountain View, CA
+Microsoft
+Software Development
+Redmond, Washington
+Meta
+Software Development
+Menlo Park, CA
+IBM
+IT Services and IT Consulting
+Armonk, New York, NY
+Deloitte
+Business Consulting and Services
+Oracle
+IT Services and IT Consulting
+Austin, Texas
+NVIDIA
+Computer Hardware Manufacturing
+Santa Clara, CA
+Apple
+Computers and Electronics Manufacturing
+Cupertino, California
+Netflix
+Entertainment Providers
+Los Gatos, CA
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Amazon Web Services (AWS) jobs
+30,934 open jobs
+Engineer jobs
+555,845 open jobs
+Analyst jobs
+694,057 open jobs
+Intern jobs
+71,196 open jobs
+Manager jobs
+1,880,925 open jobs
+Software Engineer jobs
+300,699 open jobs
+Project Manager jobs
+253,048 open jobs
+Developer jobs
+258,935 open jobs
+Support Engineer jobs
+294,729 open jobs
+Associate jobs
+1,091,945 open jobs
+Account Manager jobs
+121,519 open jobs
+Scientist jobs
+48,969 open jobs
+Director jobs
+1,220,357 open jobs
+Specialist jobs
+768,666 open jobs
+Executive jobs
+690,514 open jobs
+Account Executive jobs
+71,457 open jobs
+Consultant jobs
+760,907 open jobs
+Solutions Architect jobs
+100,488 open jobs
+Graduate jobs
+361,130 open jobs
+Support Associate jobs
+161,908 open jobs
+Show more jobs like this
+Show fewer jobs like this
+Funding
+Amazon Web Services (AWS)
+1 total round
+Last Round
+Grant
+Feb 22, 2025
+External Crunchbase Link for last round of funding
+Investors
+BIRD Foundation
+See more info on crunchbase
+More searches
+More searches
+Amazon Web Services (AWS) jobs
+Engineer jobs
+Analyst jobs
+Intern jobs
+Software Engineer jobs
+Manager jobs
+Developer jobs
+Project Manager jobs
+Director jobs
+Solutions Architect jobs
+Scientist jobs
+Consultant jobs
+Account Manager jobs
+Associate jobs
+Account Executive jobs
+Support Engineer jobs
+Specialist jobs
+Data Analyst jobs
+Graduate jobs
+Cyber Security Specialist jobs
+Business Development Specialist jobs
+Cloud Architect jobs
+Technician jobs
+Program Manager jobs
+Executive jobs
+Machine Learning Engineer jobs
+Assistant jobs
+Architect jobs
+Student jobs
+Administrator jobs
+Senior Software Engineer jobs
+Recruiter jobs
+Technical Account Manager jobs
+Data Engineer jobs
+Marketing Manager jobs
+Full Stack Engineer jobs
+Java Software Engineer jobs
+Partner jobs
+Python Developer jobs
+Product Manager jobs
+Human Resources Specialist jobs
+Vice President jobs
+Junior Software Engineer jobs
+System Administrator jobs
+Head jobs
+Sales Manager jobs
+Mechanical Engineer jobs
+User Experience Designer jobs
+Engineering Manager jobs
+Summer Intern jobs
+President jobs
+Data Scientist jobs
+Business Analyst jobs
+Lead jobs
+Solutions Engineer jobs
+Site Reliability Engineer jobs
+Tester jobs
+Support Specialist jobs
+Support Associate jobs
+Senior Manager jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at Amazon Web Services (AWS)
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

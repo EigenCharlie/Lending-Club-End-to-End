@@ -259,7 +259,7 @@ Los hiperparámetros en `configs/pd_model.yaml` reflejan los mejores valores enc
 Una ventaja clave de CatBoost es la capacidad de consumir directamente variables categóricas y valores faltantes sin preprocesamiento. El contrato canónico del modelo define 42 features, de las cuales 9 son categóricas:
 
 ```{python}
-#| label: tbl-categorical-features
+#| label: tbl-catboost-categorical-features
 #| tbl-cap: "Features categóricos procesados nativamente por CatBoost"
 
 from book._helpers.load_artifacts import load_json

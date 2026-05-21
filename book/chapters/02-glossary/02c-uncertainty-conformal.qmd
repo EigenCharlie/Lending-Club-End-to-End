@@ -145,7 +145,7 @@ En nuestro proyecto, la separación se garantiza mediante splits temporales:
 | Calibración | 2017-03 a 2017-12 | Cálculo de scores conformales ($n = 237{,}584$) |
 | Test (OOT) | 2018-01 a 2020-09 | Evaluación de cobertura ($n = 276{,}869$) |
 
-: Splits temporales del proyecto y su rol en el framework conformal {#tbl-temporal-splits}
+: Splits temporales del proyecto y su rol en el framework conformal {#tbl-conformal-temporal-splits}
 
 #### Implementación con MAPIE 1.3.0 {#sec-mapie-api}
 
@@ -181,7 +181,7 @@ Sea $\mathcal{G} = \{g_1, g_2, \ldots, g_K\}$ una partición del espacio de obse
 
 $$
 \hat{q}_\alpha^{(k)} = \text{Quantile}\left(\{s_i : G(X_i) = g_k, \; i \in \mathcal{D}_\text{cal}\}, \; \frac{\lceil (n_k + 1)(1-\alpha) \rceil}{n_k}\right)
-$$ {#eq-mondrian-quantile}
+$$ {#eq-mondrian-quantile-primer}
 
 donde $n_k = |\{i \in \mathcal{D}_\text{cal} : G(X_i) = g_k\}|$ es el número de observaciones de calibración en el grupo $k$, y $G(X_i)$ es la función que asigna la observación $i$ al grupo correspondiente.
 

@@ -1,0 +1,141 @@
+Log Loss
+
+--- PAGE BREAK ---
+
+Log Loss Log loss, also known as logistic loss or cross-entropy loss, is a common metric used in model training and evaluation of machine learning models working with binary outcomes1 (e.g., credit default vs. no credit default) 1. https://dasha.ai/en-us/blog/log-loss-function 2. https://analyticsindiamag.com/all-you-need-to-know-about-log-loss-in-machine-learning/ Log Loss measures the performance of a predictive model whose output is a probability value between 0 and 1. Log loss penalizes false predictions (being too “far off” from the ground truth) by assigning a higher Log Loss score ➡ When working with this metric, we consider lower Log Loss indicating better performance2, but there's no universal threshold for what constitutes a "good" log loss value unlike metrics such as ROC-AUC or the Gini score
+
+--- PAGE BREAK ---
+
+Contents • Likelihood • Binomial Likelihood • Binomial Log-Likelihood • Bernoulli Likelihood & Log-Likelihood • From Binomial to Bernoulli Likelihood • Log-Likelihood & MLE • GBDT Example: Log-Likelihood • Cumulative Log-Likelihood • Training Loop for 30 GBDT Iterations • From Log-Likelihood to Log Loss • Log Loss • Log Loss & Cross-Entropy • Appendix (UBC Zoology: 06. Likelihood)
+
+--- PAGE BREAK ---
+
+Likelihood Imagine we have a dataset with 32 experiments (trials) where in 23 cases, wasps 🐝 chose the mated female butterfly 🦋 We would like to know how likely is it that this is not due to a random choice?1 1. Example from here: https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf Pieris Brassicae https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf
+
+--- PAGE BREAK ---
+
+Binomial Likelihood 1. Example from here: https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf Binomial likelihood is an important starting point in understanding Log Loss based on this example The formula below shows a likelihood function where: • L(p) = likelihood • n = total number of trials • k = the number of successes • (n choose k) = a binomial coefficient • p = the estimate (probability) The binomial likelihood is used to determine the most probable value of p. For our data, 32 trials and 23 successes, maximum likelihood is at p = 23/32 = 71.8%1 https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf
+
+--- PAGE BREAK ---
+
+Binomial Log-Likelihood 1. Example from here: https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf If we use a log form, the binomial likelihood formula becomes: • log L(p) = log-likelihood • n = total number of trials • k = the number of successes • (n choose k) = a binomial coefficient • p = the estimate (probability) Similarly we can iterate over values of p and find the most probable value that resembles our data, in this case the log likelihood is maximum at p = 71.8%1 https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf
+
+--- PAGE BREAK ---
+
+Bernoulli Likelihood & Log-Likelihood Bernoulli likelihood is a special case of a binomial likelihood where the number of trials, n, is fixed at 1. Bernoulli likelihood can be understood as a version of binomial likelihood on observation level The binomial coefficient is no longer part of the likelihood function (1) and similarly for Bernoulli log-likelihood (2) We can compare the formulas for Binomial and Bernoulli likelihoods in the next slide ➡
+
+--- PAGE BREAK ---
+
+From Binomial to Bernoulli Likelihood The Bernoulli likelihood is a binomial likelihood case with one observation per trial. This allows us to reframe our initial problem as a Bernoulli scenario by representing data at the level of individual observations Consider a scenario involving a die roll: out of 12 trials 🎲 , we observe 3 successes (which we define as getting a 5 ⚄) Binomial likelihood Successes (⚄) 3 Trials (🎲 ) 12 Combination 220 p 0.250 p^k 0.01563 (1-p)^n-k 0.07508 Binomial L 0.258 Binomial LL -1.354 Bernoulli LL -6.748 Bernoulli likelihood Trial Outcome p 1 - p LL 1 1 25.00% 75.00% -1.386 2 0 25.00% 75.00% -0.288 3 0 25.00% 75.00% -0.288 4 0 25.00% 75.00% -0.288 5 0 25.00% 75.00% -0.288 6 0 25.00% 75.00% -0.288 7 0 25.00% 75.00% -0.288 8 1 25.00% 75.00% -1.386 9 0 25.00% 75.00% -0.288 10 1 25.00% 75.00% -1.386 11 0 25.00% 75.00% -0.288 12 0 25.00% 75.00% -0.288 Σ12 Σ-6.748 Difference is due to the log of combination
+
+--- PAGE BREAK ---
+
+From Binomial to Bernoulli Likelihood We can confirm the log-likelihood calculations from logistic regression models using statsmodels in Python 🐍 1 Binomial Log-likelihood Bernoulli Log-likelihood 1. Logistic Regression: Bernoulli vs. Binomial Response Variables. https://stats.stackexchange.com/questions/144121/logistic-regression-bernoulli-vs-binomial-response-variables https://www.statsmodels.org/stable/examples/notebooks/generated/glm_formula.html https://stats.stackexchange.com/questions/144121/logistic-regression-bernoulli-vs-binomial-response-variables
+
+--- PAGE BREAK ---
+
+From Binomial to Bernoulli Likelihood Using the intercept (a) and coefficient (b) from the two models we can visualize log-likelihood functions ⬇ Maximum likelihood estimates: a = -1.034, b = -0.2585 Maximum likelihood estimates: a = -1.034, b = -0.2585 Remember that we don’t have a log of the binomial coefficient for Bernoulli log-likelihood Binomial Log-likelihood Bernoulli Log-likelihood
+
+--- PAGE BREAK ---
+
+Log-Likelihood & MLE Log-likelihood is a way to measure how fit a model is for a dataset When the parameters are estimated using the log-likelihood for the Maximum Likelihood Estimation (MLE), each data point is added to the total log-likelihood As the data can be viewed as an evidence that support the estimated parameters in MLE, this process can be interpreted as "support from independent evidence adds", and the log-likelihood is the "weight of evidence”1 1. Likelihood function: https://en.wikipedia.org/wiki/Likelihood_function/ L = ∏ pi yi (1 − pi) 1 - yi LL = yi log(pi) + (1 − yi) log(1− pi) Likelihood Log-likelihood i=1 N Σ N i=1 Data point level i ii i https://en.wikipedia.org/wiki/Likelihood_function/
+
+--- PAGE BREAK ---
+
+GBDT Example: Log-Likelihood We can look at a gradient boosted decision tree (GBDT) model performing Logistic Regression to understand how log- likelihood can be calculated. We will take the first boosting iteration and look at the splits made by the model ⬇ Table above shows that GBDT chose a particular feature (delinquency) and chose a threshold of 98 to create two distinct splits. The first split has a (credit default) event rate of 24% and the second one has 0.62%. We can assume this is our model and we will use the event rate (p)1 to calculate Log-likelihood (rounded): LLsplit 1 = Σ 674 × log(0.239) + 2136 × log(1 − 0.239) = −1548 LLsplit 2 = Σ 26 × log(0.006) + 4164 × log(1 − 0.006) = −158 LL = LLsplit 1+ LLsplit 2 = (−1548) + (−158) = −1706 1. Technically it’s not the prediction that GBDT models like XGBoost make in their first iteration, but we use this heuristic for simplification. You can read more about how XGBoost makes predictions in this tutorial: https://cengiz.me/posts/extreme-gradient-boosting/. https://cengiz.me/posts/extreme-gradient-boosting/
+
+--- PAGE BREAK ---
+
+Cumulative Log-Likelihood The value of Log-likelihood is not informative without a baseline and total count. Below we plot the Cumulative Log- likelihood from different models: GBDT model, first GBDT boosting iteration, and a constant prediction of p (0.10) Worst LL (constant p of 0.10) Better LL (1 gradient boosting iteration) Best LL (84 gradient boosting iterations)
+
+--- PAGE BREAK ---
+
+Training Loop for 30 GBDT Iterations Notice how the cumulative negative Log-likelhood decreases with each gradient boosting iteration ⬇
+
+--- PAGE BREAK ---
+
+From Log-Likelihood to Log Loss ⬅ Maximizing Log-likelihood ⬅ Minimizing Log Loss means This plot may look familiar from ML problems
+
+--- PAGE BREAK ---
+
+Log Loss Feature Sign Split Count NonEvents Events EventRate LL account_never_delinq_percent < 98 2810 2136 674 23.99% -1548.07 account_never_delinq_percent >= 98 4190 4164 26 0.62% -158.06 LL -1706.13 Total count 7000 Log Loss 24.37% Log Loss is an average value of negative Log-likelihood (LL)1 💡 Since LL is negative, we need to add a minus sign to turn it into a positive value. In the example below, we can divide -(-1706.13) by 7000 or follow the conventional formula1, -(1/7000 * -1706.13), to get a Log Loss of 24.37% Log-likelihood (LL) 1. SciPy API reference: https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.xlogy.html https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.xlogy.html
+
+--- PAGE BREAK ---
+
+Log Loss & Cross-Entropy Another interesting question is why is Log Loss also called Cross-Entropy? Shannon entropy is a concept introduced by Claude Shannon. Entropy quantifies the uncertainty of information1. To get Log Loss from entropies we can weight entropies by the absolute counts and divide it by the total counts Entropyevents = - pi × log(pi) Entropynon-events = - (1 − pi) × log(1 − pi) Entropyi = Entropyevents + Entropynon-events Feature Sign Split Count NonEvents Events EventRate Entropy NonEvents Entropy Events Entropy Entropy × count account_never_delinq_percent < 98 2810 2136 674 23.99% 0.21 0.34 0.55 1548.1 account_never_delinq_percent >= 98 4190 4164 26 0.62% 0.01 0.03 0.04 158.1 Total count 7000 Sum Entropy × count 1706.1 Log Loss 24.37% 1. Entropy (Information Theory): https://en.wikipedia.org/wiki/Entropy_(information_theory) https://en.wikipedia.org/wiki/Entropy_(information_theory)
+
+--- PAGE BREAK ---
+
+Link to the Code
+
+--- PAGE BREAK ---
+
+Appendix https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf https://www.zoology.ubc.ca/biol548/lecturepdf/06.Likelihood.pdf
+
+--- PAGE BREAK ---
+
+Example: binomial distribution The binomial distribution is the probability distribution of the number of “successes” in n independent trials, when the probability of success p is the same in each trial. counts up the different ways of getting Y successes and n – Y failures (e.g., S-S-F; S-F-S; F-S-S) Graph shows Pr[0], Pr[1] , Pr[2], … when p = 0.50 and n = 18 ( ) YnY pp Y n Y --÷÷ ø ö çç è æ = 1]successesPr[ ÷÷ ø ö çç è æ Y n
+
+--- PAGE BREAK ---
+
+What is conditional probability The conditional probability of an event is the probability of that event occurring given that a condition is met. “|” symbol used to indicate “given” The probability that the second child born to a couple is a girl, given that their first child was a girl, Pr[second child is girl | first child is girl] Other conditional probabilities: Pr[we see an elephant today | we are in the Serengeti] Pr[we see an elephant today | we are in Manhattan] Pr[ 12 successes in 18 trials | p = 0.50] Pr[ 12 successes in 18 trials | p = 0.10]
+
+--- PAGE BREAK ---
+
+What is likelihood Likelihood is a conditional probability. The likelihood of a population parameter equaling a specific value, given the data, is the probability of obtaining the observed data given that the population parameter equals the specific value. L[ parameter = ρ | data ] = Pr[ data | parameter = ρ ] L[ p = 0.10 | 12 successes out of 18 trials ] = Pr[ 12 successes in 18 trials | p = 0.10] Law of Likelihood: The extent to which data supports one parameter value or hypothesis against another is equal to the ratio of their likelihoods (difference in their log-likelihoods) Method invented by R. A. Fisher when a 3rd-year undergraduate. deburky Highlight deburky Highlight deburky Highlight
+
+--- PAGE BREAK ---
+
+Likelihood is used a lot in phylogeny estimation Three proposed trees of ancestor–descendant relationships between humans and the other great apes. The human branch is highlighted. Numbers at the bottom are the likelihoods of each proposed tree based on gene sequence data (Rannala and Yang 1996). The likelihood of the left-most tree is the highest. L[ tree = i | gene sequences ] = Pr[ gene sequences | tree = i ] What matters is not the likelihood of each tree as such, but the likelihood of each tree relative to the others.
+
+--- PAGE BREAK ---
+
+Example 1: Estimate a binomial proportion p Data: The tiny wasp, Trichogramma brassicae, rides on female cabbage white butterflies, Pieris brassicae. When a butterfly lays her eggs on a cabbage, the wasp climbs down and parasitizes the freshly laid eggs. Fatouros et al. (2005) carried out trials to determine whether the wasps can distinguish mated female butterflies from unmated females. In each trial a single wasp was presented with two female cabbage white butterflies, one a virgin female, the other recently mated. Y = 23 of 32 wasps tested chose the mated female. What is the proportion p of wasps in the population choosing the mated female? Y = 23 “successes”, n = 32 trials. Use these data to estimate p.
+
+--- PAGE BREAK ---
+
+Example 1: Estimate a binomial proportion p Likelihood function for the binomial proportion p Data: Y = 23, n = 32 𝐿[𝑝 | 𝑌 chose mated female] = Pr[𝑌 chose mated female | 𝑝] 𝐿[𝑝 | 23 chose mated] = 8 32 23 9 𝑝!"(1 − 𝑝)# For example, the likelihood of p = 0.5, given the data, is 𝐿[𝑝 = 0.5 | 23 chose mated] = A"!!"B(0.5) !"(1 − 0.5)# = 0.00653 in R: dbinom(23, 32, prob=0.5) [1] 0.00653062 deburky Highlight deburky Highlight
+
+--- PAGE BREAK ---
+
+Example 1: Estimate a binomial proportion p Easier to work with log-likelihoods ln 𝐿[0.5 | 23 chose mated] = lnA"!!"B23 ln(0.5) 9 ln (1 − 0.5) = −5.03125 in R: dbinom(23, 32, prob = 0.5, log=TRUE) [1] -5.031253 Repeat for many values of p to get the log-likelihood curve: deburky Highlight deburky Highlight
+
+--- PAGE BREAK ---
+
+Likelihood works backward from probability. We use likelihood to estimate unknown parameters based on known data. The parameters are treated as variables, the data are a constant, unvarying. deburky Highlight deburky Highlight
+
+--- PAGE BREAK ---
+
+Likelihood works backward from probability. But the likelihood function is not a probability distribution. The population proportion p is the variable of the function, but it is not a random variable (its value is not determined by random trial). deburky Highlight
+
+--- PAGE BREAK ---
+
+Maximum likelihood estimate The likelihood ratio (difference of log-likelihoods) measures relative support for alternative parameter values. The maximum likelihood estimate (MLE) of a parameter is the parameter value having the highest likelihood (and log-likelihood), given the data. This is the parameter value most strongly supported by the data. deburky Highlight deburky Highlight
+
+--- PAGE BREAK ---
+
+Maximum likelihood estimate The ML estimate could instead have been obtained more easily as �̂� = $ % = !" "! = 0.72 The conventional formula for estimating a proportion yields the ML estimate. Most formulas you use to estimate parameters yield maximum likelihood estimates.
+
+--- PAGE BREAK ---
+
+Log-likelihood ratio test 𝐺 = 2 ln 𝐿[full model | data] 𝐿[reduced model | data] G is the log-likelihood ratio test statistic. Under H0, G is approximately χ2 distributed. Degrees of freedom for the χ2 are equal to the difference between the full model and the reduced model in the number of parameters estimated from the data. Very general method – applies to any data. The approximation to the χ2 distribution improves with increasing sample size.
+
+--- PAGE BREAK ---
+
+Log-likelihood ratio test Example 1: Fatouros et al. (2005) carried out trials to determine whether the wasps can distinguish mated female butterflies from unmated females. In each trial, a single wasp was presented with two female cabbage white butterflies, one a virgin female, the other recently mated. Results: 23 successes out of n = 32 trials. Reduced model: H0: Wasps choose mated and unmated females with equal probability (p = 0.5) Full model: HA: Wasps prefer one type of female over the other (p ¹ 0.5) To fit the full model, p is estimated from the data. In this sense, the full model has 1 more term than the reduced model.
+
+--- PAGE BREAK ---
+
+Log-likelihood ratio test 𝐺 = 2 ln 𝐿[full model | data] 𝐿[reduced model | data] Applied to the wasp example: 𝐺 = 2 ln 𝐿[𝑝 = �̂� = 0.72 | 23 of 32 chose mated female] 𝐿[𝑝 = 𝑝& = 0.50| 23 of 32 chose mated female] A parameter estimated from the data uses the maximum likelihood estimate (e.g., �̂� = 0.72 in the full model here).
+
+--- PAGE BREAK ---
+
+Log-likelihood ratio test From calculations using formulae shown earlier, 𝐿[0.72 | 23 of 32 chose mated female] = 0.1553 𝐿[0.50 | 23 of 32 chose mated female] = 0.00653 𝐺 = 2 ln 0.1553 0.00653 = 6.336 df = 1, so the critical value χ2 = 3.841 Since 6.336 > 3.841, we reject H0.
+
+--- PAGE BREAK ---
+
+Wasp example: finale The chemical that the wasps use to distinguish mated from unmated females is benzyl cyanide, which the male butterfly passes to the female during mating. The compound is an “anti-aphrodisiac”, rendering the mated female less attractive to other male butterflies (Fatouros et al. 2005).
+
+--- PAGE BREAK ---
+
+Readings

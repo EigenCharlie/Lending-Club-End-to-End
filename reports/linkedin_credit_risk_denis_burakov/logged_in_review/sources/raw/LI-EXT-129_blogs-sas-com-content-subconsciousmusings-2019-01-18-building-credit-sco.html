@@ -1,0 +1,522 @@
+
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<title>Building credit scorecards using SAS and Python - The SAS Data Science Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="pingback" href="https://blogs.sas.com/content/subconsciousmusings/xmlrpc.php" />
+<meta property="og:title" content="Building credit scorecards using SAS and Python"/>
+<meta property="og:type" content="article"/>
+<meta property="og:url" content="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/"/>
+<meta property="og:site_name" content="The SAS Data Science Blog"/>
+<meta property="og:description" content="Whether you’re applying for your first credit card or shopping for a second home – or anywhere in between – you’ll probably encounter an application process."/>
+<meta property="fb:app_id" content="129959910415506"/>
+<meta property="og:image" content="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png"/>
+<link rel="preconnect" href="https://www.sas.com"/>
+<link rel="preconnect" href="https://www.googletagmanager.com"/>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PWTVHH');</script>
+<script src="https://assets.adobedtm.com/a4a4268256930a29de311efab04f43cf44db167b/satelliteLib-392eedeb8633e1cc249f4de8df2bb2cfb4073228.js"></script>
+<meta name='robots' content='index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' />
+
+
+	<meta name="description" content="This post offers an introduction to building credit scorecards with statistical methods and business logic. It includes an example using SAS and Python, including a link to a full Jupyter Notebook demo on GitHub." />
+	<link rel="canonical" href="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/" />
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:title" content="Building credit scorecards using SAS and Python - The SAS Data Science Blog" />
+	<meta name="twitter:description" content="This post offers an introduction to building credit scorecards with statistical methods and business logic. It includes an example using SAS and Python, including a link to a full Jupyter Notebook demo on GitHub." />
+	<meta name="twitter:image" content="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png" />
+	<meta name="twitter:creator" content="@sassoftware" />
+	<meta name="twitter:site" content="@sassoftware" />
+	<meta name="twitter:label1" content="Written by" />
+	<meta name="twitter:data1" content="Andre Violante" />
+	<meta name="twitter:label2" content="Est. reading time" />
+	<meta name="twitter:data2" content="14 minutes" />
+	<script type="application/ld+json" class="yoast-schema-graph">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/","url":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/","name":"Building credit scorecards using SAS and Python - The SAS Data Science Blog","isPartOf":{"@id":"https://blogs.sas.com/content/subconsciousmusings/#website"},"primaryImageOfPage":{"@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#primaryimage"},"image":{"@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#primaryimage"},"thumbnailUrl":"https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png","datePublished":"2019-01-18T19:23:33+00:00","dateModified":"2019-03-15T14:01:49+00:00","author":{"@id":"https://blogs.sas.com/content/subconsciousmusings/#/schema/person/0f8fe8bff6cda07a826d0cebd31e171f"},"description":"This post offers an introduction to building credit scorecards with statistical methods and business logic. It includes an example using SAS and Python, including a link to a full Jupyter Notebook demo on GitHub.","breadcrumb":{"@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#breadcrumb"},"inLanguage":"en-US","potentialAction":[{"@type":"ReadAction","target":["https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/"]}]},{"@type":"ImageObject","inLanguage":"en-US","@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#primaryimage","url":"https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png","contentUrl":"https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png","width":870,"height":450,"caption":"Figure 11: Customer groups based on percentile scores"},{"@type":"BreadcrumbList","@id":"https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#breadcrumb","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://blogs.sas.com/content/subconsciousmusings/"},{"@type":"ListItem","position":2,"name":"Building credit scorecards using SAS and Python"}]},{"@type":"WebSite","@id":"https://blogs.sas.com/content/subconsciousmusings/#website","url":"https://blogs.sas.com/content/subconsciousmusings/","name":"The SAS Data Science Blog","description":"Advanced analytics from SAS data scientists","potentialAction":[{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://blogs.sas.com/content/subconsciousmusings/?s={search_term_string}"},"query-input":"required name=search_term_string"}],"inLanguage":"en-US"},{"@type":"Person","@id":"https://blogs.sas.com/content/subconsciousmusings/#/schema/person/0f8fe8bff6cda07a826d0cebd31e171f","name":"Andre Violante","image":{"@type":"ImageObject","inLanguage":"en-US","@id":"https://blogs.sas.com/content/subconsciousmusings/#/schema/person/image/","url":"https://secure.gravatar.com/avatar/9591ab8f469b1e880e8bfd8d1b29861d?s=96&d=mm&r=g","contentUrl":"https://secure.gravatar.com/avatar/9591ab8f469b1e880e8bfd8d1b29861d?s=96&d=mm&r=g","caption":"Andre Violante"},"description":"Andre comes to SAS with over 8 years of digital analytics experience. He has specialized in the retail industry with deep experience in customer analytics. Andre has worked with several different data platforms, both on-premises and cloud, using a variety of open source tools, but primarily R and Python. Andre is naturally curious with passion for problem solving. Andre has a Bachelor’s in Business Management and a Master’s degree in Analytics. He is also currently enrolled in Georgia Tech working on a second Master’s degree in Computer Science with an emphasis in machine learning. Andre loves spending time with his family going on vacations and trying new food spots. He also enjoys the outdoors and being active.","sameAs":["https://www.linkedin.com/in/andreviolante/"],"url":"https://blogs.sas.com/content/subconsciousmusings/author/andreviolante/"}]}</script>
+
+
+
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgba(6,147,227,1) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgba(252,185,0,1) 0%,rgba(255,105,0,1) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgba(255,105,0,1) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgba(255, 255, 255, 1), 6px 6px rgba(0, 0, 0, 1);--wp--preset--shadow--crisp: 6px 6px 0px rgba(0, 0, 0, 1);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}
+:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}
+:root :where(.wp-block-pullquote){font-size: 1.5em;line-height: 1.6;}
+</style>
+<link rel='stylesheet' id='smartmag-core-css' href='https://blogs.sas.com/content/subconsciousmusings/wp-content/themes/smart-mag-child/style.css?ver=2.6.1' type='text/css' media='all' />
+<link rel='stylesheet' id='custom-css-css' href='https://blogs.sas.com/content/subconsciousmusings/?bunyad_custom_css=1&#038;ver=6.6' type='text/css' media='all' />
+<script type="text/javascript" src="https://blogs.sas.com/content/subconsciousmusings/wp-includes/js/jquery/jquery.min.js?ver=3.7.1" id="jquery-core-js"></script>
+<link rel="alternate" type="application/feed+json" title="The SAS Data Science Blog &raquo; JSON Feed" href="https://blogs.sas.com/content/subconsciousmusings/feed/json/" />
+<link rel="alternate" type="application/feed+json" title="The SAS Data Science Blog &raquo; Building credit scorecards using SAS and Python Comments Feed" href="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/feed/json/" />
+<link rel="shortcut icon" type="image/x-icon" href="/content/wp-content/themes/smart-mag-child/library/images/favicon.ico">
+<link rel="stylesheet" href="https://www.sas.com/etc/designs/saswww/global-header.css" type="text/css" media="all" />
+</head>
+<body class="post-template-default single single-post postid-2368 single-format-standard page-builder no-sidebar full has-nav-light has-nav-full has-mobile-head">
+<script src="https://www.sas.com/en_us/navigation/header/global-links-header.pheader.html"></script>
+<script src="https://www.sas.com/etc/designs/saswww/global-header-min.js"></script>
+<div class="main-wrap">
+
+
+	<div class="top-bar hidden">
+
+
+		<div class="search">
+			<form role="search" action="/content/" method="get">
+				<input type="text" name="s" class="query" value="" placeholder="Search..."/>
+				<button class="search-button" type="submit"><i class="fa fa-search"></i></button>
+			</form>
+		</div>
+	</div>
+
+	<div id="main-head" class="main-head">
+
+		<div class="wrap">
+
+							<div class="mobile-head">
+
+					<div class="menu-icon"><a href="#"><i class="fa fa-bars"></i></a></div>
+					<div class="title">
+								<a href="/content/" rel="home">
+
+							<h1>Blogs</h1>
+		</a>					</div>
+				</div>
+
+			<header class="default">
+
+				<div class="title">
+							<a href="/content/" rel="home">
+
+							<h1>Blogs</h1>
+		</a>				</div>
+
+
+					<div class="right">
+										</div>
+
+
+			</header>
+
+
+		</div>
+
+
+<div class="navigation-wrap cf">
+
+	<nav class="navigation cf nav-full nav-light has-search">
+
+		<div class="wrap">
+
+			<div class="mobile" data-type="off-canvas" data-search="1">
+				<a href="#" class="selected">
+					<span class="text">Navigate</span><span class="current"></span> <i class="hamburger fa fa-bars"></i>
+				</a>
+			</div>
+			            <div class="menu-main-menu-container"><ul id="menu-main-menu" class="menu"><li class="nav-item-1 menu-item menu-item-type-custom menu-item-object-custom"><a href="#">All Topics &#9662;</a></li><li class="nav-item-2 menu-item menu-item-type-custom menu-item-object-custom"><a href="#">All Industries &#9662;</a></li><li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/content/blog-directory/">Blog Directory</a></li><li class="menu-item menu-item-type-post_type menu-item-object-page"><a href="/content/subscribe/">Subscribe</a></li></ul></div><div id="nav-blog-menu-1" class="ddpanel blog-menu"><button id="nav-blog-menu-1-close" class="close foobar" aria-label="Close"></button><div class="menu-all-topics-menu-container"><ul id="menu-all-topics-menu" class="globalnavmenu"><li id="menu-item-37936" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37936"><a href="https://blogs.sas.com/content/topic/advanced-analytics/">Advanced Analytics</a></li>
+<li id="menu-item-37937" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37937"><a href="https://blogs.sas.com/content/topic/analytics/">Analytics</a></li>
+<li id="menu-item-37938" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37938"><a href="https://blogs.sas.com/content/topic/artificial-intelligence/">Artificial Intelligence</a></li>
+<li id="menu-item-67675" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-67675"><a href="https://blogs.sas.com/content/topic/cloud/">Cloud</a></li>
+<li id="menu-item-37939" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37939"><a href="https://blogs.sas.com/content/topic/customer-intelligence/">Customer Intelligence</a></li>
+<li id="menu-item-37940" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37940"><a href="https://blogs.sas.com/content/topic/data-for-good/">Data for Good</a></li>
+<li id="menu-item-37941" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37941"><a href="https://blogs.sas.com/content/topic/data-management/">Data Management</a></li>
+<li id="menu-item-37942" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37942"><a href="https://blogs.sas.com/content/topic/data-visualization/">Data Visualization</a></li>
+<li id="menu-item-37943" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37943"><a href="https://blogs.sas.com/content/topic/featured/">Featured</a></li>
+<li id="menu-item-37944" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37944"><a href="https://blogs.sas.com/content/topic/fraud-security/">Fraud &amp; Security Intelligence</a></li>
+<li id="menu-item-37945" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37945"><a href="https://blogs.sas.com/content/topic/iot/">Internet of Things</a></li>
+<li id="menu-item-37946" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37946"><a href="https://blogs.sas.com/content/topic/learn-sas/">Learn SAS</a></li>
+<li id="menu-item-37947" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37947"><a href="https://blogs.sas.com/content/topic/machine-learning/">Machine Learning</a></li>
+<li id="menu-item-37949" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37949"><a href="https://blogs.sas.com/content/topic/programming-tips/">Programming Tips</a></li>
+<li id="menu-item-37950" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37950"><a href="https://blogs.sas.com/content/topic/risk-management/">Risk Management</a></li>
+<li id="menu-item-37951" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37951"><a href="https://blogs.sas.com/content/topic/sas-administrators/">SAS Administrators</a></li>
+<li id="menu-item-37952" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37952"><a href="https://blogs.sas.com/content/topic/sas-events/">SAS Events</a></li>
+<li id="menu-item-37953" class="menu-item menu-item-type-taxonomy menu-item-object-topic menu-item-37953"><a href="https://blogs.sas.com/content/topic/students-educators/">Students &amp; Educators</a></li>
+</ul></div></div><div id="nav-blog-menu-2" class="ddpanel blog-menu"><button id="nav-blog-menu-2-close" class="close foobar" aria-label="Close"></button><div class="menu-industry-menu-container"><ul id="menu-industry-menu" class="globalnavmenu"><li id="menu-item-37954" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37954"><a href="https://blogs.sas.com/content/industry/ind-banking/">Banking</a></li>
+<li id="menu-item-37955" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37955"><a href="https://blogs.sas.com/content/industry/ind-communications/">Communications</a></li>
+<li id="menu-item-37956" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37956"><a href="https://blogs.sas.com/content/industry/ind-education/">Education</a></li>
+<li id="menu-item-37957" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37957"><a href="https://blogs.sas.com/content/industry/ind-energy-utilities/">Energy &#038; Utilities</a></li>
+<li id="menu-item-37958" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37958"><a href="https://blogs.sas.com/content/industry/ind-government/">Government</a></li>
+<li id="menu-item-37959" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37959"><a href="https://blogs.sas.com/content/industry/ind-health-care/">Health Care</a></li>
+<li id="menu-item-37960" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37960"><a href="https://blogs.sas.com/content/industry/ind-hospitality/">Hospitality</a></li>
+<li id="menu-item-37961" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37961"><a href="https://blogs.sas.com/content/industry/ind-insurance/">Insurance</a></li>
+<li id="menu-item-37962" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37962"><a href="https://blogs.sas.com/content/industry/ind-life-sciences/">Life Sciences</a></li>
+<li id="menu-item-37963" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37963"><a href="https://blogs.sas.com/content/industry/ind-manufacturing/">Manufacturing</a></li>
+<li id="menu-item-37964" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37964"><a href="https://blogs.sas.com/content/industry/ind-retail/">Retail</a></li>
+<li id="menu-item-37965" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37965"><a href="https://blogs.sas.com/content/industry/ind-sports-entertainment/">Sports &#038; Entertainment</a></li>
+<li id="menu-item-37966" class="menu-item menu-item-type-taxonomy menu-item-object-industry menu-item-37966"><a href="https://blogs.sas.com/content/industry/ind-travel/">Travel</a></li>
+</ul></div></div>
+		</div>
+
+	</nav>
+
+</div>
+	</div>
+
+
+<div class="main wrap cf">
+
+
+	<div class="row">
+
+		<div class="col-8 main-content">
+
+
+
+<article id="post-2368" class="post-2368 post type-post status-publish format-standard has-post-thumbnail category-uncategorized tag-credit-scoring tag-developers tag-scorecards language-en topic-advanced-analytics topic-risk-management" itemscope itemtype="http://schema.org/Article">
+
+	<header class="post-header cf">
+
+
+
+
+
+				<div class="heading cf">
+
+			<h1 class="post-title item fn" itemprop="name headline">
+			Building credit scorecards using SAS and Python			</h1>
+
+			<a href="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#comments" class="comments"><i class="fa fa-comments-o"></i> 2</a>
+
+		</div>
+
+		<div class="post-meta cf">
+			<span class="posted-by">By
+				<span class="reviewer" itemprop="author"><a href="/content/author/andreviolante/" title="Posts by Andre Violante" rel="author">Andre Violante</a> on <a href="https://blogs.sas.com/content/subconsciousmusings/">The SAS Data Science Blog</a></span>
+			</span>
+
+			<span class="posted-on">
+				<span class="dtreviewed">
+					<time class="value-title" datetime="2019-01-18T14:23:33-05:00" title="2019-01-18" itemprop="datePublished">January 18, 2019</time>
+				</span>
+			</span>
+
+			<span class="cats">Topics | <a href="/content/topic/advanced-analytics/" title="Advanced Analytics">Advanced Analytics</a> <a href="/content/topic/risk-management/" title="Risk Management">Risk Management</a> </span>
+
+        </div>
+        <div class="post-metaindustry">
+                </div>
+
+	</header>
+
+
+
+	<div class="post-container cf">
+
+		<div class="post-content-right">
+			<div class="post-content description " itemprop="articleBody">
+
+
+
+		<p>Whether you’re applying for your first credit card or shopping for a second home – or anywhere in between – you’ll probably encounter an application process. As part of that process, banks and other lenders use a scorecard to determine your likelihood to pay off that loan.</p>
+<p>Naturally, this means credit scoring is an important <a href="https://www.sas.com/en_us/insights/analytics/data-science.html">data science</a> topic for banks and any business that works with the banking industry.</p>
+<p>Since I have previous experience with customer analytics, but not specifically with financial risk, I’ve been learning how to develop a credit scorecard, and I wanted to share what I’ve learned including my thoughts and code implementation.</p>
+<h2><strong>Scorecards and the value of credit scoring</strong></h2>
+<p>There are two basic types of scorecards: behavioral scorecards and application scorecards.</p>
+<ol>
+<li>Behavioral scorecards deal more with predicting or scoring current customers and their likelihood to default.</li>
+<li>Application scorecards are used when new customers apply for loans to predict their likelihood to be profitable customers, and to associate a score to them.</li>
+</ol>
+<p>For banks, credit scoring helps manage risk. As consumers we’re bombarded with offers. It’s up to the business to assess the credit worthiness and credit scores of consumers to identify optimal product solutions based on risk, turnaround times, incorrect credit denials and more.</p>
+<p>If credit is offered when it shouldn’t be, then a future loss is likely. If turnaround times to approve or deny credit have long lag times or a bank inaccurately denies a good customer credit, they could lose those customers to competitors. In those situations, it might be a long time before you get them back.</p>
+<p>Using credit scoring can optimize risk and maximize profitability for businesses.</p>
+<h2><strong>Credit scoring data</strong></h2>
+<p>The training data for the credit scoring example in this post is real customer bank data that has been massaged and anonymized for obvious reasons. The features - what are called characteristics in credit scoring - include the number of children, number in household, age, time at address, time at current job, has a telephone, income, etc. Our target variable will be a binary variable with the values ”bad” or ”good” with respect to the customer defaulting given some historical period.</p>
+<h2><strong>The credit scoring code</strong></h2>
+<p>For this analysis I’m using the SAS Open Source library called <a href="https://github.com/sassoftware/python-swat">SWAT (Scripting Wrapper for Analytics Transfer)</a> to code in Python and execute SAS CAS Action Sets. SWAT acts as a bridge between the python language to CAS Action Sets. <a href="https://go.documentation.sas.com/?cdcId=pgmcdc&amp;cdcVersion=8.11&amp;docsetId=allprodsactions&amp;docsetTarget=actionSetsByName.htm&amp;locale=en">CAS Action Sets</a> are synonymous to libraries in Python or packages in R. The one main difference and benefit is that the algorithms within these action sets have been highly parallelized to run on a <a href="https://support.sas.com/resources/papers/proceedings17/SAS0309-2017.pdf">CAS (Cloud Analytic Services) server</a>. The CAS server is a distributed in-memory engine where I can do all my heavy lifting or computations. The code and Jupyter Notebook are available on <a href="https://github.com/aviolante/sas-python-work/tree/master/machine_learning/scorecard_post">GitHub</a>.</p>
+<h2><strong>The credit scoring method</strong></h2>
+<h3><em>Weight of evidence</em></h3>
+<p style="text-align: left;">I first transform my data using the weight of evidence (WOE) method. This method attempts to find a monotonic relationship between the input features and your target variable by splitting each feature into bins and assigning a weight to each bin. Suppose a WOE transformation on income level included income level $100k - $150k, then all observations within that bin would receive the same WOE value which can be computed using the formula below.</p>
+<p style="text-align: center;"><span class='MathJax_Preview'>\(woe \:value = ln \left( \frac{\% Good}{\% Bad} \right) * 100\)</span><script type='math/tex'>woe \:value = ln \left( \frac{\% Good}{\% Bad} \right) * 100</script></p>
+<p style="text-align: center;"><em>Weight of Evidence Calculation</em></p>
+<p>Consider a bin for income level between $100k – $150k. Of all the "good" observations in our data, 30 percent come from this income level bin while only 10 percent of the "bad" observations come from this bin. Using these proportions, you could state that we have 3:1 odds that a person between the income of $100k and $150k is a good credit candidate versus bad. We then take the natural log and multiple by 100 for easier numeric representation and we have our WOE value for income level for all observations that fall within our income level bin.</p>
+<p style="text-align: center;"><em><span class='MathJax_Preview'>\(ln \left( \frac{0.30}{0.10} \right) * 100 = 109.86\)</span><script type='math/tex'>ln \left( \frac{0.30}{0.10} \right) * 100 = 109.86</script></em></p>
+<p style="text-align: center;"><em>Weight of Evidence Example</em></p>
+<h3><em>Data pipeline</em></h3>
+<p>Let’s apply this transformation to our entire data set. Using the data preprocess action set in SAS makes it very easy to build data pipelines (Figure 1). Data pipelines help the flow of automation of common manual data science steps. This action set can build out large data pipelines for a variety of transformations across any continuous or nominal features.</p>
+<p>There are only a few steps to building a single pipeline:</p>
+<ol>
+<li>Assign variables to roles.</li>
+<li>Build variable transformations.</li>
+<li>Append transformations to later apply to data.</li>
+</ol>
+<p>First, we assign the features to their roles, with respect to the transformation and modeling, separating nominal and continuous variables as well as the target (Figure 1)</p>
+<figure id="attachment_2371" aria-describedby="caption-attachment-2371" style="width: 1115px" class="wp-caption alignright"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles.png"><img fetchpriority="high" decoding="async" class="wp-image-2371 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-e1547664248617.png" alt="" width="1115" height="115" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-e1547664248617.png 1115w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-e1547664248617-300x31.png 300w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-e1547664248617-1024x106.png 1024w" sizes="(max-width: 1115px) 100vw, 1115px" /></a><figcaption id="caption-attachment-2371" class="wp-caption-text">Figure 1: Assign features to roles</figcaption></figure>
+<p>&nbsp;</p>
+<p>Next, we create the first transformation called req_pack1, which is just short for request package and is the parameter found in the datapreprocess.transform action. I give that transformation a name, pass the list of features and the target, and specify the event of interest, which is ”bad” in this case.</p>
+<p>I call discretize in Python to bin the continuous values and specify the WOE transformation. Within that transformation is a regularization parameter where you can specify a range of bins using the min and max NBins parameter. This enables a search across those bins to find the optimal bin number using information value (IV). IV is a common statistic used in classification models to gauge the predictive power of your feature set.</p>
+<p>The second transformation, which I label as req_pack2, is nearly identical except I’m transforming the nominal inputs and therefore need to use cattrans instead of discretize. The cattrans parameter stands for categorical transformation.</p>
+<p>We then append those lists together to later pass the transformation outline to our transform action.</p>
+<figure id="attachment_2372" aria-describedby="caption-attachment-2372" style="width: 1124px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-1.png"><img decoding="async" class="wp-image-2372 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-1-e1547664431634.png" alt="" width="1124" height="455" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-1-e1547664431634.png 1124w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-1-e1547664431634-300x121.png 300w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/assignfeaturestoroles-1-e1547664431634-1024x415.png 1024w" sizes="(max-width: 1124px) 100vw, 1124px" /></a><figcaption id="caption-attachment-2372" class="wp-caption-text">Figure 2: Set up weight of evidence transformation</figcaption></figure>
+<h3>Data Transformation</h3>
+<p>Now that we have our data pipeline in place, let’s transform the data (Figure 3). I first reference our data using the table parameter. Then I provide the req_packs list that I created in figure 2 with all the transformations. I specify the output table (casout) to be called woe_transform. Next, I use copyVars to copy the target and _customerID feature over to our new transformed table from the original table. Then I give a global prefix of “woe” to all our newly transformed features. The code parameter saves the transformation as a code table. This will be used later for scoring new data. This benefits teams that want to do model collaboration or build out deeper end-to-end pipelines for reoccurring jobs.</p>
+<p>Finally, we’ll look at a preview of our new WOE table (Figure 3). Notice the identical values for some of our customers. Remember this happens because those observations, for a given variable, fall into the same bin and therefore receive the same weight.</p>
+<p><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/transformdata.png"><img decoding="async" class="alignnone wp-image-2375 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/transformdata.png" alt="" width="1021" height="142" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/transformdata.png 1021w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/transformdata-300x42.png 300w" sizes="(max-width: 1021px) 100vw, 1021px" /></a></p>
+<figure id="attachment_2376" aria-describedby="caption-attachment-2376" style="width: 1066px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/newdataset.png"><img loading="lazy" decoding="async" class="wp-image-2376 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/newdataset.png" alt="table of transformed data" width="1066" height="176" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/newdataset.png 1066w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/newdataset-300x50.png 300w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/newdataset-1024x169.png 1024w" sizes="(max-width: 1066px) 100vw, 1066px" /></a><figcaption id="caption-attachment-2376" class="wp-caption-text">Figure 3: Transform data and view new dataset.</figcaption></figure>
+<h3><em>Visualizing transformation results</em></h3>
+<p>The transform action creates several output tables on the CAS server like the one from Figure 3. One of those tables is called VarTransInfo, which contains the IV statistic for our features. Its good practice to look at IV for our features to understand their predictive power and to determine if it’s necessary to include those features in our model. Below is the calculation for IV. Figure 4 is a plot of those IV values for each of our features. Strong features typically have an IV &gt; 0.3, weak features &lt; 0.02, and anything &gt; 0.5 may be suspicious and need a closer look. Figure 4 shows that our features almost split in half between strong and then somewhere in the middle. Also, the age variable looks suspiciously strong. For now, we’ll keep all the features.</p>
+<p style="text-align: center;"><span class='MathJax_Preview'>\(Information \: Value = \sum (\% \: of \: nonevents - \% \: of \: events) * WOE\)</span><script type='math/tex'>Information \: Value = \sum (\% \: of \: nonevents - \% \: of \: events) * WOE</script></p>
+<p>&nbsp;</p>
+<figure id="attachment_2382" aria-describedby="caption-attachment-2382" style="width: 900px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/information_value_image-003.gif"><img loading="lazy" decoding="async" class="wp-image-2382 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/information_value_image-003.gif" alt="" width="900" height="454" /></a><figcaption id="caption-attachment-2382" class="wp-caption-text">Figure 4: Information value (IV) calculation</figcaption></figure>
+<p>We can also plot the WOE values of our features by their assigned bins. Aside from viewing these WOE values across bins, a data scientist may want to go back and manually configure the number of bins (combining or splitting up) per a specific variable that makes more logical sense. It’s important to know that WOE attempts to create separation within individual features as it relates to a target variable so there should be differences across bins. Figure 5 shows WOE values that you would expect to see across bins indicating separation within those features.</p>
+<figure id="attachment_2384" aria-describedby="caption-attachment-2384" style="width: 834px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/WoeValuePlots2.png"><img loading="lazy" decoding="async" class="wp-image-2384 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/WoeValuePlots2.png" alt="" width="834" height="326" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/WoeValuePlots2.png 834w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/WoeValuePlots2-300x117.png 300w" sizes="(max-width: 834px) 100vw, 834px" /></a><figcaption id="caption-attachment-2384" class="wp-caption-text">Figure 5: Plot of WOE value by bin for several features</figcaption></figure>
+<p>This is really where a data scientist needs to understand the business in order to ensure the weighting trend across bins is logical. For example, it makes business sense to a bank that the more cash a customer has available that it should see a higher weighting across bins. The same type of logic applies to time at a job, age, or profession group. We would expect all of those weightings to be higher with respect to the bins.</p>
+<h2>Logistic regression for scorecards</h2>
+<p>The next step we have is to fit a logistic regression model using our newly transformed WOE dataset. I will show the very easy code to train the model and explain the parameters.</p>
+<p>Figure 6 below shows the training code. Here are the steps involved for training the model:</p>
+<ol>
+<li>Assign model inputs and concatenate “woe_” to all original column names so it references the woe_transform dataset correctly.</li>
+<li>Reference the woe_transform dataset using the table parameter.</li>
+<li>Specify the target as well as the reference (reference ‘good’ or ‘bad’ in terms of the model).</li>
+<li>Then, specify forward selection method for variable selection. Forward selection starts with an empty model and adds a single variable at each iteration based on a specific criterion (AIC, AICC, SBC, etc.).</li>
+<li>Use the code parameter to save our logistic regression code</li>
+<li>Create a name for the new output table using casout and then copy over the target and _customerID variables again.</li>
+</ol>
+<figure id="attachment_2385" aria-describedby="caption-attachment-2385" style="width: 1021px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/LogisticRegression.png"><img loading="lazy" decoding="async" class="wp-image-2385 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/LogisticRegression.png" alt="" width="1021" height="226" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/LogisticRegression.png 1021w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/LogisticRegression-300x66.png 300w" sizes="(max-width: 1021px) 100vw, 1021px" /></a><figcaption id="caption-attachment-2385" class="wp-caption-text">Figure 6: Logistic regression model</figcaption></figure>
+<h2>Creating the scorecard</h2>
+<p>The final step is to scale the model into a scorecard. We’ll be using a common scaling method. We’ll need both our logistic regression coefficients that we got from fitting our model as well as our WOE dataset with the transformed WOE values. We’ll score our training table to derive the logit or log odds values. Since our score from a logistic regression is in log odds form we need to convert that to a point system for our scorecard. We do that conversion by applying some scaling methods.</p>
+<p>The first value is the target score. This can be considered a baseline score. For this scorecard we scaled the points to 600. The target score of 600 corresponds to a good/bad target odds of 30 to 1 (target_odds = 30). Scaling does not affect the predictive strength of the scorecard, so if you select 800 as your score for scaling it won’t be an issue.</p>
+<p>The next variable is called pts_double_odds which means points to double the odds. This means that a score with an increase of 20 points doubles our odds that the applicant is good in terms of default. For example, if you have a score of 600 you have 30 to 1 odds of being a good credit candidate. But a score of 620 raises you to 60:1 odds of being considered good. Figure 8 below shows a visualization of the exponential relationship between predicted odds and score. Below in Figure 7 you can see the simple calculations and how they’re used to derive our scorecard score variable.</p>
+<figure id="attachment_2386" aria-describedby="caption-attachment-2386" style="width: 1023px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScorecardScaling.png"><img loading="lazy" decoding="async" class="wp-image-2386 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScorecardScaling.png" alt="" width="1023" height="202" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScorecardScaling.png 1023w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScorecardScaling-300x59.png 300w" sizes="(max-width: 1023px) 100vw, 1023px" /></a><figcaption id="caption-attachment-2386" class="wp-caption-text">Figure 7: Scorecard scaling and logic</figcaption></figure>
+<p><em style="font-size: 14px;"> </em></p>
+<figure id="attachment_2387" aria-describedby="caption-attachment-2387" style="width: 871px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/PredictedOdds.png"><img loading="lazy" decoding="async" class="size-full wp-image-2387" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/PredictedOdds.png" alt="" width="871" height="444" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/PredictedOdds.png 871w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/PredictedOdds-300x153.png 300w" sizes="(max-width: 871px) 100vw, 871px" /></a><figcaption id="caption-attachment-2387" class="wp-caption-text">Figure 8: Predicted odds by score plot</figcaption></figure>
+<h2><strong>Visualizations</strong></h2>
+<p>We can look at a distribution of the scorecard score variable here in Figure 9 with the mean score being 456.</p>
+<figure id="attachment_2396" aria-describedby="caption-attachment-2396" style="width: 837px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/Score-distribution-002.png"><img loading="lazy" decoding="async" class="wp-image-2396 size-full" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/Score-distribution-002.png" alt="" width="837" height="436" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/Score-distribution-002.png 837w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/Score-distribution-002-300x156.png 300w" sizes="(max-width: 837px) 100vw, 837px" /></a><figcaption id="caption-attachment-2396" class="wp-caption-text">Figure 9: Distribution of scores with mean score</figcaption></figure>
+<p>And then we can also see how those scores correlate to our probability of being good or bad credit customers for our business, in Figure 10. You can see the nice sigmoidal shape of the plot.</p>
+<figure id="attachment_2389" aria-describedby="caption-attachment-2389" style="width: 891px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoresbyprobability.png"><img loading="lazy" decoding="async" class="size-full wp-image-2389" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoresbyprobability.png" alt="" width="891" height="442" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoresbyprobability.png 891w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoresbyprobability-300x149.png 300w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoresbyprobability-164x82.png 164w" sizes="(max-width: 891px) 100vw, 891px" /></a><figcaption id="caption-attachment-2389" class="wp-caption-text">Figure 10: Plot of scores by predicted probability</figcaption></figure>
+<p>Finally, we can use those scores to determine tiers of consumers based on their credit score. Depending on the product, loan, etc. there will be varying bands for these tiers. For my tiering system I just selected quartiles to illustrate the building of cutoffs, but you could select any variation with a variety by product or offering.</p>
+<figure id="attachment_2390" aria-describedby="caption-attachment-2390" style="width: 870px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png"><img loading="lazy" decoding="async" class="size-full wp-image-2390" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png" alt="" width="870" height="450" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups.png 870w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/ScoringGroups-300x155.png 300w" sizes="(max-width: 870px) 100vw, 870px" /></a><figcaption id="caption-attachment-2390" class="wp-caption-text">Figure 11: Customer groups based on quartile scores</figcaption></figure>
+<h2><strong>Rejection inference</strong></h2>
+<p>I want to briefly mention rejection inference, since it is an important step in credit scoring. To this point we’ve fit a logistic regression model based on a label of good or bad and scaled those scores into a scorecard. This entire process has looked at the current customer base which has mostly complete data and known credit (good or bad). However, applications for credit can often be missing a lot of data, which leads to a denial of credit. Denial of credit in this case is due to our biased model that only looks at complete records of people we know to be good or bad. We need to include some method to investigate the denials and include that information back into our model, so it is less bias and generalizes better.</p>
+<p>This is what rejection inference achieves. In short, we look at those rejected customers, who have unknown credit status, and treat that data separately while then re-classifying them as good or bad. This is often achieved by rule-based approaches, proportional assignment similar to original logit model, augmenting original scores from logit for the denials, etc. This topic could be a standalone discussion since there are a variety of methods as well as schools of thought. For now, I’ll just state that to optimize your model to be unbiased and generalize better the denials, due to missing data, should be investigated and incorporated.</p>
+<h2><strong>Summary</strong></h2>
+<p>Overall, using weight of evidence transformations and a logistic regression model to derive scores for customers can be a very powerful tool in the hands of a data scientist who also uses logical sense of the business. There are many ways to build these scoring models and while this is just one I hope it’s helpful in giving guidance or spurring new ideas. Plus, any time a data scientist can take complex problems, like transformations and credit scoring, and illustrate the results it’s a win for both the practitioner and the organization.</p>
+<h3><strong>Bonus: Scoring function or Rest API</strong></h3>
+<p>I created a function that used the code parameter from our transformation and logistic regression to score new incoming data in batch. It can save time and show how to use your code for scoring new data.</p>
+<p>Looking at Figure 12, the first step is generating a small test set and I do this by grabbing a couple observations from the training data (just for testing purposes). Then load that data to the CAS server. Here you can see the function I built called model_scoring. It takes 5 parameters: name of CAS connection, code from woe transformation, code from logistic regression model, test table name and the scored table name. If you look within the model_scoring function there are three steps:</p>
+<ol>
+<li>runcodetable - woe transform.</li>
+<li>impute – replace missing woe values with 0.</li>
+<li>runcodetable – logistic regression using woe transform values.</li>
+</ol>
+<p>I use that scoring function to score the new data. At this point you would apply those simple scorecard calculations however you want to scale, and you would have a ready to use scorecard.</p>
+<figure id="attachment_2391" aria-describedby="caption-attachment-2391" style="width: 907px" class="wp-caption alignnone"><a href="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoringnewdata.png"><img loading="lazy" decoding="async" class="size-full wp-image-2391" src="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoringnewdata.png" alt="" width="907" height="494" srcset="https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoringnewdata.png 907w, https://blogs.sas.com/content/subconsciousmusings/files/2019/01/scoringnewdata-300x163.png 300w" sizes="(max-width: 907px) 100vw, 907px" /></a><figcaption id="caption-attachment-2391" class="wp-caption-text">Figure 12: Scoring new data with scoring function</figcaption></figure>
+<p>All of this can also be done using REST API’s. Every analytic asset on <a href="https://developer.sas.com/apis/rest/">CAS is abstracted using a REST end point</a>. This means that your data and your data processes are just a few REST calls away. This allows for easy integration of SAS technology into your business process or other applications. I accessed these action sets and actions using python, but with REST you can access any of these assets in the language of your choice.</p>
+<p><strong>References</strong></p>
+<ol>
+<li>Siddiqi, Naeem. <em>Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring</em>. 1st ed., Wiley, 2005.</li>
+<li>SAS Developer of ‘dataPreProcess’ Action Set and Huge Thanks to <a href="https://www.linkedin.com/in/biruk-gebremariam-78590815/">Biruk Gebremariam</a></li>
+<li>Full Jupyter Notebook demo on <a href="https://github.com/aviolante/sas-python-work/tree/master/machine_learning/scorecard_post">GitHub</a></li>
+<li>Additional Thanks: <a href="https://blogs.sas.com/content/author/waynethompson/">Wayne Thompson</a></li>
+</ol>
+
+
+					<div class="tagcloud"><span class="text">Tags </span><a href="/content/tag/credit-scoring/">credit scoring</a> <a href="/content/tag/developers/">developers</a> <a href="/content/tag/scorecards/">scorecards</a> </div>
+
+			</div>
+		</div>
+
+	</div>
+
+
+
+
+	<div class="post-share">
+		<span class="text">Share</span>
+
+		<span class="share-links">
+
+			<a href="https://twitter.com/share?url=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F&amp;text=Building%20credit%20scorecards%20using%20SAS%20and%20Python"
+               class="fa fa-twitter" title="Tweet It" target="_blank">
+				<span class="visuallyhidden">Twitter</span></a>
+
+			<a href="https://www.facebook.com/sharer.php?u=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F"
+               class="fa fa-facebook" title="Share on Facebook" target="_blank">
+				<span class="visuallyhidden">Facebook</span></a>
+
+			<a href="https://pinterest.com/pin/create/button/?url=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F&amp;media=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2Ffiles%2F2019%2F01%2FScoringGroups.png"
+               class="fa fa-pinterest" title="Share on Pinterest" target="_blank">
+				<span class="visuallyhidden">Pinterest</span></a>
+
+			<a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F"
+               class="fa fa-linkedin" title="Share on LinkedIn" target="_blank">
+				<span class="visuallyhidden">LinkedIn</span></a>
+
+			<a href="mailto:?subject=Building%20credit%20scorecards%20using%20SAS%20and%20Python&amp;body=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F"
+               class="fa fa-envelope-o" title="Share via Email">
+				<span class="visuallyhidden">Email</span></a>
+
+            <a href="https://www.xing.com/spi/shares/new?url=https%3A%2F%2Fblogs.sas.com%2Fcontent%2Fsubconsciousmusings%2F2019%2F01%2F18%2Fbuilding-credit-scorecards-using-statistical-methods-and-business-logic%2F"
+               style="background-color: #cfdc00"  target="_blank"
+               class="fa fa-xing" title="Share on XING"><span class="visuallyhidden">XING</span></a>
+		</span>
+	</div>
+
+
+</article>
+
+
+
+
+		<h3 class="section-head">About Author</h3>
+
+				<section class="author-info">
+
+			<img src="https://blogs.sas.com/content/sascom/wp-content/blogs.dir/2/files/userphoto/1654.png" alt="Andre Violante" data-width="150" data-height="146" class="photo" decoding="async" loading="lazy" />
+			<div class="description">
+                <a href="/content/author/andreviolante/" title="Posts by Andre Violante" rel="author">Andre Violante</a><br>Data Scientist
+				<ul class="social-icons">
+
+					<li>
+						<a href="https://www.linkedin.com/in/andreviolante/" class="icon fa fa-linkedin" title="LinkedIn">
+							<span class="visuallyhidden">LinkedIn</span></a>
+					</li>
+
+
+								</ul>
+
+				<p class="bio">Andre comes to SAS with over 8 years of digital analytics experience. He has specialized in the retail industry with deep experience in customer analytics. Andre has worked with several different data platforms, both on-premises and cloud, using a variety of open source tools, but primarily R and Python. Andre is naturally curious with passion for problem solving.
+
+Andre has a Bachelor’s in Business Management and a Master’s degree in Analytics. He is also currently enrolled in Georgia Tech working on a second Master’s degree in Computer Science with an emphasis in machine learning.
+
+Andre loves spending time with his family going on vacations and trying new food spots. He also enjoys the outdoors and being active.</p>
+			</div>
+
+		</section>
+
+<h3 class="section-head">Related Posts</h3><section class="related-posts"><ul class="highlights-box three-col related-posts"><li class="highlights column one-third"><article><a href="https://blogs.sas.com/content/sasjapan/2026/05/21/enterprisedecisioning2/" title="本当に必要なのは「データ」の統合ではなく、「意思決定」の統合" class="image-link"><img width="150" height="150" src="https://blogs.sas.com/content/sasjapan/files/2026/05/Designer1-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy" /></a><span class="cat-title"><a href="/content/topic/advanced-analytics/" title="Advanced Analytics">Advanced Analytics</a> | <a href="/content/topic/analytics/" title="Analytics">Analytics</a> | <a href="/content/topic/artificial-intelligence/" title="Artificial Intelligence">Artificial Intelligence</a></span><time datetime="May 21, 2026" itemprop="datePublished" class="meta-item">May 21, 2026</time><h2><a href="https://blogs.sas.com/content/sasjapan/2026/05/21/enterprisedecisioning2/" title="本当に必要なのは「データ」の統合ではなく、「意思決定」の統合">本当に必要なのは「データ」の統合ではなく、「意思決定」の統合</a></h2><div class="entry-author"><img src="https://blogs.sas.com/content/sasjapan/wp-content/blogs.dir/44/files/userphoto/1623.thumbnail.jpg" alt="小林 泉" width="80" height="75" class="photo" decoding="async" loading="lazy" /><a href="/content/author/izumikobayashi/" title="Posts by 小林 泉" rel="author">小林 泉</a></div></article></li><li class="highlights column one-third"><article><a href="https://blogs.sas.com/content/iml/2026/05/18/4d-orthant-probability-mvn.html" title="Compute the orthant probability for the 4-D multivariate normal distribution" class="image-link"><img width="150" height="150" src="https://blogs.sas.com/content/iml/files/2023/11/probbnrm8-150x150.png" class="attachment-thumbnail size-thumbnail" alt="" decoding="async" loading="lazy" /></a><span class="cat-title"><a href="/content/topic/advanced-analytics/" title="Advanced Analytics">Advanced Analytics</a> | <a href="/content/topic/programming-tips/" title="Programming Tips">Programming Tips</a></span><time datetime="May 18, 2026" itemprop="datePublished" class="meta-item">May 18, 2026</time><h2><a href="https://blogs.sas.com/content/iml/2026/05/18/4d-orthant-probability-mvn.html" title="Compute the orthant probability for the 4-D multivariate normal distribution">Compute the orthant probability for the 4-D multivariate normal distribution</a></h2><div class="entry-author"><img src="https://blogs.sas.com/content/iml/wp-content/blogs.dir/22/files/userphoto/136.thumbnail.jpg" alt="Rick Wicklin" width="60" height="60" class="photo" decoding="async" loading="lazy" /><a href="/content/author/rickwicklin/" title="Posts by Rick Wicklin" rel="author">Rick Wicklin</a></div></article></li><li class="highlights column one-third"><article><a href="https://blogs.sas.com/content/sasla/2026/05/14/entidades-financieras-reducen-riesgo-con-analitica-de-datos/" title="¿Anticipar incumplimientos de sus clientes? Las entidades financieras pueden usar la analítica de datos para reducir riesgos" class="image-link"><img width="150" height="150" src="https://blogs.sas.com/content/sasla/files/2016/06/risk-managament-150x150.png" class="attachment-thumbnail size-thumbnail" alt="¿Riesgo de liquidez? ¿Cómo actuar con inteligencia?" decoding="async" loading="lazy" /></a><span class="cat-title"><a href="/content/topic/analytics/" title="Analytics">Analytics</a> | <a href="/content/topic/risk-management/" title="Risk Management">Risk Management</a></span><time datetime="May 14, 2026" itemprop="datePublished" class="meta-item">May 14, 2026</time><h2><a href="https://blogs.sas.com/content/sasla/2026/05/14/entidades-financieras-reducen-riesgo-con-analitica-de-datos/" title="¿Anticipar incumplimientos de sus clientes? Las entidades financieras pueden usar la analítica de datos para reducir riesgos">¿Anticipar incumplimientos de sus clientes? Las entidades financieras pueden usar la analítica de datos para reducir riesgos</a></h2><div class="entry-author"><img src="https://blogs.sas.com/content/sasla/wp-content/blogs.dir/40/files/userphoto/1130.thumbnail.jpg" alt="Luis Barrientos" width="150" height="150" class="photo" decoding="async" loading="lazy" /><a href="/content/author/luisbarrientos/" title="Posts by Luis Barrientos" rel="author">Luis Barrientos</a></div></article></li></ul></section>
+				<div class="comments">
+
+
+	<div id="comments">
+
+			<h3 class="section-head">
+			2 Comments		</h3>
+
+		<ol class="comments-list">
+
+			<li class="comment even thread-even depth-1" id="li-comment-3137">
+				<article id="comment-3137" class="comment">
+
+					<div class="comment-avatar">
+					<img src="https://blogs.sas.com/content/subconsciousmusings/wp-content/themes/smart-mag-child/library/images/mystery-man-thumb.png" alt="" class="photo" decoding="async" loading="lazy"/>					</div>
+
+					<div class="comment-meta">
+						<span class="comment-author">Sathya</span> on
+						<a href="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#comment-3137" class="comment-time" title="November 23, 2021 at 7:22 am">
+							<time pubdate datetime="2021-11-23T07:22:42-05:00">November 23, 2021 7:22 am</time>
+						</a>
+
+											</div>
+
+					<div class="comment-content">
+						<p>Excellent article. Thanks for explaining how to transform probability into a score. Can you please help with your inputs on the below?</p>
+<p>1. If I need a score between 1 - 100, what should I change? The target score? </p>
+<p>2. With the target score of 600 in your example, how to calculate the minimum and maximum score (the score range)</p>
+
+
+
+						<div class="reply">
+
+						</div>
+
+					</div>
+				</article>
+
+		</li>
+
+			<li class="comment odd alt thread-odd thread-alt depth-1" id="li-comment-4485">
+				<article id="comment-4485" class="comment">
+
+					<div class="comment-avatar">
+					<img src="https://blogs.sas.com/content/subconsciousmusings/wp-content/themes/smart-mag-child/library/images/mystery-man-thumb.png" alt="" class="photo" decoding="async" loading="lazy"/>					</div>
+
+					<div class="comment-meta">
+						<span class="comment-author">Jidong Wang</span> on
+						<a href="https://blogs.sas.com/content/subconsciousmusings/2019/01/18/building-credit-scorecards-using-statistical-methods-and-business-logic/#comment-4485" class="comment-time" title="February 27, 2022 at 3:07 am">
+							<time pubdate datetime="2022-02-27T03:07:12-05:00">February 27, 2022 3:07 am</time>
+						</a>
+
+											</div>
+
+					<div class="comment-content">
+						<p>Hi Andre,</p>
+<p>Thanks a lot for your sharing, it's a very useful guide !</p>
+<p>I have several questions.<br />
+1) Why do you use forward selection method for variable selection, is it better than stepwise selection in your experience?<br />
+2) The IV of age is greater than 0.7, in the book of Siddiqi, Naeem. Credit Risk Scorecards, said :"Characteristics with IV greater than 0.5 should be checked for overpredicting" , is there a potential<br />
+    issue for over fitting?<br />
+3) It seems that SAS credit scoring use Fuzzy as default method for reject inference, could you have a brief introduce for it in Python, may be in another technical blog 🙂 </p>
+<p>Thanks,<br />
+Jidong</p>
+
+
+
+						<div class="reply">
+
+						</div>
+
+					</div>
+				</article>
+
+		</li>
+		</ol>
+
+
+
+
+
+	</div>
+				</div>
+
+
+		</div>
+
+
+	</div>
+
+
+</div>
+
+
+
+	<footer class="main-footer">
+
+
+
+
+	</footer>
+
+</div>
+
+<script type="text/x-mathjax-config">
+        MathJax.Hub.Config({
+                TeX: {equationNumbers: {autoNumber: ["AMS"], useLabelIds: true}},
+                "HTML-CSS": {linebreaks: {automatic: true}},
+                SVG: {linebreaks: {automatic: true}}
+        });
+</script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML.js"></script>
+<link rel='stylesheet' id='smartmag-font-awesome-css' href='https://blogs.sas.com/content/subconsciousmusings/wp-content/themes/smart-mag/css/fontawesome/css/font-awesome.min.css?ver=2.6.1' type='text/css' media='all' />
+<link rel='stylesheet' id='wp-syntax-css-css' href='https://blogs.sas.com/content/subconsciousmusings/wp-content/plugins/wp-syntax/css/wp-syntax.css?ver=1.0' type='text/css' media='all' />
+<link rel='stylesheet' id='bcct_style-css' href='https://blogs.sas.com/content/subconsciousmusings/wp-content/plugins/better-click-to-tweet/assets/css/styles.css?ver=3.0' type='text/css' media='all' />
+<script type="text/javascript" src="https://blogs.sas.com/content/subconsciousmusings/wp-includes/js/comment-reply.min.js?ver=6.6" id="comment-reply-js" async="async" data-wp-strategy="async"></script>
+<script type="text/javascript" src="https://blogs.sas.com/content/subconsciousmusings/wp-content/themes/smart-mag/js/bunyad-theme.js?ver=2.6.1" id="bunyad-theme-js"></script>
+
+<script src="https://www.sas.com/en_us.pfooter.html?jslib=none"></script>
+
+<script src="/content/wp-content/themes/smart-mag-child/library/scripts/sas.js?ver=20211203"></script>
+
+<script>
+if (typeof _satellite !== 'undefined') {
+    _satellite.pageBottom();
+}
+</script>
+</body>
+</html>

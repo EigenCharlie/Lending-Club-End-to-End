@@ -1,0 +1,131 @@
+Logistic Regression | Denis Burakov
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Denis Burakov’s Post
+Denis Burakov
+2y
+Report this post
+Logistic Regression 🧬
+There was a time, not too distant, when the notion of open-source software rivaling proprietary analytics vendors elicited outright laughter at risk conferences. Those days seem long gone and today, #Python 🐍 and its dynamic developer community have democratized access to modeling algorithms, once hidden behind hefty license fees 🧾
+In this post, we will dive deep into Logistic Regression, the most common algorithm used for binary classification according to recent years’ Kaggle surveys 📊. In this post, we cover two major implementations of the Logistic Regression algorithm: Gradient Descent and Iterative Reweighted Least Squares (IRLS) 🚀
+Whether you’re a seasoned data developer or just curious about how the most widely used algorithm underpins contemporary risk modeling practice, this exploration offers insights into the inner workings of Logistic Regression 🧩
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Discover a related post on the discussion between regression vs classification in the context of #LogisticRegression: https://lnkd.in/dJfthBa7 💡
+▷ Discover a related post on the Log Loss function of #LogisticRegression: https://lnkd.in/dGSxaKAS 💡
+▷ Discover a related post on the loss functions for #LogisticRegression models: https://lnkd.in/dzg3g6Z9 💡
+▷ Explore more on #CreditRiskModeling, #Lending, #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬
+106
+1 Comment
+Like
+Comment
+Share
+Copy
+LinkedIn
+Facebook
+X
+Davit Bidzhoian
+2y
+Report this comment
+Basically Raphson-Newton is most commonly used Logistic Regression Estimator.
+Like
+Reply
+1 Reaction
+2 Reactions
+To view or add a comment, sign in
+10,501 followers
+141 Posts
+16 Articles
+View Profile
+Follow
+More from this author
+System Thinkers Will Define the New Economy
+Denis Burakov
+1mo
+Navigating the New Wave of Data Science
+Denis Burakov
+1mo
+Designing AI Underwriters
+Denis Burakov
+1y
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Sign in to view more content
+Create your free account or sign in to continue your search
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

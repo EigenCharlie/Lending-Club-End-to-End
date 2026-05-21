@@ -1,0 +1,19 @@
+Weight of Evidence (WOE) Gradient Boosting ⤵
+🌟 GitHub repo: https://lnkd.in/dBuxEQTq
+WoeBoost combines the interpretability of WOE with the predictive power of gradient boosting, delivering a scoring system that is both transparent and predictive. Unlike traditional boosted trees, WoeBoost handles features independently, summarizing evidence directly from data 🔍
+⬇️ Key Features of WoeBoost
+✔️ Automatically build machine learning scorecards (no tuning required)
+✔️ Experiment with flexible binning strategies
+✔️ Infer monotonic relationships automatically from your data
+✔️ Seamlessly include categorical data, like in traditional WOE models
+✔️ Leverage a custom suite of scorecard explainability tools
+🐍 Install with `pip install woeboost`
+📖 Full story: https://lnkd.in/dPYBzzYi
+🖼️ Visual explanation: https://tr.ee/sRiUqNv49i
+💻 Colab notebook: https://lnkd.in/d3G3vv5q
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore Weight of Evidence (#WOE) estimators for ensemble learning: https://lnkd.in/dsbbHi-M 💡
+▷ Explore the Weight of Evidence (#WOE) history and its relation to #NaiveBayes: https://lnkd.in/dDgmPkhT 💡
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

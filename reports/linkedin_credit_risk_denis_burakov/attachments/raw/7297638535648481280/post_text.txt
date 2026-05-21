@@ -1,0 +1,8 @@
+Classification Intervals with Pearsonify 🧪
+Traditional conformal prediction for binary classification often provides confidence sets like {True, False}, but is that really useful for applications like credit scoring or fraud detection? 💭
+As someone still learning about conformal prediction, I noticed a gap—most solutions for binary classification provide only a basic prediction set like {sick, not sick} 🤔, without indicating how confident we are in the predicted probability.
+I began experimenting with Pearson residuals to build classification intervals around predicted probabilities, and found that
+✔ Pearson residuals show strong potential as a nonconformity score for classification models
+✔ Preliminary experiments suggest we can achieve reliable coverage guarantees across multiple models
+Check out the slides below to learn more ⤵
+⭐ GitHub Repo: https://lnkd.in/d4hMpsps

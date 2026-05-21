@@ -1,0 +1,10 @@
+Credit Risk Metrics ≠ Ad Hoc — They’re Grounded in Information Theory ⤵
+Weight of Evidence (WoE), Information Value (IV), and Population Stability Index (PSI) have been scorecard staples for decades, but they aren't just industry heuristics.
+In our new paper together with Agus Sudjianto, we prove 𝗜𝗩 = 𝗣𝗦𝗜 = 𝗝𝗲𝗳𝗳𝗿𝗲𝘆𝘀 𝗱𝗶𝘃𝗲𝗿𝗴𝗲𝗻𝗰𝗲, grounding these tools in rigorous information theory.
+We also:
+• 𝗔𝗱𝗱 𝘀𝘁𝗮𝗻𝗱𝗮𝗿𝗱 𝗲𝗿𝗿𝗼𝗿𝘀 for IV / PSI, turning rules of thumb into formal hypothesis tests 📏
+• 𝗙𝗿𝗮𝗺𝗲 𝗽𝗲𝗿𝗳𝗼𝗿𝗺𝗮𝗻𝗰𝗲 𝘃𝘀. 𝗳𝗮𝗶𝗿𝗻𝗲𝘀𝘀 as dual information objectives with uncertainty-aware constraints ⚖️
+• 𝗦𝗵𝗼𝘄 𝘁𝗵𝗮𝘁 𝗼𝗽𝘁𝗶𝗺𝗮𝗹 𝗯𝗶𝗻𝗻𝗶𝗻𝗴 𝗺𝗮𝘁𝘁𝗲𝗿𝘀 𝗺𝗼𝗿𝗲 𝘁𝗵𝗮𝗻 𝗲𝗻𝗰𝗼𝗱𝗶𝗻𝗴 (one-hot, WoE or constrained GBDT) 🪛
+This unified framework connects long-trusted practice with modern fairness and responsible AI demands without losing interpretability or regulatory alignment, the exact kind of governance instrumentation risk leaders will need in 2025 and beyond.
+📄 Read the paper on SSRN: https://lnkd.in/dWnRG7Wu
+#CreditRiskModeling #DataScience #InformationTheory #Fairness #ResponsibleAI #ModelRiskManagement

@@ -1,0 +1,141 @@
+source_asset_id: 7421824489165979649_external_05
+parent_activity_id: 7421824489165979649
+canonical_url: https://github.com/deburky/credit-risk-modeling-on-aws
+readable_url: https://raw.githubusercontent.com/deburky/credit-risk-modeling-on-aws/main/README.md
+source_type: github
+
+# 📚 Credit Risk Modeling on AWS ☁️
+
+![Image](media/title.png)
+
+This repository contains code examples and implementations from the **Credit Risk Modeling on AWS** book project.
+
+Author: [Denis Burakov](https://github.com/deburky)
+
+## 🧩 Use Cases
+
+This project demonstrates several credit risk modeling use cases using AWS services, including model training, deployment, and inference pipelines.
+
+> [!IMPORTANT]
+> To run the code examples, you need to have Docker installed and have AWS credentials to use SageMaker local mode. You can get AWS credentials by creating an AWS account and then creating an IAM user with the necessary permissions.
+
+### 🚀 Real-Time Credit Scoring
+
+![Image](real_time_scoring/credit_scoring_diagram.png)
+
+The `real_time_scoring/` folder contains a complete implementation of a real-time credit scoring system using:
+
+- **SageMaker** for model training
+- **Kinesis** for streaming loan applications
+- **Lambda** for real-time scoring
+- **DynamoDB** for storing approved applications
+- **CloudFormation** for infrastructure as code
+
+Run the workflow using the Makefile:
+
+```bash
+cd real_time_scoring/local && make run-workflow
+```
+
+> [!NOTE]
+> See the [README.md](real_time_scoring/local/README.md) for detailed instructions.
+
+### 🚀 Batch Scoring & Credit Limit Management
+
+The `batch_scoring/` folder contains a complete implementation of a batch credit scoring and limit management system.
+
+We use CatBoost with SHAP values for model training and PostgreSQL (as a local Redshift-compatible database) for storing customer batch scores.
+
+![Image](batch_scoring/batch_scoring_diagram.png)
+
+The `batch_scoring/` folder contains a complete implementation of a batch credit scoring and limit increase system using:
+
+- **EventBridge** for scheduled pipeline triggers (daily at 2 AM UTC)
+- **SageMaker Pipelines** for ML workflow orchestration:
+  - Model training (CatBoost with SHAP values)
+  - Query eligible customers from PostgreSQL
+  - Batch inference scoring
+- **Lambda** for business logic (limit increase/decrease decisions)
+- **PostgreSQL** for storing customer batch scores and decisions
+
+> [!NOTE]
+> On AWS, EventBridge can directly trigger SageMaker Pipelines. In LocalStack, we use a Lambda intermediary (`pipeline_trigger.py`) to start the pipeline.
+
+Run the workflow using the Makefile:
+
+```bash
+cd batch_scoring/local && make run-workflow
+```
+
+> [!NOTE]
+> See the [README.md](batch_scoring/local/README.md) for detailed instructions.
+
+### 🔄 MLflow on AWS
+
+![Image](mlflow_on_aws/mlflow_on_aws_diagram.png)
+
+The `mlflow_on_aws/` folder contains a complete implementation of a MLflow tracking server on AWS using:
+
+- **MLflow 3.0+** for model tracking with logged-models API support
+- **PostgreSQL** for storing MLflow experiments and runs
+- **S3/LocalStack** for storing MLflow artifacts
+- **SageMaker** for model training with MLflow integration
+
+Features:
+
+- Model logging using `mlflow.sklearn.log_model()` (logged-models API)
+- SageMaker-ready models packaged as `tar.gz` format
+- LocalStack S3 for local development
+
+Run the workflow using the Makefile:
+
+```bash
+cd mlflow_on_aws/local && make start
+cd .. && make deploy-stack
+cd local && make train
+```
+
+> [!NOTE]
+> See the [README.md](mlflow_on_aws/local/README.md) for detailed instructions.
+
+### 🧪 SageMaker Endpoints with A/B Testing Lambda
+
+![Image](sagemaker_endpoints/sagemaker_endpoints_diagram.png)
+
+The `sagemaker_endpoints/` folder contains a complete implementation of A/B testing for credit scoring using:
+
+- **SQS** for queuing loan applications
+- **A/B Processor** (Lambda function) for processing messages and applying A/B test logic
+- **SageMaker** for model inference via real-time endpoints
+- **DynamoDB** for storing processing results with A/B variant information
+
+The A/B testing logic applies different approval thresholds:
+- **Variant A**: Threshold 600
+- **Variant B**: Threshold 550
+
+Run the workflow using the Makefile:
+
+```bash
+cd sagemaker_endpoints && make start && make deploy-stack && make deploy-endpoint && make test-workflow
+```
+
+Check A/B test results:
+
+```bash
+make check-ab-results
+```
+
+> [!NOTE]
+> The A/B processor is implemented as an AWS Lambda function that automatically processes SQS messages and assigns A/B variants based on application IDs.
+
+## 📄 License
+
+[LICENSE](LICENSE)
+
+## 🔗 References
+
+* [Amazon SageMaker - Run Pipelines Using Local Mode](https://docs.aws.amazon.com/sagemaker/latest/dg/pipelines-local-mode.html)
+* [An Unsung Hero of Amazon SageMaker: Local Mode](https://www.tecracer.com/blog/2024/06/an-unsung-hero-of-amazon-sagemaker-local-mode.html)
+* [AWS in Plain English - Develop AWS ML Workloads Locally with LocalStack and SAM](https://aws.plainenglish.io/develop-aws-ml-workloads-locally-with-localstack-and-sam-24bdc0de81aa)
+* [GitHub - aws-samples/amazon-sagemaker-local-mode](https://github.com/aws-samples/amazon-sagemaker-local-mode)
+* [Setting up a Development Machine with MLFlow and MinIO](https://blog.min.io/setting-up-a-development-machine-with-mlflow-and-minio/)

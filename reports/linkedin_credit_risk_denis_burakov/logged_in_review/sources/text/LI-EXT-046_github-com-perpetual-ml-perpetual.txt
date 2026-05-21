@@ -1,0 +1,324 @@
+GitHub - perpetual-ml/perpetual: Perpetual is a high-performance gradient boosting machine. It delivers optimal accuracy in a single run without complex tuning through a simple budget parameter. It features out-of-the-box support for causal ML, continual learning, native calibration, and robust drift monitoring, along with Rust core and zero-copy bindings for Python and R · GitHub
+Skip to content
+Navigation Menu
+Toggle navigation
+Sign in
+Appearance settings
+Platform
+AI CODE CREATION
+GitHub Copilot Write better code with AI
+GitHub Spark Build and deploy intelligent apps
+GitHub Models Manage and compare prompts
+MCP Registry New Integrate external tools
+DEVELOPER WORKFLOWS
+Actions Automate any workflow
+Codespaces Instant dev environments
+Issues Plan and track work
+Code Review Manage code changes
+APPLICATION SECURITY
+GitHub Advanced Security Find and fix vulnerabilities
+Code security Secure your code as you build
+Secret protection Stop leaks before they start
+EXPLORE
+Why GitHub
+Documentation
+Blog
+Changelog
+Marketplace
+View all features
+Solutions
+BY COMPANY SIZE
+Enterprises
+Small and medium teams
+Startups
+Nonprofits
+BY USE CASE
+App Modernization
+DevSecOps
+DevOps
+CI/CD
+View all use cases
+BY INDUSTRY
+Healthcare
+Financial services
+Manufacturing
+Government
+View all industries
+View all solutions
+Resources
+EXPLORE BY TOPIC
+AI
+Software Development
+DevOps
+Security
+View all topics
+EXPLORE BY TYPE
+Customer stories
+Events & webinars
+Ebooks & reports
+Business insights
+GitHub Skills
+SUPPORT & SERVICES
+Documentation
+Customer support
+Community forum
+Trust center
+Partners
+View all resources
+Open Source
+COMMUNITY
+GitHub Sponsors Fund open source developers
+PROGRAMS
+Security Lab
+Maintainer Community
+Accelerator
+GitHub Stars
+Archive Program
+REPOSITORIES
+Topics
+Trending
+Collections
+Enterprise
+ENTERPRISE SOLUTIONS
+Enterprise platform AI-powered developer platform
+AVAILABLE ADD-ONS
+GitHub Advanced Security Enterprise-grade security features
+Copilot for Business Enterprise-grade AI features
+Premium Support Enterprise-grade 24/7 support
+Pricing
+Search or jump to...
+Search code, repositories, users, issues, pull requests...
+Search
+Clear
+Search syntax tips
+Provide feedback
+We read every piece of feedback, and take your input very seriously.
+Include my email address so I can be contacted
+Cancel
+Submit feedback
+Saved searches
+Use saved searches to filter your results more quickly
+Name
+Query
+To see all available qualifiers, see our documentation .
+Cancel
+Create saved search
+Sign in
+Sign up
+Appearance settings
+Resetting focus
+You signed in with another tab or window. Reload to refresh your session. You signed out in another tab or window. Reload to refresh your session. You switched accounts on another tab or window. Reload to refresh your session. Dismiss alert
+{{ message }}
+perpetual-ml
+/ perpetual Public
+Uh oh!
+There was an error while loading. Please reload this page .
+Notifications
+You must be signed in to change notification settings
+Fork
+40
+Star
+686
+Code
+Issues 1
+Pull requests 0
+Discussions
+Actions
+Projects
+Security and quality 0
+Insights
+Additional navigation options
+Code
+Issues
+Pull requests
+Discussions
+Actions
+Projects
+Security and quality
+Insights
+perpetual-ml/perpetual
+main
+Branches Tags
+Go to file
+Code
+Open more actions menu
+Folders and files
+Name Name
+Last commit message
+Last commit date
+Latest commit
+History
+404 Commits
+404 Commits
+.github
+.github
+benches
+benches
+examples
+examples
+package-python
+package-python
+package-r
+package-r
+resources
+resources
+scripts
+scripts
+src
+src
+.gitignore
+.gitignore
+.pre-commit-config.yaml
+.pre-commit-config.yaml
+CONTRIBUTING.md
+CONTRIBUTING.md
+Cargo.toml
+Cargo.toml
+LICENSE
+LICENSE
+Makefile
+Makefile
+README.md
+README.md
+pyproject.toml
+pyproject.toml
+rust-toolchain.toml
+rust-toolchain.toml
+rustfmt.toml
+rustfmt.toml
+View all files
+Repository files navigation
+README
+Contributing
+Apache-2.0 license
+Perpetual
+PerpetualBooster is a gradient boosting machine (GBM) that doesn't need hyperparameter optimization unlike other GBMs. Similar to AutoML libraries, it has a budget parameter. Increasing the budget parameter increases the predictive power of the algorithm and gives better results on unseen data. Start with a small budget (e.g. 0.5) and increase it (e.g. 1.0) once you are confident with your features. If you don't see any improvement with further increasing the budget , it means that you are already extracting the most predictive power out of your data.
+Features
+Hyperparameter-Free Learning: Achieves optimal accuracy in a single run via a simple budget parameter, eliminating the need for time-consuming hyperparameter optimization.
+High-Performance Rust Core: Blazing-fast training and inference with a native Rust core, zero-copy support for Polars/Arrow data, and robust Python & R bindings.
+Comprehensive Objectives: Fully supports Classification (Binary & Multi-class), Regression, and Ranking tasks.
+Advanced Tree Features: Natively handles categorical variables, learnable missing value splits, monotonic constraints, and feature interaction constraints.
+Built-in Causal ML: Out-of-the-box support for causal machine learning to estimate treatment effects.
+Robust Drift Monitoring: Built-in capabilities to monitor both data drift and concept drift without requiring ground truth labels or model retraining.
+Continual Learning: Built-in continual learning capabilities that significantly reduce computational time from O(n²) to O(n).
+Native Calibration: Built-in calibration features to predict fully calibrated distributions (marginal coverage) and conditional coverage without retraining.
+Explainability: Easily interpret model decisions using built-in feature importance, partial dependence plots, and Shapley (SHAP) values.
+Production Ready & Interoperable: Ready for production applications; seamlessly export models to industry-standard XGBoost or ONNX formats for straightforward deployment.
+Supported Languages
+Perpetual is built in Rust and provides high-performance bindings for Python and R.
+Language Installation Documentation Source Package Python pip install perpetual
+conda install -c conda-forge perpetual Python API package-python PyPI
+Conda Forge Rust cargo add perpetual docs.rs src crates.io R install.packages("perpetual") pkgdown Site package-r R-universe
+Optional Dependencies
+pandas : Enables support for training directly on Pandas DataFrames.
+polars : Enables zero-copy training support for Polars DataFrames.
+scikit-learn : Provides a scikit-learn compatible wrapper interface.
+xgboost : Enables saving and loading models in XGBoost format for interoperability.
+onnxruntime : Enables exporting and loading models in ONNX standard format.
+Usage
+You can use the algorithm like in the example below. Check examples folders for both Rust and Python.
+from perpetual import PerpetualBooster model = PerpetualBooster ( objective = "SquaredLoss" , budget = 0.5 )
+model . fit ( X , y )
+Benchmark
+PerpetualBooster vs. Optuna + LightGBM
+Hyperparameter optimization usually takes 100 iterations with plain GBM algorithms. PerpetualBooster achieves the same accuracy in a single run. Thus, it achieves up to 100x speed-up at the same accuracy with different budget levels and with different datasets.
+The following table summarizes the results for the California Housing dataset (regression):
+Perpetual budget LightGBM n_estimators Perpetual mse LightGBM mse Speed-up wall time Speed-up cpu time 0.76 50 0.201 0.201 72x 326x 0.85 100 0.196 0.196 113x 613x 1.15 200 0.190 0.190 405x 1985x
+The following table summarizes the results for the Pumpkin Seeds dataset (classification):
+Perpetual budget LightGBM n_estimators Perpetual auc LightGBM auc Speed-up wall time Speed-up cpu time 1.0 100 0.944 0.945 91x 184x
+The results can be reproduced using the scripts in the examples folder.
+PerpetualBooster vs. AutoGluon
+PerpetualBooster is a GBM but behaves like AutoML so it is benchmarked also against AutoGluon (v1.2, best quality preset), the current leader in AutoML benchmark . Top 10 datasets with the most number of rows are selected from OpenML datasets for both regression and classification tasks.
+The results are summarized in the following table for regression tasks:
+OpenML Task Perpetual Training Duration Perpetual Inference Duration Perpetual RMSE AutoGluon Training Duration AutoGluon Inference Duration AutoGluon RMSE Airlines_DepDelay_10M 518 11.3 29.0 520 30.9 28.8 bates_regr_100 3421 15.1 1.084 OOM OOM OOM BNG(libras_move) 1956 4.2 2.51 1922 97.6 2.53 BNG(satellite_image) 334 1.6 0.731 337 10.0 0.721 COMET_MC 44 1.0 0.0615 47 5.0 0.0662 friedman1 275 4.2 1.047 278 5.1 1.487 poker 38 0.6 0.256 41 1.2 0.722 subset_higgs 868 10.6 0.420 870 24.5 0.421 BNG(autoHorse) 107 1.1 19.0 107 3.2 20.5 BNG(pbc) 48 0.6 836.5 51 0.2 957.1 average 465 3.9 - 464 19.7 -
+PerpetualBooster outperformed AutoGluon on 8 out of 10 regression tasks, training equally fast and inferring 5.1x faster.
+The results are summarized in the following table for classification tasks:
+OpenML Task Perpetual Training Duration Perpetual Inference Duration Perpetual AUC AutoGluon Training Duration AutoGluon Inference Duration AutoGluon AUC BNG(spambase) 70.1 2.1 0.671 73.1 3.7 0.669 BNG(trains) 89.5 1.7 0.996 106.4 2.4 0.994 breast 13699.3 97.7 0.991 13330.7 79.7 0.949 Click_prediction_small 89.1 1.0 0.749 101.0 2.8 0.703 colon 12435.2 126.7 0.997 12356.2 152.3 0.997 Higgs 3485.3 40.9 0.843 3501.4 67.9 0.816 SEA(50000) 21.9 0.2 0.936 25.6 0.5 0.935 sf-police-incidents 85.8 1.5 0.687 99.4 2.8 0.659 bates_classif_100 11152.8 50.0 0.864 OOM OOM OOM prostate 13699.9 79.8 0.987 OOM OOM OOM average 3747.0 34.0 - 3699.2 39.0 -
+PerpetualBooster outperformed AutoGluon on 10 out of 10 classification tasks, training equally fast and inferring 1.1x faster.
+PerpetualBooster demonstrates greater robustness compared to AutoGluon, successfully training on all 20 tasks, whereas AutoGluon encountered out-of-memory errors on 3 of those tasks.
+The results can be reproduced using the automlbenchmark fork .
+Contribution
+Contributions are welcome. Check CONTRIBUTING.md for the guideline.
+Paper
+PerpetualBooster prevents overfitting with a generalization algorithm. The paper is work-in-progress to explain how the algorithm works. Check our blog post for a high level introduction to the algorithm.
+Perpetual ML Suite
+The Perpetual ML Suite is a comprehensive, batteries-included ML platform designed to deliver maximum predictive power with minimal effort. It allows you to track experiments, monitor metrics, and manage model drift through an intuitive interface.
+For a fully managed, serverless ML experience , visit app.perpetual-ml.com .
+Serverless Marimo Notebooks : Run interactive, reactive notebooks without managing any infrastructure.
+Serverless ML Endpoints : One-click deployment of models as production-ready endpoints for real-time inference.
+Perpetual is also designed to live where your data lives. It is available as a native application on the Snowflake Marketplace , with support for Databricks and other major data warehouses coming soon.
+About
+Perpetual is a high-performance gradient boosting machine. It delivers optimal accuracy in a single run without complex tuning through a simple budget parameter. It features out-of-the-box support for causal ML, continual learning, native calibration, and robust drift monitoring, along with Rust core and zero-copy bindings for Python and R
+perpetual-ml.com
+Topics
+python
+rust
+data-science
+machine-learning
+kaggle
+gbdt
+gbm
+gradient-boosting
+gradient-boosted-trees
+gradient-boosting-decision-trees
+Resources
+Readme
+License
+Apache-2.0 license
+Contributing
+Contributing
+Uh oh!
+There was an error while loading. Please reload this page .
+Activity
+Custom properties
+Stars
+686
+stars
+Watchers
+10
+watching
+Forks
+40
+forks
+Report repository
+Releases
+70
+v2.1.0
+Latest
+Mar 6, 2026
++ 69 releases
+Sponsor this project
+Sponsor
+Uh oh!
+There was an error while loading. Please reload this page .
+Learn more about GitHub Sponsors
+Packages
+0
+Uh oh!
+There was an error while loading. Please reload this page .
+Uh oh!
+There was an error while loading. Please reload this page .
+Contributors
+Uh oh!
+There was an error while loading. Please reload this page .
+Languages
+Rust 59.0%
+Python 20.8%
+Jupyter Notebook 17.6%
+R 2.1%
+PowerShell 0.2%
+C 0.1%
+Other 0.2%
+Footer
+© 2026 GitHub, Inc.
+Footer navigation
+Terms
+Privacy
+Security
+Status
+Community
+Docs
+Contact
+Manage cookies
+Do not share my personal information
+You can’t perform that action at this time.

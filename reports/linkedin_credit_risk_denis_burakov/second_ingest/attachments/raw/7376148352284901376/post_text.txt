@@ -1,0 +1,10 @@
+Last week, I had the pleasure of hosting a workshop for #Peaks2Tails on 𝘌𝘹𝘱𝘭𝘢𝘪𝘯𝘢𝘣𝘭𝘦 𝘊𝘳𝘦𝘥𝘪𝘵 𝘙𝘪𝘴𝘬 𝘔𝘰𝘥𝘦𝘭𝘴.
+During these two days, we explored three foundational themes:
+• 𝗪𝗲𝗶𝗴𝗵𝘁 𝗼𝗳 𝗘𝘃𝗶𝗱𝗲𝗻𝗰𝗲 (𝗪𝗢𝗘) – linking information theory and credit scoring
+• 𝗟𝗼𝗴𝗶𝘀𝘁𝗶𝗰 𝗥𝗲𝗴𝗿𝗲𝘀𝘀𝗶𝗼𝗻 – the practical workhorse of credit risk modeling
+• 𝗘𝗻𝘀𝗲𝗺𝗯𝗹𝗲 𝗟𝗲𝗮𝗿𝗻𝗶𝗻𝗴 & 𝗕𝗼𝗼𝘀𝘁𝗶𝗻𝗴 – building a bridge between WOE logistic regression and gradient boosting
+I'm sharing a short version of the deck, which summarizes the key theory, visual examples, and Python implementations we discussed. My goal is to make these methods both interpretable and practical for real-world credit risk applications.
+👉 Whether you're in risk, data science, or just curious about explainable models, I hope you find it useful!
+Big thanks to Karan A. for the invitation and to all participants for the great questions 💙.
+𝗢𝗻𝗰𝗲 𝘁𝗵𝗲 𝗳𝗶𝗿𝘀𝘁 𝘁𝘄𝗼 𝗰𝗵𝗮𝗽𝘁𝗲𝗿𝘀 𝗼𝗳 𝗺𝘆 𝗯𝗼𝗼𝗸 𝗮𝗿𝗲 𝗮𝘃𝗮𝗶𝗹𝗮𝗯𝗹𝗲, 𝗜 𝗽𝗹𝗮𝗻 𝘁𝗼 𝗵𝗼𝘀𝘁 𝗮𝗻 𝗼𝗽𝗲𝗻 𝘄𝗼𝗿𝗸𝘀𝗵𝗼𝗽 𝗰𝗼𝘃𝗲𝗿𝗶𝗻𝗴 𝘁𝗵𝗲𝘀𝗲 𝘁𝗵𝗲𝗺𝗲𝘀. 𝗦𝘁𝗮𝘆 𝘁𝘂𝗻𝗲𝗱 🚀
+#DataScience #CreditRiskModeling #MachineLearning #ExplainableAI

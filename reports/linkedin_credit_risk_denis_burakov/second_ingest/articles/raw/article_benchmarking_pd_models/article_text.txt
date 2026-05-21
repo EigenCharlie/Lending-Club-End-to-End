@@ -1,0 +1,254 @@
+Benchmarking PD Models
+Report this article
+Denis Burakov
+Denis Burakov
+Published Sep 5, 2023
++ Follow
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed performance metric is the Gini score. The Gini score measures the rank-ordering power of the model, which helps determine how effectively the model can identify default observations based on the order of its predictions. A Gini score of 1 indicates perfect discrimination ("crystal ball" performance), while a score of 0 implies no discriminatory power. However, in certain scenarios, the Gini coefficient can be a misleading metric and could lead to a selection of a less optimal model.
+Imagine a situation where two scoring functions, WOE Logistic Regression (WOE LR) and XGBoost, perform similarly in terms of the Gini score (Gini = 2 * AUC - 1):
+ROC AUC curve for the two scoring functions
+In this scenario, a common method of model evaluation beyond the Gini coefficient is to establish a classification rule based on a probability model and assess the outcomes using a cost-benefit analysis. This analysis involves assigning fixed costs and benefits based on the costs of misclassification at a predetermined cut-off.
+Cut-off setting: not recommended for Credit Risk problems
+Given that this approach requires setting a specific cut-off point for classifying a prediction as being correct (e.g., 4% or 50%), it's not guaranteed that a model selected using this method would perform similarly on the new data when the underlying distribution of the target variable is different from the training dataset.
+Log Loss
+One metric for assessing PD model performance that is not so often discussed is a logarithmic scoring rule, more known as Log Loss:
+Log Loss
+Log Loss measures the proximity of predictions to the true labels and is a common loss function in model estimation methods such as Logistic Regression and Gradient Boosted Decision Trees. Additionally, this metric is employed to assess the calibration of forecasts.
+Log Loss assigns more weight to predictions that are "correct". When predictions deviate significantly, for example, when the predicted probability is 0.99 for a "good" customer (default flag is 0) or 0.01 for a "bad" customer (default flag is 1), we observe large loss values, indicating lower accuracy of our predictions:
+High Log Loss example
+Alternatively, if the predicted probabilities are close to the true labels of default event, the loss will be close to 0 indicating high accuracy of our predictions:
+Low Log Loss example
+Below Loss curves for the two scoring functions with similar Gini scores are shown:
+Loss curves for two models
+We can observe that Loss curves for our models are quite similar, but there are differences in the lower probability range for the defaulted cases (left chart) and in the upper probability range of the non-defaulted cases (right chart) where loss values are high indicating inaccuracies. Naive loss corresponds to a forecast of a sample average default rate (50%) for each observation.
+Looking at these results it is difficult to draw a conclusion whether one model is preferable over the other.
+Loss Uplift
+There is a way how we can compare two Loss metrics to benchmark the two models using a Loss uplift metric:
+Loss Uplift
+The Loss uplift metric is conceptually similar to Normalized Cross Entropy from He X. et al. 2014 paper, but here we benchmark our challenger model against a baseline model and not a "random guess" or naive prediction model (e.g., assigning 50% probability for every observation).
+Essentially, Loss uplift an arithmetic average of the absolute differences between Log Loss values of the two models for each prediction. Negative values indicate better performance compared to the baseline and vice versa.
+In our example, we will benchmark WOE LR (challenger) against XGBoost (baseline).
+Loss uplift can be calculated for each class separately and on the overall level, the results are reported below:
+Uplift goods (class = 0): -0.20%
+Uplift bads (class = 1): -0.02%
+Uplift: -0.10%
+The metrics above show that WOE LR has a lower error and has an improved performance for both classes.
+Business metric
+To visualize the Loss uplift, we will create a business metric based on a cost-benefit analysis with the following logic in mind:
+We assign +€100 when our challenger model predicted a higher probability for Class 1 vs the baseline and -€100 otherwise
+We assign +€50 when our challenger model predicted lower probability for Class 0 vs the baseline and -€50 otherwise
+This approach allows us to give a graphical representation in the form of Payout curves for the Loss uplift metric:
+Payout Curves
+What we observe in the chart above that most of the payout is coming from the improvements in prediction accuracy for defaulters in the probability range > 70%. Due to a higher weight (€100) used for defaulted observations, we can see that our choice in selecting WOE LR would be warranted from a business perspective.
+Total payout of using the challenger vs the baseline amounts to +€20,300.
+Concluding remarks
+Benchmarking PD models with similar rank-ordering power based on alternative metrics can help in identifying most promising models with higher payouts of model use. Utilizing a combination of scoring rules and business metrics enables risk practitioners to look beyond Gini scores in search of the best scoring model.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in this notebook.
+All views expressed are my own.
+References
+He, Xinran, et al. "Practical Lessons from Predicting Clicks on Ads at Facebook." Proceedings of the Eighth International Workshop on Data Mining for Online Advertising. 2014. https://research.facebook.com/publications/practical-lessons-from-predicting-clicks-on-ads-at-facebook/
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+90
+7 Comments
+Aniruddha Neogi
+2y
+Report this comment
+Good article! Quick question though. Shouldn’t logistic regression always come out as the winner when using the log loss metric? After all the log loss looks pretty much like the likelihood function which is minimized when estimating logistic regression coefficients. Payout curves are a good idea if pd models are looked at in isolation. When estimating expected losses dollar comparisons should ideally even out once EAD and LGD are considered.
+Finally, I assume choosing a holdout or out of time sample data for benchmarking always helps.
+Like
+Reply
+1 Reaction
+2 Reactions
+Philipp Gorokhov
+2y
+Report this comment
+Denis, thank you for the article. I have a couple of questions, some insights are not clear enough:
+1) What's the idea of calculation "Loss Uplift". It's just difference between LogLosses of 2 models. Suppose models have equal ROC_AUC, then compare LogLosses and find better model. I've run your python script LogLoss_woe = 54.88%, LogLoss_xgb = 54.99%, Uplift - 0.1%. Do I understand correctly your message is "necessary to rank models by 2 metrics, AUC then LogLoss"?
+2) I do not understand the idea behind Business metric. Why 100EUR, 50EUR? Guess it's expert estimate, but looks inapplicable for real cases. I'd develop the approach with exploit of limits at the moment of credit approval, different penalty depending on Probability difference and so on.
+3) Looks like X legend in LogLoss figures are slightly incorrect. Ordered by Probability, not Score. Isn't it?
+Like
+Reply
+1 Reaction
+Arjun Sunder S, CA,FRM
+2y
+Report this comment
+Thank you so much for sharing this. Very insightful
+Like
+Reply
+1 Reaction
+2 Reactions
+Niclas Celvin
+2y
+Report this comment
+Thanks for sharing this, will definitely apply some of these techniques going forward.
+Like
+Reply
+1 Reaction
+2 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles
+Explore content categories
+Career
+Productivity
+Finance
+Soft Skills & Emotional Intelligence
+Project Management
+Education
+Technology
+Leadership
+Ecommerce
+User Experience
+Recruitment & HR
+Customer Experience
+Real Estate
+Marketing
+Sales
+Retail & Merchandising
+Science
+Supply Chain Management
+Future Of Work
+Consulting
+Writing
+Economics
+Artificial Intelligence
+Employee Experience
+Workplace Trends
+Fundraising
+Networking
+Corporate Social Responsibility
+Negotiation
+Communication
+Engineering
+Hospitality & Tourism
+Business Strategy
+Change Management
+Organizational Culture
+Design
+Innovation
+Event Planning
+Training & Development
+Show more
+Show less
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language

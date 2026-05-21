@@ -1,0 +1,574 @@
+Hidden Tricks in CatBoost You Should Know | by Denis Burakov | Artificial Intelligence in Plain English
+Sitemap
+Open in app
+Sign up
+Sign in
+Medium Logo
+Get app
+Write
+Search
+Sign up
+Sign in
+Artificial Intelligence in Plain English
+·
+New AI, ML and Data Science articles every day. Follow to join our 3.5M+ monthly readers.
+Hidden Tricks in CatBoost You Should Know
+Advanced explainability, feature selection, and MLflow deployment on AWS SageMaker
+Denis Burakov
+13 min read
+·
+Sep 1, 2025
+--
+Listen
+Share
+Press enter or click to view image in full size
+Misty Autumn Canopy (ChatGPT 5).
+CatBoost has gained significant attention as a state-of-the-art gradient boosting algorithm, as evidenced by TabArena’s comprehensive study. What is CatBoost and what makes it so special?
+Gradient-boosted decision trees (GBDT) have come a long way since early algorithms like AdaBoost and LogitBoost, evolving into modern implementations such as XGBoost and LightGBM. These algorithms are quite robust to many challenges data scientists face, including large datasets, missing values, multicollinearity, non-linear relationships, and complex interactions within the data.
+However, a key weakness of XGBoost and LightGBM has been their treatment of categorical data, which is a very common scenario in modern tabular data problems. XGBoost has an experimental mode, enable_categorical, which converts categories to indices and uses them for creating splits, similar to numerical features. LightGBM, on the other hand, uses sufficient statistics to group categories. Still, neither method provides a reliable and methodical way to integrate categorical data.
+Enter CatBoost with its ordered target encoding method and oblivious trees. There are some great resources that cover the details; I link them at the end. My goal in this article is to acquaint readers with some lesser-known tools I use, including:
+Explainability
+Feature selection
+Text and embeddings
+CatBoost on AWS SageMaker with MLflow
+Ready? Let’s dive in.
+Explainability
+CatBoost SHAP
+Often when one wants to understand the impact of the features in an ML model, practitioners use SHAP (SHapley Additive exPlanations). While there are other methods, SHAP has gained popularity due to its mathematical grounding and ability to decompose predictions into additive components, which aids explainability.
+CatBoost can provide SHAP values internally as follows:
+import pandas as pd
+from catboost import CatBoostClassifier, Pool
+# Sample data with categorical features
+X = pd.DataFrame({
+"age": [25, 35, 45, 30, 50],
+"city": ["NYC", "LA", "Chicago", "NYC", "Boston"],
+"education": ["Bachelor", "Master", "PhD", "High School", "Bachelor"],
+"income": [50000, 75000, 95000, 40000, 80000],
+})
+y = [0, 1, 1, 0, 1] # binary target
+cat_features = ["city", "education"]
+model = CatBoostClassifier(verbose=False)
+pool = Pool(X, y, cat_features=cat_features)
+model.fit(pool)
+# Get feature names
+feature_names = model.feature_names_
+shap_vals = model.get_feature_importance(pool, type="ShapValues")
+# Build SHAP DataFrame
+shap_df = pd.DataFrame(
+shap_vals[:, :-1], # drop expected value column
+columns=feature_names,
+)
+# Add base prediction column
+shap_df["base_value"] = shap_vals[:, -1]
+# Optionally add predicted value column
+shap_df["pred"] = shap_df[feature_names].sum(axis=1) + shap_df["base_value"]
+shap_df.head()
+Press enter or click to view image in full size
+A DataFrame with SHAP scores.
+We can now visualize feature importance using a horizontal bar plot.
+from matplotlib import pyplot as plt
+abs_mean = shap_df[feature_names].abs().mean().sort_values()
+abs_mean.plot(kind="barh", figsize=(6,4), width=0.8, color="deepskyblue")
+plt.xlabel("Mean |SHAP value|")
+plt.title("Global SHAP Feature Importance")
+plt.show()
+Press enter or click to view image in full size
+SHAP bar plot (CatBoost internal method).
+💡 Practical tip: these SHAP scores can also be used for tracking feature drift as explained in this SageMaker Clarify tutorial. The benefit of using the internal SHAP method is that you don’t need to install the shap package.
+SHAP for Categorical Features with CatBoost
+Another common way to visualize feature importance with SHAP is the so-called beeswarm plot. For this we would actually need the shap package to use the plots. An example for this synthetic dataset is presented below:
+import shap
+import matplotlib.pyplot as plt
+# Separate bias term and features
+shap_values_no_bias = shap_vals[:, :-1] # all features, no base value
+# Convert X to the same format shap expects
+X_for_shap = X.copy()
+X_for_shap.columns = feature_names
+# Beeswarm plot
+fig = plt.figure()
+shap.summary_plot(
+shap_values_no_bias,
+X_for_shap,
+plot_type="dot",
+color_bar=True,
+show=False
+)
+plt.show()
+Press enter or click to view image in full size
+SHAP Beeswarm plot (SHAP package).
+Since we used very few data points, the data looks scattered as expected. Notice that our categorical features, city and education, are colored in grey, which means we cannot understand how feature values contribute to predictions from this plot.
+One way to drill down into the impact of individual categorical feature values is shown below (adapted from this article):
+import numpy as np
+import shap
+from matplotlib import pyplot as plt
+def plot_shap_categorical(shap_vals, X_data, feature_name, max_display=5):
+"""Helper to visualize categorical SHAP by category."""
+# Use CatBoost's SHAP values directly (no need for TreeExplainer)
+shap_values_no_bias = shap_vals[:, :-1]
+feature_names = X_data.columns.tolist()
+# Get column index for the target feature
+feature_idx = feature_names.index(feature_name)
+feature_values = shap_values_no_bias[:, feature_idx]
+feature_data = X_data[feature_name]
+# Get unique categories and sort by mean absolute SHAP value
+unique_categories = np.array(feature_data.unique())
+sorted_idx = np.argsort([
+np.nanmean(np.abs(feature_values[feature_data == cat]))
+for cat in unique_categories
+])[::-1]
+unique_categories = unique_categories[sorted_idx]
+# Limit categories if necessary
+if len(unique_categories) > max_display:
+unique_categories = unique_categories[:max_display]
+# Split SHAP values by categories
+new_shap_values = [feature_values[feature_data == cat] for cat in unique_categories]
+# Pad arrays to uniform shape
+max_len = max(len(v) for v in new_shap_values)
+new_shap_values = [
+np.pad(v, (0, max_len - len(v)), constant_values=np.nan)
+for v in new_shap_values
+]
+new_shap_values = np.array(new_shap_values).T
+# Create SHAP Explanation object
+shap_values_feature = shap.Explanation(
+values=new_shap_values,
+data=np.zeros_like(new_shap_values),
+base_values=np.zeros(max_len),
+feature_names=[str(cat) for cat in unique_categories],
+)
+# Plot beeswarm for the categorical feature
+plt.figure(figsize=(8, 4))
+shap.plots.beeswarm(shap_values_feature, color_bar=False, show=False)
+plt.title(f"SHAP Beeswarm for '{feature_name}'")
+plt.tight_layout()
+plt.show()
+# Plot categorical features
+plot_shap_categorical(shap_vals, X, "city")
+plot_shap_categorical(shap_vals, X, "education")
+Press enter or click to view image in full size
+Press enter or click to view image in full size
+Now we can clearly see which categories drive predictions — a lifesaver in use cases where stakeholders need clear answers. CatBoost doesn’t surface this easily without the one_hot_max_size parameter (more in the next section).
+💡 Practical tip: if you are interested in customizing SHAP explainability visualizations, I highly recommend this article.
+Feature Selection
+CatBoost offers a comprehensive suite for feature statistics and feature selection. Below we showcase a few examples of this functionality.
+Feature Statistics
+Imagine you want to understand how the model’s predictions compare to the actual target values — this is what calc_feature_statistics is designed for.
+numerical_features = ["age", "income"]
+model.calc_feature_statistics(
+data=X,
+target=y,
+feature=numerical_features,
+plot=True
+)
+Press enter or click to view image in full size
+Statistics for numerical features.
+⚠️ Pitfall: if you try to generate the same plot for categorical features, you’ll encounter an error:
+Binarized statistics supported only for one-hot encoded features. Use one_hot_max_size when training to manage that (GitHub issue).
+This is because when we use built-in target encoding, the categorical features become unexplainable.
+A common workaround is to leverage the one_hot_max_size parameter as described in this thread. This may decrease accuracy at the cost of increased explainability.
+import pandas as pd
+from catboost import CatBoostClassifier, Pool
+# Sample data with categorical features
+X = pd.DataFrame({
+"age": [25, 35, 45, 30, 50],
+"city": ["NYC", "LA", "Chicago", "NYC", "Boston"],
+"education": ["Bachelor", "Master", "PhD", "High School", "Bachelor"],
+"income": [50000, 75000, 95000, 40000, 80000],
+})
+y = [0, 1, 1, 0, 1] # binary target
+cat_features = ["city", "education"]
+model = CatBoostClassifier(
+verbose=False,
+one_hot_max_size=8 # Interpretability parameter
+)
+pool = Pool(X, y, cat_features=cat_features)
+model.fit(pool)
+try:
+model.calc_feature_statistics(
+data=X,
+target=y,
+feature=cat_features,
+max_cat_features_on_plot=50, # How many values to show
+plot=True
+)
+except Exception as e:
+print(f"Unexpected error: {e}")
+Press enter or click to view image in full size
+Statistics for categorical features.
+Feature Selection
+CatBoost provides a useful suite of feature selection algorithms that can automatically identify the most important features for your model based on different criteria. See this CatBoost repo source for more details.
+from catboost import EShapCalcType, EFeaturesSelectionAlgorithm
+def select_features_catboost(X_data, y_data, cat_features, algorithm, top_n=3):
+# Create pools
+train_pool = Pool(X_data, y_data, cat_features=cat_features)
+# Simple feature selection
+model_selector = CatBoostClassifier(
+iterations=50, random_seed=42, verbose=False
+)
+summary = model_selector.select_features(
+train_pool,
+features_for_select=list(range(X_data.shape[1])),
+num_features_to_select=top_n,
+algorithm=algorithm,
+shap_calc_type=EShapCalcType.Regular,
+train_final_model=True,
+logging_level="Silent",
+plot=False,
+)
+# Get selected feature names
+selected_indices = summary["selected_features"]
+selected_names = [X_data.columns[i] for i in selected_indices]
+print(f"Algorithm: {algorithm}")
+print(f"Selected features: {selected_names}")
+print(f"Selected indices: {selected_indices}")
+return summary
+shap_summary = select_features_catboost(
+X, y, cat_features,
+EFeaturesSelectionAlgorithm.RecursiveByShapValues
+)
+loss_summary = select_features_catboost(
+X, y, cat_features,
+EFeaturesSelectionAlgorithm.RecursiveByLossFunctionChange
+)
+pred_summary = select_features_catboost(
+X, y, cat_features,
+EFeaturesSelectionAlgorithm.RecursiveByPredictionValuesChange
+)
+# Algorithm: EFeaturesSelectionAlgorithm.RecursiveByShapValues
+# Selected features: ['age', 'city', 'income']
+# Selected indices: [0, 1, 3]
+# Algorithm: EFeaturesSelectionAlgorithm.RecursiveByLossFunctionChange
+# Selected features: ['age', 'city', 'income']
+# Selected indices: [0, 1, 3]
+# Algorithm: EFeaturesSelectionAlgorithm.RecursiveByPredictionValuesChange
+# Selected features: ['age', 'city', 'income']
+# Selected indices: [0, 1, 3]
+Since this is a synthetic dataset, the results appear identical. However, in real-world scenarios, you’re likely to see different combinations of selected features.
+Text and Embeddings
+One of the lesser-known features of CatBoost is its support for additional input feature types such as text and embeddings. Below we show a few use cases for the use of text strings and multidimensional embedding vectors.
+Text Features
+In some cases, we may want to incorporate raw text into our model — for example, product descriptions, customer feedback, or support chat logs. Instead of computing embeddings or using techniques like n-grams and TF-IDF, CatBoost allows you to use raw text directly via the text_features parameter.
+import sys
+import pandas as pd
+import numpy as np
+from catboost import CatBoostClassifier, Pool
+ENV_COLAB = 'google.colab' in sys.modules
+np.random.seed(42)
+texts = [
+'This is a simple short text about data science and analytics',
+'Here we have a longer text with more words and detailed content about machine learning algorithms',
+'Brief note on artificial intelligence and neural networks in modern applications',
+'Medium length text with some interesting content about deep learning and transformers',
+'Another example of text data for classification tasks in natural language processing',
+]
+# Duplicate texts
+texts *= 5
+categories = ['Tech', 'Science', 'Business', 'Education', 'Research']
+X = pd.DataFrame({
+'age': np.random.randint(22, 65, 25),
+'category': np.random.choice(categories, 25),
+'text_field': texts,
+})
+# Create a realistic target
+y = (
+(X['text_field'].str.len() > 120).astype(int) * 0.4 +
+(X['age'] > 45).astype(int) * 0.2 +
+(X['category'].isin(['Tech', 'Research'])).astype(int) * 0.4 +
+np.random.normal(0, 0.1, 25)
+) > 0.5
+y = y.astype(int)
+# Adding text features only
+pool_text = Pool(
+data=X,
+label=y,
+cat_features=['category'],
+text_features=['text_field']
+)
+model_text = CatBoostClassifier(
+task_type='GPU' if ENV_COLAB else 'CPU',
+iterations=100,
+verbose=False,
+random_seed=42
+)
+model_text.fit(pool_text)
+print(f"Model accuracy: {model_text.score(pool_text):.3f}")
+# Model accuracy: 0.960
+💡 Practical tip: results may differ depending on whether you are using GPU or CPU (here I used T4 GPU in Colab, but with CPU I got a lower metric value).
+Embedding Features
+CatBoost also offers a powerful native support for embedding vectors. This allows you to directly pass pre-computed embeddings (from sentence transformers, word2vec, etc.) as features without additional preprocessing via embedding_features parameter.
+import sys
+import pandas as pd
+import numpy as np
+from catboost import CatBoostClassifier, Pool
+ENV_COLAB = 'google.colab' in sys.modules
+np.random.seed(42)
+texts = [
+'This is a simple short text about data science',
+'Here we have a longer text with more words and detailed content about machine learning',
+'Brief note on artificial intelligence and neural networks',
+'Medium length text with some interesting content about deep learning and transformers',
+'Another example of text data for classification tasks in natural language processing',
+]
+texts *= 3
+categories = ['Tech', 'Science', 'Business', 'Education', 'Research']
+ages = np.random.randint(22, 65, 15)
+X = pd.DataFrame({
+'age': ages,
+'category': np.random.choice(categories, 15),
+'text_field': texts,
+'embedding': [np.random.normal(0, 1, 4).tolist() for _ in range(15)]
+})
+# Create realistic target based on text length and content
+y = (
+(X['text_field'].str.len() > 100).astype(int) * 0.4 +
+(X['age'] > 40).astype(int) * 0.3 +
+(X['category'].isin(['Tech', 'Research'])).astype(int) * 0.3 +
+np.random.normal(0, 0.1, 15)
+) > 0.5
+y = y.astype(int)
+# Define feature types
+cat_features = ['category']
+text_features = ['text_field']
+embedding_features = ['embedding']
+# Create Pool with embeddings
+pool = Pool(
+data=X,
+label=y,
+cat_features=cat_features,
+text_features=text_features,
+embedding_features=embedding_features
+)
+# Train model (requires GPU for embeddings)
+model = CatBoostClassifier(
+task_type='GPU' if ENV_COLAB else 'CPU',
+iterations=100,
+verbose=False,
+random_seed=42
+)
+model.fit(pool)
+print(f"Feature names: {model.feature_names_}")
+print(f"Predictions: {model.predict_proba(pool)[:, 1].round(3)}")
+# Feature names: ['age', 'category', 'text_field', 'embedding']
+# Predictions: [0.231 0.78 0.045 0.519 0.049 0.049 0.794 0.027 0.092 0.038 0.027 0.213
+# 0.798 0.845 0.054]
+💡 Practical tip: if you have a GPU and could get embeddings, the best quality could be achieved by simultaneously using embedding both as a feature and as a list of separate numerical features (source).
+CatBoost on AWS SageMaker with MLflow
+A model in a notebook is merely a research artifact, while bringing the model into production usually requires substantial deployment effort. AWS SageMaker is a machine learning platform designed to deploy ML algorithms into production environments.
+Get Denis Burakov’s stories in your inbox
+Join Medium for free to get updates from this writer.
+Subscribe
+Subscribe
+Remember me for faster sign in
+While SageMaker does not natively support the CatBoost algorithm, there are ways you can use it within SageMaker, for example for training, experiments, and deployment using MLflow. The examples below focus on the BYOM (Bring Your Own Model) approach leveraging managed MLflow on Amazon SageMaker AI (read this guide to set it up).
+Building a Docker Image
+First, we need to write a requirements.txt with our package dependencies:
+%%writefile requirements.txt
+catboost
+mlflow
+pandas
+pyarrow
+scikit-learn
+To build a custom Docker container for CatBoost I followed this guide. Pay attention to the last line of the Dockerfile, since this is key to a successful custom CatBoost SageMaker training and deployment.
+# Base image
+FROM public.ecr.aws/docker/library/python:3.9
+# Install required system packages including OpenMP (libgomp)
+RUN apt-get update && \
+apt-get install -y --no-install-recommends \
+build-essential \
+libgomp1 && \
+rm -rf /var/lib/apt/lists/* && \
+apt-get clean
+# Copy requirements and install dependencies
+COPY requirements.txt /app/requirements.txt
+WORKDIR /app
+RUN pip install --upgrade pip && pip install -r requirements.txt
+# Install Amazon SageMaker training toolkit and smdebug libraries
+RUN pip install sagemaker-training
+RUN pip install smdebug
+# Environment configuration
+ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PYTHONIOENCODING=UTF-8
+Training Script
+The next step is to write a training script. Below is a minimal example that you can customize based on your needs. Note that the imported packages need to be part of the requirements.txt, which is used when building the Docker image.
+%%writefile src/train.py
+import argparse
+import os
+import catboost as cb
+import mlflow
+import mlflow.catboost
+import pandas as pd
+from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
+if __name__ == "__main__":
+parser = argparse.ArgumentParser()
+# Hyperparameters
+parser.add_argument("--l2_leaf_reg", type=float, default=5)
+parser.add_argument("--early_stopping_rounds", type=int, default=10)
+# SageMaker paths
+parser.add_argument(
+"--model-dir", type=str, default=os.environ["SM_MODEL_DIR"]
+)
+parser.add_argument(
+"--train", type=str, default=os.environ["SM_CHANNEL_TRAIN"]
+)
+args = parser.parse_args()
+# Load data
+data = pd.read_parquet(os.path.join(args.train, "training_data.parquet"))
+X = data.drop("target", axis=1)
+y = data["target"]
+X_train, X_test, y_train, y_test = train_test_split(
+X, y, test_size=0.2, random_state=42
+)
+# MLflow setup
+mlflow.set_tracking_uri(os.environ["MLFLOW_TRACKING_URI"])
+with mlflow.start_run():
+# Train model
+model = cb.CatBoostClassifier(
+l2_leaf_reg=args.l2_leaf_reg,
+early_stopping_rounds=args.early_stopping_rounds,
+verbose=False,
+)
+model.fit(X_train, y_train, eval_set=(X_test, y_test))
+# Log metrics
+test_pred = model.predict_proba(X_test)[:, 1]
+auc = roc_auc_score(y_test, test_pred)
+mlflow.log_metric("test_auc", auc)
+# Save model
+model_path = os.path.join(args.model_dir, "model.cbm")
+model.save_model(model_path)
+mlflow.catboost.log_model(model, "catboost_model")
+Training Workflow
+Before starting training with CatBoost, we need to upload the training script to an S3 directory within the same AWS account where SageMaker runs. This step is required for custom model training in this setup.
+import tarfile
+import sagemaker
+import os
+# Define paths
+program = "src/train.py"
+source_tar = "source.tar.gz"
+project = "catboost-training-code"
+bucket = "sagemaker-eu-west-2-012345678901"
+# Create a tar.gz file with train.py at the root
+with tarfile.open(source_tar, "w:gz") as tar:
+tar.add(program, arcname="train.py")
+# Start SageMaker session
+sagemaker_session = sagemaker.session.Session()
+# Upload the tarball to S3
+submit_dir = sagemaker_session.upload_data(
+path=source_tar,
+bucket=bucket,
+key_prefix=project
+)
+print(f"Submit directory: {submit_dir}")
+After we store our ML code in S3, we can prepare the training script. SageMaker requires hyperparameters to be strings. Since we pass nested objects like sagemaker_submit_directory, we use json.dumps to serialize them.
+import json
+import sagemaker
+from sagemaker import get_execution_role
+# JSON encode hyperparameters
+def json_encode_hyperparameters(hyperparameters):
+"""Encode hyperparameters into json"""
+return {str(k): json.dumps(v) for (k, v) in hyperparameters.items()}
+# Estimator parameters
+role = get_execution_role()
+train_data_path = "s3://my-bucket/data/processed/"
+processing_uri = (
+"012345678901.dkr.ecr.us-east-1.amazonaws.com/catboost-mlflow-container:latest"
+)
+tracking_server_arn = (
+"arn:aws:sagemaker:eu-west-2:012345678901:mlflow-tracking-server/sagemaker-mlflow-server"
+)
+base_job_name = "mlflow-clf-catboost"
+sagemaker_program = "train.py"
+# Model hyperparameters
+hyperparameters = json_encode_hyperparameters(
+{
+"sagemaker_program": sagemaker_program,
+"sagemaker_submit_directory": submit_dir,
+"l2_leaf_reg": 5,
+"min_data_in_leaf": 10,
+"early_stopping_rounds": 10,
+}
+)
+estimator = sagemaker.estimator.Estimator(
+image_uri=processing_uri,
+role=role,
+base_job_name=base_job_name,
+instance_count=1,
+instance_type="ml.r5.4xlarge",
+volume_size=200,
+hyperparameters=hyperparameters,
+environment={"MLFLOW_TRACKING_URI": tracking_server_arn},
+sagemaker_session=sagemaker_session,
+input_mode='FastFile'
+)
+# Train using separate S3 training data location
+estimator.fit({"train": train_data_path})
+In the MLflow UI, you can view experiment results and compare models.
+Deployment
+To deploy our model to a SageMaker endpoint we can either register our model from MLflow UI to add the best model to SageMaker Model Registry or use SageMaker's ModelBuilder.
+from sagemaker.serve import ModelBuilder
+from sagemaker.serve.mode.function_pointers import Mode
+model_builder = ModelBuilder(
+mode=Mode.SAGEMAKER_ENDPOINT,
+role_arn=role,
+model_metadata={
+"MLFLOW_MODEL_PATH": "models:/catboost-model/1",
+"MLFLOW_TRACKING_ARN": tracking_server_arn,
+}
+)
+model = model_builder.build()
+predictor = model.deploy(
+initial_instance_count=1,
+instance_type="ml.c6i.xlarge"
+)
+This deploys the best model from MLflow model registry as a live SageMaker endpoint.
+Wrapping Up
+CatBoost is more than just another gradient boosting library — its built-in support for categorical features, embeddings, SHAP explainability, and AWS SageMaker integration make it an incredibly powerful tool for modern ML workflows.
+Whether you’re fine-tuning models, interpreting results, or deploying at scale with MLflow, CatBoost has hidden gems that can level up your pipelines with minimal hassle.
+You can find the code used in the article in this Google Colab notebook ☁️.
+Additional resources
+If you want to learn more about CatBoost categorical encoding and its methods, I can recommend these two articles:
+How CatBoost encodes categorical variables?
+CatBoost Regression: Break It Down For Me
+If you’re training CatBoost models on big data, I’ve developed a Python package specifically for that ⤵
+📦 catboost-incremental offers a simple and intuitive 🐍 Python interface for training CatBoost regression and classification models on massive datasets — one chunk at a time, without memory bottlenecks 💥. The package leverages RayServe for CatBoost and supports reading chunked Parquet files from S3, enabling incremental training on GB-scale data.
+If you’re building scoring models for credit risk or fraud detection where interpretability is essential, CatBoost is fully supported in my boosted scorecard package, xbooster 🚀.
+You can read more about CatBoost-based ML scorecards here ⤵
+Build explainable scorecards with CatBoost
+The practitioner’s guide to explainable credit scoring with modern ML
+deburky.medium.com
+📙 I highly recommend a book from
+Valeriy Manokhin, PhD, MBA, CQF
+, an expert whose work inspired me to adopt CatBoost, which I now use in place of XGBoost for most of my modeling workflows.
+Mastering CatBoost: The Hidden Gem of Tabular AI
+Master CatBoost for machine learning, data science, and AI applications. This practical guide helps you build, tune…
+leanpub.com
+If you enjoyed this CatBoost deep dive, follow me here and connect on LinkedIn — I share applied modeling techniques, algorithm implementations, and credit risk modeling content 🚀
+A message from our Founder
+Hey, Sunil here. I wanted to take a moment to thank you for reading until the end and for being a part of this community.
+Did you know that our team run these publications as a volunteer effort to over 3.5m monthly readers? We don’t receive any funding, we do this to support the community. ❤️
+If you want to show some love, please take a moment to follow me on LinkedIn, TikTok, Instagram. You can also subscribe to our weekly newsletter.
+And before you go, don’t forget to clap and follow the writer️!
+Data Science
+Machine Learning
+Mlops
+Catboost
+AWS
+--
+--
+Published in Artificial Intelligence in Plain English
+44K followers
+·Last published 6 hours ago
+New AI, ML and Data Science articles every day. Follow to join our 3.5M+ monthly readers.
+Written by Denis Burakov
+153 followers
+·25 following
+I write about Python, Data Science, and AI
+Help
+Status
+About
+Careers
+Press
+Blog
+Privacy
+Rules
+Terms
+Text to speech

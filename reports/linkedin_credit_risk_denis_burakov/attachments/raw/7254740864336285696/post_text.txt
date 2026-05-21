@@ -1,0 +1,10 @@
+Weight of Evidence for Image Generation 🖌
+Did you know that Weight of Evidence (WOE), a technique widely used in credit scoring, can also be applied to unexpected tasks like image generation❓
+Beyond its use in feature engineering for risk models, WOE can also act as a generative algorithm for tasks like text classification and image generation 🔍✨
+Check out how WOE and other Naive Bayes variants can generate simple image representations below ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Explore WOE for text classification: https://lnkd.in/dzeBYJn2 💡
+▷ Explore the code: https://lnkd.in/dpfBSG4B 💻
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

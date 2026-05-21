@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head >
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Zero-Inflated Poisson Regression |  R Data Analysis Examples</title>
+<meta name='robots' content='max-image-preview:large' />
+
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$','$'],['\\(','\\)']],
+    processEscapes: true
+  },
+  options: {
+    ignoreHtmlClass: 'tex2jax_ignore|editor-rich-text'
+  }
+};
+
+</script>
+<link rel='dns-prefetch' href='//cdn.jsdelivr.net' />
+<link rel='dns-prefetch' href='//platform-api.sharethis.com' />
+<link rel="alternate" type="application/rss+xml" title="OARC Stats &raquo; Feed" href="https://stats.oarc.ucla.edu/feed/" />
+<link rel="alternate" type="application/rss+xml" title="OARC Stats &raquo; Comments Feed" href="https://stats.oarc.ucla.edu/comments/feed/" />
+<link rel="alternate" type="text/calendar" title="OARC Stats &raquo; iCal Feed" href="https://stats.oarc.ucla.edu/calendar/?ical=1" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://stats.oarc.ucla.edu/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstats.oarc.ucla.edu%2Fr%2Fdae%2Fzip%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://stats.oarc.ucla.edu/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fstats.oarc.ucla.edu%2Fr%2Fdae%2Fzip%2F&#038;format=xml" />
+<link rel="canonical" href="https://stats.oarc.ucla.edu/r/dae/zip/" />
+<style id='wp-img-auto-sizes-contain-inline-css' type='text/css'>
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel="stylesheet" href="https://stats.oarc.ucla.edu/wp-content/cache/minify/9df84.css" media="all" />
+
+<style id='wp-emoji-styles-inline-css' type='text/css'>
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<link rel="stylesheet" href="https://stats.oarc.ucla.edu/wp-content/cache/minify/a5ff7.css" media="all" />
+
+
+<style id='classic-theme-styles-inline-css' type='text/css'>
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+<style id='global-styles-inline-css' type='text/css'>
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}:where(.wp-block-columns.is-layout-flex){gap: 2em;}:where(.wp-block-columns.is-layout-grid){gap: 2em;}:where(.wp-block-post-template.is-layout-flex){gap: 1.25em;}:where(.wp-block-post-template.is-layout-grid){gap: 1.25em;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel="stylesheet" href="https://stats.oarc.ucla.edu/wp-content/cache/minify/4c431.css" media="all" />
+
+<style id='contact-form-7-inline-css' type='text/css'>
+.wpcf7 .wpcf7-recaptcha iframe {margin-bottom: 0;}.wpcf7 .wpcf7-recaptcha[data-align="center"] > div {margin: 0 auto;}.wpcf7 .wpcf7-recaptcha[data-align="right"] > div {margin: 0 0 0 auto;}
+/*# sourceURL=contact-form-7-inline-css */
+</style>
+<link rel="stylesheet" href="https://stats.oarc.ucla.edu/wp-content/cache/minify/69a0e.css" media="all" />
+
+
+
+
+<link rel='stylesheet' id='slicknavcss-css' href='//cdn.jsdelivr.net/jquery.slicknav/0.1/slicknav.css?ver=1' type='text/css' media='all' />
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/818c0.js"></script>
+
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/jquery.slicknav/0.1/jquery.slicknav.min.js?ver=1" id="slicknav-js"></script>
+<script type="text/javascript" src="//platform-api.sharethis.com/js/sharethis.js#source=googleanalytics-wordpress#product=ga&amp;property=5b058eb03e4a630011ba71c0" id="googleanalytics-platform-sharethis-js"></script>
+<link rel="https://api.w.org/" href="https://stats.oarc.ucla.edu/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://stats.oarc.ucla.edu/wp-json/wp/v2/pages/937" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://stats.oarc.ucla.edu/xmlrpc.php?rsd" />
+<meta name="tec-api-version" content="v1"><meta name="tec-api-origin" content="https://stats.oarc.ucla.edu"><link rel="alternate" href="https://stats.oarc.ucla.edu/wp-json/tribe/events/v1/" /><link rel="icon" href="https://stats.oarc.ucla.edu/wp-content/themes/genesis-child/images/favicon.ico" />
+<link rel="pingback" href="https://stats.oarc.ucla.edu/xmlrpc.php" />
+<script>
+(function() {
+	(function (i, s, o, g, r, a, m) {
+		i['GoogleAnalyticsObject'] = r;
+		i[r] = i[r] || function () {
+				(i[r].q = i[r].q || []).push(arguments)
+			}, i[r].l = 1 * new Date();
+		a = s.createElement(o),
+			m = s.getElementsByTagName(o)[0];
+		a.async = 1;
+		a.src = g;
+		m.parentNode.insertBefore(a, m)
+	})(window, document, 'script', 'https://google-analytics.com/analytics.js', 'ga');
+
+	ga('create', 'UA-121222866-1', 'auto');
+			ga('send', 'pageview');
+	})();
+</script>
+
+<link rel="icon" href="https://stats.oarc.ucla.edu/favicon.ico" type="image/x-icon" />
+<link rel="shortcut icon" href="https://stats.oarc.ucla.edu/favicon.ico" type="image/x-icon" />
+
+</head>
+
+<body class="wp-singular page-template-default page page-id-937 page-child parent-pageid-916 wp-theme-genesis wp-child-theme-genesis-child tribe-no-js header-image content-sidebar genesis-breadcrumbs-hidden genesis-footer-widgets-hidden" itemscope itemtype="https://schema.org/WebPage"><div class="site-container"><ul class="genesis-skip-link"><li><a href="#genesis-nav-primary" class="screen-reader-shortcut"> Skip to primary navigation</a></li><li><a href="#genesis-content" class="screen-reader-shortcut"> Skip to main content</a></li><li><a href="#genesis-sidebar-primary" class="screen-reader-shortcut"> Skip to primary sidebar</a></li></ul><header class="site-header" itemscope itemtype="https://schema.org/WPHeader"><div class="wrap"><div class="title-area">	<div class="title-area">
+
+	<div class="site-title" itemprop="headline"><a href="https://stats.oarc.ucla.edu/">stats.oarc.ucla.edu</a></div>
+
+	<p class="site-description" itemprop="description">Statistical Methods and Data Analytics</p></div>
+</div><div class="widget-area header-widget-area"><section id="custom_html-7" class="widget_text widget widget_custom_html"><div class="widget_text widget-wrap"><div class="textwidget custom-html-widget"><div><div class = "top-wrap"><div id = "ucla-logo"><img alt="Image " src = "/wp-content/uploads/logo/idrelogo4.png" width = 380px alt = "IDRE Logo"></div></div>
+</div></div></div></section>
+<section id="search-11" class="widget widget_search"><div class="widget-wrap"><form class="search-form" method="get" action="https://stats.oarc.ucla.edu/" role="search" itemprop="potentialAction" itemscope itemtype="https://schema.org/SearchAction"><label class="search-form-label screen-reader-text" for="searchform-1">Search this website</label><input class="search-form-input" type="search" name="s" id="searchform-1" placeholder="Search this website" itemprop="query-input"><input class="search-form-submit" type="submit" value="Search"><meta content="https://stats.oarc.ucla.edu/?s={s}" itemprop="target"></form></div></section>
+</div></div></header><nav class="nav-primary" aria-label="Main" itemscope itemtype="https://schema.org/SiteNavigationElement" id="genesis-nav-primary"><div class="wrap"><ul id="menu-idre-stats-navigation-menu" class="menu genesis-nav-menu menu-primary js-superfish"><li id="menu-item-22640" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22640"><a href="/" itemprop="url"><span itemprop="name">HOME</span></a></li>
+<li id="menu-item-22662" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22662"><a href="#" itemprop="url"><span itemprop="name">SOFTWARE</span></a>
+<ul class="sub-menu">
+	<li id="menu-item-22646" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22646"><a href="/r/" itemprop="url"><span itemprop="name">R</span></a></li>
+	<li id="menu-item-22649" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22649"><a href="/stata/" itemprop="url"><span itemprop="name">Stata</span></a></li>
+	<li id="menu-item-22647" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22647"><a href="/sas/" itemprop="url"><span itemprop="name">SAS</span></a></li>
+	<li id="menu-item-22648" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22648"><a href="/spss/" itemprop="url"><span itemprop="name">SPSS</span></a></li>
+	<li id="menu-item-22659" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22659"><a href="/mplus/" itemprop="url"><span itemprop="name">Mplus</span></a></li>
+	<li id="menu-item-22657" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22657"><a href="/other/" itemprop="url"><span itemprop="name">Other Packages</span></a>
+	<ul class="sub-menu">
+		<li id="menu-item-22658" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22658"><a href="/other/gpower/" itemprop="url"><span itemprop="name">G*Power</span></a></li>
+		<li id="menu-item-22684" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22684"><a href="/other/sudaan/" itemprop="url"><span itemprop="name">SUDAAN</span></a></li>
+		<li id="menu-item-22696" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-22696"><a href="https://stats.oarc.ucla.edu/spss/spss-user/sample-power/" itemprop="url"><span itemprop="name">Sample Power</span></a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li id="menu-item-22661" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22661"><a href="/" itemprop="url"><span itemprop="name">RESOURCES</span></a>
+<ul class="sub-menu">
+	<li id="menu-item-22656" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22656"><a href="/annotatedoutput" itemprop="url"><span itemprop="name">Annotated Output</span></a></li>
+	<li id="menu-item-22651" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22651"><a href="/other/dae/" itemprop="url"><span itemprop="name">Data Analysis Examples</span></a></li>
+	<li id="menu-item-22654" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22654"><a href="/other/mult-pkg/faq/" itemprop="url"><span itemprop="name">Frequently Asked Questions</span></a></li>
+	<li id="menu-item-22652" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22652"><a href="/other/mult-pkg/seminars/" itemprop="url"><span itemprop="name">Seminars</span></a></li>
+	<li id="menu-item-22653" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22653"><a href="/other/examples/" itemprop="url"><span itemprop="name">Textbook Examples</span></a></li>
+	<li id="menu-item-22692" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22692"><a href="/other/mult-pkg/whatstat/" itemprop="url"><span itemprop="name">Which Statistical Test?</span></a></li>
+</ul>
+</li>
+<li id="menu-item-22663" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-22663"><a href="/" itemprop="url"><span itemprop="name">SERVICES</span></a>
+<ul class="sub-menu">
+	<li id="menu-item-33775" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-33775"><a href="https://stats.idre.ucla.edu/ucla/policies/remote" itemprop="url"><span itemprop="name">Remote Consulting</span></a></li>
+	<li id="menu-item-22655" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22655"><a href="/ucla/policies" itemprop="url"><span itemprop="name">Services and Policies</span></a></li>
+	<li id="menu-item-23684" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-has-children menu-item-23684"><a itemprop="url"><span itemprop="name">Other Consulting Centers</span></a>
+	<ul class="sub-menu">
+		<li id="menu-item-23685" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-23685"><a href="http://scc.stat.ucla.edu/" itemprop="url"><span itemprop="name">Department of Statistics Consulting Center</span></a></li>
+		<li id="menu-item-23686" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-23686"><a href="https://www.cores.ucla.edu/statistical-biomathematical-consulting-clinic-sbcc/" itemprop="url"><span itemprop="name">Department of Biomathematics Consulting Clinic</span></a></li>
+	</ul>
+</li>
+</ul>
+</li>
+<li id="menu-item-22664" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-22664"><a href="/ucla/about" itemprop="url"><span itemprop="name">ABOUT US</span></a></li>
+</ul></div></nav><div class="site-inner"><div class="content-sidebar-wrap"><main class="content" id="genesis-content"><article class="post-937 page type-page status-publish entry" aria-label="Zero-Inflated Poisson Regression |  R Data Analysis Examples" itemscope itemtype="https://schema.org/CreativeWork"><header class="entry-header"><h1 class="entry-title" itemprop="headline">Zero-Inflated Poisson Regression |  R Data Analysis Examples</h1>
+</header><div class="entry-content" itemprop="text"><p>Zero-inflated Poisson regression is used to model count data that has an excess of zero counts.
+Further, theory suggests that the excess zeros
+are generated by a separate process from the count values and that the excess zeros can
+be modeled independently. Thus, the <strong>zip</strong> model has two parts, a
+Poisson count model and the logit model
+for predicting excess zeros. You may want to review these Data Analysis Example pages,
+<a href="/r/dae/poisson-regression/">Poisson Regression</a> and <a href="/r/dae/logit-regression/">Logit Regression</a>.</p>
+<p>This page uses the following packages. Make sure that you can load
+them before trying to run the examples on this page. If you do not have
+a package installed, run: <code>install.packages("packagename")</code>, or
+if you see the version is out of date, run: <code>update.packages()</code>.</p>
+<div id="unnamed-chunk-2" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl kwd">require</span><span class="hl std">(ggplot2)</span>
+<span class="hl kwd">require</span><span class="hl std">(pscl)</span>
+<span class="hl kwd">require</span><span class="hl std">(boot)</span>
+</pre>
+</div>
+</div>
+</div>
+<p><code class="knitr inline"><strong>Version info: </strong>Code for this page was tested in R version 3.4.1</code></p>
+<p><strong>Please Note:</strong> The purpose of this page is to show how to use various data analysis commands.
+It does not cover all aspects of the research process which researchers are expected to do. In
+particular, it does not cover data cleaning and verification, verification of assumptions, model
+diagnostics and potential follow-up analyses.</p>
+<h2>Examples of Zero-Inflated Poisson regression</h2>
+<p><strong>Example 1</strong>. School administrators study the attendance behavior of high school
+juniors at two schools. Predictors of the number of days of absence include
+gender of the student and standardized test scores in math and language arts.</p>
+<p><strong>Example 2</strong>. The state wildlife biologists want to model how many fish are
+being caught by fishermen at a state park. Visitors are asked how long they
+stayed, how many people were in the group, were there children in the group and
+how many fish were caught. Some visitors do not fish, but there is no data on
+whether a person fished or not. Some visitors who did fish did not catch any
+fish so there are excess zeros in the data because of the people that did not
+fish.</p>
+<h2>Description of the data</h2>
+<p>Let&#8217;s pursue Example 2 from above.</p>
+<p>We have data on 250 groups that went to a park. Each group was questioned
+about how many fish they caught (<code>count</code>), how many children were in the
+group (<code>child</code>), how many people were in the group (<code>persons</code>), and
+whether or not they brought a camper to the park (<code>camper</code>).</p>
+<p>In addition to predicting the number of fish caught, there is interest in
+predicting the existence of excess zeros, i.e., the probability that a group
+caught zero fish. We will use the variables <code>child</code>, <code>persons</code>, and
+<code>camper</code> in our model. Let&#8217;s look at the data.</p>
+<div id="unnamed-chunk-3" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl std">zinb</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">read.csv</span><span class="hl std">(</span><span class="hl str">"https://stats.idre.ucla.edu/stat/data/fish.csv"</span><span class="hl std">)</span>
+<span class="hl std">zinb</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">within</span><span class="hl std">(zinb, {</span>
+    <span class="hl std">nofish</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">factor</span><span class="hl std">(nofish)</span>
+    <span class="hl std">livebait</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">factor</span><span class="hl std">(livebait)</span>
+    <span class="hl std">camper</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">factor</span><span class="hl std">(camper)</span>
+<span class="hl std">})</span>
+
+<span class="hl kwd">summary</span><span class="hl std">(zinb)</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">##  nofish  livebait camper     persons         child             xb
+##  0:176   0: 34    0:103   Min.   :1.00   Min.   :0.000   Min.   :-3.275
+##  1: 74   1:216    1:147   1st Qu.:2.00   1st Qu.:0.000   1st Qu.: 0.008
+##                           Median :2.00   Median :0.000   Median : 0.955
+##                           Mean   :2.53   Mean   :0.684   Mean   : 0.974
+##                           3rd Qu.:4.00   3rd Qu.:1.000   3rd Qu.: 1.964
+##                           Max.   :4.00   Max.   :3.000   Max.   : 5.353
+##        zg             count
+##  Min.   :-5.626   Min.   :  0.0
+##  1st Qu.:-1.253   1st Qu.:  0.0
+##  Median : 0.605   Median :  0.0
+##  Mean   : 0.252   Mean   :  3.3
+##  3rd Qu.: 1.993   3rd Qu.:  2.0
+##  Max.   : 4.263   Max.   :149.0
+</pre>
+</div>
+<div class="source">
+<pre class="knitr r"><span class="hl com">## histogram with x axis in log10 scale</span>
+<span class="hl kwd">ggplot</span><span class="hl std">(zinb,</span> <span class="hl kwd">aes</span><span class="hl std">(count))</span> <span class="hl opt">+</span> <span class="hl kwd">geom_histogram</span><span class="hl std">()</span> <span class="hl opt">+</span> <span class="hl kwd">scale_x_log10</span><span class="hl std">()</span>
+</pre>
+</div>
+</div>
+<div class="rimage default"><img decoding="async" class="plot" src="https://stats.idre.ucla.edu/wp-content/uploads/2016/02/zipoisson-unnamed-chunk-3.png" alt="plot of chunk unnamed-chunk-3" width="500px" height="500px" /></div>
+</div>
+<h2>Analysis methods you might consider</h2>
+<p>Below is a list of some analysis methods you may have encountered.
+Some of the methods listed are quite reasonable while others have either fallen out of favor or
+have limitations.</p>
+<ul>
+<li>Zero-inflated Poisson Regression &#8211; The focus of this web page.</li>
+<li>Zero-inflated Negative Binomial Regression &#8211; Negative binomial regression does better with
+over dispersed data, i.e. variance much larger than the mean.</li>
+<li>Ordinary Count Models &#8211; Poisson or negative binomial models might be more
+appropriate if there are no excess zeros.</li>
+<li>OLS Regression &#8211; You could try to analyze these data using OLS regression. However, count
+data are highly non-normal and are not well estimated by OLS regression.</li>
+</ul>
+<h2>Zero-inflated Poisson regression</h2>
+<p>Though we can run a Poisson regression in R using the <code>glm</code> function in
+one of the core packages, we need another package to run
+the zero-inflated Poisson model. We use the <code>pscl</code> package.</p>
+<div id="unnamed-chunk-4" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre><span class="hl kwd">summary</span><span class="hl std">(m1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">zeroinfl</span><span class="hl std">(count</span> <span class="hl opt">~</span> <span class="hl std">child</span> <span class="hl opt">+</span> <span class="hl std">camper</span> <span class="hl opt">|</span> <span class="hl std">persons,</span> <span class="hl kwc">data</span> <span class="hl std">= zinb))</span></pre>
+</div>
+<pre>## Call:
+## zeroinfl(formula = count ~ child + camper | persons, data = zinb)
+##
+## Pearson residuals:
+##     Min      1Q  Median      3Q     Max
+## -1.2369 -0.7540 -0.6080 -0.1921 24.0847
+##
+## Count model coefficients (poisson with log link):
+##             Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)  1.59789    0.08554  18.680   &lt;2e-16 ***
+## child       -1.04284    0.09999 -10.430   &lt;2e-16 ***
+## camper1      0.83402    0.09363   8.908   &lt;2e-16 ***
+##
+## Zero-inflation model coefficients (binomial with logit link):
+##             Estimate Std. Error z value Pr(&gt;|z|)
+## (Intercept)   1.2974     0.3739   3.470 0.000520 ***
+## persons      -0.5643     0.1630  -3.463 0.000534 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+##
+## Number of iterations in BFGS optimization: 12
+## Log-likelihood: -1032 on 5 Df
+</pre>
+</div>
+</div>
+<p>The output looks very much like the output from two OLS regressions in R.
+Below the model call, you will find a block of output containing Poisson regression coefficients for
+each of the variables along with standard errors, z-scores, and p-values for the coefficients. A second block follows that
+corresponds to the inflation model. This includes logit
+coefficients for predicting excess zeros along with their standard errors,
+z-scores, and p-values.</p>
+<p>All of the predictors in both the count and inflation portions of the
+model are statistically significant. This model fits the data significantly
+better than the null model, i.e., the intercept-only model. To show that
+this is the case, we can compare with the current model to a null model
+without predictors using chi-squared test on the difference of log
+likelihoods.</p>
+<div id="unnamed-chunk-5" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl std">mnull</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">update</span><span class="hl std">(m1, .</span> <span class="hl opt">~</span> <span class="hl num">1</span><span class="hl std">)</span>
+
+<span class="hl kwd">pchisq</span><span class="hl std">(</span><span class="hl num">2</span> <span class="hl opt">*</span> <span class="hl std">(</span><span class="hl kwd">logLik</span><span class="hl std">(m1)</span> <span class="hl opt">-</span> <span class="hl kwd">logLik</span><span class="hl std">(mnull)),</span> <span class="hl kwc">df</span> <span class="hl std">=</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwc">lower.tail</span> <span class="hl std">=</span> <span class="hl num">FALSE</span><span class="hl std">)</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">## 'log Lik.' 4.041e-41 (df=5)
+</pre>
+</div>
+</div>
+</div>
+<p>Since we have three predictor variables in the full model, the degrees of freedom for the
+chi-squared test is 3. This yields a high significant p-value; thus, our overall model is
+statistically significant.</p>
+<p>We can get confidence intervals for the parameters and the
+exponentiated parameters using bootstrapping. For the Poisson model, these would
+be incident risk ratios, for the zero inflation model, odds ratios. We use the
+<code>boot</code> package. First, we get the coefficients from our original model to
+use as start values for the model to speed up the time it takes to estimate. Then
+we write a short function that takes data and indices as input and returns the
+parameters we are interested in. Finally, we pass that
+to the <code>boot</code> function and do 1200 replicates, using snow to distribute across
+four cores. Note that you should adjust the number of cores to whatever your machine
+has. Also, for final results, one may wish to increase the number of replications to
+help ensure stable results.</p>
+<div id="unnamed-chunk-7" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl kwd">dput</span><span class="hl std">(</span><span class="hl kwd">coef</span><span class="hl std">(m1,</span> <span class="hl str">"count"</span><span class="hl std">))</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">## structure(c(1.59788828690411, -1.04283909332231, 0.834023618148891
+## ), .Names = c("(Intercept)", "child", "camper1"))
+</pre>
+</div>
+<div class="source">
+<pre class="knitr r"><span class="hl kwd">dput</span><span class="hl std">(</span><span class="hl kwd">coef</span><span class="hl std">(m1,</span> <span class="hl str">"zero"</span><span class="hl std">))</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">## structure(c(1.29744027908309, -0.564347365357873), .Names = c("(Intercept)",
+## "persons"))
+</pre>
+</div>
+<div class="source">
+<pre class="knitr r"><span class="hl std">f</span> <span class="hl kwb">&lt;-</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">data</span><span class="hl std">,</span> <span class="hl kwc">i</span><span class="hl std">) {</span>
+  <span class="hl kwd">require</span><span class="hl std">(pscl)</span>
+  <span class="hl std">m</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">zeroinfl</span><span class="hl std">(count</span> <span class="hl opt">~</span> <span class="hl std">child</span> <span class="hl opt">+</span> <span class="hl std">camper</span> <span class="hl opt">|</span> <span class="hl std">persons,</span> <span class="hl kwc">data</span> <span class="hl std">= data[i, ],</span>
+    <span class="hl kwc">start</span> <span class="hl std">=</span> <span class="hl kwd">list</span><span class="hl std">(</span><span class="hl kwc">count</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1.598</span><span class="hl std">,</span> <span class="hl opt">-</span><span class="hl num">1.0428</span><span class="hl std">,</span> <span class="hl num">0.834</span><span class="hl std">),</span> <span class="hl kwc">zero</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1.297</span><span class="hl std">,</span> <span class="hl opt">-</span><span class="hl num">0.564</span><span class="hl std">)))</span>
+  <span class="hl kwd">as.vector</span><span class="hl std">(</span><span class="hl kwd">t</span><span class="hl std">(</span><span class="hl kwd">do.call</span><span class="hl std">(rbind,</span> <span class="hl kwd">coef</span><span class="hl std">(</span><span class="hl kwd">summary</span><span class="hl std">(m)))[,</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">2</span><span class="hl std">]))</span>
+<span class="hl std">}</span>
+
+<span class="hl kwd">set.seed</span><span class="hl std">(</span><span class="hl num">10</span><span class="hl std">)</span>
+<span class="hl std">res</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">boot</span><span class="hl std">(zinb, f,</span> <span class="hl kwc">R</span> <span class="hl std">=</span> <span class="hl num">1200</span><span class="hl std">,</span> <span class="hl kwc">parallel</span> <span class="hl std">=</span> <span class="hl str">"snow"</span><span class="hl std">,</span> <span class="hl kwc">ncpus</span> <span class="hl std">=</span> <span class="hl num">4</span><span class="hl std">)</span>
+
+<span class="hl com">## print results</span>
+<span class="hl std">res</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">##
+## ORDINARY NONPARAMETRIC BOOTSTRAP
+##
+##
+## Call:
+## boot(data = zinb, statistic = f, R = 1200, parallel = "snow",
+##     ncpus = 4)
+##
+##
+## Bootstrap Statistics :
+##      original    bias    std. error
+## t1*   1.59789 -0.056661     0.30307
+## t2*   0.08554  0.004257     0.01670
+## t3*  -1.04284 -0.002510     0.40557
+## t4*   0.09999  0.004395     0.01539
+## t5*   0.83402  0.017178     0.40465
+## t6*   0.09363  0.004581     0.01536
+## t7*   1.29744  0.020810     0.48058
+## t8*   0.37385  0.008224     0.03662
+## t9*  -0.56435 -0.030103     0.26673
+## t10*  0.16296  0.005272     0.02981
+</pre>
+</div>
+</div>
+</div>
+<p>The results are alternating parameter estimates and standard
+errors. That is, the first row has the first parameter estimate
+from our model. The second has the standard error for the
+first parameter. The third column contains the bootstrapped
+standard errors, which are considerably larger than those estimated
+by <code>zeroinfl</code>.</p>
+<p>Now we can get the confidence intervals for all the parameters.
+We start on the original scale with percentile and bias adjusted CIs.
+We also compare these results with the regular confidence intervals
+based on the standard errors.</p>
+<div id="unnamed-chunk-8" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl com">## basic parameter estimates with percentile and bias adjusted CIs</span>
+<span class="hl std">parms</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">t</span><span class="hl std">(</span><span class="hl kwd">sapply</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">7</span><span class="hl std">,</span> <span class="hl num">9</span><span class="hl std">),</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">i</span><span class="hl std">) {</span>
+  <span class="hl std">out</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">boot.ci</span><span class="hl std">(res,</span> <span class="hl kwc">index</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(i, i</span> <span class="hl opt">+</span> <span class="hl num">1</span><span class="hl std">),</span> <span class="hl kwc">type</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">"perc"</span><span class="hl std">,</span> <span class="hl str">"bca"</span><span class="hl std">))</span>
+  <span class="hl kwd">with</span><span class="hl std">(out,</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">Est</span> <span class="hl std">= t0,</span> <span class="hl kwc">pLL</span> <span class="hl std">= percent[</span><span class="hl num">4</span><span class="hl std">],</span> <span class="hl kwc">pUL</span> <span class="hl std">= percent[</span><span class="hl num">5</span><span class="hl std">],</span>
+     <span class="hl kwc">bcaLL</span> <span class="hl std">= bca[</span><span class="hl num">4</span><span class="hl std">],</span> <span class="hl kwc">bcaLL</span> <span class="hl std">= bca[</span><span class="hl num">5</span><span class="hl std">]))</span>
+<span class="hl std">}))</span>
+
+<span class="hl com">## add row names</span>
+<span class="hl kwd">row.names</span><span class="hl std">(parms)</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">names</span><span class="hl std">(</span><span class="hl kwd">coef</span><span class="hl std">(m1))</span>
+<span class="hl com">## print results</span>
+<span class="hl std">parms</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">##                       Est     pLL      pUL     bcaLL    bcaLL
+## count_(Intercept)  1.5979  0.8793  2.07810  1.087354  2.22614
+## count_child       -1.0428 -1.7509 -0.17531 -1.618509 -0.02203
+## count_camper1      0.8340  0.0596  1.62653  0.001571  1.59995
+## zero_(Intercept)   1.2974  0.3503  2.21984  0.293577  2.12070
+## zero_persons      -0.5643 -1.1087 -0.07847 -1.008526  0.00633
+</pre>
+</div>
+<div class="source">
+<pre class="knitr r"><span class="hl com">## compare with normal based approximation</span>
+<span class="hl kwd">confint</span><span class="hl std">(m1)</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">##                     2.5 %  97.5 %
+## count_(Intercept)  1.4302  1.7655
+## count_child       -1.2388 -0.8469
+## count_camper1      0.6505  1.0175
+## zero_(Intercept)   0.5647  2.0302
+## zero_persons      -0.8838 -0.2449
+</pre>
+</div>
+</div>
+</div>
+<p>The bootstrapped confidence intervals are considerably wider than the
+normal based approximation. The bootstrapped CIs are more consistent with
+the CIs from Stata when using robust standard errors.</p>
+<p>Now we can estimate the incident risk ratio (IRR) for the Poisson model and
+odds ratio (OR) for the logistic (zero inflation) model. This is done using
+almost identical code as before, but passing a transformation function to the
+<code>h</code> argument of <code>boot.ci</code>, in this case, <code>exp</code> to exponentiate.</p>
+<div id="unnamed-chunk-9" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl com">## exponentiated parameter estimates with percentile and bias adjusted CIs</span>
+<span class="hl std">expparms</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">t</span><span class="hl std">(</span><span class="hl kwd">sapply</span><span class="hl std">(</span><span class="hl kwd">c</span><span class="hl std">(</span><span class="hl num">1</span><span class="hl std">,</span> <span class="hl num">3</span><span class="hl std">,</span> <span class="hl num">5</span><span class="hl std">,</span> <span class="hl num">7</span><span class="hl std">,</span> <span class="hl num">9</span><span class="hl std">),</span> <span class="hl kwa">function</span><span class="hl std">(</span><span class="hl kwc">i</span><span class="hl std">) {</span>
+  <span class="hl std">out</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">boot.ci</span><span class="hl std">(res,</span> <span class="hl kwc">index</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(i, i</span> <span class="hl opt">+</span> <span class="hl num">1</span><span class="hl std">),</span> <span class="hl kwc">type</span> <span class="hl std">=</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">"perc"</span><span class="hl std">,</span> <span class="hl str">"bca"</span><span class="hl std">),</span> <span class="hl kwc">h</span> <span class="hl std">= exp)</span>
+  <span class="hl kwd">with</span><span class="hl std">(out,</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl kwc">Est</span> <span class="hl std">= t0,</span> <span class="hl kwc">pLL</span> <span class="hl std">= percent[</span><span class="hl num">4</span><span class="hl std">],</span> <span class="hl kwc">pUL</span> <span class="hl std">= percent[</span><span class="hl num">5</span><span class="hl std">],</span>
+    <span class="hl kwc">bcaLL</span> <span class="hl std">= bca[</span><span class="hl num">4</span><span class="hl std">],</span> <span class="hl kwc">bcaLL</span> <span class="hl std">= bca[</span><span class="hl num">5</span><span class="hl std">]))</span>
+<span class="hl std">}))</span>
+
+<span class="hl com">## add row names</span>
+<span class="hl kwd">row.names</span><span class="hl std">(expparms)</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">names</span><span class="hl std">(</span><span class="hl kwd">coef</span><span class="hl std">(m1))</span>
+<span class="hl com">## print results</span>
+<span class="hl std">expparms</span>
+</pre>
+</div>
+<div class="output">
+<pre class="knitr r">##                      Est    pLL    pUL  bcaLL  bcaLL
+## count_(Intercept) 4.9426 2.4091 7.9892 2.9664 9.2641
+## count_child       0.3525 0.1736 0.8392 0.1982 0.9782
+## count_camper1     2.3026 1.0614 5.0862 1.0016 4.9528
+## zero_(Intercept)  3.6599 1.4195 9.2058 1.3412 8.3370
+## zero_persons      0.5687 0.3300 0.9245 0.3648 1.0063
+</pre>
+</div>
+</div>
+</div>
+<p>To better understand our model, we can compute the expected number of fish
+caught for different combinations of our predictors. In fact, since we are
+working with essentially categorical predictors, we can compute the expected
+values for all combinations using the <code>expand.grid</code> function to create
+all combinations and then the <code>predict</code> function to do it. We also remove any rows where the number of children exceeds the number of persons, which does not make sense logically, using the <code>subset</code> function. Finally we
+create a graph.</p>
+<div id="unnamed-chunk-10" class="chunk">
+<div class="rcode">
+<div class="source">
+<pre class="knitr r"><span class="hl std">newdata1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">expand.grid</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">3</span><span class="hl std">,</span> <span class="hl kwd">factor</span><span class="hl std">(</span><span class="hl num">0</span><span class="hl opt">:</span><span class="hl num">1</span><span class="hl std">),</span> <span class="hl num">1</span><span class="hl opt">:</span><span class="hl num">4</span><span class="hl std">)</span>
+<span class="hl kwd">colnames</span><span class="hl std">(newdata1)</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">c</span><span class="hl std">(</span><span class="hl str">"child"</span><span class="hl std">,</span> <span class="hl str">"camper"</span><span class="hl std">,</span> <span class="hl str">"persons"</span><span class="hl std">)</span>
+<span class="hl std">newdata1</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">subset</span><span class="hl std">(newdata1,</span> <span class="hl kwc">subset</span><span class="hl std">=(child</span><span class="hl opt">&lt;=</span><span class="hl std">persons))</span>
+<span class="hl std">newdata1</span><span class="hl opt">$</span><span class="hl std">phat</span> <span class="hl kwb">&lt;-</span> <span class="hl kwd">predict</span><span class="hl std">(m1, newdata1)</span>
+
+<span class="hl kwd">ggplot</span><span class="hl std">(newdata1,</span> <span class="hl kwd">aes</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">= child,</span> <span class="hl kwc">y</span> <span class="hl std">= phat,</span> <span class="hl kwc">colour</span> <span class="hl std">=</span> <span class="hl kwd">factor</span><span class="hl std">(persons)))</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_point</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">geom_line</span><span class="hl std">()</span> <span class="hl opt">+</span>
+  <span class="hl kwd">facet_wrap</span><span class="hl std">(</span><span class="hl opt">~</span><span class="hl std">camper)</span> <span class="hl opt">+</span>
+  <span class="hl kwd">labs</span><span class="hl std">(</span><span class="hl kwc">x</span> <span class="hl std">=</span> <span class="hl str">"Number of Children"</span><span class="hl std">,</span> <span class="hl kwc">y</span> <span class="hl std">=</span> <span class="hl str">"Predicted Fish Caught"</span><span class="hl std">)</span>
+</pre>
+</div>
+</div>
+<div class="rimage default"><img decoding="async" class="plot" src="https://stats.idre.ucla.edu/wp-content/uploads/2016/02/zipoisson-unnamed-chunk-10.png" alt="plot of chunk unnamed-chunk-10" width="500px" height="500px" /></div>
+</div>
+<h2>Things to consider</h2>
+<ul>
+<li>Since <strong>zip</strong> has both a count model and a logit
+model, each of the two models should have good predictors. The two models do not
+necessarily need to use the same predictors.</li>
+<li>Problems of perfect prediction, separation or partial separation can occur in the
+logistic part of the zero-inflated model.</li>
+<li>Count data often use exposure variables to indicate the number of times the event
+could have happened. You can incorporate a logged version of the exposure variable into your model by using the <code>offset()</code>
+option.</li>
+<li>It is not recommended that zero-inflated Poisson models be applied to
+small samples. What constitutes a small sample does not seem to be clearly defined
+in the literature.</li>
+<li>Pseudo-R-squared values differ from OLS R-squareds, please see
+<a href="https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faq-what-are-pseudo-r-squareds/">FAQ: What are
+pseudo R-squareds?</a> for a discussion on this issue.</li>
+<li>In times past, the Vuong test had been used to test whether a zero-inflated Poisson model or a Poisson model (without the zero-inflation) was a better fit for the data.  However, this test is no longer considered valid.  Please see <a href="http://cybermetrics.wlv.ac.uk/paperdata/misusevuong.pdf">The Misuse of The Vuong Test For Non-Nested Models to Test for Zero-Inflation</a> by Paul Wilson for further information.</li>
+</ul>
+<h2>See Also</h2>
+<ul>
+<li><code>zeroinfl</code></li>
+</ul>
+<h3>References</h3>
+<ul>
+<li>Long, J. S. 1997.
+<i>Regression Models for Categorical and Limited Dependent Variables. </i>Thousand Oaks, CA: Sage Publications.</li>
+<li>Everitt, B. S. and Hothorn, T. <a href="http://cran.r-project.org/web/packages/HSAUR/vignettes/preface.pdf">A Handbook of Statistical Analyses Using R</a></li>
+</ul>
+<p><!--?php include "stat/footer.htm"; ?--></p>
+</div></article></main><aside class="sidebar sidebar-primary widget-area" role="complementary" aria-label="Primary Sidebar" itemscope itemtype="https://schema.org/WPSideBar" id="genesis-sidebar-primary"><h2 class="genesis-sidebar-title screen-reader-text">Primary Sidebar</h2></aside><hr><div style="clear:both;">
+          <p style="float:left;"><span class="collapseomatic " id="id6a0f1a560432d"  tabindex="0" title="Click here to report an error on this page or leave a comment"    >Click here to report an error on this page or leave a comment</span><span id='swap-id6a0f1a560432d'  class='colomat-swap' style='display:none;'> </span><div id="target-id6a0f1a560432d" class="collapseomatic_content ">
+<div class="wpcf7 no-js" id="wpcf7-f22910-o1" lang="en-US" dir="ltr" data-wpcf7-id="22910">
+<div class="screen-reader-response"><p role="status" aria-live="polite" aria-atomic="true"></p> <ul></ul></div>
+<form action="/r/dae/zip/#wpcf7-f22910-o1" method="post" class="wpcf7-form init" aria-label="Contact form" novalidate="novalidate" data-status="init">
+<fieldset class="hidden-fields-container"><input type="hidden" name="_wpcf7" value="22910" /><input type="hidden" name="_wpcf7_version" value="6.1" /><input type="hidden" name="_wpcf7_locale" value="en_US" /><input type="hidden" name="_wpcf7_unit_tag" value="wpcf7-f22910-o1" /><input type="hidden" name="_wpcf7_container_post" value="0" /><input type="hidden" name="_wpcf7_posted_data_hash" value="" /><input type="hidden" name="_wpcf7_recaptcha_response" value="" />
+</fieldset>
+<p><label for="namefield"> Your Name (required)<br />
+<span class="wpcf7-form-control-wrap" data-name="your-name"><input size="40" maxlength="400" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" id="namefield" aria-required="true" aria-invalid="false" value="" type="text" name="your-name" /></span><br />
+</label>
+</p>
+<p><label for="emailfield"> Your Email (must be a valid email for us to receive the report!)<br />
+<span class="wpcf7-form-control-wrap" data-name="your-email"><input size="40" maxlength="400" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text wpcf7-validates-as-email" id="emailfield" aria-required="true" aria-invalid="false" value="" type="email" name="your-email" /></span><br />
+</label>
+</p>
+<p><label for="commentfield"> Comment/Error Report (required)<br />
+<span class="wpcf7-form-control-wrap" data-name="your-message"><textarea cols="40" rows="10" maxlength="2000" class="wpcf7-form-control wpcf7-textarea wpcf7-validates-as-required" id="commentfield" aria-required="true" aria-invalid="false" name="your-message"></textarea></span><br />
+</label>
+</p>
+<span class="wpcf7-form-control-wrap recaptcha"><span data-sitekey="6LfYdSEUAAAAALpzE4-TLY8d8B8SKVQBCnKVDCNH" class="wpcf7-form-control wpcf7-recaptcha g-recaptcha"></span>
+<noscript>
+	<div class="grecaptcha-noscript">
+		<iframe src="https://www.google.com/recaptcha/api/fallback?k=6LfYdSEUAAAAALpzE4-TLY8d8B8SKVQBCnKVDCNH" frameborder="0" scrolling="no" width="310" height="430">
+		</iframe>
+		<textarea name="g-recaptcha-response" rows="3" cols="40" placeholder="reCaptcha Response Here">
+		</textarea>
+	</div>
+</noscript>
+</span>
+<p><input class="wpcf7-form-control wpcf7-submit has-spinner" type="submit" value="Send" />
+</p><p style="display: none !important;" class="akismet-fields-container" data-prefix="_wpcf7_ak_"><label>&#916;<textarea name="_wpcf7_ak_hp_textarea" cols="45" rows="8" maxlength="100"></textarea></label><input type="hidden" id="ak_js_1" name="_wpcf7_ak_js" value="193"/><script>document.getElementById( "ak_js_1" ).setAttribute( "value", ( new Date() ).getTime() );</script></p><div class="wpcf7-response-output" aria-hidden="true"></div>
+</form>
+</div>
+</div></p><p style="float:right;">
+          <a href="https://stats.idre.ucla.edu/other/mult-pkg/faq/general/faq-how-do-i-cite-web-pages-and-programs-from-the-ucla-statistical-consulting-group/">How to cite this page</a>
+          </p></div></div></div>
+
+    <div class="wrapped">
+        <a href="https://oarc.ucla.edu/" title="UCLA Office of Advanced Research Technology" id="footer-image">UCLA OARC</a>
+    </div>
+
+    <div class="ftr-btm">
+        <div class="footer-links">
+        <ol>
+	    <li><a href="http://www.ucla.edu/terms-of-use/">© 2026 UC REGENTS</a></li>
+            <li><a href="/">HOME</a></li>
+            <li><a href="/contact">CONTACT</a></li>
+        </ol>
+        </div>
+    </div>
+<script>
+			jQuery(function($) {
+			$('.genesis-nav-menu').slicknav();
+			});
+			</script><script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp-*.php","/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/genesis-child/*","/wp-content/themes/genesis/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+		<script>
+		( function ( body ) {
+			'use strict';
+			body.className = body.className.replace( /\btribe-no-js\b/, 'tribe-js' );
+		} )( document.body );
+		</script>
+		<script> /* <![CDATA[ */var tribe_l10n_datatables = {"aria":{"sort_ascending":": activate to sort column ascending","sort_descending":": activate to sort column descending"},"length_menu":"Show _MENU_ entries","empty_table":"No data available in table","info":"Showing _START_ to _END_ of _TOTAL_ entries","info_empty":"Showing 0 to 0 of 0 entries","info_filtered":"(filtered from _MAX_ total entries)","zero_records":"No matching records found","search":"Search:","all_selected_text":"All items on this page were selected. ","select_all_link":"Select all pages","clear_selection":"Clear Selection.","pagination":{"all":"All","next":"Next","previous":"Previous"},"select":{"rows":{"0":"","_":": Selected %d rows","1":": Selected 1 row"}},"datepicker":{"dayNames":["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],"dayNamesShort":["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],"dayNamesMin":["S","M","T","W","T","F","S"],"monthNames":["January","February","March","April","May","June","July","August","September","October","November","December"],"monthNamesShort":["January","February","March","April","May","June","July","August","September","October","November","December"],"monthNamesMin":["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"nextText":"Next","prevText":"Prev","currentText":"Today","closeText":"Done","today":"Today","clear":"Clear"}};/* ]]> */ </script>
+
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/c1935.js"></script>
+
+<script type="text/javascript" id="wp-i18n-js-after">
+/* <![CDATA[ */
+wp.i18n.setLocaleData( { 'text direction\u0004ltr': [ 'ltr' ] } );
+//# sourceURL=wp-i18n-js-after
+/* ]]> */
+</script>
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/1f540.js"></script>
+
+<script type="text/javascript" id="contact-form-7-js-before">
+/* <![CDATA[ */
+var wpcf7 = {
+    "api": {
+        "root": "https:\/\/stats.oarc.ucla.edu\/wp-json\/",
+        "namespace": "contact-form-7\/v1"
+    },
+    "cached": 1
+};
+//# sourceURL=contact-form-7-js-before
+/* ]]> */
+</script>
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/b68ea.js"></script>
+
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js?ver=6.9.4" id="mathjax-js"></script>
+
+
+
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/f3065.js"></script>
+
+<script type="text/javascript" id="collapseomatic-js-js-before">
+/* <![CDATA[ */
+const com_options = {"colomatduration":"fast","colomatslideEffect":"slideFade","colomatpauseInit":"","colomattouchstart":""}
+//# sourceURL=collapseomatic-js-js-before
+/* ]]> */
+</script>
+
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/d7287.js"></script>
+
+<script type="text/javascript" id="google-recaptcha-js-extra">
+/* <![CDATA[ */
+var wpcf7iqfix = {"recaptcha_empty":"Please verify that you are not a robot.","response_err":"wpcf7-recaptcha: Could not verify reCaptcha response."};
+//# sourceURL=google-recaptcha-js-extra
+/* ]]> */
+</script>
+<script type="text/javascript" src="https://www.google.com/recaptcha/api.js?hl=en_US&amp;onload=recaptchaCallback&amp;render=explicit&amp;ver=2.0" id="google-recaptcha-js"></script>
+<script src="https://stats.oarc.ucla.edu/wp-content/cache/minify/45ffb.js" defer></script>
+
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://stats.oarc.ucla.edu/wp-includes/js/wp-emoji-release.min.js?ver=6.9.4"}}
+</script>
+<script type="module">
+/* <![CDATA[ */
+/*! This file is auto-generated */
+const a=JSON.parse(document.getElementById("wp-emoji-settings").textContent),o=(window._wpemojiSettings=a,"wpEmojiSettingsSupports"),s=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const a=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===a[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,a){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!a(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,a){let r;const o=(r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),s=(o.textBaseline="top",o.font="600 32px Arial",{});return e.forEach(e=>{s[e]=t(o,e,n,a)}),s}function r(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}a.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),c.toString(),p.toString()].join(",")+"));",a=new Blob([e],{type:"text/javascript"});const r=new Worker(URL.createObjectURL(a),{name:"wpTestEmojiSupports"});return void(r.onmessage=e=>{i(n=e.data),r.terminate(),t(n)})}catch(e){}i(n=f(s,u,c,p))}t(n)}).then(e=>{for(const n in e)a.supports[n]=e[n],a.supports.everything=a.supports.everything&&a.supports[n],"flag"!==n&&(a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&a.supports[n]);var t;a.supports.everythingExceptFlag=a.supports.everythingExceptFlag&&!a.supports.flag,a.supports.everything||((t=a.source||{}).concatemoji?r(t.concatemoji):t.wpemoji&&t.twemoji&&(r(t.twemoji),r(t.wpemoji)))});
+//# sourceURL=https://stats.oarc.ucla.edu/wp-includes/js/wp-emoji-loader.min.js
+/* ]]> */
+</script>
+
+
+
+
+<!--
+Performance optimized by W3 Total Cache. Learn more: https://www.boldgrid.com/w3-total-cache/?utm_source=w3tc&utm_medium=footer_comment&utm_campaign=free_plugin
+
+Page Caching using Disk: Enhanced
+Minified using Disk
+
+Served from: stats.oarc.ucla.edu @ 2026-05-21 07:44:38 by W3 Total Cache
+-->

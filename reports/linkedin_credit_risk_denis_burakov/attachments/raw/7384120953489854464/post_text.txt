@@ -1,0 +1,6 @@
+📘 𝘞𝘦𝘪𝘨𝘩𝘵 𝘰𝘧 𝘌𝘷𝘪𝘥𝘦𝘯𝘤𝘦: 𝘍𝘳𝘰𝘮 𝘉𝘭𝘦𝘵𝘤𝘩𝘭𝘦𝘺 𝘗𝘢𝘳𝘬 𝘵𝘰 𝘊𝘳𝘦𝘥𝘪𝘵 𝘚𝘤𝘰𝘳𝘪𝘯𝘨
+🧭 In 1941, Alan M. Turing turned wartime guesswork into arithmetic. He took odds in favor of a hypothesis (matching texts), logged them, and built an additive scoring system, a framework that later became foundational in credit scoring. This chapter traces that lineage from Turing's Factor Principle at Bletchley Park, through Jack Good and David MacKay, to modern credit scoring and explainable AI.
+💡 In Q4, I plan to share another draft. I'm deciding between the one on SHAP (SHAP-WOE connection, trees, scorecards, and model distillation), and the one exploring the historical roots and modern applications of logistic regression, focusing on its unique role in statistics and machine learning.
+🤝 We are also planning a collaboration with Paul Edwards on applications covering boosting and scorecards, combining theoretical foundations with practical implementations and deployment scenarios in Python 🐍.
+💬 I’d love to hear your thoughts on the draft and hope you enjoy reading this first preview!
+#CreditScoring #DataScience #MachineLearning #InformationTheory

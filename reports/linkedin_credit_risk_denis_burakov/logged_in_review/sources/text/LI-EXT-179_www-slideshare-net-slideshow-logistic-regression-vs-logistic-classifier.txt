@@ -1,0 +1,1047 @@
+Logistic regression vs. logistic classifier. History of the confusion and the role of Logistic Regression in experimental research | PDF
+Download free for 30 days Sign in
+Upload Language ( EN ) Support
+Business Mobile Social Media Marketing Technology Art & Photos Career Design Education Presentations & Public Speaking Government & Nonprofit Healthcare Internet Law Leadership & Management Automotive Engineering Software Recruiting & HR Retail Sales Services Science Small Business & Entrepreneurship Food Environment Economy & Finance Data & Analytics Investor Relations Sports Spiritual News & Politics Travel Self Improvement Real Estate Entertainment & Humor Health & Medicine Devices & Hardware Lifestyle
+EN
+Upload
+Download free for 30 days
+Sign in
+AO
+Uploaded by Adrian Olszewski
+PDF, PPTX 1,141 views
+Logistic regression vs. logistic classifier. History of the confusion and the role of Logistic Regression in experimental research
+AI-enhanced description
+The document discusses the debate surrounding the classification of logistic regression as a regression model versus a classifier, emphasizing its historical and practical use for regression in various fields. It critiques the misrepresentation of logistic regression in machine learning contexts where it is termed a 'logistic classifier,' despite its foundational identity as a regression methodology. The author argues that this mislabeling undermines the established use of logistic regression among statisticians and researchers in experimental settings.
+Education ◦
+Related topics :
+Logistic Regression •
+Read more
+1 Save Share
+Embed
+Download Download as PDF, PPTX
+1 / 30
+2 / 30
+3 / 30
+4 / 30
+5 / 30
+6 / 30
+7 / 30
+8 / 30
+9 / 30
+10 / 30
+11 / 30
+12 / 30
+13 / 30
+14 / 30
+15 / 30
+16 / 30
+17 / 30
+18 / 30
+19 / 30
+20 / 30
+About Support Terms Privacy Copyright Your Privacy Choices
+English
+© 2026 Slideshare from Scribd
+Recommended
+PPTX
+Linear programming graphical method
+by Dr. Abdulfatah Salem
+61 slides 2K views
+PPTX
+Linear programming
+by Piyush Sharma
+48 slides 7.1K views
+PDF
+les matrices
+by Kha-lid Khalid
+27 slides 2.5K views
+PPTX
+Two Phase Method- Linear Programming
+by Manas Lad
+25 slides 33.7K views
+PPT
+Lp simplex 3_
+by Mustaqim Siga
+29 slides 1.2K views
+PPT
+Simplex method
+by Abu Bashar
+45 slides 6.9K views
+PPTX
+Simplex Method.pptx
+by byuvashreeitITDept
+56 slides 712 views
+PDF
+PRML 第14章
+by Akira Miyazawa
+52 slides 2.5K views
+PDF
+ベクトルで理解する相関係数
+by Satoshi MATSUURA
+25 slides 23.2K views
+DOC
+Dual simplexmethod
+by Joseph Konnully
+2 slides 5.9K views
+PDF
+2部グラフの最小点被覆の求め方
+by Kensuke Otsuki
+6 slides 1.9K views
+PPT
+L20 Simplex Method
+by Quoc Bao Nguyen
+19 slides 12.9K views
+PPTX
+Lenier Equation
+by Khadiza Begum
+41 slides 930 views
+PDF
+ITと数学で社会に役立つ数理最適化
+by 京都大学大学院情報学研究科数理工学専攻
+25 slides 11.8K views
+PPTX
+NON LINEAR PROGRAMMING
+by karishma gupta
+11 slides 8.3K views
+PPT
+Simplex method
+by tatteya
+34 slides 6.7K views
+PDF
+Random Process
+by Pei-Che Chang
+53 slides 1K views
+PPTX
+Matlab
+by sandhya jois
+29 slides 756 views
+PPTX
+FM calculus
+by Mike Hoad
+17 slides 890 views
+PDF
+safe and efficient off policy reinforcement learning
+by Ryo Iwaki
+22 slides 1.1K views
+PDF
+Quadratic programming (Tool of optimization)
+by VARUN KUMAR
+12 slides 1.8K views
+PPT
+アルゴリズムとデータ構造14
+by Kenta Hattori
+17 slides 2K views
+PDF
+半正定値計画問題と最大カット Sedemifinite Programming and Approximation Algorithm for Maxcu...
+by Yuya Masumura
+60 slides 711 views
+PPTX
+Twophasemethod 131003081339-phpapp01
+by kongara
+27 slides 359 views
+PDF
+CMR_Graphical Method -Special cases.pdf
+by KhaderMohamet
+23 slides 346 views
+PPTX
+Operation research unit 1: LPP Big M and Two Phase method
+by Dr. L K Bhagi
+146 slides 1.5K views
+PDF
+1次式とノルムで構成された最適化問題とその双対問題
+by 京都大学大学院情報学研究科数理工学専攻
+102 slides 5K views
+PPTX
+多次元信号処理の基礎と画像処理のための二次元変換技術
+by Shogo Muramatsu
+85 slides 10.2K views
+PPTX
+Logistic regression - one of the key regression tools in experimental research
+by Adrian Olszewski
+15 slides 263 views
+PDF
+3ml.pdf
+by MianAdnan27
+48 slides 75 views
+More Related Content
+PPTX
+Linear programming graphical method
+by Dr. Abdulfatah Salem
+61 slides 2K views
+PPTX
+Linear programming
+by Piyush Sharma
+48 slides 7.1K views
+PDF
+les matrices
+by Kha-lid Khalid
+27 slides 2.5K views
+PPTX
+Two Phase Method- Linear Programming
+by Manas Lad
+25 slides 33.7K views
+PPT
+Lp simplex 3_
+by Mustaqim Siga
+29 slides 1.2K views
+PPT
+Simplex method
+by Abu Bashar
+45 slides 6.9K views
+PPTX
+Simplex Method.pptx
+by byuvashreeitITDept
+56 slides 712 views
+PDF
+PRML 第14章
+by Akira Miyazawa
+52 slides 2.5K views
+Linear programming graphical method
+by Dr. Abdulfatah Salem
+61 slides 2K views
+Linear programming
+by Piyush Sharma
+48 slides 7.1K views
+les matrices
+by Kha-lid Khalid
+27 slides 2.5K views
+Two Phase Method- Linear Programming
+by Manas Lad
+25 slides 33.7K views
+Lp simplex 3_
+by Mustaqim Siga
+29 slides 1.2K views
+Simplex method
+by Abu Bashar
+45 slides 6.9K views
+Simplex Method.pptx
+by byuvashreeitITDept
+56 slides 712 views
+PRML 第14章
+by Akira Miyazawa
+52 slides 2.5K views
+What's hot
+PDF
+ベクトルで理解する相関係数
+by Satoshi MATSUURA
+25 slides 23.2K views
+DOC
+Dual simplexmethod
+by Joseph Konnully
+2 slides 5.9K views
+PDF
+2部グラフの最小点被覆の求め方
+by Kensuke Otsuki
+6 slides 1.9K views
+PPT
+L20 Simplex Method
+by Quoc Bao Nguyen
+19 slides 12.9K views
+PPTX
+Lenier Equation
+by Khadiza Begum
+41 slides 930 views
+PDF
+ITと数学で社会に役立つ数理最適化
+by 京都大学大学院情報学研究科数理工学専攻
+25 slides 11.8K views
+PPTX
+NON LINEAR PROGRAMMING
+by karishma gupta
+11 slides 8.3K views
+PPT
+Simplex method
+by tatteya
+34 slides 6.7K views
+PDF
+Random Process
+by Pei-Che Chang
+53 slides 1K views
+PPTX
+Matlab
+by sandhya jois
+29 slides 756 views
+PPTX
+FM calculus
+by Mike Hoad
+17 slides 890 views
+PDF
+safe and efficient off policy reinforcement learning
+by Ryo Iwaki
+22 slides 1.1K views
+PDF
+Quadratic programming (Tool of optimization)
+by VARUN KUMAR
+12 slides 1.8K views
+PPT
+アルゴリズムとデータ構造14
+by Kenta Hattori
+17 slides 2K views
+PDF
+半正定値計画問題と最大カット Sedemifinite Programming and Approximation Algorithm for Maxcu...
+by Yuya Masumura
+60 slides 711 views
+PPTX
+Twophasemethod 131003081339-phpapp01
+by kongara
+27 slides 359 views
+PDF
+CMR_Graphical Method -Special cases.pdf
+by KhaderMohamet
+23 slides 346 views
+PPTX
+Operation research unit 1: LPP Big M and Two Phase method
+by Dr. L K Bhagi
+146 slides 1.5K views
+PDF
+1次式とノルムで構成された最適化問題とその双対問題
+by 京都大学大学院情報学研究科数理工学専攻
+102 slides 5K views
+PPTX
+多次元信号処理の基礎と画像処理のための二次元変換技術
+by Shogo Muramatsu
+85 slides 10.2K views
+ベクトルで理解する相関係数
+by Satoshi MATSUURA
+25 slides 23.2K views
+Dual simplexmethod
+by Joseph Konnully
+2 slides 5.9K views
+2部グラフの最小点被覆の求め方
+by Kensuke Otsuki
+6 slides 1.9K views
+L20 Simplex Method
+by Quoc Bao Nguyen
+19 slides 12.9K views
+Lenier Equation
+by Khadiza Begum
+41 slides 930 views
+ITと数学で社会に役立つ数理最適化
+by 京都大学大学院情報学研究科数理工学専攻
+25 slides 11.8K views
+NON LINEAR PROGRAMMING
+by karishma gupta
+11 slides 8.3K views
+Simplex method
+by tatteya
+34 slides 6.7K views
+Random Process
+by Pei-Che Chang
+53 slides 1K views
+Matlab
+by sandhya jois
+29 slides 756 views
+FM calculus
+by Mike Hoad
+17 slides 890 views
+safe and efficient off policy reinforcement learning
+by Ryo Iwaki
+22 slides 1.1K views
+Quadratic programming (Tool of optimization)
+by VARUN KUMAR
+12 slides 1.8K views
+アルゴリズムとデータ構造14
+by Kenta Hattori
+17 slides 2K views
+半正定値計画問題と最大カット Sedemifinite Programming and Approximation Algorithm for Maxcu...
+by Yuya Masumura
+60 slides 711 views
+Twophasemethod 131003081339-phpapp01
+by kongara
+27 slides 359 views
+CMR_Graphical Method -Special cases.pdf
+by KhaderMohamet
+23 slides 346 views
+Operation research unit 1: LPP Big M and Two Phase method
+by Dr. L K Bhagi
+146 slides 1.5K views
+1次式とノルムで構成された最適化問題とその双対問題
+by 京都大学大学院情報学研究科数理工学専攻
+102 slides 5K views
+多次元信号処理の基礎と画像処理のための二次元変換技術
+by Shogo Muramatsu
+85 slides 10.2K views
+Similar to Logistic regression vs. logistic classifier. History of the confusion and the role of Logistic Regression in experimental research
+PPTX
+Logistic regression - one of the key regression tools in experimental research
+by Adrian Olszewski
+15 slides 263 views
+PDF
+3ml.pdf
+by MianAdnan27
+48 slides 75 views
+PPTX
+Linear Regression and Logistic Regression in ML
+by Kumud Arora
+34 slides 874 views
+PPTX
+Logistic regression with SPSS examples
+by Gaurav Kamboj
+60 slides 17.8K views
+PDF
+Regression-Logistic-4.pdf
+by jiregnaetichadako
+51 slides 71 views
+PPTX
+Predictive analytics and Type of Predictive Analytics
+by Abhishek Job
+65 slides 44 views
+PPTX
+RM MLM PPT March_22nd 2023.pptx
+by AliMusa44
+39 slides 65 views
+PPTX
+Group 20_Logistic Regression devara.pptx
+by sriaditya070304
+55 slides 30 views
+PPT
+Introduction to LogisticRegression_RWESCK.ppt
+by EllyAkello1
+48 slides 29 views
+PDF
+7. logistics regression using spss
+by Dr Nisha Arora
+76 slides 1.5K views
+PPTX
+The Power of Classification in Machine Learning
+by KumariShivangi5
+22 slides 33 views
+PDF
+Understanding the Assumptions of Logistic Regression: Theory, Intuition, Form...
+by epsilonice
+14 slides 28 views
+PDF
+Comprehensive Guide to Logistic Regression: Concepts, Estimation, and Model V...
+by PRITAMPIYUSH7
+15 slides 1 view
+PDF
+Comprehensive Guide to Logistic Regression: Concepts, Estimation, and Model V...
+by samyakwilliams0
+15 slides 1 view
+PPT
+Logistic Regression in Case-Control Study
+by Satish Gupta
+28 slides 11.2K views
+PPTX
+Logistic regression
+by DrZahid Khan
+30 slides 35.3K views
+PPTX
+Logistic Regression in machine learning ppt
+by raminder12_kaur
+54 slides 230 views
+PPTX
+Logistic Regression | Logistic Regression In Python | Machine Learning Algori...
+by Simplilearn
+52 slides 6K views
+PPTX
+basics of Logistic-regression power point presentation
+by DharmishthaChaudhari
+30 slides 58 views
+PDF
+Institutional Research and Regression
+by Colby Stoever
+65 slides 471 views
+Logistic regression - one of the key regression tools in experimental research
+by Adrian Olszewski
+15 slides 263 views
+3ml.pdf
+by MianAdnan27
+48 slides 75 views
+Linear Regression and Logistic Regression in ML
+by Kumud Arora
+34 slides 874 views
+Logistic regression with SPSS examples
+by Gaurav Kamboj
+60 slides 17.8K views
+Regression-Logistic-4.pdf
+by jiregnaetichadako
+51 slides 71 views
+Predictive analytics and Type of Predictive Analytics
+by Abhishek Job
+65 slides 44 views
+RM MLM PPT March_22nd 2023.pptx
+by AliMusa44
+39 slides 65 views
+Group 20_Logistic Regression devara.pptx
+by sriaditya070304
+55 slides 30 views
+Introduction to LogisticRegression_RWESCK.ppt
+by EllyAkello1
+48 slides 29 views
+7. logistics regression using spss
+by Dr Nisha Arora
+76 slides 1.5K views
+The Power of Classification in Machine Learning
+by KumariShivangi5
+22 slides 33 views
+Understanding the Assumptions of Logistic Regression: Theory, Intuition, Form...
+by epsilonice
+14 slides 28 views
+Comprehensive Guide to Logistic Regression: Concepts, Estimation, and Model V...
+by PRITAMPIYUSH7
+15 slides 1 view
+Comprehensive Guide to Logistic Regression: Concepts, Estimation, and Model V...
+by samyakwilliams0
+15 slides 1 view
+Logistic Regression in Case-Control Study
+by Satish Gupta
+28 slides 11.2K views
+Logistic regression
+by DrZahid Khan
+30 slides 35.3K views
+Logistic Regression in machine learning ppt
+by raminder12_kaur
+54 slides 230 views
+Logistic Regression | Logistic Regression In Python | Machine Learning Algori...
+by Simplilearn
+52 slides 6K views
+basics of Logistic-regression power point presentation
+by DharmishthaChaudhari
+30 slides 58 views
+Institutional Research and Regression
+by Colby Stoever
+65 slides 471 views
+More from Adrian Olszewski
+PDF
+Challenging the cult of the normal distribution in science
+by Adrian Olszewski
+53 slides 814 views
+PPTX
+Meet a 100% R-based CRO - The summary of a 5-year journey
+by Adrian Olszewski
+50 slides 42 views
+PDF
+SAS and R Team in Clinical Research, EPC 11-2016 p18-21.pdf
+by Adrian Olszewski
+4 slides 93 views
+PPTX
+Meet a 100% R-based CRO. The summary of a 5-year journey
+by Adrian Olszewski
+50 slides 272 views
+PDF
+Flextable and Officer
+by Adrian Olszewski
+14 slides 355 views
+PDF
+Why are data transformations a bad choice in statistics
+by Adrian Olszewski
+8 slides 377 views
+PDF
+Modern statistical techniques
+by Adrian Olszewski
+1 slide 90 views
+PDF
+Dealing with outliers in Clinical Research
+by Adrian Olszewski
+26 slides 2.1K views
+PPTX
+The use of R statistical package in controlled infrastructure. The case of Cl...
+by Adrian Olszewski
+82 slides 2.5K views
+PDF
+Rcommander - a menu-driven GUI for R
+by Adrian Olszewski
+11 slides 556 views
+PDF
+GNU R in Clinical Research and Evidence-Based Medicine
+by Adrian Olszewski
+376 slides 3.3K views
+Challenging the cult of the normal distribution in science
+by Adrian Olszewski
+53 slides 814 views
+Meet a 100% R-based CRO - The summary of a 5-year journey
+by Adrian Olszewski
+50 slides 42 views
+SAS and R Team in Clinical Research, EPC 11-2016 p18-21.pdf
+by Adrian Olszewski
+4 slides 93 views
+Meet a 100% R-based CRO. The summary of a 5-year journey
+by Adrian Olszewski
+50 slides 272 views
+Flextable and Officer
+by Adrian Olszewski
+14 slides 355 views
+Why are data transformations a bad choice in statistics
+by Adrian Olszewski
+8 slides 377 views
+Modern statistical techniques
+by Adrian Olszewski
+1 slide 90 views
+Dealing with outliers in Clinical Research
+by Adrian Olszewski
+26 slides 2.1K views
+The use of R statistical package in controlled infrastructure. The case of Cl...
+by Adrian Olszewski
+82 slides 2.5K views
+Rcommander - a menu-driven GUI for R
+by Adrian Olszewski
+11 slides 556 views
+GNU R in Clinical Research and Evidence-Based Medicine
+by Adrian Olszewski
+376 slides 3.3K views
+Recently uploaded
+PDF
+Postcolonial Theory in International Relations - Research Report by Masoud Mi...
+by Masuod Mihi Ahmed
+7 slides 63 views
+PPTX
+1.6 Cellular_Stress_and_Systemic_Imbalance.pptx
+by Mahadev Parab
+15 slides 49 views
+PDF
+UGC NET Education Unit 8: Technology in/For Education Book - 500 MCQs with Ex...
+by Rangasamy R
+116 slides 47 views
+PPTX
+Exploring the Benefits and Challenges of Open Educational Resources in Modern...
+by nanetteim1
+14 slides 34 views
+PDF
+Research Publication of Family of Saadat Naqvi Bukhari Pak O Hind | Naqvi Sye...
+by contactsadaatgeneolo
+118 slides 39 views
+DOCX
+plasma membrane competency based questions
+by MISSRITIMABIOLOGYEXP
+2 slides 137 views
+PPTX
+A Farewell to arms reviewed by Dr. Sadat
+by ssuser76ccb9
+41 slides 27 views
+PDF
+Analog Circuit - Bipolar Junction transistor
+by BhangaleSonal
+11 slides 48 views
+PDF
+Research Based Essay on Language Change – Imran Khan Rahu
+by ik6334809
+17 slides 55 views
+PPTX
+Cultural Diversity and Traditions of Tripura's Tribal Communities
+by Pankaj Kumar
+19 slides 49 views
+PDF
+SOCIOLOGY। Jhasketan Kuanar for BSC nursing and GNM students
+by JK NURSING VIBES ONLY JHASKETAN KUANAR
+108 slides 104 views
+PDF
+[ICST'26 Keynote] Adversarial Benchmarking: An Urgent Call for a Stronger Sig...
+by mboehme
+96 slides 27 views
+PDF
+Open Educational Resources: Equity in Higher Education Presentation by S.Burres
+by shanaburres1
+17 slides 21 views
+PDF
+RAWE & AIA 2025 - Monthly Report (June) .pdf
+by Dhaval Thorat
+18 slides 14 views
+PPTX
+Adult Health Nursing – I | Unit 6: Nursing Management of Patients with Cardio...
+by RAKESH SAJJAN
+243 slides 66 views
+PPTX
+Capsule as dosage form in Dpharm Pharmaceutics Subject
+by PoojaWarule1
+25 slides 25 views
+PPTX
+Comprehensive Orientation on the New Three-Term School Calendar and Classroom...
+by KlarisReyes1
+27 slides 208 views
+PPT
+Europe Day celebration in Troyeshchyna Lyceum 2026.ppt
+by vgatalska
+12 slides 51 views
+PDF
+Ch 3: Life Processes in Living Organisms-2 | Science 2 | Maharashtra Board | ...
+by Brahmand Edutech
+61 slides 17 views
+PDF
+115年國中教育會考英語科閱讀試題本測驗說明與作答指引（國中教育會考英語科閱讀測驗說明與作答指引）
+by 中 央社
+15 slides 234 views
+Postcolonial Theory in International Relations - Research Report by Masoud Mi...
+by Masuod Mihi Ahmed
+7 slides 63 views
+1.6 Cellular_Stress_and_Systemic_Imbalance.pptx
+by Mahadev Parab
+15 slides 49 views
+UGC NET Education Unit 8: Technology in/For Education Book - 500 MCQs with Ex...
+by Rangasamy R
+116 slides 47 views
+Exploring the Benefits and Challenges of Open Educational Resources in Modern...
+by nanetteim1
+14 slides 34 views
+Research Publication of Family of Saadat Naqvi Bukhari Pak O Hind | Naqvi Sye...
+by contactsadaatgeneolo
+118 slides 39 views
+plasma membrane competency based questions
+by MISSRITIMABIOLOGYEXP
+2 slides 137 views
+A Farewell to arms reviewed by Dr. Sadat
+by ssuser76ccb9
+41 slides 27 views
+Analog Circuit - Bipolar Junction transistor
+by BhangaleSonal
+11 slides 48 views
+Research Based Essay on Language Change – Imran Khan Rahu
+by ik6334809
+17 slides 55 views
+Cultural Diversity and Traditions of Tripura's Tribal Communities
+by Pankaj Kumar
+19 slides 49 views
+SOCIOLOGY। Jhasketan Kuanar for BSC nursing and GNM students
+by JK NURSING VIBES ONLY JHASKETAN KUANAR
+108 slides 104 views
+[ICST'26 Keynote] Adversarial Benchmarking: An Urgent Call for a Stronger Sig...
+by mboehme
+96 slides 27 views
+Open Educational Resources: Equity in Higher Education Presentation by S.Burres
+by shanaburres1
+17 slides 21 views
+RAWE & AIA 2025 - Monthly Report (June) .pdf
+by Dhaval Thorat
+18 slides 14 views
+Adult Health Nursing – I | Unit 6: Nursing Management of Patients with Cardio...
+by RAKESH SAJJAN
+243 slides 66 views
+Capsule as dosage form in Dpharm Pharmaceutics Subject
+by PoojaWarule1
+25 slides 25 views
+Comprehensive Orientation on the New Three-Term School Calendar and Classroom...
+by KlarisReyes1
+27 slides 208 views
+Europe Day celebration in Troyeshchyna Lyceum 2026.ppt
+by vgatalska
+12 slides 51 views
+Ch 3: Life Processes in Living Organisms-2 | Science 2 | Maharashtra Board | ...
+by Brahmand Edutech
+61 slides 17 views
+115年國中教育會考英語科閱讀試題本測驗說明與作答指引（國中教育會考英語科閱讀測驗說明與作答指引）
+by 中 央社
+15 slides 234 views
+Logistic regression vs. logistic classifier. History of the confusion and the role of Logistic Regression in experimental research
+1.
+Logistic Regression vs. Logistic Classifier
+Is logistic regression
+a regression !?
+ALWAYS has been…
+Adrian Olszewski; XII 2023
+2.
+Statistically speaking,
+logistic regression is no different than other regressions in
+what it actually does
+3.
+Brief story #1
+4.
+Brief story #2
+5.
+…but one day…
+Instead of using a proper name: „logistic classifier” (which gives categorical output), some
+people from the #ML world have decided to completely replace well-known terms:
+→ they left the „regression” for the classifier and announced that „LR is not a regression”
+In my work, I’ve been using the logistic regression for about 10+ years on regular basis, but
+I’ve never used it for classification.
+So by saying that it’s not a regression, people simply deny what thousands statisticians and
+experimental researchers do every day at work. Not nice.
+6.
+Curious learners should read these books
+And many more on the next slide.
+And NEITHER will tell you that „logistic regression is not a regression!”
+8.
+Conditional expectation? But how?
+Logistic regression
+(Bernoulli)
+E(Y|X=x1) g(E(Y|X=x1))
+g(E(Y|X=x2))
+g(E(Y|X=x3))
+g(E(Y|X=x1))
+g(E(Y|X=x2))
+g(E(Y|X=x3))
+E(Y|X=x2)
+E(Y|X=x3)
+Linear regression
+(Gaussian)
+Beta regression Gamma regression
+Poisson regression Negative-binomial
+regression
+g(…) stands traditionally for the
+„link” function in the GLM family,
+used to transform the conditional
+expectation to allow for the linear
+relationship g(E(Y|X=x) = ΣXβ
+- For linear regression it’s identity.
+- For Poisson – logarithm.
+- For logistic – logit
+logit(E(Y|X=x1))
+logit(E(Y|X=x2))
+logit(E(Y|X=x3))
+9.
+OK, so how is the logistic regression
+related to the logistic classifier?
+Training
+data
+Estimate
+coefficients of the
+logistic regression
+Predict
+probability
+of success
+E(Y|X=x)
+„p”
+New data
+Apply decision rule
+to „p" using a threshold
+IF p > t THEN a ELSE b
+Predicted
+CLASS
+Logistic Regression Logistic Classifier
+ML people call it: „training a model”
+10.
+The #ML world treats it as a whole…
+Training
+data
+Estimate
+coefficients of the
+logistic regression
+Predict
+probability
+of success
+E(Y|X=x)
+„p”
+New data
+Apply decision rule
+for „p" using a threshold
+IF p > t THEN a ELSE b
+Predicted
+CLASS
+Logistic Regression
+Logistic Classifier
+ONLY IN #ML !
+11.
+…to obtain „class” from „class” (binary from binary)
+Binary input Binary output
+Regression
+Decision
+rule
+Logistic classifier, called by ML „logistic regression”
+And then they have problems with justifying the existing name, so they try:
+- „... Oh! This name is a „misnomer”
+- „… Because equation XYZ has similar form to those in linear regression”
+- „…Despite the name, it must be said that this is not a regression…”
+Numerical output:
+E(Y|X=x)
+12.
+Such nomenclature does NOT HOLD elsewhere!
+Training
+data
+Estimate
+coefficients of the
+logistic regression
+Predict
+probability
+of success
+E(Y|X=x)
+„p”
+New data
+Apply decision rule
+for „p" using a threshold
+IF p > t THEN a ELSE b
+Predicted
+CLASS
+Logistic Regression
+Logistic Classifier
+ML people call it: „training a model”
+13.
+In the experimental research
+the logistic regression
+is used for REGRESSION and TESTING hypotheses
+Logistic
+Regression
+Classifier
+• Numerical outcome: g(E(Y|X=x))
+• Gives the impact (direction + magnitude) of the predictor variables on the
+response (marginal effect)
+• Inference: about parameters & effects (main, simple, interaction,
+marginal) - testing hypotheses & confidence intervals
+• Prediction of the E(Y|X=x) for various purposes, (e.g. to implement the
+inverse probability weighting (IPW), propensity matching, etc.)
+• Categorical outcome: {A, B, …}
+• Uses the prediction with a decision rule: IF prediction ≥ η THEN A else B
+14.
+➡️ assessment of specific contrasts (simple effects): Tukey (all-pairwise), Dunnett (all-vs. control), selected, trends.
+➡️ n-way comparisons across many categorical variables & their interactions.
+➡️ the comparisons can be adjusted for numerical covariates.
+➡️ followed by the LRT or Wald’s procedure we get AN(C)OVA („analysis of deviance”)
+for the main (and interaction) effects.
+➡️ marginal effects express the predictions in „%-points” rather than „odds ratios”
+➡️ we can employ time-varying covariates and piecewise analysis.
+➡️ the GEE estimation allows for population-average comparisons. Mixed-effect models allow for comparisons
+conditional on subject (the two answer different questions and cannot be used interchangeably)
+➡️ In presence of missing data, the Inverse Probability Weighting can be employed . The IPW also uses the LR ☺
+A1
+B
+C
+A1:B
+1
+We use it to analyze if & how certain variables affect
+the % (or odds) of success of events & to test hypotheses
+15.
+➡️ Assessment (= direction, magnitude, inference) of the impact of model predictors on the response expressed as: log-odds, odds-
+ratios or probability (via predicted means or LS-means or marginal effects), which covers:
+➡️ Assessment of the marginal effects of the model predictors for the GLM (non-identity link)
+➡️ Inference on the main effects, exploration of interactions for categorical variables = AN[C]OVA
+➡️ Inference on the simple effects of interest (via contrasts), both planned and ad hoc.
+➡️ Testing for trends in proportions (linear/quadratic/cubic, etc)
+➡️ Extending the classic statistical tests of proportions, odd-ratios and stochastic superiority (Wald's and Rao z test, chi2, Cochran-
+Armitage, Breslow-Day, Cochran-Mantel-Haenszel, McNemar, Cochran Q, Friedman, Mann-Whitney (Wilcoxon)) for: multiple
+variables and their interactions, numerical covariates;
+➡️ Bonus: model-based approach allows one to employ advanced parametric adjustment for multiple comparisons via multivariate t
+distribution, adjust numerical covariates, employ time-varying covariates, account for repeated and clustered observations and more!
+➡️ Direct probability estimator used to implement the IPW - inverse probability weighting and propensity score matching algorithms
+➡️ Assessment of the MCAR pattern of missing observations
+More precisely speaking…
+16.
+In the experimental research
+the logistic regression
+is used for REGRESSION and TESTING hypotheses
+A few exemplary tasks, where the logistic regresison is routinely used:
+➡️ comparison of the log-odds or the % of some clinical success between the treatments (at certain timepoints)
+➡️ performing a non-inferiority, equivalence or superiority testing (→ employs clinical significance) at 2 selected
+timepoints via appropriately defined confidence intervals of difference between %s (average marginal effect)
+➡️ an assessment of the impact (magnitude, direction) of certain covariates on the clinical success and provide the
+covariate-adjusted EM-means for their main effects, their interactions and finally their appropriate contrasts to
+explore the nature of the (2 and 3-level) interactions.
+➡️ analyzing the over-time within-arm trends of % of successes for the treatment persistence.
+17.
+Study arm 1 Baseline numerical
+covariates to adjust for
+2% 15% 30% 60% 78%
+Study arm 2 0% 12% 18% 20% 45%
+Time Baseline (T0) T1 T2 T3 T4 ….
+Pre-treatment Post-treatment
+• All-pairwise comparisons (rather exploratory, not much useful if not supported by some clinical justification):
+• Arm1 @ T1 vs. Arm1 @ T2
+• Arm1 @ T1 vs. Arm1-…
+• Arm1 @ T1 vs. Arm2 @ T1
+• Arm1 @ T1 vs. Arm2 @ T2, …
+• Between-treatment comparison (typical analysis in clinical trials; particular focus on selected timepoint(s) → primary objective)
+• T1 @ Arm1 vs. T1 @ Arm2
+• T2 @ Arm1 vs. T2 @ Arm2
+• T3 @ Arm1 vs. T3 @ Arm2, …
+• Within-treatment comparison (sometimes practiced, but much criticized as not a valid measure of clinical effect)
+• Arm1: T1 vs. T2, T1 vs. T3, T1 vs. T…, T2 vs. T3, T2 vs. T…
+• Arm2: T1 vs. T2, T1 vs. T3, T1 vs. T…, T2 vs. T3, T2 vs. T…
+• Comparison of difference in trends (sometimes practiced, must be supported by valid clinical reasoning)
+• Arm1 – Linear (Quadratic, …) vs. Arm2 – Linear (Quadratic, …)
+Analyses of contrasts over a longitudinal model with a binary endpoint (SUCCESS/FAILURE)
+18.
+Term Estimate SE p-value
+Treatment xxx xxx p=0.0032
+Time xxx xxx p=0.0001
+Site xxx xxx p=0.98
+Numerical_covar_1 xxx xxx p=0.101
+Treatment*Time xxx xxx p=0.004
+Treatment*Site xxx xxx p=0.87
+….
+Analyses of deviance = Type-2 or Type-3 ANOVA (or ANCOVA, when numerical covariates exist)
+Success ~ Treatment * Time * Site * Numerical_covariate1 + Baseline_covariate_1 + …..
+Analyses of interactions
+(numeric vs. numeric, categorical vs. categorical, mixed)
+T1 T2 T3 T4 T5 0 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9
+Comparing (nested) models – one per model term – via
+sequence of Likelihood Ratio Tests (LRT)
+Using Wald’s joint testing over appropriate model
+coefficients (less precise but faster and always available)
+Log-odds or % (probabilities) over time
+19.
+Logistic Regression
+Ordinal
+Logistic Regression
+Logistic Regression
+via GEE & GLMM
+Conditional
+Logistic Regression
+In general for
+paired / dependent data
+Paired testing via GEE
+Testing hypotheses about binary outcomes
+with the Logistic Regression & selected friends
+20.
+https://github.com/adrianolszewski/Logistic-regression-is-
+regression/blob/main/Testing%20hypotheses%20about%20proportions%20using%20logistic%20regression.md
+21.
+There are so many members of the Logistic Regression family!
+✅ Binary Logistic Regression = binomial regression with logit link, case of the Generalized Linear Model, modelling the % of successes.
+✅ Multinomial Logistic Regression (MLR) = if we deal with a response consisting of multiple non-ordered classes (e.g. colours).
+✅ Nested MLR - when the classes in MLR are related
+✅ Ordinal LR (aka Proportional Odds Model) = if we deal with multiple ordered classes, like responses in questionnaires, called Likert
+items, e.g. {bad, average, good}. The OLR is a generalization of the Mann-Whitney (-Wilcoxon) test, if you need a flexible non-parametric
+test, that: a) handles multiple categorical variables, b) adjusts for numerical covariates (like ANCOVA)
+✅ Generalized OLR = Partial Proportional Odds M. when the proportionality of odds doesn't hold.
+✅ Alternating Logistic Regression = if we deal with correlated observations, e.g. when we analyse repeated or clustered data. We
+have 3 alternatives: mixed-effect LR, LR fit via GEE (generalized estimating equations), or alternatively, the ALR. ALR models the
+dependency between pairs of observations by using log odds ratios instead of correlations (like GEE). It handles ordinal responses.
+✅ Fractional LR = if we deal with a bounded range. Typically used with [0-100] percentages rather than just [TRUE] and [FALSE]. More
+flexible than beta reg., but not as powerful as the simplex reg. or 0-1-inflated beta r.
+✅ Logistic Quantile Regression - application as above.
+✅ Conditional LR = if we deal with stratification and matching groups of data, e.g. in observational studies without randomization, to
+match subjects by some characteristics and create homogenous "baseline".
+22.
+If you google for „logistic regression is not a regression”, or „…is a misnomer”
+etc, you’ll see how serious the problem is! Below is a situation from my work,
+years ago. I still cannot believe it actually happenend.
+23.
+Logistic
+regression is not
+a regression XD
+Statisticians
+sir David Cox
+(key inventor of the logistic regression)
+Nelder, Wedderburn,
+(inventors of the GLM)
+Hastie, Tibshirani, J. Friedman
+(inventors of the GAM)
+Pharmaceutical industry
+(key regression tool in drug approval)
+Joseph Berkson
+(contributor to the theory)
+Daniel L. McFadden
+(contributor & popularizer)
+Other experimental researchers
+Medicine, physics, sociology, econometrics, psyschology, ecology…
+(using it this way on daily basis)
+NO!
+NO!
+NO!
+WHAT
+My
+goodness
+…..
+Look how
+they
+massacred
+my boy!
+24.
+…”but in their book, Hastie and Tibshirani put the logistic
+regression in the »classification« chapter!!!”
+Of course they did! It's a book about MACHINE LEARNING, so this kind of *application* is of interest ☺
+BUT they’ve never said it's not a regression model. They both wrote also a series of articles on the application of the
+proportional hazard models and the logistic regression in biostatistical (they worked in the division of biostatistics)
+applications in the regression manner (assessment of the prognostic factors, assessment of the treatment effect) and
+call it a regression model. Please look the screenshots on the next slide for examples.
+In the book you mention, on page 121-122 + the following examples they say: "Logistic regression models are used
+mostly as a data analysis and inference tool, where the goal is to understand the role of the input variables in
+explaining the outcome. Typically many models are fit in a search for a parsimonious model involving a subset of the
+variables, possibly with some interactions terms."
+26.
+A piece of history, if you’re curious ☺
+Prof. Hastie implemented the glm() in the S package at AT&T (nowadays it’s the GNU R) and both
+invented the GAM, which extends the GLM.
+27.
+Other authors of ML books acknowledge the true
+regression nature of the logistic regression:
+28.
+PS: don’t be tempted to say it’s just OLS with logit transform!
+https://stats.stackexchange.com/questions/48485/what-is-the-difference-between-logit-transformed-linear-regression-logistic-reg

@@ -1,0 +1,4 @@
+Loss Given Default (LGD) is a key risk parameter that determines credit loss. It is central to regulatory capital, loan pricing, and portfolio risk management. However, there is no single "right" way to model LGD, so exploring alternatives is always worth the effort.
+In a short paper I explore 𝘱𝘳𝘰𝘣𝘢𝘣𝘪𝘭𝘪𝘴𝘵𝘪𝘤 𝘳𝘦𝘨𝘳𝘦𝘴𝘴𝘪𝘰𝘯 𝘷𝘪𝘢 𝘲𝘶𝘢𝘯𝘵𝘪𝘭𝘦-𝘣𝘢𝘴𝘦𝘥 𝘤𝘭𝘢𝘴𝘴𝘪𝘧𝘪𝘤𝘢𝘵𝘪𝘰𝘯: instead of predicting 𝘌[𝘓𝘎𝘋|𝘟] directly, we bin LGD into quantiles, fit a multiclass classifier for 𝘗(𝘣𝘪𝘯 𝘬 | 𝘟), and take the point estimate as the probability-weighted sum of bin midpoints. This gives a full conditional distribution in one model.
+This approach captures LGD without normality assumptions, produces calibrated predictions, and facilitates stress testing, regulatory capital, and IFRS 9 applications. Future work will explore probabilistic LGD intervals and RWA impact using the proposed methodology.
+#CreditRiskModeling #DataScience #Lending #IRB #IFRS9

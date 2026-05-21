@@ -1,6 +1,6 @@
 ---
 title: "Conformal Robust Predict-then-Optimize for Auditable Credit Portfolio Decisions"
-subtitle: "Paper Estrella Manuscript Extraction Scaffold"
+subtitle: "Paper CRPTO Manuscript Extraction Scaffold"
 date: "2026-05-18"
 bibliography: ../../book/references.bib
 format:
@@ -16,9 +16,10 @@ execute:
 ## Purpose
 
 This file is a manuscript extraction scaffold, not a new experimental surface.
-It compresses the chapter-14 dossier into a paper-ready structure while keeping
-all official numbers anchored to `models/final_project_promotion.json` and the
-canonical Paper Estrella tables under `reports/paper_material/paper1/tables/`.
+It compresses the chapter-14 dossier into a paper-ready CRPTO structure while
+keeping all official numbers anchored to `models/final_project_promotion.json`
+and the canonical Paper 1/CRPTO tables under
+`reports/paper_material/paper1/tables/`.
 :::
 
 ## Abstract

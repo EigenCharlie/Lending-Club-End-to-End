@@ -1,0 +1,227 @@
+Scorecarding with Naïve Bayes
+Report this article
+Denis Burakov
+Denis Burakov
+Published Feb 20, 2024
++ Follow
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in determining who qualifies for a loan. Lenders rely on these scorecards as benchmarks, collecting evidence of a customer's creditworthiness. Traditionally, credit scorecards are constructed through well-established methods, namely Logistic Regression and a combination of Weight of Evidence (WOE) + Logistic Regression. This text explores an alternative approach: a non-parametric method employing WOE as a Naïve Bayes estimator to build a logarithmic scoring system, providing an alternative and simpler methodology for credit risk modeling. 🚀
+Common Ways to Build Credit Scorecards
+There are two commonly accepted ways to build credit scorecards for decision-making in the lending industry.
+1️⃣ Logistic Regression
+When we build credit scorecards using logistic regression, we first standardize input variables to some desired range (e.g., using z-scores) and convert resulting values to credit scores using a technique like Points to Double Odds (PDO).
+2️⃣ Weight of Evidence (WOE) + Logistic Regression
+With this “semi-Naïve” approach, we create distinct risk groups for each input feature and calculate WOE scores. As a next step, we fit a logistic regression to "fine-tune" and dampen the weights of features. Finally, we can derive credit scores from WOE-transformed features and logistic regression weights, for example, using the PDO method.
+Yet, building scorecards using WOE without logistic regression is not so common due to an excessive focus of practitioners on the importance of logistic regression in this process. This text aims to show an alternative way how to build credit scorecards with a non-parametric approach in mind: leveraging WOE as a Naïve Bayesian estimator💡.
+WOE-Naïve Bayes Scorecard Ingredients
+The following diagram describes the modeling approach to building a scorecard with the Naïve Bayes approach:
+To understand the modeling workflow we need to introduce some definitions.
+➡️ Binning: Binning is the process of grouping or discretizing numerical data into intervals or "bins." For example, numerical features can be divided into bins with an equal number of points or using a clustering technique like k-means.
+➡️ Target encoding: Target encoding involves calculating the average value of the target variable (default or bad rate in the credit scoring case) for a given bin or group.
+➡️ Log-odds: Log-odds (used interchangeably with "logit" or "logits") represent the natural logarithm of the odds of belonging to class 1 (default) or class 0 (no default), odds are p / (1-p).
+➡️ Weight of Evidence (WOE): WOE in the Naïve Bayes scorecarding process can be seen as a "distance" in log-odds between a particular risk group's log-odds of default and the average log-odds of the entire sample.
+Weight of Evidence formula
+The Origins of WOE Theory
+The Weight of Evidence (WOE) concept, which found its wide application in credit scoring, has its roots in the 19th century England. For example, C.S. Peirce, a well-known thinker, used the term to talk about how strong the evidence supports a hypothesis, also introducing the term log-odds. Jumping to the 20th century, Irving John Good, who was the main statistical assistant to Alan Turing, among his other contributions to the field of Bayesian analysis and statistics, developed the theory of Weight of Evidence for hypothesis testing.
+In his brief survey on Weight of Evidence published in 1985, Good provided an extensive overview of the concept. Most notably, he wrote:
+"The final probability of H, should depend only on the weight of evidence and on the initial probability, say
+P(H ∣ E) = g[W(H:E), P(H)]
+If H and ¬H are simple statistical hypotheses, and if E is one of the possible experimental outcomes occurring in the definitions of H and ¬H, then P(E ∣ H) / P(E ∣¬H) is a simple likelihood ratio, but this is a very special case. In general, this ratio is regarded as meaningful only to a Bayesian. It could be called a ratio of Bayesian likelihoods."
+He provides the formula for WOE (left-hand side), which is more commonly represented in modern terms on the right-hand side
+Further in his summary, Good provides the formula for the Bayes Factor (likelihood ratio), which he also refers to as the Bayes-Jeffreys-Turing factor, summarizing its contributors:
+Bayes factor
+"The right side of equation can be described in words as the ratio of the final odds of H to its initial odds, or the ratio of the posterior to the prior odds, or the factor by which the initial odds of H are multiplied to give the final odds.
+In current Bayesian literature it is usually called the Bayes factor in favour of H provided by E. Thus weight of evidence is equal to the logarithm of the Bayes factor."
+Going back to the WOE definition described in the beginning of this text we can see that:
+Because of the independence conditions ("naïve"), factors are multiplicative and weights of evidence (WOE) are additive.
+When comparing this WOE calculation to the traditional credit risk definition, one may observe that the signs are "flipped." This is because in credit risk we normally define the same entity using the log-odds of goods (class 0) to bads (class 1), known as the good-to-bad ratio. The sign may be more intuitive that a negative score drives the credit score down.
+How It Works
+We can visualize the process step-by-step on a small data subset with 10 samples (the model is pre-trained on the full sample).
+Step 1: Raw features ⬇️
+Step 2: Binning ⬇️
+Step 3: Target encoding ⬇️
+Step 4: Target encoding to log-odds ⬇️
+Step 5: Average default rate ⬇️
+Recommended by LinkedIn
+AI Bank Statement Analyzer: How Transaction-Level…
+Novel Patterns
+3 months ago
+Why and How to Evaluate the Creditworthiness of SMEs'…
+Hemanth Kumar
+7 years ago
+Revolutionising Indian NBFC Sector: Data Science
+Nihal Ramteke
+1 year ago
+Step 6: Log-odds of average default rate ⬇️
+Step 7: Calculating WOE scores (4-6) ⬇️
+In this step we subtract the constant of sample log-odds (-2.1972) from Step 6 from each target-encoded log-odds value from Step 4.
+Step 8: Inference: calculating a sum of WOE scores ⬇️
+Step 9: Inference: adding bias ⬇️
+In this step we add the bias (sample log-odds) from Step 6 to the prediction column from Step 8 to get the final prediction (other columns not affected).
+Step 10: Obtaining a probability of default (PD) ⬇️
+We can convert the final log-odds score to a probability using sigmoid.
+Step 11: Calculating credit scores from WOE scores ⬇️
+We convert WOE scores to credit scores by using the PDO method.
+In this process, we define PDO, target score, and target odds parameters to calculate the factor and offset parameters. Each factor i has an equal weight (since we are adding evidences), and bias is the sample log-odds.
+The following parameters were used for the transformation of WOE scores into credit scores: PDO = 30, Target Score = 500, and Odds = 20.
+Step 12: Calculating the final credit score ⬇️
+The final score is the sum of individual scores across 6 features.
+Below we can visualize the distribution of credit scores on the hold-out set of data points, which were not used in estimating the model:
+To test the performance of the WOE Naïve Bayes model, we can benchmark the discriminatory power and calibration accuracy of WOE Naïve Bayes score against logistic regression.
+Both discrimination and calibration metrics indicate that the WOE Naïve Bayes model surpasses its linear challenger, boasting better Gini and Brier scores. This indicates superior performance in discriminating good and bad credit risk and achieving more accurate probability of default (PD) estimates.
+The WOE-Naïve Bayes scorecard introduces a novel and simplified approach to credit risk assessment in consumer lending. It harmonizes with traditional scoring methods while offering a fresh perspective with its minimal reliance on assumptions, aside from independence (still a bold one). This approach suggests that a simpler model can effectively support credit risk assessment, maintaining clarity without compromising on insight. 🧪
+Pipeline
+Below is a scikit-learn pipeline implementing the WOE Naïve Bayes estimator:
+import numpy as np
+from sklearn.preprocessing import (
+KBinsDiscretizer,
+TargetEncoder,
+FunctionTransformer
+)
+from sklearn.pipeline import make_pipeline
+from scipy.special import logit
+base_log_odds = np.log(np.mean(y_train) / (1 - np.mean(y_train)))
+def convert_to_woe(X: np.ndarray):
+eps = 1e-8
+X = logit(X + eps)
+X = X - base_log_odds
+if X.ndim == 1:
+X = X.reshape(-1, 1)
+return X
+woe_pipeline.fit = make_pipeline(
+KBinsDiscretizer(n_bins=10, encode="ordinal", strategy="kmeans"),
+TargetEncoder(smooth=0.0001, cv=2),
+FunctionTransformer(convert_to_woe, validate=False)
+)
+woe_pipeline.fit(X_train, y_train)
+Credit score
+This code snippet below illustrates how to create credit scores from the WOE Naïve Bayes estimator:
+import numpy as np
+pdo = 30.0
+TargetScore = 500
+Odds = 20.0
+factor = pdo / np.log(2)
+offset = TargetScore - (factor * np.log(Odds))
+bias_ind = base_log_odds / 6
+woe_df['score'] = np.sum(-(woe_df + bias_ind) * factor + (offset / 6), axis=1)
+--
+I hope you have enjoyed reading this post! 💡
+I would like to thank
+Joachim Nsofini, PhD
+,
+Guillermo Navas Palencia, PhD
+, and
+Paul Edwards
+for their valuable feedback.
+All views expressed are my own.
+Explore more on #CreditRiskModeling, #Lending, and #ModelRiskManagement, and stay updated by subscribing here: https://linktr.ee/deburky 🔔
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+117
+5 Comments
+René Naarmann
+2y
+Report this comment
+Mikael Ling maybe of interest?!
+Like
+Reply
+1 Reaction
+ANKIT JAIN,CQF,EPAT
+2y
+Report this comment
+Hey Denis. Thanks for explaining how Naive Bayes' can be used with WOE value.
+Could you please tell me why we introduced BIAS in our calculation. What's the logic?
+Like
+Reply
+1 Reaction
+2 Reactions
+Roman Matyash
+2y
+Report this comment
+Fascinating insights into leveraging Naïve Bayes for credit scorecard construction! 🌟
+Like
+Reply
+1 Reaction
+2 Reactions
+Denis Burakov
+2y
+Report this comment
+For those interested in the technicalities between the classical and Good's Bayesian formulas for Weight of Evidence (WOE), I invite you to explore this worked-through example ⬇️
+https://docs.google.com/spreadsheets/d/14BabLDtJL917JF7bIZXXFwOcVynEKBX_NzRDoPqTv70/edit?usp=sharing
+Like
+Reply
+3 Reactions
+4 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Understanding LGD Risk
+Jul 17, 2023
+Understanding LGD Risk
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk…
+225
+18 Comments
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles

@@ -110,6 +110,8 @@ pd.DataFrame(rows)
 
 La interpretación importante es que C2ST **no** está diciendo “el modelo ya no sirve”. Está diciendo algo más matizado y más útil: el split temporal es claramente distinguible, y por eso la representatividad no debe describirse ingenuamente como si train y test fueran intercambiables. Esa señal refuerza la honestidad metodológica del libro.
 
+También evita sobrecargar PSI. La práctica bancaria suele usar cortes heurísticos como 0.10 y 0.25, pero esos umbrales no son universales ni vienen con un control automático de error tipo I/tipo II [@yurdakul2020_psi]. En este proyecto, PSI queda como indicador de desplazamiento marginal; C2ST, performance, calibración y explicación deciden la materialidad operativa.
+
 La capa `model_shift_status.json` vuelve esa lectura todavía más útil. Ya no basta con ver `C2ST AUC = 0.985` y declarar “drift”. El proyecto ahora distingue **shift estructural**, **degradación predictiva** y **casos mixtos**. En el snapshot vigente la lectura es `mixed_shift`: hay separabilidad temporal severa y degradación predictiva moderada, pero el champion sigue cerrando dentro de política operativa. Ese lenguaje es mucho mejor para comité y tesis que la dicotomía cruda `pass/fail`.
 
 ### La nueva capa ADSFCR ya integrada al MRM
@@ -171,6 +173,20 @@ pd.DataFrame(rows)
 Estas capas no deben leerse como adornos. Son exactamente el tipo de evidencia que convierte una historia de “modelo de scoring” en una historia de **plataforma de riesgo defendible**.
 
 La secuencia importa. `PD backtesting` dice que la capa estadística es exigente; `bootstrap_validation` muestra que la materialidad por slices sigue viva incluso cuando el gap agregado es pequeño [@efron1994]; `pd_validation_interpretation` traduce esa señal a lenguaje de cohortes; y `calibration_mapping`, ya ejecutado también en su wrapper shadow, cerró con `keep_current_calibrator` después de mostrar que los sidecars ligeros empeoraban el balance entre gap, persistencia temporal y ECE. Esa cadena de evidencia es más fuerte que reportar un único `p≈0`, porque convierte una hipótesis abierta en un control efectivamente ejecutado y documentado.
+
+::: {.callout-note}
+## Separar scoring, calibración y reglas de negocio
+
+Un sistema de crédito defendible no termina en `predict_proba`. La línea operativa separa cuatro objetos auditables: el modelo que produce el score, el calibrador que convierte score en PD usable, el threshold/política que traduce PD en acción y las reglas de negocio que aceptan, rechazan, aumentan límite o mantienen exposición. Esta separación permite que riesgo modifique una regla de límite sin reentrenar el modelo, y que data science reentrene o recalibre sin cambiar automáticamente la política aprobatoria.
+
+Por eso los artefactos de linaje deben registrar no solo `model_id`, sino también `calibrator_id`, `threshold_policy_id`, versión de reglas y tabla de decisiones. En batch scoring, esa tabla de decisiones es tan importante como la tabla de scores: es el puente auditable entre probabilidad, apetito de riesgo y acción.
+:::
+
+::: {.callout-tip}
+## Controles mínimos para ML regulado
+
+Cuando el modelo usa ML en un contexto de riesgo interno, la reproducibilidad deja de ser un detalle técnico. El linaje debe preservar semillas aleatorias, versión de librerías, orden exacto de observaciones, split temporal, contrato de features, calibrador y política de decisión. Además, la explicación no puede ser solo un gráfico SHAP suelto: debe demostrar que los drivers son plausibles, que la forma funcional respeta la teoría económica y que validación puede reconstruir el mismo resultado. Esa es la frontera práctica entre un experimento de data science y un modelo defendible ante MRM.
+:::
 
 ### Qué dicen hoy los diagnósticos más exigentes
 

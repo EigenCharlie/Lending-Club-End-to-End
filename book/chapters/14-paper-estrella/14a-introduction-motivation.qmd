@@ -95,7 +95,7 @@ robusta auditable para una decisión de portafolio uniperiodo.
 
 ::: {.callout-tip}
 ## Lectura editorial recomendada
-El claim fuerte no es "CRPTO domina a SPO+ en toda metrica". El claim publicable es mas preciso: CRPTO paga un precio de regret para comprar auditabilidad, cobertura verificable y una region robusta exacta dentro de la cual la policy economica puede promoverse sin ambiguedad. Esa lectura alinea el paper con Management Science / Operations Research / EJOR mejor que una narrativa de leaderboard unico.
+El claim fuerte no es "CRPTO domina a SPO+ en toda metrica". El claim publicable es mas preciso: CRPTO paga un precio de regret para comprar auditabilidad, cobertura verificable y una region robusta exacta dentro de la cual la policy economica puede promoverse sin ambiguedad. Esa lectura alinea el paper con IJDS porque combina metodologia data-science, decision-making, evidencia real y reproducibilidad mejor que una narrativa de leaderboard unico.
 :::
 
 ### Relevancia metodologica

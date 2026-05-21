@@ -64,6 +64,19 @@ $$
 \text{Retorno neto}_i = r_i - \widehat{PD}_i \cdot LGD_i
 $$
 
+::: {.callout-note}
+## El Gini solo vale cuando cambia una decision
+
+Un aumento de Gini no tiene valor economico por si mismo. Su valor aparece cuando el mejor ranking permite aprobar mas volumen al mismo apetito de riesgo, reducir perdida esperada al mismo volumen, o mover el portafolio hacia una zona de mayor margen neto. Por eso este capitulo traduce la PD calibrada en una funcion objetivo y en restricciones explicitas: la pregunta no es cuantos puntos de Gini se ganan, sino cuanto capital adicional puede asignarse sin violar $\bar{PD}$ y cuanto retorno neto queda despues de la perdida esperada.
+
+:::
+
+::: {.callout-tip}
+## PD no es rentabilidad
+
+Un modelo PD ordena riesgo, pero no modela por si solo ingreso, costos operativos, write-offs, prepagos, recuperaciones ni precio. El objetivo deterministico de este capitulo ya da un paso hacia valor economico al restar perdida esperada, pero sigue siendo mas estrecho que un verdadero modelo de profit scoring. Para estimar rentabilidad completa harian falta targets continuos como retorno anualizado, revenue neto, costo de riesgo observado o cash flows de recuperacion. Sin esos datos, la decision honesta es mantener el LP como puente entre PD y apetito de riesgo, y dejar profit scoring como extension futura.
+:::
+
 ::: {.callout-tip}
 ## Variables continuas vs binarias
 La relajacion continua $x_i \in [0, 1]$ produce una cota superior del problema binario (aprobar/rechazar) y se resuelve ordenes de magnitud mas rapido. Para 5,000 candidatos, HiGHS resuelve el LP en menos de 2 segundos. El modelo MILP binario (`build_binary_model`) esta disponible pero no se usa en el pipeline principal.

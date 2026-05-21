@@ -1,0 +1,85 @@
+Balancing Risk and Profit
+Report this article
+Denis Burakov
+Denis Burakov
+Published Oct 17, 2023
++ Follow
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper risk assessments [1]. As lenders strive to maximize profitability of their investments in ever-changing economies, reliance on conventional credit scores for loan decisions raises questions about their optimality from a business perspective. As such, the interplay between risk and profit captured in profit-based credit models may offer a fresh perspective on decision-making in lending and has a potential to reshuffle banks' loan portfolios [2].
+To illustrate this problem, consider the following example. In practice, risk scores are oftentimes converted into meaningful risk buckets (or risk grades), enabling credit risk management at an aggregate level. We utilize the OptBinning library to construct a risk rating scale from a synthetic credit risk dataset. The resulting credit score boundaries are shown in the chart below. From this visualization, scoring analyst would most likely derive a value around 580 as a cut-off point.
+Risk grades (default risk)
+Given the available revenue and loss data on account level, we can enhance this analysis with a profitability assessment for each risk grade. We can use a Weight-of-Evidence (WOE) technique for this: we determine the proportion of revenue within a specific risk grade X relative to the total revenue, and the proportion of losses within that same risk grade X relative to the total loss. By taking the logarithm of the ratio of revenue to loss, we can establish a log-odds profit score, which represents an average profit score for each risk grade.
+With this metric in focus, the chart below shows a slightly different picture compared to the standard good-bad distribution. From the diagram below we can see that a cut-off can be seen at around 534 points at a profit rate of ~50%. This highlights the main problem with using credit scores for profitability assessment: they cut off a significant share customers which can potentially generate positive returns.
+Risk grades (profit rate)
+Finding a sweet spot between risk and reward is thus a challenging problem. One solution is to develop a standalone profit model for capturing more complex relationships between profit and risk. Since profit models may not have as many underlying economic assumptions as credit scoring models, machine learning models are good candidates for profit modeling. In this context, profit scoring is seen as a regression problem seeking to predict and make lending decisions on a numerical profit measure [1]. The target variable of a model is NPV defined as a difference between revenues and losses on account level without discounting [2].
+For this synthetic dataset (enriched with loan repayment data from Lending Club) an R2 score of 56% and a Somers' D of 51% are achieved with a Random Forest similar to results presented in [2]. We can observe some interesting interactions between the features in the model. For example, a partial dependence plot below illustrates that a significant portion of unprofitable loans corresponds to high-ticket exposures with utilization rates exceeding 60% (proxy for default), while within the 60-80% utilization range there are still profitable loans with smaller ticket sizes.
+Partial dependence plot
+To understand the performance of a model we can employ power curves which are commonly used in credit risk modeling. For this problem, visualizing model performance in a way similar to ROC-AUC curves is challenging due to both positive and negative profit values. A more convenient approach is to assess its discriminatory power for revenues and losses separately. We can quantify the rank-ordering power of a model by measuring how effectively the model ranks revenues or losses compared to a random model (ranging model's predictions in descending and ascending order accordingly). The following chart illustrates areas under the curve (AUC) for revenues and losses.
+Power curves of the profit model
+It can be seen from the chart above that the model demonstrates a higher level of discrimination ability in predicting losses showing performance similar to a credit scoring model. The average of the two AUC scores gives a similar result to the model's gAUC (~75%) derived a Somers D score, which confirms intuition behind the overall model performance.
+Profit-based credit models are seen as a shift away from classical credit risk modeling in the lending industry, and there is a growing interest in these models among lenders to complement traditional risk assessments. At the same time, profit scoring can be seen as a combination of loss and revenue modeling resembling credit scoring models in many aspects, including model performance assessments with power curves.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in this notebook.
+All views expressed are my own.
+Recommended by LinkedIn
+Setting the Menu for Your Risk Appetite by Ancin…
+Ancin Cooley, CIA, CISA
+9 years ago
+Asset Quality Reviews - Impact of Digitisation
+Rehan JAFFERY
+9 years ago
+Setting the Menu for Your Risk Appetite by Ancin…
+Ancin Cooley, CIA, CISA
+9 years ago
+References
+[1] Edwin Baidoo and Ram Natarajan. 2021. Profit-Based Credit Models with Lender’s Attitude Towards Risk and Loss. Journal of Behavioral and Experimental Finance 32, (December 2021), 100578–100578. DOI:https://doi.org/10.1016/j.jbef.2021.100578
+[2] George Krivorotov. 2023. Machine Learning-based Profit Modeling for Credit Card Underwriting - Implications for Credit Risk. Journal of Banking and Finance 149, (April 2023), 106785–106785. DOI:https://doi.org/10.1016/j.jbankfin.2023.106785
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+89
+7 Comments
+Andrey Kataev
+2y
+Report this comment
+Denis Burakov Thank you for the excellent article. I would like to delve deeper into finding the optimal customer cut-off point based on scoring, aiming to increase product profitability. Additionally, I am interested in understanding the optimal allocation of limits for clients. Do you have any knowledge on this topic?
+Like
+Reply
+1 Reaction
+Anastasia Krutenyuk, FRM
+2y
+Report this comment
+Did you consider risk adjusted pricing while you build this model? Credit risk component is usually included in the rate for customer
+Like
+Reply
+2 Reactions
+3 Reactions
+Sayen Baladeb Sen
+2y
+Report this comment
+Been around in Indian retail lending institutions for quite some time. The tricky aspect is to consider profitability at a product or customer level. The shape of the cross product profit frontier changes by customer segments and over time.
+Implementation involves significant effort in stakeholder mgmt involving multiple pdt Heads.
+Like
+Reply
+1 Reaction
+2 Reactions
+Ananthakumar Sethuramanujam
+2y
+Report this comment
+Interesting read Denis Burakov
+Like
+Reply
+1 Reaction
+2 Reactions
+See more comments
+To view or add a comment, sign in

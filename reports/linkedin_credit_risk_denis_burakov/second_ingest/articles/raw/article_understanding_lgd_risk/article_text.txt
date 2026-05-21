@@ -1,0 +1,186 @@
+Understanding LGD Risk
+Report this article
+Denis Burakov
+Denis Burakov
+Published Jul 17, 2023
++ Follow
+The Loss Given Default (LGD) is a credit risk parameter that plays an important role in contemporary banking risk management practices. The aim of an LGD risk management model is to accurately and efficiently quantify the level of LGD risk for a loan which goes into default or which percentage of the exposure at default (EAD) will be subject to economic loss for the lender.
+The LGD parameter directly influences key risk management decisions, including capital allocation, loan pricing, and overall credit portfolio management. Consequently, LGD models find widespread applications in areas such as Risk-Weighted Assets (RWA) calculation, expected credit loss estimation, pricing, and distressed assets management strategies.
+As a result, LGD modeling stands as one of the most interesting yet challenging problems in Credit Risk Management, often remaining least understood beyond the realm of Advanced IRB risk modelers. While ample research on the backtesting of Probability of Default (PD) models exists, literature on similar backtesting methods for LGD models is quite scarce, and very few studies of LGD explore alternative modeling methodologies, including those leveraging Machine Learning (ML) techniques.
+Furthermore, the absence of comprehensive regulatory guidelines regarding LGD model development has resulted in varying levels of consistency in LGD modeling practices. In this article, we will delve into the fundamentals of LGD, exploring its definition and significance, while also examining alternative approaches utilized in LGD estimation.
+LGD methodologies
+Simplified loan lifecycle
+The LGD parameter represents the ratio of economic loss to the total outstanding amount of a loan (EAD). For example, an LGD of 50% would mean that for a loan with an EAD of €10,000, €5,000 is expected to be non-recoverable after the default. Compared to PD models which are trained on performing loans, LGD is about what happens after the default occurs as the chart above illustrates.
+Broadly speaking, the LGD parameter can be categorized into two types: market LGD and workout LGD. Market LGD is calculated based on market data, while workout LGD takes into account a bank's internal recovery history. It's the workout LGD that is the primary focus of risk model developers.
+To accurately model LGD internally, financial institutions employ two primary approaches: LGD Long-Run models for performing loans (customers who are not in default) and LGD In-Default models for non-performing loans (customers who have defaulted).
+LGD Long-Run Models estimate the loss given default for loans that are not in default at the time of model application but have historically defaulted within 12 months after the reference date. In LGD Long-Run models, risk drivers are typically collected as of the date 12 months prior to the default date or the earliest date if the default occurred within 12 months of loan origination (which is oftentimes driven by fraud).
+LGD In-Default Models estimate the loss given default for credit claims that have already defaulted at the time of model application. The vintage approach is often employed in LGD In-Default models, where data is collected at each month after the default date, and a time variable is introduced as an additional risk driver.
+For both approaches mentioned above, LGD can be modeled directly or indirectly, i.e. using sub-model components.
+The formula for the direct approach is presented below:
+Direct LGD formula
+In the formula above, economic loss is defined as a difference between total outstanding loan amount (EAD) and the sums of discounted recovery cash-flows and costs.
+Another approach to modeling LGDs is the indirect approach (also referred to as "LR-CR" approach) which is used to further modularize the LGD parameter into the loss and cure components.
+An example of the indirect approach is visualized below:
+Indirect approach in LGD modeling
+This approach allows to factor in the cured LGDs (LGDs for customers who exited the default status) as well as the modeled probability of such a cure event. Other scenarios like foreclosure / debt sale can also be considered as other sub-model components depending on the internal recovery experience of an institution. This type of design of LGD models allows to make estimates more accurate albeit at the cost of increased model complexity and maintenance.
+Depending on the type of lending products in a portfolio, LGD risk can be further split into the secured (collateralized) and unsecured parts of the exposure. The formula for deriving the overall LGD is described below:
+LGD overall formula
+The structure of the LGD model thus can become an increasingly ambitious task depending on the goals of a risk modeller (regulatory capital, managerial purposes) and data collection efforts. For secured LGDs, collateral haircut modeling is often utilized which is beyond the scope of this post.
+LGD modeling
+One distinctive characteristic of LGD modeling is the bimodal (or U-shaped) nature of the target variable. In practice, the peaks at 0% and 100% in the data are observed due to defaults that end with a cure event or are fully collateralized, resulting in minimal or no loss realization.
+Typical LGD distribution (U-shaped)
+Additionally, such different LGD behaviors can be observed due to the varying recovery rates observed across different lending products, collateral quality, and the effectiveness of collection and recovery strategies. It is worth mentioning that poor data quality can cause additional outliers in the LGD distribution.
+The most commonly used methods for modeling of LGDs are linear regression (including robust and quantile regression as extensions to handle outliers) and decision trees. Decision trees are particularly favored by banks because they offer interpretability, and the leaf values can be directly interpreted as LGD grades.
+In this example, we will test several modeling methods using the Lending Club dataset on defaulted loans. The target variable for our LGD model was constructed by the author using the direct approach with discounting of recovery cash-flows using a contract interest rate and an expert-based maximum recovery period of 3 years (36 months).
+The following methods were employed to model LGD risk:
+Recommended by LinkedIn
+Modernizing Commercial Lending with AI-powered…
+Anaptyss
+9 months ago
+UNMASKING THE DRIVERS: CASUES OF MANAGEMENT OVEERIDE…
+Ajiboye Raphael Taiwo MNIM, ACIB (In view)
+1 year ago
+Credit Risk Management: Credit Culture
+Samuel Adjei
+11 years ago
+Linear regression
+Weight-of-Evidence Logistic Regression (WOE LR)
+Constrained LightGBM
+With regards to WOE LR approach, we rely on Van Berkel and Saddiqi's approach of creating an LGD scorecard similar to the good-bad analysis in PD models.
+LGD testing
+Until now, no shared understanding of universal measures of discriminatory power for LGD models has been established among lenders and supervisors. Among some of the most common metrics of assessing discrimination ability of LGD models are rank correlation coefficients such as Somers' D, Spearman Rho, and Kendall's Tau, which, however, lack an intuitive visual representation similar to the Cumulative Accuracy Profile (CAP) and the Gini coefficient for PD models.
+To fill in this gap, a modified Accuracy Ratio metric has been introduced under the name of cumulative LGD accuracy ratio (CLAR) in several works, most notably in Ozdemir and Miu (2009). CLAR is the measure of discrimination strength for a risk model and is similar to the Gini score.
+One useful benefit of this metric is its visual representation in the form of a CLAR curve, which is conceptually similar to the Cumulative Accuracy Profile (CAP) in a Gini test.
+CLAR curve example adopted from Ozdemir and Miu 2009
+The CLAR curve provides a visual link between the cumulative percentage of correctly assigned realized LGDs (y-axis) and the cumulative percentage of observations in the predicted LGD bands (x-axis). In an ideal scenario, where the rank-ordering is perfect, the CLAR curve would align with the 45-degree line, indicating a perfect match between predicted and realized LGDs. However, in practice, deviations between predicted and realized LGDs result in the CLAR curve lying below the 45-degree line, indicating less than perfect rank ordering.
+The CLAR coefficient, calculated as twice the area under the CLAR curve, ranges from 0 to 1, with 1 representing perfect discriminatory power. It is important to note that one of the key benefits of the CLAR score is that it can be used for benchmarking the performance of an LGD scoring model alternatives.
+Below, the CLAR curves of the three models we tested are presented:
+CLAR curve for LGD models
+As can be seen from the chart above, LightGBM model produces the most accurate LGD estimates showing the closest proximity to the ideal 45-degree line. However, it's worth mentioning that while it's built using monotonicity constraints to preserve causal knowledge with the target variables, this tree-based model will still be less interpretable compared to linear and logistic regressions which may be an important factor during the regulatory approval.
+Concluding remarks
+Modeling of LGD risk remains one of the least understood topics with limited regulatory guidance and academic literature on the subject. With a deeper understanding of LGD and its nuances, banks and risk practitioners can make informed decisions regarding capital allocation, loan pricing, and credit portfolio management. By understanding the underlying complexities, continuously advancing LGD modeling methodologies and promoting knowledge-sharing, we can drive innovation and improve risk management practices in the ever-evolving credit risk model landscape.
+--
+I hope you have enjoyed reading this post! 💡
+The technical appendix with the code can be found in my GitHub.
+All views expressed are my own.
+References
+European Central Bank. Instructions for Reporting the Validation Results of Internal Models. IRB Pillar I Model for Credit Risk. 2019. https://www.bankingsupervision.europa.eu/banking/tasks/internal_models/shared/pdf/instructions_validation_reporting_credit_risk.en.pdf
+European Banking Authority. Guidelines on PD Estimation, LGD Estimation and Treatment of Defaulted Assets—EBA/GL/2017/16. 2017. https://www.eba.europa.eu/regulation-and-policy/model-validation/guidelines-on-pd-lgd-estimation-and-treatment-of-defaulted-assets
+Kazianka, Hannes, Anna Morgenbesser, and Thomas Nowak. "Assessing the discriminatory power of loss given default models." Journal of Applied Statistics 49.10: 2700-2716. 2022. https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9225220/
+Ozdemir, Bogie, and Peter Miu. Basel II implementation: a Guide to Developing and Validating a Compliant, Internal Risk Rating System. McGraw Hill, 2009.
+Van Berkel, Anthony, and Naeem Siddiqi. "Building Loss Given Default Scorecard Using Weight of Evidence Bins in SAS Enterprise Miner." Proceedings of the SAS Global Forum 2012 Conference. 2012. https://support.sas.com/resources/papers/proceedings12/141-2012.pdf
+Vujnović, Miloš, Anja Vujnović, and Nebojša Nikolić. Validation of Loss Given Default for Corporate Portfolio in Republic of Serbia. Journal of Applied Engineering Science 14.4. 2016. https://www.engineeringscience.rs/images/pdf/VALIDATION%20OF%20LOSS%20GIVEN%20DEFAULT.pdf
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+225
+18 Comments
+C L
+8mo
+Report this comment
+p.s. the LGD for performing and for defaulted engagements is coined in the BCBS standards.. however some jurisdictions USA, CH do not use the in-defaut approach and prefer to perform a SA approach (which turns to be more conservative apparently).
+Like
+Reply
+1 Reaction
+C L
+8mo
+Report this comment
+Very nice content, but also presentation.. I really wonder how you get this perfect handwritting drawing.. any hints?
+Like
+Reply
+1 Reaction
+Basit Saleem
+10mo
+Report this comment
+Joerg Schmidt
+Like
+Reply
+1 Reaction
+Jakob Lavröd
+10mo
+Report this comment
+Interesting! When it comes to modeling LGD for secured loans, it can often help to turn the problem around and as you mentioned model the sale value of the asset and what haircut will appear. There is also an important variational effect to consider, increase in value of the collateral beyond the loan amount will go to the owner of the asset, will decrease in value will hit the bank, so uncertainty in valuation, even if symmetric, will increase LGD
+Like
+Reply
+1 Reaction
+Alexandru Din
+Quant in Credit Risk at Deloitte
+2y
+Report this comment
+I would name the LGD Long-Run model as Performing LGD and also CLAR or AUROC is yes indeed a linear transformation of Gini: 2*AUROC-1=GINI. Same, same but different but still the same:) I would mention that we generally expect a much lower accuracy for LGD models than PDs and especially lower for Performing LGDs. What do you think of Zero Inflated Poisson, ZIP model in estimating the LGD? Have you tried it?
+Like
+Reply
+1 Reaction
+See more comments
+To view or add a comment, sign in
+More articles by Denis Burakov
+System Thinkers Will Define the New Economy
+Apr 7, 2026
+System Thinkers Will Define the New Economy
+A new model drops every week. OpenClaw, MCP, MiniMax, GLM-5, agents, orchestration frameworks.
+50
+2 Comments
+Navigating the New Wave of Data Science
+Mar 31, 2026
+Navigating the New Wave of Data Science
+In 2019, data science was all the rage: the premise of big data unlocking business insights presented new opportunities…
+114
+7 Comments
+Designing AI Underwriters
+Mar 25, 2025
+Designing AI Underwriters
+The integration of AI into modern loan underwriting is set to reshape how institutions approach credit decisioning. As…
+34
+6 Comments
+Validating Tree-Based Risk Models
+Jun 12, 2024
+Validating Tree-Based Risk Models
+Boosting is a fundamental concept in machine learning that has achieved remarkable success in binary classification…
+125
+9 Comments
+Scorecarding with Naïve Bayes
+Feb 20, 2024
+Scorecarding with Naïve Bayes
+In the consumer lending domain, credit scorecards serve as the fundamental pillars for decision-making processes in…
+117
+5 Comments
+Balancing Risk and Profit
+Oct 17, 2023
+Balancing Risk and Profit
+Understanding profit independently of risk is increasingly vital for lenders to create monetary value through proper…
+89
+7 Comments
+Building Random Forest Scorecards
+Sep 20, 2023
+Building Random Forest Scorecards
+In the lending industry and credit risk research, a risk practitioner can often encounter Weight-of-Evidence logistic…
+87
+6 Comments
+Benchmarking PD Models
+Sep 5, 2023
+Benchmarking PD Models
+When evaluating various scoring functions for the Probability of Default (PD) modeling, the most commonly assessed…
+90
+7 Comments
+Unlocking Lending Profitability with Risk Modeling
+Aug 23, 2023
+Unlocking Lending Profitability with Risk Modeling
+In earlier times, access to banking services required direct in-person communication with a bank officer. The outcomes…
+43
+Leveraging Profit Scoring in Digital Loan Underwriting
+Jun 28, 2023
+Leveraging Profit Scoring in Digital Loan Underwriting
+Traditional loan approval process relies heavily on consumers’ credit bureau scores, debt-to-income (DTI) ratios, and…
+24
+Show more
+See all articles

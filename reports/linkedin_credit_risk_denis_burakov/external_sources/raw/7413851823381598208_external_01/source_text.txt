@@ -1,0 +1,426 @@
+Docker, Inc | LinkedIn
+Skip to main content
+LinkedIn
+Top Content
+People
+Learning
+Jobs
+Games
+Sign in
+Join now
+Docker, Inc
+Software Development
+San Francisco, California 810,020 followers
+Docker helps developers bring their ideas to life by conquering the complexity of app development.
+See jobs
+Follow
+View all 1,023 employees
+Report this company
+Overview
+Jobs
+Life
+About us
+At Docker, we simplify the lives of developers who are making world-changing apps. Docker helps developers bring their ideas to reality by conquering the complexity of app development. We simplify and accelerate workflows with an integrated development pipeline and application components. Actively used by millions of developers around the world, Docker Desktop and Docker Hub provide unmatched simplicity, agility and choice.
+Website
+http://www.docker.com
+External link for Docker, Inc
+Industry
+Software Development
+Company size
+501-1,000 employees
+Headquarters
+San Francisco, California
+Type
+Privately Held
+Founded
+2013
+Specialties
+Containerization, Open Source, Containers, Virtualization, System Administration, Scaling, Orchestration, and developers
+Products
+Docker
+Docker
+Container Management Software
+Learn how Docker helps developers bring their ideas to life by conquering the complexity of app development.
+Locations
+Primary
+144 Townsend Street
+San Francisco, California 94107, US
+Get directions
+Employees at Docker, Inc
+Enrique Salem
+Jerry Chen
+Matt Carbonara
+John Craft
+See all employees
+Updates
+Docker, Inc
+810,020 followers
+11h
+Report this post
+Excited to back NanoCo (creators of NanoClaw) - congratulations to the whole team! 🎉
+Gavriel Cohen
+12h
+We raised $12M from Valley Capital Partners, Vercel, Docker, Inc and monday.com to make every team member twice as effective with a professional assistant from NanoCo (creators of NanoClaw).
+After 30k stars, 13k forks, and 300K+ open-source downloads of NanoClaw, we're rolling out professional assistants that securely plug into a company's tools and knowledge and adapt to how each person works.
+I want to thank our amazing team, investors, and developer community. It’s been an unbelievable three months and we’re just getting started.
+41
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+17h
+Report this post
+Deleted files. Leaked secrets. Broken configs. Agents taking actions nobody intended, at machine speed.
+How many times have you watched things start going off the rails and realized you’re now racing the agent instead of working with it?
+In the new 'AI Coding Agent Horror Stories' series, Ajeet Singh Raina breaks down what these failures actually look like in practice. This first issue focuses on isolation, containment, and the execution-layer controls teams are starting to rely on once agents begin acting autonomously.
+Read issue 1 →
+Coding Agent Horror Stories: The Security Crisis Threatening Developer Infrastructure
+Docker, Inc on LinkedIn
+25
+3 Comments
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+1d
+Report this post
+Gordon is now generally available.
+Docker’s AI agent reads your running containers, logs, and Compose files. It already knows your environment. Gordon traces failures, proposes fixes, and takes action with your approval, at every step.
+Built into Docker Desktop and the CLI. Free with every Docker account.
+Your coding assistant helps you write code. Gordon helps you ship it.
+Try it →
+Meet Gordon: Docker’s AI Agent For Your Entire Container Workflow
+Docker, Inc on LinkedIn
+117
+2 Comments
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+1d
+Report this post
+“The laptop is the new production. The agent is the new workload. The runtime is the new control plane.”
+As agents move from autocomplete to taking real action across repos, APIs, and internal systems, governance can’t stop at the cluster or the cloud perimeter anymore.
+If you’re trying to figure out how to safely deploy agents across engineering teams without losing visibility or control, this gets into why runtime-level policy, sandboxing, and MCP governance are becoming foundational.
+Forbes just covered our Docker AI Governance announcement and the shift happening underneath enterprise AI adoption: https://bit.ly/3PaW2r9
+Docker Turns The Developer Laptop Into A Governed AI Runtime
+69
+4 Comments
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+2d
+Report this post
+Most teams think safety slows things down.
+This conversation flips that idea.
+In this conversation from Global AI Community's ‘Silicon Minds, Human Hearts’, with Sammy Deprez, Docker COO Mark Cavage explains how safety can actually enable speed, especially as agents start running autonomously.
+When you can trust the environment, you can let agents run longer, move faster, and do more without constant interruption.
+If you’re thinking about how to move faster without losing control, check out the full discussion:
+https://lnkd.in/exhpD3Sx
+…more
+27
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+2d
+Report this post
+On April 15, NIST stopped adding CVSS scores and CPE mappings to most CVEs in the National Vulnerability Database.
+If your team uses NVD to prioritize vulnerabilities, you now have less data to work with than before. This affects your compliance posture, especially if you're indexing on NVD feeds.
+Docker Hardened Images and Docker Scout pull from 22 advisory sources and match vulnerabilities using Package URLs. No dependency on NVD enrichment.
+Here's what changed and what to do about it:
+NIST Narrows the NVD: What Container Security Programs Should Reassess
+Docker, Inc on LinkedIn
+31
+1 Comment
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+5d
+Report this post
+Running Claude Code locally is only part of the story.
+Once you connect it to real tools and let it take action, installing packages, modifying files, interacting with systems, you need to think about where it’s running and what it can access.
+This guide walks through how to:
+- Run open-weight models locally
+- Connect to real tools with MCP
+- Safely give agents autonomy inside sandboxes
+The combination is what makes agents usable in real workflows, not just demos.
+Read → https://bit.ly/437fatd
+How to Run Claude Code with Docker: Local Models, MCP Servers, and Secure Sandboxes
+linkedin.com
+10
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+6d
+Report this post
+AI workflows are moving faster than the systems teams use to review, secure, and ship them.
+This issue of the Docker Navigator newsletter looks at what breaks and how teams are adapting:
+- Hardening images without breaking developer workflows
+- Isolating workloads beyond containers
+- Responding to supply chain attacks in real time
+- Moving from blocked deployments to production-ready systems
+If you’re working through these challenges today, this issue brings together how teams are actually solving them.
+Read more →
+[Docker Navigator] Issue #29: AI Workflows, Container Security, and Build Reliability
+Docker, Inc on LinkedIn
+58
+5 Comments
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+6d
+Report this post
+Not all isolation models are built for agents.
+This post from Docker Captain Siri Varma Vegiraju walks through what happens when you try to run agents across different environments, chroot, systemd-nspawn, containers, VMs, gVisor, and microVMs, and where each one holds up or falls apart.
+The takeaway is pretty clear: once agents can install, mutate, and execute freely, most traditional assumptions around isolation start to break.
+If you’re thinking about how to run agents safely, this is a practical comparison worth reading.
+Read →
+Comparing Different Approaches to Sandboxing
+Docker, Inc on LinkedIn
+74
+3 Comments
+Like
+Comment
+Share
+Docker, Inc
+810,020 followers
+1w
+Report this post
+26
+15 Comments
+Like
+Comment
+Share
+Join now to see what you are missing
+Find people you know at Docker, Inc
+Browse recommended jobs for you
+View all updates, news, and articles
+Join now
+Affiliated pages
+DockerCon
+Software Development
+San Francisco, California
+Similar pages
+DuckDuckGo
+Software Development
+Paoli, PA
+GitLab
+IT Services and IT Consulting
+San Francisco, California
+Stripe
+Technology, Information and Internet
+South San Francisco, California
+Postman
+Software Development
+San Francisco, California
+Upwork
+Software Development
+San Francisco, California
+DigitalOcean
+Software Development
+Broomfield, Colorado
+Canonical
+Software Development
+London, England
+Shopify
+Software Development
+Ottawa, ON
+Atlassian
+Software Development
+Sydney, NSW
+Spotify
+Musicians
+Stockholm, Stockholm County
+Show more similar pages
+Show fewer similar pages
+Browse jobs
+Analyst jobs
+694,057 open jobs
+Engineer jobs
+555,845 open jobs
+Docker, Inc jobs
+40 open jobs
+Specialist jobs
+768,666 open jobs
+Account Executive jobs
+71,457 open jobs
+Manager jobs
+1,880,925 open jobs
+Solutions Engineer jobs
+92,218 open jobs
+Data Analyst jobs
+329,009 open jobs
+Customer Service Representative jobs
+185,647 open jobs
+Developer jobs
+258,935 open jobs
+Account Manager jobs
+121,519 open jobs
+Writer jobs
+26,384 open jobs
+Project Manager jobs
+253,048 open jobs
+Solutions Architect jobs
+100,488 open jobs
+Director jobs
+1,220,357 open jobs
+Software Engineer jobs
+300,699 open jobs
+Associate jobs
+1,091,945 open jobs
+Scientist jobs
+48,969 open jobs
+Executive jobs
+690,514 open jobs
+Product Designer jobs
+45,389 open jobs
+Show more jobs like this
+Show fewer jobs like this
+Funding
+Docker, Inc
+12 total rounds
+Last Round
+Series C
+May 1, 2022
+External Crunchbase Link for last round of funding
+US$ 105.0M
+Investors
+Bain Capital Ventures
++ 9
+Other investors
+See more info on crunchbase
+More searches
+More searches
+Docker, Inc jobs
+Engineer jobs
+Analyst jobs
+Account Executive jobs
+Manager jobs
+Specialist jobs
+Product Designer jobs
+Scientist jobs
+Account Manager jobs
+Developer jobs
+Associate jobs
+Writer jobs
+Data Analyst jobs
+Software Engineer jobs
+User Experience Designer jobs
+Project Manager jobs
+Recruiter jobs
+Enterprise Account Executive jobs
+Operational Specialist jobs
+Solutions Engineer jobs
+Director jobs
+Consultant jobs
+Business Development Specialist jobs
+Coordinator jobs
+Solutions Architect jobs
+Senior Product Designer jobs
+Intern jobs
+Data Engineer jobs
+Senior Software Engineer jobs
+Python Developer jobs
+Lead jobs
+Platform Engineer jobs
+Senior Data Analyst jobs
+Business Development Representative jobs
+Sales Manager jobs
+Sales Director jobs
+Technical Writer jobs
+Sales Specialist jobs
+Engineering Manager jobs
+Cyber Security Specialist jobs
+Support Specialist jobs
+Program Manager jobs
+Head jobs
+Designer jobs
+Executive jobs
+Site Reliability Engineer jobs
+Customer Operations Specialist jobs
+Country Manager jobs
+Information Technology Manager jobs
+User Interface Designer jobs
+Team Lead jobs
+Partner jobs
+Sales Operations Manager jobs
+Technical Account Manager jobs
+Full Stack Engineer jobs
+Staff Software Engineer jobs
+Senior Data Engineer jobs
+Planner jobs
+Software Engineering Manager jobs
+Renewal Specialist jobs
+LinkedIn
+© 2026
+About
+Accessibility
+User Agreement
+Privacy Policy
+Cookie Policy
+Copyright Policy
+Brand Policy
+Guest Controls
+Community Guidelines
+العربية (Arabic)
+বাংলা (Bangla)
+Čeština (Czech)
+Dansk (Danish)
+Deutsch (German)
+Ελληνικά (Greek)
+English (English)
+Español (Spanish)
+فارسی (Persian)
+Suomi (Finnish)
+Français (French)
+हिंदी (Hindi)
+Magyar (Hungarian)
+Bahasa Indonesia (Indonesian)
+Italiano (Italian)
+עברית (Hebrew)
+日本語 (Japanese)
+한국어 (Korean)
+मराठी (Marathi)
+Bahasa Malaysia (Malay)
+Nederlands (Dutch)
+Norsk (Norwegian)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polish)
+Português (Portuguese)
+Română (Romanian)
+Русский (Russian)
+Svenska (Swedish)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkish)
+Українська (Ukrainian)
+Tiếng Việt (Vietnamese)
+简体中文 (Chinese (Simplified))
+正體中文 (Chinese (Traditional))
+Language
+Agree & Join LinkedIn
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.
+Sign in to see who you already know at Docker, Inc
+Email or phone
+Password
+Show
+Forgot password?
+Sign in
+Sign in with Email
+or
+New to LinkedIn? Join now
+By clicking Continue to join or sign in, you agree to LinkedIn’s User Agreement, Privacy Policy, and Cookie Policy.

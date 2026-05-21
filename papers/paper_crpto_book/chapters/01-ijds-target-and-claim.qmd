@@ -1,0 +1,38 @@
+# Target IJDS y Claim {#sec-crpto-ijds-target}
+
+*INFORMS Journal on Data Science* (IJDS) es el venue natural porque el paper no
+es un leaderboard de credit scoring: es un método de ciencia de datos para
+**decision-making** con datos reales, modelos probabilísticos, optimización
+robusta, reproducibilidad e implicaciones prácticas. Las guías oficiales de IJDS
+revisadas el 2026-05-21 piden discutir datos, metodología/algoritmo, relevancia
+gerencial/industrial e implicaciones prácticas o éticas; además, recomiendan
+abstract de máximo 300 palabras, manuscrito inicial de máximo 25 páginas,
+revisión doble anónima desde 2025 y data/code disclosure al envío y a la
+aceptación.
+
+Fuente oficial: <https://pubsonline.informs.org/page/ijds/submission-guidelines>.
+
+## Claim principal
+
+CRPTO convierte probabilidades de default calibradas y bandas conformales
+Mondrian en restricciones robustas de portafolio. La contribución no es mejorar
+AUC, sino cerrar una cadena auditable:
+
+`PD calibrada -> intervalo conformal -> conjunto de incertidumbre -> LP robusto -> policy trazable`.
+
+## Contribuciones del paper
+
+| ID | Contribución | Evidencia |
+|---|---|---|
+| C1 | Pipeline post-hoc CRPTO que conecta aprendizaje probabilístico y optimización robusta. | Capítulo 14b--14c; `champion_portfolio_policy.json`. |
+| C2 | Bound distribution-free sobre no-cobertura ponderada del funded set. | Markov + `V`; `validate_alpha_gamma_bound.py`. |
+| C3 | Policy económica promovida dentro de una región robusta exacta. | `final_project_promotion.json`; A0, A18. |
+| C4 | Separación honesta frente a SPO+/DFL: CRPTO compra auditabilidad, no regret mínimo. | `14j`; @elmachtoub2022; @mandi2024. |
+| C5 | Reproducibilidad trazable de claims, scripts, tablas y guardrails. | `14n`; tests documentales; DVC/MLflow. |
+
+## Frontera de claim
+
+CRPTO no domina SPO+ en regret, no implementa online conformal, no prueba
+cobertura condicional perfecta, no es un modelo contractual IFRS9 y no certifica
+fair lending legal. Estas fronteras no debilitan el paper: lo hacen publicable
+porque evitan que un buen resultado se convierta en una promesa demasiado grande.

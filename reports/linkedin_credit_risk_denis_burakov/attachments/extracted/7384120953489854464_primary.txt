@@ -1,0 +1,874 @@
+                                                                                CHAPTER                   1
+   Weight of Evidence: From Bletchley Park to
+                              Credit Scoring
+
+Denis Burakov
+    In 1941, Alan Turing turned wartime guesswork into arithmetic. He took odds, logged them,
+and added tiny scores (decibans) until a hypothesis outweighed its rivals. Eight decades later,
+banks do the same thing every time you tap “Apply.” Each data point adds or subtracts a small,
+logarithmically-scaled score; the total crosses a threshold, and a decision falls out. This chapter
+follows that thread from Turing’s factor method to information theory’s view of evidence, and
+finally to credit scoring, showing how the same mathematics powers machines that talk, systems
+that learn, and the scorecards that decide our loans.
+
+
+1.1    The Birth of Weight of Evidence
+The Turing Test and the Challenge of Evidence
+                             Alan Turing: There’s a judge, and a subject. The judge asks questions, and
+                             based on the subject’s answers, he determines: Who is he speaking with?
+                             What is he speaking with? All you have to do is ask me a question.
+                              — Graham Moore, The Imitation Game (2014)
+
+    The Turing Test poses a fundamental question about judgment: How do we accumulate
+evidence to make a decision? How many questions must the judge ask? How much certainty
+is enough? These aren’t merely philosophical puzzles; they’re practical problems that Turing
+confronted during World War II, when the stakes were measured in lives rather than academic
+debates.
+    Between 1941 and 1943, at Bletchley Park, Turing faced his own version of this challenge.
+Instead of judging whether a hidden subject was human or machine, he needed to judge which
+of millions of possible Enigma settings had encrypted the day’s German naval messages. He could
+not test them all as there was not enough time. He needed a method to accumulate evidence into
+a score, and to know when he had gathered “enough” information to make a decision.
+
+                                                                                                     1
+2      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+    His solution was Banburismus, a deceptively simple scoring system based on Bayesian infer-
+ence principles. The techniques Turing developed to break Nazi codes would remain classified
+for seventy years. When they finally emerged, the world discovered something remarkable: the
+same mathematical principles that helped win the war had been independently rediscovered and
+were already powering spam filters, medical diagnostics, and credit scoring systems.
+
+
+
+Banburismus: Turing’s Bayesian Solution
+During the active phase of World War II, between 1941 and 1943, Turing developed a manual
+method for breaking Enigma codes that relied on pattern recognition and probability [13].
+    On a given day, Turing’s team would sit at long tables in Hut 8, aligning Banbury sheets,
+scoring matches, and accumulating decibans until one rotor setting outweighed the rest. His
+team, composed primarily of women assistants, used specially printed paper with holes punched
+for letters, which could be manually aligned to look for repeated patterns between pairs of mes-
+sages. These patterns, in turn, suggested common settings of the rotors in the Enigma machine
+[13].
+    The paper was printed in Banbury, and the entire process became known as Banburismus. The
+aim of “banburizing” was to suggest plausible inputs to the electromechanical Bombe computer,
+and to rule out other settings in order to reduce the time spent on Bombe runs [13].
+
+
+
+
+Figure 1.1: An original Banbury sheet used for early attacks on the naval Enigma, found during
+the restoration of Bletchley Park huts. Courtesy of Bletchley Park Trust.
+
+
+    Turing wanted to use Bayes’ theorem to examine the relative probability for competing hy-
+potheses about the underlying settings of the Enigma machine used to generate the coded mes-
+sage. He made two innovations to make the computation feasible: first, rather than repeatedly
+using Bayes’ theorem in its odds form, which requires multiplying likelihood ratios, he took log-
+arithms to the base 10 and so reduced the problem to adding log(likelihood ratios). Second, he
+multiplied the log(likelihood ratios) by 10 (later 20), and then rounded the result to a whole
+number. So the whole process was reduced to adding and subtracting whole numbers, which
+1.1. THE BIRTH OF WEIGHT OF EVIDENCE                                                                              3
+
+
+could be carried out with pencil and paper [13].1
+
+From Multiplication to Addition: The Logarithmic Transform
+The mechanical process of Banburismus was elegant, but its mathematical foundation was rev-
+olutionary. Turing’s breakthrough was to transform Bayesian inference from a multiplicative
+process into an additive one by taking logarithms of likelihood ratios and scaling them to whole
+numbers for manual computation. The units for these scaled logarithms became known as
+“decibans” (dB) and “half-decibans” (hdB). According to Jack Good, the half-deciban represents
+approximately the smallest change in weight of evidence that is directly perceptible to human
+intuition [13].
+    As Turing described in 1941 [13]:
+
+        “The probability of an event on certain evidence is the proportion of cases in which
+        that event may be expected to happen given that evidence.”
+
+     Log-likelihood ratios had previously been called ‘weights of evidence’ by philosopher C.S.
+Peirce in 1878 [6]. Turing was apparently unaware of this precedent, but Jack Good later rein-
+troduced the term, establishing the connection between Turing’s wartime work and the broader
+philosophical tradition [6].
+     Turing wrote a paper describing this work, but it remained classified for seventy years. When
+it finally appeared in 2012, a modern government codebreaker (known only as ‘Richard’) said
+the material could be released as they had ‘squeezed the juice’ out of it [13]. Meanwhile, Tur-
+ing’s technique had been independently rediscovered and become a standard part of machine
+learning—the “naive Bayes” classifier used in spam detectors and medical diagnostic systems
+[10].
+
+The Power of Additive Scoring
+The transformation from multiplicative to additive operations fundamentally changed how ev-
+idence could be accumulated. As Hugh Alexander noted [1]:
+
+        “We found that by splitting up a job into as many separate parts as possible and by
+        having a really adequate set of scoring tables. . . the whole process [was] reduced to
+        a matter of looking things up in a number of different tables and the only mathe-
+        matical operations involved were addition and subtraction.”
+
+    This approach, which one historian described as evidence that “there was no time for calcu-
+lating individual probabilities. Instead, Hut 8 devised a streamlined process of scores that re-
+quired only to be added or subtracted by non-mathematical (but clever) ‘girls’ ” [1], represented
+a revolutionary approach to inference under constraints.
+    The arithmetic was needed for deciding how much evidence was “enough,” that is, sufficient
+to decide that a particular speculative alignment could be relied upon before using it in the
+    1
+       Throughout this chapter, when we write log without specifying a base, we mean the natural logarithm (base
+e), following standard mathematical convention in statistics and machine learning literature. Turing’s original work
+used base 10 logarithms for computational convenience.
+4      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+complex reconstruction process that was to follow [1]. Neither of the contemporaneous histories
+explains the derivation of this arithmetic explicitly, though it was based on Bayes’ theorem and
+the calculation of mathematical probabilities of different numbers of repeats [1].
+    The process was called “decibanning,” and as one observer noted, “Banburismus is about
+the best example of the use of scoring systems the writer has seen. It would have been quite
+impossible without this technique, and the more whole-heartedly it was employed, the better
+the results obtained” [14].
+    Named for the Oxfordshire town where the sheets were printed, measures of probability
+were called ‘bans’ or ‘decibans’, using a logarithmic scale to accumulate evidence. The process of
+adjusting hypotheses based on small observations was, as one historian wryly noted, “distressingly
+Bayesian” [14].
+    The Cambridge mathematician I.J. Good joined Bletchley Park in April 1940 and was as-
+signed to Hut 8 [14]. He is reported to have asked Turing, ‘Aren’t you essentially using Bayes’s
+theorem?’ and Alan confessed that it was so [14]. After the war, Good became a professional
+defender of Bayesian methodology, writing several papers on the subject; he had to do so from
+the safety of the United States [14].
+
+
+
+The Logic of Judgment
+The principle of accumulating evidence through additive scoring captures something fundamen-
+tal about human reasoning. Long before Turing formalized the mathematics, people intuitively
+understood that judgment involves weighing multiple pieces of evidence until confidence crosses
+some threshold.
+     Consider Bulgakov’s portrayal of Pontius Pilate interrogating Yeshua Ha-Nozri in The Mas-
+ter and Margarita. Pilate’s decision-making process mirrors Bayesian inference: each question
+and answer shifts his assessment incrementally. Yeshua’s calm demeanor provides evidence for
+innocence; the priests’ accusations argue for guilt; the crowd’s hostility adds noise rather than
+signal. Pilate accumulates this evidence mentally, his confidence shifting with each exchange,
+until political necessity forces a decision.
+     This intuitive process—accumulating evidence until a threshold is crossed—appears across
+human judgment contexts. British courts recognize it implicitly: individual pieces of evidence
+are admissible, but juries cannot systematically multiply likelihood ratios. The law insists that
+combining evidence must remain human judgment, not mathematical formula.
+     Turing’s breakthrough was making this implicit process explicit. At Bletchley Park, he con-
+verted judgment into arithmetic: evidence could be accumulated systematically, scores could be
+tallied, and decisions could be reached when thresholds were crossed. What had been intuitive
+became mechanical, what had been subjective became reproducible.
+
+
+
+1.2    The Mathematical Foundation
+Having seen how Banburismus worked in practice, we can now examine the mathematical prin-
+ciples that made it so effective.
+1.2. THE MATHEMATICAL FOUNDATION                                                                    5
+
+
+The Factor Principle: Bayes’ Theorem in Logarithmic Form
+The mathematical elegance of Banburismus lies in its systematic treatment of hypothesis testing
+through what Turing called the Factor Principle [1]. This principle provides a framework for
+accumulating evidence that remains fundamental to modern statistical inference and machine
+learning.
+     We start with a hypothesis to be tested, for example, that a certain statement is true. We
+also start with some understanding of the credibility of the hypothesis, which may be objective
+or subjective. We can express that credibility in terms of odds. Odds are straightforward: if
+something happens on average four times out of five trials (corresponding to an 80% probability),
+the odds are 4:1 in favor of its happening (or 1:4 against its not happening) [1].
+     What we start with are the prior odds, prior, that is, to an event that gives us some additional
+evidence. We now need to know whether that event is more likely to happen when the hypothesis
+is true or when it is false, and how much more likely. More precisely, we need the ratio of these
+two probabilities. This ratio is called the “Bayes factor” or, in Turing’s terminology, “the factor”
+[1].
+     Bayes’ theorem tells us that the credibility after we have the additional evidence (the posterior
+odds) is obtained by multiplying the prior odds by the Bayes factor:
+
+                           Posterior odds = Prior odds × Bayes factor                            (1.1)
+    where
+
+                                           P (evidence|hypothesis true)
+                          Bayes factor =                                                         (1.2)
+                                           P (evidence|hypothesis false)
+    The credibility is enhanced or diminished according to whether the factor is above or be-
+low 1. Moreover, if there are successive pieces of evidence that are independent of each other,
+their factors can be multiplied to give a composite factor [1]. This multiplicative property is the
+foundation of what we now call the naive Bayes classifier [10].
+    This relationship can also be written in the formal “odds form” of Bayes’ theorem:
+                                                         P (E | H)
+                                O(H | E) = O(H) ×                   ,
+                                                         P (E | H̄)
+
+where O(H | E) and O(H) denote the posterior and prior odds respectively, and PP (E| (E|H)
+                                                                                        H̄)
+                                                                                            is the
+Bayes factor or, in Turing’s terms, the factor in favor of H provided by E [3].
+    Turing’s innovation was to work with logarithms of these factors. Taking logarithms of both
+sides:
+
+                   log(Posterior odds) = log(Prior odds) + log(Bayes factor)                     (1.3)
+    This transformation converts multiplication into addition, making the calculations tractable
+for manual computation. The log(Bayes factor) became known as the “weight of evidence.”
+
+Information Theory and Evidence
+In 1948, Claude Shannon formalized the concept of information in probabilistic terms in his
+landmark paper “A Mathematical Theory of Communication” [7], defining it as the negative
+6         CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+logarithm of probability, the same mathematical operation that underlies Turing’s weight of ev-
+idence. Shannon’s information content measures how surprising an event is; Turing’s weight of
+evidence measures how strongly an observation shifts belief. Both quantify change in knowl-
+edge using logarithms of probability. Where Turing’s concern was inference (deciding between
+hypotheses), Shannon’s was communication, i.e. distinguishing messages. Their mathematics,
+however, is identical. Later writers such as I.J. Good and David MacKay would make this unity
+explicit: inference is information processing.
+    The connection between Banburismus and modern information theory is profound [5]. When
+we compare hypotheses with each other in the light of data, it is often convenient to compare
+the log of the probability of the data under the alternative hypotheses:
+
+                                log evidence for Hi = log P (D|Hi )                              (1.4)
+
+    Or, in the case where just two hypotheses are being compared, we evaluate the ‘log odds
+ratio’:
+
+                                                 P (D|H1 )
+                                           log                                                   (1.5)
+                                                 P (D|H2 )
+     This quantity is the ‘weight of evidence in favor of H1 ’ [5]. The log evidence for a hypothesis,
+log P (D|Hi ), is the negative of the information content of the data D under that hypothesis:
+if the data have large information content given a hypothesis, then they are surprising to that
+hypothesis; if some other hypothesis is not as surprised by the data, then that hypothesis becomes
+more probable [5].
+     As David MacKay elegantly notes, ‘information content’, ‘surprise value’, and log-likelihood
+(or log evidence) are the same thing [5]. This unification connects Shannon’s information theory
+[7] with Bayesian inference and provides the theoretical foundation for modern machine learning
+algorithms.
+     Formally, information theory quantifies the notion of “surprise.”
+     The information content (or self-information) of an outcome x, with probability P (x), is de-
+fined as
+
+                                        h(x) = − log P (x).                                      (1.6)
+
+       Unlikely events (small P (x)) have high information content, meaning they are more surpris-
+ing.
+     To understand this intuitively, consider a coin that lands heads 90% of the time [11]. We
+can express the surprise of an outcome as 1/P (x), but Shannon showed it is better to define
+it as the logarithm: log(1/P (x)) = − log P (x). This logarithmic measure, known as Shannon
+information or surprisal, has the crucial property that surprises from independent events can be
+added rather than multiplied.
+     The entropy of a random variable X, measuring the expected surprise across all outcomes, is
+defined as
+                                                 X
+                                  H(X) = −           P (x) log P (x).                            (1.7)
+                                                 x
+1.2. THE MATHEMATICAL FOUNDATION                                                                 7
+
+
+    Entropy represents the average information content in a random variable X. In essence, en-
+tropy measures uncertainty: when our uncertainty is reduced, we gain information. Information
+and entropy are thus two sides of the same coin.
+    The choice of logarithm base determines the units of measurement. Using natural logarithms
+(base e) gives units called nats. Using base-10 logarithms gives units called bans, named after the
+English town of Banbury where the special cards used at Bletchley Park were printed. This histor-
+ical connection reinforces the deep relationship between Turing’s wartime work and Shannon’s
+information theory.
+    In the context of weight of evidence, log-likelihood ratios compare the relative surprises of
+data under competing hypotheses. A hypothesis that finds the data less surprising accumulates
+more weight of evidence in its favor.
+
+
+The Historical Context and Legacy
+Neither Alexander’s nor Mahon’s contemporaneous histories mentioned the word ‘Bayes’, and
+Turing himself generally referred to “the factor” [1]. I.J. Good also recalls that: “When I said to
+him that the concept was essentially an application of Bayes’s theorem he said ‘I suppose so’ ” [4].
+In Turing’s later declassified paper [13], we can see Factor Principle (Bayes’ Theorem).
+    The historical significance of the ban as a unit of measurement cannot be overstated [5].
+When Alan Turing and the other codebreakers at Bletchley Park were breaking each new day’s
+Enigma code, their task was a massive inference problem: to infer, given the day’s cyphertext,
+which three wheels were in the Enigma machines that day; what their starting positions were;
+what further letter substitutions were in use on the steckerboard; and, not least, what the original
+German messages were [5].
+    These inferences were conducted using Bayesian methods, and the chosen units were decibans
+or half-decibans, with the deciban judged to be the smallest weight of evidence discernible to
+human intuition [5]. The evidence in favor of particular hypotheses was tallied using sheets of
+paper that were specially printed in Banbury. The inference task was known as Banburismus,
+and the units in which Banburismus was played were called bans, after that town [5].
+    Using increasingly sophisticated language models, the evidence contributed by runs of matches
+was more accurately computed [5]. Such a scoring system was worked out by Turing and refined
+by Good. Positive results were passed on to automated and human-powered codebreakers. Ac-
+cording to Good, the longest false-positive that arose in this work was a string of 8 consecutive
+matches between two messages that were actually in unrelated states [5], a testament to the ro-
+bustness of the methodology.
+
+
+MacKay’s Reconstruction of Banburismus
+To illustrate how Turing’s method works in practice, David MacKay reconstructed a simplified
+version of Banburismus using two English nursery rhymes [5]. Consider comparing these text
+strings:
+
+u:       LITTLE-JACK-HORNER-SAT-IN-THE-CORNER-EATING-A-CHRISTMAS-PIE--HE-PUT-IN-H
+v:       RIDE-A-COCK-HORSE-TO-BANBURY-CROSS-TO-SEE-A-FINE-LADY-UPON-A-WHITE-HORSE
+matches: .*....*..******.*..............*...........*................*...........
+8      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+   The question: Are these two strings related (hypothesis H1 ) or unrelated (hypothesis H0 )?
+The bottom row shows matches (*) and non-matches (.) between u and v.
+   Breaking this sequence into segments:
+
+Position     0-19: u: LITTLE-JACK-HORNER-S
+                   v: RIDE-A-COCK-HORSE-TO
+                   ↓: .*....*..******.*...
+
+Position    20-39: u: AT-IN-THE-CORNER-EAT
+                   v: -BANBURY-CROSS-TO-SE
+                   ↓: ...........*........
+
+Position    40-59: u: ING-A-CHRISTMAS-PIE-
+                   v: E-A-FINE-LADY-UPON-A
+                   ↓: ...*................
+
+Position    60-71: u: -HE-PUT-IN-H
+                   v: -WHITE-HORSE
+                   ↓: *...........
+
+    MacKay’s example compares each character position, accumulating evidence:
+    • Character match: +3.01 decibans (log-evidence for H1 per match)
+    • Character mismatch: -0.18 decibans (log-evidence for H1 per non-match)
+    Key Matches Identified: The algorithm finds 12 character matches, including:
+    • Position 6: ‘-’ (dash) in both strings
+    • Positions 9-14: ‘CKHOR’ sequence in “JACK-HORNER” vs “COCK-HORSE”
+    • Position 31: ‘O’ in “CORNER” vs “CROSS”
+    • Position 43: ‘-’ (dash) in both strings
+    • Position 60: ‘-’ (dash) in both strings
+    Starting from neutral (0 decibans), the algorithm finds 12 matches and 60 non-matches:
+
+
+                       Total evidence = 12 × (+3.01) + 60 × (−0.18)                       (1.8)
+                                      = 36.12 − 10.8 = 25.32 decibans                     (1.9)
+
+    Converting to odds: 1025.32/10 ≈ 354 : 1 in favor of the strings being related.
+    This demonstrates the power of Turing’s additive approach: even though most character
+positions don’t match (60 vs. 12), the few matches provide such strong evidence that they over-
+whelm the many weak counter-indications. The algorithm correctly identifies that both strings
+are English nursery rhymes, despite their surface differences.
+    The same mathematical principle, accumulating logarithmic evidence until a threshold is
+crossed, powers modern credit scoring systems.
+1.3. WEIGHT OF EVIDENCE IN CREDIT SCORING                                                        9
+
+
+1.3    Weight of Evidence in Credit Scoring
+The mathematical principles developed at Bletchley Park didn’t remain locked in wartime archives.
+They found new life in an unexpected domain: consumer finance.
+
+From Codebreaking to Credit Decisions
+Today, data scientists working on credit scoring face remarkably similar challenges to those faced
+by Turing and his team. Both domains require:
+
+   1. Accumulating evidence from multiple sources (like Turing’s repeated patterns in encrypted
+      messages)
+   2. Handling computational constraints (though modern constraints differ from wartime
+      pencil-and-paper calculations)
+   3. Making decisions under uncertainty (like determining which Enigma settings to test)
+   4. Balancing speed and accuracy (like the need to break codes before they became obsolete)
+   5. Working with features that may or may not be independent (requiring careful modeling
+      choices)
+
+    The scoring systems developed by Turing and refined by Good represent some of the most
+sophisticated early examples of what we now recognize as machine learning. The mathematical
+principles remain unchanged, even as the computational tools have evolved dramatically.
+
+From Decibans to WOE: The Mathematical Bridge
+To understand how Turing’s wartime innovations connect to modern credit scoring, we need to
+examine the Weight of Evidence (WOE) transformation, a staple of credit risk modeling that has
+its roots directly in the Factor Principle.
+     Weight of Evidence quantifies the strength of evidence supporting or refuting a hypothesis,
+derived from independent pieces of data. The mathematical foundation, drawn directly from
+Turing’s declassified 1941 paper [13], is:
+
+A posteriori odds of the theory = A priori odds of the theory
+                                    Probability of the data being fulfilled if the theory is true
+                                  ×
+                                    Probability of the data being fulfilled if the theory is false
+                                                                                            (1.10)
+    In this formula, the theory is that the man died of heart failure, and the data is that he died
+in his bed. The general formula above is described as the factor principle. The ratio
+
+                           Probability of the data if the theory is true
+                                                                                             (1.11)
+                           Probability of the data if the theory is false
+   is what Turing called the factor for the theory on account of the data. This factor later
+became known as the Bayes factor [1].
+10      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+    To illustrate this principle, consider the example that Turing himself provided in his classi-
+fied 1941 paper [13]. The theory is that a man died of heart failure, and we have three pieces of
+evidence:
+    Evidence in favor of heart failure:
+     • 2/3 of men who die of heart failure die in their beds
+     • 2/5 of those who die of heart failure have fathers who died of heart failure
+     • 1/2 of those who die of heart failure have bedrooms on the ground floor
+     Evidence from other causes:
+     • 1/4 of men who die from other causes die in their beds
+     • 1/6 of those who die from other causes have fathers who died of heart failure
+     • 1/20 of those who die from other causes have bedrooms on the ground floor
+    The final factor in favor of the heart failure hypothesis, Turing demonstrates, is the product
+of three factors: (2/3)/(1/4), (2/5)/(1/6), and (1/2)/(1/20), arising from the three independent
+pieces of evidence. The interpretation of each factor is that the credibility in the hypothesis is
+enhanced or diminished according to whether the factor is above or below 1. In total, we obtain
+odds of 64 to 1 in favor of the heart failure hypothesis (without incorporating prior odds).
+    Turing’s calculation for the first factor shows that dying in bed is 2.67 times more likely
+given heart failure than given other causes, yielding a Bayes factor of 8/3. The derivations of
+the remaining two factors in Turing’s example [13] follow the same reasoning and are left to the
+reader.
+    Alan Turing described the weight of evidence as the logarithm of the factor by which the odds
+of a theory change when new data arrive. He used decibans (log10 scale × 10) to quantify the
+strength of evidence.
+
+       Step      Description                                             Expression    Value
+         1       A priori odds of the theory (heart failure)           (1/5) / (4/5)    0.25
+         2       Factor for the theory on account of the data (in bed) (2/3) / (1/4)    2.66
+         3       A posteriori odds of the theory                       0.25 × 2.66      0.67
+
+              Table 1.1: Turing’s Factor Principle Applied to Heart Failure Diagnosis
+
+     In words:
+     • Before seeing the data, the theory of heart failure has odds of 1:4 (0.25).
+     • Being found in bed increases the odds in favor of heart failure by a factor of 2.66.
+     • The updated (posterior) odds are 0.67, or roughly 2:3.
+     Turing’s scoring (in decibans):
+
+                                   Score = 10 log10 (2.66) = 4.3                               (1.12)
+1.3. WEIGHT OF EVIDENCE IN CREDIT SCORING                                                                     11
+
+
+        “We score 4.3 decibans in favor of the heart-failure theory.”
+
+    The logarithmic factor is the Weight of Evidence (WOE).
+    For scoring purposes, Turing proposed using the base-10 logarithm of factors to convert them
+to “decibans,” named after the English town of Banbury [13]. Decibans were adopted for faster
+manual computation because scores could be added rather than multiplied, and because whole
+numbers are easier to work with than fractional probabilities.
+    This is precisely the same transformation that modern credit scoring systems use. In credit
+risk modeling, we call log(Bayes factor) the “Weight of Evidence” (WOE). Turing’s work lays the
+foundation for modern scoring systems, where each input contributes an independent piece of
+evidence to the final decision. Logarithmic scoring models assign WOE values to features, with
+the final score representing the sum of log factors that reflect cumulative evidence. This method
+forms the backbone of credit scoring as we know it today.
+
+Weight of Evidence in Practice: A Credit Scoring Example
+To see how this works in practice, consider a group of bank customers whose credit card utiliza-
+tion (the percentage of available credit being used) exceeds 90%. How many of these customers
+are likely to default on their loans?
+    A contingency table for this scenario shows the relationship between credit utilization and
+default status, where high utilization (>90%) is strongly associated with default2 .
+
+                    Step                                           Expression        Value
+                    A priori odds of default                     (1/10) / (9/10)      0.11
+                    Factor (likelihood ratio)                     (4/5) / (1/10)      8.0
+                    A posteriori odds                              0.11 × 8.0         0.88
+                    A posteriori probability of default         0.88 / (1 + 0.88)     0.47
+
+               Table 1.2: Credit Scoring Example: High Utilization and Default Risk
+
+
+    Interpretation:
+
+     • Before observing usage, the base odds of default are 1:9 (≈ 0.11).
+
+     • High usage (>90%) increases odds by ×8.
+
+     • Posterior probability of default ≈ 47%.
+
+    Weight of Evidence (natural log):
+
+                                       WOE = log(8.0) = 2.0794                                            (1.13)
+    Logit form:
+    2
+      Some credit risk texts use a “good-to-bad” WOE formulation [8], likely to align with traditional scorecards
+where higher scores indicate better creditworthiness. However, this can create mathematical inconsistency with
+the model intercept, which represents baseline log-odds of default. The standard “bad-to-good” formulation used
+here ensures positive WOE values indicate increased risk and negative values indicate decreased risk.
+12      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+                        Component               Expression           Value
+                        Log prior odds        ln(0.11)              -2.2073
+                        Add WOE           -2.2073 + 2.0794           -0.128
+                                                       e−0.128
+                        PD (logistic)  σ(−0.128) = 1+e   −0.128      0.468
+
+                          Table 1.3: Logit Transformation of WOE Value
+
+
+    So, the predicted probability of default is 47%, consistent with the odds-based computation.
+    If we examine the group with utilization exceeding 90%, we find 80 of the 100 customers
+who defaulted and 90 of the 900 customers who did not default. The Bayes factor (likelihood
+ratio) is then:
+
+                                                       80/100   0.80
+                     Odds of Default | Usage > 90% =          =      = 8.0                    (1.14)
+                                                       90/900   0.10
+    This means that in this high-utilization group, customers are 8 times more likely to be de-
+faulters than non-defaulters. The Weight of Evidence value is then:
+
+                                     WOE = log(8.0) = 2.08                                    (1.15)
+     To convert this to a probability, we must combine the WOE with the prior log odds. The
+prior probability of default in this dataset is 100/1000 = 0.10, giving prior odds of 100:900 or
+1:9. The prior log odds are:
+
+                              log(prior odds) = log(1/9) = −2.20                              (1.16)
+     Adding the WOE value to the prior log odds:
+
+                         log(posterior odds) = −2.20 + 2.08 = −0.128                          (1.17)
+     Passing this value through the logistic (sigmoid) function yields a probability:
+
+                                                           e−0.128
+                      P (default|utilization > 90%) =                = 0.47                   (1.18)
+                                                         1 + e−0.128
+    We can verify this result by calculating the proportion of defaulters directly within the high-
+utilization group: 80/(80+90) = 0.47. The Bayesian approach and the frequentist calculation yield
+identical results, demonstrating the mathematical consistency of the framework.
+
+The Two Faces of Weight of Evidence
+It is crucial to understand that WOE alone cannot determine probability; it must always be
+interpreted relative to the prior log odds. The final probability is obtained by aggregating the
+sum of WOE values across all features and combining them with the prior log odds. This ad-
+ditive structure is what makes WOE-based scoring systems so computationally efficient and
+interpretable.
+     Each WOE value represents a piece of evidence for or against default, independent of other
+features. At Bletchley Park, the focus was primarily on the values themselves, with decision
+1.3. WEIGHT OF EVIDENCE IN CREDIT SCORING                                                        13
+
+
+thresholds set empirically. However, to derive rigorous probability estimates, we must combine
+WOE values with prior odds, as demonstrated above. WOE acts as an adjustment added to the
+prior log odds to yield the posterior log odds and, ultimately, the final probability estimate.
+     In most modern applications, logistic regression is used as the final step to compute probabil-
+ities. Maximum likelihood estimation assigns weights to WOE-transformed features to produce
+the final logit and derive probability estimates. However, when assuming the independence of
+features (the naive Bayes assumption) probabilities can be derived directly by summing the WOE
+values across features without requiring logistic regression. This is precisely analogous to how
+Turing accumulated decibans to reach decision thresholds.
+     We can calculate WOE in two equivalent ways. The first approach uses a contingency table
+(as shown above), while the second leverages the Bayes factor directly (see Jack Good’s expla-
+nation [4]). Both methods yield identical results—in this case, a factor of 8.0 for high credit
+utilization.
+     We can express this reasoning directly from a 2×2 contingency table:
+
+                        Credit Usage     Default = 0   Default = 1      Total
+                        ≤ 90%                810            20          830
+                        > 90%                90             80          170
+                        Total               900            100          1000
+
+                  Table 1.4: Contingency Table: Credit Utilization vs Default
+
+
+
+Variant 1 — Conditional Probability Table
+
+
+                          Credit Usage     P(Default=0)    P(Default=1)
+                          ≤ 90%                0.90              0.20
+                          > 90%                0.10              0.80
+                          Total                 1.00             1.00
+
+                            Table 1.5: Conditional Probability Table
+
+
+   Factor in favor of default:
+
+                                          0.8/0.1
+                                                  = 8.0                                       (1.19)
+                                          0.2/0.9
+
+                                    WOE = log(8.0) = 2.08                                     (1.20)
+
+Variant 2 — Using Default Rates (The Odds Form of the Bayes’ Theorem)
+
+                P (default| > 90%) = 0.471,        P (no default| > 90%) = 0.529              (1.21)
+14      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+                                   Credit Usage    Default rate
+                                   ≤ 90%               2.4%
+                                   > 90%               47%
+                                   Total               10%
+
+                            Table 1.6: Default Rates by Credit Usage
+
+
+
+
+                                                0.10
+                                   Prior odds =      = 0.111                                 (1.22)
+                                                0.90
+                                                0.471
+                               Posterior odds =       = 0.891                                (1.23)
+                                                0.529
+                                                0.891
+                                       Factor =       ≈ 8.0                                  (1.24)
+                                                0.111
+                                        WOE = log(8.0) = 2.07                                (1.25)
+
+       “Credit usage >90% increases the odds of default by a factor of 8×.”
+
+   This is the same weight of evidence that Good formalized via the odds form of Bayes’ theorem,
+written as:
+
+                                                        P (E | H)
+                               O(H | E) = O(H) ×
+                                                        P (E | H̄)
+     or equivalently,
+
+                                    O(H | E)   P (E | H)
+                                             =            ,
+                                     O(H)      P (E | H̄)
+    where the ratio on the right-hand side is the factor in favor of H provided by E, also known as
+the Bayes factor or Turing–Good weight of evidence.
+
+The Independence Assumption and Its Limitations
+The mathematical foundation for combining independent evidence has an interesting history.
+Charles Sanders Peirce introduced the concept in 1878, showing how to add weights of evidence
+from independent sources. However, Peirce made a subtle but crucial error: he summed evidence
+without properly accounting for prior odds. This oversight wasn’t corrected until Turing and
+Good’s wartime work established the rigorous mathematical framework that underlies modern
+additive scoring systems (see bibliographical notes for the full story).
+    The naive Bayes assumption (that features contribute independent evidence) is both the great
+strength and the primary limitation of WOE-based scoring. This assumption allows for simple
+additive scoring and makes models highly interpretable, but this assumption breaks down when
+features are correlated or interact in complex ways.
+    Modern credit scoring has evolved beyond pure WOE models to incorporate methods that
+can capture feature interactions: gradient boosting machines, neural networks, and ensemble
+1.3. WEIGHT OF EVIDENCE IN CREDIT SCORING                                                      15
+
+
+methods. Yet WOE transformations remain valuable for several reasons: they provide inter-
+pretable feature contributions, enable regulatory compliance through explainable scoring, and
+offer computational efficiency in production systems.
+    As D. Spiegelhalter [9] has noted, Alan Turing’s approach to explanation during Enigma
+codebreaking relied fundamentally on weights of evidence as a method of communication: log-
+likelihood ratios implemented through a naïve Bayes model. Jack Good later promoted this
+methodology in the 1950s, and the additive scoring approach pioneered in Turing’s wartime
+work has become fundamental to modern machine learning [10].
+    The naive Bayes classifier expresses posterior odds as the product of individual likelihood
+ratios:
+
+                        p(H0 | s1 , . . . , sp ) Y p(si | H0 ) p(H0 )
+                                                 =              ×                           (1.26)
+                        p(H1 | s1 , . . . , sp )   i
+                                                     p(si | H1 ) p(H1 )
+   Taking logarithms transforms this into the additive form that Turing pioneered:
+
+                               p(H0 | s1 , . . . , sp ) X            p(H0 )
+                         log                            =   wi + log                        (1.27)
+                               p(H1 | s1 , . . . , sp )   i
+                                                                     p(H1 )
+   where wi is the weight of evidence
+
+                                                   p(si | H0 )
+                                        wi = log                                            (1.28)
+                                                   p(si | H1 )
+
+    • Weights of evidence are positive/negative if evidence si is for/against H0
+
+    • Multiplying by 10 and rounding helps explanation
+
+    Even with its independence assumption, the naïve Bayes framework remains one of the most
+interpretable probabilistic models available. By translating multiplicative likelihoods into addi-
+tive scores, Turing and Good effectively created the first explainable model, a design still mir-
+rored in every WOE-based scorecard used in consumer lending.
+
+The Enduring Legacy
+The journey from Bletchley Park’s codebreaking efforts to modern credit scoring is not merely a
+historical curiosity; it represents a direct lineage of mathematical and computational thinking.
+The principles that helped defeat Enigma (accumulating evidence through logarithmic scoring,
+making decisions under uncertainty, and balancing accuracy with computational efficiency) re-
+main central to how banks make lending decisions today.
+    The methods that helped win World War II have evolved into the algorithms that help us
+make better decisions about risk, opportunity, and the future. In the chapters that follow, we’ll
+explore how these fundamental principles extend to modern machine learning methods, examin-
+ing both where the simple additive structure of WOE remains sufficient and where more complex
+models become necessary.
+    What began as pencil-and-paper calculations in a wartime codebreaking facility has become
+the mathematical foundation for algorithms that process millions of credit applications annually.
+The deciban, once the smallest unit of evidence perceptible to human intuition, has evolved into
+16     CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+the weights and activations of neural networks. Yet the underlying principle remains unchanged:
+evidence accumulates, scores rise and fall, and when the total crosses a threshold, a decision
+emerges.
+    Today, the ideas underlying weight of evidence extend far beyond credit scoring. While not
+always used explicitly, the same logic of combining independent pieces of probabilistic evidence
+underpins modern fraud detection systems, medical diagnostics, recommendation algorithms,
+and risk models across industries. From spam filters to autonomous vehicles, the mathemati-
+cal framework Turing developed to break enemy codes now helps machines make sense of an
+uncertain world.
+
+
+
+Bibliographical and Historical Notes
+Ronald A. Fisher and Alan M. Turing
+Among the many figures who shaped twentieth-century science, few had a deeper influence on
+the foundations of modern data analysis than Ronald A. Fisher and Alan M. Turing. Both were
+British prodigies who transformed how knowledge could be extracted from uncertainty. Fisher
+formalized the logic of inference, turning statistics into an exact science, while Turing redefined
+reasoning itself through computation and probability. Though they never collaborated directly,
+their intellectual legacies form complementary parts of a single story.
+     Ronald A. Fisher and Alan Turing crossed paths in the mid-1930s when Turing submitted his
+fellowship dissertation at King’s College, Cambridge. Fisher, already a leading figure in statistics,
+was one of the examiners. He found the subject unappealing and dismissed it as overly explored,
+but nevertheless acknowledged the originality of Turing’s methods and endorsed him as a can-
+didate of real distinction. It was an early test of Turing’s academic path, and Fisher’s reluctant
+approval helped secure his place at Cambridge to be elected to a fellowship of King’s at the ripe
+old age of 22 on 16 March 1935 [12].
+     Their intellectual trajectories later diverged in striking ways. Fisher was a staunch defender
+of orthodox statistical methods (frequentist) and a vehement critic of Bayesian approaches mak-
+ing Bayesian analysis unpopular well until the late 1950s. During the war, however, Turing leaned
+heavily on Bayesian reasoning in his statistical techniques for deciphering the naval Enigma
+codes. The irony is that while Fisher had once judged Turing’s mathematics with skepticism,
+Turing’s secret wartime breakthroughs relied on ideas Fisher would have firmly rejected, though
+Fisher never knew it at the time due to secrecy of Turing’s work at Bletchley Park.
+     When Alan Turing applied for a research fellowship at King’s College in 1934, his dissertation
+was sent to two external examiners. One of them was Ronald A. Fisher, already famous as one
+of the most influential statisticians of the century. Fisher did not take to the subject matter at
+all — he thought it was a dull and “positively repellent” area of analysis that had been worked
+over thoroughly by continental mathematicians. But as he read further, he could not ignore
+that Turing’s treatment was original, elegant, and showed great technical mastery. In his final
+report, Fisher admitted that the work bore the mark of “a first-class candidate” and even praised
+Turing’s “taste” and “virtuosity” in mathematical demonstration. That endorsement, even if
+reluctant, played a crucial role in Turing being awarded the fellowship and securing his place in
+the Cambridge academic world.
+1.3. WEIGHT OF EVIDENCE IN CREDIT SCORING                                                       17
+
+
+    The irony comes later. Fisher was the leading opponent of Bayesian methods — dismissing
+them as heretical and pushing frequentist statistics as the only legitimate approach. His authority
+made Bayesian reasoning unfashionable in Britain for decades. Yet, during the Second World
+War, Turing developed Banburismus and other cryptanalytic methods at Bletchley Park that
+relied heavily on Bayesian reasoning — calculating probabilities from incomplete evidence to
+guide the breaking of German naval Enigma. In other words, Turing’s secret wartime triumphs
+were grounded in the very statistical philosophy Fisher most disliked. Because of the secrecy
+surrounding Bletchley’s work, Fisher never knew that the young man whose dissertation he had
+once judged so harshly had gone on to apply Bayesian methods to one of the most consequential
+problems of the century.
+    Prof. R.A. Fisher’s Further Report: I have no hesitation in judging Turing’s thesis the work
+of a first-class candidate. He seems to have thought out his own methods. Finally in reading
+through his paper, I formed a very high opinion of his taste, virtuosity would not be too strong
+a term, in the art of framing conclusive mathematical demonstrations.
+    When Turing applied for a fellowship at King’s College in 1934, his dissertation had to be
+judged by external experts. One of them was Ronald A. Fisher. Fisher didn’t like the topic much,
+calling it unattractive, but he still recognized that Turing’s approach showed real originality and
+ability. In spite of his misgivings, he recommended that Turing was a candidate of very high
+caliber.
+    The inquisition into Bayes’s heresy was led by none other than Professor R.A. Fisher, the
+Cambridge authority on statistics, he who had said that the subject Alan Turing had chosen for
+his fellowship dissertation was ‘positively repellent’.
+
+
+Charles S. Peirce and I.J. Good
+In The Probability of Induction (1878), Charles Sanders Peirce provided one of the earliest formu-
+lations of what later became known as the weight of evidence. He argued that belief should grow
+in proportion to the strength of independent arguments.
+    Charles Sanders Peirce wanted a way to measure how strongly independent arguments sup-
+port a hypothesis — what he called the intensity of belief.
+    He reasoned like this:
+
+      “If two independent arguments both support the same conclusion, then the total
+      belief should be the sum of the beliefs from each.”
+
+   That passage is one of the earliest known formal definitions of weight of evidence as an
+additive quantity in log-odds space, nearly seventy years before Turing made the same principle
+operational for Bayesian intelligence and statistical inference.
+   He then added:
+
+      “Since independent arguments multiply their chances, the feeling of belief should
+      be proportional to the logarithm of the chance.”
+
+   The rule for the combination of independent concurrent arguments takes a very simple form
+when expressed in terms of the intensity of belief, measured in the proposed way:
+18      CHAPTER 1. WEIGHT OF EVIDENCE: FROM BLETCHLEY PARK TO CREDIT SCORING
+
+
+       “Take the sum of all the feelings of belief which would be produced separately by
+       all the arguments pro, subtract from that the similar sum for arguments con, and
+       the remainder is the feeling of belief which we ought to have on the whole. This is
+       a proceeding which men often resort to, under the name of balancing reasons.”
+
+    Peirce observed that when independent pieces of evidence each favor a hypothesis to some
+degree, our total belief should combine additively in the scale of feeling or belief — even though,
+mathematically, probabilities themselves combine multiplicatively. He proposed that the appro-
+priate “thermometer” for belief intensity must therefore be the logarithm of the odds (chance).
+    Almost a century later, I.J. Good re-examined Peirce’s argument in his short 1981 note “An
+Error by Peirce Concerning ‘Weight of Evidence”’ [2].
+    Good agreed that Peirce’s intuition was brilliant but showed that the algebra behind it was
+wrong.
+    Peirce had written the independence of evidence as:
+
+                              P (H | E, F ) = P (H | E) P (H | F )                           (1.29)
+which implies
+
+                              O(H | E, F ) = O(H | E) O(H | F )                              (1.30)
+    where O(H) denotes the odds of the hypothesis H. That equation holds only if the prior
+odds O(H) = 1, i.e. a 50% prior probability, an implicit assumption Peirce never stated.
+    Translating to today’s methodology, Peirce effectively summed two weights of evidence with-
+out including any prior base rate, the intercept term, representing the prior odds before any
+evidence is observed.
+    Good pointed out that the correct independence condition is not on the posteriors but on
+the likelihoods:
+
+
+                              P (E, F | H) = P (E | H) P (F | H)                             (1.31)
+                              P (E, F | H̄) = P (E | H̄) P (F | H̄)                          (1.32)
+
+     From Bayes’ theorem,
+
+                                                  P (E | H)    P (F | H)
+                      O(H | E, F ) = O(H) ×                  ×            .                  (1.33)
+                                                  P (E | H̄)   P (F | H̄)
+     Taking logarithms gives the additive law that Peirce intuited:
+
+                                                     P (E | H)        P (F | H)
+                log O(H | E, F ) = log O(H) + log               + log            .           (1.34)
+                                                     P (E | H̄)       P (F | H̄)
+    Each term is a weight of evidence — the log-likelihood ratio contributed by one piece of data.
+    This mathematical framework, refined over more than a century from Peirce’s initial insight
+through Good’s correction, provides the theoretical foundation for modern credit scoring sys-
+tems. The same principles that Peirce intuited for combining evidence now power the algorithms
+that process millions of loan applications, demonstrating the enduring value of fundamental
+mathematical insights.
+References                                                                                      19
+
+
+References
+ [1] Jack Copeland. The Turing Guide. Oxford University Press, 2017.
+ [2] I. J. Good. ‘C102. An error by Peirce concerning “weight of evidence”’. In: Journal of Statis-
+     tical Computation and Simulation 13.2 (1981), pp. 155–157. issn: 0094-9655.
+ [3] I. J. Good. Probability and the Weighing of Evidence. Charles Griffin & Company, 1950.
+ [4] I.J. Good. ‘Studies in the History of Probability and Statistics. XXXVII A.M. Turing’s sta-
+     tistical work in World War II’. In: Biometrika 66.2 (1979), pp. 393–396.
+ [5] David J.C. MacKay. Information Theory, Inference and Learning Algorithms. Cambridge Uni-
+     versity Press, 2003.
+ [6] Charles Sanders Peirce. ‘The Probability of Induction’. In: Popular Science Monthly 12 (1878),
+     pp. 705–718.
+ [7] Claude E. Shannon. ‘A Mathematical Theory of Communication’. In: Bell System Technical
+     Journal 27.3 (1948), pp. 379–423.
+ [8] Naeem Siddiqi. Credit Risk Scorecards: Developing and Implementing Intelligent Credit Scoring.
+     John Wiley & Sons, 2006.
+ [9] David Spiegelhalter. The Art of Uncertainty: How to Navigate Chance, Ignorance, Risk and Luck.
+     New York: W. W. Norton & Company, 2024.
+[10] David J. Spiegelhalter. Making Algorithms Trustworthy: What Can Statistical Science Contribute
+     to Transparency, Explanation and Validation? Invited Talk (Breiman Lecture), NeurIPS. Breiman
+     Lecture. 2018.
+[11] James V. Stone. Information Theory: A Tutorial Introduction. Comprehensive introduction
+     to information theory with intuitive explanations of Shannon information, entropy, and
+     their applications. Sheffield, UK: Sebtel Press, 2015.
+[12] Alan M. Turing. ‘Computing Machinery and Intelligence’. In: Mind 59.236 (1950). Reprinted
+     in various collections, including The Essential Turing (2004), pp. 433–460.
+[13] Alan M. Turing. ‘The Applications of Probability to Cryptography’. In: National Archives
+     HW 25/37, HW 25/38 (1941). Declassified 2012.
+[14] Dermot Turing. Prof: Alan Turing Decoded. Stroud, GBR: The History Press, 2016.

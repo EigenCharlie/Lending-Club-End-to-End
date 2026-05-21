@@ -1,0 +1,11 @@
+Weight of Evidence for Text Classification 📑
+Did you know that Weight of Evidence (WOE), a popular technique in Credit Risk Modeling, actually dates back to Alan Turing? 🌟 Turing's innovative work laid the groundwork for WOE, a method that's as powerful today as it was groundbreaking then.
+WOE offers a straightforward yet robust approach to evidence-based decision-making, ideal for feature preprocessing, developing analytical scorecards, and model explainability. For example, WOE can be used to transform outputs from ML models like gradient boosted trees to gauge feature importance with likelihood ratios. Learn more here: https://lnkd.in/dWX_RXzs
+In this post, I'm exploring a novel application of WOE for text classification, showcasing the method on a dataset of intents from the banking domain. As the examples illustrate, WOE enables us to build transparent, trustworthy models that maintain interpretability without sacrificing decision clarity ⤵
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+▷ Check out a post on WOE estimators for PD scoring: https://lnkd.in/dsbbHi-M
+▷ Explore scorecard building using WOE-Naive Bayes approach: https://lnkd.in/dDgmPkhT
+▷ Discover a visual explanation of WOE-based credit scoring models: https://lnkd.in/dRxPhNS5
+▷ Explore more here: https://linktr.ee/deburky 🔔
+▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬
+All views expressed are my own

@@ -1136,8 +1136,9 @@ def build_sample_paths_v10(
             alloc["issue_month"]
             .astype(str)
             .map(
-                lambda m, path_id=path_id: 1
-                + 0.12 * math.sin(2 * math.pi * _stable_uniform(path_id, m, "cohort"))
+                lambda m, path_id=path_id: (
+                    1 + 0.12 * math.sin(2 * math.pi * _stable_uniform(path_id, m, "cohort"))
+                )
             )
         )
         for policy_id in policies:

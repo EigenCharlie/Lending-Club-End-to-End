@@ -262,7 +262,7 @@ def test_paper_estrella_journal_backlog_is_documented() -> None:
     for token in (
         "chapters/14-paper-estrella/14g-manuscript-blueprint.qmd",
         "chapters/14-paper-estrella/14h-journal-appendix-robustness.qmd",
-        "Management Science",
+        "INFORMS Journal on Data Science",
         "C1",
         "tbl-p1-manuscript-figures",
         "tbl-p1-claim-artifact-test-location",

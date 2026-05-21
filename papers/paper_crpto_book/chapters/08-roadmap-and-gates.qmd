@@ -1,0 +1,77 @@
+# Roadmap y Gates 6/12 Meses {#sec-crpto-roadmap-gates}
+
+El horizonte operativo es doble: **IJDS en 6 meses** y **tesis de maestría en
+12 meses**. La estrategia correcta es trabajar una sola columna vertebral CRPTO
+durante los primeros meses y separar las salidas formales cuando el manuscrito
+IJDS esté casi congelado.
+
+## Roadmap IJDS: 6 meses
+
+| Mes | Entregable | Gate de salida |
+|---:|---|---|
+| 1 | Claim freeze, figuras candidatas, tablas candidatas y page-budget ledger. | 3 figuras, 2--3 tablas y C1--C5 congelados. |
+| 2 | Method/theory draft: PD calibrada, CP Mondrian, `Gamma_CP`, `V`, LP robusto. | El texto no promete online, IFRS9 contractual ni regret mínimo. |
+| 3 | Results draft: champion, comparadores, región robusta y SPO boundary. | Números sincronizados con artefactos canónicos. |
+| 4 | Supplement A--F: pruebas, A3--A18, MRM/fairness, reproducibilidad. | Todos los claims del body tienen artifact/test trace. |
+| 5 | Anonimización, data/code disclosure, reviewer-defense bank. | Sin rutas personales ni alias `Paper Estrella` en paquete público. |
+| 6 | Pre-submission audit y versión enviada. | Render limpio, tests documentales pasan y page budget cumple IJDS. |
+
+## Roadmap tesis: 12 meses
+
+| Meses | Entregable | Gate de salida |
+|---|---|---|
+| 1--3 | Fundamentos seleccionados desde capítulos 02--10. | Lectura autosuficiente sin convertir la tesis en manual entero. |
+| 4--6 | Capítulo CRPTO alineado con el paper IJDS. | El núcleo empírico coincide con el manuscript freeze. |
+| 7--8 | Capítulo de gobernanza, reproducibilidad y límites. | MRM, fairness proxy, source governance y artifact traceability conectados. |
+| 9--10 | Capítulo de extensiones controladas. | Paper 4, IFRS9, CATE, online y DLA clasificados como agenda o appendix. |
+| 11 | Ensamble de defensa: contribuciones, limitaciones y preguntas difíciles. | Cada pregunta esperada tiene evidencia o frontera explícita. |
+| 12 | Cierre laureado: narrativa, formato, bibliografía y reproducibilidad. | Tesis renderizada, coherente y sin claims huérfanos. |
+
+## Gates editoriales permanentes
+
+| Gate | Pregunta | Acción si falla |
+|---|---|---|
+| Claim gate | ¿Este texto cambia o fortalece C1--C5? | Mover a tesis, supplement o archive. |
+| Artifact gate | ¿Hay tabla, figura, JSON, script o test que lo sostenga? | Reescribir como limitación o eliminar. |
+| Page gate | ¿Cabe en 25 páginas IJDS? | Comprimir o mandar al supplement. |
+| Thesis gate | ¿Ayuda a defender profundidad, originalidad o madurez? | Si no, no entra a tesis. |
+| Anonymity gate | ¿Revela identidad, rutas locales o material privado? | Reemplazar por path relativo o quitar. |
+| Promotion gate | ¿Intenta reemplazar el champion oficial? | Bloquear salvo nuevo protocolo aprobado. |
+
+## Backlog priorizado
+
+| Prioridad | Trabajo | Salida esperada |
+|---:|---|---|
+| P0 | Crear evidence spine formal con C1--C5, tablas, figuras, scripts y tests. | Supplement y defensa. |
+| P0 | Crear ledger de body IJDS con conteo aproximado de páginas por sección. | Control de 25 páginas. |
+| P0 | Convertir Fig. 12--14 y Tables 0--2/A18 en paquete visual decisivo. | Primer draft IJDS. |
+| P1 | Escribir reviewer-defense bank sobre CP, RO, SPO/DFL, fairness, IFRS9 y dataset. | Rebuttal y tesis. |
+| P1 | Construir checklist de anonimización y data/code disclosure. | Submission package. |
+| P1 | Expandir capítulo de tesis con fundamentos 02--10 en forma selectiva. | Tesis. |
+| P2 | Documentar negative results de Paper 4 como límites metodológicos. | Supplement/tesis. |
+| P2 | Preparar apéndice pedagógico sobre WOE, Brier, Gini, ECE y PSI. | Tesis. |
+| P3 | Mantener GPU/quantum como agenda externa, no CRPTO. | Archivo. |
+
+## Reviewer-defense bank inicial
+
+| Objeción probable | Respuesta gobernada | Evidencia |
+|---|---|---|
+| "Conformal no garantiza cobertura condicional perfecta." | Correcto; el claim usa cobertura marginal/Mondrian y reporta límites explícitos. | Capítulos 07, 14b, 14i. |
+| "AUC no basta para decidir portafolios." | Precisamente: el paper separa ranking, calibración, incertidumbre y valor económico. | Table 0; capítulos 06c--06d. |
+| "SPO+/DFL podría reducir regret." | Sí; CRPTO no compite como regret-minimizer universal, sino como puente auditable con restricciones conformales. | 14j; Paper 4 blockers. |
+| "Lending Club no es banco regulado." | Se presenta como dataset público de originación, no como validación contractual bancaria. | 04a--04b; 14c; limitations. |
+| "Fair lending no está probado." | No se hace claim legal; solo proxy governance y source/fairness boundary. | 14k; global claim boundaries. |
+| "IFRS9/SICR parece otro paper." | En IJDS entra como implicación/limitación; la tesis puede expandirlo. | Capítulo 15; 10a--10f. |
+| "El resultado podría ser punto aislado." | La región robusta A18 muestra 45/45 políticas alpha01-safe. | `paper1_tableA18_robust_region_policy_family.csv`. |
+| "LinkedIn no es bibliografía académica." | No se usa como evidencia pública; solo como intake y lenguaje. | LinkedIn intake memo y audit CRPTO. |
+
+## Definición de terminado
+
+El mini-libro CRPTO está suficientemente maduro cuando puede responder, sin
+abrir el libro principal, cuatro preguntas:
+
+1. ¿Cuál es el claim publicable y cuál es su evidencia?
+2. ¿Qué va al body IJDS, al supplement, a tesis y al archivo?
+3. ¿Qué límites metodológicos protegen el paper de sobreprometer?
+4. ¿Qué trabajo mensual falta para enviar IJDS en 6 meses y defender tesis en
+   12 meses?

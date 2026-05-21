@@ -30,7 +30,7 @@ Rango: 0 (perfecto) a 1 (peor caso). Para un dataset con 20% default rate, un mo
 
 $$
 \text{ECE} = \sum_{b=1}^{B} \frac{|B_b|}{n} \left| \text{acc}(B_b) - \text{conf}(B_b) \right|
-$$ {#eq-ece}
+$$ {#eq-ece-foundations}
 
 Un ECE < 0.01 indica calibración excelente. Nuestro modelo calibrado con Venn-Abers logra ECE = 0.006.
 

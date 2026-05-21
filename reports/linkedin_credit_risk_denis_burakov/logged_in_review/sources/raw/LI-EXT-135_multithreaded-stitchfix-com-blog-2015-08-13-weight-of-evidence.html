@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Data Exploration with Weight of Evidence and Information Value in R | Stitch Fix Technology – Multithreaded</title>
+  <meta name="description" content="Binary classification models are perhaps the most common use-case in predictive analytics. The reason is that many key client actions across a wide range of ...">
+
+  <meta name="og:title" content="Data Exploration with Weight of Evidence and Information Value in R | Stitch Fix Technology – Multithreaded">
+  <meta name="og:description" content="Binary classification models are perhaps the most common use-case in predictive analytics. The reason is that many key client actions across a wide range of ...">
+
+  <meta property="og:image" content="https://multithreaded.stitchfix.com/assets/images/logomark-linkedin.jpg" />
+
+  <meta property="og:image" content="https://multithreaded.stitchfix.com/assets/images/logomark-facebook.jpg" />
+
+  <meta name="twitter:image" content="https://multithreaded.stitchfix.com/assets/images/logomark-twitter.jpg" />
+
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@stitchfix_algo" />
+
+
+  <link rel="stylesheet" href="/assets/css/main.css">
+  <link rel="canonical" href="https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/">
+  <link rel="alternate" type="application/rss+xml" title="Stitch Fix Technology – Multithreaded" href="https://multithreaded.stitchfix.com/feed.xml" />
+
+  <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico" />
+  <script src="/assets/js/modernizr.custom.51181.js"></script>
+  <script>
+      var RimgOptions = {
+          breakpoint:
+                  '-tiny 320w 1x,    -tiny-retina 320w 2x,' +
+                  '-small 480w 1x,   -small-retina 480w 2x,' +
+                  '-medium 600w 1x,  -medium-retina 600w 2x,' +
+                  '-regular 768w 1x, -regular-retina 768w 2x,' +
+                  '-large 1024w 1x,  -large-retina 1024w 2x,' +
+                  '-huge 1200w 1x,   -huge-retina 1200w 2x'
+      }
+  </script>
+  <script src="/assets/js/rimg.min.js"></script>
+
+  <!-- Google Tag Manager -->
+<script>
+  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+   new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+   j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+   'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+   })(window,document,'script','dataLayer','GTM-7RWHC');
+</script>
+<!-- End Google Tag Manager -->
+<!-- Google Tag Manager (noscript) -->
+<noscript>
+  <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-7RWHC" height="0" width="0" style="display:none;visibility:hidden">
+  </iframe>
+</noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+
+</head>
+
+  <body class="blog-post">
+
+<nav class="global-nav">
+  <ul class="hidden-gtxs list-flex">
+    <li>
+      <a href="/" class="logo global-nav__item global-nav__item--logo left">
+        <img
+          src="/assets/images/svgs/logo-monogram-navy.svg"
+          alt="Stitch Fix logomark"
+        />
+      </a>
+    </li>
+
+
+
+
+
+        <li class="flex-4 ">
+          <a href="/engineering"
+             class="global-nav__item ">
+            Engineering
+          </a>
+        </li>
+
+
+
+
+
+        <li class="flex-4 ">
+          <a href="/algorithms"
+             class="global-nav__item ">
+            Algorithms
+          </a>
+        </li>
+
+
+
+
+
+        <li class="flex-3 nav-algorithms-tour">
+          <a href="http://algorithms-tour.stitchfix.com/"
+             class="global-nav__item ">
+            Algorithms Tour
+          </a>
+        </li>
+
+
+
+
+
+        <li class="flex-3 nav-tour">
+          <a href="http://algorithms-tour.stitchfix.com/"
+             class="global-nav__item ">
+            Tour
+          </a>
+        </li>
+
+
+
+
+
+        <li class="flex-3 ">
+          <a href="https://www.stitchfix.com/careers/jobs"
+             class="global-nav__item ">
+            Careers
+          </a>
+        </li>
+
+
+
+
+
+        <li class="flex-3 ">
+          <a href="/blog"
+             class="global-nav__item current">
+            Blog
+          </a>
+        </li>
+
+  </ul>
+  <div class="hidden-xs container flex">
+    <a href="/" class="logo global-nav__item global-nav__item--logo left">
+      <img src="/assets/images/svgs/logov6.svg" alt="Stitch Fix logo" />
+    </a>
+    <div class="right">
+
+
+
+          <a href="/engineering"
+             class="global-nav__item  ">
+            Engineering
+          </a>
+
+
+
+          <a href="/algorithms"
+             class="global-nav__item  ">
+            Algorithms
+          </a>
+
+
+
+          <a href="http://algorithms-tour.stitchfix.com/"
+             class="global-nav__item  nav-algorithms-tour">
+            Algorithms Tour
+          </a>
+
+
+
+          <a href="http://algorithms-tour.stitchfix.com/"
+             class="global-nav__item  nav-tour">
+            Tour
+          </a>
+
+
+
+          <a href="https://www.stitchfix.com/careers/jobs"
+             class="global-nav__item  ">
+            Careers
+          </a>
+
+
+
+          <a href="/blog"
+             class="global-nav__item current ">
+            Blog
+          </a>
+
+    </div>
+  </div>
+</nav>
+
+    <div class="container contain-to-sm">
+      <header class="mt6 mb2">
+        <h1 class="h1 mb1 text-c h-limited">Data Exploration with Weight of Evidence and Information Value in R</h1>
+
+        <div style="display: flex; justify-content: center;">
+          <div
+            style="margin: 0 2rem; display: flex; flex-direction: column; align-items: center; justify-content: center;"
+          >
+            <aside class="authors-row">
+
+
+
+
+              <img
+                src="/assets/images/team/kim-larsen.jpg"
+                class="blog-post__author-image circleimage"
+                alt="Blog post by Kim Larsen"
+              />
+
+            </aside>
+
+            <div class="blog-meta">
+              <h6 class="h6 heading--impact m1">
+
+                Kim Larsen
+
+              </h6>
+            </div>
+          </div>
+
+          <div
+            style="display: flex; flex-direction: column; align-items: center; justify-content: center;"
+          >
+            <aside class="authors-row">
+
+            </aside>
+
+          </div>
+        </div>
+
+        <div class="blog-meta">
+          <h6 class="thin text-c">
+            <time datetime="2015-08-13">August 13, 2015</time>
+
+            <span class="location"> - San Francisco, CA </span>
+
+          </h6>
+        </div>
+
+        <div class="thin text-c m1">
+          <a href="https://twitter.com/intent/tweet?text=Data Exploration with Weight of Evidence and Information Value in R&url=https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/&via=stitchfix_algo" target="_" class="social-share">
+  <span class="icon twitter"></span>
+  <span>Tweet this post!</span>
+</a>
+
+<a href="https://www.linkedin.com/shareArticle?mini=true&url=https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/&title=Data Exploration with Weight of Evidence and Information Value in R&summary=Binary classification models are perhaps the most common use-case in predictive analytics. The reason is that many key client actions across a wide range of ...&source=Stitch%20Fix%20Technology%20%E2%80%93%20Multithreaded" target="_" class="social-share">
+  <span class="icon linkedin"></span>
+  <span>Post on LinkedIn</span>
+</a>
+
+
+        </div>
+      </header>
+    </div>
+    <div class="container contain-to-sm pos-rel">
+      <article>
+        <section class="text-content">
+          <p>Binary classification models are perhaps the most common use-case in predictive analytics. The reason is that many key client actions across a wide range of industries are binary in nature, such as defaulting on a loan, clicking on an ad, or terminating a subscription.</p>
+
+<p>Prior to building a binary classification model, a common step is to perform variable screening and exploratory data analysis. This is the step where we get to know the data and weed out variables that are either ill-conditioned or simply contain no information that will help us predict the action of interest. Note that the purpose of this step should not to be confused with that of multiple-variable selection techniques, such as stepwise regression and lasso, where the variables that go into the final model are selected. Rather, this is a precursory step designed to ensure that the approaches deployed during the final modeling phases are set up for success.</p>
+
+<p>The <em>weight of evidence</em> (WOE) and <em>information value</em> (IV) provide a great framework for for exploratory analysis and variable screening for binary classifiers. WOE and IV have been used extensively in the credit risk world for several decades, and the underlying theory dates back to the 1950s. However, it is still not widely used outside the credit risk world and it is a somewhat underserved area in R.</p>
+
+<p>WOE and IV enable one to:</p>
+
+<ul>
+  <li>Consider each variable’s independent contribution to the outcome.</li>
+  <li>Detect linear and non-linear relationships.</li>
+  <li>Rank variables in terms of “univariate” predictive strength.</li>
+  <li>Visualize the correlations between the predictive variables and the binary outcome.</li>
+  <li>Seamlessly compare the strength of continuous and categorical variables without creating dummy variables.</li>
+  <li>Seamlessly handle missing values without imputation.</li>
+  <li>Assess the predictive power of missing values.</li>
+</ul>
+
+<p>In this paper we will provide a brief description of WOE and IV as well as the <code class="language-plaintext highlighter-rouge">Information</code> R package, which provides an easy way to perform variable screening and exploratory analysis with WOE and IV for traditional binary classifiers as well as uplift models.</p>
+
+<h2 id="what-are-woe-and-iv">What Are WOE and IV?</h2>
+
+<h3 id="background">Background</h3>
+
+<p>Weight of evidence (WOE) and information value are closely related to
+concepts from <em>information theory</em> where one of the goals is to
+understand the uncertainty involved in predicting the outcome of
+random events given varying degrees of knowledge of other variables (see [2], [3], and [4]). Thus this is a perfect framework for variable screening and
+exploratory analysis for predictive modeling.</p>
+
+<p>Information theory kicked off when Claude Shannon (1948) wrote down an
+expression for the <em>entropy</em> of a probability distribution. Entropy
+is often described as the level of “disorder,” but in the context of information theory it is better to think of it as one’s level of uncertainty. High entropy means high uncertainty (you don’t know what tomorrow holds) and low entropy mean low uncertainty (there will be no surprises tomorrow).</p>
+
+<p>Suppose a friend tosses a coin and asks you to predict whether the
+toss came up heads or tails. There’s 50 percent probability of each
+possibility, so your prediction isn’t worth very much. This turns out
+to be the maximum amount of entropy for an event with two possible
+outcomes. Suppose instead that you know the coin is weighted so that
+it comes up heads 90 percent of the time.  Now your job of making a
+prediction is easier – Shannon’s formula tells you exactly how much
+information you’ve gained compared to the previous situation.</p>
+
+<p>Mutual information is a way of summarizing much knowing the value of
+one random variable tells you about another random variable (Shannon +
+Weaver 1949). If \(X\)  and \(Y\) are independent, the mutual information is zero.  Any correlations (positive, negative, or nonlinear) will result in positive mutual information. It turns out the mutual information of \(X\)  and \(Y\) is nicely expressed in terms of entropy (\(H\)):</p>
+
+\[\text{MI}(X,Y) = H(X) + H(Y) - H(X,Y). \nonumber\]
+
+<p>Mutual information is the difference in predictability that you get
+from knowing the joint distribution \(p(X,Y)\) compared to knowing
+only the two marginal distributions \(p(X)\)  and \(p(Y)\).</p>
+
+<p>Information value (IV), which we will define below, is quite closely connected to mutual information (MI), and both are intended to do the same thing: summarize how much knowing the value of \(X\) in a given trial helps you predict the value of \(Y\) for the same trial.</p>
+
+<h3 id="setup">Setup</h3>
+
+<p>Let’s say that we have a binary dependent variable \(Y\) and a set of predictive variables \(X_1, \ldots, X_p\). As mentioned above, \(Y\) can capture a wide range of outcomes, such as defaulting on a loan, clicking on an ad, or terminating a subscription.</p>
+
+<p>WOE and IV play two distinct roles when analyzing data:</p>
+
+<ul>
+  <li>WOE <em>describes the relationship</em> between a predictive variable and a binary target variable.</li>
+  <li>IV <em>measures the strength</em> of that relationship.</li>
+</ul>
+
+<h3 id="the-weight-of-evidence">The Weight of Evidence</h3>
+
+<p>The WOE/IV framework is based on the following relationship:</p>
+
+\[\log \frac{P(Y=1 | X_j)}{P(Y=0 | X_j)} = \underbrace{\log \frac{P(Y=1)}{P(Y=0)}}_{\text{sample log-odds}} + \underbrace{\log \frac{f(X_j | Y=1)}{f(X_j | Y=0)}}_{\text{WOE}}, \nonumber\]
+
+<p>where \(f ( x_j \| Y )\) denotes the conditional probability density function (or a discrete probability distribution if \(X_j\) is categorical).</p>
+
+<p>This relationship says that the conditional logit of \(P(Y=1\), given \(X_j\), can be written as the overall log-odds (i.e., the “intercept”) plus the <em>log-density ratio</em> – also known as the <em>weight of evidence</em>.</p>
+
+<p>Note that the weight of evidence and the conditional log odds of \(Y=1\) are perfectly correlated since the “intercept” is constant. Hence, the greater the value of WOE, the higher the chance of observing \(Y=1\). In fact, when WOE is positive the chance of of observing \(Y=1\) is above average (for the sample), and vice versa when WOE is negative. When WOE equals 0 the odds are simply equal to the sample average.</p>
+
+<h3 id="ties-to-naive-bayes-and-logistic-regression">Ties to Naive Bayes and Logistic Regression</h3>
+<p>Notice that the left-hand-side of the equation above – i.e., the conditional log odds – is exactly what we are trying to predict in a <em>logistic regression</em> model. Hence, when building a logistic regression model – which is perhaps the most widely used technique for building binary classifiers – we are actually trying to estimate the weight of evidence.</p>
+
+<p>Last, but not least, the WOE framework has ties to the well-known naive Bayes classifier, given by (see [1]):</p>
+
+\[\log \frac{P(Y=1| x_1, \ldots, x_p)}{P(Y=0 | x_1, \ldots, x_p)} = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \log \frac{f(X_j | Y=1)}{f(X_j | Y=0)}. \nonumber.\]
+
+<p>The naive Bayes model essentially says that the conditional log odds is equal to the sum of the individual weight of evidence vectors. The word “naive” comes from the fact that this model relies on the assumption that all predictors are conditionally independent given \(Y\), which is a highly optimistic assumption.</p>
+
+<p>In the credit scoring industry a “semi-Naive” version of this model is quite popular. The idea is to transform the data into WOE vectors and then use logistic regression to fit the model</p>
+
+\[\log \frac{P(Y=1| x_1, \ldots, x_p)}{P(Y=0 | x_1, \ldots, x_p)} = \log \frac{P(Y=1)}{P(Y=0)} + \sum_{j=1}^p \beta_j \log \frac{f(X_j | Y=1)}{f(X_j | Y=0)}, \nonumber\]
+
+<p>thus partly relaxing the assumption that all predictors in the model are independent. It should be noted that the underlying WOE vectors are still estimated univariately and that the coefficients merely function as scalars. For a more general model, GAM is a great choice (see [5]).</p>
+
+<h4 id="measuring-univariate-variable-strength-with-the-information-value">Measuring Univariate Variable Strength with the Information Value</h4>
+<p>We can leverage WOE to measure the predictive strength of \(x_j\) – i.e., how well it helps us separate cases when \(Y=1\) from cases when \(Y=0\). This is done through the <em>information value</em> (IV) which is defined like this:</p>
+
+\[\text{IV}_j = \int \log \frac{f(X_j | Y=1)}{f(X_j | Y=0)} \, (f(X_j | Y=1) - f(X_j | Y=0)) \, dx. \nonumber\]
+
+<p>Note that the IV is essentially a weighted “sum” of all the individual WOE values where the weights incorporate the <em>absolute difference</em> between the numerator and the denominator (WOE captures the relative difference). Generally, if \(\text{IV} &lt; 0.05\) the variable has very little predictive power and will not add any meaningful predictive power to your model.</p>
+
+<h4 id="estimating-woe">Estimating WOE</h4>
+<p>The most common approach to estimating the conditional densities needed to calculate WOE is to bin \(X_j\) and then use a histogram-type estimate.</p>
+
+<p>Here is how it works: create a \(k \times 2\) table where \(k\) is the number of bins, and the cells within the two columns count the number of records where \(Y=1\) and \(Y=0\), respectively. The bins are typically selected such that the bins are roughly evenly sized with respect to the number of records in each bin (if possible). The conditional densities are then obtained by calculating the “column percentages” from this table. The typical number of bins used is 10-20. If \(X_j\) is categorical, no binning is needed and the histogram estimator can be used directly. Moreover, missing values are treated as a separate bin and thus handled seamlessly.</p>
+
+<p>If \(B_1, \ldots, B_k\) denote the bins for \(X_j\), the WOE for \(X_j\) for bin \(i\) can be written as</p>
+
+\[\text{WOE}_{ij} = \log \frac{P(X_j \in B_i | Y=1)}{P(X_j \in B_i | Y=0)}, \nonumber\]
+
+<p>which means that the IV for variable \(X_j\) can be calculated as</p>
+
+\[\text{IV}_j =  \sum_{i=1}^k (P(X_j \in B_i | Y=1) - P(X_j \in B_i | Y=0)) \times \text{WOE}_{ij}. \nonumber\]
+
+<h4 id="extensions-to-exploratory-analysis-for-uplift-models">Extensions to Exploratory Analysis for Uplift Models</h4>
+<p>Consider a direct marketing program where a <em>test group</em> received an offer of some sort and the <em>control group</em> did not receive anything. The test and control groups are based on a random split. The lift of the campaign is defined as the difference in success rates between the test and control groups. In other words, the program can only be deemed successful if the offer outperforms the “do nothing” (a.k.a baseline) scenario.</p>
+
+<p>The purpose of uplift models is to estimate the difference between the test and control groups and then using the resulting model to target <em>persuadables</em> – i.e., potential or existing clients that are on the fence and need some sort of offer to buy a product. Thus, when preparing to build an uplift model, we cannot only focus on the log odds of \(Y=1\), we also need to consider the <em>log odds ratio</em> of \(Y=1\) for the test group versus the control group. This leads to the <em>net weight of evidence</em> (NWOE) and the <em>net information value</em> (NIV). (Actual uplift modeling techniques are beyond the scope of this paper; we will stick to model exploration and variable screening.)</p>
+
+<p>The net weight of evidence (NWOE) is the difference between the WOEs for the test group (\(\text{WOE}_{t}\)) and the control group (\(\text{WOE}_{c}\)),</p>
+
+\[\text{NWOE} = \text{WOE}_{t} - \text{WOE}_{c}, \nonumber\]
+
+<p>which is equivalent to</p>
+
+\[\text{NWOE}_j = \log \frac{f(x_j|Y=1)_{t}f(x_j|Y=0)_{c}}{f(x_j|Y=1)_{c}f(x_j|Y=0)_{t}}. \nonumber\]
+
+<p>The net information value for variable \(X_j\) is then defined as</p>
+
+\[\int \left( f(X_j|Y=1)_{t}f(X_j|Y=0)_{c} - f(X_j|Y=1)_{c}f(X_j|Y=0)_{t} \right) \times \log \frac{f(X_j|Y=1)_{t}f(X_j|Y=0)_{c}}{f(X_j|Y=1)_{c}f(X_j|Y=0)_{t}} \, dx_j.\]
+
+<p>NWOE and NIV work just like IV and WOE, just from an uplift perspective. NIV measures  the strength of a given variable while NWOE describes the pattern of the relationship. Specifically, the higher the value of NIV, the better the given variable is at separating <em>self-selectors</em> – i.e., people who are self-motivated to buy – and <em>persuadables</em> that need to be motivated.</p>
+
+<h2 id="the-information-r-package">The Information R Package</h2>
+<p>The information package is designed to perform exploratory data analysis and variable screening for binary classification models using WOE and IV. To make the package as efficient as possible aggregations are done in data.table and creation of WOE vectors can be distributed across multiple cores.</p>
+
+<p>The package can be downloaded from <a href="https://github.com/klarsen1/Information">https://github.com/klarsen1/Information</a>.</p>
+
+<p>There are a number of R packages available that support WOE and IV (see a partial list below), but they are either primarily designed to build WOE-based models – e.g., naive Bayes classifiers – or they do not support the uplift use-case.</p>
+
+<h3 id="date-used-in-examples">Date Used in Examples</h3>
+<p>The data is from an historical marketing campaign from the insurance industry and is automatically downloaded when you install the <code class="language-plaintext highlighter-rouge">Information</code> package. The data is stored in two <code class="language-plaintext highlighter-rouge">.RDA</code> files, one for the training dataset and one for the validation dataset. Each file has 68 predictive variables and 10k records.</p>
+
+<p>The datasets contain two key indicators:</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">PURCHASE</code> This variable equals 1 if the client accepted the offer, and 0 otherwise</li>
+  <li><code class="language-plaintext highlighter-rouge">TREATMENT</code> This variable equals 1 if the client was in the test group (received the offer), and 0 otherwise.</li>
+</ul>
+
+<h3 id="key-functions">Key Functions</h3>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">CreateTables()</code> creates WOE tables and IVs for all variables in the input dataframe.</li>
+  <li><code class="language-plaintext highlighter-rouge">PlotWOE()</code> plots the WOE vector for one variable.</li>
+  <li><code class="language-plaintext highlighter-rouge">MultiPlotWOE()</code> plots more than one WOE vector on one page for comparisons.</li>
+</ul>
+
+<p>The same functions work for NWOE and NIV.</p>
+
+<p>The examples below show how to call these functions</p>
+
+<h3 id="external-cross-validation">External Cross Validation</h3>
+<p>The information package supports external cross validation to check that the WOE and NWOE vectors are stable.</p>
+
+<p>Let’s assume that we have a training and a validation dataset, and we calculate WOE for both datasets using the same bin cutoffs. The cross validation penalty for bin \(B_i\) is given by</p>
+
+\[\text{penalty}_i = | \text{WOE}_{\text{train}} - \text{WOE}_{\text{valid}} | \nonumber,\]
+
+<p>and the total cross validation (CV) penalty is</p>
+
+\[\sum_{i=1}^k |P(X_j \in B_i | Y=1) - P(X_j \in B_i | Y=0)| \times \text{penalty}_i \nonumber.\]
+
+<p>where the probabilities used to form the weights are from the training data. The <em>adjusted IV</em> is then defined as</p>
+
+\[\text{NIV} = \text{IV} - \text{total CV penalty} .\nonumber\]
+
+<p>The same approach can be applied to NIV for the uplift use-case.</p>
+
+<h3 id="example-for-a-traditional-binary-classification-problem">Example for a Traditional Binary Classification Problem</h3>
+
+<h4 id="ranking-all-variables-using-adjusted-iv">Ranking All Variables Using Adjusted IV</h4>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">Information</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">gridExtra</span><span class="p">)</span><span class="w">
+
+</span><span class="n">options</span><span class="p">(</span><span class="n">scipen</span><span class="o">=</span><span class="m">10</span><span class="p">)</span><span class="w">
+
+</span><span class="c1">### Loading the data</span><span class="w">
+</span><span class="n">data</span><span class="p">(</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+</span><span class="n">data</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+
+</span><span class="c1">### Exclude the control group</span><span class="w">
+</span><span class="n">train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">TREATMENT</span><span class="o">==</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">valid</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="n">TREATMENT</span><span class="o">==</span><span class="m">1</span><span class="p">)</span><span class="w">
+
+</span><span class="c1">### Ranking variables using penalized IV  </span><span class="w">
+</span><span class="n">IV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">CreateTables</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span><span class="w">
+                   </span><span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span><span class="w">
+                   </span><span class="n">y</span><span class="o">=</span><span class="s2">"PURCHASE"</span><span class="p">)</span><span class="w">
+
+</span><span class="n">grid.table</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">IV</span><span class="o">$</span><span class="n">Summary</span><span class="p">),</span><span class="w"> </span><span class="n">rows</span><span class="o">=</span><span class="kc">NULL</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p>The strongest six variables:</p>
+
+<p><img src="/assets/images/blog/woe_fig1.png" alt="" /></p>
+
+<h4 id="analyzing-woe-patterns">Analyzing WOE Patterns</h4>
+
+<p>The <code class="language-plaintext highlighter-rouge">IV$Tables</code> object returned by <code class="language-plaintext highlighter-rouge">Information</code> is simply a list of <code class="language-plaintext highlighter-rouge">dataframes</code> that contains the WOE tables for all variables in the input dataset. Note that the <code class="language-plaintext highlighter-rouge">penalty</code> and <code class="language-plaintext highlighter-rouge">IV</code> columns are cumulative.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">grid.table</span><span class="p">(</span><span class="n">IV</span><span class="o">$</span><span class="n">Tables</span><span class="o">$</span><span class="n">N_OPEN_REV_ACTS</span><span class="p">,</span><span class="w"> </span><span class="n">rows</span><span class="o">=</span><span class="kc">NULL</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+<img src="/assets/images/blog/woe_fig2.png" alt="" /></p>
+
+<p>The table shows that the odds of <code class="language-plaintext highlighter-rouge">PURCHASE=1</code> increases as <code class="language-plaintext highlighter-rouge">N_OPEN_REV_ACTS</code> increases, although the relationship is not linear.</p>
+
+<p>Note that the <code class="language-plaintext highlighter-rouge">Information</code> package attempts to create evenly-sized bins in terms of the number of subjects in each group. However, this is not always possible due to ties in the data, as with <code class="language-plaintext highlighter-rouge">N_OPEN_REV_ACTS</code> which has ties at 0. If the variable under consideration is categorical, its distinct categories will show up as rows in the WOE table. Moreover, if the variable has missing values, the WOE table will contain a separate “NA” row which can be used to gauge the impact of missing values. Thus, the framework seamlessly handles missing values and categorical variables without any dummy-coding or imputation .</p>
+
+<h5 id="plotting-woe-patterns">Plotting WOE Patterns</h5>
+
+<p>We can also plot this pattern for better visualization:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">PlotWOE</span><span class="p">(</span><span class="n">IV</span><span class="p">,</span><span class="w"> </span><span class="s2">"N_OPEN_REV_ACTS"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/assets/images/blog/woe_fig6.png" alt="" /></p>
+
+<p>If we want to plot all variables on separate pages, we can loop through all variables:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">n</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">names</span><span class="p">(</span><span class="n">IV</span><span class="o">$</span><span class="n">Tables</span><span class="p">)</span><span class="w">
+</span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="o">:</span><span class="nf">length</span><span class="p">(</span><span class="n">n</span><span class="p">)){</span><span class="w">
+   </span><span class="n">PlotWOE</span><span class="p">(</span><span class="n">IV</span><span class="p">,</span><span class="w"> </span><span class="n">n</span><span class="p">[</span><span class="n">i</span><span class="p">])</span><span class="w">
+</span><span class="p">}</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+For better visualization we can do a multiplot to compare WOE patterns. Here we plot the first nine variables on one page. Note that we can plot as many variables as we want; MultiPlotWOE will simply spread the plots over multiple pages (max of nine plots per page).
+<br /></p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">MultiPlotWOE</span><span class="p">(</span><span class="n">IV</span><span class="p">,</span><span class="w"> </span><span class="n">IV</span><span class="o">$</span><span class="n">Summary</span><span class="o">$</span><span class="n">Variable</span><span class="p">[</span><span class="m">1</span><span class="o">:</span><span class="m">9</span><span class="p">])</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/assets/images/blog/woe_fig9.png" alt="" /></p>
+
+<h4 id="omitting-cross-validation">Omitting Cross Validation</h4>
+
+<p>To run IVs without external cross validation, simply omit the validation dataset:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">IV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">CreateTables</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">y</span><span class="o">=</span><span class="s2">"PURCHASE"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+
+<h4 id="changing-the-number-of-bins">Changing the Number of Bins</h4>
+
+<p>The default number of bins is 10 but we can choose a different number if we desire more granularity. Note that the IV formula is fairly invariant to the number of bins. Also, note that the bins are selected such that the bins are evenly sized, to the extent that it is possible (depending on the number of ties in the data).</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">IV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">CreateTables</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span><span class="w">
+                   </span><span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span><span class="w">
+                   </span><span class="n">y</span><span class="o">=</span><span class="s2">"PURCHASE"</span><span class="p">,</span><span class="w">
+                   </span><span class="n">bins</span><span class="o">=</span><span class="m">20</span><span class="p">)</span><span class="w">
+
+</span><span class="n">grid.table</span><span class="p">(</span><span class="n">IV</span><span class="o">$</span><span class="n">Tables</span><span class="o">$</span><span class="n">N_OPEN_REV_ACTS</span><span class="p">,</span><span class="w">
+           </span><span class="n">gp</span><span class="o">=</span><span class="n">gpar</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="m">12</span><span class="p">),</span><span class="w">
+           </span><span class="n">rows</span><span class="o">=</span><span class="kc">NULL</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+<img src="/assets/images/blog/woe_fig3.png" alt="" /></p>
+
+<h3 id="uplift-example">Uplift Example</h3>
+<p>For an uplift model we have to include both the test group and the control group in our dataset:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">data</span><span class="p">(</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+</span><span class="n">data</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+When calling the <code class="language-plaintext highlighter-rouge">CreateTables</code> function, all we have to do is specify the variable that identifies the test and control groups.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">NIV</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">CreateTables</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">train</span><span class="p">,</span><span class="w">
+                  </span><span class="n">valid</span><span class="o">=</span><span class="n">valid</span><span class="p">,</span><span class="w">
+                  </span><span class="n">y</span><span class="o">=</span><span class="s2">"PURCHASE"</span><span class="p">,</span><span class="w">
+                  </span><span class="n">trt</span><span class="o">=</span><span class="s2">"TREATMENT"</span><span class="p">)</span><span class="w">
+
+</span><span class="n">grid.table</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">NIV</span><span class="o">$</span><span class="n">Summary</span><span class="p">),</span><span class="w">
+           </span><span class="n">rows</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+           </span><span class="n">gp</span><span class="o">=</span><span class="n">gpar</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="m">12</span><span class="p">))</span><span class="w">
+
+</span></code></pre></div></div>
+<p><br />
+<img src="/assets/images/blog/woe_fig4.png" alt="" /></p>
+
+<p>Note that we cannot compare the scales of NIV and IV. Moreover, there is no rule-of-thumb cutoff for the NIV. Hence, we have to use it solely as a ranking statistic and make a judgement call.</p>
+
+<p>Interestingly, <code class="language-plaintext highlighter-rouge">N_OPEN_REV_ACTS</code> is also the most predictive variable from an uplift perspective. However, the NWOE pattern is quite different from the WOE pattern and suggests a u-shaped pattern. This illustrates how the story can be very different when modeling the incremental effect as opposed to simply building a model to estimate the chance of \(Y=1\) following a treatment.</p>
+
+<p><img src="/assets/images/blog/woe_fig5.png" alt="" />
+<br />
+<img src="/assets/images/blog/woe_fig7.png" alt="" /></p>
+
+<h3 id="combining-iv-analysis-with-variable-clustering">Combining IV Analysis With Variable Clustering</h3>
+<p>Variable clustering divides a set of numeric variables into mutually exclusive clusters.
+The algorithm attempts to generate clusters such that</p>
+
+<ul>
+  <li>the correlations between variables assigned to the same cluster are maximized.</li>
+  <li>the correlations between variables in different clusters are minimized.</li>
+</ul>
+
+<p>Using this algorithm we can replace a large set of variables by a single member of each cluster, often with little loss of information. The question is which member to choose from a given cluster. One option is to choose the variable that has the highest multiple correlation with the variables within its cluster, and the lowest correlation with variables outside the cluster. A more meaningful choice for a predictive modeling is to choose the variable that has the highest information value. The following code shows how to do this.</p>
+
+<p>In R, we can do this with the <code class="language-plaintext highlighter-rouge">ClustOfVar</code> package.</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">library</span><span class="p">(</span><span class="n">ClustOfVar</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">reshape2</span><span class="p">)</span><span class="w">
+</span><span class="n">library</span><span class="p">(</span><span class="n">plyr</span><span class="p">)</span><span class="w">
+
+</span><span class="n">data</span><span class="p">(</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+</span><span class="n">data</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="n">package</span><span class="o">=</span><span class="s2">"Information"</span><span class="p">)</span><span class="w">
+</span><span class="n">train</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">train</span><span class="p">,</span><span class="w"> </span><span class="n">TREATMENT</span><span class="o">==</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">valid</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">valid</span><span class="p">,</span><span class="w"> </span><span class="n">TREATMENT</span><span class="o">==</span><span class="m">1</span><span class="p">)</span><span class="w">
+
+</span><span class="n">tree</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">hclustvar</span><span class="p">(</span><span class="n">train</span><span class="p">[,</span><span class="o">!</span><span class="p">(</span><span class="nf">names</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"PURCHASE"</span><span class="p">,</span><span class="w"> </span><span class="s2">"TREATMENT"</span><span class="p">))])</span><span class="w">
+</span><span class="n">nvars</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">length</span><span class="p">(</span><span class="n">tree</span><span class="p">[</span><span class="n">tree</span><span class="o">$</span><span class="n">height</span><span class="o">&lt;</span><span class="m">0.7</span><span class="p">])</span><span class="w">
+</span><span class="n">part_init</span><span class="o">&lt;-</span><span class="n">cutreevar</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span><span class="n">nvars</span><span class="p">)</span><span class="o">$</span><span class="n">cluster</span><span class="w">
+</span><span class="n">kmeans</span><span class="o">&lt;-</span><span class="n">kmeansvar</span><span class="p">(</span><span class="n">X.quanti</span><span class="o">=</span><span class="n">train</span><span class="p">[,</span><span class="o">!</span><span class="p">(</span><span class="nf">names</span><span class="p">(</span><span class="n">train</span><span class="p">)</span><span class="w"> </span><span class="o">%in%</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"PURCHASE"</span><span class="p">,</span><span class="w"> </span><span class="s2">"TREATMENT"</span><span class="p">))],</span><span class="n">init</span><span class="o">=</span><span class="n">part_init</span><span class="p">)</span><span class="w">
+</span><span class="n">clusters</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">cbind.data.frame</span><span class="p">(</span><span class="n">melt</span><span class="p">(</span><span class="n">kmeans</span><span class="o">$</span><span class="n">cluster</span><span class="p">),</span><span class="w"> </span><span class="n">row.names</span><span class="p">(</span><span class="n">melt</span><span class="p">(</span><span class="n">kmeans</span><span class="o">$</span><span class="n">cluster</span><span class="p">)))</span><span class="w">
+</span><span class="nf">names</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="nf">c</span><span class="p">(</span><span class="s2">"Cluster"</span><span class="p">,</span><span class="w"> </span><span class="s2">"Variable"</span><span class="p">)</span><span class="w">
+</span><span class="n">clusters</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">join</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span><span class="w"> </span><span class="n">IV</span><span class="o">$</span><span class="n">Summary</span><span class="p">,</span><span class="w"> </span><span class="n">by</span><span class="o">=</span><span class="s2">"Variable"</span><span class="p">,</span><span class="w"> </span><span class="n">type</span><span class="o">=</span><span class="s2">"left"</span><span class="p">)</span><span class="w">
+</span><span class="n">clusters</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">clusters</span><span class="p">[</span><span class="n">order</span><span class="p">(</span><span class="n">clusters</span><span class="o">$</span><span class="n">Cluster</span><span class="p">),]</span><span class="w">
+</span><span class="n">clusters</span><span class="o">$</span><span class="n">Rank</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">ave</span><span class="p">(</span><span class="o">-</span><span class="n">clusters</span><span class="o">$</span><span class="n">AdjIV</span><span class="p">,</span><span class="w"> </span><span class="n">clusters</span><span class="o">$</span><span class="n">Cluster</span><span class="p">,</span><span class="w"> </span><span class="n">FUN</span><span class="o">=</span><span class="n">rank</span><span class="p">)</span><span class="w">
+</span><span class="n">selected_members</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="n">subset</span><span class="p">(</span><span class="n">clusters</span><span class="p">,</span><span class="w"> </span><span class="n">Rank</span><span class="o">==</span><span class="m">1</span><span class="p">)</span><span class="w">
+</span><span class="n">selected_members</span><span class="o">$</span><span class="n">Rank</span><span class="w"> </span><span class="o">&lt;-</span><span class="w"> </span><span class="kc">NULL</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+Using variable clustering in combination with IV cuts the number of variables from 68 to 21:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">nrow</span><span class="p">(</span><span class="n">selected_members</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="m">21</span><span class="w">
+</span><span class="n">nrow</span><span class="p">(</span><span class="n">clusters</span><span class="p">)</span><span class="w">
+</span><span class="o">&gt;</span><span class="w"> </span><span class="m">69</span><span class="w">
+</span></code></pre></div></div>
+<p><br />
+Here are the first rows from the resulting variable ranking table:</p>
+
+<div class="language-r highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">grid.table</span><span class="p">(</span><span class="n">head</span><span class="p">(</span><span class="n">selected_members</span><span class="p">),</span><span class="w">
+           </span><span class="n">rows</span><span class="o">=</span><span class="kc">NULL</span><span class="p">,</span><span class="w">
+           </span><span class="n">gp</span><span class="o">=</span><span class="n">gpar</span><span class="p">(</span><span class="n">fontsize</span><span class="o">=</span><span class="m">12</span><span class="p">))</span><span class="w">
+</span></code></pre></div></div>
+
+<p><img src="/assets/images/blog/woe_fig8.png" alt="" /></p>
+
+<h2 id="summary">Summary</h2>
+
+<ul>
+  <li>
+    <p>The purpose of exploratory analysis and variable screening is to get to know the data and assess “univariate” predictive strength, <em>before</em> we deploy more sophisticated variable selection approaches.</p>
+  </li>
+  <li>
+    <p>The <em>weight of evidence</em> (WOE) and <em>information value</em> (IV) provide a great framework for performing exploratory analysis and variable screening prior to building a binary classifier (e.g., logistic regression). It seamlessly handles missing values and character variables, and the output is easy to interpret.</p>
+  </li>
+  <li>
+    <p>The information value originates from information theory and is closely related to the concept of <em>mutual information</em> (see [3], [4]).</p>
+  </li>
+  <li>
+    <p>The information package is specifically written to perform this type of analysis using parallel processing. It also supports exploratory analysis for uplift models, a growing area within marketing analytics. The information package is not designed to transfer data into WOE vectors for Naive Bayes models, although this feature could be added later.</p>
+  </li>
+</ul>
+
+<h2 id="references">References</h2>
+
+<p>[1] Hastie, Trevor , Tibshirani, Robert and Friedman, Jerome. (1986), Elements of Statistical Learning, Second Edition, Springer, 2009.</p>
+
+<p>[2] Kullback S., Information Theory and Statistics, John Wiley &amp; Sons, 1959.</p>
+
+<p>[3] Shannon, C.E., “A Mathematical Theory of Communication”, Bell System
+Technical Journal, 1948.</p>
+
+<p>[4] Shannon, CE. and Weaver, W. The Mathematical Theory of
+Communication. Univ of Illinois Press, 1949.</p>
+
+<p>[5] GAM: the Predictive Modeling Silver Bullet, <a href="http://multithreaded.stitchfix.com/blog/2015/07/30/gam/">http://multithreaded.stitchfix.com/blog/2015/07/30/gam/</a>.</p>
+
+<h3 id="other-packages-that-support-woeiv">Other Packages that support WOE/IV</h3>
+
+<p>woe package,<a href="https://cran.r-project.org/web/packages/woe/woe.pdf">https://cran.r-project.org/web/packages/woe/woe.pdf</a>.</p>
+
+<p>riv package (not to be confused with the riv packake in CRAN), <a href="http://www.r-bloggers.com/r-credit-scoring-woe-information-value-in-woe-package/">http://www.r-bloggers.com/r-credit-scoring-woe-information-value-in-woe-package/</a>.</p>
+
+<p>klaR package, <a href="https://cran.r-project.org/web/packages/klaR/klaR.pdf">https://cran.r-project.org/web/packages/klaR/klaR.pdf</a>.</p>
+
+        </section>
+      </article>
+    </div>
+
+    <div class="thin text-c mt2">
+      <a href="https://twitter.com/intent/tweet?text=Data Exploration with Weight of Evidence and Information Value in R&url=https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/&via=stitchfix_algo" target="_" class="social-share">
+  <span class="icon twitter"></span>
+  <span>Tweet this post!</span>
+</a>
+
+<a href="https://www.linkedin.com/shareArticle?mini=true&url=https://multithreaded.stitchfix.com/blog/2015/08/13/weight-of-evidence/&title=Data Exploration with Weight of Evidence and Information Value in R&summary=Binary classification models are perhaps the most common use-case in predictive analytics. The reason is that many key client actions across a wide range of ...&source=Stitch%20Fix%20Technology%20%E2%80%93%20Multithreaded" target="_" class="social-share">
+  <span class="icon linkedin"></span>
+  <span>Post on LinkedIn</span>
+</a>
+
+
+    </div>
+
+    <div class="divider py4 text-c">
+      <img
+        src="/assets/images/svgs/logo-monogram-navy.svg"
+        width="60"
+        alt="Multithreaded"
+      />
+    </div>
+
+    <section class="py4 text-c">
+  <div class="container contain-to-md">
+    <h2 class="h2 heading--impact">Come Work with Us!</h2>
+    <p class="text-c p-limited">
+      We’re a diverse team dedicated to building great products, and we’d love your help. Do you want to build
+      amazing products with amazing peers? Join us!
+    </p>
+    <footer class="m2">
+      <a href="http://stitchfix.com/careers/jobs" class="btn-cta m1 mr1 ml1">All Careers at Stitch Fix</a>
+    </footer>
+  </div>
+</section> <div class="container">
+  <footer class="global-footer">
+    <div class="global-footer__content">
+      <section class="footer-column--brand">
+        <img
+          src="/assets/images/svgs/logo-wordmark-navy.svg"
+          class="footer-logo"
+          alt="Stitch Fix: Your partner in personal style"
+        />
+        <small class="copyright"
+          >Stitch Fix and Fix are<br />trademarks of Stitch Fix, Inc.</small
+        >
+      </section>
+      <section class="footer-column--links">
+        <div class="links-container">
+          <ul class="links-list">
+            <li><a href="https://www.stitchfix.com">Stitch Fix Home</a></li>
+            <li><a href="https://www.stitchfix.com/faq">FAQ</a></li>
+            <li><a href="https://www.stitchfix.com/press">Press</a></li>
+          </ul>
+          <ul class="links-list">
+            <li><a href="https://www.stitchfix.com/women/maternity">Maternity</a></li>
+            <li><a href="https://www.stitchfix.com/men/big-tall">Big and tall</a></li>
+            <li><a href="https://www.stitchfix.com/women/jeans">Jeans</a></li>
+            <li><a href="https://www.stitchfix.com/women/business-casual">Business Casual</a></li>
+            <li><a href="https://www.stitchfix.com/women/petite">Petite</a></li>
+            <li><a href="https://www.stitchfix.com/women/plus">Plus</a></li>
+          </ul>
+          <ul class="links-list">
+            <li><a href="http://multithreaded.stitchfix.com/blog/">Tech Blog</a></li>
+            <li><a href="http://multithreaded.stitchfix.com/careers/">Tech Careers</a></li>
+            <li><a href="https://www.stitchfix.com/terms">Terms of Use</a></li>
+            <li><a href="https://www.stitchfix.com/privacy">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </section>
+      <section class="footer-column--social">
+        <h5 class="f-sm mb1">Follow Us!</h5>
+        <a href="http://github.com/stitchfix" class="pxhalf">
+          <img src="/assets/images/svgs/socialgithub.svg" width="33" height="32" alt="Stitch Fix Tech on Github">
+        </a>
+      </section>
+    </div>
+
+    <div class="global-footer__content-small-views">
+      <section class="m4">
+        <h5 class="f-sm mb1">Follow Us!</h5>
+        <a href="http://github.com/stitchfix" class="pxhalf">
+          <img src="/assets/images/svgs/socialgithub.svg" width="33" height="32" alt="Stitch Fix Tech on Github">
+        </a>
+      </section>
+      <ul class="links-list--small-views">
+        <li><a href="http://multithreaded.stitchfix.com/blog/">Tech Blog</a></li>
+        <li><a href="http://multithreaded.stitchfix.com/careers/">Tech Careers</a></li>
+        <li><a href="https://www.stitchfix.com">Stitch Fix Home</a></li>
+        <li><a href="https://www.stitchfix.com/faq">FAQ</a></li>
+        <li><a href="https://www.stitchfix.com/press">Press</a></li>
+        <li><a href="https://www.stitchfix.com/terms">Terms of Use</a></li>
+        <li><a href="https://www.stitchfix.com/privacy">Privacy Policy</a></li>
+      </ul>
+      <section class="copyright m1">
+        <div class="mb1">
+          Stitch Fix and Fix are trademarks of Stitch Fix, Inc.
+        </div>
+        <img
+          src="/assets/images/svgs/logo-monogram-navy.svg"
+          width="33"
+          height="32"
+          alt="Stitch Fix logomark"
+        />
+      </section>
+    </div>
+  </footer>
+</div>
+
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+          m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-25598599-8', 'auto');
+  ga('send', 'pageview');
+
+</script>
+
+ <script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  TeX: { equationNumbers: { autoNumber: "AMS" } }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  </body>
+</html>

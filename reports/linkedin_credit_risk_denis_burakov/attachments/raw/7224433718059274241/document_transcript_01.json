@@ -1,0 +1,9 @@
+{
+  "pages": [
+    "Fisher scoring with Python",
+    "Fisher scoring with Python The Fisher Scoring algorithm is an iterative optimization algorithm that updates model parameters using the expected or observed Fisher information matrix. The `fisher-scoring` package contains Python Scikit-Learn compatible implementations of the Fisher Scoring algorithm for the standard logistic regression model and its generalizations for multi-class and extreme imbalance: ■ FisherScoringLogisticRegression: Standard logistic regression using Fisher scoring with statsmodels-like outputs. ■ FisherScoringMultinomialRegression: Multinomial logistic regression with Fisher Scoring for multi-class. ■ FisherScoringFocalRegression: Logistic regression with focal loss for imbalanced data with Fisher Scoring. pip install fisher-scoring Install with pip: Logistic Regression",
+    "Fisher scoring with Python from optbinning import BinningProcess from fisher_scoring_model import FisherScoringLogisticRegression from sklearn.pipeline import make_pipeline # Create a WOE pipeline binning_process =BinningProcess( variable_names=features ) model = FisherScoringLogisticRegression( use_bias=True, information='expected', verbose=0 ) woe_logistic_model = make_pipeline( binning_process, model ) # Fit pipeline pipeline.fit(X_train, y_train) # Print summary woe_logistic_model[-1].display_summary(style=‘default') statsmodels fisher-scoring",
+    "Fisher scoring with Python Have a look at the examples in notebooks ⤵ WOE Logistic Regression: https://tinyurl.com/m3mk8b8k Focal Loss: https://tinyurl.com/tpbhwhp2 Multinomial: https://tinyurl.com/j8ysedak https://tinyurl.com/m3mk8b8k https://tinyurl.com/tpbhwhp2 https://tinyurl.com/j8ysedak",
+    "Fisher scoring with Python Source code is available here ⤵ https://www.github.com/xRiskLab/fisher-scoring https://www.github.com/xRiskLab/fisher-scoring"
+  ]
+}

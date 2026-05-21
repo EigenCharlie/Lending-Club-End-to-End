@@ -367,7 +367,7 @@ pd.DataFrame(status_files)
 | ¿Pasa fairness? | [`14k-fair-lending-checkpoint.qmd`](14k-fair-lending-checkpoint.qmd) (@sec-p1-fair-lending) |
 | ¿Pasa MRM/SR 11-7? | [`14l-governance-mrm-approval.qmd`](14l-governance-mrm-approval.qmd) (@sec-p1-mrm-approval) |
 | ¿Cómo está compuesto el funded set? | [`14m-funded-set-composition.qmd`](14m-funded-set-composition.qmd) (@sec-p1-funded-set-composition) |
-| ¿Cuál es el bound exacto y cómo se demuestra? | [`14b-theoretical-framework.qmd`](14b-theoretical-framework.qmd) (@thm-conformal-feasibility) |
+| ¿Cuál es el bound exacto y cómo se demuestra? | [`14b-theoretical-framework.qmd`](14b-theoretical-framework.qmd) (@sec-thm-feasibility) |
 | ¿Cuál es la región robusta? | [`14d-results.qmd`](14d-results.qmd) sección `Región robusta completa` + Fig 14 |
 | ¿Qué pasó con el shift COVID? | [`14d-results.qmd`](14d-results.qmd) (@sec-estrella-shift-stability) |
 | ¿Cuáles son los appendices journal? | [`14h-journal-appendix-robustness.qmd`](14h-journal-appendix-robustness.qmd) (@sec-p1-journal-appendix) |
