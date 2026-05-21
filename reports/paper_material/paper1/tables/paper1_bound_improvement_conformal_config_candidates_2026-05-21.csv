@@ -1,0 +1,5 @@
+candidate_role,partition,partition_probability_source,n_score_bins,fallback_mode,alpha_used_90,scaled_scores,score_scale_family,min_group_size,empirical_coverage,avg_interval_width,median_interval_width,min_group_coverage,winkler_90,max_monthly_gap,is_pareto,global_ok,group_ok,width_ok
+child_selected,grade,raw,5,grade_then_global,0.075,True,bernoulli_sqrt,100,0.9169560367868342,0.7642047783881136,0.9232605117452275,0.9043393466601658,1.2168706563280682,0.01852105443341323,True,True,True,True
+best_width_with_group_gate,grade,raw,5,grade_then_global,0.095,True,bernoulli_sqrt,100,0.9014668434455038,0.7472738465084757,0.896970832883776,0.8807411019015114,1.254373248885098,0.003800068469702156,True,True,True,True
+best_min_group_0p92,score_decile_mondrian,raw,10,score_only,0.05,True,none,100,0.9594460929772503,0.892633007973481,1.0,0.9403751233958539,1.0018869982756684,0.060587423120371464,True,True,True,False
+best_grade_variant,grade,raw,5,grade_then_global,0.05,True,bernoulli_sqrt,100,0.9454721468106152,0.8941349700193493,1.0,0.926829268292683,1.0606725580448162,0.04659363231769942,False,True,True,False

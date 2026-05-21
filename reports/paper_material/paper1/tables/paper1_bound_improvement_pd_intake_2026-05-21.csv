@@ -1,0 +1,5 @@
+role,rank,lane_id,feature_profile,monotonic_policy,auc_roc,brier_score,ece,hpo_best_validation_auc,delta_auc_vs_incumbent,delta_brier_vs_incumbent,delta_ece_vs_incumbent,parent_decision
+incumbent_replay,0,incumbent__frozen_champion,incumbent,canonical_4,0.7126777845551742,0.1545907367602431,0.006152293607422043,0.7220014049345107,0.0,0.0,0.0,frozen_reference
+challenger,1,full_challenger_woe__bureau_behavior_15,full_challenger_woe,bureau_behavior_15,0.7206787352232472,0.15316074834071589,0.007688869061412672,0.7280827433559496,0.008000950668073048,-0.0014299884195272117,0.001536575453990629,main_challenger
+challenger,2,full_challenger__canonical_4,full_challenger,canonical_4,0.7206242320060079,0.1531819498978701,0.005916541211478011,0.7280258024895705,0.007946447450833727,-0.0014087868623730015,-0.00023575239594403156,sensitivity_baseline
+challenger,3,full_challenger_woe__affordability_rate_5,full_challenger_woe,affordability_rate_5,0.7200520927122714,0.15327620018308713,0.007501719650255938,0.7282488050115092,0.007374308157097276,-0.001314536577155967,0.0013494260428338952,sensitivity_baseline
