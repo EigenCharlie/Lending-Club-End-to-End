@@ -21,6 +21,10 @@ focused conformal follow-up before any full cuOpt portfolio promotion.
 
 The quick CPU run produced an alpha01 pass candidate with return `75602.19`, `V=0.098750`, `Gamma_CP=0.206650` and zero violation, but it used only 25k candidates.
 
+## Parent smoke
+
+The parent-project HiGHS smoke run confirmed local compatibility with the external intervals and produced an alpha01 pass candidate: mode `blended_uncertainty`, risk `0.175`, gamma `0.425`, return `59767.36`, `V=0.092925`, `Gamma_CP=0.216429` and zero violation. This is a compatibility smoke, not a replacement for the full cuOpt search.
+
 ## Parent-project gates
 
 - Do not compare the quick 25k return directly with the frozen 276k champion.
@@ -35,6 +39,7 @@ The quick CPU run produced an alpha01 pass candidate with return `75602.19`, `V=
 - `reports/paper_material/paper1/tables/paper1_bound_improvement_conformal_group_diagnostics_2026-05-21.csv`
 - `reports/paper_material/paper1/tables/paper1_bound_improvement_conformal_config_candidates_2026-05-21.csv`
 - `reports/paper_material/paper1/tables/paper1_bound_improvement_portfolio_quick_alpha01_2026-05-21.csv`
+- `reports/paper_material/paper1/tables/paper1_bound_improvement_parent_smoke_alpha01_2026-05-21.csv`
 - `reports/paper_material/paper1/tables/paper1_bound_improvement_theory_fronts_2026-05-21.csv`
 
 ## Bound fronts

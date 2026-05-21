@@ -192,6 +192,40 @@ def _portfolio_intake(root: Path) -> pd.DataFrame:
     return alpha01
 
 
+def _parent_smoke_intake() -> pd.DataFrame:
+    path = (
+        Path("data/processed/portfolio_bound_aware/regret_auditability_parent_smoke_2026_05_21")
+        / "portfolio_bound_aware_bound_eval.parquet"
+    )
+    if not path.exists():
+        return pd.DataFrame()
+
+    bound = pd.read_parquet(path)
+    alpha01 = bound[bound["alpha"].eq(0.01)].copy()
+    cols = [
+        "candidate_rank",
+        "risk_tolerance",
+        "policy_mode",
+        "gamma",
+        "uncertainty_aversion",
+        "realized_total_return",
+        "n_funded",
+        "gamma_cp",
+        "weighted_miscoverage_V",
+        "violation",
+        "empirical_coverage_funded",
+        "all_bounds_hold",
+        "shortlist_bucket",
+    ]
+    alpha01 = alpha01[cols].sort_values(
+        ["all_bounds_hold", "realized_total_return"], ascending=[False, False]
+    )
+    alpha01["parent_decision"] = alpha01["all_bounds_hold"].map(
+        {True: "parent_smoke_pass", False: "parent_smoke_fails_alpha01"}
+    )
+    return alpha01
+
+
 def _bound_fronts() -> pd.DataFrame:
     rows = [
         (
@@ -264,11 +298,14 @@ def _write_memo(
     conformal_group: pd.DataFrame,
     conformal_config: pd.DataFrame,
     portfolio: pd.DataFrame,
+    parent_smoke: pd.DataFrame,
     fronts: pd.DataFrame,
 ) -> Path:
     pd_main = pd_table[pd_table["parent_decision"].eq("main_challenger")].iloc[0]
     port_pass = portfolio[portfolio["all_bounds_hold"].eq(True)].head(1)
     best_pass = port_pass.iloc[0] if not port_pass.empty else None
+    smoke_pass = parent_smoke[parent_smoke["all_bounds_hold"].eq(True)].head(1)
+    best_smoke = smoke_pass.iloc[0] if not smoke_pass.empty else None
 
     lines = [
         "# Paper Estrella Bound-Improvement Intake 2026-05-21",
@@ -307,6 +344,22 @@ def _write_memo(
         lines.append("The quick CPU run did not produce an alpha01 pass candidate.")
     lines += [
         "",
+        "## Parent smoke",
+        "",
+    ]
+    if best_smoke is not None:
+        lines.append(
+            f"The parent-project HiGHS smoke run confirmed local compatibility with the external "
+            f"intervals and produced an alpha01 pass candidate: mode `{best_smoke['policy_mode']}`, "
+            f"risk `{best_smoke['risk_tolerance']:.3f}`, gamma `{best_smoke['gamma']:.3f}`, return "
+            f"`{best_smoke['realized_total_return']:.2f}`, `V={best_smoke['weighted_miscoverage_V']:.6f}`, "
+            f"`Gamma_CP={best_smoke['gamma_cp']:.6f}` and zero violation. This is a compatibility "
+            f"smoke, not a replacement for the full cuOpt search."
+        )
+    else:
+        lines.append("No parent-project smoke run was available when this memo was generated.")
+    lines += [
+        "",
         "## Parent-project gates",
         "",
         "- Do not compare the quick 25k return directly with the frozen 276k champion.",
@@ -321,6 +374,7 @@ def _write_memo(
         f"- `{TABLE_DIR / f'paper1_bound_improvement_conformal_group_diagnostics_{DATE_TAG}.csv'}`",
         f"- `{TABLE_DIR / f'paper1_bound_improvement_conformal_config_candidates_{DATE_TAG}.csv'}`",
         f"- `{TABLE_DIR / f'paper1_bound_improvement_portfolio_quick_alpha01_{DATE_TAG}.csv'}`",
+        f"- `{TABLE_DIR / f'paper1_bound_improvement_parent_smoke_alpha01_{DATE_TAG}.csv'}`",
         f"- `{TABLE_DIR / f'paper1_bound_improvement_theory_fronts_{DATE_TAG}.csv'}`",
         "",
         "## Bound fronts",
@@ -347,6 +401,7 @@ def main() -> int:
     pd_table = _pd_intake(root)
     conformal_group, conformal_config = _conformal_intake(root)
     portfolio = _portfolio_intake(root)
+    parent_smoke = _parent_smoke_intake()
     fronts = _bound_fronts()
 
     _write_csv(pd_table, TABLE_DIR / f"paper1_bound_improvement_pd_intake_{DATE_TAG}.csv")
@@ -362,6 +417,11 @@ def main() -> int:
         portfolio,
         TABLE_DIR / f"paper1_bound_improvement_portfolio_quick_alpha01_{DATE_TAG}.csv",
     )
+    if not parent_smoke.empty:
+        _write_csv(
+            parent_smoke,
+            TABLE_DIR / f"paper1_bound_improvement_parent_smoke_alpha01_{DATE_TAG}.csv",
+        )
     _write_csv(
         fronts,
         TABLE_DIR / f"paper1_bound_improvement_theory_fronts_{DATE_TAG}.csv",
@@ -372,6 +432,7 @@ def main() -> int:
         conformal_group=conformal_group,
         conformal_config=conformal_config,
         portfolio=portfolio,
+        parent_smoke=parent_smoke,
         fronts=fronts,
     )
     print(f"Wrote bound-improvement intake memo: {memo}")
