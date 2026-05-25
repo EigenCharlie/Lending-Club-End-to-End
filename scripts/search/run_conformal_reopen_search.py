@@ -48,11 +48,24 @@ def _profile_cfg(profile_name: str) -> dict[str, Any]:
 
 
 def _phase1_cfg(profile: dict[str, Any]) -> dict[str, Any]:
-    return dict((profile.get("search_space", {}) or {}).get("phase1", {}) or {})
+    search_space = dict(profile.get("search_space", {}) or {})
+    # Older conformal-reopen profiles used `conformal_reopen` for phase-1
+    # knobs. Prefer the explicit phase key, but keep the legacy profile live.
+    return dict(search_space.get("phase1") or search_space.get("conformal_reopen") or {})
 
 
 def _phase2_cfg(profile: dict[str, Any]) -> dict[str, Any]:
-    return dict((profile.get("search_space", {}) or {}).get("phase2", {}) or {})
+    search_space = dict(profile.get("search_space", {}) or {})
+    explicit = dict(search_space.get("phase2") or {})
+    legacy = dict(search_space.get("conformal_reopen") or {})
+    if not legacy:
+        return explicit
+    mapped = {
+        "calibrators": legacy.get("phase2_calibration_candidates"),
+        "top_k_designs": legacy.get("phase2_top_k_designs"),
+    }
+    mapped = {k: v for k, v in mapped.items() if v is not None}
+    return {**mapped, **explicit}
 
 
 def _sidecar_cfg(profile: dict[str, Any]) -> dict[str, Any]:
@@ -647,11 +660,14 @@ def _run_phase2_search(
     max_metric_degradation = dict(phase2_cfg.get("max_metric_degradation", {}) or {})
     for method_name in phase2_cfg.get("calibrators", ["venn_abers", "isotonic", "platt", "beta"]):
         calibrator_path = calibrator_dir / f"{str(method_name).strip().lower()}.pkl"
-        resolved_method, calibration_metrics = _fit_calibrator(
-            method=str(method_name),
-            output_path=calibrator_path,
-            upstream_run_tag=upstream_run_tag,
-        )
+        try:
+            resolved_method, calibration_metrics = _fit_calibrator(
+                method=str(method_name),
+                output_path=calibrator_path,
+                upstream_run_tag=upstream_run_tag,
+            )
+        except ModuleNotFoundError:
+            continue
         if baseline_metrics is not None:
             metric_blocked = any(
                 float(calibration_metrics.get(metric_name, float("inf")))

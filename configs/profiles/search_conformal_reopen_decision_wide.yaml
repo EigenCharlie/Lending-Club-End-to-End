@@ -1,0 +1,51 @@
+schema_version: "2026-05-23.1"
+profile_name: search_conformal_reopen_decision_wide
+pipeline_family: search_conformal
+description: >
+  Decision-aware reopen profile for Paper Estrella champion replacement. It
+  searches for conformal candidates that are not merely high-coverage, but
+  plausible inputs to a bound-aware portfolio replacement: zero critical
+  alerts, defensible min-group coverage, and lower interval width/Winkler.
+  The grid is broad but intentionally bounded so conformal finishes and gates
+  portfolio candidates instead of becoming the new long-running loop.
+execution:
+  writes_canonical_artifacts: false
+  promotion_state: research_open
+  include_rapids: false
+  include_notebooks: false
+defaults:
+  sampling_profile: champion64safe
+search_space:
+  phase1:
+    alpha_candidates_90: [0.09, 0.10, 0.105, 0.115, 0.125, 0.135]
+    alpha_candidates_95: [0.05, 0.06]
+    partition_candidates: [grade, score_decile_mondrian, grade_x_scoreband_mondrian]
+    partition_probability_sources: [calibrated, raw]
+    n_score_bins_candidates: [5, 8, 10]
+    min_group_sizes: [250, 500, 1000]
+    fallback_modes: [grade_then_global, global_only]
+    score_scale_families: [none, bernoulli_sqrt, bernoulli_sqrt_clipped_0.02]
+    calibration_fractions: [0.25, 0.50, 1.00]
+    tuning_holdout_ratios: [0.20, 0.30]
+    inner_random_states: [42, 126]
+  phase2:
+    enabled: true
+    calibrators: [venn_abers, isotonic, platt, beta]
+    top_k_designs: 4
+    max_metric_degradation:
+      brier_score: 0.00075
+      ece: 0.002
+      log_loss: 0.004
+sidecar:
+  methods: [lac, margin]
+  partitions: [global, grade, score_decile_mondrian, grade_x_scoreband_mondrian]
+  partition_probability_sources: [calibrated]
+  calibration_size_fractions: [0.25, 0.50, 0.75, 1.00]
+validation:
+  top_k_inner: 4
+  acceptance:
+    warning_alerts_max: 2
+    total_alerts_max: 2
+    coverage_deviation_90_max: 0.04
+    min_group_coverage_90_min: 0.90
+    avg_width_90_max: 0.86

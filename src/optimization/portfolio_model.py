@@ -326,6 +326,12 @@ def optimize_portfolio_allocation(
     solver_backend: str = "highs",
     random_seed: int | None = None,
     cuopt_presolve: int | None = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
 ) -> dict[str, Any]:
     """Unified portfolio solve entrypoint for CPU and native cuOpt backends."""
     backend = solver_backend.strip().lower()
@@ -349,6 +355,12 @@ def optimize_portfolio_allocation(
             time_limit=time_limit,
             random_seed=random_seed,
             presolve=cuopt_presolve,
+            method=cuopt_method,
+            pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            num_cpu_threads=cuopt_num_cpu_threads,
+            infeasibility_detection=cuopt_infeasibility_detection,
+            dual_postsolve=cuopt_dual_postsolve,
+            optimality_tolerance=cuopt_optimality_tolerance,
         )
 
     model = build_portfolio_model(

@@ -235,6 +235,12 @@ def _solve_single(
     tail_focus_quantile: float = 1.0,
     random_seed: int | None = None,
     cuopt_presolve: int | None = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
 ) -> tuple[dict[str, float | int | str], np.ndarray]:
     segment_labels: np.ndarray | None = None
     if policy_mode in {
@@ -286,8 +292,47 @@ def _solve_single(
         solver_backend=solver_backend,
         random_seed=random_seed,
         cuopt_presolve=cuopt_presolve,
+        cuopt_method=cuopt_method,
+        cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+        cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+        cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+        cuopt_dual_postsolve=cuopt_dual_postsolve,
+        cuopt_optimality_tolerance=cuopt_optimality_tolerance,
     )
 
+    return _summarize_solution(
+        solution=solution,
+        loans=loans,
+        pd_point=pd_point,
+        pd_high=pd_high,
+        lgd=lgd,
+        int_rates=int_rates,
+        default_flag=default_flag,
+        solver_backend=solver_backend,
+        policy_mode=policy_mode,
+        gamma=gamma,
+        delta_cap_quantile=delta_cap_quantile,
+        tail_focus_quantile=tail_focus_quantile,
+        uncertainty_aversion=uncertainty_aversion,
+    )
+
+
+def _summarize_solution(
+    *,
+    solution: dict[str, float | int | str],
+    loans: pd.DataFrame,
+    pd_point: np.ndarray,
+    pd_high: np.ndarray,
+    lgd: np.ndarray,
+    int_rates: np.ndarray,
+    default_flag: np.ndarray | None,
+    solver_backend: str,
+    policy_mode: str,
+    gamma: float,
+    delta_cap_quantile: float,
+    tail_focus_quantile: float,
+    uncertainty_aversion: float,
+) -> tuple[dict[str, float | int | str], np.ndarray]:
     n = len(loans)
     allocation = np.array([solution["allocation"][i] for i in range(n)], dtype=float)
     loan_amounts = (
@@ -335,6 +380,162 @@ def _solve_single(
         "worst_case_pd": worst_pd,
         "point_pd": point_pd,
     }, allocation
+
+
+def _segment_labels_for_policy(loans: pd.DataFrame, policy_mode: str) -> np.ndarray | None:
+    if policy_mode not in {
+        "segment_tail_blended_uncertainty",
+        "segment_relative_tail_blended_uncertainty",
+    }:
+        return None
+    grade = (
+        loans["grade"].fillna("unknown").astype(str)
+        if "grade" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    term = (
+        loans["term"].fillna("unknown").astype(str)
+        if "term" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    verification = (
+        loans["verification_status"].fillna("unknown").astype(str)
+        if "verification_status" in loans.columns
+        else pd.Series(["unknown"] * len(loans))
+    )
+    return (grade + "|" + term + "|" + verification).to_numpy(dtype=object)
+
+
+def _solve_single_batch(
+    *,
+    loans: pd.DataFrame,
+    pd_point: np.ndarray,
+    pd_low: np.ndarray,
+    pd_high: np.ndarray,
+    lgd: np.ndarray,
+    int_rates: np.ndarray,
+    default_flag: np.ndarray | None,
+    total_budget: float,
+    max_concentration: float,
+    solve_specs: list[dict[str, float | int | str | bool]],
+    time_limit: int,
+    threads: int,
+    solver_backend: str = "highs",
+    random_seed: int | None = None,
+    cuopt_presolve: int | None = 1,
+    cuopt_batch_size: int = 1,
+    cuopt_method: str | int | None = None,
+    cuopt_pdlp_solver_mode: str | int | None = None,
+    cuopt_num_cpu_threads: int | None = None,
+    cuopt_infeasibility_detection: int | None = None,
+    cuopt_dual_postsolve: int | None = None,
+    cuopt_optimality_tolerance: float | None = None,
+) -> list[tuple[dict[str, float | int | str], np.ndarray]]:
+    """Solve a list of portfolio policies, using cuOpt BatchSolve when requested."""
+    if not solve_specs:
+        return []
+    if solver_backend.strip().lower() != "cuopt" or int(cuopt_batch_size) <= 1:
+        return [
+            _solve_single(
+                loans=loans,
+                pd_point=pd_point,
+                pd_low=pd_low,
+                pd_high=pd_high,
+                lgd=lgd,
+                int_rates=int_rates,
+                default_flag=default_flag,
+                total_budget=total_budget,
+                max_concentration=max_concentration,
+                risk_tolerance=float(spec["risk_tolerance"]),
+                robust=bool(spec["robust"]),
+                uncertainty_aversion=float(spec["uncertainty_aversion"]),
+                min_budget_utilization=float(spec["min_budget_utilization"]),
+                pd_cap_slack_penalty=float(spec["pd_cap_slack_penalty"]),
+                time_limit=time_limit,
+                threads=threads,
+                solver_backend=solver_backend,
+                policy_mode=str(spec.get("policy_mode", "hard_worst_case")),
+                gamma=float(spec.get("gamma", 1.0)),
+                delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                random_seed=random_seed,
+                cuopt_presolve=cuopt_presolve,
+                cuopt_method=cuopt_method,
+                cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+                cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+                cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+                cuopt_dual_postsolve=cuopt_dual_postsolve,
+                cuopt_optimality_tolerance=cuopt_optimality_tolerance,
+            )
+            for spec in solve_specs
+        ]
+
+    from src.optimization.cuopt_adapter import solve_portfolio_cuopt_native_batch
+
+    output: list[tuple[dict[str, float | int | str], np.ndarray]] = []
+    batch_size = max(1, int(cuopt_batch_size))
+    for start in range(0, len(solve_specs), batch_size):
+        chunk = solve_specs[start : start + batch_size]
+        problems = []
+        for spec in chunk:
+            policy_mode = str(spec.get("policy_mode", "hard_worst_case"))
+            pd_constraint = compute_effective_pd(
+                pd_point=pd_point,
+                pd_high=pd_high,
+                policy_mode=policy_mode,
+                gamma=float(spec.get("gamma", 1.0)),
+                delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                segment_labels=_segment_labels_for_policy(loans, policy_mode),
+            )
+            problems.append(
+                {
+                    "loans": loans,
+                    "pd_point": pd_point,
+                    "pd_high": pd_high,
+                    "lgd": lgd,
+                    "int_rates": int_rates,
+                    "total_budget": total_budget,
+                    "max_concentration": max_concentration,
+                    "max_portfolio_pd": float(spec["risk_tolerance"]),
+                    "robust": bool(spec["robust"]),
+                    "uncertainty_aversion": float(spec["uncertainty_aversion"]),
+                    "min_budget_utilization": float(spec["min_budget_utilization"]),
+                    "pd_cap_slack_penalty": float(spec["pd_cap_slack_penalty"]),
+                    "pd_constraint_override": pd_constraint,
+                }
+            )
+        solutions = solve_portfolio_cuopt_native_batch(
+            problems,
+            time_limit=time_limit,
+            random_seed=random_seed,
+            presolve=cuopt_presolve,
+            method=cuopt_method,
+            pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            num_cpu_threads=cuopt_num_cpu_threads,
+            infeasibility_detection=cuopt_infeasibility_detection,
+            dual_postsolve=cuopt_dual_postsolve,
+            optimality_tolerance=cuopt_optimality_tolerance,
+        )
+        for spec, solution in zip(chunk, solutions, strict=True):
+            output.append(
+                _summarize_solution(
+                    solution=solution,
+                    loans=loans,
+                    pd_point=pd_point,
+                    pd_high=pd_high,
+                    lgd=lgd,
+                    int_rates=int_rates,
+                    default_flag=default_flag,
+                    solver_backend=solver_backend,
+                    policy_mode=str(spec.get("policy_mode", "hard_worst_case")),
+                    gamma=float(spec.get("gamma", 1.0)),
+                    delta_cap_quantile=float(spec.get("delta_cap_quantile", 1.0)),
+                    tail_focus_quantile=float(spec.get("tail_focus_quantile", 1.0)),
+                    uncertainty_aversion=float(spec["uncertainty_aversion"]),
+                )
+            )
+    return output
 
 
 def _compute_realized_total_return(

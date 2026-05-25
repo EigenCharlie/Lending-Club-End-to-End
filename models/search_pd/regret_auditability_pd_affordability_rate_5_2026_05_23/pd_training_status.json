@@ -1,0 +1,8 @@
+{
+  "schema_version": "2026-05-24.1",
+  "generated_at_utc": "2026-05-24T16:23:30.932570+00:00",
+  "run_tag": "regret_auditability_pd_affordability_rate_5_2026_05_23",
+  "candidate_key": "affordability_rate_5",
+  "source_dir": "/mnt/d/crpto_experiments/regret_auditability/regret_auditability_20260513_v3_resource_tuned/pd/full_challenger_woe/affordability_rate_5/pd-refine/models",
+  "stage": "external_pd_candidate_staged_for_conformal_prefetch"
+}

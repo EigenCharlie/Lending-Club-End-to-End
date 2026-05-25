@@ -1,0 +1,58 @@
+{
+  "schema_version": "2026-05-24.1",
+  "generated_at_utc": "2026-05-24T17:57:29.861959+00:00",
+  "run_label": "paper1_bound_expansion_2026_05_24_r1__canonical_4__segment_probe_25k__diagnostics",
+  "selection_path": "models/portfolio_bound_aware/paper1_bound_expansion_2026_05_24_r1__canonical_4__segment_probe_25k/portfolio_bound_aware_selection.json",
+  "conformal_intervals_path": "data/processed/conformal_gap/paper1_champion_replacement_2026_05_23_r3__canonical_4__conformal__phase2__final__rank-1/conformal_intervals_mondrian.parquet",
+  "alpha": 0.01,
+  "policy": {
+    "risk_tolerance": 0.16,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "policy_mode": "segment_tail_blended_uncertainty",
+    "gamma": 0.2,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 0.75,
+    "solver_backend": "highs"
+  },
+  "n_rows": 276869,
+  "n_funded": 249,
+  "total_allocated": 1000000.0,
+  "weighted_pd_true": 0.07599711,
+  "risk_tolerance": 0.16,
+  "decision_loss_pd_excess": 0.0,
+  "decision_loss_indicator": false,
+  "weighted_miscoverage_V": 0.07599711,
+  "gamma_cp": 0.47084105,
+  "empirical_coverage_funded": 0.927711,
+  "sqrt_alpha": 0.1,
+  "all_bounds_hold": true,
+  "diagnostic_role": "post_selection_crc_ltt_and_dependency_screen_not_formal_theorem",
+  "max_cluster_weighted_miscoverage_by_family": [
+    {
+      "group_family": "interval_grade_or_score_group",
+      "weighted_miscoverage": 0.0303
+    },
+    {
+      "group_family": "period",
+      "weighted_miscoverage": 0.025
+    },
+    {
+      "group_family": "purpose",
+      "weighted_miscoverage": 0.03
+    },
+    {
+      "group_family": "state",
+      "weighted_miscoverage": 0.025
+    },
+    {
+      "group_family": "term",
+      "weighted_miscoverage": 0.07599711
+    },
+    {
+      "group_family": "verification_status",
+      "weighted_miscoverage": 0.03639711
+    }
+  ]
+}

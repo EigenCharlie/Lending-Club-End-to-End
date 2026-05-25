@@ -1,0 +1,21 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "selection_complete",
+  "state": "completed",
+  "updated_at_utc": "2026-05-25T11:26:51.663649+00:00",
+  "run_tag": "paper1_bound_expansion_2026_05_24_r1__affordability_rate_5__medium_triage_resume_75k",
+  "frontier_total_units": 7504,
+  "frontier_completed_units": 7504,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 960,
+  "bound_completed_checks": 960,
+  "bound_pct_complete": 1.0,
+  "global_total_units": 8464,
+  "global_completed_units": 8464,
+  "global_pct_complete": 1.0,
+  "elapsed_sec": 13087.609006020997,
+  "eta_sec": 0.0,
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "selected_alpha01_exact_pass": true,
+  "selected_realized_total_return": 146569.73552904688
+}

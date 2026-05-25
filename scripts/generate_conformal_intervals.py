@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import pickle
 import shutil
 from pathlib import Path
@@ -182,6 +183,17 @@ def _resolve_features(
     test_df: pd.DataFrame,
 ) -> tuple[list[str], list[str]]:
     """Resolve feature list, preferring explicit contract then model metadata."""
+    if str(os.environ.get("UPSTREAM_CANONICAL_RUN_TAG", "") or "").strip():
+        model_features = list(getattr(model, "feature_names_", []) or [])
+        if model_features:
+            cat_idxs = set(model.get_cat_feature_indices())
+            categorical = [f for i, f in enumerate(model_features) if i in cat_idxs]
+            logger.info(
+                f"Using {len(model_features)} upstream model-native features "
+                f"({len(categorical)} categorical)"
+            )
+            return model_features, categorical
+
     contract = load_contract(CONTRACT_PATH)
     if isinstance(contract, dict):
         contract_features = contract.get("feature_names", [])

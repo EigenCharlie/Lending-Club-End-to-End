@@ -28,6 +28,7 @@ from scripts.optimize_portfolio_tradeoff import (  # noqa: E402
     _parse_float_grid,
     _parse_percent_series,
     _solve_single,
+    _solve_single_batch,
 )
 from scripts.run_gpu_replay import _GpuSampler  # noqa: E402
 from scripts.validate_alpha_gamma_bound import (  # noqa: E402
@@ -119,6 +120,7 @@ def _targeted_policy_grid(
     delta_cap_quantiles: list[float],
     tail_focus_quantiles: list[float],
     policy_modes: list[str] | None = None,
+    enable_segment_policy_grid: bool = False,
 ) -> list[tuple[str, float, float, float]]:
     allowed = {str(mode).strip() for mode in (policy_modes or []) if str(mode).strip()}
     use_all = not allowed
@@ -141,6 +143,30 @@ def _targeted_policy_grid(
                 grid.append(
                     (
                         "tail_blended_uncertainty",
+                        float(gamma),
+                        1.0,
+                        float(tail_focus_quantile),
+                    )
+                )
+        if enable_segment_policy_grid and (
+            use_all or "segment_tail_blended_uncertainty" in allowed
+        ):
+            for tail_focus_quantile in tail_focus_quantiles:
+                grid.append(
+                    (
+                        "segment_tail_blended_uncertainty",
+                        float(gamma),
+                        1.0,
+                        float(tail_focus_quantile),
+                    )
+                )
+        if enable_segment_policy_grid and (
+            use_all or "segment_relative_tail_blended_uncertainty" in allowed
+        ):
+            for tail_focus_quantile in tail_focus_quantiles:
+                grid.append(
+                    (
+                        "segment_relative_tail_blended_uncertainty",
                         float(gamma),
                         1.0,
                         float(tail_focus_quantile),
@@ -349,12 +375,14 @@ def _policy_grid_size(
     aversion_values: list[float],
     budget_profiles: list[dict[str, float]],
     policy_modes: list[str] | None = None,
+    enable_segment_policy_grid: bool = False,
 ) -> int:
     policy_grid = _targeted_policy_grid(
         gamma_values=gamma_values,
         delta_cap_quantiles=delta_cap_quantiles,
         tail_focus_quantiles=tail_focus_quantiles,
         policy_modes=policy_modes,
+        enable_segment_policy_grid=enable_segment_policy_grid,
     )
     return int(len(policy_grid) * len(aversion_values) * len(budget_profiles))
 
@@ -373,8 +401,17 @@ def _build_frontier_for_seed(
     random_state: int,
     solver_backend: str,
     cuopt_presolve: int | None,
+    cuopt_batch_size: int,
+    cuopt_method: str | None,
+    cuopt_pdlp_solver_mode: str | None,
+    cuopt_num_cpu_threads: int | None,
+    cuopt_infeasibility_detection: int | None,
+    cuopt_dual_postsolve: int | None,
+    cuopt_optimality_tolerance: float | None,
     policy_modes: list[str] | None,
+    enable_segment_policy_grid: bool,
     progress_hook: callable,
+    partial_frontier_path: Path | None = None,
 ) -> pd.DataFrame:
     with open(config_path, encoding="utf-8") as handle:
         config = yaml.safe_load(handle)
@@ -416,9 +453,57 @@ def _build_frontier_for_seed(
         delta_cap_quantiles=delta_cap_quantiles,
         tail_focus_quantiles=tail_focus_quantiles,
         policy_modes=policy_modes,
+        enable_segment_policy_grid=enable_segment_policy_grid,
     )
+    expected_rows_per_risk = int(len(policy_grid) * len(aversion_values) * len(budget_profiles))
 
     rows: list[dict[str, Any]] = []
+    partial_all = pd.DataFrame()
+    completed_resume_risks: set[float] = set()
+    if partial_frontier_path is not None and partial_frontier_path.exists():
+        try:
+            partial_all = pd.read_parquet(partial_frontier_path)
+            partial_seed = partial_all[
+                partial_all["sample_random_state"].astype(int) == int(random_state)
+            ].copy()
+            if not partial_seed.empty:
+                counts = partial_seed.groupby("risk_tolerance", dropna=False).size()
+                completed_resume_risks = {
+                    _float_token(risk)
+                    for risk, count in counts.items()
+                    if int(count) >= expected_rows_per_risk
+                }
+                if completed_resume_risks:
+                    resume_seed = partial_seed[
+                        partial_seed["risk_tolerance"]
+                        .map(_float_token)
+                        .isin(completed_resume_risks)
+                    ]
+                    rows.extend(resume_seed.to_dict("records"))
+        except Exception as exc:
+            logger.warning(
+                "Ignoring unreadable partial frontier checkpoint {}: {}",
+                partial_frontier_path,
+                exc,
+            )
+            partial_all = pd.DataFrame()
+            completed_resume_risks = set()
+
+    def _write_partial_frontier() -> None:
+        if partial_frontier_path is None or not rows:
+            return
+        current_seed = pd.DataFrame(rows)
+        if partial_all.empty:
+            combined = current_seed
+        else:
+            other_seeds = partial_all[
+                partial_all["sample_random_state"].astype(int) != int(random_state)
+            ]
+            combined = pd.concat([other_seeds, current_seed], ignore_index=True)
+        dedupe_cols = ["sample_random_state", *SEMANTIC_POLICY_FIELDS]
+        combined = combined.drop_duplicates(subset=dedupe_cols, keep="last").reset_index(drop=True)
+        atomic_write_parquet(combined, partial_frontier_path, index=False)
+
     logger.info(
         "Running focused portfolio frontier on n={:,}, random_state={}, risk_values={}, aversion_values={}, policies={}",
         n,
@@ -429,6 +514,19 @@ def _build_frontier_for_seed(
     )
     completed = 0
     for risk_tol in risk_values:
+        if _float_token(risk_tol) in completed_resume_risks:
+            completed += 1 + expected_rows_per_risk
+            progress_hook(
+                completed,
+                {
+                    "phase_random_state": int(random_state),
+                    "latest_policy_mode": "resume_skip",
+                    "latest_risk_tolerance": float(risk_tol),
+                    "latest_gamma": 0.0,
+                    "frontier_resume_skipped": True,
+                },
+            )
+            continue
         baseline, _ = _solve_single(
             loans=loans,
             pd_point=pd_point,
@@ -449,6 +547,12 @@ def _build_frontier_for_seed(
             solver_backend=solver_backend,
             random_seed=int(random_state),
             cuopt_presolve=cuopt_presolve,
+            cuopt_method=cuopt_method,
+            cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+            cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+            cuopt_dual_postsolve=cuopt_dual_postsolve,
+            cuopt_optimality_tolerance=cuopt_optimality_tolerance,
         )
         completed += 1
         progress_hook(
@@ -462,70 +566,87 @@ def _build_frontier_for_seed(
         )
         baseline_ret = float(baseline["expected_return_net_point"])
         baseline_realized = float(baseline["realized_total_return"])
+        solve_specs: list[dict[str, float | int | str | bool]] = []
         for policy_mode, gamma, delta_cap_quantile, tail_focus_quantile in policy_grid:
             for aversion in aversion_values:
                 for budget_profile in budget_profiles:
-                    robust_run, _ = _solve_single(
-                        loans=loans,
-                        pd_point=pd_point,
-                        pd_low=pd_low,
-                        pd_high=pd_high,
-                        lgd=lgd,
-                        int_rates=int_rates,
-                        default_flag=default_flag,
-                        total_budget=total_budget,
-                        max_concentration=max_concentration,
-                        risk_tolerance=float(risk_tol),
-                        robust=True,
-                        uncertainty_aversion=float(aversion),
-                        min_budget_utilization=float(budget_profile["min_budget_utilization"]),
-                        pd_cap_slack_penalty=float(budget_profile["pd_cap_slack_penalty"]),
-                        time_limit=time_limit,
-                        threads=threads,
-                        solver_backend=solver_backend,
-                        policy_mode=policy_mode,
-                        gamma=float(gamma),
-                        delta_cap_quantile=float(delta_cap_quantile),
-                        tail_focus_quantile=float(tail_focus_quantile),
-                        random_seed=int(random_state),
-                        cuopt_presolve=cuopt_presolve,
-                    )
-                    completed += 1
-                    progress_hook(
-                        completed,
+                    solve_specs.append(
                         {
-                            "phase_random_state": int(random_state),
-                            "latest_policy_mode": str(policy_mode),
-                            "latest_risk_tolerance": float(risk_tol),
-                            "latest_gamma": float(gamma),
-                        },
-                    )
-                    por = baseline_ret - float(robust_run["expected_return_net_point"])
-                    por_pct = por / (abs(baseline_ret) + 1e-6) * 100.0
-                    realized_total_return = float(robust_run["realized_total_return"])
-                    ab_diff_total_return = float(realized_total_return - baseline_realized)
-                    ab_pass = bool(ab_diff_total_return >= -(abs(baseline_realized) * 0.05))
-                    rows.append(
-                        {
-                            "sample_random_state": int(random_state),
                             "risk_tolerance": float(risk_tol),
-                            "policy_mode": str(policy_mode),
-                            "gamma": float(gamma),
-                            "delta_cap_quantile": float(delta_cap_quantile),
-                            "tail_focus_quantile": float(tail_focus_quantile),
+                            "robust": True,
                             "uncertainty_aversion": float(aversion),
                             "min_budget_utilization": float(
                                 budget_profile["min_budget_utilization"]
                             ),
                             "pd_cap_slack_penalty": float(budget_profile["pd_cap_slack_penalty"]),
+                            "policy_mode": str(policy_mode),
+                            "gamma": float(gamma),
+                            "delta_cap_quantile": float(delta_cap_quantile),
+                            "tail_focus_quantile": float(tail_focus_quantile),
                             "budget_profile_name": str(budget_profile["name"]),
-                            "price_of_robustness": float(por),
-                            "price_of_robustness_pct": float(por_pct),
-                            "ab_diff_total_return": float(ab_diff_total_return),
-                            "ab_pass": ab_pass,
-                            **robust_run,
                         }
                     )
+        robust_results = _solve_single_batch(
+            loans=loans,
+            pd_point=pd_point,
+            pd_low=pd_low,
+            pd_high=pd_high,
+            lgd=lgd,
+            int_rates=int_rates,
+            default_flag=default_flag,
+            total_budget=total_budget,
+            max_concentration=max_concentration,
+            solve_specs=solve_specs,
+            time_limit=time_limit,
+            threads=threads,
+            solver_backend=solver_backend,
+            random_seed=int(random_state),
+            cuopt_presolve=cuopt_presolve,
+            cuopt_batch_size=cuopt_batch_size,
+            cuopt_method=cuopt_method,
+            cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+            cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+            cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+            cuopt_dual_postsolve=cuopt_dual_postsolve,
+            cuopt_optimality_tolerance=cuopt_optimality_tolerance,
+        )
+        for spec, (robust_run, _) in zip(solve_specs, robust_results, strict=True):
+            completed += 1
+            progress_hook(
+                completed,
+                {
+                    "phase_random_state": int(random_state),
+                    "latest_policy_mode": str(spec["policy_mode"]),
+                    "latest_risk_tolerance": float(risk_tol),
+                    "latest_gamma": float(spec["gamma"]),
+                    "cuopt_batch_size": int(cuopt_batch_size),
+                },
+            )
+            por = baseline_ret - float(robust_run["expected_return_net_point"])
+            por_pct = por / (abs(baseline_ret) + 1e-6) * 100.0
+            realized_total_return = float(robust_run["realized_total_return"])
+            ab_diff_total_return = float(realized_total_return - baseline_realized)
+            ab_pass = bool(ab_diff_total_return >= -(abs(baseline_realized) * 0.05))
+            rows.append(
+                {
+                    "sample_random_state": int(random_state),
+                    "risk_tolerance": float(risk_tol),
+                    "policy_mode": str(spec["policy_mode"]),
+                    "gamma": float(spec["gamma"]),
+                    "delta_cap_quantile": float(spec["delta_cap_quantile"]),
+                    "tail_focus_quantile": float(spec["tail_focus_quantile"]),
+                    "uncertainty_aversion": float(spec["uncertainty_aversion"]),
+                    "min_budget_utilization": float(spec["min_budget_utilization"]),
+                    "pd_cap_slack_penalty": float(spec["pd_cap_slack_penalty"]),
+                    "budget_profile_name": str(spec["budget_profile_name"]),
+                    "price_of_robustness": float(por),
+                    "price_of_robustness_pct": float(por_pct),
+                    "ab_diff_total_return": float(ab_diff_total_return),
+                    "ab_pass": ab_pass,
+                    **robust_run,
+                }
+            )
+        _write_partial_frontier()
     return pd.DataFrame(rows).reset_index(drop=True)
 
 
@@ -867,7 +988,30 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--exact-python-executable", default="")
     parser.add_argument("--exact-helper-script", default=str(DEFAULT_EXACT_HELPER_SCRIPT))
     parser.add_argument("--cuopt-presolve", type=int, default=1)
+    parser.add_argument("--cuopt-batch-size", type=int, default=1)
+    parser.add_argument(
+        "--cuopt-method",
+        default="",
+        help="Optional cuOpt LP method: Concurrent, PDLP, DualSimplex, or Barrier.",
+    )
+    parser.add_argument(
+        "--cuopt-pdlp-solver-mode",
+        default="",
+        help="Optional PDLP mode: Stable3, Methodical1, Fast1, etc.",
+    )
+    parser.add_argument("--cuopt-num-cpu-threads", type=int, default=0)
+    parser.add_argument("--cuopt-infeasibility-detection", type=int, default=-1)
+    parser.add_argument("--cuopt-dual-postsolve", type=int, default=-1)
+    parser.add_argument("--cuopt-optimality-tolerance", type=float, default=0.0)
     parser.add_argument("--policy-modes", default="")
+    parser.add_argument(
+        "--enable-segment-policy-grid",
+        action="store_true",
+        help=(
+            "Materialize segment_tail and segment_relative_tail policy modes when "
+            "requested in --policy-modes. Defaults off to preserve legacy grid size."
+        ),
+    )
     parser.add_argument(
         "--incumbent-policy-path",
         default=str(DEFAULT_INCUMBENT_POLICY_PATH),
@@ -892,6 +1036,7 @@ def main(argv: list[str] | None = None) -> int:
     checkpoint_dir = model_dir / f"{STAGE_NAME}_runtime_checkpoints"
     resource_path = model_dir / "resource_snapshot.json"
     gpu_csv_path = model_dir / "gpu_samples.csv"
+    partial_frontier_path = output_dir / "portfolio_bound_aware_frontier_raw_partial.parquet"
 
     risk_values = _coerce_csv(args.risk_grid)
     aversion_values = _coerce_csv(args.aversion_grid)
@@ -908,6 +1053,24 @@ def main(argv: list[str] | None = None) -> int:
     policy_modes = [part.strip() for part in str(args.policy_modes).split(",") if part.strip()]
     exact_python_executable = str(args.exact_python_executable).strip()
     exact_helper_script = Path(str(args.exact_helper_script)).resolve()
+    cuopt_method = str(args.cuopt_method).strip() or None
+    cuopt_pdlp_solver_mode = str(args.cuopt_pdlp_solver_mode).strip() or None
+    cuopt_num_cpu_threads = (
+        int(args.cuopt_num_cpu_threads) if int(args.cuopt_num_cpu_threads) > 0 else None
+    )
+    cuopt_infeasibility_detection = (
+        int(args.cuopt_infeasibility_detection)
+        if int(args.cuopt_infeasibility_detection) >= 0
+        else None
+    )
+    cuopt_dual_postsolve = (
+        int(args.cuopt_dual_postsolve) if int(args.cuopt_dual_postsolve) >= 0 else None
+    )
+    cuopt_optimality_tolerance = (
+        float(args.cuopt_optimality_tolerance)
+        if float(args.cuopt_optimality_tolerance) > 0
+        else None
+    )
 
     budget_profiles: list[dict[str, float]] = []
     for token in [
@@ -945,6 +1108,7 @@ def main(argv: list[str] | None = None) -> int:
         aversion_values=aversion_values,
         budget_profiles=budget_profiles,
         policy_modes=policy_modes,
+        enable_segment_policy_grid=bool(args.enable_segment_policy_grid),
     )
     frontier_total_units = int(len(random_states) * len(risk_values) * (1 + policy_grid_count))
     tracker = _ProgressTracker(
@@ -974,6 +1138,7 @@ def main(argv: list[str] | None = None) -> int:
                 "budget_profiles": budget_profiles,
                 "alpha_grid": alpha_grid,
                 "max_candidates": int(args.max_candidates),
+                "enable_segment_policy_grid": bool(args.enable_segment_policy_grid),
             },
         }
     )
@@ -1011,8 +1176,19 @@ def main(argv: list[str] | None = None) -> int:
                 cuopt_presolve=int(args.cuopt_presolve)
                 if str(args.solver_backend) == "cuopt"
                 else None,
+                cuopt_batch_size=int(args.cuopt_batch_size)
+                if str(args.solver_backend) == "cuopt"
+                else 1,
+                cuopt_method=cuopt_method,
+                cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+                cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+                cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+                cuopt_dual_postsolve=cuopt_dual_postsolve,
+                cuopt_optimality_tolerance=cuopt_optimality_tolerance,
                 policy_modes=policy_modes,
+                enable_segment_policy_grid=bool(args.enable_segment_policy_grid),
                 progress_hook=_progress_hook,
+                partial_frontier_path=partial_frontier_path,
             )
             frontier_frames.append(frontier_seed)
             frontier_completed += int(len(risk_values) * (1 + policy_grid_count))
@@ -1081,6 +1257,14 @@ def main(argv: list[str] | None = None) -> int:
                 "max_candidates": int(args.max_candidates),
                 "random_states": random_states,
                 "policy_modes": policy_modes,
+                "enable_segment_policy_grid": bool(args.enable_segment_policy_grid),
+                "cuopt_batch_size": int(args.cuopt_batch_size),
+                "cuopt_method": cuopt_method,
+                "cuopt_pdlp_solver_mode": cuopt_pdlp_solver_mode,
+                "cuopt_num_cpu_threads": cuopt_num_cpu_threads,
+                "cuopt_infeasibility_detection": cuopt_infeasibility_detection,
+                "cuopt_dual_postsolve": cuopt_dual_postsolve,
+                "cuopt_optimality_tolerance": cuopt_optimality_tolerance,
                 "bucket_return_k": int(args.bucket_return_k),
                 "bucket_proxy_k": int(args.bucket_proxy_k),
                 "bucket_family_k": int(args.bucket_family_k),
@@ -1103,6 +1287,7 @@ def main(argv: list[str] | None = None) -> int:
                 ],
             },
             "frontier_raw_path": str(output_dir / "portfolio_bound_aware_frontier_raw.parquet"),
+            "frontier_raw_partial_path": str(partial_frontier_path),
             "frontier_path": str(output_dir / "portfolio_bound_aware_frontier.parquet"),
             "shortlist_path": str(output_dir / "portfolio_bound_aware_shortlist.parquet"),
             "bound_eval_path": str(output_dir / "portfolio_bound_aware_bound_eval.parquet"),
