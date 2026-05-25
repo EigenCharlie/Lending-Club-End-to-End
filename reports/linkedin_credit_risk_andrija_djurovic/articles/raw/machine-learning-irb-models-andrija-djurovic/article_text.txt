@@ -1,0 +1,64 @@
+Machine learning for IRB models
+Report this article
+Andrija Djurovic
+Andrija Djurovic
+Published Aug 6, 2023
++ Follow
+Recently EBA published a follow-up report from the consultation on the discussion paper on machine learning for IRB models (https://www.eba.europa.eu/sites/default/documents/files/document_library/Publications/Reports/2023/1061483/Follow-up%20report%20on%20machine%20learning%20for%20IRB%20models.pdf).
+What I found particularly interesting is the section "Way forward and Principle-based recommendations". Among all the recommendations presented, two specifically caught my attention. IMHO, both recommendations require further analysis and addressing a set of non-trivial questions.
+Point 1️⃣: "... institutions are recommended to avoid unnecessary complexity in the modeling approach if it is not justified by a significant improvement in the predictive capacities."
+While reading this recommendation several times, a couple of questions came to my mind:
+✅ Which benchmark should we use to compare the advancement of ML methods?
+✅ What does "significant improvement" mean, and how do we measure it?
+✅ What is meant by "predictive capacities"? Are they referring to risk differentiation, risk quantification, or both?
+None of these questions is trivial or straightforward to answer.
+For instance, to properly conduct a benchmarking exercise, we should develop the base model using traditional approaches and following all the best practice steps. Practitioners know this is a highly repetitive task requiring interaction between different verticals. As a result, the final model is never the one with the best single performance metric but rather a compromise between business expectations and modeling constraints. In the context of the recommendation, this can burden the bank with two models in parallel - one developed using traditional methods and another using ML methods. Additionally, to make the results of both models comparable, we have to ensure that both are developed using the same principles and constraints. More on this in the second point.
+Recommended by LinkedIn
+Using AI to Interpret the PRN file of ICM Infoworks…
+Robert Dickinson
+1 year ago
+The paper that made me rethink what "reasoning" means…
+Sarvex Jatasra
+1 month ago
+How We Decide
+Shaun Conway
+1 year ago
+The remaining two questions are even more complex and subjective to answer. Let's focus on the most common use case of ML - the development of the ranking model (risk differentiation function). The straightforward question is whether it is sufficient to consider only the improvement of the discriminatory power of the ranking model. To better understand this problem, I refer readers to the following paper: https://papers.ssrn.com/sol3/papers.cfm?abstract_id=675668. The paper demonstrates that even models with a similar discriminatory power can lead to different economic values of the rating system. To simulate the effect of a particular scenario, I suggest using the 𝐞𝐯𝐫𝐬 function from my 𝐑 package 𝐏𝐃𝐭𝐨𝐨𝐥𝐤𝐢𝐭.
+Point 2️⃣: "...Assess the economic relationship of each risk driver with the output variable to ensure that the model estimates are plausible and intuitive..."
+My understanding of the terms "plausible" and "intuitive" in this context is that we should have some prior expectation of the relationship between the risk drivers and the modeled target. This aligns well with the traditional approach to IRB model development. In the realm of ML, we are witnessing an abundance of model-agnostic methods to approximate this relationship, but the question arises: is that sufficient? What I find particularly challenging about this recommendation is not how to comply with it but what to do if the approximated relationship is not plausible and intuitive. I'd summarize some additional challenges as follows:
+✅Is it reasonable not to include any prior expectations of this relationship within the ML algorithm per se and hope that our final model will produce a plausible and intuitive relationship?
+✅ Is it possible to incorporate these prior expectations into every ML algorithm? If not, does that render some popular ML methods ineligible for credit risk modeling?
+The above two points are just part of all the recommendations and should not be seen in isolation, as they are all closely interconnected.
+As I mentioned in one of the previous posts, I strongly believe that the key to successfully implementing ML in credit risk lies in customizing standard ML algorithms. Customization primarily entails providing flexibility to the algorithms to incorporate and process various business inputs. By introducing this kind of flexibility to ML methods, we level the playing field and ensure that the battle between traditional and ML approaches is fair, maintaining consistency in model development principles.
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+65
+To view or add a comment, sign in
+More articles by Andrija Djurovic
+IRB models uncertainty and conformal inference
+Sep 20, 2023
+IRB models uncertainty and conformal inference
+While regulatory requirements concerning the Margin of Conservatism (MoC) necessitate addressing the general estimation…
+72
+IRB model calibration
+Sep 12, 2023
+IRB model calibration
+Some time ago, I stumbled upon a video discussing model calibration, which inspired me to delve into the world of IRB…
+111
+Selective use of machine learning for IRB models
+Aug 15, 2023
+Selective use of machine learning for IRB models
+When discussing ML for IRB models with practitioners, I consistently perceive that the decision boils down to a binary…
+107
+6 Comments

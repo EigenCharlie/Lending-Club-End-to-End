@@ -1,0 +1,192 @@
+source_asset_id: 7392821942728273920_external_06
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/model_dev_and_vld/fli_dynamic_regression_models.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/model_dev_and_vld/fli_dynamic_regression_models.pdf
+source_type: github
+
+                   IFRS9 Forward-Looking Modeling
+
+     Dynamic Regression Models and Estimation Uncertainty
+
+
+                              Andrija Djurovic
+
+
+
+
+                    www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic           FLI and Dynamic Regression Models   1/6
+IFRS9 Forward-Looking Modeling
+   IFRS9 requires the inclusion of reasonable and supportable information, available without undue cost or
+   effort, when estimating expected credit losses.
+
+   In practice, this often translates into quantifying the macroeconomic environment’s effect on risk
+   parameters, typically at the segment level (e.g., regressing default rates on macro indicators).
+
+   Most implementations rely on OLS regression, with common model types including:
+
+          OLS regression in the form of the target variable against macroeconomic indicators (with or
+          without time lags);
+          OLS regression, including macroeconomic indicators and an autoregressive term of the target;
+          Two-step error correction models;
+          Principal Component Analysis (PCA) combined with OLS regression;
+          OLS regression with various transformations of the target variable, such as logit or probit.
+
+   Another design often discussed among practitioners - but rarely implemented in practice for IFRS9
+   modeling - is the use of dynamic regression models. Unlike models that simply include a lagged
+   dependent variable, dynamic regression models assume that residuals follow a specific autoregressive
+   structure. Although rarely applied in practice, some practitioners consider this approach suitable for
+   IFRS9 purposes.
+
+   One known challenge in estimating the autoregressive structure in IFRS9 models is the limited length of
+   available time series. This presentation simulates the uncertainty associated with sample size and the
+   estimation of the autoregressive term within a dynamic regression model. While this is only one possible
+   approach, it offers a solid foundation that practitioners can adapt to their specific model design.
+
+
+    Andrija Djurovic               FLI and Dynamic Regression Models                                        2/6
+Dynamic Regression Models
+The dynamic regression model is represented by the following equation:
+
+                                  yt = β0 + β1 x1,t + · · · + βk xk,t + ηt
+
+where the residuals ηt follow an ARIMA(p,d,q) process.
+More formally, the ARIMA(p, 0, q) process for the regression residuals can be written as:
+
+                       ηt = ϕ1 ηt−1 + · · · + ϕp ηt−p + εt + θ1 εt−1 + · · · + θq εt−q
+
+where:
+
+      ϕ1 to ϕp are the autoregressive terms;
+      θ1 to θp are the moving average terms;
+      εt represents white noise innovations.
+
+As the following simulation study uses an ARIMA(1, 0, 0) process, the error term structure
+simplifies to:
+                                       ηt = ϕ1 ηt−1 + εt
+
+More details on dynamic regression models can be found in Hyndman, R.J. and Athanasopoulos,
+G. (2021), Forecasting: Principles and Practice (3rd edition).
+
+         Andrija Djurovic              FLI and Dynamic Regression Models                     3/6
+Simulation Study Design
+
+The following steps outline the simulation design used to derive the distribution of the predictor coefficient and
+the autoregressive term of the error in dynamic regression models across different sample sizes. For simplicity,
+the setup includes only one predictor and a first-order autoregressive process for the error term.
+
+   1 Select sample size n (10, 20, 30, 40, 50, 60, 100).
+   2 For each sample size, simulate predictor values (xt ) from a normal distribution with a mean of 15 and a
+     standard deviation of 1.
+   3 Simulate error terms (ηt ) following an ARIMA(1, 0, 0) process with an autoregressive coefficient (ϕ) of
+     0.50 and innovations (εt ) drawn from a standard normal distribution.
+   4 Using the simulated predictor values (xt ), errors (ηt ), an intercept (β0 ) of –2.95, and a predictor
+     coefficient (β) of –0.65, generate the target variable as:
+
+                                                  yt = β0 + βxt + ηt
+
+   5 Estimate the parameters of the dynamic regression model with an ARIMA(1, 0, 0) error structure by
+     minimizing the sum of squared innovations (εt ).
+   6 Repeat steps 2 to 5 a total of 10,000 times for each sample size, and store the estimated coefficients (β
+     and ϕ).
+   7 Calculate the estimation bias as the difference between the average estimated coefficient and the true
+     value used in the simulation.
+   8 Graphically present the distribution of the estimated coefficients to illustrate the estimation uncertainty
+     associated with different sample sizes.
+
+
+         Andrija Djurovic               FLI and Dynamic Regression Models                                      4/6
+Simulation Results
+
+
+
+
+##     n Beta_Mean Beta_Bias AR_Error_Mean AR_Error_Bias
+##    10    -0.647     0.003         0.204        -0.296
+##    20    -0.653    -0.003         0.378        -0.122
+##    30    -0.650     0.000         0.421        -0.079
+##    40    -0.655    -0.005         0.442        -0.058
+##    50    -0.650     0.000         0.455        -0.045
+##    60    -0.651    -0.001         0.461        -0.039
+##   100    -0.648     0.002         0.476        -0.024
+
+
+
+
+      Andrija Djurovic    FLI and Dynamic Regression Models   5/6
+Simulation Results cont.
+                                                 Distribution of the Regression Coefficient Estimates
+                                        Beta                                                            AR Error Term
+
+
+
+
+                                                                                                                                n=10
+         2000
+
+
+           0
+
+
+
+
+                                                                                                                                n=20
+         2000
+
+
+           0
+
+
+
+
+                                                                                                                                n=30
+         2000
+
+
+           0
+Counts
+
+
+
+
+                                                                                                                                n=40
+         2000
+
+
+           0
+
+
+
+
+                                                                                                                                n=50
+         2000
+
+
+           0
+
+
+
+
+                                                                                                                                n=60
+         2000
+
+
+           0
+
+
+
+
+                                                                                                                                n=100
+         2000
+
+
+           0
+                −2             −1        0       1                   2        −2                   −1        0          1   2
+                                                            Simulated Coefficient Values
+
+
+
+
+                     Andrija Djurovic          FLI and Dynamic Regression Models                                                 6/6

@@ -187,6 +187,8 @@ pd.DataFrame(rows)
 
 La razón para traer esta lectura aquí es metodológica: el proyecto ya no interpreta todos los `p ≈ 0` como el mismo tipo de problema. En conformal, la historia dominante sigue siendo **sobre-cobertura prudente**. En PD, la historia actual es más sutil: el promedio global luce sano, pero algunas cohortes muestran desvíos persistentes que sí merecen atención. Ese lenguaje más fino de `PASS / WARNING / DIAGNOSTIC FAIL` es parte del valor nuevo del stack de gobernanza.
 
+Una segunda advertencia viene de la validación multi-periodo de PD. En default rates anuales o trimestrales, la independencia entre periodos rara vez es una premisa inocente: factores macro comunes y persistencia cíclica inducen autocorrelación, reducen el tamaño efectivo de muestra y pueden hacer que un test rechace por violación de supuestos antes que por verdadera mala calibración. Por eso este libro evita narrar los tests multi-periodo como semáforos mecánicos. La pregunta prudente es doble: si el gap es material y si la dependencia temporal fue considerada al interpretar el p-value.
+
 ### Bootstrap y calibration mapping: qué agregan a la lectura de monitoreo
 
 El endurecimiento más reciente añade dos capas nuevas para no quedarnos solo con tests asintóticos o con la pregunta binaria de si el calibrador actual “pasa o falla”.
@@ -208,6 +210,8 @@ pd.DataFrame(rows)
 ```
 
 Estas dos capas cumplen funciones distintas y complementarias. El **bootstrap** refina la lectura de materialidad en muestras muy grandes, donde un `p≈0` puede detectar efectos pequeños pero persistentes [@efron1994]. El **calibration mapping sidecar** pregunta algo más operativo: si el problema real es persistencia por cohortes, ¿basta con un ajuste liviano del mapeo probabilístico o la dificultad está más adentro del pipeline de PD/calibración? En el snapshot vigente, la respuesta es todavía más fuerte que antes: la validación shadow completa cerró con `keep_current_calibrator`, porque los sidecars ligeros empeoraron gap absoluto, quarter breaches y ECE. Por eso, la siguiente mejora ya no parece ser un remapeo fácil, sino una lectura analítica más fina de cohortes y slices.
+
+Esto también ordena una posible agenda de tesis. Si se quiere endurecer PD validation, el siguiente paso no es sumar otro p-value, sino comparar tests con supuestos de dependencia distintos, bootstrap por cohortes/tiempo y criterios de materialidad económica. La condición de parada es clara: solo entra al paper o a la tesis si cambia una decisión de monitoreo, una tabla de appendix o una respuesta esperada de reviewer.
 
 ### Alertas y Monitoreo Continuo
 

@@ -1,0 +1,5 @@
+I've built and publish for testing python monobinpy package.
+In essence, this is a replica of my R monobin package (https://lnkd.in/dWhtAm-G) which goal is to perform monotonic binning of numeric risk factors in credit rating models development (PD, LGD, EAD).
+After some additional testing, I will submit package to official PyPI repository.
+For those interested, in order to stay up-to-date with the latest package development follow my github page - https://lnkd.in/dEMNCqBN or my Linkedin profile.
+#python #R #rstats #creditrisk #irb

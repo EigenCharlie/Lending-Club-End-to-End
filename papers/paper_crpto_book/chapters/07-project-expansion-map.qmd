@@ -15,7 +15,7 @@ supplement y qué queda estacionado con una condición de reapertura.
 | Paper 1 tables A0--A18 | Evidencia oficial del champion, robustez y trazabilidad. | Body compacto + supplement. |
 | Papers 2 y 3 | IFRS9/SICR y Mondrian como evidencia lateral. | Implicaciones, ablation, límites y tesis. |
 | Paper 4 living lab | Laboratorio de frontera con blockers explícitos. | Reviewer-defense, tesis y agenda; no promoción automática. |
-| LinkedIn intake | Material de exploración y activación bibliográfica. | Lenguaje y caveats; no bibliografía pública por sí solo. |
+| LinkedIn intake | Material de exploración y activación bibliográfica: Denis para métricas/WOE/scorecards; Andrija/ADSFCR para IRB calibration, PD backtesting, WoE instability, selective ML, IFRS9 y MRM; logged-in Andrija para IV testing, dependencia en PD backtesting y árboles sobre residuos. | Lenguaje, caveats y backlog gobernado; no bibliografía pública por sí solo. |
 | Tests, DVC, MLflow y JSON canónicos | Contrato de reproducibilidad. | Backbone del supplement y defensa de tesis. |
 
 ## Qué más agregar al mini-libro
@@ -59,6 +59,16 @@ supplement y qué queda estacionado con una condición de reapertura.
    promete regret mínimo.
 5. **Paper 4 como registro de límites**. Sus blockers no son fracaso editorial:
    son una forma de demostrar madurez metodológica y evitar claims inflados.
+6. **Andrija/ADSFCR como capa de validación IRB**. Aporta vocabulario y stop
+   rules para no confundir Gini con calibración, ni calibración con valor
+   económico. Lo que entra al paper es defensa metodológica; lo ejecutable queda
+   como prototipo Paper 4 solo si cambia una tabla, claim o respuesta de
+   reviewer.
+7. **Andrija logged-in como capa de heurísticas bajo incertidumbre**. El aporte
+   nuevo no es social sino técnico: IV y PSI/correlación/minimum-bads deben
+   describirse como reglas operativas auditables, no como pruebas soberanas.
+   Para CRPTO, esto refuerza la narrativa de separar métricas diagnósticas de
+   decisiones de optimización.
 
 ## Material que debe quedarse fuera del body IJDS
 
@@ -66,6 +76,14 @@ GPU, quantum, IFRS9 contractual, CATE policy value, online conformal, MDCP,
 DLA/Bellman exacto y CVaR como objetivo oficial deben permanecer fuera del
 body IJDS. Pueden aparecer como tesis, agenda o supplement acotado solo cuando
 ayuden a explicar por qué el claim CRPTO actual está bien cerrado.
+
+Del intake Andrija, IFRS9 SMI/PCA/ADF/recursive regression, LGD/EAD Somers D y
+model shift deben quedarse fuera del body IJDS. Entran mejor como capítulo de
+tesis sobre gobernanza, validación regulatoria y límites de generalización.
+
+Del logged-in Andrija, el paper de Agentic AI for Financial Crime Compliance y
+el enlace de amenazas híbridas quedan archivados: son gobernanza financiera
+adyacente, pero no cambian el pipeline de originación/PD/LP robusto.
 
 ## Regla de reapertura
 

@@ -1,0 +1,8 @@
+𝗥𝗶𝘀𝗸 𝗙𝗮𝗰𝘁𝗼𝗿 𝗘𝗻𝗴𝗶𝗻𝗲𝗲𝗿𝗶𝗻𝗴 𝗶𝗻 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗧𝗿𝗲𝗲-𝗕𝗮𝘀𝗲𝗱 𝗜𝗻𝘁𝗲𝗿𝗮𝗰𝘁𝗶𝗼𝗻𝘀
+Risk factor engineering is a critical step in every PD model development. In traditional frameworks using logistic regression, it is often equated with the binning of individual risk factors.
+With the increased use of machine learning (ML) in credit risk, practitioners are exploring additional ways to enhance the development of the risk differentiation function using alternative methods.
+One ML approach to risk factor engineering that goes beyond standard binning is tree-based interaction extraction. In essence, this method involves deriving new risk factors from decision tree models, which can then be used as inputs in logistic regression or even as challenger models.
+My latest presentation demonstrates a tailored approach to risk factor engineering based on decision tree models. Adjustments to standard decision tree algorithms refer to the incorporation of core binning principles typically considered in credit risk model development.
+As the presented method serves illustrative purposes only, practitioners are encouraged to consider additional adjustments to the proposed algorithm that best suit their use case.
+The same approach can be easily extended to LGD and EAD modeling, as well as to other designs, such as those using random forest.
+In the coming months, I plan to develop an R package to facilitate the use of such methods in credit risk model development.

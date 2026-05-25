@@ -60,6 +60,8 @@ CatBoost soporta features categóricas nativamente, así que el champion usa los
 3. **Interpretabilidad regulatoria**. Para el comité de riesgo y el reporte MRM (@sec-p1-mrm-approval), los WOE bins de cada feature top dan una explicación `(rango → riesgo)` que un revisor puede inspeccionar directamente, mientras que la importancia CatBoost cruda es opaca.
 
 Las tablas WOE/IV detalladas viven en `notebooks/02_feature_engineering.ipynb` y los chapters 05a-05c del libro principal.
+
+El caveat editorial es importante para no sobreprometer ante IJDS: IV y WOE aquí son controles de auditabilidad y lectura de riesgo, no evidencia causal ni garantía de performance. Los umbrales IV se tratan como heurísticas de gobierno; si el manuscript menciona IV, debe hacerlo como trazabilidad de feature engineering, no como fundamento del claim CRPTO.
 :::
 
 #### Calibración Venn-Abers: por qué se eligió frente a Platt, Isotonic y Beta {#sec-p1-vennabers}

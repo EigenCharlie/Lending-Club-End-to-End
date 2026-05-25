@@ -69,6 +69,21 @@ Las contribuciones regulatorias conectan el pipeline con los marcos normativos q
 
 **Validacion MRM conforme a SR 11-7.** El reporte MRM generado por `scripts/generate_mrm_report.py` organiza la evidencia de validacion del modelo siguiendo los lineamientos SR 11-7 de la Reserva Federal, lo cual demuestra que el pipeline conformal es compatible con los marcos de gobernanza existentes.
 
+**Gobernanza de heuristicas crediticias.** La tesis puede desarrollar con mas
+profundidad una contribucion que el paper IJDS solo necesita como caveat:
+umbrales de IV, PSI, correlacion, VIF, minimos de malos por bin y tests
+multi-periodo no son verdades universales, sino reglas operativas que deben
+tener incertidumbre, poblacion de referencia, accion asociada y excepcion
+documentada. Esta contribucion conecta feature engineering, PD validation y
+MRM en una misma disciplina de evidencia.
+
+**Validacion de segmentos sobre residuos.** Como extension controlada, la tesis
+puede evaluar arboles sobre residuos para identificar segmentos donde el modelo
+sobreestima o subestima default observado. La condicion de entrada es mantener
+la explicabilidad y las restricciones de negocio; la condicion de salida es que
+el diagnostico cambie una tabla de validacion o una decision MRM, no que
+reemplace el champion.
+
 ### Contribuciones de defendibilidad
 
 La tesis tambien aporta algo menos visible, pero crucial: una forma de documentar proyectos de riesgo donde claims, artefactos y narrativa permanecen alineados. Esa disciplina reduce la brecha entre:

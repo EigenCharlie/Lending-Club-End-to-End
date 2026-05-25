@@ -1,0 +1,859 @@
+Andrija Djurovic – Deloitte | LinkedIn
+Gå till huvudinnehåll
+LinkedIn
+Det bästa innehållet
+Personer
+Learning
+Jobb
+Spel
+Logga in
+Gå med nu
+Logga in för att se hela Andrijas profil
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Andrija Djurovic
+Logga in för att se hela Andrijas profil
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Stockholm, Stockholms län, Sverige
+Kontaktinformation
+Logga in för att se hela Andrijas profil
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+14 tn följare
+Fler än 500 kontakter
+Se era gemensamma kontakter
+Visa kontakter gemensamma med Andrija
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Bli medlem för att se profilen
+Meddelande
+Logga in för att se hela Andrijas profil
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Deloitte
+Ss. Cyril and Methodius University in Skopje / Универзитет „Св. Кирил и Методиј“ во Скопје
+Portfölj
+Anmäl profilen
+Artiklar av Andrija
+IRB models uncertainty and conformal inference
+20 sep. 2023
+IRB models uncertainty and conformal inference
+While regulatory requirements concerning the Margin of Conservatism (MoC) necessitate addressing the general estimation…
+72
+IRB model calibration
+12 sep. 2023
+IRB model calibration
+Some time ago, I stumbled upon a video discussing model calibration, which inspired me to delve into the world of IRB…
+111
+Selective use of machine learning for IRB models
+15 aug. 2023
+Selective use of machine learning for IRB models
+When discussing ML for IRB models with practitioners, I consistently perceive that the decision boils down to a binary…
+107
+6 kommentarer
+Machine learning for IRB models
+6 aug. 2023
+Machine learning for IRB models
+Recently EBA published a follow-up report from the consultation on the discussion paper on machine learning for IRB…
+65
+Show more
+See all articles
+Aktivitet
+14 tn följare
+Inlägg
+Kommentarer
+Reaktioner
+Inget mer föregående innehåll
+Andrija Djurovic
+Andrija Djurovic
+1 v
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗕𝗮𝗰𝗸𝘁𝗲𝘀𝘁𝗶𝗻𝗴 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗧𝗵𝗲 𝗠𝘂𝗹𝘁𝗶-𝗣𝗲𝗿𝗶𝗼𝗱 𝗔𝘃𝗲𝗿𝗮𝗴𝗲 𝗧𝗲𝘀𝘁𝗶𝗻𝗴
+In the context of Probability of Default (PD) IRB modeling, backtesting is one of the most comprehensive exercises conducted across different stages of the modeling process. The primary purpose of backtesting is to ensure that model estimates accurately predict the occurrence of defaults, i.e., that PD estimates provide reliable forecasts of default rates. Given the nature of these estimates, average PDs are typically backtested over a recent period of three to five years across different subsegments using the z-score test.
+When preparing inputs for multi-period average testing, practitioners often overlook the fact that the estimated PD is calculated as an arithmetic mean of yearly default rates. Therefore, the preparation of inputs must ensure that the observed default rates are properly aligned with the estimated PDs.
+In my latest presentation, I compare two commonly used methods for preparing inputs for multi-period average testing with a method that fully aligns with the calibration process. As demonstrated by the simulation results, these approaches lead to different test outcomes. Moreover, only the approach that fully aligns with the calibration process is statistically valid.
+In some of my upcoming posts, I will compare the statistical validity of these different approaches, confirming the appropriateness of only the method proposed in this presentation. I will also demonstrate how the dependency structure can be incorporated into the testing procedure.
+Given that the only statistically valid approach is the one aligned with the PD calibration process, where long-run average default rates are calculated as arithmetic averages of yearly default rates, practitioners are encouraged to consider how this impacts other aspects of PD model validation involving the use of multi-period observations, particularly aspects related to model heterogeneity and homogeneity.
+#irb #pd #backtesting #zscoretest
+public_profile__posts
+82
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+2 v
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗥𝗶𝘀𝗸 𝗙𝗮𝗰𝘁𝗼𝗿 𝗘𝗻𝗴𝗶𝗻𝗲𝗲𝗿𝗶𝗻𝗴 𝗶𝗻 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗧𝗿𝗲𝗲-𝗕𝗮𝘀𝗲𝗱 𝗜𝗻𝘁𝗲𝗿𝗮𝗰𝘁𝗶𝗼𝗻𝘀
+Risk factor engineering is a critical step in every PD model development. In traditional frameworks using logistic regression, it is often equated with the binning of individual risk factors.
+With the increased use of machine learning (ML) in credit risk, practitioners are exploring additional ways to enhance the development of the risk differentiation function using alternative methods.
+One ML approach to risk factor engineering that goes beyond standard binning is tree-based interaction extraction. In essence, this method involves deriving new risk factors from decision tree models, which can then be used as inputs in logistic regression or even as challenger models.
+My latest presentation demonstrates a tailored approach to risk factor engineering based on decision tree models. Adjustments to standard decision tree algorithms refer to the incorporation of core binning principles typically considered in credit risk model development.
+As the presented method serves illustrative purposes only, practitioners are encouraged to consider additional adjustments to the proposed algorithm that best suit their use case.
+The same approach can be easily extended to LGD and EAD modeling, as well as to other designs, such as those using random forest.
+In the coming months, I plan to develop an R package to facilitate the use of such methods in credit risk model development.
+public_profile__posts
+141
+4 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+3 v
+Anmäl det här inlägget
+Andrija Djurovic har lagt upp detta
+𝗖𝗿𝗲𝗱𝗶𝘁 𝗥𝗶𝘀𝗸 𝗠𝗼𝗱𝗲𝗹𝗶𝗻𝗴 𝗪𝗼𝗿𝗸𝗶𝗻𝗴 𝗡𝗼𝘁𝗲𝘀 – 𝗧𝗵𝗲 𝗧𝗵𝗶𝗿𝗱 𝗨𝗽𝗱𝗮𝘁𝗲
+The 📕 Credit Risk Modeling Working Notes continue to grow and have been updated for a third time. The download link can be found in the comments section, while the list of documents included in this update is provided below.
+A few more updates are planned for this year, but those interested can also access the dedicated GitHub page directly (https://lnkd.in/dm2p5UNv) and review the individual materials there.
+✅ IFRS9 Forward-Looking Modeling - Supervised Macroeconomic Index (https://lnkd.in/dhufwehR)
+✅smi: An R Package for IFRS9 Forward-Looking Modeling (https://lnkd.in/drTegZXJ)
+✅Statistical Binning of Categorical Risk Factors - Probability of Default Modeling (https://lnkd.in/dqcHHr4N)
+✅Rethinking Representativeness Analysis in IRB Modeling - Classifier Two-Sample Test (https://lnkd.in/dRhegAMV)
+✅OLS Regression in IRB Credit Risk Modeling - From Binary to Continuous: A WoE-Equivalent Encoding Method (https://lnkd.in/dJegGCfS)
+✅The Instability of Mean Target Encoding in LGD and EAD Modeling (https://lnkd.in/d3A3QYYa)
+✅Heterogeneity Testing in IRB Credit Risk Models - Regulatory Requirements, Methods, Challenges, and Considerations (https://lnkd.in/dv4yCu2k)
+✅Somers’ D for Discriminatory Power in LGD and EAD Models: Dyx or Dxy? - ECB Instructions for Reporting the Validation Results of Internal Models (https://lnkd.in/ddr-yi5Q)
+✅Calibration of Discrete Probability of Default Rating Scale - From Segment Default Averages to Grade-Level Estimates (https://lnkd.in/d_CcHWXx)
+✅Somers’ D in LGD and EAD Modeling - Impact of Input Binning on Discriminatory Power (https://lnkd.in/dZTdymZa)
+#creditrisk #irb #ifrs9
+230
+7 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+1 mån
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗕𝗮𝗰𝗸𝘁𝗲𝘀𝘁𝗶𝗻𝗴 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗢𝗻 𝘁𝗵𝗲 𝗥𝗲𝗹𝗶𝗮𝗯𝗶𝗹𝗶𝘁𝘆 𝗼𝗳 𝘁𝗵𝗲 𝗠𝘂𝗹𝘁𝗶-𝗣𝗲𝗿𝗶𝗼𝗱 𝗡𝗼𝗿𝗺𝗮𝗹 𝗧𝗲𝘀𝘁
+As risk quantification is a regulatory requirement in IRB modeling, practitioners pay significant attention to meeting these requirements. In addition, they must assess the appropriateness of model estimates - typically referred to as backtesting.
+In practice, PD backtesting is one of the most comprehensive validation exercises, usually examining model estimates across different portfolio subsegments and time dimensions.
+A commonly applied approach is to backtest PD estimates over a recent period, covering the latest three to five years. In some cases, this analysis is extended further back, but it still relies on a relatively limited number of observations.
+One method used to assess these estimates against observed default rates is the normal test.
+My latest presentation examines the reliability of the normal test given the relatively limited number of observations used for testing. More specifically, it analyzes the Type I error under three different data-generating processes for default rates, considering both independent and correlated observations over time, as well as deviations from normality.
+Since multi-period backtesting of PD models is a topic practitioners often struggle with - particularly when aligning it with the standard IRB calibration process - some of my future work will focus on this area. Specifically, I will propose an alternative method for multi-period averaging tests that fully aligns with the calibration process.
+#irb #pd #backtesting
+public_profile__posts
+172
+7 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+1 mån
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝐬𝐦𝐢: 𝐀𝐧 𝗣𝘆𝘁𝗵𝗼𝗻 𝐏𝐚𝐜𝐤𝐚𝐠𝐞 𝐟𝐨𝐫 𝐈𝐅𝐑𝐒𝟗 𝐅𝐨𝐫𝐰𝐚𝐫𝐝-𝐋𝐨𝐨𝐤𝐢𝐧𝐠 𝐌𝐨𝐝𝐞𝐥𝐢𝐧𝐠
+This Python package is a replica of the R package I recently published on my GitHub repository (https://lnkd.in/dm2p5UNv).
+The main purpose of this package is to address key challenges in IFRS9 forward-looking (FLI) modeling, particularly those arising from limited data availability.
+The package provides core functionality for applying a new method, the 𝐒𝐮𝐩𝐞𝐫𝐯𝐢𝐬𝐞𝐝 𝐌𝐚𝐜𝐫𝐨𝐞𝐜𝐨𝐧𝐨𝐦𝐢𝐜 𝐈𝐧𝐝𝐞𝐱 (𝐒𝐌𝐈). I developed this method based on a model-averaging approach, allowing practitioners to incorporate key business inputs while preserving a fully explainable model structure, comparable to the standard use of OLS regression for the same purpose.
+Attached is a short manual describing the main features of the package for IFRS9 FLI modeling.
+As always, practitioners are encouraged to adapt the underlying concepts and ideas to their specific needs and model designs.
+I hope those interested will find the package useful and motivating for further exploration of FLI modeling, one of the most interesting tasks in IFRS9.
+#ifrs9 #forwardlookingmodeling #python #rstat
+public_profile__posts
+191
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+1 mån
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗦𝗼𝗺𝗲𝗿𝘀’ 𝗗 𝗶𝗻 𝗟𝗚𝗗 𝗮𝗻𝗱 𝗘𝗔𝗗 𝗠𝗼𝗱𝗲𝗹𝗶𝗻𝗴 - 𝗜𝗺𝗽𝗮𝗰𝘁 𝗼𝗳 𝗖𝗼𝗻𝘀𝗲𝗿𝘃𝗮𝘁𝗶𝘀𝗺 𝗼𝗻 𝗗𝗶𝘀𝗰𝗿𝗶𝗺𝗶𝗻𝗮𝘁𝗼𝗿𝘆 𝗣𝗼𝘄𝗲𝗿
+Somers’ D is a commonly used metric for assessing discriminatory power in LGD and EAD models. When calculating Somers’ D, practitioners often adopt input preparation steps from the ECB approach, as presented in the Instructions for Reporting the Validation Results of Internal Models. Practitioners typically interpret the requested risk parameter estimate from the ECB instructions as the one used for calculating own funds requirements. In other words, as the final model estimates which, in the case of LGD performing, LGD in-default, and EAD models, are downturn-adjusted and include all margins of conservatism that have been added.
+Given this interpretation of the ECB instructions, along with the model-implied thresholds for discretization of the realized risk parameters for models whose output is considered discrete, it is worth investigating how conservatism impacts conclusions on discriminatory power testing.
+My latest presentation provides a simplified simulation framework investigating the impact of conservatism on the discriminatory power results of an LGD model, measured by Somers’ D, for a given rating grade structure.
+As with earlier posts on the use of Somers’ D in LGD and EAD models, practitioners are encouraged to consider different approaches and are always advised to base their final conclusions on discriminatory power while keeping in mind the possible impact of modeling choices on the testing results.
+#irb #lgd #ead #discriminatorypower #ecb
+public_profile__posts
+118
+4 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+1 mån
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗤𝘂𝗮𝗻𝘁𝗶𝗳𝗶𝗰𝗮𝘁𝗶𝗼𝗻 𝗼𝗳 𝗠𝗼𝗖 𝗧𝘆𝗽𝗲 𝗖 𝗶𝗻 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗢𝗻 𝘁𝗵𝗲 𝗔𝗴𝗴𝗿𝗲𝗴𝗮𝘁𝗲 𝗘𝗳𝗳𝗲𝗰𝘁 𝗼𝗳 𝗥𝗲𝗴𝘂𝗹𝗮𝘁𝗼𝗿𝘆 𝗥𝗲𝗾𝘂𝗶𝗿𝗲𝗺𝗲𝗻𝘁𝘀 𝗼𝗻 𝗖𝗼𝗻𝘀𝗲𝗿𝘃𝗮𝘁𝗶𝘀𝗺 𝗟𝗲𝘃𝗲𝗹𝘀
+The quantification of Margin of Conservatism (MoC) Type C related to uncertainty in estimating the long-run average (LRA) default rate is one of the key regulatory topics in IRB model development, for which various approaches are commonly observed in practice. Although the ECB, in its Guide to Internal Models, sets clear expectations regarding the sources of uncertainty that should be considered, practitioners still hold differing views on how these sources should be incorporated into the quantification process.
+To properly balance the selected statistical approach with its underlying assumptions, it is critical to understand the contribution of each source to the overall MoC level.
+In my latest presentation, I examine several commonly used statistical methods for quantifying this type of MoC. As shown by the simulation results, the choice of statistical approach can lead to significant differences in MoC Type C levels related to the LRA default rate. These findings raise important questions and highlight challenges practitioners face in this area.
+Practitioners should note that the presented methods are not exhaustive; other approaches, as well as combinations of these methods, also exist. However, each approach relies on specific assumptions, making it essential to understand their limitations and balance them against regulatory requirements.
+As a further extension of this topic, I am working on R and Python packages for the quantification of MoC Type C in PD models. I expect to release the first development version in the coming months.
+#irb #pd #ecb #moctypec #lra
+public_profile__posts
+154
+3 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+1 mån
+Anmäl det här inlägget
+Andrija Djurovic har lagt upp detta
+𝗔𝗽𝗽𝗹𝗶𝗲𝗱 𝗗𝗮𝘁𝗮 𝗦𝗰𝗶𝗲𝗻𝗰𝗲 𝗳𝗼𝗿 𝗖𝗿𝗲𝗱𝗶𝘁 𝗥𝗶𝘀𝗸
+When I created my GitHub repository Applied Data Science for Credit Risk (https://lnkd.in/dm2p5UNv), I intended it to be a personal space where I could summarize some of my work related to various credit risk modeling topics. However, over the last two years, it has grown rapidly and now contains hundreds of pages of presentations and working papers, thousands of lines of R and Python code, and has also attracted the interest of other practitioners in the field. It now serves as a supporting repository for my books, with the main goal of extending their scope and addressing some of the challenges practitioners face in their everyday work in the IRB and IFRS9 areas. Regular writing and publishing have helped me think more deeply about certain aspects of common practices and have provided a consistent source of new ideas and motivation for further research.
+For those who find it interesting and useful, below is a list of materials published since the beginning of this year.
+In the coming months, I plan to post more on similar topics, including new ideas for R and Python packages, as well as discussions of topics that challenge current common practices in this area. I hope the material will remain as interesting to others as it is to me.
+✅ smi: An R Package for IFRS9 FLI Modeling https://lnkd.in/drTegZXJ
+✅ Quantification of MoC C in PD Models - Statistical Challenges in Reconciling Regulatory Requirements https://lnkd.in/djtuMbjY
+✅ Somers’ D for Discriminatory Power in LGD and EAD Models: Dyx or Dxy? https://lnkd.in/ddr-yi5Q
+✅ Calibration of Discrete PD Rating Scale - From Segment Default Averages to Grade-Level Estimates https://lnkd.in/d_CcHWXx
+✅ Somers’ D in LGD and EAD Modeling - Impact of Input Binning on Discriminatory Power https://lnkd.in/dZTdymZa
+✅ A Model-Based Approach to Discrete PD Rating Scale Calibration - Logistic Regression Intercept Optimization https://lnkd.in/dVPPmZ7j
+✅ Encoding Categorical Risk Factors in IRB LGD and EAD Models https://lnkd.in/dp27pt2d
+✅ Backtesting PD Models - The Two-Sided Exact Binomial Test https://lnkd.in/d3YZnh6C
+✅ Heterogeneity Testing in IRB Credit Risk Models - Regulatory Requirements, Methods, Challenges, and Considerations https://lnkd.in/dv4yCu2k
+#irb #ifrs9 #pd #lgd #ead
+536
+9 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+Andrija Djurovic
+2 mån
+Anmäl det här inlägget
+Andrija Djurovic har delat detta
+𝗕𝗮𝗰𝗸𝘁𝗲𝘀𝘁𝗶𝗻𝗴 𝗣𝗿𝗼𝗯𝗮𝗯𝗶𝗹𝗶𝘁𝘆 𝗼𝗳 𝗗𝗲𝗳𝗮𝘂𝗹𝘁 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗧𝗵𝗲 𝗧𝘄𝗼-𝗦𝗶𝗱𝗲𝗱 𝗘𝘅𝗮𝗰𝘁 𝗕𝗶𝗻𝗼𝗺𝗶𝗮𝗹 𝗧𝗲𝘀𝘁
+Backtesting PD models is typically one of the most comprehensive validation exercises performed during model development and validation.
+In practice, three statistical tests are commonly employed for backtesting PD estimates at the level of individual years: the exact binomial test, the z-score test, and Jeffreys’ test. The exact binomial test relies on the discrete binomial distribution of the number of defaults, while the z-score and Jeffreys’ tests rely on a continuous approximation of the binomial proportion distribution.
+The z-score test is traditionally used in both one-sided and two-sided forms, whereas the exact binomial test is often perceived by practitioners as lacking a natural two-sided extension. While this may be true within the standard hypothesis testing framework, a two-sided p-value for the exact binomial test can nevertheless be calculated.
+The purpose of this presentation is to demonstrate how to calculate the p-value of the two-sided exact binomial test. It first introduces the basics of the exact binomial test and its application in the backtesting of PD models, and then provides R and Python examples for calculating the p-value.
+As with all tests used for backtesting PD models (including those that assume correlated defaults), the results rely on specific assumptions and align to varying degrees with the IRB framework. Practitioners are therefore encouraged to consider these aspects when using and interpreting the results.
+#irb #pd #calibration #backtesting #binomialtest
+public_profile__posts
+153
+13 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Inget mer efterföljande innehåll
+Svep till alternativet 1
+Svep till alternativet 2
+Svep till alternativet 3
+Svep till alternativet 4
+Svep till alternativet 5
+Svep till alternativet 6
+Svep till alternativet 7
+Svep till alternativet 8
+Svep till alternativet 9
+Andrija Djurovic har kommenterat ett inlägg
+21 h
+Another example is the use of a 60% threshold for the Pearson correlation coefficient as a universal safeguard against multicollinearity across all models - PD, LGD, and EAD :)
+Andrija Djurovic har svarat på en kommentar
+3 d
+Anderson Arroyo Arca in my opinion, in credit risk we should first master the basics of traditional methods and only then move to more advanced approaches :) As you said, for specific exposure types, those methods can provide certain benefits. However, I still consistently observe in practice either the use of inappropriate methods or a lack of understanding of the basic traditional approaches. This problem is common not only in banks, but also in consultancy companies and even among regulators. Therefore, before moving to something more advanced, I believe we should first make sure that we fully understand the current traditional approaches :)
+Andrija Djurovic har svarat på en kommentar
+6 d
+Charlin DJIOKO thanks for your comment. I agree that the idea of using residuals is good. However, I find that approach somewhat tricky when it is necessary to control for the expected relationship (monotonicity), at least at the splitting node level.
+On the other hand, I use this approach for model validation purposes, with the aim of identifying segments where the PD model over- or underestimates the default rate, as well as for the possible identification of omitted risk factors. The same idea can be further developed by considering different types of residuals, for instance.
+If you are interested, you can check the segment.vld function from my PDtoolkit R package.
+https://cran.r-project.org/web/packages/PDtoolkit/PDtoolkit.pdf
+Inget mer föregående innehåll
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Naeem Siddiqi
+Naeem Siddiqi
+25 min
+Andrija Djurovic har gillat detta
+I will be in Manila meeting bankers and conducting training from 11-13 August. Please reach out if you're interested. Training details below.
+#creditscoring #sastraining #sas #riskmodeling
+SAS
+SAS
+4 d
+Andrija Djurovic har gillat detta
+Enhance your expertise in credit risk management with SAS’s Credit Risk Scorecard & Modeling Masterclass Series.
+Join us for two in-person masterclasses designed to strengthen practical risk analytics and modeling skills:
+Credit Risk Scorecard Development & Implementation
+August 11 – 12, 2026 | 8:30 AM – 4:30 PM
+Computational & Statistical Processes in Credit Risk Modeling
+September 17 – 18, 2026 | 8:30 AM – 4:30 PM
+Learn through hands-on sessions, real-world credit risk methodologies, scorecard development techniques, and advanced statistical modeling guided by SAS experts. Whether you are building foundational knowledge or advancing your modeling capabilities, this series will help elevate your credit risk analytics journey.
+Register now to secure your spot. https://lnkd.in/eimG_MxW
+For inquiries, connect with Valereen Chua
+#SAS #RiskAnalytics #CreditRisk
+public_profile__reactions
+7
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Andrija Djurovic har gillat detta
+George Bliatsios
+George Bliatsios
+8 h
+Andrija Djurovic har gillat detta
+Forecast apples, get oranges. That’s not the market shifting. That’s you being wrong.
+And that’s fine. Usually wrong is new and valuable knowledge. What’s not fine is claiming the win when it works and blaming the world when it doesn’t.
+Own the outcome.
+Clients notice. They always do. Not the wins. The ones who stood in the room and said that was mine.
+Those are the people they call back.
+#data #analytics #accountability
+14
+2 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Andrija Djurovic har gillat detta
+Dimitrios Goranitis
+Dimitrios Goranitis
+7 h
+Andrija Djurovic har gillat detta
+Markets are losing faith in #Turkey a #G20 economy asking for 33% return on the 10year bonds , while lira is still depreciating against the dollar despite heavy efforts from the Central Bank to prop up the currency .
+public_profile__reactions
+1
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Andrija Djurovic har gillat detta
+Gabriel Ryan, FRM
+Gabriel Ryan, FRM
+15 h
+Andrija Djurovic har gillat detta
+Sometimes we make do with our surroundings. Fit ourselves in.
+I love oranges. I also like garlic, when cooked 😁.
+This combo, looks like it is to ward off Count Dracula though.
+public_profile__reactions
+95
+27 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Andrija Djurovic har gillat detta
+Naeem Siddiqi
+Naeem Siddiqi
+18 h
+Andrija Djurovic har gillat detta
+The vast majority of all analytics projects that I have seen end in failure, experience delays or deliver reduced ROI have been due to data and infrastructure issues. Banks have never been short of algorithms. #AI is amazing technology - the question I have for customers who inquire is this : do you have data and the infrastructure that deserves AI ?
+If it takes 6 months to build a modeling dataset and another 6-9 to validate and deploy models into production, complex formulas aren't going to help.
+#riskmodels #creditscoring #creditrisk #riskmanagement #modelgovernance #responsibleAI
+public_profile__reactions
+138
+4 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Andrija Djurovic
+har gillat detta
+Anmäl det här inlägget
+Andrija Djurovic har gillat detta
+Sauran Sarbassov
+Sauran Sarbassov
+22 h
+Andrija Djurovic har gillat detta
+Entire generations of credit risk modelers used IV thresholds without ever asking where they actually came from.
+Most credit risk practitioners use this table almost on a daily basis.
+But why exactly these thresholds and not some others?
+Partly because they worked reasonably well in practice.
+And partly because, over time, they became embedded into the industry’s collective intuition:
+- passed from practitioner to practitioner,
+- from validator to bank,
+- from mentor to analyst.
+The interesting part is that the mathematical foundations needed to formalize this existed long ago.
+- Information theory.
+- Likelihood ratios.
+- Statistical divergence measures.
+Credit risk modeling had access to these tools for years.
+Yet much of the industry continued relying on inherited interpretation rules and rules of thumb.
+I increasingly think credit risk evolved operationally faster than academically.
+A surprising amount of knowledge in this field still propagates through institutional memory rather than formal statistical standardization.
+Recently I came across an interesting paper attempting to statistically formalize IV significance testing.
+Link to the paper — in the comments.
+I’m also curious:
+what other famous “rules of thumb” still dominate everyday credit risk practice?
+#CreditRisk #Scorecard #IFRS9 #ModelValidation #DataScience
+public_profile__reactions
+50
+9 kommentarer
+Kopiera
+LinkedIn
+Facebook
+X
+Inget mer efterföljande innehåll
+Svep till alternativet 1
+Svep till alternativet 2
+Svep till alternativet 3
+See all activities
+Erfarenhet och utbildning
+Deloitte
+**** ******** * *******
+*** * ****** ******* ********
+******** ******
+******* ********
+****** **** *******
+*** ***** *** ********* ********** ** ****** * *********** **** ***** * ******** ** ******
+******** ****** ********** undefined
+2007–2009
+******* ** ********* *********
+********* ******** ******* undefined
+2003–2007
+Se Andrijas fullständiga erfarenhet
+Se titel, anställningstid med mera.
+Logga in
+Välkommen tillbaka
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+eller
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Ny på LinkedIn? Gå med nu
+eller
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Publikationer
+R u bankarstvu - Zbirka riješenih zadataka
+11 maj 2021
+Visa publikation
+Priručnik primijenjenje statistike u R-u
+jan. 2021
+Visa publikation
+THE KEY MACROECONOMIC DETERMINANTS OF GDP GROWTH: THE CASE OF THE DOLLARIZED ECONOMY IN MONTENEGRO
+Transformations in Business & Economics
+nov. 2019
+Visa publikation
+THE IMPACT OF MACROECONOMIC FACTORS ON REAL ESTATE PRICES: EVIDENCE FROM MONTENEGRO
+Ekonomski pregled
+okt. 2019
+Visa publikation
+MAIN FINDINGS FROM RADON INDOOR SURVEY IN MONTENEGRO
+Radiation Protection Dosimetry, OXFORD Academic
+mars 2019
+Visa publikation
+Macroeconomic Approach to Point in Time Probability of Default Modeling – IFRS 9 Challenges
+Journal of Central Banking Theory and Practice
+jan. 2019
+Visa publikation
+Estimating Probability of Default on Peer to Peer Market – Survival Analysis Approach
+Journal of Central Banking Theory and Practice
+maj 2017
+Visa publikation
+Estimation of a percentage of dwellings in Montenegro with radon concentrations above a given level
+CRPA - PROCEEDINGS OF THE ELEVENTH SYMPOSIUM OF THE CROATIAN RADIATION PROTECTION ASSOCIATION
+apr. 2017
+Visa publikation
+Intraweek and intraday trade anomalies: evidence from FOREX market
+Applied Economics - Routledge,London, UK
+13 augusti 2014
+Visa publikation
+ADAPTIVE MARKETS HYPOTHESIS: EMPIRICAL EVIDENCE FROM MONTENEGRO EQUITY MARKET
+Sveučilište Jurja Dobrile u Puli, Odjel za ekonomiju i turizam 'Dr. Mijo Mirković'
+sep. 2013
+Visa publikation
+Gå med nu för att se alla publikationer
+Projekt
+Estimating the Parameters of the Vasicek Distribution
+apr. 2024–apr. 2024
+A Shiny App that can be accessed via the following link:
+https://andrijadj.shinyapps.io/vasicek_distribution/
+Streamlit application
+sep. 2022–sep. 2022
+Streamlit UI for monobinpy python package
+Visa projekt
+Loan restructure optimizer
+okt. 2021–okt. 2021
+Visa projekt
+Simulator restrukturiranja
+sep. 2021–sep. 2021
+Visa projekt
+Moratorijum simulator
+maj 2020–maj 2020
+Visa projekt
+Radon mapping in Montenegro and Upgrading the National System for Radon Protection
+2015–jan. 2017
+National project MNE9004 implemented by the Ministry of sustainable development and tourism, Environmental Protection Agency of Montenegro and the Montenegrin Academy of Science and Arts.
+Se hela Andrijas profil
+Upptäck gemensamma kontakter
+Bli presenterad
+Kontakta Andrija direkt
+Bli medlem för att se hela profilen
+Andra liknande profiler
+Elena Grigore
+Elena Grigore
+University of Bucharest - Mathematics
+2 tn följare
+Bucharestområdet
+Visa profil
+Catalin Tanjala
+Catalin Tanjala
+Vodafone Romania SA
+167 följare
+Rumänien
+Visa profil
+Gabriel Voicu
+Gabriel Voicu
+UniCredit Bank Romania
+1 tn följare
+Rumänien
+Visa profil
+Gabriel Lupu
+Gabriel Lupu
+ING Nederland
+501 följare
+Nederländerna
+Visa profil
+Madalina Badea
+Madalina Badea
+BCR
+372 följare
+Rumänien
+Visa profil
+Andra Maria Radu
+Andra Maria Radu
+BCR
+305 följare
+Bukarest, Rumänien
+Visa profil
+Alina Oana Paloiu
+Alina Oana Paloiu
+OMV Petrom
+191 följare
+Ilfov, Rumänien
+Visa profil
+Georgiana Stan
+Georgiana Stan
+ING Hubs Romania
+564 följare
+Rumänien
+Visa profil
+Marius Tita
+Marius Tita
+Afiniti
+597 följare
+Bukarest
+Visa profil
+Iulia Pena
+Iulia Pena
+BCR
+656 följare
+Bukarest, Rumänien
+Visa profil
+Utforska fler inlägg
+Europeiska centralbanken
+625 tn följare
+Hybrid threats like cyberattacks, economic influence or coercion, and disinformation by state actors have made the risk landscape more complex, says Supervisory Board member Anneli Tuominen.
+Strengthening banks’ operational resilience, governance and contingency planning is key.
+Find the link to the full speech in the comments 👇
+184
+8 kommentarer
+Marco Aguilar Fuerte
+Ernst & Young
+• 2 tn följare
+The Cybersecurity ecosystems grow more complex, and AI accelerates identity-related threats, secure and reliable digital identity is more important than ever.
+This episode of the EY Nordic Fit for Future Podcast explores how hardware-backed authentication and trusted identity frameworks are shaping the future of the internet and global commerce.
+A timely and insightful conversation for leaders, policymakers, and organizations working to strengthen trust in a rapidly evolving digital world.
+Listen to the episode now: https://ow.ly/GSJl50Ya63M
+9
+Advisense
+11 tn följare
+New report on the use of AI to combat money-laundering in the Swedish financial sector.
+Our survey of 28 financial institutions in Sweden sheds light on the current status of AI expertise, uncertainty around regulatory requirements, and the need for investment to replace old systems.
+The amount of data that financial institutions need to analyse is constantly increasing. It is only logical that AI is the solution, and the hopes are high.
+Advisense “State of Play – AI Special Edition” is now available. Read more here: https://lnkd.in/dBnWxQmX
+#AML #AI
+32
+1 kommentar
+AI/ML SME
+694 följare
+Research Insight: Are People Systematically Inactive Across Financial Decisions?
+An insightful working paper from Danmarks Nationalbank (No. 216, September 2025) authored by Henrik Yde Andersen, Camilla Skovbo Christensen, Claus Thustrup Kreiner, and Søren Leth-Petersen explores an intriguing question:
+Do individuals who stay inactive in one financial decision - such as not refinancing a mortgage - also tend to be inactive in others, like adjusting retirement savings?
+Using Danish administrative data and quasi-experimental methods, the study finds a striking independence between financial decisions. In other words, those who remain inactive in one context are not systematically inactive in another.
+This finding challenges the idea that financial inaction stems from stable personal traits (like low literacy or attention) - instead, it highlights how context-specific factors play a much larger role. The implication: financial inaction - and its costs - are broadly distributed rather than concentrated among certain groups.
+A highly recommended read for anyone interested in behavioral finance, household decision-making, and economic policy design.
+#BehavioralEconomics #HouseholdFinance #FinancialInaction #EconomicResearch
+#smenode #smenodelabs #smenodeacademy
+1 kommentar
+Henrik A.
+Node16.ai
+• 4 tn följare
+🚀 Thrilled to share that our paper “Agentic AI for Financial Crime Compliance” has been accepted at HICSS-59! 🎉
+Together with Jan Damsgaard, Valdemar Licht we explore how agentic AI can reshape compliance and risk management in financial services.
+I’m excited to bring insights from our work at PixelPai into this dialogue, bridging research and practice.
+Looking forward to connecting with fellow researchers, practitioners, and innovators at the conference!
+📄 Link to the preprint in the first comment.
+#HICSS59 #AI #Compliance #FinancialCrime #AgenticAI #AML Morten Rongaard, Noah S. Department of Digitalization, Copenhagen Business School
+73
+4 kommentarer
+Jakob Lavröd
+Handelsbanken
+• 5 tn följare
+Is it possible to predict the FX rate movements?
+At yesterdays presentation at Sveriges riksbank, Anna Seim and Olav Syrstad argued that while it is essentially not possible to beat a random walk model for predictions forward in time, it is possible to build models that explain the historical movements in terms of macro economic variables.
+This might looks like a paradox, why could not the model be used for predictions? A potential answer lies in that the macro variables needed to compute the model in the backward scenario is available, while in a prediction scenario they also need to be predicted themselves. If prediction of the macro variables are as uncertain as the FX itself, the model would not really have anything to go on (as it can only relate two unknown things to each other).
+A version of this effect is debated in IRRBB as well. EBA heat maps tells us that we should include (among many other things) macro variables in the behavioral models. Yet while a baseline forecast might be available for the macro variables, we have no information about how they respond to one of the Basel shocks with the exception of interest rates or inflations which can be assumed to have a strong relationship.
+As such, while it looks tempting to include all variables predictive in a retrospective study, the FX case teach us that it might not help forward prediction or risk management.
+Would love to hear reflections or thought on FX prediction, have you seen predictive models beating random walk?
+#fx #fxrisk #irrbb #predictivemodel #randomwalk
+86
+9 kommentarer
+Andreas Nyberg
+1 tn följare
+The Cybersecurity ecosystems grow more complex, and AI accelerates identity-related threats, secure and reliable digital identity is more important than ever.
+This episode of the EY Nordic Fit for Future Podcast explores how hardware-backed authentication and trusted identity frameworks are shaping the future of the internet and global commerce.
+A timely and insightful conversation for leaders, policymakers, and organizations working to strengthen trust in a rapidly evolving digital world.
+Listen to the episode now: https://ow.ly/4PyB50Y8O8e
+7
+1 kommentar
+Cuong Tran
+EY
+• 6 tn följare
+The Cybersecurity ecosystems grow more complex, and AI accelerates identity-related threats, secure and reliable digital identity is more important than ever.
+This episode of the EY Nordic Fit for Future Podcast explores how hardware-backed authentication and trusted identity frameworks are shaping the future of the internet and global commerce.
+A timely and insightful conversation for leaders, policymakers, and organizations working to strengthen trust in a rapidly evolving digital world.
+Listen to the episode now: https://ow.ly/9xlb50Y9NZW
+9
+Oluwaseun Oguntuase, PhD
+Zenith Bank Plc
+• 1 tn följare
+Banks must leverage data and innovation to assess and manage #climatechange transition risks in loan portfolios amid the shift to a low-carbon economy.
+https://lnkd.in/da5tRGu4
+3
+Shashank Chauhan
+EY
+• 1 tn följare
+If you are an experienced Technology Risk professional looking for your next step, this is definitely worth checking out 🙌🏼
+14
+Sune Skadegaard Thorsen
+SEE impacts
+• 14 tn följare
+#UNGPs #CSRD #CSDDD #OECDG #Omnibus
+With clear expectations to companies that the bank invests in, the Norwegian Bank is pointing the direction for the needed development in ESG/corporate sustainability - and a just transition.
+They bank requires:
+1. Clear board-level responsibility for sustainability.
+2. Science-based targets for both climate and nature.
+3. Human rights due diligence aligned with UNGP and OECD.
+4. Transparent, forward-looking reporting aligned with #ESRS, #GRI, or #TCFD.
+From our perspective the Bank is not killing, but merely supporting the expected outcome of the Omnibus. Of course a strong focus on climate change mitigation, which is pertinent in this stage of the evolving climate crisis. And next to this - back to basics - implementing human rights due diligence in alignment with the UNGPs (the OECDG merely replicated the UNGPs). This is and was the foundation for both CSRD and CSDDD - but the focus was obfuscated by the vast number of topical standards and repetitive data-points.
+"1. Clear board-level responsibility for sustainability" and "3. Human rights due diligence aligned with UNGP and OECD" - are both basic requirements from the UNGPs.
+- Well done NBIM.
+If in doubt about, what human rights due diligence looks like - take a look at our Primer - https://lnkd.in/dbeTZfMQ
+16
+Regxplora - A Financial Regulatory & Central Bank Intelligence Platform
+920 följare
+Europe, Finansinspektionen: Sweden's Financial Supervisory Authority invites applications to join Innovationskompassen reference group on reliability of AI-based ESG data
+Sweden's Financial Supervisory Authority has opened a call for expressions of interest to participate in a reference group for its first Innovationskompassen guidance project, focused on the reliability of automated and AI-based methods used to produce ESG data.
+Following nine market submissions on potential guidance needs, the authority selected the ESG data reliability topic under its Innovationskompassen process for identifying and addressing areas where supervisory guidance may be needed. The work will map concrete questions and challenges around the use of such data, including in external sustainability reporting and firms’ approaches to calculating and managing sustainability risks, and will also consider how the authority can best provide guidance. Other submitted topics are to be retained for possible future iterations.
+Applications to join the reference group are due by 29 March, with participants to be selected based on relevance while aiming for a broad mix of competencies and perspectives. A series of workshops is planned for April to June 2026 once the reference group has been appointed.
+Link to official release: https://lnkd.in/dhthFEn5
+2
+SAS
+978 tn följare
+In a recent feature from IT Finans, Josefin Rosén, Ph.D., Trustworthy AI Expert at SAS, highlights a growing challenge for organizations: a lack of transparency in AI governance that risks undermining trust, compliance and successful AI adoption.
+To support organizations on this journey, SAS has introduced the SAS AI Governance Map; a practical framework that helps teams assess their current maturity across oversight, compliance, operations and culture, and map out the way forward with the support of a customized action plan.
+The Governance Map is part of SAS’ expanding suite of AI governance capabilities, validated by leading industry analysts and designed to integrate with existing systems across the full AI lifecycle - from data governance to model monitoring and regulatory compliance.
+📰Read the full article: https://lnkd.in/epq96qG3
+👉 Explore the SAS AI Governance Map and take the online assessment: https://lnkd.in/eeR_TYiY
+71
+1 kommentar
+Journal of Money Laundering Control
+514 följare
+Sonja Korpela’s (Tampere University, Finland) latest paper seeks to understand how the practices and processes through which the conflict between AML/CFT regulations and financial inclusion can be managed. Semi-structured interviews were carried out with subject-matter experts in Finland and analysed through qualitative thematic analysis.
+Read the full paper here: https://lnkd.in/eSQH9w3V
+Sonja Josefina Korpela; Between a rock and a hard place: managing the conflict between anti-money laundering and financial inclusion. Journal of Money Laundering Control 2025; https://lnkd.in/euEPeYkj
+© Emerald Publishing
+#Antimoneylaundering #Riskmanagement #Financialinclusion #AML #CFT
+24
+Inclus
+2 tn följare
+🌅 What AI cannot offer: The human dimension of risk management, highlights from the Inclus Breakfast Event (12.11.2025)
+Thank you to everyone who joined our November breakfast event, where Olvi, St1, and philosopher Esa Saarinen shared how risk management is evolving in the age of AI. Across all three perspectives, a shared theme emerged: successful risk management blends practical structures with human judgement, participation, and meaning.
+🔍 Olvi
+General Counsel Esa Hyttinen highlighted how Olvi’s growth and internationalization have strengthened their commitment to participatory risk management, with Inclus helping connect insights, visualize trends, and link risks to strategy.
+⚙️ St1
+CSO Antti Järvinen walked through St1’s comprehensive risk landscape, from HSSE and cybersecurity to supply chain and continuity. His message: technology supports the work, but transparency and reality must lead.
+🧠 Esa Saarinen
+Saarinen reminded us of what AI cannot replace, the deeply human capacities that shape good judgment and collective understanding:
+• Emotional understanding: sensing concerns and dynamics that data cannot capture
+• Genuine presence: being fully attentive to people and moments
+• Wisdom and values: drawing on experience and ethics when making decisions
+• Human sense-making: creating shared meaning beyond information and analysis
+👉 Read the full blog recap here to dive deeper into the insights: https://lnkd.in/dpNcV5ug
+#RiskManagement #AI
+4
+Victor Kotnik
+Deloitte
+• 4 tn följare
+At Deloitte, we've been guiding Nordic companies on their journey to harness the transformative power of Generative AI. Our latest research reveals key insights and lessons that businesses in the region can learn to successfully adopt and scale Gen AI. Discover how innovative strategies, overcoming challenges, and leveraging opportunities can drive growth and efficiency. Learn from real-world success stories and see how the Nordics can stay ahead in the AI revolution! 🤖✨
+7
+3 kommentarer
+Johan Rudsvik
+Deloitte Sweden
+• 4 tn följare
+At Deloitte, we've been guiding Nordic companies on their journey to harness the transformative power of Generative AI. Our latest research reveals key insights and lessons that businesses in the region can learn to successfully adopt and scale Gen AI. Discover how innovative strategies, overcoming challenges, and leveraging opportunities can drive growth and efficiency. Learn from real-world success stories and see how the Nordics can stay ahead in the AI revolution! 🤖✨ https://lnkd.in/dmkUnRwS
+4
+Data Innovation Summit
+15 tn följare
+🚀 Are you working with Data, Analytics, or AI? The 11th annual Data Innovation Summit is the place to be!
+Join 3,500+ data leaders, innovators, and executives in the Nordics to:
+✅ Learn from real-world case studies across 15 stages - see what works, what fails, and what drives real ROI.
+✅ Stay ahead with cutting-edge insights on AI, generative AI, agentic AI, modern platforms, and responsible AI.
+✅ Discover how enterprises scale AI from pilots to business-first transformation.
+✅ Build human-centered AI products that drive adoption and trust.
+✅ Strengthen your data foundations - pipelines, governance, security, and resilient infrastructure.
+✅ Navigate ethical and regulatory challenges like the EU AI Act.
+✅ Explore live tech demos and industry-specific solutions in finance, manufacturing, retail, healthcare, telecom, gaming, logistics, and the public sector.
+🎟 Don’t miss your chance to connect, learn, and lead the AI transformation in your organization. Get your ticket today! https://lnkd.in/d82tw3x
+#DISummit2030 #DIS2026x1
+13
+Energi.AI
+4 tn följare
+Repeat after me: Solid data quality is no longer just a reporting issue👉
+In this article, co-written by our CEO Anders H. Lier together with EY, we look at why data quality is becoming a critical foundation for Pillar 3 reporting, strategic decision-making, and credit assessments in financial institutions.
+A timely read for anyone working at the intersection of regulation, risk, and strategy👀
+https://lnkd.in/ehDfd9in
+4
+Per Fust
+Deloitte
+• 1 tn följare
+At Deloitte, we've been guiding Nordic companies on their journey to harness the transformative power of Generative AI. Our latest research reveals key insights and lessons that businesses in the region can learn to successfully adopt and scale Gen AI. Discover how innovative strategies, overcoming challenges, and leveraging opportunities can drive growth and efficiency. Learn from real-world success stories and see how the Nordics can stay ahead in the AI revolution! 🤖✨
+3
+Visa fler inlägg
+Visa färre inlägg
+Skaffa dig nya kompetenser med hjälp av dessa kurser
+5h
+Introduction to Probabilistic Knowledge Graphs: AI-Driven Inference and Real-World Applications
+2h 22m
+Tableau and R for Analytics Projects
+2h 5m
+Advanced Python: Top Tools for Data Science and Engineering
+Se alla kurser
+LinkedIn
+© 2026
+Om
+Tillgänglighet
+Användaravtal
+Sekretesspolicy
+Cookiepolicy
+Upphovsrättspolicy
+Varumärkespolicy
+Gästinställningar
+Riktlinjer
+العربية (Arabiska)
+বাংলা (Bengali)
+Čeština (Tjeckiska)
+Dansk (Danska)
+Deutsch (Tyska)
+Ελληνικά (Grekiska)
+English (Engelska)
+Español (Spanska)
+فارسی (Persiska)
+Suomi (Finska)
+Français (Franska)
+हिंदी (Hindi)
+Magyar (Ungerska)
+Bahasa Indonesia (Indonesiska)
+Italiano (Italienska)
+עברית (Hebreiska)
+日本語 (Japanska)
+한국어 (Koreanska)
+मराठी (Marathi)
+Bahasa Malaysia (Malajiska)
+Nederlands (Nederländska)
+Norsk (Norska)
+ਪੰਜਾਬੀ (Punjabi)
+Polski (Polska)
+Português (Portugisiska)
+Română (Rumänska)
+Русский (Ryska)
+Svenska (Svenska)
+తెలుగు (Telugu)
+ภาษาไทย (Thai)
+Tagalog (Tagalog)
+Türkçe (Turkiska)
+Українська (Ukrainska)
+Tiếng Việt (Vietnamesiska)
+简体中文 (Kinesiska (förenklad))
+正體中文 (Kinesiska (traditionell))
+Språk
+Samtyck och gå med i LinkedIn
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.
+Logga in för att se hela Andrijas profil
+Andrija kan presentera dig för mer än 10 personer på Deloitte
+E-post eller telefonnummer
+Lösenord
+Visa
+Har du glömt ditt lösenord?
+Logga in
+Logga in med e-postadress
+eller
+Ny på LinkedIn? Gå med nu
+Genom att klicka på Fortsätt för att gå med eller logga in samtycker du till LinkedIns användaravtal, sekretesspolicy och cookiepolicy.

@@ -154,3 +154,76 @@ The project-safe decisions are:
 Stop rule: the logged-in review is closed for the current corpus. Reopen only
 for new posts/comments after 2026-05-21 or if a reviewer asks directly about one
 of the parked lanes above.
+
+## Andrija Djurovic / ADSFCR Addendum
+
+Source pack:
+`reports/linkedin_credit_risk_andrija_djurovic/`.
+
+The Andrija pass applies the improved Denis workflow to a second credit-risk
+profile. It indexed 21 public posts, captured 4 public LinkedIn articles,
+resolved 58 external links, extracted 50 high-value readable source rows, read
+9 LinkedIn document/deck PDFs, and triaged 52 visual rows. Two public activity
+URLs only returned generic LinkedIn text and were archived as blocked rather
+than inferred from snippets.
+
+The project-safe decisions are:
+
+- **Promote to CRPTO reviewer-defense language**: risk differentiation versus
+  risk quantification, PD calibration before portfolio optimization,
+  multi-period PD backtesting caveats, conformal inference as uncertainty
+  framing, and decision value beyond ranking metrics.
+- **Append to the mini-book as governed caveats**: multi-period average PD
+  testing, reliability limits of normal multi-period tests, model-based
+  discrete PD rating-scale calibration, and WoE encoding instability.
+- **Park as Paper 4 prototypes**: tree-based risk-factor interactions under
+  monotonic/business constraints, model-based PD calibration, WoE instability
+  diagnostics, and optional MoC Type C simulation. None reopens the official
+  champion unless it changes a claim, appendix table, or reviewer response.
+- **Route to thesis rather than IJDS body**: IFRS9 supervised macro index,
+  PCA/ADF/OLS/dynamic/recursive regression material, LGD/EAD Somers D under
+  conservatism, and scorecard model shift/MRM.
+- **Archive as tooling/source discovery**: PDtoolkit, monobinpy, R IRB toolkit,
+  ADSFCR repository announcements, book-release posts, and LinkedIn-only
+  material without independent source status.
+
+Stop rule: the Andrija intake is closed for the current public corpus. Reopen
+only for newly visible logged-in comments/links, canonical papers, or local
+experiments that can change a paper claim, appendix artifact, reviewer response,
+or thesis chapter. LinkedIn material remains intake evidence only.
+
+## Andrija Logged-In P0/P1 Addendum
+
+Source pack:
+`reports/linkedin_credit_risk_andrija_djurovic/logged_in_review/`.
+
+The logged-in pass was completed through Windows Opera GX, using a
+non-destructive copy of the user's visible authenticated browser profile. It
+captured 37 P0/P1 rows, with 34 rendered captures, 2 checkpoint/signup
+surfaces, 1 capture error, 121 visible comments and 72 external link rows.
+
+Project-safe logged-in deltas:
+
+- **Promote to CRPTO metric governance**: an arXiv preprint on statistical
+  hypothesis testing for IV supports the caveat that fixed IV thresholds are
+  inherited heuristics, especially fragile under class imbalance. This goes to
+  language and optional Paper 4 prototype only, not to the IJDS empirical core.
+- **Promote to WoE stability caveat**: the WoE instability thread sharpened the
+  point that iterative replacement using model-predicted outcomes can change a
+  scorecard even when the first model replicates perfectly. This is a Paper 4
+  candidate only under a local experiment gate.
+- **Park as residual-tree validation prototype**: tree-based residual/segment
+  validation may identify omitted risk factors or over/underestimation pockets,
+  but it must preserve monotonicity, minimum-leaf and auditability constraints.
+- **Promote to PD backtesting caveat**: autocorrelation and common macro factors
+  affect effective sample size; multi-period PD tests should not be narrated as
+  mechanical pass/fail evidence.
+- **Append to thesis/MRM**: model shift remains useful for specification-risk
+  monitoring and systematic scorecard validation, but not as a new IJDS claim.
+- **Archive**: non-credit-risk dense threads, hybrid-threat financial stability
+  material and financial-crime-compliance AI sources are out of CRPTO scope.
+
+Stop rule: the logged-in Andrija pass is closed for P0/P1. Reopen only if a
+new independent source or local experiment can change a claim, appendix table,
+reviewer response or thesis chapter. No LinkedIn comment is public evidence by
+itself.

@@ -1,0 +1,86 @@
+Selective use of machine learning for IRB models
+Report this article
+Andrija Djurovic
+Andrija Djurovic
+Published Aug 15, 2023
++ Follow
+When discussing ML for IRB models with practitioners, I consistently perceive that the decision boils down to a binary selection: either a complete transition to ML or a complete omission of ML usage. However, must this choice invariably be binary? Numerous domains within traditional IRB modeling exist where ML can make substantial contributions.
+This article highlights specific domains and scenarios within traditional IRB modeling where ML can serve as a valuable tool for supporting model development.
+The following list outlines these areas:
+1️⃣ Missing values imputation – in instances where it is relevant and practitioners opt for model-based imputation, a range of ML methods can be considered. Typically, this task involves a blend of classification and regression modeling, as it often entails managing diverse types of risk factors.
+2️⃣ Risk factors engineering – this is one of the most influential uses of ML for ranking model development. A common approach in employing ML for this purpose involves deriving interactions between these risk factors. Decision tree and random forest are prevalent ML techniques used for this task. This approach aids practitioners in accommodating non-linearity within linear models and effectively addresses challenges arising from a limited number of risk factors.
+3️⃣ Selecting the relevant risk factors – various challenger models can be used as a benchmark for choosing the most important risk factors. Further, these risk factors can serve and be shortlisted for traditional models.
+4️⃣ Identifying the relationship between the risk factors and target – beyond isolating the critical risk factors, ML challenger models offer insights into the anticipated association between the risk factors and target variable. This information is relevant for standard binning procedures or evaluating the binning quality, potentially enhancing risk factor engineering through techniques like splines.
+Recommended by LinkedIn
+Handbook for metric selection and model evaluation
+Aishwarya Srinivasan
+3 years ago
+Model robustness explained: methods, testing, and best…
+Invisible Technologies
+7 months ago
+Top 10 Machine Learning Models
+Kavindu Rathnasiri
+2 years ago
+This use case proves valuable in identifying both monotonic and non-monotonic relationships.
+5️⃣ Blockwise or modular ranking model design – when developing the ranking model, practitioners often prefer modular design utilizing multiple submodules or blocks based on different data coverage instead of running the algorithm on the consolidated database. ML in this design can be convenient for ranking model development of the modules for which there is no prior solid business expectation about the relationship between the risk factors and target.
+6️⃣ Segment analysis – modeling the response residuals using ML methods, practitioners can identify segments where the candidate model/model in use underestimates or overestimates the observed target. Additionally, for the same task, practitioners can borrow the idea from the conformal inference (prediction) and use the non-conformity measure as a target for the ML method to identify the segments with lower model performance. The benefits of this analysis, in general, can be extended into different directions: to improve the performance of the candidate model, to identify the bias arising from the omitted risk factors, margin of conservatism, etc.
+7️⃣Two-stage modeling – essentially by expanding the segment analysis, this approach aims to enhance model performance by refining predictions through adjustments made to the existing model.
+8️⃣Margin of conservatism (MoC) – ML use cases for this purpose:
+● quantification of uncertainty that arises from special values;
+● elaboration of the segment analysis concept and implementation of MoC for segments displaying poor model performance.
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+107
+6 Comments
+Niclas Celvin
+2y
+Report this comment
+Great summary Andrija, your point number 3 could be further expanded into challenger models of the final model. An excellent way of showing how much predictive power potentially could have been improved weighting this against the human judgement provided during the model development process.
+Like
+Reply
+2 Reactions
+3 Reactions
+Arjun Sunder S, CA,FRM
+2y
+Report this comment
+Hi, thanks for sharing this article. Can you give some examples on incorporating non- linearity within linear models with assistance of ML?
+Like
+Reply
+1 Reaction
+Vadim Bordian, FRM
+2y
+Report this comment
+Nice take ! You should write a response to the EBA consultation ;)
+Like
+Reply
+1 Reaction
+2 Reactions
+See more comments
+To view or add a comment, sign in
+More articles by Andrija Djurovic
+IRB models uncertainty and conformal inference
+Sep 20, 2023
+IRB models uncertainty and conformal inference
+While regulatory requirements concerning the Margin of Conservatism (MoC) necessitate addressing the general estimation…
+72
+IRB model calibration
+Sep 12, 2023
+IRB model calibration
+Some time ago, I stumbled upon a video discussing model calibration, which inspired me to delve into the world of IRB…
+111
+Machine learning for IRB models
+Aug 6, 2023
+Machine learning for IRB models
+Recently EBA published a follow-up report from the consultation on the discussion paper on machine learning for IRB…
+65

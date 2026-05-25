@@ -1,0 +1,5 @@
+𝐓𝐡𝐞 𝐈𝐧𝐬𝐭𝐚𝐛𝐢𝐥𝐢𝐭𝐲 𝐨𝐟 𝐖𝐨𝐄 𝐄𝐧𝐜𝐨𝐝𝐢𝐧𝐠 𝐢𝐧 𝐏𝐃 𝐌𝐨𝐝𝐞𝐥𝐢𝐧𝐠
+Binomial logistic regression with categorized risk factors is the most common approach for modeling Probability of Default (PD). Within this framework, dummy encoding and Weights of Evidence (WoE) encoding are standard choices for handling categorical variables. While practitioners debate which method to use - or whether to combine both - the discussion usually revolves around trade-offs between degrees of freedom, explainability, and accuracy.
+Alan Forrest and I took a different perspective: we explored factor encoding as a potential source of model instability by testing the replicability of a model built on perfect outcome data.
+Check out our new presentation, which highlights key insights and raises points for further discussion.
+#modelrisk #modelriskmanagement #irb #pd #woe

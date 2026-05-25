@@ -1,0 +1,329 @@
+source_asset_id: 7455503720936693760_external_02
+parent_activity_id: 7455503720936693760
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/model_dev_and_vld/fli_smi.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/model_dev_and_vld/fli_smi.pdf
+source_type: github
+
+                   IFRS9 Forward-Looking Modeling
+
+                      Supervised Macroeconomic Index
+
+
+                                Andrija Djurovic
+
+
+
+
+                    www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic          FLI and Supervised Macroeconomic Index   1 / 11
+IFRS9 Forward-Looking Modeling in Practice
+
+
+   IFRS9 requires the inclusion of future reasonable and supportable information, available without undue
+   cost or effort, when estimating expected credit losses.
+
+   In practice, this often involves assessing how the macroeconomic environment affects risk parameters,
+   typically at the segment level - for instance, by regressing default rates on macroeconomic indicators.
+   Such analyses are generally known as forward-looking (FLI) exercises.
+
+   Most FLI implementations rely on OLS regression, with common model types including:
+
+          OLS regression in the form of the target variable against macroeconomic indicators (with or
+          without time lags);
+          OLS regression, including macroeconomic indicators and an autoregressive term of the target;
+          Two-step error correction models;
+          Principal Component Analysis (PCA) combined with OLS regression;
+          OLS regression with various transformations of the target variable, such as logit or probit.
+
+   Although the above list is not exhaustive, it highlights an important question: even when combining
+   several of these methods and design approaches, can practitioners effectively capture all critical business
+   inputs?
+
+
+
+
+     Andrija Djurovic             FLI and Supervised Macroeconomic Index                                  2 / 11
+IFRS9 Forward-Looking Modeling Challenges
+The main constraint in the FLI exercise that creates most of the challenges for practitioners is the limited number of
+observations typically available.
+
+Some of the most common challenges caused by the limited number of observations include:
+
+    1   Low ratio between the number of observations and available predictors: put simply, practitioners often face a
+        situation where there are too many potential predictors for too few observations. As a result, it is usually not
+        statistically sound to include more than three predictors in a single model. Although this can vary in practice,
+        typically no more than three predictors are used.
+
+    2   Incorporation of business-guided macroeconomic indicators in the FLI model: one of the key inputs from the
+        macroeconomic department and business experts is often a list of potentially important predictors for the target
+        variable. In addition to suggesting specific macroeconomic indicators, they typically provide further guidance -
+        such as the expected relationship with the target variable, the impact of an indicator at a specific time lag, or
+        recommendations to group certain indicators that should not appear in the same model. However, the limited
+        number of observations, combined with other statistical constraints, presents a significant challenge for
+        practitioners trying to incorporate these business inputs effectively.
+
+    3   Asymmetric or opposing impacts of macroeconomic indicators under different economic conditions or when
+        specific thresholds are reached: in practice, practitioners often discuss this challenge alongside the previous two.
+        When certain macroeconomic indicators are selected for this type of testing, additional analysis is typically
+        required to determine the optimal thresholds for defining economic regimes, as well as to create new derived
+        indicators and incorporate them into the model design. Consequently, this challenge can also be seen as
+        stemming from the limited number of available observations, as practitioners - even without deriving new
+        predictors - often face a relatively low ratio between the number of observations and predictors.
+
+
+          Andrija Djurovic               FLI and Supervised Macroeconomic Index                                         3 / 11
+IFRS9 Forward-Looking Modeling Challenges
+
+
+  4   Balancing the impact of macroeconomic indicators and other predictors: often, the development of the target variable
+      cannot be fully explained by macroeconomic indicators alone. However, the typical first step in FLI modeling is to explain
+      as much of the target variable’s variability as possible through the macroeconomic environment, then incorporate other
+      important events usually not captured by these indicators. The limited number of observations poses a significant
+      challenge in combining these inputs while controlling for the expected signs of the estimated coefficients.
+
+  5   Ensuring model stability and reliable forecasts: when practitioners choose an FLI model that relies on only one or two
+      macroeconomic indicators, such models are often viewed by validators and regulators as overly sensitive to those specific
+      indicators and therefore not well-suited for the FLI exercise. This limited specification is also seen as insufficient to capture
+      the broader and more complex influence of the macroeconomic environment. As with the previous challenge, this issue
+      often stems from the limited number of available observations. Incorporating a larger set of macroeconomic predictors
+      typically introduces difficulties in meeting both business expectations and fundamental statistical requirements for model
+      robustness.
+
+  6   Meeting statistical criteria for model selection: in balancing business expectations with statistical rigor, practitioners
+      typically rely on a set of statistical metrics/tests to guide the selection of the FLI model. These criteria are often sensitive
+      to sample size and, in particular, to the ratio between the number of observations and the number of predictors. When
+      sample sizes are small, including too many predictors can undermine model reliability. Consequently, satisfying statistical
+      requirements is generally more feasible when the model is built on a higher observation-to-predictor ratio.
+
+
+
+
+        Andrija Djurovic                   FLI and Supervised Macroeconomic Index                                                  4 / 11
+Supervised Macroeconomic Index
+In response to the major challenges practitioners face - many of which stem from a limited number of observations -
+Andrija Djurovic proposes the Supervised Macroeconomic Index (SMI) approach.
+
+The SMI enables practitioners to incorporate critical inputs into the FLI modeling process, such as the overall impact of
+the macroeconomic environment through model averaging, while maintaining control over the expected relationship
+between macroeconomic indicators and the modeled target. Additionally, it allows for straightforward control of the
+contribution of specific macroeconomic indicators to the model predictor in response to correlations among predictors.
+The greater flexibility of the SMI helps practitioners address key limitations of another method commonly considered in
+FLI modeling - Principal Component Analysis (PCA).
+
+The following steps provide a general framework for constructing and using the SMI for the purpose of the FLI exercise.
+
+    1   Define the set of candidate macroeconomic indicators that can be used as predictors for the FLI model.
+    2   For each individual macroeconomic indicator, define the maximum time lag to be considered in the modeling
+        process.
+    3   For each individual macroeconomic indicator, define the expected relationship with the modeled target variable.
+    4   Based on steps 1 to 3, define groups of predictors to be combined for the model estimation process.
+    5   Define the maximum number of predictors to be included in the model.
+    6   Combine the groups of predictors from step 4, up to the maximum number defined in step 5, to generate
+        potential regression models.
+    7   For each combination of predictors from step 6, estimate a constrained OLS regression of the target variable on
+        the combined predictors. The constraints should, at a minimum, reflect the expected sign of coefficients based
+        on the assumed relationship between macroeconomic indicators and the target variable.
+    8   Exclude all regression models in which at least one estimated coefficient for a macroeconomic indicator equals
+        zero.
+
+
+          Andrija Djurovic              FLI and Supervised Macroeconomic Index                                       5 / 11
+Supervised Macroeconomic Index cont.
+
+    9 From the remaining regression candidates, construct the Supervised Macroeconomic Index (SMI) as a model
+      average.
+   10 Use the SMI from step 9, either alone or in combination with additional predictors that capture significant
+      developments affecting the target but not reflected in the macroeconomic environment, to run an integrated OLS
+      regression of the target variable on the SMI and other predictors.
+   11 Evaluate model performance, address any violations of OLS assumptions, and fine-tune the model accordingly.
+
+The above steps provide a general framework for constructing and using the SMI, but practitioners can adjust certain
+parts of the process. For instance, instead of running constrained OLS on all possible combinations from one to the
+maximum number of predictors, practitioners may choose to begin with bivariate analysis, selecting one or a few
+macroeconomic indicators per group. This approach can significantly reduce execution time, especially when there are
+many predictor candidates. Additionally, to account for correlations between macroeconomic indicators, practitioners can
+go beyond constraining only the expected signs by also controlling the range of coefficient values based on the results of
+the bivariate regressions. Furthermore, once the SMI is constructed, practitioners can test and implement various
+regression designs, including modeling in first differences, dynamic regressions, or the inclusion of lagged dependent
+variables.
+
+Overall, the SMI offers a simple and straightforward way to address some of the key challenges practitioners currently
+face in the FLI exercise, while maintaining a fully explainable model design - comparable to the standard use of OLS
+regression for the same purpose.
+
+The following slides demonstrate this process, providing concrete steps for one possible design of the SMI and its use in
+the FLI exercise.
+
+
+
+         Andrija Djurovic                FLI and Supervised Macroeconomic Index                                       6 / 11
+Simulation Study Design
+
+Assume the FLI exercise is conducted using the following inputs:
+
+   1 The FLI exercise is performed under the assumption that the bank risk indicator used is the observed
+     default rate (ODR), while the macroeconomic indicators considered as potential predictors are:
+     unemployment (UNEMP), year-over-year GDP growth (GDP), year-over-year wages growth (WAGE), and the
+     6-month Euribor (EURIBOR). Additionally, the bank has defined a dummy variable (DUMMY) to account for
+     a significant change in the bank’s internal credit risk process that began in Q1 2021.
+   2 The above data are reported as quarterly snapshots, ranging from Q1 2011 to Q2 2025.
+   3 The data used for this simulation are available at the following link.
+
+With the above input data defined, the following steps demonstrate the construction and use of the SMI for the
+FLI exercise.
+
+   1 Assume that each macroeconomic indicator can have a potential impact on ODR with a delay of up to
+     four quarters. In other words, the maximum time lag for each macroeconomic indicator is considered to
+     be four quarters.
+   2 To create macroeconomic indicator groups, assume that each group consists of a single macroeconomic
+     predictor with the time lag defined in Step 1. This means that in subsequent steps of combining
+     predictors, it is not allowed to include the same macroeconomic indicator with two different time lags in
+     the same predictor combination. The variable DUMMY is not considered in this step for the creation of
+     macroeconomic indicator groups, but it will be included in later steps and in the integration regression.
+   3 Define the expected relationship between the macroeconomic indicators and the target as follows: GDP
+     and WAGE are negative, while UNEMP and EURIBOR are positive.
+
+
+        Andrija Djurovic             FLI and Supervised Macroeconomic Index                                7 / 11
+Simulation Study Design cont.
+
+
+   4    Assume that no more than three macroeconomic indicators can be combined.
+   5    Given the inputs from the above steps, run all possible OLS combinations constrained by the expected
+        sign of each macroeconomic indicator.
+   6    For all estimated constrained OLS models, discard any regressions where at least one coefficient for a
+        macroeconomic indicator is equal to zero.
+   7    Calculate the Supervised Macroeconomic Index (SMI) as the simple average of the remaining models
+        from Step 6.
+   8    Use the SMI to run an integrated OLS regression of the form ODR ~ SMI + DUMMY as a candidate FLI
+        model.
+   9    Perform model validation, including any fine-tuning or adjustment of the estimated coefficients or their
+        standard errors. Use the model to validate the potential forecast and determine the final model.
+
+Note:
+
+The presented steps are intended for demonstration purposes only but provide a solid foundation for further
+adjustments in the creation of the SMI. Therefore, practitioners are encouraged to adapt the process to better
+suit specific needs or inputs.
+
+
+
+
+         Andrija Djurovic             FLI and Supervised Macroeconomic Index                                 8 / 11
+Simulation Results
+                                                           Evolution of FLI Variables
+                           ODR                                       UNEMP                                    GDP
+        0.12
+                                                0.085
+
+
+
+        0.10                                                                                    0.1
+
+
+                                                0.080
+        0.08
+                                                                                                0.0
+
+
+
+        0.06                                    0.075
+                                                                                               −0.1
+
+
+        0.04
+Value
+
+
+
+
+                           WAGE                                     EURIBOR                                  DUMMY
+                                                                                               1.00
+
+                                                 0.06
+
+         0.1                                                                                   0.75
+
+
+
+                                                 0.04
+                                                                                               0.50
+         0.0
+
+
+                                                                                               0.25
+                                                 0.02
+        −0.1
+
+                                                                                               0.00
+                   2015           2020   2025                2015          2020         2025          2015          2020   2025
+                                                                    Quarter
+
+
+
+
+               Andrija Djurovic                 FLI and Supervised Macroeconomic Index                                       9 / 11
+Simulation Results cont.
+
+SMI Structure Overview              FLI Model
+
+##    coefficient estimate          ##            Estimate Std. Error t value Pr(>|t|)
+## 1  (Intercept)   0.0356          ## (Intercept) -0.0034     0.0061 -0.5535   0.5823
+## 2      EURIBOR   0.2380          ## smi          1.1126     0.0790 14.0773   0.0000
+## 3 EURIBOR_lag1   0.2852          ## DUMMY       -0.0131     0.0022 -5.9376   0.0000
+## 4 EURIBOR_lag2   0.3051
+## 5 EURIBOR_lag3   0.2503
+## 6 EURIBOR_lag4   0.1819
+## 7          GDP -0.0107
+## 8     GDP_lag1 -0.0162
+## 9     GDP_lag2 -0.0153
+## 10    GDP_lag3 -0.0115
+## 11    GDP_lag4 -0.0072
+## 12  UNEMP_lag1   0.0061
+## 13  UNEMP_lag2   0.0249
+## 14  UNEMP_lag3   0.0482
+## 15  UNEMP_lag4   0.0943
+## 16        WAGE -0.0179
+## 17   WAGE_lag1 -0.0221
+## 18   WAGE_lag2 -0.0213
+## 19   WAGE_lag3 -0.0142
+## 20   WAGE_lag4 -0.0076
+
+
+        Andrija Djurovic     FLI and Supervised Macroeconomic Index                      10 / 11
+Simulation Results cont.
+                                                ODR and Model Fit Comparison
+                                                         Model Fit    ODR
+
+
+
+        12.50%
+
+
+
+
+        10.00%
+Value
+
+
+
+
+        7.50%
+
+
+
+
+        5.00%
+
+
+
+
+                                    2015                                    2020   2025
+                                                            Quarter
+
+
+
+
+                 Andrija Djurovic      FLI and Supervised Macroeconomic Index             11 / 11

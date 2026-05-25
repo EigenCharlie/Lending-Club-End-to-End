@@ -1,0 +1,1094 @@
+                                                                           Non-Parametric Test for IV
+
+
+
+
+                                             Statistical Hypothesis Testing for Information Value (IV)
+
+                                           Helder Rojas                                                         helder rojas@hotmail.com
+                                           Imperial College London
+                                           South Kensington Campus
+                                           London, England
+                                           Cirilo Alvarez                                                             calvarezr@uni.edu.pe
+                                           Professional School of Statistical Engineering (UNI)
+arXiv:2309.13183v3 [math.ST] 27 Jan 2026
+
+
+
+
+                                           National Engineering University
+                                           Lima, Perú
+                                           Nilton Rojas                                                                       nrojasv@uni.pe
+                                           Professional School of Computer Science
+                                           National Engineering University (UNI)
+                                           Lima, Perú
+
+
+
+
+                                                                                       Abstract
+                                               Information Value (IV) is a widely used technique for feature selection prior to the modeling
+                                               phase, particularly in credit scoring and related domains. However, conventional IV-based
+                                               practices rely on fixed empirical thresholds, which lack statistical justification and may
+                                               be sensitive to characteristics such as class imbalance. In this work, we develop a formal
+                                               statistical framework for IV by establishing its connection with Jeffreys divergence and
+                                               propose a novel nonparametric hypothesis test, referred to as the J-Divergence test. Our
+                                               method provides rigorous asymptotic guarantees and enables interpretable decisions based
+                                               on p-values. Numerical experiments, including synthetic and real-world data, demonstrate
+                                               that the proposed test is more reliable than traditional IV thresholding, particularly under
+                                               strong imbalance. The test is model-agnostic, computationally efficient, and well-suited
+                                               for the pre-modeling phase in high-dimensional or imbalanced settings. An open-source
+                                               Python library is provided for reproducibility and practical adoption.
+
+                                               Keywords: Information Value, J-Divergence Test, Feature Selection, Nonparametric
+                                               Testing, Class Imbalance, Credit Scoring, Fraud Detection.
+
+
+                                           1. Introduction
+                                           Feature selection in classification problems, or also known as predictor variable reduction,
+                                           is an important step before venturing to build a model. In high-dimensional data, data sets
+                                           with many features, this is even more important, because parsimonious and easy-to-interpret
+                                           models are prioritized. Information Value (IV) is a quite popular tool for features selection
+                                           in binary classification problems. Initially, the IV, in conjunction with Weight of Evidence
+                                           (WoE), inspired by Information Theory developed in the 1940s Howard (1966); Kullback
+                                           (1997), was designed to selection, raking and monitor predictor variables in the credit risk
+                                           industry Siddiqi (2012). However, in recent years it has received increasing attention in
+                                           diverse areas such as; marketing, engineering and geosciences Top and Matthijsen (2015);
+
+                                                                                            1
+                             Helder R., Cirilo A. and Nilton R.
+
+
+
+
+                               IV                      Predictive Power
+                             < 0.02           Not useful for prediction
+                           0.02 to 0.1                  Weak
+                            0.1 to 0.3                 Medium
+                            0.3 to 0.5                 Strong
+                              > 0.5          Suspicious Predictive Power
+
+Table 1: Threshold values for IV and their corresponding predictive power categories, see
+Siddiqi (2012).
+
+
+Batar and Watanabe (2021); Alsabhan et al. (2022). In machine learning, in a very useful
+and interesting way, IV is used to the optimal discretization of a variable into bins given
+a discrete or continuous numeric target, process known as optimal binning Navas-Palencia
+(2020). Furthermore, the implementation using the IV is simple and practical Lund and
+Raimi (2012); Lin and Others (2013).
+    In order to illustrate how the IV is calculated, consider a binary target y and x a feature
+for which we want to evaluate its predictive power. The predictor variable x is organized in
+r bins (groups or buckets). For binning techniques in detail, see Navas-Palencia (2020). Let
+gj the count of instances with y = 1 at bin j, and gt the count of total instances with y = 1.
+                                                                      g
+Define the empirical relative frequencies p̂j for each bin j as p̂j = gjt . Correspondingly, define
+                                                 b
+the empirical relative frequencies q̂j = bjt for each bin j, where bj the count of instances
+with y = 0 at bin j, and bt the count of total instances with y = 0. Then, the Weight of
+Evidence (WoE) for bin j is defined as begindocument
+                                                                 p̂ 
+                                                                     j
+                                            WoEj = ln                     ,
+                                                                    q̂j
+and IV of predictor x is defined by
+                             r                        p̂          r
+                                                        j
+                             X                                      X
+                      IV =         (p̂j − p̂j ) ln              =         (p̂j − p̂j ) · WoEj .   (1)
+                                                      q̂j
+                             j=1                                    j=1
+
+From Equation (1), informally we can think that p̂j − q̂j is the deviation between p̂j and q̂j
+and WoEj is the importance or weight this deviation. Therefore, we can informally interpret
+IV as the weighted deviation between the empirical distributions (p̂j )1≤j≤r and (q̂j )1≤j≤r .
+Consequently, IV is used to measure the predictive power, or also called discrimination
+power, of the a feature in binary classification problems x.
+
+1.1 Our critique and motivation
+Curiously, there are practical rules, quite familiar but mysterious at the same time, to
+decide if the IV of a predictor feature x is high enough to be taken into account in the
+modeling phase, see Table 1. A fairly popular practice among IV users is to filter variables
+whose predictive power is medium or strong, that is, variables whose IV is greater than
+or equal to 0.1. This selection criterion is simple and eventually leads to good results.
+
+                                                            2
+                               Non-Parametric Test for IV
+
+
+
+
+However, the thresholds established for the IV seem to be magic and immutable numbers,
+fixed thresholds, regardless of the possible particularities that may exist in the data. For
+example, if there is a considerable imbalance in the data with respect to the target variable, a
+very recurring context in classification problems, the thresholds should be established based
+on the level of imbalance, and not be the same for cases where there is no such imbalance.
+Motivated by our intuitive impression about a close connection between the particularity
+of the data and the optimal thresholds for the IV, we made an exhaustive search about the
+origins and arguments about the fixed thresholds determined in Table 1. To our surprise, we
+have not found anything, any mathematical or theoretical construction, that supports and
+guarantees the validity this fix thresholds. As we said before, under appropriate conditions,
+this thresholds work relatively well, we think that these were determined based on the
+accumulation of empirical experiences. This absence of convincing theoretical arguments
+motivated us to work on establishing a coherent and precise statistical connection between
+the predictive power of a variable and existing particularities in the target variable. With
+this objective in mind, since (1) is a sample quantity, it is necessary to define IV as a
+statistical estimator and study its asymptotic properties and from which it is possible that
+we can establish a statistical hypothesis test.
+
+1.2 Main contributions
+In this work we propose a non-parametric hypothesis test for the IV. Taking advantage of its
+relationship with the divergence measures developed around Information Theory, we study
+the sampling properties of the IV, statistical estimator properties, in terms of the Jeffreys
+divergence measure. In Section 2, inspired in works Basharin (1959); Stewart (2019); Ba
+and Lo (2019), we prove Strong Law of Large Numbers (almost sure consistency) and
+Central Limit Theorem (asymptotic normality) for (1), with which we derived a statistical
+hypothesis test for this estimator. This test is non-parametric since it does not make any
+specific assumptions about the shape of the empirical distributions evaluated. In Section 3,
+through a simulation study we show the efficiency and superiority of our test, we compare
+its performance with the widely used criterion IV > 0.1. Additionally, in Section 4, we
+illustrate the use of our test in fraud data. Finally, in Section 5, we present a Python
+library where we have implemented all our results.
+
+
+2. Definition of the hypotheses test
+Let S = {a1 , a2 , · · · , ar } the bins set and (X, Y ) ∈ S × {0, 1} be a bivariate random vector
+endowed with an unknown distribution PX,Y = P. The random variable X is the predictor
+feature and Y is the binary target variable. Let p = (pj )1≤j≤r and q = (qj )1≤j≤r two
+discrete probability distributions on S, defined as
+
+                    pj = P(X ∈ aj |Y = 1)     and    qj = P(X ∈ aj |Y = 0),                   (2)
+
+where j ∈ D = {1, 2, · · · , r}. Furthermore, we assume that
+
+                            pj > 0   and    qj > 0   for all   j ∈ D.                         (3)
+
+                                                3
+                             Helder R., Cirilo A. and Nilton R.
+
+
+
+
+In order to measure the discrepancy between the two probability distributions p and q, we
+introduce the Jeffreys divergence.
+
+Definition 1 The Jeffreys divergence between the two probability distribution p and q is
+given by
+                                       X               pj
+                             J(p, q) =    (pj − qj ) ln .                            (4)
+                                                       qj
+                                                  j∈D
+
+Remark 1 The Jeffreys divergence of p and q is nonnegative, and equal to 0 if and only
+if p = q. Furthermore, J is symmetric, that is, J(p, q) = J(q, p). For more details about
+this measure of divergence, see Jeffreys (1946), Kullback (1997) and Jeffreys (1998).
+
+    Since the goal is to evaluate the predictive power of X on Y , then we are interested in
+testing the hypothesis
+                              Ho : p = q versus HA : p ̸= q.                             (5)
+Given a sample of N i.i.d. random vectors (X1 , Y1 ) · · · (XN , YN ) from the probability dis-
+tribution P, we define the empirical probability distributions
+                                                                      N
+                           a                          1X
+                 p̂n =   p̂n j a ∈S    where p̂aj ,n =    I[Xi ∈ aj ] I[Yi = 1],            (6)
+                               j                       n
+                                                                  i=1
+
+and
+                                                                      N
+                         a                                     1X
+                 q̂m = q̂mj a ∈S        where p̂aj ,n =            I[Xi ∈ aj ] I[Yi = 0].   (7)
+                               j                                n
+                                                                   i=1
+           r P
+           P   N
+Here n =         i=1 I[Xi ∈ aj ] I[Yi = 1] (instances with label 1) and m = N − n (instances
+           j=1
+with label 0). Using Equations (6) and (7), we can directly estimate the Jeffreys divergence
+(4).
+
+Definition 2 The Jeffreys divergence estimator is defind as
+                                                                             a
+                                                 X        a       a         p̂n j
+                                   J(p̂, q̂) =         (p̂n j − q̂mj ) ln     a .           (8)
+                                                 j∈D
+                                                                            q̂mj
+
+Remark 2 Note that IV defined in Equation (1) is equivalent to the Jeffreys divergence
+estimator this definition. Henceforth, we will use this notation to refer to IV.
+
+    The empirical divergence in Equation (8) is a plug-in estimator of the Jeffreys diver-
+gence in (4), obtained by substituting the unknown class-conditional probabilities with their
+empirical frequencies. This makes it a standard and consistent approach in information-
+theoretic inference, which is useful for the hypothesis testing problem (5). Therefore, the
+estimator (8) is a test statistic for hypothesis test (5). In the sequel, we present some
+asymptotic properties of the estimator J(p̂, q̂).
+
+
+                                                         4
+                                       Non-Parametric Test for IV
+
+
+
+
+   For simplicity, we introduce the following notations:
+                           a       a             a          a
+                         ∆pnj = p̂n j − pj ,     j
+                                               ∆qm = q̂mj − qj        for all   j ∈ D,
+                               a                       a
+             An = sup |∆pnj |,                      j
+                                        Bm = sup |∆qm |         and   Cn,m = max{An , Bm }.
+                       j∈D                     j∈D
+
+Theorem 1. (Almost sure consistency). Let p and q be two probability distributions as
+defined in (2) and satisfying assumption (3). Furthermore, let p̂n and q̂m be generated by
+i.i.d. sample (X1 , Y1 ), · · · , (XN , YN ) according to P and given by (6) and (7). Then the
+asymptotic result
+
+                                                                                        p2j + qj2
+                                                                                                   
+                 |J(p̂n , q̂m ) − J(p, q)| X                           pj          qj
+       lim sup                            ≤                     1 + ln    + 1 + ln    +                  (9)
+   (n,m)→(+∞,+∞)            Cn,m                                       qj          pj     p j qj
+                                                      j∈D
+
+holds almost surely.
+
+Theorem 2. (Asymptotic normality). Under the same assumptions as in Theorem 1, the
+                                                                  nm
+following central limit theorem hold: for (n, m) −→ (+∞, +∞) and n+m −→ γ ∈ (0, 1),
+                                              1 
+                             nm                  2                           
+                                                                               d
+                                                      J(p̂n , q̂m ) − J(p, q) =⇒ N (0, 1),              (10)
+                    mV1 (p, q) + nV2 (p, q)
+
+where
+                                                  
+                     X                pj 2  qj 2
+  V1 (p, q) =     pj (1 − pj ) 1 + ln      +                                              (11)
+                                      qj      pj
+              j∈D
+                                                                                         
+                                          X                    pi         pj 
+                                 −2                pi pj 1 + ln       1 + ln      + q i qj ,
+                                           2
+                                                                qi           qj
+                                               {(i,j)∈D : i<j}
+
+and and also,
+                                                    
+                     X                q j 2  p j 2
+  V2 (p, q) =     qj (1 − qj ) 1 + ln       +                                              (12)
+                                      pj       qj
+              j∈D
+                                                                                          
+                                           X                     qi         qj 
+                                 −2                  qi qj 1 + ln       1 + ln      + pi pj .
+                                            2
+                                                                  pi           pj
+                                               {(i,j)∈D : i<j}
+
+
+The proofs of all our results are postponed to the Appendix.
+
+    Using the asymptotic distribution presented in Theorem 2, a statistical test can be eas-
+ily derived for the hypothesis test (5), Ho : p = q. It turns out that when n and m are
+large, if replacing p and q by by their estimators p̂n and q̂m in the computation of V1
+and V2 , denoted by V1 (p̂n , q̂m ) and V2 (p̂n , q̂m ), has little effect on the normal asymptotic
+distribution. This leads to the following useful result.
+
+
+                                                       5
+                            Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Corollary 1. (J-Divergence test). Under the null hypothesis H0 in (5), for the test statistic
+(8) we have that
+                 s
+                       nm                      d
+                                J(p̂n , q̂m ) =⇒ N (0, 1) as n, m −→ ∞,                 (13)
+                   (n + m)Σ̂n,m
+
+where
+                                      mV1 (p̂n , q̂m ) + nV2 (p̂n , q̂m )
+                            Σ̂n,m =                                       .
+                                                   n+m
+
+Therefore, the critical region of the test (5) at the significance level α is
+
+                               R = {Jˆ : J(p̂n , q̂m ) > Q(1 − α)},                                           (14)
+
+where Q(1 − α) is the q (1 − α)–quantile of the distribution of J(p̂n , q̂m ) under the null
+                          nm
+                                                      
+hypothesis H0 , i.e.,           J(p̂n , q̂m ) ∼ N 0, 1 asymptotically. Consequently, if we
+                        (n+m)Σ̂n,m
+have J(p̂n , q̂m ) ∈ R, then we reject H0 . Therefore, the hypothesis test can be conducted
+by comparing the test statistic to critical values from the standard normal distribution.
+Therefore, this test is a two-sided test, where we reject the null hypothesis H0 : p = q if the
+test statistic falls into either tail of the standard normal distribution, indicating a significant
+difference in either direction.
+    Computational Efficiency: In high-dimensional data, where the number of variables
+is typically very large, the computation of the proposed test for each variable could be-
+come computationally intensive. However, the test is independent for each variable and
+therefore lends itself well to parallelization. Each variable’s test statistic can be computed
+separately, making it highly scalable for large datasets when computational resources are
+available. Additionally, in typical applications, the full set of predictors is reduced in a
+pre-modeling phase using methods such as Information Value (IV), which ranks variables
+based on their predictive power. This pre-filtering step significantly reduces the number of
+variables considered in subsequent tests, thereby minimizing the computational burden.
+
+3. Performance of the test on simulated data
+In this section we present the results of a simulation study in order to evaluate the perfor-
+mance of the test (5). For greater control of the simulations, we assume that
+                  Λ                    Λ
+                                                !
+                 X                     X
+                     Xi = a1 , . . . ,   Xi = ar Y = y ∼ Multinomial (Λ, Θ),            (15)
+                  i=1                i=1
+                                                                                                        
+where Λ = n · I[y = 1] + m · I[y = 0]. Moreover, where Θ =                        zyj θyj (1 − θy )r−j               ,
+                                                                                                             1≤j≤r
+θy ∈ (0, 1) and zyj is a normalization constant for (y, j) ∈ {0, 1} × D. By assuming (15),
+we have p and q are determined in such a way that
+
+                  pj = z1j θ1j (1 − θ1 )r−j     and        qj = z0j θ0j (1 − θ0 )r−j ,                        (16)
+
+where j = 1, . . . , r. The empirical distributions p̂n and q̂m be generated according to (15)
+and given by (6) and (7) respectively. To run the simulations, the value of θ1 = 0.5 is set,
+
+                                                  6
+                              Non-Parametric Test for IV
+
+
+
+
+from which p̂n is generated, and a value for θ0 = θ is selected from a grid on [0, 1] with
+step length 10−3 , from which q̂m is generated. For each point (θ1 , θ) ∈ {0.5} × [0, 1], we
+obtain M simulations for which we measure the divergences J(p̂n , q̂m ). From (14), for each
+θ ∈ [0, 1], we define the empirical power function as
+                                                  M
+                                         1 X
+                        Power-Function =     I[J(p̂n , q̂m ) ∈ R].                        (17)
+                                         M
+                                                  i=1
+
+where M = 103 for all simulations. Furthermore, to control and verify the effect of the
+imbalance in our simulations we define
+                                                  n
+                               Imbalance-Rate =      .                             (18)
+                                                n+m
+    The goal of the simulations is to assess the behavior of the test under various conditions,
+including different imbalance levels and numbers of bins. Before presenting the results, it is
+important to clarify the conditions under which the simulations were conducted under the
+null hypothesis H0 : p = q. In these simulations, the class-conditional probabilities were
+set equal, i.e., p = q, and the parameter θ was varied across a range of values to simulate
+different scenarios where no effect exists between the distributions of p and q. Specifically,
+θ = 0.5 represents the case of no difference between the two distributions.
+
+Remark 3 Note that assuming (15) and (16) does not restrict our results since this model
+is used only to generate the empirical distributions and not for test evaluation itself.The
+reason why we have chosen a parametric model for our experiments is for greater control of
+the simulations and simplicity in the resulting graphs. As mentioned above, our test does
+not make specific assumptions about the shape of the distributions evaluated.
+
+    Before presenting the simulation results, we clarify the selection criterion used for IV.
+In practice, IV thresholds are commonly applied to eliminate irrelevant predictors and
+retain those with meaningful contribution. In our experiments, we adopt the filtering rule
+0.1 < IV < 0.5. The lower threshold eliminates weak predictors, while the upper limit
+helps avoid overly dominant variables that may cause overfitting. This range is chosen to
+support the construction of stable and generalizable models. For simplicity, although we
+continue to refer to the threshold as “IV > 0.1” throughout the rest of the paper, it should
+be understood that all variables considered satisfy the condition 0.1 < IV < 0.5.
+    In the first simulation example, we compare the power function of our test with the
+power function of the criterion IV > 0.1 detailed in Section 1. In this case, we measure the
+power function as
+                                               M
+                                           1 X
+                        Power-Function =          I[J(p̂n , q̂m ) > 0.1],                (19)
+                                          M
+                                               i=1
+
+for each θ ∈ [0, 1]. The results of this comparison are shown in Figure 1. From this figure
+we have that, in conditions of imbalance, the superiority of the performance of our test
+compared to the commonly used criterion is notable. It is natural to wonder if this scenario
+holds at different levels of imbalance. Therefore, in Figure 2 and Figure 3 we evaluate the
+effect of different levels of imbalance on the performance of both methodologies. On the
+
+                                              7
+                          Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Figure 1: Comparison between the power function of the J-Divergence test (top line) and
+the empirical criterion IV > 0.1 (bottom line). The solid line at the top of the plot corre-
+sponds to the J-Divergence test, while the solid line at the bottom represents the IV > 0.1
+criterion. This description ensures clarity when printed in black and white, as the lines
+can be distinguished based on their relative positions. Simulation parameters: N = 50 300,
+n = 300, m = 50 000, Imbalance-Rate = 0.00596, α = 0.1%, r = 10.
+
+
+one hand, the performance of our test is robust to different intensities of the imbalance,
+see Figure 2. However, the performance of criterion IV> 0.1 is drastically affected by high
+levels of imbalance, see Figure 3. Note that the green line in Figure 3 starts almost at
+0.4, which represents the high Type-I error, high levels of false positives, associated with
+this criterion. It is worth mentioning that our test does not experience this Type-I error
+inflation generated by high levels of imbalance. In this sense, we say that our test is much
+more robust than the conventionally used criterion IV> 0.1.
+
+Remark 4 The hypothesis test that we propose in this work is much more robust to the
+presence of high levels of imbalance in the target variable.
+
+    It is also of primary interest to know how the performance of our test depends on the
+levels of statistical significance α and the number of bins r. Our test performs best for
+α ∈ [0.001%, 0.1%], see Figure 4. Furthermore, our test shows robust performance, without
+significant Type-I error, for bin numbers r ∈ [2, 14], see Figure 5.
+
+Remark 5 Although the optimal value for the level of statistical significance α and the
+number of bins r that should be used to guarantee a good performance of the hypothesis
+testing proposed in this work should vary case by case, we suggest using α = 0.01% and
+r ≤ 14.
+
+                                             8
+                              Non-Parametric Test for IV
+
+
+
+
+Figure 2: Power function of the J-Divergence test for different imbalance rates. The lines
+represent different imbalance rates, with the line at the top of the plot corresponding to an
+imbalance rate of 0.38, the next line representing 0.5, followed by 0.6, 0.67, 0.75, 0.86, and
+the bottom line representing 0.97. This description ensures clarity in black and white prints,
+as the lines can be distinguished based on their relative positions. Simulation parameters:
+r = 10, α = 0.1%, n = 3000, m ∈ [100, 50 00].
+
+
+    It is worth emphasizing that the simulation study was designed with a specific purpose:
+to examine the behavior of the proposed J-Divergence test in scenarios where traditional IV-
+based criteria often fail—namely, under conditions of class imbalance. While IV thresholds
+may perform reasonably well in balanced settings, our goal was to highlight the robustness of
+our method in more challenging contexts. Furthermore, the theoretical properties of our test
+(almost sure consistency and asymptotic normality) provide solid guarantees under minimal
+assumptions. Therefore, the simulations presented in this section are meant to illustrate the
+practical impact of these theoretical results, particularly in cases where empirical heuristics
+tend to be less reliable.
+
+
+4. Features selection in fraud detection
+
+The data analyzed in this section correspond to a public dataset provided by Vesta Cor-
+poration as part of a fraud detection challenge hosted on Kaggle. It consists of real-world
+e-commerce transactions, including a wide variety of features such as product codes, pay-
+ment methods, device types, address matching indicators, and anonymized variables derived
+from card usage and transactional behavior. These variables capture both behavioral pat-
+terns and device-related characteristics that may help identify fraudulent activity. The
+dataset is divided into two subsets: a training set comprising 472,432 operation records
+
+                                              9
+                           Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Figure 3: Power function of criterion IV > 0.1 for different imbalance rates. The lines
+represent different imbalance rates, with the topmost line corresponding to an imbalance
+rate of 0.38, followed by 0.5, 0.6, 0.67, 0.75, 0.86, and the bottommost line representing
+0.97. This line style differentiation ensures clarity when printed in black and white, as the
+lines can be distinguished based on their relative positions. Simulation parameters: r = 10,
+α = 0.1%, n = 3 000, m ∈ [100, 5 000].
+
+
+and a test set with 118,108 records. Both subsets share the same structure, consisting of
+369 features and a binary target variable indicating whether a transaction was fraudulent.
+The target variable is highly imbalanced, with a fraud rate of approximately 0.3%, which
+is standard in real-world fraud detection problems. This imbalance poses additional chal-
+lenges for building robust machine learning classifiers capable of accurately detecting fraud,
+see Addison et al. (2019).
+    The challenge is to build classification machine learning models to detect fraud with high
+precision and simultaneously with low levels of false positives. To this end, the first step is
+to features selection based on predictive power, that is, prioritize the features that contain
+the most information and that will allow correct discrimination of fraudulent operations.
+For this first stage we have considered three alternatives: i) Do not use any characteristic
+selection criteria, use all available features. ii) Use the criterion IV> 0.1. iii) Use the J-
+Divergence test that we have proposed in this work. The results for each selection criterion
+evaluated are presented in Table 2. Our test selected 42 features that the IV> 0.1 criterion
+did not select. A very interesting fact is that these 42 features not considered by the second
+criterion contain relevant information for the detection of fraud. For example, to have a
+general idea, of these 42 additional features we have selected the four with the lowest p-
+value assigned by our test, see Table 3. These four features have a clear non-linear trend
+with respect to the entropy within each bin, this confirms the significant predictive power
+
+                                              10
+                               Non-Parametric Test for IV
+
+
+
+
+Figure 4: Power function of the J-Divergence test for different values of α. The lines
+represent different values of α, with the line at the top of the plot corresponding to α = 10−8 ,
+followed by α = 10−7 , α = 10−6 , α = 10−5 , α = 10−4 , α = 0.001, α = 0.002, α = 0.005, and
+the line at the bottom representing α = 0.05. This line style differentiation ensures clarity
+when printed in black and white, as the lines can be distinguished based on their relative
+positions. Simulation parameters: n = m ∈ [300, 2 500], Imbalance-Rate = 0.5, r = 10.
+
+            Without Selection        Criterion IV > 0.1       J-Divergence Test
+                  369                        220                     262
+
+Table 2: Number of features selected for each of the three methodologies in the fraud
+detection application of Chapter 4: no selection, IV > 0.1, and J-Divergence test.
+
+
+of these characteristics when identifying fraud, see Figure 6. These same patterns are
+repeated in the remaining variables selected by our test. Therefore, in this first stage, prior
+to modeling, our test satisfactorily selected features that contain relevant information for
+the classification problem and showed superiority with respect to second methodology.
+
+
+                 Predictor                           J - Estimate    Std - Error     p - value
+            Counting Feature #6                        0.099010       0.003176      2.694e−213
+  Ratio Amount/Amount CardFeature1 STD                 0.085637       0.002939      1.036e−186
+ Ratio Amount/Amount CardFeature1 MEAN                 0.077940       0.002806      8.449e−170
+       Vesta Corporation Feature 307#                  0.080216       0.002893      3.681e−169
+
+Table 3: Results of the J-Divergence test for the selected variables in the fraud detection ap-
+plication. The table shows the J-estimates, standard errors, and p-values for each predictor
+selected by the J-Divergence test.
+
+
+                                               11
+                           Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Figure 5: Power function of the J-Divergence test for different numbers of bins. The lines
+represent different numbers of bins, with the line at the top corresponding to 20 bins,
+followed by 16, 14, 12, 10, 8, 6, 4, and the bottommost line representing 2 bins. This line
+style differentiation ensures clarity when printed in black and white, as the lines can be
+distinguished based on their relative positions. Simulation parameters: n = m = 3 000,
+Imbalance-Rate = 0.5, r ∈ [2, 20].
+
+
+    In the second stage, the modeling stage, for each selected feature subset, we will use the
+train dataset to train a Light Gradient Boosting Machine (LightGBM) with their respective
+parameters optimized for each case with their respective parameters optimized for each
+case. The main LightGBM performance indicators on test dataset are shown in Table 4.
+From this table we highlight that our test has a little more than 1% in precision with
+respect to the second methodology IV> 0.1, and judging by the other indicators, this
+increase is due to the decrease in false positives, which in this context translate into a
+non-negligible decrease in false fraud alerts. As mentioned above, a reduction of more than
+1% in false fraud alerts generally has a considerable economic and financial impact since
+it avoids the blocking of many genuine paymets operations and all the inconvenience that
+this generates for customers. If we compare our test with the first methodology, that is,
+training the LightGBM without any prior feature selection criteria, we have a 3% advantage
+in precision with 107 fewer features. In addition to the economic impact generated by the
+increase in precision in fraud detection, we must consider the reduction in engineering cost,
+implementation cost, production and maintenance, as a consequence of the reduction of
+more than 100 features in the classifier. Therefore, we can argue that the appropriate use of
+the test proposed in this work leads to the features selection efficient prior to the modeling
+stage.
+  In this study, we applied the J-Divergence test for feature selection and proceeded to
+model the data using LightGBM. However, it is important to emphasize that the feature
+
+                                             12
+                              Non-Parametric Test for IV
+
+
+
+
+Figure 6: Shannon entropy versus bins for four features selected only by the J-Divergence
+test. For each graph, the horizontal axis contains the mean within each bin and the vertical
+axis contains the Shannon entropy measure within each bin with respect to the target
+variable.
+
+
+
+
+selection methodology employed here is independent of the machine learning model selected.
+Our approach, which utilizes IV and the J-Divergence test for variable filtering, is designed
+to be applicable to any model chosen during the modeling stage. This ensures flexibility
+and robustness in the pre-modeling phase. Given the nature of the dataset, which is highly
+imbalanced, we selected LightGBM due to its efficiency, scalability, and ability to handle
+large and complex datasets. Moreover, LightGBM is one of the most widely used classi-
+fiers in credit scoring and fraud detection, making it a natural choice for this case study.
+Nonetheless, it should be noted that our methodology is not limited to LightGBM and
+
+                                             13
+                           Helder R., Cirilo A. and Nilton R.
+
+
+
+
+     Metric      Without Selection        Criterion IV > 0.1      J-Divergence Test
+     Precision        0.85496                   0.87141                0.88491
+      Recall          0.74594                   0.73457                0.73812
+       AUC            0.97098                   0.97112                0.97188
+     F1 Score         0.79624                   0.79666                0.79734
+
+Table 4: LightGBM performance on the test dataset for different feature selection methods.
+The table compares the performance of LightGBM using no feature selection, the IV > 0.1
+criterion, and the J-Divergence test. The metrics evaluated include Precision, Recall, AUC,
+and F1 score.
+
+           Filter       # Features      Precision    Recall      AUC        F1
+           IV > 0.02       312           0.86950     0.73610    0.97085   0.79512
+
+              Table 5: Summary performance for exploratory 0.02 threshold.
+
+
+could be applied to any model selected for the final predictions, highlighting the flexibility
+and adaptability of our approach.
+    To assess whether lower IV thresholds could serve as an appropriate baseline, we include
+an additional evaluation based on the threshold IV > 0.02, which is frequently cited in the
+literature as a minimum cutoff to exclude variables with weak univariate relevance, e.g., see
+Pang et al. (2020); Li et al. (2024). This more permissive criterion resulted in the selection
+of 312 features. However, as shown in Table 5, this strategy did not yield better performance
+compared to the benchmark IV > 0.1. The results suggest that IV > 0.02 tends to retain
+variables with weak discriminative power, which may introduce noise rather than improving
+model accuracy. Therefore, IV > 0.1 remains a more stable and effective filtering rule in our
+setting, and a more appropriate baseline for comparison with the proposed J-Divergence
+test.
+    In the context of credit risk modeling, Hade and Elhia (2025) propose an integrative fea-
+ture selection framework that combines multiple criteria—namely, Kruskal-Wallis, Cramér’s
+V, and Information Value—into a composite score used to rank variables. Although this
+approach captures different aspects of relevance, it requires normalization of heterogeneous
+measures and the calibration of empirical thresholds. In contrast, the J-Divergence test in-
+troduced in this paper offers a unified, nonparametric testing framework with clear asymp-
+totic guarantees and interpretability via p-values. This makes it suitable not only as a
+standalone filter but also as a complementary component within integrative pipelines like
+the one proposed by Hade and Elhia (2025). Our methodology could thus enhance such pro-
+cedures by providing both theoretical justification and operational robustness, particularly
+in imbalanced settings such as fraud detection.
+    Limitations: While the J-Divergence test offers a theoretically grounded and practi-
+cally effective method for variable selection—particularly in imbalanced scenarios—some
+limitations must be acknowledged. First, the method requires input features to be cate-
+gorical or discretized into a finite number of bins. For continuous variables, this entails a
+preprocessing step that involves partitioning the domain into intervals. The reliability of
+the test depends critically on the quality of this discretization. Second, the test relies on
+
+                                             14
+                               Non-Parametric Test for IV
+
+
+
+
+the availability of sufficient data. Since the underlying theoretical results, consistency and
+asymptotic normality, are based on empirical distributions over bins, each bin must contain
+a non-negligible number of observations. In datasets with low sample size or very sparse fea-
+tures, it may be difficult to construct bins with enough support to guarantee valid inference.
+In such cases, the power of the test may degrade or the asymptotic approximations may
+be unreliable. However, this limitation is not specific to our method, but rather inherent
+to any statistical test based on empirical distributions or nonparametric estimates. In fact,
+model-based feature selection techniques, e.g., wrapper methods or tree-based importance
+scores, also suffer from instability or overfitting when the data is scarce or highly unbal-
+anced. Our approach offers a clean and interpretable alternative precisely in the context
+where traditional empirical IV filtering lacks formal guarantees. Finally, the test is currently
+formulated for binary classification tasks. Extending the method to multiclass settings or
+continuous response variables remains an open direction for future work.
+
+
+5. Implementation
+
+In order to facilitate the usability and reproducibility of the main results of this work, we
+have developed the open-source python library “statistical-iv” available in https://pypi.
+org/project/statistical-iv/.
+
+
+6. Conclusions and future work
+
+In this paper we propose a non-parametric hypothesis test for the IV. To our knowledge,
+there is no work in the literature in which a formal statistical test for this quantity has been
+presented. We derive efficient asymptotic formulas for the test statistic that imply that our
+test is consistent. Furthermore, in different scenarios, simulations show that our test easily
+surpasses existing empirical criteria about IV based on fixed thresholds. As imbalance is
+a recurring scenario in classification problems, our test works very well even for scenarios
+with high levels of imbalance. In a real fraud identification data set, we show the potential
+of our J-Divergence statistic to evaluate the predictive power of the considered features.
+    Although the main focus of this article is binary classification, the generalization of the
+J test statistic, and therefore of the IV, to the case of multinomial classification is possible.
+Perhaps the idea of this generalization is simple and natural, although we believe that the
+technical details are not so trivial and warrants future research.
+    In summary, our proposal is designed as a robust and interpretable tool for the pre-
+modeling phase of feature selection. The J-Divergence test provides a formal statistical
+alternative to empirical IV thresholds, without relying on model-specific assumptions. This
+makes it particularly suitable for early-stage variable prioritization, especially in imbalanced
+datasets where conventional practices may fail. Rather than replacing model-based selection
+methods such as Lasso or tree-based importance, our methodology complements them by
+offering a theoretically grounded filtering step that can improve the quality and reliability of
+downstream modeling efforts. As documented in the literature Guyon and Elisseeff (2003);
+Chandrashekar and Sahin (2014), filter-based methods like ours are widely used to guide
+the selection of variables before engaging in more complex model-based selection processes.
+
+                                               15
+                             Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Appendix: Proofs
+A1. Proof of Theorem 1
+Let ϕ(x, y) = (x − y) ln xy , in such a way that
+                           
+
+                                                a    a
+                                   X                                                X
+                 J(p̂n , q̂m ) =         ϕ(p̂n j , q̂n j )    and       J(p, q) =         ϕ(pj , qj ).              (20)
+                                   j∈D                                              j∈D
+
+For a fixed j ∈ D and making use of the continuous differentiability of the function ϕ(x, y)
+along with first-order Taylor‘s theorem, see Marsden and Tromba (2003), we get
+             a    a                         a                a
+         ϕ(p̂n j , p̂n j ) = ϕ(pj + ∆pnj , qj + ∆qnj )                                                              (21)
+                                            a                     a
+                        =    ϕ(pj , qj ) + ∆pnj ∂x ϕ(pj , qj ) + ∆qnj ∂y ϕ(pj , qj ) + Rj (n, m),
+
+where, for 0 < θj , ηj < 1, the Lagrange’s remainder term in the following form
+                      1 h aj 2             a              a 
+    Rj (n, m) =          ∆pn ∂xx ϕ pj + θj ∆pnj , qj + ηj ∆qnj                               (22)
+                      2
+                                      aj aj                    aj          aj 
+                                 +2 ∆pn ∆qn ∂xy ϕ pj + θj ∆pn , qj + ηj ∆qn
+                                                                                           i
+                                                      a 2              a              a 
+                                                  + ∆qnj ∂yy ϕ pj + θj ∆pnj , qj + ηj ∆qnj .
+
+Summing over j ∈ D in (21) we have that
+                             X aj                  X aj                  X
+   J(p̂n , q̂m ) − J(p, q) =  ∆pn ∂x ϕ(pj , qj ) +  ∆qn ∂y ϕ(pj , qj ) +   Rj (n, m),                               (23)
+                             j∈D                                  j∈D                           j∈D
+
+which leads to
+                                   X                                X                           X
+  |J(p̂n , q̂m ) − J(p, q)| ≤ An          |∂x ϕ(pj , qj )| + Bn            |∂y ϕ(pj , qj )| +         |Rj (n, m)|. (24)
+                                   j∈D                              j∈D                         j∈D
+                     P                              P
+In (24), notice that j∈D |∂x ϕ(pj , qj )| < ∞ and j∈D |∂y ϕ(pj , qj )| < ∞. In the sequel, it
+is easy to deduce that the third term on the right hand side of equation (24) satisfies the
+following inequality
+                               
+      1 X                    1      X                    a              a 
+             |Rj (n, m)| ≤       An       ∂xx ϕ pj + θj ∆pnj , qj + ηj ∆qnj             (25)
+    Cn,m                     2
+         j∈D                        j∈D
+                                                                 a           a 
+                                           X
+                                  +2 An        ∂xy ϕ pj + θj ∆pnj , qj + ηj ∆qnj
+                                                    j∈D
+                                                                                                                    
+                                                                                                a             a 
+                                                                    X
+                                                             +Bm           ∂yy ϕ pj + θj ∆pnj , qj + ηj ∆qnj            .
+                                                                    j∈D
+
+                                                                                           a             a
+Based on the strong law of large numbers, we know that both ∆pnj and ∆qm        j
+                                                                                  tends to 0
+as n, m → ∞ almost surely,     and  consequently, An and B  m  also tends to 0. Based on the
+                                                a           a 
+same argument, we have j∈D ∂xx ϕ pj + θj ∆pnj , qj + ηj ∆qnj → j∈D |∂xx ϕ(pj , qj )| < ∞,
+                          P                                         P
+P                   aj           aj     P                                       P
+  j∈D ∂xy ϕ pj +θj ∆pn , qj +ηj ∆qn   → j∈D |∂xy ϕ(pj , qj )| < ∞, and likewise, j∈D ∂yy ϕ pj +
+
+                                                             16
+                                       Non-Parametric Test for IV
+
+
+
+    a              a 
+θj ∆pnj , qj + ηj ∆qnj → j∈D |∂yy ϕ(pj , qj )| < ∞ as n, m → ∞ almost surely. Therefore,
+                        P
+from equation (25) we have to
+                                 1    X
+                                            |Rj (n, m)| −→ 0      as     n, m −→ ∞,                (26)
+                             Cn,m
+                                      j∈D
+
+almost surely. Finally, we combine equations (24) and (26), which leads us to
+                        |J(p̂n , q̂m ) − J(p, q)| X                    X
+                lim sup                          ≤  |∂x ϕ(pj , qj )| +   |∂y ϕ(pj , qj )|          (27)
+          (n,m)→(+∞,+∞)            Cn,m
+                                                                 j∈D                     j∈D
+              X           p 
+                             j        pj − q j
+          ≤          ln           +
+                           qj            pj
+              j∈D
+              X           q 
+                            j         qj − p j
+          +          ln           +
+                           pj            qj
+              j∈D
+                (                                                        )
+                             p                     q       qj   pj
+                                  j                    j
+          X
+      ≤             1 + ln             + 1 + ln              +    +       .
+                                 qj                   pj       pj   qj
+          j∈D
+
+   almost surely.                                                                                    □
+
+A2. Proof of Theorem 2
+                                                       a 
+From definition (6) we know that the r-tuple np̂n = np̂nj j∈D follows a Multinomial law
+with parameters n and p, denoted by np̂n ∼ M(n, p). Similarly, from definition (7),
+mq̂m ∼ M(m, q). Therefore, applying the weak convergence of the Multinomial law, see
+for example Proposition 2 in Lo et al. (2021), we have
+                              !
+                      n aj
+                    r
+                                    d
+                         ∆p n     =⇒ Zp ∼ Nr (0, Σp ) as n −→ ∞,                   (28)
+                      pj
+                                          j∈D
+
+and                                   !
+                           m aj
+                       r
+                                                 d
+                             ∆q                 =⇒    Zq ∼ Nr (0, Σq )        as   m −→ ∞.         (29)
+                           qj m
+                                        j∈D
+
+Here Zp = (Zpj )j∈D Σp and Zq = (Zqj )j∈D are two independent Gaussian random vectors
+whit mean zero and covariance matrix Σp and Σq respectively, whose elements are
+                                           √
+                    Σp i,j = (1 − pj )δij − pi pj (1 − δij ), (i, j) ∈ D2 ,
+                      
+                                                                                 (30)
+
+and
+                                                 √
+                                                                               (i, j) ∈ D2 ,
+                            
+                          Σq i,j = (1 − qj )δij − qi qj (1 − δij ),                                (31)
+where δij is the Kronecker delta. Using the linearity properties of the multivariate normal
+distribution in (28), and with the help of (30), we get
+              X      a                   d  1 X√
+                    ∆pnj ∂x ϕ(pj , qj ) =⇒ √     pj ∂x ϕ(pj , qj )Zpj               as   n −→ ∞,   (32)
+                                             n
+              j∈D                                     j∈D
+
+
+                                                            17
+                                Helder R., Cirilo A. and Nilton R.
+
+
+
+
+which the right side of equation (32) is a random variable that is normally distributed with
+mean zero and variance equal to
+                                                           !
+     1                       1 X√
+       V1 (p, q) = Var √              pj ∂x ϕ(pj , qj )Zpj                                   (33)
+     n                        n
+                                j∈D
+                         
+                       1 X         √                     
+                   =           Var pj ∂x ϕ(pj , qj )Zpj
+                       n
+                           j∈D
+                                 X            √                    √                     
+                         +2               Cov pi ∂x ϕ(pi , qi )Zpi , pj ∂x ϕ(pj , qj )Zpj
+                                 {(i,j)∈D2 : i<j}
+                            X
+                        1                                           2
+                    =                 pj (1 − pj ) ∂x ϕ(pj , qj )
+                        n
+                                j∈D
+                                        X                                                 
+                            −2                      pi pj ∂x ϕ(pi , qi ) ∂x ϕ(pj , qj )
+                                 {(i,j)∈D2 : i<j}
+                            (
+                                                      p j 2  q j 2
+                                                                   
+                        1       X
+                    =            pj (1 − pj ) 1 + ln         +
+                        n                             qj         pj
+                             j∈D
+                                                                                  )
+                                    X                     pi         p j  qi qj
+                            −2               pi pj 1 + ln      1 + ln      +         .
+                                       2
+                                                          qi          qj     pi pj
+                                 {(i,j)∈D : i<j}
+
+
+Similarly, from equations (29) and (31), we know that
+            X      aj                 d  1 X√
+                  ∆qm ∂y ϕ(pj , qj ) =⇒ √     qj ∂y ϕ(pj , qj )Zqj                    as      m −→ ∞,   (34)
+                                          m
+            j∈D                                     j∈D
+
+
+which the right side of equation (34) is a random variable that is normally distributed with
+mean zero and variance equal to
+                                                                   !
+          1                        1 X√
+             V2 (p, q) = Var √               qj ∂y ϕ(pj , qj )Zqj                           (35)
+          m                        m
+                                       j∈D
+                               (
+                                                             q j 2  p j 2
+                                                                           
+                            1 X
+                        =            qj (1 − qj ) 1 + ln            +
+                            m                               pj          qj
+                                 j∈D
+                                                                                       )
+                                    X                         qi          qj  p i p j
+                            −2                qi qj 1 + ln         1 + ln      +          .
+                                       2
+                                                              pi           pj    qi qj
+                                      {(i,j)∈D : i<j}
+
+
+Using a slight modification of the arguments in (25) and (26), it is verified the following
+convergence almost surely
+              r
+                           nm             X
+                                            Rj (n, m) −→ 0                       as       n, m −→ ∞.    (36)
+                  mV1 (p, q) + nV2 (p, q)
+                                                  j∈D
+
+
+                                                          18
+                                Non-Parametric Test for IV
+
+
+
+
+Substituting equations (32), (34) and (36) in (23), and since Zp and Zq are independent
+                                    nm
+random vectors, and assuming that n+m   −→ γ ∈ (0, 1), finally we obtain
+               r
+                            nm                                     
+                                                                      d
+                                             J(p̂n , q̂m ) − J(p, q) =⇒ N (0, 1).         (37)
+                   mV1 (p, q) + nV2 (p, q)
+
+                                                                                            □
+
+Declarations
+Ethics approval and consent to participate. This declaration is not applicable.
+
+Consent for publication. This declaration is not applicable.
+
+Availability of data and materials. The datasets supporting the findings of this study
+are available at the following repository: https://github.com/Nicerova7/statistical iv. This
+repository provides access to the data used in the analysis, ensuring transparency and repro-
+ducibility of the results. Furthermore, we apply our test on fraud identification data and pro-
+vide an open-source Python library, called “statistical-iv” (https://pypi.org/project/statistical-
+iv/).
+
+Competing Interests. The authors declare that they have no competing interests.
+
+Funding. No funding was received for conducting this study.
+
+Authors’ contributions. All authors made significant contributions to the manuscript,
+including its design, data analysis, and drafting. All authors have read and approved the
+final version.
+
+Acknowledgments. This work has been partially supported by the Research Institute of
+the Faculty of Economics, Statistics and Social Sciences (IECOS) and the Vice-Rectorate of
+Research of the National University of Engineering (VRI-UNI) through the research project
+25-2023-002666.
+
+
+
+
+References
+Addison, H., Bouchon-Meunier, B., CIS, I., inversion, Lei, J., Lynn@Vesta, Marcus2010,
+ and Abbass, H. (2019). IEEE-CIS Fraud Detection. Kaggle, San Francisco, California.
+ Available at https://kaggle.com/competitions/ieee-fraud-detection.
+
+Alsabhan, A., Singh, K., Sharma, A., Alam, S., Pandey, D., Rahman, S., Khursheed, A.,
+  and Munshi, F. (2022). Landslide susceptibility assessment in the himalayan range based
+  along kasauli–parwanoo road corridor using weight of evidence, information value, and
+  frequency ratio. Journal Of King Saud University-Science, 34:101759.
+
+                                               19
+                           Helder R., Cirilo A. and Nilton R.
+
+
+
+
+Ba, A. and Lo, G. (2019). Divergence measures estimation and its asymptotic normality
+  theory in the discrete case. European Journal Of Pure And Applied Mathematics, 12:790–
+  820.
+
+Basharin, G. (1959). On a statistical estimate for the entropy of a sequence of independent
+  random variables. Theory Of Probability & Its Applications, 4:333–336.
+
+Batar, A. and Watanabe, T. (2021). Landslide susceptibility mapping and assessment
+  using geospatial platforms and weights of evidence (woe) method in the indian himalayan
+  region: Recent developments, gaps, and future directions. ISPRS International Journal
+  Of Geo-Information, 10:114.
+
+Chandrashekar, G. and Sahin, F. (2014). A survey on feature selection methods. Computers
+ & Electrical Engineering, 40(1):16–28.
+
+Guyon, I. and Elisseeff, A. (2003). An introduction to variable and feature selection. Journal
+ of machine learning research, 3:1157–1182.
+
+Hade, A. and Elhia, M. (2025). Predicting mortgage credit defaults in morocco using
+ machine learning approaches. Discover Artificial Intelligence, 5(1).
+
+Howard, R. (1966). Information value theory. IEEE Transactions On Systems Science And
+  Cybernetics, 2:22–26.
+
+Jeffreys, H. (1946). An invariant form for the prior probability in estimation problems. Pro-
+  ceedings Of The Royal Society Of London. Series A. Mathematical And Physical Sciences,
+  186:453–461.
+
+Jeffreys, H. (1998). The Theory of Probability. OuP Oxford, Oxford, United Kingdom.
+
+Kullback, S. (1997). Information Theory and Statistics. Courier Corporation, Mineola, New
+ York.
+
+Li, J., Guo, C., Lv, S., Xie, Q., and Zheng, X. (2024). Financial fraud detection for
+  chinese listed firms: Does managers’ abnormal tone matter? Emerging Markets Review,
+  62:101170.
+
+Lin, A. and Others (2013). Variable reduction in sas by using weight of evidence and
+  information value. SAS Global Forum, 95:213.
+
+Lo, G., Kpanzou, T., Ngom, M., and Niang, A. (2021). Weak Convergence (IA): Sequences
+  of Random Vectors. Statistics, Paris, France.
+
+Lund, B. and Raimi, S. (2012). Collapsing levels of predictor variables for logistic regression
+  and weight of evidence coding. MidWest SAS Users Group Proceedings, pages 16–18.
+
+Marsden, J. and Tromba, A. (2003). Vector Calculus. Macmillan, New York, USA.
+
+Navas-Palencia, G. (2020). Optimal binning: Mathematical programming formulation.
+  ArXiv Preprint.
+
+                                              20
+                             Non-Parametric Test for IV
+
+
+
+
+Pang, P. S., Hou, X., and Xia, L. (2020). Borrowers’ credit quality scoring model and
+  applications, with default discriminant analysis based on the extreme learning machine.
+  Technological Forecasting and Social Change, 165:120462.
+
+Siddiqi, N. (2012). Credit Risk Scorecards: Developing and Implementing Intelligent Credit
+  Scoring. John Wiley & SAS Business Series, Hoboken, New Jersey.
+
+Stewart, A. (2019). Jensen-Shannon Divergence: Estimation and Hypothesis Testing. PhD
+  thesis, The University of North Carolina at Charlotte.
+
+Top, J. and Matthijsen, K. (2015). Information value in a decision making context. Radboud
+  University Nijmegen.
+
+
+
+
+                                           21

@@ -1,0 +1,365 @@
+source_asset_id: 7342064984069173248_external_02
+parent_activity_id: 7342064984069173248
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/mrm%2Fms_mrm.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/mrm%2Fms_mrm.pdf
+source_type: github
+
+                 Model Shift and Model Risk Management
+
+
+                                        Andrija Djurovic
+                                        Dr. Alan Forrest
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest         Model Shift   1 / 13
+Model Shift and Model Risk Management
+
+
+Model shift refers to the quantitative change in a model’s parameters and outputs resulting from shifts in the
+input data. It is particularly useful in credit risk modeling for understanding how models react to changes in
+their underlying assumptions, data, or environment. The concept of model shift enables practitioners to:
+
+        efficiently address “What if. . . ?” scenarios, quantifying how data shifts impact model outputs without
+        needing complete model redevelopment;
+        provide a systematic way to assess and respond to model sensitivities and weaknesses, enhancing model
+        validation, monitoring, and risk management.
+
+The following slides describe the framework for quantifying the model shift in one of the most commonly used
+methods in credit risk: logistic regression with categorical risk factors.
+
+In this framework both data and models can be presented as observed and expected counts in a
+high-dimensional contingency table. These in turn are converted to points in a Data Space of high dimensional
+vectors. Here a data point is defined by the proportion of the observed population in each cell, viewed as a
+vector of real numbers indexed by the cells. Likewise, the model point is defined by the proportion of the
+expected population in each cell etc. We can keep track separately of the total population size for purposes of
+inference, but note that the data point and model point do not vary as population size changes. The maximum
+likelihood construction of logistic regression model from data depends solely on the proportions.
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest              Model Shift                                              2 / 13
+Applications of Model Shift
+
+Model shift in response to data shift is more than an academic exercise. It is clearly closely related to data drift
+and concept drift, well known concerns in model management, and it underlies modeling techniques such as
+imputation, bootstrapping and rebalancing. We are interested in it as a method for important analyses in
+modern model risk management.
+
+The following list outlines some use cases of the model shift:
+
+        Dynamic Model Reweighting: Enables real-time updates of model parameters as new data streams in,
+        ensuring agility in model adjustments without waiting for periodic reviews.
+        Prioritizing Validation Investigations: Quickly computes model shifts for various data shift scenarios,
+        enabling efficient triage and focus on the most impactful concerns.
+        Quantifying Business Impacts: Links data shifts to business-relevant metrics like Probability of Default
+        (PD) in Risk-Weighted Assets (RWA), ensuring sensitivity analyses are connected to actionable
+        outcomes.
+        Sensitive Data Shift Identification: Enables the identification of data shifts that have the most significant
+        impact on models, enriching the validation narrative with actionable insights.
+        Bespoke Model Monitoring: Defines monitoring metrics for sensitive data shifts, creating early warning
+        systems, particularly for population shifts that do not immediately affect model outputs.
+        Automated Validation and Monitoring: Streamlines validation and monitoring processes, integrating
+        them with dynamic model updates for continuous, real-time risk management.
+
+Practitioners can refer to this document for further details.
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                Model Shift                                                 3 / 13
+Methods for Quantifying Model Shift
+        The methods for quantifying model shift are:
+            1   matrix multiplication approach;
+            2   weighted binomial logistic regression;
+            3   weighted quasi-binomial regression (weighted fractional logistic regression).
+        Dr. Alan Forrest proposes a first-order approximation using a matrix multiplication approach
+        to quantify changes in model parameters directly.
+        Andrija Djurovic introduces two exact alternative methods (weighted binomial and
+        fractional logistic regression) based on re-estimating model parameters, both of which can
+        address the same task.
+        The direct but approximate approach is useful where many thousands or millions of shifts
+        are to be compared or summarised. The exact approaches are fully accurate and ideal for
+        testing smaller numbers of sensitivities or scenarios.
+        All three approaches are related to the widely used binomial logistic regression method with
+        categorized risk factors commonly employed in developing PD models.
+        Similarly, practitioners can extend the proposed framework to Ordinary Least Squares
+        (OLS) regression, a commonly used method for modeling Loss Given Default (LGD) and
+        Exposure at Default (EaD).
+
+
+Andrija Djurovic and Dr. Alan Forrest           Model Shift                                      4 / 13
+Matrix Multiplication Approach
+
+The first-order model shift (∆p) can be explicitly represented as a matrix multiplication of the
+data shift. The following formulas illustrate the process of approximating parameter changes given
+the data shifts (∆x + and ∆x − ):
+                                                                                
+                            ∆p = C −1 D T (I + Z )−1 ∆x + − (I + Z −1 )−1 ∆x −
+
+where:
+        D is the design matrix;
+        Y + and Y − are the diagonal matrices of modeled frequencies restricted to binary output 1
+        and 0, respectively;
+        Z = Y + (Y − )−1 is diagonal matrix of modeled odds ratios;
+        I is identity matrix dimensions nrow(Z) x nrow(Z);
+        Y = (I + Z )−1 (I + Z −1 )−1 (Y + + Y − );
+        C = D T YD;
+        ∆x + and ∆x − are the shifts in the proportions of input factors for binary outputs 1 and 0,
+        respectively.
+
+Practitioners can refer to this document for further details.
+
+
+
+Andrija Djurovic and Dr. Alan Forrest            Model Shift                                     5 / 13
+Weighted Binomial Logistic Regression
+
+
+Another way to quantify changes in the parameters of the logistic regression based on the data
+shift is to re-estimate the weighted binomial logistic regression.
+
+The following formula presents the log-likelihood function used to estimate the parameters (β) of
+the weighted logistic regression::
+
+                     n
+                                                  1                                          1
+                     X         h                                                                     i
+           L(β) =           wi yi log                            + (1 − yi ) log 1 −
+                                            1 + exp(−xi β)                             1 + exp(−xi β)
+                      i=1
+
+
+where:
+        yi is the binary response variable for the i-th observation (either 0 or 1);
+        xi is the vector of predictors for the i-th observation;
+        wi is the associated weight of the i-th observation.
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                 Model Shift                                            6 / 13
+Weighted Quasi-Binomial Regression
+The third method for quantifying changes in logistic regression parameters, based on the data shift, is by
+re-estimating the weighted quasi-binomial regression. Unlike binomial logistic regression, which requires a
+dichotomous target (0/1), weighted quasi-binomial regression processes fractions between 0 and 1. The
+weighted fractional logistic regression parameters can be estimated similarly to binomial logistic regression by
+maximizing the log-likelihood function with an additional term to account for dispersion. Since the additional
+term affects only the standard error of estimates, the estimated coefficients between weighted binomial and
+weighted quasi-binomial regression are identical.
+
+The following formula presents the log-likelihood function used to estimate the model parameters (β), along
+with the adjustment of the variance-covariance matrix (Σ̂) based on the dispersion parameter:
+                        n           h                                                                          i
+                                                       1                                               1
+                        X
+               L(β) =          wi   yi log                            + (1 − yi ) log       1−
+                                                 1 + exp(−xi β)                                  1 + exp(−xi β)
+                         i=1
+
+
+
+                                                           Σ̂ = Φ̂V̂
+
+where:
+
+         yi is the binary response variable for the i-th observation (either 0 or 1);
+         xi is the vector of predictors for the i-th observation;
+         wi is the associated weight of the i-th observation;
+         Φ̂ is the estimate of the dispersion parameter;
+         V̂ is the estimated variance-covariance matrix assuming a binomial distribution (the “naive”
+         variance-covariance matrix).
+Andrija Djurovic and Dr. Alan Forrest                      Model Shift                                                 7 / 13
+Simulation Study
+
+
+The following steps outline the simulation framework used to quantify changes in model
+parameters based on a simulated scenario:
+    1   Assume a simplified PD model consisting of the target variable Creditability and two
+        categorical risk factors: Account_Balance and Maturity. The simulation dataset is
+        available here.
+    2   The risk factor Account_Balance includes four categories with the following distribution of
+        observations:
+        ## 01 02       03 04
+        ## 274 269     63 394
+
+    3   The risk factor Maturity includes five categories with the following distribution of
+        observations:
+        ## 01 (-Inf,8)       02 [8,16)   03 [16,36)    04 [36,45) 05 [45,Inf)
+        ##          87             344          399           100          70
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                 Model Shift                               8 / 13
+Simulation Study cont.
+    4   The final PD model is estimated using binomial logistic regression and dummy encoding in
+        the form: Creditability ~ Account_Balance + Maturity with the following estimated
+        coefficients:
+        ##                     Estimate Std. Error z value Pr(>|z|)
+        ## (Intercept)          -1.3234     0.3720 -3.5579   0.0004
+        ## Account_Balance02    -0.5064     0.1809 -2.7997   0.0051
+        ## Account_Balance03    -1.0873     0.3332 -3.2629   0.0011
+        ## Account_Balance04    -2.0194     0.2029 -9.9507   0.0000
+        ## Maturity02 [8,16)     0.9783     0.3873 2.5262    0.0115
+        ## Maturity03 [16,36)    1.4282     0.3809 3.7495    0.0002
+        ## Maturity04 [36,45)    1.8817     0.4248 4.4297    0.0000
+        ## Maturity05 [45,Inf)   2.4041     0.4491 5.3532    0.0000
+
+    5   Assume the following scenario: the portfolio structure changes as the bank plans to increase
+        loan approvals for riskier groups, specifically clients in the Account_Balance category 01,
+        by 40%. Simultaneously, loan approvals for clients in category 04 will decrease by the same
+        number. Given this scenario, the new allocation of Account_Balance modalities is:
+        ##    01    02        03    04
+        ## 383.6 269.0      63.0 284.4
+
+        An additional assumption is that the observed default rates remain unchanged.
+    6   Based on this scenario and the resulting portfolio structure changes, the objective is to
+        quantify the change in the estimated parameters of the final PD model using the three
+        methods presented in the previous slides.
+
+Andrija Djurovic and Dr. Alan Forrest         Model Shift                                           9 / 13
+Simulation Results - Matrix Multiplication Approach
+Data Points x:                                              Model Points y:                                              Data Shifts ∆x + and ∆x − :
+##    Account_Balance    Maturity     1     0               ##    Account_Balance    Maturity      1      0              ##    Account_Balance    Maturity   n dx_plus dx_minus
+## 1               01 01 (-Inf,8) 0.004 0.018               ## 1               01 01 (-Inf,8) 0.0046 0.0174              ## 1               01 01 (-Inf,8) 22 -0.0016 -0.0072
+## 2               01   02 [8,16) 0.033 0.053               ## 2               01   02 [8,16) 0.0357 0.0503              ## 2               01   02 [8,16) 86 -0.0132 -0.0212
+## 3               01 03 [16,36) 0.063 0.055                ## 3               01 03 [16,36) 0.0621 0.0559               ## 3               01 03 [16,36) 118 -0.0252 -0.0220
+## 4               01 04 [36,45) 0.019 0.010                ## 4               01 04 [36,45) 0.0184 0.0106               ## 4               01 04 [36,45) 29 -0.0076 -0.0040
+## 5               01 05 [45,Inf) 0.016 0.003               ## 5               01 05 [45,Inf) 0.0142 0.0048              ## 5               01 05 [45,Inf) 19 -0.0064 -0.0012
+## 6               02 01 (-Inf,8) 0.004 0.013               ## 6               02 01 (-Inf,8) 0.0024 0.0146              ## 6               02 01 (-Inf,8) 17 0.0000     0.0000
+## 7               02   02 [8,16) 0.029 0.061               ## 7               02   02 [8,16) 0.0269 0.0631              ## 7               02   02 [8,16) 90 0.0000     0.0000
+## 8               02 03 [16,36) 0.038 0.064                ## 8               02 03 [16,36) 0.0409 0.0611               ## 8               02 03 [16,36) 102 0.0000     0.0000
+## 9               02 04 [36,45) 0.014 0.014                ## 9               02 04 [36,45) 0.0144 0.0136               ## 9               02 04 [36,45) 28 0.0000      0.0000
+## 10              02 05 [45,Inf) 0.020 0.012               ## 10              02 05 [45,Inf) 0.0205 0.0115              ## 10              02 05 [45,Inf) 32 0.0000     0.0000
+## 11              03 01 (-Inf,8) 0.000 0.008               ## 11              03 01 (-Inf,8) 0.0007 0.0073              ## 11              03 01 (-Inf,8)   8 0.0000    0.0000
+## 12              03   02 [8,16) 0.007 0.021               ## 12              03   02 [8,16) 0.0054 0.0226              ## 12              03   02 [8,16) 28 0.0000     0.0000
+## 13              03 03 [16,36) 0.006 0.015                ## 13              03 03 [16,36) 0.0057 0.0153               ## 13              03 03 [16,36) 21 0.0000      0.0000
+## 14              03 04 [36,45) 0.001 0.005                ## 14              03 04 [36,45) 0.0022 0.0038               ## 14              03 04 [36,45)    6 0.0000    0.0000
+## 15              04 01 (-Inf,8) 0.001 0.039               ## 15              04 01 (-Inf,8) 0.0014 0.0386              ## 15              04 01 (-Inf,8) 40 0.0003     0.0108
+## 16              04   02 [8,16) 0.011 0.129               ## 16              04   02 [8,16) 0.0120 0.1280              ## 16              04   02 [8,16) 140 0.0031    0.0359
+## 17              04 03 [16,36) 0.022 0.136                ## 17              04 03 [16,36) 0.0203 0.1377               ## 17              04 03 [16,36) 158 0.0061     0.0378
+## 18              04 04 [36,45) 0.008 0.029                ## 18              04 04 [36,45) 0.0070 0.0300               ## 18              04 04 [36,45) 37 0.0022      0.0081
+## 19              04 05 [45,Inf) 0.004 0.015               ## 19              04 05 [45,Inf) 0.0053 0.0137              ## 19              04 05 [45,Inf) 19 0.0011     0.0042
+
+
+
+
+C Matrix (MxM):
+##                     (Intercept) Account_Balance02 Account_Balance03 Account_Balance04 Maturity02 [8,16) Maturity03 [16,36) Maturity04 [36,45) Maturity05 [45,Inf)
+## (Intercept)              0.1741            0.0598            0.0105            0.0395            0.0551             0.0758             0.0208              0.0148
+## Account_Balance02        0.0598            0.0598            0.0000            0.0000            0.0189             0.0245             0.0070              0.0074
+## Account_Balance03        0.0105            0.0000            0.0105            0.0000            0.0044             0.0042             0.0014              0.0000
+## Account_Balance04        0.0395            0.0000            0.0000            0.0395            0.0110             0.0177             0.0057              0.0038
+## Maturity02 [8,16)        0.0551            0.0189            0.0044            0.0110            0.0551             0.0000             0.0000              0.0000
+## Maturity03 [16,36)       0.0758            0.0245            0.0042            0.0177            0.0000             0.0758             0.0000              0.0000
+## Maturity04 [36,45)       0.0208            0.0070            0.0014            0.0057            0.0000             0.0000             0.0208              0.0000
+## Maturity05 [45,Inf)      0.0148            0.0074            0.0000            0.0038            0.0000             0.0000             0.0000              0.0148
+
+
+
+
+The Estimated Coefficient Changes:
+##          (Intercept)    Account_Balance02    Account_Balance03   Account_Balance04     Maturity02 [8,16)   Maturity03 [16,36)   Maturity04 [36,45) Maturity05 [45,Inf)
+##               0.0150               0.0056              -0.0055              0.0041               -0.0027              -0.0160              -0.0158             -0.0920
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                                          Model Shift                                                                                10 / 13
+Simulation Results - Weighted Binomial Logistic Regression
+Sample of the Aggregated Dataset with Initial Counts (n):
+##   Account_Balance    Maturity Creditability n
+##                01 01 (-Inf,8)             0 18
+##                01 01 (-Inf,8)             1 4
+##                01   02 [8,16)             0 53
+##                01   02 [8,16)             1 33
+##                01 03 [16,36)              0 55
+##                01 03 [16,36)              1 63
+##                01 04 [36,45)              0 10
+##                01 04 [36,45)              1 19
+##                01 05 [45,Inf)             0 3
+##                01 05 [45,Inf)             1 16
+
+
+
+Sample of the Aggregated Dataset with Simulated Counts (n_s):
+##   Account_Balance    Maturity Creditability n_s
+##                01 01 (-Inf,8)             0 25.2
+##                01 01 (-Inf,8)             1 5.6
+##                01   02 [8,16)             0 74.2
+##                01   02 [8,16)             1 46.2
+##                01 03 [16,36)              0 77.0
+##                01 03 [16,36)              1 88.2
+##                01 04 [36,45)              0 14.0
+##                01 04 [36,45)              1 26.6
+##                01 05 [45,Inf)             0 4.2
+##                01 05 [45,Inf)             1 22.4
+
+
+
+The Estimated Coefficient Changes:
+##       (Intercept)   Account_Balance02   Account_Balance03   Account_Balance04   Maturity02 [8,16)   Maturity03 [16,36)   Maturity04 [36,45) Maturity05 [45,Inf)
+##            0.0158              0.0056             -0.0052              0.0042             -0.0048              -0.0165              -0.0150             -0.0923
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                                    Model Shift                                                                           11 / 13
+Simulation Results - Weighted Quasi-Binomial Regression
+Sample of the Aggregated Dataset with Initial Counts (n):
+##   Account_Balance    Maturity  n      frac
+##                01 01 (-Inf,8) 22 0.1818182
+##                01   02 [8,16) 86 0.3837209
+##                01 03 [16,36) 118 0.5338983
+##                01 04 [36,45) 29 0.6551724
+##                01 05 [45,Inf) 19 0.8421053
+##                02 01 (-Inf,8) 17 0.2352941
+##                02   02 [8,16) 90 0.3222222
+##                02 03 [16,36) 102 0.3725490
+##                02 04 [36,45) 28 0.5000000
+##                02 05 [45,Inf) 32 0.6250000
+
+
+
+Sample of the Aggregated Dataset with Simulated Counts (n_s):
+##   Account_Balance    Maturity  n      frac   n_s
+##                01 01 (-Inf,8) 22 0.1818182 30.8
+##                01   02 [8,16) 86 0.3837209 120.4
+##                01 03 [16,36) 118 0.5338983 165.2
+##                01 04 [36,45) 29 0.6551724 40.6
+##                01 05 [45,Inf) 19 0.8421053 26.6
+##                02 01 (-Inf,8) 17 0.2352941 17.0
+##                02   02 [8,16) 90 0.3222222 90.0
+##                02 03 [16,36) 102 0.3725490 102.0
+##                02 04 [36,45) 28 0.5000000 28.0
+##                02 05 [45,Inf) 32 0.6250000 32.0
+
+
+
+The Estimated Coefficient Changes:
+##       (Intercept)   Account_Balance02   Account_Balance03   Account_Balance04   Maturity02 [8,16)   Maturity03 [16,36)   Maturity04 [36,45) Maturity05 [45,Inf)
+##            0.0158              0.0056             -0.0052              0.0042             -0.0048              -0.0165              -0.0150             -0.0923
+
+
+
+Andrija Djurovic and Dr. Alan Forrest                                    Model Shift                                                                           12 / 13
+Simulation Results - Summary
+
+
+
+The table below provides a summary and comparison of the model shift simulation results:
+##           coefficient matrix multiplication weighted logistic weighted quasi-binomial
+##           (Intercept)                0.0150            0.0158                  0.0158
+##     Account_Balance02                0.0056            0.0056                  0.0056
+##     Account_Balance03               -0.0055           -0.0052                 -0.0052
+##     Account_Balance04                0.0041            0.0042                  0.0042
+##     Maturity02 [8,16)               -0.0027           -0.0048                 -0.0048
+##    Maturity03 [16,36)               -0.0160           -0.0165                 -0.0165
+##    Maturity04 [36,45)               -0.0158           -0.0150                 -0.0150
+##   Maturity05 [45,Inf)               -0.0920           -0.0923                 -0.0923
+
+
+
+
+Andrija Djurovic and Dr. Alan Forrest     Model Shift                                      13 / 13

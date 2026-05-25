@@ -46,6 +46,12 @@ def fetch_text(url: str, timeout: int = 30) -> tuple[str, int, str]:
         return body.decode("utf-8", errors="replace"), resp.status, resp.geturl()
 
 
+def fetch_bytes(url: str, timeout: int = 30) -> tuple[bytes, int, str]:
+    req = Request(url, headers={"User-Agent": USER_AGENT})
+    with urlopen(req, timeout=timeout) as resp:
+        return resp.read(), resp.status, resp.geturl()
+
+
 def checksum_text(text: str) -> str:
     return hashlib.sha256(text.encode("utf-8")).hexdigest()
 
@@ -88,6 +94,49 @@ def extract_pdf_snapshot(
     )
     target.write_text(header + text + "\n", encoding="utf-8")
     return row["canonical_url"], len(text), checksum_text(header + text + "\n"), ""
+
+
+def extract_pdf_url_snapshot(
+    row: dict[str, str], pdf_url: str, target: Path
+) -> tuple[str, int, str, str]:
+    """Fetch a real PDF URL and extract it into a readable text snapshot."""
+    pdftotext = shutil.which("pdftotext")
+    if not pdftotext:
+        return "", 0, "", "pdftotext is not installed"
+
+    try:
+        pdf_bytes, status, final_url = fetch_bytes(pdf_url)
+    except (HTTPError, URLError, TimeoutError, OSError) as exc:
+        return "", 0, "", f"{type(exc).__name__}: {exc}"
+    if not pdf_bytes.startswith(b"%PDF"):
+        return "", 0, "", f"HTTP {status}: fetched target is not a PDF"
+
+    temp_pdf = target.with_suffix(".source.pdf")
+    temp_body = target.with_suffix(".body.txt")
+    temp_pdf.write_bytes(pdf_bytes)
+    result = subprocess.run(
+        [pdftotext, "-layout", str(temp_pdf), str(temp_body)],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    temp_pdf.unlink(missing_ok=True)
+    if result.returncode != 0:
+        temp_body.unlink(missing_ok=True)
+        return "", 0, "", result.stderr.strip()
+
+    text = clean_readable_text(temp_body.read_text(encoding="utf-8", errors="replace"))
+    temp_body.unlink(missing_ok=True)
+    readable_url = final_url or pdf_url
+    header = (
+        f"source_asset_id: {row['link_asset_id']}\n"
+        f"parent_activity_id: {row['parent_activity_id']}\n"
+        f"canonical_url: {row['canonical_url']}\n"
+        f"readable_url: {readable_url}\n"
+        f"source_type: {row['source_type']}\n\n"
+    )
+    target.write_text(header + text + "\n", encoding="utf-8")
+    return readable_url, len(text), checksum_text(header + text + "\n"), ""
 
 
 def clean_readable_text(text: str) -> str:
@@ -245,8 +294,20 @@ def snapshot_sources(pack_dir: Path, sleep_seconds: float) -> None:
         error = ""
 
         target = readable_root / f"{asset_id}.txt"
-        if source_type == "pdf":
+        is_pdf_like = bool(row.get("local_binary_path", "")) or canonical_url.lower().split("?", 1)[
+            0
+        ].endswith(".pdf")
+        if is_pdf_like:
             readable_url, text_length, sha256, error = extract_pdf_snapshot(pack_dir, row, target)
+            if not text_length:
+                for candidate in candidates:
+                    if not candidate.lower().split("?", 1)[0].endswith(".pdf"):
+                        continue
+                    readable_url, text_length, sha256, error = extract_pdf_url_snapshot(
+                        row, candidate, target
+                    )
+                    if text_length:
+                        break
             if text_length:
                 local_readable_path = str(target.relative_to(pack_dir))
                 status = "pdf_text_extracted_pdftotext"

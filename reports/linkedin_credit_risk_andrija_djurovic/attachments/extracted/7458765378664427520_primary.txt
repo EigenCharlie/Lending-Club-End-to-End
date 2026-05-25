@@ -1,0 +1,317 @@
+Risk Factor Engineering in Probability of Default Models
+
+                            Tree-Based Interactions
+
+
+                                Andrija Djurovic
+
+
+
+
+                      www.linkedin.com/in/andrija-djurovic
+
+
+   Andrija Djurovic              Tree-Based Interactions     1 / 13
+PD Model Development
+
+
+   Probability of Default (PD) modeling consists of a few standardized steps. Although the
+   process can differ significantly within specific steps, the overall modeling approach can be
+   considered standardized, following certain principles.
+   After collecting data, one of the first steps in PD modeling is to develop the risk
+   differentiation function.
+   Regardless of whether the model is used for regulatory or managerial purposes, this step is
+   equally important and is often based on the same or similar principles.
+   The main goal of the risk differentiation function is to ensure that the model can
+   adequately rank risk, providing meaningful differentiation between low- and high-risk
+   obligors or facilities.
+
+   Typical steps in the development of the risk differentiation function include single-factor
+   analysis, risk factor engineering, correlation analysis, and multi-factor analysis. These steps
+   may overlap in certain areas and can, in essence, be considered integral parts of the risk
+   differentiation function development, along with additional sub-steps within them.
+
+
+
+
+    Andrija Djurovic                 Tree-Based Interactions                                   2 / 13
+PD Model Development cont.
+
+
+   One of the most commonly used statistical methods in multi-factor analysis is logistic
+   regression. This approach is typically considered the traditional method for PD model
+   development.
+   With the increasing use of machine learning (ML) in credit risk modeling, practitioners are
+   exploring additional possibilities to enhance the development of the risk differentiation
+   function using alternative methods.
+   However, practitioners can still combine traditional and ML approaches while supporting the
+   core principles of PD model development. One such example is risk factor engineering in
+   PD modeling.
+   The focus of this presentation is on risk factor engineering in PD modeling that goes
+   beyond standard binning approaches. Specifically, the emphasis is on the derivation of new
+   risk factors based on interactions identified by decision tree models. As the presented
+   examples serve only for demonstration purposes, practitioners are encouraged to consider
+   different use cases and designs for this approach.
+
+
+
+
+    Andrija Djurovic                Tree-Based Interactions                                 3 / 13
+Risk Factor Engineering in PD Modeling
+
+   Risk factor engineering in PD modeling is one of the most important steps in the
+   development of the risk differentiation function.
+   In traditional PD model development, this step is often equated with the binning of risk
+   factors (both numerical and categorical), although its application can extend far beyond this
+   approach.
+   Regardless of the final use of the PD models (regulatory or managerial), the principles
+   followed in the binning step are largely shared.
+
+   The following list presents some of the inputs and considerations typically used in a
+   standard binning process:
+
+         minimum number of observations per bin;
+         minimum number of defaults (or target rate) per bin;
+         treatment of the missing or special values;
+         monotonic relationship between the risk factor and the target variable;
+         statistical or practical significance of risk factor bin profiles;
+         expert input and confirmation of the statistical relationship between the risk factor
+         and the target variable.
+
+
+
+    Andrija Djurovic                 Tree-Based Interactions                                 4 / 13
+Risk Factor Engineering in PD Modeling cont.
+
+
+
+   When practitioners consider alternative risk factor engineering methods beyond binning, the
+   same or similar principles are typically incorporated into this modeling step.
+   The ultimate goal of these principles is to ensure full explainability of the impact and strong
+   business support for the risk factors selected in the final model.
+   One approach to risk factor engineering that goes beyond the standard binning process is
+   tree-based interaction extraction. In essence, this method involves deriving new risk factors
+   from decision tree models, which can then be used as variables in logistic regression or even
+   as challenger models. When used as a challenger model, practitioners can also utilize the
+   identified risk factors as supporting analysis in the risk factor selection process.
+   The following slides present the main idea of a customized tree-based approach to risk
+   factor engineering, along with a simulation study to demonstrate one potential use case.
+
+
+
+
+    Andrija Djurovic                 Tree-Based Interactions                                   5 / 13
+Tree-Based Interactions
+    Interactions between risk factors can be extracted from standard decision tree algorithms.
+    However, standard algorithms typically do not provide all the inputs needed to support key
+    considerations in risk factor engineering. For instance, requirements that are often
+    unsupported or only partially supported include the minimum number of defaults or target
+    rate, specific treatment of missing (and special) values, monotonicity constraints, statistical
+    testing as a splitting criterion, and control over tree depth.
+    Given the strong requirements for risk factor engineering in PD modeling, Andrija Djurovic
+    proposed a customized tree-based approach. The main adjustments to the standard
+    decision tree methodology relate to more flexible inputs:
+          minimum number of observations in the final nodes;
+          minimum target rate in the final nodes;
+          separate treatment of numerical and categorical risk factors;
+          maximum tree depth;
+          statistical testing as the splitting criterion;
+          monotonicity constraints at the splitting node;
+          treatment of missing values at the splitting node to ensure monotonicity;
+          overall flexibility for applying this approach across different modeling designs.
+
+    The following slides present the basics of the splitting criteria, differences in the treatment
+    of categorical and numerical risk factors, and a simulation study illustrating one possible use
+    case of interactions as support for standard PD model development.
+     Andrija Djurovic                 Tree-Based Interactions                                   6 / 13
+Tree-Based Interactions cont.
+
+Splitting criterion - Gini Index
+
+The Gini Index (or Gini impurity) is a standard splitting criterion used in decision tree algorithms
+for binary target variables. It measures the degree of class mixing within a dataset, where higher
+values indicate greater impurity. In this context, impurity reflects the extent to which both classes
+are present within a node; the more balanced the class composition, the higher the impurity.
+For the selected binary split, Gini Index is given as follows:
+                                                  X            nj             
+                                   Gini = −                         1 − pj2
+                                                               n
+                                              j∈{left,right}
+
+
+where:
+      nj is the number of observations in node j (left or right);
+      n is the total number of observations;
+      pj is is the default rate in node j (left or right).
+
+Adding a minus sign in the above formula turns the selection criterion into a maximization
+problem; thus, the split that maximizes the expression is selected for splitting at a given node.
+
+
+
+        Andrija Djurovic                 Tree-Based Interactions                                  7 / 13
+Tree-Based Interactions cont.
+
+Splitting criterion - Two-Sample Test of Proportions
+
+The two-sample test of proportions can be used as an alternative splitting criterion. Specifically,
+the split with the smallest p-value is considered the best split. This test is commonly used in
+evaluating different aspects of PD models, as well as in binning processes.
+The following formula presents the test statistic:
+
+                                                 p1 − p 2
+                                   Z = q                            
+                                                         1
+                                           p(1 − p)      n1
+                                                            + n1
+                                                                2
+
+
+where:
+      p1 and p2 are the default rates in each node;
+      n1 and n2 denote the number of observations in each node;
+      p is the pooled proportion calculated as n1 pn1 +n
+                                                      +n
+                                                         2 p2
+                                                              ;
+                                                     1   2
+
+
+
+Given the monotonicity constraints, this test can be applied as either a two-sided or a one-sided
+test for the purpose of the splitting criterion.
+
+
+
+        Andrija Djurovic                Tree-Based Interactions                                 8 / 13
+Tree-Based Interactions cont.
+
+Treatment of Categorical and Numerical Risk Factors
+
+In PD modeling, practitioners often work with a limited number of inherently categorical risk factors. For this
+reason, these variables are rarely fully automatically engineered and directly used in the modeling process. Even
+in tree-based methods, it is recommended to first examine and prepare categorical risk factors before further use.
+Accordingly, the customized decision tree process treats categorical risk factors using standard inputs such as the
+number of observations and target rate. However, it also applies an initial ordering based on the alphabetical
+sequence of risk factor modalities. This requires ensuring a meaningful ordering of categorical modalities.
+
+On the other hand, numerical risk factors are initially split based on a predefined number of cut points derived
+from observed quantiles. Additional considerations, such as the number of observations and target rate, are also
+incorporated into this process. Monotonicity constraints are enforced at each splitting node. As a result,
+splitting points may be adjusted to preserve monotonicity, which is one of the key criteria in risk factor
+engineering used in credit risk. Practitioners should note that monotonicity at the splitting node does not
+necessarily ensure monotonicity throughout the full tree structure. However, it significantly increases the
+likelihood of achieving overall monotonic behavior.
+
+For both types of risk factors, missing values are assigned to a node in a way that preserves the monotonicity
+constraint. As a result, missing value preprocessing in this sense is not needed.
+
+In addition to these criteria, the customized algorithm can control overall tree depth as well as the p-value used
+in the two-sample test. This reduces the need for additional tree pruning, which is often required when other
+splitting metrics are used.
+
+
+
+         Andrija Djurovic                     Tree-Based Interactions                                          9 / 13
+Simulation Study
+
+The purpose of this simulation is to demonstrate one use case of tree-based interaction extraction
+as a support for standard PD model development. Specifically, three numerical risk factors
+(maturity, amount, age) are used as inputs to the customized decision tree algorithm. The
+output of this step is then used as an additional risk factor. The final PD model is specified in the
+form default ~ balance + rf.inter, where rf.inter denotes a variable extracted from the
+decision tree, with Weights of Evidence (WoE) encoding applied to the risk factor modalities.
+
+The customized decision tree is run under the following setup:
+   1   the minimum percentage of observations in the final node is set to 10%;
+   2   the minimum percentage of defaults in the final node is set to 5%;
+   3   the monotonicity constraint in the splitting node is activated;
+   4   the maximum number of splitting points for all numerical variables is set to 50 at each
+       splitting node;
+   5   the p-value from the two-sample test of proportions is used as the splitting criterion;
+   6   the p-value threshold is set at the 5% significance level, supporting the tree growing process.
+
+For full replicability, the dataset used in this simulation is available at the following link.
+
+
+The following slides present the main results of the modeling simulation described above.
+
+
+        Andrija Djurovic                  Tree-Based Interactions                                 10 / 13
+Simulation Results
+
+
+Customized Decision Tree - Output Summary
+##   nobs                                                             filter ind
+##    219 (`maturity`<=16 | is.na(`maturity`)) & (`age`<=34 & !is.na(`age`))   1
+##    224   (`maturity`<=16 | is.na(`maturity`)) & (`age`>34 | is.na(`age`))   2
+##    392              (`maturity`>16 & !is.na(`maturity`)) & `maturity`<=33   3
+##    165               (`maturity`>16 & !is.na(`maturity`)) & `maturity`>33   4
+
+
+Splitting Node Details
+##      rf.t         rf method      sm split    y.l    y.r   m.n monotonicity
+##   numeric `maturity` p-value 0.0000    16 0.2122 0.3698 TRUE             1
+##   numeric      `age` p-value 0.0018    34 0.2694 0.1562 FALSE           -1
+##   numeric `maturity` p-value 0.0006    33 0.3265 0.4727 <NA>             1
+
+
+
+
+         Andrija Djurovic                Tree-Based Interactions                   11 / 13
+Simulation Results cont.
+
+
+WoE Tables
+##         rf     bin no ng nb        woe
+##    balance       1 273 139 134 -0.8107
+##    balance       2 268 163 105 -0.4075
+##    balance       3 63 49 14 0.4055
+##    balance       4 386 342 44 1.2033
+##    balance missing 10    7   3 0.0000
+##   rf.inter       1 219 160 59 0.1503
+##   rf.inter       2 224 189 35 0.8391
+##   rf.inter       3 392 264 128 -0.1234
+##   rf.inter       4 165 87 78 -0.7381
+
+
+Integrated PD Model
+##            Estimate Std. Error z value Pr(>|z|)
+## (Intercept) -0.8486     0.0774 -10.9705       0
+## balance     -1.0014     0.0979 -10.2297       0
+## rf.inter    -1.0020     0.1586 -6.3194        0
+
+
+
+
+         Andrija Djurovic                   Tree-Based Interactions   12 / 13
+Conclusions
+
+   One possible use case of ML in PD modeling is to support the risk factor engineering process.
+
+   Extracting risk factor interactions from tree-based models can provide additional benefits to the
+   traditional PD modeling approach. Beyond the typical improvement in discriminatory power, this
+   approach can also enhance the robustness of the final model by selecting a broader range of relevant
+   risk factors.
+
+   The same use case of tree-based interactions can be easily extended to Loss Given Default (LGD) and
+   Exposure at Default (EAD) models, where practitioners often face greater challenges in achieving the
+   required model performance.
+
+   In addition to the presented use case, the same idea can be extended to a modular approach to model
+   development, different designs for combining risk factors, as well as other statistical methods such as
+   random forests.
+
+   Practitioners should be aware that once interactions are extracted and used as inputs in a regression
+   model, the investigation of the risk differentiation function is not complete. Further critical steps
+   include analyzing the relationship between the individual risk factors (those used to construct the
+   interaction) and the target variable. This analysis is essential to properly assess and validate the final
+   risk differentiation function from a business perspective.
+
+   A model developed using this approach can serve as a challenger model, allowing practitioners to
+   identify relevant risk factors, their interactions, and nonlinear relationships, while also using the tree
+   structure to improve the binning step in traditional model development.
+
+
+
+     Andrija Djurovic                     Tree-Based Interactions                                        13 / 13

@@ -1,0 +1,225 @@
+source_asset_id: 7392821942728273920_external_07
+parent_activity_id: 7392821942728273920
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/model_dev_and_vld/fli_recursive_reg.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/model_dev_and_vld/fli_recursive_reg.pdf
+source_type: github
+
+                   IFRS9 Forward-Looking Modeling
+
+                      Recursive Regressions in Practice
+
+
+                              Andrija Djurovic
+
+
+
+
+                    www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic            Recursive Regressions in Practice   1/7
+IFRS9 Forward-Looking Modeling Challenges
+
+While various model designs are used in practice for developing forward-looking (FLI) models, most rely on Ordinary
+Least Squares (OLS) for estimation.
+
+When developing the FLI models, practitioners usually adhere to certain principles. The following list outlines some of
+the most commonly applied ones:
+
+        The model should convey a clear and coherent narrative.
+        The model should capture all relevant historical events significantly impacting the target variable.
+        The model should incorporate key events that are not reflected in macroeconomic forecasts.
+        The model should balance the impact of the economy with other factors, such as internal changes or regulatory
+        shifts.
+        The statistical techniques used to develop the model should be straightforward and interpretable yet robust
+        enough to capture key historical patterns and forward-looking assumptions.
+        The relationship between model variables should remain reasonably stable over time.
+        The model’s forecasting performance must be tested on an out-of-time sample.
+        Expert input should have a controlled influence on model outcomes to minimize potential bias.
+
+The above principles often lead to specific challenges that practitioners encounter during modeling. While there isn’t
+always a one-to-one correspondence between principles and challenges, they are closely related and can often be
+meaningfully linked. Most challenges stem from the limited number of observations available when developing FLI
+models. Given this constraint, practitioners often struggle to identify appropriate statistical methods for particular issues.
+
+This presentation demonstrates how recursive regressions can address challenges related to the stability of relationships
+between variables in FLI modeling and improve out-of-time forecasting performance.
+
+
+
+          Andrija Djurovic                    Recursive Regressions in Practice                                            2/7
+Recursive Regressions
+Basics of Recursive (Expanding Window) Estimation
+
+The following steps outline the general procedure for estimating recursive (also known as expanding-window) regressions within the
+OLS framework. Practitioners begin with an initial estimation window of size h. Using the first h observations, the OLS
+coefficients are estimated by:
+                                                             ⊤
+                                                                        −1 ⊤
+                                                   β̂h =    X1:h X1:h      X1:h y1:h
+
+For each j = h + 1, . . . , n, the window is then expanded and coefficients are re-estimated until reaching the final observation n:
+
+
+                                                              ⊤
+                                                                        −1 ⊤
+                                                    β̂j =   X1:j X1:j     X1:j y1:j
+
+
+This process produces a sequence β̂h , β̂h+1 , . . . , β̂n , enabling practitioners to monitor the evolution of each coefficient as the
+dataset grows. At every estimation step, forecasts for one or more subsequent observations can be generated and incorporated into
+further analysis.
+
+
+Recusive Regressions in FLI Modeling
+
+Collecting the sequence of model estimates β̂h , ; β̂h+1 , ; . . . , ; β̂n , practitioners can further investigate the stability of the
+relationship between the target and the predictors. One key analysis is to examine possible changes in the sign of the coefficients
+over time. Besides visualization, if enough estimates are available, various statistical tests can be conducted.
+Additionally, at each step of model estimation, analysts can collect out-of-time forecasts and use them as one of the criteria for
+final model selection. This exercise also provides valuable information about model performance on the most recent data, which is
+usually a key input for assessing forecast validity alongside the actual forecast values.
+
+
+           Andrija Djurovic                       Recursive Regressions in Practice                                                 3/7
+Simulation Study
+Dataset
+
+To illustrate the use of recursive regressions in FLI modeling, assume the final model is specified as:
+
+
+                                           ODR ∼ GDP + WAGElag4 + EURIBORlag4
+
+
+where:
+          ODR is the observed default rate (target variable);
+          GDP is year-over-year GDP growth;
+          WAGElag4 is year-over-year wage growth, lagged by four quarters;
+          EURIBORlag4 is the 6-month Euribor rate, lagged by four quarters.
+
+The data used for this simulation are available at the following link. Practitioners should note that this dataset is for
+demonstration purposes only, and simulation results should be evaluated primarily from a technical standpoint, illustrating the role
+of recursive regressions in FLI modeling.
+
+
+Simulation Study
+
+For the final FLI model, the simulation estimates the sequence of regression coefficients by running recursive regressions on
+expanding windows that initially exclude the most recent 12 quarters. In addition to analyzing how coefficients evolve over time,
+this exercise aims to generate a one-step-ahead forecast of the ODR at each iteration and compare it with the realized ODR.
+
+Practitioners should see these goals as one possible approach to model analysis and a way to address specific challenges in FLI
+modeling. They are encouraged to extend the analysis and integrate additional insights into the ongoing development and
+validation of FLI models.
+
+
+            Andrija Djurovic                     Recursive Regressions in Practice                                               4/7
+Simulation Results
+
+
+
+
+Regression Coefficients by Subsample                                        Recursive One-Step Forecast vs. Actual ODR
+
+##   LAST_QUARTER       Coeff. Estimate_Recusrive Estimate_All              ##      QUARTER Forecast Observed
+##     2024-12-31 (Intercept)              0.0469       0.0474              ##   2023-09-30   0.0617   0.0576
+##     2024-12-31          GDP            -0.0522      -0.0712              ##   2023-12-31   0.0873   0.0542
+##     2024-12-31    WAGE_lag4            -0.0438      -0.0865              ##   2024-03-31   0.1164   0.0418
+##     2024-12-31 EURIBOR_lag4             1.2605       1.2727              ##   2024-06-30   0.0608   0.0378
+##     2025-03-31 (Intercept)              0.0474       0.0474              ##   2024-09-30   0.0555   0.0369
+##     2025-03-31          GDP            -0.0657      -0.0712              ##   2024-12-31   0.0560   0.0384
+##     2025-03-31    WAGE_lag4            -0.0734      -0.0865              ##   2025-03-31   0.0513   0.0402
+##     2025-03-31 EURIBOR_lag4             1.2652       1.2727              ##   2025-06-30   0.0562   0.0431
+
+
+
+
+          Andrija Djurovic              Recursive Regressions in Practice                                            5/7
+Simulation Results cont.
+                                                                Recursive vs Full Sample Estimates For the Last 12 Quarters
+                                                                          Recursive Regression Estimates    Estimates for the Full Sample
+
+
+                                                  (Intercept)                                                                                   GDP
+
+                    0.060
+
+                                                                                                     0.04
+
+
+
+                    0.055
+                                                                                                     0.00
+
+
+
+
+                    0.050                                                                           −0.04
+Coefficient Value
+
+
+
+
+                                                  WAGE_lag4                                                                                 EURIBOR_lag4
+                                                                                                    1.275
+
+
+                     −0.1                                                                           1.250
+
+
+
+                     −0.2                                                                           1.225
+
+
+
+                     −0.3                                                                           1.200
+
+
+
+                                                                                                    1.175
+                     −0.4
+
+
+                            2023−01   2023−07   2024−01         2024−07        2025−01                      2023−01           2023−07       2024−01        2024−07   2025−01
+                                                                                                  Quarter
+
+
+
+
+                             Andrija Djurovic                             Recursive Regressions in Practice                                                                    6/7
+Simulation Results cont.
+                                   One−Quarter−Ahead Recursive Forecast vs. ODR
+                                                  Forecast      Observed
+
+        12%
+
+
+
+
+        10%
+
+
+
+
+        8%
+Value
+
+
+
+
+        6%
+
+
+
+
+        4%
+
+
+
+              2023                        2024                                    2025
+                                                      Quarter
+
+
+
+
+                Andrija Djurovic     Recursive Regressions in Practice                   7/7

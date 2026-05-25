@@ -1,0 +1,15 @@
+concept,method_family,novelty_for_project,evidence_strength,project_destination,implementation_difficulty,claim_risk,decision
+Multi-period average PD backtesting,PD validation,medium_high,technical_deck_intake,CRPTO reviewer-defense; Paper 4 appendix candidate,medium,medium,append_or_prototype_only_if_validation_claim_changes
+Reliability limits of multi-period normal tests,PD validation,medium,technical_deck_intake,CRPTO limitations; thesis validation chapter,low_medium,medium,promote_as_caveat_not_as_new_result
+Two-sided exact binomial PD backtesting,PD validation,low,already_implemented_locally,Validation appendix/source trace,low,low,already_implemented
+Model-based discrete PD rating scale calibration,PD calibration,medium_high,technical_deck_intake,Reviewer-defense; Paper 4 prototype,medium,medium,park_with_appendix_gate
+Risk differentiation vs risk quantification,IRB calibration governance,medium,linkedin_article_intake,CRPTO mini-book language; IJDS discussion,low,low_medium,promote_as_language_with_formal_sources
+Conformal inference as IRB uncertainty diagnostic,Uncertainty quantification,medium,linkedin_article_plus_project_core,CRPTO framing; thesis,low,medium,promote_as_framing_only
+Selective ML support for IRB models,ML governance,medium,linkedin_article_intake,Reviewer-defense; Paper 4 prototypes,low_medium,medium,promote_as_governance_principle
+Tree-based interactions under credit constraints,Feature engineering,medium_high,technical_deck_intake,Paper 4 prototype; thesis feature chapter,medium,medium,prototype_only_with_monotonicity_business_gate
+Monotonic binning tooling for credit risk factors,Feature engineering,low_medium,software_readme_intake,Book Ch05; thesis tooling appendix,low_medium,low_medium,archive_as_tooling_context_until_local_benchmark
+WoE encoding instability,Scorecard stability,high,technical_deck_intake,CRPTO caveat; Paper 4 appendix; thesis,medium,medium,promote_as_caveat_and_candidate_appendix
+Supervised Macroeconomic Index for IFRS9 FLI,IFRS9 macro modeling,medium_high,software_pdf_intake,Thesis IFRS9 expansion,high,high,thesis_only_until_dedicated_protocol
+Model shift for scorecard model risk,MRM and drift,medium,external_pdf_intake,CRPTO limitations; thesis governance,medium,medium,append_as_governance_frame
+LGD/EAD Somers D under conservatism,LGD/EAD validation,medium,technical_deck_intake,Thesis LGD/EAD chapter,medium,medium_high,park_for_thesis
+MoC Type C aggregate conservatism,Regulatory model risk,medium,technical_deck_intake,Thesis governance; optional Paper 4 appendix,medium,medium_high,park_with_claim_gate

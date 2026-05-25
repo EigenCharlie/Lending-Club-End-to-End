@@ -64,6 +64,12 @@ IJDS esté casi congelado.
 | "IFRS9/SICR parece otro paper." | En IJDS entra como implicación/limitación; la tesis puede expandirlo. | Capítulo 15; 10a--10f. |
 | "El resultado podría ser punto aislado." | La región robusta A18 muestra 45/45 políticas alpha01-safe. | `paper1_tableA18_robust_region_policy_family.csv`. |
 | "LinkedIn no es bibliografía académica." | No se usa como evidencia pública; solo como intake y lenguaje. | LinkedIn intake memo y audit CRPTO. |
+| "¿La validación PD se está tratando como clasificación?" | No. CRPTO separa risk differentiation, risk quantification, calibración y valor económico antes de optimizar portafolio. | Table 0; capítulos 02, 06c--06d; intake Andrija. |
+| "¿El backtesting multi-periodo es confiable por defecto?" | No se sobrepromete: las pruebas multi-periodo dependen del estimador, tamaño efectivo y autocorrelación; quedan como caveat o appendix controlado. | Capítulos 02 y 07; Andrija PD backtesting backlog. |
+| "¿Usar ML en IRB implica perder auditabilidad?" | No. ML queda como soporte selectivo para imputación, ingeniería de factores, residuos o challengers; el champion no se reabre sin gate reproducible. | Capítulos 02 y 07; Paper 4 blockers. |
+| "¿WOE/scorecards son estables bajo monitoreo?" | Se tratan como inputs auditables con caveats: IV no es soberano y WoE puede volverse inestable si se recalcula bajo datos etiquetados por el propio modelo. | LinkedIn intake; encoding-stability docs. |
+| "¿Los umbrales IV/PSI/correlación prueban calidad del modelo?" | No. Se presentan como heurísticas operativas útiles, pero no como evidencia estadística suficiente. El preprint de IV solo habilita lenguaje de incertidumbre y un prototipo opcional. | Andrija logged-in source queue; IV source memo. |
+| "¿Los árboles sobre residuos contradicen el scorecard auditable?" | No. Quedan como validación de segmentos y búsqueda de factores omitidos; no reemplazan el champion ni la calibración oficial. | PDtoolkit `segment.vld`; Paper 4 prototype gate. |
 
 ## Definición de terminado
 

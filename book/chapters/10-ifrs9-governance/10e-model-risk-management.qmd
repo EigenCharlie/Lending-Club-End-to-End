@@ -114,6 +114,8 @@ También evita sobrecargar PSI. La práctica bancaria suele usar cortes heuríst
 
 La capa `model_shift_status.json` vuelve esa lectura todavía más útil. Ya no basta con ver `C2ST AUC = 0.985` y declarar “drift”. El proyecto ahora distingue **shift estructural**, **degradación predictiva** y **casos mixtos**. En el snapshot vigente la lectura es `mixed_shift`: hay separabilidad temporal severa y degradación predictiva moderada, pero el champion sigue cerrando dentro de política operativa. Ese lenguaje es mucho mejor para comité y tesis que la dicotomía cruda `pass/fail`.
 
+La misma prudencia aplica a IV, correlación, VIF, mínimos de malos por bin y estabilidad de bins. Son heurísticas útiles para operar modelos, pero no deben confundirse con pruebas universales de validez. La regla de gobernanza que adopta el libro es simple: todo umbral heredado debe tener una semántica documentada, una población de referencia, una acción asociada y una vía de apelación analítica. Cuando esa semántica no existe, el umbral queda como alerta diagnóstica, no como gate automático.
+
 ### La nueva capa ADSFCR ya integrada al MRM
 
 El mayor cambio metodológico reciente es que varias ideas inspiradas en el repositorio `adsfcr` dejaron de ser notas de research y pasaron a ser artefactos ejecutados. En otras palabras: el proyecto ahora monitoriza más cosas, con lenguaje más fino.
@@ -173,6 +175,8 @@ pd.DataFrame(rows)
 Estas capas no deben leerse como adornos. Son exactamente el tipo de evidencia que convierte una historia de “modelo de scoring” en una historia de **plataforma de riesgo defendible**.
 
 La secuencia importa. `PD backtesting` dice que la capa estadística es exigente; `bootstrap_validation` muestra que la materialidad por slices sigue viva incluso cuando el gap agregado es pequeño [@efron1994]; `pd_validation_interpretation` traduce esa señal a lenguaje de cohortes; y `calibration_mapping`, ya ejecutado también en su wrapper shadow, cerró con `keep_current_calibrator` después de mostrar que los sidecars ligeros empeoraban el balance entre gap, persistencia temporal y ECE. Esa cadena de evidencia es más fuerte que reportar un único `p≈0`, porque convierte una hipótesis abierta en un control efectivamente ejecutado y documentado.
+
+Una capa todavía no ejecutada, pero ya bien definida para Paper 4 o tesis, es la validación de segmentos sobre residuos. `segment.vld` en PDtoolkit ajusta un árbol sobre residuos para identificar segmentos donde el modelo sobreestima o subestima el default observado, y reporta reglas/segmentos que pueden sugerir factores de riesgo omitidos o subportafolios mal cubiertos [@djurovic2026_pdtoolkit]. En este proyecto esa idea queda aparcada como diagnóstico: puede enriquecer MRM, pero solo se implementa si cambia una tabla de validación o una respuesta de reviewer. No reemplaza el scorecard, no reabre el calibrador y no convierte un árbol en política aprobatoria.
 
 ::: {.callout-note}
 ## Separar scoring, calibración y reglas de negocio

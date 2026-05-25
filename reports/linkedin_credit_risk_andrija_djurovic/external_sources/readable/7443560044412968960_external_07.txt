@@ -1,0 +1,334 @@
+source_asset_id: 7443560044412968960_external_07
+parent_activity_id: 7443560044412968960
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/risk_quantification/model_based_pd_calibration_intercept.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/risk_quantification/model_based_pd_calibration_intercept.pdf
+source_type: github
+
+A Model-Based Approach to Discrete Probability of
+        Default Rating Scale Calibration
+
+                    Logistic Regression Intercept Optimization
+
+
+                                  Andrija Djurovic
+
+
+
+
+                      www.linkedin.com/in/andrija-djurovic
+
+ Andrija Djurovic           Model-Based PD Rating Scale Calibration   1 / 11
+Internal Ratings-Based Modeling Process
+
+   The development of an Internal Ratings-Based (IRB) model consists of two main areas: the development
+   of the risk differentiation function and risk quantification.
+
+   Typically, these two steps are performed on different datasets, with significantly greater flexibility left to
+   practitioners in the development of the risk differentiation function.
+
+   Development of the risk differentiation function is the first step in the overall model development
+   process. The main goal of this step is to ensure the model can adequately rank risk, providing
+   meaningful differentiation between low- and high-risk obligors or facilities.
+
+   After developing the risk differentiation function, practitioners perform the risk quantification process,
+   which essentially involves assigning an appropriate risk level to the output of the risk differentiation
+   function.
+
+   In practice, there is often a difference between the risk quantification process for continuous and discrete
+   outputs of the risk differentiation function.
+
+   Regardless of the type of output (continuous or discrete) of the risk differentiation function, risk
+   quantification typically consists of specific steps such as: assignment of the base or best estimate,
+   quantification of appropriate adjustments (AA), quantification of the margin of conservatism (MoC), and
+   quantification of any other additional conservatism, for instance that required by certain local regulators.
+
+   These steps apply to all three risk parameters: Probability of Default (PD), Loss Given Default (LGD),
+   and Exposure at Default (EAD).
+
+
+
+     Andrija Djurovic              Model-Based PD Rating Scale Calibration                                   2 / 11
+Probability of Default Modeling in Practice
+
+    As with other IRB models, the first step in PD model development is typically the creation of the risk
+    differentiation function. The main goal of this step is to ensure sufficient ranking ability, providing
+    meaningful risk differentiation between obligors or facilities.
+
+    Typically, after developing and adopting the final risk differentiation function, practitioners discretize the
+    PD model output into rating scale. In the case of logistic regression, the most common approach is to
+    discretize the model’s log-odds. While doing so, practitioners often ensure specific characteristics of the
+    rating scale, such as monotonicity, heterogeneity, homogeneity, and lack of concentration within rating
+    grades.
+
+    After creating the rating scale, practitioners calibrate the model, usually at the level of the rating grade.
+    The main purpose of this step is to assign an appropriate risk level to each rating grade.
+
+    It is worth noting that the datasets used for developing the risk differentiation function and for
+    calibration often differ. Thus, calibration represents an important and regulatory-required step in IRB PD
+    model development.
+
+    The calibration process includes several steps, from assigning the so-called best or base estimate to
+    finally adding a certain level of conservatism.
+
+    Depending on local regulatory requirements, different types of additional conservatism may be
+    incorporated as part of the final estimate.
+
+
+
+
+      Andrija Djurovic              Model-Based PD Rating Scale Calibration                                   3 / 11
+Probability of Default Modeling in Practice cont.
+
+
+    The first step of the calibration process is estimating the best (base) estimates, which, in most cases, is
+    the average default rate per rating grade calculated using the full calibration dataset. These estimated
+    averages per rating grade are usually referred to as long-run averages.
+
+    The regulatory prescribed method for calculating long-run averages is the arithmetic average of yearly
+    default rates; however, regulations also allow weighted averages in specific cases.
+
+    When it is not possible to assign ratings to the full calibration dataset, practitioners often calibrate the
+    rating scale by matching the central tendency at the portfolio level, starting from the best estimates at
+    the rating level derived from the development dataset.
+
+    This presentation focuses on the scenario in which it is possible to assign a rating to each observation in
+    the calibration dataset, allowing calculation of the best estimate at the level of the rating grade.
+    However, instead of the common practice of assigning long-run averages to rating grades and losing the
+    link with the raw model estimates, this presentation introduces a model-based calibration of the rating
+    scale, with details provided in the following slides.
+
+
+
+
+      Andrija Djurovic             Model-Based PD Rating Scale Calibration                                  4 / 11
+Model-Based Rating Scale Calibration
+
+
+   By calculating best estimates as long-run averages of default rates per rating grade, practitioners lose the
+   link between the model output and the final estimates.
+
+   Moreover, although the final model output is a rating scale and each obligor or facility within the same
+   rating grade receives the same estimate, model development typically indicates that there are differences
+   in the estimated PD even within a single rating grade.
+
+   Therefore, maintaining a link between the raw model outputs and calibrated best estimates can be
+   beneficial and can serve as a critical input for further analyses of model structure quality.
+
+   Some advantages of model-based calibration include:
+
+       1 Model outputs calibrated in this way can serve as a key input for statistical testing of
+         homogeneity in IRB models.
+       2 It enables continuous monitoring of omitted risk factor bias.
+       3 It allows for improved residual analysis and the potential identification of segments where the
+         model over- or under-predicts observed default rates.
+
+
+
+
+     Andrija Djurovic             Model-Based PD Rating Scale Calibration                                  5 / 11
+Model-Based Rating Scale Calibration cont.
+
+
+   However, when using calibrated values from model-based calibration, practitioners should be mindful of
+   potential changes in the ranking order of individual estimates across rating grades. Although the ranking
+   order is preserved within a rating grade, disruptions in the ranking of some obligors or facilities across
+   rating grades may indicate a lack of model heterogeneity between grades or significant differences
+   between the training sample and the calibration sample. Therefore, practitioners are encouraged to think
+   critically about how the calibrated estimates are used in each analysis.
+
+   The following slides illustrate model-based calibration by optimizing the intercept in a logistic regression
+   model, using the raw model’s log-odds as an offset in the regression.
+   As this example is for illustrative purposes, practitioners are encouraged to explore alternative approaches
+   and compare calibration quality.
+
+   Additionally, practitioners should be aware that the illustrated example refers to default-weighted
+   calibration, which, in certain cases is not a regulatory-compliant method. However, a straightforward
+   extension of the same idea to the arithmetic average of yearly default rates can be achieved by applying
+   frequency weights within the model estimation process.
+
+
+
+
+     Andrija Djurovic             Model-Based PD Rating Scale Calibration                                  6 / 11
+Simulation Study Design
+Assume that the risk differentiation function is developed using logistic regression and produces log-odds and
+probabilities of default, with the log-odds used to construct the model’s rating scale.
+
+A dataset containing observed defaults and the main model outputs is available at this link.
+
+The following table provides an overview of basic statistics by rating grade.
+
+##             rating   n avg_log_odds avg_pd avg_dr
+## 1 01 (-Inf,-2.29) 242       -3.0253 0.0523 0.0413
+## 2 02 [-2.29,-1.59) 159      -1.9240 0.1287 0.1069
+## 3 03 [-1.59,-0.71) 198      -1.1433 0.2449 0.2525
+## 4 04 [-0.71,0.65) 299       -0.1111 0.4730 0.4816
+## 5    05 [0.65,Inf) 102       1.1605 0.7543 0.7745
+
+Check
+
+To confirm that, at the portfolio level, the average PD equals the average observed default rate in the training
+dataset, practitioners can either compute a weighted average from the table above or directly calculate a simple
+average of the pd and default columns from the training dataset.
+
+However, despite having calibrated values at the portfolio level, even in the training dataset, average PDs at the
+rating grade level are not calibrated according to regulatory requirements. Although this is not an explicit
+requirement for the training dataset, the same conclusion applies to the calibration dataset, as shown on the
+next slide.
+
+
+         Andrija Djurovic             Model-Based PD Rating Scale Calibration                                 7 / 11
+Simulation Study Design cont.
+After developing the risk differentiation function, practitioners calibrate the model using the calibration dataset. For
+model-based calibration, the calibration dataset must include the observed defaults as well as the raw model
+outputs - log-odds and probabilities. In this exercise, the log-odds will be used along with the assigned rating grade.
+
+The following table provides an overview of basic statistics by rating grade in the calibration dataset.
+
+##             rating   n avg_log_odds avg_pd avg_dr
+## 1 01 (-Inf,-2.29) 325       -3.0330 0.0520 0.0338
+## 2 02 [-2.29,-1.59) 195      -1.9272 0.1283 0.0872
+## 3 03 [-1.59,-0.71) 235      -1.1437 0.2450 0.2340
+## 4 04 [-0.71,0.65) 339       -0.0810 0.4804 0.4690
+## 5    05 [0.65,Inf) 106       1.1517 0.7532 0.7736
+
+Check
+
+As shown in the calibration dataset summary, the average PDs per rating grade (avg_pd) do not match the average
+default rates (avg_dr). Aligning these averages is a typical step in rating scale calibration for IRB PD modeling. As
+mentioned earlier, these estimates are referred to as best or base estimates.
+Although not shown in the table, calculating the weighted average of the PDs and observed default rates does not
+result in a match either.
+
+
+Objective of the Simulation
+
+To meet the regulatory requirement, this simulation aims to calibrate the raw log-odds to match the observed
+defaults by optimizing the intercept of the logistic regression. The following slides provide details and visualizations
+of the results.
+
+         Andrija Djurovic               Model-Based PD Rating Scale Calibration                                     8 / 11
+Simulation Results
+Model-Based Intercept Optimization
+
+To calibrate the raw log-odds to the average default rate per rating grade by optimizing only the intercept,
+practitioners can run a logistic regression of the form default ~ rating with the raw log-odds set as an offset.
+Running this regression on the calibration dataset produces the following estimates:
+##                        Estimate Std. Error z value Pr(>|z|)
+## (Intercept)             -0.4512     0.3078 -1.4660   0.1427
+## rating02 [-2.29,-1.59)   0.0175     0.3992 0.0439    0.9650
+## rating03 [-1.59,-0.71)   0.3905     0.3446 1.1330    0.2572
+## rating04 [-0.71,0.65)    0.4039     0.3271 1.2347    0.2169
+## rating05 [0.65,Inf)      0.5663     0.3869 1.4638    0.1432
+
+To confirm that the average calibrated PDs match the average observed default rate per rating grade, the following
+summary table is created:
+##             rating   n     dr     pd
+## 1 01 (-Inf,-2.29) 325 0.0338 0.0338
+## 2 02 [-2.29,-1.59) 195 0.0872 0.0872
+## 3 03 [-1.59,-0.71) 235 0.2340 0.2340
+## 4 04 [-0.71,0.65) 339 0.4690 0.4690
+## 5    05 [0.65,Inf) 106 0.7736 0.7736
+
+
+
+Calibration Visualization
+
+The following slides visualize the comparison between raw and calibrated PDs, both by rating grade and at the
+portfolio level.
+
+
+
+         Andrija Djurovic             Model-Based PD Rating Scale Calibration                                 9 / 11
+Simulation Results cont.
+Calibration Visualization cont.
+
+                                                         Intercept Optimization − Raw PDs VS Calibrated PDs per Rating
+                                                                                  Calibrated PDs         Raw PDs
+
+
+                                01 (−Inf,−2.29)                                       02 [−2.29,−1.59)                                         03 [−1.59,−0.71)
+
+
+
+
+      7.5%                                                                                                                       30%
+                                                              15%
+
+
+
+      5.0%                                                    13%                                                                25%
+
+
+
+
+      2.5%                                                    11%
+                                                                                                                                 20%
+
+
+
+                                                               9%
+                       −5             −4          −3             −2.75    −2.50        −2.25        −2.00          −1.75               −1.50    −1.25             −1.00   −0.75
+PDs
+
+
+
+
+                                04 [−0.71,0.65)                                         05 [0.65,Inf)
+
+
+                                                              90%
+      60%
+                                                              85%
+
+
+      50%                                                     80%
+
+
+                                                              75%
+      40%
+                                                              70%
+
+
+
+             −0.8        −0.4              0.0     0.4                   1.0             1.5              2.0              2.5
+                                                                                        Log Odds
+
+
+                    Andrija Djurovic                         Model-Based PD Rating Scale Calibration                                                                      10 / 11
+Simulation Results cont.
+Calibration Visualization cont.
+
+                                          Intercept Optimization − Raw PDs VS Calibrated PDs all Ratings
+                                                                Calibrated PDs    Raw PDs
+
+
+
+      100%
+
+
+
+
+      75%
+PDs
+
+
+
+
+      50%
+
+
+
+
+      25%
+
+
+
+
+       0%
+
+             −6                      −4                           −2                            0          2
+                                                                       Log Odds
+
+
+                  Andrija Djurovic            Model-Based PD Rating Scale Calibration                          11 / 11

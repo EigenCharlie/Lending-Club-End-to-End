@@ -1,0 +1,144 @@
+Credit Risk Modeling Working Notes [Leanpub PDF/iPad/Kindle]
+Kick off your book project in 3 hours! Live workshop on Zoom. You’ll leave with a real book project, progress on your first chapter, and a clear plan to keep going. Saturday, June 6, 2026. Learn more…
+Leanpub Header
+Leanpub Navigation
+Skip to main content
+Go to Leanpub.comLeanpubStoreEventsAuthorsReadersOrganizationsServices
+FilterAllBooksBundlesCoursesTracks
+BooksBundlesCoursesTracks
+FeaturedAllBooksBundlesCoursesTracks
+PodcastHelp
+Credit Risk Modeling Working Notes
+A Collection of Presentations, Experiments, and Technical Papers
+Andrija Djurovic
+Andrija Djurovic
+The Working Notes complement Applied Data Science for Credit Risk and Probability of Default Rating Modeling with R, offering practice-oriented insights. Based on the author’s GitHub repository, they address real-world challenges and are regularly updated to reflect ongoing developments.
+Andrija Djurovic
+The Working Notes complement Applied Data Science for Credit Risk and Probability of Default Rating Modeling with R, offering practice-oriented insights. Based on the author’s GitHub repository, they address real-world challenges and are regularly updated to reflect ongoing developments.
+Minimum price
+Free!
+Suggested price
+$8.00
+You pay
+Author earns
+You pay
+$
+Add to Cart
+Add to Wishlist
+PDF
+378
+Readers
+599
+Pages
+About
+About
+Author
+About
+About the Book
+These Working Notes compile material from the author's GitHub repository, accessible at the following link. The notes and the GitHub repository are dedicated to two books - Applied Data Science for Credit Risk and Probability of Default Rating Modeling with R - covering different credit risk modeling topics. Their main goal is to extend the content of the books to specific tasks and challenges practitioners face in their day-to-day work.
+The motivation behind writing these books and creating the repository stems from the observed gap between academic literature, industry practices, and the evolving landscape of data science. While the literature on credit risk modeling has grown significantly, discrepancies persist. The evolution of data science has brought considerable automation to many processes but has also introduced the risk of overreliance on pre-programmed procedures, sometimes resulting in the misuse of statistical methods. Additionally, many practitioners entering the field of credit risk modeling often overlook fundamental principles, which hinders their professional development.
+These Working Notes aim to serve as a centralized hub for continuous education and consolidating essential concepts in credit risk modeling.
+Like the idea behind the GitHub repository, the Working Notes will be regularly updated as new material becomes available.
+Share this book
+Categories
+Data ScienceRPython
+Feedback
+Email the Author
+Author
+About the Author
+Andrija Djurovic
+Andrija Djurovic is a credit risk professional with over 15 years of experience in credit risk modeling. His expertise encompasses modeling Probability of Default, Loss Given Default, Exposure At Default, the development of scoring models, macroeconomic modeling, and portfolio analysis. With comprehensive statistical knowledge spanning academia to industry, his proficiency extends to crafting tailored analytics applications. Notably, Andrija is the author and developer of essential R (monobin, monobinShiny, PDtoolkit, LGDtoolkit) and Python (monobinpy) packages tailored for credit risk modeling. Andrija is also the author of the books Applied Data Science for Credit Risk and Probability of Default Rating Modeling with R.
+To learn more, visit his LinkedIn profile at www.linkedin.com/in/andrija-djurovic, github page at https://github.com/andrija-djurovic, or connect directly through email at djandrija@gmail.com.
+Other books by this author
+Other books by this author
+Probability of Default Rating Modeling with R
+Andrija Djurovic
+Applied Data Science for Credit Risk
+Andrija Djurovic
+The Leanpub 60 Day 100% Happiness Guarantee
+Within 60 days of purchase you can get a 100% refund on any Leanpub purchase, in two clicks.
+Now, this is technically risky for us, since you'll have the book or course files either way. But we're so confident in our products and services, and in our authors and readers, that we're happy to offer a full money back guarantee for everything we sell.
+You can only find out how good something is by trying it, and because of our 100% money back guarantee there's literally no risk to do so!
+So, there's no reason not to click the Add to Cart button, is there?
+See full terms...
+Earn $8 on a $10 Purchase, and $16 on a $20 Purchase
+We pay 80% royalties on purchases of $7.99 or more, and 80% royalties minus a 50 cent flat fee on purchases between $0.99 and $7.98. You earn $8 on a $10 sale, and $16 on a $20 sale. So, if we sell 5000 non-refunded copies of your book for $20, you'll earn $80,000.
+(Yes, some authors have already earned much more than that on Leanpub.)
+In fact, authors have earned over $15 million writing, publishing and selling on Leanpub.
+Learn more about writing on Leanpub
+Free Updates. DRM Free.
+If you buy a Leanpub book, you get free updates for as long as the author updates the book! Many authors use Leanpub to publish their books in-progress, while they are writing them. All readers get free updates, regardless of when they bought the book or how much they paid (including free).
+Most Leanpub books are available in PDF (for computers) and EPUB (for phones, tablets and Kindle). The formats that a book includes are shown at the top right corner of this page.
+Finally, Leanpub books don't have any DRM copy-protection nonsense, so you can easily read them on any supported device.
+Learn more about Leanpub's ebook formats and where to read them
+Write and Publish on Leanpub
+You can use Leanpub to easily write, publish and sell in-progress and completed ebooks and online courses!
+Leanpub is a powerful platform for serious authors, combining a simple, elegant writing and publishing workflow with a store focused on selling in-progress ebooks.
+Leanpub is a magical typewriter for authors: just write in plain text, and to publish your ebook, just click a button. (Or, if you are producing your ebook your own way, you can even upload your own PDF and/or EPUB files and then publish with one click!) It really is that easy.
+Learn more about writing on Leanpub
+Footer
+Publish Early, Publish Often
+Links
+Store
+Featured
+Books
+Bundles
+Courses
+Tracks
+Podcast
+Redeem a Token
+Services
+CourseAI
+GlobalAuthor
+IndexAI
+Marketing Packages
+Publish on Amazon
+TranslateAI
+Events
+Book Workshop
+GhostAI Workshop
+Full Day Workshop
+Book Bootcamp (Group)
+Book Bootcamp (1-on-1)
+Organizations
+Learn More
+Authors
+Author Memberships
+Create Book
+Create Bundle
+Create Course
+Create Track
+Author Support
+Author FAQ
+Author Help Center
+Leanpub Authors Forum
+The Leanpub Manual
+The LFM Manual
+The Markua Manual
+API Docs
+More
+Partner Program
+Causes
+Accessibility
+Readers
+Reader Memberships
+Buy Credits
+Reader FAQ
+Help Center
+Essays
+The Most Painful Compliment (2026)
+Leanpub at Sixteen (2026)
+AI Services (2024)
+Imagine a world... (2022)
+The Lean Publishing Definition (2013)
+The Lean Publishing Manifesto (2010)
+Legal
+Terms of Service
+Copyright Policy
+Privacy Policy
+Refund Policy
+Copyright and reCAPTCHA
+Leanpub is copyright © 2010-2026 Ruboss Technology Corp.
+All rights reserved.
+This site is protected by reCAPTCHA
+and the Google Privacy Policy and Terms of Service apply.

@@ -25,6 +25,25 @@ el libro: cautelas Brier/Yates, Gini/Somers, rare-events logit, PSI, RuleFit,
 GBDT leaf encoding, WOE/IV y Naive Bayes reforzado. Para Paper CRPTO, esas piezas
 sirven como reviewer-defense o tesis, no como nuevos resultados.
 
+La ingesta de Andrija Djurovic/ADSFCR tampoco entra como bibliografía pública
+por sí sola. Su valor para CRPTO es más cercano a gobernanza y lenguaje de
+validación IRB: separar risk differentiation de risk quantification, leer la
+calibración PD antes del LP, evitar que backtesting multi-periodo se vuelva una
+prueba mecánica, y ubicar ML como soporte selectivo para factores de riesgo,
+diagnósticos o challengers explicables. El paquete quedó cerrado con 21 posts,
+4 artículos, 58 links externos y 50 fuentes legibles; los conceptos se importan
+solo con source status y sin reabrir el champion oficial.
+
+La repasada logged-in con Opera GX agregó una capa pequeña pero valiosa: 37
+filas P0/P1, 121 comentarios visibles y 72 links de comentarios. Lo nuevo que
+entra al repositorio intelectual no son los comentarios en sí, sino cuatro
+decisiones de gobernanza: IV debe tratarse como estimador con incertidumbre y
+no como umbral heredado; WoE puede ser inestable cuando se recalcula con
+outcomes predichos por el propio modelo; los tests multi-periodo de PD deben
+considerar autocorrelación y tamaño efectivo; y los árboles sobre residuos son
+mejores como diagnóstico de segmentos omitidos que como reemplazo del modelo
+auditable.
+
 ## Imports con prioridad alta
 
 1. **Brier/reliability caveat**: explicar que la PD entra al LP después de un
@@ -34,3 +53,29 @@ sirven como reviewer-defense o tesis, no como nuevos resultados.
 3. **WOE/IV governance**: justificar inputs auditables y evitar fetichizar IV.
 4. **PSI caution**: no vender drift como pass/fail universal.
 5. **RuleFit/leaf-scorecards**: futuro explicable, no reemplazo del champion.
+6. **IRB calibration language**: decir explícitamente que ranking, calibración,
+   risk quantification y valor económico son dimensiones distintas del contrato
+   de decisión.
+7. **Multi-period PD testing caveat**: el backtesting multi-periodo requiere
+   alinear estimador, varianza y tamaño efectivo; si no, el p-value puede dar
+   una falsa sensación de precisión.
+8. **Model-based PD rating-scale calibration**: usar como defensa o appendix
+   candidato, no como sustituto automático del calibrador oficial.
+9. **Selective ML support**: ML puede ayudar a imputación, interacciones,
+   residual diagnostics y challengers, siempre con monotonicidad, negocio y
+   trazabilidad.
+10. **WOE encoding instability**: promover como caveat de estabilidad de
+    preprocessing y monitoreo, no como reclamo empírico nuevo sin experimento
+    local.
+11. **Monotonic binning tooling**: monobinpy y PDtoolkit sirven como checklist
+    de capacidades de binning/validación; no son dependencias ni evidencia de
+    performance hasta benchmark local.
+12. **IV hypothesis testing**: el paper de J-Divergence para IV queda como
+    preprint de apoyo para decir que umbrales tipo 0.02/0.1 son heurísticos,
+    sensibles a desbalance, y deben gobernarse como incertidumbre estimable.
+13. **Dependence-aware PD validation**: autocorrelación y factores macro comunes
+    pueden reducir el tamaño efectivo de backtesting; el paper IJDS solo usa
+    esto como caveat, la tesis puede ampliarlo con tests de orden/score.
+14. **Residual segment validation**: `segment.vld`/árboles sobre residuos se
+    aparcan como diagnóstico de sobre/subestimación y factores omitidos, con
+    monotonicidad y tamaño mínimo de hoja como guardrails.

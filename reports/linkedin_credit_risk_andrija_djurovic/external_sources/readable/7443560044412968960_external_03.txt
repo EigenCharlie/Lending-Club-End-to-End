@@ -1,0 +1,406 @@
+source_asset_id: 7443560044412968960_external_03
+parent_activity_id: 7443560044412968960
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/risk_quantification/pd_moc_c_egim_para_327.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/risk_quantification/pd_moc_c_egim_para_327.pdf
+source_type: github
+
+Quantification of MoC Type C in Probability of Default
+                       Models
+
+   Statistical Challenges in Reconciling Regulatory Requirements
+
+
+                                Andrija Djurovic
+
+
+
+
+                      www.linkedin.com/in/andrija-djurovic
+
+   Andrija Djurovic             MoC Type C in PD Models            1 / 12
+Margin of Conservatism in Probability of Default Modeling
+
+
+    After completing Probability of Default (PD) model development, practitioners typically
+    address overall model uncertainty by defining a so-called Margin of Conservatism (MoC).
+    The European Banking Authority (EBA) defines three categories corresponding to distinct
+    sources of uncertainty in the estimated parameters:
+       1   Type A: uncertainty related to data and methodological deficiencies;
+       2   Type B: uncertainty related to changes in risk appetite and internal processes;
+       3   Type C: general estimation error, i.e., statistical uncertainty arising from parameter
+           estimation.
+    One of the most commonly applied MoC Type C relates to uncertainty in estimating the
+    long-run average default rate (central tendency).
+    According to the EBA PD & LGD Guidelines, for the purpose of determining PD estimates
+    in the calibration process, institutions may consider either the long-run average default rate
+    at the grade (pool) level or at the calibration segment level. Accordingly, a MoC Type C is
+    expected to be quantified.
+
+
+
+
+     Andrija Djurovic                MoC Type C in PD Models                                   2 / 12
+ECB Interpretation of MoC Type C
+
+
+   In line with the EBA’s requirements, the ECB, in its Guide to Internal Models (2025),
+   paragraph 327, section Model-Related MoC, clarifies its understanding of the quantification
+   of MoC Type C, emphasizing that specific sources of uncertainty should reflect the
+   dispersion of statistical estimators.
+   Furthermore, the ECB distinguishes between models that output rating grades or pools and
+   models with continuous outputs.
+   As this presentation focuses on the most common approach in PD modeling, where the
+   final model output is a rating scale, the remainder is dedicated to the ECB’s interpretation
+   in this context.
+
+   For models with rating grade outputs, the ECB emphasizes two main sources of uncertainty:
+      1   the average of one-year default rates over time;
+      2   the number of exposures per rating grade and per year, which affects the uncertainty
+          of the one-year default rate.
+
+
+
+
+    Andrija Djurovic               MoC Type C in PD Models                                  3 / 12
+ECB Interpretation of MoC Type C cont.
+
+        Additionally, with regard to the average of one-year default rates, the ECB notes that
+        dependency between default rates over time should be considered in the MoC quantification
+        process.
+
+Notes
+
+        Given these clarifications from the ECB, and taking into account relatively short time series
+        as well as specific statistical constraints in estimating the dependency structure, it is
+        questionable how accurately all these sources can be incorporated into the quantification of
+        MoC Type C.
+
+        The purpose of this presentation is to emphasize the bias arising from the statistical
+        identification of the dependency structure of default rates over time and to demonstrate
+        which of the ECB-identified sources of uncertainty may contribute more to the final MoC
+        quantification. Moreover, the proposed simulation framework can be straightforwardly
+        extended to a model-based MoC Type C quantification tool, which may be particularly
+        appropriate for calibrating rating grades based on the portfolio long-run average.
+
+
+
+
+         Andrija Djurovic               MoC Type C in PD Models                                   4 / 12
+Challenges in Quantifying MoC Type C
+
+
+   The ECB has set clear expectations for MoC Type C quantification, stating that the fewer
+   the observations per grade and the shorter the time series, the higher the MoC assigned to
+   that grade should be. Additionally, the ECB expects that the correlation between yearly
+   default rates is properly addressed in this process.
+   In practice, institutions often use simplified frameworks for MoC Type C quantification,
+   typically neglecting either the correlation structure of default rates over time, the variability
+   within specific reference dates, or both. However, should this be considered regulatory
+   non-compliance explicitly?
+   Given the limited number of observations of default rates over time, a key question is
+   whether practitioners can accurately identify the correlation structure of defaults over time.
+   Moreover, even with 100 observation points, for example, the first-order autoregressive
+   coefficient would still be biased when estimated using OLS or Yule-Walker estimators, which
+   are commonly applied for this purpose. Furthermore, the bias also depends on the
+   assumptions underlying the data-generating process.
+
+
+
+
+    Andrija Djurovic                 MoC Type C in PD Models                                     5 / 12
+Challenges in Quantifying MoC Type C cont.
+
+   Additionally, uncertainty within the one-year default rate often contributes much less (or
+   even negligible) than the uncertainty in the average one-year default rate over time, making
+   it questionable whether simplifying the MoC Type C quantification framework by excluding
+   this source of uncertainty is justified.
+   On the one hand, even a mild correlation over time in one-year default rates can have a
+   significant impact on the final MoC Type C level; on the other hand, in certain cases, its
+   estimation is biased when commonly applied methods are used.
+   The contribution of uncertainty within the one-year default rate is also related to the length
+   of the time series used to calculate the average one-year default rate. It can be an
+   important source of uncertainty when the number of observations per rating grade or
+   calibration segment is low and the time series of one-year default rates is short; however,
+   how often do practitioners encounter such situations in practice for a well-designed model?
+
+   In summary, considering regulatory expectations and practical challenges, it is worth asking
+   whether certain simplifications of the modeling framework should be tolerated, or whether
+   practitioners can rely on specific assumptions when quantifying MoC Type C without being
+   fully able to confirm their appropriateness.
+
+
+
+
+    Andrija Djurovic                MoC Type C in PD Models                                   6 / 12
+Simulation Study
+Simulation Purpose and Underlying Assumptions
+
+The purpose of this simulation is to assess the uncertainty in estimating the first-order autocorrelation coefficient
+and to compare the contributions of the two sources of uncertainty in MoC Type C identified by the ECB.
+
+The simulation is based on a Monte Carlo approach under the following assumptions:
+
+    1   One-year default rates follow the Vasicek distribution over a 20-year period (T = 20).
+    2   Asset correlation is set to 0.10 (ρ = 0.10).
+    3   The average PD is set to 0.05 (PD = 0.05).
+    4   The systemic factor follows a first-order autoregressive process with coefficient 0.30 (ϕ = 0.30), given by:
+
+                                                                 p
+                                             zt,t≤T = ϕzt−1 +        1 − ϕ2 ϵt
+
+        where zt,t=1 and ϵt are drawn from the standard normal distribution.
+    5   The number of exposures per year ranges from 100 to 5,000 (N = [100, 200, 500, 1000, 5000]).
+    6   Defaults within a given year follow a binomial distribution with a probability of success equal to the
+        conditional PD given the realized systemic factor from step 4.
+
+
+Practitioners should note that step 6 can be fully aligned with the Vasicek framework by simulating and
+aggregating individual defaults using the asset return approach, conditional on the simulated systemic factor.
+However, both approaches produce the same results, with the approach presented here being computationally
+less intensive.
+
+
+          Andrija Djurovic                    MoC Type C in PD Models                                            7 / 12
+Simulation Study cont.
+Simulation Design
+
+The following steps describe the simulation procedure, given the assumptions explained in the previous slide:
+
+   1   For the selected average PD, ρ, and autocorrelation structure of the systemic factor, simulate T values
+       of conditional PDs from the Vasicek distribution. Additionally, store the simulated values of the systemic
+       factor.
+   2   Calculate the first-order autoregressive coefficient from the simulated systemic factor realizations over
+       the period T from step 1 and store the results.
+   3   Calculate the average of the simulated PDs from step 1.
+   4   Based on the conditional PDs and number of exposures N, simulate the number of defaults and
+       recalculate the PD for each year of period T .
+   5   Calculate the average default rate as the mean of the PDs simulated in step 4.
+   6   Using the Vasicek framework, calculate a new systemic factor from the simulated PDs in step 4 and
+       estimate and store another first-order autoregressive coefficient.
+   7   Repeat steps 1 to 5, 100,000 times and store the results.
+   8   Compare the distribution of the simulated autocorrelation coefficients to the true value, as well as assess
+       the contribution of the within-year default rate uncertainty to the overall uncertainty of the simulation at
+       a 95% confidence level.
+
+
+The difference between the calculated percentiles of the simulated average default rates (step 5) and the selected
+average PD serves as a simulation of MoC Type C related to the uncertainty of the LRA DR (central tendency),
+incorporating regulatory-required sources of uncertainty and the dependency structure of default rates.
+
+
+         Andrija Djurovic                   MoC Type C in PD Models                                            8 / 12
+Simulation Results
+
+The following tables present a summary of the simulation study:
+
+##    T    N ar_est_s1 ar_est_s2 lra_s1_95th lra_s2_95th s2_increase
+##   20 100     20.26%     6.36%       6.81%       7.00%     0.1879%
+##   20 200     20.36%    12.19%       6.81%       6.90%     0.0934%
+##   20 500     20.33%    17.30%       6.80%       6.83%     0.0342%
+##   20 1000    20.30%    18.83%       6.81%       6.83%     0.0181%
+##   20 5000    20.32%    20.03%       6.81%       6.82%     0.0040%
+
+were:
+
+        ar_est_s1 is the average autocorrelation coefficient from simulation step 2;
+        ar_est_s2 is the average autocorrelation coefficient from simulation step 6;
+        lra_s1_95th is the 95th percentile of the LRA from simulation step 3;
+        lra_s2_95th is the 95th percentile of the LRA from simulation step 5;
+        s2_increase is the percentage-point increase of the 95th LRA percentiles, considering within-year
+        uncertainty of the default rates.
+
+
+
+
+Graphs on the next slides visualize the distributions of the estimated autocorrelation coefficients and the
+simulated LRA DRs.
+
+
+
+
+         Andrija Djurovic                   MoC Type C in PD Models                                           9 / 12
+Simulation Results cont.
+                                                              Distribution of the Estimated AR Coefficient per Sample Size
+
+                                                                        True AR Coef. = 0.3         ar_est_s1   ar_est_s2
+
+
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                                           N = 100
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                                           N = 200
+                            0.50%
+
+                            0.25%
+Percentage of simulations
+
+
+
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                                           N = 500
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                                           N = 1000
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                                           N = 5000
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                                    −1.0               −0.5                                   0.0                            0.5   1.0
+                                                                                  Estimated AR Coefficient
+
+
+
+
+                                    Andrija Djurovic                  MoC Type C in PD Models                                            10 / 12
+Simulation Results cont.
+                                                       Distribution of the Simulated LRA per Sample Size
+
+                                                                          lra_s1    lra_s2
+
+
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                     N = 100
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                     N = 200
+                            0.50%
+
+                            0.25%
+Percentage of simulations
+
+
+
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                     N = 500
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                     N = 1000
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                            1.00%
+
+                            0.75%
+
+
+
+
+                                                                                                                     N = 5000
+                            0.50%
+
+                            0.25%
+
+                            0.00%
+                                               0.025   0.050                                 0.075         0.100
+                                                                        Simulated LRA
+
+
+
+
+                                    Andrija Djurovic       MoC Type C in PD Models                                 11 / 12
+Discussion Points
+
+
+    The ECB has set clear expectations for MoC Type C quantification. Should these
+    expectations be revisited to allow greater flexibility?
+    In practice, institutions often use simplified frameworks for MoC Type C quantification,
+    neglecting certain sources of uncertainty or the dependency of default rates over time.
+    Should this always be treated as regulatory non-compliance?
+
+    Given the limited observations and the statistical challenges of accurately estimating the
+    dependency structure of default rates, should certain simplifications and assumptions be
+    permitted?
+    Model-based simulation designs, under specific assumptions, can be the most effective tool
+    for MoC Type C quantification or as a model challenger, capturing all key factors that may
+    influence the final MoC Type C level. Should this approach be more widely promoted and
+    aligned with capital requirement calculations in IRB models?
+
+
+
+
+     Andrija Djurovic               MoC Type C in PD Models                                 12 / 12

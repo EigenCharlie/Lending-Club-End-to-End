@@ -26,7 +26,17 @@ Esa lectura también permite razonar sobre incertidumbre. Si WOE es un log-odds 
 
 El IV merece la misma disciplina. Es útil como divergencia agregada entre distribuciones de buenos y malos, pero no debería convertirse en una regla automática de causalidad, estabilidad o utilidad económica: variables correlacionadas pueden inflar rankings, poblaciones desplazadas pueden cambiar el valor de la evidencia y umbrales de IV son heurísticas de gobierno, no teoremas universales [@zeng2013_metric_divergence_iv].
 
+La ingesta reciente de fuentes de riesgo de crédito refuerza esta lectura. Rojas, Alvarez y Rojas proponen tratar IV como un estimador ligado a la divergencia de Jeffreys y derivar una prueba no paramétrica J-Divergence para contrastar si las distribuciones por clase realmente difieren [@rojas2026_iv_hypothesis_testing]. Como es un preprint, en este proyecto no se promueve como evidencia cerrada ni como dependencia oficial; sí sirve para fijar una regla conceptual importante: cuando hay desbalance de clases, un corte fijo tipo `IV > 0.02` o `IV > 0.10` puede ser menos defendible que una lectura con incertidumbre, tamaño de bin, eventos observados y propósito downstream.
+
 Esta lectura también separa dos tareas que a veces se mezclan. Rehacer los bins cambia la estructura de la variable; recalibrar los WOE manteniendo bins fijos cambia solo la evidencia asignada a cada bin bajo una población nueva. En producción, esa segunda operación puede ser un candidato de mantenimiento menos invasivo, pero en este libro queda como lane de research: no reemplaza el contrato canónico si no reduce drift/calibración sin empeorar estabilidad.
+:::
+
+::: {.callout-warning}
+## Caveat de reemplazo WOE
+
+WOE es estable como transformación de producción cuando sus bins, convención de signo y población de estimación quedan congelados. El problema aparece cuando se intenta construir un modelo de reemplazo recalculando WOE sobre outcomes generados por el propio modelo anterior. En ese escenario, la transformación puede cambiar aunque la predicción del modelo original se replique muy bien, porque se está reestimando una razón de odds a partir de una población etiquetada por el modelo y no por la realidad observada.
+
+Para este proyecto, esa observación no reabre el champion ni invalida los WOE del contrato canónico. Su uso correcto es de gobernanza: WOE/IV deben guardarse con versión, población, bin edges, mínimos de eventos y criterios de monitoreo. Si algún día se prueba una lane de reemplazo WOE, su condición de parada será demostrar mejora local en estabilidad/calibración sin cambiar el claim CRPTO ni romper la trazabilidad del contrato de features.
 :::
 
 ::: {.callout-tip}
@@ -97,6 +107,8 @@ El IV de cada variable se calcula como subproducto del binning óptimo y sirve c
 ::: {.callout-tip}
 ## Regla práctica de IV
 Variables con IV > 0.50 son sospechosas de contener leakage --- su poder predictivo es "demasiado bueno para ser verdad". En el pipeline de limpieza del capítulo de ingesta y linaje, las 35 columnas de leakage fueron removidas *antes* del cálculo de WOE, por lo que las variables restantes tienen IV en rangos plausibles. Las variables WOE de grade, purpose y home_ownership tienen IV típicamente en el rango 0.10--0.40, indicando poder predictivo medio a fuerte.
+
+Esta regla es práctica, no inferencial. En escritura académica y MRM conviene decir: “el IV sugiere poder discriminatorio bajo el binning actual” en vez de “el IV prueba que la variable es buena”. La diferencia importa porque el IV depende de bins, prevalencia, tamaño de muestra y estabilidad temporal.
 :::
 
 El IV también se usa como criterio de ordenamiento en los notebooks de análisis exploratorio (NB02), donde las variables se rankean por IV descendente para identificar las más informativas antes de la selección final de features.

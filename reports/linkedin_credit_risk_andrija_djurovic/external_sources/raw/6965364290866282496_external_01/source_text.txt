@@ -1,0 +1,54 @@
+CRAN: Package monobin
+monobin: Monotonic Binning for Credit Rating Models
+Performs monotonic binning of numeric risk factor in credit rating models (PD, LGD, EAD)
+development. All functions handle both binary and continuous target variable.
+Functions that use isotonic regression in the first stage of binning process have an additional
+feature for correction of minimum percentage of observations and minimum target rate per bin.
+Additionally, monotonic trend can be identified based on raw data or, if known in advance,
+forced by functions' argument. Missing values and other possible special values are treated
+separately from so-called complete cases.
+Version:
+0.2.4
+Depends:
+dplyr, Hmisc, R (≥ 2.10)
+Published:
+2022-07-21
+DOI:
+10.32614/CRAN.package.monobin
+Author:
+Andrija Djurovic [aut, cre]
+Maintainer:
+Andrija Djurovic <djandrija at gmail.com>
+License:
+GPL (≥ 3)
+URL:
+https://github.com/andrija-djurovic/monobin
+NeedsCompilation:
+no
+Materials:
+README, NEWS
+In views:
+Finance
+CRAN checks:
+monobin results
+Documentation:
+Reference manual:
+monobin.html , monobin.pdf
+Downloads:
+Package source:
+monobin_0.2.4.tar.gz
+Windows binaries:
+r-devel: monobin_0.2.4.zip, r-release: monobin_0.2.4.zip, r-oldrel: monobin_0.2.4.zip
+macOS binaries:
+r-release (arm64): monobin_0.2.4.tgz, r-oldrel (arm64): monobin_0.2.4.tgz, r-release (x86_64): monobin_0.2.4.tgz, r-oldrel (x86_64): monobin_0.2.4.tgz
+Old sources:
+monobin archive
+Reverse dependencies:
+Reverse depends:
+monobinShiny, PDtoolkit
+Reverse imports:
+LGDtoolkit
+Linking:
+Please use the canonical form
+https://CRAN.R-project.org/package=monobin
+to link to this page.

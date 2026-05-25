@@ -1,0 +1,12 @@
+📕 𝙋𝙧𝙤𝙗𝙖𝙗𝙞𝙡𝙞𝙩𝙮 𝙤𝙛 𝘿𝙚𝙛𝙖𝙪𝙡𝙩 𝙍𝙖𝙩𝙞𝙣𝙜 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙬𝙞𝙩𝙝 𝙍
+After dedicating over two years to preparation, which included the creation of R packages: monobin, monobinShiny, and PDtoolkit, consolidating prevalent industry methods, crafting illustrative examples, and juggling a busy schedule, I am delighted to announce the release of my book, 𝙋𝙧𝙤𝙗𝙖𝙗𝙞𝙡𝙞𝙩𝙮 𝙤𝙛 𝘿𝙚𝙛𝙖𝙪𝙡𝙩 𝙍𝙖𝙩𝙞𝙣𝙜 𝙈𝙤𝙙𝙚𝙡𝙞𝙣𝙜 𝙬𝙞𝙩𝙝 𝙍. Anyone interested has the option to purchase it through the link provided in the comment.
+The book presents an overview of the pivotal stages in developing and validating the probability of default models, summarizing the most prevalent methods used in the field. Furthermore, the book explores subjects that, in my perspective, are insufficiently tackled in practical applications despite their substantial influence on the overall model quality, encompassing:
+1️⃣ Binning process (monotonic, U-shape, and binning of categorical risk factors);
+2️⃣ Blockwise ranking model designs (on the same and different development samples);
+3️⃣ Ranking model uncertainty (including conformal inference);
+4️⃣ Margin of Conservatism stemming from the special cases (missing values and others), change of the application portfolio structure, and central tendency variability;
+5️⃣ Machine learning support for ranking model development.
+I encourage readers to approach the book and R codes with a process-oriented mindset. Additionally, I encourage them to engage in critical thinking as they go through its contents since not all methods used in real-world situations are suitable for every circumstance, and not every method is universally effective.
+Lastly, I extend my heartfelt gratitude to all those who supported me on this journey. A special acknowledgment goes to my colleague, Giancarlo Musto, for his unselfish assistance and dedicated discussions.
+I sincerely hope readers will find the book a valuable PD modeling resource 😊
+#creditrisk #IRB #PD #R #rstat

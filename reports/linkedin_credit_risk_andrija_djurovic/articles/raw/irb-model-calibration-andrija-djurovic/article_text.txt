@@ -1,0 +1,60 @@
+IRB model calibration
+Report this article
+Andrija Djurovic
+Andrija Djurovic
+Published Sep 12, 2023
++ Follow
+Some time ago, I stumbled upon a video discussing model calibration, which inspired me to delve into the world of IRB model calibration.
+IRB modeling possesses characteristics distinct from conventional ML projects. These different characteristics frequently govern the selection of statistical approaches for model development. Consequently, certain model-agnostic techniques commonly employed in the broader ML domain may not directly apply to the specific IRB modeling context. Calibration is a notable example of this disparity. The diversity of calibration methods in IRB modeling stems from a complex interplay of factors, including regulatory requirements, data availability, the expenses associated with data collection, and the model design. When contemplating the most suitable calibration method, practitioners should weigh specific questions and considerations before making a choice.
+The primary objective of this post is to synthesize critical points that practitioners must bear in mind when tackling the calibration in IRB modeling. However, before diving into the list, it's essential to emphasize the significance of grasping the core principles of IRB modeling. This includes a clear understanding of the distinction between risk differentiation and risk quantification and familiarity with specific statistical methodologies tailored for implementation. Such foundational knowledge equips practitioners to embark on concrete modeling tasks with confidence.
+Now, let's explore the crucial questions that should guide your approach to IRB model calibration:
+✅ How does the distinction between risk differentiation and risk quantification influence the calibration process on a broader scale?
+✅ In PD modeling, when is Platt scaling or isotonic regression (un)suitable for calibration?
+Recommended by LinkedIn
+Catching costly failures before they escalate!
+Gabriel Marvin
+7 months ago
+Co-Simulation Performance Analysis
+AVL in North America Simulation
+2 years ago
+How to Deliver an ML Model in 30 days
+Paresh Nakhe
+1 year ago
+✅ What alternatives exist for calibration in PD modeling when Platt scaling or isotonic regression isn't feasible?
+✅ In PD modeling, how does the choice of the rating scale (discrete or continuous) influence the calibration process?
+✅ What calibration methods are available for other risk parameters, such as LGD and EAD?
+✅ Can we assess calibration quality independently of other risk quantification steps (e.g., Margin of Conservatism)?
+✅ What hypothesis should guide the risk quantification testing—should we aim for a perfect diagonal line as demonstrated in the video, or are we seeking evidence of underestimation?
+Once these questions and any additional considerations have been addressed, and potential calibration methods have been identified, practitioners must also be conscious of the financial implications of the risk quantification process. Consequently, it's not uncommon for practitioners to invest substantial time in testing and fine-tuning various aspects of this process, including calibration.
+Like
+Like
+Celebrate
+Support
+Love
+Insightful
+Funny
+Comment
+Copy
+LinkedIn
+Facebook
+X
+Share
+111
+To view or add a comment, sign in
+More articles by Andrija Djurovic
+IRB models uncertainty and conformal inference
+Sep 20, 2023
+IRB models uncertainty and conformal inference
+While regulatory requirements concerning the Margin of Conservatism (MoC) necessitate addressing the general estimation…
+72
+Selective use of machine learning for IRB models
+Aug 15, 2023
+Selective use of machine learning for IRB models
+When discussing ML for IRB models with practitioners, I consistently perceive that the decision boils down to a binary…
+107
+6 Comments
+Machine learning for IRB models
+Aug 6, 2023
+Machine learning for IRB models
+Recently EBA published a follow-up report from the consultation on the discussion paper on machine learning for IRB…
+65

@@ -1,0 +1,14 @@
+𝗖𝗿𝗲𝗱𝗶𝘁 𝗥𝗶𝘀𝗸 𝗠𝗼𝗱𝗲𝗹𝗶𝗻𝗴 𝗪𝗼𝗿𝗸𝗶𝗻𝗴 𝗡𝗼𝘁𝗲𝘀 – 𝗧𝗵𝗲 𝗧𝗵𝗶𝗿𝗱 𝗨𝗽𝗱𝗮𝘁𝗲
+The 📕 Credit Risk Modeling Working Notes continue to grow and have been updated for a third time. The download link can be found in the comments section, while the list of documents included in this update is provided below.
+A few more updates are planned for this year, but those interested can also access the dedicated GitHub page directly (https://lnkd.in/dm2p5UNv) and review the individual materials there.
+✅ IFRS9 Forward-Looking Modeling - Supervised Macroeconomic Index (https://lnkd.in/dhufwehR)
+✅smi: An R Package for IFRS9 Forward-Looking Modeling (https://lnkd.in/drTegZXJ)
+✅Statistical Binning of Categorical Risk Factors - Probability of Default Modeling (https://lnkd.in/dqcHHr4N)
+✅Rethinking Representativeness Analysis in IRB Modeling - Classifier Two-Sample Test (https://lnkd.in/dRhegAMV)
+✅OLS Regression in IRB Credit Risk Modeling - From Binary to Continuous: A WoE-Equivalent Encoding Method (https://lnkd.in/dJegGCfS)
+✅The Instability of Mean Target Encoding in LGD and EAD Modeling (https://lnkd.in/d3A3QYYa)
+✅Heterogeneity Testing in IRB Credit Risk Models - Regulatory Requirements, Methods, Challenges, and Considerations (https://lnkd.in/dv4yCu2k)
+✅Somers’ D for Discriminatory Power in LGD and EAD Models: Dyx or Dxy? - ECB Instructions for Reporting the Validation Results of Internal Models (https://lnkd.in/ddr-yi5Q)
+✅Calibration of Discrete Probability of Default Rating Scale - From Segment Default Averages to Grade-Level Estimates (https://lnkd.in/d_CcHWXx)
+✅Somers’ D in LGD and EAD Modeling - Impact of Input Binning on Discriminatory Power (https://lnkd.in/dZTdymZa)
+#creditrisk #irb #ifrs9

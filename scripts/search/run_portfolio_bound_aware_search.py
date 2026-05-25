@@ -819,6 +819,35 @@ def _build_stratified_shortlist(
     selected_rows: list[dict[str, Any]] = []
     seen: set[str] = set()
 
+    def remaining(desired: int) -> int:
+        return max(0, min(int(desired), int(shortlist_top_k) - len(selected_rows)))
+
+    return_global = ranked.sort_values(
+        by=["return_first_rank", "bound_proxy_rank"],
+        ascending=[True, True],
+        kind="mergesort",
+    )
+    _select_top_unique(
+        return_global,
+        limit=remaining(bucket_return_k),
+        seen=seen,
+        bucket_name="return_global",
+        selected_rows=selected_rows,
+    )
+
+    conservative = ranked.sort_values(
+        by=["bound_proxy_rank", "return_first_rank"],
+        ascending=[True, True],
+        kind="mergesort",
+    )
+    _select_top_unique(
+        conservative,
+        limit=remaining(bucket_proxy_k),
+        seen=seen,
+        bucket_name="conservative_proxy",
+        selected_rows=selected_rows,
+    )
+
     forced = ranked[ranked["semantic_policy_key"].isin(forced_keys)].sort_values(
         by=["bound_proxy_rank", "return_first_rank"],
         ascending=[True, True],
@@ -826,7 +855,7 @@ def _build_stratified_shortlist(
     )
     _select_top_unique(
         forced,
-        limit=len(forced),
+        limit=remaining(bucket_region_k),
         seen=seen,
         bucket_name="forced_incumbent_neighbors",
         selected_rows=selected_rows,
@@ -839,22 +868,9 @@ def _build_stratified_shortlist(
     )
     _select_top_unique(
         region,
-        limit=int(bucket_region_k),
+        limit=remaining(bucket_region_k),
         seen=seen,
         bucket_name="incumbent_region",
-        selected_rows=selected_rows,
-    )
-
-    conservative = ranked.sort_values(
-        by=["bound_proxy_rank", "return_first_rank"],
-        ascending=[True, True],
-        kind="mergesort",
-    )
-    _select_top_unique(
-        conservative,
-        limit=int(bucket_proxy_k),
-        seen=seen,
-        bucket_name="conservative_proxy",
         selected_rows=selected_rows,
     )
 
@@ -866,22 +882,22 @@ def _build_stratified_shortlist(
         )
         _select_top_unique(
             family_frame,
-            limit=int(bucket_family_k),
+            limit=remaining(bucket_family_k),
             seen=seen,
             bucket_name=f"family::{family}",
             selected_rows=selected_rows,
         )
 
-    return_global = ranked.sort_values(
+    residual = ranked.sort_values(
         by=["return_first_rank", "bound_proxy_rank"],
         ascending=[True, True],
         kind="mergesort",
     )
     _select_top_unique(
-        return_global,
-        limit=int(bucket_return_k),
+        residual,
+        limit=remaining(shortlist_top_k),
         seen=seen,
-        bucket_name="return_global",
+        bucket_name="residual_ranked_fill",
         selected_rows=selected_rows,
     )
 

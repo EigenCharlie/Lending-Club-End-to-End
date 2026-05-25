@@ -1,0 +1,193 @@
+source_asset_id: 7455503720936693760_external_11
+parent_activity_id: 7455503720936693760
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/mrm/lgd_ead_dp_somersd_and_binning.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/mrm/lgd_ead_dp_somersd_and_binning.pdf
+source_type: github
+
+           Somers’ D in LGD and EAD Modeling
+
+           Impact of Input Binning on Discriminatory Power
+
+
+                             Andrija Djurovic
+
+
+
+
+                   www.linkedin.com/in/andrija-djurovic
+
+
+Andrija Djurovic            Somers’ D and Input Binning      1/6
+Discriminatory Power in IRB Modeling
+   Testing discriminatory power is one of the key aspects of model assessment conducted by credit risk practitioners.
+
+   In simple terms, within the IRB framework, discriminatory power testing evaluates whether a model provides
+   meaningful differentiation between facilities or obligors based on the levels of risk parameters assigned and the
+   values observed in the validation sample.
+
+   Somers’ D is commonly used to assess discriminatory power in LGD and EAD models because the final outputs
+   of these risk parameters are typically ordinal, with a limited number of distinct values. In practice, this often
+   corresponds to rating grades or pools.
+
+   When calculating Somers’ D, practitioners frequently adopt the ECB approach presented in the Instructions for
+   Reporting the Validation Results of Internal Models.
+
+   However, in practice, different approaches are observed when preparing inputs for the calculation of Somers’ D in
+   LGD and EAD modeling, and there are no standard guidelines on how to approach this task.
+
+   Given that practitioners often rely on specific thresholds for Somers’ D when concluding on a model’s overall
+   discriminatory power, it is worth investigating the impact of input binning on the final decision.
+
+   This presentation examines the potential impact of input binning on overall discriminatory power by comparing
+   three different binning procedures applied to the realised risk parameter values, given the rating grades of the
+   model output. Practitioners should keep in mind that the relationships between Somers’ D measures shown in
+   this simulation may not apply to every model output. Still, this work can serve as a basis for developing an
+   appropriate method for determining what an LGD or EAD model should actually discriminate.
+
+   The following slides first introduce the basic concept of Somers’ D used to measure discriminatory power in LGD
+   and EAD models, and then compare the results of three different binning approaches on the simulated dataset.
+
+
+     Andrija Djurovic                     Somers’ D and Input Binning                                              2/6
+Somers’ D in LGD and EAD Modeling
+
+
+In LGD and EAD modeling, Somers’ D has been adopted as a standard metric for measuring a model’s
+discriminatory power.
+
+Given that Somers’ D is inherently a pair of asymmetric coefficients, for a contingency table (X , Y ), Dxy is
+considered an appropriate measure of the performance of X in predicting or ranking Y .
+
+The formula for calculating the Somers’ Dxy coefficient for a contingency table (X , Y ) is:
+
+                                                         P−Q
+                                              Dxy =          P
+                                                      n2 −       (nj )2
+
+where:
+
+         P is twice the number of concordant pairs;
+         Q is twice the number of discordant pairs;
+         n is the total number of observations in the contingency table;
+         nj denotes the column marginal totals.
+
+
+
+
+          Andrija Djurovic                  Somers’ D and Input Binning                                          3/6
+Simulation Study Design
+The purpose of this simulation is to examine how the choice of binning approach for realised LGD values affects the Somers’ D
+value, under the assumption that the final model output consists of five rating grades. The data used in this simulation are
+available at the following link with LGD_R, LGD_P, LGD_P_pool being realised, estimated LGD, and final model pools respectievely.
+Other columns presented in the simulation dataset refer to the discretized values of the realised LGDs based on different binning
+approaches.
+
+The following table presents a summary of the final model pools that will serve as the basis for two of the binning approaches
+applied to the realised LGD values.
+
+##                 pool no lgd_mean
+##     01 (-Inf,0.2488) 498  0.1459
+##   02 [0.2488,0.3225) 190  0.2702
+##   03 [0.3225,0.5024) 152  0.3547
+##   04 [0.5024,0.7705) 208  0.6655
+##      05 [0.7705,Inf) 152  0.8291
+
+Binning Approach 1:
+
+This binning approach assumes that the realised values are discretized independently of the estimated model pools. The selected
+thresholds for discretizing the realised values are based on the ECB approach for LGD and EAD models, which produce more than
+20 unique values (page 33).
+
+
+                                  Segment 1:           facilities i with 0% ≤ LGDiR < 5%;
+                                  Segment 2:           facilities i with 5% ≤ LGDiR < 10%;
+                                  Segment 3:           facilities i with 10% ≤ LGDiR < 20%;
+                                                       ...
+                                  Segments 4–11:       10% LGD steps
+                                                       ...
+                                  Segment 12:          facilities i with 100% ≤ LGDiR
+
+
+          Andrija Djurovic                       Somers’ D and Input Binning                                                     4/6
+Simulation Study Design cont.
+
+
+Binning Approach 2:
+
+This binning approach assumes that the realised values are discretized based on model outputs for each pool. In other words, it
+relies on model-implied thresholds to discretize the realised values. As in the first binning approach, it follows the ECB instructions
+for reporting on validation results, but applies to models that produce 20 or fewer unique values. According to the ECB
+instructions (page 32), for a model that outputs two facility grades, F1 and F2, realised LGD is segmented into three classes. The
+first class comprises all realised LGD values that are less than or equal to the estimated LGD of grade F1. The second class
+comprises all realised LGD values that are less than or equal to the estimated LGD of grade F2 and are not part of the first class.
+The third class comprises all realised LGD values that are greater than the estimated LGD of grade F2.
+
+
+Binning Approach 3:
+
+This binning approach (proposed by Andrija Djurovic) presents an adjustment of the second binning approach applied only to the
+last class of realised LGD. Therefore, using the same example of a model with two facility grades, F1 and F2, realised LGD values
+are discretized into two classes. The first class comprises all realised LGD values that are less than or equal to the estimated LGD
+of grade F1, while the second class consists of all realised LGD values that are greater than the estimated LGD of grade F1. For
+models that output more than two facility grades, the process is applied in the same way, with realised values discretized based on
+model estimates per pool while producing the same number of pools as the model outputs.
+
+
+
+
+           Andrija Djurovic                         Somers’ D and Input Binning                                                     5/6
+Simulation Results
+                                            Bootstrapped Distribution of Somers' D by Binning Approach
+                                                                        Binning 1
+            300
+
+
+
+            200
+
+
+                                                                                                         Somers' D = 0.4771
+            100
+
+
+
+              0
+
+                                                                        Binning 2
+            300
+Frequency
+
+
+
+
+            200
+
+
+                                                                                                         Somers' D = 0.5282
+            100
+
+
+
+              0
+
+                                                                        Binning 3
+            300
+
+
+
+            200
+
+
+                                                                                                         Somers' D = 0.5442
+            100
+
+
+
+              0
+                                     0.45                    0.50                            0.55               0.60
+                                                                    Somers' D Value
+
+
+
+
+                  Andrija Djurovic                   Somers’ D and Input Binning                                              6/6

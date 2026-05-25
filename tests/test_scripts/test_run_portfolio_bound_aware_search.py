@@ -117,9 +117,76 @@ def test_stratified_shortlist_keeps_alpha01_incumbent_region() -> None:
     incumbent_key = _policy_semantic_key(incumbent)
     assert incumbent_key in set(shortlist["semantic_policy_key"])
     incumbent_row = shortlist[shortlist["semantic_policy_key"] == incumbent_key].iloc[0]
-    assert str(incumbent_row["shortlist_bucket"]).startswith("forced_") or str(
-        incumbent_row["shortlist_bucket"]
-    ).startswith("incumbent_")
+    assert str(incumbent_row["shortlist_bucket"]).startswith(
+        ("forced_", "incumbent_", "conservative_")
+    )
+
+
+def test_stratified_shortlist_does_not_starve_return_bucket() -> None:
+    rows = []
+    for risk in [0.155, 0.16, 0.165, 0.17, 0.175, 0.18]:
+        for gamma in [0.45, 0.50, 0.55, 0.60]:
+            for mode in ["blended_uncertainty", "capped_blended_uncertainty"]:
+                rows.append(
+                    _frontier_row(
+                        risk_tolerance=risk,
+                        policy_mode=mode,
+                        gamma=gamma,
+                        uncertainty_aversion=0.0,
+                        min_budget_utilization=0.0,
+                        pd_cap_slack_penalty=0.0,
+                        realized_total_return=100_000.0 - len(rows),
+                        price_of_robustness=-20_000.0,
+                        worst_case_pd=0.12,
+                        point_pd=0.08,
+                    )
+                )
+
+    top_return = _frontier_row(
+        risk_tolerance=0.19,
+        policy_mode="tail_blended_uncertainty",
+        gamma=0.325,
+        uncertainty_aversion=0.15,
+        min_budget_utilization=0.0,
+        pd_cap_slack_penalty=0.0,
+        realized_total_return=175_000.0,
+        price_of_robustness=-25_000.0,
+        worst_case_pd=0.19,
+        point_pd=0.09,
+    )
+    rows.append(top_return)
+    frontier = pd.DataFrame(rows)
+
+    shortlist = _build_stratified_shortlist(
+        frontier=frontier,
+        shortlist_top_k=20,
+        bucket_return_k=5,
+        bucket_proxy_k=5,
+        bucket_family_k=5,
+        bucket_region_k=10,
+        incumbent_policy={
+            "risk_tolerance": 0.16,
+            "policy_mode": "blended_uncertainty",
+            "gamma": 0.5,
+            "delta_cap_quantile": 1.0,
+            "tail_focus_quantile": 1.0,
+            "uncertainty_aversion": 0.0,
+            "min_budget_utilization": 0.0,
+            "pd_cap_slack_penalty": 0.0,
+            "solver_backend": "highs",
+        },
+        incumbent_risk_neighbors=[0.155, 0.16, 0.165, 0.17, 0.175, 0.18],
+        incumbent_gamma_neighbors=[0.45, 0.50, 0.55, 0.60],
+        incumbent_policy_modes=["blended_uncertainty", "capped_blended_uncertainty"],
+        budget_profiles=[
+            {"name": "free_budget", "min_budget_utilization": 0.0, "pd_cap_slack_penalty": 0.0}
+        ],
+        solver_backend="highs",
+    )
+
+    top_key = _policy_semantic_key(top_return)
+    top_row = shortlist[shortlist["semantic_policy_key"] == top_key].iloc[0]
+    assert top_row["shortlist_bucket"] == "return_global"
 
 
 def test_aggregate_exact_results_prefers_alpha01_passers() -> None:

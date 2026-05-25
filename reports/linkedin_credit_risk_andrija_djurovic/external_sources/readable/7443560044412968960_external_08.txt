@@ -1,0 +1,257 @@
+source_asset_id: 7443560044412968960_external_08
+parent_activity_id: 7443560044412968960
+canonical_url: https://github.com/andrija-djurovic/adsfcr/blob/main/ols/ols_and_rf_encoding.pdf
+readable_url: https://raw.githubusercontent.com/andrija-djurovic/adsfcr/main/ols/ols_and_rf_encoding.pdf
+source_type: github
+
+Encoding Categorical Risk Factors in IRB LGD and EAD
+                        Models
+
+A Comparison of Ordinal, One-Hot and Nested Dummy Approaches in
+                         Linear Regression
+
+
+                                Andrija Djurovic
+
+
+
+
+                      www.linkedin.com/in/andrija-djurovic
+
+   Andrija Djurovic              Risk Factors Encoding            1 / 10
+Linear Regression in LGD and EAD Modeling
+
+
+   The development of an Internal Ratings-Based (IRB) model encompasses two primary
+   areas: the creation of the risk differentiation function and risk quantification.
+   A common approach to developing the risk differentiation function in Loss Given Default
+   (LGD) and Exposure at Default (EAD) models is linear regression, specifically Ordinary
+   Least Squares (OLS). Although linear regression is usually considered part of multi-factor
+   analysis, the preceding steps of risk factor engineering should also be viewed as essential to
+   properly applying linear regression in this context.
+   The development of LGD and EAD risk differentiation functions typically involves both
+   numeric and categorical risk factors.
+   The final model typically comprises a set of categorical risk factors selected through OLS
+   regression. Some of these are the result of discretizing numeric risk factors, while others are
+   inherently categorical by nature.
+
+
+
+
+    Andrija Djurovic                  Risk Factors Encoding                                    2 / 10
+Linear Regression in LGD and EAD Modeling cont.
+
+   Regardless of the process used to create categorical risk factors, practitioners usually have
+   an a priori expectation regarding their relationship with the modeled target. In other words,
+   practitioners can typically assess whether one modality of a risk factor is more or less risky
+   than another, where the level of riskiness is evaluated based on the expected or average
+   value of the modeled target across the analyzed modalities. An example of such a risk
+   factor is a discretized numeric variable for which practitioners have applied monotonic
+   binning constraints as part of the standard IRB development process for the risk
+   differentiation function.
+   Given these expectations about the relationship between a risk factor and the modeled
+   target, practitioners often face challenges when selecting an appropriate encoding method
+   for risk factors to be used in multi-factor analysis.
+   This presentation focuses on three different encoding methods often considered alongside
+   linear regression models. The main goal is to demonstrate how the selection of the
+   encoding method affects the interpretation of the linear regression model, emphasizing the
+   importance of aligning different modeling steps in IRB development. Although the
+   presented examples refer to a linear regression approach, the same principles apply to
+   logistic regression models typically used in Probability of Default (PD) modeling.
+
+
+
+
+    Andrija Djurovic                  Risk Factors Encoding                                   3 / 10
+Encoding Methods in Practice
+
+
+   To prepare a categorical risk factor for linear regression, practitioners must select a specific
+   encoding method.
+   In simple terms, encoding refers to transforming categorical risk factors into one or more
+   numeric variables suitable for use in linear regression models.
+   Encoding is often treated as a mechanical step required to run the regression, with
+   insufficient attention given to its alignment with preceding modeling steps and with the
+   criteria used to select the final model within the linear regression framework.
+
+   This presentation focuses on comparing the following three encoding methods, raising
+   awareness of their interpretation and their alignment with other modeling steps:
+      1   ordinal encoding;
+      2   one-hot encoding;
+      3   nested dummy encoding (also known as partition variables).
+   Further details about the nested dummy encoding method can be found here.
+
+
+
+
+    Andrija Djurovic                  Risk Factors Encoding                                     4 / 10
+Encoding Methods in Practice cont.
+Ordinal Encoding Method
+
+      This encoding method applies to categorical variables that exhibit ordinal relationships among their
+      categories.
+      In simple terms, it involves replacing each modality of a risk factor with a number that reflects the
+      ordinal relationship between modalities. A simple example is a risk factor with two modalities, 01
+      (-Inf,20.1001) and 02 [20.1001,Inf), replaced by the numbers 1 and 2, indicating different risk
+      levels.
+      Given the nature of ordinal encoding, the main question practitioners should consider is whether this
+      method aligns with preceding modeling steps (for example, monotonic binning and the criteria applied
+      there), as well as with the interpretation of the model output under the assumed changes in risk levels
+      across risk factor modalities.
+      Additionally, practitioners should be aware of the expected sign of the linear regression coefficient
+      associated with each risk factor and verify its alignment with the anticipated relationship.
+
+
+One-Hot Encoding Method
+
+      One-hot encoding transforms a categorical risk factor with k modalities into k-1 so-called dummy
+      variables.
+      In simple terms, a value of 1 is assigned to observations belonging to the analyzed modality of the risk
+      factor and 0 to all other observations. The resulting number of variables is always reduced by one to
+      avoid perfect multicollinearity among dummy variables.
+      Due to its construction, this encoding method can be applied to both nominal and ordinal risk factors.
+      However, the interpretation of the estimated coefficients is always relative to the so-called reference
+      modality - the one omitted during the construction of dummy variables.
+
+       Andrija Djurovic                     Risk Factors Encoding                                          5 / 10
+Encoding Methods in Practice cont.
+
+One-Hot Encoding Method cont.
+
+      When using this method, practitioners should carefully interpret the p-values from linear regression and
+      consider the relationships among the estimated coefficients of the dummy variables referring to the same
+      risk factor.
+
+
+Nested Dummy Encoding Method
+
+      Nested dummy encoding is often considered an alternative to standard one-hot encoding, although it is
+      less commonly used in credit risk modeling.
+      Similar to ordinal encoding, it applies to categorical variables that exhibit ordinal relationships among
+      their categories.
+      Its main characteristic is the establishment of connections between adjacent categories, which makes this
+      encoding method particularly attractive in credit risk modeling - especially when practitioners bin
+      numeric risk factors and aim to identify statistically significant risk differences between adjacent
+      categories. This method provides the opportunity to assess different binning approaches in both standard
+      single-factor and multi-factor analyses.
+      The main logic behind constructing nested dummy variables is to assign a value of 0 to all categories
+      below the selected one and 1 to the selected category and all categories above it. Once constructed,
+      their use in linear regression is equivalent to one-hot encoding in terms of the number of variables
+      included, but the interpretation differs significantly.
+
+
+
+
+       Andrija Djurovic                      Risk Factors Encoding                                         6 / 10
+Simulation Study
+
+The purpose of this simulation study is to demonstrate the differences and similarities in linear regression output
+when applying different encoding methods. In addition to differences in the technical output, practitioners
+should be aware of the varying interpretations of the estimated coefficients associated with risk factors or
+dummy variables, as well as the interpretation of the p-value when it is used as one of the criteria for selecting
+the final model.
+
+For full replicability, the simulation dataset is available at this link.
+
+The dataset consists of the model target variable, lgd, and three categorical risk factors, rf1, rf2, and rf3,
+whose modalities can be sorted in alphabetical order, reflecting a specific relationship with the target variable.
+The following table presents a summary of the number of observations and the average lgd per modality for
+each risk factor.
+##     rf                   bin no lgd_average
+## 1 rf1      01 (-Inf,20.1001) 530     0.4614
+## 2 rf1       02 [20.1001,Inf) 666     0.2969
+## 3 rf2      01 (-Inf,58.1375) 92      0.6285
+## 4 rf2 02 [58.1375,142.6312) 169      0.4341
+## 5 rf2 03 [142.6312,531.6402) 570     0.3594
+## 6 rf2 04 [531.6402,642.8232) 270     0.3077
+## 7 rf2      05 [642.8232,Inf) 95      0.2431
+## 8 rf3      01 (-Inf,-0.0417) 131     0.5438
+## 9 rf3   02 [-0.0417,-0.0208) 147     0.4346
+## 10 rf3   03 [-0.0208,0.0506) 708     0.3553
+## 11 rf3       04 [0.0506,Inf) 210     0.2647
+
+
+
+
+         Andrija Djurovic                        Risk Factors Encoding                                         7 / 10
+Simulation Results
+
+Ordinal Encoding Method
+
+##             Estimate Std. Error t value Pr(>|t|)
+## (Intercept)   0.8593     0.0473 18.1557        0
+## rf1          -0.1001     0.0228 -4.3834        0
+## rf2          -0.0573     0.0112 -5.1167        0
+## rf3          -0.0552     0.0133 -4.1628        0
+
+
+One-Hot Encoding Method cont.
+
+##                          Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                0.7231     0.0455 15.8788   0.0000
+## rf102 [20.1001,Inf)       -0.0953     0.0230 -4.1435   0.0000
+## rf202 [58.1375,142.6312)  -0.1417     0.0476 -2.9776   0.0030
+## rf203 [142.6312,531.6402) -0.2004     0.0422 -4.7533   0.0000
+## rf204 [531.6402,642.8232) -0.2282     0.0465 -4.9112   0.0000
+## rf205 [642.8232,Inf)      -0.2820     0.0556 -5.0735   0.0000
+## rf302 [-0.0417,-0.0208)   -0.0976     0.0437 -2.2344   0.0256
+## rf303 [-0.0208,0.0506)    -0.1130     0.0360 -3.1435   0.0017
+## rf304 [0.0506,Inf)        -0.1816     0.0423 -4.2958   0.0000
+
+
+
+
+        Andrija Djurovic                    Risk Factors Encoding   8 / 10
+Simulation Results cont.
+
+Nested Dummy Encoding Method
+
+##                            Estimate Std. Error t value Pr(>|t|)
+## (Intercept)                  0.7231     0.0455 15.8788   0.0000
+## `rf102 [20.1001,Inf)`       -0.0953     0.0230 -4.1435   0.0000
+## `rf202 [58.1375,142.6312)`  -0.1417     0.0476 -2.9776   0.0030
+## `rf203 [142.6312,531.6402)` -0.0587     0.0320 -1.8361   0.0666
+## `rf204 [531.6402,642.8232)` -0.0278     0.0271 -1.0276   0.3044
+## `rf205 [642.8232,Inf)`      -0.0538     0.0434 -1.2398   0.2153
+## `rf302 [-0.0417,-0.0208)`   -0.0976     0.0437 -2.2344   0.0256
+## `rf303 [-0.0208,0.0506)`    -0.0154     0.0339 -0.4554   0.6489
+## `rf304 [0.0506,Inf)`        -0.0686     0.0287 -2.3881   0.0171
+
+
+
+Comparison of the equality of the model output obtained using the one-hot and nested dummy encoding approaches.
+
+#one-hot encoding – output sample
+##         1         2         3         4         5         6         7         8
+## 0.4096409 0.4096409 0.3143355 0.4096409 0.4096409 0.1641400 0.1641400 0.2457337
+#nested dummy encoding – output sample
+##         1         2         3         4         5         6         7         8
+## 0.4096409 0.4096409 0.3143355 0.4096409 0.4096409 0.1641400 0.1641400 0.2457337
+
+
+
+
+         Andrija Djurovic                         Risk Factors Encoding                                           9 / 10
+Conclusions
+
+
+   In credit risk modeling, where practitioners assume a specific relationship between risk
+   factors and the modeled target, the encoding of categorical risk factors should not be
+   treated as a mechanical step.
+   Practitioners should aim to align the different modeling steps throughout the model
+   development process, including ensuring that the choice of encoding method is consistent
+   with the risk factor engineering process. Moreover, they should carefully examine the
+   transition from single-factor to multi-factor analysis and assess the potential impact of
+   discrepancies between model estimates and the a priori expectations regarding the
+   relationship between the risk factor and the target variable.
+
+   Practitioners should be aware that the interpretation of regression coefficients depends on
+   the selected encoding method.
+   Practitioners should also understand the meaning of the p-values associated with regression
+   coefficients under different encoding methods and treat them accordingly when designing
+   the final model selection criteria.
+
+
+
+
+    Andrija Djurovic                 Risk Factors Encoding                                    10 / 10

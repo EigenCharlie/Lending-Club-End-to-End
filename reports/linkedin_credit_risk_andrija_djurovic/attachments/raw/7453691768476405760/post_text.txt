@@ -1,0 +1,8 @@
+𝗕𝗮𝗰𝗸𝘁𝗲𝘀𝘁𝗶𝗻𝗴 𝗣𝗗 𝗠𝗼𝗱𝗲𝗹𝘀 - 𝗢𝗻 𝘁𝗵𝗲 𝗥𝗲𝗹𝗶𝗮𝗯𝗶𝗹𝗶𝘁𝘆 𝗼𝗳 𝘁𝗵𝗲 𝗠𝘂𝗹𝘁𝗶-𝗣𝗲𝗿𝗶𝗼𝗱 𝗡𝗼𝗿𝗺𝗮𝗹 𝗧𝗲𝘀𝘁
+As risk quantification is a regulatory requirement in IRB modeling, practitioners pay significant attention to meeting these requirements. In addition, they must assess the appropriateness of model estimates - typically referred to as backtesting.
+In practice, PD backtesting is one of the most comprehensive validation exercises, usually examining model estimates across different portfolio subsegments and time dimensions.
+A commonly applied approach is to backtest PD estimates over a recent period, covering the latest three to five years. In some cases, this analysis is extended further back, but it still relies on a relatively limited number of observations.
+One method used to assess these estimates against observed default rates is the normal test.
+My latest presentation examines the reliability of the normal test given the relatively limited number of observations used for testing. More specifically, it analyzes the Type I error under three different data-generating processes for default rates, considering both independent and correlated observations over time, as well as deviations from normality.
+Since multi-period backtesting of PD models is a topic practitioners often struggle with - particularly when aligning it with the standard IRB calibration process - some of my future work will focus on this area. Specifically, I will propose an alternative method for multi-period averaging tests that fully aligns with the calibration process.
+#irb #pd #backtesting
