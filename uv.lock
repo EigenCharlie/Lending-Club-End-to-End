@@ -755,22 +755,6 @@ wheels = [
 ]
 
 [[package]]
-name = "configspace"
-version = "1.2.2"
-source = { registry = "https://pypi.org/simple" }
-dependencies = [
-    { name = "more-itertools" },
-    { name = "numpy" },
-    { name = "pyparsing" },
-    { name = "scipy" },
-    { name = "typing-extensions" },
-]
-sdist = { url = "https://files.pythonhosted.org/packages/ae/51/7a63132fdc3a71eea66d9f81b451a61a38631af0a73bdcda1ec784cea32e/configspace-1.2.2.tar.gz", hash = "sha256:b5cc981c145ef9632104d230acf963c2f68fe5a375983946e941c2eec5dd08e4", size = 134158, upload-time = "2025-12-19T12:52:39.628Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/56/67/01bf8795064d2132d7244341908f75bb2ea87dc114364cd8c5b20c606a8f/configspace-1.2.2-py3-none-any.whl", hash = "sha256:9dd5090fab08fbfc0fa8a66affb53e991e9df65ae20959fcee8e544bb3c0a09d", size = 117584, upload-time = "2025-12-19T12:52:37.545Z" },
-]
-
-[[package]]
 name = "contourpy"
 version = "1.3.3"
 source = { registry = "https://pypi.org/simple" }
@@ -2043,6 +2027,21 @@ wheels = [
 ]
 
 [[package]]
+name = "gurobipy"
+version = "13.0.2"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/53/5e/4ffce920a262d01d8b7ce3788c06b74c02414d33c9b0a87505364aeabdc2/gurobipy-13.0.2-cp311-cp311-macosx_10_9_universal2.whl", hash = "sha256:6eb4945ad2d8c5cc342c150ca254b27034a5049099d468758d79455169b8382c", size = 16093032, upload-time = "2026-05-05T10:41:29.976Z" },
+    { url = "https://files.pythonhosted.org/packages/31/a9/0c1103d58c370d2dae07404e4767011b59ce853eed2c2e11b6cc7b08238d/gurobipy-13.0.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:a27d35370be49974e4fb79e1754eb750a0cddde2f064c71436156980f864361b", size = 15091298, upload-time = "2026-05-05T10:41:40.728Z" },
+    { url = "https://files.pythonhosted.org/packages/1c/51/f1c0b36ebc6da95274ecefb08caa30bd7d4b056855bd51a724be785723aa/gurobipy-13.0.2-cp311-cp311-manylinux_2_26_aarch64.whl", hash = "sha256:0a98247fb3f23c3370231ccc2880fdc5824fee456964007f3bce92a2124ecfe7", size = 87434081, upload-time = "2026-05-05T10:42:34.75Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/eb/15e420da7d1ef93fdda9fa844e68f7deeea2bb40456030b14cce7c176437/gurobipy-13.0.2-cp311-cp311-win_amd64.whl", hash = "sha256:ba21e64a5d026b794b18e221d64d3997c091b0483f2082594e61c78ee4acc158", size = 11398847, upload-time = "2026-05-05T10:42:41.81Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/52/84706ec7c4c8d76a7e36ac602f873e9a367dfbaa035ac145eda79b3bc983/gurobipy-13.0.2-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:64b66660238f57b75adc9761f981524373f32ce8cdd37f4bf2f28dc1b699d1d5", size = 15988917, upload-time = "2026-05-05T10:42:49.424Z" },
+    { url = "https://files.pythonhosted.org/packages/2e/70/460e4cc66508b9025919f6c260b93211169058917153e58c0f17a57846ea/gurobipy-13.0.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:f35e404fc32921a94cbc5b047e01ad714ced23ba0c1ddf81b5e5a20bf53d757a", size = 14868660, upload-time = "2026-05-05T10:42:56.31Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/e3/3ec926182acc9fbe8182fb01adecfa1abef905e142a69a7b705925056bc8/gurobipy-13.0.2-cp312-cp312-manylinux_2_26_aarch64.whl", hash = "sha256:73f8d93ac4d9c196fd7b5836a83502d41a6ed0ce72bc27ad5c2e91132431f7eb", size = 87204593, upload-time = "2026-05-05T10:43:11.838Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/34/fa0fd152143ca0d1b770b9669918b2134a5d1af609c33cb445ccb7096327/gurobipy-13.0.2-cp312-cp312-win_amd64.whl", hash = "sha256:0ac0f1c7d28ad6aeec3c57f94833c918881dcbfb7238f5d5fe0a8d08b2975681", size = 11250700, upload-time = "2026-05-05T10:43:15.588Z" },
+]
+
+[[package]]
 name = "h11"
 version = "0.16.0"
 source = { registry = "https://pypi.org/simple" }
@@ -2802,7 +2801,8 @@ research = [
     { name = "shap" },
 ]
 spo = [
-    { name = "pyepo" },
+    { name = "gurobipy" },
+    { name = "pyepo", extra = ["ortools"] },
 ]
 
 [package.metadata]
@@ -2816,6 +2816,7 @@ requires-dist = [
     { name = "dvc", extras = ["s3"], specifier = ">=3.56" },
     { name = "fairlearn", specifier = ">=0.13,<0.14" },
     { name = "fastapi", specifier = ">=0.135" },
+    { name = "gurobipy", marker = "extra == 'spo'", specifier = ">=13.0,<14" },
     { name = "hierarchicalforecast", specifier = ">=1.4" },
     { name = "highspy", specifier = ">=1.10" },
     { name = "httpx", specifier = ">=0.27" },
@@ -2843,7 +2844,7 @@ requires-dist = [
     { name = "pre-commit", marker = "extra == 'dev'", specifier = ">=4.0" },
     { name = "pyarrow", specifier = ">=18.0" },
     { name = "pydantic", specifier = ">=2.10" },
-    { name = "pyepo", marker = "extra == 'spo'", specifier = ">=0.5" },
+    { name = "pyepo", extras = ["ortools"], marker = "extra == 'spo'", specifier = "==1.3.7" },
     { name = "pyomo", specifier = ">=6.8" },
     { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3" },
     { name = "pytest-cov", marker = "extra == 'dev'", specifier = ">=7.0" },
@@ -4539,10 +4540,10 @@ wheels = [
 
 [[package]]
 name = "pyepo"
-version = "1.1.1"
+version = "1.3.7"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "configspace" },
+    { name = "clarabel" },
     { name = "numpy" },
     { name = "pathos" },
     { name = "scikit-learn" },
@@ -4550,9 +4551,14 @@ dependencies = [
     { name = "torch" },
     { name = "tqdm" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/85/15/cc90a323384dd7183025b31d56d5511fdde80684da1e5755605331d24ed0/pyepo-1.1.1.tar.gz", hash = "sha256:2136c99333737a897d267b76c68ba12670b35fbce413fc08a50568fe11fc4ad8", size = 51231, upload-time = "2026-02-11T08:47:52.327Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/c1/fe/4bae2a61feede2df8cf7fbf7ecd5262ee50ba083df8ecc1486d06eb27613/pyepo-1.3.7.tar.gz", hash = "sha256:3f6dfe37824415c9fa519bb53e878b02819466e1e74edef76e6e2f201ca98372", size = 89315, upload-time = "2026-05-26T02:01:13.526Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/42/95/b76c9330445f5e2705adcfc8500062b3465ce5501786327ef6a4e45eb4db/pyepo-1.1.1-py3-none-any.whl", hash = "sha256:b00126004966a90e92236a9a699939157ccc60a3c1b5119d9cfc37b999ea08c7", size = 84175, upload-time = "2026-02-11T08:47:51.234Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/82/f29e3943208bfc5e89da29fb884be5fdf4ee8f667fb80d1d9880fa6a2b95/pyepo-1.3.7-py3-none-any.whl", hash = "sha256:3254c17057feb9971f97992dc15a3827b361ac0442873392364e7a07152d5e55", size = 103028, upload-time = "2026-05-26T02:01:12.055Z" },
+]
+
+[package.optional-dependencies]
+ortools = [
+    { name = "ortools" },
 ]
 
 [[package]]

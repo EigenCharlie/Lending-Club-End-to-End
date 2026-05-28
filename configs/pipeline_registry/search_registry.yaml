@@ -116,3 +116,27 @@ searches:
       - reports/gpu_benchmark
     target_pipeline: research_labs
     can_promote: false
+  - search: paper1_crpto_ijds_champion_tournament
+    scripts:
+      - scripts/search/audit_crpto_reopen_env.py
+      - scripts/search/run_paper1_crpto_ijds_reopen_2026_05_25.sh
+      - scripts/search/summarize_paper1_crpto_ijds_reopen.py
+      - scripts/search/monitor_paper1_crpto_reopen.sh
+      - scripts/search/run_pd_hpo_local.py
+      - scripts/search/run_conformal_reopen_search.py
+      - scripts/search/run_portfolio_bound_aware_search.py
+      - scripts/search/run_portfolio_bound_exact_eval.py
+    artifacts:
+      - configs/run_profiles/paper1_crpto_ijds_champion_tournament_2026_05_25.yaml
+      - docs/research/paper1_crpto_ijds_champion_tournament_protocol_2026-05-25.md
+      - reports/run_logs/<run_root>/predeclared_candidate_registry.json
+      - reports/run_logs/<run_root>/phase_gate_status.json
+      - reports/run_logs/<run_root>/selection_rule.json
+      - reports/run_logs/<run_root>/negative_results_registry.csv
+      - reports/run_logs/<run_root>/summary_current.json
+      - reports/run_logs/<run_root>/summary_current.csv
+      - reports/paper_material/paper1/tables/paper1_crpto_ijds_tournament_final_summary_2026-05-25.csv
+      - reports/paper_material/paper1/tables/paper1_crpto_ijds_negative_results_registry_2026-05-25.csv
+      - docs/research/paper1_crpto_ijds_champion_decision_memo_2026-05-25.md
+    target_pipeline: paper1_crpto_ijds
+    can_promote: true

@@ -96,17 +96,25 @@ ACTIVE_CHILDREN="${ACTIVE_CHILDREN}" python - "${RUN_ROOT}" <<'PY'
 import json
 import os
 import sys
+from datetime import UTC, datetime
 from pathlib import Path
 
 run_root = sys.argv[1]
 active_children = os.environ.get("ACTIVE_CHILDREN", "")
+stall_timeout_min = float(os.environ.get("CUOPT_STALL_TIMEOUT_MIN", "30") or "30")
+now = datetime.now(UTC)
 for path in sorted(Path("models/portfolio_bound_aware").glob(f"*{run_root}*/portfolio_bound_aware_runtime_status.json")):
     payload = json.loads(path.read_text(encoding="utf-8"))
     run_tag = str(payload.get("run_tag", ""))
     active = bool(run_tag and run_tag in active_children)
+    staleness_sec = max(0.0, (now - datetime.fromtimestamp(path.stat().st_mtime, tz=UTC)).total_seconds())
+    stale_running = (
+        payload.get("state") == "running"
+        and staleness_sec > stall_timeout_min * 60.0
+    )
     print(path)
     print(
-        "  active={active} state={state} phase={phase} frontier={fc}/{ft} ({fp:.2%}) bound={bc}/{bt} ({bp:.2%}) elapsed={elapsed:.0f}s eta={eta}".format(
+        "  active={active} state={state} phase={phase} frontier={fc}/{ft} ({fp:.2%}) bound={bc}/{bt} ({bp:.2%}) elapsed={elapsed:.0f}s eta={eta} stale_sec={stale:.0f} stale_running={stale_running}".format(
             active=active,
             state=payload.get("state", ""),
             phase=payload.get("phase", ""),
@@ -118,6 +126,8 @@ for path in sorted(Path("models/portfolio_bound_aware").glob(f"*{run_root}*/port
             bp=float(payload.get("bound_pct_complete", 0.0)),
             elapsed=float(payload.get("elapsed_sec", 0.0)),
             eta=payload.get("eta_sec", None),
+            stale=staleness_sec,
+            stale_running=stale_running,
         )
     )
     extras = []

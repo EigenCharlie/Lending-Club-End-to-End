@@ -258,7 +258,7 @@ def solve_portfolio(
     threads: int = 4,
     solver_backend: str = "highs",
 ) -> dict[str, Any]:
-    """Solve portfolio optimization with HiGHS (default) or optional cuOpt."""
+    """Solve portfolio optimization with HiGHS (default), Gurobi, or optional cuOpt."""
     backend = solver_backend.strip().lower()
     if backend == "highs":
         from pyomo.contrib.appsi.solvers import Highs
@@ -266,6 +266,14 @@ def solve_portfolio(
         solver = Highs()
         solver.config.time_limit = time_limit
         _ = threads  # reserved for future HiGHS appsi configuration
+        results = solver.solve(model)
+    elif backend == "gurobi":
+        from pyomo.contrib.appsi.solvers import Gurobi
+
+        solver = Gurobi()
+        solver.config.time_limit = time_limit
+        if int(threads) > 0:
+            solver.gurobi_options["Threads"] = int(threads)
         results = solver.solve(model)
     elif backend == "cuopt":
         solver = pyo.SolverFactory("cuopt")
@@ -277,7 +285,9 @@ def solve_portfolio(
         _ = (time_limit, threads)  # backend-specific options vary by cuOpt deployment
         results = solver.solve(model)
     else:
-        raise ValueError(f"Unsupported solver_backend={solver_backend!r}. Use 'highs' or 'cuopt'.")
+        raise ValueError(
+            f"Unsupported solver_backend={solver_backend!r}. Use 'highs', 'gurobi', or 'cuopt'."
+        )
 
     allocation = {i: pyo.value(model.x[i]) for i in model.I}
     obj_value = pyo.value(model.obj)

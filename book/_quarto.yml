@@ -150,6 +150,7 @@ book:
         - chapters/19-paper-mega-extension/19t-multi-period-solver.qmd
         - chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd
         - chapters/19-paper-mega-extension/19cb-v38-appendix-registers.qmd
+        - chapters/19-paper-mega-extension/19cc-v39-pyepo-real-suite.qmd
         # Paper 4 historical archive: these files remain on disk and are
         # summarized in reports/paper_material/paper4/notes/paper4_living_lab_notebook.md,
         # but they are intentionally not rendered in the official book chapter.

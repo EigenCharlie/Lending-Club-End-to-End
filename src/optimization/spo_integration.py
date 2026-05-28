@@ -1,7 +1,12 @@
-"""Smart Predict, then Optimize (SPO+) integration.
+"""Legacy Smart Predict, then Optimize (SPO+) integration.
 
 Uses PyEPO to train ML models that optimize downstream decision quality,
 not just prediction accuracy.
+
+This module predates the PyEPO 1.3 loss signatures and is retained only for
+historical helpers. The canonical reproducible runner is now
+``scripts/run_pyepo_real_suite.py``; it builds ``optDataset`` objects and calls
+SPO+ with ``(pred_cost, true_cost, true_sol, true_obj)``.
 """
 
 from __future__ import annotations

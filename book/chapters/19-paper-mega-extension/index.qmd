@@ -34,6 +34,7 @@ tesis oficial de Paper 4.
 | 19c-integrated-architecture.qmd | official_curated | quarto_official_chapter |
 | 19ca-v38-final-synthesis.qmd | official_curated | quarto_official_chapter |
 | 19cb-v38-appendix-registers.qmd | official_appendix | quarto_official_chapter |
+| 19cc-v39-pyepo-real-suite.qmd | official_appendix | quarto_official_chapter |
 | 19f-sequential-decision-framework.qmd | official_curated | quarto_official_chapter |
 | 19h-mvp-evidence-pack.qmd | official_curated | quarto_official_chapter |
 | 19i-regret-auditability-frontier.qmd | official_curated | quarto_official_chapter |
@@ -59,6 +60,7 @@ tesis oficial de Paper 4.
 | F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
 | F13 | Paper 4 absorbs the useful prudential value of Paper 2 as IFRS9-inspired proxy evidence. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
 | F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
+| F15 | PyEPO 1.3.7 now has a formal DFL suite lane for Paper 4, while Paper Estrella keeps SPO+ as an appendix comparator. | append_pending_run | 19cc-v39-pyepo-real-suite.qmd |
 
 ## Como leer ahora el capitulo
 
@@ -72,6 +74,7 @@ tesis oficial de Paper 4.
 8. **Multi-period solver** resume dynamic stress, DLA/ADP, SPO/DFL y sample paths.
 9. **Sintesis v38** deja la verdad actual, los claims permitidos y la tabla de contribuciones.
 10. **Appendix registers** conserva cleanup, Lab 4, metricas binder, absorcion de Paper 2 y stop rules sin inflar el cuerpo.
+11. **PyEPO v39 suite** separa el entrenamiento DFL formal de Paper 4 del anexo SPO+ de Paper Estrella.
 
 ## Direccion academica
 

@@ -1,0 +1,18 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "checkpoint_name": "001_frontier_complete",
+  "updated_at_utc": "2026-05-25T18:14:38.551544+00:00",
+  "frontier_total_units": 1005,
+  "frontier_completed_units": 1005,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 0,
+  "bound_completed_checks": 0,
+  "bound_pct_complete": 0.0,
+  "global_total_units": 1005,
+  "global_completed_units": 1005,
+  "global_pct_complete": 1.0,
+  "elapsed_sec": 547.0285636119952,
+  "eta_sec": 0.0,
+  "frontier_policy_count": 1000,
+  "frontier_raw_rows": 1000
+}

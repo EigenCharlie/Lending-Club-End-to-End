@@ -1,0 +1,23 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "checkpoint_name": "002_shortlist_built",
+  "updated_at_utc": "2026-05-26T21:05:57.243670+00:00",
+  "frontier_total_units": 37632,
+  "frontier_completed_units": 37632,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 3920,
+  "bound_completed_checks": 0,
+  "bound_pct_complete": 0.0,
+  "global_total_units": 41552,
+  "global_completed_units": 37632,
+  "global_pct_complete": 0.9056603773584906,
+  "elapsed_sec": 60802.221053096,
+  "eta_sec": 6333.564693030833,
+  "shortlist_size": 560,
+  "shortlist_buckets": {
+    "return_global": 180,
+    "conservative_proxy": 180,
+    "forced_incumbent_neighbors": 120,
+    "incumbent_region": 80
+  }
+}

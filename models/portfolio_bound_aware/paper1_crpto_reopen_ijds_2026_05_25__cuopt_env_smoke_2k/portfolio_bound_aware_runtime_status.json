@@ -1,0 +1,51 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "failed",
+  "state": "failed",
+  "updated_at_utc": "2026-05-25T20:31:01.939136+00:00",
+  "run_tag": "paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k",
+  "frontier_total_units": 2,
+  "frontier_completed_units": 0,
+  "frontier_pct_complete": 0.0,
+  "bound_total_checks": 0,
+  "bound_completed_checks": 0,
+  "bound_pct_complete": 0.0,
+  "global_total_units": 2,
+  "global_completed_units": 0,
+  "global_pct_complete": 0.0,
+  "elapsed_sec": 0.07660978499916382,
+  "eta_sec": null,
+  "failure_reason": "cuOpt 26.04 parser package initially resolved to py311; fixed in rapids-cuopt-2604-clean and reran as paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2.",
+  "random_states": [
+    42
+  ],
+  "search_space": {
+    "risk_grid": [
+      0.175
+    ],
+    "aversion_grid": [
+      0.1
+    ],
+    "gamma_grid": [
+      0.45
+    ],
+    "delta_cap_grid": [
+      1.0
+    ],
+    "tail_focus_grid": [
+      1.0
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      }
+    ],
+    "alpha_grid": [
+      0.01
+    ],
+    "max_candidates": 2000,
+    "enable_segment_policy_grid": false
+  }
+}

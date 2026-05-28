@@ -8,6 +8,7 @@ import json
 import os
 import subprocess
 import sys
+import threading
 import time
 from collections.abc import Mapping
 from datetime import UTC, datetime
@@ -230,18 +231,21 @@ def _resource_snapshot() -> dict[str, Any]:
 
 def _validate_cuopt_runtime() -> dict[str, Any]:
     modules = ["cuopt", "cudf", "cupy", "pyomo", "loguru"]
+    supported_cuopt_releases = ("26.02", "26.04")
     payload: dict[str, Any] = {
         "validated_at_utc": datetime.now(tz=UTC).isoformat(),
         "python": sys.executable,
-        "expected_release": "26.02",
+        "supported_cuopt_releases": list(supported_cuopt_releases),
     }
     for module_name in modules:
         module = importlib.import_module(module_name)
         payload[module_name] = getattr(module, "__version__", "ok")
     cuopt_version = str(payload.get("cuopt", ""))
-    if not cuopt_version.startswith("26.02"):
+    if not any(cuopt_version.startswith(release) for release in supported_cuopt_releases):
         raise RuntimeError(
-            f"cuOpt 26.02 is required for GPU bound-aware search; found {cuopt_version!r}."
+            "cuOpt release must match one of "
+            f"{', '.join(supported_cuopt_releases)} for GPU bound-aware search; "
+            f"found {cuopt_version!r}."
         )
     return payload
 
@@ -410,6 +414,7 @@ def _build_frontier_for_seed(
     cuopt_optimality_tolerance: float | None,
     policy_modes: list[str] | None,
     enable_segment_policy_grid: bool,
+    frontier_heartbeat_sec: int,
     progress_hook: callable,
     partial_frontier_path: Path | None = None,
 ) -> pd.DataFrame:
@@ -586,30 +591,68 @@ def _build_frontier_for_seed(
                             "budget_profile_name": str(budget_profile["name"]),
                         }
                     )
-        robust_results = _solve_single_batch(
-            loans=loans,
-            pd_point=pd_point,
-            pd_low=pd_low,
-            pd_high=pd_high,
-            lgd=lgd,
-            int_rates=int_rates,
-            default_flag=default_flag,
-            total_budget=total_budget,
-            max_concentration=max_concentration,
-            solve_specs=solve_specs,
-            time_limit=time_limit,
-            threads=threads,
-            solver_backend=solver_backend,
-            random_seed=int(random_state),
-            cuopt_presolve=cuopt_presolve,
-            cuopt_batch_size=cuopt_batch_size,
-            cuopt_method=cuopt_method,
-            cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
-            cuopt_num_cpu_threads=cuopt_num_cpu_threads,
-            cuopt_infeasibility_detection=cuopt_infeasibility_detection,
-            cuopt_dual_postsolve=cuopt_dual_postsolve,
-            cuopt_optimality_tolerance=cuopt_optimality_tolerance,
-        )
+        heartbeat_stop = threading.Event()
+        heartbeat_thread: threading.Thread | None = None
+        if solver_backend.strip().lower() == "cuopt" and int(frontier_heartbeat_sec) > 0:
+            heartbeat_sec = max(10, int(frontier_heartbeat_sec))
+
+            def _heartbeat(
+                stop_event: threading.Event = heartbeat_stop,
+                sleep_seconds: int = heartbeat_sec,
+                completed_count: int = completed,
+                phase_random_state: int = int(random_state),
+                latest_risk_tolerance: float = float(risk_tol),
+                batch_size: int = int(cuopt_batch_size),
+            ) -> None:
+                while not stop_event.wait(timeout=sleep_seconds):
+                    progress_hook(
+                        completed_count,
+                        {
+                            "phase_random_state": phase_random_state,
+                            "latest_policy_mode": "cuopt_batch_heartbeat",
+                            "latest_risk_tolerance": latest_risk_tolerance,
+                            "latest_gamma": 0.0,
+                            "cuopt_batch_size": batch_size,
+                            "frontier_heartbeat": True,
+                        },
+                    )
+
+            heartbeat_thread = threading.Thread(
+                target=_heartbeat,
+                name=f"frontier-heartbeat-{random_state}-{risk_tol}",
+                daemon=True,
+            )
+            heartbeat_thread.start()
+
+        try:
+            robust_results = _solve_single_batch(
+                loans=loans,
+                pd_point=pd_point,
+                pd_low=pd_low,
+                pd_high=pd_high,
+                lgd=lgd,
+                int_rates=int_rates,
+                default_flag=default_flag,
+                total_budget=total_budget,
+                max_concentration=max_concentration,
+                solve_specs=solve_specs,
+                time_limit=time_limit,
+                threads=threads,
+                solver_backend=solver_backend,
+                random_seed=int(random_state),
+                cuopt_presolve=cuopt_presolve,
+                cuopt_batch_size=cuopt_batch_size,
+                cuopt_method=cuopt_method,
+                cuopt_pdlp_solver_mode=cuopt_pdlp_solver_mode,
+                cuopt_num_cpu_threads=cuopt_num_cpu_threads,
+                cuopt_infeasibility_detection=cuopt_infeasibility_detection,
+                cuopt_dual_postsolve=cuopt_dual_postsolve,
+                cuopt_optimality_tolerance=cuopt_optimality_tolerance,
+            )
+        finally:
+            heartbeat_stop.set()
+            if heartbeat_thread is not None:
+                heartbeat_thread.join(timeout=2.0)
         for spec, (robust_run, _) in zip(solve_specs, robust_results, strict=True):
             completed += 1
             progress_hook(
@@ -1000,9 +1043,32 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--random-state", type=int, default=42)
     parser.add_argument("--random-states", default="")
     parser.add_argument("--solver-backend", choices=["highs", "cuopt"], default="highs")
-    parser.add_argument("--exact-solver-backend", choices=["highs", "cuopt"], default="highs")
+    parser.add_argument(
+        "--exact-solver-backend", choices=["highs", "cuopt", "gurobi"], default="highs"
+    )
+    parser.add_argument(
+        "--execution-mode",
+        choices=["search_tournament", "informs_lockdown"],
+        default="search_tournament",
+    )
+    parser.add_argument(
+        "--exact-shadow-backend",
+        choices=["none", "highs", "gurobi"],
+        default="none",
+    )
+    parser.add_argument("--exact-shadow-top-k", type=int, default=0)
+    parser.add_argument("--exact-solver-agreement-return-abs", type=float, default=250.0)
+    parser.add_argument("--exact-solver-agreement-v-abs", type=float, default=0.002)
+    parser.add_argument("--exact-solver-agreement-gamma-abs", type=float, default=0.005)
+    parser.add_argument("--exact-pass1-alpha", type=float, default=0.01)
+    parser.add_argument("--exact-pass2-bucket-min", type=int, default=8)
+    parser.add_argument("--exact-workers", type=int, default=1)
+    parser.add_argument("--exact-time-limit-sec", type=int, default=180)
+    parser.add_argument("--exact-threads-per-worker", type=int, default=1)
+    parser.add_argument("--exact-checkpoint-every", type=int, default=32)
     parser.add_argument("--exact-python-executable", default="")
     parser.add_argument("--exact-helper-script", default=str(DEFAULT_EXACT_HELPER_SCRIPT))
+    parser.add_argument("--frontier-heartbeat-sec", type=int, default=75)
     parser.add_argument("--cuopt-presolve", type=int, default=1)
     parser.add_argument("--cuopt-batch-size", type=int, default=1)
     parser.add_argument(
@@ -1088,6 +1154,12 @@ def main(argv: list[str] | None = None) -> int:
         else None
     )
 
+    solver_backend = str(args.solver_backend).strip().lower()
+    if str(args.execution_mode).strip().lower() == "informs_lockdown" and solver_backend == "cuopt":
+        raise RuntimeError(
+            "execution_mode=informs_lockdown forbids solver_backend=cuopt for frontier search."
+        )
+
     budget_profiles: list[dict[str, float]] = []
     for token in [
         part.strip().lower() for part in str(args.budget_profiles).split(",") if part.strip()
@@ -1111,10 +1183,7 @@ def main(argv: list[str] | None = None) -> int:
 
     incumbent_policy = _load_incumbent_policy(args.incumbent_policy_path)
     backend_validation: dict[str, Any] | None = None
-    if (
-        str(args.solver_backend).strip().lower() == "cuopt"
-        or str(args.exact_solver_backend).strip().lower() == "cuopt"
-    ):
+    if solver_backend == "cuopt" or str(args.exact_solver_backend).strip().lower() == "cuopt":
         backend_validation = _validate_cuopt_runtime()
 
     policy_grid_count = _policy_grid_size(
@@ -1203,6 +1272,7 @@ def main(argv: list[str] | None = None) -> int:
                 cuopt_optimality_tolerance=cuopt_optimality_tolerance,
                 policy_modes=policy_modes,
                 enable_segment_policy_grid=bool(args.enable_segment_policy_grid),
+                frontier_heartbeat_sec=int(args.frontier_heartbeat_sec),
                 progress_hook=_progress_hook,
                 partial_frontier_path=partial_frontier_path,
             )
@@ -1281,6 +1351,18 @@ def main(argv: list[str] | None = None) -> int:
                 "cuopt_infeasibility_detection": cuopt_infeasibility_detection,
                 "cuopt_dual_postsolve": cuopt_dual_postsolve,
                 "cuopt_optimality_tolerance": cuopt_optimality_tolerance,
+                "execution_mode": str(args.execution_mode),
+                "exact_shadow_backend": str(args.exact_shadow_backend),
+                "exact_shadow_top_k": int(args.exact_shadow_top_k),
+                "exact_solver_agreement_return_abs": float(args.exact_solver_agreement_return_abs),
+                "exact_solver_agreement_v_abs": float(args.exact_solver_agreement_v_abs),
+                "exact_solver_agreement_gamma_abs": float(args.exact_solver_agreement_gamma_abs),
+                "exact_pass1_alpha": float(args.exact_pass1_alpha),
+                "exact_pass2_bucket_min": int(args.exact_pass2_bucket_min),
+                "exact_workers": int(args.exact_workers),
+                "exact_time_limit_sec": int(args.exact_time_limit_sec),
+                "exact_threads_per_worker": int(args.exact_threads_per_worker),
+                "exact_checkpoint_every": int(args.exact_checkpoint_every),
                 "bucket_return_k": int(args.bucket_return_k),
                 "bucket_proxy_k": int(args.bucket_proxy_k),
                 "bucket_family_k": int(args.bucket_family_k),
@@ -1313,6 +1395,18 @@ def main(argv: list[str] | None = None) -> int:
             "resource_snapshot_path": str(resource_path),
             "frontier_solver_backend": str(args.solver_backend),
             "exact_solver_backend": str(args.exact_solver_backend),
+            "execution_mode": str(args.execution_mode),
+            "exact_shadow_backend": str(args.exact_shadow_backend),
+            "exact_shadow_top_k": int(args.exact_shadow_top_k),
+            "exact_solver_agreement_return_abs": float(args.exact_solver_agreement_return_abs),
+            "exact_solver_agreement_v_abs": float(args.exact_solver_agreement_v_abs),
+            "exact_solver_agreement_gamma_abs": float(args.exact_solver_agreement_gamma_abs),
+            "exact_pass1_alpha": float(args.exact_pass1_alpha),
+            "exact_pass2_bucket_min": int(args.exact_pass2_bucket_min),
+            "exact_workers": int(args.exact_workers),
+            "exact_time_limit_sec": int(args.exact_time_limit_sec),
+            "exact_threads_per_worker": int(args.exact_threads_per_worker),
+            "exact_checkpoint_every": int(args.exact_checkpoint_every),
             "budget": float(args.budget),
             "t_eval": float(args.t_eval),
             "max_candidates": int(args.max_candidates),
@@ -1325,21 +1419,26 @@ def main(argv: list[str] | None = None) -> int:
         if exact_python_executable:
             current_python = Path(sys.executable)
             requested_python = Path(exact_python_executable)
-            if requested_python != current_python:
-                cmd = [
-                    str(requested_python),
-                    str(exact_helper_script),
-                    "--context-path",
-                    str(exact_context_path),
-                ]
+            cmd = [
+                str(requested_python),
+                str(exact_helper_script),
+                "--context-path",
+                str(exact_context_path),
+            ]
+            if requested_python == current_python:
+                logger.info(
+                    "Delegating exact bound stage to helper (same Python): {}",
+                    " ".join(cmd),
+                )
+            else:
                 logger.info(
                     "Delegating exact bound stage to external Python: {}",
                     " ".join(cmd),
                 )
-                subprocess.run(cmd, cwd=str(ROOT), check=True)
-                resource_payload["end"] = _resource_snapshot()
-                atomic_write_json(resource_path, resource_payload)
-                return 0
+            subprocess.run(cmd, cwd=str(ROOT), check=True)
+            resource_payload["end"] = _resource_snapshot()
+            atomic_write_json(resource_path, resource_payload)
+            return 0
 
         aligned_by_seed = {
             int(seed): _load_aligned_dataset(

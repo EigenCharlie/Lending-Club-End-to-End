@@ -1,0 +1,19 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "checkpoint_name": "003_selection_complete",
+  "updated_at_utc": "2026-05-25T19:34:47.144302+00:00",
+  "frontier_total_units": 1005,
+  "frontier_completed_units": 1005,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 240,
+  "bound_completed_checks": 240,
+  "bound_pct_complete": 1.0,
+  "global_total_units": 1245,
+  "global_completed_units": 1245,
+  "global_pct_complete": 1.0,
+  "elapsed_sec": 1617.0472449299996,
+  "eta_sec": 0.0,
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "selected_alpha01_exact_pass": true,
+  "selected_realized_total_return": 164410.34898475528
+}

@@ -28,3 +28,10 @@ This directory stores research-only notes, comparative writeups, and literature 
 - `paper4_data_frontier_research_proposal_2026-05-18.md`: cleaned/raw/dictionary
   audit of the seven parked Paper 4 lanes, with external research triangulation
   and bounded experiment proposals.
+- `pyepo_1_3_intake_2026-05-26.md`: PyEPO 1.3.7 documentation/release intake,
+  isolated OR-Tools smoke test, and bounded recommendations for Paper 4,
+  Paper Estrella, and the Quarto book.
+- `paper1_regret_auditability_sandbox_closure_2026-05-28.md`: closure memo for
+  the external CRPTO regret-auditability sandbox, documenting which findings
+  were useful, why the frozen champion remains primary, and how the evidence
+  supports the IJDS robustness/negative-results story.

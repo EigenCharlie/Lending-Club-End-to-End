@@ -1,0 +1,145 @@
+{
+  "schema_version": "2026-04-05.2",
+  "generated_at_utc": "2026-05-25T20:33:21.216255+00:00",
+  "run_label": "paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2",
+  "conformal_intervals_path": "data/processed/conformal_gap/paper1_bound_pareto_nextwave_2026_05_25_r4__canonical4_score8_cal_none_a010/conformal_intervals_mondrian.parquet",
+  "search_space": {
+    "risk_grid": [
+      0.175
+    ],
+    "aversion_grid": [
+      0.1
+    ],
+    "gamma_grid": [
+      0.45
+    ],
+    "delta_cap_grid": [
+      1.0
+    ],
+    "tail_focus_grid": [
+      1.0
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      }
+    ],
+    "alpha_grid": [
+      0.01
+    ],
+    "max_candidates": 2000,
+    "random_states": [
+      42
+    ],
+    "policy_modes": [
+      "blended_uncertainty"
+    ],
+    "enable_segment_policy_grid": false,
+    "cuopt_batch_size": 1,
+    "cuopt_method": "Concurrent",
+    "cuopt_pdlp_solver_mode": null,
+    "cuopt_num_cpu_threads": 8,
+    "cuopt_infeasibility_detection": null,
+    "cuopt_dual_postsolve": 0,
+    "cuopt_optimality_tolerance": null,
+    "bucket_return_k": 10,
+    "bucket_proxy_k": 10,
+    "bucket_family_k": 10,
+    "bucket_region_k": 10,
+    "incumbent_policy_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/rank1_alpha01_bound_aware/portfolio_bound_aware_selection.json",
+    "incumbent_risk_neighbors": [
+      0.155,
+      0.16,
+      0.165,
+      0.17
+    ],
+    "incumbent_gamma_neighbors": [
+      0.45,
+      0.5,
+      0.55
+    ],
+    "incumbent_policy_modes": [
+      "blended_uncertainty",
+      "capped_blended_uncertainty"
+    ]
+  },
+  "selection_policy": {
+    "shortlist_strategy": "stratified_bound_first",
+    "rank_order": [
+      "alpha01_exact_pass(desc)",
+      "alpha03_exact_pass(desc)",
+      "ab_pass_all(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(desc)",
+      "alpha01_weighted_miscoverage_V(asc)",
+      "alpha01_gamma_cp(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.175,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.45,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "highs"
+  },
+  "selected_metrics": {
+    "risk_tolerance": 0.175,
+    "policy_mode": "blended_uncertainty",
+    "gamma": 0.45,
+    "delta_cap_quantile": 1.0,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.1,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "cuopt",
+    "seed_count": 1,
+    "sample_random_states": "42",
+    "ab_pass_all": false,
+    "ab_pass_rate": 0.0,
+    "realized_total_return": 51890.846271494884,
+    "realized_total_return_max": 51890.846271494884,
+    "price_of_robustness": -11186.723883571016,
+    "price_of_robustness_pct": -14.77773710589334,
+    "ab_diff_total_return": -4823.44701915278,
+    "objective_value": 78120.52113807201,
+    "n_funded": 115.0,
+    "total_allocated": 1000000.0,
+    "expected_return_net_point": 86886.56752852252,
+    "worst_case_pd": 0.28214056699411205,
+    "point_pd": 0.08733953609540683,
+    "pd_cap_slack": 0.0,
+    "semantic_policy_key": "{\"delta_cap_quantile\":1.0,\"gamma\":0.45,\"min_budget_utilization\":0.0,\"pd_cap_slack_penalty\":0.0,\"policy_mode\":\"blended_uncertainty\",\"risk_tolerance\":0.175,\"solver_backend\":\"cuopt\",\"tail_focus_quantile\":1.0,\"uncertainty_aversion\":0.1}",
+    "return_first_rank": 1,
+    "bound_proxy_rank": 1,
+    "shortlist_bucket": "return_global",
+    "candidate_rank": 1,
+    "alpha01_exact_pass": true,
+    "alpha01_pass_rate": 1.0,
+    "alpha01_gamma_cp": 0.184383,
+    "alpha01_weighted_miscoverage_V": 0.086225,
+    "alpha01_violation": 0.0,
+    "alpha01_weighted_pd_true": 0.086225,
+    "alpha01_weighted_pd_constraint_used": 0.175,
+    "alpha01_empirical_coverage_funded": 0.8952,
+    "alpha03_exact_pass": false,
+    "alpha03_weighted_miscoverage_V": NaN,
+    "alpha10_exact_pass": false,
+    "alpha10_weighted_miscoverage_V": NaN
+  },
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "frontier_raw_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_frontier_raw.parquet",
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_frontier.parquet",
+  "shortlist_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_shortlist.parquet",
+  "bound_eval_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_bound_eval.parquet",
+  "runtime_status_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_runtime_status.json",
+  "runtime_checkpoint_dir": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/portfolio_bound_aware_runtime_checkpoints",
+  "resource_snapshot_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2/resource_snapshot.json",
+  "frontier_solver_backend": "cuopt",
+  "exact_solver_backend": "highs"
+}

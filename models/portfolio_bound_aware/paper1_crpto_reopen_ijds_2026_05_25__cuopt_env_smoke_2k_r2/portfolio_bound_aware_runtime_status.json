@@ -1,0 +1,21 @@
+{
+  "stage_name": "portfolio_bound_aware",
+  "phase": "selection_complete",
+  "state": "completed",
+  "updated_at_utc": "2026-05-25T20:33:21.359300+00:00",
+  "run_tag": "paper1_crpto_reopen_ijds_2026_05_25__cuopt_env_smoke_2k_r2",
+  "frontier_total_units": 2,
+  "frontier_completed_units": 2,
+  "frontier_pct_complete": 1.0,
+  "bound_total_checks": 1,
+  "bound_completed_checks": 1,
+  "bound_pct_complete": 1.0,
+  "global_total_units": 3,
+  "global_completed_units": 3,
+  "global_pct_complete": 1.0,
+  "elapsed_sec": 5.061118711004383,
+  "eta_sec": 0.0,
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "selected_alpha01_exact_pass": true,
+  "selected_realized_total_return": 51890.846271494884
+}

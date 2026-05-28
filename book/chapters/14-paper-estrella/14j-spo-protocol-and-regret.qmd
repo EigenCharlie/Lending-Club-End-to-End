@@ -1,11 +1,11 @@
 ---
-title: "Protocolo SPO+ y Lectura del Regret 49.1%"
+title: "Protocolo SPO+ y Lectura del Regret 48.5%"
 page-layout: article
 ---
 
 ## Protocolo del Comparador SPO+ {#sec-p1-spo-protocol}
 
-El número que más circula como punto de referencia frente a CRPTO es el **49.1% de reducción de regret** que SPO+ obtiene sobre el two-stage clásico. Un revisor exigente preguntará lo correcto: *¿cómo se midió eso, con cuántas semillas, sobre qué arquitectura, con qué definición de regret y bajo qué distribución de costos?* Esta página documenta el protocolo completo para que el número sea defendible y, sobre todo, para que la comparación con CRPTO se lea correctamente: SPO+ gana en regret porque está **diseñado para ganar en regret**, no porque sea un sustituto de la garantía conformal.
+El número actualizado como punto de referencia frente a CRPTO es el **48.51% de reducción de regret** que SPO+ obtiene sobre el two-stage clásico en el rerun PyEPO 1.3.7 con Gurobi WLS. El resultado histórico de marzo estaba en torno a 49.1%; el rerun final conserva la misma lectura, pero ahora queda trazado a `pyepo==1.3.7`, `gurobipy==13.0.2` y al runner canónico `scripts/run_pyepo_real_suite.py`. Un revisor exigente preguntará lo correcto: *¿cómo se midió eso, con cuántas semillas, sobre qué arquitectura, con qué definición de regret y bajo qué distribución de costos?* Esta página documenta el protocolo completo para que el número sea defendible y, sobre todo, para que la comparación con CRPTO se lea correctamente: SPO+ gana en regret porque está **diseñado para ganar en regret**, no porque sea un sustituto de la garantía conformal.
 
 ```{python}
 #| label: p1-spo-setup
@@ -14,7 +14,16 @@ El número que más circula como punto de referencia frente a CRPTO es el **49.1
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path.cwd().parent if Path.cwd().name == "book" else Path.cwd()))
+cwd = Path.cwd()
+project_root = next(
+    (
+        candidate
+        for candidate in [cwd, *cwd.parents]
+        if (candidate / "pyproject.toml").exists() and (candidate / "book").exists()
+    ),
+    cwd,
+)
+sys.path.insert(0, str(project_root))
 from book._helpers.load_artifacts import load_json
 
 import pandas as pd
@@ -41,7 +50,7 @@ La primera implementación (v1) reportaba apenas **2.5%** de mejora sobre two-st
 | 4 | Sólo two-stage como comparador | **Tres métodos**: two-stage, SPO+, conformal robust | Sin el tercer comparador, la lectura "auditabilidad vs regret" no aparece. |
 | 5 | `n_items = 50` | **`n_items = 100`** en la versión train; `n_items = 50` mantenido para evaluación temporal | Más items por instancia LP → gradientes más informativos; evaluación temporal mantiene budget=15 para comparabilidad. |
 
-Cinco fixes arquitectónicos que llevaron SPO+ del 2.5% al 49.1% de mejora reportada.
+Cinco fixes arquitectónicos que llevaron SPO+ del 2.5% a una mejora cercana al 49%; el rerun PyEPO 1.3.7 final reporta 48.51%.
 :::
 
 ### Configuración exacta de las corridas v2
@@ -54,7 +63,7 @@ pd.DataFrame(
     [
         {
             "Artefacto": "models/spo_real_training_status.json",
-            "Rol": "estimación principal del 49.1%",
+            "Rol": "estimación histórica principal; rerun PyEPO 1.3.7 abajo",
             "n_items": train_status["n_items"],
             "budget": train_status["budget"],
             "instancias": f"{train_status['n_train_instances']} train / {train_status['n_test_instances']} test",
@@ -77,12 +86,46 @@ pd.DataFrame(
 )
 ```
 
-La distinción es deliberada. El número **49.1%** pertenece al experimento
-pareado `n_items=100`, `budget=30`, donde SPO+ se mide contra two-stage en un
-benchmark de regret más exigente. La tabla temporal usa `n_items=50`,
+La distinción es deliberada. El número actualizado **48.51%** pertenece al
+experimento pareado `n_items=100`, `budget=30`, donde SPO+ se mide contra
+two-stage en un benchmark de regret más exigente. La tabla temporal usa `n_items=50`,
 `budget=15` para mantener comparabilidad por periodo OOT y conectar regret con
 cobertura conformal bajo shift. Mezclar esas dos configuraciones en una sola
 frase sería confuso; separarlas vuelve el comparador más defendible.
+
+::: {.callout-note}
+## Reproducibilidad PyEPO 1.3.7
+
+La reproduccion nueva queda separada en
+`scripts/run_pyepo_real_suite.py --mode paired`. El run oficial registra
+`pyepo.__version__ == "1.3.7"` y `gurobipy==13.0.2`. Paper Estrella no absorbe
+la suite completa: solo actualiza el anexo SPO+ y conserva la lectura editorial
+de que SPO+ minimiza regret, mientras CRPTO conserva cobertura y auditabilidad.
+:::
+
+```{python}
+#| label: tbl-p1-pyepo137-paired-rerun
+#| tbl-cap: "Rerun pareado PyEPO 1.3.7 para Paper Estrella"
+
+paired_path = Path(
+    "reports/paper_material/paper_estrella/pyepo/"
+    "paper_estrella_pyepo137_wls_topk_paired_20260528/"
+    "pyepo_real_suite_summary.csv"
+)
+paired_path = project_root / paired_path
+
+paired_summary = pd.read_csv(paired_path)
+paired_summary[
+    [
+        "method_display",
+        "mean_regret",
+        "std_regret",
+        "improvement_vs_two_stage_pct",
+        "wilcoxon_vs_two_stage_pvalue",
+        "n_observations",
+    ]
+]
+```
 
 ### Estabilidad temporal: SPO+ y la cobertura conformal bajo shift
 
@@ -122,17 +165,17 @@ Las dos lecturas correctas de la tabla son simultáneas y no contradictorias:
 La distinción importante es ésta: la estabilidad de SPO+ en este dataset es **empírica y bonita**, pero un regulador no puede auditar ex ante que el regret se mantendrá en el siguiente cambio de régimen. La cobertura conformal sí se puede auditar — está construida para sobrevivir intercambiabilidad incluso bajo shift.
 :::
 
-### Lectura editorial del 49.1%
+### Lectura editorial del 48.51%
 
-El número agregado del paper (49.1% de reducción de regret, Wilcoxon $p < 10^{-164}$ sobre 1,000 instancias pareadas) viene del experimento de entrenamiento, no del eval temporal. Las dos cifras son consistentes pero no idénticas y cumplen roles distintos:
+El número agregado actualizado del paper (48.51% de reducción de regret, Wilcoxon $p = 3.80\times10^{-163}$ sobre 1,000 instancias pareadas) viene del experimento de entrenamiento, no del eval temporal. Las dos cifras son consistentes pero no idénticas y cumplen roles distintos:
 
 ::: {#tbl-p1-spo-two-numbers}
 
 | Número | Origen | Rol en el paper |
 |---|---|---|
-| **49.1%** reducción de regret | Train-time pareado, 1,000 instancias, 5 seeds, `n_items=100` | Soporta el claim global "SPO+ optimiza regret mejor que two-stage" |
+| **48.51%** reducción de regret | Train-time pareado PyEPO 1.3.7, 1,000 instancias, 5 seeds, `n_items=100` | Soporta el claim global "SPO+ optimiza regret mejor que two-stage" |
 | **41.73%–57.56%** mejora por periodo | Eval temporal OOT, 5 periodos, `n_items=50` | Soporta el claim "la ventaja se preserva bajo shift" |
-| Wilcoxon $p < 10^{-164}$ | Test pareado sobre 1,000 instancias | Robustece estadísticamente el 49.1% |
+| Wilcoxon $p = 3.80\times10^{-163}$ | Test pareado sobre 1,000 instancias | Robustece estadísticamente el 48.51% |
 
 Cómo se relacionan los números que el paper cita sobre SPO+.
 :::
@@ -153,6 +196,7 @@ Esa simetría entre fortalezas es la contribución editorial más importante del
 ### Reproducibilidad
 
 ```bash
+uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paired
 uv run python scripts/run_spo_real.py
 uv run python scripts/run_spo_comparison.py
 uv run pytest tests/ -k "spo or stability"
@@ -164,3 +208,4 @@ Los artefactos clave son:
 - `data/processed/crpto_vs_spo_stability_detail.parquet` — regret por seed y periodo (para reanalizar varianza).
 - `data/processed/spo_training_loss.parquet` — curva de pérdida SPO+ durante entrenamiento.
 - `models/spo_real_training_status.json` — estado del run v2 (schema `2026-03-17.2`).
+- `reports/paper_material/paper_estrella/pyepo/paper_estrella_pyepo137_wls_topk_paired_20260528/` — rerun PyEPO 1.3.7/Gurobi WLS usado para actualizar el anexo.

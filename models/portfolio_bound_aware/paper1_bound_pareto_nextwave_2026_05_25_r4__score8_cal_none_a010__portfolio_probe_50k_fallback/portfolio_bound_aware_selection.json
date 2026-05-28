@@ -1,0 +1,164 @@
+{
+  "schema_version": "2026-04-05.2",
+  "generated_at_utc": "2026-05-25T19:34:47.087126+00:00",
+  "run_label": "paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback",
+  "conformal_intervals_path": "data/processed/conformal_gap/paper1_bound_pareto_nextwave_2026_05_25_r4__canonical4_score8_cal_none_a010/conformal_intervals_mondrian.parquet",
+  "search_space": {
+    "risk_grid": [
+      0.175,
+      0.18,
+      0.185,
+      0.19,
+      0.195
+    ],
+    "aversion_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "gamma_grid": [
+      0.275,
+      0.3,
+      0.325,
+      0.35,
+      0.375
+    ],
+    "delta_cap_grid": [
+      0.6,
+      0.7,
+      0.75,
+      0.8,
+      0.9
+    ],
+    "tail_focus_grid": [
+      0.9,
+      0.95
+    ],
+    "budget_profiles": [
+      {
+        "name": "free_budget",
+        "min_budget_utilization": 0.0,
+        "pd_cap_slack_penalty": 0.0
+      }
+    ],
+    "alpha_grid": [
+      0.01
+    ],
+    "max_candidates": 50000,
+    "random_states": [
+      42
+    ],
+    "policy_modes": [
+      "blended_uncertainty",
+      "capped_blended_uncertainty",
+      "tail_blended_uncertainty"
+    ],
+    "enable_segment_policy_grid": false,
+    "cuopt_batch_size": 1,
+    "cuopt_method": "Concurrent",
+    "cuopt_pdlp_solver_mode": null,
+    "cuopt_num_cpu_threads": 24,
+    "cuopt_infeasibility_detection": null,
+    "cuopt_dual_postsolve": 0,
+    "cuopt_optimality_tolerance": null,
+    "bucket_return_k": 120,
+    "bucket_proxy_k": 90,
+    "bucket_family_k": 40,
+    "bucket_region_k": 60,
+    "incumbent_policy_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/rank1_alpha01_bound_aware/portfolio_bound_aware_selection.json",
+    "incumbent_risk_neighbors": [
+      0.155,
+      0.16,
+      0.165,
+      0.17
+    ],
+    "incumbent_gamma_neighbors": [
+      0.45,
+      0.5,
+      0.55
+    ],
+    "incumbent_policy_modes": [
+      "blended_uncertainty",
+      "capped_blended_uncertainty"
+    ]
+  },
+  "selection_policy": {
+    "shortlist_strategy": "stratified_bound_first",
+    "rank_order": [
+      "alpha01_exact_pass(desc)",
+      "alpha03_exact_pass(desc)",
+      "ab_pass_all(desc)",
+      "realized_total_return(desc)",
+      "price_of_robustness(desc)",
+      "alpha01_weighted_miscoverage_V(asc)",
+      "alpha01_gamma_cp(asc)"
+    ]
+  },
+  "selected_policy": {
+    "risk_tolerance": 0.19,
+    "policy_mode": "capped_blended_uncertainty",
+    "gamma": 0.35,
+    "delta_cap_quantile": 0.7,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.15,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "highs"
+  },
+  "selected_metrics": {
+    "risk_tolerance": 0.19,
+    "policy_mode": "capped_blended_uncertainty",
+    "gamma": 0.35,
+    "delta_cap_quantile": 0.7,
+    "tail_focus_quantile": 1.0,
+    "uncertainty_aversion": 0.15,
+    "min_budget_utilization": 0.0,
+    "pd_cap_slack_penalty": 0.0,
+    "solver_backend": "cuopt",
+    "seed_count": 1,
+    "sample_random_states": "42",
+    "ab_pass_all": true,
+    "ab_pass_rate": 1.0,
+    "realized_total_return": 164410.34898475528,
+    "realized_total_return_max": 164410.34898475528,
+    "price_of_robustness": -21610.398081963154,
+    "price_of_robustness_pct": -17.702912828176277,
+    "ab_diff_total_return": 39909.422172708844,
+    "objective_value": 126340.52915391585,
+    "n_funded": 256.0,
+    "total_allocated": 1000000.0,
+    "expected_return_net_point": 143682.95355086104,
+    "worst_case_pd": 0.36065006410444367,
+    "point_pd": 0.10372525822403195,
+    "pd_cap_slack": 0.0,
+    "semantic_policy_key": "{\"delta_cap_quantile\":0.7,\"gamma\":0.35,\"min_budget_utilization\":0.0,\"pd_cap_slack_penalty\":0.0,\"policy_mode\":\"capped_blended_uncertainty\",\"risk_tolerance\":0.19,\"solver_backend\":\"cuopt\",\"tail_focus_quantile\":1.0,\"uncertainty_aversion\":0.15}",
+    "return_first_rank": 1,
+    "bound_proxy_rank": 647,
+    "shortlist_bucket": "return_global",
+    "candidate_rank": 1,
+    "alpha01_exact_pass": true,
+    "alpha01_pass_rate": 1.0,
+    "alpha01_gamma_cp": 0.236299,
+    "alpha01_weighted_miscoverage_V": 0.07915,
+    "alpha01_violation": 0.0,
+    "alpha01_weighted_pd_true": 0.07915,
+    "alpha01_weighted_pd_constraint_used": 0.19,
+    "alpha01_empirical_coverage_funded": 0.936,
+    "alpha03_exact_pass": false,
+    "alpha03_weighted_miscoverage_V": NaN,
+    "alpha10_exact_pass": false,
+    "alpha10_weighted_miscoverage_V": NaN
+  },
+  "selection_reason": "selected_best_alpha01_exact_pass",
+  "frontier_raw_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_frontier_raw.parquet",
+  "frontier_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_frontier.parquet",
+  "shortlist_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_shortlist.parquet",
+  "bound_eval_path": "/home/eigenlinux/projects/lending-club-risk-project/data/processed/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_bound_eval.parquet",
+  "runtime_status_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_runtime_status.json",
+  "runtime_checkpoint_dir": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/portfolio_bound_aware_runtime_checkpoints",
+  "resource_snapshot_path": "/home/eigenlinux/projects/lending-club-risk-project/models/portfolio_bound_aware/paper1_bound_pareto_nextwave_2026_05_25_r4__score8_cal_none_a010__portfolio_probe_50k_fallback/resource_snapshot.json",
+  "frontier_solver_backend": "cuopt",
+  "exact_solver_backend": "highs"
+}

@@ -32,12 +32,28 @@ CANDIDATE_KEYS="${CANDIDATE_KEYS:-bureau_behavior_15 canonical_4 affordability_r
 RESUME_EXISTING_CONFORMAL="${RESUME_EXISTING_CONFORMAL:-1}"
 RESUME_EXISTING_PORTFOLIO="${RESUME_EXISTING_PORTFOLIO:-1}"
 CUOPT_BATCH_SIZE="${CUOPT_BATCH_SIZE:-8}"
+CUOPT_BATCH_SCHEDULE="${CUOPT_BATCH_SCHEDULE:-${CUOPT_BATCH_SIZE},1}"
 CUOPT_METHOD="${CUOPT_METHOD:-Concurrent}"
+CUOPT_METHOD_SCHEDULE="${CUOPT_METHOD_SCHEDULE:-${CUOPT_METHOD}}"
 CUOPT_NUM_CPU_THREADS="${CUOPT_NUM_CPU_THREADS:-24}"
+CUOPT_STALL_TIMEOUT_MIN="${CUOPT_STALL_TIMEOUT_MIN:-30}"
+CUOPT_AUTO_DEMOTE_ON_STALL="${CUOPT_AUTO_DEMOTE_ON_STALL:-1}"
+CUOPT_LADDER="${CUOPT_LADDER:-Concurrent:16,Concurrent:8,PDLP:16,Barrier:4,Concurrent:1}"
+EXECUTION_MODE="${EXECUTION_MODE:-search_tournament}"
+SOLVER_FRONTIER_BACKEND="${SOLVER_FRONTIER_BACKEND:-cuopt}"
+SOLVER_EXACT_BACKEND_PRIMARY="${SOLVER_EXACT_BACKEND_PRIMARY:-highs}"
+SOLVER_EXACT_BACKEND_SHADOW="${SOLVER_EXACT_BACKEND_SHADOW:-gurobi}"
 LOG_DIR="${LOG_DIR:-${ROOT}/reports/run_logs}"
 mkdir -p "${LOG_DIR}"
 EVENT_LOG="${EVENT_LOG:-${LOG_DIR}/${RUN_ROOT}_events.jsonl}"
 echo "$$" > "${LOG_DIR}/${RUN_ROOT}.pid"
+
+if [[ "${EXECUTION_MODE}" == "informs_lockdown" ]]; then
+  SOLVER_FRONTIER_BACKEND="highs"
+  SOLVER_EXACT_BACKEND_PRIMARY="highs"
+  CUOPT_METHOD_SCHEDULE=""
+  CUOPT_BATCH_SCHEDULE="1"
+fi
 
 emit_event() {
   local stage="$1"
@@ -182,10 +198,13 @@ else:
 PY
 }
 
-run_portfolio() {
+run_portfolio_cuopt_attempt() {
   local intervals_path="$1"
   local run_label="$2"
-  conda run -n "${RAPIDS_ENV}" python scripts/search/run_portfolio_bound_aware_search.py \
+  local batch_size="$3"
+  local method="$4"
+  local -a cmd=(
+    conda run -n "${RAPIDS_ENV}" python scripts/search/run_portfolio_bound_aware_search.py
     --conformal-intervals-path "${intervals_path}" \
     --run-label "${run_label}" \
     --risk-grid 0.150,0.155,0.160,0.165,0.170,0.175,0.180,0.185,0.190,0.195,0.200,0.205 \
@@ -204,17 +223,130 @@ run_portfolio() {
     --max-candidates "${MAX_CANDIDATES}" \
     --random-states "${RANDOM_STATES}" \
     --solver-backend cuopt \
-    --exact-solver-backend highs \
+    --exact-solver-backend "${SOLVER_EXACT_BACKEND_PRIMARY}" \
+    --exact-shadow-backend "${SOLVER_EXACT_BACKEND_SHADOW}" \
+    --exact-shadow-top-k 20 \
+    --exact-solver-agreement-return-abs 250.0 \
+    --exact-solver-agreement-v-abs 0.002 \
+    --exact-solver-agreement-gamma-abs 0.005 \
+    --exact-pass1-alpha 0.01 \
+    --exact-pass2-bucket-min 8 \
+    --exact-workers 4 \
+    --exact-checkpoint-every 32 \
     --exact-python-executable "${MAIN_PYTHON}" \
-    --cuopt-batch-size "${CUOPT_BATCH_SIZE}" \
-    --cuopt-method "${CUOPT_METHOD}" \
+    --cuopt-batch-size "${batch_size}" \
+    --cuopt-method "${method}" \
     --cuopt-num-cpu-threads "${CUOPT_NUM_CPU_THREADS}" \
     --cuopt-dual-postsolve 0 \
     --incumbent-policy-path models/champion_portfolio_policy.json \
     --incumbent-risk-neighbors 0.160,0.165,0.170,0.175,0.180,0.185,0.190,0.195,0.200 \
     --incumbent-gamma-neighbors 0.375,0.400,0.425,0.450,0.475,0.500,0.525,0.550,0.575,0.600 \
     --incumbent-policy-modes blended_uncertainty,capped_blended_uncertainty,tail_blended_uncertainty,segment_tail_blended_uncertainty,segment_relative_tail_blended_uncertainty
+  )
+  if [[ "${CUOPT_STALL_TIMEOUT_MIN}" =~ ^[0-9]+$ && "${CUOPT_STALL_TIMEOUT_MIN}" -gt 0 ]]; then
+    timeout --signal=TERM --kill-after=60 "${CUOPT_STALL_TIMEOUT_MIN}m" "${cmd[@]}"
+    return $?
+  fi
+  "${cmd[@]}"
 }
+
+run_portfolio_highs_fallback() {
+  local intervals_path="$1"
+  local run_label="$2"
+  "${MAIN_PYTHON}" scripts/search/run_portfolio_bound_aware_search.py \
+    --conformal-intervals-path "${intervals_path}" \
+    --run-label "${run_label}__highs_fallback" \
+    --risk-grid 0.150,0.155,0.160,0.165,0.170,0.175,0.180,0.185,0.190,0.195,0.200,0.205 \
+    --gamma-grid 0.325,0.350,0.375,0.400,0.425,0.450,0.475,0.500,0.525,0.550,0.575,0.600,0.625,0.650,0.700 \
+    --aversion-grid 0,0.02,0.05,0.10,0.15,0.20,0.25,0.35,0.50,0.75,1.00 \
+    --policy-modes blended_uncertainty,capped_blended_uncertainty,tail_blended_uncertainty,segment_tail_blended_uncertainty,segment_relative_tail_blended_uncertainty \
+    --delta-cap-grid 0.50,0.60,0.70,0.75,0.80,0.85,0.90,0.95,1.0 \
+    --tail-focus-grid 0.50,0.60,0.70,0.75,0.80,0.85,0.90,0.95,1.0 \
+    --budget-profiles free \
+    --shortlist-top-k "${SHORTLIST_TOP_K}" \
+    --bucket-return-k 180 \
+    --bucket-proxy-k 180 \
+    --bucket-family-k 60 \
+    --bucket-region-k 120 \
+    --alpha-grid 0.01,0.02,0.03,0.05,0.10,0.15,0.20 \
+    --max-candidates "${MAX_CANDIDATES}" \
+    --random-states "${RANDOM_STATES}" \
+    --solver-backend highs \
+    --exact-solver-backend "${SOLVER_EXACT_BACKEND_PRIMARY}" \
+    --exact-shadow-backend "${SOLVER_EXACT_BACKEND_SHADOW}" \
+    --exact-shadow-top-k 20 \
+    --exact-solver-agreement-return-abs 250.0 \
+    --exact-solver-agreement-v-abs 0.002 \
+    --exact-solver-agreement-gamma-abs 0.005 \
+    --exact-pass1-alpha 0.01 \
+    --exact-pass2-bucket-min 8 \
+    --exact-workers 4 \
+    --exact-checkpoint-every 32 \
+    --exact-python-executable "${MAIN_PYTHON}" \
+    --incumbent-policy-path models/champion_portfolio_policy.json \
+    --incumbent-risk-neighbors 0.160,0.165,0.170,0.175,0.180,0.185,0.190,0.195,0.200 \
+    --incumbent-gamma-neighbors 0.375,0.400,0.425,0.450,0.475,0.500,0.525,0.550,0.575,0.600 \
+    --incumbent-policy-modes blended_uncertainty,capped_blended_uncertainty,tail_blended_uncertainty,segment_tail_blended_uncertainty,segment_relative_tail_blended_uncertainty
+}
+
+run_portfolio() {
+  local intervals_path="$1"
+  local run_label="$2"
+  local method batch detail_rc item
+
+  if [[ "${SOLVER_FRONTIER_BACKEND}" != "cuopt" || "${EXECUTION_MODE}" == "informs_lockdown" ]]; then
+    echo "[$(date -Is)] portfolio ${run_label}: frontier backend=${SOLVER_FRONTIER_BACKEND} (mode=${EXECUTION_MODE}), using HiGHS" >&2
+    run_portfolio_highs_fallback "${intervals_path}" "${run_label}"
+    return $?
+  fi
+
+  if [[ -n "${CUOPT_LADDER}" ]]; then
+    for item in ${CUOPT_LADDER//,/ }; do
+      method="${item%%:*}"
+      batch="${item##*:}"
+      if [[ -z "${method}" || -z "${batch}" ]]; then
+        continue
+      fi
+      echo "[$(date -Is)] portfolio attempt ${run_label}: cuOpt method=${method} batch=${batch}" >&2
+      if run_portfolio_cuopt_attempt "${intervals_path}" "${run_label}" "${batch}" "${method}"; then
+        echo "[$(date -Is)] portfolio success ${run_label}: cuOpt method=${method} batch=${batch}" >&2
+        return 0
+      fi
+      detail_rc=$?
+      if [[ "${detail_rc}" -eq 124 && "${CUOPT_AUTO_DEMOTE_ON_STALL}" == "1" ]]; then
+        echo "[$(date -Is)] portfolio stalled ${run_label}: method=${method} batch=${batch} timeout=${CUOPT_STALL_TIMEOUT_MIN}m; auto-demote next ladder step" >&2
+      else
+        echo "[$(date -Is)] portfolio failed ${run_label}: cuOpt method=${method} batch=${batch} rc=${detail_rc}" >&2
+      fi
+    done
+  else
+    for method in ${CUOPT_METHOD_SCHEDULE//,/ }; do
+      for batch in ${CUOPT_BATCH_SCHEDULE//,/ }; do
+        echo "[$(date -Is)] portfolio attempt ${run_label}: cuOpt method=${method} batch=${batch}" >&2
+        if run_portfolio_cuopt_attempt "${intervals_path}" "${run_label}" "${batch}" "${method}"; then
+          echo "[$(date -Is)] portfolio success ${run_label}: cuOpt method=${method} batch=${batch}" >&2
+          return 0
+        fi
+        detail_rc=$?
+        echo "[$(date -Is)] portfolio failed ${run_label}: cuOpt method=${method} batch=${batch} rc=${detail_rc}" >&2
+      done
+    done
+  fi
+
+  echo "[$(date -Is)] portfolio cuOpt attempts exhausted ${run_label}; trying HiGHS fallback" >&2
+  run_portfolio_highs_fallback "${intervals_path}" "${run_label}"
+}
+
+if [[ "${CHAMPION_PIPELINE_DEFINE_ONLY:-0}" == "1" ]]; then
+  return 0 2>/dev/null || exit 0
+fi
+
+if [[ "${EXECUTION_MODE}" == "informs_lockdown" ]]; then
+  echo "[$(date -Is)] execution_mode=informs_lockdown blocks champion search pipeline."
+  echo "Use search_tournament mode for candidate discovery."
+  emit_event "pipeline" "all" "skipped" "execution_mode=informs_lockdown"
+  exit 2
+fi
 
 for key in ${CANDIDATE_KEYS}; do
   tag="$(candidate_tag "${key}")"
