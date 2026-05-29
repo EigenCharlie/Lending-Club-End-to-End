@@ -295,7 +295,7 @@ El refinamiento Mondrian tiene una lectura directa: los grupos con mayor soporte
 
 El marco CRPTO dialoga directamente con SPO+ y la literatura de decision-focused learning. La diferencia central es filosófica y tiene consecuencias prácticas medibles:
 
-- **SPO+** entrena end-to-end para minimizar regret de decisión. En este proyecto, logra una reducción de regret del 49.1% sobre el two-stage clásico (5 seeds, 1,000 observaciones pareadas, Wilcoxon $p < 10^{-164}$). Su fortaleza es la eficiencia decisional.
+- **SPO+** entrena end-to-end para minimizar regret de decisión. En este proyecto, el rerun final PyEPO 1.3.7/Gurobi logra una reducción de regret del `48.51%` sobre el two-stage clásico (5 seeds, 1,000 observaciones pareadas, Wilcoxon $p = 3.80\times10^{-163}$). Su fortaleza es la eficiencia decisional.
 - **CRPTO** protege la decisión a partir de una cuantificación explícita de incertidumbre con garantías distribution-free. Su fortaleza es la **auditabilidad**: score monotónico, calibración Venn-Abers, cobertura verificable, estabilidad por grupo, y trazabilidad completa para reguladores (SR 11-7).
 
 El trade-off es concreto: CRPTO paga un **precio de auditabilidad** en regret (su policy worst-case es más conservadora que la de SPO+), pero a cambio obtiene garantías formales que SPO+ no puede ofrecer --- un auditor puede verificar la cobertura empírica del conjunto de incertidumbre, pero no puede verificar si el regret de SPO+ se mantendrá estable bajo cambio de régimen.

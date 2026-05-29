@@ -56,7 +56,7 @@ Criba de mejoras según si preservan o cambian la dirección del paper.
 | `14g` | Blueprint del manuscrito IJDS | insumo | insumo | sí | Usar como skeleton; no citar como resultado. |
 | `14h` | Appendix A12--A18 | appendix selectivo | appendix fuerte | sí | Diagnóstico journal, no nueva promoción del champion. |
 | `14i` | Ablación Mondrian | appendix corto | appendix | sí | Defender `score_decile_mondrian` vs `grade`. |
-| `14j` | Protocolo SPO+ | appendix corto | appendix | sí | Separar regret 49.1% de cobertura/auditabilidad. |
+| `14j` | Protocolo SPO+ | appendix corto | appendix | sí | Separar regret 48.51% de cobertura/auditabilidad. |
 | `14k` | Fair lending checkpoint | appendix/governance | appendix | sí | Proxy/intersectional, no certificación legal de atributos protegidos. |
 | `14l` | MRM / SR 11-7 | appendix/governance | appendix | sí | Fortalece auditabilidad, no metodología nueva. |
 | `14m` | Funded set composition | appendix resultados | appendix | sí | Mostrar que el champion no depende de un segmento oculto. |
@@ -191,6 +191,27 @@ Superficies de companion y regla de uso.
 ## Decisión actual
 
 Mientras el capítulo 14 siga funcionando como repositorio editorial amplio, el companion oficial es **Quarto + DVC/DagsHub/MLflow**. La extracción Paper CRPTO debe producir además un suplemento IJDS anonimizado y un paquete data/code disclosure. Streamlit puede volver como producto o visualización para comité, pero no debe arrastrar claims, métricas ni números que no estén sincronizados con `models/final_project_promotion.json`.
+:::
+
+### Barrido final de números canónicos
+
+Antes de extraer el manuscrito, estas cifras son las únicas paper-facing. Si una
+pagina, figura o memo operativo usa otro número sin etiquetarlo como historico,
+debe corregirse o moverse al archivo de investigación.
+
+::: {#tbl-p1-canonical-number-sweep}
+
+| Objeto | Número canónico | Números/frases que ya no deben usarse como oficiales | Fuente |
+|---|---:|---|---|
+| Retorno del economic champion | `USD 170,464.54` (`USD 170.5K` redondeado) | retornos de frontiers legacy o repricing A12 | `models/final_project_promotion.json` |
+| Champion oficial | `bound_aware_276k_economic_champion` | theorem-tight como champion, balanced como champion | `models/champion_portfolio_policy.json` |
+| Bound alpha 0.01 | `V=0.03645`, `Gamma_CP=0.18591`, `violation=0` | `gamma` del solver usado como si fuera `Gamma_CP` | `paper1_table0_key_metrics.csv` |
+| Región robusta | `45/45` policies alpha01-safe | "un único punto alpha01-safe" | `robust_region_summary` |
+| Cobertura conformal 90/95 | `92.97%` / `96.64%` | coverage de comparadores o ablations como winner oficial | conformal winner `score_decile_mondrian` |
+| SPO+ regret comparator | `48.51%` menor regret vs two-stage | el valor historico de marzo como número oficial final | PyEPO 1.3.7/Gurobi paired rerun |
+| Rol de PyEPO/DFL | appendix comparator en Paper Estrella; suite formal en Paper 4 | "PyEPO reemplaza CRPTO" | `14j`, `19cc`, memo PyEPO |
+
+Barrido de números y roles que deben quedar sincronizados antes del release.
 :::
 
 ### Source pack hygiene

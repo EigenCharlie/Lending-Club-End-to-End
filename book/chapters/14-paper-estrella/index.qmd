@@ -109,7 +109,7 @@ razonamiento, las cautelas y la trazabilidad.
   <div class="chapter-card"><h4><a href="14g-manuscript-blueprint.html">Blueprint</a></h4><p>Venue, abstract, claims C1-C7, estructura del paper y plan de tablas/figuras.</p></div>
   <div class="chapter-card"><h4><a href="14h-journal-appendix-robustness.html">Apéndice journal</a></h4><p>A12-A18, figuras CRPTO, robustness package y checklist reproducible.</p></div>
   <div class="chapter-card"><h4><a href="14i-mondrian-ablation.html">Ablación Mondrian</a></h4><p>Comparación rank 1/2/3, por qué score-decile gana y qué no aporta grade por sí solo.</p></div>
-  <div class="chapter-card"><h4><a href="14j-spo-protocol-and-regret.html">Protocolo SPO+</a></h4><p>Configuración, regret 49.1%, estabilidad temporal y lectura correcta frente a CRPTO.</p></div>
+  <div class="chapter-card"><h4><a href="14j-spo-protocol-and-regret.html">Protocolo SPO+</a></h4><p>Configuración, regret 48.51%, estabilidad temporal y lectura correcta frente a CRPTO.</p></div>
   <div class="chapter-card"><h4><a href="14k-fair-lending-checkpoint.html">Fair Lending</a></h4><p>Auditoría base e interseccional proxy sobre el funded set efectivo.</p></div>
   <div class="chapter-card"><h4><a href="14l-governance-mrm-approval.html">MRM / SR 11-7</a></h4><p>Gates de gobernanza, challenger criteria, triggers y aprobación operativa.</p></div>
   <div class="chapter-card"><h4><a href="14m-funded-set-composition.html">Funded Set</a></h4><p>Anatomía loan-level y periodo-grade del portafolio financiado.</p></div>

@@ -64,12 +64,9 @@
     "available": true,
     "reason": "gurobipy imports and solves a minimal binary model",
     "gurobi_version": "13.0.2",
-    "license_file_candidates": [
-      "/home/eigenlinux/gurobi.lic",
-      "/home/eigenlinux/gurobi.lic"
-    ],
     "license_note": "Found a gurobi.lic candidate in a default/project-visible location.",
-    "main_suite_included": true
+    "main_suite_included": true,
+    "license_file_candidate_count": 2
   },
   "source_log": [
     "Elmachtoub and Grigas (2021/2022), Smart predict, then optimize",

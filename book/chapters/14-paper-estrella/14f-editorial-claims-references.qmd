@@ -31,6 +31,32 @@ La frase anterior tiene cuatro piezas:
 4. **cautela post-selección**: separa el teorema Markov del tightening
    condicional y de las validaciones empíricas A7--A11.
 
+### Narrativa central cerrada {#sec-p1-central-narrative-closure}
+
+La narrativa final del Paper Estrella no debe sonar como un leaderboard unico.
+El paper sostiene una frontera metodologica: **SPO+/PyEPO minimiza regret;
+CRPTO compra auditabilidad, cobertura verificable y garantia exacta sobre una
+policy congelada**. Esa frase organiza las metricas sin mezclarlas.
+
+El punto editorial mas delicado es que CRPTO puede tener mayor regret que SPO+
+y seguir siendo el metodo central del paper. No pierde su claim porque nunca
+promete ser el learner end-to-end de menor regret. Promete algo distinto: una
+decision de portafolio cuyo insumo de incertidumbre tiene cobertura conformal,
+cuyo funded set tiene `V`, `Gamma_CP` y `violation` trazables, y cuya promocion
+queda reproducida por artefactos congelados. Para un revisor de DFL, SPO+ es el
+benchmark correcto. Para un comite de riesgo, CRPTO es el objeto auditable.
+
+La regla de escritura queda asi:
+
+| Pregunta | Respuesta paper-facing | Metodo que debe verse primero |
+|---|---|---|
+| ¿Quien minimiza regret en el benchmark PtO? | SPO+ en el rerun PyEPO 1.3.7/Gurobi, con `48.51%` menos regret que two-stage. | SPO+ |
+| ¿Quien ofrece cobertura y trazabilidad de la incertidumbre usada por el LP? | CRPTO, via intervalos Mondrian, `V`, `Gamma_CP`, violacion cero y region robusta. | CRPTO |
+| ¿Que entra al Paper Estrella? | CRPTO como metodo; SPO+ como appendix/regret comparator. | CRPTO |
+| ¿Que entra a Paper 4? | La suite PyEPO/DFL formal, incluyendo SPO+, RFYL, CaVE y resultados negativos. | PyEPO/DFL |
+
+: Frontera editorial entre regret DFL y auditabilidad CRPTO {#tbl-p1-crpto-dfl-frontier}
+
 ### Escalera de claims {#sec-estrella-claim-ladder}
 
 El paper se vuelve más fuerte cuando los claims se ordenan por nivel de
@@ -64,7 +90,7 @@ El mismo resultado se lee distinto según quién revise el manuscrito.
 | ML / conformal prediction | garantía distribution-free y límites post-selección | Markov como claim principal, tightening condicional separado | @sec-thm-feasibility, @sec-lem-conditional-tightening |
 | Crédito / riesgo | auditabilidad, funded set, governance | policy congelada, composición del funded set, segment checks | @sec-estrella-p1-evidence |
 | Reviewer escéptico de DFL | por qué no basta SPO+ | SPO+ reduce regret, CRPTO compra cobertura auditable | @fig-p1-spo-regret, @sec-estrella-comparison |
-| Reproducibilidad | trazabilidad y no cherry-picking | mapa claim -> artifact -> test | @tbl-p1-claim-artifact-test |
+| Reproducibilidad | trazabilidad y no cherry-picking | mapa claim -> artifact -> test | @sec-p1-artifact-traceability |
 
 : Traducción del aporte por tipo de reviewer {#tbl-p1-reviewer-audiences}
 
@@ -119,6 +145,35 @@ estos términos pueden aparecer en una sola figura o tabla; aquí conviene
 mantenerlos explícitos porque ayudan a que el lector no confunda métricas
 predictivas, conformales y de portafolio.
 
+### Lectura alpha--Gamma para el manuscrito {#sec-p1-alpha-gamma-reader-guide}
+
+La narrativa alpha--Gamma debe explicar cuatro objetos sin hacerlos competir:
+
+1. `alpha` es el nivel de tolerancia a no-cobertura del intervalo conformal. Al
+   bajar `alpha`, el intervalo se ensancha y la decision se vuelve mas prudente.
+2. `Gamma_CP` es la prima conformal ponderada del funded set:
+   $\Gamma_{\text{CP}}=\sum_i w_i(u_i-\hat p_i)$. Es el precio estadistico de
+   sustituir PD puntual por PD superior conformal.
+3. `V` es la no-cobertura ponderada que realmente entra al bound:
+   $V=\sum_i w_i1\{Y_i>u_i(\alpha)\}$. Es la razon por la que la garantia se
+   expresa sobre el funded set, no solo sobre cobertura marginal global.
+4. `violation` es el exceso del riesgo ponderado realizado frente al constraint
+   robusto. En el champion oficial es cero.
+
+Con esos objetos, el resultado `alpha=0.01` se lee asi: la policy economica
+promovida acepta una prima conformal `Gamma_CP=0.18591`, observa
+`V=0.03645`, no viola la restriccion y preserva `USD 170.5K` de retorno. El
+claim no descansa en que Markov sea numericamente apretado; descansa en que el
+bound organizo una busqueda reproducible hasta una region robusta exacta.
+
+La evidencia `45/45` es importante porque transforma la historia. Si solo una
+policy pasara, un reviewer podria sospechar un punto de tuning afortunado. Al
+pasar `45/45` policies unicas dentro de la mini-grid final, el paper puede decir
+que existe un vecindario robusto compatible con el champion economico. Aun asi,
+esta es evidencia empirica post-seleccion, no una nueva garantia conformal
+prospectiva; por eso A3, A9 y A10 viven en appendix como defensas, no como un
+teorema adicional.
+
 ### Preguntas de reviewer y respuesta corta
 
 **¿Por qué no basta con reportar AUC?**
@@ -126,9 +181,10 @@ Porque el aporte está downstream. La PD es un insumo; la contribución ocurre
 cuando la incertidumbre entra al optimizador y cambia el funded set.
 
 **¿SPO+ no es mejor porque reduce regret?**
-SPO+ es un comparador fuerte y reduce regret en el benchmark. CRPTO no pretende
-dominarlo en regret; compra auditabilidad, cobertura verificable y una región
-robusta exacta. Es otro eje de valor [15], [16].
+SPO+ es un comparador fuerte y reduce regret en el benchmark. El rerun final
+PyEPO 1.3.7/Gurobi reporta `48.51%` menos regret que two-stage. CRPTO no
+pretende dominarlo en regret; compra auditabilidad, cobertura verificable y una
+región robusta exacta. Es otro eje de valor [15], [16].
 
 **¿El bound controla PD latente o default observado?**
 El bound principal controla un target acotado observado `Y_i in [0,1]` y su

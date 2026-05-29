@@ -36,3 +36,21 @@ CRPTO no domina SPO+ en regret, no implementa online conformal, no prueba
 cobertura condicional perfecta, no es un modelo contractual IFRS9 y no certifica
 fair lending legal. Estas fronteras no debilitan el paper: lo hacen publicable
 porque evitan que un buen resultado se convierta en una promesa demasiado grande.
+
+## Frontera CRPTO vs DFL
+
+La frontera final debe aparecer igual en el paper, el suplemento y la tesis:
+
+- **Paper CRPTO / Paper Estrella**: CRPTO es el metodo central porque convierte
+  incertidumbre conformal en restricciones robustas auditables. Sus numeros
+  oficiales son el economic champion congelado, `V=0.03645`,
+  `Gamma_CP=0.18591`, violacion cero y region robusta `45/45`.
+- **Paper 4**: PyEPO/DFL es el laboratorio de entrenamiento end-to-end. Alli
+  SPO+, RFYL y CaVE compiten por regret; PFYL-Mul queda como resultado negativo.
+- **Appendix compartido**: el rerun SPO+ PyEPO 1.3.7/Gurobi entra al Paper
+  CRPTO solo como comparador de regret (`48.51%` menos que two-stage), no como
+  sustituto de la garantia conformal.
+
+Esta separación evita una conclusion equivocada: que un metodo con menor regret
+reemplace automaticamente a un metodo con mejor auditabilidad. En credito
+regulado, esas son dimensiones distintas de valor.

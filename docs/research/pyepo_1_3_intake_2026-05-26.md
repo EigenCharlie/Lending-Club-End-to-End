@@ -182,7 +182,8 @@ the same `n_items=100`, `budget=30`, `epochs=50`, `seeds=5` protocol.
 
 Gate:
 
-- Reproduces the current 49.1% regret-improvement story within tolerance.
+- Reproduces the historical near-49% regret-improvement story; the final
+  PyEPO 1.3.7/Gurobi paired run now reports `48.51%`.
 - Runtime is acceptable.
 - Artifacts include PyEPO version, Torch version and solver backend.
 
@@ -277,3 +278,43 @@ For **Paper 4**, reopen the SPO/DFL lane with a new stop rule:
 
 If those do not change a manuscript claim or produce a cleaner comparator
 table, stop. Do not let this become another open-ended artifact wave.
+
+## 2026-05-28 Execution Closeout
+
+The stop rule is now satisfied. PyEPO is no longer an open-ended prototype lane;
+it has one reproducible Paper Estrella comparator and one Paper 4 DFL suite.
+
+Executed:
+
+- Paper Estrella paired rerun:
+  `paper_estrella_pyepo137_wls_topk_paired_20260528`.
+  SPO+ mean regret is `0.184366` versus `0.358073` for two-stage, a `48.51%`
+  reduction with paired Wilcoxon `p = 3.80e-163`.
+- Paper 4 full:
+  `paper4_pyepo137_wls_topk_full_20260528`.
+  SPO+ (`0.122379`), RFYL (`0.125405`) and CaVE (`0.128109`) form the
+  low-regret DFL frontier.
+- Paper 4 temporal:
+  `paper4_pyepo137_wls_topk_temporal_20260528`.
+  SPO+ remains strongest under OOT shift; CRPTO remains the auditable coverage
+  comparator.
+- PFYL-Mul risk-only ablation:
+  `paper4_pyepo137_wls_pfyl_risk_only_full_20260528`.
+  PFYL-Mul remains a negative result (`0.481047` regret) even after removing
+  the net-return term.
+- CaVE sensitivity:
+  `cave_maxiter1_full` matches the canonical CaVE regret (`0.127453` vs
+  `0.128109`) with lower isolated runtime; `cave_maxiter5_medium` does not
+  improve regret.
+- SPO+ robustness probes:
+  `spoplus_lr5e4_medium` and `spoplus_topk50_medium` keep SPO+ improvement
+  above `55%`.
+
+Final destination:
+
+- **Paper Estrella:** cite only the paired SPO+ rerun as appendix comparator.
+- **Paper 4:** promote the formal PyEPO DFL suite, with PFYL-Mul as a negative
+  result and CaVE as a Gurobi-enabled binary/top-k comparator.
+- **Quarto book:** use
+  `book/chapters/19-paper-mega-extension/19cc-v39-pyepo-real-suite.qmd` as the
+  canonical DFL closeout page.

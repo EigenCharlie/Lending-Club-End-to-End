@@ -34,6 +34,13 @@ out-of-time Lending Club evaluation, the promoted economic policy earns
 higher AUC leaderboard result, but a reproducible bridge from calibrated
 probabilistic learning to auditable robust credit decisions.
 
+The paper is deliberately not framed as a regret-minimization contest.
+Decision-focused learning, especially SPO+, is allowed to win the regret
+benchmark; in the final PyEPO 1.3.7/Gurobi rerun, SPO+ lowers paired regret by
+`48.51%` versus two-stage. CRPTO contributes a different object: an auditable
+constraint system whose coverage, robust-region membership and funded-set
+composition can be inspected after promotion.
+
 ## 1. Introduction
 
 **Source in book:** `book/chapters/14-paper-estrella/14a-introduction-motivation.qmd`.
@@ -48,9 +55,35 @@ three contributions visible:
    theorem-tight point selected for aesthetics.
 3. The paper trades regret optimality for coverage, traceability and governance.
 
+The central editorial boundary is therefore simple. If the question is pure
+decision regret under the sampled credit LP, SPO+ is the right benchmark and it
+wins. If the question is whether the decision can be justified by a
+distribution-free uncertainty layer, a frozen promotion artifact, segment
+coverage checks and an exact robust region, CRPTO is the contribution. This
+boundary prevents the paper from pretending that auditability and regret are the
+same metric.
+
 ## 2. Related Work
 
-Use a compact nearest-neighbor structure rather than a broad survey.
+Use a compact nearest-neighbor structure rather than a broad survey. The
+related work should make four distinctions explicit:
+
+1. **Predict-then-optimize and DFL.** SPO+ and later DFL methods train
+   predictors for downstream decision quality rather than predictive error
+   alone [@elmachtoub2022; @mandi2024; @pyepo2026]. They are the correct regret
+   comparators, but they do not by themselves provide coverage guarantees.
+2. **Conformal prediction and risk control.** Split conformal, RCPS, LTT and
+   CRC provide the language for finite-sample coverage and risk control
+   [@angelopoulos2023; @bates2021rcps; @angelopoulos2025ltt;
+   @angelopoulos2024risk]. CRPTO specializes this language to funded-set
+   weighted miscoverage.
+3. **Robust optimization.** Bertsimas-Sim and conformal robust optimization
+   explain why uncertainty sets belong inside optimization [@bertsimas2004;
+   @johnstone2021; @patel2024]. CRPTO differs by deriving the robust premium
+   from conformal intervals rather than from an ad hoc budget.
+4. **Credit portfolio governance.** Credit scoring and fintech lending work
+   motivate why calibrated PD, segment stability and auditability matter before
+   capital is allocated [@jagtiani2019; @albanesi2024_credit_scores_equity].
 
 | Neighbor | Paper role |
 |---|---|
@@ -61,7 +94,7 @@ Use a compact nearest-neighbor structure rather than a broad survey.
 | Predict-then-Calibrate [@sun2024ptc] | Closest post-hoc calibration comparator. |
 | Gini under auto-calibration [@wuthrich2023_gini_autocalibration] | Why AUC/Gini are diagnostics, not sufficient selection criteria without calibration. |
 | Credit scores and equity [@albanesi2024_credit_scores_equity] | Motivation for score performance, misclassification and standing; not a legal fair-lending claim. |
-| SPO+ / DFL [@elmachtoub2022; @mandi2024] | Regret comparator, not an auditability substitute. |
+| SPO+ / DFL [@elmachtoub2022; @mandi2024; @pyepo2026] | Regret comparator, not an auditability substitute. |
 | CROMS / end-to-end conformal / online CP [@bao2025croms; @yeh2026; @liu2026portfolio] | Future work boundary. |
 | Label noise and online post-hoc updating [@einbinder2024_label_noise; @angelopoulos2025_gradient_equilibrium] | Threats-to-validity and future-work boundary. |
 
@@ -88,9 +121,23 @@ conditional tightening under additional independence assumptions.
 
 Key objects:
 
-- `Gamma_CP`: funded-set weighted conformal premium.
-- `V`: funded-set weighted miscoverage.
-- `violation`: excess over the robust portfolio constraint.
+- `Gamma_CP`: the funded-set weighted conformal premium,
+  $\sum_i w_i(u_i-\hat p_i)$. It measures how much extra PD the promoted
+  portfolio pays to buy conformal protection. It is not the solver hyperparameter
+  `gamma`.
+- `V`: the funded-set weighted miscoverage,
+  $\sum_i w_i 1\{Y_i > u_i(\alpha)\}$. It is the decision-relevant risk target
+  in the Markov bound, not a generic coverage percentage.
+- `violation`: the amount by which the realized weighted risk exceeds the robust
+  portfolio constraint after the funded set is fixed.
+
+The promoted policy passes `alpha=0.01` because the exact full-OOT evaluation has
+`V=0.03645`, `Gamma_CP=0.18591` and zero violation for the frozen economic
+champion. The stronger empirical fact is regional rather than pointwise:
+`45/45` unique policies in the final bound-aware mini-grid pass the exact
+`alpha=0.01` check. That does not create a new conformal theorem after
+selection, but it materially reduces the risk that the result is one lucky
+tuning point.
 
 Do not claim that post-selection exact evaluation is a stronger conformal
 guarantee. It is empirical confirmation of the promoted policy.
@@ -128,13 +175,22 @@ Use these canonical artifacts:
 Body result message: the promoted economic policy is not the tightest possible
 policy, but it is the best-return policy inside an exact robust region.
 
+The results should never rank all methods on a single leaderboard. The paper has
+two axes. On the regret axis, SPO+ is the low-regret appendix comparator. On the
+auditability axis, CRPTO is the promoted method because it exposes coverage,
+`V`, `Gamma_CP`, violation, funded-set composition and governance artifacts. The
+`45/45` robust region is what moves the CRPTO result from "one passing policy"
+to "a stable feasible neighborhood from which the economic champion was chosen."
+
 ## 7. Robustness and Governance
 
 Appendix/supplement candidates:
 
 - P1 nested holdout and strict temporal holdout.
 - Mondrian ablation.
-- SPO+ protocol and regret comparator.
+- SPO+ protocol and regret comparator: PyEPO 1.3.7/Gurobi rerun gives
+  `48.51%` lower decision regret than two-stage on 1,000 paired instances
+  (`p = 3.80e-163`), while CRPTO remains the coverage/auditability method.
 - Fair-lending proxy/intersectional checkpoint.
 - MRM-compatible evidence.
 - Funded-set composition.
@@ -174,6 +230,12 @@ Preserve the paper boundary:
 - OCE/CVaR is currently a diagnostic/tail-risk appendix, not a new objective.
 - Label-noise robustness is a threat-to-validity lens for default/charge-off
   labels, not evidence that the current target is corrupted.
+- PyEPO/Gurobi DFL results are appendix evidence for regret benchmarking:
+  SPO+ is allowed to win regret, and that strengthens rather than weakens the
+  paper's boundary around auditable robust control.
+- Paper 4 owns the formal PyEPO/DFL suite. Paper Estrella imports only the
+  paired SPO+ rerun as a comparator appendix, so the CRPTO manuscript remains a
+  conformal robust optimization paper rather than a DFL paper.
 
 ::: {.callout-warning}
 ## What CRPTO Does Not Claim

@@ -192,10 +192,13 @@ class SuiteConfig:
     batch_size: int
     lr: float
     feature_set: str
+    cost_target: str
     methods: tuple[str, ...]
     include_crpto: bool
     run_tag: str
     torch_num_threads: int
+    cave_max_iter: int
+    archive_dir: Path | None
 
 
 @dataclass
@@ -211,6 +214,8 @@ class SuiteData:
     c_ts_te: np.ndarray
     c_robust_te: np.ndarray | None
     use_calibrated_pd: bool
+    cost_target: str
+    cost_definition: str
 
 
 class PositivePDPredictorMLP(nn.Module):
@@ -348,7 +353,7 @@ def _check_cave_availability() -> dict[str, Any]:
         Path("/opt/gurobi/gurobi.lic"),
         Path(os.environ["GRB_LICENSE_FILE"]) if os.environ.get("GRB_LICENSE_FILE") else None,
     ]
-    license_candidates = [str(p) for p in candidates if p is not None and p.exists()]
+    license_candidate_count = sum(1 for p in candidates if p is not None and p.exists())
     try:
         import gurobipy as gp
         from gurobipy import GRB
@@ -357,7 +362,7 @@ def _check_cave_availability() -> dict[str, Any]:
             "available": False,
             "reason": f"gurobipy import failed: {type(exc).__name__}: {exc}",
             "gurobi_version": None,
-            "license_file_candidates": license_candidates,
+            "license_file_candidate_count": license_candidate_count,
             "main_suite_included": False,
         }
 
@@ -374,11 +379,11 @@ def _check_cave_availability() -> dict[str, Any]:
             if ok
             else "minimal solve failed",
             "gurobi_version": ".".join(map(str, gp.gurobi.version())),
-            "license_file_candidates": license_candidates,
+            "license_file_candidate_count": license_candidate_count,
             "license_note": (
                 "No gurobi.lic found in default locations; gurobipy may be using its restricted "
                 "built-in license until grbgetkey or WLS is configured."
-                if not license_candidates
+                if license_candidate_count == 0
                 else "Found a gurobi.lic candidate in a default/project-visible location."
             ),
             "main_suite_included": True,
@@ -388,7 +393,7 @@ def _check_cave_availability() -> dict[str, Any]:
             "available": False,
             "reason": f"gurobipy minimal solve failed: {type(exc).__name__}: {exc}",
             "gurobi_version": ".".join(map(str, gp.gurobi.version())),
-            "license_file_candidates": license_candidates,
+            "license_file_candidate_count": license_candidate_count,
             "main_suite_included": False,
         }
 
@@ -476,9 +481,14 @@ def _load_conformal_intervals(test_len: int) -> pd.DataFrame | None:
     return ci
 
 
+def _int_rate_array(df: pd.DataFrame) -> np.ndarray:
+    return pd.to_numeric(df["int_rate"], errors="coerce").fillna(12.0).values / 100.0
+
+
 def _load_suite_data(
     feature_set: str,
     *,
+    cost_target: str,
     allow_binary_cost_fallback: bool = False,
 ) -> SuiteData:
     train = pd.read_parquet(DATA_DIR / "train_fe.parquet")
@@ -506,8 +516,20 @@ def _load_suite_data(
         cb_model, calibrator, feat_names, cat_feats = pd_arts
         logger.info("Predicting calibrated economic costs...")
         t0 = time.time()
-        c_tr = _predict_calibrated_costs(train, cb_model, calibrator, feat_names, cat_feats)
-        c_te = _predict_calibrated_costs(test, cb_model, calibrator, feat_names, cat_feats)
+        c_tr_economic = _predict_calibrated_costs(
+            train, cb_model, calibrator, feat_names, cat_feats
+        )
+        c_te_economic = _predict_calibrated_costs(test, cb_model, calibrator, feat_names, cat_feats)
+        if cost_target == "economic":
+            c_tr = c_tr_economic
+            c_te = c_te_economic
+            cost_definition = "calibrated_pd * LGD - int_rate"
+        elif cost_target == "risk_only":
+            c_tr = (c_tr_economic + _int_rate_array(train)).astype(np.float32)
+            c_te = (c_te_economic + _int_rate_array(test)).astype(np.float32)
+            cost_definition = "calibrated_pd * LGD"
+        else:
+            raise ValueError(f"Unsupported cost_target={cost_target}")
         logger.info(
             "Calibrated costs ready in {:.1f}s | train range [{:.4f}, {:.4f}]",
             time.time() - t0,
@@ -518,6 +540,7 @@ def _load_suite_data(
     else:
         c_tr = _binary_costs(train)
         c_te = _binary_costs(test)
+        cost_definition = "default_flag * LGD - int_rate"
         use_calibrated_pd = False
         logger.warning("Using binary default_flag costs: this is not valid for the paper run")
 
@@ -531,10 +554,11 @@ def _load_suite_data(
     ci = _load_conformal_intervals(len(test))
     c_robust_te = None
     if ci is not None and "pd_high_90" in ci.columns:
-        int_rate_te = pd.to_numeric(test["int_rate"], errors="coerce").fillna(12.0).values / 100.0
-        c_robust_te = (ci["pd_high_90"].values.astype(np.float32) * LGD - int_rate_te).astype(
-            np.float32
-        )
+        robust_risk = ci["pd_high_90"].values.astype(np.float32) * LGD
+        if cost_target == "economic":
+            c_robust_te = (robust_risk - _int_rate_array(test)).astype(np.float32)
+        else:
+            c_robust_te = robust_risk.astype(np.float32)
         logger.info("CRPTO robust costs loaded from conformal pd_high_90")
 
     return SuiteData(
@@ -549,6 +573,8 @@ def _load_suite_data(
         c_ts_te=c_ts_te,
         c_robust_te=c_robust_te,
         use_calibrated_pd=use_calibrated_pd,
+        cost_target=cost_target,
+        cost_definition=cost_definition,
     )
 
 
@@ -597,7 +623,14 @@ def _build_opt_dataset(
     return dataset
 
 
-def _build_loss(method: str, optmodel: Any, dataset: Any, seed: int) -> nn.Module:
+def _build_loss(
+    method: str,
+    optmodel: Any,
+    dataset: Any,
+    seed: int,
+    *,
+    cave_max_iter: int,
+) -> nn.Module:
     from pyepo import func as epo_func
 
     if method == "spo_plus":
@@ -613,7 +646,9 @@ def _build_loss(method: str, optmodel: Any, dataset: Any, seed: int) -> nn.Modul
     if method == "pairwise_ltr":
         return epo_func.pairwiseLTR(optmodel, processes=1, dataset=dataset)
     if method == "cave":
-        return epo_func.coneAlignedCosine(optmodel, max_iter=3, solve_ratio=1.0, processes=1)
+        return epo_func.coneAlignedCosine(
+            optmodel, max_iter=cave_max_iter, solve_ratio=1.0, processes=1
+        )
     raise ValueError(f"Unsupported method: {method}")
 
 
@@ -647,6 +682,7 @@ def _train_pyepo_method(
     lr: float,
     batch_size: int,
     seed: int,
+    cave_max_iter: int = 3,
 ) -> tuple[nn.Module, list[float]]:
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -661,7 +697,7 @@ def _train_pyepo_method(
         if method == "cave"
         else CreditPortfolioTopKOracle(n_items=n_items, budget=budget)
     )
-    loss_fn = _build_loss(method, optmodel, dataset, seed)
+    loss_fn = _build_loss(method, optmodel, dataset, seed, cave_max_iter=cave_max_iter)
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
     generator = torch.Generator()
@@ -741,6 +777,7 @@ def _regret_rows(
                 "n_items": config.n_items,
                 "budget": config.budget,
                 "feature_set": config.feature_set,
+                "cost_target": config.cost_target,
             }
         )
     return rows
@@ -764,6 +801,7 @@ def _loss_rows(
             "method_display": METHOD_DISPLAY[method],
             "epoch": epoch,
             "loss": float(loss),
+            "cost_target": config.cost_target,
         }
         for epoch, loss in enumerate(losses, start=1)
     ]
@@ -817,7 +855,8 @@ def _train_all_methods_for_seed(
             "max_shift": float(pfyl_shifts.max()),
             "mean_shift": float(pfyl_shifts.mean()),
             "positive_min_cost": float(shifted_costs.min()),
-        }
+        },
+        "method_runtime_seconds": {},
     }
 
     for method in config.methods:
@@ -830,6 +869,7 @@ def _train_all_methods_for_seed(
             dataset = standard_dataset
         if dataset is None:
             raise RuntimeError(f"Dataset for {method} was not built")
+        method_t0 = time.time()
         model, losses = _train_pyepo_method(
             method,
             dataset,
@@ -840,7 +880,9 @@ def _train_all_methods_for_seed(
             lr=config.lr,
             batch_size=config.batch_size,
             seed=seed + _stable_int(method) % 100_000,
+            cave_max_iter=config.cave_max_iter,
         )
+        method_meta["method_runtime_seconds"][method] = time.time() - method_t0
         models[method] = model
         losses_by_method[method] = losses
 
@@ -1315,16 +1357,20 @@ def _write_outputs(
                 "lr": config.lr,
                 "feature_set": config.feature_set,
                 "feature_names": data.feature_names,
+                "cost_target": config.cost_target,
                 "methods": list(config.methods),
                 "include_crpto": config.include_crpto,
                 "lgd": LGD,
                 "torch_num_threads": config.torch_num_threads,
+                "cave_max_iter": config.cave_max_iter,
+                "archive_dir": str(config.archive_dir) if config.archive_dir else None,
             },
             "data": {
                 "train_rows": int(len(data.train)),
                 "test_rows": int(len(data.test)),
                 "conformal_rows": int(len(data.ci)) if data.ci is not None else None,
-                "cost_definition": "calibrated_pd * LGD - int_rate",
+                "cost_target": data.cost_target,
+                "cost_definition": data.cost_definition,
                 "use_calibrated_pd": data.use_calibrated_pd,
                 "standard_oracle_backend": "exact_topk_numpy_lexicographic",
                 "cave_oracle_backend": "gurobi_binary_optDatasetConstrs",
@@ -1353,6 +1399,15 @@ def _write_outputs(
     logger.info("Saved {}", LOSSES_PATH)
     logger.info("Saved {}", SUMMARY_PATH)
 
+    if config.archive_dir is not None:
+        archive_dir = config.archive_dir
+        if not archive_dir.is_absolute():
+            archive_dir = REPO_ROOT / archive_dir
+        archive_dir.mkdir(parents=True, exist_ok=True)
+        for path in [STATUS_PATH, REGRETS_PATH, LOSSES_PATH, SUMMARY_PATH, *fig_paths]:
+            shutil.copy2(path, archive_dir / path.name)
+        logger.info("Archived PyEPO outputs to {}", archive_dir)
+
 
 def _build_config(args: argparse.Namespace) -> SuiteConfig:
     defaults = _mode_defaults(args.mode)
@@ -1365,6 +1420,7 @@ def _build_config(args: argparse.Namespace) -> SuiteConfig:
     feature_set = args.feature_set or defaults["feature_set"]
     methods = _parse_methods(args.methods or defaults["methods"])
     run_tag = resolve_run_tag(args.run_tag, allow_untracked=True)
+    archive_dir = Path(args.archive_dir) if args.archive_dir else None
     return SuiteConfig(
         mode=args.mode,
         n_items=n_items,
@@ -1376,10 +1432,13 @@ def _build_config(args: argparse.Namespace) -> SuiteConfig:
         batch_size=args.batch_size,
         lr=args.lr,
         feature_set=feature_set,
+        cost_target=args.cost_target,
         methods=methods,
         include_crpto=not args.skip_crpto,
         run_tag=run_tag,
         torch_num_threads=args.torch_num_threads,
+        cave_max_iter=args.cave_max_iter,
+        archive_dir=archive_dir,
     )
 
 
@@ -1401,13 +1460,21 @@ def main() -> int:
     parser.add_argument("--lr", type=float, default=1e-3)
     parser.add_argument("--feature-set", choices=["historical", "full"], default=None)
     parser.add_argument(
+        "--cost-target",
+        choices=["economic", "risk_only"],
+        default="economic",
+        help="Cost target optimized and evaluated by the DFL suite.",
+    )
+    parser.add_argument(
         "--methods",
         default=None,
-        help="Comma-separated subset: spo_plus,rfyl,pfyl_mul,pairwise_ltr",
+        help="Comma-separated subset: spo_plus,rfyl,pfyl_mul,pairwise_ltr,cave",
     )
     parser.add_argument("--skip-crpto", action="store_true")
     parser.add_argument("--run-tag", default=None)
     parser.add_argument("--torch-num-threads", type=int, default=2)
+    parser.add_argument("--cave-max-iter", type=int, default=3)
+    parser.add_argument("--archive-dir", default=None)
     parser.add_argument("--allow-pyepo-version-mismatch", action="store_true")
     parser.add_argument("--allow-binary-cost-fallback", action="store_true")
     args = parser.parse_args()
@@ -1425,7 +1492,7 @@ def main() -> int:
     pyepo_validation = _validate_pyepo_version(allow_mismatch=args.allow_pyepo_version_mismatch)
     cave_status = _check_cave_availability()
     logger.info(
-        "PyEPO suite | mode={} n_items={} budget={} n_train={} n_test={} epochs={} seeds={} methods={} run_tag={}",
+        "PyEPO suite | mode={} n_items={} budget={} n_train={} n_test={} epochs={} seeds={} cost_target={} methods={} run_tag={}",
         config.mode,
         config.n_items,
         config.budget,
@@ -1433,6 +1500,7 @@ def main() -> int:
         config.n_test,
         config.epochs,
         config.seeds,
+        config.cost_target,
         config.methods,
         config.run_tag,
     )
@@ -1440,6 +1508,7 @@ def main() -> int:
     t0 = time.time()
     data = _load_suite_data(
         config.feature_set,
+        cost_target=config.cost_target,
         allow_binary_cost_fallback=args.allow_binary_cost_fallback,
     )
 

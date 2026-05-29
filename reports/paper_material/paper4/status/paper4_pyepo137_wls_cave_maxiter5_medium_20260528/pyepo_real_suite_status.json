@@ -1,0 +1,254 @@
+{
+  "schema_version": "2026-05-26.1",
+  "generated_at_utc": "2026-05-28T22:36:53.453508+00:00",
+  "run_tag": "paper4_pyepo137_wls_cave_maxiter5_medium_20260528",
+  "mode": "paper4_full",
+  "config": {
+    "n_items": 100,
+    "budget": 30,
+    "selection_rate": 0.3,
+    "n_train_instances": 1000,
+    "n_test_instances": 250,
+    "epochs": 50,
+    "seeds": 5,
+    "batch_size": 32,
+    "lr": 0.001,
+    "feature_set": "full",
+    "feature_names": [
+      "loan_amnt",
+      "int_rate",
+      "annual_inc",
+      "dti",
+      "fico_range_low",
+      "open_acc",
+      "revol_bal",
+      "revol_util",
+      "total_acc",
+      "installment",
+      "emp_length",
+      "pub_rec",
+      "delinq_2yrs",
+      "inq_last_6mths",
+      "mths_since_last_delinq"
+    ],
+    "cost_target": "economic",
+    "methods": [
+      "cave"
+    ],
+    "include_crpto": true,
+    "lgd": 0.4,
+    "torch_num_threads": 4,
+    "cave_max_iter": 5,
+    "archive_dir": "reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter5_medium_20260528"
+  },
+  "data": {
+    "train_rows": 1346311,
+    "test_rows": 276869,
+    "conformal_rows": 276869,
+    "cost_target": "economic",
+    "cost_definition": "calibrated_pd * LGD - int_rate",
+    "use_calibrated_pd": true,
+    "standard_oracle_backend": "exact_topk_numpy_lexicographic",
+    "cave_oracle_backend": "gurobi_binary_optDatasetConstrs"
+  },
+  "versions": {
+    "pyepo": "1.3.7",
+    "gurobipy": "13.0.2",
+    "torch": "2.10.0",
+    "ortools": "9.10.4067",
+    "numpy": "2.4.3",
+    "pandas": "2.3.3",
+    "scipy": "1.15.3",
+    "catboost": "1.2.10",
+    "mapie": "1.3.0",
+    "venn-abers": "1.5.1",
+    "cuda_available": "True",
+    "torch_cuda": "12.8"
+  },
+  "pyepo_validation": {
+    "expected": "1.3.7",
+    "actual": "1.3.7",
+    "ok": true,
+    "docs_note": "Public docs may be labeled 1.3.8; this suite pins executable PyPI 1.3.7."
+  },
+  "cave_status": {
+    "available": true,
+    "reason": "gurobipy imports and solves a minimal binary model",
+    "gurobi_version": "13.0.2",
+    "license_note": "Found a gurobi.lic candidate in a default/project-visible location.",
+    "main_suite_included": true,
+    "license_file_candidate_count": 2
+  },
+  "source_log": [
+    "Elmachtoub and Grigas (2021/2022), Smart predict, then optimize",
+    "Mandi, Stuckey, Guns (2020), Smart predict-and-optimize for combinatorial optimization",
+    "Vlastelica et al. (2019), Differentiation of blackbox combinatorial solvers",
+    "Sahoo et al. (2022), Backpropagation through combinatorial algorithms",
+    "Berthet et al. (2020), Learning with differentiable perturbed optimizers",
+    "Dalle et al. (2022), Learning with Combinatorial Optimization Layers",
+    "Mulamba et al. (2021), Contrastive losses and solution caching",
+    "Mandi et al. (2022), Decision-focused learning through the lens of learning to rank",
+    "Niepert et al. (2021) and Minervini et al. (2023), implicit MLE and perturbation gradients",
+    "Gupta and Huang (2024), Decision-Focused Learning with Directional Gradients",
+    "Schutte, Postek, Yorke-Smith (2023), Robust losses for DFL",
+    "Tang and Khalil (2024), CaVE"
+  ],
+  "runtime_seconds": 312.39118814468384,
+  "results": {
+    "summary": [
+      {
+        "method": "cave",
+        "method_display": "CaVE",
+        "mean_regret": 0.1553712353,
+        "std_regret": 0.0586540647,
+        "median_regret": 0.1504060486,
+        "q25_regret": 0.1123920009,
+        "q75_regret": 0.192505158,
+        "min_regret": 0.0241037719,
+        "max_regret": 0.447517138,
+        "n_observations": 1250,
+        "improvement_vs_two_stage_pct": 47.3089614854,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": 772395.0,
+        "wilcoxon_vs_two_stage_pvalue": 1.680497441e-196,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "two_stage",
+        "method_display": "Two-stage Ridge",
+        "mean_regret": 0.2948722214,
+        "std_regret": 0.0861916188,
+        "median_regret": 0.288365691,
+        "q25_regret": 0.2323394353,
+        "q75_regret": 0.3535349672,
+        "min_regret": 0.0828887895,
+        "max_regret": 0.5979657685,
+        "n_observations": 1250,
+        "improvement_vs_two_stage_pct": 0.0,
+        "auditability_score": 1.0,
+        "wilcoxon_vs_two_stage_statistic": null,
+        "wilcoxon_vs_two_stage_pvalue": null,
+        "wilcoxon_alternative": "baseline",
+        "coverage_90": null,
+        "coverage_95": null,
+        "avg_width_90": null,
+        "min_grade_coverage_90": null
+      },
+      {
+        "method": "crpto_robust",
+        "method_display": "CRPTO robust",
+        "mean_regret": 0.918431888,
+        "std_regret": 0.1928556449,
+        "median_regret": 0.9183485082,
+        "q25_regret": 0.7910093759,
+        "q75_regret": 1.0495116727,
+        "min_regret": 0.297733048,
+        "max_regret": 1.5011400199,
+        "n_observations": 1250,
+        "improvement_vs_two_stage_pct": -211.4677541928,
+        "auditability_score": 3.0,
+        "wilcoxon_vs_two_stage_statistic": 0.0,
+        "wilcoxon_vs_two_stage_pvalue": 1.0,
+        "wilcoxon_alternative": "two_stage > method",
+        "coverage_90": 0.9293384236,
+        "coverage_95": 0.9623395902,
+        "avg_width_90": 0.7641557153,
+        "min_grade_coverage_90": 0.900350942
+      }
+    ],
+    "n_regret_rows": 3750,
+    "n_loss_rows": 250
+  },
+  "acceptance_checks": {
+    "smoke_gate_passed": true,
+    "nonnegative_regret_tolerance": true,
+    "min_regret": 0.024103771895170212,
+    "required_methods_present": true,
+    "required_methods": [
+      "cave",
+      "crpto_robust",
+      "two_stage"
+    ],
+    "observed_methods": [
+      "cave",
+      "crpto_robust",
+      "two_stage"
+    ],
+    "spo_plus_improvement_required": true,
+    "spo_plus_improves_two_stage": false,
+    "spo_plus_reproduction_gate_passed": false,
+    "spo_plus_improvement_vs_two_stage_pct": null,
+    "use_calibrated_pd": true,
+    "pyepo_version_ok": true
+  },
+  "artifacts": {
+    "data/processed/pyepo_real_suite_regrets.parquet": "bb0b980bae0f59976300c2898de005c68260247aaef2ab33e2d75e3706b39ec8",
+    "data/processed/pyepo_real_suite_losses.parquet": "7c45a7ca4167604d712daf8a1d015705f92640c6b3dc7c9e22ea91620a3b9146",
+    "reports/paper_material/paper4/tables/pyepo_real_suite_summary.csv": "0c3e3ccad1ec5c52b1d52116f8501a6a1fea82f0fe8e970d9992051626378969",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.pdf": "0710f8b8ad5cb3a9ba485489284a14e8c317580b1cee031e9113a0a1a207c087",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret.png": "45e474a873737dfe1db47a130e4a9970aaf82f9162be7f1adf6efa78539071e8",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.pdf": "73f6f462784419037a87a9e38792d9c03a5cd36662aa684d531ddbed11559c59",
+    "reports/paper_material/figures_publication/pyepo_real_suite_regret_auditability.png": "64775ed1e55724ffdee3a6222c9560a9782202fef4b6a849d58ef876417ac000"
+  },
+  "extra_meta": {
+    "42": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.07723521441221237,
+        "max_shift": 0.21276871860027313,
+        "mean_shift": 0.1192181259393692,
+        "positive_min_cost": 9.99942421913147e-05
+      },
+      "method_runtime_seconds": {
+        "cave": 37.554465532302856
+      }
+    },
+    "1042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.07684300094842911,
+        "max_shift": 0.20457357168197632,
+        "mean_shift": 0.11973707377910614,
+        "positive_min_cost": 9.99942421913147e-05
+      },
+      "method_runtime_seconds": {
+        "cave": 36.82452154159546
+      }
+    },
+    "2042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.07570992410182953,
+        "max_shift": 0.21346555650234222,
+        "mean_shift": 0.1196158304810524,
+        "positive_min_cost": 9.99942421913147e-05
+      },
+      "method_runtime_seconds": {
+        "cave": 35.963579177856445
+      }
+    },
+    "3042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.07684300094842911,
+        "max_shift": 0.22601045668125153,
+        "mean_shift": 0.11940575391054153,
+        "positive_min_cost": 0.00010000169277191162
+      },
+      "method_runtime_seconds": {
+        "cave": 35.867868185043335
+      }
+    },
+    "4042": {
+      "pfyl_mul_shift": {
+        "min_shift": 0.07846139371395111,
+        "max_shift": 0.21126872301101685,
+        "mean_shift": 0.1197221577167511,
+        "positive_min_cost": 0.00010000169277191162
+      },
+      "method_runtime_seconds": {
+        "cave": 35.97632670402527
+      }
+    }
+  }
+}

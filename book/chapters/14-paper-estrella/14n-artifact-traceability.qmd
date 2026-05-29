@@ -363,7 +363,7 @@ pd.DataFrame(status_files)
 |---|---|
 | ¿Cuál es el champion y por qué? | [`14g-manuscript-blueprint.qmd`](14g-manuscript-blueprint.qmd) + `models/final_project_promotion.json` |
 | ¿Por qué `score_decile_mondrian` y no `grade`? | [`14i-mondrian-ablation.qmd`](14i-mondrian-ablation.qmd) (@sec-p1-mondrian-ablation) |
-| ¿Cómo se midió el 49.1% de SPO+? | [`14j-spo-protocol-and-regret.qmd`](14j-spo-protocol-and-regret.qmd) (@sec-p1-spo-protocol) |
+| ¿Cómo se midió el 48.51% de SPO+? | [`14j-spo-protocol-and-regret.qmd`](14j-spo-protocol-and-regret.qmd) (@sec-p1-spo-protocol) |
 | ¿Pasa fairness? | [`14k-fair-lending-checkpoint.qmd`](14k-fair-lending-checkpoint.qmd) (@sec-p1-fair-lending) |
 | ¿Pasa MRM/SR 11-7? | [`14l-governance-mrm-approval.qmd`](14l-governance-mrm-approval.qmd) (@sec-p1-mrm-approval) |
 | ¿Cómo está compuesto el funded set? | [`14m-funded-set-composition.qmd`](14m-funded-set-composition.qmd) (@sec-p1-funded-set-composition) |

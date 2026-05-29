@@ -329,13 +329,13 @@ donde $\bar{r}_{\text{funded}}$ es el retorno neto promedio del funded set. La c
 El comparador theorem-tight (gamma=0.55) baja $\Gamma_{\text{CP}}$ a `0.159714` con un retorno menor (`$166,270`), instanciando exactamente la frontera del corollary: menor presupuesto conformal → menor precio de robustez → menor retorno. Las tres policies (economic, balanced, theorem-tight) ordenan limpiamente esa frontera empírica dentro de la región robusta.
 
 ::: {.column-page}
-![Comparación de decision regret entre three-stage, SPO+ end-to-end y CRPTO (Conformal Robust). SPO+ logra 49.1% menos regret que two-stage por diseño; CRPTO paga un precio de auditabilidad mayor en regret a cambio de garantías formales de cobertura.](../../assets/figures/publication/estrella_fig9_spo_regret.png){#fig-p1-spo-regret fig-alt="Comparación de regret: two-stage vs SPO+ vs CRPTO para el Paper Estrella."}
+![Comparación de decision regret entre three-stage, SPO+ end-to-end y CRPTO (Conformal Robust). El rerun final PyEPO 1.3.7/Gurobi muestra que SPO+ logra 48.51% menos regret que two-stage por diseño; CRPTO paga un precio de auditabilidad mayor en regret a cambio de garantías formales de cobertura.](../../assets/figures/publication/estrella_fig9_spo_regret.png){#fig-p1-spo-regret fig-alt="Comparación de regret: two-stage vs SPO+ vs CRPTO para el Paper Estrella."}
 :::
 
 ::: {.callout-note}
 ## Lectura correcta del regret
 
-La @fig-p1-spo-regret no muestra que CRPTO "pierde" contra SPO+; muestra el **trade-off diseñado**: SPO+ optimiza regret directamente (49.1% reducción), mientras CRPTO optimiza robustez bajo incertidumbre auditable. El regret más alto de CRPTO es el **precio de la auditabilidad** --- la policy es más conservadora porque protege contra realizaciones adversas con cobertura verificable (92.97%). Un regulador puede auditar la cobertura de CRPTO; no puede auditar si el regret de SPO+ se mantendrá bajo distributional shift.
+La @fig-p1-spo-regret no muestra que CRPTO "pierde" contra SPO+; muestra el **trade-off diseñado**: SPO+ optimiza regret directamente (`48.51%` de reducción en el rerun final), mientras CRPTO optimiza robustez bajo incertidumbre auditable. El regret más alto de CRPTO es el **precio de la auditabilidad** --- la policy es más conservadora porque protege contra realizaciones adversas con cobertura verificable (92.97%). Un regulador puede auditar la cobertura de CRPTO; no puede auditar si el regret de SPO+ se mantendrá bajo distributional shift.
 :::
 
 ::: {.column-page}

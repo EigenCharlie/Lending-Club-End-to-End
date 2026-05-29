@@ -124,6 +124,48 @@ Archived artifacts:
 
 `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_temporal_20260528/`
 
+## Follow-up closure runs
+
+These runs close the remaining PyEPO/DFL questions without changing the
+canonical full and temporal results.
+
+### PFYL-Mul cost ablation
+
+| run | cost target | mean regret | std regret | improvement vs two-stage | observations |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `paper4_full_canonical` | economic | 0.729797 | 0.156013 | -152.50% | 5,000 |
+| `pfyl_risk_only_full` | risk_only | 0.481047 | 0.163511 | -479.48% | 5,000 |
+
+Interpretation: removing the return term helps PFYL-Mul in absolute regret but
+does not make it competitive. The negative result is not merely an artifact of
+negative economic costs; it is a method-problem mismatch for this top-k
+portfolio geometry.
+
+### CaVE max-iteration sensitivity
+
+| run | scope | max_iter | mean regret | std regret | improvement vs two-stage | runtime seconds |
+| --- | --- | ---: | ---: | ---: | ---: | ---: |
+| `paper4_full_canonical` | full | 3 | 0.128109 | 0.048809 | 55.68% | 4,906.1 |
+| `cave_maxiter1_full` | full | 1 | 0.127453 | 0.048676 | 55.90% | 1,380.0 |
+| `cave_maxiter5_medium` | medium | 5 | 0.155371 | 0.058654 | 47.31% | 312.4 |
+
+Interpretation: `max_iter=1` is enough on the full top-k binary lane and is not
+materially worse than the canonical CaVE+ setting. The medium `max_iter=5` probe
+does not improve decision regret, so Paper 4 should not spend extra runtime on a
+larger CaVE iteration sweep unless a reviewer explicitly requests it.
+
+### SPO+ robustness probes
+
+| run | items | budget | lr | mean regret | improvement vs two-stage | observations |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `paper4_full_canonical` | 100 | 30 | 1e-3 | 0.122379 | 57.66% | 5,000 |
+| `spoplus_lr5e4_medium` | 100 | 30 | 5e-4 | 0.130622 | 55.70% | 1,250 |
+| `spoplus_topk50_medium` | 50 | 15 | 1e-3 | 0.063713 | 57.19% | 1,250 |
+
+Interpretation: SPO+ remains the strongest clean comparator under a smaller
+learning rate and under a smaller top-k decision. This supports using SPO+ as
+the Paper Estrella regret comparator and as the Paper 4 low-regret anchor.
+
 ## Static tables and figures
 
 Static tables for docs and Quarto:
@@ -132,6 +174,12 @@ Static tables for docs and Quarto:
 - `reports/paper_material/paper4/tables/pyepo_real_suite_summary_full_20260528.csv`
 - `reports/paper_material/paper4/tables/pyepo_real_suite_summary_temporal_20260528.csv`
 - `reports/paper_material/paper4/tables/pyepo_real_suite_temporal_by_period_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_temporal_coverage_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_temporal_coverage_by_period_grade_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_followup_summary_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_cave_sensitivity_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_pfyl_ablation_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_spoplus_robustness_20260528.csv`
 
 Figures with explicit names:
 

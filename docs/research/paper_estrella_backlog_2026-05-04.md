@@ -30,7 +30,7 @@ experiments or theory.
 | P1/J | Pending | Standalone manuscript extraction | final submission artifact | `14g`, `14o`, A1--A18, figures | No | required for submission | write the short paper from the book package; no champion changes |
 | P1/J | Implemented | Journal appendix A12--A18 | appendix evidence | `14h-journal-appendix-robustness.qmd` | No | complements paper | use as appendix package, not new champion evidence |
 | P1/J | Implemented | Mondrian ablation page | conformal winner defense | `14i-mondrian-ablation.qmd` | No | strengthens method selection | use when reviewer asks why score-decile, not grade |
-| P1/J | Implemented | SPO+ protocol page | DFL comparator | `14j-spo-protocol-and-regret.qmd` | No | strengthens comparator narrative | keep train-time 49.1% and temporal stability configs separate |
+| P1/J | Implemented | SPO+ protocol page | DFL comparator | `14j-spo-protocol-and-regret.qmd` | No | strengthens comparator narrative | keep final train-time 48.51% and temporal stability configs separate |
 | P1/J | Implemented | Fair lending checkpoint | governance/funded set | `14k-fair-lending-checkpoint.qmd` | No | strengthens auditability | cite as proxy/intersectional audit, not legal protected-attribute proof |
 | P1/J | Implemented | MRM/SR 11-7 approval page | model risk management | `14l-governance-mrm-approval.qmd` | No | strengthens deployment credibility | keep triggers and challenger criteria aligned with MRM artifacts |
 | P1/J | Implemented | Funded-set composition page | portfolio evidence | `14m-funded-set-composition.qmd` | No | strengthens result audit | use in appendix to show no hidden segment drives champion |

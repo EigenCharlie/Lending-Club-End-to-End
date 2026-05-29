@@ -38,6 +38,15 @@ ledger = pd.read_csv(tables_dir / "pyepo_real_suite_execution_ledger_20260528.cs
 full = pd.read_csv(tables_dir / "pyepo_real_suite_summary_full_20260528.csv")
 temporal = pd.read_csv(tables_dir / "pyepo_real_suite_summary_temporal_20260528.csv")
 period = pd.read_csv(tables_dir / "pyepo_real_suite_temporal_by_period_20260528.csv")
+coverage = pd.read_csv(tables_dir / "pyepo_real_suite_temporal_coverage_20260528.csv")
+coverage_grade = pd.read_csv(
+    tables_dir / "pyepo_real_suite_temporal_coverage_by_period_grade_20260528.csv"
+)
+cave_sensitivity = pd.read_csv(tables_dir / "pyepo_real_suite_cave_sensitivity_20260528.csv")
+pfyl_ablation = pd.read_csv(tables_dir / "pyepo_real_suite_pfyl_ablation_20260528.csv")
+spoplus_robustness = pd.read_csv(
+    tables_dir / "pyepo_real_suite_spoplus_robustness_20260528.csv"
+)
 
 display_cols = [
     "method_display",
@@ -65,6 +74,19 @@ def pretty_summary(df):
             "n_observations": "Obs.",
         }
     )
+
+def pretty_followup(df, cols):
+    out = df[cols].copy()
+    for col in ["mean_regret", "std_regret", "median_regret"]:
+        if col in out:
+            out[col] = out[col].map(lambda x: f"{x:.6f}")
+    if "improvement_vs_two_stage_pct" in out:
+        out["improvement_vs_two_stage_pct"] = out["improvement_vs_two_stage_pct"].map(
+            lambda x: f"{x:.2f}%"
+        )
+    if "runtime_seconds" in out:
+        out["runtime_seconds"] = out["runtime_seconds"].map(lambda x: f"{x:.1f}")
+    return out
 ```
 
 ## Ejecucion final
@@ -73,7 +95,9 @@ La suite final se ejecuto con `pyepo==1.3.7`, `gurobipy==13.0.2`, Gurobi WLS
 academico y `torch-num-threads=4`. La combinacion PyEPO/Gurobi quedo asi:
 PyEPO define las perdidas y el entrenamiento; Gurobi entrega la rama binaria de
 CaVE; y el resto de losses usa un oracle top-k exacto porque la restriccion del
-problema es seleccionar exactamente `budget` loans.
+problema es seleccionar exactamente `budget` loans [@pyepo2026; @gurobi2026].
+La rama CaVE se reporta como metodo de Paper 4, no como comparador principal de
+Paper Estrella [@tang2024cave].
 
 ```{python}
 #| label: tbl-p4-pyepo-execution-ledger
@@ -132,6 +156,122 @@ convierte a CaVE en una comparacion formal relevante ahora que Gurobi esta
 disponible. LTR queda como benchmark intermedio y PFYL-Mul es un resultado
 negativo bajo la formulacion positiva desplazada.
 
+## Follow-ups de cierre
+
+Despues de la suite principal se ejecutaron tres cierres metodologicos sin tocar
+DVC: una ablation PFYL-Mul con costo `risk_only = calibrated_pd * LGD`, una
+sensibilidad CaVE sobre `max_iter`, y dos probes medianos de SPO+. Estos runs no
+reemplazan el full canonico; cierran explicaciones alternativas y robustecen la
+narrativa de Paper 4.
+
+```{python}
+#| label: tbl-p4-pyepo-pfyl-ablation
+#| tbl-cap: "PFYL-Mul: ablation de costo economico versus risk-only"
+
+pretty_followup(
+    pfyl_ablation,
+    [
+        "run_name",
+        "cost_target",
+        "mean_regret",
+        "std_regret",
+        "improvement_vs_two_stage_pct",
+        "n_observations",
+        "n_train_instances",
+        "epochs",
+        "seeds",
+    ],
+).rename(
+    columns={
+        "run_name": "Run",
+        "cost_target": "Costo",
+        "mean_regret": "Regret medio",
+        "std_regret": "Std",
+        "improvement_vs_two_stage_pct": "Mejora vs TS",
+        "n_observations": "Obs.",
+        "n_train_instances": "Train inst.",
+        "epochs": "Epochs",
+        "seeds": "Seeds",
+    }
+)
+```
+
+El resultado es un negativo fuerte: quitar el termino de retorno mejora PFYL-Mul
+de `0.729797` a `0.481047`, pero sigue muy lejos del two-stage risk-only y no
+queda cerca de SPO+/RFYL/CaVE. Por tanto, Paper 4 debe narrarlo como una loss no
+alineada para esta decision top-k, no como un metodo competitivo.
+
+```{python}
+#| label: tbl-p4-pyepo-cave-sensitivity
+#| tbl-cap: "CaVE: sensibilidad al numero de iteraciones de cone alignment"
+
+pretty_followup(
+    cave_sensitivity,
+    [
+        "run_name",
+        "scope",
+        "cave_max_iter",
+        "mean_regret",
+        "std_regret",
+        "improvement_vs_two_stage_pct",
+        "runtime_seconds",
+        "n_observations",
+    ],
+).rename(
+    columns={
+        "run_name": "Run",
+        "scope": "Scope",
+        "cave_max_iter": "max_iter",
+        "mean_regret": "Regret medio",
+        "std_regret": "Std",
+        "improvement_vs_two_stage_pct": "Mejora vs TS",
+        "runtime_seconds": "Runtime s",
+        "n_observations": "Obs.",
+    }
+)
+```
+
+CaVE `max_iter=1` replica practicamente al canonico `max_iter=3` en escala full
+(`0.127453` vs `0.128109`) y corre en bastante menos tiempo cuando se aisla como
+unico metodo. El probe `max_iter=5` no mejora la decision en escala mediana
+(`0.155371`), aunque la loss interna baje mucho; mas iteraciones no son una
+garantia de menor regret.
+
+```{python}
+#| label: tbl-p4-pyepo-spoplus-robustness
+#| tbl-cap: "SPO+: probes de robustez para learning rate y tamano top-k"
+
+pretty_followup(
+    spoplus_robustness,
+    [
+        "run_name",
+        "n_items",
+        "budget",
+        "lr",
+        "mean_regret",
+        "std_regret",
+        "improvement_vs_two_stage_pct",
+        "n_observations",
+    ],
+).rename(
+    columns={
+        "run_name": "Run",
+        "n_items": "Items",
+        "budget": "Budget",
+        "lr": "LR",
+        "mean_regret": "Regret medio",
+        "std_regret": "Std",
+        "improvement_vs_two_stage_pct": "Mejora vs TS",
+        "n_observations": "Obs.",
+    }
+)
+```
+
+SPO+ conserva mejora alta en los probes medianos: `55.70%` con learning rate
+`5e-4` y `57.19%` en top-k50. Esto no prueba optimalidad universal, pero si
+reduce el riesgo de que el resultado central dependa de una unica escala o de un
+unico learning rate.
+
 ## Temporal OOT
 
 La corrida temporal usa `n_items=50`, `budget=15`, 1,600 instancias de
@@ -182,30 +322,52 @@ temporal registra cobertura 90% por periodo entre `92.41%` y `99.25%`, cobertura
 #| label: tbl-p4-pyepo-coverage-periods
 #| tbl-cap: "Cobertura conformal registrada por la corrida temporal PyEPO"
 
-coverage_rows = [
-    ["2018H1", 110839, "24.46%", "92.41%", "95.67%", "0.7736", "91.23%"],
-    ["2018H2", 86339, "23.30%", "92.52%", "96.20%", "0.7630", "88.57%"],
-    ["2019H1", 50245, "20.77%", "92.90%", "96.54%", "0.7552", "81.25%"],
-    ["2019H2", 25160, "12.44%", "95.63%", "97.64%", "0.7548", "94.10%"],
-    ["2020", 4286, "1.35%", "99.25%", "99.70%", "0.7025", "98.87%"],
-]
-pd.DataFrame(
-    coverage_rows,
-    columns=[
-        "Periodo",
-        "Loans",
-        "Default rate",
-        "Coverage 90",
-        "Coverage 95",
-        "Width 90",
-        "Min grade cov. 90",
-    ],
+coverage_display = coverage.copy()
+coverage_display["default_rate"] = coverage_display["default_rate"].map(lambda x: f"{100 * x:.2f}%")
+coverage_display["coverage_90"] = coverage_display["coverage_90"].map(lambda x: f"{100 * x:.2f}%")
+coverage_display["coverage_95"] = coverage_display["coverage_95"].map(lambda x: f"{100 * x:.2f}%")
+coverage_display["avg_width_90"] = coverage_display["avg_width_90"].map(lambda x: f"{x:.4f}")
+coverage_display["min_grade_coverage_90"] = coverage_display["min_grade_coverage_90"].map(
+    lambda x: f"{100 * x:.2f}%"
+)
+coverage_display.rename(
+    columns={
+        "period": "Periodo",
+        "n_loans": "Loans",
+        "default_rate": "Default rate",
+        "coverage_90": "Coverage 90",
+        "coverage_95": "Coverage 95",
+        "avg_width_90": "Width 90",
+        "min_grade_coverage_90": "Min grade cov. 90",
+    }
 )
 ```
 
 Esta lectura no contradice el ranking de regret. Dice algo distinto y util:
 SPO+ y los losses PyEPO son la evidencia de rendimiento decisional; CRPTO es la
 evidencia de control, cobertura y auditabilidad.
+
+```{python}
+#| label: tbl-p4-pyepo-coverage-grade-tail
+#| tbl-cap: "Cobertura 90 por periodo y grade: celdas con menor cobertura"
+
+grade_tail = coverage_grade.sort_values("coverage_90").head(8).copy()
+grade_tail["default_rate"] = grade_tail["default_rate"].map(lambda x: f"{100 * x:.2f}%")
+grade_tail["coverage_90"] = grade_tail["coverage_90"].map(lambda x: f"{100 * x:.2f}%")
+grade_tail["coverage_95"] = grade_tail["coverage_95"].map(lambda x: f"{100 * x:.2f}%")
+grade_tail["avg_width_90"] = grade_tail["avg_width_90"].map(lambda x: f"{x:.4f}")
+grade_tail.rename(
+    columns={
+        "period": "Periodo",
+        "grade": "Grade",
+        "n_loans": "Loans",
+        "default_rate": "Default rate",
+        "coverage_90": "Coverage 90",
+        "coverage_95": "Coverage 95",
+        "avg_width_90": "Width 90",
+    }
+)
+```
 
 ## Uso en los papers
 
@@ -238,6 +400,14 @@ uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paper4_full --t
 
 OMP_NUM_THREADS=4 MKL_NUM_THREADS=4 OPENBLAS_NUM_THREADS=4 \
 uv run --extra spo python scripts/run_pyepo_real_suite.py --mode temporal --torch-num-threads 4
+
+uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paper4_full \
+  --cost-target risk_only --methods pfyl_mul --torch-num-threads 4
+
+uv run --extra spo python scripts/run_pyepo_real_suite.py --mode paper4_full \
+  --methods cave --cave-max-iter 1 --torch-num-threads 4
+
+uv run python scripts/summarize_pyepo_followups.py
 ```
 
 Artefactos congelados:
@@ -245,4 +415,11 @@ Artefactos congelados:
 - `reports/paper_material/paper_estrella/pyepo/paper_estrella_pyepo137_wls_topk_paired_20260528/`
 - `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_full_20260528/`
 - `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_temporal_20260528/`
+- `reports/paper_material/paper4/status/paper4_pyepo137_wls_pfyl_risk_only_full_20260528/`
+- `reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter1_full_20260528/`
+- `reports/paper_material/paper4/status/paper4_pyepo137_wls_cave_maxiter5_medium_20260528/`
+- `reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_lr5e4_medium_20260528/`
+- `reports/paper_material/paper4/status/paper4_pyepo137_wls_spoplus_topk50_medium_20260528/`
 - `reports/paper_material/paper4/tables/pyepo_real_suite_execution_ledger_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_followup_summary_20260528.csv`
+- `reports/paper_material/paper4/tables/pyepo_real_suite_temporal_coverage_by_period_grade_20260528.csv`
