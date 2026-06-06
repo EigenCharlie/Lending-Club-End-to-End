@@ -89,13 +89,13 @@ Al momento de la defensa, el proyecto de especialización alimentaba tres línea
 
 | Línea | Paper | Venue objetivo | Conexión con especialización |
 |---|---|---|---|
-| Cobertura por subgrupo | Paper 3 (Mondrian) | COPA 2026 | Benchmark de variantes, heatmaps por grade, estabilidad temporal |
 | IFRS9 con incertidumbre | Paper 2 | JBF | ECL con bandas conformales, staging con SICR conformal |
-| Predict-then-optimize | CRPTO/Paper_CRPTO | MS/OR | PD calibrada + bandas CP → conjuntos de incertidumbre → optimización robusta |
+| Predict-then-optimize | CRPTO/Paper_CRPTO | IJDS / tesis de maestría | PD calibrada + bandas CP → conjuntos de incertidumbre → optimización robusta |
+| Lab vivo de decisión | Paper 4 | por definir | Superconjunto experimental: online/source conformal, DFL, tail-risk, IFRS9 proxy y governance |
 
 : Conexión especialización → papers de maestría {#tbl-snapshot-papers}
 
-La especialización consolidó la base predictiva y conformal; la maestría extiende esa base hacia optimización robusta (CRPTO/Paper_CRPTO), provisiones con incertidumbre (Paper 2) y validez útil por subgrupo (Paper 3). La transición se describe en detalle en el capítulo puente (@sec-bridge-specialization).
+La especialización consolidó la base predictiva y conformal; la maestría extiende esa base hacia optimización robusta (CRPTO/Paper_CRPTO), provisiones con incertidumbre (Paper 2) y un laboratorio vivo de decisión, gobernanza y robustez (Paper 4). La validez útil por subgrupo ya no se trabaja como paper separado: queda absorbida en la capa Mondrian del libro y en los diagnósticos de Paper 4. La transición se describe en detalle en el capítulo puente (@sec-bridge-specialization).
 
 ## Infraestructura del proyecto al momento de la defensa
 
@@ -121,5 +121,6 @@ Los temas aquí resumidos se explican en profundidad en los siguientes capítulo
 - **LGD/EAD conformal**: @sec-lgd-ead-conformal
 - **IFRS9 y ECL**: @sec-ecl-calculation, @sec-scenario-analysis, @sec-sicr-signal
 - **Puente especialización → maestría**: @sec-bridge-specialization
-- **CRPTO/Paper_CRPTO**: @sec`Paper_CRPTO`
-- **Paper 3 (Mondrian)**: @sec-p3-intro
+- **CRPTO/Paper_CRPTO**: proyecto externo autocontenido para tesis de maestría y envío IJDS.
+- **Cobertura Mondrian por subgrupo**: @sec-mondrian
+- **Paper 4 / laboratorio vivo**: @sec-paper4-mega-extension

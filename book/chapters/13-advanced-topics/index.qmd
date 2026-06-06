@@ -9,7 +9,7 @@ page-layout: article
 
 Los capítulos anteriores documentan el pipeline canónico: el camino que se eligió y se congeló para producción. Esta sección explora las **preguntas que surgen alrededor** de ese camino: ¿qué pasaría si se usara otro método de incertidumbre? ¿Cuánto cuesta un punto porcentual más de confianza conformal? ¿Qué sesgo introduce ignorar riesgos competitivos? ¿Cómo se propaga la incertidumbre temporal hasta las provisiones?
 
-Cada sub-capítulo es un análisis autocontenido que complementa la narrativa principal sin alterar los artefactos canónicos. Los resultados de estos temas alimentan directamente los papers de investigación (Parte IV) y la agenda futura (@sec-future-directions).
+Cada sub-capítulo es un análisis autocontenido que complementa la narrativa principal sin alterar los artefactos canónicos. Los resultados de estos temas alimentan directamente Paper 2, Paper 4 y la agenda futura (@sec-future-directions). Las líneas GPU y Quantum ya no son superficie editorial del libro.
 
 | Tema | Pregunta clave | Hallazgo principal |
 |---|---|---|
@@ -18,7 +18,6 @@ Cada sub-capítulo es un análisis autocontenido que complementa la narrativa pr
 | Competing risks | ¿KM sesga el ECL? | Sobreestima 26.7%, exceso \$125.8M |
 | Stage cost | ¿Cuál es el threshold óptimo? | pd_thr=0.15, costo total \$97.3M |
 | TS→ECL | ¿Los intervalos TS cambian provisiones? | Banda ECL 267% del punto |
-| GPU edge | ¿RAPIDS acelera el pipeline? | Sí en OR/MC; marginal en PD training |
 
 : Resumen de temas avanzados y hallazgos principales {#tbl-advanced-summary}
 
@@ -29,7 +28,5 @@ Cada sub-capítulo es un análisis autocontenido que complementa la narrativa pr
   <div class="chapter-card"><h4><a href="13c-competing-risks-ecl.html">57. Competing Risks</a></h4><p>CIF vs KM y sesgo en reservas IFRS9.</p></div>
   <div class="chapter-card"><h4><a href="13d-stage-misclassification-cost.html">58. Stage Cost</a></h4><p>Costo asimétrico de Stage 1/2 bajo thresholds.</p></div>
   <div class="chapter-card"><h4><a href="13e-ts-ecl-intervals.html">59. TS→ECL</a></h4><p>Propagación de intervalos temporales a provisión.</p></div>
-  <div class="chapter-card"><h4><a href="13f-gpu-edge-research.html">60. GPU Edge Research</a></h4><p>Taxonomía, entorno y criterio editorial del carril GPU.</p></div>
-  <div class="chapter-card"><h4><a href="13g-gpu-edge-results.html">61. GPU Edge Results</a></h4><p>Qué mejora, qué no mejora y qué aún pide reruns.</p></div>
 </div>
 ```

@@ -109,20 +109,18 @@ book:
         - chapters/13-advanced-topics/13c-competing-risks-ecl.qmd
         - chapters/13-advanced-topics/13d-stage-misclassification-cost.qmd
         - chapters/13-advanced-topics/13e-ts-ecl-intervals.qmd
-        - chapters/13-advanced-topics/13f-gpu-edge-research.qmd
-        - chapters/13-advanced-topics/13g-gpu-edge-results.qmd
     - part: "Parte IV: Papers de Investigación"
       chapters:
+        # Superficie local activa: Paper 2 y Paper 4.
+        # CRPTO/Paper IJDS vive autocontenido en C:/Users/carlos/Documents/Paper_CRPTO.
+        # Paper 3, Paper GPU y Paper Quantum fueron retirados el 2026-06-06;
+        # sus aportes útiles quedan absorbidos en la capa Mondrian del libro
+        # y en Paper 4, sin rutas editoriales propias.
         - chapters/15-paper-ifrs9/index.qmd
         - chapters/15-paper-ifrs9/15a-introduction.qmd
         - chapters/15-paper-ifrs9/15b-methodology.qmd
         - chapters/15-paper-ifrs9/15c-results.qmd
         - chapters/15-paper-ifrs9/15d-discussion.qmd
-        - chapters/16-paper-mondrian/index.qmd
-        - chapters/16-paper-mondrian/16a-introduction.qmd
-        - chapters/16-paper-mondrian/16b-methodology.qmd
-        - chapters/16-paper-mondrian/16c-results.qmd
-        - chapters/16-paper-mondrian/16d-discussion.qmd
         - chapters/19-paper-mega-extension/index.qmd
         - chapters/19-paper-mega-extension/19a-proposal-and-scope.qmd
         - chapters/19-paper-mega-extension/19b-current-assets-and-gaps.qmd
@@ -135,19 +133,6 @@ book:
         - chapters/19-paper-mega-extension/19ca-v38-final-synthesis.qmd
         - chapters/19-paper-mega-extension/19cb-v38-appendix-registers.qmd
         - chapters/19-paper-mega-extension/19cc-v39-pyepo-real-suite.qmd
-        # Paper 4 historical archive: these files remain on disk and are
-        # summarized in reports/paper_material/paper4/notes/paper4_living_lab_notebook.md,
-        # but they are intentionally not rendered in the official book chapter.
-        - chapters/17-paper-gpu/index.qmd
-        - chapters/17-paper-gpu/17a-positioning.qmd
-        - chapters/17-paper-gpu/17b-theoretical-framework.qmd
-        - chapters/17-paper-gpu/17c-existing-evidence.qmd
-        - chapters/17-paper-gpu/17d-gap-and-experiments.qmd
-        - chapters/18-paper-quantum/index.qmd
-        - chapters/18-paper-quantum/18a-context-hypothesis.qmd
-        - chapters/18-paper-quantum/18b-state-of-art.qmd
-        - chapters/18-paper-quantum/18c-proposed-methodology.qmd
-        - chapters/18-paper-quantum/18d-gap-execution-strategy.qmd
     # NOTE: Part V reuses directory prefixes 17-, 18- and 19- from Part IV.
     # Quarto resolves chapters by path, not by numeric prefix, so this
     # causes no rendering conflict. Renumbering would break cross-references
@@ -163,7 +148,6 @@ book:
     - part: "Apéndices"
       chapters:
         - chapters/A-notebook-atlas.qmd
-        - chapters/B-gpu-benchmarks.qmd
         - chapters/C-artifact-catalog.qmd
         - chapters/D-configuration-reference.qmd
         - chapters/E-streamlit-companion.qmd

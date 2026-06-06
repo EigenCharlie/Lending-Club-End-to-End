@@ -21,7 +21,7 @@
   purpose: "Mostrar por qué cumplir cobertura no basta si el costo es un intervalo inmanejable."
   insight: "No toda variante válida sirve para negocio cuando paga demasiado ancho."
   decision: "Promover Mondrian y variantes con lectura por grupo y estabilidad temporal."
-  connection: "Sostiene los capítulos 7, 9, 10 y el Paper 3."
+  connection: "Sostiene los capítulos 7, 9, 10 y la capa Mondrian usada por Paper 4."
 - title: "Resumen SHAP global del champion"
   description: "La puerta de entrada editorial a interpretabilidad global y familias de drivers."
   image: "../assets/figures/notebooks/shap_beeswarm.png"

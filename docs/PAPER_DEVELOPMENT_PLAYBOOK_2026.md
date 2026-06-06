@@ -67,11 +67,15 @@ Convert project artifacts into publication-ready papers with repeatable, auditab
    - `uv run dvc status --json`
    - `uv run dvc status -c --json`
 
-## 6) Current Research Workspaces in Streamlit
-- `Paper 1: CP + Robust Opt`
+## 6) Current Research Workspaces
 - `Paper 2: IFRS9 E2E`
-- `Paper 3: Mondrian`
-- `Buenas Prácticas y Herramientas` (guía transversal para los 3 drafts)
+- `Paper 4: Sequential Credit Decision Analytics Living Lab`
+- `Buenas Prácticas y Herramientas` (guía transversal)
+
+CRPTO/Paper IJDS ya no se desarrolla como paper local en este repositorio:
+su fuente de verdad vive autocontenida en `C:/Users/carlos/Documents/Paper_CRPTO`.
+Paper 3, Paper GPU y Paper Quantum fueron retirados como superficies
+editoriales el 2026-06-06.
 
 Paper pages include:
 - full draft structure (metadata, abstract, introduction, related work, methods, results, discussion, threats, reproducibility),
@@ -85,14 +89,15 @@ The shared best-practices page includes:
 - references to tooling and reporting checklists.
 
 ## 7) Paper Notebook Suite (Repository)
-- `notebooks/10_paper1_cp_robust_opt.ipynb`
 - `notebooks/11_paper2_ifrs9_e2e.ipynb`
-- `notebooks/12_paper3_mondrian.ipynb`
+
+Paper 4 no tiene notebook único: se gobierna mediante
+`reports/paper_material/paper4/notes/paper4_living_lab_notebook.md` y scripts
+`scripts/papers/build_paper4_*.py`.
 
 Generated outputs:
-- `reports/paper_material/paper1/*`
 - `reports/paper_material/paper2/*`
-- `reports/paper_material/paper3/*`
+- `reports/paper_material/paper4/*`
 
 Batch execution command:
 - `uv run python scripts/run_paper_notebook_suite.py`

@@ -3,7 +3,7 @@ title: "Predicción Conformal e Incertidumbre"
 page-layout: article
 close_takeaway: "La predicción conformal Mondrian transforma una estimación puntual de PD en un intervalo con garantía formal de cobertura (92.57% @ 90%), sin supuestos distribucionales. La cobertura se verifica por grupo (grade), por período temporal y contra tests estadísticos (Kupiec, Christoffersen)."
 close_connects: "Los intervalos conformales se convierten en conjuntos de incertidumbre box para la optimización robusta (@sec-robust-portfolio), en señal SICR para IFRS9 (@sec-sicr-signal), y en bandas de sensibilidad para provisiones (@sec-sensitivity-stress)."
-close_reuse: "Esta capa es el puente metodológico central del proyecto: conecta predicción (Parte II) con decisión (portafolio) y accountability (IFRS9), y es el tema central de los tres papers de investigación (Parte IV)."
+close_reuse: "Esta capa es el puente metodológico central del proyecto: conecta predicción (Parte II) con decisión (portafolio), accountability (IFRS9), Paper 2, Paper 4 y el proyecto externo CRPTO."
 ---
 
 El modelo PD champion produce una estimación puntual calibrada — pero una estimación puntual, por precisa que sea, no captura la **incertidumbre** inherente a la predicción. En riesgo crediticio, ignorar la incertidumbre tiene consecuencias directas: provisiones subestimadas, portafolios frágiles y decisiones que colapsan ante escenarios adversos.

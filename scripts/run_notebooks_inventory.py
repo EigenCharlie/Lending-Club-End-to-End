@@ -4,7 +4,7 @@ Classifies notebooks into the pipeline-first editorial taxonomy:
   - reusable_evidence: reusable evidence notebooks (01-06, 08)
   - research_labs: causal + side projects
   - historical_demo: historical end-to-end notebook kept for provenance
-  - paper_notebooks: paper-support notebooks (10-12)
+  - paper_notebooks: active local paper-support notebooks
   - explainability_lab: explainability deep dive (13)
 
 Outputs:
@@ -72,19 +72,14 @@ NOTEBOOK_META = {
         "artifacts": ["pipeline_summary.json"],
     },
     "10": {
-        "chapter": "Paper 1: CP + Robust Optimization",
-        "quarto_cap": 11,
+        "chapter": "CRPTO frozen reference (external project)",
+        "quarto_cap": None,
         "artifacts": ["spo_comparison_status.json"],
     },
     "11": {
         "chapter": "Paper 2: IFRS9 E2E",
         "quarto_cap": 12,
         "artifacts": ["ifrs9_scenario_summary.parquet", "sicr_trigger_optimization.parquet"],
-    },
-    "12": {
-        "chapter": "Paper 3: Mondrian CP",
-        "quarto_cap": 13,
-        "artifacts": ["conformal_variant_benchmark.parquet"],
     },
     "13": {
         "chapter": "Explicabilidad del Modelo",
@@ -103,9 +98,9 @@ def _classify_notebook(path: Path) -> dict:
 
     if is_side or num == "07":
         category = "research_labs"
-    elif num == "09":
+    elif num in {"09", "10", "12"}:
         category = "historical_demo"
-    elif num in {"10", "11", "12"}:
+    elif num == "11":
         category = "paper_notebooks"
     elif num == "13":
         category = "explainability_lab"

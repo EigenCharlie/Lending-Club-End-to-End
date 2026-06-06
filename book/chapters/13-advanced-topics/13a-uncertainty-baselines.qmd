@@ -50,6 +50,6 @@ El trade-off actual no se interpreta ya como "usar grade porque sí". La lectura
 
 ### Evidencia de Publicación
 
-La @fig`Paper_CRPTO` presenta la comparación con el formato y nivel de detalle utilizado en el CRPTO/Paper_CRPTO (@sec`Paper_CRPTO`). Esta figura resume las tres dimensiones del trade-off (cobertura global, ancho medio, cobertura mínima por grupo) en un solo panel, facilitando la lectura comparativa para revisores de journals.
+La figura comparativa presenta el formato y nivel de detalle utilizado en el proyecto externo CRPTO/Paper_CRPTO. Esta figura resume las tres dimensiones del trade-off (cobertura global, ancho medio, cobertura mínima por grupo) en un solo panel, facilitando la lectura comparativa para revisores de journals.
 
 ![Comparación publication-quality de baselines de incertidumbre: CP Mondrian vs BMA vs Bootstrap, evaluados sobre 276K préstamos OOT.](../../assets/figures/publication/estrella_fig7_uncertainty_baselines.png){#fig`Paper_CRPTO` fig-alt="Figura de publicación comparando cobertura, ancho y cobertura mínima entre métodos de incertidumbre."}

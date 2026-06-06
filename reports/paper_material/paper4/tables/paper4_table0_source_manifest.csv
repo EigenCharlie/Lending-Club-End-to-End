@@ -4,7 +4,7 @@ data/processed/portfolio_bound_aware/rank1_alpha01_bound_aware_276k_full_2026-04
 reports/paper_material/paper1/tables/paper1_tableA12_tail_risk_oce_cvar.csv,Paper Estrella,tail-risk diagnostic seed,implemented,paper1_journal_package,"Diagnostic repricing, not a solver objective.",True
 reports/paper_material/paper1/tables/paper1_tableA13_satisficing_margins.csv,Paper Estrella,satisficing threshold seed,implemented,paper1_journal_package,Thresholds are diagnostic until a selector is declared.,True
 data/processed/ecl_alpha_sensitivity.parquet,Paper 2 / IFRS9,ECL alpha sensitivity proxy,implemented,research_only,Global ECL proxy; Paper 4 scales it for MVP diagnostics.,True
-data/processed/conformal_backtest_monthly.parquet,Paper 3 / conformal monitoring,monthly coverage replay seed,implemented,research_only,"Historical replay, not online learning.",True
+data/processed/conformal_backtest_monthly.parquet,Conformal core / Mondrian monitoring,monthly coverage replay seed,implemented,research_only,"Historical replay, not online learning.",True
 data/processed/crpto_vs_spo_stability_detail.parquet,Paper Estrella / DFL comparator,regret-auditability frontier seed,implemented,spo_v2,SPO+ is a comparator; it does not replace CRPTO.,True
 data/processed/fairness_audit.parquet,Paper Estrella governance,proxy fairness stress seed,implemented,fairness_proxy,"Proxy/intersectional audit, not legal protected-attribute proof.",True
 reports/paper_material/paper4/tables/paper4_v3_full_universe_all_policy_eval.csv,Paper 4 v3,full exact all-policy evaluation,implemented,paper4_v3_deepening_2026-05-13,Exact full-universe diagnostics for 45 frozen policies; no promotion JSON.,True

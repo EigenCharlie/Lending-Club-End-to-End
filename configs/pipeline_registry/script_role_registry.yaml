@@ -455,7 +455,7 @@ scripts:
     status: diagnostic
 
   # ---------------------------------------------------------------------------
-  # research_labs — causal, GPU, notebooks, side projects
+  # research_labs — causal, notebooks, side projects; GPU retired as paper surface
   # ---------------------------------------------------------------------------
   - script: scripts/run_insights_factory.py
     role: research labs wrapper
@@ -500,28 +500,28 @@ scripts:
   - script: scripts/run_pd_rapids_benchmark.py
     role: gpu benchmark
     category: research
-    pipeline_owner: research_labs
-    status: research
+    pipeline_owner: retired_historical_infrastructure
+    status: retired
   - script: scripts/run_rapids_insight_factory.py
     role: gpu insight builder
     category: research
-    pipeline_owner: research_labs
-    status: research
+    pipeline_owner: retired_historical_infrastructure
+    status: retired
   - script: scripts/run_gpu_consolidated.py
     role: consolidated gpu benchmark
     category: research
-    pipeline_owner: research_labs
-    status: research
+    pipeline_owner: retired_historical_infrastructure
+    status: retired
   - script: scripts/run_gpu_replay.py
     role: gpu benchmark replay
     category: research
-    pipeline_owner: research_labs
-    status: research
+    pipeline_owner: retired_historical_infrastructure
+    status: retired
   - script: scripts/side_projects/build_gpu_benchmark_notebook.py
     role: gpu benchmark notebook builder
     category: research
-    pipeline_owner: research_labs
-    status: research
+    pipeline_owner: retired_historical_infrastructure
+    status: retired
   - script: scripts/extract_notebook_images.py
     role: notebook image extractor
     category: research

@@ -205,7 +205,7 @@ def build_source_manifest() -> pd.DataFrame:
         },
         {
             "artifact": "data/processed/conformal_backtest_monthly.parquet",
-            "source_paper": "Paper 3 / conformal monitoring",
+            "source_paper": "Conformal core / Mondrian monitoring",
             "role": "monthly coverage replay seed",
             "status": "implemented",
             "run_tag": "research_only",

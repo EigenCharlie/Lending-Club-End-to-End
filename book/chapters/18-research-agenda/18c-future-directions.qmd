@@ -6,7 +6,7 @@ La agenda futura del proyecto no consiste en abrir veinte frentes nuevos, sino e
 
 | Horizonte | Objetivo |
 |---|---|
-| 0-3 meses | cerrar version publicable de los tres papers |
+| 0-3 meses | cerrar versión publicable de Paper 2 y compactar la superficie oficial de Paper 4 |
 | 3-6 meses | endurecer benchmarks, backtesting y pruebas de estabilidad |
 | 6-12 meses | explorar extensiones causales, temporales y de fairness conformal |
 
@@ -14,9 +14,9 @@ La agenda futura del proyecto no consiste en abrir veinte frentes nuevos, sino e
 
 ### Corto plazo: 0--6 meses {#sec-future-short}
 
-Las extensiones de corto plazo se focalizan en endurecer los claims existentes y cerrar las brechas identificadas en los tres papers.
+Las extensiones de corto plazo se focalizan en endurecer los claims existentes de Paper 2, compactar Paper 4 y exportar solo lo necesario al proyecto dedicado CRPTO.
 
-**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension es computacionalmente trivial (solo requiere actualizar un cuantil running) y tendria impacto directo en los tres papers: estabilidad de intervalos para el CRPTO/Paper_CRPTO, cobertura temporal para el Paper 3, y robustez ante crisis para el Paper 2.
+**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension tendria impacto directo en Paper 4 como laboratorio vivo, en Paper 2 para robustez ante crisis, y en el proyecto dedicado CRPTO/Paper_CRPTO si alguna vez se valida fuera del entorno actual.
 
 **Interpretacion analitica por cohortes en PD.** Una conclusion importante del cierre mas reciente es que no todo warning temporal en PD debe traducirse automaticamente en “probar otro calibrador”. El proyecto ya ejecuto una lane `shadow` de recalibracion ligera y la cerro con `keep_current_calibrator`, porque los sidecars simples empeoraron la combinacion de gap, persistencia temporal y ECE. Eso cambia la naturaleza del trabajo futuro: la prioridad inmediata ya no es otra busqueda de remapeo post-hoc, sino una lectura mas fina de cohortes, quarters y slices para explicar mejor de donde proviene la persistencia residual y si esta responde a drift de mix, tails o segmentos temporalmente inestables.
 
@@ -74,7 +74,7 @@ Las extensiones de largo plazo son mas especulativas pero potencialmente transfo
 
 | Item editorial / research | Paper natural | Capitulo Quarto mas cercano hoy |
 |---|---|---|
-| benchmark de variantes conformales | Paper 3 | @sec-mondrian |
+| benchmark de variantes conformales | Capa Mondrian / Paper 4 | @sec-mondrian |
 | uncertainty sets y trade-off alpha-robustez | CRPTO/Paper_CRPTO | @sec-robust-portfolio |
 | TS intervals y banda ECL | Paper 2 | @sec-ecl-calculation y @sec-ts-ecl |
 | A/B y regret economico | CRPTO/Paper_CRPTO | @sec-ab-testing |

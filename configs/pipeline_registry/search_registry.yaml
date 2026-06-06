@@ -114,8 +114,9 @@ searches:
       - scripts/run_rapids_insight_factory.py
     artifacts:
       - reports/gpu_benchmark
-    target_pipeline: research_labs
+    target_pipeline: retired_historical_infrastructure
     can_promote: false
+    status: retired_2026_06_06
   - search: paper1_crpto_ijds_champion_tournament
     scripts:
       - scripts/search/audit_crpto_reopen_env.py

@@ -106,8 +106,9 @@ That means the right decision is not to discard the work, but to contain it as a
 - **Paper Estrella**: the current CRPTO champion is one-shot/funded-set and does
   not consume time-series intervals. TS becomes relevant only for a future
   multi-period or sequential CRPTO extension.
-- **Paper 3 / Mondrian**: the failed promotion of temporal intervals motivates
-  online/adaptive conformal coverage as future work, not as current evidence.
+- **Capa Mondrian / Paper 4**: the failed promotion of temporal intervals
+  motivates online/adaptive conformal coverage as future work, not as current
+  evidence.
 - **Mega extension IFRS9 + CATE + CRPTO**: vNext sample paths and TS->ECL
   artifacts are natural inputs to a future state variable `S_t` with macro
   forecasts, stage mix and ECL by policy, but they require new selector

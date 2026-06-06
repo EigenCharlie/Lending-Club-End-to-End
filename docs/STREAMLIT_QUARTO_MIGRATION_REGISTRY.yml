@@ -479,14 +479,14 @@ pages:
     blocks:
       - block_id: "paper_3_draft"
         artifacts: []
-        valor_defendible: "Draft editorial ya absorbido en Parte IV."
-        cobertura_quarto: "full"
+        valor_defendible: "Retirado como paper; el valor metodológico queda absorbido en la capa Mondrian y Paper 4."
+        cobertura_quarto: "retired"
         interactividad_real: "light"
-        estabilidad_editorial: "stable"
-        dependencia_streamlit: "can_crystallize"
-        decision: "already_in_quarto"
-        target_surface: "quarto"
-        target_quarto_chapter: "16-paper-mondrian/*"
+        estabilidad_editorial: "retired"
+        dependencia_streamlit: "none"
+        decision: "retired_absorbed"
+        target_surface: "none"
+        target_quarto_chapter: "07-conformal/07b-mondrian-group-conditional + 19-paper-mega-extension"
         target_streamlit_lab: ""
   - page_id: "paper_estrella_predict_optimize"
     blocks:
@@ -505,14 +505,14 @@ pages:
     blocks:
       - block_id: "gpu_research_story"
         artifacts: ["gpu_benchmark_status.json"]
-        valor_defendible: "Pertenece a la agenda avanzada, no al companion operativo."
-        cobertura_quarto: "full"
+        valor_defendible: "Retirado de la agenda editorial; se conserva solo como evidencia histórica de infraestructura."
+        cobertura_quarto: "retired"
         interactividad_real: "light"
-        estabilidad_editorial: "stable"
-        dependencia_streamlit: "can_crystallize"
-        decision: "already_in_quarto"
-        target_surface: "quarto"
-        target_quarto_chapter: "13f-gpu-edge-research / 13g-gpu-edge-results / B-gpu-benchmarks"
+        estabilidad_editorial: "retired"
+        dependencia_streamlit: "none"
+        decision: "retired"
+        target_surface: "history"
+        target_quarto_chapter: ""
         target_streamlit_lab: ""
   - page_id: "notebook_evidence"
     blocks:

@@ -8,7 +8,7 @@ promotion_state: diagnostic_only
 writes_canonical_artifacts: false
 upstream_required: true
 default_profile: diagnostics_governance_default
-papers_served: [paper3]
+papers_served: [paper4, governance_core]
 allowed_step_groups:
   - preflight
   - diagnostics_governance

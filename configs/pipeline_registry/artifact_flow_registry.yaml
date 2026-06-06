@@ -50,7 +50,7 @@ artifacts:
     disposition: keep
   - artifact: models/causal_effect_status.json
     producer: scripts/estimate_causal_effects.py
-    consumers: [research_labs, paper3]
+    consumers: [research_labs, paper4, governance_core]
     category: causal
     canonicality: research_only
     disposition: namespace
@@ -62,10 +62,10 @@ artifacts:
     disposition: keep
   - artifact: reports/gpu_benchmark
     producer: scripts/run_pd_rapids_benchmark.py
-    consumers: [research_labs, paper appendix]
+    consumers: [historical_infrastructure]
     category: gpu
     canonicality: research_only
-    disposition: keep
+    disposition: retired_historical
   - artifact: models/champion_search_bundle.json
     producer: scripts/build_champion_search_bundle.py
     consumers: [paper1 deliverables]

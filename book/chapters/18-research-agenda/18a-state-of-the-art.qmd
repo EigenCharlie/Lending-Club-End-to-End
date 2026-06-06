@@ -42,7 +42,7 @@ La conexion entre conjuntos conformales y optimizacion robusta fue inaugurada po
 
 [@elmachtoub2022] introdujeron la perdida SPO+ que optimiza la prediccion teniendo en cuenta directamente la calidad de la decision downstream. [@donti2017] propusieron aprendizaje end-to-end en optimizacion estocastica, y [@mandi2024] sistematizaron el campo en un survey comprensivo. [@sun2024ptc] propusieron *Predict-then-Calibrate*, un paradigma que separa la prediccion de la cuantificacion de incertidumbre via calibracion por cuantiles residuales, logrando garantias de cobertura independientes del modelo predictivo para LP contextuales robustos. [@kiyani2025] exploraron los fundamentos de teoria de decision para prediccion conformal, y [@yeh2025training] propusieron entrenamiento de riesgo conformal que optimiza directamente el control de riesgo conformal.
 
-**Brecha para este proyecto**: la interaccion entre decision-focused learning e incertidumbre conformal en credito es practicamente inexistente. El proyecto aborda esta brecha al incorporar tanto intervalos conformales como una implementacion de SPO+ (vease @sec`Paper_CRPTO`), permitiendo la comparacion directa entre ambos paradigmas.
+**Brecha para este proyecto**: la interaccion entre decision-focused learning e incertidumbre conformal en credito es practicamente inexistente. El proyecto aborda esta brecha al incorporar tanto intervalos conformales como una implementacion de SPO+; la comparación directa entre ambos paradigmas queda consolidada en el proyecto externo CRPTO/Paper_CRPTO y reaparece aquí solo como insumo metodológico.
 
 ### Corriente 6: Riesgo crediticio, IFRS 9 y analisis de supervivencia {#sec-sota-credit}
 
@@ -62,7 +62,7 @@ Los dos siguientes son **metodologicos**: la falta de uso explicito del ancho co
 
 Los dos ultimos son de **gobernanza y validacion**: la ausencia de evaluacion de Mondrian conformal sobre grades crediticios con datos OOT y la nula integracion de prediccion conformal con validacion de modelos (MRM / SR 11-7). Estos vacios son los que determinan si un resultado academico puede cruzar hacia la practica bancaria. Un regulador no pregunta solo si el modelo funciona — pregunta si se puede verificar que funciona, por segmento y en datos que el modelo no vio durante entrenamiento. Sin cobertura OOT verificable por grade y sin un marco de validacion compatible con SR 11-7, la prediccion conformal permanece como curiosidad metodologica.
 
-Cada uno de estos seis vacios corresponde a una contribucion especifica de la tesis, y su organizacion jerarquica refleja la estructura del propio pipeline: primero se establece la viabilidad fundacional (Papers 2 y Estrella), luego se demuestra la implementacion metodologica (Pipeline completo + SICR conformal), y finalmente se valida la gobernanza (Paper 3 + MRM).
+Cada uno de estos seis vacios corresponde a una contribucion especifica de la tesis, y su organizacion jerarquica refleja la estructura del propio pipeline: primero se establece la viabilidad fundacional (Paper 2 y CRPTO/Paper_CRPTO, que vive en el proyecto dedicado), luego se demuestra la implementacion metodologica (pipeline completo + SICR conformal), y finalmente se valida la gobernanza mediante la capa Mondrian, MRM y Paper 4.
 
 ::: {.callout-important}
 ## Seis vacios identificados en la literatura
@@ -90,7 +90,7 @@ El proyecto no compite principalmente en "otra mejora incremental de scoring". S
 | Tema | Pregunta central | Donde se cristaliza en este proyecto |
 |---|---|---|
 | scoring calibrado | como convertir score en probabilidad defendible? | @sec-calibration-selection y @sec-model-champion |
-| conformal por grupo | como medir incertidumbre util por segmento? | @sec-mondrian y Paper 3 |
+| conformal por grupo | como medir incertidumbre util por segmento? | @sec-mondrian y Paper 4 |
 | decision robusta | como usar esa incertidumbre para asignar capital? | @sec-robust-portfolio y CRPTO/Paper_CRPTO |
 | IFRS9 con incertidumbre | como se mueve la provision bajo escenarios y lifetime risk? | @sec-ecl-calculation y Paper 2 |
 | gobernanza aplicada | como sostener la conversacion ante auditoria y comite? | @sec-mrm |
@@ -99,4 +99,4 @@ El proyecto no compite principalmente en "otra mejora incremental de scoring". S
 
 ### Implicacion
 
-Esta ubicacion permite una estrategia de publicacion por piezas sin perder coherencia global: cada paper vive en una interseccion distinta, pero todos beben del mismo nucleo experimental y del mismo vocabulario metodologico. La coherencia no es solo retorica: los tres papers comparten el mismo modelo base (CatBoost calibrado), el mismo pipeline conformal (MAPIE Mondrian), los mismos datos out-of-time y la misma infraestructura de reproducibilidad, lo cual elimina la posibilidad de que resultados contradictorios entre papers se deban a diferencias de implementacion.
+Esta ubicacion permite una estrategia de publicacion por piezas sin perder coherencia global: Paper 2 y Paper 4 viven en intersecciones distintas, mientras CRPTO/Paper_CRPTO se desarrolla en su proyecto dedicado. La coherencia no es solo retorica: las piezas comparten el mismo modelo base (CatBoost calibrado), el mismo pipeline conformal (MAPIE Mondrian), los mismos datos out-of-time y la misma infraestructura de reproducibilidad, lo cual reduce la posibilidad de que resultados contradictorios se deban a diferencias de implementacion.

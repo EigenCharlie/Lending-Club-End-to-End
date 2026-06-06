@@ -18,6 +18,15 @@ PLACEHOLDER_PATTERNS = [
     "FIXME",
 ]
 
+RETIRED_QUARTO_SURFACES = [
+    "chapters/13-advanced-topics/13f-gpu-edge-research.qmd",
+    "chapters/13-advanced-topics/13g-gpu-edge-results.qmd",
+    "chapters/16-paper-mondrian/index.qmd",
+    "chapters/17-paper-gpu/index.qmd",
+    "chapters/18-paper-quantum/index.qmd",
+    "chapters/B-gpu-benchmarks.qmd",
+]
+
 
 def _walk_chapter_entries(items: list[object]) -> set[str]:
     paths: set[str] = set()
@@ -108,4 +117,14 @@ def test_all_quarto_chapter_pages_are_referenced_in_book_config() -> None:
     )
     assert not missing, (
         "Found standalone Quarto chapter files missing from book/_quarto.yml: " + ", ".join(missing)
+    )
+
+
+def test_retired_research_surfaces_are_not_registered() -> None:
+    config = yaml.safe_load(QUARTO_CONFIG.read_text(encoding="utf-8"))
+    chapter_entries = _walk_chapter_entries(config["book"]["chapters"])
+    registered = sorted(set(RETIRED_QUARTO_SURFACES) & chapter_entries)
+    assert not registered, (
+        "Retired research surfaces are still registered in book/_quarto.yml: "
+        + ", ".join(registered)
     )

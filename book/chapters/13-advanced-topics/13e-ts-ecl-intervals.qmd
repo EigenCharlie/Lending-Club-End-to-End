@@ -63,7 +63,7 @@ rol correcto es más específico:
 |---|---|---|
 | Paper 2 | Soporta escenarios IFRS9, sensibilidad ECL y narrativa prudencial | útil como evidencia analítica; intervalos no promovidos |
 | CRPTO/Paper_CRPTO | No entra al champion CRPTO actual, que es one-shot/funded-set | conexión futura vía portafolio multi-periodo |
-| Paper 3 / Mondrian | Motiva cobertura temporal y online conformal como agenda | future work |
+| Capa Mondrian | Motiva cobertura temporal y online conformal como agenda | future work |
 | Mega extensión IFRS9 + CATE + CRPTO | Sería parte del estado temporal `S_t`: forecasts macro, stage mix y ECL esperado por policy | requiere artefactos nuevos antes de ser central |
 
 La lectura editorial es que el trabajo temporal “falló bien”: no produjo una

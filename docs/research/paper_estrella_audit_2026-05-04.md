@@ -155,7 +155,7 @@ Riesgo matematico que sigue abierto para journal: formalizar si el wrapper confo
 
 ## Issues separados
 
-1. Paper Mondrian: hay drift de metricas entre el libro y `papers/paper3_copa2026/paper3_mondrian.pdf`; no bloquea el Paper Estrella.
+1. Paper Mondrian fue retirado como paper local el 2026-06-06; cualquier drift histórico queda absorbido por la capa Mondrian del libro y no bloquea el proyecto CRPTO externo.
 2. Paper-facing tables: ya fueron regeneradas desde `final_project_promotion.json`; mantener `scripts/export_paper1_canonical_tables.py` como unica ruta de actualizacion.
 3. Tightening teorico: Hoeffding/Bernstein requieren supuestos adicionales y posiblemente nested holdout/post-selection correction.
 
