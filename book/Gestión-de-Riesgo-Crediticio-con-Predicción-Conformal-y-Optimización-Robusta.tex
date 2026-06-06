@@ -258,16 +258,16 @@
 \floatname{codelisting}{Listado}
 \newcommand*\listoflistings{\listof{codelisting}{Listado de Listados}}
 \usepackage{amsthm}
-\theoremstyle{definition}
-\newtheorem{definition}{Definición}[chapter]
 \theoremstyle{plain}
-\newtheorem{corollary}{Corolario}[chapter]
+\newtheorem{proposition}{Proposición}[chapter]
 \theoremstyle{plain}
 \newtheorem{theorem}{Teorema}[chapter]
 \theoremstyle{plain}
-\newtheorem{lemma}{Lema}[chapter]
+\newtheorem{corollary}{Corolario}[chapter]
 \theoremstyle{plain}
-\newtheorem{proposition}{Proposición}[chapter]
+\newtheorem{lemma}{Lema}[chapter]
+\theoremstyle{definition}
+\newtheorem{definition}{Definición}[chapter]
 \theoremstyle{remark}
 \AtBeginDocument{\renewcommand*{\proofname}{Demostración}}
 \newtheorem*{remark}{Observación}
@@ -30646,11 +30646,62 @@ contractual \\
 \end{longtable}
 }
 
-La matriz marca solo tres candidatos experimentales: group-weighted
-conformal, utility-directed CP y localized CP. Ninguno se ejecuta en
-esta pasada. Para reabrirlos se exige una perdida fija, split declarado,
-artifact sink y stop rule. Si no cambian F05, un appendix de reviewer o
-la frontera de source governance, quedan aparcados.
+La matriz marco tres candidatos experimentales: group-weighted
+conformal, utility-directed CP y localized CP. Fueron ejecutados en una
+corrida acotada posterior, sin tocar el champion ni crear
+\texttt{paper4\_final\_promotion.json}. El protocolo uso el replay
+congelado v4 con 2018 como calibracion y 2019--2020 como holdout. Los
+artefactos quedan en:
+
+\begin{itemize}
+\tightlist
+\item
+  \texttt{paper4\_papers\_tesis\_conformal\_candidate\_summary\_2026-06-06.csv};
+\item
+  \texttt{paper4\_papers\_tesis\_conformal\_candidate\_by\_source\_2026-06-06.csv};
+\item
+  \texttt{paper4\_papers\_tesis\_conformal\_candidate\_gate\_register\_2026-06-06.csv};
+\item
+  \texttt{paper4\_papers\_tesis\_conformal\_candidates\_status\_2026-06-06.json};
+\item
+  \texttt{paper4\_papers\_tesis\_conformal\_candidates\_2026-06-06.md}.
+\end{itemize}
+
+{\def\LTcaptype{none} % do not increment counter
+\begin{longtable}[]{@{}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}
+  >{\raggedright\arraybackslash}p{(\linewidth - 4\tabcolsep) * \real{0.3333}}@{}}
+\toprule\noalign{}
+\begin{minipage}[b]{\linewidth}\raggedright
+Candidato
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Resultado holdout
+\end{minipage} & \begin{minipage}[b]{\linewidth}\raggedright
+Decision
+\end{minipage} \\
+\midrule\noalign{}
+\endhead
+\bottomrule\noalign{}
+\endlastfoot
+Group-weighted source-max & coverage \texttt{0.9387}, width
+\texttt{0.9394}, worst-source \texttt{0.8602}; cobertura global mejora
+pero worst-source cae \texttt{0.0111} vs Mondrian & appendix mixto; no
+claim de mejora source sobre Mondrian \\
+Localized score-bin & coverage \texttt{0.9497}, width \texttt{0.8643},
+worst-source \texttt{0.9252}; mejora cobertura y worst-source, pero sube
+width \texttt{0.0867} & appendix mixto reviewer-facing \\
+Utility-directed loss & coverage \texttt{0.9954}, width \texttt{0.9981},
+worst-source \texttt{0.9499}; falla gate de width \texttt{0.98} & park
+como resultado negativo de ancho \\
+\end{longtable}
+}
+
+La lectura oficial es deliberadamente estrecha: Paper 4 puede usar estos
+resultados como appendix source/shift/localized y como evidencia de por
+que utility-directed CP necesita un diseno mas fino. No autorizan
+deployment online, validez condicional exacta, cambio de selector
+oficial ni reapertura del champion CRPTO.
 
 \section{Gate register de experimentos
 futuros}\label{gate-register-de-experimentos-futuros}

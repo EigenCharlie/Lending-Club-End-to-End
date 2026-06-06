@@ -250,11 +250,29 @@ La lectura para Paper 4 es clara:
 | Credit equity/data quality | credit scores, ML credit markets, consumer credit ML [@albanesi2024_credit_scores_equity; @fuster2022_predictably_unequal; @khandani2010_credit_ml] | metric governance y fairness/source caveat |
 | IFRS9 proxy | guidance ECL Basel [@basel2015_ecl_guidance] | boundary para ECL/SICR proxy, no IFRS9 contractual |
 
-La matriz marca solo tres candidatos experimentales: group-weighted conformal,
-utility-directed CP y localized CP. Ninguno se ejecuta en esta pasada. Para
-reabrirlos se exige una perdida fija, split declarado, artifact sink y stop rule.
-Si no cambian F05, un appendix de reviewer o la frontera de source governance,
-quedan aparcados.
+La matriz marco tres candidatos experimentales: group-weighted conformal,
+utility-directed CP y localized CP. Fueron ejecutados en una corrida acotada
+posterior, sin tocar el champion ni crear `paper4_final_promotion.json`. El
+protocolo uso el replay congelado v4 con 2018 como calibracion y 2019--2020
+como holdout. Los artefactos quedan en:
+
+- `paper4_papers_tesis_conformal_candidate_summary_2026-06-06.csv`;
+- `paper4_papers_tesis_conformal_candidate_by_source_2026-06-06.csv`;
+- `paper4_papers_tesis_conformal_candidate_gate_register_2026-06-06.csv`;
+- `paper4_papers_tesis_conformal_candidates_status_2026-06-06.json`;
+- `paper4_papers_tesis_conformal_candidates_2026-06-06.md`.
+
+| Candidato | Resultado holdout | Decision |
+| --- | --- | --- |
+| Group-weighted source-max | coverage `0.9387`, width `0.9394`, worst-source `0.8602`; cobertura global mejora pero worst-source cae `0.0111` vs Mondrian | appendix mixto; no claim de mejora source sobre Mondrian |
+| Localized score-bin | coverage `0.9497`, width `0.8643`, worst-source `0.9252`; mejora cobertura y worst-source, pero sube width `0.0867` | appendix mixto reviewer-facing |
+| Utility-directed loss | coverage `0.9954`, width `0.9981`, worst-source `0.9499`; falla gate de width `0.98` | park como resultado negativo de ancho |
+
+La lectura oficial es deliberadamente estrecha: Paper 4 puede usar estos
+resultados como appendix source/shift/localized y como evidencia de por que
+utility-directed CP necesita un diseno mas fino. No autorizan deployment online,
+validez condicional exacta, cambio de selector oficial ni reapertura del
+champion CRPTO.
 
 ## Gate register de experimentos futuros
 
