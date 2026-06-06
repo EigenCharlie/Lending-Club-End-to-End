@@ -245,6 +245,44 @@ tension con `models/final_project_promotion.json`, gana la promocion oficial.
 A12--A18 fortalecen robustez y escritura journal, pero no re-promueven el
 champion.
 
+### Auditoria Papers_tesis 2026-06-06 {#sec-p1-papers-tesis-deep-audit}
+
+La auditoria profunda de `Papers_tesis` queda registrada en
+`docs/research/papers_tesis_deep_audit_2026-06-06.md`, con la matriz operativa
+en `reports/paper_material/global/tables/papers_tesis_source_matrix_2026-06-06.csv`
+y un indice compacto de captions en
+`reports/paper_material/global/tables/papers_tesis_figure_caption_index_2026-06-06.csv`.
+La curaduria de figuras/tablas que sí merecen inspección editorial vive en
+`reports/paper_material/global/tables/papers_tesis_curated_visual_sinks_2026-06-06.csv`.
+El corpus actual tiene `61` PDFs: `21` en `paper`, `28` en `supplement` y `12`
+en `tesis`.
+
+La conclusion editorial para Paper CRPTO es conservadora. El cuerpo mantiene
+como columna vertebral CP/CRC/LTT, robust optimization, conformal robust
+optimization, Predict-then-Calibrate y Lending Club/DFL como contexto
+comparador [@angelopoulos2024risk; @angelopoulos2025ltt; @bertsimas2004;
+@johnstone2021; @patel2024; @sun2024ptc; @jagtiani2019; @elmachtoub2022]. La
+auditoria agrega contexto aplicado de robust credit portfolio optimization
+[@chi2019_p2p_robust_credit] y confirma que SPO+/DFL debe seguir siendo
+comparador de regret, no sustituto de la garantia/auditabilidad CRPTO
+[@mandi2024].
+
+Las fuentes recientes mas ambiciosas se promueven solo como frontera o appendix,
+no como metodo implementado. Conformal Robustness Control
+[@hu2026_conformal_robustness_control], Utility-Directed CP
+[@cortesgomez2025_utility_directed_cp], Group-Weighted CP
+[@bhattacharyya2026_group_weighted] y decision-risk certificates
+[@zhou2026_decision_risk_assessment] son valiosas porque muestran hacia donde
+crece el campo: robustez certificada, utilidad downstream, shift por grupos y
+auditoria de decisiones. Ninguna de ellas autoriza reabrir el champion sin un
+split predeclarado, un artifact sink y un gate que pueda cambiar C1--C7.
+
+La matriz marca solo tres candidatos experimentales y los deja sin ejecutar:
+group-weighted conformal contra source/period/grade holdouts, utility-directed
+CP sobre una perdida fija de decision, y localized CP contra el winner Mondrian.
+Todos quedan bajo la misma regla: si no cambian un claim, una figura, una tabla
+o una frontera de reviewer, permanecen en Paper 4/lab notebook.
+
 ### Referencias numeradas locales
 
 [1] Vovk, Gammerman and Shafer (2005), *Algorithmic Learning in a Random

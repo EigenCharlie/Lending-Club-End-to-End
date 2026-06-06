@@ -226,6 +226,36 @@ Esta seleccion es deliberadamente mas estrecha que el inventario historico. Las
 olas v### quedan como procedencia; el appendix futuro debe leer como evidencia,
 no como diario de investigacion.
 
+## Auditoria profunda Papers_tesis 2026-06-06
+
+La auditoria nueva del folder `Papers_tesis` agrega una fuente de verdad para
+decidir que entra a Paper 4 y que queda aparcado:
+`reports/paper_material/global/tables/papers_tesis_source_matrix_2026-06-06.csv`.
+El indice de captions extraidas vive en
+`reports/paper_material/global/tables/papers_tesis_figure_caption_index_2026-06-06.csv`
+y sirve para localizar figuras/tablas utiles sin promover automaticamente su
+contenido. La curaduria accionable queda separada en
+`reports/paper_material/global/tables/papers_tesis_curated_visual_sinks_2026-06-06.csv`;
+esa tabla solo autoriza esquemas propios, appendices o respuestas a reviewers,
+no la reproduccion directa de figuras ajenas.
+
+La lectura para Paper 4 es clara:
+
+| Bloque | Fuentes nuevas o re-clasificadas | Uso permitido |
+| --- | --- | --- |
+| Source/shift conformal | beyond-exchangeability, weighted, group-weighted y multi-source CP [@barber2023_beyond_exchangeability; @bhattacharyya2026_group_weighted; @yang2026multidistribution] | appendix/gate; no deployment online |
+| Utility/decision-aware CP | Utility-Directed CP y CREDO [@cortesgomez2025_utility_directed_cp; @zhou2026_decision_risk_assessment] | future experiment; no nuevo selector oficial |
+| Robustness certificates | Conformal Robustness Control [@hu2026_conformal_robustness_control] | future robustness gate sobre `V`/`violation` |
+| AI/OR digital lending | credit portfolio/P2P y AI+OR digital lending [@chi2019_p2p_robust_credit; @torkian2026_ai_or_digital_lending] | related work aplicado, no baseline obligatorio |
+| Credit equity/data quality | credit scores, ML credit markets, consumer credit ML [@albanesi2024_credit_scores_equity; @fuster2022_predictably_unequal; @khandani2010_credit_ml] | metric governance y fairness/source caveat |
+| IFRS9 proxy | guidance ECL Basel [@basel2015_ecl_guidance] | boundary para ECL/SICR proxy, no IFRS9 contractual |
+
+La matriz marca solo tres candidatos experimentales: group-weighted conformal,
+utility-directed CP y localized CP. Ninguno se ejecuta en esta pasada. Para
+reabrirlos se exige una perdida fija, split declarado, artifact sink y stop rule.
+Si no cambian F05, un appendix de reviewer o la frontera de source governance,
+quedan aparcados.
+
 ## Gate register de experimentos futuros
 
 Los proximos experimentos quedan preacotados en

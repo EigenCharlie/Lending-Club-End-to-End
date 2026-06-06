@@ -147,7 +147,7 @@ semillas. Este es el resultado central de Paper 4 para comparar losses PyEPO.
 pretty_summary(full)
 ```
 
-![Regret medio por metodo en la suite Paper 4 full.](../assets/figures/publication/pyepo_real_suite_full_regret.png){#fig-p4-pyepo-full-regret fig-alt="Grafico de barras con regret medio por metodo para la corrida Paper 4 full de PyEPO 1.3.7."}
+![Regret medio por metodo en la suite Paper 4 full.](../../assets/figures/publication/pyepo_real_suite_full_regret.png){#fig-p4-pyepo-full-regret fig-alt="Grafico de barras con regret medio por metodo para la corrida Paper 4 full de PyEPO 1.3.7."}
 
 La frontera baja de regret queda formada por SPO+, RFYL y CaVE. SPO+ obtiene el
 mejor regret medio (`0.122379`) y reduce el regret frente a two-stage en
@@ -302,7 +302,7 @@ for col in period_display.columns:
 period_display
 ```
 
-![Estabilidad temporal OOT de la suite PyEPO.](../assets/figures/publication/pyepo_real_suite_temporal_stability.png){#fig-p4-pyepo-temporal-stability fig-alt="Lineas de regret medio por periodo para SPO+, RFYL, PFYL-Mul, LTR, CaVE, two-stage y CRPTO robust."}
+![Estabilidad temporal OOT de la suite PyEPO.](../../assets/figures/publication/pyepo_real_suite_temporal_stability.png){#fig-p4-pyepo-temporal-stability fig-alt="Lineas de regret medio por periodo para SPO+, RFYL, PFYL-Mul, LTR, CaVE, two-stage y CRPTO robust."}
 
 El stress OOT principal es 2020. Two-stage sube de un regret medio de
 aproximadamente `0.138` en 2018H1 a `0.211` en 2020. SPO+ mantiene una banda

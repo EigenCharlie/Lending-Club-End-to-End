@@ -218,14 +218,12 @@ Qiskit y PennyLane ofrecen implementaciones eficientes de `FidelityQuantumKernel
 
 El estado del arte puede resumirse en una observación: **los tres dominios relevantes (QML financiero, conformal cuántico, LGD modeling) están activos individualmente pero nunca se han cruzado**. Más aún, ningún trabajo previo combina quantum kernels con gradient boosting para riesgo crediticio.
 
-```{mermaid}
-%%| label: fig-venn-gap
-%%| fig-cap: "Los tres dominios tienen actividad reciente pero su intersección permanece vacía."
+| Dominio activo | Estado | Intersección pendiente |
+|---|---|---|
+| Quantum kernels para riesgo crediticio | actividad reciente centrada en PD | falta Q-kernel + conformal + LGD |
+| Predicción conformal cuántica | actividad genérica 2023-2025 | falta conexión con crédito/LGD |
+| LGD conformal clásica | existe en este proyecto con cobertura reportada | falta versión con quantum kernels |
 
-graph LR
-    A["Quantum Kernels para<br>riesgo crediticio<br>(2025: solo PD)"] --> D["GAP:<br>Q-Kernel + Conformal<br>+ LGD"]
-    B["Predicción conformal<br>cuántica<br>(2023-2025: genérica)"] --> D
-    C["LGD conformal<br>clásica<br>(este proyecto: 90.5%)"] --> D
-```
+: Los tres dominios tienen actividad reciente pero su intersección permanece vacía {#tbl-venn-gap}
 
 Este paper propone ser el primero en cerrar esa intersección con un enfoque pragmático: quantum kernel para representación, gradient boosting para predicción, y conformal Mondrian para incertidumbre.

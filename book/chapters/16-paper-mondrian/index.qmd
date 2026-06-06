@@ -36,21 +36,14 @@ La diferencia con el `Paper Estrella` es que aquí la incertidumbre no entra tod
 
 ## Mapa de complementariedad
 
-```{mermaid}
-%%| label: fig-paper-3-complement
-%%| fig-cap: "Cómo se posiciona el Paper 3 frente al Paper Estrella, el Paper 2 y la tesis completa."
-flowchart LR
-    T["Tesis completa<br/>Sistema integral de riesgo, papers, GPU y narrativa end-to-end"]
-    P1["Paper Estrella<br/>Incertidumbre -> optimización y trade-off riesgo-retorno"]
-    P2["Paper 2<br/>Incertidumbre -> staging, escenarios y provisión IFRS9"]
-    P3["Paper 3<br/>Cobertura útil por grupo y estabilidad temporal"]
+| Componente | Relación principal |
+|---|---|
+| Paper 3 | valida qué cobertura merece promoción antes de entrar en decisiones robustas o prudenciales |
+| Paper Estrella | usa incertidumbre para optimización y trade-off riesgo-retorno |
+| Paper 2 | usa incertidumbre para staging, escenarios y provisión IFRS9 |
+| Tesis completa | integra decisión robusta, lectura prudencial y estándar de validez útil |
 
-    P3 -->|"valida qué cobertura merece promoción"| P1
-    P3 -->|"endurece la base metodológica prudencial"| P2
-    P1 -->|"decisión robusta"| T
-    P2 -->|"lectura prudencial"| T
-    P3 -->|"estándar de validez útil"| T
-```
+: Cómo se posiciona el Paper 3 frente al Paper Estrella, el Paper 2 y la tesis completa {#tbl-paper-3-complement}
 
 ## Cómo leer esta parte
 

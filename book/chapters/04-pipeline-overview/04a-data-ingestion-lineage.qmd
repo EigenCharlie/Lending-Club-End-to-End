@@ -132,23 +132,16 @@ El dataset `loan_master` es el input principal del pipeline. El `time_series` al
 
 El linaje completo desde el CSV crudo hasta los artefactos finales se gestiona con **DVC** (Data Version Control). Más que pensar en un DAG técnico, conviene leerlo como una cadena operativa de transformación:
 
-```{mermaid}
-flowchart LR
-    raw[CSV crudo\nLoan_status_2007-2020Q3.csv] --> clean[Limpieza inicial\nmake_dataset.py]
-    clean --> cleaned[lending_club_cleaned.parquet]
-    cleaned --> split[Splits operativos\nprepare_dataset.py]
-    split --> train[Train.parquet]
-    split --> cal[Calibration.parquet]
-    split --> test[Test OOT.parquet]
-    cleaned --> master[loan_master.parquet]
-    master --> pd[PD / conformal / causal / survival / portfolio]
-    master --> ts[time_series.parquet]
-    master --> ead[ead_dataset.parquet]
-    raw -. tracked by .-> dvc[(DVC lock + artifacts)]
-    clean -. tracked by .-> dvc
-    split -. tracked by .-> dvc
-    master -. tracked by .-> dvc
-```
+| Origen | Transformación | Artefacto |
+|---|---|---|
+| CSV crudo `Loan_status_2007-2020Q3.csv` | `make_dataset.py` | `lending_club_cleaned.parquet` |
+| Dataset limpio | `prepare_dataset.py` | `Train`, `Calibration`, `Test OOT` |
+| Dataset limpio | `build_datasets.py` | `loan_master.parquet` |
+| `loan_master.parquet` | capas downstream | PD, conformal, causal, survival y portfolio |
+| `loan_master.parquet` | agregación temporal / default-only | `time_series.parquet`, `ead_dataset.parquet` |
+| scripts y artefactos | DVC | lockfiles, hashes y punteros auditables |
+
+: Linaje operativo de datos {#tbl-data-lineage}
 
 La lectura correcta no es “muchos archivos”, sino “cada transformación deja un artefacto intermedio claro y reutilizable por el siguiente módulo”.
 

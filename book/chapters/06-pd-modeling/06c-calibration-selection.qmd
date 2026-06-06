@@ -323,23 +323,15 @@ Platt Scaling y Venn-Abers tienen rendimiento prácticamente idéntico en este d
 
 El siguiente diagrama resume la lógica de decisión para elegir un calibrador, basada en las propiedades teóricas y empíricas de cada método:
 
-```{mermaid}
-%%| label: fig-calibration-decision
-%%| fig-cap: "Árbol de decisión para selección de calibrador"
-flowchart TD
-    A["¿Se requieren garantías<br/>formales de calibración?"] -->|Sí| VA["**Venn-Abers**<br/>Único con garantías secuenciales"]
-    A -->|No| B["¿Tamaño del set<br/>de calibración m?"]
-    B -->|"m < 200"| PLATT["**Platt Scaling**<br/>2 parámetros, estable"]
-    B -->|"200 ≤ m < 1000"| BETA["**Beta Calibration**<br/>3 parámetros, asimétrica"]
-    B -->|"m ≥ 1000"| C["¿Distribución de scores<br/>simétrica o asimétrica?"]
-    C -->|Simétrica| ISO["**Isotónica**<br/>No paramétrica, flexible"]
-    C -->|Asimétrica| BETA2["**Beta Calibration**<br/>Maneja asimetría"]
-    VA --> D["Validar con Brier + Z + log-loss<br/>vs modelo sin calibrar"]
-    PLATT --> D
-    BETA --> D
-    ISO --> D
-    BETA2 --> D
-```
+| Condición de decisión | Calibrador preferido | Validación final |
+|---|---|---|
+| Se requieren garantías formales de calibración | Venn-Abers | Brier, Z-statistic, log-loss y comparación contra modelo sin calibrar |
+| No se requieren garantías y `m < 200` | Platt Scaling | Brier, Z-statistic, log-loss y comparación contra modelo sin calibrar |
+| No se requieren garantías y `200 <= m < 1000` | Beta Calibration | Brier, Z-statistic, log-loss y comparación contra modelo sin calibrar |
+| No se requieren garantías, `m >= 1000` y scores simétricos | Isotónica | Brier, Z-statistic, log-loss y comparación contra modelo sin calibrar |
+| No se requieren garantías, `m >= 1000` y scores asimétricos | Beta Calibration | Brier, Z-statistic, log-loss y comparación contra modelo sin calibrar |
+
+: Árbol de decisión para selección de calibrador {#tbl-calibration-decision}
 
 En nuestro pipeline, la decisión se automatiza: la política `auto` evalúa los cuatro candidatos sobre folds temporales y selecciona el que minimiza Brier Score sujeto a la restricción de AUC drop < 0.0015. Esta automatización es preferible a una elección manual porque (a) el dataset puede cambiar entre ejecuciones y (b) las diferencias entre calibradores son frecuentemente del orden de $10^{-4}$ en Brier, difíciles de distinguir visualmente.
 

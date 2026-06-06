@@ -1,0 +1,588 @@
+relative_path,caption_type,caption_index,caption_text,caption_index_truncated
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,1,"Table 1 reports basic demographic information on our sample, including age, household",false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,2,Table 1: Descriptive Statistics,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,3,Table 2: Yti Frequency and Transitions,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,figure,4,Figure 1 plots the Gini coefficient for the credit score and our model prediction over time.,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,figure,5,"Figure 1: Gini Coefficient, Credit Score and Prediction Model",false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,6,Table 3: Credit Score Risk Profiles,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,7,Table 4: Credit Score and Model Risk Profile Comparison,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,8,Table 5 also reports our model-based prediction for the default rate of borrowers in,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,9,Table 5: Default Risk Variation by Credit Score Profile,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,10,Table 6: Feature Attribution Differences,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,11,Table 14 in Appendix C reports summary statistics on indicators of credit demand and,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,figure,12,Figure 5 in Appendix C displays the time effects by risk profile. The time variation,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,13,Table 7: Access to Credit by Risk Profile,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,table,14,Table 8 reports our baseline regression results for both the Experian (Panel A) and,false
+paper/Albanesi Vamossy 2024 - Credit Scores Performance and Equity.pdf,truncation_note,15,26 additional figure/table captions omitted from this compact index.,true
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,1,Figure 1: Prediction set examples on Imagenet. We show three progressively more difficult examples,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,2,Figure 2: Illustration of conformal prediction with matching Python code.,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,3,Figure 3: Python code for adaptive prediction sets.,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,4,"Figure 3 shows Python code to implement this method. As usual, these uncertainty sets (with tie-breaking)",false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,5,Figure 4: A visualization of the adaptive prediction sets algorithm in Eq. (3). Classes are included,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,6,Figure 5: Python code for conformalized quantile regression.,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,7,Figure 6: A visualization of the conformalized quantile regrssion algorithm in Eq. (4). We adjust,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,8,Figure 7: Python code for conformalized uncertainty scalars.,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,9,Figure 8: A visualization of the uncertainty scalars algorithm in Eq. (5). We produce the set by,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,10,Figure 9: A visualization of the conformalized Bayes algorithm in Eq. (6). The prediction set is a,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,11,"Figure 10: Prediction sets with various notions of coverage: no coverage, marginal coverage, or",false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,12,Figure 11: The distribution of coverage with an infinite validation set is plotted for different values of,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,table,13,Table 1: Calibration set size n() required for coverage slack  with δ = 0.1 and α = 0.1.,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,figure,14,Figure 12: Python code for computing coverage with efficient score caching. Notice that from the,false
+paper/Angelopoulos Bates 2023 - Gentle Introduction to Conformal Prediction.pdf,truncation_note,15,15 additional figure/table captions omitted from this compact index.,true
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,1,Figure 1: FNR control in tumor segmentation. The top figure shows examples of our procedure,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,2,Figure 2: FNR control on MS COCO. The top figure shows examples of our procedure with correct,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,3,Figure 3: Control of graph distance on hierarchical ImageNet. The top figure shows examples,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,4,Figure 4: F1-score control on Natural Questions. The top figure shows examples of our procedure,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,5,Figure 5: Comparison of RCPS/LTT with conformal risk control on the polyp dataset.,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,6,Figure 6 shows results.,false
+paper/Angelopoulos et al 2024 - Conformal Risk Control.pdf,figure,7,Figure 6: Risk control results on a synthetic covariate shift dataset. Running standard conformal,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,1,Figure 1.1: The conformal score function determines the shape of the sets. The shaded band is a,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,2,Figure 2.1: Illustration of a permutation test for the equality of two real-valued distribu-,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,3,Figure 2.2 illustrates parts (iii) and (iv) of this last fact. When there are no ties between values,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,4,Figure 2.2: An illustration of two quantiles chosen on the CDF. The figure illustrates the,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,5,"Figure 2.3: This figure depicts a single time step of Pólya’s urn model, for the case c = 2. We begin",false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,6,Figure 3.1: Illustration of notation for a single hypothesized response y. This figure,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,7,Figure 3.2: An illustration of full conformal prediction with the residual score function. On the,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,table,8,Table 3.1: Comparison of full and split conformal methods.,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,9,"Figure 3.3: A visualization of the split conformal quantile q̂ (as defined in Algorithm 3.6),",false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,10,"Figure 3.2, is inspired by illustrations developed by Ryan Tibshirani in various lectures and tutorials.",false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,11,Figure 4.1: An illustration of marginal and conditional coverage. The interval on the left,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,12,Figure 4.2: The distribution of coverage of split conformal prediction conditional on the,false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,13,"Figure 4.3: Illustration of the event Eunif , which is defined in the proof of Theorem 4.3. Each plot",false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,figure,14,"Figure 4.4: Illustration of the hardness of conditional coverage, and the idea of the proof of",false
+paper/Angelopoulos et al 2024 - Theoretical Foundations of Conformal Prediction.pdf,truncation_note,15,31 additional figure/table captions omitted from this compact index.,true
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,1,"FIG. 1. Object detection with simultaneous distribution-free guarantees on recall, intersection-over-union",false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,2,Figure 2 gives a visual description of the object detection pipeline.,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,3,FIG. 2. Our detection pipeline annotated with the formal mathematical notation to aid the reader.,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,4,FIG. 3. Multilabel prediction set examples on MS COCO using fixed-sequence testing. Black classes are true,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,5,FIG. 4. Numerical results of our multilabel classification procedure. The risk is plotted as a violin plot over,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,6,FIG. 5. Numerical results of selective classification on ImageNet. The violins plot the selective error over 100,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,7,FIG. 6. Numerical results of selective regression on the MEPS dataset. The MSE is plotted as a violin plot over,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,8,FIG. 7. Numerical performance of methods for simultaneous OOD type-1 error and coverage control on CIFAR-,false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,9,"FIG. 8. Instance segmentation examples on MS COCO. The input images are on the left, and the output instance",false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,10,"FIG. 9. Numerical results for our instance segmentation algorithm with α1 = 0.5, α2 = 0.5, α3 = 0.25, and",false
+paper/Angelopoulos et al 2025 - Learn Then Test.pdf,figure,11,Figure 9 are conservative. This is because we optimized the choice of λ̂ ∈ Λ,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,1,"Figure 1: A stylized example of risk-controlling prediction sets. Here, “P” gives the estimated",false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,2,Figure 2: Sample-splitting setup. The training data is used to fit a predictive model fˆ. The remaining,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,3,Figure 3: Visualization of UCB calibration.,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,4,Figure 4: Numerical evaluations of concentration results for bounded losses. We show the simple,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,5,Figure 5: Numerical evaluations of the PU bound. We compare the bound from (9) with the estimated,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,table,6,Table 1: Distributions considered for the unbounded case.,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,7,"Figure 6: Optimal prediction sets. In the special case where ρ̂x (y, S) does not depend on S, Tλ (x) from",false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,8,"Figure 6. (The negative on λ comes from the definition of nesting, which asks sets to grow as λ grows.)",false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,9,Figure 7: Prediction set results on Imagenet. The risk and set sizes for an RCPS are plotted as,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,10,Figure 8: Multi-label prediction set examples on MS COCO. Black classes are correctly identified,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,11,Figure 9: Multi-label prediction set results on MS COCO. The risk and set sizes are plotted as,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,12,Figure 10: Hierarchical predictions. We show randomly selected examples of hierarchical prediction sets,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,13,Figure 11: The risk and height of RCPS for hierarchical classification. We show histograms of,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,figure,14,Figure 12: Polyp segmentations. We show examples of polyps along with prediction sets that capture,false
+paper/Bates et al 2021 - Distribution-Free Risk-Controlling Prediction Sets.pdf,truncation_note,15,10 additional figure/table captions omitted from this compact index.,true
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,table,1,"Table 1 summarizes the a priori structural assumptions, hypothesis tests, and resulting uncertainty",false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,table,2,Table 1 Summary of data-driven uncertainty sets proposed in this paper.,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,3,"Figure 1 The left panel shows the sets Uχ and UG , α =  = 10%. When N = 0, the smallest set which implies a",false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,4,Figure 1 illustrates the sets Uχ and UG with a particular numerical example. The true distribution,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,5,Figure 1 illustrates an example. The true distribution is a standard normal whose cumulative,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,6,Figure 2 illustrates the sets UI and UF B numerically. The marginal distributions of P∗ are inde-,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,7,Figure 2 The left panel shows the marginal densities. The right panel shows UI (dashed black line) and UF B,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,table,8,"Table 2 Comparing Thresholds with and without bootstrap using NB = 10, 000",false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,9,"Figure 3 Comparing UM , ULCX , UCS and UDY for the example from Fig. 2,  = 10%, α = 20%. The left panel",false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,table,10,Table 3 Portfolio statistics for each of our methods. UDY and UCS ∩ supp(P∗ ) perform identically to UM .,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,11,Figure 4 Portolio performance by method: α =  = 10%. Top left: Cross-validation results. Top right: Out-of-,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,12,Fig. 4 shows the distribution of the 10% worst-case return. (Additional plots are also available in,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,13,Figure 5 The left panel shows various bounds on the median waiting time ( = .5) for n = 10 and various values,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,figure,14,Fig. 5. We have included the empirical CDF of the waiting time and the sampled version of the,false
+paper/Bertsimas Gupta Kallus 2018 - Data-Driven Robust Optimization.pdf,truncation_note,15,1 additional figure/table captions omitted from this compact index.,true
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,1,"Figure 1 A regression tree is trained on data (x1 , y 1 ), . . . , (x10 , y 10 ) and partitions the X data into regions",false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,2,"Figure 2 Performance of various prescriptions with respect to true distributions, averaged over samples and",false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,3,Figure 3 Performance of various prescriptions in the two-stage shipment planning with pricing problem.,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,4,"Figure 4 The coefficient of prescriptiveness P in the example from Section 1.1, measured out of sample. The",false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,5,"Figure 5 The percentage of all sales in the German state of Berlin taken up by each of 13 selected titles,",false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,6,Figure 6 Scatter plots of various data from IMDb and RT (horizontal axes) against total European sales during,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,7,Figure 7 Weekly search engine attention for two unnamed films in the world and in two populous German,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,8,Figure 9 The performance of our prescription over time. Blue vertical dashes indicate major release dates. The,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,9,Figure 10 The distribution of coefficients of prescriptiveness P over retail locations.,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,10,Figure 11 Network data for shipment planning example.,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,11,Figure 12 Results of the experiment in Section 13.2.,false
+paper/Bertsimas Kallus 2020 - From Predictive to Prescriptive Analytics.pdf,figure,12,"Figure 13 The graph of actors, connected via common movies where both are first-billed. Colored nodes",false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,1,Figure 3 we compare Bounds 1 and 3 and the approximate bound for n = 2000. Bound 3 is identical,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,2,Figure 1: Comparison of probability bounds for n = |Ji | = 10.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,3,Figure 2: Comparison of probability bounds for n = |Ji | = 100.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,4,Figure 3: Comparison of probability bounds for n = |Ji | = 2000.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,table,5,Table 1: Choice of Γi as a function of n = |Ji | so that the probability of constraint violation is less than,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,6,Figure 4 illustrates the effect of the protection level on the objective function value. In the absence of,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,7,Figure 4: Optimal value of the robust knapsack formulation as a function of Γ.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,8,Figure 5: Optimal value of the robust knapsack formulation as a function of the probability bound of constraint,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,table,9,Table 2: Results of Robust Knapsack Solutions.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,10,Figure 6: The return and the objective function value (risk adjusted return) as a function of the protection level,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,11,Figure 7: The solution of the portfolio for various protection levels.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,12,Figure 8: Simulation study of the probability of underperforming the nominal return as a function of Γ.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,table,13,Table 3: Simulation results given by the robust solution.,false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,figure,14,"Figure 9: Empirical Result of expected, maximum and minimum yield.",false
+paper/Bertsimas Sim 2004 - The Price of Robustness.pdf,truncation_note,15,4 additional figure/table captions omitted from this compact index.,true
+paper/Chi Ding Peng 2019 - Data-Driven Robust Credit Portfolio Optimization in P2P Lending.pdf,figure,1,Figure 1: The curve of CV (h).,false
+paper/Chi Ding Peng 2019 - Data-Driven Robust Credit Portfolio Optimization in P2P Lending.pdf,figure,2,Figure 2: Performance comparison.,false
+paper/Chi Ding Peng 2019 - Data-Driven Robust Credit Portfolio Optimization in P2P Lending.pdf,table,3,Table 2: Rate of return from the optimal portfolio on the Prosper Table 3: Investors’ choices of input parameters for portfolio selec-,false
+paper/Chi Ding Peng 2019 - Data-Driven Robust Credit Portfolio Optimization in P2P Lending.pdf,table,4,Table 4: Investment performances of input parameters for portfolio selection.,false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,figure,1,"Figure 1: Features x, model predictions y, and policy z for the three experiments.",false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,figure,2,Figure 2: Inventory problem results for 10 runs over a representative instantiation of true parameters,false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,figure,3,Figure 4: Results for 10 runs of the generation-scheduling problem for representative decision,false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,figure,4,"Figure 3: 2-hidden-layer neural network to programming model that minimizes just the RMSE,",false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,figure,5,"Figure 4 shows the performance of the three models on the testing dataset. As expected, the RMSE",false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,table,6,"Table 1: Task loss results for 10 runs each of the battery storage problem, given a lithium-ion battery",false
+paper/Donti et al 2017 - Task-Based End-to-End Model Learning.pdf,table,7,Table 1 shows the performance of the two models on the testing dataset. As energy prices are difficult,false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,1,Figure 1 Geometric Illustration of SPO Loss,false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,2,Figure 2 Difference between prediction and decision residuals,false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,3,Figure 3 Illustrative Example.,false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,4,"Figure 4 summarizes our ﬁndings, and note that the box plot for each conﬁguration of the",false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,5,"Figure 4 Normalized test set SPO loss for the SPO+, least squares, absolute loss, and random forests methods on",false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,6,Figure 5 displays our results for this experiment. Generally we observe similar patterns,false
+paper/Elmachtoub Grigas 2022 - Smart Predict Then Optimize.pdf,figure,7,"Figure 5 Normalized test set SPO loss for the SPO+, least squares, absolute loss, and random forests methods on",false
+paper/Guo et al 2016 - Instance-Based Credit Risk Assessment for Investment Decisions in P2P Lending.pdf,figure,1,Fig. 1. We estimate the investment return of L3 by computing the weights between L3 and baseline models for experimental comparison.,false
+paper/Guo et al 2016 - Instance-Based Credit Risk Assessment for Investment Decisions in P2P Lending.pdf,figure,2,Fig. 2. Predicted rate of return (top row) and predicted risk (bottom row) versus probability of default for Lending Club (left column) and Prosper (right column).,false
+paper/Guo et al 2016 - Instance-Based Credit Risk Assessment for Investment Decisions in P2P Lending.pdf,table,3,Table 2 shows the investment return rate on each testing subset 4 0.0236 0.0398 0.0481,false
+paper/Guo et al 2016 - Instance-Based Credit Risk Assessment for Investment Decisions in P2P Lending.pdf,figure,4,Fig. 3. Sensitivity analysis.,false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,1,"Figure 1 compares the conventional CRO framework with our proposed method CRC, at the nominal",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,2,"Figure 1: Comparison of CRO and our method CRC. Portfolio optimization problem with ϕ(y, z) =",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,3,"Figure 2: The results of risk certificate, decision loss, robustness, and coverage on synthetic data",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,4,"Figure 3: The results of risk certificate, decision loss, robustness, and coverage on synthetic data",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,5,"Table 1: The results of risk certificate, decision loss, and robustness under nominal levels α = 0.1",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,6,"Figure 4: The results of risk certificate, decision loss, and robustness when varying nominal level α",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,7,"Figure 5: The risk certificate, decision loss and robustness when varying nominal level α on battery",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,8,Table 2: The results of different smoothing parameters sensitivity of CRC at the nominal level,false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,9,"Table 3: The results of lagrange multiplier update schedule of CRC at the nominal level α = 0.1,",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,10,Figure 6: The densities of risk certificate on synthetic data when α = 0.15 and n = 1500.,false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,11,"Table 4: The simulation results of CRC and RAC at the nominal level α = 0.1, where the sample",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,figure,12,"Figure 7: The results of risk certificate, decision loss, robustness, and coverage on synthetic data",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,13,"Table 5: The simulation results under polyhedral prediction set with nominal level α = 0.1, where",false
+paper/Hu et al 2026 - Conformal Robustness Control.pdf,table,14,"Table 6: The results of CRC ablation experiments with nominal level α = 0.1, where the sample",false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,table,1,Table 1 shows the comparison of interest rate spreads that borrowers are charged on,false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,table,2,"Table 2. For example, we observe a significantly positive relationship between interest rate spreads",false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,figure,3,Figure 1. Correlation Between Origination FICO and,false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,figure,4,Figure 4. Average Spread by Rating Grades — Cards and,false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,figure,5,Figure 5. LendingClub Loans,false
+paper/Jagtiani Lemieux 2019 - Alternative Data and Machine Learning in Fintech Lending.pdf,figure,6,Figure 7. LendingClub vs. Y-14M Cards Figure 8. LendingClub Loans,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,1,Figure 1: Uncertainty set constructed with q = 1 (left) and q = 2 (right) for random,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,2,"Figure 2: Illustration of (7), showing the feasible region (left) and uncertainty set (right).",false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,3,Figure 3: Example of nonconvexity for full conformal prediction region with sample co-,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,4,Figure 4 compares the overall robust optimization performance of the three uncertainty,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,5,Figure 4: α worst-case objective function value across n test cases with 100 experiment,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,6,Figure 5: Empirical coverage across n test cases with 100 experiment repetitions for nor-,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,7,Figure 6: Empirical coverage across n test cases with 100 experiment repetitions for nor-,false
+paper/Johnstone Cox 2021 - Conformal Uncertainty Sets for Robust Optimization.pdf,figure,8,Figure 7: log of α worst-case objective function value across n test cases with 100 experi-,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,1,"Figure 1: CPO leverages informative, non-convex conformal prediction regions for robust predict-then-optimize",false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,table,2,"Table 1: Coverages across tasks for α = 0.05 are shown in the left table, where coverage was assessed over a batch of",false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,3,Figure 2. Inflection points were around K = 10 for most setups.,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,4,Figure 2: Average volume estimates ℓ({B ck )}) over x(i) ∈ DC2 across SBI benchmarks.,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,table,5,Table 2: Coverage was assessed over 128 i.i.d. test samples and average objective optima over 10 i.i.d. test samples,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,6,"Figure 3: Suboptimality of the approximate representative points ∆(Ξ, Ξ)",false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,7,Figure 3 demonstrates the suboptimality of Ξ b decreases with increasing samples. Of note is that this convergence is,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,8,Figure 4: Solutions for the RTFP under the Box (left) and CPO (right) uncertainty regions.,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,9,Figure 5: Two RPs for C(x) for travel time prediction (left) and the extents of their Voronoi cells (right).,false
+paper/Patel et al 2024 - Conformal Contextual Robust Optimization.pdf,figure,10,Figure 6: Precipitation maps (left) are converted to edge weights (right) as per Equation 19. Solving the shortest paths,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,1,Figure 1: Illustration of robust optimization (RO) and distributionally robust optimization (DRO) (here,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,2,Figure 2: Performance under different prediction and quantile regression models in PTC-B. The results,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,3,Figure 3: Value of better prediction Figure 4: Sample efficiency,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,table,4,Table 1: Average VaR and coverage on shortest path problems under different risk level settings. The,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,table,5,"Table 1. The Ellipsoid method does not utilize the covariates information, so although it has a coverage",false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,6,"Figure 5 shows the performance of different algorithms when d increases (d = 1, 4, and 16), and the plot",false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,7,Figure 5: Comparison in performance deterioration with increasing dimensions,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,8,Figure 6: Box plot of scaled VaR on shortest path problems under different risk level settings,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,table,9,Table 2 associated with Figure 7 displays the comparison results under varying risk levels and demon-,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,table,10,Table 2: Average VaR and coverage on fractional knapsack problems under different risk level settings.,false
+paper/Sun et al 2024 - Predict-then-Calibrate.pdf,figure,11,Figure 7: Box plot of scaled VaR on knapsack problems under different risk level settings,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,1,Figure 1 clarifies the transition from data prepro­,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,2,Figure 1. The proposed model.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,3,Table 1. Description of independent variables used in this study.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,4,Figure 2. Schematic illustrating the variables used in this study.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,5,Figure 3. Box plot of research variables.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,6,Table 2. Number of samples in fully paid and failed classes.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,7,Figure 4. Scaling of studied characteristics. well-liked technique for balancing out imbalanced,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,8,Figure 5. Data distribution plot for charged-off and fully,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,9,"Table 3. Summary of data partitioning of the proposed Loan A’s NPV will be $1,200 and Loan B’s NPV will be",false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,10,Table 4. Comparison results of models.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,figure,11,Figure 6. The features of importance from random forest model.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,12,"Table 5. The computational results of the CNN, LSTM, and",false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,13,Table 7. The results of logistic regression. Table 8. Confusion matrix.,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,table,14,Table 10. Return and risk by NSGA-II. Table 12. Comparing the performance of two investment,false
+paper/Torkian Bamdad Sarfaraz 2025 - AI OR Investment Decisions in Digital Lending.pdf,truncation_note,15,5 additional figure/table captions omitted from this compact index.,true
+paper/Zhao et al 2026 - Conformal Robust Optimization and Satisficing.pdf,table,1,Table 1: CRO performance comparison. 100 CRO-CRS Mapping,false
+paper/Zhao et al 2026 - Conformal Robust Optimization and Satisficing.pdf,figure,2,Figure 1: (a) Parameter mapping between CRS target,false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,1,"Figure 1: Cumulative average error Ēj for three scenarios alongside the shrinking interval (α + (1 − α)/j, α +",false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,2,Figure 2: Selective classification results on Imagenet. The left panel shows the choices of thresholds,false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,3,Figure 3: FDR control results in polyp segmentation. The top left and bottom left panels show,false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,4,Figure 3 shows empirical results from the FDR segmentation task with n = 500. Over 1000 bootstrap,false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,5,Figure 4: IOU control results in polyp segmentation. The left and middle panels show histograms of,false
+supplement/Angelopoulos et al 2026 - Conformal Risk Control for Non-Monotonic Losses.pdf,figure,6,"Figure 5: Results of multigroup debiasing on COMPAS dataset. Each row is a group, and the",false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,1,Figure 1: Illustration for the grid-approximated F-CROMS with Y ⊆ R2 . The red dots,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,2,Table 1: Comparison of computational cost in terms of number of model selection and,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,3,Table 2: The evaluation metrics and running time (seconds) with the 95% asymptotic,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,4,Table 2 presents the evaluation metrics of the compared methods along with their,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,5,Figure 2: The evaluation metrics with confidence intervals under the classification task.,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,6,Table 3 reports the evaluation metrics and running time of different methods. Our,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,7,Table 3: The evaluation metrics and running time (seconds) with the 95% asymptotic,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,8,"Figure 3: The average loss, worst-case conditional miscoverage, and worst-case conditional",false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,9,"Figure 4: The group conditional losses when varying sample size n in the classification task,",false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,10,"Figure 5: The average loss, marginal misrobustness, and worst-case conditional misrobustness",false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,figure,11,Figure 6: The group conditional loss on COVID-19 Radiography Database under α = 0.1.,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,12,Table 4: Summary of notations.,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,13,Table 5 and 6 present the performance of the compared methods along with their corre-,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,table,14,Table 5: The evaluation metrics and running time (seconds) on 100 test points with 95%,false
+supplement/Bao et al 2025 - CROMS Optimal Model Selection for Conformalized Robust Optimization.pdf,truncation_note,15,6 additional figure/table captions omitted from this compact index.,true
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,1,Figure 1: Empirical results from a real data set (details will be given in Section 5.2).,false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,2,"Figure 2: Simulation results showing mean prediction interval coverage and width, averaged",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,3,"Table 1: Simulation results showing mean prediction interval coverage and width,",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,4,Figure 3: Electricity data results showing coverage and prediction interval width on the,false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,5,Table 2: Electricity data results showing coverage and prediction interval width on,false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,6,Figure 4: Left map: relative change in the number of votes for the Democratic presidential,false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,7,"Table 3: Election data results showing coverage, averaged over all test counties.",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,8,"Table 3 shows the resulting predictive coverage, averaged over the test set, for",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,9,"Table 4: Simulation results showing mean prediction interval coverage and width,",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,table,10,"Table 5: Simulation results showing mean prediction interval coverage and width,",false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,11,Figure 5: Simulation results showing mean prediction interval coverage and width for split,false
+supplement/Barber Candes Ramdas Tibshirani 2023 - Conformal Prediction Beyond Exchangeability.pdf,figure,12,Figure 6: Simulation results showing mean prediction interval coverage and width for,false
+supplement/Bhattacharyya Barber 2026 - Group-Weighted Conformal Prediction.pdf,figure,1,"Figure 1: [Lei and Candès, 2021]’s WCP coverage guarantee (3) for varying numbers of groups.",false
+supplement/Bhattacharyya Barber 2026 - Group-Weighted Conformal Prediction.pdf,figure,2,"Figure 2: Simulation results for the setting of fixed group sizes, in three regimes for the group",false
+supplement/Bhattacharyya Barber 2026 - Group-Weighted Conformal Prediction.pdf,figure,3,"Figure 3: [Lei and Candès, 2021]’s WCP coverage guarantee (3), compared to the new guarantee",false
+supplement/Bhattacharyya Barber 2026 - Group-Weighted Conformal Prediction.pdf,figure,4,"Figure 4: Marginal coverage of the weighted conformal prediction interval (15), implemented with",false
+supplement/Bhattacharyya Barber 2026 - Group-Weighted Conformal Prediction.pdf,figure,5,"Figure 5: Simulation results for the setting of fixed group sizes, in three regimes for the group sizes",false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,1,TABLE 1: MORTGAGE LOAN SAMPLE,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,2,Table 2 provides the distribution of reported race and ethnicity (Reported) and the distributions,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,3,TABLE 2: DISTRUBUTION OF LOANS BY RACE AND ETHNICITY21,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,4,"Table 3 provides the correlations between reported race and ethnicity and the BISG, surname-",false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,5,TABLE 3: CORRELATIONS BETWEEN PROXY PROBABILITY AND REPORTED RACE AND ETHNICITY,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,6,"Table 4 provides the results of statistical comparisons of the geography-only, surname-only, and",false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,7,TABLE 4: LIKELIHOOD OF ASSIGNMENT OF HIGHER PROXY PROBABILITY FOR GROUP MEMBERSHIP,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,8,TABLE 5: CLASSIFICATION OVER RANGE OF BISG PROXY FOR HISPANIC,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,9,Table 5 makes clear the consequence of applying a threshold rule to the BISG proxy probability,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,10,TABLE 6: DISTRIBUTION OF RACE AND ETHNICITY FOR INDIVIDUALS IN THE U.S. POPULATION WITH THE,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,11,TABLE 7: POPULATION RESIDING IN CALIFORNIA AS A PERCENTAGE OF THE TOTAL U.S. POPULATION,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,table,12,"TABLE 8: SURNAME-ONLY AND BISG PROBABILITIES FOR ""SMITH"" IN CALIFORNIA",false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,figure,13,FIGURE 1: RECEIVER OPERATING CHARACTERISTIC (ROC) CURVES FOR NON-HISPANIC WHITE,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,figure,14,FIGURE 2: RECEIVER OPERATING CHARACTERISTIC (ROC) CURVES FOR NON-HISPANIC BLACK,false
+supplement/CFPB 2014 - Public Information Proxy Race Ethnicity.pdf,truncation_note,15,9 additional figure/table captions omitted from this compact index.,true
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,1,Figure 1: Training pipeline for task-based learning of the solution to the problem (3) with respect to the input,false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,2,Figure 2: Training pipeline for dual task based learning,false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,3,"Figure 3: Comparison of uncertainty set (α = 0.9) coverage for different ψ realizations: (a) [2.5, −0.2]T , (b) [−2.6, 0.5]T ,",false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,table,4,Table 1: Avg. CVaR and marginal coverage for α = 1 − ϵ =,false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,5,Figure 4: Average cumulative distribution of conditional,false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,6,Figure 5: Avg. CVaR of returns across 10 portfolio trajectory simulations. Error bars report 95% CI.,false
+supplement/Chenreddy Delage 2024 - End-to-End Conditional Robust Optimization.pdf,figure,7,"Figure 6: Convergence comparison between 5-steps TRO sij ≥ −(ξ ij )T xi − λ ,",false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,1,Figure 1: Illustration of how proposed methods compare to the standard formulation of conformal prediction.,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,2,Figure 2: Empirical statistical coverage on the iNaturalist dataset across various loss functions. The observed,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,3,Figure 3: Comparisons between different methods for the 1) separable loss case using the sum of penalties in,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,4,Figure 4: Measured impact of base model accuracy on downstream optimization values on all losses considered,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,5,Figure 5: Mean and standard deviation from the predicted softmax score for the true class as a function of,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,6,Table 1: Conditional statistical coverage by set size for the cleaned version of the Fitzpatrick dataset and a,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,7,Table 2: Hyperparameters used to train the classifiers for each dataset. The configurations are identical except,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,8,"Table 3: Details about the datasets we use to calibrate and evaluate the sets. For the iNaturalist dataset, we use",false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,9,Figure 6: Comparison of our methods when we use a Bayesian model as the source of p̂(y|x). The plots show,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,10,Table 4: Comparison of our proposals for the separable loss case against base conformal predictions for dif-,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,figure,11,Figure 7: Comparisons between different methods for the 1) separable loss case using the sum of penalties in,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,12,Table 5: Comparison between different methods for the non-separable loss case across different datasets using,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,13,Table 6: Comparison between different methods for the coverage function loss case across different datasets,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,table,14,Table 7: Comparison between different values of the hyperparameter λ for the proposed Penalized Conformal,false
+supplement/Cortes-Gomez et al 2025 - Utility-Directed Conformal Prediction.pdf,truncation_note,15,8 additional figure/table captions omitted from this compact index.,true
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,1,"Figure 1: Local coverage frequencies for adaptive conformal (blue), a non-adaptive method that holds",false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,2,"Figure 2: Local coverage frequencies for adaptive conformal (blue), a non-adaptive method that holds",false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,3,"Figure 3: Local coverage frequencies of adaptive conformal (blue), a non-adaptive method that holds",false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,4,Figure 4 shows daily open prices for the four stocks considered in Section 2.2.,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,5,Figure 4: Daily open prices for the four stocks considered in Section 2.2.,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,6,Figure 5: Realized trajectories of αt for predicting stock market volatility as outlined in Section 2.2,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,7,Figure 6: Realized trajectories of αt for predicting stock market volatility as outlined in Section 2.2,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,8,Figure 7: Realized trajectory of αt for election night forecasting as outlined in Section 6 using update,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,9,Figure 8: Realized trajectory of αt for election night forecasting as outlined in Section 6 using update,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,10,Figure 9 shows the local coverage level of adaptive and non-adaptive conformal inference for the,false
+supplement/Gibbs Candes 2021 - Adaptive Conformal Inference Under Distribution Shift.pdf,figure,11,"Figure 9: Local coverage frequencies for adaptive conformal (blue), a non-adaptive method that holds",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,1,Figure 1: Predicting with finite-sample guarantees: our conditionally valid pipeline vs. split conformal prediction.,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,2,"Figure 2: Comparison of split conformal prediction (blue, left-most panel) and the randomized implementation of",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,3,"Figure 2 illustrates the coverage guarantee on a simulated dataset. Here, x is univariate and we have",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,4,Figure 3: Marginal calibration-conditional miscoverage (left panel) and length (right panel) of quantile regression,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,5,"Figure 3 shows the improved finite sample coverage of these method. For simplicity, this plot only displays the",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,6,"Figure 4: Comparison of split conformal prediction (blue, left-most panel) and the randomized implementation of our",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,7,"Figure 4 illustrates a simple example of this guarantee on a synthetic dataset. Once again, the covariate",false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,8,Figure 5: Demonstration of the unrandomized implementation of our shift-agnostic method on a simulated dataset,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,9,Figure 6: Evaluation of the computational efficiency of our prediction set construction. The left panel displays the,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,10,Figure 6 displays the computational efficiency of this sensitivity analysis method on a 2020 MacBook,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,11,Figure 7: Empirical miscoverage achieved by split conformal inference (blue) and the unrandomized version of our,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,12,Figure 7 shows the empirical miscoverages obtained by our algorithm and split conformal prediction under,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,13,Figure 8: Empirical miscoverage achieved by split conformal prediction (blue) and the unrandomized version of our,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,figure,14,Figure 9: Estimated coverages for re-weightings of the data according to a Gaussian kernel centered at each of,false
+supplement/Gibbs Cherian Candes 2025 - Conformal Prediction with Conditional Guarantees.pdf,truncation_note,15,8 additional figure/table captions omitted from this compact index.,true
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,figure,1,Figure 1: Conformal bands (blue) and localized conformal bands (red) using regression score (dashed) and quantile,false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,2,Table 1: Example 4.1. Coverage and length comparison for CR and LCR (auto-tuned) across four simulation setups.,false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,3,"Table 2: Example 4.1. Comparisons of coverage, percent of infinite PI, ave.PI and ave.PI0 for different tuning",false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,figure,4,"Figure 2: Example 4.1. Confidence bands constructed using CR, LCR with different tuning parameter values for h",false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,5,"Table 3: Example 4.2. Empirical Coverage for different procedures across different simulation settings, with a targeted",false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,6,Table 4: Example 4.2. Average lengths of PIs for different procedures across four different simulation settings.,false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,7,Table 3 and 4 show the results of average coverage and average length of PI in the four simulation settings.,false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,8,"Table 5: Example 4.3. Empirical Coverage for different procedures, with a targeted level at α = 0.95. Column names",false
+supplement/Guan 2023 - Localized Conformal Prediction.pdf,table,9,Table 6: Example 4.3. The upper half shows the average length using samples with finite PIs for the given procedure.,false
+supplement/Jonkers et al 2024 - Conformal Predictive Systems Under Covariate Shift.pdf,table,1,Table 1: Empirical distribution of nonconformity scores (δa denotes a point mass at a).,false
+supplement/Jonkers et al 2024 - Conformal Predictive Systems Under Covariate Shift.pdf,figure,2,"Figure 1: Empirical coverage of 80% prediction intervals from (W)SCPS, computed using",false
+supplement/Jonkers et al 2024 - Conformal Predictive Systems Under Covariate Shift.pdf,figure,3,"Figure 2: Empirical CRPS of (W)SCPS, computed using 1000 different experiment trials",false
+supplement/Jonkers et al 2024 - Conformal Predictive Systems Under Covariate Shift.pdf,figure,4,Figure 3: Post-hoc Friedman-Nemenyi test for CRPS.,false
+supplement/Jonkers et al 2024 - Conformal Predictive Systems Under Covariate Shift.pdf,figure,5,"Figure 4: Distribution of p-values of SCPS under IID model (blue), covariate shift (orange),",false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,figure,1,"Figure 1: RAC pipeline, an interface between prediction and action for high stakes applications.",false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,figure,2,"Figure 2: Left: Illustration of how the functions θ and a are computed for a given x ∈ X and t ∈ [0, 1].",false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,figure,3,Figure 3: Results from two experiments. (a) Average realized max-min value as a function of α. (b),false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,table,4,"Table 1: Utility matrix for the four-class chest X-ray task. Rows denote true conditions, columns",false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,table,5,Table 2: Utility matrix for the MovieLens recommendation task.,false
+supplement/Kiyani et al 2025 - Decision Theoretic Foundations for Conformal Prediction.pdf,table,6,Table 3: Utility matrix for the four-class chest X-ray task.,false
+supplement/Lekeufack et al 2023 - Conformal Decision Theory.pdf,figure,1,Fig. 1: Robot planner using a conformal controller on the Stanford Drone Dataset [1]. The future trajectories of humans are predicted,false
+supplement/Lekeufack et al 2023 - Conformal Decision Theory.pdf,figure,2,Fig. 3: Stanford Drone Dataset: Qualitative Results. Visualization of interaction over time (left to right). (Top) With,false
+supplement/Lekeufack et al 2023 - Conformal Decision Theory.pdf,figure,3,Fig. 5: Manufacturing Assembly Line Robot: Quantitative Results. (Left) Illustrative example: Robot must adjust the,false
+supplement/Lekeufack et al 2023 - Conformal Decision Theory.pdf,figure,4,Fig. 6: Stock Trading: Quantitative Results. All results predictive model is actually good. Buy-and-hold also has,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,figure,1,Figure 1: Classic and conformal IO pipelines.,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,figure,2,Figure 2: Illustration of Example 1. The gray areas are the feasible region X (u). The black arrows,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,table,3,Table 1: Performance profile of classic and conformal IO in Example 1.,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,figure,4,Figure 3: Empirical coverage achieved by the learned uncertainty set (error bar = range).,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,figure,5,Figure 4: Performance profile of classic (blue) and conformal IO (green).,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,table,6,Table 2: Average (std) computational time of classic and conformal IO in seconds.,false
+supplement/Lin Delage Chan 2024 - Conformal Inverse Optimization.pdf,figure,7,Figure 5: Percentage reduction in AOG and POG when using the conformal IO vs classic IO.,false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,1,Figure 1: Illustration of the proposed robust algorithm for multi-source conformal prediction. Each θb represented by a,false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,2,"Figure 2: A: Marginal coverage, B: Prediction interval width, C: Conditional coverage, and D: Weights for our proposed",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,3,Figure 3 displays the prediction intervals for hospi- semiparametric efficiency theory and federated learning for,false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,4,Figure 3: Each panel represents the prediction intervals for hospital LOS for a randomly selected individual following a,false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,5,Figure 4: Boxplots of prediction interval widths,false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,6,"Table 1: nk = 300, homogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,7,"Table 2: nk = 1000, homogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,8,"Table 3: nk = 3000, homogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,9,"Figure 5: Boxplots of coverage probability, under homogeneous covariate distributions",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,10,"Figure 6: Boxplots of prediction interval width, under homogeneous covariate distributions",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,11,"Table 4: nk = 300, weakly heterogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,12,"Table 5: nk = 1000, weakly heterogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,table,13,"Table 6: nk = 3000, weakly heterogeneous covariate distribution",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,figure,14,"Figure 7: Boxplots of coverage probability, under weakly heterogeneous covariate distributions",false
+supplement/Liu Levis Normand Han 2024 - Multi-Source Conformal Inference Under Distribution Shift.pdf,truncation_note,15,10 additional figure/table captions omitted from this compact index.,true
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,table,1,"Table 1 reports the performance metrics. Due to space limitations, the full results for control-based",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,table,2,Table 1: Quantitative Comparison on the AXP Dataset. Performance metrics for UP-OCP versus,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,3,"Figure 1: Pareto frontiers for average prediction set size on the AXP Dataset, for 50 target miscoverage",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,4,Figure 1 illustrates that UP-OCP (red) empirically achieves the best Pareto trade-off. UP-OCP consis-,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,table,5,"Table 1. We observed this at all target levels, making the mean set size infinite.",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,6,Figure 2: Realized vs. target coverage.,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,7,Figure 3: Pareto frontiers on the synthetic sinusoid. Optimal performance is the bottom-left corner,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,8,"Figure 4: Plot of the realized marginal coverage against the average prediction set size, averaged over",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,9,Figure 5: Observed nonconformity scores for AAPL stock returns.,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,10,Figure 6: UP-OCP vs. DtACI for forecasting AXP stock return.,false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,11,"Figure 7: As in Figure 6, UP-OCP vs. KT.",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,12,"Figure 8: As in Figure 6, UP-OCP vs. SFOGD (lr=25).",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,13,"Figure 9: As in Figure 6, UP-OCP vs. P Ctrl (lr=0.1).",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,figure,14,"Figure 10: As in Figure 6, UP-OCP vs. PI Ctrl (lr=0.1).",false
+supplement/Liu et al 2026 - Online Conformal Prediction via Universal Portfolio Algorithms.pdf,truncation_note,15,63 additional figure/table captions omitted from this compact index.,true
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,1,Figure 1: Decision-making under uncertainty involves both predictive and prescriptive analytics. In,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,2,Figure 2: An illustrative numerical example with a knapsack problem with two items to exemplify,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,3,"Figure 3: In decision-focused learning, the neural network model is trained to minimize the task loss",false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,4,Figure 4: An overview of gradient-based DFL methodologies categorized into four classes.,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,5,"Figure 4 presents key characteristics of these four methodology classes, highlighting the types of",false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,table,6,Table 1: A concise overview of gradient modeling techniques in key DFL techniques that use gradient-,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,table,7,Table 2: Brief overview of the test problems considered for experimental evaluation. The objective,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,table,8,Table 3: The range of hyperparameters for hyperparameter tuning by grid search.,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,9,Figure 5: Comparative evaluations on the synthetic shortest path problem with noise-halfwidth,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,10,Figure 6: Comparative evaluations on the synthetic portfolio optimization problem with noise mag-,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,11,Figure 7: Comparative evaluations on the Warcraft shortest path problem instances. The boxplots,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,12,Figure 8: Comparative evaluations on the energy-cost aware scheduling problem instances. This,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,13,Figure 9: Comparative evaluations on the knapsack problem instances. This boxplot shows the,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,figure,14,Figure 10: Comparative evaluations on the diverse bipartite matching problem instances. This,false
+supplement/Mandi et al 2024 - Decision-Focused Learning Survey.pdf,truncation_note,15,13 additional figure/table captions omitted from this compact index.,true
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,1,Table 1: Portfolio Mean Return,false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,2,Table 2: Portfolio Covariance Matrix,false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,3,Table 3: Optimal Portfolio with the Minimum Variance Approach,false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,4,Table 4: VaR and CVaR obtained with the Minimum Variance Approach,false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,5,"Table 5: Portfolio, VaR, and CVaR from Min CVaR Approach: Monte Carlo Sim-",false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,6,"Table 6: The Portfolio, VaR, and CVaR from Min CVaR Approach: Simulations",false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,7,"Table 7: NIKKEI Portfolio, reproduced from Mauser and Rosen (1999).",false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,figure,8,"Figure 1: Distribution of losses for the NIKKEI portfolio with best normal approximation,",false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,9,"Table 8: Best Hedge, Corresponding VaR and CVaR with Minimum CVaR Approach:",false
+supplement/Rockafellar Uryasev 2000 - Optimization of Conditional Value-at-Risk.pdf,table,10,Table 9: Initial Positions and Best Hedge with Minimum CVaR Approach: Simul-,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,1,"Figure 1: Visualization of the pinball loss function in (6), where z = y − ŷ.",false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,2,Figure 2: Prediction intervals on simulated heteroscedastic data with outliers (see Figure 7 for a full,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,table,3,"Table 1 summarizes our 2,200 experiments, showing the average performance across all the datasets",false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,table,4,"Table 1: Length and coverage of prediction intervals (α = 0.1) constructed by various methods,",false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,5,Figure 4 shows the results for: blog feedback (blog_data) [41]; physicochemical properties of,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,6,"Figure 3: Average length (left) and coverage (right) of prediction intervals (α = 0.1), averaged over",false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,7,Figure 4: Refer to the caption of Figure 3 for details.,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,8,Figure 5: Refer to the caption of Figure 3 for details.,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,9,Figure 6: Refer to the caption of Figure 3 for details.,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,10,Figure 7: Full range scatter plot of the test data used in the synthetic simulation of Figure 2.,false
+supplement/Romano Patterson Candes 2019 - Conformalized Quantile Regression.pdf,figure,11,"Figure 8: Prediction intervals on simulated data constructed by locally adaptive conformal prediction,",false
+supplement/Schutte et al 2024 - Robust Losses for Decision-Focused Learning.pdf,figure,1,Figure 1: Visualization of the empirical regret loss in DFL (left) and the robust losses in comparison (predictive pipeline is equal). The robust,false
+supplement/Schutte et al 2024 - Robust Losses for Decision-Focused Learning.pdf,figure,2,Figure 2: Observed coefficients c (profit) per feature value z (temperature) and optimal linear predictors ĉ = fθ∗ (z) according to different loss,false
+supplement/Schutte et al 2024 - Robust Losses for Decision-Focused Learning.pdf,figure,3,Figure 2 gives an illustrative example in which PFL using Var(min c) ̸= min Var(c) for some random variable c.,false
+supplement/Schutte et al 2024 - Robust Losses for Decision-Focused Learning.pdf,figure,4,Figure 3: Test set mean normalized empirical regret in % (y-axes) on 3 experimental problems with different noise (ϵ̄) and training size (t),false
+supplement/Schutte et al 2024 - Robust Losses for Decision-Focused Learning.pdf,table,5,Table 1: Test set mean normalized empirical regret in % (standard deviation) on 3 experimental problems with different noise (ϵ̄) and training,false
+supplement/Tibshirani et al 2019 - Conformal Prediction Under Covariate Shift.pdf,figure,1,"Figure 1: Empirical coverages of conformal prediction intervals, computed using 5000 different random splits",false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,1,Figure 1: Prediction sets with uniform coverage need to balance the coverage across multiple distributions. (a),false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,2,"Figure 2: Performance of MDCP and baselines in the classification Linear experiments, where the bars represent",false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,3,Figure 3 presents the results in the Nonlinear settings. While single-source calibration severely under-,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,4,Figure 3: Performance of MDCP and baselines in the classification Nonlinear experiments. The x-axis is the setting,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,5,Figure 4: Performance of MDCP and baselines in the classification Temperature experiments. The x-axis is the,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,6,Figure 5: Evaluation with regression Linear suites; details are otherwise the same as Figure 2.,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,7,Figure 6: Evaluation with regression Nonlinear suites; details are otherwise the same as in Figure 3.,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,8,Figure 7: Evaluation with regression Temperature suites; details are otherwise the same as in Figure 4.,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,9,"Figure 8: Performance of MDCP, Baseline-agg, and Baseline-src-k with each source region on the FMoW",false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,10,Figure 9: Results of MDCP and baselines in the PovertyMap dataset.,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,11,Figure 10: Results of MDCP and baselines in the MEPS dataset evaluation across three panels and two sensitive,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,12,Figure 10 reports the performance of the competing methods. The single-source baseline trained and,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,13,"Figure 11: Evaluation on the classification Linear suites, where MDCP with data-driven γ is labeled as “MDCP",false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,figure,14,Figure 12: Evaluation on the classification Nonlinear suites. Experimental settings are identical to Figure 3. The,false
+supplement/Yang Jin 2026 - Multi-Distribution Robust Conformal Prediction.pdf,truncation_note,15,12 additional figure/table captions omitted from this compact index.,true
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,figure,1,Figure 1: Results for the tumor image segmentation problem (Section 5.1) across different FNR,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,figure,2,Figure 2: Results from the battery storage problem (Section 5.2) across different CVaR quantile levels,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,table,3,Table 1: Sensitivity of task loss and tail risk to relative changes in hyperparameter t on the,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,figure,4,Figure 3: Predictions on 8 randomly selected images from the test set for the tumor image segmen-,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,table,5,"Table 2: Comparison of cross-entropy loss, false negative rate (FNR), and false positive rate (FPR)",false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,figure,6,Figure 4: Values of the decision scaling factor λ for the battery storage problem (Section 5.2) across,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,figure,7,Figure 5: Comparison of financial tail risk (top) and task loss (bottom) as a function of calibration set,false
+supplement/Yeh et al 2025 - Conformal Risk Training.pdf,table,8,Table 3: Sensitivity of task loss and tail risk to absolute changes in hyperparameter t on the battery,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,1,"Figure 1: Whereas prior “estimate-then-optimize” (ETO, top) approaches separate the model training",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,2,"Figure 1 (bottom) illustrates the key parts of our framework to answer these questions. First, we use a",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,3,"Figure 2: Consider a robust portfolio optimization problem with 2 assets, where y ∈ R2 is a random vector of",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,4,Figure 3: Task loss performance (mean ±1 stddev across 10 runs) for the battery storage problem with no,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,5,"Figure 3 (top) compares task loss performance for different uncertainty levels (α ∈ {.01, .05, .1, .2}) and the",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,6,Figure 4: Coverage (mean ±1 stddev across 10 runs) for the battery storage problem with no distribution,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,table,7,"Table A1: Time per epoch of pretraining, optimization, and end-to-end training, measured in seconds",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,table,8,Table A1 counterintuitively reports lower E2E training times for Ellipse and PICNN than optimization times.,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,9,"Figure A1: Similar to Figure 3, except that the value plotted is the VaR1−α [task loss] (mean ±1 stddev",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,10,"Figure A2: Similar to Figure 3, except that the value plotted is the CVaR1−α [task loss] (mean ±1 stddev",false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,table,11,Table A2: Task loss performance (mean ± 1 stddev across 10 runs) for the portfolio optimization problem.,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,table,12,Table A3: Coverage (mean ±1 stddev across 10 runs) for the portfolio optimization problem. Our E2E,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,13,Figure A3: This figure plots the density of the conditional distribution P(y | x) for x = −1.167 0.024,false
+supplement/Yeh et al 2026 - End-to-End Conformal Calibration for Optimization Under Uncertainty.pdf,figure,14,Figure A4: Visualization of data from the battery storage problem under distribution shift. The train/val,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,1,Figure 1 Our proposed framework (CREDO) compared against conventional predict-then-optimize (PTO).,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,2,Figure 2 Example of the CREDO procedure applied to a linear programming problem.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,3,Figure 3 Comparison of risk estimation using a point model and generative models (𝐾 = 3 and 𝐾 = 4) in CREDO.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,4,Figure 4 Illustration of settings I and II.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,table,5,"Table 1 summarizes the results. For the first three baselines (SA, LR, NN), we observe low estimation",false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,table,6,Table 1 Evaluated metrics for different risk estimation methods across different optimization settings.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,table,7,Table 2 presents the comparison results. It can be seen that CREDO achieves the smallest ranking metric,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,table,8,Table 2 Evaluated empirical confidence ranking (↓) for different methods across different optimization settings.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,9,Figure 5 Comparison of CREDO performance for three different calibrated radii.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,10,"Figure 5 presents the evaluation results comparing different types of calibrated radii ( 𝑅 𝑝 , 𝑅𝑒 and 𝑅∞ )",false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,11,Figure 6 Comparison of CREDO performance for four different generative model configurations.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,12,Figure 5 presents the evaluation results comparing different types of calibrated radii. We observe that,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,table,13,Table 3 Evaluated metrics for different optimization procedures solving (13b) across different settings.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,figure,14,Figure 6 presents the comparison results of CREDO risk estimation using different generative models.,false
+supplement/Zhou Orfanoudaki Zhu 2025 - Conformalized Decision Risk Assessment.pdf,truncation_note,15,5 additional figure/table captions omitted from this compact index.,true
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,1,Figure 2. Illustration of the problem setup with a simple robust linear optimization problem. Panel (a) shows the miscoverage-regret,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,2,Figure 3. Validity-accuracy tradeoff curves under four optimization settings. Connected dots trace estimator performance as the number of,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,3,"Figure 4. Miscoverage-regret tradeoff Pareto frontiers. Given some prespecified preference function, there is an optimal tradeoff point",false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,4,Figure 3 presents the evaluation results comparing CREME,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,5,"Figure 3 also provides insights into the finite-sample be- N (µ̂, Σ̂), with µ̂ and Σ̂ estimated from the data. (ii) Em-",false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,table,6,Table 1. Sensitivity analysis of CREME against number of samples n and the robustness level index set size |Λ|.,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,table,7,Table 1 summarizes the experimental results. As n and |Λ|,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,8,"Figure 4 visualizes the evaluated Pareto frontier and tradeoff larger n and |Λ| lead to increased runtime, which peaks",false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,9,Figure 5. An example illustration of a network with three paths considered in our shortest path optimization.,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,10,Figure 6. Validity-accuracy tradeoff curves under four optimization settings. First row: validity versus robustness parameter λ. Second,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,11,Figure 7. Miscoverage–regret tradeoff Pareto frontiers with attained solutions from each model under different preference weights.,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,12,Figure 6 provides a detailed breakdown of the validity–accuracy performance evaluation originally presented in Figure 3,false
+supplement/Zhou Zhu 2025 - Calibrating Decision Robustness via Inverse Conformal Risk Control.pdf,figure,13,"Figure 7 parallels Figure 4 in the main paper, but presents additional trade-off points attained by different methods under",false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,figure,1,Fig. 1. The sorting method in NSGA2.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,table,2,Table 4 shows MSEs of MLPs with different number of neurons and theory and on the following two objectives.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,table,3,Table 5 presents the results of the ﬁtted logistic regression. The Pareto front generated by the proposed algorithm is depicted,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,table,4,Table 7 shows the 10-fold cross validation results. The overall To understand more about what happened in the experimental,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,table,5,Table 3 Logistic regression results.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,figure,6,Fig. 3. Pareto front generated by NSGA2.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,table,7,"Table 9 model for lenders. In this single-objective optimization problem,",false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,figure,8,Fig. 5. Comparison of the risk of the best portfolio of models.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,figure,9,Fig. 4. Comparison of the return of the best portfolio of models.,false
+tesis/Babaei Bamdad 2020 - Multi-Objective Investment Recommendation in P2P Lending.pdf,figure,10,"Fig. 7. The portfolio risk sensitivity to M. dinality constrained portfolio optimisation. Computers & Operations Research,",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,1,Table 1. Relative violation of constraint 372 in PILOT4,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,2,Table 1.1 Data for Example 1.1.1.,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,3,Figure 2.1 Robust solutions to portfolio selection problem from Example 2.3.6. Along,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,4,Table 2.1 Critical noise levels for two instances of the Signal Recovery problem.,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,5,Table 2.2 Experiments with A being near-projector onto the hyperplane {s ∈ R32 : si =,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,6,"Figure 2.2 Graphs of Σ(κ) , κ = 1, 2, 3, 4.",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,7,Table 2.3 Summary of Examples 2.4.6 – 2.4.9 and 2.4.11 – 2.4.13. In the R table for a,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,8,Table 3.1 Performance of various designs. In the table: Opt is the optimal value in,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,9,"Figure 3.1 Nominal, RC and GRC antenna designs. First rows: sample plots of |D(φ)|",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,10,Figure 3.2 “Circle hat” Γk (ABC) and triangle ∆k (ABD).,false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,table,11,"table 3.1, and illustrated in figure 3.1. We see that “immunizing” the design against",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,12,"Figure 4.1 Plots of OptI (²) — OptIII (²) and Opt+ (²). Top to bottom: Opt+ (²),",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,13,"Figure 4.2 Generating function γ11,8 (s) (middle curve) vs. exp{s} (top curve) and max[1+",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,figure,14,"Figure 4.3 Intersection of uncertainty sets, underlying various approximation schemes in",false
+tesis/Ben-Tal El Ghaoui Nemirovski 2009 - Robust Optimization.pdf,truncation_note,15,58 additional figure/table captions omitted from this compact index.,true
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,1,Table 1 shows summary statistics for our sample of originated mortgages across the data merges. The first,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,2,Table 2 shows default rates across different loan products for the sample of applicants by loan approval status,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,3,Table 5 shows results from the estimated models. Our baseline models attain predictive performance that is,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,4,Table 6 shows that 46%-53% of the overall AUC difference is accounted for by the fact that disadvantaged,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,5,"Table 7 shows our second stage estimates, separately for different consumer types. The coefficients can be",false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,6,Table 9 presents a summary of model parameter estimates. We find that mortgage applicants differ substan-,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,7,Table 10 presents results from the two counterfactuals described above and also characterizes efficiency in the,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,figure,8,Figure 1: Receiver Operating Characteristic Curves by Consumer Type,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,figure,9,Figure 2: Plot of VantageScore 3.0 Credit Score and Predicted Default (XGBoost),false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,figure,10,Figure 3: SHAP Values for XGBoost Models by Consumer Type,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,figure,11,Figure 4: AUC and Compositional Differences in Credit Files,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,figure,12,Figure 5: Model Identification,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,13,Table 1: Summary Statistics: Originated Mortgages,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,table,14,Table 2: Summary Statistics: Default Measures,false
+tesis/Blattner Nelson 2021 - How Costly is Noise Data and Disparities in Consumer Credit.pdf,truncation_note,15,8 additional figure/table captions omitted from this compact index.,true
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,1,Table 1: Count of Excluded Records by Reason,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,2,Table 2: Age Groups of Explanatory Census Variables,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,3,Table 3: Sample Summary Statistics,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,4,Figure 1: Incidence of Limited Credit History by Age,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,5,Figure 2: Distribution and Incidence of Limited Credit History by Age,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,6,Figure 3: Distribution and Incidence of Limited Credit History by Race or,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,7,"Figure 4: Coefficient Estimates, Limited Credit History",false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,8,Table 4: Incidence of Performance for Scored and Unscored Consumers,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,9,Table 4 shows the performance measures calculated for the population of,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,table,10,table 7 shows the results for stale unscored.,false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,11,"Figure 5: Coefficient Estimates, Credit Invisible",false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,12,"Figure 6: Coefficient Estimates, Insufficient Unscored",false
+tesis/Brevoort Grimm Kambara 2016 - Credit Invisibles and the Unscored.pdf,figure,13,"Figure 7: Coefficient Estimates, Stale Unscored",false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,1,"Table 1: Model Performance For the image below, select the most appropriate type.",false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,2,Figure 2: Main trial screen shown to participants for Ob-,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,3,Table 2: Accuracy – p-values and Effect Sizes Prediction set,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,4,Table 3: Response Time – p-values and Effect Sizes Prediction Set Size,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,5,"Figure 7: Comparison of ObjectNet results between two models. The ViT-L/14 model achieved 83.3% top-1 accuracy,",false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,6,"Figure 10: Per-class accuracy on ObjectNet of Human-only (control), Model-only (top-1 accuracy), and Human-Model",false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,7,"Table 4: Adoption Rate (%) by Treatment Group not fool humans, making a human-in-the-loop perhaps the",false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,8,Table 5: Dataset Statistics,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,9,Table 6: Hyperparameter Settings and Empirical Coverage,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,table,10,Table 7: Demographics and Performance of Participants,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,11,Figure 11: Consent screen shown to participants at the start of the experiment.,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,12,Figure 12: Main trial screen shown to participants for GoEmotions with conformal set treatment. The correct answer is,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,13,Figure 13: Screens displayed to participants during our experiment using conformal sets on Few-NERD. Other experiments,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,figure,14,Figure 14: Histograms of accuracy observations across three treatments for each task. Vertical lines indicate the mean of,false
+tesis/Cresswell et al 2024 - Conformal Prediction Sets Improve Human Decision Making.pdf,truncation_note,15,5 additional figure/table captions omitted from this compact index.,true
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,1,Figure 1: Effect of label noise on CIFAR-10. Left: distribution of average coverage on,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,2,Figure 2 portrays the marginal coverage and average interval length achieved using,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,3,Figure 2: Results for real-data regression experiment: predicting aesthetic visual,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,4,"Figure 3 illustrates the idea behind Theorem 1, demonstrating that when the noisy score",false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,5,Figure 3: Clean (green) and noisy (red) non-conformity scores under dispersive corruption.,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,6,Figure 4: Clean (green) and noisy (red) class probabilities under dispersive corruption.,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,table,7,Table 1: Summary of coverage bounds for different scores and noise models,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,8,"Figure 5: FNR on MS COCO data set, achieved over noisy (red) and clean (green) test",false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,table,9,Table 2: Summary of coverage bounds for different risk control tasks and different noise,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,10,Figure 6: Effect of label noise on synthetic multi-class classification data. Per-,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,11,Figure 7: Response-independent noise. Performance of conformal prediction intervals,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,12,Figure 8: Dispersive versus contractive noise regression experiment. Performance,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,13,Figure 9: Visualization of the multi-label CIFAR-100N data.,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,figure,14,Figure 10: FNR achieved over noisy (red) and clean (green) test sets of the on CIFAR-100N,false
+tesis/Einbinder et al 2024 - Label Noise Robustness of Conformal Prediction.pdf,truncation_note,15,17 additional figure/table captions omitted from this compact index.,true
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,1,Figure 1 gives an instructive example of possible group-specific effects when borrow-,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,2,Figure 1. Unequal Effects of Better Technology.,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,3,Figure 2 provides an example where unequal effects are generated exclusively by tri-,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,4,Figure 2. Triangulation.,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,5,Figure 3. ROC and Precision-Recall Curves.,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,6,Figure 4. Example of Predicted Default Probabilities Across Models. Figure,false
+tesis/Fuster et al 2022 - Predictably Unequal Effects of Machine Learning on Credit Markets.pdf,figure,7,"Figure 5. Comparison of Predicted Default Probabilities Across Models, by",false
+tesis/Kato 2024 - Conformal Predictive Portfolio Selection.pdf,table,1,Table 1: US stock data,false
+tesis/Kato 2024 - Conformal Predictive Portfolio Selection.pdf,table,2,Table 2: Japanese stock data,false
+tesis/Kato 2024 - Conformal Predictive Portfolio Selection.pdf,figure,3,"Figure 1: Experimental results for US stocks. The y-axis indicates cumulative returns, and",false
+tesis/Kato 2024 - Conformal Predictive Portfolio Selection.pdf,figure,4,"Figure 2: Experimental results for Japanese stocks. The y-axis indicates cumulative returns,",false
+tesis/Kato 2024 - Conformal Predictive Portfolio Selection.pdf,figure,5,Figure 2 presents results for the Japanese market and again confirms the strong per-,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,1,Figure 1: Construction of an integrated database of transactions and credit bureau statistics,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,2,"Figure 2 depicts the relationship between CScore for the months of January of 2005,",false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,3,Figure 2: Relationship between CScore and subsequent default frequency (over the next 6,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,4,"Figure 5: Characteristics of credit-card balances, payments and their relationship to monthly",false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,5,Figure 6: Characteristics of payments of all forms of debt to monthly income and total,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,6,Figure 7: Delinquency rates of customers with high credit-card-payment-to-income ratios.,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,7,Figure 8: Delinquency rates for customers with high credit-card-payment-to-income ratios.,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,8,Figure 9: Delinquency rates for customers experiencing negative income shocks. For each,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,9,Figure 10: A summary of the machine-learning algorithm used to construct the consumer,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,table,10,Table 4 lists the data elements from the three sources discusses in Section 2.1 that were,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,11,Figure 11 compares the machine-learning forecasts of 90-days-or-more delinquencies of the,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,figure,12,"Figure 11: Comparison of December 2008 CScore (x-axis, and where higher values are asso-",false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,table,13,"Table 1: Inflows and outflows into accounts are collected by the Bank. Direction, amount,",false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,table,14,Table 2: Data items extracted from credit bureaus. Not all fields extracted were used because,false
+tesis/Khandani Kim Lo 2010 - Consumer Credit-Risk Models via Machine-Learning Algorithms.pdf,truncation_note,15,16 additional figure/table captions omitted from this compact index.,true

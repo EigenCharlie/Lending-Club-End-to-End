@@ -223,19 +223,19 @@ frontera de future work contamine el claim central del Paper Estrella.
 
 | Paquete | Carpeta | Rol | Regla de uso |
 |---|---|---|---|
-| Core Paper Estrella | `C:/Users/carlos/Documents/Paper_CRPTO/Papers_tesis/` | Referencias principales para CRPTO, CP/RO, SPO+, fairness y fintech credit. | Pueden aparecer en cuerpo, related work o appendix según el manifest. |
-| Shared future work | `C:/Users/carlos/Documents/Paper_CRPTO/Papers_tesis/shared_future_work/` | Online CP, online DFL, conformal risk training y calibración end-to-end. | Citar solo como frontera futura; no cambiar champion ni método actual. |
-| Paper 4 / lab largo plazo | `C:/Users/carlos/Documents/Claude Code/lending-club-risk-project/Paper 4/` | Causalidad, IFRS9, multi-source conformal, differentiable optimization y libros Powell/SDAM. | Usar para Paper 4, appendices o framing; Paper Estrella absorbe solo lo que fortalece CRPTO sin reabrir búsqueda. |
-| Fuentes faltantes o reemplazables | `zhang2018_fair_proxy` pendiente de PDF legible | Fair-lending proxy boundary. | Mantener caveat proxy; conseguir PDF o apoyar la sección en CFPB/FinRegLab si no aparece. |
+| Core Paper CRPTO | `Papers_tesis/paper/` | 21 fuentes principales para CP/CRC/LTT, RO, conformal robust optimization, Predict-then-Calibrate, Lending Club y DFL comparator. | Pueden entrar al cuerpo o appendix CRPTO si sostienen C1--C7. |
+| Supplement / frontier | `Papers_tesis/supplement/` | 28 fuentes sobre source/shift conformal, utility-directed CP, CROMS, tail risk, DFL ampliado y end-to-end conformal calibration. | Citar como appendix o future work; no cambiar champion ni metodo actual. |
+| Tesis / governance | `Papers_tesis/tesis/` | 12 fuentes de crédito, IFRS9, robust optimization, equity/noise, conformal finance y ordinal credit scoring. | Usar para tesis y Paper 4; Paper CRPTO absorbe solo contexto que fortalece el argumento central. |
+| Auditoria 2026-06-06 | `papers_tesis_source_matrix_2026-06-06.csv`, `papers_tesis_figure_caption_index_2026-06-06.csv` y `papers_tesis_curated_visual_sinks_2026-06-06.csv` | Matriz paper-by-paper, captions extraidas y visual sinks curados con destino editorial. | Fuente operativa para decidir promote/append/park/experiment_candidate sin inflar el libro ni reproducir figuras ajenas. |
 
 Source pack hygiene para mantener separadas referencias centrales, future work y laboratorio Paper 4.
 :::
 
-Los dos libros de Powell quedaron correctamente en el paquete Paper 4 porque su
-uso principal es de framing SDAM/sequential analytics. Paper Estrella los usa
-solo para clasificar CRPTO como una política CFA uniperiodo y para nombrar la
-extensión secuencial; no los convierte en un claim DLA ni en evidencia de
-despliegue online.
+La auditoria del `2026-06-06` reemplaza la lectura parcial de mayo: ya no se
+asume una carpeta `shared_future_work`; el split real es `paper`, `supplement` y
+`tesis`. El resultado conserva la regla anterior: fuentes nuevas de robustez
+conformal, utility-directed CP o decision-risk certificates son frontera
+academica, no evidencia de una nueva policy promovida.
 
 ::: {.callout-warning}
 ## What CRPTO Does Not Claim

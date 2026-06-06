@@ -320,13 +320,12 @@ La lectura correcta es:
 
 ## Mapa narrativo del carril GPU
 
-```{mermaid}
-flowchart LR
-    A[Champion vigente<br/>champion_registry.json] --> B[GPU Edge Research]
-    B --> C[Operational acceleration<br/>PD fit, LGD/EAD, IFRS9 MC]
-    B --> D[Research acceleration<br/>UMAP, HDBSCAN, cuGraph]
-    B --> E[Exploratory sidecar<br/>benchmarks clásicos RAPIDS]
-    C --> F[improvement]
-    D --> G[improvement con disclosure]
-    E --> H[potential o not improvement]
-```
+| Nodo | Lectura editorial |
+|---|---|
+| Champion vigente | `champion_registry.json` sigue siendo el source of truth operacional |
+| GPU Edge Research | separa aceleración operacional, aceleración de investigación y sidecars exploratorios |
+| Operational acceleration | PD fit, LGD/EAD e IFRS9 MC pueden justificar `improvement` |
+| Research acceleration | UMAP, HDBSCAN y cuGraph requieren disclosure explícito |
+| Exploratory sidecar | benchmarks clásicos RAPIDS quedan como `potential` o `not improvement` |
+
+: Mapa narrativo del carril GPU {#tbl-gpu-edge-map}
