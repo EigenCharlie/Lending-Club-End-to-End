@@ -13,7 +13,7 @@ page-layout: article
 Ejemplo concreto: un mismo préstamo puede permanecer estable en score puntual, pero cambiar de lectura prudencial cuando su intervalo conformal se ensancha, cuando el trigger SICR incorpora ancho y cuando un escenario severo empuja el ECL total hacia otra zona contable.
 :::
 
-Este paper no se limita a “calcular ECL”. Su identidad está en mostrar que staging, sensibilidad macro y provisión agregada cambian de forma material cuando la incertidumbre entra a la lectura prudencial. Entre escenario `baseline` y `severe`, el ECL agregado sube cerca de `79%`, y el trigger SICR enriquecido con ancho conformal añade alrededor de `\$56.6M` de ECL prudencial.
+Este paper no se limita a “calcular ECL”. Su identidad está en mostrar que staging, sensibilidad macro y provisión agregada cambian de forma material cuando la incertidumbre entra a la lectura prudencial. Entre escenario `baseline` y `severe`, el ECL agregado sube cerca de `70%`, y el trigger SICR enriquecido con ancho conformal añade alrededor de `\$56.6M` de ECL prudencial.
 
 ::: {.callout-note .mini-abstract}
 ## Mini-abstract
