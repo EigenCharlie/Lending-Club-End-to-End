@@ -214,6 +214,6 @@ bien. La razón principal ya no es online; es que IFRS9 contractual, CATE policy
 value y fairness legal necesitan datos o identificación que no se pueden
 inventar con optimización.
 
-El siguiente trabajo con mayor valor no es cambiar el Paper Estrella. Es traer
+El siguiente trabajo con mayor valor no es cambiar el CRPTO/Paper_CRPTO externo. Es traer
 servicing/performance mensual, calibrar macro/default/LGD con datos externos y
 convertir DFL/SPO+ en entrenamiento decision-loss real contra targets LP.

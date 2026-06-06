@@ -47,7 +47,7 @@ Las estimaciones puntuales de probabilidad de default (PD) producen decisiones f
 - **Parte I --- Fundamentos**: conceptos mínimos para leer el resto del proyecto sin convertir la entrada al libro en un curso teórico separado.
 - **Parte II --- Pipeline End-to-End**: desde el dataset crudo hasta la policy de portafolio, IFRS9 y gobernanza.
 - **Parte III --- Insights Factory**: explicabilidad, dataset 360 y análisis secundarios que profundizan la lectura del mismo Lending Club.
-- **Parte IV --- Papers de Investigación**: el dossier CRPTO/Paper Estrella y los papers satélite que documentan extensiones, comparadores y agenda aplicada sin reabrir el champion.
+- **Parte IV --- Papers de Investigación**: el dossier CRPTO/Paper_CRPTO y los papers satélite que documentan extensiones, comparadores y agenda aplicada sin reabrir el champion.
 - **Parte V --- Puente Académico**: conexión con tesis, contribuciones y agenda de investigación.
 - **Apéndices**: evidencia visual, RAPIDS, catálogo de artefactos, configuración y mapa del companion.
 

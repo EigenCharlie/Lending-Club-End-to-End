@@ -72,7 +72,7 @@ defendidas cumplen source-month, policy-month y ancho.
 
 ### Outcome aceptado en el cierre 2026-05-17
 
-El hallazgo F05 se exporta a Paper Estrella como limitacion, no como claim de
+El hallazgo F05 se exporta a CRPTO/Paper_CRPTO externo como limitacion, no como claim de
 despliegue. El resumen v470 conserva que el proxy interno encontro un metodo
 online defendible (`v9_tail_guard_dti_q5_only_m0.940_d0.140_t0.040`) y que los
 items v10 pasaron internamente, pero tambien conserva que no hay external

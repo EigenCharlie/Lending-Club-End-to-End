@@ -47,7 +47,7 @@ un segundo corte v2 que avanza fases 5 a 10 como prototipos controlados:
 | Bloque | Estado | Artifact principal | Caveat |
 |---|---|---|---|
 | Memoria viva | implementado | `reports/paper_material/paper4/notes/` | las notas explican decisiones; los claims requieren artifacts |
-| Source manifest | implementado | `paper4_table0_source_manifest.csv` | consume Paper Estrella, no lo reemplaza |
+| Source manifest | implementado | `paper4_table0_source_manifest.csv` | consume CRPTO/Paper_CRPTO externo, no lo reemplaza |
 | SDAM schema | implementado | `paper4_sequential_decision_schema.json` | es contrato conceptual, no prueba optimalidad dinámica |
 | Policy class registry | implementado | `paper4_policy_class_registry.csv` | mezcla policies congeladas y lanes planeadas |
 | IFRS9/ECL overlay | implementado como diagnóstico | `paper4_table1_policy_ecl_scenario.csv` | escala sensibilidad ECL; no es selector full loan-level |
@@ -205,7 +205,7 @@ Plan de runs futuros.
 | Usar CVaR/OCE sin reoptimizar | reportar tail risk no significa que el solver lo controle | separar diagnóstico A12 de `tail_risk_aware_search_results` |
 | Fairness sin atributos defendibles | proxies no equivalen a protected attributes | declarar alcance proxy y buscar datos/partner si se quiere constraint formal |
 | Mezclar leaderboards | AUC, ECL, retorno, CATE y fairness no son comparables directamente | usar familias métricas y selector explícito |
-| Reabrir champion sin protocolo | cambiaría la historia oficial del Paper Estrella | exigir run tag, DVC/MLflow sync y promotion JSON nuevo |
+| Reabrir champion sin protocolo | cambiaría la historia oficial del CRPTO/Paper_CRPTO externo | exigir run tag, DVC/MLflow sync y promotion JSON nuevo |
 
 Riesgos de integración de Paper 4.
 :::
@@ -228,7 +228,7 @@ Paper 4 necesitaría sus propios tests documentales:
 - `test_paper4_causal_claim_requires_identification_report`
 - `test_paper4_temporal_claim_requires_coverage_regret`
 
-La filosofía es la misma del Paper Estrella: si una frase aparece en Quarto,
+La filosofía es la misma del CRPTO/Paper_CRPTO externo: si una frase aparece en Quarto,
 debe tener artefacto o debe declararse como propuesta/future work.
 
 ### Qué se puede hacer primero
@@ -243,7 +243,7 @@ La secuencia más práctica sería:
 4. **Regenerar el registry de Insights Factory** con
    `uv run python scripts/papers/build_paper4_insight_registry.py`.
 5. **Construir policy × ECL × scenario** para las policies de la región robusta
-   del Paper Estrella.
+   del CRPTO/Paper_CRPTO externo.
 6. **Calcular net return after ECL** sin reoptimizar.
 7. **Extender A12/A13 a policy grid**: OCE/CVaR y satisficing por policy.
 8. **Evaluar por sample paths comunes** para obtener diferencias pareadas.
@@ -258,7 +258,7 @@ Eso ya sería útil porque podría revelar una de tres cosas:
 - la región robusta completa es estable también bajo criterios IFRS9/tail.
 
 Cualquiera de los tres resultados fortalecería el proyecto sin comprometer el
-Paper Estrella actual.
+CRPTO/Paper_CRPTO externo actual.
 
 ### Paquete de decisión MVP
 
@@ -299,7 +299,7 @@ El resultado ideal de Paper 4 no es una tabla con un número más alto. Es un
 paquete que permita decir:
 
 > Tenemos una política crediticia robusta que conserva la trazabilidad conformal
-> del Paper Estrella, internaliza provisión IFRS9, controla cola de pérdida,
+> del CRPTO/Paper_CRPTO externo, internaliza provisión IFRS9, controla cola de pérdida,
 > cumple umbrales de comité, se evalúa a través del tiempo y deja una ruta clara
 > para incorporar causalidad cuando la identificación sea defendible.
 

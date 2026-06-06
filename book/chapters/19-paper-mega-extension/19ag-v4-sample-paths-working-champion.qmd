@@ -55,7 +55,7 @@ mismos shocks por préstamo, escenario y path, de modo que la diferencia contra
 
 ```{python}
 #| label: fig-paper4-v4-common-sample-path-ci
-#| fig-cap: "Common sample paths v4: intervalo pareado baseline contra Paper Estrella congelado."
+#| fig-cap: "Common sample paths v4: intervalo pareado baseline contra CRPTO/Paper_CRPTO externo congelado."
 
 Image(filename=str(FIG_DIR / "paper4_v4_common_sample_path_ci.png"))
 ```
@@ -80,13 +80,13 @@ _cols(
 ).head(25)
 ```
 
-V4 evalúa 102 policies en sample paths: 100 del grid local, el Paper Estrella
+V4 evalúa 102 policies en sample paths: 100 del grid local, el CRPTO/Paper_CRPTO externo
 congelado y el challenger bruto previo. Esto corrige una limitación importante:
 ya no hay `NaN` de probabilidad simplemente porque una policy quedó fuera del
 replay.
 
 El resultado cambia la lectura del challenger bruto. Algunas policies que no
-eran top bruto tienen probabilidad muy alta de superar el Paper Estrella bajo
+eran top bruto tienen probabilidad muy alta de superar el CRPTO/Paper_CRPTO externo bajo
 paths baseline, pero varias fallan MDCP o quedan bloqueadas por online global.
 Por eso sample paths es evidencia necesaria, no suficiente.
 
@@ -148,7 +148,7 @@ policy-month online, MDCP, fairness proxy y sample paths. No se promueve porque
 
 Esta distinción protege la arquitectura:
 
-- Paper Estrella queda congelado para tesis/journal;
+- CRPTO/Paper_CRPTO externo queda congelado para tesis/journal;
 - Paper 4 puede iterar con un working champion;
 - ninguna salida de Paper 4 reemplaza el champion oficial sin una decisión
   explícita futura.
@@ -165,7 +165,7 @@ claims
 ## Interpretación
 
 Los 11 pendientes quedan implementados como laboratorio vivo. El avance real no
-es que "ganamos" al Paper Estrella; el avance es que ahora sabemos en qué
+es que "ganamos" al CRPTO/Paper_CRPTO externo; el avance es que ahora sabemos en qué
 dimensión gana o pierde cada candidate:
 
 - bruto: hay candidates con delta positivo claro;

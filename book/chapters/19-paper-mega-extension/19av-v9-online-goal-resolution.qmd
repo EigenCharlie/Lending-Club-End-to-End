@@ -45,7 +45,7 @@ El `/goal` de v9 fue deliberadamente estrecho:
 
 ```text
 Improve Paper 4 online conformal efficiency until source-month >= 0.80,
-policy-month >= 0.90, and avg_width <= 0.95 without touching Paper Estrella.
+policy-month >= 0.90, and avg_width <= 0.95 without touching CRPTO/Paper_CRPTO externo.
 ```
 
 ## Resultado
@@ -136,7 +136,7 @@ como una decisión secuencial:
 - `W_{t+1}`: observar default/no default y cobertura realizada.
 - `C_t`: respetar gates de gobernanza: source-month, policy-month y ancho.
 
-La mejora no viene de tocar el champion del Paper Estrella. Viene de separar
+La mejora no viene de tocar el champion del CRPTO/Paper_CRPTO externo. Viene de separar
 mejor dónde se necesita protección y dónde el intervalo puede contraerse.
 
 ## Caveats

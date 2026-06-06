@@ -211,7 +211,7 @@ V4 convierte "thresholds razonables" en protocolo explícito:
 ## Caveats
 
 IFRS9 v4 no reemplaza un ledger mensual real. CVaR v4 no usa el universo
-completo. El working champion no toca el Paper Estrella y no debe citarse como
+completo. El working champion no toca el CRPTO/Paper_CRPTO externo y no debe citarse como
 champion de tesis o journal.
 
 ## Next Step

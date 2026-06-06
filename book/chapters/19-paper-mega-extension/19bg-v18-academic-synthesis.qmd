@@ -39,7 +39,7 @@ un sistema con:
 
 El working champion de Paper 4 queda como `paper1_economic_champion`, con una
 lectura precisa: es el champion del laboratorio dinámico v18, no una nueva
-promoción y no una modificación del Paper Estrella. De hecho, el JSON de
+promoción y no una modificación del CRPTO/Paper_CRPTO externo. De hecho, el JSON de
 promoción final sigue protegido y `paper4_final_promotion.json` no existe.
 
 La ola deja 8 contribuciones clasificadas:
@@ -56,7 +56,7 @@ La ola deja 8 contribuciones clasificadas:
 ## Interpretación
 
 Paper 4 ya tiene una tesis académica mucho más clara: no es "agregar todo" al
-Paper Estrella, sino estudiar qué políticas crediticias sobreviven cuando se les
+CRPTO/Paper_CRPTO externo, sino estudiar qué políticas crediticias sobreviven cuando se les
 exige retorno, incertidumbre conformal, control de cola, evidencia dinámica,
 auditabilidad y límites de claim.
 

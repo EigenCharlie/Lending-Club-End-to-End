@@ -355,7 +355,7 @@ Esto se implementa reutilizando directamente `scripts/run_ifrs9_sensitivity.py`.
 
 #### Optimización robusta
 
-Los intervalos QCP sobre LGD alimentan la optimización robusta de portafolio (Paper Estrella), propagando la incertidumbre cuántica a decisiones de asignación:
+Los intervalos QCP sobre LGD alimentan la optimización robusta de portafolio (CRPTO/Paper_CRPTO), propagando la incertidumbre cuántica a decisiones de asignación:
 
 $$
 \max_{\mathbf{w}} \; \mathbf{r}^T \mathbf{w} \quad \text{s.t.} \quad \text{LGD}_i \in [\text{LGD}_{i,\text{low}}^{\text{QCP}}, \; \text{LGD}_{i,\text{high}}^{\text{QCP}}] \quad \forall i

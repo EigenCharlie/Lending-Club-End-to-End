@@ -64,7 +64,7 @@ best_audit = online_audit[online_audit["gate_pass_80"].astype(bool)].sort_values
 
 Esta página consolida lo que queda pendiente después de v6. No reemplaza las
 páginas técnicas; funciona como tablero operativo para decidir qué atacar en la
-siguiente iteración. La regla sigue intacta: Paper Estrella permanece congelado
+siguiente iteración. La regla sigue intacta: CRPTO/Paper_CRPTO externo permanece congelado
 y Paper 4 no crea promoción final.
 
 ## Estado Consolidado

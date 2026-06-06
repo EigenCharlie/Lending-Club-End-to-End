@@ -14,7 +14,7 @@ Hay tres razones:
 
 | Paper | Claim central | Qué hace el GPU paper distinto |
 |---|---|---|
-| Paper Estrella | incertidumbre conformal dentro del optimizador | GPU paper mide cuándo acelerar y escalar ese tipo de workloads |
+| CRPTO/Paper_CRPTO | incertidumbre conformal dentro del optimizador | GPU paper mide cuándo acelerar y escalar ese tipo de workloads |
 | Paper IFRS9 | provisión y staging con incertidumbre explícita | GPU paper usa IFRS9 Monte Carlo como caso fuerte de aceleración con fidelidad |
 | Paper Mondrian | cobertura útil por grupo y tiempo | GPU paper no compite en garantías; compite en arquitectura aplicada y régimen de escala |
 

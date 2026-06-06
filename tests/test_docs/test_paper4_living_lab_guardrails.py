@@ -13,6 +13,7 @@ NOTE_DIR = PAPER4_ROOT / "notes"
 SCRIPT_DIR = REPO_ROOT / "scripts" / "papers"
 BOOK_DIR = REPO_ROOT / "book"
 EXPORT_MEMO = REPO_ROOT / "docs" / "research" / "paper4_to_estrella_export_2026-05-17.md"
+RETIREMENT_MEMO = REPO_ROOT / "docs/research/crpto_retirement_and_paper4_role_2026-06-06.md"
 DEEP_CLEANUP_MANIFEST = TABLE_DIR / "paper4_deep_cleanup_manifest_2026-05-18.csv"
 
 EXPECTED_CHAMPION_LABEL = "bound_aware_276k_economic_champion"
@@ -63,10 +64,7 @@ def test_paper4_book_surface_inputs_exist() -> None:
         text = path.read_text()
         csv_literals.update(re.findall(r'_csv\("([^"]*paper4_[A-Za-z0-9_-]+\.csv)"\)', text))
 
-    bounded_export_surfaces = [
-        BOOK_DIR / "chapters" / "14-paper-estrella" / "14h-journal-appendix-robustness.qmd",
-        EXPORT_MEMO,
-    ]
+    bounded_export_surfaces = [EXPORT_MEMO, RETIREMENT_MEMO]
     for path in bounded_export_surfaces:
         csv_literals.update(re.findall(r"paper4_[A-Za-z0-9_-]+\.csv", path.read_text()))
 

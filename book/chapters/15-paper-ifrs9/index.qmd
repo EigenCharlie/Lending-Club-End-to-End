@@ -30,9 +30,9 @@ La figura siguiente resume el flujo metodológico del `Paper 2`, desde la constr
 
 Este diagrama cuenta la historia central del paper: la incertidumbre no se queda en el modelo de PD, sino que se propaga por todo el carril prudencial. La gracia del flujo es que conecta bandas conformales, trigger SICR, escenarios macro y cálculo de ECL dentro de un mismo objeto analítico, permitiendo mostrar cómo una misma cartera puede cambiar de lectura contable y de sensibilidad regulatoria aun sin un cambio drástico en el score puntual.
 
-## Cómo se diferencia de la tesis completa y del Paper Estrella
+## Cómo se diferencia de la tesis completa y del CRPTO/Paper_CRPTO
 
-La tesis completa documenta el sistema entero: modelado, conformal, optimización, IFRS9, GPU, agenda de papers y arquitectura de implementación. El `Paper 2`, en cambio, recorta una pregunta prudencial muy específica: cómo cambia la lectura de provisión y deterioro cuando la incertidumbre entra explícitamente al pipeline IFRS9. Y frente al `Paper Estrella`, la diferencia también es clara: el `Paper Estrella` usa la incertidumbre para mover una decisión de optimización riesgo-retorno; el `Paper 2` usa esa incertidumbre para mover staging, provisión, sensibilidad macro y gobernanza contable.
+La tesis completa documenta el sistema entero: modelado, conformal, optimización, IFRS9, GPU, agenda de papers y arquitectura de implementación. El `Paper 2`, en cambio, recorta una pregunta prudencial muy específica: cómo cambia la lectura de provisión y deterioro cuando la incertidumbre entra explícitamente al pipeline IFRS9. Y frente al `CRPTO/Paper_CRPTO`, la diferencia también es clara: el `CRPTO/Paper_CRPTO` usa la incertidumbre para mover una decisión de optimización riesgo-retorno; el `Paper 2` usa esa incertidumbre para mover staging, provisión, sensibilidad macro y gobernanza contable.
 
 ## Cómo leer esta parte
 

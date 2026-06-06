@@ -51,7 +51,7 @@ Este selector es diagnóstico. No crea champion y no crea promotion JSON.
 ## No promotion
 
 La salida `promote_candidate_for_future_run` significa "vale la pena abrir un
-experimento exacto", no "reemplaza al champion". El Paper Estrella sigue
+experimento exacto", no "reemplaza al champion". El CRPTO/Paper_CRPTO externo sigue
 congelado.
 :::
 

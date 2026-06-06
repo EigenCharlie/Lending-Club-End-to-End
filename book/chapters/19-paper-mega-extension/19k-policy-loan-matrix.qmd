@@ -43,14 +43,14 @@ status = _json("paper4_extended_lanes_status.json")
 ## Pregunta {#sec-paper4-policy-loan-question}
 
 El MVP inicial tenía una limitación clara: la evidencia loan-level exacta solo
-existía para el champion del Paper Estrella. Esta página responde el siguiente
+existía para el champion del CRPTO/Paper_CRPTO externo. Esta página responde el siguiente
 paso:
 
 > ¿Podemos construir una matriz `policy_id × loan_id` que permita evaluar IFRS9,
 > replay mensual, fairness, MDCP y CATE por policy, sin tocar el champion?
 
 La respuesta es sí, con una salvedad importante: el champion usa el funded set
-exacto del Paper Estrella; las demás policies usan una reconstrucción
+exacto del CRPTO/Paper_CRPTO externo; las demás policies usan una reconstrucción
 diagnóstica `policy-implied greedy proxy`.
 
 ::: {.callout-warning}

@@ -46,7 +46,7 @@ Las extensiones mas naturales del Paper 2 se orientan en cuatro direcciones. Pri
 
 La extension mas ambiciosa queda separada como **Paper 4**: una ruta futura
 `IFRS9 + CATE + CRPTO` donde el Paper 2 funcionaria como brazo prudencial, el
-Paper Estrella como motor robusto de optimizacion y CATE como capa causal de
+CRPTO/Paper_CRPTO como motor robusto de optimizacion y CATE como capa causal de
 decision. Esa version no pertenece al alcance actual del Paper 2, pero si deja
 una direccion clara para journal extension, paper futuro o capitulo avanzado de
 tesis.

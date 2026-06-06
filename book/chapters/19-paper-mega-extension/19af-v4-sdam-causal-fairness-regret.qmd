@@ -167,7 +167,7 @@ _cols(
 La frontera v4 formaliza el intercambio que veníamos describiendo: retorno y
 regret no son el único eje; auditabilidad combina cobertura online, MDCP,
 fairness proxy y penalización por regret. Esto permite comparar CRPTO local,
-SPO+, CVaR policies e híbridos sin cambiar el Paper Estrella.
+SPO+, CVaR policies e híbridos sin cambiar el CRPTO/Paper_CRPTO externo.
 
 ## Interpretación
 

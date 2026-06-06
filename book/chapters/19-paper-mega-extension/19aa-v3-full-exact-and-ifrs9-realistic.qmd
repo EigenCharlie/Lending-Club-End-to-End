@@ -57,11 +57,11 @@ Esto cambia el estado de Paper 4: la comparación entre policies ya no depende
 de reconstrucciones greedy para el conjunto principal.
 
 ::: {.callout-important}
-## No cambia el Paper Estrella
+## No cambia el CRPTO/Paper_CRPTO externo
 
 V3 descubre candidates interesantes, incluso uno con retorno bruto ligeramente
 mayor que el champion congelado. Eso no crea promoción ni reemplaza el champion
-del Paper Estrella. Paper 4 sigue siendo laboratorio de investigación con gates
+del CRPTO/Paper_CRPTO externo. Paper 4 sigue siendo laboratorio de investigación con gates
 propios.
 :::
 
@@ -110,7 +110,7 @@ posterior.
 La lectura correcta no es "nuevo champion". La lectura correcta es:
 
 - el universo exacto ya puede abrir challengers reales;
-- el Paper Estrella no cambia sin su propio protocolo de promoción;
+- el CRPTO/Paper_CRPTO externo no cambia sin su propio protocolo de promoción;
 - el selector Paper 4 debe decidir si el retorno bruto sobrevive IFRS9,
   online, MDCP, fairness proxy y cola.
 
@@ -211,7 +211,7 @@ incertidumbre positiva intenta moderar.
 
 El candidate queda como `gross-return exact challenger`. No se promueve porque
 el margen es pequeño, la señal depende de pocos préstamos marginales, el gate de
-online CP sigue fallando por peor policy-month/source-month y el Paper Estrella
+online CP sigue fallando por peor policy-month/source-month y el CRPTO/Paper_CRPTO externo
 tiene champion congelado por protocolo. Sí abre una búsqueda local sobre
 `uncertainty_aversion` alrededor de `0.00` a `0.10`.
 :::

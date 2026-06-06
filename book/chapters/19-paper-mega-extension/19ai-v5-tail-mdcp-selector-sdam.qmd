@@ -40,7 +40,7 @@ dla = _csv("paper4_v5_dla_endogenous_policy_trace.csv")
 
 Esta página responde el segundo bloque de v5: si CVaR/OCE, MDCP-aware search,
 gobernanza de selector y SDAM dinámico ya pueden sostener un candidato interno
-de Paper 4 sin tocar el Paper Estrella.
+de Paper 4 sin tocar el CRPTO/Paper_CRPTO externo.
 
 La respuesta corta es: sí pueden sostener revisión, no promoción final.
 

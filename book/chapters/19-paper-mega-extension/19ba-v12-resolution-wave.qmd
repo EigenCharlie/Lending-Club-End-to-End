@@ -60,7 +60,7 @@ claims = _csv("paper4_v12_claim_artifact_matrix.csv")
 
 V12 pregunta si Paper 4 puede pasar de evidencia proxy a una ola de trabajo más
 rigurosa, aceptando que el **working champion de Paper 4** puede cambiar sin
-tocar el Paper Estrella. La respuesta corta es sí: v12 selecciona un working
+tocar el CRPTO/Paper_CRPTO externo. La respuesta corta es sí: v12 selecciona un working
 champion interno, crea una frontera CVaR/OCE con caps MDCP dentro del LP, sube
 DLA a fitted-value rollout iterativo, entrena un surrogate SPO-style por regret
 temporal, calibra sample paths comunes y mantiene bloqueados los claims que no

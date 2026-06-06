@@ -40,7 +40,7 @@ el challenger.
 
 V22 deja 10 blockers clasificados:
 
-- `resolved`: dynamic engine v2, champion decomposition, Paper Estrella freeze;
+- `resolved`: dynamic engine v2, champion decomposition, CRPTO/Paper_CRPTO externo freeze;
 - `near_resolved_with_plateau`: sample paths v2, DLA endógeno, CVaR full-universe;
 - `dependency_blocked`: SPO/DFL formal diferenciable;
 - `data_blocked`: IFRS9 contractual;

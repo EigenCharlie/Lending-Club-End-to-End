@@ -16,7 +16,7 @@ La agenda futura del proyecto no consiste en abrir veinte frentes nuevos, sino e
 
 Las extensiones de corto plazo se focalizan en endurecer los claims existentes y cerrar las brechas identificadas en los tres papers.
 
-**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension es computacionalmente trivial (solo requiere actualizar un cuantil running) y tendria impacto directo en los tres papers: estabilidad de intervalos para el Paper Estrella, cobertura temporal para el Paper 3, y robustez ante crisis para el Paper 2.
+**Recalibracion conformal online.** La limitacion mas inmediata del pipeline actual es que los intervalos conformales se calibran sobre un conjunto fijo (2017). En un entorno productivo, el distribution shift temporal degradaria la cobertura progresivamente. La implementacion de *Adaptive Conformal Inference* (ACI) [@gibbs2021aci] permitiria ajustar los cuantiles de no-conformidad con cada nueva observacion, manteniendo la garantia de cobertura sin necesidad de re-entrenar el modelo base. Esta extension es computacionalmente trivial (solo requiere actualizar un cuantil running) y tendria impacto directo en los tres papers: estabilidad de intervalos para el CRPTO/Paper_CRPTO, cobertura temporal para el Paper 3, y robustez ante crisis para el Paper 2.
 
 **Interpretacion analitica por cohortes en PD.** Una conclusion importante del cierre mas reciente es que no todo warning temporal en PD debe traducirse automaticamente en “probar otro calibrador”. El proyecto ya ejecuto una lane `shadow` de recalibracion ligera y la cerro con `keep_current_calibrator`, porque los sidecars simples empeoraron la combinacion de gap, persistencia temporal y ECE. Eso cambia la naturaleza del trabajo futuro: la prioridad inmediata ya no es otra busqueda de remapeo post-hoc, sino una lectura mas fina de cohortes, quarters y slices para explicar mejor de donde proviene la persistencia residual y si esta responde a drift de mix, tails o segmentos temporalmente inestables.
 
@@ -67,7 +67,7 @@ Las extensiones de largo plazo son mas especulativas pero potencialmente transfo
 
 ### Direcciones metodologicas adicionales
 
-1. formalizacion completa del vinculo `alpha <-> robustez` en el Paper Estrella;
+1. formalizacion completa del vinculo `alpha <-> robustez` en el CRPTO/Paper_CRPTO;
 2. extension de Mondrian hacia garantias mas cercanas a validez condicional, utilizando tecnicas como [@gibbs2024] y [@plassier2024];
 3. integracion de forecasting temporal y riesgos competitivos dentro de una policy IFRS9 mas fuerte;
 4. comparadores adicionales con decision-focused learning y CRO contextual [@patel2024; @chenreddy2024].
@@ -75,9 +75,9 @@ Las extensiones de largo plazo son mas especulativas pero potencialmente transfo
 | Item editorial / research | Paper natural | Capitulo Quarto mas cercano hoy |
 |---|---|---|
 | benchmark de variantes conformales | Paper 3 | @sec-mondrian |
-| uncertainty sets y trade-off alpha-robustez | Paper Estrella | @sec-robust-portfolio |
+| uncertainty sets y trade-off alpha-robustez | CRPTO/Paper_CRPTO | @sec-robust-portfolio |
 | TS intervals y banda ECL | Paper 2 | @sec-ecl-calculation y @sec-ts-ecl |
-| A/B y regret economico | Paper Estrella | @sec-ab-testing |
+| A/B y regret economico | CRPTO/Paper_CRPTO | @sec-ab-testing |
 | gobernanza y warnings metodologicos | transversal | @sec-mrm |
 
 : Tabla estable de continuidad entre backlog editorial, papers y libro {#tbl-paper-chapter-bridge}

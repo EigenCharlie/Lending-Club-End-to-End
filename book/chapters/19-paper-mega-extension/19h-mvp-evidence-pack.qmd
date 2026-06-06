@@ -11,7 +11,7 @@ minimo que permite defender que Paper 4 existe como laboratorio reproducible.
 | finding_id | finding | status | quarto_page |
 | --- | --- | --- | --- |
 | F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
-| F02 | Paper Estrella remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F02 | CRPTO/Paper_CRPTO remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
@@ -45,7 +45,7 @@ minimo que permite defender que Paper 4 existe como laboratorio reproducible.
 | `paper4_status_taxonomy_2026-05-18.csv` | Taxonomia canonica de estados para evitar drift entre paginas |
 | `paper4_lab4_all_lane_summary_2026-05-18.csv` | Sintesis de lanes Lab 4 como append, park o context-only |
 | `angelopoulos_conformal_intake_2026-05-19.csv` | Intake Angelopoulos/Bates/Barber para foundation, CRC gates, label-noise y online/drift future work |
-| `angelopoulos_conformal_bound_intake_2026-05-19.md` | Memo de frontera: que fortalece Paper Estrella y que queda como ruta Paper 4 |
+| `angelopoulos_conformal_bound_intake_2026-05-19.md` | Memo de frontera: que fortalece CRPTO/Paper_CRPTO y que queda como ruta Paper 4 |
 | `paper4_frontier_metric_governance_decision_2026-05-19.csv` | FICO proxy vs champion calibrado: AUC/Gini/Somers' D, Brier, ECE, rank shift y slices observables |
 | `paper4_strong_appendix_register_2026-05-19.csv` | Registro del appendix fuerte recomendado para Paper 4 |
 | `paper4_future_experiment_gate_register_2026-05-19.csv` | Gate register para FICO, CRC/LTT directo, non-monotonic CRC y online/drift sin reabrir loops |

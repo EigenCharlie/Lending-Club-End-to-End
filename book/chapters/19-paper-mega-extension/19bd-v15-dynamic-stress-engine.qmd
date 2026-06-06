@@ -51,13 +51,13 @@ champion de laboratorio es `paper1_economic_champion`, con esta frontera de
 claim:
 
 - es champion **solo de Paper 4**;
-- no modifica el Paper Estrella;
+- no modifica el CRPTO/Paper_CRPTO externo;
 - no crea `paper4_final_promotion.json`;
 - no autoriza claims IFRS9 contractuales, CATE policy value ni fairness legal.
 
 ## Interpretación
 
-El hallazgo no significa que el Paper Estrella haya cambiado. Significa algo más
+El hallazgo no significa que el CRPTO/Paper_CRPTO externo haya cambiado. Significa algo más
 sutil: cuando el champion congelado se reinterpreta como proceso mensual dentro
 de Paper 4, sigue siendo competitivo bajo wealth, downside, pérdidas realizadas
 y budget usado. Esta es una buena noticia para el proyecto, porque conecta el

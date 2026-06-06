@@ -175,7 +175,7 @@ _cols(
 memo
 ```
 
-El selector no cambia el Paper Estrella. En Paper 4 sí puede crear candidatos
+El selector no cambia el CRPTO/Paper_CRPTO externo. En Paper 4 sí puede crear candidatos
 de trabajo, pero la promoción final sigue deshabilitada por diseño. Si online
 o IFRS9 fallan, el selector debe decir `review` o `park`, aunque el retorno sea
 atractivo.

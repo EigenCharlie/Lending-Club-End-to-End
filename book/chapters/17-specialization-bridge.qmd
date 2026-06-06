@@ -44,7 +44,7 @@ La maestría no necesita rehacer el stack base. Lo que cambia es el nivel de amb
 
 | Línea | Herencia desde especialización | Expansión en maestría |
 |---|---|---|
-| Predict-then-optimize | PD calibrada + CP + portafolio | Paper Estrella |
+| Predict-then-optimize | PD calibrada + CP + portafolio | CRPTO/Paper_CRPTO |
 | IFRS9 con incertidumbre | ECL, escenarios y SICR | Paper 2 |
 | Cobertura por subgrupo | Mondrian y backtesting | Paper 3 |
 

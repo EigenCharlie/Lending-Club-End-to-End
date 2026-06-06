@@ -135,7 +135,7 @@ gobernado por robustez pareada y claims auditables.
 
 ## Claim No Permitido
 
-No hay promoción final, no se toca Paper Estrella y no se hacen claims
+No hay promoción final, no se toca CRPTO/Paper_CRPTO externo y no se hacen claims
 contractuales, legales, causales fuertes ni exact-optimality sin evidencia.
 
 ## Qué Queda Pendiente

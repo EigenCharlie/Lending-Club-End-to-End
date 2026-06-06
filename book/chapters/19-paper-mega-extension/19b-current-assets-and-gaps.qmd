@@ -8,7 +8,7 @@ page-layout: article
 | finding_id | finding | status | quarto_page |
 | --- | --- | --- | --- |
 | F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
-| F02 | Paper Estrella remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F02 | CRPTO/Paper_CRPTO remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
@@ -27,7 +27,7 @@ page-layout: article
 | claim | allowed | boundary | current_quarto_page |
 | --- | --- | --- | --- |
 | Paper 4 defines a governed sequential decision analytics lab. | True | Architecture and artifact-backed lab claim only. | index.qmd |
-| Paper Estrella official champion remains retained after v38. | True | No new promotion unless future promotion protocol passes. | 19ca-v38-final-synthesis.qmd |
+| CRPTO/Paper_CRPTO official champion remains retained after v38. | True | No new promotion unless future promotion protocol passes. | 19ca-v38-final-synthesis.qmd |
 | Dynamic stress replay compares policies as monthly processes. | True | Internal replay and common sample paths, not forecast validity. | 19t-multi-period-solver.qmd |
 | CVaR/OCE is a serious tail-risk challenger. | True | Tail-governance challenger, not economic champion and not exact full-universe optimum. | 19i-regret-auditability-frontier.qmd |
 | Online conformal coverage is fully deployable under all temporal/source holdouts. | False | Nominal gate passed historically, strict holdouts remain fragile. | 19n-online-mdcp-fairness.qmd |

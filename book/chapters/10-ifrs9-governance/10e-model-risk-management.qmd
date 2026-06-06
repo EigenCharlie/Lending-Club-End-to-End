@@ -262,7 +262,7 @@ Esta semántica importa porque evita dos errores narrativos muy comunes:
 El libro debe distinguir dos capas de gobernanza que coexisten sin contradecirse:
 
 - **base regulatoria/operativa**: el champion monotónico confirmatorio sigue siendo el upstream canónico del proyecto;
-- **overlay final paper/thesis**: la combinación `conformal reopen winner + portfolio economic champion`, promovida para cerrar el argumento exacto del Paper Estrella sin mantener dos cierres oficiales.
+- **overlay final paper/thesis**: la combinación `conformal reopen winner + portfolio economic champion`, promovida para cerrar el argumento exacto del CRPTO/Paper_CRPTO sin mantener dos cierres oficiales.
 
 ```{python}
 #| label: tbl-mrm-final-overlay

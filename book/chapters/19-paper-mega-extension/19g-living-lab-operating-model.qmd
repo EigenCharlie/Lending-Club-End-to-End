@@ -5,7 +5,7 @@ page-layout: article
 
 ## Paper 4 como side project de investigación {#sec-paper4-living-lab}
 
-Paper 4 no debe competir con el Paper Estrella. El Paper Estrella es el frente
+Paper 4 no debe competir con el CRPTO/Paper_CRPTO externo. El CRPTO/Paper_CRPTO externo es el frente
 serio de publicación, journal y tesis de maestría. Paper 4 cumple otra función:
 ser un laboratorio vivo donde se puede aprender, experimentar, equivocarse,
 iterar con Codex y construir una arquitectura enorme sin la presión de recortar
@@ -31,7 +31,7 @@ la estructura final.
 
 | Principio | Implicación práctica |
 |---|---|
-| Paper Estrella primero | no se toca ni contamina el champion principal sin protocolo explícito |
+| CRPTO/Paper_CRPTO externo primero | no se toca ni contamina el champion principal sin protocolo explícito |
 | Paper 4 no publication-first | no se reduce prematuramente a una contribución pequeña |
 | Todo experimento deja rastro | hipótesis, setup, run, resultado, interpretación y decisión |
 | Los fracasos importan | un resultado malo puede cerrar una ruta o enseñar un gate nuevo |

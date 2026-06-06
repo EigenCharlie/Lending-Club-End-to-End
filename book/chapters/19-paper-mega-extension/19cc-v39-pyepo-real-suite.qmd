@@ -11,7 +11,7 @@ diferenciables contra la decision de portafolio para SPO+, RFYL, PFYL-Mul,
 pairwise LTR y CaVE. CRPTO se mantiene como comparador no entrenado, auditable
 y conservador.
 
-La regla editorial se mantiene: Paper Estrella usa PyEPO solo para reproducir
+La regla editorial se mantiene: CRPTO/Paper_CRPTO usa PyEPO solo para reproducir
 el anexo SPO+ y sostener la frase "SPO+ gana regret; CRPTO gana
 garantia/auditabilidad". Paper 4 absorbe el laboratorio completo.
 
@@ -97,7 +97,7 @@ PyEPO define las perdidas y el entrenamiento; Gurobi entrega la rama binaria de
 CaVE; y el resto de losses usa un oracle top-k exacto porque la restriccion del
 problema es seleccionar exactamente `budget` loans [@pyepo2026; @gurobi2026].
 La rama CaVE se reporta como metodo de Paper 4, no como comparador principal de
-Paper Estrella [@tang2024cave].
+CRPTO/Paper_CRPTO [@tang2024cave].
 
 ```{python}
 #| label: tbl-p4-pyepo-execution-ledger
@@ -371,8 +371,8 @@ grade_tail.rename(
 
 ## Uso en los papers
 
-Para **Paper Estrella**, usar solo el paired run:
-`paper_estrella_pyepo137_wls_topk_paired_20260528`. El numero actualizado es
+Para **CRPTO/Paper_CRPTO**, usar solo el paired run:
+`crpto_external_pyepo137_wls_topk_paired_20260528`. El numero actualizado es
 `48.51%` de mejora de SPO+ frente a two-stage, con Wilcoxon pareado
 `p = 3.80e-163` sobre 1,000 observaciones.
 
@@ -412,7 +412,7 @@ uv run python scripts/summarize_pyepo_followups.py
 
 Artefactos congelados:
 
-- `reports/paper_material/paper_estrella/pyepo/paper_estrella_pyepo137_wls_topk_paired_20260528/`
+- `reports/paper_material/crpto_external/pyepo/crpto_external_pyepo137_wls_topk_paired_20260528/`
 - `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_full_20260528/`
 - `reports/paper_material/paper4/status/paper4_pyepo137_wls_topk_temporal_20260528/`
 - `reports/paper_material/paper4/status/paper4_pyepo137_wls_pfyl_risk_only_full_20260528/`

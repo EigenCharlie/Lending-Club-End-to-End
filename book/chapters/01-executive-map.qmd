@@ -354,7 +354,7 @@ pd.DataFrame(list(controls.items()), columns=["Señal", "Valor"])
 | Cómo funcionan los intervalos conformal | Capítulo 23: Predicción Conformal |
 | Cómo se optimiza el portafolio | Capítulo 34: Optimización de Portafolio |
 | Cómo se calculan las provisiones IFRS9 | Capítulo 40: IFRS9 y Gobernanza |
-| El paper de Predict-then-Optimize | Capítulo 62: Paper Estrella |
+| El paper de Predict-then-Optimize | Capítulo 62: CRPTO/Paper_CRPTO |
 | El paper de IFRS9 End-to-End | Capítulo 68: Paper IFRS9 |
 | El paper de Mondrian Conformal | Capítulo 73: Paper Mondrian |
 | Benchmark GPU / RAPIDS | Apéndice B |

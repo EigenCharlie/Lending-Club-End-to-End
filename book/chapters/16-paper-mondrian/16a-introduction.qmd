@@ -36,7 +36,7 @@ El paper realiza tres contribuciones formales:
 
 1. **Evaluacion empirica de cobertura por grupo**: documenta por que la lectura por grades A--G es necesaria para detectar heterogeneidad de cobertura en una ventana out-of-time de Lending Club (2018--2020), proporcionando evidencia aplicada de por que Mondrian es pertinente en credito minorista.
 2. **Comparacion sistematica de variantes**: compara conformal global (*split conformal*), `grade Mondrian` como baseline interpretable y `score_decile_mondrian` como variante final promovida, cuantificando la mejora en cobertura minima por grupo y el costo en anchura promedio, e incorporando la comparacion con CQR (Conformalized Quantile Regression) [@romano2019].
-3. **Marco de monitoreo temporal**: propone un protocolo de monitoreo que detecta violaciones de cobertura por subgrupo a lo largo del tiempo, generando alertas operativas para recalibracion, lo cual conecta directamente con las necesidades downstream de IFRS 9 (@sec-p2-intro) y optimizacion robusta (@sec-estrella-intro).
+3. **Marco de monitoreo temporal**: propone un protocolo de monitoreo que detecta violaciones de cobertura por subgrupo a lo largo del tiempo, generando alertas operativas para recalibracion, lo cual conecta directamente con las necesidades downstream de IFRS 9 (@sec-p2-intro) y optimizacion robusta (@sec`Paper_CRPTO`).
 
 ::: {.callout-tip}
 ## Relevancia practica para gestores de riesgo
@@ -45,4 +45,4 @@ Para un Chief Risk Officer, la cobertura global del modelo es una metrica necesa
 
 ### Posicionamiento
 
-El paper no compite por inventar una nueva variante conformal. Su fuerza esta en la evaluacion aplicada, reproducible y conectada con downstream tasks del mismo proyecto. Los resultados alimentan directamente los intervalos usados en el Paper Estrella (@sec-estrella-intro) para optimizacion robusta y en el Paper 2 (@sec-p2-intro) para provisiones IFRS 9, lo cual confiere al Paper 3 un rol de fundamento metodologico dentro de la agenda de publicacion.
+El paper no compite por inventar una nueva variante conformal. Su fuerza esta en la evaluacion aplicada, reproducible y conectada con downstream tasks del mismo proyecto. Los resultados alimentan directamente los intervalos usados en el CRPTO/Paper_CRPTO (@sec`Paper_CRPTO`) para optimizacion robusta y en el Paper 2 (@sec-p2-intro) para provisiones IFRS 9, lo cual confiere al Paper 3 un rol de fundamento metodologico dentro de la agenda de publicacion.

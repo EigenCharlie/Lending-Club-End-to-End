@@ -55,7 +55,7 @@ V10 empuja tres carriles que ya no son solo diagnóstico:
   de decisión, manteniendo constraints CRPTO/MDCP/IFRS9 proxy como parte del
   score o de los gates.
 
-Ninguno de estos carriles modifica Paper Estrella. Son laboratorio Paper 4.
+Ninguno de estos carriles modifica CRPTO/Paper_CRPTO externo. Son laboratorio Paper 4.
 
 ## Status v10
 

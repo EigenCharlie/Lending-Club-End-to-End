@@ -3,7 +3,7 @@ title: "Optimización de Portafolio"
 page-layout: article
 close_takeaway: "La optimización robusta ya no termina en el champion económico viejo. El cierre final muestra una región robusta completa sobre 276,869 préstamos OOT; el champion económico oficial (`0.175 / blended / 0.45 / aversion 0.10`) pasa `alpha=0.01`, mantiene `V` bajo (`0.0365`) y maximiza retorno realizado (~$170K) dentro de la región."
 close_connects: "El portafolio champion alimenta directamente el cálculo ECL de IFRS9 (@sec-ecl-calculation), el análisis de escenarios (@sec-scenario-analysis) y la simulación A/B retroactiva (@sec-ab-testing). El ajuste CATE conecta con inferencia causal (@sec-causal-inference)."
-close_reuse: "La frontera de robustez y la región robusta final son resultados centrales del Paper Estrella (@sec-estrella-intro). La comparación entre champion económico, comparator theorem-tight y comparator balanceado reaparece como lectura metodológica del trade-off retorno-vs-tightness."
+close_reuse: "La frontera de robustez y la región robusta final son resultados centrales del CRPTO/Paper_CRPTO (@sec`Paper_CRPTO`). La comparación entre champion económico, comparator theorem-tight y comparator balanceado reaparece como lectura metodológica del trade-off retorno-vs-tightness."
 ---
 
 Este capitulo transforma las predicciones calibradas de PD y los intervalos de incertidumbre conformal en decisiones concretas de asignacion de capital. El pipeline completo sigue una arquitectura *predict-then-optimize* donde cada componente alimenta al siguiente:

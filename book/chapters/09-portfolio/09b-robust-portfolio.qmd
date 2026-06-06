@@ -100,7 +100,7 @@ pd.DataFrame(rows)
 ## Precio de la robustez como prima de defendibilidad
 En el cierre final del proyecto el *Price of Robustness* ya no debe leerse solo como sacrificio de retorno, sino como prima pagada por una policy que pasa `alpha = 0.01` exacto y mantiene un bound empírico fuerte sin renunciar al mayor retorno dentro de la región robusta validada. El champion económico oficial maximiza valor realizado bajo esa restricción exacta; el comparator theorem-tight sigue disponible para mostrar el extremo más conservador del trade-off.
 
-La lectura práctica cambia: la robustez deja de ser un “costo opcional” y pasa a ser el mecanismo que sincroniza score, incertidumbre y funded set con el claim teórico del Paper Estrella.
+La lectura práctica cambia: la robustez deja de ser un “costo opcional” y pasa a ser el mecanismo que sincroniza score, incertidumbre y funded set con el claim teórico del CRPTO/Paper_CRPTO.
 :::
 
 ### Analisis de escenarios

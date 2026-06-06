@@ -32,18 +32,18 @@ Leído de forma simple, el flujo del paper hace algo muy concreto: toma varias v
 
 ## Cómo se diferencia y cómo complementa a los otros papers
 
-La diferencia con el `Paper Estrella` es que aquí la incertidumbre no entra todavía al optimizador para mover una decisión riesgo-retorno; aquí primero se valida **qué tipo de cobertura merece confianza operativa** antes de usarla aguas abajo. La diferencia con el `Paper 2` es que este draft no está centrado en provisión, staging ni escenarios IFRS9, sino en la calidad metodológica de la cobertura cuando se mira por subgrupos y tiempo. Y frente a la tesis completa, el `Paper 3` funciona como una pieza fundacional: no intenta cubrir todo el sistema, sino cerrar la pregunta de validez útil que luego sostiene mejor tanto al carril de optimización como al prudencial. En ese sentido, complementa los otros papers y la tesis porque fija el estándar de confianza que permite que las demás aplicaciones de incertidumbre no descansen solo en cobertura global promedio.
+La diferencia con el `CRPTO/Paper_CRPTO` es que aquí la incertidumbre no entra todavía al optimizador para mover una decisión riesgo-retorno; aquí primero se valida **qué tipo de cobertura merece confianza operativa** antes de usarla aguas abajo. La diferencia con el `Paper 2` es que este draft no está centrado en provisión, staging ni escenarios IFRS9, sino en la calidad metodológica de la cobertura cuando se mira por subgrupos y tiempo. Y frente a la tesis completa, el `Paper 3` funciona como una pieza fundacional: no intenta cubrir todo el sistema, sino cerrar la pregunta de validez útil que luego sostiene mejor tanto al carril de optimización como al prudencial. En ese sentido, complementa los otros papers y la tesis porque fija el estándar de confianza que permite que las demás aplicaciones de incertidumbre no descansen solo en cobertura global promedio.
 
 ## Mapa de complementariedad
 
 | Componente | Relación principal |
 |---|---|
 | Paper 3 | valida qué cobertura merece promoción antes de entrar en decisiones robustas o prudenciales |
-| Paper Estrella | usa incertidumbre para optimización y trade-off riesgo-retorno |
+| CRPTO/Paper_CRPTO | usa incertidumbre para optimización y trade-off riesgo-retorno |
 | Paper 2 | usa incertidumbre para staging, escenarios y provisión IFRS9 |
 | Tesis completa | integra decisión robusta, lectura prudencial y estándar de validez útil |
 
-: Cómo se posiciona el Paper 3 frente al Paper Estrella, el Paper 2 y la tesis completa {#tbl-paper-3-complement}
+: Cómo se posiciona el Paper 3 frente al CRPTO/Paper_CRPTO, el Paper 2 y la tesis completa {#tbl-paper-3-complement}
 
 ## Cómo leer esta parte
 

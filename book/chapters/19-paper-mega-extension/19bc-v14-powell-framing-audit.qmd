@@ -66,7 +66,7 @@ qué métrica afecta, qué incertidumbre enfrenta y qué claim puede sostener.
 
 ::: {.callout-warning}
 V14 mantiene el champion de trabajo `v13_fvi_return_recovery`, pero lo deja con
-calificadores más estrictos. No toca el Paper Estrella, no crea promoción final,
+calificadores más estrictos. No toca el CRPTO/Paper_CRPTO externo, no crea promoción final,
 no autoriza IFRS9 contractual, no autoriza CATE policy value y no autoriza
 fair-lending legal claims.
 :::

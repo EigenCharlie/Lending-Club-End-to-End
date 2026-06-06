@@ -220,7 +220,7 @@ probarse.
 ```text
 /goal Improve Paper 4 online conformal efficiency until the best deployable
 method reaches source-month defended coverage >= 0.80 and avg_width_loan <=
-0.95, without touching Paper Estrella artifacts. Validate with pytest
+0.95, without touching CRPTO/Paper_CRPTO externo artifacts. Validate with pytest
 tests/test_docs/test_paper4_living_lab_guardrails.py -k "not
 quarto_chapter_renders" -q and render chapters/19-paper-mega-extension.
 ```
@@ -263,7 +263,7 @@ decisión humana explícita.
 El primer `/goal` online fue ejecutado como ola v9. La página
 `19av-v9-online-goal-resolution.qmd` documenta el resultado: el gate explícito
 queda resuelto en replay con `source-month = 0.80`, `policy-month = 0.90` y
-`avg_width = 0.93424`, sin tocar Paper Estrella ni crear promoción final.
+`avg_width = 0.93424`, sin tocar CRPTO/Paper_CRPTO externo ni crear promoción final.
 :::
 
 ## Artifacts

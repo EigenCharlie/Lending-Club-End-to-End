@@ -50,7 +50,7 @@ La figura siguiente resume la arquitectura narrativa del paper, separando baseli
 
 ## Por qué este paper vale la pena
 
-No compite con el Paper Estrella, con IFRS9 E2E ni con Mondrian. Los complementa. Mientras esos papers responden preguntas metodológicas y prudenciales, `Paper GPU` responde una pregunta transversal de plataforma aplicada:
+No compite con el CRPTO/Paper_CRPTO, con IFRS9 E2E ni con Mondrian. Los complementa. Mientras esos papers responden preguntas metodológicas y prudenciales, `Paper GPU` responde una pregunta transversal de plataforma aplicada:
 
 - dónde conviene acelerar;
 - dónde no conviene;

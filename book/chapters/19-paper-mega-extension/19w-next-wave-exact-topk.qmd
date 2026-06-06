@@ -56,7 +56,7 @@ idéntica.
 ## Sigue sin promoción
 
 Este resultado elimina un caveat importante, pero no crea
-`paper4_final_promotion.json`. El Paper Estrella sigue protegido; Paper 4 solo
+`paper4_final_promotion.json`. El CRPTO/Paper_CRPTO externo sigue protegido; Paper 4 solo
 gana evidencia exacta para experimentar.
 :::
 

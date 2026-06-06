@@ -122,7 +122,7 @@ obligar al selector a explicar trade-offs.
 
 ```{python}
 #| label: tbl-paper4-v5-sample-path-ci
-#| tbl-cap: "Sample paths v5: diferencias pareadas contra Paper Estrella congelado"
+#| tbl-cap: "Sample paths v5: diferencias pareadas contra CRPTO/Paper_CRPTO externo congelado"
 
 _cols(
     paths.sort_values(["scenario", "prob_beats_paper1"], ascending=[True, False]),

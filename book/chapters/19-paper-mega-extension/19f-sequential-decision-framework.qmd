@@ -34,7 +34,7 @@ La pieza que sobrevive al cierre del loop no es otro builder ni otra cola de
 aprobacion: es el contrato conceptual. SDAM/Powell queda como lenguaje para
 ordenar el problema:
 
-- CRPTO/Paper Estrella se lee como una politica CFA parametrica: resuelve un LP
+- CRPTO/Paper_CRPTO se lee como una politica CFA parametrica: resuelve un LP
   simplificado cuyo parametro conformal tiene semantica estadistica.
 - Paper 4 usa el mismo lenguaje para separar `S_t`, `x_t`, `W_{t+1}` y
   transiciones, pero no afirma Bellman optimality ni DLA productiva.
@@ -43,6 +43,6 @@ ordenar el problema:
 - Todo claim que no pueda mapearse a estado, decision, informacion, transicion,
   costo o clase de politica queda como future work.
 
-Esta frontera es lo suficientemente fuerte para entrar al Paper Estrella como
+Esta frontera es lo suficientemente fuerte para entrar al CRPTO/Paper_CRPTO como
 framing teorico y lo suficientemente humilde para no vender Paper 4 como sistema
 secuencial completo.

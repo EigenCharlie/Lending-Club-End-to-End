@@ -1,74 +1,48 @@
+"""Guardrails for the retired local CRPTO mini-book surface."""
+
+from __future__ import annotations
+
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-CRPTO_BOOK = REPO_ROOT / "papers" / "paper_crpto_book"
+EXTERNAL_CRPTO = Path("/mnt/c/Users/carlos/Documents/Paper_CRPTO")
+RETIREMENT_MEMO = REPO_ROOT / "docs/research/crpto_retirement_and_paper4_role_2026-06-06.md"
 
 
-def test_paper_crpto_book_scaffold_exists_and_names_public_surface() -> None:
-    required = [
-        "_quarto.yml",
-        "index.qmd",
-        "chapters/01-ijds-target-and-claim.qmd",
-        "chapters/02-book-to-crpto-intake.qmd",
-        "chapters/03-manuscript-body.qmd",
-        "chapters/04-online-supplement.qmd",
-        "chapters/05-thesis-chapter.qmd",
-        "chapters/06-open-boundaries.qmd",
-        "chapters/07-project-expansion-map.qmd",
-        "chapters/08-roadmap-and-gates.qmd",
-        "references.qmd",
+def test_local_crpto_mini_book_surface_is_retired() -> None:
+    retired_paths = [
+        REPO_ROOT / "papers/paper_crpto_book",
+        REPO_ROOT / "papers/paper1_estrella",
+        REPO_ROOT / "book/chapters/14-paper-estrella",
     ]
+    for path in retired_paths:
+        assert not path.exists(), f"Retired CRPTO surface still exists: {path}"
 
+    quarto_config = (REPO_ROOT / "book/_quarto.yml").read_text(encoding="utf-8")
+    assert "paper_crpto_book" not in quarto_config
+    assert "paper1_estrella" not in quarto_config
+    assert "14-paper-estrella" not in quarto_config
+
+
+def test_external_crpto_source_of_truth_has_required_surfaces() -> None:
+    required = [
+        "book/_quarto.yml",
+        "paper/CRPTO_ijds.qmd",
+        "paper/supplement_ijds.qmd",
+        "docs/research/papers_tesis_deep_audit_2026-06-06.md",
+        "reports/crpto/literature/papers_tesis_source_matrix_2026-06-06.csv",
+        "reports/crpto/literature/papers_tesis_figure_caption_index_2026-06-06.csv",
+        "reports/crpto/literature/papers_tesis_curated_visual_sinks_2026-06-06.csv",
+        "scripts/build_papers_tesis_deep_audit.py",
+    ]
     for rel in required:
-        assert (CRPTO_BOOK / rel).exists(), f"Missing Paper CRPTO file: {rel}"
-
-    index_text = (CRPTO_BOOK / "index.qmd").read_text(encoding="utf-8")
-    target_text = (CRPTO_BOOK / "chapters/01-ijds-target-and-claim.qmd").read_text(encoding="utf-8")
-    body_text = (CRPTO_BOOK / "chapters/03-manuscript-body.qmd").read_text(encoding="utf-8")
-    supplement_text = (CRPTO_BOOK / "chapters/04-online-supplement.qmd").read_text(encoding="utf-8")
-
-    assert "Paper CRPTO" in index_text
-    assert "Paper Estrella` queda como alias interno histórico" in index_text
-    assert "INFORMS Journal on Data Science" in target_text
-    assert "25 páginas" in target_text
-    assert "Page budget inicial" in body_text
-    assert "Checklist de release doble anónimo" in supplement_text
+        assert (EXTERNAL_CRPTO / rel).exists(), f"Missing external CRPTO source: {rel}"
 
 
-def test_paper_crpto_book_records_expansion_roadmap() -> None:
-    config_text = (CRPTO_BOOK / "_quarto.yml").read_text(encoding="utf-8")
-    expansion_text = (CRPTO_BOOK / "chapters/07-project-expansion-map.qmd").read_text(
-        encoding="utf-8"
-    )
-    roadmap_text = (CRPTO_BOOK / "chapters/08-roadmap-and-gates.qmd").read_text(encoding="utf-8")
+def test_retirement_memo_sets_boundary_for_paper4() -> None:
+    text = RETIREMENT_MEMO.read_text(encoding="utf-8")
 
-    assert "chapters/07-project-expansion-map.qmd" in config_text
-    assert "chapters/08-roadmap-and-gates.qmd" in config_text
-    assert "Evidence spine claim -> artifact -> test" in expansion_text
-    assert "Paper 4 living lab" in expansion_text
-    assert "Roadmap IJDS: 6 meses" in roadmap_text
-    assert "Roadmap tesis: 12 meses" in roadmap_text
-    assert "Reviewer-defense bank inicial" in roadmap_text
-    assert "Promotion gate" in roadmap_text
-
-
-def test_crpto_audit_records_book_to_paper_decisions() -> None:
-    audit = REPO_ROOT / "docs" / "research" / "quarto_book_crpto_full_audit_2026-05-21.md"
-    text = audit.read_text(encoding="utf-8")
-
-    assert "Paper CRPTO mini-book" in text
-    assert "Must enter IJDS body" in text
-    assert "Must enter IJDS supplement" in text
-    assert "Must enter thesis chapter" in text
-    assert "No LinkedIn-only claim is promoted as public evidence" in text
-
-
-def test_crpto_expansion_audit_records_new_editorial_controls() -> None:
-    audit = REPO_ROOT / "docs" / "research" / "crpto_mini_book_expansion_audit_2026-05-21.md"
-    text = audit.read_text(encoding="utf-8")
-
-    assert "IJDS paper" in text
-    assert "master's thesis" in text
-    assert "evidence spine" in text
-    assert "page-budget ledger" in text
-    assert "negative-results registry" in text
+    assert "fuente de verdad para CRPTO" in text
+    assert "Paper 4 queda como living lab" in text
+    assert "No se reabre el champion CRPTO desde este repo" in text
+    assert "No reconstruir `book/chapters/14-paper-estrella`" in text

@@ -39,7 +39,7 @@ La comparación no pretende afirmar que CP domina cualquier enfoque bayesiano en
 
 Este capítulo justifica dos movimientos posteriores:
 
-- en el Paper Estrella, tratar el intervalo conformal como *uncertainty set* operativo;
+- en el CRPTO/Paper_CRPTO, tratar el intervalo conformal como *uncertainty set* operativo;
 - en IFRS9, usar el ancho conformal como señal complementaria de prudencia y SICR.
 
 ### Limitación y extensiones naturales
@@ -50,6 +50,6 @@ El trade-off actual no se interpreta ya como "usar grade porque sí". La lectura
 
 ### Evidencia de Publicación
 
-La @fig-estrella-uncertainty-baselines presenta la comparación con el formato y nivel de detalle utilizado en el Paper Estrella (@sec-estrella-results). Esta figura resume las tres dimensiones del trade-off (cobertura global, ancho medio, cobertura mínima por grupo) en un solo panel, facilitando la lectura comparativa para revisores de journals.
+La @fig`Paper_CRPTO` presenta la comparación con el formato y nivel de detalle utilizado en el CRPTO/Paper_CRPTO (@sec`Paper_CRPTO`). Esta figura resume las tres dimensiones del trade-off (cobertura global, ancho medio, cobertura mínima por grupo) en un solo panel, facilitando la lectura comparativa para revisores de journals.
 
-![Comparación publication-quality de baselines de incertidumbre: CP Mondrian vs BMA vs Bootstrap, evaluados sobre 276K préstamos OOT.](../../assets/figures/publication/estrella_fig7_uncertainty_baselines.png){#fig-estrella-uncertainty-baselines fig-alt="Figura de publicación comparando cobertura, ancho y cobertura mínima entre métodos de incertidumbre."}
+![Comparación publication-quality de baselines de incertidumbre: CP Mondrian vs BMA vs Bootstrap, evaluados sobre 276K préstamos OOT.](../../assets/figures/publication/estrella_fig7_uncertainty_baselines.png){#fig`Paper_CRPTO` fig-alt="Figura de publicación comparando cobertura, ancho y cobertura mínima entre métodos de incertidumbre."}

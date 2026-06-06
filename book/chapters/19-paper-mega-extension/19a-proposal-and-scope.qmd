@@ -11,7 +11,7 @@ La pregunta es como elegir, evaluar y auditar politicas bajo incertidumbre,
 cola, cobertura conformal, provision proxy, fuentes debiles y decisiones
 repetidas.
 
-El Paper Estrella sigue siendo la base solida y la referencia oficial. Paper 4
+El CRPTO/Paper_CRPTO sigue siendo la base solida y la referencia oficial. Paper 4
 consume esa base, pero no la reemplaza automaticamente. Su valor academico esta
 en convertir CRPTO en un laboratorio de decision analytics: policies, states,
 uncertainty, sample paths, gates y claim boundaries.
@@ -22,7 +22,7 @@ La tesis defendible no es que Paper 4 ya tiene un nuevo champion final. La tesis
 defendible es que el proyecto ya tiene una arquitectura reproducible para
 comparar familias de politicas bajo gobernanza secuencial:
 
-- CRPTO/Paper Estrella como referencia economica.
+- CRPTO/Paper_CRPTO como referencia economica.
 - CVaR/OCE como challenger de cola.
 - Online conformal y MDCP como gobernanza de cobertura.
 - IFRS9/SICR como proxy prudencial, no contractual.

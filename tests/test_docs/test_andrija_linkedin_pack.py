@@ -6,8 +6,9 @@ PACK_DIR = REPO_ROOT / "reports" / "linkedin_credit_risk_andrija_djurovic"
 DATA_DIR = PACK_DIR / "data"
 LOGGED_DIR = PACK_DIR / "logged_in_review"
 LOGGED_DATA_DIR = LOGGED_DIR / "data"
-CRPTO_BOOK = REPO_ROOT / "papers" / "paper_crpto_book"
 BIG_BOOK = REPO_ROOT / "book"
+EXTERNAL_CRPTO = Path("/mnt/c/Users/carlos/Documents/Paper_CRPTO")
+RETIREMENT_MEMO = REPO_ROOT / "docs" / "research" / "crpto_retirement_and_paper4_role_2026-06-06.md"
 
 
 def _read_csv(path: Path) -> list[dict[str, str]]:
@@ -92,23 +93,22 @@ def test_andrija_topic_atlas_and_claim_map_are_governed() -> None:
 
 
 def test_andrija_intake_is_reflected_in_crpto_book_and_research_memo() -> None:
-    intake = (CRPTO_BOOK / "chapters" / "02-book-to-crpto-intake.qmd").read_text(encoding="utf-8")
-    expansion = (CRPTO_BOOK / "chapters" / "07-project-expansion-map.qmd").read_text(
+    decisions = (PACK_DIR / "docs" / "andrija_project_intake_decisions_2026-05-25.md").read_text(
         encoding="utf-8"
     )
-    roadmap = (CRPTO_BOOK / "chapters" / "08-roadmap-and-gates.qmd").read_text(encoding="utf-8")
     memo = (
         REPO_ROOT / "docs" / "research" / "linkedin_backlog_paper4_estrella_intake_2026-05-21.md"
     ).read_text(encoding="utf-8")
+    retirement = RETIREMENT_MEMO.read_text(encoding="utf-8")
 
-    assert "Andrija Djurovic/ADSFCR" in intake
-    assert "Multi-period PD testing caveat" in intake
-    assert "WOE encoding instability" in intake
-    assert "Monotonic binning tooling" in intake
-    assert "Andrija/ADSFCR como capa de validación IRB" in expansion
-    assert "¿La validación PD se está tratando como clasificación?" in roadmap
+    assert "PD backtesting multi-period average testing" in decisions
+    assert "WoE encoding instability" in decisions
+    assert "Monotonic binning tooling" in decisions
+    assert "Paper CRPTO reviewer-defense" in decisions
     assert "Andrija Djurovic / ADSFCR Addendum" in memo
     assert "58 external links" in memo
+    assert "fuente de verdad para CRPTO" in retirement
+    assert (EXTERNAL_CRPTO / "book/_quarto.yml").exists()
 
 
 def test_andrija_logged_in_opera_pass_is_closed_and_curated() -> None:
@@ -152,25 +152,20 @@ def test_andrija_logged_in_findings_are_reflected_in_crpto_book() -> None:
     iv_memo = (LOGGED_DIR / "docs" / "iv_hypothesis_testing_source_memo_2026-05-25.md").read_text(
         encoding="utf-8"
     )
-    intake = (CRPTO_BOOK / "chapters" / "02-book-to-crpto-intake.qmd").read_text(encoding="utf-8")
-    expansion = (CRPTO_BOOK / "chapters" / "07-project-expansion-map.qmd").read_text(
-        encoding="utf-8"
-    )
-    roadmap = (CRPTO_BOOK / "chapters" / "08-roadmap-and-gates.qmd").read_text(encoding="utf-8")
     memo = (
         REPO_ROOT / "docs" / "research" / "linkedin_backlog_paper4_estrella_intake_2026-05-21.md"
     ).read_text(encoding="utf-8")
+    retirement = RETIREMENT_MEMO.read_text(encoding="utf-8")
 
     assert "Opera GX / Windows Playwright" in findings
     assert "Visible comments captured: 121" in findings
     assert "J-Divergence" in iv_memo
     assert "preprint_not_peer_reviewed" in findings
     assert "promote_to_crpto_metric_governance" in decisions
-    assert "IV hypothesis testing" in intake
-    assert "Dependence-aware PD validation" in intake
-    assert "Andrija logged-in como capa de heurísticas bajo incertidumbre" in expansion
-    assert "Los umbrales IV/PSI/correlación prueban calidad del modelo" in roadmap
+    assert "Information Value" in iv_memo
+    assert "promote_pd_backtesting_dependence_caveat" in decisions
     assert "Andrija Logged-In P0/P1 Addendum" in memo
+    assert "No reconstruir `book/chapters/14-paper-estrella`" in retirement
 
 
 def test_andrija_logged_in_findings_are_propagated_to_main_book() -> None:
@@ -183,9 +178,7 @@ def test_andrija_logged_in_findings_are_propagated_to_main_book() -> None:
     mrm = (
         BIG_BOOK / "chapters" / "10-ifrs9-governance" / "10e-model-risk-management.qmd"
     ).read_text(encoding="utf-8")
-    paper = (BIG_BOOK / "chapters" / "14-paper-estrella" / "14c-methodology.qmd").read_text(
-        encoding="utf-8"
-    )
+    retirement = RETIREMENT_MEMO.read_text(encoding="utf-8")
     thesis = (
         BIG_BOOK / "chapters" / "18-research-agenda" / "18b-thesis-contributions.qmd"
     ).read_text(encoding="utf-8")
@@ -196,7 +189,7 @@ def test_andrija_logged_in_findings_are_propagated_to_main_book() -> None:
     assert "tamaño efectivo de muestra" in backtesting
     assert "segment.vld" in mrm
     assert "umbral heredado" in mrm
-    assert "no sobreprometer ante IJDS" in paper
+    assert "fuente de verdad para CRPTO" in retirement
     assert "Gobernanza de heuristicas crediticias" in thesis
     assert "rojas2026_iv_hypothesis_testing" in references
     assert "djurovic2026_pdtoolkit" in references

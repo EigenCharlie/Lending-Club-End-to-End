@@ -42,7 +42,7 @@ Esta página responde el primer bloque de pendientes v4: si el challenger bruto
 exacto era una casualidad local, si online conformal podía arreglar el peor
 policy-month/source-month, y si MDCP podía convertirse en gate defendible.
 
-El Paper Estrella queda congelado. Aquí `paper1_economic_champion` solo es
+El CRPTO/Paper_CRPTO externo queda congelado. Aquí `paper1_economic_champion` solo es
 referencia. Paper 4 puede mover sus working candidates, pero no escribe ni
 reemplaza `models/final_project_promotion.json`.
 
@@ -54,7 +54,7 @@ reemplaza `models/final_project_promotion.json`.
 |---|---|
 | `paper4_challenger_local_search.csv` | grid exacto local de 100 policies alrededor de `uncertainty_aversion`, `gamma` y `risk_tolerance` |
 | `paper4_challenger_local_allocations.parquet` | funded sets exactos sobre pool local documentado |
-| `paper4_challenger_local_bootstrap.csv` | bootstrap mensual contra el Paper Estrella congelado |
+| `paper4_challenger_local_bootstrap.csv` | bootstrap mensual contra el CRPTO/Paper_CRPTO externo congelado |
 | `paper4_online_conformal_v4_method_summary.csv` | comparación ACI/local, Mondrian shrinkage, pooling y source-aware guarded |
 | `paper4_online_conformal_v4_policy_month.parquet` | cobertura por policy-month |
 | `paper4_online_conformal_v4_source_month.parquet` | cobertura por source-month |
@@ -94,7 +94,7 @@ _cols(
 ```
 
 El mejor bruto es `paper4_v4_local_rt0p1700_g0p425_u0p050`: retorno proxy
-178,048.10 y delta de 4,718.44 frente al champion congelado del Paper Estrella.
+178,048.10 y delta de 4,718.44 frente al champion congelado del CRPTO/Paper_CRPTO externo.
 Eso confirma que el challenger exacto anterior no era un punto aislado; hay una
 vecindad local donde bajar o modular la aversión a incertidumbre aumenta retorno
 bruto.
@@ -159,7 +159,7 @@ bruto pero mantienen peor source defendible.
 
 ## Interpretación
 
-La búsqueda local sí genera candidates más rentables que el Paper Estrella
+La búsqueda local sí genera candidates más rentables que el CRPTO/Paper_CRPTO externo
 congelado. Pero el filtro de cobertura revela por qué no basta con retorno:
 los candidates más agresivos concentran fragilidad en sources pequeñas o
 intersecciones difíciles.

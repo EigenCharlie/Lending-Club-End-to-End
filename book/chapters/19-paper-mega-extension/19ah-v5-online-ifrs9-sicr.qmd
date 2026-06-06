@@ -49,7 +49,7 @@ no es promover un champion final. El objetivo es dejar un estado auditable del
 laboratorio: qué pasó, qué artifact lo prueba, qué caveat lo limita y qué
 decisión queda abierta.
 
-El Paper Estrella sigue congelado. La v5 solo produce evidencia interna de
+El CRPTO/Paper_CRPTO externo sigue congelado. La v5 solo produce evidencia interna de
 Paper 4 y mantiene `paper4_final_promotion_created = False`.
 
 ## Artefactos
