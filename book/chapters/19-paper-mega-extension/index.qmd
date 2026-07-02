@@ -47,11 +47,11 @@ tesis oficial de Paper 4.
 | finding_id | finding | status | quarto_page |
 | --- | --- | --- | --- |
 | F01 | Paper 4 is now a reproducible sequential-decision living lab, not a final promotion protocol. | official | index.qmd |
-| F02 | CRPTO/Paper_CRPTO remains the official project champion after the v31-v38 audit. | official | 19ca-v38-final-synthesis.qmd |
+| F02 | CRPTO/Paper_CRPTO remains the external official champion surface after the pool93/A35--A39 IJDS closure; Paper 4 records context and does not replace it. | official | 19ca-v38-final-synthesis.qmd |
 | F03 | Dynamic stress replay reached 512 common paths and 494592 trace rows. | official | 19t-multi-period-solver.qmd |
 | F04 | The strongest CVaR challenger reduced tail loss but did not beat paired wealth robustly; prob beat reference = 0.4765625. | official | 19i-regret-auditability-frontier.qmd |
 | F05 | Online conformal passed the nominal v10 gate but v35 strict holdouts did not survive universally; online_gate_survives_v35 = False. | official_with_caveat | 19n-online-mdcp-fairness.qmd |
-| F06 | SPO/DFL has an oracle-regret/surrogate lane, while differentiable SPO remains isolated-prototype only. | isolated_prototype | 19t-multi-period-solver.qmd |
+| F06 | SPO/DFL now has a formal PyEPO 1.3.7 top-k laboratory suite for Paper 4, while CRPTO/Paper_CRPTO keeps SPO+ only as an appendix comparator. | append | 19cc-v39-pyepo-real-suite.qmd |
 | F07 | DLA/ADP has a formal state/transition framing and failure analysis, but not exact Bellman optimality. | rollout_only | 19t-multi-period-solver.qmd |
 | F08 | IFRS9 is supported as an ECL/SICR-inspired proxy lane with one raw-enriched diagnostic available. | bounded_experiment | 19b-current-assets-and-gaps.qmd |
 | F09 | CATE policy value remains blocked, but a high-rate-within-grade diagnostic can be audited. | diagnostic_only | 19b-current-assets-and-gaps.qmd |
@@ -60,7 +60,7 @@ tesis oficial de Paper 4.
 | F12 | Literature-driven Lab 4 pass closes lanes 1-9 as append, park or context-only evidence. | official_with_boundaries | 19ca-v38-final-synthesis.qmd |
 | F13 | Paper 4 absorbs the useful prudential value of Paper 2 as IFRS9-inspired proxy evidence. | official_with_boundary | 19ca-v38-final-synthesis.qmd |
 | F14 | Metric governance shows the calibrated champion materially improves over an origin-time FICO proxy on latest OOT scoring diagnostics. | append | 19cb-v38-appendix-registers.qmd |
-| F15 | PyEPO 1.3.7 now has a formal DFL suite lane for Paper 4, while CRPTO/Paper_CRPTO keeps SPO+ as an appendix comparator. | append_pending_run | 19cc-v39-pyepo-real-suite.qmd |
+| F15 | PyEPO 1.3.7 now has a formal DFL suite lane for Paper 4, while CRPTO/Paper_CRPTO keeps SPO+ as an appendix comparator. | append | 19cc-v39-pyepo-real-suite.qmd |
 
 ## Como leer ahora el capitulo
 
@@ -81,8 +81,10 @@ tesis oficial de Paper 4.
 La decision post-cierre es tratar Paper 4 como un paper de metodologia y
 gobernanza de investigacion: como definir, auditar y frenar un laboratorio de
 sequential credit decision analytics. No compite con CRPTO/Paper_CRPTO como
-champion empirico. Su aporte es mostrar una superficie reproducible de claims,
-evidencia, bloqueos, source governance, stress dinamico y stop rules.
+champion empirico; despues del cierre pool93, Paper 4 solo registra que el
+champion vive en la superficie autocontenida de CRPTO. Su aporte es mostrar una
+superficie reproducible de claims, evidencia, bloqueos, source governance,
+stress dinamico y stop rules.
 
 Para una ruta de publicacion futura, Paper 4 tambien absorbe el valor
 prudencial de Paper 2. Eso significa que ECL por escenarios, SICR conformal,

@@ -135,7 +135,7 @@ def test_paper4_deep_cleanup_manifest_and_absence() -> None:
 
 def test_paper4_current_boundaries_are_artifact_backed_after_cleanup() -> None:
     boundaries = _read_csv(TABLE_DIR / "paper4_current_claim_boundaries.csv")
-    assert len(boundaries) == 92
+    assert len(boundaries) == 93
 
     cleanup_claims = boundaries[boundaries["claim"].str.contains("deep cleanup", case=False)]
     assert len(cleanup_claims) == 2
@@ -151,10 +151,21 @@ def test_paper4_current_boundaries_are_artifact_backed_after_cleanup() -> None:
         assert path.exists(), artifact
 
     lab4_claims = boundaries[boundaries["evidence_artifact"].str.contains("paper4_lab4_", na=False)]
-    assert len(lab4_claims) == 9
+    assert len(lab4_claims) == 8
     assert {"append", "park"}.issubset(
         set(_read_csv(TABLE_DIR / "paper4_lab4_all_lane_summary_2026-05-18.csv")["decision"])
     )
+
+    pyepo_claims = boundaries[boundaries["claim"].str.contains("PyEPO|DFL", case=False)]
+    assert {
+        "Formal PyEPO DFL suite is implemented for the Paper 4 top-k laboratory.",
+        "PyEPO/DFL replaces the CRPTO/Paper_CRPTO champion.",
+    }.issubset(set(pyepo_claims["claim"]))
+    assert set(
+        pyepo_claims[
+            pyepo_claims["claim"].eq("PyEPO/DFL replaces the CRPTO/Paper_CRPTO champion.")
+        ]["allowed"]
+    ) == {False}
 
     paper2_absorption = boundaries[
         boundaries["evidence_artifact"].eq(
